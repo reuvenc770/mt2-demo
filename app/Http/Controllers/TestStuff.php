@@ -22,6 +22,6 @@ class TestStuff extends Controller{
     public function index(){
 
         echo "Im in the TestStuff Controller\n\n";
-        $this->blueHornetService->test();
+        $this->blueHornetService->retrieveMessageStats('2015-01-05');
     }
 }
