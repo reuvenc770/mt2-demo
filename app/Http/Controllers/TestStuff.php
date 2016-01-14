@@ -8,7 +8,7 @@
 
 namespace App\Http\Controllers;
 use App\Services\BlueHornetService;
-
+use App\Jobs\RetreiveBlueHornetReports;
 class TestStuff extends Controller{
 
     protected $blueHornetService;
@@ -22,6 +22,7 @@ class TestStuff extends Controller{
     public function index(){
 
         echo "Im in the TestStuff Controller\n\n";
-        $this->blueHornetService->retrieveMessageStats('2015-01-05');
+        //$this->blueHornetService->retrieveReportStats('2015-01-05');
+        $this->dispatch(new RetreiveBlueHornetReports(null,'2015-01-05'));
     }
 }

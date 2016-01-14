@@ -9,8 +9,10 @@
 namespace App\Services;
 use App\Repositories\ReportsRepo;
 use SimpleXMLElement;
-
-
+use Guzzle;
+//TODO strip out api call into own method
+//TODO Create Save Record method
+//TODO Create JOB
 class BlueHornetService
 {
     CONST API_URL = "https://echo.bluehornet.com/api/xmlrpc/index.php";
@@ -46,19 +48,24 @@ class BlueHornetService
         return $xml->asXML();
     }
 
-    public function retrieveMessageStats($date)
+    public function retrieveReportStats($date)
     {
         $methodData = array(
             "date" => $date
         );
         $xml = $this->buildRequest('legacy.message_stats', $methodData);
-        $repsonse = Guzzle::request('POST',self::API_URL, [
+        $response = $this->sendAPIRequest($xml);
+
+        return $response->getBody()->__toString();
+    }
+
+
+    private function sendAPIRequest($data) {
+       return Guzzle::request('POST',self::API_URL, [
             'form_params' => [
-                'data' => $xml,
+                'data' => $data,
             ]
         ]);
-
-        dd($repsonse->getBody()->__toString());
     }
 
 }
