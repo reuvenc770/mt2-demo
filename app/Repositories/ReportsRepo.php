@@ -8,15 +8,15 @@
 
 namespace App\Repositories;
 use App\Models\Report;
-
-class ReportsRepo
+use App\Models\Interfaces\IReport;
+class ReportsRepo implements  IReport
 {
     /**
      * @var Report
      */
     protected $report;
 
-    public function __construct(Report $report){
+    public function __construct(IReport $report){
         $this->report = $report;
     }
 
@@ -26,6 +26,11 @@ class ReportsRepo
 
     public function testModel(){
         echo $this->report->testModel();
+    }
+
+    public function insertRawStats()
+    {
+
     }
 
 
