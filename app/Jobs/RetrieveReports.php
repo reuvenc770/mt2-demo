@@ -36,6 +36,7 @@ class RetrieveReports extends Job implements ShouldQueue
     {
         $BHService = $APIFactory->createAPIReportService($this->name,$this->accountNumber);
         $xmlBody = $BHService->retrieveReportStats($this->date);
+        $BHService->insertRawStats($xmlBody);
 
 
 

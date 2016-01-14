@@ -9,8 +9,8 @@
 namespace App\Services\API;
 
 use SimpleXMLElement;
-use Guzzle;
-
+use App\Facades\Guzzle;
+use Illuminate\Support\Facades\Log;
 /**
  * Class BlueHornet
  * @package App\Services\API
@@ -60,5 +60,6 @@ class BlueHornet
                 'data' => $data,
             ]
         ]);
+
     }
 }

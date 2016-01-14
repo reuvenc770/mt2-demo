@@ -9,6 +9,8 @@
 namespace App\Repositories;
 use App\Models\Report;
 use App\Models\Interfaces\IReport;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 class ReportsRepo implements  IReport
 {
     /**
@@ -28,9 +30,11 @@ class ReportsRepo implements  IReport
         echo $this->report->testModel();
     }
 
-    public function insertRawStats()
+    public function insertRawStats($data)
     {
 
+        $this->report->create($data);
+        print_r(DB::getQueryLog());
     }
 
 
