@@ -52,7 +52,7 @@ class BaseAPI implements  IReportService
     }
 
     /**
-     * @param mixed $accountNumber
+     * @param mixed $accountName
      */
     public function setAccountName($accountName)
     {
