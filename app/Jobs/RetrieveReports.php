@@ -11,7 +11,7 @@ class RetrieveReports extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
-    protected $name;
+    protected $apiName;
     protected $accountNumber;
     protected $date;
     /**
@@ -20,9 +20,9 @@ class RetrieveReports extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($name, $accountNumber, $date)
+    public function __construct($apiName, $accountNumber, $date)
     {
-       $this->name = $name;
+       $this->apiName = $apiName;
        $this->accountNumber = $accountNumber;
        $this->date = $date;
     }
@@ -32,15 +32,10 @@ class RetrieveReports extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle(APIFactory $APIFactory)
+    public function handle()
     {
-        $BHService = $APIFactory->createAPIReportService($this->name,$this->accountNumber);
-        $xmlBody = $BHService->retrieveReportStats($this->date);
-        $BHService->insertRawStats($xmlBody);
-
-
-
-
-
+        $reportService = APIFactory::createAPIReportService($this->apiName,$this->accountNumber);
+        $xmlBody = $reportService->retrieveReportStats($this->date);
+        $reportService->insertRawStats($xmlBody);
     }
 }

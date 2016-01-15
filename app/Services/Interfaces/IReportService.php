@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: pcunningham
  * Date: 1/14/16
- * Time: 1:44 PM
+ * Time: 11:23 PM
  */
 
 namespace App\Services\Interfaces;
@@ -11,5 +11,6 @@ namespace App\Services\Interfaces;
 
 interface IReportService
 {
-   public function retrieveReportStats($date);
+    public function getApiName();
+    public function getAccountNumber();
 }

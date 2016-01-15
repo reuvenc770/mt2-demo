@@ -10,21 +10,24 @@ namespace App\Services\API;
 
 use SimpleXMLElement;
 use App\Facades\Guzzle;
-use Illuminate\Support\Facades\Log;
 /**
  * Class BlueHornet
  * @package App\Services\API
  */
-class BlueHornet
+class BlueHornet extends BaseAPI
 {
-    public function __construct()
+    CONST API_URL = "https://echo.bluehornet.com/api/xmlrpc/index.php";
+    private  $apiKey;
+    private  $sharedSecret;
+    public function __construct($name, $accountNumber)
     {
+        parent::__construct($name, $accountNumber);
+        //GRAB API CREDS FROM DATABASE BASED ON NAME AND ACCOUNT NUMBER
+        //Facade Method like Credentials::Retreive($name, $accountNumber);
         $this->apiKey = "ced21d9cfb0655eccf3946585d6b0fde";
         $this->sharedSecret = "bdc925fe6cbd7596dc2a5e71bc211caa";
 
     }
-
-    CONST API_URL = "https://echo.bluehornet.com/api/xmlrpc/index.php";
 
     /**
      * @param $methodName

@@ -20,6 +20,6 @@ class TestStuff extends Controller{
     public function index(){
 
         echo "Im in the TestStuff Controller\n\n";
-        $this->dispatch(new RetrieveReports("BlueHornet", null, '2015-01-05'));
+        $this->dispatch(new RetrieveReports("BlueHornet", "BH001", '2015-01-05'));
     }
 }
