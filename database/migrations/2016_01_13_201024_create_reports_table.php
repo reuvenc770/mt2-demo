@@ -12,8 +12,10 @@ class CreateReportsTable extends Migration
      */
     public function up()
     {
-        Schema::create('reports', function (Blueprint $table) {
+        Schema::create('standard_reports', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer("internal_id");
+            $table->string("account_name");
             $table->string('name');
             $table->string('subject');
             $table->integer('opens');

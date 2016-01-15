@@ -10,7 +10,6 @@ namespace App\Services;
 
 use App\Repositories\ReportRepo;
 use App\Services\Interfaces\IReportService;
-use Illuminate\Support\Facades\Log;
 
 class StandardReportService implements IReportService
 {
@@ -31,7 +30,7 @@ class StandardReportService implements IReportService
     /**
      * @return mixed
      */
-    public function getAccountNumber()
+    public function getAccountName()
     {
         return $this->accountNumber;
     }

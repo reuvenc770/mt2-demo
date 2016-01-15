@@ -14,7 +14,8 @@ class CreateBlueHornetReportsTable extends Migration
     {
         Schema::create('blue_hornet_reports', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer("message");
+            $table->string("account_name");
+            $table->integer("internal_id");
             $table->string("message_subject");
             $table->string("message_name", 100);
             $table->string("date_sent");

@@ -20,8 +20,8 @@ class ReportRepo
         $this->report = $report;
     }
 
-    public function insertStats($accountNumber, $data) {
-        $this->report->updateOrCreate(array("internal_id"=> $data["internal_id"]),$data);
+    public function insertStats($accountName, $data) {
+        $this->report->updateOrCreate(array("internal_id"=> $data["internal_id"], "account_name" => $accountName),$data);
     }
 
 }

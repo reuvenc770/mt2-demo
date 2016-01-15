@@ -7,23 +7,37 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Factories\APIFactory;
 
+/**
+ * Class RetrieveReports
+ * @package App\Jobs
+ */
 class RetrieveReports extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
-    protected $apiName;
-    protected $accountNumber;
-    protected $date;
     /**
-     * Create a new job instance.
-     * This is where we would inject account number
-     *
-     * @return void
+     * @var
      */
-    public function __construct($apiName, $accountNumber, $date)
+    protected $apiName;
+    /**
+     * @var
+     */
+    protected $accountName;
+    /**
+     * @var
+     */
+    protected $date;
+
+    /**
+     * RetrieveReports constructor.
+     * @param $apiName
+     * @param $accountName
+     * @param $date
+     */
+    public function __construct($apiName, $accountName, $date)
     {
        $this->apiName = $apiName;
-       $this->accountNumber = $accountNumber;
+       $this->accountName = $accountName;
        $this->date = $date;
     }
 
@@ -34,7 +48,7 @@ class RetrieveReports extends Job implements ShouldQueue
      */
     public function handle()
     {
-        $reportService = APIFactory::createAPIReportService($this->apiName,$this->accountNumber);
+        $reportService = APIFactory::createAPIReportService($this->apiName,$this->accountName);
         $xmlBody = $reportService->retrieveReportStats($this->date);
         $reportService->insertRawStats($xmlBody);
     }

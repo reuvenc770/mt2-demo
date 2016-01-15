@@ -36,9 +36,9 @@ class BlueHornetReportService extends BlueHornet implements IAPIReportService, I
      * @param ReportRepo $reportRepo
      * @param $accountNumber
      */
-    public function __construct(ReportRepo $reportRepo, $name, $accountNumber)
+    public function __construct(ReportRepo $reportRepo, $apiName, $accountNumber)
     {
-        parent::__construct($name, $accountNumber);
+        parent::__construct($apiName, $accountNumber);
         $this->reportRepo = $reportRepo;
     }
 
@@ -74,7 +74,7 @@ class BlueHornetReportService extends BlueHornet implements IAPIReportService, I
             $convertedReport = $this->mapToRawReport($report);
 
             try {
-                $this->reportRepo->insertStats($this->getAccountNumber(), $convertedReport);
+                $this->reportRepo->insertStats($this->getAccountName(), $convertedReport);
             } catch (Exception $e){
                 throw new \Exception($e->getMessage());
             }
@@ -82,12 +82,13 @@ class BlueHornetReportService extends BlueHornet implements IAPIReportService, I
             $arrayReportList[] = $convertedReport;
         }
 
-        Event::fire(new RawReportDataWasInserted($this->getApiName(),$this->getAccountNumber(), $arrayReportList));
+        Event::fire(new RawReportDataWasInserted($this->getApiName(),$this->getAccountName(), $arrayReportList));
     }
 
     public function mapToStandardReport($report){
         return array(
             "internal_id" => $report['internal_id'],
+            "account_name"=> $this->getAccountName(),
             "name" => $report['message_name'],
             "subject" => $report['message_subject'],
             "opens"   => $report['opened_total'],
@@ -98,6 +99,7 @@ class BlueHornetReportService extends BlueHornet implements IAPIReportService, I
     public function mapToRawReport($report){
         return array(
             "internal_id" => (string)$report['id'],
+            "account_name" => $this->getAccountName(),
             "message_subject" => (string)$report->message_subject,
             "message_name" => (string)$report->message_name,
             "date_sent" => (string)$report->date_sent,

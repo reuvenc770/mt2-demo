@@ -17,23 +17,14 @@ use App\Services\Interfaces\IReportService;
  */
 class BaseAPI implements  IReportService
 {
-    /**
-     * @var
-     */
+
     private $apiName;
-    /**
-     * @var
-     */
-    private $accountNumber;
-    /**
-     * BaseAPI constructor.
-     * @param $name
-     * @param $accountNumber
-     */
-    public function __construct($name, $accountNumber)
+    private $accountName;
+
+    public function __construct($name, $accountName)
     {
         $this->apiName = $name;
-        $this->accountNumber;
+        $this->accountName = $accountName;
     }
 
     /**
@@ -55,17 +46,17 @@ class BaseAPI implements  IReportService
     /**
      * @return mixed
      */
-    public function getAccountNumber()
+    public function getAccountName()
     {
-        return $this->accountNumber;
+        return $this->accountName;
     }
 
     /**
      * @param mixed $accountNumber
      */
-    public function setAccountNumber($accountNumber)
+    public function setAccountName($accountName)
     {
-        $this->accountNumber = $accountNumber;
+        $this->accountName = $accountName;
     }
 
 }
