@@ -8,7 +8,7 @@
 
 namespace App\Services\API;
 
-use App\Repositories\ESPAccountRepo;
+use App\Facades\EspAccount;
 use SimpleXMLElement;
 use App\Facades\Guzzle;
 /**
@@ -23,7 +23,7 @@ class BlueHornet extends BaseAPI
     public function __construct($name, $accountNumber)
     {
         parent::__construct($name, $accountNumber);
-        $creds = ESPAccountRepo::getAPICreds($accountNumber);
+        $creds = EspAccount::grabApiKeyWithSecret($accountNumber);
         $this->apiKey = $creds['apiKey'];
         $this->sharedSecret = $creds['sharedSecret'];
 

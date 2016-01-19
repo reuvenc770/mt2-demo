@@ -50,17 +50,10 @@ class ESPAccountRepo
 
     }
 
+    public function getAPICredsByNumber($accountNumber){
 
-    public static function getAPICreds($accountNumber){
-
-        $espDetails = DB::table('esp_accounts')
+        return$espDetails = $this->espAccount
             ->where('account_number',$accountNumber)
-            ->limit(1)
             ->first();
-        return array(
-            "apiKey"        => $espDetails->key_1,
-            "sharedSecret"  => $espDetails->key_2
-
-        );
     }
 }
