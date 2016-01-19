@@ -7,7 +7,7 @@
  */
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\DB;
 use App\Jobs\RetrieveReports;
 class TestStuff extends Controller{
 
@@ -20,6 +20,10 @@ class TestStuff extends Controller{
     public function index(){
 
         echo "Im in the TestStuff Controller\n\n";
+        $espDetails = DB::table('esp_accounts')
+            ->where('account_number',"BH001")
+            ->first();
         $this->dispatch(new RetrieveReports("BlueHornet", "BH001", '2015-01-05'));
+        dd("fuck");
     }
 }

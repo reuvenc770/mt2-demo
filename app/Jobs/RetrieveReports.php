@@ -6,6 +6,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Factories\APIFactory;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class RetrieveReports
