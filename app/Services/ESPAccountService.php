@@ -46,6 +46,14 @@ class ESPAccountService
         );
     }
 
+    public function grabApiKey($account_number)
+    {
+        $espDetails = $this->espRepo->getAPICredsByNumber($account_number);
+        return array(
+            "apiKey"        => $espDetails['key_1']
+        );
+    }
+
     public function grabApiUsernameWithPassword($account_number)
     {
         $espDetails = $this->espRepo->getAPICredsByNumber($account_number);
