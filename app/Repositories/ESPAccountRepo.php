@@ -50,10 +50,11 @@ class ESPAccountRepo
 
     }
 
-    public function getAPICredsByNumber($accountNumber){
+    public function getAccountByNumber($accountNumber){
 
-        return$espDetails = $this->espAccount
+        return $this->espAccount
             ->where('account_number',$accountNumber)
             ->first();
     }
+
 }

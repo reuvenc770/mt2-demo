@@ -47,7 +47,7 @@ class BlueHornetReportService extends BlueHornet implements IAPIReportService, I
      * @return \SimpleXMLElement
      * @throws \Exception
      */
-    public function retrieveReportStats($date)
+    public function retrieveAPIReportStats($date)
     {
         $methodData = array(
             "date" => $date
@@ -60,12 +60,12 @@ class BlueHornetReportService extends BlueHornet implements IAPIReportService, I
             throw new Exception($e->getMessage());
         }
         if ($xmlBody->item->responseCode != 201) {
-            throw new \Exception("shit didnt work");
+            throw new \Exception($xmlBody->asXML());
         }
         return $xmlBody;
     }
 
-    public function insertRawStats($xmlData)
+    public function insertAPIRawStats($xmlData)
     {
         $arrayReportList = array();
         $reports = $xmlData->item->responseData->message_data;
@@ -84,7 +84,24 @@ class BlueHornetReportService extends BlueHornet implements IAPIReportService, I
 
         Event::fire(new RawReportDataWasInserted($this->getApiName(),$this->getAccountName(), $arrayReportList));
     }
-    //we should make a function to return what a standard report is
+
+    public function insertCSVRawStats($reports){
+
+        foreach ($reports as $report) {
+
+            try {
+                $this->reportRepo->insertStats($this->getAccountName(), $report);
+            } catch (Exception $e){
+                throw new \Exception($e->getMessage());
+            }
+
+            $arrayReportList[] = $report;
+        }
+
+        Event::fire(new RawReportDataWasInserted($this->getApiName(),$this->getAccountName(), $arrayReportList));
+    }
+
+>>>>>>> init commit
     public function mapToStandardReport($report){
         return array(
             "internal_id" => $report['internal_id'],

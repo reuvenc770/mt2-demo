@@ -6,9 +6,9 @@ use App\Factories\APIFactory;
 use App\Repositories\ESPAccountRepo;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use App\Jobs\RetrieveReports;
+use App\Jobs\RetrieveCsvReports;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-class GrabESPStats extends Command
+class GrabCSVESPStats extends Command
 {
     use DispatchesJobs;
     /**
@@ -16,7 +16,7 @@ class GrabESPStats extends Command
      *
      * @var string
      */
-    protected $signature = 'reports:downloadESP {espName}';
+    protected $signature = 'reports:downloadCSV {espName}';
     protected $factory;
     protected $espRepo;
 
@@ -51,7 +51,7 @@ class GrabESPStats extends Command
         foreach ($espAccounts as $accounts){
             $espLogLine = "{$espName}::{$accounts->account_number}";
             $this->info($espLogLine);
-            $this->dispatch(new RetrieveReports($espName, $accounts->account_number, $date));
+            $this->dispatch(new RetrieveCsvReports($espName, $accounts->account_number));
         }
     }
 }

@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
  * Class RetrieveReports
  * @package App\Jobs
  */
-class RetrieveReports extends Job implements ShouldQueue
+class RetrieveAPIReports extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
