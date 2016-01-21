@@ -56,7 +56,7 @@ class BlueHornet extends BaseAPI
      * @param $data
      * @return mixed
      */
-    protected function sendAPIRequest($data)
+    protected function sendApiRequest($data)
     {
         return Guzzle::request('POST', self::API_URL, [
             'form_params' => [

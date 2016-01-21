@@ -9,7 +9,7 @@
 namespace App\Services;
 
 
-use App\Repositories\ESPAccountRepo;
+use App\Repositories\EspAccountRepo;
 use League\Csv\Reader;
 /**
  * Class ESPAccountService
@@ -18,15 +18,15 @@ use League\Csv\Reader;
 class ESPAccountService
 {
     /**
-     * @var ESPAccountRepo
+     * @var EspAccountRepo
      */
     protected $espRepo;
 
     /**
      * ESPAccountService constructor.
-     * @param ESPAccountRepo $espRepo
+     * @param EspAccountRepo $espRepo
      */
-    public function __construct(ESPAccountRepo $espRepo)
+    public function __construct(EspAccountRepo $espRepo)
     {
         $this->espRepo = $espRepo;
     }
@@ -73,7 +73,7 @@ class ESPAccountService
         );
     }
 
-    public function mapCSVtoRawStatsArray($accountNumber,$filePath = null){
+    public function mapCsvToRawStatsArray($accountNumber,$filePath = null){
         $returnArray = array();
         $mappings = $this->grabCsvMappings($accountNumber);
         $reader = Reader::createFromPath(storage_path().'/app/test.csv');

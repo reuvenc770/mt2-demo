@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Providers;
-use App\Repositories\ESPAccountRepo;
+use App\Repositories\EspAccountRepo;
 use App\Services\ESPAccountService;
 use Illuminate\Support\Facades\App;
 
@@ -28,7 +28,7 @@ class ESPAccountProvider extends ServiceProvider
     {
         App::bind('espAccount', function()
         {
-            return new ESPAccountService(new ESPAccountRepo(new EspAccount()));
+            return new ESPAccountService(new EspAccountRepo(new EspAccount()));
         });
 
     }

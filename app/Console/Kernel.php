@@ -14,8 +14,8 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         Commands\Inspire::class,
-        Commands\GrabAPIESPStats::class,
-        Commands\GrabCSVESPStats::class,
+        Commands\GrabApiEspReports::class,
+        Commands\GrabEspCsvReports::class,
     ];
 
     /**

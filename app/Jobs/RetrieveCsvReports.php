@@ -41,8 +41,8 @@ class RetrieveCsvReports extends Job implements ShouldQueue
      */
     public function handle()
     {
-        $reportService = APIFactory::createAPIReportService($this->apiName,$this->accountName);
-        $reportArray = EspAccount::mapCSVtoRawStatsArray($this->accountName);
-        $reportService->insertCSVRawStats($reportArray);
+        $reportService = APIFactory::createApiIeportService($this->apiName,$this->accountName);
+        $reportArray = EspAccount::mapCsvToRawStatsArray($this->accountName);
+        $reportService->insertCsvRawStats($reportArray);
     }
 }
