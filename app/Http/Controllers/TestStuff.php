@@ -7,8 +7,9 @@
  */
 
 namespace App\Http\Controllers;
-use Illuminate\Support\Facades\DB;
-use App\Jobs\RetrieveReports;
+use App\Facades\EspAccount;
+use League\Csv\Reader;
+use Illuminate\Support\Facades\Storage;
 class TestStuff extends Controller{
 
     protected $apiFactory;
@@ -20,10 +21,13 @@ class TestStuff extends Controller{
     public function index(){
 
         echo "Im in the TestStuff Controller\n\n";
-        $espDetails = DB::table('esp_accounts')
-            ->where('account_number',"BH001")
-            ->first();
-        $this->dispatch(new RetrieveReports("BlueHornet", "BH001", '2015-01-05'));
-        dd("fuck");
+        $mappings = EspAccount::grabCsvMappings("BH001");
+
+        $reader = Reader::createFromPath(storage_path().'/app/test.csv');
+        $keys = $mappings['row_headers'];
+        $data = $reader->fetchAssoc($keys);
+        foreach ($data as $row) {
+            print_r($row);
+        }
     }
 }
