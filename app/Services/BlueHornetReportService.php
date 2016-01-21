@@ -47,14 +47,14 @@ class BlueHornetReportService extends BlueHornet implements IAPIReportService, I
      * @return \SimpleXMLElement
      * @throws \Exception
      */
-    public function retrieveAPIReportStats($date)
+    public function retrieveApiReportStats($date)
     {
         $methodData = array(
             "date" => $date
         );
         try {
             $xml = $this->buildRequest('legacy.message_stats', $methodData);
-            $response = $this->sendAPIRequest($xml);
+            $response = $this->sendApiRequest($xml);
             $xmlBody = simplexml_load_string($response->getBody()->__toString());
         } catch (Exception $e){
             throw new Exception($e->getMessage());
@@ -65,7 +65,7 @@ class BlueHornetReportService extends BlueHornet implements IAPIReportService, I
         return $xmlBody;
     }
 
-    public function insertAPIRawStats($xmlData)
+    public function insertApiRawStats($xmlData)
     {
         $arrayReportList = array();
         $reports = $xmlData->item->responseData->message_data;
@@ -85,8 +85,8 @@ class BlueHornetReportService extends BlueHornet implements IAPIReportService, I
         Event::fire(new RawReportDataWasInserted($this->getApiName(),$this->getAccountName(), $arrayReportList));
     }
 
-    public function insertCSVRawStats($reports){
-
+    public function insertCsvRawStats($reports){
+        $arrayReportList = array();
         foreach ($reports as $report) {
 
             try {

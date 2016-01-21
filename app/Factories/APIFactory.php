@@ -23,7 +23,7 @@ class APIFactory
      * @return mixed
      * @throws \Exception
      */
-    public static function createAPIReportService($apiName, $accountNumber)
+    public static function createApiReportService($apiName, $accountNumber)
     {
         $reportName = "{$apiName}Report";
         $reportModelName = "App\\Models\\{$reportName}";

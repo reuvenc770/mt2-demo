@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
  * Class ESPAccountRepo
  * @package App\Repositories
  */
-class ESPAccountRepo
+class EspAccountRepo
 {
 
     /**
@@ -29,7 +29,7 @@ class ESPAccountRepo
      * ESPAccountRepo constructor.
      * @param EspAccount $espAccount
      */
-    public function __construct(ESPAccount $espAccount)
+    public function __construct(EspAccount $espAccount)
     {
         $this->espAccount = $espAccount;
     }
