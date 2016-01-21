@@ -50,7 +50,7 @@ class RetrieveReports extends Job implements ShouldQueue
     public function handle()
     {
         $reportService = APIFactory::createAPIReportService($this->apiName,$this->accountName);
-        $xmlBody = $reportService->retrieveReportStats($this->date);
-        $reportService->insertRawStats($xmlBody);
+        $data = $reportService->retrieveReportStats($this->date);
+        $reportService->insertRawStats($data);
     }
 }
