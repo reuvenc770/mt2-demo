@@ -15,20 +15,20 @@ class AddCampaignerDB extends Migration
         Schema::create('campaigner_reports', function (Blueprint $table) {
             $table->increments('id');
             $table->integer("internal_id");
-            $table->string("account_name",10);
-            $table->string('name',50);
-            $table->string('subject',150);
-            $table->string('from_name',50);
-            $table->string('from_email',50);
-            $table->integer('sent');
-            $table->integer('delivered');
-            $table->integer('hard_bounces');
-            $table->integer('soft_bounces');
-            $table->integer('spam_bounces');
-            $table->integer('opens');
-            $table->integer('clicks');
-            $table->integer('unsubs');
-            $table->integer('spam_complaints');
+            $table->string("account_name",10)->nullable();
+            $table->string('name',50)->nullable();
+            $table->string('subject',150)->nullable();
+            $table->string('from_name',50)->nullable();
+            $table->string('from_email',50)->nullable();
+            $table->integer('sent')->nullable();
+            $table->integer('delivered')->nullable();
+            $table->integer('hard_bounces')->nullable();
+            $table->integer('soft_bounces')->nullable();
+            $table->integer('spam_bounces')->nullable();
+            $table->integer('opens')->nullable();
+            $table->integer('clicks')->nullable();
+            $table->integer('unsubs')->nullable();
+            $table->integer('spam_complaints')->nullable();
             $table->timestamps();
         });
     }

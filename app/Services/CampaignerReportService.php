@@ -28,10 +28,6 @@ use Illuminate\Support\Facades\Log;
  */
 class CampaignerReportService extends Campaigner implements IAPIReportService, IReportService
 {
-    /**
-     * @var ReportRepo
-     */
-    protected $reportRepo;
 
     CONST NO_CAMPAIGNS = 'M_4.1.1.1_NO-CAMPAIGNRUNS-FOUND';
     /**
@@ -53,7 +49,7 @@ class CampaignerReportService extends Campaigner implements IAPIReportService, I
      * @param $data
      * @throws \Exception
      */
-    public function insertRawStats($data)
+    public function insertApiRawStats($data)
     {
         $arrayReportList = array();
 
@@ -168,7 +164,7 @@ class CampaignerReportService extends Campaigner implements IAPIReportService, I
      * @return \App\Library\Campaigner\ArrayOfCampaign
      * @throws \Exception
      */
-    public function retrieveReportStats($date)
+    public function retrieveApiReportStats($date)
     {
         $dateObject = Carbon::createFromTimestamp(strtotime($date));
         $manager = new CampaignManagement();

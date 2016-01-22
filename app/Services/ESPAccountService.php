@@ -64,21 +64,18 @@ class ESPAccountService
         );
     }
 
-    public function grabCsvMappings($account_number)
+    public function grabCsvMapping($account_number)
     {
         $espDetails = $this->espRepo->getAccountByNumber($account_number)->accountMapping;
-        return array(
-            "row_headers" => explode(',',$espDetails->mappings),
-            "use_top_row" => $espDetails->use_top_row,
-        );
+        return  explode(',',$espDetails->mappings);
     }
 
-    public function mapCsvToRawStatsArray($accountNumber,$filePath = null){
+    public function mapCsvToRawStatsArray($accountNumber,$filePath){
         $returnArray = array();
-        $mappings = $this->grabCsvMappings($accountNumber);
-        $reader = Reader::createFromPath(storage_path().'/app/test.csv');
-        $keys = $mappings['row_headers'];
-        $data = $reader->fetchAssoc($keys);
+        $mapping = $this->grabCsvMapping($accountNumber);
+        $reader = Reader::createFromPath(storage_path().'/app/'.$filePath);
+
+        $data = $reader->fetchAssoc($mapping);
         foreach ($data as $row) {
             $row['account_name'] = $accountNumber;
             $returnArray[] = $row;

@@ -15,12 +15,11 @@ class CreateESPAccountMappingTable extends Migration
         Schema::create('esp_account_mappings', function (Blueprint $table) {
             $table->increments('id');
             $table->string("mappings");
-            $table->boolean("use_top_row");
             $table->integer('esp_account_id')->unsigned();
             $table->timestamps();
         });
 
-        Schema::table('esp_account_mappings', function($table) {
+        Schema::table('blue_hornet_reports', function($table) {
             $table->foreign('esp_account_id')->references('id')->on('esp_accounts');
         });
     }

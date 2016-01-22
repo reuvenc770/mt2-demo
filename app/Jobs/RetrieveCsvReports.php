@@ -21,16 +21,19 @@ class RetrieveCsvReports extends Job implements ShouldQueue
      */
     protected $accountName;
 
+    protected $filePath;
+
     /**
      * RetrieveReports constructor.
      * @param $apiName
      * @param $accountName
      * @param $date
      */
-    public function __construct($apiName, $accountName)
+    public function __construct($apiName, $accountName, $filePath)
     {
         $this->apiName = $apiName;
         $this->accountName = $accountName;
+        $this->filePath = $filePath;
 
     }
 
@@ -41,8 +44,8 @@ class RetrieveCsvReports extends Job implements ShouldQueue
      */
     public function handle()
     {
-        $reportService = APIFactory::createApiIeportService($this->apiName,$this->accountName);
-        $reportArray = EspAccount::mapCsvToRawStatsArray($this->accountName);
+        $reportService = APIFactory::createApiReportService($this->apiName,$this->accountName);
+        $reportArray = EspAccount::mapCsvToRawStatsArray($this->accountName, $this->filePath);
         $reportService->insertCsvRawStats($reportArray);
     }
 }

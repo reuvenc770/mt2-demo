@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use App\Jobs\RetrieveCsvReports;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Support\Facades\Storage;
 class GrabCsvEspReports extends Command
 {
     use DispatchesJobs;
@@ -47,11 +48,13 @@ class GrabCsvEspReports extends Command
     {
         $date = Carbon::now()->subDay(5)->toDateString();
         $espName = $this->argument('espName');
-        $espAccounts = $this->espRepo->getAccountsByEspName($espName);
-        foreach ($espAccounts as $accounts){
-            $espLogLine = "{$espName}::{$accounts->account_number}";
-            $this->info($espLogLine);
-            $this->dispatch(new RetrieveCsvReports($espName, $accounts->account_number));
-        }
+        $files = Storage::Files($espName);  //most likely will be FTP or /s3
+            foreach ($files as $file){
+              $fileInfo = pathinfo($file);
+                $this->info("Starting {$espName}");
+                $this->dispatch(new RetrieveCsvReports($espName, "BH001", $file));
+            }
+
+       // }
     }
 }

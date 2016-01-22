@@ -7,7 +7,6 @@
  */
 
 namespace App\Services;
-
 use App\Services\API\BlueHornet;
 use App\Repositories\ReportRepo;
 use App\Services\Interfaces\IAPIReportService;
@@ -23,13 +22,6 @@ use App\Events\RawReportDataWasInserted;
  */
 class BlueHornetReportService extends BlueHornet implements IAPIReportService, IReportService
 {
-    /**
-     * @var ReportRepo
-     */
-    protected $reportRepo;
-    /**
-     * @var string
-     */
 
     /**
      * BlueHornetReportService constructor.
@@ -38,7 +30,7 @@ class BlueHornetReportService extends BlueHornet implements IAPIReportService, I
      */
     public function __construct(ReportRepo $reportRepo, $apiName, $accountNumber)
     {
-        parent::__construct($apiName, $accountNumber);
+        parent::__construct($apiName, $accountNumber,$reportRepo);
         $this->reportRepo = $reportRepo;
     }
 
@@ -85,23 +77,6 @@ class BlueHornetReportService extends BlueHornet implements IAPIReportService, I
         Event::fire(new RawReportDataWasInserted($this->getApiName(),$this->getAccountName(), $arrayReportList));
     }
 
-    public function insertCsvRawStats($reports){
-        $arrayReportList = array();
-        foreach ($reports as $report) {
-
-            try {
-                $this->reportRepo->insertStats($this->getAccountName(), $report);
-            } catch (Exception $e){
-                throw new \Exception($e->getMessage());
-            }
-
-            $arrayReportList[] = $report;
-        }
-
-        Event::fire(new RawReportDataWasInserted($this->getApiName(),$this->getAccountName(), $arrayReportList));
-    }
-
->>>>>>> init commit
     public function mapToStandardReport($report){
         return array(
             "internal_id" => $report['internal_id'],
