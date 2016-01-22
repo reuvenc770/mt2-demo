@@ -14,5 +14,4 @@ interface IAPIReportService
    public function retrieveReportStats($date);
    public function insertRawStats($data);
    public function mapToStandardReport($data);
-   public function mapToRawReport($data);
 }
