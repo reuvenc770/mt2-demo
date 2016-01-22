@@ -77,22 +77,6 @@ class BlueHornetReportService extends BlueHornet implements IAPIReportService, I
         Event::fire(new RawReportDataWasInserted($this->getApiName(),$this->getAccountName(), $arrayReportList));
     }
 
-    public function insertCsvRawStats($reports){
-        $arrayReportList = array();
-        foreach ($reports as $report) {
-
-            try {
-                $this->reportRepo->insertStats($this->getAccountName(), $report);
-            } catch (Exception $e){
-                throw new \Exception($e->getMessage());
-            }
-
-            $arrayReportList[] = $report;
-        }
-
-        Event::fire(new RawReportDataWasInserted($this->getApiName(),$this->getAccountName(), $arrayReportList));
-    }
-
     public function mapToStandardReport($report){
         return array(
             "internal_id" => $report['internal_id'],
