@@ -19,7 +19,7 @@ class CreateESPAccountMappingTable extends Migration
             $table->timestamps();
         });
 
-        Schema::table('blue_hornet_reports', function($table) {
+        Schema::table('esp_account_mappings', function($table) {
             $table->foreign('esp_account_id')->references('id')->on('esp_accounts');
         });
     }
