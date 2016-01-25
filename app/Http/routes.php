@@ -12,7 +12,7 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return View::make( 'layout.app' );
 });
 Route::get('test', 'TestStuff@index');
 /*

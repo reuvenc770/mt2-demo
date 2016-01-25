@@ -1,0 +1,20 @@
+{
+  "name": "mt2",
+  "description": "Mailing Tool 2.0",
+  "main": "",
+  "moduleType": [],
+  "authors": [
+    "Adam Chin"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "bower_components"
+  ],
+  "dependencies": {
+    "angular": "angularjs#~1.4.9",
+    "bootstrap": "~3.3.6"
+  }
+}
