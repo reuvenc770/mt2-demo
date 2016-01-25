@@ -11,10 +11,11 @@ namespace App\Services;
 
 use App\Repositories\JobEntryRepo;
 use Carbon\Carbon;
-
+use Maknz\Slack\Facades\Slack;
 class JobEntryService
 {
     protected $repo;
+    CONST ROOM = "#mt2-dev-failed-jobs";
 
     public function __construct( JobEntryRepo $repo)
     {
@@ -28,6 +29,21 @@ class JobEntryService
         $espJob->attempts = 1;
         $espJob->status = "Running";
         $espJob->save();
+
+    }
+
+    public function failEspJob($jobName, $espName, $accountName, $tries)
+    {
+        $job =  $this->repo->getJob($jobName, $espName, $accountName);
+        $job->status = "Failed";
+        $job->attempts = $tries;
+        $job->time_finished = Carbon::now();
+        $job->save();
+
+        if((bool)env('SLACK_ON', false)) {
+            Slack::to(self::ROOM)->send("Job {$jobName} has failed for {$espName}-{$accountName}");
+        }
+
 
     }
 
