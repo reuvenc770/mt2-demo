@@ -1,0 +1,86 @@
+/**
+ * Misc Classes
+ */
+.fullHeight { height: 100%; min-height: 100%; }
+
+.noBottomMargin { margin-bottom: 0; }
+
+.noBorder { border: none !important; }
+
+.whiteBackground { background-color: #FFF; }
+
+/**
+ * ZSH Styling
+ */
+body {
+    background-color: #EAEAEA;
+    font-family: sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+}
+
+#headerContainer { margin-bottom: 0; }
+
+#headerContainer.navbar { background-color: #16416C; }
+
+#adminLeftSidebar {
+    padding: 0;
+    background-color: #383F47;
+}
+#adminLeftSidebar a { color: #A6ABAF; }
+#adminLeftSidebar a:hover { color: #FFF; }
+#adminLeftSidebar li {
+    margin-top: 0 !important;
+    border-bottom: thin solid #A6ABAF;
+}
+#adminLeftSidebar .subNav { background-color: #495360; }
+#adminLeftSidebar .active , #adminLeftSidebar .nav > li > a:focus, .nav > li > a:hover { background-color: #3986D8; }
+#adminLeftSidebar .active a { color: #FFF; }
+
+#mainNav {
+    background-color: #FFF;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+#mainNav a {
+    color: #808080;
+}
+
+#mainNav .active a {
+    color: #383F45 !important;
+}
+
+#mainNav a:hover { color: #FFF; }
+
+#mainNav ul.dropdown-menu a:hover { color: #000 !important; }
+
+#mainNav .active a:hover {
+    color: #FFF !important;
+}
+
+.mt2SubMenu { background-color: #f7f7f7; }
+
+#sidebarSubNav { margin-bottom: 0; }
+#sidebarSubNav a { color: #000; }
+#sidebarSubNav a:hover {
+    background-color: #3986D8;
+    color: #FFF;
+}
+
+#sidebarSubNav .list-group-item:first-child {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+#sidebarSubNav .list-group-item:last-child {
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+
+.navbar-brand {
+    margin-left: 70px !important;
+    color: #FFF !important;
+}
+
+.navbar-brand:hover { color: #9D9D9D !important; }
