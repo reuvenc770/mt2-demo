@@ -7,7 +7,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Facades\JobTracking;
 use App\Factories\APIFactory;
-use Maknz\Slack\Facades\Slack;
 
 /**
  * Class RetrieveReports
@@ -30,6 +29,9 @@ class RetrieveReports extends Job implements ShouldQueue
      */
     protected $date;
 
+    protected $max_attempts;
+
+    protected $job_id;
     /**
      * RetrieveReports constructor.
      * @param $apiName
@@ -41,6 +43,8 @@ class RetrieveReports extends Job implements ShouldQueue
        $this->apiName = $apiName;
        $this->accountName = $accountName;
        $this->date = $date;
+       $this->max_attempts = env('MAX_ATTEMPTS',10);
+       $this->job_id = null;
     }
 
     /**
@@ -52,8 +56,8 @@ class RetrieveReports extends Job implements ShouldQueue
     {
         JobTracking::startEspJob(self::JOB_NAME,$this->apiName, $this->accountName);
         //If it has been retried lets make it wait before it goes back out
-        if ($this->attempts() > 3) {
-            $this->release(10);
+        if ($this->attempts() > $this->max_attempts) {
+            $this->release(1);
         }
         $reportService = APIFactory::createAPIReportService($this->apiName,$this->accountName);
         $data = $reportService->retrieveReportStats($this->date);
@@ -64,8 +68,6 @@ class RetrieveReports extends Job implements ShouldQueue
 
     public function failed()
     {
-        $name = self::JOB_NAME;
-        $string = "{$name} - {$this->apiName} Failed for account {$this->accountName}";
-        Slack::to('#mt2-dev-failed-jobs')->send($string);
+        JobTracking::failEspJob(self::JOB_NAME,$this->apiName, $this->accountName, $this->max_attempts);
     }
 }
