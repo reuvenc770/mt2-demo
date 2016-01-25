@@ -31,7 +31,7 @@ class JobEntryService
         $espJob->save();
 
     }
-
+    //maybe refactor to 1 method and use a flag
     public function failEspJob($jobName, $espName, $accountName, $tries)
     {
         $job =  $this->repo->getJob($jobName, $espName, $accountName);
@@ -47,6 +47,12 @@ class JobEntryService
 
     }
 
-    public function finishEspJob($jobName, $espName, $accountName){}
+    public function finishEspJob($jobName, $espName, $accountName, $tries){
+        $job =  $this->repo->getJob($jobName, $espName, $accountName);
+        $job->status = "Success";
+        $job->attempts = $tries;
+        $job->time_finished = Carbon::now();
+        $job->save();
+    }
 
 }
