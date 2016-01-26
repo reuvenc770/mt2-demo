@@ -41,6 +41,7 @@ class EmailDirectReportService extends EmailDirectApi implements IAPIReportServi
         foreach ( $data as $campaignData ) {
             try {
                 $convertedRecord = $this->mapToRawReport( $campaignData );
+
                 $this->reportRepo->insertStats( $this->getAccountName() , $convertedRecord );
             } catch ( Exception $e ) {
                 echo "\nFailed to insert raw stats.\n" . $e->getMessage();
@@ -61,7 +62,7 @@ class EmailDirectReportService extends EmailDirectApi implements IAPIReportServi
         );
     }
 
-    public function mapToRawReport ( $data ) {
+    /*public function mapToRawReport ( $data ) {
         $formattedData = array();
 
         array_walk( $data , array( $this , 'convertToSnakeCase' ) , $formattedData );
@@ -69,9 +70,37 @@ class EmailDirectReportService extends EmailDirectApi implements IAPIReportServi
         $fomattedData[ 'internal_id' ] = $formattedData[ 'campaign_id' ];
 
         return $formattedData;
+    }*/
+
+    public function mapToRawReport ( $data ) {
+
+        $formattedData = array();
+
+        array_walk( $data , function ( $item , $key ) use ( &$formattedData ) {
+            if ( !in_array( $key , array( 'Publication' , 'Links' ) ) ) {
+                if ( $key === 'CampaignID' ) {
+                    $formattedData[ 'campaign_id' ] = $item;
+                } elseif ( $key === 'ArchiveURL' ) {
+                    $formattedData[ 'archive_url' ] = $item;
+                } elseif ( $key === 'CTR' ) {
+                    $formattedData[ 'ctr' ] = $item;
+                } elseif ( $key === 'Creative' ) {
+                    $formattedData[ 'creative_id' ] = $item[ 'CreativeID' ];
+                } else {
+                    $formattedData[ snake_case( $key ) ] = $item;
+                }
+            }
+        } );
+
+        dd( $formattedData );
+
+        $fomattedData[ 'internal_id' ] = $formattedData[ 'campaign_id' ];
+
+        return $formattedData;
     }
 
-    static public function convertToSnakeCase ( $item , $key , &$newArray ) {
+    /*static public function convertToSnakeCase ( $item , $key , &$newArray ) {
+        dd( $newArray );
         $newArray [ snake_case( $key ) ] = $item;
-    }
+    }*/
 }

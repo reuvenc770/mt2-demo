@@ -30,17 +30,19 @@ class EmailDirectApi extends BaseAPI {
         if ( !is_null( $data[ 'date' ] ) ) $date = $data[ 'date' ];
         else $date = Carbon::now()->subDay(1)->toDateString();
          
-        $campaignListResponse = $this->api->sent( array( 'Since' => $date ) );
+        $campaignListResponse = $this->api->campaigns()->sent( array( 'Since' => "01-25-2016" ) );
 
         if ( !$campaignListResponse->success() ) return $reportStats;
 
-        $camapaignData = $campaignListResponse->getData();
+        $responseData = $campaignListResponse->getData();
 
-        foreach ( $campaignData[ 'Items' ] as $campaign ) {
-            $campaignDetailsResponse = $this->api->details( $campaign[ 'CampaignID' ] );
+        $campaignData = $responseData[ 'Items' ];
+
+        foreach ( $campaignData as $currentCampaign ) {
+            $campaignDetailsResponse = $this->api->campaigns( $currentCampaign[ 'CampaignID' ] )->details();
 
             if ( $campaignDetailsResponse->success() ) {
-                $reportsStats []=  $campaignDetailsResponse->getData();
+                $reportStats []= $campaignDetailsResponse->getData();
             }
         }
 
