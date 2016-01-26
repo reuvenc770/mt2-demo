@@ -8,7 +8,7 @@ namespace App\Services\API;
 use App\Facades\EspAccount;
 use App\Facades\Guzzle;
 use Carbon\Carbon;
-use EmailDirect\EmailDirect;
+use maxlapko\emaildirect;
 
 /**
  *
@@ -21,7 +21,7 @@ class EmailDirectApi extends BaseAPI {
 
         $creds = EspAccount::grabApiKeyWithSecret( $accountNumber );
   
-        $this->api = new EmailDirect( $creds[ 'apiKey' ] );
+        $this->api = new EmailDirect\EmailDirect( $creds[ 'apiKey' ] );
     }
 
     protected function sendAPIRequest ( $data ) {

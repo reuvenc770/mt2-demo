@@ -5,7 +5,7 @@
 
 namespace App\Services;
 
-use App\Services\API\EmailDirect;
+use App\Services\API\EmailDirectApi;
 use App\Repositories\ReportRepo;
 use App\Services\Interfaces\IAPIReportService;
 use App\Services\Interfaces\IReportService;
@@ -40,14 +40,14 @@ class EmailDirectReportService extends EmailDirectApi implements IAPIReportServi
     public function insertRawStats ( $data ) {
         foreach ( $data as $campaignData ) {
             try {
-                $this->reportRepo->insertStats( $this->getAccountName() , $campaignData );
+                $convertedRecord = $this->mapToRawReport( $campaignData );
+                $this->reportRepo->insertStats( $this->getAccountName() , $convertedRecord );
             } catch ( Exception $e ) {
                 echo "\nFailed to insert raw stats.\n" . $e->getMessage();
             }
         }
 
         Event::fire( new RawReportDataWasInserted( $this->getApiName() , $this->getAccountName() , $data ) );
-
     }
 
     public function mapToStandardReport ( $data ) {
@@ -59,5 +59,19 @@ class EmailDirectReportService extends EmailDirectApi implements IAPIReportServi
             "opens" => $data[ 'Opens' ] ,
             "clicks" => $data[ 'TotalClicks' ]
         );
+    }
+
+    public function mapToRawReport ( $data ) {
+        $formattedData = array();
+
+        array_walk( $data , array( $this , 'convertToSnakeCase' ) , $formattedData );
+
+        $fomattedData[ 'internal_id' ] = $formattedData[ 'campaign_id' ];
+
+        return $formattedData;
+    }
+
+    static public function convertToSnakeCase ( $item , $key , &$newArray ) {
+        $newArray [ snake_case( $key ) ] = $item;
     }
 }
