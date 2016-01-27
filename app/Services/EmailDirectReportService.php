@@ -19,6 +19,8 @@ use App\Events\RawReportDataWasInserted;
 class EmailDirectReportService extends EmailDirectApi implements IAPIReportService , IReportService {
     protected $reportRepo;
 
+    private $invalidFields = array( 'Publication' , 'Links' );
+
     public function __construct ( ReportRepo $reportRepo , $apiName , $accountNumber ) {
         parent::__construct( $apiName , $accountNumber );
         $this->reportRepo = $reportRepo;
@@ -31,8 +33,6 @@ class EmailDirectReportService extends EmailDirectApi implements IAPIReportServi
             echo "\nException Found:\n";
             echo $e->getMessage();
         }
-
-        if ( empty( $reportStats ) ) throw new Exception( 'Sent Campaign List empty.' );
 
         return $reportStats;
     }
@@ -62,24 +62,16 @@ class EmailDirectReportService extends EmailDirectApi implements IAPIReportServi
         );
     }
 
-    /*public function mapToRawReport ( $data ) {
-        $formattedData = array();
-
-        array_walk( $data , array( $this , 'convertToSnakeCase' ) , $formattedData );
-
-        $fomattedData[ 'internal_id' ] = $formattedData[ 'campaign_id' ];
-
-        return $formattedData;
-    }*/
-
     public function mapToRawReport ( $data ) {
-
         $formattedData = array();
 
         array_walk( $data , function ( $item , $key ) use ( &$formattedData ) {
-            if ( !in_array( $key , array( 'Publication' , 'Links' ) ) ) {
+            $isValidField = !in_array( $key , $this->invalidFields );
+
+            if ( $isValidField ) {
                 if ( $key === 'CampaignID' ) {
                     $formattedData[ 'campaign_id' ] = $item;
+                    $formattedData[ 'internal_id' ] = $item;
                 } elseif ( $key === 'ArchiveURL' ) {
                     $formattedData[ 'archive_url' ] = $item;
                 } elseif ( $key === 'CTR' ) {
@@ -92,15 +84,8 @@ class EmailDirectReportService extends EmailDirectApi implements IAPIReportServi
             }
         } );
 
-        dd( $formattedData );
-
         $fomattedData[ 'internal_id' ] = $formattedData[ 'campaign_id' ];
 
         return $formattedData;
     }
-
-    /*static public function convertToSnakeCase ( $item , $key , &$newArray ) {
-        dd( $newArray );
-        $newArray [ snake_case( $key ) ] = $item;
-    }*/
 }

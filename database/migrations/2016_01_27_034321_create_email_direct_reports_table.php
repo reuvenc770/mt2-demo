@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class EmailDirectReports extends Migration
+class CreateEmailDirectReportsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,17 +12,17 @@ class EmailDirectReports extends Migration
      */
     public function up()
     {
-        Schema::create( 'email_direct_reports' , function ( Blueprint $table ) {
-            $table->increments( 'id' );
+        Schema::create('email_direct_reports', function (Blueprint $table) {
+            $table->increments('id');
             $table->string( 'account_name' );
             $table->integer( 'internal_id' );
             $table->integer( 'campaign_id' )->nullable();
-            $table->string( 'campaign_name' )->nullable();
+            $table->string( 'name' )->nullable();
             $table->string( 'status' )->nullable();
             $table->integer( 'is_active' )->nullable();
             $table->datetime( 'created' )->nullable();
-            $table->datetime( 'scheduled_date' )->nullable();
-            $table->string( 'fron_name' )->nullable();
+            $table->datetime( 'schedule_date' )->nullable();
+            $table->string( 'from_name' )->nullable();
             $table->string( 'from_email' )->nullable();
             $table->string( 'to_name' )->nullable();
             $table->integer( 'creative_id' )->nullable();
@@ -49,7 +49,7 @@ class EmailDirectReports extends Migration
             $table->float( 'soft_bounce_rate' )->nullable();
             $table->float( 'complaint_rate' )->nullable();
             $table->timestamps();
-        } );
+        });
     }
 
     /**
@@ -59,6 +59,6 @@ class EmailDirectReports extends Migration
      */
     public function down()
     {
-        Schema::drop( 'email_direct_reports' );
+        Schema::drop('email_direct_reports');
     }
 }

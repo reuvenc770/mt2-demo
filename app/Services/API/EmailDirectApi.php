@@ -13,7 +13,15 @@ use Carbon\Carbon;
  *
  */
 class EmailDirectApi extends BaseAPI {
+    const DATE_REQUEST_KEY = 'date';
+    const DATE_DEFAULT_DAYS_BACK = 1;
+    const CAMPAIGN_LIST_KEY = 'Items';
+    const CAMPAIGN_ID_KEY = 'CampaignID';
+    const API_REQUEST_FIELD_DATE = 'Since';
+
     private $api;
+    private $date;
+    private $campaignList = array();
 
     public function __construct ( $name , $accountNumber ) {
         parent::__construct( $name , $accountNumber );
@@ -23,26 +31,40 @@ class EmailDirectApi extends BaseAPI {
         $this->api = new \EmailDirect( $creds[ 'apiKey' ] );
     }
 
-    protected function sendAPIRequest ( $data ) {
-        $reportStats = array();
-        $date = null;
+    protected function sendAPIRequest ( $requestData ) {
+        $this->setDate( $requestData );
+        $this->loadCampaignList();
+        return $this->getReportStats();
+    }
 
-        if ( !is_null( $data[ 'date' ] ) ) $date = $data[ 'date' ];
-        else $date = Carbon::now()->subDay(1)->toDateString();
-         
-        $campaignListResponse = $this->api->campaigns()->sent( array( 'Since' => "01-25-2016" ) );
+    private function setDate ( $requestData ) {
+        if ( !is_null( $requestData[ self::DATE_REQUEST_KEY ] ) ) {
+            $this->date = $requestData[ self::DATE_REQUEST_KEY ];
+        } else {
+            $this->date = Carbon::now()->subDay( self::DATE_DEFAULT_DAYS_BACK )->toDateString();
+        }
+    }
 
-        if ( !$campaignListResponse->success() ) return $reportStats;
+    private function loadCampaignList () {
+        $campaignListResponse = $this->api->campaigns()->sent( array( self::API_REQUEST_FIELD_DATE => $this->date ) );
+
+        if ( !$campaignListResponse->success() ) throw new Exception( 'Email Direct API Call Failed.' );
 
         $responseData = $campaignListResponse->getData();
 
-        $campaignData = $responseData[ 'Items' ];
+        $this->campaignList = $responseData[ self::CAMPAIGN_LIST_KEY ];
+    }
 
-        foreach ( $campaignData as $currentCampaign ) {
-            $campaignDetailsResponse = $this->api->campaigns( $currentCampaign[ 'CampaignID' ] )->details();
+    private function getReportStats () {
+        $reportStats = array();
+
+        foreach ( $this->campaignList as $currentCampaign ) {
+            $campaignDetailsResponse = $this->api->campaigns( $currentCampaign[ self::CAMPAIGN_ID_KEY ] )->details();
 
             if ( $campaignDetailsResponse->success() ) {
                 $reportStats []= $campaignDetailsResponse->getData();
+            } else {
+                throw new Exception( 'Email Direct API Call Failed.' );
             }
         }
 
