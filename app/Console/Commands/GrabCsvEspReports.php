@@ -46,7 +46,7 @@ class GrabCsvEspReports extends Command
             foreach ($files as $file){
               $fileInfo = pathinfo($file);
                 $this->info("Starting {$espName}");
-                $this->dispatch(new RetrieveCsvReports($espName, "BH001", $file));
+                $this->dispatch(new RetrieveCsvReports($espName, "BH001", $file, str_random(16)));
             }
 
        // }
