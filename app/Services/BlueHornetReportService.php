@@ -9,6 +9,7 @@
 namespace App\Services;
 use App\Services\API\BlueHornet;
 use App\Repositories\ReportRepo;
+use App\Services\API\BlueHornetApi;
 use App\Services\Interfaces\IAPIReportService;
 use App\Services\Interfaces\IReportService;
 use League\Flysystem\Exception;
@@ -20,7 +21,7 @@ use App\Events\RawReportDataWasInserted;
  * Class BlueHornetReportService
  * @package App\Services
  */
-class BlueHornetReportService extends BlueHornet implements IAPIReportService, IReportService
+class BlueHornetReportService extends BlueHornetApi implements IAPIReportService, IReportService
 {
 
     /**

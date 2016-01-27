@@ -15,7 +15,7 @@ use App\Facades\Guzzle;
  * Class BlueHornet
  * @package App\Services\API
  */
-class BlueHornet extends BaseAPI
+class BlueHornetApi extends BaseAPI
 {
     CONST API_URL = "https://echo.bluehornet.com/api/xmlrpc/index.php";
     private  $apiKey;

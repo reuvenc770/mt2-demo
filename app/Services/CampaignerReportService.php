@@ -12,6 +12,7 @@ namespace App\Services;
 use App\Library\Campaigner\CampaignManagement;
 use App\Repositories\ReportRepo;
 use App\Services\API\Campaigner;
+use App\Services\API\CampaignerApi;
 use App\Services\Interfaces\IAPIReportService;
 use App\Services\Interfaces\IReportService;
 use App\Library\Campaigner\DateTimeFilter;
@@ -26,7 +27,7 @@ use Illuminate\Support\Facades\Log;
  * Class CampaignerReportService
  * @package App\Services
  */
-class CampaignerReportService extends Campaigner implements IAPIReportService, IReportService
+class CampaignerReportService extends CampaignerApi implements IAPIReportService, IReportService
 {
 
     CONST NO_CAMPAIGNS = 'M_4.1.1.1_NO-CAMPAIGNRUNS-FOUND';
