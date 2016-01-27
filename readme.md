@@ -5,7 +5,7 @@ If you do not have vagrant and virutalbox installed please do so before starting
 
 *	run `vagrant box add laravel/homestead`
 *  create a new folder named `laravel`
-	*	Withen this folder create two more folders `homestead` and `mt2`
+	*	Within this folder create two more folders `homestead` and `mt2`
 * run `cd homestead`
 * run `git clone https://github.com/laravel/homestead.git .`
 *	run `bash init.sh`
