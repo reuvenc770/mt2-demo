@@ -36,9 +36,9 @@ class ESPAccountService
         return $this->espRepo->getAccountsByESPName($espName);
     }
 
-    public function grabApiKeyWithSecret($account_number)
+    public function grabApiKeyWithSecret($espAccountId)
     {
-        $espDetails = $this->espRepo->getAccountByNumber($account_number);
+        $espDetails = $this->espRepo->getAccount($espAccountId);
         return array(
             "apiKey"        => $espDetails['key_1'],
             "sharedSecret"  => $espDetails['key_2']
@@ -46,15 +46,15 @@ class ESPAccountService
         );
     }
 
-    public function grabApiKey($account_number)
+    public function grabApiKey($espAccountId)
     {
-        $espDetails = $this->espRepo->getAccountByNumber($account_number);
+        $espDetails = $this->espRepo->getAccount($espAccountId);
         return $espDetails['key_1'];
     }
 
-    public function grabApiUsernameWithPassword($account_number)
+    public function grabApiUsernameWithPassword($espAccountId)
     {
-        $espDetails = $this->espRepo->getAccountByNumber($account_number);
+        $espDetails = $this->espRepo->getAccount($espAccountId);
         return array(
             "userName"        => $espDetails['key_1'],
             "password"        => $espDetails['key_2']
@@ -62,20 +62,20 @@ class ESPAccountService
         );
     }
 
-    public function grabCsvMapping($account_number)
+    public function grabCsvMapping($espAccountId)
     {
-        $espDetails = $this->espRepo->getAccountByNumber($account_number)->accountMapping;
+        $espDetails = $this->espRepo->getAccount($espAccountId)->accountMapping;
         return  explode(',',$espDetails->mappings);
     }
 
-    public function mapCsvToRawStatsArray($accountNumber,$filePath){
+    public function mapCsvToRawStatsArray($espAccountId,$filePath){
         $returnArray = array();
-        $mapping = $this->grabCsvMapping($accountNumber);
+        $mapping = $this->grabCsvMapping($espAccountId);
         $reader = Reader::createFromPath(storage_path().'/app/'.$filePath);
 
         $data = $reader->fetchAssoc($mapping);
         foreach ($data as $row) {
-            $row['account_name'] = $accountNumber;
+            $row['esp_account_id'] = $espAccountId;
             $returnArray[] = $row;
         }
         return $returnArray;

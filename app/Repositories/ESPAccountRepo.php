@@ -40,21 +40,21 @@ class EspAccountRepo
      * @return mixed
      */
     public function getAccountsByESPName($espName){
-
         return DB::table('esp_accounts')
             ->join('esps', 'esps.id', '=', 'esp_accounts.esp_id')
-            ->select('*')
+            ->select('esp_accounts.*')
+            ->addSelect('esps.name')
             ->where('esps.name',$espName)
             ->get();
 
-
     }
 
-    public function getAccountByNumber($accountNumber){
-
-        return $this->espAccount
-            ->where('account_number',$accountNumber)
-            ->first();
+    /**
+     * @param $espAccountId
+     * @return EspAccount
+     */
+    public function getAccount($espAccountId){
+        return $this->espAccount->find($espAccountId);
     }
 
 }

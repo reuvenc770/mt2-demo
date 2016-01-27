@@ -12,5 +12,5 @@ namespace App\Services\Interfaces;
 interface IReportService
 {
     public function getApiName();
-    public function getAccountName();
+    public function getEspAccountId();
 }

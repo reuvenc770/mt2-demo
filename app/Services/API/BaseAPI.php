@@ -20,13 +20,13 @@ class BaseAPI implements  IReportService
 {
 
     private $apiName;
-    private $accountName;
+    private $espAccountId;
     protected $reportRepo;
 
-    public function __construct($name, $accountName)
+    public function __construct($name, $espAccountId)
     {
         $this->apiName = $name;
-        $this->accountName = $accountName;
+        $this->accountName = $espAccountId;
     }
 
     public function insertCsvRawStats($reports){
@@ -64,17 +64,17 @@ class BaseAPI implements  IReportService
     /**
      * @return mixed
      */
-    public function getAccountName()
+    public function getEspAccountId()
     {
-        return $this->accountName;
+        return $this->espAccountId;
     }
 
     /**
      * @param mixed $accountName
      */
-    public function setAccountName($accountName)
+    public function setEspAccountId($espAccountId)
     {
-        $this->accountName = $accountName;
+        $this->espAccountId = $espAccountId;
     }
 
 }
