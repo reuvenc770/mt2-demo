@@ -48,7 +48,9 @@ class EmailDirectApi extends BaseAPI {
     private function loadCampaignList () {
         $campaignListResponse = $this->api->campaigns()->sent( array( self::API_REQUEST_FIELD_DATE => $this->date ) );
 
-        if ( !$campaignListResponse->success() ) throw new Exception( 'Email Direct API Call Failed.' );
+        if ( !$campaignListResponse->success() ) {
+            throw new Exception( 'Email Direct API Call Failed. ' . $campaignListResponse->getErrorMessage() , $campaignListResponse->getErrorCode() );
+        }
 
         $responseData = $campaignListResponse->getData();
 
@@ -64,7 +66,7 @@ class EmailDirectApi extends BaseAPI {
             if ( $campaignDetailsResponse->success() ) {
                 $reportStats []= $campaignDetailsResponse->getData();
             } else {
-                throw new Exception( 'Email Direct API Call Failed.' );
+                throw new Exception( 'Email Direct API Call Failed.' . $campaignListResponse->getErrorMessage() , $campaignListResponse->getErrorCode() );
             }
         }
 
