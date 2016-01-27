@@ -31,6 +31,6 @@ class CreateESPAccountMappingTable extends Migration
      */
     public function down()
     {
-        Schema::drop('e_s_p_account_mappings');
+        Schema::drop('esp_account_mappings');
     }
 }

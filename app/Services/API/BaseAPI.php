@@ -26,7 +26,7 @@ class BaseAPI implements  IReportService
     public function __construct($name, $espAccountId)
     {
         $this->apiName = $name;
-        $this->accountName = $espAccountId;
+        $this->espAccountId = $espAccountId;
     }
 
     public function insertCsvRawStats($reports){

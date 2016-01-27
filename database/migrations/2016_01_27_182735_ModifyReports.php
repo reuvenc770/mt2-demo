@@ -39,6 +39,15 @@ class ModifyReports extends Migration
             $table->foreign('esp_account_id')->references('id')->on('esp_accounts');
         });
 
+        Schema::table('standard_reports', function($table) {
+            $table->integer('esp_account_id')->unsigned();
+            $table->dropColumn('account_name');
+        });
+
+        Schema::table('standard_reports', function($table) {
+            $table->foreign('esp_account_id')->references('id')->on('esp_accounts');
+        });
+
     }
 
     /**

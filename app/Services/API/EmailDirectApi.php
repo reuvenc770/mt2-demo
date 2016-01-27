@@ -66,7 +66,7 @@ class EmailDirectApi extends BaseAPI {
             if ( $campaignDetailsResponse->success() ) {
                 $reportStats []= $campaignDetailsResponse->getData();
             } else {
-                throw new Exception( 'Email Direct API Call Failed.' . $campaignListResponse->getErrorMessage() , $campaignListResponse->getErrorCode() );
+                throw new Exception( 'Email Direct API Call Failed.' . $campaignDetailsResponse->getErrorMessage() , $campaignDetailsResponse->getErrorCode() );
             }
         }
 
