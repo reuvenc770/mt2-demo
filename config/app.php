@@ -158,7 +158,6 @@ return [
         App\Providers\GuzzleServiceProvider::class,
         App\Providers\JobEntryServiceProvider::class,
         App\Providers\ESPAccountProvider::class,
-        Maknz\Slack\SlackServiceProvider::class,
 
     ],
 
@@ -207,7 +206,6 @@ return [
         'View'      => Illuminate\Support\Facades\View::class,
         'Guzzle'    => App\Facades\Guzzle::class,
         'ESPAccount'=> App\Facades\EspAccount::class,
-        'Slack'     => Maknz\Slack\Facades\Slack::class,
         'JobTracking'=> App\Facades\JobTracking::class,
     ],
 

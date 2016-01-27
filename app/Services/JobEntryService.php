@@ -9,12 +9,16 @@
 namespace App\Services;
 
 
+use App\Models\JobEntry;
 use App\Repositories\JobEntryRepo;
 use Carbon\Carbon;
-use Maknz\Slack\Facades\Slack;
+
 class JobEntryService
 {
     protected $repo;
+    protected $jobName;
+
+
     CONST ROOM = "#mt2-dev-failed-jobs";
 
     public function __construct( JobEntryRepo $repo)
@@ -22,34 +26,21 @@ class JobEntryService
         $this->repo = $repo;
     }
 
-    public function startEspJob($jobName, $espName, $accountName)
+    public function startEspJob($jobName, $espName, $accountName, $tracking)
     {
-        $espJob = $this->repo->startEspJobReturnObject($jobName, $espName, $accountName);
+        $this->jobName = $jobName;
+        $espJob = $this->repo->startEspJobReturnObject($jobName, $espName, $accountName, $tracking);
         $espJob->time_started = Carbon::now();
         $espJob->attempts = 1;
-        $espJob->status = "Running";
+        $espJob->status = JobEntry::RUNNING;
         $espJob->save();
 
     }
-    //maybe refactor to 1 method and use a flag
-    public function failEspJob($jobName, $espName, $accountName, $tries)
+
+    public function changeJobState($state, $tracking, $tries)
     {
-        $job =  $this->repo->getJob($jobName, $espName, $accountName);
-        $job->status = "Failed";
-        $job->attempts = $tries;
-        $job->time_finished = Carbon::now();
-        $job->save();
-
-        if((bool)env('SLACK_ON', false)) {
-            Slack::to(self::ROOM)->send("Job {$jobName} has failed for {$espName}-{$accountName}");
-        }
-
-
-    }
-
-    public function finishEspJob($jobName, $espName, $accountName, $tries){
-        $job =  $this->repo->getJob($jobName, $espName, $accountName);
-        $job->status = "Success";
+        $job =  $this->repo->getJobByTracking($tracking);
+        $job->status = $state;
         $job->attempts = $tries;
         $job->time_finished = Carbon::now();
         $job->save();

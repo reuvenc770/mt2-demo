@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\JobEntry;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -16,35 +17,19 @@ class RetrieveReports extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
     CONST JOB_NAME = "RetrieveApiEspReports";
-    /**
-     * @var
-     */
     protected $apiName;
-    /**
-     * @var
-     */
     protected $accountName;
-    /**
-     * @var
-     */
     protected $date;
-
     protected $max_attempts;
+    protected $tracking;
 
-    protected $job_id;
-    /**
-     * RetrieveReports constructor.
-     * @param $apiName
-     * @param $accountName
-     * @param $date
-     */
-    public function __construct($apiName, $accountName, $date)
+    public function __construct($apiName, $accountName, $date, $tracking)
     {
        $this->apiName = $apiName;
        $this->accountName = $accountName;
        $this->date = $date;
        $this->max_attempts = env('MAX_ATTEMPTS',10);
-       $this->job_id = null;
+       $this->tracking = $tracking;
     }
 
     /**
@@ -54,7 +39,7 @@ class RetrieveReports extends Job implements ShouldQueue
      */
     public function handle()
     {
-        JobTracking::startEspJob(self::JOB_NAME,$this->apiName, $this->accountName);
+        JobTracking::startEspJob(self::JOB_NAME,$this->apiName, $this->accountName, $this->tracking);
         //If it has been retried lets make it wait before it goes back out
         if ($this->attempts() > $this->max_attempts) {
             $this->release(1);
@@ -62,13 +47,13 @@ class RetrieveReports extends Job implements ShouldQueue
         $reportService = APIFactory::createAPIReportService($this->apiName,$this->accountName);
         $data = $reportService->retrieveReportStats($this->date);
         $reportService->insertRawStats($data);
-        JobTracking::finishEspJob(self::JOB_NAME,$this->apiName, $this->accountName, $this->attempts());
+        JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking, $this->attempts());
 
     }
 
 
     public function failed()
     {
-        JobTracking::failEspJob(self::JOB_NAME,$this->apiName, $this->accountName, $this->max_attempts);
+        JobTracking::changeJobState(JobEntry::FAILED,$this->tracking, $this->max_attempts);
     }
 }

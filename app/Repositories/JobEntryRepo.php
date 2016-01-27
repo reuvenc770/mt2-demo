@@ -34,13 +34,16 @@ class JobEntryRepo
      * @param $accountName
      * @return JobEntry
      */
-    public function startEspJobReturnObject($jobName, $espName, $accountName){
-        return $this->entry->firstOrNew(['job_name' => $jobName, 'account_name'=> $espName, 'account_number' => $accountName]);
+    public function startEspJobReturnObject($jobName, $espName, $accountName, $tracking){
+        return $this->entry->create(['job_name' => $jobName,
+                                     'account_name'=> $espName,
+                                     'account_number' => $accountName,
+                                     'tracking' => $tracking]);
     }
 
-    public function getJob($jobName, $espName, $accountName){
+    public function getJobByTracking($tracking){
         try{
-            return $this->entry->whereEspAccount($jobName, $espName, $accountName)->firstOrFail();
+            return $this->entry->where('tracking',$tracking)->firstOrFail();
         } catch(\Exception $e){
             Log::error($e->getMessage());
         }

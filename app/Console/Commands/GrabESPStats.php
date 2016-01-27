@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Factories\APIFactory;
+
 use App\Repositories\ESPAccountRepo;
 use Carbon\Carbon;
-use Illuminate\Console\Command;
 use App\Jobs\RetrieveReports;
+use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 class GrabESPStats extends Command
 {
@@ -16,9 +16,9 @@ class GrabESPStats extends Command
      *
      * @var string
      */
-    protected $signature = 'reports:downloadESP {espName}';
-    protected $factory;
+    protected $signature = 'reports:downloadESP {espName} {lookBack?}';
     protected $espRepo;
+    protected $lookBack;
 
     /**
      * The console command description.
@@ -28,10 +28,6 @@ class GrabESPStats extends Command
     protected $description = 'Command description';
 
 
-    /**
-     * GrabESPStats constructor.
-     * @param APIFactory $factory
-     */
     public function __construct(ESPAccountRepo $espRepo)
     {
         parent::__construct();
@@ -45,13 +41,17 @@ class GrabESPStats extends Command
      */
     public function handle()
     {
-        $date = Carbon::now()->subDay(5)->toDateString();
+        $this->lookBack = $this->argument('lookBack') ? $this->argument('lookBack') : env('LOOKBACK',5);
+
+        $date = Carbon::now()->subDay($this->lookBack)->toDateString();
         $espName = $this->argument('espName');
+
         $espAccounts = $this->espRepo->getAccountsByESPName($espName);
+
         foreach ($espAccounts as $accounts){
             $espLogLine = "{$espName}::{$accounts->account_number}";
             $this->info($espLogLine);
-            $this->dispatch(new RetrieveReports($espName, $accounts->account_number, $date));
+            $this->dispatch(new RetrieveReports($espName, $accounts->account_number, $date, str_random(16)));
         }
     }
 }
