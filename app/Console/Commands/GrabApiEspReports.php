@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use App\Jobs\RetrieveReports;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-class GrabESPStats extends Command
+class GrabApiEspReports extends Command
 {
     use DispatchesJobs;
     /**

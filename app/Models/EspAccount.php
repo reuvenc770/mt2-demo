@@ -11,6 +11,11 @@ class EspAccount extends Model
         return $this->belongsTo('App\Models\Esp');
     }
 
+    public function accountMapping()
+    {
+        return $this->hasOne('App\Models\EspAccountMapping');
+    }
+
     public function getFirstKey()
     {
         return $this->attributes['key_1'];

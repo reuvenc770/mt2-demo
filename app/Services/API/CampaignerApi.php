@@ -10,7 +10,7 @@ namespace App\Services\API;
 use App\Facades\EspAccount;
 use App\Library\Campaigner\CampaignManagement;
 use App\Library\Campaigner\Authentication;
-class Campaigner extends BaseAPI
+class CampaignerApi extends BaseAPI
 {
     private  $auth;
 

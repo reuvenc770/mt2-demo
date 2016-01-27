@@ -7,9 +7,9 @@
  */
 
 namespace App\Services;
-
 use App\Services\API\BlueHornet;
 use App\Repositories\ReportRepo;
+use App\Services\API\BlueHornetApi;
 use App\Services\Interfaces\IAPIReportService;
 use App\Services\Interfaces\IReportService;
 use League\Flysystem\Exception;
@@ -21,15 +21,8 @@ use App\Events\RawReportDataWasInserted;
  * Class BlueHornetReportService
  * @package App\Services
  */
-class BlueHornetReportService extends BlueHornet implements IAPIReportService, IReportService
+class BlueHornetReportService extends BlueHornetApi implements IAPIReportService, IReportService
 {
-    /**
-     * @var ReportRepo
-     */
-    protected $reportRepo;
-    /**
-     * @var string
-     */
 
     /**
      * BlueHornetReportService constructor.
@@ -38,7 +31,7 @@ class BlueHornetReportService extends BlueHornet implements IAPIReportService, I
      */
     public function __construct(ReportRepo $reportRepo, $apiName, $accountNumber)
     {
-        parent::__construct($apiName, $accountNumber);
+        parent::__construct($apiName, $accountNumber,$reportRepo);
         $this->reportRepo = $reportRepo;
     }
 
@@ -47,25 +40,25 @@ class BlueHornetReportService extends BlueHornet implements IAPIReportService, I
      * @return \SimpleXMLElement
      * @throws \Exception
      */
-    public function retrieveReportStats($date)
+    public function retrieveApiReportStats($date)
     {
         $methodData = array(
             "date" => $date
         );
         try {
             $xml = $this->buildRequest('legacy.message_stats', $methodData);
-            $response = $this->sendAPIRequest($xml);
+            $response = $this->sendApiRequest($xml);
             $xmlBody = simplexml_load_string($response->getBody()->__toString());
         } catch (Exception $e){
             throw new Exception($e->getMessage());
         }
         if ($xmlBody->item->responseCode != 201) {
-            throw new \Exception("shit didnt work");
+            throw new \Exception($xmlBody->asXML());
         }
         return $xmlBody;
     }
 
-    public function insertRawStats($xmlData)
+    public function insertApiRawStats($xmlData)
     {
         $arrayReportList = array();
         $reports = $xmlData->item->responseData->message_data;
@@ -84,7 +77,7 @@ class BlueHornetReportService extends BlueHornet implements IAPIReportService, I
 
         Event::fire(new RawReportDataWasInserted($this->getApiName(),$this->getAccountName(), $arrayReportList));
     }
-    //we should make a function to return what a standard report is
+
     public function mapToStandardReport($report){
         return array(
             "internal_id" => $report['internal_id'],

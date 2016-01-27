@@ -13,7 +13,7 @@ use App\Factories\APIFactory;
  * Class RetrieveReports
  * @package App\Jobs
  */
-class RetrieveReports extends Job implements ShouldQueue
+class RetrieveApiReports extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
     CONST JOB_NAME = "RetrieveApiEspReports";
