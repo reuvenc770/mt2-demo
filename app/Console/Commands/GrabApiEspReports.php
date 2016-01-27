@@ -3,12 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Factories\APIFactory;
-use App\Repositories\ESPAccountRepo;
+use App\Repositories\EspAccountRepo;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use App\Jobs\RetrieveReports;
+use App\Jobs\RetrieveAPIReports;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-class GrabESPStats extends Command
+class GrabApiEspReports extends Command
 {
     use DispatchesJobs;
     /**
@@ -30,9 +30,9 @@ class GrabESPStats extends Command
 
     /**
      * GrabESPStats constructor.
-     * @param APIFactory $factory
+     * @param  $factory
      */
-    public function __construct(ESPAccountRepo $espRepo)
+    public function __construct(EspAccountRepo $espRepo)
     {
         parent::__construct();
         $this->espRepo = $espRepo;
@@ -47,11 +47,11 @@ class GrabESPStats extends Command
     {
         $date = Carbon::now()->subDay(5)->toDateString();
         $espName = $this->argument('espName');
-        $espAccounts = $this->espRepo->getAccountsByESPName($espName);
+        $espAccounts = $this->espRepo->getAccountsByEspName($espName);
         foreach ($espAccounts as $accounts){
             $espLogLine = "{$espName}::{$accounts->account_number}";
             $this->info($espLogLine);
-            $this->dispatch(new RetrieveReports($espName, $accounts->account_number, $date));
+            $this->dispatch(new RetrieveApiReports($espName, $accounts->account_number, $date));
         }
     }
 }

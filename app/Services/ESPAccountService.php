@@ -9,8 +9,8 @@
 namespace App\Services;
 
 
-use App\Repositories\ESPAccountRepo;
-
+use App\Repositories\EspAccountRepo;
+use League\Csv\Reader;
 /**
  * Class ESPAccountService
  * @package App\Services
@@ -18,15 +18,15 @@ use App\Repositories\ESPAccountRepo;
 class ESPAccountService
 {
     /**
-     * @var ESPAccountRepo
+     * @var EspAccountRepo
      */
     protected $espRepo;
 
     /**
      * ESPAccountService constructor.
-     * @param ESPAccountRepo $espRepo
+     * @param EspAccountRepo $espRepo
      */
-    public function __construct(ESPAccountRepo $espRepo)
+    public function __construct(EspAccountRepo $espRepo)
     {
         $this->espRepo = $espRepo;
     }
@@ -38,7 +38,7 @@ class ESPAccountService
 
     public function grabApiKeyWithSecret($account_number)
     {
-        $espDetails = $this->espRepo->getAPICredsByNumber($account_number);
+        $espDetails = $this->espRepo->getAccountByNumber($account_number);
         return array(
             "apiKey"        => $espDetails['key_1'],
             "sharedSecret"  => $espDetails['key_2']
@@ -48,18 +48,37 @@ class ESPAccountService
 
     public function grabApiKey($account_number)
     {
-        $espDetails = $this->espRepo->getAPICredsByNumber($account_number);
+        $espDetails = $this->espRepo->getAccountByNumber($account_number);
         return $espDetails['key_1'];
     }
 
     public function grabApiUsernameWithPassword($account_number)
     {
-        $espDetails = $this->espRepo->getAPICredsByNumber($account_number);
+        $espDetails = $this->espRepo->getAccountByNumber($account_number);
         return array(
             "userName"        => $espDetails['key_1'],
             "password"        => $espDetails['key_2']
 
         );
+    }
+
+    public function grabCsvMapping($account_number)
+    {
+        $espDetails = $this->espRepo->getAccountByNumber($account_number)->accountMapping;
+        return  explode(',',$espDetails->mappings);
+    }
+
+    public function mapCsvToRawStatsArray($accountNumber,$filePath){
+        $returnArray = array();
+        $mapping = $this->grabCsvMapping($accountNumber);
+        $reader = Reader::createFromPath(storage_path().'/app/'.$filePath);
+
+        $data = $reader->fetchAssoc($mapping);
+        foreach ($data as $row) {
+            $row['account_name'] = $accountNumber;
+            $returnArray[] = $row;
+        }
+        return $returnArray;
     }
 
 }

@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
  * Class RetrieveReports
  * @package App\Jobs
  */
-class RetrieveReports extends Job implements ShouldQueue
+class RetrieveApiReports extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -49,8 +49,8 @@ class RetrieveReports extends Job implements ShouldQueue
      */
     public function handle()
     {
-        $reportService = APIFactory::createAPIReportService($this->apiName,$this->accountName);
-        $data = $reportService->retrieveReportStats($this->date);
-        $reportService->insertRawStats($data);
+        $reportService = APIFactory::createApiReportService($this->apiName,$this->accountName);
+        $xmlBody = $reportService->retrieveApiReportStats($this->date);
+        $reportService->insertApiRawStats($xmlBody);
     }
 }

@@ -27,7 +27,7 @@ class EmailDirectReportService extends EmailDirectApi implements IAPIReportServi
         $this->reportRepo = $reportRepo;
     }
 
-    public function retrieveReportStats ( $date ) {
+    public function retrieveApiReportStats ( $date ) {
         try {
             return $reportStats = $this->sendApiRequest( array( 'date' => $date ) );
         } catch ( Exception $e ) {
@@ -35,7 +35,7 @@ class EmailDirectReportService extends EmailDirectApi implements IAPIReportServi
         }
     }
 
-    public function insertRawStats ( $rawStats ) {
+    public function insertApiRawStats ( $rawStats ) {
         $convertedRecordCollection = array();
 
         foreach ( $rawStats as $rawCampaignStats ) {

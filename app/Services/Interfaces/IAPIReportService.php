@@ -11,7 +11,8 @@ namespace App\Services\Interfaces;
 
 interface IAPIReportService
 {
-   public function retrieveReportStats($date);
-   public function insertRawStats($data);
+   public function retrieveApiReportStats($date);
+   public function insertApiRawStats($data);
+   public function insertCsvRawStats($data);
    public function mapToStandardReport($data);
 }
