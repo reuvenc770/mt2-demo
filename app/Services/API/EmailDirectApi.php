@@ -23,10 +23,10 @@ class EmailDirectApi extends BaseAPI {
     private $date;
     private $campaignList = array();
 
-    public function __construct ( $name , $accountNumber ) {
-        parent::__construct( $name , $accountNumber );
+    public function __construct ( $name , $espAccountId ) {
+        parent::__construct( $name , $espAccountId );
 
-        $creds = EspAccount::grabApiKeyWithSecret( $accountNumber );
+        $creds = EspAccount::grabApiKeyWithSecret( $espAccountId );
   
         $this->api = new \EmailDirect( $creds[ 'apiKey' ] );
     }

@@ -74,7 +74,7 @@ class CampaignerReportService extends CampaignerApi implements IAPIReportService
             $arrayReportList[] = $convertedReport;
         }
 
-        //Event::fire(new RawReportDataWasInserted($this->getApiName(), $this->getEspAccountId(), $arrayReportList));
+        Event::fire(new RawReportDataWasInserted($this->getApiName(), $this->getEspAccountId(), $arrayReportList));
     }
 
     /**
