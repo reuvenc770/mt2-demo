@@ -10,7 +10,8 @@
         "guzzlehttp/guzzle": "^6.1",
         "aws/aws-sdk-php": "^3.12",
         "doctrine/dbal": "^2.5",
-        "league/csv": "^8.0"
+        "league/csv": "^8.0",
+        "maxlapko/emaildirect": "dev-master"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

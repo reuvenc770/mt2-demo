@@ -15,5 +15,4 @@ interface IAPIReportService
    public function insertApiRawStats($data);
    public function insertCsvRawStats($data);
    public function mapToStandardReport($data);
-   public function mapToRawReport($data);
 }

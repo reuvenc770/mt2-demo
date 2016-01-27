@@ -1,3 +1,88 @@
+#Getting Started with MT2
+
+##Dev Enviorment
+If you do not have vagrant and virutalbox installed please do so before starting
+
+*	run `vagrant box add laravel/homestead`
+*  create a new folder named `laravel`
+	*	Withen this folder create two more folders `homestead` and `mt2`
+* run `cd homestead`
+* run `git clone https://github.com/laravel/homestead.git .`
+*	run `bash init.sh`
+* 	cd into the `mt2` folder and clone this repo into the `mt2` folder
+
+This will create `Homestead.yaml` configuration file. The Homestead.yaml file will be placed in the `~/.homestead` hidden directory
+
+* open `~/.homestead/Homestead.yaml` in any editor
+* make sure `provider` reads `provider: virtualbox`
+
+Time to setup the shared folders.  Make sure that the next section looks simlilar to your setup
+
+	folders:
+    	- map: /PATH/TO/LARAVEL/FOLDER
+      		to: /home/vagrant/laravel
+
+	sites:
+    	- map: mt2.local
+      	   to: /home/vagrant/laravel/mt2/public
+
+
+*	add `192.168.10.10  mt2.local` to your hosts files
+*	return to your homestead folder and run `vagrant up`
+
+*	This should bring up your box, going to the url that you mapped your host file to should bring up the Laravel welcome page..
+
+* cd into your `mt2` directory and create a `.env` file  here is my file, for local dev i use the DB drive for the queue so i can see the jobs pop on and off.
+
+		APP_ENV=local
+		APP_DEBUG=true
+		APP_KEY=W2QW3gI1dbRQ5Ecf2Det0e6tXvzPuPO0
+
+		DB_HOST=localhost
+		DB_DATABASE=homestead
+		DB_USERNAME=homestead
+		DB_PASSWORD=secret
+
+		CACHE_DRIVER=file
+		SESSION_DRIVER=file
+		QUEUE_DRIVER=database
+
+		REDIS_HOST=localhost
+		REDIS_PASSWORD=null
+		REDIS_PORT=6379
+
+		MAIL_DRIVER=smtp
+		MAIL_HOST=mailtrap.io
+		MAIL_PORT=2525
+		MAIL_USERNAME=null
+		MAIL_PASSWORD=null
+		MAIL_ENCRYPTION=null
+
+
+*	ssh into VM by running `vagrant ssh` from the `homestead` folder
+* once there cd into `/home/vagrant/laravel/mt2/`
+* run `php artisan migrate` this should create all the database tables
+* when seed data is done(incomplete)  run `php artisan db:seed`
+
+
+## Running Console Commands & Queues
+
+All these commands shouold be done on the VM itself
+
+###Run Queue Workers
+The queue is a general command and will try and work any jobs.
+`php artisan queue:listen --sleep=3 --tries=3`
+
+### Firing Command Line Jobs
+
+all console commands are fired the same
+`php artisan reports:downloadESP BlueHornet`
+you can see  the list by running `php arisan list`
+
+
+
+
+
 ## Laravel PHP Framework
 
 [![Build Status](https://travis-ci.org/laravel/framework.svg)](https://travis-ci.org/laravel/framework)
