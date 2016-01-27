@@ -1,6 +1,6 @@
 #Getting Started with MT2
 
-##Dev Enviorment
+##Dev Environment
 If you do not have vagrant and virutalbox installed please do so before starting
 
 *	run `vagrant box add laravel/homestead`
