@@ -2,11 +2,12 @@
 
 namespace App\Jobs;
 
+use App\Models\JobEntry;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Facades\JobTracking;
 use App\Factories\APIFactory;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class RetrieveReports
@@ -15,31 +16,20 @@ use Illuminate\Support\Facades\Log;
 class RetrieveApiReports extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
-
-    /**
-     * @var
-     */
+    CONST JOB_NAME = "RetrieveApiEspReports";
     protected $apiName;
-    /**
-     * @var
-     */
     protected $accountName;
-    /**
-     * @var
-     */
     protected $date;
+    protected $maxAttempts;
+    protected $tracking;
 
-    /**
-     * RetrieveReports constructor.
-     * @param $apiName
-     * @param $accountName
-     * @param $date
-     */
-    public function __construct($apiName, $accountName, $date)
+    public function __construct($apiName, $accountName, $date, $tracking)
     {
        $this->apiName = $apiName;
        $this->accountName = $accountName;
        $this->date = $date;
+       $this->maxAttempts = env('MAX_ATTEMPTS',10);
+       $this->tracking = $tracking;
     }
 
     /**
@@ -49,8 +39,21 @@ class RetrieveApiReports extends Job implements ShouldQueue
      */
     public function handle()
     {
-        $reportService = APIFactory::createApiReportService($this->apiName,$this->accountName);
-        $xmlBody = $reportService->retrieveApiReportStats($this->date);
-        $reportService->insertApiRawStats($xmlBody);
+        JobTracking::startEspJob(self::JOB_NAME,$this->apiName, $this->accountName, $this->tracking);
+        //If it has been retried lets make it wait before it goes back out
+        if ($this->attempts() > $this->maxAttempts) {
+            $this->release(1);
+        }
+        $reportService = APIFactory::createAPIReportService($this->apiName,$this->accountName);
+        $data = $reportService->retrieveApiReportStats($this->date);
+        $reportService->insertApiRawStats($data);
+        JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking, $this->attempts());
+
+    }
+
+
+    public function failed()
+    {
+        JobTracking::changeJobState(JobEntry::FAILED,$this->tracking, $this->maxAttempts);
     }
 }
