@@ -1,7 +1,7 @@
 #Getting Started with MT2
 
 ##Dev Environment
-If you do not have vagrant and virutalbox installed please do so before starting
+If you do not have vagrant, virtualbox, and composer installed please do so before starting
 
 *	run `vagrant box add laravel/homestead`
 *  create a new folder named `laravel`
