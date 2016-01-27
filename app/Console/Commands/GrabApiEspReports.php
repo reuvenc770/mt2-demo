@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 
 use App\Repositories\ESPAccountRepo;
 use Carbon\Carbon;
-use App\Jobs\RetrieveReports;
+use App\Jobs\RetrieveApiReports;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 class GrabApiEspReports extends Command
@@ -16,7 +16,7 @@ class GrabApiEspReports extends Command
      *
      * @var string
      */
-    protected $signature = 'reports:downloadESP {espName} {lookBack?}';
+    protected $signature = 'reports:downloadApi {espName} {lookBack?}';
     protected $espRepo;
     protected $lookBack;
 
@@ -51,7 +51,7 @@ class GrabApiEspReports extends Command
         foreach ($espAccounts as $accounts){
             $espLogLine = "{$espName}::{$accounts->account_number}";
             $this->info($espLogLine);
-            $this->dispatch(new RetrieveReports($espName, $accounts->account_number, $date, str_random(16)));
+            $this->dispatch(new RetrieveApiReports($espName, $accounts->account_number, $date, str_random(16)));
         }
     }
 }

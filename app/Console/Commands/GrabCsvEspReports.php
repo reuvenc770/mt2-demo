@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Factories\APIFactory;
 use App\Repositories\EspAccountRepo;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -17,7 +16,7 @@ class GrabCsvEspReports extends Command
      *
      * @var string
      */
-    protected $signature = 'reports:downloadCSV {espName}';
+    protected $signature = 'reports:downloadCsv {espName}';
     protected $factory;
     protected $espRepo;
 
@@ -28,11 +27,6 @@ class GrabCsvEspReports extends Command
      */
     protected $description = 'Command description';
 
-
-    /**
-     * GrabESPStats constructor.
-     * @param APIFactory $factory
-     */
     public function __construct(EspAccountRepo $espRepo)
     {
         parent::__construct();

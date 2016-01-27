@@ -20,6 +20,7 @@ class CreateJobEntriesTable extends Migration
             $table->timestamp('time_started');
             $table->timestamp('time_finished');
             $table->integer('attempts');
+            $table->string('tracking',16);
             $table->string('status');
 
         });
