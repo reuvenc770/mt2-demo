@@ -48,7 +48,7 @@ class ESPAccountService
 
     public function grabApiKey($account_number)
     {
-        $espDetails = $this->espRepo->getAPICredsByNumber($account_number);
+        $espDetails = $this->espRepo->getAccountByNumber($account_number);
         return $espDetails['key_1'];
     }
 
