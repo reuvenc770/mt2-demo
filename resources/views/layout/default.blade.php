@@ -8,7 +8,7 @@
 
         @include( 'layout.top-nav' )
 
-        <div class="container-fluid fullHeight">
+        <div id="pageContent" class="container-fluid fullHeight">
             @yield( 'content' )
         </div>
 

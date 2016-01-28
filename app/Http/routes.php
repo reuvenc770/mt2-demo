@@ -11,9 +11,11 @@
 |
 */
 
-Route::get('/', function () {
-    return View::make( 'layout.app' );
-});
+Route::resource( 'esp' , 'EspUiController' );
+
+Route::group( [ 'prefix' => 'api' ] , function () {
+} );
+
 Route::get('test', 'TestStuff@index');
 /*
 |--------------------------------------------------------------------------
@@ -27,5 +29,7 @@ Route::get('test', 'TestStuff@index');
 */
 
 Route::group(['middleware' => ['web']], function () {
-    //
+    Route::get('/', function () {
+        return View::make( 'layout.app' );
+    });
 });
