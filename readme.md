@@ -1,7 +1,7 @@
 #Getting Started with MT2
 
 ##Dev Environment
-If you do not have vagrant and virutalbox installed please do so before starting
+If you do not have vagrant, virtualbox, and composer installed please do so before starting
 
 *	run `vagrant box add laravel/homestead`
 *  create a new folder named `laravel`
@@ -9,7 +9,7 @@ If you do not have vagrant and virutalbox installed please do so before starting
 * run `cd homestead`
 * run `git clone https://github.com/laravel/homestead.git .`
 *	run `bash init.sh`
-* 	cd into the `mt2` folder and clone this repo into the `mt2` folder
+* 	cd into the `mt2` folder and clone this (MT2 Demo) repo into the `mt2` folder
 
 This will create `Homestead.yaml` configuration file. The Homestead.yaml file will be placed in the `~/.homestead` hidden directory
 

@@ -20,10 +20,10 @@ class BlueHornetApi extends BaseAPI
     CONST API_URL = "https://echo.bluehornet.com/api/xmlrpc/index.php";
     private  $apiKey;
     private  $sharedSecret;
-    public function __construct($name, $accountNumber)
+    public function __construct($name, $espAccountId)
     {
-        parent::__construct($name, $accountNumber);
-        $creds = EspAccount::grabApiKeyWithSecret($accountNumber);
+        parent::__construct($name, $espAccountId);
+        $creds = EspAccount::grabApiKeyWithSecret($espAccountId);
         $this->apiKey = $creds['apiKey'];
         $this->sharedSecret = $creds['sharedSecret'];
 

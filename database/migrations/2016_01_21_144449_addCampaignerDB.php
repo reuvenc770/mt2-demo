@@ -40,6 +40,6 @@ class AddCampaignerDB extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('campaigner_reports');
     }
 }
