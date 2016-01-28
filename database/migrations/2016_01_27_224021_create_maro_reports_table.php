@@ -14,7 +14,8 @@ class CreateMaroReportsTable extends Migration
     {
         Schema::create('maro_reports', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('campaign_id');
+            $table->string('account_name');
+            $table->integer('campaign_id')->default(0);
             $table->string('name')->default('');
             $table->string('status')->default('');
             $table->integer('sent')->default(0);
@@ -24,10 +25,14 @@ class CreateMaroReportsTable extends Migration
             $table->integer('bounce')->default(0);
             $table->dateTime('send_at')->default('0000-00-00 00:00:00');
             $table->dateTime('sent_at')->default('0000-00-00 00:00:00');
-            $table->dateTime('created_at')->default('0000-00-00 00:00:00');
-            $table->dateTime('updated_at')->default('0000-00-00 00:00:00');
-            $table->timestamps()->default('0000-00-00 00:00:00');
+            $table->dateTime('maro_created_at')->default('0000-00-00 00:00:00');
+            $table->dateTime('maro_updated_at')->default('0000-00-00 00:00:00');
+            $table->timestamps();
             $table->unique(array('campaign_id', 'sent_at'));
+        });
+
+        Schema::table('maro_reports', function($table) {
+            $table->foreign('account_name')->references('account_name')->on('esp_accounts');
         });
     }
 

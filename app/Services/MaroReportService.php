@@ -30,17 +30,47 @@ class MaroReportService extends MaroApi implements IAPIReportService, IReportSer
         $outputData = array();
 
         $firstPullUrl = $this->constructApiUrl();
-        $firstData = $this->sendApiRequest($firstPullData);
+        $firstData = $this->sendApiRequest($firstPullUrl);
 
-        $firstData = json_decode($firstData, true);
+        $firstData = $this->processGuzzleResult($firstData);
+
         if (sizeof($firstData) > 0) {
-            $pages = 
+            $pages = (int)$firstData[0]['total_pages'];
+            $outputData = array_merge($outputData, $firstData);
+            
+            if ($pages > 0) {
+                $i = 0;
+                while ($i <= $pages) {
+                    $url = $this->constructApiUrl($i);
+                    $data = $this->sendApiRequest($url);
+                    $data = $this->processGuzzleResult($data);
+                    $outputData = array_merge($outputData, $data);
+                    $i++;
+                }
+            }
         }
         
         return $outputData;
     }
 
-    public function insertApiRawStats($data) {}
+    protected function processGuzzleResult($data) {
+        $data = $data->getBody()->getContents();
+        return json_decode($data, true);
+    }
+
+    public function insertApiRawStats($data) {
+        foreach($data as $id => $row) {
+            $convertedReport = $this->mapToRawReport($row);
+            try {
+                $this->reportRepo->insertStats($this->getEspAccountId(), $convertedReport);
+            }
+            catch (Exception $e) {
+                throw new \Exception($e->getMessage());
+            }
+        }
+
+        Event::fire(new RawReportDataWasInserted($this->getApiName(), $this->getEspAccountId(), $data));
+    }
 
     public function mapToStandardReport($data) {}
 
@@ -56,8 +86,8 @@ class MaroReportService extends MaroApi implements IAPIReportService, IReportSer
             'bounce' => $data['bounce'],
             'send_at' => $data['send_at'],
             'sent_at' => $data['sent_at'],
-            'created_at' => $data['created_at'],
-            'updated_at' => $data['updated_at'],
+            'maro_created_at' => $data['created_at'],
+            'maro_updated_at' => $data['updated_at'],
         );
     }
 
