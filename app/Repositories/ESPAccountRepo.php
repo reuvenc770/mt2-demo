@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
  * Class ESPAccountRepo
  * @package App\Repositories
  */
-class ESPAccountRepo
+class EspAccountRepo
 {
 
     /**
@@ -29,7 +29,7 @@ class ESPAccountRepo
      * ESPAccountRepo constructor.
      * @param EspAccount $espAccount
      */
-    public function __construct(ESPAccount $espAccount)
+    public function __construct(EspAccount $espAccount)
     {
         $this->espAccount = $espAccount;
     }
@@ -40,20 +40,21 @@ class ESPAccountRepo
      * @return mixed
      */
     public function getAccountsByESPName($espName){
-
         return DB::table('esp_accounts')
             ->join('esps', 'esps.id', '=', 'esp_accounts.esp_id')
-            ->select('*')
+            ->select('esp_accounts.*')
+            ->addSelect('esps.name')
             ->where('esps.name',$espName)
             ->get();
 
-
     }
 
-    public function getAPICredsByNumber($accountNumber){
-
-        return$espDetails = $this->espAccount
-            ->where('account_number',$accountNumber)
-            ->first();
+    /**
+     * @param $espAccountId
+     * @return EspAccount
+     */
+    public function getAccount($espAccountId){
+        return $this->espAccount->find($espAccountId);
     }
+
 }

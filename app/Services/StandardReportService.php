@@ -15,12 +15,12 @@ class StandardReportService implements IReportService
 {
     protected $repo;
     private $apiName;
-    private $accountNumber;
+    private $espAccountId;
 
-    public function __construct(ReportRepo $reportRepo, $apiName, $accountNumber){
+    public function __construct(ReportRepo $reportRepo, $apiName, $espAccountId){
        $this->repo = $reportRepo;
        $this->apiName = $apiName;
-       $this->accountNumber = $accountNumber;
+       $this->accountNumber = $espAccountId;
     }
 
     public function insertStandardStats($standardReport){
@@ -30,9 +30,9 @@ class StandardReportService implements IReportService
     /**
      * @return mixed
      */
-    public function getAccountName()
+    public function getEspAccountId()
     {
-        return $this->accountNumber;
+        return $this->getEspAccountId();
     }
 
     /**

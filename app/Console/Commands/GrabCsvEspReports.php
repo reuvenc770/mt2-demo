@@ -1,14 +1,15 @@
 <?php
 
+//TODO Finish once have more info
 namespace App\Console\Commands;
 
-use App\Factories\APIFactory;
-use App\Repositories\ESPAccountRepo;
+use App\Repositories\EspAccountRepo;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use App\Jobs\RetrieveReports;
+use App\Jobs\RetrieveCsvReports;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-class GrabESPStats extends Command
+use Illuminate\Support\Facades\Storage;
+class GrabCsvEspReports extends Command
 {
     use DispatchesJobs;
     /**
@@ -16,7 +17,7 @@ class GrabESPStats extends Command
      *
      * @var string
      */
-    protected $signature = 'reports:downloadESP {espName}';
+    protected $signature = 'reports:downloadCsv {espName}';
     protected $factory;
     protected $espRepo;
 
@@ -27,12 +28,7 @@ class GrabESPStats extends Command
      */
     protected $description = 'Command description';
 
-
-    /**
-     * GrabESPStats constructor.
-     * @param APIFactory $factory
-     */
-    public function __construct(ESPAccountRepo $espRepo)
+    public function __construct(EspAccountRepo $espRepo)
     {
         parent::__construct();
         $this->espRepo = $espRepo;
@@ -47,11 +43,13 @@ class GrabESPStats extends Command
     {
         $date = Carbon::now()->subDay(5)->toDateString();
         $espName = $this->argument('espName');
-        $espAccounts = $this->espRepo->getAccountsByESPName($espName);
-        foreach ($espAccounts as $accounts){
-            $espLogLine = "{$espName}::{$accounts->account_number}";
-            $this->info($espLogLine);
-            $this->dispatch(new RetrieveReports($espName, $accounts->account_number, $date));
-        }
+        $files = Storage::Files($espName);  //most likely will be FTP or /s3
+            foreach ($files as $file){
+              $fileInfo = pathinfo($file);
+                $this->info("Starting {$espName}");
+                $this->dispatch(new RetrieveCsvReports($espName, "BH001", $file, str_random(16)));
+            }
+
+       // }
     }
 }

@@ -9,6 +9,6 @@ class Esp extends Model
 
     public function espAccounts()
     {
-        return $this->hasMany('App\Model\EspAccounts');
+        return $this->hasMany('App\Models\EspAccount');
     }
 }

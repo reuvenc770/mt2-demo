@@ -25,6 +25,8 @@ class AddUniqueToEspNumber extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('esp_accounts', function($table) {
+            $table->dropUnique('account_number');
+        });
     }
 }

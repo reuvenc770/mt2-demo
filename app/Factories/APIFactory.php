@@ -23,7 +23,7 @@ class APIFactory
      * @return mixed
      * @throws \Exception
      */
-    public static function createAPIReportService($apiName, $accountNumber)
+    public static function createApiReportService($apiName, $espAccountId)
     {
         $reportName = "{$apiName}Report";
         $reportModelName = "App\\Models\\{$reportName}";
@@ -31,7 +31,7 @@ class APIFactory
 
         $reportServiceName = "App\\Services\\{$reportName}Service";
         if (class_exists($reportServiceName)) {
-            return new $reportServiceName(new ReportRepo($reportModel), $apiName, $accountNumber);
+            return new $reportServiceName(new ReportRepo($reportModel), $apiName, $espAccountId);
         } else {
             throw new \Exception("That Report Service does not exist");
         }

@@ -10,14 +10,14 @@ namespace App\Services\API;
 use App\Facades\EspAccount;
 use App\Library\Campaigner\CampaignManagement;
 use App\Library\Campaigner\Authentication;
-class Campaigner extends BaseAPI
+class CampaignerApi extends BaseAPI
 {
     private  $auth;
 
-    public function __construct($name, $accountNumber)
+    public function __construct($name, $espAccountId)
     {
-        parent::__construct($name, $accountNumber);
-        $creds = EspAccount::grabApiUsernameWithPassword($accountNumber);
+        parent::__construct($name, $espAccountId);
+        $creds = EspAccount::grabApiUsernameWithPassword($espAccountId);
         $this->auth =  new Authentication($creds['userName'], $creds['password']);
     }
 
