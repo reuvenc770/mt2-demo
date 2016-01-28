@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddUniqueToEspNumber extends Migration
+class ChangeAccountNumber extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class AddUniqueToEspNumber extends Migration
     public function up()
     {
         Schema::table('esp_accounts', function($table) {
-            $table->string('account_number')->unique()->change();
+            $table->renameColumn('account_number', 'account_name');
         });
 
     }
@@ -25,8 +25,6 @@ class AddUniqueToEspNumber extends Migration
      */
     public function down()
     {
-        Schema::table('esp_accounts', function($table) {
-            $table->dropUnique('account_number');
-        });
+        //
     }
 }

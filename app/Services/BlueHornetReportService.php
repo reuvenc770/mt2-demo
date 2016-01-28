@@ -29,9 +29,9 @@ class BlueHornetReportService extends BlueHornetApi implements IAPIReportService
      * @param ReportRepo $reportRepo
      * @param $accountNumber
      */
-    public function __construct(ReportRepo $reportRepo, $apiName, $accountNumber)
+    public function __construct(ReportRepo $reportRepo, $apiName, $espAccountId)
     {
-        parent::__construct($apiName, $accountNumber,$reportRepo);
+        parent::__construct($apiName, $espAccountId,$reportRepo);
         $this->reportRepo = $reportRepo;
     }
 
@@ -67,7 +67,7 @@ class BlueHornetReportService extends BlueHornetApi implements IAPIReportService
             $convertedReport = $this->mapToRawReport($report);
 
             try {
-                $this->reportRepo->insertStats($this->getAccountName(), $convertedReport);
+                $this->reportRepo->insertStats($this->getEspAccountId(), $convertedReport);
             } catch (Exception $e){
                 throw new \Exception($e->getMessage());
             }
@@ -75,13 +75,13 @@ class BlueHornetReportService extends BlueHornetApi implements IAPIReportService
             $arrayReportList[] = $convertedReport;
         }
 
-        Event::fire(new RawReportDataWasInserted($this->getApiName(),$this->getAccountName(), $arrayReportList));
+        Event::fire(new RawReportDataWasInserted($this->getApiName(),$this->getEspAccountId(), $arrayReportList));
     }
 
     public function mapToStandardReport($report){
         return array(
             "internal_id" => $report['internal_id'],
-            "account_name"=> $this->getAccountName(),
+            "esp_account_id"=> $this->getEspAccountId(),
             "name" => $report['message_name'],
             "subject" => $report['message_subject'],
             "opens"   => $report['opened_total'],
@@ -92,7 +92,7 @@ class BlueHornetReportService extends BlueHornetApi implements IAPIReportService
     public function mapToRawReport($report){
         return array(
             "internal_id" => (string)$report['id'],
-            "account_name" => $this->getAccountName(),
+            "esp_account_id" => $this->getEspAccountId(),
             "message_subject" => (string)$report->message_subject,
             "message_name" => (string)$report->message_name,
             "date_sent" => (string)$report->date_sent,

@@ -23,10 +23,10 @@ class EmailDirectApi extends BaseAPI {
     private $date;
     private $campaignList = array();
 
-    public function __construct ( $name , $accountNumber ) {
-        parent::__construct( $name , $accountNumber );
+    public function __construct ( $name , $espAccountId ) {
+        parent::__construct( $name , $espAccountId );
 
-        $creds = EspAccount::grabApiKeyWithSecret( $accountNumber );
+        $creds = EspAccount::grabApiKeyWithSecret( $espAccountId );
   
         $this->api = new \EmailDirect( $creds[ 'apiKey' ] );
     }
@@ -66,7 +66,7 @@ class EmailDirectApi extends BaseAPI {
             if ( $campaignDetailsResponse->success() ) {
                 $reportStats []= $campaignDetailsResponse->getData();
             } else {
-                throw new Exception( 'Email Direct API Call Failed.' . $campaignListResponse->getErrorMessage() , $campaignListResponse->getErrorCode() );
+                throw new Exception( 'Email Direct API Call Failed.' . $campaignDetailsResponse->getErrorMessage() , $campaignDetailsResponse->getErrorCode() );
             }
         }
 

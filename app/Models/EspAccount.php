@@ -16,6 +16,18 @@ class EspAccount extends Model
         return $this->hasOne('App\Models\EspAccountMapping');
     }
 
+    public function blueHornetReports(){
+        return $this->hasMany('App\Models\BlueHornetReport');
+    }
+
+    public function campaignerReports(){
+        return $this->hasMany('App\Models\CampaignerReport');
+    }
+
+    public function emailDirectReport(){
+    return $this->hasMany('App\Models\EmailDirectReport');
+    }
+
     public function getFirstKey()
     {
         return $this->attributes['key_1'];

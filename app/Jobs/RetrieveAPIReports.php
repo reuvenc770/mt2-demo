@@ -18,15 +18,15 @@ class RetrieveApiReports extends Job implements ShouldQueue
     use InteractsWithQueue, SerializesModels;
     CONST JOB_NAME = "RetrieveApiEspReports";
     protected $apiName;
-    protected $accountName;
+    protected $espAccountId;
     protected $date;
     protected $maxAttempts;
     protected $tracking;
 
-    public function __construct($apiName, $accountName, $date, $tracking)
+    public function __construct($apiName, $espAccountId, $date, $tracking)
     {
        $this->apiName = $apiName;
-       $this->accountName = $accountName;
+       $this->espAccountId = $espAccountId;
        $this->date = $date;
        $this->maxAttempts = env('MAX_ATTEMPTS',10);
        $this->tracking = $tracking;
@@ -39,14 +39,16 @@ class RetrieveApiReports extends Job implements ShouldQueue
      */
     public function handle()
     {
-        JobTracking::startEspJob(self::JOB_NAME,$this->apiName, $this->accountName, $this->tracking);
+        JobTracking::startEspJob(self::JOB_NAME,$this->apiName, $this->espAccountId, $this->tracking);
         //If it has been retried lets make it wait before it goes back out
         if ($this->attempts() > $this->maxAttempts) {
             $this->release(1);
         }
-        $reportService = APIFactory::createAPIReportService($this->apiName,$this->accountName);
+        $reportService = APIFactory::createAPIReportService($this->apiName,$this->espAccountId);
         $data = $reportService->retrieveApiReportStats($this->date);
-        $reportService->insertApiRawStats($data);
+        if($data){
+            $reportService->insertApiRawStats($data);
+        }
         JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking, $this->attempts());
 
     }

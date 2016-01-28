@@ -48,10 +48,10 @@ class GrabApiEspReports extends Command
 
         $espAccounts = $this->espRepo->getAccountsByESPName($espName);
 
-        foreach ($espAccounts as $accounts){
-            $espLogLine = "{$espName}::{$accounts->account_number}";
+        foreach ($espAccounts as $account){
+            $espLogLine = "{$account->name}::{$account->account_name}";
             $this->info($espLogLine);
-            $this->dispatch(new RetrieveApiReports($espName, $accounts->account_number, $date, str_random(16)));
+            $this->dispatch(new RetrieveApiReports($account->name, $account->id, $date, str_random(16)));
         }
     }
 }
