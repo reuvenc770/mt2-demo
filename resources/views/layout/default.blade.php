@@ -42,6 +42,7 @@
         </div>
 
         <div class="container-fluid fullHeight">
+            @include('flash::message')
             @yield( 'content' )
         </div>
 

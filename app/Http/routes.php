@@ -15,6 +15,7 @@ Route::get('/', function () {
     return View::make( 'layout.app' );
 });
 Route::get('test', 'TestStuff@index');
+Route::get('update', 'HomeController@fuck');
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -26,6 +27,15 @@ Route::get('test', 'TestStuff@index');
 |
 */
 
-Route::group(['middleware' => ['web']], function () {
-    //
+Route::group(['middleware' => ['auth','admin']], function () {
+    Route::get('register', 'RegistrationController@create');
+    Route::post('register', ['as' => 'registration.store', 'uses' => 'RegistrationController@store']);
 });
+//guest only
+Route::group(['middleware' => ['guest']], function () {
+    Route::get('login', ['as' => 'login', 'uses' => 'SessionsController@create']);
+});
+
+//open routes
+Route::resource('sessions', 'SessionsController' , ['only' => ['create','store','destroy']]);
+Route::get('home', ['as' => 'home', 'uses' => 'HomeController@home']);

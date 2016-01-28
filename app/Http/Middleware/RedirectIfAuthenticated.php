@@ -2,25 +2,25 @@
 
 namespace App\Http\Middleware;
 
+use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Closure;
-use Illuminate\Support\Facades\Auth;
+use Laracasts\Flash\Flash;
 
 class RedirectIfAuthenticated
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @param  string|null  $guard
+     * @param  \Illuminate\Http\Request $request
+     * @param  \Closure $next
      * @return mixed
      */
-    public function handle($request, Closure $next, $guard = null)
+    public function handle($request, Closure $next)
     {
-        if (Auth::guard($guard)->check()) {
-            return redirect('/');
+        if (Sentinel::check()) {
+            Flash::warning("You are already logged in");
+            return redirect('/home');
         }
-
         return $next($request);
     }
 }
