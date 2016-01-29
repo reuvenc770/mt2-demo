@@ -31,13 +31,16 @@ class SessionsController extends Controller
         try {
             if (Sentinel::authenticate($input, $request->has('remember'))) {
                 Flash::success("Successfully logged in");
-                return redirect()->intended('/');
+                return redirect()->intended('/home');
             }
-            return redirect()->back()->withInput()->withErrorMessage('Invalid credentials provided');
+            Flash::error("Invalid credentials provided");
+            return redirect()->back()->withInput();
         } catch (NotActivatedException $e) {
-            return redirect()->back()->withInput()->withErrorMessage('User Not Activated.');
+            Flash::error("'User Not Activated.");
+            return redirect()->back()->withInput();
         } catch (ThrottlingException $e) {
-            return redirect()->back()->withInput()->withErrorMessage($e->getMessage());
+            Flash::error($e->getMessage());
+            return redirect()->back()->withInput();
         }
     }
 

@@ -20,7 +20,7 @@ class SentinelAuthenticate
             if ($request->ajax()) {
                 return response('Unauthorized.', 401);
             } else {
-                Flash::info('Welcome Aboard!');
+                Flash::info('You need to be logged in to do that!');
                 return redirect()->guest('login');
             }
         }

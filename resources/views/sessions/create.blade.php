@@ -14,15 +14,15 @@
 
 
                                 <!-- Email field -->
-                                <div class="form-group">
+                                <div class="form-group @if ($errors->has('email')) has-error @endif">
                                     <input placeholder="Email" class="form-control" required="required" name="email" type="text" value="{{ old('email') }}">
-
+                                    @if ($errors->has('email')) <p class="help-block">{{ $errors->first('email') }}</p> @endif
                                 </div>
 
                                 <!-- Password field -->
-                                <div class="form-group">
+                                <div class="form-group @if ($errors->has('password')) has-error @endif">
                                     <input placeholder="Password" class="form-control" required="required" name="password" type="password" value="">
-
+                                    @if ($errors->has('password')) <p class="help-block">{{ $errors->first('password') }}</p> @endif
                                 </div>
 
                                 <div class="checkbox">
@@ -43,6 +43,9 @@
                             </fieldset>
                         </form>
                     </div>
+                </div>
+                <div style="text-align:center">
+                    <p><a href="{{ url('forgot_password') }}">Forgot Password?</a></p>
                 </div>
             </div>
         </div>
