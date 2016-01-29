@@ -3,7 +3,7 @@
     <head>
         @include( 'layout.html-head' )
     </head>
-    <body>
+    <body ng-app="mt2App">
         @include( 'layout.header' )
 
         @include( 'layout.top-nav' )

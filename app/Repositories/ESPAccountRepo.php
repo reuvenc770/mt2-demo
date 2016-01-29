@@ -50,6 +50,18 @@ class EspAccountRepo
     }
 
     /**
+     * 
+     * 
+     * @return mixed
+     */
+    public function getAllAccounts(){
+        return DB::table('esp_accounts')
+            ->join('esps', 'esps.id', '=', 'esp_accounts.esp_id')
+            ->select('esp_accounts.account_name as account' , 'esp_accounts.created_at as created' , 'esps.name as esp')
+            ->get();
+    }
+
+    /**
      * @param $espAccountId
      * @return EspAccount
      */

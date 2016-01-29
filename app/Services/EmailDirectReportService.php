@@ -54,13 +54,15 @@ class EmailDirectReportService extends EmailDirectApi implements IAPIReportServi
     }
 
     public function mapToStandardReport ( $data ) {
+        $formatedData = $this->mapToRawReport( $data );
+
         return array(
-            "internal_id" => $data[ 'campaign_id' ] ,
+            "internal_id" => $formatedData[ 'campaign_id' ] ,
             "esp_account_id" => $this->getEspAccountId() ,
-            "name" => $data[ 'name' ] ,
-            "subject" => $data[ 'subject' ] ,
-            "opens" => $data[ 'opens' ] ,
-            "clicks" => $data[ 'total_clicks' ]
+            "name" => $formatedData[ 'name' ] ,
+            "subject" => $formatedData[ 'subject' ] ,
+            "opens" => $formatedData[ 'opens' ] ,
+            "clicks" => $formatedData[ 'total_clicks' ]
         );
     }
 

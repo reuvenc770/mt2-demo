@@ -16,6 +16,9 @@
 <div class="row">
     <div class="col-xs-12">
         <div id="mtTableContainer" class="table-responsive">
+            <esp-table></esp-table>
+
+<!-- COMMENT TOP
             <table class="table table-striped table-bordered table-hover text-center">
                 <thead>
                     <tr>
@@ -64,6 +67,8 @@
                     </tr>
                 </tbody>
             </table>
+COMMENT BOTTOM -->
+
         </div>
     </div>
 </div>
