@@ -31,7 +31,6 @@ class MaroReportService extends MaroApi implements IAPIReportService, IReportSer
 
         $firstPullUrl = $this->constructApiUrl();
         $firstData = $this->sendApiRequest($firstPullUrl);
-
         $firstData = $this->processGuzzleResult($firstData);
 
         if (sizeof($firstData) > 0) {
@@ -60,6 +59,9 @@ class MaroReportService extends MaroApi implements IAPIReportService, IReportSer
 
     public function insertApiRawStats($data) {
         foreach($data as $id => $row) {
+            $row['account_name'] = $this->accountName;
+            $row['esp_id'] = $this->espId;
+            $row['esp_account_id'] = $this->getEspAccountId();
             $convertedReport = $this->mapToRawReport($row);
             try {
                 $this->reportRepo->insertStats($this->getEspAccountId(), $convertedReport);
@@ -69,21 +71,32 @@ class MaroReportService extends MaroApi implements IAPIReportService, IReportSer
             }
         }
 
-        Event::fire(new RawReportDataWasInserted($this->getApiName(), $this->getEspAccountId(), $data));
+        Event::fire(new RawReportDataWasInserted($this->getApiName(), $this->getEspAccountId(), $convertedReport));
     }
 
-    public function mapToStandardReport($data) {}
+    public function mapToStandardReport($data) {
+        return array(
+            "internal_id" => $data['campaign_id'],
+            "esp_account_id" => $this->getEspAccountId(),
+            "name" => $this->accountName,
+            "subject" => '',
+            "opens" => $data['open'],
+            "clicks" => $data['click']
+        ); 
+    }
 
     public function mapToRawReport($data) {
         return array(
-            'status' => (string)$data->status,
-            'campaign_id' => (int)$data['campaign_id'],
+            'status' => $data['status'],
+            'esp_id' => $data['esp_id'],
+            'account_name' => $data['account_name'],
+            'internal_id' => (int)$data['campaign_id'],
             'name' => $data['name'],
-            'sent' => $data['sent'],
-            'delivered' => $data['delivered'],
-            'open' => $data['open'],
-            'click' => $data['click'],
-            'bounce' => $data['bounce'],
+            'sent' => (int)$data['sent'],
+            'delivered' => (int)$data['delivered'],
+            'open' => (int)$data['open'],
+            'click' => (int)$data['click'],
+            'bounce' => (int)$data['bounce'],
             'send_at' => $data['send_at'],
             'sent_at' => $data['sent_at'],
             'maro_created_at' => $data['created_at'],

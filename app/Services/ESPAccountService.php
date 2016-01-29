@@ -84,6 +84,7 @@ class ESPAccountService
     public function grabApiAccountNameAndKey($espAccountId) {
         $espDetails = $this->espRepo->getAccount($espAccountId);
         return array(
+            'espId' => $espDetails['esp_id'],
             'accountName' => $espDetails['account_name'],
             'apiKey' => $espDetails['key_1']
         );

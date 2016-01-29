@@ -24,6 +24,7 @@ class MaroApi extends BaseAPI {
         $creds = EspAccount::grabApiAccountNameAndKey($espAccountId);
         $this->accountName = $creds['accountName'];
         $this->apiKey = $creds['apiKey'];
+        $this->espId = $creds['espId'];
     }
 
     public function setDate($date) {
@@ -43,6 +44,7 @@ class MaroApi extends BaseAPI {
             $baseUrl .= '&page=' . $page;
         }
         if ($this->date) {
+            #$baseUrl .= '&from=' . $this->date . '&to=' . $this->date;
             $baseUrl .= '&from=' . $this->date . '&to=' . $this->date;
         }
         return $baseUrl;
