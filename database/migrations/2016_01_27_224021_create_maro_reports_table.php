@@ -14,9 +14,7 @@ class CreateMaroReportsTable extends Migration
     {
         Schema::create('maro_reports', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('esp_id')->default(0);
-            $table->integer('esp_account_id')->default(0);
-            $table->string('account_name')->default('');
+            $table->integer('esp_account_id')->unsigned()->default(0);
             $table->integer('internal_id')->default(0);
             $table->string('name')->default('');
             $table->string('status')->default('');
@@ -30,10 +28,9 @@ class CreateMaroReportsTable extends Migration
             $table->dateTime('maro_created_at')->default('0000-00-00 00:00:00');
             $table->dateTime('maro_updated_at')->default('0000-00-00 00:00:00');
             $table->timestamps();
-            $table->unique(array('internal_id', 'sent_at'));
-            $table->index('esp_id');
+            $table->index('internal_id');
             $table->index(array('esp_account_id', 'internal_id'));
-            $table->foreign('account_name')->references('account_name')->on('esp_accounts');
+            $table->foreign('esp_account_id')->references('id')->on('esp_accounts');
         });
     }
 

@@ -26,16 +26,17 @@ class MaroReportService extends MaroApi implements IAPIReportService, IReportSer
 
 
     public function retrieveApiReportStats($date) {
-        $this->date = $date;
+        $this->setDate($date);
         $outputData = array();
 
         $firstPullUrl = $this->constructApiUrl();
         $firstData = $this->sendApiRequest($firstPullUrl);
         $firstData = $this->processGuzzleResult($firstData);
 
+        $outputData = array_merge($outputData, $firstData);
+
         if (sizeof($firstData) > 0) {
             $pages = (int)$firstData[0]['total_pages'];
-            $outputData = array_merge($outputData, $firstData);
             
             if ($pages > 0) {
                 $i = 0;
@@ -58,26 +59,22 @@ class MaroReportService extends MaroApi implements IAPIReportService, IReportSer
     }
 
     public function insertApiRawStats($data) {
+        $convertedDataArray = [];
+        $espAccountId = $this->getEspAccountId();
         foreach($data as $id => $row) {
-            $row['account_name'] = $this->accountName;
-            $row['esp_id'] = $this->espId;
-            $row['esp_account_id'] = $this->getEspAccountId();
+            $row['esp_account_id'] = $espAccountId;
             $convertedReport = $this->mapToRawReport($row);
-            try {
-                $this->reportRepo->insertStats($this->getEspAccountId(), $convertedReport);
-            }
-            catch (Exception $e) {
-                throw new \Exception($e->getMessage());
-            }
+            $this->reportRepo->insertStats($espAccountId, $convertedReport);
+            $convertedDataArray[]= $convertedReport;
         }
 
-        Event::fire(new RawReportDataWasInserted($this->getApiName(), $this->getEspAccountId(), $convertedReport));
+        Event::fire(new RawReportDataWasInserted($this->getApiName(), $espAccountId, $convertedDataArray));
     }
 
     public function mapToStandardReport($data) {
         return array(
-            "internal_id" => $data['campaign_id'],
-            "esp_account_id" => $this->getEspAccountId(),
+            "internal_id" => $data['internal_id'],
+            "esp_account_id" => $data['esp_account_id'],
             "name" => $this->accountName,
             "subject" => '',
             "opens" => $data['open'],
@@ -88,8 +85,7 @@ class MaroReportService extends MaroApi implements IAPIReportService, IReportSer
     public function mapToRawReport($data) {
         return array(
             'status' => $data['status'],
-            'esp_id' => $data['esp_id'],
-            'account_name' => $data['account_name'],
+            'esp_account_id' => $data['esp_account_id'],
             'internal_id' => (int)$data['campaign_id'],
             'name' => $data['name'],
             'sent' => (int)$data['sent'],
