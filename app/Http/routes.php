@@ -15,7 +15,7 @@ Route::get('/', function () {
     return View::make( 'layout.app' );
 });
 Route::get('test', 'TestStuff@index');
-Route::get('update', 'HomeController@fuck');
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -30,6 +30,7 @@ Route::get('update', 'HomeController@fuck');
 Route::group(['middleware' => ['auth','admin']], function () {
     Route::get('register', 'RegistrationController@create');
     Route::post('register', ['as' => 'registration.store', 'uses' => 'RegistrationController@store']);
+
 });
 //guest only
 Route::group(['middleware' => ['guest']], function () {

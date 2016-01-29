@@ -27,6 +27,7 @@ class Kernel extends HttpKernel
      *
      * @var array
      */
+    //will add back middlewaregroups once more of the app is fleshed out.
     protected $middlewareGroups = [
 
     ];

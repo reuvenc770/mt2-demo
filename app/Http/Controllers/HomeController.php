@@ -14,11 +14,4 @@ class HomeController extends Controller
     public function home() {
         return view('layout.app');
     }
-
-
-    public function fuck(){
-
-        $role = Sentinel::findRoleById(2);
-        $role->users()->attach(Sentinel::getUser());
-    }
 }
