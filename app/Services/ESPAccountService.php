@@ -42,7 +42,6 @@ class ESPAccountService
         return array(
             "apiKey"        => $espDetails['key_1'],
             "sharedSecret"  => $espDetails['key_2']
-
         );
     }
 
@@ -58,7 +57,6 @@ class ESPAccountService
         return array(
             "userName"        => $espDetails['key_1'],
             "password"        => $espDetails['key_2']
-
         );
     }
 
@@ -79,6 +77,14 @@ class ESPAccountService
             $returnArray[] = $row;
         }
         return $returnArray;
+    }
+
+    public function grabApiAccountNameAndKey($espAccountId) {
+        $espDetails = $this->espRepo->getAccount($espAccountId);
+        return array(
+            'accountName' => $espDetails['account_name'],
+            'apiKey' => $espDetails['key_1']
+        );
     }
 
 }

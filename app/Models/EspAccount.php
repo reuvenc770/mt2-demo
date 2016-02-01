@@ -28,6 +28,10 @@ class EspAccount extends Model
     return $this->hasMany('App\Models\EmailDirectReport');
     }
 
+    public function maroReport() {
+        return $this->hasMany('App\Models\MaroReport');
+    }
+
     public function getFirstKey()
     {
         return $this->attributes['key_1'];
