@@ -11,7 +11,10 @@
 |
 */
 
-Route::resource( 'esp' , 'EspUiController' );
+Route::group( [ 'prefix' => 'esp' ] , function () {
+    Route::get( '/' , 'EspUiController@index' );
+    Route::get( '/add' , 'EspUiController@add' );
+} );
 
 Route::group( [ 'prefix' => 'api' ] , function () {
     Route::resource( 'esp' , 'EspApiController' );

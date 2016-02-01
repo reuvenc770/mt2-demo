@@ -3,7 +3,7 @@
 /**
  * MT2 App Module
  */
-var mt2App = angular.module( 'mt2App' , [ 'mt2Esp' ] );
+var mt2App = angular.module( 'mt2App' , [] );
 
 mt2App.config( function ( $locationProvider ) {
     $locationProvider.html5Mode( true );
@@ -11,88 +11,62 @@ mt2App.config( function ( $locationProvider ) {
 
 mt2App.directive( 'genericTable' , function () {
     return {
-        "restrict" : 'E' ,
-        //"transclude" : true ,
-        "template" : '<table class="table table-striped table-bordered table-hover text-center"><generic-table-head></generic-table-head></table>'
-    
-    //<generic-table-head></generic-table-head><generic-table-body></generic-table-body></table>'
-    };        
-} );
-
-mt2App.directive( 'genericTableHead' , function () {
-    return {
-        "restrict" : "E" ,
-        //"transclude" : true ,
-        "template" : '<thead><tr></tr></thead>'
-
-//<generic-table-headers></generic-table-headers></tr></thead>'
+        "scope" : {} ,
+        "controller" : function () {} , //"genericTableController" ,
+        "controllerAs" : "ctrl" , 
+        "bindToController" : { 
+            "headers" : "=" ,
+            "records" : "="
+        } ,
+        "templateUrl" : "js/templates/generic-table.html"
     };
 } );
 
-mt2App.directive( 'genericTableHeaders' , function () {
-    return {
-        "restrict" : "E" ,
-        //"transclude" : true ,
-        "template" : '<th></th>'
+mt2App.controller( 'espController' , [ '$window' , '$timeout' , '$log' , 'EspApiService' , function ( $window , $timeout , $log , EspApiService ) {
+    var self = this;
+
+    self.headers = [ 'ESP' , 'Account' , 'Created' ];
+    self.accounts = {};
+
+    self.newAccount = { "espName" : "" , "accountName" : "" , "key1" : "" , "key2" : "" };
+
+    self.loadAccounts = function () {
+        EspApiService.getAccounts( function ( response ) { self.accounts = response.data; } );
     };
-} );
 
-mt2App.directive( 'genericTableBody' , function () {
-    return {
-        "restrict" : "E" , 
-        //"transclude" : true ,
-        "template" : '<tbody><generic-table-records></generic-table-records></tbody>'
+    self.viewAdd = function () {
+        $window.location.href = "esp/add";
     };
-} );
 
-mt2App.directive( 'genericTableRecords' , function () {
-    return {
-        "restrict" : "E" ,
-        //"transclude" : true ,
-        "template" : '<tr><tr>'
+    self.saveNewAccount = function () {
+        $log.log( self.newAccount );
+
+        EspApiService.saveNewAccount( self.newAccount );
     };
-} );
 
-/**
- * ESP Module
- */
-var mt2Esp = angular.module( 'mt2Esp' , [] );
-
-mt2Esp.config( function () {} );
-
-mt2Esp.controller( 'Mt2EspController' , [ 'Mt2EspApiService' , function ( apiService ) {
-    
-    this.espList = [];
+    $timeout( self.loadAccounts() , 1000 );
 } ] );
 
-mt2Esp.directive( 'espTable' , function () {
-    return {
-        "controller" : "Mt2EspController" ,
-        "controllerAs" : "ctrl" ,
-        "bindToController" : true ,
-        "restrict" : "E" ,
-        //"transclude" : true ,
-        "template" : '<generic-table></generic-table>'
-    };
-} );
+mt2App.service( 'EspApiService' , function ( $http , $log ) {
+    var self = this;
 
-mt2Esp.service( 'Mt2EspApiService' , function ( $http ) {
-    this.baseApiUrl = '/api/esp';
+    self.baseApiUrl = '/api/esp';
 
-    this.getList = function () {
-        var defer = $q.defer();
-
+    self.getAccounts = function ( successCallback  ) {
         $http( { "method" : "GET" , "url" : this.baseApiUrl } )
-            .then(
-                function success ( response ) {
-                    defer.resolve( response );
-                } ,
-                function error ( response ) {
-                    defer.reject( response );
+            .then( successCallback ,
+                function ( response ) {
+                    $log.log( response );
                 }
             );
+    }
 
-        return defer.promise();
+    self.saveNewAccount = function ( newAccount ) {
+        $http( {
+            "method" : "POST" ,
+            "url" : this.baseApiUrl ,
+            "data" : newAccount
+        } );
     }
 } );
 

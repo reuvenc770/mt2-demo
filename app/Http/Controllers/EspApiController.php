@@ -6,13 +6,13 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use App\Repositories\EspAccountRepo;
+use App\Repositories\ESPAccountRepo;
 
 class EspApiController extends Controller
 {
     protected $repo;
 
-    public function __construct ( EspAccountRepo $repo ) {
+    public function __construct ( ESPAccountRepo $repo ) {
         $this->repo = $repo;
     }
 
@@ -44,7 +44,7 @@ class EspApiController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        return $this->repo->saveAccount( $request->all() );
     }
 
     /**

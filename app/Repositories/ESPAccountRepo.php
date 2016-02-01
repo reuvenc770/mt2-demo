@@ -57,7 +57,7 @@ class EspAccountRepo
     public function getAllAccounts(){
         return DB::table('esp_accounts')
             ->join('esps', 'esps.id', '=', 'esp_accounts.esp_id')
-            ->select('esp_accounts.account_name as account' , 'esp_accounts.created_at as created' , 'esps.name as esp')
+            ->select( 'esps.name as ESP' , 'esp_accounts.account_name as Account' , 'esp_accounts.created_at as Created' )
             ->get();
     }
 
@@ -67,6 +67,29 @@ class EspAccountRepo
      */
     public function getAccount($espAccountId){
         return $this->espAccount->find($espAccountId);
+    }
+
+    public function saveAccount ( $newAccount ) {
+        $response = [ 'status' => false ];
+
+        try {
+            DB::table( 'esps' )->insert( [ "name" => $newAccount[ 'espName' ] ] );
+
+            $id = DB::table( 'esps' )->where( 'name' , $newAccount[ "espName" ] )->value( 'id' );
+
+            DB::table( 'esp_accounts' )->insert( [
+                'account_name' => $newAccount[ 'accountName' ] ,
+                'key_1' => $newAccount[ 'key1' ] ,
+                'key_2' => $newAccount[ 'key2' ] ,
+                'esp_id' => $id
+            ] );
+
+            $response[ 'status' ] = true;
+        } catch ( Exception $e ) {
+            $response[ 'message' ] = $e->getMessage();
+        }
+
+        return $response;
     }
 
 }
