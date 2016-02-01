@@ -46,4 +46,14 @@ class JobEntryService
         $job->save();
     }
 
+    public function startTrackingJob($jobName, $startDate, $endDate, $tracking) 
+    {
+        $this->jobName = $jobName;
+        $trackingJob = $this->repo->startTrackingJobReturnObject($jobName, $startDate, $endDate, $tracking);
+        $trackingJob->time_started = Carbon::now();
+        $trackingJob->attempts = 1;
+        $trackingJob->status = JobEntry::RUNNING;
+        $trackingJob->save();
+    }
+
 }
