@@ -7,3 +7,4 @@ Homestead.json
 /.ideas
 /public/bower_components
 *.phar
+.DS_Store
