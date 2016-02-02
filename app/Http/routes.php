@@ -12,12 +12,15 @@
 */
 
 Route::group( [ 'prefix' => 'esp' ] , function () {
-    Route::get( '/' , 'EspUiController@index' );
-    Route::get( '/add' , 'EspUiController@add' );
+    Route::get( '/' , array( 'as' => 'esp.index' , 'uses' => 'EspApiController@list' ) );
+
+    Route::get( '/create' , array( 'as' => 'esp.create' , 'uses' => 'EspApiController@create' ) );
+
+    Route::get( '/edit/{id}' , array( 'as' => 'esp.edit' , 'uses' => 'EspApiController@edit' ) );
 } );
 
 Route::group( [ 'prefix' => 'api' ] , function () {
-    Route::resource( 'esp' , 'EspApiController' );
+    Route::resource( 'esp' , 'EspApiController' , [ 'except' => [ 'create' , 'edit' ] ] );
 } );
 
 Route::get('test', 'TestStuff@index');

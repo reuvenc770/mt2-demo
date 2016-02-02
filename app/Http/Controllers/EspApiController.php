@@ -3,17 +3,18 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use App\Repositories\ESPAccountRepo;
+use App\Services\ESPAccountService;
 
 class EspApiController extends Controller
 {
-    protected $repo;
+    protected $espService;
 
-    public function __construct ( ESPAccountRepo $repo ) {
-        $this->repo = $repo;
+    public function __construct ( ESPAccountService $service ) {
+        $this->espService = $service;
     }
 
     /**
@@ -23,7 +24,30 @@ class EspApiController extends Controller
      */
     public function index()
     {
-        return $this->repo->getAllAccounts();
+        $accounts = $this->espService->getAllAccounts();
+
+        $accountList = [];
+
+        foreach ( $accounts as $account ) {
+            $accountList []= [
+                $account->id ,
+                $account->esp ,
+                $account->account_name ,
+                $account->created_at ,
+                $account->updated_at
+            ];
+        }
+
+        return response()->json( $accountList );
+    }
+
+    /**
+     *
+     */
+    public function list ()
+    {
+        return response()
+            ->view( 'pages.esp.esp-index' );
     }
 
     /**
@@ -33,7 +57,15 @@ class EspApiController extends Controller
      */
     public function create()
     {
-        //
+        $esps = $this->espService->getAllEsps();
+
+        $espList = array();
+        foreach ( $esps as $esp ) {
+            $espList[ $esp->id ] = $esp->name;
+        }
+
+        return response()
+            ->view( 'pages.esp.esp-add' , [ 'espList' => $espList ] );
     }
 
     /**
@@ -44,7 +76,7 @@ class EspApiController extends Controller
      */
     public function store(Request $request)
     {
-        return $this->repo->saveAccount( $request->all() );
+        return $this->espService->saveAccount( $request->all() );
     }
 
     /**
@@ -55,7 +87,8 @@ class EspApiController extends Controller
      */
     public function show($id)
     {
-        //
+        return $this->espService->getAccount( $id );
+
     }
 
     /**
@@ -64,9 +97,19 @@ class EspApiController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit( $id )
     {
-        //
+        $account = $this->espService->getAccount( $id );
+        $esp = $this->espService->getEsp( $account->esp_id );
+
+        return response()
+            ->view( 'pages.esp.esp-edit' , [
+                'accountId' => $account->id ,
+                'espName' => $esp->name ,
+                'accountName' => $account->account_name ,
+                'key1' => $account->key_1 ,
+                'key2' => $account->key_2
+            ] );
     }
 
     /**
@@ -78,7 +121,7 @@ class EspApiController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $this->espService->updateAccount( $id , $request );
     }
 
     /**

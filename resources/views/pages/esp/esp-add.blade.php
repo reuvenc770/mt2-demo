@@ -1,7 +1,7 @@
 
 @extends( 'layout.default' )
 
-@section( 'title' , 'ESP' )
+@section( 'title' , 'Add ESP' )
 
 @section( 'navEspClasses' , 'active' )
 
@@ -11,10 +11,19 @@
 </div>
 
 <div ng-controller="espController as esp">
-    ESP Name: <input type="text" ng-model="esp.newAccount.espName" value="" /> <br /><br />
-    Account Name: <input type="text" ng-model="esp.newAccount.accountName" value="" /> <br /><br />
-    Key 1: <input type="text" ng-model="esp.newAccount.key1" value="" /> <br /><br />
-    Key 2: <input type="text" ng-model="esp.newAccount.key2" value="" /> <br /><br />
+    ESP Name: <select ng-model="esp.currentAccount.espId">
+                <option value="">Choose ESP</option>
+                @foreach( $espList as $espId => $esp )
+                <option value="{{ $espId }}">{{ $esp }}</option>
+                @endforeach
+            </select><br /><br />
+    Account Name: <input type="text" ng-model="esp.currentAccount.accountName" value="" /> <br /><br />
+    Key 1: <input type="text" ng-model="esp.currentAccount.key1" value="" /> <br /><br />
+    Key 2: <input type="text" ng-model="esp.currentAccount.key2" value="" /> <br /><br />
     <button type="button" class="btn btn-info btn-lg" ng-click="esp.saveNewAccount()">Save</button>
 </div>
+@stop
+
+@section( 'pageIncludes' )
+<script src="js/esp.js"></script>
 @stop

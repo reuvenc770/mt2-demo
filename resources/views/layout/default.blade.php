@@ -13,5 +13,7 @@
         </div>
 
         @include( 'layout.body-footer' )
+
+        @yield( 'pageIncludes' )
     </body>
 </html>
