@@ -20,32 +20,47 @@ class RawTrackingDataWasInserted extends Event
      */
     protected $rawTrackingData;
     protected $source;
+    protected $startDate;
+    protected $endDate;
     /**
-     * RawReportDataWasInserted constructor.
+     * RawTrackingWasInserted constructor.
      * @param $apiName
      * @param $accountNumber
      * @param $rawReportData
      */
-    public function __construct($source, $rawTrackingData)
-    {
+    public function __construct($source, $start, $end, $rawTrackingData) {
         $this->rawTrackingData = $rawTrackingData;
         $this->source = $source;
+        $this->startDate = $start;
+        $this->endDate = $end;
     }
 
     /**
      * @return mixed
      */
-    public function getRawTrackingData()
-    {
+    public function getRawTrackingData() {
         return $this->rawTrackingData;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getSource()
-    {
+    public function getSource() {
         return $this->source;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStartDate() {
+        return $this->startDate;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEndDate() {
+        return $this->endDate;
     }
 
     /**
@@ -53,8 +68,7 @@ class RawTrackingDataWasInserted extends Event
      *
      * @return array
      */
-    public function broadcastOn()
-    {
+    public function broadcastOn() {
         return [];
     }
 }

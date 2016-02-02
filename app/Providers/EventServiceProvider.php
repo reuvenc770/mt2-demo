@@ -16,6 +16,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\RawReportDataWasInserted' => [
             'App\Listeners\CreateStandardReport',
         ],
+        'App\Events\RawTrackingDataWasInserted' => [
+            'App\Listeners\UpdateStandardReportWithTrackingData',
+        ],
     ];
 
     /**
