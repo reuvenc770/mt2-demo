@@ -8,10 +8,10 @@
 
 namespace App\Repositories;
 
-
 use App\Models\EspAccount;
 use App\Models\Esp;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Query\Builder;
 //TODO ADD CACHING ONCE ESP SECTION IS DONE
 
 /**
@@ -49,6 +49,9 @@ class EspAccountRepo
         return $this->esp->find( $espId );
     }
 
+    /**
+     * @return Illuminate\Database\Eloquent\Collection
+     */
     public function getAllEsps () {
         return $this->esp->all();
     }
@@ -62,15 +65,18 @@ class EspAccountRepo
     }
 
     /**
-     * 
-     * 
+     * @param $espAccountId
+     * @return EspAccount
+     */
+    public function getAccountAndEsp($espAccountId){
+        return $this->espAccount::with( 'esp' )->find($espAccountId);
+    }
+
+    /**
      * @return mixed
      */
     public function getAllAccounts(){
-        return DB::table('esp_accounts')
-            ->join('esps', 'esps.id', '=', 'esp_accounts.esp_id')
-            ->select( 'esps.name as esp' , 'esp_accounts.*' )
-            ->get();
+        return $this->espAccount::with( 'esp' )->get();
     }
 
     /**
@@ -88,7 +94,7 @@ class EspAccountRepo
     }
 
     /**
-     *
+     * @param array $newAccount The collection of account details to save.
      */
     public function saveAccount ( $newAccount ) {
         $this->espAccount->account_name = $newAccount[ 'accountName' ];
@@ -99,7 +105,8 @@ class EspAccountRepo
     }
 
     /**
-     *
+     * @param int $id The id of the account to update.
+     * @param array $accountData The account information to update.
      */
     public function updateAccount ( $id , $accountData ) {
         $this->espAccount->where( 'id' , $id )->update( [

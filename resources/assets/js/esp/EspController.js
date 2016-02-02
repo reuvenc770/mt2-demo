@@ -1,10 +1,16 @@
-mt2App.controller( 'espController' , [ '$window' , '$location' , '$timeout' , '$sce' , '$log' , 'EspApiService' , function ( $window , $location , $timeout , $sce ,$log , EspApiService ) {
+mt2App.controller( 'espController' , [ '$log' , '$window' , '$location' , '$timeout' , 'EspApiService' , function ( $log , $window , $location , $timeout , EspApiService ) {
     var self = this;
+    self.$location = $location;
 
     self.headers = [ '' , 'ID' , 'ESP' , 'Account' , 'Created' , 'Updated' ];
     self.accounts = [];
 
     self.currentAccount = { "espId" : "" , "id" : "" , "accountName" : "" , "key1" : "" , "key2" : "" };
+
+    self.createUrl = 'esp/create/';
+    self.editUrl = 'esp/edit/';
+
+    self.formErrors = { "espId" : "" , "id" : "" , "accountName" : "" , "key1" : "" , "key2" : "" };
 
     self.loadAccount = function () {
         var pathMatches = $location.path().match( /^\/esp\/edit\/(\d{1,})/ );
@@ -18,25 +24,124 @@ mt2App.controller( 'espController' , [ '$window' , '$location' , '$timeout' , '$
     }
 
     self.loadAccounts = function () {
-        EspApiService.getAccounts( function ( response ) {
-            self.accounts = response.data;
-        } );
+        EspApiService.getAccounts( self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
     };
 
+    self.resetCurrentAccount = function () {
+        self.currentAccount.espId = '';
+        self.currentAccount.id = '';
+        self.currentAccount.accountName = '';
+        self.currentAccount.key1 = '';
+        self.currentAccount.key2 = '';
+    };
+
+    /**
+     * Click Handlers
+     */
     self.viewAdd = function () {
-        $window.location.href = "esp/create";
-    };
-
-    self.viewEdit = function () {
-        $log.log( self.recordid );
-        //$window.location.href = "esp/edit/"
+        $location.url( self.createUrl );
+        $window.location.href = self.createUrl;
     };
 
     self.saveNewAccount = function () {
-        EspApiService.saveNewAccount( self.currentAccount );
+        self.resetFieldErrors();
+
+        EspApiService.saveNewAccount( self.currentAccount , self.saveNewAccountSuccessCallback , self.saveNewAccountFailureCallback );
     };
 
     self.editAccount = function () {
-        EspApiService.editAccount( self.currentAccount );
+        self.resetFieldErrors();
+
+        EspApiService.editAccount( self.currentAccount , self.editAccountSuccessCallback , self.editAccountFailureCallback );
     }
+
+    /**
+     * Callbacks
+     */
+    self.loadAccountsSuccessCallback = function ( response ) {
+        self.accounts = response.data;
+    };
+
+    self.loadAccountsFailureCallback = function ( response ) {
+        self.setModalLabel( 'Error' );
+        self.setModalBody( 'Failed to load ESP Accounts.' );
+
+        self.launchModal();
+    }
+
+    self.saveNewAccountSuccessCallback = function ( response ) {
+        self.setModalLabel( 'Success' );
+        self.setModalBody( 'Successfully saved ESP Account.' );
+
+        self.resetCurrentAccount();
+
+        self.launchModal();
+    };
+
+    self.saveNewAccountFailureCallback = function ( response ) {
+        self.loadFieldErrors( 'espId' , response );
+        self.loadFieldErrors( 'accountName' , response );
+        self.loadFieldErrors( 'key1' , response );
+        self.loadFieldErrors( 'key2' , response );
+    };
+
+    self.editAccountSuccessCallback = function ( response ) {
+        self.setModalLabel( 'Success' );
+        self.setModalBody( 'Successfully updated ESP Account.' );
+
+        self.launchModal();
+    };
+
+    self.editAccountFailureCallback = function ( response ) {
+        self.loadFieldErrors( 'accountName' , response );
+        self.loadFieldErrors( 'key1' , response );
+        self.loadFieldErrors( 'key2' , response );
+    };
+
+    /**
+     * Page Modal
+     */
+
+    self.setModalLabel = function ( labelText ) {
+        var modalLabel = angular.element( document.querySelector( '#pageModalLabel' ) );
+
+        modalLabel.text( labelText );
+    };
+
+    self.setModalBody = function ( bodyText ) {
+        var modalBody = angular.element( document.querySelector( '#pageModalBody' ) );
+
+        modalBody.text( bodyText );
+    }
+
+    self.launchModal = function () {
+        $( '#pageModal' ).modal('show');
+    };
+
+    self.resetModal = function () {
+        self.setModalLabel( '' );
+        self.setModalBody( '' );
+
+        $( '#pageModal' ).modal('hide');
+    };
+
+    /**
+     * Errors
+     */
+    self.loadFieldErrors = function ( field , response ) {
+        if ( typeof( response.data[ field ] ) != 'undefined' ) {
+            self.setFieldError( field , response.data[ field ].join( ' ' ) );
+        }
+    }
+
+    self.setFieldError = function ( field , errorMessage ) {
+        self.formErrors[ field ] = errorMessage;
+    }
+
+    self.resetFieldErrors = function () {
+        self.setFieldError( 'espId' , '' ); 
+        self.setFieldError( 'accountName' , '' ); 
+        self.setFieldError( 'key1' , '' );
+        self.setFieldError( 'key2' , '' );
+    };
 } ] );

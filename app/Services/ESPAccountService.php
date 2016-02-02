@@ -31,11 +31,50 @@ class ESPAccountService
         $this->espRepo = $espRepo;
     }
 
+    /**
+     * @param int $id The ID of the account to retrieve.
+     * @return EspAccount
+     */
+    public function getAccount ( $id ) {
+        return $this->espRepo->getAccount( $id );
+    }
 
+    public function getAccountAndEsp ( $id ) {
+        return $this->espRepo->getAccountAndEsp( $id );
+    }
+
+    /**
+     * @param int $id The ID of the ESP to retrieve.
+     * @return Esp
+     */
+    public function getEsp ( $id ) {
+        return $this->espRepo->getEsp( $id );
+    }
+
+    /**
+     * @return Illuminate\Database\Eloquent\Collection
+     */
+    public function getAllEsps () {
+        return $this->espRepo->getAllEsps();
+    }
+
+    /**
+     * @return Illuminate\Database\Eloquent\Collection
+     */
+    public function getAllAccounts () {
+        return $this->espRepo->getAllAccounts();
+    }
+
+    /**
+     *
+     */
     public function getAllAccountsByESPName($espName){
         return $this->espRepo->getAccountsByESPName($espName);
     }
 
+    /**
+     *
+     */
     public function grabApiKeyWithSecret($espAccountId)
     {
         $espDetails = $this->espRepo->getAccount($espAccountId);
@@ -46,12 +85,18 @@ class ESPAccountService
         );
     }
 
+    /**
+     *
+     */
     public function grabApiKey($espAccountId)
     {
         $espDetails = $this->espRepo->getAccount($espAccountId);
         return $espDetails['key_1'];
     }
 
+    /**
+     *
+     */
     public function grabApiUsernameWithPassword($espAccountId)
     {
         $espDetails = $this->espRepo->getAccount($espAccountId);
@@ -62,12 +107,18 @@ class ESPAccountService
         );
     }
 
+    /**
+     *
+     */
     public function grabCsvMapping($espAccountId)
     {
         $espDetails = $this->espRepo->getAccount($espAccountId)->accountMapping;
         return  explode(',',$espDetails->mappings);
     }
 
+    /**
+     *
+     */
     public function mapCsvToRawStatsArray($espAccountId,$filePath){
         $returnArray = array();
         $mapping = $this->grabCsvMapping($espAccountId);
@@ -81,4 +132,18 @@ class ESPAccountService
         return $returnArray;
     }
 
+    /**
+     * @param array $newAccount The collection of account details to save.
+     */
+    public function saveAccount ( $accountData ) {
+        $this->espRepo->saveAccount( $accountData );
+    }
+
+    /**
+     * @param int $id The id of the account to update.
+     * @param array $accountData The account information to update.
+     */
+    public function updateAccount ( $id , $accountData ) {
+        $this->espRepo->updateAccount( $id , $accountData );
+    }
 }

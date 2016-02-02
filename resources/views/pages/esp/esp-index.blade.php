@@ -6,7 +6,7 @@
 
 @section( 'content' )
 <div class="row">
-    <div class="page-header col-xs-12"><h1>ESP</h1></div>
+    <div class="page-header col-xs-12"><h1 class="text-center">ESP Accounts</h1></div>
 </div>
 
 <div ng-controller="espController as esp" ng-init="esp.loadAccounts()">
@@ -17,7 +17,7 @@
     <div class="row">
         <div class="col-xs-12">
             <div id="mtTableContainer" class="table-responsive">
-                <generic-table headers="esp.headers" records="esp.accounts" editclickhandler="esp.viewEdit( event )"></generic-table>
+                <generic-table headers="esp.headers" records="esp.accounts" editurl="esp.editUrl"></generic-table>
             </div>
         </div>
     </div>

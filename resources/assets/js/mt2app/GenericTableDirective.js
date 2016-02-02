@@ -6,7 +6,7 @@ mt2App.directive( 'genericTable' , function () {
         "bindToController" : { 
             "headers" : "=" ,
             "records" : "=" ,
-            "editclickhandler" : "="
+            "editurl" : "="
         } ,
         "templateUrl" : "js/templates/generic-table.html"
     };

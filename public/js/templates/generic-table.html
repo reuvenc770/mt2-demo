@@ -7,7 +7,7 @@
 
     <tbody>
         <tr ng-repeat="record in ctrl.records">
-            <td><edit-button recordid="record[0]" clickhandler="ctrl.editclickhandler()"></edit-button></td>
+            <td><edit-button recordid="record[0]" editurl="ctrl.editurl"></edit-button></td>
             <td ng-repeat="field in record track by $index">{{ field }}</td>
         </tr>
     </tbody>

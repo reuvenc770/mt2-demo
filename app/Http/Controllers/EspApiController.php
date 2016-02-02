@@ -8,6 +8,8 @@ use Illuminate\Http\Response;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Services\ESPAccountService;
+use App\Http\Requests\EspAddRequest;
+use App\Http\Requests\EspEditRequest;
 
 class EspApiController extends Controller
 {
@@ -18,7 +20,7 @@ class EspApiController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
+     * Display a listing of ESP Accounts.
      *
      * @return \Illuminate\Http\Response
      */
@@ -31,10 +33,10 @@ class EspApiController extends Controller
         foreach ( $accounts as $account ) {
             $accountList []= [
                 $account->id ,
-                $account->esp ,
+                $account->esp->name ,
                 $account->account_name ,
-                $account->created_at ,
-                $account->updated_at
+                $account->created_at->toDayDateTimeString() ,
+                $account->updated_at->toDayDateTimeString()
             ];
         }
 
@@ -42,7 +44,9 @@ class EspApiController extends Controller
     }
 
     /**
+     * Show the ESP Account index page.
      *
+     * @return \Illuminate\Http\Response
      */
     public function list ()
     {
@@ -51,7 +55,7 @@ class EspApiController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating a new ESP Account
      *
      * @return \Illuminate\Http\Response
      */
@@ -69,20 +73,20 @@ class EspApiController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created ESP Account.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Http\EspAddRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(EspAddRequest $request)
     {
         return $this->espService->saveAccount( $request->all() );
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified ESP Account.
      *
-     * @param  int  $id
+     * @param  int  $id The ESP Account ID to lookup.
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -92,20 +96,19 @@ class EspApiController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing the specified ESP Account.
      *
-     * @param  int  $id
+     * @param  int  $id The ESP Account ID to edit.
      * @return \Illuminate\Http\Response
      */
     public function edit( $id )
     {
-        $account = $this->espService->getAccount( $id );
-        $esp = $this->espService->getEsp( $account->esp_id );
+        $account = $this->espService->getAccountAndEsp( $id );
 
         return response()
             ->view( 'pages.esp.esp-edit' , [
                 'accountId' => $account->id ,
-                'espName' => $esp->name ,
+                'espName' => $account->esp->name ,
                 'accountName' => $account->account_name ,
                 'key1' => $account->key_1 ,
                 'key2' => $account->key_2
@@ -115,23 +118,23 @@ class EspApiController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \App\Http\Requests\EspEditRequest  $request
+     * @param  int  $id The ESP Account ID being updated.
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(EspEditRequest $request, $id)
     {
         $this->espService->updateAccount( $id , $request );
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified ESP Account from storage.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        //
+        //Will not be in use. We don't want to delete ESP Accounts.
     }
 }
