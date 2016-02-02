@@ -13,8 +13,7 @@ use App\Library\Campaigner\CampaignManagement;
 use App\Repositories\ReportRepo;
 use App\Services\API\Campaigner;
 use App\Services\API\CampaignerApi;
-use App\Services\Interfaces\IAPIReportService;
-use App\Services\Interfaces\IReportService;
+use App\Services\AbstractReportService;
 use App\Library\Campaigner\DateTimeFilter;
 use App\Library\Campaigner\GetCampaignRunsSummaryReport;
 use Carbon\Carbon;
@@ -27,7 +26,7 @@ use Illuminate\Support\Facades\Log;
  * Class CampaignerReportService
  * @package App\Services
  */
-class CampaignerReportService extends CampaignerApi implements IAPIReportService, IReportService
+class CampaignerReportService extends AbstractReportService
 {
 
     CONST NO_CAMPAIGNS = 'M_4.1.1.1_NO-CAMPAIGNRUNS-FOUND';
@@ -40,10 +39,9 @@ class CampaignerReportService extends CampaignerApi implements IAPIReportService
      * @param ReportRepo $reportRepo
      * @param $accountNumber
      */
-    public function __construct(ReportRepo $reportRepo, $apiName, $espAccountId)
+    public function __construct(ReportRepo $reportRepo, CampaignerApi $api)
     {
-        parent::__construct($apiName, $espAccountId);
-        $this->reportRepo = $reportRepo;
+        parent::__construct($reportRepo, $api);
     }
 
     /**
@@ -53,28 +51,21 @@ class CampaignerReportService extends CampaignerApi implements IAPIReportService
     public function insertApiRawStats($data)
     {
         $arrayReportList = array();
+        $espAccountId = $this->api->getEspAccountId();
 
         if (count($data->getCampaign()) > 1) {  //another dumb check
             foreach ($data->getCampaign() as $report) {
                 $convertedReport = $this->mapToRawReport($report);
-                try {
-                    $this->reportRepo->insertStats($this->getEspAccountId(), $convertedReport);
-                } catch (\Exception $e) {
-                    throw new \Exception($e->getMessage());
-                }
+                $this->insertStats($espAccountId, $convertedReport);
                 $arrayReportList[] = $convertedReport;
             }
         } else {
             $convertedReport = $this->mapToRawReport($data->getCampaign());
-            try {
-                $this->reportRepo->insertStats($this->getEspAccountId(), $convertedReport);
-            } catch (\Exception $e) {
-                throw new \Exception($e->getMessage());
-            }
+            $this->insertStats($espAccountId, $convertedReport);
             $arrayReportList[] = $convertedReport;
         }
 
-        Event::fire(new RawReportDataWasInserted($this->getApiName(), $this->getEspAccountId(), $arrayReportList));
+        Event::fire(new RawReportDataWasInserted($this->api->getApiName(), $espAccountId, $arrayReportList));
     }
 
     /**
@@ -125,7 +116,7 @@ class CampaignerReportService extends CampaignerApi implements IAPIReportService
         return array(
             'internal_id' => $report->getId(),
             'name' => $report->getName(),
-            'esp_account_id' => $this->getEspAccountId(),
+            'esp_account_id' => $this->api->getEspAccountId(),
             'subject' => $report->getSubject(),
             'from_name' => $report->getFromName(),
             'from_email' => $report->getFromEmail(),
@@ -151,7 +142,7 @@ class CampaignerReportService extends CampaignerApi implements IAPIReportService
     {
         return array(
             "internal_id" => $report['internal_id'],
-            "account_name" => $this->getEspAccountId(),
+            "account_name" => $this->api->getEspAccountId(),
             "name" => $report['name'],
             "subject" => $report['subject'],
             "opens" => $report['opens'],
@@ -172,9 +163,9 @@ class CampaignerReportService extends CampaignerApi implements IAPIReportService
         $dateFilter = new DateTimeFilter();
         $dateFilter->setFromDate($dateObject->startOfDay());
         $dateFilter->setToDate($dateObject->endOfDay());
-        $params = new GetCampaignRunsSummaryReport($this->getAuth(), null, false, $dateFilter);
+        $params = new GetCampaignRunsSummaryReport($this->api->getAuth(), null, false, $dateFilter);
         $results = $manager->GetCampaignRunsSummaryReport($params);
-        $header = $this->parseOutResultHeader($manager);
+        $header = $this->api->parseOutResultHeader($manager);
 
         if ($header['errorFlag'] != "false" ) {
             throw new \Exception("{$header['errorFlag']} - {$this->getApiName()}::{$this->getEspAccountId()} Failed retrieveReportStats because {$header['returnMessage']} - {$header['returnCode']}");

@@ -10,7 +10,8 @@ namespace App\Services\API;
 use App\Facades\EspAccount;
 use App\Library\Campaigner\CampaignManagement;
 use App\Library\Campaigner\Authentication;
-class CampaignerApi extends BaseAPI
+
+class CampaignerApi extends EspBaseAPI
 {
     private  $auth;
 
@@ -28,6 +29,12 @@ class CampaignerApi extends BaseAPI
     {
         return $this->auth;
     }
+
+    /**
+     * Empty method to maintain contract with interface IApi
+     * This is handled by the sdk
+     */
+    public function sendApiRequest() {}
 
     /**
      * @param CampaignManagement $curlObject

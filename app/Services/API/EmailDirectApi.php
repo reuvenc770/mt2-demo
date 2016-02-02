@@ -5,6 +5,7 @@
 
 namespace App\Services\API;
 
+use App\Services\API\EspBaseApi;
 use App\Facades\EspAccount;
 use App\Facades\Guzzle;
 use Carbon\Carbon;
@@ -12,7 +13,7 @@ use Carbon\Carbon;
 /**
  *
  */
-class EmailDirectApi extends BaseAPI {
+class EmailDirectApi extends EspBaseAPI {
     const DATE_REQUEST_KEY = 'date';
     const DATE_DEFAULT_DAYS_BACK = 1;
     const CAMPAIGN_LIST_KEY = 'Items';
@@ -31,13 +32,12 @@ class EmailDirectApi extends BaseAPI {
         $this->api = new \EmailDirect( $creds[ 'apiKey' ] );
     }
 
-    protected function sendAPIRequest ( $requestData ) {
-        $this->setDate( $requestData );
+    public function sendAPIRequest () {
         $this->loadCampaignList();
         return $this->getReportStats();
     }
 
-    private function setDate ( $requestData ) {
+    public function setDate ( $requestData ) {
         if ( !is_null( $requestData[ self::DATE_REQUEST_KEY ] ) ) {
             $this->date = $requestData[ self::DATE_REQUEST_KEY ];
         } else {

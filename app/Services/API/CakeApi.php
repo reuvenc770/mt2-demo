@@ -3,8 +3,9 @@
 namespace App\Services\API;
 
 use App\Facades\Guzzle;
+use App\Services\Interfaces\IApi;
 
-class CakeApi {
+class CakeApi implements IApi {
 
   // A temporary stub because we will likely be internalizing this
   const ENDPOINT = "http://caridan.ampxl.net/app/websvc/cake/mt2/index.php?";

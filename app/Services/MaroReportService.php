@@ -7,8 +7,7 @@
 namespace App\Services;
 use App\Repositories\ReportRepo;
 use App\Services\API\MaroApi;
-use App\Services\Interfaces\IAPIReportService;
-use App\Services\Interfaces\IReportService;
+use App\Services\AbstractReportService;
 use League\Flysystem\Exception;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
@@ -17,20 +16,24 @@ use App\Events\RawReportDataWasInserted;
  * Class BlueHornetReportService
  * @package App\Services
  */
-class MaroReportService extends MaroApi implements IAPIReportService, IReportService 
+class MaroReportService extends AbstractReportService 
 {
-    public function __construct(ReportRepo $reportRepo, $apiName, $accountNumber) {
-        parent::__construct($apiName, $accountNumber);
+
+    protected $reportRepo;
+    protected $api;
+
+    public function __construct(ReportRepo $reportRepo, MaroApi $api) {
         $this->reportRepo = $reportRepo;
+        $this->api = $api;
     }
 
 
     public function retrieveApiReportStats($date) {
-        $this->setDate($date);
+        $this->api->setDate($date);
         $outputData = array();
 
-        $firstPullUrl = $this->constructApiUrl();
-        $firstData = $this->sendApiRequest($firstPullUrl);
+        $this->api->constructApiUrl();
+        $firstData = $this->api->sendApiRequest();
         $firstData = $this->processGuzzleResult($firstData);
 
         $outputData = array_merge($outputData, $firstData);
@@ -41,8 +44,8 @@ class MaroReportService extends MaroApi implements IAPIReportService, IReportSer
             if ($pages > 0) {
                 $i = 0;
                 while ($i <= $pages) {
-                    $url = $this->constructApiUrl($i);
-                    $data = $this->sendApiRequest($url);
+                    $this->api->constructApiUrl($i);
+                    $data = $this->api->sendApiRequest();
                     $data = $this->processGuzzleResult($data);
                     $outputData = array_merge($outputData, $data);
                     $i++;
@@ -60,18 +63,18 @@ class MaroReportService extends MaroApi implements IAPIReportService, IReportSer
 
     public function insertApiRawStats($data) {
         $convertedDataArray = [];
-        $espAccountId = $this->getEspAccountId();
+        $espAccountId = $this->api->getEspAccountId();
         foreach($data as $id => $row) {
             $row['esp_account_id'] = $espAccountId;
             $convertedReport = $this->mapToRawReport($row);
-            $this->reportRepo->insertStats($espAccountId, $convertedReport);
+            $this->insertStats($espAccountId, $convertedReport);
             $convertedDataArray[]= $convertedReport;
         }
 
-        Event::fire(new RawReportDataWasInserted($this->getApiName(), $espAccountId, $convertedDataArray));
+        Event::fire(new RawReportDataWasInserted($this->api->getApiName(), $espAccountId, $convertedDataArray));
     }
 
-    public function mapToStandardReport($data) {
+    public function mapToStandardReport($data) { 
         return array(
             "internal_id" => $data['internal_id'],
             "esp_account_id" => $data['esp_account_id'],
@@ -98,6 +101,22 @@ class MaroReportService extends MaroApi implements IAPIReportService, IReportSer
             'maro_created_at' => $data['created_at'],
             'maro_updated_at' => $data['updated_at'],
         );
+    }
+
+    public function insertCsvRawStats($reports){
+        $arrayReportList = array();
+        foreach ($reports as $report) {
+
+            try {
+                $this->reportRepo->insertStats($this->getAccountName(), $report);
+            } catch (\Exception $e){
+                throw new \Exception($e->getMessage());
+            }
+
+            $arrayReportList[] = $report;
+        }
+
+        Event::fire(new RawReportDataWasInserted($this->api->getApiName(),$this->api->getEspAccountId(), $arrayReportList));
     }
 
 }

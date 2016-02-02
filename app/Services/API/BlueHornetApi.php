@@ -15,11 +15,13 @@ use App\Facades\Guzzle;
  * Class BlueHornet
  * @package App\Services\API
  */
-class BlueHornetApi extends BaseAPI
+class BlueHornetApi extends EspBaseAPI
 {
     CONST API_URL = "https://echo.bluehornet.com/api/xmlrpc/index.php";
     private  $apiKey;
     private  $sharedSecret;
+    private $xml;
+
     public function __construct($name, $espAccountId)
     {
         parent::__construct($name, $espAccountId);
@@ -34,7 +36,7 @@ class BlueHornetApi extends BaseAPI
      * @param null $dataPoints
      * @return mixed
      */
-    protected function buildRequest($methodName, $dataPoints = null)
+    public function buildRequest($methodName, $dataPoints = null)
     {
         $xml = new SimpleXMLElement('<api></api>');
         $auth = $xml->addChild('authentication');
@@ -49,18 +51,18 @@ class BlueHornetApi extends BaseAPI
                 $methodCall->addChild($name, $value);
             }
         }
-        return $xml->asXML();
+        $this->xml = $xml->asXML();
     }
 
     /**
      * @param $data
      * @return mixed
      */
-    protected function sendApiRequest($data)
+    public function sendApiRequest()
     {
         return Guzzle::request('POST', self::API_URL, [
             'form_params' => [
-                'data' => $data,
+                'data' => $this->xml,
             ]
         ]);
 

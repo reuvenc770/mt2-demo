@@ -8,12 +8,7 @@ namespace App\Services\API;
 use App\Facades\EspAccount;
 use App\Facades\Guzzle;
 
-/**
- * Class BaseAPI
- * @package App\Services\API
- */
-
-class MaroApi extends BaseAPI {
+class MaroApi extends EspBaseAPI {
 
     const API_URL = "http://api.maropost.com/accounts/%d/reports.json?";
     protected $apiKey;
@@ -35,11 +30,11 @@ class MaroApi extends BaseAPI {
         $this->priorDate = $tmpDate->modify('-3 day')->format('Y-m-d');
     }
 
-    protected function sendApiRequest($url) {
-        return Guzzle::get($url, ['verify' => false]);
+    public function sendApiRequest() {
+        return Guzzle::get($this->url, ['verify' => false]);
     }
 
-    protected function constructApiUrl($page = null) {
+    public function constructApiUrl($page = null) {
 
         $baseUrl = sprintf(self::API_URL, $this->accountName);
         $baseUrl .= ('auth_token=' . $this->apiKey);
@@ -50,7 +45,7 @@ class MaroApi extends BaseAPI {
         if ($this->date) {
             $baseUrl .= '&from=' . $this->priorDate . '&to=' . $this->date;
         }
-        return $baseUrl;
+        $this->url = $baseUrl;
     }
 
 
