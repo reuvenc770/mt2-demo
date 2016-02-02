@@ -41,7 +41,8 @@ class GrabTrackingApiData extends Command
     public function handle()
     {
         $this->trackingSource = $this->argument('trackingSource');
-        $this->lookBack = $this->argument('lookBack') ? $this->argument('lookBack') : env('LOOKBACK',5);
+        $lookbackValue = $this->argument('lookBack');
+        $this->lookBack = (null !== $lookbackValue) ? $this->argument('lookBack') : env('LOOKBACK',5);
 
         $startDate = Carbon::now()->subDay($this->lookBack)->toDateString();
         $endDate = Carbon::now()->toDateString();
