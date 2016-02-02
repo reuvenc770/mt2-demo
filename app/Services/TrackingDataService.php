@@ -40,7 +40,10 @@ class TrackingDataService implements ITrackingService
       $this->repo->insertStats($convertedRow);
     }
 
-    Event::fire(new RawTrackingDataWasInserted($this->source, $convertedRows));
+    Event::fire(new RawTrackingDataWasInserted($this->source, 
+      $this->api->startDate,
+      $this->api->endDate,
+      $convertedRows));
   }
 
   protected function processGuzzleResult($data) {
@@ -50,5 +53,17 @@ class TrackingDataService implements ITrackingService
 
   protected function mapToRawReport($row) {
     return $row;
+  }
+
+  protected function mapToStandardReport($data) {
+    // stub - currently does not fit into standard report
+    return [
+      'internal_id' => 0,
+      'esp_account_id' => 0,
+      'name' => '',
+      'subject' => '',
+      'opens' => 0,
+      'clicks' => 0
+    ];
   }
 }

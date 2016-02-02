@@ -44,7 +44,6 @@ class APIFactory
         $dataName = "{$source}Data";
         $dataModelName = "App\\Models\\{$dataName}";
         $dataModel = new $dataModelName();
-        #$dataServiceName = "App\\Services\\{$source}DataService";
         $dataServiceName = "App\\Services\\TrackingDataService";
         $apiName = "App\\Services\\API\\{$source}Api";
 

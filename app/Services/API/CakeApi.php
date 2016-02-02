@@ -9,22 +9,26 @@ class CakeApi {
   // A temporary stub because we will likely be internalizing this
   const ENDPOINT = "http://caridan.ampxl.net/app/websvc/cake/mt2/index.php?";
   const API_KEY = 'F9437Yjf*udfk39';
-  private $priorDate;
+  private $startDate;
   private $endDate;
 
   public function __construct($startDate, $endDate) {
-    $this->priorDate = '&dtStart=' . $startDate;
-    $this->endDate = '&endDate=' . $endDate;
+    $this->startDate =  $startDate;
+    $this->endDate =  $endDate;
   }
 
   public function sendApiRequest() {
     $url = $this->constructApiUrl();
-    echo "URL: $url" . PHP_EOL;
     return Guzzle::get($url);
   }
 
   private function constructApiUrl() {
-    return self::ENDPOINT . 'apiKey=' . self::API_KEY . $this->priorDate 
-    . $this->endDate;
+    return self::ENDPOINT . 'apiKey=' . self::API_KEY 
+    . '&dtStart=' . $this->startDate 
+    . '&endDate=' . $this->endDate;
+  }
+
+  public function __get($prop) {
+    return isset($this->$prop) ? $this->$prop : '';
   }
 }
