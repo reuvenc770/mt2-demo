@@ -8,7 +8,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Class RawReportDataWasInserted
+ * Class RawTrackingDataWasInserted
  * @package App\Events
  */
 class RawTrackingDataWasInserted extends Event

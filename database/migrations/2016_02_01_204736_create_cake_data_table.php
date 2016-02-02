@@ -14,10 +14,10 @@ class CreateCakeDataTable extends Migration
     {
         Schema::create('cake_aggregated_data', function (Blueprint $table) {
             $table->increments('id');
-            $table->smallInteger('advertiser_id')->default(0);
-            $table->mediumInteger('affiliate_id')->default(0);
-            $table->mediumInteger('offer_id')->default(0);
-            $table->mediumInteger('creative_id')->default(0);
+            $table->smallInteger('advertiser_id')->unsigned()->default(0);
+            $table->mediumInteger('affiliate_id')->unsigned()->default(0);
+            $table->mediumInteger('offer_id')->unsigned()->default(0);
+            $table->mediumInteger('creative_id')->unsigned()->default(0);
             $table->string('subid_1', 100)->default('');
             $table->string('subid_2', 100)->default('');
             $table->string('subid_3', 100)->default('');
