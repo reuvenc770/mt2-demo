@@ -158,7 +158,6 @@ return [
         App\Providers\GuzzleServiceProvider::class,
         App\Providers\JobEntryServiceProvider::class,
         App\Providers\ESPAccountProvider::class,
-        Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class, // Laravel IDE helper
         Cartalyst\Sentinel\Laravel\SentinelServiceProvider::class,
         Laracasts\Flash\FlashServiceProvider::class,
 
