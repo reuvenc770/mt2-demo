@@ -158,6 +158,9 @@ return [
         App\Providers\GuzzleServiceProvider::class,
         App\Providers\JobEntryServiceProvider::class,
         App\Providers\ESPAccountProvider::class,
+        Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class, // Laravel IDE helper
+        Cartalyst\Sentinel\Laravel\SentinelServiceProvider::class,
+        Laracasts\Flash\FlashServiceProvider::class,
 
     ],
 
@@ -207,6 +210,10 @@ return [
         'Guzzle'    => App\Facades\Guzzle::class,
         'ESPAccount'=> App\Facades\EspAccount::class,
         'JobTracking'=> App\Facades\JobTracking::class,
+        'Activation' => Cartalyst\Sentinel\Laravel\Facades\Activation::class,
+        'Reminder'   => Cartalyst\Sentinel\Laravel\Facades\Reminder::class,
+        'Sentinel'   => Cartalyst\Sentinel\Laravel\Facades\Sentinel::class,
+        'Flash' => Laracasts\Flash\Flash::class,
     ],
 
 ];

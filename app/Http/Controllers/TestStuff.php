@@ -30,4 +30,9 @@ class TestStuff extends Controller{
             print_r($row);
         }
     }
+
+
+    public function auth(){
+        echo "im here";
+    }
 }
