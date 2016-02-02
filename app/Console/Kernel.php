@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
         Commands\Inspire::class,
         Commands\GrabApiEspReports::class,
         Commands\GrabCsvEspReports::class,
+        Commands\GrabTrackingApiData::class,
     ];
 
     /**
