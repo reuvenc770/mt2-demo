@@ -9,6 +9,6 @@
 namespace App\Facades;
 use Illuminate\Support\Facades\Facade;
 
-class EspAccount extends Facade{
+class EspApiAccount extends Facade{
     protected static function getFacadeAccessor() { return 'EspApiAccount'; }
 }

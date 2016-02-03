@@ -5,7 +5,7 @@
 
 namespace App\Services\API;
 
-use App\Facades\EspAccount;
+use App\Facades\EspApiAccount;
 use App\Facades\Guzzle;
 use Carbon\Carbon;
 
@@ -26,7 +26,7 @@ class EmailDirectApi extends BaseAPI {
     public function __construct ( $name , $espAccountId ) {
         parent::__construct( $name , $espAccountId );
 
-        $creds = EspAccount::grabApiKeyWithSecret( $espAccountId );
+        $creds = EspApiAccount::grabApiKeyWithSecret( $espAccountId );
   
         $this->api = new \EmailDirect( $creds[ 'apiKey' ] );
     }

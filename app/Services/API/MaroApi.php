@@ -5,7 +5,7 @@
 
 namespace App\Services\API;
 
-use App\Facades\EspAccount;
+use App\Facades\EspApiAccount;
 use App\Facades\Guzzle;
 
 /**
@@ -24,7 +24,7 @@ class MaroApi extends BaseAPI {
 
     public function __construct($name, $espAccountId) {
         parent::__construct($name, $espAccountId);
-        $creds = EspAccount::grabApiAccountNameAndKey($espAccountId);
+        $creds = EspApiAccount::grabApiAccountNameAndKey($espAccountId);
         $this->accountName = $creds['accountName'];
         $this->apiKey = $creds['apiKey'];
     }

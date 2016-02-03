@@ -207,7 +207,7 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View'      => Illuminate\Support\Facades\View::class,
         'Guzzle'    => App\Facades\Guzzle::class,
-        'ESPAccount'=> App\Facades\EspAccount::class,
+        'EspApiAccount'=> App\Facades\EspApiAccount::class,
         'JobTracking'=> App\Facades\JobTracking::class,
         'Activation' => Cartalyst\Sentinel\Laravel\Facades\Activation::class,
         'Reminder'   => Cartalyst\Sentinel\Laravel\Facades\Reminder::class,
