@@ -1,13 +1,13 @@
 <?php
 
 namespace App\Services;
-use App\Services\Interfaces\IAPIReportService;
 use App\Events\RawReportDataWasInserted;
 use App\Repositories\ReportRepo;
 use Illuminate\Support\Facades\Event;
 use App\Services\API\EspBaseApi;
+use App\Services\Interfaces\IDataService;
 
-abstract class AbstractReportService implements IAPIReportService {
+abstract class AbstractReportService implements IDataService  {
   
   protected $reportRepo;
   protected $api;
@@ -17,7 +17,7 @@ abstract class AbstractReportService implements IAPIReportService {
     $this->api = $api;
   }
 
-  abstract public function retrieveApiReportStats($data);
+  abstract public function retrieveApiStats($data);
 
   abstract public function insertApiRawStats($data);
 
@@ -41,5 +41,18 @@ abstract class AbstractReportService implements IAPIReportService {
       } catch (\Exception $e){
         throw new \Exception($e->getMessage());
       }
+  }
+
+  public function insertSegmentedApiRawStats($data, $length) {
+    $start = 0;
+    $end = 5000;
+
+    while ($end < $length) {
+      echo "Inserting segment ..." . PHP_EOL;
+      $slice = array_slice($data, $start, $end);
+      $this->insertApiRawStats($slice);
+      $start = $end;
+      $end = $end + 5000;
+    } 
   }
 }

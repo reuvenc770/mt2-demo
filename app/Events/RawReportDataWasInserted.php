@@ -6,7 +6,7 @@ use App\Events\Event;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Support\Facades\Log;
-use App\Services\Interfaces\ITrackingService;
+use App\Services\Interfaces\IDataService;
 
 /**
  * Class RawReportDataWasInserted
@@ -28,7 +28,7 @@ class RawReportDataWasInserted extends Event
      * @param $accountNumber
      * @param $rawReportData
      */
-    public function __construct(ITrackingService &$service, $rawReportData)
+    public function __construct(IDataService &$service, $rawReportData)
     {
         $this->rawReportData = $rawReportData;
         $this->service = $service;
