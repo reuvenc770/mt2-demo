@@ -35,8 +35,9 @@ class EspAccountRepo
      * ESPAccountRepo constructor.
      * @param EspAccount $espAccount
      */
-    public function __construct(EspAccount $espAccount)
+    public function __construct( Esp $esp , EspAccount $espAccount)
     {
+        $this->esp = $esp;
         $this->espAccount = $espAccount;
     }
 
