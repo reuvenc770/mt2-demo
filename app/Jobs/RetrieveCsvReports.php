@@ -7,7 +7,7 @@ use App\Factories\APIFactory;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Facades\EspAccount;
+use App\Facades\EspApiAccount;
 use App\Models\JobEntry;
 use App\Facades\JobTracking;
 class RetrieveCsvReports extends Job implements ShouldQueue
@@ -53,7 +53,7 @@ class RetrieveCsvReports extends Job implements ShouldQueue
     {
         JobTracking::startEspJob(self::JOB_NAME,$this->apiName, $this->accountName, $this->tracking);
         $reportService = APIFactory::createApiReportService($this->apiName,$this->accountName);
-        $reportArray = EspAccount::mapCsvToRawStatsArray($this->accountName, $this->filePath);
+        $reportArray = EspApiAccount::mapCsvToRawStatsArray($this->accountName, $this->filePath);
         $reportService->insertCsvRawStats($reportArray);
         JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking, $this->attempts());
     }

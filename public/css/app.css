@@ -5755,9 +5755,21 @@ body {
   font-weight: 400;
   font-size: 14px; }
 
+#mtTableContainer {
+  background-color: #FFF; }
+  #mtTableContainer .table {
+    margin-bottom: 0 !important; }
+    #mtTableContainer .table thead {
+      background-color: #2e5c89;
+      color: #FFF; }
+
 #headerContainer {
   margin-bottom: 0;
   background-color: #16416C; }
+
+.mt2-header-btn {
+  margin-right: 15px;
+  margin-bottom: 15px; }
 
 #adminLeftSidebar {
   padding: 0;

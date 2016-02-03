@@ -1,14 +1,14 @@
 <?php
 
 namespace App\Providers;
-use App\Repositories\EspAccountRepo;
-use App\Services\ESPAccountService;
+use App\Repositories\EspApiAccountRepo;
+use App\Services\EspApiAccountService;
 use Illuminate\Support\Facades\App;
 
 use App\Models\EspAccount;
 use Illuminate\Support\ServiceProvider;
 
-class ESPAccountProvider extends ServiceProvider
+class EspApiAccountProvider extends ServiceProvider
 {
     /**
      * Bootstrap the application services.
@@ -26,9 +26,9 @@ class ESPAccountProvider extends ServiceProvider
      */
     public function register()
     {
-        App::bind('espAccount', function()
+        App::bind('EspApiAccount', function()
         {
-            return new ESPAccountService(new EspAccountRepo(new EspAccount()));
+            return new EspApiAccountService(new EspApiAccountRepo(new EspAccount()));
         });
 
     }

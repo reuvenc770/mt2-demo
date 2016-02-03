@@ -1,7 +1,9 @@
 @extends( 'layout.default' )
 
-@section( 'title' , 'ESP Dashboard' )
+@section( 'title' , 'Dashboard' )
+
+@section( 'navIndexClasses' , 'active' )
 
 @section( 'content' )
-<div class="page-header col-xs-12"><h1>ESP Dashboard</h1></div>
+<div class="page-header col-xs-12"><h1>Dashboard</h1></div>
 @stop
