@@ -158,7 +158,6 @@ return [
         App\Providers\GuzzleServiceProvider::class,
         App\Providers\JobEntryServiceProvider::class,
         App\Providers\EspApiAccountProvider::class,
-        App\Providers\EspApiProvider::class,
         Cartalyst\Sentinel\Laravel\SentinelServiceProvider::class,
         Laracasts\Flash\FlashServiceProvider::class,
 
