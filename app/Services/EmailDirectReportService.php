@@ -11,18 +11,19 @@ use App\Services\AbstractReportService;
 use League\Flysystem\Exception;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
+use App\Services\Interfaces\IDataService;
 
 /**
  *
  */
-class EmailDirectReportService extends AbstractReportService {
+class EmailDirectReportService extends AbstractReportService implements IDataService {
     private $invalidFields = array( 'Publication' , 'Links' );
 
     public function __construct ( ReportRepo $reportRepo , EmailDirectApi $api) {
         parent::__construct($reportRepo, $api);
     }
 
-    public function retrieveApiReportStats ( $date ) {
+    public function retrieveApiStats ( $date ) {
         try {
             $this->api->setDate(array( 'date' => $date ));
             return $this->api->sendApiRequest();

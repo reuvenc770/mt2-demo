@@ -14,13 +14,15 @@ use App\Services\AbstractReportService;
 use League\Flysystem\Exception;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
+use App\Services\Interfaces\IDataService;
+
 //TODO FAILED MONITORING - better error messages
 //TODO Create Save Record method
 /**
  * Class BlueHornetReportService
  * @package App\Services
  */
-class BlueHornetReportService extends AbstractReportService
+class BlueHornetReportService extends AbstractReportService implements IDataService
 {
 
     /**
@@ -38,7 +40,7 @@ class BlueHornetReportService extends AbstractReportService
      * @return \SimpleXMLElement
      * @throws \Exception
      */
-    public function retrieveApiReportStats($date)
+    public function retrieveApiStats($date)
     {
         $methodData = array(
             "date" => $date
@@ -135,9 +137,6 @@ class BlueHornetReportService extends AbstractReportService
             "campaign_id" => (string)$report->campaign_id
         );
     }
-
-
-
 
 
 }

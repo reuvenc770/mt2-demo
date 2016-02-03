@@ -20,13 +20,14 @@ use Carbon\Carbon;
 use App\Events\RawReportDataWasInserted;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
+use App\Services\Interfaces\IDataService;
 
 
 /**
  * Class CampaignerReportService
  * @package App\Services
  */
-class CampaignerReportService extends AbstractReportService
+class CampaignerReportService extends AbstractReportService implements IDataService
 {
 
     CONST NO_CAMPAIGNS = 'M_4.1.1.1_NO-CAMPAIGNRUNS-FOUND';
@@ -156,7 +157,7 @@ class CampaignerReportService extends AbstractReportService
      * @return \App\Library\Campaigner\ArrayOfCampaign
      * @throws \Exception
      */
-    public function retrieveApiReportStats($date)
+    public function retrieveApiStats($date)
     {
         $dateObject = Carbon::createFromTimestamp(strtotime($date));
         $manager = new CampaignManagement();
