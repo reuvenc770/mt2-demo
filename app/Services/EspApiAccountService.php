@@ -18,7 +18,7 @@ use League\Csv\Reader;
 class EspApiAccountService
 {
     /**
-     * @var EspAccountRepo
+     * @var EspApiAccountRepo
      */
     protected $espRepo;
 
