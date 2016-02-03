@@ -3,24 +3,24 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Support\Facades\Auth;
-
-class Authenticate
+use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
+use Laracasts\Flash\Flash;
+class SentinelAuthenticate
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @param  string|null  $guard
+     * @param  \Illuminate\Http\Request $request
+     * @param  \Closure $next
      * @return mixed
      */
-    public function handle($request, Closure $next, $guard = null)
+    public function handle($request, Closure $next)
     {
-        if (Auth::guard($guard)->guest()) {
+        if (!Sentinel::check()) {
             if ($request->ajax()) {
                 return response('Unauthorized.', 401);
             } else {
+                Flash::info('You need to be logged in to do that!');
                 return redirect()->guest('login');
             }
         }

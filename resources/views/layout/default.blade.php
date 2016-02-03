@@ -9,6 +9,8 @@
         @include( 'layout.top-nav' )
 
         <div id="pageContent" class="container-fluid fullHeight">
+            @include('flash::message')
+
             @yield( 'content' )
         </div>
 

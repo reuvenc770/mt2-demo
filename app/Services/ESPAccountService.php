@@ -81,7 +81,6 @@ class ESPAccountService
         return array(
             "apiKey"        => $espDetails['key_1'],
             "sharedSecret"  => $espDetails['key_2']
-
         );
     }
 
@@ -103,7 +102,6 @@ class ESPAccountService
         return array(
             "userName"        => $espDetails['key_1'],
             "password"        => $espDetails['key_2']
-
         );
     }
 
@@ -145,5 +143,13 @@ class ESPAccountService
      */
     public function updateAccount ( $id , $accountData ) {
         $this->espRepo->updateAccount( $id , $accountData );
+    }
+
+    public function grabApiAccountNameAndKey($espAccountId) {
+        $espDetails = $this->espRepo->getAccount($espAccountId);
+        return array(
+            'accountName' => $espDetails['account_name'],
+            'apiKey' => $espDetails['key_1']
+        );
     }
 }

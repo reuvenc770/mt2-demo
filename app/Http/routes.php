@@ -24,6 +24,7 @@ Route::group( [ 'prefix' => 'api' ] , function () {
 } );
 
 Route::get('test', 'TestStuff@index');
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -40,3 +41,21 @@ Route::group(['middleware' => ['web']], function () {
         return View::make( 'layout.app' );
     });
 });
+
+Route::group(['middleware' => ['auth','admin']], function () {
+    Route::get('register', 'RegistrationController@create');
+    Route::post('register', ['as' => 'registration.store', 'uses' => 'RegistrationController@store']);
+});
+
+//guest only
+Route::group(['middleware' => ['guest']], function () {
+    Route::get('login', ['as' => 'login', 'uses' => 'SessionsController@create']);
+    Route::get('forgot_password', ['as' => 'forgetpassword.getemail', 'uses' => 'PasswordController@getEmail']);
+    Route::post('forgot_password',['as' => 'forgetpassword.postemail', 'uses' => 'PasswordController@postEmail']);
+    Route::get('reset_password/{token}', ['as' => 'password.reset', 'uses' => 'PasswordController@getReset']);
+    Route::post('reset_password/{token}',['as' => 'password.store', 'uses' => 'PasswordController@postReset']);
+});
+
+//open routes
+Route::resource('sessions', 'SessionsController' , ['only' => ['create','store','destroy']]);
+Route::get('home', ['as' => 'home', 'uses' => 'HomeController@home']);

@@ -41,6 +41,14 @@ class JobEntryRepo
                                      'tracking' => $tracking]);
     }
 
+    public function startTrackingJobReturnObject($jobName, $startDate, $endDate, $tracking) {
+        return $this->entry->create([
+                'job_name' => $jobName . $startDate . '::' . $endDate,
+                'account_name' => 'cake',
+                'tracking' => $tracking
+            ]);
+    }
+
     public function getJobByTracking($tracking){
         try{
             return $this->entry->where('tracking',$tracking)->firstOrFail();
