@@ -44,14 +44,6 @@ class ESPAccountService
     }
 
     /**
-     * @param int $id The ID of the ESP to retrieve.
-     * @return Esp
-     */
-    public function getEsp ( $id ) {
-        return $this->espRepo->getEsp( $id );
-    }
-
-    /**
      * @return Illuminate\Database\Eloquent\Collection
      */
     public function getAllEsps () {

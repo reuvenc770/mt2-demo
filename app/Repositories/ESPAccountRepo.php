@@ -42,14 +42,6 @@ class EspAccountRepo
     }
 
     /**
-     * @param $espId
-     * @return Esp
-     */
-    public function getEsp ( $espId ) {
-        return $this->esp->find( $espId );
-    }
-
-    /**
      * @return Illuminate\Database\Eloquent\Collection
      */
     public function getAllEsps () {
