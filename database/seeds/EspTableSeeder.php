@@ -37,6 +37,28 @@ class EspTableSeeder extends Seeder
         $edesp->key_1 = "a81cf56a-37bf-4abf-83b2-f7eed4e10380";
         $ed->espAccounts()->save($edesp);
 
+        $maro = new \App\Models\Esp();
+        $maro->name = "Maro";
+        $maro->save();
 
+        $m1esp = new EspAccount();
+        $m1esp->account_name ="113";
+        $m1esp->key_1 = "rSyggC4QpzG3kHpfK7i3";
+        $maro->espAccounts()->save($m1esp);
+
+        $m2esp = new EspAccount();
+        $m2esp->account_name ="407";
+        $m2esp->key_1 = "95e546d32ad42fb412d050097c40a1bbf86ae4da";
+        $maro->espAccounts()->save($m2esp);
+
+        $m3esp = new EspAccount();
+        $m3esp->account_name ="374";
+        $m3esp->key_1 = "fc2cbbbb208aec6d6ab329603c22881837fc74f4";
+        $maro->espAccounts()->save($m3esp);
+
+        $m4esp = new EspAccount();
+        $m4esp->account_name ="406";
+        $m4esp->key_1 = "39d834057ad7ab7ef64c192e4beaac5fd1811dc9";
+        $maro->espAccounts()->save($m4esp);
     }
 }
