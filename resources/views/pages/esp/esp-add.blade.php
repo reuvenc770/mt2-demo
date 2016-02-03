@@ -27,7 +27,7 @@
                             @endforeach
                         </select>
 
-                        <span class="help-block" ng-bind="esp.formErrors.espid" ng-show="esp.formErrors.espid"></span>
+                        <span class="help-block" ng-bind="esp.formErrors.espId" ng-show="esp.formErrors.espId"></span>
                     </div>
                 </div>
 
