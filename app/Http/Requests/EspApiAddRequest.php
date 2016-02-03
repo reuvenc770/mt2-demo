@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
 
-class EspEditRequest extends Request
+class EspApiAddRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,9 @@ class EspEditRequest extends Request
     public function rules()
     {
         return [
-            'accountName' => 'required' ,
-            'key1' => 'required'
+            'espId' => 'required' ,
+            'accountName' => 'required|unique:esp_accounts,account_name' ,
+            'key1' => 'required|unique:esp_accounts,key_1'
         ];
     }
 
@@ -35,8 +36,11 @@ class EspEditRequest extends Request
     public function messages ()
     {
         return [
+            'espId.required' => 'Please choose an ESP.' ,
             'accountName.required' => 'ESP Account Name is required.' ,
-            'key1.required' => 'ESP Key 1 is required.'
+            'accountName.unique' => 'ESP Account already exists.' ,
+            'key1.required' => 'ESP Key 1 is required.' ,
+            'key1.unique' => 'ESP Key 1 already exists.'
         ];
     }
 }

@@ -3,7 +3,7 @@
 //TODO Finish once have more info
 namespace App\Console\Commands;
 
-use App\Repositories\EspAccountRepo;
+use App\Repositories\EspApiAccountRepo;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use App\Jobs\RetrieveCsvReports;
@@ -28,7 +28,7 @@ class GrabCsvEspReports extends Command
      */
     protected $description = 'Command description';
 
-    public function __construct(EspAccountRepo $espRepo)
+    public function __construct(EspApiAccountRepo $espRepo)
     {
         parent::__construct();
         $this->espRepo = $espRepo;

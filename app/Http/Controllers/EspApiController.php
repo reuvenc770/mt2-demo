@@ -7,16 +7,20 @@ use Illuminate\Http\Response;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use App\Services\ESPAccountService;
-use App\Http\Requests\EspAddRequest;
-use App\Http\Requests\EspEditRequest;
+use App\Services\EspApiAccountService;
+use App\Services\EspApiService;
+use App\Http\Requests\EspApiAddRequest;
+use App\Http\Requests\EspApiEditRequest;
 
 class EspApiController extends Controller
 {
     protected $espService;
 
-    public function __construct ( ESPAccountService $service ) {
-        $this->espService = $service;
+    protected $espAccountService;
+
+    public function __construct ( EspApiService $espService , EspApiAccountService $espAccountService ) {
+        $this->espService = $espService;
+        $this->espAccountService = $espAccountService;
     }
 
     /**
@@ -26,7 +30,7 @@ class EspApiController extends Controller
      */
     public function index()
     {
-        $accounts = $this->espService->getAllAccounts();
+        $accounts = $this->espAccountService->getAllAccounts();
 
         $accountList = [];
 
@@ -75,12 +79,12 @@ class EspApiController extends Controller
     /**
      * Store a newly created ESP Account.
      *
-     * @param  \App\Http\EspAddRequest  $request
+     * @param  \App\Http\EspApiAddRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(EspAddRequest $request)
+    public function store(EspApiAddRequest $request)
     {
-        return $this->espService->saveAccount( $request->all() );
+        return $this->espAccountService->saveAccount( $request->all() );
     }
 
     /**
@@ -91,7 +95,7 @@ class EspApiController extends Controller
      */
     public function show($id)
     {
-        return $this->espService->getAccount( $id );
+        return $this->espAccountService->getAccount( $id );
 
     }
 
@@ -103,7 +107,7 @@ class EspApiController extends Controller
      */
     public function edit( $id )
     {
-        $account = $this->espService->getAccountAndEsp( $id );
+        $account = $this->espAccountService->getAccountAndEsp( $id );
 
         return response()
             ->view( 'pages.esp.esp-edit' , [
@@ -118,13 +122,13 @@ class EspApiController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\EspEditRequest  $request
+     * @param  \App\Http\Requests\EspApiEditRequest  $request
      * @param  int  $id The ESP Account ID being updated.
      * @return \Illuminate\Http\Response
      */
-    public function update(EspEditRequest $request, $id)
+    public function update(EspApiEditRequest $request, $id)
     {
-        $this->espService->updateAccount( $id , $request );
+        $this->espAccountService->updateAccount( $id , $request );
     }
 
     /**

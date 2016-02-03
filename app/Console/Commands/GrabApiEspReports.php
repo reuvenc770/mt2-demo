@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 
-use App\Repositories\ESPAccountRepo;
+use App\Repositories\EspApiAccountRepo;
 use Carbon\Carbon;
 use App\Jobs\RetrieveApiReports;
 use Illuminate\Console\Command;
@@ -28,7 +28,7 @@ class GrabApiEspReports extends Command
     protected $description = 'Command description';
 
 
-    public function __construct(ESPAccountRepo $espRepo)
+    public function __construct(EspApiAccountRepo $espRepo)
     {
         parent::__construct();
         $this->espRepo = $espRepo;

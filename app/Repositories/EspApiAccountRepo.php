@@ -9,43 +9,28 @@
 namespace App\Repositories;
 
 use App\Models\EspAccount;
-use App\Models\Esp;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 //TODO ADD CACHING ONCE ESP SECTION IS DONE
 
 /**
- * Class ESPAccountRepo
+ * Class EspApiAccountRepo
  * @package App\Repositories
  */
-class EspAccountRepo
+class EspApiAccountRepo
 {
-
-    /**
-     * @var Esp
-     */
-    protected $esp;
-
     /**
      * @var EspAccount
      */
     protected $espAccount;
 
     /**
-     * ESPAccountRepo constructor.
+     * EspApiAccountRepo constructor.
      * @param EspAccount $espAccount
      */
-    public function __construct( Esp $esp , EspAccount $espAccount)
+    public function __construct( EspAccount $espAccount)
     {
-        $this->esp = $esp;
         $this->espAccount = $espAccount;
-    }
-
-    /**
-     * @return Illuminate\Database\Eloquent\Collection
-     */
-    public function getAllEsps () {
-        return $this->esp->all();
     }
 
     /**

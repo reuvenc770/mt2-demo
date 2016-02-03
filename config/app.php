@@ -157,7 +157,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\GuzzleServiceProvider::class,
         App\Providers\JobEntryServiceProvider::class,
-        App\Providers\ESPAccountProvider::class,
+        App\Providers\EspApiAccountProvider::class,
         Cartalyst\Sentinel\Laravel\SentinelServiceProvider::class,
         Laracasts\Flash\FlashServiceProvider::class,
 

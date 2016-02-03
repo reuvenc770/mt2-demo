@@ -9,13 +9,13 @@
 namespace App\Services;
 
 
-use App\Repositories\EspAccountRepo;
+use App\Repositories\EspApiAccountRepo;
 use League\Csv\Reader;
 /**
- * Class ESPAccountService
+ * Class EspApiAccountService
  * @package App\Services
  */
-class ESPAccountService
+class EspApiAccountService
 {
     /**
      * @var EspAccountRepo
@@ -23,10 +23,10 @@ class ESPAccountService
     protected $espRepo;
 
     /**
-     * ESPAccountService constructor.
-     * @param EspAccountRepo $espRepo
+     * EspApiAccountService constructor.
+     * @param EspApiAccountRepo $espRepo
      */
-    public function __construct(EspAccountRepo $espRepo)
+    public function __construct(EspApiAccountRepo $espRepo)
     {
         $this->espRepo = $espRepo;
     }
@@ -39,15 +39,11 @@ class ESPAccountService
         return $this->espRepo->getAccount( $id );
     }
 
+    /**
+     *
+     */
     public function getAccountAndEsp ( $id ) {
         return $this->espRepo->getAccountAndEsp( $id );
-    }
-
-    /**
-     * @return Illuminate\Database\Eloquent\Collection
-     */
-    public function getAllEsps () {
-        return $this->espRepo->getAllEsps();
     }
 
     /**
