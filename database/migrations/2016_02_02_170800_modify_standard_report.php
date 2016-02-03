@@ -59,6 +59,9 @@ class ModifyStandardReport extends Migration
             $table->integer('conversions')->nullable();
             $table->decimal('cost', 7, 2)->nullable();
             $table->decimal('revenue', 7, 2)->nullable();
+            $table->timestamps();
+
+            $table->unique('deploy_id');
         });
 
 

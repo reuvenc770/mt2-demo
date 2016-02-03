@@ -13,10 +13,6 @@ use League\Flysystem\Exception;
  */
 class CreateStandardReport implements ShouldQueue
 {
-    /**
-     *
-     */
-    const SERVICE_NAME = "Standard";
 
     /**
      * Convert Raw Reports into Standard Reports
@@ -25,8 +21,10 @@ class CreateStandardReport implements ShouldQueue
      */
     public function handle(RawReportDataWasInserted $event)
     {
-        $service = APIFactory::createApiReportService($event->getApiName(), $event->getAccountNumber());
-        $standardService = APIFactory::createApiReportService(self::SERVICE_NAME, $event->getAccountNumber());
+
+        $service = $event->getService();
+        $standardService = APIFactory::createStandardReportService();
+
         foreach ($event->getRawReportData() as $report) {
             try {
                 $standardReport = $service->mapToStandardReport($report);
