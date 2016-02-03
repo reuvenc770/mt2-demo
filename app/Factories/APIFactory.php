@@ -11,6 +11,8 @@ use App\Repositories\ReportRepo;
 use App\Repositories\TrackingRepo;
 use App\Services\API\CakeApi;
 use App\Services\API\BaseEspApi;
+use App\Repositories\StandardReportRepo;
+use App\Services\StandardReportService;
 
 /**
  * Create different Services for APIS
@@ -54,6 +56,12 @@ class APIFactory
         } else {
             throw new \Exception("That Tracking Service does not exist");
         }
+    }
+
+    public static function createStandardReportService() {
+        $standardModel = new \App\Models\StandardReport();
+        $standardReportRepo = new StandardReportRepo($standardModel);
+        return new StandardReportService($standardReportRepo);
     }
 
 }
