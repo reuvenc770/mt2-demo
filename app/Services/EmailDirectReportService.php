@@ -46,8 +46,9 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
     }
 
     public function mapToStandardReport ( $data ) {
-        return array(
+        $formatedData = $this->mapToRawReport( $data );
 
+        return array(
             'deploy_id' => $data[ 'name' ],
             'esp_account_id' => $this->api->getEspAccountId(),
             'datetime' => $data[ 'schedule_date' ],

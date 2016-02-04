@@ -9,33 +9,60 @@
 namespace App\Services;
 
 
-use App\Repositories\EspAccountRepo;
+use App\Repositories\EspApiAccountRepo;
 use League\Csv\Reader;
 /**
- * Class ESPAccountService
+ * Class EspApiAccountService
  * @package App\Services
  */
-class ESPAccountService
+class EspApiAccountService
 {
     /**
-     * @var EspAccountRepo
+     * @var EspApiAccountRepo
      */
     protected $espRepo;
 
     /**
-     * ESPAccountService constructor.
-     * @param EspAccountRepo $espRepo
+     * EspApiAccountService constructor.
+     * @param EspApiAccountRepo $espRepo
      */
-    public function __construct(EspAccountRepo $espRepo)
+    public function __construct(EspApiAccountRepo $espRepo)
     {
         $this->espRepo = $espRepo;
     }
 
+    /**
+     * @param int $id The ID of the account to retrieve.
+     * @return EspAccount
+     */
+    public function getAccount ( $id ) {
+        return $this->espRepo->getAccount( $id );
+    }
 
+    /**
+     *
+     */
+    public function getAccountAndEsp ( $id ) {
+        return $this->espRepo->getAccountAndEsp( $id );
+    }
+
+    /**
+     * @return Illuminate\Database\Eloquent\Collection
+     */
+    public function getAllAccounts () {
+        return $this->espRepo->getAllAccounts();
+    }
+
+    /**
+     *
+     */
     public function getAllAccountsByESPName($espName){
         return $this->espRepo->getAccountsByESPName($espName);
     }
 
+    /**
+     *
+     */
     public function grabApiKeyWithSecret($espAccountId)
     {
         $espDetails = $this->espRepo->getAccount($espAccountId);
@@ -45,12 +72,18 @@ class ESPAccountService
         );
     }
 
+    /**
+     *
+     */
     public function grabApiKey($espAccountId)
     {
         $espDetails = $this->espRepo->getAccount($espAccountId);
         return $espDetails['key_1'];
     }
 
+    /**
+     *
+     */
     public function grabApiUsernameWithPassword($espAccountId)
     {
         $espDetails = $this->espRepo->getAccount($espAccountId);
@@ -60,12 +93,18 @@ class ESPAccountService
         );
     }
 
+    /**
+     *
+     */
     public function grabCsvMapping($espAccountId)
     {
         $espDetails = $this->espRepo->getAccount($espAccountId)->accountMapping;
         return  explode(',',$espDetails->mappings);
     }
 
+    /**
+     *
+     */
     public function mapCsvToRawStatsArray($espAccountId,$filePath){
         $returnArray = array();
         $mapping = $this->grabCsvMapping($espAccountId);
@@ -79,6 +118,21 @@ class ESPAccountService
         return $returnArray;
     }
 
+    /**
+     * @param array $newAccount The collection of account details to save.
+     */
+    public function saveAccount ( $accountData ) {
+        $this->espRepo->saveAccount( $accountData );
+    }
+
+    /**
+     * @param int $id The id of the account to update.
+     * @param array $accountData The account information to update.
+     */
+    public function updateAccount ( $id , $accountData ) {
+        $this->espRepo->updateAccount( $id , $accountData );
+    }
+
     public function grabApiAccountNameAndKey($espAccountId) {
         $espDetails = $this->espRepo->getAccount($espAccountId);
         return array(
@@ -86,5 +140,4 @@ class ESPAccountService
             'apiKey' => $espDetails['key_1']
         );
     }
-
 }

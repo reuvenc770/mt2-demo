@@ -11,9 +11,18 @@
 |
 */
 
-Route::get('/', function () {
-    return View::make( 'layout.app' );
-});
+Route::group( [ 'prefix' => 'esp' ] , function () {
+    Route::get( '/' , array( 'as' => 'esp.index' , 'uses' => 'EspApiController@list' ) );
+
+    Route::get( '/create' , array( 'as' => 'esp.create' , 'uses' => 'EspApiController@create' ) );
+
+    Route::get( '/edit/{id}' , array( 'as' => 'esp.edit' , 'uses' => 'EspApiController@edit' ) );
+} );
+
+Route::group( [ 'prefix' => 'api' ] , function () {
+    Route::resource( 'esp' , 'EspApiController' , [ 'except' => [ 'create' , 'edit' ] ] );
+} );
+
 Route::get('test', 'TestStuff@index');
 
 /*
@@ -27,11 +36,17 @@ Route::get('test', 'TestStuff@index');
 |
 */
 
+Route::group(['middleware' => ['web']], function () {
+    Route::get('/', function () {
+        return View::make( 'layout.app' );
+    });
+});
+
 Route::group(['middleware' => ['auth','admin']], function () {
     Route::get('register', 'RegistrationController@create');
     Route::post('register', ['as' => 'registration.store', 'uses' => 'RegistrationController@store']);
-
 });
+
 //guest only
 Route::group(['middleware' => ['guest']], function () {
     Route::get('login', ['as' => 'login', 'uses' => 'SessionsController@create']);
