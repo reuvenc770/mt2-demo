@@ -23,7 +23,7 @@ class CreateStandardReport implements ShouldQueue
     {
 
         $service = $event->getService();
-        $standardService = APIFactory::createStandardReportService();
+        $standardService = APIFactory::createStandardReportService($service);
 
         foreach ($event->getRawReportData() as $report) {
             try {
