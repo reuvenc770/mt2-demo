@@ -28,11 +28,11 @@ abstract class AbstractReportService implements IDataService  {
   public function insertCsvRawStats($reports){
     $arrayReportList = array();
     foreach ($reports as $report) {
-      $this->insertStats($this->getAccountName(), $report);
+      $this->insertStats($this->api->getAccountName(), $report);
       $arrayReportList[] = $report;
     }
 
-    Event::fire(new RawReportDataWasInserted($this->getApiName(),$this->getAccountName(), $arrayReportList));
+    Event::fire(new RawReportDataWasInserted($this, $arrayReportList));
   }
 
   protected function insertStats($accountName, $report) {
