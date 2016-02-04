@@ -11,7 +11,8 @@ use App\Repositories\ReportRepo;
 use App\Repositories\TrackingRepo;
 use App\Services\API\CakeApi;
 use App\Services\API\BaseEspApi;
-use App\Repositories\StandardReportRepo;
+use App\Repositories\StandardTrackingReportRepo;
+use App\Repositories\StandardApiReportRepo;
 use App\Services\StandardReportService;
 
 /**
@@ -58,9 +59,16 @@ class APIFactory
         }
     }
 
-    public static function createStandardReportService() {
+    public static function createStandardReportService($service) {
         $standardModel = new \App\Models\StandardReport();
-        $standardReportRepo = new StandardReportRepo($standardModel);
+
+        if (is_a($service, 'App\Services\AbstractReportService')) {
+            $standardReportRepo = new StandardApiReportRepo($standardModel);
+        }
+        else {
+            $standardReportRepo = new StandardTrackingReportRepo($standardModel);
+        }
+        
         return new StandardReportService($standardReportRepo);
     }
 
