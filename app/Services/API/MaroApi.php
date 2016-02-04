@@ -7,6 +7,7 @@ namespace App\Services\API;
 
 use App\Facades\EspAccount;
 use App\Facades\Guzzle;
+use Carbon\Carbon;
 
 class MaroApi extends EspBaseAPI {
 
@@ -25,9 +26,8 @@ class MaroApi extends EspBaseAPI {
     }
 
     public function setDate($date) {
-        $this->date = $date;
-        $tmpDate = new \DateTime($date);
-        $this->priorDate = $tmpDate->modify('-3 day')->format('Y-m-d');
+        $this->priorDate = $date;
+        $this->date = Carbon::now()->toDateString();
     }
 
     public function sendApiRequest() {
