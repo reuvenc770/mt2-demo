@@ -20,6 +20,7 @@ class GrabTrackingApiData extends Command
     protected $signature = 'reports:downloadTrackingData {trackingSource} {lookBack?}';
     protected $trackingRepo;
     protected $lookBack;
+    protected $trackingSource;
 
     /**
      * The console command description.
