@@ -27,7 +27,7 @@ class ModifyStandardReport extends Migration
             // These below should not be null as it will always be present in the table
             $table->string('deploy_id')->default(''); 
             $table->integer('m_deploy_id')->unsigned()->default(0);
-            $table->integer('esp_id')->unsigned()->default(0);
+            $table->integer('esp_account_id')->unsigned()->default(0);
             $table->datetime('datetime')->nullableTimestamps();
             $table->integer('m_creative_id')->unsigned()->default(0);
             $table->integer('m_offer_id')->unsigned()->default(0);
