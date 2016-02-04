@@ -70,18 +70,30 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             $arrayReportList[] = $convertedReport;
         }
 
-        Event::fire(new RawReportDataWasInserted($this->getApiName(),$espAccountId(), $arrayReportList));
+        Event::fire(new RawReportDataWasInserted($this, $arrayReportList));
     }
 
     public function mapToStandardReport($report){
+
         return array(
-            "internal_id" => $report['internal_id'],
-            "esp_account_id"=> $this->getEspAccountId(),
-            "name" => $report['message_name'],
-            "subject" => $report['message_subject'],
-            "opens"   => $report['opened_total'],
-            "clicks"  => $report['clicked_total']
+            'deploy_id' => $report['name'],
+            'm_deploy_id' => 0, // stub for now
+            'esp_account_id' => $report['esp_account_id'],
+            'datetime' => $report['date_sent'],
+            'name' => $report['message_name'],
+            'subject' => $report['message_subject'],
+            'from' => $report[''],
+            'from_email' => $report[''],
+            'e_sent' => $report['sent_total'],
+            'delivered' => $report['delivered_total'],
+            'bounced' => $report['bounced_total'],
+            'optouts' => $report['optout_total'],
+            'e_opens' => $report['opened_total'],
+            'e_opens_unique' => $report['opened_unique'],
+            'e_clicks' => $report['clicked_total'],
+            'e_clicks_unique' => $report['clicked_unique']
         );
+
     }
 
     public function mapToRawReport($report){

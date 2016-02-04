@@ -66,7 +66,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             $arrayReportList[] = $convertedReport;
         }
 
-        Event::fire(new RawReportDataWasInserted($this->api->getApiName(), $espAccountId, $arrayReportList));
+        Event::fire(new RawReportDataWasInserted($this, $arrayReportList));
     }
 
     /**
@@ -142,12 +142,20 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
     public function mapToStandardReport($report)
     {
         return array(
-            "internal_id" => $report['internal_id'],
-            "account_name" => $this->api->getEspAccountId(),
-            "name" => $report['name'],
-            "subject" => $report['subject'],
-            "opens" => $report['opens'],
-            "clicks" => $report['clicks']
+
+            'deploy_id' => $report['name'],
+            'esp_account_id' => $report['esp_account_id'],
+            'datetime' => '0000-00-00', //$report[''],
+            'name' => $report['name'],
+            'subject' => $report['subject'],
+            'from' => $report['from_name'],
+            'from_email' => $report['from_email'],
+            'e_sent' => $report['sent'],
+            'delivered' => $report['delivered'],
+            'bounced' => (int)$report['hard_bounces'],
+            'optouts' => $report['unsubs'],
+            'e_opens' => $report['opens'],
+            'e_clicks' => $report['clicks']
         );
     }
 

@@ -5,12 +5,12 @@
 
 namespace App\Services;
 use App\Repositories\TrackingRepo;
-use App\Services\Interfaces\ITrackingService;
+use App\Services\Interfaces\IDataService;
 use League\Flysystem\Exception;
 use Illuminate\Support\Facades\Event;
-use App\Events\RawTrackingDataWasInserted;
+use App\Events\RawReportDataWasInserted;
 
-class TrackingDataService implements ITrackingService
+class TrackingDataService implements IDataService
 {
 
   protected $repo;
@@ -23,7 +23,7 @@ class TrackingDataService implements ITrackingService
     $this->source = $source;
   }
 
-  public function retrieveTrackingApiStats() {
+  public function retrieveApiStats($data = null) {
     $reportStats = $this->api->sendApiRequest();
     
     $out = $this->processGuzzleResult($reportStats);
@@ -39,11 +39,19 @@ class TrackingDataService implements ITrackingService
       $convertedRows[]= $convertedRow;
       $this->repo->insertStats($convertedRow);
     }
+    Event::fire(new RawReportDataWasInserted($this, $convertedRows));
+  }
 
-    Event::fire(new RawTrackingDataWasInserted($this->source, 
-      $this->api->startDate,
-      $this->api->endDate,
-      $convertedRows));
+  public function insertSegmentedApiRawStats($data, $length) {
+    $start = 0;
+    $end = 5000;
+
+    while ($end < $length) {
+      $slice = array_slice($data, $start, $end);
+      $this->insertApiRawStats($slice);
+      $start = $end;
+      $end = $end + 5000;
+    } 
   }
 
   protected function processGuzzleResult($data) {
@@ -55,15 +63,14 @@ class TrackingDataService implements ITrackingService
     return $row;
   }
 
-  protected function mapToStandardReport($data) {
-    // stub - currently does not fit into standard report
+  public function mapToStandardReport($data) {
     return [
-      'internal_id' => 0,
-      'esp_account_id' => 0,
-      'name' => '',
-      'subject' => '',
-      'opens' => 0,
-      'clicks' => 0
+      'subid_1' => $data['subid_1'],
+      't_clicks' => $data['clicks'],
+      'conversions' => $data['conversions'],
+      'revenue' => $data['revenue'],
     ];
   }
+
+  public function insertCsvRawStats($data) {}
 }

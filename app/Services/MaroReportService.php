@@ -11,12 +11,13 @@ use App\Services\AbstractReportService;
 use League\Flysystem\Exception;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
+use App\Services\Interfaces\IDataService;
 
 /**
  * Class BlueHornetReportService
  * @package App\Services
  */
-class MaroReportService extends AbstractReportService 
+class MaroReportService extends AbstractReportService implements IDataService
 {
 
     protected $reportRepo;
@@ -28,7 +29,7 @@ class MaroReportService extends AbstractReportService
     }
 
 
-    public function retrieveApiReportStats($date) {
+    public function retrieveApiStats($date) {
         $this->api->setDate($date);
         $outputData = array();
 
@@ -71,18 +72,29 @@ class MaroReportService extends AbstractReportService
             $convertedDataArray[]= $convertedReport;
         }
 
-        Event::fire(new RawReportDataWasInserted($this->api->getApiName(), $espAccountId, $convertedDataArray));
+        Event::fire(new RawReportDataWasInserted($this, $convertedDataArray));
     }
 
     public function mapToStandardReport($data) { 
         return array(
-            "internal_id" => $data['internal_id'],
-            "esp_account_id" => $data['esp_account_id'],
-            "name" => $this->accountName,
-            "subject" => '',
-            "opens" => $data['open'],
-            "clicks" => $data['click']
-        ); 
+
+            'deploy_id' => $data['name'],
+            'm_deploy_id' => 0, // temporarily 0 until deploys are created
+            'esp_account_id' => $data['esp_account_id'],
+            'datetime' => $data['sent_at'],
+            #'name' => $data[''],
+            #'subject' => $data[''],
+            #'from' => $data[''],
+            #'from_email' => $data[''],
+            'e_sent' => $data['sent'],
+            'delivered' => $data['delivered'],
+            'bounced' => (int)$data['bounce'],
+            #'optouts' => $data[''],
+            'e_opens' => $data['open'],
+            #'e_opens_unique' => $data[''],
+            'e_clicks' => $data['click'],
+            #'e_clicks_unique' => $data[''],
+        );
     }
 
     public function mapToRawReport($data) {
@@ -101,22 +113,6 @@ class MaroReportService extends AbstractReportService
             'maro_created_at' => $data['created_at'],
             'maro_updated_at' => $data['updated_at'],
         );
-    }
-
-    public function insertCsvRawStats($reports){
-        $arrayReportList = array();
-        foreach ($reports as $report) {
-
-            try {
-                $this->reportRepo->insertStats($this->getAccountName(), $report);
-            } catch (\Exception $e){
-                throw new \Exception($e->getMessage());
-            }
-
-            $arrayReportList[] = $report;
-        }
-
-        Event::fire(new RawReportDataWasInserted($this->api->getApiName(),$this->api->getEspAccountId(), $arrayReportList));
     }
 
 }

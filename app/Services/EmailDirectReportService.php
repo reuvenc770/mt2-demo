@@ -42,17 +42,24 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
             $convertedRecordCollection []= $convertedRecord;
         }
 
-        Event::fire( new RawReportDataWasInserted( $this->api->getApiName(), $espAccountId, $convertedRecordCollection ) );
+        Event::fire(new RawReportDataWasInserted($this, $convertedRecordCollection ) );
     }
 
     public function mapToStandardReport ( $data ) {
         return array(
-            "internal_id" => $data[ 'campaign_id' ] ,
-            "esp_account_id" => $this->api->getEspAccountId() ,
-            "name" => $data[ 'name' ] ,
-            "subject" => $data[ 'subject' ] ,
-            "opens" => $data[ 'opens' ] ,
-            "clicks" => $data[ 'total_clicks' ]
+
+            'deploy_id' => $data[ 'name' ],
+            'esp_account_id' => $this->api->getEspAccountId(),
+            'datetime' => $data[ 'schedule_date' ],
+            'name' => $data[ 'campaign_id' ],
+            'subject' => $data[ 'subject' ],
+            'from' => $data[ 'from_name' ],
+            'from_email' => $data[ 'from_email' ],
+            'delivered' => $data[ 'delivered' ],
+            'bounced' => (int)$data['hard_bounces'],
+            'e_opens' => $data[ 'opens' ],
+            'e_clicks' => $data[ 'total_clicks' ],
+            'e_clicks_unique' => $data[ 'unique_clicks' ],
         );
     }
 
