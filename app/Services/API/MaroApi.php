@@ -15,13 +15,13 @@ class MaroApi extends EspBaseAPI {
     protected $apiKey;
     protected $priorDate;
     protected $date;
-    protected $accountName;
+    protected $account;
 
 
     public function __construct($name, $espAccountId) {
         parent::__construct($name, $espAccountId);
-        $creds = EspApiAccount::grabApiAccountNameAndKey($espAccountId);
-        $this->accountName = $creds['accountName'];
+        $creds = EspApiAccount::grabApiAccountIdAndKey($espAccountId);
+        $this->account = $creds['account'];
         $this->apiKey = $creds['apiKey'];
     }
 
@@ -36,7 +36,7 @@ class MaroApi extends EspBaseAPI {
 
     public function constructApiUrl($page = null) {
 
-        $baseUrl = sprintf(self::API_URL, $this->accountName);
+        $baseUrl = sprintf(self::API_URL, $this->account);
         $baseUrl .= ('auth_token=' . $this->apiKey);
         
         if ($page) {

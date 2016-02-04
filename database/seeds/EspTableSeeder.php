@@ -42,23 +42,27 @@ class EspTableSeeder extends Seeder
         $maro->save();
 
         $m1esp = new EspAccount();
-        $m1esp->account_name ="113";
-        $m1esp->key_1 = "rSyggC4QpzG3kHpfK7i3";
+        $m1esp->account_name = "MAR1";
+        $m1esp->key_1 ="113";
+        $m1esp->key_2 = "rSyggC4QpzG3kHpfK7i3";
         $maro->espAccounts()->save($m1esp);
 
         $m2esp = new EspAccount();
-        $m2esp->account_name ="407";
-        $m2esp->key_1 = "95e546d32ad42fb412d050097c40a1bbf86ae4da";
+        $m2esp->account_name ="MAR4";
+        $m2esp->key_1 ="407";
+        $m2esp->key_2 = "95e546d32ad42fb412d050097c40a1bbf86ae4da";
         $maro->espAccounts()->save($m2esp);
 
         $m3esp = new EspAccount();
-        $m3esp->account_name ="374";
-        $m3esp->key_1 = "fc2cbbbb208aec6d6ab329603c22881837fc74f4";
+        $m3esp->account_name ="MAR3";
+        $m3esp->key_1 ="374";
+        $m3esp->key_2 = "fc2cbbbb208aec6d6ab329603c22881837fc74f4";
         $maro->espAccounts()->save($m3esp);
 
         $m4esp = new EspAccount();
-        $m4esp->account_name ="406";
-        $m4esp->key_1 = "39d834057ad7ab7ef64c192e4beaac5fd1811dc9";
+        $m4esp->account_name ="MAR2";
+        $m4esp->key_1 ="406";
+        $m4esp->key_2 = "39d834057ad7ab7ef64c192e4beaac5fd1811dc9";
         $maro->espAccounts()->save($m4esp);
     }
 }
