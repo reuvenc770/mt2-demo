@@ -26,12 +26,14 @@ class UserService
 
 
 
-    public function createAndRegisterUser($userFields, $roleID){
+    public function createAndRegisterUser($userFields, $roles){
 
         try {
             $user = $this->authObject->registerAndActivate($userFields);
-            $role = $this->authObject->findRoleById($roleID);
-            $role->users()->attach($user);
+            foreach($roles as $role) {
+                $roleObject = $this->authObject->findRoleById($role);
+                $roleObject->users()->attach($user);
+            }
         } catch (\Exception $e){
             throw new \Exception($e->getMessage());
         }
@@ -53,4 +55,38 @@ class UserService
         return $filtered;
     }
 
+    public function getAllUsersWithRolesNames()
+    {
+       $users = $this->userRepo->select('id','email', 'first_name', 'last_name', 'last_login' )
+           ->with(['roles' => function ($query) {
+               $query->addSelect('name');
+            }, 'activations'])->get();
+        foreach($users as $user) {
+            $user->roles->transform(function ($item, $key) {
+                return $item->name;
+            });
+        }
+        return $users;
+    }
+
+    public function getUserWithRoles($id){
+        $user = $this->userRepo->select('id','email', 'first_name', 'last_name', 'last_login' )
+            ->with(['roles' => function ($query) {
+                $query->addSelect('id');
+            }])->get()->find($id);
+            $user->roles->transform(function ($item, $key) {
+                return $item->id;
+            });
+        return $user;
+    }
+
+    public function updateUserAndRoles($input, $roles, $id){
+        $user = $this->userRepo->findById($id);
+        $user->roles()->detach(); //remove all roles.
+        foreach($roles as $role) {
+            $roleObject = $this->authObject->findRoleById($role);
+            $roleObject->users()->attach($user);
+         }
+        $this->userRepo->update($user,$input);
+    }
 }

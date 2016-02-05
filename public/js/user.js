@@ -1,38 +1,30 @@
-mt2App.controller( 'espController' , [ '$log' , '$window' , '$location' , '$timeout' , 'EspApiService' , function ( $log , $window , $location , $timeout , EspApiService ) {
+mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$timeout' , 'UserApiService' , function ( $log , $window , $location , $timeout , UserApiService ) {
     var self = this;
     self.$location = $location;
 
-    self.headers = [ '' , 'ID' , 'ESP' , 'Account' , 'Created' , 'Updated' ];
+    self.headers = [ '' , 'ID', 'email', 'First Name', 'Last Name', 'Roles', "Status" , "Last Login"];
     self.accounts = [];
+    self.currentAccount = { "email" : "" , "password" : "" , "password_confirmation" : "" , "first_name" : "" , "last_name" : "" , "roles" : ""};
+    self.currentAccount.roles = [];
+    self.createUrl = 'user/create/';
+    self.editUrl = 'user/edit/';
 
-    self.currentAccount = { "espId" : "" , "id" : "" , "accountName" : "" , "key1" : "" , "key2" : "" };
-
-    self.createUrl = 'esp/create/';
-    self.editUrl = 'esp/edit/';
-
-    self.formErrors = { "espId" : "" , "id" : "" , "accountName" : "" , "key1" : "" , "key2" : "" };
+    self.formErrors = "";
 
     self.loadAccount = function () {
-        var pathMatches = $location.path().match( /^\/espapi\/edit\/(\d{1,})/ );
+        var pathMatches = $location.path().match( /^\/user\/edit\/(\d{1,})/ );
 
-        EspApiService.getAccount( pathMatches[ 1 ] , function ( response ) {
-            self.currentAccount.id = response.data.id;
-            self.currentAccount.accountName = response.data.account_name;
-            self.currentAccount.key1 = response.data.key_1;
-            self.currentAccount.key2 = response.data.key_2;
+        UserApiService.getAccount( pathMatches[ 1 ] , function ( response ) {
+            self.currentAccount = response.data;
         } )
     }
 
     self.loadAccounts = function () {
-        EspApiService.getAccounts( self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
+        UserApiService.getAccounts( self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
     };
 
-    self.resetCurrentAccount = function () {
-        self.currentAccount.espId = '';
-        self.currentAccount.id = '';
-        self.currentAccount.accountName = '';
-        self.currentAccount.key1 = '';
-        self.currentAccount.key2 = '';
+    self.resetForm = function () {
+        self.currentAccount = {};
     };
 
     /**
@@ -46,14 +38,29 @@ mt2App.controller( 'espController' , [ '$log' , '$window' , '$location' , '$time
     self.saveNewAccount = function () {
         self.resetFieldErrors();
 
-        EspApiService.saveNewAccount( self.currentAccount , self.saveNewAccountSuccessCallback , self.saveNewAccountFailureCallback );
+        UserApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback );
     };
 
     self.editAccount = function () {
         self.resetFieldErrors();
 
-        EspApiService.editAccount( self.currentAccount , self.editAccountSuccessCallback , self.editAccountFailureCallback );
-    }
+        UserApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
+    };
+
+    self.toggleSelection = function (role) {
+        var idx = self.currentAccount.roles.indexOf(role);
+
+        // is currently selected
+        if (idx > -1) {
+            self.currentAccount.roles.splice(idx, 1);
+        }
+
+        // is newly selected
+        else {
+            self.currentAccount.roles.push(role);
+        }
+    };
+
 
     /**
      * Callbacks
@@ -64,38 +71,29 @@ mt2App.controller( 'espController' , [ '$log' , '$window' , '$location' , '$time
 
     self.loadAccountsFailureCallback = function ( response ) {
         self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to load ESP Accounts.' );
+        self.setModalBody( 'Failed to load Users.' );
 
         self.launchModal();
     }
 
-    self.saveNewAccountSuccessCallback = function ( response ) {
-        self.setModalLabel( 'Success' );
-        self.setModalBody( 'Successfully saved ESP Account.' );
-
-        self.resetCurrentAccount();
-
-        self.launchModal();
+    self.SuccessCallBackRedirect = function ( response ) {
+        $window.location.href = '/user';
     };
 
     self.saveNewAccountFailureCallback = function ( response ) {
-        self.loadFieldErrors( 'espId' , response );
-        self.loadFieldErrors( 'accountName' , response );
-        self.loadFieldErrors( 'key1' , response );
-        self.loadFieldErrors( 'key2' , response );
-    };
-
-    self.editAccountSuccessCallback = function ( response ) {
-        self.setModalLabel( 'Success' );
-        self.setModalBody( 'Successfully updated ESP Account.' );
-
-        self.launchModal();
+        self.loadFieldErrors( 'email' , response );
+        self.loadFieldErrors( 'first_name' , response );
+        self.loadFieldErrors( 'last_name' , response );
+        self.loadFieldErrors( 'password' , response );
+        self.loadFieldErrors( 'password_confirmation' , response );
+        self.loadFieldErrors( 'roles' , response );
     };
 
     self.editAccountFailureCallback = function ( response ) {
-        self.loadFieldErrors( 'accountName' , response );
-        self.loadFieldErrors( 'key1' , response );
-        self.loadFieldErrors( 'key2' , response );
+        self.loadFieldErrors( 'email' , response );
+        self.loadFieldErrors( 'first_name' , response );
+        self.loadFieldErrors( 'last_name' , response );
+        self.loadFieldErrors( 'roles' , response );
     };
 
     /**
@@ -139,17 +137,14 @@ mt2App.controller( 'espController' , [ '$log' , '$window' , '$location' , '$time
     }
 
     self.resetFieldErrors = function () {
-        self.setFieldError( 'espId' , '' ); 
-        self.setFieldError( 'accountName' , '' ); 
-        self.setFieldError( 'key1' , '' );
-        self.setFieldError( 'key2' , '' );
+        self.formErrors = {};
     };
 } ] );
 
-mt2App.service( 'EspApiService' , function ( $http , $log ) {
+mt2App.service( 'UserApiService' , function ( $http , $log ) {
     var self = this;
 
-    self.baseApiUrl = '/api/esp';
+    self.baseApiUrl = '/api/user';
 
     self.getAccount = function ( id , successCallback ) {
         $http( { "method" : "GET" , "url" : this.baseApiUrl + '/' + id } )
@@ -182,4 +177,4 @@ mt2App.service( 'EspApiService' , function ( $http , $log ) {
     }
 } );
 
-//# sourceMappingURL=esp.js.map
+//# sourceMappingURL=user.js.map

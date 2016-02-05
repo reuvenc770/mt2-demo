@@ -13,7 +13,7 @@ mt2App.controller( 'espController' , [ '$log' , '$window' , '$location' , '$time
     self.formErrors = { "espId" : "" , "id" : "" , "accountName" : "" , "key1" : "" , "key2" : "" };
 
     self.loadAccount = function () {
-        var pathMatches = $location.path().match( /^\/esp\/edit\/(\d{1,})/ );
+        var pathMatches = $location.path().match( /^\/espapi\/edit\/(\d{1,})/ );
 
         EspApiService.getAccount( pathMatches[ 1 ] , function ( response ) {
             self.currentAccount.id = response.data.id;

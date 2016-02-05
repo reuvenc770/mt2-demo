@@ -11,30 +11,23 @@
 |
 */
 
-Route::group( [ 'prefix' => 'esp' ] , function () {
-    Route::get( '/' , array( 'as' => 'esp.index' , 'uses' => 'EspApiController@list' ) );
-
+Route::group( [ 'prefix' => 'espapi', 'middleware' => ['auth'] ] , function () {
+    Route::get( '/' , array( 'as' => 'esp.index' , 'uses' => 'EspApiController@listAll' ) );
     Route::get( '/create' , array( 'as' => 'esp.create' , 'uses' => 'EspApiController@create' ) );
-
     Route::get( '/edit/{id}' , array( 'as' => 'esp.edit' , 'uses' => 'EspApiController@edit' ) );
 } );
 
-Route::group( [ 'prefix' => 'api' ] , function () {
-    Route::resource( 'esp' , 'EspApiController' , [ 'except' => [ 'create' , 'edit' ] ] );
+Route::group( [ 'prefix' => 'user', 'middleware' => ['auth','admin'] ] , function () {
+    Route::get( '/' , array( 'as' => 'user.index' , 'uses' => 'UserApiController@listAll' ) );
+    Route::get( '/create' , array( 'as' => 'user.create' , 'uses' => 'UserApiController@create' ) );
+    Route::get( '/edit/{id}' , array( 'as' => 'user.edit' , 'uses' => 'UserApiController@edit' ) );
 } );
 
-Route::get('test', 'TestStuff@index');
+Route::group( [ 'prefix' => 'api' ] , function () {
+    Route::resource( 'esp' , 'EspApiController' , [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth']  ] );
+    Route::resource('user', 'UserApiController',  [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth','admin']] );
+} );
 
-/*
-|--------------------------------------------------------------------------
-| Application Routes
-|--------------------------------------------------------------------------
-|
-| This route group applies the "web" middleware group to every route
-| it contains. The "web" middleware group is defined in your HTTP
-| kernel and includes session state, CSRF protection, and more.
-|
-*/
 
 Route::group(['middleware' => ['web']], function () {
     Route::get('/', function () {
@@ -56,6 +49,6 @@ Route::group(['middleware' => ['guest']], function () {
     Route::post('reset_password/{token}',['as' => 'password.store', 'uses' => 'PasswordController@postReset']);
 });
 
-//open routes
+
 Route::resource('sessions', 'SessionsController' , ['only' => ['create','store','destroy']]);
 Route::get('home', ['as' => 'home', 'uses' => 'HomeController@home']);
