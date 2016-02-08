@@ -106,19 +106,9 @@ class UserApiController extends Controller
     public function update(RegistrationEditFormRequest $request, $id)
     {
         $roles = $request->input('roles');
-        $input = $request->only('email', 'password', 'first_name', 'last_name');
+        $input = $request->only('email', 'first_name', 'last_name');
         $this->userService->updateUserAndRoles($input, $roles, $id);
         Flash::success("User Successfully Updated");
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }

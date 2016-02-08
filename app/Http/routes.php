@@ -20,6 +20,7 @@ Route::group( [ 'prefix' => 'espapi', 'middleware' => ['auth'] ] , function () {
 Route::group( [ 'prefix' => 'user', 'middleware' => ['auth','admin'] ] , function () {
     Route::get( '/' , array( 'as' => 'user.index' , 'uses' => 'UserApiController@listAll' ) );
     Route::get( '/create' , array( 'as' => 'user.create' , 'uses' => 'UserApiController@create' ) );
+    Route::post('create', ['as' => 'user.store', 'uses' => 'UserApiController@store']);
     Route::get( '/edit/{id}' , array( 'as' => 'user.edit' , 'uses' => 'UserApiController@edit' ) );
 } );
 
@@ -33,11 +34,6 @@ Route::group(['middleware' => ['web']], function () {
     Route::get('/', function () {
         return View::make( 'layout.app' );
     });
-});
-
-Route::group(['middleware' => ['auth','admin']], function () {
-    Route::get('register', 'RegistrationController@create');
-    Route::post('register', ['as' => 'registration.store', 'uses' => 'RegistrationController@store']);
 });
 
 //guest only
