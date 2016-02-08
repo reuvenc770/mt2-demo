@@ -97,6 +97,23 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
     };
 
     /**
+     * Errors
+     */
+    self.loadFieldErrors = function ( field , response ) {
+        if ( typeof( response.data[ field ] ) != 'undefined' ) {
+            self.setFieldError( field , response.data[ field ].join( ' ' ) );
+        }
+    };
+
+    self.setFieldError = function ( field , errorMessage ) {
+        self.formErrors[ field ] = errorMessage;
+    };
+
+    self.resetFieldErrors = function () {
+        self.formErrors = {};
+    };
+
+    /**
      * Page Modal
      */
 
@@ -110,7 +127,7 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
         var modalBody = angular.element( document.querySelector( '#pageModalBody' ) );
 
         modalBody.text( bodyText );
-    }
+    };
 
     self.launchModal = function () {
         $( '#pageModal' ).modal('show');
@@ -121,23 +138,6 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
         self.setModalBody( '' );
 
         $( '#pageModal' ).modal('hide');
-    };
-
-    /**
-     * Errors
-     */
-    self.loadFieldErrors = function ( field , response ) {
-        if ( typeof( response.data[ field ] ) != 'undefined' ) {
-            self.setFieldError( field , response.data[ field ].join( ' ' ) );
-        }
-    }
-
-    self.setFieldError = function ( field , errorMessage ) {
-        self.formErrors[ field ] = errorMessage;
-    }
-
-    self.resetFieldErrors = function () {
-        self.formErrors = {};
     };
 } ] );
 

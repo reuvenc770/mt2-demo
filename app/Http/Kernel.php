@@ -43,6 +43,7 @@ class Kernel extends HttpKernel
         'auth'         => \App\Http\Middleware\SentinelAuthenticate::class,
         'guest'        => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'admin'        => \App\Http\Middleware\SentinelAdminUser::class,
+        'pageLevel'    => \App\Http\Middleware\SentinelPermissions::class,
 
     ];
 }
