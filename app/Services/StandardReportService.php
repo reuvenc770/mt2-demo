@@ -1,46 +1,19 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: pcunningham
- * Date: 1/14/16
- * Time: 11:11 PM
- */
 
 namespace App\Services;
 
-use App\Repositories\ReportRepo;
-use App\Services\Interfaces\IReportService;
+use App\Repositories\StandardReportRepo;
 
-class StandardReportService implements IReportService
-{
+
+class StandardReportService {
     protected $repo;
-    private $apiName;
-    private $espAccountId;
 
-    public function __construct(ReportRepo $reportRepo, $apiName, $espAccountId){
+    public function __construct($reportRepo){
        $this->repo = $reportRepo;
-       $this->apiName = $apiName;
-       $this->accountNumber = $espAccountId;
     }
 
-    public function insertStandardStats($standardReport){
-        $this->repo->insertStats($this->accountNumber,$standardReport);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getEspAccountId()
-    {
-        return $this->getEspAccountId();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getApiName()
-    {
-        return $this->apiName;
+    public function insertStandardStats($data){
+        $this->repo->insertStats($data);
     }
 
 }

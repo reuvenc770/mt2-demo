@@ -133,11 +133,12 @@ class EspApiAccountService
         $this->espRepo->updateAccount( $id , $accountData );
     }
 
-    public function grabApiAccountNameAndKey($espAccountId) {
+    public function grabApiAccountIdAndKey($espAccountId) {
         $espDetails = $this->espRepo->getAccount($espAccountId);
         return array(
-            'accountName' => $espDetails['account_name'],
-            'apiKey' => $espDetails['key_1']
+            'account' => $espDetails['key_1'],
+            'apiKey' => $espDetails['key_2']
         );
     }
+
 }
