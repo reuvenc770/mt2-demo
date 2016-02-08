@@ -7,21 +7,22 @@
  */
 
 namespace App\Services;
-use App\Services\API\BlueHornet;
+#use App\Services\API\BlueHornet;
 use App\Repositories\ReportRepo;
 use App\Services\API\BlueHornetApi;
-use App\Services\Interfaces\IAPIReportService;
-use App\Services\Interfaces\IReportService;
+use App\Services\AbstractReportService;
 use League\Flysystem\Exception;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
+use App\Services\Interfaces\IDataService;
+
 //TODO FAILED MONITORING - better error messages
 //TODO Create Save Record method
 /**
  * Class BlueHornetReportService
  * @package App\Services
  */
-class BlueHornetReportService extends BlueHornetApi implements IAPIReportService, IReportService
+class BlueHornetReportService extends AbstractReportService implements IDataService
 {
 
     /**
@@ -29,10 +30,9 @@ class BlueHornetReportService extends BlueHornetApi implements IAPIReportService
      * @param ReportRepo $reportRepo
      * @param $accountNumber
      */
-    public function __construct(ReportRepo $reportRepo, $apiName, $espAccountId)
+    public function __construct(ReportRepo $reportRepo, BlueHornetApi $api)
     {
-        parent::__construct($apiName, $espAccountId,$reportRepo);
-        $this->reportRepo = $reportRepo;
+        parent::__construct($reportRepo, $api);
     }
 
     /**
@@ -40,14 +40,14 @@ class BlueHornetReportService extends BlueHornetApi implements IAPIReportService
      * @return \SimpleXMLElement
      * @throws \Exception
      */
-    public function retrieveApiReportStats($date)
+    public function retrieveApiStats($date)
     {
         $methodData = array(
             "date" => $date
         );
         try {
-            $xml = $this->buildRequest('legacy.message_stats', $methodData);
-            $response = $this->sendApiRequest($xml);
+            $this->api->buildRequest('legacy.message_stats', $methodData);
+            $response = $this->api->sendApiRequest();
             $xmlBody = simplexml_load_string($response->getBody()->__toString());
         } catch (Exception $e){
             throw new Exception($e->getMessage());
@@ -62,31 +62,38 @@ class BlueHornetReportService extends BlueHornetApi implements IAPIReportService
     {
         $arrayReportList = array();
         $reports = $xmlData->item->responseData->message_data;
+        $espAccountId = $this->api->getEspAccountId();
+        
         foreach ($reports->message as $report) {
-            //Please make a function that makes this not horrible
             $convertedReport = $this->mapToRawReport($report);
-
-            try {
-                $this->reportRepo->insertStats($this->getEspAccountId(), $convertedReport);
-            } catch (Exception $e){
-                throw new \Exception($e->getMessage());
-            }
-
+            $this->insertStats($espAccountId, $convertedReport);
             $arrayReportList[] = $convertedReport;
         }
 
-        Event::fire(new RawReportDataWasInserted($this->getApiName(),$this->getEspAccountId(), $arrayReportList));
+        Event::fire(new RawReportDataWasInserted($this, $arrayReportList));
     }
 
     public function mapToStandardReport($report){
+
         return array(
-            "internal_id" => $report['internal_id'],
-            "esp_account_id"=> $this->getEspAccountId(),
-            "name" => $report['message_name'],
-            "subject" => $report['message_subject'],
-            "opens"   => $report['opened_total'],
-            "clicks"  => $report['clicked_total']
+            'deploy_id' => $report['name'],
+            'm_deploy_id' => 0, // stub for now
+            'esp_account_id' => $report['esp_account_id'],
+            'datetime' => $report['date_sent'],
+            'name' => $report['message_name'],
+            'subject' => $report['message_subject'],
+            'from' => $report[''],
+            'from_email' => $report[''],
+            'e_sent' => $report['sent_total'],
+            'delivered' => $report['delivered_total'],
+            'bounced' => $report['bounced_total'],
+            'optouts' => $report['optout_total'],
+            'e_opens' => $report['opened_total'],
+            'e_opens_unique' => $report['opened_unique'],
+            'e_clicks' => $report['clicked_total'],
+            'e_clicks_unique' => $report['clicked_unique']
         );
+
     }
 
     public function mapToRawReport($report){

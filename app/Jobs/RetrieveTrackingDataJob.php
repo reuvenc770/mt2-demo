@@ -44,10 +44,14 @@ class RetrieveTrackingDataJob extends Job implements ShouldQueue
         }
 
         $dataService= APIFactory::createTrackingApiService($this->source, $this->startDate,$this->endDate);
-        $data = $dataService->retrieveTrackingApiStats();
+        $data = $dataService->retrieveApiStats(null);
+        $dataLength = sizeof($data);
 
-        if($data){
+        if($data && $dataLength < 10000) {
             $dataService->insertApiRawStats($data);
+        }
+        elseif ($data && $dataLength > 10000) {
+            $dataService->insertSegmentedApiRawStats($data, $dataLength);
         }
         
         JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking, $this->attempts());

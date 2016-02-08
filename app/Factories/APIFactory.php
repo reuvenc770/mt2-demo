@@ -10,6 +10,10 @@ namespace App\Factories;
 use App\Repositories\ReportRepo;
 use App\Repositories\TrackingRepo;
 use App\Services\API\CakeApi;
+use App\Services\API\BaseEspApi;
+use App\Repositories\StandardTrackingReportRepo;
+use App\Repositories\StandardApiReportRepo;
+use App\Services\StandardReportService;
 
 /**
  * Create different Services for APIS
@@ -30,10 +34,11 @@ class APIFactory
         $reportName = "{$apiName}Report";
         $reportModelName = "App\\Models\\{$reportName}";
         $reportModel = new $reportModelName();
+        $api = "App\\Services\\API\\{$apiName}Api";
 
         $reportServiceName = "App\\Services\\{$reportName}Service";
         if (class_exists($reportServiceName)) {
-            return new $reportServiceName(new ReportRepo($reportModel), $apiName, $espAccountId);
+            return new $reportServiceName(new ReportRepo($reportModel), new $api($apiName, $espAccountId));
         } else {
             throw new \Exception("That Report Service does not exist");
         }
@@ -52,6 +57,19 @@ class APIFactory
         } else {
             throw new \Exception("That Tracking Service does not exist");
         }
+    }
+
+    public static function createStandardReportService($service) {
+        $standardModel = new \App\Models\StandardReport();
+
+        if (is_a($service, 'App\Services\AbstractReportService')) {
+            $standardReportRepo = new StandardApiReportRepo($standardModel);
+        }
+        else {
+            $standardReportRepo = new StandardTrackingReportRepo($standardModel);
+        }
+        
+        return new StandardReportService($standardReportRepo);
     }
 
 }

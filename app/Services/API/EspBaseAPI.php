@@ -10,13 +10,14 @@ namespace App\Services\API;
 
 
 use App\Services\Interfaces\IReportService;
+use App\Services\Interfaces\IApi;
 use App\Events\RawReportDataWasInserted;
 use Illuminate\Support\Facades\Event;
 /**
- * Class BaseAPI
+ * Class EspBaseAPI
  * @package App\Services\API
  */
-class BaseAPI implements  IReportService
+abstract class EspBaseAPI implements  IReportService, IApi
 {
 
     private $apiName;
@@ -27,22 +28,6 @@ class BaseAPI implements  IReportService
     {
         $this->apiName = $name;
         $this->espAccountId = $espAccountId;
-    }
-
-    public function insertCsvRawStats($reports){
-        $arrayReportList = array();
-        foreach ($reports as $report) {
-
-            try {
-                $this->reportRepo->insertStats($this->getAccountName(), $report);
-            } catch (\Exception $e){
-                throw new \Exception($e->getMessage());
-            }
-
-            $arrayReportList[] = $report;
-        }
-
-        Event::fire(new RawReportDataWasInserted($this->getApiName(),$this->getAccountName(), $arrayReportList));
     }
 
     /**
