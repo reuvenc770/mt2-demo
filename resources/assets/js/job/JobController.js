@@ -1,4 +1,4 @@
-mt2App.controller( 'jobController' , [ '$log' , '$window' , '$location' , '$timeout' , 'JobApiService' , function ( $log , $window , $location , $timeout , JobApiService ) {
+mt2App.controller( 'jobController' , [ '$log' , '$window' , '$location' , '$timeout' , '$interval', 'JobApiService' , function ( $log , $window , $location , $timeout , $interval, JobApiService ) {
     var self = this;
     self.$location = $location;
 
@@ -8,6 +8,9 @@ mt2App.controller( 'jobController' , [ '$log' , '$window' , '$location' , '$time
     self.GlythMap  = { 1:"glyphicon-forward", 2:"glyphicon-remove-sign", 3:"glyphicon-remove-sign"};
     self.loadJobs = function () {
         JobApiService.getJobs( self.loadJobsSuccessCallback , self.loadAccountsFailureCallback );
+        $interval(function() {
+            JobApiService.getJobs( self.loadJobsSuccessCallback , self.loadAccountsFailureCallback );
+        }, 10000);
     };
 
     self.loadJobsSuccessCallback = function ( response ) {

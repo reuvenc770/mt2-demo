@@ -5,11 +5,5 @@ mt2App.service( 'JobApiService' , function ( $http , $interval ) {
     self.getJobs = function ( successCallback , failureCallback ) {
         self.httpget = $http( { "method" : "GET" , "url" : self.baseApiUrl } )
             .then( successCallback , failureCallback );
-        //call on page load;
-        $interval(function() {
-            $http( { "method" : "GET" , "url" : self.baseApiUrl } )
-                .then( successCallback , failureCallback );
-        }, 10000);
-
     }
 } );
