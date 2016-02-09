@@ -1,0 +1,42 @@
+-- MySQL dump 10.9
+--
+-- Host: localhost    Database: new_mail
+-- ------------------------------------------------------
+-- Server version	4.1.9-standard-log
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE="NO_AUTO_VALUE_ON_ZERO" */;
+
+--
+-- Table structure for table `campaign_daily_log`
+--
+
+DROP TABLE IF EXISTS `campaign_daily_log`;
+CREATE TABLE `campaign_daily_log` (
+  `campaign_id` int(11) NOT NULL default '0',
+  `date_sent` date NOT NULL default '0000-00-00',
+  `user_id` int(11) NOT NULL default '2',
+  `sent_cnt` int(11) NOT NULL default '0',
+  `open_cnt` int(11) NOT NULL default '0',
+  `click_cnt` int(11) NOT NULL default '0',
+  `bounce_cnt` int(11) NOT NULL default '0',
+  `fullmbx_cnt` int(11) NOT NULL default '0',
+  `notdelivered_cnt` int(11) NOT NULL default '0',
+  `unsubscribe_cnt` int(11) NOT NULL default '0',
+  UNIQUE KEY `campaign_daily_log_ind1` (`campaign_id`,`date_sent`),
+  KEY `campaign_daily_log_ind2` (`campaign_id`),
+  KEY `campaign_daily_log_ind3` (`user_id`,`date_sent`,`campaign_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+

@@ -1,0 +1,106 @@
+#################################################################
+####   ExpertSender.pm  - utility package for ExpertSender feed 
+####
+#################################################################
+
+use strict;
+use LWP 5.64;
+use XML::Simple;
+use Data::Dumper;
+use util;
+
+$|=1 ;   # set OUTPUT_AUTOFLUSH to true
+my $util = util->new;
+my $dbhq;
+my $dbhu;
+($dbhq,$dbhu)=$util->get_dbh();
+my $util = util->new;
+my $browser = LWP::UserAgent->new;
+my $cid;
+my $listid;
+my $LISTID;
+my $sql;
+my $rows;
+my $sth;
+my $sth2;
+my $sdate;
+my $edate;
+
+if ($ARGV[0] ne "")
+{
+	$sdate=$ARGV[0];
+	$edate=$ARGV[1];
+}
+else
+{
+	$sql="select date_sub(curdate(),interval 1 day),date_sub(curdate(),interval 1 day)";
+	$sth=$dbhu->prepare($sql);
+	$sth->execute();
+	($sdate,$edate)=$sth->fetchrow_array();
+	$sth->finish();
+}
+
+	$LISTID->{162}=124;
+	$LISTID->{161}=565;
+	$LISTID->{590}=527;
+	$LISTID->{591}=64;
+
+  	my $url2="http://service.expertsender.com/Api/Removals?apiKey=a8c3at41ABunAhu33srj&startDate=".$sdate."&endDate=".$edate;
+	my $response = $browser->get( $url2);
+    my $parser=XML::Simple->new();
+    my $data = $parser->XMLin($response->content);
+	my $i=0;
+	my $notdone=1;
+	while ($notdone)
+	{
+		if ($data->{Data}->{Removals}->{Removal}[$i]->{Email})
+		{
+			remove_user($data->{Data}->{Removals}->{Removal}[$i]->{Email},$data->{Data}->{Removals}->{Removal}[$i]->{ListId});
+			$i++;
+		}
+		else
+		{
+			$notdone=0;
+		}
+	}
+#	foreach my $arr (\$data->{Data}->{Removals}->{Removal})
+#	{
+#		print "$arr->{Email}\n";
+#	}
+#	print Dumper($data);
+sub remove_user
+{
+	my ($em,$listid)=@_;
+	my $emailTable;	
+	my $cid=$LISTID->{$listid};
+	my $emailid;
+	my $cstatus;
+	my $user_id;
+
+	if ($cid)
+	{
+		print "Client $cid - $em\n";
+		$sql = "select email_user_id,email_list.status,user_id, '1' as emailTable from email_list,list where email_addr= '$em' and email_list.list_id=list.list_id and list.user_id=$cid UNION select email_user_id,international_email_list.status,user_id, '2' as emailTable from international_email_list,list where email_addr= '$em' and international_email_list.list_id=list.list_id and list.user_id=$cid";
+		$sth2 = $dbhu->prepare($sql) ;
+		$sth2->execute();
+		while (($emailid,$cstatus,$user_id,$emailTable) = $sth2->fetchrow_array())
+		{
+			if ($cstatus eq "A") 
+			{
+				my $emailList = 'email_list';
+			
+				if($emailTable == 2 ){
+					$emailList = 'international_email_list';
+				}
+			
+				$sql = "update $emailList set status = 'U', unsubscribe_date=curdate(),unsubscribe_time=curtime() where email_user_id=$emailid and status ='A'"; 
+				$rows = $dbhu->do($sql) ;
+			
+				$sql = "insert into unsub_log(email_addr,unsub_date,client_id) values('$em',curdate(),$user_id)";
+				$rows = $dbhu->do($sql);
+			
+			}
+		}
+		$sth2->finish();
+	}
+}

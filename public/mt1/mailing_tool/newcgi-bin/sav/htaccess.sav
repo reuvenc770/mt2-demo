@@ -1,0 +1,4 @@
+AuthName "JumpJive AdServer"
+AuthType Basic
+AuthUserFile /var/www/admin/.htpasswd
+require valid-user

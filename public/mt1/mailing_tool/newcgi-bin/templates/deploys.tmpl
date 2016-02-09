@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Mailing Tool: Setup Deploys</title>
+<link href="/css/main1.css" rel="stylesheet" type="text/css">
+<link href="/css/menu.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="/chromemenu/chromejs/chrome.js">
+
+/***********************************************
+* Chrome CSS Drop Down Menu- (c) Dynamic Drive DHTML code library (www.dynamicdrive.com)
+* This notice MUST stay intact for legal use
+* Visit Dynamic Drive at http://www.dynamicdrive.com/ for full source code
+***********************************************/
+
+</script>
+
+</head>
+
+<body>
+<div id="container">
+<div id="blue01">
+<img src="/images/ban_mt_deploy.jpg" class="bar">
+</div>
+<div class="youracct" id="chromemenu">
+<ul>
+<li><a href="#" rel="dropmenu1" style="color:#666666;"><b>Welcome, <TMPL_VAR NAME=USERNAME>!</b><br>Your Account</a></li>
+</ul>
+</div>
+
+<!--1st drop down menu -->                                                   
+<div id="dropmenu1" class="dropmenudiv top">
+<a href="/editcontact.html">Edit Contact Information</a>
+<a href="/maintainence.html">Quick Maintainence</a>
+<a href="/cgi-bin/logout.cgi">Logout</a>
+</div>
+<TMPL_UNLESS name='SetupDeploys'>
+<!--End Top Nav-->
+
+<div class="chromestyle" id="chromemenu2">
+<ul>
+<li><a href="#" rel="dropmenu2">Email Delivery Setup</a></li>
+<li><a href="#" rel="dropmenu3">Email Testing</a></li>
+<li><a href="#" rel="dropmenu4">Scheduled Deploys</a></li>
+<li><a href="#" rel="dropmenu5">Manage/Send Deploys</a></li>
+<li><a href="#" rel="dropmenu6">ESP</a></li>
+<li style="padding-left:282px;">&nbsp;</li>
+<li><a href="/cgi-bin/mainmenu.cgi">Back to Top</a></li>	
+</ul>
+</div>
+
+<!--1st drop down menu -->                                                   
+<div id="dropmenu1" class="dropmenudiv top">
+<a href="/editcontact.html">Edit Contact Information</a>
+<a href="/maintainence.html">Quick Maintainence</a>
+<a href="/cgi-bin/logout.cgi">Logout</a>
+</div>
+<!--2nd drop down menu -->                                                   
+<div id="dropmenu2" class="dropmenudiv">
+<p style="color:#a7d9ff; padding-left:5px;">Manage IP Groups
+<a href="/cgi-bin/ipgroup_list.cgi">Create IP Groups</a>
+<a href="/cgi-bin/ipgroup_exclusion.cgi">Manage IP Group Exclusion</a>
+<a href="/cgi-bin/sm_brand.cgi">Add Strongmail Brand</a>
+<a href="/ip.html">Display IPs for Brands</a>
+<a href="/cgi-bin/get_ipgroup_info.cgi">Get IPs for IP Groups</a>
+<a href="/cgi-bin/block_list.cgi">Manage Blocks</a></p>
+
+<p style="color:#a7d9ff; padding-left:5px;">Manage Templates
+<a href="/cgi-bin/mailHeaders/index.cgi">Mail Header Templates</a>
+<a href="/cgi-bin/template_list.cgi">Mail Display Templates</a>
+<a href="/cgi-bin/TraceHeaders/index.cgi">Trace Headers</a>
+<a href="/cgi-bin/TemplateTypes/index.cgi">Template Types</a>
+<a href="/cgi-bin/wikiTemplate/index.cgi">Wiki Templates</a></p>
+
+<a href="/cgi-bin/Footers/index.cgi">Manage Footers</a>
+<a href="/cgi-bin/mta_list.cgi">Manage MTA Settings</a>
+</div>
+
+
+<!--3rd drop down menu -->                                                
+<div id="dropmenu3" class="dropmenudiv">
+<p style="color:#a7d9ff; padding-left:5px;">Create Test Deploys</p>
+<a href="/cgi-bin/sm2_list.cgi">SM2 List</a>
+<a href="/sm2_send_all.html">Send All Test</a>
+</div>
+
+<!--4th drop down menu -->                                                   
+<div id="dropmenu4" class="dropmenudiv">
+<p style="color:#a7d9ff; padding-left:5px;">Manage Slots
+<a href="/cgi-bin/unique_slot.cgi">Create Slots</a>
+<a href="/cgi-bin/unique_schedule.cgi">Slots Schedule</a></p>
+
+<p style="color:#a7d9ff; padding-left:5px;">Manage Daily Deals
+<a href="/cgi-bin/dd_list.cgi">Daily Deal Settings</a>
+<a href="/daily_schedule.html">Daily Deal Schedule</a></p>
+
+<p style="color:#a7d9ff; padding-left:5px;">Manage Trigger</p>
+<a href="/cgi-bin/dd_list.cgi?ctype=Trigger">Trigger Settings</a>
+<a href="/cgi-bin/new_category_trigger_list.cgi">Trigger Schedule</a>
+</div>
+
+<!--5th drop down menu -->                                                   
+<div id="dropmenu5" class="dropmenudiv">
+<a href="/cgi-bin/unique_main.cgi?uid=0">Create a Deploy</a>
+<a href="/cgi-bin/unique_deploy_list.cgi">Scheduled Deploys</a>
+<a href="/cgi-bin/unique_list.cgi">Upload Deploys</a>
+<a href="/cgi-bin/deploypool_list.cgi">Manage Deploy Pools</a>
+<TMPL_IF name='hasdataExport'>
+<a href="/cgi-bin/dataexport_list.cgi">Manage Data Exports</a>
+<a href="/cgi-bin/dataexport_list.cgi?exportType=ESP">Manage ESP Data Exports</a>
+<a href="/cgi-bin/dataexport_list.cgi?exportType=Cleanse">Manage Data Cleanse</a>
+<a href="/cgi-bin/combinedataexport_list.cgi">Manage Data Export Combines</a>
+<a href="/cgi-bin/ironcladgroup_list.cgi">Manage Iron Clad Groups</a>
+<a href="/cgi-bin/appendEID_list.cgi">Manage Append EIDs</a>
+<a href="/cgi-bin/appendEmail_list.cgi">Manage Append Emails</a>
+<a href="/cgi-bin/getSubIDInfo_list.cgi">Manage Append Responders</a>
+</TMPL_IF>
+</div>
+
+<!--6th drop down menu -->                                                   
+<div id="dropmenu6" class="dropmenudiv">
+<TMPL_IF name='isZeta'>
+<a href="/cgi-bin/expertsender_main.cgi?esp=NA001">Create Netatlantic HTML</a>
+<a href="/cgi-bin/expertsender_main.cgi?esp=JPG001">Create JPGM HTML</a>
+<a href="/cgi-bin/expertsender_main.cgi?esp=ZT001">Create ZetaMail HTML</a>
+</TMPL_IF>
+
+<TMPL_UNLESS name='isExternalUser'>
+<TMPL_VAR NAME=ESPS>
+<a href="/cgi-bin/upload_esp.cgi">Upload ESP Data</a>
+<a href="/cgi-bin/upload_esp.cgi?test=1">Test Upload ESP Data</a>
+</TMPL_UNLESS>
+</div>
+
+</TMPL_UNLESS>
+<script type="text/javascript">
+cssdropdown.startchrome("chromemenu", "chromemenu2")
+</script>
+
+</div>
+</body>
+</html>
+
