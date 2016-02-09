@@ -45,7 +45,7 @@ class RetrieveApiReports extends Job implements ShouldQueue
             $this->release(1);
         }
         $reportService = APIFactory::createAPIReportService($this->apiName,$this->espAccountId);
-        $data = $reportService->retrieveApiReportStats($this->date);
+        $data = $reportService->retrieveApiStats($this->date);
         if($data){
             $reportService->insertApiRawStats($data);
         }

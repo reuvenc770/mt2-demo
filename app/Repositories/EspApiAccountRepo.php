@@ -46,14 +46,16 @@ class EspApiAccountRepo
      * @return EspAccount
      */
     public function getAccountAndEsp($espAccountId){
-        return $this->espAccount::with( 'esp' )->find($espAccountId);
+        $accountObject = $this->espAccount; //cannot use $this-> to invoke static method
+        return $accountObject::with( 'esp' )->find($espAccountId);
     }
 
     /**
      * @return mixed
      */
     public function getAllAccounts(){
-        return $this->espAccount::with( 'esp' )->get();
+        $accountObject = $this->espAccount; //cannot use $this-> to invoke static method
+        return $accountObject::with( 'esp' )->get();
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Events\Event;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Support\Facades\Log;
+use App\Services\Interfaces\IDataService;
 
 /**
  * Class RawReportDataWasInserted
@@ -19,19 +20,18 @@ class RawReportDataWasInserted extends Event
      * @var
      */
     protected $rawReportData;
-    protected $apiName;
-    protected $accountNumber;
+    protected $service;
+    
     /**
      * RawReportDataWasInserted constructor.
      * @param $apiName
      * @param $accountNumber
      * @param $rawReportData
      */
-    public function __construct($apiName, $accountNumber, $rawReportData)
+    public function __construct(IDataService &$service, $rawReportData)
     {
         $this->rawReportData = $rawReportData;
-        $this->apiName = $apiName;
-        $this->accountNumber = $accountNumber;
+        $this->service = $service;
     }
 
     /**
@@ -43,19 +43,11 @@ class RawReportDataWasInserted extends Event
     }
 
     /**
-     * @return mixed
+     * @return ITrackingService
      */
-    public function getApiName()
-    {
-        return $this->apiName;
-    }
 
-    /**
-     * @return mixed
-     */
-    public function getAccountNumber()
-    {
-        return $this->accountNumber;
+    public function getService() {
+        return $this->service;
     }
 
     /**

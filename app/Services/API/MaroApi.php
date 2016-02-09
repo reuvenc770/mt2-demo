@@ -7,41 +7,36 @@ namespace App\Services\API;
 
 use App\Facades\EspApiAccount;
 use App\Facades\Guzzle;
+use Carbon\Carbon;
 
-/**
- * Class BaseAPI
- * @package App\Services\API
- */
-
-class MaroApi extends BaseAPI {
+class MaroApi extends EspBaseAPI {
 
     const API_URL = "http://api.maropost.com/accounts/%d/reports.json?";
     protected $apiKey;
     protected $priorDate;
     protected $date;
-    protected $accountName;
+    protected $account;
 
 
     public function __construct($name, $espAccountId) {
         parent::__construct($name, $espAccountId);
-        $creds = EspApiAccount::grabApiAccountNameAndKey($espAccountId);
-        $this->accountName = $creds['accountName'];
+        $creds = EspApiAccount::grabApiAccountIdAndKey($espAccountId);
+        $this->account = $creds['account'];
         $this->apiKey = $creds['apiKey'];
     }
 
     public function setDate($date) {
-        $this->date = $date;
-        $tmpDate = new \DateTime($date);
-        $this->priorDate = $tmpDate->modify('-3 day')->format('Y-m-d');
+        $this->priorDate = $date;
+        $this->date = Carbon::now()->toDateString();
     }
 
-    protected function sendApiRequest($url) {
-        return Guzzle::get($url, ['verify' => false]);
+    public function sendApiRequest() {
+        return Guzzle::get($this->url, ['verify' => false]);
     }
 
-    protected function constructApiUrl($page = null) {
+    public function constructApiUrl($page = null) {
 
-        $baseUrl = sprintf(self::API_URL, $this->accountName);
+        $baseUrl = sprintf(self::API_URL, $this->account);
         $baseUrl .= ('auth_token=' . $this->apiKey);
         
         if ($page) {
@@ -50,7 +45,7 @@ class MaroApi extends BaseAPI {
         if ($this->date) {
             $baseUrl .= '&from=' . $this->priorDate . '&to=' . $this->date;
         }
-        return $baseUrl;
+        $this->url = $baseUrl;
     }
 
 

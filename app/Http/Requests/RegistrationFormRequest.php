@@ -24,7 +24,7 @@ class RegistrationFormRequest extends Request
             'password' => 'required|confirmed|min:6',
             'first_name' => 'required',
             'last_name' => 'required',
-            'type'      => 'required',
+            'roles'      => 'required',
         ];
     }
 }

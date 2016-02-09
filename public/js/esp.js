@@ -1,48 +1,3 @@
-/**
- * MT2 App Module
- */
-var mt2App = angular.module( 'mt2App' , [] );
-
-mt2App.config( function ( $locationProvider ) {
-    $locationProvider.html5Mode( true );
-} );
-
-mt2App.directive( 'genericTable' , function () {
-    return {
-        "scope" : {} ,
-        "controller" : function () {} ,
-        "controllerAs" : "ctrl" , 
-        "bindToController" : { 
-            "headers" : "=" ,
-            "records" : "=" ,
-            "editurl" : "="
-        } ,
-        "templateUrl" : "js/templates/generic-table.html"
-    };
-} );
-
-mt2App.directive( 'editButton' , [ '$window' , '$location' , function ( $window , $location ) {
-    return {
-        "scope" : {} ,
-        "controller" : function () {} ,
-        "controllerAs" : "ctrl" ,
-        "bindToController" : {
-            "editurl" : "=" ,
-            "recordid" : "="
-        } ,
-        "templateUrl" : "js/templates/edit-button.html" ,
-        "link" : function ( scope , element , attrs )  {
-            if ( typeof( scope.ctrl ) != 'undefined' ) {
-                element.on( 'click' , function () {
-                    var fullEditUrl = scope.ctrl.editurl + scope.ctrl.recordid;
-                    $location.url( fullEditUrl );
-                    $window.location.href = fullEditUrl;
-                } );
-            }
-        }
-    };
-} ] );
-
 mt2App.controller( 'espController' , [ '$log' , '$window' , '$location' , '$timeout' , 'EspApiService' , function ( $log , $window , $location , $timeout , EspApiService ) {
     var self = this;
     self.$location = $location;
@@ -58,7 +13,7 @@ mt2App.controller( 'espController' , [ '$log' , '$window' , '$location' , '$time
     self.formErrors = { "espId" : "" , "id" : "" , "accountName" : "" , "key1" : "" , "key2" : "" };
 
     self.loadAccount = function () {
-        var pathMatches = $location.path().match( /^\/esp\/edit\/(\d{1,})/ );
+        var pathMatches = $location.path().match( /^\/espapi\/edit\/(\d{1,})/ );
 
         EspApiService.getAccount( pathMatches[ 1 ] , function ( response ) {
             self.currentAccount.id = response.data.id;

@@ -52,7 +52,7 @@ class EspApiController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function list ()
+    public function listAll ()
     {
         return response()
             ->view( 'pages.esp.esp-index' );

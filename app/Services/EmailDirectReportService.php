@@ -4,32 +4,29 @@
  */
 
 namespace App\Services;
-
+use App\Services\API\EspBaseApi;
 use App\Services\API\EmailDirectApi;
 use App\Repositories\ReportRepo;
-use App\Services\Interfaces\IAPIReportService;
-use App\Services\Interfaces\IReportService;
+use App\Services\AbstractReportService;
 use League\Flysystem\Exception;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
+use App\Services\Interfaces\IDataService;
 
 /**
  *
  */
-class EmailDirectReportService extends EmailDirectApi implements IAPIReportService , IReportService {
-    protected $reportRepo;
-
+class EmailDirectReportService extends AbstractReportService implements IDataService {
     private $invalidFields = array( 'Publication' , 'Links' );
 
-    public function __construct ( ReportRepo $reportRepo , $apiName , $espAccountId ) {
-        parent::__construct( $apiName , $espAccountId );
-
-        $this->reportRepo = $reportRepo;
+    public function __construct ( ReportRepo $reportRepo , EmailDirectApi $api) {
+        parent::__construct($reportRepo, $api);
     }
 
-    public function retrieveApiReportStats ( $date ) {
+    public function retrieveApiStats ( $date ) {
         try {
-            return $reportStats = $this->sendApiRequest( array( 'date' => $date ) );
+            $this->api->setDate(array( 'date' => $date ));
+            return $this->api->sendApiRequest();
         } catch ( Exception $e ) {
             throw $e;
         }
@@ -37,32 +34,33 @@ class EmailDirectReportService extends EmailDirectApi implements IAPIReportServi
 
     public function insertApiRawStats ( $rawStats ) {
         $convertedRecordCollection = array();
+        $espAccountId = $this->api->getEspAccountId();
 
         foreach ( $rawStats as $rawCampaignStats ) {
-            try {
-                $convertedRecord = $this->mapToRawReport( $rawCampaignStats );
-
-                $convertedRecordCollection []= $convertedRecord;
-
-                $this->reportRepo->insertStats( $this->getEspAccountId() , $convertedRecord );
-            } catch ( Exception $e ) {
-                throw $e;
-            }
+            $convertedRecord = $this->mapToRawReport( $rawCampaignStats );
+            $this->insertStats( $espAccountId , $convertedRecord );
+            $convertedRecordCollection []= $convertedRecord;
         }
 
-        Event::fire( new RawReportDataWasInserted( $this->getApiName() , $this->getEspAccountId() , $convertedRecordCollection ) );
+        Event::fire(new RawReportDataWasInserted($this, $convertedRecordCollection ) );
     }
 
     public function mapToStandardReport ( $data ) {
         $formatedData = $this->mapToRawReport( $data );
 
         return array(
-            "internal_id" => $formatedData[ 'campaign_id' ] ,
-            "esp_account_id" => $this->getEspAccountId() ,
-            "name" => $formatedData[ 'name' ] ,
-            "subject" => $formatedData[ 'subject' ] ,
-            "opens" => $formatedData[ 'opens' ] ,
-            "clicks" => $formatedData[ 'total_clicks' ]
+            'deploy_id' => $data[ 'name' ],
+            'esp_account_id' => $this->api->getEspAccountId(),
+            'datetime' => $data[ 'schedule_date' ],
+            'name' => $data[ 'campaign_id' ],
+            'subject' => $data[ 'subject' ],
+            'from' => $data[ 'from_name' ],
+            'from_email' => $data[ 'from_email' ],
+            'delivered' => $data[ 'delivered' ],
+            'bounced' => (int)$data['hard_bounces'],
+            'e_opens' => $data[ 'opens' ],
+            'e_clicks' => $data[ 'total_clicks' ],
+            'e_clicks_unique' => $data[ 'unique_clicks' ],
         );
     }
 
@@ -99,4 +97,5 @@ class EmailDirectReportService extends EmailDirectApi implements IAPIReportServi
 
         return $formattedData;
     }
+
 }
