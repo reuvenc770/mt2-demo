@@ -21,14 +21,14 @@
                         </thead>
 
                         <tbody>
-                        <tr ng-repeat="record in job.entries" class="@{{ job.classes[record.status] }}">
+                        <tr ng-repeat="record in job.entries" ng-class="[ job.rowStatusMap[ record.status ] ]">
                             <td>@{{ record.job_name }}</td>
                             <td>@{{ record.account_name }}</td>
                             <td>@{{ record.account_number }}</td>
                             <td>@{{ record.time_started }}</td>
                             <td>@{{ record.time_finished }}</td>
                             <td>@{{ record.attempts }}</td>
-                            <td><span class="glyphicon glyphicon-@{{ job.glyths[record.status] }}"></span></td>
+                            <td><span class="glyphicon" ng-class="[job.GlythMap[record.status]]"></span></td>
                         </tr>
                         </tbody>
                     </table>
