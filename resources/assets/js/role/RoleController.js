@@ -29,6 +29,7 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
      * Click Handlers
      */
     self.viewAdd = function () {
+        $location.url( self.createUrl );
         $window.location.href = self.createUrl;
     };
 
@@ -74,6 +75,7 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
     }
 
     self.SuccessCallBackRedirect = function ( response ) {
+        $location.url( '/role' );
         $window.location.href = '/role';
     };
 
