@@ -21,7 +21,7 @@ class JobEntryService
 
     CONST ROOM = "#mt2-dev-failed-jobs";
 
-    public function __construct( JobEntryRepo $repo)
+    public function __construct(JobEntryRepo $repo)
     {
         $this->repo = $repo;
     }
@@ -39,14 +39,14 @@ class JobEntryService
 
     public function changeJobState($state, $tracking, $tries)
     {
-        $job =  $this->repo->getJobByTracking($tracking);
+        $job = $this->repo->getJobByTracking($tracking);
         $job->status = $state;
         $job->attempts = $tries;
         $job->time_finished = Carbon::now();
         $job->save();
     }
 
-    public function startTrackingJob($jobName, $startDate, $endDate, $tracking) 
+    public function startTrackingJob($jobName, $startDate, $endDate, $tracking)
     {
         $this->jobName = $jobName;
         $trackingJob = $this->repo->startTrackingJobReturnObject($jobName, $startDate, $endDate, $tracking);
@@ -54,6 +54,11 @@ class JobEntryService
         $trackingJob->attempts = 1;
         $trackingJob->status = JobEntry::RUNNING;
         $trackingJob->save();
+    }
+
+    public function getTrailingLogList()
+    {
+        return $this->repo->getLastJobs(50);
     }
 
 }
