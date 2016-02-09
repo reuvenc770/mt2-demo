@@ -77,6 +77,7 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
     }
 
     self.SuccessCallBackRedirect = function ( response ) {
+        $location.url( '/user' );
         $window.location.href = '/user';
     };
 
