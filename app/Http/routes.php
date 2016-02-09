@@ -11,51 +11,40 @@
 |
 */
 
-Route::group( [ 'prefix' => 'esp' ] , function () {
-    Route::get( '/' , array( 'as' => 'esp.index' , 'uses' => 'EspApiController@list' ) );
-
-    Route::get( '/create' , array( 'as' => 'esp.create' , 'uses' => 'EspApiController@create' ) );
-
-    Route::get( '/edit/{id}' , array( 'as' => 'esp.edit' , 'uses' => 'EspApiController@edit' ) );
+Route::group( [ 'prefix' => 'espapi', 'middleware' => ['auth', 'pageLevel'] ] , function () {
+    Route::get( '/' , array( 'as' => 'espapi.list' , 'uses' => 'EspApiController@listAll' ) );
+    Route::get( '/create' , array( 'as' => 'espapi.add' , 'uses' => 'EspApiController@create' ) );
+    Route::get( '/edit/{id}' , array( 'as' => 'espapi.edit' , 'uses' => 'EspApiController@edit' ) );
 } );
 
-Route::group( [ 'prefix' => 'api' ] , function () {
-    Route::resource( 'esp' , 'EspApiController' , [ 'except' => [ 'create' , 'edit' ] ] );
+Route::group( [ 'prefix' => 'user', 'middleware' => ['auth','admin', 'pageLevel'] ] , function () {
+    Route::get( '/' , array( 'as' => 'user.list' , 'uses' => 'UserApiController@listAll' ) );
+    Route::get( '/create' , array( 'as' => 'user.add' , 'uses' => 'UserApiController@create' ) );
+    Route::get( '/edit/{id}' , array( 'as' => 'user.edit' , 'uses' => 'UserApiController@edit' ) );
 } );
 
-Route::get('test', 'TestStuff@index');
+Route::group( [ 'prefix' => 'role', 'middleware' => ['auth','admin', 'pageLevel'] ] , function () {
+    Route::get( '/' , array( 'as' => 'role.list' , 'uses' => 'RoleApiController@listAll' ) );
+    Route::get( '/create' , array( 'as' => 'role.add' , 'uses' => 'RoleApiController@create' ) );
+    Route::get( '/edit/{id}' , array( 'as' => 'role.edit' , 'uses' => 'RoleApiController@edit' ) );
+} );
 
-/*
-|--------------------------------------------------------------------------
-| Application Routes
-|--------------------------------------------------------------------------
-|
-| This route group applies the "web" middleware group to every route
-| it contains. The "web" middleware group is defined in your HTTP
-| kernel and includes session state, CSRF protection, and more.
-|
-*/
+Route::group( [ 'prefix' => 'api', 'middleware' => ['auth'] ] , function () {
+    Route::resource( 'esp' , 'EspApiController' , [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth']  ] );
+    Route::resource('user', 'UserApiController',  [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth','admin']] );
+    Route::resource('role', 'RoleApiController',  [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth','admin']] );
+} );
 
-Route::group(['middleware' => ['web']], function () {
-    Route::get('/', function () {
-        return View::make( 'layout.app' );
-    });
-});
-
-Route::group(['middleware' => ['auth','admin']], function () {
-    Route::get('register', 'RegistrationController@create');
-    Route::post('register', ['as' => 'registration.store', 'uses' => 'RegistrationController@store']);
-});
 
 //guest only
 Route::group(['middleware' => ['guest']], function () {
     Route::get('login', ['as' => 'login', 'uses' => 'SessionsController@create']);
-    Route::get('forgot_password', ['as' => 'forgetpassword.getemail', 'uses' => 'PasswordController@getEmail']);
-    Route::post('forgot_password',['as' => 'forgetpassword.postemail', 'uses' => 'PasswordController@postEmail']);
+    Route::get('forgot_password', ['as' => 'forget.getemail', 'uses' => 'PasswordController@getEmail']);
+    Route::post('forgot_password',['as' => 'forget.postemail', 'uses' => 'PasswordController@postEmail']);
     Route::get('reset_password/{token}', ['as' => 'password.reset', 'uses' => 'PasswordController@getReset']);
     Route::post('reset_password/{token}',['as' => 'password.store', 'uses' => 'PasswordController@postReset']);
 });
 
-//open routes
+
 Route::resource('sessions', 'SessionsController' , ['only' => ['create','store','destroy']]);
 Route::get('home', ['as' => 'home', 'uses' => 'HomeController@home']);

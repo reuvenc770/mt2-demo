@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Requests;
 use App\Http\Requests\Request;
-class RegistrationFormRequest extends Request
+class RegistrationEditFormRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -20,8 +20,7 @@ class RegistrationFormRequest extends Request
     public function rules()
     {
         return [
-            'email' => 'required|email|unique:users',
-            'password' => 'required|confirmed|min:6',
+            'email' => 'required|email|',
             'first_name' => 'required',
             'last_name' => 'required',
             'roles'      => 'required',

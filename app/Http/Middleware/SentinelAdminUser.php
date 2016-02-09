@@ -15,7 +15,7 @@ class SentinelAdminUser
     public function handle($request, Closure $next)
     {
         $user = Sentinel::getUser();
-        $admin = Sentinel::findRoleByName('Admins');
+        $admin = Sentinel::findRoleByName('Admin');
         if (!$user->inRole($admin)) {
             Flash::warning("You do not have permission to reach this page");
             return redirect('/home');

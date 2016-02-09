@@ -1,7 +1,8 @@
 <?php
 namespace App\Http\Requests;
 use App\Http\Requests\Request;
-class RegistrationFormRequest extends Request
+use Sentinel;
+class RoleAddRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -10,7 +11,10 @@ class RegistrationFormRequest extends Request
      */
     public function authorize()
     {
-        return true;
+        if(Sentinel::hasAccess("role.add")){
+            return true;
+        }
+        return false;
     }
     /**
      * Get the validation rules that apply to the request.
@@ -20,11 +24,8 @@ class RegistrationFormRequest extends Request
     public function rules()
     {
         return [
-            'email' => 'required|email|unique:users',
-            'password' => 'required|confirmed|min:6',
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'roles'      => 'required',
+            'name' => 'required|unique:roles|',
+            'permissions'      => 'required',
         ];
     }
 }
