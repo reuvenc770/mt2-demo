@@ -28,7 +28,7 @@ class SentinelPermissions
                 return response('Unauthorized.', 401);
             } else {
                 Flash::warning('You do not have permission for this action');
-                return redirect()->back();
+                return redirect( '/home' );
             }
         }
 

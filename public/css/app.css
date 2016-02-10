@@ -45,6 +45,7 @@ body {
   background-color: #FFF;
   font-size: 1.2em;
   font-weight: bold;
+  border-bottom: 20px;
   /*a { 
         color: #808080;
     
@@ -5875,22 +5876,6 @@ button.close {
     left: auto;
     right: -10px;
     border-radius: 0 2px 2px 0; }
-
-#mainNav {
-  background-color: #FFF;
-  font-size: 1.2em;
-  font-weight: bold;
-  border-bottom: 20px; }
-  #mainNav a {
-    color: #808080; }
-    #mainNav a:hover {
-      color: #FFF; }
-  #mainNav .active a {
-    color: #383F45 !important; }
-    #mainNav .active a:hover {
-      color: #FFF !important; }
-  #mainNav ul.dropdown-menu a:hover {
-    color: #000 !important; }
 
 .btn-xs .btn-label, .btn-group-xs > .btn .btn-label {
   padding: 1px 5px;

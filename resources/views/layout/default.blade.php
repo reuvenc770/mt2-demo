@@ -40,19 +40,5 @@
         @include( 'layout.body-footer' )
 
         @yield( 'pageIncludes' )
-
-    <script>
-        $(function () {
-            $('#adminNav').offcanvas( {
-                "toggle" : "offcanvas" ,
-                "target" : "#adminNav" ,
-                "canvas" : "body" ,
-                "autohide" : true 
-            } ).offcanvas( 'show' );
-
-            $( '#espDropdown' ).dropdown( 'toggle' );
-        });
-    </script>
-
     </body>
 </html>
