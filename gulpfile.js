@@ -27,5 +27,6 @@ elixir(function(mix) {
     mix.scripts( [  'esp/EspController.js' , 'esp/EspApiService.js' ] , 'public/js/esp.js' );
     mix.scripts( [  'user/UserController.js' , 'user/UserApiService.js' ] , 'public/js/user.js' );
     mix.scripts( [  'role/RoleController.js' , 'role/RoleApiService.js' ] , 'public/js/role.js' );
+    mix.scripts( [  'job/JobController.js' , 'job/JobApiService.js' ] , 'public/js/job.js' );
     mix.copy( 'resources/assets/js/templates' , 'public/js/templates' );
 });

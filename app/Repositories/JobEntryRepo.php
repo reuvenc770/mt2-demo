@@ -35,14 +35,14 @@ class JobEntryRepo
      * @return JobEntry
      */
     public function startEspJobReturnObject($jobName, $espName, $accountName, $tracking){
-        return $this->entry->create(['job_name' => $jobName,
+        return $this->entry->updateOrCreate(array('tracking' => $tracking),['job_name' => $jobName,
                                      'account_name'=> $espName,
                                      'account_number' => $accountName,
                                      'tracking' => $tracking]);
     }
 
     public function startTrackingJobReturnObject($jobName, $startDate, $endDate, $tracking) {
-        return $this->entry->create([
+        return $this->entry->updateOrCreate(array('tracking' => $tracking),[
                 'job_name' => $jobName . $startDate . '::' . $endDate,
                 'account_name' => 'cake',
                 'tracking' => $tracking
@@ -56,6 +56,12 @@ class JobEntryRepo
             Log::error($e->getMessage());
         }
 
+    }
+
+    public function getLastJobs($numberOfRecords){
+        return $this->entry->orderBy('id', 'desc')
+            ->take($numberOfRecords)
+            ->get();
     }
 
 }
