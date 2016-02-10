@@ -17,6 +17,10 @@ Route::group( [ 'prefix' => 'espapi', 'middleware' => ['auth', 'pageLevel'] ] , 
     Route::get( '/edit/{id}' , array( 'as' => 'espapi.edit' , 'uses' => 'EspApiController@edit' ) );
 } );
 
+Route::group( [ 'prefix' => 'pages', 'middleware' => ['auth', 'pageLevel'] ] , function () {
+    Route::get( '/show-info' , array( 'as' => 'pages.showinfo' , 'uses' => 'ShowInfoController@index' ) );
+} );
+
 Route::group( [ 'prefix' => 'devtools', 'middleware' => ['auth','dev',] ] , function () {
     Route::get( '/jobs' , array( 'as' => 'user.list' , 'uses' => 'JobApiController@listALL' ) );
 } );
@@ -35,6 +39,7 @@ Route::group( [ 'prefix' => 'role', 'middleware' => ['auth','admin', 'pageLevel'
 
 Route::group( [ 'prefix' => 'api', 'middleware' => ['auth'] ] , function () {
     Route::resource( 'esp' , 'EspApiController' , [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth']  ] );
+    Route::resource( 'showinfo' , 'ShowInfoController' , [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth']  ] );
     Route::resource('user', 'UserApiController',  [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth','admin']] );
     Route::resource('role', 'RoleApiController',  [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth','admin']] );
     Route::resource('jobEntry', 'JobApiController',  [ 'only' => [ 'index' ] ,'middleware' => ['auth','dev']] );
