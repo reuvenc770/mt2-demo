@@ -31,31 +31,18 @@ Route::group( [ 'prefix' => 'user', 'middleware' => ['auth','admin', 'pageLevel'
     Route::get( '/edit/{id}' , array( 'as' => 'user.edit' , 'uses' => 'UserApiController@edit' ) );
 } );
 
-/*
-#Old routing. Keeping here till I move it over to new format.
-Route::group( [ 'prefix' => 'esp' ] , function () {
-    Route::get( '/accounts' , array( 'as' => 'esp.index' , 'uses' => 'EspApiController@list' ) );
-
-    Route::get( '/create' , array( 'as' => 'esp.create' , 'uses' => 'EspApiController@create' ) );
-
-    Route::get( '/edit/{id}' , array( 'as' => 'esp.edit' , 'uses' => 'EspApiController@edit' ) );
-} );
-
-Route::group( [ 'prefix' => 'client' ] , function () {
+Route::group( [ 'prefix' => 'client', 'middleware' => ['auth', 'pageLevel'] ] , function () {
+    Route::get( '/' , array( 'as' => 'client.list' , 'uses' => 'ClientController@list' ) );
     Route::get( '/{id}' , array( 'as' => 'client.show' , 'uses' => 'ClientController@show' ) );
-
-    Route::get( '/' , array( 'as' => 'client.index' , 'uses' => 'ClientController@list' ) );
-
-    Route::get( '/create' , array( 'as' => 'client.create' , 'uses' => 'ClientController@create' ) );
-
+    Route::get( '/create' , array( 'as' => 'client.add' , 'uses' => 'ClientController@create' ) );
     Route::get( '/edit/{id}' , array( 'as' => 'client.edit' , 'uses' => 'ClientController@edit' ) );
 } );
 
-Route::group( [ 'prefix' => 'api' ] , function () {
-    Route::resource( 'esp' , 'EspApiController' , [ 'except' => [ 'create' , 'edit' ] ] );
-    Route::resource( 'client' , 'ClientController' , [ 'except' => [ 'create' , 'edit' ] ] );
+Route::group( [ 'prefix' => 'user', 'middleware' => ['auth','admin', 'pageLevel'] ] , function () {
+    Route::get( '/' , array( 'as' => 'user.list' , 'uses' => 'UserApiController@listAll' ) );
+    Route::get( '/create' , array( 'as' => 'user.add' , 'uses' => 'UserApiController@create' ) );
+    Route::get( '/edit/{id}' , array( 'as' => 'user.edit' , 'uses' => 'UserApiController@edit' ) );
 } );
- */
 
 Route::group( [ 'prefix' => 'role', 'middleware' => ['auth','admin', 'pageLevel'] ] , function () {
     Route::get( '/' , array( 'as' => 'role.list' , 'uses' => 'RoleApiController@listAll' ) );
@@ -63,8 +50,9 @@ Route::group( [ 'prefix' => 'role', 'middleware' => ['auth','admin', 'pageLevel'
     Route::get( '/edit/{id}' , array( 'as' => 'role.edit' , 'uses' => 'RoleApiController@edit' ) );
 } );
 
-Route::group( [ 'prefix' => 'api', 'middleware' => ['auth'] ] , function () {
+Route::group( [ 'prefix' => 'api', 'middleware' => ['auth' , 'pageLevel'] ] , function () {
     Route::resource( 'esp' , 'EspApiController' , [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth']  ] );
+    Route::resource( 'client' , 'ClientController' , [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth'] ] );
     Route::resource('user', 'UserApiController',  [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth','admin']] );
     Route::resource('role', 'RoleApiController',  [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth','admin']] );
     Route::resource('jobEntry', 'JobApiController',  [ 'only' => [ 'index' ] ,'middleware' => ['auth','dev']] );
