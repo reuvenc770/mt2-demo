@@ -67,9 +67,9 @@ class UserService
         $user = $this->authObject->getUser();
         $roles = $this->authObject->getRoleRepository()->all();
         $filtered = $roles->filter(function ($role) use ($user) {
-            if (!$user->hasAccess('admin') && $role->slug == "admin") {
+            if (!$user->inRole('admin') && $role->slug == "admin") {
                 return false;
-            } elseif (!$user->hasAccess('gtdev') && $role->slug == "gtdev") {
+            } elseif (!$user->inRole('gtdev') && $role->slug == "gtdev") {
                 return false;
             } else {
                 return true;
