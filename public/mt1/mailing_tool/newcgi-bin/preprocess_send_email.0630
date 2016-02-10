@@ -1,0 +1,1262 @@
+#!/usr/bin/perl
+# *****************************************************************************************
+# preprocess_send_mail.pl
+#
+# Batch program that runs from cron to send the emails
+# schedule the email
+#
+# History
+# Jim Sobeck,   08/07/01,   Created
+# Jim Sobeck,	04/30/02,	Added logic for max_emails 
+# Jim Sobeck,	05/06/02,	Added logic for creating files per server
+# Jim Sobeck,	02/04/03,	Added logic for last60_flag
+# Jim Sobeck,	03/06/03,	Added logic for aol_flag
+# Jim Sobeck,	03/31/03,	Added logic for open_flag
+# Jim Sobeck,	01/27/04,	Added logic for vendor suppression list
+# Jim Sobeck,	05/14/04,	Added logic for 60-120, 120-180, 180 - on
+# Jim Sobeck,	05/19/04,	Added logic for Last 30 Days 
+# Jim Sobeck,	10/15/04,	Added logic to handle multiple co-locations
+# Jim Sobeck,	03/28/05,	Added logic to handle multiple clients
+# *****************************************************************************************
+
+# send_email.pl 
+
+use strict;
+use lib "/var/www/html/newcgi-bin";
+use util;
+use util_mail;
+
+my $util = util->new;
+my $STATE_USER = 0;
+my $IP_USER = 0;
+my $MALE_CID = 0;
+my $sth;
+my $sth1;
+my $temp_str;
+my $reccnt;
+my $sth2;
+my $sth2a;
+my $dbh;
+my $dbh1;
+my $sql;
+my $rows;
+my $tmp_cnt;
+my $cdate = localtime();
+my $wait_days = 0;
+my $program = "send_email.pl";
+my $errmsg;
+my $records_per_file;
+my $max_files = 40000;
+my $REDIR_ROTATION=250000;
+my $IMG_ROTATION=500000;
+my $cnt;
+my $yahoo_cnt;
+my $total_cnt;
+my $list_str;
+my $campaign_str;
+my $temp_id;
+my $list_cnt;
+my $last_email_user_id;
+my $max_emails;
+my $loop_flag;
+my $filecnt;
+my $yahoo_filecnt;
+my $clast60;
+my $aolflag;
+my $profile_id;
+my $hotmailflag;
+my $yahooflag;
+my $otherflag;
+my $openflag;
+my $open_catid;
+my $suppid;
+my $catid;
+my $content_id;
+my $subdomain_name;
+my $redir_domain;
+my $redir_cnt;
+my $redir_ind;
+my $chged_redir;
+my $added_seeds;
+my $img_domain;
+my $img_cnt;
+my $img_ind;
+my $max_ind;
+my $redir_max_ind;
+my $sname;
+my $trand;
+my $domain_suppid;
+my $addrec;
+my $begin;
+my $old_last_id;
+my $end;
+my $bend;
+my $sth3;
+my $sth4;
+my $client_id;
+    my $subject;
+    my $from_addr;
+    my $list_id;
+    my $email_user_id;
+    my $cemail;
+    my $state;
+    my $fname;
+    my $lname;
+    my $city;
+    my $zip;
+    my $daycnt;
+    my $last_open_date;
+    my $link_id;
+    my $global_link_id;
+    my $name_str;
+    my $subject_name_str;
+    my $fullname;
+    my $loc;
+    my $email_type;
+    my $the_email;
+    my $filename;
+    my $dname;
+    my $footer_dname;
+    my $days;
+$chged_redir = 0;
+#
+#  Set up array for servers
+#
+my $sarr_cnt;
+my $cnt2;
+my $ycnt2;
+my $last_aol;
+my @sarry;
+my $yarry_cnt;
+my @yahooarry;
+my @open_list = (0,38,39,54,60,76,97);
+my @creative_arr = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+my @subject_arr = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+my @from_arr = {0,0,0,0,0,0,0,0,0,0};
+my $subject_str;
+my $from_str;
+my @arr;
+my $arr_cnt;
+my $footer_ind;
+my $footer_domain;
+my $max_footer_ind;
+my $creative_ind = 0;
+my $ycreative_ind = 0;
+my $subject_ind = 0;
+my $ysubject_ind = 0;
+my $from_ind = 0;
+my $yfrom_ind = 0;
+my $aid;
+my $max_client;
+$max_client=6;
+
+# connect to the util database
+
+$| = 1;
+
+$util->db_connect();
+$dbh = $util->get_dbh;
+
+#
+# Send any mail that needs to be sent
+#
+send_powermail();
+
+$util->clean_up();
+exit(0);
+
+# ***********************************************************************
+# sub send_powermail
+# ***********************************************************************
+
+sub send_powermail
+{
+	my $campaign_id;
+	my $got_deal;
+
+
+	# Check to see if any campaigns to process
+	$got_deal = 1;
+	while ($got_deal == 1)
+	{
+	$loop_flag="N";
+	$sql = "select campaign_id,max_emails,last60_flag,aol_flag,hotmail_flag,yahoo_flag,other_flag,open_flag,vendor_supp_list_id,category_id,server_id,campaign.advertiser_id,profile_id from campaign,advertiser_info where campaign.status='S' and scheduled_datetime <= now() and campaign.advertiser_id=advertiser_info.advertiser_id and deleted_date is null order by scheduled_datetime asc"; 
+	$sth4 = $dbh->prepare($sql);
+	$sth4->execute();
+	if (($campaign_id,$max_emails,$clast60,$aolflag,$hotmailflag,$yahooflag,$otherflag,$openflag,$suppid,$catid,$content_id,$aid,$profile_id) = $sth4->fetchrow_array())
+	{
+		$sth4->finish();
+		$domain_suppid = 0; # May need to added back in
+		# Mark the campaign as pending
+		$sql = "update campaign set status='P' where campaign_id=$campaign_id";
+		$rows = $dbh->do($sql);
+		if ($dbh->err() != 0)
+		{
+    		$errmsg = $dbh->errstr();
+       		print "Error updating campaign: $sql : $errmsg";
+    		$util->errmail($dbh,$program,$errmsg,$sql);
+		}
+#
+#		if profile_id != 0 then get information about profile from list_profile
+#
+		if ($profile_id > 0)
+		{
+			$sql = "select day_flag,aol_flag,hotmail_flag,yahoo_flag,other_flag,client_id,max_emails,last_email_user_id,loop_flag from list_profile where profile_id=$profile_id";
+			$sth4 = $dbh->prepare($sql);
+			$sth4->execute();
+			($clast60,$aolflag,$hotmailflag,$yahooflag,$otherflag,$client_id,$max_emails,$old_last_id,$loop_flag) = $sth4->fetchrow_array();
+			$sth4->finish();
+		}
+		else
+		{
+			$client_id=1;
+		}
+		while ($client_id <= $max_client)
+		{
+			# check to see if any lists for current client
+			#
+			if ($profile_id > 0)
+			{
+				$sql = "select count(*) from list_profile_list where profile_id=$profile_id"; 
+			}
+			else
+			{
+				$sql = "select count(*) from list,campaign_list where campaign_id=$campaign_id and status='A' and list.list_id=campaign_list.list_id and list.user_id=$client_id";
+			}
+			$sth2 = $dbh->prepare($sql);
+			$sth2->execute();
+			($reccnt) = $sth2->fetchrow_array();
+			$sth2->finish();
+			if ($reccnt > 0)
+			{
+				#
+				# Get the information for each client
+				#
+				$sql = "select redir_ind from client_ind where client_id = $client_id";
+				$sth = $dbh->prepare($sql);
+				$sth->execute();
+				($redir_ind) = $sth->fetchrow_array();
+				$sth->finish();
+				$sql = "select max(redir_ind) from redirect_url where client_id=$client_id";
+				$sth = $dbh->prepare($sql);
+				$sth->execute();
+				($redir_max_ind) = $sth->fetchrow_array();
+				$sth->finish();
+				if ($redir_ind > $redir_max_ind)
+				{
+    				$sql = "select min(redir_ind) from redirect_url where client_id=$client_id";
+    				$sth = $dbh->prepare($sql);
+    				$sth->execute();
+    				($redir_ind) = $sth->fetchrow_array();
+    				$sth->finish();
+				}
+#
+				$sql = "select img_ind from client_ind where client_id=$client_id";
+				$sth = $dbh->prepare($sql);
+				$sth->execute();
+				($img_ind) = $sth->fetchrow_array();
+				$sth->finish();
+				$sql = "select max(img_ind) from img_url where client_id=$client_id";
+				$sth = $dbh->prepare($sql);
+				$sth->execute();
+				($max_ind) = $sth->fetchrow_array();
+				$sth->finish();
+				if ($img_ind > $max_ind)
+				{
+    				$sql = "select min(img_ind) from img_url where client_id=$client_id";
+    				$sth = $dbh->prepare($sql);
+    				$sth->execute();
+    				($img_ind) = $sth->fetchrow_array();
+    				$sth->finish();
+				}
+#
+				$sql = "select footer_ind from client_ind where client_id=$client_id";
+				$sth = $dbh->prepare($sql);
+				$sth->execute();
+				($footer_ind) = $sth->fetchrow_array();
+				$sth->finish();
+				$sql = "select max(footer_ind) from footer_url where client_id=$client_id";
+				$sth = $dbh->prepare($sql);
+				$sth->execute();
+				($max_footer_ind) = $sth->fetchrow_array();
+				$sth->finish();
+				if ($footer_ind > $max_footer_ind)
+				{
+    				$sql = "select min(footer_ind) from footer_url where client_id=$client_id";
+    				$sth = $dbh->prepare($sql);
+    				$sth->execute();
+    				($footer_ind) = $sth->fetchrow_array();
+    				$sth->finish();
+				}
+				$sql = "select footer_domain from footer_url where footer_ind=$footer_ind";
+				$sth = $dbh->prepare($sql);
+				$sth->execute();
+				($footer_domain) = $sth->fetchrow_array();
+				$sth->finish();		
+
+
+				#
+				# Get the servers to send email to
+				#
+				$sarr_cnt = 0;
+				if (($aolflag eq "Y") && (($client_id == 1) || $client_id == 3 || $client_id == 5))
+				{
+					if ($content_id > 0)
+					{
+						$sql = "select client_server,rand() from client_server where client_id=$client_id and aol_flag='Y' and bandwidth_id=$content_id order by 2";
+					}
+					else
+					{
+						$sql = "select client_server,rand() from client_server where client_id=$client_id and aol_flag='Y' order by 2";
+					}
+				}
+				else
+				{
+					if ($content_id > 0)
+					{
+						$sql = "select client_server,rand() from client_server where client_id=$client_id and aol_flag='N' and yahoo_flag = 'N' and bandwidth_id=$content_id order by 2";
+					}
+					else
+					{
+						$sql = "select client_server,rand() from client_server where client_id=$client_id and aol_flag='N' and yahoo_flag = 'N' order by 2";
+					}
+				}
+				$sth = $dbh->prepare($sql);
+				$sth->execute();
+				while (($sname,$trand) = $sth->fetchrow_array())
+				{
+					$sarry[$sarr_cnt] = $sname;
+					print "Cnt - $sarr_cnt ==> $sname\n";
+					$sarr_cnt++;
+				}
+				$sth->finish();
+	
+				$yarry_cnt = 0;
+				$sql = "select client_server,rand() from client_server where client_id=$client_id and yahoo_flag = 'Y' order by 2";
+				$sth = $dbh->prepare($sql);
+				$sth->execute();
+				while (($sname,$trand) = $sth->fetchrow_array())
+				{
+					$yahooarry[$yarry_cnt] = $sname;
+					print "Cnt - $yarry_cnt ==> $sname\n";
+					$yarry_cnt++;
+				}
+				$sth->finish();
+
+				$sql = "update client_ind set footer_ind=$footer_ind where client_id=$client_id"; 
+				$rows = $dbh->do($sql);
+	
+				# Send e-mail
+		
+				$last_email_user_id=1;
+				$cdate = localtime();
+				$records_per_file = 10000;
+
+				print "Sending email for Campaign $campaign_id at $cdate\n";
+				mail_send($campaign_id,$max_emails,$clast60,$aolflag,$hotmailflag,$yahooflag,$otherflag,$openflag,$open_catid,$catid,$loop_flag);
+				print "Last Email User Id = $last_email_user_id\n";
+			}
+			if ($profile_id > 0)
+			{
+				$client_id = $max_client + 1;
+				if ($max_emails != -1)
+				{
+					$sql = "update list_profile set last_email_user_id=$last_email_user_id where profile_id=$profile_id";
+				}
+				else
+				{
+					$sql = "update list_profile set last_email_user_id=0 where profile_id=$profile_id";
+				}
+				$rows = $dbh->do($sql);
+			}
+			else
+			{
+				$client_id++;
+			}
+		}
+		$sql = "update campaign set status='C',sent_datetime=now() where campaign_id=$campaign_id";
+		print "Last SQL = <$sql>\n";	
+		$rows = $dbh->do($sql);
+		if ($dbh->err() != 0)
+		{
+    		$errmsg = $dbh->errstr();
+       		print "Error updating campaign: $sql : $errmsg";
+    		$util->errmail($dbh,$program,$errmsg,$sql);
+		}
+	}
+	else
+	{
+		$sth4->finish();
+		$got_deal = 0;
+	}
+	}
+}
+# ***********************************************************************
+# This routine is used for sending all email for a single campaign
+# ***********************************************************************
+sub mail_send
+{
+	my ($camp_id,$max_emails,$clast60,$aolflag,$hotmailflag,$yahooflag,$otherflag,$openflag,$open_catid,$catid,$loop_flag) = @_;
+
+	# Get the mail information for the campaign being used
+	$filecnt = 1;
+	$yahoo_filecnt = 1;
+	$added_seeds = 0;
+
+	if ($max_emails != -1)
+	{
+		if ($max_emails < 10000)
+		{
+			$max_files = 1;
+			$records_per_file = $max_emails;
+		}
+		else
+		{
+			$max_files = $max_emails / $records_per_file;
+		}
+	}
+	print "Max files - $max_files\n";
+	$sql = "select max(email_user_id) from member_list";
+	$sth3 = $dbh->prepare($sql);
+	$sth3->execute();
+	($end) = $sth3->fetchrow_array();
+	$sth3->finish();
+
+	$sql = "select domain_name from client_category_info where category_id=$catid and user_id=$client_id";
+	$sth3 = $dbh->prepare($sql);
+	$sth3->execute();
+	if (($footer_dname) = $sth3->fetchrow_array())
+	{
+		print "Got Domain - <$footer_dname>\n";
+	}
+	else
+	{
+		$footer_dname="hiddensavings.com";
+	}
+	$sth3->finish();
+	$dname="";
+
+	$begin = 0;
+	#
+	# check for advertiser record first
+	#
+	$sql = "select creative1_id,creative2_id,creative3_id,creative4_id,creative5_id,creative6_id,creative7_id,creative8_id,creative9_id,creative10_id,creative11_id,creative12_id,creative13_id,creative14_id,creative15_id,subject1,subject2,subject3,subject4,subject5,subject6,subject7,subject8,subject9,subject10,subject11,subject12,subject13,subject14,subject15,from1,from2,from3,from4,from5,from6,from7,from8,from9,from10 from advertiser_setup where advertiser_id=$aid";
+	$sth = $dbh->prepare($sql);
+	$sth->execute();
+	if (($creative_arr[0],$creative_arr[1],$creative_arr[2],$creative_arr[3],$creative_arr[4],$creative_arr[5],$creative_arr[6],$creative_arr[7],$creative_arr[8],$creative_arr[9],$creative_arr[10],$creative_arr[11],$creative_arr[12],$creative_arr[13],$creative_arr[14],$subject_arr[0],$subject_arr[1],$subject_arr[2],$subject_arr[3],$subject_arr[4],$subject_arr[5],$subject_arr[6],$subject_arr[7],$subject_arr[8],$subject_arr[9],$subject_arr[10],$subject_arr[11],$subject_arr[12],$subject_arr[13],$subject_arr[14],$from_arr[0],$from_arr[1],$from_arr[2],$from_arr[3],$from_arr[4],$from_arr[5],$from_arr[6],$from_arr[7],$from_arr[8],$from_arr[9]) = $sth->fetchrow_array())
+	{
+		$sth->finish();
+	}
+	else
+	{
+		$sth->finish();
+		$sql = "select creative1_id,creative2_id,creative3_id,creative4_id,creative5_id,creative6_id,creative7_id,creative8_id,creative9_id,creative10_id,creative11_id,creative12_id,creative13_id,creative14_id,creative15_id,subject1,subject2,subject3,subject4,subject5,subject6,subject7,subject8,subject9,subject10,subject11,subject12,subject13,subject14,subject15,from1,from2,from3,from4,from5,from6,from7,from8,from9,from10 from campaign where campaign_id=$camp_id";
+		$sth = $dbh->prepare($sql);
+		$sth->execute();
+		($creative_arr[0],$creative_arr[1],$creative_arr[2],$creative_arr[3],$creative_arr[4],$creative_arr[5],$creative_arr[6],$creative_arr[7],$creative_arr[8],$creative_arr[9],$creative_arr[10],$creative_arr[11],$creative_arr[12],$creative_arr[13],$creative_arr[14],$subject_arr[0],$subject_arr[1],$subject_arr[2],$subject_arr[3],$subject_arr[4],$subject_arr[5],$subject_arr[6],$subject_arr[7],$subject_arr[8],$subject_arr[9],$subject_arr[10],$subject_arr[11],$subject_arr[12],$subject_arr[13],$subject_arr[14],$from_arr[0],$from_arr[1],$from_arr[2],$from_arr[3],$from_arr[4],$from_arr[5],$from_arr[6],$from_arr[7],$from_arr[8],$from_arr[9]) = $sth->fetchrow_array();
+		$sth->finish();
+	}
+	#
+	# Now setup the logs for the deal
+	#
+	$sql="delete from campaign_log where campaign_id=$camp_id and user_id=$client_id";
+    $rows = $dbh->do($sql);
+	$sql="delete from profile_log where campaign_id=$camp_id and profile_id=$profile_id";
+    $rows = $dbh->do($sql);
+	$sql = "insert into campaign_log(campaign_id,date_sent,user_id) values($camp_id,curdate(),$client_id)";
+    $rows = $dbh->do($sql);
+	$sql="delete from creative_log where campaign_id=$camp_id and user_id=$client_id";
+    $rows = $dbh->do($sql);
+	$sql="delete from subject_log where campaign_id=$camp_id and user_id=$client_id";
+    $rows = $dbh->do($sql);
+	$sql="delete from from_log where campaign_id=$camp_id and user_id=$client_id";
+    $rows = $dbh->do($sql);
+	my $i;
+	for ($i=0; $i < 15; $i++)
+	{
+		if ($creative_arr[$i] != 0)
+		{
+			print "Adding Creative_log $creative_arr[$i] - $client_id\n";
+			$sql="insert into creative_log(campaign_id,creative_id,date_sent,user_id) values($camp_id,$creative_arr[$i],curdate(),$client_id)";
+        	$rows = $dbh->do($sql);
+		}
+		if ($subject_arr[$i] != 0)
+		{
+			print "Adding Subject_log $subject_arr[$i] - $client_id\n";
+			$sql="insert into subject_log(campaign_id,subject_id,date_sent,user_id) values($camp_id,$subject_arr[$i],curdate(),$client_id)";
+        	$rows = $dbh->do($sql);
+		}
+	}
+	for ($i=0; $i < 10; $i++)
+	{
+		if ($from_arr[$i] != 0) 
+		{
+			$sql="insert into from_log(campaign_id,from_id,date_sent,user_id) values($camp_id,$from_arr[$i],curdate(),$client_id)";
+        	$rows = $dbh->do($sql);
+		}
+	}
+		$cnt2 = 0;
+		$ycnt2 = 0;
+		$creative_ind = 0;
+		$subject_ind = 0;
+		$from_ind = 0;
+		$ycreative_ind = 0;
+		$ysubject_ind = 0;
+		$yfrom_ind = 0;
+		$sql = "select domain_name from redirect_url where redir_ind=$redir_ind"; 
+		$sth3 = $dbh->prepare($sql);
+		$sth3->execute();
+		($redir_domain) = $sth3->fetchrow_array();
+		$sth3->finish();
+		$sql = "select domain_name from img_url where img_ind=$img_ind"; 
+		$sth3 = $dbh->prepare($sql);
+		$sth3->execute();
+		($img_domain) = $sth3->fetchrow_array();
+		$sth3->finish();
+		$sql = "select advertiser_from from advertiser_from where from_id=$from_arr[$from_ind]";
+		$sth3 = $dbh->prepare($sql);
+		$sth3->execute();
+		($from_str) = $sth3->fetchrow_array();
+		$sth3->finish();
+		$sql = "select advertiser_subject from advertiser_subject where subject_id=$subject_arr[$subject_ind]";
+		$sth3 = $dbh->prepare($sql);
+		$sth3->execute();
+		($subject_str) = $sth3->fetchrow_array();
+		$sth3->finish();
+		if ($yahooflag eq "Y")
+		{
+			print "Ycnt2 - $ycnt2 - $yahooarry[$ycnt2]\n";
+			open (OUTFILE1, "> /var/www/util/new_tmpmailfiles/list_fa_$yahooarry[$ycnt2]_y_${camp_id}_${yahoo_filecnt}.txt");
+			printf OUTFILE1 "%d|%d|%d|%s|%d|%s|%s|%s|%s|%s|%s|%d\n",$camp_id,$creative_arr[$ycreative_ind],$from_arr[$yfrom_ind],$from_str,$subject_arr[$ysubject_ind],$subject_str,$dname,$subdomain_name,$redir_domain,$img_domain,$footer_dname,$client_id;
+		}
+		open (OUTFILE, "> /var/www/util/new_tmpmailfiles/list_fa_$sarry[$cnt2]_${camp_id}_$filecnt.txt");
+		printf OUTFILE "%d|%d|%d|%s|%d|%s|%s|%s|%s|%s|%s|%d\n",$camp_id,$creative_arr[$creative_ind],$from_arr[$from_ind],$from_str,$subject_arr[$subject_ind],$subject_str,$dname,$subdomain_name,$redir_domain,$img_domain,$footer_dname,$client_id;
+		$redir_cnt = 0;
+		$img_cnt = 0;
+		$cnt = 0;
+		$yahoo_cnt = 0;
+		$total_cnt = 0;
+		#
+		# Get link_id for advertiser_id
+		#
+		$sql = "select link_id from advertiser_tracking where advertiser_id=$aid and client_id=$client_id and daily_deal='N'";
+		$sth2 = $dbh->prepare($sql);
+		$sth2->execute();
+		($global_link_id) = $sth2->fetchrow_array();
+		$sth2->finish();
+		$cemail="sobeck2000\@comcast.net";
+        printf OUTFILE "$cemail|H|0|XX|Jim|Midlothian, VA|23112|Jim Sobeck|$global_link_id|Jim\n";
+		$cemail="wgentry2\@comcast.net";
+        printf OUTFILE "$cemail|H|00|XX|Eric|New York, NY|10016|$cemail|$global_link_id|Eric\n";
+        $cemail="spirevision\@aol.com";
+        printf OUTFILE "$cemail|H|000|XX|Eric|New York, NY|10016|Eric Rhapsody|$global_link_id|Eric\n";
+        $cemail="eric\@transitdirect.com";
+        printf OUTFILE "$cemail|H|0000|XX|Eric|New York, NY|10016|Eric Rhapsody|$global_link_id|Eric\n";
+        $cemail="mike\@spirevision.com";
+        printf OUTFILE "$cemail|H|00000|XX|Mike|New York, NY|10016|Mike Rhapsody|$global_link_id|Mike\n";
+        $cemail="david\@transitdirect.com";
+        printf OUTFILE "$cemail|H|000000|XX|David|New York, NY|10016|David Rhapsody|$global_link_id|David\n";
+        $cemail="mike\@transitdirect.com";
+        printf OUTFILE "$cemail|H|0000000|XX|Mike|New York, NY|10016|Mike Rhapsody|$global_link_id|Mike\n";
+        $cemail="seedaccount\@gmail.com";
+        printf OUTFILE "$cemail|H|0000|XX|Eric|New York, NY|10016|Eric Rhapsody|$global_link_id|Eric\n";
+		#
+		# Add seeds if any
+		#
+		$sql = "select email_addr from advertiser_seedlist where advertiser_id=$aid";
+		$sth2 = $dbh->prepare($sql);
+		$sth2->execute();
+		while (($cemail) = $sth2->fetchrow_array())
+		{
+            printf OUTFILE "$cemail|H|0|XX|$cemail|Your Area|Your Area|$cemail|$global_link_id|\n";
+		}
+		$sth2->finish();
+		
+		if ($profile_id > 0)
+		{
+			$sql = "select count(*) from list_profile_list where profile_id=$profile_id and list_id = $open_list[$client_id]";
+		}
+		else
+		{
+			$sql = "select count(*) from campaign_list where campaign_id=$camp_id and list_id = $open_list[$client_id]";
+		}
+		$sth2a = $dbh->prepare($sql);
+		$sth2a->execute();
+        ($tmp_cnt) = $sth2a->fetchrow_array();
+		if ($tmp_cnt > 0)
+		{
+			print "Process Open List $open_list[$client_id] - $client_id\n";
+			process_list($camp_id,$open_list[$client_id],"Y","Y");
+		}
+		$sth2a->finish();
+
+		# Get all of the lists for the campaign which are active
+		if ($profile_id > 0)
+		{
+			$sql = "select list.list_id from list,list_profile_list where profile_id=$profile_id and status='A' and list.list_id=list_profile_list.list_id and list.list_id != $open_list[$client_id] order by list.list_id desc";
+		}
+		else
+		{
+			$sql = "select list.list_id from list,campaign_list where campaign_id=$camp_id and status='A' and list.list_id=campaign_list.list_id and list.user_id=$client_id and list.list_id != $open_list[$client_id] order by list.list_id desc";
+		}
+		$sth2a = $dbh->prepare($sql);
+		$sth2a->execute();
+        while (($list_id) = $sth2a->fetchrow_array())
+        {
+			process_list($camp_id,$list_id,"Y","N");
+        }
+        $sth2a->finish();
+
+		print "Finished sending mail for $camp_id at $cdate\n";
+		if (($added_seeds == 0) && ($client_id == 3))
+		{
+my @SEEDLIST = (
+"0000.spire\@zzzz.deliverymonitor.com",
+"aaaa.spire\@deliverymonitor.com",
+"9999.spire\@aaaa.deliverymonitor.com",
+"zzzz.spire\@0000.deliverymonitor.com",
+"0000.spire\@deliverymonitor.com",
+"aaaa.spire\@9999.deliverymonitor.com",
+"9999.spire\@deliverymonitor.com",
+"zzzz.spire\@deliverymonitor.com",
+"aaaa00jef\@worldnet.att.net",
+"aaaafterall\@netscape.net",
+"aaaalexand21\@yahoo.com",
+"aaaalexander45\@aol.com",
+"aaaarielfont\@cs.com",
+"aaaavriel\@sbcglobal.net",
+"aaalexander54\@mail.com",
+"aaalexander5\@msn.com",
+"aaalexander5\@netzero.com",
+"aaalexander\@bellsouth.net",
+"aaalexander\@earthlink.net",
+"aaalexander\@mac.com",
+"aaalexheather\@excite.com",
+"aaalexheather\@usa.net",
+"alexalexander96\@hotmail.com",
+"carianderson9\@hotmail.com",
+"carianderson9\@msn.com",
+"carlandi\@earthlink.net",
+"carlihoward\@worldnet.att.net",
+"carlmalongy\@aol.com",
+"carlygifts\@netzero.com",
+"carlyjones21\@yahoo.com",
+"carnivalhunt\@netscape.net",
+"carverknight\@sbcglobal.net",
+"carveyanderson9\@cs.com",
+"ecudowert\@sbcglobal.net",
+"eddyfonsi2003\@yahoo.com",
+"edfolds\@earthlink.net",
+"edithjones3\@netzero.com",
+"edwardjeffry\@aol.com",
+"eegripping\@netscape.net",
+"eidijones\@hotmail.com",
+"eidijones\@msn.com",
+"ellenjonsey\@cs.com",
+"elvinjackson\@worldnet.att.net",
+"harvardysinger\@cs.com",
+"harveysinger12\@hotmail.com",
+"harveysinger12\@msn.com",
+"hectorfried\@earthlink.net",
+"henryclod\@netzero.com",
+"hevenilsp\@sbcglobal.net",
+"hhjumping\@netscape.net",
+"hongflued\@worldnet.att.net",
+"howardjohnson123\@aol.com",
+"howierichyy\@yahoo.com",
+"jasonfrank5\@earthlink.net",
+"jasonfrank5\@mac.com",
+"jasonfrank\@bellsouth.net",
+"jeffjackson6\@netzero.com",
+"jeffjensen3\@sbcglobal.net",
+"jeffrichiardson\@aol.com",
+"jenclubbin\@yahoo.com",
+"jeneidi492\@hotmail.com",
+"jeneidi4\@msn.com",
+"jenniferclem6806\@cs.com",
+"jjwalkingfar\@netscape.net",
+"mandorzippy\@earthlink.net",
+"markmattjohn123\@aol.com",
+"markquincy\@netzero.com",
+"martinclosed\@yahoo.com",
+"martingrishm\@cs.com",
+"martyfold\@msn.com",
+"martyfoldss\@hotmail.com",
+"medfordrul\@worldnet.att.net",
+"millerheles\@sbcglobal.net",
+"mmunderup\@netscape.net",
+"olgafriedrick\@hotmail.com",
+"olivertrundel\@netzero.com",
+"onlyrichards73\@aol.com",
+"oolderthanu\@netscape.net",
+"oolfriedrick\@msn.com",
+"otowork\@yahoo.com",
+"overthelithill\@sbcglobal.net",
+"pauloklapton\@earthlink.net",
+"richardcheese5\@earthlink.net",
+"richardcheese\@bellsouth.net",
+"richardcheese\@mac.com",
+"sammysmith123\@aol.com",
+"samtrenders\@yahoo.com",
+"samueldepper\@netzero.com",
+"sandicraigs\@hotmail.com",
+"sandicraigs\@msn.com",
+"soundload\@sbcglobal.net",
+"ssupertime\@netscape.net",
+"umaviolets\@yahoo.com",
+"uvagrendhelm\@aol.com",
+"victorfrank5\@mac.com",
+"victorfrank\@bellsouth.net",
+"victorfrank\@earthlink.net",
+"vze5b543\@verizon.net",
+"waynegesse\@hotmail.com",
+"wickedaddy\@sbcglobal.net",
+"wickytripper\@netzero.com",
+"wweatherbingo\@netscape.net",
+"zzz0anet\@cs.com",
+"zzz0anet\@worldnet.att.net",
+"zzz0arpa\@msn.com",
+"zzz9young\@excite.com",
+"zzz9young\@usa.net",
+"zzzarpa\@hotmail.com",
+"zzzfred97\@aol.com",
+"zzzippy10\@bellsouth.net",
+"zzzippy\@earthlink.net",
+"zzzippy\@mac.com",
+"zzzyoung\@netzero.com",
+"zzzzcraig\@yahoo.com",
+"zzzzfour\@sbcglobal.net",
+"zzzztipping\@netscape.net"
+);
+			my $i;
+while ($i < $#SEEDLIST)
+{
+	printf OUTFILE "$SEEDLIST[$i]|H|0|NY|Eric|New York, NY|10016|Eric Rhapsody|$global_link_id|Eric\n";
+	$i++;
+}
+            $added_seeds = 1;
+		}
+		close OUTFILE;
+		close OUTFILE1;
+}
+
+sub process_list()
+{
+	my ($camp_id,$list_str,$add_yahoo,$processing_openers) = @_;
+	print "Processing List $client_id - $list_str - $add_yahoo($yahooflag) - $processing_openers\n";
+	$list_cnt = 0;
+	if ($open_catid > 0)
+	{
+		# Get all of the campaigns for this category
+		$sql = "select campaign_id from campaign where open_category_id=$open_catid"; 
+		$sth2 = $dbh->prepare($sql);
+		$sth2->execute();
+        $campaign_str = '';
+        while (($temp_id) = $sth2->fetchrow_array())
+        {
+        	$campaign_str = $campaign_str . $temp_id . ',';
+        }
+        $_ = $campaign_str;
+        chop;
+        $campaign_str = $_;
+        $sth2->finish();
+	}
+	$sql = "select min(email_user_id),max(email_user_id) from member_list where list_id=$list_str";
+	$sth2 = $dbh->prepare($sql);
+	$sth2->execute();
+	($begin,$end) = $sth2->fetchrow_array();
+    $sth2->finish();
+#
+#	if max emails then start at last_email_user_id
+#
+	if ($max_emails != -1)
+	{
+		$begin = $old_last_id + 1;
+	}
+    print "List str = <$list_str> - $begin - $end\n";
+    while ($begin < $end)
+    {
+    	$bend = $begin + 99999;
+		# Now get a list of all the members and start processing
+		if ($clast60 eq "N")
+		{
+			if ($openflag eq "Y")
+			{
+				if ($open_catid > 0)
+				{
+					$sql = "select email_addr,member_list.email_user_id,state,first_name,last_name,city,zip,link_id,last_open_date,datediff(curdate(),subscribe_datetime) from member_list,open_history,advertiser_tracking where member_list.list_id = $list_str and member_list.status='A' and member_list.email_user_id between $begin and $bend and last_open_date is not null and open_history.campaign_id in ($campaign_str) and member_list.email_user_id=open_history.email_user_id and advertiser_tracking.advertiser_id=$aid and advertiser_tracking.client_id=$client_id and advertiser_tracking.daily_deal='N' and subscribe_datetime < date_sub(curdate(),interval $wait_days day)";
+				}
+				else
+				{
+					$sql = "select email_addr,member_list.email_user_id,state,first_name,last_name,city,zip,link_id,last_open_date,datediff(curdate(),subscribe_datetime) from member_list,advertiser_tracking where member_list.list_id = $list_str and member_list.status='A' and member_list.email_user_id between $begin and $bend and last_open_date is not null and advertiser_tracking.advertiser_id=$aid and advertiser_tracking.client_id=$client_id and advertiser_tracking.daily_deal='N' and subscribe_datetime < date_sub(curdate(),interval $wait_days day)"; 
+				}
+			}
+			else
+			{
+				$sql = "select email_addr,email_user_id,state,first_name,last_name,city,zip,link_id,last_open_date,datediff(curdate(),subscribe_datetime) from member_list,advertiser_tracking where member_list.list_id = $list_str and member_list.status='A' and email_user_id between $begin and $bend and advertiser_tracking.advertiser_id=$aid and advertiser_tracking.client_id=$client_id and advertiser_tracking.daily_deal='N' and subscribe_datetime < date_sub(curdate(),interval $wait_days day)";
+			}
+		}
+		else
+		{
+			if ($clast60 eq "Y")
+			{
+				$days = 66;
+			}
+			elsif ($clast60 eq "7")
+			{
+				$days = 13;
+			}
+			elsif ($clast60 eq "M")
+			{
+				$days = 36;
+			}
+			elsif ($clast60 eq "9")
+			{
+				$days = 96;
+			}
+			elsif ($clast60 eq "O")
+			{
+				$days = 186;
+			}
+			if ($openflag eq "Y")
+			{
+				if ($open_catid > 0)
+				{
+					$sql = "select email_addr, member_list.email_user_id,state,first_name,last_name,city,zip,link_id,last_open_date,datediff(curdate(),subscribe_datetime) from member_list,open_history,advertiser_tracking where member_list.list_id = $list_str and member_list.status='A' and (subscribe_datetime >= date_sub(curdate(), interval $days day) or (last_open_date is not null and open_history.campaign_id in ($campaign_str) and member_list.email_user_id=open_history.email_user_id)) and member_list.email_user_id between $begin and $bend and advertiser_tracking.advertiser_id=$aid and advertiser_tracking.client_id=$client_id and advertiser_tracking.daily_deal='N' and subscribe_datetime < date_sub(curdate(),interval $wait_days day)";
+				}
+				else
+				{
+					$sql = "select email_addr, member_list.email_user_id,state,first_name,last_name,city,zip,link_id,last_open_date,datediff(curdate(),subscribe_datetime) from member_list,advertiser_tracking where member_list.list_id = $list_str and member_list.status='A' and (subscribe_datetime >= date_sub(curdate(), interval $days day) or last_open_date is not null) and member_list.email_user_id between $begin and $bend and advertiser_tracking.advertiser_id=$aid and advertiser_tracking.client_id=$client_id and advertiser_tracking.daily_deal='N' and subscribe_datetime < date_sub(curdate(),interval $wait_days day)"; 
+				}
+			}
+			else
+			{
+				$sql = "select email_addr, email_user_id,state,first_name,last_name,city,zip,link_id,last_open_date,datediff(curdate(),subscribe_datetime) from member_list,advertiser_tracking where member_list.list_id = $list_str and member_list.status='A' and subscribe_datetime >= date_sub(curdate(), interval $days day) and email_user_id between $begin and $bend and advertiser_tracking.advertiser_id=$aid and advertiser_tracking.client_id=$client_id and advertiser_tracking.daily_deal='N'"; 
+			}
+		}
+		$email_type="H";
+		$sth = $dbh->prepare($sql);
+		$sth->execute();
+		print "$camp_id - <$sql>\n";
+		while (($cemail,$email_user_id,$state,$fname,$lname,$city,$zip,$link_id,$last_open_date,$daycnt) = $sth->fetchrow_array())
+		{
+			if ($fname eq "") 
+			{
+				$name_str = $cemail;
+				$subject_name_str = "";
+			}
+			else
+			{
+            	$name_str = ucfirst lc $fname;
+                $subject_name_str = ucfirst lc $fname;
+			}
+			if (($fname eq "") or ($lname eq ""))
+			{
+				$fullname = $cemail;
+			}
+			else
+			{
+				$fname = ucfirst lc $fname;
+				$lname = ucfirst lc $lname;
+				$fullname = $fname . " " . $lname;
+			}
+			if ($city ne "")
+			{
+				$loc = $city . ", " . $state;
+			}
+			elsif ($state ne "")
+			{
+				$loc = $state;
+			}
+			else
+			{
+				$loc = "Your Area";
+			}	
+			# if email_type is blank - then default it to H just in case
+			$last_email_user_id = $email_user_id;
+
+			if ($email_type eq "")
+			{
+				$email_type = "H";
+			}
+			if ($state eq "")
+			{
+				$state = "XX";
+			}
+			$cemail =~ tr/[A-Z]/[a-z]/;
+			$cemail =~ s/ //g;
+			$_ = $cemail;
+			$addrec = 0;
+#			print "Email - <$cemail>\n";
+            if ((/\@aol.com/) || (/\@netscape.net/) || (/\@cs.com/) || (/\@netscape.com/) || (/\@wmconnect.com/))
+			{
+				if ($aolflag eq "Y") 
+				{
+					$addrec = 1;
+				}
+			}
+			elsif (/\@hotmail.com/)
+			{
+				if ($hotmailflag eq "Y")
+				{
+					$addrec = 1;
+				}
+			}
+			elsif ((/\@msn.com/) || (/\@email.msn.com/))
+			{
+				if ($hotmailflag eq "Y")
+				{
+					$addrec = 1;
+				}
+			}
+			else
+			{
+				if ($otherflag eq "Y")
+				{
+    				$_ = $cemail;
+    				if ((/\.com$/) || (/\.net$/) || (/\.ca$/))
+    				{
+#						if ((/\@yahoo.com/) || (/\@yahoo.ca/))
+						if (/\@yahoo.com/) 
+						{	
+							my $tmpid=1;
+						}
+						else
+						{
+							$addrec = 1;
+						}
+					}
+				}
+				if (($yahooflag eq "Y") && ($add_yahoo eq "Y"))
+				{
+#                	if ((/\@yahoo.com/) || (/\@yahoo.ca/))
+                	if (/\@yahoo.com/) 
+                    {
+						if ($processing_openers eq "N")
+						{
+							if ($client_id > 1)
+							{
+								$addrec = 1;
+							}
+							elsif (($daycnt <= 13) || ($last_open_date ne ""))
+                        	{
+#                           	print "<$_> - Day Cnt - $daycnt  - <$last_open_date>\n";
+                            	$addrec = 1;
+							}
+						}
+						else
+						{
+							$addrec = 1;
+						}
+                    }
+				}
+			}
+            if ((/\@comcast.net/) && ($client_id == 3))
+            {
+            	$addrec = 0;
+            }
+            if ((/\@us-cs.com/) ||
+                                    (/\@terabytecomputers.net/) ||
+                                    (/\@terabytecomputers.us/) ||
+                                    (/\@bergin.us/) ||
+                                    (/\@bergin.boone.nc.us/) ||
+                                    (/\@berginsrus.com/) ||
+                                    (/\@berginsrus.net/) ||
+                                    (/\@lawchek.new/) ||
+                                    (/\@enlightentech.net/))
+                {
+                    $addrec = 0;
+                }
+                if (/\@ksbc.com/)
+                {
+                    $addrec = 0;
+                }
+                if (/\@gmail.com/)
+                {
+                    $addrec = 0;
+                }
+				if (($addrec == 1) && ($suppid > 0))
+				{
+					$sql = "select email_addr from vendor_supp_list where list_id=$suppid and email_addr='$cemail'";
+					$sth1 = $dbh->prepare($sql);
+					$sth1->execute();
+					if (($temp_str) = $sth1->fetchrow_array())
+					{
+						$addrec = 0;
+					}
+					$sth1->finish();
+
+				}
+                if (($addrec == 1) && ($domain_suppid > 0))
+                {
+my $caddr;
+my $cdomain;
+                    ($caddr,$cdomain) = split("@",$cemail);
+                    $sql = "select domain from vendor_domain_supp_list where list_id=$domain_suppid and domain='$cdomain'";
+                    $sth1 = $dbh->prepare($sql);
+                    $sth1->execute();
+                    if (($temp_str) = $sth1->fetchrow_array())
+                    {
+                        $addrec = 0;
+                    }
+                    $sth1->finish();
+                }
+				if ($addrec == 1)
+				{
+					$total_cnt++;
+					$list_cnt++;
+                    if (($total_cnt%253000)==0)
+                    {
+                            my $t_str = "rotation\@rapidtec.com";
+        					printf OUTFILE "$t_str|H|00000|XX|Eric|New York, NY|10016|Eric Rhapsody|$global_link_id|Eric\n";
+                    }
+					$_ = $cemail;
+					if (/\@yahoo.com/) 
+					{
+						$yahoo_cnt++;
+					}
+					else
+					{	
+						$cnt++;
+					}
+					if ($cnt > $records_per_file)
+					{
+						close OUTFILE;
+						$filecnt++;
+						if (($total_cnt > $max_emails) && ($max_emails != -1))
+						{
+							$sth->finish();
+							$sth2->finish();
+							$total_cnt--;
+							$sql = "update campaign_log set sent_cnt=sent_cnt+$records_per_file where campaign_id=$camp_id and user_id=$client_id";
+       		 				$rows = $dbh->do($sql);
+							$sql = "update creative_log set sent_cnt=sent_cnt+$records_per_file where creative_id=$creative_arr[$creative_ind] and campaign_id=$camp_id and user_id=$client_id";
+       		 				$rows = $dbh->do($sql);
+							$sql = "update subject_log set sent_cnt=sent_cnt+$records_per_file where subject_id=$subject_arr[$subject_ind] and campaign_id=$camp_id and user_id=$client_id";
+        					$rows = $dbh->do($sql);
+							$sql = "update from_log set sent_cnt=sent_cnt+$records_per_file where from_id=$from_arr[$from_ind] and campaign_id=$camp_id and user_id=$client_id";
+        					$rows = $dbh->do($sql);
+							if ($profile_id > 0)
+							{
+								$sql = "insert into profile_log(campaign_id,profile_id,list_id,sent_cnt) values($camp_id,$profile_id,$list_str,$list_cnt)";
+        						$rows = $dbh->do($sql);
+							}
+							return;
+						}
+						$cnt2++;
+						if ($cnt2 == $sarr_cnt)
+						{
+							$cnt2 = 0;
+						}
+						$redir_cnt = $redir_cnt + $cnt;
+						if ($redir_cnt >= $REDIR_ROTATION)
+						{
+							$chged_redir = 1;
+							$redir_ind++;
+							if ($redir_ind > $redir_max_ind)
+							{
+								$sql = "select min(redir_ind) from redirect_url where client_id=$client_id"; 
+								$sth3 = $dbh->prepare($sql);
+								$sth3->execute();
+								($redir_ind) = $sth3->fetchrow_array();
+								$sth3->finish();
+							}
+							$redir_cnt = 0;
+							$sql = "select domain_name from redirect_url where redir_ind=$redir_ind"; 
+							$sth3 = $dbh->prepare($sql);
+							$sth3->execute();
+							($redir_domain) = $sth3->fetchrow_array();
+							$sth3->finish();
+							#
+							# Update redirect ind in client_ind 
+							#
+							if ($client_id != 1)
+							{
+								$sql = "update client_ind set redir_ind=$redir_ind where client_id=$client_id";
+        						$rows = $dbh->do($sql);
+							}
+						}
+						$img_cnt = $img_cnt + $cnt;
+						if ($img_cnt >= $IMG_ROTATION)
+						{
+							$img_ind++;
+							if ($img_ind > $max_ind)
+							{
+								$sql = "select min(img_ind) from img_url where client_id=$client_id"; 
+								$sth3 = $dbh->prepare($sql);
+								$sth3->execute();
+								($img_ind) = $sth3->fetchrow_array();
+								$sth3->finish();
+							}
+							$img_cnt = 0;
+							$sql = "select domain_name from img_url where img_ind=$img_ind"; 
+							$sth3 = $dbh->prepare($sql);
+							$sth3->execute();
+							($img_domain) = $sth3->fetchrow_array();
+							$sth3->finish();
+							#
+							# Update img ind in client_ind 
+							#
+							$sql = "update client_ind set img_ind=$img_ind where client_id=$client_id";
+        					$rows = $dbh->do($sql);
+						}
+						#
+						# Update counts in logs
+						#
+						$sql = "update campaign_log set sent_cnt=sent_cnt+$records_per_file where campaign_id=$camp_id and user_id=$client_id";
+        				$rows = $dbh->do($sql);
+						$sql = "update creative_log set sent_cnt=sent_cnt+$records_per_file where creative_id=$creative_arr[$creative_ind] and campaign_id=$camp_id and user_id=$client_id";
+						print "Adding 10k to $creative_arr[$creative_ind] - Total $total_cnt\n";
+        				$rows = $dbh->do($sql);
+						$sql = "update subject_log set sent_cnt=sent_cnt+$records_per_file where subject_id=$subject_arr[$subject_ind] and campaign_id=$camp_id and user_id=$client_id";
+        				$rows = $dbh->do($sql);
+						$sql = "update from_log set sent_cnt=sent_cnt+$records_per_file where from_id=$from_arr[$from_ind] and campaign_id=$camp_id and user_id=$client_id";
+        				$rows = $dbh->do($sql);
+						open (OUTFILE, "> /var/www/util/new_tmpmailfiles/list_fa_$sarry[$cnt2]_${camp_id}_$filecnt.txt");
+						$creative_ind++;
+						if ($creative_ind > 14)
+						{
+							$creative_ind = 0;
+						}
+						if ($creative_arr[$creative_ind] == 0)
+						{
+							$creative_ind = 0;
+						}
+						$subject_ind++;
+						if ($subject_ind > 14)
+						{
+							$subject_ind = 0;
+						}
+						if ($subject_arr[$subject_ind] == 0)
+						{
+							$subject_ind = 0;
+						}
+						$from_ind++;
+						if ($from_ind > 9)
+						{
+							$from_ind = 0;
+						}
+						if ($from_arr[$from_ind] == 0)
+						{
+							$from_ind = 0;
+						}
+						$sql = "select advertiser_from from advertiser_from where from_id=$from_arr[$from_ind]";
+						$sth3 = $dbh->prepare($sql);
+						$sth3->execute();
+						($from_str) = $sth3->fetchrow_array();
+						$sth3->finish();
+						$sql = "select advertiser_subject from advertiser_subject where subject_id=$subject_arr[$subject_ind]";
+						$sth3 = $dbh->prepare($sql);
+						$sth3->execute();
+						($subject_str) = $sth3->fetchrow_array();
+						$sth3->finish();
+						printf OUTFILE "%d|%d|%d|%s|%d|%s|%s|%s|%s|%s|%s|%d\n",$camp_id,$creative_arr[$creative_ind],$from_arr[$from_ind],$from_str,$subject_arr[$subject_ind],$subject_str,$dname,$subdomain_name,$redir_domain,$img_domain,$footer_dname,$client_id;
+						$cnt = 1;
+					}
+					$_ = $cemail;
+					if (/\@yahoo.com/) 
+					{
+						if ($yahoo_cnt > $records_per_file)
+						{
+							close OUTFILE1;
+							if (($total_cnt > $max_emails) && ($max_emails != -1))
+							{
+								$sth->finish();
+								$sth2->finish();
+								$total_cnt--;
+								$sql = "update campaign_log set sent_cnt=sent_cnt+$records_per_file where campaign_id=$camp_id and user_id=$client_id";
+       		 					$rows = $dbh->do($sql);
+								$sql = "update creative_log set sent_cnt=sent_cnt+$records_per_file where creative_id=$creative_arr[$ycreative_ind] and campaign_id=$camp_id and user_id=$client_id";
+       		 					$rows = $dbh->do($sql);
+								$sql = "update subject_log set sent_cnt=sent_cnt+$records_per_file where subject_id=$subject_arr[$ysubject_ind] and campaign_id=$camp_id and user_id=$client_id";
+        						$rows = $dbh->do($sql);
+								$sql = "update from_log set sent_cnt=sent_cnt+$records_per_file where from_id=$from_arr[$yfrom_ind] and campaign_id=$camp_id and user_id=$client_id";
+        						$rows = $dbh->do($sql);
+								if ($profile_id > 0)
+								{
+									$sql = "insert into profile_log(campaign_id,profile_id,list_id,sent_cnt) values($camp_id,$profile_id,$list_str,$list_cnt)";
+        							$rows = $dbh->do($sql);
+								}
+								return;
+							}
+							$sql = "update campaign_log set sent_cnt=sent_cnt+$records_per_file where campaign_id=$camp_id and user_id=$client_id";
+        					$rows = $dbh->do($sql);
+							$sql = "update creative_log set sent_cnt=sent_cnt+$records_per_file where creative_id=$creative_arr[$ycreative_ind] and campaign_id=$camp_id and user_id=$client_id";
+						print "Adding 10k to Yahoo $creative_arr[$ycreative_ind] - Total $total_cnt\n";
+        					$rows = $dbh->do($sql);
+							$sql = "update subject_log set sent_cnt=sent_cnt+$records_per_file where subject_id=$subject_arr[$ysubject_ind] and campaign_id=$camp_id and user_id=$client_id";
+        					$rows = $dbh->do($sql);
+							$sql = "update from_log set sent_cnt=sent_cnt+$records_per_file where from_id=$from_arr[$yfrom_ind] and campaign_id=$camp_id and user_id=$client_id";
+        					$rows = $dbh->do($sql);
+							$yahoo_filecnt++;
+                        $ycreative_ind++;
+                        if ($ycreative_ind > 14)
+                        {
+                            $ycreative_ind = 0;
+                        }
+                        if ($creative_arr[$ycreative_ind] == 0)
+                        {
+                            $ycreative_ind = 0;
+                        }
+                        $ysubject_ind++;
+                        if ($ysubject_ind > 14)
+                        {
+                            $ysubject_ind = 0;
+                        }
+                        if ($subject_arr[$ysubject_ind] == 0)
+                        {
+                            $ysubject_ind = 0;
+                        }
+                        $yfrom_ind++;
+                        if ($yfrom_ind > 9)
+                        {
+                            $yfrom_ind = 0;
+                        }
+                        if ($from_arr[$yfrom_ind] == 0)
+                        {
+                            $yfrom_ind = 0;
+                        }
+							$ycnt2++;
+							if ($ycnt2 == $yarry_cnt)
+							{
+								$ycnt2 = 0;
+							}
+							print "Ycnt2 - $ycnt2 - $yahooarry[$ycnt2]\n";
+							open (OUTFILE1, "> /var/www/util/new_tmpmailfiles/list_fa_$yahooarry[$ycnt2]_y_${camp_id}_${yahoo_filecnt}.txt");
+							printf OUTFILE1 "%d|%d|%d|%s|%d|%s|%s|%s|%s|%s|%s|%d\n",$camp_id,$creative_arr[$ycreative_ind],$from_arr[$yfrom_ind],$from_str,$subject_arr[$ysubject_ind],$subject_str,$dname,$subdomain_name,$redir_domain,$img_domain,$footer_dname,$client_id;
+							$yahoo_cnt = 1;
+						}
+						printf OUTFILE1 "%s|%s|%d|%s|%s|%s|%s|%s|%d|%s\n",$cemail,$email_type,$email_user_id,$state,$name_str,$loc,$zip,$fullname,$link_id,$subject_name_str;
+					}
+					else
+					{
+						printf OUTFILE "%s|%s|%d|%s|%s|%s|%s|%s|%d|%s\n",$cemail,$email_type,$email_user_id,$state,$name_str,$loc,$zip,$fullname,$link_id,$subject_name_str;
+					}
+					$last_email_user_id = $email_user_id;
+				}
+			}
+			$sth->finish();
+			$begin = $begin + 100000;
+	}
+	$cdate = localtime();
+	$sql = "update campaign_log set sent_cnt=sent_cnt+$cnt where campaign_id=$camp_id and user_id=$client_id";
+	$rows = $dbh->do($sql);
+	$sql = "update creative_log set sent_cnt=sent_cnt+$cnt where creative_id=$creative_arr[$creative_ind] and campaign_id=$camp_id and user_id=$client_id";
+	print "Adding $cnt to $creative_arr[$creative_ind] - Total $total_cnt\n";
+	$rows = $dbh->do($sql);
+	$sql = "update subject_log set sent_cnt=sent_cnt+$cnt where subject_id=$subject_arr[$subject_ind] and campaign_id=$camp_id and user_id=$client_id";
+	$rows = $dbh->do($sql);
+	$sql = "update from_log set sent_cnt=sent_cnt+$cnt where from_id=$from_arr[$from_ind] and campaign_id=$camp_id and user_id=$client_id";
+	$rows = $dbh->do($sql);
+	$sql = "update campaign_log set sent_cnt=sent_cnt+$yahoo_cnt where campaign_id=$camp_id and user_id=$client_id";
+    $rows = $dbh->do($sql);
+	$sql = "update creative_log set sent_cnt=sent_cnt+$yahoo_cnt where creative_id=$creative_arr[$ycreative_ind] and campaign_id=$camp_id and user_id=$client_id";
+	print "Adding $cnt to Yahoo $creative_arr[$ycreative_ind] - Total $total_cnt\n";
+    $rows = $dbh->do($sql);
+	$sql = "update subject_log set sent_cnt=sent_cnt+$yahoo_cnt where subject_id=$subject_arr[$ysubject_ind] and campaign_id=$camp_id and user_id=$client_id";
+    $rows = $dbh->do($sql);
+	$sql = "update from_log set sent_cnt=sent_cnt+$yahoo_cnt where from_id=$from_arr[$yfrom_ind] and campaign_id=$camp_id and user_id=$client_id";
+    $rows = $dbh->do($sql);
+	$sql = "insert into profile_log(campaign_id,profile_id,list_id,sent_cnt) values($camp_id,$profile_id,$list_str,$list_cnt)";
+   	$rows = $dbh->do($sql);
+}

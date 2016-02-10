@@ -1,0 +1,28 @@
+client_id	advertiser_id	category_name	sum(unsubscribe_cnt)	sum(bounce_cnt)	sum(fullmbx_cnt)	format(sum(unsubscribe_cnt),0)	format(sum(bounce_cnt),0)	format(sum(fullmbx_cnt),0)	sum(notdelivered_cnt)	format(sum(notdelivered_cnt),0)
+2	9	Dating	985	27550	0	985	27,550	0	2	2
+6	9	Dating	455	11607	0	455	11,607	0	0	0
+1	9	Dating	0	1	0	0	1	0	0	0
+8	9	Dating	0	0	0	0	0	0	0	0
+5	9	Dating	40	100	0	40	100	0	120	120
+7	9	Dating	225	1316	0	225	1,316	0	0	0
+11	298	Financial - Auto Loans	144	10755	20	144	10,755	20	3223	3,223
+2	129	Automotive	384	2066	0	384	2,066	0	0	0
+1	129	Automotive	0	4	1	0	4	1	19	19
+8	129	Automotive	0	2	0	0	2	0	0	0
+7	152	Communications - Cellular	288	69894	0	288	69,894	0	0	0
+9	152	Communications - Cellular	406	1489	0	406	1,489	0	0	0
+1	291	Communications - Cellular	0	1	0	0	1	0	0	0
+4	291	Communications - Cellular	937	47433	18	937	47,433	18	4018	4,018
+7	493	Financial - Credit	60	4257	0	60	4,257	0	0	0
+11	493	Financial - Credit	45	14944	15	45	14,944	15	2462	2,462
+6	493	Financial - Credit	0	1	0	0	1	0	0	0
+5	493	Financial - Credit	40	822	1	40	822	1	351	351
+4	493	Financial - Credit	218	3452	12	218	3,452	12	1477	1,477
+5	400	Financial - Credit	132	1720	0	132	1,720	0	265	265
+11	400	Financial - Credit	422	85148	84	422	85,148	84	10014	10,014
+4	497	Financial - Mortgage	147	14472	7	147	14,472	7	1110	1,110
+9	282	Sweepstakes	295	7685	0	295	7,685	0	0	0
+2	282	Sweepstakes	153	785	0	153	785	0	0	0
+9	300	Automotive	134	2437	0	134	2,437	0	0	0
+8	300	Automotive	0	0	0	0	0	0	0	0
+6	300	Automotive	0	0	0	0	0	0	0	0

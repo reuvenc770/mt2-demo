@@ -1,0 +1,3 @@
+#!/bin/sh
+echo "Starting $1"
+/var/www/html/newcgi-bin/ftp.pl $1

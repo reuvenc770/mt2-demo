@@ -1,0 +1,1 @@
+alter table third_party_defaults modify name_replace varchar(50),modify loc_replace varchar(50),modify date_replace varchar(50),modify email_replace varchar(50),modify cid_replace varchar(50),modify capture_replace varchar(50),modify ip_replace varchar(50);

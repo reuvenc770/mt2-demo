@@ -1,0 +1,27 @@
+From: {{FROM}}
+To: {{EMAIL}}
+Subject: {{SUBJECT}}
+Content-Type: text/html; charset="ISO-8859-1"
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252"><title>%%$email_user_id%%</title></head><body><center><p STYLE="font-size:10pt; font-family:arial">%%$first_name%% If you cannot see the graphics in this email, <a href="%%$url%%">click here</a>.  You must be 18 years old to participate.</p></center><p><IMG SRC="http://%%$_sdomain%%/cgi-bin/open_email1.cgi?id=%%$email_user_id%%&amp;cid=%%$cid%%&amp;f=%%$fid%%&amp;s=%%$sid%%&amp;c=3752&amp;" border=0 height=2 width=2 alt="open">
+<DIV align=center><A href="%%$url%%" target=_blank><IMG 
+height=580 src="http://%%$img_domain%%/images/mizek_3752/naxid_1.jpg" width=580 
+border=0></A> <BR><a href="%%$url%%" target=_blank><span style="text-decoration:none;color:black"><FONT 
+style="FONT-SIZE: 10px; COLOR: black; FONT-FAMILY: Verdana, Sans-serif">MyDishNow 
+is an authorized retailer of Dish Network. <BR><BR>MyDishNow<BR>2134B ST. 
+Andrews Blvd<BR>Boca Raton, FLA . 33433</FONT>
+</span>
+</a>
+</DIV>
+<p><HR width="90%" SIZE=1><p><center>
+<table cellspacing=0 cellpadding=0 width=600 border=0>
+<tr><td align=center>
+<font face="Verdana,Arial" size="1">
+</font>
+<br>
+<a href="http://%%$footer_subdomain%%.%%$_sdomain%%/cgi-bin/redir1.cgi?eid=%%$email_user_id%%&amp;cid=0&amp;em=%%$email%%&amp;id=18349" target="_blank"><img src="http://www.%%$img_domain%%/images/unsub/612_Unsub.gif" border=0 alt="Unsub"></a><br><br><a href="http://%%$footer_subdomain%%.%%$_sdomain%%/cgi-bin/redir1.cgi?eid=%%$email_user_id%%&amp;cid=%%$cid%%&amp;em=%%$email%%&amp;id=42&amp;nid=%%$nid%%" target=_blank><img src="http://www.%%$img_domain%%/fimg/%%$footer_str%%_1.jpg" border=0 alt="end this subscription"></a><br><a href="http://%%$footer_subdomain%%.%%$_sdomain%%/cgi-bin/redir1.cgi?cid=0&amp;eid=%%$email_user_id%%&amp;id=51&amp;nid=%%$nid%%" target=_blank><img src="http://www.%%$img_domain%%/fimg/%%$footer_str%%_2.jpg" border=0 alt="privacy policy"></a> 
+</td></tr></table></center></p>
+<p STYLE="font-size:10pt; font-family:arial">If you received this message in error or to cancel your subscription, please <a href="{{UNSUB_LINK}}">follow this link</a>.
+Send postal mail to: 217 E. 86th Street, #111, New York, NY 10028</p></body></html>

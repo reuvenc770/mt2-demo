@@ -1,0 +1,2 @@
+#!/bin/sh
+scp -P22 $1 svadmin@sv-db-7.pcposts.com:/var/www/html/newcgi-bin

@@ -1,0 +1,164 @@
+html, body {
+	height: 100%;
+}
+
+body {
+	font-family: tahoma, geneva, sans-serif;
+	color: #333333;
+	background: #dddddd;
+}
+
+.clear {
+	clear: both;
+	font-size: 0;
+	line-height: 0;
+	padding: 0;
+}
+
+.wrapper {
+	min-height: 100%;
+}
+
+.container {
+	margin: 10px auto;
+	width: 898px;
+	border: 1px solid #bbbbbb;
+	padding: 20px 30px 20px 30px;
+	background: #ffffff;
+}
+
+.header {
+	background: url(../images/header-bg.jpg) no-repeat;
+	width: 900px;
+	height: 117px;
+	position: relative;
+}
+
+.header h1 {
+	font-family: arial, helvetica, sans-serif;
+	color: #ffffff;
+	font-weight: normal;
+	font-size: 1em;
+	position: absolute;
+	top: 90px;
+	right: 20px;
+	text-align: right;
+	padding-bottom: 5px;
+}
+
+form {
+	width: 895px;
+}
+
+form fieldset {
+	margin: 10px 0 10px 0;
+	padding: 20px;
+}
+
+form fieldset p {
+	font-size: 0.75em;
+	line-height: 1.5em;
+	padding-bottom: 1em;
+}
+
+form fieldset p span, form fieldset code span {
+	color: #ff0000;
+	font-weight: bold;
+}
+
+form fieldset div#toggle-yes, form fieldset div#toggle-no {
+	border-top: 1px dashed #999999;
+	padding: 1em 0 0 0;
+}
+
+form fieldset code{
+	display: block;
+	background: #eeeeee;
+	border: 1px solid #cccccc;
+	padding: 10px;
+	font-size: 12px;
+}
+
+form fieldset a {
+	color: #006699;
+}
+
+form fieldset a:hover {
+	text-decoration: none;
+}
+
+form fieldset textarea {
+	width: 800px;
+	height: 120px;
+	margin: 0 0 1em 0;
+	overflow: auto;
+	font-family: tahoma, geneva, sans-serif;
+	line-height: 1.5em;
+	padding: 5px;
+	font-size: 1em;
+}
+
+form fieldset.blue-bg {
+	background: #e9f7ff;
+	border: 1px solid #b2c9d6;
+}
+
+form fieldset.blue-bg p {
+	font-family: georgia, serif;
+	font-size: 0.75em;
+	line-height: 1.5em;
+	padding-bottom: 1em;
+}
+
+form fieldset.blue-bg p span {
+	font-size: 1.5em;
+	font-weight: normal;
+	color: #333333;
+}
+
+form fieldset.blue-box {
+	background: url(../images/section-bg-top.jpg) no-repeat;
+	padding: 7px 0 0 0;
+	margin: 20px 0 50px 0;
+}
+
+form fieldset.blue-box div.outer {
+	background: url(../images/section-bg-bottom.jpg) center bottom no-repeat;
+	padding: 0 0 7px 0;
+}
+
+form fieldset.blue-box div.inner {
+	border-left: 1px solid #24afff;
+	border-right: 1px solid #24afff;
+	padding: 13px 20px 13px 20px;
+}
+
+form fieldset.blue-box h1 {
+	color: #24afff;
+	font-size: 1.5em;
+	text-transform: uppercase;
+	margin: -41px 0 0 0;
+	position: relative;
+	padding-bottom: 21px;
+}
+
+form fieldset.blue-box ul {
+	padding-bottom: 1em;
+}
+
+form fieldset.blue-box ul li {
+	font-size: 0.75em;
+	line-height: 1.5em;
+}
+
+form fieldset input.button {
+	font-size: 1.75em;
+	font-weight: bold;
+	margin: 10px 0 0 0;
+}
+
+.edit {
+	border-left: 1px solid #999999; 
+	padding: 0 0 0 7px; 
+	margin: 0 0 0 3px;
+}

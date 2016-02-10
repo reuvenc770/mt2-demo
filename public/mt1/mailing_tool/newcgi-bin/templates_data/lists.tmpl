@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Mailing Tool: Setup Lists</title>
+<link href="/css/main1.css" rel="stylesheet" type="text/css">
+<link href="/css/menu.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="/chromemenu/chromejs/chrome.js">
+
+/***********************************************
+* Chrome CSS Drop Down Menu- (c) Dynamic Drive DHTML code library (www.dynamicdrive.com)
+* This notice MUST stay intact for legal use
+* Visit Dynamic Drive at http://www.dynamicdrive.com/ for full source code
+***********************************************/
+
+</script>
+
+</head>
+
+<body>
+<div id="container">
+<div id="grey">
+<img src="/images/ban_mt_lists.jpg" class="bar">
+</div>
+<div class="youracct" id="chromemenu">
+<ul>
+<li><a href="#" rel="dropmenu1" style="color:#666666;"><b>Welcome, <TMPL_VAR NAME=USERNAME>!</b><br>Your Account</a></li>
+</ul>
+</div>
+
+<!--1st drop down menu -->                                                   
+<div id="dropmenu1" class="dropmenudiv top">
+<a href="/editcontact.html">Edit Contact Information</a>
+<a href="/maintainence.html">Quick Maintainence</a>
+<a href="/cgi-bin/logout.cgi">Logout</a>
+</div>
+<!--End Top Nav-->
+
+<TMPL_UNLESS name='SetupLists'>
+<div class="chromestyle" id="chromemenu2">
+<ul>
+<li><a href="#" rel="dropmenu2">Internal List Management</a></li>
+<li><a href="#" rel="dropmenu3">External List Management</a></li>
+<li><a href="#" rel="dropmenu4">Profiles</a></li>
+<li><a href="#" rel="dropmenu5">Email Maintenance</a></li>
+<li><a href="#" rel="dropmenu6">Manage/Send Deploys</a></li>
+<li style="padding-left:332px;">&nbsp;</li>
+<li><a href="/cgi-bin/mainmenu.cgi">Back to Top</a></li>
+</ul>
+</div>
+
+<!--1st drop down menu -->                                                   
+<div id="dropmenu1" class="dropmenudiv top">
+<a href="/editcontact.html">Edit Contact Information</a>
+<a href="/maintainence.html">Quick Maintainence</a>
+<a href="/cgi-bin/logout.cgi">Logout</a>
+</div>
+
+<!--2nd drop down menu -->                                                   
+<div id="dropmenu2" class="dropmenudiv">
+<a href="/cgi-bin/client/client_disp.cgi?pmode=A">Add a New Client</a>
+<a href="/cgi-bin/client_list.cgi">Update Clients</a>
+<a href="/cgi-bin/dataCleanClient/client_disp.cgi?pmode=A">Add a New Hygiene Client</a>
+<a href="/cgi-bin/dataCleanClient/client_list.cgi">Update Hygiene Client</a>
+
+<p style="color:#a7d9ff; padding-left:5px;">Manage Client Groups
+<a href="/cgi-bin/clientgroup_list.cgi">Create Client Group</a>
+<a href="/cgi-bin/clientgroup_lookup.cgi">Client Group Lookup</a>
+</p>
+<a href="/cgi-bin/client_exclusion.cgi">Client Group Exclusions</a>
+<a href="/cgi-bin/unique_attribution.cgi">Client Attribution</a>
+<a href="/cgi-bin/source_url.cgi">Manage Source URLs</a>
+<a href="/cgi-bin/source_url_lookup.cgi">Lookup Source URL</a>
+</div>
+
+
+<!--3rd drop down menu -->                                                
+<div id="dropmenu3" class="dropmenudiv">
+<a href="/cgi-bin/add_partner_record.cgi">Add Partner Record</a>
+<a href="/cgi-bin/partner_list.cgi">Maintain Partners</a>
+<a href="/cgi-bin/rep_partner_log.cgi">Partner Log Report</a>
+</div>
+
+<!--4th drop down menu -->                                                   
+<div id="dropmenu4" class="dropmenudiv">
+<a href="/cgi-bin/uniqueprofile_list.cgi">Create a New Profile</a>
+<a href="/cgi-bin/uniqueprofile_check.cgi">Profile Calculation</a>
+<a href="/cgi-bin/emailclasses.cgi">Email Classes</a>
+</div>
+
+<!--4th drop down menu -->                                                   
+<div id="dropmenu5" class="dropmenudiv">
+<a href="/cgi-bin/find_info.cgi">Get Info for Email Address</a>
+<a href="/cgi-bin/bulk_find_info.cgi">Get Info for Multiple Email Addresses</a>
+<a href="/cgi-bin/find_info_id.cgi">Get Info for Email ID</a>
+<a href="/cgi-bin/bulk_find_info.cgi?btype=email_user_id">Get Info for Multiple EIDs</a>
+<a href="/cgi-bin/add_seedlist.cgi">Seedlist</a>
+<a href="/cgi-bin/bulk_suppress.cgi">Globally Suppress Multiple Email Addresses</a>
+</div>
+
+<!--5th drop down menu -->
+<div id="dropmenu6" class="dropmenudiv">
+<TMPL_IF name='hasdataExport'>
+<a href="/cgi-bin/dataexport_list.cgi">Manage Data Exports</a>
+</TMPL_IF>
+</div>
+
+</TMPL_UNLESS>
+<script type="text/javascript">
+cssdropdown.startchrome("chromemenu", "chromemenu2")
+</script>
+
+</div>
+</body>
+</html>
+

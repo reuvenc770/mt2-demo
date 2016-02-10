@@ -1,0 +1,1 @@
+select sum(sent_cnt),format(sum(sent_cnt),0),sum(open_cnt),format(sum(open_cnt),0),sum(click_cnt),format(sum(click_cnt),0),sum(delivered_cnt),format(sum(delivered_cnt),0) from campaign_log where campaign_id=32472
