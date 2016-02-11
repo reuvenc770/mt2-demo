@@ -58,3 +58,8 @@ Route::group(['middleware' => ['guest']], function () {
 
 Route::resource('sessions', 'SessionsController' , ['only' => ['create','store','destroy']]);
 Route::get('home', ['as' => 'home', 'uses' => 'HomeController@home']);
+
+
+Route::group( [ 'prefix' => 'api/mt1', 'middleware' => ['auth'] ] , function () {
+    Route::resource('suppressionReason', 'MT1API\SuppressionReasonController',  [ 'only' => [ 'index' ]] );
+});
