@@ -32,7 +32,7 @@ Route::group( [ 'prefix' => 'user', 'middleware' => ['auth','admin', 'pageLevel'
 } );
 
 Route::group( [ 'prefix' => 'client', 'middleware' => ['auth', 'pageLevel'] ] , function () {
-    Route::get( '/' , array( 'as' => 'client.list' , 'uses' => 'ClientController@list' ) );
+    Route::get( '/' , array( 'as' => 'client.list' , 'uses' => 'ClientController@listAll' ) );
     Route::get( '/{id}' , array( 'as' => 'client.show' , 'uses' => 'ClientController@show' ) );
     Route::get( '/create' , array( 'as' => 'client.add' , 'uses' => 'ClientController@create' ) );
     Route::get( '/edit/{id}' , array( 'as' => 'client.edit' , 'uses' => 'ClientController@edit' ) );
