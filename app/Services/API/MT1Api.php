@@ -13,12 +13,11 @@ class MT1Api
 {
     protected $guzzle;
     protected $baseUrl;
-    CONST PATH = '/mt1/mailing_tool/newcgi-bin/';
+    CONST PATH = 'http://mt1bin.mtroute.com/newcgi-bin/';
 
     public function __construct(Client $guzzle)
     {
         $this->guzzle = $guzzle;
-        $this->baseUrl = URL::to("/").self::PATH;
 
     }
 
@@ -38,7 +37,7 @@ class MT1Api
         if($params) {
             $queryString = http_build_query($params);
         }
-        $base = $this->baseUrl;
+        $base = self::PATH;
         return "{$base}/{$page}".($queryString ? "?{$queryString}" : "");
 
     }
