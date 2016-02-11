@@ -5,6 +5,7 @@
 
 @section( 'navClientClasses' , 'active' )
 
+
 @section( 'content' )
 <div class="row">
     <div class="page-header col-xs-12"><h1 class="text-center">Edit Client</h1></div>
