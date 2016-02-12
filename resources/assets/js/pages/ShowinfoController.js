@@ -25,9 +25,7 @@ mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$log' , '$wi
     self.suppressRecord = function ( $event ) {
         $event.preventDefault();
 
-        //self.api.suppressRecord( self.recordId , self.selectedReason , self.suppressRecordSuccessCallback , self.suppressRecordFailureCallback );
-
-        $window.alert( 'Suppressed!!' );
+        self.api.suppressRecord( self.recordId , self.selectedReason , self.suppressRecordSuccessCallback , self.suppressRecordFailureCallback );
     }
 
     /**

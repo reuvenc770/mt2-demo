@@ -11,6 +11,8 @@ use App\Services\MT1ApiService;
 class ShowInfoController extends Controller
 {
     const SHOW_INFO_ENDPOINT = '/newcgi-bin/show_info_2.cgi';
+    const SUPPRESSION_ENDPPOINT = '';
+
     protected $api;
 
     public function __construct ( MT1ApiService $api ) {
@@ -34,7 +36,7 @@ class ShowInfoController extends Controller
      */
     public function create()
     {
-        //
+        return response( 'Unauthorized' , 401 );
     }
 
     /**
@@ -45,7 +47,16 @@ class ShowInfoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $apiResponse = $this->api->getJson(
+            self::SUPPRESSION_ENDPOINT ,
+            [ 'reason' => $request->input( 'reason' ) , 'id' => $request->input( 'id' ) ]
+        );
+
+        $responseCode = ( $apiResponse === false ? 500 : 200 );
+
+        if ( $responseCode === 500 ) $apiResponse = json_encode( [] );
+
+        return response( $apiResponse , $responseCode );
     }
 
     /**
@@ -76,7 +87,7 @@ class ShowInfoController extends Controller
      */
     public function edit($id)
     {
-        //
+        return response( 'Unauthorized' , 401 );
     }
 
     /**
@@ -88,7 +99,7 @@ class ShowInfoController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        return response( 'Unauthorized' , 401 );
     }
 
     /**
@@ -99,6 +110,6 @@ class ShowInfoController extends Controller
      */
     public function destroy($id)
     {
-        //
+        return response( 'Unauthorized' , 401 );
     }
 }

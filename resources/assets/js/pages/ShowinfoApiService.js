@@ -8,7 +8,7 @@ mt2App.service( 'ShowinfoApiService' , function ( $http , $log ) {
         $http( {
             "method" : "GET" ,
             "url" : self.apiUrl ,
-            "data" : { "type" : type , "id" : id }
+            "data" : { "id" : id , "type" : type }
         } ).then( successCallback , failureCallback );
     };
 
@@ -19,7 +19,11 @@ mt2App.service( 'ShowinfoApiService' , function ( $http , $log ) {
         } ).then( successCallback , failureCallback );
     };
 
-    self.suppressRecord = function ( id , reason ) {
-        //Need to find out where to send this to.
+    self.suppressRecord = function ( id , reason , successCallback , failureCallback ) {
+        $http( {
+            "method" : "POST" ,
+            "url" : self.apiUrl ,
+            "data" : { "id" : id , "reason" : reason }
+        } ).then( successCallback , failureCallback );
     };
 } );
