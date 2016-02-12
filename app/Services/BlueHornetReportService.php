@@ -99,7 +99,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
     public function mapToRawReport($report){
         return array(
             "internal_id" => (string)$report['id'],
-            "esp_account_id" => $this->getEspAccountId(),
+            "esp_account_id" => $this->api->getEspAccountId(),
             "message_subject" => (string)$report->message_subject,
             "message_name" => (string)$report->message_name,
             "date_sent" => (string)$report->date_sent,
