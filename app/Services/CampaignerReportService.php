@@ -179,7 +179,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         if ($header['errorFlag'] != "false" ) {
             throw new \Exception("{$header['errorFlag']} - {$this->getApiName()}::{$this->getEspAccountId()} Failed retrieveReportStats because {$header['returnMessage']} - {$header['returnCode']}");
         } else if ($header['returnCode'] == self::NO_CAMPAIGNS){
-            Log::info("{$this->getApiName()}::{$this->getEspAccountId()} had no campaigns for {$date}");
+            Log::info("{$this->api->getApiName()}::{$this->api->getEspAccountId()} had no campaigns for {$date}");
            return null;
         }
         return $results->getGetCampaignRunsSummaryReportResult();
