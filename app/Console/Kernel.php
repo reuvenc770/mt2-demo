@@ -27,7 +27,13 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('inspire')
-                 ->hourly();
+        $filePath = storage_path('logs')."/downloadAPI.log";
+        $schedule->command('reports:downloadApi BlueHornet 1')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Campaigner 1')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi EmailDirect 1')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Maro 1')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadTrackingData Cake 1')->hourly()->sendOutputTo($filePath);
+
+
     }
 }

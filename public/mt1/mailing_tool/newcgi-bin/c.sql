@@ -1,1 +1,0 @@
-select distinct brand_name,company from campaign,client_brand_info,user where campaign.brand_id != 0 and campaign_id in (select distinct campaign_id from server_log where id=118 and log_date >= date_sub(curdate(),interval 2 day)) and campaign.brand_id=client_brand_info.brand_id and client_brand_info.client_id=user.user_id
