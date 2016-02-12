@@ -42,7 +42,6 @@ Route::group( [ 'prefix' => 'api', 'middleware' => ['auth'] ] , function () {
     Route::resource('user', 'UserApiController',  [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth','admin']] );
     Route::resource('role', 'RoleApiController',  [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth','admin']] );
     Route::resource('jobEntry', 'JobApiController',  [ 'only' => [ 'index' ] ,'middleware' => ['auth','dev']] );
-    Route::resource( 'showinfo' , 'ShowInfoController' , [ 'except' => [ 'create' , 'edit' , 'show' , 'update' , 'destroy' ] ,'middleware' => ['auth']  ] );
     Route::get( '/showinfo/' , array( 'as' => 'api.showinfo.get' , 'uses' => 'ShowInfoController@show' ) );
 } );
 
