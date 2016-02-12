@@ -17,7 +17,7 @@ mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$log' , '$wi
     self.loadData = function ( $event ) {
         $event.preventDefault();
 
-        self.api.getRecords( self.getType(); , self.recordId , self.loadDataSuccessCallback , self.loadDataFailureCallback );
+        self.api.getRecords( self.getType() , self.recordId , self.loadDataSuccessCallback , self.loadDataFailureCallback );
         
         self.isLoaded = true;
     };

@@ -6,9 +6,17 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Services\MT1ApiService;
 
 class ShowInfoController extends Controller
 {
+    const SHOW_INFO_ENDPOINT = '/newcgi-bin/show_info_2.cgi';
+    protected $api;
+
+    public function __construct ( MT1ApiService $api ) {
+        $this->api = $api;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -46,9 +54,18 @@ class ShowInfoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request)
     {
-        //
+        $apiResponse = $this->api->getJson(
+            self::SHOW_INFO_ENDPOINT ,
+            [ 'type' => $request->input( 'type' ) , 'id' => $request->input( 'id' ) ]
+        );
+
+        $responseCode = ( $apiResponse === false ? 500 : 200 );
+
+        if ( $responseCode === 500 ) $apiResponse = json_encode( [] );
+
+        return response( $apiResponse , $responseCode );
     }
 
     /**
