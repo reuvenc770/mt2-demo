@@ -7,8 +7,8 @@ mt2App.controller( 'espController' , [ '$log' , '$window' , '$location' , '$time
 
     self.currentAccount = { "espId" : "" , "id" : "" , "accountName" : "" , "key1" : "" , "key2" : "" };
 
-    self.createUrl = 'esp/create/';
-    self.editUrl = 'esp/edit/';
+    self.createUrl = 'espapi/create/';
+    self.editUrl = 'espapi/edit/';
 
     self.formErrors = { "espId" : "" , "id" : "" , "accountName" : "" , "key1" : "" , "key2" : "" };
 
