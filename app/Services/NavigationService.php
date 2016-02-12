@@ -60,7 +60,7 @@ class NavigationService {
         $this->currentUser = $this->auth->getUser();
 
         $userCollection = $this->currentUser->pluck( 'id' );
-        $this->cacheId = $userCollection->first();
+        $this->cacheId = 'nav-' . $userCollection->first();
     }
 
     protected function loadRoutes () {
