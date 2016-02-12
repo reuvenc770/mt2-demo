@@ -27,7 +27,9 @@ class NavigationService {
     public function getMenu () {
         $this->loadUser();
 
-        if ( null === $cachedMenu = Cache::get( $this->cacheId ) ) {
+        $cachedMenu = Cache::get( $this->cacheId );
+
+        if ( is_null( $cachedMenu ) ) {
             if ( empty( $this->menuList ) ) $this->loadMenu();
 
             return $this->menuList;

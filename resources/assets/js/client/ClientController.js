@@ -28,6 +28,10 @@ mt2App.controller( 'ClientController' , [ '$log' , '$window' , '$location' , 'Cl
         $window.location.href = self.createUrl;
     };
 
+    self.suppressionToggle = function () {
+
+    };
+
     /**
      * Page Modal
      */
