@@ -42,7 +42,7 @@
             </thead>
 
             <tbody>
-                <tr ng-repeat="record in info.mockRecords">
+                <tr ng-repeat="record in info.records">
                     <td>@{{ record.eid }}</td>
                     <td>@{{ record.email_addr }}</td>
                     <td>@{{ record.first_name }}</td>
@@ -73,12 +73,12 @@
                 <label for="suppressionReason">Reason</label>
 
                 <select class="form-control" ng-model="info.selectedReason" ng-init="info.loadReasons()">
-                    <option value="">Suppression Reason</option>
+                    <option value="">Please Choose a Suppression Reason</option>
                     <option ng-repeat="reason in info.suppressionReasons" ng-value="reason.value">@{{ reason.name }}</option>
                 </select>
             </div>
 
-            <button type="submit" class="btn btn-danger btn-lg" ng-click="info.addToSuppression( $event )">Suppress Record</button>
+            <button type="submit" class="btn btn-danger btn-lg" ng-click="info.suppressRecord( $event )">Suppress Record</button>
         </form>
     </div>
 </div>

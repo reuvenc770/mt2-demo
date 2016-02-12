@@ -12,7 +12,7 @@ class SuppressionReasonRepo
     }
 
     public function getAllSuppressionReasons(){
-        return $this->suppressionReason->all();
+        return $this->suppressionReason->select( 'suppressionReasonCode as value' , 'suppressionReasonDetails as name' )->get();
     }
 
 }
