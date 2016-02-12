@@ -11,67 +11,60 @@
     <div class="well">
         <form>
             <div class="form-group">
-                <label for="eid">EID</label>
-                <input type="text" class="form-control" id="eid" required="required" placeholder="Please enter EID" ng-model="info.recordId" />
+                <label for="eid">Record ID</label>
+                <input type="text" class="form-control" id="eid" required="required" placeholder="Please enter EID or email" ng-model="info.recordId" />
             </div>
 
-            <button type="submit" class="btn btn-success btn-md" ng-click="info.loadMockData( $event )">Search</button>
+            <button type="submit" class="btn btn-success btn-md" ng-click="info.loadData( $event )">Search</button>
         </form>
     </div>
 
-    <ul class="list-group" ng-if="info.isLoaded">
-        <li class="list-group-item" ng-if="info.record.email">
-            <span class="badge">Email</span> <span ng-bind="info.record.email"></span>
-        </li>
-        <li class="list-group-item" ng-if="info.record.firstname">
-            <span class="badge">First Name</span> <span ng-bind="info.record.firstname"></span>
-        </li>
-        <li class="list-group-item" ng-if="info.record.lastname">
-            <span class="badge">Last Name</span> <span ng-bind="info.record.lastname"></span>
-        </li>
-        <li class="list-group-item" ng-if="info.record.address">
-            <span class="badge">Address</span> <span ng-bind="info.record.address"></span>
-        </li>
-        <li class="list-group-item" ng-if="info.record.source">
-            <span class="badge">Source</span> <span ng-bind="info.record.source"></span>
-        </li>
-        <li class="list-group-item" ng-if="info.record.ip">
-            <span class="badge">IP</span> <span ng-bind="info.record.ip"></span>
-        </li>
-        <li class="list-group-item" ng-if="info.record.date">
-            <span class="badge">Date</span> <span ng-bind="info.record.date"></span>
-        </li>
-        <li class="list-group-item" ng-if="info.record.birthday">
-            <span class="badge">Birthday</span> <span ng-bind="info.record.birthday"></span>
-        </li>
-        <li class="list-group-item" ng-if="info.record.gender">
-            <span class="badge">Gender</span> <span ng-bind="info.record.gender"></span>
-        </li>
-        <li class="list-group-item" ng-if="info.record.listname">
-            <span class="badge">List Name</span> <span ng-bind="info.record.listname"></span>
-        </li>
-        <li class="list-group-item" ng-if="info.record.network">
-            <span class="badge">Network</span> <span ng-bind="info.record.network"></span>
-        </li>
-        <li class="list-group-item" ng-if="info.record.action">
-            <span class="badge">Action</span> <span ng-bind="info.record.action"></span>
-        </li>
-        <li class="list-group-item" ng-if="info.record.actiondate">
-            <span class="badge">Action Date</span> <span ng-bind="info.record.actiondate"></span>
-        </li>
-        <li class="list-group-item" ng-if="info.record.subscribedate">
-            <span class="badge">Subscribe Date</span> <span ng-bind="info.record.subscribedate"></span>
-        </li>
-        <li class="list-group-item" ng-if="info.record.status">
-            <span class="badge">Status</span> <span ng-bind="info.record.status"></span>
-        </li>
-        <li class="list-group-item" ng-if="info.record.archived">
-            <span class="badge">Archived</span> <span ng-bind="info.record.archived"></span>
-        </li>
-        <li class="list-group-item" ng-if="info.record.removaldate">
-            <span class="badge">Removal Date</span> <span ng-bind="info.record.removaldate"></span>
-        </li>
-    </ul>
+    <div id="mtTableContainer" class="table-responsive" ng-if="info.isLoaded">
+        <table class="table table-striped table-bordered tabel-hover text-center">
+            <thead>
+                <th class="text-center">EID</th>
+                <th class="text-center">Email</th>
+                <th class="text-center">First Name</th>
+                <th class="text-center">Last Name</th>
+                <th class="text-center">Address</th>
+                <th class="text-center">Source</th>
+                <th class="text-center">IP</th>
+                <th class="text-center">Date</th>
+                <th class="text-center">Birth Date</th>
+                <th class="text-center">Gender</th>
+                <th class="text-center">Network</th>
+                <th class="text-center">Action</th>
+                <th class="text-center">Action Date</th>
+                <th class="text-center">Subscribe Date</th>
+                <th class="text-center">Status</th>
+                <th class="text-center">Removal Date</th>
+                <th class="text-center">Suppressed</th>
+            </thead>
+
+            <tbody>
+                <tr ng-repeat="record in info.mockRecords">
+                    <td>@{{ record.eid }}</td>
+                    <td>@{{ record.email_addr }}</td>
+                    <td>@{{ record.first_name }}</td>
+                    <td>@{{ record.last_name }}</td>
+                    <td>@{{ record.address }}</td>
+                    <td>@{{ record.source_url }}</td>
+                    <td>@{{ record.ip }}</td>
+                    <td>@{{ record.date }}</td>
+                    <td>@{{ record.birthdate }}</td>
+                    <td>@{{ record.gender }}</td>
+                    <td>@{{ record.network }}</td>
+                    <td>@{{ record.action }}</td>
+                    <td>@{{ record.action_date }}</td>
+                    <td>@{{ record.subscribe_datetime }}</td>
+                    <td>@{{ record.status }}</td>
+                    <td>@{{ record.removal_date }}</td>
+                    <td>@{{ record.suppressed ? 'Suppressed' : '' }}</td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
 
     <div class="well" ng-if="info.isLoaded">
         <h3>Add to Suppression</h3>
