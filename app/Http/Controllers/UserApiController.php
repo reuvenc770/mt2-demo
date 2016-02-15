@@ -90,8 +90,12 @@ class UserApiController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit()
+    public function edit($id)
     {
+        if(!$this->userService->checkifUserExists($id)){
+            Flash::error("User {$id} does not exist");
+            return redirect("/user");
+        }
         $roles = $this->userService->getAvailableRoles();
         return view('pages.user.user-edit',array("roles" => $roles));
     }

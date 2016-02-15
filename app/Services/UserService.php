@@ -126,4 +126,9 @@ class UserService
         }
         $this->userRepo->update($user, $input);
     }
+
+
+    public function checkifUserExists($id){
+        return !is_null($this->userRepo->findById($id));
+    }
 }

@@ -46,7 +46,7 @@
 
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
-                        <button type="button" class="btn btn-info btn-lg" ng-click="esp.editAccount()">Save</button>
+                        <button type="button" class="btn btn-lg btn-primary btn-block" ng-click="esp.editAccount()">Save</button>
                     </div>
                 </div>
             </form>
