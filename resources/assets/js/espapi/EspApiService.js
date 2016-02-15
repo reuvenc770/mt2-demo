@@ -1,7 +1,7 @@
 mt2App.service( 'EspApiService' , function ( $http , $log ) {
     var self = this;
 
-    self.baseApiUrl = '/api/esp';
+    self.baseApiUrl = '/api/espapi';
 
     self.getAccount = function ( id , successCallback ) {
         $http( { "method" : "GET" , "url" : this.baseApiUrl + '/' + id } )
