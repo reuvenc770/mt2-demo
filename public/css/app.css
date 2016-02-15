@@ -5835,4 +5835,13 @@ Panel Custom - we should break up into componets.
 .panel-default {
   margin-top: 20px; }
 
+/**
+Roles Pages custom
+**/
+.permissions .checkbox {
+  margin-top: 0;
+  margin-bottom: 5px; }
+  .permissions .checkbox + .checkbox {
+    margin-top: 0; }
+
 /*# sourceMappingURL=app.css.map */
