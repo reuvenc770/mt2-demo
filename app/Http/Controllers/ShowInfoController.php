@@ -10,7 +10,7 @@ use App\Services\MT1ApiService;
 
 class ShowInfoController extends Controller
 {
-    const SHOW_INFO_ENDPOINT = '/show_info_2';
+    const SHOW_INFO_ENDPOINT = 'show_info_2';
     const SUPPRESSION_ENDPPOINT = '';
 
     protected $api;
