@@ -6294,4 +6294,10 @@ thead {
   background-color: #2e5c89;
   color: #FFF; }
 
+/**
+Panel Custom - we should break up into componets.
+**/
+.panel-default {
+  margin-top: 20px; }
+
 /*# sourceMappingURL=app.css.map */

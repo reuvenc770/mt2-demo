@@ -30,5 +30,5 @@
 @stop
 
 @section( 'pageIncludes' )
-<script src="js/esp.js"></script>
+<script src="js/espapi.js"></script>
 @stop

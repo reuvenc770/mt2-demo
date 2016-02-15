@@ -5,22 +5,15 @@
 @section( 'navEspClasses' , 'active' )
 
 @section( 'content' )
-<div class="row">
-    <div class="page-header col-xs-12"><h1 class="text-center">Edit ESP Account</h1></div>
-</div>
-
-<div ng-controller="espController as esp" ng-init="esp.loadAccount()">
     <div class="row">
-        <div class="hidden-xs hidden-sm col-md-2 col-lg-3"></div>
-
-        <div class="col-xs-12 col-md-8 col-lg-6">
+        <div class="col-md-6 col-md-offset-3">
+            <div class="panel panel-default" ng-controller="espController as esp" ng-init="esp.loadAccount()">
+                <div class="panel-heading">
+                    <h1 class="panel-title">Edit ESP API Account :: @{{esp.currentAccount.accountName}}</h1>
+                </div>
+                <div class="panel-body">
             <form class="form-horizontal">
                 <input type="hidden" ng-model="esp.currentAccount.id" />
-
-                <div class="form-group">
-                    <h2 class="text-center">{{ $espName }}</h2>
-                </div>
-
                 <div class="form-group" ng-class="{ 'has-error' : esp.formErrors.accountName }">
                     <label for="accountName" class="col-sm-2 control-label">Account Name</label>
 
@@ -58,12 +51,11 @@
                 </div>
             </form>
         </div>
-
-        <div class="hidden-xs hidden-sm col-md-2 col-lg-3"></div>
+</div>
     </div>
 </div>
 @stop
 
 @section( 'pageIncludes' )
-<script src="js/esp.js"></script>
+<script src="js/espapi.js"></script>
 @stop
