@@ -16,9 +16,7 @@
 
     <div class="row">
         <div class="col-xs-12">
-            <div id="mtTableContainer" class="table-responsive">
-                <generic-table headers="client.headers" records="client.clients" editurl="client.editUrl"></generic-table>
-            </div>
+            <client-table records="client.clients"></client-table>
         </div>
     </div>
 </div>

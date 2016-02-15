@@ -31,7 +31,7 @@ elixir(function(mix) {
     mix.scripts( [ 'role/RoleController.js' , 'role/RoleApiService.js' ] , 'public/js/role.js' );
     mix.scripts( [ 'job/JobController.js' , 'job/JobApiService.js' ] , 'public/js/job.js' );
     mix.scripts( [ 'pages/ShowinfoController.js' , 'pages/ShowinfoApiService.js' ] , 'public/js/show-info.js' );
-    mix.scripts( [ 'client/ClientController.js' , 'client/ClientApiService.js' ] , 'public/js/client.js' );
+    mix.scripts( [ 'client/ClientController.js' , 'client/ClientApiService.js' , 'client/ClientTableDirective.js' ] , 'public/js/client.js' );
 
     mix.copy( 'resources/assets/js/templates' , 'public/js/templates' );
 });

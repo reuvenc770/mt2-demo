@@ -6,15 +6,17 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use App\Services\NavigationService;
+use App\Services\MT1ApiService;
 
 class ClientController extends Controller
 {
-    protected $mockClients = [
-        [ 1 , 'Acxiom' , 'Active' , 'Do Not Mail' , 402833 , 'feed.acxiom.com' , 'Acxiom' , 'Direct' , 'jdoe' , 'jdoe@acxiom.com' , '888-888-8888' , '1 Main St, NY, NY 10002' , 'US' ] ,
-        [ 2 , 'Tactara' , 'Active' , 'Misc' , 402738 , 'feed.tactara.com' , 'Tactara' , 'Direct' , 'ldoe' , 'ldoe@tactara.com' , '777-777-7777' , '1 Side St, NY, NY 10009' , 'US' ] ,
-        [ 3 , 'Popular Marketing' , 'Paused' , 'Misc' , 402928 , 'feed.popularm.net' , 'Popular Marketing' , 'Direct' , 'ohpie' , 'ohpie@popularm.com' , '666-666-6666' , '1 Left St, NY, NY 10029' , 'US' ]
-    ];
+    const CLIENT_API_ENDPOINT = 'clients_list';
+
+    protected $api;
+
+    public function __construct ( MT1ApiService $api ) {
+        $this->api = $api;
+    }
 
     /**
      * Display a listing of the resource.
@@ -23,14 +25,14 @@ class ClientController extends Controller
      */
     public function index()
     {
-        return response()->json( $this->mockClients );
+        return response( $this->api->getJSON( self::CLIENT_API_ENDPOINT ) );
     }
 
     /**
      *
      */
     public function listAll () {
-        return response()->view( 'pages.mocks.client-index' );
+        return response()->view( 'pages.client.client-index' );
     }
 
     /**
@@ -40,7 +42,7 @@ class ClientController extends Controller
      */
     public function create()
     {
-        //
+        return response()->view( 'pages.client.client-add' );
     }
 
     /**
@@ -51,7 +53,7 @@ class ClientController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        return response( [ 'status' => 1 , 'message' => 'Successfully saved new client.' ] );
     }
 
     /**
@@ -62,7 +64,7 @@ class ClientController extends Controller
      */
     public function show($id)
     {
-        //
+        return response( $this->api->getJSON( self::CLIENT_API_ENDPOINT , [ 'clientId' => $id ] ) ); 
     }
 
     /**
@@ -73,7 +75,7 @@ class ClientController extends Controller
      */
     public function edit($id)
     {
-        return response()->view( 'pages.mocks.client-edit' );
+        return response()->view( 'pages.client.client-edit' );
     }
 
     /**
@@ -85,7 +87,7 @@ class ClientController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        return response( [ 'status' => 1 , 'message' => 'Successfully updated new client.' ] );
     }
 
     /**

@@ -1,94 +1,4 @@
 @charset "UTF-8";
-<<<<<<< HEAD
-=======
-@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700,600,300,800);
-body {
-  background-color: #EAEAEA;
-  font-family: 'Open Sans', sans-serif;
-  font-weight: 400;
-  font-size: 14px; }
-
-#mtTableContainer {
-  background-color: #FFF; }
-  #mtTableContainer .table {
-    margin-bottom: 0 !important; }
-    #mtTableContainer .table thead {
-      background-color: #2e5c89;
-      color: #FFF; }
-
-#headerContainer {
-  margin-bottom: 0;
-  background-color: #16416C; }
-
-.mt2-header-btn {
-  margin-right: 15px;
-  margin-bottom: 15px; }
-
-#adminLeftSidebar {
-  padding: 0;
-  background-color: #383F47; }
-  #adminLeftSidebar a {
-    color: #A6ABAF; }
-    #adminLeftSidebar a:hover {
-      color: #FFF; }
-  #adminLeftSidebar li {
-    margin-top: 0 !important;
-    border-bottom: thin solid #A6ABAF; }
-  #adminLeftSidebar .subNav {
-    background-color: #495360; }
-  #adminLeftSidebar .active {
-    background-color: #3986D8; }
-    #adminLeftSidebar .active a {
-      color: #FFF; }
-  #adminLeftSidebar .nav > li > a:focus, #adminLeftSidebar .nav > li > a:hover {
-    background-color: #3986D8; }
-
-#mainNav {
-  background-color: #FFF;
-  font-size: 1.2em;
-  font-weight: bold;
-  border-bottom: 20px;
-  /*a { 
-        color: #808080;
-    
-        &:hover { color: #FFF; }
-    }
-
-    .active a {
-        color: #383F45 !important;
-
-        &:hover { color: #FFF !important; }
-    }
-
-    ul.dropdown-menu a:hover { color: #000 !important; }*/ }
-
-.mt2SubMenu {
-  background-color: #f7f7f7; }
-
-#sidebarSubNav {
-  margin-bottom: 0; }
-  #sidebarSubNav a {
-    color: #000; }
-    #sidebarSubNav a:hover {
-      background-color: #3986D8;
-      color: #FFF; }
-  #sidebarSubNav .list-group-item:first-child {
-    border-top-left-radius: 0;
-    border-top-right-radius: 0; }
-  #sidebarSubNav .list-group-item:last-child {
-    border-bottom-right-radius: 0px;
-    border-bottom-left-radius: 0px; }
-
-.navbar-brand {
-  margin-left: 70px !important;
-  color: #FFF !important; }
-  .navbar-brand:hover {
-    color: #9D9D9D !important; }
-
-.dropdown .glyphicon {
-  margin-right: 5px; }
-
->>>>>>> Commiting the update permissions command and current changes for client.
 /*!
  * Bootstrap v3.3.6 (http://getbootstrap.com)
  * Copyright 2011-2015 Twitter, Inc.
@@ -5839,46 +5749,46 @@ button.close {
   .hidden-print {
     display: none !important; } }
 
-body {
-  background-color: #EAEAEA;
-  font-family: sans-serif;
-  font-weight: 400;
-  font-size: 14px; }
+.container-smooth {
+  max-width: 1170px; }
+  @media (min-width: 1px) {
+    .container-smooth {
+      width: auto; } }
 
-#mtTableContainer {
-  background-color: #FFF; }
-  #mtTableContainer .table {
-    margin-bottom: 0 !important; }
-    #mtTableContainer .table thead {
-      background-color: #2e5c89;
-      color: #FFF; }
+.btn-labeled {
+  padding-top: 0;
+  padding-bottom: 0; }
 
-#headerContainer {
-  margin-bottom: 0;
-  background-color: #16416C; }
+.btn-label {
+  position: relative;
+  background: transparent;
+  background: rgba(0, 0, 0, 0.15);
+  display: inline-block;
+  padding: 6px 12px;
+  left: -12px;
+  border-radius: 3px 0 0 3px; }
+  .btn-label.btn-label-right {
+    left: auto;
+    right: -12px;
+    border-radius: 0 3px 3px 0; }
 
-.mt2-header-btn {
-  margin-right: 15px;
-  margin-bottom: 15px; }
+.btn-lg .btn-label, .btn-group-lg > .btn .btn-label {
+  padding: 10px 16px;
+  left: -16px;
+  border-radius: 5px 0 0 5px; }
+  .btn-lg .btn-label.btn-label-right, .btn-group-lg > .btn .btn-label.btn-label-right {
+    left: auto;
+    right: -16px;
+    border-radius: 0 5px 5px 0; }
 
-#adminLeftSidebar {
-  padding: 0;
-  background-color: #383F47; }
-  #adminLeftSidebar a {
-    color: #A6ABAF; }
-    #adminLeftSidebar a:hover {
-      color: #FFF; }
-  #adminLeftSidebar li {
-    margin-top: 0 !important;
-    border-bottom: thin solid #A6ABAF; }
-  #adminLeftSidebar .subNav {
-    background-color: #495360; }
-  #adminLeftSidebar .active {
-    background-color: #3986D8; }
-    #adminLeftSidebar .active a {
-      color: #FFF; }
-  #adminLeftSidebar .nav > li > a:focus, #adminLeftSidebar .nav > li > a:hover {
-    background-color: #3986D8; }
+.btn-sm .btn-label, .btn-group-sm > .btn .btn-label {
+  padding: 5px 10px;
+  left: -10px;
+  border-radius: 2px 0 0 2px; }
+  .btn-sm .btn-label.btn-label-right, .btn-group-sm > .btn .btn-label.btn-label-right {
+    left: auto;
+    right: -10px;
+    border-radius: 0 2px 2px 0; }
 
 .btn-xs .btn-label, .btn-group-xs > .btn .btn-label {
   padding: 1px 5px;
@@ -6349,6 +6259,66 @@ body {
 .input-group-addon:not(:first-child) {
   border-left: 0; }
 
+body {
+  background-color: #EAEAEA;
+  font-family: sans-serif;
+  font-weight: 400;
+  font-size: 14px; }
+
+#mtTableContainer {
+  background-color: #FFF; }
+  #mtTableContainer .table {
+    margin-bottom: 0 !important; }
+    #mtTableContainer .table thead {
+      background-color: #2e5c89;
+      color: #FFF; }
+
+#headerContainer {
+  margin-bottom: 0;
+  background-color: #16416C; }
+
+.mt2-header-btn {
+  margin-right: 15px;
+  margin-bottom: 15px; }
+
+#adminLeftSidebar {
+  padding: 0;
+  background-color: #383F47; }
+  #adminLeftSidebar a {
+    color: #A6ABAF; }
+    #adminLeftSidebar a:hover {
+      color: #FFF; }
+  #adminLeftSidebar li {
+    margin-top: 0 !important;
+    border-bottom: thin solid #A6ABAF; }
+  #adminLeftSidebar .subNav {
+    background-color: #495360; }
+  #adminLeftSidebar .active {
+    background-color: #3986D8; }
+    #adminLeftSidebar .active a {
+      color: #FFF; }
+  #adminLeftSidebar .nav > li > a:focus, #adminLeftSidebar .nav > li > a:hover {
+    background-color: #3986D8; }
+
+#mainNav {
+  background-color: #FFF;
+  font-size: 1.2em;
+  font-weight: bold;
+  border-bottom: 20px; }
+  #mainNav a {
+    color: #808080; }
+    #mainNav a:hover {
+      color: #FFF; }
+  #mainNav .active a {
+    color: #383F45 !important; }
+    #mainNav .active a:hover {
+      color: #FFF !important; }
+  #mainNav ul.dropdown-menu a:hover {
+    color: #000 !important; }
+
+.mt2SubMenu {
+  background-color: #f7f7f7; }
+
 #sidebarSubNav {
   margin-bottom: 0; }
   #sidebarSubNav a {
@@ -6368,5 +6338,17 @@ body {
   color: #FFF !important; }
   .navbar-brand:hover {
     color: #9D9D9D !important; }
+
+.navbar-toggle {
+  float: left;
+  margin-left: 15px; }
+
+@media (min-width: 0) {
+  .navbar-toggle {
+    display: block;
+    /* force showing the toggle */ } }
+
+#clientForm {
+  margin-top: 10px; }
 
 /*# sourceMappingURL=app.css.map */
