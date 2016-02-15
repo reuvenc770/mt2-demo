@@ -17,6 +17,10 @@ Route::group( [ 'prefix' => 'espapi', 'middleware' => ['auth', 'pageLevel'] ] , 
     Route::get( '/edit/{id}' , array( 'as' => 'espapi.edit' , 'uses' => 'EspApiController@edit' ) );
 } );
 
+Route::group( [ 'prefix' => 'pages', 'middleware' => ['auth', 'pageLevel'] ] , function () {
+    Route::get( '/show-info' , array( 'as' => 'pages.showinfo' , 'uses' => 'ShowInfoController@index' ) );
+} );
+
 Route::group( [ 'prefix' => 'devtools', 'middleware' => ['auth','dev',] ] , function () {
     Route::get( '/jobs' , array( 'as' => 'user.list' , 'uses' => 'JobApiController@listALL' ) );
 } );
@@ -38,6 +42,8 @@ Route::group( [ 'prefix' => 'api', 'middleware' => ['auth'] ] , function () {
     Route::resource('user', 'UserApiController',  [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth','admin']] );
     Route::resource('role', 'RoleApiController',  [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth','admin']] );
     Route::resource('jobEntry', 'JobApiController',  [ 'only' => [ 'index' ] ,'middleware' => ['auth','dev']] );
+
+    Route::resource( 'showinfo' , 'ShowInfoController' , [ 'only' => [ 'show' , 'store' ] , 'middleware' => [ 'auth' ] ] );
 } );
 
 
@@ -53,3 +59,8 @@ Route::group(['middleware' => ['guest']], function () {
 
 Route::resource('sessions', 'SessionsController' , ['only' => ['create','store','destroy']]);
 Route::get('home', ['as' => 'home', 'uses' => 'HomeController@home']);
+
+
+Route::group( [ 'prefix' => 'api/mt1', 'middleware' => ['auth'] ] , function () {
+    Route::resource('suppressionReason', 'MT1API\SuppressionReasonController',  [ 'only' => [ 'index' ]] );
+});
