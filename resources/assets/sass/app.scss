@@ -1,9 +1,8 @@
-@import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
-@import "node_modules/jasny-bootstrap/scss/jasny-bootstrap.scss";
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700,600,300,800);
 
 body {
     background-color: #EAEAEA;
-    font-family: sans-serif;
+    font-family: 'Open Sans', sans-serif;
     font-weight: 400;
     font-size: 14px;
 }
@@ -63,7 +62,7 @@ body {
     font-weight: bold;
     border-bottom:20px;
 
-    a { 
+    /*a { 
         color: #808080;
     
         &:hover { color: #FFF; }
@@ -75,7 +74,7 @@ body {
         &:hover { color: #FFF !important; }
     }
 
-    ul.dropdown-menu a:hover { color: #000 !important; }
+    ul.dropdown-menu a:hover { color: #000 !important; }*/
 }
 
 .mt2SubMenu { background-color: #f7f7f7; }
@@ -111,17 +110,22 @@ body {
     &:hover { color: #9D9D9D !important; }
 }
 
+.dropdown .glyphicon { margin-right: 5px; }
+
 .navbar-toggle {
-  float: left;
-  margin-left: 15px;
+    float: left;
+    margin-left: 15px;
 }
 
 @media (min-width: 0) {
-  .navbar-toggle {
-    display: block; /* force showing the toggle */
-  }
+    .navbar-toggle {
+        display: block; /* force showing the toggle */
+    }
 }
 
 #clientForm {
     margin-top: 10px;
 }
+
+@import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
+@import "node_modules/jasny-bootstrap/scss/jasny-bootstrap.scss";
