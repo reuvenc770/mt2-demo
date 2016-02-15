@@ -25,18 +25,22 @@ class NavigationService {
     }
 
     public function getMenu () {
-        $this->loadUser();
+        $userPresent = $this->loadUser();
 
-        $cachedMenu = Cache::get( $this->cacheId );
+        if ( $userPresent ) {
+            $cachedMenu = Cache::get( $this->cacheId );
 
-        if ( is_null( $cachedMenu ) ) {
-            if ( empty( $this->menuList ) ) $this->loadMenu();
+            if ( is_null( $cachedMenu ) ) {
+                if ( empty( $this->menuList ) ) $this->loadMenu();
 
-            return $this->menuList;
+                return $this->menuList;
+            } else {
+                return $cachedMenu;
+            }
         } else {
-            return $cachedMenu;
+            return [];
         }
-    }
+    } 
 
     protected function loadMenu () {
         $this->loadRoutes();
@@ -61,8 +65,12 @@ class NavigationService {
     protected function loadUser () {
         $this->currentUser = $this->auth->getUser();
 
+        if ( is_null( $this->currentUser ) ) return false;
+
         $userCollection = $this->currentUser->pluck( 'id' );
         $this->cacheId = 'nav-' . $userCollection->first();
+
+        return true;
     }
 
     protected function loadRoutes () {
