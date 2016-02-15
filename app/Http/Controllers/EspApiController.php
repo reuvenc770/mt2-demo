@@ -11,7 +11,7 @@ use App\Services\EspApiAccountService;
 use App\Services\EspApiService;
 use App\Http\Requests\EspApiAddRequest;
 use App\Http\Requests\EspApiEditRequest;
-
+use Laracasts\Flash\Flash;
 class EspApiController extends Controller
 {
     protected $espService;
@@ -55,7 +55,7 @@ class EspApiController extends Controller
     public function listAll ()
     {
         return response()
-            ->view( 'pages.esp.esp-index' );
+            ->view( 'pages.espapi.esp-index' );
     }
 
     /**
@@ -73,18 +73,19 @@ class EspApiController extends Controller
         }
 
         return response()
-            ->view( 'pages.esp.esp-add' , [ 'espList' => $espList ] );
+            ->view( 'pages.espapi.esp-add' , [ 'espList' => $espList ] );
     }
 
     /**
      * Store a newly created ESP Account.
      *
-     * @param  \App\Http\EspApiAddRequest  $request
+     * @param  EspApiAddRequest  $request
      * @return \Illuminate\Http\Response
      */
     public function store(EspApiAddRequest $request)
     {
-        return $this->espAccountService->saveAccount( $request->all() );
+        Flash::success("API Account was Successfully Added");
+        $this->espAccountService->saveAccount( $request->all() );
     }
 
     /**
@@ -108,9 +109,12 @@ class EspApiController extends Controller
     public function edit( $id )
     {
         $account = $this->espAccountService->getAccountAndEsp( $id );
-
+        if(is_null($account)){
+            Flash::error("{$id} does not exist");
+            return redirect("/espapi");
+        }
         return response()
-            ->view( 'pages.esp.esp-edit' , [
+            ->view( 'pages.espapi.esp-edit' , [
                 'accountId' => $account->id ,
                 'espName' => $account->esp->name ,
                 'accountName' => $account->account_name ,
@@ -128,7 +132,8 @@ class EspApiController extends Controller
      */
     public function update(EspApiEditRequest $request, $id)
     {
-        $this->espAccountService->updateAccount( $id , $request );
+        $this->espAccountService->updateAccount( $id , $request->toArray() );
+        Flash::success("API Account was Successfully Updated");
     }
 
     /**

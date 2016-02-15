@@ -17,7 +17,7 @@ class SentinelAdminUser
         $user = Sentinel::getUser();
         $admin = Sentinel::findRoleByName('Admin');
         if (!$user->inRole($admin)) {
-            Flash::warning("You do not have permission to reach this page");
+            Flash::warning("Your account does not have the proper role to reach this page");
             return redirect('/home');
         }
         return $next($request);
