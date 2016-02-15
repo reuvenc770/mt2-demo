@@ -79,7 +79,7 @@ mt2App.service( 'ShowinfoApiService' , function ( $http , $log ) {
     self.getRecords = function ( type , id , successCallback , failureCallback ) {
         $http( {
             "method" : "GET" ,
-            "url" : self.apiUrl ,
+            "url" : self.apiUrl + '/' + id ,
             "data" : { "id" : id , "type" : type }
         } ).then( successCallback , failureCallback );
     };

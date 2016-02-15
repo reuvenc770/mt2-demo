@@ -10,7 +10,7 @@ use App\Services\MT1ApiService;
 
 class ShowInfoController extends Controller
 {
-    const SHOW_INFO_ENDPOINT = '/newcgi-bin/show_info_2.cgi';
+    const SHOW_INFO_ENDPOINT = '/newcgi-bin/show_info_2';
     const SUPPRESSION_ENDPPOINT = '';
 
     protected $api;
@@ -47,16 +47,7 @@ class ShowInfoController extends Controller
      */
     public function store(Request $request)
     {
-        $apiResponse = $this->api->getJson(
-            self::SUPPRESSION_ENDPOINT ,
-            [ 'reason' => $request->input( 'reason' ) , 'id' => $request->input( 'id' ) ]
-        );
-
-        $responseCode = ( $apiResponse === false ? 500 : 200 );
-
-        if ( $responseCode === 500 ) $apiResponse = json_encode( [] );
-
-        return response( $apiResponse , $responseCode );
+        return response( json_encode( [ 'status' => 1 , 'message' => 'Record Suppressed' ] ) );
     }
 
     /**
@@ -65,18 +56,19 @@ class ShowInfoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request)
+    public function show( $id )
     {
+        $type = 'email';
+        if ( preg_match( "/\d{1,}/" , $id ) ) $type = 'eid';
+
         $apiResponse = $this->api->getJson(
             self::SHOW_INFO_ENDPOINT ,
-            [ 'type' => $request->input( 'type' ) , 'id' => $request->input( 'id' ) ]
+            [ 'type' => $type , 'id' => $id ]
         );
 
-        $responseCode = ( $apiResponse === false ? 500 : 200 );
+        if ( $apiResponse === false ) $apiResponse = json_encode( [] );
 
-        if ( $responseCode === 500 ) $apiResponse = json_encode( [] );
-
-        return response( $apiResponse , $responseCode );
+        return response( $apiResponse );
     }
 
     /**
