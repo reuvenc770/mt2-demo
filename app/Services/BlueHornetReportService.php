@@ -76,14 +76,14 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
     public function mapToStandardReport($report){
 
         return array(
-            'deploy_id' => $report['name'],
+            'deploy_id' => $report['message_name'],
             'm_deploy_id' => 0, // stub for now
             'esp_account_id' => $report['esp_account_id'],
             'datetime' => $report['date_sent'],
             'name' => $report['message_name'],
             'subject' => $report['message_subject'],
-            'from' => $report[''],
-            'from_email' => $report[''],
+            'from' => null,
+            'from_email' => null,
             'e_sent' => $report['sent_total'],
             'delivered' => $report['delivered_total'],
             'bounced' => $report['bounced_total'],
@@ -99,7 +99,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
     public function mapToRawReport($report){
         return array(
             "internal_id" => (string)$report['id'],
-            "esp_account_id" => $this->getEspAccountId(),
+            "esp_account_id" => $this->api->getEspAccountId(),
             "message_subject" => (string)$report->message_subject,
             "message_name" => (string)$report->message_name,
             "date_sent" => (string)$report->date_sent,
