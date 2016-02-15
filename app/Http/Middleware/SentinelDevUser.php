@@ -17,7 +17,7 @@ class SentinelDevUser
         $user = Sentinel::getUser();
         $dev = Sentinel::findRoleBySlug('gtdev');
         if (!$user->inRole($dev)) {
-            Flash::warning("You do not have permission to reach this page");
+            Flash::warning("Your account does not have the proper role to reach this page");
             return redirect('/home');
         }
         return $next($request);

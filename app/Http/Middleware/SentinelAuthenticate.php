@@ -17,10 +17,10 @@ class SentinelAuthenticate
     public function handle($request, Closure $next)
     {
         if (!Sentinel::check()) {
-            if ($request->ajax()) {
+            if ($request->wantsJson()) {
                 return response('Unauthorized.', 401);
             } else {
-                Flash::info('You need to be logged in to do that!');
+                Flash::warning('Please login to perform this action');
                 return redirect()->guest('login');
             }
         }
