@@ -68,6 +68,17 @@ return [
             'prefix'    => '',
             'strict'    => false,
         ],
+        'mt1mail' => [
+            'driver'    => 'mysql',
+            'host'      => env('MT1_MAIL_DB_HOST', ''),
+            'database'  => env('MT1_MAIL_DB_DATABASE', ''),
+            'username'  => env('MT1_MAIL_DB_USERNAME', ''),
+            'password'  => env('MT1_MAIL_DB_PASSWORD', ''),
+            'charset'   => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix'    => '',
+            'strict'    => false,
+        ],
 
 
     ],

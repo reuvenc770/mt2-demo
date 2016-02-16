@@ -55,7 +55,6 @@ Route::group( [ 'prefix' => 'api', 'middleware' => ['auth' , 'pageLevel'] ] , fu
     Route::resource('user', 'UserApiController',  [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth','admin']] );
     Route::resource('role', 'RoleApiController',  [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth','admin']] );
     Route::resource('jobEntry', 'JobApiController',  [ 'only' => [ 'index' ] ,'middleware' => ['auth','dev']] );
-
     Route::resource( 'showinfo' , 'ShowInfoController' , [ 'only' => [ 'show' , 'store' ] , 'middleware' => [ 'auth' ] ] );
 } );
 
@@ -75,4 +74,7 @@ Route::get('home', ['as' => 'home', 'uses' => 'HomeController@home']);
 
 Route::group( [ 'prefix' => 'api/mt1', 'middleware' => ['auth'] ] , function () {
     Route::resource('suppressionReason', 'MT1API\SuppressionReasonController',  [ 'only' => [ 'index' ]] );
+    Route::resource('clientstatsgrouping', 'MT1API\ClientStatsGroupingController',  [ 'only' => [ 'index' ]] );
+    Route::resource( 'client' , 'MT1API\ClientApiController' , [ 'only' => [ ] , 'middleware' => [ 'auth' ] ] );
+    Route::get( 'client/types' , array( 'as' => 'api.mt1.client.types' , 'uses' => 'MT1API\ClientApiController@types' ) );
 });
