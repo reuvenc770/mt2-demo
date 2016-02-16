@@ -1,7 +1,39 @@
 mt2App.controller( 'ClientController' , [ '$rootScope' , '$log' , '$window' , '$location' , 'ClientApiService' , function ( $rootScope , $log , $window , $location , ClientApiService ) {
     var self = this;
 
-    self.current = {};
+    self.current = {
+        address: "" ,
+        address2: "" ,
+        cake_sub_id: "" ,
+        check_global_suppression: "Y" ,
+        check_previous_oc: "0" ,
+        city: "" ,
+        client_has_client_group_restrictions: "0" ,
+        client_id: "" ,
+        client_main_name: "" ,
+        client_record_ip: "" ,
+        client_record_source_url: "" ,
+        client_type: "" ,
+        country_id: "" ,
+        email_addr: "" ,
+        ftp_pw: "" ,
+        ftp_url: "" ,
+        ftp_user: "" ,
+        has_client_group_restriction: "0" ,
+        list_owner: "" ,
+        minimum_acceptable_record_date: "" ,
+        network: "" ,
+        orange_client: "Y" ,
+        password: "" ,
+        phone: "" ,
+        rt_pw: "" ,
+        state: "" ,
+        status: "" ,
+        unique_profile_id: "" ,
+        username: "" ,
+        zip: ""
+    };
+
     self.clients = [];
 
     self.createUrl = '/client/create';
@@ -31,11 +63,11 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$log' , '$window' , '$
     };
 
     self.updateClient = function () {
-        ClientApiService.updateClient( self.current , self.updateClientSuccessCallback , self.updateClientFailureCallback )
+        ClientApiService.updateClient( self.current , self.updateClientSuccessCallback , self.updateClientFailureCallback );
     };
 
     self.saveClient = function () {
-        ClientApiService.saveClient( self.current , self.saveClientSuccessCallback , self.saveClientFailureCallback )
+        ClientApiService.saveClient( self.current , self.saveClientSuccessCallback , self.saveClientFailureCallback );
     };
 
     self.viewAdd = function () {
