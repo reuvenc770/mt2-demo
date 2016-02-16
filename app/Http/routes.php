@@ -22,7 +22,7 @@ Route::group( [ 'prefix' => 'pages', 'middleware' => ['auth', 'pageLevel'] ] , f
 } );
 
 Route::group( [ 'prefix' => 'devtools', 'middleware' => ['auth','dev',] ] , function () {
-    Route::get( '/jobs' , array( 'as' => 'user.list' , 'uses' => 'JobApiController@listALL' ) );
+    Route::get( '/jobs' , array( 'as' => 'devtools.jobs' , 'uses' => 'JobApiController@listALL' ) );
 } );
 
 Route::group( [ 'prefix' => 'user', 'middleware' => ['auth','admin', 'pageLevel'] ] , function () {

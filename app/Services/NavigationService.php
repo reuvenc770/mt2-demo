@@ -59,7 +59,7 @@ class NavigationService {
             }
         }
 
-        Cache::forever( $this->cacheId , $this->menuList );
+        Cache::tags('navigation')->forever( $this->cacheId , $this->menuList );
     }
 
     protected function loadUser () {
@@ -94,7 +94,7 @@ class NavigationService {
     }
 
     protected function isPrefixValid () {
-        return ( preg_match( '/^\/(?!api)(?!role)(?!user)/' , $this->currentRoute[ 'prefix' ] ) === 1 );
+        return ( preg_match( '/^\/(?!api)/' , $this->currentRoute[ 'prefix' ] ) === 1 );
     }
 
     protected function isValidName () {
