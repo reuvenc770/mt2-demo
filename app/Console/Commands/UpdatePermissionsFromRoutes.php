@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Route;
+
 class UpdatePermissionsFromRoutes extends Command
 {
     /**
@@ -11,7 +12,7 @@ class UpdatePermissionsFromRoutes extends Command
      *
      * @var string
      */
-    protected $signature = 'permissions:update --confirm';
+    protected $signature = 'permissions:update {--confirm}';
 
     /**
      * The console command description.
@@ -27,11 +28,11 @@ class UpdatePermissionsFromRoutes extends Command
      *
      * @return void
      */
-    public function __construct( Route $route  )
+    public function __construct( Route $route )
     {
         parent::__construct();
-        $this->route = $route;
 
+        $this->route = $route;
     }
 
     /**
@@ -41,17 +42,45 @@ class UpdatePermissionsFromRoutes extends Command
      */
     public function handle()
     {
+        $missingRoutes = $this->getMissingRoutes();
+        $disableConfirmation = ( $this->option( 'confirm' ) !== true );
+
+        foreach ( $missingRoutes as $newRoute ) {
+            if ( $disableConfirmation || $this->confirm( "Would you like to add {$newRoute} to the permission list?" ) ) {
+                \App\Models\Permission::insert( [ 'name' => $newRoute ] );
+                $this->info( "\tAdded {$newRoute} to permission list." );
+            }
+        }
+    }
+
+    protected function getMissingRoutes () {
+        $routes = $this->getCurrentRoutes(); 
+        $permissions = $this->getCurrentPermissions();
+
+        return array_diff( $routes , $permissions );
+    }
+
+    protected function getCurrentRoutes () {
         $test = $this->route;
+
         $routeCollection = $test::getRoutes();
 
-        $this->info( 'Routes:' );
-        foreach ( $routeCollection as $value ) {
-            $this->info( $value->getName());
+        $collector = [];
+        foreach ( $routeCollection as $route ) {
+            $collector []= $route->getName();
         }
 
-        $this->info( 'Current Permissions:' );
+        return $collector;
+    }
 
-        $this->info( \App\Models\Permission::all() );
+    protected function getCurrentPermissions () {
+        $permissions = \App\Models\Permission::addSelect( 'name' )->get();
 
+        $collector = [];
+        foreach ( $permissions as $permission ) {
+            $collector []= $permission->name;
+        }
+
+        return $collector;
     }
 }

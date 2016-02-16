@@ -8,3 +8,4 @@ Homestead.json
 /public/bower_components
 *.phar
 .DS_Store
+*.map
