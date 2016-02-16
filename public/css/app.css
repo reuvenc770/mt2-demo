@@ -3767,10 +3767,7 @@ tbody.collapse.in {
   background-color: transparent;
   background-image: none;
   border: 1px solid transparent;
-  border-radius: 4px;
-  /*@media (min-width: $grid-float-breakpoint) {
-    display: none;
-  }*/ }
+  border-radius: 4px; }
   .navbar-toggle:focus {
     outline: 0; }
   .navbar-toggle .icon-bar {
@@ -3780,6 +3777,9 @@ tbody.collapse.in {
     border-radius: 1px; }
   .navbar-toggle .icon-bar + .icon-bar {
     margin-top: 4px; }
+  @media (min-width: 768px) {
+    .navbar-toggle {
+      display: none; } }
 
 .navbar-nav {
   margin: 7.5px -15px; }
@@ -6293,21 +6293,6 @@ body {
 thead {
   background-color: #2e5c89;
   color: #FFF; }
-
-/**
-Panel Custom - we should break up into componets.
-**/
-.panel-default {
-  margin-top: 20px; }
-
-/**
-Roles Pages custom
-**/
-.permissions .checkbox {
-  margin-top: 0;
-  margin-bottom: 5px; }
-  .permissions .checkbox + .checkbox {
-    margin-top: 0; }
 
 /**
 Panel Custom - we should break up into componets.
