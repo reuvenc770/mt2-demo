@@ -6,6 +6,21 @@
 
         <div class="panel-body">
             <div class="form-group">
+                <label>Status</label>
+                <div class="btn-group btn-group-justified" role="group" aria-label="...">
+                    <input type="hidden" ng-model="client.current.status" />
+
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-default" ng-click="client.current.status = 'A'" ng-class="{ active : client.current.status == 'A' }">Active</button>
+                    </div>
+
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-default" ng-click="client.current.status = 'D'" ng-class="{ active : client.current.status != 'A' }">Inactive</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
                 <label>Global Suppression</label>
                 <div class="btn-group btn-group-justified" role="group" aria-label="...">
                     <input type="hidden" ng-model="client.current.check_global_suppression" />
@@ -24,13 +39,14 @@
                 <label>Group Restriction</label>
                 <div class="btn-group btn-group-justified" role="group" aria-label="...">
                     <input type="hidden" ng-model="client.current.has_client_group_restriction" />
+                    <input type="hidden" ng-model="client.current.client_has_client_group_restrictions" />
 
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-default" ng-click="client.current.has_client_group_restriction = 1" ng-class="{ active : client.current.has_client_group_restriction == 1 }">Yes</button>
+                        <button type="button" class="btn btn-default" ng-click="client.current.has_client_group_restriction = 1; client.current.client_has_client_group_restrictions = 1;" ng-class="{ active : client.current.has_client_group_restriction == 1 }">Yes</button>
                     </div>
 
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-default" ng-click="client.current.has_client_group_restriction = 0" ng-class="{ active : client.current.has_client_group_restriction != 1 }">No</button>
+                        <button type="button" class="btn btn-default" ng-click="client.current.has_client_group_restriction = 0; client.current.client_has_client_group_restrictions = 0;" ng-class="{ active : client.current.has_client_group_restriction != 1 }">No</button>
                     </div>
                 </div>
             </div>
@@ -528,6 +544,14 @@
 
             <div class="form-group">
                 <input type="text" class="form-control" id="profile_id" value="" placeholder="Unique Profile ID" ng-model="client.current.unique_profile_id" />
+            </div>
+
+            <div class="form-group">
+                <input type="text" class="form-control" id="record_date" value="" placeholder="Minimum Record Date" ng-model="client.current.minimum_acceptable_record_date" />
+            </div>
+
+            <div class="form-group">
+                <input type="text" class="form-control" id="country_id" value="" placeholder="Country ID" ng-model="client.current.country_id" />
             </div>
         </div>
     </div>
