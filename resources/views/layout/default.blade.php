@@ -8,8 +8,14 @@
 
         @include( 'layout.top-nav' )
 
-        <div id="pageContent" class="container-fluid fullHeight">
+        <div id="pageContent" class="container-fluid">
             @include('flash::message')
+
+            <ol class="breadcrumb">
+              <li><a href="#">Home</a></li>
+              <li><a href="#">ESP</a></li>
+              <li class="active">Accounts</li>
+            </ol>
 
             @yield( 'content' )
         </div>

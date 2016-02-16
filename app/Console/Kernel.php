@@ -17,6 +17,7 @@ class Kernel extends ConsoleKernel
         Commands\GrabApiEspReports::class,
         Commands\GrabCsvEspReports::class,
         Commands\GrabTrackingApiData::class,
+        Commands\UpdatePermissionsFromRoutes::class,
     ];
 
     /**
