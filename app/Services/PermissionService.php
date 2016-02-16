@@ -23,6 +23,12 @@ class PermissionService
 
     public function getAllPermissions()
     {
-        return $this->permissionRepo->getAllPermissions();
+        $permissions = $this->permissionRepo->getAllPermissions();
+        $returnArray = array();
+        foreach($permissions as $permission){
+           $whichArray = substr($permission->name,0,3) == "api" ? "api":"routes";
+           $returnArray[$whichArray][] = $permission;
+        }
+        return $returnArray;
     }
 }

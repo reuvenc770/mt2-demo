@@ -46,13 +46,13 @@ mt2App.controller( 'espController' , [ '$log' , '$window' , '$location' , '$time
     self.saveNewAccount = function () {
         self.resetFieldErrors();
 
-        EspApiService.saveNewAccount( self.currentAccount , self.saveNewAccountSuccessCallback , self.saveNewAccountFailureCallback );
+        EspApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback );
     };
 
     self.editAccount = function () {
         self.resetFieldErrors();
 
-        EspApiService.editAccount( self.currentAccount , self.editAccountSuccessCallback , self.editAccountFailureCallback );
+        EspApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     }
 
     /**
@@ -69,15 +69,6 @@ mt2App.controller( 'espController' , [ '$log' , '$window' , '$location' , '$time
         self.launchModal();
     }
 
-    self.saveNewAccountSuccessCallback = function ( response ) {
-        self.setModalLabel( 'Success' );
-        self.setModalBody( 'Successfully saved ESP Account.' );
-
-        self.resetCurrentAccount();
-
-        self.launchModal();
-    };
-
     self.saveNewAccountFailureCallback = function ( response ) {
         self.loadFieldErrors( 'espId' , response );
         self.loadFieldErrors( 'accountName' , response );
@@ -85,11 +76,9 @@ mt2App.controller( 'espController' , [ '$log' , '$window' , '$location' , '$time
         self.loadFieldErrors( 'key2' , response );
     };
 
-    self.editAccountSuccessCallback = function ( response ) {
-        self.setModalLabel( 'Success' );
-        self.setModalBody( 'Successfully updated ESP Account.' );
-
-        self.launchModal();
+    self.SuccessCallBackRedirect = function ( response ) {
+        $location.url( '/espapi' );
+        $window.location.href = '/espapi';
     };
 
     self.editAccountFailureCallback = function ( response ) {
@@ -145,3 +134,41 @@ mt2App.controller( 'espController' , [ '$log' , '$window' , '$location' , '$time
         self.setFieldError( 'key2' , '' );
     };
 } ] );
+
+mt2App.service( 'EspApiService' , function ( $http , $log ) {
+    var self = this;
+
+    self.baseApiUrl = '/api/espapi';
+
+    self.getAccount = function ( id , successCallback ) {
+        $http( { "method" : "GET" , "url" : this.baseApiUrl + '/' + id } )
+            .then( successCallback );
+    }
+
+    self.getAccounts = function ( successCallback , failureCallback ) {
+        $http( { "method" : "GET" , "url" : this.baseApiUrl } )
+            .then( successCallback , failureCallback );
+    }
+
+    self.saveNewAccount = function ( newAccount , successCallback , failureCallback ) {
+        $http( {
+            "method" : "POST" ,
+            "url" : this.baseApiUrl ,
+            "data" : newAccount
+        } ).then( successCallback , failureCallback );
+    }
+
+    self.editAccount = function ( account , successCallback , failureCallback  ) {
+        var request = account;
+
+        request[ '_method' ] = 'PUT';
+
+        $http( {
+            "method" : "PUT" ,
+            "url" : this.baseApiUrl + '/' + account.id ,
+            "data" : request
+        } ).then( successCallback , failureCallback );
+    }
+} );
+
+//# sourceMappingURL=espapi.js.map

@@ -24,11 +24,11 @@ class SentinelPermissions
         $action = $request->route()->getAction()['as'];
         if (!Sentinel::hasAccess($action))
         {
-            if ($request->ajax()) {
+            if ($request->wantsJson()) {
                 return response('Unauthorized.', 401);
             } else {
-                Flash::warning('You do not have permission for this action');
-                return redirect( '/home' );
+                Flash::warning('Sorry your account does not have permission to preform this action, please contact your manager.');
+                return redirect()->back();
             }
         }
 

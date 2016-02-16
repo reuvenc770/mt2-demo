@@ -54,7 +54,7 @@ class RoleApiController extends Controller
     public function create()
     {
         $permissions = Permission::getAllPermissions();
-        return view('pages.role.role-add',array("permissions" => $permissions));
+        return view('pages.role.role-add',array("permissions" => $permissions['routes'], "permissionsAPI" => $permissions['api']));
     }
 
     /**
