@@ -15,7 +15,7 @@ mt2App.controller( 'ClientController' , [ '$log' , '$window' , '$location' , 'Cl
     };
 
     self.loadClients = function () {
-        ClientApiService.getClients( self.loadClientsSuccessCallback , self.loadAccountsFailureCallback );
+        ClientApiService.getClients( self.loadClientsSuccessCallback , self.loadClientsFailureCallback );
     };
 
     self.updateClient = function () {
@@ -68,9 +68,9 @@ mt2App.controller( 'ClientController' , [ '$log' , '$window' , '$location' , 'Cl
         self.current = currentRecord;
     };
 
-    self.loadAccountFailureCallback = function ( response ) {
+    self.loadClientFailureCallback = function ( response ) {
         self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to load ESP Account.' );
+        self.setModalBody( 'Failed to load client.' );
 
         self.launchModal();
     };
@@ -79,9 +79,9 @@ mt2App.controller( 'ClientController' , [ '$log' , '$window' , '$location' , 'Cl
         self.clients = response.data;
     };
 
-    self.loadAccountsFailureCallback = function ( response ) {
+    self.loadClientsFailureCallback = function ( response ) {
         self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to load ESP Accounts.' );
+        self.setModalBody( 'Failed to load clients.' );
 
         self.launchModal();
     };

@@ -1,131 +1,51 @@
+/**
+ * Font Imports
+ */
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700,600,300,800);
 
+
+/**
+ * Custom Styling Override
+ */
+$navbar-margin-bottom: 0;
+$navbar-inverse-bg: #16416C;
+
+$navbar-inverse-brand-color: #FFF;
+$navbar-inverse-brand-hover-color: #9D9D9D;
+
+
+/**
+ *Bootstrap Includes
+ */
+@import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
+@import "node_modules/jasny-bootstrap/scss/jasny-bootstrap.scss";
+
+
+/**
+ * Custom Vanilla Styling
+ */
 body {
     background-color: #EAEAEA;
     font-family: 'Open Sans', sans-serif;
     font-weight: 400;
-    font-size: 14px;
+    font-size: 1.25em;
 }
 
-#mtTableContainer { 
-    background-color: #FFF;
-
-    .table {
-        margin-bottom: 0 !important;
-
-        thead {
-            background-color: #2e5c89;
-            color: #FFF;
-        }
-    }
+.btn {
+    margin: .5em;
 }
-
-#headerContainer {
-    margin-bottom: 0;
-    background-color: #16416C;
-}
-
-.mt2-header-btn {
-    margin-right: 15px;
-    margin-bottom: 15px;
-}
-
-#adminLeftSidebar {
-    padding: 0;
-    background-color: #383F47;
-
-    a { 
-        color: #A6ABAF;
-
-        &:hover { color: #FFF; }
-    }
-
-    li {
-        margin-top: 0 !important;
-        border-bottom: thin solid #A6ABAF;
-    }
-    
-    .subNav { background-color: #495360; }
-
-    .active { 
-        background-color: #3986D8;
-        
-        a { color: #FFF; }
-    }
-
-    .nav > li > a:focus, .nav > li > a:hover { background-color: #3986D8; }
-}
-
-#mainNav {
-    background-color: #FFF;
-    font-size: 1.2em;
-    font-weight: bold;
-    border-bottom:20px;
-
-    /*a { 
-        color: #808080;
-    
-        &:hover { color: #FFF; }
-    }
-
-    .active a {
-        color: #383F45 !important;
-
-        &:hover { color: #FFF !important; }
-    }
-
-    ul.dropdown-menu a:hover { color: #000 !important; }*/
-}
-
-.mt2SubMenu { background-color: #f7f7f7; }
-
-#sidebarSubNav {
-    margin-bottom: 0;
-
-    a {
-        color: #000;
-    
-        &:hover {
-            background-color: #3986D8;
-            color: #FFF;
-        }
-    }
-
-    .list-group-item:first-child {
-        border-top-left-radius: 0;
-        border-top-right-radius: 0;
-    }
-
-    .list-group-item:last-child {
-        border-bottom-right-radius: 0px;
-        border-bottom-left-radius: 0px;
-    }
-}
-
-
-.navbar-brand {
-    margin-left: 70px !important;
-    color: #FFF !important;
-
-    &:hover { color: #9D9D9D !important; }
-}
-
-.dropdown .glyphicon { margin-right: 5px; }
 
 .navbar-toggle {
+    background-color: #000;
     float: left;
-    margin-left: 15px;
-}
+    margin-left: .5em;
 
-@media (min-width: 0) {
-    .navbar-toggle {
+    @media (min-width: 0) {
         display: block; /* force showing the toggle */
     }
 }
 
-#clientForm {
-    margin-top: 10px;
+thead {
+    background-color: #2e5c89;
+    color: #FFF;
 }
-
-@import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
-@import "node_modules/jasny-bootstrap/scss/jasny-bootstrap.scss";
