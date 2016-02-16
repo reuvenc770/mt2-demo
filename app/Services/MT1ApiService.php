@@ -10,16 +10,18 @@ namespace App\Services;
 
 
 use App\Services\API\MT1Api;
+use Cache;
 use Log;
-
 class MT1ApiService
 {
     protected $api;
     protected $response;
+    protected $cache;
 
-    public function __construct(MT1Api $api)
+    public function __construct(MT1Api $api, Cache $cache)
     {
         $this->api = $api;
+        $this->cache = $cache;
     }
 
     public function getJson($page, $params = null)
@@ -33,6 +35,21 @@ class MT1ApiService
         }
         return $this->processGuzzle($page, $params);
 
+    }
+
+    public function getPaginatedJson($pageName, $pageNumber, $perPage, $params){
+        $cacheKey = "{$pageName}.{$pageNumber}.{$perPage}";
+        $timeout = env("CACHETIMEOUT",60);
+
+        if($this->cache->has($cacheKey)){
+            return $this->cache->get($cacheKey);
+        } else {
+            $params['currentPage'] = $pageNumber;
+            $params['perPage'] = $perPage;
+            $returnJson = $this->getJson($pageName,$params);
+            $this->cache->tags($pageName)->add($cacheKey,$returnJson,$timeout);
+            return $returnJson;
+        }
     }
 
     public function postForm($page, $data)
