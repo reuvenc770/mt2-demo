@@ -50,27 +50,22 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
         var roleStub = role.substring(0, role.lastIndexOf('.'));
         var apiRole = "api." + roleStub + apiRoleAction;
         var idx = self.currentRole.permissions.indexOf(role);
-        var idxAPI = self.currentRole.permissions.indexOf(apiRole);
+
         // is currently selected
         if (idx > -1) {
             self.currentRole.permissions.splice(idx, 1);
-
             if(!self.currentRole.apiUser){
 
                 if (apiRoleAction.indexOf(',') > -1){
                     roles = apiRoleAction.split(',');
-
                     roleAPI = "api." + roleStub + roles[0];
-
                     idxAPI = self.currentRole.permissions.indexOf(roleAPI);
                     self.currentRole.permissions.splice(idxAPI, 1);
-
                     roleAPI2 = "api." + roleStub + roles[1];
                     idxAPI2 = self.currentRole.permissions.indexOf(roleAPI2);
                     self.currentRole.permissions.splice(idxAPI2, 1);
-
                 } else {
-
+                    idxAPI = self.currentRole.permissions.indexOf(apiRole);
                     self.currentRole.permissions.splice(idxAPI, 1);
                 }
             }

@@ -93,7 +93,7 @@ class RoleApiController extends Controller
     public function edit()
     {
         $permissions = Permission::getAllPermissions();
-        return view('pages.role.role-edit',array("permissions" => $permissions));
+        return view('pages.role.role-edit',array("permissions" => $permissions['routes'], "permissionsAPI" => $permissions['api']));
     }
 
     /**
