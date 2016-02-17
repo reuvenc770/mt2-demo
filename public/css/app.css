@@ -6328,4 +6328,8 @@ Roles Pages custom
     -webkit-transform: rotate(360deg);
     transform: rotate(360deg); } }
 
+@media (min-width: 768px) {
+  .navbar-right {
+    margin-right: 10px; } }
+
 /*# sourceMappingURL=app.css.map */
