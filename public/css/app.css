@@ -6312,4 +6312,8 @@ Roles Pages custom
   .permissions .checkbox + .checkbox {
     margin-top: 0; }
 
+@media (min-width: 768px) {
+  .navbar-right {
+    margin-right: 10px; } }
+
 /*# sourceMappingURL=app.css.map */
