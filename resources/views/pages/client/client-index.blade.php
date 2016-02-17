@@ -23,7 +23,7 @@
                 </div>
 
                 <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                    <pagination currentpage="client.currentPage"></pagination>
+                    <pagination currentpage="client.currentPage" disableceiling="client.reachedMaxPage" disablefloor="client.reachedFirstPage"></pagination>
                 </div>
             </div>
 
@@ -35,7 +35,7 @@
                 </div>
 
                 <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                    <pagination currentpage="client.currentPage"></pagination>
+                    <pagination currentpage="client.currentPage" disableceiling="client.reachedMaxPage" disablefloor="client.reachedFirstPage"></pagination>
                 </div>
             </div>
         </div>

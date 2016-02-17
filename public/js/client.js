@@ -11,6 +11,8 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$log' , '$window' , '$
     self.currentPage = 1;
 
     self.currentlyLoading = 0;
+    self.reachedMaxPage = false;
+    self.reachedFirstPage = true;
 
     $rootScope.$on( 'updatePage' , function () {
         self.loadClients();
@@ -27,7 +29,22 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$log' , '$window' , '$
     self.loadClients = function () {
         self.currentlyLoading = 1;
 
+        self.updateCursorFlags();
+
         ClientApiService.getClients( self.currentPage , self.paginationCount , self.loadClientsSuccessCallback , self.loadClientsFailureCallback );
+    };
+
+    self.updateCursorFlags = function () {
+        if ( self.currentPage == 1 ) {
+            self.reachedMaxPage = false;
+            self.reachedFirstPage = true;
+        } else if ( self.currentPage == self.pageCount ) {
+            self.reachedMaxPage = true;
+            self.reachedFirstPage = false;
+        } else {
+            self.reachedMaxPage = false;
+            self.reachedFirstPage = false;
+        }
     };
 
     self.updateClient = function () {

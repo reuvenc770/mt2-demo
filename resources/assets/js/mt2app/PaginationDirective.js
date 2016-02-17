@@ -25,6 +25,8 @@ mt2App.directive( 'pagination' , [ '$rootScope' , '$timeout' , function ( $rootS
             };
 
             self.prevPage = function () {
+                if ( self.disablefloor ) return null;
+
                 self.button1--;
                 self.button2--;
                 self.button3--;
@@ -36,6 +38,8 @@ mt2App.directive( 'pagination' , [ '$rootScope' , '$timeout' , function ( $rootS
             };
 
             self.nextPage = function () {
+                if ( self.disableceiling ) return null;
+
                 self.button1++;
                 self.button2++;
                 self.button3++;
@@ -48,7 +52,9 @@ mt2App.directive( 'pagination' , [ '$rootScope' , '$timeout' , function ( $rootS
         } ,
         "controllerAs" : "ctrl" ,
         "bindToController" : {
-            'currentpage' : '='
+            'currentpage' : '=' ,
+            'disableceiling' : '=' ,
+            'disablefloor' : '='
         } ,
         "templateUrl" : "js/templates/pagination.html"
     };
