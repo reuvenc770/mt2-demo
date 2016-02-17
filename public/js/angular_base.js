@@ -72,11 +72,14 @@ mt2App.directive( 'pagination' , [ '$rootScope' , '$timeout' , function ( $rootS
             self.prevPage = function () {
                 if ( self.disablefloor ) return null;
 
-                self.button1--;
-                self.button2--;
-                self.button3--;
-                self.button4--;
-                self.button5--;
+                if ( self.button1 != 1 ) {
+                    self.button1--;
+                    self.button2--;
+                    self.button3--;
+                    self.button4--;
+                    self.button5--;
+                }
+
                 self.currentpage--;
 
                 $timeout( function () { $rootScope.$emit( 'updatePage' ); } , 200 );
@@ -85,11 +88,14 @@ mt2App.directive( 'pagination' , [ '$rootScope' , '$timeout' , function ( $rootS
             self.nextPage = function () {
                 if ( self.disableceiling ) return null;
 
-                self.button1++;
-                self.button2++;
-                self.button3++;
-                self.button4++;
-                self.button5++;
+                if ( self.button5 != parseInt( self.maxpage ) ) {
+                    self.button1++;
+                    self.button2++;
+                    self.button3++;
+                    self.button4++;
+                    self.button5++;
+                }
+
                 self.currentpage++;
 
                 $timeout( function () { $rootScope.$emit( 'updatePage' ); } , 200 );
@@ -98,6 +104,7 @@ mt2App.directive( 'pagination' , [ '$rootScope' , '$timeout' , function ( $rootS
         "controllerAs" : "ctrl" ,
         "bindToController" : {
             'currentpage' : '=' ,
+            'maxpage' : '=' ,
             'disableceiling' : '=' ,
             'disablefloor' : '='
         } ,
