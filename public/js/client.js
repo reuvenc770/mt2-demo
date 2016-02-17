@@ -1,10 +1,20 @@
-mt2App.controller( 'ClientController' , [ '$log' , '$window' , '$location' , 'ClientApiService' , function ( $log , $window , $location , ClientApiService ) {
+mt2App.controller( 'ClientController' , [ '$rootScope' , '$log' , '$window' , '$location' , 'ClientApiService' , function ( $rootScope , $log , $window , $location , ClientApiService ) {
     var self = this;
 
     self.current = {};
     self.clients = [];
 
     self.createUrl = '/client/create';
+
+    self.pageCount = 0;
+    self.paginationCount = '10';
+    self.currentPage = 1;
+
+    self.currentlyLoading = 0;
+
+    $rootScope.$on( 'updatePage' , function () {
+        self.loadClients();
+    } );
 
     self.loadClient = function () {
         var currentPath = $location.path();
@@ -15,7 +25,9 @@ mt2App.controller( 'ClientController' , [ '$log' , '$window' , '$location' , 'Cl
     };
 
     self.loadClients = function () {
-        ClientApiService.getClients( self.loadClientsSuccessCallback , self.loadClientsFailureCallback );
+        self.currentlyLoading = 1;
+
+        ClientApiService.getClients( self.currentPage , self.paginationCount , self.loadClientsSuccessCallback , self.loadClientsFailureCallback );
     };
 
     self.updateClient = function () {
@@ -76,7 +88,11 @@ mt2App.controller( 'ClientController' , [ '$log' , '$window' , '$location' , 'Cl
     };
 
     self.loadClientsSuccessCallback = function ( response ) {
-        self.clients = response.data;
+        self.clients = response.data.records;
+
+        self.pageCount = response.data.pageCount;
+
+        self.currentlyLoading = 0;
     };
 
     self.loadClientsFailureCallback = function ( response ) {
@@ -125,8 +141,8 @@ mt2App.service( 'ClientApiService' , function ( $http , $log ) {
             .then( successCallback , failureCallback );
     };
 
-    self.getClients = function ( successCallback , failureCallback ) {
-        $http( { "method" : "GET" , "url" : this.baseApiUrl } )
+    self.getClients = function ( page , count , successCallback , failureCallback ) {
+        $http( { "method" : "GET" , "url" : this.baseApiUrl + '/pager' , "params" : { "page" : page , "count" : count } } )
             .then( successCallback , failureCallback );
     };
 
@@ -151,7 +167,8 @@ mt2App.directive( 'clientTable' , function () {
         "controller" : function () {} ,
         "controllerAs" : "ctrl" ,
         "bindToController" : {
-            "records" : "="
+            "records" : "=" ,
+            "loadingflag" : "="
         } ,
         "templateUrl" : "js/templates/client-table.html"
     };
