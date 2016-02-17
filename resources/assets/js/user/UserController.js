@@ -74,7 +74,7 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
         self.setModalBody( 'Failed to load Users.' );
 
         self.launchModal();
-    }
+    };
 
     self.SuccessCallBackRedirect = function ( response ) {
         $location.url( '/user' );

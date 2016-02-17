@@ -10,10 +10,11 @@
     </div>
 
     <div ng-controller="roleController as role" ng-init="role.loadRoles()">
+        @if (Sentinel::hasAccess('role.add'))
         <div class="row">
             <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="role.viewAdd()"><span class="glyphicon glyphicon-plus"></span>Add a new Role</button>
         </div>
-
+        @endif
         <div class="row">
             <div class="col-xs-12">
                 <div id="mtTableContainer" class="table-responsive">

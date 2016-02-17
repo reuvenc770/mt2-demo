@@ -6278,6 +6278,9 @@ body {
   font-weight: 400;
   font-size: 1.25em; }
 
+#pageContent {
+  margin-top: 61px; }
+
 .btn {
   margin: .5em; }
 
@@ -6293,5 +6296,20 @@ body {
 thead {
   background-color: #2e5c89;
   color: #FFF; }
+
+/**
+Panel Custom - we should break up into componets.
+**/
+.panel-default {
+  margin-top: 20px; }
+
+/**
+Roles Pages custom
+**/
+.permissions .checkbox {
+  margin-top: 0;
+  margin-bottom: 5px; }
+  .permissions .checkbox + .checkbox {
+    margin-top: 0; }
 
 /*# sourceMappingURL=app.css.map */

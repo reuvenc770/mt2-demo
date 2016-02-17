@@ -10,16 +10,20 @@ namespace App\Services;
 
 
 use Cartalyst\Sentinel\Sentinel;
+use Cache;
+use Illuminate\Cache\CacheManager;
 
 class RoleService
 {
     protected $authObject;
     protected $roleRepo;
+    protected $cache;
 
-    public function __construct(Sentinel $authObject)
+    public function __construct(Sentinel $authObject, CacheManager $cache)
     {
         $this->authObject = $authObject;
         $this->roleRepo = $authObject->getRoleRepository();  //dumb but needed
+        $this->cache = $cache;
     }
 
 
@@ -41,6 +45,7 @@ class RoleService
         } catch(\Exception $e){
             throw new \Exception($e->getMessage());
         }
+        $this->cache->tags('navigation')->flush();
         return true;
 
     }
@@ -57,6 +62,7 @@ class RoleService
             $role->addPermission($permission);
         }
         $role->save();
+        $this->cache->tags('navigation')->flush();
 
     }
 

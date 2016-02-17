@@ -3,7 +3,7 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
     self.$location = $location;
 
     self.headers = [ 'Actions' , 'ID', 'Slug', 'Name'];
-    self.currentRole = { "name" : "" ,"permissions" : []};
+    self.currentRole = { "name" : "" ,"apiUser" : false, "permissions" : []};
     self.createUrl = 'role/create/';
     self.editUrl = 'role/edit/';
 
@@ -46,16 +46,48 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
     };
 
     self.toggleSelection = function (role) {
+        var apiRoleAction = convertRoleForApi(role);
+        var roleStub = role.substring(0, role.lastIndexOf('.'));
+        var apiRole = "api." + roleStub + apiRoleAction;
         var idx = self.currentRole.permissions.indexOf(role);
 
         // is currently selected
         if (idx > -1) {
             self.currentRole.permissions.splice(idx, 1);
+            if(!self.currentRole.apiUser){
+
+                if (apiRoleAction.indexOf(',') > -1){
+                    roles = apiRoleAction.split(',');
+                    roleAPI = "api." + roleStub + roles[0];
+                    idxAPI = self.currentRole.permissions.indexOf(roleAPI);
+                    self.currentRole.permissions.splice(idxAPI, 1);
+                    roleAPI2 = "api." + roleStub + roles[1];
+                    idxAPI2 = self.currentRole.permissions.indexOf(roleAPI2);
+                    self.currentRole.permissions.splice(idxAPI2, 1);
+                } else {
+                    idxAPI = self.currentRole.permissions.indexOf(apiRole);
+                    self.currentRole.permissions.splice(idxAPI, 1);
+                }
+            }
         }
 
         // is newly selected
         else {
             self.currentRole.permissions.push(role);
+
+            if(!self.currentRole.apiUser){
+                if (apiRoleAction.indexOf(',') > -1) {
+                    roles = apiRoleAction.split(',');
+
+                    roleAPI = "api." + roleStub + roles[0];
+                    self.currentRole.permissions.push(roleAPI);
+                    roleAPI2 = "api." + roleStub + roles[1];
+                    self.currentRole.permissions.push(roleAPI2);
+
+                } else {
+                    self.currentRole.permissions.push(apiRole);
+                }
+            }
         }
     };
 
@@ -134,3 +166,10 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
         $( '#pageModal' ).modal('hide');
     };
 } ] );
+
+function convertRoleForApi(role) {
+    splitRole = role.split(/[. ]+/);
+    $convertedArray = {"list": ".index", "edit": ".update,.show", "add": ".create"};
+    action = splitRole.pop();
+    return $convertedArray[action];
+}
