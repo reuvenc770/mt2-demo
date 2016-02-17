@@ -38,19 +38,26 @@ class MT1ApiService
     }
 
     public function getPaginatedJson($pageName, $pageNumber, $perPage, $params = null){
-        $cacheKey = "{$pageName}.{$pageNumber}.{$perPage}";
+        $recordsCacheKey = "{$pageName}.{$pageNumber}.{$perPage}";
+        $pageCountCacheKey = "{$pageName}.pageCount.{$perPage}";
         $timeout = env("CACHETIMEOUT",60);
 
-        if(Cache::has($cacheKey)){
-            return Cache::tags( $pageName )->get($cacheKey);
+        if(Cache::tags( $pageName )->has($recordsCacheKey)){
+            return [
+                "pageCount" => Cache::tags( $pageName )->get($pageCountCacheKey) ,
+                "records" => Cache::tags( $pageName )->get($recordsCacheKey)
+            ];
         } else {
             $records = collect( json_decode( $this->getJson( $pageName , $params ) , true ) );
 
             $chunkedList = $records->chunk( $perPage );
+            $pageCount = count( $chunkedList );
             $currentResponse = [
-                "pageCount" => count( $chunkedList ) ,
+                "pageCount" => $pageCount ,
                 "records" => []
             ];
+
+            Cache::tags( $pageName )->put( $pageCountCacheKey , $pageCount , $timeout );
 
             foreach ( $chunkedList as $pageIndex => $chunk ) {
                 $currentPageNumber = $pageIndex + 1;
