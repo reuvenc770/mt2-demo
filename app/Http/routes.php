@@ -10,7 +10,9 @@
 | and give it the controller to call when that URI is requested.
 |
 */
-
+Route::get('/', function () {
+    return redirect("/login");
+});
 Route::group( [ 'prefix' => 'espapi', 'middleware' => ['auth', 'pageLevel'] ] , function () {
     Route::get( '/' , array( 'as' => 'espapi.list' , 'uses' => 'EspApiController@listAll' ) );
     Route::get( '/create' , array( 'as' => 'espapi.add' , 'uses' => 'EspApiController@create' ) );
