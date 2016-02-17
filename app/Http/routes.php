@@ -45,13 +45,15 @@ Route::group( [ 'prefix' => 'role', 'middleware' => ['auth','admin', 'pageLevel'
     Route::get( '/edit/{id}' , array( 'as' => 'role.edit' , 'uses' => 'RoleApiController@edit' ) );
 } );
 
-Route::group( [ 'prefix' => 'api', 'middleware' => ['auth'] ] , function () {
+Route::group( [ 'prefix' => 'api', 'middleware' => ['auth' , 'pageLevel'] ] , function () {
     Route::resource( 'espapi' , 'EspApiController' , [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth']  ] );
-    Route::resource( 'client' , 'ClientController' , [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth'] ] );
     Route::resource('user', 'UserApiController',  [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth','admin']] );
     Route::resource('role', 'RoleApiController',  [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth','admin']] );
     Route::resource('jobEntry', 'JobApiController',  [ 'only' => [ 'index' ] ,'middleware' => ['auth','dev']] );
     Route::resource( 'showinfo' , 'ShowInfoController' , [ 'only' => [ 'show' , 'store' ] , 'middleware' => [ 'auth' ] ] );
+
+    Route::get( '/client/pager' , [ 'as' => 'client.pager' , 'uses' => 'ClientController@pager' ] );
+    Route::resource( 'client' , 'ClientController' , [ 'except' => [ 'create' , 'edit' , 'pager' ] ,'middleware' => ['auth'] ] );
 } );
 
 //guest only

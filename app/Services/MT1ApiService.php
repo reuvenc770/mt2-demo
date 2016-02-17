@@ -46,14 +46,17 @@ class MT1ApiService
         } else {
             $records = collect( json_decode( $this->getJson( $pageName , $params ) , true ) );
 
-            Cache::tags( $pageName )->flush();
+            $chunkedList = $records->chunk( $perPage );
+            $currentResponse = [
+                "pageCount" => count( $chunkedList ) ,
+                "records" => []
+            ];
 
-            $currentResponse = [];
-            foreach ( $records->chunk( $perPage ) as $pageIndex => $chunk ) {
+            foreach ( $chunkedList as $pageIndex => $chunk ) {
                 $currentPageNumber = $pageIndex + 1;
 
-                if ( $currentPageNumber == $pageNumber ) $currentResponse = $chunk;
-
+                if ( $currentPageNumber == $pageNumber ) $currentResponse[ 'records' ] = $chunk;
+                
                 Cache::tags( $pageName )->put( "{$pageName}.{$currentPageNumber}.{$perPage}" , $chunk , $timeout );
             }
 

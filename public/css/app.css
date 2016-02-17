@@ -6312,4 +6312,20 @@ Roles Pages custom
   .permissions .checkbox + .checkbox {
     margin-top: 0; }
 
+.paginationCount {
+  margin: 20px 10px; }
+
+.rotateMe {
+  -webkit-animation: spin 4s linear infinite;
+  animation: spin 4s linear infinite; }
+
+@-webkit-keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg); } }
+
+@keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg); } }
+
 /*# sourceMappingURL=app.css.map */
