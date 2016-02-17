@@ -22,6 +22,6 @@ class PermissionRepo
 
     public function getAllPermissions()
     {
-        return $this->permission->all();
+        return $this->permission->all()->orderBy('name');
     }
 }

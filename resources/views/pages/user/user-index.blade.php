@@ -10,10 +10,11 @@
     </div>
 
     <div ng-controller="userController as user" ng-init="user.loadAccounts()">
+        @if (Sentinel::hasAccess('user.add'))
         <div class="row">
             <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="user.viewAdd()"><span class="glyphicon glyphicon-plus"></span> Add User Account</button>
         </div>
-
+        @endif
         <div class="row">
             <div class="col-xs-12">
                 <div id="mtTableContainer" class="table-responsive">

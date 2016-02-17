@@ -11,13 +11,15 @@ namespace App\Services;
 
 use Cartalyst\Sentinel\Sentinel;
 use Cache;
+use Illuminate\Cache\CacheManager;
+
 class RoleService
 {
     protected $authObject;
     protected $roleRepo;
     protected $cache;
 
-    public function __construct(Sentinel $authObject, Cache $cache)
+    public function __construct(Sentinel $authObject, CacheManager $cache)
     {
         $this->authObject = $authObject;
         $this->roleRepo = $authObject->getRoleRepository();  //dumb but needed
