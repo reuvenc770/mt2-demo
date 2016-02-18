@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use Laracasts\Flash\Flash;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Services\MT1ApiService;
@@ -63,6 +63,7 @@ class ClientController extends Controller
      */
     public function store(Request $request)
     {
+        Flash::success("Client was Successfully Updated");
         return response( $this->api->postForm( self::CLIENT_UPDATE_API_ENDPOINT , $request->all() ) );
     }
 
@@ -97,6 +98,7 @@ class ClientController extends Controller
      */
     public function update(ClientEditRequest $request, $id)
     {
+        Flash::success("Client was Successfully Updated");
         return response( $this->api->postForm( self::CLIENT_UPDATE_API_ENDPOINT , $request->all() ) );
     }
 
