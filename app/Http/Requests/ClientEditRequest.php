@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 use Sentinel;
 use App\Http\Requests\Request;
+use Log;
 
 class ClientEditRequest extends Request
 {
@@ -46,13 +47,31 @@ class ClientEditRequest extends Request
             'list_owner' => 'required|integer',
             'client_record_source_url' => 'required|url',
             'client_record_ip' => 'required|ip',
-            #'minimum_acceptable_record_date' => 'date',
+            'minimum_acceptable_record_date' => 'sometimes|required|date',
             'country_id' => 'required|integer',
             'check_previous_oc' => 'required',
             'client_has_client_group_restrictions' => 'required',
             'check_global_suppression' => 'required',
             'status' => 'required',
         ];
+    }
+
+    protected function getValidatorInstance() {
+        $this->updateUrls();
+        return parent::getValidatorInstance();
+    }
+
+    protected function updateUrls() {
+        $data = $this->all();
+
+        if ('http://' !== substr($data['client_record_source_url'], 0, 7)) {
+            $newUrl = 'http://' . $data['client_record_source_url'];
+            $this->merge(array('client_record_source_url' => $newUrl));
+        }
+        if ('http://' !== substr($data['ftp_url'], 0, 7)) {
+            $newUrl = 'http://' . $data['ftp_url'];
+            $this->merge(array('ftp_url' => $newUrl));
+        }
     }
 
     public function message() {
