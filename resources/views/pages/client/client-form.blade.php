@@ -535,7 +535,7 @@
             </div>
 
             <div class="form-group">
-                <input type="url" class="form-control" id="source_url" value="" placeholder="Source URL" ng-model="client.current.client_record_source_url" />
+                <input type="text" class="form-control" id="client_record_source_url" value="" placeholder="Source URL" ng-model="client.current.client_record_source_url" />
             </div>
 
             <div class="form-group">

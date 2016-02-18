@@ -27,8 +27,6 @@ class ClientEditRequest extends Request
     public function rules()
     {
         return [
-            'name' => 'required',
-            'permissions' => 'required',
             'client_main_name' => 'required',
             'email_addr' => 'required|email',
             'username' => 'required',
@@ -48,7 +46,7 @@ class ClientEditRequest extends Request
             'list_owner' => 'required|integer',
             'client_record_source_url' => 'required|url',
             'client_record_ip' => 'required|ip',
-            'minimum_acceptable_record_date' => 'date',
+            #'minimum_acceptable_record_date' => 'date',
             'country_id' => 'required|integer',
             'check_previous_oc' => 'required',
             'client_has_client_group_restrictions' => 'required',
