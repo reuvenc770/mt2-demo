@@ -53,6 +53,7 @@ class SessionsController extends Controller
     public function destroy($id = null)
     {
         Sentinel::logout();
+        Flash::success("Successfully logged out");
         return redirect()->route('home');
     }
 }

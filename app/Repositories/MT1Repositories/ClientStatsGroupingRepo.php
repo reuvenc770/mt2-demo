@@ -18,7 +18,7 @@ class ClientStatsGroupingRepo
     }
 
     public function getGroupingNameAndLabels(){
-        return $this->clientGrouping->select('clientStatsGroupingLabel as value' , 'clientStatsGroupingName as name' )
+        return $this->clientGrouping->select('clientStatsGroupingID as value' , 'clientStatsGroupingName as name' )
             ->orderBy("name")->get();
     }
 }
