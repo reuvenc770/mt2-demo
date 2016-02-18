@@ -30,7 +30,7 @@ class ClientRepo
         preg_match('/^enum\((.*)\)$/', $type, $matches);
         $values = array();
         foreach(explode(',', $matches[1]) as $value){
-            $values[] = trim($value, "'");
+            $values[] = array("name" => trim($value, "'"), "value" => trim($value, "'"));
         }
         return $values;
     }
