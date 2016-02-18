@@ -62,8 +62,8 @@ class ClientController extends Controller
      */
     public function store(Request $request)
     {
+        Flash::success("Client was Successfully Updated");
         return response( $this->api->postForm( self::CLIENT_UPDATE_API_ENDPOINT , $request->all() ) );
-        Flash::success("Client was Created Updated");
     }
 
     /**
@@ -97,8 +97,8 @@ class ClientController extends Controller
      */
     public function update(Request $request, $id)
     {
-        return response( $this->api->postForm( self::CLIENT_UPDATE_API_ENDPOINT , $request->all() ) );
         Flash::success("Client was Successfully Updated");
+        return response( $this->api->postForm( self::CLIENT_UPDATE_API_ENDPOINT , $request->all() ) );
     }
 
     /**
