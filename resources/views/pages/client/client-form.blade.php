@@ -1,4 +1,4 @@
-<form id="clientForm">
+<form id="clientForm" ng-init="client.loadAutoComplete()">
     <div class="panel panel-primary">
         <div class="panel-heading">
             <h3 class="panel-title">Client Settings</h3>
@@ -83,7 +83,7 @@
             </div>
 
             <div class="form-group">
-                <input type="text" class="form-control" id="username" value="" placeholder="Username" required="required" ng-model="client.current.username" />
+                <input type="text" class="form-control" id="username" value="" placeholder="Client Name" required="required" ng-model="client.current.username" />
             </div>
 
             <div class="form-group">
@@ -119,7 +119,26 @@
             </div>
 
             <div class="form-group">
-                <select class="form-control" id="type" required="required" ng-model="client.current.client_type">
+                <md-autocomplete
+                    md-search-text="client.typeSearchText"
+                    md-items="item in client.getClientType( client.typeSearchText )"
+                    md-item-text="item.value"
+                    md-selected-item-change="client.setClientType( item )"
+                    placeholder="Choose a Client Type"
+                    layout="column"
+                    ng-model="client.current.client_type"
+                    ng-cloak>
+
+                    <md-item-template>
+                        <span md-highlight-text="client.typeSearchText" md-highlight-flags="^i">@{{item.value}}</span>
+                    </md-item-template>
+
+                    <md-not-found>
+                        No Client Types matching "@{{client.typeSearchText}}" were found.
+                    </md-not-found>
+                </md-autocomplete>
+
+                <!-- <select class="form-control" id="type" required="required" ng-model="client.current.client_type">
                     <option value="">Client Type</option>
                     <option value="AUS">AUS</option>
                     <option value="Argentina">Argentina</option>
@@ -186,7 +205,7 @@
                     <option value="UK">UK</option>
                     <option value="Weather">Weather</option>
                     <option value="eCards">eCards</option>
-                </select>
+                </select> -->
             </div>
         </div>
     </div>
@@ -226,6 +245,26 @@
             </div>
 
             <div class="form-group">
+                <md-autocomplete
+                    md-search-text="client.ownerSearchText"
+                    md-items="item in client.getListOwners( client.ownerSearchText )"
+                    md-item-text="item.value"
+                    md-selected-item-change="client.setListOwner( item )"
+                    placeholder="Choose a List Owner"
+                    layout="column"
+                    ng-model="client.current.list_owner"
+                    ng-cloak>
+
+                    <md-item-template>
+                        <span md-highlight-text="client.ownerSearchText" md-highlight-flags="^i">@{{item.value}}</span>
+                    </md-item-template>
+
+                    <md-not-found>
+                        No Client Types matching "@{{client.ownerSearchText}}" were found.
+                    </md-not-found>
+                </md-autocomplete>
+
+                <!--
                 <select class="form-control" id="type" required="required" ng-model="client.current.list_owner">
                     <option value="">Choose List Owner</option>
                     <option value="247lifecover">247LifeCover</option>
@@ -532,6 +571,7 @@
                     <option value="zeeto">Zeeto</option>
                     <option value="zinq media">ZinQ Media</option>
                 </select>
+                -->
             </div>
 
             <div class="form-group">
@@ -543,7 +583,11 @@
             </div>
 
             <div class="form-group">
-                <input type="text" class="form-control" id="profile_id" value="" placeholder="Unique Profile ID" ng-model="client.current.unique_profile_id" />
+                <input type="text" class="form-control" id="record_date" value="" placeholder="Minimum Record Date" ng-model="client.current.minimum_acceptable_record_date" />
+            </div>
+
+            <div class="form-group">
+                <input type="text" class="form-control" id="country_id" value="" placeholder="Country ID" ng-model="client.current.country_id" />
             </div>
 
             <div class="form-group">

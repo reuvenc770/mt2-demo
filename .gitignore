@@ -1,4 +1,7 @@
 /vendor
+/public/css/*.*
+/public/js/*.*
+/public/app.js
 /node_modules
 Homestead.yaml
 Homestead.json

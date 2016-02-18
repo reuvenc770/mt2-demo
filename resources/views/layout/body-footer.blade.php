@@ -3,3 +3,7 @@
 <script src="js/bootstrap.min.js"></script>
 <script src="js/angular_base.js"></script>
 <script src="js/jasny-bootstrap.min.js"></script>
+<script src="js/angular-animate.min.js"></script>
+<script src="js/angular-aria.min.js"></script>
+<script src="js/angular-messages.min.js"></script>
+<script src="js/angular-material.min.js"></script>

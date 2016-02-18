@@ -28,8 +28,7 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$log' , '$window' , '$
         phone: "" ,
         rt_pw: "" ,
         state: "" ,
-        status: "" ,
-        unique_profile_id: "" ,
+        status: "D" ,
         username: "" ,
         zip: ""
     };
@@ -43,12 +42,21 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$log' , '$window' , '$
     self.currentPage = 1;
 
     self.currentlyLoading = 0;
-    self.reachedMaxPage = false;
-    self.reachedFirstPage = true;
+
+    self.clientTypes = [];
+    self.typeSearchText = '';
+
+    self.listOwners = [];
+    self.ownerSearchText = '';
 
     $rootScope.$on( 'updatePage' , function () {
         self.loadClients();
     } );
+
+    self.loadAutoComplete = function () {
+        self.loadClientTypes();
+        self.loadListOwners();
+    };
 
     self.loadClient = function () {
         var currentPath = $location.path();
@@ -61,22 +69,61 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$log' , '$window' , '$
     self.loadClients = function () {
         self.currentlyLoading = 1;
 
-        self.updateCursorFlags();
-
         ClientApiService.getClients( self.currentPage , self.paginationCount , self.loadClientsSuccessCallback , self.loadClientsFailureCallback );
     };
 
-    self.updateCursorFlags = function () {
-        if ( self.currentPage == 1 ) {
-            self.reachedMaxPage = false;
-            self.reachedFirstPage = true;
-        } else if ( self.currentPage == self.pageCount ) {
-            self.reachedMaxPage = true;
-            self.reachedFirstPage = false;
+    self.getClientType = function ( searchText ) {
+        return searchText ? self.clientTypes.filter( function ( obj ) { return obj.name.indexOf( searchText.toLowerCase() ) === 0; } ) : self.clientTypes;
+    };
+
+    self.setClientType = function ( type ) {
+        if ( type ) {
+            self.current.client_type = type.name;
         } else {
-            self.reachedMaxPage = false;
-            self.reachedFirstPage = false;
+            self.current.client_type = '';
         }
+    };
+
+    self.loadClientTypes = function () {
+        ClientApiService.getTypes( self.loadClientTypesSuccessCallback , self.loadClientTypesFailureCallback );
+    };
+
+    self.loadClientTypesSuccessCallback = function ( response ) {
+        self.clientTypes = response.data; 
+    };
+
+    self.loadClientTypesFailureCallback = function ( response ) {
+        self.setModalLabel( 'Error' );
+        self.setModalBody( 'Failed to load client types.' );
+
+        self.launchModal();
+    };
+
+    self.getListOwners = function ( searchText ) {
+        return searchText ? self.listOwners.filter( function ( obj ) { return obj.name.indexOf( searchText.toLowerCase() ) === 0; } ) : self.listOwners;
+    };
+
+    self.setListOwner = function ( owner ) {
+        if ( owner ) {
+            self.current.list_owner = owner.name;
+        } else {
+            self.current.list_owner = '';
+        }
+    };
+
+    self.loadListOwners = function () {
+        ClientApiService.getListOwners( self.loadListOwnersSuccessCallback , self.loadListOwnersFailureCallback );
+    };
+
+    self.loadListOwnersSuccessCallback = function ( response ) {
+        self.listOwners = response.data; 
+    };
+
+    self.loadListOwnersFailureCallback = function ( response ) {
+        self.setModalLabel( 'Error' );
+        self.setModalBody( 'Failed to load client types.' );
+
+        self.launchModal();
     };
 
     self.updateClient = function () {
