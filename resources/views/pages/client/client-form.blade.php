@@ -5,7 +5,7 @@
         </div>
 
         <div class="panel-body">
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.status }">
                 <label>Status</label>
                 <div class="btn-group btn-group-justified" role="group" aria-label="...">
                     <input type="hidden" ng-model="client.current.status" />
@@ -18,9 +18,10 @@
                         <button type="button" class="btn btn-default" ng-click="client.current.status = 'D'" ng-class="{ active : client.current.status != 'A' }">Inactive</button>
                     </div>
                 </div>
+                <span class="help-block" ng-bind="client.formErrors.country_id" ng-show="client.formErrors.status"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.check_global_suppression}">
                 <label>Global Suppression</label>
                 <div class="btn-group btn-group-justified" role="group" aria-label="...">
                     <input type="hidden" ng-model="client.current.check_global_suppression" />
@@ -33,9 +34,10 @@
                         <button type="button" class="btn btn-default" ng-click="client.current.check_global_suppression = 'N'" ng-class="{ active : client.current.check_global_suppression != 'Y' }">Off</button>
                     </div>
                 </div>
+                <span class="help-block" ng-bind="client.formErrors.country_id" ng-show="client.formErrors.check_global_suppression"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.client_has_client_group_restrictions }">
                 <label>Group Restriction</label>
                 <div class="btn-group btn-group-justified" role="group" aria-label="...">
                     <input type="hidden" ng-model="client.current.has_client_group_restriction" />
@@ -49,9 +51,10 @@
                         <button type="button" class="btn btn-default" ng-click="client.current.has_client_group_restriction = 0; client.current.client_has_client_group_restrictions = 0;" ng-class="{ active : client.current.has_client_group_restriction != 1 }">No</button>
                     </div>
                 </div>
+                <span class="help-block" ng-bind="client.formErrors.country_id" ng-show="client.formErrors.client_has_client_group_restrictions"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.check_previous_oc }">
                 <label>Filter By Historical OC</label>
                 <div class="btn-group btn-group-justified" role="group" aria-label="...">
                     <input type="hidden" ng-model="client.current.check_previous_oc" />
@@ -64,6 +67,7 @@
                         <button type="button" class="btn btn-default" ng-click="client.current.check_previous_oc = 0" ng-class="{ active : client.current.check_previous_oc != 1 }">No</button>
                     </div>
                 </div>
+                <span class="help-block" ng-bind="client.formErrors.country_id" ng-show="client.formErrors.check_previous_oc"></span>
             </div>
         </div>
     </div>
@@ -74,51 +78,62 @@
         </div>
 
         <div class="panel-body">
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.client_main_name }">
                 <input type="text" class="form-control" id="contact" value="" placeholder="Main Contact" required="required" ng-model="client.current.client_main_name" />
+                <span class="help-block" ng-bind="client.formErrors.client_main_name" ng-show="client.formErrors.client_main_name"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.email_addr }">
                 <input type="email" class="form-control" id="email" value="" placeholder="Email" required="required" ng-model="client.current.email_addr" />
+                <span class="help-block" ng-bind="client.formErrors.email_addr" ng-show="client.formErrors.email_addr"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.username }">
                 <input type="text" class="form-control" id="username" value="" placeholder="Client Name" required="required" ng-model="client.current.username" />
+                <span class="help-block" ng-bind="client.formErrors.username" ng-show="client.formErrors.username"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.password }">
                 <input type="password" class="form-control" id="password" value="" placeholder="Password" required="required" ng-model="client.current.password" />
+                <span class="help-block" ng-bind="client.formErrors.password" ng-show="client.formErrors.password"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.address }">
                 <input type="text" class="form-control" id="address" value="" placeholder="Address" required="required" ng-model="client.current.address" />
+                <span class="help-block" ng-bind="client.formErrors.address" ng-show="client.formErrors.address"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.address2 }">
                 <input type="text" class="form-control" id="address2" value="" placeholder="Apt/Suite" ng-model="client.current.address2" />
+                <span class="help-block" ng-bind="client.formErrors.address2" ng-show="client.formErrors.address2"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.city }">
                 <input type="text" class="form-control" id="city" value="" placeholder="City" required="required" ng-model="client.current.city" />
+                <span class="help-block" ng-bind="client.formErrors.city" ng-show="client.formErrors.city"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.state }">
                 <input type="text" class="form-control" id="state" value="" placeholder="State" maxlength="2" required="required" ng-model="client.current.state" />
+                <span class="help-block" ng-bind="client.formErrors.state" ng-show="client.formErrors.state"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.zip }">
                 <input type="text" class="form-control" id="zip" value="" placeholder="Zip" required="required" ng-model="client.current.zip" />
+                <span class="help-block" ng-bind="client.formErrors.zip" ng-show="client.formErrors.zip"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.phone }">
                 <input type="tel" class="form-control" id="phone" value="" placeholder="Phone" required="required" ng-model="client.current.phone" />
+                <span class="help-block" ng-bind="client.formErrors.phone" ng-show="client.formErrors.phone"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.network }">
                 <input type="text" class="form-control" id="network" value="" placeholder="Network" required="required" ng-model="client.current.network" />
+                <span class="help-block" ng-bind="client.formErrors.network" ng-show="client.formErrors.network"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.client_type }">
                 <div layout="column" ng-cloak>
                     <md-content>
                         <md-autocomplete
@@ -140,6 +155,7 @@
                         </md-autocomplete>
                     </md-content>
                 </div>
+                <span class="help-block" ng-bind="client.formErrors.client_type" ng-show="client.formErrors.client_type"></span>
             </div>
         </div>
     </div>
@@ -150,20 +166,24 @@
         </div>
 
         <div class="panel-body">
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.ftp_url }">
                 <input type="text" class="form-control" id="ftp_url" value="" placeholder="FTP URL" required="required" ng-model="client.current.ftp_url" />
+            <span class="help-block" ng-bind="client.formErrors.ftp_url" ng-show="client.formErrors.ftp_url"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.ftp_user }">
                 <input type="text" class="form-control" id="ftp_user" value="" placeholder="FTP User" required="required" ng-model="client.current.ftp_user" />
+        <span class="help-block" ng-bind="client.formErrors.ftp_user" ng-show="client.formErrors.ftp_user"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.ftp_pw }">
                 <input type="password" class="form-control" id="ftp_password" value="" placeholder="FTP Password" ng-model="client.current.ftp_pw" />
+    <span class="help-block" ng-bind="client.formErrors.ftp_pw" ng-show="client.formErrors.ftp_pw"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.rt_pw }">
                 <input type="password" class="form-control" id="ftp_realtime_password" value="" placeholder="FTP Realtime Password" ng-model="client.current.rt_pw" />
+    <span class="help-block" ng-bind="client.formErrors.rt_pw" ng-show="client.formErrors.rt_pw"></span>
             </div>
         </div>
     </div>
@@ -174,13 +194,12 @@
         </div>
 
         <div class="panel-body">
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.cake_sub_id }">
                 <input type="text" class="form-control" id="subaffiliate" placeholder="Cake Sub Affiliate ID" ng-model="client.current.cake_sub_id" />
+                <span class="help-block" ng-bind="client.formErrors.cake_sub_id" ng-show="client.formErrors.cake_sub_id"></span>
             </div>
-
             <div class="clearfix"></div>
-
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.list_owner }">
                 <div layout="column" ng-cloak>
                     <md-content>
                         <md-autocomplete
@@ -202,22 +221,27 @@
                         </md-autocomplete>
                     </md-content>
                 </div>
+                <span class="help-block" ng-bind="client.formErrors.list_owner" ng-show="client.formErrors.list_owner"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.client_record_source_url }">
                 <input type="text" class="form-control" id="client_record_source_url" value="" placeholder="Source URL" ng-model="client.current.client_record_source_url" />
+                <span class="help-block" ng-bind="client.formErrors.client_record_source_url" ng-show="client.formErrors.client_record_source_url"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.client_record_ip }">
                 <input type="text" class="form-control" id="source_ip" value="" placeholder="Source IP" ng-model="client.current.client_record_ip" />
+                <span class="help-block" ng-bind="client.formErrors.client_record_ip" ng-show="client.formErrors.client_record_ip"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.current.minimum_acceptable_record_date }">
                 <input type="text" class="form-control" id="record_date" value="" placeholder="Minimum Record Date" ng-model="client.current.minimum_acceptable_record_date" />
+                <span class="help-block" ng-bind="client.formErrors.current.minimum_acceptable_record_date" ng-show="client.formErrors.current.minimum_acceptable_record_date"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.country_id }">
                 <input type="text" class="form-control" id="country_id" value="" placeholder="Country ID" ng-model="client.current.country_id" />
+                <span class="help-block" ng-bind="client.formErrors.country_id" ng-show="client.formErrors.country_id"></span>
             </div>
         </div>
     </div>

@@ -48,7 +48,7 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
 
     self.clientTypes = [];
     self.typeSearchText = '';
-
+    self.formErrors = [];
     self.listOwners = [];
     self.ownerSearchText = '';
 
@@ -130,7 +130,7 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
             if ( typeof( field ) == 'object' ) {
                 this[ fieldName ] = field.value;
             } else {
-                this[ fieldName ] = field; 
+                this[ fieldName ] = field;
             }
         } , clientData );
 
@@ -157,6 +157,31 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
         ClientApiService.getListOwners( self.loadListOwnersSuccessCallback , self.loadListOwnersFailureCallback );
     };
 
+    self.loadListOwnersSuccessCallback = function ( response ) {
+        self.listOwners = response.data; 
+    };
+
+    self.loadListOwnersFailureCallback = function ( response ) {
+        self.setModalLabel( 'Error' );
+        self.setModalBody( 'Failed to load client types.' );
+
+        self.launchModal();
+    };
+
+    self.updateClient = function () {
+        self.resetFieldErrors();
+        ClientApiService.updateClient( self.current , self.SuccessCallBackRedirect , self.updateClientFailureCallback );
+    };
+
+    self.saveClient = function () {
+        self.resetFieldErrors();
+        ClientApiService.saveClient( self.current , self.SuccessCallBackRedirect , self.saveClientFailureCallback );
+    };
+
+    self.viewAdd = function () {
+        $location.url( self.createUrl );
+        $window.location.href = self.createUrl;
+    };
 
     /**
      * Page Modal
@@ -222,22 +247,32 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
         self.launchModal();
     };
 
-    self.updateClientFailureCallback = function () {
-        self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to update client.' );
+    self.updateClientSuccessCallback = function () {
+        self.setModalLabel( 'Update Client' );
+        self.setModalBody( 'Successfully updated client.' );
 
         self.launchModal();
     };
     
-    self.saveClientFailureCallback = function () {
-        self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to save new client.' );
+    self.updateClientFailureCallback = function (response) {
+        self.loadFieldErrors(response);
+    };
+    
+    self.saveClientFailureCallback = function (response) {
+        self.loadFieldErrors(response);
+    };
 
-        self.launchModal();
+    /**
+     * Errors
+     */
+    self.loadFieldErrors = function (response ) {
+        angular.forEach(response.data, function(value, key) {
+            self.setFieldError( key , value );
+        });
     };
 
     self.loadClientTypesSuccessCallback = function ( response ) {
-        self.clientTypes = response.data; 
+        self.clientTypes = response.data;
     };
 
     self.loadClientTypesFailureCallback = function ( response ) {
@@ -248,7 +283,7 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
     };
 
     self.loadListOwnersSuccessCallback = function ( response ) {
-        self.listOwners = response.data; 
+        self.listOwners = response.data;
     };
 
     self.loadListOwnersFailureCallback = function ( response ) {
@@ -261,7 +296,7 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
     self.generateLinksSuccessCallback = function ( response ) {
         self.generatingLinks = 0;
 
-        self.urlList = response.data;           
+        self.urlList = response.data;
 
         $( '#urlModal' ).modal('show');
     };
@@ -274,4 +309,13 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
 
         self.launchModal();
     }
+
+    self.setFieldError = function ( field , errorMessage ) {
+        self.formErrors[ field ] = errorMessage;
+    };
+
+    self.resetFieldErrors = function () {
+        self.formErrors = {};
+    };
+
 } ] );
