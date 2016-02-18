@@ -1,0 +1,94 @@
+/**
+ * Font Imports
+ */
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700,600,300,800);
+
+
+/**
+ * Custom Styling Override
+ */
+$navbar-margin-bottom: 0;
+$navbar-inverse-bg: #16416C;
+
+$navbar-inverse-brand-color: #FFF;
+$navbar-inverse-brand-hover-color: #9D9D9D;
+
+
+/**
+ *Bootstrap Includes
+ */
+@import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
+@import "node_modules/jasny-bootstrap/scss/jasny-bootstrap.scss";
+@import "node_modules/angular-material/angular-material.scss";
+
+/**
+ * Custom Vanilla Styling
+ */
+body {
+    background-color: #EAEAEA;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 400;
+    font-size: 1.25em;
+}
+#pageContent{
+    margin-top:61px;
+}
+.btn {
+    margin: .5em;
+}
+
+.navbar-toggle {
+    background-color: #000;
+    float: left;
+    margin-left: .5em;
+
+    @media (min-width: 0) {
+        display: block; /* force showing the toggle */
+    }
+}
+
+thead {
+    background-color: #2e5c89;
+    color: #FFF;
+}
+
+/**
+Panel Custom - we should break up into componets.
+**/
+
+.panel-default {
+    margin-top:20px;
+}
+
+/**
+Roles Pages custom
+**/
+.permissions {
+    .checkbox {
+        margin-top:0;
+        margin-bottom:5px;
+        + .checkbox {
+            margin-top:0;
+        }
+    }
+}
+
+.paginationCount { margin: 20px 10px; }
+
+.rotateMe {
+    -webkit-animation:spin 4s linear infinite;
+    -moz-animation:spin 4s linear infinite;
+    animation:spin 4s linear infinite;
+}
+
+@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+
+@media (min-width: 768px)
+{
+    .navbar-right {
+        margin-right: 10px;
+    }
+}
