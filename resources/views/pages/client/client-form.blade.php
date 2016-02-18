@@ -244,6 +244,25 @@
             </div>
 
             <div class="form-group">
+                <md-autocomplete
+                    md-search-text="client.ownerSearchText"
+                    md-items="item in client.getListOwners( client.ownerSearchText )"
+                    md-item-text="item.name"
+                    md-selected-item-change="client.setListOwner( item )"
+                    placeholder="Choose a List Owner"
+                    layout="column"
+                    ng-cloak>
+
+                    <md-item-template>
+                        <span md-highlight-text="client.ownerSearchText" md-highlight-flags="^i">@{{item.value}}</span>
+                    </md-item-template>
+
+                    <md-not-found>
+                        No Client Types matching "@{{client.ownerSearchText}}" were found.
+                    </md-not-found>
+                </md-autocomplete>
+
+                <!--
                 <select class="form-control" id="type" required="required" ng-model="client.current.list_owner">
                     <option value="">Choose List Owner</option>
                     <option value="247lifecover">247LifeCover</option>
@@ -550,6 +569,7 @@
                     <option value="zeeto">Zeeto</option>
                     <option value="zinq media">ZinQ Media</option>
                 </select>
+                -->
             </div>
 
             <div class="form-group">

@@ -46,6 +46,9 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$log' , '$window' , '$
     self.clientTypes = [];
     self.typeSearchText = '';
 
+    self.listOwners = [];
+    self.ownerSearchText = '';
+
     $rootScope.$on( 'updatePage' , function () {
         self.loadClients();
     } );
@@ -81,9 +84,6 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$log' , '$window' , '$
     };
 
     self.loadClientTypes = function () {
-        //Mock data
-        //self.clientTypes = [ { "name" : "AUS" , "value" : "aus" } , { "name" : "AIO" , "value" : "aio" } , { "name" : "B2B" , "value" : "b2b" }  ];
-
         ClientApiService.getTypes( self.loadClientTypesSuccessCallback , self.loadClientTypesFailureCallback );
     };
 
@@ -92,6 +92,37 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$log' , '$window' , '$
     };
 
     self.loadClientTypesFailureCallback = function ( response ) {
+        self.setModalLabel( 'Error' );
+        self.setModalBody( 'Failed to load client types.' );
+
+        self.launchModal();
+    };
+
+    self.getListOwners = function ( searchText ) {
+        var type = searchText ? self.listOwners.filter( function ( obj ) { return obj.value.indexOf( angular.lowercase( searchText ) ) === 0; } ) : self.listOwners;
+
+        $log.log( "Type Found: " + angular.fromJson( type ) );
+
+        return type;
+    };
+
+    self.setListOwner = function ( type ) {
+        if ( type ) {
+            self.current.list_owner = type.name;
+        } else {
+            self.current.list_owner = '';
+        }
+    };
+
+    self.loadListOwners = function () {
+        ClientApiService.getListOwners( self.loadListOwnersSuccessCallback , self.loadListOwnersFailureCallback );
+    };
+
+    self.loadListOwnersSuccessCallback = function ( response ) {
+        self.listOwners = response.data; 
+    };
+
+    self.loadListOwnersFailureCallback = function ( response ) {
         self.setModalLabel( 'Error' );
         self.setModalBody( 'Failed to load client types.' );
 
