@@ -53,6 +53,11 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$log' , '$window' , '$
         self.loadClients();
     } );
 
+    self.loadAutoComplete = function () {
+        self.loadClientTypes();
+        self.loadListOwners();
+    };
+
     self.loadClient = function () {
         var currentPath = $location.path();
         var matches = currentPath.match( /\/(\d{1,})/ );
@@ -68,7 +73,7 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$log' , '$window' , '$
     };
 
     self.getClientType = function ( searchText ) {
-        var type = searchText ? self.clientTypes.filter( function ( obj ) { return obj.value.indexOf( angular.lowercase( searchText ) ) === 0; } ) : self.clientTypes;
+        var type = searchText ? self.clientTypes.filter( function ( obj ) { return obj.value.indexOf( searchText ) === 0; } ) : self.clientTypes;
 
         $log.log( "Type Found: " + angular.fromJson( type ) );
 
@@ -99,7 +104,7 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$log' , '$window' , '$
     };
 
     self.getListOwners = function ( searchText ) {
-        var type = searchText ? self.listOwners.filter( function ( obj ) { return obj.value.indexOf( angular.lowercase( searchText ) ) === 0; } ) : self.listOwners;
+        var type = searchText ? self.listOwners.filter( function ( obj ) { return obj.value.indexOf( searchText ) === 0; } ) : self.listOwners;
 
         $log.log( "Type Found: " + angular.fromJson( type ) );
 

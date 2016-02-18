@@ -1,4 +1,4 @@
-<form id="clientForm" ng-init="client.loadClientTypes()">
+<form id="clientForm" ng-init="client.loadAutoComplete()">
     <div class="panel panel-primary">
         <div class="panel-heading">
             <h3 class="panel-title">Client Settings</h3>
