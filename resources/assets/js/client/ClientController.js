@@ -127,11 +127,11 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$log' , '$window' , '$
     };
 
     self.updateClient = function () {
-        ClientApiService.updateClient( self.current , self.updateClientSuccessCallback , self.updateClientFailureCallback );
+        ClientApiService.updateClient( self.current , self.SuccessCallBackRedirect , self.updateClientFailureCallback );
     };
 
     self.saveClient = function () {
-        ClientApiService.saveClient( self.current , self.saveClientSuccessCallback , self.saveClientFailureCallback );
+        ClientApiService.saveClient( self.current , self.SuccessCallBackRedirect , self.saveClientFailureCallback );
     };
 
     self.viewAdd = function () {
@@ -175,7 +175,10 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$log' , '$window' , '$
 
         self.current = currentRecord;
     };
-
+    self.SuccessCallBackRedirect = function ( response ) {
+        $location.url( '/client' );
+        $window.location.href = '/client';
+    };
     self.loadClientFailureCallback = function ( response ) {
         self.setModalLabel( 'Error' );
         self.setModalBody( 'Failed to load client.' );
