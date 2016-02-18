@@ -567,6 +567,14 @@
             <div class="form-group">
                 <input type="text" class="form-control" id="country_id" value="" placeholder="Country ID" ng-model="client.current.country_id" />
             </div>
+
+            <div class="form-group">
+                <input type="text" class="form-control" id="record_date" value="" placeholder="Minimum Record Date" ng-model="client.current.minimum_acceptable_record_date" />
+            </div>
+
+            <div class="form-group">
+                <input type="text" class="form-control" id="country_id" value="" placeholder="Country ID" ng-model="client.current.country_id" />
+            </div>
         </div>
     </div>
 </form>
