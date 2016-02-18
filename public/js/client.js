@@ -28,8 +28,7 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$log' , '$window' , '$
         phone: "" ,
         rt_pw: "" ,
         state: "" ,
-        status: "" ,
-        unique_profile_id: "" ,
+        status: "D" ,
         username: "" ,
         zip: ""
     };
@@ -43,6 +42,9 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$log' , '$window' , '$
     self.currentPage = 1;
 
     self.currentlyLoading = 0;
+
+    self.clientTypes = [];
+    self.typeSearchText = '';
 
     $rootScope.$on( 'updatePage' , function () {
         self.loadClients();
@@ -60,6 +62,40 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$log' , '$window' , '$
         self.currentlyLoading = 1;
 
         ClientApiService.getClients( self.currentPage , self.paginationCount , self.loadClientsSuccessCallback , self.loadClientsFailureCallback );
+    };
+
+    self.getClientType = function ( searchText ) {
+        var type = searchText ? self.clientTypes.filter( function ( obj ) { return obj.value.indexOf( angular.lowercase( searchText ) ) === 0; } ) : self.clientTypes;
+
+        $log.log( "Type Found: " + angular.fromJson( type ) );
+
+        return type;
+    };
+
+    self.setClientType = function ( type ) {
+        if ( type ) {
+            self.current.client_type = type.name;
+        } else {
+            self.current.client_type = '';
+        }
+    };
+
+    self.loadClientTypes = function () {
+        //Mock data
+        //self.clientTypes = [ { "name" : "AUS" , "value" : "aus" } , { "name" : "AIO" , "value" : "aio" } , { "name" : "B2B" , "value" : "b2b" }  ];
+
+        ClientApiService.getTypes( self.loadClientTypesSuccessCallback , self.loadClientTypesFailureCallback );
+    };
+
+    self.loadClientTypesSuccessCallback = function ( response ) {
+        self.clientTypes = response.data; 
+    };
+
+    self.loadClientTypesFailureCallback = function ( response ) {
+        self.setModalLabel( 'Error' );
+        self.setModalBody( 'Failed to load client types.' );
+
+        self.launchModal();
     };
 
     self.updateClient = function () {
@@ -167,6 +203,7 @@ mt2App.service( 'ClientApiService' , function ( $http , $log ) {
     var self = this;
 
     self.baseApiUrl = '/api/client';
+    self.baseMt1ApiUrl = '/api/mt1';
 
     self.getClient = function ( id , successCallback , failureCallback ) {
         $http( { "method" : "GET" , "url" : this.baseApiUrl + '/' + id } )
@@ -189,6 +226,13 @@ mt2App.service( 'ClientApiService' , function ( $http , $log ) {
             "url" : this.baseApiUrl + '/' + clientData.client_id ,
             "params" : { "_method" : "PUT" } ,
             "data" : clientData
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.getTypes = function ( successCallback , failureCallback ) {
+        $http( {
+            "method" : "GET" ,
+            "url" : self.baseMt1ApiUrl + '/client/types'
         } ).then( successCallback , failureCallback );
     };
 } );

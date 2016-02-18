@@ -1,4 +1,4 @@
-<form id="clientForm">
+<form id="clientForm" ng-init="client.loadClientTypes()">
     <div class="panel panel-primary">
         <div class="panel-heading">
             <h3 class="panel-title">Client Settings</h3>
@@ -83,7 +83,7 @@
             </div>
 
             <div class="form-group">
-                <input type="text" class="form-control" id="username" value="" placeholder="Username" required="required" ng-model="client.current.username" />
+                <input type="text" class="form-control" id="username" value="" placeholder="Client Name" required="required" ng-model="client.current.username" />
             </div>
 
             <div class="form-group">
@@ -119,7 +119,25 @@
             </div>
 
             <div class="form-group">
-                <select class="form-control" id="type" required="required" ng-model="client.current.client_type">
+                <md-autocomplete
+                    md-search-text="client.typeSearchText"
+                    md-items="item in client.getClientType( client.typeSearchText )"
+                    md-item-text="item.name"
+                    md-selected-item-change="client.setClientType( item )"
+                    placeholder="Choose a Client Type"
+                    layout="column"
+                    ng-cloak>
+
+                    <md-item-template>
+                        <span md-highlight-text="client.typeSearchText" md-highlight-flags="^i">@{{item.value}}</span>
+                    </md-item-template>
+
+                    <md-not-found>
+                        No Client Types matching "@{{client.typeSearchText}}" were found.
+                    </md-not-found>
+                </md-autocomplete>
+
+                <!-- <select class="form-control" id="type" required="required" ng-model="client.current.client_type">
                     <option value="">Client Type</option>
                     <option value="AUS">AUS</option>
                     <option value="Argentina">Argentina</option>
@@ -186,7 +204,7 @@
                     <option value="UK">UK</option>
                     <option value="Weather">Weather</option>
                     <option value="eCards">eCards</option>
-                </select>
+                </select> -->
             </div>
         </div>
     </div>
@@ -535,15 +553,11 @@
             </div>
 
             <div class="form-group">
-                <input type="url" class="form-control" id="source_url" value="" placeholder="Source URL" ng-model="client.current.client_record_source_url" />
+                <input type="text" class="form-control" id="source_url" value="" placeholder="Source URL" ng-model="client.current.client_record_source_url" />
             </div>
 
             <div class="form-group">
                 <input type="text" class="form-control" id="source_ip" value="" placeholder="Source IP" ng-model="client.current.client_record_ip" />
-            </div>
-
-            <div class="form-group">
-                <input type="text" class="form-control" id="profile_id" value="" placeholder="Unique Profile ID" ng-model="client.current.unique_profile_id" />
             </div>
 
             <div class="form-group">
