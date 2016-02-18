@@ -15,7 +15,7 @@
             <ul class="dropdown-menu">
                 <li><a href="#">My Profile</a></li>
                 <li role="separator" class="divider"></li>
-                <li><a href="{{route("logout")}}">Logout</a></li>
+                <li><a href="{{route("logout")}}" target="_self">Logout</a></li>
             </ul>
         </li>
             @else
