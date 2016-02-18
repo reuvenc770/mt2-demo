@@ -1,7 +1,38 @@
 mt2App.controller( 'ClientController' , [ '$rootScope' , '$log' , '$window' , '$location' , 'ClientApiService' , function ( $rootScope , $log , $window , $location , ClientApiService ) {
     var self = this;
 
-    self.current = {};
+    self.current = {
+        address: "" ,
+        address2: "" ,
+        cake_sub_id: "" ,
+        check_global_suppression: "Y" ,
+        check_previous_oc: "0" ,
+        city: "" ,
+        client_has_client_group_restrictions: "0" ,
+        client_id: "" ,
+        client_main_name: "" ,
+        client_record_ip: "" ,
+        client_record_source_url: "" ,
+        client_type: "" ,
+        country_id: "" ,
+        email_addr: "" ,
+        ftp_pw: "" ,
+        ftp_url: "" ,
+        ftp_user: "" ,
+        has_client_group_restriction: "0" ,
+        list_owner: "" ,
+        minimum_acceptable_record_date: "" ,
+        network: "" ,
+        orange_client: "Y" ,
+        password: "" ,
+        phone: "" ,
+        rt_pw: "" ,
+        state: "" ,
+        status: "D" ,
+        username: "" ,
+        zip: ""
+    };
+
     self.clients = [];
 
     self.createUrl = '/client/create';
@@ -11,8 +42,9 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$log' , '$window' , '$
     self.currentPage = 1;
 
     self.currentlyLoading = 0;
-    self.reachedMaxPage = false;
-    self.reachedFirstPage = true;
+
+    self.clientTypes = [];
+    self.typeSearchText = '';
 
     $rootScope.$on( 'updatePage' , function () {
         self.loadClients();
@@ -29,30 +61,49 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$log' , '$window' , '$
     self.loadClients = function () {
         self.currentlyLoading = 1;
 
-        self.updateCursorFlags();
-
         ClientApiService.getClients( self.currentPage , self.paginationCount , self.loadClientsSuccessCallback , self.loadClientsFailureCallback );
     };
 
-    self.updateCursorFlags = function () {
-        if ( self.currentPage == 1 ) {
-            self.reachedMaxPage = false;
-            self.reachedFirstPage = true;
-        } else if ( self.currentPage == self.pageCount ) {
-            self.reachedMaxPage = true;
-            self.reachedFirstPage = false;
+    self.getClientType = function ( searchText ) {
+        var type = searchText ? self.clientTypes.filter( function ( obj ) { return obj.value.indexOf( angular.lowercase( searchText ) ) === 0; } ) : self.clientTypes;
+
+        $log.log( "Type Found: " + angular.fromJson( type ) );
+
+        return type;
+    };
+
+    self.setClientType = function ( type ) {
+        if ( type ) {
+            self.current.client_type = type.name;
         } else {
-            self.reachedMaxPage = false;
-            self.reachedFirstPage = false;
+            self.current.client_type = '';
         }
     };
 
+    self.loadClientTypes = function () {
+        //Mock data
+        //self.clientTypes = [ { "name" : "AUS" , "value" : "aus" } , { "name" : "AIO" , "value" : "aio" } , { "name" : "B2B" , "value" : "b2b" }  ];
+
+        ClientApiService.getTypes( self.loadClientTypesSuccessCallback , self.loadClientTypesFailureCallback );
+    };
+
+    self.loadClientTypesSuccessCallback = function ( response ) {
+        self.clientTypes = response.data; 
+    };
+
+    self.loadClientTypesFailureCallback = function ( response ) {
+        self.setModalLabel( 'Error' );
+        self.setModalBody( 'Failed to load client types.' );
+
+        self.launchModal();
+    };
+
     self.updateClient = function () {
-        ClientApiService.updateClient( self.current , self.updateClientSuccessCallback , self.updateClientFailureCallback )
+        ClientApiService.updateClient( self.current , self.updateClientSuccessCallback , self.updateClientFailureCallback );
     };
 
     self.saveClient = function () {
-        ClientApiService.saveClient( self.current , self.saveClientSuccessCallback , self.saveClientFailureCallback )
+        ClientApiService.saveClient( self.current , self.saveClientSuccessCallback , self.saveClientFailureCallback );
     };
 
     self.viewAdd = function () {

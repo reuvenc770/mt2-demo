@@ -11,6 +11,7 @@ use App\Services\MT1ApiService;
 class ClientController extends Controller
 {
     const CLIENT_API_ENDPOINT = 'clients_list';
+    const CLIENT_UPDATE_API_ENDPOINT = 'client_update';
 
     protected $api;
 
@@ -61,7 +62,7 @@ class ClientController extends Controller
      */
     public function store(Request $request)
     {
-        return response( [ 'status' => 1 , 'message' => 'Successfully saved new client.' ] );
+        return response( $this->api->postForm( self::CLIENT_UPDATE_API_ENDPOINT , $request->all() ) );
     }
 
     /**
@@ -95,7 +96,7 @@ class ClientController extends Controller
      */
     public function update(Request $request, $id)
     {
-        return response( [ 'status' => 1 , 'message' => 'Successfully updated new client.' ] );
+        return response( $this->api->postForm( self::CLIENT_UPDATE_API_ENDPOINT , $request->all() ) );
     }
 
     /**

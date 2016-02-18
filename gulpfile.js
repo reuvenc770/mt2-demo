@@ -24,7 +24,23 @@ elixir(function(mix) {
 
     mix.copy( 'node_modules/jquery/dist/jquery.min.js' , 'public/js/jquery.min.js' );
 
-    mix.scripts( [ 'app.js' , 'mt2app/GenericTableDirective.js' , 'mt2app/EditButtonDirective.js' , 'mt2app/PaginationDirective.js' , 'mt2app/PaginationControlDirective.js' , 'mt2app/PaginationButtonDirective.js' , 'mt2app/PaginationCountDirective.js' ] , 'public/js/angular_base.js' );
+    mix.copy( 'node_modules/angular-material/angular-material.min.js' , 'public/js/angular-material.min.js' );
+
+    mix.copy( 'node_modules/angular-aria/angular-aria.min.js' , 'public/js/angular-aria.min.js' );
+
+    mix.copy( 'node_modules/angular-animate/angular-animate.min.js' , 'public/js/angular-animate.min.js' );
+
+    mix.copy( 'node_modules/angular-messages/angular-messages.min.js' , 'public/js/angular-messages.min.js' );
+
+    mix.scripts( [
+        'app.js' ,
+        'mt2app/GenericTableDirective.js' ,
+        'mt2app/EditButtonDirective.js' ,
+        'mt2app/PaginationDirective.js' ,
+        'mt2app/PaginationControlDirective.js' ,
+        'mt2app/PaginationButtonDirective.js' ,
+        'mt2app/PaginationCountDirective.js'
+    ] , 'public/js/angular_base.js' );
 
     mix.scripts( [  'espapi/EspController.js' , 'espapi/EspApiService.js' ] , 'public/js/espapi.js' );
     mix.scripts( [  'user/UserController.js' , 'user/UserApiService.js' ] , 'public/js/user.js' );

@@ -1,10 +1,25 @@
-<form id="clientForm">
+<form id="clientForm" ng-init="client.loadClientTypes()">
     <div class="panel panel-primary">
         <div class="panel-heading">
             <h3 class="panel-title">Client Settings</h3>
         </div>
 
         <div class="panel-body">
+            <div class="form-group">
+                <label>Status</label>
+                <div class="btn-group btn-group-justified" role="group" aria-label="...">
+                    <input type="hidden" ng-model="client.current.status" />
+
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-default" ng-click="client.current.status = 'A'" ng-class="{ active : client.current.status == 'A' }">Active</button>
+                    </div>
+
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-default" ng-click="client.current.status = 'D'" ng-class="{ active : client.current.status != 'A' }">Inactive</button>
+                    </div>
+                </div>
+            </div>
+
             <div class="form-group">
                 <label>Global Suppression</label>
                 <div class="btn-group btn-group-justified" role="group" aria-label="...">
@@ -24,13 +39,14 @@
                 <label>Group Restriction</label>
                 <div class="btn-group btn-group-justified" role="group" aria-label="...">
                     <input type="hidden" ng-model="client.current.has_client_group_restriction" />
+                    <input type="hidden" ng-model="client.current.client_has_client_group_restrictions" />
 
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-default" ng-click="client.current.has_client_group_restriction = 1" ng-class="{ active : client.current.has_client_group_restriction == 1 }">Yes</button>
+                        <button type="button" class="btn btn-default" ng-click="client.current.has_client_group_restriction = 1; client.current.client_has_client_group_restrictions = 1;" ng-class="{ active : client.current.has_client_group_restriction == 1 }">Yes</button>
                     </div>
 
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-default" ng-click="client.current.has_client_group_restriction = 0" ng-class="{ active : client.current.has_client_group_restriction != 1 }">No</button>
+                        <button type="button" class="btn btn-default" ng-click="client.current.has_client_group_restriction = 0; client.current.client_has_client_group_restrictions = 0;" ng-class="{ active : client.current.has_client_group_restriction != 1 }">No</button>
                     </div>
                 </div>
             </div>
@@ -67,7 +83,7 @@
             </div>
 
             <div class="form-group">
-                <input type="text" class="form-control" id="username" value="" placeholder="Username" required="required" ng-model="client.current.username" />
+                <input type="text" class="form-control" id="username" value="" placeholder="Client Name" required="required" ng-model="client.current.username" />
             </div>
 
             <div class="form-group">
@@ -103,7 +119,25 @@
             </div>
 
             <div class="form-group">
-                <select class="form-control" id="type" required="required" ng-model="client.current.client_type">
+                <md-autocomplete
+                    md-search-text="client.typeSearchText"
+                    md-items="item in client.getClientType( client.typeSearchText )"
+                    md-item-text="item.name"
+                    md-selected-item-change="client.setClientType( item )"
+                    placeholder="Choose a Client Type"
+                    layout="column"
+                    ng-cloak>
+
+                    <md-item-template>
+                        <span md-highlight-text="client.typeSearchText" md-highlight-flags="^i">@{{item.value}}</span>
+                    </md-item-template>
+
+                    <md-not-found>
+                        No Client Types matching "@{{client.typeSearchText}}" were found.
+                    </md-not-found>
+                </md-autocomplete>
+
+                <!-- <select class="form-control" id="type" required="required" ng-model="client.current.client_type">
                     <option value="">Client Type</option>
                     <option value="AUS">AUS</option>
                     <option value="Argentina">Argentina</option>
@@ -170,7 +204,7 @@
                     <option value="UK">UK</option>
                     <option value="Weather">Weather</option>
                     <option value="eCards">eCards</option>
-                </select>
+                </select> -->
             </div>
         </div>
     </div>
@@ -519,7 +553,7 @@
             </div>
 
             <div class="form-group">
-                <input type="url" class="form-control" id="source_url" value="" placeholder="Source URL" ng-model="client.current.client_record_source_url" />
+                <input type="text" class="form-control" id="source_url" value="" placeholder="Source URL" ng-model="client.current.client_record_source_url" />
             </div>
 
             <div class="form-group">
@@ -527,7 +561,19 @@
             </div>
 
             <div class="form-group">
-                <input type="text" class="form-control" id="profile_id" value="" placeholder="Unique Profile ID" ng-model="client.current.unique_profile_id" />
+                <input type="text" class="form-control" id="record_date" value="" placeholder="Minimum Record Date" ng-model="client.current.minimum_acceptable_record_date" />
+            </div>
+
+            <div class="form-group">
+                <input type="text" class="form-control" id="country_id" value="" placeholder="Country ID" ng-model="client.current.country_id" />
+            </div>
+
+            <div class="form-group">
+                <input type="text" class="form-control" id="record_date" value="" placeholder="Minimum Record Date" ng-model="client.current.minimum_acceptable_record_date" />
+            </div>
+
+            <div class="form-group">
+                <input type="text" class="form-control" id="country_id" value="" placeholder="Country ID" ng-model="client.current.country_id" />
             </div>
         </div>
     </div>
