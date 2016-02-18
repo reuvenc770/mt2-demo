@@ -122,10 +122,11 @@
                 <md-autocomplete
                     md-search-text="client.typeSearchText"
                     md-items="item in client.getClientType( client.typeSearchText )"
-                    md-item-text="item.name"
+                    md-item-text="item.value"
                     md-selected-item-change="client.setClientType( item )"
                     placeholder="Choose a Client Type"
                     layout="column"
+                    ng-model="client.current.client_type"
                     ng-cloak>
 
                     <md-item-template>
@@ -247,10 +248,11 @@
                 <md-autocomplete
                     md-search-text="client.ownerSearchText"
                     md-items="item in client.getListOwners( client.ownerSearchText )"
-                    md-item-text="item.name"
+                    md-item-text="item.value"
                     md-selected-item-change="client.setListOwner( item )"
                     placeholder="Choose a List Owner"
                     layout="column"
+                    ng-model="client.current.list_owner"
                     ng-cloak>
 
                     <md-item-template>
