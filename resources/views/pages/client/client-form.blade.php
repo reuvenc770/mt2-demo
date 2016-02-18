@@ -119,24 +119,28 @@
             </div>
 
             <div class="form-group">
-                <md-autocomplete
-                    md-search-text="client.typeSearchText"
-                    md-items="item in client.getClientType( client.typeSearchText )"
-                    md-item-text="item.value"
-                    md-selected-item-change="client.setClientType( item )"
-                    placeholder="Choose a Client Type"
-                    layout="column"
-                    ng-model="client.current.client_type"
-                    ng-cloak>
+                <div layout="column" ng-cloak>
+                    <md-content class="md-padding">
+                        <md-autocomplete
+                            md-no-cache="true"
+                            md-search-text="client.typeSearchText"
+                            md-items="item in client.getClientType( client.typeSearchText )"
+                            md-item-text="item.name"
+                            md-selected-item-change="client.setClientType( item )"
+                            md-minlength="0"
+                            placeholder="Choose a Client Type"
+                            md-selected-item="client.current.client_type">
 
-                    <md-item-template>
-                        <span md-highlight-text="client.typeSearchText" md-highlight-flags="^i">@{{item.value}}</span>
-                    </md-item-template>
+                            <md-item-template>
+                                <span md-highlight-text="client.typeSearchText" md-highlight-flags="^i">@{{item.name}}</span>
+                            </md-item-template>
 
-                    <md-not-found>
-                        No Client Types matching "@{{client.typeSearchText}}" were found.
-                    </md-not-found>
-                </md-autocomplete>
+                            <md-not-found>
+                                No Client Types matching "@{{client.typeSearchText}}" were found.
+                            </md-not-found>
+                        </md-autocomplete>
+                    </md-content>
+                </div>
 
                 <!-- <select class="form-control" id="type" required="required" ng-model="client.current.client_type">
                     <option value="">Client Type</option>
@@ -245,24 +249,30 @@
             </div>
 
             <div class="form-group">
-                <md-autocomplete
-                    md-search-text="client.ownerSearchText"
-                    md-items="item in client.getListOwners( client.ownerSearchText )"
-                    md-item-text="item.value"
-                    md-selected-item-change="client.setListOwner( item )"
-                    placeholder="Choose a List Owner"
-                    layout="column"
-                    ng-model="client.current.list_owner"
-                    ng-cloak>
+                <div layout="column" ng-cloak>
+                    <md-content class="md-padding">
+                        <md-autocomplete
+                            md-no-cache="true"
+                            md-search-text="client.ownerSearchText"
+                            md-items="item in client.getListOwners( client.ownerSearchText )"
+                            md-item-text="item.name"
+                            md-selected-item-change="client.setListOwner( item )"
+                            md-minlength="0"
+                            placeholder="Choose a List Owner"
+                            layout="column"
+                            md-selected-item="client.current.list_owner"
+                            ng-cloak>
 
-                    <md-item-template>
-                        <span md-highlight-text="client.ownerSearchText" md-highlight-flags="^i">@{{item.value}}</span>
-                    </md-item-template>
+                            <md-item-template>
+                                <span md-highlight-text="client.ownerSearchText" md-highlight-flags="^i">@{{item.name}}</span>
+                            </md-item-template>
 
-                    <md-not-found>
-                        No Client Types matching "@{{client.ownerSearchText}}" were found.
-                    </md-not-found>
-                </md-autocomplete>
+                            <md-not-found>
+                                No Client Types matching "@{{client.ownerSearchText}}" were found.
+                            </md-not-found>
+                        </md-autocomplete>
+                    </md-content>
+                </div>
 
                 <!--
                 <select class="form-control" id="type" required="required" ng-model="client.current.list_owner">
