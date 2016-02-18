@@ -1,0 +1,6 @@
+<li>
+    <a href="#" aria-label="{{ ctrl.mode == 'prev' ? 'Previous' : 'Next' }}">
+        <span ng-if="ctrl.mode == 'prev'" ng-class="{ disabled : ctrl.disablefloor }" aria-hidden="true" class="glyphicon glyphicon-chevron-left"></span>
+        <span ng-if="ctrl.mode == 'next'" ng-class="{ disabled : ctrl.disableceiling }" aria-hidden="true" class="glyphicon glyphicon-chevron-right"></span>
+    </a>
+</li>

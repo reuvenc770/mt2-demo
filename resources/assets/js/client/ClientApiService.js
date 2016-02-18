@@ -8,8 +8,8 @@ mt2App.service( 'ClientApiService' , function ( $http , $log ) {
             .then( successCallback , failureCallback );
     };
 
-    self.getClients = function ( successCallback , failureCallback ) {
-        $http( { "method" : "GET" , "url" : this.baseApiUrl } )
+    self.getClients = function ( page , count , successCallback , failureCallback ) {
+        $http( { "method" : "GET" , "url" : this.baseApiUrl + '/pager' , "params" : { "page" : page , "count" : count } } )
             .then( successCallback , failureCallback );
     };
 

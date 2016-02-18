@@ -24,7 +24,7 @@ elixir(function(mix) {
 
     mix.copy( 'node_modules/jquery/dist/jquery.min.js' , 'public/js/jquery.min.js' );
 
-    mix.scripts( [ 'app.js' , 'mt2app/GenericTableDirective.js' , 'mt2app/EditButtonDirective.js'] , 'public/js/angular_base.js' );
+    mix.scripts( [ 'app.js' , 'mt2app/GenericTableDirective.js' , 'mt2app/EditButtonDirective.js' , 'mt2app/PaginationDirective.js' , 'mt2app/PaginationControlDirective.js' , 'mt2app/PaginationButtonDirective.js' , 'mt2app/PaginationCountDirective.js' ] , 'public/js/angular_base.js' );
 
     mix.scripts( [  'espapi/EspController.js' , 'espapi/EspApiService.js' ] , 'public/js/espapi.js' );
     mix.scripts( [  'user/UserController.js' , 'user/UserApiService.js' ] , 'public/js/user.js' );

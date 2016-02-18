@@ -4,7 +4,8 @@ mt2App.directive( 'clientTable' , function () {
         "controller" : function () {} ,
         "controllerAs" : "ctrl" ,
         "bindToController" : {
-            "records" : "="
+            "records" : "=" ,
+            "loadingflag" : "="
         } ,
         "templateUrl" : "js/templates/client-table.html"
     };

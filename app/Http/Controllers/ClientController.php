@@ -29,6 +29,14 @@ class ClientController extends Controller
         return response( $this->api->getJSON( self::CLIENT_API_ENDPOINT ) );
     }
 
+    public function pager ( Request $request ) {
+        if ( $request->input( 'disablecache' ) == 1 ) {
+            return $this->index();
+        } else {
+            return response( $this->api->getPaginatedJson( self::CLIENT_API_ENDPOINT , $request->input( 'page' ) , $request->input( 'count' )) );
+        }
+    }
+
     /**
      *
      */
