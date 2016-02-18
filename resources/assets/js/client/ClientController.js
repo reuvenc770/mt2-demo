@@ -73,7 +73,7 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$log' , '$window' , '$
     };
 
     self.getClientType = function ( searchText ) {
-        return searchText ? self.clientTypes.filter( function ( obj ) { return obj.name.indexOf( searchText.toLowerCase() ) === 0; } ) : self.clientTypes;
+        return searchText ? self.clientTypes.filter( function ( obj ) { return obj.name.toLowerCase().indexOf( searchText.toLowerCase() ) === 0; } ) : self.clientTypes;
     };
 
     self.setClientType = function ( type ) {
@@ -100,7 +100,7 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$log' , '$window' , '$
     };
 
     self.getListOwners = function ( searchText ) {
-        return searchText ? self.listOwners.filter( function ( obj ) { return obj.name.indexOf( searchText.toLowerCase() ) === 0; } ) : self.listOwners;
+        return searchText ? self.listOwners.filter( function ( obj ) { return obj.name.toLowerCase().indexOf( searchText.toLowerCase() ) === 0; } ) : self.listOwners;
     };
 
     self.setListOwner = function ( owner ) {
