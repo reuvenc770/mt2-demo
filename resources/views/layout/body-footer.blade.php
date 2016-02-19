@@ -7,3 +7,5 @@
 <script src="js/angular-aria.min.js"></script>
 <script src="js/angular-messages.min.js"></script>
 <script src="js/angular-material.min.js"></script>
+<script src="js/clipboard.min.js"></script>
+<script src="js/ngclipboard.min.js"></script>

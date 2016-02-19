@@ -17,22 +17,25 @@ $navbar-inverse-brand-hover-color: #9D9D9D;
 /**
  *Bootstrap Includes
  */
+@import "node_modules/angular-material/angular-material.scss";
 @import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
 @import "node_modules/jasny-bootstrap/scss/jasny-bootstrap.scss";
-@import "node_modules/angular-material/angular-material.scss";
 
 /**
  * Custom Vanilla Styling
  */
+html , body { background-color: #EAEAEA; }
+
 body {
-    background-color: #EAEAEA;
     font-family: 'Open Sans', sans-serif;
     font-weight: 400;
     font-size: 1.25em;
 }
-#pageContent{
-    margin-top:61px;
+
+#flashContainer{
+    padding-top:61px;
 }
+
 .btn {
     margin: .5em;
 }
@@ -84,7 +87,6 @@ Roles Pages custom
 @-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
 @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
 @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
-
 
 @media (min-width: 768px)
 {

@@ -3,6 +3,7 @@ mt2App.directive( 'pagination' , [ '$rootScope' , '$timeout' , function ( $rootS
         "scope" : {} ,
         "controller" : function  () {
             var self = this;
+            self.lastUpdate = null;
 
             self.button1 = 1;
             self.button2 = 2;
@@ -19,9 +20,11 @@ mt2App.directive( 'pagination' , [ '$rootScope' , '$timeout' , function ( $rootS
             } );
 
             self.updatePage = function ( pageNumber ) {
+                $timeout.cancel( self.lastUpdate );
+
                 self.currentpage = pageNumber;
 
-                $timeout( function () { $rootScope.$emit( 'updatePage' ); } , 200 );
+                self.lastUpdate = $timeout( function () { $rootScope.$emit( 'updatePage' ); } , 500 );
             };
 
             self.prevPage = function () {
@@ -35,9 +38,13 @@ mt2App.directive( 'pagination' , [ '$rootScope' , '$timeout' , function ( $rootS
                     self.button5--;
                 }
 
-                self.currentpage--;
+                if ( self.currentpage > 1 ) {
+                    $timeout.cancel( self.lastUpdate );
 
-                $timeout( function () { $rootScope.$emit( 'updatePage' ); } , 200 );
+                    self.currentpage--;
+
+                    self.lastUpdate = $timeout( function () { $rootScope.$emit( 'updatePage' ); } , 500 );
+                }
             };
 
             self.nextPage = function () {
@@ -51,9 +58,13 @@ mt2App.directive( 'pagination' , [ '$rootScope' , '$timeout' , function ( $rootS
                     self.button5++;
                 }
 
-                self.currentpage++;
+                if ( self.currentpage < parseInt( self.maxpage ) ) {
+                    $timeout.cancel( self.lastUpdate );
 
-                $timeout( function () { $rootScope.$emit( 'updatePage' ); } , 200 );
+                    self.currentpage++;
+
+                    self.lastUpdate = $timeout( function () { $rootScope.$emit( 'updatePage' ); } , 500 );
+                }
             };
         } ,
         "controllerAs" : "ctrl" ,

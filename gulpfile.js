@@ -32,6 +32,9 @@ elixir(function(mix) {
 
     mix.copy( 'node_modules/angular-messages/angular-messages.min.js' , 'public/js/angular-messages.min.js' );
 
+    mix.copy( 'node_modules/ngclipboard/dist/ngclipboard.min.js' , 'public/js/ngclipboard.min.js' );
+    mix.copy( 'node_modules/clipboard/dist/clipboard.min.js' , 'public/js/clipboard.min.js' );
+
     mix.scripts( [
         'app.js' ,
         'mt2app/GenericTableDirective.js' ,
@@ -48,7 +51,7 @@ elixir(function(mix) {
     mix.scripts( [  'job/JobController.js' , 'job/JobApiService.js' ] , 'public/js/job.js' );
 
     mix.scripts( [ 'pages/ShowinfoController.js' , 'pages/ShowinfoApiService.js' ] , 'public/js/show-info.js' );
-    mix.scripts( [ 'client/ClientController.js' , 'client/ClientApiService.js' , 'client/ClientTableDirective.js' ] , 'public/js/client.js' );
+    mix.scripts( [ 'client/ClientController.js' , 'client/ClientApiService.js' , 'client/ClientTableDirective.js' , 'client/ClientUrlModalDirective.js' ] , 'public/js/client.js' );
 
     mix.copy( 'resources/assets/js/templates' , 'public/js/templates' );
 });

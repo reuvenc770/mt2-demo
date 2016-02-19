@@ -13,6 +13,7 @@ class ClientController extends Controller
 {
     const CLIENT_API_ENDPOINT = 'clients_list';
     const CLIENT_UPDATE_API_ENDPOINT = 'client_update';
+    const GEN_LINKS_API_ENDPOINT = 'gen_tracking_link';
 
     protected $api;
 
@@ -100,6 +101,10 @@ class ClientController extends Controller
     {
         Flash::success("Client was Successfully Updated");
         return response( $this->api->postForm( self::CLIENT_UPDATE_API_ENDPOINT , $request->all() ) );
+    }
+
+    public function generateLinks ( $id ) {
+        return response( $this->api->getJSON( self::GEN_LINKS_API_ENDPOINT , array( 'cid' => $id ) ) );
     }
 
     /**

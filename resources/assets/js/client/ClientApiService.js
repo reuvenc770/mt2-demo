@@ -41,4 +41,11 @@ mt2App.service( 'ClientApiService' , function ( $http , $log ) {
             "url" : self.baseMt1ApiUrl + '/clientstatsgrouping'
         } ).then( successCallback , failureCallback );
     };
+
+    self.generateLinks = function ( id , successCallback , failureCallback ) {
+        $http( {
+            "method" : "GET" , 
+            "url" : self.baseMt1ApiUrl + '/client/generatelinks/' + id
+        } ).then( successCallback , failureCallback );
+    };
 } );

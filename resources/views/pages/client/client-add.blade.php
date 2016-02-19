@@ -14,13 +14,13 @@
         <div class="hidden-xs hidden-sm col-md-3"></div>
 
         <div class="col-xs-12 col-md-6">
-            <button type="button" class="btn btn-success btn-lg pull-right" ng-click="client.saveClient( $event )">Save</button>
+            <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disabled' : client.creatingClient }" ng-click="client.saveClient( $event )"><span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : client.creatingClient }"></span> Save</button>
 
             <div class="clearfix"></div>
 
             @include( 'pages.client.client-form' )
 
-            <button type="button" class="btn btn-success btn-lg pull-right" ng-click="client.saveClient( $event )">Save</button>
+            <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disabled' : client.creatingClient }" ng-click="client.saveClient( $event )"><span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : client.creatingClient }"></span> Save</button>
         </div>
     </div>
 </div>

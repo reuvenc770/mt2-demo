@@ -74,5 +74,6 @@ Route::group( [ 'prefix' => 'api/mt1', 'middleware' => ['auth'] ] , function () 
     Route::resource('suppressionReason', 'MT1API\SuppressionReasonController',  [ 'only' => [ 'index' ]] );
     Route::resource('clientstatsgrouping', 'MT1API\ClientStatsGroupingController',  [ 'only' => [ 'index' ]] );
     Route::resource( 'client' , 'MT1API\ClientApiController' , [ 'only' => [ ] , 'middleware' => [ 'auth' ] ] );
+    Route::get( 'client/generatelinks/{id}' , array( 'as' => 'api.mt1.client.generatelinks' , 'uses' => 'ClientController@generatelinks' ) );
     Route::get( 'client/types' , array( 'as' => 'api.mt1.client.types' , 'uses' => 'MT1API\ClientApiController@types' ) );
 });
