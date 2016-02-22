@@ -2,24 +2,21 @@
 
 namespace App\Http\Controllers\MT1API;
 
-use App\Services\MT1Services\ClientService;
+use App\Services\MT1Services\ClientGroupService;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
-class ClientApiController extends Controller
+class ClientGroupApiController extends Controller
 {
-    protected $clientService;
+    protected $clientGroupService;
 
-    public function __construct(ClientService $clientService)
+    public function __construct(ClientGroupService $clientGroupService)
     {
-        $this->clientService = $clientService;
+        $this->clientGroupService = $clientGroupService;
     }
 
-    public function types(){
-        return $this->clientService->getAllTypes();
-    }
     /**
      * Display a listing of the resource.
      *
@@ -27,7 +24,7 @@ class ClientApiController extends Controller
      */
     public function index()
     {
-        //
+        return $this->clientGroupService->getAllNames();
     }
 
     /**
@@ -59,7 +56,7 @@ class ClientApiController extends Controller
      */
     public function show($id)
     {
-        //
+       return $this->clientGroupService->getClientsForClientGroup($id);
     }
 
     /**
