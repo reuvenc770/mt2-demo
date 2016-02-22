@@ -16,16 +16,36 @@ use Illuminate\Http\Response;
 use Sentinel;
 use Log;
 use Exception;
+use Illuminate\Support\Facades\Request as RequestFacade;
+/**
+ * Class UserEventLogService
+ * @package App\Services
+ */
 class UserEventLogService
 {
+    /**
+     * @var UserEventLogRepo
+     */
     protected $eventLogRepo;
+    /**
+     * @var
+     */
     protected $authObject;
+
+    /**
+     * UserEventLogService constructor.
+     * @param UserEventLogRepo $eventLogRepo
+     */
     public function __construct(UserEventLogRepo $eventLogRepo)
     {
         $this->eventLogRepo = $eventLogRepo;
     }
 
-    public function trackRequest($request,$response){
+    /**
+     * @param $request
+     * @param $response
+     */
+    public function trackRequest($request, $response){
             $eventFormatted = $this->decodeEvent($request, $response);
         if($eventFormatted) {
             $this->eventLogRepo->insertEvent($eventFormatted);
@@ -33,12 +53,19 @@ class UserEventLogService
 
     }
 
-    public function insertCustomRequest($userId,$page,$action,$status){
+    /**
+     * @param integer $userId
+     * @param string $page
+     * @param string $action
+     * @param integer $status
+     */
+    public function insertCustomRequest($userId, $page, $action, $status){
         try{
             $this->eventLogRepo->insertEvent(array(
                 "user_id" => $userId,
                 "page"    => $page,
                 "action"  => $this->decodeMethod($action),
+                "ip_address" => RequestFacade::ip(),
                 "status"  => $status,
             ));
         } catch (Exception $e){
@@ -46,6 +73,11 @@ class UserEventLogService
         }
     }
 
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return array
+     */
     private function decodeEvent($request, $response){
         $isJson = $request->wantsJson();
         $requestMethod = $request->getMethod();
@@ -55,6 +87,7 @@ class UserEventLogService
         $basicReturn = array(
             "user_id" => $userId,
             "page" => $request->decodedPath(),
+            "ip_address" => $request->ip(),
             "action" => $this->decodeMethod($requestMethod),
         );
 
@@ -71,6 +104,10 @@ class UserEventLogService
         }
     }
 
+    /**
+     * @param $method
+     * @return mixed
+     */
     private function decodeMethod($method){
         $actionArray= array(
             "GET" => "Page View",
