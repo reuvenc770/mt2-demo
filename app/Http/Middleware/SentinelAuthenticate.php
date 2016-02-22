@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 use Laracasts\Flash\Flash;
+use App\Facades\UserEventLog;
 class SentinelAuthenticate
 {
     /**
@@ -16,7 +17,9 @@ class SentinelAuthenticate
      */
     public function handle($request, Closure $next)
     {
+        $action = $request->route()->getAction()['as'];
         if (!Sentinel::check()) {
+            UserEventLog::insertCustomRequest(0,str_replace(".","/",$action),$request->getMethod(),\App\Models\UserEventLog::UNAUTHORIZED);
             if ($request->wantsJson()) {
                 return response('Unauthorized.', 401);
             } else {

@@ -160,7 +160,8 @@ return [
         App\Providers\EspApiAccountProvider::class,
         Cartalyst\Sentinel\Laravel\SentinelServiceProvider::class,
         Laracasts\Flash\FlashServiceProvider::class,
-        App\Providers\PermissionServiceProvider::class
+        App\Providers\PermissionServiceProvider::class,
+        App\Providers\UserEventLogProvider::class,
 
     ],
 
@@ -214,7 +215,8 @@ return [
         'Reminder'   => Cartalyst\Sentinel\Laravel\Facades\Reminder::class,
         'Sentinel'   => Cartalyst\Sentinel\Laravel\Facades\Sentinel::class,
         'Flash' => Laracasts\Flash\Flash::class,
-        'Permission' => App\Facades\Permission::class
+        'Permission' => App\Facades\Permission::class,
+        'UserEventLog' => App\Facades\UserEventLog::class,
     ],
 
 ];
