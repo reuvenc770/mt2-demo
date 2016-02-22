@@ -45,13 +45,25 @@ elixir(function(mix) {
         'mt2app/PaginationCountDirective.js'
     ] , 'public/js/angular_base.js' );
 
-    mix.scripts( [  'espapi/EspController.js' , 'espapi/EspApiService.js' ] , 'public/js/espapi.js' );
-    mix.scripts( [  'user/UserController.js' , 'user/UserApiService.js' ] , 'public/js/user.js' );
-    mix.scripts( [  'role/RoleController.js' , 'role/RoleApiService.js' ] , 'public/js/role.js' );
-    mix.scripts( [  'job/JobController.js' , 'job/JobApiService.js' ] , 'public/js/job.js' );
-
+    mix.scripts( [ 'espapi/EspController.js' , 'espapi/EspApiService.js' ] , 'public/js/espapi.js' );
+    mix.scripts( [ 'user/UserController.js' , 'user/UserApiService.js' ] , 'public/js/user.js' );
+    mix.scripts( [ 'role/RoleController.js' , 'role/RoleApiService.js' ] , 'public/js/role.js' );
+    mix.scripts( [ 'job/JobController.js' , 'job/JobApiService.js' ] , 'public/js/job.js' );
     mix.scripts( [ 'pages/ShowinfoController.js' , 'pages/ShowinfoApiService.js' ] , 'public/js/show-info.js' );
-    mix.scripts( [ 'client/ClientController.js' , 'client/ClientApiService.js' , 'client/ClientTableDirective.js' , 'client/ClientUrlModalDirective.js' ] , 'public/js/client.js' );
+
+    mix.scripts( [
+        'client/ClientController.js' ,
+        'client/ClientApiService.js' ,
+        'client/ClientTableDirective.js' ,
+        'client/ClientUrlModalDirective.js'
+    ] , 'public/js/client.js' );
+
+    mix.scripts( [
+        'clientgroup/ClientGroupController.js' ,
+        'clientgroup/ClientGroupApiService.js' ,
+        'clientgroup/ClientGroupTableDirective.js' ,
+        'clientgroup/ClientGroupChildrenTableDirective.js'
+    ] , 'public/js/clientgroup.js' );
 
     mix.copy( 'resources/assets/js/templates' , 'public/js/templates' );
 });
