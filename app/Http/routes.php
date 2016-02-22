@@ -39,6 +39,12 @@ Route::group( [ 'prefix' => 'client', 'middleware' => ['auth', 'pageLevel'] ] , 
     Route::get( '/edit/{id}' , array( 'as' => 'client.edit' , 'uses' => 'ClientController@edit' ) );
 } );
 
+Route::group( [ 'prefix' => 'clientgroup', 'middleware' => ['auth', 'pageLevel'] ] , function () {
+    Route::get( '/' , array( 'as' => 'clientgroup.list' , 'uses' => 'ClientGroupController@listAll' ) );
+    Route::get( '/create' , array( 'as' => 'clientgroup.add' , 'uses' => 'ClientGroupController@create' ) );
+    Route::get( '/edit/{id}' , array( 'as' => 'clientgroup.edit' , 'uses' => 'ClientGroupController@edit' ) );
+} );
+
 Route::group( [ 'prefix' => 'role', 'middleware' => ['auth','admin', 'pageLevel'] ] , function () {
     Route::get( '/' , array( 'as' => 'role.list' , 'uses' => 'RoleApiController@listAll' ) );
     Route::get( '/create' , array( 'as' => 'role.add' , 'uses' => 'RoleApiController@create' ) );
