@@ -15,6 +15,7 @@ use App\Repositories\UserEventLogRepo;
 use Illuminate\Http\Response;
 use Sentinel;
 use Log;
+use Exception;
 class UserEventLogService
 {
     protected $eventLogRepo;
@@ -30,6 +31,19 @@ class UserEventLogService
             $this->eventLogRepo->insertEvent($eventFormatted);
         }
 
+    }
+
+    public function insertCustomRequest($userId,$page,$action,$status){
+        try{
+            $this->eventLogRepo->insertEvent(array(
+                "user_id" => $userId,
+                "page"    => $page,
+                "action"  => $this->decodeMethod($action),
+                "status"  => $status,
+            ));
+        } catch (Exception $e){
+            Log::error("Error inserting Custom Request:: ".$e->getMessage());
+        }
     }
 
     private function decodeEvent($request, $response){

@@ -7,6 +7,7 @@
  */
 
 namespace App\Http\Middleware;
+use App\Facades\UserEventLog;
 use Sentinel;
 use Laracasts\Flash\Flash;
 use Closure;
@@ -24,6 +25,7 @@ class SentinelPermissions
         $action = $request->route()->getAction()['as'];
         if (!Sentinel::hasAccess($action))
         {
+            UserEventLog::insertCustomRequest(Sentinel::getUser()->id,str_replace(".","/",$action),$request->getMethod(),\App\Models\UserEventLog::UNAUTHORIZED);
             if ($request->wantsJson()) {
                 return response('Unauthorized.', 401);
             } else {
