@@ -32,7 +32,7 @@ class ClientGroupRepo
             DB::enableQueryLog();
             return DB::connection('mt1mail')->table('ClientGroupClients')
                 ->join('user', 'user.user_id', '=', 'ClientGroupClients.client_id')
-                ->select('user.username', 'user.status')
+                ->select('user.username as name', 'user.status')
                 ->where('ClientGroupClients.client_group_id',$id )
                 ->get();
             
