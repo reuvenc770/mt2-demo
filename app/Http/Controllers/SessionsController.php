@@ -7,7 +7,7 @@ use Cartalyst\Sentinel\Checkpoints\ThrottlingException;
 use App\Http\Requests\LoginFormRequest;
 use Sentinel;
 use Laracasts\Flash\Flash;
-
+use App\Facades\UserEventLog;
 class SessionsController extends Controller
 {
     /**
@@ -33,9 +33,11 @@ class SessionsController extends Controller
                 Flash::success("Successfully logged in");
                 return redirect()->intended('/home');
             }
+            UserEventLog::insertCustomRequest(0,str_replace(".","/",$request->route()->getAction()['as']),"Login Fail",\App\Models\UserEventLog::UNAUTHORIZED);
             Flash::error("Invalid credentials provided");
             return redirect()->back()->withInput();
         } catch (NotActivatedException $e) {
+            UserEventLog::insertCustomRequest(0,str_replace(".","/",$request->route()->getAction()['as']),"Deactivated Login Attempt ",\App\Models\UserEventLog::UNAUTHORIZED);
             Flash::error("'User Not Activated.");
             return redirect()->back()->withInput();
         } catch (ThrottlingException $e) {

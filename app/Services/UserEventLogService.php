@@ -78,6 +78,10 @@ class UserEventLogService
             "POST"=> "Create Record",
 
         );
-        return $actionArray[$method];
+        if (isset($actionArray[$method])){
+            return $actionArray[$method];
+        }
+
+        return $method;
     }
 }
