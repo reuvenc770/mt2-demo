@@ -46,7 +46,7 @@ Route::group( [ 'prefix' => 'role', 'middleware' => ['auth','admin', 'pageLevel'
 } );
 
 Route::group( [ 'prefix' => 'api', 'middleware' => ['auth' , 'pageLevel'] ] , function () {
-    Route::get( '/client/pager' , [ 'as' => 'client.pager' , 'uses' => 'ClientController@pager' ] );
+    Route::get('/pager/{type}', [ 'as' => 'pager', 'uses' =>'PagingController@paginate']);
     Route::resource( 'espapi' , 'EspApiController' , [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth']  ] );
     Route::resource( 'client' , 'ClientController' , [ 'except' => [ 'create' , 'edit' , 'pager' ] ,'middleware' => ['auth'] ] );
     Route::resource('user', 'UserApiController',  [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth','admin']] );
