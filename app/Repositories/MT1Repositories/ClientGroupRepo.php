@@ -27,6 +27,10 @@ class ClientGroupRepo
             ->orderBy("name")->get();
     }
 
+    public function getModel () {
+        return $this->clientGroup->select('client_group_id as id' , 'group_name as name' )->orderBy("name");
+    }
+
     public function getAllClientsForGroup($id){
         try{
             DB::enableQueryLog();
