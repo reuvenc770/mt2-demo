@@ -7,10 +7,16 @@
  */
 
 namespace App\Services\ServiceTraits;
+
 use Log;
 use Cache;
+use App\Services\ServiceTraits\PaginationCache;
+use Illuminate\Pagination\LengthAwarePaginator;
+
 trait PaginateMT1
 {
+    use PaginationCache;
+
     public $api;
     public $response;
     public $pageName;
@@ -27,38 +33,46 @@ trait PaginateMT1
 
     }
 
-    public function getPaginatedJson($pageNumber, $perPage, $params = null){
-        $recordsCacheKey = "{$this->pageName}.{$pageNumber}.{$perPage}";
-        $pageCountCacheKey = "{$this->pageName}.pageCount.{$perPage}";
-        $timeout = env("CACHETIMEOUT",60);
-
-        if(Cache::tags( $this->pageName )->has($recordsCacheKey)){
-            return [
-                "pageCount" => Cache::tags( $this->pageName )->get($pageCountCacheKey) ,
-                "records" => Cache::tags( $this->pageName )->get($recordsCacheKey)
-            ];
+    public function getPaginatedJson ( $pageNumber, $perPage , $params = null ) {
+        if ( $this->hasCache( $pageNumber , $perPage ) ) {
+            return $this->getCachedJson( $pageNumber , $perPage );
         } else {
-            $records = collect( json_decode( $this->getJson( $this->pageName , $params ) , true ) );
+            try {
+                return $this->paginateRecords( $pageNumber , $perPage , $params );
+            } catch ( \Exception $e ) {
+                Log::error( $e->getMessage() );
+                return false;
+            }
+        }
+    }
 
+    public function paginateRecords ( $pageNumber , $perPage , $params ) {
+            $records = collect( json_decode( $this->getJson( $this->pageName , $params ) , true ) );
+            
+            $totalRecordCount = count( $records );
             $chunkedList = $records->chunk( $perPage );
             $pageCount = count( $chunkedList );
-            $currentResponse = [
-                "pageCount" => $pageCount ,
-                "records" => []
-            ];
 
-            Cache::tags( $this->pageName )->put( $pageCountCacheKey , $pageCount , $timeout );
-
+            $responsePaginator = null;
+            $currentPaginator = null;
             foreach ( $chunkedList as $pageIndex => $chunk ) {
                 $currentPageNumber = $pageIndex + 1;
 
-                if ( $currentPageNumber == $pageNumber ) $currentResponse[ 'records' ] = $chunk;
+                $currentPaginator = ( new LengthAwarePaginator(
+                    $chunk ,
+                    $totalRecordCount ,
+                    $perPage ,
+                    $currentPageNumber
+                ) )->toJSON();
 
-                Cache::tags( $this->pageName )->put( "{$this->pageName}.{$currentPageNumber}.{$perPage}" , $chunk , $timeout );
+                if ( $currentPageNumber == $pageNumber ) {
+                    $responsePaginator = $currentPaginator;
+                }
+
+                $this->cachePagination( $currentPaginator , $currentPageNumber , $perPage );
             }
 
-            return $currentResponse;
-        }
+            return $responsePaginator;
     }
 
     public function postForm($page, $data)

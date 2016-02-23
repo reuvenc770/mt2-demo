@@ -23,8 +23,6 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
     };
 
     self.loadClients = function ( groupID ) {
-        $log.log( 'loading clients for group ' + groupID );
-
         ClientGroupApiService.getClients(
             groupID ,
             self.loadClientsSuccessCallback ,
@@ -55,10 +53,8 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
     self.loadClientGroupsSuccessCallback = function ( response ) {
         self.currentlyLoading = 0;
 
-        self.clientGroups = response.data.records;
-        self.pageCount = response.data.pageCount;
-
-        $log.log( 'client groups set.' );
+        self.clientGroups = response.data.data;
+        self.pageCount = response.data.last_page;
     };
 
     self.loadClientGroupsFailureCallback = function ( response ) {

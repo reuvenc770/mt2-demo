@@ -8,6 +8,7 @@
 
 namespace App\Services;
 
+use App\Services\ServiceTraits\PaginateList;
 
 use App\Repositories\EspApiAccountRepo;
 use League\Csv\Reader;
@@ -17,6 +18,8 @@ use League\Csv\Reader;
  */
 class EspApiAccountService
 {
+    use PaginateList;
+
     /**
      * @var EspApiAccountRepo
      */
@@ -30,6 +33,10 @@ class EspApiAccountService
     {
         $this->espRepo = $espRepo;
     }
+
+    public function getModel () { return $this->espRepo->getModel(); }
+
+    public function getType () { return 'espapiaccount'; }
 
     /**
      * @param int $id The ID of the account to retrieve.

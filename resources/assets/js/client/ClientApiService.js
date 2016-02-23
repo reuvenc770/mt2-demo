@@ -1,6 +1,7 @@
 mt2App.service( 'ClientApiService' , function ( $http , $log ) {
     var self = this;
 
+    self.pagerApiUrl = '/api/pager/Client';
     self.baseApiUrl = '/api/client';
     self.baseMt1ApiUrl = '/api/mt1';
 
@@ -10,8 +11,11 @@ mt2App.service( 'ClientApiService' , function ( $http , $log ) {
     };
 
     self.getClients = function ( page , count , successCallback , failureCallback ) {
-        $http( { "method" : "GET" , "url" : this.baseApiUrl + '/pager' , "params" : { "page" : page , "count" : count } } )
-            .then( successCallback , failureCallback );
+        $http( {
+            "method" : "GET" ,
+            "url" : self.pagerApiUrl , 
+            "params" : { "page" : page , "count" : count }
+        } ).then( successCallback , failureCallback );
     };
 
     self.saveClient = function ( clientData , successCallback , failureCallback ) {

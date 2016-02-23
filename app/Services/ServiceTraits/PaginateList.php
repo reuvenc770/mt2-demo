@@ -6,32 +6,33 @@
 namespace App\Services\ServiceTraits;
 
 use Log;
-use Cache;
-#use App\Facades\Paginator;
-use Illuminate\Pagination\LengthAwarePaginator;
+use App\Services\ServiceTraits\PaginationCache;
 
 trait PaginateList {
+    use PaginationCache;
+
     public function getPaginatedJson ( $page , $count ) {
+        if ( $this->hasCache( $page , $count ) ) {
+            return $this->getCachedJson( $page , $count );
+        } else {
+            try {
+                $eloquentObj = $this->getModel();
 
-        try {
-            $eloquentObj = $this->getModel();
+                $paginationJSON = $eloquentObj->paginate( $count )->toJSON();
 
-            $paginationJSON = $eloquentObj->paginate( $count )->toJSON();
-        } catch ( \Exception $e ) {
-            Log::error( $e->getMessage() );
-            return false;
+                $this->cachePagination(
+                    $paginationJSON ,
+                    $page ,
+                    $count
+                );
+
+                return $paginationJSON;
+            } catch ( \Exception $e ) {
+                Log::error( $e->getMessage() );
+                return false;
+            }
         }
     }
 
-    public function getRecordCacheKey ( $page , $count ) {
-        return $this->getType() . ".{$page}.{$count}";
-    }
-
-    public function getPageCountCacheKey ( $count ) {
-        return $this->getType() . ".pageCount.{$count}";
-    }
-
     abstract public function getModel();
-
-    abstract public function getType();
 }

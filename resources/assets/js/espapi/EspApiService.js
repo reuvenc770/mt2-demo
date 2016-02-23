@@ -1,6 +1,7 @@
 mt2App.service( 'EspApiService' , function ( $http , $log ) {
     var self = this;
 
+    self.pagerApiUrl = '/api/pager/EspApiAccount';
     self.baseApiUrl = '/api/espapi';
 
     self.getAccount = function ( id , successCallback ) {
@@ -8,9 +9,12 @@ mt2App.service( 'EspApiService' , function ( $http , $log ) {
             .then( successCallback );
     }
 
-    self.getAccounts = function ( successCallback , failureCallback ) {
-        $http( { "method" : "GET" , "url" : this.baseApiUrl } )
-            .then( successCallback , failureCallback );
+    self.getAccounts = function ( page , count , successCallback , failureCallback ) {
+        $http( {
+            "method" : "GET" , 
+            "url" : self.pagerApiUrl ,
+            "params" : { "page" : page , "count" : count }
+        } ).then( successCallback , failureCallback );
     }
 
     self.saveNewAccount = function ( newAccount , successCallback , failureCallback ) {

@@ -5,7 +5,8 @@ mt2App.directive( 'paginationButton' , function ( $log , $rootScope ) {
         "controller" : function () {} ,
         "controllerAs" : "ctrl" ,
         "bindToController" : {
-            'pagenumber' : '='
+            'pagenumber' : '=' ,
+            'maxpage' : '='
         } ,
         "templateUrl" : "js/templates/pagination-button.html"
     };

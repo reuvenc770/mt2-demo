@@ -2,11 +2,11 @@
     <ul class="pagination">
         <pagination-control mode="prev" ng-click="ctrl.prevPage()" ng-class="{ disabled : ctrl.disablefloor }"></pagination-control>
 
-        <pagination-button ng-class="{ active : ctrl.button1 == ctrl.currentpage }" ng-click="ctrl.updatePage( ctrl.button1 )" pageNumber="ctrl.button1"></pagination-button>
-        <pagination-button ng-class="{ active : ctrl.button2 == ctrl.currentpage }" ng-click="ctrl.updatePage( ctrl.button2 )" pageNumber="ctrl.button2"></pagination-button>
-        <pagination-button ng-class="{ active : ctrl.button3 == ctrl.currentpage }" ng-click="ctrl.updatePage( ctrl.button3 )" pageNumber="ctrl.button3"></pagination-button>
-        <pagination-button ng-class="{ active : ctrl.button4 == ctrl.currentpage }" ng-click="ctrl.updatePage( ctrl.button4 )" pageNumber="ctrl.button4"></pagination-button>
-        <pagination-button ng-class="{ active : ctrl.button5 == ctrl.currentpage }" ng-click="ctrl.updatePage( ctrl.button5 )" pageNumber="ctrl.button5"></pagination-button>
+        <pagination-button ng-class="{ active : ctrl.button1 == ctrl.currentpage }" ng-click="ctrl.updatePage( ctrl.button1 )" pageNumber="ctrl.button1" maxpage="ctrl.maxpage"></pagination-button>
+        <pagination-button ng-class="{ active : ctrl.button2 == ctrl.currentpage }" ng-click="ctrl.updatePage( ctrl.button2 )" pageNumber="ctrl.button2" maxpage="ctrl.maxpage"></pagination-button>
+        <pagination-button ng-class="{ active : ctrl.button3 == ctrl.currentpage }" ng-click="ctrl.updatePage( ctrl.button3 )" pageNumber="ctrl.button3" maxpage="ctrl.maxpage"></pagination-button>
+        <pagination-button ng-class="{ active : ctrl.button4 == ctrl.currentpage }" ng-click="ctrl.updatePage( ctrl.button4 )" pageNumber="ctrl.button4" maxpage="ctrl.maxpage"></pagination-button>
+        <pagination-button ng-class="{ active : ctrl.button5 == ctrl.currentpage }" ng-click="ctrl.updatePage( ctrl.button5 )" pageNumber="ctrl.button5" maxpage="ctrl.maxpage"></pagination-button>
 
         <pagination-control mode="next" ng-click="ctrl.nextPage()" ng-class="{ disabled : ctrl.disableceiling }"></pagination-control>
     </ul>

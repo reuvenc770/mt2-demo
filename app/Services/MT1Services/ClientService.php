@@ -31,4 +31,7 @@ class ClientService
         return $this->clientRepo->getClientTypes();
     }
 
+    public function getType () {
+        return 'client';
+    }
 }
