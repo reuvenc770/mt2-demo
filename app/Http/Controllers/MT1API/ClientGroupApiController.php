@@ -29,46 +29,6 @@ class ClientGroupApiController extends Controller
         return $this->clientGroupService->getAllNames();
     }
 
-    public function pager( Request $request ) {
-        $pageName = 'clientgroup';
-        $pageNumber = $request->input( 'page' );
-        $perPage = $request->input( 'count' );
-
-        $recordsCacheKey = "{$pageName}.{$pageNumber}.{$perPage}";
-        $pageCountCacheKey = "{$pageName}.pageCount.{$perPage}";
-        $timeout = env( "CACHETIMEOUT" , 60 );
-
-        if ( Cache::tags( $pageName )->has( $recordsCacheKey ) ) {
-            return response()->json( [
-                "pageCount" => Cache::tags( $pageName )->get( $pageCountCacheKey ) ,
-                "records" => Cache::tags( $pageName )->get( $recordsCacheKey )
-            ] );
-        } else {
-            $records = collect( json_decode( $this->index() ) );
-
-            $chunkedList = $records->chunk( $perPage );
-            $pageCount = count( $chunkedList );
-            $currentResponse = [
-                "pageCount" => $pageCount ,
-                "records" => []
-            ];
-
-            Cache::tags( $pageName )->put( $pageCountCacheKey , $pageCount , $timeout );
-
-            foreach ( $chunkedList as $pageIndex => $chunk ) {
-                $currentPageNumber = $pageIndex + 1;
-
-                if ( $currentPageNumber == $pageNumber ) {
-                    $currentResponse[ 'records' ] = $chunk;
-                }
-
-                Cache::tags( $pageName )->put( "{$pageName}.{$currentPageNumber}.{$perPage}" , $chunk , $timeout );
-            }
-
-            return response()->json( $currentResponse );
-        }
-    }
-
     /**
      * Show the form for creating a new resource.
      *
