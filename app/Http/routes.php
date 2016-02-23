@@ -84,3 +84,7 @@ Route::group( [ 'prefix' => 'api/mt1', 'middleware' => ['auth'] ] , function () 
     Route::get( 'client/generatelinks/{id}' , array( 'as' => 'api.mt1.client.generatelinks' , 'uses' => 'ClientController@generatelinks' ) );
     Route::get( 'client/types' , array( 'as' => 'api.mt1.client.types' , 'uses' => 'MT1API\ClientApiController@types' ) );
 });
+
+
+Route::get('wizard/test', ['as' => 'logout', 'uses' => 'WizardController@test']);
+Route::get('woo', ['as' => 'logout', 'uses' => 'WizardController@woo']);
