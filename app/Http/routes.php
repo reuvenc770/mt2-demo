@@ -86,5 +86,5 @@ Route::group( [ 'prefix' => 'api/mt1', 'middleware' => ['auth'] ] , function () 
 });
 
 
-Route::get('wizard/test', ['as' => 'logout', 'uses' => 'WizardController@test']);
-Route::get('woo', ['as' => 'logout', 'uses' => 'WizardController@woo']);
+Route::get('wizard/{type}', ['as' => 'dfsddf', 'uses' => 'WizardController@index']);
+Route::get('wizard/pager/{type}/{page}', ['as' => 'gdfg', 'uses' => 'WizardController@getPage']);

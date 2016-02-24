@@ -6,20 +6,23 @@
 
 @section( 'content' )
     <div class="row">
-        <div class="page-header col-xs-12"><h1 class="text-center">Security Roles</h1></div>
+        <div class="page-header col-xs-12"><h1 class="text-center">Wizard {{$type}}</h1></div>
     </div>
+    <div ng-controller="wizardController as wizard" ng-init="wizard.loadFirstStep('{{$type}}')">
 
-    <div ng-controller="wizardController as wizard" ng-init="wizard.loadFirstStep()">
         <div class="row">
             <div class="col-xs-12">
                 <div ng-bind-html="wizard.stepHtml" compilehtml></div>
 
             </div>
         </div>
+        <button type="button" ng-disabled="wizard.prevStep === false"  class="btn btn-info btn-lg pull-left mt2-header-btn" ng-click="wizard.goToPrevStep()" >Prev</button>
+        <button type="button" ng-disabled="wizard.nextStep === false" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="wizard.goToNextStep()" >Next</button>
     </div>
 @stop
 
 @section( 'pageIncludes' )
+    <script src="js/user.js"></script>
     <script src="js/role.js"></script>
     <script src="js/wizard.js"></script>
 @stop

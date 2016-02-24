@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\MT1Models\ClientGroup;
 use App\Services\MT1Services\ClientGroupService;
+use App\Services\WizardService;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -12,21 +13,23 @@ use App\Http\Controllers\Controller;
 class WizardController extends Controller
 {
     protected $service;
-    public function __construct(ClientGroupService $service)
+    protected $request;
+    protected $type;
+    public function __construct(Request $request)
     {
-        $this->service = $service;
+
+        $this->request = $request;
     }
 
-    public function test()
+    public function index($wizardName)
     {
-        $test = view()->make('pages.role.role-index');
-        $sections = $test->renderSections(); // returns an associative array of 'content', 'head' and 'footer'
-
-        return $sections['content']; // this w
+        $this->type = $wizardName;
+        return response()->view('pages.wizard.wizard-index', array ("type" => $wizardName));
     }
 
-    public function woo()
-    {
-        return response()->view('pages.wizard.wizard-index');
+    public function getPage($wizardName, $pageNumber){
+        $service = new WizardService($wizardName);
+        return $service->getPage($pageNumber);
     }
+
 }
