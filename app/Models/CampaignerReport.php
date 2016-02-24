@@ -8,4 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class CampaignerReport extends Model implements IReport
 {
     protected $guarded = ['id'];
+    protected $connection = "reporting_data";
 }

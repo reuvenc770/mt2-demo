@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class StandardReport extends Model implements IReport
 {
     protected $guarded = ['id'];
+    protected $connection = "reporting_data";
 
     public function beforeCreate()
     {

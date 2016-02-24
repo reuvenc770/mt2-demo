@@ -8,5 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class MaroReport extends Model implements IReport
 {
     protected $guarded = ['id'];
+    protected $connection = "reporting_data";
 
 }

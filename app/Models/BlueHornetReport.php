@@ -8,5 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class BlueHornetReport extends Model implements IReport
 {
     protected $guarded = ['id'];
+    protected $connection = "reporting_data";
 
 }

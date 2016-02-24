@@ -57,6 +57,17 @@ return [
             'prefix'    => '',
             'strict'    => false,
         ],
+        'reporting_data' => [
+            'driver'    => 'mysql',
+            'host'      => env('DB_HOST', 'localhost'),
+            'database'  => env('REPORTS_DB_DATABASE', 'mt2_reports'),
+            'username'  => env('DB_USERNAME', 'forge'),
+            'password'  => env('DB_PASSWORD', ''),
+            'charset'   => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix'    => '',
+            'strict'    => false,
+        ],
         'mt1supp' => [
             'driver'    => 'mysql',
             'host'      => env('MT1_SUPP_DB_HOST', ''),
