@@ -27,8 +27,12 @@ class WizardService
     public function getPage($pageNumber)
     {
         $this->currentStep =$pageNumber;
-        $page = view()->make($this->steps[$pageNumber]);
-        $sections = $page->renderSections(); // returns an associative array of 'content', 'head' and 'footer'
+        try {
+            $page = view()->make($this->steps[$pageNumber]);
+            $sections = $page->renderSections(); // returns an associative array of 'content', 'head' and 'footer'
+        } catch(\Exception $e){
+            return false;
+        }
         $returnArray = array(
             'type' => $this->type,
             'section' => $sections['content'],

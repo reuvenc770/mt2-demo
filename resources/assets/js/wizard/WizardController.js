@@ -1,5 +1,6 @@
-mt2App.controller( 'wizardController' , [ '$log' , '$window' , '$location' , '$timeout' , 'WizardApiService', '$sce'  , function ( $log , $window , $location , $timeout , WizardApiService, $sce ) {
+mt2App.controller( 'wizardController' , [ '$log' , '$window' , '$location' , '$timeout' , 'WizardApiService', '$sce', '$rootScope'  , function ( $log , $window , $location , $timeout , WizardApiService, $sce, $rootScope ) {
     var self = this;
+    $rootScope.wizard = self;
     self.$location = $location;
     self.stepHtml = "";
     self.nextStep = "";
