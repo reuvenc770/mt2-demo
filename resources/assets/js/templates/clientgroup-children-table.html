@@ -1,0 +1,17 @@
+<div class="table-responsive">
+    <table class="table mtNestedTable">
+        <thead>
+            <tr>
+                <td>Client</td>
+                <td>Status</td>
+            </tr>
+        </thead>
+        
+        <tbody>
+            <tr ng-repeat="record in ctrl.records track by $index">
+                <td>{{ record.name }}</td>
+                <td ng-class="{ 'bg-success' : record.status == 'A' , 'bg-warn' : record.status == 'P' , 'bg-danger' : record.status == 'D' }"><strong>{{ record.status == 'A' ? 'Active' : record.status == 'P' ? 'Paused' : 'Inactive'  }}</strong></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
