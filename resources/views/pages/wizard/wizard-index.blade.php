@@ -22,7 +22,8 @@
 @stop
 
 @section( 'pageIncludes' )
-    <script src="js/user.js"></script>
-    <script src="js/role.js"></script>
     <script src="js/wizard.js"></script>
+    @foreach($files as $file)
+        <script src="js/{{$file}}.js"></script>
+    @endforeach
 @stop

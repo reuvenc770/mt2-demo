@@ -16,12 +16,15 @@ class WizardService
     protected $nextStep;
     protected $stepCount;
     protected $currentStep;
+    protected $files;
 
     public function __construct($wizardType)
     {
-        $this->steps = json_decode(Storage::get("wizards/{$wizardType}.config"))->steps;
+        $jsonObject = json_decode(Storage::get("wizards/{$wizardType}.config"));
+        $this->steps = $jsonObject->steps;
         $this->stepCount = count($this->steps);
         $this->type = $wizardType;
+        $this->files = $jsonObject->js;
     }
 
     public function getPage($pageNumber)
@@ -58,5 +61,12 @@ class WizardService
         } else {
             return $currentStep - 1;
         }
+    }
+    /**
+     * @return mixed
+     */
+    public function getFiles()
+    {
+        return $this->files;
     }
 }
