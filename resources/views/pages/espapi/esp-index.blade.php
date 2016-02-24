@@ -20,10 +20,31 @@
         <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="esp.viewAdd()"><span class="glyphicon glyphicon-plus"></span> Add ESP Account</button>
     </div>
     @endif
+
     <div class="row">
         <div class="col-xs-12">
+            <div class="row">
+                <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
+                    <pagination-count recordcount="esp.paginationCount" currentpage="esp.currentPage"></pagination-count>
+                </div>
+
+                <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
+                    <pagination currentpage="esp.currentPage" maxpage="esp.pageCount"></pagination>
+                </div>
+            </div>
+
             <div id="mtTableContainer" class="table-responsive">
                 <generic-table headers="esp.headers" records="esp.accounts" editurl="esp.editUrl"></generic-table>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
+                    <pagination-count recordcount="esp.paginationCount" currentpage="esp.currentPage"></pagination-count>
+                </div>
+
+                <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
+                    <pagination currentpage="esp.currentPage" maxpage="esp.pageCount"></pagination>
+                </div>
             </div>
         </div>
     </div>

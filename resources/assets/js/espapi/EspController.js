@@ -1,8 +1,8 @@
-mt2App.controller( 'espController' , [ '$log' , '$window' , '$location' , '$timeout' , 'EspApiService' , function ( $log , $window , $location , $timeout , EspApiService ) {
+mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$location' , '$timeout' , 'EspApiService' , function ( $rootScope , $log , $window , $location , $timeout , EspApiService ) {
     var self = this;
     self.$location = $location;
 
-    self.headers = [ '' , 'ID' , 'ESP' , 'Account' , 'Created' , 'Updated' ];
+    self.headers = [ '' , 'ID' , 'ESP' , 'Key 1' , 'Key 2' , 'Account' , 'Created' , 'Updated' ];
     self.accounts = [];
 
     self.currentAccount = { "espId" : "" , "id" : "" , "accountName" : "" , "key1" : "" , "key2" : "" };
@@ -11,6 +11,11 @@ mt2App.controller( 'espController' , [ '$log' , '$window' , '$location' , '$time
     self.editUrl = 'espapi/edit/';
 
     self.formErrors = { "espId" : "" , "id" : "" , "accountName" : "" , "key1" : "" , "key2" : "" };
+
+    self.currentlyLoading = 0;
+    self.pageCount = 0;
+    self.paginationCount = '10';
+    self.currentPage = 1;
 
     self.loadAccount = function () {
         var pathMatches = $location.path().match( /^\/espapi\/edit\/(\d{1,})/ );
@@ -24,7 +29,10 @@ mt2App.controller( 'espController' , [ '$log' , '$window' , '$location' , '$time
     }
 
     self.loadAccounts = function () {
-        EspApiService.getAccounts( self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
+        EspApiService.getAccounts(
+            self.currentPage ,
+            self.paginationCount ,
+            self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
     };
 
     self.resetCurrentAccount = function () {
@@ -34,6 +42,13 @@ mt2App.controller( 'espController' , [ '$log' , '$window' , '$location' , '$time
         self.currentAccount.key1 = '';
         self.currentAccount.key2 = '';
     };
+
+    /**
+     * Watchers
+     */
+    $rootScope.$on( 'updatePage' , function () {
+        self.loadAccounts();
+    } );
 
     /**
      * Click Handlers
@@ -59,7 +74,8 @@ mt2App.controller( 'espController' , [ '$log' , '$window' , '$location' , '$time
      * Callbacks
      */
     self.loadAccountsSuccessCallback = function ( response ) {
-        self.accounts = response.data;
+        self.accounts = response.data.data;
+        self.pageCount = response.data.last_page;
     };
 
     self.loadAccountsFailureCallback = function ( response ) {

@@ -1,24 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\MT1API;
+namespace App\Http\Controllers;
 
-use App\Services\MT1Services\ClientGroupService;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
-use Cache;
-
-class ClientGroupApiController extends Controller
+class ClientGroupController extends Controller
 {
-    protected $clientGroupService;
-
-    public function __construct(ClientGroupService $clientGroupService)
-    {
-        $this->clientGroupService = $clientGroupService;
-    }
-
     /**
      * Display a listing of the resource.
      *
@@ -26,7 +16,11 @@ class ClientGroupApiController extends Controller
      */
     public function index()
     {
-        return $this->clientGroupService->getAllNames();
+        //
+    }
+
+    public function listAll () {
+        return response()->view( 'pages.clientgroup.clientgroup-index' );
     }
 
     /**
@@ -36,7 +30,7 @@ class ClientGroupApiController extends Controller
      */
     public function create()
     {
-        return response('Unauthorized.', 401);
+        //
     }
 
     /**
@@ -47,7 +41,7 @@ class ClientGroupApiController extends Controller
      */
     public function store(Request $request)
     {
-        return response('Unauthorized.', 401);
+        //
     }
 
     /**
@@ -58,10 +52,7 @@ class ClientGroupApiController extends Controller
      */
     public function show($id)
     {
-        return response()->json( [
-            "groupid" => $id ,
-            "records" => $this->clientGroupService->getClientsForClientGroup($id)
-        ] );
+        //
     }
 
     /**
@@ -72,7 +63,7 @@ class ClientGroupApiController extends Controller
      */
     public function edit($id)
     {
-        return response('Unauthorized.', 401);
+        //
     }
 
     /**
@@ -84,7 +75,7 @@ class ClientGroupApiController extends Controller
      */
     public function update(Request $request, $id)
     {
-        return response('Unauthorized.', 401);
+        //
     }
 
     /**
@@ -95,6 +86,6 @@ class ClientGroupApiController extends Controller
      */
     public function destroy($id)
     {
-        return response('Unauthorized.', 401);
+        //
     }
 }

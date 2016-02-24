@@ -233,9 +233,9 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
     };
 
     self.loadClientsSuccessCallback = function ( response ) {
-        self.clients = response.data.records;
+        self.clients = response.data.data;
 
-        self.pageCount = response.data.pageCount;
+        self.pageCount = response.data.last_page;
 
         self.currentlyLoading = 0;
     };

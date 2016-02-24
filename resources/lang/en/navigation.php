@@ -6,4 +6,5 @@ return[
     'role.list'   => 'User Roles',
     'user.list'   => 'Users',
     'devtools.jobs' => 'Job Tracker',
+    'clientgroup.list' => 'Client Group'
 ];

@@ -27,12 +27,16 @@ class ClientGroupRepo
             ->orderBy("name")->get();
     }
 
+    public function getModel () {
+        return $this->clientGroup->select('client_group_id as id' , 'group_name as name' )->orderBy("name");
+    }
+
     public function getAllClientsForGroup($id){
         try{
             DB::enableQueryLog();
             return DB::connection('mt1mail')->table('ClientGroupClients')
                 ->join('user', 'user.user_id', '=', 'ClientGroupClients.client_id')
-                ->select('user.username', 'user.status')
+                ->select('user.username as name', 'user.status')
                 ->where('ClientGroupClients.client_group_id',$id )
                 ->get();
             

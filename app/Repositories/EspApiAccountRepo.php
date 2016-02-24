@@ -33,6 +33,8 @@ class EspApiAccountRepo
         $this->espAccount = $espAccount;
     }
 
+    public function getModel () { return $this->espAccount; }
+
     /**
      * @param $espAccountId
      * @return EspAccount

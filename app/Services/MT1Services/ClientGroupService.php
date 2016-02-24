@@ -8,11 +8,12 @@
 
 namespace App\Services\MT1Services;
 
-
+use App\Services\ServiceTraits\PaginateList;
 use App\Repositories\MT1Repositories\ClientGroupRepo;
 
 class ClientGroupService
 {
+    use PaginateList;
     protected $clientGroupRepo;
 
     public function __construct(ClientGroupRepo $clientGroupRepo)
@@ -20,6 +21,13 @@ class ClientGroupService
         $this->clientGroupRepo = $clientGroupRepo;
     }
 
+    public function getModel () {
+        return $this->clientGroupRepo->getModel(); 
+    }
+
+    public function getType () {
+        return 'clientgroup';
+    }
 
     public function getAllNames(){
         return $this->clientGroupRepo->getAllClientGroups();
