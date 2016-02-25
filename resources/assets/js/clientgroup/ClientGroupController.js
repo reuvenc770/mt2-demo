@@ -28,6 +28,7 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
         "clients" : '' ,
         "excludeFromSuper" : false
     };
+    self.formErrors = [];
     
 
     /**
