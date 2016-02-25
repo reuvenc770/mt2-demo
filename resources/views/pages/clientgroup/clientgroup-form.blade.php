@@ -4,8 +4,10 @@
     </div>
 
     <div class="panel-body">
-        <div class="form-group">
+        <div class="form-group" ng-class="{ 'has-error' : clientGroup.formErrors.groupName }">
             <input type="text" class="form-control" id="groupName" value="" placeholder="Client Group Name" ng-model="clientGroup.current.groupName" required="required" />
+
+            <span class="help-block" ng-bind="clientGroup.formErrors.groupName" ng-show="clientGroup.formErrors.groupName"></span>
         </div>
 
         <md-card>

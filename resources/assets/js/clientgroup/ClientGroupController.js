@@ -265,6 +265,16 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
 
 
     /**
+     * Errors
+     */
+    self.loadFieldErrors = function (response ) {
+        angular.forEach(response.data, function(value, key) {
+            self.setFieldError( key , value );
+        });
+    };
+
+
+    /**
      * Success Callbacks
      */
     self.prepopPageDataSuccessCallback = function ( response ) {
@@ -324,19 +334,13 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
     self.saveClientGroupFailureCallback = function ( response ) {
         self.creatingClientGroup = false;
 
-        self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to save client group.' );
-
-        self.launchModal();
+        self.loadFieldErrors( response );
     };
 
     self.updateClientGroupFailureCallback = function ( response ) {
         self.updatingClientGroup = false;
 
-        self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to load client group.' );
-
-        self.launchModal();
+        self.loadFieldErrors( response );
     };
 
     self.copyClientGroupFailureCallback = function ( response ) {

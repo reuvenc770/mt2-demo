@@ -30,8 +30,7 @@ class ClientGroupRequest extends Request
         return [
             'gid' => 'required|regex:/^\d$/' ,
             'user_id' => 'required|regex:/^\d$/' ,
-            'groupName' => 'required|' ,
-            'excludeFromSuper' => 'required|regex:/[YN]{1}/'
+            'groupName' => 'required'
         ];
     }
 }
