@@ -7,22 +7,26 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ProfileUpdate;
 use App\Http\Requests\RegistrationFormRequest;
 use App\Http\Requests\RegistrationEditFormRequest;
 use Laracasts\Flash\Flash;
-
+use Hash;
 class UserApiController extends Controller
 {
     protected $userService;
 
-    public function __construct(UserService $userService){
-        $this->userService  = $userService;
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
     }
 
-    public function listAll() {
+    public function listAll()
+    {
         return response()
-            ->view( 'pages.user.user-index' );
+            ->view('pages.user.user-index');
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -32,14 +36,14 @@ class UserApiController extends Controller
     {
         $users = $this->userService->getAllUsersWithRolesNames();
         $return = array();
-        foreach ($users as $user){
+        foreach ($users as $user) {
             $return[] = array(
                 $user->id,
                 $user->email,
                 $user->username,
                 $user->first_name,
                 $user->last_name,
-                implode(',',$user->roles->toArray()),
+                implode(',', $user->roles->toArray()),
                 $user->activations ? "active" : 'deactivated',
                 $user->last_login
             );
@@ -56,19 +60,19 @@ class UserApiController extends Controller
     public function create()
     {
         $roles = $this->userService->getAvailableRoles();
-        return view('pages.user.user-add',array("roles" => $roles));
+        return view('pages.user.user-add', array("roles" => $roles));
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(RegistrationFormRequest $request)
     {
         $roles = $request->input('roles');
-        $input = $request->only('email','username', 'password', 'first_name', 'last_name');
+        $input = $request->only('email', 'username', 'password', 'first_name', 'last_name');
         $this->userService->createAndRegisterUser($input, $roles);
         Flash::success("User was Successfully Created");
 
@@ -77,7 +81,7 @@ class UserApiController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -88,30 +92,50 @@ class UserApiController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
-        if(!$this->userService->checkifUserExists($id)){
+        if (!$this->userService->checkifUserExists($id)) {
             Flash::error("User {$id} does not exist");
             return redirect("/user");
         }
         $roles = $this->userService->getAvailableRoles();
-        return view('pages.user.user-edit',array("roles" => $roles));
+        return view('pages.user.user-edit', array("roles" => $roles));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \Illuminate\Http\Request $request
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function update(RegistrationEditFormRequest $request, $id)
     {
         $roles = $request->input('roles');
-        $input = $request->only('email', 'username','first_name', 'last_name');
+        $input = $request->only('email', 'username', 'first_name', 'last_name');
+        $this->userService->updateUserAndRoles($input, $roles, $id);
+        Flash::success("User Successfully Updated");
+    }
+
+    public function myProfile()
+    {
+        $user = \Sentinel::getUser();
+        return response()
+            ->view('pages.user.user-profile', array( "id" => $user->getUserId()));
+    }
+
+    public function updateProfile(ProfileUpdate $request, $id)
+    {
+        $roles = $request->input('roles');
+        $newPass = $request->input('newpass');
+        if(isset($newPass)){
+            $newPW = Hash::make($newPass);
+            $request->merge(array('password' => $newPW));
+        }
+        $input = $request->only('email', 'username', 'first_name', 'last_name', 'password');
         $this->userService->updateUserAndRoles($input, $roles, $id);
         Flash::success("User Successfully Updated");
     }

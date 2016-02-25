@@ -4,7 +4,7 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
 
     self.headers = [ '' , 'ID', 'email', "username", 'First Name', 'Last Name', 'Roles', "Status" , "Last Login"];
     self.accounts = [];
-    self.currentAccount = { "email" : "" , "username": "", "password" : "" , "password_confirmation" : "" , "first_name" : "" , "last_name" : "" , "roles" : ""};
+    self.currentAccount = { "email" : "" , "username": "", "password" : "",  "new_password" : "" , "password_confirmation" : "" , "first_name" : "" , "last_name" : "" , "roles" : ""};
     self.currentAccount.roles = [];
     self.createUrl = 'user/create/';
     self.editUrl = 'user/edit/';
@@ -17,7 +17,13 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
         UserApiService.getAccount( pathMatches[ 1 ] , function ( response ) {
             self.currentAccount = response.data;
         } )
-    }
+    };
+    self.loadProfile = function ($id) {
+
+        UserApiService.getAccount($id , function ( response ) {
+            self.currentAccount = response.data;
+        } )
+    };
 
     self.loadAccounts = function () {
         UserApiService.getAccounts( self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
@@ -45,6 +51,12 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
         self.resetFieldErrors();
 
         UserApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
+    };
+
+    self.updateProfile = function () {
+        self.resetFieldErrors();
+
+        UserApiService.updateProfile( self.currentAccount , self.SuccessProfileCallBackRedirect , self.editAccountFailureCallback );
     };
 
     self.toggleSelection = function (role) {
@@ -79,6 +91,11 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
     self.SuccessCallBackRedirect = function ( response ) {
         $location.url( '/user' );
         $window.location.href = '/user';
+    };
+
+    self.SuccessProfileCallBackRedirect = function ( response ) {
+        $location.url( '/home' );
+        $window.location.href = '/home';
     };
 
     self.saveNewAccountFailureCallback = function ( response ) {

@@ -53,6 +53,7 @@ Route::group( [ 'prefix' => 'role', 'middleware' => ['auth','admin', 'pageLevel'
 
 Route::group( [ 'prefix' => 'api', 'middleware' => ['auth' , 'pageLevel'] ] , function () {
     Route::get('/pager/{type}', [ 'as' => 'pager', 'uses' =>'PagingController@paginate']);
+    Route::put('/profile/{id}', [ 'as' => 'profile.update', 'uses' =>'UserApiController@updateProfile']);
     Route::resource( 'espapi' , 'EspApiController' , [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth']  ] );
     Route::resource( 'client' , 'ClientController' , [ 'except' => [ 'create' , 'edit' , 'pager' ] ,'middleware' => ['auth'] ] );
     Route::resource('user', 'UserApiController',  [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth','admin']] );
@@ -75,6 +76,8 @@ Route::group(['middleware' => ['guest']], function () {
 Route::resource('sessions', 'SessionsController' , ['only' => ['create','store','destroy']]);
 Route::get('home', ['as' => 'home', 'uses' => 'HomeController@home']);
 Route::get('logout', ['as' => 'logout', 'uses' => 'SessionsController@destroy']);
+Route::get('myprofile', ['as'=> 'myprofile','uses' => 'UserApiController@myProfile']);
+
 
 Route::group( [ 'prefix' => 'api/mt1', 'middleware' => ['auth'] ] , function () {
     Route::resource('suppressionReason', 'MT1API\SuppressionReasonController',  [ 'only' => [ 'index' ]] );

@@ -7,8 +7,6 @@
  */
 
 namespace App\Services;
-
-
 use Cartalyst\Sentinel\Sentinel;
 
 
@@ -111,6 +109,7 @@ class UserService
         return $user;
     }
 
+
     /**
      * @param $input
      * @param $roles
@@ -119,10 +118,12 @@ class UserService
     public function updateUserAndRoles($input, $roles, $id)
     {
         $user = $this->userRepo->findById($id);
-        $user->roles()->detach(); //remove all roles.
-        foreach ($roles as $role) {
-            $roleObject = $this->authObject->findRoleById($role);
-            $roleObject->users()->attach($user);
+        if($roles) {
+            $user->roles()->detach(); //remove all roles.
+            foreach ($roles as $role) {
+                $roleObject = $this->authObject->findRoleById($role);
+                $roleObject->users()->attach($user);
+            }
         }
         $this->userRepo->update($user, $input);
     }

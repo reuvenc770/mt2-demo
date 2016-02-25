@@ -3,7 +3,8 @@ namespace App\Http\Requests;
 use App\Http\Requests\Request;
 use Sentinel;
 use Log;
-class RegistrationEditFormRequest extends Request
+use App\Http\Validators\HashValidator;
+class ProfileUpdate extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,26 +27,17 @@ class RegistrationEditFormRequest extends Request
      */
     public function rules()
     {
-        $updatePw = array();
-      $standard = array(
+        $user = Sentinel::getUser();
+        Log::info($user->getUserPassword());
+        return  array(
             'email' => 'required|email|unique:users,email,'.$this->get('id'),
             'username' => 'required|unique:users,username,'.$this->get('id'),
             'first_name' => 'required',
             'last_name' => 'required',
             'roles'      => 'required',
-            'password' => '',
-            'new_password' =>'',
-      );
+            'password' => 'hash:' . $user->getUserPassword(),
+            'newpass' => 'different:password|confirmed'
+        );
 
-
-        if($this->get('password') && $this->get('new_password')){
-            $user = Sentinel::getUser();
-            $updatePw = array(
-                'password' => 'hash:' . $user->password,
-                'new_password' => 'required|different:password|confirmed'
-            );
-
-        }
-        return array_merge($standard,$updatePw);
     }
 }
