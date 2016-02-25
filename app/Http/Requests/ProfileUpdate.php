@@ -2,8 +2,7 @@
 namespace App\Http\Requests;
 use App\Http\Requests\Request;
 use Sentinel;
-use Log;
-use App\Http\Validators\HashValidator;
+
 class ProfileUpdate extends Request
 {
     /**
@@ -28,7 +27,6 @@ class ProfileUpdate extends Request
     public function rules()
     {
         $user = Sentinel::getUser();
-        Log::info($user->getUserPassword());
         return  array(
             'email' => 'required|email|unique:users,email,'.$this->get('id'),
             'username' => 'required|unique:users,username,'.$this->get('id'),

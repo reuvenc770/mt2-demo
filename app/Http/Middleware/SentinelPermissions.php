@@ -33,6 +33,12 @@ class SentinelPermissions
                 return redirect()->back();
             }
         }
+        if ($action != "myprofile" && !$request->wantsJson()) {
+            if (!Sentinel::getUser()->email) {
+                Flash::warning("Please enter an email before using the site");
+                return redirect("myprofile");
+            }
+        }
 
         return $next($request);
     }
