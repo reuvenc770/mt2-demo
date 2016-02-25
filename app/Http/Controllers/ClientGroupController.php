@@ -9,6 +9,7 @@ use Cache;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Services\MT1ApiService;
+use App\Http\Requests\ClientGroupRequest;
 
 class ClientGroupController extends Controller
 {
@@ -46,10 +47,10 @@ class ClientGroupController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  App\Http\Requests\ClientGroupRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store( ClientGroupRequest $request)
     {
         Flash::success( 'Client Group was successfully created.' );
 
@@ -86,11 +87,11 @@ class ClientGroupController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  App\Http\Requests\ClientGroupRequest  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update( ClientGroupRequest $request, $id)
     {
         Flash::success( 'Client Group was successfully updated.' );
 
