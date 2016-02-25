@@ -20,7 +20,8 @@ class RegistrationEditFormRequest extends Request
     public function rules()
     {
         return [
-            'email' => 'required|email|',
+            'email' => 'required|email|unique:users,email,'.$this->get('id'),
+            'username' => 'required|unique:users,username,'.$this->get('id'),
             'first_name' => 'required',
             'last_name' => 'required',
             'roles'      => 'required',

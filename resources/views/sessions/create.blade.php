@@ -14,9 +14,9 @@
 
 
                                 <!-- Email field -->
-                                <div class="form-group @if ($errors->has('email')) has-error @endif">
-                                    <input placeholder="Email" class="form-control" required="required" name="email" type="text" value="{{ old('email') }}">
-                                    @if ($errors->has('email')) <p class="help-block">{{ $errors->first('email') }}</p> @endif
+                                <div class="form-group @if ($errors->has('login')) has-error @endif">
+                                    <input placeholder="Email or Username" class="form-control" required="required" name="login" type="text" value="{{ old('login') }}">
+                                    @if ($errors->has('login')) <p class="help-block">{{ $errors->first('login') }}</p> @endif
                                 </div>
 
                                 <!-- Password field -->

@@ -2,9 +2,9 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
     var self = this;
     self.$location = $location;
 
-    self.headers = [ '' , 'ID', 'email', 'First Name', 'Last Name', 'Roles', "Status" , "Last Login"];
+    self.headers = [ '' , 'ID', 'email', "username", 'First Name', 'Last Name', 'Roles', "Status" , "Last Login"];
     self.accounts = [];
-    self.currentAccount = { "email" : "" , "password" : "" , "password_confirmation" : "" , "first_name" : "" , "last_name" : "" , "roles" : ""};
+    self.currentAccount = { "email" : "" , "username": "", "password" : "" , "password_confirmation" : "" , "first_name" : "" , "last_name" : "" , "roles" : ""};
     self.currentAccount.roles = [];
     self.createUrl = 'user/create/';
     self.editUrl = 'user/edit/';
@@ -82,28 +82,20 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
     };
 
     self.saveNewAccountFailureCallback = function ( response ) {
-        self.loadFieldErrors( 'email' , response );
-        self.loadFieldErrors( 'first_name' , response );
-        self.loadFieldErrors( 'last_name' , response );
-        self.loadFieldErrors( 'password' , response );
-        self.loadFieldErrors( 'password_confirmation' , response );
-        self.loadFieldErrors( 'roles' , response );
+        self.loadFieldErrors(response);
     };
 
     self.editAccountFailureCallback = function ( response ) {
-        self.loadFieldErrors( 'email' , response );
-        self.loadFieldErrors( 'first_name' , response );
-        self.loadFieldErrors( 'last_name' , response );
-        self.loadFieldErrors( 'roles' , response );
+        self.loadFieldErrors(response);
     };
 
     /**
      * Errors
      */
-    self.loadFieldErrors = function ( field , response ) {
-        if ( typeof( response.data[ field ] ) != 'undefined' ) {
-            self.setFieldError( field , response.data[ field ].join( ' ' ) );
-        }
+    self.loadFieldErrors = function (response ) {
+        angular.forEach(response.data, function(value, key) {
+            self.setFieldError( key , value );
+        });
     };
 
     self.setFieldError = function ( field , errorMessage ) {

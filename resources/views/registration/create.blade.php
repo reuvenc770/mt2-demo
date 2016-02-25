@@ -18,6 +18,12 @@
                                     <input placeholder="Email" value="{{old('email') }}" class="form-control" required="required" name="email" type="text">
                                     @if ($errors->has('email')) <p class="help-block">{{ $errors->first('email') }}</p> @endif
                                 </div>
+
+                                <div class="form-group  @if ($errors->has('username')) has-error @endif">
+                                    <input placeholder="Email" value="{{old('username') }}" class="form-control" required="required" name="username" type="text">
+                                    @if ($errors->has('username')) <p class="help-block">{{ $errors->first('username') }}</p> @endif
+                                </div>
+
                                 <!-- Password field -->
                                 <div class="form-group @if ($errors->has('password')) has-error @endif">
                                     <input placeholder="Password" class="form-control" required="required" name="password" type="password" value="">

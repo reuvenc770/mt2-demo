@@ -36,6 +36,7 @@ class UserApiController extends Controller
             $return[] = array(
                 $user->id,
                 $user->email,
+                $user->username,
                 $user->first_name,
                 $user->last_name,
                 implode(',',$user->roles->toArray()),
@@ -67,7 +68,7 @@ class UserApiController extends Controller
     public function store(RegistrationFormRequest $request)
     {
         $roles = $request->input('roles');
-        $input = $request->only('email', 'password', 'first_name', 'last_name');
+        $input = $request->only('email','username', 'password', 'first_name', 'last_name');
         $this->userService->createAndRegisterUser($input, $roles);
         Flash::success("User was Successfully Created");
 
@@ -110,7 +111,7 @@ class UserApiController extends Controller
     public function update(RegistrationEditFormRequest $request, $id)
     {
         $roles = $request->input('roles');
-        $input = $request->only('email', 'first_name', 'last_name');
+        $input = $request->only('email', 'username','first_name', 'last_name');
         $this->userService->updateUserAndRoles($input, $roles, $id);
         Flash::success("User Successfully Updated");
     }

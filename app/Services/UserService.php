@@ -83,7 +83,7 @@ class UserService
      */
     public function getAllUsersWithRolesNames()
     {
-        $users = $this->userRepo->select('id', 'email', 'first_name', 'last_name', 'last_login')
+        $users = $this->userRepo->select('id', 'email','username', 'first_name', 'last_name', 'last_login')
             ->with(['roles' => function ($query) {
                 $query->addSelect('name');
             }, 'activations'])->get();
@@ -101,7 +101,7 @@ class UserService
      */
     public function getUserWithRoles($id)
     {
-        $user = $this->userRepo->select('id', 'email', 'first_name', 'last_name', 'last_login')
+        $user = $this->userRepo->select('id', 'email','username', 'first_name', 'last_name', 'last_login')
             ->with(['roles' => function ($query) {
                 $query->addSelect('id');
             }])->get()->find($id);

@@ -27,7 +27,7 @@ class SessionsController extends Controller
      */
     public function store(LoginFormRequest $request)
     {
-        $input = $request->only('email', 'password');
+        $input = $request->only('login', 'password');
         try {
             if (Sentinel::authenticate($input, $request->has('remember'))) {
                 Flash::success("Successfully logged in");
