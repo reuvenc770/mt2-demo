@@ -56,6 +56,8 @@ Route::group( [ 'prefix' => 'api', 'middleware' => ['auth' , 'pageLevel'] ] , fu
     Route::put('/profile/{id}', [ 'as' => 'profile.update', 'uses' =>'UserApiController@updateProfile']);
     Route::resource( 'espapi' , 'EspApiController' , [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth']  ] );
     Route::resource( 'client' , 'ClientController' , [ 'except' => [ 'create' , 'edit' , 'pager' ] ,'middleware' => ['auth'] ] );
+    Route::get( '/clientgroup/copy/{id}' , array( 'as' => 'api.clientgroup.copy' , 'uses' => 'ClientGroupController@copy' ) );
+    Route::resource( 'clientgroup' , 'ClientGroupController' , [ 'except' => [ 'create' , 'edit' , 'copy' ] ,'middleware' => ['auth'] ] );
     Route::resource('user', 'UserApiController',  [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth','admin']] );
     Route::resource('role', 'RoleApiController',  [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth','admin']] );
     Route::resource('jobEntry', 'JobApiController',  [ 'only' => [ 'index' ] ,'middleware' => ['auth','dev']] );
@@ -83,7 +85,12 @@ Route::group( [ 'prefix' => 'api/mt1', 'middleware' => ['auth'] ] , function () 
     Route::resource('suppressionReason', 'MT1API\SuppressionReasonController',  [ 'only' => [ 'index' ]] );
     Route::resource('clientstatsgrouping', 'MT1API\ClientStatsGroupingController',  [ 'only' => [ 'index' ]] );
     //Route::resource( 'client' , 'MT1API\ClientApiController' , [ 'only' => [ ] ] ); Will be needed later
+    Route::get( 'clientgroup/clients/{id}' , [ 'as' => 'api.mt1.clientgroup.clients' , 'uses' => 'MT1API\ClientGroupApiController@clients' ] );
     Route::resource( 'clientgroup' , 'MT1API\ClientGroupApiController' , [ 'only' => [ 'index','show'] ] );
     Route::get( 'client/generatelinks/{id}' , array( 'as' => 'api.mt1.client.generatelinks' , 'uses' => 'ClientController@generatelinks' ) );
     Route::get( 'client/types' , array( 'as' => 'api.mt1.client.types' , 'uses' => 'MT1API\ClientApiController@types' ) );
 });
+
+
+Route::get('wizard/{type}', ['as' => 'dfsddf', 'uses' => 'WizardController@index']);
+Route::get('wizard/pager/{type}/{page}', ['as' => 'gdfg', 'uses' => 'WizardController@getPage']);

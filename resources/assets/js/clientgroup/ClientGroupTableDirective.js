@@ -6,8 +6,12 @@ mt2App.directive( 'clientgroupTable' , function () {
         "bindToController" : {
             "records" : "=" ,
             "loadchildren" : "&" ,
+            "copygroup" : "&" ,
+            "deletegroup" : "&" ,
             "children" : "=" ,
-            "loadingflag" : "="
+            "loadingflag" : "=" ,
+            "copyingflag" : '=' ,
+            "deletingflag" : '='
         } ,
         "templateUrl" : "js/templates/clientgroup-table.html"
     };

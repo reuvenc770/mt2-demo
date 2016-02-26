@@ -14,7 +14,7 @@ class ClientGroupApiController extends Controller
 {
     protected $clientGroupService;
 
-    public function __construct(ClientGroupService $clientGroupService)
+    public function __construct( ClientGroupService $clientGroupService )
     {
         $this->clientGroupService = $clientGroupService;
     }
@@ -58,6 +58,10 @@ class ClientGroupApiController extends Controller
      */
     public function show($id)
     {
+        return response()->json( $this->clientGroupService->getClientGroup( $id ) );
+    }
+
+    public function clients ( $id ) {
         return response()->json( [
             "groupid" => $id ,
             "records" => $this->clientGroupService->getClientsForClientGroup($id)
