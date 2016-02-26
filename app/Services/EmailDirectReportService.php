@@ -50,6 +50,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
 
         return array(
             'deploy_id' => $data[ 'name' ],
+            'sub_id' => $this->parseSubID($data['name']),
             'esp_account_id' => $this->api->getEspAccountId(),
             'datetime' => $data[ 'schedule_date' ],
             'name' => $data[ 'campaign_id' ],

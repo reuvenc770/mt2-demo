@@ -79,6 +79,7 @@ class MaroReportService extends AbstractReportService implements IDataService
         return array(
 
             'deploy_id' => $data['name'],
+            'sub_id' => $this->parseSubID($data['name']),
             'm_deploy_id' => 0, // temporarily 0 until deploys are created
             'esp_account_id' => $data['esp_account_id'],
             'datetime' => $data['sent_at'],
