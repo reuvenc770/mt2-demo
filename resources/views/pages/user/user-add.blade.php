@@ -16,6 +16,10 @@
                                     <input placeholder="Email" value="{{old('email') }}" class="form-control" ng-model="user.currentAccount.email" required="required" name="email" type="text">
                                     <span class="help-block" ng-bind="user.formErrors.email" ng-show="user.formErrors.email"></span>
                                 </div>
+                                <div class="form-group" ng-class="{ 'has-error' : user.formErrors.username }">
+                                    <input placeholder="Username" ng-model="user.currentAccount.usename" class="form-control" required="required" name="username" type="text">
+                                    <span class="help-block" ng-bind="user.formErrors.username" ng-show="user.formErrors.username"></span>
+                                </div>
                                 <!-- Password field -->
                                 <div class="form-group" ng-class="{ 'has-error' : user.formErrors.password }">
                                     <input placeholder="Password" class="form-control" required="required" name="password" type="password" ng-model="user.currentAccount.password" value="">

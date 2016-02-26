@@ -13,7 +13,7 @@
         <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{Sentinel::getUser()->first_name}} {{Sentinel::getUser()->first_name}}<span class="caret"></span></a>
             <ul class="dropdown-menu">
-                <li><a href="#">My Profile</a></li>
+                <li><a href="{{route("myprofile")}}" target="_self">My Profile</a></li>
                 <li role="separator" class="divider"></li>
                 <li><a href="{{route("logout")}}" target="_self">Logout</a></li>
             </ul>

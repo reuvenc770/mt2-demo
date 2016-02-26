@@ -2,9 +2,9 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
     var self = this;
     self.$location = $location;
 
-    self.headers = [ '' , 'ID', 'email', 'First Name', 'Last Name', 'Roles', "Status" , "Last Login"];
+    self.headers = [ '' , 'ID', 'email', "username", 'First Name', 'Last Name', 'Roles', "Status" , "Last Login"];
     self.accounts = [];
-    self.currentAccount = { "email" : "" , "password" : "" , "password_confirmation" : "" , "first_name" : "" , "last_name" : "" , "roles" : ""};
+    self.currentAccount = { "email" : "" , "username": "", "password" : "",  "new_password" : "" , "password_confirmation" : "" , "first_name" : "" , "last_name" : "" , "roles" : ""};
     self.currentAccount.roles = [];
     self.createUrl = 'user/create/';
     self.editUrl = 'user/edit/';
@@ -17,7 +17,13 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
         UserApiService.getAccount( pathMatches[ 1 ] , function ( response ) {
             self.currentAccount = response.data;
         } )
-    }
+    };
+    self.loadProfile = function ($id) {
+
+        UserApiService.getAccount($id , function ( response ) {
+            self.currentAccount = response.data;
+        } )
+    };
 
     self.loadAccounts = function () {
         UserApiService.getAccounts( self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
@@ -45,6 +51,12 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
         self.resetFieldErrors();
 
         UserApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
+    };
+
+    self.updateProfile = function () {
+        self.resetFieldErrors();
+
+        UserApiService.updateProfile( self.currentAccount , self.SuccessProfileCallBackRedirect , self.editAccountFailureCallback );
     };
 
     self.toggleSelection = function (role) {
@@ -81,29 +93,26 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
         $window.location.href = '/user';
     };
 
+    self.SuccessProfileCallBackRedirect = function ( response ) {
+        $location.url( '/home' );
+        $window.location.href = '/home';
+    };
+
     self.saveNewAccountFailureCallback = function ( response ) {
-        self.loadFieldErrors( 'email' , response );
-        self.loadFieldErrors( 'first_name' , response );
-        self.loadFieldErrors( 'last_name' , response );
-        self.loadFieldErrors( 'password' , response );
-        self.loadFieldErrors( 'password_confirmation' , response );
-        self.loadFieldErrors( 'roles' , response );
+        self.loadFieldErrors(response);
     };
 
     self.editAccountFailureCallback = function ( response ) {
-        self.loadFieldErrors( 'email' , response );
-        self.loadFieldErrors( 'first_name' , response );
-        self.loadFieldErrors( 'last_name' , response );
-        self.loadFieldErrors( 'roles' , response );
+        self.loadFieldErrors(response);
     };
 
     /**
      * Errors
      */
-    self.loadFieldErrors = function ( field , response ) {
-        if ( typeof( response.data[ field ] ) != 'undefined' ) {
-            self.setFieldError( field , response.data[ field ].join( ' ' ) );
-        }
+    self.loadFieldErrors = function (response ) {
+        angular.forEach(response.data, function(value, key) {
+            self.setFieldError( key , value );
+        });
     };
 
     self.setFieldError = function ( field , errorMessage ) {
