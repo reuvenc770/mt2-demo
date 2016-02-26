@@ -1,4 +1,4 @@
-mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$timeout' , 'RoleApiService' , function ( $log , $window , $location , $timeout , RoleApiService ) {
+mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$timeout' , 'RoleApiService', '$rootScope' , function ( $log , $window , $location , $timeout , RoleApiService, $rootScope ) {
     var self = this;
     self.$location = $location;
 
@@ -15,7 +15,7 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
         RoleApiService.getRole( pathMatches[ 1 ] , function ( response ) {
             self.currentRole = response.data;
         } )
-    }
+    };
 
     self.loadRoles = function () {
         RoleApiService.getRoles( self.loadRolesSuccessCallback , self.loadRolesFailureCallback );
@@ -35,7 +35,6 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
 
     self.saveNewRole = function () {
         self.resetFieldErrors();
-
         RoleApiService.saveNewRole( self.currentRole , self.SuccessCallBackRedirect , self.saveNewRoleFailureCallback );
     };
 
@@ -107,8 +106,12 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
     }
 
     self.SuccessCallBackRedirect = function ( response ) {
-        $location.url( '/role' );
-        $window.location.href = '/role';
+        if($rootScope.wizard !== undefined){
+            $rootScope.wizard.goToNextStep();
+        } else {
+            $location.url('/role');
+            $window.location.href = '/role';
+        }
     };
 
     self.saveNewRoleFailureCallback = function ( response ) {

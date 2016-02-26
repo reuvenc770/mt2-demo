@@ -42,7 +42,8 @@ elixir(function(mix) {
         'mt2app/PaginationDirective.js' ,
         'mt2app/PaginationControlDirective.js' ,
         'mt2app/PaginationButtonDirective.js' ,
-        'mt2app/PaginationCountDirective.js'
+        'mt2app/PaginationCountDirective.js',
+        'mt2app/CompileHtml.js'
     ] , 'public/js/angular_base.js' );
 
     mix.scripts( [ 'espapi/EspController.js' , 'espapi/EspApiService.js' ] , 'public/js/espapi.js' );
@@ -50,6 +51,7 @@ elixir(function(mix) {
     mix.scripts( [ 'role/RoleController.js' , 'role/RoleApiService.js' ] , 'public/js/role.js' );
     mix.scripts( [ 'job/JobController.js' , 'job/JobApiService.js' ] , 'public/js/job.js' );
     mix.scripts( [ 'pages/ShowinfoController.js' , 'pages/ShowinfoApiService.js' ] , 'public/js/show-info.js' );
+    mix.scripts( [  'wizard/WizardController.js' , 'wizard/WizardapiService.js' ] , 'public/js/wizard.js' );
 
     mix.scripts( [
         'client/ClientController.js' ,

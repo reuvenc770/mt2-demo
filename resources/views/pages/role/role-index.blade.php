@@ -8,7 +8,6 @@
     <div class="row">
         <div class="page-header col-xs-12"><h1 class="text-center">Security Roles</h1></div>
     </div>
-
     <div ng-controller="roleController as role" ng-init="role.loadRoles()">
         @if (Sentinel::hasAccess('role.add'))
         <div class="row">
