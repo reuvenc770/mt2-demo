@@ -36,10 +36,37 @@ body {
     padding-top:61px;
 }
 
+/**
+ * Fields
+ */
 .btn {
     margin: .5em;
 }
 
+#clientChipList {
+    min-height: 75px;
+    margin-bottom: 10px;
+    /*box-shadow: 0 1px rgb(224,224,224);*/
+}
+
+#clientChipBucket{
+    height: 250px;
+}
+
+/**
+ * Lists
+ */
+.md-list-item {
+    padding: 10px 0;
+}
+
+.md-list-item span {
+    color: rgba(0,0,0,0.54);
+}
+
+/**
+ * Nav
+ */
 .navbar-toggle {
     background-color: #000;
     float: left;
@@ -50,6 +77,16 @@ body {
     }
 }
 
+@media (min-width: 768px)
+{
+    .navbar-right {
+        margin-right: 10px;
+    }
+}
+
+/**
+ * Tables
+ */
 thead {
     background-color: #2e5c89;
     color: #FFF;
@@ -80,8 +117,14 @@ Roles Pages custom
     }
 }
 
+/**
+ * Pagination
+ */
 .paginationCount { margin: 20px 10px; }
 
+/**
+ * Animations
+ */
 .rotateMe {
     -webkit-animation:spin 4s linear infinite;
     -moz-animation:spin 4s linear infinite;
@@ -91,10 +134,3 @@ Roles Pages custom
 @-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
 @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
 @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
-
-@media (min-width: 768px)
-{
-    .navbar-right {
-        margin-right: 10px;
-    }
-}

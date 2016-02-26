@@ -18,6 +18,13 @@ mt2App.service( 'ClientApiService' , function ( $http , $log ) {
         } ).then( successCallback , failureCallback );
     };
 
+    self.getAllClients = function ( successCallback , failureCallback ) {
+        $http( {
+            "method" : "GET" ,
+            "url" : self.baseApiUrl
+        } ).then( successCallback , failureCallback );
+    };
+
     self.saveClient = function ( clientData , successCallback , failureCallback ) {
         $http( { "method" : "POST" , "url" : this.baseApiUrl , "data" : clientData } )
             .then( successCallback , failureCallback );

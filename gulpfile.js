@@ -63,6 +63,7 @@ elixir(function(mix) {
     mix.scripts( [
         'clientgroup/ClientGroupController.js' ,
         'clientgroup/ClientGroupApiService.js' ,
+        'client/ClientApiService.js' ,
         'clientgroup/ClientGroupTableDirective.js' ,
         'clientgroup/ClientGroupChildrenTableDirective.js'
     ] , 'public/js/clientgroup.js' );

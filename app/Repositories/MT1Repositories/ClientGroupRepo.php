@@ -22,6 +22,14 @@ class ClientGroupRepo
         $this->clientGroup = $clientGroup;
     }
 
+    public function getName ( $groupId ) {
+        return $this->clientGroup->select( 'group_name as name' )->get();
+    }
+
+    public function getClientGroup ( $groupId ) {
+        return $this->clientGroup->select( 'group_name' , 'excludeFromSuper' )->get();
+    }
+
     public function getAllClientGroups(){
         return $this->clientGroup->select('client_group_id as id' , 'group_name as name' )
             ->orderBy("name")->get();
@@ -36,7 +44,7 @@ class ClientGroupRepo
             DB::enableQueryLog();
             return DB::connection('mt1mail')->table('ClientGroupClients')
                 ->join('user', 'user.user_id', '=', 'ClientGroupClients.client_id')
-                ->select('user.username as name', 'user.status')
+                ->select( 'user.user_id as client_id' , 'user.username as name', 'user.status')
                 ->where('ClientGroupClients.client_group_id',$id )
                 ->get();
             

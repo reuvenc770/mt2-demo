@@ -25,7 +25,7 @@
                 </div>
             </div>
 
-            <clientgroup-table records="clientGroup.clientGroups" children="clientGroup.clientMap" loadingflag="clientGroup.currentlyLoading" loadchildren="clientGroup.loadClients( groupID )"></clientgroup-table>
+            <clientgroup-table records="clientGroup.clientGroups" children="clientGroup.clientMap" loadingflag="clientGroup.currentlyLoading" loadchildren="clientGroup.loadClients( groupID )" copygroup="clientGroup.copyClientGroup( groupID )" deletegroup="clientGroup.deleteClientGroup( groupID )" copyingflag="clientGroup.copyingClientGroup" deletingflag="clientGroup.deletingClientGroup"></clientgroup-table>
 
             <div class="row">
                 <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
