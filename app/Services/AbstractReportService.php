@@ -55,4 +55,8 @@ abstract class AbstractReportService implements IDataService  {
       $end = $end + 5000;
     } 
   }
+
+  public function parseSubID($deploy_id){
+    return explode("_", $deploy_id)[0];
+  }
 }

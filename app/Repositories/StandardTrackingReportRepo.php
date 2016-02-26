@@ -15,27 +15,12 @@ class StandardTrackingReportRepo {
     }
 
     public function insertStats($data) {
-        
-        // Custom query needed - 
-        // unfortunately, CAKE only has one item useful for matching:
-        // the s1 value, which is the first part of the deploy_id
-        // so we need to use LIKE
-
-        DB::statement("
-            UPDATE 
-                standard_reports
-            SET
-                t_clicks = ?,
-                conversions = ?,
-                revenue = ?
-            WHERE
-                deploy_id LIKE CONCAT(?, '%')",
-        [
-            $data['t_clicks'],
-            $data['conversions'],
-            $data['revenue'],
-            $data['subid_1'] . '_'
-        ]);
+        $updateArray = array(
+            "t_clicks" => $data['t_clicks'],
+            "conversions" => $data['conversions'],
+            "revenue" =>$data['revenue'],
+        );
+      $this->report->where('sub_id', $data['subid_1'])->update($updateArray);
     }
 
 }

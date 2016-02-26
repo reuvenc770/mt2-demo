@@ -18,7 +18,8 @@ class TrackingRepo
   public function insertStats($data) {
     // The UPSERT here shaves off several minutes in runtime in tests
     // The select-insert approach takes close to 3x longer to run
-    DB::statement("
+
+    DB::connection("reporting_data")->statement("
       INSERT INTO cake_aggregated_data 
       (subid_1, subid_4, subid_5, clicks, conversions, revenue, 
         created_at, updated_at) 

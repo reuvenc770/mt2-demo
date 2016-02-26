@@ -144,6 +144,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         return array(
 
             'deploy_id' => $report['name'],
+            'sub_id' => $this->parseSubID($report['name']),
             'esp_account_id' => $report['esp_account_id'],
             'datetime' => '0000-00-00', //$report[''],
             'name' => $report['name'],
