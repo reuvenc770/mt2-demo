@@ -34,9 +34,7 @@
                 </div>
             </div>
 
-            <div id="mtTableContainer" class="table-responsive">
-                <generic-table headers="esp.headers" records="esp.accounts" editurl="esp.editUrl"></generic-table>
-            </div>
+            <espapi-table records="esp.accounts"></espapi-table>
 
             <div class="row">
                 <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">

@@ -46,7 +46,7 @@ elixir(function(mix) {
         'mt2app/CompileHtml.js'
     ] , 'public/js/angular_base.js' );
 
-    mix.scripts( [ 'espapi/EspController.js' , 'espapi/EspApiService.js' ] , 'public/js/espapi.js' );
+    mix.scripts( [ 'espapi/EspController.js' , 'espapi/EspApiService.js' , 'espapi/EspapiTableDirective.js' ] , 'public/js/espapi.js' );
     mix.scripts( [ 'user/UserController.js' , 'user/UserApiService.js' ] , 'public/js/user.js' );
     mix.scripts( [ 'role/RoleController.js' , 'role/RoleApiService.js' ] , 'public/js/role.js' );
     mix.scripts( [ 'job/JobController.js' , 'job/JobApiService.js' ] , 'public/js/job.js' );
