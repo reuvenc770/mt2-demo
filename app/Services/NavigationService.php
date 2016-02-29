@@ -2,10 +2,9 @@
 
 namespace App\Services;
 
-use Cartalyst\Sentinel\Sentinel;
+use Sentinel;
 use Route;
 use Cache;
-
 class NavigationService {
     protected $auth;
     protected $currentUser;
@@ -26,10 +25,8 @@ class NavigationService {
 
     public function getMenu () {
         $userPresent = $this->loadUser();
-
         if ( $userPresent ) {
-            $cachedMenu = Cache::get( $this->cacheId );
-
+            $cachedMenu = Cache::tags("navigation")->get( $this->cacheId );
             if ( is_null( $cachedMenu ) ) {
                 if ( empty( $this->menuList ) ) $this->loadMenu();
 
@@ -46,16 +43,29 @@ class NavigationService {
         $this->loadRoutes();
 
         foreach ( $this->routeList as $route ) {
+            $prefix = str_replace("/","",$route->getPrefix());
+            $name = $route->getName();
             $this->loadPrefix( $route );
             $this->loadName( $route );
             $this->loadUri( $route );
-            
+
             if (
                 $this->isPrefixValid()
                 && $this->isValidName()
                 && $this->hasAccess()
+                && $route->getName() != ""
             ) {
-                $this->menuList []= $this->getCurrentMenuItem();
+                if(substr($name, -4) == "list") {
+                    $this->menuList[$prefix] = $this->getCurrentMenuItem();
+                    $this->menuList[$prefix]['children'] = array();
+                } else {
+                    if(isset($this->menuList[$prefix]['children'])) {
+                        array_push($this->menuList[$prefix]['children'], $this->getCurrentMenuItem());
+                    }
+                    else {
+                        $this->menuList[$prefix] = $this->getCurrentMenuItem();
+                    }
+                }
             }
         }
 
@@ -63,12 +73,11 @@ class NavigationService {
     }
 
     protected function loadUser () {
-        $this->currentUser = $this->auth->getUser();
-
+        $this->currentUser = Sentinel::getUser();
         if ( is_null( $this->currentUser ) ) return false;
 
-        $userCollection = $this->currentUser->pluck( 'id' );
-        $this->cacheId = 'nav-' . $userCollection->first();
+
+        $this->cacheId = 'nav-' . $this->currentUser->getUserId();
 
         return true;
     }
@@ -98,7 +107,7 @@ class NavigationService {
     }
 
     protected function isValidName () {
-        return ( preg_match( '/.{1,}[.]{1}(?!index)(?!add)(?!edit)(?!show)/' , $this->currentRoute[ 'name' ] ) === 1 );
+        return ( preg_match( '/.{1,}[.]{1}(?!index)(?!edit)(?!show)/' , $this->currentRoute[ 'name' ] ) === 1 );
     }
 
     protected function hasAccess () {
@@ -109,7 +118,8 @@ class NavigationService {
         return [
             "name" => $this->getMenuName() ,
             "uri" => $this->currentRoute[ 'uri' ] ,
-            "active" => ( $this->currentRoute[ 'name' ] == $this->landingRoute ? 1 : 0 )
+            "active" => ( $this->currentRoute[ 'name' ] == $this->landingRoute ? 1 : 0 ),
+            "prefix" => str_replace("/","",$this->currentRoute['prefix'])
         ];
     }
 

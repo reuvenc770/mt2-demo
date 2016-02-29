@@ -9,10 +9,11 @@
         @include( 'layout.top-nav' )
 
         <div id="pageContent" class="container-fluid">
+
             <div id="flashContainer">
                 @include('flash::message')
             </div>
-
+            {!! Breadcrumbs::renderIfExists() !!}
             @yield( 'content' )
         </div>
 
