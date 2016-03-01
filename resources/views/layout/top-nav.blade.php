@@ -3,7 +3,16 @@
 <nav id="adminNav" class="navmenu navmenu-default navmenu-fixed-left offcanvas" role="navigation">
     <ul class="nav navmenu-nav">
     @foreach ( $menu->getMenu() as $current )
-        <li ng-class="{ active : {{ $current[ 'active' ] }} }"><a href="{{ $current[ 'uri' ] }}" target="_self">{{ $current[ 'name' ] }}</a></li>
+        <li ng-class="{ active : {{ $current[ 'active' ] }} }">
+            <a href="{{ $current[ 'uri' ] }}" target="_self">{{ $current[ 'name' ] }}</a>
+            @if(isset($current['children']))
+                <ul class="">
+                @foreach ( $current['children'] as $current )
+                   <li> <a href="{{ $current[ 'uri' ] }}" target="_self">{{ $current[ 'name' ] }}</a> </li>
+                @endforeach
+                    </ul>
+            @endif
+        </li>
     @endforeach
         @if(Sentinel::check())
             <li><a href="{{route("logout")}}" target="_self">Log Out</a></li>

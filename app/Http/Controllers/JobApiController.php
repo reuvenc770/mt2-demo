@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Services\JobEntryService;
 use Illuminate\Http\Request;
-
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-
 class JobApiController extends Controller
 {
     protected $jobService;

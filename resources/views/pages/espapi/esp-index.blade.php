@@ -7,11 +7,6 @@
 
 @section( 'content' )
 <div class="row">
-    <ol class="breadcrumb">
-      <li><a href="#">Home</a></li>
-      <li><a href="#">ESP</a></li>
-      <li class="active">Accounts</li>
-    </ol>
     <div class="page-header col-xs-12"><h1 class="text-center">ESP Accounts</h1></div>
 </div>
 

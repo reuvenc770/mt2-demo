@@ -162,7 +162,7 @@ return [
         Laracasts\Flash\FlashServiceProvider::class,
         App\Providers\PermissionServiceProvider::class,
         App\Providers\UserEventLogProvider::class,
-
+        DaveJamesMiller\Breadcrumbs\ServiceProvider::class,
     ],
 
     /*
@@ -217,6 +217,7 @@ return [
         'Flash' => Laracasts\Flash\Flash::class,
         'Permission' => App\Facades\Permission::class,
         'UserEventLog' => App\Facades\UserEventLog::class,
+        'Breadcrumbs' => DaveJamesMiller\Breadcrumbs\Facade::class,
     ],
 
 ];
