@@ -13,6 +13,7 @@ class RoleAPITest extends TestCase
         $this->user = Sentinel::findByCredentials($credentials = [
             'login' => "admin@mt2.com",
         ]);
+        Sentinel::login($this->user);
     }
     /**
      * A basic test example.
@@ -22,7 +23,6 @@ class RoleAPITest extends TestCase
 
     public function testRoleList()
     {
-        Sentinel::login($this->user);
         $data = $this->call('GET', '/api/role');
         $result = json_decode($data->getContent());
         //Idealy we will have keys eventually.
@@ -35,7 +35,6 @@ class RoleAPITest extends TestCase
 
     public function testNewRole()
     {
-        Sentinel::login($this->user);
         $this->json('POST', '/api/role', ['name' => 'TestRole', 'permissions' => ['login']])
             ->seeJsonEquals([
                 'success' => true,
@@ -43,7 +42,6 @@ class RoleAPITest extends TestCase
     }
 
     public function testRoleRequiredFields(){
-        Sentinel::login($this->user);
         $this->json('POST', '/api/role')
             ->seeJson([
                 'name' => array('The name field is required.'),
@@ -53,14 +51,12 @@ class RoleAPITest extends TestCase
     }
 
     public function testRoleUpdate(){
-        Sentinel::login($this->user);
         $this->json('PATCH', '/api/role/1',['name'=> "admin2", "slug" => "admin2", "permissions" => ['login']])
             ->seeJsonEquals([
                 'success' => true,
             ]);
     }
     public function testRoleUpdateRequiredFields(){
-        Sentinel::login($this->user);
         $this->json('PATCH', '/api/role/1')
             ->seeJsonEquals([
                 'name' => array("The name field is required."),
@@ -71,6 +67,7 @@ class RoleAPITest extends TestCase
     }
 
     public function testAccess(){
+        Sentinel::logout($this->user);
        $this->json("GET", "/api/role/")->assertResponseStatus("401");
        $this->json("POST", "/api/role/")->assertResponseStatus("401");
        $this->json("PATCH", "/api/role/1")->assertResponseStatus("401");
