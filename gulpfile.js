@@ -69,4 +69,6 @@ elixir(function(mix) {
     ] , 'public/js/clientgroup.js' );
 
     mix.copy( 'resources/assets/js/templates' , 'public/js/templates' );
+
+    mix.phpUnit();
 });
