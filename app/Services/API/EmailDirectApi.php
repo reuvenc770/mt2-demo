@@ -5,7 +5,6 @@
 
 namespace App\Services\API;
 
-use App\Services\API\EspBaseApi;
 use App\Facades\EspApiAccount;
 use App\Facades\Guzzle;
 use Carbon\Carbon;
@@ -49,7 +48,7 @@ class EmailDirectApi extends EspBaseAPI {
         $campaignListResponse = $this->api->campaigns()->sent( array( self::API_REQUEST_FIELD_DATE => $this->date ) );
 
         if ( !$campaignListResponse->success() ) {
-            throw new Exception( 'Email Direct API Call Failed. ' . $campaignListResponse->getErrorMessage() , $campaignListResponse->getErrorCode() );
+            throw new \Exception( 'Email Direct API Call Failed. ' . $campaignListResponse->getErrorMessage() , $campaignListResponse->getErrorCode() );
         }
 
         $responseData = $campaignListResponse->getData();
