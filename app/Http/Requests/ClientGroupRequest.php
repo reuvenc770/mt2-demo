@@ -3,7 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
-
+use Sentinel;
 class ClientGroupRequest extends Request
 {
     /**
@@ -28,8 +28,8 @@ class ClientGroupRequest extends Request
     public function rules()
     {
         return [
-            'gid' => 'required|regex:/^\d$/' ,
-            'user_id' => 'required|regex:/^\d$/' ,
+            'gid' => 'required|numeric' ,
+            'user_id' => 'required|numeric' ,
             'groupName' => 'required'
         ];
     }
