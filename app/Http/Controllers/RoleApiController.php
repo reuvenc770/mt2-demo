@@ -69,6 +69,7 @@ class RoleApiController extends Controller
         $input = $request->only('name');
         $this->roleService->createRoleAddPermissions($input, $permissions);
         Flash::success("Role was Successfully Created");
+        return array("success" => (bool) true);
     }
 
     /**
@@ -109,6 +110,7 @@ class RoleApiController extends Controller
         $input = $request->only('name', 'slug');
         $this->roleService->updateRole($input, $permissions, $id);
         Flash::success("Role Successfully Updated");
+        return array("success" => (bool) true);
     }
 
 
