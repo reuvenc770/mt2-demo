@@ -54,7 +54,7 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
      */
     self.prepopPage = function () {
         var currentPath = $location.path();
-        var pathParts = currentPath.match( new RegExp( /(\d)/ ) );
+        var pathParts = currentPath.match( new RegExp( /(\d+)/ ) );
         var prepopPage = (
             pathParts !== null
             && angular.isNumber( parseInt( pathParts[ 0 ] ) )
@@ -117,6 +117,7 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
     };
 
     self.saveClientGroup = function ( event ) {
+        self.resetFieldErrors();
         self.creatingClientGroup = true;
         self.updateClientFormField();
 
@@ -132,6 +133,7 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
     };
 
     self.updateClientGroup = function ( event ) {
+        self.resetFieldErrors();
         self.updatingClientGroup = true;
         self.updateClientFormField();
 
@@ -274,12 +276,20 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
         });
     };
 
+    self.setFieldError = function ( field , errorMessage ) {
+        self.formErrors[ field ] = errorMessage;
+    };
+
+    self.resetFieldErrors = function () {
+        self.formErrors = {};
+    };
 
     /**
      * Success Callbacks
      */
     self.prepopPageDataSuccessCallback = function ( response ) {
-        self.current.groupName = response.data.group_name;
+        self.current.groupName = response.data.name;
+        console.log(self.current.groupName);
         self.current.excludeFromSuper = response.data.excludeFromSuper;
     };
 

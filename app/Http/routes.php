@@ -13,14 +13,15 @@
 Route::get('/', function () {
     return redirect("/login");
 });
+
 Route::group( [ 'prefix' => 'espapi', 'middleware' => ['auth', 'pageLevel'] ] , function () {
     Route::get( '/' , array( 'as' => 'espapi.list' , 'uses' => 'EspApiController@listAll' ) );
     Route::get( '/create' , array( 'as' => 'espapi.add' , 'uses' => 'EspApiController@create' ) );
     Route::get( '/edit/{id}' , array( 'as' => 'espapi.edit' , 'uses' => 'EspApiController@edit' ) );
 } );
 
-Route::group( [ 'prefix' => 'pages', 'middleware' => ['auth', 'pageLevel'] ] , function () {
-    Route::get( '/show-info' , array( 'as' => 'pages.showinfo' , 'uses' => 'ShowInfoController@index' ) );
+Route::group( [ 'prefix' => 'tools', 'middleware' => ['auth', 'pageLevel'] ] , function () {
+    Route::get( '/show-info' , array( 'as' => 'tools.recordlookup' , 'uses' => 'ShowInfoController@index' ) );
 } );
 
 Route::group( [ 'prefix' => 'devtools', 'middleware' => ['auth','dev',] ] , function () {
@@ -96,6 +97,7 @@ Route::group( [ 'prefix' => 'api/mt1', 'middleware' => ['auth'] ] , function () 
     Route::resource( 'clientgroup' , 'MT1API\ClientGroupApiController' , [ 'only' => [ 'index','show'] ] );
     Route::get( 'client/generatelinks/{id}' , array( 'as' => 'api.mt1.client.generatelinks' , 'uses' => 'ClientController@generatelinks' ) );
     Route::get( 'client/types' , array( 'as' => 'api.mt1.client.types' , 'uses' => 'MT1API\ClientApiController@types' ) );
+    Route::resource( 'uniqueprofiles' , 'MT1API\UniqueProfileApiController' , [ 'only' => [ 'index','show'] ] );
 });
 
 

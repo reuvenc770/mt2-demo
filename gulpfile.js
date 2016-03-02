@@ -51,7 +51,7 @@ elixir(function(mix) {
     mix.scripts( [ 'role/RoleController.js' , 'role/RoleApiService.js' ] , 'public/js/role.js' );
     mix.scripts( [ 'job/JobController.js' , 'job/JobApiService.js' ] , 'public/js/job.js' );
     mix.scripts( [ 'pages/ShowinfoController.js' , 'pages/ShowinfoApiService.js' ] , 'public/js/show-info.js' );
-    mix.scripts( [  'wizard/WizardController.js' , 'wizard/WizardapiService.js' ] , 'public/js/wizard.js' );
+    mix.scripts( [  'wizard/WizardController.js' , 'wizard/WizardApiService.js' ] , 'public/js/wizard.js' );
 
     mix.scripts( [
         'client/ClientController.js' ,
@@ -75,4 +75,6 @@ elixir(function(mix) {
     ], 'public/js/dataexport.js');
 
     mix.copy( 'resources/assets/js/templates' , 'public/js/templates' );
+
+    mix.phpUnit();
 });
