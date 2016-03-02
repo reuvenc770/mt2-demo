@@ -80,6 +80,12 @@ elixir(function(mix) {
         'client/ClientApiService.js'
     ] , 'public/js/listprofile.js' );
 
+    mix.scripts([
+        'dataexport/DataExportController.js',
+        'dataexport/DataExportApiService.js',
+        'dataexport/DataExportTableDirective.js'
+    ], 'public/js/dataexport.js');
+
     mix.copy( 'resources/assets/js/templates' , 'public/js/templates' );
 
     mix.phpUnit();
