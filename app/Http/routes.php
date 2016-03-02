@@ -40,6 +40,12 @@ Route::group( [ 'prefix' => 'client', 'middleware' => ['auth', 'pageLevel'] ] , 
     Route::get( '/edit/{id}' , array( 'as' => 'client.edit' , 'uses' => 'ClientController@edit' ) );
 } );
 
+Route::group( [ 'prefix' => 'dataexport', 'middleware' => ['auth', 'pageLevel'] ] , function () {
+    Route::get( '/' , array( 'as' => 'dataexport.list' , 'uses' => 'DataExportController@listAllActive' ) );
+    Route::get( '/create' , array( 'as' => 'dataexport.add' , 'uses' => 'DataExportController@create' ) );
+    Route::get( '/edit/{id}' , array( 'as' => 'dataexport.edit' , 'uses' => 'DataExportController@edit' ) );
+} );
+
 Route::group( [ 'prefix' => 'clientgroup', 'middleware' => ['auth', 'pageLevel'] ] , function () {
     Route::get( '/' , array( 'as' => 'clientgroup.list' , 'uses' => 'ClientGroupController@listAll' ) );
     Route::get( '/create' , array( 'as' => 'clientgroup.add' , 'uses' => 'ClientGroupController@create' ) );
@@ -64,6 +70,7 @@ Route::group( [ 'prefix' => 'api', 'middleware' => ['auth' , 'pageLevel'] ] , fu
     Route::resource( 'espapi' , 'EspApiController' , [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth']  ] );
     Route::resource( 'client' , 'ClientController' , [ 'except' => [ 'create' , 'edit' , 'pager' ] ,'middleware' => ['auth'] ] );
     Route::get( '/clientgroup/all' , [ 'as' => 'api.clientgroup.all' , 'uses' => 'ClientGroupController@index' ] );
+    Route::resource('dataexport', 'DataExportController', ['except' => ['create', 'edit'], 'middleware' =>['auth']]);
     Route::get( '/clientgroup/copy/{id}' , array( 'as' => 'api.clientgroup.copy' , 'uses' => 'ClientGroupController@copy' ) );
     Route::resource( 'clientgroup' , 'ClientGroupController' , [ 'except' => [ 'index' , 'create' , 'edit' , 'copy' ] ,'middleware' => ['auth'] ] );
     Route::get( '/listprofile/isps/{id}' , [ 'as' => 'api.listprofile.isps' , 'uses' => 'ListProfileController@isps'  ] );
