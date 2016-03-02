@@ -1,7 +1,7 @@
 mt2App.service( 'ClientGroupApiService' , function ( $http ) {
     var self = this;
 
-    self.pagerApiUrl = '/api/pager/clientgroup';
+    self.pagerApiUrl = '/api/pager/ClientGroup';
     self.mt1ApiUrl = '/api/mt1/clientgroup';
     self.baseApiUrl = '/api/clientgroup';
 

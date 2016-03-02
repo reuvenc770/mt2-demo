@@ -18,7 +18,6 @@ class PagingController extends Controller
     }
 
     public function paginate($type){
-        $type = studly_case($type);
         $service = $this->serviceFactory->createModelService($type);
         return response($service->getPaginatedJson( $this->request->input( 'page' ) , $this->request->input( 'count' )) );
     }
