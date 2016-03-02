@@ -78,6 +78,7 @@ class MT1ApiService
             $this->response = $this->api->postMT1Json($page, $data);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
+            return $e->getMessage();
             return false;
         }
         return $this->processGuzzle($page, $data);
@@ -89,6 +90,7 @@ class MT1ApiService
         if ($this->response->getStatusCode() != 200) {
             Log::error("MT1 RETURNED {$this->response->getStatusCode()} for {$page} with {$params} params");
             return false;
+            return $this->response->getBody()->getContents();
         }
         return $this->response->getBody()->getContents();
     }

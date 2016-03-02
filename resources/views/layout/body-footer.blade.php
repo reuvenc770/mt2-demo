@@ -9,3 +9,4 @@
 <script src="js/angular-material.min.js"></script>
 <script src="js/clipboard.min.js"></script>
 <script src="js/ngclipboard.min.js"></script>
+<script src="js/momment-with-locales.min.js"></script>

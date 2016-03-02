@@ -4,23 +4,29 @@
     </div>
 
     <div class="panel-body">
-        <div class="form-group">
-            <input type="text" class="form-control" id="groupName" value="" placeholder="List Profile Name" />
-        </div>
-
         <div flex layout="column" style="margin-bottom: 1em;">
             <md-content style="margin-bottom: 1em;">
                 <h4 layout flex layout-align="center center"><span>List Profile Type</span></h4>
 
                 <md-divider></md-divider>
 
-                <md-radio-group layout layout-padding layout-align="space-around center" ng-model="listProfile.current.profileType">
+                <md-radio-group layout layout-padding layout-align="space-around center" ng-model="listProfile.profileType">
                     <md-radio-button value="v1" aria-label="V1"><span>V1</span></md-radio-button>
                     <md-radio-button value="v2" aria-label="V2"><span>V2</span></md-radio-button>
                     <md-radio-button value="v3" aria-label="V3"><span>V3</span></md-radio-button>
                 </md-radio-group>
             </md-content>
+        </div>
 
+        <div class="form-group">
+            <input type="text" class="form-control" id="groupName" value="" ng-model="listProfile.current.profile_name" placeholder="List Profile Name" />
+        </div>
+
+        <div class="form-group" ng-if="listProfile.profileType !== 'v1'">
+            <input type="text" class="form-control" id="volumeDesired" value="" ng-model="listProfile.current.volume_desired" placeholder="Volume Desired" />
+        </div>
+
+        <div flex layout="column" style="margin-bottom: 1em;">
             <md-content layout-padding style="margin-bottom: 1em;">
                 <h4 layout flex layout-align="center center"><span>Client Group</span></h4>
 
@@ -33,7 +39,7 @@
                         md-item-text="item.name"
                         md-min-length="0"
                         placeholder="Choose a Client Group"
-                        md-selected-item="listProfile.current.clientGroup"
+                        md-selected-item="listProfile.current.cgroupid"
                         style="margin-bottom: 1em;">
 
                         <md-item-template>
@@ -50,9 +56,9 @@
 
                 <md-divider></md-divider>
 
-                <md-chips ng-model="listProfile.rangeList" readonly="true">
+                <md-chips ng-model="listProfile.rangeList" md-transform-chip="listProfile.filterRangeChips( $chip )" md-on-remove="listProfile.removeRangeChip( $chip )" placeholder="Choose a Type Below" secondary-placeholder="Choose Another Range">
                     <md-chip-template>
-                        <span>@{{ $chip.type + ( $chip.subtype ? " " + $chip.subtype : "" ) }}: @{{ $chip.min }} - @{{ $chip.max }}</span> 
+                        <span>@{{ ( $chip.subtype ? $chip.subtype + " " : "" ) + $chip.type }}: @{{ $chip.min }} - @{{ $chip.max }}</span> 
                     </md-chip-template>
                 </md-chips>
 
@@ -64,47 +70,47 @@
                             <md-tab-body>
                                 <md-list>
                                     <md-list-item>
-                                        <md-button class="md-raised" flex ng-click="listProfile.addRange( 'count' , 'age' )"><span class="glyphicon glyphicon-plus"></span> Age</md-button>
+                                        <md-button class="md-raised" flex ng-click="listProfile.addCountRange( $event , 'count' , 'age' )" ng-attr-disabled="@{{ listProfile.rangeData.count.age.filled === true || undefined }}"><span class="glyphicon glyphicon-plus"></span> Age</md-button>
                                     </md-list-item>
 
-                                    <md-list-item>
-                                        <md-button class="md-raised" flex><span class="glyphicon glyphicon-plus"></span> Deliverables</md-button>
+                                    <md-list-item ng-if="listProfile.profileType !== 'v3'">
+                                        <md-button class="md-raised" flex ng-click="listProfile.addCountRange( $event , 'count' , 'deliverable' )" ng-attr-disabled="@{{ ( listProfile.rangeData.count.deliverable[ 0 ].filled === true && listProfile.rangeData.count.deliverable[ 1 ].filled === true && listProfile.rangeData.count.deliverable[ 2 ].filled === true ) || ( listProfile.profileType === 'v2' && listProfile.rangeData.count.deliverable[ 0 ].filled === true ) || undefined }}"><span class="glyphicon glyphicon-plus"></span> Deliverables</md-button>
                                     </md-list-item>
 
-                                    <md-list-item>
-                                        <md-button class="md-raised" flex><span class="glyphicon glyphicon-plus"></span> Openers</md-button>
+                                    <md-list-item ng-if="listProfile.profileType !== 'v3'">
+                                        <md-button class="md-raised" flex ng-click="listProfile.addCountRange( $event , 'count' , 'openers' )" ng-attr-disabled="@{{ ( listProfile.rangeData.count.openers[ 0 ].filled === true && listProfile.rangeData.count.openers[ 1 ].filled === true && listProfile.rangeData.count.openers[ 2 ].filled === true ) || ( listProfile.profileType === 'v2' && listProfile.rangeData.count.openers[ 0 ].filled === true ) || undefined }}"><span class="glyphicon glyphicon-plus"></span> Openers</md-button>
                                     </md-list-item>
 
-                                    <md-list-item>
-                                        <md-button class="md-raised" flex><span class="glyphicon glyphicon-plus"></span> Clickers</md-button>
+                                    <md-list-item ng-if="listProfile.profileType !== 'v3'">
+                                        <md-button class="md-raised" flex ng-click="listProfile.addCountRange( $event , 'count' , 'clickers' )" ng-attr-disabled="@{{ ( listProfile.rangeData.count.clickers[ 0 ].filled === true && listProfile.rangeData.count.clickers[ 1 ].filled === true && listProfile.rangeData.count.clickers[ 2 ].filled === true ) || ( listProfile.profileType === 'v2' && listProfile.rangeData.count.clickers[ 0 ].filled === true ) || undefined }}"><span class="glyphicon glyphicon-plus"></span> Clickers</md-button>
                                     </md-list-item>
 
-                                    <md-list-item>
-                                        <md-button class="md-raised" flex><span class="glyphicon glyphicon-plus"></span> Converters</md-button>
+                                    <md-list-item ng-if="listProfile.profileType !== 'v3'">
+                                        <md-button class="md-raised" flex ng-click="listProfile.addCountRange( $event , 'count' , 'converters' )" ng-attr-disabled="@{{ ( listProfile.rangeData.count.converters[ 0 ].filled === true && listProfile.rangeData.count.converters[ 1 ].filled === true && listProfile.rangeData.count.converters[ 2 ].filled === true ) || ( listProfile.profileType === 'v2' && listProfile.rangeData.count.converters[ 0 ].filled === true ) || undefined }}"><span class="glyphicon glyphicon-plus"></span> Converters</md-button>
                                     </md-list-item>
                                 </md-list>
                             </md-tab-body>
                         </md-tab>
 
-                        <md-tab>
+                        <md-tab ng-if="listProfile.profileType !== 'v3'">
                             <md-tab-label>Date Range</md-tab-label>
 
                             <md-tab-body>
                                 <md-list>
                                     <md-list-item>
-                                        <md-button class="md-raised" flex><span class="glyphicon glyphicon-plus"></span> Deliverables</md-button>
+                                        <md-button class="md-raised" flex ng-click="listProfile.addDateRange( $event , 'deliverable' )" ng-attr-disabled="@{{ ( listProfile.rangeData.date.deliverable.filled === true || undefined ) }}"><span class="glyphicon glyphicon-plus"></span> Deliverables</md-button>
                                     </md-list-item>
 
                                     <md-list-item>
-                                        <md-button class="md-raised" flex><span class="glyphicon glyphicon-plus"></span> Openers</md-button>
+                                        <md-button class="md-raised" flex ng-click="listProfile.addDateRange( $event , 'openers' )" ng-attr-disabled="@{{ ( listProfile.rangeData.date.openers.filled === true || undefined ) }}"><span class="glyphicon glyphicon-plus"></span> Openers</md-button>
                                     </md-list-item>
 
                                     <md-list-item flex>
-                                        <md-button class="md-raised" flex><span class="glyphicon glyphicon-plus"></span> Clickers</md-button>
+                                        <md-button class="md-raised" flex ng-click="listProfile.addDateRange( $event , 'clickers' )" ng-attr-disabled="@{{ ( listProfile.rangeData.date.clickers.filled === true || undefined ) }}"><span class="glyphicon glyphicon-plus"></span> Clickers</md-button>
                                     </md-list-item>
 
                                     <md-list-item flex>
-                                        <md-button class="md-raised" flex><span class="glyphicon glyphicon-plus"></span> Converters</md-button>
+                                        <md-button class="md-raised" flex ng-click="listProfile.addDateRange( $event , 'converters' )" ng-attr-disabled="@{{ ( listProfile.rangeData.date.converters.filled === true || undefined ) }}"><span class="glyphicon glyphicon-plus"></span> Converters</md-button>
                                     </md-list-item>
                                 </md-list>
                             </md-tab-body>
@@ -119,6 +125,11 @@
                 <md-divider></md-divider>
 
                 <md-content class="chipList">
+                    <div layout="row">
+                        <md-button flex ng-click="listProfile.selectAllIsps( true )">Select All</md-button>
+                        <md-button flex ng-click="listProfile.selectAllIsps( false )">Clear All</md-button>
+                    </div>
+
                     <md-chips ng-model="listProfile.ispChipList" md-on-remove="listProfile.removeIspChip( $chip )">
                         <md-autocomplete
                             md-search-text="listProfile.ispSearchText"
@@ -166,7 +177,7 @@
                 </md-content>
             </md-content>
 
-            <md-content layout-padding style="margin-bottom: 1em;">
+            <md-content layout-padding style="margin-bottom: 1em;" ng-if="listProfile.profileType === 'v1'">
                 <h4 layout flex layout-align="center center"><span>Delivery Days</span></h4>
 
                 <md-divider></md-divider>
@@ -216,7 +227,7 @@
                 </md-chips>
             </md-content>
 
-            <md-content layout-padding style="margin-bottom: 1em;">
+            <md-content layout-padding style="margin-bottom: 1em;" ng-if="listProfile.profileType === 'v1'">
                 <h4 layout flex layout-align="center center"><span>Seeds</span></h4>
 
                 <md-divider></md-divider>

@@ -12,7 +12,7 @@
 
         <md-card>
             <md-card-content>
-                    <div id="clientChipList">
+                    <div class="chipList">
                         <md-chips
                             ng-model="clientGroup.clientChipList"
                             md-on-remove="clientGroup.removeClientChip( $chip )"
@@ -38,7 +38,7 @@
                         </md-chips>
                     </div>
 
-                    <md-content flex="100" id="clientChipBucket" layout-padding>
+                    <md-content flex="100" class="chipBucket" layout-padding>
                         <md-list>
                             <md-list-item ng-repeat="client in clientGroup.clientList" md-on-demand flex>
                                 <div class="md-list-item">
