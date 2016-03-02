@@ -17,8 +17,8 @@ class PagingController extends Controller
         $this->request = $request;
     }
 
-    public function paginate($type){
+    public function paginate($type, Request $request){
         $service = $this->serviceFactory->createModelService($type);
-        return response($service->getPaginatedJson( $this->request->input( 'page' ) , $this->request->input( 'count' )) );
+        return response($service->getPaginatedJson( $this->request->input( 'page' ) , $this->request->input( 'count' ), $request->all()) );
     }
 }
