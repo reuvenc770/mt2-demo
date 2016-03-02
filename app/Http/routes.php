@@ -39,6 +39,12 @@ Route::group( [ 'prefix' => 'client', 'middleware' => ['auth', 'pageLevel'] ] , 
     Route::get( '/edit/{id}' , array( 'as' => 'client.edit' , 'uses' => 'ClientController@edit' ) );
 } );
 
+Route::group( [ 'prefix' => 'dataexport', 'middleware' => ['auth', 'pageLevel'] ] , function () {
+    Route::get( '/' , array( 'as' => 'dataexport.list' , 'uses' => 'DataExportController@listAllActive' ) );
+    Route::get( '/create' , array( 'as' => 'dataexport.add' , 'uses' => 'DataExportController@create' ) );
+    Route::get( '/edit/{id}' , array( 'as' => 'dataexport.edit' , 'uses' => 'DataExportController@edit' ) );
+} );
+
 Route::group( [ 'prefix' => 'clientgroup', 'middleware' => ['auth', 'pageLevel'] ] , function () {
     Route::get( '/' , array( 'as' => 'clientgroup.list' , 'uses' => 'ClientGroupController@listAll' ) );
     Route::get( '/create' , array( 'as' => 'clientgroup.add' , 'uses' => 'ClientGroupController@create' ) );
@@ -56,6 +62,7 @@ Route::group( [ 'prefix' => 'api', 'middleware' => ['auth' , 'pageLevel'] ] , fu
     Route::put('/profile/{id}', [ 'as' => 'profile.update', 'uses' =>'UserApiController@updateProfile']);
     Route::resource( 'espapi' , 'EspApiController' , [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth']  ] );
     Route::resource( 'client' , 'ClientController' , [ 'except' => [ 'create' , 'edit' , 'pager' ] ,'middleware' => ['auth'] ] );
+    Route::resource('dataexport', 'DataExportController', ['except' => ['create', 'edit'], 'middleware' =>['auth']]);
     Route::get( '/clientgroup/copy/{id}' , array( 'as' => 'api.clientgroup.copy' , 'uses' => 'ClientGroupController@copy' ) );
     Route::resource( 'clientgroup' , 'ClientGroupController' , [ 'except' => [ 'create' , 'edit' , 'copy' ] ,'middleware' => ['auth'] ] );
     Route::resource('user', 'UserApiController',  [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth','admin']] );
