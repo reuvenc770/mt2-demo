@@ -11,7 +11,7 @@
   <div class="row">
     <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="dataExport.viewAdd()">
       <span class="glyphicon glyphicon-plus"></span>
-      Add Client Group
+      Add Data Export
     </button>
   </div>
   @endif
@@ -28,7 +28,7 @@
           </div>
         </div>
 
-        <dataexport-table records="dataExport.dataExports" loadingflag="clientGroup.currentlyLoading" >
+        <dataexport-table records="dataExport.dataExports" loadingflag="dataExport.currentlyLoading" >
         </dataexport-table>
 
         <div class="row">
