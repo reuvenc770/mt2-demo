@@ -13,6 +13,6 @@ return[
     'clientgroup.add' => "Add Client Group",
     'role.add'      => "Add Role",
     'tools.recordlookup' => "Email & EID Lookup",
-    'navigation.dataexport.list' => "Data Export",
-    'navigation.dataexport.add' => 'Add Data Export',
+    'dataexport.list' => "Data Export",
+    'dataexport.add' => 'Add Data Export',
 ];
