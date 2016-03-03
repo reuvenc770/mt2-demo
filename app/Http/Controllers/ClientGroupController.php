@@ -10,14 +10,17 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Services\MT1ApiService;
 use App\Http\Requests\ClientGroupRequest;
+use App\Services\MT1Services\ClientGroupService;
 
 class ClientGroupController extends Controller
 {
     const CLIENT_GROUP_API_ENDPOINT = 'clientgroup';
     protected $api;
+    protected $service;
 
-    public function __construct ( MT1ApiService $api ) {
+    public function __construct ( MT1ApiService $api , ClientGroupService $service ) {
         $this->api = $api;
+        $this->service = $service;
     }
 
     /**
@@ -27,7 +30,7 @@ class ClientGroupController extends Controller
      */
     public function index()
     {
-        //
+        return response()->json( $this->service->getAllClientGroups() );
     }
 
     public function listAll () {

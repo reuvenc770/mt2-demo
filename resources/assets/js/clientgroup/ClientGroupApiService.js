@@ -20,6 +20,13 @@ mt2App.service( 'ClientGroupApiService' , function ( $http ) {
         } ).then( successCallback , failureCallback );
     };
 
+    self.getAllClientGroups = function ( successCallback , failureCallback ) {
+        $http( {
+            "method" : "GET" ,
+            "url" : self.baseApiUrl + "/all"
+        } ).then( successCallback , failureCallback );
+    };
+
     self.getClients = function ( groupID , successCallback , failureCallback ) {
         $http( {
             "method" : "GET" ,

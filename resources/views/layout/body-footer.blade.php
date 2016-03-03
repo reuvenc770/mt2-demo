@@ -10,3 +10,4 @@
 <script src="js/clipboard.min.js"></script>
 <script src="js/ngclipboard.min.js"></script>
 <script src="js/momment-with-locales.min.js"></script>
+<script src="js/select.min.js"></script>

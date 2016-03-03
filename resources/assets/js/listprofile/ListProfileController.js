@@ -1,11 +1,244 @@
 mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$location' , '$window' , '$mdDialog' , 'ListProfileApiService' , 'ClientApiService' , 'ClientGroupApiService' , function ( $rootScope , $log , $location , $window , $mdDialog , ListProfileApiService , ClientApiService , ClientGroupApiService ) {
     var self = this;
     self.testUser = 217;
+    self.showVersionField = true;
 
     self.profileList = [];
     self.createUrl = '/listprofile/create';
     self.creatingListProfile = false;
     self.updatingListProfile = false;
+
+    self.loadListProfiles = function () {
+        self.currentlyLoading = true;
+
+        ListProfileApiService.getListProfiles(
+            self.currentPage ,
+            self.paginationCount ,
+            self.loadListProfilesSuccessCallback ,
+            self.loadListProfilesFailureCallback
+        );
+    };
+
+    self.loadListProfilesSuccessCallback = function ( response ) {
+        self.currentlyLoading = 0;
+
+        self.profileList = response.data.data; 
+
+        self.pageCount = response.data.last_page;
+    };
+
+    self.loadListProfilesFailureCallback = function ( response ) {
+        $log.log( response );
+    
+    };
+
+    self.loadClientGroups = function () {
+        ClientGroupApiService.getAllClientGroups( self.loadClientGroupsSuccessCallback , self.loadClientGroupsFailureCallback );
+    };
+
+    self.loadClientGroupsSuccessCallback = function ( response ) {
+        $log.log( response ); 
+
+        angular.forEach( response.data , function ( clientGroup , key ) {
+            self.clientGroupList.push( { "id" : clientGroup.id , "name" : clientGroup.name } );
+        } );
+    };
+
+    self.loadClientGroupsFailureCallback = function ( response ) {
+        $log.log( response ); 
+    };
+
+    self.loadListProfile = function () {
+        var currentPath = $location.path();
+        var pathParts = currentPath.match( new RegExp( /(\d+)/ ) );
+        var prepopPage = (
+            pathParts !== null
+            && angular.isNumber( parseInt( pathParts[ 0 ] ) )
+        );
+        self.showVersionField = false;
+
+        if ( prepopPage ) {
+            self.current.pid = pathParts[ 0 ];
+
+            ListProfileApiService.getListProfile(
+                self.current.pid ,
+                self.loadListProfileSuccessCallback ,
+                self.loadListProfileFailureCallback
+            );
+
+            ListProfileApiService.getIspsByProfileId(
+                self.current.pid ,
+                self.loadIspsSuccessCallback ,
+                self.loadIspsFailureCallback
+            );
+
+            ListProfileApiService.getSourcesByProfileId(
+                self.current.pid ,
+                self.loadSourcesSuccessCallback ,
+                self.loadSourcesFailureCallback
+            );
+
+            ListProfileApiService.getSeedsByProfileId(
+                self.current.pid ,
+                self.loadSeedsSuccessCallback ,
+                self.loadSeedsFailureCallback
+            );
+
+            ListProfileApiService.getZipsByProfileId(
+                self.current.pid ,
+                self.loadZipsSuccessCallback ,
+                self.loadZipsFailureCallback
+            );
+        }
+    };
+    self.loadZipsSuccessCallback = function ( response ) {
+        $log.log( response ); 
+
+        angular.forEach( response.data , function ( zip , key ) {
+            self.zipList.push( zip.zip );
+        } );
+    };
+
+    self.loadZipsFailureCallback = function ( response ) {
+        $log.log( response ); 
+    
+    };
+
+    self.loadSeedsSuccessCallback = function ( response ) {
+        $log.log( response );
+
+        angular.forEach( response.data , function ( seed , key ) {
+            self.seedList.push( seed.sid );
+        } );
+    };
+
+    self.loadSeedsFailureCallback = function ( response ) {
+        $log.log( response );
+
+    };
+
+    self.loadIspsSuccessCallback = function ( response ) {
+        $log.log( response );
+
+        angular.forEach( response.data , function ( isp , key ) {
+            $rootScope.selectedIsps[ isp.id ] = isp.name;
+        });
+    };
+
+    self.loadIspsFailureCallback = function  ( response ) {
+        $log.log( response );
+    };
+
+    self.loadSourcesSuccessCallback = function ( response ) {
+        $log.log( response );
+
+        angular.forEach( response.data , function ( source , key ) {
+            self.sourceList.push( source.source_url );
+        } );
+    };
+
+    self.loadSourcesFailureCallback = function ( response ) {
+        $log.log( response );
+    };
+
+    self.loadListProfileSuccessCallback = function ( response ) {
+        self.prepopNormalFields( response );
+        self.prepopGender( response );
+        self.prepopAgeRange( response );
+        self.prepopCountRanges( response );
+        self.prepopDateRanges( response );
+    };
+
+    self.prepopNormalFields = function ( response ) {
+        self.current.profile_name = response.data.profile_name;
+        self.deliveryDays = response.data.DeliveryDays; 
+    };
+
+    self.prepopGender = function ( response ) {
+        if ( response.data.gender == 'F' || response.data.gender == 'M' ) {
+            self.genderType = 'specific';
+            self.current.gender = response.data.gender;
+        } else if ( response.data.gender == 'Empty' ) {
+            self.genderType = 'empty';
+        }
+    }
+
+    self.prepopAgeRange = function ( response ) {
+        if ( response.data.min_age > 0 && response.data.max_age > 0 ) {
+            self.rangeData.count.age.min = response.data.min_age;
+            self.rangeData.count.age.max = response.data.max_age;
+            self.rangeData.count.age.filled = true;
+
+            self.rangeList.push( {
+                "type" : "count" ,
+                "subtype" : "age" ,
+                "min" : response.data.min_age ,
+                "max" : response.data.max_age
+            } );
+        }
+    };
+
+    self.prepopCountRanges = function ( response ) {
+        var rangeTypes = [ 'deliverable' , 'opener' , 'clicker' , 'convert' ];
+        var typeMap = { 'deliverable' : 'deliverable' , 'opener' : 'openers' , 'clicker' : 'clickers' , 'convert' : 'converters' };
+
+        angular.forEach( rangeTypes , function ( type , index ) {
+            var typeNumber = null;
+
+            for ( var rangeNumber = 0 ; rangeNumber < 3 ; rangeNumber++ ) {
+                typeNumber = ( rangeNumber > 0 ? rangeNumber : '' );
+
+                if (
+                    response.data[ type + '_end' + typeNumber ] > 0    
+                ) {
+                    self.rangeData.count[ typeMap[ type ] ][ rangeNumber ].min =
+                        response.data[ type + '_start' + typeNumber ];
+                    self.rangeData.count[ typeMap[ type ] ][ rangeNumber ].max =
+                        response.data[ type + '_end' + typeNumber ];
+                    self.rangeData.count[ typeMap[ type ] ][ rangeNumber ].filled = true;
+
+                    self.rangeList.push( {
+                        "type" : "count" ,
+                        "subtype" : typeMap[ type ] ,
+                        "min" : response.data[ type + '_start' + typeNumber ] ,
+                        "max" : response.data[ type + '_end' + typeNumber ]
+                    } );
+                }
+            }
+        } );
+    };
+
+    self.prepopDateRanges = function ( response ) {
+        var rangeTypes = [ 'deliverable' , 'opener' , 'clicker' , 'convert' ];
+        var typeMap = { 'deliverable' : 'deliverable' , 'opener' : 'openers' , 'clicker' : 'clickers' , 'convert' : 'converters' };
+
+        angular.forEach( rangeTypes , function ( type , index ) {
+            if (
+                response.data[ type + '_start_date' ] != '0000-00-00'
+                && response.data[ type + '_end_date' ] != '0000-00-00'
+            ) {
+                self.rangeData.date[ typeMap[ type ] ].min = response.data[ type + '_start_date' ];
+                self.rangeData.date[ typeMap[ type ] ].max = response.data[ type + '_end_date' ];
+                self.rangeData.date[ typeMap[ type ] ].filled = true;
+
+                self.rangeList.push( {
+                    "type" : "date" ,
+                    "subtype" : typeMap[ type ] ,
+                    "min" : response.data[ type + '_start_date' ] ,
+                    "max" : response.data[ type + '_end_date'  ]
+                } );
+            }
+        } );
+    };
+
+    self.loadListProfileFailureCallback = function ( response ) {
+        $log.log( response );
+    };
+
+    $rootScope.$on( 'updatePage' , function () {
+        $( '.collapse' ).collapse( 'hide' );
+        self.loadListProfiles();
+    } );
 
     /**
      * Pagination Properties
@@ -259,6 +492,36 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$locatio
         } ) : self.clientGroupList;
     }
 
+    //Angular UI - Select UI
+    self.clientGroupLoading = false;
+    self.selectedClientGroup = {};
+    self.currentClientGroupPage = 1;
+    self.fetchClientGroups = function ( $select , $event ) {
+        // no event means first load!
+        if (!$event) {
+            self.currentClientGroupPage = 1;
+            self.clientGroupList = [];
+        } else {
+            $event.stopPropagation();
+            $event.preventDefault();
+            self.currentClientGroupPage++;
+        }
+
+        self.clientGroupLoading = true;
+
+        $http( {
+            "method" : "GET" ,
+            "url" : '/api/clientgroup' ,
+            "param" : '' 
+        } ).then( function ( response ) {
+                self.clientGroupList = self.clientGroupList.concat( response.data.data );
+            } ,
+            function () {
+
+            }
+        )[ 'finally' ](function () { self.clientGroupLoading = true; });
+    };
+
     /**
      * ISP AutoComplete
      */
@@ -269,36 +532,36 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$locatio
     self.ispChipList = [];
     self.ispList = [
         { "id" : 1 , "name" : "AOL" } ,
-        { "id" : 2 , "name" : "AOLOthers" } ,
-        { "id" : 3 , "name" : "AOLUK" } ,
-        { "id" : 4 , "name" : "Apple" } ,
-        { "id" : 5 , "name" : "ATT" } ,
-        { "id" : 6 , "name" : "BTINTERNET" } ,
-        { "id" : 7 , "name" : "Cable_Broadband" } ,
-        { "id" : 8 , "name" : "Cloudmark" } ,
-        { "id" : 9 , "name" : "Comcast" } ,
-        { "id" : 10 , "name" : "CoxF" } ,
-        { "id" : 11 , "name" : "Facebook" } ,
-        { "id" : 12 , "name" : "ForeignAOL" } ,
-        { "id" : 13 , "name" : "ForeignHotmail" } ,
-        { "id" : 14 , "name" : "ForeignYahoo" } ,
-        { "id" : 15 , "name" : "France" } ,
-        { "id" : 16 , "name" : "German" } ,
-        { "id" : 17 , "name" : "Gmail" } ,
-        { "id" : 18 , "name" : "GmailOthers" } ,
-        { "id" : 19 , "name" : "GMX" } ,
-        { "id" : 20 , "name" : "Hotmail" } ,
-        { "id" : 21 , "name" : "HotmailOthers" } ,
-        { "id" : 22 , "name" : "HotmailUK" } ,
-        { "id" : 23 , "name" : "Italy" } ,
-        { "id" : 24 , "name" : "Others" } ,
-        { "id" : 25 , "name" : "safeothers" } ,
-        { "id" : 26 , "name" : "UK" } ,
-        { "id" : 27 , "name" : "VerizonF" } ,
-        { "id" : 28 , "name" : "Wanadoo" } ,
-        { "id" : 29 , "name" : "Yahoo" } ,
-        { "id" : 30 , "name" : "YahooOthers" } ,
-        { "id" : 31 , "name" : "YahooUK" }
+        { "id" : 2 , "name" : "Hotmail" } ,
+        { "id" : 3 , "name" : "Yahoo" } , 
+        { "id" : 4 , "name" : "Others" } , 
+        { "id" : 6 , "name" : "Comcast" } , 
+        { "id" : 13 , "name" : "ATT" } , 
+        { "id" : 17 , "name" : "Gmail" } , 
+        { "id" : 21 , "name" : "Cloudmark" } , 
+        { "id" : 45 , "name" : "safeothers" } , 
+        { "id" : 47 , "name" : "UK" } , 
+        { "id" : 52 , "name" : "GMX" } , 
+        { "id" : 53 , "name" : "German" } , 
+        { "id" : 54 , "name" : "ForeignYahoo" } , 
+        { "id" : 57 , "name" : "France" } , 
+        { "id" : 60 , "name" : "YahooOthers" } , 
+        { "id" : 65 , "name" : "AOLUK" } , 
+        { "id" : 66 , "name" : "AOLOthers" } , 
+        { "id" : 67 , "name" : "ForeignAOL" } , 
+        { "id" : 68 , "name" : "GmailOthers" } , 
+        { "id" : 69 , "name" : "YahooUK" } , 
+        { "id" : 70 , "name" : "HotmailUK" } , 
+        { "id" : 71 , "name" : "ForeignHotmail" } , 
+        { "id" : 72 , "name" : "HotmailOthers" } , 
+        { "id" : 73 , "name" : "Facebook" } , 
+        { "id" : 74 , "name" : "Apple" } , 
+        { "id" : 75 , "name" : "Cable_Broadband" } , 
+        { "id" : 76 , "name" : "Italy" } , 
+        { "id" : 77 , "name" : "VerizonF" } , 
+        { "id" : 78 , "name" : "CoxF" } , 
+        { "id" : 79 , "name" : "BTINTERNET" } , 
+        { "id" : 80 , "name" : "Wanadoo" } 
     ];
 
     self.updateIspCheckboxList = function ( item ) {

@@ -4,8 +4,8 @@
     </div>
 
     <div class="panel-body">
-        <div flex layout="column" style="margin-bottom: 1em;">
-            <md-content style="margin-bottom: 1em;">
+        <div flex layout="column" style="margin-bottom: 1em;" ng-if="listProfile.showVersionField">
+            <md-content style="margin-bottom: 1em;" ng-cloak>
                 <h4 layout flex layout-align="center center"><span>List Profile Type</span></h4>
 
                 <md-divider></md-divider>
@@ -27,7 +27,38 @@
         </div>
 
         <div flex layout="column" style="margin-bottom: 1em;">
+            <!--
             <md-content layout-padding style="margin-bottom: 1em;">
+                <h4 layout flex layout-align="center center"><span>Client Group</span></h4>
+
+                <md-divider></md-divider>
+
+                <md-content>
+                    <ui-select ng-model="listProfile.selectedClientGroup" theme="selectize" ng-init="listProfile.loadClientGroups()">
+                        <ui-select-match placeholder="Choose a Client Group">
+                          @{{$select.selected.name}}
+                        </ui-select-match>
+                        <ui-select-choices 
+                          refresh="listGroup.fetchClientGroups($select)" 
+                          refresh-delay="300" 
+                          repeat="item in items | filter: $select.search"
+                        >
+                          @{{$index}} - @{{item.full_name}}
+                          <div ng-if="$index == $select.items.length-1">
+                            <button 
+                              class="btn btn-xs btn-success" 
+                              style="width: 100%; margin-top: 5px;" 
+                              ng-click="listGroup.fetchClientGroups($select, $event);"
+                              ng-disabled="listProfile.clientGroupLoading">Load more...</button>                 
+                          </div>
+                        </ui-select-choices>
+                    </ui-select>
+                </md-content>
+
+            </md-content>
+            -->
+
+            <md-content layout-padding style="margin-bottom: 1em;" ng-if="listProfile.showVersionField" ng-cloak>
                 <h4 layout flex layout-align="center center"><span>Client Group</span></h4>
 
                 <md-divider></md-divider>
@@ -62,7 +93,7 @@
                     </md-chip-template>
                 </md-chips>
 
-                <md-content layout="row" flex>
+                <md-content layout="row" flex ng-cloak>
                     <md-tabs md-dynamic-height md-no-pagination md-stretch-tabs='always' flex>
                         <md-tab>
                             <md-tab-label>Count Range</md-tab-label>
@@ -119,7 +150,7 @@
                 </md-content>
             </md-content>
 
-            <md-content layout-padding style="margin-bottom: 1em;">
+            <md-content layout-padding style="margin-bottom: 1em;" ng-cloak>
                 <h4 layout flex layout-align="center center"><span>ISPs</span></h4>
 
                 <md-divider></md-divider>
@@ -177,7 +208,7 @@
                 </md-content>
             </md-content>
 
-            <md-content layout-padding style="margin-bottom: 1em;" ng-if="listProfile.profileType === 'v1'">
+            <md-content layout-padding style="margin-bottom: 1em;" ng-if="listProfile.profileType === 'v1'" ng-cloak>
                 <h4 layout flex layout-align="center center"><span>Delivery Days</span></h4>
 
                 <md-divider></md-divider>
@@ -193,7 +224,7 @@
                 </md-content>
             </md-content>
 
-            <md-content layout-padding style="margin-bottom: 1em;">
+            <md-content layout-padding style="margin-bottom: 1em;" ng-cloak>
                 <h4 layout flex layout-align="center center"><span>Gender</span></h4>
 
                 <md-divider></md-divider>
@@ -213,7 +244,7 @@
                 </div>
             </md-content>
 
-            <md-content layout-padding style="margin-bottom: 1em;">
+            <md-content layout-padding style="margin-bottom: 1em;" ng-cloak>
                 <h4 layout flex layout-align="center center"><span>Source URL</span></h4>
 
                 <md-divider></md-divider>
@@ -227,7 +258,7 @@
                 </md-chips>
             </md-content>
 
-            <md-content layout-padding style="margin-bottom: 1em;" ng-if="listProfile.profileType === 'v1'">
+            <md-content layout-padding style="margin-bottom: 1em;" ng-if="listProfile.profileType === 'v1'" ng-cloak>
                 <h4 layout flex layout-align="center center"><span>Seeds</span></h4>
 
                 <md-divider></md-divider>
@@ -241,7 +272,8 @@
                 </md-chips>
             </md-content>
 
-            <md-content layout-padding style="margin-bottom: 1em;">
+            <!-- Change to TextArea
+            <md-content layout-padding style="margin-bottom: 1em;" ng-cloak>
                 <h4 layout flex layout-align="center center"><span>Zip Codes</span></h4>
 
                 <md-divider></md-divider>
@@ -254,6 +286,7 @@
                         </md-chip-template>
                     </md-chips>
             </md-content>
+            -->
         </div>
     </div>
 </div>

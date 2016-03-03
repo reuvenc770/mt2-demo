@@ -12,5 +12,7 @@ return[
     'clientgroup.list' => 'Client Group',
     'clientgroup.add' => "Add Client Group",
     'role.add'      => "Add Role",
-    'tools.recordlookup' => "Email & EID Loopup"
+    'tools.recordlookup' => "Email & EID Loopup" ,
+    'listprofile.list' => 'List Profile' ,
+    'listprofile.add' => 'Add List Profile'
 ];

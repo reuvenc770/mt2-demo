@@ -37,6 +37,8 @@ elixir(function(mix) {
 
     mix.copy( 'node_modules/moment/min/moment-with-locales.min.js' , 'public/js/momment-with-locales.min.js' );
 
+    mix.copy( 'node_modules/ui-select/dist/select.min.js' , 'public/js/select.min.js' );
+
     mix.scripts( [
         'app.js' ,
         'mt2app/GenericTableDirective.js' ,
