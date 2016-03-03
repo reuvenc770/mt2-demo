@@ -39,6 +39,8 @@ elixir(function(mix) {
 
     mix.copy( 'node_modules/ui-select/dist/select.min.js' , 'public/js/select.min.js' );
 
+    mix.copy( 'node_modules/ui-select/dist/select.min.css' , 'public/css/select.min.css' );
+
     mix.scripts( [
         'app.js' ,
         'mt2app/GenericTableDirective.js' ,
@@ -79,12 +81,6 @@ elixir(function(mix) {
         'clientgroup/ClientGroupApiService.js' ,
         'client/ClientApiService.js'
     ] , 'public/js/listprofile.js' );
-
-    mix.scripts([
-        'dataexport/DataExportController.js',
-        'dataexport/DataExportApiService.js',
-        'dataexport/DataExportTableDirective.js'
-    ], 'public/js/dataexport.js');
 
     mix.copy( 'resources/assets/js/templates' , 'public/js/templates' );
 
