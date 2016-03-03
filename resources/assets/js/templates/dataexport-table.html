@@ -7,6 +7,7 @@
                     <span class="glyphicon glyphicon-refresh rotateMe" ng-if="ctrl.loadingflag == 1"></span>
                 </strong>
             </th>
+            <th></th>
             <th class="text-center">Status</th>
             <th class="text-center">Filename</th>
             <th class="text-center">Client Group</th>
@@ -21,12 +22,11 @@
         <tbody>
             <tr ng-repeat="record in ctrl.records track by $index">
                 <td>
-                    <edit-button editurl="'/client/edit/'" recordid="record.exportID">
+                    <md-checkbox aria-label="pause" ng-model="ctrl.selectedExports[record.exportID]" ng-change="ctrl.toggleinclusion({id: record.exportID})" ng-true-value="'1'"></md-checkbox>
+                </td>
+                <td>
+                    <edit-button editurl="'/dataexport/edit/'" recordid="record.exportID">
                     </edit-button>
-                    <status-button pauseurl="'/dataexport/status/'" recordid="record.exportID">
-                    </status-button>
-                    <copy-button copyurl="'/dataexport/copy/'" recordid="record.exportID">
-                    </copy-button>
                 </td>
                 <td ng-class="{ 'bg-success' : record.status == 'A' , 'bg-warn' : record.status == 'P' , 'bg-danger' : record.status == 'D' }"><strong>{{ record.status == 'A' ? 'Active' : record.status == 'P' ? 'Paused' : 'Inactive'  }}</strong></td>
                 <td>{{ record.fileName }}</td>
