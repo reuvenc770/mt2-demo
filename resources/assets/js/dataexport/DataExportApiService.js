@@ -10,7 +10,8 @@ mt2App.service( 'DataExportApiService' , function ( $http ) {
     self.getDataExport = function ( exportId , successCallback , failureCallback ) {
         $http( {
             "method" : "GET" ,
-            "url" : self.mt1ApiUrl + '/' + exportId
+            "url" : self.baseApiUrl + '/',
+            "params": {"action": "view", "eid": exportId}
         }).then( successCallback , failureCallback );
     };
 
@@ -71,27 +72,24 @@ mt2App.service( 'DataExportApiService' , function ( $http ) {
     self.massActivateDataExports = function (ids, successCallback, failureCallback) {
         $http({
             "method": "PUT",
-            "url": self.baseApiUrl,
-            "params": {"action": "massActivate"},
-            "data": ids
+            "url": self.baseApiUrl + '/massActions',
+            "params": {"action": "massActivate", "eidArr": ids.join(',')},
         }).then(sucessCallback, failureCallback);
     };
 
     self.massPauseDataExports = function (ids, successCallback, failureCallback) {
         $http({            
             "method": "PUT",
-            "url": self.baseApiUrl,
-            "params": {"action": "massPause"},
-            "data": ids 
-        }).then(sucessCallback, failureCallback);
+            "url": self.baseApiUrl + '/massActions',
+            "params": {"action": "massPause", "eidArr": ids.join(',')}
+        }).then(successCallback, failureCallback);
     };
 
     self.massRePullDataExports = function (ids, successCallback, failureCallback) {
         $http({
             "method": "PUT",
-            "url": self.baseApiUrl,
-            "params": {"action": "massRePull"},
-            "data": ids
+            "url": self.baseApiUrl + '/massActions',
+            "params": {"action": "massRePull", "eidArr": ids.join(',')}
         }).then(sucessCallback, failureCallback);
     };
 
@@ -100,6 +98,7 @@ mt2App.service( 'DataExportApiService' , function ( $http ) {
      */
 
      self.getProfiles = function (success, failure) {
+        console.log('trying to get profiles');
         $http({
             "method": "GET",
             "url": self.mt1ProfileApiUrl
@@ -107,6 +106,7 @@ mt2App.service( 'DataExportApiService' , function ( $http ) {
      };
 
      self.getClientGroups = function(success, failure) {
+        console.log('trying to get client groups');
         $http({
             "method": "GET",
             "url": self.mt1ClientGroupApiUrl

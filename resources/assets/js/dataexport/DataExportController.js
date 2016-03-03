@@ -53,6 +53,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     "otherValue": "" 
   };
   self.formErrors = [];
+  self.selectedExports = {};
 
   // Day-specific properties
   self.days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -72,6 +73,10 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   self.currentPage = 1;
 
 
+  // Index page setup
+  self.displayedStatus = 'active';
+  self.displayedStatusButtonText = 'View Paused Exports';
+  self.massActionButtonText = 'Pause';
 
 
   // Profile search
@@ -136,10 +141,22 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   };
 
   self.saveDataExport = function(event) {
-
+    DataExportApiService.createDataExport(
+      self.current,
+      self.saveDataExportSuccessCallback,
+      self.saveDataExportFailureCallback
+    );
   };
 
-  self.updateDataExport = function(event) {};
+  self.updateDataExport = function(event) {
+    //
+    DataExportApiService.updateDataExport(
+      self.current,
+      self.saveDataExportSuccessCallback,
+      self.saveDataExportFailureCallback
+    );
+
+  };
 
   self.copyDataExport = function(emailId) {
     DataExportApiService.copyDataExport(
@@ -155,7 +172,70 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   self.viewAdd = function() {
     $location.url(self.createUrl);
     $window.location.href = self.createUrl;
+  };
+
+
+  /**
+   * Index page mass methods
+   */
+
+  self.switchDisplayedStatus = function() {
+    // Clear out the selects
+    self.selectedExports = {};
+
+    if ('active' === self.displayedStatus) {
+      self.loadPausedDataExports();
+      self.displayedStatus = 'paused';
+      self.displayedStatusButtonText = 'View Active Exports';
+      self.massActionButtonText = "Activate";
+    }
+    else {
+      self.loadActiveDataExports();
+      self.displayedStatus = 'active';
+      self.displayedStatusButtonText = 'View Paused Exports';
+      self.massActionButtonText = "Pause";
+    }
+  };
+
+  self.toggleInclusion = function(id) {
+    if (self.selectedExports[id] === undefined) {
+      // does not exist in hash. Add to hash
+      self.selectedExports[id] = 1;
+    }
+    else {
+      // does; remove
+      delete self.selectedExports[id];
+    }
   }
+
+  self.pauseSelected = function() {
+    if ('active' === self.displayedStatus) {
+      console.log('Pausing ... ');
+      DataExportApiService.massPauseDataExports(
+        Object.keys(self.selectedExports),
+        self.massStatusChangeSuccessCallback,
+        self.massStatusChangeFailureCallback
+      );
+    }
+    else {
+      console.log('Activating ... ');
+      DataExportApiService.massActivateDataExports(
+        Object.keys(self.selectedExports),
+        self.massStatusChangeSuccessCallback,
+        self.massStatusChangeFailureCallback
+      );
+    }
+    
+  };
+
+  self.rePullSelected = function() {
+    DataExportApiService.massRePullDataExports(
+      Object.keys(self.selectedExports),
+      self.rePullSuccessCallback,
+      self.rePullFailureCallback
+    );
+  };
+
 
   /**
    * Methods to handle profile autocomplete
@@ -254,51 +334,6 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   });
 
 
-  /**
-   * Day Chip/Lookahead Field 
-   */
-  self.searchClient = function ( searchText ) {
-      return searchText ? self.days.filter( function ( obj ) {
-          var idRegex = new RegExp( '^' + searchText );
-
-          return (
-              obj.username.toLowerCase().indexOf( searchText.toLowerCase() ) === 0
-              || idRegex.test( obj.client_id.toString() ) 
-          );
-      } ) : false;
-  }
-
-  self.updateDayCheckboxList = function ( item ) {
-      if ( typeof( item ) !== 'undefined' ) {
-          $rootScope.selectedDays[ item.client_id ] = item.username;
-      }
-  };
-
-  self.updateClientFormField = function () {
-      var clientDelimitedList = '';
-      angular.forEach( self.clientChipList , function ( value , key ) {
-          if ( key > 0 ) clientDelimitedList += "\n";
-
-          clientDelimitedList += value.id;
-      } );
-
-      self.current.clients = clientDelimitedList;
-  };
-
-  self.formatChip = function ( $chip ) {
-      if ( typeof( $chip.name ) === 'undefined' ) {
-          return {
-              'name' : $chip.username ,
-              'id' : $chip.client_id
-          };
-      } else return $chip;
-  };
-
-  self.removeClientChip = function ( $chip ) {
-      $rootScope.selectedDays[ $chip.id ] = false;
-  };
-
-
   $rootScope.$watchCollection( 'selectedDays' , function ( newDays , oldDays ) {
     angular.forEach( newDays , function ( value , key ) {
         var currentChip = { "id" : key , "name" : value };
@@ -343,7 +378,6 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
     $( '#pageModal' ).modal('hide');
   };
-
 
   /* Callback procedures */
 
@@ -442,20 +476,14 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   };
 
 
-  self.saveDataExportSuccessCallback = function(response) {};
+  self.saveDataExportSuccessCallback = function(response) {
+    $location.url( '/dataexport' );
+    $window.location.href = '/dataexport';
+  };
 
   self.saveDataExportFailureCallback = function(response) {
     self.setModalLabel( 'Error' );
-    self.setModalBody( 'Failed to load client.' );
-    self.launchModal();
-  };
-
-
-  self.updateDataExportSuccessCallback = function(response) {};
-
-  self.updateDataExportFailureCallback = function(response) {
-    self.setModalLabel( 'Error' );
-    self.setModalBody( 'Failed to load client.' );
+    self.setModalBody( 'Failed to save export data.' );
     self.launchModal();
   };
 
@@ -495,18 +523,19 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     self.launchModal();
   };
 
-  self.copyDataExportSuccessCallback = function(response) {};
+  self.rePullSuccessCallback = function(response) {};
 
-  self.copyDataExportFailureCallback = function(response) {
+  self.rePullFailureCallback = function(response) {
     self.setModalLabel( 'Error' );
-    self.setModalBody( 'Failed to load client.' );
+    self.setModalBody( 'Failed to set up re-pull.' );
     self.launchModal();
   };
-  self.copyDataExportSuccessCallback = function(response) {};
 
-  self.copyDataExportFailureCallback = function(response) {
+  self.massStatusChangeSuccessCallback = function(response) {};
+
+  self.massStatusChangeFailureCallback = function(response) {
     self.setModalLabel( 'Error' );
-    self.setModalBody( 'Failed to copy export.' );
+    self.setModalBody( 'Failed to change statuses.' );
     self.launchModal();
   };
 
