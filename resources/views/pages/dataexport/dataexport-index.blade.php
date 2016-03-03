@@ -7,14 +7,19 @@
   <div class="page-header col-xs-12"><h1 class="text-center">Data Exports</h1></div>
 </div>
 <div ng-controller="DataExportController as dataExport" ng-init="dataExport.loadActiveDataExports()">
-  @if (Sentinel::hasAccess('dataExport.add'))
+  
   <div class="row">
+    <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="dataExport.switchDisplayedStatus()">
+      <span>@{{dataExport.displayedStatusButtonText}}</span>
+    </button>
+    @if (Sentinel::hasAccess('dataexport.add'))
     <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="dataExport.viewAdd()">
       <span class="glyphicon glyphicon-plus"></span>
       Add Data Export
     </button>
+    @endif
   </div>
-  @endif
+  
 
   <div class="row">
     <div class="col-xs-12">
@@ -28,7 +33,7 @@
           </div>
         </div>
 
-        <dataexport-table records="dataExport.dataExports" loadingflag="dataExport.currentlyLoading" >
+        <dataexport-table records="dataExport.dataExports" loadingflag="dataExport.currentlyLoading" toggleinclusion="dataExport.toggleInclusion(id)">
         </dataexport-table>
 
         <div class="row">
@@ -41,6 +46,16 @@
           </div>
         </div>
     </div>
+  </div>
+
+  <div class="row">
+    <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="dataExport.pauseSelected()">
+      <span class="glyphicon glyphicons-arrow-down"></span>
+      <span>@{{dataExport.massActionButtonText}} Exports</span>
+    </button>
+    <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="dataExport.rePullSelected()">
+      Re-pull Exports
+    </button>
   </div>
 </div>
 @stop

@@ -212,13 +212,6 @@
 
       <div class="form-group" ng-class="{ 'has-error' : dataExport.formErrors.fields }">
         <label>Fields to include in file:</label>
-        <!--
-        <md-list>
-          <md-list-item ng-repeat="field in dataExport.fields" flex>
-            <md-checkbox ng-checked="field.checked" ng-model="field.checked" value="field.value">@{{field.label}}</md-checkbox>
-          </md-list-item>
-        </md-list>
-        -->
         <fieldset>
           <div class="col-sm-4">
             <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.email_addr" ng-true-value="'email_addr'">Email Address</md-checkbox>
@@ -253,7 +246,7 @@
             <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.last_name" ng-true-value="'last_name'">Last Name</md-checkbox>
             <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.gender" ng-true-value="'gender'">Gender</md-checkbox>
             <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.phone" ng-true-value="'phone'">Phone</md-checkbox>
-            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.birth_date" ng-true-value="'birth_date'">Birth Date</md-checkbox>
+            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.dob" ng-true-value="'dob'">Birth Date</md-checkbox>
             <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.ip" ng-true-value="'ip'">IP Address</md-checkbox>
           </div> 
        </fieldset>
