@@ -16,6 +16,6 @@ return[
     'listprofile.list' => 'List Profile' ,
     'listprofile.add' => 'Add List Profile'
     'tools.recordlookup' => "Email & EID Lookup",
-    'navigation.dataexport.list' => "Data Export",
-    'navigation.dataexport.add' => 'Add Data Export',
+    'dataexport.list' => "Data Export",
+    'dataexport.add' => 'Add Data Export',
 ];
