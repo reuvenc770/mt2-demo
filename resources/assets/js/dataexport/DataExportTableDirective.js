@@ -5,7 +5,8 @@ mt2App.directive( 'dataexportTable' , function () {
         "controllerAs" : "ctrl" ,
         "bindToController" : {
             "records" : "=" ,
-            "loadingflag" : "="
+            "loadingflag" : "=",
+            "toggleinclusion": "&"
         } ,
         "templateUrl" : "js/templates/dataexport-table.html"
     };
