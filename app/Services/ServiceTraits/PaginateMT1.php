@@ -34,8 +34,8 @@ trait PaginateMT1
     }
 
     public function getPaginatedJson ( $pageNumber, $perPage , $params = null ) {
-        if ( $this->hasCache( $pageNumber , $perPage ) ) {
-            return $this->getCachedJson( $pageNumber , $perPage );
+        if ( $this->hasCache( $pageNumber , $perPage, $params ) ) {
+            return $this->getCachedJson( $pageNumber , $perPage, $params );
         } else {
             try {
                 return $this->paginateRecords( $pageNumber , $perPage , $params );

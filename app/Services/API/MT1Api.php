@@ -24,6 +24,7 @@ class MT1Api
     public function getMT1Json($page,$params = null)
     {
         $url = $this->constructUrl($page, $params);
+        #return $url . PHP_EOL;
         return $this->guzzle->get($url);
     }
 
