@@ -6,7 +6,7 @@ use App\Events\RawReportDataWasInserted;
 use App\Factories\APIFactory;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use League\Flysystem\Exception;
-
+use Maknz\Slack\Facades\Slack;
 /**
  * Class CreateStandardReport
  * @package App\Listeners
@@ -30,7 +30,7 @@ class CreateStandardReport implements ShouldQueue
                 $standardReport = $service->mapToStandardReport($report);
                 $standardService->insertStandardStats($standardReport);
             } catch (Exception $e) {
-                throw new \Exception($e->getMessage());
+                Slack::to('#mt2-dev-failed-jobs')->send("Map to Standard has failed for ESP ACCOUNT: {$report->esp_account_id}");
             }
 
         }
