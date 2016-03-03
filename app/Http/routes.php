@@ -41,7 +41,7 @@ Route::group( [ 'prefix' => 'client', 'middleware' => ['auth', 'pageLevel'] ] , 
 } );
 
 Route::group( [ 'prefix' => 'dataexport', 'middleware' => ['auth', 'pageLevel'] ] , function () {
-    Route::get( '/' , array( 'as' => 'dataexport.list' , 'uses' => 'DataExportController@listAllActive' ) );
+    Route::get( '/' , array( 'as' => 'dataexport.list' , 'uses' => 'DataExportController@listActive' ) );
     Route::get( '/create' , array( 'as' => 'dataexport.add' , 'uses' => 'DataExportController@create' ) );
     Route::get( '/edit/{id}' , array( 'as' => 'dataexport.edit' , 'uses' => 'DataExportController@edit' ) );
 } );
@@ -98,6 +98,7 @@ Route::group( [ 'prefix' => 'api/mt1', 'middleware' => ['auth'] ] , function () 
     Route::get( 'client/generatelinks/{id}' , array( 'as' => 'api.mt1.client.generatelinks' , 'uses' => 'ClientController@generatelinks' ) );
     Route::get( 'client/types' , array( 'as' => 'api.mt1.client.types' , 'uses' => 'MT1API\ClientApiController@types' ) );
     Route::resource( 'uniqueprofiles' , 'MT1API\UniqueProfileApiController' , [ 'only' => [ 'index','show'] ] );
+    #Route::resource('dataexport', 'MT1API\DataExportApiController', ['only' => ['index', 'show']]);
 });
 
 

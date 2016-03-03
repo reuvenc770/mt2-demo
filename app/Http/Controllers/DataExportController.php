@@ -19,11 +19,11 @@ class DataExportController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index() {
-        return response( $this->api->getJSON( self::DATA_EXPORT_API_ENDPOINT ) );
+    public function index(Request $request) {
+        return response( $this->api->getJSON( self::DATA_EXPORT_API_ENDPOINT , $request->all()) );
     }
 
-    public function listAllActive() {
+    public function listActive() {
         return response()->view('pages.dataexport.dataexport-index');
     }
 
