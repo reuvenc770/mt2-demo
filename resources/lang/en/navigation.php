@@ -15,4 +15,7 @@ return[
     'tools.recordlookup' => "Email & EID Loopup" ,
     'listprofile.list' => 'List Profile' ,
     'listprofile.add' => 'Add List Profile'
+    'tools.recordlookup' => "Email & EID Lookup",
+    'navigation.dataexport.list' => "Data Export",
+    'navigation.dataexport.add' => 'Add Data Export',
 ];

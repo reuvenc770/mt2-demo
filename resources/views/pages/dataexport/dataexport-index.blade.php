@@ -15,7 +15,7 @@
     @if (Sentinel::hasAccess('dataexport.add'))
     <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="dataExport.viewAdd()">
       <span class="glyphicon glyphicon-plus"></span>
-      Add Client Group
+      Add Data Export
     </button>
     @endif
   </div>

@@ -1,4 +1,4 @@
-<form id="dataExportForm" ng-init="dataExport.getDataExport()">
+<form id="dataExportForm" ng-init="dataExport.setupPage()">
   <div class="panel panel-primary">
     <div class="panel-heading">
       <h3 class="panel-title">FTP Setup</h3>
@@ -214,31 +214,31 @@
         <label>Fields to include in file:</label>
         <fieldset>
           <div class="col-sm-4">
-            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.fields.email_addr" ng-true-value="'email_addr'">Email Address</md-checkbox>
-            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.fields.eid" ng-true-value="'eid'">Email ID</md-checkbox>
-            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.fields.MD5" ng-true-value="'MD5'">Email MD5</md-checkbox>
-            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.fields.UMD5" ng-true-value="'UMD5'">Uppercase Email MD5</md-checkbox>
-            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.fields.ISP" ng-true-value="'ISP'">ISP</md-checkbox>
-            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.fields.cdate" ng-true-value="'cdate'">Capture Date</md-checkbox>
-            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.fields.sdate" ng-true-value="'sdate'">Subscribe Date</md-checkbox>
+            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.email_addr" ng-true-value="'email_addr'">Email Address</md-checkbox>
+            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.eid" ng-true-value="'eid'">Email ID</md-checkbox>
+            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.MD5" ng-true-value="'MD5'">Email MD5</md-checkbox>
+            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.UMD5" ng-true-value="'UMD5'">Uppercase Email MD5</md-checkbox>
+            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.ISP" ng-true-value="'ISP'">ISP</md-checkbox>
+            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.cdate" ng-true-value="'cdate'">Capture Date</md-checkbox>
+            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.sdate" ng-true-value="'sdate'">Subscribe Date</md-checkbox>
           </div>
 
           <div class="col-sm-3">
-            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.fields.client_id" ng-true-value="'client_id'">Client ID</md-checkbox>
-            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.fields.username" ng-true-value="'username'">Client name</md-checkbox>
-            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.fields.client_network" ng-true-value="'client_network'">Client Network</md-checkbox>
-            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.fields.url" ng-true-value="'url'">Source Url</md-checkbox>
-            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.fields.Status" ng-true-value="'Status'">Status</md-checkbox>
-            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.fields.adate" ng-true-value="'adate'">Action Date</md-checkbox>
+            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.client_id" ng-true-value="'client_id'">Client ID</md-checkbox>
+            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.username" ng-true-value="'username'">Client name</md-checkbox>
+            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.client_network" ng-true-value="'client_network'">Client Network</md-checkbox>
+            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.url" ng-true-value="'url'">Source Url</md-checkbox>
+            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.Status" ng-true-value="'Status'">Status</md-checkbox>
+            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.adate" ng-true-value="'adate'">Action Date</md-checkbox>
           </div>
 
           <div class="col-sm-2">
-            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.fields.address" ng-true-value="'address'">Address</md-checkbox>
-            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.fields.address2" ng-true-value="'address2'">Addr2</md-checkbox>
-            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.fields.city" ng-true-value="'city'">City</md-checkbox>
-            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.fields.state" ng-true-value="'state'">State</md-checkbox>
-            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.fields.zip" ng-true-value="'zip'">Zip</md-checkbox>
-            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.fields.country" ng-true-value="'country'">Country</md-checkbox>
+            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.address" ng-true-value="'address'">Address</md-checkbox>
+            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.address2" ng-true-value="'address2'">Addr2</md-checkbox>
+            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.city" ng-true-value="'city'">City</md-checkbox>
+            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.state" ng-true-value="'state'">State</md-checkbox>
+            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.zip" ng-true-value="'zip'">Zip</md-checkbox>
+            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.current.fields.country" ng-true-value="'country'">Country</md-checkbox>
           </div>
 
           <div class="col-sm-3">

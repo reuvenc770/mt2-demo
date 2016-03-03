@@ -83,7 +83,7 @@ elixir(function(mix) {
     mix.scripts([
         'dataexport/DataExportController.js',
         'dataexport/DataExportApiService.js',
-        'dataexport/DataExportTableDirective.js'
+        'dataexport/DataExporttableDirective.js'
     ], 'public/js/dataexport.js');
 
     mix.copy( 'resources/assets/js/templates' , 'public/js/templates' );
