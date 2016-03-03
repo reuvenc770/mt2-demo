@@ -70,6 +70,7 @@ Route::group( [ 'prefix' => 'api', 'middleware' => ['auth' , 'pageLevel'] ] , fu
     Route::resource( 'espapi' , 'EspApiController' , [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth']  ] );
     Route::resource( 'client' , 'ClientController' , [ 'except' => [ 'create' , 'edit' , 'pager' ] ,'middleware' => ['auth'] ] );
     Route::get( '/clientgroup/all' , [ 'as' => 'api.clientgroup.all' , 'uses' => 'ClientGroupController@index' ] );
+    Route::put('/dataexport/massActions', [ 'except' => ['create', 'edit'], 'as' => 'dataexport.message', 'middleware' => ['auth'], 'uses' => 'DataExportController@message']);
     Route::resource('dataexport', 'DataExportController', ['except' => ['create', 'edit'], 'middleware' =>['auth']]);
     Route::get( '/clientgroup/copy/{id}' , array( 'as' => 'api.clientgroup.copy' , 'uses' => 'ClientGroupController@copy' ) );
     Route::resource( 'clientgroup' , 'ClientGroupController' , [ 'except' => [ 'index' , 'create' , 'edit' , 'copy' ] ,'middleware' => ['auth'] ] );
@@ -82,7 +83,6 @@ Route::group( [ 'prefix' => 'api', 'middleware' => ['auth' , 'pageLevel'] ] , fu
     Route::resource('role', 'RoleApiController',  [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth','admin']] );
     Route::resource('jobEntry', 'JobApiController',  [ 'only' => [ 'index' ] ,'middleware' => ['auth','dev']] );
     Route::resource( 'showinfo' , 'ShowInfoController' , [ 'only' => [ 'show' , 'store' ] , 'middleware' => [ 'auth' ] ] );
-
 } );
 
 //guest only
