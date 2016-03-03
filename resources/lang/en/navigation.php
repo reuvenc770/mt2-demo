@@ -14,7 +14,7 @@ return[
     'role.add'      => "Add Role",
     'tools.recordlookup' => "Email & EID Loopup" ,
     'listprofile.list' => 'List Profile' ,
-    'listprofile.add' => 'Add List Profile'
+    'listprofile.add' => 'Add List Profile' ,
     'tools.recordlookup' => "Email & EID Lookup",
     'dataexport.list' => "Data Export",
     'dataexport.add' => 'Add Data Export',
