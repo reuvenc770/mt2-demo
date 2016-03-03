@@ -1,4 +1,4 @@
-mt2App.directive( 'dataexportTable' , function () {
+mt2App.directive( 'DataExportTable' , function () {
     return {
         "scope" : {} ,
         "controller" : function () {} ,

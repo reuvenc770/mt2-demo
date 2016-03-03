@@ -1,7 +1,7 @@
 mt2App.service( 'DataExportApiService' , function ( $http ) {
     var self = this;
 
-    self.pagerApiUrl = '/api/pager/dataexport';
+    self.pagerApiUrl = '/api/pager/DataExport';
     self.mt1ApiUrl = '/api/mt1/dataexport';
     self.baseApiUrl = '/api/dataexport';
     self.mt1ClientGroupApiUrl = '/api/mt1/clientgroup';
