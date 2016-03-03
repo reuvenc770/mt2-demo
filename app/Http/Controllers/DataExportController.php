@@ -14,6 +14,10 @@ class DataExportController extends Controller
     public function __construct (MT1ApiService $api) {
        $this->api = $api;
     }
+
+    public function status(Request $request) {
+        return response($this->api->getJSON(self::DATA_EXPORT_API_ENDPOINT, $request->all()));
+    }
     /**
      * Display a listing of the resource.
      *
@@ -92,5 +96,9 @@ class DataExportController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function message(Request $request) {
+        return response($this->api->getJSON(self::DATA_EXPORT_API_ENDPOINT, $request->all()));
     }
 }
