@@ -9,17 +9,18 @@ use Log;
 use Cache;
 
 trait PaginationCache {
-    public function getCacheKey ( $page , $count ) {
-        return $this->getType() . ".{$page}.{$count}";
+    public function getCacheKey ( $page , $count, $params = null ) {
+        $md5ParamList = isset($params) ? md5(implode(',', $params)) : '';
+        return $this->getType() . $md5ParamList . ".{$page}.{$count}";
     }
 
-    public function hasCache ( $page , $count ) {
-        return Cache::tags( $this->getType() )->has( $this->getCacheKey( $page , $count ) );
+    public function hasCache ( $page , $count, $params = null ) {
+        return Cache::tags( $this->getType() )->has( $this->getCacheKey( $page , $count, $params ) );
     }
 
-    public function getCachedJson ( $page , $count ) {
+    public function getCachedJson ( $page , $count, $params = null ) {
         return Cache::tags( $this->getType() )
-            ->get( $this->getCacheKey( $page , $count ) );
+            ->get( $this->getCacheKey( $page , $count, $params ) );
     }
 
     public function cachePagination ( $json , $page , $count ) {
