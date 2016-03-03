@@ -163,6 +163,7 @@ return [
         App\Providers\PermissionServiceProvider::class,
         App\Providers\UserEventLogProvider::class,
         DaveJamesMiller\Breadcrumbs\ServiceProvider::class,
+        Maknz\Slack\SlackServiceProvider::class,
     ],
 
     /*
@@ -218,6 +219,7 @@ return [
         'Permission' => App\Facades\Permission::class,
         'UserEventLog' => App\Facades\UserEventLog::class,
         'Breadcrumbs' => DaveJamesMiller\Breadcrumbs\Facade::class,
+        'Slack' => Maknz\Slack\Facades\Slack::class,
     ],
 
 ];

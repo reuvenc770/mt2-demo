@@ -12,7 +12,7 @@ namespace App\Services;
 use App\Models\JobEntry;
 use App\Repositories\JobEntryRepo;
 use Carbon\Carbon;
-
+use Maknz\Slack\Facades\Slack;
 class JobEntryService
 {
     protected $repo;
@@ -44,6 +44,9 @@ class JobEntryService
         $job->attempts = $tries;
         $job->time_finished = Carbon::now();
         $job->save();
+        if($job->status == 3 && env("SLACK_ON",false)){
+          Slack::to('#mt2-dev-failed-jobs')->send("{$job->job_name} for {$job->account_name} - {$job->account_number} has failed after running {$job->attempts} attempts");
+        }
     }
 
     public function startTrackingJob($jobName, $startDate, $endDate, $tracking)
