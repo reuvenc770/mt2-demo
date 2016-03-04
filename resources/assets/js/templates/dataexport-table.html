@@ -27,13 +27,10 @@
                 <td>
                     <edit-button editurl="'/dataexport/edit/'" recordid="record.exportID">
                     </edit-button>
-                    <status-button pauseurl="'/dataexport/status/'" recordid="record.exportID">
+                    <status-button recordid="record.exportID" ng-click="ctrl.changestatus({id: record.exportID})" statuschangebuttontext="ctrl.statuschangebuttontext">
                     </status-button>
-                    <!--
-                    <copy-button copyurl="'/dataexport/copy/'" recordid="record.exportID">
-                    </copy-button>
-                    -->
-
+                    <copyexport-button recordid="record.exportID" ng-click="ctrl.copyexport({id: record.exportID})"></copyexport-button>
+                    <deleteexport-button ng-click="ctrl.deleteexport({id: record.exportID})"></deleteexport-button>
                 </td>
                 <td ng-class="{ 'bg-success' : record.status == 'Active' , 'bg-warn' : record.status == 'Paused' , 'bg-danger' : record.status == 'Deleted' }"><strong>{{ record.status == 'Active' ? 'Active' : record.status == 'Paused' ? 'Paused' : 'Deleted'  }}</strong></td>
                 <td>{{ record.fileName }}</td>
