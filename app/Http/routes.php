@@ -63,7 +63,7 @@ Route::group( [ 'prefix' => 'api', 'middleware' => ['auth' , 'pageLevel'] ] , fu
     Route::put('/profile/{id}', [ 'as' => 'profile.update', 'uses' =>'UserApiController@updateProfile']);
     Route::resource( 'espapi' , 'EspApiController' , [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth']  ] );
     Route::resource( 'client' , 'ClientController' , [ 'except' => [ 'create' , 'edit' , 'pager' ] ,'middleware' => ['auth'] ] );
-    Route::put('/dataexport/massActions', [ 'except' => ['create', 'edit'], 'as' => 'dataexport.message', 'middleware' => ['auth'], 'uses' => 'DataExportController@message']);
+    Route::put('/dataexport/update', [ 'except' => ['create', 'edit'], 'as' => 'dataexport.update', 'middleware' => ['auth'], 'uses' => 'DataExportController@message']);
     Route::resource('dataexport', 'DataExportController', ['except' => ['create', 'edit'], 'middleware' =>['auth']]);
     Route::get( '/clientgroup/copy/{id}' , array( 'as' => 'api.clientgroup.copy' , 'uses' => 'ClientGroupController@copy' ) );
     Route::resource( 'clientgroup' , 'ClientGroupController' , [ 'except' => [ 'create' , 'edit' , 'copy' ] ,'middleware' => ['auth'] ] );
