@@ -31,48 +31,51 @@ mt2App.service( 'DataExportApiService' , function ( $http ) {
         }).then( successCallback , failureCallback );
     };
 
-    self.createDataExport = function ( exportData , successCallback , failureCallback ) {
-        $http( {
-            "method" : "POST" ,
-            "url" : self.baseApiUrl,
-            "data" : exportData
-        }).then( successCallback , failureCallback );
-    };
-
-    self.updateDataExport = function ( exportData , successCallback ,failureCallback ) {
+    self.saveDataExport = function ( exportData , successCallback ,failureCallback ) {
         $http( {
             "method" : "PUT" ,
-            "url" : self.baseApiUrl + '/' + exportData.eid ,
-            "params" : { "_method" : "PUT" } ,
+            "url" : self.baseApiUrl,
+            "params" : { "_method" : "PUT", "action": "save"} ,
             "data" : exportData
         }).then( successCallback , failureCallback );
     };
 
     self.copyDataExport = function ( exportId , successCallback , failureCallback ) {
         $http( {
-            "method" : "GET" ,
-            "url" : self.baseApiUrl + '/copy/' + exportId ,
+            "method" : "PUT" ,
+            "url" : self.baseApiUrl + '/update',
+            "params": {"action": "copy", "eid": exportId}
         }).then( successCallback , failureCallback );
     };
 
     self.deleteDataExport = function ( exportId , successCallback , failureCallback ) {
         $http( {
-            "method" : "DELETE" ,
-            "url" : self.baseApiUrl + '/' + exportId
+            "method" : "PUT" ,
+            "url" : self.baseApiUrl + '/update',
+            "params": {"action": "delete", "eid": exportId}
         }).then( successCallback , failureCallback );
     };
 
     self.pauseDataExport = function (exportId, successCallback, failureCallback) {
         $http({
             "method": "PUT",
-            "url": self.baseApiUrl + "/pause/" + exportId,
+            "url": self.baseApiUrl + '/update',
+            "params": {"action": "pause", "eid": exportId}
+        }).then(successCallback, failureCallback);
+    };
+
+    self.activateDataExport = function (exportId, successCallback, failureCallback) {
+        $http({
+            "method": "PUT",
+            "url": self.baseApiUrl + '/update',
+            "params": {"action": "activate", "eid": exportId}
         }).then(successCallback, failureCallback);
     };
 
     self.massActivateDataExports = function (ids, successCallback, failureCallback) {
         $http({
             "method": "PUT",
-            "url": self.baseApiUrl + '/massActions',
+            "url": self.baseApiUrl + '/update',
             "params": {"action": "massActivate", "eidArr": ids.join(',')},
         }).then(sucessCallback, failureCallback);
     };
@@ -80,7 +83,7 @@ mt2App.service( 'DataExportApiService' , function ( $http ) {
     self.massPauseDataExports = function (ids, successCallback, failureCallback) {
         $http({            
             "method": "PUT",
-            "url": self.baseApiUrl + '/massActions',
+            "url": self.baseApiUrl + '/update',
             "params": {"action": "massPause", "eidArr": ids.join(',')}
         }).then(successCallback, failureCallback);
     };
@@ -88,7 +91,7 @@ mt2App.service( 'DataExportApiService' , function ( $http ) {
     self.massRePullDataExports = function (ids, successCallback, failureCallback) {
         $http({
             "method": "PUT",
-            "url": self.baseApiUrl + '/massActions',
+            "url": self.baseApiUrl + '/update',
             "params": {"action": "massRePull", "eidArr": ids.join(',')}
         }).then(sucessCallback, failureCallback);
     };

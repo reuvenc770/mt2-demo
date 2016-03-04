@@ -6,6 +6,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   // Page properties
   self.dataExports = [];
   self.current = {
+    "exportId": 0,
     "filename": "",
     "ftpServer": "",
     "ftpUser": "",
@@ -96,6 +97,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   self.updatingDataExport = false;
 
   self.setupPage = function() {
+    self.current.exportId = 0;
     var currentPath = $location.path();
     var pathParts = currentPath.match(new RegExp(/(\d+)/));
     var fillPage = (pathParts !== null) 
@@ -141,33 +143,90 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   };
 
   self.saveDataExport = function(event) {
-    DataExportApiService.createDataExport(
-      self.current,
+
+    var saveData = {
+      "exportId": self.current.exportId,
+      "seeds": self.current.seeds,
+      "ftpFolder": self.current.ftpFolder,
+      "ftpServer": self.current.ftpServer,
+      "ftpUser": self.current.ftpUser,
+      "ftpPassword": self.current.ftpPassword,
+      "NumberOfFiles": self.current.NumberOfFiles,
+      "sendBlueHornet": self.current.sendBluehornet,
+      "fullPostalOnly": self.current.fullPostalOnly,
+      "addressOnly": self.current.addressOnly,
+      "frequency": self.current.frequency,
+      "doubleQuoteFields": self.current.doubleQuoteFields,
+      "includeHeaders": self.current.includeHeaders,
+      "otherField": self.current.otherField,
+      "otherValue": self.current.otherValue,
+
+      "gid": self.current.client_group.id,
+      "profileId": self.current.profile.id,
+      "imp_monday": self.current.impMonday,
+      "imp_tuesday": self.current.impTuesday,
+      "imp_wednesday": self.current.impWednesday,
+      "imp_thursday": self.current.impThursday,
+      "imp_friday": self.current.impFriday,
+      "imp_saturday": self.current.impSaturday,
+      "imp_sunday": self.current.impSunday,
+      "exportType": "Regular",
+      "pname": self.current.fileName,
+      "fields": Object.keys(self.current.fields).filter( function (field) {
+        return self.current.fields[field];
+      }),
+      "outname": '',
+
+      "repull": '',
+      "esp": '',
+      "SendToEmail": '',
+      
+      "suppname":  '',
+      "ConfirmEmail": ''
+
+    };
+
+    DataExportApiService.saveDataExport(
+      saveData,
       self.saveDataExportSuccessCallback,
       self.saveDataExportFailureCallback
     );
   };
 
-  self.updateDataExport = function(event) {
-    //
-    DataExportApiService.updateDataExport(
-      self.current,
-      self.saveDataExportSuccessCallback,
-      self.saveDataExportFailureCallback
-    );
-
-  };
-
-  self.copyDataExport = function(emailId) {
+  self.copyDataExport = function(id) {
+    console.log('copying data export' + id);
     DataExportApiService.copyDataExport(
-      emailId
-
+      id,
+      self.copyDataExportSuccessCallback,
+      self.copyDataExportFailureCallback
     );
   };
 
-  self.deleteDataExport = function(event) {};
+  self.deleteDataExport = function(id) {    
+    DataExportApiService.deleteDataExport(
+      id,
+      self.deleteDataExportSuccessCallback,
+      self.deleteDataExportFailureCallback
+    );
+  };
 
-  self.pauseDataExport = function(event) {};
+  self.changeDataExportStatus = function(id) {
+    if ('active' === self.displayedStatus) {
+      DataExportApiService.pauseDataExport(
+        id,
+        self.changeStatusDataExportSuccessCallback,
+        self.changeStatusDataExportFailureCallback
+      );
+    }
+    else {
+      DataExportApiService.activateDataExport(
+        id,
+        self.changeStatusDataExportSuccessCallback,
+        self.changeStatusDataExportFailureCallback
+      );
+    }
+
+  };
 
   self.viewAdd = function() {
     $location.url(self.createUrl);
@@ -323,7 +382,6 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   };
 
 
-
   /**
    * Watchers
    */
@@ -385,6 +443,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     
     var data = response.data[0];
     self.current = {
+      "exportId": self.current.exportId,
       "fileName": data.fileName,
       "ftpServer": data.ftpServer,
       "ftpUser": data.ftpUser,
@@ -477,6 +536,9 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
 
   self.saveDataExportSuccessCallback = function(response) {
+    self.setModalLabel( 'Success!' );
+    self.setModalBody( 'Saved export data.' );
+    self.launchModal();
     $location.url( '/dataexport' );
     $window.location.href = '/dataexport';
   };
@@ -497,25 +559,40 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   };
 
 
-  self.deleteDataExportSuccessCallback = function(response) {};
+  self.deleteDataExportSuccessCallback = function(response) {
+    self.setModalLabel( 'Success!' );
+    self.setModalBody('Deleted export.');
+    self.launchModal();
+  };
 
   self.deleteDataExportFailureCallback = function(response) {
     self.setModalLabel( 'Error' );
-    self.setModalBody( 'Failed to load client.' );
+    self.setModalBody( 'Failed to delete export.' );
     self.launchModal();
   };
 
 
-  self.pauseDataExportSuccessCallback = function(response) {};
+  self.changeStatusDataExportSuccessCallback = function(response) {
+    self.setModalLabel('Success!');
+    self.setModalBody('Updated data export status.');
+    self.launchModal();
+  };
 
-  self.pauseDataExportFailureCallback = function(response) {
-    self.setModalLabel( 'Error' );
-    self.setModalBody( 'Failed to pause data export.' );
+  self.changeStatusDataExportFailureCallback = function(response) {
+    self.setModalLabel('Error');
+    self.setModalBody('Failed to update data export status.');
     self.launchModal();
   };
 
 
-  self.copyDataExportSuccessCallback = function(response) {};
+  self.copyDataExportSuccessCallback = function(response) {
+    self.setModalLabel( 'Success!' );
+    self.setModalBody( 'Copied export.' );
+    self.launchModal();
+    $location.url('/dataexport');
+    $window.location.href = '/dataexport/edit/' + response.data;
+    console.log(response);
+  };
 
   self.copyDataExportFailureCallback = function(response) {
     self.setModalLabel( 'Error' );
