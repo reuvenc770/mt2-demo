@@ -33,7 +33,10 @@
           </div>
         </div>
 
-        <dataexport-table records="dataExport.dataExports" loadingflag="dataExport.currentlyLoading" toggleinclusion="dataExport.toggleInclusion(id)">
+        <dataexport-table records="dataExport.dataExports" 
+        changestatus="dataExport.changeDataExportStatus(id)" loadingflag="dataExport.currentlyLoading" 
+        toggleinclusion="dataExport.toggleInclusion(id)" statuschangebuttontext="dataExport.massActionButtonText"
+        deleteexport="dataExport.deleteDataExport(id)" copyexport="dataExport.copyDataExport(id)">
         </dataexport-table>
 
         <div class="row">
