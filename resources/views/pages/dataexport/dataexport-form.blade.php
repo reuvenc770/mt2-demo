@@ -47,7 +47,7 @@
             md-selected-item-change="dataExport.setClientGroup( item )"
             md-min-length="0"
             placeholder="Choose a Client Group"
-            md-selected-item="dataExport.current.client_group_id">
+            md-selected-item="dataExport.current.client_group.name">
 
               <md-item-template>
                 <span md-highlight-text="dataExport.clientGroupSearchText" md-highlight-flags="^i">@{{item.name}}</span>
@@ -72,7 +72,7 @@
             md-selected-item-change="dataExport.setProfile( item )"
             md-min-length="0"
             placeholder="Choose a Profile"
-            md-selected-item="dataExport.current.profile_id">
+            md-selected-item="dataExport.current.profile.name">
 
               <md-item-template>
                 <span md-highlight-text="dataExport.profileSearchText" md-highlight-flags="^i">@{{item.name}}</span>
@@ -163,8 +163,11 @@
         </fieldset>
       </div>
 
-      <div class="form-group" ng-class="{ 'has-error' : dataExport.formErrors.seeds }">
-        <input type="text" class="form-control" id="seeds" value="" placeholder="Seeds" required="required" ng-model="dataExport.current.seeds" />
+      <div class="form-group" ng-class="{ 'has-error' : dataExport.formErrors.seeds }">        
+        <md-input-container class="md-block">
+          <label>Seeds</label>
+          <textarea ng-model="dataExport.current.seeds" md-maxlength="250" rows="10" md-select-on-focus></textarea>
+        </md-input-container>
         <span class="help-block" ng-bind="dataExport.formErrors.seeds" ng-show="dataExport.formErrors.seeds"></span>
       </div>
     </div>
