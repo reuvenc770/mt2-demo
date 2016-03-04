@@ -24,8 +24,8 @@
             <tr ng-repeat="record in ctrl.records track by $index">
                 <td>
                     <edit-button editurl="'/listprofile/edit/'" recordid="record.profile_id"></edit-button>
-                    <button class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-copy"></span> <span class="hidden-xs">Copy</span></button>
-                    <button class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove"></span> <span class="hidden-xs">Delete</span></button>
+                    <button class="btn btn-xs btn-primary" ng-click="ctrl.copy( { 'event' : $event , 'id' : record.profile_id } )"><span class="glyphicon glyphicon-copy"></span> <span class="hidden-xs">Copy</span></button>
+                    <button class="btn btn-xs btn-danger" ng-click="ctrl.delete( { 'id' : record.profile_id } )"><span class="glyphicon glyphicon-remove"></span> <span class="hidden-xs">Delete</span></button>
                 </td>
                 <td>{{ record.profile_id }}</td>
                 <td>{{ record.profile_name }}</td>

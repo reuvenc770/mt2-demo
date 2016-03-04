@@ -5,7 +5,9 @@ mt2App.directive( 'listprofileTable' , function () {
         "controllerAs" : "ctrl" ,
         "bindToController" : {
             "records" : "=" ,
-            "loadingflag" : "="
+            "loadingflag" : "=" ,
+            "copy" : "&" ,
+            "delete" : "&"
         } ,
         "templateUrl" : "js/templates/list-profile-table.html"
     };

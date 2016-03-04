@@ -1,13 +1,291 @@
-mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$location' , '$window' , '$mdDialog' , 'ListProfileApiService' , 'ClientApiService' , 'ClientGroupApiService' , function ( $rootScope , $log , $location , $window , $mdDialog , ListProfileApiService , ClientApiService , ClientGroupApiService ) {
+mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' , '$location' , '$window' , '$mdDialog' , '$mdToast' , 'ListProfileApiService' , 'ClientGroupApiService' , function ( $rootScope , $log , $http , $location , $window , $mdDialog , $mdToast , ListProfileApiService , ClientGroupApiService ) {
     var self = this;
     self.testUser = 217;
     self.showVersionField = true;
 
-    self.profileList = [];
     self.createUrl = '/listprofile/create';
+
+    /**
+     * Status Flags
+     */
+    self.currentlyLoading = false;
     self.creatingListProfile = false;
     self.updatingListProfile = false;
+    self.clientGroupLoading = false;
 
+    /**
+     * Entity Containers
+     */
+    self.profileList = [];
+    self.clientGroupList = [];
+    self.ispList = [ { "id" : 1 , "name" : "AOL" } , { "id" : 2 , "name" : "Hotmail" } , { "id" : 3 , "name" : "Yahoo" } ,  { "id" : 4 , "name" : "Others" } , { "id" : 6 , "name" : "Comcast" } , { "id" : 13 , "name" : "ATT" } , { "id" : 17 , "name" : "Gmail" } , { "id" : 21 , "name" : "Cloudmark" } , { "id" : 45 , "name" : "safeothers" } ,  { "id" : 47 , "name" : "UK" } , { "id" : 52 , "name" : "GMX" } , { "id" : 53 , "name" : "German" } , { "id" : 54 , "name" : "ForeignYahoo" } , { "id" : 57 , "name" : "France" } , { "id" : 60 , "name" : "YahooOthers" } , { "id" : 65 , "name" : "AOLUK" } , { "id" : 66 , "name" : "AOLOthers" } , { "id" : 67 , "name" : "ForeignAOL" } , { "id" : 68 , "name" : "GmailOthers" } , { "id" : 69 , "name" : "YahooUK" } , { "id" : 70 , "name" : "HotmailUK" } , { "id" : 71 , "name" : "ForeignHotmail" } , { "id" : 72 , "name" : "HotmailOthers" } , { "id" : 73 , "name" : "Facebook" } , { "id" : 74 , "name" : "Apple" } , { "id" : 75 , "name" : "Cable_Broadband" } , { "id" : 76 , "name" : "Italy" } , { "id" : 77 , "name" : "VerizonF" } , { "id" : 78 , "name" : "CoxF" } , { "id" : 79 , "name" : "BTINTERNET" } , { "id" : 80 , "name" : "Wanadoo" } ];
+
+    /**
+     * Pagination Properties
+     */
+    self.pageCount = 0;
+    self.paginationCount = '10';
+    self.currentPage = 1;
+
+    /**
+     * Client Group Autocomplete
+     */
+    self.selectedClientGroup = {};
+    self.currentClientGroupPage = 1;
+
+    /**
+     * ISP AutoComplete
+     */
+
+    self.ispSearchText = '';
+    $rootScope.selectedIsps = {};
+    self.currentSelectedIsp = '';
+    self.ispChipList = [];
+
+    /**
+     * Targeting Chip Containers
+     */
+    self.sourceList = [];
+    self.seedList = [];
+    self.zipList = [];
+
+    /**
+     * Range Widget Properties
+     */
+    self.rangeList = [];
+    self.rangeData = {
+        "count" : {
+            "age" : { "label" : 'Age Range' , "min" : null , "max" : null , "filled" : false } ,
+            "deliverable" : [
+                { "label" : "Deliverable Range" ,  "min" : 0 , "max" : 0 , "filled" : false } ,
+                { "label" : "Deliverable Range" , "min" : 0 , "max" : 0 , "filled" : false } ,
+                { "label" : "Deliverable Range" , "min" : 0 , "max" : 0 , "filled" : false }
+            ] ,
+            "openers" : [
+                { "label" : "Openers Range" , "min" : 0 , "max" : 0 , "filled" : false } ,
+                { "label" : "Openers Range" , "min" : 0 , "max" : 0 , "filled" : false } ,
+                { "label" : "Openers Range" , "min" : 0 , "max" : 0 , "filled" : false }
+            ] ,
+            "clickers" : [
+                { "label" : "Clickers Range" , "min" : 0 , "max" : 0 , "filled" : false } ,
+                { "label" : "Clickers Range" , "min" : 0 , "max" : 0 , "filled" : false } ,
+                { "label" : "Clickers Range" , "min" : 0 , "max" : 0 , "filled" : false }
+            ] ,
+            "converters" : [
+                { "label" : "Converters Range" , "min" : 0 , "max" : 0 , "filled" : false } ,
+                { "label" : "Converters Range" , "min" : 0 , "max" : 0 , "filled" : false } ,
+                { "label" : "Converters Range" , "min" : 0 , "max" : 0 , "filled" : false }
+            ] ,
+        } ,
+        "date" : {
+            "deliverable" : { "label" : "Deliverable Date Range" , "min" : 0 , "max" : 0, "filled" : false } ,
+            "openers" : { "label" : "Opener Date Range" , "min" : 0 , "max" : 0 , "filled" : false } ,
+            "clickers" : { "label" : "Clickers Date Range" , "min" : 0 , "max" : 0 , "filled" : false } ,
+            "converters" : { "label" : "Converters Date Range" , "min" : 0 , "max" : 0 ,"filled" : false }
+        }
+    };
+
+    self.rangeDialogs = {
+        "count" : {
+            "age" : {
+                "templateUrl" : "js/templates/listprofile-range-count-dialog.html" ,
+                "clickOutsideToClose" : true ,
+                "controller" : function () {
+                    var ctrl = this;
+
+                    ctrl.addThisRange = function () {
+                        self.rangeData.count.age.min = ctrl.min;
+                        self.rangeData.count.age.max = ctrl.max;
+                        self.rangeData.count.age.filled = true;
+                        self.rangeList.push( {
+                            "type" : "count" ,
+                            "subtype" : "age" ,
+                            "min" : ctrl.min ,
+                            "max" : ctrl.max
+                        } );
+
+                        $mdDialog.hide();
+                    }
+                } ,
+                "controllerAs" : 'ctrl' ,
+                "bindToController" : true ,
+                "locals" : { "label" : self.rangeData.count.age.label , "type" : "count" , "subtype" : "age" , "min" : null , "max" : null }
+            } ,
+            "deliverable" : {
+                "templateUrl" : "js/templates/listprofile-range-count-dialog.html" ,
+                "clickOutsideToClose" : true ,
+                "controller" : function () {
+                    var ctrl = this;
+
+                    ctrl.addThisRange = function () {
+                        self.rangeData.count.deliverable[ ctrl.number ].min = ctrl.min;
+                        self.rangeData.count.deliverable[ ctrl.number ].max = ctrl.max;
+                        self.rangeData.count.deliverable[ ctrl.number ].filled = true;
+                        self.rangeList.push( { "type" : "count" , "subtype" : "deliverable" , "number" : ctrl.number , "min" : ctrl.min , "max" : ctrl.max } );
+
+                        $mdDialog.hide();
+                    }
+                } ,
+                "bindToController" : true ,
+                "controllerAs" : 'ctrl' ,
+                "locals" : {
+                    "label" : null , "type" : "count" , "subtype" : "deliverables" , "number" : null , "min" : null , "max" : null }
+            } ,
+            "openers" : {
+                "templateUrl" : "js/templates/listprofile-range-count-dialog.html" ,
+                "clickOutsideToClose" : true ,
+                "controller" : function () {
+                    var ctrl = this;
+
+                    ctrl.addThisRange = function () {
+                        self.rangeData.count.openers[ ctrl.number ].min = ctrl.min;
+                        self.rangeData.count.openers[ ctrl.number ].max = ctrl.max;
+                        self.rangeData.count.openers[ ctrl.number ].filled = true;
+                        self.rangeList.push( { "type" : "count" , "subtype" : "openers" , "number" : ctrl.number , "min" : ctrl.min , "max" : ctrl.max } );
+
+                        $mdDialog.hide();
+                    }
+                } ,
+                "controllerAs" : 'ctrl' ,
+                "bindToController" : true ,
+                "locals" : { "label" : null , "type" : "count" , "subtype" : "openers" , "number" : null , "min" : null , "max" : null }
+            } ,
+            "clickers" : {
+                "templateUrl" : "js/templates/listprofile-range-count-dialog.html" ,
+                "clickOutsideToClose" : true ,
+                "controller" : function () {
+                    var ctrl = this;
+
+                    ctrl.addThisRange = function () {
+                        self.rangeData.count.clickers[ ctrl.number ].min = ctrl.min;
+                        self.rangeData.count.clickers[ ctrl.number ].max = ctrl.max;
+                        self.rangeData.count.clickers[ ctrl.number ].filled = true;
+                        self.rangeList.push( { "type" : "count" , "subtype" : "clickers" , "number" : ctrl.number , "min" : ctrl.min , "max" : ctrl.max } );
+
+                        $mdDialog.hide();
+                    }
+                } ,
+                "controllerAs" : 'ctrl' ,
+                "bindToController" : true ,
+                "locals" : { "label" : null , "type" : "count" , "subtype" : "clickers" , "number" : null , "min" : null , "max" : null }
+            } ,
+            "converters" : {
+                "templateUrl" : "js/templates/listprofile-range-count-dialog.html" ,
+                "clickOutsideToClose" : true ,
+                "controller" : function () {
+                    var ctrl = this;
+
+                    ctrl.addThisRange = function () {
+                        self.rangeData.count.converters[ ctrl.number ].min = ctrl.min;
+                        self.rangeData.count.converters[ ctrl.number ].max = ctrl.max;
+                        self.rangeData.count.converters[ ctrl.number ].filled = true;
+                        self.rangeList.push( { "type" : "count" , "subtype" : "converters" , "number" : ctrl.number , "min" : ctrl.min , "max" : ctrl.max } );
+
+                        $mdDialog.hide();
+                    }
+                } ,
+                "controllerAs" : 'ctrl' ,
+                "bindToController" : true ,
+                "locals" : { "label" : null , "type" : "count" , "subtype" : "converters" , "number" : null , "min" : null , "max" : null }
+            }
+        } ,
+        "date" : {
+            "deliverable" : {
+                "templateUrl" : "js/templates/listprofile-range-date-dialog.html" ,
+                "clickOutsideToClose" : true ,
+                "controller" : function () {
+                    var ctrl = this;
+
+                    ctrl.addThisRange = function () {
+                        self.rangeData.date.deliverable.min = ctrl.min;
+                        self.rangeData.date.deliverable.max = ctrl.max;
+                        self.rangeData.date.deliverable.filled = true;
+                        self.rangeList.push( { "type" : "date" , "subtype" : "deliverable" , "min" : moment( ctrl.min ).format( 'YYYY-MM-DD' ) , "max" : moment( ctrl.max ).format( 'YYYY-MM-DD' ) } );
+
+                        $mdDialog.hide();
+                    }
+                } ,
+                "bindToController" : true ,
+                "controllerAs" : 'ctrl' ,
+                "locals" : { "label" : self.rangeData.date.deliverable.label , "type" : "date" , "subtype" : "deliverables" , "min" : null , "max" : null }
+            } ,
+            "openers" : {
+                "templateUrl" : "js/templates/listprofile-range-date-dialog.html" ,
+                "clickOutsideToClose" : true ,
+                "controller" : function () {
+                    var ctrl = this;
+
+                    ctrl.addThisRange = function () {
+                        self.rangeData.date.openers.min = ctrl.min;
+                        self.rangeData.date.openers.max = ctrl.max;
+                        self.rangeData.date.openers.filled = true;
+                        self.rangeList.push( { "type" : "date" , "subtype" : "openers" , "min" : moment( ctrl.min ).format( 'YYYY-MM-DD' ) , "max" : moment( ctrl.max ).format( 'YYYY-MM-DD' ) } );
+
+                        $mdDialog.hide();
+                    }
+                } ,
+                "bindToController" : true ,
+                "controllerAs" : 'ctrl' ,
+                "locals" : { "label" : self.rangeData.date.openers.label , "type" : "date" , "subtype" : "openers" , "min" : null , "max" : null }
+            } ,
+            "clickers" : {
+                "templateUrl" : "js/templates/listprofile-range-date-dialog.html" ,
+                "clickOutsideToClose" : true ,
+                "controller" : function () {
+                    var ctrl = this;
+
+                    ctrl.addThisRange = function () {
+                        self.rangeData.date.clickers.min = ctrl.min;
+                        self.rangeData.date.clickers.max = ctrl.max;
+                        self.rangeData.date.clickers.filled = true;
+                        self.rangeList.push( { "type" : "date" , "subtype" : "clickers" , "min" : moment( ctrl.min ).format( 'YYYY-MM-DD' ) , "max" : moment( ctrl.max ).format( 'YYYY-MM-DD' ) } );
+
+                        $mdDialog.hide();
+                    }
+                } ,
+                "bindToController" : true ,
+                "controllerAs" : 'ctrl' ,
+                "locals" : { "label" : self.rangeData.date.clickers.label , "type" : "date" , "subtype" : "clickers" , "min" : null , "max" : null }
+            } ,
+            "converters" : {
+                "templateUrl" : "js/templates/listprofile-range-date-dialog.html" ,
+                "clickOutsideToClose" : true ,
+                "controller" : function () {
+                    var ctrl = this;
+
+                    ctrl.addThisRange = function () {
+                        self.rangeData.date.converters.min = ctrl.min;
+                        self.rangeData.date.converters.max = ctrl.max;
+                        self.rangeData.date.converters.filled = true;
+                        self.rangeList.push( { "type" : "date" , "subtype" : "converters" , "min" : moment( ctrl.min ).format( 'YYYY-MM-DD' ) , "max" : moment( ctrl.max ).format( 'YYYY-MM-DD' ) } );
+
+                        $mdDialog.hide();
+                    }
+                } ,
+                "bindToController" : true ,
+                "controllerAs" : 'ctrl' ,
+                "locals" : { "label" : self.rangeData.date.converters.label , "type" : "date" , "subtype" : "converters" , "min" : null , "max" : null }
+            }
+        }
+    };
+
+    /**
+     * Form Fields
+     */
+    self.profileType = 'v1';
+    self.genderType = 'any';
+
+    self.current = { 'profile_name' : '' , 'volume_desired' : null , 'cgroupid' : [] , 'deliveryDays' : 0 , 'isps' : [] , 'gender' : 'F' };
+
+    self.v1Form = { 'user_id' : self.testUser , 'form_version' : 1 , 'profile_name' : '' , 'DeliveryDays' : 0 , 'isps' : '' , 'cgroupid' : 0 , 'gender' : '' , 'surl' : '' , 'zips' : '' , 'seeds' : '' , 'min_age' : 0 , 'max_age' : 0 , 'ostart' : 0 , 'oend' : 0 , 'cstart' : 0 , 'cend' : 0 , 'dstart' : 0 , 'dend' : 0 , 'convert_start' : 0 , 'convert_end' : 0 , 'ostart1' : 0 , 'oend1' : 0 , 'cstart1' : 0 , 'cend1' : 0 , 'dstart1' : 0 , 'dend1' : 0 , 'convert_start1' : 0 , 'convert_end1' : 0 , 'ostart2' : 0 , 'oend2' : 0 , 'cstart2' : 0 , 'cend2' : 0 , 'dstart2' : 0 , 'dend2' : 0 , 'convert_start2' : 0 , 'convert_end2' : 0 , 'ostart_date' : '' , 'oend_date' : '' , 'cstart_date' : '' , 'cend_date' : '' , 'dstart_date' : '' , 'dend_date' : '' , 'convert_start_date' : '' , 'convert_end_date' : '' , 'export' : 0 , 'clientid' : 0 , 'dupCnt' : 0 , 'randomize_flag' : 'Y' , 'dfactor' : 0 , 'send_international' : 'Y' };
+
+    self.v2Form = { 'form_version' : 2 , 'profile_name' : '' , 'volumne_desired' : 0 , 'isps' : '' , 'cgroupid' : 0 , 'gender' : '' , 'surl' : '' , 'zips' : '' , 'min_age' : 0 , 'max_age' : 0 , 'ostart' : 0 , 'oend' : 0 , 'cstart' : 0 , 'cend' : 0 , 'dstart' : 0 , 'dend' : 0 , 'convert_start' : 0 , 'convert_end' : 0 , 'ostart_date' : '' , 'oend_date' : '' , 'cstart_date' : '' , 'cend_date' : '' , 'dstart_date' : '' , 'dend_date' : '' , 'convert_start_date' : '' , 'convert_end_date' : '' , 'dfactor' : 0 , 'send_international' : 'Y' };
+
+    self.v3Form = { 'form_version' : 3 , 'profile_name' : '' , 'volume_desired' : 0 , 'isps' : '' , 'cgroupid' : 0 , 'gender' : '' , 'surl' : '' , 'zips' : '' , 'min_age' : 0 , 'max_age' : 0 , 'dfactor' : 0 , 'send_international' : 'Y' };
+
+    /**
+     * Init & Loading Methods
+     */
     self.loadListProfiles = function () {
         self.currentlyLoading = true;
 
@@ -28,24 +306,12 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$locatio
     };
 
     self.loadListProfilesFailureCallback = function ( response ) {
-        $log.log( response );
-    
-    };
+        var toast = $mdToast.simple()
+              .textContent( 'Error Loading List Profiles. Please Contact Support.' )
+              .action( 'OK' )
+              .highlightAction( false );
 
-    self.loadClientGroups = function () {
-        ClientGroupApiService.getAllClientGroups( self.loadClientGroupsSuccessCallback , self.loadClientGroupsFailureCallback );
-    };
-
-    self.loadClientGroupsSuccessCallback = function ( response ) {
-        $log.log( response ); 
-
-        angular.forEach( response.data , function ( clientGroup , key ) {
-            self.clientGroupList.push( { "id" : clientGroup.id , "name" : clientGroup.name } );
-        } );
-    };
-
-    self.loadClientGroupsFailureCallback = function ( response ) {
-        $log.log( response ); 
+        $mdToast.show( toast );
     };
 
     self.loadListProfile = function () {
@@ -60,95 +326,17 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$locatio
         if ( prepopPage ) {
             self.current.pid = pathParts[ 0 ];
 
-            ListProfileApiService.getListProfile(
-                self.current.pid ,
-                self.loadListProfileSuccessCallback ,
-                self.loadListProfileFailureCallback
-            );
-
-            ListProfileApiService.getIspsByProfileId(
-                self.current.pid ,
-                self.loadIspsSuccessCallback ,
-                self.loadIspsFailureCallback
-            );
-
-            ListProfileApiService.getSourcesByProfileId(
-                self.current.pid ,
-                self.loadSourcesSuccessCallback ,
-                self.loadSourcesFailureCallback
-            );
-
-            ListProfileApiService.getSeedsByProfileId(
-                self.current.pid ,
-                self.loadSeedsSuccessCallback ,
-                self.loadSeedsFailureCallback
-            );
-
-            ListProfileApiService.getZipsByProfileId(
-                self.current.pid ,
-                self.loadZipsSuccessCallback ,
-                self.loadZipsFailureCallback
-            );
+            ListProfileApiService.getListProfile( self.current.pid , self.loadListProfileSuccessCallback , self.loadListProfileFailureCallback );
+            ListProfileApiService.getIspsByProfileId( self.current.pid , self.loadIspsSuccessCallback , self.loadIspsFailureCallback );
+            ListProfileApiService.getSourcesByProfileId( self.current.pid , self.loadSourcesSuccessCallback , self.loadSourcesFailureCallback );
+            ListProfileApiService.getSeedsByProfileId( self.current.pid , self.loadSeedsSuccessCallback , self.loadSeedsFailureCallback );
+            ListProfileApiService.getZipsByProfileId( self.current.pid , self.loadZipsSuccessCallback , self.loadZipsFailureCallback );
         }
     };
-    self.loadZipsSuccessCallback = function ( response ) {
-        $log.log( response ); 
 
-        angular.forEach( response.data , function ( zip , key ) {
-            self.zipList.push( zip.zip );
-        } );
-    };
-
-    self.loadZipsFailureCallback = function ( response ) {
-        $log.log( response ); 
-    
-    };
-
-    self.loadSeedsSuccessCallback = function ( response ) {
-        $log.log( response );
-
-        angular.forEach( response.data , function ( seed , key ) {
-            self.seedList.push( seed.sid );
-        } );
-    };
-
-    self.loadSeedsFailureCallback = function ( response ) {
-        $log.log( response );
-
-    };
-
-    self.loadIspsSuccessCallback = function ( response ) {
-        $log.log( response );
-
-        angular.forEach( response.data , function ( isp , key ) {
-            $rootScope.selectedIsps[ isp.id ] = isp.name;
-        });
-    };
-
-    self.loadIspsFailureCallback = function  ( response ) {
-        $log.log( response );
-    };
-
-    self.loadSourcesSuccessCallback = function ( response ) {
-        $log.log( response );
-
-        angular.forEach( response.data , function ( source , key ) {
-            self.sourceList.push( source.source_url );
-        } );
-    };
-
-    self.loadSourcesFailureCallback = function ( response ) {
-        $log.log( response );
-    };
-
-    self.loadListProfileSuccessCallback = function ( response ) {
-        self.prepopNormalFields( response );
-        self.prepopGender( response );
-        self.prepopAgeRange( response );
-        self.prepopCountRanges( response );
-        self.prepopDateRanges( response );
-    };
-
+    /**
+     * Field Prepopulation Methods
+     */
     self.prepopNormalFields = function ( response ) {
         self.current.profile_name = response.data.profile_name;
         self.deliveryDays = response.data.DeliveryDays; 
@@ -169,12 +357,7 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$locatio
             self.rangeData.count.age.max = response.data.max_age;
             self.rangeData.count.age.filled = true;
 
-            self.rangeList.push( {
-                "type" : "count" ,
-                "subtype" : "age" ,
-                "min" : response.data.min_age ,
-                "max" : response.data.max_age
-            } );
+            self.rangeList.push( { "type" : "count" , "subtype" : "age" , "min" : response.data.min_age , "max" : response.data.max_age } );
         }
     };
 
@@ -231,22 +414,32 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$locatio
         } );
     };
 
-    self.loadListProfileFailureCallback = function ( response ) {
-        $log.log( response );
-    };
-
+    /**
+     * Watchers
+     */
     $rootScope.$on( 'updatePage' , function () {
         $( '.collapse' ).collapse( 'hide' );
         self.loadListProfiles();
     } );
 
-    /**
-     * Pagination Properties
-     */
-    self.currentlyLoading = false;
-    self.pageCount = 0;
-    self.paginationCount = '10';
-    self.currentPage = 1;
+    $rootScope.$watchCollection( 'selectedIsps' , function ( newIsps , oldIsps ) {
+        angular.forEach( newIsps , function ( value , key ) {
+            var currentChip = { "id" : parseInt( key ) , "name" : value };
+
+            var chipIndex = self.ispChipList.map(
+                function ( chip ) { return parseInt( chip.id ) }        
+            ).indexOf( parseInt( key ) ); 
+
+            var chipExists = ( chipIndex !== -1 );
+
+            if ( value !== false && !chipExists ) {
+                self.ispChipList.push( currentChip );
+            } else if ( value === false && chipExists ) {
+                self.ispChipList.splice( chipIndex , 1 );
+            }
+        });
+    } );
+
 
     /**
      * Button Click Handlers
@@ -254,120 +447,6 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$locatio
     self.viewAdd = function () {
         $location.url( self.createUrl );
         $window.location.href = self.createUrl;
-    };
-
-    /**
-     * Form Fields
-     */
-    self.profileType = 'v1';
-    self.genderType = 'any';
-
-    self.current = {
-        'profile_name' : '' ,
-        'volume_desired' : null ,
-        'cgroupid' : [] ,
-        'deliveryDays' : 0 ,
-        'isps' : [] ,
-        'gender' : 'F'
-    };
-
-    self.v1Form = {
-        'user_id' : self.testUser ,
-        'form_version' : 1 ,
-        'profile_name' : '' ,
-        'DeliveryDays' : 0 ,
-        'isps' : '' ,
-        'cgroupid' : 0 ,
-        'gender' : '' ,
-        'surl' : '' ,
-        'zips' : '' ,
-        'seeds' : '' ,
-        'min_age' : 0 ,
-        'max_age' : 0 ,
-        'ostart' : 0 ,
-        'oend' : 0 ,
-        'cstart' : 0 ,
-        'cend' : 0 ,
-        'dstart' : 0 ,
-        'dend' : 0 ,
-        'convert_start' : 0 ,
-        'convert_end' : 0 ,
-        'ostart1' : 0 ,
-        'oend1' : 0 ,
-        'cstart1' : 0 ,
-        'cend1' : 0 ,
-        'dstart1' : 0 ,
-        'dend1' : 0 ,
-        'convert_start1' : 0 ,
-        'convert_end1' : 0 ,
-        'ostart2' : 0 ,
-        'oend2' : 0 ,
-        'cstart2' : 0 ,
-        'cend2' : 0 ,
-        'dstart2' : 0 ,
-        'dend2' : 0 ,
-        'convert_start2' : 0 ,
-        'convert_end2' : 0 ,
-        'ostart_date' : '' ,
-        'oend_date' : '' ,
-        'cstart_date' : '' ,
-        'cend_date' : '' ,
-        'dstart_date' : '' ,
-        'dend_date' : '' ,
-        'convert_start_date' : '' ,
-        'convert_end_date' : '' ,
-        'export' : 0 ,
-        'clientid' : 0 ,
-        'dupCnt' : 0 ,
-        'randomize_flag' : 'Y' ,
-        'dfactor' : 0 ,
-        'send_international' : 'Y'
-    };
-
-    self.v2Form = {
-        'form_version' : 2 ,
-        'profile_name' : '' ,
-        'volumne_desired' : 0 ,
-        'isps' : '' ,
-        'cgroupid' : 0 ,
-        'gender' : '' ,
-        'surl' : '' ,
-        'zips' : '' ,
-        'min_age' : 0 ,
-        'max_age' : 0 ,
-        'ostart' : 0 ,
-        'oend' : 0 ,
-        'cstart' : 0 ,
-        'cend' : 0 ,
-        'dstart' : 0 ,
-        'dend' : 0 ,
-        'convert_start' : 0 ,
-        'convert_end' : 0 ,
-        'ostart_date' : '' ,
-        'oend_date' : '' ,
-        'cstart_date' : '' ,
-        'cend_date' : '' ,
-        'dstart_date' : '' ,
-        'dend_date' : '' ,
-        'convert_start_date' : '' ,
-        'convert_end_date' : '' ,
-        'dfactor' : 0 ,
-        'send_international' : 'Y'
-    };
-
-    self.v3Form = {
-        'form_version' : 3 ,
-        'profile_name' : '' ,
-        'volume_desired' : 0 ,
-        'isps' : '' ,
-        'cgroupid' : 0 ,
-        'gender' : '' ,
-        'surl' : '' ,
-        'zips' : '' ,
-        'min_age' : 0 ,
-        'max_age' : 0 ,
-        'dfactor' : 0 ,
-        'send_international' : 'Y'
     };
 
     self.saveListProfile = function () {
@@ -390,13 +469,96 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$locatio
             break;
         }
 
-        ListProfileApiService.saveListProfile( currentFormFields , function ( response ) { $log.log( response ) } , function ( response ) { response } );
+        currentFormFields[ 'pid' ] = 0;
+
+        ListProfileApiService.calculateListProfile( currentFormFields , self.calculateListProfileSuccessCallback , self.calculateListProfileFailureCallback );
+    };
+
+    self.calculateListProfileSuccessCallback = function ( response ) {
+        var parentEl = angular.element( document.body );
+        
+        $mdDialog.show( {
+            "parent" : parentEl ,
+            "targetEvent" : event ,
+            "templateUrl" : "js/templates/listprofile-copy-dialog.html" ,
+            "clickOutsideToClose" : true ,
+            "controller" : function () {
+                var ctrl = this;
+
+                ctrl.saveThisProfile = function () {
+                    ListProfileApiService.saveListProfile( ctrl.id , ctrl.name , self.saveListProfileSuccessCallback , self.saveListProfileFailureCallback );
+                }
+            } ,
+            "controllerAs" : "ctrl" ,
+            "bindToController" : true ,
+            "locals" : {  "id" : response.data }
+        } );
+    };
+
+    self.calculateListProfileFailureCallback = function ( response ) {
+        self.showToast( 'Error Calculating List Profile. Please contact support.' );
+    };
+
+    self.saveListProfileSuccessCallback = function ( response ) {
+        $log.log( response ); 
+
+        //redirect to list page
+    };
+
+    self.saveListProfileFailureCallback = function ( response ) {
+        self.showToast( 'Error Saving List Profile. Please contact support.' );
     };
 
     self.updateListProfile = function () {
+        self.updatingListProfile = true;
 
+        self.prepV1Fields();
+        var currentFormFields = self.v1Form;
+        currentFormFields[ 'action' ] = 'save';
+        currentFormFields[ 'volume_desired' ] = self.current.volume_desired;
+        currentFormFields[ 'pid' ] = self.current.pid;
+
+        ListProfileApiService.updateListProfile( currentFormFields , function ( response ) { $log.log( response ) } , function ( response ) { response } );
     };
 
+    self.updateListProfileSuccessCallback = function ( response ) {
+        $log.log( response );
+
+        //redirect to list page
+    }
+
+    self.updateListProfileFailureCallback = function ( response ) {
+        self.showToast( 'Error Updating List Profile. Please contact support.' );
+    }
+
+    self.copyListProfile = function ( event , id ) {
+        var parentEl = angular.element( document.body );
+        
+        $mdDialog.show( {
+            "parent" : parentEl ,
+            "targetEvent" : event ,
+            "templateUrl" : "js/templates/listprofile-copy-dialog.html" ,
+            "clickOutsideToClose" : true ,
+            "controller" : function () {
+                var ctrl = this;
+
+                ctrl.copyThisProfile = function () {
+                    ListProfileApiService.copyListProfile( ctrl.id , ctrl.name , self.copyListProfileSuccessCallback , self.copyListProfileFailureCallback );
+                }
+            } ,
+            "controllerAs" : "ctrl" ,
+            "bindToController" : true ,
+            "locals" : { "name" : null , "id" : id }
+        } );
+    };
+
+    self.deleteListProfile = function ( id ) {
+        ListProfileApiService.deleteListProfile( id , self.deleteListProfileSuccessCallback , self.deleteListProfileFailureCallback );
+    };
+
+    /**
+     * Form Methods
+     */
     self.prepV1Fields = function () {
         self.setDefaultFields( self.v1Form );
         self.setDateFields( self.v1Form );
@@ -420,13 +582,16 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$locatio
 
     self.setDefaultFields = function ( formObject ) {
         formObject.profile_name = self.current.profile_name;
-
-        formObject.isps = self.ispChipList.map( function ( chip ) {
-            return chip.id;
-        } );
-
+        formObject.isps = self.ispChipList.map( function ( chip ) { return chip.id; } );
         formObject.cgroupid = self.current.cgroupid.id;
-
+        formObject.surl = self.sourceList.map( function ( url ) { return url } ).join( "\n" );
+        formObject.zips = self.zipList;
+        formObject.min_age = self.rangeData.count.age.min;
+        formObject.max_age = self.rangeData.count.age.max;
+        self.setGenderField( formObject );
+    };
+    
+    self.setGenderField = function ( formObject ) {
         if ( self.genderType === 'empty' ) {
             formObject.gender = 'Empty';
         } else if ( self.genderType === 'specific' ) {
@@ -434,13 +599,6 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$locatio
         } else {
             formObject.gender = '';
         }
-
-        formObject.surl = self.sourceList.map( function ( url ) { return url } ).join( "\n" );
-
-        formObject.zips = self.zipList.map( function ( zip ) { return zip; } ).join( "\n" );
-
-        formObject.min_age = self.rangeData.count.age.min;
-        formObject.max_age = self.rangeData.count.age.max;
     };
 
     self.setDateFields = function ( formObject ) {
@@ -469,33 +627,16 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$locatio
         } );
     }
 
+    self.showToast = function ( message ) {
+        var toast = $mdToast.simple().textContent( message ).action( 'OK' ).highlightAction( false );
+
+        $mdDialog.hide();
+        $mdToast.show( toast );
+    };
+
     /**
-     * Client Group Autocomplete
+     * Autocomplete Methods
      */
-    self.clientGroupSearchText = '';
-    self.clientGroupList = [
-        { "id" : 1 , "name" : "Client Group 1" } ,
-        { "id" : 2 , "name" : "Client Group 2" } ,
-        { "id" : 3 , "name" : "Client Group 3" } ,
-        { "id" : 4 , "name" : "Client Group 4" } ,
-        { "id" : 5 , "name" : "Client Group 5" } ,
-        { "id" : 6 , "name" : "Client Group 6" } ,
-        { "id" : 7 , "name" : "Client Group 7" } ,
-        { "id" : 8 , "name" : "Client Group 8" } ,
-        { "id" : 9 , "name" : "Client Group 9" } ,
-        { "id" : 10 , "name" : "Client Group 10" }
-    ];
-
-    self.getClientGroups = function ( groupSearchText ) {
-        return groupSearchText ? self.clientGroupList.filter( function ( group ) {
-            return group.name.toLowerCase().indexOf( groupSearchText.toLowerCase() ) === 0;
-        } ) : self.clientGroupList;
-    }
-
-    //Angular UI - Select UI
-    self.clientGroupLoading = false;
-    self.selectedClientGroup = {};
-    self.currentClientGroupPage = 1;
     self.fetchClientGroups = function ( $select , $event ) {
         // no event means first load!
         if (!$event) {
@@ -511,58 +652,17 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$locatio
 
         $http( {
             "method" : "GET" ,
-            "url" : '/api/clientgroup' ,
-            "param" : '' 
+            "url" : '/api/clientgroup/search' ,
+            "params" : { 'page' : self.currentClientGroupPage , 'query' : $select.search } 
         } ).then( function ( response ) {
-                self.clientGroupList = self.clientGroupList.concat( response.data.data );
-            } ,
-            function () {
+                angular.forEach( response.data , function ( value , key ) {
+                    self.clientGroupList.push( value );
+                } );
 
+                self.clientGroupLoading = false;
             }
-        )[ 'finally' ](function () { self.clientGroupLoading = true; });
+        );
     };
-
-    /**
-     * ISP AutoComplete
-     */
-
-    self.ispSearchText = '';
-    $rootScope.selectedIsps = {};
-    self.currentSelectedIsp = '';
-    self.ispChipList = [];
-    self.ispList = [
-        { "id" : 1 , "name" : "AOL" } ,
-        { "id" : 2 , "name" : "Hotmail" } ,
-        { "id" : 3 , "name" : "Yahoo" } , 
-        { "id" : 4 , "name" : "Others" } , 
-        { "id" : 6 , "name" : "Comcast" } , 
-        { "id" : 13 , "name" : "ATT" } , 
-        { "id" : 17 , "name" : "Gmail" } , 
-        { "id" : 21 , "name" : "Cloudmark" } , 
-        { "id" : 45 , "name" : "safeothers" } , 
-        { "id" : 47 , "name" : "UK" } , 
-        { "id" : 52 , "name" : "GMX" } , 
-        { "id" : 53 , "name" : "German" } , 
-        { "id" : 54 , "name" : "ForeignYahoo" } , 
-        { "id" : 57 , "name" : "France" } , 
-        { "id" : 60 , "name" : "YahooOthers" } , 
-        { "id" : 65 , "name" : "AOLUK" } , 
-        { "id" : 66 , "name" : "AOLOthers" } , 
-        { "id" : 67 , "name" : "ForeignAOL" } , 
-        { "id" : 68 , "name" : "GmailOthers" } , 
-        { "id" : 69 , "name" : "YahooUK" } , 
-        { "id" : 70 , "name" : "HotmailUK" } , 
-        { "id" : 71 , "name" : "ForeignHotmail" } , 
-        { "id" : 72 , "name" : "HotmailOthers" } , 
-        { "id" : 73 , "name" : "Facebook" } , 
-        { "id" : 74 , "name" : "Apple" } , 
-        { "id" : 75 , "name" : "Cable_Broadband" } , 
-        { "id" : 76 , "name" : "Italy" } , 
-        { "id" : 77 , "name" : "VerizonF" } , 
-        { "id" : 78 , "name" : "CoxF" } , 
-        { "id" : 79 , "name" : "BTINTERNET" } , 
-        { "id" : 80 , "name" : "Wanadoo" } 
-    ];
 
     self.updateIspCheckboxList = function ( item ) {
         if ( typeof( item ) !== 'undefined' ) {
@@ -573,24 +673,6 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$locatio
     self.removeIspChip = function ( $chip ) {
         $rootScope.selectedIsps[ parseInt( $chip.id ) ] = false;
     };
-
-    $rootScope.$watchCollection( 'selectedIsps' , function ( newIsps , oldIsps ) {
-        angular.forEach( newIsps , function ( value , key ) {
-            var currentChip = { "id" : parseInt( key ) , "name" : value };
-
-            var chipIndex = self.ispChipList.map(
-                function ( chip ) { return parseInt( chip.id ) }        
-            ).indexOf( parseInt( key ) ); 
-
-            var chipExists = ( chipIndex !== -1 );
-
-            if ( value !== false && !chipExists ) {
-                self.ispChipList.push( currentChip );
-            } else if ( value === false && chipExists ) {
-                self.ispChipList.splice( chipIndex , 1 );
-            }
-        });
-    } );
 
     self.selectAllIsps = function ( checked ) {
         angular.forEach( self.ispList , function ( value , key ) {
@@ -609,12 +691,8 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$locatio
     }
 
     /**
-     * Targeting Chips
+     * Target Chip Methods
      */
-    self.sourceList = [];
-    self.seedList = [];
-    self.zipList = [];
-
     self.preventDelimitedChips = function ( listName , chip ) {
         if ( chip.search( /[;,|]/g ) > -1 ) {
             self.addChips( listName , chip );   
@@ -645,60 +723,6 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$locatio
     /**
      * Range Widget
      */
-    self.rangeList = [];
-
-    self.rangeData = {
-        "count" : {
-            "age" : { "label" : 'Age Range' , "min" : null , "max" : null , "filled" : false } ,
-            "deliverable" : [
-                { "label" : "Deliverable Range" ,  "min" : 0 , "max" : 0 , "filled" : false } ,
-                { "label" : "Deliverable Range" , "min" : 0 , "max" : 0 , "filled" : false } ,
-                { "label" : "Deliverable Range" , "min" : 0 , "max" : 0 , "filled" : false }
-            ] ,
-            "openers" : [
-                { "label" : "Openers Range" , "min" : 0 , "max" : 0 , "filled" : false } ,
-                { "label" : "Openers Range" , "min" : 0 , "max" : 0 , "filled" : false } ,
-                { "label" : "Openers Range" , "min" : 0 , "max" : 0 , "filled" : false }
-            ] ,
-            "clickers" : [
-                { "label" : "Clickers Range" , "min" : 0 , "max" : 0 , "filled" : false } ,
-                { "label" : "Clickers Range" , "min" : 0 , "max" : 0 , "filled" : false } ,
-                { "label" : "Clickers Range" , "min" : 0 , "max" : 0 , "filled" : false }
-            ] ,
-            "converters" : [
-                { "label" : "Converters Range" , "min" : 0 , "max" : 0 , "filled" : false } ,
-                { "label" : "Converters Range" , "min" : 0 , "max" : 0 , "filled" : false } ,
-                { "label" : "Converters Range" , "min" : 0 , "max" : 0 , "filled" : false }
-            ] ,
-        } ,
-        "date" : {
-            "deliverable" : {
-                "label" : "Deliverable Date Range" ,
-                "min" : 0 ,
-                "max" : 0,
-                "filled" : false
-            } ,
-            "openers" : {
-                "label" : "Opener Date Range" ,
-                "min" : 0 ,
-                "max" : 0 ,
-                "filled" : false
-            } ,
-            "clickers" : {
-                "label" : "Clickers Date Range" ,
-                "min" : 0 ,
-                "max" : 0 ,
-                "filled" : false
-            } ,
-            "converters" : {
-                "label" : "Converters Date Range" ,
-                "min" : 0 ,
-                "max" : 0 ,
-                "filled" : false
-            }
-        }
-    };
-
     self.addCountRange = function ( $event , type , subtype ) {
         var currentDialog = self.rangeDialogs[ type ][ subtype ];
         var parentEl = angular.element(document.body);
@@ -750,8 +774,6 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$locatio
 
         if ( typeof( chip.number ) != 'undefined' ) {
             currentData = self.rangeData[ chip.type ][ chip.subtype ][ chip.number ]; 
-
-            currentData.number = null;
         } else {
             currentData = self.rangeData[ chip.type ][ chip.subtype ]; 
         }
@@ -761,288 +783,79 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$locatio
         currentData.filled = false;
     };
 
-    self.rangeDialogs = {
-        "count" : {
-            "age" : {
-                "templateUrl" : "js/templates/listprofile-range-count-dialog.html" ,
-                "clickOutsideToClose" : true ,
-                "controller" : function () {
-                    var ctrl = this;
+    /**
+     * Callbacks
+     */
+    self.loadZipsSuccessCallback = function ( response ) {
+        angular.forEach( response.data , function ( zip , key ) {
+            self.zipList.push( zip.zip );
+        } );
+    };
 
-                    ctrl.addThisRange = function () {
-                        self.rangeData.count.age.min = ctrl.min;
-                        self.rangeData.count.age.max = ctrl.max;
-                        self.rangeData.count.age.filled = true;
-                        self.rangeList.push( {
-                            "type" : "count" ,
-                            "subtype" : "age" ,
-                            "min" : ctrl.min ,
-                            "max" : ctrl.max
-                        } );
+    self.loadZipsFailureCallback = function ( response ) {
+        self.showToast( 'Error Loading Zip Codes. Please Contact Support.' );
+    };
 
-                        $mdDialog.hide();
-                    }
-                } ,
-                "controllerAs" : 'ctrl' ,
-                "bindToController" : true ,
-                "locals" : {
-                    "label" : self.rangeData.count.age.label ,
-                    "type" : "count" ,
-                    "subtype" : "age" ,
-                    "min" : null ,
-                    "max" : null 
-                }
-            } ,
-            "deliverable" : {
-                "templateUrl" : "js/templates/listprofile-range-count-dialog.html" ,
-                "clickOutsideToClose" : true ,
-                "controller" : function () {
-                    var ctrl = this;
+    self.loadSeedsSuccessCallback = function ( response ) {
+        angular.forEach( response.data , function ( seed , key ) {
+            self.seedList.push( seed.sid );
+        } );
+    };
 
-                    ctrl.addThisRange = function () {
-                        self.rangeData.count.deliverable[ ctrl.number ].min = ctrl.min;
-                        self.rangeData.count.deliverable[ ctrl.number ].max = ctrl.max;
-                        self.rangeData.count.deliverable[ ctrl.number ].filled = true;
-                        self.rangeList.push( {
-                            "type" : "count" ,
-                            "subtype" : "deliverable" ,
-                            "number" : ctrl.number ,
-                            "min" : ctrl.min ,
-                            "max" : ctrl.max
-                        } );
+    self.loadSeedsFailureCallback = function ( response ) {
+        self.showToast( 'Error Loading Seeds. Please Contact Support.' );
+    };
 
-                        $mdDialog.hide();
-                    }
-                } ,
-                "bindToController" : true ,
-                "controllerAs" : 'ctrl' ,
-                "locals" : {
-                    "label" : null ,
-                    "type" : "count" ,
-                    "subtype" : "deliverables" ,
-                    "number" : null ,
-                    "min" : null ,
-                    "max" : null 
-                }
-            } ,
-            "openers" : {
-                "templateUrl" : "js/templates/listprofile-range-count-dialog.html" ,
-                "clickOutsideToClose" : true ,
-                "controller" : function () {
-                    var ctrl = this;
+    self.loadIspsSuccessCallback = function ( response ) {
+        angular.forEach( response.data , function ( isp , key ) {
+            $rootScope.selectedIsps[ isp.id ] = isp.name;
+        });
+    };
 
-                    ctrl.addThisRange = function () {
-                        self.rangeData.count.openers[ ctrl.number ].min = ctrl.min;
-                        self.rangeData.count.openers[ ctrl.number ].max = ctrl.max;
-                        self.rangeData.count.openers[ ctrl.number ].filled = true;
-                        self.rangeList.push( {
-                            "type" : "count" ,
-                            "subtype" : "openers" ,
-                            "number" : ctrl.number ,
-                            "min" : ctrl.min ,
-                            "max" : ctrl.max
-                        } );
+    self.loadIspsFailureCallback = function  ( response ) {
+        self.showToast( 'Error Loading ISPs. Please Contact Support.' );
+    };
 
-                        $mdDialog.hide();
-                    }
-                } ,
-                "controllerAs" : 'ctrl' ,
-                "bindToController" : true ,
-                "locals" : {
-                    "label" : null ,
-                    "type" : "count" ,
-                    "subtype" : "openers" ,
-                    "number" : null ,
-                    "min" : null ,
-                    "max" : null 
-                }
-            } ,
-            "clickers" : {
-                "templateUrl" : "js/templates/listprofile-range-count-dialog.html" ,
-                "clickOutsideToClose" : true ,
-                "controller" : function () {
-                    var ctrl = this;
+    self.loadSourcesSuccessCallback = function ( response ) {
+        angular.forEach( response.data , function ( source , key ) {
+            self.sourceList.push( source.source_url );
+        } );
+    };
 
-                    ctrl.addThisRange = function () {
-                        self.rangeData.count.clickers[ ctrl.number ].min = ctrl.min;
-                        self.rangeData.count.clickers[ ctrl.number ].max = ctrl.max;
-                        self.rangeData.count.clickers[ ctrl.number ].filled = true;
-                        self.rangeList.push( {
-                            "type" : "count" ,
-                            "subtype" : "clickers" ,
-                            "number" : ctrl.number ,
-                            "min" : ctrl.min ,
-                            "max" : ctrl.max
-                        } );
+    self.loadSourcesFailureCallback = function ( response ) {
+        self.showToast( 'Error Loading Sources. Please Contact Support.' );
+    };
 
-                        $mdDialog.hide();
-                    }
-                } ,
-                "controllerAs" : 'ctrl' ,
-                "bindToController" : true ,
-                "locals" : {
-                    "label" : null ,
-                    "type" : "count" ,
-                    "subtype" : "clickers" ,
-                    "number" : null ,
-                    "min" : null ,
-                    "max" : null 
-                }
-            } ,
-            "converters" : {
-                "templateUrl" : "js/templates/listprofile-range-count-dialog.html" ,
-                "clickOutsideToClose" : true ,
-                "controller" : function () {
-                    var ctrl = this;
+    self.loadListProfileSuccessCallback = function ( response ) {
+        self.prepopNormalFields( response );
+        self.prepopGender( response );
+        self.prepopAgeRange( response );
+        self.prepopCountRanges( response );
+        self.prepopDateRanges( response );
+    };
 
-                    ctrl.addThisRange = function () {
-                        self.rangeData.count.converters[ ctrl.number ].min = ctrl.min;
-                        self.rangeData.count.converters[ ctrl.number ].max = ctrl.max;
-                        self.rangeData.count.converters[ ctrl.number ].filled = true;
-                        self.rangeList.push( {
-                            "type" : "count" ,
-                            "subtype" : "converters" ,
-                            "number" : ctrl.number ,
-                            "min" : ctrl.min ,
-                            "max" : ctrl.max
-                        } );
+    self.loadListProfileFailureCallback = function ( response ) {
+        self.showToast( 'Error Loading List Profile Edit Page. Please Contact Support.' );
+    };
 
-                        $mdDialog.hide();
-                    }
-                } ,
-                "controllerAs" : 'ctrl' ,
-                "bindToController" : true ,
-                "locals" : {
-                    "label" : null ,
-                    "type" : "count" ,
-                    "subtype" : "converters" ,
-                    "number" : null ,
-                    "min" : null ,
-                    "max" : null 
-                }
-            }
-        } ,
-        "date" : {
-            "deliverable" : {
-                "templateUrl" : "js/templates/listprofile-range-date-dialog.html" ,
-                "clickOutsideToClose" : true ,
-                "controller" : function () {
-                    var ctrl = this;
+    self.deleteListProfileSuccessCallback = function ( response ) {
+        self.showToast( 'List Profile was Successfully Deleted.' );
+    };
 
-                    ctrl.addThisRange = function () {
-                        self.rangeData.date.deliverable.min = ctrl.min;
-                        self.rangeData.date.deliverable.max = ctrl.max;
-                        self.rangeData.date.deliverable.filled = true;
-                        self.rangeList.push( {
-                            "type" : "date" ,
-                            "subtype" : "deliverable" ,
-                            "min" : moment( ctrl.min ).format( 'YYYY-MM-DD' ) ,
-                            "max" : moment( ctrl.max ).format( 'YYYY-MM-DD' )
-                        } );
+    self.deleteListProfileFailureCallback = function ( response ) {
+        self.showToast( 'Error Deleting List Profile. Please contact support.' );
+    };
 
-                        $mdDialog.hide();
-                    }
-                } ,
-                "bindToController" : true ,
-                "controllerAs" : 'ctrl' ,
-                "locals" : {
-                    "label" : self.rangeData.date.deliverable.label ,
-                    "type" : "date" ,
-                    "subtype" : "deliverables" ,
-                    "min" : null ,
-                    "max" : null 
-                }
-            } ,
-            "openers" : {
-                "templateUrl" : "js/templates/listprofile-range-date-dialog.html" ,
-                "clickOutsideToClose" : true ,
-                "controller" : function () {
-                    var ctrl = this;
+    self.copyListProfileSuccessCallback = function ( response ) {
+        redirectUrl = '/listprofile/edit/' + response.data;
 
-                    ctrl.addThisRange = function () {
-                        self.rangeData.date.openers.min = ctrl.min;
-                        self.rangeData.date.openers.max = ctrl.max;
-                        self.rangeData.date.openers.filled = true;
-                        self.rangeList.push( {
-                            "type" : "date" ,
-                            "subtype" : "openers" ,
-                            "min" : moment( ctrl.min ).format( 'YYYY-MM-DD' ) ,
-                            "max" : moment( ctrl.max ).format( 'YYYY-MM-DD' )
-                        } );
+        $location.url( redirectUrl );
+        $window.location.href = redirectUrl;
 
-                        $mdDialog.hide();
-                    }
-                } ,
-                "bindToController" : true ,
-                "controllerAs" : 'ctrl' ,
-                "locals" : {
-                    "label" : self.rangeData.date.openers.label ,
-                    "type" : "date" ,
-                    "subtype" : "openers" ,
-                    "min" : null ,
-                    "max" : null 
-                }
-            } ,
-            "clickers" : {
-                "templateUrl" : "js/templates/listprofile-range-date-dialog.html" ,
-                "clickOutsideToClose" : true ,
-                "controller" : function () {
-                    var ctrl = this;
+        $mdDialog.hide();
+    };
 
-                    ctrl.addThisRange = function () {
-                        self.rangeData.date.clickers.min = ctrl.min;
-                        self.rangeData.date.clickers.max = ctrl.max;
-                        self.rangeData.date.clickers.filled = true;
-                        self.rangeList.push( {
-                            "type" : "date" ,
-                            "subtype" : "clickers" ,
-                            "min" : moment( ctrl.min ).format( 'YYYY-MM-DD' ) ,
-                            "max" : moment( ctrl.max ).format( 'YYYY-MM-DD' )
-                        } );
-
-                        $mdDialog.hide();
-                    }
-                } ,
-                "bindToController" : true ,
-                "controllerAs" : 'ctrl' ,
-                "locals" : {
-                    "label" : self.rangeData.date.clickers.label ,
-                    "type" : "date" ,
-                    "subtype" : "clickers" ,
-                    "min" : null ,
-                    "max" : null 
-                }
-            } ,
-            "converters" : {
-                "templateUrl" : "js/templates/listprofile-range-date-dialog.html" ,
-                "clickOutsideToClose" : true ,
-                "controller" : function () {
-                    var ctrl = this;
-
-                    ctrl.addThisRange = function () {
-                        self.rangeData.date.converters.min = ctrl.min;
-                        self.rangeData.date.converters.max = ctrl.max;
-                        self.rangeData.date.converters.filled = true;
-                        self.rangeList.push( {
-                            "type" : "date" ,
-                            "subtype" : "converters" ,
-                            "min" : moment( ctrl.min ).format( 'YYYY-MM-DD' ) ,
-                            "max" : moment( ctrl.max ).format( 'YYYY-MM-DD' )
-                        } );
-
-                        $mdDialog.hide();
-                    }
-                } ,
-                "bindToController" : true ,
-                "controllerAs" : 'ctrl' ,
-                "locals" : {
-                    "label" : self.rangeData.date.converters.label ,
-                    "type" : "date" ,
-                    "subtype" : "converters" ,
-                    "min" : null ,
-                    "max" : null 
-                }
-            }
-        }
+    self.copyListProfileFailureCallback = function ( response ) {
+        self.showToast( 'Error Copying List Profile. Please contact support.' );
     };
 } ] );

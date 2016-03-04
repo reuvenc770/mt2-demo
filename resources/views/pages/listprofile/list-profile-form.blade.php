@@ -27,60 +27,34 @@
         </div>
 
         <div flex layout="column" style="margin-bottom: 1em;">
-            <!--
-            <md-content layout-padding style="margin-bottom: 1em;">
+            <div flex layout-padding style="margin-bottom: 1em;">
                 <h4 layout flex layout-align="center center"><span>Client Group</span></h4>
 
                 <md-divider></md-divider>
 
-                <md-content>
-                    <ui-select ng-model="listProfile.selectedClientGroup" theme="selectize" ng-init="listProfile.loadClientGroups()">
+                    <ui-select ng-model="listProfile.selectedClientGroup" theme="bootstrap">
                         <ui-select-match placeholder="Choose a Client Group">
                           @{{$select.selected.name}}
                         </ui-select-match>
                         <ui-select-choices 
-                          refresh="listGroup.fetchClientGroups($select)" 
+                          refresh="listProfile.fetchClientGroups($select)" 
                           refresh-delay="300" 
-                          repeat="item in items | filter: $select.search"
+                          repeat="item in listProfile.clientGroupList | filter: $select.search"
                         >
-                          @{{$index}} - @{{item.full_name}}
+                          @{{ item.name }} (@{{ item.id }})
                           <div ng-if="$index == $select.items.length-1">
-                            <button 
-                              class="btn btn-xs btn-success" 
-                              style="width: 100%; margin-top: 5px;" 
-                              ng-click="listGroup.fetchClientGroups($select, $event);"
-                              ng-disabled="listProfile.clientGroupLoading">Load more...</button>                 
+                                <button 
+                                    class="btn btn-xs btn-primary" 
+                                    style="width: 100%; margin-top: 5px;" 
+                                    ng-click="listProfile.fetchClientGroups( $select , $event )"
+                                    ng-disabled="listProfile.clientGroupLoading">
+                                        Click to load more...
+                                </button>
                           </div>
                         </ui-select-choices>
                     </ui-select>
-                </md-content>
 
-            </md-content>
-            -->
-
-            <md-content layout-padding style="margin-bottom: 1em;" ng-if="listProfile.showVersionField" ng-cloak>
-                <h4 layout flex layout-align="center center"><span>Client Group</span></h4>
-
-                <md-divider></md-divider>
-
-                <md-content>
-                    <md-autocomplete
-                        md-search-text="listProfile.clientGroupSearchText"
-                        md-items="item in listProfile.getClientGroups( listProfile.clientGroupSearchText )"
-                        md-item-text="item.name"
-                        md-min-length="0"
-                        placeholder="Choose a Client Group"
-                        md-selected-item="listProfile.current.cgroupid"
-                        style="margin-bottom: 1em;">
-
-                        <md-item-template>
-                            <span md-highlight-text="listProfile.clientGroupSearchText" md-highlight-flags="^i">@{{ item.name }}</span>
-                        </md-item-template>
-
-                        <md-not-found></md-not-found>
-                    </md-autocomplete>
-                </md-content>
-            </md-content>
+            </div>
 
             <md-content layout-padding style="margin-bottom: 1em;">
                 <h4 layout flex layout-align="center center"><span>Ranges</span></h4>
@@ -272,21 +246,15 @@
                 </md-chips>
             </md-content>
 
-            <!-- Change to TextArea
             <md-content layout-padding style="margin-bottom: 1em;" ng-cloak>
                 <h4 layout flex layout-align="center center"><span>Zip Codes</span></h4>
 
                 <md-divider></md-divider>
 
-                    <md-chips ng-model="listProfile.zipList" placeholder="Enter a Zipcode" readonly="false" flex md-transform-chip="listProfile.preventDelimitedChips( 'zipList' , $chip )">
-                        <md-chip-template>
-                            <span>
-                                <strong>@{{ $chip }}</strong>
-                            </span>
-                        </md-chip-template>
-                    </md-chips>
+                <md-input-container class="md-block">
+                    <textarea ng-model="listProfile.zipList" md-select-on-focus placeholder="Enter Zip Codes"></textarea>
+                </md-input-container>
             </md-content>
-            -->
         </div>
     </div>
 </div>

@@ -9,10 +9,12 @@ use App\Http\Controllers\Controller;
 use App\Services\MT1ApiService;
 use Laracasts\Flash\Flash;
 use App\Services\MT1Services\UniqueProfileService;
+use Cache;
 
 class ListProfileController extends Controller
 {
     CONST LIST_PROFILE_API_ENDPOINT = 'profile_calc';
+    CONST LIST_PROFILE_ACTION_API_ENDPOINT = 'profile_action';
 
     public $api;
     public $service;
@@ -54,11 +56,12 @@ class ListProfileController extends Controller
      */
     public function store(Request $request)
     {
-        Flash::success( "List Profile was Successfully Updated" );
+        Flash::success( "List Profile was Successfully Saved" );
+
+        Cache::tags('uniqueprofile')->flush();
 
         $versionString = ( $request->input( 'form_version' ) > 1 ? '_v' . $request->input( 'form_version' ) : '' );
 
-        #return response( http_build_query( $request->all() ) );
         return response(  $this->api->postForm( self::LIST_PROFILE_API_ENDPOINT . $versionString , $request->all() ) )->header( 'Content-Type' , 'text/html' );
     }
 
@@ -93,7 +96,11 @@ class ListProfileController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        Flash::success( "List Profile was Successfully Updated" );
+
+        Cache::tags('uniqueprofile')->flush();
+
+        return response( $this->api->postForm( self::LIST_PROFILE_ACTION_API_ENDPOINT , $request->all() ) );
     }
 
     /**
@@ -104,7 +111,19 @@ class ListProfileController extends Controller
      */
     public function destroy($id)
     {
-        //
+        Flash::success( "List Profile was Successfully Deleted" );
+
+        Cache::tags('uniqueprofile')->flush();
+
+        return response( $this->api->postForm( self::LIST_PROFILE_ACTION_API_ENDPOINT , [ "action" => "delete" , "pid" => $id ] ) );
+    }
+
+    public function copy ( Request $request ) {
+        Flash::success( "List Profile '" . $request->input( 'pname' ) . "' was Successfully Copied" );
+
+        Cache::tags('uniqueprofile')->flush();
+
+        return response( $this->api->postForm( self::LIST_PROFILE_ACTION_API_ENDPOINT , $request->all() ) );
     }
 
     public function isps ( $profileId ) {

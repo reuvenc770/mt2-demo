@@ -3,7 +3,7 @@
 return[
     'espapi.list' => 'ESP API Accounts' ,
     'espapi.add'  => 'Add API Account',
-    'client.list' => 'Client Feeds',
+    'client.list' => 'Clients',
     'client.add'  => "Add Client",
     'role.list'   => 'User Roles',
     'user.list'   => 'Users',

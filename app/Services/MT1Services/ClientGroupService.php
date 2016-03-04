@@ -45,7 +45,7 @@ class ClientGroupService
         return $this->clientGroupRepo->getAllClientsForGroup($id);
     }
 
-    public function getAllClientGroups () {
-        return $this->clientGroupRepo->getAllClientGroups();
+    public function search ( $query ) {
+        return $this->clientGroupRepo->search( $query );
     }
 }

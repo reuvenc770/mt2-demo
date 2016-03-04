@@ -25,7 +25,7 @@
                 </div>
             </div>
 
-            <listprofile-table records="listProfile.profileList" loadingflag="clientGroup.currentlyLoading"></clientgroup-table>
+            <listprofile-table records="listProfile.profileList" loadingflag="clientGroup.currentlyLoading" copy="listProfile.copyListProfile( event , id )" delete="listProfile.deleteListProfile( id )"></clientgroup-table>
 
             <div class="row">
                 <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">

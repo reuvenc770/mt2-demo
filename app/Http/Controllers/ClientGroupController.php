@@ -33,6 +33,14 @@ class ClientGroupController extends Controller
         return response()->json( $this->service->getAllClientGroups() );
     }
 
+    public function paginateSearch ( Request $request ) {
+        $groupCollection = collect( $this->service->search( $request->input( 'query' ) ) );
+
+        $queryChunk = $groupCollection->forPage( $request->input( 'page' ) , 20 );
+
+        return response()->json( $queryChunk );
+    }
+
     public function listAll () {
         return response()->view( 'pages.clientgroup.clientgroup-index' );
     }
