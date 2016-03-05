@@ -98,7 +98,7 @@ Route::group( [ 'prefix' => 'api/mt1', 'middleware' => ['auth'] ] , function () 
     Route::get( 'client/generatelinks/{id}' , array( 'as' => 'api.mt1.client.generatelinks' , 'uses' => 'ClientController@generatelinks' ) );
     Route::get( 'client/types' , array( 'as' => 'api.mt1.client.types' , 'uses' => 'MT1API\ClientApiController@types' ) );
     Route::resource( 'uniqueprofiles' , 'MT1API\UniqueProfileApiController' , [ 'only' => [ 'index','show'] ] );
-    #Route::resource('dataexport', 'MT1API\DataExportApiController', ['only' => ['index', 'show']]);
+    Route::resource('esps', 'MT1API\EspApiController', ['only' => ['index', 'show']]);
 });
 
 
