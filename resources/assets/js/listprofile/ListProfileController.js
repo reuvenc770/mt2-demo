@@ -306,12 +306,7 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
     };
 
     self.loadListProfilesFailureCallback = function ( response ) {
-        var toast = $mdToast.simple()
-              .textContent( 'Error Loading List Profiles. Please Contact Support.' )
-              .action( 'OK' )
-              .highlightAction( false );
-
-        $mdToast.show( toast );
+        self.showToast( 'Error Loading List Profiles. Please Contact Support.' );
     };
 
     self.loadListProfile = function () {
@@ -449,7 +444,7 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
         $window.location.href = self.createUrl;
     };
 
-    self.saveListProfile = function () {
+    self.calculateListProfile = function () {
         var currentFormFields = {};
 
         switch ( self.profileType ) {
@@ -475,6 +470,11 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
     };
 
     self.calculateListProfileSuccessCallback = function ( response ) {
+        //This needs to show the calculation and ask the user to save a new profile.
+        //Below is an example of a dialog to show and save the profile. Once we know
+        //the format of the response, we can setup the dialog.
+
+        /*
         var parentEl = angular.element( document.body );
         
         $mdDialog.show( {
@@ -493,15 +493,22 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
             "bindToController" : true ,
             "locals" : {  "id" : response.data }
         } );
+        */
     };
 
     self.calculateListProfileFailureCallback = function ( response ) {
         self.showToast( 'Error Calculating List Profile. Please contact support.' );
     };
 
+    //Need to call this once we have calculations in place.
+    self.saveListProfile = function () {
+
+    };
+
     self.saveListProfileSuccessCallback = function ( response ) {
         $log.log( response ); 
 
+        //Need to run calculations. This is the placeholder success callback to implement that.
         //redirect to list page
     };
 
