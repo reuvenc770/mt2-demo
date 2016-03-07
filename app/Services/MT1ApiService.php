@@ -89,7 +89,6 @@ class MT1ApiService
     {
         if ($this->response->getStatusCode() != 200) {
             Log::error("MT1 RETURNED {$this->response->getStatusCode()} for {$page} with {$params} params");
-            return false;
             return $this->response->getBody()->getContents();
         }
         return $this->response->getBody()->getContents();
