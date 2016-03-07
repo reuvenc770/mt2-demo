@@ -77,7 +77,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
         return array(
             'deploy_id' => $report['message_name'],
-            'sub_id' => $this->parseSubID($report['message_name']),
+            'sub_id' => $report['bill_codes'],
             'm_deploy_id' => 0, // stub for now
             'esp_account_id' => $report['esp_account_id'],
             'datetime' => $report['date_sent'],
