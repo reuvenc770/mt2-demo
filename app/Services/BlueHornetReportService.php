@@ -7,6 +7,7 @@
  */
 
 namespace App\Services;
+
 #use App\Services\API\BlueHornet;
 use App\Repositories\ReportRepo;
 use App\Services\API\BlueHornetApi;
@@ -49,7 +50,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             $this->api->buildRequest('legacy.message_stats', $methodData);
             $response = $this->api->sendApiRequest();
             $xmlBody = simplexml_load_string($response->getBody()->__toString());
-        } catch (Exception $e){
+        } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
         if ($xmlBody->item->responseCode != 201) {
@@ -63,7 +64,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         $arrayReportList = array();
         $reports = $xmlData->item->responseData->message_data;
         $espAccountId = $this->api->getEspAccountId();
-        
+
         foreach ($reports->message as $report) {
             $convertedReport = $this->mapToRawReport($report);
             $this->insertStats($espAccountId, $convertedReport);
@@ -73,11 +74,12 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         Event::fire(new RawReportDataWasInserted($this, $arrayReportList));
     }
 
-    public function mapToStandardReport($report){
+    public function mapToStandardReport($report)
+    {
 
         return array(
             'deploy_id' => $report['message_name'],
-            'sub_id' => $this->parseSubID($report['message_name']),
+            'sub_id' => $report['bill_codes'],
             'm_deploy_id' => 0, // stub for now
             'esp_account_id' => $report['esp_account_id'],
             'datetime' => $report['date_sent'],
@@ -97,7 +99,8 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
     }
 
-    public function mapToRawReport($report){
+    public function mapToRawReport($report)
+    {
         return array(
             "internal_id" => (string)$report['id'],
             "esp_account_id" => $this->api->getEspAccountId(),
@@ -138,7 +141,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             "ftf_conversion_rate" => (string)$report->ftf_conversion_rate,
             "optout_total" => (string)$report->optout_total,
             "optout_rate_total" => (string)$report->optout_rate_total,
-            "opened_total" =>(string)$report->opened_total,
+            "opened_total" => (string)$report->opened_total,
             "opened_unique" => (string)$report->opened_unique,
             "opened_rate_unique" => (string)$report->opened_rate_unique,
             "opened_rate_aps" => (string)$report->opened_rate_aps,
@@ -152,4 +155,62 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
     }
 
 
+    public function getTicketForMessageSubscriberData($messageId)
+    {
+        $methodData = array(
+            "mess_id" => $messageId
+        );
+        try {
+            $this->api->buildRequest("statistics.getMessageSubscriberData", $methodData);
+            $response = $this->api->sendApiRequest();
+            $xmlBody = simplexml_load_string($response->getBody()->__toString());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+        if ($xmlBody->item->responseCode != 101) {
+            throw new \Exception($xmlBody->asXML());
+        }
+        $ticketNumber = $xmlBody->item->responseData->task_id;
+        if(is_null($ticketNumber)){
+            throw new \Exception("Ticket Number Null");
+        }
+        return (string)$ticketNumber;
+    }
+
+    public function checkTicketStatus($ticketId){
+        $return = false;
+        $methodData = array(
+            "task_id" => $ticketId
+        );
+        try {
+            $this->api->buildRequest("utilities.getTasks", $methodData);
+            $response = $this->api->sendApiRequest();
+            $xmlBody = simplexml_load_string($response->getBody()->__toString());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+        $status = (string) $xmlBody->item->responseData->task->item->status;
+        if($status == "ERROR"){
+            throw new \Exception("Task Status came back as Error");
+        }
+        if ($status == "COMPLETE"){
+            $return  = (string) $xmlBody->item->responseData->task->item->task_response->file_name;
+        }
+
+        return $return;
+    }
+
+    public function getFile($filePath){
+        $methodData = array(
+            "file" => $filePath
+        );
+        try {
+            $this->api->buildRequest("utilities.getFile", $methodData);
+            $response = $this->api->sendApiRequest();
+            $xmlBody = simplexml_load_string($response->getBody()->__toString());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+        return $xmlBody;
+    }
 }
