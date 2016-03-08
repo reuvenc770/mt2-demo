@@ -7,7 +7,7 @@
     <div class="page-header col-xs-12"><h1 class="text-center">Create Data Export</h1></div>
 </div>
 
-<div ng-controller="DataExportController as dataExport" ng-init="dataExport.setupPage()">
+<div ng-controller="DataExportController as dataExport">
     <div class="row">
         <div class="hidden-xs hidden-sm col-md-3"></div>
 

@@ -170,6 +170,38 @@
         </md-input-container>
         <span class="help-block" ng-bind="dataExport.formErrors.seeds" ng-show="dataExport.formErrors.seeds"></span>
       </div>
+
+      <md-content class="chipList">
+        <label>ESPs</label>
+        <div layout="row">
+          <md-button flex ng-click="dataExport.selectAllEsps( true )">Select All</md-button>
+          <md-button flex ng-click="dataExport.selectAllEsps( false )">Clear All</md-button>
+        </div>
+
+        <md-chips ng-model="dataExport.espChipList" md-on-remove="dataExport.removeEspChip( $chip )">
+          <md-autocomplete
+          md-search-text="dataExport.espSearchText"
+          md-items="item in dataExport.getEsps( dataExport.espSearchText )"
+          md-item-text="item.name"
+          md-min-length="0"
+          placeholder="Choose an ESP"
+          md-selected-item="dataExport.currentSelectedEsp"
+          md-selected-item-change="dataExport.updateEspCheckboxList( item )"
+          style="margin-bottom: 1em;">
+
+            <span md-highlight-text="dataExport.espSearchText" md-highlight-flags="^i">@{{ item.name }}</span>
+
+            <md-not-found></md-not-found>
+          </md-autocomplete>
+
+          <md-chip-template>
+            <span>
+              <strong>@{{ $chip.name }}</strong>
+              <em>( @{{ $chip.id }} )</em>
+            </span>
+          </md-chip-template>
+        </md-chips>
+      </md-content>
     </div>
   </div>
 
@@ -177,14 +209,7 @@
     <div class="panel-heading">
       <h3 class="panel-title">File Setup</h3>
     </div>
-    <div class="panel-body">
-      <!--
-      <div class="form-group" ng-class="{ 'has-error' : dataExport.formErrors.outname }">
-        <input type="text" class="form-control" id="outname" value="" placeholder="Output filename (use {&zwnj;{date}} in name for unique date)" required="required" ng-model="dataExport.current.outname" />
-        <span class="help-block" ng-bind="dataExport.formErrors.outname" ng-show="dataExport.formErrors.outname"></span>
-      </div>
-      -->
-      
+    <div class="panel-body">      
       <div class="form-group" ng-class="{ 'has-error' : dataExport.formErrors.includeHeaders }">
         <label>Include Headers</label>
         <div class="btn-group btn-group-justified" role="group" aria-label="...">
