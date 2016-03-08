@@ -50,6 +50,8 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
       "UMD5": false,
       "adate": false
     },
+    "repull": '',
+    "esp": '',
     "otherField": "",
     "otherValue": "" 
   };
@@ -88,6 +90,12 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   self.clientGroupSearchText = "";
   self.clientGroups = [];
 
+  // ESPs search
+  self.espSearchText = '';
+  $rootScope.selectedEsps = {};
+  self.currentSelectedEsp = '';
+  self.espChipList = [];
+
   /**
   * Loading Flags
   */
@@ -104,6 +112,8 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
       && pathParts.length > 0
       && angular.isNumber(parseInt(pathParts[0]));
 
+    self.loadEsps();
+
     if (fillPage) {
       self.current.exportId = pathParts[ 0 ];
       console.log("running data pull");
@@ -116,6 +126,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
     self.loadProfiles();
     self.loadClientGroups();
+    
   };
 
   /**
@@ -175,12 +186,10 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
       "fields": Object.keys(self.current.fields).filter( function (field) {
         return self.current.fields[field];
       }),
+      "esp": Object.keys($rootScope.selectedEsps),
       "outname": '',
-
       "repull": '',
-      "esp": '',
       "SendToEmail": '',
-      
       "suppname":  '',
       "ConfirmEmail": ''
 
@@ -301,9 +310,12 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
    */
 
   self.loadProfiles = function () {
-    //DataExportApiService.getProfiles(self.loadProfileApiSuccessCallback, self.loadProfileApiFailureCallback);
+    DataExportApiService.getProfiles(
+      self.loadProfileApiSuccessCallback, 
+      self.loadProfileApiFailureCallback
+    );
 
-    // Temporary override:
+    /* Temporary override:
     self.profiles = [{"id":1,"name":"jim test"}, {"id":2,"name":"Jim test"}, {"id":3,"name":"deantest"}, {"id":4,"name":"AolHotmailL90"}, {"id":5,"name":"DL30AHOY"}, {"id":6,"name":"DL15AHOY"},
  {"id":7,"name":"UKL180(OC)"}, {"id":8,"name":"AOL_D_L90"}, {"id":9,"name":"testDLAHOY30"}, {"id":10,"name":"OthersL90"}, {"id":11,"name":"jim test"}, {"id":12,"name":"jim test"},
 {"id":13,"name":"HotmailL60"}, {"id":14,"name":"aolhotmaill60"}, {"id":15,"name":"AHOY300"}, {"id":16,"name":"OthersL30"}, {"id":17,"name":"YahooOnlyL90(OCNR)"},
@@ -346,12 +358,13 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
  {"id":186,"name":"YahooHistoryBuildingL30-60"}, {"id":187,"name":"UKYahooL20-80(OC20To30)"}, {"id":188,"name":"YahooL20To65(OC20To25)"}, {"id":189,"name":"ISPsL30(OC)-small"}, 
  {"id":190,"name":"ISPsL30-60(OC)-small"}, {"id":191,"name":"ISPsL60-90(OC)-small"}, {"id":192,"name":"ISPsL90-120(OC)-small"}, {"id":193,"name":"UKOthersL180"}, 
  {"id":194,"name":"ISPsL90(OC)"}, {"id":195,"name":"AOLYahooL60(OC)"}, {"id":196,"name":"UKYahooL90(OC20-35)"}, {"id":197,"name":"Others180(OC)"}, {"id":198,"name":"GMSAOLYahooL30(OC30)"}];
-  };
+  */
+  }; 
 
   self.getProfile = function(searchText) {
     return searchText ? self.profiles.filter( function ( obj ) { 
-      return obj.name.toLowerCase().indexOf( searchText.toLowerCase() ) === 0;
-    } ) : self.profiles;
+      return obj.name !== null && obj.name.toLowerCase().indexOf( searchText.toLowerCase() ) === 0;
+    }) : self.profiles;
   };
 
   self.setProfile = function(profile) {
@@ -360,21 +373,38 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     }
   };
 
+  /**
+   * Methods to handle esp autocomplete
+   */
 
+  self.loadEsps = function() {
+    DataExportApiService.getEsps(
+      self.loadEspSuccessCallback,
+      self.loadEspFailureCallback
+    );
+  };
 
+  self.getEspForText = function(searchText) {
+    return searchText ? self.espList.filter( function ( obj ) { 
+      return obj.name !== null && obj.name.toLowerCase().indexOf( searchText.toLowerCase() ) === 0;
+    } ) : self.espList;
+  }
 
   /**
    * Methods to handle client group autocompletes
    */
 
   self.loadClientGroups = function () {
-    DataExportApiService.getClientGroups(self.loadCGApiSuccessCallback, self.loadCGApiFailureCallback);
+    DataExportApiService.getClientGroups(
+      self.loadCGApiSuccessCallback, 
+      self.loadCGApiFailureCallback
+    );
   };
 
   self.getClientGroups = function(searchText) {
     return searchText ? self.clientGroups.filter( function ( obj ) { 
-      return obj.name.toLowerCase().indexOf( searchText.toLowerCase() ) === 0;
-    } ) : self.clientTypes;
+      return obj.name !== null && obj.name.toLowerCase().indexOf( searchText.toLowerCase() ) === 0;
+    } ) : self.clientGroups;
   };
 
   self.setClientGroups = function(profile) {
@@ -436,6 +466,35 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
     $( '#pageModal' ).modal('hide');
   };
+
+
+  // Methods used for ESP chips
+
+  self.updateEspCheckboxList = function ( item ) {
+    if ( typeof( item ) !== 'undefined' ) {
+      $rootScope.selectedEsps[ parseInt( item.id ) ] = item.name;
+    }
+  }
+
+  self.removeEspChip = function ( $chip ) {
+    $rootScope.selectedEsps[ parseInt( $chip.id ) ] = false;
+  };
+
+  self.selectAllEsps = function ( checked ) {
+    angular.forEach( self.espList , function ( value , key ) {
+      if ( checked === true ) {
+        $rootScope.selectedEsps[ parseInt( value.id ) ] = value.name;
+      } else {
+        $rootScope.selectedEsps[ parseInt( value.id ) ] = false;
+      }
+    } );
+  };
+
+  self.getEsps = function ( espSearchText ) {
+    return espSearchText ? self.espList.filter( function ( esp ) {
+      return esp.name !== null && esp.name.toLowerCase().indexOf( espSearchText.toLowerCase() ) === 0;
+    } ) : self.espList;
+  }
 
   /* Callback procedures */
 
@@ -499,6 +558,15 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     self.current.impSaturday = data.SendToImpressionwiseDays[5];
     self.current.impSunday = data.SendToImpressionwiseDays[6];
 
+    var espsArr = data.esps.split(',');
+    var espArrLen = espsArr.len;
+    
+    for (var i = 0; i < espArrLen; i++) {
+      //espList
+      var id = espsArr[i];
+      $rootScope.selectedEsps[i] = 'test';
+    }
+    
     var fields = data.fieldsToExport.split(',');
 
     var l = fields.length;
@@ -550,7 +618,11 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   };
 
 
-  self.copyDataExportSuccessCallback = function(response) {};
+  self.copyDataExportSuccessCallback = function(response) {
+    self.setModalLabel( 'Success!' );
+    self.setModalBody( 'Copied data export.' );
+    self.launchModal();
+  };
 
   self.copyDataExportFailureCallback = function(response) {
     self.setModalLabel( 'Error' );
@@ -600,7 +672,11 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     self.launchModal();
   };
 
-  self.rePullSuccessCallback = function(response) {};
+  self.rePullSuccessCallback = function(response) {
+    self.setModalLabel( 'Success!' );
+    self.setModalBody( 'Set exports to be re-pulled.' );
+    self.launchModal();
+  };
 
   self.rePullFailureCallback = function(response) {
     self.setModalLabel( 'Error' );
@@ -618,9 +694,8 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
 
   self.loadProfileApiSuccessCallback = function(response) {
-    console.log('this is the response:');
-    console.log(response);
-    self.profiles = response.data.data;
+    self.profiles = response.data;
+    console.dir(self.profiles);
   };
 
   self.loadProfileApiFailureCallback = function(response) {
@@ -630,7 +705,8 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   };
 
   self.loadCGApiSuccessCallback = function(response) {
-    self.clientGroups = response.data.data;
+    self.clientGroups = response.data;
+    console.dir(self.clientGroups);
   };
 
   self.loadCGApiFailureCallback = function(response) {
@@ -638,5 +714,16 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     self.setModalBody( 'Failed to load client groups.' );
     self.launchModal();
   };
+
+  self.loadEspSuccessCallback = function(response) {
+    self.espList = response.data;
+    console.dir(self.espList);
+  }
+
+  self.loadEspFailureCallback = function(response) {
+    self.setModalLabel( 'Error' );
+    self.setModalBody( 'Failed to load esps.' );
+    self.launchModal();
+  }
 
 }]);
