@@ -43,6 +43,14 @@ abstract class AbstractReportService implements IDataService  {
       }
   }
 
+  protected function getStats ( $accountName , $date ) {
+      try {
+        return $this->reportRepo->getStats( $accountName , $date );
+      } catch ( \Exception $e ) {
+        throw new \Exception( $e->getMessage() );
+      }
+  }
+
   public function insertSegmentedApiRawStats($data, $length) {
     $start = 0;
     $end = 5000;

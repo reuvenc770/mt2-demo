@@ -16,6 +16,7 @@ use League\Flysystem\Exception;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use App\Services\Interfaces\IDataService;
+use Log;
 
 //TODO FAILED MONITORING - better error messages
 //TODO Create Save Record method
@@ -25,6 +26,7 @@ use App\Services\Interfaces\IDataService;
  */
 class BlueHornetReportService extends AbstractReportService implements IDataService
 {
+    protected $dataRetrievalFailed = false;
 
     /**
      * BlueHornetReportService constructor.
@@ -154,6 +156,33 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         );
     }
 
+    public function getTickets ( $espAccountId , $date ) {
+        $campaigns = $this->getStats( $espAccountId , $date );
+        $tickets = [];
+
+        $campaigns->each( function ( $campaign , $key ) use ( &$tickets ) {
+            $tickets []= $this->getTicketForMessageSubscriberData( $campaign->internal_id );
+        } );
+
+        return $tickets; 
+    }
+
+    public function saveRecords ( &$processState ) {
+        $this->dataRetrievalFailed = false;
+
+        $ticket = $processState[ 'ticket' ];
+
+        $fileName = $this->checkTicketStatus( $ticket );
+
+        if ( $fileName !== false ) {
+            //Switch with save method once models are made
+            Log::info( trim( $this->getFile( $fileName ) ) );
+        } else {
+            $this->dataRetrievalFailed = true;
+        }
+    }
+
+    public function shouldRetry () { return $this->dataRetrievalFailed; }
 
     public function getTicketForMessageSubscriberData($messageId)
     {
