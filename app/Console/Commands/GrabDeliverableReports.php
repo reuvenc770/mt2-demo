@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 
+use Log;
 use App\Repositories\EspApiAccountRepo; 
 use Carbon\Carbon;
 use App\Jobs\RetrieveDeliverableReports;
