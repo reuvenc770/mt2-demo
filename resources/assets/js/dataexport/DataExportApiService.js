@@ -6,6 +6,7 @@ mt2App.service( 'DataExportApiService' , function ( $http ) {
     self.baseApiUrl = '/api/dataexport';
     self.mt1ClientGroupApiUrl = '/api/mt1/clientgroup';
     self.mt1ProfileApiUrl = '/api/mt1/uniqueprofiles';
+    self.mt1EspApiUrl = '/api/mt1/esps';
 
     self.getDataExport = function ( exportId , successCallback , failureCallback ) {
         $http( {
@@ -34,8 +35,8 @@ mt2App.service( 'DataExportApiService' , function ( $http ) {
     self.saveDataExport = function ( exportData , successCallback ,failureCallback ) {
         $http( {
             "method" : "PUT" ,
-            "url" : self.baseApiUrl,
-            "params" : { "_method" : "PUT", "action": "save"} ,
+            "url" : self.baseApiUrl + '/update',
+            "params" : {"action": "save"} ,
             "data" : exportData
         }).then( successCallback , failureCallback );
     };
@@ -101,7 +102,6 @@ mt2App.service( 'DataExportApiService' , function ( $http ) {
      */
 
      self.getProfiles = function (success, failure) {
-        console.log('trying to get profiles');
         $http({
             "method": "GET",
             "url": self.mt1ProfileApiUrl
@@ -109,10 +109,16 @@ mt2App.service( 'DataExportApiService' , function ( $http ) {
      };
 
      self.getClientGroups = function(success, failure) {
-        console.log('trying to get client groups');
         $http({
             "method": "GET",
             "url": self.mt1ClientGroupApiUrl
+        }).then(success, failure);
+     };
+
+     self.getEsps = function(success, failure) {
+        $http({
+            "method": "GET",
+            "url": self.mt1EspApiUrl
         }).then(success, failure);
      };
 
