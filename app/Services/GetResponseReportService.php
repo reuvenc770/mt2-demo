@@ -26,7 +26,7 @@ class GetResponseReportService extends AbstractReportService implements IDataSer
     {
 
         try {
-            $data = $this->api->setQuery(array('perPage' => 5))->sendApiRequest();
+            $data = $this->api->setQuery(array('query[createdOn][from]=' => $date, 'query[createdOn][to]=' => $date))->sendApiRequest();
         } catch (\Exception $e){
             Log::error("{GetResponse API Called Failed {$e->getMessage()}");
             throw new \Exception($e->getMessage());
