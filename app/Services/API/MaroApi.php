@@ -12,10 +12,20 @@ use Carbon\Carbon;
 class MaroApi extends EspBaseAPI {
 
     const API_URL = "http://api.maropost.com/accounts/%d/reports.json?";
+
+    const OPENS_URL = "http://api.maropost.com/accounts/%d/reports/opens.json?";
+    const CLICKS_URL = "http://api.maropost.com/accounts/%d/reports/clicks.json?";
+    const BOUNCES_URL = "http://api.maropost.com/accounts/%d/reports/bounces.json?";
+    const COMPLAINTS_URL = "http://api.maropost.com/accounts/%d/reports/complaints.json?";
+    const UNSUBS_URL = "http://api.maropost.com/accounts/%d/reports/unsubscribes.json?";
+    const RECORDS_PER_PAGE = 1000;
+    const LOOKBACK_DAYS = 3;
     protected $apiKey;
     protected $priorDate;
     protected $date;
     protected $account;
+    protected $deliverableStartDate;
+    protected $deliverableEndDate;
 
 
     public function __construct($name, $espAccountId) {
@@ -48,5 +58,53 @@ class MaroApi extends EspBaseAPI {
         $this->url = $baseUrl;
     }
 
+    public function constructDeliverableUrl($type, $page = null) {
+
+        switch ($type) {
+            case 'opens':
+                $this->url = sprintf(self::OPENS_URL, $this->account);
+                break;
+
+            case 'clicks':
+                $this->url = sprintf(self::CLICKS_URL, $this->account);
+                break;
+
+            case 'bounces':
+                $this->url = sprintf(self::BOUNCES_URL, $this->account);
+                $this->url .= 'type=hard&';
+                break;
+
+            case 'complaints':
+                $this->url = sprintf(self::COMPLAINTS_URL, $this->account);
+                break;
+
+            case 'unsubscribes':
+                $this->url = sprintf(self::UNSUBS_URL, $this->account);
+                break;
+
+            default:
+                throw new \Exception('Invalid action type');
+                break;
+        }
+
+        // Add additional fields common to all calls
+        $this->url .= 'fields="email"&auth_token=' 
+                        . $this->apiKey
+                        . '&per=' 
+                        . self::RECORDS_PER_PAGE
+                        . '&from='
+                        . $this->deliverableStartDate
+                        . '&to='
+                        . $this->deliverableEndDate;
+
+        if (!is_null($page)) {
+            $this->url .= '&page=' . $page;
+        }
+    }
+
+    public function setDeliverableLookBack() {
+        $this->deliverableStartDate = Carbon::now()->subDay(self::LOOKBACK_DAYS)->toDateString();
+        $this->deliverableEndDate = Carbon::now()->toDateString();
+    }
 
 }

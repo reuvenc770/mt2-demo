@@ -22,6 +22,7 @@ class MaroReportService extends AbstractReportService implements IDataService
 
     protected $reportRepo;
     protected $api;
+    protected $actions = ['opens', 'clicks', 'bounces', 'complaints', 'unsubscribes'];
 
     public function __construct(ReportRepo $reportRepo, MaroApi $api) {
         $this->reportRepo = $reportRepo;
@@ -57,6 +58,37 @@ class MaroReportService extends AbstractReportService implements IDataService
         return $outputData;
     }
 
+    public function retrieveDeliveredRecords() {
+
+        $this->api->setDeliverableLookBack();
+        $outputData = array();
+
+        foreach ($this->actions as $id => $action) {
+            $dataFound = true;
+            $page = 1;
+
+            while ($dataFound) {
+                $this->api->constructDeliverableUrl($action, $page);
+                $data = $this->sendApiRequest();
+                $data = $this->processGuzzleResult($data);
+
+                if (empty($data)) {
+                    $dataFound = false;
+                }
+                else {
+                    $outputData = array_merge($outputData, $data);
+                    $page++;
+                }
+            }       
+        }
+
+        return $outputData;
+    }
+
+    public function insertDeliverableStats() {
+        // TODO
+    }
+
     protected function processGuzzleResult($data) {
         $data = $data->getBody()->getContents();
         return json_decode($data, true);
@@ -73,6 +105,10 @@ class MaroReportService extends AbstractReportService implements IDataService
         }
 
         Event::fire(new RawReportDataWasInserted($this, $convertedDataArray));
+    }
+
+    public function insertEmailAction($data) {
+        //
     }
 
     public function mapToStandardReport($data) { 
