@@ -16,7 +16,11 @@ use League\Flysystem\Exception;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use App\Services\Interfaces\IDataService;
+use App\Services\EmailRecordService;
 use Log;
+use SimpleXML;
+use SimpleXMLElement;
+use SimpleXMLIterator;
 
 //TODO FAILED MONITORING - better error messages
 //TODO Create Save Record method
@@ -26,6 +30,8 @@ use Log;
  */
 class BlueHornetReportService extends AbstractReportService implements IDataService
 {
+    protected $emailRecord;
+
     protected $dataRetrievalFailed = false;
 
     /**
@@ -33,9 +39,11 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
      * @param ReportRepo $reportRepo
      * @param $accountNumber
      */
-    public function __construct(ReportRepo $reportRepo, BlueHornetApi $api)
+    public function __construct(ReportRepo $reportRepo, BlueHornetApi $api , EmailRecordService $emailRecord )
     {
         parent::__construct($reportRepo, $api);
+
+        $this->emailRecord = $emailRecord;
     }
 
     /**
@@ -176,7 +184,43 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
         if ( $fileName !== false ) {
             //Switch with save method once models are made
-            Log::info( trim( $this->getFile( $fileName ) ) );
+            $file = $this->getFile( $fileName );
+
+            $dataIterator = new SimpleXMLIterator( $file->asXML() );
+            $nodes = [];
+            $nodes2 = [];
+            $nodes3 = [];
+
+            for ( $dataIterator->rewind() ; $dataIterator->valid() ; $dataIterator->next() ) {
+                if( !in_array( $dataIterator->key() , $nodes ) ) {
+                    $nodes []= $dataIterator->key();
+                }
+
+
+                if ( $dataIterator->hasChildren() ) {
+                    $secondNodes = $dataIterator->getChildren();
+
+                    for ( $secondNodes->rewind() ; $secondNodes->valid() ; $secondNodes->next() ) {
+                        if ( !in_array( $secondNodes->key() , $nodes2 ) ) {
+                            $nodes2 []= $secondNodes->key();
+                        }
+
+                        if ( $secondNodes->hasChildren() ) {
+                            $thirdNodes = $dataIterator->getChildren();
+
+                            for ( $thirdNodes->rewind() ; $thirdNodes->valid() ; $thirdNodes->next() ) {
+                                if ( !in_array( $thirdNodes->key() , $nodes3 ) ) {
+                                    $nodes3 []= $thirdNodes->key();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            Log::info( json_encode( $nodes ) );
+            Log::info( json_encode( $nodes2 ) );
+            Log::info( json_encode( $nodes3 ) );
         } else {
             $this->dataRetrievalFailed = true;
         }

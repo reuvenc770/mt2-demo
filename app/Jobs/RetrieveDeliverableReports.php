@@ -108,7 +108,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     }
 
     protected function changeJobEntry ( $status ) {
-        JobTracking::changeJobState($status,$this->tracking, $this->maxAttempts);
+        JobTracking::changeJobState($status,$this->tracking, $this->attempts() );
     }
 
     public function failed()
