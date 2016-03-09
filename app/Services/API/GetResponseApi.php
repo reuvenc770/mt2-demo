@@ -8,7 +8,7 @@
 
 namespace App\Services\API;
 use App\Facades\EspApiAccount;
-use GuzzleHttp\Client;
+use App\Facades\Guzzle;
 
 class GetResponseApi extends EspBaseAPI
 {
@@ -17,29 +17,39 @@ class GetResponseApi extends EspBaseAPI
     protected $date;
     protected $query = array();
     protected $action;
+    public $guzzle;
     public function __construct($name, $espAccountId)
     {
         parent::__construct($name, $espAccountId);
         $this->apiKey = EspApiAccount::grabApiKey($espAccountId);
         $this->query = array("query");
-        $this->guzzle = new Client(['http_errors' => false, 'base_uri' => self::API_URL,
-                'headers' => ['Content-type' => 'application/json','X-Auth-Token' => "api-key {$this->apiKey}"]]
-        );
+
 
     }
 
     public function sendApiRequest()
     {
-        $data =$this->guzzle->get($this->action,['query' => $this->query]);
+
+        $data = Guzzle::get($this->action,['http_errors' => false, 'base_uri' => self::API_URL,
+            'headers' => ['Content-type' => 'application/json','X-Auth-Token' => "api-key {$this->apiKey}"], 'query' => $this->query]);
         $data = $data->getBody()->getContents();
         return json_decode($data, true);
     }
 
     public function setAction($action){
         $this->action = $action;
+        return $this;
     }
 
     public function setQuery($query){
         $this->query = $query;
+        return $this;
+    }
+
+    public function sendDirectApiRequest($query){
+        $data = Guzzle::get($query,['http_errors' => false, 'base_uri' => self::API_URL,
+            'headers' => ['Content-type' => 'application/json','X-Auth-Token' => "api-key {$this->apiKey}"]]);
+        $data = $data->getBody()->getContents();
+        return json_decode($data, true);
     }
 }
