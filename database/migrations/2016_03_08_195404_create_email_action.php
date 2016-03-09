@@ -17,7 +17,7 @@ class CreateEmailAction extends Migration
             $table->string('email_address', 100)->default('');
             $table->integer('email_domain_id')->unsigned()->default(0);
             $table->unique('email_address');
-            $table->index('domain_id');
+            $table->index('email_domain_id');
         });
 
         Schema::create('email_domains', function (Blueprint $table) {
@@ -89,12 +89,12 @@ class CreateEmailAction extends Migration
             $table->index('email_id');
         });
 
-        Schema::connection('reporting_data')->createcreate('action_types', function (Blueprint $table) {
+        Schema::connection('reporting_data')->create('action_types', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name', '30');
         });
 
-        Schema::connection('reporting_data')->createcreate('email_campaign_statistics', function (Blueprint $table) {
+        Schema::connection('reporting_data')->create('email_campaign_statistics', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('email_id')->unsigned()->default(0);
             $table->integer('campaign_id')->unsigned()->default(0);
@@ -123,7 +123,7 @@ class CreateEmailAction extends Migration
             $table->mediumInteger('hard_bounce')->unsigned()->default(0);
             $table->timestamps();
 
-            $table->index(array('campaignId', 'email_id'));
+            $table->index(array('campaign_id', 'email_id'));
             $table->index('email_id');
 
         });
