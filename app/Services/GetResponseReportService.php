@@ -82,7 +82,7 @@ class GetResponseReportService extends AbstractReportService implements IDataSer
             'from_email' => $data['fromInfo']['email'],
             'reply_name' => $data['replyTo']['name'],
             'reply_email' => $data['replyTo']['email'],
-            //'html' => $data['info']['content']['html'],
+            'html' => $data['info']['content']['html'],
             'sent' => $data['stats']['sent'],
             'total_open' => $data['stats']['totalOpened'],
             'unique_open' => $data['stats']['uniqueOpened'],
