@@ -50,4 +50,25 @@ class CampaignerApi extends EspBaseAPI
         );
 
     }
+
+    public function buildCampaignSearchQuery($campaign)
+    {
+        return "<contactssearchcriteria>
+  <version major=\"2\" minor=\"0\" build=\"0\" revision=\"0\"/>
+  <set>Partial</set>
+  <evaluatedefault>True</evaluatedefault>
+  <group>
+    <filter>
+      <filtertype>EmailAction</filtertype>
+      <campaign>
+        <campaignrunid>{$campaign}</campaignrunid>
+      </campaign>
+      <action>
+        <status>Do</status>
+        <operator>Sent</operator>
+      </action>
+    </filter>
+  </group>
+</contactssearchcriteria>";
+    }
 }

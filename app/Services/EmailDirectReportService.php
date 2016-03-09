@@ -99,4 +99,24 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
         return $formattedData;
     }
 
+    public function getDeliveryReport($campaignId){
+      return  $this->api->getDeliveryReport($campaignId, "Recipients");
+    }
+
+    public function getOpenReport($campaignId){
+      return  $this->api->getDeliveryReport($campaignId, "Opens");
+    }
+
+    public function getClickReport($campaignId){
+      return  $this->api->getDeliveryReport($campaignId, "Clicks");
+    }
+
+    public function getUnsubscribeReport($campaignId){
+      return  $this->api->getDeliveryReport($campaignId, "Removes");
+    }
+    //Todo do we include softbounces?
+    public function getHardBounceReport($campaignId){
+       return $this->api->getDeliveryReport($campaignId, "HardBounces");
+    }
+
 }
