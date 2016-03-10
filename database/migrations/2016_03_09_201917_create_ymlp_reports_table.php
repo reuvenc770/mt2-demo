@@ -16,7 +16,7 @@ class CreateYmlpReportsTable extends Migration
             $table->increments('id');
             $table->integer('esp_account_id')->unsigned()->default(0);
             $table->integer('internal_id')->default(0);
-            $table->string('name')->default(''); // need to find this
+            $table->string('name')->default('');
             $table->string('from_name')->default('');
             $table->string('from_email')->default('');
             $table->string('subject')->default('');
@@ -40,6 +40,15 @@ class CreateYmlpReportsTable extends Migration
             $table->index(array('esp_account_id', 'internal_id'));
             $table->foreign('esp_account_id')->references('id')->on("{$tableName}.esp_accounts");
         });
+
+        Schema::connection('reporting_data')->create('ymlp_campaigns', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('esp_account_id')->unsigned()->default(0);
+            $table->date('date');
+            $table->string('sub_id');
+            $table->timestamps();
+            $table->index(array('esp_account_id', 'date'));
+        });
     }
 
     /**
@@ -49,6 +58,7 @@ class CreateYmlpReportsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('ymlp_reports');
+        Schema::connection('reporting_data')->drop('ymlp_reports');
+        Schema::connection('reporting_data')->drop('ymlp_campaigns');
     }
 }
