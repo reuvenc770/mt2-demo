@@ -11,10 +11,12 @@ abstract class AbstractReportService implements IDataService  {
   
   protected $reportRepo;
   protected $api;
+  protected $emailRecord;
 
-  public function __construct(ReportRepo $reportRepo, EspBaseApi $api) {
+  public function __construct(ReportRepo $reportRepo, EspBaseApi $api , EmailRecordService $emailRecord ) {
     $this->reportRepo = $reportRepo;
     $this->api = $api;
+    $this->emailRecord = $emailRecord;
   }
 
   abstract public function retrieveApiStats($data);
@@ -43,9 +45,9 @@ abstract class AbstractReportService implements IDataService  {
       }
   }
 
-  protected function getStats ( $accountName , $date ) {
+  protected function getInternalIds ( $accountName , $date ) {
       try {
-        return $this->reportRepo->getStats( $accountName , $date );
+        return $this->reportRepo->getInternalIds( $accountName , $date );
       } catch ( \Exception $e ) {
         throw new \Exception( $e->getMessage() );
       }
