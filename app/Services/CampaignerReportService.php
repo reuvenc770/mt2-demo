@@ -232,28 +232,32 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
 
         $recordData = $this->getCampaignReport( $processState[ 'ticket' ][ 'ticketName' ] , $processState[ 'ticket' ][ 'rowCount' ] );
 
-        foreach ( $recordData as $key => $record ) {
-            if ( $record[ 'action' ] === 'Open' ) {
-                $this->emailRecord->recordOpen(
-                    $this->emailRecord->getEmailId( $record[ 'email' ] ) ,
-                    $processState[ 'ticket' ][ 'espId' ] ,
-                    $processState[ 'ticket' ][ 'campaignId' ] ,
-                    $record[ 'actionDate' ] );
-            } elseif ( $record[ 'action' ] === 'Click' ) {
-                $this->emailRecord->recordClick(
-                    $this->emailRecord->getEmailId( $record[ 'email' ] ) ,
-                    $processState[ 'ticket' ][ 'espId' ] ,
-                    $processState[ 'ticket' ][ 'campaignId' ] ,
-                    $record[ 'actionDate' ]
-                );
-            } elseif ( $record[ 'action' ] === 'Delivered' ) {
-                $this->emailRecord->recordDeliverable(
-                    $this->emailRecord->getEmailId( $record[ 'email' ] ) ,
-                    $processState[ 'ticket' ][ 'espId' ] ,
-                    $processState[ 'ticket' ][ 'campaignId' ] ,
-                    $record[ 'actionDate' ]
-                );
+        if ( !is_null( $recordData ) ) {
+            foreach ( $recordData as $key => $record ) {
+                if ( $record[ 'action' ] === 'Open' ) {
+                    $this->emailRecord->recordOpen(
+                        $this->emailRecord->getEmailId( $record[ 'email' ] ) ,
+                        $processState[ 'ticket' ][ 'espId' ] ,
+                        $processState[ 'ticket' ][ 'campaignId' ] ,
+                        $record[ 'actionDate' ] );
+                } elseif ( $record[ 'action' ] === 'Click' ) {
+                    $this->emailRecord->recordClick(
+                        $this->emailRecord->getEmailId( $record[ 'email' ] ) ,
+                        $processState[ 'ticket' ][ 'espId' ] ,
+                        $processState[ 'ticket' ][ 'campaignId' ] ,
+                        $record[ 'actionDate' ]
+                    );
+                } elseif ( $record[ 'action' ] === 'Delivered' ) {
+                    $this->emailRecord->recordDeliverable(
+                        $this->emailRecord->getEmailId( $record[ 'email' ] ) ,
+                        $processState[ 'ticket' ][ 'espId' ] ,
+                        $processState[ 'ticket' ][ 'campaignId' ] ,
+                        $record[ 'actionDate' ]
+                    );
+                }
             }
+        } else {
+            $this->dataRetrievalFailed = true;
         }
     }
 
