@@ -6,6 +6,7 @@ use App\Repositories\ReportRepo;
 use Illuminate\Support\Facades\Event;
 use App\Services\API\EspBaseApi;
 use App\Services\Interfaces\IDataService;
+use App\Services\EmailRecordService;
 
 abstract class AbstractReportService implements IDataService  {
   
@@ -45,9 +46,9 @@ abstract class AbstractReportService implements IDataService  {
       }
   }
 
-  protected function getInternalIds ( $accountName , $date ) {
+  protected function getCampaigns ( $accountName , $date ) {
       try {
-        return $this->reportRepo->getInternalIds( $accountName , $date );
+        return $this->reportRepo->getCampaigns( $accountName , $date );
       } catch ( \Exception $e ) {
         throw new \Exception( $e->getMessage() );
       }

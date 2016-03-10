@@ -24,9 +24,8 @@ class ReportRepo
         $this->report->updateOrCreate(array("internal_id"=> $data["internal_id"], "esp_account_id" => $espAccountId),$data);
     }
 
-    public function getInternalIds( $espAccountId , $date ) {
+    public function getCampaigns( $espAccountId , $date ) {
         return $this->report
-            ->select( 'internal_id' )
             ->where( 'updated_at' , ">=" , $date )
             ->where( 'esp_account_id' , $espAccountId )
             ->get();

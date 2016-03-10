@@ -12,6 +12,8 @@ use League\Flysystem\Exception;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use App\Services\Interfaces\IDataService;
+use App\Services\EmailRecordService;
+use Log;
 
 /**
  * Class BlueHornetReportService
@@ -19,14 +21,10 @@ use App\Services\Interfaces\IDataService;
  */
 class MaroReportService extends AbstractReportService implements IDataService
 {
-
-    protected $reportRepo;
-    protected $api;
     protected $actions = ['opens', 'clicks', 'bounces', 'complaints', 'unsubscribes'];
 
-    public function __construct(ReportRepo $reportRepo, MaroApi $api) {
-        $this->reportRepo = $reportRepo;
-        $this->api = $api;
+    public function __construct(ReportRepo $reportRepo, MaroApi $api , EmailRecordService $emailRecord ) {
+        parent::__construct( $reportRepo , $api , $emailRecord );
     }
 
 
@@ -58,6 +56,44 @@ class MaroReportService extends AbstractReportService implements IDataService
         return $outputData;
     }
 
+    public function saveRecords ( &$processState ) {
+        $openData = $this->getDeliveredRecords( 'opens' );
+
+        foreach ( $openData as $key => $openner ) {
+            $this->emailRecord->recordOpen(
+                $this->emailRecord->getEmailId( $openner[ 'contact' ][ 'email' ] ) ,
+                $this->api->getId() ,
+                $openner[ 'campaign_id' ] ,
+                $openner[ 'recorded_at' ]
+            );
+        }
+        
+        $clickData = $this->getDeliveredRecords( 'clicks' );
+
+        foreach ( $clickData as $key => $clicker ) {
+            $this->emailRecord->recordClick(
+                $this->emailRecord->getEmailId( $clicker[ 'contact' ][ 'email' ] ) ,
+                $this->api->getId() ,
+                $clicker[ 'campaign_id' ] ,
+                $clicker[ 'recorded_at' ]
+            );
+        }
+        
+        
+        /*$data = $this->retrieveDeliveredRecords();
+
+        #Log::info( json_encode( $data ) );
+
+        foreach ( $data as $key => $value ) {
+            #Log::info( $key );
+
+        }*/
+    }
+
+    public function shouldRetry () {
+        return false;
+    }
+
     public function retrieveDeliveredRecords() {
 
         $this->api->setDeliverableLookBack();
@@ -69,7 +105,10 @@ class MaroReportService extends AbstractReportService implements IDataService
 
             while ($dataFound) {
                 $this->api->constructDeliverableUrl($action, $page);
-                $data = $this->sendApiRequest();
+                $data = $this->api->sendApiRequest();
+
+                if ( $page == 1 ) Log::info( $data->getBody() );
+
                 $data = $this->processGuzzleResult($data);
 
                 if (empty($data)) {
@@ -85,8 +124,29 @@ class MaroReportService extends AbstractReportService implements IDataService
         return $outputData;
     }
 
-    public function insertDeliverableStats() {
-        // TODO
+    public function getDeliveredRecords ( $action ) {
+        $outputData = array();
+        $this->api->setDeliverableLookBack();
+
+        $dataFound = true;
+        $page = 1;
+
+        while ($dataFound) {
+            $this->api->constructDeliverableUrl($action, $page);
+            $data = $this->api->sendApiRequest();
+
+            $data = $this->processGuzzleResult($data);
+
+            if (empty($data)) {
+                $dataFound = false;
+            }
+            else {
+                $outputData = array_merge($outputData, $data);
+                $page++;
+            }
+        }       
+
+        return $outputData;
     }
 
     protected function processGuzzleResult($data) {

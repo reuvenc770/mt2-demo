@@ -11,6 +11,10 @@ class EmailRecordService {
         $this->repo = $repo;
     }
 
+    public function getEmailId ( $email ) {
+        return $this->repo->getEmailId( $email );
+    }
+
     public function recordOpen ( $emailId , $espId , $campaignId , $date ) {
         $this->repo->recordOpen( $emailId , $espId , $campaignId , $date );
     }

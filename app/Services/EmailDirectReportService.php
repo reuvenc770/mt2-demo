@@ -12,6 +12,7 @@ use League\Flysystem\Exception;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use App\Services\Interfaces\IDataService;
+use App\Services\EmailRecordService;
 
 /**
  *
@@ -19,8 +20,8 @@ use App\Services\Interfaces\IDataService;
 class EmailDirectReportService extends AbstractReportService implements IDataService {
     private $invalidFields = array( 'Publication' , 'Links' );
 
-    public function __construct ( ReportRepo $reportRepo , EmailDirectApi $api) {
-        parent::__construct($reportRepo, $api);
+    public function __construct ( ReportRepo $reportRepo , EmailDirectApi $api , EmailRecordService $emailRecord ) {
+        parent::__construct($reportRepo, $api , $emailRecord );
     }
 
     public function retrieveApiStats ( $date ) {

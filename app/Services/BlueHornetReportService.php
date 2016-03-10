@@ -162,7 +162,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
     }
 
     public function getTickets ( $espAccountId , $date ) {
-        $campaigns = $this->getInternalIds( $espAccountId , $date );
+        $campaigns = $this->getCampaigns( $espAccountId , $date );
         $tickets = [];
 
         Log::info( $campaigns );
@@ -216,7 +216,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
                     if( $currentContact->key() === 'email' ) {
                         $currentEmail = $currentContact->current();
-                        $currentEmailId = $this->getEmailId( $currentEmail );
+                        $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
                     }
 
                     if( $currentContact->key() === 'opens' ) {
@@ -267,11 +267,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         } else {
             $this->dataRetrievalFailed = true;
         }
-    }
-
-    function getEmailId ( $emailAddress ) {
-        //Switch out for real call or Email Eloquent Model call
-        return mt_rand( 1 , 100000 );
     }
 
     public function shouldRetry () { return $this->dataRetrievalFailed; }

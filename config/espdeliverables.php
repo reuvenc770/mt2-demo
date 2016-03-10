@@ -6,5 +6,16 @@ return [
             'getTickets' ,
             'saveRecords'
         ]
+    ] ,
+    "Campaigner" => [
+        "filters" => [
+            'getTickets' ,
+            'saveRecords'
+        ]
+    ] ,
+    "Maro" => [
+        "filters" => [
+            'saveRecords'
+        ]
     ]
 ];

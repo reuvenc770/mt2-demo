@@ -39,6 +39,12 @@ class EmailRecordRepo {
         $this->emailClientInstance = $emailClientInstance;
     }
 
+    public function getEmailId ( $email ) {
+        #return $this->email->select( 'id' )->where( 'email_address' , $email )->get();
+
+        return mt_rand( 1 , 100000 );
+    }
+
     //These methods need to find the clientId to attribute the action to.
     public function recordOpen ( $emailId , $espId , $campaignId , $date ) {
         Log::info( "Recording Open: $emailId - $espId - $campaignId - $date" );
