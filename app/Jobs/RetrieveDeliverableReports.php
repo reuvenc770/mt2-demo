@@ -26,11 +26,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     protected $tracking;
 
     public $processState;
-    protected $defaultProcessState = [
-        "tickets" => [] ,
-        "currentFilterIndex" => 0 ,
-        "ticketChecks" => 0
-    ];
+    protected $defaultProcessState = [ "currentFilterIndex" => 0 ];
 
     protected $currentFilter;
 
@@ -67,6 +63,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         switch ( $this->currentFilter() ) {
             case 'getTickets' :
                 $tickets = $reportService->getTickets( $this->espAccountId , $this->date );
+
+                Log::info( json_encode( $tickets ) );
 
                 $this->processState[ 'currentFilterIndex' ]++;
 
