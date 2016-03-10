@@ -12,6 +12,9 @@ use League\Flysystem\Exception;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use App\Services\Interfaces\IDataService;
+use App\Models\YmlpCampaign;
+use App\Repositories\YmlpCampaignRepo;
+use Carbon\Carbon;
 
 /**
  * Class YmlpReportService
@@ -21,15 +24,19 @@ class YmlpReportService extends AbstractReportService implements IDataService {
     protected $reportRepo;
     protected $api;
     protected $actions = ['opens', 'clicks', 'bounces', 'complaints', 'unsubscribes'];
+    protected $campaignRepo;
+    protected $espAccountId;
 
     public function __construct(ReportRepo $reportRepo, YmlpApi $api) {
-        $this->reportRepo = $reportRepo;
-        $this->api = $api;
+        parent::__construct($reportRepo, $api);
+        $this->campaignRepo = new YmlpCampaignRepo(new YmlpCampaign());
+        $this->espAccountId = $this->api->getEspAccountId();
     }
 
     public function retrieveApiStats($date) {
         $this->api->setDate($date);
-        return $this->api->sendApiRequest();
+        $data = $this->api->sendApiRequest();
+        return $data;
     }
 
     public function retrieveDeliveredRecords() {}
@@ -37,16 +44,28 @@ class YmlpReportService extends AbstractReportService implements IDataService {
     public function insertDeliverableStats() {}
 
     public function insertApiRawStats($data) {
+        echo "Running insert" . PHP_EOL;
         $convertedDataArray = [];
-        $espAccountId = $this->api->getEspAccountId();
         foreach($data as $id => $row) {
-            $row['esp_account_id'] = $espAccountId;
+            $row['esp_account_id'] = $this->espAccountId;
             $convertedReport = $this->mapToRawReport($row);
-            $this->insertStats($espAccountId, $convertedReport);
+            $this->insertStats($this->espAccountId, $convertedReport);
             $convertedDataArray[]= $convertedReport;
         }
-
         Event::fire(new RawReportDataWasInserted($this, $convertedDataArray));
+    }
+
+    private function parseDate($date) {
+        $formattedDate = Carbon::parse($date)->toDateString();
+        return $formattedDate;
+    }
+
+    private function getMtCampaignName($espAccountId, $date) {
+        $date = $this->parseDate($date);
+        $output = $this->campaignRepo->getMtCampaignNameForAccountAndDate($espAccountId, $date);
+        echo "Account id: $espAccountId, date: $date" . PHP_EOL;
+        echo "output: $output" . PHP_EOL;
+        return $output;
     }
 
     public function mapToStandardReport($data) {
@@ -55,7 +74,7 @@ class YmlpReportService extends AbstractReportService implements IDataService {
             'sub_id' => $this->parseSubID($data['name']),
             'm_deploy_id' => 0, // temporarily 0 until deploys are created
             'esp_account_id' => $data['esp_account_id'],
-            'datetime' => $data['sent_at'],
+            'datetime' => $data['date'],
             'name' => $data['name'],
             'subject' => $data['subject'],
             'from' => $data['from_name'],
@@ -73,10 +92,9 @@ class YmlpReportService extends AbstractReportService implements IDataService {
     public function mapToRawReport($data) {
         return array(
 
-
             'esp_account_id' => $data['esp_account_id'],
             'internal_id' => (int)$data['NewsletterID'],
-            'name' => 0, // $data['name'],
+            'name' => $this->getMtCampaignName($data['esp_account_id'], $data['Date']),
             'from_name' => $data['FromName'],
             'from_email' => $data['FromEmail'],
             'subject' => $data['Subject'],

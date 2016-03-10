@@ -44,7 +44,7 @@ class YmlpApi extends EspBaseApi {
       }
       else {
         if ($output) {
-          array_merge($finalOutput, $output);
+          $finalOutput = array_merge($finalOutput, $output);
           $page++;
         }
         else {
