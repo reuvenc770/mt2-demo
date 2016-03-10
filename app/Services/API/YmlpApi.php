@@ -56,7 +56,56 @@ class YmlpApi extends EspBaseApi {
     return $finalOutput;
   }
 
-  public function getDeliveryReport() {
+  public function getDeliverableStat($stat, $newsletterId) {
+    $page = 1;
+    $done = false;
+    $finalOutput = array();
 
+    while (!$done) {
+
+      $output = $this->callDeliverableApiCall($stat, $newsletterId, $page);
+
+      if ($output) {
+        $finalOutput = array_merge($finalOutput, $output);
+        $page++;
+      }
+      else {
+        $done = true;
+      }
+    }
+
+    return $finalOutput;
+  }
+
+  private function callDeliverableApiCall($stat, $newsletterId, $page) {
+    $numberPerPage = 1000;
+    $onlyUnique = false;
+
+    switch ($stat) {
+      case 'delivered':
+        $output = $this->apiSdk->ArchiveGetDelivered($newsletterId, $page, $numberPerPage);
+        break;
+
+      case 'bounced':
+        $hardBounces = 1;
+        $softBounces = 0;
+        $output = $this->apiSdk->ArchiveGetBounces($newsletterId, $hardBounces, $softBounces, $page, $numberPerPage);
+        break;
+
+      case 'opened':
+        $output = $this->apiSdk->ArchiveGetOpens($newsletterId, $onlyUnique, $page, $numberPerPage);
+        break;
+
+      case 'clicked':
+        $links = '';
+        $output = $this->apiSdk->ArchiveGetClicks($newsletterId, $links, $onlyUnique, $page, $numberPerPage);
+      default:
+        throw new \Exception ('Invalid action type for YMLP');
+    }
+    if ($this->apiSdk->ErrorMessage) {
+      throw new \Exception('Cannot connect to YMLP API');
+    }
+
+    return $output;
   }
 }

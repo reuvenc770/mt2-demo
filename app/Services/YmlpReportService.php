@@ -39,9 +39,13 @@ class YmlpReportService extends AbstractReportService implements IDataService {
         return $data;
     }
 
-    public function retrieveDeliveredRecords() {}
+    public function retrieveDeliveredRecords($campaignId) {
 
-    public function insertDeliverableStats() {}
+    }
+
+    public function insertDeliverableStats() {
+        // Todo
+    }
 
     public function insertApiRawStats($data) {
         echo "Running insert" . PHP_EOL;
