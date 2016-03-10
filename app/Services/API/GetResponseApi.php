@@ -30,8 +30,8 @@ class GetResponseApi extends EspBaseAPI
     public function sendApiRequest()
     {
 
-        $data = Guzzle::get($this->action,['http_errors' => false, 'base_uri' => self::API_URL,
-            'headers' => ['Content-type' => 'application/json','X-Auth-Token' => "api-key {$this->apiKey}"], 'query' => $this->query]);
+        $data = Guzzle::get($this->action,['http_errors' => false, 'base_uri' => self::API_URL, 'query' => $this->query,
+            'headers' => ['Content-type' => 'application/json','X-Auth-Token' => "api-key {$this->apiKey}"]]);
         $data = $data->getBody()->getContents();
         return json_decode($data, true);
     }
