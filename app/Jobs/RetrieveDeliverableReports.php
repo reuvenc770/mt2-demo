@@ -84,12 +84,13 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
                 $this->processState[ 'currentFilterIndex' ]++;
 
-                foreach ( $campaigns as $key => $campaignId ) {
+                $campaigns->each(function($campaign, $key) {
+                    $campaignId = $campaign['internal_id'];
                     $this->processState[ 'campaignId' ] = $campaignId;
-                    $job = ( new RetrieveDeliverableReports( $this->apiName, $this->date , $this->tracking , $this->processState ) )->delay( 60 ); //Make Longer
+                    $job = ( new RetrieveDeliverableReports( $this->apiName, $this->espAccountId, $this->date , $this->tracking , $this->processState ) )->delay( 60 ); //Make Longer
                     $this->dispatch( $job );
-                }
-
+                });
+                
                 $this->changeJobEntry( JobEntry::SUCCESS );
             break;
 
