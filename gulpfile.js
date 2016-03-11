@@ -35,6 +35,12 @@ elixir(function(mix) {
     mix.copy( 'node_modules/ngclipboard/dist/ngclipboard.min.js' , 'public/js/ngclipboard.min.js' );
     mix.copy( 'node_modules/clipboard/dist/clipboard.min.js' , 'public/js/clipboard.min.js' );
 
+    mix.copy( 'node_modules/moment/min/moment-with-locales.min.js' , 'public/js/momment-with-locales.min.js' );
+
+    mix.copy( 'node_modules/ui-select/dist/select.min.js' , 'public/js/select.min.js' );
+
+    mix.copy( 'node_modules/ui-select/dist/select.min.css' , 'public/css/select.min.css' );
+
     mix.scripts( [
         'app.js' ,
         'mt2app/GenericTableDirective.js' ,
@@ -68,11 +74,13 @@ elixir(function(mix) {
         'clientgroup/ClientGroupChildrenTableDirective.js'
     ] , 'public/js/clientgroup.js' );
 
-    mix.scripts([
-        'dataexport/DataExportController.js',
-        'dataexport/DataExportApiService.js',
-        'dataexport/DataExporttableDirective.js'
-    ], 'public/js/dataexport.js');
+    mix.scripts( [
+        'listprofile/ListProfileController.js' ,
+        'listprofile/ListProfileApiService.js' ,
+        'listprofile/ListProfileTableDirective.js' ,
+        'clientgroup/ClientGroupApiService.js' ,
+        'client/ClientApiService.js'
+    ] , 'public/js/listprofile.js' );
 
     mix.copy( 'resources/assets/js/templates' , 'public/js/templates' );
 

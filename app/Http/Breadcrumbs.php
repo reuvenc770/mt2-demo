@@ -86,6 +86,22 @@ Breadcrumbs::register('clientgroup.edit', function($breadcrumbs) {
     $breadcrumbs->push('Edit Client Group');
 });
 
+//List Profiles
+Breadcrumbs::register( 'listprofile.list' , function ( $breadcrumbs ) {
+    $breadcrumbs->parent( 'home' );
+    $breadcrumbs->push( 'List Profiles' , route( 'listprofile.list' ) );
+} );
+
+Breadcrumbs::register( 'listprofile.add' , function ( $breadcrumbs ) {
+    $breadcrumbs->parent( 'listprofile.list' );
+    $breadcrumbs->push( 'Add List Profile' , route( 'listprofile.add' ) );
+} );
+
+Breadcrumbs::register( 'listprofile.edit' , function ( $breadcrumbs ) {
+    $breadcrumbs->parent( 'listprofile.list' );
+    $breadcrumbs->push( 'Edit List Profile' );
+} );
+
 // Single Pages
 Breadcrumbs::register('devtools.jobs', function($breadcrumbs) {
     $breadcrumbs->parent('home');

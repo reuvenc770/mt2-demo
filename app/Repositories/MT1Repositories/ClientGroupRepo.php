@@ -51,4 +51,16 @@ class ClientGroupRepo
             Log::error("ClientGroup error:: ".$e->getMessage());
         }
     }
+
+    public function search ( $query ) {
+        try {
+            return DB::connection( 'mt1mail' )
+                ->table( 'ClientGroup' )
+                ->select(  'ClientGroup.group_name as name' , 'ClientGroup.client_group_id as id' )
+                ->where( 'ClientGroup.group_name' , 'LIKE' , $query . '%' )
+                ->get();
+        } catch ( \Exception $e ) {
+            Log::error( 'ClientGroup Error: ' . $e->getMessage() );
+        }
+    }
 }
