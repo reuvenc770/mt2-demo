@@ -17,5 +17,11 @@ return [
         "filters" => [
             'saveRecords'
         ]
+    ] ,
+    "EmailDirect" => [
+        "filters" => [
+            'getCampaigns' ,
+            'saveRecords'
+        ]
     ]
 ];

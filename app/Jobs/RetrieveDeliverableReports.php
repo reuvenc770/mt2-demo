@@ -77,6 +77,22 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
                 $this->changeJobEntry( JobEntry::SUCCESS );
             break;
 
+            case 'getCampaigns' :
+                $campaigns = $reportService->getCampaigns( $this->espAccountId , $this->date );
+
+                Log::info( json_encode( $campaigns ) );
+
+                $this->processState[ 'currentFilterIndex' ]++;
+
+                foreach ( $campaigns as $key => $campaignId ) {
+                    $this->processState[ 'campaignId' ] = $campaignId;
+                    $job = ( new RetrieveDeliverableReports( $this->apiName, $this->date , $this->tracking , $this->processState ) )->delay( 60 ); //Make Longer
+                    $this->dispatch( $job );
+                }
+
+                $this->changeJobEntry( JobEntry::SUCCESS );
+            break;
+
             case 'getPages':
                 //for paginated api calls
             break;
