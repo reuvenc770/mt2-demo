@@ -54,8 +54,26 @@ class MaroReportService extends AbstractReportService implements IDataService
                 }
             }
         }
+
+        $completeData = array();
+        foreach ($outputData as $id => $campaign) {
+            $campaignId = $campaign['campaign_id'];
+
+            $this->api->constructAdditionalInfoUrl($campaignId);
+            $return = $this->api->sendApiRequest();
+            $metadata = $this->processGuzzleResult($return);
+
+            $campaign['from_name'] = $metadata['from_name'];
+            $campaign['from_email'] = $metadata['from_email']; 
+            $campaign['subject'] = $metadata['subject'];     
+            $campaign['unique_opens'] = $metadata['unique_opens'];
+            $campaign['unique_clicks'] = $metadata['unique_clicks'];
+            $campaign['unsubscribes'] = $metadata['unsubscribed'];
+            $campaign['complaints'] = $metadata['complaint'];
+            $completeData[] = $campaign;
+        }
         
-        return $outputData;
+        return $completeData;
     }
 
     public function retrieveDeliveredRecords() {
@@ -120,17 +138,17 @@ class MaroReportService extends AbstractReportService implements IDataService
             'esp_account_id' => $data['esp_account_id'],
             'datetime' => $data['sent_at'],
             #'name' => $data[''],
-            #'subject' => $data[''],
-            #'from' => $data[''],
-            #'from_email' => $data[''],
+            'subject' => $data['subject'],
+            'from' => $data['from_name'],
+            'from_email' => $data['from_email'],
             'e_sent' => $data['sent'],
             'delivered' => $data['delivered'],
             'bounced' => (int)$data['bounce'],
             #'optouts' => $data[''],
             'e_opens' => $data['open'],
-            #'e_opens_unique' => $data[''],
+            'e_opens_unique' => $data['unique_opens'],
             'e_clicks' => $data['click'],
-            #'e_clicks_unique' => $data[''],
+            'e_clicks_unique' => $data['unique_clicks'],
         );
     }
 
@@ -149,6 +167,13 @@ class MaroReportService extends AbstractReportService implements IDataService
             'sent_at' => $data['sent_at'],
             'maro_created_at' => $data['created_at'],
             'maro_updated_at' => $data['updated_at'],
+            'from_name' => $data['from_name'],
+            'from_email' => $data['from_email'],
+            'subject' => $data['subject'],
+            'unique_opens' => $data['unique_opens'],
+            'unique_clicks' => $data['unique_clicks'],
+            'unsubscribes' => $data['unsubscribes'],
+            'complaints' => $data['complaints'],
         );
     }
 
