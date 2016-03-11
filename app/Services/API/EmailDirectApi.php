@@ -29,6 +29,8 @@ class EmailDirectApi extends EspBaseAPI {
         $creds = EspApiAccount::grabApiKeyWithSecret( $espAccountId );
   
         $this->api = new \EmailDirect( $creds[ 'apiKey' ] );
+        $curl = $this->api->getAdapter();
+        $curl->setOption(CURLOPT_TIMEOUT,90);
     }
 
     public function sendAPIRequest () {
@@ -65,10 +67,37 @@ class EmailDirectApi extends EspBaseAPI {
             if ( $campaignDetailsResponse->success() ) {
                 $reportStats []= $campaignDetailsResponse->getData();
             } else {
-                throw new Exception( 'Email Direct API Call Failed.' . $campaignDetailsResponse->getErrorMessage() , $campaignDetailsResponse->getErrorCode() );
+                throw new \Exception( 'Email Direct API Call Failed.' . $campaignDetailsResponse->getErrorMessage() , $campaignDetailsResponse->getErrorCode() );
             }
         }
 
         return $reportStats;
     }
+
+    public function getDeliveryReport($campaignId,$method){
+        $outputData = array();
+        $method = strtolower($method);
+        $recipientsResponse = $this->api->campaigns($campaignId)->$method(array("PageSize" => 200));
+
+        if(!$recipientsResponse->success()){
+            throw new \Exception( "Email Direct API Called Failed.  {$recipientsResponse->getErrorMessage()} :!: {$recipientsResponse->getErrorCode()}");
+        }
+        $recipientsData = $recipientsResponse->getData();
+        $outputData = array_merge($outputData, $recipientsData["Items"]);
+        $totalPages = $recipientsData['TotalPages'];
+
+        if ($totalPages > 1) {
+            $i = 2;
+            while ($i <= $totalPages) {
+                $recipientsResponse = $this->api->campaigns($campaignId)->recipients(array("PageNumber" => $i,"PageSize" => 200));
+                if(!$recipientsResponse->success()){
+                    throw new \Exception( "Email Direct API Called Failed.  {$recipientsResponse->getErrorMessage()} :!: {$recipientsResponse->getErrorCode()}");
+                }
+                $outputData = array_merge($outputData, $recipientsData["Items"]);
+                $i++;
+            }
+        }
+        return $this->reduce_array($outputData,["EmailAddress","ActionDate"]);
+    }
 }
+

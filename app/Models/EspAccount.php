@@ -32,6 +32,10 @@ class EspAccount extends Model
         return $this->hasMany('App\Models\MaroReport');
     }
 
+    public function ymlpReport() {
+        return $this->hasMany('App\Models\YmlpReport');
+    }
+
     public function getFirstKey()
     {
         return $this->attributes['key_1'];

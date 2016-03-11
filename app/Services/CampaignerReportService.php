@@ -10,6 +10,9 @@ namespace App\Services;
 
 
 use App\Library\Campaigner\CampaignManagement;
+use App\Library\Campaigner\ContactManagement;
+use App\Library\Campaigner\DownloadReport;
+use App\Library\Campaigner\RunReport;
 use App\Repositories\ReportRepo;
 use App\Services\API\Campaigner;
 use App\Services\API\CampaignerApi;
@@ -70,12 +73,12 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
     }
 
     /**
-     * @param $report
+     * @param \App\Library\Campaigner\Campaign $report
      * @return array
      */
     public function mapToRawReport($report)
     {
-        $keys = array('sent', 'delivered', 'hard_bounces', 'soft_bounces', 'spam_bounces', 'opens', 'clicks', 'unsubs', 'spam_complaints');
+        $keys = array('sent', 'delivered', 'hard_bounces', 'soft_bounces', 'spam_bounces', 'opens', 'clicks', 'unsubs', 'spam_complaints', 'run_id');
         $emailStats = array_fill_keys($keys, 0);
         //Dumb logic because of how things are nested
         $camaignRuns = $report->getCampaignRuns();
@@ -96,6 +99,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                 $emailStats['clicks'] += $activityResults->getClicks();
                 $emailStats['unsubs'] += $activityResults->getUnsubscribes();
                 $emailStats['spam_complaints'] += $activityResults->getSpamComplaints();
+                $emailStats['run_id'] = $run->getId();
             }
         } else {
             $domains = $runs->getDomains();
@@ -112,6 +116,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             $emailStats['clicks'] = $activityResults->getClicks();
             $emailStats['unsubs'] = $activityResults->getUnsubscribes();
             $emailStats['spam_complaints'] = $activityResults->getSpamComplaints();
+            $emailStats['run_id'] = $runs->getId();
         }
 
         return array(
@@ -129,7 +134,8 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             'opens' => $emailStats['opens'],
             'clicks' => $emailStats['clicks'],
             'unsubs' => $emailStats['unsubs'],
-            'spam_complaints' => $emailStats['spam_complaints']
+            'spam_complaints' => $emailStats['spam_complaints'],
+            'run_id' => $emailStats['run_id']
         );
 
     }
@@ -175,15 +181,85 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         $dateFilter->setToDate($dateObject->endOfDay());
         $params = new GetCampaignRunsSummaryReport($this->api->getAuth(), null, false, $dateFilter);
         $results = $manager->GetCampaignRunsSummaryReport($params);
-        $header = $this->api->parseOutResultHeader($manager);
-
-        if ($header['errorFlag'] != "false" ) {
-            throw new \Exception("{$header['errorFlag']} - {$this->getApiName()}::{$this->getEspAccountId()} Failed retrieveReportStats because {$header['returnMessage']} - {$header['returnCode']}");
-        } else if ($header['returnCode'] == self::NO_CAMPAIGNS){
-            Log::info("{$this->api->getApiName()}::{$this->api->getEspAccountId()} had no campaigns for {$date}");
-           return null;
+        if($this->checkforHeaderFail($manager,"retrieveApiStats"))
+        {
+            return null;
         }
         return $results->getGetCampaignRunsSummaryReportResult();
     }
 
+
+    public function createCampaignReport($reportNumber){
+        $manager = new ContactManagement();
+        $searchQuery = $this->api->buildCampaignSearchQuery($reportNumber);
+        $report = new RunReport($this->api->getAuth(), $searchQuery);
+        $results = $manager->RunReport($report)->getRunReportResult();
+
+        if($this->checkforHeaderFail($manager,"createCampaignReport"))
+        {
+            return null;
+        }
+
+        return array(
+                "count" => $results->getRowCount(),
+                "ticketId" => $results->getReportTicketId(),
+        );
+    }
+
+    public function getCampaignReport($ticketId, $count){
+        $manager = new ContactManagement();
+        $offset = 0;
+        $limit = 10;
+        $totalCount = 100;
+        $data = array();
+        while ($totalCount > 0) {
+
+            if ($limit > $totalCount) {
+                $limit = $totalCount;
+            }
+            //Due to the dumb paging of campaigner
+            $upToCount = $offset > 0 ? $offset + $limit -1 : $offset + $limit;
+            $report = new DownloadReport($this->api->getAuth(),$ticketId, $offset, $upToCount, "rpt_Detailed_Contact_Results_by_Campaign");
+            $manager->DownloadReport($report);
+            if($this->checkforHeaderFail($manager,"getCampaignReport"))
+            {
+                return null;
+            }
+            $data = array_merge($data,$this->parseOutActions($manager));
+            $offset = $upToCount;
+            $totalCount = $totalCount - $limit;
+        }
+        return $data;
+    }
+
+    private function checkforHeaderFail($manager, $jobName){
+        $header = $this->api->parseOutResultHeader($manager);
+
+        if ($header['errorFlag'] != "false" ) {
+            throw new \Exception("{$header['errorFlag']} - {$this->api->getApiName()}::{$this->api->getEspAccountId()} Failed {$jobName} because {$header['returnMessage']} - {$header['returnCode']}");
+        } else if ($header['returnCode'] == self::NO_CAMPAIGNS) {
+            Log::info("{$this->api->getApiName()}::{$this->api->getEspAccountId()} had no campaigns");
+            return true;
+        }
+        return false;
+    }
+
+    private function parseOutActions($manager){
+        $body = simplexml_load_string($manager->__getLastResponse());
+        $response = $body->children("http://schemas.xmlsoap.org/soap/envelope/")->Body->children();
+        $entries = $response->DownloadReportResponse->DownloadReportResult->ReportResult;
+        $return = array();
+        foreach($entries as $entry){
+
+            $email = (string)$entry->attributes()->ContactUniqueIdentifier;
+            $action = (string)$entry->Action->attributes()->Type;
+            $actionDate = (string)$entry->Action;
+            $return[] = array(
+                "action" => $action,
+                "actionDate" => $actionDate,
+                "email" => $email,
+            );
+        }
+        return $return;
+    }
 }

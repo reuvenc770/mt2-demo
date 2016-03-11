@@ -62,4 +62,17 @@ abstract class EspBaseAPI implements  IReportService, IApi
         $this->espAccountId = $espAccountId;
     }
 
+    //helper functions
+    public function reduce_array($array, $keys) {
+        $res=array(); // Our result array
+        foreach($array as $v1){ // Loop thru original array
+            $t1=array(); // Our new inner array
+            foreach($v1 as $k2=>$v2){ // Loop thru original inner array
+                if(in_array($k2,$keys)) $t1[$k2]=$v2; //If inside inner array store
+            }
+            $res[]=$t1; //Add to result array
+        }
+        return($res);
+    }
+
 }
