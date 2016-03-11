@@ -46,7 +46,7 @@ abstract class AbstractReportService implements IDataService  {
       }
   }
 
-  protected function getCampaigns ( $accountName , $date ) {
+  public function getCampaigns ( $accountName , $date ) {
       try {
         return $this->reportRepo->getCampaigns( $accountName , $date );
       } catch ( \Exception $e ) {
