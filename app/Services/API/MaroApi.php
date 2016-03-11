@@ -26,14 +26,17 @@ class MaroApi extends EspBaseAPI {
     protected $account;
     protected $deliverableStartDate;
     protected $deliverableEndDate;
-
+    protected $espAccountId;
 
     public function __construct($name, $espAccountId) {
         parent::__construct($name, $espAccountId);
         $creds = EspApiAccount::grabApiAccountIdAndKey($espAccountId);
         $this->account = $creds['account'];
         $this->apiKey = $creds['apiKey'];
+        $this->espAccountId = $espAccountId;
     }
+
+    public function getId () { return $this->espAccountId; }
 
     public function setDate($date) {
         $this->priorDate = $date;

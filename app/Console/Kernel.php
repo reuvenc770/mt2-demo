@@ -18,6 +18,7 @@ class Kernel extends ConsoleKernel
         Commands\GrabCsvEspReports::class,
         Commands\GrabTrackingApiData::class,
         Commands\UpdatePermissionsFromRoutes::class,
+        Commands\GrabDeliverableReports::class,
     ];
 
     /**
@@ -34,7 +35,5 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:downloadApi EmailDirect 1')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Maro 1')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadTrackingData Cake 1')->hourly()->sendOutputTo($filePath);
-
-
     }
 }

@@ -68,6 +68,12 @@ elixir(function(mix) {
         'clientgroup/ClientGroupChildrenTableDirective.js'
     ] , 'public/js/clientgroup.js' );
 
+    mix.scripts([
+        'dataexport/DataExportController.js',
+        'dataexport/DataExportApiService.js',
+        'dataexport/DataExporttableDirective.js'
+    ], 'public/js/dataexport.js');
+
     mix.copy( 'resources/assets/js/templates' , 'public/js/templates' );
 
     mix.phpUnit();

@@ -15,6 +15,15 @@ use App\Repositories\StandardTrackingReportRepo;
 use App\Repositories\StandardApiReportRepo;
 use App\Services\StandardReportService;
 
+use App\Models\Email;
+use App\Models\EmailAction;
+use App\Models\ActionType;
+use App\Models\EmailDomain;
+use App\Models\DomainGroup;
+use App\Models\EmailClientInstance;
+use App\Repositories\EmailRecordRepo;
+use App\Services\EmailRecordService;
+
 /**
  * Create different Services for APIS
  * Class APIFactory
@@ -36,9 +45,20 @@ class APIFactory
         $reportModel = new $reportModelName();
         $api = "App\\Services\\API\\{$apiName}Api";
 
+        $emailRecord = new EmailRecordService(
+            new EmailRecordRepo(
+                new Email() ,
+                new EmailAction() ,
+                new ActionType() ,
+                new EmailDomain() ,
+                new DomainGroup() ,
+                new EmailClientInstance()
+            )
+        );
+
         $reportServiceName = "App\\Services\\{$reportName}Service";
         if (class_exists($reportServiceName)) {
-            return new $reportServiceName(new ReportRepo($reportModel), new $api($apiName, $espAccountId));
+            return new $reportServiceName(new ReportRepo($reportModel), new $api($apiName, $espAccountId) , $emailRecord );
         } else {
             throw new \Exception("That Report Service does not exist");
         }

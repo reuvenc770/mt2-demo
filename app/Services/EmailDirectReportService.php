@@ -12,15 +12,18 @@ use League\Flysystem\Exception;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use App\Services\Interfaces\IDataService;
+use App\Services\EmailRecordService;
 
 /**
  *
  */
 class EmailDirectReportService extends AbstractReportService implements IDataService {
+    protected $dataRetrievalFailed;
+
     private $invalidFields = array( 'Publication' , 'Links' );
 
-    public function __construct ( ReportRepo $reportRepo , EmailDirectApi $api) {
-        parent::__construct($reportRepo, $api);
+    public function __construct ( ReportRepo $reportRepo , EmailDirectApi $api , EmailRecordService $emailRecord ) {
+        parent::__construct($reportRepo, $api , $emailRecord );
     }
 
     public function retrieveApiStats ( $date ) {
@@ -98,6 +101,16 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
 
         return $formattedData;
     }
+
+    public function getCampaigns ( $date ) {
+        return $this->getCampaigns( $espAccountId , $date );
+    }
+
+    public function saveRecords ( &$processState ) {
+        var_dump( $this->getDeliveryReport( $processState[ 'campaignId' ] ) );
+    }
+
+    public function shouldRetry () { return $this->dataRetrievalFailed; }
 
     public function getDeliveryReport($campaignId){
       return  $this->api->getDeliveryReport($campaignId, "Recipients");

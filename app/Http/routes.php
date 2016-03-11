@@ -40,6 +40,12 @@ Route::group( [ 'prefix' => 'client', 'middleware' => ['auth', 'pageLevel'] ] , 
     Route::get( '/edit/{id}' , array( 'as' => 'client.edit' , 'uses' => 'ClientController@edit' ) );
 } );
 
+Route::group( [ 'prefix' => 'dataexport', 'middleware' => ['auth', 'pageLevel'] ] , function () {
+    Route::get( '/' , array( 'as' => 'dataexport.list' , 'uses' => 'DataExportController@listActive' ) );
+    Route::get( '/create' , array( 'as' => 'dataexport.add' , 'uses' => 'DataExportController@create' ) );
+    Route::get( '/edit/{id}' , array( 'as' => 'dataexport.edit' , 'uses' => 'DataExportController@edit' ) );
+} );
+
 Route::group( [ 'prefix' => 'clientgroup', 'middleware' => ['auth', 'pageLevel'] ] , function () {
     Route::get( '/' , array( 'as' => 'clientgroup.list' , 'uses' => 'ClientGroupController@listAll' ) );
     Route::get( '/create' , array( 'as' => 'clientgroup.add' , 'uses' => 'ClientGroupController@create' ) );
@@ -57,13 +63,14 @@ Route::group( [ 'prefix' => 'api', 'middleware' => ['auth' , 'pageLevel'] ] , fu
     Route::put('/profile/{id}', [ 'as' => 'profile.update', 'uses' =>'UserApiController@updateProfile']);
     Route::resource( 'espapi' , 'EspApiController' , [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth']  ] );
     Route::resource( 'client' , 'ClientController' , [ 'except' => [ 'create' , 'edit' , 'pager' ] ,'middleware' => ['auth'] ] );
+    Route::put('/dataexport/massActions', [ 'except' => ['create', 'edit'], 'as' => 'dataexport.message', 'middleware' => ['auth'], 'uses' => 'DataExportController@message']);
+    Route::resource('dataexport', 'DataExportController', ['except' => ['create', 'edit'], 'middleware' =>['auth']]);
     Route::get( '/clientgroup/copy/{id}' , array( 'as' => 'api.clientgroup.copy' , 'uses' => 'ClientGroupController@copy' ) );
     Route::resource( 'clientgroup' , 'ClientGroupController' , [ 'except' => [ 'create' , 'edit' , 'copy' ] ,'middleware' => ['auth'] ] );
     Route::resource('user', 'UserApiController',  [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth','admin']] );
     Route::resource('role', 'RoleApiController',  [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth','admin']] );
     Route::resource('jobEntry', 'JobApiController',  [ 'only' => [ 'index' ] ,'middleware' => ['auth','dev']] );
     Route::resource( 'showinfo' , 'ShowInfoController' , [ 'only' => [ 'show' , 'store' ] , 'middleware' => [ 'auth' ] ] );
-
 } );
 
 //guest only
@@ -91,6 +98,7 @@ Route::group( [ 'prefix' => 'api/mt1', 'middleware' => ['auth'] ] , function () 
     Route::get( 'client/generatelinks/{id}' , array( 'as' => 'api.mt1.client.generatelinks' , 'uses' => 'ClientController@generatelinks' ) );
     Route::get( 'client/types' , array( 'as' => 'api.mt1.client.types' , 'uses' => 'MT1API\ClientApiController@types' ) );
     Route::resource( 'uniqueprofiles' , 'MT1API\UniqueProfileApiController' , [ 'only' => [ 'index','show'] ] );
+    #Route::resource('dataexport', 'MT1API\DataExportApiController', ['only' => ['index', 'show']]);
 });
 
 
