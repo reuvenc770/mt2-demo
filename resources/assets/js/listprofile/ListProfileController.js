@@ -1,5 +1,9 @@
 mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' , '$location' , '$window' , '$mdDialog' , '$mdToast' , 'ListProfileApiService' , 'ClientGroupApiService' , function ( $rootScope , $log , $http , $location , $window , $mdDialog , $mdToast , ListProfileApiService , ClientGroupApiService ) {
     var self = this;
+
+    /**
+     * This needs to be switched out with the actual user.
+     */
     self.testUser = 217;
     self.showVersionField = true;
 
@@ -277,6 +281,9 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
 
     self.current = { 'profile_name' : '' , 'volume_desired' : null , 'cgroupid' : [] , 'deliveryDays' : 0 , 'isps' : [] , 'gender' : 'F' };
 
+    /**
+     * Need to swithc the user_id here to the real user when we have that ready
+     */
     self.v1Form = { 'user_id' : self.testUser , 'form_version' : 1 , 'profile_name' : '' , 'DeliveryDays' : 0 , 'isps' : '' , 'cgroupid' : 0 , 'gender' : '' , 'surl' : '' , 'zips' : '' , 'seeds' : '' , 'min_age' : 0 , 'max_age' : 0 , 'ostart' : 0 , 'oend' : 0 , 'cstart' : 0 , 'cend' : 0 , 'dstart' : 0 , 'dend' : 0 , 'convert_start' : 0 , 'convert_end' : 0 , 'ostart1' : 0 , 'oend1' : 0 , 'cstart1' : 0 , 'cend1' : 0 , 'dstart1' : 0 , 'dend1' : 0 , 'convert_start1' : 0 , 'convert_end1' : 0 , 'ostart2' : 0 , 'oend2' : 0 , 'cstart2' : 0 , 'cend2' : 0 , 'dstart2' : 0 , 'dend2' : 0 , 'convert_start2' : 0 , 'convert_end2' : 0 , 'ostart_date' : '' , 'oend_date' : '' , 'cstart_date' : '' , 'cend_date' : '' , 'dstart_date' : '' , 'dend_date' : '' , 'convert_start_date' : '' , 'convert_end_date' : '' , 'export' : 0 , 'clientid' : 0 , 'dupCnt' : 0 , 'randomize_flag' : 'Y' , 'dfactor' : 0 , 'send_international' : 'Y' };
 
     self.v2Form = { 'form_version' : 2 , 'profile_name' : '' , 'volumne_desired' : 0 , 'isps' : '' , 'cgroupid' : 0 , 'gender' : '' , 'surl' : '' , 'zips' : '' , 'min_age' : 0 , 'max_age' : 0 , 'ostart' : 0 , 'oend' : 0 , 'cstart' : 0 , 'cend' : 0 , 'dstart' : 0 , 'dend' : 0 , 'convert_start' : 0 , 'convert_end' : 0 , 'ostart_date' : '' , 'oend_date' : '' , 'cstart_date' : '' , 'cend_date' : '' , 'dstart_date' : '' , 'dend_date' : '' , 'convert_start_date' : '' , 'convert_end_date' : '' , 'dfactor' : 0 , 'send_international' : 'Y' };
