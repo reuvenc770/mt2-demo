@@ -23,5 +23,11 @@ return [
             'getCampaigns' ,
             'saveRecords'
         ]
+    ],
+    "Ymlp" => [
+        "filters" => [
+            'getCampaigns',
+            'saveRecords'
+        ]
     ]
 ];
