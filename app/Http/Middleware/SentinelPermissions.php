@@ -29,7 +29,7 @@ class SentinelPermissions
             if ($request->wantsJson()) {
                 return response('Unauthorized.', 401);
             } else {
-                Flash::warning('Sorry your account does not have permission to preform this action, please contact your manager.');
+                Flash::warning('Sorry your account does not have permission to perform this action, please contact your manager.');
                 return redirect()->back();
             }
         }

@@ -46,6 +46,12 @@ Route::group( [ 'prefix' => 'clientgroup', 'middleware' => ['auth', 'pageLevel']
     Route::get( '/edit/{id}' , array( 'as' => 'clientgroup.edit' , 'uses' => 'ClientGroupController@edit' ) );
 } );
 
+Route::group( [ 'prefix' => 'listprofile' , 'middleware' => [ 'auth' , 'pageLevel' ] ] , function () {
+    Route::get( '/' , [ 'as' => 'listprofile.list' , 'uses' => 'ListProfileController@listAll' ] );
+    Route::get( '/create' , [ 'as' => 'listprofile.add' , 'uses' => 'ListProfileController@create' ] );
+    Route::get( '/edit/{id}' , [ 'as' => 'listprofile.edit' , 'uses' => 'ListProfileController@edit' ] );
+} );
+
 Route::group( [ 'prefix' => 'role', 'middleware' => ['auth','admin', 'pageLevel'] ] , function () {
     Route::get( '/' , array( 'as' => 'role.list' , 'uses' => 'RoleApiController@listAll' ) );
     Route::get( '/create' , array( 'as' => 'role.add' , 'uses' => 'RoleApiController@create' ) );
@@ -57,8 +63,16 @@ Route::group( [ 'prefix' => 'api', 'middleware' => ['auth' , 'pageLevel'] ] , fu
     Route::put('/profile/{id}', [ 'as' => 'profile.update', 'uses' =>'UserApiController@updateProfile']);
     Route::resource( 'espapi' , 'EspApiController' , [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth']  ] );
     Route::resource( 'client' , 'ClientController' , [ 'except' => [ 'create' , 'edit' , 'pager' ] ,'middleware' => ['auth'] ] );
+    Route::get( '/clientgroup/search' , [ 'as' => 'api.clientgroup.search' , 'uses' => 'ClientGroupController@paginateSearch' ] );
+    Route::get( '/clientgroup/all' , [ 'as' => 'api.clientgroup.all' , 'uses' => 'ClientGroupController@index' ] );
     Route::get( '/clientgroup/copy/{id}' , array( 'as' => 'api.clientgroup.copy' , 'uses' => 'ClientGroupController@copy' ) );
-    Route::resource( 'clientgroup' , 'ClientGroupController' , [ 'except' => [ 'create' , 'edit' , 'copy' ] ,'middleware' => ['auth'] ] );
+    Route::resource( 'clientgroup' , 'ClientGroupController' , [ 'except' => [ 'index' , 'create' , 'edit' , 'copy' ] ,'middleware' => ['auth'] ] );
+    Route::get( '/listprofile/copy' , [ 'as' => 'api.listprofile.copy' , 'uses' => 'ListProfileController@copy' ] );
+    Route::get( '/listprofile/isps/{id}' , [ 'as' => 'api.listprofile.isps' , 'uses' => 'ListProfileController@isps'  ] );
+    Route::get( '/listprofile/sources/{id}' , [ 'as' => 'api.listprofile.sources' , 'uses' => 'ListProfileController@sources'  ] );
+    Route::get( '/listprofile/seeds/{id}' , [ 'as' => 'api.listprofile.seeds' , 'uses' => 'ListProfileController@seeds'  ] );
+    Route::get( '/listprofile/zips/{id}' , [ 'as' => 'api.listprofile.zips' , 'uses' => 'ListProfileController@zips'  ] );
+    Route::resource( 'listprofile' , 'ListProfileController' , [ 'except' => [ 'create' , 'edit' , 'copy' ] , 'middleware' => [ 'auth' ] ] );
     Route::resource('user', 'UserApiController',  [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth','admin']] );
     Route::resource('role', 'RoleApiController',  [ 'except' => [ 'create' , 'edit' ] ,'middleware' => ['auth','admin']] );
     Route::resource('jobEntry', 'JobApiController',  [ 'only' => [ 'index' ] ,'middleware' => ['auth','dev']] );
@@ -91,6 +105,7 @@ Route::group( [ 'prefix' => 'api/mt1', 'middleware' => ['auth'] ] , function () 
     Route::get( 'client/generatelinks/{id}' , array( 'as' => 'api.mt1.client.generatelinks' , 'uses' => 'ClientController@generatelinks' ) );
     Route::get( 'client/types' , array( 'as' => 'api.mt1.client.types' , 'uses' => 'MT1API\ClientApiController@types' ) );
     Route::resource( 'uniqueprofiles' , 'MT1API\UniqueProfileApiController' , [ 'only' => [ 'index','show'] ] );
+    Route::resource( 'listprofile' , 'MT1API\ListProfileController' , [ 'only' => [ 'index','show'] ] );
 });
 
 
