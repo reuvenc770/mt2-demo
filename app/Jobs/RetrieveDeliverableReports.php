@@ -87,15 +87,27 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
                 $campaigns->each(function($campaign, $key) {
                     $campaignId = $campaign['internal_id'];
                     $this->processState[ 'campaignId' ] = $campaignId;
-                    $job = ( new RetrieveDeliverableReports( $this->apiName, $this->espAccountId, $this->date , $this->tracking , $this->processState ) )->delay( 60 ); //Make Longer
+                    $this->processState[ 'espId' ] = $this->espAccountId;
+
+                    $job = ( new RetrieveDeliverableReports( $this->apiName, $this->espAccountId, $this->date , $this->tracking , $this->processState ) );
                     $this->dispatch( $job );
                 });
                 
                 $this->changeJobEntry( JobEntry::SUCCESS );
             break;
 
-            case 'getPages':
-                //for paginated api calls
+            case 'processCampaigns' :
+                $this->processState[ 'currentFilterIndex' ]++;
+
+                foreach ( [ 'deliveries' , 'opens' , 'clicks' ] as $key => $recordType ) {
+                    $this->processState[ 'recordType' ] = $recordType;
+
+                    $job = new RetrieveDeliverableReports( $this->apiName , $this->espAccountId, $this->date , $this->tracking , $this->processState );
+
+                    $this->dispatch( $job );
+                }
+
+                $this->changeJobEntry( JobEntry::SUCCESS );
             break;
 
             case 'saveRecords' :
@@ -103,6 +115,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
                 if ( $reportService->shouldRetry() ) {
                     $this->release( 60 ); //Make Longer
+                } else {
+                    $this->changeJobEntry( JobEntry::SUCCESS );
                 }
             break;
         }

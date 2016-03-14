@@ -13,12 +13,13 @@ use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use App\Services\Interfaces\IDataService;
 use App\Services\EmailRecordService;
+use Log;
 
 /**
  *
  */
 class EmailDirectReportService extends AbstractReportService implements IDataService {
-    protected $dataRetrievalFailed;
+    protected $dataRetrievalFailed = false;
 
     private $invalidFields = array( 'Publication' , 'Links' );
 
@@ -102,12 +103,80 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
         return $formattedData;
     }
 
-    public function getCampaigns ( $date ) {
-        return $this->getCampaigns( $espAccountId , $date );
+    public function getCampaigns ( $espAccountId , $date ) {
+        return $this->reportRepo->getCampaigns( $espAccountId , $date );
     }
 
     public function saveRecords ( &$processState ) {
-        var_dump( $this->getDeliveryReport( $processState[ 'campaignId' ] ) );
+        $this->dataRetrievalFailed = false;
+
+        $startTime = microtime( true );
+
+        try {
+            switch ( $processState[ 'recordType' ] ) {
+                case 'deliveries' :
+                    Log::info( "Saving delivery records for Email Direct Campaign " . $processState[ 'campaignId' ] );
+
+                    $deliverables = $this->getDeliveryReport( $processState[ 'campaignId' ] );
+
+                    foreach ( $deliverables as $key => $deliveryRecord ) {
+                        $currentEmail = $deliveryRecord[ 'EmailAddress' ];
+                        $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
+
+                        $this->emailRecord->recordDeliverable(
+                            $currentEmailId ,
+                            $processState[ 'espId' ] ,
+                            $processState[ 'campaignId' ] ,
+                            $deliveryRecord[ 'ActionDate' ]
+                        );
+                    }
+                break;
+
+                case 'opens' :
+                    Log::info( "Saving open records for Email Direct Campaign " . $processState[ 'campaignId' ] );
+
+                    $opens = $this->getOpenReport( $processState[ 'campaignId' ] );
+
+                    foreach ( $opens as $key => $openRecord ) {
+                        $currentEmail = $openRecord[ 'EmailAddress' ];
+                        $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
+
+                        $this->emailRecord->recordOpen(
+                            $currentEmailId ,
+                            $processState[ 'espId' ] ,
+                            $processState[ 'campaignId' ] ,
+                            $openRecord[ 'ActionDate' ]
+                        );
+                    }
+                break;
+
+                case 'clicks' :
+                    Log::info( "Saving click records for Email Direct Campaign " . $processState[ 'campaignId' ] );
+
+                    $clicks = $this->getClickReport( $processState[ 'campaignId' ] );
+
+                    foreach ( $clicks as $key => $clickRecord ) {
+                        $currentEmail = $clickRecord[ 'EmailAddress' ];
+                        $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
+
+                        $this->emailRecord->recordClick(
+                            $currentEmailId ,
+                            $processState[ 'espId' ] ,
+                            $processState[ 'campaignId' ] ,
+                            $clickRecord[ 'ActionDate' ]
+                        );
+                    }
+                break;
+            }
+        } catch ( \Exception $e ) {
+            Log::error( 'Failed to retrievee deliverable records. ' . $e->getMessage() );
+            $this->dataRetrievalFailed = true;
+        }
+
+        $endTime = microtime( true );
+
+        Log::info( 'Executed in: ' );
+        Log::info(  $endTime - $startTime );
     }
 
     public function shouldRetry () { return $this->dataRetrievalFailed; }
