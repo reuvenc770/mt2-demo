@@ -13,19 +13,31 @@ use App\Services\API\AWeberApi;
 use App\Services\Interfaces\IDataService;
 use Event;
 use App\Events\RawReportDataWasInserted;
+use App\Services\EmailRecordService;
+use Log;
+
 class AWeberReportService extends AbstractReportService implements IDataService
 {
-    public function __construct(ReportRepo $reportRepo, AWeberApi $api)
+    protected $dataRetrievalFailed = false;
+
+    public function __construct(ReportRepo $reportRepo, AWeberApi $api , EmailRecordService $emailRecord )
     {
-        parent::__construct($reportRepo, $api);
+        parent::__construct($reportRepo, $api , $emailRecord );
     }
+
     //we may have to use date to hold offset, and build something that queries per page...
     public function retrieveApiStats($date)
     {
+        $startTime = microtime( true );
+
+        Log::info( 'Retrieving API Campaign Stats.......' );
+
         $date = null; //unfortunately date does not matter here.
         $campaignData = array();
         $campaigns = $this->api->getCampaigns(20);
           foreach ($campaigns as $campaign) {
+                Log::info( 'Processing Campaign ' . $campaign->id );
+
               $clickEmail = $this->api->getStateValue($campaign->id, "unique_clicks");
               $openEmail = $this->api->getStateValue($campaign->id, "unique_opens");
               $row = array(
@@ -43,6 +55,11 @@ class AWeberReportService extends AbstractReportService implements IDataService
               );
               $campaignData[] = $row;
           }
+
+        $endTime = microtime( true );
+
+        Log::info( 'Executed in: ' );
+        Log::info(  $endTime - $startTime );
 
         return $campaignData;
     }
@@ -98,4 +115,55 @@ class AWeberReportService extends AbstractReportService implements IDataService
             'e_clicks_unique' => $data[ 'unique_clicks' ],
         );
     }
+
+    public function getCampaigns ( $espAccountId , $date ) {
+        return $this->reportRepo->getCampaigns( $espAccountId , $date );
+    }
+
+    public function saveRecords ( &$processState ) {
+        $this->dataRetrievalFailed = false;
+
+        $startTime = microtime( true );
+
+        switch ( $processState[ 'recordType' ] ) {
+            case 'opens' :
+                $opens = $this->api->getOpenReport( $processState[ 'campaignId' ] );
+
+                foreach ( $opens as $key => $openRecord ) {
+                    $currentEmail = $openRecord[ 'email' ];
+                    $currrentEmailId = $this->emailRecord->getEmailId( $currentEmail );
+
+                    $this->emailRecord->recordOpen(
+                        $currentEmailId , 
+                        $processState[ 'espId' ] ,
+                        $processState[ 'campaignId' ] ,
+                        $openRecord[ 'actionDate' ]
+                    );
+                }
+            break;
+
+            case 'clicks' :
+                $clicks = $this->api->getClickReport( $processState[ 'campaignId' ] );
+
+                foreach ( $clicks as $key => $clickRecord ) {
+                    $currentEmail = $clickRecord[ 'email' ];
+                    $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
+
+                    $this->emailRecord->recordClick(
+                        $currentEmailId ,
+                        $processState[ 'espId' ] ,
+                        $processState[ 'campaignId' ] ,
+                        $clickRecord[ 'actionDate' ]
+                    );
+                }
+            break;
+        }
+
+        $endTime = microtime( true );
+
+        Log::info( 'Executed in: ' );
+        Log::info(  $endTime - $startTime );
+    }
+
+    public function shouldRetry () { return $this->dataRetrievalFailed; }
 }

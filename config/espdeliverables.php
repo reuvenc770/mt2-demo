@@ -30,5 +30,12 @@ return [
             'getCampaigns',
             'saveRecords'
         ]
+    ] ,
+    "AWeber" => [
+        "filters" => [
+            'getCampaigns' ,
+            'processCampaigns' ,
+            'saveRecords'
+        ]
     ]
 ];
