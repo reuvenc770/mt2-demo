@@ -96,3 +96,15 @@ Breadcrumbs::register('tools.recordlookup', function($breadcrumbs) {
     $breadcrumbs->parent('home');
     $breadcrumbs->push('Record Lookup');
 });
+
+// Data Export Pages
+Breadcrumbs::register('dataexport.list', function($breadcrumbs) {
+    $breadcrumbs->parent('home');
+    $breadcrumbs->push('Data Exports');
+});
+
+Breadcrumbs::register('dataexport.add', function($breadcrumbs) {
+    $breadcrumbs->parent('dataexport.list');
+    $breadcrumbs->push('Add/Edit Data Export');
+});
+
