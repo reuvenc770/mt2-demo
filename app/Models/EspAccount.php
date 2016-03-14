@@ -32,6 +32,14 @@ class EspAccount extends Model
         return $this->hasMany('App\Models\MaroReport');
     }
 
+    public function aweberReport(){
+        return $this->hasMany('App\Models\AWeberReport');
+    }
+
+    public function getResponseReport(){
+        return $this->hasMany('App\Models\GetResponseReport');
+    }
+
     public function ymlpReport() {
         return $this->hasMany('App\Models\YmlpReport');
     }

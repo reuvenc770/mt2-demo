@@ -16,7 +16,8 @@
         "laracasts/flash": "^1.3",
         "predis/predis": "^1.0",
         "davejamesmiller/laravel-breadcrumbs": "^3.0",
-        "maknz/slack": "^1.7"
+        "maknz/slack": "^1.7",
+        "aweber/aweber": "^1.1"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
