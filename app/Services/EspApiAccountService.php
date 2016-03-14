@@ -112,7 +112,7 @@ class EspApiAccountService
     /**
      *
      */
-    public function mapCsvToRawStatsArray($espAccountId,$filePath){
+    public function mapCsvToRawStatsArray($espAccountId,$filePath) {
         $returnArray = array();
         $mapping = $this->grabCsvMapping($espAccountId);
         $reader = Reader::createFromPath(storage_path().'/app/'.$filePath);
@@ -122,6 +122,23 @@ class EspApiAccountService
             $row['esp_account_id'] = $espAccountId;
             $returnArray[] = $row;
         }
+        return $returnArray;
+    }
+
+    /**
+     *
+     */
+    public function mapCsvToRawActionsArray($espAccountId, $action, $filePath) {
+        $returnArray = array();
+        echo $filePath;
+        #$mapping = $this->grabCsvDeliverableMapping($espAccountId);
+        $reader = Reader::createFromPath($filePath);
+        $data = $reader->fetchAssoc();
+
+        foreach ($data as $row) {
+            $returnArray[] = $row;
+        }
+
         return $returnArray;
     }
 

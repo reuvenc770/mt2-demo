@@ -60,4 +60,8 @@ abstract class AbstractReportService implements IDataService  {
     $return = isset(explode("_", $deploy_id)[0]) ? explode("_", $deploy_id)[0] : "";
     return $return;
   }
+
+  protected function returnInfoForEmail($email) {
+
+  }
 }
