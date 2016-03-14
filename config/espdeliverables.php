@@ -21,6 +21,7 @@ return [
     "EmailDirect" => [
         "filters" => [
             'getCampaigns' ,
+            'processCampaigns' ,
             'saveRecords'
         ]
     ],
