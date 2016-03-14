@@ -356,14 +356,16 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     );
   };
 
-  self.getClientGroups = function(searchText) {
+  self.findClientGroup = function(searchText) {
     return searchText ? self.clientGroups.filter( function ( obj ) { 
       return obj.name !== null && obj.name.toLowerCase().indexOf( searchText.toLowerCase() ) === 0;
     } ) : self.clientGroups;
   };
 
-  self.setClientGroups = function(profile) {
-    
+  self.setClientGroup = function(clientGroup) {
+    if (typeof clientGroup !== 'undefined' ) {
+      self.current.client_group.id = clientGroup.id;
+    }
   };
 
 

@@ -42,7 +42,7 @@
           <md-content>
             <md-autocomplete
             md-search-text="dataExport.clientGroupSearchText"
-            md-items="item in dataExport.getClientGroup( dataExport.clientGroupSearchText )"
+            md-items="item in dataExport.findClientGroup( dataExport.clientGroupSearchText )"
             md-item-text="item.name"
             md-selected-item-change="dataExport.setClientGroup( item )"
             md-min-length="0"
