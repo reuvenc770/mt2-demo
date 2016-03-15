@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Storage;
 class EspAccount extends Model
 {
+    CONST ACTIONS_FOLDERS = array('clicks', 'complaints', 'delivered', 'opens', 'unsubscribes', 'campaigns');
 
     public function esp()
     {
@@ -61,12 +62,9 @@ class EspAccount extends Model
         static::Created(function(EspAccount $account) {
             $startingPath = $account->account_name."/";
             Storage::makeDirectory($startingPath);
-            Storage::makeDirectory($startingPath."clicks");
-            Storage::makeDirectory($startingPath."complaints");
-            Storage::makeDirectory($startingPath."delivered");
-            Storage::makeDirectory($startingPath."opens");
-            Storage::makeDirectory($startingPath."unsubscribes");
-            Storage::makeDirectory($startingPath."campaigns");
+            foreach (self::ACTIONS_FOLDERS as $action){
+                Storage::makeDirectory($action);
+            }
         });
 
     }
