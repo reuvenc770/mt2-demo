@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use Storage;
 class EspAccount extends Model
 {
+    CONST ACTIONS_FOLDERS = array('clicks', 'complaints', 'delivered', 'opens', 'unsubscribes', 'campaigns');
+
     public function esp()
     {
         return $this->belongsTo('App\Models\Esp');
@@ -52,6 +54,19 @@ class EspAccount extends Model
     public function getSecondKey()
     {
         return $this->attributes['key_2'];
+    }
+
+
+    protected static function boot() {
+        parent::boot();
+        static::Created(function(EspAccount $account) {
+            $startingPath = $account->account_name."/";
+            Storage::makeDirectory($startingPath);
+            foreach (self::ACTIONS_FOLDERS as $action){
+                Storage::makeDirectory($action);
+            }
+        });
+
     }
 
 }
