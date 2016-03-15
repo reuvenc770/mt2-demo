@@ -17,7 +17,7 @@ class EmailActionsRepo {
         $this->actions = $actions;
     } 
 
-    public function getActionId($actionName) {
-        return $this->actions->select('id')->where('name', $actionName)->get();
+    public function insertAction($data) {
+        $this->actions->insert($data);
     }
 }
