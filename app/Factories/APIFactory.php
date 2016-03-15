@@ -59,7 +59,12 @@ class APIFactory
             $emailActionRepo = new EmailActionsRepo($actionsModel);
             $emailRepo = new EmailRepo($emailModel);
 
-            return new $csvDeliverableServiceName($emailActionRepo, $emailRepo, $actionTableRepo);
+            $map = new \App\Models\DeliverableCsvMapping();
+            $mappingRepo = new \App\Repositories\DeliverableMappingRepo($map);
+
+            $mapping = $mappingRepo->getMapping($espId);
+
+            return new $csvDeliverableServiceName($emailActionRepo, $emailRepo, $actionTableRepo, $mapping);
         }
         else {
             throw new \Exception("That csv deliverable service does not exist.");
