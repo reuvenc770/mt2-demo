@@ -1,7 +1,8 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
+use App\Models\Email;
 use Illuminate\Database\Eloquent\Model;
 
 class Email extends Model {
@@ -19,7 +20,7 @@ class Email extends Model {
   }
 
   public function emailCampaignStatistic() {
-    return $this->hasMany('App\Model\emailCampaignStatistic');
+    return $this->hasMany('App\Model\EmailCampaignStatistic');
   }
 
 }
