@@ -14,6 +14,10 @@ use App\Services\API\BaseEspApi;
 use App\Repositories\StandardTrackingReportRepo;
 use App\Repositories\StandardApiReportRepo;
 use App\Services\StandardReportService;
+use App\Repositories\EmailRepo;
+use App\Repositories\EmailActionsRepo;
+use App\Repositories\ActionRepo;
+use App\Models\ActionType;
 
 /**
  * Create different Services for APIS
@@ -41,6 +45,24 @@ class APIFactory
             return new $reportServiceName(new ReportRepo($reportModel), new $api($apiName, $espAccountId));
         } else {
             throw new \Exception("That Report Service does not exist");
+        }
+    }
+
+    public static function createCsvDeliverableService($espName) {
+
+        $csvDeliverableServiceName = "App\\Services\\{$espName}CsvDeliverableService";
+        if (class_exists($csvDeliverableServiceName)) {
+            $emailModel = new \App\Models\Email();
+            $actionsModel = new \App\Models\EmailAction();
+
+            $actionTableRepo = new ActionRepo(new ActionType());
+            $emailActionRepo = new EmailActionsRepo($actionsModel);
+            $emailRepo = new EmailRepo($emailModel);
+
+            return new $csvDeliverableServiceName($emailActionRepo, $emailRepo, $actionTableRepo);
+        }
+        else {
+            throw new \Exception("That csv deliverable service does not exist.");
         }
     }
 
