@@ -149,4 +149,12 @@ class EspApiAccountService
         );
     }
 
+    public function grabAccessTokenAndSecret($espAccountId){
+        $espDetails = $this->espRepo->getAccount($espAccountId);
+        return array(
+            'accessToken' => $espDetails['key_1'],
+            'accessSecret' => $espDetails['key_2']
+        );
+    }
+
 }

@@ -41,13 +41,16 @@ class GrabCsvEspReports extends Command
      */
     public function handle()
     {
-        $date = Carbon::now()->subDay(5)->toDateString();
-        $espName = $this->argument('espName');
-        $files = Storage::Files($espName);  //most likely will be FTP or /s3
-            foreach ($files as $file){
-              $fileInfo = pathinfo($file);
-                $this->info("Starting {$espName}");
-                $this->dispatch(new RetrieveCsvReports($espName, "BH001", $file, str_random(16)));
+
+        $accounts = Storage::directories();
+            foreach ($accounts as $account){
+                $this->info("Starting {$account}");
+                $espAccount = $this->espRepo->getEspInfoByAccountName($account);
+                $campaignFiles = Storage::files($account."/campaigns");
+                foreach($campaignFiles as $campaignFile){
+                    $this->dispatch(new RetrieveCsvReports($espAccount->esp->name, $account, $campaignFile, str_random(16)));
+                }
+
             }
 
        // }
