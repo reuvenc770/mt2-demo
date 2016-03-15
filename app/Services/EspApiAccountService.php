@@ -125,22 +125,6 @@ class EspApiAccountService
         return $returnArray;
     }
 
-    /**
-     *
-     */
-    public function mapCsvToRawActionsArray($espAccountId, $action, $filePath) {
-        $returnArray = array();
-        echo $filePath;
-        #$mapping = $this->grabCsvDeliverableMapping($espAccountId);
-        $reader = Reader::createFromPath($filePath);
-        $data = $reader->fetchAssoc();
-
-        foreach ($data as $row) {
-            $returnArray[] = $row;
-        }
-
-        return $returnArray;
-    }
 
     /**
      * @param array $newAccount The collection of account details to save.

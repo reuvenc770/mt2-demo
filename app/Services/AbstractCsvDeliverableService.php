@@ -1,38 +1,55 @@
 <?php
 
 namespace App\Services;
-use App\Events\RawReportDataWasInserted;
-use App\Repositories\ReportRepo;
+use App\Services\AbstractCsvDeliverableService;
+use App\Repositories\EmailActionsRepo;
+use App\Repositories\EmailRepo;
+use App\Repositories\ActionRepo;
 use Illuminate\Support\Facades\Event;
-use App\Services\API\EspBaseApi;
-use App\Services\Interfaces\IDataService;
+use App\Services\Interfaces\IDataService; #change this
+use League\Csv\Reader;
 
-class AbstractCsvDeliverableService {
+abstract class AbstractCsvDeliverableService {
 
-  protected $emailRecordRepo;
-  protected $actionTableRepo;
+    protected $emailRepo;
+    protected $emailActionsRepo;
+    protected $actionTypeRepo;
+    protected $actionMap = array(
+        'clicks' => 'clicker',
+        'opens' => 'opener',
+        'delivered' => 'deliverable',
+    );
 
-  public function __construct($actionTableRepo, $emailRecordRepo) {
-    $this->deliverableTableRepo = $actionTableRepo;
-    $this->emailRecordRepo = $emailRecordRepo;
-
-  }
-
-
-  public function insertDeliverableCsvActions($data, $filePath) {
-    foreach ($data as $row) {
-        /**
-         Given just an email address. We need:
-            - email_id >> get from email
-            - client_id >> need to get from attribution
-            - esp_id >> can get from API
-            - action_id >> can get from the action type
-            - date, time, datetime >> might need to set a default
-            - campaign_id >> probably can get from filename in this case
+    protected $actionId;
 
 
-         */
-      }
-  }
+    public function __construct(EmailActionsRepo $emailActionsRepo, EmailRepo $emailRepo, ActionRepo $actionTypeRepo) {
+        $this->emailActionsRepo = $emailActionsRepo;
+        $this->emailRepo = $emailRepo;
+        $this->actionTypeRepo = $actionTypeRepo;
+    }
+
+    public function setCsvToFormat($espAccountId, $action, $filePath) {
+
+        
+        $returnArray = array();
+        echo $filePath;
+        #$mapping = $this->grabCsvDeliverableMapping($espAccountId);
+        $reader = Reader::createFromPath($filePath);
+        $data = $reader->fetchAssoc();
+
+        foreach ($data as $row) {
+            $returnArray[] = $row;
+        }
+
+        return $returnArray;
+    }
+
+    protected function mapActionToActionTableName($action) {
+        return $this->actionMap[$action];
+    }
+
+    abstract public function insertDeliverableCsvActions($data);
+    abstract protected function grabCsvDeliverableMapping($someId);
   
 }
