@@ -105,7 +105,7 @@ class EspApiAccountService
      */
     public function grabCsvMapping($espAccountId)
     {
-        $espDetails = $this->espRepo->getAccount($espAccountId)->accountMapping;
+        $espDetails = $this->espRepo->getAccountESPMapping($espAccountId);
         return  explode(',',$espDetails->mappings);
     }
 

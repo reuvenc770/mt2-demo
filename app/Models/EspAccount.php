@@ -11,11 +11,6 @@ class EspAccount extends Model
         return $this->belongsTo('App\Models\Esp');
     }
 
-    public function accountMapping()
-    {
-        return $this->hasOne('App\Models\EspAccountMapping');
-    }
-
     public function blueHornetReports(){
         return $this->hasMany('App\Models\BlueHornetReport');
     }
