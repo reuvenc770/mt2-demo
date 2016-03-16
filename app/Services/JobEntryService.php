@@ -64,4 +64,14 @@ class JobEntryService
         return $this->repo->getLastJobs(50);
     }
 
+    public function startAggregationJob($jobName, $tracking)
+    {
+        $this->jobName = $jobName;
+        $espJob = $this->repo->startAggregateJobReturnObject($jobName, $tracking);
+        $espJob->time_started = Carbon::now();
+        $espJob->attempts = 1;
+        $espJob->status = JobEntry::RUNNING;
+        $espJob->save();
+    }
+
 }
