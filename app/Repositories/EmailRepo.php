@@ -30,7 +30,7 @@ class EmailRepo {
             return $this->getAttributedClientForAddress($identifier);
         }
         else {
-            throw new Exception("Invalid identification type for email");
+            throw new \Exception("Invalid identification type for email");
         }
     }
 
