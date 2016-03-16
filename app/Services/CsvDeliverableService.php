@@ -7,6 +7,7 @@ use App\Repositories\ActionRepo;
 use Illuminate\Support\Facades\Event;
 use App\Services\Interfaces\IDataService; #change this
 use League\Csv\Reader;
+use Carbon\Carbon;
 
 class CsvDeliverableService {
 
@@ -91,7 +92,9 @@ class CsvDeliverableService {
 
     private function getDateTime($row) {
         if (isset($row['datetime'])) {
-            return $row['datetime'];
+            $date = trim($row['datetime']);
+            // Currently the only format, but this may need to be updated/generalized
+            return Carbon::createFromFormat('d/m/Y H:i:s', $date)->toDateTimeString();
         }
         else {
             // It's ok to return blank here
