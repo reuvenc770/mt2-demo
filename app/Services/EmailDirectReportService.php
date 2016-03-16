@@ -107,16 +107,16 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
         return $this->reportRepo->getCampaigns( $espAccountId , $date );
     }
 
+    public function splitTypes () {
+        return [ 'deliveries' , 'opens' , 'clicks' ];
+    }
+
     public function saveRecords ( &$processState ) {
         $this->dataRetrievalFailed = false;
-
-        $startTime = microtime( true );
 
         try {
             switch ( $processState[ 'recordType' ] ) {
                 case 'deliveries' :
-                    Log::info( "Saving delivery records for Email Direct Campaign " . $processState[ 'campaignId' ] );
-
                     $deliverables = $this->getDeliveryReport( $processState[ 'campaignId' ] );
 
                     foreach ( $deliverables as $key => $deliveryRecord ) {
@@ -133,8 +133,6 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                 break;
 
                 case 'opens' :
-                    Log::info( "Saving open records for Email Direct Campaign " . $processState[ 'campaignId' ] );
-
                     $opens = $this->getOpenReport( $processState[ 'campaignId' ] );
 
                     foreach ( $opens as $key => $openRecord ) {
@@ -151,8 +149,6 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                 break;
 
                 case 'clicks' :
-                    Log::info( "Saving click records for Email Direct Campaign " . $processState[ 'campaignId' ] );
-
                     $clicks = $this->getClickReport( $processState[ 'campaignId' ] );
 
                     foreach ( $clicks as $key => $clickRecord ) {
@@ -172,11 +168,6 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
             Log::error( 'Failed to retrievee deliverable records. ' . $e->getMessage() );
             $this->dataRetrievalFailed = true;
         }
-
-        $endTime = microtime( true );
-
-        Log::info( 'Executed in: ' );
-        Log::info(  $endTime - $startTime );
     }
 
     public function shouldRetry () { return $this->dataRetrievalFailed; }

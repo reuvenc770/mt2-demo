@@ -122,9 +122,10 @@ class AWeberApi extends EspBaseAPI
                         "actionDate" => $open->event_time,
                         "email" => $this->getEmailAddress($open->subscriber_link),
                     );
+
+                    $return[] = $emailOpen;
                 }
             }
-            $return[] = $emailOpen;
         }
         return $return;
     }

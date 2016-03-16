@@ -74,72 +74,42 @@ class MaroReportService extends AbstractReportService implements IDataService
         return $completeData;
     }
 
+    public function splitTypes () {
+        return [ 'opens' , 'clicks' ];
+    }
+
     public function saveRecords ( &$processState ) {
-        $openData = $this->getDeliveredRecords( 'opens' );
+        switch ( $processState[ 'recordType' ] ) {
+            case 'opens' :
+                $openData = $this->getDeliveredRecords( 'opens' );
 
-        foreach ( $openData as $key => $openner ) {
-            $this->emailRecord->recordOpen(
-                $this->emailRecord->getEmailId( $openner[ 'contact' ][ 'email' ] ) ,
-                $this->api->getId() ,
-                $openner[ 'campaign_id' ] ,
-                $openner[ 'recorded_at' ]
-            );
+                foreach ( $openData as $key => $openner ) {
+                    $this->emailRecord->recordOpen(
+                        $this->emailRecord->getEmailId( $openner[ 'contact' ][ 'email' ] ) ,
+                        $this->api->getId() ,
+                        $openner[ 'campaign_id' ] ,
+                        $openner[ 'recorded_at' ]
+                    );
+                }
+            break;
+
+            case 'clicks' :
+                $clickData = $this->getDeliveredRecords( 'clicks' );
+
+                foreach ( $clickData as $key => $clicker ) {
+                    $this->emailRecord->recordClick(
+                        $this->emailRecord->getEmailId( $clicker[ 'contact' ][ 'email' ] ) ,
+                        $this->api->getId() ,
+                        $clicker[ 'campaign_id' ] ,
+                        $clicker[ 'recorded_at' ]
+                    );
+                }
+            break;
         }
-        
-        $clickData = $this->getDeliveredRecords( 'clicks' );
-
-        foreach ( $clickData as $key => $clicker ) {
-            $this->emailRecord->recordClick(
-                $this->emailRecord->getEmailId( $clicker[ 'contact' ][ 'email' ] ) ,
-                $this->api->getId() ,
-                $clicker[ 'campaign_id' ] ,
-                $clicker[ 'recorded_at' ]
-            );
-        }
-        
-        
-        /*$data = $this->retrieveDeliveredRecords();
-
-        #Log::info( json_encode( $data ) );
-
-        foreach ( $data as $key => $value ) {
-            #Log::info( $key );
-
-        }*/
     }
 
     public function shouldRetry () {
         return false;
-    }
-
-    public function retrieveDeliveredRecords() {
-
-        $this->api->setDeliverableLookBack();
-        $outputData = array();
-
-        foreach ($this->actions as $id => $action) {
-            $dataFound = true;
-            $page = 1;
-
-            while ($dataFound) {
-                $this->api->constructDeliverableUrl($action, $page);
-                $data = $this->api->sendApiRequest();
-
-                if ( $page == 1 ) Log::info( $data->getBody() );
-
-                $data = $this->processGuzzleResult($data);
-
-                if (empty($data)) {
-                    $dataFound = false;
-                }
-                else {
-                    $outputData = array_merge($outputData, $data);
-                    $page++;
-                }
-            }       
-        }
-
-        return $outputData;
     }
 
     public function getDeliveredRecords ( $action ) {
@@ -183,10 +153,6 @@ class MaroReportService extends AbstractReportService implements IDataService
         }
 
         Event::fire(new RawReportDataWasInserted($this, $convertedDataArray));
-    }
-
-    public function insertEmailAction($data) {
-        //
     }
 
     public function mapToStandardReport($data) { 

@@ -211,8 +211,6 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         $campaigns = $this->getCampaigns( $espAccountId , $date );
         $tickets = [];
 
-        Log::info( $campaigns );
-
         $campaigns->each( function ( $campaign , $key ) use ( &$tickets , $espAccountId ) {
             $reportData = $this->createCampaignReport( $campaign->run_id );
 
@@ -230,7 +228,10 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
     public function saveRecords ( &$processState ) {
         $this->dataRetrievalFailed = false;
 
-        $recordData = $this->getCampaignReport( $processState[ 'ticket' ][ 'ticketName' ] , $processState[ 'ticket' ][ 'rowCount' ] );
+        $recordData = $this->getCampaignReport(
+            $processState[ 'ticket' ][ 'ticketName' ] ,
+            $processState[ 'ticket' ][ 'rowCount' ]
+        );
 
         if ( !is_null( $recordData ) ) {
             foreach ( $recordData as $key => $record ) {
@@ -239,7 +240,8 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                         $this->emailRecord->getEmailId( $record[ 'email' ] ) ,
                         $processState[ 'ticket' ][ 'espId' ] ,
                         $processState[ 'ticket' ][ 'campaignId' ] ,
-                        $record[ 'actionDate' ] );
+                        $record[ 'actionDate' ]
+                    );
                 } elseif ( $record[ 'action' ] === 'Click' ) {
                     $this->emailRecord->recordClick(
                         $this->emailRecord->getEmailId( $record[ 'email' ] ) ,

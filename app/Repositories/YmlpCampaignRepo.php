@@ -21,7 +21,10 @@ class YmlpCampaignRepo {
             'date' => $date
         );
         
-        return $this->model->select('sub_id')->where($whereClause)->get()[0]['sub_id'];
+        $record = $this->model->select('sub_id')->where($whereClause)->first();
+            
+        if ( !is_null( $record ) ) return $record['sub_id'];
+        else return '';
     }
 
 }

@@ -165,8 +165,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         $campaigns = $this->getCampaigns( $espAccountId , $date );
         $tickets = [];
 
-        Log::info( $campaigns );
-
         $campaigns->each( function ( $campaign , $key ) use ( &$tickets , $espAccountId ) {
             $tickets []= [
                 "ticketName" => $this->getTicketForMessageSubscriberData( $campaign->internal_id ) ,
@@ -188,8 +186,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         if ( $fileName !== false ) {
             $file = $this->getFile( $fileName );
 
-            #Log::info( $file->asXML() );
-
             $contactIterator = new SimpleXMLIterator( $file->asXML() );
             for ( $contactIterator->rewind() ; $contactIterator->valid() ; $contactIterator->next() ) {
                 $currentContact = $contactIterator->current();
@@ -205,6 +201,9 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                         $contactSent = true;
                     }
 
+                    /**
+                     * Bounce Check. If found, then this email was not deliverable
+                     */
                     if ( $currentContact->key() === 'bounce' ) {
                        $contactBounced = true;
 
@@ -260,7 +259,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                         $currentEmailId , 
                         $processState[ 'ticket' ][ 'espId' ] , 
                         $processState[ 'ticket' ][ 'campaignId' ] ,
-                        $bounceDate
+                        ''
                     );
                 }
             }

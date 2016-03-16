@@ -60,17 +60,24 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->initJobEntry();
         $reportService = APIFactory::createAPIReportService($this->apiName,$this->espAccountId);
 
+        Log::info( $this->apiName . '::' . $this->espAccountId . '::' . $this->currentFilter() . ' => ' . json_encode( $this->processState ) );
+
         switch ( $this->currentFilter() ) {
             case 'getTickets' :
                 $tickets = $reportService->getTickets( $this->espAccountId , $this->date );
-
-                Log::info( json_encode( $tickets ) );
 
                 $this->processState[ 'currentFilterIndex' ]++;
 
                 foreach ( $tickets as $key => $ticket ) {
                     $this->processState[ 'ticket' ] = $ticket;
-                    $job = ( new RetrieveDeliverableReports( $this->apiName , $this->espAccountId , $this->date , $this->tracking , $this->processState ) )->delay( 60 ); //Make Longer
+                    $job = ( new RetrieveDeliverableReports(
+                        $this->apiName ,
+                        $this->espAccountId ,
+                        $this->date ,
+                        str_random( 16 ) ,
+                        $this->processState
+                    ) )->delay( 60 ); //Make Longer
+
                     $this->dispatch( $job );
                 }
 
@@ -80,29 +87,42 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             case 'getCampaigns' :
                 $campaigns = $reportService->getCampaigns( $this->espAccountId , $this->date );
 
-                Log::info( json_encode( $campaigns ) );
-
                 $this->processState[ 'currentFilterIndex' ]++;
 
-                $campaigns->each(function($campaign, $key) {
+                $campaigns->each( function( $campaign , $key ) {
                     $campaignId = $campaign['internal_id'];
                     $this->processState[ 'campaignId' ] = $campaignId;
                     $this->processState[ 'espId' ] = $this->espAccountId;
 
-                    $job = ( new RetrieveDeliverableReports( $this->apiName, $this->espAccountId, $this->date , $this->tracking , $this->processState ) );
+                    $job = new RetrieveDeliverableReports(
+                        $this->apiName,
+                        $this->espAccountId,
+                        $this->date ,
+                        str_random( 16 ) ,
+                        $this->processState 
+                    );
+
                     $this->dispatch( $job );
                 });
                 
                 $this->changeJobEntry( JobEntry::SUCCESS );
             break;
 
-            case 'processCampaigns' :
+            case 'splitTypes' :
                 $this->processState[ 'currentFilterIndex' ]++;
 
-                foreach ( [ 'deliveries' , 'opens' , 'clicks' ] as $key => $recordType ) {
-                    $this->processState[ 'recordType' ] = $recordType;
+                $types = $reportService->splitTypes();
 
-                    $job = new RetrieveDeliverableReports( $this->apiName , $this->espAccountId, $this->date , $this->tracking , $this->processState );
+                foreach ( $types as $index => $currentType ) {
+                    $this->processState[ 'recordType' ] = $currentType;
+
+                    $job = new RetrieveDeliverableReports(
+                        $this->apiName ,
+                        $this->espAccountId ,
+                        $this->date ,
+                        str_random( 16 ) ,
+                        $this->processState
+                    );
 
                     $this->dispatch( $job );
                 }

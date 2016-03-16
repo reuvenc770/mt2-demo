@@ -112,30 +112,39 @@ class YmlpReportService extends AbstractReportService implements IDataService {
         );
     }
 
+    public function splitTypes () {
+        return [ 'opens' , 'clicks' ];
+    }
+
     public function saveRecords(&$processState) {
-        
         $campaignId = $processState['campaignId'];
 
-        $openData = $this->api->getDeliverableStat('opened', $campaignId);
+        switch ( $processState[ 'recordType' ] ) {
+            case 'opens' :
+                $openData = $this->api->getDeliverableStat('opened', $campaignId);
 
-        foreach ( $openData as $key => $opener ) {
-            $this->emailRecord->recordOpen(
-                $this->emailRecord->getEmailId($opener['Email']),
-                $this->api->getId() ,
-                $campaignId,
-                $opener['Timestamp']
-            );
-        }
-        
-        $clickData = $this->api->getDeliverableStat('clicked', $campaignId);
+                foreach ( $openData as $key => $opener ) {
+                    $this->emailRecord->recordOpen(
+                        $this->emailRecord->getEmailId($opener['Email']),
+                        $this->api->getId() ,
+                        $campaignId,
+                        $opener['Timestamp']
+                    );
+                }
+            break;
 
-        foreach ( $clickData as $key => $clicker ) {
-            $this->emailRecord->recordClick(
-                $this->emailRecord->getEmailId($clicker['Email']),
-                $this->api->getId() ,
-                $campaignId,
-                $clicker['Timestamp']
-            );
+            case 'clicks' :
+                $clickData = $this->api->getDeliverableStat('clicked', $campaignId);
+
+                foreach ( $clickData as $key => $clicker ) {
+                    $this->emailRecord->recordClick(
+                        $this->emailRecord->getEmailId($clicker['Email']),
+                        $this->api->getId() ,
+                        $campaignId,
+                        $clicker['Timestamp']
+                    );
+                }
+            break;
         }
     }
 

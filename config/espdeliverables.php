@@ -15,26 +15,28 @@ return [
     ] ,
     "Maro" => [
         "filters" => [
+            'splitTypes' ,
             'saveRecords'
         ]
     ] ,
     "EmailDirect" => [
         "filters" => [
             'getCampaigns' ,
-            'processCampaigns' ,
+            'splitTypes' ,
             'saveRecords'
         ]
     ],
     "Ymlp" => [
         "filters" => [
             'getCampaigns',
+            'splitTypes' ,
             'saveRecords'
         ]
     ] ,
     "AWeber" => [
         "filters" => [
             'getCampaigns' ,
-            'processCampaigns' ,
+            'splitTypes' ,
             'saveRecords'
         ]
     ]

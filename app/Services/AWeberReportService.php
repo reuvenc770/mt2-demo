@@ -36,7 +36,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
         $campaignData = array();
         $campaigns = $this->api->getCampaigns(20);
           foreach ($campaigns as $campaign) {
-                Log::info( 'Processing Campaign ' . $campaign->id );
+                Log::info( 'Processing Aweber Campaign ' . $campaign->id );
 
               $clickEmail = $this->api->getStateValue($campaign->id, "unique_clicks");
               $openEmail = $this->api->getStateValue($campaign->id, "unique_opens");
@@ -117,13 +117,15 @@ class AWeberReportService extends AbstractReportService implements IDataService
     }
 
     public function getCampaigns ( $espAccountId , $date ) {
-        return $this->reportRepo->getCampaigns( $espAccountId , $date );
+        return $this->reportRepo->getCampaigns( $espAccountId , $date )->splice( 0 , 20 );
+    }
+
+    public function splitTypes () {
+        return [ 'opens' , 'clicks' ];
     }
 
     public function saveRecords ( &$processState ) {
         $this->dataRetrievalFailed = false;
-
-        $startTime = microtime( true );
 
         switch ( $processState[ 'recordType' ] ) {
             case 'opens' :
@@ -158,11 +160,6 @@ class AWeberReportService extends AbstractReportService implements IDataService
                 }
             break;
         }
-
-        $endTime = microtime( true );
-
-        Log::info( 'Executed in: ' );
-        Log::info(  $endTime - $startTime );
     }
 
     public function shouldRetry () { return $this->dataRetrievalFailed; }
