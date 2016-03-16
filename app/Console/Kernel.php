@@ -20,6 +20,7 @@ class Kernel extends ConsoleKernel
         Commands\GrabCsvEspReports::class,
         Commands\GrabTrackingApiData::class,
         Commands\UpdatePermissionsFromRoutes::class,
+        Commands\GrabCsvDeliverables::class,
         Commands\GrabDeliverableReports::class,
     ];
 

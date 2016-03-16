@@ -27,7 +27,7 @@ class EspAccount extends Model
     }
 
     public function emailDirectReport(){
-    return $this->hasMany('App\Models\EmailDirectReport');
+        return $this->hasMany('App\Models\EmailDirectReport');
     }
 
     public function maroReport() {
@@ -56,6 +56,9 @@ class EspAccount extends Model
         return $this->attributes['key_2'];
     }
 
+    public function deliverableMapping() {
+        return $this->hasOne('App\Model\DeliverableCsvMapping');
+    }
 
     protected static function boot() {
         parent::boot();

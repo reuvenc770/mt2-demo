@@ -11,4 +11,8 @@ class Esp extends Model
     {
         return $this->hasMany('App\Models\EspAccount');
     }
+
+    public function deliverableCsvMapping() {
+        return $this->hasOne('App\Models\DeliverableCsvMapping');
+    }
 }

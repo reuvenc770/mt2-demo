@@ -112,7 +112,7 @@ class EspApiAccountService
     /**
      *
      */
-    public function mapCsvToRawStatsArray($espAccountId,$filePath){
+    public function mapCsvToRawStatsArray($espAccountId,$filePath) {
         $returnArray = array();
         $mapping = $this->grabCsvMapping($espAccountId);
         $reader = Reader::createFromPath(storage_path().'/app/'.$filePath);
@@ -124,6 +124,7 @@ class EspApiAccountService
         }
         return $returnArray;
     }
+
 
     /**
      * @param array $newAccount The collection of account details to save.

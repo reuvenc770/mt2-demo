@@ -14,6 +14,10 @@ use App\Services\API\BaseEspApi;
 use App\Repositories\StandardTrackingReportRepo;
 use App\Repositories\StandardApiReportRepo;
 use App\Services\StandardReportService;
+use App\Repositories\EmailRepo;
+use App\Repositories\EmailActionsRepo;
+use App\Repositories\ActionRepo;
+use App\Models\ActionType;
 
 use App\Models\Email;
 use App\Models\EmailAction;
@@ -62,6 +66,22 @@ class APIFactory
         } else {
             throw new \Exception("That Report Service does not exist");
         }
+    }
+
+    public static function createCsvDeliverableService($espId, $espName) {
+
+        $emailModel = new \App\Models\Email();
+        $actionsModel = new \App\Models\EmailAction();
+
+        $actionTableRepo = new ActionRepo(new ActionType());
+        $emailActionRepo = new EmailActionsRepo($actionsModel);
+        $emailRepo = new EmailRepo($emailModel);
+
+        $map = new \App\Models\DeliverableCsvMapping();
+        $mappingRepo = new \App\Repositories\DeliverableMappingRepo($map);
+        $mapping = $mappingRepo->getMapping($espId);
+
+        return new \App\Services\CsvDeliverableService($emailActionRepo, $emailRepo, $actionTableRepo, $mapping);
     }
 
     public static function createTrackingApiService($source, $startDate, $endDate) 
