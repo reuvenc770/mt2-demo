@@ -11,4 +11,11 @@ class EmailCampaignStatistic extends Model {
   public function email() {
     return $this->belongsTo('App\Model\Email');
   }
+
+  public function campaign() {
+    // Need to create some notion of a deploys/campaign table
+    // return $this->belongsTo('App\Model\Campaign');
+    // current stand-in
+    return 1;
+  }
 }

@@ -20,4 +20,9 @@ class EmailActionsRepo {
     public function insertAction($data) {
         $this->actions->insert($data);
     }
+
+    public function pullActionsInLast($lookback) {
+        // any way to make this unbuffered or chunk, perhaps?
+        return $this->actions->where('created_at', '>=', "CURDATE() - INTERVAL $lookback DAY");
+    }
 }
