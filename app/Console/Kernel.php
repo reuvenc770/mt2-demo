@@ -41,6 +41,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:downloadApi Maro 1')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Aweber 1')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Ymlp 1')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi GetResponse 1')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadTrackingData Cake 1')->hourly()->sendOutputTo($filePath);
 
         /**

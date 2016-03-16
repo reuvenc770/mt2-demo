@@ -14,6 +14,7 @@ use App\Events\RawReportDataWasInserted;
 use App\Services\Interfaces\IDataService;
 use App\Services\EmailRecordService;
 use Log;
+use Illuminate\Queue\InteractsWithQueue;
 
 /**
  * Class BlueHornetReportService
@@ -21,6 +22,8 @@ use Log;
  */
 class MaroReportService extends AbstractReportService implements IDataService
 {
+    use InteractsWithQueue;
+
     protected $actions = ['opens', 'clicks', 'bounces', 'complaints', 'unsubscribes'];
 
     public function __construct(ReportRepo $reportRepo, MaroApi $api , EmailRecordService $emailRecord ) {
@@ -109,7 +112,7 @@ class MaroReportService extends AbstractReportService implements IDataService
     }
 
     public function shouldRetry () {
-        return false;
+        return false; #releases if guzzle result is not HTTP 200
     }
 
     public function getDeliveredRecords ( $action ) {
@@ -138,6 +141,8 @@ class MaroReportService extends AbstractReportService implements IDataService
     }
 
     protected function processGuzzleResult($data) {
+        if ( $data->getStatusCode() != 200 ) $this->release( 60 );
+
         $data = $data->getBody()->getContents();
         return json_decode($data, true);
     }

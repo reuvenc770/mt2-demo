@@ -114,59 +114,84 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
     public function saveRecords ( &$processState ) {
         $this->dataRetrievalFailed = false;
 
-        try {
-            switch ( $processState[ 'recordType' ] ) {
-                case 'deliveries' :
+        switch ( $processState[ 'recordType' ] ) {
+            case 'deliveries' :
+                try {
                     $deliverables = $this->getDeliveryReport( $processState[ 'campaignId' ] );
+                } catch ( \Exception $e ) {
+                    Log::error( 'Failed to retrievee deliverable records. ' . $e->getMessage() );
 
-                    foreach ( $deliverables as $key => $deliveryRecord ) {
-                        $currentEmail = $deliveryRecord[ 'EmailAddress' ];
-                        $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
+                    $this->processState[ 'delay' ] = 180;
 
-                        $this->emailRecord->recordDeliverable(
-                            $currentEmailId ,
-                            $processState[ 'espId' ] ,
-                            $processState[ 'campaignId' ] ,
-                            $deliveryRecord[ 'ActionDate' ]
-                        );
-                    }
-                break;
+                    $this->dataRetrievalFailed = true;
 
-                case 'opens' :
+                    return;
+                }
+
+                foreach ( $deliverables as $key => $deliveryRecord ) {
+                    $currentEmail = $deliveryRecord[ 'EmailAddress' ];
+                    $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
+
+                    $this->emailRecord->recordDeliverable(
+                        $currentEmailId ,
+                        $processState[ 'espId' ] ,
+                        $processState[ 'campaignId' ] ,
+                        $deliveryRecord[ 'ActionDate' ]
+                    );
+                }
+            break;
+
+            case 'opens' :
+                try {
                     $opens = $this->getOpenReport( $processState[ 'campaignId' ] );
+                } catch ( \Exception $e ) {
+                    Log::error( 'Failed to retrievee open records. ' . $e->getMessage() );
 
-                    foreach ( $opens as $key => $openRecord ) {
-                        $currentEmail = $openRecord[ 'EmailAddress' ];
-                        $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
+                    $this->processState[ 'delay' ] = 180;
 
-                        $this->emailRecord->recordOpen(
-                            $currentEmailId ,
-                            $processState[ 'espId' ] ,
-                            $processState[ 'campaignId' ] ,
-                            $openRecord[ 'ActionDate' ]
-                        );
-                    }
-                break;
+                    $this->dataRetrievalFailed = true;
 
-                case 'clicks' :
+                    return;
+                }
+
+                foreach ( $opens as $key => $openRecord ) {
+                    $currentEmail = $openRecord[ 'EmailAddress' ];
+                    $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
+
+                    $this->emailRecord->recordOpen(
+                        $currentEmailId ,
+                        $processState[ 'espId' ] ,
+                        $processState[ 'campaignId' ] ,
+                        $openRecord[ 'ActionDate' ]
+                    );
+                }
+            break;
+
+            case 'clicks' :
+                try {
                     $clicks = $this->getClickReport( $processState[ 'campaignId' ] );
+                } catch ( \Exception $e ) {
+                    Log::error( 'Failed to retrievee click records. ' . $e->getMessage() );
 
-                    foreach ( $clicks as $key => $clickRecord ) {
-                        $currentEmail = $clickRecord[ 'EmailAddress' ];
-                        $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
+                    $this->processState[ 'delay' ] = 180;
 
-                        $this->emailRecord->recordClick(
-                            $currentEmailId ,
-                            $processState[ 'espId' ] ,
-                            $processState[ 'campaignId' ] ,
-                            $clickRecord[ 'ActionDate' ]
-                        );
-                    }
-                break;
-            }
-        } catch ( \Exception $e ) {
-            Log::error( 'Failed to retrievee deliverable records. ' . $e->getMessage() );
-            $this->dataRetrievalFailed = true;
+                    $this->dataRetrievalFailed = true;
+
+                    return;
+                }
+
+                foreach ( $clicks as $key => $clickRecord ) {
+                    $currentEmail = $clickRecord[ 'EmailAddress' ];
+                    $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
+
+                    $this->emailRecord->recordClick(
+                        $currentEmailId ,
+                        $processState[ 'espId' ] ,
+                        $processState[ 'campaignId' ] ,
+                        $clickRecord[ 'ActionDate' ]
+                    );
+                }
+            break;
         }
     }
 

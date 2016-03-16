@@ -27,6 +27,7 @@ class YmlpReportService extends AbstractReportService implements IDataService {
     protected $actions = ['opens', 'clicks', 'bounces', 'complaints', 'unsubscribes'];
     protected $campaignRepo;
     protected $espAccountId;
+    protected $dataRetrievalFailed = false;
 
     public function __construct(ReportRepo $reportRepo, YmlpApi $api, EmailRecordService $emailRecord ) {
         parent::__construct($reportRepo, $api, $emailRecord);
@@ -121,7 +122,17 @@ class YmlpReportService extends AbstractReportService implements IDataService {
 
         switch ( $processState[ 'recordType' ] ) {
             case 'opens' :
-                $openData = $this->api->getDeliverableStat('opened', $campaignId);
+                try {
+                    $openData = $this->api->getDeliverableStat('opened', $campaignId);
+                } catch ( \Exception $e ) {
+                    Log::error( 'Failed to retrieve open report. ' . $e->getMessage() );
+
+                    $this->processState[ 'delay' ] = 180;
+
+                    $this->dataRetrievalFailed = true;
+
+                    return;
+                }
 
                 foreach ( $openData as $key => $opener ) {
                     $this->emailRecord->recordOpen(
@@ -134,7 +145,17 @@ class YmlpReportService extends AbstractReportService implements IDataService {
             break;
 
             case 'clicks' :
-                $clickData = $this->api->getDeliverableStat('clicked', $campaignId);
+                try {
+                    $clickData = $this->api->getDeliverableStat('clicked', $campaignId);
+                } catch ( \Exception $e ) {
+                    Log::error( 'Failed to retrieve click report. ' . $e->getMessage() );
+
+                    $this->processState[ 'delay' ] = 180;
+
+                    $this->dataRetrievalFailed = true;
+
+                    return;
+                }
 
                 foreach ( $clickData as $key => $clicker ) {
                     $this->emailRecord->recordClick(
@@ -149,7 +170,7 @@ class YmlpReportService extends AbstractReportService implements IDataService {
     }
 
     public function shouldRetry () {
-        return false;
+        return $this->dataRetrievalFailed;
     }
 
     public function getDeliveredRecords ( $action, $newsletterId ) {

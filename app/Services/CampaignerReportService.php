@@ -259,6 +259,8 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                 }
             }
         } else {
+            $this->processState[ 'delay' ] = 180;
+
             $this->dataRetrievalFailed = true;
         }
     }

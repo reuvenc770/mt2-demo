@@ -129,7 +129,17 @@ class AWeberReportService extends AbstractReportService implements IDataService
 
         switch ( $processState[ 'recordType' ] ) {
             case 'opens' :
-                $opens = $this->api->getOpenReport( $processState[ 'campaignId' ] );
+                try {
+                    $opens = $this->api->getOpenReport( $processState[ 'campaignId' ] );
+                } catch ( \Exception $e ) {
+                    Log::error( 'Failed to retrieve open report. ' . $e->getMessage() );
+
+                    $this->processState[ 'delay' ] = 180;
+
+                    $this->dataRetrievalFailed = true;
+
+                    return;
+                }
 
                 foreach ( $opens as $key => $openRecord ) {
                     $currentEmail = $openRecord[ 'email' ];
@@ -145,7 +155,17 @@ class AWeberReportService extends AbstractReportService implements IDataService
             break;
 
             case 'clicks' :
-                $clicks = $this->api->getClickReport( $processState[ 'campaignId' ] );
+                try {
+                    $clicks = $this->api->getClickReport( $processState[ 'campaignId' ] );
+                } catch ( \Exception $e ) {
+                    Log::error( 'Failed to retrieve click report. ' . $e->getMessage() );
+
+                    $this->processState[ 'delay' ] = 180;
+
+                    $this->dataRetrievalFailed = true;
+
+                    return;
+                }
 
                 foreach ( $clicks as $key => $clickRecord ) {
                     $currentEmail = $clickRecord[ 'email' ];

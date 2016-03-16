@@ -134,7 +134,11 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
                 $reportService->saveRecords( $this->processState );
 
                 if ( $reportService->shouldRetry() ) {
-                    $this->release( 60 ); //Make Longer
+                    if ( isset( $this->processState[ 'delay' ] ) ) {
+                        $this->release( $this->processState[ 'delay' ] );
+                    } else {
+                        $this->release( 60 );
+                    }
                 } else {
                     $this->changeJobEntry( JobEntry::SUCCESS );
                 }
