@@ -44,6 +44,13 @@ class RetrieveDeliverableCsvReports extends Job implements ShouldQueue {
     $reportArray = $reportService->setCsvToFormat($this->accountId, $this->action, $this->filePath);
     $reportService->insertDeliverableCsvActions($reportArray);
     JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking, 1); // Do we really need attempts?
+
+    /* 
+    move/delete here - after the job so the move doesn't cause problems/duplication
+    looks like:
+    $s3 = Storage::disk('s3');
+    $s3->put('/archived-deliverable-csvs/' . $this->filePath, fopen($this->filePath))
+    */
   }
 
   public function failed() {
