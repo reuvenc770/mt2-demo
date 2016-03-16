@@ -24,6 +24,7 @@ use App\Events\RawReportDataWasInserted;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use App\Services\Interfaces\IDataService;
+use App\Services\EmailRecordService;
 
 
 /**
@@ -43,9 +44,9 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
      * @param ReportRepo $reportRepo
      * @param $accountNumber
      */
-    public function __construct(ReportRepo $reportRepo, CampaignerApi $api)
+    public function __construct(ReportRepo $reportRepo, CampaignerApi $api , EmailRecordService $emailRecord )
     {
-        parent::__construct($reportRepo, $api);
+        parent::__construct($reportRepo, $api , $emailRecord);
     }
 
     /**
@@ -205,6 +206,66 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                 "ticketId" => $results->getReportTicketId(),
         );
     }
+
+    public function getTickets ( $espAccountId , $date ) {
+        $campaigns = $this->getCampaigns( $espAccountId , $date );
+        $tickets = [];
+
+        $campaigns->each( function ( $campaign , $key ) use ( &$tickets , $espAccountId ) {
+            $reportData = $this->createCampaignReport( $campaign->run_id );
+
+            $tickets []= [
+                "ticketName" => $reportData[ 'ticketId' ] ,
+                "rowCount" => $reportData[ 'count' ] ,
+                "campaignId" => $campaign->internal_id ,
+                "espId" => $espAccountId
+            ];
+        } );
+
+        return $tickets;
+    }
+
+    public function saveRecords ( &$processState ) {
+        $this->dataRetrievalFailed = false;
+
+        $recordData = $this->getCampaignReport(
+            $processState[ 'ticket' ][ 'ticketName' ] ,
+            $processState[ 'ticket' ][ 'rowCount' ]
+        );
+
+        if ( !is_null( $recordData ) ) {
+            foreach ( $recordData as $key => $record ) {
+                if ( $record[ 'action' ] === 'Open' ) {
+                    $this->emailRecord->recordOpen(
+                        $this->emailRecord->getEmailId( $record[ 'email' ] ) ,
+                        $processState[ 'ticket' ][ 'espId' ] ,
+                        $processState[ 'ticket' ][ 'campaignId' ] ,
+                        $record[ 'actionDate' ]
+                    );
+                } elseif ( $record[ 'action' ] === 'Click' ) {
+                    $this->emailRecord->recordClick(
+                        $this->emailRecord->getEmailId( $record[ 'email' ] ) ,
+                        $processState[ 'ticket' ][ 'espId' ] ,
+                        $processState[ 'ticket' ][ 'campaignId' ] ,
+                        $record[ 'actionDate' ]
+                    );
+                } elseif ( $record[ 'action' ] === 'Delivered' ) {
+                    $this->emailRecord->recordDeliverable(
+                        $this->emailRecord->getEmailId( $record[ 'email' ] ) ,
+                        $processState[ 'ticket' ][ 'espId' ] ,
+                        $processState[ 'ticket' ][ 'campaignId' ] ,
+                        $record[ 'actionDate' ]
+                    );
+                }
+            }
+        } else {
+            $this->processState[ 'delay' ] = 180;
+
+            $this->dataRetrievalFailed = true;
+        }
+    }
+
+    public function shouldRetry () { return $this->dataRetrievalFailed; }
 
     public function getCampaignReport($ticketId, $count){
         $manager = new ContactManagement();

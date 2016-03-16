@@ -13,19 +13,31 @@ use App\Services\API\AWeberApi;
 use App\Services\Interfaces\IDataService;
 use Event;
 use App\Events\RawReportDataWasInserted;
+use App\Services\EmailRecordService;
+use Log;
+
 class AWeberReportService extends AbstractReportService implements IDataService
 {
-    public function __construct(ReportRepo $reportRepo, AWeberApi $api)
+    protected $dataRetrievalFailed = false;
+
+    public function __construct(ReportRepo $reportRepo, AWeberApi $api , EmailRecordService $emailRecord )
     {
-        parent::__construct($reportRepo, $api);
+        parent::__construct($reportRepo, $api , $emailRecord );
     }
+
     //we may have to use date to hold offset, and build something that queries per page...
     public function retrieveApiStats($date)
     {
+        $startTime = microtime( true );
+
+        Log::info( 'Retrieving API Campaign Stats.......' );
+
         $date = null; //unfortunately date does not matter here.
         $campaignData = array();
         $campaigns = $this->api->getCampaigns(20);
           foreach ($campaigns as $campaign) {
+                Log::info( 'Processing Aweber Campaign ' . $campaign->id );
+
               $clickEmail = $this->api->getStateValue($campaign->id, "unique_clicks");
               $openEmail = $this->api->getStateValue($campaign->id, "unique_opens");
               $row = array(
@@ -43,6 +55,11 @@ class AWeberReportService extends AbstractReportService implements IDataService
               );
               $campaignData[] = $row;
           }
+
+        $endTime = microtime( true );
+
+        Log::info( 'Executed in: ' );
+        Log::info(  $endTime - $startTime );
 
         return $campaignData;
     }
@@ -98,4 +115,72 @@ class AWeberReportService extends AbstractReportService implements IDataService
             'e_clicks_unique' => $data[ 'unique_clicks' ],
         );
     }
+
+    public function getCampaigns ( $espAccountId , $date ) {
+        return $this->reportRepo->getCampaigns( $espAccountId , $date )->splice( 0 , 20 );
+    }
+
+    public function splitTypes () {
+        return [ 'opens' , 'clicks' ];
+    }
+
+    public function saveRecords ( &$processState ) {
+        $this->dataRetrievalFailed = false;
+
+        switch ( $processState[ 'recordType' ] ) {
+            case 'opens' :
+                try {
+                    $opens = $this->api->getOpenReport( $processState[ 'campaignId' ] );
+                } catch ( \Exception $e ) {
+                    Log::error( 'Failed to retrieve open report. ' . $e->getMessage() );
+
+                    $this->processState[ 'delay' ] = 180;
+
+                    $this->dataRetrievalFailed = true;
+
+                    return;
+                }
+
+                foreach ( $opens as $key => $openRecord ) {
+                    $currentEmail = $openRecord[ 'email' ];
+                    $currrentEmailId = $this->emailRecord->getEmailId( $currentEmail );
+
+                    $this->emailRecord->recordOpen(
+                        $currentEmailId , 
+                        $processState[ 'espId' ] ,
+                        $processState[ 'campaignId' ] ,
+                        $openRecord[ 'actionDate' ]
+                    );
+                }
+            break;
+
+            case 'clicks' :
+                try {
+                    $clicks = $this->api->getClickReport( $processState[ 'campaignId' ] );
+                } catch ( \Exception $e ) {
+                    Log::error( 'Failed to retrieve click report. ' . $e->getMessage() );
+
+                    $this->processState[ 'delay' ] = 180;
+
+                    $this->dataRetrievalFailed = true;
+
+                    return;
+                }
+
+                foreach ( $clicks as $key => $clickRecord ) {
+                    $currentEmail = $clickRecord[ 'email' ];
+                    $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
+
+                    $this->emailRecord->recordClick(
+                        $currentEmailId ,
+                        $processState[ 'espId' ] ,
+                        $processState[ 'campaignId' ] ,
+                        $clickRecord[ 'actionDate' ]
+                    );
+                }
+            break;
+        }
+    }
+
+    public function shouldRetry () { return $this->dataRetrievalFailed; }
 }
