@@ -16,17 +16,17 @@ class RetrieveDeliverableCsvReports extends Job implements ShouldQueue {
   use InteractsWithQueue, SerializesModels;
   const JOB_NAME = "RetrieveDeliverableCsvReports";
 
+  private $espId;
+  private $filePath;
+  private $accountId;
+  private $tracking;
+  private $action;
+  private $espName;
+  private $maxAttempts;
+  private $actionTableRepo;
 
-
-  protected $filePath;
-  protected $accountId;
-  protected $tracking;
-  protected $action;
-  protected $espName;
-  protected $maxAttempts;
-  protected $actionTableRepo;
-
-  public function __construct($espName, $accountId, $action, $filePath, $tracking) {
+  public function __construct($espId, $espName, $accountId, $action, $filePath, $tracking) {
+    $this->espId = $espId;
     $this->accountId = $accountId;
     $this->filePath = $filePath;
     $this->tracking = $tracking;
@@ -40,7 +40,7 @@ class RetrieveDeliverableCsvReports extends Job implements ShouldQueue {
   public function handle() {
     JobTracking::startEspJob(self::JOB_NAME, $this->espName, $this->accountId, $this->tracking);
 
-    $reportService = APIFactory::createCsvDeliverableService($this->espName);
+    $reportService = APIFactory::createCsvDeliverableService($this->espId, $this->espName);
     $reportArray = $reportService->setCsvToFormat($this->accountId, $this->action, $this->filePath);
     $reportService->insertDeliverableCsvActions($reportArray);
     JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking, 1); // Do we really need attempts?

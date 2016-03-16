@@ -49,6 +49,7 @@ class GrabCsvDeliverables extends Command {
         foreach ($espAccounts as $account) {
             $accName = $account->account_name;
             $accountId = $account->id;
+            $espId = $account->esp_id;
 
             foreach ($this->actions as $id => $action) {
                 $location = "./$accName/$action";
@@ -59,7 +60,7 @@ class GrabCsvDeliverables extends Command {
                 foreach ($files as $file){
                     $fileInfo = pathinfo($file);
                     $filePath = storage_path() . '/app/' . $file;
-                    $this->dispatch(new RetrieveDeliverableCsvReports($espName, $accountId, $action, $filePath, str_random(16)));
+                    $this->dispatch(new RetrieveDeliverableCsvReports($espId, $espName, $accountId, $action, $filePath, str_random(16)));
                 }
             }
         }

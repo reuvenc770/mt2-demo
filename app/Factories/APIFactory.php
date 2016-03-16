@@ -48,27 +48,20 @@ class APIFactory
         }
     }
 
-    public static function createCsvDeliverableService($espName) {
+    public static function createCsvDeliverableService($espId, $espName) {
 
-        $csvDeliverableServiceName = "App\\Services\\{$espName}CsvDeliverableService";
-        if (class_exists($csvDeliverableServiceName)) {
-            $emailModel = new \App\Models\Email();
-            $actionsModel = new \App\Models\EmailAction();
+        $emailModel = new \App\Models\Email();
+        $actionsModel = new \App\Models\EmailAction();
 
-            $actionTableRepo = new ActionRepo(new ActionType());
-            $emailActionRepo = new EmailActionsRepo($actionsModel);
-            $emailRepo = new EmailRepo($emailModel);
+        $actionTableRepo = new ActionRepo(new ActionType());
+        $emailActionRepo = new EmailActionsRepo($actionsModel);
+        $emailRepo = new EmailRepo($emailModel);
 
-            $map = new \App\Models\DeliverableCsvMapping();
-            $mappingRepo = new \App\Repositories\DeliverableMappingRepo($map);
+        $map = new \App\Models\DeliverableCsvMapping();
+        $mappingRepo = new \App\Repositories\DeliverableMappingRepo($map);
+        $mapping = $mappingRepo->getMapping($espId);
 
-            $mapping = $mappingRepo->getMapping($espId);
-
-            return new $csvDeliverableServiceName($emailActionRepo, $emailRepo, $actionTableRepo, $mapping);
-        }
-        else {
-            throw new \Exception("That csv deliverable service does not exist.");
-        }
+        return new \App\Services\CsvDeliverableService($emailActionRepo, $emailRepo, $actionTableRepo, $mapping);
     }
 
     public static function createTrackingApiService($source, $startDate, $endDate) 
