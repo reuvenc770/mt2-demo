@@ -12,7 +12,7 @@ class AWeberReportTable extends Migration
      */
     public function up()
     {
-        Schema::connection('reporting_data')->create('aweber_reports', function (Blueprint $table) {
+        Schema::connection('reporting_data')->create('a_weber_reports', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('esp_account_id')->unsigned();
             $table->string('subject', 100)->nullable();
@@ -30,7 +30,7 @@ class AWeberReportTable extends Migration
 
         });
 
-        Schema::connection("reporting_data")->table('aweber_reports', function($table) {
+        Schema::connection("reporting_data")->table('a_weber_reports', function($table) {
             $tableName = env('DB_DATABASE','homestead');
             $table->foreign('esp_account_id')->references('id')->on("{$tableName}.esp_accounts");
         });

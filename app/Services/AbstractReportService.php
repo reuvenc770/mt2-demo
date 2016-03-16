@@ -6,15 +6,18 @@ use App\Repositories\ReportRepo;
 use Illuminate\Support\Facades\Event;
 use App\Services\API\EspBaseApi;
 use App\Services\Interfaces\IDataService;
+use App\Services\EmailRecordService;
 
 abstract class AbstractReportService implements IDataService  {
   
   protected $reportRepo;
   protected $api;
+  protected $emailRecord;
 
-  public function __construct(ReportRepo $reportRepo, EspBaseApi $api) {
+  public function __construct(ReportRepo $reportRepo, EspBaseApi $api , EmailRecordService $emailRecord ) {
     $this->reportRepo = $reportRepo;
     $this->api = $api;
+    $this->emailRecord = $emailRecord;
   }
 
   abstract public function retrieveApiStats($data);
@@ -40,6 +43,14 @@ abstract class AbstractReportService implements IDataService  {
         $this->reportRepo->insertStats($accountName, $report);
       } catch (\Exception $e){
         throw new \Exception($e->getMessage());
+      }
+  }
+
+  public function getCampaigns ( $accountName , $date ) {
+      try {
+        return $this->reportRepo->getCampaigns( $accountName , $date );
+      } catch ( \Exception $e ) {
+        throw new \Exception( $e->getMessage() );
       }
   }
 
