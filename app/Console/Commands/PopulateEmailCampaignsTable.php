@@ -5,10 +5,11 @@ namespace App\Console\Commands;
 
 use App\Repositories\EspApiAccountRepo;
 use Carbon\Carbon;
-use App\Jobs\RetrieveApiReports;
+use App\Jobs\PopulateEmailCampaignStats;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-class GrabApiEspReports extends Command {
+
+class PopulateEmailCampaignsTable extends Command {
     use DispatchesJobs;
 
     protected $signature = 'reports:populateStats {lookBack?}';
@@ -25,7 +26,7 @@ class GrabApiEspReports extends Command {
         $lookBack = $this->argument('lookBack') ? $this->argument('lookBack') 
             : env('LOOKBACK',2);
 
-        $this->dispatch(new PopulateEmailCampaignStats($lookback, str_random(16)));
+        $this->dispatch(new PopulateEmailCampaignStats($lookBack, str_random(16)));
 
     }
 }

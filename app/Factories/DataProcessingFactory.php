@@ -26,9 +26,9 @@ class DataProcessingFactory {
                 $actionTypeModel = new ActionType();
                 $actionTypeRepo = new ActionRepo($actionTypeModel);
                 $actionModel = new EmailAction();
-                $actionRepo = new EmailActionsRepo($actionModel);
+                $actionsRepo = new EmailActionsRepo($actionModel);
                 $statsModel = new EmailCampaignStatistic();
-                $statsRepo = new EmailCampaignStatisticRepo($model);
+                $statsRepo = new EmailCampaignStatisticRepo($statsModel);
 
                 $actionMap = $actionTypeRepo->getMap();
 
