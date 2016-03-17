@@ -57,6 +57,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
      */
     public function handle()
     {
+        Log::info("Job Tries at start {$this->attempts()}");
         $this->initJobEntry();
         $reportService = APIFactory::createAPIReportService($this->apiName,$this->espAccountId);
 
