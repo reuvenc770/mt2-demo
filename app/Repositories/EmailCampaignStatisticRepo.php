@@ -4,7 +4,7 @@ namespace App\Repositories;
 use App\Models\EmailCampaignStatistic;
 use DB;
 
-class EmailCampaignStatistic {
+class EmailCampaignStatisticRepo {
     protected $model;
 
     public function __construct(EmailCampaignStatistic $model){
@@ -12,35 +12,37 @@ class EmailCampaignStatistic {
     }
 
     public function insertOrUpdate($row, $actionType) {
-        /*
-            1. Get action type.
-            2. Find if row exists:
-                a. If it does not, insert and set appropriate rows
-                b. else: update appropriate rows
-        */
+
+        // Currently need to insert/update. Later can just update.
+        // the somewhat complicated update scheme likely requires a raw query
+
         switch ($actionType) {
-            // NOW, ARE LISTS DUPLICATES?
+            
             case "opener":
                 DB::connection('reporting_data')->statement(
-                    "INSERT INTO email_campaign_statistic 
+                    "INSERT INTO email_campaign_statistics 
                     (email_id, campaign_id, last_status, esp_first_open_datetime,
                     esp_last_open_datetime, esp_total_opens, created_at,
-                    updated_at) VALUES (:email_id, :campaign_id, 'opener', :dt,
-                    :dt, 1, NOW(), NOW()) 
+                    updated_at) VALUES (:email_id, :campaign_id, :action1, :dt1,
+                    :dt1, 1, NOW(), NOW()) 
 
                     ON DUPLICATE KEY UPDATE
                         email_id=email_id,
                         campaign_id=campaign_id,
-                        last_status = 'opener',
+                        last_status = :action2,
                         esp_first_open_datetime=esp_first_open_datetime,
-                        esp_last_open_datetime = :dt,
+                        esp_last_open_datetime = :dt3,
                         esp_total_opens = esp_total_opens + 1,
                         created_at=created_at,
                         updated_at = NOW()",
                     array(
-                        'email_id' => $row['email_id'],
-                        'campaign_id' => $row['campaign_id'],
-                        'dt' => $row['datetime']
+                        ':email_id' => $row['email_id'],
+                        ':campaign_id' => $row['campaign_id'],
+                        ':dt1' => $row['datetime'],
+                        ':dt2' => $row['datetime'],
+                        ':dt3' => $row['datetime'],
+                        ':action1' => $actionType,
+                        ':action2' => $actionType
                     )
                 );
                 break;
@@ -51,34 +53,63 @@ class EmailCampaignStatistic {
                     Danny Espaillat: "We should treat the opener and
                     clicker files as exclusing [sic]"
                 
-                    Thus, for clickers, set 
+                    Thus, for clickers, increment opens as well
                 */
-
                 DB::connection('reporting_data')->statement(
-                    "INSERT INTO email_campaign_statistic 
+                    "INSERT INTO email_campaign_statistics 
                     (email_id, campaign_id, last_status, esp_first_open_datetime,
-                    esp_last_open_datetime, esp_total_opens, created_at,
-                    updated_at) VALUES (:email_id, :campaign_id, 'clicker', :dt,
-                    :dt, 1, NOW(), NOW()) 
+                    esp_last_open_datetime, esp_total_opens, esp_first_click_datetime, 
+                    esp_last_click_datetime, esp_total_clicks, created_at,
+                    updated_at) VALUES (:email_id, :campaign_id, :action1, :dt1,
+                    :dt2, 1, :dt3, :dt4, 1, NOW(), NOW()) 
 
                     ON DUPLICATE KEY UPDATE
                         email_id=email_id,
                         campaign_id=campaign_id,
-                        last_status = 'clicker',
+                        last_status = :action2,
                         esp_first_open_datetime=esp_first_open_datetime,
-                        esp_last_open_datetime = :dt,
+                        esp_last_open_datetime = :dt5,
                         esp_total_opens = esp_total_opens + 1,
+                        esp_first_click_datetime=esp_first_click_datetime,
+                        esp_last_click_datetime = :dt6,
+                        esp_total_clicks = esp_total_clicks + 1,
                         created_at=created_at,
                         updated_at = NOW()",
                     array(
-                        'email_id' => $row['email_id'],
-                        'campaign_id' => $row['campaign_id'],
-                        'dt' => $row['datetime']
+                        ':email_id' => $row['email_id'],
+                        ':campaign_id' => $row['campaign_id'],
+                        ':dt1' => $row['datetime'],
+                        ':dt2' => $row['datetime'],
+                        ':dt3' => $row['datetime'],
+                        ':dt4' => $row['datetime'],
+                        ':dt5' => $row['datetime'],
+                        ':dt6' => $row['datetime'],
+                        ':action1' => $actionType,
+                        ':action2' => $actionType
                     )
                 );
                 break;
 
-            case
+            case "deliverable":
+                DB::connection('reporting_data')->statement(
+                    "INSERT INTO email_campaign_statistics 
+                    (email_id, campaign_id, last_status, created_at,
+                    updated_at) VALUES (:email_id, :campaign_id, :action1, NOW(), NOW()) 
+
+                    ON DUPLICATE KEY UPDATE
+                        email_id=email_id,
+                        campaign_id=campaign_id,
+                        last_status = :action2,
+                        created_at=created_at,
+                        updated_at = NOW()",
+                    array(
+                        ':email_id' => $row['email_id'],
+                        ':campaign_id' => $row['campaign_id'],
+                        ':action1' => $actionType,
+                        ':action2' => $actionType
+                    )
+                );
+                break;
             default:
                 break;
         }
