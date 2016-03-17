@@ -14,11 +14,13 @@ use App\Services\Interfaces\IDataService;
 use App\Events\RawReportDataWasInserted;
 use Event;
 use Log;
+use App\Services\EmailRecordService;
+
 class GetResponseReportService extends AbstractReportService implements IDataService
 {
-    public function __construct(ReportRepo $reportRepo, GetResponseApi $api)
+    public function __construct(ReportRepo $reportRepo, GetResponseApi $api , EmailRecordService $emailRecord )
     {
-        parent::__construct($reportRepo, $api);
+        parent::__construct($reportRepo, $api , $emailRecord );
         $this->api->setAction("newsletters");
     }
 

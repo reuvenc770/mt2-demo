@@ -33,17 +33,29 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         /**
-         * Campaign Data
+         * Campaign Data Daily
          */
         $filePath = storage_path('logs')."/downloadAPI.log";
-        $schedule->command('reports:downloadApi BlueHornet 1')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi Campaigner 1')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi EmailDirect 1')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi Maro 1')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi Aweber 1')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi Ymlp 1')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi GetResponse 1')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadTrackingData Cake 1')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi BlueHornet 5')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Campaigner 5')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi EmailDirect 5')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Maro 5')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Aweber 5')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Ymlp 5')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi GetResponse 5')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadTrackingData Cake 5')->hourly()->sendOutputTo($filePath);
+
+        /**
+         * Campaign Data Monthly
+         */
+        $schedule->command('reports:downloadApi BlueHornet 31')->monthly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Campaigner 31')->monthly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi EmailDirect 31')->monthly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Maro 31')->monthly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Aweber 31')->monthly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Ymlp 31')->monthly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi GetResponse 31')->monthly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadTrackingData Cake 31')->monthly()->sendOutputTo($filePath);
 
         /**
          * Deliverable Data
