@@ -146,7 +146,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
                     $currrentEmailId = $this->emailRecord->getEmailId( $currentEmail );
 
                     $this->emailRecord->recordOpen(
-                        $currentEmailId , 
+                        $currrentEmailId ,
                         $processState[ 'espId' ] ,
                         $processState[ 'campaignId' ] ,
                         $openRecord[ 'actionDate' ]
