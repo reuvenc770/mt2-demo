@@ -10,7 +10,7 @@ namespace App\Factories;
 use App\Repositories\ReportRepo;
 use App\Repositories\TrackingRepo;
 use App\Services\API\CakeApi;
-use App\Services\API\BaseEspApi;
+use App\Services\API\EspBaseApi;
 use App\Repositories\StandardTrackingReportRepo;
 use App\Repositories\StandardApiReportRepo;
 use App\Services\StandardReportService;
