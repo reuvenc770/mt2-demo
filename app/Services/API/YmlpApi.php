@@ -10,7 +10,7 @@ use App\Facades\Guzzle;
 use Carbon\Carbon;
 use App\Library\YMLP\YMLP_API;
 
-class YmlpApi extends EspBaseApi {
+class YmlpApi extends EspBaseAPI {
 
   const REPORT_API_URL = "";
   const OPENS_URL = "";

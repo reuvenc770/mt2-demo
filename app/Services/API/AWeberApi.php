@@ -9,11 +9,11 @@
 namespace App\Services\API;
 
 use App\Facades\EspApiAccount;
-use AWeberAPI as AWeberLibraryApi;
-use AWeberAPIException;
+use App\Library\AWeber\AWeberAPI as AWeberLibraryApi;
+use App\Library\AWeber\AWeberAPIException;
 use Log;
-use AWeberEntry;
-use AWeberCollection;
+use App\Library\AWeber\AWeberEntry;
+use App\Library\AWeber\AWeberCollection;
 
 class AWeberApi extends EspBaseAPI
 {
