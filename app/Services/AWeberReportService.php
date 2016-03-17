@@ -55,7 +55,8 @@ class AWeberReportService extends AbstractReportService implements IDataService
                   "unique_opens" => $openEmail,
               );
               $campaignData[] = $row;
-              if($i < 20){
+              $i++;
+              if($i >= 19){
                   break;
               }
           }
