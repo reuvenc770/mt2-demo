@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Inspiring;
-
+use App;
 class Inspire extends Command
 {
     /**
@@ -28,6 +28,7 @@ class Inspire extends Command
      */
     public function handle()
     {
-        $this->comment(PHP_EOL.Inspiring::quote().PHP_EOL);
+       $test = App::make("App\\Services\\EspApiAccountService");
+       dd($test->grabCsvMapping(1));
     }
 }

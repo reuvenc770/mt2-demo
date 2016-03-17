@@ -1,13 +1,12 @@
-mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$location' , '$timeout' , 'EspApiService' , function ( $rootScope , $log , $window , $location , $timeout , EspApiService ) {
+mt2App.controller( 'espMappingController' , [ '$rootScope' , '$log' , '$window' , '$location' , '$timeout' , 'EspMappingService' , function ( $rootScope , $log , $window , $location , $timeout , EspMappingService ) {
     var self = this;
     self.$location = $location;
 
-    self.headers = [ '' , 'ID' , 'ESP' , 'Key 1' , 'Key 2' , 'Account' , 'Created' , 'Updated' ];
+    self.headers = [ '' , 'ID' , 'Name' , 'Key 1' , 'Key 2' , 'Use Csv?' ];
     self.espAccounts = [];
 
     self.currentAccount = { "espId" : "" , "id" : "" , "accountName" : "" , "key1" : "" , "key2" : "" };
 
-    self.createUrl = 'espapi/create/';
     self.editUrl = 'espapi/edit/';
 
     self.formErrors = { "espId" : "" , "id" : "" , "accountName" : "" , "key1" : "" , "key2" : "" };
@@ -20,7 +19,7 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     self.loadAccount = function () {
         var pathMatches = $location.path().match( /^\/espapi\/edit\/(\d{1,})/ );
 
-        EspApiService.getAccount( pathMatches[ 1 ] , function ( response ) {
+        EspMappingService.getAccount( pathMatches[ 1 ] , function ( response ) {
             self.currentAccount.id = response.data.id;
             self.currentAccount.accountName = response.data.account_name;
             self.currentAccount.key1 = response.data.key_1;
@@ -28,11 +27,9 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         } )
     }
 
-    self.loadAccounts = function () {
-        EspApiService.getAccounts(
-            self.currentPage ,
-            self.paginationCount ,
-            self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
+    self.loadEsps = function () {
+
+        EspMappingService.getAccounts(self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
     };
 
     self.resetCurrentAccount = function () {
@@ -58,24 +55,22 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         $window.location.href = self.createUrl;
     };
 
-    self.saveNewAccount = function () {
-        self.resetFieldErrors();
 
-        EspApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback );
-    };
 
     self.editAccount = function () {
         self.resetFieldErrors();
 
-        EspApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
+        EspMappingService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     }
 
     /**
      * Callbacks
      */
     self.loadAccountsSuccessCallback = function ( response ) {
-        self.accounts = response.data.data;
-        self.pageCount = response.data.last_page;
+        console.log("here");
+        console.log(response.data);
+        self.espAccounts = response.data;
+
     };
 
     self.loadAccountsFailureCallback = function ( response ) {

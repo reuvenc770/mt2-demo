@@ -67,7 +67,7 @@ Route::group( [] , function() {
         'as' => 'home' ,
         'uses' => 'HomeController@home'
     ] );
- 
+
     Route::get( 'logout' , [
         'as' => 'logout' ,
         'uses' => 'SessionsController@destroy'
@@ -84,12 +84,12 @@ Route::group( [] , function() {
  * ESP API Account Routes
  */
 Route::group(
-    [ 
+    [
         'prefix' => 'espapi',
         'middleware' => [ 'auth' , 'pageLevel' ]
     ] ,
     function () {
-        Route::get( '/' , [ 
+        Route::get( '/' , [
             'as' => 'espapi.list' ,
             'uses' => 'EspApiController@listAll'
         ] );
@@ -114,10 +114,10 @@ Route::group(
     [
         'prefix' => 'tools' ,
         'middleware' => [ 'auth' , 'pageLevel' ]
-    ] , 
+    ] ,
     function () {
         Route::get( '/show-info' , [
-            'as' => 'tools.recordlookup' , 
+            'as' => 'tools.recordlookup' ,
             'uses' => 'ShowInfoController@index'
         ] );
 
@@ -157,7 +157,7 @@ Route::group(
             'uses' => 'JobApiController@listALL'
         ] );
     }
-); 
+);
 
 
 /**
@@ -350,7 +350,7 @@ Route::group(
 
                 Route::get( '/isps/{id}' , [
                     'as' => 'api.listprofile.isps' ,
-                    'uses' => 'ListProfileController@isps' 
+                    'uses' => 'ListProfileController@isps'
                 ] );
 
                 Route::get( '/sources/{id}' , [
@@ -360,7 +360,7 @@ Route::group(
 
                 Route::get( '/seeds/{id}' , [
                     'as' => 'api.listprofile.seeds' ,
-                    'uses' => 'ListProfileController@seeds' 
+                    'uses' => 'ListProfileController@seeds'
                 ] );
 
                 Route::get( '/zips/{id}' , [
@@ -400,7 +400,7 @@ Route::group(
         Route::resource(
             'listprofile' ,
             'ListProfileController' ,
-            [ 'except' => [ 'create' , 'edit' , 'copy' ] ]    
+            [ 'except' => [ 'create' , 'edit' , 'copy' ] ]
         );
 
         Route::resource(
@@ -417,7 +417,7 @@ Route::group(
         Route::group( [ 'middleware' => 'admin' ] , function () {
             Route::resource(
                 'user',
-                'UserApiController', 
+                'UserApiController',
                 [ 'except' => [ 'create' , 'edit' ] ]
             );
 
@@ -480,13 +480,13 @@ Route::group(
          */
         Route::resource(
             'suppressionReason' ,
-            'MT1API\SuppressionReasonController', 
+            'MT1API\SuppressionReasonController',
             [ 'only' => [ 'index' ] ]
         );
 
         Route::resource(
             'clientstatsgrouping' ,
-            'MT1API\ClientStatsGroupingController' , 
+            'MT1API\ClientStatsGroupingController' ,
             [ 'only' => [ 'index' ] ]
         );
 
@@ -495,7 +495,7 @@ Route::group(
             'MT1API\ClientGroupApiController' ,
             [ 'only' => [ 'index' , 'show' ] ]
         );
-        
+
         Route::resource(
             'uniqueprofiles' ,
             'MT1API\UniqueProfileApiController' ,
@@ -519,7 +519,7 @@ Route::group(
             'uses' => 'WizardController@index'
         ] );
 
-        Route::get( '/pager/{type}/{page}' , [ 
+        Route::get( '/pager/{type}/{page}' , [
             'as' => 'gdfg',
             'uses' => 'WizardController@getPage'
         ] );

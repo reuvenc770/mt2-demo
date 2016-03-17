@@ -146,4 +146,29 @@ class EspApiController extends Controller
     {
         //Will not be in use. We don't want to delete ESP Accounts.
     }
+
+
+    public function viewMappingList(){
+        return response()
+            ->view( 'pages.espapi.espmappings.mappings-list' );
+    }
+
+    public function returnEspList(){
+        return $this->espService->getAllEsps();
+    }
+
+    public function viewEspMapping($id){
+        return response()
+            ->view( 'pages.espapi.espmappings.mapping-edit' );
+
+    }
+
+    public function returnEspMapping($id){
+
+    }
+
+
+    public function updateEspMapping(Request $request, $id){
+
+    }
 }
