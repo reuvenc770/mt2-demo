@@ -17,7 +17,6 @@ use App\Services\StandardReportService;
 use App\Repositories\EmailRepo;
 use App\Repositories\EmailActionsRepo;
 use App\Repositories\ActionRepo;
-use App\Models\ActionType;
 
 use App\Models\Email;
 use App\Models\EmailAction;
