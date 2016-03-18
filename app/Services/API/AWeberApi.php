@@ -150,18 +150,20 @@ class AWeberApi extends EspBaseAPI
      */
     private function makeApiRequest($incomingUrl, $params = array(), $fullUrl = false)
     {
+        Log::alert(Cache::get(self::COUNTER));
+        echo(Cache::get(self::COUNTER));
         Cache::increment(self::COUNTER);
         $url = $this->url . $incomingUrl;
         if ($fullUrl) {
             $url = $incomingUrl;
         }
-        if(Cache::get(self::COUNTER) < 55) {
+        if(Cache::get(self::COUNTER) < 30) {
             $response = $this->api->adapter->request('GET', $url, $params);
             if (!empty($response['id'])) {
-                Cache::decrement(self::COUNTER);
+                Log::alert(Cache::decrement(self::COUNTER));
                 return new AWeberEntry($response, $url, $this->api->adapter);
             } else if (array_key_exists('entries', $response)) {
-                Cache::decrement(self::COUNTER);
+                Log::alert(Cache::decrement(self::COUNTER));
                 return new AWeberCollection($response, $url, $this->api->adapter);
             } else {
                 Cache::decrement(self::COUNTER);
@@ -169,7 +171,8 @@ class AWeberApi extends EspBaseAPI
             }
         } else {
             Log::info("snoooze!");
-            sleep(8);
+            echo("SNOOOZE");
+            sleep(15);
             $this->makeApiRequest($incomingUrl, $params, $fullUrl);
         }
 
