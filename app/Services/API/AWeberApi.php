@@ -150,9 +150,11 @@ class AWeberApi extends EspBaseAPI
      */
     private function makeApiRequest($incomingUrl, $params = array(), $fullUrl = false)
     {
-        Log::alert(Cache::get(self::COUNTER));
-        echo(Cache::get(self::COUNTER));
+        $count = Cache::get(self::COUNTER);
+        Log::alert("INCOMING CALL: {$count}");
         Cache::increment(self::COUNTER);
+        $count = Cache::get(self::COUNTER);
+        Log::alert("Adding 1: {$count}");
         $url = $this->url . $incomingUrl;
         if ($fullUrl) {
             $url = $incomingUrl;
@@ -161,12 +163,18 @@ class AWeberApi extends EspBaseAPI
             $response = $this->api->adapter->request('GET', $url, $params);
             if (!empty($response['id'])) {
                 Log::alert(Cache::decrement(self::COUNTER));
+                $count = Cache::get(self::COUNTER);
+                Log::alert("removing 1: {$count}");
                 return new AWeberEntry($response, $url, $this->api->adapter);
             } else if (array_key_exists('entries', $response)) {
                 Log::alert(Cache::decrement(self::COUNTER));
+                $count = Cache::get(self::COUNTER);
+                Log::alert("removing 1: {$count}");
                 return new AWeberCollection($response, $url, $this->api->adapter);
             } else {
                 Cache::decrement(self::COUNTER);
+                $count = Cache::get(self::COUNTER);
+                Log::alert("removing 1: {$count}");
                 return $response;
             }
         } else {
