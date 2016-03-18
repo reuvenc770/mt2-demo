@@ -14,7 +14,7 @@ use App\Library\AWeber\AWeberAPIException;
 use Log;
 use App\Library\AWeber\AWeberEntry;
 use App\Library\AWeber\AWeberCollection;
-
+use Cache;
 class AWeberApi extends EspBaseAPI
 {
     private $accessToken;
@@ -28,14 +28,21 @@ class AWeberApi extends EspBaseAPI
         $creds = EspApiAccount::grabAccessTokenAndSecret($espAccountId);
         $key = env("AWEBER_KEY", "");
         $secret = env("AWEBER_SECRET", "");
+        $time = 60 * 4;
         $weber = new AWeberLibraryApi($key, $secret);
         $this->accessToken = $creds['accessToken'];
         $this->sharedSecret = $creds['accessSecret'];
         $weber->adapter->debug = false; //actually ok debugging
         try {
             $this->api = $weber;
-            $accountId = $this->api->getAccount($this->accessToken, $this->sharedSecret)->id;
-            $listId = $this->api->adapter->request('GET', "/accounts/{$accountId}/lists/", array())['entries'][0]['id'];
+            $accountId = Cache::remember('aweber_account_'.$espAccountId, $time, function() {
+                return $this->api->getAccount($this->accessToken, $this->sharedSecret)->id;
+            });
+
+            $listId = Cache::remember('aweber_list_id_'.$espAccountId, $time, function($accountId) {
+                return $this->api->adapter->request('GET', "/accounts/{$accountId}/lists/", array())['entries'][0]['id'];
+            });
+
             $this->url = "/accounts/{$accountId}/lists/{$listId}/";
         } catch (AWeberAPIException $exc) {
             Log::error("AWeber  Failed {$exc->type} due to {$exc->message} help:: {$exc->documentation_url}");
