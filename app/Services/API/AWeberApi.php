@@ -150,46 +150,22 @@ class AWeberApi extends EspBaseAPI
      */
     private function makeApiRequest($incomingUrl, $params = array(), $fullUrl = false)
     {
-        $count = Cache::get(self::COUNTER);
-        Log::alert("INCOMING CALL: {$count}");
-        Cache::increment(self::COUNTER);
-        $count = Cache::get(self::COUNTER);
-        Log::alert("Adding 1: {$count}");
         $url = $this->url . $incomingUrl;
         if ($fullUrl) {
             $url = $incomingUrl;
         }
-        $counter = env("AWEBERCOUNTER",30);
-        if(Cache::get(self::COUNTER) < $counter) {
-            $response = $this->api->adapter->request('GET', $url, $params);
-            $config = env("AWEBERTIMEOUT",10);
-            sleep($config);
+
+        $response = $this->api->adapter->request('GET', $url, $params);
+        $config = env("AWEBERTIMEOUT",10);
+        sleep($config);
             if (!empty($response['id'])) {
-                Log::alert(Cache::decrement(self::COUNTER));
-                $count = Cache::get(self::COUNTER);
-                Log::alert("removing 1: {$count}");
                 return new AWeberEntry($response, $url, $this->api->adapter);
             } else if (array_key_exists('entries', $response)) {
-                Log::alert(Cache::decrement(self::COUNTER));
-                $count = Cache::get(self::COUNTER);
-                Log::alert("removing 1: {$count}");
+
                 return new AWeberCollection($response, $url, $this->api->adapter);
             } else {
-                Cache::decrement(self::COUNTER);
-                $count = Cache::get(self::COUNTER);
-                Log::alert("removing 1: {$count}");
                 return $response;
             }
-        } else {
-            Log::info("snoooze!");
-            echo("SNOOOZE");
-            sleep(15);
-            Log::alert(Cache::decrement(self::COUNTER));
-            $count = Cache::get(self::COUNTER);
-            Log::alert("removing 1: {$count}");
-            $this->makeApiRequest($incomingUrl, $params, $fullUrl);
-        }
-
     }
 
     /**
