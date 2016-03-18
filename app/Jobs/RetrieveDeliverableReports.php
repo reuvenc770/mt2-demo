@@ -58,13 +58,14 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     public function handle()
     {
         Log::info("Job Tries at start {$this->attempts()}");
-        $this->initJobEntry();
-        $reportService = APIFactory::createAPIReportService($this->apiName,$this->espAccountId);
-
         Log::info( $this->apiName . '::' . $this->espAccountId . '::' . $this->currentFilter() . ' => ' . json_encode( $this->processState ) );
+
+        $reportService = APIFactory::createAPIReportService($this->apiName,$this->espAccountId);
 
         switch ( $this->currentFilter() ) {
             case 'getTickets' :
+                $this->initJobEntry();
+
                 $tickets = $reportService->getTickets( $this->espAccountId , $this->date );
 
                 $this->processState[ 'currentFilterIndex' ]++;
@@ -86,6 +87,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             break;
 
             case 'getCampaigns' :
+                $this->initJobEntry();
+
                 $campaigns = $reportService->getCampaigns( $this->espAccountId , $this->date );
 
                 $this->processState[ 'currentFilterIndex' ]++;
@@ -110,11 +113,15 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             break;
 
             case 'splitTypes' :
+                $this->initJobEntry( $reportService->getUniqueJobId( $this->processState ) );
+
                 $this->processState[ 'currentFilterIndex' ]++;
 
                 $types = $reportService->splitTypes();
 
                 foreach ( $types as $index => $currentType ) {
+                    Log::info( 'Creating job for type ' . $currentType );
+
                     $this->processState[ 'recordType' ] = $currentType;
 
                     $job = new RetrieveDeliverableReports(
@@ -131,7 +138,38 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
                 $this->changeJobEntry( JobEntry::SUCCESS );
             break;
 
+            case 'savePaginatedRecords' :
+                $this->initJobEntry( $reportService->getUniqueJobId( $this->processState ) );
+                
+                $reportService->setPageType( $this->processState[ 'recordType' ] );
+                $reportService->setPageNumber( isset( $this->processState[ 'pageNumber' ] ) ? $this->processState[ 'pageNumber' ] : 1 );
+
+                if ( $reportService->pageHasData() ) {
+                    $this->processState[ 'currentPageData' ] = $reportService->getPageData();
+                    $reportService->saveRecords( $this->processState );
+                    $this->processState[ 'currentPageData' ] = array();
+
+                    $reportService->nextPage();
+
+                    $this->processState[ 'pageNumber' ] = $reportService->getPageNumber();
+
+                    $job = new RetrieveDeliverableReports(
+                        $this->apiName,
+                        $this->espAccountId,
+                        $this->date ,
+                        str_random( 16 ) ,
+                        $this->processState 
+                    );
+
+                    $this->dispatch( $job );
+                }
+
+                $this->changeJobEntry( JobEntry::SUCCESS );
+            break;
+
             case 'saveRecords' :
+                $this->initJobEntry( $reportService->getUniqueJobId( $this->processState ) );
+
                 $reportService->saveRecords( $this->processState );
 
                 if ( $reportService->shouldRetry() ) {
@@ -158,8 +196,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         return $this->currentFilter;
     }
 
-    protected function initJobEntry () {
-        $jobName = self::JOB_NAME . '::' . $this->currentFilter();
+    protected function initJobEntry ( $jobId = '' ) {
+        $jobName = self::JOB_NAME . '::' . $this->currentFilter() . $jobId;
         JobTracking::startEspJob( $jobName ,$this->apiName, $this->espAccountId, $this->tracking);
     }
 

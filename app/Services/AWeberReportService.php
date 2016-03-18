@@ -120,6 +120,16 @@ class AWeberReportService extends AbstractReportService implements IDataService
         return $this->reportRepo->getCampaigns( $espAccountId , $date )->splice( 0 , 20 );
     }
 
+    public function getUniqueJobId ( $processState ) {
+        if ( isset( $processState[ 'camapignId' ] ) && !isset( $processState[ 'recordType' ] ) ) {
+            return '::Campaign' . $processState[ 'campaignId' ];
+        } elseif ( isset( $processState[ 'camapignId' ] ) && isset( $processState[ 'recordType' ] ) ) {
+            return '::Campaign' . $processState[ 'campaignId' ] . '::' . $processState[ 'recordType' ];
+        } else {
+            return '';
+        }
+    }
+
     public function splitTypes () {
         return [ 'opens' , 'clicks' ];
     }
