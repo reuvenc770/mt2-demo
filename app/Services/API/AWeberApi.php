@@ -161,6 +161,7 @@ class AWeberApi extends EspBaseAPI
         }
         if(Cache::get(self::COUNTER) < 30) {
             $response = $this->api->adapter->request('GET', $url, $params);
+            sleep(2);
             if (!empty($response['id'])) {
                 Log::alert(Cache::decrement(self::COUNTER));
                 $count = Cache::get(self::COUNTER);
@@ -181,6 +182,9 @@ class AWeberApi extends EspBaseAPI
             Log::info("snoooze!");
             echo("SNOOOZE");
             sleep(15);
+            Log::alert(Cache::decrement(self::COUNTER));
+            $count = Cache::get(self::COUNTER);
+            Log::alert("removing 1: {$count}");
             $this->makeApiRequest($incomingUrl, $params, $fullUrl);
         }
 
