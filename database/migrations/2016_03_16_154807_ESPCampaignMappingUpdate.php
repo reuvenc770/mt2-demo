@@ -28,9 +28,6 @@ class ESPCampaignMappingUpdate extends Migration
             $table->foreign('esp_id')->references('id')->on('esps');
         });
 
-        Schema::table('esps', function(Blueprint $table) {
-            $table->boolean("use_csv");
-        });
     }
 
     /**
