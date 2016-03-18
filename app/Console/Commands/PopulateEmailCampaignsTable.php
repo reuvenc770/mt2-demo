@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 
-use App\Repositories\EspApiAccountRepo;
+use App\Repositories\EtlPickupRepo;
 use Carbon\Carbon;
 use App\Jobs\PopulateEmailCampaignStats;
 use Illuminate\Console\Command;
@@ -12,21 +12,20 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 class PopulateEmailCampaignsTable extends Command {
     use DispatchesJobs;
 
-    protected $signature = 'reports:populateStats {lookBack?}';
+    protected $signature = 'reports:populateStats';
     protected $lookBack;
-    protected $description = 'Populate email_campaign_statistics';
+    protected $description = 'PopulateEmailCampaignStats';
 
 
-    public function __construct(EspApiAccountRepo $espRepo) {
+    public function __construct(EtlPickupRepo $etlPickupRepo) {
         parent::__construct();
-        $this->espRepo = $espRepo;
+        $this->etlPickupRepo = $etlPickupRepo;
     }
 
     public function handle() {
-        $lookBack = $this->argument('lookBack') ? $this->argument('lookBack') 
-            : env('LOOKBACK',2);
-
-        $this->dispatch(new PopulateEmailCampaignStats($lookBack, str_random(16)));
-
+        $lookBack = $this->etlPickupRepo->getLastInsertedForName($this->description);
+        $logLine = "Starting {$this->description} collection at row $lookBack" . PHP_EOL;
+        $this->info($logLine);
+        $this->dispatch(new PopulateEmailCampaignStats($this->etlPickupRepo, $lookBack, str_random(16)));
     }
 }
