@@ -20,10 +20,14 @@ class EmailCampaignAggregationService {
 
     public function run() {
         $data = $this->actionsRepo->pullActionsInLast($this->lookback);
+        $lastId = $this->lookback;
         foreach ($data as $row) {
             $actionType = $this->actionMap[$row['action_id']];
             $this->statsRepo->insertOrUpdate($row, $actionType);
+            $lastId = $row['id'];
         }
+
+        return $lastId;
     }
     
 }

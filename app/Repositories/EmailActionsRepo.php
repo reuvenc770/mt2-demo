@@ -23,7 +23,8 @@ class EmailActionsRepo {
     }
 
     public function pullActionsInLast($lookback) {
-        // any way to make this unbuffered or chunk, perhaps?
-        return $this->actions->where('created_at', '>=', Carbon::today()->subDays($lookback))->get();
+        // any way to make this unbuffered or chunked, perhaps?
+        // this is a total list pull and could get enormous
+        return $this->actions->where('id', '>', $lookback)->get();
     }
 }
