@@ -22,6 +22,7 @@ class Kernel extends ConsoleKernel
         Commands\UpdatePermissionsFromRoutes::class,
         Commands\GrabCsvDeliverables::class,
         Commands\GrabDeliverableReports::class,
+        Commands\PopulateEmailCampaignsTable::class,
         Commands\GenOauth::class,
     ];
 

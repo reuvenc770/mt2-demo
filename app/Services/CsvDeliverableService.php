@@ -80,7 +80,7 @@ class CsvDeliverableService {
             return $row['email_id'];
         }
         else {
-            return $this->emailRepo->getEmailId($email);
+            return $this->emailRepo->getEmailId($row['email']);
         } 
     }
 
