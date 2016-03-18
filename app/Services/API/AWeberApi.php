@@ -154,8 +154,6 @@ class AWeberApi extends EspBaseAPI
         if ($fullUrl) {
             $url = $incomingUrl;
         }
-        $config = (int) env("AWEBERTIMEOUT",10);
-        sleep($config);
         $response = $this->api->adapter->request('GET', $url, $params);
             if (!empty($response['id'])) {
                 return new AWeberEntry($response, $url, $this->api->adapter);

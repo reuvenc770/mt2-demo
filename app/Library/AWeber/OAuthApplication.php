@@ -401,7 +401,7 @@ class OAuthApplication implements AWeberOAuthAdapter {
      * @return void
      */
     public function makeRequest($method, $url, $data=array()) {
-
+        sleep(5);
         if ($this->debug) echo "\n** {$method}: $url\n";
         
         switch (strtoupper($method)) {
