@@ -14,6 +14,7 @@ use App\Library\AWeber\AWeberAPIException;
 use Log;
 use App\Library\AWeber\AWeberEntry;
 use App\Library\AWeber\AWeberCollection;
+use App\Library\AWeber\OAuthUser;
 use Cache;
 class AWeberApi extends EspBaseAPI
 {
@@ -36,10 +37,13 @@ class AWeberApi extends EspBaseAPI
         try {
             $this->api = $weber;
             $accountId = Cache::remember('aweber_account_'.$espAccountId, $time, function() {
-                echo "CREDS ARE :: {$this->accessToken}:: {$this->sharedSecret}";
                 return $this->api->getAccount($this->accessToken, $this->sharedSecret)->id;
             });
 
+            $user = new OAuthUser();
+            $user->accessToken = $this->accessToken;
+            $user->tokenSecret = $this->sharedSecret;
+            $this->api->adapter->user = $user;
             $listId = Cache::remember('aweber_list_id_'.$espAccountId, $time, function() use ($accountId) {
                 return $this->api->adapter->request('GET', "/accounts/{$accountId}/lists/", array())['entries'][0]['id'];
             });
