@@ -36,6 +36,7 @@ class AWeberApi extends EspBaseAPI
         try {
             $this->api = $weber;
             $accountId = Cache::remember('aweber_account_'.$espAccountId, $time, function() {
+                echo "CREDS ARE :: {$this->accessToken}:: {$this->sharedSecret}";
                 return $this->api->getAccount($this->accessToken, $this->sharedSecret)->id;
             });
 
