@@ -401,7 +401,6 @@ class OAuthApplication implements AWeberOAuthAdapter {
      * @return void
      */
     public function makeRequest($method, $url, $data=array()) {
-
         if ($this->debug) echo "\n** {$method}: $url\n";
         
         switch (strtoupper($method)) {
@@ -532,6 +531,7 @@ class OAuthApplication implements AWeberOAuthAdapter {
      * @return void
      */
     private function _sendRequest($handle, $headers = array('Expect:')) {
+        sleep(3);
         $this->curl->setopt($handle, CURLOPT_RETURNTRANSFER, true);
         $this->curl->setopt($handle, CURLOPT_HEADER, true);
         $this->curl->setopt($handle, CURLOPT_HTTPHEADER, $headers);
