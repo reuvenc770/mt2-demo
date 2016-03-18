@@ -22,7 +22,7 @@ class AWeberApi extends EspBaseAPI
     private $sharedSecret;
     private $api;
     private $url;
-
+    const COUNTER = 0;
     public function __construct($name, $espAccountId)
     {
         parent::__construct($name, $espAccountId);
@@ -150,17 +150,27 @@ class AWeberApi extends EspBaseAPI
      */
     private function makeApiRequest($incomingUrl, $params = array(), $fullUrl = false)
     {
+        Cache::increment(self::COUNTER);
         $url = $this->url . $incomingUrl;
         if ($fullUrl) {
             $url = $incomingUrl;
         }
-        $response = $this->api->adapter->request('GET', $url, $params);
-        if (!empty($response['id'])) {
-            return new AWeberEntry($response, $url, $this->api->adapter);
-        } else if (array_key_exists('entries', $response)) {
-            return new AWeberCollection($response, $url, $this->api->adapter);
+        if(Cache::get(self::COUNTER) < 55) {
+            $response = $this->api->adapter->request('GET', $url, $params);
+            if (!empty($response['id'])) {
+                Cache::decrement(self::COUNTER);
+                return new AWeberEntry($response, $url, $this->api->adapter);
+            } else if (array_key_exists('entries', $response)) {
+                Cache::decrement(self::COUNTER);
+                return new AWeberCollection($response, $url, $this->api->adapter);
+            } else {
+                Cache::decrement(self::COUNTER);
+                return $response;
+            }
         } else {
-            return $response;
+            Log::info("snoooze!");
+            sleep(8);
+            $this->makeApiRequest($incomingUrl, $params, $fullUrl);
         }
 
     }
