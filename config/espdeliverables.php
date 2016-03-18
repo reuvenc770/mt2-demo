@@ -16,7 +16,7 @@ return [
     "Maro" => [
         "filters" => [
             'splitTypes' ,
-            'saveRecords'
+            'savePaginatedRecords'
         ]
     ] ,
     "EmailDirect" => [

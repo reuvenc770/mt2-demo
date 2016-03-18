@@ -25,11 +25,13 @@ class MaroReportService extends AbstractReportService implements IDataService
     use InteractsWithQueue;
 
     protected $actions = ['opens', 'clicks', 'bounces', 'complaints', 'unsubscribes'];
+    public $pageType = 'opens';
+    public $pageNumber = 1;
+    public $currentPageData = array();
 
     public function __construct(ReportRepo $reportRepo, MaroApi $api , EmailRecordService $emailRecord ) {
         parent::__construct( $reportRepo , $api , $emailRecord );
     }
-
 
     public function retrieveApiStats($date) {
         $this->api->setDate($date);
@@ -84,9 +86,7 @@ class MaroReportService extends AbstractReportService implements IDataService
     public function saveRecords ( &$processState ) {
         switch ( $processState[ 'recordType' ] ) {
             case 'opens' :
-                $openData = $this->getDeliveredRecords( 'opens' );
-
-                foreach ( $openData as $key => $openner ) {
+                foreach ( $processState[ 'currentPageData' ] as $key => $openner ) {
                     $this->emailRecord->recordOpen(
                         $this->emailRecord->getEmailId( $openner[ 'contact' ][ 'email' ] ) ,
                         $this->api->getId() ,
@@ -97,9 +97,7 @@ class MaroReportService extends AbstractReportService implements IDataService
             break;
 
             case 'clicks' :
-                $clickData = $this->getDeliveredRecords( 'clicks' );
-
-                foreach ( $clickData as $key => $clicker ) {
+                foreach ( $processState[ 'currentPageData' ] as $key => $clicker ) {
                     $this->emailRecord->recordClick(
                         $this->emailRecord->getEmailId( $clicker[ 'contact' ][ 'email' ] ) ,
                         $this->api->getId() ,
@@ -115,29 +113,46 @@ class MaroReportService extends AbstractReportService implements IDataService
         return false; #releases if guzzle result is not HTTP 200
     }
 
-    public function getDeliveredRecords ( $action ) {
-        $outputData = array();
+    public function getUniqueJobId ( $processState ) {
+        if ( isset( $processState[ 'recordType' ] ) ) {
+            return '::' . $processState[ 'recordType' ] . '::' . 'Page' . ( isset( $processState[ 'pageNumber' ] ) ? $processState[ 'pageNumber' ] : 1 );
+        } else {
+            return '';
+        }
+    }
+
+    public function setPageType ( $pageType ) {
+        if ( in_array( $pageType , [ 'opens' , 'clicks' ] ) ) {
+            $this->pageType = $pageType;
+        }
+    }
+
+    public function setPageNumber ( $pageNumber ) {
+        $this->pageNumber = $pageNumber;
+    }
+
+    public function getPageNumber () { return $this->pageNumber; }
+
+    public function nextPage () { $this->pageNumber++; }
+
+    public function pageHasData () {
         $this->api->setDeliverableLookBack();
+        $this->api->constructDeliverableUrl( $this->pageType , $this->pageNumber );
 
-        $dataFound = true;
-        $page = 1;
+        $data = $this->api->sendApiRequest();
+        $data = $this->processGuzzleResult( $data );
 
-        while ($dataFound) {
-            $this->api->constructDeliverableUrl($action, $page);
-            $data = $this->api->sendApiRequest();
+        if ( empty( $data ) ) {
+            return false; 
+        } else {
+            $this->currentPageData = $data;
 
-            $data = $this->processGuzzleResult($data);
+            return true;
+        }
+    }
 
-            if (empty($data)) {
-                $dataFound = false;
-            }
-            else {
-                $outputData = array_merge($outputData, $data);
-                $page++;
-            }
-        }       
-
-        return $outputData;
+    public function getPageData () {
+        return $this->currentPageData;
     }
 
     protected function processGuzzleResult($data) {

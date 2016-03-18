@@ -103,6 +103,16 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
         return $formattedData;
     }
 
+    public function getUniqueJobId ( $processState ) {
+        if ( isset( $processState[ 'campaignId' ] ) && !isset( $processState[ 'recordType' ] ) ) {
+            return '::Campaign' . $processState[ 'campaignId' ];
+        } elseif ( isset( $processState[ 'campaignId' ] ) && isset( $processState[ 'recordType' ] ) ) {
+            return '::Campaign' . $processState[ 'campaignId' ] . '::' . $processState[ 'recordType' ];
+        } else {
+            return '';
+        }
+    }
+
     public function getCampaigns ( $espAccountId , $date ) {
         return $this->reportRepo->getCampaigns( $espAccountId , $date );
     }
@@ -121,7 +131,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                 } catch ( \Exception $e ) {
                     Log::error( 'Failed to retrievee deliverable records. ' . $e->getMessage() );
 
-                    $this->processState[ 'delay' ] = 180;
+                    $processState[ 'delay' ] = 180;
 
                     $this->dataRetrievalFailed = true;
 
@@ -147,7 +157,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                 } catch ( \Exception $e ) {
                     Log::error( 'Failed to retrievee open records. ' . $e->getMessage() );
 
-                    $this->processState[ 'delay' ] = 180;
+                    $processState[ 'delay' ] = 180;
 
                     $this->dataRetrievalFailed = true;
 
@@ -173,7 +183,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                 } catch ( \Exception $e ) {
                     Log::error( 'Failed to retrievee click records. ' . $e->getMessage() );
 
-                    $this->processState[ 'delay' ] = 180;
+                    $processState[ 'delay' ] = 180;
 
                     $this->dataRetrievalFailed = true;
 

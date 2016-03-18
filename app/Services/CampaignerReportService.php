@@ -207,6 +207,14 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         );
     }
 
+    public function getUniqueJobId ( $processState ) {
+        if ( isset( $processState[ 'ticket' ][ 'ticketName' ] ) ) {
+            return '::Ticket-' . $processState[ 'ticket' ][ 'ticketName' ];
+        } else {
+            return '';
+        }
+    }
+
     public function getTickets ( $espAccountId , $date ) {
         $campaigns = $this->getCampaigns( $espAccountId , $date );
         $tickets = [];
