@@ -40,7 +40,6 @@ elixir(function(mix) {
     mix.copy( 'node_modules/ui-select/dist/select.min.js' , 'public/js/select.min.js' );
 
     mix.copy( 'node_modules/ui-select/dist/select.min.css' , 'public/css/select.min.css' );
-    mix.copy('node_modules/angular-drag-and-drop-lists/angular-drag-and-drop-lists.min.js', 'public/js/dragdrop.min.js');
 
     mix.scripts( [
         'app.js' ,
@@ -54,7 +53,6 @@ elixir(function(mix) {
     ] , 'public/js/angular_base.js' );
 
     mix.scripts( [ 'espapi/EspController.js' , 'espapi/EspApiService.js' , 'espapi/EspapiTableDirective.js' ] , 'public/js/espapi.js' );
-    mix.scripts( [ 'espapi/mapping/EspMappingController.js' , 'espapi/mapping/EspMappingService.js' , 'espapi/mapping/EspMappingTableDirective.js' ] , 'public/js/mapping.js' );
     mix.scripts( [ 'user/UserController.js' , 'user/UserApiService.js' ] , 'public/js/user.js' );
     mix.scripts( [ 'role/RoleController.js' , 'role/RoleApiService.js' ] , 'public/js/role.js' );
     mix.scripts( [ 'job/JobController.js' , 'job/JobApiService.js' ] , 'public/js/job.js' );
