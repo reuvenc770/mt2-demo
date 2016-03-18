@@ -14,28 +14,40 @@ use App\Library\AWeber\AWeberAPIException;
 use Log;
 use App\Library\AWeber\AWeberEntry;
 use App\Library\AWeber\AWeberCollection;
-
+use App\Library\AWeber\OAuthUser;
+use Cache;
 class AWeberApi extends EspBaseAPI
 {
     private $accessToken;
     private $sharedSecret;
     private $api;
     private $url;
-
+    const COUNTER = 0;
     public function __construct($name, $espAccountId)
     {
         parent::__construct($name, $espAccountId);
         $creds = EspApiAccount::grabAccessTokenAndSecret($espAccountId);
         $key = env("AWEBER_KEY", "");
         $secret = env("AWEBER_SECRET", "");
+        $time = 60 * 4;
         $weber = new AWeberLibraryApi($key, $secret);
         $this->accessToken = $creds['accessToken'];
         $this->sharedSecret = $creds['accessSecret'];
         $weber->adapter->debug = false; //actually ok debugging
         try {
             $this->api = $weber;
-            $accountId = $this->api->getAccount($this->accessToken, $this->sharedSecret)->id;
-            $listId = $this->api->adapter->request('GET', "/accounts/{$accountId}/lists/", array())['entries'][0]['id'];
+            $accountId = Cache::remember('aweber_account_'.$espAccountId, $time, function() {
+                return $this->api->getAccount($this->accessToken, $this->sharedSecret)->id;
+            });
+
+            $user = new OAuthUser();
+            $user->accessToken = $this->accessToken;
+            $user->tokenSecret = $this->sharedSecret;
+            $this->api->adapter->user = $user;
+            $listId = Cache::remember('aweber_list_id_'.$espAccountId, $time, function() use ($accountId) {
+                return $this->api->adapter->request('GET', "/accounts/{$accountId}/lists/", array())['entries'][0]['id'];
+            });
+
             $this->url = "/accounts/{$accountId}/lists/{$listId}/";
         } catch (AWeberAPIException $exc) {
             Log::error("AWeber  Failed {$exc->type} due to {$exc->message} help:: {$exc->documentation_url}");
@@ -138,17 +150,30 @@ class AWeberApi extends EspBaseAPI
      */
     private function makeApiRequest($incomingUrl, $params = array(), $fullUrl = false)
     {
+        Log::alert(Cache::get(self::COUNTER));
+        echo(Cache::get(self::COUNTER));
+        Cache::increment(self::COUNTER);
         $url = $this->url . $incomingUrl;
         if ($fullUrl) {
             $url = $incomingUrl;
         }
-        $response = $this->api->adapter->request('GET', $url, $params);
-        if (!empty($response['id'])) {
-            return new AWeberEntry($response, $url, $this->api->adapter);
-        } else if (array_key_exists('entries', $response)) {
-            return new AWeberCollection($response, $url, $this->api->adapter);
+        if(Cache::get(self::COUNTER) < 30) {
+            $response = $this->api->adapter->request('GET', $url, $params);
+            if (!empty($response['id'])) {
+                Log::alert(Cache::decrement(self::COUNTER));
+                return new AWeberEntry($response, $url, $this->api->adapter);
+            } else if (array_key_exists('entries', $response)) {
+                Log::alert(Cache::decrement(self::COUNTER));
+                return new AWeberCollection($response, $url, $this->api->adapter);
+            } else {
+                Cache::decrement(self::COUNTER);
+                return $response;
+            }
         } else {
-            return $response;
+            Log::info("snoooze!");
+            echo("SNOOOZE");
+            sleep(15);
+            $this->makeApiRequest($incomingUrl, $params, $fullUrl);
         }
 
     }

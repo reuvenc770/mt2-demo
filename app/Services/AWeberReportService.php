@@ -35,6 +35,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
         $date = null; //unfortunately date does not matter here.
         $campaignData = array();
         $campaigns = $this->api->getCampaigns(20);
+        $i = 0;
           foreach ($campaigns as $campaign) {
                 Log::info( 'Processing Aweber Campaign ' . $campaign->id );
 
@@ -54,6 +55,10 @@ class AWeberReportService extends AbstractReportService implements IDataService
                   "unique_opens" => $openEmail,
               );
               $campaignData[] = $row;
+              $i++;
+              if($i >= 19){
+                  break;
+              }
           }
 
         $endTime = microtime( true );
@@ -156,7 +161,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
                     $currrentEmailId = $this->emailRecord->getEmailId( $currentEmail );
 
                     $this->emailRecord->recordOpen(
-                        $currentEmailId , 
+                        $currrentEmailId ,
                         $processState[ 'espId' ] ,
                         $processState[ 'campaignId' ] ,
                         $openRecord[ 'actionDate' ]
