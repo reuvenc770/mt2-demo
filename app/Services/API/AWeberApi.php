@@ -39,7 +39,7 @@ class AWeberApi extends EspBaseAPI
                 return $this->api->getAccount($this->accessToken, $this->sharedSecret)->id;
             });
 
-            $listId = Cache::remember('aweber_list_id_'.$espAccountId, $time, function($accountId) {
+            $listId = Cache::remember('aweber_list_id_'.$espAccountId, $time, function() use ($accountId) {
                 return $this->api->adapter->request('GET', "/accounts/{$accountId}/lists/", array())['entries'][0]['id'];
             });
 
