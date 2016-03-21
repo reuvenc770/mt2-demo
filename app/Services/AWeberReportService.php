@@ -35,7 +35,6 @@ class AWeberReportService extends AbstractReportService implements IDataService
         $date = null; //unfortunately date does not matter here.
         $campaignData = array();
         $campaigns = $this->api->getCampaigns(20);
-        $i = 0;
           foreach ($campaigns as $campaign) {
                 Log::info( 'Processing Aweber Campaign ' . $campaign->id );
 
@@ -55,10 +54,6 @@ class AWeberReportService extends AbstractReportService implements IDataService
                   "unique_opens" => $openEmail,
               );
               $campaignData[] = $row;
-              $i++;
-              if($i >= 19){
-                  break;
-              }
           }
 
         $endTime = microtime( true );
@@ -125,6 +120,16 @@ class AWeberReportService extends AbstractReportService implements IDataService
         return $this->reportRepo->getCampaigns( $espAccountId , $date )->splice( 0 , 20 );
     }
 
+    public function getUniqueJobId ( $processState ) {
+        if ( isset( $processState[ 'campaignId' ] ) && !isset( $processState[ 'recordType' ] ) ) {
+            return '::Campaign' . $processState[ 'campaignId' ];
+        } elseif ( isset( $processState[ 'campaignId' ] ) && isset( $processState[ 'recordType' ] ) ) {
+            return '::Campaign' . $processState[ 'campaignId' ] . '::' . $processState[ 'recordType' ];
+        } else {
+            return '';
+        }
+    }
+
     public function splitTypes () {
         return [ 'opens' , 'clicks' ];
     }
@@ -151,7 +156,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
                     $currrentEmailId = $this->emailRecord->getEmailId( $currentEmail );
 
                     $this->emailRecord->recordOpen(
-                        $currrentEmailId ,
+                        $currentEmailId , 
                         $processState[ 'espId' ] ,
                         $processState[ 'campaignId' ] ,
                         $openRecord[ 'actionDate' ]

@@ -113,6 +113,16 @@ class YmlpReportService extends AbstractReportService implements IDataService {
         );
     }
 
+    public function getUniqueJobId ( $processState ) {
+        if ( isset( $processState[ 'campaignId' ] ) && !isset( $processState[ 'recordType' ] ) ) {
+            return '::Campaign' . $processState[ 'campaignId' ];
+        } elseif ( isset( $processState[ 'campaignId' ] ) && isset( $processState[ 'recordType' ] ) ) {
+            return '::Campaign' . $processState[ 'campaignId' ] . '::' . $processState[ 'recordType' ];
+        } else {
+            return '';
+        }
+    }
+
     public function splitTypes () {
         return [ 'opens' , 'clicks' ];
     }
