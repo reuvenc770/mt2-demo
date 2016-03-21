@@ -58,6 +58,7 @@ elixir(function(mix) {
     mix.scripts( [ 'job/JobController.js' , 'job/JobApiService.js' ] , 'public/js/job.js' );
     mix.scripts( [ 'pages/ShowinfoController.js' , 'pages/ShowinfoApiService.js' ] , 'public/js/show-info.js' );
     mix.scripts( [  'wizard/WizardController.js' , 'wizard/WizardApiService.js' ] , 'public/js/wizard.js' );
+    mix.scripts( [  'ymlpmanager/YmlpCampaignController.js' , 'ymlpmanager/YmlpCampaignApiService.js', 'ymlpmanager/YmlpCampaignTableDirective.js' ] , 'public/js/ymlpcampaign.js' );
 
     mix.scripts( [
         'client/ClientController.js' ,

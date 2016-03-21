@@ -18,37 +18,37 @@ class YmlpSeeder extends Seeder {
 
 
     $ymlpCampaign1 = new \App\Models\YmlpCampaign();
-    $ymlpCampaign1->esp_account_id = $ymlp->id;
+    $ymlpCampaign1->esp_account_id = $ymlpEsp->id;
     $ymlpCampaign1->date = '2016-03-03';
     $ymlpCampaign1->sub_id = '1303097_YMLP1_GM_US_PDA_0303';
     $ymlpCampaign1->save();
 
     $ymlpCampaign2 = new \App\Models\YmlpCampaign();
-    $ymlpCampaign2->esp_account_id = $ymlp->id;
+    $ymlpCampaign2->esp_account_id = $ymlpEsp->id;
     $ymlpCampaign2->date = '2016-03-04';
     $ymlpCampaign2->sub_id = '1303202_YMLP1_GM_US_PDA_0304';
     $ymlpCampaign2->save();
 
     $ymlpCampaign3 = new \App\Models\YmlpCampaign();
-    $ymlpCampaign3->esp_account_id = $ymlp->id;
+    $ymlpCampaign3->esp_account_id = $ymlpEsp->id;
     $ymlpCampaign3->date = '2016-03-05';
     $ymlpCampaign3->sub_id = '1303786_YMLP1_GM_US_PDA_PRO_0307';
     $ymlpCampaign3->save();
 
     $ymlpCampaign4 = new \App\Models\YmlpCampaign();
-    $ymlpCampaign4->esp_account_id = $ymlp->id;
+    $ymlpCampaign4->esp_account_id = $ymlpEsp->id;
     $ymlpCampaign4->date = '2016-03-06';
     $ymlpCampaign4->sub_id = '1304039_YMLP1_GM_US_PDA_PRO_0308';
     $ymlpCampaign4->save();
 
     $ymlpCampaign5 = new \App\Models\YmlpCampaign();
-    $ymlpCampaign5->esp_account_id = $ymlp->id;
+    $ymlpCampaign5->esp_account_id = $ymlpEsp->id;
     $ymlpCampaign5->date = '2016-03-07';
     $ymlpCampaign5->sub_id = '1304517_YMLP1_GM_US_PDA_PRO_0309';
     $ymlpCampaign5->save();
 
     $ymlpCampaign6 = new \App\Models\YmlpCampaign();
-    $ymlpCampaign6->esp_account_id = $ymlp->id;
+    $ymlpCampaign6->esp_account_id = $ymlpEsp->id;
     $ymlpCampaign6->date = '2016-03-08';
     $ymlpCampaign6->sub_id = '1304519_YMLP1_GM_US_PDA_PRO_0310';
     $ymlpCampaign6->save();

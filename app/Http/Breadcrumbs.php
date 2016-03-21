@@ -102,6 +102,23 @@ Breadcrumbs::register( 'listprofile.edit' , function ( $breadcrumbs ) {
     $breadcrumbs->push( 'Edit List Profile' );
 } );
 
+//YMLP Mapping
+
+Breadcrumbs::register( 'ymlpcampaign.list' , function ( $breadcrumbs ) {
+    $breadcrumbs->parent( 'home' );
+    $breadcrumbs->push( 'YMLP Campaigns' , route( 'ymlpcampaign.list' ) );
+} );
+
+Breadcrumbs::register( 'ymlpcampaign.add' , function ( $breadcrumbs ) {
+    $breadcrumbs->parent( 'ymlpcampaign.list' );
+    $breadcrumbs->push( 'Add YMLP Campaign' , route( 'ymlpcampaign.add' ) );
+} );
+
+Breadcrumbs::register( 'ymlpcampaign.edit' , function ( $breadcrumbs ) {
+    $breadcrumbs->parent( 'ymlpcampaign.list' );
+    $breadcrumbs->push( 'Edit YMLP Campaign' );
+} );
+
 // Single Pages
 Breadcrumbs::register('devtools.jobs', function($breadcrumbs) {
     $breadcrumbs->parent('home');

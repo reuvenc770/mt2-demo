@@ -102,5 +102,9 @@ class EspApiAccountRepo
         ] );
     }
 
+    public function getAccountsbyEsp($esp){
+        $this->espAccount->where('esp_id', $esp)->get();
+    }
+
     
 }

@@ -15,7 +15,8 @@ return[
     'tools.recordlookup' => "Email & EID Loopup" ,
     'listprofile.list' => 'List Profile' ,
     'listprofile.add' => 'Add List Profile' ,
-    'tools.recordlookup' => "Email & EID Lookup",
     'dataexport.list' => "Data Export",
     'dataexport.add' => 'Add Data Export',
+    'ymlpcampaign.add' => 'Add YMLP Campaign',
+    'ymlpcampaign.list' => 'YMLP Campaign Mapping',
 ];

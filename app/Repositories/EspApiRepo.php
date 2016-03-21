@@ -32,4 +32,8 @@ class EspApiRepo
     public function getAllEsps () {
         return $this->esp->all();
     }
+
+    public function getEspByName($name){
+        return $this->esp->where('name', $name)->first();
+    }
 }
