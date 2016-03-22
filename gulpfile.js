@@ -54,7 +54,9 @@ elixir(function(mix) {
 
     mix.scripts( [ 'espapi/EspController.js' , 'espapi/EspApiService.js' , 'espapi/EspapiTableDirective.js' ] , 'public/js/espapi.js' );
     mix.scripts( [ 'user/UserController.js' , 'user/UserApiService.js' ] , 'public/js/user.js' );
+
     mix.scripts( [ 'role/RoleController.js' , 'role/RoleApiService.js' ] , 'public/js/role.js' );
+
     mix.scripts( [ 'job/JobController.js' , 'job/JobApiService.js' ] , 'public/js/job.js' );
     mix.scripts( [ 'pages/ShowinfoController.js' , 'pages/ShowinfoApiService.js' ] , 'public/js/show-info.js' );
     mix.scripts( [  'wizard/WizardController.js' , 'wizard/WizardApiService.js' ] , 'public/js/wizard.js' );
@@ -83,6 +85,7 @@ elixir(function(mix) {
     ] , 'public/js/listprofile.js' );
 
     mix.copy( 'resources/assets/js/templates' , 'public/js/templates' );
+    mix.copy( 'resources/assets/img' , 'public/img' );
 
     mix.phpUnit();
 });

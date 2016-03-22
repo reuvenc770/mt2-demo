@@ -53,8 +53,51 @@ class RoleApiController extends Controller
      */
     public function create()
     {
+        return view( 'pages.role.role-add' );
+
+    }
+
+    public function permissions () {
         $permissions = Permission::getAllPermissions();
-        return view('pages.role.role-add',array("permissions" => $permissions['routes'], "permissionsAPI" => $permissions['api']));
+        $response = [ "routes" => [ "general" => [] ] , "api" => [ "general" => [] ] ];
+
+        foreach ( $permissions[ 'routes' ] as $index => $route ) {
+            if ( $route[ 'name' ] == '' ) continue;
+
+            $routeNameSections = explode( '.' , $route[ 'name' ] );
+
+            $currentRoutePrefix = $routeNameSections[ 0 ];
+
+            if ( count( $routeNameSections ) < 2 ) {
+                $response[ 'routes' ][ 'general' ] []= $route[ 'name' ];
+            } elseif ( in_array( $currentRoutePrefix , [ 'forget' , 'password' ] ) ) {
+                $response[ 'routes' ][ 'password' ] []= $route[ 'name' ];
+            } else {
+                if ( !isset( $response[ 'routes' ][ $currentRoutePrefix ] ) ) {
+                    $response[ 'routes' ][ $currentRoutePrefix ] = [];
+                }
+
+                $response[ 'routes' ][ $currentRoutePrefix ] []= $route[ 'name' ];
+            }
+        }
+
+        foreach ( $permissions[ 'api' ] as $index => $api ) {
+            $apiNameSections = explode( '.' , $api[ 'name' ]  );
+
+            $currentApiPrefix = $apiNameSections[ 1 ];
+
+            if ( in_array( $currentApiPrefix , [ 'jobEntry' , 'pager' , 'profile' , 'showinfo' ] ) ) {
+                $response[ 'api' ][ 'general' ] []= $api[ 'name' ];
+            } else {
+                if ( !isset( $response[ 'api' ][ $currentApiPrefix ] ) ) {
+                    $response[ 'api' ][ $currentApiPrefix ] = [];
+                }
+
+                $response[ 'api' ][ $currentApiPrefix ] []= $api[ 'name' ];
+            }
+        }
+
+        return response()->json( $response );
     }
 
     /**
@@ -93,8 +136,7 @@ class RoleApiController extends Controller
      */
     public function edit()
     {
-        $permissions = Permission::getAllPermissions();
-        return view('pages.role.role-edit',array("permissions" => $permissions['routes'], "permissionsAPI" => $permissions['api']));
+        return view('pages.role.role-edit');
     }
 
     /**

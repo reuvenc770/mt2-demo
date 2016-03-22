@@ -245,6 +245,7 @@ Route::group(
             'as' => 'listprofile.edit' ,
             'uses' => 'ListProfileController@edit'
         ] );
+
     }
 );
 
@@ -292,7 +293,7 @@ Route::group(
 
         Route::put( '/profile/{id}' , [
             'as' => 'api.profile.update' ,
-            'uses' =>'UserApiController@updateProfile'
+            'uses' => 'UserApiController@updateProfile'
         ] );
 
         /**
@@ -388,6 +389,11 @@ Route::group(
          * Admin Level API Group
          */
         Route::group( [ 'middleware' => 'admin' ] , function () {
+            Route::get( '/role/permissions/' , [
+                'as' => 'api.role.permissions' ,
+                'uses' => 'RoleApiController@permissions'
+            ] );
+
             Route::resource(
                 'user',
                 'UserApiController', 
@@ -397,7 +403,7 @@ Route::group(
             Route::resource(
                 'role' ,
                 'RoleApiController',
-                [ 'except' => [ 'create' , 'edit' ] ]
+                [ 'except' => [ 'create' , 'edit' , 'getPermissions' ] ]
             );
         } );
 

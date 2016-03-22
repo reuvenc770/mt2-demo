@@ -7,14 +7,39 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
     self.createUrl = 'role/create/';
     self.editUrl = 'role/edit/';
 
+    self.permissions = [];
+    $rootScope.selectedPermissions = {};
+    self.defaultPermissions = [ 'home' , 'login' , 'logout' , 'forget.getemail' , 'forget.postemail' , 'pager' , 'myprofile' , 'profile.update' , 'password.reset' , 'password.store' , 'sessions.create' , 'sessions.destroy' , 'sessions.store' ];
+
     self.formErrors = "";
 
-    self.loadRole = function () {
-        var pathMatches = $location.path().match( /^\/role\/edit\/(\d{1,})/ );
+    self.initEditPage = function () {
+        var currentPath = $location.path();
+        var pathParts = currentPath.match( new RegExp( /(\d+)/ ) );
+        var prepopPage = (
+            pathParts !== null
+            && angular.isNumber( parseInt( pathParts[ 0 ] ) )
+        );
 
-        RoleApiService.getRole( pathMatches[ 1 ] , function ( response ) {
-            self.currentRole = response.data;
-        } )
+        self.loadPermissions();
+
+        if ( prepopPage ) {
+            RoleApiService.getRole( pathParts[ 0 ] , function ( response ) {
+                self.currentRole = response.data;
+
+                angular.forEach( response.data.permissions , function ( value , key ) {
+                    $rootScope.selectedPermissions[ value ] = true;
+                } );
+            } );
+        }
+    };
+
+    self.initCreatePage = function () {
+        self.loadPermissions();
+
+        angular.forEach( self.defaultPermissions , function ( value , key ) {
+            $rootScope.selectedPermissions[ value ] = true;
+        } );
     };
 
     self.loadRoles = function () {
@@ -23,6 +48,20 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
 
     self.resetForm = function () {
         self.currentRole = {};
+    };
+
+    self.loadPermissions = function () {
+        self.permissions = RoleApiService.getPermissions( self.loadPermissionsSuccessCallback , self.loadPermissionsFailureCallback );
+    };
+
+    self.loadPermissionsSuccessCallback = function ( response ) {
+        $log.log( response );
+
+        self.permissions = response.data;
+    };
+
+    self.loadPermissionsFailureCallback = function ( response ) {
+        $log.log( response );
     };
 
     /**
@@ -44,52 +83,45 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
         RoleApiService.editRole( self.currentRole , self.SuccessCallBackRedirect , self.editRoleFailureCallback );
     };
 
-    self.toggleSelection = function (role) {
-        var apiRoleAction = convertRoleForApi(role);
-        var roleStub = role.substring(0, role.lastIndexOf('.'));
-        var apiRole = "api." + roleStub + apiRoleAction;
-        var idx = self.currentRole.permissions.indexOf(role);
-
-        // is currently selected
-        if (idx > -1) {
-            self.currentRole.permissions.splice(idx, 1);
-            if(!self.currentRole.apiUser){
-
-                if (apiRoleAction.indexOf(',') > -1){
-                    roles = apiRoleAction.split(',');
-                    roleAPI = "api." + roleStub + roles[0];
-                    idxAPI = self.currentRole.permissions.indexOf(roleAPI);
-                    self.currentRole.permissions.splice(idxAPI, 1);
-                    roleAPI2 = "api." + roleStub + roles[1];
-                    idxAPI2 = self.currentRole.permissions.indexOf(roleAPI2);
-                    self.currentRole.permissions.splice(idxAPI2, 1);
-                } else {
-                    idxAPI = self.currentRole.permissions.indexOf(apiRole);
-                    self.currentRole.permissions.splice(idxAPI, 1);
-                }
-            }
+    self.selectPermissions = function ( permissionList ) {
+        if ( angular.isArray( permissionList ) ) {
+            angular.forEach( permissionList , function ( permissionName , key ) {
+                $rootScope.selectedPermissions[ permissionName ] = true;
+            } );
+        } else {
+            angular.forEach( permissionList , function ( value , groupKey ) {
+                angular.forEach( value , function ( permissionName , key ) {
+                    $rootScope.selectedPermissions[ permissionName ] = true;
+                } );
+            } );
         }
+    }
 
-        // is newly selected
-        else {
-            self.currentRole.permissions.push(role);
-
-            if(!self.currentRole.apiUser){
-                if (apiRoleAction.indexOf(',') > -1) {
-                    roles = apiRoleAction.split(',');
-
-                    roleAPI = "api." + roleStub + roles[0];
-                    self.currentRole.permissions.push(roleAPI);
-                    roleAPI2 = "api." + roleStub + roles[1];
-                    self.currentRole.permissions.push(roleAPI2);
-
-                } else {
-                    self.currentRole.permissions.push(apiRole);
-                }
-            }
+    self.unselectPermissions = function ( permissionList ) {
+        if ( angular.isArray( permissionList ) ) {
+            angular.forEach( permissionList , function ( permissionName , key ) {
+                $rootScope.selectedPermissions[ permissionName ] = false;
+            } );
+        } else {
+            angular.forEach( permissionList , function ( value , groupKey ) {
+                angular.forEach( value , function ( permissionName , key ) {
+                    $rootScope.selectedPermissions[ permissionName ] = false;
+                } );
+            } );
         }
-    };
+    }
 
+    
+    /**
+     * Watchers
+     */
+    $rootScope.$watchCollection( 'selectedPermissions' , function ( newPermissions , oldPermissions ) {
+        self.currentRole.permissions = [];
+
+        angular.forEach( newPermissions , function ( value , key ) {
+            if ( value === true ) self.currentRole.permissions.push( key );
+        });
+    } );
 
     /**
      * Callbacks
@@ -169,10 +201,3 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
         $( '#pageModal' ).modal('hide');
     };
 } ] );
-
-function convertRoleForApi(role) {
-    splitRole = role.split(/[. ]+/);
-    $convertedArray = {"list": ".index", "edit": ".update,.show", "add": ".create"};
-    action = splitRole.pop();
-    return $convertedArray[action];
-}
