@@ -12,7 +12,7 @@ class ESPCampaignMappingUpdate extends Migration
      */
     public function up()
     {
-        //Schema::rename("esp_account_mappings", "esp_campaign_mappings");
+        Schema::rename("esp_account_mappings", "esp_campaign_mappings");
 
         Schema::table('esp_campaign_mappings', function(Blueprint $table) {
             $table->dropForeign('esp_account_mappings_esp_account_id_foreign');
