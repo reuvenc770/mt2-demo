@@ -56,11 +56,6 @@ class TrackingDataService implements IDataService
     } 
   }
 
-  public function retrieveDeliverableStats() {
-    $deliverableStats = $this->api->sendDeliverableRequest();
-    return $this->processGuzzleResult($deliverableStats);
-  }
-
   protected function processGuzzleResult($data) {
       $data = $data->getBody()->getContents();
       return json_decode($data, true);
