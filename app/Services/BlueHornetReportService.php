@@ -232,8 +232,9 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                         for ( $currentOpens->rewind() ; $currentOpens->valid() ; $currentOpens->next() ) {
                             $currentOpenDate = $currentOpens->current();
 
-                            $this->emailRecord->recordOpen(
-                                $currentEmailId ,
+                            $this->emailRecord->recordDeliverable(
+                                EmailRecordService::OPENER ,
+                                $currentEmail ,
                                 $processState[ 'ticket' ][ 'espId' ] ,
                                 $processState[ 'ticket' ][ 'campaignId' ] ,
                                 $currentOpenDate
@@ -251,21 +252,22 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                             
                             $currentClickDate = $currentClick->current();
 
-                            $this->emailRecord->recordClick(
-                                $currentEmailId , 
-                                $processState[ 'ticket' ][ 'espId' ] , 
+                            $this->emailRecord->recordDeliverable(
+                                EmailRecordService::CLICKER ,
+                                $currentEmail , 
+                                $processState[ 'ticket' ][ 'espId' ] ,
                                 $processState[ 'ticket' ][ 'campaignId' ] ,
                                 $currentClickDate
                             );
-                             
                         }
                     }
                 }
 
                 if ( $contactSent && !$contactBounced ) {
                     $this->emailRecord->recordDeliverable(
-                        $currentEmailId , 
-                        $processState[ 'ticket' ][ 'espId' ] , 
+                        EmailRecordService::DELIVERABLE ,
+                        $currentEmail , 
+                        $processState[ 'ticket' ][ 'espId' ] ,
                         $processState[ 'ticket' ][ 'campaignId' ] ,
                         ''
                     );

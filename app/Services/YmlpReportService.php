@@ -145,8 +145,9 @@ class YmlpReportService extends AbstractReportService implements IDataService {
                 }
 
                 foreach ( $openData as $key => $opener ) {
-                    $this->emailRecord->recordOpen(
-                        $this->emailRecord->getEmailId($opener['Email']),
+                    $this->emailRecord->recordDeliverable(
+                        EmailRecordService::OPENER ,
+                        $opener['Email'] ,
                         $this->api->getId() ,
                         $campaignId,
                         $opener['Timestamp']
@@ -168,8 +169,9 @@ class YmlpReportService extends AbstractReportService implements IDataService {
                 }
 
                 foreach ( $clickData as $key => $clicker ) {
-                    $this->emailRecord->recordClick(
-                        $this->emailRecord->getEmailId($clicker['Email']),
+                    $this->emailRecord->recordDeliverable(
+                        EmailRecordService::CLICKER ,
+                        $clicker['Email'] ,
                         $this->api->getId() ,
                         $campaignId,
                         $clicker['Timestamp']

@@ -143,7 +143,8 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                     $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
 
                     $this->emailRecord->recordDeliverable(
-                        $currentEmailId ,
+                        EmailRecordService::DELIVERABLE ,
+                        $deliveryRecord[ 'EmailAddress' ] ,
                         $processState[ 'espId' ] ,
                         $processState[ 'campaignId' ] ,
                         $deliveryRecord[ 'ActionDate' ]
@@ -168,8 +169,9 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                     $currentEmail = $openRecord[ 'EmailAddress' ];
                     $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
 
-                    $this->emailRecord->recordOpen(
-                        $currentEmailId ,
+                    $this->emailRecord->recordDeliverable(
+                        EmailRecordService::OPENER ,
+                        $openRecord[ 'EmailAddress' ] ,
                         $processState[ 'espId' ] ,
                         $processState[ 'campaignId' ] ,
                         $openRecord[ 'ActionDate' ]
@@ -194,8 +196,9 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                     $currentEmail = $clickRecord[ 'EmailAddress' ];
                     $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
 
-                    $this->emailRecord->recordClick(
-                        $currentEmailId ,
+                    $this->emailRecord->recordDeliverable(
+                        EmailRecordService::CLICKER ,
+                        $clickRecord[ 'EmailAddress' ] ,
                         $processState[ 'espId' ] ,
                         $processState[ 'campaignId' ] ,
                         $clickRecord[ 'ActionDate' ]

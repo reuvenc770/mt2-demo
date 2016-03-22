@@ -16,6 +16,7 @@ class CreateEmailAction extends Migration
             $table->bigIncrements('id');
             $table->string('email_address', 100)->default('');
             $table->integer('email_domain_id')->unsigned()->default(0);
+            $table->timestamps();
             $table->unique('email_address');
             $table->index('email_domain_id');
         });

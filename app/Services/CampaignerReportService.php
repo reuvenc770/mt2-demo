@@ -244,22 +244,25 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         if ( !is_null( $recordData ) ) {
             foreach ( $recordData as $key => $record ) {
                 if ( $record[ 'action' ] === 'Open' ) {
-                    $this->emailRecord->recordOpen(
-                        $this->emailRecord->getEmailId( $record[ 'email' ] ) ,
+                    $this->emailRecord->recordDeliverable(
+                        EmailRecordService::OPENER ,
+                        $record[ 'email' ] ,
                         $processState[ 'ticket' ][ 'espId' ] ,
                         $processState[ 'ticket' ][ 'campaignId' ] ,
                         $record[ 'actionDate' ]
                     );
                 } elseif ( $record[ 'action' ] === 'Click' ) {
-                    $this->emailRecord->recordClick(
-                        $this->emailRecord->getEmailId( $record[ 'email' ] ) ,
+                    $this->emailRecord->recordDeliverable(
+                        EmailRecordService::CLICKER ,
+                        $record[ 'email' ] ,
                         $processState[ 'ticket' ][ 'espId' ] ,
                         $processState[ 'ticket' ][ 'campaignId' ] ,
                         $record[ 'actionDate' ]
                     );
                 } elseif ( $record[ 'action' ] === 'Delivered' ) {
                     $this->emailRecord->recordDeliverable(
-                        $this->emailRecord->getEmailId( $record[ 'email' ] ) ,
+                        EmailRecordService::DELIVERABLE ,
+                        $record[ 'email' ] ,
                         $processState[ 'ticket' ][ 'espId' ] ,
                         $processState[ 'ticket' ][ 'campaignId' ] ,
                         $record[ 'actionDate' ]

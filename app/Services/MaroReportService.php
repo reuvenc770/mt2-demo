@@ -87,8 +87,9 @@ class MaroReportService extends AbstractReportService implements IDataService
         switch ( $processState[ 'recordType' ] ) {
             case 'opens' :
                 foreach ( $processState[ 'currentPageData' ] as $key => $openner ) {
-                    $this->emailRecord->recordOpen(
-                        $this->emailRecord->getEmailId( $openner[ 'contact' ][ 'email' ] ) ,
+                    $this->emailRecord->recordDeliverable(
+                        EmailRecordService::OPENER ,
+                        $openner[ 'contact' ][ 'email' ] ,
                         $this->api->getId() ,
                         $openner[ 'campaign_id' ] ,
                         $openner[ 'recorded_at' ]
@@ -98,8 +99,9 @@ class MaroReportService extends AbstractReportService implements IDataService
 
             case 'clicks' :
                 foreach ( $processState[ 'currentPageData' ] as $key => $clicker ) {
-                    $this->emailRecord->recordClick(
-                        $this->emailRecord->getEmailId( $clicker[ 'contact' ][ 'email' ] ) ,
+                    $this->emailRecord->recordDeliverable(
+                        EmailRecordService::CLICKER ,
+                        $clicker[ 'contact' ][ 'email' ] ,
                         $this->api->getId() ,
                         $clicker[ 'campaign_id' ] ,
                         $clicker[ 'recorded_at' ]

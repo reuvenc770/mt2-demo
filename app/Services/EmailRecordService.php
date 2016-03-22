@@ -3,8 +3,14 @@
 namespace App\Services;
 
 use App\Repositories\EmailRecordRepo;
+use Log;
 
 class EmailRecordService {
+    CONST OPENER = 1;
+    CONST CLICKER = 2;
+    CONST CONVERTER = 3;
+    CONST DELIVERABLE = 4; 
+
     protected $repo;
 
     public function __construct ( EmailRecordRepo $repo ) {
@@ -15,15 +21,12 @@ class EmailRecordService {
         return $this->repo->getEmailId( $email );
     }
 
-    public function recordOpen ( $emailId , $espId , $campaignId , $date ) {
-        $this->repo->recordOpen( $emailId , $espId , $campaignId , $date );
-    }
-
-    public function recordClick ( $emailId , $espId , $campaignId , $date ) {
-        $this->repo->recordClick( $emailId , $espId , $campaignId , $date );
-    }
-
-    public function recordDeliverable ( $emailId , $espId , $campaignId , $date ) {
-        $this->repo->recordDeliverable( $emailId , $espId , $campaignId , $date );
+    public function recordDeliverable ( $recordType , $email , $espId , $campaignId , $date ) {
+        if ( in_array( $recordType , [ self::OPENER , self::CLICKER , self::CONVERTER , self::DELIVERABLE ] ) ) {
+            return $this->repo->recordDeliverable( $recordType , $email , $espId , $campaignId , $date );
+        } else {
+            Log::error( "Record Type '{$recordType}' is not valid." );
+            return false;
+        }
     }
 }
