@@ -102,9 +102,13 @@ class EspApiAccountRepo
         ] );
     }
 
+    public function getAccountESPMapping($accountId){
+        return $this->espAccount->find($accountId)->esp->accountMapping;
+    }
+
     public function getAccountsbyEsp($esp){
         $this->espAccount->where('esp_id', $esp)->get();
     }
 
-    
+
 }

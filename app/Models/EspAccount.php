@@ -11,11 +11,6 @@ class EspAccount extends Model
         return $this->belongsTo('App\Models\Esp');
     }
 
-    public function accountMapping()
-    {
-        return $this->hasOne('App\Models\EspAccountMapping');
-    }
-
     public function blueHornetReports(){
         return $this->hasMany('App\Models\BlueHornetReport');
     }
@@ -52,10 +47,6 @@ class EspAccount extends Model
     public function getSecondKey()
     {
         return $this->attributes['key_2'];
-    }
-
-    public function deliverableMapping() {
-        return $this->hasOne('App\Model\DeliverableCsvMapping');
     }
 
     protected static function boot() {
