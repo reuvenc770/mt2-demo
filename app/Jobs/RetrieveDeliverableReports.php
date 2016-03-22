@@ -24,6 +24,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     protected $date;
     protected $maxAttempts;
     protected $tracking;
+    public $queue;
 
     public $processState;
     protected $defaultProcessState = [ "currentFilterIndex" => 0 ];
@@ -35,13 +36,14 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct( $apiName, $espAccountId, $date, $tracking , $processState = null )
+    public function __construct( $apiName, $espAccountId, $date, $tracking , $processState = null, $queue = null)
     {
         $this->apiName = $apiName;
         $this->espAccountId = $espAccountId;
         $this->date = $date;
         $this->maxAttempts = env('MAX_ATTEMPTS',10);
         $this->tracking = $tracking;
+        $this->queue = $queue;
 
         if ( $processState !== null ) {
             $this->processState = $processState;
@@ -77,8 +79,9 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
                         $this->espAccountId ,
                         $this->date ,
                         str_random( 16 ) ,
-                        $this->processState
-                    ) )->delay( 60 ); //Make Longer
+                        $this->processState,
+                        $this->queue
+                    ) )->delay( 60 )->onQueue($this->queue); //Make Longer
 
                     $this->dispatch( $job );
                 }
@@ -98,13 +101,14 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
                     $this->processState[ 'campaignId' ] = $campaignId;
                     $this->processState[ 'espId' ] = $this->espAccountId;
 
-                    $job = new RetrieveDeliverableReports(
+                    $job = (new RetrieveDeliverableReports(
                         $this->apiName,
                         $this->espAccountId,
                         $this->date ,
                         str_random( 16 ) ,
-                        $this->processState 
-                    );
+                        $this->processState,
+                        $this->queue
+                    ))->onQueue($this->queue);
 
                     $this->dispatch( $job );
                 });
@@ -124,13 +128,14 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
                     $this->processState[ 'recordType' ] = $currentType;
 
-                    $job = new RetrieveDeliverableReports(
+                    $job = (new RetrieveDeliverableReports(
                         $this->apiName ,
                         $this->espAccountId ,
                         $this->date ,
                         str_random( 16 ) ,
-                        $this->processState
-                    );
+                        $this->processState,
+                        $this->queue
+                    ))->onQueue($this->queue);
 
                     $this->dispatch( $job );
                 }
@@ -153,13 +158,14 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
                     $this->processState[ 'pageNumber' ] = $reportService->getPageNumber();
 
-                    $job = new RetrieveDeliverableReports(
+                    $job = (new RetrieveDeliverableReports(
                         $this->apiName,
                         $this->espAccountId,
                         $this->date ,
                         str_random( 16 ) ,
-                        $this->processState 
-                    );
+                        $this->processState ,
+                        $this->queue
+                    ))->onQueue($this->queue);
 
                     $this->dispatch( $job );
                 }
