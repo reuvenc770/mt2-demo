@@ -16,8 +16,6 @@ class TrackingDeliverableService {
 
     public function run($lookback) {
         $data = $this->trackingRepo->pullDeliverables($lookback);
-        echo "Running for cake data" . PHP_EOL;
-        #var_dump($data);
 
         foreach ($data as $row) {
             $this->statsRepo->updateWithTrackingInfo($row);
