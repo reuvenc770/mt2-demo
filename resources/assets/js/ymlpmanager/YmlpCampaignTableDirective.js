@@ -1,17 +1,21 @@
-mt2App.directive( 'dataexportTable' , function () {
+mt2App.directive( 'ymlpcampaignTable' , function () {
     return {
         "scope" : {} ,
         "controller" : function () {} ,
         "controllerAs" : "ctrl" ,
         "bindToController" : {
             "records" : "=" ,
+<<<<<<< HEAD:resources/assets/js/dataexport/DataExportTableDirective.js
             "loadingflag" : "=",
             "toggleinclusion": "&",
             "changestatus": "&",
             "statuschangebuttontext": "=",
             "deleteexport": "&",
             "copyexport": "&"
+=======
+            "loadingflag" : "="
+>>>>>>> master:resources/assets/js/ymlpmanager/YmlpCampaignTableDirective.js
         } ,
-        "templateUrl" : "js/templates/dataexport-table.html"
+        "templateUrl" : "js/templates/ymlpcampaign-table.html"
     };
 } );

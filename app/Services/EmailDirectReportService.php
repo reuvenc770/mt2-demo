@@ -12,15 +12,19 @@ use League\Flysystem\Exception;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use App\Services\Interfaces\IDataService;
+use App\Services\EmailRecordService;
+use Log;
 
 /**
  *
  */
 class EmailDirectReportService extends AbstractReportService implements IDataService {
+    protected $dataRetrievalFailed = false;
+
     private $invalidFields = array( 'Publication' , 'Links' );
 
-    public function __construct ( ReportRepo $reportRepo , EmailDirectApi $api) {
-        parent::__construct($reportRepo, $api);
+    public function __construct ( ReportRepo $reportRepo , EmailDirectApi $api , EmailRecordService $emailRecord ) {
+        parent::__construct($reportRepo, $api , $emailRecord );
     }
 
     public function retrieveApiStats ( $date ) {
@@ -98,6 +102,110 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
 
         return $formattedData;
     }
+
+    public function getUniqueJobId ( $processState ) {
+        if ( isset( $processState[ 'campaignId' ] ) && !isset( $processState[ 'recordType' ] ) ) {
+            return '::Campaign' . $processState[ 'campaignId' ];
+        } elseif ( isset( $processState[ 'campaignId' ] ) && isset( $processState[ 'recordType' ] ) ) {
+            return '::Campaign' . $processState[ 'campaignId' ] . '::' . $processState[ 'recordType' ];
+        } else {
+            return '';
+        }
+    }
+
+    public function getCampaigns ( $espAccountId , $date ) {
+        return $this->reportRepo->getCampaigns( $espAccountId , $date );
+    }
+
+    public function splitTypes () {
+        return [ 'deliveries' , 'opens' , 'clicks' ];
+    }
+
+    public function saveRecords ( &$processState ) {
+        $this->dataRetrievalFailed = false;
+
+        switch ( $processState[ 'recordType' ] ) {
+            case 'deliveries' :
+                try {
+                    $deliverables = $this->getDeliveryReport( $processState[ 'campaignId' ] );
+                } catch ( \Exception $e ) {
+                    Log::error( 'Failed to retrievee deliverable records. ' . $e->getMessage() );
+
+                    $processState[ 'delay' ] = 180;
+
+                    $this->dataRetrievalFailed = true;
+
+                    return;
+                }
+
+                foreach ( $deliverables as $key => $deliveryRecord ) {
+                    $currentEmail = $deliveryRecord[ 'EmailAddress' ];
+                    $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
+
+                    $this->emailRecord->recordDeliverable(
+                        $currentEmailId ,
+                        $processState[ 'espId' ] ,
+                        $processState[ 'campaignId' ] ,
+                        $deliveryRecord[ 'ActionDate' ]
+                    );
+                }
+            break;
+
+            case 'opens' :
+                try {
+                    $opens = $this->getOpenReport( $processState[ 'campaignId' ] );
+                } catch ( \Exception $e ) {
+                    Log::error( 'Failed to retrievee open records. ' . $e->getMessage() );
+
+                    $processState[ 'delay' ] = 180;
+
+                    $this->dataRetrievalFailed = true;
+
+                    return;
+                }
+
+                foreach ( $opens as $key => $openRecord ) {
+                    $currentEmail = $openRecord[ 'EmailAddress' ];
+                    $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
+
+                    $this->emailRecord->recordOpen(
+                        $currentEmailId ,
+                        $processState[ 'espId' ] ,
+                        $processState[ 'campaignId' ] ,
+                        $openRecord[ 'ActionDate' ]
+                    );
+                }
+            break;
+
+            case 'clicks' :
+                try {
+                    $clicks = $this->getClickReport( $processState[ 'campaignId' ] );
+                } catch ( \Exception $e ) {
+                    Log::error( 'Failed to retrievee click records. ' . $e->getMessage() );
+
+                    $processState[ 'delay' ] = 180;
+
+                    $this->dataRetrievalFailed = true;
+
+                    return;
+                }
+
+                foreach ( $clicks as $key => $clickRecord ) {
+                    $currentEmail = $clickRecord[ 'EmailAddress' ];
+                    $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
+
+                    $this->emailRecord->recordClick(
+                        $currentEmailId ,
+                        $processState[ 'espId' ] ,
+                        $processState[ 'campaignId' ] ,
+                        $clickRecord[ 'ActionDate' ]
+                    );
+                }
+            break;
+        }
+    }
+
+    public function shouldRetry () { return $this->dataRetrievalFailed; }
 
     public function getDeliveryReport($campaignId){
       return  $this->api->getDeliveryReport($campaignId, "Recipients");

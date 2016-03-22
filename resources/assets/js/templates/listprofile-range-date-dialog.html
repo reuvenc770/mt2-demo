@@ -1,0 +1,17 @@
+<md-dialog aria-label="{{ ctrl.label }}">
+    <md-toolbar layout-align="center center" layout-padding>
+        <h2>{{ ctrl.label }}</h2>
+    </md-toolbar>
+
+    <md-content layout-padding flex>
+        <h4>Minimum</h4>
+        <md-datepicker ng-model="ctrl.min" md-placeholder="Enter Minimum"></md-datepicker>
+
+        <h4>Maximum</h4>
+        <md-datepicker ng-model="ctrl.max" md-placeholder="Enter Maximum"></md-datepicker>
+    </md-content>
+
+    <md-dialog-actions>
+        <md-button ng-click="ctrl.addThisRange()">Add</md-button>
+    </md-dialog-actions>
+</md-dialog>

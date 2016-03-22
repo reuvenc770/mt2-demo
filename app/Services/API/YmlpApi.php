@@ -10,7 +10,7 @@ use App\Facades\Guzzle;
 use Carbon\Carbon;
 use App\Library\YMLP\YMLP_API;
 
-class YmlpApi extends EspBaseApi {
+class YmlpApi extends EspBaseAPI {
 
   const REPORT_API_URL = "";
   const OPENS_URL = "";
@@ -29,6 +29,8 @@ class YmlpApi extends EspBaseApi {
   public function setDate($date) {
     $this->startDate = $date;
   }
+
+  public function getId () { return $this->espAccountId; }
 
   public function sendApiRequest() {
     $page = 1;
@@ -99,6 +101,8 @@ class YmlpApi extends EspBaseApi {
       case 'clicked':
         $links = '';
         $output = $this->apiSdk->ArchiveGetClicks($newsletterId, $links, $onlyUnique, $page, $numberPerPage);
+        break;
+
       default:
         throw new \Exception ('Invalid action type for YMLP');
     }

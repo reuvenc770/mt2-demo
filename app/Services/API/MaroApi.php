@@ -12,12 +12,12 @@ use Carbon\Carbon;
 class MaroApi extends EspBaseAPI {
 
     const API_URL = "http://api.maropost.com/accounts/%d/reports.json?";
-
     const OPENS_URL = "http://api.maropost.com/accounts/%d/reports/opens.json?";
     const CLICKS_URL = "http://api.maropost.com/accounts/%d/reports/clicks.json?";
     const BOUNCES_URL = "http://api.maropost.com/accounts/%d/reports/bounces.json?";
     const COMPLAINTS_URL = "http://api.maropost.com/accounts/%d/reports/complaints.json?";
     const UNSUBS_URL = "http://api.maropost.com/accounts/%d/reports/unsubscribes.json?";
+    const ADDL_INFO_URL = "http://api.maropost.com/accounts/%d/campaigns/";
     const RECORDS_PER_PAGE = 1000;
     const LOOKBACK_DAYS = 3;
     protected $apiKey;
@@ -26,14 +26,17 @@ class MaroApi extends EspBaseAPI {
     protected $account;
     protected $deliverableStartDate;
     protected $deliverableEndDate;
-
+    protected $espAccountId;
 
     public function __construct($name, $espAccountId) {
         parent::__construct($name, $espAccountId);
         $creds = EspApiAccount::grabApiAccountIdAndKey($espAccountId);
         $this->account = $creds['account'];
         $this->apiKey = $creds['apiKey'];
+        $this->espAccountId = $espAccountId;
     }
+
+    public function getId () { return $this->espAccountId; }
 
     public function setDate($date) {
         $this->priorDate = $date;
@@ -105,6 +108,13 @@ class MaroApi extends EspBaseAPI {
     public function setDeliverableLookBack() {
         $this->deliverableStartDate = Carbon::now()->subDay(self::LOOKBACK_DAYS)->toDateString();
         $this->deliverableEndDate = Carbon::now()->toDateString();
+    }
+
+    public function constructAdditionalInfoUrl($campaignId) {
+        $this->url = sprintf(self::ADDL_INFO_URL, $this->account) 
+            . $campaignId 
+            . '.json?auth_token='
+            . $this->apiKey;
     }
 
 }

@@ -12,6 +12,9 @@ use League\Flysystem\Exception;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use App\Services\Interfaces\IDataService;
+use App\Services\EmailRecordService;
+use Log;
+use Illuminate\Queue\InteractsWithQueue;
 
 /**
  * Class BlueHornetReportService
@@ -19,16 +22,16 @@ use App\Services\Interfaces\IDataService;
  */
 class MaroReportService extends AbstractReportService implements IDataService
 {
+    use InteractsWithQueue;
 
-    protected $reportRepo;
-    protected $api;
     protected $actions = ['opens', 'clicks', 'bounces', 'complaints', 'unsubscribes'];
+    public $pageType = 'opens';
+    public $pageNumber = 1;
+    public $currentPageData = array();
 
-    public function __construct(ReportRepo $reportRepo, MaroApi $api) {
-        $this->reportRepo = $reportRepo;
-        $this->api = $api;
+    public function __construct(ReportRepo $reportRepo, MaroApi $api , EmailRecordService $emailRecord ) {
+        parent::__construct( $reportRepo , $api , $emailRecord );
     }
-
 
     public function retrieveApiStats($date) {
         $this->api->setDate($date);
@@ -54,42 +57,107 @@ class MaroReportService extends AbstractReportService implements IDataService
                 }
             }
         }
-        
-        return $outputData;
-    }
 
-    public function retrieveDeliveredRecords() {
+        $completeData = array();
+        foreach ($outputData as $id => $campaign) {
+            $campaignId = $campaign['campaign_id'];
 
-        $this->api->setDeliverableLookBack();
-        $outputData = array();
+            $this->api->constructAdditionalInfoUrl($campaignId);
+            $return = $this->api->sendApiRequest();
+            $metadata = $this->processGuzzleResult($return);
 
-        foreach ($this->actions as $id => $action) {
-            $dataFound = true;
-            $page = 1;
-
-            while ($dataFound) {
-                $this->api->constructDeliverableUrl($action, $page);
-                $data = $this->sendApiRequest();
-                $data = $this->processGuzzleResult($data);
-
-                if (empty($data)) {
-                    $dataFound = false;
-                }
-                else {
-                    $outputData = array_merge($outputData, $data);
-                    $page++;
-                }
-            }       
+            $campaign['from_name'] = $metadata['from_name'];
+            $campaign['from_email'] = $metadata['from_email']; 
+            $campaign['subject'] = $metadata['subject'];     
+            $campaign['unique_opens'] = $metadata['unique_opens'];
+            $campaign['unique_clicks'] = $metadata['unique_clicks'];
+            $campaign['unsubscribes'] = $metadata['unsubscribed'];
+            $campaign['complaints'] = $metadata['complaint'];
+            $completeData[] = $campaign;
         }
-
-        return $outputData;
+        
+        return $completeData;
     }
 
-    public function insertDeliverableStats() {
-        // TODO
+    public function splitTypes () {
+        return [ 'opens' , 'clicks' ];
+    }
+
+    public function saveRecords ( &$processState ) {
+        switch ( $processState[ 'recordType' ] ) {
+            case 'opens' :
+                foreach ( $processState[ 'currentPageData' ] as $key => $openner ) {
+                    $this->emailRecord->recordOpen(
+                        $this->emailRecord->getEmailId( $openner[ 'contact' ][ 'email' ] ) ,
+                        $this->api->getId() ,
+                        $openner[ 'campaign_id' ] ,
+                        $openner[ 'recorded_at' ]
+                    );
+                }
+            break;
+
+            case 'clicks' :
+                foreach ( $processState[ 'currentPageData' ] as $key => $clicker ) {
+                    $this->emailRecord->recordClick(
+                        $this->emailRecord->getEmailId( $clicker[ 'contact' ][ 'email' ] ) ,
+                        $this->api->getId() ,
+                        $clicker[ 'campaign_id' ] ,
+                        $clicker[ 'recorded_at' ]
+                    );
+                }
+            break;
+        }
+    }
+
+    public function shouldRetry () {
+        return false; #releases if guzzle result is not HTTP 200
+    }
+
+    public function getUniqueJobId ( $processState ) {
+        if ( isset( $processState[ 'recordType' ] ) ) {
+            return '::' . $processState[ 'recordType' ] . '::' . 'Page' . ( isset( $processState[ 'pageNumber' ] ) ? $processState[ 'pageNumber' ] : 1 );
+        } else {
+            return '';
+        }
+    }
+
+    public function setPageType ( $pageType ) {
+        if ( in_array( $pageType , [ 'opens' , 'clicks' ] ) ) {
+            $this->pageType = $pageType;
+        }
+    }
+
+    public function setPageNumber ( $pageNumber ) {
+        $this->pageNumber = $pageNumber;
+    }
+
+    public function getPageNumber () { return $this->pageNumber; }
+
+    public function nextPage () { $this->pageNumber++; }
+
+    public function pageHasData () {
+        $this->api->setDeliverableLookBack();
+        $this->api->constructDeliverableUrl( $this->pageType , $this->pageNumber );
+
+        $data = $this->api->sendApiRequest();
+        $data = $this->processGuzzleResult( $data );
+
+        if ( empty( $data ) ) {
+            return false; 
+        } else {
+            $this->currentPageData = $data;
+
+            return true;
+        }
+    }
+
+    public function getPageData () {
+        return $this->currentPageData;
     }
 
     protected function processGuzzleResult($data) {
+        if ( $data->getStatusCode() != 200 ) $this->release( 60 );
+
         $data = $data->getBody()->getContents();
         return json_decode($data, true);
     }
@@ -107,10 +175,6 @@ class MaroReportService extends AbstractReportService implements IDataService
         Event::fire(new RawReportDataWasInserted($this, $convertedDataArray));
     }
 
-    public function insertEmailAction($data) {
-        //
-    }
-
     public function mapToStandardReport($data) { 
         return array(
 
@@ -120,17 +184,17 @@ class MaroReportService extends AbstractReportService implements IDataService
             'esp_account_id' => $data['esp_account_id'],
             'datetime' => $data['sent_at'],
             #'name' => $data[''],
-            #'subject' => $data[''],
-            #'from' => $data[''],
-            #'from_email' => $data[''],
+            'subject' => $data['subject'],
+            'from' => $data['from_name'],
+            'from_email' => $data['from_email'],
             'e_sent' => $data['sent'],
             'delivered' => $data['delivered'],
             'bounced' => (int)$data['bounce'],
             #'optouts' => $data[''],
             'e_opens' => $data['open'],
-            #'e_opens_unique' => $data[''],
+            'e_opens_unique' => $data['unique_opens'],
             'e_clicks' => $data['click'],
-            #'e_clicks_unique' => $data[''],
+            'e_clicks_unique' => $data['unique_clicks'],
         );
     }
 
@@ -149,6 +213,13 @@ class MaroReportService extends AbstractReportService implements IDataService
             'sent_at' => $data['sent_at'],
             'maro_created_at' => $data['created_at'],
             'maro_updated_at' => $data['updated_at'],
+            'from_name' => $data['from_name'],
+            'from_email' => $data['from_email'],
+            'subject' => $data['subject'],
+            'unique_opens' => $data['unique_opens'],
+            'unique_clicks' => $data['unique_clicks'],
+            'unsubscribes' => $data['unsubscribes'],
+            'complaints' => $data['complaints'],
         );
     }
 

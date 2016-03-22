@@ -35,6 +35,12 @@ elixir(function(mix) {
     mix.copy( 'node_modules/ngclipboard/dist/ngclipboard.min.js' , 'public/js/ngclipboard.min.js' );
     mix.copy( 'node_modules/clipboard/dist/clipboard.min.js' , 'public/js/clipboard.min.js' );
 
+    mix.copy( 'node_modules/moment/min/moment-with-locales.min.js' , 'public/js/momment-with-locales.min.js' );
+
+    mix.copy( 'node_modules/ui-select/dist/select.min.js' , 'public/js/select.min.js' );
+
+    mix.copy( 'node_modules/ui-select/dist/select.min.css' , 'public/css/select.min.css' );
+
     mix.scripts( [
         'app.js' ,
         'mt2app/GenericTableDirective.js' ,
@@ -52,6 +58,7 @@ elixir(function(mix) {
     mix.scripts( [ 'job/JobController.js' , 'job/JobApiService.js' ] , 'public/js/job.js' );
     mix.scripts( [ 'pages/ShowinfoController.js' , 'pages/ShowinfoApiService.js' ] , 'public/js/show-info.js' );
     mix.scripts( [  'wizard/WizardController.js' , 'wizard/WizardApiService.js' ] , 'public/js/wizard.js' );
+    mix.scripts( [  'ymlpmanager/YmlpCampaignController.js' , 'ymlpmanager/YmlpCampaignApiService.js', 'ymlpmanager/YmlpCampaignTableDirective.js' ] , 'public/js/ymlpcampaign.js' );
 
     mix.scripts( [
         'client/ClientController.js' ,
@@ -76,6 +83,13 @@ elixir(function(mix) {
 	'dataexport/DataExportDeleteDirective.js',
 	'dataexport/DataExportCopyDirective.js'
     ], 'public/js/dataexport.js');
+    mix.scripts( [
+        'listprofile/ListProfileController.js' ,
+        'listprofile/ListProfileApiService.js' ,
+        'listprofile/ListProfileTableDirective.js' ,
+        'clientgroup/ClientGroupApiService.js' ,
+        'client/ClientApiService.js'
+    ] , 'public/js/listprofile.js' );
 
     mix.copy( 'resources/assets/js/templates' , 'public/js/templates' );
 

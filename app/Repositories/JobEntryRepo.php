@@ -41,6 +41,11 @@ class JobEntryRepo
                                      'tracking' => $tracking]);
     }
 
+    public function startAggregateJobReturnObject($jobName, $tracking){
+        return $this->entry->updateOrCreate(array('tracking' => $tracking),['job_name' => $jobName,
+                                     'tracking' => $tracking]);
+    }
+
     public function startTrackingJobReturnObject($jobName, $startDate, $endDate, $tracking) {
         return $this->entry->updateOrCreate(array('tracking' => $tracking),[
                 'job_name' => $jobName . $startDate . '::' . $endDate,

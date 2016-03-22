@@ -15,6 +15,7 @@ use App\Services\Interfaces\IDataService;
 use App\Models\YmlpCampaign;
 use App\Repositories\YmlpCampaignRepo;
 use Carbon\Carbon;
+use App\Services\EmailRecordService;
 
 /**
  * Class YmlpReportService
@@ -26,9 +27,10 @@ class YmlpReportService extends AbstractReportService implements IDataService {
     protected $actions = ['opens', 'clicks', 'bounces', 'complaints', 'unsubscribes'];
     protected $campaignRepo;
     protected $espAccountId;
+    protected $dataRetrievalFailed = false;
 
-    public function __construct(ReportRepo $reportRepo, YmlpApi $api) {
-        parent::__construct($reportRepo, $api);
+    public function __construct(ReportRepo $reportRepo, YmlpApi $api, EmailRecordService $emailRecord ) {
+        parent::__construct($reportRepo, $api, $emailRecord);
         $this->campaignRepo = new YmlpCampaignRepo(new YmlpCampaign());
         $this->espAccountId = $this->api->getEspAccountId();
     }
@@ -37,14 +39,6 @@ class YmlpReportService extends AbstractReportService implements IDataService {
         $this->api->setDate($date);
         $data = $this->api->sendApiRequest();
         return $data;
-    }
-
-    public function retrieveDeliveredRecords($campaignId) {
-
-    }
-
-    public function insertDeliverableStats() {
-        // Todo
     }
 
     public function insertApiRawStats($data) {
@@ -118,4 +112,98 @@ class YmlpReportService extends AbstractReportService implements IDataService {
             'permalink' => $data['Permalink'],
         );
     }
+
+    public function getUniqueJobId ( $processState ) {
+        if ( isset( $processState[ 'campaignId' ] ) && !isset( $processState[ 'recordType' ] ) ) {
+            return '::Campaign' . $processState[ 'campaignId' ];
+        } elseif ( isset( $processState[ 'campaignId' ] ) && isset( $processState[ 'recordType' ] ) ) {
+            return '::Campaign' . $processState[ 'campaignId' ] . '::' . $processState[ 'recordType' ];
+        } else {
+            return '';
+        }
+    }
+
+    public function splitTypes () {
+        return [ 'opens' , 'clicks' ];
+    }
+
+    public function saveRecords(&$processState) {
+        $campaignId = $processState['campaignId'];
+
+        switch ( $processState[ 'recordType' ] ) {
+            case 'opens' :
+                try {
+                    $openData = $this->api->getDeliverableStat('opened', $campaignId);
+                } catch ( \Exception $e ) {
+                    Log::error( 'Failed to retrieve open report. ' . $e->getMessage() );
+
+                    $this->processState[ 'delay' ] = 180;
+
+                    $this->dataRetrievalFailed = true;
+
+                    return;
+                }
+
+                foreach ( $openData as $key => $opener ) {
+                    $this->emailRecord->recordOpen(
+                        $this->emailRecord->getEmailId($opener['Email']),
+                        $this->api->getId() ,
+                        $campaignId,
+                        $opener['Timestamp']
+                    );
+                }
+            break;
+
+            case 'clicks' :
+                try {
+                    $clickData = $this->api->getDeliverableStat('clicked', $campaignId);
+                } catch ( \Exception $e ) {
+                    Log::error( 'Failed to retrieve click report. ' . $e->getMessage() );
+
+                    $this->processState[ 'delay' ] = 180;
+
+                    $this->dataRetrievalFailed = true;
+
+                    return;
+                }
+
+                foreach ( $clickData as $key => $clicker ) {
+                    $this->emailRecord->recordClick(
+                        $this->emailRecord->getEmailId($clicker['Email']),
+                        $this->api->getId() ,
+                        $campaignId,
+                        $clicker['Timestamp']
+                    );
+                }
+            break;
+        }
+    }
+
+    public function shouldRetry () {
+        return $this->dataRetrievalFailed;
+    }
+
+    public function getDeliveredRecords ( $action, $newsletterId ) {
+        $outputData = array();
+
+        $dataFound = true;
+        $page = 1;
+
+        while ($dataFound) {
+            $data = $this->api->callDeliverableApiCall($action, $newsletterId, $page);
+
+            $data = $this->processGuzzleResult($data);
+
+            if (empty($data)) {
+                $dataFound = false;
+            }
+            else {
+                $outputData = array_merge($outputData, $data);
+                $page++;
+            }
+        }       
+
+        return $outputData;
+    }
+
 }

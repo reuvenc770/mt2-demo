@@ -105,14 +105,14 @@ class EspApiAccountService
      */
     public function grabCsvMapping($espAccountId)
     {
-        $espDetails = $this->espRepo->getAccount($espAccountId)->accountMapping;
+        $espDetails = $this->espRepo->getAccountESPMapping($espAccountId);
         return  explode(',',$espDetails->mappings);
     }
 
     /**
      *
      */
-    public function mapCsvToRawStatsArray($espAccountId,$filePath){
+    public function mapCsvToRawStatsArray($espAccountId,$filePath) {
         $returnArray = array();
         $mapping = $this->grabCsvMapping($espAccountId);
         $reader = Reader::createFromPath(storage_path().'/app/'.$filePath);
@@ -124,6 +124,7 @@ class EspApiAccountService
         }
         return $returnArray;
     }
+
 
     /**
      * @param array $newAccount The collection of account details to save.
@@ -145,6 +146,14 @@ class EspApiAccountService
         return array(
             'account' => $espDetails['key_1'],
             'apiKey' => $espDetails['key_2']
+        );
+    }
+
+    public function grabAccessTokenAndSecret($espAccountId){
+        $espDetails = $this->espRepo->getAccount($espAccountId);
+        return array(
+            'accessToken' => $espDetails['key_1'],
+            'accessSecret' => $espDetails['key_2']
         );
     }
 

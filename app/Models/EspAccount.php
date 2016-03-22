@@ -3,17 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use Storage;
 class EspAccount extends Model
 {
     public function esp()
     {
         return $this->belongsTo('App\Models\Esp');
-    }
-
-    public function accountMapping()
-    {
-        return $this->hasOne('App\Models\EspAccountMapping');
     }
 
     public function blueHornetReports(){
@@ -25,11 +20,19 @@ class EspAccount extends Model
     }
 
     public function emailDirectReport(){
-    return $this->hasMany('App\Models\EmailDirectReport');
+        return $this->hasMany('App\Models\EmailDirectReport');
     }
 
     public function maroReport() {
         return $this->hasMany('App\Models\MaroReport');
+    }
+
+    public function aweberReport(){
+        return $this->hasMany('App\Models\AWeberReport');
+    }
+
+    public function getResponseReport(){
+        return $this->hasMany('App\Models\GetResponseReport');
     }
 
     public function ymlpReport() {
@@ -44,6 +47,19 @@ class EspAccount extends Model
     public function getSecondKey()
     {
         return $this->attributes['key_2'];
+    }
+
+    protected static function boot() {
+        parent::boot();
+        $array = array('clicks', 'complaints', 'delivered', 'opens', 'unsubscribes', 'campaigns');
+        static::Created(function(EspAccount $account) use ($array) {
+            $startingPath = $account->account_name."/";
+            Storage::makeDirectory($startingPath);
+            foreach ($array as $action){
+                Storage::makeDirectory($action);
+            }
+        });
+
     }
 
 }

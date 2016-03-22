@@ -21,7 +21,7 @@ abstract class EspBaseAPI implements  IReportService, IApi
 {
 
     private $apiName;
-    private $espAccountId;
+    protected $espAccountId;
     protected $reportRepo;
 
     public function __construct($name, $espAccountId)

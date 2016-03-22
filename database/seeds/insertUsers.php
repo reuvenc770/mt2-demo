@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
-class insertUsers extends Seeder
+class InsertUsers extends Seeder
 {
     /**
      * Run the database seeds.

@@ -1,0 +1,16 @@
+<md-dialog aria-label="Copy List Profile">
+    <md-toolbar layout-align="center center" layout-padding>
+        <h2>Copy List Profile</h2>
+    </md-toolbar>
+
+    <md-content layout-padding flex>
+        <md-input-container class="md-block" flex>
+            <label>List Profile Name</label>
+            <input type="text" ng-model="ctrl.name" placeholder="Enter List Profile Name">
+        </md-input-container>
+    </md-content>
+
+    <md-dialog-actions>
+        <md-button ng-click="ctrl.copyThisProfile()">Copy</md-button>
+    </md-dialog-actions>
+</md-dialog>

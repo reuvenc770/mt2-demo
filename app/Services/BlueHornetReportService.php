@@ -16,6 +16,12 @@ use League\Flysystem\Exception;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use App\Services\Interfaces\IDataService;
+use App\Services\EmailRecordService;
+
+use Log;
+use SimpleXML;
+use SimpleXMLElement;
+use SimpleXMLIterator;
 
 //TODO FAILED MONITORING - better error messages
 //TODO Create Save Record method
@@ -25,15 +31,16 @@ use App\Services\Interfaces\IDataService;
  */
 class BlueHornetReportService extends AbstractReportService implements IDataService
 {
+    protected $dataRetrievalFailed = false;
 
     /**
      * BlueHornetReportService constructor.
      * @param ReportRepo $reportRepo
      * @param $accountNumber
      */
-    public function __construct(ReportRepo $reportRepo, BlueHornetApi $api)
+    public function __construct(ReportRepo $reportRepo, BlueHornetApi $api , EmailRecordService $emailRecord )
     {
-        parent::__construct($reportRepo, $api);
+        parent::__construct($reportRepo, $api , $emailRecord );
     }
 
     /**
@@ -154,6 +161,124 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         );
     }
 
+    public function getUniqueJobId ( $processState ) {
+        if ( isset( $processState[ 'ticket' ][ 'ticketName' ] ) ) {
+            return '::Ticket-' . $processState[ 'ticket' ][ 'ticketName' ];
+        } else {
+            return '';
+        }
+    }
+
+    public function getTickets ( $espAccountId , $date ) {
+        $campaigns = $this->getCampaigns( $espAccountId , $date );
+        $tickets = [];
+
+        $campaigns->each( function ( $campaign , $key ) use ( &$tickets , $espAccountId ) {
+            $tickets []= [
+                "ticketName" => $this->getTicketForMessageSubscriberData( $campaign->internal_id ) ,
+                "campaignId" => $campaign->internal_id ,
+                "espId" => $espAccountId
+            ];
+        } );
+
+        return $tickets; 
+    }
+
+    public function saveRecords ( &$processState ) {
+        $this->dataRetrievalFailed = false;
+
+        $ticket = $processState[ 'ticket' ][ 'ticketName' ];
+
+        $fileName = $this->checkTicketStatus( $ticket );
+
+        if ( $fileName !== false ) {
+            $file = $this->getFile( $fileName );
+
+            $contactIterator = new SimpleXMLIterator( $file->asXML() );
+            for ( $contactIterator->rewind() ; $contactIterator->valid() ; $contactIterator->next() ) {
+                $currentContact = $contactIterator->current();
+                $currentEmail = '';
+                $currentEmailId = 0;
+                $contactSent = false;
+                $contactBounced = false;
+                $bounceDate = '';
+
+                for ( $currentContact->rewind() ; $currentContact->valid() ; $currentContact->next() ) {
+
+                    if ( $currentContact->key() === 'sent' && $currentContact->current() == 1 ) {
+                        $contactSent = true;
+                    }
+
+                    /**
+                     * Bounce Check. If found, then this email was not deliverable
+                     */
+                    if ( $currentContact->key() === 'bounce' ) {
+                       $contactBounced = true;
+
+                       $currentBounce = $currentContact->current();
+                       $currentBounce->rewind();
+                       $currentBounce->next();
+                       $bounceDate = $currentBounce->current();
+                    } 
+
+                    if( $currentContact->key() === 'email' ) {
+                        $currentEmail = $currentContact->current();
+                        $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
+                    }
+
+                    if( $currentContact->key() === 'opens' ) {
+                        $currentOpens = $currentContact->current();
+
+                        for ( $currentOpens->rewind() ; $currentOpens->valid() ; $currentOpens->next() ) {
+                            $currentOpenDate = $currentOpens->current();
+
+                            $this->emailRecord->recordOpen(
+                                $currentEmailId ,
+                                $processState[ 'ticket' ][ 'espId' ] ,
+                                $processState[ 'ticket' ][ 'campaignId' ] ,
+                                $currentOpenDate
+                            );
+                        }
+                    }
+
+                    if ( $currentContact->key() === 'clicks' ) {
+                        $currentClicks = $currentContact->current();
+
+                        for ( $currentClicks->rewind() ; $currentClicks->valid() ; $currentClicks->next() ) {
+                            $currentClick = $currentClicks->current();
+                            $currentClick->rewind();
+                            $currentClick->next();
+                            
+                            $currentClickDate = $currentClick->current();
+
+                            $this->emailRecord->recordClick(
+                                $currentEmailId , 
+                                $processState[ 'ticket' ][ 'espId' ] , 
+                                $processState[ 'ticket' ][ 'campaignId' ] ,
+                                $currentClickDate
+                            );
+                             
+                        }
+                    }
+                }
+
+                if ( $contactSent && !$contactBounced ) {
+                    $this->emailRecord->recordDeliverable(
+                        $currentEmailId , 
+                        $processState[ 'ticket' ][ 'espId' ] , 
+                        $processState[ 'ticket' ][ 'campaignId' ] ,
+                        ''
+                    );
+                }
+            }
+        } else {
+            $this->processState[ 'delay' ] = 180;
+
+            $this->dataRetrievalFailed = true;
+        }
+    }
+
+    public function shouldRetry () { return $this->dataRetrievalFailed; }
 
     public function getTicketForMessageSubscriberData($messageId)
     {

@@ -52,6 +52,11 @@ class EspApiAccountRepo
         return $accountObject::with( 'esp' )->find($espAccountId);
     }
 
+    public function getEspInfoByAccountName($accountName){
+        $accountObject = $this->espAccount; //cannot use $this-> to invoke static method
+        return $accountObject::with( 'esp' )->where("account_name", $accountName)->first();
+    }
+
     /**
      * @return mixed
      */
@@ -96,4 +101,14 @@ class EspApiAccountRepo
             'key_2' => $accountData[ 'key2' ]
         ] );
     }
+
+    public function getAccountESPMapping($accountId){
+        return $this->espAccount->find($accountId)->esp->accountMapping;
+    }
+
+    public function getAccountsbyEsp($esp){
+        $this->espAccount->where('esp_id', $esp)->get();
+    }
+
+
 }
