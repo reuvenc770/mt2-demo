@@ -4,13 +4,15 @@ namespace App\Factories;
 use App\Repositories\EmailCampaignStatisticRepo;
 use App\Repositories\EmailActionsRepo;
 use App\Repositories\ActionRepo;
+use App\Repositories\TrackingRepo;
 
 use App\Models\EmailCampaignStatistic;
 use App\Models\EmailAction;
 use App\Models\ActionType;
+use App\Models\CakeData;
 
 use App\Services\EmailCampaignAggregationService;
-
+use App\Services\TrackingDeliverableService;
 
 /**
  *  Create different services for generic data processing/OLTP
@@ -33,6 +35,16 @@ class DataProcessingFactory {
                 $actionMap = $actionTypeRepo->getMap();
 
                 return new EmailCampaignAggregationService($statsRepo, $actionsRepo, $actionMap, $lookback);
+                break;
+
+            case('PullCakeDeliverableStats'):
+                $statsModel = new EmailCampaignStatistic();
+                $statsRepo = new EmailCampaignStatisticRepo($statsModel);
+
+                $trackingModel = new CakeData();
+                $trackingRepo = new TrackingRepo($trackingModel);
+
+                return new TrackingDeliverableService($statsRepo, $trackingRepo);
                 break;
 
             default:
