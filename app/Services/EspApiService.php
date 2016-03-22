@@ -30,4 +30,9 @@ class EspApiService
     public function getAllEsps () {
         return $this->espRepo->getAllEsps();
     }
+
+    public function getIdByName($name){
+        $esp = $this->espRepo->getEspByName($name);
+        return $esp->id;
+    }
 }

@@ -120,6 +120,25 @@ Route::group(
             'as' => 'tools.recordlookup' , 
             'uses' => 'ShowInfoController@index'
         ] );
+
+        /**
+         * YMLP Manager Routes
+         */
+        Route::get( '/ymlp-campaign' , [
+            'as' => 'ymlpcampaign.list' ,
+            'uses' => 'YmlpCampaignController@listAll'
+        ] );
+
+        Route::get( '/ymlp-campaign/edit/{id}' , [
+            'as' => 'ymlpcampaign.edit' ,
+            'uses' => 'YmlpCampaignController@edit'
+        ] );
+
+        Route::get( '/ymlp-campaign/create' , [
+            'as' => 'ymlpcampaign.add' ,
+            'uses' => 'YmlpCampaignController@create'
+        ] );
+
     }
 );
 
@@ -361,6 +380,12 @@ Route::group(
         );
 
         Route::resource(
+            'ymlp-campaign' ,
+            'YmlpCampaignController' ,
+            [ 'except' => [ 'create' , 'edit' ] ]
+        );
+
+        Route::resource(
             'client' ,
             'ClientController' ,
             [ 'except' => [ 'create' , 'edit' , 'pager' ] ]
@@ -383,6 +408,8 @@ Route::group(
             'ShowInfoController' ,
             [ 'only' => [ 'show' , 'store' ] ]
         );
+
+
 
         /**
          * Admin Level API Group
