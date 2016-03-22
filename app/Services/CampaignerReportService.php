@@ -245,7 +245,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             foreach ( $recordData as $key => $record ) {
                 if ( $record[ 'action' ] === 'Open' ) {
                     $this->emailRecord->recordDeliverable(
-                        EmailRecordService::OPENER ,
+                        self::RECORD_TYPE_OPENER ,
                         $record[ 'email' ] ,
                         $processState[ 'ticket' ][ 'espId' ] ,
                         $processState[ 'ticket' ][ 'campaignId' ] ,
@@ -253,7 +253,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                     );
                 } elseif ( $record[ 'action' ] === 'Click' ) {
                     $this->emailRecord->recordDeliverable(
-                        EmailRecordService::CLICKER ,
+                        self::RECORD_TYPE_ClICKER ,
                         $record[ 'email' ] ,
                         $processState[ 'ticket' ][ 'espId' ] ,
                         $processState[ 'ticket' ][ 'campaignId' ] ,
@@ -261,7 +261,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                     );
                 } elseif ( $record[ 'action' ] === 'Delivered' ) {
                     $this->emailRecord->recordDeliverable(
-                        EmailRecordService::DELIVERABLE ,
+                        self::RECORD_TYPE_DELIVERABLE ,
                         $record[ 'email' ] ,
                         $processState[ 'ticket' ][ 'espId' ] ,
                         $processState[ 'ticket' ][ 'campaignId' ] ,

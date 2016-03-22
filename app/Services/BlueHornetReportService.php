@@ -233,7 +233,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                             $currentOpenDate = $currentOpens->current();
 
                             $this->emailRecord->recordDeliverable(
-                                EmailRecordService::OPENER ,
+                                self::RECORD_TYPE_OPENER ,
                                 $currentEmail ,
                                 $processState[ 'ticket' ][ 'espId' ] ,
                                 $processState[ 'ticket' ][ 'campaignId' ] ,
@@ -253,7 +253,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                             $currentClickDate = $currentClick->current();
 
                             $this->emailRecord->recordDeliverable(
-                                EmailRecordService::CLICKER ,
+                                self::RECORD_TYPE_CLICKER ,
                                 $currentEmail , 
                                 $processState[ 'ticket' ][ 'espId' ] ,
                                 $processState[ 'ticket' ][ 'campaignId' ] ,
@@ -265,7 +265,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
                 if ( $contactSent && !$contactBounced ) {
                     $this->emailRecord->recordDeliverable(
-                        EmailRecordService::DELIVERABLE ,
+                        self::RECORD_TYPE_DELIVERABLE ,
                         $currentEmail , 
                         $processState[ 'ticket' ][ 'espId' ] ,
                         $processState[ 'ticket' ][ 'campaignId' ] ,

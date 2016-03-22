@@ -9,6 +9,10 @@ use App\Services\Interfaces\IDataService;
 use App\Services\EmailRecordService;
 
 abstract class AbstractReportService implements IDataService  {
+  const RECORD_TYPE_OPENER = 'opener';
+  const RECORD_TYPE_CLICKER = 'clicker';
+  const RECORD_TYPE_CONVERTER = 'converter';
+  const RECORD_TYPE_DELIVERABLE = 'deliverable';
   
   protected $reportRepo;
   protected $api;

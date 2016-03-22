@@ -22,7 +22,7 @@ class EmailRecordService {
     }
 
     public function recordDeliverable ( $recordType , $email , $espId , $campaignId , $date ) {
-        if ( in_array( $recordType , [ self::OPENER , self::CLICKER , self::CONVERTER , self::DELIVERABLE ] ) ) {
+        if ( $this->repo->isValidActionType( $recordType ) ) {
             return $this->repo->recordDeliverable( $recordType , $email , $espId , $campaignId , $date );
         } else {
             Log::error( "Record Type '{$recordType}' is not valid." );

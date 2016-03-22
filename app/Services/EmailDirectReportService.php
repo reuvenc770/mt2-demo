@@ -139,11 +139,8 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                 }
 
                 foreach ( $deliverables as $key => $deliveryRecord ) {
-                    $currentEmail = $deliveryRecord[ 'EmailAddress' ];
-                    $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
-
                     $this->emailRecord->recordDeliverable(
-                        EmailRecordService::DELIVERABLE ,
+                        self::RECORD_TYPE_DELIVERABLE ,
                         $deliveryRecord[ 'EmailAddress' ] ,
                         $processState[ 'espId' ] ,
                         $processState[ 'campaignId' ] ,
@@ -166,11 +163,8 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                 }
 
                 foreach ( $opens as $key => $openRecord ) {
-                    $currentEmail = $openRecord[ 'EmailAddress' ];
-                    $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
-
                     $this->emailRecord->recordDeliverable(
-                        EmailRecordService::OPENER ,
+                        self::RECORD_TYPE_CLICKER ,
                         $openRecord[ 'EmailAddress' ] ,
                         $processState[ 'espId' ] ,
                         $processState[ 'campaignId' ] ,
@@ -193,11 +187,8 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                 }
 
                 foreach ( $clicks as $key => $clickRecord ) {
-                    $currentEmail = $clickRecord[ 'EmailAddress' ];
-                    $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
-
                     $this->emailRecord->recordDeliverable(
-                        EmailRecordService::CLICKER ,
+                        self::RECORD_TYPE_CLICKER ,
                         $clickRecord[ 'EmailAddress' ] ,
                         $processState[ 'espId' ] ,
                         $processState[ 'campaignId' ] ,

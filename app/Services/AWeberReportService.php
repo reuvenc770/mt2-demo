@@ -153,7 +153,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
 
                 foreach ( $opens as $key => $openRecord ) {
                     $this->emailRecord->recordDeliverable(
-                        EmailRecordService::OPENER ,
+                        self::RECORD_TYPE_OPENER ,
                         $openRecord[ 'email' ] ,
                         $processState[ 'espId' ] ,
                         $processState[ 'campaignId' ] ,
@@ -177,7 +177,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
 
                 foreach ( $clicks as $key => $clickRecord ) {
                     $this->emailRecord->recordDeliverable(
-                        EmailRecordService::CLICKER ,
+                        self::RECORD_TYPE_CLICKER ,
                         $clickRecord[ 'email' ] , 
                         $processState[ 'espId' ] ,
                         $processState[ 'campaignId' ] ,
