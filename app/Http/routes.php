@@ -403,7 +403,7 @@ Route::group(
             Route::resource(
                 'role' ,
                 'RoleApiController',
-                [ 'except' => [ 'create' , 'edit' , 'getPermissions' ] ]
+                [ 'except' => [ 'create' , 'edit' ] ]
             );
         } );
 
