@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class EspCampaignMapping extends Model
 {
-    public function espAccount()
+    public function esp()
     {
         return $this->belongsTo('App\Models\Esp');
     }

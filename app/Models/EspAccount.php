@@ -49,10 +49,6 @@ class EspAccount extends Model
         return $this->attributes['key_2'];
     }
 
-    public function deliverableMapping() {
-        return $this->hasOne('App\Model\DeliverableCsvMapping');
-    }
-
     protected static function boot() {
         parent::boot();
         $array = array('clicks', 'complaints', 'delivered', 'opens', 'unsubscribes', 'campaigns');
