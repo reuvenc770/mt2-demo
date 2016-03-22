@@ -16,7 +16,7 @@
 
                         <!-- Submit field -->
                         <div class="form-group">
-                            <input class="btn btn-lg btn-primary btn-block" ng-click="role.editNewRole()" type="submit" value="Update Security Role">
+                            <input class="btn btn-lg btn-primary btn-block" ng-click="role.editRole()" type="submit" value="Update Security Role">
                         </div>
 
                         @include( 'pages.role.role-form' )
