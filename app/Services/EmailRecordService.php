@@ -6,11 +6,6 @@ use App\Repositories\EmailRecordRepo;
 use Log;
 
 class EmailRecordService {
-    CONST OPENER = 1;
-    CONST CLICKER = 2;
-    CONST CONVERTER = 3;
-    CONST DELIVERABLE = 4; 
-
     protected $repo;
 
     public function __construct ( EmailRecordRepo $repo ) {
