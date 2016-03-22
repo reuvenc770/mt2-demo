@@ -24,7 +24,7 @@ class EmailCampaignStatisticRepo {
                     (email_id, campaign_id, last_status, esp_first_open_datetime,
                     esp_last_open_datetime, esp_total_opens, created_at,
                     updated_at) VALUES (:email_id, :campaign_id, :action1, :dt1,
-                    :dt1, 1, NOW(), NOW()) 
+                    :dt2, 1, NOW(), NOW()) 
 
                     ON DUPLICATE KEY UPDATE
                         email_id=email_id,
@@ -110,11 +110,22 @@ class EmailCampaignStatisticRepo {
                     )
                 );
                 break;
+
             default:
                 break;
         }
     }
 
+    public function updateWithTrackingInfo($data) {
 
+        $this->model
+            ->where('email_id', '=', $data['email_id'])
+            ->where('campaign_id', '=', $data['campaign_id'])
+            ->update([
+                'trk_first_click_datetime' => $data['first_click'],
+                'trk_last_click_datetime' => $data['last_click'],
+                'trk_total_clicks' => $data['clicks']
+            ]);
+    }
 
 }
