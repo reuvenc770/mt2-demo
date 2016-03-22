@@ -253,7 +253,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                     );
                 } elseif ( $record[ 'action' ] === 'Click' ) {
                     $this->emailRecord->recordDeliverable(
-                        self::RECORD_TYPE_ClICKER ,
+                        self::RECORD_TYPE_CLICKER ,
                         $record[ 'email' ] ,
                         $processState[ 'ticket' ][ 'espId' ] ,
                         $processState[ 'ticket' ][ 'campaignId' ] ,
