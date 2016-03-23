@@ -85,6 +85,8 @@ To run all gulp tasks: `gulp`
 
 All other tasks use the 'run' option.
 
+Example: `gulp --run=deployImages`
+
 Available Tasks:
 `runTdd`\n
 `deployNodeModules`\n
