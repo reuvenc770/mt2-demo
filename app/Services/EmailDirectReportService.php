@@ -164,7 +164,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
 
                 foreach ( $opens as $key => $openRecord ) {
                     $this->emailRecord->recordDeliverable(
-                        self::RECORD_TYPE_CLICKER ,
+                        self::RECORD_TYPE_OPENER ,
                         $openRecord[ 'EmailAddress' ] ,
                         $processState[ 'espId' ] ,
                         $processState[ 'campaignId' ] ,
