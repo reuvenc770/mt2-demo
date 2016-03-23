@@ -12,7 +12,8 @@ class UpdateCakeDataTable extends Migration
      */
     public function up() {
         Schema::connection('reporting_data')->table('cake_aggregated_data', function($table) {
-            $table->string('subid_2')->after('subid_1')->default('0');
+            $table->string('subid_1', 30)->change();
+            $table->string('subid_2', 100)->after('subid_1')->default('0');
             $table->bigInteger('email_id')->after('subid_2')->default(0);
             $table->date('clickDate')->after('revenue')->default('0000-00-00');
             $table->date('campaignDate')->after('clickDate')->default('0000-00-00');
