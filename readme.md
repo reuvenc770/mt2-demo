@@ -87,7 +87,7 @@ All other tasks use the 'run' option.
 
 Example: `gulp --run=deployImages`
 
-Available Tasks:
+Available Tasks:  
 `runTdd`  
 `deployNodeModules`  
 `deploySass`  
