@@ -88,22 +88,22 @@ All other tasks use the 'run' option.
 Example: `gulp --run=deployImages`
 
 Available Tasks:
-`runTdd`\n
-`deployNodeModules`\n
-`deploySass`\n
-`deployTemplates`\n
-`deployImages`\n
-`deployBaseAngular`\n
-`deployEspApiJs`\n
-`deployUserJs`\n
-`deployRoleJs`\n
-`deployJobJs`\n
-`deployShowInfoJs`\n
-`deployWizardJs`\n
-`deployYmlpCampaignJs`\n
-`deployClientJs`\n
-`deployClientGroupJs`\n 
-`deploylistprofilejs`\n
+`runTdd` <br />
+`deployNodeModules` <br />
+`deploySass` <br />
+`deployTemplates` <br />
+`deployImages` <br />
+`deployBaseAngular` <br />
+`deployEspApiJs` <br />
+`deployUserJs` <br />
+`deployRoleJs` <br />
+`deployJobJs` <br />
+`deployShowInfoJs` <br />
+`deployWizardJs` <br />
+`deployYmlpCampaignJs` <br />
+`deployClientJs` <br />
+`deployClientGroupJs` <br /> 
+`deploylistprofilejs` <br />
 
 ## Laravel PHP Framework
 
