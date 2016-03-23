@@ -5,7 +5,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
   // Page properties
   self.dataExports = [];
-  self.current = {
+  self.viewed = {
     "exportId": 0,
     "filename": "",
     "ftpServer": "",
@@ -13,8 +13,8 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     "ftpPassword": "",
     "ftpFolder": "",
     "NumberOfFiles": "",
-    "client_group": {"id": "", "name": ""},
-    "profile": {"id": "", "name": ""},
+    "client_group": {"gid": "", "name": ""},
+    "profile": {"pid": "", "name": ""},
     "frequency": "",
     "fullPostalOnly": "",
     "addressOnly": "",
@@ -60,20 +60,20 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
   // Day-specific properties
   self.days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-  self.current.impMonday = self.current.SendToImpressionwiseDays[0];
-  self.current.impTuesday = self.current.SendToImpressionwiseDays[1];
-  self.current.impWednesday = self.current.SendToImpressionwiseDays[2];
-  self.current.impThursday = self.current.SendToImpressionwiseDays[3];
-  self.current.impFriday = self.current.SendToImpressionwiseDays[4];
-  self.current.impSaturday = self.current.SendToImpressionwiseDays[5];
-  self.current.impSunday = self.current.SendToImpressionwiseDays[6];
+  self.viewed.impMonday = self.viewed.SendToImpressionwiseDays[0];
+  self.viewed.impTuesday = self.viewed.SendToImpressionwiseDays[1];
+  self.viewed.impWednesday = self.viewed.SendToImpressionwiseDays[2];
+  self.viewed.impThursday = self.viewed.SendToImpressionwiseDays[3];
+  self.viewed.impFriday = self.viewed.SendToImpressionwiseDays[4];
+  self.viewed.impSaturday = self.viewed.SendToImpressionwiseDays[5];
+  self.viewed.impSunday = self.viewed.SendToImpressionwiseDays[6];
 
 
   // Pagination properties
   self.paginationCount = "10";
-  self.currentlyLoading = 0;
+  self.viewedlyLoading = 0;
   self.pageCount = 0;
-  self.currentPage = 1;
+  self.viewedPage = 1;
 
 
   // Index page setup
@@ -93,7 +93,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   // ESPs search
   self.espSearchText = '';
   $rootScope.selectedEsps = {};
-  self.currentSelectedEsp = '';
+  self.viewedSelectedEsp = '';
   self.espChipList = [];
 
   /**
@@ -105,7 +105,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   self.updatingDataExport = false;
 
   self.setupPage = function() {
-    self.current.exportId = 0;
+    self.viewed.exportId = 0;
     var currentPath = $location.path();
     var pathParts = currentPath.match(new RegExp(/(\d+)/));
     var fillPage = (pathParts !== null) 
@@ -115,10 +115,9 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     self.loadEsps();
 
     if (fillPage) {
-      self.current.exportId = pathParts[ 0 ];
-      console.log("running data pull");
+      self.viewed.exportId = pathParts[ 0 ];
       DataExportApiService.getDataExport(
-        self.current.exportId ,
+        self.viewed.exportId ,
         self.prepopPageSuccessCallback ,
         self.prepopPageFailureCallback
       );
@@ -134,9 +133,9 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
    */
 
   self.loadActiveDataExports = function() {
-    self.currentlyLoading = 1;
+    self.viewedlyLoading = 1;
     DataExportApiService.getActiveDataExports(
-      self.currentPage,
+      self.viewedPage,
       self.paginationCount,
       self.loadDataExportsSuccessCallback,
       self.loadActiveDataExportsFailureCallback
@@ -144,9 +143,9 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   };
 
   self.loadPausedDataExports = function() {
-    self.currentlyLoading = 1;
+    self.viewedlyLoading = 1;
     DataExportApiService.getPausedDataExports(
-      self.currentPage,
+      self.viewedPage,
       self.paginationCount,
       self.loadDataExportsSuccessCallback,
       self.loadPausedDataExportsFailureCallback
@@ -155,36 +154,38 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
   self.saveDataExport = function(event) {
 
-    var saveData = {
-      "exportId": self.current.exportId,
-      "seeds": self.current.seeds,
-      "ftpFolder": self.current.ftpFolder,
-      "ftpServer": self.current.ftpServer,
-      "ftpUser": self.current.ftpUser,
-      "ftpPassword": self.current.ftpPassword,
-      "NumberOfFiles": self.current.NumberOfFiles,
-      "sendBlueHornet": self.current.sendBluehornet,
-      "fullPostalOnly": self.current.fullPostalOnly,
-      "addressOnly": self.current.addressOnly,
-      "frequency": self.current.frequency,
-      "doubleQuoteFields": self.current.doubleQuoteFields,
-      "includeHeaders": self.current.includeHeaders,
-      "otherField": self.current.otherField,
-      "otherValue": self.current.otherValue,
+    console.log('about to save. current data:');
+    console.dir(JSON.stringify(self.viewed));
 
-      "gid": self.current.client_group.id,
-      "profileId": self.current.profile.id,
-      "imp_monday": self.current.impMonday,
-      "imp_tuesday": self.current.impTuesday,
-      "imp_wednesday": self.current.impWednesday,
-      "imp_thursday": self.current.impThursday,
-      "imp_friday": self.current.impFriday,
-      "imp_saturday": self.current.impSaturday,
-      "imp_sunday": self.current.impSunday,
+    var saveData = {
+      "exportId": self.viewed.exportId,
+      "seeds": self.viewed.seeds,
+      "ftpFolder": self.viewed.ftpFolder,
+      "ftpServer": self.viewed.ftpServer,
+      "ftpUser": self.viewed.ftpUser,
+      "ftpPassword": self.viewed.ftpPassword,
+      "NumberOfFiles": self.viewed.NumberOfFiles,
+      "sendBlueHornet": self.viewed.sendBluehornet,
+      "fullPostalOnly": self.viewed.fullPostalOnly,
+      "addressOnly": self.viewed.addressOnly,
+      "frequency": self.viewed.frequency,
+      "doubleQuoteFields": self.viewed.doubleQuoteFields,
+      "includeHeaders": self.viewed.includeHeaders,
+      "otherField": self.viewed.otherField,
+      "otherValue": self.viewed.otherValue,
+      "gid": self.viewed.client_group.gid,
+      "profileId": self.viewed.profile.pid,
+      "imp_monday": self.viewed.impMonday,
+      "imp_tuesday": self.viewed.impTuesday,
+      "imp_wednesday": self.viewed.impWednesday,
+      "imp_thursday": self.viewed.impThursday,
+      "imp_friday": self.viewed.impFriday,
+      "imp_saturday": self.viewed.impSaturday,
+      "imp_sunday": self.viewed.impSunday,
       "exportType": "Regular",
-      "pname": self.current.fileName,
-      "fields": Object.keys(self.current.fields).filter( function (field) {
-        return self.current.fields[field];
+      "pname": self.viewed.fileName,
+      "fields": Object.keys(self.viewed.fields).filter( function (field) {
+        return self.viewed.fields[field];
       }),
       "esp": Object.keys($rootScope.selectedEsps),
       "outname": '',
@@ -194,6 +195,9 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
       "ConfirmEmail": ''
 
     };
+
+    console.log('data to send:');
+    console.dir(JSON.stringify(saveData));
 
     DataExportApiService.saveDataExport(
       saveData,
@@ -322,10 +326,25 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     }) : self.profiles;
   };
 
-  self.setProfile = function(profile) {
+  self.setProfile = function(profileName) {
+    console.log('calling setProfile');
+    console.log(profileName);
+    var newProfile = self.profiles.filter(function(item) {
+      return item.name.toLowerCase() === profileName.toLowerCase();
+    });
+
+    console.log('profiles:');
+    console.dir(self.profiles);
+
+    console.log('newProfile:');
+    console.dir(newProfile);
+
     if (typeof profile !== "undefined") {
-      self.current.profile.id = profile.id;
+      self.viewed.profile.pid = profile.id;
     }
+
+    console.log('profile id:' + self.viewed.profile.pid);
+    console.dir(self.viewed);
   };
 
   /**
@@ -364,7 +383,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
   self.setClientGroup = function(clientGroup) {
     if (typeof clientGroup !== 'undefined' ) {
-      self.current.client_group.id = clientGroup.id;
+      self.viewed.client_group.gid = clientGroup.id;
     }
   };
 
@@ -458,16 +477,19 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   self.prepopPageSuccessCallback = function(response) {
     
     var data = response.data[0];
-    self.current = {
-      "exportId": self.current.exportId,
+    console.log('response:');
+    console.dir(data);
+
+    self.viewed = {
+      "exportId": self.viewed.exportId,
       "fileName": data.fileName,
       "ftpServer": data.ftpServer,
       "ftpUser": data.ftpUser,
       "ftpPassword": data.ftpPassword,
       "ftpFolder": data.ftpFolder,
       "NumberOfFiles": data.NumberOfFiles,
-      "client_group": {"id": data.client_group_id, "name": data.group_name},
-      "profile": {"id": data.profile_id, "name": data.profile_name},
+      "client_group": {"gid": data.client_group_id, "name": data.group_name},
+      "profile": {"pid": data.profile_id, "name": data.profile_name},
       "frequency": data.frequency,
       "fullPostalOnly": data.fullPostalOnly,
       "addressOnly": data.addressOnly,
@@ -507,13 +529,16 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
       "otherValue": data.otherValue
     };
 
-    self.current.impMonday = data.SendToImpressionwiseDays[0];
-    self.current.impTuesday = data.SendToImpressionwiseDays[1];
-    self.current.impWednesday = data.SendToImpressionwiseDays[2];
-    self.current.impThursday = data.SendToImpressionwiseDays[3];
-    self.current.impFriday = data.SendToImpressionwiseDays[4];
-    self.current.impSaturday = data.SendToImpressionwiseDays[5];
-    self.current.impSunday = data.SendToImpressionwiseDays[6];
+    self.viewed.impMonday = data.SendToImpressionwiseDays[0];
+    self.viewed.impTuesday = data.SendToImpressionwiseDays[1];
+    self.viewed.impWednesday = data.SendToImpressionwiseDays[2];
+    self.viewed.impThursday = data.SendToImpressionwiseDays[3];
+    self.viewed.impFriday = data.SendToImpressionwiseDays[4];
+    self.viewed.impSaturday = data.SendToImpressionwiseDays[5];
+    self.viewed.impSunday = data.SendToImpressionwiseDays[6];
+
+    console.log("viewed:");
+    console.dir(JSON.stringify(self.viewed));
 
     var espsArr = data.esps.split(',');
     var espArrLen = espsArr.len;
@@ -529,7 +554,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     var l = fields.length;
     for (var i = 0; i < l; i++) {
       var field = fields[i];
-      self.current.fields[field] = field;
+      self.viewed.fields[field] = field;
     }
 
   };
@@ -542,7 +567,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
 
   self.loadDataExportsSuccessCallback = function(response) {
-    self.currentlyLoading = 0;
+    self.viewedlyLoading = 0;
     self.dataExports = response.data.data;
     self.pageCount = response.data.last_page;
   };
@@ -652,7 +677,6 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
   self.loadProfileApiSuccessCallback = function(response) {
     self.profiles = response.data;
-    console.dir(self.profiles);
   };
 
   self.loadProfileApiFailureCallback = function(response) {
@@ -663,7 +687,6 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
   self.loadCGApiSuccessCallback = function(response) {
     self.clientGroups = response.data;
-    console.dir(self.clientGroups);
   };
 
   self.loadCGApiFailureCallback = function(response) {
@@ -674,7 +697,6 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
   self.loadEspSuccessCallback = function(response) {
     self.espList = response.data;
-    console.dir(self.espList);
   }
 
   self.loadEspFailureCallback = function(response) {

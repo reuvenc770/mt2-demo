@@ -559,6 +559,12 @@ Route::group(
             'MT1API\UniqueProfileApiController' ,
             [ 'only' => [ 'index' , 'show' ] ]
         );
+
+        Route::resource(
+            'esps', 
+            'MT1API\EspApiController', 
+            ['only' => ['index', 'show']]
+        );
     }
 );
 
