@@ -198,7 +198,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             for ( $contactIterator->rewind() ; $contactIterator->valid() ; $contactIterator->next() ) {
                 $currentContact = $contactIterator->current();
                 $currentEmail = '';
-                $currentEmailId = 0;
                 $contactSent = false;
                 $contactBounced = false;
                 $bounceDate = '';
@@ -223,7 +222,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
                     if( $currentContact->key() === 'email' ) {
                         $currentEmail = $currentContact->current();
-                        $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
                     }
 
                     if( $currentContact->key() === 'opens' ) {

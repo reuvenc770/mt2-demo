@@ -43,6 +43,10 @@ class EmailRecordRepo {
             $emailAction->action_id = $this->getActionId( $recordType );
             $emailAction->datetime = $date;
             $emailAction->save();
+
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -56,6 +60,10 @@ class EmailRecordRepo {
 
     public function hasClient () {
         return Email::find( $this->getEmailId() )->emailClientInstances()->count() > 0;
+    }
+
+    public function getEmailId () {
+        return $this->email->select( 'id' )->where( 'email_address' , $this->emailAddress )->first()->id;
     }
 
     protected function setLocalData ( $recordData ) {
@@ -94,10 +102,6 @@ class EmailRecordRepo {
         }
 
         return $errorFound === false;
-    }
-
-    protected function getEmailId () {
-        return $this->email->select( 'id' )->where( 'email_address' , $this->emailAddress )->first()->id;
     }
 
     protected function getClientId () {
