@@ -36,7 +36,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct( $apiName, $espAccountId, $date, $tracking , $processState = null, $queue = null)
+    public function __construct( $apiName, $espAccountId, $date, $tracking , $processState = null, $queue = "default")
     {
         $this->apiName = $apiName;
         $this->espAccountId = $espAccountId;
