@@ -42,7 +42,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:downloadApi Campaigner 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi EmailDirect 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Maro 5')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi Aweber 5')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Aweber 5 AWeber')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Ymlp 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi GetResponse 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadTrackingData Cake 5')->hourly()->sendOutputTo($filePath);
@@ -67,7 +67,7 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'reports:downloadDeliverables Campaigner 1' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables EmailDirect 1' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Maro 1' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables AWeber 1' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command( 'reports:downloadDeliverables AWeber 1 AWeber' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Ymlp 1' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
     }
 }
