@@ -192,6 +192,9 @@ var mt2TaskMap = {
     'deployBaseAngular' : function ( mix ) {
         mix.deployBaseAngular( mix );
     } ,
+    'deployMt2Js' : function ( mix ) {
+        mix.deployMt2Js( mix );
+    } ,
     'deployEspApiJs' : function  ( mix ) {
         mix.deployEspApiJs( mix );
     } ,
@@ -219,8 +222,8 @@ var mt2TaskMap = {
     'deployClientGroupJs' : function ( mix ) {
         mix.deployClientGroupJs( mix );
     } ,
-    'deploylistprofilejs' : function ( mix ) {
-        mix.deploylistprofilejs( mix );
+    'deployListProfileJs' : function ( mix ) {
+        mix.deployListProfileJs( mix );
     }
 };
 

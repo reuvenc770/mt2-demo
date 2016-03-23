@@ -94,6 +94,7 @@ Available Tasks:
 `deployTemplates`  
 `deployImages`  
 `deployBaseAngular`  
+`deployMt2Js`  
 `deployEspApiJs`  
 `deployUserJs`  
 `deployRoleJs`  
@@ -103,7 +104,7 @@ Available Tasks:
 `deployYmlpCampaignJs`  
 `deployClientJs`  
 `deployClientGroupJs`   
-`deploylistprofilejs`  
+`deployListProfileJs`  
 
 ## Laravel PHP Framework
 
