@@ -139,11 +139,9 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                 }
 
                 foreach ( $deliverables as $key => $deliveryRecord ) {
-                    $currentEmail = $deliveryRecord[ 'EmailAddress' ];
-                    $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
-
                     $this->emailRecord->recordDeliverable(
-                        $currentEmailId ,
+                        self::RECORD_TYPE_DELIVERABLE ,
+                        $deliveryRecord[ 'EmailAddress' ] ,
                         $processState[ 'espId' ] ,
                         $processState[ 'campaignId' ] ,
                         $deliveryRecord[ 'ActionDate' ]
@@ -165,11 +163,9 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                 }
 
                 foreach ( $opens as $key => $openRecord ) {
-                    $currentEmail = $openRecord[ 'EmailAddress' ];
-                    $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
-
-                    $this->emailRecord->recordOpen(
-                        $currentEmailId ,
+                    $this->emailRecord->recordDeliverable(
+                        self::RECORD_TYPE_OPENER ,
+                        $openRecord[ 'EmailAddress' ] ,
                         $processState[ 'espId' ] ,
                         $processState[ 'campaignId' ] ,
                         $openRecord[ 'ActionDate' ]
@@ -191,11 +187,9 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                 }
 
                 foreach ( $clicks as $key => $clickRecord ) {
-                    $currentEmail = $clickRecord[ 'EmailAddress' ];
-                    $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
-
-                    $this->emailRecord->recordClick(
-                        $currentEmailId ,
+                    $this->emailRecord->recordDeliverable(
+                        self::RECORD_TYPE_CLICKER ,
+                        $clickRecord[ 'EmailAddress' ] ,
                         $processState[ 'espId' ] ,
                         $processState[ 'campaignId' ] ,
                         $clickRecord[ 'ActionDate' ]

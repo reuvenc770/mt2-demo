@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\EmailRecordRepo;
+use Log;
 
 class EmailRecordService {
     protected $repo;
@@ -15,15 +16,12 @@ class EmailRecordService {
         return $this->repo->getEmailId( $email );
     }
 
-    public function recordOpen ( $emailId , $espId , $campaignId , $date ) {
-        $this->repo->recordOpen( $emailId , $espId , $campaignId , $date );
-    }
-
-    public function recordClick ( $emailId , $espId , $campaignId , $date ) {
-        $this->repo->recordClick( $emailId , $espId , $campaignId , $date );
-    }
-
-    public function recordDeliverable ( $emailId , $espId , $campaignId , $date ) {
-        $this->repo->recordDeliverable( $emailId , $espId , $campaignId , $date );
+    public function recordDeliverable ( $recordType , $email , $espId , $campaignId , $date ) {
+        if ( $this->repo->isValidActionType( $recordType ) ) {
+            return $this->repo->recordDeliverable( $recordType , $email , $espId , $campaignId , $date );
+        } else {
+            Log::error( "Record Type '{$recordType}' is not valid." );
+            return false;
+        }
     }
 }

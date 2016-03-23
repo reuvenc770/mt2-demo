@@ -152,11 +152,9 @@ class AWeberReportService extends AbstractReportService implements IDataService
                 }
 
                 foreach ( $opens as $key => $openRecord ) {
-                    $currentEmail = $openRecord[ 'email' ];
-                    $currrentEmailId = $this->emailRecord->getEmailId( $currentEmail );
-
-                    $this->emailRecord->recordOpen(
-                        $currentEmailId , 
+                    $this->emailRecord->recordDeliverable(
+                        self::RECORD_TYPE_OPENER ,
+                        $openRecord[ 'email' ] ,
                         $processState[ 'espId' ] ,
                         $processState[ 'campaignId' ] ,
                         $openRecord[ 'actionDate' ]
@@ -178,11 +176,9 @@ class AWeberReportService extends AbstractReportService implements IDataService
                 }
 
                 foreach ( $clicks as $key => $clickRecord ) {
-                    $currentEmail = $clickRecord[ 'email' ];
-                    $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
-
-                    $this->emailRecord->recordClick(
-                        $currentEmailId ,
+                    $this->emailRecord->recordDeliverable(
+                        self::RECORD_TYPE_CLICKER ,
+                        $clickRecord[ 'email' ] , 
                         $processState[ 'espId' ] ,
                         $processState[ 'campaignId' ] ,
                         $clickRecord[ 'actionDate' ]
