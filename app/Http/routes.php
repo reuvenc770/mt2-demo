@@ -121,6 +121,11 @@ Route::group(
             'uses' => 'ShowInfoController@index'
         ] );
 
+        Route::get( '/bulk-suppression' , [
+            'as' => 'tools.bulksuppression' ,
+            'uses' => 'BulkSuppressionController@index'
+        ] );
+
         /**
          * YMLP Manager Routes
          */
@@ -295,7 +300,6 @@ Route::group(
     }
 );
 
-
 /**
  * API Routes
  */
@@ -410,6 +414,12 @@ Route::group(
             [ 'only' => [ 'show' , 'store' ] ]
         );
 
+
+        Route::resource(
+            'bulksuppression' ,
+            'BulkSuppressionController' ,
+            [ 'only' => [ 'store' ] ]
+        );
 
 
         /**
