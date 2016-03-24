@@ -106,8 +106,8 @@ class MaroApi extends EspBaseAPI {
     }
 
     public function setDeliverableLookBack() {
-        $this->deliverableStartDate = Carbon::now()->subDay(self::LOOKBACK_DAYS)->toDateString();
-        $this->deliverableEndDate = Carbon::now()->toDateString();
+        $this->deliverableStartDate = Carbon::now()->subDay(self::LOOKBACK_DAYS)->startOfDay()->toDateString();
+        $this->deliverableEndDate = Carbon::now()->endOfDay()->toDateString();
     }
 
     public function constructAdditionalInfoUrl($campaignId) {
