@@ -111,4 +111,12 @@ class APIFactory
         return new StandardReportService($standardReportRepo);
     }
 
+    public static function createMt1DataImportService() {
+        $model = new \App\Models\TempStoredEmail();
+        $repo = new \App\Repositories\TempStoredEmailRepo($model);
+        $api = new \App\Services\API\Mt1DbApi();
+
+        return new \App\Services\ImportMt1EmailsService($api, $repo);
+    }
+
 }
