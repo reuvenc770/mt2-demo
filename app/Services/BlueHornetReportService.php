@@ -17,8 +17,7 @@ use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use App\Services\Interfaces\IDataService;
 use App\Services\EmailRecordService;
-use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
+
 use Log;
 use SimpleXML;
 use SimpleXMLElement;
@@ -33,7 +32,6 @@ use SimpleXMLIterator;
 class BlueHornetReportService extends AbstractReportService implements IDataService
 {
     protected $dataRetrievalFailed = false;
-    protected $log;
 
     /**
      * BlueHornetReportService constructor.
@@ -43,9 +41,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
     public function __construct(ReportRepo $reportRepo, BlueHornetApi $api , EmailRecordService $emailRecord )
     {
         parent::__construct($reportRepo, $api , $emailRecord );
-        $this->log =  new Logger('Blue Hornet API Debugging');
-        $this->log->pushHandler(new StreamHandler(storage_path(). "/logs/bluehornet.log", Logger::INFO));
-
     }
 
     /**
@@ -184,7 +179,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                 "campaignId" => $campaign->internal_id ,
                 "espId" => $espAccountId
             ];
-            $this->log->addInfo("{$espAccountId} :: Getting Ticket for {$campaign->internal_id}");
         } );
 
         return $tickets; 
@@ -194,12 +188,10 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         $this->dataRetrievalFailed = false;
 
         $ticket = $processState[ 'ticket' ][ 'ticketName' ];
-        $this->log->addInfo("Trying to Save Records for {$ticket}");
         $fileName = $this->checkTicketStatus( $ticket );
 
         if ( $fileName !== false ) {
             $file = $this->getFile( $fileName );
-            $this->log->addInfo("WE GOT A FILE {$fileName}");
             $contactIterator = new SimpleXMLIterator( $file->asXML() );
             for ( $contactIterator->rewind() ; $contactIterator->valid() ; $contactIterator->next() ) {
                 $currentContact = $contactIterator->current();
@@ -281,7 +273,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             $processState[ 'delay' ] = 180;
 
             $this->dataRetrievalFailed = true;
-            $this->log->addInfo("File for Ticket {$ticket} not ready going back on queue");
         }
     }
 
@@ -323,7 +314,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             throw new Exception($e->getMessage());
         }
         $status = (string) $xmlBody->item->responseData->task->item->status;
-        $this->log->addInfo("Grabbed Ticket information for {$ticketId} it came back with {$status}");
         if($status == "ERROR"){
             throw new \Exception("Task Status came back as Error");
         }
@@ -341,7 +331,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         try {
             $this->api->buildRequest("utilities.getFile", $methodData);
             $response = $this->api->sendApiRequest();
-            $this->log->addInfo("We Got dat file");
             $xmlBody = simplexml_load_string($response->getBody()->__toString());
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
