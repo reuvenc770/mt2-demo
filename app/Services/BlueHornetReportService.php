@@ -188,12 +188,10 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         $this->dataRetrievalFailed = false;
 
         $ticket = $processState[ 'ticket' ][ 'ticketName' ];
-
         $fileName = $this->checkTicketStatus( $ticket );
 
         if ( $fileName !== false ) {
             $file = $this->getFile( $fileName );
-
             $contactIterator = new SimpleXMLIterator( $file->asXML() );
             for ( $contactIterator->rewind() ; $contactIterator->valid() ; $contactIterator->next() ) {
                 $currentContact = $contactIterator->current();
@@ -272,7 +270,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                 }
             }
         } else {
-            $this->processState[ 'delay' ] = 180;
+            $processState[ 'delay' ] = 180;
 
             $this->dataRetrievalFailed = true;
         }
@@ -289,6 +287,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             $this->api->buildRequest("statistics.getMessageSubscriberData", $methodData);
             $response = $this->api->sendApiRequest();
             $xmlBody = simplexml_load_string($response->getBody()->__toString());
+
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }

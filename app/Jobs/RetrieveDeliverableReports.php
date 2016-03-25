@@ -181,9 +181,11 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
                 if ( $reportService->shouldRetry() ) {
                     if ( isset( $this->processState[ 'delay' ] ) ) {
                     Log::info("Job Tries {$this->attempts()}");
+                        $this->changeJobEntry( JobEntry::WAITING );
                         $this->release( $this->processState[ 'delay' ] );
                     } else {
                      Log::info("Job Tries {$this->attempts()}");
+                        $this->changeJobEntry( JobEntry::WAITING );
                         $this->release( 60 );
                     }
                 } else {

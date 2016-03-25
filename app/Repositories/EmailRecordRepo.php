@@ -81,7 +81,7 @@ class EmailRecordRepo {
         if ( !$this->emailExists() ) {
             $orphan->missing_email_record = 1;
 
-            Log::error( "Email '{$this->emailAddress}' does not exist." );
+            //Log::error( "Email '{$this->emailAddress}' does not exist." );
 
             $errorFound = true;
         } elseif ( $this->emailExists() && !$this->hasClient() ) {
