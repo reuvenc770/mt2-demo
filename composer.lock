@@ -4,42 +4,9 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "3514f252676e01202bac5c30caba9207",
-    "content-hash": "e8e48ccd10c49571a3403ae5d7818d00",
+    "hash": "80fbf70faf05cad6b9d0938ea831277d",
+    "content-hash": "d5ef2cecdfc3cfcd47ade87451ea5a58",
     "packages": [
-        {
-            "name": "aweber/aweber",
-            "version": "v1.1.14",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/aweber/AWeber-API-PHP-Library.git",
-                "reference": "509abd47ae05f760239f2f5d12eef7ba330b111a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/aweber/AWeber-API-PHP-Library/zipball/509abd47ae05f760239f2f5d12eef7ba330b111a",
-                "reference": "509abd47ae05f760239f2f5d12eef7ba330b111a",
-                "shasum": ""
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "": "aweber_api/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL-2.0"
-            ],
-            "description": "The official AWeber API client library.",
-            "homepage": "https://www.aweber.com",
-            "keywords": [
-                "api",
-                "client",
-                "email"
-            ],
-            "time": "2015-02-19 18:16:21"
-        },
         {
             "name": "aws/aws-sdk-php",
             "version": "3.17.0",
@@ -882,6 +849,58 @@
                 "parser"
             ],
             "time": "2014-09-09 13:34:57"
+        },
+        {
+            "name": "flowjs/flow-php-server",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/flowjs/flow-php-server.git",
+                "reference": "d52900ee39dab1f16834edb1416d51db5467745d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/flowjs/flow-php-server/zipball/d52900ee39dab1f16834edb1416d51db5467745d",
+                "reference": "d52900ee39dab1f16834edb1416d51db5467745d",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "fabpot/php-cs-fixer": "dev-master",
+                "league/phpunit-coverage-listener": "~1.1",
+                "mikey179/vfsstream": "v1.2.0",
+                "phpunit/phpunit": "4.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Flow": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Aidas Klimas",
+                    "email": "aidaskk@gmail.com"
+                }
+            ],
+            "description": "PHP library for handling chunk uploads. Works with flow.js html5 file uploads.",
+            "keywords": [
+                "chunks",
+                "file upload",
+                "flow",
+                "flow.js",
+                "html5 file upload",
+                "resumable",
+                "resumable.js",
+                "upload"
+            ],
+            "time": "2015-02-01 15:28:27"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -3011,6 +3030,39 @@
         }
     ],
     "packages-dev": [
+        {
+            "name": "aweber/aweber",
+            "version": "v1.1.14",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/aweber/AWeber-API-PHP-Library.git",
+                "reference": "509abd47ae05f760239f2f5d12eef7ba330b111a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/aweber/AWeber-API-PHP-Library/zipball/509abd47ae05f760239f2f5d12eef7ba330b111a",
+                "reference": "509abd47ae05f760239f2f5d12eef7ba330b111a",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "": "aweber_api/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0"
+            ],
+            "description": "The official AWeber API client library.",
+            "homepage": "https://www.aweber.com",
+            "keywords": [
+                "api",
+                "client",
+                "email"
+            ],
+            "time": "2015-02-19 18:16:21"
+        },
         {
             "name": "barryvdh/laravel-ide-helper",
             "version": "v2.1.4",

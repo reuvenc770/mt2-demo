@@ -147,6 +147,10 @@ elixir.extend( 'deployListProfileJs' , function ( mix ) {
     ] , 'public/js/listprofile.js' );
 } );
 
+elixir.extend( 'deployBulkSuppressionJs' , function ( mix ) {
+    mix.scripts( [ 'pages/BulkSuppressionController.js' ] , 'public/js/bulksuppression.js' );
+} );
+
 elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployBaseAngular( mix );
     mix.deployEspApiJs( mix );
@@ -159,6 +163,7 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployClientJs( mix );
     mix.deployClientGroupJs( mix );
     mix.deployListProfileJs( mix );
+    mix.deployBulkSuppressionJs( mix );
 } );
 
 elixir.extend( 'runTdd' , function ( mix ) {
@@ -224,6 +229,9 @@ var mt2TaskMap = {
     } ,
     'deployListProfileJs' : function ( mix ) {
         mix.deployListProfileJs( mix );
+    } ,
+    'deployBulkSuppressionJs' : function ( mix ) {
+        mix.deployBulkSuppressionJs( mix );
     }
 };
 

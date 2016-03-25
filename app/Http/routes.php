@@ -125,10 +125,19 @@ Route::group(
             'as' => 'tools.bulksuppression' ,
             'uses' => 'BulkSuppressionController@index'
         ] );
+    }
+);
 
-        /**
-         * YMLP Manager Routes
-         */
+
+/**
+* YMLP Manager Routes
+*/
+Route::group(
+    [
+        'prefix' => 'ymlp' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
         Route::get( '/ymlp-campaign' , [
             'as' => 'ymlpcampaign.list' ,
             'uses' => 'YmlpCampaignController@listAll'
@@ -146,7 +155,6 @@ Route::group(
 
     }
 );
-
 
 /**
  * Dev Tool Routes
@@ -317,6 +325,11 @@ Route::group(
         Route::put( '/profile/{id}' , [
             'as' => 'api.profile.update' ,
             'uses' => 'UserApiController@updateProfile'
+        ] );
+
+        Route::any('/attachment/upload', [
+            'as' => 'api.attachment.upload' ,
+            'uses' => 'AttachmentAPIController@flow'
         ] );
 
         /**
