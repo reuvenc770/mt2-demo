@@ -35,14 +35,29 @@ class EmailRecordRepo {
         ] );
 
         if ( $this->isValidRecord() ) {
-            $emailAction = new EmailAction();
-            $emailAction->email_id = $this->getEmailId();
-            $emailAction->client_id = $this->getClientId();
-            $emailAction->esp_account_id = $espId;
-            $emailAction->campaign_id = $campaignId;
-            $emailAction->action_id = $this->getActionId( $recordType );
-            $emailAction->datetime = $date;
-            $emailAction->save();
+            DB::connection( 'reporting_data' )->statement("
+                INSERT INTO email_actions
+                    ( email_id , client_id , esp_account_id , campaign_id , action_id , datetime , created_at , updated_at )    
+                VALUES
+                    ( ? , ? , ? , ? , ? , ? , NOW() , NOW() )
+                ON DUPLICATE KEY UPDATE
+                    email_id = email_id ,
+                    client_id = client_id ,
+                    esp_account_id = esp_account_id ,
+                    campaign_id = campaign_id ,
+                    action_id = action_id ,
+                    datetime = datetime ,
+                    created_at = created_at ,
+                    updated_at = NOW()" ,
+                [
+                    $this->getEmailId() ,
+                    $this->getClientId() ,
+                    $espId ,
+                    $campaignId ,
+                    $this->getActionId( $recordType ) ,
+                    $date
+                ]
+            );
 
             return true;
         } else {
