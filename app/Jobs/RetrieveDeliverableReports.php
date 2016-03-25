@@ -88,7 +88,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->processState[ 'currentFilterIndex' ]++;
         $this->processState[ 'ticket' ] = $ticket;
 
-        $this->queueNextJob( 60 );
+        $this->queueNextJob( null , 60 );
 
         $this->changeJobEntry( JobEntry::SUCCESS );
     }
@@ -104,7 +104,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             $this->processState[ 'currentFilterIndex' ]++;
             $this->processState[ 'ticketResponse' ] = $ticketResponse;
 
-            $this->queueNextJob(); # null , 'fileDownloads' );
+            $this->queueNextJob( 'fileDownloads' );
 
             $this->changeJobEntry( JobEntry::SUCCESS );
         }
@@ -121,7 +121,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             $this->processState[ 'currentFilterIndex' ]++;
             $this->processState[ 'filePath' ] = $filePath;
 
-            $this->queueNextJob( null , 'default' );
+            $this->queueNextJob( 'default' );
 
             $this->changeJobEntry( JobEntry::SUCCESS );
         }
@@ -195,7 +195,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         }
     }
 
-    protected function queueNextJob ( $delay = null , $queue = null ) {
+    protected function queueNextJob ( $queue = null , $delay = null) {
         $job = new RetrieveDeliverableReports(
             $this->apiName ,
             $this->espAccountId ,
