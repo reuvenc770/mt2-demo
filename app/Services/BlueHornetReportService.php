@@ -44,7 +44,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
     {
         parent::__construct($reportRepo, $api , $emailRecord );
         $this->log =  new Logger('Blue Hornet API Debugging');
-        $this->log->pushHandler(new StreamHandler(storage_path(). "logs/bluehornet.log", Logger::INFO));
+        $this->log->pushHandler(new StreamHandler(storage_path(). "/logs/bluehornet.log", Logger::INFO));
 
     }
 
