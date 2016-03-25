@@ -22,7 +22,7 @@ class CreateClients extends Migration
             $table->string('zip', 10)->default('');
             $table->string('phone', 35)->default('');
             $table->string('email_address', 255)->default('');
-            $table->enum('status')->default('');
+            $table->enum('status', ['Active', 'Deleted'])->default('Active');
             $table->string('source_url', 255)->default('');
             $table->timestamps();
         });
