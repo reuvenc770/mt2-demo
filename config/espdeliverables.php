@@ -3,13 +3,19 @@
 return [
     "BlueHornet" => [
         "filters" => [
-            'getTickets' ,
+            'jobSetup' ,
+            'splitTypes' ,
+            'getCampaigns' ,
+            'startTicket' ,
+            'checkTicketStatus' ,
+            'downloadTicketFile' ,
             'saveRecords'
         ]
     ] ,
     "Campaigner" => [
         "filters" => [
-            'getTickets' ,
+            'getCampaigns' ,
+            'startTicket' ,
             'saveRecords'
         ]
     ] ,

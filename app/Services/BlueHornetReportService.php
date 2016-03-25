@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use App\Services\Interfaces\IDataService;
 use App\Services\EmailRecordService;
+use Carbon\Carbon;
 
 use Log;
 use SimpleXML;
@@ -162,126 +163,179 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
     }
 
     public function getUniqueJobId ( $processState ) {
-        if ( isset( $processState[ 'ticket' ][ 'ticketName' ] ) ) {
-            return '::Ticket-' . $processState[ 'ticket' ][ 'ticketName' ];
-        } else {
-            return '';
+        switch ( $processState[ 'currentFilterIndex' ] ) {
+            case 2 :
+                return '::' . $processState[ 'recordType' ];
+            break;
+
+            case 3 :
+                return '::' . $processState[ 'recordType' ]
+                    . '::Campaign-' . $processState[ 'campaign' ][ 'internal_id' ];
+            break;
+
+            case 4 :
+                return '::' . $processState[ 'recordType' ]
+                    . '::Campaign-' . $processState[ 'campaign' ][ 'internal_id' ]
+                    . '::Ticket-' . $processState[ 'ticket' ][ 'ticketName' ];
+            break;
+
+            case 5 :
+                return '::' . $processState[ 'recordType' ]
+                    . '::Campaign-' . $processState[ 'campaign' ][ 'internal_id' ]
+                    . '::Ticket-' . $processState[ 'ticket' ][ 'ticketName' ];
+            break;
+
+            case 6 :
+                return '::' . $processState[ 'recordType' ]
+                    . '::Campaign-' . $processState[ 'campaign' ][ 'internal_id' ]
+                    . '::Ticket-' . $processState[ 'ticket' ][ 'ticketName' ];
+            break;
+
+            default :
+                return '';
+            break;
         }
     }
 
-    public function getTickets ( $espAccountId , $date ) {
-        $campaigns = $this->getCampaigns( $espAccountId , $date );
-        $tickets = [];
+    public function splitTypes () {
+        return [ 'deliverable' , 'open' , 'click' ];
+    }
 
-        $campaigns->each( function ( $campaign , $key ) use ( &$tickets , $espAccountId ) {
-            $tickets []= [
-                "ticketName" => $this->getTicketForMessageSubscriberData( $campaign->internal_id ) ,
-                "campaignId" => $campaign->internal_id ,
-                "espId" => $espAccountId
-            ];
-        } );
+    public function startTicket ( $espAccountId , $campaign , $recordType ) {
+        return [
+            "ticketName" => $this->getTicketForMessageSubscriberData( $campaign->internal_id , $recordType ) ,
+            "campaignId" => $campaign->internal_id ,
+            "espId" => $espAccountId
+        ];
+    }
 
-        return $tickets; 
+    public function downloadTicketFile ( &$processState ) {
+        $fileDestination = $this->getFileDestination( $processState );
+        $fileName = $processState[ 'recordType' ] . '_' . Carbon::now( 'America/New_York' )->format( 'Y-m-d-H-i-s' ) . '.xml';
+        $fileHandle = fopen( "{$fileDestination}/{$fileName}" , 'w' );
+
+        try {
+            $fileContents = $this->getFile( $processState[ 'ticketResponse' ] );
+        } catch ( Exception $e ) {
+            Log::error( 'Problems downloading file.' );
+
+            return false;
+        }
+
+        fwrite( $fileHandle , $fileContents );
+        fclose( $fileHandle );
+
+        return "{$fileDestination}/{$fileName}";
+    }
+
+    public function getFileDestination ( $processState ) {
+        $baseFileDestination = storage_path() . '/files/deliverables/';
+        $espPath = $baseFileDestination . $processState[ 'apiName' ];
+        $accountPath = $baseFileDestination . $processState[ 'apiName' ] . '/' . $processState[ 'espAccountId' ];
+
+        if ( !is_dir( $espPath ) ) { mkdir( $espPath ); }
+        else {
+            if ( !is_dir( $accountPath ) ) { mkdir( $accountPath ); }
+        }
+
+        return $accountPath;
     }
 
     public function saveRecords ( &$processState ) {
         $this->dataRetrievalFailed = false;
 
-        $ticket = $processState[ 'ticket' ][ 'ticketName' ];
-        $fileName = $this->checkTicketStatus( $ticket );
+        $fileSize = filesize( $processState[ 'filePath' ] );
+        $fileHandle = fopen( $processState[ 'filePath' ] , 'r' );
+        $fileContents = fread( $fileHandle , $fileSize );
 
-        if ( $fileName !== false ) {
-            $file = $this->getFile( $fileName );
-            $contactIterator = new SimpleXMLIterator( $file->asXML() );
-            for ( $contactIterator->rewind() ; $contactIterator->valid() ; $contactIterator->next() ) {
-                $currentContact = $contactIterator->current();
-                $currentEmail = '';
-                $contactSent = false;
-                $contactBounced = false;
-                $bounceDate = '';
+        $contactIterator = new SimpleXMLIterator( $fileContents );
+        for ( $contactIterator->rewind() ; $contactIterator->valid() ; $contactIterator->next() ) {
+            $currentContact = $contactIterator->current();
+            $currentEmail = '';
+            $contactSent = false;
+            $contactBounced = false;
+            $bounceDate = '';
 
-                for ( $currentContact->rewind() ; $currentContact->valid() ; $currentContact->next() ) {
+            for ( $currentContact->rewind() ; $currentContact->valid() ; $currentContact->next() ) {
 
-                    if ( $currentContact->key() === 'sent' && $currentContact->current() == 1 ) {
-                        $contactSent = true;
-                    }
+                if ( $currentContact->key() === 'sent' && $currentContact->current() == 1 ) {
+                    $contactSent = true;
+                }
 
-                    /**
-                     * Bounce Check. If found, then this email was not deliverable
-                     */
-                    if ( $currentContact->key() === 'bounce' ) {
-                       $contactBounced = true;
+                /**
+                 * Bounce Check. If found, then this email was not deliverable
+                 */
+                if ( $currentContact->key() === 'bounce' ) {
+                   $contactBounced = true;
 
-                       $currentBounce = $currentContact->current();
-                       $currentBounce->rewind();
-                       $currentBounce->next();
-                       $bounceDate = $currentBounce->current();
-                    } 
+                   $currentBounce = $currentContact->current();
+                   $currentBounce->rewind();
+                   $currentBounce->next();
+                   $bounceDate = $currentBounce->current();
+                } 
 
-                    if( $currentContact->key() === 'email' ) {
-                        $currentEmail = $currentContact->current();
-                    }
+                if( $currentContact->key() === 'email' ) {
+                    $currentEmail = $currentContact->current();
+                }
 
-                    if( $currentContact->key() === 'opens' ) {
-                        $currentOpens = $currentContact->current();
+                if( $currentContact->key() === 'opens' ) {
+                    $currentOpens = $currentContact->current();
 
-                        for ( $currentOpens->rewind() ; $currentOpens->valid() ; $currentOpens->next() ) {
-                            $currentOpenDate = $currentOpens->current();
+                    for ( $currentOpens->rewind() ; $currentOpens->valid() ; $currentOpens->next() ) {
+                        $currentOpenDate = $currentOpens->current();
 
-                            $this->emailRecord->recordDeliverable(
-                                self::RECORD_TYPE_OPENER ,
-                                $currentEmail ,
-                                $processState[ 'ticket' ][ 'espId' ] ,
-                                $processState[ 'ticket' ][ 'campaignId' ] ,
-                                $currentOpenDate
-                            );
-                        }
-                    }
-
-                    if ( $currentContact->key() === 'clicks' ) {
-                        $currentClicks = $currentContact->current();
-
-                        for ( $currentClicks->rewind() ; $currentClicks->valid() ; $currentClicks->next() ) {
-                            $currentClick = $currentClicks->current();
-                            $currentClick->rewind();
-                            $currentClick->next();
-                            
-                            $currentClickDate = $currentClick->current();
-
-                            $this->emailRecord->recordDeliverable(
-                                self::RECORD_TYPE_CLICKER ,
-                                $currentEmail , 
-                                $processState[ 'ticket' ][ 'espId' ] ,
-                                $processState[ 'ticket' ][ 'campaignId' ] ,
-                                $currentClickDate
-                            );
-                        }
+                        $this->emailRecord->recordDeliverable(
+                            self::RECORD_TYPE_OPENER ,
+                            $currentEmail ,
+                            $processState[ 'ticket' ][ 'espId' ] ,
+                            $processState[ 'ticket' ][ 'campaignId' ] ,
+                            $currentOpenDate
+                        );
                     }
                 }
 
-                if ( $contactSent && !$contactBounced ) {
-                    $this->emailRecord->recordDeliverable(
-                        self::RECORD_TYPE_DELIVERABLE ,
-                        $currentEmail , 
-                        $processState[ 'ticket' ][ 'espId' ] ,
-                        $processState[ 'ticket' ][ 'campaignId' ] ,
-                        ''
-                    );
+                if ( $currentContact->key() === 'clicks' ) {
+                    $currentClicks = $currentContact->current();
+
+                    for ( $currentClicks->rewind() ; $currentClicks->valid() ; $currentClicks->next() ) {
+                        $currentClick = $currentClicks->current();
+                        $currentClick->rewind();
+                        $currentClick->next();
+                        
+                        $currentClickDate = $currentClick->current();
+
+                        $this->emailRecord->recordDeliverable(
+                            self::RECORD_TYPE_CLICKER ,
+                            $currentEmail , 
+                            $processState[ 'ticket' ][ 'espId' ] ,
+                            $processState[ 'ticket' ][ 'campaignId' ] ,
+                            $currentClickDate
+                        );
+                    }
                 }
             }
-        } else {
-            $processState[ 'delay' ] = 180;
 
-            $this->dataRetrievalFailed = true;
+            if ( $contactSent && !$contactBounced ) {
+                $this->emailRecord->recordDeliverable(
+                    self::RECORD_TYPE_DELIVERABLE ,
+                    $currentEmail , 
+                    $processState[ 'ticket' ][ 'espId' ] ,
+                    $processState[ 'ticket' ][ 'campaignId' ] ,
+                    ''
+                );
+            }
         }
     }
 
     public function shouldRetry () { return $this->dataRetrievalFailed; }
 
-    public function getTicketForMessageSubscriberData($messageId)
+    public function getTicketForMessageSubscriberData( $messageId , $recordType )
     {
+        $actionType = ( $recordType === 'deliverable' ? 'sent,bounce' : $recordType );
+
         $methodData = array(
-            "mess_id" => $messageId
+            "mess_id" => $messageId ,
+            "action_type" => $actionType 
         );
         try {
             $this->api->buildRequest("statistics.getMessageSubscriberData", $methodData);
@@ -301,10 +355,10 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         return (string)$ticketNumber;
     }
 
-    public function checkTicketStatus($ticketId){
+    public function checkTicketStatus( &$processState ){
         $return = false;
         $methodData = array(
-            "task_id" => $ticketId
+            "task_id" => $processState[ 'ticket' ][ 'ticketName' ]
         );
         try {
             $this->api->buildRequest("utilities.getTasks", $methodData);
@@ -331,7 +385,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         try {
             $this->api->buildRequest("utilities.getFile", $methodData);
             $response = $this->api->sendApiRequest();
-            $xmlBody = simplexml_load_string($response->getBody()->__toString());
+            $xmlBody = $response->getBody()->__toString();
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
