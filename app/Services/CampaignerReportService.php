@@ -215,22 +215,15 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         }
     }
 
-    public function getTickets ( $espAccountId , $date ) {
-        $campaigns = $this->getCampaigns( $espAccountId , $date );
-        $tickets = [];
+    public function startTicket ( $espAccountId , $campaign , $recordType = null ) {
+        $reportData = $this->createCampaignReport( $campaign->run_id );
 
-        $campaigns->each( function ( $campaign , $key ) use ( &$tickets , $espAccountId ) {
-            $reportData = $this->createCampaignReport( $campaign->run_id );
-
-            $tickets []= [
-                "ticketName" => $reportData[ 'ticketId' ] ,
-                "rowCount" => $reportData[ 'count' ] ,
-                "campaignId" => $campaign->internal_id ,
-                "espId" => $espAccountId
-            ];
-        } );
-
-        return $tickets;
+        return [
+            "ticketName" => $reportData[ 'ticketId' ] ,
+            "rowCount" => $reportData[ 'count' ] ,
+            "campaignId" => $campaign->internal_id ,
+            "espId" => $espAccountId
+        ];
     }
 
     public function saveRecords ( &$processState ) {
