@@ -35,6 +35,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
 {
 
     CONST NO_CAMPAIGNS = 'M_4.1.1.1_NO-CAMPAIGNRUNS-FOUND';
+    protected $dataRetrievalFailed = false;
     /**
      * @var string
      */
@@ -252,7 +253,25 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                         $processState[ 'ticket' ][ 'campaignId' ] ,
                         $record[ 'actionDate' ]
                     );
-                } elseif ( $record[ 'action' ] === 'Delivered' ) {
+                } elseif ( $record[ 'action' ] === 'Unsubscribe' ) {
+                    $this->emailRecord->recordDeliverable(
+                        self::RECORD_TYPE_UNSUBSCRIBE ,
+                        $record[ 'email' ] ,
+                        $processState[ 'ticket' ][ 'espId' ] ,
+                        $processState[ 'ticket' ][ 'campaignId' ] ,
+                        $record[ 'actionDate' ]
+                    );
+                } elseif ( $record[ 'action' ] === 'SpamComplaint' ) {
+                    $this->emailRecord->recordDeliverable(
+                        self::RECORD_TYPE_COMPLAINT ,
+                        $record[ 'email' ] ,
+                        $processState[ 'ticket' ][ 'espId' ] ,
+                        $processState[ 'ticket' ][ 'campaignId' ] ,
+                        $record[ 'actionDate' ]
+                    );
+                }
+
+                elseif ( $record[ 'action' ] === 'Delivered' ) {
                     $this->emailRecord->recordDeliverable(
                         self::RECORD_TYPE_DELIVERABLE ,
                         $record[ 'email' ] ,
@@ -263,8 +282,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                 }
             }
         } else {
-            $this->processState[ 'delay' ] = 180;
-
+            $processState[ 'delay' ] = 180;
             $this->dataRetrievalFailed = true;
         }
     }
