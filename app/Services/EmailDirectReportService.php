@@ -118,7 +118,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
     }
 
     public function splitTypes () {
-        return [ 'deliveries' , 'opens' , 'clicks' ];
+        return [ 'deliveries' , 'opens' , 'clicks', "unsubscribes", "complaints" ];
     }
 
     public function saveRecords ( &$processState ) {
@@ -196,6 +196,54 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                     );
                 }
             break;
+
+            case 'unsubscribes' :
+                try {
+                    $opens = $this->getUnsubscribeReport( $processState[ 'campaignId' ] );
+                } catch ( \Exception $e ) {
+                    Log::error( 'Failed to retrievee open records. ' . $e->getMessage() );
+
+                    $processState[ 'delay' ] = 180;
+
+                    $this->dataRetrievalFailed = true;
+
+                    return;
+                }
+
+                foreach ( $opens as $key => $openRecord ) {
+                    $this->emailRecord->recordDeliverable(
+                        self::RECORD_TYPE_UNSUBSCRIBE ,
+                        $openRecord[ 'EmailAddress' ] ,
+                        $processState[ 'espId' ] ,
+                        $processState[ 'campaignId' ] ,
+                        $openRecord[ 'ActionDate' ]
+                    );
+                }
+                break;
+
+            case 'complaints' :
+                try {
+                    $opens = $this->getComplaintReport( $processState[ 'campaignId' ] );
+                } catch ( \Exception $e ) {
+                    Log::error( 'Failed to retrievee open records. ' . $e->getMessage() );
+
+                    $processState[ 'delay' ] = 180;
+
+                    $this->dataRetrievalFailed = true;
+
+                    return;
+                }
+
+                foreach ( $opens as $key => $openRecord ) {
+                    $this->emailRecord->recordDeliverable(
+                        self::RECORD_TYPE_COMPLAINT ,
+                        $openRecord[ 'EmailAddress' ] ,
+                        $processState[ 'espId' ] ,
+                        $processState[ 'campaignId' ] ,
+                        $openRecord[ 'ActionDate' ]
+                    );
+                }
+                break;
         }
     }
 
@@ -219,6 +267,10 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
     //Todo do we include softbounces?
     public function getHardBounceReport($campaignId){
        return $this->api->getDeliveryReport($campaignId, "HardBounces");
+    }
+
+    public function getComplaintReport($campaignId){
+        return $this->api->getDeliveryReport($campaignId, "Complaints");
     }
 
 }
