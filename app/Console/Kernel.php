@@ -7,7 +7,8 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
-    const DELIVERABLE_SCHEDULE_TIME = '08:00';
+    const DELIVERABLE_SCHEDULE_TIME = '02:00';
+    const DELIVERABLE_AGGREGATION_TIME = '11:00';
 
     /**
      * The Artisan commands provided by your application.
@@ -69,5 +70,6 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'reports:downloadDeliverables Maro 1' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables AWeber 1 AWeber' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Ymlp 1' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command( 'reports:populateStats')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
     }
 }
