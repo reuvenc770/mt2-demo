@@ -12,6 +12,7 @@ use Carbon\Carbon;
 class MaroApi extends EspBaseAPI {
 
     const API_URL = "http://api.maropost.com/accounts/%d/reports.json?";
+    const DELIVERED_URL = "http://api.maropost.com/accounts/%s/campaigns/%d/delivered_report.json?";
     const OPENS_URL = "http://api.maropost.com/accounts/%d/reports/opens.json?";
     const CLICKS_URL = "http://api.maropost.com/accounts/%d/reports/clicks.json?";
     const BOUNCES_URL = "http://api.maropost.com/accounts/%d/reports/bounces.json?";
@@ -117,4 +118,9 @@ class MaroApi extends EspBaseAPI {
             . $this->apiKey;
     }
 
+    public function getDelivered ( $campaignId ) {
+        $this->url = sprintf( self::DELIVERED_URL , $this->account , $campaignId ) . '&auth_token=' . $this->apiKey . '&from=' . $this->priorDate . '&to=' . $this->date;
+
+        return $this->sendApiRequest();
+    }
 }

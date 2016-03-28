@@ -27,7 +27,10 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     public $queue;
 
     public $processState;
-    protected $defaultProcessState = [ "currentFilterIndex" => 0 ];
+    protected $defaultProcessState = [
+        "pipe" => 'default' ,
+        "currentFilterIndex" => 0
+    ];
 
     protected $currentFilter;
 
@@ -47,6 +50,10 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
         if ( $processState !== null ) {
             $this->processState = $processState;
+
+            if ( !isset( $this->processState[ 'currentFilterIndex' ] ) ) {
+                $this->processState[ 'currentFilterIndex' ] = 0;
+            }
         } else {
             $this->processState = $this->defaultProcessState;
         }
@@ -151,7 +158,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
                 if ( $reportService->pageHasData() ) {
                     $this->processState[ 'currentPageData' ] = $reportService->getPageData();
-                    $reportService->saveRecords( $this->processState );
+                    $reportService->savePage( $this->processState );
                     $this->processState[ 'currentPageData' ] = array();
 
                     $reportService->nextPage();
@@ -197,8 +204,11 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
     protected function currentFilter () {
         if ( is_null( $this->currentFilter ) ) {
-            $filters = config( 'espdeliverables.' . $this->apiName . '.filters' );
-            $this->currentFilter = $filters[ $this->processState[ 'currentFilterIndex' ] ];
+            $filters = config( 'espdeliverables.' . $this->apiName . '.pipes' );
+            $pipe = $this->processState[ 'pipe' ];
+            $filterIndex = $this->processState[ 'currentFilterIndex' ];
+
+            $this->currentFilter = $filters[ $pipe ][ $filterIndex ];
         }
 
         return $this->currentFilter;
