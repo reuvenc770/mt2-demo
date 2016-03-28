@@ -13,6 +13,7 @@ class UpdateEmailActions extends Migration
     public function up()
     {
         Schema::connection( 'reporting_data' )->table( 'email_actions' , function ( $table ) {
+            $table->dropIndex( 'email_actions_email_id_index' );
             $table->unique( [ 'email_id' , 'campaign_id' , 'datetime' ] );
         } );
     }
