@@ -80,7 +80,7 @@ class MaroReportService extends AbstractReportService implements IDataService
     }
 
     public function splitTypes () {
-        return [ 'opens' , 'clicks' ];
+        return [ 'opens' , 'clicks', 'unsubscribes', 'complaints'];
     }
 
     public function saveRecords ( &$processState ) {
@@ -108,6 +108,30 @@ class MaroReportService extends AbstractReportService implements IDataService
                     );
                 }
             break;
+
+            case 'unsubscribes' :
+                foreach ( $processState[ 'currentPageData' ] as $key => $clicker ) {
+                    $this->emailRecord->recordDeliverable(
+                        self::RECORD_TYPE_UNSUBSCRIBE ,
+                        $clicker[ 'contact' ][ 'email' ] ,
+                        $this->api->getId() ,
+                        $clicker[ 'campaign_id' ] ,
+                        $clicker[ 'recorded_at' ]
+                    );
+                }
+                break;
+
+            case 'complaints' :
+                foreach ( $processState[ 'currentPageData' ] as $key => $clicker ) {
+                    $this->emailRecord->recordDeliverable(
+                        self::RECORD_TYPE_COMPLAINT ,
+                        $clicker[ 'contact' ][ 'email' ] ,
+                        $this->api->getId() ,
+                        $clicker[ 'campaign_id' ] ,
+                        $clicker[ 'recorded_at' ]
+                    );
+                }
+                break;
         }
     }
 
@@ -124,7 +148,7 @@ class MaroReportService extends AbstractReportService implements IDataService
     }
 
     public function setPageType ( $pageType ) {
-        if ( in_array( $pageType , [ 'opens' , 'clicks' ] ) ) {
+        if ( in_array( $pageType , [ 'opens' , 'clicks', 'complaints', 'unsubscribes' ] ) ) {
             $this->pageType = $pageType;
         }
     }
