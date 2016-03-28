@@ -38,7 +38,6 @@ class Kernel extends ConsoleKernel
         /**
          * Campaign Data Daily
          */
-        /*
         $filePath = storage_path('logs')."/downloadAPI.log";
         $schedule->command('reports:downloadApi BlueHornet 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Campaigner 5')->hourly()->sendOutputTo($filePath);
@@ -48,7 +47,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:downloadApi Ymlp 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi GetResponse 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadTrackingData Cake 5')->hourly()->sendOutputTo($filePath);
-         */
 
         /**
          * Campaign Data Monthly
