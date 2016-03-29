@@ -1,8 +1,8 @@
 <?php
-
+namespace App\Library\EmailDirect;
 /**
  * @method EmailDirect_Bounces bounces($bounceId = null) bounces
- * @method EmailDirect_Campaigns campaigns($campaignId = null) campaigns
+ * @method EmailDirectCampaigns campaigns($campaignId = null) campaigns
  * @method EmailDirect_CreativeFolders creativeFolders($folderId = null) creative folders
  * @method EmailDirect_Creatives creatives($creativeId = null) creatives
  * @method EmailDirect_Database database($columnName = null) database
@@ -45,7 +45,7 @@ class EmailDirect
     protected $_apiKey;
     
     /**
-     * @var EmailDirect_Adapter_Curl 
+     * @var EmailDirectAdapterCurl
      */
     protected $_adapter;
     
@@ -66,7 +66,7 @@ class EmailDirect
      */
     public function __call($method, $args)
     {
-        $class = 'EmailDirect_' . ucfirst($method);
+        $class = '\\App\\Library\\EmailDirect\\EmailDirect_' . ucfirst($method);
         if (!isset($this->_mapResources[$class])) {
             $this->_mapResources[$class] = new $class($this->getAdapter());
         }
@@ -78,12 +78,12 @@ class EmailDirect
     
     /**
      * Http client
-     * @return EmailDirect_Adapter_Curl
+     * @return EmailDirectAdapterCurl
      */
     public function getAdapter()
     {
         if ($this->_adapter === null) {
-            $this->_adapter = new EmailDirect_Adapter_Curl(
+            $this->_adapter = new EmailDirectAdapterCurl(
                 static::URL, 
                 array_merge(static::$headers, array('ApiKey' => $this->_apiKey))
             );
