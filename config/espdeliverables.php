@@ -4,61 +4,95 @@ return [
     "BlueHornet" => [
         "pipes" => [
             "default" => [
-                'jobSetup' ,
-                'splitTypes' ,
-                'getCampaigns' ,
-                'startTicket' ,
-                'checkTicketStatus' ,
-                'downloadTicketFile' ,
-                'saveRecords'
+                [ 'name' => 'jobSetup' ] ,
+                [
+                    'name' => 'splitTypes' ,
+                    'arguments' => [
+                        [ 'open' , 'click' , 'optout' ]
+                    ]
+                ] , 
+                [ 'name' => 'getCampaigns' ] ,
+                [ 'name' => 'startTicket' ] ,
+                [ 'name' => 'checkTicketStatus' ] ,
+                [ 'name' => 'downloadTicketFile' ] ,
+                [ 'name' => 'saveRecords' ]
+            ] ,
+            "delivered" => [
+                [ 'name' => 'jobSetup' ] ,
+                [
+                    'name' => 'splitTypes' ,
+                    'arguments' => [
+                        [ 'deliverable' ]
+                    ]
+                ] , 
+                [ 'name' => 'getCampaigns' ] ,
+                [ 'name' => 'startTicket' ] ,
+                [ 'name' => 'checkTicketStatus' ] ,
+                [ 'name' => 'downloadTicketFile' ] ,
+                [ 'name' => 'saveRecords' ]
             ]
         ]
     ] ,
     "Campaigner" => [
         "pipes" => [
             "default" => [
-                'getCampaigns' ,
-                'startTicket' ,
-                'saveRecords'
+                [ 'name' => 'getCampaigns' ] ,
+                [ 'name' => 'startTicket' ] ,
+                [ 'name' => 'saveRecords' ]
             ]
         ]
     ] ,
     "Maro" => [
         "pipes" => [
             "default" => [
-                'splitTypes' ,
-                'savePaginatedRecords'
+                [ 'name' => 'splitTypes' ] ,
+                [ 'name' => 'savePaginatedRecords' ]
             ] , 
             "delivered" => [
-                'getCampaigns' ,
-                'saveRecords'
+                [ 'name' => 'getCampaigns' ] ,
+                [ 'name' => 'saveRecords' ]
             ]
         ]
     ] ,
     "EmailDirect" => [
         "pipes" => [
             "default" => [
-                'getCampaigns' ,
-                'splitTypes' ,
-                'saveRecords'
+                [
+                    'name' => 'splitTypes' ,
+                    'arguments' => [
+                        [ 'opens' , 'clicks', 'unsubscribes', 'complaints' ]
+                    ]
+                ] ,
+                [ 'name' => 'getCampaigns' ] ,
+                [ 'name' => 'saveRecords' ]
+            ] ,
+            "delivered" => [
+                [
+                    'name' => 'splitTypes' ,
+                    'arguments' => [
+                        [ 'deliveries' ]
+                    ]
+                ] ,
+                [ 'name' => 'getCampaigns' ] ,
+                [ 'name' => 'saveRecords' ]
             ]
         ]
     ],
     "Ymlp" => [
         "pipes" => [
             "default" => [
-                'getCampaigns',
-                'splitTypes' ,
-                'saveRecords'
+                [ 'name' => 'getCampaigns' ] ,
+                [ 'name' => 'splitTypes' ] ,
+                [ 'name' => 'saveRecords' ]
             ]
         ]
     ] ,
     "AWeber" => [
         "pipes" => [
             "default" => [
-                'getCampaigns' ,
-                'splitTypes' ,
-                'saveRecords'
+                [ 'name' => 'getCampaigns' ] ,
+                [ 'name' => 'splitTypes' ] ,
+                [ 'name' => 'saveRecords' ]
             ]
         ]
     ]

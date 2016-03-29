@@ -69,9 +69,9 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     public function handle () {
         $this->initJobEntry();
 
-        $filterName = $this->currentFilter();
+        $filterData = $this->currentFilter();
 
-        $this->$filterName();
+        call_user_func_array( array( $this , $filterData[ 'name' ] ) , $filterData[ 'arguments' ] );
     }
 
     protected function jobSetup () {
@@ -153,10 +153,10 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->changeJobEntry( JobEntry::SUCCESS );
     }
 
-    protected function splitTypes () {
+    protected function splitTypes ( $customTypes = null ) {
         $this->processState[ 'currentFilterIndex' ]++;
 
-        $types = $this->reportService->splitTypes();
+        $types = !is_null( $customTypes ) ? $customTypes :$this->reportService->splitTypes();
 
         foreach ( $types as $index => $currentType ) {
             $this->processState[ 'recordType' ] = $currentType;
@@ -230,6 +230,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             $filterIndex = $this->processState[ 'currentFilterIndex' ];
 
             $this->currentFilter = $filters[ $pipe ][ $filterIndex ];
+
+            if ( !isset( $this->currentFilter[ 'arguments' ] ) ) { $this->currentFilter[ 'arguments' ] = [];  } 
         }
 
         return $this->currentFilter;
@@ -238,11 +240,11 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     protected function initJobEntry () {
         Log::info( '' );
         Log::info("Job Tries at start {$this->attempts()}");
-        Log::info( $this->apiName . '::' . $this->espAccountId . '::' . $this->currentFilter() . ' => ' . json_encode( $this->processState ) );
+        Log::info( $this->apiName . '::Pipe-' . $this->processState[ 'pipe' ] . '::ID-' . $this->espAccountId . '::Filter-' . $this->currentFilter()[ 'name' ] . ' => ' . json_encode( $this->processState ) );
 
         $jobId = $this->reportService->getUniqueJobId( $this->processState );
 
-        $jobName = self::JOB_NAME . '::' . $this->currentFilter() . $jobId;
+        $jobName = self::JOB_NAME . '::Pipe-' . $this->processState[ 'pipe' ] . '::Filter-' . $this->currentFilter()[ 'name' ] . $jobId;
         JobTracking::startEspJob( $jobName ,$this->apiName, $this->espAccountId, $this->tracking);
     }
 
