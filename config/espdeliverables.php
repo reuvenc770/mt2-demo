@@ -4,8 +4,12 @@ return [
     "BlueHornet" => [
         "pipes" => [
             "default" => [
+                'jobSetup' ,
+                'splitTypes' ,
                 'getCampaigns' ,
                 'startTicket' ,
+                'checkTicketStatus' ,
+                'downloadTicketFile' ,
                 'saveRecords'
             ]
         ]
