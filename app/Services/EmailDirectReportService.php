@@ -104,10 +104,10 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
     }
 
     public function getUniqueJobId ( $processState ) {
-        if ( isset( $processState[ 'campaignId' ] ) && !isset( $processState[ 'recordType' ] ) ) {
-            return '::Campaign' . $processState[ 'campaignId' ];
-        } elseif ( isset( $processState[ 'campaignId' ] ) && isset( $processState[ 'recordType' ] ) ) {
-            return '::Campaign' . $processState[ 'campaignId' ] . '::' . $processState[ 'recordType' ];
+        if ( isset( $processState[ 'campaign' ]->internal_id ) && !isset( $processState[ 'recordType' ] ) ) {
+            return '::Campaign' . $processState[ 'campaign' ]->internal_id;
+        } elseif ( isset( $processState[ 'campaign' ]->internal_id ) && isset( $processState[ 'recordType' ] ) ) {
+            return '::Campaign' . $processState[ 'campaign' ]->internal_id . '::' . $processState[ 'recordType' ];
         } else {
             return '';
         }
@@ -127,7 +127,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
         switch ( $processState[ 'recordType' ] ) {
             case 'deliveries' :
                 try {
-                    $deliverables = $this->getDeliveryReport( $processState[ 'campaignId' ] );
+                    $deliverables = $this->getDeliveryReport( $processState[ 'campaign' ]->internal_id );
                 } catch ( \Exception $e ) {
                     Log::error( 'Failed to retrievee deliverable records. ' . $e->getMessage() );
 
@@ -143,7 +143,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                         self::RECORD_TYPE_DELIVERABLE ,
                         $deliveryRecord[ 'EmailAddress' ] ,
                         $processState[ 'espId' ] ,
-                        $processState[ 'campaignId' ] ,
+                        $processState[ 'campaign' ]->internal_id ,
                         $deliveryRecord[ 'ActionDate' ]
                     );
                 }
@@ -151,7 +151,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
 
             case 'opens' :
                 try {
-                    $opens = $this->getOpenReport( $processState[ 'campaignId' ] );
+                    $opens = $this->getOpenReport( $processState[ 'campaign' ]->internal_id );
                 } catch ( \Exception $e ) {
                     Log::error( 'Failed to retrievee open records. ' . $e->getMessage() );
 
@@ -167,7 +167,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                         self::RECORD_TYPE_OPENER ,
                         $openRecord[ 'EmailAddress' ] ,
                         $processState[ 'espId' ] ,
-                        $processState[ 'campaignId' ] ,
+                        $processState[ 'campaign' ]->internal_id ,
                         $openRecord[ 'ActionDate' ]
                     );
                 }
@@ -175,7 +175,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
 
             case 'clicks' :
                 try {
-                    $clicks = $this->getClickReport( $processState[ 'campaignId' ] );
+                    $clicks = $this->getClickReport( $processState[ 'campaign' ]->internal_id );
                 } catch ( \Exception $e ) {
                     Log::error( 'Failed to retrievee click records. ' . $e->getMessage() );
 
@@ -191,7 +191,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                         self::RECORD_TYPE_CLICKER ,
                         $clickRecord[ 'EmailAddress' ] ,
                         $processState[ 'espId' ] ,
-                        $processState[ 'campaignId' ] ,
+                        $processState[ 'campaign' ]->internal_id ,
                         $clickRecord[ 'ActionDate' ]
                     );
                 }
@@ -199,7 +199,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
 
             case 'unsubscribes' :
                 try {
-                    $opens = $this->getUnsubscribeReport( $processState[ 'campaignId' ] );
+                    $opens = $this->getUnsubscribeReport( $processState[ 'campaign' ]->internal_id );
                 } catch ( \Exception $e ) {
                     Log::error( 'Failed to retrievee open records. ' . $e->getMessage() );
 
@@ -215,7 +215,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                         self::RECORD_TYPE_UNSUBSCRIBE ,
                         $openRecord[ 'EmailAddress' ] ,
                         $processState[ 'espId' ] ,
-                        $processState[ 'campaignId' ] ,
+                        $processState[ 'campaign' ]->internal_id ,
                         $openRecord[ 'ActionDate' ]
                     );
                 }
@@ -223,7 +223,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
 
             case 'complaints' :
                 try {
-                    $opens = $this->getComplaintReport( $processState[ 'campaignId' ] );
+                    $opens = $this->getComplaintReport( $processState[ 'campaign' ]->internal_id );
                 } catch ( \Exception $e ) {
                     Log::error( 'Failed to retrievee open records. ' . $e->getMessage() );
 
@@ -239,7 +239,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                         self::RECORD_TYPE_COMPLAINT ,
                         $openRecord[ 'EmailAddress' ] ,
                         $processState[ 'espId' ] ,
-                        $processState[ 'campaignId' ] ,
+                        $processState[ 'campaign' ]->internal_id ,
                         $openRecord[ 'ActionDate' ]
                     );
                 }
