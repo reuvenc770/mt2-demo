@@ -77,7 +77,7 @@ class EmailDirectApi extends EspBaseAPI {
     public function getDeliveryReport($campaignId,$method){
         $outputData = array();
         $method = strtolower($method);
-        $recipientsResponse = $this->api->campaigns($campaignId)->$method(array("PageSize" => 200));
+        $recipientsResponse = $this->api->campaigns($campaignId)->$method(array("PageSize" => 500));
 
         if(!$recipientsResponse->success()){
             throw new \Exception( "Email Direct API Called Failed.  {$recipientsResponse->getErrorMessage()} :!: {$recipientsResponse->getErrorCode()}");
@@ -89,7 +89,7 @@ class EmailDirectApi extends EspBaseAPI {
         if ($totalPages > 1) {
             $i = 2;
             while ($i <= $totalPages) {
-                $recipientsResponse = $this->api->campaigns($campaignId)->recipients(array("PageNumber" => $i,"PageSize" => 200));
+                $recipientsResponse = $this->api->campaigns($campaignId)->recipients(array("PageNumber" => $i,"PageSize" => 500));
                 if(!$recipientsResponse->success()){
                     throw new \Exception( "Email Direct API Called Failed.  {$recipientsResponse->getErrorMessage()} :!: {$recipientsResponse->getErrorCode()}");
                 }
