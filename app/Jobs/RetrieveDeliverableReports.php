@@ -86,12 +86,16 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     }
 
     protected function startTicket () {
-        $ticket = $this->reportService->startTicket(
-            $this->espAccountId ,
-            isset( $this->processState[ 'campaign' ] ) ? $this->processState[ 'campaign' ] : [] ,
-            isset( $this->processState[ 'recordType' ] ) ? $this->processState[ 'recordType' ] : ''
-        );
-
+        try {
+            $ticket = $this->reportService->startTicket(
+                $this->espAccountId,
+                isset($this->processState['campaign']) ? $this->processState['campaign'] : [],
+                isset($this->processState['recordType']) ? $this->processState['recordType'] : ''
+            );
+        } catch (\Exception $e){
+            Log::error($e->getMessage());
+            throw new \Exception($e->getMessage());
+        }
         $this->processState[ 'currentFilterIndex' ]++;
         $this->processState[ 'ticket' ] = $ticket;
 
