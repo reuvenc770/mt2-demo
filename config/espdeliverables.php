@@ -2,48 +2,58 @@
 
 return [
     "BlueHornet" => [
-        "filters" => [
-            'jobSetup' ,
-            'splitTypes' ,
-            'getCampaigns' ,
-            'startTicket' ,
-            'checkTicketStatus' ,
-            'downloadTicketFile' ,
-            'saveRecords'
+        "pipes" => [
+            "default" => [
+                'getTickets' ,
+                'saveRecords'
+            ]
         ]
     ] ,
     "Campaigner" => [
-        "filters" => [
-            'getCampaigns' ,
-            'startTicket' ,
-            'saveRecords'
+        "pipes" => [
+            "default" => [
+                'getTickets' ,
+                'saveRecords'
+            ]
         ]
     ] ,
     "Maro" => [
-        "filters" => [
-            'splitTypes' ,
-            'savePaginatedRecords'
+        "pipes" => [
+            "default" => [
+                'splitTypes' ,
+                'savePaginatedRecords'
+            ] , 
+            "delivered" => [
+                'getCampaigns' ,
+                'saveRecords'
+            ]
         ]
     ] ,
     "EmailDirect" => [
-        "filters" => [
-            'getCampaigns' ,
-            'splitTypes' ,
-            'saveRecords'
+        "pipes" => [
+            "default" => [
+                'getCampaigns' ,
+                'splitTypes' ,
+                'saveRecords'
+            ]
         ]
     ],
     "Ymlp" => [
-        "filters" => [
-            'getCampaigns',
-            'splitTypes' ,
-            'saveRecords'
+        "pipes" => [
+            "default" => [
+                'getCampaigns',
+                'splitTypes' ,
+                'saveRecords'
+            ]
         ]
     ] ,
     "AWeber" => [
-        "filters" => [
-            'getCampaigns' ,
-            'splitTypes' ,
-            'saveRecords'
+        "pipes" => [
+            "default" => [
+                'getCampaigns' ,
+                'splitTypes' ,
+                'saveRecords'
+            ]
         ]
     ]
 ];

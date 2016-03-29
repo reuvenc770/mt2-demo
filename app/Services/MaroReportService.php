@@ -83,7 +83,7 @@ class MaroReportService extends AbstractReportService implements IDataService
         return [ 'opens' , 'clicks', 'unsubscribes', 'complaints'];
     }
 
-    public function saveRecords ( &$processState ) {
+    public function savePage ( &$processState ) {
         switch ( $processState[ 'recordType' ] ) {
             case 'opens' :
                 foreach ( $processState[ 'currentPageData' ] as $key => $openner ) {
@@ -135,16 +135,46 @@ class MaroReportService extends AbstractReportService implements IDataService
         }
     }
 
+    public function saveRecords ( &$processState ) {
+        $data = $this->api->getDelivered( $processState[ 'campaignId' ] );
+        $data = $this->processGuzzleResult( $data );
+
+        foreach ( $data as $key => $record ) {
+            $this->emailRecord->recordDeliverable(
+                self::RECORD_TYPE_DELIVERABLE ,
+                $record[ 'email' ] ,
+                $this->api->getId() ,
+                $record[ 'campaign_id' ] ,
+                $record[ 'created_at' ]
+            );
+        }
+    }
+
     public function shouldRetry () {
         return false; #releases if guzzle result is not HTTP 200
     }
 
     public function getUniqueJobId ( $processState ) {
-        if ( isset( $processState[ 'recordType' ] ) ) {
-            return '::' . $processState[ 'recordType' ] . '::' . 'Page' . ( isset( $processState[ 'pageNumber' ] ) ? $processState[ 'pageNumber' ] : 1 );
-        } else {
-            return '';
+        $jobId = ( isset( $processState[ 'jobId' ] ) ? $processState[ 'jobId' ] : '' );
+
+        if ( 
+            !isset( $processState[ 'jobIdIndex' ] )
+            || ( isset( $processState[ 'jobIdIndex' ] ) && $processState[ 'jobIdIndex' ] != $processState[ 'currentFilterIndex' ] )
+        ) {
+            $filterIndex = $processState[ 'currentFilterIndex' ];
+            $pipe = $processState[ 'pipe' ];
+
+            if ( $pipe == 'default' && $filterIndex == 1  ) {
+                $jobId .= '::Pipe-' . $pipe . '::' . $processState[ 'recordType' ] . '::Page-' . ( isset( $processState[ 'pageNumber' ] ) ? $processState[ 'pageNumber' ] : 1 );
+            } elseif ( $pipe == 'delivered' && $filterIndex == 1 ) {
+                $jobId .= '::Pipe-' .$pipe . '::Campaign-' . $processState[ 'campaignId' ];
+            }
+
+            $processState[ 'jobIdIndex' ] = $processState[ 'currentFilterIndex' ];
+            $processState[ 'jobId' ] = $jobId;
         }
+
+        return $jobId;
     }
 
     public function setPageType ( $pageType ) {
