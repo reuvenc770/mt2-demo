@@ -74,6 +74,7 @@ class EmailRecordRepo {
     }
 
     public function hasClient () {
+        // TODO
         //return Email::find( $this->getEmailId() )->emailClientInstances()->count() > 0;
         // temporary workaround so we don't fail here
         return true;
@@ -122,6 +123,7 @@ class EmailRecordRepo {
     }
 
     protected function getClientId () {
+        // TODO
         //return Email::find( $this->getEmailId() )->emailClientInstances()->first()->client_id;
 
         // temporary workaround while missing email client instances and attribution
