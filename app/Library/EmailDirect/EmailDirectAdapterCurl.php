@@ -42,6 +42,8 @@ class EmailDirectAdapterCurl
 
     public function simpleCall($method, $url, $params = array(), $options = array())
     {
+        $this->create( $this->_baseUrl );
+
         $this->setHttpMethod($method);
         // Get acts differently, as it doesnt accept parameters in the same way
         if ($method === 'get') {
