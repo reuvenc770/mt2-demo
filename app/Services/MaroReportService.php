@@ -136,7 +136,7 @@ class MaroReportService extends AbstractReportService implements IDataService
     }
 
     public function saveRecords ( &$processState ) {
-        $data = $this->api->getDelivered( $processState[ 'campaignId' ] );
+        $data = $this->api->getDelivered( $processState[ 'campaign' ]->internal_id );
         $data = $this->processGuzzleResult( $data );
 
         foreach ( $data as $key => $record ) {
@@ -167,7 +167,7 @@ class MaroReportService extends AbstractReportService implements IDataService
             if ( $pipe == 'default' && $filterIndex == 1  ) {
                 $jobId .= '::Pipe-' . $pipe . '::' . $processState[ 'recordType' ] . '::Page-' . ( isset( $processState[ 'pageNumber' ] ) ? $processState[ 'pageNumber' ] : 1 );
             } elseif ( $pipe == 'delivered' && $filterIndex == 1 ) {
-                $jobId .= '::Pipe-' .$pipe . '::Campaign-' . $processState[ 'campaignId' ];
+                $jobId .= '::Pipe-' .$pipe . '::Campaign-' . $processState[ 'campaign' ]->internal_id;
             }
 
             $processState[ 'jobIdIndex' ] = $processState[ 'currentFilterIndex' ];
