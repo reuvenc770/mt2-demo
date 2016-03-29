@@ -110,25 +110,25 @@ class MaroReportService extends AbstractReportService implements IDataService
             break;
 
             case 'unsubscribes' :
-                foreach ( $processState[ 'currentPageData' ] as $key => $clicker ) {
+                foreach ( $processState[ 'currentPageData' ] as $key => $unsub ) {
                     $this->emailRecord->recordDeliverable(
                         self::RECORD_TYPE_UNSUBSCRIBE ,
-                        $clicker[ 'contact' ][ 'email' ] ,
+                        $unsub[ 'contact' ][ 'email' ] ,
                         $this->api->getId() ,
-                        $clicker[ 'campaign_id' ] ,
-                        $clicker[ 'recorded_at' ]
+                        $unsub[ 'campaign_id' ] ,
+                        $unsub[ 'recorded_on' ]
                     );
                 }
                 break;
 
             case 'complaints' :
-                foreach ( $processState[ 'currentPageData' ] as $key => $clicker ) {
+                foreach ( $processState[ 'currentPageData' ] as $key => $complainer ) {
                     $this->emailRecord->recordDeliverable(
                         self::RECORD_TYPE_COMPLAINT ,
-                        $clicker[ 'contact' ][ 'email' ] ,
+                        $complainer[ 'contact' ][ 'email' ] ,
                         $this->api->getId() ,
-                        $clicker[ 'campaign_id' ] ,
-                        $clicker[ 'recorded_at' ]
+                        $complainer[ 'campaign_id' ] ,
+                        $complainer[ 'recorded_on' ]
                     );
                 }
                 break;

@@ -169,7 +169,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
         if ( $this->reportService->pageHasData() ) {
             $this->processState[ 'currentPageData' ] = $this->reportService->getPageData();
-            $this->reportService->saveRecords( $this->processState );
+            $this->reportService->savePage( $this->processState );
             $this->processState[ 'currentPageData' ] = array();
 
             $this->reportService->nextPage();
