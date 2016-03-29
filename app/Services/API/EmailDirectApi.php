@@ -7,6 +7,7 @@ namespace App\Services\API;
 
 use App\Facades\EspApiAccount;
 use App\Facades\Guzzle;
+use App\Library\EmailDirect\EmailDirect;
 use Carbon\Carbon;
 
 /**
@@ -28,7 +29,7 @@ class EmailDirectApi extends EspBaseAPI {
 
         $creds = EspApiAccount::grabApiKeyWithSecret( $espAccountId );
   
-        $this->api = new \EmailDirect( $creds[ 'apiKey' ] );
+        $this->api = new EmailDirect( $creds[ 'apiKey' ] );
         $curl = $this->api->getAdapter();
         $curl->setOption(CURLOPT_TIMEOUT,90);
     }
