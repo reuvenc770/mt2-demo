@@ -3,8 +3,9 @@
 namespace App\Repositories;
 
 use App\Models\Email;
-use Illuminate\Support\Facades\DB;
+#use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
+use DB;
 
 /**
  *
@@ -32,6 +33,21 @@ class EmailRepo {
         else {
             throw new \Exception("Invalid identification type for email");
         }
+    }
+
+    public function insertCopy($emailData) {
+        #$this->emailModel->updateOrCreate($emailData);
+        DB::statement(
+            "INSERT INTO emails (id, email_address, email_domain_id)
+            VALUES(:id, :addr, :domain_id)
+            ON DUPLICATE KEY UPDATE
+            id = id, email_address=email_address, email_domain_id=email_domain_id ",
+            array(
+                ':id' => $emailData['id'],
+                ':addr' => $emailData['email_address'],
+                ':domain_id' => $emailData['email_domain_id']
+            )
+        );
     }
 
     private function getAttributionForId($id) {

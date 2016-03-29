@@ -25,6 +25,7 @@ class Kernel extends ConsoleKernel
         Commands\GrabDeliverableReports::class,
         Commands\PopulateEmailCampaignsTable::class,
         Commands\GenOauth::class,
+        Commands\ImportMt1Emails::class,
     ];
 
     /**
