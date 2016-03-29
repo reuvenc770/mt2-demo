@@ -128,7 +128,7 @@ class YmlpReportService extends AbstractReportService implements IDataService {
     }
 
     public function saveRecords(&$processState) {
-        $campaignId = $processState['campaignId'];
+        $campaignId = $processState['campaign']->internal_id;
 
         switch ( $processState[ 'recordType' ] ) {
             case 'opens' :
