@@ -4,7 +4,8 @@ return [
     "BlueHornet" => [
         "pipes" => [
             "default" => [
-                'getTickets' ,
+                'getCampaigns' ,
+                'startTicket' ,
                 'saveRecords'
             ]
         ]
@@ -12,7 +13,8 @@ return [
     "Campaigner" => [
         "pipes" => [
             "default" => [
-                'getTickets' ,
+                'getCampaigns' ,
+                'startTicket' ,
                 'saveRecords'
             ]
         ]
