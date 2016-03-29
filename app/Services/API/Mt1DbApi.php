@@ -24,7 +24,7 @@ class Mt1DbApi
         $count = (int)$count[0]->total;
         echo "Count:" . $count . PHP_EOL;
 
-        $pull = DB::connection('mt1_data')->select("SELECT * FROM client_record_log ORDER BY lastUpdated LIMIT 150000");
+        $pull = DB::connection('mt1_data')->select("SELECT * FROM client_record_log ORDER BY lastUpdated LIMIT 100000");
 
         $len = sizeof($pull);
         end($pull);
