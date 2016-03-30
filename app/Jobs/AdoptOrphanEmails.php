@@ -57,41 +57,48 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
                 if ( $clientRecordCount > 0 ) {
                     $currentClientId = EmailClientInstance::select( 'client_id' )->where( 'email_id' , $currentEmailId )->pluck( 'client_id' )->first();
 
-                    DB::connection( 'reporting_data' )->statement("
-                        INSERT INTO email_actions
-                            ( email_id , client_id , esp_account_id , campaign_id , action_id , datetime , created_at , updated_at )    
-                        VALUES
-                            ( ? , ? , ? , ? , ? , ? , NOW() , NOW() )
-                        ON DUPLICATE KEY UPDATE
-                            email_id = email_id ,
-                            client_id = client_id ,
-                            esp_account_id = esp_account_id ,
-                            campaign_id = campaign_id ,
-                            action_id = action_id ,
-                            datetime = datetime ,
-                            created_at = created_at ,
-                            updated_at = NOW()" ,
-                        [
-                            $currentEmailId ,
-                            $currentClientId ,
-                            $currentOrphan->esp_account_id ,
-                            $currentOrphan->campaign_id ,
-                            $currentOrphan->action_id ,
-                            $currentOrphan->datetime
-                        ]
-                    );
+                    try {
+                        DB::connection( 'reporting_data' )->statement("
+                            INSERT INTO email_actions
+                                ( email_id , client_id , esp_account_id , campaign_id , action_id , datetime , created_at , updated_at )    
+                            VALUES
+                                ( ? , ? , ? , ? , ? , ? , NOW() , NOW() )
+                            ON DUPLICATE KEY UPDATE
+                                email_id = email_id ,
+                                client_id = client_id ,
+                                esp_account_id = esp_account_id ,
+                                campaign_id = campaign_id ,
+                                action_id = action_id ,
+                                datetime = datetime ,
+                                created_at = created_at ,
+                                updated_at = NOW()" ,
+                            [
+                                $currentEmailId ,
+                                $currentClientId ,
+                                $currentOrphan->esp_account_id ,
+                                $currentOrphan->campaign_id ,
+                                $currentOrphan->action_id ,
+                                $currentOrphan->datetime
+                            ]
+                        );
 
-                    $currentOrphan->delete();
+                        $currentOrphan->delete();
 
-                    $processed++;
+                        $processed++;
+                    } catch ( Exception $e ) {
+                        Log::error( 'Failed to process email ' . $item->email_address );
+                        Log::error( $e->getMessage() );
+                        Log::error( $e->getTraceAsString() );
+
+                        $failedToProcess = true;
+                        $attempts++;
+                    }
                 } else {
                     $failedToProcess = true;
-
                     $attempts++;
                 }
             } else {
                 $failedToProcess = true;
-
                 $attempts++;
             }
 
