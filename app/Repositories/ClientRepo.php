@@ -25,4 +25,12 @@ class ClientRepo {
                 ->get()[0]['status'] === 'Active';
     }
 
+    public function getMaxClientId() {
+        return (int)$this->client->orderBy('id', 'desc')->take(1)->get()[0]['id'];
+    }
+
+    public function insert($data) {
+        $this->client->insert($data);
+    }
+
 }
