@@ -49,4 +49,21 @@ class Mt1DbApi
             ->delete();
         
     }
+
+    public function getMaxClientId() {
+        $result = DB::connection('mt1_data')
+            ->table('user')
+            ->orderBy('user_id', 'desc')
+            ->take(1)
+            ->get()[0]->user_id;
+
+        return (int)$result;
+    }
+
+    public function getNewClients($clientId) {
+        return DB::connection('mt1_data')
+            ->table('user')
+            ->where('user_id', '>', $clientId)
+            ->get();
+    }
 }
