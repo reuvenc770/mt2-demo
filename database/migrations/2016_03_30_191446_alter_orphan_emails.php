@@ -24,6 +24,8 @@ class AlterOrphanEmails extends Migration
      */
     public function down()
     {
-        //
+        Schema::table( 'orphan_emails' , function ( $table ) {
+            $table->dropColumn( 'adopt_attempts' );
+        } );
     }
 }
