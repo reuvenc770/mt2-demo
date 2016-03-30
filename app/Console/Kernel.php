@@ -41,7 +41,7 @@ class Kernel extends ConsoleKernel
          * Orphan Adoption
          */
         $orphanFilePath = storage_path('logs')."/adoptOrphans.log";
-        $schedule->command( 'reports:adoptOrphans --maxOrphans=100000 --chunkSize=10000 --chunkDelay=120' )->hourly()->sendOutputTo( $orphanFilePath );
+        $schedule->command( 'reports:adoptOrphans --maxOrphans=500000 --chunkSize=10000' )->hourly()->sendOutputTo( $orphanFilePath );
 
         /**
          * Campaign Data Daily

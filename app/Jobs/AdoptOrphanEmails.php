@@ -27,7 +27,7 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
      */
     public function __construct( $orphans = [] )
     {
-        $this->orphans = $orphans;
+        $this->orphans = is_array( $orphans ) ? collect( $orphans ) : $orphans;
     }
 
     /**
