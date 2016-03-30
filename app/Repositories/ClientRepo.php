@@ -26,7 +26,7 @@ class ClientRepo {
     }
 
     public function getMaxClientId() {
-        return (int)$this->client->orderBy('id', 'desc')->take(1)->get()[0]['id'];
+        return (int)$this->client->orderBy('id', 'desc')->first()['id'];
     }
 
     public function insert($data) {
