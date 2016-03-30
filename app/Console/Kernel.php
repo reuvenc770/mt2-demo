@@ -56,7 +56,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:downloadApi Campaigner 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi EmailDirect 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Maro 31')->monthly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi Aweber 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Ymlp 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi GetResponse 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadTrackingData Cake 31')->monthly()->sendOutputTo($filePath);
@@ -65,14 +64,13 @@ class Kernel extends ConsoleKernel
          * Deliverable Data
          */
         $deliverableFilePath = storage_path( 'logs' ) . "/downloadDeliverables.log";
-        $schedule->command( 'reports:downloadDeliverables BlueHornet 1' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables Campaigner 1' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables EmailDirect 1' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables Maro 1' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables Maro:delivered 1' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables AWeber 1 AWeber' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command( 'reports:downloadDeliverables BlueHornet 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command( 'reports:downloadDeliverables Campaigner 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command( 'reports:downloadDeliverables EmailDirect 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command( 'reports:downloadDeliverables Maro 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command( 'reports:downloadDeliverables Maro:delivered 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Ymlp 1' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:populateStats')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
-        #$schedule->command('emails:download')->cron('*/20 * * * * *')->withoutOverlapping();
+        $schedule->command('emails:download')->cron('*/20 * * * * *')->withoutOverlapping();
     }
 }
