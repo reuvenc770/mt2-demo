@@ -23,7 +23,7 @@ class AdoptOrphanEmails extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Processes Orphan Email Actions for required data. Available options: maxOrphans, chunkSize, queueName, chunkDelay, order';
 
     /**
      * Create a new command instance.
