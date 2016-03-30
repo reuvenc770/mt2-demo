@@ -292,8 +292,8 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
     public function getCampaignReport($ticketId, $count){
         $manager = new ContactManagement();
         $offset = 0;
-        $limit = 10;
-        $totalCount = 100;
+        $limit = 20000;
+        $totalCount = $count;
         $data = array();
         while ($totalCount > 0) {
 
