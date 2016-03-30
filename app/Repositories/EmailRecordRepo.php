@@ -128,7 +128,7 @@ class EmailRecordRepo {
 
         // temporary workaround while missing email client instances and attribution
 
-        $emailClientInstances = Email::find( $this->getEmailId() )->emailClientInstances();
+        $emailClientInstances = Email::find( $this->getEmailId() )->emailClientInstances;
 
         if ($emailClientInstances->isEmpty()) {
             return 0;
