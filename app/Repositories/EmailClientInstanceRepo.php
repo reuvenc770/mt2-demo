@@ -83,8 +83,7 @@ class EmailClientInstanceRepo {
                 ':source_url' => $row['source_url'],
                 ':ip' => $row['ip']
             )
-        );
-        
+        );        
     }
 
 }

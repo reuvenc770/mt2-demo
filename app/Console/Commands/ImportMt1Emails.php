@@ -6,10 +6,12 @@ use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
 use App\Jobs\ImportMt1EmailsJob;
+use App\Console\Traits\PreventOverlapping;
 
 class ImportMt1Emails extends Command
 {
-    use DispatchesJobs;
+    use DispatchesJobs, PreventOverlapping;
+    const JOB_NAME = "ImportMt1Emails";
     /**
      * The name and signature of the console command.
      *
@@ -25,9 +27,15 @@ class ImportMt1Emails extends Command
     }
 
     public function handle() {
-        // set up new job
+        // set up new job, only if another is not running
 
-        $job = new ImportMt1EmailsJob(str_random(16));
-        $this->dispatch($job);
+        if (!$this->isRunning(self::JOB_NAME)) {
+            $job = new ImportMt1EmailsJob(str_random(16));
+            $this->dispatch($job);
+        }
+        else {
+            echo "job not running" . PHP_EOL;
+        }
+
     }
 }
