@@ -23,6 +23,8 @@ class EmailClientInstanceRepo {
     }
 
     public function insert($emailClientData) {
+
+        
         $this->emailClientModel->insert($emailClientData);
     }
 

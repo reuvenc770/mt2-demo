@@ -69,4 +69,11 @@ class JobEntryRepo
             ->get();
     }
 
+    public function alreadyRunning($jobName) {
+        return $this->entry
+            ->where('job_name', $jobName)
+            ->where('status', 1)
+            ->count() > 0;
+    }
+
 }

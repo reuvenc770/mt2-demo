@@ -83,7 +83,7 @@ class ImportMt1EmailsService
 
         }
         // Delete records
-        $this->api->cleanTable();
+        #$this->api->cleanTable();
 
     }
 
