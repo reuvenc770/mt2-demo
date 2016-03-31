@@ -26,6 +26,7 @@ class Kernel extends ConsoleKernel
         Commands\PopulateEmailCampaignsTable::class,
         Commands\GenOauth::class,
         Commands\ImportMt1Emails::class,
+        Commands\AdoptOrphanEmails::class,
     ];
 
     /**
@@ -37,6 +38,12 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         /**
+         * Orphan Adoption
+         */
+        $orphanFilePath = storage_path('logs')."/adoptOrphans.log";
+        $schedule->command( 'reports:adoptOrphans --maxOrphans=500000 --chunkSize=10000' )->hourly()->sendOutputTo( $orphanFilePath );
+
+        /**
          * Campaign Data Daily
          */
         $filePath = storage_path('logs')."/downloadAPI.log";
@@ -44,9 +51,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:downloadApi Campaigner 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi EmailDirect 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Maro 5')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi Aweber 5 AWeber')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Ymlp 5')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi GetResponse 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadTrackingData Cake 5')->hourly()->sendOutputTo($filePath);
 
         /**
@@ -57,14 +62,13 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:downloadApi EmailDirect 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Maro 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Ymlp 31')->monthly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi GetResponse 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadTrackingData Cake 31')->monthly()->sendOutputTo($filePath);
 
         /**
          * Deliverable Data
          */
         $deliverableFilePath = storage_path( 'logs' ) . "/downloadDeliverables.log";
-        $schedule->command( 'reports:downloadDeliverables BlueHornet 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command( 'reports:downloadDeliverables BlueHornet 5 BlueHornet' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Campaigner 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables EmailDirect 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Maro 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
