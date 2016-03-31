@@ -63,7 +63,7 @@ class AdoptOrphanEmails extends Command
         $chunks = $orphanList->chunk( $this->option( 'chunkSize' ) );
        
         $chunks->each( function ( $orphans , $chunkKey ) {
-            $job = new Orphanage( $orphans );
+            $job = new Orphanage( $orphans , $orphans->first()->id , $orphans->last()->id );
             $job->onQueue( $this->option( 'queueName' ) );
 
             if ( $this->option( 'chunkDelay' ) > 0 ) $job->delay( $this->option( 'chunkDelay' ) );
