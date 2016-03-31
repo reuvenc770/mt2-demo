@@ -26,6 +26,7 @@ class Kernel extends ConsoleKernel
         Commands\PopulateEmailCampaignsTable::class,
         Commands\GenOauth::class,
         Commands\ImportMt1Emails::class,
+        Commands\AdoptOrphanEmails::class,
     ];
 
     /**
@@ -36,6 +37,12 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        /**
+         * Orphan Adoption
+         */
+        $orphanFilePath = storage_path('logs')."/adoptOrphans.log";
+        $schedule->command( 'reports:adoptOrphans --maxOrphans=500000 --chunkSize=10000' )->hourly()->sendOutputTo( $orphanFilePath );
+
         /**
          * Campaign Data Daily
          */
