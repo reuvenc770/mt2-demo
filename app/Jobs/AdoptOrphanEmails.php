@@ -9,25 +9,35 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Carbon\Carbon;
 use DB;
+use App\Facades\JobTracking;
 
 use App\Models\Email;
 use App\Models\EmailClientInstance;
 use App\Models\OrphanEmail;
+use App\Models\JobEntry;
 
 class AdoptOrphanEmails extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
     protected $orphans;
+    protected $tracking;
+    protected $firstId;
+    protected $lastId;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct( $orphans = [] )
+    public function __construct( $orphans = [] , $firstId = 0 , $lastId = 0 )
     {
         $this->orphans = is_array( $orphans ) ? collect( $orphans ) : $orphans;
+
+        $this->tracking = str_random( 16 );
+
+        $this->firstId = $firstId;
+        $this->lastId = $lastId;
     }
 
     /**
@@ -37,6 +47,8 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
      */
     public function handle()
     {
+        $this->initJobEntry();
+
         Log::info( '' );
         Log::info( 'Attempting to save some orphans and feed them.' );
 
@@ -85,6 +97,8 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
                         $currentOrphan->delete();
 
                         $processed++;
+
+                        $this->changeJobEntry( JobEntry::SUCCESS );
                     } catch ( Exception $e ) {
                         Log::error( 'Failed to process email ' . $item->email_address );
                         Log::error( $e->getMessage() );
@@ -109,5 +123,18 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
 
         Log::info( 'Successfully Processed ' . $processed . ' Orphan Emails.' );
         Log::info( 'Failed Processing ' . $attempts . ' Orphan Emails.' );
+    }
+
+    protected function initJobEntry () {
+        JobTracking::startEspJob( 'Orphan Adoption: ' . $this->firstId . '-' . $this->lastId , null , null , $this->tracking );
+    }
+
+    protected function changeJobEntry ( $status ) {
+        JobTracking::changeJobState( $status , $this->tracking , $this->attempts() );
+    }
+
+    public function failed()
+    {
+        $this->changeJobEntry( JobEntry::FAILED );
     }
 }
