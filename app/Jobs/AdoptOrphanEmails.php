@@ -97,8 +97,6 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
                         $currentOrphan->delete();
 
                         $processed++;
-
-                        $this->changeJobEntry( JobEntry::SUCCESS );
                     } catch ( Exception $e ) {
                         Log::error( 'Failed to process email ' . $item->email_address );
                         Log::error( $e->getMessage() );
@@ -123,6 +121,8 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
 
         Log::info( 'Successfully Processed ' . $processed . ' Orphan Emails.' );
         Log::info( 'Failed Processing ' . $attempts . ' Orphan Emails.' );
+
+        $this->changeJobEntry( JobEntry::SUCCESS );
     }
 
     protected function initJobEntry () {
