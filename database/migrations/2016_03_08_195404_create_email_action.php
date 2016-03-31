@@ -88,6 +88,8 @@ class CreateEmailAction extends Migration
             // Almost certainly included in the list of keys,
             // But not sure about the rest of them
             $table->index('email_id');
+            $table->index(['campaign_id', 'datetime'], 'campaign_date');
+            $table->index('datetime');
         });
 
         Schema::connection('reporting_data')->create('action_types', function (Blueprint $table) {
