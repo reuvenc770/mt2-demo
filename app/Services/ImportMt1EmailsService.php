@@ -35,6 +35,28 @@ class ImportMt1EmailsService
     }
 
     public function run() {
+
+        // import new clients
+        echo "importing new clients" . PHP_EOL;
+        $lastLocalClientId = $this->clientRepo->getMaxClientId();
+        $remoteMaxClient = $this->api->getMaxClientId();
+
+        if ($remoteMaxClient > $lastLocalClientId) {
+            echo "local max client id: $lastLocalClientId" . PHP_EOL;
+            echo "remote max client id: $remoteMaxClient" . PHP_EOL;
+            $newClients = $this->api->getNewClients($lastLocalClientId);
+
+            foreach ($newClients as $row) {
+                $client = $this->mapToClientTable($row);
+                $this->clientRepo->insert($client);
+            }
+        }
+        else {
+            echo "No new clients" . PHP_EOL;
+        }
+
+        // import emails
+
         $now = time();
         echo "Beginning data pull" . PHP_EOL;
         $records = $this->api->getMt1EmailLogs();
@@ -128,5 +150,27 @@ class ImportMt1EmailsService
 
     private function convertStatus($status) {
         return $status === 'Active' ? 'A' : 'U';
+    }
+
+    private function convertClientStatus($status) {
+        return $status === 'A' ? 'Active' : 'Deleted';
+    }
+
+    private function mapToClientTable($row) {
+        return [
+            'id' => $row->user_id,
+            'name' => $row->username,
+            'address' => $row->address,
+            'address2' => $row->address2,
+            'city' => $row->city,
+            'state' => $row->state,
+            'zip' => $row->zip,
+            'phone' => $row->phone,
+            'email_address' => $row->email_addr,
+            'status' => $this->convertClientStatus($row->status),
+            'source_url' => $row->clientRecordSourceURL,
+            'created_at' => $row->create_datetime,
+            'updated_at' => $row->overall_updated
+        ];
     }
 }
