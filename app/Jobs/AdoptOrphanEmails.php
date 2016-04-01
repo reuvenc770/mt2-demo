@@ -62,7 +62,7 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
             $failedToProcess = false;
 
             if ( is_object( $currentOrphan ) ) {
-                $email RecordCount = Email::where( 'email_address' , $item->email_address )->count();
+                $emailRecordCount = Email::where( 'email_address' , $item->email_address )->count();
                 if ( $emailRecordCount > 0 ) {
                     $currentEmailId = Email::select( 'id' )->where( 'email_address' , $item->email_address )->pluck( 'id' )->first();
 
