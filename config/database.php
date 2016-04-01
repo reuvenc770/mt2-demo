@@ -56,6 +56,7 @@ return [
             'collation' => 'utf8mb4_unicode_ci',
             'prefix'    => '',
             'strict'    => false,
+            'options'   => [PDO::MYSQL_ATTR_LOCAL_INFILE => true],
         ],
         'reporting_data' => [
             'driver'    => 'mysql',
