@@ -52,8 +52,10 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
      */
     public function retrieveApiStats($date)
     {
+        $endDate = Carbon::now()->endOfDay()->toDateString();
         $methodData = array(
-            "date" => $date
+            "start_date" => $date,
+            "end_date" => $endDate
         );
         try {
             $this->api->buildRequest('legacy.message_stats', $methodData);

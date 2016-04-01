@@ -177,10 +177,11 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
     public function retrieveApiStats($date)
     {
         $dateObject = Carbon::createFromTimestamp(strtotime($date));
+        $endDate = Carbon::now()->endOfDay();
         $manager = new CampaignManagement();
         $dateFilter = new DateTimeFilter();
         $dateFilter->setFromDate($dateObject->startOfDay());
-        $dateFilter->setToDate($dateObject->endOfDay());
+        $dateFilter->setToDate($endDate);
         $params = new GetCampaignRunsSummaryReport($this->api->getAuth(), null, false, $dateFilter);
         $results = $manager->GetCampaignRunsSummaryReport($params);
         if($this->checkforHeaderFail($manager,"retrieveApiStats"))
