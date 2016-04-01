@@ -66,4 +66,40 @@ class Mt1DbApi
             ->where('user_id', '>', $clientId)
             ->get();
     }
+
+    public function exportContentServerActions($filename) {
+        return DB::connection('mt1_data')
+            ->statement("SELECT 
+                    eua.emailUserId AS email_id,
+                    eua.subaffiliateID AS sub_id,
+                    euat.emailUserActionLabel AS action_type,
+                    IFNULL(eaj.sendDate, '') AS send_date,
+                    eua.espUserActionDateTime AS action_time
+
+                FROM
+                    EspUserAction eua
+                    INNER JOIN EmailUserActionType euat ON eua.espActionTypeID = euat.emailUserActionTypeID
+                    INNER JOIN EspAdvertiserJoin eaj ON eua.subaffiliateID = eaj.subAffiliateID
+                WHERE
+                    espUserActionDateTime BETWEEN CURDATE() - INTERVAL 1 DAY AND CURDATE()
+
+                INTO OUTFILE '/tmp/$filename'
+                FIELDS TERMINATED BY ','
+                OPTIONALLY ENCLOSED BY '`'
+                LINES TERMINATED BY '\n'");
+    }
+
+    public function moveFile($filename) {
+        
+        $conn = ssh2_connect('54.209.42.147', 22);
+        #ssh2_auth_password($conn, 'mt_data_read', 'd#t4pv#R');
+        ssh2_auth_password($conn, 'rbertorelli', 'ch@nG#M513');
+
+        // some risk here, so some validation on the filename:
+        if (preg_match('/^\w+\.csv$/', $filename)) {
+            $path = storage_path() . '/' . $filename;
+            ssh2_scp_recv($conn, "/tmp/$filename", $path);
+            ssh2_exec($conn, "rm -f /tmp/$filename"); // may still want a better way to do this
+        } 
+    }
 }

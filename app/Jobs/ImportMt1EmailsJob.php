@@ -28,7 +28,7 @@ class ImportMt1EmailsJob extends Job implements ShouldQueue {
             $this->release(1);
         }
 
-        $service = APIFactory::createMt1DataImportService();
+        $service = APIFactory::createMt1DataImportService(self::JOB_NAME);
         $service->run();
 
         JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking, $this->attempts());
