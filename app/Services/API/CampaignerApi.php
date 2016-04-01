@@ -41,14 +41,17 @@ class CampaignerApi extends EspBaseAPI
      */
     public function parseOutResultHeader($curlObject)
     {
+        try{
         $simpleXml = simplexml_load_string($curlObject->__getLastResponse());
         $header = $simpleXml->children("soap", true)->children('', true)->ResponseHeader;
-        return array(
-            "errorFlag" => (string)$header->ErrorFlag,
-            "returnCode"=> (string)$header->ReturnCode,
-            "returnMessage"=> (string)$header->ReturnMessage
-        );
-
+            return array(
+                "errorFlag" => (string)$header->ErrorFlag,
+                "returnCode"=> (string)$header->ReturnCode,
+                "returnMessage"=> (string)$header->ReturnMessage
+            );
+        } catch (\Exception $e){
+            throw new \Exception($e->getMessage(). " ". $e->getCode());
+        }
     }
 
     public function buildCampaignSearchQuery($campaign)
