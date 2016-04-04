@@ -174,15 +174,15 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         ) {
             switch ( $processState[ 'currentFilterIndex' ] ) {
                 case 2 :
-                    $jobId .= '::' . $processState[ 'recordType' ];
-                break;
-
-                case 3 :
                     $jobId .= '::Campaign-' . $processState[ 'campaign' ][ 'internal_id' ];
                 break;
 
-                case 4 :
+                case 3 :
                     $jobId .= '::Ticket-' . $processState[ 'ticket' ][ 'ticketName' ];
+                break;
+
+                case 6 :
+                    $jobId .= '::Types-' . join( ',' , $processState[ 'typeList' ] );
                 break;
             }
             
@@ -193,13 +193,13 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         return $jobId;
     }
 
-    public function splitTypes () {
+    public function getTypeList () {
         return [ 'deliverable' , 'open' , 'click' , 'optout' ];
     }
 
     public function startTicket ( $espAccountId , $campaign , $recordType ) {
         return [
-            "ticketName" => $this->getTicketForMessageSubscriberData( $campaign->internal_id , $recordType ) ,
+            "ticketName" => $this->getTicketForMessageSubscriberData( $campaign->internal_id , 'sent,bounce,open,click,optout' ) ,
             "campaignId" => $campaign->internal_id ,
             "espId" => $espAccountId
         ];
@@ -214,7 +214,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             return false;
         }
 
-        $filePath = "files/deliverables/{$processState[ 'apiName' ]}/{$processState[ 'espAccountId' ]}/" . $processState[ 'campaign' ]->internal_id . "/{$processState[ 'recordType' ]}_" . Carbon::now( 'America/New_York' )->format( 'Y-m-d-H-i-s' ) . '.xml';
+        $filePath = "files/deliverables/{$processState[ 'apiName' ]}/{$processState[ 'espAccountId' ]}/" . $processState[ 'campaign' ]->internal_id . "/" . Carbon::now( 'America/New_York' )->format( 'Y-m-d-H-i-s' ) . '.xml';
 
         Storage::put( $filePath , $fileContents );
 
@@ -257,7 +257,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                 }
 
                 if ( $processState[ 'recordType' ] == 'optout' && $currentContact->key() === 'optout' ) {
-                        $this->emailRecord->recordDeliverable(
+                        $this->emailRecord->queueDeliverable(
                             self::RECORD_TYPE_UNSUBSCRIBE ,
                             $currentEmail ,
                             $processState[ 'ticket' ][ 'espId' ] ,
@@ -272,7 +272,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                     for ( $currentOpens->rewind() ; $currentOpens->valid() ; $currentOpens->next() ) {
                         $currentOpenDate = $currentOpens->current();
 
-                        $this->emailRecord->recordDeliverable(
+                        $this->emailRecord->queueDeliverable(
                             self::RECORD_TYPE_OPENER ,
                             $currentEmail ,
                             $processState[ 'ticket' ][ 'espId' ] ,
@@ -292,7 +292,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                         
                         $currentClickDate = $currentClick->current();
 
-                        $this->emailRecord->recordDeliverable(
+                        $this->emailRecord->queueDeliverable(
                             self::RECORD_TYPE_CLICKER ,
                             $currentEmail , 
                             $processState[ 'ticket' ][ 'espId' ] ,
@@ -304,7 +304,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             }
 
             if ( $processState[ 'recordType' ] == 'deliverable' && $contactSent && !$contactBounced ) {
-                $this->emailRecord->recordDeliverable(
+                $this->emailRecord->queueDeliverable(
                     self::RECORD_TYPE_DELIVERABLE ,
                     $currentEmail , 
                     $processState[ 'ticket' ][ 'espId' ] ,
@@ -314,6 +314,10 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             }
         }
 
+        $this->emailRecord->massRecordDeliverables();
+    }
+
+    public function cleanUp ( $processState ) {
         Storage::delete( $processState[ 'filePath' ] );
     }
 
@@ -321,11 +325,9 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
     public function getTicketForMessageSubscriberData( $messageId , $recordType )
     {
-        $actionType = ( $recordType === 'deliverable' ? 'sent,bounce' : $recordType );
-
         $methodData = array(
             "mess_id" => $messageId ,
-            "action_type" => $actionType 
+            "action_type" => $recordType 
         );
         try {
             $this->api->buildRequest("statistics.getMessageSubscriberData", $methodData);
