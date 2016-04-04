@@ -24,6 +24,7 @@ class ImportContentData extends Migration
             $table->unique(['email_id', 'sub_id', 'action_type', 'action_time'], 'user_action');
             $table->index('send_date', 'send_date');
             $table->index(['email_id', 'send_date'], 'email_date');
+            $table->index(['email_id', 'sub_id', 'send_date'], 'email_campaign_send');
 
         });
 
