@@ -17,7 +17,7 @@ class ImportContentActionsService {
     public function run() {
 
         // set file for download
-        $name = 'test.csv';
+        $name = 'csactions.csv';
         $this->api->exportContentServerActions($name);
 
         // transfer file to local server
