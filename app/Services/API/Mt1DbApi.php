@@ -91,9 +91,12 @@ class Mt1DbApi
 
     public function moveFile($filename) {
         
-        $conn = ssh2_connect('54.209.42.147', 22);
-        #ssh2_auth_password($conn, 'mt_data_read', 'd#t4pv#R');
-        ssh2_auth_password($conn, 'rbertorelli', 'ch@nG#M513');
+        $handle = env('MT1_SLAVE_DB3_USER', '');
+        $host = env('MT1_SLAVE_DB3_HOST', '');
+        $pass = env('MT1_SLAVE_DB3_PASS', '');
+        $port = env('MT1_SLAVE_DB3_PORT', '');
+        $conn = ssh2_connect($host, $port);
+        ssh2_auth_password($conn, $handle, $pass);
 
         // some risk here, so some validation on the filename:
         if (preg_match('/^\w+\.csv$/', $filename)) {
