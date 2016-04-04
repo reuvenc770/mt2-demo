@@ -313,6 +313,8 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                 );
             }
         }
+
+        Storage::delete( $processState[ 'filePath' ] );
     }
 
     public function shouldRetry () { return $this->dataRetrievalFailed; }
