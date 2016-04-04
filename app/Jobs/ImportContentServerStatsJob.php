@@ -35,10 +35,6 @@ class ImportContentServerStatsJob extends Job implements ShouldQueue
     public function handle() {
         JobTracking::startAggregationJob(self::JOB_NAME, $this->tracking);
 
-        if ($this->attempts() > $this->maxAttempts) {
-            $this->release(1);
-        }
-
         $service = APIFactory::createMt1DataImportService(self::JOB_NAME);
         $service->run();
 
