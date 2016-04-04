@@ -115,7 +115,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             $this->processState[ 'currentFilterIndex' ]++;
             $this->processState[ 'ticketResponse' ] = $ticketResponse;
 
-            $this->queueNextJob( $this->queue );
+            $this->queueNextJob( 'fileDownloads' );
 
             $this->changeJobEntry( JobEntry::SUCCESS );
         }
