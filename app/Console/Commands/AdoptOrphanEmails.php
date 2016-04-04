@@ -16,7 +16,7 @@ class AdoptOrphanEmails extends Command
      *
      * @var string
      */
-    protected $signature = 'reports:adoptOrphans {--maxOrphans=all} {--chunkSize=1000} {--queueName=orphanage} {--chunkDelay=0} {--order=newest}';
+    protected $signature = 'reports:adoptOrphans {--maxOrphans=all} {--chunkSize=1000} {--queueName=orphanage} {--chunkDelay=0} {--order=newest} {--maxAttempts=5}';
 
     /**
      * The console command description.
@@ -47,13 +47,15 @@ class AdoptOrphanEmails extends Command
             [ 'option' => 'chunkSize' , 'value' => $this->option( 'chunkSize' ) ] ,
             [ 'option' => 'queueName' , 'value' => $this->option( 'queueName' ) ] ,
             [ 'option' => 'chunkDelay' , 'value' => $this->option( 'chunkDelay' ) ] ,
-            [ 'option' => 'order' , 'value' => $this->option( 'order' ) ]
+            [ 'option' => 'order' , 'value' => $this->option( 'order' ) ] ,
+            [ 'option' => 'maxAttempts' , 'value' => $this->option( 'maxAttempts' ) ]
         ] );
 
         $orderOrphans = ( $this->option( 'order' ) == 'newest' ? 'desc' : 'asc' );
 
         $orphanTable = DB::table( 'orphan_emails' )
             ->select( 'id' , 'email_address' )
+            ->where( 'adopt_attempts' , '<' , $this->option( 'maxAttempts' ) )
             ->orderBy( 'created_at' , $orderOrphans );
 
         if ( $this->option( 'maxOrphans' ) != 'all' ) { $orphanTable->take( $this->option( 'maxOrphans' ) ); }
