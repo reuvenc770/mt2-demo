@@ -33,15 +33,15 @@ class ContentServerActionRepo {
 
     public function pullAggregatedStats() {
         return $this->model
-            ->select(DB::raw('email_id, 
+            ->select(DB::raw("email_id, 
                 sub_id, 
                 SUM(IF(action_type = 'opener', 1, 0)) AS opens, 
                 MIN(CASE WHEN action_type = 'opener' THEN action_time END) AS min_open_date, 
                 MAX(CASE WHEN action_type = 'opener' THEN action_time END) AS max_open_date, 
                 SUM(IF(action_type = 'clicker', 1, 0)) AS clicks, 
                 MIN(CASE WHEN action_type = 'clicker' THEN action_time END) AS min_click_date, 
-                MAX(CASE WHEN action_type = 'clicker' THEN action_time END) AS max_click_date'))
-            ->where('action_time', ['CURDATE() - INTERVAL 1 DAY', 'CURDATE()'])
+                MAX(CASE WHEN action_type = 'clicker' THEN action_time END) AS max_click_date"))
+            ->whereBetween('send_date', [DB::raw('CURDATE() - INTERVAL 5 DAY'), DB::raw('CURDATE()')])
             ->groupBy('email_id', 'sub_id')
             ->get();
     }
