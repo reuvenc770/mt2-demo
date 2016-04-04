@@ -5,12 +5,13 @@ return [
         "pipes" => [
             "default" => [
                 'jobSetup' ,
-                'splitTypes' ,
                 'getCampaigns' ,
                 'startTicket' ,
                 'checkTicketStatus' ,
                 'downloadTicketFile' ,
-                'saveRecords'
+                'getTypeList' ,
+                'synchronousSaveTypeRecords' ,
+                'cleanUp'
             ]
         ]
     ] ,

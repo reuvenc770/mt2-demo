@@ -21,8 +21,95 @@ class EmailRecordRepo {
     protected $campaignId = 0;
     protected $date = '';
 
+    protected $errorReason = '';
+
     public function __construct ( Email $email ) {
         $this->email = $email;
+    }
+
+    public function massRecordDelierables ( $records = [] ) {
+        $validRecords = [];
+        $invalidRecords = [];
+
+        foreach ( $records as $currentIndex => $currentRecord ) {
+            $this->setLocalData( [
+                'emailAddress' => $currentRecord[ 'email' ] ,
+                'recordType' => $currentRecord[ 'recordType' ] ,
+                'espId' => $currentRecord[ 'espId' ] ,
+                'campaignId' => $currentRecord[ 'campaignId' ] ,
+                'date' => $currentRecord[ 'date' ]
+            ] );
+
+            $this->errorReason = '';
+
+            if ( $this->isValidRecord( false ) ) {
+                $validRecord = "( "
+                    . join( " , " , [
+                        $this->getEmailId() , 
+                        $this->getClientId() ,
+                        $currentRecord[ 'espId' ] ,
+                        $currentRecord[ 'campaignId' ] ,
+                        $this->getActionId( $currentRecord[ 'recordType' ] ) ,
+                        ( empty( $currentRecord[ 'date' ] ) ? "''" : "'" . $currentRecord[ 'date' ] . "'" ) ,
+                        'NOW()' ,
+                        'NOW()'
+                    ] )
+                    . " )";
+
+                $validRecords []= $validRecord;
+            } else {
+                $invalidRecord = "( " 
+                    .join( " , " , [
+                        "'" . $currentRecord[ 'email' ] . "'" ,
+                        $currentRecord[ 'espId' ] ,
+                        $currentRecord[ 'campaignId' ] ,
+                        $this->getActionId( $currentRecord[ 'recordType' ] ) ,
+                        ( empty( $currentRecord[ 'date' ] ) ? "''" : "'" . $currentRecord[ 'date' ] . "'" ) ,
+                        ( $this->errorReason == 'missing_email_record' ? 1 : 0 ) ,
+                        ( $this->errorReason == 'missing_email_client_instance' ? 1 : 0 ) ,
+                        'NOW()' ,
+                        'NOW()'
+                    ] )
+                    . " )";
+
+                $invalidRecords []= $invalidRecord;
+            }
+        }
+
+        if ( !empty( $validRecords ) ) {
+            $chunkedRecords = array_chunk( $validRecords , 10000 );
+
+            foreach ( $chunkedRecords as $chunkIndex => $chunk ) {
+                DB::connection( 'reporting_data' )->statement("
+                    INSERT INTO email_actions
+                        ( email_id , client_id , esp_account_id , campaign_id , action_id , datetime , created_at , updated_at )    
+                    VALUES
+                        " . join( ' , ' , $chunk ) . "
+                    ON DUPLICATE KEY UPDATE
+                        email_id = email_id ,
+                        client_id = client_id ,
+                        esp_account_id = esp_account_id ,
+                        campaign_id = campaign_id ,
+                        action_id = action_id ,
+                        datetime = datetime ,
+                        created_at = created_at ,
+                        updated_at = NOW()"
+                    );
+            }
+        }
+
+        if ( !empty( $invalidRecords ) ) {
+            $chunkedRecords = array_chunk( $invalidRecords , 10000 );
+
+            foreach ( $chunkedRecords as $chunkIndex => $chunk ) {
+                DB::statement( "
+                    INSERT INTO     
+                        orphan_emails ( email_address , esp_account_id , campaign_id , action_id , datetime , missing_email_record , missing_email_client_instance , created_at , updated_at )
+                    VALUES
+                    " . join( ' , ' , $chunk )
+                );
+            }
+        }
     }
 
     public function recordDeliverable ( $recordType , $emailAddress , $espId , $campaignId , $date ) {
@@ -92,25 +179,27 @@ class EmailRecordRepo {
         $this->date = $recordData[ 'date' ];
     }
 
-    protected function isValidRecord () {
+    protected function isValidRecord ( $saveOrphan = true ) {
         $orphan = new OrphanEmail();
         $errorFound = false;
 
         if ( !$this->emailExists() ) {
             $orphan->missing_email_record = 1;
+            $this->errorReason = 'missing_email_record';
 
             //Log::error( "Email '{$this->emailAddress}' does not exist." );
 
             $errorFound = true;
         } elseif ( $this->emailExists() && !$this->hasClient() ) {
             $orphan->missing_email_client_instance = 1;
+            $this->errorReason = 'missing_email_client_instance';
 
             Log::error( "Client ID for email '{$this->emailAddress}' does not exist." );
 
             $errorFound = true;
         }
 
-        if ( $errorFound ) {
+        if ( $errorFound && $saveOrphan ) {
             $orphan->email_address = $this->emailAddress;
             $orphan->esp_account_id = $this->espId;
             $orphan->campaign_id = $this->campaignId;

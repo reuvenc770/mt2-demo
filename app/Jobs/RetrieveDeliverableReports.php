@@ -206,6 +206,64 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         }
     }
 
+    protected function getTypeList () {
+        $this->processState[ 'currentFilterIndex' ]++;
+
+        $this->processState[ 'typeList' ] = $this->reportService->getTypeList();
+
+        $this->queueNextJob( $this->queue );
+
+        $this->changeJobEntry( JobEntry::SUCCESS );
+    }
+
+    protected function synchronousSaveTypeRecords () {
+        if ( !isset( $this->processState[ 'typeList' ] ) ) {
+            $this->changeJobEntry( JobEntry::FAILED );
+
+            return;
+        }
+
+        if ( !isset( $this->processState[ 'typeIndex' ] ) ) {
+            $this->processState[ 'typeIndex' ] = 0;
+        }
+
+        $currentType = $this->processState[ 'typeList' ][ $this->processState[ 'typeIndex' ] ];
+
+        $this->processState[ 'recordType' ] = $currentType;
+
+        $this->reportService->saveRecords( $this->processState );
+
+        if ( $this->reportService->shouldRetry() ) {
+            if ( isset( $this->processState[ 'delay' ] ) ) {
+                Log::info("Job Tries {$this->attempts()}");
+
+                $this->changeJobEntry( JobEntry::WAITING );
+                $this->release( $this->processState[ 'delay' ] );
+            } else {
+                Log::info("Job Tries {$this->attempts()}");
+
+                $this->changeJobEntry( JobEntry::WAITING );
+                $this->release( 60 );
+            }
+        } else {
+            $this->processState[ 'typeIndex' ]++;
+
+            if ( !isset( $this->processState[ 'typeList' ][ $this->processState[ 'typeIndex' ] ] ) ) {
+                $this->processState[ 'currentFilterIndex' ]++;
+            }
+
+            $this->queueNextJob( $this->queue );
+    
+            $this->changeJobEntry( JobEntry::SUCCESS );
+        }
+    }
+
+    protected function cleanUp () {
+        $this->reportService->cleanUp( $this->processState );
+
+        $this->changeJobEntry( JobEntry::SUCCESS );
+    }
+
     protected function queueNextJob ( $queue = null , $delay = null) {
         $job = new RetrieveDeliverableReports(
             $this->apiName ,
