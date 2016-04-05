@@ -3,6 +3,7 @@
 namespace App\Services;
 use App\Repositories\EmailCampaignStatisticRepo;
 use App\Repositories\EmailActionsRepo;
+use PDO;
 
 class EmailCampaignAggregationService {
 
@@ -19,12 +20,16 @@ class EmailCampaignAggregationService {
     }
 
     public function run() {
+
         $data = $this->actionsRepo->pullActionsInLast($this->lookback);
         $lastId = $this->lookback;
-        foreach ($data as $row) {
-            $actionType = $this->actionMap[$row['action_id']];
-            $this->statsRepo->insertOrUpdate($row, $actionType);
-            $lastId = $row['id'];
+        
+        if ($data) {
+            while ($row = $data->fetch(PDO::FETCH_ASSOC)) {
+                $actionType = $this->actionMap[$row['action_id']];
+                $this->statsRepo->insertOrUpdate($row, $actionType);
+                $lastId = $row['id'];
+            }
         }
 
         return $lastId;
