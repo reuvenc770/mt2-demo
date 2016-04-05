@@ -301,7 +301,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $jobId = $this->reportService->getUniqueJobId( $this->processState );
 
         $jobName = self::JOB_NAME . '::' . $this->currentFilter() . $jobId;
-        JobTracking::startEspJob( $jobName ,$this->apiName, $this->espAccountId, $this->tracking);
+        $campaignId = isset($this->processState[ 'campaign' ][ 'internal_id' ]) ? $this->processState[ 'campaign' ][ 'internal_id' ] : 0;
+        JobTracking::startEspJob( $jobName ,$this->apiName, $this->espAccountId, $this->tracking, $campaignId);
     }
 
     protected function changeJobEntry ( $status ) {

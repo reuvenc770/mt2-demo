@@ -26,12 +26,13 @@ class JobEntryService
         $this->repo = $repo;
     }
 
-    public function startEspJob($jobName, $espName, $accountName, $tracking)
+    public function startEspJob($jobName, $espName, $accountName, $tracking, $campaignId = 0)
     {
         $this->jobName = $jobName;
         $espJob = $this->repo->startEspJobReturnObject($jobName, $espName, $accountName, $tracking);
         $espJob->time_started = Carbon::now();
         $espJob->attempts = 1;
+        $espJob->campaign_id = $campaignId;
         $espJob->status = JobEntry::RUNNING;
         $espJob->save();
 
