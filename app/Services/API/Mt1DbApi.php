@@ -83,7 +83,7 @@ class Mt1DbApi
                 WHERE
                     espUserActionDateTime BETWEEN CURDATE() - INTERVAL 1 DAY AND CURDATE()
 
-                INTO OUTFILE '/tmp/$filename'
+                INTO OUTFILE '/tmp/actions/$filename'
                 FIELDS TERMINATED BY ','
                 OPTIONALLY ENCLOSED BY '`'
                 LINES TERMINATED BY '\n'");
@@ -101,8 +101,8 @@ class Mt1DbApi
         // some risk here, so some validation on the filename:
         if (preg_match('/^\w+\.csv$/', $filename)) {
             $path = storage_path() . '/' . $filename;
-            ssh2_scp_recv($conn, "/tmp/$filename", $path);
-            ssh2_exec($conn, "rm -f /tmp/$filename"); // may still want a better way to do this
+            ssh2_scp_recv($conn, "/tmp/actions/$filename", $path);
+            ssh2_exec($conn, "rm -f /tmp/actions/$filename"); // may still want a better way to do this
         } 
     }
 }
