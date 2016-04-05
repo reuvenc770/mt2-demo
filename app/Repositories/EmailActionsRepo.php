@@ -35,6 +35,5 @@ class EmailActionsRepo {
         $statement->bindParam(':id', $lookback, PDO::PARAM_INT);
         $statement->execute();
         return $statement;
-        #return $this->actions->where('id', '>', $lookback)->get();
     }
 }
