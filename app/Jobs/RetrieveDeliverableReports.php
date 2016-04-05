@@ -271,7 +271,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             $this->date ,
             str_random( 16 ) ,
             $this->processState,
-            $this->queue
+            $this->defaultQueue
         );
    
         if ( !is_null( $delay ) ) { $job->delay( $delay ); }
