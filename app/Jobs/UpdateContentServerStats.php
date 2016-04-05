@@ -37,10 +37,6 @@ class UpdateContentServerStats extends Job implements ShouldQueue
     public function handle() {
         JobTracking::startAggregationJob(self::JOB_NAME, $this->tracking);
 
-        if ($this->attempts() > $this->maxAttempts) {
-            $this->release(1);
-        }
-
         $service = DataProcessingFactory::create(self::JOB_NAME, $this->lookback);
         $service->run();
 
