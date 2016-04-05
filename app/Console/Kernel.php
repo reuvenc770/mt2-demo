@@ -27,6 +27,7 @@ class Kernel extends ConsoleKernel
         Commands\GenOauth::class,
         Commands\ImportMt1Emails::class,
         Commands\AdoptOrphanEmails::class,
+        Commands\DownloadContentServerStats::class
     ];
 
     /**
