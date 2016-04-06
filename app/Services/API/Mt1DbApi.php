@@ -25,16 +25,18 @@ class Mt1DbApi
         echo "Count:" . $count . PHP_EOL;
 
         $pull = DB::connection('mt1_data')->select("SELECT * FROM client_record_log ORDER BY lastUpdated LIMIT 50000");
-
         $len = sizeof($pull);
-        end($pull);
-        $last = key($pull);
-        $this->finalLastUpdated = $pull[$last]->lastUpdated;
+        
+        if ($len > 0) {
+            end($pull);
+            $last = key($pull);
+            $this->finalLastUpdated = $pull[$last]->lastUpdated;
+            echo $this->finalLastUpdated . PHP_EOL;
+            
+            return $pull;
+        }
 
-        echo $this->finalLastUpdated . PHP_EOL;
-        
-        
-        return $pull;
+        return [];
     }
 
     /**
