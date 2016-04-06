@@ -17,19 +17,22 @@ class TrackingRepo
   public function insertStats($data) {
     // The UPSERT here shaves off several minutes in runtime in tests
     // The select-insert approach takes close to 3x longer to run
+    // last user agent might update
 
     DB::connection("reporting_data")->statement("
       INSERT INTO cake_aggregated_data 
-      (subid_1, subid_2, email_id, subid_4, subid_5, clickDate, campaignDate, clicks, conversions, revenue, 
+      (subid_1, subid_2, email_id, subid_4, subid_5, affiliate_id, user_agent_string, clickDate, campaignDate, clicks, conversions, revenue, 
         created_at, updated_at) 
       VALUES 
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
       ON DUPLICATE KEY UPDATE
         subid_1 = subid_1,
         subid_2 = subid_2,
         email_id = email_id,
         subid_4 = subid_4,
         subid_5 = subid_5,
+        affiliate_id = affiliate_id,
+        user_agent_string = VALUES(user_agent_string),
         clickDate = clickDate,
         campaignDate = campaignDate,
         clicks = VALUES(clicks),
@@ -43,6 +46,8 @@ class TrackingRepo
           $data['email_id'],
           $data['subid_4'], 
           $data['subid_5'], 
+          $data['affiliate_id'],
+          $data['user_agent_string'],
           $data['clickDate'],
           $data['campaignDate'],
           $data['clicks'], 
