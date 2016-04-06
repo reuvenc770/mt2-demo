@@ -30,7 +30,7 @@ class EmailActionsRepo {
 
         $statement = $pdo->prepare(
             "SELECT * FROM email_actions WHERE id > :id", 
-            array('MYSQL_ATTR_USE_BUFFERED_QUERY' => false )
+            array(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => false )
         );
         $statement->bindParam(':id', $lookback, PDO::PARAM_INT);
         $statement->execute();
