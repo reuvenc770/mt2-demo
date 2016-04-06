@@ -211,10 +211,6 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
             $jobException = new JobException( 'Failed to retrieve records. ' . $e->getMessage() , JobException::NOTICE );
             $jobException->setDelay( 180 );
             throw $jobException;
-        } catch ( Exception $e ) {
-            $jobException = new JobException( 'Failed to retrieve records. ' . $e->getMessage() , JobException::NOTICE );
-            $jobException->setDelay( 180 );
-            throw $jobException;
         }
     }
 

@@ -203,10 +203,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                 "campaignId" => $campaign->internal_id ,
                 "espId" => $espAccountId
             ];
-        } catch ( Exception $e ) {
-            $jobException = new JobException( 'Failed to start report ticket. ' . $e->getMessage() , JobException::NOTICE , $e );
-            $jobException->setDelay( 180 );
-            throw $jobException;
         } catch ( \Exception $e ) {
             $jobException = new JobException( 'Failed to start report ticket. ' . $e->getMessage() , JobException::NOTICE , $e );
             $jobException->setDelay( 180 );
@@ -217,10 +213,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
     public function downloadTicketFile ( &$processState ) {
         try {
             $fileContents = $this->getFile( $processState[ 'ticketResponse' ] );
-        } catch ( Exception $e ) {
-            $jobException = new JobException( 'Failed to download report ticket. ' . $e->getMessage() , JobException::NOTICE , $e );
-            $jobException->setDelay( 180 );
-            throw $jobException;
         } catch ( \Exception $e ) {
             $jobException = new JobException( 'Failed to download report ticket. ' . $e->getMessage() , JobException::NOTICE , $e );
             $jobException->setDelay( 180 );
@@ -327,10 +319,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             }
 
             $this->emailRecord->massRecordDeliverables();
-        } catch ( Exception $e ) {
-            $jobException = new JobException( 'Failed to process report file. ' . $e->getMessage() , JobException::NOTICE , $e );
-            $jobException->setDelay( 60 );
-            throw $jobException;
         } catch ( \Exception $e ) {
             $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() , JobException::NOTICE , $e );
             $jobException->setDelay( 60 );
@@ -388,10 +376,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             }
 
             if ( $return === false ) throw new \Exception( 'Ticket not ready.' );
-        } catch ( Exception $e ) {
-            $jobException = new JobException( 'Failed to get report ticket status. ' . $e->getMessage() , JobException::NOTICE , $e );
-            $jobException->setDelay( 180 );
-            throw $jobException;
         } catch ( \Exception $e ) {
             $jobException = new JobException( 'Failed to get report ticket status. ' . $e->getMessage() , JobException::NOTICE , $e );
             $jobException->setDelay( 180 );

@@ -179,10 +179,6 @@ class YmlpReportService extends AbstractReportService implements IDataService {
             $jobException = new JobException( 'Failed ot save records. ' . $e->getMessage() , JobException::NOTICE , $e );
             $jobException->setDelay( 180 );
             throw $jobException;
-        } catch ( Exception $e ) {
-            $jobException = new JobException( 'Failed ot save records. ' . $e->getMessage() , JobException::NOTICE , $e );
-            $jobException->setDelay( 180 );
-            throw $jobException;
         }
     }
 }

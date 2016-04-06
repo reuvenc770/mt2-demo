@@ -90,10 +90,6 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             } else {
                 throw $e;
             }
-        } catch ( Exception $e ) {
-            $this->logUncaughtException( $e );
-
-            throw $e;
         } catch ( \Exception $e ) {
             $this->logUncaughtException( $e );
 

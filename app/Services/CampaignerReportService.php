@@ -238,8 +238,6 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             $reportData = $this->createCampaignReport( $campaign->run_id );
         } catch ( \Exception $e ) {
             throw new JobException( 'Failed to start report ticket. ' . $e->getMessage() , JobException::NOTICE , $e );
-        } catch ( Exception $e ) {
-            throw new JobException( 'Failed to start report ticket. ' . $e->getMessage() , JobException::NOTICE , $e );
         }
 
         return [
@@ -257,10 +255,6 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                 $processState[ 'ticket' ][ 'rowCount' ]
             );
         } catch ( \Exception $e ) {
-            $jobException = new JobException( 'Campaigner API crapping out. ' . $e->getMessage() , JobException::NOTICE );
-            $jobException->setDelay( 180 );
-            throw $jobException;
-        } catch ( Exception $e ) {
             $jobException = new JobException( 'Campaigner API crapping out. ' . $e->getMessage() , JobException::NOTICE );
             $jobException->setDelay( 180 );
             throw $jobException;
