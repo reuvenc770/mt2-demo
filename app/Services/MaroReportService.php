@@ -15,6 +15,7 @@ use App\Services\Interfaces\IDataService;
 use App\Services\EmailRecordService;
 use Log;
 use Illuminate\Queue\InteractsWithQueue;
+use App\Exceptions\JobException;
 
 /**
  * Class BlueHornetReportService
@@ -212,7 +213,9 @@ class MaroReportService extends AbstractReportService implements IDataService
     }
 
     protected function processGuzzleResult($data) {
-        if ( $data->getStatusCode() != 200 ) $this->release( 60 );
+        if ( $data->getStatusCode() != 200 ) {
+            throw new JobException( 'API call failed.' , JobException::NOTICE );
+        }
 
         $data = $data->getBody()->getContents();
         return json_decode($data, true);

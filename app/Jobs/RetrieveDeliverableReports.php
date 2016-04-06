@@ -12,6 +12,8 @@ use App\Models\JobEntry;
 use App\Facades\JobTracking;
 use App\Factories\APIFactory;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Exceptions\JobException;
+use Carbon\Carbon;
 
 class RetrieveDeliverableReports extends Job implements ShouldQueue
 {
@@ -34,6 +36,13 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     ];
 
     protected $currentFilter;
+
+    protected $logTypeMap = [
+        JobException::NOTICE => 'notice' ,
+        JobException::WARNING => 'warning' ,
+        JobException::ERROR => 'error' ,
+        JobException::CRITICAL => 'critical'
+    ];
 
     /**
      * Create a new job instance.
@@ -71,7 +80,25 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
         $filterName = $this->currentFilter();
 
-        $this->$filterName();
+        try {
+            $this->$filterName();
+        } catch ( JobException $e ) {
+            $this->logJobException( $e );
+
+            if ( in_array( $e->getCode() , [ JobException::NOTICE , JobException::WARNING ] ) ) {
+                $this->releaseJob( $e );
+            } else {
+                throw $e;
+            }
+        } catch ( Exception $e ) {
+            $this->logUncaughtException( $e );
+
+            throw $e;
+        } catch ( \Exception $e ) {
+            $this->logUncaughtException( $e );
+
+            throw $e;
+        }
     }
 
     protected function jobSetup () {
@@ -86,16 +113,12 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     }
 
     protected function startTicket () {
-        try {
-            $ticket = $this->reportService->startTicket(
-                $this->espAccountId,
-                isset($this->processState['campaign']) ? $this->processState['campaign'] : [],
-                isset($this->processState['recordType']) ? $this->processState['recordType'] : ''
-            );
-        } catch (\Exception $e){
-            Log::error($e->getMessage());
-            throw new \Exception($e->getMessage());
-        }
+        $ticket = $this->reportService->startTicket(
+            $this->espAccountId,
+            isset($this->processState['campaign']) ? $this->processState['campaign'] : [],
+            isset($this->processState['recordType']) ? $this->processState['recordType'] : ''
+        );
+
         $this->processState[ 'currentFilterIndex' ]++;
         $this->processState[ 'ticket' ] = $ticket;
 
@@ -107,35 +130,23 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     protected function checkTicketStatus () {
         $ticketResponse = $this->reportService->checkTicketStatus( $this->processState );
 
-        if ( $ticketResponse === false ) {
-            $this->changeJobEntry( JobEntry::WAITING );
+        $this->processState[ 'currentFilterIndex' ]++;
+        $this->processState[ 'ticketResponse' ] = $ticketResponse;
 
-            $this->release( 60 );
-        } else {
-            $this->processState[ 'currentFilterIndex' ]++;
-            $this->processState[ 'ticketResponse' ] = $ticketResponse;
+        $this->queueNextJob( 'fileDownloads' );
 
-            $this->queueNextJob( 'fileDownloads' );
-
-            $this->changeJobEntry( JobEntry::SUCCESS );
-        }
+        $this->changeJobEntry( JobEntry::SUCCESS );
     }
 
     protected function downloadTicketFile () { 
         $filePath = $this->reportService->downloadTicketFile( $this->processState );
 
-        if ( $filePath === false ) {
-            $this->changeJobEntry( JobEntry::WAITING );
+        $this->processState[ 'currentFilterIndex' ]++;
+        $this->processState[ 'filePath' ] = $filePath;
 
-            $this->release( 60 );
-        } else {
-            $this->processState[ 'currentFilterIndex' ]++;
-            $this->processState[ 'filePath' ] = $filePath;
+        $this->queueNextJob( $this->defaultQueue );
 
-            $this->queueNextJob( $this->defaultQueue );
-
-            $this->changeJobEntry( JobEntry::SUCCESS );
-        }
+        $this->changeJobEntry( JobEntry::SUCCESS );
     }
 
     protected function getCampaigns () {
@@ -189,21 +200,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     protected function saveRecords () {
         $this->reportService->saveRecords( $this->processState );
 
-        if ( $this->reportService->shouldRetry() ) {
-            if ( isset( $this->processState[ 'delay' ] ) ) {
-                Log::info("Job Tries {$this->attempts()}");
-
-                $this->changeJobEntry( JobEntry::WAITING );
-                $this->release( $this->processState[ 'delay' ] );
-            } else {
-                Log::info("Job Tries {$this->attempts()}");
-
-                $this->changeJobEntry( JobEntry::WAITING );
-                $this->release( 60 );
-            }
-        } else {
-            $this->changeJobEntry( JobEntry::SUCCESS );
-        }
+        $this->changeJobEntry( JobEntry::SUCCESS );
     }
 
     protected function getTypeList () {
@@ -218,6 +215,9 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
     protected function synchronousSaveTypeRecords () {
         if ( !isset( $this->processState[ 'typeList' ] ) ) {
+            Log::error( 'typeList not available.' );
+            Log::error( $this->getJobInfo() );
+
             $this->changeJobEntry( JobEntry::FAILED );
 
             return;
@@ -233,29 +233,15 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
         $this->reportService->saveRecords( $this->processState );
 
-        if ( $this->reportService->shouldRetry() ) {
-            if ( isset( $this->processState[ 'delay' ] ) ) {
-                Log::info("Job Tries {$this->attempts()}");
+        $this->processState[ 'typeIndex' ]++;
 
-                $this->changeJobEntry( JobEntry::WAITING );
-                $this->release( $this->processState[ 'delay' ] );
-            } else {
-                Log::info("Job Tries {$this->attempts()}");
-
-                $this->changeJobEntry( JobEntry::WAITING );
-                $this->release( 60 );
-            }
-        } else {
-            $this->processState[ 'typeIndex' ]++;
-
-            if ( !isset( $this->processState[ 'typeList' ][ $this->processState[ 'typeIndex' ] ] ) ) {
-                $this->processState[ 'currentFilterIndex' ]++;
-            }
-
-            $this->queueNextJob( $this->defaultQueue );
-    
-            $this->changeJobEntry( JobEntry::SUCCESS );
+        if ( !isset( $this->processState[ 'typeList' ][ $this->processState[ 'typeIndex' ] ] ) ) {
+            $this->processState[ 'currentFilterIndex' ]++;
         }
+
+        $this->queueNextJob( $this->defaultQueue );
+
+        $this->changeJobEntry( JobEntry::SUCCESS );
     }
 
     protected function cleanUp () {
@@ -293,23 +279,57 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         return $this->currentFilter;
     }
 
+    protected function releaseJob ( JobException $e ) {
+        $this->changeJobEntry( JobEntry::WAITING );
+
+        $this->release( $e->getDelay() );
+    }
+
     protected function initJobEntry () {
-        Log::info( '' );
-        Log::info("Job Tries at start {$this->attempts()}");
-        Log::info( $this->apiName . '::' . $this->espAccountId . '::' . $this->currentFilter() . ' => ' . json_encode( $this->processState ) );
+        JobTracking::startEspJob( $this->getJobName() ,$this->apiName, $this->espAccountId, $this->tracking);
 
-        $jobId = $this->reportService->getUniqueJobId( $this->processState );
+        echo "\n\n" . Carbon::now() . " - Starting Job: " . $this->getJobName() . "\n";
+    }
 
-        $jobName = self::JOB_NAME . '::' . $this->currentFilter() . $jobId;
-        JobTracking::startEspJob( $jobName ,$this->apiName, $this->espAccountId, $this->tracking);
+    protected function logJobException ( JobException $e ) {
+        $logMethod = $this->logTypeMap[ $e->getCode() ];
+
+        Log::$logMethod( str_repeat( '=' , 20 ) );
+        Log::$logMethod( '' );
+        Log::$logMethod( str_repeat( '=' , 20 ) );
+        Log::$logMethod( $e->getMessage() );
+        Log::$logMethod( $this->getJobInfo() );
+        if ( $e->getCode() > JobException::NOTICE ) { Log::$logMethod( $e->getTraceAsString() ); }
+    }
+
+    protected function logUncaughtException ( $e ) {
+        Log::critical( str_repeat( '=' , 20 ) );
+        Log::critical( '' );
+        Log::critical( str_repeat( '=' , 20 ) );
+        Log::critical( str_repeat( '#' , 20 ) . 'Uncaught Exception' . str_repeat( '#' , 20 ) );
+        Log::critical( $this->getJobInfo() );
     }
 
     protected function changeJobEntry ( $status ) {
-        JobTracking::changeJobState($status,$this->tracking, $this->attempts() );
+        JobTracking::changeJobState( $status , $this->tracking , $this->attempts() );
+
+        if ( $status == JobEntry::SUCCESS ) echo "\n\n\t" . Carbon::now() . " - Finished Job: " . $this->getJobName() . "\n";
+        if ( $status == JobEntry::WAITING ) echo "\n\n\t" . Carbon::now() . " - Throwing Job Back into Queue: " . $this->getJobName() . "\n";
+    }
+
+    protected function getJobName () {
+        return self::JOB_NAME . '::' . $this->currentFilter() . $this->reportService->getUniqueJobId( $this->processState );
+    }
+
+    protected function getJobInfo () {
+        return 'reports:downloadDeliverables::' . $this->apiName . '::' . $this->espAccountId . '::' . $this->currentFilter() . ' => ' . json_encode( $this->processState ); 
     }
 
     public function failed()
     {
+        Log::critical( 'Job Failed....' );
+        Log::critical( $this->getJobInfo() );
+
         $this->changeJobEntry( JobEntry::FAILED );
     }
 }

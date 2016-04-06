@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use App\Services\Interfaces\IDataService;
 use App\Services\EmailRecordService;
-
+use App\Exceptions\JobException;
 
 /**
  * Class CampaignerReportService
@@ -35,7 +35,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
 {
 
     CONST NO_CAMPAIGNS = 'M_4.1.1.1_NO-CAMPAIGNRUNS-FOUND';
-    protected $dataRetrievalFailed = false;
+
     /**
      * @var string
      */
@@ -209,16 +209,38 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         );
     }
 
-    public function getUniqueJobId ( $processState ) {
-        if ( isset( $processState[ 'ticket' ][ 'ticketName' ] ) ) {
-            return '::Ticket-' . $processState[ 'ticket' ][ 'ticketName' ];
-        } else {
-            return '';
+    public function getUniqueJobId ( &$processState ) {
+        $jobId = ( isset( $processState[ 'jobId' ] ) ? $processState[ 'jobId' ] : '' );
+
+        if ( 
+            !isset( $processState[ 'jobIdIndex' ] )
+            || ( isset( $processState[ 'jobIdIndex' ] ) && $processState[ 'jobIdIndex' ] != $processState[ 'currentFilterIndex' ] )
+        ) {
+            switch ( $processState[ 'currentFilterIndex' ] ) {
+                case 1 :
+                    $jobId .= '::Campaign-' . $processState[ 'campaign' ]->run_id;
+                break;
+
+                case 2 :
+                    $jobId .= '::Ticket-' . $processState[ 'ticket' ][ 'ticketName' ];
+                break;
+            }
+            
+            $processState[ 'jobIdIndex' ] = $processState[ 'currentFilterIndex' ];
+            $processState[ 'jobId' ] = $jobId;
         }
+
+        return $jobId;
     }
 
     public function startTicket ( $espAccountId , $campaign , $recordType = null ) {
-        $reportData = $this->createCampaignReport( $campaign->run_id );
+        try {
+            $reportData = $this->createCampaignReport( $campaign->run_id );
+        } catch ( \Exception $e ) {
+            throw new JobException( 'Failed to start report ticket. ' . $e->getMessage() , JobException::NOTICE , $e );
+        } catch ( Exception $e ) {
+            throw new JobException( 'Failed to start report ticket. ' . $e->getMessage() , JobException::NOTICE , $e );
+        }
 
         return [
             "ticketName" => $reportData[ 'ticketId' ] ,
@@ -229,66 +251,73 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
     }
 
     public function saveRecords ( &$processState ) {
-        $this->dataRetrievalFailed = false;
+        try {
+            $recordData = $this->getCampaignReport(
+                $processState[ 'ticket' ][ 'ticketName' ] ,
+                $processState[ 'ticket' ][ 'rowCount' ]
+            );
+        } catch ( \Exception $e ) {
+            $jobException = new JobException( 'Campaigner API crapping out. ' . $e->getMessage() , JobException::NOTICE );
+            $jobException->setDelay( 180 );
+            throw $jobException;
+        } catch ( Exception $e ) {
+            $jobException = new JobException( 'Campaigner API crapping out. ' . $e->getMessage() , JobException::NOTICE );
+            $jobException->setDelay( 180 );
+            throw $jobException;
+        }
 
-        $recordData = $this->getCampaignReport(
-            $processState[ 'ticket' ][ 'ticketName' ] ,
-            $processState[ 'ticket' ][ 'rowCount' ]
-        );
+        if ( is_null( $recordData ) ) {
+            $jobException = new JobException( 'Report Not Ready' , JobException::NOTICE );
+            $jobException->setDelay( 180 );
+            throw $jobException;
+        }
 
-        if ( !is_null( $recordData ) ) {
-            foreach ( $recordData as $key => $record ) {
-                if ( $record[ 'action' ] === 'Open' ) {
-                    $this->emailRecord->recordDeliverable(
-                        self::RECORD_TYPE_OPENER ,
-                        $record[ 'email' ] ,
-                        $processState[ 'ticket' ][ 'espId' ] ,
-                        $processState[ 'ticket' ][ 'campaignId' ] ,
-                        $record[ 'actionDate' ]
-                    );
-                } elseif ( $record[ 'action' ] === 'Click' ) {
-                    $this->emailRecord->recordDeliverable(
-                        self::RECORD_TYPE_CLICKER ,
-                        $record[ 'email' ] ,
-                        $processState[ 'ticket' ][ 'espId' ] ,
-                        $processState[ 'ticket' ][ 'campaignId' ] ,
-                        $record[ 'actionDate' ]
-                    );
-                } elseif ( $record[ 'action' ] === 'Unsubscribe' ) {
-                    $this->emailRecord->recordDeliverable(
-                        self::RECORD_TYPE_UNSUBSCRIBE ,
-                        $record[ 'email' ] ,
-                        $processState[ 'ticket' ][ 'espId' ] ,
-                        $processState[ 'ticket' ][ 'campaignId' ] ,
-                        $record[ 'actionDate' ]
-                    );
-                } elseif ( $record[ 'action' ] === 'SpamComplaint' ) {
-                    $this->emailRecord->recordDeliverable(
-                        self::RECORD_TYPE_COMPLAINT ,
-                        $record[ 'email' ] ,
-                        $processState[ 'ticket' ][ 'espId' ] ,
-                        $processState[ 'ticket' ][ 'campaignId' ] ,
-                        $record[ 'actionDate' ]
-                    );
-                }
-
-                elseif ( $record[ 'action' ] === 'Delivered' ) {
-                    $this->emailRecord->recordDeliverable(
-                        self::RECORD_TYPE_DELIVERABLE ,
-                        $record[ 'email' ] ,
-                        $processState[ 'ticket' ][ 'espId' ] ,
-                        $processState[ 'ticket' ][ 'campaignId' ] ,
-                        $record[ 'actionDate' ]
-                    );
-                }
+        foreach ( $recordData as $key => $record ) {
+            if ( $record[ 'action' ] === 'Open' ) {
+                $this->emailRecord->recordDeliverable(
+                    self::RECORD_TYPE_OPENER ,
+                    $record[ 'email' ] ,
+                    $processState[ 'ticket' ][ 'espId' ] ,
+                    $processState[ 'ticket' ][ 'campaignId' ] ,
+                    $record[ 'actionDate' ]
+                );
+            } elseif ( $record[ 'action' ] === 'Click' ) {
+                $this->emailRecord->recordDeliverable(
+                    self::RECORD_TYPE_CLICKER ,
+                    $record[ 'email' ] ,
+                    $processState[ 'ticket' ][ 'espId' ] ,
+                    $processState[ 'ticket' ][ 'campaignId' ] ,
+                    $record[ 'actionDate' ]
+                );
+            } elseif ( $record[ 'action' ] === 'Unsubscribe' ) {
+                $this->emailRecord->recordDeliverable(
+                    self::RECORD_TYPE_UNSUBSCRIBE ,
+                    $record[ 'email' ] ,
+                    $processState[ 'ticket' ][ 'espId' ] ,
+                    $processState[ 'ticket' ][ 'campaignId' ] ,
+                    $record[ 'actionDate' ]
+                );
+            } elseif ( $record[ 'action' ] === 'SpamComplaint' ) {
+                $this->emailRecord->recordDeliverable(
+                    self::RECORD_TYPE_COMPLAINT ,
+                    $record[ 'email' ] ,
+                    $processState[ 'ticket' ][ 'espId' ] ,
+                    $processState[ 'ticket' ][ 'campaignId' ] ,
+                    $record[ 'actionDate' ]
+                );
             }
-        } else {
-            $processState[ 'delay' ] = 180;
-            $this->dataRetrievalFailed = true;
+
+            elseif ( $record[ 'action' ] === 'Delivered' ) {
+                $this->emailRecord->recordDeliverable(
+                    self::RECORD_TYPE_DELIVERABLE ,
+                    $record[ 'email' ] ,
+                    $processState[ 'ticket' ][ 'espId' ] ,
+                    $processState[ 'ticket' ][ 'campaignId' ] ,
+                    $record[ 'actionDate' ]
+                );
+            }
         }
     }
-
-    public function shouldRetry () { return $this->dataRetrievalFailed; }
 
     public function getCampaignReport($ticketId, $count){
         $manager = new ContactManagement();
