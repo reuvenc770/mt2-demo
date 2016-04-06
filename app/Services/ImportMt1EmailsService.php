@@ -83,8 +83,10 @@ class ImportMt1EmailsService
 
         }
         // Delete records
-        $this->api->cleanTable();
-
+        if (sizeof($records) > 0) {
+            $this->api->cleanTable();
+        }
+        
     }
 
     private function mapToTempTable($row) {
