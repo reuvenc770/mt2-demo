@@ -291,6 +291,13 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         echo "\n\n" . Carbon::now() . " - Starting Job: " . $this->getJobName() . "\n";
     }
 
+    protected function changeJobEntry ( $status ) {
+        JobTracking::changeJobState( $status , $this->tracking , $this->attempts() );
+
+        if ( $status == JobEntry::SUCCESS ) echo "\n\n\t" . Carbon::now() . " - Finished Job: " . $this->getJobName() . "\n";
+        if ( $status == JobEntry::WAITING ) echo "\n\n\t" . Carbon::now() . " - Throwing Job Back into Queue: " . $this->getJobName() . "\n";
+    }
+
     protected function logJobException ( JobException $e ) {
         $logMethod = $this->logTypeMap[ $e->getCode() ];
 
@@ -308,13 +315,6 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         Log::critical( str_repeat( '=' , 20 ) );
         Log::critical( str_repeat( '#' , 20 ) . 'Uncaught Exception' . str_repeat( '#' , 20 ) );
         Log::critical( $this->getJobInfo() );
-    }
-
-    protected function changeJobEntry ( $status ) {
-        JobTracking::changeJobState( $status , $this->tracking , $this->attempts() );
-
-        if ( $status == JobEntry::SUCCESS ) echo "\n\n\t" . Carbon::now() . " - Finished Job: " . $this->getJobName() . "\n";
-        if ( $status == JobEntry::WAITING ) echo "\n\n\t" . Carbon::now() . " - Throwing Job Back into Queue: " . $this->getJobName() . "\n";
     }
 
     protected function getJobName () {
