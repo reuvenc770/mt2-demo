@@ -38,7 +38,7 @@ class DataProcessingFactory {
 
                 $etlPickup = new \App\Models\EtlPickup();
                 $etlPickupRepo = new \App\Repositories\EtlPickupRepo($etlPickup);
-echo "built service" . PHP_EOL;
+
                 return new EmailCampaignAggregationService($statsRepo, $actionsRepo, $etlPickupRepo, $actionMap);
 
             case('PullCakeDeliverableStats'):
