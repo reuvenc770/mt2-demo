@@ -14,7 +14,7 @@ class EmailCampaignAggregationService {
     private $actionMap;
     const JOB_NAME = "PopulateEmailCampaignStats";
 
-    public function __construct(EmailCampaignStatisticRepo $statsRepo, EmailActionsRepo $actionsRepo, EtlPipckupRepo $etlPickupRepo, $actionMap) {
+    public function __construct(EmailCampaignStatisticRepo $statsRepo, EmailActionsRepo $actionsRepo, EtlPickupRepo $etlPickupRepo, $actionMap) {
         $this->statsRepo = $statsRepo;
         $this->etlPickupRepo = $etlPickupRepo;
         $this->actionsRepo = $actionsRepo;
@@ -27,9 +27,8 @@ class EmailCampaignAggregationService {
         $endPoint = $this->actionsRepo->maxId();
 
         while ($startPoint < $endPoint) {
-            $logLine = "Starting {self::JOB_NAME} collection at row $startPoint" . PHP_EOL;
-            $this->info($logLine);
-
+            echo "Starting {self::JOB_NAME} collection at row $startPoint" . PHP_EOL;
+            
             // limit of ~10k rows to prevent memory allocation issues and maximize bulk inserts
             $limit = 10000;
             $data = $this->actionsRepo->pullLimitedActionsInLast($startPoint, $limit);
@@ -38,13 +37,13 @@ class EmailCampaignAggregationService {
             // perform mass insert
             if ($data) {
                 $insertData = [];
-                while ($row = $data->fetch(PDO::FETCH_ASSOC)) {
+                foreach ($data as $row) {
                     $actionType = $this->actionMap[$row['action_id']];
                     
                     // get the last id by row - but only if it's a maximum
                     #$startPoint = (int)$row['max_id'] > $startPoint ? (int)$row['max_id'] : $startPoint;
                     $startPoint = (int)$row['id'];
-                    $this->statsRepo->insertOrUpdate($row);
+                    $this->statsRepo->insertOrUpdate($row, $actionType);
                     #$insertData[] = $this->mapToEmailCampaignsTable($row);
                 }
 
@@ -52,7 +51,8 @@ class EmailCampaignAggregationService {
             }
         }
 
-        $this->etlPickupRepo->updatePosition(self::JOB_NAME, $lastId);
+        $this->etlPickupRepo->updatePosition(self::JOB_NAME, $endPoint);
+        echo "done with email actions" . PHP_EOL;
     }
 
     private function mapToEmailCampaignsTable($row) {
@@ -68,8 +68,8 @@ class EmailCampaignAggregationService {
             'email_id' => $row['email_id'],
             'campaign_id' => $row['campaign_id'],
             'last_status' => $this->getFirstItem($row['statuses']),
-            'esp_first_open_datetime' => ,
-            'esp_last_open_datetime' => ,
+            'esp_first_open_datetime' => $firstSectionOpen,
+            'esp_last_open_datetime' => $lastSectionOpen,
             'esp_total_opens' => $row['opens_counted'],
             'esp_first_click_datetime' => $firstSectionClick,
             'esp_last_click_datetime' => $lastSectionClick,

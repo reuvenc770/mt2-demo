@@ -23,7 +23,7 @@ class PopulateEmailCampaignStats extends Job implements ShouldQueue {
 
         public function handle() {
             JobTracking::startAggregationJob(self::JOB_NAME, $this->tracking);
-            $service = DataProcessingFactory::create(self::JOB_NAME, $this->lookback);
+            $service = DataProcessingFactory::create(self::JOB_NAME);
             $service->run();
             JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking, $this->attempts());
         }

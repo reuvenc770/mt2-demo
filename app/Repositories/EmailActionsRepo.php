@@ -17,7 +17,11 @@ class EmailActionsRepo {
 
     public function __construct(EmailAction $actions) {
         $this->actions = $actions;
-    } 
+    }
+
+    public function maxId() {
+        return $this->actions->orderBy('id', 'desc')->first()['id'];
+    }
 
     public function insertAction($data) {
         $this->actions->insert($data);
@@ -32,7 +36,7 @@ class EmailActionsRepo {
     }
 
     public function pullAggregatedActions($startPoint, $limit) {
-        $end = ;
+        $end = '';
 
         DB::connection('reporting_data')->statement("SELECT
           email_id,

@@ -27,6 +27,6 @@ class PopulateEmailCampaignsTable extends Command {
         $date = Carbon::now()->subDay($this->lookBack)->toDateString();
         $this->dispatch(new PopulateEmailCampaignStats(str_random(16)));
         $this->dispatch(new PullCakeDeliverableStats($this->trackingSource, $date, str_random(16)));
-        $this->dispatch(new UpdateContentServerStats($lookBack, str_random(16)));
+        $this->dispatch(new UpdateContentServerStats($this->lookBack, str_random(16)));
     }
 }

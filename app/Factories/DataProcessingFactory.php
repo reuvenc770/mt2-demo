@@ -25,7 +25,7 @@ use App\Services\UpdateContentServerStatsService;
 
 class DataProcessingFactory {
 
-    public static function create($name, $lookback) {
+    public static function create($name) {
         switch($name) {
             case 'PopulateEmailCampaignStats':
                 $actionTypeModel = new ActionType();
@@ -38,7 +38,7 @@ class DataProcessingFactory {
 
                 $etlPickup = new \App\Models\EtlPickup();
                 $etlPickupRepo = new \App\Repositories\EtlPickupRepo($etlPickup);
-
+echo "built service" . PHP_EOL;
                 return new EmailCampaignAggregationService($statsRepo, $actionsRepo, $etlPickupRepo, $actionMap);
 
             case('PullCakeDeliverableStats'):
