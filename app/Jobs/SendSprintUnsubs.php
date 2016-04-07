@@ -81,10 +81,10 @@ class SendSprintUnsubs extends Job implements ShouldQueue
 
             $campaignFiles = Storage::allFiles( self::CAMPAIGN_CSV_FOLDER );
 
-            foreach ( $campaignFiles as $fileIndex => $currentFile ) {
+            foreach ( $campaignFiles as $currentFile ) {
                 $lines = explode( PHP_EOL , Storage::get( $currentFile ) );
 
-                foreach ( $lines as $lineIndex => $campaignName ) {
+                foreach ( $lines as $campaignName ) {
                     if ( !empty( $campaignName ) ) {
                         $campaignDetails = explode( '_' , $campaignName );
 
@@ -92,7 +92,7 @@ class SendSprintUnsubs extends Job implements ShouldQueue
 
                         $campaigns = $this->getCampaigns( $espDetails , $campaignName , $campaignDetails );
 
-                        foreach ( $campaigns as $campaignIndex => $campaignId ) {
+                        foreach ( $campaigns as $campaignId ) {
                             $unsubs = $this->getUnsubs( $campaignId , $espDetails[ 'accountId' ] );
 
                             foreach ( $unsubs as $unsubIndex => $unsubEmailId ) {
@@ -103,7 +103,7 @@ class SendSprintUnsubs extends Job implements ShouldQueue
 
                             $orphans = $this->getOrphans( $campaignId , $espDetails[ 'accountId' ] );
 
-                            foreach ( $orphans as $orphanIndex => $orphanEmail ) {
+                            foreach ( $orphans as $orphanEmail ) {
                                 $this->appendEmailToFile( $orphanEmail );
                             }
                         }
@@ -111,9 +111,9 @@ class SendSprintUnsubs extends Job implements ShouldQueue
                 }
             }
 
-            Log::info( "Full Unsub List Count: " . count( $this->fullUnsubList ) );
-
             Storage::put( self::DNE_FOLDER . $this->dneCountFileName , $this->unsubCount );
+
+            #Fire Event 
 
             JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking , $this->attempts() );
         } catch ( \Exception $e ) {
@@ -125,7 +125,6 @@ class SendSprintUnsubs extends Job implements ShouldQueue
 
     protected function getEspDetails( $shortName ) {
         $cleansedShortName = preg_replace( '/\d/' , '' , $shortName ); 
-        $espAccountId = preg_replace( '/\D/' , '' , $shortName ); 
 
         if ( !in_array( $cleansedShortName , array_keys( $this->espShortnameMapping ) ) ) {
             throw new \Exception( "{$cleansedShortName} is not a valid ESP." );
@@ -179,7 +178,7 @@ class SendSprintUnsubs extends Job implements ShouldQueue
         $emailRecord = Email::select( 'email_address as email' )->where( 'id' , $emailId )->pluck( 'email' );
 
         if ( isset( $emailRecord[ 0 ] ) ) return $emailRecord[ 0 ];
-        else '';
+        else return '';
     }
 
     protected function getOrphans ( $campaignId , $accountId ) {
