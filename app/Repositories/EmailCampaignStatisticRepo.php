@@ -11,6 +11,38 @@ class EmailCampaignStatisticRepo {
         $this->model = $model;
     }
 
+    public function massInsertActions($massData) {
+
+        $insertString = '';
+
+        DB::connection('reporting_data')->statement(
+            "INSERT INTO email_campaign_statistics 
+            (email_id, campaign_id, last_status, esp_first_open_datetime,
+            esp_last_open_datetime, esp_total_opens, created_at,
+            updated_at) VALUES (:email_id, :campaign_id, :action1, :dt1,
+            :dt2, 1, NOW(), NOW()) 
+
+            ON DUPLICATE KEY UPDATE
+                email_id=email_id,
+                campaign_id=campaign_id,
+                last_status = :action2,
+                esp_first_open_datetime=esp_first_open_datetime,
+                esp_last_open_datetime = :dt3,
+                esp_total_opens = esp_total_opens + 1,
+                created_at=created_at,
+                updated_at = NOW()",
+            array(
+                ':email_id' => $row['email_id'],
+                ':campaign_id' => $row['campaign_id'],
+                ':dt1' => $row['datetime'],
+                ':dt2' => $row['datetime'],
+                ':dt3' => $row['datetime'],
+                ':action1' => $actionType,
+                ':action2' => $actionType
+            )
+        );
+    }
+
     public function insertOrUpdate($row, $actionType) {
 
         // Currently need to insert/update. Later can just update.

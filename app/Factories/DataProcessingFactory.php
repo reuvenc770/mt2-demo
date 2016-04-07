@@ -25,7 +25,7 @@ use App\Services\UpdateContentServerStatsService;
 
 class DataProcessingFactory {
 
-    public static function create($name, $lookback) {
+    public static function create($name) {
         switch($name) {
             case 'PopulateEmailCampaignStats':
                 return $this->createEmailCampaignAggregationService($lookback);
@@ -53,7 +53,10 @@ class DataProcessingFactory {
         $statsRepo = new EmailCampaignStatisticRepo($statsModel);
         $actionMap = $actionTypeRepo->getMap();
 
-        return new EmailCampaignAggregationService($statsRepo, $actionsRepo, $actionMap, $lookback);
+        $etlPickup = new \App\Models\EtlPickup();
+        $etlPickupRepo = new \App\Repositories\EtlPickupRepo($etlPickup);
+
+        return new EmailCampaignAggregationService($statsRepo, $actionsRepo, $etlPickupRepo, $actionMap);
     }
 
     private static function createTrackingDeliverableService() {
