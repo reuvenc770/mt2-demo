@@ -95,7 +95,7 @@ class SendSprintUnsubs extends Job implements ShouldQueue
                         foreach ( $campaigns as $campaignId ) {
                             $unsubs = $this->getUnsubs( $campaignId , $espDetails[ 'accountId' ] );
 
-                            foreach ( $unsubs as $unsubIndex => $unsubEmailId ) {
+                            foreach ( $unsubs as $unsubEmailId ) {
                                 $unsubEmail = $this->getEmail( $unsubEmailId );
 
                                 $this->appendEmailToFile( $unsubEmail );
