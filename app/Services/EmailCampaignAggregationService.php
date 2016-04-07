@@ -52,7 +52,6 @@ class EmailCampaignAggregationService {
         }
 
         $this->etlPickupRepo->updatePosition(self::JOB_NAME, $endPoint);
-        echo "done with email actions" . PHP_EOL;
     }
 
     private function mapToEmailCampaignsTable($row) {
