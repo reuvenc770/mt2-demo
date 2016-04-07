@@ -36,6 +36,6 @@ class Inspire extends Command
      */
     public function handle()
     {
-            echo "im awesome";
+            echo "please work I am awesome";
     }
 }
