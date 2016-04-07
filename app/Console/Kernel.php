@@ -27,7 +27,8 @@ class Kernel extends ConsoleKernel
         Commands\GenOauth::class,
         Commands\ImportMt1Emails::class,
         Commands\AdoptOrphanEmails::class,
-        Commands\DownloadContentServerStats::class
+        Commands\DownloadContentServerStats::class ,
+        Commands\SendSprintUnsubs::class
     ];
 
     /**
@@ -38,6 +39,12 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        /**
+         * Unsub Jobs
+         */
+        $unsubFilePath = storage_path( 'logs' ) . "/unsubJobs.log";
+        #$schedule->command( 'ftp:sendSprintUnsubs' )->daily()->sendOutputTo( $unsubFilePath );
+
         /**
          * Orphan Adoption
          */
