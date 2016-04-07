@@ -15,7 +15,7 @@ class SendSprintUnsubs extends Command
      *
      * @var string
      */
-    protected $signature = 'ftp:sendSprintUnsubs {--lookBack=1} {--queue=default}';
+    protected $signature = 'ftp:sendSprintUnsubs {--lookBack=3} { --dayLimit=3 } {--queue=default}';
 
     /**
      * The console command description.
@@ -43,10 +43,11 @@ class SendSprintUnsubs extends Command
     {
         $this->table( [ 'Option' , 'Value' ] , [
             [ 'option' => 'lookback' , 'value' => $this->option( 'lookBack' ) ] ,
+            [ 'option' => 'dayLimit' , 'value' => $this->option( 'dayLimit' ) ] ,
             [ 'option' => 'queue' , 'value' => $this->option( 'queue' ) ] ,
         ] );
 
-        $job = new SendSprintUnsubs( $this->option( 'lookBack' ) );
+        $job = new SendSprintUnsubs( $this->option( 'lookBack' ) , $this->option( 'dayLimit' ) );
 
         $job->onQueue( $this->option( 'queue' ) );
 

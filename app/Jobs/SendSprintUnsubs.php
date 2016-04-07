@@ -57,14 +57,22 @@ class SendSprintUnsubs extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct( $lookBack )
+    public function __construct( $lookBack , $dayLimit = 1 )
     {
         $this->startOfDay = Carbon::now( self::TIME_ZONE )->subDay( $lookBack )->startOfDay();
-        $this->endOfDay = Carbon::now( self::TIME_ZONE )->subDay( $lookBack )->endOfDay();
+
+        if ( $dayLimit > 1 ) {
+            $this->endOfDay = Carbon::now( self::TIME_ZONE )->subDay( $lookBack )->addDay( $dayLimit - 1 )->endOfDay();
+        } else {
+            $this->endOfDay = Carbon::now( self::TIME_ZONE )->subDay( $lookBack )->endOfDay();
+        }
+
+        echo "\nStart: {$this->startOfDay}\n";
+        echo "\nEnd: {$this->endOfDay}\n";
 
         $this->tracking = str_random( 16 );
 
-        $fileDate = Carbon::now( self::TIME_ZONE )->subDay( $lookBack )->format( self::FILE_DATE_FORMAT );
+        $fileDate = Carbon::parse( $this->endOfDay )->format( self::FILE_DATE_FORMAT );
         $this->dneFileName = self::FILE_NAME_FORMAT . $fileDate . '.txt'; 
         $this->dneCountFileName = self::FILE_NAME_FORMAT . $fileDate . '.cnt'; 
     }
