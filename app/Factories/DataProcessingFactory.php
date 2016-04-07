@@ -36,7 +36,10 @@ class DataProcessingFactory {
                 $statsRepo = new EmailCampaignStatisticRepo($statsModel);
                 $actionMap = $actionTypeRepo->getMap();
 
-                return new EmailCampaignAggregationService($statsRepo, $actionsRepo, $actionMap, $lookback);
+                $etlPickup = new \App\Models\EtlPickup();
+                $etlPickupRepo = new \App\Repositories\EtlPickupRepo($etlPickup);
+
+                return new EmailCampaignAggregationService($statsRepo, $actionsRepo, $etlPickupRepo, $actionMap);
 
             case('PullCakeDeliverableStats'):
                 $statsModel = new EmailCampaignStatistic();
