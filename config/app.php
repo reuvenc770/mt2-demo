@@ -164,6 +164,7 @@ return [
         App\Providers\UserEventLogProvider::class,
         DaveJamesMiller\Breadcrumbs\ServiceProvider::class,
         Maknz\Slack\SlackServiceProvider::class,
+        hisorange\BrowserDetect\Provider\BrowserDetectService::class,
     ],
 
     /*
@@ -220,6 +221,7 @@ return [
         'UserEventLog' => App\Facades\UserEventLog::class,
         'Breadcrumbs' => DaveJamesMiller\Breadcrumbs\Facade::class,
         'Slack' => Maknz\Slack\Facades\Slack::class,
+        'BrowserDetect' => hisorange\BrowserDetect\Facade\Parser::class,
     ],
 
 ];
