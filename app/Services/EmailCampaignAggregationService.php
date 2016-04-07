@@ -36,7 +36,7 @@ class EmailCampaignAggregationService {
 
             // perform mass insert
             if ($data) {
-                $insertData = [];
+                #$insertData = [];
                 foreach ($data as $row) {
                     $actionType = $this->actionMap[$row['action_id']];
                     
