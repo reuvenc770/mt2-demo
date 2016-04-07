@@ -46,6 +46,10 @@ class EmailRecordService {
     }
 
     public function massRecordDeliverables () {
-        $this->repo->massRecordDelierables( $this->records );
+        try {
+            $this->repo->massRecordDelierables($this->records);
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
     }
 }
