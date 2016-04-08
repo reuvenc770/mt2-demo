@@ -317,8 +317,11 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
     }
 
     private function checkforHeaderFail($manager, $jobName){
-        $header = $this->api->parseOutResultHeader($manager);
-
+        try {
+            $header = $this->api->parseOutResultHeader($manager);
+        } catch (\Exception $e){
+            throw new \Exception ($e->getMessage());
+        }
         if ($header['errorFlag'] != "false" ) {
             throw new \Exception("{$header['errorFlag']} - {$this->api->getApiName()}::{$this->api->getEspAccountId()} Failed {$jobName} because {$header['returnMessage']} - {$header['returnCode']}");
         } else if ($header['returnCode'] == self::NO_CAMPAIGNS) {

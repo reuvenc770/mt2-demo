@@ -93,11 +93,11 @@ class SendSprintUnsubs extends Job implements ShouldQueue
 
                     if ( preg_match( '/.csv$/' , $currentFile ) ) {
                         $lines = explode( PHP_EOL , Storage::disk( 'sprintUnsubCampaignFTP' )->get( $currentFile ) );
-
+ 
                         if ( !empty( $lines ) ) {
                             foreach ( $lines as $campaignName ) {
                                 $campaignName = trim( $campaignName );
-
+                          
                                 if ( !empty( $campaignName ) ) {
                                     $campaignDetails = explode( '_' , $campaignName );
 

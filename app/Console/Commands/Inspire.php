@@ -36,8 +36,6 @@ class Inspire extends Command
      */
     public function handle()
     {
-        $bh = new BlueHornetReportService(new ReportRepo(new BlueHornetReport()), new BlueHornetApi("BlueHornet",10), new EmailRecordService(new EmailRecordRepo( new Email())));
-        $file = $bh->getFile("export_files/echo7/35500/2016-03-25/07/36/20/message_contacts_data_35500_9330658_20160325_073620.xml");
-        Storage::put('test.xml', $file);
+            echo "I want to work";
     }
 }
