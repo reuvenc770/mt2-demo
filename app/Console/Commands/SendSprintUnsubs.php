@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 use App\Jobs\SendSprintUnsubs;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
-class SendSprintUnsubs extends Command
+class SendSprintUnsubsCommand extends Command
 {
     use DispatchesJobs;
 

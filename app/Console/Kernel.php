@@ -28,7 +28,7 @@ class Kernel extends ConsoleKernel
         Commands\ImportMt1Emails::class,
         Commands\AdoptOrphanEmails::class,
         Commands\DownloadContentServerStats::class ,
-        Commands\SendSprintUnsubs::class
+        Commands\SendSprintUnsubsCommand::class
     ];
 
     /**
