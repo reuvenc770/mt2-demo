@@ -47,7 +47,7 @@ class SendSprintUnsubsCommand extends Command
             [ 'option' => 'queue' , 'value' => $this->option( 'queue' ) ] ,
         ] );
 
-        $job = new SendSprintUnsubs( $this->option( 'lookBack' ) , $this->option( 'dayLimit' ) );
+        $job = new SendSprintUnsubs( $this->option( 'lookBack' ) , $this->option( 'dayLimit' ) , str_random( 16 ) );
 
         $job->onQueue( $this->option( 'queue' ) );
 

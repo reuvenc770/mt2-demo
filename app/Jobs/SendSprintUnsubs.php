@@ -52,7 +52,7 @@ class SendSprintUnsubs extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct( $lookBack , $dayLimit = 1 )
+    public function __construct( $lookBack , $dayLimit = 1 , $tracking )
     {
         $timezone = config('app.timezone' );
 
@@ -67,7 +67,7 @@ class SendSprintUnsubs extends Job implements ShouldQueue
         echo "\nStart: {$this->startOfDay}\n";
         echo "\nEnd: {$this->endOfDay}\n";
 
-        $this->tracking = str_random( 16 );
+        $this->tracking = $tracking;
 
         $fileDate = Carbon::parse( $this->endOfDay )->format( self::FILE_DATE_FORMAT );
         $this->dneFileName = self::FILE_NAME_FORMAT . $fileDate . '.txt'; 
