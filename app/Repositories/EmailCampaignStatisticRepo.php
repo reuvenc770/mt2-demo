@@ -178,7 +178,8 @@ class EmailCampaignStatisticRepo {
             ->update([
                 'trk_first_click_datetime' => $data['first_click'],
                 'trk_last_click_datetime' => $data['last_click'],
-                'trk_total_clicks' => $data['clicks']
+                'trk_total_clicks' => $data['clicks'],
+                'user_agent_id' => $data['uas_id']
             ]);
     }
 

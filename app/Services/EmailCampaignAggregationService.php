@@ -22,7 +22,6 @@ class EmailCampaignAggregationService {
     }
 
     public function run() {
-        echo "Beginning run of populate email campaign stats" . PHP_EOL;
         $startPoint = $this->etlPickupRepo->getLastInsertedForName(self::JOB_NAME);
         $endPoint = $this->actionsRepo->maxId();
 
