@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use App\Services\Interfaces\IDataService;
 use App\Models\YmlpCampaign;
+use Log;
 use App\Repositories\YmlpCampaignRepo;
 use Carbon\Carbon;
 use App\Services\EmailRecordService;
