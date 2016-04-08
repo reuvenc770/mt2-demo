@@ -128,7 +128,9 @@ class SendSprintUnsubs extends Job implements ShouldQueue
                             Slack::to( self::SLACK_TARGET_SUBJECT )->send("Sprint Unsub Job - File '{$currentFile}' is empty.");
                         }
 
-                        Storage::disk( 'sprintUnsubCampaignFTP' )->move( $currentFile , 'processed/' . $currentFile );
+                        if ( Storage::disk( 'sprintUnsubCampaignFTP' )->exists( $currentFile ) ) {
+                            Storage::disk( 'sprintUnsubCampaignFTP' )->move( $currentFile , preg_replace( '/\.csv$/' , '.processed' , $currentFile ) );
+                        }
                     }
                 }
             } else {
@@ -232,10 +234,10 @@ class SendSprintUnsubs extends Job implements ShouldQueue
         if ( $this->isUniqueEmail( $email ) ) {
             Storage::append( self::DNE_FOLDER . $this->dneFileName , sprintf( self::RECORD_FORMAT ,  $email , $this->startOfDay ) );
 
-
             $this->appendToFullUnsubList( $email );
-        }
+
             $this->incrementCount();
+        }
     }
 
     protected function isUniqueEmail ( $email ) {
