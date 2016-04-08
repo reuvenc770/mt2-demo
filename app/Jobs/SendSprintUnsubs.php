@@ -31,6 +31,8 @@ class SendSprintUnsubs extends Job implements ShouldQueue
     CONST FILE_NAME_FORMAT = 'Zeta_DNE_';
     CONST FILE_DATE_FORMAT = 'YmdHis';
 
+    CONST SLACK_TARGET_SUBJECT = '#mt2-dev-failed-jobs';
+
     protected $startOfDay;
     protected $endOfDay;
 
@@ -95,9 +97,13 @@ class SendSprintUnsubs extends Job implements ShouldQueue
                         if ( !empty( $lines ) ) {
                             foreach ( $lines as $campaignName ) {
                                 if ( !empty( $campaignName ) ) {
+                                    $campaignName = trim( $campaignName );
+
                                     $campaignDetails = explode( '_' , $campaignName );
 
                                     $espDetails = $this->getEspDetails( $campaignDetails[ 1 ] );
+
+                                    if ( is_null( $espDetails ) ) continue;
 
                                     $campaigns = $this->getCampaigns( $espDetails , $campaignName , $campaignDetails );
 
@@ -119,14 +125,14 @@ class SendSprintUnsubs extends Job implements ShouldQueue
                                 }
                             }
                         } else {
-                            Slack::to('#mt2-dev-failed-jobs')->send("Sprint Unsub Job - File '{$currentFile}' is empty.");
+                            Slack::to( self::SLACK_TARGET_SUBJECT )->send("Sprint Unsub Job - File '{$currentFile}' is empty.");
                         }
 
                         Storage::disk( 'sprintUnsubCampaignFTP' )->move( $currentFile , 'processed/' . $currentFile );
                     }
                 }
             } else {
-                Slack::to('#mt2-dev-failed-jobs')->send("Sprint Unsub Job - No Campaign files today.");
+                Slack::to( self::SLACK_TARGET_SUBJECT )->send("Sprint Unsub Job - No Campaign files today.");
             }
 
             Storage::put( self::DNE_FOLDER . $this->dneCountFileName , $this->unsubCount );
@@ -145,7 +151,13 @@ class SendSprintUnsubs extends Job implements ShouldQueue
     }
 
     protected function getEspDetails( $shortName ) {
-        $id = EspAccount::where( 'account_name' , $shortName )->pluck( 'id' );
+        if ( EspAccount::where( 'account_name' , $shortName )->exists() ) {
+            $id = EspAccount::where( 'account_name' , $shortName )->pluck( 'id' );
+        } else {
+            Slack::to( self::SLACK_TARGET_SUBJECT )->send("Sprint Unsub Job - {$shortName} does not exist in the system.");
+
+            return null;
+        }
 
         $esp = EspAccount::find( $id )->esp;
 
@@ -181,7 +193,7 @@ class SendSprintUnsubs extends Job implements ShouldQueue
         }
 
         if ( empty( $campaigns ) ) {
-            Slack::to('#mt2-dev-failed-jobs')->send("Sprint Unsub Job - Campaign Name '{$campaignName}' has no matches..");
+            Slack::to( self::SLACK_TARGET_SUBJECT )->send("Sprint Unsub Job - Campaign Name '{$campaignName}' has no matches..");
         }
 
         return $campaigns;
@@ -236,6 +248,6 @@ class SendSprintUnsubs extends Job implements ShouldQueue
     {
         JobTracking::changeJobState( JobEntry::FAILED , $this->tracking , $this->attempts() );
 
-        Slack::to('#mt2-dev-failed-jobs')->send("Sprint Unsub Job - Failed to run after " . $this->attempts() . " attempts.");
+        Slack::to( self::SLACK_TARGET_SUBJECT )->send("Sprint Unsub Job - Failed to run after " . $this->attempts() . " attempts.");
     }
 }
