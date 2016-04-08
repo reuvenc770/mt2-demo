@@ -21,7 +21,6 @@ class SendSprintUnsubs extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
-    CONST CAMPAIGN_CSV_FOLDER = 'SprintUnsubCampaignCSV/campaigns';
     CONST DNE_FOLDER = 'SprintUnsubCampaignCSV/dneFiles/';
 
     CONST UNSUB_ACTION_ID = 7;
@@ -82,35 +81,39 @@ class SendSprintUnsubs extends Job implements ShouldQueue
         try {
             JobTracking::startEspJob( "Sprint Unsub Job" , '' , '' , $this->tracking , 0 );
 
-            $campaignFiles = Storage::allFiles( self::CAMPAIGN_CSV_FOLDER );
+            $campaignFiles = Storage::disk( 'sprintUnsubCampaignFTP' )->allFiles();
 
             foreach ( $campaignFiles as $currentFile ) {
-                $lines = explode( PHP_EOL , Storage::get( $currentFile ) );
+                if ( preg_match( '/.csv$/' , $currentFile ) ) {
+                    $lines = explode( PHP_EOL , Storage::disk( 'sprintUnsubCampaignFTP' )->get( $currentFile ) );
 
-                foreach ( $lines as $campaignName ) {
-                    if ( !empty( $campaignName ) ) {
-                        $campaignDetails = explode( '_' , $campaignName );
+                    foreach ( $lines as $campaignName ) {
+                        if ( !empty( $campaignName ) ) {
+                            $campaignDetails = explode( '_' , $campaignName );
 
-                        $espDetails = $this->getEspDetails( $campaignDetails[ 1 ] );
+                            $espDetails = $this->getEspDetails( $campaignDetails[ 1 ] );
 
-                        $campaigns = $this->getCampaigns( $espDetails , $campaignName , $campaignDetails );
+                            $campaigns = $this->getCampaigns( $espDetails , $campaignName , $campaignDetails );
 
-                        foreach ( $campaigns as $campaignId ) {
-                            $unsubs = $this->getUnsubs( $campaignId , $espDetails[ 'accountId' ] );
+                            foreach ( $campaigns as $campaignId ) {
+                                $unsubs = $this->getUnsubs( $campaignId , $espDetails[ 'accountId' ] );
 
-                            foreach ( $unsubs as $unsubEmailId ) {
-                                $unsubEmail = $this->getEmail( $unsubEmailId );
+                                foreach ( $unsubs as $unsubEmailId ) {
+                                    $unsubEmail = $this->getEmail( $unsubEmailId );
 
-                                $this->appendEmailToFile( $unsubEmail );
-                            }
+                                    $this->appendEmailToFile( $unsubEmail );
+                                }
 
-                            $orphans = $this->getOrphans( $campaignId , $espDetails[ 'accountId' ] );
+                                $orphans = $this->getOrphans( $campaignId , $espDetails[ 'accountId' ] );
 
-                            foreach ( $orphans as $orphanEmail ) {
-                                $this->appendEmailToFile( $orphanEmail );
+                                foreach ( $orphans as $orphanEmail ) {
+                                    $this->appendEmailToFile( $orphanEmail );
+                                }
                             }
                         }
                     }
+
+                    Storage::disk( 'sprintUnsubCampaignFTP' )->move( $currentFile , 'processed/' . $currentFile );
                 }
             }
 
