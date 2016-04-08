@@ -48,6 +48,13 @@ return [
             'root'   => storage_path('app'),
         ],
 
+        'sprintUnsubFTP' => [
+            'driver'   => 'ftp',
+            'host'     => '173.255.229.62',
+            'username' => '60000',
+            'password' => '>HjP`A5nbSvYy&EJ',
+        ] ,
+
         'ftp' => [
             'driver'   => 'ftp',
             'host'     => 'ftp.example.com',
