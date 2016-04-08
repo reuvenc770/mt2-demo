@@ -29,6 +29,7 @@ class Kernel extends ConsoleKernel
         Commands\AdoptOrphanEmails::class,
         Commands\DownloadContentServerStats::class,
         Commands\ProcessUserAgents::class,
+        Commands\SendSprintUnsubsCommand::class
     ];
 
     /**
@@ -40,10 +41,17 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         /**
+         * Unsub Jobs
+         */
+        //$unsubFilePath = storage_path( 'logs' ) . "/unsubJobs.log";
+        //$schedule->command( 'ftp:sendSprintUnsubs' )->weekdays()->at( '11:00' )->sendOutputTo( $unsubFilePath );
+
+        /**
          * Orphan Adoption
          */
         $orphanFilePath = storage_path('logs')."/adoptOrphans.log";
-        $schedule->command( 'reports:adoptOrphans --maxOrphans=200000 --chunkSize=10000' )->everyTenMinutes()->sendOutputTo( $orphanFilePath );
+        $schedule->command( 'reports:adoptOrphans --maxOrphans=400000 --chunkSize=10000' )->everyTenMinutes()->sendOutputTo( $orphanFilePath );
+        $schedule->command( 'reports:adoptOrphans --maxOrphans=400000 --chunkSize=10000 --queueName=orphanage --chunkDelay=0 --order=oldest --maxAttempts=10' )->everyTenMinutes()->sendOutputTo( $orphanFilePath );
 
         /**
          * Campaign Data Daily
