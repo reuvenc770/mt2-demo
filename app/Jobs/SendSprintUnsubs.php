@@ -96,9 +96,9 @@ class SendSprintUnsubs extends Job implements ShouldQueue
 
                         if ( !empty( $lines ) ) {
                             foreach ( $lines as $campaignName ) {
-                                if ( !empty( $campaignName ) ) {
-                                    $campaignName = trim( $campaignName );
+                                $campaignName = trim( $campaignName );
 
+                                if ( !empty( $campaignName ) ) {
                                     $campaignDetails = explode( '_' , $campaignName );
 
                                     $espDetails = $this->getEspDetails( $campaignDetails[ 1 ] );
@@ -143,6 +143,8 @@ class SendSprintUnsubs extends Job implements ShouldQueue
             Storage::delete( [ self::DNE_FOLDER . $this->dneFileName , self::DNE_FOLDER . $this->dneCountFileName ] );
 
             JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking , $this->attempts() );
+
+            return true;
         } catch ( \Exception $e ) {
             Log::error( 'Job Failed' );
 
