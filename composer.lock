@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c4d1a3eb7f4a9f74c1f125e12595de57",
-    "content-hash": "5793d3955a9b761d8e882017d6dcde00",
+    "hash": "f8b580d7271bbdfbca1455c9120bacfc",
+    "content-hash": "cdf59d42a5518c10caaf543101c20022",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -851,49 +851,6 @@
             "time": "2014-09-09 13:34:57"
         },
         {
-            "name": "garetjax/phpbrowscap",
-            "version": "2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/GaretJax/phpbrowscap.git",
-                "reference": "ed661716d0d9158bac6ab3b074b18b70f8d18bef"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/GaretJax/phpbrowscap/zipball/ed661716d0d9158bac6ab3b074b18b70f8d18bef",
-                "reference": "ed661716d0d9158bac6ab3b074b18b70f8d18bef",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "phpbrowscap": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT License"
-            ],
-            "authors": [
-                {
-                    "name": "Jonathan Stoppani",
-                    "email": "jonathan.stoppani@gmail.com"
-                }
-            ],
-            "description": "Standalone replacement for php's native get_browser() function",
-            "homepage": "http://github.com/GaretJax/phpbrowscap",
-            "keywords": [
-                "browser",
-                "capabilities",
-                "get_browser",
-                "user agent"
-            ],
-            "time": "2014-02-04 09:18:51"
-        },
-        {
             "name": "guzzlehttp/guzzle",
             "version": "6.2.0",
             "source": {
@@ -1065,101 +1022,6 @@
             "time": "2016-02-18 21:54:00"
         },
         {
-            "name": "hisorange/browser-detect",
-            "version": "2.0.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/hisorange/browser-detect.git",
-                "reference": "354505904cf4f948a49cc4468ab1a2a0f78ac0f9"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/hisorange/browser-detect/zipball/354505904cf4f948a49cc4468ab1a2a0f78ac0f9",
-                "reference": "354505904cf4f948a49cc4468ab1a2a0f78ac0f9",
-                "shasum": ""
-            },
-            "require": {
-                "garetjax/phpbrowscap": "2.*",
-                "hisorange/traits": "1.*",
-                "illuminate/support": "~5.0",
-                "mobiledetect/mobiledetectlib": "2.*",
-                "php": ">=5.4.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "hisorange\\BrowserDetect\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Varga Zsolt (hisorange)",
-                    "email": "hisoranger@gmail.com"
-                }
-            ],
-            "description": "Browser & Mobile detection package for Laravel 4-5.",
-            "keywords": [
-                "browser",
-                "greenball",
-                "hisorange",
-                "laravel",
-                "mobile",
-                "tablet",
-                "user agent",
-                "user-agent"
-            ],
-            "time": "2015-04-22 20:33:37"
-        },
-        {
-            "name": "hisorange/traits",
-            "version": "1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/hisorange/traits.git",
-                "reference": "465baf32faaf155b867dcc11218621e23ef4cac2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/hisorange/traits/zipball/465baf32faaf155b867dcc11218621e23ef4cac2",
-                "reference": "465baf32faaf155b867dcc11218621e23ef4cac2",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.4.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "hisorange\\Traits\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Varga Zsolt (hisorange)",
-                    "email": "hisoranger@gmail.com"
-                }
-            ],
-            "description": "Useful PHP traits.",
-            "keywords": [
-                "php",
-                "traits"
-            ],
-            "time": "2014-05-01 21:28:53"
-        },
-        {
             "name": "jakub-onderka/php-console-color",
             "version": "0.1",
             "source": {
@@ -1245,6 +1107,63 @@
                 }
             ],
             "time": "2015-04-20 18:58:01"
+        },
+        {
+            "name": "jenssegers/agent",
+            "version": "v2.3.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jenssegers/agent.git",
+                "reference": "3068d6372a4677af84014a53d5a212cfa74492c1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jenssegers/agent/zipball/3068d6372a4677af84014a53d5a212cfa74492c1",
+                "reference": "3068d6372a4677af84014a53d5a212cfa74492c1",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "^4.0|^5.0",
+                "mobiledetect/mobiledetectlib": "^2.7.6",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.0|^5.0",
+                "satooshi/php-coveralls": "^0.6"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Jenssegers\\Agent\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jens Segers",
+                    "homepage": "https://jenssegers.com"
+                }
+            ],
+            "description": "A PHP desktop/mobile user agent parser with support for Laravel, based on Mobiledetect",
+            "homepage": "https://github.com/jenssegers/agent",
+            "keywords": [
+                "Agent",
+                "browser",
+                "laravel",
+                "mobile",
+                "platform",
+                "user agent",
+                "useragent"
+            ],
+            "time": "2016-03-08 13:47:22"
         },
         {
             "name": "jeremeamia/SuperClosure",
@@ -3305,6 +3224,49 @@
             "time": "2015-05-29 06:29:14"
         },
         {
+            "name": "garetjax/phpbrowscap",
+            "version": "2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/GaretJax/phpbrowscap.git",
+                "reference": "ed661716d0d9158bac6ab3b074b18b70f8d18bef"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/GaretJax/phpbrowscap/zipball/ed661716d0d9158bac6ab3b074b18b70f8d18bef",
+                "reference": "ed661716d0d9158bac6ab3b074b18b70f8d18bef",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "phpbrowscap": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT License"
+            ],
+            "authors": [
+                {
+                    "name": "Jonathan Stoppani",
+                    "email": "jonathan.stoppani@gmail.com"
+                }
+            ],
+            "description": "Standalone replacement for php's native get_browser() function",
+            "homepage": "http://github.com/GaretJax/phpbrowscap",
+            "keywords": [
+                "browser",
+                "capabilities",
+                "get_browser",
+                "user agent"
+            ],
+            "time": "2014-02-04 09:18:51"
+        },
+        {
             "name": "hamcrest/hamcrest-php",
             "version": "v1.2.2",
             "source": {
@@ -3348,6 +3310,101 @@
                 "test"
             ],
             "time": "2015-05-11 14:41:42"
+        },
+        {
+            "name": "hisorange/browser-detect",
+            "version": "2.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hisorange/browser-detect.git",
+                "reference": "354505904cf4f948a49cc4468ab1a2a0f78ac0f9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hisorange/browser-detect/zipball/354505904cf4f948a49cc4468ab1a2a0f78ac0f9",
+                "reference": "354505904cf4f948a49cc4468ab1a2a0f78ac0f9",
+                "shasum": ""
+            },
+            "require": {
+                "garetjax/phpbrowscap": "2.*",
+                "hisorange/traits": "1.*",
+                "illuminate/support": "~5.0",
+                "mobiledetect/mobiledetectlib": "2.*",
+                "php": ">=5.4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "hisorange\\BrowserDetect\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Varga Zsolt (hisorange)",
+                    "email": "hisoranger@gmail.com"
+                }
+            ],
+            "description": "Browser & Mobile detection package for Laravel 4-5.",
+            "keywords": [
+                "browser",
+                "greenball",
+                "hisorange",
+                "laravel",
+                "mobile",
+                "tablet",
+                "user agent",
+                "user-agent"
+            ],
+            "time": "2015-04-22 20:33:37"
+        },
+        {
+            "name": "hisorange/traits",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hisorange/traits.git",
+                "reference": "465baf32faaf155b867dcc11218621e23ef4cac2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hisorange/traits/zipball/465baf32faaf155b867dcc11218621e23ef4cac2",
+                "reference": "465baf32faaf155b867dcc11218621e23ef4cac2",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "hisorange\\Traits\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Varga Zsolt (hisorange)",
+                    "email": "hisoranger@gmail.com"
+                }
+            ],
+            "description": "Useful PHP traits.",
+            "keywords": [
+                "php",
+                "traits"
+            ],
+            "time": "2014-05-01 21:28:53"
         },
         {
             "name": "mockery/mockery",
