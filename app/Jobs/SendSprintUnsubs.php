@@ -130,6 +130,8 @@ class SendSprintUnsubs extends Job implements ShouldQueue
 
                         if ( Storage::disk( 'sprintUnsubCampaignFTP' )->exists( $currentFile ) ) {
                             Storage::disk( 'sprintUnsubCampaignFTP' )->move( $currentFile , preg_replace( '/\.csv$/' , '.processed' , $currentFile ) );
+                        } else {
+                        Slack::to( self::SLACK_TARGET_SUBJECT )->send("Could not move/rename - {$currentFile} ");
                         }
                     }
                 }
