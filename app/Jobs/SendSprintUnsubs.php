@@ -144,8 +144,6 @@ class SendSprintUnsubs extends Job implements ShouldQueue
             Storage::disk( 'sprintUnsubFTP' )->put( $this->dneFileName , Storage::get( self::DNE_FOLDER . $this->dneFileName ) );
             Storage::disk( 'sprintUnsubFTP' )->put( $this->dneCountFileName , Storage::get( self::DNE_FOLDER . $this->dneCountFileName ) );
 
-            Storage::delete( [ self::DNE_FOLDER . $this->dneFileName , self::DNE_FOLDER . $this->dneCountFileName ] );
-
             JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking , $this->attempts() );
 
             return true;
