@@ -77,4 +77,8 @@ class TrackingRepo
       ->get();
   }
 
+  public function pullUserAgents($lookback) {
+    return $this->report->select('user_agent_string')->where('clickDate', '>=', DB::raw("CURDATE() - INTERVAL $lookback DAY"))->get();
+  }
+
 }

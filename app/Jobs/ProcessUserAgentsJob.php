@@ -13,13 +13,11 @@ class ProcessUserAgentsJob extends Job implements ShouldQueue {
         use InteractsWithQueue, SerializesModels;
         const JOB_NAME = "ProcessUserAgentsJob";
 
-        private $lookback;
         private $tracking;
         private $maxAttempts;
         private $etlPickupRepo;
 
-        public function __construct($lookback, $tracking) {
-            $this->lookback = $lookback;
+        public function __construct($tracking) {
             $this->tracking = $tracking;
             $this->maxAttempts = env('MAX_ATTEMPTS', 3);
         }
@@ -27,7 +25,7 @@ class ProcessUserAgentsJob extends Job implements ShouldQueue {
         public function handle() {
             JobTracking::startAggregationJob(self::JOB_NAME, $this->tracking);
 
-            $service = DataProcessingFactory::create(self::JOB_NAME, $this->lookback);
+            $service = DataProcessingFactory::create(self::JOB_NAME);
             $service->run();
 
             JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking, $this->attempts());

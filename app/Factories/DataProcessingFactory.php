@@ -28,23 +28,23 @@ class DataProcessingFactory {
     public static function create($name) {
         switch($name) {
             case 'PopulateEmailCampaignStats':
-                return $this->createEmailCampaignAggregationService($lookback);
+                return self::createEmailCampaignAggregationService();
 
             case('PullCakeDeliverableStats'):
-                return $this->createTrackingDeliverableService();
+                return self::createTrackingDeliverableService();
 
             case('UpdateContentServerStats'):
-                return $this->createUpdateContentServerStatsService();
+                return self::createUpdateContentServerStatsService();
 
             case('ProcessUserAgentsJob'):
-                return $this->createUserAgentProcessingService($lookback);
+                return self::createUserAgentProcessingService();
                 
             default:
                 throw new \Exception("Data processing service {$name} does not exist");
         }
     }
 
-    private static function createEmailCampaignAggregationService($lookback) {
+    private static function createEmailCampaignAggregationService() {
         $actionTypeModel = new ActionType();
         $actionTypeRepo = new ActionRepo($actionTypeModel);
         $actionModel = new EmailAction();
@@ -81,10 +81,10 @@ class DataProcessingFactory {
         return new UpdateContentServerStatsService($contentActionsRepo, $statsRepo);      
     }
 
-    private static function createUserAgentProcessingService($lookback) {
+    private static function createUserAgentProcessingService() {
         // feed off a source of new user agents
         $sourceModel = new CakeData();
-        $sourceRepo = new TrackingRepo($trackingModel);
+        $sourceRepo = new TrackingRepo($sourceModel);
 
         $userAgent = new \App\Models\UserAgentString();
         $userAgentRepo = new \App\Repositories\UserAgentStringRepo($userAgent);

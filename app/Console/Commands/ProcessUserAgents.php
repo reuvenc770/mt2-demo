@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 use Illuminate\Console\Command;
-use App\Jobs\ImportContentServerStatsJob;
+use App\Jobs\ProcessUserAgentsJob;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class ProcessUserAgents extends Command
