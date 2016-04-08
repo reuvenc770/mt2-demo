@@ -13,33 +13,55 @@ class EmailCampaignStatisticRepo {
 
     public function massInsertActions($massData) {
 
-        $insertString = '';
+        echo "Preparing to insert at " . microtime(true) . PHP_EOL;
+        $insertList = [];
 
-        DB::connection('reporting_data')->statement(
+        foreach ($massData as $row) {
+            $rowString = "('{$row['email_id']}', 
+                '{$row['campaign_id']}', 
+                '{$row['last_status']}', 
+                '{$row['esp_first_open_datetime']}', 
+                '{$row['esp_last_open_datetime']}',
+                '{$row['esp_total_opens']}',
+                '{$row['esp_first_click_datetime']}',
+                '{$row['esp_last_click_datetime']}',
+                '{$row['esp_total_clicks']}',
+                '{$row['unsubscribed']}',
+                NOW())";
+            $insertList[]= $rowString;
+        }
+
+        $insertString = implode(',', $insertList);
+
+        DB::connection('reporting_data')->insert(
             "INSERT INTO email_campaign_statistics 
             (email_id, campaign_id, last_status, esp_first_open_datetime,
-            esp_last_open_datetime, esp_total_opens, created_at,
-            updated_at) VALUES (:email_id, :campaign_id, :action1, :dt1,
-            :dt2, 1, NOW(), NOW()) 
+            esp_last_open_datetime, esp_total_opens, esp_first_click_datetime,
+             unsubscribed, esp_last_click_datetime, esp_total_clicks,
+            updated_at) VALUES $insertString
 
             ON DUPLICATE KEY UPDATE
                 email_id=email_id,
                 campaign_id=campaign_id,
-                last_status = :action2,
-                esp_first_open_datetime=esp_first_open_datetime,
-                esp_last_open_datetime = :dt3,
-                esp_total_opens = esp_total_opens + 1,
+                last_status = VALUES(last_status),
+                esp_first_open_datetime= IF(esp_first_open_datetime IS NULL, 
+                                                VALUES(esp_first_open_datetime), 
+                                                IF(esp_first_open_datetime < VALUES(esp_first_open_datetime), 
+                                                    esp_first_open_datetime, 
+                                                    VALUES(esp_first_open_datetime) )) ,
+                esp_last_open_datetime = VALUES(esp_last_open_datetime),
+                esp_total_opens = esp_total_opens + VALUES(esp_total_opens),
+                esp_first_click_datetime = IF(esp_first_click_datetime IS NULL, 
+                                                VALUES(esp_first_click_datetime), 
+                                                IF(esp_first_click_datetime < VALUES(esp_first_click_datetime), 
+                                                    esp_first_click_datetime, 
+                                                    VALUES(esp_first_click_datetime) )),
+                esp_last_click_datetime = VALUES(esp_last_click_datetime),
+                esp_total_clicks = esp_total_clicks + VALUES(esp_total_clicks),
+                unsubscribed = VALUES(unsubscribed),
                 created_at=created_at,
-                updated_at = NOW()",
-            array(
-                ':email_id' => $row['email_id'],
-                ':campaign_id' => $row['campaign_id'],
-                ':dt1' => $row['datetime'],
-                ':dt2' => $row['datetime'],
-                ':dt3' => $row['datetime'],
-                ':action1' => $actionType,
-                ':action2' => $actionType
-            )
+                updated_at = NOW()"
+
         );
     }
 
