@@ -15,6 +15,7 @@ use App\Models\EspAccount;
 use App\Models\EmailAction;
 use App\Models\Email;
 use App\Models\OrphanEmail;
+use Maknz\Slack\Facades\Slack;
 use Log;
 
 class SendSprintUnsubs extends Job implements ShouldQueue
@@ -83,38 +84,49 @@ class SendSprintUnsubs extends Job implements ShouldQueue
 
             $campaignFiles = Storage::disk( 'sprintUnsubCampaignFTP' )->allFiles();
 
-            foreach ( $campaignFiles as $currentFile ) {
-                if ( preg_match( '/.csv$/' , $currentFile ) ) {
-                    $lines = explode( PHP_EOL , Storage::disk( 'sprintUnsubCampaignFTP' )->get( $currentFile ) );
+            Storage::put( self::DNE_FOLDER . $this->dneFileName , '' );
 
-                    foreach ( $lines as $campaignName ) {
-                        if ( !empty( $campaignName ) ) {
-                            $campaignDetails = explode( '_' , $campaignName );
+            if ( count( $campaignFiles ) > 3 ) {
+                foreach ( $campaignFiles as $currentFile ) {
 
-                            $espDetails = $this->getEspDetails( $campaignDetails[ 1 ] );
+                    if ( preg_match( '/.csv$/' , $currentFile ) ) {
+                        $lines = explode( PHP_EOL , Storage::disk( 'sprintUnsubCampaignFTP' )->get( $currentFile ) );
 
-                            $campaigns = $this->getCampaigns( $espDetails , $campaignName , $campaignDetails );
+                        if ( !empty( $lines ) ) {
+                            foreach ( $lines as $campaignName ) {
+                                if ( !empty( $campaignName ) ) {
+                                    $campaignDetails = explode( '_' , $campaignName );
 
-                            foreach ( $campaigns as $campaignId ) {
-                                $unsubs = $this->getUnsubs( $campaignId , $espDetails[ 'accountId' ] );
+                                    $espDetails = $this->getEspDetails( $campaignDetails[ 1 ] );
 
-                                foreach ( $unsubs as $unsubEmailId ) {
-                                    $unsubEmail = $this->getEmail( $unsubEmailId );
+                                    $campaigns = $this->getCampaigns( $espDetails , $campaignName , $campaignDetails );
 
-                                    $this->appendEmailToFile( $unsubEmail );
-                                }
+                                    foreach ( $campaigns as $campaignId ) {
+                                        $unsubs = $this->getUnsubs( $campaignId , $espDetails[ 'accountId' ] );
 
-                                $orphans = $this->getOrphans( $campaignId , $espDetails[ 'accountId' ] );
+                                        foreach ( $unsubs as $unsubEmailId ) {
+                                            $unsubEmail = $this->getEmail( $unsubEmailId );
 
-                                foreach ( $orphans as $orphanEmail ) {
-                                    $this->appendEmailToFile( $orphanEmail );
+                                            $this->appendEmailToFile( $unsubEmail );
+                                        }
+
+                                        $orphans = $this->getOrphans( $campaignId , $espDetails[ 'accountId' ] );
+
+                                        foreach ( $orphans as $orphanEmail ) {
+                                            $this->appendEmailToFile( $orphanEmail );
+                                        }
+                                    }
                                 }
                             }
+                        } else {
+                            Slack::to('#mt2-dev-failed-jobs')->send("Sprint Unsub Job - File '{$currentFile}' is empty.");
                         }
-                    }
 
-                    Storage::disk( 'sprintUnsubCampaignFTP' )->move( $currentFile , 'processed/' . $currentFile );
+                        Storage::disk( 'sprintUnsubCampaignFTP' )->move( $currentFile , 'processed/' . $currentFile );
+                    }
                 }
+            } else {
+                Slack::to('#mt2-dev-failed-jobs')->send("Sprint Unsub Job - No Campaign files today.");
             }
 
             Storage::put( self::DNE_FOLDER . $this->dneCountFileName , $this->unsubCount );
@@ -168,6 +180,10 @@ class SendSprintUnsubs extends Job implements ShouldQueue
                 ->pluck( 'id' );
         }
 
+        if ( empty( $campaigns ) ) {
+            Slack::to('#mt2-dev-failed-jobs')->send("Sprint Unsub Job - Campaign Name '{$campaignName}' has no matches..");
+        }
+
         return $campaigns;
     }
 
@@ -214,5 +230,12 @@ class SendSprintUnsubs extends Job implements ShouldQueue
 
     protected function appendToFullUnsubList ( $email ) {
         $this->fullUnsubList []= $email;
+    }
+
+    public function failed()
+    {
+        JobTracking::changeJobState( JobEntry::FAILED , $this->tracking , $this->attempts() );
+
+        Slack::to('#mt2-dev-failed-jobs')->send("Sprint Unsub Job - Failed to run after " . $this->attempts() . " attempts.");
     }
 }
