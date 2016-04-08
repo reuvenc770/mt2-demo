@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 use Illuminate\Console\Command;
-use App\Jobs\ProcessUserAgentsJob;
+use App\Jobs\DataProcessingJob;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class ProcessUserAgents extends Command
@@ -21,6 +21,7 @@ class ProcessUserAgents extends Command
      * @var string
      */
     protected $description = 'Update the user agent list -> device family mapping';
+    const JOB_NAME = 'ProcessUserAgentsJob';
 
     /**
      * Create a new command instance.
@@ -37,7 +38,7 @@ class ProcessUserAgents extends Command
      * @return mixed
      */
     public function handle() {
-        $job = new ProcessUserAgentsJob(str_random(16));
+        $job = new DataProcessingJob(self::JOB_NAME, str_random(16));
         $this->dispatch($job);
     }
 }
