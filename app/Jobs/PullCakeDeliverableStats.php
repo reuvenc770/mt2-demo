@@ -39,7 +39,7 @@ class PullCakeDeliverableStats extends Job implements ShouldQueue {
             $this->release(1);
         }
 
-        $service = DataProcessingFactory::create(self::JOB_NAME, $this->lookBack);
+        $service = DataProcessingFactory::create(self::JOB_NAME);
         $service->run($this->lookBack);
         JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking, $this->attempts());
 

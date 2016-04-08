@@ -64,13 +64,15 @@ class TrackingRepo
 
   public function pullDeliverables($date) {
     return $this->report
+      ->join('homestead.user_agent_strings', 'cake_aggregated_data.user_agent_string', '=', 'user_agent_strings.user_agent_string')
       ->select(DB::raw('subid_1 AS campaign_id,
         email_id,
         SUM(clicks) AS clicks,
         SUM(conversions) AS conversions,
         SUM(revenue) AS revenue,
         MIN(clickDate) AS first_click,
-        MAX(clickDate) AS last_click'))
+        MAX(clickDate) AS last_click,
+        user_agent_strings.id AS uas_id'))
       ->where('campaignDate', '>=', $date)
       ->groupBy('subid_1')
       ->groupBy('email_id')
