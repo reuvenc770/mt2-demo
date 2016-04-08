@@ -93,11 +93,11 @@ class SendSprintUnsubs extends Job implements ShouldQueue
 
                     if ( preg_match( '/.csv$/' , $currentFile ) ) {
                         $lines = explode( PHP_EOL , Storage::disk( 'sprintUnsubCampaignFTP' )->get( $currentFile ) );
-
+ /**
                         if ( !empty( $lines ) ) {
                             foreach ( $lines as $campaignName ) {
                                 $campaignName = trim( $campaignName );
-
+                          
                                 if ( !empty( $campaignName ) ) {
                                     $campaignDetails = explode( '_' , $campaignName );
 
@@ -127,7 +127,7 @@ class SendSprintUnsubs extends Job implements ShouldQueue
                         } else {
                             Slack::to( self::SLACK_TARGET_SUBJECT )->send("Sprint Unsub Job - File '{$currentFile}' is empty.");
                         }
-
+                    **/
                         Storage::disk( 'sprintUnsubCampaignFTP' )->move( $currentFile , 'processed/' . $currentFile );
                     }
                 }
