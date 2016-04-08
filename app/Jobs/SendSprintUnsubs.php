@@ -28,7 +28,6 @@ class SendSprintUnsubs extends Job implements ShouldQueue
 
     CONST RECORD_FORMAT = "A\t%s\t%s\tSPRGPROM\tZETA\tBATCH\tE";
 
-    CONST TIME_ZONE = 'America/New_York';
     CONST FILE_NAME_FORMAT = 'Zeta_DNE_';
     CONST FILE_DATE_FORMAT = 'YmdHis';
 
@@ -37,12 +36,6 @@ class SendSprintUnsubs extends Job implements ShouldQueue
 
     protected $tracking;
     protected $unsubCount = 0;
-
-    protected $espShortnameMapping = [
-        'BH' => 'BlueHornet' ,
-        'CA' => 'Campaigner' ,
-        'MAR' => 'Maro'
-    ];
 
     protected $blueHornetCampaigns = [];
     protected $otherCampaigns = [];
@@ -59,12 +52,14 @@ class SendSprintUnsubs extends Job implements ShouldQueue
      */
     public function __construct( $lookBack , $dayLimit = 1 )
     {
-        $this->startOfDay = Carbon::now( self::TIME_ZONE )->subDay( $lookBack )->startOfDay();
+        $timezone = config('app.timezone' );
+
+        $this->startOfDay = Carbon::now( $timezone )->subDay( $lookBack )->startOfDay();
 
         if ( $dayLimit > 1 ) {
-            $this->endOfDay = Carbon::now( self::TIME_ZONE )->subDay( $lookBack )->addDay( $dayLimit - 1 )->endOfDay();
+            $this->endOfDay = Carbon::now( $timezone )->subDay( $lookBack )->addDay( $dayLimit - 1 )->endOfDay();
         } else {
-            $this->endOfDay = Carbon::now( self::TIME_ZONE )->subDay( $lookBack )->endOfDay();
+            $this->endOfDay = Carbon::now( $timezone )->subDay( $lookBack )->endOfDay();
         }
 
         echo "\nStart: {$this->startOfDay}\n";
@@ -124,6 +119,8 @@ class SendSprintUnsubs extends Job implements ShouldQueue
             Storage::disk( 'sprintUnsubFTP' )->put( $this->dneFileName , Storage::get( self::DNE_FOLDER . $this->dneFileName ) );
             Storage::disk( 'sprintUnsubFTP' )->put( $this->dneCountFileName , Storage::get( self::DNE_FOLDER . $this->dneCountFileName ) );
 
+            Storage::delete( [ self::DNE_FOLDER . $this->dneFileName , self::DNE_FOLDER . $this->dneCountFileName ] );
+
             JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking , $this->attempts() );
         } catch ( \Exception $e ) {
             Log::error( 'Job Failed' );
@@ -133,17 +130,13 @@ class SendSprintUnsubs extends Job implements ShouldQueue
     }
 
     protected function getEspDetails( $shortName ) {
-        $cleansedShortName = preg_replace( '/\d/' , '' , $shortName ); 
+        $id = EspAccount::where( 'account_name' , $shortName )->pluck( 'id' );
 
-        if ( !in_array( $cleansedShortName , array_keys( $this->espShortnameMapping ) ) ) {
-            throw new \Exception( "{$cleansedShortName} is not a valid ESP." );
-        }
-
-        $espAccount = EspAccount::select( 'id' )->where( 'account_name' , $shortName )->pluck( 'id' );
+        $esp = EspAccount::find( $id )->esp;
 
         return [
-            'name' => $this->espShortnameMapping[ $cleansedShortName ] ,
-            'accountId' => (int)$espAccount[ 0 ]
+            'name' => $esp->name ,
+            'accountId' => (int)$id[ 0 ]
         ];
     }
 
@@ -206,10 +199,10 @@ class SendSprintUnsubs extends Job implements ShouldQueue
         if ( $this->isUniqueEmail( $email ) ) {
             Storage::append( self::DNE_FOLDER . $this->dneFileName , sprintf( self::RECORD_FORMAT ,  $email , $this->startOfDay ) );
 
-            $this->incrementCount();
 
             $this->appendToFullUnsubList( $email );
         }
+            $this->incrementCount();
     }
 
     protected function isUniqueEmail ( $email ) {
