@@ -52,4 +52,8 @@ class EmailRecordService {
             throw new \Exception($e->getMessage());
         }
     }
+
+    public function checkForDeliverables($espId, $campaignId){
+        return $this->repo->checkForDeliverables($espId, $campaignId);
+    }
 }

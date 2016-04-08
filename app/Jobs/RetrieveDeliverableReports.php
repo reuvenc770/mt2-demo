@@ -209,7 +209,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     protected function getTypeList () {
         $this->processState[ 'currentFilterIndex' ]++;
 
-        $this->processState[ 'typeList' ] = $this->reportService->getTypeList();
+        $this->processState[ 'typeList' ] = $this->reportService->getTypeList( $this->processState );
 
         $this->queueNextJob( $this->defaultQueue );
 

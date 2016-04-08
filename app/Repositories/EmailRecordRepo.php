@@ -231,4 +231,28 @@ class EmailRecordRepo {
     protected function getActionId ( $actionName ) {
         return ActionType::where( 'name' , $actionName )->first()->id;
     }
+
+
+    public function checkForDeliverables($espId,$campaignId){
+        $delivevered = false;
+        $actionCount = DB::connection( 'reporting_data' )->table('email_actions')
+            ->where('esp_account_id', $espId)
+            ->where('campaign_id',$campaignId)
+            ->where('action_id',4)->count();
+        if ($actionCount >= 1) {
+            $delivevered = true;
+        }
+        //2nd chance
+        if (!$delivevered){
+            $orphanCount = DB::table('orphan_emails')
+                ->where('esp_account_id', $espId)
+                ->where('campaign_id',$campaignId)
+                ->where('action_id',4)->count();
+        }
+        if($orphanCount >= 1){
+            $delivevered = true;
+        }
+
+        return $delivevered;
+    }
 }
