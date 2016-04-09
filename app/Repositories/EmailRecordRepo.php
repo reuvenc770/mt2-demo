@@ -248,9 +248,9 @@ class EmailRecordRepo {
                 ->where('esp_account_id', $espId)
                 ->where('campaign_id',$campaignId)
                 ->where('action_id',4)->count();
-        }
-        if($orphanCount >= 1){
-            $delivevered = true;
+            if($orphanCount >= 1){
+                $delivevered = true;
+            }
         }
 
         return $delivevered;
