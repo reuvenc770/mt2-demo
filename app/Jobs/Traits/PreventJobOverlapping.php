@@ -27,8 +27,6 @@ trait PreventJobOverlapping {
     }
 
     protected function unlock() {
-        echo "running unlock ... " . PHP_EOL;
-        $result = unlink($this->mutexPath);
-        echo "RESULT: $result" . PHP_EOL;
+        return unlink($this->mutexPath);
     }
 }
