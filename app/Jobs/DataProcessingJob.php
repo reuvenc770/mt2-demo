@@ -26,7 +26,7 @@ class DataProcessingJob extends Job implements ShouldQueue {
     public function handle() {
         if ($this->jobCanRun($this->jobName)) {
             $this->createLock($this->jobName);
-            echo "Job running" . PHP_EOL;
+            echo "{$this->jobName} running" . PHP_EOL;
             JobTracking::startAggregationJob($this->jobName, $this->tracking);
 
             $service = DataProcessingFactory::create($this->jobName);
