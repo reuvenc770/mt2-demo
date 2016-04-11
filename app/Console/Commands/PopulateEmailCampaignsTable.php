@@ -12,6 +12,7 @@ class PopulateEmailCampaignsTable extends Command {
     use DispatchesJobs, PreventOverlapping;
 
     protected $signature = 'reports:populateStats';
+    protected $description = 'Populate the email_campaign_statistics aggregate table';
     protected $lookBack = 5;
     protected $trackingSource = 'Cake';
     private $jobs = [
@@ -24,8 +25,14 @@ class PopulateEmailCampaignsTable extends Command {
     }
 
     public function handle() {
-        foreach ($this->jobs as $job) {
-            $this->dispatch(new DataProcessingJob($job, str_random(16)));
+        if (!this->isRunning($this->jobs[0])) {
+            foreach ($this->jobs as $job) {
+                $this->dispatch(new DataProcessingJob($job, str_random(16)));
+            }
         }
+        else {
+            echo "Job still running" . PHP_EOL;
+        }
+
     }
 }

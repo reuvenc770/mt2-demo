@@ -27,7 +27,7 @@ class UserAgentProcessingService {
         }
     }
 
-        private function mapToTable($row) {
+    private function mapToTable($row) {
         $uas = $row['user_agent_string'];
         $this->agent->setUserAgent($uas);
 
