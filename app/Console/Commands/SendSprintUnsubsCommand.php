@@ -15,7 +15,7 @@ class SendSprintUnsubsCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'ftp:sendSprintUnsubs {--lookBack=3} { --dayLimit=3 } {--queue=default}';
+    protected $signature = 'ftp:sendSprintUnsubs {--ftpCleanup=0} {--lookBack=3} { --dayLimit=3 } {--queue=default}';
 
     /**
      * The console command description.
@@ -41,13 +41,17 @@ class SendSprintUnsubsCommand extends Command
      */
     public function handle()
     {
-        $this->table( [ 'Option' , 'Value' ] , [
-            [ 'option' => 'lookback' , 'value' => $this->option( 'lookBack' ) ] ,
-            [ 'option' => 'dayLimit' , 'value' => $this->option( 'dayLimit' ) ] ,
-            [ 'option' => 'queue' , 'value' => $this->option( 'queue' ) ] ,
-        ] );
+        if ( $this->option( 'ftpCleanup' ) == 1 ) {
+            $this->info( 'Crawling FTP acocunt for old campaign files.' );
+        } else {
+            $this->table( [ 'Option' , 'Value' ] , [
+                [ 'option' => 'lookBack' , 'value' => $this->option( 'lookBack' ) ] ,
+                [ 'option' => 'dayLimit' , 'value' => $this->option( 'dayLimit' ) ] ,
+                [ 'option' => 'queue' , 'value' => $this->option( 'queue' ) ] ,
+            ] );
+        }
 
-        $job = new SendSprintUnsubs( $this->option( 'lookBack' ) , $this->option( 'dayLimit' ) , str_random( 16 ) );
+        $job = new SendSprintUnsubs( $this->option( 'lookBack' ) , $this->option( 'dayLimit' ) , str_random( 16 ) , $this->option( 'ftpCleanup' ) );
 
         $job->onQueue( $this->option( 'queue' ) );
 

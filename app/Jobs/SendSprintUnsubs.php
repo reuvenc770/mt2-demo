@@ -31,7 +31,7 @@ class SendSprintUnsubs extends Job implements ShouldQueue
     CONST FILE_NAME_FORMAT = 'Zeta_DNE_';
     CONST FILE_DATE_FORMAT = 'YmdHis';
 
-    CONST SLACK_TARGET_SUBJECT = '#mt2-dev-failed-jobs';
+    CONST SLACK_TARGET_SUBJECT = '@achin'; #'#mt2-dev-failed-jobs';
 
     protected $startOfDay;
     protected $endOfDay;
@@ -47,12 +47,16 @@ class SendSprintUnsubs extends Job implements ShouldQueue
     protected $dneFileName;
     protected $dneCountFileName;
 
+    protected $ftpCleanup = 0;
+
+    protected $filesProcessed = 0;
+
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct( $lookBack , $dayLimit = 1 , $tracking )
+    public function __construct( $lookBack , $dayLimit = 1 , $tracking , $ftpCleanup = 0 )
     {
         $timezone = config('app.timezone' );
 
@@ -64,14 +68,18 @@ class SendSprintUnsubs extends Job implements ShouldQueue
             $this->endOfDay = Carbon::now( $timezone )->subDay( $lookBack )->endOfDay();
         }
 
-        echo "\nStart: {$this->startOfDay}\n";
-        echo "\nEnd: {$this->endOfDay}\n";
+        if ( $ftpCleanup != 1 ) {
+            echo "\nStart: {$this->startOfDay}\n";
+            echo "\nEnd: {$this->endOfDay}\n";
+        }
 
         $this->tracking = $tracking;
 
         $fileDate = Carbon::parse( $this->endOfDay )->format( self::FILE_DATE_FORMAT );
         $this->dneFileName = self::FILE_NAME_FORMAT . $fileDate . '.txt'; 
         $this->dneCountFileName = self::FILE_NAME_FORMAT . $fileDate . '.cnt'; 
+
+        $this->ftpCleanup = $ftpCleanup;
     }
 
     /**
@@ -81,6 +89,37 @@ class SendSprintUnsubs extends Job implements ShouldQueue
      */
     public function handle()
     {
+        if ( $this->ftpCleanup == 1 ) {
+            $this->cleanupFtpAccount();
+        } else {
+            $this->createUnsubFile();
+        }
+    }
+
+    protected function cleanupFtpAccount () {
+        JobTracking::startEspJob( "Sprint Unsub Job - Cleanup" , '' , '' , $this->tracking , 0 );
+
+        $campaignFiles = Storage::disk( 'sprintUnsubCampaignFTP' )->allFiles();
+
+        foreach ( $campaignFiles as $currentFile ) {
+            if ( preg_match( '/.csv$/' , $currentFile ) !== 1 ) { continue; }
+
+
+            $fileNameSections = explode( '_' , $currentFile );
+            $fileDate = Carbon::parse( preg_replace( '/\.csv$/' , '' , $fileNameSections[ 1 ] ) );
+
+            if ( $fileNameSections[ 0 ] !== 'SprintUnsubs' ) { continue; }
+            if ( $fileDate->isPast() && !$fileDate->isToday() ) {
+                Storage::disk( 'sprintUnsubCampaignFTP' )->move( $currentFile , 'processed/' . $currentFile );
+            }
+        }
+
+        JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking , $this->attempts() );
+
+        return true;
+    }
+
+    protected function createUnsubFile () {
         try {
             JobTracking::startEspJob( "Sprint Unsub Job" , '' , '' , $this->tracking , 0 );
 
@@ -90,52 +129,57 @@ class SendSprintUnsubs extends Job implements ShouldQueue
 
             if ( count( $campaignFiles ) > 3 ) {
                 foreach ( $campaignFiles as $currentFile ) {
+                    if ( preg_match( '/.csv$/' , $currentFile ) !== 1 ) { continue; }
 
-                    if ( preg_match( '/.csv$/' , $currentFile ) ) {
-                        $lines = explode( PHP_EOL , Storage::disk( 'sprintUnsubCampaignFTP' )->get( $currentFile ) );
+                    $fileNameSections = explode( '_' , $currentFile );
+                    $fileDate = Carbon::parse( preg_replace( '/\.csv$/' , '' , $fileNameSections[ 1 ] ) );
+
+                    if ( $fileNameSections[ 0 ] !== 'SprintUnsubs' ) { continue; }
+                    if ( !$fileDate->isToday() ) { continue; }
  
-                        if ( !empty( $lines ) ) {
-                            foreach ( $lines as $campaignName ) {
-                                $campaignName = trim( $campaignName );
-                          
-                                if ( !empty( $campaignName ) ) {
-                                    $campaignDetails = explode( '_' , $campaignName );
+                    $lines = explode( PHP_EOL , Storage::disk( 'sprintUnsubCampaignFTP' )->get( $currentFile ) );
 
-                                    $espDetails = $this->getEspDetails( $campaignDetails[ 1 ] );
+                    if ( !empty( $lines ) ) {
+                        foreach ( $lines as $campaignName ) {
+                            $campaignName = trim( $campaignName );
+                      
+                            if ( !empty( $campaignName ) ) {
+                                $campaignDetails = explode( '_' , $campaignName );
 
-                                    if ( is_null( $espDetails ) ) continue;
+                                $espDetails = $this->getEspDetails( $campaignDetails[ 1 ] );
 
-                                    $campaigns = $this->getCampaigns( $espDetails , $campaignName , $campaignDetails );
+                                if ( is_null( $espDetails ) ) continue;
 
-                                    foreach ( $campaigns as $campaignId ) {
-                                        $unsubs = $this->getUnsubs( $campaignId , $espDetails[ 'accountId' ] );
+                                $campaigns = $this->getCampaigns( $espDetails , $campaignName , $campaignDetails );
 
-                                        foreach ( $unsubs as $unsubEmailId ) {
-                                            $unsubEmail = $this->getEmail( $unsubEmailId );
+                                foreach ( $campaigns as $campaignId ) {
+                                    $unsubs = $this->getUnsubs( $campaignId , $espDetails[ 'accountId' ] );
 
-                                            $this->appendEmailToFile( $unsubEmail );
-                                        }
+                                    foreach ( $unsubs as $unsubEmailId ) {
+                                        $unsubEmail = $this->getEmail( $unsubEmailId );
 
-                                        $orphans = $this->getOrphans( $campaignId , $espDetails[ 'accountId' ] );
+                                        $this->appendEmailToFile( $unsubEmail );
+                                    }
 
-                                        foreach ( $orphans as $orphanEmail ) {
-                                            $this->appendEmailToFile( $orphanEmail );
-                                        }
+                                    $orphans = $this->getOrphans( $campaignId , $espDetails[ 'accountId' ] );
+
+                                    foreach ( $orphans as $orphanEmail ) {
+                                        $this->appendEmailToFile( $orphanEmail );
                                     }
                                 }
                             }
-                        } else {
-                            Slack::to( self::SLACK_TARGET_SUBJECT )->send("Sprint Unsub Job - File '{$currentFile}' is empty.");
                         }
 
-                        if ( Storage::disk( 'sprintUnsubCampaignFTP' )->exists( $currentFile ) ) {
-                            Storage::disk( 'sprintUnsubCampaignFTP' )->move( $currentFile , preg_replace( '/\.csv$/' , '.processed' , $currentFile ) );
-                        } else {
-                        Slack::to( self::SLACK_TARGET_SUBJECT )->send("Could not move/rename - {$currentFile} ");
-                        }
+                        $this->filesProcessed++;
+                    } else {
+                        Slack::to( self::SLACK_TARGET_SUBJECT )->send("Sprint Unsub Job - File '{$currentFile}' is empty.");
                     }
                 }
             } else {
+                Slack::to( self::SLACK_TARGET_SUBJECT )->send("Sprint Unsub Job - No Campaign files today.");
+            }
+
+            if ( $this->filesProcessed === 0 ) {
                 Slack::to( self::SLACK_TARGET_SUBJECT )->send("Sprint Unsub Job - No Campaign files today.");
             }
 
