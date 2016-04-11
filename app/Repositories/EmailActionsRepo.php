@@ -39,7 +39,7 @@ class EmailActionsRepo {
             ->get();
     }
 
-    public function pullAggregatedActions($startPoint, $limit) {
+    public function pullAggregatedActions($startPoint, $endPoint) {
 
         return DB::connection('reporting_data')->select("SELECT
           email_id,
@@ -65,7 +65,7 @@ class EmailActionsRepo {
           ea.email_id, ea.campaign_id", 
             array(
                 ':startPoint' => $startPoint,
-                ':endPoint' => $startPoint + $limit
+                ':endPoint' => $endPoint
             )
         );
     }
