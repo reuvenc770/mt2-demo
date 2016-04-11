@@ -43,7 +43,6 @@ class UserAgentProcessingService {
         
         $device = $this->agent->device();
         $os = $this->agent->platform();
-        $browser = $this->agent->browser();
 
         if ('iPhone' === $device && 'iOS' === $os) {
             return 'iPhone';
