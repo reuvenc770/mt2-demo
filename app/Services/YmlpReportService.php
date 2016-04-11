@@ -18,7 +18,6 @@ use App\Repositories\YmlpCampaignRepo;
 use Carbon\Carbon;
 use App\Services\EmailRecordService;
 use App\Exceptions\JobException;
-use Log;
 
 /**
  * Class YmlpReportService
