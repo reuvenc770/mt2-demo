@@ -26,24 +26,31 @@ class EmailCampaignAggregationService {
         $endPoint = $this->actionsRepo->maxId();
 
         while ($startPoint < $endPoint) {
-            echo "Starting " . self::JOB_NAME . " collection at row $startPoint" . PHP_EOL;
             
             // limit of ~10k rows to prevent memory allocation issues and maximize bulk inserts
-            // this will shrink significantly
             $limit = 10000;
-            $data = $this->actionsRepo->pullAggregatedActions($startPoint, $limit);
+            $segmentEnd = $this->actionsRepo->nextNRows($startPoint, $limit);
 
-            // perform mass insert
+            // If we've overshot, $segmentEnd will be null
+            $segmentEnd = $segmentEnd ? $segmentEnd : $endPoint;
+
+            echo "Starting " . self::JOB_NAME . " collection at row $startPoint, ending at $segmentEnd" . PHP_EOL;
+            $data = $this->actionsRepo->pullAggregatedActions($startPoint, $segmentEnd);
+
             if ($data) {
+                // perform mass insert
                 $insertData = [];
                 foreach ($data as $row) {
-                    
-                    // get the last id by row - but only if it's a maximum
-                    $startPoint = (int)$row->max_id > $startPoint ? (int)$row->max_id : $startPoint;
                     $insertData[] = $this->mapToEmailCampaignsTable($row);
                 }
 
                 $this->statsRepo->massInsertActions($insertData);
+                $startPoint = $segmentEnd;
+            }
+            else {
+                // if no data received
+                echo "No data received" . PHP_EOL;
+                continue;
             }
         }
 

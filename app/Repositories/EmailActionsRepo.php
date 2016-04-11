@@ -27,6 +27,10 @@ class EmailActionsRepo {
         $this->actions->insert($data);
     }
 
+    public function nextNRows($start, $offset) {
+        return $this->actions->where('id', '>=', $start)->orderBy('id')->skip($offset)->first()['id'];
+    }
+
     public function pullLimitedActionsInLast($lookback, $limit) {
         return $this->actions
             ->where('id', '>', $lookback)
