@@ -18,4 +18,8 @@ class EmailCampaignStatistic extends Model {
     // current stand-in
     return 1;
   }
+
+  public function userAgent() {
+    return $this->belongsTo('App\Models\UserAgentString');
+  }
 }

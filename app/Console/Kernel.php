@@ -27,7 +27,8 @@ class Kernel extends ConsoleKernel
         Commands\GenOauth::class,
         Commands\ImportMt1Emails::class,
         Commands\AdoptOrphanEmails::class,
-        Commands\DownloadContentServerStats::class ,
+        Commands\DownloadContentServerStats::class,
+        Commands\ProcessUserAgents::class,
         Commands\SendSprintUnsubsCommand::class
     ];
 
@@ -42,15 +43,15 @@ class Kernel extends ConsoleKernel
         /**
          * Unsub Jobs
          */
-        $unsubFilePath = storage_path( 'logs' ) . "/unsubJobs.log";
-        $schedule->command( 'ftp:sendSprintUnsubs --ftpCleanup=1' )->weekdays()->at( '10:00' )->sendOutputTo( $unsubFilePath );
-        $schedule->command( 'ftp:sendSprintUnsubs' )->weekdays()->at( '11:00' )->sendOutputTo( $unsubFilePath );
+        //$unsubFilePath = storage_path( 'logs' ) . "/unsubJobs.log";
+        //$unsubFilePath = storage_path( 'logs' ) . "/unsubJobs.log";
+        //$schedule->command( 'ftp:sendSprintUnsubs' )->weekdays()->at( '11:00' )->sendOutputTo( $unsubFilePath );
 
         /**
          * Orphan Adoption
          */
         $orphanFilePath = storage_path('logs')."/adoptOrphans.log";
-        $schedule->command( 'reports:adoptOrphans --maxOrphans=400000 --chunkSize=10000' )->everyTenMinutes()->sendOutputTo( $orphanFilePath );
+        $schedule->command( 'reports:adoptOrphans --maxOrphans=400000 --chunkSize=10000 --queueName=orphanage --chunkDelay=0 --order=newest --maxAttempts=10' )->everyTenMinutes()->sendOutputTo( $orphanFilePath );
         $schedule->command( 'reports:adoptOrphans --maxOrphans=400000 --chunkSize=10000 --queueName=orphanage --chunkDelay=0 --order=oldest --maxAttempts=10' )->everyTenMinutes()->sendOutputTo( $orphanFilePath );
 
         /**
@@ -84,7 +85,8 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'reports:downloadDeliverables Maro 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Maro:delivered 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Ymlp 1' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:populateStats')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
+        //$schedule->command( 'reports:populateStats')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
         $schedule->command('emails:download')->cron('*/2 * * * * *')->withoutOverlapping();
+        $schedule->command('process:useragents')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME);
     }
 }

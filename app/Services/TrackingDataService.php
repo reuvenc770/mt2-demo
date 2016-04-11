@@ -68,6 +68,8 @@ class TrackingDataService implements IDataService
       'subid_4' => $row['subid_4'],
       'subid_5' => $row['subid_5'],
       'email_id' => $this->extractEidFromS2($row['subid_2']),
+      'user_agent_string' => urldecode($row['user_agent_string']),
+      'affiliate_id' => $row['affiliateID'],
       'clicks' => $row['clicks'],
       'conversions' => $row['conversions'],
       'revenue' => $row['revenue'],
