@@ -14,8 +14,8 @@ class TrackingDeliverableService {
         $this->trackingRepo = $trackingRepo;
     }
 
-    public function run($lookback) {
-        $data = $this->trackingRepo->pullDeliverables($lookback);
+    public function run() {
+        $data = $this->trackingRepo->pullDeliverables(config('jobs.cake.lookback'));
 
         foreach ($data as $row) {
             $this->statsRepo->updateWithTrackingInfo($row);

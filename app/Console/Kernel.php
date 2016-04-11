@@ -27,7 +27,8 @@ class Kernel extends ConsoleKernel
         Commands\GenOauth::class,
         Commands\ImportMt1Emails::class,
         Commands\AdoptOrphanEmails::class,
-        Commands\DownloadContentServerStats::class ,
+        Commands\DownloadContentServerStats::class,
+        Commands\ProcessUserAgents::class,
         Commands\SendSprintUnsubsCommand::class
     ];
 
@@ -85,5 +86,6 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'reports:downloadDeliverables Ymlp 1' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         //$schedule->command( 'reports:populateStats')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
         $schedule->command('emails:download')->cron('*/2 * * * * *')->withoutOverlapping();
+        $schedule->command('process:useragents')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME);
     }
 }

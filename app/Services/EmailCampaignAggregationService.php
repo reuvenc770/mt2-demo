@@ -22,32 +22,28 @@ class EmailCampaignAggregationService {
     }
 
     public function run() {
-
         $startPoint = $this->etlPickupRepo->getLastInsertedForName(self::JOB_NAME);
         $endPoint = $this->actionsRepo->maxId();
 
         while ($startPoint < $endPoint) {
-            echo "Starting {self::JOB_NAME} collection at row $startPoint" . PHP_EOL;
+            echo "Starting " . self::JOB_NAME . " collection at row $startPoint" . PHP_EOL;
             
             // limit of ~10k rows to prevent memory allocation issues and maximize bulk inserts
+            // this will shrink significantly
             $limit = 10000;
-            $data = $this->actionsRepo->pullLimitedActionsInLast($startPoint, $limit);
-            #$data = $this->actionsRepo->pullAggregatedActions($startPoint, $limit);
+            $data = $this->actionsRepo->pullAggregatedActions($startPoint, $limit);
 
             // perform mass insert
             if ($data) {
-                #$insertData = [];
+                $insertData = [];
                 foreach ($data as $row) {
-                    $actionType = $this->actionMap[$row['action_id']];
                     
                     // get the last id by row - but only if it's a maximum
-                    #$startPoint = (int)$row['max_id'] > $startPoint ? (int)$row['max_id'] : $startPoint;
-                    $startPoint = (int)$row['id'];
-                    $this->statsRepo->insertOrUpdate($row, $actionType);
-                    #$insertData[] = $this->mapToEmailCampaignsTable($row);
+                    $startPoint = (int)$row->max_id > $startPoint ? (int)$row->max_id : $startPoint;
+                    $insertData[] = $this->mapToEmailCampaignsTable($row);
                 }
 
-                #$this->statsRepo->massInsertActions($insertData);
+                $this->statsRepo->massInsertActions($insertData);
             }
         }
 
@@ -56,23 +52,24 @@ class EmailCampaignAggregationService {
 
     private function mapToEmailCampaignsTable($row) {
 
-        // check if 
-        $firstSectionOpen = $this->getFirstItem($row['esp_first_open_datetimes']);
-        $lastSectionOpen = $this->getFirstItem($row['esp_last_open_datetimes']);
+        // check if open actions are done subsequent to that?
+        $firstSectionOpen = $this->getFirstItem($row->esp_first_open_datetimes);
+        $lastSectionOpen = $this->getFirstItem($row->esp_last_open_datetimes);
 
-        $firstSectionClick = $this->getFirstItem($row['esp_first_click_datetimes']);
-        $lastSectionClick = $this->getFirstItem($row['esp_last_click_datetimes']);
+        $firstSectionClick = $this->getFirstItem($row->esp_first_click_datetimes);
+        $lastSectionClick = $this->getFirstItem($row->esp_last_click_datetimes);
 
         return [
-            'email_id' => $row['email_id'],
-            'campaign_id' => $row['campaign_id'],
-            'last_status' => $this->getFirstItem($row['statuses']),
+            'email_id' => $row->email_id,
+            'campaign_id' => $row->campaign_id,
+            'last_status' => $this->getFirstItem($row->statuses),
             'esp_first_open_datetime' => $firstSectionOpen,
             'esp_last_open_datetime' => $lastSectionOpen,
-            'esp_total_opens' => $row['opens_counted'],
+            'esp_total_opens' => $row->opens_counted,
             'esp_first_click_datetime' => $firstSectionClick,
             'esp_last_click_datetime' => $lastSectionClick,
-            'esp_total_clicks' => $row['clicks_counted']
+            'esp_total_clicks' => $row->clicks_counted,
+            'unsubscribed' => ((int)$row->unsubscribed > 0 ? 1 : 0)
         ];
     }
 

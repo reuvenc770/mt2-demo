@@ -36,9 +36,8 @@ class EmailActionsRepo {
     }
 
     public function pullAggregatedActions($startPoint, $limit) {
-        $end = '';
 
-        DB::connection('reporting_data')->statement("SELECT
+        return DB::connection('reporting_data')->select("SELECT
           email_id,
           campaign_id,
           GROUP_CONCAT(types.name ORDER BY datetime DESC SEPARATOR ',') AS statuses,
@@ -49,18 +48,21 @@ class EmailActionsRepo {
           GROUP_CONCAT(CASE WHEN types.name = 'clicker' THEN datetime ELSE NULL END ORDER BY datetime ASC SEPARATOR ',') AS esp_first_click_datetimes,
           GROUP_CONCAT(CASE WHEN types.name = 'clicker' THEN datetime ELSE NULL END ORDER BY datetime DESC SEPARATOR ',') AS esp_last_click_datetimes, # this will need to update last_open sometimes
           COUNT(CASE WHEN types.name='clicker' THEN 1 ELSE 0 END) AS clicks_counted,
-          MAX(id) AS max_id          
+          SUM(CASE WHEN (types.name = 'unsubscriber' OR types.name = 'complainer') THEN 1 ELSE 0 END) AS unsubscribed,
+          MAX(ea.id) AS max_id          
         FROM
           mt2_reports.email_actions ea
           INNER JOIN mt2_reports.action_types types ON ea.action_id = types.id
         WHERE
           ea.id BETWEEN :startPoint AND :endPoint
+          AND
+          types.name <> 'deliverable'
         GROUP BY
           ea.email_id, ea.campaign_id", 
             array(
                 ':startPoint' => $startPoint,
                 ':endPoint' => $startPoint + $limit
             )
-        )->get();
+        );
     }
 }
