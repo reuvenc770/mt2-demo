@@ -9,16 +9,16 @@
     "packages": [
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.17.4",
+            "version": "3.17.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "9899865dda8e388a6f9aa7425af50730eabf5ffd"
+                "reference": "1cef9b334729b3564c9aef15481a55561c54b53f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/9899865dda8e388a6f9aa7425af50730eabf5ffd",
-                "reference": "9899865dda8e388a6f9aa7425af50730eabf5ffd",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/1cef9b334729b3564c9aef15481a55561c54b53f",
+                "reference": "1cef9b334729b3564c9aef15481a55561c54b53f",
                 "shasum": ""
             },
             "require": {
@@ -85,7 +85,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2016-04-06 00:39:52"
+            "time": "2016-04-07 22:44:13"
         },
         {
             "name": "cartalyst/sentinel",
@@ -3224,49 +3224,6 @@
             "time": "2015-05-29 06:29:14"
         },
         {
-            "name": "garetjax/phpbrowscap",
-            "version": "2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/GaretJax/phpbrowscap.git",
-                "reference": "ed661716d0d9158bac6ab3b074b18b70f8d18bef"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/GaretJax/phpbrowscap/zipball/ed661716d0d9158bac6ab3b074b18b70f8d18bef",
-                "reference": "ed661716d0d9158bac6ab3b074b18b70f8d18bef",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "phpbrowscap": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT License"
-            ],
-            "authors": [
-                {
-                    "name": "Jonathan Stoppani",
-                    "email": "jonathan.stoppani@gmail.com"
-                }
-            ],
-            "description": "Standalone replacement for php's native get_browser() function",
-            "homepage": "http://github.com/GaretJax/phpbrowscap",
-            "keywords": [
-                "browser",
-                "capabilities",
-                "get_browser",
-                "user agent"
-            ],
-            "time": "2014-02-04 09:18:51"
-        },
-        {
             "name": "hamcrest/hamcrest-php",
             "version": "v1.2.2",
             "source": {
@@ -3310,101 +3267,6 @@
                 "test"
             ],
             "time": "2015-05-11 14:41:42"
-        },
-        {
-            "name": "hisorange/browser-detect",
-            "version": "2.0.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/hisorange/browser-detect.git",
-                "reference": "354505904cf4f948a49cc4468ab1a2a0f78ac0f9"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/hisorange/browser-detect/zipball/354505904cf4f948a49cc4468ab1a2a0f78ac0f9",
-                "reference": "354505904cf4f948a49cc4468ab1a2a0f78ac0f9",
-                "shasum": ""
-            },
-            "require": {
-                "garetjax/phpbrowscap": "2.*",
-                "hisorange/traits": "1.*",
-                "illuminate/support": "~5.0",
-                "mobiledetect/mobiledetectlib": "2.*",
-                "php": ">=5.4.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "hisorange\\BrowserDetect\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Varga Zsolt (hisorange)",
-                    "email": "hisoranger@gmail.com"
-                }
-            ],
-            "description": "Browser & Mobile detection package for Laravel 4-5.",
-            "keywords": [
-                "browser",
-                "greenball",
-                "hisorange",
-                "laravel",
-                "mobile",
-                "tablet",
-                "user agent",
-                "user-agent"
-            ],
-            "time": "2015-04-22 20:33:37"
-        },
-        {
-            "name": "hisorange/traits",
-            "version": "1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/hisorange/traits.git",
-                "reference": "465baf32faaf155b867dcc11218621e23ef4cac2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/hisorange/traits/zipball/465baf32faaf155b867dcc11218621e23ef4cac2",
-                "reference": "465baf32faaf155b867dcc11218621e23ef4cac2",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.4.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "hisorange\\Traits\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Varga Zsolt (hisorange)",
-                    "email": "hisoranger@gmail.com"
-                }
-            ],
-            "description": "Useful PHP traits.",
-            "keywords": [
-                "php",
-                "traits"
-            ],
-            "time": "2014-05-01 21:28:53"
         },
         {
             "name": "mockery/mockery",
