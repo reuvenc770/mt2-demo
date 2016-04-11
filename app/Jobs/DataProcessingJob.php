@@ -14,7 +14,6 @@ class DataProcessingJob extends Job implements ShouldQueue {
 
         private $tracking;
         private $maxAttempts;
-        private $etlPickupRepo;
         private $jobName;
 
         public function __construct($jobName, $tracking) {
