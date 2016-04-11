@@ -24,7 +24,7 @@ class ImportMt1EmailsJob extends Job implements ShouldQueue {
 
     public function handle() {
         if ($this->jobCanRun(self::JOB_NAME)) {
-            $this->createLock($this->jobName);
+            $this->createLock(self::JOB_NAME);
             JobTracking::startAggregationJob(self::JOB_NAME, $this->tracking);
             $service = APIFactory::createMt1DataImportService(self::JOB_NAME);
             $service->run();
