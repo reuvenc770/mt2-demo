@@ -63,9 +63,8 @@ class TrackingRepo
   }
 
   public function pullDeliverables($date) {
-    $dataDB = env('DB_DATABASE', '');
     return $this->report
-      ->join($dataDb . ".user_agent_strings", 'cake_aggregated_data.user_agent_string', '=', 'user_agent_strings.user_agent_string')
+      ->join(config('database.connections.mysql.database') . ".user_agent_strings", 'cake_aggregated_data.user_agent_string', '=', 'user_agent_strings.user_agent_string')
       ->select(DB::raw('subid_1 AS campaign_id,
         email_id,
         SUM(clicks) AS clicks,

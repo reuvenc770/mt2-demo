@@ -8,7 +8,6 @@ class TrackingDeliverableService {
 
     private $statsRepo;
     private $trackingRepo;
-    private $lookback = 5;
 
     public function __construct(EmailCampaignStatisticRepo $statsRepo, TrackingRepo $trackingRepo) {
         $this->statsRepo = $statsRepo;
@@ -16,7 +15,7 @@ class TrackingDeliverableService {
     }
 
     public function run() {
-        $data = $this->trackingRepo->pullDeliverables($this->lookback);
+        $data = $this->trackingRepo->pullDeliverables(config('jobs.cake.lookback'));
 
         foreach ($data as $row) {
             $this->statsRepo->updateWithTrackingInfo($row);

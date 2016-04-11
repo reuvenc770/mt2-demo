@@ -9,7 +9,6 @@ class UserAgentProcessingService {
 
     private $sourceRepo;
     private $uaRepo;
-    const LOOKBACK = 2;
     private $agent;
 
     public function __construct(TrackingRepo $sourceRepo, UserAgentStringRepo $uaRepo) {
@@ -19,7 +18,7 @@ class UserAgentProcessingService {
     }
 
     public function run() {
-        $data = $this->sourceRepo->pullUserAgents(self::LOOKBACK);
+        $data = $this->sourceRepo->pullUserAgents(config('jobs.uas.lookback'));
 
         foreach ($data as $row) {
             $row = $this->mapToTable($row);
