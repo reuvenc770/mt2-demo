@@ -25,14 +25,8 @@ class PopulateEmailCampaignsTable extends Command {
     }
 
     public function handle() {
-        if (!$this->isRunning($this->jobs[0])) {
-            foreach ($this->jobs as $job) {
-                $this->dispatch(new DataProcessingJob($job, str_random(16)));
-            }
+        foreach ($this->jobs as $job) {
+            $this->dispatch(new DataProcessingJob($job, str_random(16)));
         }
-        else {
-            echo "Job still running" . PHP_EOL;
-        }
-
     }
 }
