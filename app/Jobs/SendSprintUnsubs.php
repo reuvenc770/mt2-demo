@@ -31,7 +31,7 @@ class SendSprintUnsubs extends Job implements ShouldQueue
     CONST FILE_NAME_FORMAT = 'Zeta_DNE_';
     CONST FILE_DATE_FORMAT = 'YmdHis';
 
-    CONST SLACK_TARGET_SUBJECT = '#mt2-dev-failed-jobs';
+    CONST SLACK_TARGET_SUBJECT = '@achin';#'#mt2-dev-failed-jobs';
 
     protected $startOfDay;
     protected $endOfDay;
@@ -127,56 +127,62 @@ class SendSprintUnsubs extends Job implements ShouldQueue
 
             Storage::put( self::DNE_FOLDER . $this->dneFileName , '' );
 
-            if ( count( $campaignFiles ) > 3 ) {
-                foreach ( $campaignFiles as $currentFile ) {
-                    if ( preg_match( '/.csv$/' , $currentFile ) !== 1 ) { continue; }
+            if ( count( $campaignFiles ) <= 3 ) {
+                Slack::to( self::SLACK_TARGET_SUBJECT )->send("Sprint Unsub Job - No Campaign files today.");
 
-                    $fileNameSections = explode( '_' , $currentFile );
-                    $fileDate = Carbon::parse( preg_replace( '/\.csv$/' , '' , $fileNameSections[ 1 ] ) );
+                JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking , $this->attempts() );
 
-                    if ( $fileNameSections[ 0 ] !== 'SprintUnsubs' ) { continue; }
-                    if ( !$fileDate->isToday() ) { continue; }
- 
-                    $lines = explode( PHP_EOL , Storage::disk( 'sprintUnsubCampaignFTP' )->get( $currentFile ) );
+                return true;
+            }
 
-                    if ( !empty( $lines ) ) {
-                        foreach ( $lines as $campaignName ) {
-                            $campaignName = trim( $campaignName );
-                      
-                            if ( !empty( $campaignName ) ) {
-                                $campaignDetails = explode( '_' , $campaignName );
+            foreach ( $campaignFiles as $currentFile ) {
+                if ( preg_match( '/.csv$/' , $currentFile ) !== 1 ) { continue; }
 
-                                $espDetails = $this->getEspDetails( $campaignDetails[ 1 ] );
+                $fileNameSections = explode( '_' , $currentFile );
+                $fileDate = Carbon::parse( preg_replace( '/\.csv$/' , '' , $fileNameSections[ 1 ] ) );
 
-                                if ( is_null( $espDetails ) ) continue;
+                if ( $fileNameSections[ 0 ] !== 'SprintUnsubs' ) { continue; }
+                if ( !$fileDate->isToday() ) { continue; }
 
-                                $campaigns = $this->getCampaigns( $espDetails , $campaignName , $campaignDetails );
+                $lines = explode( PHP_EOL , Storage::disk( 'sprintUnsubCampaignFTP' )->get( $currentFile ) );
 
-                                foreach ( $campaigns as $campaignId ) {
-                                    $unsubs = $this->getUnsubs( $campaignId , $espDetails[ 'accountId' ] );
+                if ( empty( $lines ) ) {
+                    Slack::to( self::SLACK_TARGET_SUBJECT )->send("Sprint Unsub Job - File '{$currentFile}' is empty.");
 
-                                    foreach ( $unsubs as $unsubEmailId ) {
-                                        $unsubEmail = $this->getEmail( $unsubEmailId );
+                    continue;
+                }
 
-                                        $this->appendEmailToFile( $unsubEmail );
-                                    }
+                foreach ( $lines as $campaignName ) {
+                    $campaignName = trim( $campaignName );
+              
+                    if ( empty( $campaignName ) ) { continue; }
 
-                                    $orphans = $this->getOrphans( $campaignId , $espDetails[ 'accountId' ] );
+                    $campaignDetails = explode( '_' , $campaignName );
 
-                                    foreach ( $orphans as $orphanEmail ) {
-                                        $this->appendEmailToFile( $orphanEmail );
-                                    }
-                                }
-                            }
+                    $espDetails = $this->getEspDetails( $campaignDetails[ 1 ] );
+
+                    if ( is_null( $espDetails ) ) { continue; }
+
+                    $campaigns = $this->getCampaigns( $espDetails , $campaignName , $campaignDetails );
+
+                    foreach ( $campaigns as $campaignId ) {
+                        $unsubs = $this->getUnsubs( $campaignId , $espDetails[ 'accountId' ] );
+
+                        foreach ( $unsubs as $unsubEmailId ) {
+                            $unsubEmail = $this->getEmail( $unsubEmailId );
+
+                            $this->appendEmailToFile( $unsubEmail );
                         }
 
-                        $this->filesProcessed++;
-                    } else {
-                        Slack::to( self::SLACK_TARGET_SUBJECT )->send("Sprint Unsub Job - File '{$currentFile}' is empty.");
+                        $orphans = $this->getOrphans( $campaignId , $espDetails[ 'accountId' ] );
+
+                        foreach ( $orphans as $orphanEmail ) {
+                            $this->appendEmailToFile( $orphanEmail );
+                        }
                     }
                 }
-            } else {
-                Slack::to( self::SLACK_TARGET_SUBJECT )->send("Sprint Unsub Job - No Campaign files today.");
+
+                $this->filesProcessed++;
             }
 
             if ( $this->filesProcessed === 0 ) {
