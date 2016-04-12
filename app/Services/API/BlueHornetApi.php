@@ -21,10 +21,11 @@ class BlueHornetApi extends EspBaseAPI
     private  $apiKey;
     private  $sharedSecret;
     private $xml;
+    const ESP_NAME = "BlueHornet";
 
-    public function __construct($name, $espAccountId)
-    {
-        parent::__construct($name, $espAccountId);
+    public function __construct($espAccountId)
+    {;
+        parent::__construct(self::ESP_NAME, $espAccountId);
         $creds = EspApiAccount::grabApiKeyWithSecret($espAccountId);
         $this->apiKey = $creds['apiKey'];
         $this->sharedSecret = $creds['sharedSecret'];
