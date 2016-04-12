@@ -14,6 +14,7 @@ use Carbon\Carbon;;
 class EmailActionsRepo {
   
     private $actions;
+    private $deliverableId = 4;
 
     public function __construct(EmailAction $actions) {
         $this->actions = $actions;
@@ -27,6 +28,15 @@ class EmailActionsRepo {
         $this->actions->insert($data);
     }
 
+    public function nextNRows($start, $offset) {
+        return $this->actions
+            ->where('id', '>=', $start)
+            ->where('action_id', '<>', $this->deliverableId)
+            ->orderBy('id')
+            ->skip($offset)
+            ->first()['id'];
+    }
+
     public function pullLimitedActionsInLast($lookback, $limit) {
         return $this->actions
             ->where('id', '>', $lookback)
@@ -35,7 +45,7 @@ class EmailActionsRepo {
             ->get();
     }
 
-    public function pullAggregatedActions($startPoint, $limit) {
+    public function pullAggregatedActions($startPoint, $endPoint) {
 
         return DB::connection('reporting_data')->select("SELECT
           email_id,
@@ -61,7 +71,7 @@ class EmailActionsRepo {
           ea.email_id, ea.campaign_id", 
             array(
                 ':startPoint' => $startPoint,
-                ':endPoint' => $startPoint + $limit
+                ':endPoint' => $endPoint
             )
         );
     }
