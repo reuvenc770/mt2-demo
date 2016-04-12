@@ -168,7 +168,7 @@ class MaroReportService extends AbstractReportService implements IDataService
             if ( $pipe == 'default' && $filterIndex == 1  ) {
                 $jobId .= '::Pipe-' . $pipe . '::' . $processState[ 'recordType' ] . '::Page-' . ( isset( $processState[ 'pageNumber' ] ) ? $processState[ 'pageNumber' ] : 1 );
             } elseif ( $pipe == 'delivered' && $filterIndex == 1 ) {
-                $jobId .= '::Pipe-' .$pipe . '::Campaign-' . $processState[ 'campaign' ]->internal_id;
+                $jobId .= '::Pipe-' .$pipe . '::Campaign-' . $processState[ 'campaign' ]->esp_internal_id;
             }
 
             $processState[ 'jobIdIndex' ] = $processState[ 'currentFilterIndex' ];
@@ -235,12 +235,13 @@ class MaroReportService extends AbstractReportService implements IDataService
     }
 
     public function mapToStandardReport($data) { 
+        $deployId = $this->parseSubID($data['name']);
         return array(
-
-            'deploy_id' => $data['name'],
-            'sub_id' => $this->parseSubID($data['name']),
-            'm_deploy_id' => 0, // temporarily 0 until deploys are created
+            'campaign_name' => $data['name'],
+            'external_deploy_id' => $deployId,
+            'm_deploy_id' => $deployId,
             'esp_account_id' => $data['esp_account_id'],
+            'esp_internal_id' => $data['internal_id'],
             'datetime' => $data['sent_at'],
             #'name' => $data[''],
             'subject' => $data['subject'],

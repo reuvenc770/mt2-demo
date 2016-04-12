@@ -86,12 +86,12 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
     public function mapToStandardReport($report)
     {
-
         return array(
-            'deploy_id' => $report['message_name'],
-            'sub_id' => $report['bill_codes'],
-            'm_deploy_id' => 0, // stub for now
+            'campaign_name' => $report['message_name'],
+            'external_deploy_id' => $report['bill_codes'],
+            'm_deploy_id' => $report['bill_codes'], // temporarily the same as external
             'esp_account_id' => $report['esp_account_id'],
+            'esp_internal_id' => $report['internal_id'],
             'datetime' => $report['date_sent'],
             'name' => $report['message_name'],
             'subject' => $report['message_subject'],

@@ -30,4 +30,14 @@ class ReportRepo
             ->where( 'esp_account_id' , $espAccountId )
             ->get();
     }
+
+    public function getRunId($espInternalId) {
+        if (is_a($this->report, 'App\Models\CampaignerReport')) {
+            echo 'getting run id: ' . PHP_EOL;
+            return $this->report->select('run_id')->where('internal_id', $espInternalId)->get()['run_id'];
+        }
+        else {
+            throw new \Exception('Run id accessed by esp without run id.');
+        }
+    }
 }

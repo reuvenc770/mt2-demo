@@ -49,12 +49,14 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
     }
 
     public function mapToStandardReport ( $data ) {
-        $formatedData = $this->mapToRawReport( $data );
-
+        //$formatedData = $this->mapToRawReport( $data );
+        $deployId = $this->parseSubID($data['name']);
         return array(
-            'deploy_id' => $data[ 'name' ],
-            'sub_id' => $this->parseSubID($data['name']),
+            'campaign_name' => $data[ 'name' ],
+            'external_deploy_id' => $deployId,
+            'm_deploy_id' => $deployId,
             'esp_account_id' => $this->api->getEspAccountId(),
+            'esp_internal_id' => $data['internal_id'],
             'datetime' => $data[ 'scheduled_date' ],
             'name' => $data[ 'campaign_id' ],
             'subject' => $data[ 'subject' ],
@@ -111,7 +113,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
         ) {
             switch ( $processState[ 'currentFilterIndex' ] ) {
                 case 1 :
-                    $jobId .= '::Campaign-' . $processState[ 'campaign' ]->internal_id;
+                    $jobId .= '::Campaign-' . $processState[ 'campaign' ]->esp_internal_id;
                 break;
 
                 case 2 :
@@ -138,21 +140,21 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
         try {
             switch ( $processState[ 'recordType' ] ) {
                 case 'deliveries' :
-                    $deliverables = $this->getDeliveryReport( $processState[ 'campaign' ]->internal_id );
+                    $deliverables = $this->getDeliveryReport( $processState[ 'campaign' ]->esp_internal_id );
 
                     foreach ( $deliverables as $key => $deliveryRecord ) {
                         $this->emailRecord->recordDeliverable(
                             self::RECORD_TYPE_DELIVERABLE ,
                             $deliveryRecord[ 'EmailAddress' ] ,
                             $processState[ 'espId' ] ,
-                            $processState[ 'campaign' ]->internal_id ,
+                            $processState[ 'campaign' ]->esp_internal_id ,
                             $deliveryRecord[ 'ActionDate' ]
                         );
                     }
                 break;
 
                 case 'opens' :
-                    $opens = $this->getOpenReport( $processState[ 'campaign' ]->internal_id );
+                    $opens = $this->getOpenReport( $processState[ 'campaign' ]->esp_internal_id );
 
                     foreach ( $opens as $key => $openRecord ) {
                         $this->emailRecord->recordDeliverable(

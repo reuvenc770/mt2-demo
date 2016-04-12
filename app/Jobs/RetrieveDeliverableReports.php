@@ -14,6 +14,8 @@ use App\Factories\APIFactory;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Exceptions\JobException;
 use Carbon\Carbon;
+use App\Models\StandardReport;
+use App\Repositories\StandardApiReportRepo;
 
 class RetrieveDeliverableReports extends Job implements ShouldQueue
 {
@@ -27,6 +29,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     protected $maxAttempts;
     protected $tracking;
     protected $reportService;
+    protected $standardReportRepo;
     public $defaultQueue;
 
     public $processState;
@@ -58,6 +61,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->tracking = $tracking;
         $this->defaultQueue = $defaultQueue;
         $this->reportService = APIFactory::createAPIReportService( $this->apiName,$this->espAccountId );
+        $this->standardReportRepo = new StandardApiReportRepo(new StandardReport());
 
         if ( $processState !== null ) {
             $this->processState = $processState;
@@ -146,7 +150,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     }
 
     protected function getCampaigns () {
-        $campaigns = $this->reportService->getCampaigns( $this->espAccountId , $this->date );
+        $campaigns = $this->standardReportRepo->getCampaigns( $this->espAccountId , $this->date );
 
         $this->processState[ 'currentFilterIndex' ]++;
 
@@ -159,6 +163,18 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         
         $this->changeJobEntry( JobEntry::SUCCESS );
     }
+
+    /*
+    protected function getRunId() {
+        $this->processState['currentFilterIndex']++;
+
+        $this->processState['runId'] = $this->reportService->getRunId($this->processState['campaign']->esp_internal_id);
+
+        $this->queueNextJob( $this->defaultQueue );
+        $this->changeJobEntry( JobEntry::SUCCESS );
+    }
+    */
+    
 
     protected function splitTypes () {
         $this->processState[ 'currentFilterIndex' ]++;

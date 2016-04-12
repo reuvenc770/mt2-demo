@@ -149,11 +149,13 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
      */
     public function mapToStandardReport($report)
     {
+        $deployId = $this->parseSubID($report['name']);
         return array(
-
-            'deploy_id' => $report['name'],
-            'sub_id' => $this->parseSubID($report['name']),
+            'campaign_name' => $report['name'],
+            'external_deploy_id' => $deployId,
+            'm_deploy_id' => $deployId,
             'esp_account_id' => $report['esp_account_id'],
+            'esp_internal_id' => $report['internal_id'],
             'datetime' => '0000-00-00', //$report[''],
             'name' => $report['name'],
             'subject' => $report['subject'],
@@ -218,7 +220,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         ) {
             switch ( $processState[ 'currentFilterIndex' ] ) {
                 case 1 :
-                    $jobId .= '::Campaign-' . $processState[ 'campaign' ]->run_id;
+                    $jobId .= '::Campaign-' . $this->getRunId($processState['campaign']->esp_internal_id); //$processState[ 'campaign' ]->run_id;
                 break;
 
                 case 2 :
@@ -235,7 +237,8 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
 
     public function startTicket ( $espAccountId , $campaign , $recordType = null ) {
         try {
-            $reportData = $this->createCampaignReport( $campaign->run_id );
+            $runId = $this->getRunId($campaign->esp_internal_id);
+            $reportData = $this->createCampaignReport( $runId );
         } catch ( \Exception $e ) {
             throw new JobException( 'Failed to start report ticket. ' . $e->getMessage() , JobException::NOTICE , $e );
         }
@@ -243,7 +246,8 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         return [
             "ticketName" => $reportData[ 'ticketId' ] ,
             "rowCount" => $reportData[ 'count' ] ,
-            "campaignId" => $campaign->internal_id ,
+            "deployId" => $campaign->deploy_id,
+            "espInternalId" => $campaign->esp_internal_id ,
             "espId" => $espAccountId
         ];
     }
@@ -268,48 +272,28 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
 
         foreach ( $recordData as $key => $record ) {
             if ( $record[ 'action' ] === 'Open' ) {
-                $this->emailRecord->recordDeliverable(
-                    self::RECORD_TYPE_OPENER ,
-                    $record[ 'email' ] ,
-                    $processState[ 'ticket' ][ 'espId' ] ,
-                    $processState[ 'ticket' ][ 'campaignId' ] ,
-                    $record[ 'actionDate' ]
-                );
+                $actionType = self::RECORD_TYPE_OPENER;
             } elseif ( $record[ 'action' ] === 'Click' ) {
-                $this->emailRecord->recordDeliverable(
-                    self::RECORD_TYPE_CLICKER ,
-                    $record[ 'email' ] ,
-                    $processState[ 'ticket' ][ 'espId' ] ,
-                    $processState[ 'ticket' ][ 'campaignId' ] ,
-                    $record[ 'actionDate' ]
-                );
+                $actionType = self::RECORD_TYPE_CLICKER;
             } elseif ( $record[ 'action' ] === 'Unsubscribe' ) {
-                $this->emailRecord->recordDeliverable(
-                    self::RECORD_TYPE_UNSUBSCRIBE ,
-                    $record[ 'email' ] ,
-                    $processState[ 'ticket' ][ 'espId' ] ,
-                    $processState[ 'ticket' ][ 'campaignId' ] ,
-                    $record[ 'actionDate' ]
-                );
+                $actionType = self::RECORD_TYPE_UNSUBSCRIBE;
             } elseif ( $record[ 'action' ] === 'SpamComplaint' ) {
+                $actionType = self::RECORD_TYPE_COMPLAINT;
+            } elseif ( $record[ 'action' ] === 'Delivered' ) {
+                $actionType = self::RECORD_TYPE_DELIVERABLE;
+            }
+
+            if (isset($actionType)) {
                 $this->emailRecord->recordDeliverable(
-                    self::RECORD_TYPE_COMPLAINT ,
+                    $actionType ,
                     $record[ 'email' ] ,
                     $processState[ 'ticket' ][ 'espId' ] ,
-                    $processState[ 'ticket' ][ 'campaignId' ] ,
+                    $processState['ticket']['deployId'],
+                    $processState[ 'ticket' ][ 'espInternalId' ] ,
                     $record[ 'actionDate' ]
                 );
             }
 
-            elseif ( $record[ 'action' ] === 'Delivered' ) {
-                $this->emailRecord->recordDeliverable(
-                    self::RECORD_TYPE_DELIVERABLE ,
-                    $record[ 'email' ] ,
-                    $processState[ 'ticket' ][ 'espId' ] ,
-                    $processState[ 'ticket' ][ 'campaignId' ] ,
-                    $record[ 'actionDate' ]
-                );
-            }
         }
     }
 
@@ -371,5 +355,9 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             );
         }
         return $return;
+    }
+
+    private function getRunId($espInternalId) {
+        return $this->reportRepo->getRunId($espInternalId);
     }
 }

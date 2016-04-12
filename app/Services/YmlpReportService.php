@@ -68,11 +68,13 @@ class YmlpReportService extends AbstractReportService implements IDataService {
     }
 
     public function mapToStandardReport($data) {
+        $deployId = $this->parseSubID($data['name']);
         return array(
-            'deploy_id' => $data['name'],
-            'sub_id' => $this->parseSubID($data['name']),
-            'm_deploy_id' => 0, // temporarily 0 until deploys are created
+            'campaign_name' => $data['name'],
+            'external_deploy_id' => $deployId,
+            'm_deploy_id' => $deployId,
             'esp_account_id' => $data['esp_account_id'],
+            'esp_internal_id' => $data['internal_id'],
             'datetime' => $data['date'],
             'name' => $data['name'],
             'subject' => $data['subject'],
@@ -123,7 +125,7 @@ class YmlpReportService extends AbstractReportService implements IDataService {
         ) {
             switch ( $processState[ 'currentFilterIndex' ] ) {
                 case 1 :
-                    $jobId .= '::Campaign-' . $processState[ 'campaign' ]->internal_id;
+                    $jobId .= '::Campaign-' . $processState[ 'campaign' ]->esp_internal_id;
                 break;
 
                 case 2 :
@@ -143,40 +145,44 @@ class YmlpReportService extends AbstractReportService implements IDataService {
     }
 
     public function saveRecords(&$processState) {
-        $campaignId = $processState['campaign']->internal_id;
+        #var_dump($processState);
+        $espInternalId = $processState['campaign']->esp_internal_id;
+        $deployId = $processState['campaign']->external_deploy_id;
 
         try {
             switch ( $processState[ 'recordType' ] ) {
                 case 'opens' :
-                    $openData = $this->api->getDeliverableStat('opened', $campaignId);
+                    $openData = $this->api->getDeliverableStat('opened', $espInternalId);
 
                     foreach ( $openData as $key => $opener ) {
                         $this->emailRecord->recordDeliverable(
                             self::RECORD_TYPE_OPENER ,
                             $opener['Email'] ,
-                            $this->api->getId() ,
-                            $campaignId,
+                            $this->api->getId(),
+                            $deployId,
+                            $espInternalId,
                             $opener['Timestamp']
                         );
                     }
                 break;
 
                 case 'clicks' :
-                    $clickData = $this->api->getDeliverableStat('clicked', $campaignId);
+                    $clickData = $this->api->getDeliverableStat('clicked', $espInternalId);
 
                     foreach ( $clickData as $key => $clicker ) {
                         $this->emailRecord->recordDeliverable(
                             self::RECORD_TYPE_CLICKER ,
                             $clicker['Email'] ,
                             $this->api->getId() ,
-                            $campaignId,
+                            $deployId,
+                            $espInternalId,
                             $clicker['Timestamp']
                         );
                     }
                 break;
             }
         } catch ( \Exception $e ) {
-            $jobException = new JobException( 'Failed ot save records. ' . $e->getMessage() , JobException::NOTICE , $e );
+            $jobException = new JobException( 'Failed to save records. ' . $e->getMessage() , JobException::NOTICE , $e );
             $jobException->setDelay( 180 );
             throw $jobException;
         }

@@ -17,9 +17,9 @@ class EmailRecordService {
         return $this->repo->getEmailId( $email );
     }
 
-    public function recordDeliverable ( $recordType , $email , $espId , $campaignId , $date ) {
+    public function recordDeliverable ( $recordType , $email , $espId , $deployId, $espInternalId , $date ) {
         if ( $this->repo->isValidActionType( $recordType ) ) {
-            return $this->repo->recordDeliverable( $recordType , $email , $espId , $campaignId , $date );
+            return $this->repo->recordDeliverable( $recordType , $email , $espId , $deployId, $espInternalId , $date );
         } else {
             Log::error( "Record Type '{$recordType}' is not valid." );
             return false;

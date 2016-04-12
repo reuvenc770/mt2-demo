@@ -14,7 +14,14 @@ class StandardApiReportRepo {
     }
 
     public function insertStats($data) {
-        $this->report->updateOrCreate(array('deploy_id' => $data['deploy_id']), $data);
+        $this->report->updateOrCreate(array('external_deploy_id' => $data['external_deploy_id']), $data);
+    }
+
+    public function getCampaigns($espAccountId, $date) {
+        return $this->report
+            ->where( 'updated_at' , ">=" , $date )
+            ->where( 'esp_account_id' , $espAccountId )
+            ->get();
     }
 
 }
