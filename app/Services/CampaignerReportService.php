@@ -218,7 +218,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         ) {
             switch ( $processState[ 'currentFilterIndex' ] ) {
                 case 1 :
-                    $jobId .= '::Campaign-' . $processState[ 'campaign' ]->run_id;
+                    $jobId .= '::Campaign' . ( isset( $processState[ 'campaign' ] ) ? '-' . $processState[ 'campaign' ]->run_id : '' );
                 break;
 
                 case 2 :
