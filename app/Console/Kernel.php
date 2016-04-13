@@ -43,15 +43,16 @@ class Kernel extends ConsoleKernel
         /**
          * Unsub Jobs
          */
-        //$unsubFilePath = storage_path( 'logs' ) . "/unsubJobs.log";
-        //$schedule->command( 'ftp:sendSprintUnsubs' )->weekdays()->at( '11:00' )->sendOutputTo( $unsubFilePath );
+        $unsubFilePath = storage_path( 'logs' ) . "/unsubJobs.log";
+        $schedule->command( 'ftp:sendSprintUnsubs --ftpCleanup=1' )->dailyAt( '10:00' )->sendOutputTo( $unsubFilePath );
+        $schedule->command( 'ftp:sendSprintUnsubs' )->dailyAt( '11:00' )->sendOutputTo( $unsubFilePath );
 
         /**
          * Orphan Adoption
          */
         $orphanFilePath = storage_path('logs')."/adoptOrphans.log";
-        $schedule->command( 'reports:adoptOrphans --maxOrphans=400000 --chunkSize=10000 --queueName=orphanage --chunkDelay=0 --order=newest --maxAttempts=10' )->everyTenMinutes()->sendOutputTo( $orphanFilePath );
-        $schedule->command( 'reports:adoptOrphans --maxOrphans=400000 --chunkSize=10000 --queueName=orphanage --chunkDelay=0 --order=oldest --maxAttempts=10' )->everyTenMinutes()->sendOutputTo( $orphanFilePath );
+        $schedule->command( 'reports:adoptOrphans --maxOrphans=400000 --chunkSize=10000 --queueName=orphanage --chunkDelay=0 --order=newest --maxAttempts=5' )->everyTenMinutes()->sendOutputTo( $orphanFilePath );
+        $schedule->command( 'reports:adoptOrphans --maxOrphans=400000 --chunkSize=10000 --queueName=orphanage --chunkDelay=0 --order=oldest --maxAttempts=5' )->everyTenMinutes()->sendOutputTo( $orphanFilePath );
 
         /**
          * Campaign Data Daily
