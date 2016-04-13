@@ -118,7 +118,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
     }
 
     public function getCampaigns ( $espAccountId , $date ) {
-        return $this->reportRepo->getEspCampaigns( $espAccountId , $date )->splice( 0 , 20 );
+        return $this->reportRepo->getCampaigns( $espAccountId , $date )->splice( 0 , 20 );
     }
 
     public function getUniqueJobId ( $processState ) {
