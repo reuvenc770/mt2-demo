@@ -2,8 +2,16 @@
 
 namespace App\Console\Commands;
 
+use App\Models\BlueHornetReport;
+use App\Models\Email;
+use App\Repositories\EmailRecordRepo;
+use App\Repositories\ReportRepo;
+use App\Services\API\BlueHornetApi;
+use App\Services\BlueHornetReportService;
+use App\Services\EmailRecordService;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Inspiring;
+use Storage;
 
 class Inspire extends Command
 {
@@ -28,6 +36,6 @@ class Inspire extends Command
      */
     public function handle()
     {
-        $this->comment(PHP_EOL.Inspiring::quote().PHP_EOL);
+            echo "I want to work";
     }
 }

@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
-use App\Models\Email;
 use Illuminate\Database\Eloquent\Model;
 
 class Email extends Model {
+
+  protected $guarded = ['id'];
+  public $timestamps = false;
     
   public function emailClientInstances() {
     return $this->hasMany('App\Models\EmailClientInstance');

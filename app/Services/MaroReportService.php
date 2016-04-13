@@ -15,6 +15,7 @@ use App\Services\Interfaces\IDataService;
 use App\Services\EmailRecordService;
 use Log;
 use Illuminate\Queue\InteractsWithQueue;
+use App\Exceptions\JobException;
 
 /**
  * Class BlueHornetReportService
@@ -80,10 +81,10 @@ class MaroReportService extends AbstractReportService implements IDataService
     }
 
     public function splitTypes () {
-        return [ 'opens' , 'clicks' ];
+        return [ 'opens' , 'clicks', 'unsubscribes', 'complaints'];
     }
 
-    public function saveRecords ( &$processState ) {
+    public function savePage ( &$processState ) {
         switch ( $processState[ 'recordType' ] ) {
             case 'opens' :
                 foreach ( $processState[ 'currentPageData' ] as $key => $openner ) {
@@ -108,6 +109,45 @@ class MaroReportService extends AbstractReportService implements IDataService
                     );
                 }
             break;
+
+            case 'unsubscribes' :
+                foreach ( $processState[ 'currentPageData' ] as $key => $unsub ) {
+                    $this->emailRecord->recordDeliverable(
+                        self::RECORD_TYPE_UNSUBSCRIBE ,
+                        $unsub[ 'contact' ][ 'email' ] ,
+                        $this->api->getId() ,
+                        $unsub[ 'campaign_id' ] ,
+                        $unsub[ 'recorded_on' ]
+                    );
+                }
+                break;
+
+            case 'complaints' :
+                foreach ( $processState[ 'currentPageData' ] as $key => $complainer ) {
+                    $this->emailRecord->recordDeliverable(
+                        self::RECORD_TYPE_COMPLAINT ,
+                        $complainer[ 'contact' ][ 'email' ] ,
+                        $this->api->getId() ,
+                        $complainer[ 'campaign_id' ] ,
+                        $complainer[ 'recorded_on' ]
+                    );
+                }
+                break;
+        }
+    }
+
+    public function saveRecords ( &$processState ) {
+        $data = $this->api->getDelivered( $processState[ 'campaign' ]->internal_id );
+        $data = $this->processGuzzleResult( $data );
+
+        foreach ( $data as $key => $record ) {
+            $this->emailRecord->recordDeliverable(
+                self::RECORD_TYPE_DELIVERABLE ,
+                $record[ 'email' ] ,
+                $this->api->getId() ,
+                $record[ 'campaign_id' ] ,
+                $record[ 'created_at' ]
+            );
         }
     }
 
@@ -115,16 +155,31 @@ class MaroReportService extends AbstractReportService implements IDataService
         return false; #releases if guzzle result is not HTTP 200
     }
 
-    public function getUniqueJobId ( $processState ) {
-        if ( isset( $processState[ 'recordType' ] ) ) {
-            return '::' . $processState[ 'recordType' ] . '::' . 'Page' . ( isset( $processState[ 'pageNumber' ] ) ? $processState[ 'pageNumber' ] : 1 );
-        } else {
-            return '';
+    public function getUniqueJobId ( &$processState ) {
+        $jobId = ( isset( $processState[ 'jobId' ] ) ? $processState[ 'jobId' ] : '' );
+
+        if ( 
+            !isset( $processState[ 'jobIdIndex' ] )
+            || ( isset( $processState[ 'jobIdIndex' ] ) && $processState[ 'jobIdIndex' ] != $processState[ 'currentFilterIndex' ] )
+        ) {
+            $filterIndex = $processState[ 'currentFilterIndex' ];
+            $pipe = $processState[ 'pipe' ];
+
+            if ( $pipe == 'default' && $filterIndex == 1  ) {
+                $jobId .= '::Pipe-' . $pipe . '::' . $processState[ 'recordType' ] . '::Page-' . ( isset( $processState[ 'pageNumber' ] ) ? $processState[ 'pageNumber' ] : 1 );
+            } elseif ( $pipe == 'delivered' && $filterIndex == 1 && isset( $processState[ 'campaign' ] ) ) {
+                $jobId .= '::Pipe-' .$pipe . '::Campaign-' . $processState[ 'campaign' ]->internal_id;
+            }
+
+            $processState[ 'jobIdIndex' ] = $processState[ 'currentFilterIndex' ];
+            $processState[ 'jobId' ] = $jobId;
         }
+
+        return $jobId;
     }
 
     public function setPageType ( $pageType ) {
-        if ( in_array( $pageType , [ 'opens' , 'clicks' ] ) ) {
+        if ( in_array( $pageType , [ 'opens' , 'clicks', 'complaints', 'unsubscribes' ] ) ) {
             $this->pageType = $pageType;
         }
     }
@@ -158,7 +213,9 @@ class MaroReportService extends AbstractReportService implements IDataService
     }
 
     protected function processGuzzleResult($data) {
-        if ( $data->getStatusCode() != 200 ) $this->release( 60 );
+        if ( $data->getStatusCode() != 200 ) {
+            throw new JobException( 'API call failed.' , JobException::NOTICE );
+        }
 
         $data = $data->getBody()->getContents();
         return json_decode($data, true);

@@ -43,7 +43,7 @@ class GrabApiEspReports extends Command
     {
         $this->lookBack = $this->argument('lookBack') ? $this->argument('lookBack') : env('LOOKBACK',5);
         $queue = (string) $this->argument('queueName') ? $this->argument('queueName') : "default";
-        $date = Carbon::now()->subDay($this->lookBack)->toDateString();
+        $date = Carbon::now()->subDay($this->lookBack)->startOfDay()->toDateString();
         $espName = $this->argument('espName');
 
         $espAccounts = $this->espRepo->getAccountsByESPName($espName);

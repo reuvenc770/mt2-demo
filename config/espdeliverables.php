@@ -2,42 +2,65 @@
 
 return [
     "BlueHornet" => [
-        "filters" => [
-            'getTickets' ,
-            'saveRecords'
+        "pipes" => [
+            "default" => [
+                'jobSetup' ,
+                'getCampaigns' ,
+                'startTicket' ,
+                'checkTicketStatus' ,
+                'downloadTicketFile' ,
+                'getTypeList' ,
+                'synchronousSaveTypeRecords' ,
+                'cleanUp'
+            ]
         ]
     ] ,
     "Campaigner" => [
-        "filters" => [
-            'getTickets' ,
-            'saveRecords'
+        "pipes" => [
+            "default" => [
+                'getCampaigns' ,
+                'startTicket' ,
+                'saveRecords'
+            ]
         ]
     ] ,
     "Maro" => [
-        "filters" => [
-            'splitTypes' ,
-            'savePaginatedRecords'
+        "pipes" => [
+            "default" => [
+                'splitTypes' ,
+                'savePaginatedRecords'
+            ] , 
+            "delivered" => [
+                'getCampaigns' ,
+                'saveRecords'
+            ]
         ]
     ] ,
     "EmailDirect" => [
-        "filters" => [
-            'getCampaigns' ,
-            'splitTypes' ,
-            'saveRecords'
+        "pipes" => [
+            "default" => [
+                'getCampaigns' ,
+                'splitTypes' ,
+                'saveRecords'
+            ]
         ]
     ],
     "Ymlp" => [
-        "filters" => [
-            'getCampaigns',
-            'splitTypes' ,
-            'saveRecords'
+        "pipes" => [
+            "default" => [
+                'getCampaigns',
+                'splitTypes' ,
+                'saveRecords'
+            ]
         ]
     ] ,
     "AWeber" => [
-        "filters" => [
-            'getCampaigns' ,
-            'splitTypes' ,
-            'saveRecords'
+        "pipes" => [
+            "default" => [
+                'getCampaigns' ,
+                'splitTypes' ,
+                'saveRecords'
+            ]
         ]
     ]
 ];

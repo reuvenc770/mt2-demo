@@ -55,13 +55,29 @@ class GrabDeliverableReports extends Command
         $date = Carbon::now()->subDay($this->lookBack)->toDateString();
 
         $espName = $this->argument('espName');
+        $processState = null;
+
+        if ( preg_match( '/:/' , $espName ) ) {
+            $espParts = explode( ':' , $espName );
+            $espName = $espParts[ 0 ];
+
+            $processState = [ 'pipe' => $espParts[ 1 ] ];
+        }
 
         $espAccounts = $this->espRepo->getAccountsByESPName($espName);
 
         foreach ($espAccounts as $account){
             $espLogLine = "{$account->name}::{$account->account_name}";
             $this->info($espLogLine);
-            $job = (new RetrieveDeliverableReports($account->name, $account->id, $date, str_random(16), null, $queue))->onQueue($queue);
+
+            $job = (new RetrieveDeliverableReports(
+                $account->name ,
+                $account->id ,
+                $date ,
+                str_random(16) ,
+                $processState ,
+                $queue ) )->onQueue( $queue );
+
             $this->dispatch($job);
         }
     }

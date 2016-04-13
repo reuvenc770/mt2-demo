@@ -13,7 +13,8 @@ abstract class AbstractReportService implements IDataService  {
   const RECORD_TYPE_CLICKER = 'clicker';
   const RECORD_TYPE_CONVERTER = 'converter';
   const RECORD_TYPE_DELIVERABLE = 'deliverable';
-  
+  const RECORD_TYPE_UNSUBSCRIBE = "unsubscriber";
+  const RECORD_TYPE_COMPLAINT = "complainer";
   protected $reportRepo;
   protected $api;
   protected $emailRecord;
