@@ -55,6 +55,14 @@ return [
             'password' => env( 'SPRINT_CAMPAIGN_FTP_PASS' ) ,
         ],
 
+        'hornet7' => [
+            'driver'   => 'ftp',
+            'host'     => env("HORNET7_IP"),
+            'username' => env("HORNET7_USERNAME"),
+            'password' => env("HORNET7_PW"),
+        ],
+
+
         'sprintUnsubFTP' => [
             'driver'   => 'ftp',
             'host'     => env( 'SPRINT_UNSUB_FTP_HOST' ),

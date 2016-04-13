@@ -61,10 +61,16 @@ class APIFactory
 
         $reportServiceName = "App\\Services\\{$reportName}Service";
         if (class_exists($reportServiceName)) {
-            return new $reportServiceName(new ReportRepo($reportModel), new $api($apiName, $espAccountId) , $emailRecord );
+            return new $reportServiceName(new ReportRepo($reportModel), new $api($espAccountId) , $emailRecord );
         } else {
             throw new \Exception("That Report Service does not exist");
         }
+    }
+
+    public static function createApiSubscriptionService($apiName, $espAccountId){
+        $api = "App\\Services\\API\\{$apiName}Api";
+        $service = "App\\Services\\{$apiName}SubscriberService";
+        return new $service(new $api($espAccountId));
     }
 
     public static function createCsvDeliverableService($espId, $espName) {

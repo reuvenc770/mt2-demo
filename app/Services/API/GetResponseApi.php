@@ -13,14 +13,15 @@ use App\Facades\Guzzle;
 class GetResponseApi extends EspBaseAPI
 {
     const API_URL = "https://api.getresponse.com/v3/";
+    const ESP_NAME = "GetResponse";
     protected $apiKey;
     protected $date;
     protected $query = array();
     protected $action;
     public $guzzle;
-    public function __construct($name, $espAccountId)
+    public function __construct($espAccountId)
     {
-        parent::__construct($name, $espAccountId);
+        parent::__construct(self::ESP_NAME, $espAccountId);
         $this->apiKey = EspApiAccount::grabApiKey($espAccountId);
         $this->query = array("query");
 

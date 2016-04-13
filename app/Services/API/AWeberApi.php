@@ -23,9 +23,11 @@ class AWeberApi extends EspBaseAPI
     private $api;
     private $url;
     const COUNTER = 0;
-    public function __construct($name, $espAccountId)
+    const ESP_NAME = "AWeber";
+    public function __construct($espAccountId)
     {
-        parent::__construct($name, $espAccountId);
+
+        parent::__construct(self::ESP_NAME, $espAccountId);
         $creds = EspApiAccount::grabAccessTokenAndSecret($espAccountId);
         $key = env("AWEBER_KEY", "");
         $secret = env("AWEBER_SECRET", "");
