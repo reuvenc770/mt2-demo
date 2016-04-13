@@ -136,7 +136,8 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
         return [ 'deliveries' , 'opens' , 'clicks', "unsubscribes", "complaints" ];
     }
 
-    public function saveRecords ( &$processState ) {
+    public function saveRecords ( &$processState, $map ) {
+        // $map is not needed for this version of saveRecords
         try {
             switch ( $processState[ 'recordType' ] ) {
                 case 'deliveries' :
@@ -147,6 +148,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                             self::RECORD_TYPE_DELIVERABLE ,
                             $deliveryRecord[ 'EmailAddress' ] ,
                             $processState[ 'espId' ] ,
+                            $processState[ 'campaign' ]->external_deploy_id ,
                             $processState[ 'campaign' ]->esp_internal_id ,
                             $deliveryRecord[ 'ActionDate' ]
                         );
@@ -161,7 +163,8 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                             self::RECORD_TYPE_OPENER ,
                             $openRecord[ 'EmailAddress' ] ,
                             $processState[ 'espId' ] ,
-                            $processState[ 'campaign' ]->internal_id ,
+                            $processState[ 'campaign' ]->external_deploy_id ,
+                            $processState[ 'campaign' ]->esp_internal_id ,
                             $openRecord[ 'ActionDate' ]
                         );
                     }
@@ -175,7 +178,8 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                             self::RECORD_TYPE_CLICKER ,
                             $clickRecord[ 'EmailAddress' ] ,
                             $processState[ 'espId' ] ,
-                            $processState[ 'campaign' ]->internal_id ,
+                            $processState[ 'campaign' ]->external_deploy_id ,
+                            $processState[ 'campaign' ]->esp_internal_id ,
                             $clickRecord[ 'ActionDate' ]
                         );
                     }
@@ -189,7 +193,8 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                             self::RECORD_TYPE_UNSUBSCRIBE ,
                             $unsubRecord[ 'EmailAddress' ] ,
                             $processState[ 'espId' ] ,
-                            $processState[ 'campaign' ]->internal_id ,
+                            $processState[ 'campaign' ]->external_deploy_id ,
+                            $processState[ 'campaign' ]->esp_internal_id ,
                             $unsubRecord[ 'ActionDate' ]
                         );
                     }
@@ -203,7 +208,8 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                             self::RECORD_TYPE_COMPLAINT ,
                             $complainerRecord[ 'EmailAddress' ] ,
                             $processState[ 'espId' ] ,
-                            $processState[ 'campaign' ]->internal_id ,
+                            $processState[ 'campaign' ]->external_deploy_id ,
+                            $processState[ 'campaign' ]->esp_internal_id ,
                             $complainerRecord[ 'ActionDate' ]
                         );
                     }

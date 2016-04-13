@@ -173,7 +173,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         ) {
             switch ( $processState[ 'currentFilterIndex' ] ) {
                 case 2 :
-                    $jobId .= '::Campaign-' . $processState[ 'campaign' ][ 'internal_id' ];
+                    $jobId .= '::Campaign-' . $processState[ 'campaign' ]->esp_internal_id;
                 break;
 
                 case 3 :
@@ -194,7 +194,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
     public function getTypeList ( &$processState ) {
         $typeList = ['open' , 'click' , 'optout' ];
-        if(!$this->emailRecord->checkForDeliverables($processState[ 'espAccountId' ],$processState[ 'campaign' ][ 'internal_id' ])){
+        if(!$this->emailRecord->checkForDeliverables($processState[ 'espAccountId' ],$processState[ 'campaign' ]->esp_internal_id)){
             $typeList[] = "deliverable";
         }
         return $typeList;
@@ -203,8 +203,9 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
     public function startTicket ( $espAccountId , $campaign , $recordType ) {
         try {
             return [
-                "ticketName" => $this->getTicketForMessageSubscriberData( $campaign->internal_id , 'sent,bounce,open,click,optout' ) ,
-                "campaignId" => $campaign->internal_id ,
+                "ticketName" => $this->getTicketForMessageSubscriberData( $campaign->esp_internal_id , 'sent,bounce,open,click,optout' ) ,
+                "deployId" => $campaign->external_deploy_id,
+                "espInternalId" => $campaign->esp_internal_id ,
                 "espId" => $espAccountId
             ];
         } catch ( \Exception $e ) {
@@ -223,7 +224,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             throw $jobException;
         }
 
-        $filePath = "files/deliverables/{$processState[ 'apiName' ]}/{$processState[ 'espAccountId' ]}/" . $processState[ 'campaign' ]->internal_id . "/" . Carbon::now( 'America/New_York' )->format( 'Y-m-d-H-i-s' ) . '.xml';
+        $filePath = "files/deliverables/{$processState[ 'apiName' ]}/{$processState[ 'espAccountId' ]}/" . $processState[ 'campaign' ]->esp_internal_id . "/" . Carbon::now( 'America/New_York' )->format( 'Y-m-d-H-i-s' ) . '.xml';
 
         Storage::put( $filePath , $fileContents );
 
@@ -269,7 +270,8 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                                 self::RECORD_TYPE_UNSUBSCRIBE ,
                                 $currentEmail ,
                                 $processState[ 'ticket' ][ 'espId' ] ,
-                                $processState[ 'ticket' ][ 'campaignId' ] ,
+                                $processState[ 'ticket' ][ 'deployId' ] ,
+                                $processState[ 'ticket' ][ 'espInternalId' ] ,
                                 $currentContact->current()
                             );
                     }
@@ -284,7 +286,8 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                                 self::RECORD_TYPE_OPENER ,
                                 $currentEmail ,
                                 $processState[ 'ticket' ][ 'espId' ] ,
-                                $processState[ 'ticket' ][ 'campaignId' ] ,
+                                $processState[ 'ticket' ][ 'deployId' ] ,
+                                $processState[ 'ticket' ][ 'espInternalId' ] ,
                                 $currentOpenDate
                             );
                         }
@@ -304,7 +307,8 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                                 self::RECORD_TYPE_CLICKER ,
                                 $currentEmail , 
                                 $processState[ 'ticket' ][ 'espId' ] ,
-                                $processState[ 'ticket' ][ 'campaignId' ] ,
+                                $processState[ 'ticket' ][ 'deployId' ] ,
+                                $processState[ 'ticket' ][ 'espInternalId' ] ,
                                 $currentClickDate
                             );
                         }
@@ -316,7 +320,8 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                         self::RECORD_TYPE_DELIVERABLE ,
                         $currentEmail , 
                         $processState[ 'ticket' ][ 'espId' ] ,
-                        $processState[ 'ticket' ][ 'campaignId' ] ,
+                        $processState[ 'ticket' ][ 'deployId' ] ,
+                        $processState[ 'ticket' ][ 'espInternalId' ] ,
                         ''
                     );
                 }

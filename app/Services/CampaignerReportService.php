@@ -246,7 +246,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         return [
             "ticketName" => $reportData[ 'ticketId' ] ,
             "rowCount" => $reportData[ 'count' ] ,
-            "deployId" => $campaign->deploy_id,
+            "deployId" => $campaign->external_deploy_id,
             "espInternalId" => $campaign->esp_internal_id ,
             "espId" => $espAccountId
         ];
