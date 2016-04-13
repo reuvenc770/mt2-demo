@@ -9,6 +9,7 @@
 namespace App\Services;
 
 #use App\Services\API\BlueHornet;
+use App\Facades\Suppression;
 use App\Repositories\ReportRepo;
 use App\Services\API\BlueHornetApi;
 use App\Services\AbstractReportService;
@@ -193,7 +194,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
     }
 
     public function getTypeList ( &$processState ) {
-        $typeList = ['open' , 'click' , 'optout' ];
+        $typeList = ['open' , 'click' , 'optout', 'bounce' ];
         if(!$this->emailRecord->checkForDeliverables($processState[ 'espAccountId' ],$processState[ 'campaign' ]->esp_internal_id)){
             $typeList[] = "deliverable";
         }
@@ -255,16 +256,20 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                      * Bounce Check. If found, then this email was not deliverable
                      */
                     if ( $currentContact->key() === 'bounce' ) {
-                       $contactBounced = true;
-
-                       $currentBounce = $currentContact->current();
-                       $currentBounce->rewind();
-                       $currentBounce->next();
-                       $bounceDate = $currentBounce->current();
-                    } 
+                        $contactBounced = true;
+                    }
 
                     if( $currentContact->key() === 'email' ) {
                         $currentEmail = $currentContact->current();
+                    }
+
+                    if ( $processState[ 'recordType' ] == 'bounce' && $currentContact->key() === 'bounce' ) {
+                        $currentBounce = $currentContact->current();
+                        $currentBounce->rewind();
+                        $reason = $currentBounce->current();
+                        $currentBounce->next();
+                        $bounceDate = $currentBounce->current();
+                        Suppression::recordRawHardBounce($processState[ 'ticket' ][ 'espId' ],$currentEmail,$processState[ 'ticket' ][ 'campaignId' ],$reason, $bounceDate);
                     }
 
                     if ( $processState[ 'recordType' ] == 'optout' && $currentContact->key() === 'optout' ) {

@@ -19,6 +19,7 @@ class MaroApi extends EspBaseAPI {
     const COMPLAINTS_URL = "http://api.maropost.com/accounts/%d/reports/complaints.json?";
     const UNSUBS_URL = "http://api.maropost.com/accounts/%d/reports/unsubscribes.json?";
     const ADDL_INFO_URL = "http://api.maropost.com/accounts/%d/campaigns/";
+    const ESP_NAME = "Maro";
     const RECORDS_PER_PAGE = 1000;
     const LOOKBACK_DAYS = 3;
     protected $apiKey;
@@ -29,8 +30,8 @@ class MaroApi extends EspBaseAPI {
     protected $deliverableEndDate;
     protected $espAccountId;
 
-    public function __construct($name, $espAccountId) {
-        parent::__construct($name, $espAccountId);
+    public function __construct($espAccountId) {
+        parent::__construct(self::ESP_NAME, $espAccountId);
         $creds = EspApiAccount::grabApiAccountIdAndKey($espAccountId);
         $this->account = $creds['account'];
         $this->apiKey = $creds['apiKey'];

@@ -256,6 +256,12 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
     }
 
     public function saveRecords ( &$processState ) {
+        $skipDelivered = false;
+
+        if ( $this->emailRecord->checkForDeliverables( $processState[ 'ticket' ][ 'espId' ] , $processState[ 'ticket' ][ 'campaignId' ] ) ) {
+            $skipDelivered = true;
+        }
+
         try {
             $recordData = $this->getCampaignReport(
                 $processState[ 'ticket' ][ 'ticketName' ] ,
@@ -274,6 +280,8 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         }
 
         foreach ( $recordData as $key => $record ) {
+            if ( $record[ 'action' ] === 'Delivered' && $skipDelivered ) { continue; }
+
             if ( $record[ 'action' ] === 'Open' ) {
                 $actionType = self::RECORD_TYPE_OPENER;
             } elseif ( $record[ 'action' ] === 'Click' ) {
@@ -345,7 +353,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         $body = simplexml_load_string($manager->__getLastResponse());
 
         if ( !$body ) {
-            throw new \Exception( 'Failed to retrieve SOAP response.' );            
+            throw new \Exception( 'Failed to retrieve SOAP response.' );
         }
 
         $response = $body->children("http://schemas.xmlsoap.org/soap/envelope/")->Body->children();
