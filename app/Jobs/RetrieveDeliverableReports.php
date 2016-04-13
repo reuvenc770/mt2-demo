@@ -179,7 +179,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     protected function splitTypes () {
         $this->processState[ 'currentFilterIndex' ]++;
 
-        $types = $this->reportService->splitTypes();
+        $types = $this->reportService->splitTypes( $this->processState );
 
         foreach ( $types as $index => $currentType ) {
             $this->processState[ 'recordType' ] = $currentType;
@@ -308,8 +308,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     protected function changeJobEntry ( $status ) {
         JobTracking::changeJobState( $status , $this->tracking , $this->attempts() );
 
-        if ( $status == JobEntry::SUCCESS ) echo "\n\n\t" . Carbon::now() . " - Finished Job: " . $this->getJobName() . "\n";
-        if ( $status == JobEntry::WAITING ) echo "\n\n\t" . Carbon::now() . " - Throwing Job Back into Queue: " . $this->getJobName() . "\n";
+        if ( $status == JobEntry::SUCCESS ) echo "\n\n\t" . Carbon::now() . " - Finished Job: " . $this->apiName . ':' . $this->espAccountId . ' ' . $this->getJobName() . "\n\n";
+        if ( $status == JobEntry::WAITING ) echo "\n\n\t" . Carbon::now() . " - Throwing Job Back into Queue: " . $this->apiName . ':' . $this->espAccountId . ' ' . $this->getJobName() . "\n\n";
     }
 
     protected function logJobException ( JobException $e ) {

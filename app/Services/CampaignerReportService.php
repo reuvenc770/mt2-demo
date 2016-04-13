@@ -198,7 +198,14 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         $manager = new ContactManagement();
         $searchQuery = $this->api->buildCampaignSearchQuery($reportNumber);
         $report = new RunReport($this->api->getAuth(), $searchQuery);
-        $results = $manager->RunReport($report)->getRunReportResult();
+
+        $reportHandle = $manager->RunReport($report);
+
+        if ( !!is_a( $reportHandle , 'RunReportResponse' ) || !method_exists( $reportHandle , 'getRunReportResult' ) ) {
+            throw new \Exception( 'Failed to create report.' );
+        }
+
+        $results = $reportHandle->getRunReportResult();
 
         if($this->checkforHeaderFail($manager,"createCampaignReport"))
         {
@@ -218,14 +225,10 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             !isset( $processState[ 'jobIdIndex' ] )
             || ( isset( $processState[ 'jobIdIndex' ] ) && $processState[ 'jobIdIndex' ] != $processState[ 'currentFilterIndex' ] )
         ) {
-            switch ( $processState[ 'currentFilterIndex' ] ) {
-                case 1 :
-                    $jobId .= '::Campaign' . ( isset( $processState[ 'campaign' ] ) ? '-' . $this->getRunId($processState['campaign']->esp_internal_id) : ''); //$processState[ 'campaign' ]->run_id;
-                break;
-
-                case 2 :
-                    $jobId .= '::Ticket-' . $processState[ 'ticket' ][ 'ticketName' ];
-                break;
+            if ( $processState[ 'currentFilterIndex' ] == 1 && isset( $processState[ 'campaign' ] ) ) {
+                $jobId .= '::Campaign-' . $this->getRunId($processState['campaign']->esp_internal_id);
+            } elseif ( $processState[ 'currentFilterIndex' ] == 2 ) {
+                $jobId .= '::Ticket-' . $processState[ 'ticket' ][ 'ticketName' ];
             }
             
             $processState[ 'jobIdIndex' ] = $processState[ 'currentFilterIndex' ];
@@ -340,6 +343,11 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
 
     private function parseOutActions($manager){
         $body = simplexml_load_string($manager->__getLastResponse());
+
+        if ( !$body ) {
+            throw new \Exception( 'Failed to retrieve SOAP response.' );            
+        }
+
         $response = $body->children("http://schemas.xmlsoap.org/soap/envelope/")->Body->children();
         $entries = $response->DownloadReportResponse->DownloadReportResult->ReportResult;
         $return = array();

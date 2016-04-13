@@ -202,7 +202,7 @@ class MaroReportService extends AbstractReportService implements IDataService
         return false; #releases if guzzle result is not HTTP 200
     }
 
-    public function getUniqueJobId ( $processState ) {
+    public function getUniqueJobId ( &$processState ) {
         $jobId = ( isset( $processState[ 'jobId' ] ) ? $processState[ 'jobId' ] : '' );
 
         if ( 
