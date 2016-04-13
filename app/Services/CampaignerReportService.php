@@ -252,6 +252,12 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
     }
 
     public function saveRecords ( &$processState ) {
+        $skipDelivered = false;
+
+        if ( $this->emailRecord->checkForDeliverables( $processState[ 'ticket' ][ 'espId' ] , $processState[ 'ticket' ][ 'campaignId' ] ) ) {
+            $skipDelivered = true;
+        }
+
         try {
             $recordData = $this->getCampaignReport(
                 $processState[ 'ticket' ][ 'ticketName' ] ,
@@ -270,6 +276,8 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         }
 
         foreach ( $recordData as $key => $record ) {
+            if ( $record[ 'action' ] === 'Delivered' && $skipDelivered ) { continue; }
+
             if ( $record[ 'action' ] === 'Open' ) {
                 $this->emailRecord->recordDeliverable(
                     self::RECORD_TYPE_OPENER ,
