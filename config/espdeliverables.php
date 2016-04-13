@@ -39,7 +39,9 @@ return [
     "EmailDirect" => [
         "pipes" => [
             "default" => [
+                'jobSetup' ,
                 'getCampaigns' ,
+                'getTypeList' ,
                 'splitTypes' ,
                 'saveRecords'
             ]

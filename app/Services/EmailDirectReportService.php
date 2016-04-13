@@ -109,14 +109,10 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
             !isset( $processState[ 'jobIdIndex' ] )
             || ( isset( $processState[ 'jobIdIndex' ] ) && $processState[ 'jobIdIndex' ] != $processState[ 'currentFilterIndex' ] )
         ) {
-            switch ( $processState[ 'currentFilterIndex' ] ) {
-                case 1 :
-                    $jobId .= '::Campaign-' . $processState[ 'campaign' ]->internal_id;
-                break;
-
-                case 2 :
-                    $jobId .= '::Type-' . $processState[ 'recordType' ];
-                break;
+            if ( $processState[ 'currentFilterIndex' ] == 2 && isset( $processState[ 'campaign' ] ) ) {
+                $jobId .= '::Campaign-' . $processState[ 'campaign' ]->internal_id;
+            } elseif ( $processState[ 'currentFilterIndex' ] == 4 && isset( $processState[ 'recordType' ] ) ) {
+                $jobId .= '::Type-' . $processState[ 'recordType' ];
             }
             
             $processState[ 'jobIdIndex' ] = $processState[ 'currentFilterIndex' ];
@@ -130,8 +126,18 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
         return $this->reportRepo->getCampaigns( $espAccountId , $date );
     }
 
-    public function splitTypes () {
-        return [ 'deliveries' , 'opens' , 'clicks', "unsubscribes", "complaints" ];
+    public function getTypeList ( $processState ) {
+        $typeList = [ 'opens' , 'clicks', "unsubscribes", "complaints" ];
+
+        if ( !$this->emailRecord->checkForDeliverables( $processState[ 'espAccountId' ] , $processState[ 'campaign' ][ 'internal_id' ] ) ) {
+            $typeList []= 'deliveries';
+        }
+
+        return $typeList;
+    }
+
+    public function splitTypes ( $processState ) {
+        return $processState[ 'typeList' ];
     }
 
     public function saveRecords ( &$processState ) {

@@ -163,7 +163,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     protected function splitTypes () {
         $this->processState[ 'currentFilterIndex' ]++;
 
-        $types = $this->reportService->splitTypes();
+        $types = $this->reportService->splitTypes( $this->processState );
 
         foreach ( $types as $index => $currentType ) {
             $this->processState[ 'recordType' ] = $currentType;
