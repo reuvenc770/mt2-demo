@@ -30,13 +30,14 @@ class EmailRecordService {
         $this->records = [];
     }
 
-    public function queueDeliverable ( $recordType , $email , $espId , $campaignId , $date ) {
+    public function queueDeliverable ( $recordType , $email , $espId , $deployId, $espInternalId , $date ) {
         if ( $this->repo->isValidActionType( $recordType ) ) {
             $this->records []= [
                 'recordType' => $recordType ,
                 'email' => $email ,
+                'deployId' => $deployId,
                 'espId' => $espId ,
-                'campaignId' => $campaignId ,
+                'espInternalId' => $espInternalId ,
                 'date' => $date
             ];
         } else {

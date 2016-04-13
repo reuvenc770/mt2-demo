@@ -245,6 +245,8 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
                 for ( $currentContact->rewind() ; $currentContact->valid() ; $currentContact->next() ) {
 
+
+
                     if ( $currentContact->key() === 'sent' && $currentContact->current() == 1 ) {
                         $contactSent = true;
                     }
@@ -270,7 +272,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                                 self::RECORD_TYPE_UNSUBSCRIBE ,
                                 $currentEmail ,
                                 $processState[ 'ticket' ][ 'espId' ] ,
-                                $processState[ 'ticket' ][ 'deployId' ] ,
+                                $processState['ticket']['deployId'] ,
                                 $processState[ 'ticket' ][ 'espInternalId' ] ,
                                 $currentContact->current()
                             );
@@ -286,7 +288,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                                 self::RECORD_TYPE_OPENER ,
                                 $currentEmail ,
                                 $processState[ 'ticket' ][ 'espId' ] ,
-                                $processState[ 'ticket' ][ 'deployId' ] ,
+                                $processState['ticket']['deployId'] ,
                                 $processState[ 'ticket' ][ 'espInternalId' ] ,
                                 $currentOpenDate
                             );
@@ -307,7 +309,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                                 self::RECORD_TYPE_CLICKER ,
                                 $currentEmail , 
                                 $processState[ 'ticket' ][ 'espId' ] ,
-                                $processState[ 'ticket' ][ 'deployId' ] ,
+                                $processState['ticket']['deployId'] ,
                                 $processState[ 'ticket' ][ 'espInternalId' ] ,
                                 $currentClickDate
                             );
@@ -320,7 +322,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                         self::RECORD_TYPE_DELIVERABLE ,
                         $currentEmail , 
                         $processState[ 'ticket' ][ 'espId' ] ,
-                        $processState[ 'ticket' ][ 'deployId' ] ,
+                        $processState['ticket']['deployId'] ,
                         $processState[ 'ticket' ][ 'espInternalId' ] ,
                         ''
                     );
