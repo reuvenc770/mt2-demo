@@ -19,13 +19,14 @@ class EmailDirectApi extends EspBaseAPI {
     const CAMPAIGN_LIST_KEY = 'Items';
     const CAMPAIGN_ID_KEY = 'CampaignID';
     const API_REQUEST_FIELD_DATE = 'Since';
+    const ESP_NAME = "EmailDirect";
 
     private $api;
     private $date;
     private $campaignList = array();
 
-    public function __construct ( $name , $espAccountId ) {
-        parent::__construct( $name , $espAccountId );
+    public function __construct ($espAccountId) {
+        parent::__construct(self::ESP_NAME, $espAccountId );
 
         $creds = EspApiAccount::grabApiKeyWithSecret( $espAccountId );
   

@@ -2,12 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Models\BlueHornetReport;
-use App\Models\Email;
-use App\Repositories\EmailRecordRepo;
-use App\Repositories\ReportRepo;
+
 use App\Services\API\BlueHornetApi;
-use App\Services\BlueHornetReportService;
+use App\Services\BlueHornetSubscriberService;
 use App\Services\EmailRecordService;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Inspiring;
@@ -36,6 +33,7 @@ class Inspire extends Command
      */
     public function handle()
     {
-            echo "I want to work";
+            $test  = new BlueHornetSubscriberService( new BlueHornetApi(1));
+            $test->pullBounceEmailsByLookback(4);
     }
 }
