@@ -211,7 +211,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     }
 
     protected function saveRecords () {
-        $this->reportService->saveRecords( $this->processState );
+        $map = $this->standardReportRepo->getEspToInternalMap($this->espAccountId);
+        $this->reportService->saveRecords( $this->processState, $map );
 
         $this->changeJobEntry( JobEntry::SUCCESS );
     }

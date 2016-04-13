@@ -20,6 +20,7 @@ class StandardApiReportRepo {
 
     public function getCampaigns($espAccountId, $date) {
         return $this->report
+            ->select('external_deploy_id', 'campaign_name', 'esp_account_id', 'esp_internal_id', 'datetime')
             ->where( 'updated_at' , ">=" , $date )
             ->where( 'esp_account_id' , $espAccountId )
             ->get();

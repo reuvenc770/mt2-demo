@@ -171,19 +171,31 @@ class MaroReportService extends AbstractReportService implements IDataService
         echo "Matched: $totalCorrect; Missing: $totalIncorrect" . PHP_EOL;
     }
 
-    public function saveRecords ( &$processState ) {
-        $data = $this->api->getDelivered( $processState[ 'campaign' ]->internal_id );
+    public function saveRecords ( &$processState, $map ) {
+        $data = $this->api->getDelivered( $processState[ 'campaign' ]->esp_internal_id );
         $data = $this->processGuzzleResult( $data );
 
+        $totalCorrect = 0;
+        $totalIncorrect = 0;
+
         foreach ( $data as $key => $record ) {
-            $this->emailRecord->recordDeliverable(
-                self::RECORD_TYPE_DELIVERABLE ,
-                $record[ 'email' ] ,
-                $this->api->getId() ,
-                $record[ 'campaign_id' ] ,
-                $record[ 'created_at' ]
-            );
+            if (isset($map[ $record['campaign_id'] ])) {
+                $this->emailRecord->recordDeliverable(
+                    self::RECORD_TYPE_DELIVERABLE ,
+                    $record[ 'email' ] ,
+                    $this->api->getId() ,
+                     $map[ $record['campaign_id'] ],
+                    $record[ 'campaign_id' ] ,
+                    $record[ 'created_at' ]
+                );
+                $totalCorrect++;
+            }
+            else {
+                $totalIncorrect++;
+            }
         }
+
+        echo "Matched: $totalCorrect; Missing: $totalIncorrect" . PHP_EOL;
     }
 
     public function shouldRetry () {
