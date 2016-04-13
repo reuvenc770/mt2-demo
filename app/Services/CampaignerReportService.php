@@ -361,7 +361,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         $body = simplexml_load_string($manager->__getLastResponse());
 
         if ( !$body ) {
-            throw new \Exception( 'Failed to retrieve SOAP response.' );            
+            throw new \Exception( 'Failed to retrieve SOAP response.' );
         }
 
         $response = $body->children("http://schemas.xmlsoap.org/soap/envelope/")->Body->children();

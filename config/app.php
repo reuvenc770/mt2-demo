@@ -165,6 +165,7 @@ return [
         DaveJamesMiller\Breadcrumbs\ServiceProvider::class,
         Maknz\Slack\SlackServiceProvider::class,
         Jenssegers\Agent\AgentServiceProvider::class,
+        App\Providers\SuppressionProvider::class,
     ],
 
     /*
@@ -222,6 +223,7 @@ return [
         'Breadcrumbs' => DaveJamesMiller\Breadcrumbs\Facade::class,
         'Slack' => Maknz\Slack\Facades\Slack::class,
         'Agent' => Jenssegers\Agent\Facades\Agent::class,
+        'Suppression' => App\Facades\Suppression::class,
     ],
 
 ];

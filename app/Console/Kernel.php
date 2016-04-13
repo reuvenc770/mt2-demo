@@ -29,7 +29,8 @@ class Kernel extends ConsoleKernel
         Commands\AdoptOrphanEmails::class,
         Commands\DownloadContentServerStats::class,
         Commands\ProcessUserAgents::class,
-        Commands\SendSprintUnsubsCommand::class
+        Commands\SendSprintUnsubsCommand::class,
+        Commands\DownloadSuppressionFromESPCommand::class
     ];
 
     /**

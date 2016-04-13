@@ -67,6 +67,12 @@ class APIFactory
         }
     }
 
+    public static function createApiSubscriptionService($apiName, $espAccountId){
+        $api = "App\\Services\\API\\{$apiName}Api";
+        $service = "App\\Services\\{$apiName}SubscriberService";
+        return new $service(new $api($espAccountId));
+    }
+
     public static function createCsvDeliverableService($espId, $espName) {
 
         $emailModel = new \App\Models\Email();
