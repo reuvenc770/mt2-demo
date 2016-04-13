@@ -191,12 +191,13 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     }
 
     protected function savePaginatedRecords () {
+        $map = $this->standardReportRepo->getEspToInternalMap($this->espAccountId);
         $this->reportService->setPageType( $this->processState[ 'recordType' ] );
         $this->reportService->setPageNumber( isset( $this->processState[ 'pageNumber' ] ) ? $this->processState[ 'pageNumber' ] : 1 );
 
         if ( $this->reportService->pageHasData() ) {
             $this->processState[ 'currentPageData' ] = $this->reportService->getPageData();
-            $this->reportService->savePage( $this->processState );
+            $this->reportService->savePage( $this->processState, $map );
             $this->processState[ 'currentPageData' ] = array();
 
             $this->reportService->nextPage();
