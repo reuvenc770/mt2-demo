@@ -34,4 +34,12 @@ class SuppressionRepo
             "campaign_id" => $arrayData['campaign_id']], $arrayData);
     }
 
+    public function getRecordsByDateEspType($type_id, $espAccountId, $date){
+       return $this->suppressionModel->select("email_address","reason")
+                                ->where("type_id",$type_id)
+                                ->where("esp_account_id",$espAccountId)
+                                ->where("date",$date )
+                                ->get();
+    }
+
 }

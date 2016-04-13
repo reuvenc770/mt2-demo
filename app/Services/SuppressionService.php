@@ -9,9 +9,10 @@
 namespace App\Services;
 
 
+use App\Models\Suppression;
 use App\Repositories\SuppressionRepo;
 use Log;
-//TODO could refactor, but not sure where suppression is going
+//TODO could refactor, but not sure where suppression is going in terms of direction so leaving it simple
 class SuppressionService
 {
     protected $repo;
@@ -54,5 +55,23 @@ class SuppressionService
             Log::error($e->getMessage(). ": while trying to record unsub");
             throw new \Exception($e);
         }
+    }
+
+    public function getHardBouncesByDateEsp($espAccountId, $date){
+        try{
+           return $this->repo->getRecordsByDateEspType(Suppression::TYPE_HARD_BOUNCE, $espAccountId, $date);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage(). ": while trying get Suppression Records by Hardbounce");
+            throw new \Exception($e);
+        }
+    }
+    public function getUnsubsByDateEsp($espAccountId, $date){
+        try{
+           return $this->repo->getRecordsByDateEspType(Suppression::TYPE_UNSUB, $espAccountId, $date);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage(). ": while trying get Suppression Records by Unsub");
+            throw new \Exception($e);
+        }
+
     }
 }

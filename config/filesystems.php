@@ -55,6 +55,14 @@ return [
             'password' => "U{@y'5<@MraG%_J_",
         ],
 
+        'hornet7' => [
+            'driver'   => 'ftp',
+            'host'     => env("HORNET7_IP"),
+            'username' => env("HORNET7_USERNAME"),
+            'password' => env("HORNET7_PW"),
+        ],
+
+
         'sprintUnsubFTP' => [
             'driver'   => 'ftp',
             'host'     => '173.255.229.62',
