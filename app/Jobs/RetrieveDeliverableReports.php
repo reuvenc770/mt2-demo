@@ -164,18 +164,6 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->changeJobEntry( JobEntry::SUCCESS );
     }
 
-    /*
-    protected function getRunId() {
-        $this->processState['currentFilterIndex']++;
-
-        $this->processState['runId'] = $this->reportService->getRunId($this->processState['campaign']->esp_internal_id);
-
-        $this->queueNextJob( $this->defaultQueue );
-        $this->changeJobEntry( JobEntry::SUCCESS );
-    }
-    */
-    
-
     protected function splitTypes () {
         $this->processState[ 'currentFilterIndex' ]++;
 
