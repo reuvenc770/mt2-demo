@@ -155,7 +155,7 @@ class MaroReportService extends AbstractReportService implements IDataService
         return false; #releases if guzzle result is not HTTP 200
     }
 
-    public function getUniqueJobId ( $processState ) {
+    public function getUniqueJobId ( &$processState ) {
         $jobId = ( isset( $processState[ 'jobId' ] ) ? $processState[ 'jobId' ] : '' );
 
         if ( 
@@ -167,7 +167,7 @@ class MaroReportService extends AbstractReportService implements IDataService
 
             if ( $pipe == 'default' && $filterIndex == 1  ) {
                 $jobId .= '::Pipe-' . $pipe . '::' . $processState[ 'recordType' ] . '::Page-' . ( isset( $processState[ 'pageNumber' ] ) ? $processState[ 'pageNumber' ] : 1 );
-            } elseif ( $pipe == 'delivered' && $filterIndex == 1 ) {
+            } elseif ( $pipe == 'delivered' && $filterIndex == 1 && isset( $processState[ 'campaign' ] ) ) {
                 $jobId .= '::Pipe-' .$pipe . '::Campaign-' . $processState[ 'campaign' ]->internal_id;
             }
 
