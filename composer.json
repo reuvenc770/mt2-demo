@@ -16,7 +16,7 @@
         "predis/predis": "^1.0",
         "davejamesmiller/laravel-breadcrumbs": "^3.0",
         "maknz/slack": "^1.7",
-        "flowjs/flow-php-server": "^1.0"
+        "flowjs/flow-php-server": "^1.0" ,
         "jenssegers/agent": "^2.3"
     },
     "require-dev": {

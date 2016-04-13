@@ -329,7 +329,7 @@ Route::group(
 
         Route::any('/attachment/upload', [
             'as' => 'api.attachment.upload' ,
-            'uses' => 'AttachmentAPIController@flow'
+            'uses' => 'AttachmentApiController@flow'
         ] );
 
         /**

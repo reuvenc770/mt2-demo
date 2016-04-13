@@ -23,7 +23,7 @@
 
                 <div class="panel-body">
                     <md-content flex>
-                        <div flow-init="{ target : 'api/attachment/upload' , query : { filetype : 'testFile' } }" flow-files-submitted="$flow.upload()">
+                    <div flow-init="{ target : 'api/attachment/upload' , query : { '_token' : '{{ csrf_token() }}' } }" flow-files-submitted="$flow.upload()">
                             <div flow-drop class="dropFile" flow-drag-enter="style={border:'4px solid green'}" flow-drag-leave="style={}" ng-style="style">
                                 <span class="btn btn-default" flow-btn>
                                     Upload Suppression Files
@@ -59,9 +59,7 @@
                                         <th>File Size</th>
                                         <th>#Chunks</th>
                                         <th>Progress</th>
-                                        <th>Paused</th>
-                                        <th>Uploading</th>
-                                        <th>Completed</th>
+                                        <th>Download Status</th>
                                         <th>Settings</th>
                                     </tr>
                                 </thead>
@@ -69,14 +67,12 @@
                                     <tr ng-repeat="file in transfers">
                                         <td>@{{ $index + 1 }}</td>
                                         <td>@{{ file.name }}</td>
-                                        <td>@{{ file.size | bytes }}</td>
-                                        <td>@{{ file.chunks.length }}</td>
+                                        <td class="text-center">@{{ file.size | bytes }}</td>
+                                        <td class="text-center">@{{ file.chunks.length }}</td>
                                         <td>
                                             <md-progress-linear class="md-warn" md-mode="determinate" ng-value="file.progress() * 100"></md-progress-linear>
                                         </td>
-                                        <td>@{{ file.paused ? 'Yes' : 'No' }}</td>
-                                        <td>@{{ file.isUploading() ? 'Yes' : 'No' }}</td>
-                                        <td>@{{ file.isComplete() ? 'Yes' : 'No' }}</td>
+                                        <td class="text-center" ng-class="{ 'bg-info' : file.isUploading() , 'bg-warning' : file.paused , 'bg-danger' : file.error , 'bg-success' : !file.error }"><strong>@{{ file.isUploading() ? 'Downloading' : ( file.paused ? 'Paused': ( file.error ? 'Failed' : 'Successful' ) ) }}</strong></td>
                                         <td>
                                             <div class="btn-group">
                                                 <a class="btn btn-mini btn-warning" ng-click="file.pause()" ng-hide="file.paused">
