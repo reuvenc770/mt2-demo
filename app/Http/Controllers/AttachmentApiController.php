@@ -29,8 +29,8 @@ class AttachmentApiController extends Controller
             Storage::makeDirectory( self::UPLOAD_BASE_DIR );
         }
 
-        if ( !Storage::exists( self::UPLOAD_BASE_DIR . 'bulksuppression/' ) ) {
-            Storage::makeDirectory( self::UPLOAD_BASE_DIR . 'bulksuppression/' );
+        if ( !Storage::exists( self::UPLOAD_BASE_DIR . $_REQUEST[ 'fromPage' ] ) ) {
+            Storage::makeDirectory( self::UPLOAD_BASE_DIR . $_REQUEST[ 'fromPage' ] );
         }
 
         if ( !Storage::exists( $destinationFolder ) ) {

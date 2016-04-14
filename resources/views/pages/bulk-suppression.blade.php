@@ -12,7 +12,7 @@
         <div class="hidden-xs hidden-sm col-md-3"></div>
 
         <div class="col-xs-12 col-md-6">
-            <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disabled' : listProfile.creatingListProfile }" ng-click="listProfile.calculateListProfile( $event )"><span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : listProfile.creatingListProfile }"></span> Remove</button>
+            <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disabled' : listProfile.creatingListProfile }" ng-click="listProfile.calculateListProfile( $event )"><span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : listProfile.creatingListProfile }"></span> Suppress</button>
 
             <div class="clearfix"></div>
 
@@ -23,7 +23,28 @@
 
                 <div class="panel-body">
                     <md-content flex>
-                    <div flow-init="{ target : 'api/attachment/upload' , query : { '_token' : '{{ csrf_token() }}' } }" flow-files-submitted="$flow.upload()">
+                        <md-input-container class="md-block" ng-cloak>
+                            <label>Emails</label>
+                            <textarea ng-model="emails" rows="5" md-select-on-focus></textarea>
+                        </md-input-container>
+
+
+                        <md-input-container class="md-block" flex-gt-sm>
+                            <label>Suppression Reason</label>
+                            <md-select ng-model="reason">
+                                <md-option value="">Select Reason</md-option>
+                                <md-option value="C">Complaint</md-option>
+                                <md-option value="B">Bounce</md-option>
+                                <md-option value="ADVS">Advertiser Screamer</md-option>
+                                <md-option value="I">ImpressionWise</md-option>
+                                <md-option value="IPCMP">IP Provider Complaint</md-option>
+                                <md-option value="LOS">List Owner Screamer</md-option>
+                                <md-option value="SPAMT">Spamtrap</md-option>
+                                <md-option value="">Known Seed</md-option> <!-- Need value for this!!! -->
+                            </md-select>
+                        </md-input-container>
+
+                        <div flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'bulksuppression' , '_token' : '{{ csrf_token() }}' } }" flow-files-submitted="$flow.upload()">
                             <div flow-drop class="dropFile" flow-drag-enter="style={border:'4px solid green'}" flow-drag-leave="style={}" ng-style="style">
                                 <span class="btn btn-default" flow-btn>
                                     Upload Suppression Files
@@ -54,13 +75,13 @@
                             <table class="table table-hover table-bordered table-striped" flow-transfers ng-cloak>
                                 <thead>
                                     <tr>
-                                        <th>#</th>
-                                        <th>Name</th>
-                                        <th>File Size</th>
-                                        <th>#Chunks</th>
-                                        <th>Progress</th>
-                                        <th>Download Status</th>
-                                        <th>Settings</th>
+                                        <th class="text-center">#</th>
+                                        <th class="text-center">Name</th>
+                                        <th class="text-center">File Size</th>
+                                        <th class="text-center">#Chunks</th>
+                                        <th class="text-center">Progress</th>
+                                        <th class="text-center">Download Status</th>
+                                        <th class="text-center">Settings</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -100,7 +121,7 @@
                 </div>
             </div>
 
-            <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disabled' : listProfile.creatingListProfile }" ng-click="listProfile.calculateListProfile( $event )"><span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : listProfile.creatingListProfile }"></span> Remove</button>
+            <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disabled' : listProfile.creatingListProfile }" ng-click="listProfile.calculateListProfile( $event )"><span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : listProfile.creatingListProfile }"></span> Suppress</button>
         </div>
     </div>
 </div>
