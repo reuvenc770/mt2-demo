@@ -16,12 +16,13 @@ class YmlpApi extends EspBaseAPI {
   const OPENS_URL = "";
   const BOUNCES_URL = "";
   const CLICKS_URL = "";
+  const ESP_NAME = "YMLP";
 
   protected $apiSdk;
   protected $startDate;
 
-  public function __construct($name, $espAccountId) {
-    parent::__construct($name, $espAccountId);
+  public function __construct ($espAccountId) {
+    parent::__construct(self::ESP_NAME, $espAccountId);
     $creds = EspApiAccount::grabApiUsernameWithPassword($espAccountId);
     $this->apiSdk = new YMLP_API($creds['password'], $creds['userName'], true);
   }

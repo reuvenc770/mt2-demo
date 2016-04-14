@@ -9,6 +9,8 @@ class Kernel extends ConsoleKernel
 {
     const DELIVERABLE_SCHEDULE_TIME = '02:00';
     const DELIVERABLE_AGGREGATION_TIME = '11:00';
+    const UNSUB_TIME = '01:00';
+    const REPORT_TIME = '11:30';
 
     /**
      * The Artisan commands provided by your application.
@@ -29,7 +31,9 @@ class Kernel extends ConsoleKernel
         Commands\AdoptOrphanEmails::class,
         Commands\DownloadContentServerStats::class,
         Commands\ProcessUserAgents::class,
-        Commands\SendSprintUnsubsCommand::class
+        Commands\SendSprintUnsubsCommand::class,
+        Commands\DownloadSuppressionFromESPCommand::class,
+        Commands\ParseandSendSuppressionsCommand::class,
     ];
 
     /**
@@ -53,6 +57,13 @@ class Kernel extends ConsoleKernel
         $orphanFilePath = storage_path('logs')."/adoptOrphans.log";
         $schedule->command( 'reports:adoptOrphans --maxOrphans=400000 --chunkSize=10000 --queueName=orphanage --chunkDelay=0 --order=newest --maxAttempts=5' )->everyTenMinutes()->sendOutputTo( $orphanFilePath );
         $schedule->command( 'reports:adoptOrphans --maxOrphans=400000 --chunkSize=10000 --queueName=orphanage --chunkDelay=0 --order=oldest --maxAttempts=5' )->everyTenMinutes()->sendOutputTo( $orphanFilePath );
+
+
+        /**
+         * Suppression Jobs
+         */
+        $schedule->command('suppression:downloadESP BlueHornet 1')->hourly()->dailyAt(self::UNSUB_TIME);
+        $schedule->command('movetoftp:suppressions BlueHornet 1')->hourly()->dailyAt(self::REPORT_TIME);
 
         /**
          * Campaign Data Daily
