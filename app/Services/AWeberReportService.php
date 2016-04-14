@@ -99,9 +99,10 @@ class AWeberReportService extends AbstractReportService implements IDataService
     public function mapToStandardReport($data)
     {
         return array(
-            'deploy_id' => "",
-            'sub_id' => "",
+            'campaign_name' => "",
+            'external_deploy_id' => "",
             'esp_account_id' => $this->api->getEspAccountId(),
+            'esp_internal_id' => $data['internal_id'],
             'datetime' => $data[ 'sent_at' ],
             'name' => "",
             'subject' => $data[ 'subject' ],

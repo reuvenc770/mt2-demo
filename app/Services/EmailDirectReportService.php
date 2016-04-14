@@ -49,12 +49,14 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
     }
 
     public function mapToStandardReport ( $data ) {
-        $formatedData = $this->mapToRawReport( $data );
-
+        //$formatedData = $this->mapToRawReport( $data );
+        $deployId = $this->parseSubID($data['name']);
         return array(
-            'deploy_id' => $data[ 'name' ],
-            'sub_id' => $this->parseSubID($data['name']),
+            'campaign_name' => $data[ 'name' ],
+            'external_deploy_id' => $deployId,
+            'm_deploy_id' => $deployId,
             'esp_account_id' => $this->api->getEspAccountId(),
+            'esp_internal_id' => $data['internal_id'],
             'datetime' => $data[ 'scheduled_date' ],
             'name' => $data[ 'campaign_id' ],
             'subject' => $data[ 'subject' ],
@@ -110,7 +112,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
             || ( isset( $processState[ 'jobIdIndex' ] ) && $processState[ 'jobIdIndex' ] != $processState[ 'currentFilterIndex' ] )
         ) {
             if ( $processState[ 'currentFilterIndex' ] == 2 && isset( $processState[ 'campaign' ] ) ) {
-                $jobId .= '::Campaign-' . $processState[ 'campaign' ]->internal_id;
+                $jobId .= '::Campaign-' . $processState[ 'campaign' ]->esp_internal_id;
             } elseif ( $processState[ 'currentFilterIndex' ] == 4 && isset( $processState[ 'recordType' ] ) ) {
                 $jobId .= '::Type-' . $processState[ 'recordType' ];
             }
@@ -140,32 +142,35 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
         return $processState[ 'typeList' ];
     }
 
-    public function saveRecords ( &$processState ) {
+    public function saveRecords ( &$processState, $map ) {
+        // $map is not needed for this version of saveRecords
         try {
             switch ( $processState[ 'recordType' ] ) {
                 case 'deliveries' :
-                    $deliverables = $this->getDeliveryReport( $processState[ 'campaign' ]->internal_id );
+                    $deliverables = $this->getDeliveryReport( $processState[ 'campaign' ]->esp_internal_id );
 
                     foreach ( $deliverables as $key => $deliveryRecord ) {
                         $this->emailRecord->recordDeliverable(
                             self::RECORD_TYPE_DELIVERABLE ,
                             $deliveryRecord[ 'EmailAddress' ] ,
                             $processState[ 'espId' ] ,
-                            $processState[ 'campaign' ]->internal_id ,
+                            $processState[ 'campaign' ]->external_deploy_id ,
+                            $processState[ 'campaign' ]->esp_internal_id ,
                             $deliveryRecord[ 'ActionDate' ]
                         );
                     }
                 break;
 
                 case 'opens' :
-                    $opens = $this->getOpenReport( $processState[ 'campaign' ]->internal_id );
+                    $opens = $this->getOpenReport( $processState[ 'campaign' ]->esp_internal_id );
 
                     foreach ( $opens as $key => $openRecord ) {
                         $this->emailRecord->recordDeliverable(
                             self::RECORD_TYPE_OPENER ,
                             $openRecord[ 'EmailAddress' ] ,
                             $processState[ 'espId' ] ,
-                            $processState[ 'campaign' ]->internal_id ,
+                            $processState[ 'campaign' ]->external_deploy_id ,
+                            $processState[ 'campaign' ]->esp_internal_id ,
                             $openRecord[ 'ActionDate' ]
                         );
                     }
@@ -179,7 +184,8 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                             self::RECORD_TYPE_CLICKER ,
                             $clickRecord[ 'EmailAddress' ] ,
                             $processState[ 'espId' ] ,
-                            $processState[ 'campaign' ]->internal_id ,
+                            $processState[ 'campaign' ]->external_deploy_id ,
+                            $processState[ 'campaign' ]->esp_internal_id ,
                             $clickRecord[ 'ActionDate' ]
                         );
                     }
@@ -193,7 +199,8 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                             self::RECORD_TYPE_UNSUBSCRIBE ,
                             $unsubRecord[ 'EmailAddress' ] ,
                             $processState[ 'espId' ] ,
-                            $processState[ 'campaign' ]->internal_id ,
+                            $processState[ 'campaign' ]->external_deploy_id ,
+                            $processState[ 'campaign' ]->esp_internal_id ,
                             $unsubRecord[ 'ActionDate' ]
                         );
                     }
@@ -207,7 +214,8 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                             self::RECORD_TYPE_COMPLAINT ,
                             $complainerRecord[ 'EmailAddress' ] ,
                             $processState[ 'espId' ] ,
-                            $processState[ 'campaign' ]->internal_id ,
+                            $processState[ 'campaign' ]->external_deploy_id ,
+                            $processState[ 'campaign' ]->esp_internal_id ,
                             $complainerRecord[ 'ActionDate' ]
                         );
                     }

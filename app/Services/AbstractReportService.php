@@ -51,13 +51,15 @@ abstract class AbstractReportService implements IDataService  {
       }
   }
 
-  public function getCampaigns ( $accountName , $date ) {
+  /*
+  public function getCampaigns ( $espAccountId , $date ) {
       try {
-        return $this->reportRepo->getCampaigns( $accountName , $date );
+        return $this->standardRepo->getCampaigns($espAccountId, $date );
       } catch ( \Exception $e ) {
         throw new \Exception( $e->getMessage() );
       }
   }
+  */
 
   public function insertSegmentedApiRawStats($data, $length) {
     $start = 0;
