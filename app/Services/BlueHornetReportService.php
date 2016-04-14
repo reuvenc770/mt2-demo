@@ -246,8 +246,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
                 for ( $currentContact->rewind() ; $currentContact->valid() ; $currentContact->next() ) {
 
-
-
                     if ( $currentContact->key() === 'sent' && $currentContact->current() == 1 ) {
                         $contactSent = true;
                     }
