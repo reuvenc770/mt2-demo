@@ -22,7 +22,7 @@ class GrabDeliverableReports extends Command
      *
      * @var string
      */
-    protected $signature = 'reports:downloadDeliverables {espName} {lookBack?}';
+    protected $signature = 'reports:downloadDeliverables {espName} {lookBack?} {queueName?}';
 
     /**
      * The console command description.
@@ -51,10 +51,18 @@ class GrabDeliverableReports extends Command
     public function handle()
     {
         $this->lookBack = $this->argument('lookBack') ? $this->argument('lookBack') : env('LOOKBACK',5);
-
+        $queue = (string) $this->argument('queueName') ? $this->argument('queueName') : "default";
         $date = Carbon::now()->subDay($this->lookBack)->toDateString();
 
         $espName = $this->argument('espName');
+        $processState = null;
+
+        if ( preg_match( '/:/' , $espName ) ) {
+            $espParts = explode( ':' , $espName );
+            $espName = $espParts[ 0 ];
+
+            $processState = [ 'pipe' => $espParts[ 1 ] ];
+        }
 
         $espAccounts = $this->espRepo->getAccountsByESPName($espName);
 
@@ -62,7 +70,15 @@ class GrabDeliverableReports extends Command
             $espLogLine = "{$account->name}::{$account->account_name}";
             $this->info($espLogLine);
 
-            $this->dispatch(new RetrieveDeliverableReports($account->name, $account->id, $date, str_random(16)));
+            $job = (new RetrieveDeliverableReports(
+                $account->name ,
+                $account->id ,
+                $date ,
+                str_random(16) ,
+                $processState ,
+                $queue ) )->onQueue( $queue );
+
+            $this->dispatch($job);
         }
     }
 }

@@ -13,14 +13,13 @@ use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use App\Services\Interfaces\IDataService;
 use App\Services\EmailRecordService;
+use App\Exceptions\JobException;
 use Log;
 
 /**
  *
  */
 class EmailDirectReportService extends AbstractReportService implements IDataService {
-    protected $dataRetrievalFailed = false;
-
     private $invalidFields = array( 'Publication' , 'Links' );
 
     public function __construct ( ReportRepo $reportRepo , EmailDirectApi $api , EmailRecordService $emailRecord ) {
@@ -50,12 +49,14 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
     }
 
     public function mapToStandardReport ( $data ) {
-        $formatedData = $this->mapToRawReport( $data );
-
+        //$formatedData = $this->mapToRawReport( $data );
+        $deployId = $this->parseSubID($data['name']);
         return array(
-            'deploy_id' => $data[ 'name' ],
-            'sub_id' => $this->parseSubID($data['name']),
+            'campaign_name' => $data[ 'name' ],
+            'external_deploy_id' => $deployId,
+            'm_deploy_id' => $deployId,
             'esp_account_id' => $this->api->getEspAccountId(),
+            'esp_internal_id' => $data['internal_id'],
             'datetime' => $data[ 'scheduled_date' ],
             'name' => $data[ 'campaign_id' ],
             'subject' => $data[ 'subject' ],
@@ -103,109 +104,129 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
         return $formattedData;
     }
 
-    public function getUniqueJobId ( $processState ) {
-        if ( isset( $processState[ 'campaignId' ] ) && !isset( $processState[ 'recordType' ] ) ) {
-            return '::Campaign' . $processState[ 'campaignId' ];
-        } elseif ( isset( $processState[ 'campaignId' ] ) && isset( $processState[ 'recordType' ] ) ) {
-            return '::Campaign' . $processState[ 'campaignId' ] . '::' . $processState[ 'recordType' ];
-        } else {
-            return '';
+    public function getUniqueJobId ( &$processState ) {
+        $jobId = ( isset( $processState[ 'jobId' ] ) ? $processState[ 'jobId' ] : '' );
+
+        if ( 
+            !isset( $processState[ 'jobIdIndex' ] )
+            || ( isset( $processState[ 'jobIdIndex' ] ) && $processState[ 'jobIdIndex' ] != $processState[ 'currentFilterIndex' ] )
+        ) {
+            if ( $processState[ 'currentFilterIndex' ] == 2 && isset( $processState[ 'campaign' ] ) ) {
+                $jobId .= '::Campaign-' . $processState[ 'campaign' ]->esp_internal_id;
+            } elseif ( $processState[ 'currentFilterIndex' ] == 4 && isset( $processState[ 'recordType' ] ) ) {
+                $jobId .= '::Type-' . $processState[ 'recordType' ];
+            }
+            
+            $processState[ 'jobIdIndex' ] = $processState[ 'currentFilterIndex' ];
+            $processState[ 'jobId' ] = $jobId;
         }
+
+        return $jobId;
     }
 
     public function getCampaigns ( $espAccountId , $date ) {
         return $this->reportRepo->getCampaigns( $espAccountId , $date );
     }
 
-    public function splitTypes () {
-        return [ 'deliveries' , 'opens' , 'clicks' ];
+    public function getTypeList ( $processState ) {
+        $typeList = [ 'opens' , 'clicks', "unsubscribes", "complaints" ];
+
+        if ( !$this->emailRecord->checkForDeliverables( $processState[ 'espAccountId' ] , $processState[ 'campaign' ][ 'internal_id' ] ) ) {
+            $typeList []= 'deliveries';
+        }
+
+        return $typeList;
     }
 
-    public function saveRecords ( &$processState ) {
-        $this->dataRetrievalFailed = false;
+    public function splitTypes ( $processState ) {
+        return $processState[ 'typeList' ];
+    }
 
-        switch ( $processState[ 'recordType' ] ) {
-            case 'deliveries' :
-                try {
-                    $deliverables = $this->getDeliveryReport( $processState[ 'campaignId' ] );
-                } catch ( \Exception $e ) {
-                    Log::error( 'Failed to retrievee deliverable records. ' . $e->getMessage() );
+    public function saveRecords ( &$processState, $map ) {
+        // $map is not needed for this version of saveRecords
+        try {
+            switch ( $processState[ 'recordType' ] ) {
+                case 'deliveries' :
+                    $deliverables = $this->getDeliveryReport( $processState[ 'campaign' ]->esp_internal_id );
 
-                    $processState[ 'delay' ] = 180;
+                    foreach ( $deliverables as $key => $deliveryRecord ) {
+                        $this->emailRecord->recordDeliverable(
+                            self::RECORD_TYPE_DELIVERABLE ,
+                            $deliveryRecord[ 'EmailAddress' ] ,
+                            $processState[ 'espId' ] ,
+                            $processState[ 'campaign' ]->external_deploy_id ,
+                            $processState[ 'campaign' ]->esp_internal_id ,
+                            $deliveryRecord[ 'ActionDate' ]
+                        );
+                    }
+                break;
 
-                    $this->dataRetrievalFailed = true;
+                case 'opens' :
+                    $opens = $this->getOpenReport( $processState[ 'campaign' ]->esp_internal_id );
 
-                    return;
-                }
+                    foreach ( $opens as $key => $openRecord ) {
+                        $this->emailRecord->recordDeliverable(
+                            self::RECORD_TYPE_OPENER ,
+                            $openRecord[ 'EmailAddress' ] ,
+                            $processState[ 'espId' ] ,
+                            $processState[ 'campaign' ]->external_deploy_id ,
+                            $processState[ 'campaign' ]->esp_internal_id ,
+                            $openRecord[ 'ActionDate' ]
+                        );
+                    }
+                break;
 
-                foreach ( $deliverables as $key => $deliveryRecord ) {
-                    $currentEmail = $deliveryRecord[ 'EmailAddress' ];
-                    $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
+                case 'clicks' :
+                    $clicks = $this->getClickReport( $processState[ 'campaign' ]->internal_id );
 
-                    $this->emailRecord->recordDeliverable(
-                        $currentEmailId ,
-                        $processState[ 'espId' ] ,
-                        $processState[ 'campaignId' ] ,
-                        $deliveryRecord[ 'ActionDate' ]
-                    );
-                }
-            break;
+                    foreach ( $clicks as $key => $clickRecord ) {
+                        $this->emailRecord->recordDeliverable(
+                            self::RECORD_TYPE_CLICKER ,
+                            $clickRecord[ 'EmailAddress' ] ,
+                            $processState[ 'espId' ] ,
+                            $processState[ 'campaign' ]->external_deploy_id ,
+                            $processState[ 'campaign' ]->esp_internal_id ,
+                            $clickRecord[ 'ActionDate' ]
+                        );
+                    }
+                break;
 
-            case 'opens' :
-                try {
-                    $opens = $this->getOpenReport( $processState[ 'campaignId' ] );
-                } catch ( \Exception $e ) {
-                    Log::error( 'Failed to retrievee open records. ' . $e->getMessage() );
+                case 'unsubscribes' :
+                    $unsubs = $this->getUnsubscribeReport( $processState[ 'campaign' ]->internal_id );
 
-                    $processState[ 'delay' ] = 180;
+                    foreach ( $unsubs as $key => $unsubRecord ) {
+                        $this->emailRecord->recordDeliverable(
+                            self::RECORD_TYPE_UNSUBSCRIBE ,
+                            $unsubRecord[ 'EmailAddress' ] ,
+                            $processState[ 'espId' ] ,
+                            $processState[ 'campaign' ]->external_deploy_id ,
+                            $processState[ 'campaign' ]->esp_internal_id ,
+                            $unsubRecord[ 'ActionDate' ]
+                        );
+                    }
+                break;
 
-                    $this->dataRetrievalFailed = true;
+                case 'complaints' :
+                    $complainers = $this->getComplaintReport( $processState[ 'campaign' ]->internal_id );
 
-                    return;
-                }
-
-                foreach ( $opens as $key => $openRecord ) {
-                    $currentEmail = $openRecord[ 'EmailAddress' ];
-                    $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
-
-                    $this->emailRecord->recordOpen(
-                        $currentEmailId ,
-                        $processState[ 'espId' ] ,
-                        $processState[ 'campaignId' ] ,
-                        $openRecord[ 'ActionDate' ]
-                    );
-                }
-            break;
-
-            case 'clicks' :
-                try {
-                    $clicks = $this->getClickReport( $processState[ 'campaignId' ] );
-                } catch ( \Exception $e ) {
-                    Log::error( 'Failed to retrievee click records. ' . $e->getMessage() );
-
-                    $processState[ 'delay' ] = 180;
-
-                    $this->dataRetrievalFailed = true;
-
-                    return;
-                }
-
-                foreach ( $clicks as $key => $clickRecord ) {
-                    $currentEmail = $clickRecord[ 'EmailAddress' ];
-                    $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
-
-                    $this->emailRecord->recordClick(
-                        $currentEmailId ,
-                        $processState[ 'espId' ] ,
-                        $processState[ 'campaignId' ] ,
-                        $clickRecord[ 'ActionDate' ]
-                    );
-                }
-            break;
+                    foreach ( $complainers as $key => $complainerRecord ) {
+                        $this->emailRecord->recordDeliverable(
+                            self::RECORD_TYPE_COMPLAINT ,
+                            $complainerRecord[ 'EmailAddress' ] ,
+                            $processState[ 'espId' ] ,
+                            $processState[ 'campaign' ]->external_deploy_id ,
+                            $processState[ 'campaign' ]->esp_internal_id ,
+                            $complainerRecord[ 'ActionDate' ]
+                        );
+                    }
+                break;
+            }
+        } catch ( \Exception $e ) {
+            $jobException = new JobException( 'Failed to retrieve records. ' . $e->getMessage() , JobException::NOTICE );
+            $jobException->setDelay( 180 );
+            throw $jobException;
         }
     }
-
-    public function shouldRetry () { return $this->dataRetrievalFailed; }
 
     public function getDeliveryReport($campaignId){
       return  $this->api->getDeliveryReport($campaignId, "Recipients");
@@ -225,6 +246,10 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
     //Todo do we include softbounces?
     public function getHardBounceReport($campaignId){
        return $this->api->getDeliveryReport($campaignId, "HardBounces");
+    }
+
+    public function getComplaintReport($campaignId){
+        return $this->api->getDeliveryReport($campaignId, "Complaints");
     }
 
 }

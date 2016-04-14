@@ -9,6 +9,7 @@
 namespace App\Services;
 
 #use App\Services\API\BlueHornet;
+use App\Facades\Suppression;
 use App\Repositories\ReportRepo;
 use App\Services\API\BlueHornetApi;
 use App\Services\AbstractReportService;
@@ -17,6 +18,9 @@ use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use App\Services\Interfaces\IDataService;
 use App\Services\EmailRecordService;
+use Carbon\Carbon;
+use Storage;
+use App\Exceptions\JobException;
 
 use Log;
 use SimpleXML;
@@ -31,8 +35,6 @@ use SimpleXMLIterator;
  */
 class BlueHornetReportService extends AbstractReportService implements IDataService
 {
-    protected $dataRetrievalFailed = false;
-
     /**
      * BlueHornetReportService constructor.
      * @param ReportRepo $reportRepo
@@ -50,8 +52,10 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
      */
     public function retrieveApiStats($date)
     {
+        $endDate = Carbon::now()->endOfDay()->toDateString();
         $methodData = array(
-            "date" => $date
+            "start_date" => $date,
+            "end_date" => $endDate
         );
         try {
             $this->api->buildRequest('legacy.message_stats', $methodData);
@@ -83,12 +87,12 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
     public function mapToStandardReport($report)
     {
-
         return array(
-            'deploy_id' => $report['message_name'],
-            'sub_id' => $report['bill_codes'],
-            'm_deploy_id' => 0, // stub for now
+            'campaign_name' => $report['message_name'],
+            'external_deploy_id' => $report['bill_codes'],
+            'm_deploy_id' => $report['bill_codes'], // temporarily the same as external
             'esp_account_id' => $report['esp_account_id'],
+            'esp_internal_id' => $report['internal_id'],
             'datetime' => $report['date_sent'],
             'name' => $report['message_name'],
             'subject' => $report['message_subject'],
@@ -161,44 +165,81 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         );
     }
 
-    public function getUniqueJobId ( $processState ) {
-        if ( isset( $processState[ 'ticket' ][ 'ticketName' ] ) ) {
-            return '::Ticket-' . $processState[ 'ticket' ][ 'ticketName' ];
-        } else {
-            return '';
+    public function getUniqueJobId ( &$processState ) {
+        $jobId = ( isset( $processState[ 'jobId' ] ) ? $processState[ 'jobId' ] : '' );
+
+        if ( 
+            !isset( $processState[ 'jobIdIndex' ] )
+            || ( isset( $processState[ 'jobIdIndex' ] ) && $processState[ 'jobIdIndex' ] != $processState[ 'currentFilterIndex' ] )
+        ) {
+            switch ( $processState[ 'currentFilterIndex' ] ) {
+                case 2 :
+                    $jobId .= '::Campaign-' . $processState[ 'campaign' ]->esp_internal_id;
+                break;
+
+                case 3 :
+                    $jobId .= '::Ticket-' . $processState[ 'ticket' ][ 'ticketName' ];
+                break;
+
+                case 6 :
+                    $jobId .= '::Types-' . join( ',' , $processState[ 'typeList' ] );
+                break;
+            }
+            
+            $processState[ 'jobIdIndex' ] = $processState[ 'currentFilterIndex' ];
+            $processState[ 'jobId' ] = $jobId;
+        }
+
+        return $jobId;
+    }
+
+    public function getTypeList ( &$processState ) {
+        $typeList = ['open' , 'click' , 'optout', 'bounce' ];
+        if(!$this->emailRecord->checkForDeliverables($processState[ 'espAccountId' ],$processState[ 'campaign' ]->esp_internal_id)){
+            $typeList[] = "deliverable";
+        }
+        return $typeList;
+    }
+
+    public function startTicket ( $espAccountId , $campaign , $recordType ) {
+        try {
+            return [
+                "ticketName" => $this->getTicketForMessageSubscriberData( $campaign->esp_internal_id , 'sent,bounce,open,click,optout' ) ,
+                "deployId" => $campaign->external_deploy_id,
+                "espInternalId" => $campaign->esp_internal_id ,
+                "espId" => $espAccountId
+            ];
+        } catch ( \Exception $e ) {
+            $jobException = new JobException( 'Failed to start report ticket. ' . $e->getMessage() , JobException::NOTICE , $e );
+            $jobException->setDelay( 180 );
+            throw $jobException;
         }
     }
 
-    public function getTickets ( $espAccountId , $date ) {
-        $campaigns = $this->getCampaigns( $espAccountId , $date );
-        $tickets = [];
+    public function downloadTicketFile ( &$processState ) {
+        try {
+            $fileContents = $this->getFile( $processState[ 'ticketResponse' ] );
+        } catch ( \Exception $e ) {
+            $jobException = new JobException( 'Failed to download report ticket. ' . $e->getMessage() , JobException::NOTICE , $e );
+            $jobException->setDelay( 180 );
+            throw $jobException;
+        }
 
-        $campaigns->each( function ( $campaign , $key ) use ( &$tickets , $espAccountId ) {
-            $tickets []= [
-                "ticketName" => $this->getTicketForMessageSubscriberData( $campaign->internal_id ) ,
-                "campaignId" => $campaign->internal_id ,
-                "espId" => $espAccountId
-            ];
-        } );
+        $filePath = "files/deliverables/{$processState[ 'apiName' ]}/{$processState[ 'espAccountId' ]}/" . $processState[ 'campaign' ]->esp_internal_id . "/" . Carbon::now( 'America/New_York' )->format( 'Y-m-d-H-i-s' ) . '.xml';
 
-        return $tickets; 
+        Storage::put( $filePath , $fileContents );
+
+        return $filePath;
     }
 
     public function saveRecords ( &$processState ) {
-        $this->dataRetrievalFailed = false;
+        try {
+            $fileContents = Storage::get( $processState[ 'filePath' ] );
 
-        $ticket = $processState[ 'ticket' ][ 'ticketName' ];
-
-        $fileName = $this->checkTicketStatus( $ticket );
-
-        if ( $fileName !== false ) {
-            $file = $this->getFile( $fileName );
-
-            $contactIterator = new SimpleXMLIterator( $file->asXML() );
+            $contactIterator = new SimpleXMLIterator( $fileContents );
             for ( $contactIterator->rewind() ; $contactIterator->valid() ; $contactIterator->next() ) {
                 $currentContact = $contactIterator->current();
                 $currentEmail = '';
-                $currentEmailId = 0;
                 $contactSent = false;
                 $contactBounced = false;
                 $bounceDate = '';
@@ -213,35 +254,51 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                      * Bounce Check. If found, then this email was not deliverable
                      */
                     if ( $currentContact->key() === 'bounce' ) {
-                       $contactBounced = true;
-
-                       $currentBounce = $currentContact->current();
-                       $currentBounce->rewind();
-                       $currentBounce->next();
-                       $bounceDate = $currentBounce->current();
-                    } 
+                        $contactBounced = true;
+                    }
 
                     if( $currentContact->key() === 'email' ) {
                         $currentEmail = $currentContact->current();
-                        $currentEmailId = $this->emailRecord->getEmailId( $currentEmail );
                     }
 
-                    if( $currentContact->key() === 'opens' ) {
+                    if ( $processState[ 'recordType' ] == 'bounce' && $currentContact->key() === 'bounce' ) {
+                        $currentBounce = $currentContact->current();
+                        $currentBounce->rewind();
+                        $reason = $currentBounce->current();
+                        $currentBounce->next();
+                        $bounceDate = $currentBounce->current();
+                        Suppression::recordRawHardBounce($processState[ 'ticket' ][ 'espId' ],$currentEmail,$processState[ 'ticket' ][ 'campaignId' ],$reason, $bounceDate);
+                    }
+
+                    if ( $processState[ 'recordType' ] == 'optout' && $currentContact->key() === 'optout' ) {
+                            $this->emailRecord->queueDeliverable(
+                                self::RECORD_TYPE_UNSUBSCRIBE ,
+                                $currentEmail ,
+                                $processState[ 'ticket' ][ 'espId' ] ,
+                                $processState['ticket']['deployId'] ,
+                                $processState[ 'ticket' ][ 'espInternalId' ] ,
+                                $currentContact->current()
+                            );
+                    }
+
+                    if( $processState[ 'recordType' ] == 'open' && $currentContact->key() === 'opens' ) {
                         $currentOpens = $currentContact->current();
 
                         for ( $currentOpens->rewind() ; $currentOpens->valid() ; $currentOpens->next() ) {
                             $currentOpenDate = $currentOpens->current();
 
-                            $this->emailRecord->recordOpen(
-                                $currentEmailId ,
+                            $this->emailRecord->queueDeliverable(
+                                self::RECORD_TYPE_OPENER ,
+                                $currentEmail ,
                                 $processState[ 'ticket' ][ 'espId' ] ,
-                                $processState[ 'ticket' ][ 'campaignId' ] ,
+                                $processState['ticket']['deployId'] ,
+                                $processState[ 'ticket' ][ 'espInternalId' ] ,
                                 $currentOpenDate
                             );
                         }
                     }
 
-                    if ( $currentContact->key() === 'clicks' ) {
+                    if ( $processState[ 'recordType' ] == 'click' && $currentContact->key() === 'clicks' ) {
                         $currentClicks = $currentContact->current();
 
                         for ( $currentClicks->rewind() ; $currentClicks->valid() ; $currentClicks->next() ) {
@@ -251,44 +308,53 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                             
                             $currentClickDate = $currentClick->current();
 
-                            $this->emailRecord->recordClick(
-                                $currentEmailId , 
-                                $processState[ 'ticket' ][ 'espId' ] , 
-                                $processState[ 'ticket' ][ 'campaignId' ] ,
+                            $this->emailRecord->queueDeliverable(
+                                self::RECORD_TYPE_CLICKER ,
+                                $currentEmail , 
+                                $processState[ 'ticket' ][ 'espId' ] ,
+                                $processState['ticket']['deployId'] ,
+                                $processState[ 'ticket' ][ 'espInternalId' ] ,
                                 $currentClickDate
                             );
-                             
                         }
                     }
                 }
 
-                if ( $contactSent && !$contactBounced ) {
-                    $this->emailRecord->recordDeliverable(
-                        $currentEmailId , 
-                        $processState[ 'ticket' ][ 'espId' ] , 
-                        $processState[ 'ticket' ][ 'campaignId' ] ,
+                if ( $processState[ 'recordType' ] == 'deliverable' && $contactSent && !$contactBounced ) {
+                    $this->emailRecord->queueDeliverable(
+                        self::RECORD_TYPE_DELIVERABLE ,
+                        $currentEmail , 
+                        $processState[ 'ticket' ][ 'espId' ] ,
+                        $processState['ticket']['deployId'] ,
+                        $processState[ 'ticket' ][ 'espInternalId' ] ,
                         ''
                     );
                 }
             }
-        } else {
-            $this->processState[ 'delay' ] = 180;
 
-            $this->dataRetrievalFailed = true;
+            $this->emailRecord->massRecordDeliverables();
+        } catch ( \Exception $e ) {
+            $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() , JobException::NOTICE , $e );
+            $jobException->setDelay( 60 );
+            throw $jobException;
         }
     }
 
-    public function shouldRetry () { return $this->dataRetrievalFailed; }
+    public function cleanUp ( $processState ) {
+        Storage::delete( $processState[ 'filePath' ] );
+    }
 
-    public function getTicketForMessageSubscriberData($messageId)
+    public function getTicketForMessageSubscriberData( $messageId , $recordType )
     {
         $methodData = array(
-            "mess_id" => $messageId
+            "mess_id" => $messageId ,
+            "action_type" => $recordType 
         );
         try {
             $this->api->buildRequest("statistics.getMessageSubscriberData", $methodData);
             $response = $this->api->sendApiRequest();
             $xmlBody = simplexml_load_string($response->getBody()->__toString());
+
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -302,24 +368,32 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         return (string)$ticketNumber;
     }
 
-    public function checkTicketStatus($ticketId){
+    public function checkTicketStatus( &$processState ){
         $return = false;
         $methodData = array(
-            "task_id" => $ticketId
+            "task_id" => $processState[ 'ticket' ][ 'ticketName' ]
         );
+
         try {
             $this->api->buildRequest("utilities.getTasks", $methodData);
             $response = $this->api->sendApiRequest();
             $xmlBody = simplexml_load_string($response->getBody()->__toString());
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
-        $status = (string) $xmlBody->item->responseData->task->item->status;
-        if($status == "ERROR"){
-            throw new \Exception("Task Status came back as Error");
-        }
-        if ($status == "COMPLETE"){
-            $return  = (string) $xmlBody->item->responseData->task->item->task_response->file_name;
+
+            $status = (string) $xmlBody->item->responseData->task->item->status;
+
+            if ( $status == "ERROR"){
+                throw new \Exception( "Ticket status is ERROR" );
+            }
+
+            if ( $status == "COMPLETE"){
+                $return  = (string) $xmlBody->item->responseData->task->item->task_response->file_name;
+            }
+
+            if ( $return === false ) throw new \Exception( 'Ticket not ready.' );
+        } catch ( \Exception $e ) {
+            $jobException = new JobException( 'Failed to get report ticket status. ' . $e->getMessage() , JobException::NOTICE , $e );
+            $jobException->setDelay( 180 );
+            throw $jobException;
         }
 
         return $return;
@@ -332,7 +406,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         try {
             $this->api->buildRequest("utilities.getFile", $methodData);
             $response = $this->api->sendApiRequest();
-            $xmlBody = simplexml_load_string($response->getBody()->__toString());
+            $xmlBody = $response->getBody()->__toString();
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }

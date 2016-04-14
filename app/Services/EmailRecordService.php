@@ -3,9 +3,11 @@
 namespace App\Services;
 
 use App\Repositories\EmailRecordRepo;
+use Log;
 
 class EmailRecordService {
     protected $repo;
+    protected $records = [];
 
     public function __construct ( EmailRecordRepo $repo ) {
         $this->repo = $repo;
@@ -15,15 +17,44 @@ class EmailRecordService {
         return $this->repo->getEmailId( $email );
     }
 
-    public function recordOpen ( $emailId , $espId , $campaignId , $date ) {
-        $this->repo->recordOpen( $emailId , $espId , $campaignId , $date );
+    public function recordDeliverable ( $recordType , $email , $espId , $deployId, $espInternalId , $date ) {
+        if ( $this->repo->isValidActionType( $recordType ) ) {
+            return $this->repo->recordDeliverable( $recordType , $email , $espId , $deployId, $espInternalId , $date );
+        } else {
+            Log::error( "Record Type '{$recordType}' is not valid." );
+            return false;
+        }
     }
 
-    public function recordClick ( $emailId , $espId , $campaignId , $date ) {
-        $this->repo->recordClick( $emailId , $espId , $campaignId , $date );
+    public function clearRecordList () {
+        $this->records = [];
     }
 
-    public function recordDeliverable ( $emailId , $espId , $campaignId , $date ) {
-        $this->repo->recordDeliverable( $emailId , $espId , $campaignId , $date );
+    public function queueDeliverable ( $recordType , $email , $espId , $deployId, $espInternalId , $date ) {
+        if ( $this->repo->isValidActionType( $recordType ) ) {
+            $this->records []= [
+                'recordType' => $recordType ,
+                'email' => $email ,
+                'deployId' => $deployId,
+                'espId' => $espId ,
+                'espInternalId' => $espInternalId ,
+                'date' => $date
+            ];
+        } else {
+            Log::error( "Record Type '{$recordType}' is not valid." );
+            return false;
+        }
+    }
+
+    public function massRecordDeliverables () {
+        try {
+            $this->repo->massRecordDelierables($this->records);
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
+    }
+
+    public function checkForDeliverables($espId, $campaignId){
+        return $this->repo->checkForDeliverables($espId, $campaignId);
     }
 }

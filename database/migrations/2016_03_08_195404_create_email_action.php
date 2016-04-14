@@ -16,6 +16,7 @@ class CreateEmailAction extends Migration
             $table->bigIncrements('id');
             $table->string('email_address', 100)->default('');
             $table->integer('email_domain_id')->unsigned()->default(0);
+            $table->timestamps();
             $table->unique('email_address');
             $table->index('email_domain_id');
         });
@@ -63,7 +64,7 @@ class CreateEmailAction extends Migration
             $table->string('source_url', 50)->default('');
             $table->string('ip', 15)->default('0.0.0.0');
             $table->timestamps();
-            $table->index(array('email_id', 'client_id'));
+            $table->unique(array('email_id', 'client_id', 'capture_date'), 'email_client_date');
             $table->index(array('client_id', 'email_id'));
             $table->index(array('email_id', 'capture_date'));
             $table->index('capture_date');
@@ -87,6 +88,8 @@ class CreateEmailAction extends Migration
             // Almost certainly included in the list of keys,
             // But not sure about the rest of them
             $table->index('email_id');
+            $table->index(['campaign_id', 'datetime'], 'campaign_date');
+            $table->index('datetime');
         });
 
         Schema::connection('reporting_data')->create('action_types', function (Blueprint $table) {

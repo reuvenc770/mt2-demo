@@ -23,9 +23,11 @@ class AWeberApi extends EspBaseAPI
     private $api;
     private $url;
     const COUNTER = 0;
-    public function __construct($name, $espAccountId)
+    const ESP_NAME = "AWeber";
+    public function __construct($espAccountId)
     {
-        parent::__construct($name, $espAccountId);
+
+        parent::__construct(self::ESP_NAME, $espAccountId);
         $creds = EspApiAccount::grabAccessTokenAndSecret($espAccountId);
         $key = env("AWEBER_KEY", "");
         $secret = env("AWEBER_SECRET", "");
@@ -33,7 +35,7 @@ class AWeberApi extends EspBaseAPI
         $weber = new AWeberLibraryApi($key, $secret);
         $this->accessToken = $creds['accessToken'];
         $this->sharedSecret = $creds['accessSecret'];
-        $weber->adapter->debug = false; //actually ok debugging
+        $weber->adapter->debug = env("AWEBER_DEBUG", false);
         try {
             $this->api = $weber;
             $accountId = Cache::remember('aweber_account_'.$espAccountId, $time, function() {

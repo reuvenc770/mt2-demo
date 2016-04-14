@@ -14,10 +14,11 @@ use App\Library\Campaigner\Authentication;
 class CampaignerApi extends EspBaseAPI
 {
     private  $auth;
+    const ESP_NAME = "Campaigner";
 
-    public function __construct($name, $espAccountId)
+    public function __construct($espAccountId)
     {
-        parent::__construct($name, $espAccountId);
+        parent::__construct(self::ESP_NAME, $espAccountId);
         $creds = EspApiAccount::grabApiUsernameWithPassword($espAccountId);
         $this->auth =  new Authentication($creds['userName'], $creds['password']);
     }
@@ -41,14 +42,17 @@ class CampaignerApi extends EspBaseAPI
      */
     public function parseOutResultHeader($curlObject)
     {
+        try{
         $simpleXml = simplexml_load_string($curlObject->__getLastResponse());
         $header = $simpleXml->children("soap", true)->children('', true)->ResponseHeader;
-        return array(
-            "errorFlag" => (string)$header->ErrorFlag,
-            "returnCode"=> (string)$header->ReturnCode,
-            "returnMessage"=> (string)$header->ReturnMessage
-        );
-
+            return array(
+                "errorFlag" => (string)$header->ErrorFlag,
+                "returnCode"=> (string)$header->ReturnCode,
+                "returnMessage"=> (string)$header->ReturnMessage
+            );
+        } catch (\Exception $e){
+            throw new \Exception($e->getMessage(). " ". $e->getCode());
+        }
     }
 
     public function buildCampaignSearchQuery($campaign)

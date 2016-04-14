@@ -101,10 +101,13 @@ class GetResponseReportService extends AbstractReportService implements IDataSer
 
     public function mapToStandardReport($data)
     {
+        $deployId = $this->parseSubID($data['name']);
         return array(
-            'deploy_id' => $data[ 'name' ],
-            'sub_id' => $this->parseSubID($data['name']),
+            'campaign_name' => $data[ 'name' ],
+            'external_deploy_id' => $deployId,
+            'm_deploy_id' => $deployId,
             'esp_account_id' => $this->api->getEspAccountId(),
+            'esp_internal_id' => $data['internal_id'],
             'datetime' => $data[ 'sent_on' ],
             'name' => $data[ 'name' ],
             'subject' => $data[ 'subject' ],

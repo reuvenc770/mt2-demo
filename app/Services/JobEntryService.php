@@ -26,12 +26,13 @@ class JobEntryService
         $this->repo = $repo;
     }
 
-    public function startEspJob($jobName, $espName, $accountName, $tracking)
+    public function startEspJob($jobName, $espName, $accountName, $tracking, $campaignId = 0)
     {
         $this->jobName = $jobName;
         $espJob = $this->repo->startEspJobReturnObject($jobName, $espName, $accountName, $tracking);
         $espJob->time_started = Carbon::now();
         $espJob->attempts = 1;
+        $espJob->campaign_id = $campaignId;
         $espJob->status = JobEntry::RUNNING;
         $espJob->save();
 
@@ -42,7 +43,9 @@ class JobEntryService
         $job = $this->repo->getJobByTracking($tracking);
         $job->status = $state;
         $job->attempts = $tries;
-        $job->time_finished = Carbon::now();
+        if($state == JobEntry::SUCCESS) {
+            $job->time_finished = Carbon::now();
+        }
         $job->save();
         if($job->status == 3 && env("SLACK_ON",false)){
           Slack::to('#mt2-dev-failed-jobs')->send("{$job->job_name} for {$job->account_name} - {$job->account_number} has failed after running {$job->attempts} attempts");

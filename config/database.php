@@ -56,6 +56,7 @@ return [
             'collation' => 'utf8mb4_unicode_ci',
             'prefix'    => '',
             'strict'    => false,
+            'options'   => [PDO::MYSQL_ATTR_LOCAL_INFILE => true],
         ],
         'reporting_data' => [
             'driver'    => 'mysql',
@@ -90,7 +91,28 @@ return [
             'prefix'    => '',
             'strict'    => false,
         ],
-
+        'mt1_table_sync' => [
+            'driver'    => 'mysql',
+            'host'      => env('MT1_MASTER_DB_HOST', ''),
+            'database'  => env('MT1_MASTER_DB_DATABASE', ''),
+            'username'  => env('MT1_MASTER_DB_USERNAME', ''),
+            'password'  => env('MT1_MASTER_DB_PASSWORD', ''),
+            'charset'   => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix'    => '',
+            'strict'    => false,
+        ],
+        'mt1_data' => [
+            'driver'    => 'mysql',
+            'host'      => env('MT1_SLAVE_DB_HOST', ''),
+            'database'  => env('MT1_SLAVE_DB_DATABASE', ''),
+            'username'  => env('MT1_SLAVE_DB_USERNAME', ''),
+            'password'  => env('MT1_SLAVE_DB_PASSWORD', ''),
+            'charset'   => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix'    => '',
+            'strict'    => false,
+        ],
 
     ],
 

@@ -7,6 +7,7 @@ namespace App\Services\API;
 
 use App\Facades\EspApiAccount;
 use App\Facades\Guzzle;
+use App\Library\EmailDirect\EmailDirect;
 use Carbon\Carbon;
 
 /**
@@ -18,17 +19,18 @@ class EmailDirectApi extends EspBaseAPI {
     const CAMPAIGN_LIST_KEY = 'Items';
     const CAMPAIGN_ID_KEY = 'CampaignID';
     const API_REQUEST_FIELD_DATE = 'Since';
+    const ESP_NAME = "EmailDirect";
 
     private $api;
     private $date;
     private $campaignList = array();
 
-    public function __construct ( $name , $espAccountId ) {
-        parent::__construct( $name , $espAccountId );
+    public function __construct ($espAccountId) {
+        parent::__construct(self::ESP_NAME, $espAccountId );
 
         $creds = EspApiAccount::grabApiKeyWithSecret( $espAccountId );
   
-        $this->api = new \EmailDirect( $creds[ 'apiKey' ] );
+        $this->api = new EmailDirect( $creds[ 'apiKey' ] );
         $curl = $this->api->getAdapter();
         $curl->setOption(CURLOPT_TIMEOUT,90);
     }
@@ -77,7 +79,7 @@ class EmailDirectApi extends EspBaseAPI {
     public function getDeliveryReport($campaignId,$method){
         $outputData = array();
         $method = strtolower($method);
-        $recipientsResponse = $this->api->campaigns($campaignId)->$method(array("PageSize" => 200));
+        $recipientsResponse = $this->api->campaigns($campaignId)->$method(array("PageSize" => 500));
 
         if(!$recipientsResponse->success()){
             throw new \Exception( "Email Direct API Called Failed.  {$recipientsResponse->getErrorMessage()} :!: {$recipientsResponse->getErrorCode()}");
@@ -89,7 +91,7 @@ class EmailDirectApi extends EspBaseAPI {
         if ($totalPages > 1) {
             $i = 2;
             while ($i <= $totalPages) {
-                $recipientsResponse = $this->api->campaigns($campaignId)->recipients(array("PageNumber" => $i,"PageSize" => 200));
+                $recipientsResponse = $this->api->campaigns($campaignId)->recipients(array("PageNumber" => $i,"PageSize" => 500));
                 if(!$recipientsResponse->success()){
                     throw new \Exception( "Email Direct API Called Failed.  {$recipientsResponse->getErrorMessage()} :!: {$recipientsResponse->getErrorCode()}");
                 }

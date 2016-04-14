@@ -531,7 +531,7 @@ class OAuthApplication implements AWeberOAuthAdapter {
      * @return void
      */
     private function _sendRequest($handle, $headers = array('Expect:')) {
-        sleep(3);
+        sleep(1);
         $this->curl->setopt($handle, CURLOPT_RETURNTRANSFER, true);
         $this->curl->setopt($handle, CURLOPT_HEADER, true);
         $this->curl->setopt($handle, CURLOPT_HTTPHEADER, $headers);

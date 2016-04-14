@@ -10,10 +10,14 @@ class EmailAction extends Model {
   protected $connection = "reporting_data";
 
   public function email() {
-    return $this->belongsTo('App\Model\Email');
+    return $this->belongsTo('App\Models\Email');
   }
 
   public function actionType() {
-    return $this->belongsTo('App\Model\ActionType');
+    return $this->belongsTo('App\Models\ActionType');
+  }
+
+  public function client() {
+    return $this->belongsTo('App\Models\Client');
   }
 }

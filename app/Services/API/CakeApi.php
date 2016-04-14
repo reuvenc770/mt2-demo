@@ -26,7 +26,7 @@ class CakeApi implements IApi {
   private function constructApiUrl() {
     return self::ENDPOINT . 'apiKey=' . self::API_KEY 
     . '&dtStart=' . $this->startDate 
-    . '&endDate=' . $this->endDate;
+    . '&dtEnd=' . $this->endDate;
   }
 
   public function __get($prop) {

@@ -12,12 +12,14 @@ use Carbon\Carbon;
 class MaroApi extends EspBaseAPI {
 
     const API_URL = "http://api.maropost.com/accounts/%d/reports.json?";
+    const DELIVERED_URL = "http://api.maropost.com/accounts/%s/campaigns/%d/delivered_report.json?";
     const OPENS_URL = "http://api.maropost.com/accounts/%d/reports/opens.json?";
     const CLICKS_URL = "http://api.maropost.com/accounts/%d/reports/clicks.json?";
     const BOUNCES_URL = "http://api.maropost.com/accounts/%d/reports/bounces.json?";
     const COMPLAINTS_URL = "http://api.maropost.com/accounts/%d/reports/complaints.json?";
     const UNSUBS_URL = "http://api.maropost.com/accounts/%d/reports/unsubscribes.json?";
     const ADDL_INFO_URL = "http://api.maropost.com/accounts/%d/campaigns/";
+    const ESP_NAME = "Maro";
     const RECORDS_PER_PAGE = 1000;
     const LOOKBACK_DAYS = 3;
     protected $apiKey;
@@ -28,8 +30,8 @@ class MaroApi extends EspBaseAPI {
     protected $deliverableEndDate;
     protected $espAccountId;
 
-    public function __construct($name, $espAccountId) {
-        parent::__construct($name, $espAccountId);
+    public function __construct($espAccountId) {
+        parent::__construct(self::ESP_NAME, $espAccountId);
         $creds = EspApiAccount::grabApiAccountIdAndKey($espAccountId);
         $this->account = $creds['account'];
         $this->apiKey = $creds['apiKey'];
@@ -106,8 +108,8 @@ class MaroApi extends EspBaseAPI {
     }
 
     public function setDeliverableLookBack() {
-        $this->deliverableStartDate = Carbon::now()->subDay(self::LOOKBACK_DAYS)->toDateString();
-        $this->deliverableEndDate = Carbon::now()->toDateString();
+        $this->deliverableStartDate = Carbon::now()->subDay(self::LOOKBACK_DAYS)->startOfDay()->toDateString();
+        $this->deliverableEndDate = Carbon::now()->endOfDay()->toDateString();
     }
 
     public function constructAdditionalInfoUrl($campaignId) {
@@ -117,4 +119,9 @@ class MaroApi extends EspBaseAPI {
             . $this->apiKey;
     }
 
+    public function getDelivered ( $campaignId ) {
+        $this->url = sprintf( self::DELIVERED_URL , $this->account , $campaignId ) . '&auth_token=' . $this->apiKey . '&from=' . $this->priorDate . '&to=' . $this->date;
+
+        return $this->sendApiRequest();
+    }
 }

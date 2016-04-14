@@ -11,6 +11,60 @@ class EmailCampaignStatisticRepo {
         $this->model = $model;
     }
 
+    public function massInsertActions($massData) {
+
+        echo "Preparing to insert at " . microtime(true) . PHP_EOL;
+        $insertList = [];
+
+        foreach ($massData as $row) {
+            $rowString = "('{$row['email_id']}', 
+                '{$row['campaign_id']}', 
+                '{$row['last_status']}', 
+                '{$row['esp_first_open_datetime']}', 
+                '{$row['esp_last_open_datetime']}',
+                '{$row['esp_total_opens']}',
+                '{$row['esp_first_click_datetime']}',
+                '{$row['esp_last_click_datetime']}',
+                '{$row['esp_total_clicks']}',
+                '{$row['unsubscribed']}',
+                NOW())";
+            $insertList[]= $rowString;
+        }
+
+        $insertString = implode(',', $insertList);
+
+        DB::connection('reporting_data')->insert(
+            "INSERT INTO email_campaign_statistics 
+            (email_id, campaign_id, last_status, esp_first_open_datetime,
+            esp_last_open_datetime, esp_total_opens, esp_first_click_datetime,
+             unsubscribed, esp_last_click_datetime, esp_total_clicks,
+            updated_at) VALUES $insertString
+
+            ON DUPLICATE KEY UPDATE
+                email_id=email_id,
+                campaign_id=campaign_id,
+                last_status = VALUES(last_status),
+                esp_first_open_datetime= IF(esp_first_open_datetime IS NULL, 
+                                                VALUES(esp_first_open_datetime), 
+                                                IF(esp_first_open_datetime < VALUES(esp_first_open_datetime), 
+                                                    esp_first_open_datetime, 
+                                                    VALUES(esp_first_open_datetime) )) ,
+                esp_last_open_datetime = VALUES(esp_last_open_datetime),
+                esp_total_opens = esp_total_opens + VALUES(esp_total_opens),
+                esp_first_click_datetime = IF(esp_first_click_datetime IS NULL, 
+                                                VALUES(esp_first_click_datetime), 
+                                                IF(esp_first_click_datetime < VALUES(esp_first_click_datetime), 
+                                                    esp_first_click_datetime, 
+                                                    VALUES(esp_first_click_datetime) )),
+                esp_last_click_datetime = VALUES(esp_last_click_datetime),
+                esp_total_clicks = esp_total_clicks + VALUES(esp_total_clicks),
+                unsubscribed = VALUES(unsubscribed),
+                created_at=created_at,
+                updated_at = NOW()"
+
+        );
+    }
+
     public function insertOrUpdate($row, $actionType) {
 
         // Currently need to insert/update. Later can just update.
@@ -124,7 +178,22 @@ class EmailCampaignStatisticRepo {
             ->update([
                 'trk_first_click_datetime' => $data['first_click'],
                 'trk_last_click_datetime' => $data['last_click'],
-                'trk_total_clicks' => $data['clicks']
+                'trk_total_clicks' => $data['clicks'],
+                'user_agent_id' => $data['uas_id']
+            ]);
+    }
+
+    public function updateWithContentServerInfo($data) {
+        $this->model
+            ->where('email_id', '=', $data['email_id'])
+            ->where('campaign_id', '=', $data['sub_id'])
+            ->update([
+                'mt_first_open_datetime' => $data['first_open'],
+                'mt_last_open_datetime' => $data['last_open'],
+                'mt_total_opens' => $data['clicks'],
+                'mt_first_click_datetime' => $data['first_click'],
+                'mt_last_click_datetime' => $data['last_click'],
+                'mt_total_clicks' => $data['clicks']
             ]);
     }
 

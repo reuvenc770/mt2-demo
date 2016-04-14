@@ -9,7 +9,7 @@ class EmailCampaignStatistic extends Model {
   protected $connection = "reporting_data";
 
   public function email() {
-    return $this->belongsTo('App\Model\Email');
+    return $this->belongsTo('App\Models\Email');
   }
 
   public function campaign() {
@@ -17,5 +17,9 @@ class EmailCampaignStatistic extends Model {
     // return $this->belongsTo('App\Model\Campaign');
     // current stand-in
     return 1;
+  }
+
+  public function userAgent() {
+    return $this->belongsTo('App\Models\UserAgentString');
   }
 }

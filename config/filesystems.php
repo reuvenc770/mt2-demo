@@ -48,6 +48,28 @@ return [
             'root'   => storage_path('app'),
         ],
 
+        'sprintUnsubCampaignFTP' => [
+            'driver'   => 'ftp',
+            'host'     => env( 'SPRINT_CAMPAIGN_FTP_HOST' ) , 
+            'username' => env( 'SPRINT_CAMPAIGN_FTP_USER' ) ,
+            'password' => env( 'SPRINT_CAMPAIGN_FTP_PASS' ) ,
+        ],
+
+        'hornet7' => [
+            'driver'   => 'ftp',
+            'host'     => env("HORNET7_IP"),
+            'username' => env("HORNET7_USERNAME"),
+            'password' => env("HORNET7_PW"),
+        ],
+
+
+        'sprintUnsubFTP' => [
+            'driver'   => 'ftp',
+            'host'     => env( 'SPRINT_UNSUB_FTP_HOST' ),
+            'username' => env( 'SPRINT_UNSUB_FTP_USER' ),
+            'password' => env( 'SPRINT_UNSUB_FTP_PASS' ),
+        ] ,
+
         'ftp' => [
             'driver'   => 'ftp',
             'host'     => 'ftp.example.com',

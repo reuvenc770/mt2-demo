@@ -9,7 +9,12 @@ use App\Services\Interfaces\IDataService;
 use App\Services\EmailRecordService;
 
 abstract class AbstractReportService implements IDataService  {
-  
+  const RECORD_TYPE_OPENER = 'opener';
+  const RECORD_TYPE_CLICKER = 'clicker';
+  const RECORD_TYPE_CONVERTER = 'converter';
+  const RECORD_TYPE_DELIVERABLE = 'deliverable';
+  const RECORD_TYPE_UNSUBSCRIBE = "unsubscriber";
+  const RECORD_TYPE_COMPLAINT = "complainer";
   protected $reportRepo;
   protected $api;
   protected $emailRecord;
@@ -46,13 +51,15 @@ abstract class AbstractReportService implements IDataService  {
       }
   }
 
-  public function getCampaigns ( $accountName , $date ) {
+  /*
+  public function getCampaigns ( $espAccountId , $date ) {
       try {
-        return $this->reportRepo->getCampaigns( $accountName , $date );
+        return $this->standardRepo->getCampaigns($espAccountId, $date );
       } catch ( \Exception $e ) {
         throw new \Exception( $e->getMessage() );
       }
   }
+  */
 
   public function insertSegmentedApiRawStats($data, $length) {
     $start = 0;

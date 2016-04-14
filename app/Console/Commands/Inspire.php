@@ -2,8 +2,13 @@
 
 namespace App\Console\Commands;
 
+
+use App\Services\API\BlueHornetApi;
+use App\Services\BlueHornetSubscriberService;
+use App\Services\EmailRecordService;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Inspiring;
+use Storage;
 
 class Inspire extends Command
 {
@@ -28,6 +33,7 @@ class Inspire extends Command
      */
     public function handle()
     {
-        $this->comment(PHP_EOL.Inspiring::quote().PHP_EOL);
+            $test  = new BlueHornetSubscriberService( new BlueHornetApi(1));
+            $test->pullBounceEmailsByLookback(4);
     }
 }

@@ -7,7 +7,10 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
-    const DELIVERABLE_SCHEDULE_TIME = '08:00';
+    const DELIVERABLE_SCHEDULE_TIME = '02:00';
+    const DELIVERABLE_AGGREGATION_TIME = '11:00';
+    const UNSUB_TIME = '01:00';
+    const REPORT_TIME = '11:30';
 
     /**
      * The Artisan commands provided by your application.
@@ -24,6 +27,13 @@ class Kernel extends ConsoleKernel
         Commands\GrabDeliverableReports::class,
         Commands\PopulateEmailCampaignsTable::class,
         Commands\GenOauth::class,
+        Commands\ImportMt1Emails::class,
+        Commands\AdoptOrphanEmails::class,
+        Commands\DownloadContentServerStats::class,
+        Commands\ProcessUserAgents::class,
+        Commands\SendSprintUnsubsCommand::class,
+        Commands\DownloadSuppressionFromESPCommand::class,
+        Commands\ParseandSendSuppressionsCommand::class,
     ];
 
     /**
@@ -35,6 +45,27 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         /**
+         * Unsub Jobs
+         */
+        $unsubFilePath = storage_path( 'logs' ) . "/unsubJobs.log";
+        $schedule->command( 'ftp:sendSprintUnsubs --ftpCleanup=1' )->dailyAt( '10:00' )->sendOutputTo( $unsubFilePath );
+        $schedule->command( 'ftp:sendSprintUnsubs' )->dailyAt( '11:00' )->sendOutputTo( $unsubFilePath );
+
+        /**
+         * Orphan Adoption
+         */
+        $orphanFilePath = storage_path('logs')."/adoptOrphans.log";
+        $schedule->command( 'reports:adoptOrphans --maxOrphans=400000 --chunkSize=10000 --queueName=orphanage --chunkDelay=0 --order=newest --maxAttempts=2' )->everyTenMinutes()->sendOutputTo( $orphanFilePath );
+        $schedule->command( 'reports:adoptOrphans --maxOrphans=400000 --chunkSize=10000 --queueName=orphanage --chunkDelay=0 --order=oldest --maxAttempts=2' )->everyTenMinutes()->sendOutputTo( $orphanFilePath );
+
+
+        /**
+         * Suppression Jobs
+         */
+        $schedule->command('suppression:downloadESP BlueHornet 1')->hourly()->dailyAt(self::UNSUB_TIME);
+        $schedule->command('movetoftp:suppressions BlueHornet 1')->hourly()->dailyAt(self::REPORT_TIME);
+
+        /**
          * Campaign Data Daily
          */
         $filePath = storage_path('logs')."/downloadAPI.log";
@@ -42,9 +73,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:downloadApi Campaigner 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi EmailDirect 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Maro 5')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi Aweber 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Ymlp 5')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi GetResponse 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadTrackingData Cake 5')->hourly()->sendOutputTo($filePath);
 
         /**
@@ -54,20 +83,21 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:downloadApi Campaigner 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi EmailDirect 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Maro 31')->monthly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi Aweber 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Ymlp 31')->monthly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi GetResponse 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadTrackingData Cake 31')->monthly()->sendOutputTo($filePath);
 
         /**
          * Deliverable Data
          */
         $deliverableFilePath = storage_path( 'logs' ) . "/downloadDeliverables.log";
-        $schedule->command( 'reports:downloadDeliverables BlueHornet 1' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables Campaigner 1' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables EmailDirect 1' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables Maro 1' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables AWeber 1' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command( 'reports:downloadDeliverables BlueHornet 5 BlueHornet' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command( 'reports:downloadDeliverables Campaigner 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command( 'reports:downloadDeliverables EmailDirect 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command( 'reports:downloadDeliverables Maro 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command( 'reports:downloadDeliverables Maro:delivered 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Ymlp 1' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        //$schedule->command( 'reports:populateStats')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
+        $schedule->command('emails:download')->cron('*/2 * * * * *')->withoutOverlapping();
+        $schedule->command('process:useragents')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME);
     }
 }
