@@ -49,7 +49,7 @@ class EmailActionsRepo {
 
         return DB::connection('reporting_data')->select("SELECT
           email_id,
-          campaign_id,
+          deploy_id,
           GROUP_CONCAT(types.name ORDER BY datetime DESC SEPARATOR ',') AS statuses,
           GROUP_CONCAT(CASE WHEN types.name = 'opener' THEN datetime ELSE NULL END ORDER BY datetime ASC SEPARATOR ',') AS esp_first_open_datetimes,
           GROUP_CONCAT(CASE WHEN types.name = 'opener' THEN datetime ELSE NULL END ORDER BY datetime DESC SEPARATOR ',') AS esp_last_open_datetimes,
