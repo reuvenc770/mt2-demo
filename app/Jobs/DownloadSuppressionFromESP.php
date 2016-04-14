@@ -37,6 +37,9 @@ class DownloadSuppressionFromESP extends Job implements ShouldQueue
         if($data){
             foreach ($data as $entry){
                 $campaign_id = isset($entry->message_id) ? $entry->message_id : 0;
+                if($campaign_id == 0){// System Opt Out
+                    continue;
+                }
                 Suppression::recordRawUnsub($this->espAccountId,$entry->email,$campaign_id,$entry->method_unsubscribed, $entry->date_deleted);
             }
         }
