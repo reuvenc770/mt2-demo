@@ -53,5 +53,6 @@ class YmlpCampaignRepo {
     }
 
     public function getModel () {
-        return $this->model; }
+        return $this->model; 
+    }
 }

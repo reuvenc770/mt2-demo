@@ -68,7 +68,7 @@ class EmailCampaignAggregationService {
 
         return [
             'email_id' => $row->email_id,
-            'campaign_id' => $row->campaign_id,
+            'campaign_id' => $row->deploy_id,
             'last_status' => $this->getFirstItem($row->statuses),
             'esp_first_open_datetime' => $firstSectionOpen,
             'esp_last_open_datetime' => $lastSectionOpen,
