@@ -134,3 +134,8 @@ Breadcrumbs::register( 'tools.bulksuppression' , function ( $breadcrumbs ) {
     $breadcrumbs->parent( 'home' );
     $breadcrumbs->push( 'Bulk Suppression' , route( 'tools.bulksuppression' ) );
 } );
+
+Breadcrumbs::register( 'client.attribution' , function ( $breadcrumbs ) {
+    $breadcrumbs->parent( 'client.list' );
+    $breadcrumbs->push( 'Attribution' );
+} );
