@@ -258,7 +258,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
     public function saveRecords ( &$processState ) {
         $skipDelivered = false;
 
-        if ( $this->emailRecord->checkForDeliverables( $processState[ 'ticket' ][ 'espId' ] , $processState[ 'ticket' ][ 'campaignId' ] ) ) {
+        if ( $this->emailRecord->checkForDeliverables( $processState[ 'ticket' ][ 'espId' ] , $processState[ 'ticket' ][ 'espInternalId' ] ) ) {
             $skipDelivered = true;
         }
 
