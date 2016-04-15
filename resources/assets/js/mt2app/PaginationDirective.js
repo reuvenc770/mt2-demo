@@ -19,7 +19,9 @@ mt2App.directive( 'pagination' , [ '$rootScope' , '$timeout' , function ( $rootS
                 self.button5 = 5;
             } );
 
-            self.updatePage = function ( pageNumber ) {
+            self.updatePage = function ( pageNumber , event ) {
+                event.preventDefault();
+
                 if ( pageNumber > self.maxpage ) return null;
 
                 $timeout.cancel( self.lastUpdate );
@@ -29,7 +31,9 @@ mt2App.directive( 'pagination' , [ '$rootScope' , '$timeout' , function ( $rootS
                 self.lastUpdate = $timeout( function () { $rootScope.$emit( 'updatePage' ); } , 500 );
             };
 
-            self.prevPage = function () {
+            self.prevPage = function ( event ) {
+                event.preventDefault();
+
                 if ( self.currentpage == 1 ) return null;
 
                 if ( self.currentpage > 1 ) {
@@ -47,7 +51,9 @@ mt2App.directive( 'pagination' , [ '$rootScope' , '$timeout' , function ( $rootS
                 }
             };
 
-            self.nextPage = function () {
+            self.nextPage = function ( event ) {
+                event.preventDefault();
+
                 if ( ( self.currentpage + 1 ) > self.maxpage ) return null;
 
                 if ( self.currentpage < parseInt( self.maxpage ) ) {

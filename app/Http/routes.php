@@ -223,6 +223,11 @@ Route::group(
             'as' => 'client.edit' ,
             'uses' => 'ClientController@edit'
         ] );
+
+        Route::get( '/attribution' , [
+            'as' => 'client.attribution' ,
+            'uses' => 'ClientController@attribution'
+        ] );
     }
 );
 
@@ -330,6 +335,21 @@ Route::group(
         Route::any('/attachment/upload', [
             'as' => 'api.attachment.upload' ,
             'uses' => 'AttachmentApiController@flow'
+        ] );
+
+        Route::get( '/client/attribution/list' , [
+            'as' => 'api.client.attribution.list' ,
+            'uses' => 'ClientController@getAttributionList'
+        ] );
+
+        Route::get( '/client/attribution/set/{id}' , [
+            'as' => 'api.client.attribution.set' ,
+            'uses' => 'ClientController@setAttribution'
+        ] );
+
+        Route::get( '/client/attribution/delete/{id}' , [
+            'as' => 'api.client.attribution.delete' ,
+            'uses' => 'ClientController@deleteAttribution'
         ] );
 
         /**

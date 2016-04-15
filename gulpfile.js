@@ -137,6 +137,13 @@ elixir.extend( 'deployClientGroupJs' , function ( mix ) {
     ] , 'public/js/clientgroup.js' );
 } );
 
+elixir.extend( 'deployClientAttributionJs' , function ( mix ) {
+    mix.scripts( [
+        'pages/ClientAttributionController.js' ,
+        'client/ClientApiService.js'
+    ] , 'public/js/clientAttribution.js' );
+} );
+
 elixir.extend( 'deployListProfileJs' , function ( mix ) {
     mix.scripts( [
         'listprofile/ListProfileController.js' ,
@@ -164,6 +171,7 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployClientGroupJs( mix );
     mix.deployListProfileJs( mix );
     mix.deployBulkSuppressionJs( mix );
+    mix.deployClientAttributionJs( mix );
 } );
 
 elixir.extend( 'runTdd' , function ( mix ) {
@@ -226,6 +234,9 @@ var mt2TaskMap = {
     } ,
     'deployClientGroupJs' : function ( mix ) {
         mix.deployClientGroupJs( mix );
+    } ,
+    'deployClientAttributionJs' : function ( mix ) {
+        mix.deployClientAttributionJs( mix );
     } ,
     'deployListProfileJs' : function ( mix ) {
         mix.deployListProfileJs( mix );
