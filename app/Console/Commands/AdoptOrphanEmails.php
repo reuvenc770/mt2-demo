@@ -54,7 +54,7 @@ class AdoptOrphanEmails extends Command
         $orderOrphans = ( $this->option( 'order' ) == 'newest' ? 'desc' : 'asc' );
 
         $orphanTable = DB::table( 'orphan_emails' )
-            ->select( 'id' , 'email_address', 'deploy_id', 'esp_internal_id', 'esp_account_id' )
+            ->select( 'id' , 'email_address' )
             ->where( 'adopt_attempts' , '<' , $this->option( 'maxAttempts' ) )
             ->orderBy( 'created_at' , $orderOrphans );
 
