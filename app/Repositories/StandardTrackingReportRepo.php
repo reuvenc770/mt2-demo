@@ -20,7 +20,7 @@ class StandardTrackingReportRepo {
             "conversions" => $data['conversions'],
             "revenue" =>$data['revenue'],
         );
-      $this->report->where('sub_id', $data['subid_1'])->update($updateArray);
+      $this->report->where('external_deploy_id', $data['external_deploy_id'])->update($updateArray);
     }
 
 }
