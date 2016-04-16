@@ -80,7 +80,7 @@ class TrackingDataService implements IDataService
 
   public function mapToStandardReport($data) {
     return [
-      'subid_1' => $data['subid_1'],
+      'external_deploy_id' => $data['subid_1'],
       't_clicks' => $data['clicks'],
       'conversions' => $data['conversions'],
       'revenue' => $data['revenue'],
