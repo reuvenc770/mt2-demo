@@ -150,8 +150,8 @@ class EmailRecordRepo {
                 [
                     $this->getEmailId() ,
                     $this->getClientId() ,
-                    $espId ,
                     $deployId,
+                    $espId ,
                     $espInternalId ,
                     $this->getActionId( $recordType ) ,
                     $date
