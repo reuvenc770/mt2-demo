@@ -75,7 +75,7 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
                                 INSERT INTO email_actions
                                     ( email_id , client_id , esp_account_id , deploy_id, esp_internal_id , action_id , datetime , created_at , updated_at )    
                                 VALUES
-                                    ( ? , ? , ? , ? , ? , ? , NOW() , NOW() )
+                                    ( ? , ? , ? , ? , ? , ? , ? , NOW() , NOW() )
                                 ON DUPLICATE KEY UPDATE
                                     email_id = email_id ,
                                     client_id = client_id ,
