@@ -71,9 +71,9 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
   // Pagination properties
   self.paginationCount = "10";
-  self.viewedlyLoading = 0;
+  self.currentlyLoading = 0;
   self.pageCount = 0;
-  self.viewedPage = 1;
+  self.currentPage = 1;
 
 
   // Index page setup
@@ -133,9 +133,9 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
    */
 
   self.loadActiveDataExports = function() {
-    self.viewedlyLoading = 1;
+    self.currentlyLoading = 1;
     DataExportApiService.getActiveDataExports(
-      self.viewedPage,
+      self.currentPage,
       self.paginationCount,
       self.loadDataExportsSuccessCallback,
       self.loadActiveDataExportsFailureCallback
@@ -143,9 +143,9 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   };
 
   self.loadPausedDataExports = function() {
-    self.viewedlyLoading = 1;
+    self.currentlyLoading = 1;
     DataExportApiService.getPausedDataExports(
-      self.viewedPage,
+      self.currentPage,
       self.paginationCount,
       self.loadDataExportsSuccessCallback,
       self.loadPausedDataExportsFailureCallback
@@ -567,7 +567,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
 
   self.loadDataExportsSuccessCallback = function(response) {
-    self.viewedlyLoading = 0;
+    self.currentlyLoading = 0;
     self.dataExports = response.data.data;
     self.pageCount = response.data.last_page;
   };

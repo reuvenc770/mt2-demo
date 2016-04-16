@@ -137,7 +137,7 @@ elixir.extend( 'deployClientGroupJs' , function ( mix ) {
     ] , 'public/js/clientgroup.js' );
 } );
 
-elixer.extend('deployDataExportJs', function(mix) {
+elixir.extend('deployDataExportJs', function(mix) {
     mix.scripts([
         'dataexport/DataExportController.js',
         'dataexport/DataExportApiService.js',
