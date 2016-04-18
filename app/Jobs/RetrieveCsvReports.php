@@ -53,7 +53,7 @@ class RetrieveCsvReports extends Job implements ShouldQueue
         $reportService = APIFactory::createApiReportService($this->apiName,0);
         $reportArray = EspApiAccount::mapCsvToRawStatsArray($this->apiName, $this->filePath);
         $reportService->insertCsvRawStats($reportArray, $this->date);
-        //Storage::delete($this->filePath);
+        Storage::delete($this->filePath);
         JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking, $this->attempts());
     }
 
