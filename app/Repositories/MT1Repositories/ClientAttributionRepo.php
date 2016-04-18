@@ -6,7 +6,9 @@ use DB;
 use Log;
 
 class ClientAttributionRepo {
-   public function __construct () {} 
+    const DELETED_LEVEL = 255;
+
+    public function __construct () {} 
 
     public function getClientsByAttribution ( $count ) {
         $clients = DB::connection( 'mt1mail' )->table( 'user' )
@@ -26,12 +28,20 @@ class ClientAttributionRepo {
     public function setAttribution ( $id , $level ) {
         Log::info( "Setting Client ID: {$id} - Level: {$level}" );
 
-        #Need to decide what to do from here
+        /* DB Handle to adjust attribution level. Need to write to master, current handle is slave.
+        DB::connection( 'mt1mail' )->table( 'user' )
+            ->where( 'user_id' , '=' , $id )
+            ->update( [ 'AttributeLevel' => $level ] );
+         */
     }
 
     public function deleteAttribution ( $id ) {
         Log::info( "Deleting Client ID: {$id}" );
 
-        #Need to decide what to do from here
+        /* DB Handle to adjust remove attribution level by switching to 255 which is disabled throughout the attribution script.. Need to write to master, current handle is slave.
+        DB::connection( 'mt1mail' )->table( 'user' )
+            ->where( 'user_id' , '=' , $id )
+            ->update( [ 'AttributeLevel' => self::DELETED_LEVEL ] );
+         */
     }
 }

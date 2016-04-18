@@ -34,7 +34,7 @@ mt2App.controller( 'ClientAttributionController' , [ 'ClientApiService' , '$root
         
     self.setAttributionFailureCallback = function ( response ) {
         $log.log( response );
-    }
+    };
 
     self.deleteAttribution = function ( id ) {
         ClientApiService.deleteAttribution( id , self.deleteAttributionSuccessCallback , self.deleteAttributionFailureCallback );
