@@ -91,4 +91,8 @@ abstract class AbstractReportService implements IDataService  {
   protected function returnInfoForEmail($email) {
 
   }
+
+  protected function getDeployIDFromName($name){
+    return explode('_',$name)[0];
+  }
 }
