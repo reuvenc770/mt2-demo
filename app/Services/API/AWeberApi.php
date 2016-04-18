@@ -38,22 +38,22 @@ class AWeberApi extends EspBaseAPI
         $weber->adapter->debug = env("AWEBER_DEBUG", false);
         try {
             $this->api = $weber;
-            $accountId = Cache::remember('aweber_account_'.$espAccountId, $time, function() {
-                return $this->api->getAccount($this->accessToken, $this->sharedSecret)->id;
-            });
+            //$accountId = Cache::remember('aweber_account_'.$espAccountId, $time, function() {
+            //    return $this->api->getAccount($this->accessToken, $this->sharedSecret)->id;
+            //});
 
-            $user = new OAuthUser();
-            $user->accessToken = $this->accessToken;
-            $user->tokenSecret = $this->sharedSecret;
-            $this->api->adapter->user = $user;
-            $listId = Cache::remember('aweber_list_id_'.$espAccountId, $time, function() use ($accountId) {
-                return $this->api->adapter->request('GET', "/accounts/{$accountId}/lists/", array())['entries'][0]['id'];
-            });
+            //$user = new OAuthUser();
+            //$user->accessToken = $this->accessToken;
+           // $user->tokenSecret = $this->sharedSecret;
+           // $this->api->adapter->user = $user;
+           // $listId = Cache::remember('aweber_list_id_'.$espAccountId, $time, function() use ($accountId) {
+                //return $this->api->adapter->request('GET', "/accounts/{$accountId}/lists/", array())['entries'][0]['id'];
+           // });
 
-            $this->url = "/accounts/{$accountId}/lists/{$listId}/";
+            //$this->url = "/accounts/{$accountId}/lists/{$listId}/";
         } catch (AWeberAPIException $exc) {
-            Log::error("AWeber  Failed {$exc->type} due to {$exc->message} help:: {$exc->documentation_url}");
-            throw new \Exception("AWeber  Failed {$exc->type} due to {$exc->message} help:: {$exc->documentation_url}");
+            //Log::error("AWeber  Failed {$exc->type} due to {$exc->message} help:: {$exc->documentation_url}");
+            //throw new \Exception("AWeber  Failed {$exc->type} due to {$exc->message} help:: {$exc->documentation_url}");
         }
     }
 

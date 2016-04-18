@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Facades\EspApiAccount;
 use App\Models\JobEntry;
 use App\Facades\JobTracking;
+use Storage;
 class RetrieveCsvReports extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
@@ -18,10 +19,7 @@ class RetrieveCsvReports extends Job implements ShouldQueue
      * @var
      */
     protected $apiName;
-    /**
-     * @var
-     */
-    protected $accountName;
+    protected $date;
 
     protected $filePath;
 
@@ -34,13 +32,13 @@ class RetrieveCsvReports extends Job implements ShouldQueue
      * @param $accountName
      * @param $date
      */
-    public function __construct($apiName, $accountName, $filePath, $tracking)
+    public function __construct($apiName, $filePath, $realDate, $tracking)
     {
         $this->apiName = $apiName;
-        $this->accountName = $accountName;
         $this->filePath = $filePath;
         $this->maxAttempts = env('MAX_ATTEMPTS',10);
         $this->tracking = $tracking;
+        $this->date = $realDate;
 
     }
 
@@ -51,10 +49,11 @@ class RetrieveCsvReports extends Job implements ShouldQueue
      */
     public function handle()
     {
-        JobTracking::startEspJob(self::JOB_NAME,$this->apiName, $this->accountName, $this->tracking);
-        $reportService = APIFactory::createApiReportService($this->apiName,$this->accountName);
-        $reportArray = EspApiAccount::mapCsvToRawStatsArray($this->accountName, $this->filePath);
-        $reportService->insertCsvRawStats($reportArray);
+        JobTracking::startEspJob(self::JOB_NAME,$this->apiName,null, $this->tracking);
+        $reportService = APIFactory::createApiReportService($this->apiName,0);
+        $reportArray = EspApiAccount::mapCsvToRawStatsArray($this->apiName, $this->filePath);
+        $reportService->insertCsvRawStats($reportArray, $this->date);
+        //Storage::delete($this->filePath);
         JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking, $this->attempts());
     }
 

@@ -99,21 +99,22 @@ class AWeberReportService extends AbstractReportService implements IDataService
     public function mapToStandardReport($data)
     {
         return array(
-            'campaign_name' => "",
-            'external_deploy_id' => "",
-            'esp_account_id' => $this->api->getEspAccountId(),
-            'esp_internal_id' => $data['internal_id'],
-            'datetime' => $data[ 'sent_at' ],
+            'campaign_name' => $data['campaign_name'],
+            'external_deploy_id' => $this->getDeployIDFromName($data['campaign_name']),
+            'm_deploy_id' => $this->getDeployIDFromName($data['campaign_name']),
+            'esp_account_id' => $data['esp_account_id'],
+            'esp_internal_id' => "",
+            'datetime' => $data['datetime'],
             'name' => "",
-            'subject' => $data[ 'subject' ],
+            'subject' => "",
             'from' => "",
             'from_email' => "",
             'delivered' => $data[ 'total_sent' ],
-            'bounced' => $data['total_undelivered'],
+            'bounced' => "",
             'e_opens' => $data[ 'total_opens' ],
-            'e_opens_unique' => $data[ 'unique_opens' ],
+            'e_opens_unique' => "",
             'e_clicks' => $data[ 'total_clicks' ],
-            'e_clicks_unique' => $data[ 'unique_clicks' ],
+            'e_clicks_unique' => "",
         );
     }
 
@@ -190,4 +191,8 @@ class AWeberReportService extends AbstractReportService implements IDataService
     }
 
     public function shouldRetry () { return $this->dataRetrievalFailed; }
+
+    protected function getDeployIDFromName($name){
+        return explode('_',$name)[0];
+    }
 }

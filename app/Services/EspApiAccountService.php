@@ -103,23 +103,25 @@ class EspApiAccountService
     /**
      *
      */
-    public function grabCsvMapping($espAccountId)
+    public function grabCsvMapping($espName)
     {
-        $espDetails = $this->espRepo->getAccountESPMapping($espAccountId);
+        $espDetails = $this->espRepo->getAccountESPMapping($espName);
         return  explode(',',$espDetails->mappings);
     }
 
     /**
      *
      */
-    public function mapCsvToRawStatsArray($espAccountId,$filePath) {
+    public function mapCsvToRawStatsArray($espName,$filePath) {
         $returnArray = array();
-        $mapping = $this->grabCsvMapping($espAccountId);
+        $mapping = $this->grabCsvMapping($espName);
         $reader = Reader::createFromPath(storage_path().'/app/'.$filePath);
 
         $data = $reader->fetchAssoc($mapping);
         foreach ($data as $row) {
-            $row['esp_account_id'] = $espAccountId;
+            $espAccountName = explode('_',$row['campaign_name'])[1];
+            $espAccountId = $this->espRepo->getIdFromName($espAccountName);
+            $row['esp_account_id'] = $espAccountId->id;
             $returnArray[] = $row;
         }
         return $returnArray;
