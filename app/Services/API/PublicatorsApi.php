@@ -5,6 +5,7 @@
 
 namespace App\Services\API;
 
+use Cache;
 use App\Facades\EspApiAccount;
 
 use Carbon\Carbon;
@@ -25,6 +26,7 @@ class PublicatorsApi extends EspBaseAPI {
     const API_OPENS_STATS = "/api/Reports/GetReportAllOpenedMailsByCampaignID";
     const API_CLICKS_STATS = "/api/Reports/GetReportAllClickedMailsByCampaignID";
     const API_BOUNCES_STATS = "/api/Reports/GetReportAllBouncedMailsByCampaignID";
+    const API_UNSUBSCRIBED_STATS = "/api/Reports/GetReportAllUnsubscribedMailsByCampaignID";
 
     const DATE_FORMAT = "Y/m/d H:i";
 
@@ -43,7 +45,8 @@ class PublicatorsApi extends EspBaseAPI {
         "sentStats" => "SENT_STATS" ,
         "opensStats" => "OPENS_STATS",
         "clicksStats" => "CLICKS_STATS",
-        "bouncesStats" => "BOUNCES_STATS"
+        "bouncesStats" => "BOUNCES_STATS" ,
+        "unsubscribedStats" => "UNSUBSCRIBED_STATS"
     ];
 
     protected $defaultRequestOptions = [
@@ -118,6 +121,96 @@ class PublicatorsApi extends EspBaseAPI {
         return $responseBody;
     }
 
+    public function getRecordStats ( $recordType , $campaignId ) {
+        $this->setCallType( $recordType );
+        $this->setCampaignId( $campaignId );
+
+        $response = $this->sendApiRequest();
+
+        $responseBody = json_decode( $response->getBody() );
+
+        if ( is_null( $responseBody ) ) {
+            throw new \Exception( "Failed to parse campaign '{$recordType}' stats response. '{$responseBody}'" );
+        }
+
+        return $responseBody;
+    }
+
+    public function getDelivered ( $campaignId ) {
+        $this->setCallType( 'sentStats' );
+        $this->setCampaignId( $campaignId );
+
+        $response = $this->sendApiRequest();
+
+        $responseBody = json_decode( $response->getBody() );
+
+        if ( is_null( $responseBody ) ) {
+            throw new \Exception( "Failed to parse campaign opened stats response. '{$responseBody}'" );
+        }
+
+        return $responseBody;
+    }
+
+    public function getOpened ( $campaignId ) {
+        $this->setCallType( 'opensStats' );
+        $this->setCampaignId( $campaignId );
+
+        $response = $this->sendApiRequest();
+
+        $responseBody = json_decode( $response->getBody() );
+
+        if ( is_null( $responseBody ) ) {
+            throw new \Exception( "Failed to parse campaign opened stats response. '{$responseBody}'" );
+        }
+
+        return $responseBody;
+    }
+
+    public function getClicked ( $campaignId ) {
+        $this->setCallType( 'clicksStats' );
+        $this->setCampaignId( $campaignId );
+
+        $response = $this->sendApiRequest();
+
+        $responseBody = json_decode( $response->getBody() );
+
+        if ( is_null( $responseBody ) ) {
+            throw new \Exception( "Failed to parse campaign opened stats response. '{$responseBody}'" );
+        }
+
+        return $responseBody;
+    }
+
+    public function getBounced ( $campaignId ) {
+        $this->setCallType( 'bouncesStats' );
+        $this->setCampaignId( $campaignId );
+
+        $response = $this->sendApiRequest();
+
+        $responseBody = json_decode( $response->getBody() );
+
+        if ( is_null( $responseBody ) ) {
+            throw new \Exception( "Failed to parse campaign opened stats response. '{$responseBody}'" );
+        }
+
+        return $responseBody;
+    }
+
+    public function getUnsubscribed ( $campaignId ) {
+        $this->setCallType( 'unsubscribedStats' );
+        $this->setCampaignId( $campaignId );
+
+        $response = $this->sendApiRequest();
+
+        $responseBody = json_decode( $response->getBody() );
+
+        if ( is_null( $responseBody ) ) {
+            throw new \Exception( "Failed to parse campaign opened stats response. '{$responseBody}'" );
+        }
+
+        return $responseBody;
+    }
+
     public function sendApiRequest () {
         if ( is_null( $this->callType ) ) {
             throw new \Exception( "Call type not defined." );
@@ -169,30 +262,28 @@ class PublicatorsApi extends EspBaseAPI {
     }
 
     protected function constructOptions () {
-        switch ( $this->callType ) {
-            case "auth" :
-                return $this->defaultRequestOptions + [ "body" => json_encode( [ "Username" => $this->username , "Password" => $this->password ] ) ];
-            break;
-
-            case "listCampaigns" :
-                return $this->defaultRequestOptions + [
-                    "body" => json_encode( [
-                        "Auth" => [ "Token" => $this->token ] ,
-                        "FromSentDate" => Carbon::parse( $this->date )->startOfDay()->format( self::DATE_FORMAT ) ,
-                        "ToSentDate" => Carbon::parse( $this->date )->endOfDay()->format( self::DATE_FORMAT )
-                    ] )
-                ];
-            break;
-
-            case "campaignsStats" :
-                return $this->defaultRequestOptions + [
-                    "body" => json_encode( [
-                        "Auth" => [ "Token" => $this->token ] ,
-                        "ID" => $this->currentCampaignId
-                    ] )
-                ];
-            break;
+        if( $this->callType == "auth" ) {
+            return $this->defaultRequestOptions + [ "body" => json_encode( [ "Username" => $this->username , "Password" => $this->password ] ) ];
+        } elseif ( $this->callType == "listCampaigns" ) {
+            return $this->defaultRequestOptions + [
+                "body" => json_encode( [
+                    "Auth" => [ "Token" => $this->token ] ,
+                    "FromSentDate" => Carbon::parse( $this->date )->startOfDay()->format( self::DATE_FORMAT ) ,
+                    "ToSentDate" => Carbon::parse( $this->date )->endOfDay()->format( self::DATE_FORMAT )
+                ] )
+            ];
+        } else {
+            return $this->defaultRequestOptions + [
+                "body" => $this->getStatsRequestBody()
+            ];
         }
+    }
+
+    protected function getStatsRequestBody () {
+        return json_encode( [
+            "Auth" => [ "Token" => $this->token ] ,
+            "ID" => $this->currentCampaignId
+        ] );
     }
 
     protected function outputFailedDebug ( $exception ) {
