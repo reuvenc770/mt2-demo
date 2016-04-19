@@ -96,12 +96,7 @@ class PublicatorsApi extends EspBaseAPI {
             throw new \Exception( "Failed to parse campaign listing response. '{$responseBody}'" );
         }
 
-        $campaignList = [];
-        foreach ( $responseBody as $campaign ) {
-            $campaignList []= $campaign->ID;
-        }
-
-        return $campaignList;
+        return $responseBody;
     }
 
     public function getCampaignStats ( $campaignId ) {
