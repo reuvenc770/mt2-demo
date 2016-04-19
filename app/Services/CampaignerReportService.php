@@ -359,11 +359,9 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
 
     private function parseOutActions($manager){
         $lastResponse = $manager->__getLastResponse();
-        // this might be a bit much ...
-        var_dump($lastResponse);
         $body = simplexml_load_string($lastResponse);
 
-        if ( !$body ) {
+        if ( !$body->asXml() ) {
             $errors = libxml_get_errors();
             echo "Errors:" . PHP_EOL;
             var_dump($errors);
