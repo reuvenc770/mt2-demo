@@ -328,6 +328,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             $report = new DownloadReport($this->api->getAuth(),$ticketId, $offset, $upToCount, "rpt_Detailed_Contact_Results_by_Campaign");
             echo "Downloading report" . PHP_EOL;
             $manager->DownloadReport($report);
+            echo "Report downloaded" . PHP_EOL;
             if($this->checkforHeaderFail($manager,"getCampaignReport"))
             {
                 return null;
