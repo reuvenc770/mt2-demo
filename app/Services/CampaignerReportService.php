@@ -328,12 +328,14 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             $report = new DownloadReport($this->api->getAuth(),$ticketId, $offset, $upToCount, "rpt_Detailed_Contact_Results_by_Campaign");
             echo "Downloading report" . PHP_EOL;
             $manager->DownloadReport($report);
-            echo "Report downloaded" . PHP_EOL;
+            echo "Report downloaded. Checking for header fail." . PHP_EOL;
             if($this->checkforHeaderFail($manager,"getCampaignReport"))
             {
                 return null;
             }
+            echo "check completed" . PHP_EOL;
             $data = array_merge($data,$this->parseOutActions($manager));
+            echo "parseOutActions completed" . PHP_EOL;
             $offset = $upToCount;
             $totalCount = $totalCount - $limit;
         }
@@ -356,9 +358,15 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
     }
 
     private function parseOutActions($manager){
-        $body = simplexml_load_string($manager->__getLastResponse());
+        $lastResponse = $manager->__getLastResponse();
+        // this might be a bit much ...
+        var_dump($lastResponse);
+        $body = simplexml_load_string($lastResponse);
 
         if ( !$body ) {
+            $errors = libxml_get_errors();
+            echo "Errors:" . PHP_EOL;
+            var_dump($errors);
             throw new \Exception( 'Failed to retrieve SOAP response.' );
         }
 
