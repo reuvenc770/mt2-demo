@@ -1,4 +1,7 @@
 <?php
+/**
+ * @author Adam Chin <achin@zetainteractive.com>
+ */
 
 use Illuminate\Database\Seeder;
 
