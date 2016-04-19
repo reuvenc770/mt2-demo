@@ -29,7 +29,8 @@ class ImportMt1EmailsJob extends Job implements ShouldQueue {
             $service = APIFactory::createMt1DataImportService(self::JOB_NAME);
             $service->run();
             JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking, $this->attempts());
-            $this->unlock(self::JOB_NAME);
+            $result = $this->unlock(self::JOB_NAME);
+            echo "Successfully removed lock: $result" . PHP_EOL;
         }
         else {
             echo "Still running " . self::JOB_NAME . " - job level" . PHP_EOL;
