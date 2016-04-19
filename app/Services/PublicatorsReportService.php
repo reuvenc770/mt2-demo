@@ -35,25 +35,39 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
         }
 
         $campaigns = $this->api->getCampaigns();
+        $campaignDataCollection = [];
 
         foreach ( $campaigns as $campaignId ) {
             $campaignData = $this->api->getCampaignStats( $campaignId ); 
 
-            var_dump( $campaignData );
-
-            die();
+            $campaignDataCollection []= [
+                "esp_account_id" => $this->api->getEspAccountId() ,
+                "internal_id" => (int)$campaignData->ID ,
+                "sent_date" => $campaignData->SentDate ,
+                "total_sent" => (int)$campaignData->TotalMailsSent ,
+                "total_opens" => (int)$campaignData->TotalOpened ,
+                "total_clicks" => (int)$campaignData->TotalClicks ,
+                "total_bounces" => (int)$campaignData->TotalBounces ,
+                "total_unsubscribes" => (int)$campaignData->TotalUniqueUnsubscribed
+            ];
         }
+
+        return $campaignDataCollection;
     }
 
     public function insertApiRawStats ( $data ) {
+        if ( !is_array( $data ) ) {
+            throw new JobException( "Parameter 1 must be an array of campaign data." , JobException::NOTICE );
+        }
 
+        foreach ( $data as $campaignData ) {
+            $this->insertStats( $this->api->getEspAccountId() , $campaignData );
+        }
+
+        #Event::fire( new RawReportDataWasInserted( $this , $data ) );
     }
 
-    public function mapToRawReport ( $data ) {
+    public function mapToRawReport ( $data ) {}
 
-    }
-
-    public function mapToStandardReport ( $data ) {
-
-    }
+    public function mapToStandardReport ( $data ) {}
 }

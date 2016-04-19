@@ -22,6 +22,7 @@ class CreatePublicatorsReportTable extends Migration
             $table->integer( "total_clicks" )->nullable();
             $table->integer( "total_bounces" )->nullable();
             $table->integer( "total_unsubscribes" )->nullable();
+            $table->timestamps();
         } );
 
         Schema::connection( "reporting_data" )->table( "publicators_reports" , function( $table ) {
