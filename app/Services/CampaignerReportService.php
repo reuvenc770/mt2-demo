@@ -264,8 +264,6 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         }
 
         try {
-            echo "Ticket Name: " . $processState[ 'ticket' ][ 'ticketName' ] . PHP_EOL;
-            echo "Row count: " . $processState[ 'ticket' ][ 'rowCount' ] . PHP_EOL;
             $recordData = $this->getCampaignReport(
                 $processState[ 'ticket' ][ 'ticketName' ] ,
                 $processState[ 'ticket' ][ 'rowCount' ]
@@ -324,18 +322,13 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             }
             //Due to the dumb paging of campaigner
             $upToCount = $offset > 0 ? $offset + $limit -1 : $offset + $limit;
-            echo "Setting up new DownloadReport with: $ticketId, $offset, $upToCount" . PHP_EOL;
             $report = new DownloadReport($this->api->getAuth(),$ticketId, $offset, $upToCount, "rpt_Detailed_Contact_Results_by_Campaign");
-            echo "Downloading report" . PHP_EOL;
             $manager->DownloadReport($report);
-            echo "Report downloaded. Checking for header fail." . PHP_EOL;
             if($this->checkforHeaderFail($manager,"getCampaignReport"))
             {
                 return null;
             }
-            echo "check completed" . PHP_EOL;
             $data = array_merge($data,$this->parseOutActions($manager));
-            echo "parseOutActions completed" . PHP_EOL;
             $offset = $upToCount;
             $totalCount = $totalCount - $limit;
         }
