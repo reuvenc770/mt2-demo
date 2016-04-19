@@ -68,7 +68,7 @@ class EmailActionsRepo {
           AND
           types.name <> 'deliverable'
         GROUP BY
-          ea.email_id, ea.campaign_id", 
+          ea.email_id, ea.deploy_id", 
             array(
                 ':startPoint' => $startPoint,
                 ':endPoint' => $endPoint
