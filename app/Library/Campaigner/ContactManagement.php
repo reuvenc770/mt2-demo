@@ -193,10 +193,7 @@ class ContactManagement extends \SoapClient
      */
     public function DownloadReport(DownloadReport $parameters)
     {
-       #echo "Running DownloadReport with " . var_export($parameters);
-       $result = $this->__soapCall('DownloadReport', array($parameters));
-       #echo "last response: " . var_export($result);
-       return $result;
+      return $this->__soapCall('DownloadReport', array($parameters));
     }
 
     /**
