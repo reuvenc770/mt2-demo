@@ -33,6 +33,7 @@ class PublicatorsApi extends EspBaseAPI {
     protected $token;
 
     protected $date;
+    protected $currentCampaignId;
 
     protected $callType;
     protected $typeList = [
@@ -72,12 +73,13 @@ class PublicatorsApi extends EspBaseAPI {
         }
 
         $this->setCallType( "auth" );
+
         $response = $this->sendApiRequest();
 
         $responseBody = json_decode( $response->getBody() );
 
         if ( is_null( $responseBody ) ) {
-            throw new \Exception( "Failed to parse authentication resposne. '{$responseBody}'" );
+            throw new \Exception( "Failed to parse authentication response. '{$responseBody}'" );
         }
 
         $this->token = $responseBody->Token;
@@ -91,7 +93,7 @@ class PublicatorsApi extends EspBaseAPI {
         $responseBody = json_decode( $response->getBody() );
 
         if ( is_null( $responseBody ) ) {
-            throw new \Exception( "Failed to parse campaign listing resposne. '{$responseBody}'" );
+            throw new \Exception( "Failed to parse campaign listing response. '{$responseBody}'" );
         }
 
         $campaignList = [];
@@ -100,6 +102,25 @@ class PublicatorsApi extends EspBaseAPI {
         }
 
         return $campaignList;
+    }
+
+    public function getCampaignStats ( $campaignId ) {
+        if ( empty( $campaignId ) ) {
+            throw new \Exception( "Campaign ID is required for this call." );
+        }
+
+        $this->setCallType( "campaignsStats" );
+        $this->setCampaignId( $campaignId );
+
+        $response = $this->sendApiRequest();
+
+        $responseBody = json_decode( $response->getBody() );
+
+        if ( is_null( $responseBody ) ) {
+            throw new \Exception( "Failed to parse campaign stats response. '{$responseBody}'" );
+        }
+
+        return $responseBody;
     }
 
     public function sendApiRequest () {
@@ -144,6 +165,10 @@ class PublicatorsApi extends EspBaseAPI {
         $this->password = $creds[ "password" ];
     }
 
+    protected function setCampaignId ( $campaignId ) {
+        $this->currentCampaignId = $campaignId;
+    }
+
     protected function constructUrl () {
         return self::API_BASE_URL . constant( "App\Services\API\PublicatorsApi::API_" . $this->typeList[ $this->callType ] );
     }
@@ -160,6 +185,15 @@ class PublicatorsApi extends EspBaseAPI {
                         "Auth" => [ "Token" => $this->token ] ,
                         "FromSentDate" => Carbon::parse( $this->date )->startOfDay()->format( self::DATE_FORMAT ) ,
                         "ToSentDate" => Carbon::parse( $this->date )->endOfDay()->format( self::DATE_FORMAT )
+                    ] )
+                ];
+            break;
+
+            case "campaignsStats" :
+                return $this->defaultRequestOptions + [
+                    "body" => json_encode( [
+                        "Auth" => [ "Token" => $this->token ] ,
+                        "ID" => $this->currentCampaignId
                     ] )
                 ];
             break;

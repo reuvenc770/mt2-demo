@@ -36,7 +36,13 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
 
         $campaigns = $this->api->getCampaigns();
 
-        echo "\n\t\nCampaigns: " . json_encode( $campaigns ) . "\n\n";
+        foreach ( $campaigns as $campaignId ) {
+            $campaignData = $this->api->getCampaignStats( $campaignId ); 
+
+            var_dump( $campaignData );
+
+            die();
+        }
     }
 
     public function insertApiRawStats ( $data ) {
