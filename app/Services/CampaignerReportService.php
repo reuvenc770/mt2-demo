@@ -255,7 +255,8 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         ];
     }
 
-    public function saveRecords ( &$processState ) {
+    public function saveRecords ( &$processState, $map ) {
+        // $map unneeded
         $skipDelivered = false;
 
         if ( $this->emailRecord->checkForDeliverables( $processState[ 'ticket' ][ 'espId' ] , $processState[ 'ticket' ][ 'espInternalId' ] ) ) {
@@ -263,6 +264,8 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         }
 
         try {
+            echo "Ticket Name: " . $processState[ 'ticket' ][ 'ticketName' ] . PHP_EOL;
+            echo "Row count: " . $processState[ 'ticket' ][ 'rowCount' ] . PHP_EOL;
             $recordData = $this->getCampaignReport(
                 $processState[ 'ticket' ][ 'ticketName' ] ,
                 $processState[ 'ticket' ][ 'rowCount' ]
@@ -321,7 +324,9 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             }
             //Due to the dumb paging of campaigner
             $upToCount = $offset > 0 ? $offset + $limit -1 : $offset + $limit;
+            echo "Setting up new DownloadReport with: $ticketId, $offset, $upToCount" . PHP_EOL;
             $report = new DownloadReport($this->api->getAuth(),$ticketId, $offset, $upToCount, "rpt_Detailed_Contact_Results_by_Campaign");
+            echo "Downloading report" . PHP_EOL;
             $manager->DownloadReport($report);
             if($this->checkforHeaderFail($manager,"getCampaignReport"))
             {
