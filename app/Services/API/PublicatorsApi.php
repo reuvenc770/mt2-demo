@@ -7,6 +7,7 @@ namespace App\Services\API;
 
 use App\Facades\EspApiAccount;
 
+use Carbon\Carbon;
 use App\Facades\Guzzle;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
@@ -25,9 +26,13 @@ class PublicatorsApi extends EspBaseAPI {
     const API_CLICKS_STATS = "/api/Reports/GetReportAllClickedMailsByCampaignID";
     const API_BOUNCES_STATS = "/api/Reports/GetReportAllBouncedMailsByCampaignID";
 
+    const DATE_FORMAT = "Y/m/d H:i";
+
     protected $username;
     protected $password;
     protected $token;
+
+    protected $date;
 
     protected $callType;
     protected $typeList = [
@@ -40,7 +45,10 @@ class PublicatorsApi extends EspBaseAPI {
         "bouncesStats" => "BOUNCES_STATS"
     ];
 
-    protected $defaultRequestOptions = [ "verify" => false ];
+    protected $defaultRequestOptions = [
+        "verify" => false ,
+        "headers" => [ "Content-Type" => "application/json" ]
+    ];
 
     public function __construct ( $espAccountId ) {
         $this->espAccountId = $espAccountId;
@@ -48,6 +56,10 @@ class PublicatorsApi extends EspBaseAPI {
         parent::__construct( self::ESP_NAME , $espAccountId );
 
         $this->loadCreds();
+    }
+
+    public function setDate ( $date ) {
+        $this->date = $date;
     }
 
     public function isAuthenticated () {
@@ -59,16 +71,35 @@ class PublicatorsApi extends EspBaseAPI {
             throw new \Exception( "Missing credentials. Can not authenticate into Publicators API." );
         }
 
-        $this->setCallType( 'auth' );
+        $this->setCallType( "auth" );
         $response = $this->sendApiRequest();
 
-        $response = json_decode( $response->getBody() );
+        $responseBody = json_decode( $response->getBody() );
 
-        if ( is_null( $response ) ) {
-            throw new \Exception( "Failed to parse authentication resposne. '{$response}'" );
+        if ( is_null( $responseBody ) ) {
+            throw new \Exception( "Failed to parse authentication resposne. '{$responseBody}'" );
         }
 
-        $this->token = $response->Token;
+        $this->token = $responseBody->Token;
+    }
+
+    public function getCampaigns () {
+        $this->setCalltype( "listCampaigns" );
+
+        $response = $this->sendApiRequest();
+
+        $responseBody = json_decode( $response->getBody() );
+
+        if ( is_null( $responseBody ) ) {
+            throw new \Exception( "Failed to parse campaign listing resposne. '{$responseBody}'" );
+        }
+
+        $campaignList = [];
+        foreach ( $responseBody as $campaign ) {
+            $campaignList []= $campaign->ID;
+        }
+
+        return $campaignList;
     }
 
     public function sendApiRequest () {
@@ -119,24 +150,34 @@ class PublicatorsApi extends EspBaseAPI {
 
     protected function constructOptions () {
         switch ( $this->callType ) {
-            case 'auth' :
+            case "auth" :
+                return $this->defaultRequestOptions + [ "body" => json_encode( [ "Username" => $this->username , "Password" => $this->password ] ) ];
+            break;
+
+            case "listCampaigns" :
                 return $this->defaultRequestOptions + [
-                    "body" => json_encode( [ "Username" => $this->username , "Password" => $this->password ] ) ,
-                    "headers" => [ "Content-Type" => "application/json" ]
+                    "body" => json_encode( [
+                        "Auth" => [ "Token" => $this->token ] ,
+                        "FromSentDate" => Carbon::parse( $this->date )->startOfDay()->format( self::DATE_FORMAT ) ,
+                        "ToSentDate" => Carbon::parse( $this->date )->endOfDay()->format( self::DATE_FORMAT )
+                    ] )
                 ];
             break;
         }
     }
 
     protected function outputFailedDebug ( $exception ) {
-        $request = $e->getRequest();
+        $request = $exception->getRequest();
 
-        echo "\tHeaders:\n";
-        foreach ($request->getHeaders() as $name => $values) {
-            echo $name . ': ' . implode(', ', $values) . "\n";
+        echo "\tRequest Headers:\n";
+        foreach ( $request->getHeaders() as $name => $values ) {
+            echo "\t" . $name . ": " . implode( ", " , $values ) . "\n";
         }
 
-        if( $response = $e->getResponse() ) {
+        echo "\tRequest Body:\n";
+        echo "\t" . $request->getBody();
+
+        if( $response = $exception->getResponse() ) {
             echo "\n\n\tResponse:\n";
             echo "\t" . $response->getBody() . "\n";
         }

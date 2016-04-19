@@ -24,6 +24,8 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
     }
 
     public function retrieveApiStats ( $date ) {
+        $this->api->setDate( $date );
+
         if ( !$this->api->isAuthenticated() ) {
             try {
                 $this->api->authenticate();
@@ -32,7 +34,9 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
             }
         }
 
-        Log::info( 'Is Authenticated: ' . json_encode( $this->api->isAuthenticated() ) );
+        $campaigns = $this->api->getCampaigns();
+
+        echo "\n\t\nCampaigns: " . json_encode( $campaigns ) . "\n\n";
     }
 
     public function insertApiRawStats ( $data ) {
