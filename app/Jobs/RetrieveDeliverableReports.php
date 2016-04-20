@@ -199,10 +199,15 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     }
 
     protected function saveRecords () {
-        $map = $this->standardReportRepo->getEspToInternalMap($this->espAccountId);
-        $this->reportService->saveRecords( $this->processState, $map );
+        if (isset($this->standardReportRepo)) {
+            $map = $this->standardReportRepo->getEspToInternalMap($this->espAccountId);
+            $this->reportService->saveRecords( $this->processState, $map );
 
-        $this->changeJobEntry( JobEntry::SUCCESS );
+            $this->changeJobEntry( JobEntry::SUCCESS );
+        }
+        else {
+            echo "StandardReportRepo not set. ESP account id " . $this->espAccountId . PHP_EOL;
+        }
     }
 
     protected function getTypeList () {

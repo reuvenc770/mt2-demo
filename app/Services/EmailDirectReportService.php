@@ -131,7 +131,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
     public function getTypeList ( $processState ) {
         $typeList = [ 'opens' , 'clicks', "unsubscribes", "complaints" ];
 
-        if ( !$this->emailRecord->checkForDeliverables( $processState[ 'espAccountId' ] , $processState[ 'campaign' ][ 'internal_id' ] ) ) {
+        if ( !$this->emailRecord->checkForDeliverables( $processState[ 'espAccountId' ] , $processState[ 'campaign' ]->esp_internal_id ) ) {
             $typeList []= 'deliveries';
         }
 
@@ -177,7 +177,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                 break;
 
                 case 'clicks' :
-                    $clicks = $this->getClickReport( $processState[ 'campaign' ]->internal_id );
+                    $clicks = $this->getClickReport( $processState[ 'campaign' ]->esp_internal_id );
 
                     foreach ( $clicks as $key => $clickRecord ) {
                         $this->emailRecord->recordDeliverable(
@@ -192,7 +192,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                 break;
 
                 case 'unsubscribes' :
-                    $unsubs = $this->getUnsubscribeReport( $processState[ 'campaign' ]->internal_id );
+                    $unsubs = $this->getUnsubscribeReport( $processState[ 'campaign' ]->esp_internal_id );
 
                     foreach ( $unsubs as $key => $unsubRecord ) {
                         $this->emailRecord->recordDeliverable(
@@ -207,7 +207,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                 break;
 
                 case 'complaints' :
-                    $complainers = $this->getComplaintReport( $processState[ 'campaign' ]->internal_id );
+                    $complainers = $this->getComplaintReport( $processState[ 'campaign' ]->esp_internal_id );
 
                     foreach ( $complainers as $key => $complainerRecord ) {
                         $this->emailRecord->recordDeliverable(

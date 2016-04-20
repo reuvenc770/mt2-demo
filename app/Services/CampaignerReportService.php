@@ -255,7 +255,8 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         ];
     }
 
-    public function saveRecords ( &$processState ) {
+    public function saveRecords ( &$processState, $map ) {
+        // $map unneeded
         $skipDelivered = false;
 
         if ( $this->emailRecord->checkForDeliverables( $processState[ 'ticket' ][ 'espId' ] , $processState[ 'ticket' ][ 'espInternalId' ] ) ) {
@@ -350,9 +351,13 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
     }
 
     private function parseOutActions($manager){
-        $body = simplexml_load_string($manager->__getLastResponse());
+        $lastResponse = $manager->__getLastResponse();
+        $body = simplexml_load_string($lastResponse);
 
-        if ( !$body ) {
+        if ( !$body->asXml() ) {
+            $errors = libxml_get_errors();
+            echo "Errors:" . PHP_EOL;
+            var_dump($errors);
             throw new \Exception( 'Failed to retrieve SOAP response.' );
         }
 
