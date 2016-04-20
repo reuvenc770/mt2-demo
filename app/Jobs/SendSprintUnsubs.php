@@ -255,7 +255,7 @@ class SendSprintUnsubs extends Job implements ShouldQueue
 
     protected function getUnsubs ( $campaignId , $accountId ) {
         return EmailAction::select( 'email_id' )->where( [
-            [ 'campaign_id' , $campaignId ] ,
+            [ 'deploy_id' , $campaignId ] ,
             [ 'esp_account_id' , $accountId ] ,
             [ 'action_id' , self::UNSUB_ACTION_ID ]
         ] )->whereBetween( 'datetime' , [ $this->startOfDay , $this->endOfDay ] )->pluck( 'email_id' );
@@ -270,7 +270,7 @@ class SendSprintUnsubs extends Job implements ShouldQueue
 
     protected function getOrphans ( $campaignId , $accountId ) {
         return  OrphanEmail::select( 'email_address as email' )->where( [
-            [ 'campaign_id' , $campaignId ] ,
+            [ 'deploy_id' , $campaignId ] ,
             [ 'esp_account_id' , $accountId ] ,
             [ 'action_id' , self::UNSUB_ACTION_ID ]
         ] )->whereBetween( 'datetime' , [ $this->startOfDay , $this->endOfDay ] )->pluck( 'email' );
