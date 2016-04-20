@@ -114,11 +114,10 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
         return $jobId;
     }
 
-
     public function getTypeList ( &$processState ) {
         return [ 'open' ];
 
-        $typeList = [ "open" , "click" , "optout" , "bounce" ];
+        $typeList = [ "open" , "click" , "unsub" , "bounce" ];
 
         if( !$this->emailRecord->checkForDeliverables( $processState[ "espAccountId" ] , $processState[ "campaign" ]->esp_internal_id ) ){
             $typeList[] = "sent";
@@ -152,22 +151,22 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
 
             switch ( $processState[ "recordType" ] ) {
                 case "sent" :
-                    $records = $this->api->getDelivered( $processState[ "campaign" ]->esp_internal_id );
+                    $records = $this->api->getRecordStats( PublicatorsApi::TYPE_SENT_STATS , $processState[ "campaign" ]->esp_internal_id );
                     $recordType = self::RECORD_TYPE_DELIVERABLE;
                 break;
 
                 case "open" :
-                    $records = $this->api->getOpened( $processState[ "campaign" ]->esp_internal_id );
+                    $records = $this->api->getRecordStats( PublicatorsApi::TYPE_OPENS_STATS , $processState[ "campaign" ]->esp_internal_id );
                     $recordType = self::RECORD_TYPE_OPENER;
                 break;
 
                 case "click" :
-                    $records = $this->api->getClicked( $processState[ "campaign" ]->esp_internal_id );
+                    $records = $this->api->getRecordStats( PublicatorsApi::TYPE_CLICKS_STATS , $processState[ "campaign" ]->esp_internal_id );
                     $recordType = self::RECORD_TYPE_CLICKER;
                 break;
 
-                case "optout" :
-                    $records = $this->api->getUnsubscribed( $processState[ "campaign" ]->esp_internal_id );
+                case "unsub" :
+                    $records = $this->api->getRecordStats( PublicatorsApi::TYPE_UNSUBSCRIBED_STATS , $processState[ "campaign" ]->esp_internal_id );
                     $recordType = self::RECORD_TYPE_UNSUBSCRIBE;
                 break;
             }
@@ -175,33 +174,29 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
             throw new JobException( "Failed to Retrieve Email Record Stats. " . $e->getMessage() , JobException::ERROR , $e );
         }
 
-        echo "\nRecords:\n";
-        var_dump( $records );
-        echo "\n\n";
-
         die();
         foreach ( $records as $record ) {
             $this->emailRecord->recordDeliverable(
                 $recordType , 
-                $clickRecord[ "EmailAddress" ] ,
+                $record->Email ,
                 $processState[ "espId" ] ,
                 $processState[ "campaign" ]->external_deploy_id ,
                 $processState[ "campaign" ]->esp_internal_id ,
-                $clickRecord[ "ActionDate" ]
+                $record->TimeStamp
             ); 
         }
     }
 
     protected function processBounces () {
-        $records = $this->api->getBounced();
+        $records = $this->api->getRecordStats( PublicatorsApi::TYPE_OPENS_STATS , $processState[ "campaign" ]->esp_internal_id );
 
         foreach ( $records as $record ) {
             Suppression::recordRawHardBounce(
                 $processState[ "ticket" ][ "espId" ] ,
-                $currentEmail ,
+                $record->Email ,
                 $processState[ "ticket" ][ "espInternalId" ] ,
                 $reason ,
-                $bounceDate
+                $record->TimeStamp
             );
         }
     }

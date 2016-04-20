@@ -28,6 +28,15 @@ class PublicatorsApi extends EspBaseAPI {
     const API_BOUNCES_STATS = "/api/Reports/GetReportAllBouncedMailsByCampaignID";
     const API_UNSUBSCRIBED_STATS = "/api/Reports/GetReportAllUnsubscribedMailsByCampaignID";
 
+    const TYPE_AUTH = 'auth';
+    const TYPE_LIST_CAMPAIGNS = 'listCampaigns';
+    const TYPE_CAMPAIGN_STATS = 'campaignsStats';
+    const TYPE_SENT_STATS = 'sentStats';
+    const TYPE_OPENS_STATS = 'opensStats';
+    const TYPE_CLICKS_STATS = 'clicksStats';
+    const TYPE_BOUNCES_STATS = 'bouncesStats';
+    const TYPE_UNSUBSCRIBED_STATS = 'unsubscribedStats';
+
     const DATE_FORMAT = "Y/m/d H:i";
 
     protected $username;
@@ -38,15 +47,15 @@ class PublicatorsApi extends EspBaseAPI {
     protected $currentCampaignId;
 
     protected $callType;
-    protected $typeList = [
-        "auth" => "AUTH" ,
-        "listCampaigns" => "LIST_CAMPAIGNS" ,
-        "campaignsStats" => "CAMPAIGNS_STATS" ,
-        "sentStats" => "SENT_STATS" ,
-        "opensStats" => "OPENS_STATS",
-        "clicksStats" => "CLICKS_STATS",
-        "bouncesStats" => "BOUNCES_STATS" ,
-        "unsubscribedStats" => "UNSUBSCRIBED_STATS"
+    protected $typeListMap = [
+        PublicatorsApi::TYPE_AUTH => PublicatorsApi::API_AUTH ,
+        PublicatorsApi::TYPE_LIST_CAMPAIGNS => PublicatorsApi::API_LIST_CAMPAIGNS ,
+        PublicatorsApi::TYPE_CAMPAIGN_STATS => PublicatorsApi::API_CAMPAIGNS_STATS ,
+        PublicatorsApi::TYPE_SENT_STATS => PublicatorsApi::API_SENT_STATS ,
+        PublicatorsApi::TYPE_OPENS_STATS => PublicatorsApi::API_OPENS_STATS ,
+        PublicatorsApi::TYPE_CLICKS_STATS => PublicatorsApi::API_CLICKS_STATS ,
+        PublicatorsApi::TYPE_BOUNCES_STATS => PublicatorsApi::API_BOUNCES_STATS ,
+        PublicatorsApi::TYPE_UNSUBSCRIBED_STATS => PublicatorsApi::API_UNSUBSCRIBED_STATS
     ];
 
     protected $defaultRequestOptions = [
@@ -75,7 +84,7 @@ class PublicatorsApi extends EspBaseAPI {
             throw new \Exception( "Missing credentials. Can not authenticate into Publicators API." );
         }
 
-        $this->setCallType( "auth" );
+        $this->setCallType( self::TYPE_AUTH );
 
         $response = $this->sendApiRequest();
 
@@ -89,7 +98,7 @@ class PublicatorsApi extends EspBaseAPI {
     }
 
     public function getCampaigns () {
-        $this->setCalltype( "listCampaigns" );
+        $this->setCalltype( self::TYPE_LIST_CAMPAIGNS );
 
         $response = $this->sendApiRequest();
 
@@ -107,7 +116,7 @@ class PublicatorsApi extends EspBaseAPI {
             throw new \Exception( "Campaign ID is required for this call." );
         }
 
-        $this->setCallType( "campaignsStats" );
+        $this->setCallType( self::TYPE_CAMPAIGN_STATS );
         $this->setCampaignId( $campaignId );
 
         $response = $this->sendApiRequest();
@@ -136,81 +145,6 @@ class PublicatorsApi extends EspBaseAPI {
         return $responseBody;
     }
 
-    public function getDelivered ( $campaignId ) {
-        $this->setCallType( 'sentStats' );
-        $this->setCampaignId( $campaignId );
-
-        $response = $this->sendApiRequest();
-
-        $responseBody = json_decode( $response->getBody() );
-
-        if ( is_null( $responseBody ) ) {
-            throw new \Exception( "Failed to parse campaign opened stats response. '{$responseBody}'" );
-        }
-
-        return $responseBody;
-    }
-
-    public function getOpened ( $campaignId ) {
-        $this->setCallType( 'opensStats' );
-        $this->setCampaignId( $campaignId );
-
-        $response = $this->sendApiRequest();
-
-        $responseBody = json_decode( $response->getBody() );
-
-        if ( is_null( $responseBody ) ) {
-            throw new \Exception( "Failed to parse campaign opened stats response. '{$responseBody}'" );
-        }
-
-        return $responseBody;
-    }
-
-    public function getClicked ( $campaignId ) {
-        $this->setCallType( 'clicksStats' );
-        $this->setCampaignId( $campaignId );
-
-        $response = $this->sendApiRequest();
-
-        $responseBody = json_decode( $response->getBody() );
-
-        if ( is_null( $responseBody ) ) {
-            throw new \Exception( "Failed to parse campaign opened stats response. '{$responseBody}'" );
-        }
-
-        return $responseBody;
-    }
-
-    public function getBounced ( $campaignId ) {
-        $this->setCallType( 'bouncesStats' );
-        $this->setCampaignId( $campaignId );
-
-        $response = $this->sendApiRequest();
-
-        $responseBody = json_decode( $response->getBody() );
-
-        if ( is_null( $responseBody ) ) {
-            throw new \Exception( "Failed to parse campaign opened stats response. '{$responseBody}'" );
-        }
-
-        return $responseBody;
-    }
-
-    public function getUnsubscribed ( $campaignId ) {
-        $this->setCallType( 'unsubscribedStats' );
-        $this->setCampaignId( $campaignId );
-
-        $response = $this->sendApiRequest();
-
-        $responseBody = json_decode( $response->getBody() );
-
-        if ( is_null( $responseBody ) ) {
-            throw new \Exception( "Failed to parse campaign opened stats response. '{$responseBody}'" );
-        }
-
-        return $responseBody;
-    }
-
     public function sendApiRequest () {
         if ( is_null( $this->callType ) ) {
             throw new \Exception( "Call type not defined." );
@@ -218,6 +152,9 @@ class PublicatorsApi extends EspBaseAPI {
 
         $url = $this->constructUrl();
         $options = $this->constructOptions();
+
+        echo "\n\tURL: '{$url}'\n\n";
+        echo "\n\tOptions: \n" . json_encode( $options ) . "\n";
 
         try {
             $response = Guzzle::post( $url , $options );
@@ -239,7 +176,7 @@ class PublicatorsApi extends EspBaseAPI {
     }
 
     public function setCallType ( $type ) {
-        if ( !in_array( $type , array_keys( $this->typeList ) ) ) {
+        if ( !in_array( $type , array_keys( $this->typeListMap ) ) ) {
             throw new \Exception( "{$type} is not a valid API call type." );
         }
 
@@ -258,7 +195,7 @@ class PublicatorsApi extends EspBaseAPI {
     }
 
     protected function constructUrl () {
-        return self::API_BASE_URL . constant( "App\Services\API\PublicatorsApi::API_" . $this->typeList[ $this->callType ] );
+        return self::API_BASE_URL . $this->typeListMap[ $this->callType ];
     }
 
     protected function constructOptions () {
