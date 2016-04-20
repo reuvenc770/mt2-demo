@@ -266,7 +266,7 @@ class SendSprintUnsubs extends Job implements ShouldQueue
 
     protected function appendEmailToFile ( $email ) {
         if ( $this->isUniqueEmail( $email ) ) {
-            Storage::append( self::DNE_FOLDER . $this->dneFileName , sprintf( self::RECORD_FORMAT ,  $email , $this->startOfDay ) );
+            Storage::append( self::DNE_FOLDER . $this->dneFileName , sprintf( self::RECORD_FORMAT ,  $email , $this->endOfDay ) );
 
             $this->appendToFullUnsubList( $email );
 
