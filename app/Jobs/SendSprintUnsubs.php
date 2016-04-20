@@ -163,22 +163,19 @@ class SendSprintUnsubs extends Job implements ShouldQueue
 
                     if ( is_null( $espDetails ) ) { continue; }
 
-                    $campaigns = $this->getCampaigns( $espDetails , $campaignName , $campaignDetails );
+                    $deployId = $this->getDeployId( $campaignName , $campaignDetails , $espDetails );
+                    $unsubs = $this->getUnsubs( $deployId , $espDetails[ 'accountId' ] );
 
-                    foreach ( $campaigns as $campaignId ) {
-                        $unsubs = $this->getUnsubs( $campaignId , $espDetails[ 'accountId' ] );
+                    foreach ( $unsubs as $unsubEmailId ) {
+                        $unsubEmail = $this->getEmail( $unsubEmailId );
 
-                        foreach ( $unsubs as $unsubEmailId ) {
-                            $unsubEmail = $this->getEmail( $unsubEmailId );
+                        $this->appendEmailToFile( $unsubEmail );
+                    }
 
-                            $this->appendEmailToFile( $unsubEmail );
-                        }
+                    $orphans = $this->getOrphans( $deployId , $espDetails[ 'accountId' ] );
 
-                        $orphans = $this->getOrphans( $campaignId , $espDetails[ 'accountId' ] );
-
-                        foreach ( $orphans as $orphanEmail ) {
-                            $this->appendEmailToFile( $orphanEmail );
-                        }
+                    foreach ( $orphans as $orphanEmail ) {
+                        $this->appendEmailToFile( $orphanEmail );
                     }
                 }
 
@@ -188,6 +185,8 @@ class SendSprintUnsubs extends Job implements ShouldQueue
             if ( $this->filesProcessed === 0 ) {
                 Slack::to( self::SLACK_TARGET_SUBJECT )->send("Sprint Unsub Job - No Campaign files today.");
             }
+
+            echo "\n\nProcessed '{$this->unsubCount}' Records....\n\n";
 
             Storage::put( self::DNE_FOLDER . $this->dneCountFileName , $this->unsubCount );
 
@@ -221,41 +220,26 @@ class SendSprintUnsubs extends Job implements ShouldQueue
         ];
     }
 
-    protected function getCampaigns ( $espDetails , $campaignName , $campaignDetails ) {
-        $campaigns = [];
+    protected function getDeployId ( $campaignName , $campaignDetails , $espDetails ) {
+        $deployId = null;
 
         if ( $espDetails[ 'name' ] === 'BlueHornet' ) {
-            $billCode = $campaignDetails[ 0 ];
-
-            $campaigns = DB::connection( 'reporting_data' )
-                ->table( 'blue_hornet_reports' )
-                ->select( 'internal_id as id' )
-                ->where( [
-                    [ 'bill_codes' , $billCode ] ,
-                    [ 'esp_account_id' , $espDetails[ 'accountId' ] ]
-                ] )->whereBetween( 'date_sent' , [ $this->startOfDay , $this->endOfDay ] )->pluck( 'id' );
+            $deployId = $campaignDetails[ 0 ];
         } else {
-            $tableName = ( $espDetails[ 'name' ] == 'Campaigner' ? 'campaigner_reports' : 'maro_reports' );
-            $sentField = ( $espDetails[ 'name' ] == 'Campaigner' ? 'created_at' : 'sent_at' );
-
-            $campaigns = DB::connection( 'reporting_data' )
-                ->table( $tableName )
-                ->select( 'internal_id as id' )
-                ->where( 'name' , $campaignName )
-                ->whereBetween( $sentField , [ $this->startOfDay , $this->endOfDay ] )
-                ->pluck( 'id' );
+            $deployId = $this->parseSubID( $campaignName );
         }
 
-        if ( empty( $campaigns ) ) {
-            Slack::to( self::SLACK_TARGET_SUBJECT )->send("Sprint Unsub Job - Campaign Name '{$campaignName}' has no matches..");
-        }
+        return $deployId;
+    } 
 
-        return $campaigns;
+    public function parseSubID($deploy_id){
+        $return = isset(explode("_", $deploy_id)[0]) ? explode("_", $deploy_id)[0] : "";
+        return $return;
     }
 
-    protected function getUnsubs ( $campaignId , $accountId ) {
+    protected function getUnsubs ( $deployId , $accountId ) {
         return EmailAction::select( 'email_id' )->where( [
-            [ 'deploy_id' , $campaignId ] ,
+            [ 'deploy_id' , $deployId ] ,
             [ 'esp_account_id' , $accountId ] ,
             [ 'action_id' , self::UNSUB_ACTION_ID ]
         ] )->whereBetween( 'datetime' , [ $this->startOfDay , $this->endOfDay ] )->pluck( 'email_id' );
@@ -268,9 +252,9 @@ class SendSprintUnsubs extends Job implements ShouldQueue
         else return '';
     }
 
-    protected function getOrphans ( $campaignId , $accountId ) {
+    protected function getOrphans ( $deployId , $accountId ) {
         return  OrphanEmail::select( 'email_address as email' )->where( [
-            [ 'deploy_id' , $campaignId ] ,
+            [ 'deploy_id' , $deployId ] ,
             [ 'esp_account_id' , $accountId ] ,
             [ 'action_id' , self::UNSUB_ACTION_ID ]
         ] )->whereBetween( 'datetime' , [ $this->startOfDay , $this->endOfDay ] )->pluck( 'email' );
