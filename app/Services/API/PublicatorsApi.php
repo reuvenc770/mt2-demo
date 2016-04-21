@@ -39,6 +39,10 @@ class PublicatorsApi extends EspBaseAPI {
 
     const DATE_FORMAT = "Y/m/d H:i";
 
+    const CACHE_TAG = "publicators";
+    const CACHE_KEY = "API_TOKEN";
+    const CACHE_TIMEOUT = 4; #in mins
+
     protected $username;
     protected $password;
     protected $token;
@@ -84,17 +88,22 @@ class PublicatorsApi extends EspBaseAPI {
             throw new \Exception( "Missing credentials. Can not authenticate into Publicators API." );
         }
 
-        $this->setCallType( self::TYPE_AUTH );
+        if ( $this->cachedTokenAvailable() ) {
+            $this->token = $this->getCachedToken();
+        } else {
+            $this->setCallType( self::TYPE_AUTH );
 
-        $response = $this->sendApiRequest();
+            $response = $this->sendApiRequest();
 
-        $responseBody = json_decode( $response->getBody() );
+            $responseBody = json_decode( $response->getBody() );
 
-        if ( is_null( $responseBody ) ) {
-            throw new \Exception( "Failed to parse authentication response. '{$responseBody}'" );
+            if ( is_null( $responseBody ) ) {
+                throw new \Exception( "Failed to parse authentication response. '{$responseBody}'" );
+            }
+
+            $this->cacheNewToken( $responseBody->Token );
+            $this->token = $responseBody->Token;
         }
-
-        $this->token = $responseBody->Token;
     }
 
     public function getCampaigns () {
@@ -153,9 +162,6 @@ class PublicatorsApi extends EspBaseAPI {
         $url = $this->constructUrl();
         $options = $this->constructOptions();
 
-        echo "\n\tURL: '{$url}'\n\n";
-        echo "\n\tOptions: \n" . json_encode( $options ) . "\n";
-
         try {
             $response = Guzzle::post( $url , $options );
         } catch ( ClientException $e ) {
@@ -188,6 +194,26 @@ class PublicatorsApi extends EspBaseAPI {
 
         $this->username = $creds[ "userName" ];
         $this->password = $creds[ "password" ];
+
+        if ( $this->cachedTokenAvailable() ) {
+            $this->token = $this->getCachedToken();
+        }
+    }
+
+    protected function cachedTokenAvailable () {
+        return Cache::tags( self::CACHE_TAG )->has( self::CACHE_KEY );
+    }
+
+    protected function getCachedToken () {
+        return Cache::tags( self::CACHE_TAG )->get( self::CACHE_KEY );
+    }
+
+    protected function cacheNewToken ( $token ) {
+        Cache::tags( self::CACHE_TAG )->put(
+            self::CACHE_KEY ,
+            $token ,
+            Carbon::now()->addMinutes( self::CACHE_TIMEOUT )
+        );
     }
 
     protected function setCampaignId ( $campaignId ) {
