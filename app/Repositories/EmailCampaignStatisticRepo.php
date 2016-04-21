@@ -37,7 +37,7 @@ class EmailCampaignStatisticRepo {
             "INSERT INTO email_campaign_statistics 
             (email_id, campaign_id, last_status, esp_first_open_datetime,
             esp_last_open_datetime, esp_total_opens, esp_first_click_datetime,
-             unsubscribed, esp_last_click_datetime, esp_total_clicks,
+            esp_last_click_datetime, esp_total_clicks, unsubscribed,
             updated_at) VALUES $insertString
 
             ON DUPLICATE KEY UPDATE
