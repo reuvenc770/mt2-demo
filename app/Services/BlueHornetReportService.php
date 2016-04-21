@@ -194,7 +194,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
     }
 
     public function getTypeList ( &$processState ) {
-        $typeList = ['open' , 'click' , 'optout' ];
+        $typeList = ['open' , 'click' , 'optout' , 'bounce' ];
         if(!$this->emailRecord->checkForDeliverables($processState[ 'espAccountId' ],$processState[ 'campaign' ]->esp_internal_id)){
             $typeList[] = "deliverable";
         }
@@ -269,6 +269,26 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         $bounceNodes = $contact->getElementsByTagName( 'bounce' );
         $isBounce = ( $bounceNodes->length > 0 );
 
+        if ( $isSent && !$isBounce ) {
+            $this->emailRecord->queueDeliverable(
+                self::RECORD_TYPE_DELIVERABLE ,
+                $email , 
+                $processState[ 'ticket' ][ 'espId' ] ,
+                $processState['ticket']['deployId'] ,
+                $processState[ 'ticket' ][ 'espInternalId' ] ,
+                $processState[ 'ticket' ]['deliveryTime']
+            );
+        }
+    }
+
+    function process_bounce ( $contact , $processState ) {
+        $emailNodes = $contact->getElementsByTagName( 'email' );
+
+        $email = $emailNodes->item( 0 )->nodeValue;
+
+        $bounceNodes = $contact->getElementsByTagName( 'bounce' );
+        $isBounce = ( $bounceNodes->length > 0 );
+
         if ( $isBounce ) {
             $reasonNodes = $bounceNodes->item( 0 )->getElementsByTagName( 'reason' );
             $dateNodes = $bounceNodes->item( 0 )->getElementsByTagName( 'date' );
@@ -279,15 +299,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                 $processState[ 'ticket' ][ 'espInternalId' ] , 
                 $reasonNodes->item( 0 )->nodeValue ,
                 $dateNodes->item( 0 )->nodeValue
-            );
-        } elseif ( $isSent ) {
-            $this->emailRecord->queueDeliverable(
-                self::RECORD_TYPE_DELIVERABLE ,
-                $email , 
-                $processState[ 'ticket' ][ 'espId' ] ,
-                $processState['ticket']['deployId'] ,
-                $processState[ 'ticket' ][ 'espInternalId' ] ,
-                $processState[ 'ticket' ]['deliveryTime']
             );
         }
     }
