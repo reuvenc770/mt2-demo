@@ -201,10 +201,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         return $typeList;
     }
 
-    public function splitTypes ( $processState ) {
-        return $processState[ "typeList" ];
-    }
-
     public function startTicket ( $espAccountId , $campaign , $recordType ) {
         try {
             return [

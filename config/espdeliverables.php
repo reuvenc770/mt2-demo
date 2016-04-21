@@ -10,8 +10,7 @@ return [
                 'checkTicketStatus' ,
                 'downloadTicketFile' ,
                 'getTypeList' ,
-                'splitTypes' ,
-                'saveRecords' , #'synchronousSaveTypeRecords' ,
+                'synchronousSaveTypeRecords' ,
                 'cleanUp'
             ]
         ]
