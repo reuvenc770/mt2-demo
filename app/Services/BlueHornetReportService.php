@@ -275,7 +275,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                 $email , 
                 $processState[ 'ticket' ][ 'espId' ] ,
                 $processState['ticket']['deployId'] ,
-                $processState[ 'ticket' ][ 'espInternalId' ] ,
+                $processState[ 'campaign' ]->esp_internal_id ,
                 $processState[ 'ticket' ]['deliveryTime']
             );
         }
@@ -296,7 +296,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             Suppression::recordRawHardBounce(
                 $processState[ 'ticket' ][ 'espId' ] ,
                 $email , 
-                $processState[ 'ticket' ][ 'espInternalId' ] , 
+                $processState[ 'campaign' ]->esp_internal_id , 
                 $reasonNodes->item( 0 )->nodeValue ,
                 $dateNodes->item( 0 )->nodeValue
             );
@@ -319,7 +319,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                     $email ,
                     $processState[ 'ticket' ][ 'espId' ] ,
                     $processState['ticket']['deployId'] ,
-                    $processState[ 'ticket' ][ 'espInternalId' ] ,
+                    $processState[ 'campaign' ]->esp_internal_id ,
                     $dateNode->nodeValue
                 );
             }
@@ -345,7 +345,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                         $email , 
                         $processState[ 'ticket' ][ 'espId' ] ,
                         $processState['ticket']['deployId'] ,
-                        $processState[ 'ticket' ][ 'espInternalId' ] ,
+                        $processState[ 'campaign' ]->esp_internal_id ,
                         $clickDates->item( 0 )->nodeValue
                     );
                 }
@@ -366,7 +366,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                 $email ,
                 $processState[ 'ticket' ][ 'espId' ] ,
                 $processState['ticket']['deployId'] ,
-                $processState[ 'ticket' ][ 'espInternalId' ] ,
+                $processState[ 'campaign' ]->esp_internal_id ,
                 $optoutNodes->item( 0 )->nodeValue
             );
         }
