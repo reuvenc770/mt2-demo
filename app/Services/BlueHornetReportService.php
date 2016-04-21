@@ -174,7 +174,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         ) {
             switch ( $processState[ 'currentFilterIndex' ] ) {
                 case 2 :
-                    $jobId .= '::Campaign-' . $processState[ 'campaign' ]->esp_internal_id;
+                    $jobId .= ( isset( $processState[ 'campaign' ] ) ? '::Campaign-' . $processState[ 'campaign' ]->esp_internal_id : '' );
                 break;
 
                 case 3 :
@@ -207,6 +207,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                 "ticketName" => $this->getTicketForMessageSubscriberData( $campaign->esp_internal_id , 'sent,bounce,open,click,optout' ) ,
                 "deployId" => $campaign->external_deploy_id,
                 "espInternalId" => $campaign->esp_internal_id ,
+                "deliveryTime" => $campaign->datetime,
                 "espId" => $espAccountId
             ];
         } catch ( \Exception $e ) {
@@ -267,7 +268,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                         $reason = $currentBounce->current();
                         $currentBounce->next();
                         $bounceDate = $currentBounce->current();
-                        Suppression::recordRawHardBounce($processState[ 'ticket' ][ 'espId' ],$currentEmail,$processState[ 'ticket' ][ 'campaignId' ],$reason, $bounceDate);
+                        Suppression::recordRawHardBounce($processState[ 'ticket' ][ 'espId' ],$currentEmail,$processState[ 'ticket' ][ 'espInternalId' ],$reason, $bounceDate);
                     }
 
                     if ( $processState[ 'recordType' ] == 'optout' && $currentContact->key() === 'optout' ) {
@@ -327,7 +328,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                         $processState[ 'ticket' ][ 'espId' ] ,
                         $processState['ticket']['deployId'] ,
                         $processState[ 'ticket' ][ 'espInternalId' ] ,
-                        ''
+                        $processState[ 'ticket' ]['deliveryTime']
                     );
                 }
             }

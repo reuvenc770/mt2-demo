@@ -15,7 +15,7 @@ class StandardApiReportRepo {
     }
 
     public function insertStats($data) {
-        $this->report->updateOrCreate(array('external_deploy_id' => $data['external_deploy_id']), $data);
+        $this->report->updateOrCreate(array('campaign_name' => $data['campaign_name']), $data);
     }
 
     public function getCampaigns($espAccountId, $date) {

@@ -37,7 +37,7 @@ class EmailCampaignStatisticRepo {
             "INSERT INTO email_campaign_statistics 
             (email_id, campaign_id, last_status, esp_first_open_datetime,
             esp_last_open_datetime, esp_total_opens, esp_first_click_datetime,
-             unsubscribed, esp_last_click_datetime, esp_total_clicks,
+            esp_last_click_datetime, esp_total_clicks, unsubscribed,
             updated_at) VALUES $insertString
 
             ON DUPLICATE KEY UPDATE
@@ -50,14 +50,14 @@ class EmailCampaignStatisticRepo {
                                                     esp_first_open_datetime, 
                                                     VALUES(esp_first_open_datetime) )) ,
                 esp_last_open_datetime = VALUES(esp_last_open_datetime),
-                esp_total_opens = esp_total_opens + VALUES(esp_total_opens),
+                esp_total_opens = IFNULL(esp_total_opens, 0) + IFNULL(VALUES(esp_total_opens), 0),
                 esp_first_click_datetime = IF(esp_first_click_datetime IS NULL, 
                                                 VALUES(esp_first_click_datetime), 
                                                 IF(esp_first_click_datetime < VALUES(esp_first_click_datetime), 
                                                     esp_first_click_datetime, 
                                                     VALUES(esp_first_click_datetime) )),
                 esp_last_click_datetime = VALUES(esp_last_click_datetime),
-                esp_total_clicks = esp_total_clicks + VALUES(esp_total_clicks),
+                esp_total_clicks = IFNULL(esp_total_clicks, 0) + IFNULL(VALUES(esp_total_clicks), 0),
                 unsubscribed = VALUES(unsubscribed),
                 created_at=created_at,
                 updated_at = NOW()"
