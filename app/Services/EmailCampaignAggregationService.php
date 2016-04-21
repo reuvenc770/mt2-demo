@@ -66,6 +66,10 @@ class EmailCampaignAggregationService {
         $firstSectionClick = $this->getFirstItem($row->esp_first_click_datetimes);
         $lastSectionClick = $this->getFirstItem($row->esp_last_click_datetimes);
 
+        if ('' === $firstSectionOpen) {
+            $firstSectionOpen = $firstSectionClick;
+        }
+
         return [
             'email_id' => $row->email_id,
             'campaign_id' => $row->deploy_id,
