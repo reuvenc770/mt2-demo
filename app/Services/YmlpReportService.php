@@ -170,8 +170,6 @@ class YmlpReportService extends AbstractReportService implements IDataService {
                     $clickData = $this->api->getDeliverableStat('clicked', $espInternalId);
 
                     foreach ( $clickData as $key => $clicker ) {
-                        echo "click" . PHP_EOL;
-                        echo Carbon::parse($clicker['Timestamp']);
                         $this->emailRecord->recordDeliverable(
                             self::RECORD_TYPE_CLICKER ,
                             $clicker['Email'] ,
