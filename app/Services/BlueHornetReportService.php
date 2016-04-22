@@ -270,13 +270,14 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         $isBounce = ( $bounceNodes->length > 0 );
 
         if ( $isSent && !$isBounce ) {
+            $time = $processState['ticket']['deliveryTime'] === '0000-00-00 00:00:00' ? null : $processState['ticket']['deliveryTime'];
             $this->emailRecord->queueDeliverable(
                 self::RECORD_TYPE_DELIVERABLE ,
                 $email , 
                 $processState[ 'ticket' ][ 'espId' ] ,
                 $processState['ticket']['deployId'] ,
                 $processState[ 'campaign' ]->esp_internal_id ,
-                $processState[ 'ticket' ]['deliveryTime']
+                $time
             );
         }
     }
