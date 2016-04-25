@@ -63,7 +63,8 @@ class CreateEmailAction extends Migration
             $table->integer('member_source')->default(0);
             $table->string('source_url', 50)->default('');
             $table->string('ip', 15)->default('0.0.0.0');
-            $table->timestamps();
+            $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('updated_at')->default(DB::raw('DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
             $table->unique(array('email_id', 'client_id', 'capture_date'), 'email_client_date');
             $table->index(array('client_id', 'email_id'));
             $table->index(array('email_id', 'capture_date'));
