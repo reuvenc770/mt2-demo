@@ -186,6 +186,10 @@ class SendSprintUnsubs extends Job implements ShouldQueue
                 Slack::to( self::SLACK_TARGET_SUBJECT )->send("Sprint Unsub Job - No Campaign files today.");
             }
 
+            if ( $this->unsubCount === 0 ) {
+                Slack::to( self::SLACK_TARGET_SUBJECT )->send( "Sprint Unsub Job - No Unsubs Found." );
+            }
+
             echo "\n\nProcessed '{$this->unsubCount}' Records....\n\n";
 
             Storage::put( self::DNE_FOLDER . $this->dneCountFileName , $this->unsubCount );
