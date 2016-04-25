@@ -237,7 +237,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         try {
             $fileContents = Storage::get( $processState[ 'filePath' ] );
 
-            $recordXML = new DOMDocument();
+            $recordXML = new \DOMDocument();
             $recordXML->loadXML( $fileContents );
 
             $contacts = $recordXML->getElementsByTagName( 'contact' );
