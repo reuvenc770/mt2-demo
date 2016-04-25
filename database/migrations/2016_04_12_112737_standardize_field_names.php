@@ -24,6 +24,8 @@ class StandardizeFieldNames extends Migration
             $table->bigInteger('deploy_id')->after('client_id');
             $table->dropUnique('email_actions_email_id_campaign_id_datetime_unique');
             $table->unique(['email_id', 'deploy_id', 'datetime'], 'email_deploy_time');
+            $table->index(['deploy_id', 'datetime'], 'deploy_date');
+            $table->index(['esp_internal_id', 'datetime'], 'esp_internal_id_date');
         });
 
         Schema::table('orphan_emails', function($table) {

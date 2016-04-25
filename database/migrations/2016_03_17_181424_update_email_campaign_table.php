@@ -13,7 +13,6 @@ class UpdateEmailCampaignTable extends Migration
     public function up() {
         Schema::connection('reporting_data')->table('email_campaign_statistics', function($table) {
             $table->string('last_status')->after('campaign_id')->default('esp load');
-            $table->string('user_agent')->after('hard_bounce')->default('');
         });
     }
 
@@ -25,7 +24,6 @@ class UpdateEmailCampaignTable extends Migration
     public function down() {
         Schema::connection('reporting_data')->table('email_campaign_statistics', function($table) {
             $table->dropColumn('last_status');
-            $table->dropColumn('user_agent');
         });
     }
 }
