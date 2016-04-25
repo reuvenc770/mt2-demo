@@ -64,5 +64,16 @@ return [
                 'saveRecords'
             ]
         ]
+    ] ,
+    "Publicators" => [
+        "pipes" => [
+            "default" => [
+                'jobSetup' ,
+                'getCampaigns' ,
+                'getTypeList' ,
+                'splitTypes' ,
+                'saveRecords'
+            ]
+        ]
     ]
 ];

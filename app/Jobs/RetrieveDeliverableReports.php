@@ -89,7 +89,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         } catch ( JobException $e ) {
             $this->logJobException( $e );
 
-            if ( in_array( $e->getCode() , [ JobException::NOTICE , JobException::WARNING ] ) ) {
+            if ( in_array( $e->getCode() , [ JobException::NOTICE , JobException::WARNING , JobException::ERROR ] ) ) {
                 $this->releaseJob( $e );
             } else {
                 throw $e;
