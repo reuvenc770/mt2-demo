@@ -194,11 +194,11 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
     protected function checkAuthentication () {
         if ( !$this->api->isAuthenticated() ) {
             try {
-                $this->createLock( self::LOCK_NAME );
+                $this->createLock( self::LOCK_NAME . $this->api->getEspAccountId() );
 
                 $this->api->authenticate();
 
-                $this->unlock( self::LOCK_NAME );
+                $this->unlock( self::LOCK_NAME . $this->api->getEspAccountId() );
             } catch ( \Exception $e ) {
                 throw new JobException( "Failed to Retrieve API Stats. " . $e->getMessage() , JobException::CRITICAL , $e );
             }
