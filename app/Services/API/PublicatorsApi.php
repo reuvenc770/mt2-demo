@@ -201,16 +201,16 @@ class PublicatorsApi extends EspBaseAPI {
     }
 
     protected function cachedTokenAvailable () {
-        return Cache::tags( self::CACHE_TAG )->has( self::CACHE_KEY );
+        return Cache::tags( self::CACHE_TAG )->has( self::CACHE_KEY . '_' . $this->getEspAccountId() );
     }
 
     protected function getCachedToken () {
-        return Cache::tags( self::CACHE_TAG )->get( self::CACHE_KEY );
+        return Cache::tags( self::CACHE_TAG )->get( self::CACHE_KEY . '_' . $this->getEspAccountId() );
     }
 
     protected function cacheNewToken ( $token ) {
         Cache::tags( self::CACHE_TAG )->put(
-            self::CACHE_KEY ,
+            self::CACHE_KEY . '_' . $this->getEspAccountId() ,
             $token ,
             Carbon::now()->addMinutes( self::CACHE_TIMEOUT )
         );
