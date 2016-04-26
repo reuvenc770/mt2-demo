@@ -87,7 +87,7 @@ class TrackingDataService implements IDataService
     ];
   }
 
-  public function insertCsvRawStats($data) {}
+  public function insertCsvRawStats($data, $date) {}
 
 
   private function extractEidFromS2($s2) {
