@@ -31,7 +31,7 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
     }
 
     public function retrieveApiStats ( $date ) {
-        if ( $this->jobCanRun( self::LOCK_NAME ) ) {
+        if ( $this->jobCanRun( self::LOCK_NAME . $this->api->getEspAccountId() ) ) {
             $this->checkAuthentication();
 
             $this->api->setDate( $date );
@@ -138,7 +138,7 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
     }
 
     public function saveRecords ( $processState ) {
-        if ( $this->jobCanRun( self::LOCK_NAME ) ) {
+        if ( $this->jobCanRun( self::LOCK_NAME . $this->api->getEspAccountId() ) ) {
             $this->checkAuthentication();
 
             try {
