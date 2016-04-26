@@ -410,7 +410,19 @@ Route::group(
             [ 'only' => [ 'show' , 'store' ] ]
         );
 
-
+        Route::resource(
+            'attribution' ,
+            'AttributionController' ,
+            [ 'only' => [ 'store'] ]
+        );
+        
+        Route::post(
+            'attribution/bulk' ,
+            [
+                'as' => 'api.attribution.bulk' ,
+                'uses' => 'AttributionController@bulk'
+            ]
+        );
 
         /**
          * Admin Level API Group
