@@ -191,6 +191,14 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
         }
     }
 
+    public function lockFileExists () {
+        return !$this->jobCanRun( self::LOCK_NAME . $this->api->getEspAccountId() );
+    }
+
+    public function unlock () {
+        $this->unlock( self::LOCK_NAME . $this->api->getEspAccountId() );
+    }
+
     protected function checkAuthentication () {
         if ( !$this->api->isAuthenticated() ) {
             try {
