@@ -13,3 +13,6 @@ Homestead.json
 *.phar
 .DS_Store
 *.map
+*.csv
+*.sql
+*.log
