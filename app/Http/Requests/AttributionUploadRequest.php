@@ -24,8 +24,6 @@ class AttributionUploadRequest extends Request
     public function rules()
     {
         return [
-            "cid" => 'exists:clients,id',
-            "level" => 'digits_between:1,254',
             "upload_file" => 'mimes:csv,txt',
         ];
     }
