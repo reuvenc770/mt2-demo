@@ -5,7 +5,6 @@ use App\Repositories\EmailActionsRepo;
 use App\Repositories\EmailRepo;
 use App\Repositories\ActionRepo;
 use App\Repositories\StandardApiReportRepo;
-use App\ServicesEmailRecordService;
 use League\Csv\Reader;
 
 class CsvDeliverableService {
