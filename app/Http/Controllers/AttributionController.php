@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Services\MT1ApiService;
-use App\Http\Requests\AttributionUploadRequest;
+use App\Http\Requests\AttributionPostRequest;
 class AttributionController extends Controller
 {
     const ATTRIBUTION_BULK_UPLOAD_ENDPOINT ="upload_orange_attribution";
@@ -43,18 +43,9 @@ class AttributionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(AttributionUploadRequest $request)
+    public function store(AttributionPostRequest $request)
     {
-        $filePath = null;
-        if ($request->hasFile('upload_file')) {
-            $rand = str_random(10);
-            $fileName = "{$rand}.csv";
-            $file = $request->file('upload_file')->move(storage_path("app/temp/"), $fileName);
-            $filePath = $file->getPath();
-
-        }
-
-        return response( $this->api->postForm( self::ATTRIBUTION_UPLOAD_ENDPOINT , $request->all(), $filePath) );
+        return response( $this->api->postForm( self::ATTRIBUTION_UPLOAD_ENDPOINT , $request->all()) );
     }
 
     /**
