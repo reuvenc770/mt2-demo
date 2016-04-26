@@ -9,7 +9,7 @@ class EmailClientInstance extends Model {
     protected $guarded = ['id'];
     
     public function email() {
-        return $this->belongsTo("App\Models\Email");
+        return $this->belongsTo('App\Models\Email');
     }
 
     public function client() {
