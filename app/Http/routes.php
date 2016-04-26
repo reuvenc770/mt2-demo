@@ -415,7 +415,7 @@ Route::group(
             'AttributionController' ,
             [ 'only' => [ 'store'] ]
         );
-        
+
         Route::post(
             'attribution/bulk' ,
             [

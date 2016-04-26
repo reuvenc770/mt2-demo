@@ -47,8 +47,9 @@ class AttributionController extends Controller
     {
         $filePath = null;
         if ($request->hasFile('upload_file')) {
-            $fileName = "str_random(6).csv";
-            $file = $request->file('photo')->move(storage_path("app/temp/"), $fileName);
+            $rand = str_random(10);
+            $fileName = "{$rand}.csv";
+            $file = $request->file('upload_file')->move(storage_path("app/temp/"), $fileName);
             $filePath = $file->getPath();
 
         }
@@ -66,8 +67,9 @@ class AttributionController extends Controller
     {
         $filePath = null;
         if ($request->hasFile('upload_file')) {
-            $fileName = "str_random(6).csv";
-            $file = $request->file('photo')->move(storage_path("app/temp/"), $fileName);
+            $rand = str_random(10);
+            $fileName = "{$rand}.csv";
+            $file = $request->file('upload_file')->move(storage_path("app/temp/"), $fileName);
             $filePath = $file->getPath();
 
         }
