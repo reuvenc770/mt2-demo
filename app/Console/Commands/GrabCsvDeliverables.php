@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Models\EmailAction;
 use App\Repositories\EspApiAccountRepo;
 use Carbon\Carbon;
+use App\Services\AbstractReportService;
 use Illuminate\Console\Command;
 use App\Jobs\RetrieveDeliverableCsvReports;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -15,11 +17,11 @@ class GrabCsvDeliverables extends Command {
      *
      * @var string
      */
-    protected $signature = 'reports:csvDeliverables {espName}';
+    protected $signature = 'reports:csvDeliverables';
     protected $factory;
     protected $espRepo;
     protected $currentAction;
-    protected $actions = array('delivered', 'opens', 'clicks');
+    protected $actions = array('delivered');
 
     /**
      * The console command description.
@@ -39,32 +41,24 @@ class GrabCsvDeliverables extends Command {
      * @return mixed
      */
     public function handle() {
-        $date = Carbon::now()->subDay(3)->toDateString();
-        $espName = $this->argument('espName');
 
-        $espAccounts = $this->espRepo->getAccountsByESPName($espName);
-
-        // Do we want a job for each espaccount-action-file?
-
-        foreach ($espAccounts as $account) {
-            $accName = $account->account_name;
-            $accountId = $account->id;
-            $espId = $account->esp_id;
-
-            foreach ($this->actions as $id => $action) {
-                $location = "./$accName/$action";
-                echo $location . ": ";
-                $files = Storage::Files($location);
-                $this->info(sizeof($files) . " files");
-
-                foreach ($files as $file){
-                    $fileInfo = pathinfo($file);
-                    $filePath = storage_path() . '/app/' . $file;
-                    $this->dispatch(new RetrieveDeliverableCsvReports($espId, $espName, $accountId, $action, $filePath, str_random(16)));
+            $files = Storage::files("delivers");
+            foreach ($files as $file){
+                if($file == "campaigns/.gitkeep"){
+                    continue;
                 }
+
+                $pieces = explode('_',$file);
+                $date = trim(explode('/',$pieces[0])[1]);
+                $realDate = Carbon::createFromFormat('Ymd', $date)->startOfDay()->toDateTimeString();
+                $account = explode('.',$pieces[1])[0];
+                $this->info("Starting {$account}");
+                $this->dispatch(new RetrieveDeliverableCsvReports($account, $file, $realDate, AbstractReportService::RECORD_TYPE_DELIVERABLE, str_random(16)));
             }
+
         }
 
-    }
+
 
 }
+

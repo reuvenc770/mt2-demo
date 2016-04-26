@@ -19,8 +19,7 @@ class EmailRepo {
     }
 
     public function getEmailId($emailAddress) {
-        #return $this->emailModel->select( 'id' )->where( 'email_address' , $email )->get();
-        return mt_rand(1, 100000);
+        return $this->emailModel->select( 'id' )->where( 'email_address' , $emailAddress )->get();
     }
 
     public function getAttributedClient($identifier) {

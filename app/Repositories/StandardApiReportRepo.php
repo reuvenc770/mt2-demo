@@ -3,7 +3,7 @@
 namespace App\Repositories;
 use App\Models\Interfaces\IReport;
 use DB;
-
+//TODO We should make some magic methods like get*FromDeployID (use scopes) since i can see us pulling a lot from that relationship
 class StandardApiReportRepo {
     /**
      * @var IReport
@@ -42,6 +42,18 @@ class StandardApiReportRepo {
         }
 
         return $output;
+    }
+
+    public function getDateFromDeployId($deployId){
+        return $this->report->select('datetime')
+            ->where('m_deploy_id', $deployId)
+            ->first();
+    }
+
+    public function getInternalIdFromDeployId($deployId){
+        return $this->report->select('esp_internal_id')
+                ->where('m_deploy_id', $deployId)
+                ->first();
     }
 
 }
