@@ -152,6 +152,15 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     );
   };
 
+  self.loadPage = function() {
+    if ('active' === self.displayedStatus) {
+      self.loadActiveDataExports();
+    }
+    else {
+      self.loadPausedDataExports();
+    }
+  }
+
   self.saveDataExport = function(event) {
 
     console.log('about to save. current data:');
@@ -394,7 +403,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
   $rootScope.$on( 'updatePage' , function () {
     $( '.collapse' ).collapse( 'hide' );
-    self.loadActiveDataExports();
+    self.loadPage();
   });
 
 
