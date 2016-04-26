@@ -6,6 +6,7 @@
 namespace App\Services\API;
 
 use Cache;
+use Log;
 use App\Facades\EspApiAccount;
 
 use Carbon\Carbon;
@@ -194,10 +195,6 @@ class PublicatorsApi extends EspBaseAPI {
 
         $this->username = $creds[ "userName" ];
         $this->password = $creds[ "password" ];
-
-        if ( $this->cachedTokenAvailable() ) {
-            $this->token = $this->getCachedToken();
-        }
     }
 
     protected function cachedTokenAvailable () {

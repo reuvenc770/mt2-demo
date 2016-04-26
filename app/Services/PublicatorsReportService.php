@@ -17,13 +17,13 @@ use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use App\Exceptions\JobException;
 
-use Log;
+use Cache;
 
-use App\Jobs\Traits\PreventJobOverlapping;
+use Carbon\Carbon;
 
 class PublicatorsReportService extends AbstractReportService implements IDataService {
-    use PreventJobOverlapping;
-
+    const CACHE_TIMEOUT = 4; #in mins
+    const CACHE_TAG = "publicators";
     const LOCK_NAME = 'PublicatorsAuth';
 
     public function __construct ( ReportRepo $repo , PublicatorsApi $api , EmailRecordService $emailRecord ) {
@@ -31,33 +31,33 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
     }
 
     public function retrieveApiStats ( $date ) {
-        if ( $this->jobCanRun( self::LOCK_NAME . $this->api->getEspAccountId() ) ) {
-            $this->checkAuthentication();
-
-            $this->api->setDate( $date );
-
-            $campaigns = $this->api->getCampaigns();
-            $campaignDataCollection = [];
-
-            foreach ( $campaigns as $campaign ) {
-                $campaignRecord = (array)$campaign;
-
-                $campaignRecord[ 'esp_account_id' ] = $this->api->getEspAccountId();
-                $campaignRecord[ 'internal_id' ] = $campaignRecord[ 'ID' ];
-                unset( $campaignRecord[ 'ID' ] );
-
-                $campaignStats = $this->api->getCampaignStats( $campaignRecord[ 'internal_id' ] ); 
-
-                $campaignStatsRecord = (array)$campaignStats;
-                unset( $campaignStatsRecord[ 'ID' ] );
-
-                $campaignDataCollection []= array_merge( $campaignRecord , $campaignStatsRecord );
-            }
-
-            return $campaignDataCollection;
-        } else {
+        if ( $this->lockFound() ) {
             throw new JobException( "Job prevented via process lock. Another job is authenticating. " , JobException::NOTICE );
         }
+
+        $this->checkAuthentication();
+
+        $this->api->setDate( $date );
+
+        $campaigns = $this->api->getCampaigns();
+        $campaignDataCollection = [];
+
+        foreach ( $campaigns as $campaign ) {
+            $campaignRecord = (array)$campaign;
+
+            $campaignRecord[ 'esp_account_id' ] = $this->api->getEspAccountId();
+            $campaignRecord[ 'internal_id' ] = $campaignRecord[ 'ID' ];
+            unset( $campaignRecord[ 'ID' ] );
+
+            $campaignStats = $this->api->getCampaignStats( $campaignRecord[ 'internal_id' ] ); 
+
+            $campaignStatsRecord = (array)$campaignStats;
+            unset( $campaignStatsRecord[ 'ID' ] );
+
+            $campaignDataCollection []= array_merge( $campaignRecord , $campaignStatsRecord );
+        }
+
+        return $campaignDataCollection;
     }
 
     public function insertApiRawStats ( $data ) {
@@ -138,75 +138,69 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
     }
 
     public function saveRecords ( $processState ) {
-        if ( $this->jobCanRun( self::LOCK_NAME . $this->api->getEspAccountId() ) ) {
-            $this->checkAuthentication();
-
-            try {
-                if ( $processState[ "recordType" ] == "bounce" ) {
-                    $this->processBounces( $processState );
-
-                    return true;
-                }
-
-                $records = [];
-                $recordType = "";
-
-                switch ( $processState[ "recordType" ] ) {
-                    case "sent" :
-                        $records = $this->api->getRecordStats( PublicatorsApi::TYPE_SENT_STATS , $processState[ "campaign" ]->esp_internal_id );
-                        $recordType = self::RECORD_TYPE_DELIVERABLE;
-                    break;
-
-                    case "open" :
-                        $records = $this->api->getRecordStats( PublicatorsApi::TYPE_OPENS_STATS , $processState[ "campaign" ]->esp_internal_id );
-                        $recordType = self::RECORD_TYPE_OPENER;
-                    break;
-
-                    case "click" :
-                        $records = $this->api->getRecordStats( PublicatorsApi::TYPE_CLICKS_STATS , $processState[ "campaign" ]->esp_internal_id );
-                        $recordType = self::RECORD_TYPE_CLICKER;
-                    break;
-
-                    case "unsub" :
-                        $records = $this->api->getRecordStats( PublicatorsApi::TYPE_UNSUBSCRIBED_STATS , $processState[ "campaign" ]->esp_internal_id );
-                        $recordType = self::RECORD_TYPE_UNSUBSCRIBE;
-                    break;
-                }
-            } catch ( \Exception $e ) {
-                throw new JobException( "Failed to Retrieve Email Record Stats. " . $e->getMessage() , JobException::ERROR , $e );
-            }
-
-            foreach ( $records as $record ) {
-                $this->emailRecord->recordDeliverable(
-                    $recordType , 
-                    $record->Email ,
-                    $processState[ "espId" ] ,
-                    $processState[ "campaign" ]->external_deploy_id ,
-                    $processState[ "campaign" ]->esp_internal_id ,
-                    $record->TimeStamp
-                ); 
-            }
-        } else {
-            throw new JobException( "Job prevented via process lock. Another job is authenticating. " , JobException::NOTICE );
+        if ( $this->lockFound() ) {
+            $pubException = new JobException( "Job prevented via process lock. Another job is authenticating. " , JobException::NOTICE );
+            $pubException->setDelay( 300 );
+            throw $pubException;
         }
-    }
 
-    public function lockFileExists () {
-        return !$this->jobCanRun( self::LOCK_NAME . $this->api->getEspAccountId() );
-    }
+        $this->checkAuthentication();
 
-    public function unlock () {
-        $this->unlock( self::LOCK_NAME . $this->api->getEspAccountId() );
+        try {
+            if ( $processState[ "recordType" ] == "bounce" ) {
+                $this->processBounces( $processState );
+
+                return true;
+            }
+
+            $records = [];
+            $recordType = "";
+
+            switch ( $processState[ "recordType" ] ) {
+                case "sent" :
+                    $records = $this->api->getRecordStats( PublicatorsApi::TYPE_SENT_STATS , $processState[ "campaign" ]->esp_internal_id );
+                    $recordType = self::RECORD_TYPE_DELIVERABLE;
+                break;
+
+                case "open" :
+                    $records = $this->api->getRecordStats( PublicatorsApi::TYPE_OPENS_STATS , $processState[ "campaign" ]->esp_internal_id );
+                    $recordType = self::RECORD_TYPE_OPENER;
+                break;
+
+                case "click" :
+                    $records = $this->api->getRecordStats( PublicatorsApi::TYPE_CLICKS_STATS , $processState[ "campaign" ]->esp_internal_id );
+                    $recordType = self::RECORD_TYPE_CLICKER;
+                break;
+
+                case "unsub" :
+                    $records = $this->api->getRecordStats( PublicatorsApi::TYPE_UNSUBSCRIBED_STATS , $processState[ "campaign" ]->esp_internal_id );
+                    $recordType = self::RECORD_TYPE_UNSUBSCRIBE;
+                break;
+            }
+        } catch ( \Exception $e ) {
+            throw new JobException( "Failed to Retrieve Email Record Stats. " . $e->getMessage() , JobException::ERROR , $e );
+        }
+
+        foreach ( $records as $record ) {
+            $this->emailRecord->recordDeliverable(
+                $recordType , 
+                $record->Email ,
+                $processState[ "espId" ] ,
+                $processState[ "campaign" ]->external_deploy_id ,
+                $processState[ "campaign" ]->esp_internal_id ,
+                $record->TimeStamp
+            ); 
+        }
     }
 
     protected function checkAuthentication () {
         if ( !$this->api->isAuthenticated() ) {
             try {
-                $this->createLock( self::LOCK_NAME . $this->api->getEspAccountId() );
+                $this->lock();
 
                 $this->api->authenticate();
 
-                $this->unlock( self::LOCK_NAME . $this->api->getEspAccountId() );
+                $this->unlock();
             } catch ( \Exception $e ) {
                 throw new JobException( "Failed to Retrieve API Stats. " . $e->getMessage() , JobException::CRITICAL , $e );
             }
@@ -225,5 +219,21 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
                 $record->TimeStamp
             );
         }
+    }
+
+    protected function lockFound () {
+        return Cache::has( self::LOCK_NAME . '_' . $this->api->getEspAccountId() );
+    }
+
+    protected function lock () {
+        Cache::put(
+            self::LOCK_NAME . '_' . $this->api->getEspAccountId() ,
+            1 ,
+            Carbon::now()->addMinutes( self::CACHE_TIMEOUT )
+        );
+    }
+
+    protected function unlock () {
+        Cache::forget( self::LOCK_NAME . '_' . $this->api->getEspAccountId() );
     }
 }
