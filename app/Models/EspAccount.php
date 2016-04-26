@@ -49,17 +49,5 @@ class EspAccount extends Model
         return $this->attributes['key_2'];
     }
 
-    protected static function boot() {
-        parent::boot();
-        $array = array('clicks', 'complaints', 'delivered', 'opens', 'unsubscribes', 'campaigns');
-        static::Created(function(EspAccount $account) use ($array) {
-            $startingPath = $account->account_name."/";
-            Storage::makeDirectory($startingPath);
-            foreach ($array as $action){
-                Storage::makeDirectory($action);
-            }
-        });
-
-    }
 
 }

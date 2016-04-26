@@ -17,7 +17,7 @@ class GrabCsvEspReports extends Command
      *
      * @var string
      */
-    protected $signature = 'reports:downloadCsv {espName}';
+    protected $signature = 'reports:downloadCsv';
     protected $factory;
     protected $espRepo;
 
@@ -42,17 +42,19 @@ class GrabCsvEspReports extends Command
     public function handle()
     {
 
-        $accounts = Storage::directories();
-            foreach ($accounts as $account){
-                $this->info("Starting {$account}");
-                $espAccount = $this->espRepo->getEspInfoByAccountName($account);
-                $campaignFiles = Storage::files($account."/campaigns");
-                foreach($campaignFiles as $campaignFile){
-                    $this->dispatch(new RetrieveCsvReports($espAccount->esp->name, $account, $campaignFile, str_random(16)));
+        $files = Storage::files("campaigns");
+            foreach ($files as $file){
+                if($file == "campaigns/.gitkeep"){
+                    continue;
                 }
 
-            }
+                $pieces = explode('_',$file);
+                $date = trim(explode('/',$pieces[0])[1]);
+                $realDate = Carbon::createFromFormat('Ymd', $date)->startOfDay()->toDateTimeString();
+                $account = explode('.',$pieces[1])[0];
+                $this->info("Starting {$account}");
+                    $this->dispatch(new RetrieveCsvReports($account, $file, $realDate, str_random(16)));
+                }
 
-       // }
     }
 }

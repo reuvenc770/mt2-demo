@@ -35,14 +35,14 @@ class EmailCampaignStatisticRepo {
 
         DB::connection('reporting_data')->insert(
             "INSERT INTO email_campaign_statistics 
-            (email_id, campaign_id, last_status, esp_first_open_datetime,
+            (email_id, deploy_id, last_status, esp_first_open_datetime,
             esp_last_open_datetime, esp_total_opens, esp_first_click_datetime,
             esp_last_click_datetime, esp_total_clicks, unsubscribed,
             updated_at) VALUES $insertString
 
             ON DUPLICATE KEY UPDATE
                 email_id=email_id,
-                campaign_id=campaign_id,
+                deploy_id=deploy_id,
                 last_status = VALUES(last_status),
                 esp_first_open_datetime= IF(esp_first_open_datetime IS NULL, 
                                                 VALUES(esp_first_open_datetime), 
@@ -75,14 +75,14 @@ class EmailCampaignStatisticRepo {
             case "opener":
                 DB::connection('reporting_data')->statement(
                     "INSERT INTO email_campaign_statistics 
-                    (email_id, campaign_id, last_status, esp_first_open_datetime,
+                    (email_id, deploy_id, last_status, esp_first_open_datetime,
                     esp_last_open_datetime, esp_total_opens, created_at,
-                    updated_at) VALUES (:email_id, :campaign_id, :action1, :dt1,
+                    updated_at) VALUES (:email_id, :deploy_id, :action1, :dt1,
                     :dt2, 1, NOW(), NOW()) 
 
                     ON DUPLICATE KEY UPDATE
                         email_id=email_id,
-                        campaign_id=campaign_id,
+                        deploy_id=deploy_id,
                         last_status = :action2,
                         esp_first_open_datetime=esp_first_open_datetime,
                         esp_last_open_datetime = :dt3,
@@ -91,7 +91,7 @@ class EmailCampaignStatisticRepo {
                         updated_at = NOW()",
                     array(
                         ':email_id' => $row['email_id'],
-                        ':campaign_id' => $row['campaign_id'],
+                        ':deploy_id' => $row['campaign_id'],
                         ':dt1' => $row['datetime'],
                         ':dt2' => $row['datetime'],
                         ':dt3' => $row['datetime'],
@@ -111,15 +111,15 @@ class EmailCampaignStatisticRepo {
                 */
                 DB::connection('reporting_data')->statement(
                     "INSERT INTO email_campaign_statistics 
-                    (email_id, campaign_id, last_status, esp_first_open_datetime,
+                    (email_id, deploy_id, last_status, esp_first_open_datetime,
                     esp_last_open_datetime, esp_total_opens, esp_first_click_datetime, 
                     esp_last_click_datetime, esp_total_clicks, created_at,
-                    updated_at) VALUES (:email_id, :campaign_id, :action1, :dt1,
+                    updated_at) VALUES (:email_id, :deploy_id, :action1, :dt1,
                     :dt2, 1, :dt3, :dt4, 1, NOW(), NOW()) 
 
                     ON DUPLICATE KEY UPDATE
                         email_id=email_id,
-                        campaign_id=campaign_id,
+                        deploy_id=deploy_id,
                         last_status = :action2,
                         esp_first_open_datetime=esp_first_open_datetime,
                         esp_last_open_datetime = :dt5,
@@ -131,7 +131,7 @@ class EmailCampaignStatisticRepo {
                         updated_at = NOW()",
                     array(
                         ':email_id' => $row['email_id'],
-                        ':campaign_id' => $row['campaign_id'],
+                        ':deploy_id' => $row['campaign_id'],
                         ':dt1' => $row['datetime'],
                         ':dt2' => $row['datetime'],
                         ':dt3' => $row['datetime'],
@@ -147,18 +147,18 @@ class EmailCampaignStatisticRepo {
             case "deliverable":
                 DB::connection('reporting_data')->statement(
                     "INSERT INTO email_campaign_statistics 
-                    (email_id, campaign_id, last_status, created_at,
-                    updated_at) VALUES (:email_id, :campaign_id, :action1, NOW(), NOW()) 
+                    (email_id, deploy_id, last_status, created_at,
+                    updated_at) VALUES (:email_id, :deploy_id, :action1, NOW(), NOW()) 
 
                     ON DUPLICATE KEY UPDATE
                         email_id=email_id,
-                        campaign_id=campaign_id,
+                        deploy_id=deploy_id,
                         last_status = :action2,
                         created_at=created_at,
                         updated_at = NOW()",
                     array(
                         ':email_id' => $row['email_id'],
-                        ':campaign_id' => $row['campaign_id'],
+                        ':deploy_id' => $row['campaign_id'],
                         ':action1' => $actionType,
                         ':action2' => $actionType
                     )
@@ -174,7 +174,7 @@ class EmailCampaignStatisticRepo {
 
         $this->model
             ->where('email_id', '=', $data['email_id'])
-            ->where('campaign_id', '=', $data['campaign_id'])
+            ->where('deploy_id', '=', $data['campaign_id'])
             ->update([
                 'trk_first_click_datetime' => $data['first_click'],
                 'trk_last_click_datetime' => $data['last_click'],
@@ -186,7 +186,7 @@ class EmailCampaignStatisticRepo {
     public function updateWithContentServerInfo($data) {
         $this->model
             ->where('email_id', '=', $data['email_id'])
-            ->where('campaign_id', '=', $data['sub_id'])
+            ->where('deploy_id', '=', $data['sub_id'])
             ->update([
                 'mt_first_open_datetime' => $data['first_open'],
                 'mt_last_open_datetime' => $data['last_open'],

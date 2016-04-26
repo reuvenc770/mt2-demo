@@ -145,9 +145,9 @@ class YmlpReportService extends AbstractReportService implements IDataService {
     }
 
     public function saveRecords(&$processState) {
-        #var_dump($processState);
         $espInternalId = $processState['campaign']->esp_internal_id;
-        $deployId = $processState['campaign']->external_deploy_id;
+        // sometimes this doesn't work - if we don't have the campaign saved
+        $deployId = $processState['campaign']->external_deploy_id; 
 
         try {
             switch ( $processState[ 'recordType' ] ) {
@@ -161,7 +161,7 @@ class YmlpReportService extends AbstractReportService implements IDataService {
                             $this->api->getId(),
                             $deployId,
                             $espInternalId,
-                            $opener['Timestamp']
+                            Carbon::parse($opener['Timestamp'])
                         );
                     }
                 break;
@@ -176,7 +176,7 @@ class YmlpReportService extends AbstractReportService implements IDataService {
                             $this->api->getId() ,
                             $deployId,
                             $espInternalId,
-                            $clicker['Timestamp']
+                            Carbon::parse($clicker['Timestamp'])
                         );
                     }
                 break;

@@ -43,6 +43,10 @@ class EspApiAccountRepo
         return $this->espAccount->find($espAccountId);
     }
 
+    public function getIdFromName($espAccountName){
+        return $this->espAccount->select("id")->where("account_name",$espAccountName)->first();
+    }
+
     /**
      * @param $espAccountId
      * @return EspAccount
@@ -102,8 +106,12 @@ class EspApiAccountRepo
         ] );
     }
 
-    public function getAccountESPMapping($accountId){
-        return $this->espAccount->find($accountId)->esp->accountMapping;
+    public function getAccountESPMapping($espName){
+        return DB::table('esp_campaign_mappings')
+            ->join('esps', 'esps.id', '=', 'esp_campaign_mappings.esp_id')
+            ->select('esp_campaign_mappings.mappings')
+            ->where('esps.name',$espName)
+            ->first();
     }
 
     public function getAccountsbyEsp($esp){
