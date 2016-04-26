@@ -16,7 +16,7 @@ class AddDeployId extends Migration
             $table->string('campaign_name')->after('esp_account_id');
             $table->string('internal_id')->nullable()->change();
             $table->dropUnique('aweber_reports_internal_id_unique');
-            $table->renameColumn('sent_to', 'datetime');
+            $table->renameColumn('sent_at', 'datetime');
         });
     }
 
