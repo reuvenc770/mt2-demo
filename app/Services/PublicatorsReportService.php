@@ -139,7 +139,9 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
 
     public function saveRecords ( $processState ) {
         if ( $this->lockFound() ) {
-            throw new JobException( "Job prevented via process lock. Another job is authenticating. " , JobException::NOTICE );
+            $pubException = new JobException( "Job prevented via process lock. Another job is authenticating. " , JobException::NOTICE );
+            $pubException->setDelay( 300 );
+            throw $pubException;
         }
 
         $this->checkAuthentication();
