@@ -24,10 +24,23 @@ class ReportRepo
         $this->report->updateOrCreate(array("internal_id"=> $data["internal_id"], "esp_account_id" => $espAccountId),$data);
     }
 
+    public function insertCSVStats($espAccountId, $data) {
+        $this->report->updateOrCreate(array("campaign_name"=> $data["campaign_name"], "esp_account_id" => $espAccountId),$data);
+    }
+
     public function getCampaigns( $espAccountId , $date ) {
         return $this->report
             ->where( 'updated_at' , ">=" , $date )
             ->where( 'esp_account_id' , $espAccountId )
             ->get();
+    }
+
+    public function getRunId($espInternalId) {
+        if (is_a($this->report, 'App\Models\CampaignerReport')) {
+            return $this->report->select('run_id')->where('internal_id', $espInternalId)->first()->run_id;
+        }
+        else {
+            throw new \Exception('Run id accessed by esp without run id.');
+        }
     }
 }

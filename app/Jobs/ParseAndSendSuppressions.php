@@ -47,22 +47,34 @@ class ParseAndSendSuppressions extends Job implements ShouldQueue
     {
         $subscriptionService = APP::make("App\\Services\\SuppressionService");
         $hardbounces = $subscriptionService->getHardBouncesByDateEsp($this->espAccountId, $this->lookBack);
-        Cache::tags(array($this->espName))->increment("{$this->espAccountId}_hb_count",count($hardbounces));
-        Cache::tags(array($this->espName))->increment("{$this->espName}_hb_total",count($hardbounces));
+        Cache::tags($this->espName)->increment("{$this->espAccountId}_hb_count",count($hardbounces));
+        Cache::tags($this->espName)->increment("{$this->espName}_hb_total",count($hardbounces));
 
 
         $unsubs = $subscriptionService->getUnsubsByDateEsp($this->espAccountId, $this->lookBack);
-        Cache::tags(array($this->espName))->increment("{$this->espAccountId}_unsub_count",count($unsubs));
-        Cache::tags(array($this->espName))->increment("{$this->espName}_unsub_total",count($unsubs));
+        Cache::tags($this->espName)->increment("{$this->espAccountId}_unsub_count",count($unsubs));
+        Cache::tags($this->espName)->increment("{$this->espName}_unsub_total",count($unsubs));
+
 
         $writer = Writer::createFromFileObject(new \SplTempFileObject());
         $writer->insertAll($hardbounces->toArray());
+        Storage::disk("hornet7")->put("DAILY_UNSUB_HARDBOUNCE/{$this->lookBack}_{$this->espAccountName}_HB.csv", $writer->__toString());
+
+        $writer = Writer::createFromFileObject(new \SplTempFileObject());
         $writer->insertAll($unsubs->toArray());
-        Storage::disk("hornet7")->put("hardbounce_unsub/{$this->lookBack}_{$this->espAccountName}_UnsubHB.csv", $writer->__toString());
+        Storage::disk("hornet7")->put("DAILY_UNSUB_HARDBOUNCE/{$this->lookBack}_{$this->espAccountName}_unsubs.csv", $writer->__toString());
 
-        Cache::tags(array($this->espName))->decrement("{$this->espName}_accounts_to_go");
+        $writer = Writer::createFromFileObject(new \SplTempFileObject());
+        $writer->insertAll($hardbounces->toArray());
+        Storage::disk("hornet7")->append("ALL_UNSUB_HARDBOUNCE/{$this->lookBack}_ALL_HB.csv", $writer->__toString());
 
-     if(Cache::tags(array($this->espName))->get("{$this->espName}_accounts_to_go") == 0){
+        $writer = Writer::createFromFileObject(new \SplTempFileObject());
+        $writer->insertAll($unsubs->toArray());
+        Storage::disk("hornet7")->append("ALL_UNSUB_HARDBOUNCE/{$this->lookBack}_ALL_UNSUB.csv", $writer->__toString());
+
+        Cache::tags($this->espName)->decrement("{$this->espName}_accounts_to_go");
+
+     if(Cache::tags($this->espName)->get("{$this->espName}_accounts_to_go") == 0){
         $output = "*##### {$this->espName} Hard Bounce - Unsub Report for {$this->lookBack} ####*\n\n";
 
          foreach ($this->espAccounts as $espAccount){
@@ -71,12 +83,12 @@ class ParseAndSendSuppressions extends Job implements ShouldQueue
              $output.= "*{$espAccount->account_name}*  _Unsubs:_ {$localUnsub}  _HardBounces: {$localHB}_\n";
          }
 
-         $unsubs = Cache::tags(array($this->espName))->get("{$this->espName}_unsub_total");
+         $unsubs = Cache::tags($this->espName)->get("{$this->espName}_unsub_total");
          $output.= "\n\n*##Total Unsubs for {$this->espName}:* : {$unsubs}\n";
          $hardBounces = Cache::tags(array($this->espName))->get("{$this->espName}_hb_total");
          $output.= "*##Total HardBounces for {$this->espName}:* : {$hardBounces}\n";
          Slack::to(self::SLACK_CHANNEL)->send($output);
-         Cache::tags(array($this->espName))->flush();
+         Cache::tags($this->espName)->flush();
      }
     }
 }

@@ -53,7 +53,7 @@ class ParseandSendSuppressionsCommand extends Command
         $espAccounts = $this->espRepo->getAccountsByESPName($espName);
 
         foreach ($espAccounts as $account){
-            Cache::increment("{$account->name}_accounts_to_go",1);
+            Cache::tags($espName)->increment("{$account->name}_accounts_to_go",1);
             $espLogLine = "{$account->name}::{$account->account_name}";
             $this->info($espLogLine);
             $job = (new ParseAndSendSuppressions($espAccounts,$account->name, $account->account_name, $account->id, $date, str_random(16)))->onQueue($this->queue);

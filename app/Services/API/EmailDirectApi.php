@@ -69,7 +69,7 @@ class EmailDirectApi extends EspBaseAPI {
             if ( $campaignDetailsResponse->success() ) {
                 $reportStats []= $campaignDetailsResponse->getData();
             } else {
-                throw new \Exception( 'Email Direct API Call Failed.' . $campaignDetailsResponse->getErrorMessage() , $campaignDetailsResponse->getErrorCode() );
+                throw new \Exception( 'Email Direct API Call Failed.' . $campaignDetailsResponse->getErrorMessage(). ' '. $campaignDetailsResponse->getRequestInfo() , $campaignDetailsResponse->getErrorCode() );
             }
         }
 

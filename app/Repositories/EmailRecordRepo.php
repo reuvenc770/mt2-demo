@@ -36,7 +36,8 @@ class EmailRecordRepo {
                 'emailAddress' => $currentRecord[ 'email' ] ,
                 'recordType' => $currentRecord[ 'recordType' ] ,
                 'espId' => $currentRecord[ 'espId' ] ,
-                'campaignId' => $currentRecord[ 'campaignId' ] ,
+                'deployId' => $currentRecord['deployId'],
+                'espInternalId' => $currentRecord[ 'espInternalId' ] ,
                 'date' => $currentRecord[ 'date' ]
             ] );
 
@@ -48,7 +49,8 @@ class EmailRecordRepo {
                         $this->getEmailId() , 
                         $this->getClientId() ,
                         $currentRecord[ 'espId' ] ,
-                        $currentRecord[ 'campaignId' ] ,
+                        $currentRecord['deployId'],
+                        $currentRecord[ 'espInternalId' ] ,
                         $this->getActionId( $currentRecord[ 'recordType' ] ) ,
                         ( empty( $currentRecord[ 'date' ] ) ? "''" : "'" . $currentRecord[ 'date' ] . "'" ) ,
                         'NOW()' ,
@@ -62,7 +64,8 @@ class EmailRecordRepo {
                     .join( " , " , [
                         "'" . $currentRecord[ 'email' ] . "'" ,
                         $currentRecord[ 'espId' ] ,
-                        $currentRecord[ 'campaignId' ] ,
+                        $currentRecord['deployId'],
+                        $currentRecord[ 'espInternalId' ] ,
                         $this->getActionId( $currentRecord[ 'recordType' ] ) ,
                         ( empty( $currentRecord[ 'date' ] ) ? "''" : "'" . $currentRecord[ 'date' ] . "'" ) ,
                         ( $this->errorReason == 'missing_email_record' ? 1 : 0 ) ,
@@ -82,14 +85,17 @@ class EmailRecordRepo {
             foreach ( $chunkedRecords as $chunkIndex => $chunk ) {
                 DB::connection( 'reporting_data' )->statement("
                     INSERT INTO email_actions
-                        ( email_id , client_id , esp_account_id , campaign_id , action_id , datetime , created_at , updated_at )    
+                        ( email_id , client_id , esp_account_id , deploy_id, 
+                        esp_internal_id , action_id , datetime , created_at , 
+                        updated_at )    
                     VALUES
                         " . join( ' , ' , $chunk ) . "
                     ON DUPLICATE KEY UPDATE
                         email_id = email_id ,
                         client_id = client_id ,
                         esp_account_id = esp_account_id ,
-                        campaign_id = campaign_id ,
+                        deploy_id = deploy_id,
+                        esp_internal_id = esp_internal_id ,
                         action_id = action_id ,
                         datetime = datetime ,
                         created_at = created_at ,
@@ -104,7 +110,10 @@ class EmailRecordRepo {
             foreach ( $chunkedRecords as $chunkIndex => $chunk ) {
                 DB::statement( "
                     INSERT INTO     
-                        orphan_emails ( email_address , esp_account_id , campaign_id , action_id , datetime , missing_email_record , missing_email_client_instance , created_at , updated_at )
+                        orphan_emails ( email_address , esp_account_id , 
+                        deploy_id, esp_internal_id , action_id , 
+                        datetime , missing_email_record , 
+                        missing_email_client_instance , created_at , updated_at )
                     VALUES
                     " . join( ' , ' , $chunk )
                 );
@@ -112,26 +121,28 @@ class EmailRecordRepo {
         }
     }
 
-    public function recordDeliverable ( $recordType , $emailAddress , $espId , $campaignId , $date ) {
+    public function recordDeliverable ( $recordType , $emailAddress , $espId , $deployId, $espInternalId , $date ) {
         $this->setLocalData( [
             'emailAddress' => $emailAddress ,
             'recordType' => $recordType ,
             'espId' => $espId ,
-            'campaignId' => $campaignId ,
+            'deployId' => $deployId,
+            'espInternalId' => $espInternalId ,
             'date' => $date
         ] );
 
         if ( $this->isValidRecord() ) {
             DB::connection( 'reporting_data' )->statement("
                 INSERT INTO email_actions
-                    ( email_id , client_id , esp_account_id , campaign_id , action_id , datetime , created_at , updated_at )    
+                    ( email_id , client_id , deploy_id, esp_account_id , esp_internal_id , action_id , datetime , created_at , updated_at )    
                 VALUES
-                    ( ? , ? , ? , ? , ? , ? , NOW() , NOW() )
+                    ( ? , ? , ? , ? , ? , ? , ? , NOW() , NOW() )
                 ON DUPLICATE KEY UPDATE
                     email_id = email_id ,
                     client_id = client_id ,
+                    deploy_id = deploy_id,
                     esp_account_id = esp_account_id ,
-                    campaign_id = campaign_id ,
+                    esp_internal_id = esp_internal_id ,
                     action_id = action_id ,
                     datetime = datetime ,
                     created_at = created_at ,
@@ -139,8 +150,9 @@ class EmailRecordRepo {
                 [
                     $this->getEmailId() ,
                     $this->getClientId() ,
+                    $deployId,
                     $espId ,
-                    $campaignId ,
+                    $espInternalId ,
                     $this->getActionId( $recordType ) ,
                     $date
                 ]
@@ -175,7 +187,8 @@ class EmailRecordRepo {
         $this->emailAddress = $recordData[ 'emailAddress' ];
         $this->recordType = $recordData[ 'recordType' ];
         $this->espId = $recordData[ 'espId' ];
-        $this->campaignId = $recordData[ 'campaignId' ];
+        $this->deployId = $recordData['deployId'];
+        $this->espInternalId = $recordData[ 'espInternalId' ];
         $this->date = $recordData[ 'date' ];
     }
 
@@ -202,7 +215,8 @@ class EmailRecordRepo {
         if ( $errorFound && $saveOrphan ) {
             $orphan->email_address = $this->emailAddress;
             $orphan->esp_account_id = $this->espId;
-            $orphan->campaign_id = $this->campaignId;
+            $orphan->deploy_id = $this->deployId;
+            $orphan->esp_internal_id = $this->espInternalId;
             $orphan->action_id = $this->getActionId( $this->recordType );
             $orphan->datetime = $this->date;
             $orphan->save();
@@ -233,11 +247,11 @@ class EmailRecordRepo {
     }
 
 
-    public function checkForDeliverables($espId,$campaignId){
+    public function checkForDeliverables($espId,$espInternalId){
         $delivevered = false;
         $actionCount = DB::connection( 'reporting_data' )->table('email_actions')
             ->where('esp_account_id', $espId)
-            ->where('campaign_id',$campaignId)
+            ->where('esp_internal_id',$espInternalId)
             ->where('action_id',4)->count();
         if ($actionCount >= 1) {
             $delivevered = true;
@@ -246,7 +260,7 @@ class EmailRecordRepo {
         if (!$delivevered){
             $orphanCount = DB::table('orphan_emails')
                 ->where('esp_account_id', $espId)
-                ->where('campaign_id',$campaignId)
+                ->where('esp_internal_id',$espInternalId)
                 ->where('action_id',4)->count();
             if($orphanCount >= 1){
                 $delivevered = true;

@@ -14,6 +14,8 @@ use App\Factories\APIFactory;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Exceptions\JobException;
 use Carbon\Carbon;
+use App\Models\StandardReport;
+use App\Repositories\StandardApiReportRepo;
 
 class RetrieveDeliverableReports extends Job implements ShouldQueue
 {
@@ -27,6 +29,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     protected $maxAttempts;
     protected $tracking;
     protected $reportService;
+    protected $standardReportRepo;
     public $defaultQueue;
 
     public $processState;
@@ -58,6 +61,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->tracking = $tracking;
         $this->defaultQueue = $defaultQueue;
         $this->reportService = APIFactory::createAPIReportService( $this->apiName,$this->espAccountId );
+        $this->standardReportRepo = new StandardApiReportRepo(new StandardReport());
 
         if ( $processState !== null ) {
             $this->processState = $processState;
@@ -85,7 +89,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         } catch ( JobException $e ) {
             $this->logJobException( $e );
 
-            if ( in_array( $e->getCode() , [ JobException::NOTICE , JobException::WARNING ] ) ) {
+            if ( in_array( $e->getCode() , [ JobException::NOTICE , JobException::WARNING , JobException::ERROR ] ) ) {
                 $this->releaseJob( $e );
             } else {
                 throw $e;
@@ -146,7 +150,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     }
 
     protected function getCampaigns () {
-        $campaigns = $this->reportService->getCampaigns( $this->espAccountId , $this->date );
+        $campaigns = $this->standardReportRepo->getCampaigns( $this->espAccountId , $this->date );
 
         $this->processState[ 'currentFilterIndex' ]++;
 
@@ -175,12 +179,13 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     }
 
     protected function savePaginatedRecords () {
+        $map = $this->standardReportRepo->getEspToInternalMap($this->espAccountId);
         $this->reportService->setPageType( $this->processState[ 'recordType' ] );
         $this->reportService->setPageNumber( isset( $this->processState[ 'pageNumber' ] ) ? $this->processState[ 'pageNumber' ] : 1 );
 
         if ( $this->reportService->pageHasData() ) {
             $this->processState[ 'currentPageData' ] = $this->reportService->getPageData();
-            $this->reportService->savePage( $this->processState );
+            $this->reportService->savePage( $this->processState, $map );
             $this->processState[ 'currentPageData' ] = array();
 
             $this->reportService->nextPage();
@@ -194,9 +199,15 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     }
 
     protected function saveRecords () {
-        $this->reportService->saveRecords( $this->processState );
+        if (isset($this->standardReportRepo)) {
+            $map = $this->standardReportRepo->getEspToInternalMap($this->espAccountId);
+            $this->reportService->saveRecords( $this->processState, $map );
 
-        $this->changeJobEntry( JobEntry::SUCCESS );
+            $this->changeJobEntry( JobEntry::SUCCESS );
+        }
+        else {
+            echo "StandardReportRepo not set. ESP account id " . $this->espAccountId . PHP_EOL;
+        }
     }
 
     protected function getTypeList () {

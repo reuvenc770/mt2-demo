@@ -84,71 +84,118 @@ class MaroReportService extends AbstractReportService implements IDataService
         return [ 'opens' , 'clicks', 'unsubscribes', 'complaints'];
     }
 
-    public function savePage ( &$processState ) {
+    public function savePage ( &$processState, $map ) {
+
+        $totalCorrect = 0;
+        $totalIncorrect = 0;
+
         switch ( $processState[ 'recordType' ] ) {
             case 'opens' :
-                foreach ( $processState[ 'currentPageData' ] as $key => $openner ) {
-                    $this->emailRecord->recordDeliverable(
-                        self::RECORD_TYPE_OPENER ,
-                        $openner[ 'contact' ][ 'email' ] ,
-                        $this->api->getId() ,
-                        $openner[ 'campaign_id' ] ,
-                        $openner[ 'recorded_at' ]
-                    );
+                foreach ( $processState[ 'currentPageData' ] as $key => $opener ) {
+                    if (isset($map[ $opener['campaign_id'] ])) {
+                        $this->emailRecord->recordDeliverable(
+                            self::RECORD_TYPE_OPENER ,
+                            $opener[ 'contact' ][ 'email' ] ,
+                            $this->api->getId() ,
+                            $map[ $opener['campaign_id'] ],
+                            $opener[ 'campaign_id' ] ,
+                            $opener[ 'recorded_at' ]
+                        );
+                        $totalCorrect++;
+                    }
+                    else {
+                        $totalIncorrect++;
+                    }
+
                 }
             break;
 
             case 'clicks' :
                 foreach ( $processState[ 'currentPageData' ] as $key => $clicker ) {
-                    $this->emailRecord->recordDeliverable(
-                        self::RECORD_TYPE_CLICKER ,
-                        $clicker[ 'contact' ][ 'email' ] ,
-                        $this->api->getId() ,
-                        $clicker[ 'campaign_id' ] ,
-                        $clicker[ 'recorded_at' ]
-                    );
+                    if (isset($map[ $clicker['campaign_id'] ])) {
+                        $this->emailRecord->recordDeliverable(
+                            self::RECORD_TYPE_CLICKER ,
+                            $clicker[ 'contact' ][ 'email' ] ,
+                            $this->api->getId() ,
+                            $map[ $clicker['campaign_id'] ],
+                            $clicker[ 'campaign_id' ] ,
+                            $clicker[ 'recorded_at' ]
+                        );
+                        $totalCorrect++;
+                    }
+                    else {
+                        $totalIncorrect++;
+                    }
                 }
             break;
 
             case 'unsubscribes' :
                 foreach ( $processState[ 'currentPageData' ] as $key => $unsub ) {
-                    $this->emailRecord->recordDeliverable(
-                        self::RECORD_TYPE_UNSUBSCRIBE ,
-                        $unsub[ 'contact' ][ 'email' ] ,
-                        $this->api->getId() ,
-                        $unsub[ 'campaign_id' ] ,
-                        $unsub[ 'recorded_on' ]
-                    );
+                    if (isset($map[ $unsub['campaign_id'] ])) {
+                        $this->emailRecord->recordDeliverable(
+                            self::RECORD_TYPE_UNSUBSCRIBE ,
+                            $unsub[ 'contact' ][ 'email' ] ,
+                            $this->api->getId() ,
+                            $map[ $unsub['campaign_id'] ],
+                            $unsub[ 'campaign_id' ] ,
+                            $unsub[ 'recorded_on' ]
+                        );
+                        $totalCorrect++;
+                    }
+                    else {
+                        $totalIncorrect++;
+                    }
                 }
                 break;
 
             case 'complaints' :
                 foreach ( $processState[ 'currentPageData' ] as $key => $complainer ) {
-                    $this->emailRecord->recordDeliverable(
-                        self::RECORD_TYPE_COMPLAINT ,
-                        $complainer[ 'contact' ][ 'email' ] ,
-                        $this->api->getId() ,
-                        $complainer[ 'campaign_id' ] ,
-                        $complainer[ 'recorded_on' ]
-                    );
+                    if (isset($map[ $complainer['campaign_id'] ])) {
+                        $this->emailRecord->recordDeliverable(
+                            self::RECORD_TYPE_COMPLAINT ,
+                            $complainer[ 'contact' ][ 'email' ] ,
+                            $this->api->getId() ,
+                            $map[ $complainer['campaign_id'] ],
+                            $complainer[ 'campaign_id' ] ,
+                            $complainer[ 'recorded_on' ]
+                        );
+                        $totalCorrect++;
+                    }
+                    else {
+                        $totalIncorrect++;
+                    }
                 }
                 break;
         }
+
+        echo "Matched: $totalCorrect; Missing: $totalIncorrect" . PHP_EOL;
     }
 
-    public function saveRecords ( &$processState ) {
-        $data = $this->api->getDelivered( $processState[ 'campaign' ]->internal_id );
+    public function saveRecords ( &$processState, $map ) {
+        $data = $this->api->getDelivered( $processState[ 'campaign' ]->esp_internal_id );
         $data = $this->processGuzzleResult( $data );
 
+        $totalCorrect = 0;
+        $totalIncorrect = 0;
+
         foreach ( $data as $key => $record ) {
-            $this->emailRecord->recordDeliverable(
-                self::RECORD_TYPE_DELIVERABLE ,
-                $record[ 'email' ] ,
-                $this->api->getId() ,
-                $record[ 'campaign_id' ] ,
-                $record[ 'created_at' ]
-            );
+            if (isset($map[ $record['campaign_id'] ])) {
+                $this->emailRecord->recordDeliverable(
+                    self::RECORD_TYPE_DELIVERABLE ,
+                    $record[ 'email' ] ,
+                    $this->api->getId() ,
+                     $map[ $record['campaign_id'] ],
+                    $record[ 'campaign_id' ] ,
+                    $record[ 'created_at' ]
+                );
+                $totalCorrect++;
+            }
+            else {
+                $totalIncorrect++;
+            }
         }
+
+        echo "Matched: $totalCorrect; Missing: $totalIncorrect" . PHP_EOL;
     }
 
     public function shouldRetry () {
@@ -167,8 +214,8 @@ class MaroReportService extends AbstractReportService implements IDataService
 
             if ( $pipe == 'default' && $filterIndex == 1  ) {
                 $jobId .= '::Pipe-' . $pipe . '::' . $processState[ 'recordType' ] . '::Page-' . ( isset( $processState[ 'pageNumber' ] ) ? $processState[ 'pageNumber' ] : 1 );
-            } elseif ( $pipe == 'delivered' && $filterIndex == 1 && isset( $processState[ 'campaign' ] ) ) {
-                $jobId .= '::Pipe-' .$pipe . '::Campaign-' . $processState[ 'campaign' ]->internal_id;
+            } elseif ( $pipe == 'delivered' && $filterIndex == 1 ) {
+                $jobId .= '::Pipe-' .$pipe . '::Campaign-' . $processState[ 'campaign' ]->esp_internal_id;
             }
 
             $processState[ 'jobIdIndex' ] = $processState[ 'currentFilterIndex' ];
@@ -235,12 +282,13 @@ class MaroReportService extends AbstractReportService implements IDataService
     }
 
     public function mapToStandardReport($data) { 
+        $deployId = $this->parseSubID($data['name']);
         return array(
-
-            'deploy_id' => $data['name'],
-            'sub_id' => $this->parseSubID($data['name']),
-            'm_deploy_id' => 0, // temporarily 0 until deploys are created
+            'campaign_name' => $data['name'],
+            'external_deploy_id' => $deployId,
+            'm_deploy_id' => $deployId,
             'esp_account_id' => $data['esp_account_id'],
+            'esp_internal_id' => $data['internal_id'],
             'datetime' => $data['sent_at'],
             #'name' => $data[''],
             'subject' => $data['subject'],

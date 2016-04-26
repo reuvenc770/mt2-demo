@@ -4,16 +4,15 @@ namespace App\Services;
 use App\Repositories\EmailActionsRepo;
 use App\Repositories\EmailRepo;
 use App\Repositories\ActionRepo;
-use Illuminate\Support\Facades\Event;
-use App\Services\Interfaces\IDataService; #change this
+use App\Repositories\StandardApiReportRepo;
 use League\Csv\Reader;
-use Carbon\Carbon;
 
 class CsvDeliverableService {
 
     private $emailRepo;
     private $emailActionsRepo;
     private $actionTypeRepo;
+    private $reportRepo;
     private $actionMap = array(
         'clicks' => 'clicker',
         'opens' => 'opener',
@@ -24,93 +23,36 @@ class CsvDeliverableService {
     private $actionId;
 
 
-    public function __construct(EmailActionsRepo $emailActionsRepo, EmailRepo $emailRepo, ActionRepo $actionTypeRepo, $mapping) {
+    public function __construct(EmailActionsRepo $emailActionsRepo, EmailRepo $emailRepo, ActionRepo $actionTypeRepo, StandardApiReportRepo $reportRepo, $mapping) {
         $this->emailActionsRepo = $emailActionsRepo;
         $this->emailRepo = $emailRepo;
         $this->actionTypeRepo = $actionTypeRepo;
         $this->mapping = $mapping;
+        $this->reportRepo = $reportRepo;
     }
 
-    public function setCsvToFormat($espAccountId, $action, $filePath) {
+    public function setCsvToFormat($filePath) {
         $returnArray = array();
 
-        $mappedAction = $this->mapActionToActionTableName($action);
-        $actionId = $this->actionTypeRepo->getActionId($mappedAction);
-        
-        $reader = Reader::createFromPath($filePath);
+        $reader = Reader::createFromPath(storage_path('app').DIRECTORY_SEPARATOR.$filePath);
         $map = explode(',', $this->mapping);
         $data = $reader->fetchAssoc($map);
-
-        foreach ($data as $row) {
-
-            if (filter_var($row['email'], FILTER_VALIDATE_EMAIL)) {
-                $email = $row['email'];
-                $campaignId = isset($row['campaign_id']) ? $row['campaign_id'] : $this->getCampaignIdFromFileName($filePath);
-                $emailId = $this->getEmailId($row);
-                $clientId = $this->getClientId($row);
-                $datetime = $this->getDateTime($row);
-
-                $returnArray[] = array(
-                    'email_id' => $emailId,
-                    'client_id' => $clientId,
-                    'esp_account_id' => $espAccountId,
-                    'action_id' => $actionId,
-                    'campaign_id' => $campaignId,
-                    'datetime' => $datetime,
-                );
-            }
-
+        $returnArray = array();
+        foreach ($data as  $row){
+            $deployId = isset($row['deploy_id']) ? $row['deploy_id'] : $this->getDeployIdFromFileName($filePath);
+            $returnArray[] = array (
+                'email_address' => $row['email_address'],
+                'deploy_id' => $deployId,
+                'esp_internal_id' => isset($row['esp_internal_id']) ? $row['esp_internal_id'] : $this->getEspInternalIdFromDeployId($deployId),
+                'datetime' => isset($row['datetime']) ? $row['datetime'] : $this->getDateTimeFromDeployId($deployId)
+            );
         }
-
         return $returnArray;
     }
 
-    private function getEmail($row) {
-        if ((int)$this->mapping['email_pos'] >= 0) {
-            return $row[(int)$this->mapping['email_pos']];
-        }
-        else {
-            throw new \Exception("Email mapping not found for this account");
-        } 
-    }
 
 
-    private function getEmailId($row) {
-        if (isset($row['email_id'])) {
-            return $row['email_id'];
-        }
-        else {
-            return $this->emailRepo->getEmailId($row['email']);
-        } 
-    }
-
-
-    private function getClientId($row) {
-        return $this->emailRepo->getAttributedClient($row['email']);
-    }
-
-
-    private function getDateTime($row) {
-        if (isset($row['datetime'])) {
-            $date = trim($row['datetime']);
-            // Currently the only format, but this may need to be updated/generalized
-            return Carbon::createFromFormat('d/m/Y H:i:s', $date)->toDateTimeString();
-        }
-        else {
-            // It's ok to return blank here
-            return '';
-        }
-    }
-
-
-    public function insertDeliverableCsvActions($data) {
-        foreach ($data as $row) {
-            $this->emailActionsRepo->insertAction($row);
-        }
-    }
-
-
-    private function getCampaignIdFromFileName($path) {
+    private function getDeployIdFromFileName($path) {
         /*
         Name will be something like
         /var/www/storage/app/BH001/clicks/1301931_BH001_YAH_US_60OC_CPM_PROGRESSIVE.csv
@@ -130,6 +72,7 @@ class CsvDeliverableService {
 
         $nameParts = explode('_', $fileName);
         if (is_numeric($nameParts[0])) {
+            echo (int)$nameParts[0];
             return (int)$nameParts[0];
         }
         else {
@@ -137,8 +80,21 @@ class CsvDeliverableService {
         }
     }
 
-    private function mapActionToActionTableName($action) {
-        return $this->actionMap[$action];
+
+    private function getEspInternalIdFromDeployId($deployId){
+        $return =  $this->reportRepo->getInternalIdFromDeployId($deployId);
+        if (!$return){
+            throw new \Exception("Have not retrieved campaign with Deploy ID of {$deployId}");
+            }
+        return $return;
     }
-  
+
+    private function getDateTimeFromDeployId($deployId){
+        $return =  $this->reportRepo->getDateFromDeployId($deployId);
+        if (!$return){
+            throw new \Exception("Have not retrieved campaign with Deploy ID of {$deployId}");
+        }
+        return $return;
+    }
+
 }

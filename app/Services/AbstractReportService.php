@@ -33,31 +33,42 @@ abstract class AbstractReportService implements IDataService  {
 
   abstract public function mapToStandardReport($data);
 
-  public function insertCsvRawStats($reports){
+  public function insertCsvRawStats($reports, $date){
     $arrayReportList = array();
     foreach ($reports as $report) {
-      $this->insertStats($this->api->getAccountName(), $report);
+      $report['datetime'] = $date;
+      $this->insertCSVStats($report['esp_account_id'], $report);
       $arrayReportList[] = $report;
     }
 
     Event::fire(new RawReportDataWasInserted($this, $arrayReportList));
   }
 
-  protected function insertStats($accountName, $report) {
+  protected function insertStats($espAccountId, $report) {
       try {
-        $this->reportRepo->insertStats($accountName, $report);
+        $this->reportRepo->insertStats($espAccountId, $report);
       } catch (\Exception $e){
         throw new \Exception($e->getMessage());
       }
   }
 
-  public function getCampaigns ( $accountName , $date ) {
+  protected function insertCSVStats($espAccountId, $report) {
+    try {
+      $this->reportRepo->insertCSVStats($espAccountId, $report);
+    } catch (\Exception $e){
+      throw new \Exception($e->getMessage());
+    }
+  }
+
+  /*
+  public function getCampaigns ( $espAccountId , $date ) {
       try {
-        return $this->reportRepo->getCampaigns( $accountName , $date );
+        return $this->standardRepo->getCampaigns($espAccountId, $date );
       } catch ( \Exception $e ) {
         throw new \Exception( $e->getMessage() );
       }
   }
+  */
 
   public function insertSegmentedApiRawStats($data, $length) {
     $start = 0;
@@ -79,5 +90,9 @@ abstract class AbstractReportService implements IDataService  {
 
   protected function returnInfoForEmail($email) {
 
+  }
+
+  protected function getDeployIDFromName($name){
+    return explode('_',$name)[0];
   }
 }

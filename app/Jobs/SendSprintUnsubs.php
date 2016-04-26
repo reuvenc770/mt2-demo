@@ -31,7 +31,7 @@ class SendSprintUnsubs extends Job implements ShouldQueue
     CONST FILE_NAME_FORMAT = 'Zeta_DNE_';
     CONST FILE_DATE_FORMAT = 'YmdHis';
 
-    CONST SLACK_TARGET_SUBJECT = '#mt2-dev-failed-jobs';
+    CONST SLACK_TARGET_SUBJECT = '@achin'; #'#mt2-dev-failed-jobs';
 
     protected $startOfDay;
     protected $endOfDay;
@@ -163,22 +163,19 @@ class SendSprintUnsubs extends Job implements ShouldQueue
 
                     if ( is_null( $espDetails ) ) { continue; }
 
-                    $campaigns = $this->getCampaigns( $espDetails , $campaignName , $campaignDetails );
+                    $deployId = $this->getDeployId( $campaignName , $campaignDetails , $espDetails );
+                    $unsubs = $this->getUnsubs( $deployId , $espDetails[ 'accountId' ] );
 
-                    foreach ( $campaigns as $campaignId ) {
-                        $unsubs = $this->getUnsubs( $campaignId , $espDetails[ 'accountId' ] );
+                    foreach ( $unsubs as $currentUnsub ) {
+                        $unsubEmail = $this->getEmail( $currentUnsub->email_id );
 
-                        foreach ( $unsubs as $unsubEmailId ) {
-                            $unsubEmail = $this->getEmail( $unsubEmailId );
+                        $this->appendEmailToFile( $unsubEmail , $currentUnsub->datetime );
+                    }
 
-                            $this->appendEmailToFile( $unsubEmail );
-                        }
+                    $orphans = $this->getOrphans( $deployId , $espDetails[ 'accountId' ] );
 
-                        $orphans = $this->getOrphans( $campaignId , $espDetails[ 'accountId' ] );
-
-                        foreach ( $orphans as $orphanEmail ) {
-                            $this->appendEmailToFile( $orphanEmail );
-                        }
+                    foreach ( $orphans as $currentOrphan ) {
+                        $this->appendEmailToFile( $currentOrphan->email_address , $currentOrphan->datetime );
                     }
                 }
 
@@ -188,6 +185,12 @@ class SendSprintUnsubs extends Job implements ShouldQueue
             if ( $this->filesProcessed === 0 ) {
                 Slack::to( self::SLACK_TARGET_SUBJECT )->send("Sprint Unsub Job - No Campaign files today.");
             }
+
+            if ( $this->unsubCount === 0 ) {
+                Slack::to( self::SLACK_TARGET_SUBJECT )->send( "Sprint Unsub Job - No Unsubs Found." );
+            }
+
+            echo "\n\nProcessed '{$this->unsubCount}' Records....\n\n";
 
             Storage::put( self::DNE_FOLDER . $this->dneCountFileName , $this->unsubCount );
 
@@ -221,44 +224,29 @@ class SendSprintUnsubs extends Job implements ShouldQueue
         ];
     }
 
-    protected function getCampaigns ( $espDetails , $campaignName , $campaignDetails ) {
-        $campaigns = [];
+    protected function getDeployId ( $campaignName , $campaignDetails , $espDetails ) {
+        $deployId = null;
 
         if ( $espDetails[ 'name' ] === 'BlueHornet' ) {
-            $billCode = $campaignDetails[ 0 ];
-
-            $campaigns = DB::connection( 'reporting_data' )
-                ->table( 'blue_hornet_reports' )
-                ->select( 'internal_id as id' )
-                ->where( [
-                    [ 'bill_codes' , $billCode ] ,
-                    [ 'esp_account_id' , $espDetails[ 'accountId' ] ]
-                ] )->whereBetween( 'date_sent' , [ $this->startOfDay , $this->endOfDay ] )->pluck( 'id' );
+            $deployId = $campaignDetails[ 0 ];
         } else {
-            $tableName = ( $espDetails[ 'name' ] == 'Campaigner' ? 'campaigner_reports' : 'maro_reports' );
-            $sentField = ( $espDetails[ 'name' ] == 'Campaigner' ? 'created_at' : 'sent_at' );
-
-            $campaigns = DB::connection( 'reporting_data' )
-                ->table( $tableName )
-                ->select( 'internal_id as id' )
-                ->where( 'name' , $campaignName )
-                ->whereBetween( $sentField , [ $this->startOfDay , $this->endOfDay ] )
-                ->pluck( 'id' );
+            $deployId = $this->parseSubID( $campaignName );
         }
 
-        if ( empty( $campaigns ) ) {
-            Slack::to( self::SLACK_TARGET_SUBJECT )->send("Sprint Unsub Job - Campaign Name '{$campaignName}' has no matches..");
-        }
+        return $deployId;
+    } 
 
-        return $campaigns;
+    public function parseSubID($deploy_id){
+        $return = isset(explode("_", $deploy_id)[0]) ? explode("_", $deploy_id)[0] : "";
+        return $return;
     }
 
-    protected function getUnsubs ( $campaignId , $accountId ) {
-        return EmailAction::select( 'email_id' )->where( [
-            [ 'campaign_id' , $campaignId ] ,
+    protected function getUnsubs ( $deployId , $accountId ) {
+        return EmailAction::where( [
+            [ 'deploy_id' , $deployId ] ,
             [ 'esp_account_id' , $accountId ] ,
             [ 'action_id' , self::UNSUB_ACTION_ID ]
-        ] )->whereBetween( 'datetime' , [ $this->startOfDay , $this->endOfDay ] )->pluck( 'email_id' );
+        ] )->whereBetween( 'datetime' , [ $this->startOfDay , $this->endOfDay ] )->get();
     }
 
     protected function getEmail ( $emailId ) {
@@ -268,21 +256,21 @@ class SendSprintUnsubs extends Job implements ShouldQueue
         else return '';
     }
 
-    protected function getOrphans ( $campaignId , $accountId ) {
-        return  OrphanEmail::select( 'email_address as email' )->where( [
-            [ 'campaign_id' , $campaignId ] ,
+    protected function getOrphans ( $deployId , $accountId ) {
+        return  OrphanEmail::where( [
+            [ 'deploy_id' , $deployId ] ,
             [ 'esp_account_id' , $accountId ] ,
             [ 'action_id' , self::UNSUB_ACTION_ID ]
-        ] )->whereBetween( 'datetime' , [ $this->startOfDay , $this->endOfDay ] )->pluck( 'email' );
+        ] )->whereBetween( 'datetime' , [ $this->startOfDay , $this->endOfDay ] )->get();
     }
 
     protected function incrementCount () {
         $this->unsubCount++;
     }
 
-    protected function appendEmailToFile ( $email ) {
+    protected function appendEmailToFile ( $email , $date ) {
         if ( $this->isUniqueEmail( $email ) ) {
-            Storage::append( self::DNE_FOLDER . $this->dneFileName , sprintf( self::RECORD_FORMAT ,  $email , $this->startOfDay ) );
+            Storage::append( self::DNE_FOLDER . $this->dneFileName , sprintf( self::RECORD_FORMAT ,  $email , Carbon::parse( $date )->toAtomString() ) );#$this->endOfDay ) );
 
             $this->appendToFullUnsubList( $email );
 

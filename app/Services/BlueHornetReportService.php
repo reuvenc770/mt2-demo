@@ -87,12 +87,12 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
     public function mapToStandardReport($report)
     {
-
         return array(
-            'deploy_id' => $report['message_name'],
-            'sub_id' => $report['bill_codes'],
-            'm_deploy_id' => 0, // stub for now
+            'campaign_name' => $report['message_name'],
+            'external_deploy_id' => $report['bill_codes'],
+            'm_deploy_id' => $report['bill_codes'], // temporarily the same as external
             'esp_account_id' => $report['esp_account_id'],
+            'esp_internal_id' => $report['internal_id'],
             'datetime' => $report['date_sent'],
             'name' => $report['message_name'],
             'subject' => $report['message_subject'],
@@ -174,7 +174,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         ) {
             switch ( $processState[ 'currentFilterIndex' ] ) {
                 case 2 :
-                    $jobId .= '::Campaign-' . $processState[ 'campaign' ][ 'internal_id' ];
+                    $jobId .= ( isset( $processState[ 'campaign' ] ) ? '::Campaign-' . $processState[ 'campaign' ]->esp_internal_id : '' );
                 break;
 
                 case 3 :
@@ -194,8 +194,8 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
     }
 
     public function getTypeList ( &$processState ) {
-        $typeList = ['open' , 'click' , 'optout', 'bounce' ];
-        if(!$this->emailRecord->checkForDeliverables($processState[ 'espAccountId' ],$processState[ 'campaign' ][ 'internal_id' ])){
+        $typeList = ['open' , 'click' , 'optout' , 'bounce' ];
+        if(!$this->emailRecord->checkForDeliverables($processState[ 'espAccountId' ],$processState[ 'campaign' ]->esp_internal_id)){
             $typeList[] = "deliverable";
         }
         return $typeList;
@@ -204,8 +204,10 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
     public function startTicket ( $espAccountId , $campaign , $recordType ) {
         try {
             return [
-                "ticketName" => $this->getTicketForMessageSubscriberData( $campaign->internal_id , 'sent,bounce,open,click,optout' ) ,
-                "campaignId" => $campaign->internal_id ,
+                "ticketName" => $this->getTicketForMessageSubscriberData( $campaign->esp_internal_id , 'sent,bounce,open,click,optout' ) ,
+                "deployId" => $campaign->external_deploy_id,
+                "espInternalId" => $campaign->esp_internal_id ,
+                "deliveryTime" => $campaign->datetime,
                 "espId" => $espAccountId
             ];
         } catch ( \Exception $e ) {
@@ -224,7 +226,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             throw $jobException;
         }
 
-        $filePath = "files/deliverables/{$processState[ 'apiName' ]}/{$processState[ 'espAccountId' ]}/" . $processState[ 'campaign' ]->internal_id . "/" . Carbon::now( 'America/New_York' )->format( 'Y-m-d-H-i-s' ) . '.xml';
+        $filePath = "files/deliverables/{$processState[ 'apiName' ]}/{$processState[ 'espAccountId' ]}/" . $processState[ 'campaign' ]->esp_internal_id . "/" . Carbon::now( 'America/New_York' )->format( 'Y-m-d-H-i-s' ) . '.xml';
 
         Storage::put( $filePath , $fileContents );
 
@@ -235,103 +237,139 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         try {
             $fileContents = Storage::get( $processState[ 'filePath' ] );
 
-            $contactIterator = new SimpleXMLIterator( $fileContents );
-            for ( $contactIterator->rewind() ; $contactIterator->valid() ; $contactIterator->next() ) {
-                $currentContact = $contactIterator->current();
-                $currentEmail = '';
-                $contactSent = false;
-                $contactBounced = false;
-                $bounceDate = '';
+            $recordXML = new \DOMDocument();
+            $recordXML->loadXML( $fileContents );
 
-                for ( $currentContact->rewind() ; $currentContact->valid() ; $currentContact->next() ) {
+            $contacts = $recordXML->getElementsByTagName( 'contact' );
 
-                    if ( $currentContact->key() === 'sent' && $currentContact->current() == 1 ) {
-                        $contactSent = true;
-                    }
+            foreach ( $contacts as $currentContact ) {
+                $methodName = 'process_' . $processState[ 'recordType' ];
 
-                    /**
-                     * Bounce Check. If found, then this email was not deliverable
-                     */
-                    if ( $currentContact->key() === 'bounce' ) {
-                        $contactBounced = true;
-                    }
-
-                    if( $currentContact->key() === 'email' ) {
-                        $currentEmail = $currentContact->current();
-                    }
-
-                    if ( $processState[ 'recordType' ] == 'bounce' && $currentContact->key() === 'bounce' ) {
-                        $currentBounce = $currentContact->current();
-                        $currentBounce->rewind();
-                        $reason = $currentBounce->current();
-                        $currentBounce->next();
-                        $bounceDate = $currentBounce->current();
-                        Suppression::recordRawHardBounce($processState[ 'ticket' ][ 'espId' ],$currentEmail,$processState[ 'ticket' ][ 'campaignId' ],$reason, $bounceDate);
-                    }
-
-                    if ( $processState[ 'recordType' ] == 'optout' && $currentContact->key() === 'optout' ) {
-                            $this->emailRecord->queueDeliverable(
-                                self::RECORD_TYPE_UNSUBSCRIBE ,
-                                $currentEmail ,
-                                $processState[ 'ticket' ][ 'espId' ] ,
-                                $processState[ 'ticket' ][ 'campaignId' ] ,
-                                $currentContact->current()
-                            );
-                    }
-
-                    if( $processState[ 'recordType' ] == 'open' && $currentContact->key() === 'opens' ) {
-                        $currentOpens = $currentContact->current();
-
-                        for ( $currentOpens->rewind() ; $currentOpens->valid() ; $currentOpens->next() ) {
-                            $currentOpenDate = $currentOpens->current();
-
-                            $this->emailRecord->queueDeliverable(
-                                self::RECORD_TYPE_OPENER ,
-                                $currentEmail ,
-                                $processState[ 'ticket' ][ 'espId' ] ,
-                                $processState[ 'ticket' ][ 'campaignId' ] ,
-                                $currentOpenDate
-                            );
-                        }
-                    }
-
-                    if ( $processState[ 'recordType' ] == 'click' && $currentContact->key() === 'clicks' ) {
-                        $currentClicks = $currentContact->current();
-
-                        for ( $currentClicks->rewind() ; $currentClicks->valid() ; $currentClicks->next() ) {
-                            $currentClick = $currentClicks->current();
-                            $currentClick->rewind();
-                            $currentClick->next();
-                            
-                            $currentClickDate = $currentClick->current();
-
-                            $this->emailRecord->queueDeliverable(
-                                self::RECORD_TYPE_CLICKER ,
-                                $currentEmail , 
-                                $processState[ 'ticket' ][ 'espId' ] ,
-                                $processState[ 'ticket' ][ 'campaignId' ] ,
-                                $currentClickDate
-                            );
-                        }
-                    }
-                }
-
-                if ( $processState[ 'recordType' ] == 'deliverable' && $contactSent && !$contactBounced ) {
-                    $this->emailRecord->queueDeliverable(
-                        self::RECORD_TYPE_DELIVERABLE ,
-                        $currentEmail , 
-                        $processState[ 'ticket' ][ 'espId' ] ,
-                        $processState[ 'ticket' ][ 'campaignId' ] ,
-                        ''
-                    );
-                }
+                call_user_func_array( [ $this , $methodName ] , [ $currentContact , $processState ] );
             }
+
+            unset( $recordXML );
 
             $this->emailRecord->massRecordDeliverables();
         } catch ( \Exception $e ) {
             $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() , JobException::NOTICE , $e );
             $jobException->setDelay( 60 );
             throw $jobException;
+        }
+    }
+
+    function process_deliverable ( $contact , $processState ) {
+        $emailNodes = $contact->getElementsByTagName( 'email' );
+
+        $email = $emailNodes->item( 0 )->nodeValue;
+
+        $sentNodes = $contact->getElementsByTagName( 'sent' );
+        $isSent = ( $sentNodes->length > 0 && $sentNodes->item( 0 )->nodeValue == 1 ? true : false );
+
+        $bounceNodes = $contact->getElementsByTagName( 'bounce' );
+        $isBounce = ( $bounceNodes->length > 0 );
+
+        if ( $isSent && !$isBounce ) {
+            $time = $processState['ticket']['deliveryTime'] === '0000-00-00 00:00:00' ? null : $processState['ticket']['deliveryTime'];
+            $this->emailRecord->queueDeliverable(
+                self::RECORD_TYPE_DELIVERABLE ,
+                $email , 
+                $processState[ 'ticket' ][ 'espId' ] ,
+                $processState['ticket']['deployId'] ,
+                $processState[ 'campaign' ]->esp_internal_id ,
+                $time
+            );
+        }
+    }
+
+    function process_bounce ( $contact , $processState ) {
+        $emailNodes = $contact->getElementsByTagName( 'email' );
+
+        $email = $emailNodes->item( 0 )->nodeValue;
+
+        $bounceNodes = $contact->getElementsByTagName( 'bounce' );
+        $isBounce = ( $bounceNodes->length > 0 );
+
+        if ( $isBounce ) {
+            $reasonNodes = $bounceNodes->item( 0 )->getElementsByTagName( 'reason' );
+            $dateNodes = $bounceNodes->item( 0 )->getElementsByTagName( 'date' );
+
+            Suppression::recordRawHardBounce(
+                $processState[ 'ticket' ][ 'espId' ] ,
+                $email , 
+                $processState[ 'campaign' ]->esp_internal_id , 
+                $reasonNodes->item( 0 )->nodeValue ,
+                $dateNodes->item( 0 )->nodeValue
+            );
+        }
+    }
+
+    function process_open ( $contact , $processState ) {
+        $emailNodes = $contact->getElementsByTagName( 'email' );
+
+        $email = $emailNodes->item( 0 )->nodeValue;
+
+        $openNodes = $contact->getElementsByTagName( 'opens' );
+
+        if ( $openNodes->length > 0 ) {
+            $openDates = $openNodes->item( 0 )->getElementsByTagName( 'date' );
+
+            foreach ( $openDates as $dateNode ) {
+                $this->emailRecord->queueDeliverable(
+                    self::RECORD_TYPE_OPENER ,
+                    $email ,
+                    $processState[ 'ticket' ][ 'espId' ] ,
+                    $processState['ticket']['deployId'] ,
+                    $processState[ 'campaign' ]->esp_internal_id ,
+                    $dateNode->nodeValue
+                );
+            }
+        }
+    }
+
+    function process_click ( $contact , $processState ) {
+        $emailNodes = $contact->getElementsByTagName( 'email' );
+
+        $email = $emailNodes->item( 0 )->nodeValue;
+
+        $clickContainer = $contact->getElementsByTagName( 'clicks' );
+
+        if ( $clickContainer->length > 0 ) {
+            $clickNodes = $clickContainer->item( 0 )->getElementsByTagName( 'click' );
+
+            foreach ( $clickNodes as $currentClickNode ) {
+                $clickDates = $currentClickNode->getElementsByTagName( 'date' );
+
+                if ( $clickDates->length > 0 ) {
+                    $this->emailRecord->queueDeliverable(
+                        self::RECORD_TYPE_CLICKER ,
+                        $email , 
+                        $processState[ 'ticket' ][ 'espId' ] ,
+                        $processState['ticket']['deployId'] ,
+                        $processState[ 'campaign' ]->esp_internal_id ,
+                        $clickDates->item( 0 )->nodeValue
+                    );
+                }
+            }
+        }
+    }
+
+    function process_optout ( $contact , $processState ) {
+        $emailNodes = $contact->getElementsByTagName( 'email' );
+
+        $email = $emailNodes->item( 0 )->nodeValue;
+
+        $optoutNodes = $contact->getElementsByTagName( 'optout' );
+
+        if ( $optoutNodes->length > 0 ) {
+            $this->emailRecord->queueDeliverable(
+                self::RECORD_TYPE_UNSUBSCRIBE ,
+                $email ,
+                $processState[ 'ticket' ][ 'espId' ] ,
+                $processState['ticket']['deployId'] ,
+                $processState[ 'campaign' ]->esp_internal_id ,
+                $optoutNodes->item( 0 )->nodeValue
+            );
         }
     }
 
