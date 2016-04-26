@@ -24,6 +24,10 @@ class ReportRepo
         $this->report->updateOrCreate(array("internal_id"=> $data["internal_id"], "esp_account_id" => $espAccountId),$data);
     }
 
+    public function insertCSVStats($espAccountId, $data) {
+        $this->report->updateOrCreate(array("campaign_name"=> $data["campaign_name"], "esp_account_id" => $espAccountId),$data);
+    }
+
     public function getCampaigns( $espAccountId , $date ) {
         return $this->report
             ->where( 'updated_at' , ">=" , $date )
