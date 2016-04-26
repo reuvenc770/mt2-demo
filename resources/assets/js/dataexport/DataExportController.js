@@ -166,6 +166,9 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     console.log('about to save. current data:');
     console.dir(JSON.stringify(self.viewed));
 
+    var esps = Object.keys($rootScope.selectedEsps);
+    var exportType = esps.length > 0 ? "ESP" : "Regular";
+
     var saveData = {
       "exportId": self.viewed.exportId,
       "seeds": self.viewed.seeds,
@@ -191,12 +194,12 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
       "imp_friday": self.viewed.impFriday,
       "imp_saturday": self.viewed.impSaturday,
       "imp_sunday": self.viewed.impSunday,
-      "exportType": "Regular",
+      "exportType": exportType,
       "pname": self.viewed.fileName,
       "fields": Object.keys(self.viewed.fields).filter( function (field) {
         return self.viewed.fields[field];
       }),
-      "esp": Object.keys($rootScope.selectedEsps),
+      "esp": esps,
       "outname": '',
       "repull": '',
       "SendToEmail": '',
@@ -335,25 +338,15 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     }) : self.profiles;
   };
 
-  self.setProfile = function(profileName) {
-    console.log('calling setProfile');
-    console.log(profileName);
+  self.setProfile = function(profile) {
     var newProfile = self.profiles.filter(function(item) {
-      return item.name.toLowerCase() === profileName.toLowerCase();
+      return item.name.toLowerCase() === profile.name.toLowerCase();
     });
 
-    console.log('profiles:');
-    console.dir(self.profiles);
-
-    console.log('newProfile:');
-    console.dir(newProfile);
-
-    if (typeof profile !== "undefined") {
-      self.viewed.profile.pid = profile.id;
+    if (typeof profile !== "undefined" && 1 === newProfile.length) {
+      self.viewed.profile.pid = newProfile[0].id;
+      self.viewed.profile.name = newProfile[0].name;
     }
-
-    console.log('profile id:' + self.viewed.profile.pid);
-    console.dir(self.viewed);
   };
 
   /**
@@ -391,7 +384,10 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   };
 
   self.setClientGroup = function(clientGroup) {
-    if (typeof clientGroup !== 'undefined' ) {
+
+    var newClientGroup = self.findClientGroup(clientGroup);
+
+    if (typeof clientGroup !== 'undefined' && 1 === newClientGroup.length) {
       self.viewed.client_group.gid = clientGroup.id;
     }
   };
@@ -507,6 +503,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
       "seeds": data.seeds,
       "includeHeaders": data.includeHeaders,
       "doubleQuoteFields": data.doubleQuoteFields,
+      "esp": data.esps,
       "fields": {
         "email_addr": false,
         "eid": false,
@@ -686,6 +683,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
   self.loadProfileApiSuccessCallback = function(response) {
     self.profiles = response.data;
+    self.setProfile(self.viewed.profile);
   };
 
   self.loadProfileApiFailureCallback = function(response) {
