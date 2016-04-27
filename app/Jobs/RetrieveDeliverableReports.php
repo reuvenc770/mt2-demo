@@ -338,11 +338,5 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         Log::critical( $this->getJobInfo() );
 
         $this->changeJobEntry( JobEntry::FAILED );
-
-        if ( method_exists( $this->reportService , 'lockFileExists' ) && $this->reportService->lockFileExists() ) {
-            if ( method_exists( $this->reportService , 'unlock' ) ) {
-                $this->reportService->unlock();
-            }
-        }
     }
 }

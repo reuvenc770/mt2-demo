@@ -31,7 +31,7 @@ class SendSprintUnsubs extends Job implements ShouldQueue
     CONST FILE_NAME_FORMAT = 'Zeta_DNE_';
     CONST FILE_DATE_FORMAT = 'YmdHis';
 
-    CONST SLACK_TARGET_SUBJECT = '@achin'; #'#mt2-dev-failed-jobs';
+    CONST SLACK_TARGET_SUBJECT = '#mt2-dev-failed-jobs';
 
     protected $startOfDay;
     protected $endOfDay;
@@ -124,8 +124,6 @@ class SendSprintUnsubs extends Job implements ShouldQueue
             JobTracking::startEspJob( "Sprint Unsub Job" , '' , '' , $this->tracking , 0 );
 
             $campaignFiles = Storage::disk( 'sprintUnsubCampaignFTP' )->allFiles();
-
-            Storage::put( self::DNE_FOLDER . $this->dneFileName , '' );
 
             if ( count( $campaignFiles ) <= 3 ) {
                 Slack::to( self::SLACK_TARGET_SUBJECT )->send("Sprint Unsub Job - No Campaign files today.");
@@ -270,8 +268,12 @@ class SendSprintUnsubs extends Job implements ShouldQueue
 
     protected function appendEmailToFile ( $email , $date ) {
         if ( $this->isUniqueEmail( $email ) ) {
-            Storage::append( self::DNE_FOLDER . $this->dneFileName , sprintf( self::RECORD_FORMAT ,  $email , Carbon::parse( $date )->toAtomString() ) );#$this->endOfDay ) );
-
+            if ( !Storage::exists( self::DNE_FOLDER . $this->dneFileName ) ) {
+                Storage::put( self::DNE_FOLDER . $this->dneFileName , sprintf( self::RECORD_FORMAT ,  $email , Carbon::parse( $date )->format( 'm/d/Y H:i:s' ) ) );
+            } else {
+                Storage::append( self::DNE_FOLDER . $this->dneFileName , sprintf( self::RECORD_FORMAT ,  $email , Carbon::parse( $date )->format( 'm/d/Y H:i:s' ) ) );
+            }
+            
             $this->appendToFullUnsubList( $email );
 
             $this->incrementCount();

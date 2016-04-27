@@ -159,4 +159,9 @@ class EspApiAccountService
         );
     }
 
+
+    public function getEspAccountDetailsByName($name){
+        return $this->espRepo->getEspInfoByAccountName($name);
+    }
+
 }

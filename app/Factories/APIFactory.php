@@ -7,6 +7,7 @@
  */
 
 namespace App\Factories;
+use App\Models\StandardReport;
 use App\Repositories\ReportRepo;
 use App\Repositories\TrackingRepo;
 use App\Services\API\CakeApi;
@@ -86,7 +87,9 @@ class APIFactory
         $mappingRepo = new \App\Repositories\DeliverableMappingRepo($map);
         $mapping = $mappingRepo->getMapping($espId);
 
-        return new \App\Services\CsvDeliverableService($emailActionRepo, $emailRepo, $actionTableRepo, $mapping);
+        $standardReportRepo = new StandardApiReportRepo( new StandardReport());
+
+        return new \App\Services\CsvDeliverableService($emailActionRepo, $emailRepo, $actionTableRepo, $standardReportRepo, $mapping);
     }
 
     public static function createTrackingApiService($source, $startDate, $endDate) 
