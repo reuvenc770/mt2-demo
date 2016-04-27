@@ -31,7 +31,7 @@ class SendSprintUnsubs extends Job implements ShouldQueue
     CONST FILE_NAME_FORMAT = 'Zeta_DNE_';
     CONST FILE_DATE_FORMAT = 'YmdHis';
 
-    CONST SLACK_TARGET_SUBJECT = '@achin'; #'#mt2-dev-failed-jobs';
+    CONST SLACK_TARGET_SUBJECT = '#mt2-dev-failed-jobs';
 
     protected $startOfDay;
     protected $endOfDay;
@@ -270,7 +270,7 @@ class SendSprintUnsubs extends Job implements ShouldQueue
 
     protected function appendEmailToFile ( $email , $date ) {
         if ( $this->isUniqueEmail( $email ) ) {
-            Storage::append( self::DNE_FOLDER . $this->dneFileName , sprintf( self::RECORD_FORMAT ,  $email , Carbon::parse( $date )->toAtomString() ) );#$this->endOfDay ) );
+            Storage::append( self::DNE_FOLDER . $this->dneFileName , sprintf( self::RECORD_FORMAT ,  $email , Carbon::parse( $date )->format( 'm/d/Y H:i:s' ) ) );
 
             $this->appendToFullUnsubList( $email );
 
