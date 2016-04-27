@@ -92,9 +92,8 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
   // ESPs search
   self.espSearchText = '';
-  $rootScope.selectedEsps = {};
+  self.selectedEsps = [];
   self.viewedSelectedEsp = '';
-  self.espChipList = [];
 
   /**
   * Loading Flags
@@ -163,10 +162,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
   self.saveDataExport = function(event) {
 
-    console.log('about to save. current data:');
-    console.dir(JSON.stringify(self.viewed));
-
-    var esps = Object.keys($rootScope.selectedEsps);
+    var esps = self.returnFilterNestedArrayKey(self.selectedEsps, 'id');
     var exportType = esps.length > 0 ? "ESP" : "Regular";
 
     var saveData = {
@@ -208,9 +204,6 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
     };
 
-    console.log('data to send:');
-    console.dir(JSON.stringify(saveData));
-
     DataExportApiService.saveDataExport(
       saveData,
       self.saveDataExportSuccessCallback,
@@ -219,7 +212,6 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   };
 
   self.copyDataExport = function(id) {
-    console.log('copying data export' + id);
     DataExportApiService.copyDataExport(
       id,
       self.copyDataExportSuccessCallback,
@@ -294,7 +286,6 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
   self.pauseSelected = function() {
     if ('active' === self.displayedStatus) {
-      console.log('Pausing ... ');
       DataExportApiService.massPauseDataExports(
         Object.keys(self.selectedExports),
         self.massStatusChangeSuccessCallback,
@@ -302,7 +293,6 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
       );
     }
     else {
-      console.log('Activating ... ');
       DataExportApiService.massActivateDataExports(
         Object.keys(self.selectedExports),
         self.massStatusChangeSuccessCallback,
@@ -403,25 +393,6 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   });
 
 
-  $rootScope.$watchCollection( 'selectedDays' , function ( newDays , oldDays ) {
-    angular.forEach( newDays , function ( value , key ) {
-        var currentChip = { "id" : key , "name" : value };
-
-        var chipIndex = self.dayChipList.map(
-            function ( chip ) { return chip.id }        
-        ).indexOf( key ); 
-
-        var chipExists = ( chipIndex !== -1 );
-
-        if ( value !== false && !chipExists ) {
-            self.dayChipList.push( currentChip );
-        } else if ( value === false && chipExists ) {
-            self.dayChipList.splice( chipIndex , 1 );
-        }
-    });
-  });
-
-
 
   // Modal methods
 
@@ -452,23 +423,41 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   // Methods used for ESP chips
 
   self.updateEspCheckboxList = function ( item ) {
-    if ( typeof( item ) !== 'undefined' ) {
-      $rootScope.selectedEsps[ parseInt( item.id ) ] = item.name;
+    if ( typeof( item ) !== 'undefined' && item.name !== '') {
+      self.selectedEsps.push(item);
+    }
+  }
+
+  self.matchEsps = function() {
+    var selectedEspLen = self.selectedEsps.length;
+    var espsLen = self.espList.length;
+
+    for (var i = 0; i < selectedEspLen; i++) {
+      for (var j = 0; j < espsLen; j++) {
+        if (parseInt(self.selectedEsps[i].id) === parseInt(self.espList[j].id)) {
+          self.selectedEsps[i].name = self.espList[j].name;
+        }
+      }
     }
   }
 
   self.removeEspChip = function ( $chip ) {
-    $rootScope.selectedEsps[ parseInt( $chip.id ) ] = false;
+    var len = self.selectedEsps.length;
+    for (var i = 0; i < len; i++) {
+      if (self.selectedEsps.id == $chip.id) {
+        self.selectedEsps.splice(i, 1);
+      }
+    }
   };
 
   self.selectAllEsps = function ( checked ) {
     angular.forEach( self.espList , function ( value , key ) {
       if ( checked === true ) {
-        $rootScope.selectedEsps[ parseInt( value.id ) ] = value.name;
+        self.selectedEsps.push(value);
       } else {
-        $rootScope.selectedEsps[ parseInt( value.id ) ] = false;
+        self.removeEspChip(value);
       }
-    } );
+    });
   };
 
   self.getEsps = function ( espSearchText ) {
@@ -477,13 +466,22 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     } ) : self.espList;
   }
 
+  self.returnFilterNestedArrayKey = function(array, key) {
+    var output = [];
+    var len = array.length;
+
+    for (var i = 0; i < len; i++) {
+      output.push(array[i][key]);
+    }
+
+    return output;
+  }
+
   /* Callback procedures */
 
   self.prepopPageSuccessCallback = function(response) {
     
     var data = response.data[0];
-    console.log('response:');
-    console.dir(data);
 
     self.viewed = {
       "exportId": self.viewed.exportId,
@@ -543,16 +541,12 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     self.viewed.impSaturday = data.SendToImpressionwiseDays[5];
     self.viewed.impSunday = data.SendToImpressionwiseDays[6];
 
-    console.log("viewed:");
-    console.dir(JSON.stringify(self.viewed));
-
     var espsArr = data.esps.split(',');
-    var espArrLen = espsArr.len;
+    var espArrLen = espsArr.length;
     
     for (var i = 0; i < espArrLen; i++) {
-      //espList
-      var id = espsArr[i];
-      $rootScope.selectedEsps[i] = 'test';
+      // blank name for now - will be updated when esps are loaded
+      self.selectedEsps.push({'id': espsArr[i], 'name': ''}); 
     }
     
     var fields = data.fieldsToExport.split(',');
@@ -651,7 +645,6 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     self.launchModal();
     $location.url('/dataexport');
     $window.location.href = '/dataexport/edit/' + response.data;
-    console.log(response);
   };
 
   self.copyDataExportFailureCallback = function(response) {
@@ -683,7 +676,6 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
   self.loadProfileApiSuccessCallback = function(response) {
     self.profiles = response.data;
-    self.setProfile(self.viewed.profile);
   };
 
   self.loadProfileApiFailureCallback = function(response) {
@@ -704,6 +696,8 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
   self.loadEspSuccessCallback = function(response) {
     self.espList = response.data;
+    self.matchEsps();
+
   }
 
   self.loadEspFailureCallback = function(response) {

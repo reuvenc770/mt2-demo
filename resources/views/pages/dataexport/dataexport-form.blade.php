@@ -178,7 +178,7 @@
           <md-button flex ng-click="dataExport.selectAllEsps( false )">Clear All</md-button>
         </div>
 
-        <md-chips ng-model="dataExport.espChipList" md-on-remove="dataExport.removeEspChip( $chip )">
+        <md-chips ng-model="dataExport.selectedEsps" md-on-remove="dataExport.removeEspChip( $chip )">
           <md-autocomplete
           md-search-text="dataExport.espSearchText"
           md-items="item in dataExport.getEsps( dataExport.espSearchText )"
