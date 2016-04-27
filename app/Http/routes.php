@@ -295,6 +295,10 @@ Route::group(
     }
 );
 
+/**
+ *  Data Export Routes
+ */
+
 Route::group( 
     [ 
         'prefix' => 'dataexport', 
@@ -327,17 +331,6 @@ Route::group(
 );
 
 
-/**
- *  Data Export Routes
- */
-Route::group(
-    [ 
-        'prefix' => 'api', 
-        'middleware' => ['auth' , 'pageLevel'] 
-    ],
-    function () {
-
-});
 
 /**
  * API Routes
