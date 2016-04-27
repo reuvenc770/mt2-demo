@@ -40,6 +40,8 @@ elixir.extend( 'deployNodeModules' , function ( mix ) {
     mix.copy( 'node_modules/ui-select/dist/select.min.js' , 'public/js/select.min.js' );
 
     mix.copy( 'node_modules/ui-select/dist/select.min.css' , 'public/css/select.min.css' );
+
+    mix.copy( 'node_modules/ng-flow/dist/ng-flow-standalone.min.js', 'public/js/ng-flow-standalone.min.js' );
 } );
 
 elixir.extend( 'deploySass' , function ( mix ) {
@@ -137,6 +139,13 @@ elixir.extend( 'deployClientGroupJs' , function ( mix ) {
     ] , 'public/js/clientgroup.js' );
 } );
 
+elixir.extend( 'deployClientAttributionJs' , function ( mix ) {
+    mix.scripts( [
+        'pages/ClientAttributionController.js' ,
+        'client/ClientApiService.js'
+    ] , 'public/js/clientAttribution.js' );
+} );
+
 elixir.extend( 'deployListProfileJs' , function ( mix ) {
     mix.scripts( [
         'listprofile/ListProfileController.js' ,
@@ -145,6 +154,10 @@ elixir.extend( 'deployListProfileJs' , function ( mix ) {
         'clientgroup/ClientGroupApiService.js' ,
         'client/ClientApiService.js'
     ] , 'public/js/listprofile.js' );
+} );
+
+elixir.extend( 'deployBulkSuppressionJs' , function ( mix ) {
+    mix.scripts( [ 'pages/BulkSuppressionController.js' ] , 'public/js/bulksuppression.js' );
 } );
 
 elixir.extend( 'deployMt2Js' , function ( mix ) {
@@ -159,6 +172,8 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployClientJs( mix );
     mix.deployClientGroupJs( mix );
     mix.deployListProfileJs( mix );
+    mix.deployBulkSuppressionJs( mix );
+    mix.deployClientAttributionJs( mix );
 } );
 
 elixir.extend( 'runTdd' , function ( mix ) {
@@ -222,8 +237,14 @@ var mt2TaskMap = {
     'deployClientGroupJs' : function ( mix ) {
         mix.deployClientGroupJs( mix );
     } ,
+    'deployClientAttributionJs' : function ( mix ) {
+        mix.deployClientAttributionJs( mix );
+    } ,
     'deployListProfileJs' : function ( mix ) {
         mix.deployListProfileJs( mix );
+    } ,
+    'deployBulkSuppressionJs' : function ( mix ) {
+        mix.deployBulkSuppressionJs( mix );
     }
 };
 

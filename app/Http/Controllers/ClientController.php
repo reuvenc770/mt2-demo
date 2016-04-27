@@ -8,6 +8,8 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Services\MT1ApiService;
 use App\Http\Requests\ClientEditRequest;
+use App\Services\MT1Services\ClientService;
+use App\Services\MT1Services\ClientAttributionService;
 
 class ClientController extends Controller
 {
@@ -16,9 +18,13 @@ class ClientController extends Controller
     const GEN_LINKS_API_ENDPOINT = 'gen_tracking_link';
 
     protected $api;
+    protected $clientApi;
+    protected $attributionApi;
 
-    public function __construct ( MT1ApiService $api ) {
+    public function __construct ( MT1ApiService $api , ClientService $clientApi , ClientAttributionService $attrService ) {
         $this->api = $api;
+        $this->clientApi = $clientApi;
+        $this->attributionApi = $attrService;
     }
 
     /**
@@ -108,5 +114,26 @@ class ClientController extends Controller
     public function destroy($id)
     {
         return response( 'Unauthorized' , 401 );
+    }
+    
+    public function attribution () {
+        return response()->view( 'pages.client_attribution' );
+    }
+
+    public function getAttributionList ( Request $request ) {
+        $clients = $this->attributionApi->getClientList( $request->input( 'page' ) , $request->input( 'count' ) );
+
+        return response( $clients );
+    }
+
+    public function setAttribution ( $id , Request $request ) {
+        return response( $this->attributionApi->setAttribution(
+            $id ,
+            $request->input( 'level' )
+        ) );
+    }
+
+    public function deleteAttribution ( $id ) {
+        return response( $this->attributionApi->deleteAttribution( $id ) );
     }
 }

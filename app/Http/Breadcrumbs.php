@@ -127,5 +127,15 @@ Breadcrumbs::register('devtools.jobs', function($breadcrumbs) {
 
 Breadcrumbs::register('tools.recordlookup', function($breadcrumbs) {
     $breadcrumbs->parent('home');
-    $breadcrumbs->push('Record Lookup');
+    $breadcrumbs->push('Record Lookup' , route( 'tools.recordlookup' ) );
 });
+
+Breadcrumbs::register( 'tools.bulksuppression' , function ( $breadcrumbs ) {
+    $breadcrumbs->parent( 'home' );
+    $breadcrumbs->push( 'Bulk Suppression' , route( 'tools.bulksuppression' ) );
+} );
+
+Breadcrumbs::register( 'client.attribution' , function ( $breadcrumbs ) {
+    $breadcrumbs->parent( 'client.list' );
+    $breadcrumbs->push( 'Attribution' );
+} );

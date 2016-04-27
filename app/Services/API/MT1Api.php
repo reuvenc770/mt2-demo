@@ -7,8 +7,10 @@
  */
 
 namespace App\Services\API;
+
 use GuzzleHttp\Client;
 use URL;
+
 class MT1Api
 {
     protected $guzzle;
@@ -21,24 +23,40 @@ class MT1Api
 
     }
 
-    public function getMT1Json($page,$params = null)
+    public function getMT1Json($page, $params = null)
     {
         $url = $this->constructUrl($page, $params);
         return $this->guzzle->get($url);
     }
 
-    public function postMT1Json($page,$data){
+    public function postMT1Json($page, $data, $file = null)
+    {
         $url = $this->constructUrl($page);
-        return $this->guzzle->post($url,['form_params' => $data]);
+        $fileParam = [];
+        if ($file) {
+            $fileParam = [
+                'multipart' => [
+                    [
+                        'name' => 'upload_file',
+                        'contents' => fopen($file, 'r')
+                    ],
+                ],
+            ];
+        }
+        $params = array_merge($fileParam, [
+            'form_params' => $data
+        ]);
+        return $this->guzzle->post($url,$params);
     }
 
-    private function constructUrl($page, $params = null) {
-    $queryString = false;
-        if($params) {
+    private function constructUrl($page, $params = null)
+    {
+        $queryString = false;
+        if ($params) {
             $queryString = http_build_query($params);
         }
         $base = self::PATH;
-        return "{$base}/{$page}".($queryString ? "?{$queryString}" : "");
+        return "{$base}/{$page}" . ($queryString ? "?{$queryString}" : "");
 
     }
 

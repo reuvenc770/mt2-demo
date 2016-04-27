@@ -121,9 +121,23 @@ Route::group(
             'uses' => 'ShowInfoController@index'
         ] );
 
-        /**
-         * YMLP Manager Routes
-         */
+        Route::get( '/bulk-suppression' , [
+            'as' => 'tools.bulksuppression' ,
+            'uses' => 'BulkSuppressionController@index'
+        ] );
+    }
+);
+
+
+/**
+* YMLP Manager Routes
+*/
+Route::group(
+    [
+        'prefix' => 'ymlp' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
         Route::get( '/ymlp-campaign' , [
             'as' => 'ymlpcampaign.list' ,
             'uses' => 'YmlpCampaignController@listAll'
@@ -141,7 +155,6 @@ Route::group(
 
     }
 );
-
 
 /**
  * Dev Tool Routes
@@ -209,6 +222,11 @@ Route::group(
         Route::get( '/edit/{id}' , [
             'as' => 'client.edit' ,
             'uses' => 'ClientController@edit'
+        ] );
+
+        Route::get( '/attribution' , [
+            'as' => 'client.attribution' ,
+            'uses' => 'ClientController@attribution'
         ] );
     }
 );
@@ -295,7 +313,6 @@ Route::group(
     }
 );
 
-
 /**
  * API Routes
  */
@@ -313,6 +330,26 @@ Route::group(
         Route::put( '/profile/{id}' , [
             'as' => 'api.profile.update' ,
             'uses' => 'UserApiController@updateProfile'
+        ] );
+
+        Route::any('/attachment/upload', [
+            'as' => 'api.attachment.upload' ,
+            'uses' => 'AttachmentApiController@flow'
+        ] );
+
+        Route::get( '/client/attribution/list' , [
+            'as' => 'api.client.attribution.list' ,
+            'uses' => 'ClientController@getAttributionList'
+        ] );
+
+        Route::get( '/client/attribution/set/{id}' , [
+            'as' => 'api.client.attribution.set' ,
+            'uses' => 'ClientController@setAttribution'
+        ] );
+
+        Route::get( '/client/attribution/delete/{id}' , [
+            'as' => 'api.client.attribution.delete' ,
+            'uses' => 'ClientController@deleteAttribution'
         ] );
 
         /**
@@ -410,7 +447,25 @@ Route::group(
             [ 'only' => [ 'show' , 'store' ] ]
         );
 
+        Route::resource(
+            'attribution' ,
+            'AttributionController' ,
+            [ 'only' => [ 'store'] ]
+        );
 
+        Route::resource(
+            'bulksuppression' ,
+            'BulkSuppressionController' ,
+            [ 'only' => [ 'store' ] ]
+        );
+
+        Route::post(
+            'attribution/bulk' ,
+            [
+                'as' => 'api.attribution.bulk' ,
+                'uses' => 'AttributionController@bulk'
+            ]
+        );
 
         /**
          * Admin Level API Group
