@@ -313,7 +313,12 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         Log::$logMethod( str_repeat( '=' , 20 ) );
         Log::$logMethod( $e->getMessage() );
         Log::$logMethod( $this->getJobInfo() );
-        if ( $e->getCode() > JobException::NOTICE ) { Log::$logMethod( $e->getTraceAsString() ); }
+
+        if ( $e->getCode() > JobException::NOTICE ) {
+            Log::$logMethod( $e->getFile() );
+            Log::$logMethod( $e->getLine() );
+            Log::$logMethod( $e->getTraceAsString() );
+        }
     }
 
     protected function logUncaughtException ( $e ) {
