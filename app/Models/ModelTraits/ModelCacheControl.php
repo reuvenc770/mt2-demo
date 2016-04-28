@@ -9,6 +9,9 @@ use Cache;
  */
 trait ModelCacheControl
 {
+    public function getClassName(){
+        return class_basename($this);
+    }
     public static function bootModelCacheControl()
     {
         static::created(function($item) {

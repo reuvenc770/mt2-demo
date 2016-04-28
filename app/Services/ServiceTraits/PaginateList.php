@@ -34,7 +34,7 @@ trait PaginateList {
         }
     }
     public function getType(){
-        return "page_".class_basename($this->getModel());
+        return class_basename($this->getModel());
     }
     abstract public function getModel();
 }
