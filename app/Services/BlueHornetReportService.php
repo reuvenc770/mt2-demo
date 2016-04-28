@@ -194,7 +194,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
     }
 
     public function getTypeList ( &$processState ) {
-        $typeList = ['open' , 'click' , 'optout' , 'bounce' ];
+        $typeList = [ 'open' , 'click' , 'optout' , 'bounce' ];
         if(!$this->emailRecord->checkForDeliverables($processState[ 'espAccountId' ],$processState[ 'campaign' ]->esp_internal_id)){
             $typeList[] = "deliverable";
         }
@@ -239,7 +239,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
             $recordXML = new \DOMDocument();
             $recordXML->loadXML( $fileContents );
-            $xpath = new DOMXpath( $recordXML );
+            $xpath = new \DOMXpath( $recordXML );
 
             
             switch ( $processState[ 'recordType' ] ) {
@@ -269,17 +269,19 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
             $this->emailRecord->massRecordDeliverables();
         } catch ( \Exception $e ) {
-            $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() , JobException::NOTICE , $e );
+            $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() , JobException::WARNING , $e );
             $jobException->setDelay( 60 );
             throw $jobException;
         }
     }
 
     protected function queueDeliveredRecords ( $xpath , $processState ) {
-        $contacts = $xpath->query( '*/contact' );
+        $contacts = $xpath->query( '//contact' );
 
+        $realCount = 0;
         foreach ( $contacts as $current ) {
             $contents = $current->childNodes;
+
             $email = null;
             $isSent = false;
             $isBounce = false;
@@ -293,11 +295,8 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                     $isBounce = true;
                 }
             }
-
+            
             if ( $isSent && !$isBounce ) {
-                Log::info( str_repeat( '=' , 100 ) );
-                Log::info( 'Processing Delivered.' );
-
                 $time = $processState['ticket']['deliveryTime'] === '0000-00-00 00:00:00' ? null : $processState['ticket']['deliveryTime'];
 
                 $this->emailRecord->queueDeliverable(
@@ -316,9 +315,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         $bounces = $xpath->query( '*/bounce' );
 
         foreach ( $bounces as $current ) {
-            Log::info( str_repeat( '=' , 100 ) );
-            Log::info( 'Processing Bounce.' );
-
             $contents = $current->childNodes;
             $email = $this->findEmail( $current );
             $reason = null;
@@ -348,53 +344,43 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         $opens = $xpath->query( '*/opens' );
 
         foreach ( $opens as $current ) {
-            Log::info( str_repeat( '=' , 100 ) );
-            Log::info( 'Processing Open.' );
-
             $contents = $current->childNodes;
             $email = $this->findEmail( $current );
 
             if ( is_null( $email ) ) { continue; }
 
             foreach ( $contents as $date ) {
-                $this->emailRecord->queueDeliverable(
-                    self::RECORD_TYPE_OPENER ,
-                    $email ,
-                    $processState[ 'ticket' ][ 'espId' ] ,
-                    $processState[ 'ticket' ][ 'deployId' ] ,
-                    $processState[ 'campaign' ]->esp_internal_id ,
-                    $date->nodeValue
-                );
+                if ( trim( $date->nodeValue ) !== '' ) {
+                    $this->emailRecord->queueDeliverable(
+                        self::RECORD_TYPE_OPENER ,
+                        $email ,
+                        $processState[ 'ticket' ][ 'espId' ] ,
+                        $processState[ 'ticket' ][ 'deployId' ] ,
+                        $processState[ 'campaign' ]->esp_internal_id ,
+                        $date->nodeValue
+                    );
+                }
             }
         }
     }
 
     protected function queueClickedRecords ( $xpath , $processState ) {
-        $clicks = $xpath->query( '*/clicks' );
+        $clicks = $xpath->query( '///click' );
 
         foreach ( $clicks as $current ) {
             $contents = $current->childNodes;
-            $email = $this->findEmail( $current );
+            $email = $this->findEmail( $current , true );
 
-            if ( is_null( $email ) ) { continue; }
-
-            foreach ( $contents as $click ) {
-                $clickContents = $click->childNodes;
-
-                foreach ( $clickContents as $clickDetail ) {
-                    if ( $clickDetail->nodeName == 'date' ) {
-                        Log::info( str_repeat( '=' , 100 ) );
-                        Log::info( 'Processing Click.' );
-
-                        $this->emailRecord->queueDeliverable(
-                            self::RECORD_TYPE_CLICKER ,
-                            $email , 
-                            $processState[ 'ticket' ][ 'espId' ] ,
-                            $processState[ 'ticket' ][ 'deployId' ] ,
-                            $processState[ 'campaign' ]->esp_internal_id ,
-                            $clickDetail->nodeValue
-                        );
-                    }
+            foreach ( $contents as $detail ) {
+                if ( $detail->nodeName == 'date' ) {
+                    $this->emailRecord->queueDeliverable(
+                        self::RECORD_TYPE_CLICKER ,
+                        $email , 
+                        $processState[ 'ticket' ][ 'espId' ] ,
+                        $processState[ 'ticket' ][ 'deployId' ] ,
+                        $processState[ 'campaign' ]->esp_internal_id ,
+                        $detail->nodeValue
+                    );
                 }
             }
         }
@@ -409,10 +395,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
             if ( is_null( $email ) ) { continue; }
 
-            Log::info( str_repeat( '=' , 100 ) );
-            Log::info( 'Processing Optout.' );
-
-
             $this->emailRecord->queueDeliverable(
                 self::RECORD_TYPE_UNSUBSCRIBE ,
                 $email ,
@@ -424,16 +406,22 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         }
     }
 
-    protected function findEmail ( $currentNode ) {
-        $sibling = $currentNode->previousSibling;
+    protected function findEmail ( $currentNode , $isParentNode = false ) {
+        if ( $isParentNode ) {
+            $parent = $currentNode->parentNode;
 
-        if ( is_null( $sibling ) ) { return null; }
+            return $this->findEmail( $parent );
+        } else {
+            $sibling = $currentNode->previousSibling;
 
-        if ( $sibling->nodeName == 'email' ) {
-            return $sibling->nodeValue;
+            if ( is_null( $sibling ) ) { return null; }
+
+            if ( $sibling->nodeName == 'email' ) {
+                return $sibling->nodeValue;
+            }
+
+            return $this->findEmail( $sibling );
         }
-
-        return $this->findEmail( $sibling );
     }
 
     public function cleanUp ( $processState ) {
