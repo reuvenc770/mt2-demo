@@ -194,7 +194,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
     }
 
     public function getTypeList ( &$processState ) {
-        $typeList = ['open' , 'click' , 'optout' , 'bounce' ];
+        $typeList = [ 'open' , 'click' , 'optout' , 'bounce' ];
         if(!$this->emailRecord->checkForDeliverables($processState[ 'espAccountId' ],$processState[ 'campaign' ]->esp_internal_id)){
             $typeList[] = "deliverable";
         }
@@ -239,137 +239,188 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
             $recordXML = new \DOMDocument();
             $recordXML->loadXML( $fileContents );
+            $xpath = new \DOMXpath( $recordXML );
 
-            $contacts = $recordXML->getElementsByTagName( 'contact' );
+            
+            switch ( $processState[ 'recordType' ] ) {
+                case 'deliverable' :
+                    $this->queueDeliveredRecords( $xpath , $processState );
+                break;
 
-            foreach ( $contacts as $currentContact ) {
-                $methodName = 'process_' . $processState[ 'recordType' ];
+                case 'bounce' :
+                    $this->queueBouncedRecords( $xpath , $processState );
+                break;
 
-                call_user_func_array( [ $this , $methodName ] , [ $currentContact , $processState ] );
+                case 'open' :
+                    $this->queueOpenedRecords( $xpath , $processState );
+                break;
+
+                case 'click' :
+                    $this->queueClickedRecords( $xpath , $processState );
+                break;
+
+                case 'optout' :
+                    $this->queueOptedOutRecords( $xpath , $processState );
+                break;
             }
 
             unset( $recordXML );
+            unset( $xpath );
 
             $this->emailRecord->massRecordDeliverables();
         } catch ( \Exception $e ) {
-            $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() , JobException::NOTICE , $e );
+            $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() , JobException::WARNING , $e );
             $jobException->setDelay( 60 );
             throw $jobException;
         }
     }
 
-    function process_deliverable ( $contact , $processState ) {
-        $emailNodes = $contact->getElementsByTagName( 'email' );
+    protected function queueDeliveredRecords ( $xpath , $processState ) {
+        $contacts = $xpath->query( '//contact' );
 
-        $email = $emailNodes->item( 0 )->nodeValue;
+        $realCount = 0;
+        foreach ( $contacts as $current ) {
+            $contents = $current->childNodes;
 
-        $sentNodes = $contact->getElementsByTagName( 'sent' );
-        $isSent = ( $sentNodes->length > 0 && $sentNodes->item( 0 )->nodeValue == 1 ? true : false );
+            $email = null;
+            $isSent = false;
+            $isBounce = false;
 
-        $bounceNodes = $contact->getElementsByTagName( 'bounce' );
-        $isBounce = ( $bounceNodes->length > 0 );
+            foreach ( $contents as $detail ) {
+                if ( $detail->nodeName == 'email' ) {
+                    $email = $detail->nodeValue;
+                } elseif ( $detail->nodeName == 'sent' && $detail->nodeValue == 1 ) {
+                    $isSent = true;
+                } elseif ( $detail->nodeName == 'bounce' ) {
+                    $isBounce = true;
+                }
+            }
+            
+            if ( $isSent && !$isBounce ) {
+                $time = $processState['ticket']['deliveryTime'] === '0000-00-00 00:00:00' ? null : $processState['ticket']['deliveryTime'];
 
-        if ( $isSent && !$isBounce ) {
-            $time = $processState['ticket']['deliveryTime'] === '0000-00-00 00:00:00' ? null : $processState['ticket']['deliveryTime'];
-            $this->emailRecord->queueDeliverable(
-                self::RECORD_TYPE_DELIVERABLE ,
-                $email , 
-                $processState[ 'ticket' ][ 'espId' ] ,
-                $processState['ticket']['deployId'] ,
-                $processState[ 'campaign' ]->esp_internal_id ,
-                $time
-            );
-        }
-    }
-
-    function process_bounce ( $contact , $processState ) {
-        $emailNodes = $contact->getElementsByTagName( 'email' );
-
-        $email = $emailNodes->item( 0 )->nodeValue;
-
-        $bounceNodes = $contact->getElementsByTagName( 'bounce' );
-        $isBounce = ( $bounceNodes->length > 0 );
-
-        if ( $isBounce ) {
-            $reasonNodes = $bounceNodes->item( 0 )->getElementsByTagName( 'reason' );
-            $dateNodes = $bounceNodes->item( 0 )->getElementsByTagName( 'date' );
-
-            Suppression::recordRawHardBounce(
-                $processState[ 'ticket' ][ 'espId' ] ,
-                $email , 
-                $processState[ 'campaign' ]->esp_internal_id , 
-                $reasonNodes->item( 0 )->nodeValue ,
-                $dateNodes->item( 0 )->nodeValue
-            );
-        }
-    }
-
-    function process_open ( $contact , $processState ) {
-        $emailNodes = $contact->getElementsByTagName( 'email' );
-
-        $email = $emailNodes->item( 0 )->nodeValue;
-
-        $openNodes = $contact->getElementsByTagName( 'opens' );
-
-        if ( $openNodes->length > 0 ) {
-            $openDates = $openNodes->item( 0 )->getElementsByTagName( 'date' );
-
-            foreach ( $openDates as $dateNode ) {
                 $this->emailRecord->queueDeliverable(
-                    self::RECORD_TYPE_OPENER ,
-                    $email ,
+                    self::RECORD_TYPE_DELIVERABLE ,
+                    $email , 
                     $processState[ 'ticket' ][ 'espId' ] ,
-                    $processState['ticket']['deployId'] ,
+                    $processState[ 'ticket' ][ 'deployId' ] ,
                     $processState[ 'campaign' ]->esp_internal_id ,
-                    $dateNode->nodeValue
+                    $time
                 );
             }
         }
     }
 
-    function process_click ( $contact , $processState ) {
-        $emailNodes = $contact->getElementsByTagName( 'email' );
+    protected function queueBouncedRecords ( $xpath , $processState ) {
+        $bounces = $xpath->query( '*/bounce' );
 
-        $email = $emailNodes->item( 0 )->nodeValue;
+        foreach ( $bounces as $current ) {
+            $contents = $current->childNodes;
+            $email = $this->findEmail( $current );
+            $reason = null;
+            $date = null;
 
-        $clickContainer = $contact->getElementsByTagName( 'clicks' );
+            if ( is_null( $email ) ) { continue; }
 
-        if ( $clickContainer->length > 0 ) {
-            $clickNodes = $clickContainer->item( 0 )->getElementsByTagName( 'click' );
+            foreach ( $contents as $detail ) {
+                if ( $detail->nodeName == 'reason' ) {
+                    $reason = $detail->nodeValue;
+                } elseif ( $detail->nodeName == 'date' ) {
+                    $date = $detail->nodeValue;
+                }
+            }
 
-            foreach ( $clickNodes as $currentClickNode ) {
-                $clickDates = $currentClickNode->getElementsByTagName( 'date' );
+            Suppression::recordRawHardBounce(
+                $processState[ 'ticket' ][ 'espId' ] ,
+                $email , 
+                $processState[ 'campaign' ]->esp_internal_id , 
+                $reason ,
+                $date
+            );
+        }
+    }
 
-                if ( $clickDates->length > 0 ) {
+    protected function queueOpenedRecords ( $xpath , $processState ) {
+        $opens = $xpath->query( '*/opens' );
+
+        foreach ( $opens as $current ) {
+            $contents = $current->childNodes;
+            $email = $this->findEmail( $current );
+
+            if ( is_null( $email ) ) { continue; }
+
+            foreach ( $contents as $date ) {
+                if ( trim( $date->nodeValue ) !== '' ) {
                     $this->emailRecord->queueDeliverable(
-                        self::RECORD_TYPE_CLICKER ,
-                        $email , 
+                        self::RECORD_TYPE_OPENER ,
+                        $email ,
                         $processState[ 'ticket' ][ 'espId' ] ,
-                        $processState['ticket']['deployId'] ,
+                        $processState[ 'ticket' ][ 'deployId' ] ,
                         $processState[ 'campaign' ]->esp_internal_id ,
-                        $clickDates->item( 0 )->nodeValue
+                        $date->nodeValue
                     );
                 }
             }
         }
     }
 
-    function process_optout ( $contact , $processState ) {
-        $emailNodes = $contact->getElementsByTagName( 'email' );
+    protected function queueClickedRecords ( $xpath , $processState ) {
+        $clicks = $xpath->query( '///click' );
 
-        $email = $emailNodes->item( 0 )->nodeValue;
+        foreach ( $clicks as $current ) {
+            $contents = $current->childNodes;
+            $email = $this->findEmail( $current , true );
 
-        $optoutNodes = $contact->getElementsByTagName( 'optout' );
+            foreach ( $contents as $detail ) {
+                if ( $detail->nodeName == 'date' ) {
+                    $this->emailRecord->queueDeliverable(
+                        self::RECORD_TYPE_CLICKER ,
+                        $email , 
+                        $processState[ 'ticket' ][ 'espId' ] ,
+                        $processState[ 'ticket' ][ 'deployId' ] ,
+                        $processState[ 'campaign' ]->esp_internal_id ,
+                        $detail->nodeValue
+                    );
+                }
+            }
+        }
+    }
 
-        if ( $optoutNodes->length > 0 ) {
+    protected function queueOptedOutRecords ( $xpath , $processState ) {
+        $optouts = $xpath->query( '*/optout' );
+
+        foreach ( $optouts as $current ) {
+            $optoutDate = $current->nodeValue;
+            $email = $this->findEmail( $current );
+
+            if ( is_null( $email ) ) { continue; }
+
             $this->emailRecord->queueDeliverable(
                 self::RECORD_TYPE_UNSUBSCRIBE ,
                 $email ,
                 $processState[ 'ticket' ][ 'espId' ] ,
-                $processState['ticket']['deployId'] ,
+                $processState[ 'ticket' ][ 'deployId'] ,
                 $processState[ 'campaign' ]->esp_internal_id ,
-                $optoutNodes->item( 0 )->nodeValue
+                $optoutDate
             );
+        }
+    }
+
+    protected function findEmail ( $currentNode , $isParentNode = false ) {
+        if ( $isParentNode ) {
+            $parent = $currentNode->parentNode;
+
+            return $this->findEmail( $parent );
+        } else {
+            $sibling = $currentNode->previousSibling;
+
+            if ( is_null( $sibling ) ) { return null; }
+
+            if ( $sibling->nodeName == 'email' ) {
+                return $sibling->nodeValue;
+            }
+
+            return $this->findEmail( $sibling );
         }
     }
 
