@@ -10,7 +10,7 @@ use App\Http\Requests\AttributionPostRequest;
 class AttributionController extends Controller
 {
     const ATTRIBUTION_BULK_UPLOAD_ENDPOINT ="upload_orange_attribution";
-    const ATTRIBUTION_UPLOAD_ENDPOINT = "orange_attribution_add";
+
     protected $api;
 
     public function __construct ( MT1ApiService $api ) {
@@ -46,25 +46,6 @@ class AttributionController extends Controller
     public function store(AttributionPostRequest $request)
     {
         return response( $this->api->postForm( self::ATTRIBUTION_UPLOAD_ENDPOINT , $request->all()) );
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function bulk(AttributionUploadRequest $request)
-    {
-        $filePath = null;
-        if ($request->hasFile('upload_file')) {
-            $rand = str_random(10);
-            $fileName = "{$rand}.csv";
-            $file = $request->file('upload_file')->move(storage_path("app/temp/"), $fileName);
-            $filePath = $file->getPath();
-
-        }
-        return response( $this->api->postForm( self::ATTRIBUTION_BULK_UPLOAD_ENDPOINT , $request->all(), $filePath ) );
     }
 
     /**

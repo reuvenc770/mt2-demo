@@ -459,14 +459,6 @@ Route::group(
             [ 'only' => [ 'store' ] ]
         );
 
-        Route::post(
-            'attribution/bulk' ,
-            [
-                'as' => 'api.attribution.bulk' ,
-                'uses' => 'AttributionController@bulk'
-            ]
-        );
-
         /**
          * Admin Level API Group
          */

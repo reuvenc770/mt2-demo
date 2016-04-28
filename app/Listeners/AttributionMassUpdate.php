@@ -5,12 +5,14 @@ namespace App\Listeners;
 use App\Events\AttributionFileUploaded;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Services\MT1Services\ClientAttributionService;
+use App\Services\MT1ApiService;
 use Storage;
 use Log;
 
 class AttributionMassUpdate
 {
+    const ATTRIBUTION_UPLOAD_ENDPOINT = "attribution_update";
+
     protected $service;
 
     /**
@@ -18,7 +20,7 @@ class AttributionMassUpdate
      *
      * @return void
      */
-    public function __construct( ClientAttributionService $service )
+    public function __construct( MT1ApiService $service )
     {
         $this->service = $service;
     }
@@ -36,9 +38,18 @@ class AttributionMassUpdate
         $lines = explode( PHP_EOL , $contents );
 
         foreach ( $lines as $clientAdjustment ) {
-            list( $level , $clientId ) = explode( ',' , $clientAdjustment );
+            $adjustment = explode( ',' , $clientAdjustment );
 
-            $this->service->setAttribution( $level , $clientId );
+            if (
+                count( $adjustment ) == 2
+                && is_numeric( $adjustment[ 0 ] )
+                && is_numeric( $adjustment[ 1 ] )
+            ) {
+                $this->service->postForm(
+                    self::ATTRIBUTION_UPLOAD_ENDPOINT ,
+                    [ 'level' => $adjustment[ 1 ] , 'cid' => $adjustment[ 0 ] ]
+                );
+            }
         }
     }
 }

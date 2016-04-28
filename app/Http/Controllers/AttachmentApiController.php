@@ -15,7 +15,7 @@ use Event;
 class AttachmentApiController extends Controller
 {
     const UPLOAD_BASE_DIR = '/files/uploads/';
-    const CHUNKS_DIR = '\chunks';
+    const CHUNKS_DIR = 'chunks';
     const PAGE_TYPE_REQUEST_KEY = 'fromPage';
 
     protected $flowRequest;

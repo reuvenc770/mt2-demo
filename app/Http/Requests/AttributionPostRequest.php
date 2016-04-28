@@ -24,8 +24,8 @@ class AttributionPostRequest extends Request
     public function rules()
     {
         return [
-            "cid" => 'exists:clients,id',
-            "level" => 'digits_between:1,254',
+            "cid" => 'required|exists:clients,id',
+            "level" => 'required|numeric',
         ];
     }
 }

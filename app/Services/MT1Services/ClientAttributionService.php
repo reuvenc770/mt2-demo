@@ -39,12 +39,4 @@ class ClientAttributionService {
             }
         }
     }
-
-    public function setAttribution ( $id , $level ) {
-        return $this->clientAttributionRepo->setAttribution( $id , $level );
-    }
-
-    public function deleteAttribution ( $id ) {
-        return $this->clientAttributionRepo->deleteAttribution( $id );
-    }
 }
