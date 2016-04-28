@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\ModelTraits\ModelCacheControl;
 use Illuminate\Database\Eloquent\Model;
 use Storage;
 class EspAccount extends Model
 {
+    use ModelCacheControl;
+    
     public function esp()
     {
         return $this->belongsTo('App\Models\Esp');

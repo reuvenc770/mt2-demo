@@ -25,10 +25,6 @@ class ClientGroupService
         return $this->clientGroupRepo->getModel(); 
     }
 
-    public function getType () {
-        return 'clientgroup';
-    }
-
     public function getName ( $groupId ) {
         return $this->clientGroupRepo->getName( $groupId );
     }
