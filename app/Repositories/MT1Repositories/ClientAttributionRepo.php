@@ -3,11 +3,8 @@
 namespace App\Repositories\MT1Repositories;
 
 use DB;
-use Log;
 
 class ClientAttributionRepo {
-    const DELETED_LEVEL = 255;
-
     public function __construct () {} 
 
     public function getClientsByAttribution ( $count ) {

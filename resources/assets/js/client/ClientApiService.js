@@ -5,6 +5,7 @@ mt2App.service( 'ClientApiService' , function ( $http , $log ) {
     self.baseApiUrl = '/api/client';
     self.baseMt1ApiUrl = '/api/mt1';
     self.attributionApiUrl = '/api/attribution';
+    self.attributionListApiUrl = '/api/client/attribution/list';
 
     self.getClient = function ( id , successCallback , failureCallback ) {
         $http( { "method" : "GET" , "url" : this.baseApiUrl + '/' + id } )
@@ -64,7 +65,7 @@ mt2App.service( 'ClientApiService' , function ( $http , $log ) {
     self.getClientAttributionList = function ( currentPage , paginationCount , successCallback , failureCallback ) {
         $http( {
             "method" : "GET" , 
-            "url" : self.attributionApiUrl + '/list',
+            "url" : self.attributionListApiUrl ,
             "params" : {
                 'page' : currentPage ,
                 'count' : paginationCount

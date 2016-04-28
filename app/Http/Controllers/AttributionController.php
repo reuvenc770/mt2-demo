@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Services\MT1ApiService;
 use App\Http\Requests\AttributionPostRequest;
+
 class AttributionController extends Controller
 {
     const ATTRIBUTION_BULK_UPLOAD_ENDPOINT ="upload_orange_attribution";
