@@ -75,7 +75,7 @@ mt2App.service( 'ClientApiService' , function ( $http , $log ) {
 
     self.setAttribution = function ( id , level , successCallback , failureCallback ) {
         $http( {
-            "method" : "GET" ,
+            "method" : "POST" ,
             "url" : self.attributionApiUrl ,
             "params" : { "cid" : id , "level" : level }
         } ).then( successCallback , failureCallback );
@@ -83,9 +83,9 @@ mt2App.service( 'ClientApiService' , function ( $http , $log ) {
 
     self.deleteAttribution = function ( id , successCallback , failureCallback ) {
         $http( {
-            "method" : "GET" ,
+            "method" : "POST" ,
             "url" : self.attributionApiUrl ,
-            "params" : { "cid" : id , "level" : level }
+            "params" : { "cid" : id , "level" : 255 }
         } ).then( successCallback , failureCallback );
     }
 } );

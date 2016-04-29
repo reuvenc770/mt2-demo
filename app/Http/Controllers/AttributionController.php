@@ -7,15 +7,18 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Services\MT1ApiService;
 use App\Http\Requests\AttributionPostRequest;
+use App\Services\MT1Services\ClientAttributionService;
 
 class AttributionController extends Controller
 {
     const ATTRIBUTION_UPLOAD_ENDPOINT ="attribution_update";
 
     protected $api;
+    protected $attributionApi;
 
-    public function __construct ( MT1ApiService $api ) {
+    public function __construct ( MT1ApiService $api, ClientAttributionService $attrService  ) {
         $this->api = $api;
+        $this->attributionApi = $attrService;
     }
 
     /**
@@ -23,9 +26,15 @@ class AttributionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index( Request $request )
     {
-        return response( 'Unauthorized' , 401 );
+        $clients = $this->attributionApi->getClientList( $request->input( 'page' ) , $request->input( 'count' ) );
+
+        return response( $clients );
+    }
+
+    public function listAll () {
+        return response()->view( 'pages.client_attribution' );
     }
 
     /**
@@ -44,7 +53,7 @@ class AttributionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(AttributionPostRequest $request)
+    public function store( AttributionPostRequest $request )
     {
         return response( $this->api->postForm( self::ATTRIBUTION_UPLOAD_ENDPOINT , $request->all()) );
     }

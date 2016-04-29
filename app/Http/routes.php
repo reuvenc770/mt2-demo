@@ -221,7 +221,7 @@ Route::group(
 
         Route::get( '/attribution' , [
             'as' => 'client.attribution' ,
-            'uses' => 'ClientController@attribution'
+            'uses' => 'AttributionController@listAll'
         ] );
     }
 );
@@ -334,17 +334,7 @@ Route::group(
 
         Route::get( '/client/attribution/list' , [
             'as' => 'api.client.attribution.list' ,
-            'uses' => 'ClientController@getAttributionList'
-        ] );
-
-        Route::get( '/client/attribution/set/{id}' , [
-            'as' => 'api.client.attribution.set' ,
-            'uses' => 'ClientController@setAttribution'
-        ] );
-
-        Route::get( '/client/attribution/delete/{id}' , [
-            'as' => 'api.client.attribution.delete' ,
-            'uses' => 'ClientController@deleteAttribution'
+            'uses' => 'AttributionController@index'
         ] );
 
         /**
@@ -441,11 +431,11 @@ Route::group(
             'ShowInfoController' ,
             [ 'only' => [ 'show' , 'store' ] ]
         );
-
+        
         Route::resource(
             'attribution' ,
             'AttributionController' ,
-            [ 'only' => [ 'store'] ]
+            [ 'only' => [ 'store' ] ]
         );
 
         /**
