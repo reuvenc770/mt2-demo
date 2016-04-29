@@ -9,7 +9,6 @@ use App\Http\Controllers\Controller;
 use App\Services\MT1ApiService;
 use App\Http\Requests\ClientEditRequest;
 use App\Services\MT1Services\ClientService;
-use App\Services\MT1Services\ClientAttributionService;
 
 class ClientController extends Controller
 {
