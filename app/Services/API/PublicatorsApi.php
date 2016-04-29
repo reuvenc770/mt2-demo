@@ -166,17 +166,17 @@ class PublicatorsApi extends EspBaseAPI {
         try {
             $response = Guzzle::post( $url , $options );
         } catch ( ClientException $e ) {
-            $this->outputFailedDebug( $e );
+            $output = $this->outputFailedDebug( $e );
 
-            throw new \Exception( "Client Error Detected. " . $e->getMessage() , 400 , $e );
+            throw new \Exception( "Client Error Detected.\n" . $output . $e->getMessage() , 400 , $e );
         } catch ( ServerException $e ) {
-            $this->outputFailedDebug( $e );
+            $output = $this->outputFailedDebug( $e );
 
-            throw new \Exception( "Client Server Error Detected. " . $e->getMessage() , 500 , $e );
+            throw new \Exception( "Client Server Error Detected.\n" . $output . $e->getMessage() , 500 , $e );
         } catch ( RequestException $e ) {
-            $this->outputFailedDebug( $e );
+            $output = $this->outputFailedDebug( $e );
 
-            throw new \Exception( "Network Error Detected. " . $e->getMessage() , 100 , $e );
+            throw new \Exception( "Network Error Detected.\n" . $output . $e->getMessage() , 100 , $e );
         }
 
         return $response;
@@ -247,19 +247,30 @@ class PublicatorsApi extends EspBaseAPI {
     }
 
     protected function outputFailedDebug ( $exception ) {
+        $output = '';
         $request = $exception->getRequest();
 
-        echo "\tRequest Headers:\n";
+        $output .= str_repeat( '=' , 100 ) . "\nFailed API Call\n\n\tRequest Headers:";
         foreach ( $request->getHeaders() as $name => $values ) {
-            echo "\t" . $name . ": " . implode( ", " , $values ) . "\n";
+            $output .= "\n\t\t" . $name . ": " . implode( ", " , $values );
         }
 
-        echo "\tRequest Body:\n";
-        echo "\t" . $request->getBody();
+        $output .= "\n\n\tRequest URL:\n";
+        $output .= "\t\t" . $request->getUri();
+
+        $output .= "\n\n\tRequest Body:\n";
+        $output .= "\t\t" . $request->getBody();
 
         if( $response = $exception->getResponse() ) {
-            echo "\n\n\tResponse:\n";
-            echo "\t" . $response->getBody() . "\n";
+            $output .= "\n\n\tResponse:\n";
+            $output .= "\t\t" . $response->getStatusCode() . ':' . $response->getReasonPhrase();
+            $output .= "\t\t" . $response->getBody();
         }
+
+        $output .= "\n" . str_repeat( '=' , 100 ) . "\n";
+
+        echo $output;
+
+        return $output;
     }
 }

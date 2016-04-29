@@ -35,29 +35,33 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
             throw new JobException( "Job prevented via process lock. Another job is authenticating. " , JobException::NOTICE );
         }
 
-        $this->checkAuthentication();
+        try {
+            $this->checkAuthentication();
 
-        $this->api->setDate( $date );
+            $this->api->setDate( $date );
 
-        $campaigns = $this->api->getCampaigns();
-        $campaignDataCollection = [];
+            $campaigns = $this->api->getCampaigns();
+            $campaignDataCollection = [];
 
-        foreach ( $campaigns as $campaign ) {
-            $campaignRecord = (array)$campaign;
+            foreach ( $campaigns as $campaign ) {
+                $campaignRecord = (array)$campaign;
 
-            $campaignRecord[ 'esp_account_id' ] = $this->api->getEspAccountId();
-            $campaignRecord[ 'internal_id' ] = $campaignRecord[ 'ID' ];
-            unset( $campaignRecord[ 'ID' ] );
+                $campaignRecord[ 'esp_account_id' ] = $this->api->getEspAccountId();
+                $campaignRecord[ 'internal_id' ] = $campaignRecord[ 'ID' ];
+                unset( $campaignRecord[ 'ID' ] );
 
-            $campaignStats = $this->api->getCampaignStats( $campaignRecord[ 'internal_id' ] ); 
+                $campaignStats = $this->api->getCampaignStats( $campaignRecord[ 'internal_id' ] ); 
 
-            $campaignStatsRecord = (array)$campaignStats;
-            unset( $campaignStatsRecord[ 'ID' ] );
+                $campaignStatsRecord = (array)$campaignStats;
+                unset( $campaignStatsRecord[ 'ID' ] );
 
-            $campaignDataCollection []= array_merge( $campaignRecord , $campaignStatsRecord );
+                $campaignDataCollection []= array_merge( $campaignRecord , $campaignStatsRecord );
+            }
+
+            return $campaignDataCollection;
+        } catch ( \Exception $e ) {
+            throw new JobException( "Failed to Retrieve Api Stats. " . $e->getMessage() , JobException::ERROR , $e );
         }
-
-        return $campaignDataCollection;
     }
 
     public function insertApiRawStats ( $data ) {
