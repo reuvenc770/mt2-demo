@@ -16,6 +16,7 @@ use App\Exceptions\JobException;
 use Carbon\Carbon;
 use App\Models\StandardReport;
 use App\Repositories\StandardApiReportRepo;
+use Storage;
 
 class RetrieveDeliverableReports extends Job implements ShouldQueue
 {
@@ -151,6 +152,23 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
     protected function getCampaigns () {
         $campaigns = $this->standardReportRepo->getCampaigns( $this->espAccountId , $this->date );
+
+        $this->processState[ 'currentFilterIndex' ]++;
+
+        $campaigns->each( function( $campaign , $key ) {
+            $this->processState[ 'campaign' ] = $campaign;
+            $this->processState[ 'espId' ] = $this->espAccountId;
+
+            $this->queueNextJob( $this->defaultQueue );
+        });
+        
+        $this->changeJobEntry( JobEntry::SUCCESS );
+    }
+
+    protected function getRerunCampaigns () {
+        $campaigns = DB::connection( 'reporting_data' )
+            ->table( 'standard_reports_rerun' ) 
+            ->where( 'esp_account_id' , $this->espAccountId );
 
         $this->processState[ 'currentFilterIndex' ]++;
 

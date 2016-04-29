@@ -12,6 +12,16 @@ return [
                 'getTypeList' ,
                 'synchronousSaveTypeRecords' ,
                 'cleanUp'
+            ] ,
+            "rerun" => [
+                'jobSetup' ,
+                'getRerunCampaigns' ,
+                'startTicket' ,
+                'checkTicketStatus' ,
+                'downloadTicketFile' ,
+                'getTypeList' ,
+                'synchronousSaveTypeRecords' ,
+                'cleanUp'
             ]
         ]
     ] ,
@@ -19,6 +29,11 @@ return [
         "pipes" => [
             "default" => [
                 'getCampaigns' ,
+                'startTicket' ,
+                'saveRecords'
+            ] ,
+            "rerun" => [
+                'getRerunCampaigns' ,
                 'startTicket' ,
                 'saveRecords'
             ]
@@ -73,7 +88,15 @@ return [
                 'getTypeList' ,
                 'splitTypes' ,
                 'saveRecords'
+            ] ,
+            "rerun" => [
+                'jobSetup' ,
+                'getRerunCampaigns' ,
+                'getTypeList' ,
+                'splitTypes' ,
+                'saveRecords'
             ]
+
         ]
     ]
 ];
