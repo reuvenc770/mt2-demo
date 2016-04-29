@@ -46,7 +46,5 @@ class UniqueProfileService
         return $this->profileRepo->getZipsByProfileId( $profileId );
     }
 
-    public function getType () { return 'uniqueprofile'; }
-
     public function getModel () { return $this->profileRepo->getModel(); }
 }
