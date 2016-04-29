@@ -7,6 +7,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
+use DB;
 use Log;
 use App\Models\JobEntry;
 use App\Facades\JobTracking;
@@ -168,7 +169,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     protected function getRerunCampaigns () {
         $campaigns = DB::connection( 'reporting_data' )
             ->table( 'standard_reports_rerun' ) 
-            ->where( 'esp_account_id' , $this->espAccountId );
+            ->where( 'esp_account_id' , $this->espAccountId )
+            ->orderBy( 'esp_account_id' );
 
         $this->processState[ 'currentFilterIndex' ]++;
 
