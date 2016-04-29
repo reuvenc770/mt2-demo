@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App;
 use App\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -19,6 +18,7 @@ use App\Models\StandardReport;
 use App\Repositories\StandardApiReportRepo;
 use App\Repositories\EspApiAccountRepo; 
 use App\Models\EspAccount;
+use Storage;
 
 class RetrieveDeliverableReports extends Job implements ShouldQueue
 {
@@ -172,7 +172,13 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     protected function getRerunCampaigns () {
         $reruns = $this->getReruns();
 
-        $campaigns = $this->reportService->getRerunCampaigns( array_pop( $reruns ) );
+        $currentRerun = array_pop( $reruns );
+
+        $campaignJSON = Storage::get( $currentRerun[ "filePath" ] );
+
+        $campaignMap = json_decode( $campaignJSON );
+
+        $campaigns = $campaignMap[ $this->espAccountId ];
 
         foreach( $campaigns as $current  ) {
             $this->processState[ 'campaign' ] = $current;
