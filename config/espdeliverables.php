@@ -12,6 +12,18 @@ return [
                 'getTypeList' ,
                 'synchronousSaveTypeRecords' ,
                 'cleanUp'
+            ] , 
+            "rerun" => [
+                'jobSetup' ,
+                'getRerunCampaigns'
+            ] ,
+            "test" -> [
+                'startTicket' ,
+                'checkTicketStatus' ,
+                'downloadTicketFile' ,
+                'getRerunTypeList' ,
+                'synchronousSaveTypeRecords' ,
+                'cleanUp'
             ]
         ]
     ] ,
@@ -20,6 +32,12 @@ return [
             "default" => [
                 'getCampaigns' ,
                 'startTicket' ,
+                'saveRecords'
+            ] , 
+            "rerun" => [
+                'getRerunCampaigns' ,
+                'startTicket' ,
+                'getRerunTypeList' ,
                 'saveRecords'
             ]
         ]
@@ -33,6 +51,10 @@ return [
             "delivered" => [
                 'getCampaigns' ,
                 'saveRecords'
+            ] , 
+            "rerun" => [
+                'getRerunTypeList' ,
+                'savePaginatedRecords'
             ]
         ]
     ] ,
@@ -44,7 +66,7 @@ return [
                 'getTypeList' ,
                 'splitTypes' ,
                 'saveRecords'
-            ]
+            ] 
         ]
     ],
     "Ymlp" => [
@@ -53,7 +75,7 @@ return [
                 'getCampaigns',
                 'splitTypes' ,
                 'saveRecords'
-            ]
+            ] 
         ]
     ] ,
     "AWeber" => [
@@ -71,6 +93,13 @@ return [
                 'jobSetup' ,
                 'getCampaigns' ,
                 'getTypeList' ,
+                'splitTypes' ,
+                'saveRecords'
+            ] , 
+            "rerun" => [
+                'jobSetup' ,
+                'getRerunCampaigns' ,
+                'getRerunTypeList' ,
                 'splitTypes' ,
                 'saveRecords'
             ]

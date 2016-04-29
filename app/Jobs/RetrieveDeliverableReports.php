@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App;
 use App\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -16,6 +17,8 @@ use App\Exceptions\JobException;
 use Carbon\Carbon;
 use App\Models\StandardReport;
 use App\Repositories\StandardApiReportRepo;
+use App\Repositories\EspApiAccountRepo; 
+use App\Models\EspAccount;
 
 class RetrieveDeliverableReports extends Job implements ShouldQueue
 {
@@ -30,6 +33,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     protected $tracking;
     protected $reportService;
     protected $standardReportRepo;
+    protected $espRepo;
     public $defaultQueue;
 
     public $processState;
@@ -62,6 +66,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->defaultQueue = $defaultQueue;
         $this->reportService = APIFactory::createAPIReportService( $this->apiName,$this->espAccountId );
         $this->standardReportRepo = new StandardApiReportRepo(new StandardReport());
+        $this->espRepo = new EspApiAccountRepo( new EspAccount() );
 
         if ( $processState !== null ) {
             $this->processState = $processState;
@@ -162,6 +167,25 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         });
         
         $this->changeJobEntry( JobEntry::SUCCESS );
+    }
+
+    protected function getRerunCampaigns () {
+        $reruns = $this->getReruns();
+
+        $campaigns = $this->reportService->getRerunCampaigns( array_pop( $reruns ) );
+
+        foreach( $campaigns as $current  ) {
+            $this->processState[ 'campaign' ] = $current;
+            $this->processState[ 'espId' ] = $this->espAccountId;
+
+            $this->queueNextJob( $this->defaultQueue );
+        };
+        
+        $this->changeJobEntry( JobEntry::SUCCESS );
+    }
+
+    protected function getReruns () {
+        return config( 'rerundeliverables.' . $this->apiName );
     }
 
     protected function splitTypes () {
