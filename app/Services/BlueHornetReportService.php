@@ -428,10 +428,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         Storage::delete( $processState[ 'filePath' ] );
     }
 
-    public function getRerunCampaigns ( $rerun ) {
-        Log::info( "\n" . str_repeat( '=' , 100 ) . "\n" . json_encode( $rerun ) . "\n" . str_repeat( '=' , 100 ) . "\n" );
-    }
-
     public function getTicketForMessageSubscriberData( $messageId , $recordType )
     {
         $methodData = array(
