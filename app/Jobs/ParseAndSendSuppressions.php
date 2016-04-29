@@ -68,7 +68,7 @@ class ParseAndSendSuppressions extends Job implements ShouldQueue
             $writer = Writer::createFromFileObject(new \SplTempFileObject());
             $writer->insertAll($unsubs->toArray());
             Storage::disk("hornet7")->append("ALL_UNSUB_HARDBOUNCE/{$this->lookBack}_TO_TODAY_ALL_UNSUB.csv", $writer->__toString());
-            exit("Lookback Pull Complete");
+            $this->delete();
         }
 
         $hardbounces = $subscriptionService->getHardBouncesByDateEsp($this->espAccountId, $this->lookBack);
