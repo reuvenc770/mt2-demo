@@ -10,7 +10,7 @@ use App\Http\Requests\AttributionPostRequest;
 
 class AttributionController extends Controller
 {
-    const ATTRIBUTION_BULK_UPLOAD_ENDPOINT ="upload_orange_attribution";
+    const ATTRIBUTION_UPLOAD_ENDPOINT ="attribution_update";
 
     protected $api;
 

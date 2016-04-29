@@ -19,6 +19,5 @@ return[
     'ymlpcampaign.add' => 'Add YMLP Campaign',
     'ymlpcampaign.list' => 'YMLP Campaign Mapping',
     'devtools.jobs' => 'Job Tracker',
-    'tools.bulksuppression' => 'Bulk Suppression' ,
     'client.attribution' => 'Attribution'
 ];
