@@ -44,7 +44,14 @@ class CampaignerApi extends EspBaseAPI
     {
         try{
         $simpleXml = simplexml_load_string($curlObject->__getLastResponse());
-        $header = $simpleXml->children("soap", true)->children('', true)->ResponseHeader;
+            if ( !$simpleXml->asXml() ) {
+                $errors = libxml_get_errors();
+                echo "Errors:" . PHP_EOL;
+                var_dump($errors);
+                throw new \Exception( 'Failed to retrieve SOAP response. tried to check headers' );
+            }
+
+            $header = $simpleXml->children("soap", true)->children('', true)->ResponseHeader;
             return array(
                 "errorFlag" => (string)$header->ErrorFlag,
                 "returnCode"=> (string)$header->ReturnCode,
