@@ -354,7 +354,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         $lastResponse = $manager->__getLastResponse();
         $body = simplexml_load_string($lastResponse);
 
-        if ( !$body->asXml() ) {
+        if ( $body === false ) {
             $errors = libxml_get_errors();
             echo "Errors:" . PHP_EOL;
             var_dump($errors);
