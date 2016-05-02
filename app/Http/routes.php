@@ -408,6 +408,23 @@ Route::group(
             }
         );
 
+
+        /**
+         *  Bulk Suppression API Routes
+         */
+
+        Route::group(
+            ['prefix' => 'bulksuppression'],
+            function() {
+
+                Route::post('/send', [
+                    'as' => 'bulksuppression.update',
+                    'middleware' => 'auth',
+                    'uses' => 'BulkSuppressionController@store'
+                ]);
+            }
+        );
+
         /**
          * API Resources
          */
@@ -499,6 +516,7 @@ Route::group(
                 [ 'only' => [ 'index' ] ]
             );
         } );
+
     }
 );
 
