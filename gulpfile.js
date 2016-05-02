@@ -157,7 +157,10 @@ elixir.extend( 'deployListProfileJs' , function ( mix ) {
 } );
 
 elixir.extend( 'deployBulkSuppressionJs' , function ( mix ) {
-    mix.scripts( [ 'pages/BulkSuppressionController.js' ] , 'public/js/bulksuppression.js' );
+    mix.scripts( [ 
+	'pages/BulkSuppressionController.js',
+	'resources/assets/js/pages/BulkSuppressionApiService.js'	 
+    ] , 'public/js/bulksuppression.js' );
 } );
 
 elixir.extend( 'deployMt2Js' , function ( mix ) {
