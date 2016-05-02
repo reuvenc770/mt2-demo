@@ -65,6 +65,8 @@ class EmailActionsRepo {
           INNER JOIN mt2_reports.action_types types ON ea.action_id = types.id
         WHERE
           ea.id BETWEEN :startPoint AND :endPoint
+          AND
+          types.name <> 'deliverable'
         GROUP BY
           ea.email_id, ea.deploy_id", 
             array(
