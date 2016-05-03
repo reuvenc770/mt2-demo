@@ -8,6 +8,7 @@ use App\Http\Requests;
 use App\Services\MT1ApiService;
 use App\Http\Requests\AttributionPostRequest;
 use App\Services\MT1Services\ClientAttributionService;
+use Laracasts\Flash\Flash;
 
 class AttributionController extends Controller
 {
@@ -55,7 +56,18 @@ class AttributionController extends Controller
      */
     public function store( AttributionPostRequest $request )
     {
-        return response( $this->api->postForm( self::ATTRIBUTION_UPLOAD_ENDPOINT , $request->all()) );
+        $response = [ 'status' => false ];
+
+        $postResponse =  $this->api->postForm( self::ATTRIBUTION_UPLOAD_ENDPOINT , $request->all() );
+
+        $responseArr = json_decode( $postResponse , true );
+
+        if ( array_key_exists( 'status' , $responseArr )  )  {
+            $response[ 'status' ] = true;
+            $this->attributionApi->flushCache();
+        }
+
+        return response()->json( $response );
     }
 
     /**

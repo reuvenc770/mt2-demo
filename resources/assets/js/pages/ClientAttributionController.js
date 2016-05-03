@@ -1,4 +1,4 @@
-mt2App.controller( 'ClientAttributionController' , [ 'ClientApiService' , '$rootScope' , '$log' , function ( ClientApiService , $rootScope , $log ) {
+mt2App.controller( 'ClientAttributionController' , [ 'ClientApiService' , '$rootScope' , '$location' , '$window' , '$log' , function ( ClientApiService , $rootScope , $location , $window , $log ) {
     var self = this;
 
     self.clients = [];
@@ -7,6 +7,8 @@ mt2App.controller( 'ClientAttributionController' , [ 'ClientApiService' , '$root
     self.paginationCount = '10';
     self.currentPage = 1;
     self.currentlyLoading = 0;
+
+    self.redirectUrl = '/client/attribution';
 
     self.loadClients = function () {
         self.currentlyLoading = 1;
@@ -21,36 +23,103 @@ mt2App.controller( 'ClientAttributionController' , [ 'ClientApiService' , '$root
     };
 
     self.loadClientsFailureCallback = function ( response ) {
-        $log.log( response );
+        self.setModalLabel( 'Loading Clients...' );
+        self.setModalBody( 'Failed to load clients. Please try again later.' );
+        self.launchModal();
     };
 
     self.setAttribution = function ( id , level ) {
-        ClientApiService.setAttribution( id , level , self.setAttributionSuccessCallback , self.setAttributionFailureCallback );
+        if ( level == '' || level == null ) {
+            self.setModalLabel( 'Setting Attribution Level...' );
+            self.setModalBody( 'Attribution Level is required.' );
+            self.launchModal();
+
+            return false;
+        } else if ( level == 255 ) {
+            self.setModalLabel( 'Setting Attribution Level...' );
+            self.setModalBody( 'Attribution Level can not be 255. Please choose another level.' );
+            self.launchModal();
+
+            return false;
+        } else if ( !angular.isNumber( level ) ) {
+            self.setModalLabel( 'Setting Attribution Level...' );
+            self.setModalBody( 'Attribution Level can not contain letters. Please choose another level.' );
+            self.launchModal();
+
+            return false;
+        }
+
+        ClientApiService.setAttribution( id , level , self.setAttributionSuccessCallback , self.setAttributionFailureNotify );
     };
 
     self.setAttributionSuccessCallback = function ( response ) {
-        $log.log( response );
+        if ( typeof( response.data.status ) !== 'undefined' && response.data.status === false ) {
+            self.setAttributionFailureNotify();
+        } else if ( typeof( response.data.status ) !== 'undefined' ) {
+            self.setModalLabel( 'Setting Attribution Level' );
+            self.setModalBody( 'Successfully Changed Attribution Level.' );
+            self.launchModal();
+        }
     };
         
-    self.setAttributionFailureCallback = function ( response ) {
-        $log.log( response );
+    self.setAttributionFailureNotify = function () {
+        self.setModalLabel( 'Setting Attribution Level' );
+        self.setModalBody( 'Failed to change Attribution Level.' );
+        self.launchModal();
     };
 
     self.deleteAttribution = function ( id ) {
-        ClientApiService.deleteAttribution( id , self.deleteAttributionSuccessCallback , self.deleteAttributionFailureCallback );
+        ClientApiService.deleteAttribution( id , self.deleteAttributionSuccessCallback , self.deleteAttributionFailureNotify );
     };
 
     self.deleteAttributionSuccessCallback = function ( response ) {
-        $log.log( response );
+        if ( typeof( response.data.status ) !== 'undefined' && response.data.status === false ) {
+            self.deleteAttributionFailureNotify();
+        } else {
+            self.successCallBackRedirect();
+        }
     };
         
-    self.deleteAttributionFailureCallback = function ( response ) {
-        $log.log( response );
+    self.deleteAttributionFailureNotify = function () {
+        self.setModalLabel( 'Removing Attribution Level' );
+        self.setModalBody( 'Failed to delete Attribution Level..' );
+        self.launchModal();
     }
+
+    self.successCallBackRedirect = function () {
+        $location.url( self.redirectUrl );
+        $window.location.href = self.redirectUrl;
+    };
 
     $rootScope.$on( 'updatePage' , function () {
         self.loadClients();
     } );
+
+    /*
+     * Page Modal
+     */
+    self.setModalLabel = function ( labelText ) {
+        var modalLabel = angular.element( document.querySelector( '#pageModalLabel' ) );
+
+        modalLabel.text( labelText );
+    };
+
+    self.setModalBody = function ( bodyText ) {
+        var modalBody = angular.element( document.querySelector( '#pageModalBody' ) );
+
+        modalBody.text( bodyText );
+    }
+
+    self.launchModal = function () {
+        $( '#pageModal' ).modal('show');
+    };
+
+    self.resetModal = function () {
+        self.setModalLabel( '' );
+        self.setModalBody( '' );
+
+        $( '#pageModal' ).modal('hide');
+    };
 } ] );
 
 mt2App.directive( 'clientattributionTable' , function () {

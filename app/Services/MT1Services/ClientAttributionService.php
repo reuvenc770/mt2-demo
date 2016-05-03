@@ -4,6 +4,7 @@ namespace App\Services\MT1Services;
 
 use App\Repositories\MT1Repositories\ClientAttributionRepo;
 use App\Services\ServiceTraits\PaginationCache;
+use Cache;
 use Log;
 
 class ClientAttributionService {
@@ -38,5 +39,9 @@ class ClientAttributionService {
                 return false;
             }
         }
+    }
+
+    public function flushCache () {
+        Cache::tags( $this->getType() )->flush();
     }
 }

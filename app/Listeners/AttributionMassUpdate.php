@@ -14,15 +14,17 @@ class AttributionMassUpdate
     const ATTRIBUTION_UPLOAD_ENDPOINT = "attribution_update";
 
     protected $service;
+    protected $attributionApi;
 
     /**
      * Create the event listener.
      *
      * @return void
      */
-    public function __construct( MT1ApiService $service )
+    public function __construct( MT1ApiService $service , ClientAttributionService $attrService )
     {
         $this->service = $service;
+        $this->attributionApi = $attrService;
     }
 
     /**
@@ -51,5 +53,7 @@ class AttributionMassUpdate
                 );
             }
         }
+
+        $this->attributionApi->flushCache();
     }
 }
