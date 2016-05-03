@@ -62,4 +62,15 @@ class BlueHornetSubscriberService
         }
         return $xmlBody;
     }
+
+    public function mapToSuppressionTable($data, $espAccountId) {
+        $campaignId = isset($entry->message_id) ? $entry->message_id : 0;
+        return [
+            'email_address' => $data->email,
+            'reason' => $data->method_unsubscribed,
+            'date' => $data->date_deleted,
+            'campaign_id' => $campaignId,
+            'esp_account_id' => $espAccountId
+        ];
+    }
 }

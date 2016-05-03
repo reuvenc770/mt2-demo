@@ -41,7 +41,8 @@ class SuppressionService
         }
     }
 
-    public function recordRawUnsub($espId,$email,$campaignId,$reason, $date){
+    public function recordRawUnsub($rawRecord){
+        /*
         $rawRecord = array(
             "esp_account_id" => $espId,
             "email_address"  => $email,
@@ -49,6 +50,7 @@ class SuppressionService
             "date"       => $date,
             "reason"        => $reason //Will be INT once we see whats returned
         );
+        */
         try{
             $this->repo->insertUnsub($rawRecord);
         } catch (\Exception $e) {
