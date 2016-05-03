@@ -62,6 +62,22 @@ class CampaignerApi extends EspBaseAPI
         }
     }
 
+    public function runUnsubReport() {
+        $xmlQuery = $this->buildUnsubSearchQuery();
+        $report = new RunReport($this->api->getAuth(), $xmlQuery);
+        $result = $this->contactManager->RunReport($report)->getRunReportResult();
+
+        if (empty($result)) {
+            echo $this->contactManager->__getLastResponse(). "\n";
+            throw new \Exception("Something went wrong getting Creating Report\n\n");
+        }
+        $data = array(
+            "reportID" => $result->getReportTicketId(),
+            "totalRows" => $result->getRowCount()
+        );
+        return $data;
+    }
+
     public function buildCampaignSearchQuery($campaign)
     {
         return "<contactssearchcriteria>
@@ -82,4 +98,49 @@ class CampaignerApi extends EspBaseAPI
   </group>
 </contactssearchcriteria>";
     }
+
+
+      private function buildUnsubSearchQuery(){
+    return '<contactssearchcriteria>
+<version major="2" minor="0" build="0" revision="0" />
+<accountid>254360</accountid>
+<set>Partial</set>
+<evaluatedefault>True</evaluatedefault>
+<group>
+  <filter>
+     <filtertype>SearchAttributeValue</filtertype>
+     <systemattributeid>11</systemattributeid>
+     <action>
+        <type>DDMMYY</type>
+        <operator>WithinLastNDays</operator>
+        <value>5</value>
+     </action>
+  </filter>
+</group>
+<group>
+  <relation>And</relation>
+  <filter>
+     <filtertype>SearchAttributeValue</filtertype>
+     <systemattributeid>1</systemattributeid>
+     <action>
+        <type>Numeric</type>
+        <operator>EqualTo</operator>
+        <value>1</value>
+     </action>
+  </filter>
+  <filter>
+     <relation>Or</relation>
+     <filtertype>SearchAttributeValue</filtertype>
+     <systemattributeid>1</systemattributeid>
+     <action>
+        <type>Numeric</type>
+        <operator>EqualTo</operator>
+        <value>3</value>
+     </action>
+  </filter>
+</group>
+</contactssearchcriteria>';
+    }
 }
+
+
