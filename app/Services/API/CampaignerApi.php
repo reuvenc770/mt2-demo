@@ -44,7 +44,7 @@ class CampaignerApi extends EspBaseAPI
     {
         try{
         $simpleXml = simplexml_load_string($curlObject->__getLastResponse());
-            if ( !$simpleXml->asXml() ) {
+            if ( $simpleXml === false || !$simpleXml->asXml() ) {
                 $errors = libxml_get_errors();
                 echo "Errors:" . PHP_EOL;
                 var_dump($errors);

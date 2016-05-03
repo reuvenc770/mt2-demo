@@ -56,22 +56,26 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
      */
     public function insertApiRawStats($data)
     {
-        $arrayReportList = array();
-        $espAccountId = $this->api->getEspAccountId();
+        try {
+            $arrayReportList = array();
+            $espAccountId = $this->api->getEspAccountId();
 
-        if (count($data->getCampaign()) > 1) {  //another dumb check
-            foreach ($data->getCampaign() as $report) {
-                $convertedReport = $this->mapToRawReport($report);
+            if (count($data->getCampaign()) > 1) {  //another dumb check
+                foreach ($data->getCampaign() as $report) {
+                    $convertedReport = $this->mapToRawReport($report);
+                    $this->insertStats($espAccountId, $convertedReport);
+                    $arrayReportList[] = $convertedReport;
+                }
+            } else {
+                $convertedReport = $this->mapToRawReport($data->getCampaign());
                 $this->insertStats($espAccountId, $convertedReport);
                 $arrayReportList[] = $convertedReport;
             }
-        } else {
-            $convertedReport = $this->mapToRawReport($data->getCampaign());
-            $this->insertStats($espAccountId, $convertedReport);
-            $arrayReportList[] = $convertedReport;
-        }
 
-        Event::fire(new RawReportDataWasInserted($this, $arrayReportList));
+            Event::fire(new RawReportDataWasInserted($this, $arrayReportList));
+        } catch ( \Exception $e ) {
+            throw new JobException( 'Failed to insert API stats. ' . $e->getMessage , JobException::ERROR , $e );
+        }
     }
 
     /**
@@ -178,19 +182,23 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
      */
     public function retrieveApiStats($date)
     {
-        $dateObject = Carbon::createFromTimestamp(strtotime($date));
-        $endDate = Carbon::now()->endOfDay();
-        $manager = new CampaignManagement();
-        $dateFilter = new DateTimeFilter();
-        $dateFilter->setFromDate($dateObject->startOfDay());
-        $dateFilter->setToDate($endDate);
-        $params = new GetCampaignRunsSummaryReport($this->api->getAuth(), null, false, $dateFilter);
-        $results = $manager->GetCampaignRunsSummaryReport($params);
-        if($this->checkforHeaderFail($manager,"retrieveApiStats"))
-        {
-            return null;
+        try {
+            $dateObject = Carbon::createFromTimestamp(strtotime($date));
+            $endDate = Carbon::now()->endOfDay();
+            $manager = new CampaignManagement();
+            $dateFilter = new DateTimeFilter();
+            $dateFilter->setFromDate($dateObject->startOfDay());
+            $dateFilter->setToDate($endDate);
+            $params = new GetCampaignRunsSummaryReport($this->api->getAuth(), null, false, $dateFilter);
+            $results = $manager->GetCampaignRunsSummaryReport($params);
+            if($this->checkforHeaderFail($manager,"retrieveApiStats"))
+            {
+                return null;
+            }
+            return $results->getGetCampaignRunsSummaryReportResult();
+        } catch ( \Exception $e ) {
+            throw new JobException( 'Failed to retrieve API stats. ' . $e->getMessage , JobException::ERROR , $e );
         }
-        return $results->getGetCampaignRunsSummaryReportResult();
     }
 
 
@@ -354,7 +362,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         $lastResponse = $manager->__getLastResponse();
         $body = simplexml_load_string($lastResponse);
 
-        if ( !$body->asXml() ) {
+        if ( $body === false || !$body->asXml() ) {
             $errors = libxml_get_errors();
             echo "Errors:" . PHP_EOL;
             var_dump($errors);
