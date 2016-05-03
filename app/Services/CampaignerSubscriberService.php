@@ -4,8 +4,6 @@ namespace App\Services;
 
 use App\Services\API\CampaignerApi;
 use Carbon\Carbon;
-use App\Library\Campaigner\ContactManagement;
-use App\Library\Campaigner\RunReport;
 
 class CampaignerSubscriberService {
     protected $api;
@@ -18,58 +16,29 @@ class CampaignerSubscriberService {
     {
         $this->api = $api;
         $this->endDate = Carbon::now()->endOfDay()->toDateString();
-        $this->contactManagement = new ContactManagement();
+        
     }
 
-    public function pullBounceEmailsByLookback($lookback){
-        throw new \Exception("DEAD MANS LAND NOT ENABLED");
-        /**
-        $start = Carbon::now()->startOfDay()->subDay($lookback)->toDateString();
-        $this->request = self::HARDBOUNCE_REQUEST;
-        $this->methodData = ["start_date"=> $start, "end_date" => $this->endDate ];
-        $emails = $this->_handleRequest();
-        print_r($emails);
-         * **/
-
-    }
-    public function pullUnsubsEmailsByLookback($lookback){
-
-
-        $date = Carbon::now()->subDay()->setTimezone('America/New_York');
-        #$fileName = $sites[$siteName]['folder']."Unsubs_" . $date->format('Ydm') . ".csv";
-        ​
+    public function pullUnsubsEmailsByLookback($daysBack) {
         try {
             echo "Pulling unsubs for Campaigner ...";
-            $report = $this->handleRequest();
+            $report = $this->handleRequest($daysBack);
             echo "...Finished\n";
             var_dump($report);
-            return $report;
-
-            // do we really need to download this?
-            /*
-            if (!empty($report)) {
-                echo "Trying to download file for {$siteName}...";
-                $this->api->downloadUnsubReport($fileName, $report);
-                echo "...Finished\n";
-            }
-            */
+            #return $report;
         }
         catch (\Exception $e) {
-            echo $e->getMessage();
+            echo "EXCEPTION CAUGHT: " . $e->getMessage();
         }
-
-        // return SOMETHING here
-        // previous was return $return->item->responseData->manifest->deleted_contact_data;
-
     }
 
-    private function handleRequest(){
-        // this should return xmlbody
+    private function handleRequest($daysBack){
 
         try {
-            $this->api->buildRequest($this->request, $this->methodData);
-            $response = $this->api->sendApiRequest();
-            $xmlBody = simplexml_load_string($response->getBody()->__toString());
+            $ticket = $this->api->startUnsubReport($daysBack);
+            $response = $this->api->downloadUnsubs($ticket);
+            return $this->processXml($response);
+            
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
@@ -78,4 +47,41 @@ class CampaignerSubscriberService {
         }
         return $xmlBody;
     }
+
+    private function processXml($xml) {
+        $xmlBody = simplexml_load_string($xml);
+
+        if (false === $xmlBody || !$xmlBody->asXml()) {
+            echo "Campaigner XML Parsing Errors: " . PHP_EOL;
+            var_dump(libxml_get_errors());
+            throw new \Exception('Campaigner Unsub XML Parsing Errors');
+        }
+        else {
+            $children = $xmlBody->children("http://schemas.xmlsoap.org/soap/envelope/");
+            $response = $children->Body->children();
+            return $response->DownloadReportResponse->DownloadReportResult->ReportResult;
+        }
+    }
+
+    public function mapToSuppressionTable($entry, $espAccountId) {
+        $typeText = $entry->attributes()->Status;
+
+        // datetime set in UTC, going to switch to ET date
+        $datetime = $entry->attributes()['DateCreatedUTC'];
+        
+        $date = new Carbon($datetime, 'UTC');
+        $date->setTimezone('America/New_York');
+        $day = $date->format('Y-m-d');
+        echo $day . PHP_EOL;
+
+        return [
+            'email_address' => (string)$entry->attributes()['Email'],
+            'reason' => $entry->attributes()['BounceCode'],
+            'type_id' =>  $typeId = $typeText === 'unsubscribed' ? 1 : 2,
+            'date' => $day,
+            'campaign_id' => 0, // can't get campaigner's internal id
+            'esp_account_id' => $espAccountId
+        ];
+    }
+
 }

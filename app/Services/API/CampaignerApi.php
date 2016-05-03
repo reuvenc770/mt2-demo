@@ -10,6 +10,9 @@ namespace App\Services\API;
 use App\Facades\EspApiAccount;
 use App\Library\Campaigner\CampaignManagement;
 use App\Library\Campaigner\Authentication;
+use App\Library\Campaigner\RunReport;
+use App\Library\Campaigner\ContactManagement;
+use App\Library\Campaigner\DownloadReport;
 
 class CampaignerApi extends EspBaseAPI
 {
@@ -21,6 +24,7 @@ class CampaignerApi extends EspBaseAPI
         parent::__construct(self::ESP_NAME, $espAccountId);
         $creds = EspApiAccount::grabApiUsernameWithPassword($espAccountId);
         $this->auth =  new Authentication($creds['userName'], $creds['password']);
+        $this->contactManager= new ContactManagement();
     }
 
     /**
@@ -62,20 +66,40 @@ class CampaignerApi extends EspBaseAPI
         }
     }
 
-    public function runUnsubReport() {
-        $xmlQuery = $this->buildUnsubSearchQuery();
-        $report = new RunReport($this->api->getAuth(), $xmlQuery);
-        $result = $this->contactManager->RunReport($report)->getRunReportResult();
+    public function startUnsubReport($daysBack) {
+        $xmlQuery = $this->buildUnsubSearchQuery($daysBack);
+        $report = new RunReport($this->getAuth(), $xmlQuery);
+        $result = $this->contactManager->RunReport($report);
 
-        if (empty($result)) {
-            echo $this->contactManager->__getLastResponse(). "\n";
-            throw new \Exception("Something went wrong getting Creating Report\n\n");
+        if ('SoapFault' === get_class($result)) {
+            throw new \Exception("RunReport has returned a SoapFault.");
         }
-        $data = array(
-            "reportID" => $result->getReportTicketId(),
-            "totalRows" => $result->getRowCount()
-        );
-        return $data;
+        else {
+            $reportResult = $result->getRunReportResult();
+
+            if (empty($reportResult)) {
+                echo $this->contactManager->__getLastResponse(). "\n";
+                throw new \Exception("RunReport returned an empty result" . PHP_EOL . PHP_EOL);
+            }
+            $data = array(
+                "ticketId" => $reportResult->getReportTicketId(),
+                "totalRows" => $reportResult->getRowCount()
+            );
+            return $data;
+        }
+    }
+
+    public function downloadUnsubs($ticket) {
+        $ticketId = $ticket['ticketId'];
+        $count = $ticket['totalRows'];
+
+        $downloadReport = new DownloadReport($this->auth, $ticketId, 0, $count, "rpt_Contact_Details");
+        $this->contactManager->DownloadReport($downloadReport);
+
+        $rawXML = $this->contactManager->__getLastResponse();
+
+        return $rawXML;
+
     }
 
     public function buildCampaignSearchQuery($campaign)
@@ -100,9 +124,9 @@ class CampaignerApi extends EspBaseAPI
     }
 
 
-      private function buildUnsubSearchQuery(){
-    return '<contactssearchcriteria>
-<version major="2" minor="0" build="0" revision="0" />
+      private function buildUnsubSearchQuery($daysBack) {
+    return "<contactssearchcriteria>
+<version major=\"2\" minor=\"0\" build=\"0\" revision=\"0\" />
 <accountid>254360</accountid>
 <set>Partial</set>
 <evaluatedefault>True</evaluatedefault>
@@ -113,7 +137,7 @@ class CampaignerApi extends EspBaseAPI
      <action>
         <type>DDMMYY</type>
         <operator>WithinLastNDays</operator>
-        <value>5</value>
+        <value>$daysBack</value>
      </action>
   </filter>
 </group>
@@ -139,7 +163,7 @@ class CampaignerApi extends EspBaseAPI
      </action>
   </filter>
 </group>
-</contactssearchcriteria>';
+</contactssearchcriteria>";
     }
 }
 

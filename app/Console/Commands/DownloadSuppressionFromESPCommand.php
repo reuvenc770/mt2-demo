@@ -47,12 +47,17 @@ class DownloadSuppressionFromESPCommand extends Command
         $espName = $this->argument('espName');
 
         $espAccounts = $this->espRepo->getAccountsByESPName($espName);
-
+        // running for just one account
+        /*
         foreach ($espAccounts as $account){
             $espLogLine = "{$account->name}::{$account->account_name}";
             $this->info($espLogLine);
             $job = (new DownloadSuppressionFromESP($account->name, $account->id, $this->lookBack, str_random(16)))->onQueue($queue);
             $this->dispatch($job);
         }
+        */
+        echo "Running campaigner suppression" . PHP_EOL;
+        $job = (new DownloadSuppressionFromESP('Campaigner', 12, $this->lookBack, str_random(16)))->onQueue($queue);
+        $this->dispatch($job);
     }
 }
