@@ -21,6 +21,7 @@ use App\Services\EmailRecordService;
 use Carbon\Carbon;
 use Storage;
 use App\Exceptions\JobException;
+use App\Models\GhostAction;
 
 use Log;
 use SimpleXML;
@@ -299,6 +300,20 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             if ( $isSent && !$isBounce ) {
                 $time = $processState['ticket']['deliveryTime'] === '0000-00-00 00:00:00' ? null : $processState['ticket']['deliveryTime'];
 
+                if (
+                    !is_numeric( $processState[ 'campaign' ]->esp_internal_id )
+                    || is_null( $processState[ 'campaign' ]->esp_internal_id )
+                    || $processState[ 'campaign' ]->esp_internal_id == 0
+                ) {
+                    $ghost = new GhostAction();
+                    $ghost->email_address = $email;
+                    $ghost->esp_account_id = $processState[ 'ticket' ][ 'espId' ];
+                    $ghost->deploy_id = $processState[ 'ticket' ][ 'deployId' ];
+                    $ghost->action_type = self::RECORD_TYPE_DELIVERABLE;
+                    $ghost->datetime = $time;
+                    $ghost->save();
+                }
+
                 $this->emailRecord->queueDeliverable(
                     self::RECORD_TYPE_DELIVERABLE ,
                     $email , 
@@ -330,6 +345,20 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                 }
             }
 
+            if (
+                !is_numeric( $processState[ 'campaign' ]->esp_internal_id )
+                || is_null( $processState[ 'campaign' ]->esp_internal_id )
+                || $processState[ 'campaign' ]->esp_internal_id == 0
+            ) {
+                $ghost = new GhostAction();
+                $ghost->email_address = $email;
+                $ghost->esp_account_id = $processState[ 'ticket' ][ 'espId' ];
+                $ghost->deploy_id = $processState[ 'ticket' ][ 'deployId' ];
+                $ghost->action_type = 'bounce';
+                $ghost->datetime = $date;
+                $ghost->save();
+            }
+
             Suppression::recordRawHardBounce(
                 $processState[ 'ticket' ][ 'espId' ] ,
                 $email , 
@@ -351,6 +380,20 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
             foreach ( $contents as $date ) {
                 if ( trim( $date->nodeValue ) !== '' ) {
+                    if (
+                        !is_numeric( $processState[ 'campaign' ]->esp_internal_id )
+                        || is_null( $processState[ 'campaign' ]->esp_internal_id )
+                        || $processState[ 'campaign' ]->esp_internal_id == 0
+                    ) {
+                        $ghost = new GhostAction();
+                        $ghost->email_address = $email;
+                        $ghost->esp_account_id = $processState[ 'ticket' ][ 'espId' ];
+                        $ghost->deploy_id = $processState[ 'ticket' ][ 'deployId' ];
+                        $ghost->action_type = self::RECORD_TYPE_OPENER;
+                        $ghost->datetime = $date->nodeValue;
+                        $ghost->save();
+                    }
+
                     $this->emailRecord->queueDeliverable(
                         self::RECORD_TYPE_OPENER ,
                         $email ,
@@ -373,6 +416,20 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
             foreach ( $contents as $detail ) {
                 if ( $detail->nodeName == 'date' ) {
+                    if (
+                        !is_numeric( $processState[ 'campaign' ]->esp_internal_id )
+                        || is_null( $processState[ 'campaign' ]->esp_internal_id )
+                        || $processState[ 'campaign' ]->esp_internal_id == 0
+                    ) {
+                        $ghost = new GhostAction();
+                        $ghost->email_address = $email;
+                        $ghost->esp_account_id = $processState[ 'ticket' ][ 'espId' ];
+                        $ghost->deploy_id = $processState[ 'ticket' ][ 'deployId' ];
+                        $ghost->action_type = self::RECORD_TYPE_CLICKER;
+                        $ghost->datetime = $detail->nodeValue;
+                        $ghost->save();
+                    }
+
                     $this->emailRecord->queueDeliverable(
                         self::RECORD_TYPE_CLICKER ,
                         $email , 
@@ -394,6 +451,20 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             $email = $this->findEmail( $current );
 
             if ( is_null( $email ) ) { continue; }
+
+            if (
+                !is_numeric( $processState[ 'campaign' ]->esp_internal_id )
+                || is_null( $processState[ 'campaign' ]->esp_internal_id )
+                || $processState[ 'campaign' ]->esp_internal_id == 0
+            ) {
+                $ghost = new GhostAction();
+                $ghost->email_address = $email;
+                $ghost->esp_account_id = $processState[ 'ticket' ][ 'espId' ];
+                $ghost->deploy_id = $processState[ 'ticket' ][ 'deployId' ];
+                $ghost->action_type = self::RECORD_TYPE_UNSUBSCRIBE;
+                $ghost->datetime = $optoutDate;
+                $ghost->save();
+            }
 
             $this->emailRecord->queueDeliverable(
                 self::RECORD_TYPE_UNSUBSCRIBE ,
