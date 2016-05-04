@@ -185,15 +185,23 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
             throw new JobException( "Failed to Retrieve Email Record Stats. " . $e->getMessage() , JobException::ERROR , $e );
         }
 
-        foreach ( $records as $record ) {
-            $this->emailRecord->recordDeliverable(
-                $recordType , 
-                $record->Email ,
-                $processState[ "espId" ] ,
-                $processState[ "campaign" ]->external_deploy_id ,
-                $processState[ "campaign" ]->esp_internal_id ,
-                $record->TimeStamp
-            ); 
+        try {
+            foreach ( $records as $record ) {
+                $this->emailRecord->queueDeliverable(
+                    $recordType , 
+                    $record->Email ,
+                    $processState[ "espId" ] ,
+                    $processState[ "campaign" ]->external_deploy_id ,
+                    $processState[ "campaign" ]->esp_internal_id ,
+                    $record->TimeStamp
+                ); 
+            }
+
+            $this->emailRecord->massRecordDeliverables();
+        }
+        catch (\Exception $e) {
+            $jobException = new JobException( 'Failed to insert publicators deliverables.  ' . $e->getMessage() , JobException::WARNING , $e );
+            throw $jobException;
         }
     }
 
