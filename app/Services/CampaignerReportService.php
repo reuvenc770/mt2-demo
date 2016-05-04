@@ -265,55 +265,66 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
 
     public function saveRecords ( &$processState, $map ) {
         // $map unneeded
-        $skipDelivered = false;
-
-        if ( $this->emailRecord->checkForDeliverables( $processState[ 'ticket' ][ 'espId' ] , $processState[ 'ticket' ][ 'espInternalId' ] ) ) {
-            $skipDelivered = true;
-        }
 
         try {
-            $recordData = $this->getCampaignReport(
-                $processState[ 'ticket' ][ 'ticketName' ] ,
-                $processState[ 'ticket' ][ 'rowCount' ]
-            );
-        } catch ( \Exception $e ) {
-            $jobException = new JobException( 'Campaigner API crapping out. ' . $e->getMessage() , JobException::NOTICE );
-            $jobException->setDelay( 180 );
-            throw $jobException;
-        }
+            $skipDelivered = false;
 
-        if ( is_null( $recordData ) ) {
-            $jobException = new JobException( 'Report Not Ready' , JobException::NOTICE );
-            $jobException->setDelay( 180 );
-            throw $jobException;
-        }
-
-        foreach ( $recordData as $key => $record ) {
-            if ( $record[ 'action' ] === 'Delivered' && $skipDelivered ) { continue; }
-
-            if ( $record[ 'action' ] === 'Open' ) {
-                $actionType = self::RECORD_TYPE_OPENER;
-            } elseif ( $record[ 'action' ] === 'Click' ) {
-                $actionType = self::RECORD_TYPE_CLICKER;
-            } elseif ( $record[ 'action' ] === 'Unsubscribe' ) {
-                $actionType = self::RECORD_TYPE_UNSUBSCRIBE;
-            } elseif ( $record[ 'action' ] === 'SpamComplaint' ) {
-                $actionType = self::RECORD_TYPE_COMPLAINT;
-            } elseif ( $record[ 'action' ] === 'Delivered' ) {
-                $actionType = self::RECORD_TYPE_DELIVERABLE;
+            if ( $this->emailRecord->checkForDeliverables( $processState[ 'ticket' ][ 'espId' ] , $processState[ 'ticket' ][ 'espInternalId' ] ) ) {
+                $skipDelivered = true;
             }
 
-            if (isset($actionType)) {
-                $this->emailRecord->recordDeliverable(
-                    $actionType ,
-                    $record[ 'email' ] ,
-                    $processState[ 'ticket' ][ 'espId' ] ,
-                    $processState['ticket']['deployId'],
-                    $processState[ 'ticket' ][ 'espInternalId' ] ,
-                    $record[ 'actionDate' ]
+            try {
+                $recordData = $this->getCampaignReport(
+                    $processState[ 'ticket' ][ 'ticketName' ] ,
+                    $processState[ 'ticket' ][ 'rowCount' ]
                 );
+            } catch ( \Exception $e ) {
+                $jobException = new JobException( 'Campaigner API crapping out. ' . $e->getMessage() , JobException::NOTICE );
+                $jobException->setDelay( 180 );
+                throw $jobException;
             }
 
+            if ( is_null( $recordData ) ) {
+                $jobException = new JobException( 'Report Not Ready' , JobException::NOTICE );
+                $jobException->setDelay( 180 );
+                throw $jobException;
+            }
+
+            foreach ( $recordData as $key => $record ) {
+                if ( $record[ 'action' ] === 'Delivered' && $skipDelivered ) { continue; }
+
+                if ( $record[ 'action' ] === 'Open' ) {
+                    $actionType = self::RECORD_TYPE_OPENER;
+                } elseif ( $record[ 'action' ] === 'Click' ) {
+                    $actionType = self::RECORD_TYPE_CLICKER;
+                } elseif ( $record[ 'action' ] === 'Unsubscribe' ) {
+                    $actionType = self::RECORD_TYPE_UNSUBSCRIBE;
+                } elseif ( $record[ 'action' ] === 'SpamComplaint' ) {
+                    $actionType = self::RECORD_TYPE_COMPLAINT;
+                } elseif ( $record[ 'action' ] === 'Delivered' ) {
+                    $actionType = self::RECORD_TYPE_DELIVERABLE;
+                }
+
+                if (isset($actionType)) {
+                    
+                    $this->emailRecord->queueDeliverable(
+                        $actionType ,
+                        $record[ 'email' ] ,
+                        $processState[ 'ticket' ][ 'espId' ] ,
+                        $processState['ticket']['deployId'],
+                        $processState[ 'ticket' ][ 'espInternalId' ] ,
+                        $record[ 'actionDate' ]
+                    );
+
+                }
+
+            }
+
+            $this->emailRecord->massRecordDeliverables();
+        }
+        catch (\Exception $e) {
+            $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() , JobException::WARNING , $e );
+            throw $jobException;
         }
     }
 

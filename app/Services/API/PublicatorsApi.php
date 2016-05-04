@@ -229,7 +229,7 @@ class PublicatorsApi extends EspBaseAPI {
                 "body" => json_encode( [
                     "Auth" => [ "Token" => $this->token ] ,
                     "FromSentDate" => Carbon::parse( $this->date )->startOfDay()->format( self::DATE_FORMAT ) ,
-                    "ToSentDate" => Carbon::parse( $this->date )->endOfDay()->format( self::DATE_FORMAT )
+                    "ToSentDate" => Carbon::now()->endOfDay()->format( self::DATE_FORMAT )
                 ] )
             ];
         } else {
