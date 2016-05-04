@@ -304,14 +304,21 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             }
 
             if (isset($actionType)) {
-                $this->emailRecord->recordDeliverable(
-                    $actionType ,
-                    $record[ 'email' ] ,
-                    $processState[ 'ticket' ][ 'espId' ] ,
-                    $processState['ticket']['deployId'],
-                    $processState[ 'ticket' ][ 'espInternalId' ] ,
-                    $record[ 'actionDate' ]
-                );
+                try {
+                    $this->emailRecord->recordDeliverable(
+                        $actionType ,
+                        $record[ 'email' ] ,
+                        $processState[ 'ticket' ][ 'espId' ] ,
+                        $processState['ticket']['deployId'],
+                        $processState[ 'ticket' ][ 'espInternalId' ] ,
+                        $record[ 'actionDate' ]
+                    );
+                }
+                catch (\Exception $e) {
+                    $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() , JobException::WARNING , $e );
+                    $jobException->setDelay( 60 );
+                    throw $jobException;
+                }
             }
 
         }
