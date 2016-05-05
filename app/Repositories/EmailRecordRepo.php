@@ -31,8 +31,12 @@ class EmailRecordRepo {
     public function massRecordDelierables ( $records = [] ) {
         $validRecords = [];
         $invalidRecords = [];
+        
+        echo "RUNNING MASS RECORD DELIVERABLES" . PHP_EOL . PHP_EOL;
 
         foreach ( $records as $currentIndex => $currentRecord ) {
+        
+            echo "email address: {$currentRecord[ 'email' ]}: ";
             $this->setLocalData( [
                 'emailAddress' => $currentRecord[ 'email' ] ,
                 'recordType' => $currentRecord[ 'recordType' ] ,
@@ -45,6 +49,7 @@ class EmailRecordRepo {
             $this->errorReason = '';
 
             if ( $this->isValidRecord( false ) ) {
+                echo "Is a valid record." . PHP_EOL . PHP_EOL;
                 $validRecord = "( "
                     . join( " , " , [
                         $this->getEmailId() , 
@@ -61,6 +66,7 @@ class EmailRecordRepo {
 
                 $validRecords []= $validRecord;
             } else {
+                echo "Is not a valid record." . PHP_EOL . PHP_EOL;
                 $invalidRecord = "( " 
                     .join( " , " , [
                         "'" . $currentRecord[ 'email' ] . "'" ,
@@ -84,6 +90,7 @@ class EmailRecordRepo {
             $chunkedRecords = array_chunk( $validRecords , 10000 );
 
             foreach ( $chunkedRecords as $chunkIndex => $chunk ) {
+                var_dump($chunk);
                 DB::connection( 'reporting_data' )->statement("
                     INSERT INTO email_actions
                         ( email_id , client_id , esp_account_id , deploy_id, 
@@ -109,6 +116,7 @@ class EmailRecordRepo {
             $chunkedRecords = array_chunk( $invalidRecords , 10000 );
 
             foreach ( $chunkedRecords as $chunkIndex => $chunk ) {
+                var_dump($chunk);
                 DB::statement( "
                     INSERT INTO     
                         orphan_emails ( email_address , esp_account_id , 
