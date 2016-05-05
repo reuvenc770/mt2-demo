@@ -7,13 +7,10 @@
 namespace App\Services;
 use App\Repositories\ReportRepo;
 use App\Services\API\MaroApi;
-use App\Services\AbstractReportService;
-use League\Flysystem\Exception;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use App\Services\Interfaces\IDataService;
-use App\Services\EmailRecordService;
-use Log;
+use App\Facades\Suppression;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Exceptions\JobException;
 
@@ -25,7 +22,7 @@ class MaroReportService extends AbstractReportService implements IDataService
 {
     use InteractsWithQueue;
 
-    protected $actions = ['opens', 'clicks', 'bounces', 'complaints', 'unsubscribes'];
+    protected $actions = ['opens' , 'clicks', 'complaints', 'unsubscribes', 'bounces' ];
     public $pageType = 'opens';
     public $pageNumber = 1;
     public $currentPageData = array();
@@ -81,7 +78,7 @@ class MaroReportService extends AbstractReportService implements IDataService
     }
 
     public function splitTypes () {
-        return [ 'opens' , 'clicks', 'unsubscribes', 'complaints'];
+        return [ 'opens' , 'clicks', 'complaints', 'unsubscribes', 'bounces' ];
     }
 
     public function savePage ( &$processState, $map ) {
@@ -131,20 +128,26 @@ class MaroReportService extends AbstractReportService implements IDataService
 
             case 'unsubscribes' :
                 foreach ( $processState[ 'currentPageData' ] as $key => $unsub ) {
-                    if (isset($map[ $unsub['campaign_id'] ])) {
-                        $this->emailRecord->recordDeliverable(
-                            self::RECORD_TYPE_UNSUBSCRIBE ,
-                            $unsub[ 'contact' ][ 'email' ] ,
+                        Suppression::recordRawUnsub(
                             $this->api->getId() ,
-                            $map[ $unsub['campaign_id'] ],
-                            $unsub[ 'campaign_id' ] ,
-                            $unsub[ 'recorded_on' ]
+                            $unsub[ 'contact' ][ 'email' ] ,
+                            $unsub['campaign_id'] ,
+                            "" ,
+                            $unsub['recorded_on']
                         );
-                        $totalCorrect++;
-                    }
-                    else {
-                        $totalIncorrect++;
-                    }
+                }
+                break;
+
+            case 'bounces' :
+                foreach ( $processState[ 'currentPageData' ] as $key => $bounce ) {
+                        Suppression::recordRawHardBounce(
+                            $this->api->getId() ,
+                            $bounce[ 'contact' ][ 'email' ] ,
+                            $bounce['campaign_id'] ,
+                            $bounce['diagnostic'] ,
+                            $bounce['recorded_on']
+                        );
+
                 }
                 break;
 
@@ -226,7 +229,7 @@ class MaroReportService extends AbstractReportService implements IDataService
     }
 
     public function setPageType ( $pageType ) {
-        if ( in_array( $pageType , [ 'opens' , 'clicks', 'complaints', 'unsubscribes' ] ) ) {
+        if ( in_array( $pageType , [ 'opens' , 'clicks', 'complaints', 'unsubscribes', 'bounces' ] ) ) {
             $this->pageType = $pageType;
         }
     }
