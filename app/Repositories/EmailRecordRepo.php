@@ -8,6 +8,7 @@ use App\Models\ActionType;
 use App\Models\EmailClientInstance;
 use App\Models\OrphanEmail;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 
@@ -247,26 +248,16 @@ class EmailRecordRepo {
     }
 
 
-    public function checkForDeliverables($espId,$espInternalId){
+    public function checkTwoDays($espId,$espInternalId){
         $delivevered = false;
-        $actionCount = DB::connection( 'reporting_data' )->table('email_actions')
+        $date = Carbon::now()->subDay(2)->startOfDay()->toDateTimeString();
+        $actionCount = DB::connection( 'reporting_data' )->table('standard_reports')
             ->where('esp_account_id', $espId)
             ->where('esp_internal_id',$espInternalId)
-            ->where('action_id',4)->count();
-        if ($actionCount >= 1) {
+            ->where('datetime','>=', $date)->count();
+        if ($actionCount == 1) {
             $delivevered = true;
         }
-        //2nd chance
-        if (!$delivevered){
-            $orphanCount = DB::table('orphan_emails')
-                ->where('esp_account_id', $espId)
-                ->where('esp_internal_id',$espInternalId)
-                ->where('action_id',4)->count();
-            if($orphanCount >= 1){
-                $delivevered = true;
-            }
-        }
-
         return $delivevered;
     }
 }
