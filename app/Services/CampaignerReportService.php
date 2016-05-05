@@ -267,10 +267,10 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         // $map unneeded
 
         try {
-            $skipDelivered = false;
+            $skipDelivered = true;
 
-            if ( $this->emailRecord->checkForDeliverables( $processState[ 'ticket' ][ 'espId' ] , $processState[ 'ticket' ][ 'espInternalId' ] ) ) {
-                $skipDelivered = true;
+            if ($this->emailRecord->checkTwoDays( $processState[ 'ticket' ][ 'espId' ] , $processState[ 'ticket' ][ 'espInternalId' ] ) ) {
+                $skipDelivered = false;
             }
 
             try {
