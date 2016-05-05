@@ -157,6 +157,12 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
                 return true;
             }
 
+            if ( $processState[ "recordType" ] == "unsub" ) {
+                $this->processUnsubs( $processState );
+
+                return true;
+            }
+
             $records = [];
             $recordType = "";
 
@@ -176,10 +182,6 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
                     $recordType = self::RECORD_TYPE_CLICKER;
                 break;
 
-                case "unsub" :
-                    $records = $this->api->getRecordStats( PublicatorsApi::TYPE_UNSUBSCRIBED_STATS , $processState[ "campaign" ]->esp_internal_id );
-                    $recordType = self::RECORD_TYPE_UNSUBSCRIBE;
-                break;
             }
         } catch ( \Exception $e ) {
             throw new JobException( "Failed to Retrieve Email Record Stats. " . $e->getMessage() , JobException::ERROR , $e );
@@ -187,6 +189,8 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
 
         try {
             foreach ( $records as $record ) {
+
+
                 $this->emailRecord->queueDeliverable(
                     $recordType , 
                     $record->Email ,
@@ -220,10 +224,24 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
     }
 
     protected function processBounces ( $processState ) {
-        $records = $this->api->getRecordStats( PublicatorsApi::TYPE_OPENS_STATS , $processState[ "campaign" ]->esp_internal_id );
+        $records = $this->api->getRecordStats( PublicatorsApi::API_BOUNCES_STATS , $processState[ "campaign" ]->esp_internal_id );
 
         foreach ( $records as $record ) {
             Suppression::recordRawHardBounce(
+                $processState[ "espId" ] ,
+                $record->Email ,
+                $processState[ "campaign" ]->esp_internal_id ,
+                '' ,
+                $record->TimeStamp
+            );
+        }
+    }
+
+    protected function processUnsubs ( $processState ) {
+        $records = $this->api->getRecordStats( PublicatorsApi::API_UNSUBSCRIBED_STATS , $processState[ "campaign" ]->esp_internal_id );
+
+        foreach ( $records as $record ) {
+            Suppression::recordRawUnsub(
                 $processState[ "espId" ] ,
                 $record->Email ,
                 $processState[ "campaign" ]->esp_internal_id ,
