@@ -77,6 +77,8 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
     self.selectedIsps = [];
     self.currentSelectedIsp = '';
     self.ispChipList = [];
+    self.availableWidgetTitle = "Available ISPs";
+    self.chosenWidgetTitle = "Chosen ISPs";
 
     /**
      * Targeting Chip Containers
@@ -481,113 +483,6 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
     self.viewAdd = function () {
         $location.url( self.createUrl );
         $window.location.href = self.createUrl;
-    };
-
-    self.selectAllAvailableIsps = function ( ispList ) {
-        angular.forEach( ispList , function ( isp , key ) {
-            isp.selected = true;
-        } );
-    };
-
-    self.clearAllAvailableIsps = function ( ispList ) {
-        angular.forEach( ispList , function ( isp , key ) {
-            isp.selected = false;
-        } );
-    };
-
-    self.ispMultiSelect = function ( isp , ispIndex , ispList , $event ) {
-        var selectionDetails = self.getIspSelectCount( ispList );
-
-        if ( $event.shiftKey && selectionDetails.count ===  1 ) {
-            var firstIsp = selectionDetails.firstChecked;
-            var lastIsp = isp;
-            var currentIsp = null;
-            var increasing = selectionDetails.ispIndex < ispIndex;
-            var boundFound = false;
-            var selectingEnabled = false;
-
-            for (
-                var currentIndex = ( increasing ? 0 : ispList.length ) ;       
-                increasing ? currentIndex < ispList.length : currentIndex >= 0 ;
-                increasing ? currentIndex++ : currentIndex--
-            ) {
-                currentIsp = ispList[ currentIndex ];
-                boundFound = ( currentIsp === firstIsp || currentIsp === lastIsp );
-                
-                if ( boundFound && selectingEnabled === false ) {
-                    selectingEnabled = true;
-                    continue;
-                }
-
-                if ( boundFound ) { break; }
-
-                if ( selectingEnabled ) { currentIsp.selected = true; }
-            }
-        }
-
-        return true;
-    };
-
-    self.getIspSelectCount = function ( ispList ) {
-        var count = 0;
-        var firstChecked = null;
-        var firstCheckedIndex = null;
-
-        angular.forEach( ispList , function( isp , ispIndex ) {
-            if ( isp.selected ) {
-                count++;
-
-                if ( firstChecked === null ) {
-                    firstChecked = isp;
-                    firstCheckedIndex = ispIndex;
-                }
-            }
-        } );
-
-        return { "count" : count , "firstChecked" : firstChecked , "firstCheckedIndex" : firstCheckedIndex };
-    };
-
-    self.addSelectedIsps = function () {
-        angular.forEach( self.ispList , function ( isp , ispIndex ) {
-            if ( isp.selected === true ) {
-                isp.selected = false;
-                isp.chosen = true;
-
-                self.addSingleIsp( isp );
-            }
-        } );
-    };
-
-    self.addSingleIsp = function ( isp ) {
-        isp.selected = false;
-        isp.chosen = true;
-
-        self.selectedIsps.push( {
-            "id" : isp.id ,
-            "name" : isp.name ,
-            "selected" : false ,
-            "original" : isp
-        } );
-    };
-
-    self.removeAllSelectedChosenIsps = function () {
-        var ispsToDelete = [];
-
-        angular.forEach( self.selectedIsps , function ( isp , ispIndex ) {
-            if ( isp.selected === true ) {
-                ispsToDelete.push( isp );
-            }
-        } );
-
-        angular.forEach( ispsToDelete , function ( isp , ispIndex ) {
-            self.removeSingleChosenIsp( isp );
-        } );
-    };
-
-    self.removeSingleChosenIsp = function ( isp ) {
-        isp.original.chosen = false;
-
-        self.selectedIsps.splice( self.selectedIsps.indexOf( isp ) , 1 );
     };
 
     self.calculateListProfile = function () {

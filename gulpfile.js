@@ -63,6 +63,7 @@ elixir.extend( 'deployBaseAngular' , function ( mix ) {
         'mt2app/PaginationControlDirective.js' ,
         'mt2app/PaginationButtonDirective.js' ,
         'mt2app/PaginationCountDirective.js',
+        'mt2app/MembershipWidgetDirective.js' ,
         'mt2app/CompileHtml.js'
     ] , 'public/js/angular_base.js' );
 } );
