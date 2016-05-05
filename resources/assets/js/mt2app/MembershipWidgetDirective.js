@@ -18,7 +18,7 @@ mt2App.directive( 'membershipWidget' , [ "$log" , function ( $log ) {
             };
 
             self.recordMultiSelect = function ( record , recordIndex , records , $event ) {
-                var selectionDetails = self.getRecordSelectCount( records );
+                var selectionDetails = self.getRecordSelectionDetails( records );
 
                 if ( $event.shiftKey && selectionDetails.count ===  1 ) {
                     var firstRecord = selectionDetails.firstChecked;
@@ -50,7 +50,7 @@ mt2App.directive( 'membershipWidget' , [ "$log" , function ( $log ) {
                 return true;
             };
 
-            self.getRecordSelectCount = function ( records ) {
+            self.getRecordSelectionDetails = function ( records ) {
                 var count = 0;
                 var firstChecked = null;
                 var firstCheckedIndex = null;
