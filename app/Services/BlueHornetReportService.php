@@ -373,6 +373,9 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
             foreach ( $contents as $detail ) {
                 if ( $detail->nodeName == 'date' ) {
+                
+                    echo "passing in CLICK $email at {$detail->nodeValue} for deploy {$processState[ 'ticket' ][ 'deployId' ]}" . PHP_EOL;
+                    
                     $this->emailRecord->queueDeliverable(
                         self::RECORD_TYPE_CLICKER ,
                         $email , 
