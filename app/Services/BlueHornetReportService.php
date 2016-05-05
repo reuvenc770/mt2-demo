@@ -40,6 +40,9 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
      * @param ReportRepo $reportRepo
      * @param $accountNumber
      */
+
+    const DELIVERABLE_LOOKBACK = 2;
+
     public function __construct(ReportRepo $reportRepo, BlueHornetApi $api , EmailRecordService $emailRecord )
     {
         parent::__construct($reportRepo, $api , $emailRecord );
@@ -194,8 +197,8 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
     }
 
     public function getTypeList ( &$processState ) {
-        $typeList = [ 'open' , 'click' , 'optout' , 'bounce' ];
-        if(!$this->emailRecord->checkForDeliverables($processState[ 'espAccountId' ],$processState[ 'campaign' ]->esp_internal_id)){
+        $typeList = [ 'open' , 'click' , 'optout' , 'bounce'];
+        if(!$this->emailRecord->checkTwoDays($processState[ 'espAccountId' ],$processState[ 'campaign' ]->esp_internal_id)){
             $typeList[] = "deliverable";
         }
         return $typeList;
@@ -430,10 +433,16 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
     public function getTicketForMessageSubscriberData( $messageId , $recordType )
     {
+        $startDate = Carbon::today()->subDay(self::DELIVERABLE_LOOKBACK)->toDateTimeString();
+        $endDate = Carbon::today()->toDateTimeString();
+
         $methodData = array(
             "mess_id" => $messageId ,
-            "action_type" => $recordType 
+            "action_type" => $recordType,
+            "start_date" => $startDate,
+            "end_date" => $endDate
         );
+
         try {
             $this->api->buildRequest("statistics.getMessageSubscriberData", $methodData);
             $response = $this->api->sendApiRequest();

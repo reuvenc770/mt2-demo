@@ -47,7 +47,8 @@ return [
             ] , 
             "delivered" => [
                 'getCampaigns' ,
-                'saveRecords'
+                #'saveRecords'
+                'savePaginatedRecords'
             ]
         ]
     ] ,

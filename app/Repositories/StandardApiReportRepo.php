@@ -21,7 +21,7 @@ class StandardApiReportRepo {
     public function getCampaigns($espAccountId, $date) {
         return $this->report
             ->select('external_deploy_id', 'campaign_name', 'esp_account_id', 'esp_internal_id', 'datetime')
-            ->where( 'updated_at' , ">=" , $date )
+            ->where( 'created_at' , ">=" , $date )
             ->where( 'esp_account_id' , $espAccountId )
             ->get();
     }
@@ -31,7 +31,7 @@ class StandardApiReportRepo {
         // According to Danny, residuals after a month don't matter
         $result = $this->report
             ->select('esp_internal_id', 'external_deploy_id')
-            ->where( 'updated_at' , ">=" , DB::raw('CURDATE() - INTERVAL 31 DAY') )
+            ->where( 'created_at' , ">=" , DB::raw('CURDATE() - INTERVAL 31 DAY') )
             ->where( 'esp_account_id' , $espAccountId )
             ->get();
 

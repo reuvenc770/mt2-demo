@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Repositories\EmailRecordRepo;
 use Log;
+use Carbon\Carbon;
+use DB;
 
 class EmailRecordService {
     protected $repo;
@@ -48,13 +50,22 @@ class EmailRecordService {
 
     public function massRecordDeliverables () {
         try {
-            $this->repo->massRecordDelierables($this->records);
+            $this->repo->massRecordDeliverables($this->records);
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
     }
 
-    public function checkForDeliverables($espId, $campaignId){
-        return $this->repo->checkForDeliverables($espId, $campaignId);
+    public function checkTwoDays($espId,$espInternalId){
+        $delivevered = false;
+        $date = Carbon::today()->subDay(2)->toDateTimeString();
+        $actionCount = DB::connection( 'reporting_data' )->table('standard_reports')
+            ->where('esp_account_id', $espId)
+            ->where('esp_internal_id',$espInternalId)
+            ->where('datetime','>=', $date)->count();
+        if ($actionCount == 1) {
+            $delivevered = true;
+        }
+        return $delivevered;
     }
 }

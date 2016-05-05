@@ -27,11 +27,13 @@ class EmailRecordRepo {
         $this->email = $email;
     }
 
-    public function massRecordDelierables ( $records = [] ) {
+    public function massRecordDeliverables ( $records = [] ) {
         $validRecords = [];
         $invalidRecords = [];
 
         foreach ( $records as $currentIndex => $currentRecord ) {
+
+            echo "email address: {$currentRecord[ 'email' ]}: ";
             $this->setLocalData( [
                 'emailAddress' => $currentRecord[ 'email' ] ,
                 'recordType' => $currentRecord[ 'recordType' ] ,
