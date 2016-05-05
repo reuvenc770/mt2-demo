@@ -250,7 +250,7 @@ class EmailRecordRepo {
 
     public function checkTwoDays($espId,$espInternalId){
         $delivevered = false;
-        $date = Carbon::now()->subDay(2)->startOfDay()->toDateTimeString();
+        $date = Carbon::today()->subDay(2)->toDateTimeString();
         $actionCount = DB::connection( 'reporting_data' )->table('standard_reports')
             ->where('esp_account_id', $espId)
             ->where('esp_internal_id',$espInternalId)
