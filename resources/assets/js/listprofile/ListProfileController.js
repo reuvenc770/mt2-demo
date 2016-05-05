@@ -1,4 +1,4 @@
-mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' , '$location' , '$window' , '$mdDialog' , '$mdToast' , 'ListProfileApiService' , 'ClientGroupApiService' , function ( $rootScope , $log , $http , $location , $window , $mdDialog , $mdToast , ListProfileApiService , ClientGroupApiService ) {
+mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' , '$location' , '$timeout' , '$window' , '$mdDialog' , '$mdToast' , 'ListProfileApiService' , 'ClientGroupApiService' , function ( $rootScope , $log , $http , $location , $timeout , $window , $mdDialog , $mdToast , ListProfileApiService , ClientGroupApiService ) {
     var self = this;
 
     /**
@@ -22,7 +22,39 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
      */
     self.profileList = [];
     self.clientGroupList = [];
-    self.ispList = [ { "id" : 1 , "name" : "AOL" } , { "id" : 2 , "name" : "Hotmail" } , { "id" : 3 , "name" : "Yahoo" } ,  { "id" : 4 , "name" : "Others" } , { "id" : 6 , "name" : "Comcast" } , { "id" : 13 , "name" : "ATT" } , { "id" : 17 , "name" : "Gmail" } , { "id" : 21 , "name" : "Cloudmark" } , { "id" : 45 , "name" : "safeothers" } ,  { "id" : 47 , "name" : "UK" } , { "id" : 52 , "name" : "GMX" } , { "id" : 53 , "name" : "German" } , { "id" : 54 , "name" : "ForeignYahoo" } , { "id" : 57 , "name" : "France" } , { "id" : 60 , "name" : "YahooOthers" } , { "id" : 65 , "name" : "AOLUK" } , { "id" : 66 , "name" : "AOLOthers" } , { "id" : 67 , "name" : "ForeignAOL" } , { "id" : 68 , "name" : "GmailOthers" } , { "id" : 69 , "name" : "YahooUK" } , { "id" : 70 , "name" : "HotmailUK" } , { "id" : 71 , "name" : "ForeignHotmail" } , { "id" : 72 , "name" : "HotmailOthers" } , { "id" : 73 , "name" : "Facebook" } , { "id" : 74 , "name" : "Apple" } , { "id" : 75 , "name" : "Cable_Broadband" } , { "id" : 76 , "name" : "Italy" } , { "id" : 77 , "name" : "VerizonF" } , { "id" : 78 , "name" : "CoxF" } , { "id" : 79 , "name" : "BTINTERNET" } , { "id" : 80 , "name" : "Wanadoo" } ];
+    self.ispList = [
+        { "id" : 1 , "name" : "AOL" , "selected" : false , "chosen" : false } ,
+        { "id" : 2 , "name" : "Hotmail" , "selected" : false , "chosen" : false } ,
+        { "id" : 3 , "name" : "Yahoo" , "selected" : false , "chosen" : false } , 
+        { "id" : 4 , "name" : "Others" , "selected" : false , "chosen" : false } ,
+        { "id" : 6 , "name" : "Comcast" , "selected" : false , "chosen" : false } ,
+        { "id" : 13 , "name" : "ATT" , "selected" : false , "chosen" : false } ,
+        { "id" : 17 , "name" : "Gmail" , "selected" : false , "chosen" : false } ,
+        { "id" : 21 , "name" : "Cloudmark" , "selected" : false , "chosen" : false } ,
+        { "id" : 45 , "name" : "safeothers" , "selected" : false , "chosen" : false } , 
+        { "id" : 47 , "name" : "UK" , "selected" : false , "chosen" : false } ,
+        { "id" : 52 , "name" : "GMX" , "selected" : false , "chosen" : false } ,
+        { "id" : 53 , "name" : "German" , "selected" : false , "chosen" : false } ,
+        { "id" : 54 , "name" : "ForeignYahoo" , "selected" : false , "chosen" : false } ,
+        { "id" : 57 , "name" : "France" , "selected" : false , "chosen" : false } ,
+        { "id" : 60 , "name" : "YahooOthers" , "selected" : false , "chosen" : false } ,
+        { "id" : 65 , "name" : "AOLUK" , "selected" : false , "chosen" : false } ,
+        { "id" : 66 , "name" : "AOLOthers" , "selected" : false , "chosen" : false } ,
+        { "id" : 67 , "name" : "ForeignAOL" , "selected" : false , "chosen" : false } ,
+        { "id" : 68 , "name" : "GmailOthers" , "selected" : false , "chosen" : false } ,
+        { "id" : 69 , "name" : "YahooUK" , "selected" : false , "chosen" : false } ,
+        { "id" : 70 , "name" : "HotmailUK" , "selected" : false , "chosen" : false } ,
+        { "id" : 71 , "name" : "ForeignHotmail" , "selected" : false , "chosen" : false } ,
+        { "id" : 72 , "name" : "HotmailOthers" , "selected" : false , "chosen" : false } ,
+        { "id" : 73 , "name" : "Facebook" , "selected" : false , "chosen" : false } ,
+        { "id" : 74 , "name" : "Apple" , "selected" : false , "chosen" : false } ,
+        { "id" : 75 , "name" : "Cable_Broadband" , "selected" : false , "chosen" : false } ,
+        { "id" : 76 , "name" : "Italy" , "selected" : false , "chosen" : false } ,
+        { "id" : 77 , "name" : "VerizonF" , "selected" : false , "chosen" : false } ,
+        { "id" : 78 , "name" : "CoxF" , "selected" : false , "chosen" : false } ,
+        { "id" : 79 , "name" : "BTINTERNET" , "selected" : false , "chosen" : false } ,
+        { "id" : 80 , "name" : "Wanadoo" , "selected" : false , "chosen" : false }
+    ];
 
     /**
      * Pagination Properties
@@ -42,7 +74,7 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
      */
 
     self.ispSearchText = '';
-    $rootScope.selectedIsps = {};
+    self.selectedIsps = [];
     self.currentSelectedIsp = '';
     self.ispChipList = [];
 
@@ -449,6 +481,113 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
     self.viewAdd = function () {
         $location.url( self.createUrl );
         $window.location.href = self.createUrl;
+    };
+
+    self.selectAllAvailableIsps = function ( ispList ) {
+        angular.forEach( ispList , function ( isp , key ) {
+            isp.selected = true;
+        } );
+    };
+
+    self.clearAllAvailableIsps = function ( ispList ) {
+        angular.forEach( ispList , function ( isp , key ) {
+            isp.selected = false;
+        } );
+    };
+
+    self.ispMultiSelect = function ( isp , ispIndex , ispList , $event ) {
+        var selectionDetails = self.getIspSelectCount( ispList );
+
+        if ( $event.shiftKey && selectionDetails.count ===  1 ) {
+            var firstIsp = selectionDetails.firstChecked;
+            var lastIsp = isp;
+            var currentIsp = null;
+            var increasing = selectionDetails.ispIndex < ispIndex;
+            var boundFound = false;
+            var selectingEnabled = false;
+
+            for (
+                var currentIndex = ( increasing ? 0 : ispList.length ) ;       
+                increasing ? currentIndex < ispList.length : currentIndex >= 0 ;
+                increasing ? currentIndex++ : currentIndex--
+            ) {
+                currentIsp = ispList[ currentIndex ];
+                boundFound = ( currentIsp === firstIsp || currentIsp === lastIsp );
+                
+                if ( boundFound && selectingEnabled === false ) {
+                    selectingEnabled = true;
+                    continue;
+                }
+
+                if ( boundFound ) { break; }
+
+                if ( selectingEnabled ) { currentIsp.selected = true; }
+            }
+        }
+
+        return true;
+    };
+
+    self.getIspSelectCount = function ( ispList ) {
+        var count = 0;
+        var firstChecked = null;
+        var firstCheckedIndex = null;
+
+        angular.forEach( ispList , function( isp , ispIndex ) {
+            if ( isp.selected ) {
+                count++;
+
+                if ( firstChecked === null ) {
+                    firstChecked = isp;
+                    firstCheckedIndex = ispIndex;
+                }
+            }
+        } );
+
+        return { "count" : count , "firstChecked" : firstChecked , "firstCheckedIndex" : firstCheckedIndex };
+    };
+
+    self.addSelectedIsps = function () {
+        angular.forEach( self.ispList , function ( isp , ispIndex ) {
+            if ( isp.selected === true ) {
+                isp.selected = false;
+                isp.chosen = true;
+
+                self.addSingleIsp( isp );
+            }
+        } );
+    };
+
+    self.addSingleIsp = function ( isp ) {
+        isp.selected = false;
+        isp.chosen = true;
+
+        self.selectedIsps.push( {
+            "id" : isp.id ,
+            "name" : isp.name ,
+            "selected" : false ,
+            "original" : isp
+        } );
+    };
+
+    self.removeAllSelectedChosenIsps = function () {
+        var ispsToDelete = [];
+
+        angular.forEach( self.selectedIsps , function ( isp , ispIndex ) {
+            if ( isp.selected === true ) {
+                ispsToDelete.push( isp );
+            }
+        } );
+
+        angular.forEach( ispsToDelete , function ( isp , ispIndex ) {
+            self.removeSingleChosenIsp( isp );
+        } );
+    };
+
+    self.removeSingleChosenIsp = function ( isp ) {
+        isp.original.chosen = false;
+
+        self.selectedIsps.splice( self.selectedIsps.indexOf( isp ) , 1 );
     };
 
     self.calculateListProfile = function () {

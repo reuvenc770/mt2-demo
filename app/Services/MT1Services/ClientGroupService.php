@@ -29,6 +29,10 @@ class ClientGroupService
         return $this->clientGroupRepo->getName( $groupId );
     }
 
+    public function getAll () {
+        return $this->clientGroupRepo->getAllClientGroups();
+    }
+
     public function getAllNames(){
         return $this->clientGroupRepo->getAllClientGroups();
     }

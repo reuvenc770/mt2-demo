@@ -32,28 +32,11 @@
 
                 <md-divider></md-divider>
 
-                    <ui-select ng-model="listProfile.selectedClientGroup" theme="bootstrap">
-                        <ui-select-match placeholder="Choose a Client Group">
-                          @{{$select.selected.name}}
-                        </ui-select-match>
-                        <ui-select-choices 
-                          refresh="listProfile.fetchClientGroups($select)" 
-                          refresh-delay="300" 
-                          repeat="item in listProfile.clientGroupList | filter: $select.search"
-                        >
-                          @{{ item.name }} (@{{ item.id }})
-                          <div ng-if="$index == $select.items.length-1">
-                                <button 
-                                    class="btn btn-xs btn-primary" 
-                                    style="width: 100%; margin-top: 5px;" 
-                                    ng-click="listProfile.fetchClientGroups( $select , $event )"
-                                    ng-disabled="listProfile.clientGroupLoading">
-                                        Click to load more...
-                                </button>
-                          </div>
-                        </ui-select-choices>
-                    </ui-select>
-
+                <select ng-model="listProfile.selectedClientGroup" placeholder="Select Client Group" class="form-control">
+                    @foreach ( $clientGroups as $current )
+                    <option ng-value="{{ $current->id }}">{{ $current->name }}</option>
+                    @endforeach
+                </select>
             </div>
 
             <md-content layout-padding style="margin-bottom: 1em;">
@@ -129,57 +112,107 @@
 
                 <md-divider></md-divider>
 
-                <md-content class="chipList">
-                    <div layout="row">
-                        <md-button flex ng-click="listProfile.selectAllIsps( true )">Select All</md-button>
-                        <md-button flex ng-click="listProfile.selectAllIsps( false )">Clear All</md-button>
-                    </div>
+                <div flex layout-xs="column" layout-md="column" layout="row" layout-align="space-between">
+                    <md-card flex>
+                        <md-toolbar>
+                            <div class="md-toolbar-tools">
+                                <h3>Available ISPs</h3>
+                                
+                                <span flex></span>
 
-                    <md-chips ng-model="listProfile.ispChipList" md-on-remove="listProfile.removeIspChip( $chip )">
-                        <md-autocomplete
-                            md-search-text="listProfile.ispSearchText"
-                            md-items="item in listProfile.getIsps( listProfile.ispSearchText )"
-                            md-item-text="item.name"
-                            md-min-length="0"
-                            placeholder="Choose an ISP"
-                            md-selected-item="listProfile.currentSelectedIsp"
-                            md-selected-item-change="listProfile.updateIspCheckboxList( item )"
-                            style="margin-bottom: 1em;">
+                                <md-button class="md-icon-button md-primary" aria-label="Select All" ng-click="listProfile.selectAllAvailableIsps( listProfile.ispList )">
+                                    <md-tooltip md-direction="bottom">Select All</md-tooltip>
 
-                            <span md-highlight-text="listProfile.ispSearchText" md-highlight-flags="^i">@{{ item.name }}</span>
+                                    <md-icon md-svg-icon="img/icons/ic_select_all_white_36px.svg"></md-icon>
+                                </md-button>
 
-                            <md-not-found></md-not-found>
-                        </md-autocomplete>
+                                <md-button class="md-icon-button md-primary" aria-label="Clear" ng-click="listProfile.clearAllAvailableIsps( listProfile.ispList )">
+                                    <md-tooltip md-direction="bottom">Clear Selected</md-tooltip>
 
-                        <md-chip-template>
-                            <span>
-                                <strong>@{{ $chip.name }}</strong>
-                                <em>( @{{ $chip.id }} )</em>
-                            </span>
-                        </md-chip-template>
-                    </md-chips>
-                </md-content>
-                
-                <md-content class="chipBucket">
-                    <md-list>
-                        <md-list-item ng-repeat="isp in listProfile.ispList">
-                            <div class="md-list-item">
-                                <div layout="row">
-                                    <div layout="column">
-                                        <md-checkbox ng-model="selectedIsps[ isp.id ]" ng-true-value="'@{{ isp.name }}'" aria-label="@{{ isp.name }}"></md-checkbox>
-                                    </div>
+                                    <md-icon md-svg-icon="img/icons/ic_clear_white_36px.svg"></md-icon>
+                                </md-button>
 
-                                    <div layout="column">
-                                        <div flex><strong>@{{ isp.name }}</strong></div>
-                                        <div flex><span>@{{ isp.id }}</span></div>
-                                    </div>
-                                </div>
+                                <md-button class="md-icon-button md-primary" aria-label="Add Selected" ng-click="listProfile.addSelectedIsps()">
+                                    <md-tooltip md-direction="bottom">Add Selected</md-tooltip>
+
+                                    <md-icon md-svg-icon="img/icons/ic_add_circle_outline_white_36px.svg"></md-icon>
+                                </md-button>
                             </div>
+                        </md-toolbar>
 
-                            <md-divider ng-if="!$last"></md-divider>
-                        </md-list-item>
-                    </md-list>
-                </md-content>
+                        <md-content class="membershipBox">
+                            <md-list>
+                                <md-list-item ng-repeat="isp in listProfile.ispList track by $index" ng-hide="isp.chosen">
+                                    <div class="md-list-item" ng-click="listProfile.ispMultiSelect( isp , $index , listProfile.ispList , $event )" flex>
+                                        <div layout="row">
+                                            <md-checkbox aria-label="@{{ isp.name }}" ng-true-value="true" ng-model="isp.selected" ng-click="listProfile.ispMultiSelect( isp , $index , listProfile.ispList , $event )"></md-checkbox>
+                                            <div class="md-list-item-text" flex>
+                                                <h5>@{{ isp.name }}</h5>
+                                                <span>@{{ isp.id }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <md-button class="md-icon-button md-primary" aria-label="Add @{{ isp.name }}" ng-click="listProfile.addSingleIsp( isp )">
+                                        <md-tooltip md-direction="left">Add @{{ isp.name }}</md-tooltip>
+
+                                        <md-icon md-svg-icon="img/icons/ic_add_circle_outline_black_36px.svg"></md-icon>
+                                    </md-button>
+                                </md-list-item>
+                            </md-list>
+                        </md-content>
+                    </md-card>
+
+                    <md-card flex>
+                        <md-toolbar>
+                            <div class="md-toolbar-tools">
+                                <h3>Chosen ISPs</h3>
+                                
+                                <span flex></span>
+
+                                <md-button class="md-icon-button md-primary" aria-label="Select All" ng-click="listProfile.selectAllAvailableIsps( listProfile.selectedIsps )">
+                                    <md-tooltip md-direction="bottom">Select All</md-tooltip>
+
+                                    <md-icon md-svg-icon="img/icons/ic_select_all_white_36px.svg"></md-icon>
+                                </md-button>
+
+                                <md-button class="md-icon-button md-primary" aria-label="Clear Selected" ng-click="listProfile.clearAllAvailableIsps( listProfile.selectedIsps )">
+                                    <md-tooltip md-direction="bottom">Clear Selected</md-tooltip>
+
+                                    <md-icon md-svg-icon="img/icons/ic_clear_white_36px.svg"></md-icon>
+                                </md-button>
+
+                                <md-button class="md-icon-button md-primary" aria-label="Remove Selected" ng-click="listProfile.removeAllSelectedChosenIsps()">
+                                    <md-tooltip md-direction="bottom">Remove Selected</md-tooltip>
+
+                                    <md-icon md-svg-icon="img/icons/ic_remove_circle_outline_white_36px.svg"></md-icon>
+                                </md-button>
+                            </div>
+                        </md-toolbar>
+
+                        <md-content class="membershipBox">
+                            <md-list>
+                                <md-list-item ng-repeat="isp in listProfile.selectedIsps track by $index">
+                                    <div class="md-list-item" ng-click="listProfile.ispMultiSelect( isp , $index , listProfile.selectedIsps , $event )" flex>
+                                        <div layout="row">
+                                            <md-checkbox aria-label="@{{ isp.name }}" ng-true-value="true" ng-model="isp.selected" ng-click="listProfile.ispMultiSelect( isp , $index , listProfile.selectedIsps , $event )"></md-checkbox>
+                                            <div class="md-list-item-text" flex>
+                                                <h5>@{{ isp.name }}</h5>
+                                                <span>@{{ isp.id }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <md-button class="md-icon-button md-primary" aria-label="Remove @{{ isp.name }}" ng-click="listProfile.removeSingleChosenIsp( isp )">
+                                        <md-tooltip md-direction="left">Remove @{{ isp.name }}</md-tooltip>
+
+                                        <md-icon md-svg-icon="img/icons/ic_remove_circle_outline_black_36px.svg"></md-icon>
+                                    </md-button>
+                                </md-list-item>
+                            </md-list>
+                        </md-content>
+                    </md-card>
+                </div>
             </md-content>
 
             <md-content layout-padding style="margin-bottom: 1em;" ng-if="listProfile.profileType === 'v1'" ng-cloak>

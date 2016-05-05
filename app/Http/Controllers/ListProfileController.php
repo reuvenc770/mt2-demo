@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Services\MT1ApiService;
 use Laracasts\Flash\Flash;
 use App\Services\MT1Services\UniqueProfileService;
+use App\Services\MT1Services\ClientGroupService;
 use Cache;
 
 class ListProfileController extends Controller
@@ -16,12 +17,14 @@ class ListProfileController extends Controller
     CONST LIST_PROFILE_API_ENDPOINT = 'profile_calc';
     CONST LIST_PROFILE_ACTION_API_ENDPOINT = 'profile_action';
 
-    public $api;
-    public $service;
+    protected $api;
+    protected $service;
+    protected $clientGroup;
 
-    public function __construct ( MT1ApiService $api , UniqueProfileService $service ) {
+    public function __construct ( MT1ApiService $api , UniqueProfileService $service , ClientGroupService $clientGroup ) {
         $this->api = $api;
         $this->service = $service;
+        $this->clientGroup = $clientGroup;
     }
 
     /**
@@ -45,7 +48,7 @@ class ListProfileController extends Controller
      */
     public function create()
     {
-        return response()->view( 'pages.listprofile.list-profile-add' );
+        return response()->view( 'pages.listprofile.list-profile-add' , [ 'clientGroups' => $this->clientGroup->getAll() ] );
     }
 
     /**
@@ -84,7 +87,7 @@ class ListProfileController extends Controller
      */
     public function edit($id)
     {
-        return response()->view( 'pages.listprofile.list-profile-edit' );
+        return response()->view( 'pages.listprofile.list-profile-edit' , [ 'clientGroups' => $this->clientGroup->getAll() ] );
     }
 
     /**
