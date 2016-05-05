@@ -6,8 +6,6 @@ mt2App.directive( 'membershipWidget' , [ "$log" , function ( $log ) {
             var self = this;
 
             self.selectAllAvailableRecords = function ( records ) {
-                $log.log( records );
-
                 angular.forEach( records , function ( record , key ) {
                     record.selected = true;
                 } );
