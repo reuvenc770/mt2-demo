@@ -48,7 +48,11 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
      */
     public function __construct(ReportRepo $reportRepo, CampaignerApi $api , EmailRecordService $emailRecord )
     {
-        parent::__construct($reportRepo, $api , $emailRecord);
+        try {
+            parent::__construct($reportRepo, $api, $emailRecord);
+        } catch (\Exception $e){
+            throw $e;
+        }
     }
 
     /**
