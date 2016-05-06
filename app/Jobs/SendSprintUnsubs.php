@@ -187,7 +187,7 @@ class SendSprintUnsubs extends Job implements ShouldQueue
             if ( $this->unsubCount === 0 ) {
                 Slack::to( self::SLACK_TARGET_SUBJECT )->send( "Sprint Unsub Job - No Unsubs Found." );
             } else {
-                Storage::append( self::DNE_FOLDER . $this->dneFileName , chr( 10 ) . chr( 13 ) );
+                Storage::append( self::DNE_FOLDER . $this->dneFileName , PHP_EOL );
             }
 
             echo "\n\nProcessed '{$this->unsubCount}' Records....\n\n";
