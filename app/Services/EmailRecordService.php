@@ -57,6 +57,6 @@ class EmailRecordService {
     }
 
     public function withinTwoDays($espId, $campaignId){
-        return $this->repo->checkTwoDays($espId, $campaignId);
+        return $this->repo->withinTwoDays($espId, $campaignId);
     }
 }
