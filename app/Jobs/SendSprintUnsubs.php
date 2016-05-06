@@ -89,16 +89,18 @@ class SendSprintUnsubs extends Job implements ShouldQueue
      */
     public function handle()
     {
+        JobTracking::startEspJob( "Sprint Unsub Job" , '' , '' , $this->tracking , 0 );
+        
         if ( $this->ftpCleanup == 1 ) {
             $this->cleanupFtpAccount();
         } elseif ( !Storage::exists( self::DNE_FOLDER . $this->dneFileName ) ) {
             $this->createUnsubFile();
         }
+        
+        JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking , $this->attempts() );
     }
 
     protected function cleanupFtpAccount () {
-        JobTracking::startEspJob( "Sprint Unsub Job - Cleanup" , '' , '' , $this->tracking , 0 );
-
         $campaignFiles = Storage::disk( 'sprintUnsubCampaignFTP' )->allFiles();
 
         foreach ( $campaignFiles as $currentFile ) {
@@ -114,15 +116,11 @@ class SendSprintUnsubs extends Job implements ShouldQueue
             }
         }
 
-        JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking , $this->attempts() );
-
         return true;
     }
 
     protected function createUnsubFile () {
         try {
-            JobTracking::startEspJob( "Sprint Unsub Job" , '' , '' , $this->tracking , 0 );
-
             $campaignFiles = Storage::disk( 'sprintUnsubCampaignFTP' )->allFiles();
 
             if ( count( $campaignFiles ) <= 3 ) {
@@ -196,8 +194,6 @@ class SendSprintUnsubs extends Job implements ShouldQueue
 
             Storage::disk( 'sprintUnsubFTP' )->put( $this->dneFileName , Storage::get( self::DNE_FOLDER . $this->dneFileName ) );
             Storage::disk( 'sprintUnsubFTP' )->put( $this->dneCountFileName , Storage::get( self::DNE_FOLDER . $this->dneCountFileName ) );
-
-            JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking , $this->attempts() );
 
             return true;
         } catch ( \Exception $e ) {
