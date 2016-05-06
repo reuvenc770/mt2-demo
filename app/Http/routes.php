@@ -410,6 +410,11 @@ Route::group(
             [ 'only' => [ 'show' , 'store' ] ]
         );
 
+        Route::resource(
+            'isp' ,
+            'IspController' ,
+            [ 'only' => [ 'index' ] ]
+        );
 
 
         /**
