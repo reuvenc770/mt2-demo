@@ -115,10 +115,13 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     }
 
     protected function startTicket () {
+        $isRerun = $this->processState['pipe'] === 'rerun';
+
         $ticket = $this->reportService->startTicket(
             $this->espAccountId,
             isset($this->processState['campaign']) ? $this->processState['campaign'] : [],
-            isset($this->processState['recordType']) ? $this->processState['recordType'] : ''
+            isset($this->processState['recordType']) ? $this->processState['recordType'] : '',
+            $isRerun
         );
 
         $this->processState[ 'currentFilterIndex' ]++;
