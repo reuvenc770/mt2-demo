@@ -31,7 +31,6 @@ class EmailActionsRepo {
     public function nextNRows($start, $offset) {
         return $this->actions
             ->where('id', '>=', $start)
-            ->where('action_id', '<>', $this->deliverableId)
             ->orderBy('id')
             ->skip($offset)
             ->first()['id'];

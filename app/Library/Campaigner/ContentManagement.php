@@ -41,6 +41,7 @@ class ContentManagement extends \SoapClient
     /**
      * @param array $options A array of config values
      * @param string $wsdl The wsdl file to use
+     * @throws \Exception
      */
     public function __construct(array $options = array(), $wsdl = 'https://ws.campaigner.com/2013/01/contentmanagement.asmx?WSDL')
     {
@@ -52,7 +53,11 @@ class ContentManagement extends \SoapClient
       $options = array_merge(array (
       'features' => 1,
     ), $options);
-      parent::__construct($wsdl, $options);
+        try {
+            parent::__construct($wsdl, $options);
+        } catch (\Exception $e){
+            throw $e;
+        }
     }
 
     /**

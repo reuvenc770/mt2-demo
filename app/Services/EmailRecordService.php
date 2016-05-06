@@ -54,7 +54,7 @@ class EmailRecordService {
         }
     }
 
-    public function checkForDeliverables($espId, $campaignId){
-        return $this->repo->checkForDeliverables($espId, $campaignId);
+    public function checkTwoDays($espId, $campaignId){
+        return $this->repo->checkTwoDays($espId, $campaignId);
     }
 }

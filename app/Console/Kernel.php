@@ -34,6 +34,7 @@ class Kernel extends ConsoleKernel
         Commands\SendSprintUnsubsCommand::class,
         Commands\DownloadSuppressionFromESPCommand::class,
         Commands\ParseandSendSuppressionsCommand::class,
+        Commands\InsertChunksUtil::class,
     ];
 
     /**

@@ -30,7 +30,7 @@ class ReportRepo
 
     public function getCampaigns( $espAccountId , $date ) {
         return $this->report
-            ->where( 'updated_at' , ">=" , $date )
+            ->where( 'created_at' , ">=" , $date )
             ->where( 'esp_account_id' , $espAccountId )
             ->get();
     }
