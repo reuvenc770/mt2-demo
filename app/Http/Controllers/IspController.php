@@ -33,7 +33,7 @@ class IspController extends Controller
      */
     public function create()
     {
-        //
+        return response( 'Unauthorized' , 401 );
     }
 
     /**
@@ -44,7 +44,7 @@ class IspController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        return response( 'Unauthorized' , 401 );
     }
 
     /**
@@ -55,7 +55,7 @@ class IspController extends Controller
      */
     public function show($id)
     {
-        //
+        return response( 'Unauthorized' , 401 );
     }
 
     /**
@@ -66,7 +66,7 @@ class IspController extends Controller
      */
     public function edit($id)
     {
-        //
+        return response( 'Unauthorized' , 401 );
     }
 
     /**
@@ -78,7 +78,7 @@ class IspController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        return response( 'Unauthorized' , 401 );
     }
 
     /**
@@ -89,6 +89,6 @@ class IspController extends Controller
      */
     public function destroy($id)
     {
-        //
+        return response( 'Unauthorized' , 401 );
     }
 }
