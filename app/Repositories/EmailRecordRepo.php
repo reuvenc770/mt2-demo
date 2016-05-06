@@ -8,6 +8,7 @@ use App\Models\ActionType;
 use App\Models\EmailClientInstance;
 use App\Models\OrphanEmail;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 
@@ -30,10 +31,11 @@ class EmailRecordRepo {
     public function massRecordDeliverables ( $records = [] ) {
         $validRecords = [];
         $invalidRecords = [];
+        
+        echo "RUNNING MASS RECORD DELIVERABLES" . PHP_EOL . PHP_EOL;
 
         foreach ( $records as $currentIndex => $currentRecord ) {
-
-            echo "email address: {$currentRecord[ 'email' ]}: ";
+            
             $this->setLocalData( [
                 'emailAddress' => $currentRecord[ 'email' ] ,
                 'recordType' => $currentRecord[ 'recordType' ] ,
@@ -46,6 +48,7 @@ class EmailRecordRepo {
             $this->errorReason = '';
 
             if ( $this->isValidRecord( false ) ) {
+                echo "Is a valid record." . PHP_EOL . PHP_EOL;
                 $validRecord = "( "
                     . join( " , " , [
                         $this->getEmailId() , 
@@ -62,6 +65,7 @@ class EmailRecordRepo {
 
                 $validRecords []= $validRecord;
             } else {
+                echo "Is not a valid record." . PHP_EOL . PHP_EOL;
                 $invalidRecord = "( " 
                     .join( " , " , [
                         "'" . $currentRecord[ 'email' ] . "'" ,
@@ -85,6 +89,7 @@ class EmailRecordRepo {
             $chunkedRecords = array_chunk( $validRecords , 10000 );
 
             foreach ( $chunkedRecords as $chunkIndex => $chunk ) {
+                var_dump($chunk);
                 DB::connection( 'reporting_data' )->statement("
                     INSERT INTO email_actions
                         ( email_id , client_id , esp_account_id , deploy_id, 
@@ -110,6 +115,7 @@ class EmailRecordRepo {
             $chunkedRecords = array_chunk( $invalidRecords , 10000 );
 
             foreach ( $chunkedRecords as $chunkIndex => $chunk ) {
+                var_dump($chunk);
                 DB::statement( "
                     INSERT INTO     
                         orphan_emails ( email_address , esp_account_id , 
@@ -249,26 +255,16 @@ class EmailRecordRepo {
     }
 
 
-    public function checkForDeliverables($espId,$espInternalId){
+    public function withinTwoDays($espId,$espInternalId){
         $delivevered = false;
-        $actionCount = DB::connection( 'reporting_data' )->table('email_actions')
+        $date = Carbon::today()->subDay(2)->toDateTimeString();
+        $actionCount = DB::connection( 'reporting_data' )->table('standard_reports')
             ->where('esp_account_id', $espId)
             ->where('esp_internal_id',$espInternalId)
-            ->where('action_id',4)->count();
-        if ($actionCount >= 1) {
+            ->where('datetime','>=', $date)->count();
+        if ($actionCount == 1) {
             $delivevered = true;
         }
-        //2nd chance
-        if (!$delivevered){
-            $orphanCount = DB::table('orphan_emails')
-                ->where('esp_account_id', $espId)
-                ->where('esp_internal_id',$espInternalId)
-                ->where('action_id',4)->count();
-            if($orphanCount >= 1){
-                $delivevered = true;
-            }
-        }
-
         return $delivevered;
     }
 }

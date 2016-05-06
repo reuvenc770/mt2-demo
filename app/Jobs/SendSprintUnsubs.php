@@ -91,7 +91,7 @@ class SendSprintUnsubs extends Job implements ShouldQueue
     {
         if ( $this->ftpCleanup == 1 ) {
             $this->cleanupFtpAccount();
-        } else {
+        } elseif ( !Storage::exists( self::DNE_FOLDER . $this->dneFileName ) ) {
             $this->createUnsubFile();
         }
     }

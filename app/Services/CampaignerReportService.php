@@ -9,6 +9,7 @@
 namespace App\Services;
 
 
+use App\Facades\Suppression;
 use App\Library\Campaigner\CampaignManagement;
 use App\Library\Campaigner\ContactManagement;
 use App\Library\Campaigner\DownloadReport;
@@ -47,7 +48,11 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
      */
     public function __construct(ReportRepo $reportRepo, CampaignerApi $api , EmailRecordService $emailRecord )
     {
-        parent::__construct($reportRepo, $api , $emailRecord);
+        try {
+            parent::__construct($reportRepo, $api, $emailRecord);
+        } catch (\Exception $e){
+            throw $e;
+        }
     }
 
     /**
@@ -267,10 +272,10 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         // $map unneeded
 
         try {
-            $skipDelivered = false;
+            $skipDelivered = true;
 
-            if ( $this->emailRecord->checkForDeliverables( $processState[ 'ticket' ][ 'espId' ] , $processState[ 'ticket' ][ 'espInternalId' ] ) ) {
-                $skipDelivered = true;
+            if ($this->emailRecord->checkTwoDays( $processState[ 'ticket' ][ 'espId' ] , $processState[ 'ticket' ][ 'espInternalId' ] ) ) {
+                $skipDelivered = false;
             }
 
             try {
@@ -298,8 +303,10 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                 } elseif ( $record[ 'action' ] === 'Click' ) {
                     $actionType = self::RECORD_TYPE_CLICKER;
                 } elseif ( $record[ 'action' ] === 'Unsubscribe' ) {
-                    $actionType = self::RECORD_TYPE_UNSUBSCRIBE;
-                } elseif ( $record[ 'action' ] === 'SpamComplaint' ) {
+                    Suppression::recordRawUnsub($processState[ 'ticket' ][ 'espId' ],$record[ 'email' ],$processState[ 'ticket' ][ 'espInternalId' ],"", $record[ 'actionDate' ]);
+                } elseif ( $record[ 'action' ] === 'Hardbounce' ) {
+                    Suppression::recordRawHardBounce($processState[ 'ticket' ][ 'espId' ],$record[ 'email' ],$processState[ 'ticket' ][ 'espInternalId' ],"", $record[ 'actionDate' ]);
+                }elseif ( $record[ 'action' ] === 'SpamComplaint' ) {
                     $actionType = self::RECORD_TYPE_COMPLAINT;
                 } elseif ( $record[ 'action' ] === 'Delivered' ) {
                     $actionType = self::RECORD_TYPE_DELIVERABLE;

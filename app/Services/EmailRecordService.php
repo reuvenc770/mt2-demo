@@ -56,16 +56,7 @@ class EmailRecordService {
         }
     }
 
-    public function checkTwoDays($espId,$espInternalId){
-        $delivevered = false;
-        $date = Carbon::today()->subDay(2)->toDateTimeString();
-        $actionCount = DB::connection( 'reporting_data' )->table('standard_reports')
-            ->where('esp_account_id', $espId)
-            ->where('esp_internal_id',$espInternalId)
-            ->where('datetime','>=', $date)->count();
-        if ($actionCount == 1) {
-            $delivevered = true;
-        }
-        return $delivevered;
+    public function withinTwoDays($espId, $campaignId){
+        return $this->repo->checkTwoDays($espId, $campaignId);
     }
 }
