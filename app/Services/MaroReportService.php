@@ -13,6 +13,7 @@ use App\Services\Interfaces\IDataService;
 use App\Facades\Suppression;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Exceptions\JobException;
+use Carbon\Carbon;
 
 /**
  * Class BlueHornetReportService
@@ -161,6 +162,24 @@ class MaroReportService extends AbstractReportService implements IDataService
                             $map[ $complainer['campaign_id'] ],
                             $complainer[ 'campaign_id' ] ,
                             $complainer[ 'recorded_on' ]
+                        );
+                        $totalCorrect++;
+                    }
+                    else {
+                        $totalIncorrect++;
+                    }
+                }
+                break;
+            case 'delivered':
+                foreach ( $processState[ 'currentPageData' ] as $key => $delivered ) {
+                    if (isset($map[ $delivered['campaign_id'] ])) {
+                        $this->emailRecord->recordDeliverable(
+                            self::RECORD_TYPE_DELIVERABLE ,
+                            $delivered[ 'contact' ][ 'email' ] ,
+                            $this->api->getId() ,
+                            $map[ $delivered['campaign_id'] ],
+                            $delivered[ 'campaign_id' ] ,
+                            Carbon::parse($delivered[ 'recorded_at' ])
                         );
                         $totalCorrect++;
                     }

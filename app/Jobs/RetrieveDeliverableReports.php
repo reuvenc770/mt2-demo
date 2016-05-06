@@ -166,6 +166,22 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->changeJobEntry( JobEntry::SUCCESS );
     }
 
+    protected function getMaroDeliverableCampaigns() {
+        $campaigns = $this->standardReportRepo->getCampaigns( $this->espAccountId , $this->date );
+
+        $this->processState['recordType'] = 'delivered';
+        $this->processState[ 'currentFilterIndex' ]++;
+
+        $campaigns->each( function( $campaign , $key ) {
+            $this->processState[ 'campaign' ] = $campaign;
+            $this->processState[ 'espId' ] = $this->espAccountId;
+
+            $this->queueNextJob( $this->defaultQueue );
+        });
+        
+        $this->changeJobEntry( JobEntry::SUCCESS );
+    }
+
     protected function getRerunCampaigns () {
         $campaigns = DB::connection( 'reporting_data' )
             ->table( 'standard_reports_rerun' ) 

@@ -46,8 +46,7 @@ return [
                 'savePaginatedRecords'
             ] , 
             "delivered" => [
-                'getCampaigns' ,
-                #'saveRecords'
+                'getMaroDeliverableCampaigns',
                 'savePaginatedRecords'
             ]
         ]

@@ -32,8 +32,6 @@ class EmailRecordRepo {
         $validRecords = [];
         $invalidRecords = [];
         
-        echo "RUNNING MASS RECORD DELIVERABLES" . PHP_EOL . PHP_EOL;
-
         foreach ( $records as $currentIndex => $currentRecord ) {
             
             $this->setLocalData( [
