@@ -5,6 +5,9 @@ mt2App.directive( 'membershipWidget' , [ "$log" , function ( $log ) {
         "controller" : function () {
             var self = this;
 
+            self.namefield = ( typeof( self.namefield ) !== 'undefined' ? self.namefield : 'name' );
+            self.idfield = ( typeof( self.idfield ) !== 'undefined' ? self.idfield : 'id' );
+
             self.selectAllAvailableRecords = function ( records ) {
                 angular.forEach( records , function ( record , key ) {
                     record.selected = true;
@@ -85,8 +88,8 @@ mt2App.directive( 'membershipWidget' , [ "$log" , function ( $log ) {
                 record.chosen = true;
 
                 self.chosenrecordlist.push( {
-                    "id" : record.id ,
-                    "name" : record.name ,
+                    "id" : record[ self.idfield ] ,
+                    "name" : record[ self.namefield ] ,
                     "selected" : false ,
                     "original" : record
                 } );
@@ -117,7 +120,9 @@ mt2App.directive( 'membershipWidget' , [ "$log" , function ( $log ) {
             'recordlist' : '=' ,
             'chosenrecordlist' : '=' ,
             'availablecardtitle' : '=' ,
-            'chosenrecordtitle' : '='
+            'chosenrecordtitle' : '=' ,
+            'idfield' : '=?' ,
+            'namefield' : '=?'
         } ,
         "templateUrl" : "js/templates/membership-widget.html"
     };

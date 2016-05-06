@@ -31,16 +31,16 @@
                 <md-list-item ng-repeat="record in ctrl.recordlist track by $index" ng-hide="record.chosen">
                     <div class="md-list-item" ng-click="ctrl.recordMultiSelect( record , $index , ctrl.recordlist , $event )" flex>
                         <div layout="row">
-                            <md-checkbox aria-label="{{ record.name }}" ng-true-value="true" ng-model="record.selected" ng-click="ctrl.recordMultiSelect( record , $index , ctrl.recordlist , $event )"></md-checkbox>
+                            <md-checkbox aria-label="{{ record[ ctrl.namefield ] }}" ng-true-value="true" ng-model="record.selected" ng-click="ctrl.recordMultiSelect( record , $index , ctrl.recordlist , $event )"></md-checkbox>
                             <div class="md-list-item-text" flex>
-                                <h5>{{ record.name }}</h5>
-                                <span>{{ record.id }}</span>
+                                <h5>{{ record[ ctrl.namefield ] }}</h5>
+                                <span>{{ record[ ctrl.idfield ] }}</span>
                             </div>
                         </div>
                     </div>
 
-                    <md-button class="md-icon-button md-primary" aria-label="Add {{ record.name }}" ng-click="ctrl.addSingleRecord( record )">
-                        <md-tooltip md-direction="left">Add {{ record.name }}</md-tooltip>
+                    <md-button class="md-icon-button md-primary" aria-label="Add {{ record[ ctrl.namefield ] }}" ng-click="ctrl.addSingleRecord( record )">
+                        <md-tooltip md-direction="left">Add {{ record[ ctrl.namefield ] }}</md-tooltip>
 
                         <md-icon md-svg-icon="img/icons/ic_add_circle_outline_black_36px.svg"></md-icon>
                     </md-button>
@@ -81,16 +81,16 @@
                 <md-list-item ng-repeat="record in ctrl.chosenrecordlist track by $index">
                     <div class="md-list-item" ng-click="ctrl.recordMultiSelect( record , $index , ctrl.chosenrecordlist , $event )" flex>
                         <div layout="row">
-                            <md-checkbox aria-label="{{ record.name }}" ng-true-value="true" ng-model="record.selected" ng-click="ctrl.recordMultiSelect( record , $index , ctrl.chosenrecordlist , $event )"></md-checkbox>
+                            <md-checkbox aria-label="{{ record[ ctrl.namefield ] }}" ng-true-value="true" ng-model="record.selected" ng-click="ctrl.recordMultiSelect( record , $index , ctrl.chosenrecordlist , $event )"></md-checkbox>
                             <div class="md-list-item-text" flex>
-                                <h5>{{ record.name }}</h5>
-                                <span>{{ record.id }}</span>
+                                <h5>{{ record[ ctrl.namefield ] }}</h5>
+                                <span>{{ record[ ctrl.idfield ] }}</span>
                             </div>
                         </div>
                     </div>
 
-                    <md-button class="md-icon-button md-primary" aria-label="Remove {{ record.name }}" ng-click="ctrl.removeSingleChosenRecord( record )">
-                        <md-tooltip md-direction="left">Remove {{ record.name }}</md-tooltip>
+                    <md-button class="md-icon-button md-primary" aria-label="Remove {{ record[ ctrl.namefield ] }}" ng-click="ctrl.removeSingleChosenRecord( record )">
+                        <md-tooltip md-direction="left">Remove {{ record[ ctrl.namefield ] }}</md-tooltip>
 
                         <md-icon md-svg-icon="img/icons/ic_remove_circle_outline_black_36px.svg"></md-icon>
                     </md-button>
