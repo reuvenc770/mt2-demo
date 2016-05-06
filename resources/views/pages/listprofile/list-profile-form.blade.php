@@ -32,28 +32,11 @@
 
                 <md-divider></md-divider>
 
-                    <ui-select ng-model="listProfile.selectedClientGroup" theme="bootstrap">
-                        <ui-select-match placeholder="Choose a Client Group">
-                          @{{$select.selected.name}}
-                        </ui-select-match>
-                        <ui-select-choices 
-                          refresh="listProfile.fetchClientGroups($select)" 
-                          refresh-delay="300" 
-                          repeat="item in listProfile.clientGroupList | filter: $select.search"
-                        >
-                          @{{ item.name }} (@{{ item.id }})
-                          <div ng-if="$index == $select.items.length-1">
-                                <button 
-                                    class="btn btn-xs btn-primary" 
-                                    style="width: 100%; margin-top: 5px;" 
-                                    ng-click="listProfile.fetchClientGroups( $select , $event )"
-                                    ng-disabled="listProfile.clientGroupLoading">
-                                        Click to load more...
-                                </button>
-                          </div>
-                        </ui-select-choices>
-                    </ui-select>
-
+                <select ng-model="listProfile.selectedClientGroup" placeholder="Select Client Group" class="form-control">
+                    @foreach ( $clientGroups as $current )
+                    <option ng-value="{{ $current->id }}">{{ $current->name }}</option>
+                    @endforeach
+                </select>
             </div>
 
             <md-content layout-padding style="margin-bottom: 1em;">
@@ -129,57 +112,8 @@
 
                 <md-divider></md-divider>
 
-                <md-content class="chipList">
-                    <div layout="row">
-                        <md-button flex ng-click="listProfile.selectAllIsps( true )">Select All</md-button>
-                        <md-button flex ng-click="listProfile.selectAllIsps( false )">Clear All</md-button>
-                    </div>
+                <membership-widget recordlist="listProfile.ispList" chosenrecordlist="listProfile.selectedIsps" availablecardtitle="listProfile.availableWidgetTitle" chosenrecordtitle="listProfile.chosenWidgetTitle" ng-init="listProfile.loadIsps()"></membership-widget>
 
-                    <md-chips ng-model="listProfile.ispChipList" md-on-remove="listProfile.removeIspChip( $chip )">
-                        <md-autocomplete
-                            md-search-text="listProfile.ispSearchText"
-                            md-items="item in listProfile.getIsps( listProfile.ispSearchText )"
-                            md-item-text="item.name"
-                            md-min-length="0"
-                            placeholder="Choose an ISP"
-                            md-selected-item="listProfile.currentSelectedIsp"
-                            md-selected-item-change="listProfile.updateIspCheckboxList( item )"
-                            style="margin-bottom: 1em;">
-
-                            <span md-highlight-text="listProfile.ispSearchText" md-highlight-flags="^i">@{{ item.name }}</span>
-
-                            <md-not-found></md-not-found>
-                        </md-autocomplete>
-
-                        <md-chip-template>
-                            <span>
-                                <strong>@{{ $chip.name }}</strong>
-                                <em>( @{{ $chip.id }} )</em>
-                            </span>
-                        </md-chip-template>
-                    </md-chips>
-                </md-content>
-                
-                <md-content class="chipBucket">
-                    <md-list>
-                        <md-list-item ng-repeat="isp in listProfile.ispList">
-                            <div class="md-list-item">
-                                <div layout="row">
-                                    <div layout="column">
-                                        <md-checkbox ng-model="selectedIsps[ isp.id ]" ng-true-value="'@{{ isp.name }}'" aria-label="@{{ isp.name }}"></md-checkbox>
-                                    </div>
-
-                                    <div layout="column">
-                                        <div flex><strong>@{{ isp.name }}</strong></div>
-                                        <div flex><span>@{{ isp.id }}</span></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <md-divider ng-if="!$last"></md-divider>
-                        </md-list-item>
-                    </md-list>
-                </md-content>
             </md-content>
 
             <md-content layout-padding style="margin-bottom: 1em;" ng-if="listProfile.profileType === 'v1'" ng-cloak>
