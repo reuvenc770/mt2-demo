@@ -191,6 +191,7 @@ class SendSprintUnsubs extends Job implements ShouldQueue
             echo "\n\nProcessed '{$this->unsubCount}' Records....\n\n";
 
             Storage::put( self::DNE_FOLDER . $this->dneCountFileName , $this->unsubCount );
+            Storage::append( self::DNE_FOLDER . $this->dneCountFileName , PHP_EOL );
 
             Storage::disk( 'sprintUnsubFTP' )->put( $this->dneFileName , Storage::get( self::DNE_FOLDER . $this->dneFileName ) );
             Storage::disk( 'sprintUnsubFTP' )->put( $this->dneCountFileName , Storage::get( self::DNE_FOLDER . $this->dneCountFileName ) );
