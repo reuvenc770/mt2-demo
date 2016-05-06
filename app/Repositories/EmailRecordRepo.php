@@ -28,15 +28,12 @@ class EmailRecordRepo {
         $this->email = $email;
     }
 
-    public function massRecordDelierables ( $records = [] ) {
+    public function massRecordDeliverables ( $records = [] ) {
         $validRecords = [];
         $invalidRecords = [];
         
-        echo "RUNNING MASS RECORD DELIVERABLES" . PHP_EOL . PHP_EOL;
-
         foreach ( $records as $currentIndex => $currentRecord ) {
-        
-            echo "email address: {$currentRecord[ 'email' ]}: ";
+            
             $this->setLocalData( [
                 'emailAddress' => $currentRecord[ 'email' ] ,
                 'recordType' => $currentRecord[ 'recordType' ] ,
@@ -256,7 +253,7 @@ class EmailRecordRepo {
     }
 
 
-    public function checkTwoDays($espId,$espInternalId){
+    public function withinTwoDays($espId,$espInternalId){
         $delivevered = false;
         $date = Carbon::today()->subDay(2)->toDateTimeString();
         $actionCount = DB::connection( 'reporting_data' )->table('standard_reports')
