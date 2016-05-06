@@ -251,7 +251,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         return $jobId;
     }
 
-    public function startTicket ( $espAccountId , $campaign , $recordType = null ) {
+    public function startTicket ( $espAccountId , $campaign , $recordType = null, $isRerun = false) {
         try {
             $runId = $this->getRunId($campaign->esp_internal_id);
             $reportData = $this->createCampaignReport( $runId );

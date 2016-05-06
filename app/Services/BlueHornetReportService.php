@@ -204,10 +204,10 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         return $typeList;
     }
 
-    public function startTicket ( $espAccountId , $campaign , $recordType ) {
+    public function startTicket ( $espAccountId , $campaign , $recordType, $isRerun = false ) {
         try {
             return [
-                "ticketName" => $this->getTicketForMessageSubscriberData( $campaign->esp_internal_id , 'sent,bounce,open,click,optout' ) ,
+                "ticketName" => $this->getTicketForMessageSubscriberData( $campaign->esp_internal_id , 'sent,bounce,open,click,optout', $isRerun ) ,
                 "deployId" => $campaign->external_deploy_id,
                 "espInternalId" => $campaign->esp_internal_id ,
                 "deliveryTime" => $campaign->datetime,
@@ -434,17 +434,18 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         Storage::delete( $processState[ 'filePath' ] );
     }
 
-    public function getTicketForMessageSubscriberData( $messageId , $recordType )
+    public function getTicketForMessageSubscriberData( $messageId , $recordType, $isRerun )
     {
-        $startDate = Carbon::today()->subDay(self::DELIVERABLE_LOOKBACK)->toDateTimeString();
-        $endDate = Carbon::today()->toDateTimeString();
 
         $methodData = array(
             "mess_id" => $messageId ,
-            "action_type" => $recordType,
-            "start_date" => $startDate,
-            "end_date" => $endDate
+            "action_type" => $recordType
         );
+
+        if (!$isRerun) {
+            $methodData['start_date'] = Carbon::today()->subDay(self::DELIVERABLE_LOOKBACK)->toDateTimeString();
+            $methodData['end_date'] = Carbon::today()->toDateTimeString();
+        }
 
         try {
             $this->api->buildRequest("statistics.getMessageSubscriberData", $methodData);
