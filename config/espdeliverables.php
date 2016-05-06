@@ -68,6 +68,7 @@ return [
         "pipes" => [
             "default" => [
                 'getCampaigns',
+                'getTypeList',
                 'splitTypes' ,
                 'saveRecords'
             ]

@@ -65,9 +65,7 @@ class YmlpApi extends EspBaseAPI {
     $finalOutput = array();
 
     while (!$done) {
-
-      $output = $this->callDeliverableApiCall($stat, $newsletterId, $page);
-
+      $output = json_decode($this->callDeliverableApiCall($stat, $newsletterId, $page),true);
       if ($output) {
         $finalOutput = array_merge($finalOutput, $output);
         $page++;
