@@ -447,11 +447,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             $methodData['end_date'] = Carbon::today()->toDateTimeString();
         }
 
-        echo 'method data' . PHP_EOL;
-
-        var_dump($methodData);
-        throw new Exception('finished');
-
         try {
             $this->api->buildRequest("statistics.getMessageSubscriberData", $methodData);
             $response = $this->api->sendApiRequest();
