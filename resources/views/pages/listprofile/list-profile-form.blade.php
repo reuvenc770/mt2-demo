@@ -112,7 +112,7 @@
 
                 <md-divider></md-divider>
 
-                <membership-widget recordlist="listProfile.ispList" chosenrecordlist="listProfile.selectedIsps" availablecardtitle="listProfile.availableWidgetTitle" chosenrecordtitle="listProfile.chosenWidgetTitle"></membership-widget>
+                <membership-widget recordlist="listProfile.ispList" chosenrecordlist="listProfile.selectedIsps" availablecardtitle="listProfile.availableWidgetTitle" chosenrecordtitle="listProfile.chosenWidgetTitle" ng-init="listProfile.loadIsps()"></membership-widget>
 
             </md-content>
 

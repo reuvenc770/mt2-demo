@@ -1,4 +1,4 @@
-mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' , '$location' , '$timeout' , '$window' , '$mdDialog' , '$mdToast' , 'ListProfileApiService' , 'ClientGroupApiService' , function ( $rootScope , $log , $http , $location , $timeout , $window , $mdDialog , $mdToast , ListProfileApiService , ClientGroupApiService ) {
+mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' , '$location' , '$timeout' , '$window' , '$mdDialog' , '$mdToast' , 'ListProfileApiService' , 'ClientGroupApiService' , 'IspApiService' , function ( $rootScope , $log , $http , $location , $timeout , $window , $mdDialog , $mdToast , ListProfileApiService , ClientGroupApiService , IspApiService ) {
     var self = this;
 
     /**
@@ -22,40 +22,8 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
      */
     self.profileList = [];
     self.clientGroupList = [];
-    self.ispList = [
-        { "id" : 1 , "name" : "AOL" , "selected" : false , "chosen" : false } ,
-        { "id" : 2 , "name" : "Hotmail" , "selected" : false , "chosen" : false } ,
-        { "id" : 3 , "name" : "Yahoo" , "selected" : false , "chosen" : false } , 
-        { "id" : 4 , "name" : "Others" , "selected" : false , "chosen" : false } ,
-        { "id" : 6 , "name" : "Comcast" , "selected" : false , "chosen" : false } ,
-        { "id" : 13 , "name" : "ATT" , "selected" : false , "chosen" : false } ,
-        { "id" : 17 , "name" : "Gmail" , "selected" : false , "chosen" : false } ,
-        { "id" : 21 , "name" : "Cloudmark" , "selected" : false , "chosen" : false } ,
-        { "id" : 45 , "name" : "safeothers" , "selected" : false , "chosen" : false } , 
-        { "id" : 47 , "name" : "UK" , "selected" : false , "chosen" : false } ,
-        { "id" : 52 , "name" : "GMX" , "selected" : false , "chosen" : false } ,
-        { "id" : 53 , "name" : "German" , "selected" : false , "chosen" : false } ,
-        { "id" : 54 , "name" : "ForeignYahoo" , "selected" : false , "chosen" : false } ,
-        { "id" : 57 , "name" : "France" , "selected" : false , "chosen" : false } ,
-        { "id" : 60 , "name" : "YahooOthers" , "selected" : false , "chosen" : false } ,
-        { "id" : 65 , "name" : "AOLUK" , "selected" : false , "chosen" : false } ,
-        { "id" : 66 , "name" : "AOLOthers" , "selected" : false , "chosen" : false } ,
-        { "id" : 67 , "name" : "ForeignAOL" , "selected" : false , "chosen" : false } ,
-        { "id" : 68 , "name" : "GmailOthers" , "selected" : false , "chosen" : false } ,
-        { "id" : 69 , "name" : "YahooUK" , "selected" : false , "chosen" : false } ,
-        { "id" : 70 , "name" : "HotmailUK" , "selected" : false , "chosen" : false } ,
-        { "id" : 71 , "name" : "ForeignHotmail" , "selected" : false , "chosen" : false } ,
-        { "id" : 72 , "name" : "HotmailOthers" , "selected" : false , "chosen" : false } ,
-        { "id" : 73 , "name" : "Facebook" , "selected" : false , "chosen" : false } ,
-        { "id" : 74 , "name" : "Apple" , "selected" : false , "chosen" : false } ,
-        { "id" : 75 , "name" : "Cable_Broadband" , "selected" : false , "chosen" : false } ,
-        { "id" : 76 , "name" : "Italy" , "selected" : false , "chosen" : false } ,
-        { "id" : 77 , "name" : "VerizonF" , "selected" : false , "chosen" : false } ,
-        { "id" : 78 , "name" : "CoxF" , "selected" : false , "chosen" : false } ,
-        { "id" : 79 , "name" : "BTINTERNET" , "selected" : false , "chosen" : false } ,
-        { "id" : 80 , "name" : "Wanadoo" , "selected" : false , "chosen" : false }
-    ];
-
+    self.ispList = [];
+    
     /**
      * Pagination Properties
      */
@@ -369,6 +337,14 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
             ListProfileApiService.getZipsByProfileId( self.current.pid , self.loadZipsSuccessCallback , self.loadZipsFailureCallback );
         }
     };
+
+    self.loadIsps = function () {
+        IspApiService.getAll( function ( response ) {
+            self.ispList = response.data;
+        } , function ( response ) {
+            self.showToast( 'Error retrieving ISPs. Please contact support.' );        
+        } );
+    }
 
     /**
      * Field Prepopulation Methods

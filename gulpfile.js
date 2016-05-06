@@ -144,7 +144,8 @@ elixir.extend( 'deployListProfileJs' , function ( mix ) {
         'listprofile/ListProfileApiService.js' ,
         'listprofile/ListProfileTableDirective.js' ,
         'clientgroup/ClientGroupApiService.js' ,
-        'client/ClientApiService.js'
+        'client/ClientApiService.js' ,
+        'mt2app/IspApiService.js'
     ] , 'public/js/listprofile.js' );
 } );
 
