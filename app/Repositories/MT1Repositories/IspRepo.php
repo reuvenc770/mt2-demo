@@ -15,7 +15,7 @@ class IspRepo {
                 ->get();
             
         } catch (\Exception $e){
-            Log::error("ClientGroup error:: ".$e->getMessage());
+            Log::error("IspRepo error:: ".$e->getMessage());
         }
     }
 }
