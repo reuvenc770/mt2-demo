@@ -224,7 +224,7 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
     }
 
     protected function processBounces ( $processState ) {
-        $records = $this->api->getRecordStats( PublicatorsApi::API_BOUNCES_STATS , $processState[ "campaign" ]->esp_internal_id );
+        $records = $this->api->getRecordStats( PublicatorsApi::TYPE_BOUNCES_STATS , $processState[ "campaign" ]->esp_internal_id );
 
         foreach ( $records as $record ) {
             Suppression::recordRawHardBounce(
@@ -238,7 +238,7 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
     }
 
     protected function processUnsubs ( $processState ) {
-        $records = $this->api->getRecordStats( PublicatorsApi::API_UNSUBSCRIBED_STATS , $processState[ "campaign" ]->esp_internal_id );
+        $records = $this->api->getRecordStats( PublicatorsApi::TYPE_UNSUBSCRIBED_STATS , $processState[ "campaign" ]->esp_internal_id );
 
         foreach ( $records as $record ) {
             Suppression::recordRawUnsub(
