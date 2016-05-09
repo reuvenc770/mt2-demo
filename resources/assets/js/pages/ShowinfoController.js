@@ -1,8 +1,8 @@
-mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$log' , '$window' , function ( ShowinfoApiService , $log , $window ) {
+mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$mdToast' , '$log' , '$window' , function ( ShowinfoApiService , $mdToast , $log , $window ) {
     var self = this;
     self.api = ShowinfoApiService;
 
-    self.isLoaded = false;
+    self.isLoading = false;
 
     self.recordId = null;
     self.records = {};
@@ -17,9 +17,9 @@ mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$log' , '$wi
     self.loadData = function ( $event ) {
         $event.preventDefault();
 
+        self.isLoading = true;
+
         self.api.getRecords( self.getType() , self.recordId , self.loadDataSuccessCallback , self.loadDataFailureCallback );
-        
-        self.isLoaded = true;
     };
 
     self.suppressRecord = function ( $event ) {
@@ -47,14 +47,17 @@ mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$log' , '$wi
      */
 
     self.loadDataSuccessCallback = function ( response ) {
-        $log.log( 'Response:' );
-        $log.log( response );
         self.records = response.data;
+
+        $mdToast.showSimple( 'Successfully Loaded Record' );
+
+        self.isLoading = false;
     };
 
     self.loadDataFailureCallback = function ( response ) {
-        $log.log( 'Load data failed...' );
-        $log.log( response );
+        $mdToast.showSimple( 'Failed to Load Record' );
+
+        self.isLoading = false;
     };
 
     self.loadReasonsSuccessCallback = function ( response ) {
@@ -62,8 +65,7 @@ mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$log' , '$wi
     };
 
     self.loadReasonsFailureCallback = function ( response ) {
-        $log.log( "Failed to load reasons." );
-        $log.log( response );
+        $mdToast.showSimple( 'Failed to Load Suppression Reasons' );
     };
 
     self.suppressRecordSuccessCallback = function ( response ) {};
