@@ -73,7 +73,7 @@ class Kernel extends ConsoleKernel
         
         $schedule->command('movetoftp:suppressions BlueHornet 1')->hourly()->dailyAt(self::REPORT_TIME);
 
-        /**is
+        /**
          * Campaign Data Daily
          */
         $filePath = storage_path('logs')."/downloadAPI.log";
