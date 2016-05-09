@@ -40,7 +40,7 @@ class YmlpApi extends EspBaseAPI {
     $finalOutput = array();
 
     while (!$done) {
-      $output = $this->apiSdk->ArchiveGetList($page, $numberPerPage, $this->startDate);
+      $output = json_decode($this->apiSdk->ArchiveGetList($page, $numberPerPage, $this->startDate), true);
 
       if ($this->apiSdk->ErrorMessage) {
         throw new \Exception('Cannot connect to YMLP API');
