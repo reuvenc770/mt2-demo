@@ -9,17 +9,20 @@
 
 <div ng-controller="ShowinfoController as info">
     <div class="well">
-        <form>
-            <div class="form-group">
+        <form name="recordForm" novalidate>
+            <div class="form-group" ng-class="{ 'has-error' : ( recordForm.recordId.$touched && recordForm.recordId.$error.required ) }">
                 <label for="eid">Record ID</label>
-                <input type="text" class="form-control" id="eid" required="required" placeholder="Please enter EID or email" ng-model="info.recordId" />
+                <input name="recordId" type="text" class="form-control" id="eid" required placeholder="Please enter EID or email" ng-model="info.recordId" />
+                <div ng-show="recordForm.recordId.$touched">
+                    <span class="help-block" ng-show="recordForm.recordId.$error.required">EID or Email is required</span>
+                </div>
             </div>
 
-            <md-button class="md-primary" ng-click="info.loadData( $event )" layout="row"><span flex>Search</span><md-progress-circular ng-show="info.isLoading" md-mode="indeterminate" md-diameter="24"></md-progress-circular></md-button>
+            <md-button class="md-primary" ng-click="info.loadData( $event , recordForm )" layout="row"><span flex>Search</span><md-progress-circular ng-show="info.isLoading" md-mode="indeterminate" md-diameter="24"></md-progress-circular></md-button>
         </form>
     </div>
 
-    <div id="mtTableContainer" class="table-responsive" ng-if="info.isLoaded">
+    <div id="mtTableContainer" class="table-responsive" ng-if="info.records.length > 0">
         <table class="table table-striped table-bordered tabel-hover text-center">
             <thead>
                 <th class="text-center">EID</th>
@@ -66,19 +69,23 @@
         </table>
     </div>
 
-    <div class="well" ng-if="info.isLoaded">
+    <div class="well" ng-if="info.records.length > 0">
         <h3>Add to Suppression</h3>
-        <form>
-            <div class="form-group">
+        <form name="suppressionForm" novalidate>
+            <div class="form-group" ng-class="{ 'has-error' : ( suppressionForm.suppressionReason.$touched && suppressionForm.suppressionReason.$error.required ) }">
                 <label for="suppressionReason">Reason</label>
 
-                <select class="form-control" ng-model="info.selectedReason" ng-init="info.loadReasons()">
+                <select name="suppressionReason" class="form-control" ng-model="info.selectedReason" ng-init="info.loadReasons()" required>
                     <option value="">Please Choose a Suppression Reason</option>
                     <option ng-repeat="reason in info.suppressionReasons" ng-value="reason.value">@{{ reason.name }}</option>
                 </select>
+
+                <div ng-show="suppressionForm.suppressionReason.$touched">
+                    <span class="help-block" ng-show="suppressionForm.suppressionReason.$error.required">Suppression Reason is required</span>
+                </div>
             </div>
 
-            <button type="submit" class="btn btn-danger btn-lg" ng-click="info.suppressRecord( $event )">Suppress Record</button>
+            <button type="submit" class="btn btn-danger btn-lg" ng-click="info.suppressRecord( $event , suppressionForm )">Suppress Record</button>
         </form>
     </div>
 </div>
