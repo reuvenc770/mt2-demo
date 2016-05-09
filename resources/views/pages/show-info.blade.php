@@ -15,7 +15,7 @@
                 <input type="text" class="form-control" id="eid" required="required" placeholder="Please enter EID or email" ng-model="info.recordId" />
             </div>
 
-            <button type="submit" class="btn btn-success btn-md" ng-click="info.loadData( $event )">Search</button>
+            <md-button class="md-primary" ng-click="info.loadData( $event )" layout="row"><span flex>Search</span><md-progress-circular ng-show="info.isLoading" md-mode="indeterminate" md-diameter="24"></md-progress-circular></md-button>
         </form>
     </div>
 
