@@ -372,8 +372,8 @@ class MaroReportService extends AbstractReportService implements IDataService
         $this->setPageNumber(1);
         $return = array();
         while ( $this->pageHasData() ) {
-            $stuff = $this->getPageData();
-            $return = array_merge($return, $stuff);
+            $records = $this->getPageData();
+            $return = array_merge($return, $records);
             $this->nextPage();
         }
         return $return;

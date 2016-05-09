@@ -67,9 +67,13 @@ class Kernel extends ConsoleKernel
          * Suppression Jobs
          */
         $schedule->command('suppression:downloadESP BlueHornet 1')->hourly()->dailyAt(self::UNSUB_TIME);
+        $schedule->command('suppression:downloadESP Maro 1')->hourly()->dailyAt(self::UNSUB_TIME);
+        $schedule->command('suppression:downloadESP EmailDirect 1')->hourly()->dailyAt(self::UNSUB_TIME);
+        $schedule->command('suppression:downloadESP YMLP 1')->hourly()->dailyAt(self::UNSUB_TIME);
+        
         $schedule->command('movetoftp:suppressions BlueHornet 1')->hourly()->dailyAt(self::REPORT_TIME);
 
-        /**
+        /**is
          * Campaign Data Daily
          */
         $filePath = storage_path('logs')."/downloadAPI.log";
