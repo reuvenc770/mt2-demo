@@ -220,4 +220,16 @@ class YmlpReportService extends AbstractReportService implements IDataService {
             throw $jobException;
         }
     }
+
+    public function pullUnsubsEmailsByLookback($lookback){
+        $startDate = Carbon::today()->subDay($lookback)->toDateString();
+        $endDate = Carbon::today()->toDateString();
+        return $this->api->callUnsubApi($startDate,$endDate);
+    }
+
+    public function insertUnsubs($data, $espAccountId){
+        foreach ($data as $entry){
+            Suppression::recordRawUnsub($espAccountId,$entry["EMAIL"],0,"", Carbon::today()->toDateString());
+        }
+    }
 }

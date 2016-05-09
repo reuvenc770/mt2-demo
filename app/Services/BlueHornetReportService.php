@@ -332,6 +332,9 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                     $date = $detail->nodeValue;
                 }
             }
+            if ($reason == "5-Timeout"){
+                continue;
+            }
 
             Suppression::recordRawHardBounce(
                 $processState[ 'ticket' ][ 'espId' ] ,
