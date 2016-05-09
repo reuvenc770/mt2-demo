@@ -5,6 +5,8 @@ mt2App.directive( 'membershipWidget' , [ "$rootScope" , "$log" , function ( $roo
         "controller" : function () {
             var self = this;
 
+            $rootScope[ self.widgetname ] = [];
+
             self.namefield = ( typeof( self.namefield ) !== 'undefined' ? self.namefield : 'name' );
             self.idfield = ( typeof( self.idfield ) !== 'undefined' ? self.idfield : 'id' );
 

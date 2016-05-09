@@ -240,8 +240,6 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
     };
 
     self.prepopPageClientsSuccessCallback = function ( response ) {
-        $rootScope[ self.widgetName ] = [];
-
         angular.forEach( response.data.records , function ( value , key ) {
             $rootScope[ self.widgetName ].push( value.client_id );
         } );
