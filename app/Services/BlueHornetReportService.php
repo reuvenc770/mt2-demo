@@ -40,6 +40,9 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
      * @param ReportRepo $reportRepo
      * @param $accountNumber
      */
+
+    const DELIVERABLE_LOOKBACK = 2;
+
     public function __construct(ReportRepo $reportRepo, BlueHornetApi $api , EmailRecordService $emailRecord )
     {
         parent::__construct($reportRepo, $api , $emailRecord );
@@ -195,16 +198,16 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
     public function getTypeList ( &$processState ) {
         $typeList = [ 'open' , 'click' , 'optout' , 'bounce' ];
-        if($this->emailRecord->checkTwoDays($processState[ 'espAccountId' ],$processState[ 'campaign' ]->esp_internal_id)){
+        if($this->emailRecord->withinTwoDays($processState[ 'espAccountId' ],$processState[ 'campaign' ]->esp_internal_id)){
             $typeList[] = "deliverable";
         }
         return $typeList;
     }
 
-    public function startTicket ( $espAccountId , $campaign , $recordType ) {
+    public function startTicket ( $espAccountId , $campaign , $recordType, $isRerun = false ) {
         try {
             return [
-                "ticketName" => $this->getTicketForMessageSubscriberData( $campaign->esp_internal_id , 'sent,bounce,open,click,optout' ) ,
+                "ticketName" => $this->getTicketForMessageSubscriberData( $campaign->esp_internal_id , 'sent,bounce,open,click,optout', $isRerun ) ,
                 "deployId" => $campaign->external_deploy_id,
                 "espInternalId" => $campaign->esp_internal_id ,
                 "deliveryTime" => $campaign->datetime,
@@ -329,6 +332,9 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                     $date = $detail->nodeValue;
                 }
             }
+            if ($reason == "5-Timeout"){
+                continue;
+            }
 
             Suppression::recordRawHardBounce(
                 $processState[ 'ticket' ][ 'espId' ] ,
@@ -372,10 +378,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             $email = $this->findEmail( $current , true );
 
             foreach ( $contents as $detail ) {
-                if ( $detail->nodeName == 'date' ) {
-                
-                    echo "passing in CLICK $email at {$detail->nodeValue} for deploy {$processState[ 'ticket' ][ 'deployId' ]}" . PHP_EOL;
-                    
+                if ( $detail->nodeName == 'date' ) {                    
                     $this->emailRecord->queueDeliverable(
                         self::RECORD_TYPE_CLICKER ,
                         $email , 
@@ -431,12 +434,19 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         Storage::delete( $processState[ 'filePath' ] );
     }
 
-    public function getTicketForMessageSubscriberData( $messageId , $recordType )
+    public function getTicketForMessageSubscriberData( $messageId , $recordType, $isRerun )
     {
+
         $methodData = array(
             "mess_id" => $messageId ,
-            "action_type" => $recordType 
+            "action_type" => $recordType
         );
+
+        if (!$isRerun) {
+            $methodData['start_date'] = Carbon::today()->subDay(self::DELIVERABLE_LOOKBACK)->toDateTimeString();
+            $methodData['end_date'] = Carbon::today()->toDateTimeString();
+        }
+
         try {
             $this->api->buildRequest("statistics.getMessageSubscriberData", $methodData);
             $response = $this->api->sendApiRequest();

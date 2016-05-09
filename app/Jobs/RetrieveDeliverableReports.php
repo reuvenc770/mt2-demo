@@ -115,10 +115,13 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     }
 
     protected function startTicket () {
+        $isRerun = $this->processState['pipe'] === 'rerun';
+
         $ticket = $this->reportService->startTicket(
             $this->espAccountId,
             isset($this->processState['campaign']) ? $this->processState['campaign'] : [],
-            isset($this->processState['recordType']) ? $this->processState['recordType'] : ''
+            isset($this->processState['recordType']) ? $this->processState['recordType'] : '',
+            $isRerun
         );
 
         $this->processState[ 'currentFilterIndex' ]++;
@@ -154,6 +157,22 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     protected function getCampaigns () {
         $campaigns = $this->standardReportRepo->getCampaigns( $this->espAccountId , $this->date );
 
+        $this->processState[ 'currentFilterIndex' ]++;
+
+        $campaigns->each( function( $campaign , $key ) {
+            $this->processState[ 'campaign' ] = $campaign;
+            $this->processState[ 'espId' ] = $this->espAccountId;
+
+            $this->queueNextJob( $this->defaultQueue );
+        });
+        
+        $this->changeJobEntry( JobEntry::SUCCESS );
+    }
+
+    protected function getMaroDeliverableCampaigns() {
+        $campaigns = $this->standardReportRepo->getCampaigns( $this->espAccountId , $this->date );
+
+        $this->processState['recordType'] = 'delivered';
         $this->processState[ 'currentFilterIndex' ]++;
 
         $campaigns->each( function( $campaign , $key ) {
@@ -204,6 +223,27 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->reportService->setPageNumber( isset( $this->processState[ 'pageNumber' ] ) ? $this->processState[ 'pageNumber' ] : 1 );
 
         if ( $this->reportService->pageHasData() ) {
+            $this->processState[ 'currentPageData' ] = $this->reportService->getPageData();
+            $this->reportService->savePage( $this->processState, $map );
+            $this->processState[ 'currentPageData' ] = array();
+
+            $this->reportService->nextPage();
+
+            $this->processState[ 'pageNumber' ] = $this->reportService->getPageNumber();
+
+            $this->queueNextJob( $this->defaultQueue );
+        }
+
+        $this->changeJobEntry( JobEntry::SUCCESS );
+    }
+
+
+    protected function savePaginatedCampaignRecords () {
+        $map = $this->standardReportRepo->getEspToInternalMap($this->espAccountId);
+        $this->reportService->setPageType( $this->processState[ 'recordType' ] );
+        $this->reportService->setPageNumber( isset( $this->processState[ 'pageNumber' ] ) ? $this->processState[ 'pageNumber' ] : 1 );
+
+        if ( $this->reportService->pageHasCampaignData($this->processState['campaign']->esp_internal_id) ) {
             $this->processState[ 'currentPageData' ] = $this->reportService->getPageData();
             $this->reportService->savePage( $this->processState, $map );
             $this->processState[ 'currentPageData' ] = array();

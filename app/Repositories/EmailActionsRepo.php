@@ -14,7 +14,6 @@ use Carbon\Carbon;;
 class EmailActionsRepo {
   
     private $actions;
-    private $deliverableId = 4;
 
     public function __construct(EmailAction $actions) {
         $this->actions = $actions;
@@ -31,7 +30,6 @@ class EmailActionsRepo {
     public function nextNRows($start, $offset) {
         return $this->actions
             ->where('id', '>=', $start)
-            ->where('action_id', '<>', $this->deliverableId)
             ->orderBy('id')
             ->skip($offset)
             ->first()['id'];

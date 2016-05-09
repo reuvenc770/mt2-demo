@@ -130,7 +130,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
     public function getTypeList ( $processState ) {
         $typeList = [ 'opens' , 'clicks', "unsubscribes", "complaints", "hardbounces" ];
 
-        if ($this->emailRecord->checkTwoDays( $processState[ 'espAccountId' ] , $processState[ 'campaign' ]->esp_internal_id ) ) {
+        if ($this->emailRecord->withinTwoDays( $processState[ 'espAccountId' ] , $processState[ 'campaign' ]->esp_internal_id ) ) {
             $typeList []= 'deliveries';
         }
 

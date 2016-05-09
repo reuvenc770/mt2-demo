@@ -30,7 +30,7 @@ class YMLP_API {
 
     	$params["key"] = $this->ApiKey;
     	$params["username"] = $this->ApiUsername;
-    	$params["output"] = "PHP";
+    	$params["output"] = "JSON";
         $this->ErrorMessage = "";
         $postdata = '';
 

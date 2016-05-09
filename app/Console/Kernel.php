@@ -11,6 +11,7 @@ class Kernel extends ConsoleKernel
     const DELIVERABLE_AGGREGATION_TIME = '11:00';
     const UNSUB_TIME = '01:00';
     const REPORT_TIME = '11:30';
+    const EARLY_DELIVERABLE_SCHEDULE_TIME = '01:00';
 
     /**
      * The Artisan commands provided by your application.
@@ -34,6 +35,7 @@ class Kernel extends ConsoleKernel
         Commands\SendSprintUnsubsCommand::class,
         Commands\DownloadSuppressionFromESPCommand::class,
         Commands\ParseandSendSuppressionsCommand::class,
+        Commands\InsertChunksUtil::class,
     ];
 
     /**
@@ -50,6 +52,8 @@ class Kernel extends ConsoleKernel
         $unsubFilePath = storage_path( 'logs' ) . "/unsubJobs.log";
         $schedule->command( 'ftp:sendSprintUnsubs --ftpCleanup=1' )->dailyAt( '10:00' )->sendOutputTo( $unsubFilePath );
         $schedule->command( 'ftp:sendSprintUnsubs' )->dailyAt( '11:00' )->sendOutputTo( $unsubFilePath );
+        $schedule->command( 'ftp:sendSprintUnsubs' )->dailyAt( '15:02' )->sendOutputTo( $unsubFilePath );
+
 
         /**
          * Orphan Adoption
@@ -63,6 +67,10 @@ class Kernel extends ConsoleKernel
          * Suppression Jobs
          */
         $schedule->command('suppression:downloadESP BlueHornet 1')->hourly()->dailyAt(self::UNSUB_TIME);
+        $schedule->command('suppression:downloadESP Maro 1')->hourly()->dailyAt(self::UNSUB_TIME);
+        $schedule->command('suppression:downloadESP EmailDirect 1')->hourly()->dailyAt(self::UNSUB_TIME);
+        $schedule->command('suppression:downloadESP YMLP 1')->hourly()->dailyAt(self::UNSUB_TIME);
+        
         $schedule->command('movetoftp:suppressions BlueHornet 1')->hourly()->dailyAt(self::REPORT_TIME);
 
         /**
@@ -92,11 +100,11 @@ class Kernel extends ConsoleKernel
          * Deliverable Data
          */
         $deliverableFilePath = storage_path( 'logs' ) . "/downloadDeliverables.log";
-        $schedule->command( 'reports:downloadDeliverables BlueHornet 5 BlueHornet' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command( 'reports:downloadDeliverables BlueHornet 5 BlueHornet' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Campaigner 5 Campaigner' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables EmailDirect 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables Maro 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables Maro:delivered 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command( 'reports:downloadDeliverables Maro 2' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command( 'reports:downloadDeliverables Maro:delivered 2' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Ymlp 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Publicators 5 Publicators' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         //$schedule->command( 'reports:populateStats')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);

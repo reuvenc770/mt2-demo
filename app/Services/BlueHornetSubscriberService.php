@@ -11,6 +11,7 @@ namespace App\Services;
 
 use App\Services\API\BlueHornetApi;
 use Carbon\Carbon;
+use App\Facades\Suppression;
 class BlueHornetSubscriberService
 {
     CONST UNSUB_REQUEST = "legacy.retrieve_unsub";
@@ -61,5 +62,16 @@ class BlueHornetSubscriberService
             throw new \Exception($xmlBody->asXML());
         }
         return $xmlBody;
+    }
+
+
+    public function insertUnsubs($data, $espAccountId){
+        foreach ($data as $entry){
+            $campaign_id = isset($entry->message_id) ? $entry->message_id : 0;
+            if($campaign_id == 0){// System Opt Out
+                continue;
+            }
+            Suppression::recordRawUnsub($espAccountId,$entry->email,$campaign_id,$entry->method_unsubscribed, $entry->date_deleted);
+        }
     }
 }

@@ -5,6 +5,7 @@
  */
 
 namespace App\Services;
+use App\Facades\Suppression;
 use App\Repositories\ReportRepo;
 use App\Services\API\YmlpApi;
 use App\Services\AbstractReportService;
@@ -26,7 +27,7 @@ use App\Exceptions\JobException;
 class YmlpReportService extends AbstractReportService implements IDataService {
     protected $reportRepo;
     protected $api;
-    protected $actions = ['opens', 'clicks', 'bounces', 'complaints', 'unsubscribes'];
+    protected $actions = ['opens', 'clicks', 'bounces', 'complaints', "deliverable"];
     protected $campaignRepo;
     protected $espAccountId;
 
@@ -119,7 +120,7 @@ class YmlpReportService extends AbstractReportService implements IDataService {
     public function getUniqueJobId ( &$processState ) {
         $jobId = ( isset( $processState[ 'jobId' ] ) ? $processState[ 'jobId' ] : '' );
 
-        if ( 
+        if (
             !isset( $processState[ 'jobIdIndex' ] )
             || ( isset( $processState[ 'jobIdIndex' ] ) && $processState[ 'jobIdIndex' ] != $processState[ 'currentFilterIndex' ] )
         ) {
@@ -128,11 +129,11 @@ class YmlpReportService extends AbstractReportService implements IDataService {
                     $jobId .= '::Campaign-' . $processState[ 'campaign' ]->esp_internal_id;
                 break;
 
-                case 2 :
+                case 3 :
                     $jobId .= '::Type-' . $processState[ 'recordType' ];
                 break;
             }
-            
+
             $processState[ 'jobIdIndex' ] = $processState[ 'currentFilterIndex' ];
             $processState[ 'jobId' ] = $jobId;
         }
@@ -140,8 +141,17 @@ class YmlpReportService extends AbstractReportService implements IDataService {
         return $jobId;
     }
 
-    public function splitTypes () {
-        return [ 'opens' , 'clicks' ];
+    public function getTypeList ( $processState ) {
+        $typeList = [ 'opens' , 'clicks', "bounces" ];
+        if ($this->emailRecord->withinTwoDays( $this->api->getId(), $processState[ 'campaign' ]->esp_internal_id ) ) {
+            $typeList []= 'deliveries';
+        }
+
+        return $typeList;
+    }
+
+    public function splitTypes ( $processState ) {
+        return $processState[ 'typeList' ];
     }
 
     public function saveRecords(&$processState) {
@@ -180,11 +190,46 @@ class YmlpReportService extends AbstractReportService implements IDataService {
                         );
                     }
                 break;
+
+                case 'bounces' :
+                    $bounceData = $this->api->getDeliverableStat('bounced', $espInternalId);
+
+                    foreach ( $bounceData as $key => $bouncer ) {
+                       Suppression::recordRawHardBounce($this->api->getId(),$bouncer['Email'],$espInternalId, $bouncer['ErrorMessage'], Carbon::today()->toDateString());
+                    }
+                    break;
+
+                case 'deliveries' :
+                    $deliveredData = $this->api->getDeliverableStat('delivered', $espInternalId);
+
+                    foreach ( $deliveredData as $key => $clicker ) {
+                        $this->emailRecord->recordDeliverable(
+                            self::RECORD_TYPE_DELIVERABLE ,
+                            $clicker['Email'] ,
+                            $this->api->getId() ,
+                            $deployId,
+                            $espInternalId,
+                            "0000-00-00 00:00:00"
+                        );
+                    }
+                    break;
             }
         } catch ( \Exception $e ) {
             $jobException = new JobException( 'Failed to save records. ' . $e->getMessage() , JobException::NOTICE , $e );
             $jobException->setDelay( 180 );
             throw $jobException;
+        }
+    }
+
+    public function pullUnsubsEmailsByLookback($lookback){
+        $startDate = Carbon::today()->subDay($lookback)->toDateString();
+        $endDate = Carbon::today()->toDateString();
+        return $this->api->callUnsubApi($startDate,$endDate);
+    }
+
+    public function insertUnsubs($data, $espAccountId){
+        foreach ($data as $entry){
+            Suppression::recordRawUnsub($espAccountId,$entry["EMAIL"],0,"", Carbon::today()->toDateString());
         }
     }
 }

@@ -65,9 +65,7 @@ class YmlpApi extends EspBaseAPI {
     $finalOutput = array();
 
     while (!$done) {
-
-      $output = $this->callDeliverableApiCall($stat, $newsletterId, $page);
-
+      $output = json_decode($this->callDeliverableApiCall($stat, $newsletterId, $page),true);
       if ($output) {
         $finalOutput = array_merge($finalOutput, $output);
         $page++;
@@ -112,5 +110,25 @@ class YmlpApi extends EspBaseAPI {
     }
 
     return $output;
+  }
+
+  public function callUnsubApi($startDate, $stopDate)
+  {
+    $page = 1;
+    $done = false;
+    $finalOutput = array();
+    while (!$done) {
+      $output = json_decode($this->apiSdk->ContactsGetUnsubscribed("",$page, 1000, $startDate, $stopDate),true);
+      if ($output) {
+        $finalOutput = array_merge($finalOutput, $output);
+        $page++;
+      }
+      else {
+        $done = true;
+      }
+    }
+
+    return $finalOutput;
+
   }
 }

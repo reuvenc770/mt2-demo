@@ -46,8 +46,8 @@ return [
                 'savePaginatedRecords'
             ] , 
             "delivered" => [
-                'getCampaigns' ,
-                'saveRecords'
+                'getMaroDeliverableCampaigns',
+                'savePaginatedCampaignRecords'
             ]
         ]
     ] ,
@@ -66,6 +66,7 @@ return [
         "pipes" => [
             "default" => [
                 'getCampaigns',
+                'getTypeList',
                 'splitTypes' ,
                 'saveRecords'
             ]

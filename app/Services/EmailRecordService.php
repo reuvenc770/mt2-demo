@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Repositories\EmailRecordRepo;
 use Log;
+use Carbon\Carbon;
+use DB;
 
 class EmailRecordService {
     protected $repo;
@@ -48,13 +50,13 @@ class EmailRecordService {
 
     public function massRecordDeliverables () {
         try {
-            $this->repo->massRecordDelierables($this->records);
+            $this->repo->massRecordDeliverables($this->records);
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
     }
 
-    public function checkTwoDays($espId, $campaignId){
-        return $this->repo->checkTwoDays($espId, $campaignId);
+    public function withinTwoDays($espId, $campaignId){
+        return $this->repo->withinTwoDays($espId, $campaignId);
     }
 }
