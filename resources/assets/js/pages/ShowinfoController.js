@@ -14,18 +14,26 @@ mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$mdToast' , 
      * Event Handlers
      */
 
-    self.loadData = function ( $event ) {
+    self.loadData = function ( $event , recordForm ) {
         $event.preventDefault();
 
-        self.isLoading = true;
+        if ( recordForm.recordId.$valid ) {
+            self.isLoading = true;
 
-        self.api.getRecords( self.getType() , self.recordId , self.loadDataSuccessCallback , self.loadDataFailureCallback );
+            self.api.getRecords( self.getType() , self.recordId , self.loadDataSuccessCallback , self.loadDataFailureCallback );
+        } else {
+            $mdToast.showSimple( 'Please correct form errors and try again.' );
+        }
     };
 
-    self.suppressRecord = function ( $event ) {
+    self.suppressRecord = function ( $event , suppressionForm ) {
         $event.preventDefault();
 
-        self.api.suppressRecord( self.recordId , self.selectedReason , self.suppressRecordSuccessCallback , self.suppressRecordFailureCallback );
+        if ( suppressionForm.suppressionReason.$valid ) {
+            self.api.suppressRecord( self.recordId , self.selectedReason , self.suppressRecordSuccessCallback , self.suppressRecordFailureCallback );
+        } else {
+            $mdToast.showSimple( 'Please correct form errors and try again.' );
+        }
     }
 
     /**
@@ -47,9 +55,13 @@ mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$mdToast' , 
      */
 
     self.loadDataSuccessCallback = function ( response ) {
-        self.records = response.data;
+        if ( typeof( response.data[ 0 ].message ) !== 'undefined' ) {
+            $mdToast.showSimple( 'No info for that ID.' );
+        } else {
+            self.records = response.data;
 
-        $mdToast.showSimple( 'Successfully Loaded Record' );
+            $mdToast.showSimple( 'Successfully Loaded Record' );
+        }
 
         self.isLoading = false;
     };
