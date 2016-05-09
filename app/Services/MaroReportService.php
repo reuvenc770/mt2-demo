@@ -91,7 +91,7 @@ class MaroReportService extends AbstractReportService implements IDataService
             case 'opens' :
                 foreach ( $processState[ 'currentPageData' ] as $key => $opener ) {
                     if (isset($map[ $opener['campaign_id'] ])) {
-                        $this->emailRecord->recordDeliverable(
+                        $this->emailRecord->queueDeliverable(
                             self::RECORD_TYPE_OPENER ,
                             $opener[ 'contact' ][ 'email' ] ,
                             $this->api->getId() ,
@@ -111,7 +111,7 @@ class MaroReportService extends AbstractReportService implements IDataService
             case 'clicks' :
                 foreach ( $processState[ 'currentPageData' ] as $key => $clicker ) {
                     if (isset($map[ $clicker['campaign_id'] ])) {
-                        $this->emailRecord->recordDeliverable(
+                        $this->emailRecord->queueDeliverable(
                             self::RECORD_TYPE_CLICKER ,
                             $clicker[ 'contact' ][ 'email' ] ,
                             $this->api->getId() ,
@@ -155,7 +155,7 @@ class MaroReportService extends AbstractReportService implements IDataService
             case 'complaints' :
                 foreach ( $processState[ 'currentPageData' ] as $key => $complainer ) {
                     if (isset($map[ $complainer['campaign_id'] ])) {
-                        $this->emailRecord->recordDeliverable(
+                        $this->emailRecord->queueDeliverable(
                             self::RECORD_TYPE_COMPLAINT ,
                             $complainer[ 'contact' ][ 'email' ] ,
                             $this->api->getId() ,
@@ -173,7 +173,7 @@ class MaroReportService extends AbstractReportService implements IDataService
             case 'delivered':
                 foreach ( $processState[ 'currentPageData' ] as $key => $delivered ) {
                     if (isset($map[ $delivered['campaign_id'] ])) {
-                        $this->emailRecord->recordDeliverable(
+                        $this->emailRecord->queueDeliverable(
                             self::RECORD_TYPE_DELIVERABLE ,
                             $delivered[ 'email' ] ,
                             $this->api->getId() ,
@@ -189,7 +189,7 @@ class MaroReportService extends AbstractReportService implements IDataService
                 }
                 break;
         }
-
+        $this->emailRecord->massRecordDeliverables();
         echo "Matched: $totalCorrect; Missing: $totalIncorrect" . PHP_EOL;
     }
 
