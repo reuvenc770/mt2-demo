@@ -375,10 +375,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             $email = $this->findEmail( $current , true );
 
             foreach ( $contents as $detail ) {
-                if ( $detail->nodeName == 'date' ) {
-                
-                    echo "passing in CLICK $email at {$detail->nodeValue} for deploy {$processState[ 'ticket' ][ 'deployId' ]}" . PHP_EOL;
-                    
+                if ( $detail->nodeName == 'date' ) {                    
                     $this->emailRecord->queueDeliverable(
                         self::RECORD_TYPE_CLICKER ,
                         $email , 

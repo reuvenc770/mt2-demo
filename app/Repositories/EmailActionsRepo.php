@@ -14,7 +14,6 @@ use Carbon\Carbon;;
 class EmailActionsRepo {
   
     private $actions;
-    private $deliverableId = 4;
 
     public function __construct(EmailAction $actions) {
         $this->actions = $actions;
