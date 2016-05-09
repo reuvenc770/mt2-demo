@@ -138,6 +138,17 @@ elixir.extend( 'deployClientGroupJs' , function ( mix ) {
     ] , 'public/js/clientgroup.js' );
 } );
 
+elixir.extend('deployDataExportJs', function(mix) {
+    mix.scripts([
+        'dataexport/DataExportController.js',
+        'dataexport/DataExportApiService.js',
+        'dataexport/DataExportTableDirective.js',
+	'dataexport/StatusButtonDirective.js',
+	'dataexport/DataExportDeleteDirective.js',
+	'dataexport/DataExportCopyDirective.js'
+    ], 'public/js/dataexport.js');
+});
+
 elixir.extend( 'deployListProfileJs' , function ( mix ) {
     mix.scripts( [
         'listprofile/ListProfileController.js' ,
@@ -161,6 +172,7 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployClientJs( mix );
     mix.deployClientGroupJs( mix );
     mix.deployListProfileJs( mix );
+    mix.deployDataExportJs(mix);
 } );
 
 elixir.extend( 'runTdd' , function ( mix ) {
@@ -226,6 +238,9 @@ var mt2TaskMap = {
     } ,
     'deployListProfileJs' : function ( mix ) {
         mix.deployListProfileJs( mix );
+    },
+    'deployDataExportJs': function(mix) {
+	mix.deployDataExportJs(mix);
     }
 };
 

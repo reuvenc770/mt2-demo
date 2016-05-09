@@ -24,7 +24,7 @@ class UniqueProfileRepo
     }
 
     public function getProfilesNameAndId(){
-        return $this->profile->select('profile_id as id', "profile_name as name")->get();
+        return $this->profile->select('profile_id as id', "profile_name as name")->where('status', '=', 'A')->get();
     }
 
     public function getProfileById ( $id ) {

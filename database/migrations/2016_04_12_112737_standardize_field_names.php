@@ -29,7 +29,7 @@ class StandardizeFieldNames extends Migration
         });
 
         Schema::table('orphan_emails', function($table) {
-            $table->bigInteger('deploy_id')->after('esp_account_id');
+            $table->bigInteger('deploy_id')->unsigned()->after('esp_account_id');
             $table->renameColumn('campaign_id', 'esp_internal_id');
         });
     }
