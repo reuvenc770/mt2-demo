@@ -175,11 +175,11 @@ class MaroReportService extends AbstractReportService implements IDataService
                     if (isset($map[ $delivered['campaign_id'] ])) {
                         $this->emailRecord->recordDeliverable(
                             self::RECORD_TYPE_DELIVERABLE ,
-                            $delivered[ 'contact' ][ 'email' ] ,
+                            $delivered[ 'email' ] ,
                             $this->api->getId() ,
                             $map[ $delivered['campaign_id'] ],
                             $delivered[ 'campaign_id' ] ,
-                            Carbon::parse($delivered[ 'recorded_at' ])
+                            Carbon::parse($delivered[ 'created_at' ])
                         );
                         $totalCorrect++;
                     }
@@ -274,6 +274,22 @@ class MaroReportService extends AbstractReportService implements IDataService
 
             return true;
         }
+    }
+
+    public function pageHasCampaignData($campaignId) {
+        $this->api->setDeliverableLookBack();
+        $this->api->setDeliveredUrl($campaignId, $this->pageNumber);
+
+        $data = $this->api->sendApiRequest();
+        $data = $this->processGuzzleResult( $data );
+
+        if ( empty( $data ) ) {
+            return false; 
+        } else {
+            $this->currentPageData = $data;
+            return true;
+        }
+
     }
 
     public function getPageData () {

@@ -237,6 +237,27 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->changeJobEntry( JobEntry::SUCCESS );
     }
 
+
+    protected function savePaginatedCampaignRecords () {
+        $map = $this->standardReportRepo->getEspToInternalMap($this->espAccountId);
+        $this->reportService->setPageType( $this->processState[ 'recordType' ] );
+        $this->reportService->setPageNumber( isset( $this->processState[ 'pageNumber' ] ) ? $this->processState[ 'pageNumber' ] : 1 );
+
+        if ( $this->reportService->pageHasCampaignData($this->processState['campaign']->esp_internal_id) ) {
+            $this->processState[ 'currentPageData' ] = $this->reportService->getPageData();
+            $this->reportService->savePage( $this->processState, $map );
+            $this->processState[ 'currentPageData' ] = array();
+
+            $this->reportService->nextPage();
+
+            $this->processState[ 'pageNumber' ] = $this->reportService->getPageNumber();
+
+            $this->queueNextJob( $this->defaultQueue );
+        }
+
+        $this->changeJobEntry( JobEntry::SUCCESS );
+    }
+
     protected function saveRecords () {
         if (isset($this->standardReportRepo)) {
             $map = $this->standardReportRepo->getEspToInternalMap($this->espAccountId);
