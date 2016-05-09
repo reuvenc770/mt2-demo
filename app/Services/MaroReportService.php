@@ -267,7 +267,6 @@ class MaroReportService extends AbstractReportService implements IDataService
 
         $data = $this->api->sendApiRequest();
         $data = $this->processGuzzleResult( $data );
-
         if ( empty( $data ) ) {
             return false; 
         } else {
@@ -350,6 +349,24 @@ class MaroReportService extends AbstractReportService implements IDataService
             'unsubscribes' => $data['unsubscribes'],
             'complaints' => $data['complaints'],
         );
+    }
+
+    public function pullUnsubsEmailsByLookback($lookback){
+        $this->setPageType("unsubscribes");
+        $this->setPageNumber(1);
+        $return = array();
+        while ( $this->pageHasData() ) {
+            $stuff = $this->getPageData();
+            $return = array_merge($return, $stuff);
+            $this->nextPage();
+        }
+        return $return;
+    }
+
+    public function insertUnsubs($data, $espAccountId){
+        foreach ($data as $entry){
+            Suppression::recordRawUnsub($espAccountId,$entry['contact']['email'],$entry['campaign_id'],"", $entry['recorded_on']);
+        }
     }
 
 }
