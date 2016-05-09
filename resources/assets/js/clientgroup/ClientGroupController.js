@@ -48,6 +48,7 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
     self.chosenWidgetTitle = "Chosen Clients";
     self.clientNameField = "username";
     self.clientIdField = "client_id";
+    self.widgetName = 'clientgroup';
 
     /**
      * Init Methods
@@ -222,15 +223,27 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
     /**
      * Success Callbacks
      */
+    self.clientMembershipCallback = function () {
+        var clientIdList = [];
+
+        angular.forEach( self.selectedClients , function ( client , clientIndex ) {
+            clientIdList.push( client[ self.clientIdField ] );
+        } );
+
+        self.current.clients = clientIdList.join( "\n" );
+    };
+
     self.prepopPageDataSuccessCallback = function ( response ) {
         self.current.groupName = response.data.name;
-        console.log(self.current.groupName);
+
         self.current.excludeFromSuper = response.data.excludeFromSuper;
     };
 
     self.prepopPageClientsSuccessCallback = function ( response ) {
+        $rootScope[ self.widgetName ] = [];
+
         angular.forEach( response.data.records , function ( value , key ) {
-            self.selectedClients.push( { "id" : value.client_id , "name" : value.name } );
+            $rootScope[ self.widgetName ].push( value.client_id );
         } );
     };
 
