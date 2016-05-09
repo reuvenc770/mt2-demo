@@ -462,6 +462,12 @@ Route::group(
             ]
         );
 
+        Route::resource(
+            'isp' ,
+            'IspController' ,
+            [ 'only' => [ 'index' ] ]
+        );
+
 
         /**
          * Admin Level API Group

@@ -59,6 +59,16 @@ body {
     height: 250px;
 }
 
+.autocompleteSelect , .autocompleteSelect input {
+    border: 1px solid #ccc;
+    background-color: #FFF !important;
+    border-radius: 4px;
+}
+
+.membershipBox {
+    height: 300px;
+}
+
 /**
  * Lists
  */

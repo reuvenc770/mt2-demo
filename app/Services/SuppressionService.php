@@ -57,17 +57,21 @@ class SuppressionService
         }
     }
 
-    public function getHardBouncesByDateEsp($espAccountId, $date){
+    public function getHardBouncesByDateEsp($espAccountId, $date, $useRange = false){
         try{
-           return $this->repo->getRecordsByDateEspType(Suppression::TYPE_HARD_BOUNCE, $espAccountId, $date);
+
+        $method = $useRange ? "getRecordsByDateToCurrentEspType" : "getRecordsByDateEspType";
+        return $this->repo->$method(Suppression::TYPE_HARD_BOUNCE, $espAccountId, $date);
+
         } catch (\Exception $e) {
             Log::error($e->getMessage(). ": while trying get Suppression Records by Hardbounce");
             throw new \Exception($e);
         }
     }
-    public function getUnsubsByDateEsp($espAccountId, $date){
+    public function getUnsubsByDateEsp($espAccountId, $date, $useRange = false){
         try{
-           return $this->repo->getRecordsByDateEspType(Suppression::TYPE_UNSUB, $espAccountId, $date);
+            $method = $useRange ? "getRecordsByDateToCurrentEspType" : "getRecordsByDateEspType";
+           return $this->repo->$method(Suppression::TYPE_UNSUB, $espAccountId, $date);
         } catch (\Exception $e) {
             Log::error($e->getMessage(). ": while trying get Suppression Records by Unsub");
             throw new \Exception($e);

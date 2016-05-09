@@ -1,8 +1,8 @@
-mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$log' , '$window' , function ( ShowinfoApiService , $log , $window ) {
+mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$mdToast' , '$log' , '$window' , function ( ShowinfoApiService , $mdToast , $log , $window ) {
     var self = this;
     self.api = ShowinfoApiService;
 
-    self.isLoaded = false;
+    self.isLoading = false;
 
     self.recordId = null;
     self.records = {};
@@ -14,18 +14,26 @@ mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$log' , '$wi
      * Event Handlers
      */
 
-    self.loadData = function ( $event ) {
+    self.loadData = function ( $event , recordForm ) {
         $event.preventDefault();
 
-        self.api.getRecords( self.getType() , self.recordId , self.loadDataSuccessCallback , self.loadDataFailureCallback );
-        
-        self.isLoaded = true;
+        if ( recordForm.recordId.$valid ) {
+            self.isLoading = true;
+
+            self.api.getRecords( self.getType() , self.recordId , self.loadDataSuccessCallback , self.loadDataFailureCallback );
+        } else {
+            $mdToast.showSimple( 'Please correct form errors and try again.' );
+        }
     };
 
-    self.suppressRecord = function ( $event ) {
+    self.suppressRecord = function ( $event , suppressionForm ) {
         $event.preventDefault();
 
-        self.api.suppressRecord( self.recordId , self.selectedReason , self.suppressRecordSuccessCallback , self.suppressRecordFailureCallback );
+        if ( suppressionForm.suppressionReason.$valid ) {
+            self.api.suppressRecord( self.recordId , self.selectedReason , self.suppressRecordSuccessCallback , self.suppressRecordFailureCallback );
+        } else {
+            $mdToast.showSimple( 'Please correct form errors and try again.' );
+        }
     }
 
     /**
@@ -47,14 +55,21 @@ mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$log' , '$wi
      */
 
     self.loadDataSuccessCallback = function ( response ) {
-        $log.log( 'Response:' );
-        $log.log( response );
-        self.records = response.data;
+        if ( typeof( response.data[ 0 ].message ) !== 'undefined' ) {
+            $mdToast.showSimple( 'No info for that ID.' );
+        } else {
+            self.records = response.data;
+
+            $mdToast.showSimple( 'Successfully Loaded Record' );
+        }
+
+        self.isLoading = false;
     };
 
     self.loadDataFailureCallback = function ( response ) {
-        $log.log( 'Load data failed...' );
-        $log.log( response );
+        $mdToast.showSimple( 'Failed to Load Record' );
+
+        self.isLoading = false;
     };
 
     self.loadReasonsSuccessCallback = function ( response ) {
@@ -62,8 +77,7 @@ mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$log' , '$wi
     };
 
     self.loadReasonsFailureCallback = function ( response ) {
-        $log.log( "Failed to load reasons." );
-        $log.log( response );
+        $mdToast.showSimple( 'Failed to Load Suppression Reasons' );
     };
 
     self.suppressRecordSuccessCallback = function ( response ) {};

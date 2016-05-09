@@ -1,4 +1,4 @@
-mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' , '$location' , '$window' , '$mdDialog' , '$mdToast' , 'ListProfileApiService' , 'ClientGroupApiService' , function ( $rootScope , $log , $http , $location , $window , $mdDialog , $mdToast , ListProfileApiService , ClientGroupApiService ) {
+mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' , '$location' , '$timeout' , '$window' , '$mdDialog' , '$mdToast' , 'ListProfileApiService' , 'ClientGroupApiService' , 'IspApiService' , function ( $rootScope , $log , $http , $location , $timeout , $window , $mdDialog , $mdToast , ListProfileApiService , ClientGroupApiService , IspApiService ) {
     var self = this;
 
     /**
@@ -22,8 +22,8 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
      */
     self.profileList = [];
     self.clientGroupList = [];
-    self.ispList = [ { "id" : 1 , "name" : "AOL" } , { "id" : 2 , "name" : "Hotmail" } , { "id" : 3 , "name" : "Yahoo" } ,  { "id" : 4 , "name" : "Others" } , { "id" : 6 , "name" : "Comcast" } , { "id" : 13 , "name" : "ATT" } , { "id" : 17 , "name" : "Gmail" } , { "id" : 21 , "name" : "Cloudmark" } , { "id" : 45 , "name" : "safeothers" } ,  { "id" : 47 , "name" : "UK" } , { "id" : 52 , "name" : "GMX" } , { "id" : 53 , "name" : "German" } , { "id" : 54 , "name" : "ForeignYahoo" } , { "id" : 57 , "name" : "France" } , { "id" : 60 , "name" : "YahooOthers" } , { "id" : 65 , "name" : "AOLUK" } , { "id" : 66 , "name" : "AOLOthers" } , { "id" : 67 , "name" : "ForeignAOL" } , { "id" : 68 , "name" : "GmailOthers" } , { "id" : 69 , "name" : "YahooUK" } , { "id" : 70 , "name" : "HotmailUK" } , { "id" : 71 , "name" : "ForeignHotmail" } , { "id" : 72 , "name" : "HotmailOthers" } , { "id" : 73 , "name" : "Facebook" } , { "id" : 74 , "name" : "Apple" } , { "id" : 75 , "name" : "Cable_Broadband" } , { "id" : 76 , "name" : "Italy" } , { "id" : 77 , "name" : "VerizonF" } , { "id" : 78 , "name" : "CoxF" } , { "id" : 79 , "name" : "BTINTERNET" } , { "id" : 80 , "name" : "Wanadoo" } ];
-
+    self.ispList = [];
+    
     /**
      * Pagination Properties
      */
@@ -42,9 +42,11 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
      */
 
     self.ispSearchText = '';
-    $rootScope.selectedIsps = {};
+    self.selectedIsps = [];
     self.currentSelectedIsp = '';
     self.ispChipList = [];
+    self.availableWidgetTitle = "Available ISPs";
+    self.chosenWidgetTitle = "Chosen ISPs";
 
     /**
      * Targeting Chip Containers
@@ -335,6 +337,14 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
             ListProfileApiService.getZipsByProfileId( self.current.pid , self.loadZipsSuccessCallback , self.loadZipsFailureCallback );
         }
     };
+
+    self.loadIsps = function () {
+        IspApiService.getAll( function ( response ) {
+            self.ispList = response.data;
+        } , function ( response ) {
+            self.showToast( 'Error retrieving ISPs. Please contact support.' );        
+        } );
+    }
 
     /**
      * Field Prepopulation Methods

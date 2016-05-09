@@ -36,7 +36,6 @@ class EspApiAccountService
 
     public function getModel () { return $this->espRepo->getModel(); }
 
-    public function getType () { return 'espapiaccount'; }
 
     /**
      * @param int $id The ID of the account to retrieve.
