@@ -1,4 +1,4 @@
-mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' , '$location' , '$timeout' , '$window' , '$mdDialog' , '$mdToast' , 'ListProfileApiService' , 'ClientGroupApiService' , 'IspApiService' , function ( $rootScope , $log , $http , $location , $timeout , $window , $mdDialog , $mdToast , ListProfileApiService , ClientGroupApiService , IspApiService ) {
+mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' , '$location' , '$timeout' , '$window' , '$mdDialog' , '$mdToast' , '$anchorScroll' , 'ListProfileApiService' , 'ClientGroupApiService' , 'IspApiService' , function ( $rootScope , $log , $http , $location , $timeout , $window , $mdDialog , $mdToast , $anchorScroll , ListProfileApiService , ClientGroupApiService , IspApiService ) {
     var self = this;
 
     /**
@@ -461,23 +461,57 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
         $window.location.href = self.createUrl;
     };
 
-    self.calculateListProfile = function () {
+    self.calculateListProfile = function ( $event , addForm ) {
         var currentFormFields = {};
+
+        if ( self.rangeList.length <= 0 ) {
+            $mdToast.showSimple( 'Please choose a range.' );
+
+            $anchorScroll( 'range' );
+
+            return false;
+        }
+
+        if ( self.selectedIsps.length <= 0 ) {
+            $mdToast.showSimple( 'Please select ISPs.' );
+
+            $anchorScroll( 'isp' );
+
+            return false;
+        }
 
         switch ( self.profileType ) {
             case 'v1' :
                 self.prepV1Fields();
                 currentFormFields = self.v1Form;
+
+                if ( addForm.profileName.$error.required ) {
+                    $mdToast.showSimple( 'Please fix form errors and try again.' );
+
+                    return false;
+                }
             break;
 
             case 'v2' :
                 self.prepV2Fields();
                 currentFormFields = self.v2Form;
+
+                if ( addForm.volumeDesired.$error.required ) {
+                    $mdToast.showSimple( 'Please fix form errors and try again.' );
+
+                    return false;
+                }
             break;
 
             case 'v3' :
                 self.prepV3Fields();
                 currentFormFields = self.v3Form;
+
+                if ( addForm.volumeDesired.$error.required ) {
+                    $mdToast.showSimple( 'Please fix form errors and try again.' );
+
+                    return false;
+                }
             break;
         }
 
@@ -533,7 +567,7 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
         self.showToast( 'Error Saving List Profile. Please contact support.' );
     };
 
-    self.updateListProfile = function () {
+    self.updateListProfile = function ( $event , editForm ) {
         self.updatingListProfile = true;
 
         self.prepV1Fields();

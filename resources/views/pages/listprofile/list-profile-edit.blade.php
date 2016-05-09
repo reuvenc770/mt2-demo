@@ -12,13 +12,15 @@
         <div class="hidden-xs hidden-sm col-md-3"></div>
 
         <div class="col-xs-12 col-md-6">
-            <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disabled' : listProfile.updatingListProfile }" ng-click="listProfile.updateListProfile( $event )"><span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : listProfile.updatingListProfile }"></span> Update</button>
+            <form name="profileForm" novalidate>
+                <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disabled' : listProfile.updatingListProfile }" ng-click="listProfile.updateListProfile( $event , profileForm )"><span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : listProfile.updatingListProfile }"></span> Update</button>
 
-            <div class="clearfix"></div>
+                <div class="clearfix"></div>
 
-            @include( 'pages.listprofile.list-profile-form' )
+                @include( 'pages.listprofile.list-profile-form' )
 
-            <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disabled' : listProfile.updatingListProfile }" ng-click="listProfile.updateListProfile( $event )"><span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : listProfile.updatingListProfile }"></span> Update</button>
+                <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disabled' : listProfile.updatingListProfile }" ng-click="listProfile.updateListProfile( $event , profileForm )"><span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : listProfile.updatingListProfile }"></span> Update</button>
+            </form>
         </div>
     </div>
 </div>
