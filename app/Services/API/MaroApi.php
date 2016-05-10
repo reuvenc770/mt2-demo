@@ -119,9 +119,11 @@ class MaroApi extends EspBaseAPI {
             . $this->apiKey;
     }
 
-    public function getDelivered ( $campaignId ) {
-        $this->url = sprintf( self::DELIVERED_URL , $this->account , $campaignId ) . '&auth_token=' . $this->apiKey . '&from=' . $this->priorDate . '&to=' . $this->date;
-
-        return $this->sendApiRequest();
+    public function setDeliveredUrl ( $campaignId, $pageNumber = 0 ) {
+        $this->url = sprintf( self::DELIVERED_URL , $this->account , $campaignId ) 
+                    . 'page=' . $pageNumber 
+                    . '&auth_token=' . $this->apiKey 
+                    . '&from=' . $this->priorDate 
+                    . '&to=' . $this->date;
     }
 }

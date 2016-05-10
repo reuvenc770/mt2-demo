@@ -4,17 +4,16 @@
  */
 
 namespace App\Services;
-use App\Services\API\EspBaseApi;
+
 use App\Services\API\EmailDirectApi;
 use App\Repositories\ReportRepo;
-use App\Services\AbstractReportService;
 use League\Flysystem\Exception;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use App\Services\Interfaces\IDataService;
-use App\Services\EmailRecordService;
 use App\Exceptions\JobException;
-use Log;
+use App\Facades\Suppression;
+
 
 /**
  *
@@ -129,9 +128,9 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
     }
 
     public function getTypeList ( $processState ) {
-        $typeList = [ 'opens' , 'clicks', "unsubscribes", "complaints" ];
+        $typeList = [ 'opens' , 'clicks', "unsubscribes", "complaints", "hardbounces" ];
 
-        if ( !$this->emailRecord->checkForDeliverables( $processState[ 'espAccountId' ] , $processState[ 'campaign' ]->esp_internal_id ) ) {
+        if ($this->emailRecord->withinTwoDays( $processState[ 'espAccountId' ] , $processState[ 'campaign' ]->esp_internal_id ) ) {
             $typeList []= 'deliveries';
         }
 
@@ -150,7 +149,8 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                     $deliverables = $this->getDeliveryReport( $processState[ 'campaign' ]->esp_internal_id );
 
                     foreach ( $deliverables as $key => $deliveryRecord ) {
-                        $this->emailRecord->recordDeliverable(
+
+                            $this->emailRecord->recordDeliverable(
                             self::RECORD_TYPE_DELIVERABLE ,
                             $deliveryRecord[ 'EmailAddress' ] ,
                             $processState[ 'espId' ] ,
@@ -158,6 +158,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                             $processState[ 'campaign' ]->esp_internal_id ,
                             $deliveryRecord[ 'ActionDate' ]
                         );
+
                     }
                 break;
 
@@ -165,6 +166,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                     $opens = $this->getOpenReport( $processState[ 'campaign' ]->esp_internal_id );
 
                     foreach ( $opens as $key => $openRecord ) {
+
                         $this->emailRecord->recordDeliverable(
                             self::RECORD_TYPE_OPENER ,
                             $openRecord[ 'EmailAddress' ] ,
@@ -173,6 +175,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                             $processState[ 'campaign' ]->esp_internal_id ,
                             $openRecord[ 'ActionDate' ]
                         );
+
                     }
                 break;
 
@@ -180,6 +183,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                     $clicks = $this->getClickReport( $processState[ 'campaign' ]->esp_internal_id );
 
                     foreach ( $clicks as $key => $clickRecord ) {
+
                         $this->emailRecord->recordDeliverable(
                             self::RECORD_TYPE_CLICKER ,
                             $clickRecord[ 'EmailAddress' ] ,
@@ -188,28 +192,30 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                             $processState[ 'campaign' ]->esp_internal_id ,
                             $clickRecord[ 'ActionDate' ]
                         );
+
                     }
                 break;
 
                 case 'unsubscribes' :
                     $unsubs = $this->getUnsubscribeReport( $processState[ 'campaign' ]->esp_internal_id );
-
                     foreach ( $unsubs as $key => $unsubRecord ) {
-                        $this->emailRecord->recordDeliverable(
-                            self::RECORD_TYPE_UNSUBSCRIBE ,
-                            $unsubRecord[ 'EmailAddress' ] ,
-                            $processState[ 'espId' ] ,
-                            $processState[ 'campaign' ]->external_deploy_id ,
-                            $processState[ 'campaign' ]->esp_internal_id ,
-                            $unsubRecord[ 'ActionDate' ]
-                        );
+                        Suppression::recordRawUnsub($processState[ 'espId' ] , $unsubRecord[ 'EmailAddress' ],  $processState[ 'campaign' ]->esp_internal_id, "", $unsubRecord[ 'ActionDate' ]);
                     }
                 break;
+
+                case 'hardbounces' :
+                   $unsubs = $this->getUnsubscribeReport( $processState[ 'campaign' ]->esp_internal_id );
+
+                    foreach ( $unsubs as $key => $hardbounce ) {
+                        Suppression::recordRawUnsub($processState[ 'espId' ] , $hardbounce[ 'EmailAddress' ],  $processState[ 'campaign' ]->esp_internal_id,  "", $hardbounce[ 'ActionDate' ]);
+                    }
+                    break;
 
                 case 'complaints' :
                     $complainers = $this->getComplaintReport( $processState[ 'campaign' ]->esp_internal_id );
 
                     foreach ( $complainers as $key => $complainerRecord ) {
+
                         $this->emailRecord->recordDeliverable(
                             self::RECORD_TYPE_COMPLAINT ,
                             $complainerRecord[ 'EmailAddress' ] ,

@@ -14,7 +14,6 @@ use Carbon\Carbon;;
 class EmailActionsRepo {
   
     private $actions;
-    private $deliverableId = 4;
 
     public function __construct(EmailAction $actions) {
         $this->actions = $actions;
@@ -31,7 +30,6 @@ class EmailActionsRepo {
     public function nextNRows($start, $offset) {
         return $this->actions
             ->where('id', '>=', $start)
-            ->where('action_id', '<>', $this->deliverableId)
             ->orderBy('id')
             ->skip($offset)
             ->first()['id'];
@@ -65,8 +63,6 @@ class EmailActionsRepo {
           INNER JOIN mt2_reports.action_types types ON ea.action_id = types.id
         WHERE
           ea.id BETWEEN :startPoint AND :endPoint
-          AND
-          types.name <> 'deliverable'
         GROUP BY
           ea.email_id, ea.deploy_id", 
             array(

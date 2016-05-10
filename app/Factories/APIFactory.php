@@ -69,9 +69,13 @@ class APIFactory
     }
 
     public static function createApiSubscriptionService($apiName, $espAccountId){
-        $api = "App\\Services\\API\\{$apiName}Api";
-        $service = "App\\Services\\{$apiName}SubscriberService";
-        return new $service(new $api($espAccountId));
+        if($apiName == "BlueHornet" || $apiName == "EmailDirect") {
+            $api = "App\\Services\\API\\{$apiName}Api";
+            $service = "App\\Services\\{$apiName}SubscriberService";
+            return new $service(new $api($espAccountId));
+        } else {
+            return self::createApiReportService($apiName, $espAccountId);
+        }
     }
 
     public static function createCsvDeliverableService($espId, $espName) {

@@ -42,12 +42,13 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
     /**
      * Chip Field Properties
      */
-    $rootScope.selectedClients = {};
-    self.clientChipList = [];
+    self.selectedClients = [];
     self.clientList = [];
-    self.typeSearchText = '';
-    self.currentSelectedClient = '';
-
+    self.availableWidgetTitle = "Available Clients";
+    self.chosenWidgetTitle = "Chosen Clients";
+    self.clientNameField = "username";
+    self.clientIdField = "client_id";
+    self.widgetName = 'clientgroup';
 
     /**
      * Init Methods
@@ -167,52 +168,6 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
         );
     };
     
-
-    /**
-     * Client Chip/Lookahead Field 
-     */
-    self.searchClient = function ( searchText ) {
-        return searchText ? self.clientList.filter( function ( obj ) {
-            var idRegex = new RegExp( '^' + searchText );
-
-            return (
-                obj.username.toLowerCase().indexOf( searchText.toLowerCase() ) === 0
-                || idRegex.test( obj.client_id.toString() ) 
-            );
-        } ) : false;
-    }
-
-    self.updateClientCheckboxList = function ( item ) {
-        if ( typeof( item ) !== 'undefined' ) {
-            $rootScope.selectedClients[ item.client_id ] = item.username;
-        }
-    };
-
-    self.updateClientFormField = function () {
-        var clientDelimitedList = '';
-        angular.forEach( self.clientChipList , function ( value , key ) {
-            if ( key > 0 ) clientDelimitedList += "\n";
-
-            clientDelimitedList += value.id;
-        } );
-
-        self.current.clients = clientDelimitedList;
-    };
-
-    self.formatChip = function ( $chip ) {
-        if ( typeof( $chip.name ) === 'undefined' ) {
-            return {
-                'name' : $chip.username ,
-                'id' : $chip.client_id
-            };
-        } else return;
-    };
-
-    self.removeClientChip = function ( $chip ) {
-        $rootScope.selectedClients[ $chip.id ] = false;
-    };
-
-
     /**
      * Watchers
      */
@@ -220,25 +175,6 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
         $( '.collapse' ).collapse( 'hide' );
         self.loadClientGroups();
     } );
-
-    $rootScope.$watchCollection( 'selectedClients' , function ( newClients , oldClients ) {
-        angular.forEach( newClients , function ( value , key ) {
-            var currentChip = { "id" : key , "name" : value };
-
-            var chipIndex = self.clientChipList.map(
-                function ( chip ) { return chip.id }        
-            ).indexOf( key ); 
-
-            var chipExists = ( chipIndex !== -1 );
-
-            if ( value !== false && !chipExists ) {
-                self.clientChipList.push( currentChip );
-            } else if ( value === false && chipExists ) {
-                self.clientChipList.splice( chipIndex , 1 );
-            }
-        });
-    } );
-
 
     /**
      * Page Modal
@@ -287,15 +223,25 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
     /**
      * Success Callbacks
      */
+    self.clientMembershipCallback = function () {
+        var clientIdList = [];
+
+        angular.forEach( self.selectedClients , function ( client , clientIndex ) {
+            clientIdList.push( client[ self.clientIdField ] );
+        } );
+
+        self.current.clients = clientIdList.join( "\n" );
+    };
+
     self.prepopPageDataSuccessCallback = function ( response ) {
         self.current.groupName = response.data.name;
-        console.log(self.current.groupName);
+
         self.current.excludeFromSuper = response.data.excludeFromSuper;
     };
 
     self.prepopPageClientsSuccessCallback = function ( response ) {
         angular.forEach( response.data.records , function ( value , key ) {
-            $rootScope.selectedClients[ value.client_id ] = value.name;
+            $rootScope[ self.widgetName ].push( value.client_id );
         } );
     };
 

@@ -134,3 +134,14 @@ Breadcrumbs::register( 'client.attribution' , function ( $breadcrumbs ) {
     $breadcrumbs->parent( 'client.list' );
     $breadcrumbs->push( 'Attribution' );
 } );
+
+// Data Export Pages
+Breadcrumbs::register('dataexport.list', function($breadcrumbs) {
+    $breadcrumbs->parent('home');
+    $breadcrumbs->push('Data Exports');
+});
+
+Breadcrumbs::register('dataexport.add', function($breadcrumbs) {
+    $breadcrumbs->parent('dataexport.list');
+    $breadcrumbs->push('Add/Edit Data Export');
+});

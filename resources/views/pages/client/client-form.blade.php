@@ -135,14 +135,14 @@
 
             <div class="form-group" ng-class="{ 'has-error' : client.formErrors.client_type }">
                 <div layout="column" ng-cloak>
-                    <md-content>
+                    <md-content class="autocompleteSelect">
                         <md-autocomplete
                             md-search-text="client.typeSearchText"
                             md-items="item in client.getClientType( client.typeSearchText )"
                             md-item-text="item.name"
                             md-selected-item-change="client.setClientType( item )"
                             md-min-length="0"
-                            placeholder="Choose a Client Type"
+                            placeholder="Type to Choose a Client Type"
                             md-selected-item="client.current.client_type">
 
                             <md-item-template>
@@ -201,14 +201,14 @@
             <div class="clearfix"></div>
             <div class="form-group" ng-class="{ 'has-error' : client.formErrors.list_owner }">
                 <div layout="column" ng-cloak>
-                    <md-content>
+                    <md-content class="autocompleteSelect">
                         <md-autocomplete
                             md-search-text="client.ownerSearchText"
                             md-items="item in client.getListOwners( client.ownerSearchText )"
                             md-item-text="item.name"
                             md-selected-item-change="client.setListOwner( item )"
                             md-min-length="0"
-                            placeholder="Choose a List Owner"
+                            placeholder="Type to Choose a List Owner"
                             md-selected-item="client.current.list_owner">
 
                             <md-item-template>

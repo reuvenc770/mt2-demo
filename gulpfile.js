@@ -65,6 +65,7 @@ elixir.extend( 'deployBaseAngular' , function ( mix ) {
         'mt2app/PaginationControlDirective.js' ,
         'mt2app/PaginationButtonDirective.js' ,
         'mt2app/PaginationCountDirective.js',
+        'mt2app/MembershipWidgetDirective.js' ,
         'mt2app/CompileHtml.js'
     ] , 'public/js/angular_base.js' );
 } );
@@ -146,13 +147,25 @@ elixir.extend( 'deployClientAttributionJs' , function ( mix ) {
     ] , 'public/js/clientAttribution.js' );
 } );
 
+elixir.extend('deployDataExportJs', function(mix) {
+    mix.scripts([
+        'dataexport/DataExportController.js',
+        'dataexport/DataExportApiService.js',
+        'dataexport/DataExportTableDirective.js',
+	'dataexport/StatusButtonDirective.js',
+	'dataexport/DataExportDeleteDirective.js',
+	'dataexport/DataExportCopyDirective.js'
+    ], 'public/js/dataexport.js');
+});
+
 elixir.extend( 'deployListProfileJs' , function ( mix ) {
     mix.scripts( [
         'listprofile/ListProfileController.js' ,
         'listprofile/ListProfileApiService.js' ,
         'listprofile/ListProfileTableDirective.js' ,
         'clientgroup/ClientGroupApiService.js' ,
-        'client/ClientApiService.js'
+        'client/ClientApiService.js' ,
+        'mt2app/IspApiService.js'
     ] , 'public/js/listprofile.js' );
 } );
 
@@ -169,6 +182,7 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployClientGroupJs( mix );
     mix.deployListProfileJs( mix );
     mix.deployClientAttributionJs( mix );
+    mix.deployDataExportJs(mix);
 } );
 
 elixir.extend( 'runTdd' , function ( mix ) {
@@ -237,6 +251,9 @@ var mt2TaskMap = {
     } ,
     'deployListProfileJs' : function ( mix ) {
         mix.deployListProfileJs( mix );
+    },
+    'deployDataExportJs': function(mix) {
+	mix.deployDataExportJs(mix);
     }
 };
 

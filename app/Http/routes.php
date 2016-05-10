@@ -309,6 +309,41 @@ Route::group(
 );
 
 /**
+ *  Data Export Routes
+ */
+
+Route::group( 
+    [ 
+        'prefix' => 'dataexport', 
+        'middleware' => ['auth', 'pageLevel'] 
+    ],
+    function () {
+        Route::get( '/' , 
+            array(
+                'as' => 'dataexport.list' , 
+                'uses' => 'DataExportController@listActive' 
+            ) 
+        );
+
+        Route::get( 
+            '/create', 
+            array( 
+                'as' => 'dataexport.add', 
+                'uses' => 'DataExportController@create' 
+            )
+        );
+
+        Route::get(
+            '/edit/{id}',
+            array( 
+                'as' => 'dataexport.edit',
+                'uses' => 'DataExportController@edit'
+            )
+        );
+    }
+);
+
+/**
  * API Routes
  */
 Route::group(
@@ -336,6 +371,12 @@ Route::group(
             'as' => 'api.client.attribution.list' ,
             'uses' => 'AttributionController@index'
         ] );
+
+        Route::put('/dataexport/update', [ 
+            'as' => 'dataexport.update', 
+            'middleware' => ['auth'], 
+            'uses' => 'DataExportController@message'
+        ]);
 
         /**
          * Client Group API Routes
@@ -438,6 +479,21 @@ Route::group(
             [ 'only' => [ 'store' ] ]
         );
 
+        Route::resource(
+            'dataexport', 
+            'DataExportController', 
+            [
+                'except' => ['create', 'edit'], 
+                'middleware' =>['auth']
+            ]
+        );
+
+        Route::resource(
+            'isp' ,
+            'IspController' ,
+            [ 'only' => [ 'index' ] ]
+        );
+
         /**
          * Admin Level API Group
          */
@@ -532,6 +588,12 @@ Route::group(
             'uniqueprofiles' ,
             'MT1API\UniqueProfileApiController' ,
             [ 'only' => [ 'index' , 'show' ] ]
+        );
+
+        Route::resource(
+            'esps', 
+            'MT1API\EspApiController', 
+            ['only' => ['index', 'show']]
         );
     }
 );

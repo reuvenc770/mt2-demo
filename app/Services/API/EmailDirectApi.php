@@ -91,15 +91,44 @@ class EmailDirectApi extends EspBaseAPI {
         if ($totalPages > 1) {
             $i = 2;
             while ($i <= $totalPages) {
-                $recipientsResponse = $this->api->campaigns($campaignId)->recipients(array("PageNumber" => $i,"PageSize" => 500));
+                $recipientsResponse = $this->api->campaigns($campaignId)->$method(array("PageNumber" => $i,"PageSize" => 500));
                 if(!$recipientsResponse->success()){
                     throw new \Exception( "Email Direct API Called Failed.  {$recipientsResponse->getErrorMessage()} :!: {$recipientsResponse->getErrorCode()}");
                 }
+                $recipientsData = $recipientsResponse->getData();
                 $outputData = array_merge($outputData, $recipientsData["Items"]);
                 $i++;
             }
         }
         return $this->reduce_array($outputData,["EmailAddress","ActionDate"]);
+
+    }
+    //TODO Starting to have code smell since we basically have the same method above, should be simple refactor
+    public function getUnsubReport($since){
+
+        $outputData = array();
+        $recordResponse = $this->api->subscribers()->removes(array("Since" => $since, "PageSize" => 500));
+
+        if(!$recordResponse->success()){
+            throw new \Exception( "Email Direct API Called Failed.  {$recordResponse->getErrorMessage()} :!: {$recordResponse->getErrorCode()}");
+        }
+        $recipientsData = $recordResponse->getData();
+        $outputData = array_merge($outputData, $recipientsData["Items"]);
+        $totalPages = $recipientsData['TotalPages'];
+
+        if ($totalPages > 1) {
+            $i = 2;
+            while ($i <= $totalPages) {
+                $recordResponse = $this->api->subscribers()->removes(array("Since" => $since, "PageNumber" => $i,"PageSize" => 500));
+                if(!$recordResponse->success()){
+                    throw new \Exception( "Email Direct API Called Failed.  {$recordResponse->getErrorMessage()} :!: {$recordResponse->getErrorCode()}");
+                }
+                $recipientsData = $recordResponse->getData();
+                $outputData = array_merge($outputData, $recipientsData["Items"]);
+                $i++;
+            }
+        }
+        return $this->reduce_array($outputData,["EmailAddress"]);
     }
 }
 
