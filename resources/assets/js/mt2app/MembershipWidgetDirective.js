@@ -1,9 +1,14 @@
-mt2App.directive( 'membershipWidget' , [ "$log" , function ( $log ) {
+mt2App.directive( 'membershipWidget' , [ "$rootScope" , "$log" , function ( $rootScope , $log ) {
     return {
         "replace" : true ,
         "scope" : {} ,
         "controller" : function () {
             var self = this;
+
+            $rootScope[ self.widgetname ] = [];
+
+            self.namefield = ( typeof( self.namefield ) !== 'undefined' ? self.namefield : 'name' );
+            self.idfield = ( typeof( self.idfield ) !== 'undefined' ? self.idfield : 'id' );
 
             self.selectAllAvailableRecords = function ( records ) {
                 angular.forEach( records , function ( record , key ) {
@@ -75,21 +80,31 @@ mt2App.directive( 'membershipWidget' , [ "$log" , function ( $log ) {
                         record.selected = false;
                         record.chosen = true;
 
-                        self.addSingleRecord( record );
+                        self.addSingleRecord( record , false );
                     }
                 } );
+
+                if ( typeof( self.updatecallback ) !== 'undefined' ) {
+                    self.updatecallback();
+                }
             };
 
-            self.addSingleRecord = function ( record ) {
+            self.addSingleRecord = function ( record , runCallback ) {
+                runCallback = ( typeof( runCallback ) === 'undefined' ? true : runCallback );
                 record.selected = false;
                 record.chosen = true;
 
-                self.chosenrecordlist.push( {
-                    "id" : record.id ,
-                    "name" : record.name ,
-                    "selected" : false ,
-                    "original" : record
-                } );
+                var chosenRecord = {};
+                chosenRecord[ self.idfield ] = record[ self.idfield ];
+                chosenRecord[ self.namefield ] = record[ self.namefield ];
+                chosenRecord.selected = false;
+                chosenRecord.original = record;
+
+                self.chosenrecordlist.push( chosenRecord );
+
+                if ( typeof( self.updatecallback ) !== 'undefined' && runCallback === true ) {
+                    self.updatecallback();
+                }
             };
 
             self.removeAllSelectedChosenRecords = function () {
@@ -111,13 +126,27 @@ mt2App.directive( 'membershipWidget' , [ "$log" , function ( $log ) {
 
                 self.chosenrecordlist.splice( self.chosenrecordlist.indexOf( record ) , 1 );
             };
+
+            $rootScope.$watchCollection( self.widgetname , function ( newClients , oldClients ) {
+                angular.forEach( self.recordlist , function ( record , recordIndex ) {
+                    if ( newClients.indexOf( parseInt( record[ self.idfield ] , 10 ) ) !== -1 ) {
+                        self.addSingleRecord( record );
+                    }
+                } );
+
+                self.updatecallback();
+            } );
         } ,
         "controllerAs" : "ctrl" ,
         "bindToController" : {
             'recordlist' : '=' ,
             'chosenrecordlist' : '=' ,
             'availablecardtitle' : '=' ,
-            'chosenrecordtitle' : '='
+            'chosenrecordtitle' : '=' ,
+            'idfield' : '=?' ,
+            'namefield' : '=?' ,
+            'updatecallback' : '&' ,
+            'widgetname' : '='
         } ,
         "templateUrl" : "js/templates/membership-widget.html"
     };
