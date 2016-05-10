@@ -237,7 +237,7 @@ class MaroReportService extends AbstractReportService implements IDataService
             if ( $pipe == 'default' && $filterIndex == 1  ) {
                 $jobId .= '::Pipe-' . $pipe . '::' . $processState[ 'recordType' ] . '::Page-' . ( isset( $processState[ 'pageNumber' ] ) ? $processState[ 'pageNumber' ] : 1 );
             } elseif ( $pipe == 'delivered' && $filterIndex == 1 ) {
-                $jobId .= '::Pipe-' .$pipe . '::Campaign-' . $processState[ 'campaign' ]->esp_internal_id;
+                $jobId .= ( isset( $processState[ 'campaign' ] ) ? '::Pipe-' .$pipe . '::Campaign-' . $processState[ 'campaign' ]->esp_internal_id : '' );
             }
 
             $processState[ 'jobIdIndex' ] = $processState[ 'currentFilterIndex' ];
