@@ -50,6 +50,9 @@ class DataExportController extends Controller
     public function store(Request $request)
     {
         Flash::success("Client was Successfully Updated");
+
+        $this->api->flushPaginatedCache( self::DATA_EXPORT_API_ENDPOINT );
+
         return response( $this->api->postForm( self::DATA_EXPORT_API_ENDPOINT , $request->all() ) );
     }
 
@@ -72,6 +75,8 @@ class DataExportController extends Controller
      */
     public function edit($id)
     {
+        $this->api->flushPaginatedCache( self::DATA_EXPORT_API_ENDPOINT );
+
         return response()->view( 'pages.dataexport.dataexport-edit' );
     }
 
@@ -99,6 +104,8 @@ class DataExportController extends Controller
     }
 
     public function message(Request $request) {
+        $this->api->flushPaginatedCache( self::DATA_EXPORT_API_ENDPOINT );
+
         return response($this->api->getJSON(self::DATA_EXPORT_API_ENDPOINT, $request->all()));
     }
 }

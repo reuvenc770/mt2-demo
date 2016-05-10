@@ -91,9 +91,12 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   self.clientGroups = [];
 
   // ESPs search
-  self.espSearchText = '';
+  self.espList = [];
   self.selectedEsps = [];
-  self.viewedSelectedEsp = '';
+  self.formEsps = [];
+  self.availableWidgetTitle = 'Available ESPs';
+  self.chosenWidgetTitle = 'Chosen ESPs';
+  self.widgetName = 'esps';
 
   /**
   * Loading Flags
@@ -161,8 +164,6 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   }
 
   self.saveDataExport = function(event) {
-
-    var esps = self.returnFilterNestedArrayKey(self.selectedEsps, 'id');
     var exportType = esps.length > 0 ? "ESP" : "Regular";
 
     var saveData = {
@@ -195,7 +196,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
       "fields": Object.keys(self.viewed.fields).filter( function (field) {
         return self.viewed.fields[field];
       }),
-      "esp": esps,
+      "esp": self.formEsps,
       "outname": '',
       "repull": '',
       "SendToEmail": '',
@@ -546,7 +547,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     
     for (var i = 0; i < espArrLen; i++) {
       // blank name for now - will be updated when esps are loaded
-      self.selectedEsps.push({'id': espsArr[i], 'name': ''}); 
+      $rootScope[ self.widgetName ].push( parseInt( espsArr[i] , 10 ) );
     }
     
     var fields = data.fieldsToExport.split(',');
@@ -630,6 +631,8 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     self.setModalLabel('Success!');
     self.setModalBody('Updated data export status.');
     self.launchModal();
+
+    self.loadPage();
   };
 
   self.changeStatusDataExportFailureCallback = function(response) {
@@ -704,6 +707,16 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     self.setModalLabel( 'Error' );
     self.setModalBody( 'Failed to load esps.' );
     self.launchModal();
+  }
+  
+  self.espMembershipCallback = function () {
+    $log.log( 'Running update callback.' );
+
+    self.formEsps = [];
+
+    angular.forEach( self.selectedEsps , function ( esp , espIndex ) {
+        self.formEsps.push( esp.id );
+    } );
   }
 
 }]);

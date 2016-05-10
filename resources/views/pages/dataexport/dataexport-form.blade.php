@@ -171,37 +171,7 @@
         <span class="help-block" ng-bind="dataExport.formErrors.seeds" ng-show="dataExport.formErrors.seeds"></span>
       </div>
 
-      <md-content class="chipList">
-        <label>ESPs</label>
-        <div layout="row">
-          <md-button flex ng-click="dataExport.selectAllEsps( true )">Select All</md-button>
-          <md-button flex ng-click="dataExport.selectAllEsps( false )">Clear All</md-button>
-        </div>
-
-        <md-chips ng-model="dataExport.selectedEsps" md-on-remove="dataExport.removeEspChip( $chip )">
-          <md-autocomplete
-          md-search-text="dataExport.espSearchText"
-          md-items="item in dataExport.getEsps( dataExport.espSearchText )"
-          md-item-text="item.name"
-          md-min-length="0"
-          placeholder="Choose an ESP"
-          md-selected-item="dataExport.viewedSelectedEsp"
-          md-selected-item-change="dataExport.updateEspCheckboxList( item )"
-          style="margin-bottom: 1em;">
-
-            <span md-highlight-text="dataExport.espSearchText" md-highlight-flags="^i">@{{ item.name }}</span>
-
-            <md-not-found></md-not-found>
-          </md-autocomplete>
-
-          <md-chip-template>
-            <span>
-              <strong>@{{ $chip.name }}</strong>
-              <em>( @{{ $chip.id }} )</em>
-            </span>
-          </md-chip-template>
-        </md-chips>
-      </md-content>
+        <membership-widget recordlist="dataExport.espList" chosenrecordlist="dataExport.selectedEsps" availablecardtitle="dataExport.availableWidgetTitle" chosenrecordtitle="dataExport.chosenWidgetTitle"  updatecallback="dataExport.espMembershipCallback()" widgetname="dataExport.widgetName"></membership-widget>
     </div>
   </div>
 
