@@ -126,7 +126,7 @@ class YmlpReportService extends AbstractReportService implements IDataService {
         ) {
             switch ( $processState[ 'currentFilterIndex' ] ) {
                 case 1 :
-                    $jobId .= '::Campaign-' . $processState[ 'campaign' ]->esp_internal_id;
+                    $jobId .= ( isset( $processState[ 'campaign' ] ) ? '::Campaign-' . $processState[ 'campaign' ]->esp_internal_id : '' );
                 break;
 
                 case 3 :
