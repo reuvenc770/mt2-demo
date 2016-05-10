@@ -544,10 +544,13 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
     var espsArr = data.esps.split(',');
     var espArrLen = espsArr.length;
-    
+    var currentEspId = null;
+
     for (var i = 0; i < espArrLen; i++) {
       // blank name for now - will be updated when esps are loaded
-      $rootScope[ self.widgetName ].push( parseInt( espsArr[i] , 10 ) );
+        currentEspId = parseInt( espsArr[i] , 10 );
+      
+      if ( currentEspId > 0 ) $rootScope[ self.widgetName ].push( currentEspId );
     }
     
     var fields = data.fieldsToExport.split(',');
@@ -710,8 +713,6 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   }
   
   self.espMembershipCallback = function () {
-    $log.log( 'Running update callback.' );
-
     self.formEsps = [];
 
     angular.forEach( self.selectedEsps , function ( esp , espIndex ) {
