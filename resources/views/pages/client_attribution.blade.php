@@ -16,7 +16,7 @@
             <div flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'attribution' , '_token' : '{{ csrf_token() }}' } }" flow-files-submitted="$flow.upload()">
                 <div flow-drop class="dropFile" flow-drag-enter="style={border:'4px solid green'}" flow-drag-leave="style={}" ng-style="style">
                     <span class="btn btn-xs btn-default" flow-btn>
-                        Upload Suppression Files
+                        Upload Attribution Files
                         <input type="file" style="visibility: hidden; position: absolute;" />
                     </span>
 
