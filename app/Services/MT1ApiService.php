@@ -71,6 +71,10 @@ class MT1ApiService
         }
     }
 
+    public function flushPaginatedCache ( $pageName ) {
+        Cache::tags( $pageName )->flush();
+    }
+
     public function postForm($page, $data, $file = null)
     {
         $page = $page . ".cgi";
