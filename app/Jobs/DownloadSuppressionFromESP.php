@@ -33,12 +33,10 @@ class DownloadSuppressionFromESP extends Job implements ShouldQueue
         JobTracking::startEspJob(self::JOB_NAME,$this->apiName, $this->espAccountId, $this->tracking);
 
         $subscriptionService = APIFactory::createApiSubscriptionService($this->apiName,$this->espAccountId);
-        $data = $subscriptionService->pullUnsubsEmailsByLookback($this->date); //Realized that the ESP should get rid of rows not job.
+        $data = $subscriptionService->pullUnsubsEmailsByLookback($this->date);
         if($data){
                 $subscriptionService->insertUnsubs($data, $this->espAccountId);
-        } else {
-            //Ticket is not ready or data not returned
-    }
+        }
         JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking, $this->attempts());
     }
 
