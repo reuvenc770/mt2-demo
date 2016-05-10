@@ -138,10 +138,15 @@ Breadcrumbs::register( 'client.attribution' , function ( $breadcrumbs ) {
 // Data Export Pages
 Breadcrumbs::register('dataexport.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');
-    $breadcrumbs->push('Data Exports');
+    $breadcrumbs->push('Data Exports' , route( 'dataexport.list' ) );
 });
 
 Breadcrumbs::register('dataexport.add', function($breadcrumbs) {
     $breadcrumbs->parent('dataexport.list');
-    $breadcrumbs->push('Add/Edit Data Export');
+    $breadcrumbs->push('Add Data Export');
+});
+
+Breadcrumbs::register('dataexport.edit', function($breadcrumbs) {
+    $breadcrumbs->parent('dataexport.list');
+    $breadcrumbs->push('Edit Data Export');
 });
