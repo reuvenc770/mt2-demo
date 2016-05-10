@@ -120,10 +120,19 @@ Route::group(
             'as' => 'tools.recordlookup' ,
             'uses' => 'ShowInfoController@index'
         ] );
+    }
+);
 
-        /**
-         * YMLP Manager Routes
-         */
+
+/**
+* YMLP Manager Routes
+*/
+Route::group(
+    [
+        'prefix' => 'ymlp' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
         Route::get( '/ymlp-campaign' , [
             'as' => 'ymlpcampaign.list' ,
             'uses' => 'YmlpCampaignController@listAll'
@@ -141,7 +150,6 @@ Route::group(
 
     }
 );
-
 
 /**
  * Dev Tool Routes
@@ -209,6 +217,11 @@ Route::group(
         Route::get( '/edit/{id}' , [
             'as' => 'client.edit' ,
             'uses' => 'ClientController@edit'
+        ] );
+
+        Route::get( '/attribution' , [
+            'as' => 'client.attribution' ,
+            'uses' => 'AttributionController@listAll'
         ] );
     }
 );
@@ -330,8 +343,6 @@ Route::group(
     }
 );
 
-
-
 /**
  * API Routes
  */
@@ -351,12 +362,21 @@ Route::group(
             'uses' => 'UserApiController@updateProfile'
         ] );
 
+        Route::any('/attachment/upload', [
+            'as' => 'api.attachment.upload' ,
+            'uses' => 'AttachmentApiController@flow'
+        ] );
+
+        Route::get( '/client/attribution/list' , [
+            'as' => 'api.client.attribution.list' ,
+            'uses' => 'AttributionController@index'
+        ] );
+
         Route::put('/dataexport/update', [ 
             'as' => 'dataexport.update', 
             'middleware' => ['auth'], 
             'uses' => 'DataExportController@message'
         ]);
-
 
         /**
          * Client Group API Routes
@@ -452,6 +472,12 @@ Route::group(
             'ShowInfoController' ,
             [ 'only' => [ 'show' , 'store' ] ]
         );
+        
+        Route::resource(
+            'attribution' ,
+            'AttributionController' ,
+            [ 'only' => [ 'store' ] ]
+        );
 
         Route::resource(
             'dataexport', 
@@ -467,7 +493,6 @@ Route::group(
             'IspController' ,
             [ 'only' => [ 'index' ] ]
         );
-
 
         /**
          * Admin Level API Group

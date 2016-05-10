@@ -8,6 +8,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Services\MT1ApiService;
 use App\Http\Requests\ClientEditRequest;
+use App\Services\MT1Services\ClientService;
 
 class ClientController extends Controller
 {
@@ -16,9 +17,11 @@ class ClientController extends Controller
     const GEN_LINKS_API_ENDPOINT = 'gen_tracking_link';
 
     protected $api;
+    protected $clientApi;
 
-    public function __construct ( MT1ApiService $api ) {
+    public function __construct ( MT1ApiService $api , ClientService $clientApi ) {
         $this->api = $api;
+        $this->clientApi = $clientApi;
     }
 
     /**

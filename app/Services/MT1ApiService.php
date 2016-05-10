@@ -71,11 +71,11 @@ class MT1ApiService
         }
     }
 
-    public function postForm($page, $data)
+    public function postForm($page, $data, $file = null)
     {
         $page = $page . ".cgi";
         try {
-            $this->response = $this->api->postMT1Json($page, $data);
+            $this->response = $this->api->postMT1Json($page, $data, $file);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return $e->getMessage();
@@ -83,6 +83,11 @@ class MT1ApiService
         }
         return $this->processGuzzle($page, $data);
 
+    }
+
+    public function postFormWithFile($page, $data,$file)
+    {
+       return $this->postForm($page,$data,$file);
     }
 
     private function processGuzzle($page, $params = null)
@@ -93,4 +98,5 @@ class MT1ApiService
         }
         return $this->response->getBody()->getContents();
     }
+
 }
