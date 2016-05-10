@@ -51,8 +51,8 @@ class Kernel extends ConsoleKernel
          */
         $unsubFilePath = storage_path( 'logs' ) . "/unsubJobs.log";
         $schedule->command( 'ftp:sendSprintUnsubs --ftpCleanup=1' )->dailyAt( '10:00' )->sendOutputTo( $unsubFilePath );
-        $schedule->command( 'ftp:sendSprintUnsubs' )->dailyAt( '11:00' )->sendOutputTo( $unsubFilePath );
-        $schedule->command( 'ftp:sendSprintUnsubs' )->dailyAt( '15:02' )->sendOutputTo( $unsubFilePath );
+        $schedule->command( 'ftp:sendSprintUnsubs' )->dailyAt( '13:00' )->sendOutputTo( $unsubFilePath );
+        $schedule->command( 'ftp:sendSprintUnsubs' )->dailyAt( '17:00' )->sendOutputTo( $unsubFilePath );
 
 
         /**
