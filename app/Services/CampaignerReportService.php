@@ -34,9 +34,6 @@ use App\Exceptions\JobException;
  */
 class CampaignerReportService extends AbstractReportService implements IDataService
 {
-
-    CONST NO_CAMPAIGNS = 'M_4.1.1.1_NO-CAMPAIGNRUNS-FOUND';
-
     /**
      * @var string
      */
@@ -196,7 +193,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             $dateFilter->setToDate($endDate);
             $params = new GetCampaignRunsSummaryReport($this->api->getAuth(), null, false, $dateFilter);
             $results = $manager->GetCampaignRunsSummaryReport($params);
-            if($this->checkforHeaderFail($manager,"retrieveApiStats"))
+            if($this->api->checkforHeaderFail($manager,"retrieveApiStats"))
             {
                 return null;
             }
@@ -220,7 +217,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
 
         $results = $reportHandle->getRunReportResult();
 
-        if($this->checkforHeaderFail($manager,"createCampaignReport"))
+        if($this->api->checkforHeaderFail($manager,"createCampaignReport"))
         {
             return null;
         }
@@ -350,7 +347,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             $upToCount = $offset > 0 ? $offset + $limit -1 : $offset + $limit;
             $report = new DownloadReport($this->api->getAuth(),$ticketId, $offset, $upToCount, "rpt_Detailed_Contact_Results_by_Campaign");
             $manager->DownloadReport($report);
-            if($this->checkforHeaderFail($manager,"getCampaignReport"))
+            if($this->api->checkforHeaderFail($manager,"getCampaignReport"))
             {
                 return null;
             }
@@ -359,21 +356,6 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             $totalCount = $totalCount - $limit;
         }
         return $data;
-    }
-
-    private function checkforHeaderFail($manager, $jobName){
-        try {
-            $header = $this->api->parseOutResultHeader($manager);
-        } catch (\Exception $e){
-            throw new \Exception ($e->getMessage());
-        }
-        if ($header['errorFlag'] != "false" ) {
-            throw new \Exception("{$header['errorFlag']} - {$this->api->getApiName()}::{$this->api->getEspAccountId()} Failed {$jobName} because {$header['returnMessage']} - {$header['returnCode']}");
-        } else if ($header['returnCode'] == self::NO_CAMPAIGNS) {
-            Log::info("{$this->api->getApiName()}::{$this->api->getEspAccountId()} had no campaigns");
-            return true;
-        }
-        return false;
     }
 
     private function parseOutActions($manager){
@@ -407,4 +389,5 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
     private function getRunId($espInternalId) {
         return $this->reportRepo->getRunId($espInternalId);
     }
+
 }

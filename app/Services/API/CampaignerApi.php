@@ -13,6 +13,8 @@ use App\Library\Campaigner\Authentication;
 
 class CampaignerApi extends EspBaseAPI
 {
+    CONST NO_CAMPAIGNS = 'M_4.1.1.1_NO-CAMPAIGNRUNS-FOUND';
+    CONST NO_UNSUBS = 'M_4.1.4.8_XMLCONTACTQUERY-NO-RESULTS-FOUND';
     private  $auth;
     const ESP_NAME = "Campaigner";
 
@@ -62,6 +64,21 @@ class CampaignerApi extends EspBaseAPI
         }
     }
 
+    public function checkforHeaderFail($manager, $jobName){
+        try {
+            $header = $this->parseOutResultHeader($manager);
+        } catch (\Exception $e){
+            throw new \Exception ($e->getMessage());
+        }
+        if ($header['errorFlag'] != "false" ) {
+            throw new \Exception("{$header['errorFlag']} - {$this->getApiName()}::{$this->getEspAccountId()} Failed {$jobName} because {$header['returnMessage']} - {$header['returnCode']}");
+        } else if ($header['returnCode'] == self::NO_CAMPAIGNS || $header['returnCode'] == self::NO_UNSUBS) {
+            Log::info("{$this->getApiName()}::{$this->getEspAccountId()} had no campaigns");
+            return true;
+        }
+        return false;
+    }
+
     public function buildCampaignSearchQuery($campaign)
     {
         return "<contactssearchcriteria>
@@ -80,6 +97,37 @@ class CampaignerApi extends EspBaseAPI
       </action>
     </filter>
   </group>
+</contactssearchcriteria>";
+    }
+
+    public function buildUnsubSearchQuery($lookback){
+      return "<contactssearchcriteria>
+   <version major=\"2\" minor=\"0\" build=\"0\" revision=\"0\" />
+   <set>Partial</set>
+   <evaluatedefault>True</evaluatedefault>
+   <group>
+      <filter>
+         <filtertype>SearchAttributeValue</filtertype>
+         <systemattributeid>11</systemattributeid>
+         <action>
+            <type>DDMMYY</type>
+            <operator>WithinLastNDays</operator>
+            <value>{$lookback}</value>
+         </action>
+      </filter>
+   </group>
+   <group>
+      <relation>And</relation>
+      <filter>
+         <filtertype>SearchAttributeValue</filtertype>
+         <systemattributeid>1</systemattributeid>
+         <action>
+            <type>Numeric</type>
+            <operator>EqualTo</operator>
+            <value>1</value>
+         </action>
+      </filter>
+   </group>
 </contactssearchcriteria>";
     }
 }
