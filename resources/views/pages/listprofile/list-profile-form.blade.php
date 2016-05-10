@@ -18,12 +18,20 @@
             </md-content>
         </div>
 
-        <div class="form-group">
-            <input type="text" class="form-control" id="groupName" value="" ng-model="listProfile.current.profile_name" placeholder="List Profile Name" />
+        <div class="form-group" ng-class="{ 'has-error' : ( profileForm.profileName.$touched && profileForm.profileName.$error.required ) }">
+            <input name="profileName" type="text" class="form-control" id="groupName" value="" ng-model="listProfile.current.profile_name" placeholder="List Profile Name" required />
+
+            <div ng-show="profileForm.profileName.$touched">
+                <span class="help-block" ng-show="profileForm.profileName.$error.required">Profile Name is Required</span>
+            </div>
         </div>
 
-        <div class="form-group" ng-if="listProfile.profileType !== 'v1'">
-            <input type="text" class="form-control" id="volumeDesired" value="" ng-model="listProfile.current.volume_desired" placeholder="Volume Desired" />
+        <div class="form-group" ng-if="listProfile.profileType !== 'v1'" ng-class="{ 'has-error' : ( profileForm.volumeDesired.$touched && profileForm.volumeDesired.$error.required ) }">
+            <input name="volumeDesired" type="text" class="form-control" id="volumeDesired" value="" ng-model="listProfile.current.volume_desired" placeholder="Volume Desired" required />
+
+            <div ng-show="profileForm.volumeDesired.$touched">
+                <span class="help-block" ng-show="profileForm.volumeDesired.$error.required">Volume Desired is Required</span>
+            </div>
         </div>
 
         <div flex layout="column" style="margin-bottom: 1em;">
@@ -39,7 +47,7 @@
                 </select>
             </div>
 
-            <md-content layout-padding style="margin-bottom: 1em;">
+            <md-content id="range" layout-padding style="margin-bottom: 1em;">
                 <h4 layout flex layout-align="center center"><span>Ranges</span></h4>
 
                 <md-divider></md-divider>
@@ -107,7 +115,7 @@
                 </md-content>
             </md-content>
 
-            <md-content layout-padding style="margin-bottom: 1em;" ng-cloak>
+            <md-content id="isp" layout-padding style="margin-bottom: 1em;" ng-cloak>
                 <h4 layout flex layout-align="center center"><span>ISPs</span></h4>
 
                 <md-divider></md-divider>
