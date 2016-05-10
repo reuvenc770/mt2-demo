@@ -202,7 +202,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             }
             return $results->getGetCampaignRunsSummaryReportResult();
         } catch ( \Exception $e ) {
-            throw new JobException( 'Failed to retrieve API stats. ' . $e->getMessage , JobException::ERROR , $e );
+            throw new JobException( 'Failed to retrieve API stats. ' . $e->getMessage() , JobException::ERROR , $e );
         }
     }
 
