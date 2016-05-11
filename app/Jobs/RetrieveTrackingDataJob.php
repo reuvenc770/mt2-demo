@@ -19,7 +19,7 @@ class RetrieveTrackingDataJob extends Job implements ShouldQueue
     CONST JOB_NAME = "RetrieveTrackingApiData-";
     protected $startDate;
     protected $endDate;
-    protected $maxAttempts;
+
     protected $tracking;
     protected $source;
 
@@ -27,8 +27,8 @@ class RetrieveTrackingDataJob extends Job implements ShouldQueue
        $this->source = $source;
        $this->startDate = $startDate;
        $this->endDate = $endDate;
-       $this->maxAttempts = env('MAX_ATTEMPTS',10);
        $this->tracking = $tracking;
+       JobTracking::startTrackingJob(self::JOB_NAME . $this->source,$this->startDate, $this->endDate, $this->tracking);
     }
 
     /**
@@ -38,11 +38,7 @@ class RetrieveTrackingDataJob extends Job implements ShouldQueue
      */
     public function handle()
     {
-        JobTracking::startTrackingJob(self::JOB_NAME . $this->source,$this->startDate, $this->endDate, $this->tracking);
-        if ($this->attempts() > $this->maxAttempts) {
-            $this->release(1);
-        }
-
+        JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
         $dataService= APIFactory::createTrackingApiService($this->source, $this->startDate,$this->endDate);
         $data = $dataService->retrieveApiStats(null);
         $dataLength = sizeof($data);
@@ -54,7 +50,7 @@ class RetrieveTrackingDataJob extends Job implements ShouldQueue
             $dataService->insertSegmentedApiRawStats($data, $dataLength);
         }
         
-        JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking, $this->attempts());
+        JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
 
     }
 

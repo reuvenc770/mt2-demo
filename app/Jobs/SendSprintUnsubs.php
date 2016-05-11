@@ -80,6 +80,7 @@ class SendSprintUnsubs extends Job implements ShouldQueue
         $this->dneCountFileName = self::FILE_NAME_FORMAT . $fileDate . '.cnt'; 
 
         $this->ftpCleanup = $ftpCleanup;
+        JobTracking::startEspJob( "Sprint Unsub Job" , '' , '' , $this->tracking , 0 );
     }
 
     /**
@@ -89,15 +90,14 @@ class SendSprintUnsubs extends Job implements ShouldQueue
      */
     public function handle()
     {
-        JobTracking::startEspJob( "Sprint Unsub Job" , '' , '' , $this->tracking , 0 );
-        
+        JobTracking::changeJobState( JobEntry::RUNNING , $this->tracking);
         if ( $this->ftpCleanup == 1 ) {
             $this->cleanupFtpAccount();
         } elseif ( !Storage::exists( self::DNE_FOLDER . $this->dneFileName ) ) {
             $this->createUnsubFile();
         }
         
-        JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking , $this->attempts() );
+        JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking);
     }
 
     protected function cleanupFtpAccount () {

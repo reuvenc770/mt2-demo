@@ -38,7 +38,9 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
 
         $this->firstId = $firstId;
         $this->lastId = $lastId;
+        JobTracking::startEspJob( 'Orphan Adoption: ' . $this->firstId . '-' . $this->lastId , null , null , $this->tracking );
     }
+
 
     /**
      * Execute the job.
@@ -47,10 +49,8 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
      */
     public function handle()
     {
-        $this->initJobEntry();
-        Log::info( '' );
-        Log::info( 'Attempting to save some orphans and feed them.' );
 
+        JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
         $attempts = 0;
         $processed = 0;
 
@@ -133,11 +133,11 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
     }
 
     protected function changeJobEntry ( $status ) {
-        JobTracking::changeJobState( $status , $this->tracking , $this->attempts() );
+        JobTracking::changeJobState( $status , $this->tracking);
     }
 
     public function failed()
     {
-        $this->changeJobEntry( JobEntry::FAILED );
+        $this->changeJobEntry(JobEntry::FAILED, $this->tracking);
     }
 }
