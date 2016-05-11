@@ -49,7 +49,7 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
      */
     public function handle() {
 
-        JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
+        $this->changeJobEntry(JobEntry::RUNNING);
         $attempts = 0;
         $processed = 0;
 
@@ -148,6 +148,6 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
     }
 
     public function failed() {
-        $this->changeJobEntry(JobEntry::FAILED, $this->tracking);
+        $this->changeJobEntry(JobEntry::FAILED);
     }
 }
