@@ -25,7 +25,8 @@ class RetrieveDeliverableCsvReports extends Job implements ShouldQueue {
   protected $filePath;
   protected $tracking;
   protected $action;
-  protected $maxAttempts;
+  protected $espId;
+  protected $espName;
 
   public function __construct($espAccountName, $file, $realDate, $action, $tracking) {
 
@@ -35,14 +36,18 @@ class RetrieveDeliverableCsvReports extends Job implements ShouldQueue {
     $this->tracking = $tracking;
     $this->date = $realDate;
     $this->action = $action;
+    $espAccountDetails = EspApiAccount::getEspAccountDetailsByName($this->espAccountName);
+    $this->espId = $espAccountDetails->id;
+    $this->espName = $espAccountDetails->esp->name;
+
+
+    JobTracking::startEspJob(self::JOB_NAME, $espAccountDetails->esp->name, $espAccountDetails->id, $this->tracking);
     
   }
 
   public function handle() {
-    $espAccountDetails = EspApiAccount::getEspAccountDetailsByName($this->espAccountName);
-    JobTracking::startEspJob(self::JOB_NAME, $espAccountDetails->esp->name, $espAccountDetails->id, $this->tracking);
-
-    $reportService = APIFactory::createCsvDeliverableService($espAccountDetails->id, $espAccountDetails->esp->name);
+    JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
+    $reportService = APIFactory::createCsvDeliverableService($this->espId, $this->espName);
 
     $reportArray = $reportService->setCsvToFormat($this->filePath);
     $emailRecordService = App::make("App\\Services\\EmailRecordService");
@@ -51,13 +56,13 @@ class RetrieveDeliverableCsvReports extends Job implements ShouldQueue {
       $emailRecordService->queueDeliverable(
           $this->action,
           $record['email_address'] ,
-          $espAccountDetails->id ,
+          $this->espId ,
           $record['deploy_id'] ,
           $record['esp_internal_id'],
           $record['datetime']);
     }
     $emailRecordService->massRecordDeliverables();
-    JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking, 1); // Do we really need attempts?
+    JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
 
     /* 
     move/delete here - after the job so the move doesn't cause problems/duplication
@@ -68,7 +73,7 @@ class RetrieveDeliverableCsvReports extends Job implements ShouldQueue {
   }
 
   public function failed() {
-    JobTracking::changeJobState(JobEntry::FAILED,$this->tracking, $this->maxAttempts);
+    JobTracking::changeJobState(JobEntry::FAILED,$this->tracking);
   }
 
 

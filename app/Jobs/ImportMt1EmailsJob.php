@@ -15,31 +15,32 @@ class ImportMt1EmailsJob extends Job implements ShouldQueue {
     const JOB_NAME = "ImportMt1Emails";
 
     private $tracking;
-    private $maxAttempts;
+
 
     public function __construct($tracking) {
         $this->tracking = $tracking;
-        $this->maxAttempts = env('MAX_ATTEMPTS', 3);
+        JobTracking::startAggregationJob(self::JOB_NAME, $this->tracking);
     }
 
     public function handle() {
         if ($this->jobCanRun(self::JOB_NAME)) {
             $this->createLock(self::JOB_NAME);
-            JobTracking::startAggregationJob(self::JOB_NAME, $this->tracking);
+            JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
             $service = APIFactory::createMt1DataImportService(self::JOB_NAME);
             $service->run();
-            JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking, $this->attempts());
+            JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
             $result = $this->unlock(self::JOB_NAME);
             echo "Successfully removed lock: $result" . PHP_EOL;
         }
         else {
+            JobTracking::changeJobState(JobEntry::SKIPPED,$this->tracking);
             echo "Still running " . self::JOB_NAME . " - job level" . PHP_EOL;
         }
 
     }
 
     public function failed() {
-        JobTracking::changeJobState(JobEntry::FAILED,$this->tracking, $this->maxAttempts);
+        JobTracking::changeJobState(JobEntry::FAILED,$this->tracking);
         $this->unlock(self::JOB_NAME);
     }
 }

@@ -14,34 +14,34 @@ class DataProcessingJob extends Job implements ShouldQueue {
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
 
     private $tracking;
-    private $maxAttempts;
+
     private $jobName;
 
     public function __construct($jobName, $tracking) {
         $this->jobName = $jobName;
         $this->tracking = $tracking;
-        $this->maxAttempts = env('MAX_ATTEMPTS', 3);
+        JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
     public function handle() {
         if ($this->jobCanRun($this->jobName)) {
             $this->createLock($this->jobName);
+            JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
             echo "{$this->jobName} running" . PHP_EOL;
-            JobTracking::startAggregationJob($this->jobName, $this->tracking);
-
             $service = DataProcessingFactory::create($this->jobName);
             $service->run();
 
-            JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking, $this->attempts());
+            JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
             $this->unlock($this->jobName);
         }
         else {
             echo "Still running {$this->jobName} - job level" . PHP_EOL;
+            JobTracking::changeJobState(JobEntry::SKIPPED,$this->tracking);
         }
     }
 
     public function failed() {
-        JobTracking::changeJobState(JobEntry::FAILED,$this->tracking, $this->maxAttempts);
+        JobTracking::changeJobState(JobEntry::FAILED,$this->tracking);
         $this->unlock($this->jobName);
     }
 
