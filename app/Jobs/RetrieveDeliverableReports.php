@@ -74,6 +74,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         } else {
             $this->processState = $this->defaultProcessState;
         }
+        $this->initJobEntry();
     }
 
     /**
@@ -82,8 +83,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
      * @return void
      */
     public function handle () {
-        $this->initJobEntry();
-
+        $this->startJobEntry();
         $filterName = $this->currentFilter();
 
         try {
@@ -353,13 +353,22 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     }
 
     protected function initJobEntry () {
-        JobTracking::startEspJob( $this->getJobName() ,$this->apiName, $this->espAccountId, $this->tracking);
+        $campaignId = 0;
+        if(isset($this->processState['campaign'])){
+           $campaignId = $this->processState['campaign']->esp_internal_id;
+        }
+        JobTracking::startEspJob( $this->getJobName() ,$this->apiName, $this->espAccountId, $this->tracking, $campaignId);
+        echo "\n\n" . Carbon::now() . " - Queuing Job: " . $this->getJobName() . "\n";
+    }
 
-        echo "\n\n" . Carbon::now() . " - Starting Job: " . $this->getJobName() . "\n";
+    protected function startJobEntry () {
+        JobTracking::changeJobState(JobEntry::RUNNING , $this->tracking);
+
+        echo "\n\n" . Carbon::now() . " - Queuing Job: " . $this->getJobName() . "\n";
     }
 
     protected function changeJobEntry ( $status ) {
-        JobTracking::changeJobState( $status , $this->tracking , $this->attempts() );
+        JobTracking::changeJobState( $status , $this->tracking);
 
         if ( $status == JobEntry::SUCCESS ) echo "\n\n\t" . Carbon::now() . " - Finished Job: " . $this->apiName . ':' . $this->espAccountId . ' ' . $this->getJobName() . "\n\n";
         if ( $status == JobEntry::WAITING ) echo "\n\n\t" . Carbon::now() . " - Throwing Job Back into Queue: " . $this->apiName . ':' . $this->espAccountId . ' ' . $this->getJobName() . "\n\n";

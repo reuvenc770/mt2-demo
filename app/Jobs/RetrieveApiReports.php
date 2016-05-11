@@ -22,7 +22,7 @@ class RetrieveApiReports extends Job implements ShouldQueue
     protected $apiName;
     protected $espAccountId;
     protected $date;
-    protected $maxAttempts;
+    protected $attempts;
     protected $tracking;
 
     protected $logTypeMap = [
@@ -37,8 +37,9 @@ class RetrieveApiReports extends Job implements ShouldQueue
        $this->apiName = $apiName;
        $this->espAccountId = $espAccountId;
        $this->date = $date;
-       $this->maxAttempts = env('MAX_ATTEMPTS',10);
+       $this->attempts = 0;
        $this->tracking = $tracking;
+       JobTracking::startEspJob( self::JOB_NAME , $this->apiName , $this->espAccountId , $this->tracking );
     }
 
     /**
@@ -48,12 +49,8 @@ class RetrieveApiReports extends Job implements ShouldQueue
      */
     public function handle()
     {
-        JobTracking::startEspJob( self::JOB_NAME , $this->apiName , $this->espAccountId , $this->tracking );
 
-        //If it has been retried lets make it wait before it goes back out
-        if ($this->attempts() > $this->maxAttempts) {
-            $this->release( 1 );
-        }
+        JobTracking::changeJobState( JobEntry::RUNNING , $this->tracking);
 
         try {
             $reportService = APIFactory::createAPIReportService( $this->apiName , $this->espAccountId );
@@ -79,7 +76,7 @@ class RetrieveApiReports extends Job implements ShouldQueue
             throw $e;
         }
 
-        JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking , $this->attempts() );
+        JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking);
     }
 
     protected function logJobException ( JobException $e ) {
@@ -115,6 +112,6 @@ class RetrieveApiReports extends Job implements ShouldQueue
         Log::critical( 'Job Failed....' );
         Log::critical( $this->getJobInfo() );
 
-        JobTracking::changeJobState(JobEntry::FAILED,$this->tracking, $this->maxAttempts);
+        JobTracking::changeJobState(JobEntry::FAILED,$this->tracking);
     }
 }

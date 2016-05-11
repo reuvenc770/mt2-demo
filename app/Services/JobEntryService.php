@@ -31,20 +31,21 @@ class JobEntryService
         $this->jobName = $jobName;
         $espJob = $this->repo->startEspJobReturnObject($jobName, $espName, $accountName, $tracking);
         $espJob->time_started = Carbon::now();
-        $espJob->attempts = 1;
+        $espJob->attempts = 0;
         $espJob->campaign_id = $campaignId;
-        $espJob->status = JobEntry::RUNNING;
+        $espJob->status = JobEntry::ONQUEUE;
         $espJob->save();
 
     }
 
-    public function changeJobState($state, $tracking, $tries)
+    public function changeJobState($state, $tracking, $tries = null)//dead field keeping till refactor is done
     {
         $job = $this->repo->getJobByTracking($tracking);
         $job->status = $state;
-        $job->attempts = $tries;
         if($state == JobEntry::SUCCESS) {
             $job->time_finished = Carbon::now();
+        } else if($state == JobEntry::RUNNING){
+            $job->attempts = $job->attempts + 1;
         }
         $job->save();
         if($job->status == 3 && env("SLACK_ON",false)){
@@ -57,8 +58,8 @@ class JobEntryService
         $this->jobName = $jobName;
         $trackingJob = $this->repo->startTrackingJobReturnObject($jobName, $startDate, $endDate, $tracking);
         $trackingJob->time_started = Carbon::now();
-        $trackingJob->attempts = 1;
-        $trackingJob->status = JobEntry::RUNNING;
+        $trackingJob->attempts = 0;
+        $trackingJob->status = JobEntry::ONQUEUE;
         $trackingJob->save();
     }
 
@@ -71,9 +72,10 @@ class JobEntryService
     {
         $this->jobName = $jobName;
         $espJob = $this->repo->startAggregateJobReturnObject($jobName, $tracking);
+
         $espJob->time_started = Carbon::now();
-        $espJob->attempts = 1;
-        $espJob->status = JobEntry::RUNNING;
+        $espJob->attempts = 0;
+        $espJob->status = JobEntry::ONQUEUE;
         $espJob->save();
     }
 
