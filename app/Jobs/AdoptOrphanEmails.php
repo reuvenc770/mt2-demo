@@ -48,7 +48,6 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
     public function handle()
     {
         $this->initJobEntry();
-
         Log::info( '' );
         Log::info( 'Attempting to save some orphans and feed them.' );
 
