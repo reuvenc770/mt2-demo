@@ -9,12 +9,12 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Carbon\Carbon;
 use DB;
-use App\Facades\JobTracking;
 
+use App\Models\JobEntry;
 use App\Models\Email;
 use App\Models\EmailClientInstance;
 use App\Models\OrphanEmail;
-use App\Models\JobEntry;
+use App\Facades\JobTracking;
 
 class AdoptOrphanEmails extends Job implements ShouldQueue
 {
@@ -30,11 +30,11 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct( $orphans = [] , $firstId = 0 , $lastId = 0 )
+    public function __construct( $orphans = [] , $firstId = 0 , $lastId = 0 , $tracking)
     {
         $this->orphans = is_array( $orphans ) ? collect( $orphans ) : $orphans;
 
-        $this->tracking = str_random( 16 );
+        $this->tracking = $tracking;
 
         $this->firstId = $firstId;
         $this->lastId = $lastId;

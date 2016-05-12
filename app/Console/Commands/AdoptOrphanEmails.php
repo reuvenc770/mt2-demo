@@ -80,7 +80,7 @@ class AdoptOrphanEmails extends Command
                     ->orderBy( 'created_at' , 'asc' )
                     ->get();
 
-                $job = new Orphanage($orphans, $startId, $chunkMaxId);
+                $job = new Orphanage($orphans, $startId, $chunkMaxId, str_random(16));
                 $job->onQueue($this->option('queueName'));
                 if ( $this->option( 'chunkDelay' ) > 0 ) $job->delay( $this->option( 'chunkDelay' ) );
                 $this->dispatch( $job );
@@ -104,7 +104,7 @@ class AdoptOrphanEmails extends Command
 
             $chunks = $orphanList->chunk( $this->option( 'chunkSize' ) );
             $chunks->each( function ( $orphans , $chunkKey ) {
-                $job = new Orphanage( $orphans , $orphans->first()->id , $orphans->last()->id );
+                $job = new Orphanage( $orphans , $orphans->first()->id , $orphans->last()->id, str_random(16));
                 $job->onQueue( $this->option( 'queueName' ) );
 
                 if ( $this->option( 'chunkDelay' ) > 0 ) $job->delay( $this->option( 'chunkDelay' ) );
