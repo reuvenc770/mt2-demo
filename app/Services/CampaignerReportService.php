@@ -21,9 +21,9 @@ use App\Services\AbstractReportService;
 use App\Library\Campaigner\DateTimeFilter;
 use App\Library\Campaigner\GetCampaignRunsSummaryReport;
 use Carbon\Carbon;
+use Log;
 use App\Events\RawReportDataWasInserted;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Log;
 use App\Services\Interfaces\IDataService;
 use App\Services\EmailRecordService;
 use App\Exceptions\JobException;
@@ -218,7 +218,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         $reportHandle = $manager->RunReport($report);
 
         if ( !!is_a( $reportHandle , 'RunReportResponse' ) || !method_exists( $reportHandle , 'getRunReportResult' ) ) {
-            echo $manager->__getLastResponse();
+            Log::error($manager->__getLastResponse());
             throw new \Exception( 'Failed to create report.' );
         }
 
@@ -277,8 +277,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
 
         try {
             $skipDelivered = true;
-
-            if($this->emailRecord->withinTwoDays($processState[ 'espAccountId' ],$processState[ 'campaign' ]->esp_internal_id) || 'rerun' === $processState['pipe']){
+            if($this->emailRecord->withinTwoDays($processState[ 'ticket' ][ 'espId' ],$processState[ 'ticket' ][ 'espInternalId' ]) || 'rerun' === $processState['pipe']){
                 $skipDelivered = false;
             }
 
