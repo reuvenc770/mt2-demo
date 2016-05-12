@@ -30,7 +30,7 @@ class JobEntryService
     {
         $this->jobName = $jobName;
         $espJob = $this->repo->startEspJobReturnObject($jobName, $espName, $accountName, $tracking);
-        $espJob->time_started = Carbon::now();
+        $espJob->time_fired = Carbon::now();
         $espJob->attempts = 0;
         $espJob->campaign_id = $campaignId;
         $espJob->status = JobEntry::ONQUEUE;
@@ -45,6 +45,7 @@ class JobEntryService
         if($state == JobEntry::SUCCESS) {
             $job->time_finished = Carbon::now();
         } else if($state == JobEntry::RUNNING){
+            $job->time_started = Carbon::now();
             $job->attempts = $job->attempts + 1;
         }
         $job->save();
@@ -57,7 +58,7 @@ class JobEntryService
     {
         $this->jobName = $jobName;
         $trackingJob = $this->repo->startTrackingJobReturnObject($jobName, $startDate, $endDate, $tracking);
-        $trackingJob->time_started = Carbon::now();
+        $trackingJob->time_fired = Carbon::now();
         $trackingJob->attempts = 0;
         $trackingJob->status = JobEntry::ONQUEUE;
         $trackingJob->save();
@@ -73,7 +74,7 @@ class JobEntryService
         $this->jobName = $jobName;
         $espJob = $this->repo->startAggregateJobReturnObject($jobName, $tracking);
 
-        $espJob->time_started = Carbon::now();
+        $espJob->time_fired = Carbon::now();
         $espJob->attempts = 0;
         $espJob->status = JobEntry::ONQUEUE;
         $espJob->save();
