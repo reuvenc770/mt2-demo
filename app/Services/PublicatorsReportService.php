@@ -130,7 +130,7 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
     public function getTypeList ( &$processState ) {
         $typeList = [ "open" , "click" , "unsub" , "bounce" ];
 
-        if($this->emailRecord->withinTwoDays( $processState[ "espAccountId" ] , $processState[ "campaign" ]->esp_internal_id ) ){
+        if($this->emailRecord->withinTwoDays( $processState[ "espAccountId" ] , $processState[ "campaign" ]->esp_internal_id) || 'rerun' === $processState['pipe'] ){
             $typeList[] = "sent";
         }
 
