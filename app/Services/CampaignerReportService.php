@@ -79,7 +79,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
 
             Event::fire(new RawReportDataWasInserted($this, $arrayReportList));
         } catch ( \Exception $e ) {
-            throw new JobException( 'Failed to insert API stats. ' . $e->getMessage , JobException::ERROR , $e );
+            throw new JobException( 'Failed to insert API stats. ' . $e->getMessage() , JobException::ERROR , $e );
         }
     }
 
@@ -111,6 +111,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                 $emailStats['unsubs'] += $activityResults->getUnsubscribes();
                 $emailStats['spam_complaints'] += $activityResults->getSpamComplaints();
                 $emailStats['run_id'] = $run->getId();
+                $emailStats['run_on'] = $run->getRunDate();
             }
         } else {
             $domains = $runs->getDomains();
@@ -128,6 +129,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             $emailStats['unsubs'] = $activityResults->getUnsubscribes();
             $emailStats['spam_complaints'] = $activityResults->getSpamComplaints();
             $emailStats['run_id'] = $runs->getId();
+            $emailStats['run_on'] = $runs->getRunDate();
         }
 
         return array(
@@ -146,7 +148,8 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             'clicks' => $emailStats['clicks'],
             'unsubs' => $emailStats['unsubs'],
             'spam_complaints' => $emailStats['spam_complaints'],
-            'run_id' => $emailStats['run_id']
+            'run_id' => $emailStats['run_id'],
+            'run_on' => $emailStats['run_on']
         );
 
     }
@@ -165,7 +168,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             'm_deploy_id' => $deployId,
             'esp_account_id' => $report['esp_account_id'],
             'esp_internal_id' => $report['internal_id'],
-            'datetime' => '0000-00-00', //$report[''],
+            'datetime' => $report['run_on'],
             'name' => $report['name'],
             'subject' => $report['subject'],
             'from' => $report['from_name'],
