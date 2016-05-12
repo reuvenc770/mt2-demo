@@ -90,7 +90,8 @@ class CampaignManagement extends \SoapClient
             'compression'=> SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP,
             'soap_version'=> 'SOAP_1_1',
             'trace' => true,
-            'connection_timeout' => 300
+            'connection_timeout' => 600,
+            'default_socket_timeout' => 600
         ), $options);
         try {
             parent::__construct($wsdl, $options);
