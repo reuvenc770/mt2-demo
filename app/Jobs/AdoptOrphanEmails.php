@@ -38,7 +38,6 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
 
         $this->firstId = $firstId;
         $this->lastId = $lastId;
-        JobTracking::startEspJob( 'Orphan Adoption: ' . $this->firstId . '-' . $this->lastId , null , null , $this->tracking );
     }
 
 
@@ -49,7 +48,7 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
      */
     public function handle() {
 
-        $this->changeJobEntry(JobEntry::RUNNING);
+        JobTracking::startEspJob( 'Orphan Adoption: ' . $this->firstId . '-' . $this->lastId , null , null , $this->tracking );
         $attempts = 0;
         $processed = 0;
 
