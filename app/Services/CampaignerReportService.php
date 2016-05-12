@@ -218,8 +218,8 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         $reportHandle = $manager->RunReport($report);
 
         if ( !!is_a( $reportHandle , 'RunReportResponse' ) || !method_exists( $reportHandle , 'getRunReportResult' ) ) {
-            Log::error($manager->__getLastResponse());
-            throw new \Exception( 'Failed to create report.' );
+
+            throw new \Exception($manager->__getLastResponse(). " failed to create report");
         }
 
         $results = $reportHandle->getRunReportResult();
