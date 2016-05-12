@@ -278,6 +278,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         try {
             $skipDelivered = true;
             if($this->emailRecord->withinTwoDays($processState[ 'ticket' ][ 'espId' ],$processState[ 'ticket' ][ 'espInternalId' ]) || 'rerun' === $processState['pipe']){
+                LOG::info("Yo I am a rerun");
                 $skipDelivered = false;
             }
 
@@ -299,7 +300,6 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             }
 
             foreach ( $recordData as $key => $record ) {
-                if ( $record[ 'action' ] === 'Delivered' && $skipDelivered ) { continue; }
 
                 if ( $record[ 'action' ] === 'Open' ) {
                     $actionType = self::RECORD_TYPE_OPENER;
