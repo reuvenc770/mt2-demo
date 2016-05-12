@@ -7,7 +7,7 @@
  */
 
 namespace App\Services;
-
+ini_set('default_socket_timeout', 600);
 
 use App\Facades\Suppression;
 use App\Library\Campaigner\CampaignManagement;
