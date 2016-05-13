@@ -188,7 +188,33 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
         }
 
         try {
+            // Set deploy id
+            $deployId = $processState["campaign"]->external_deploy_id;
+
             foreach ( $records as $record ) {
+
+                // Need to find cases without seconds and provide up an appropriate second
+                if (preg_match('/\s\d{2}\:\d{2}$/', $record->TimeStamp)) {
+                    $key = md5($record->Email . $deployId . $recordType . $record->TimeStamp);
+
+                    // If the tag already exists, get the (already-incremented) second, and increment again
+                    if (Cache::tags([$recordType, $deployId])->has($key)) {
+                        $count = Cache::tags([$recordType, $deployId])->get($key);
+                        Cache::tags([$recordType, $deployId])->increment($key);
+                    }
+                    else {
+                        // Tag does not exist. Create it with an an appropriate for 2 hours.
+                        $count = 0;
+                        Cache::tags([$recordType, $deployId])->put($key, 1, 30);
+                    }
+
+                    // Set up the new timestamp
+                    $padding = $count < 10 ? '0' : '';
+                    $timeStamp = $record->TimeStamp . ':' . $padding . $count;
+                }
+                else {
+                    $timeStamp = $record->TimeStamp;
+                }
 
 
                 $this->emailRecord->queueDeliverable(
@@ -197,8 +223,8 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
                     $processState[ "espId" ] ,
                     $processState[ "campaign" ]->external_deploy_id ,
                     $processState[ "campaign" ]->esp_internal_id ,
-                    $record->TimeStamp
-                ); 
+                    $timeStamp
+                );
             }
 
             $this->emailRecord->massRecordDeliverables();
