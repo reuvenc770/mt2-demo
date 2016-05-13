@@ -102,6 +102,7 @@ class MaroReportService extends AbstractReportService implements IDataService
                         $totalCorrect++;
                     }
                     else {
+                        echo "Missed: open with campaign id: {$opener['campaign_id']}" . PHP_EOL;
                         $totalIncorrect++;
                     }
 
@@ -122,6 +123,7 @@ class MaroReportService extends AbstractReportService implements IDataService
                         $totalCorrect++;
                     }
                     else {
+                        echo "Missed: click with campaign id: {$clicker['campaign_id']}" . PHP_EOL;
                         $totalIncorrect++;
                     }
                 }
@@ -184,6 +186,7 @@ class MaroReportService extends AbstractReportService implements IDataService
                         $totalCorrect++;
                     }
                     else {
+                        echo "Missed: deliver with campaign id: {$delivered['campaign_id']}" . PHP_EOL;
                         $totalIncorrect++;
                     }
                 }
@@ -213,6 +216,7 @@ class MaroReportService extends AbstractReportService implements IDataService
                 $totalCorrect++;
             }
             else {
+                echo "Missed: record with campaign id: {record['campaign_id']}" . PHP_EOL;
                 $totalIncorrect++;
             }
         }
