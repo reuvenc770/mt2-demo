@@ -203,7 +203,7 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
                         Cache::tags([$recordType, $deployId])->increment($key);
                     }
                     else {
-                        // Tag does not exist. Create it with an an appropriate for 2 hours.
+                        // Tag does not exist. Create it with an an appropriate for 30 min.
                         $count = 0;
                         Cache::tags([$recordType, $deployId])->put($key, 1, 30);
                     }
