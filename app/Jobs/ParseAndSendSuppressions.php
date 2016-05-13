@@ -119,8 +119,8 @@ class ParseAndSendSuppressions extends Job implements ShouldQueue
          $output.= "*##Total HardBounces for {$this->espName}:* : {$hardBounces}\n";
          Slack::to(self::SLACK_CHANNEL)->send($output);
          Cache::tags($this->espName)->flush();
-         JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
      }
+        JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
     }
 
 
