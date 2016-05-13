@@ -22,6 +22,7 @@ class CreateJobEntriesTable extends Migration
             $table->integer('attempts');
             $table->string('tracking',16);
             $table->string('status');
+            $table->index('tracking', 'tracking');
 
         });
     }
