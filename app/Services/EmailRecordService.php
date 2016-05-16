@@ -49,7 +49,6 @@ class EmailRecordService {
                 // Need to ensure that we aren't queueing up huge arrays
                 echo "RUNNING massRecord prematurely" . PHP_EOL;
                 $this->massRecordDeliverables();
-                $this->records = [];
             }
             
         } else {
@@ -63,6 +62,8 @@ class EmailRecordService {
             $this->repo->massRecordDeliverables($this->records);
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
+        } finally {
+            $this->records = []; // clear out to free up space
         }
     }
 
