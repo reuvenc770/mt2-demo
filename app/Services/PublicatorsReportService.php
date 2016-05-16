@@ -142,6 +142,7 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
     }
 
     public function saveRecords ( $processState ) {
+
         if ( $this->lockFound() ) {
             $pubException = new JobException( "Job prevented via process lock. Another job is authenticating. " , JobException::NOTICE );
             $pubException->setDelay( 300 );
@@ -228,6 +229,7 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
             }
 
             $this->emailRecord->massRecordDeliverables();
+            return count($records);
         }
         catch (\Exception $e) {
             $jobException = new JobException( 'Failed to insert publicators deliverables.  ' . $e->getMessage() , JobException::WARNING , $e );

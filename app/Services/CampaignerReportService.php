@@ -331,6 +331,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             }
 
             $this->emailRecord->massRecordDeliverables();
+            return count($recordData);
         }
         catch (\Exception $e) {
             $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() , JobException::WARNING , $e );

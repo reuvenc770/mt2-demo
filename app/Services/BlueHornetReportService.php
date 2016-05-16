@@ -178,18 +178,23 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         ) {
             switch ( $processState[ 'currentFilterIndex' ] ) {
                 case 2 :
-                    $jobId .= ( isset( $processState[ 'campaign' ] ) ? '::Campaign-' . $processState[ 'campaign' ]->esp_internal_id : '' );
-                break;
+                    $jobId .= (isset($processState['campaign']) ? '::Campaign-' . $processState['campaign']->esp_internal_id : '');
+                    break;
 
                 case 3 :
-                    $jobId .= '::Ticket-' . $processState[ 'ticket' ][ 'ticketName' ];
-                break;
+                    $jobId .= '::Ticket-' . $processState['ticket']['ticketName'];
+                    break;
 
                 case 6 :
-                    $jobId .= '::Types-' . join( ',' , $processState[ 'typeList' ] );
+                    $record = "";
+                    if (isset($processState['recordType'])){
+                       $record = $processState[ 'recordType' ] ;
+                    }
+                    $jobId .= '::Types-' . join( ',' , $processState[ 'typeList' ]) . " - ". $record;
                 break;
+
             }
-            
+
             $processState[ 'jobIdIndex' ] = $processState[ 'currentFilterIndex' ];
             $processState[ 'jobId' ] = $jobId;
         }
@@ -238,6 +243,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
     }
 
     public function saveRecords ( &$processState ) {
+        $total = 0;
         try {
             $fileContents = Storage::get( $processState[ 'filePath' ] );
 
@@ -248,35 +254,36 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             
             switch ( $processState[ 'recordType' ] ) {
                 case 'deliverable' :
-                    $this->queueDeliveredRecords( $xpath , $processState );
+                  $total = $this->queueDeliveredRecords( $xpath , $processState );
                 break;
 
                 case 'bounce' :
-                    $this->queueBouncedRecords( $xpath , $processState );
+                    $total = $this->queueBouncedRecords( $xpath , $processState );
                 break;
 
                 case 'open' :
-                    $this->queueOpenedRecords( $xpath , $processState );
+                    $total = $this->queueOpenedRecords( $xpath , $processState );
                 break;
 
                 case 'click' :
-                    $this->queueClickedRecords( $xpath , $processState );
+                    $total = $this->queueClickedRecords( $xpath , $processState );
                 break;
 
                 case 'optout' :
-                    $this->queueOptedOutRecords( $xpath , $processState );
+                    $total = $this->queueOptedOutRecords( $xpath , $processState );
                 break;
             }
 
             unset( $recordXML );
             unset( $xpath );
 
-            $this->emailRecord->massRecordDeliverables();
+            $total = $this->emailRecord->massRecordDeliverables();
         } catch ( \Exception $e ) {
             $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() , JobException::WARNING , $e );
             $jobException->setDelay( 60 );
             throw $jobException;
         }
+        return $total;
     }
 
     protected function queueDeliveredRecords ( $xpath , $processState ) {
@@ -285,7 +292,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         $realCount = 0;
         foreach ( $contacts as $current ) {
             $contents = $current->childNodes;
-
             $email = null;
             $isSent = false;
             $isBounce = false;
@@ -313,10 +319,13 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                 );
             }
         }
+        return $realCount;
     }
 
     protected function queueBouncedRecords ( $xpath , $processState ) {
+        $realCount = 0;
         $bounces = $xpath->query( '*/bounce' );
+
 
         foreach ( $bounces as $current ) {
             $contents = $current->childNodes;
@@ -344,10 +353,13 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                 $reason ,
                 $date
             );
+            $realCount++;
         }
+        return $realCount;
     }
 
     protected function queueOpenedRecords ( $xpath , $processState ) {
+        $realCount = 0;
         $opens = $xpath->query( '*/opens' );
 
         foreach ( $opens as $current ) {
@@ -366,12 +378,15 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                         $processState[ 'campaign' ]->esp_internal_id ,
                         $date->nodeValue
                     );
+                    $realCount++;
                 }
             }
         }
+        return $realCount;
     }
 
     protected function queueClickedRecords ( $xpath , $processState ) {
+        $realCount = 0;
         $clicks = $xpath->query( '///click' );
 
         foreach ( $clicks as $current ) {
@@ -388,14 +403,16 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                         $processState[ 'campaign' ]->esp_internal_id ,
                         $detail->nodeValue
                     );
+                    $realCount++;
                 }
             }
         }
+        return $realCount;
     }
 
     protected function queueOptedOutRecords ( $xpath , $processState ) {
+        $realCount = 0;
         $optouts = $xpath->query( '*/optout' );
-
         foreach ( $optouts as $current ) {
             $optoutDate = $current->nodeValue;
             $email = $this->findEmail( $current );
@@ -410,7 +427,9 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                 $processState[ 'campaign' ]->esp_internal_id ,
                 $optoutDate
             );
+            $realCount++;
         }
+        return $realCount;
     }
 
     protected function findEmail ( $currentNode , $isParentNode = false ) {

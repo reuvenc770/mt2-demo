@@ -222,6 +222,7 @@ class MaroReportService extends AbstractReportService implements IDataService
         }
 
         echo "Matched: $totalCorrect; Missing: $totalIncorrect" . PHP_EOL;
+        return $totalCorrect + $totalIncorrect;
     }
 
     public function shouldRetry () {

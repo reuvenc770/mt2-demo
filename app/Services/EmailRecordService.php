@@ -64,6 +64,7 @@ class EmailRecordService {
         } finally {
             $this->records = []; // clear out to free up space
         }
+        return count($this->records);
     }
 
     public function withinTwoDays($espId, $campaignId){

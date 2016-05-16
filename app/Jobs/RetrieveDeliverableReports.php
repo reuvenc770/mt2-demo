@@ -165,8 +165,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
             $this->queueNextJob( $this->defaultQueue );
         });
-        
-        $this->changeJobEntry( JobEntry::SUCCESS );
+        $rowCount = count($campaigns);
+        $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
     }
 
     protected function getMaroDeliverableCampaigns() {
@@ -181,15 +181,15 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
             $this->queueNextJob( $this->defaultQueue );
         });
-        
-        $this->changeJobEntry( JobEntry::SUCCESS );
+        $rowCount = count($campaigns);
+        $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
     }
 
     protected function getRerunCampaigns () {
         $campaigns = DB::connection( 'reporting_data' )
             ->table( 'standard_reports_rerun' ) 
             ->where( 'esp_account_id' , $this->espAccountId )
-            ->orderBy( 'esp_account_id' );
+            ->orderBy( 'esp_account_id' )->get();
 
         $this->processState[ 'currentFilterIndex' ]++;
 
@@ -199,8 +199,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
             $this->queueNextJob( $this->defaultQueue );
         });
-        
-        $this->changeJobEntry( JobEntry::SUCCESS );
+        $rowCount = count($campaigns);
+        $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
     }
 
     protected function splitTypes () {
@@ -233,8 +233,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
             $this->queueNextJob( $this->defaultQueue );
         }
-
-        $this->changeJobEntry( JobEntry::SUCCESS );
+        $rowCount = count($this->processState[ 'currentPageData' ]);
+        $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
     }
 
 
@@ -255,15 +255,16 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             $this->queueNextJob( $this->defaultQueue );
         }
 
-        $this->changeJobEntry( JobEntry::SUCCESS );
+        $rowCount = count($this->processState[ 'currentPageData' ]);
+        $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
     }
 
     protected function saveRecords () {
         if (isset($this->standardReportRepo)) {
             $map = $this->standardReportRepo->getEspToInternalMap($this->espAccountId);
-            $this->reportService->saveRecords( $this->processState, $map );
+            $total = $this->reportService->saveRecords( $this->processState, $map );
 
-            $this->changeJobEntry( JobEntry::SUCCESS );
+            $this->changeJobEntry( JobEntry::SUCCESS, $total );
         }
         else {
             echo "StandardReportRepo not set. ESP account id " . $this->espAccountId . PHP_EOL;
@@ -298,7 +299,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
         $this->processState[ 'recordType' ] = $currentType;
 
-        $this->reportService->saveRecords( $this->processState );
+        $total = $this->reportService->saveRecords( $this->processState );
 
         $this->processState[ 'typeIndex' ]++;
 
@@ -308,7 +309,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
         $this->queueNextJob( $this->defaultQueue );
 
-        $this->changeJobEntry( JobEntry::SUCCESS );
+        $this->changeJobEntry( JobEntry::SUCCESS, $total );
     }
 
     protected function cleanUp () {
@@ -367,8 +368,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         echo "\n\n" . Carbon::now() . " - Queuing Job: " . $this->getJobName() . "\n";
     }
 
-    protected function changeJobEntry ( $status ) {
-        JobTracking::changeJobState( $status , $this->tracking);
+    protected function changeJobEntry ( $status, $totalRows = 0 ) {
+        JobTracking::changeJobState( $status , $this->tracking, $totalRows);
 
         if ( $status == JobEntry::SUCCESS ) echo "\n\n\t" . Carbon::now() . " - Finished Job: " . $this->apiName . ':' . $this->espAccountId . ' ' . $this->getJobName() . "\n\n";
         if ( $status == JobEntry::WAITING ) echo "\n\n\t" . Carbon::now() . " - Throwing Job Back into Queue: " . $this->apiName . ':' . $this->espAccountId . ' ' . $this->getJobName() . "\n\n";
