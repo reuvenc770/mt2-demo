@@ -121,6 +121,9 @@ class EmailRecordRepo {
                 );
             }
         }
+
+        $validRecords = null;
+        $invalidRecords = null;
     }
 
     public function recordDeliverable ( $recordType , $emailAddress , $espId , $deployId, $espInternalId , $date ) {
