@@ -47,7 +47,6 @@ class EmailRecordService {
             }
             else {
                 // Need to ensure that we aren't queueing up huge arrays
-                echo "RUNNING massRecord prematurely" . PHP_EOL;
                 $this->massRecordDeliverables();
             }
             
