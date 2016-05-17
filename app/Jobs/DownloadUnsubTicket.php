@@ -4,37 +4,41 @@ namespace App\Jobs;
 
 use App\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Facades\JobTracking;
 use App\Factories\APIFactory;
 use App\Models\JobEntry;
-use App\Facades\Suppression;
-class DownloadSuppressionFromESP extends Job implements ShouldQueue
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
+
+class DownloadUnsubTicket extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
-    CONST JOB_NAME = "DownloadSuppressionFromESP";
+    CONST JOB_NAME = "DownloadSuppressionFromESP-DownloadTicketSave";
     protected $tracking;
     protected $apiName;
     protected $espAccountId;
-    protected $date;
+    protected $data;
+    protected $maxAttempts;
 
-
-    public function __construct($apiName, $espAccountId, $date, $tracking){
+    public function __construct($apiName, $espAccountId, $data, $tracking){
         $this->apiName = $apiName;
         $this->espAccountId = $espAccountId;
-        $this->date = $date;
+        $this->data = $data;
+        $this->maxAttempts = env('MAX_ATTEMPTS',10);
         $this->tracking = $tracking;
-        JobTracking::startEspJob(self::JOB_NAME,$this->apiName, $this->espAccountId, $this->tracking);
     }
 
     public function handle()
     {
-        JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
+        JobTracking::startEspJob(self::JOB_NAME,$this->apiName, $this->espAccountId, $this->tracking);
+
         $subscriptionService = APIFactory::createApiSubscriptionService($this->apiName,$this->espAccountId);
-        $data = $subscriptionService->pullUnsubsEmailsByLookback($this->date);
+        $data = $subscriptionService->getUnsubReport($this->data['ticketId'], $this->data['count']);
+
         if($data){
-                $subscriptionService->insertUnsubs($data, $this->espAccountId);
+            $subscriptionService->insertUnsubs($data);
+        } else {
+            $this->release(60);
         }
         JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
     }
