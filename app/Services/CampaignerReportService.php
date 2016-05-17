@@ -274,7 +274,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
 
     public function saveRecords ( &$processState, $map ) {
         // $map unneeded
-
+            $count = 0;
         try {
             $skipDelivered = true;
             if($this->emailRecord->withinTwoDays($processState[ 'ticket' ][ 'espId' ],$processState[ 'ticket' ][ 'espInternalId' ]) || 'rerun' === $processState['pipe']){
@@ -325,12 +325,13 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                         $processState[ 'ticket' ][ 'espInternalId' ] ,
                         $record[ 'actionDate' ]
                     );
+                    $count++;
 
                 }
 
             }
 
-            $count = $this->emailRecord->massRecordDeliverables();
+            $this->emailRecord->massRecordDeliverables();
             return $count;
         }
         catch (\Exception $e) {
