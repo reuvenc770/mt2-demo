@@ -40,12 +40,12 @@ class DownloadUnsubTicket extends Job implements ShouldQueue
         } else {
             $this->release(60);
         }
-        JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking, $this->attempts());
+        JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
     }
 
 
     public function failed()
     {
-        JobTracking::changeJobState(JobEntry::FAILED,$this->tracking, $this->maxAttempts);
+        JobTracking::changeJobState(JobEntry::FAILED,$this->tracking);
     }
 }
