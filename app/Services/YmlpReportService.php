@@ -155,6 +155,7 @@ class YmlpReportService extends AbstractReportService implements IDataService {
     }
 
     public function saveRecords(&$processState) {
+        $count = 0;
         $espInternalId = $processState['campaign']->esp_internal_id;
         // sometimes this doesn't work - if we don't have the campaign saved
         $deployId = $processState['campaign']->external_deploy_id; 
@@ -163,7 +164,7 @@ class YmlpReportService extends AbstractReportService implements IDataService {
             switch ( $processState[ 'recordType' ] ) {
                 case 'opens' :
                     $openData = $this->api->getDeliverableStat('opened', $espInternalId);
-
+                    $count = count($openData);
                     foreach ( $openData as $key => $opener ) {
                         $this->emailRecord->recordDeliverable(
                             self::RECORD_TYPE_OPENER ,
@@ -178,7 +179,7 @@ class YmlpReportService extends AbstractReportService implements IDataService {
 
                 case 'clicks' :
                     $clickData = $this->api->getDeliverableStat('clicked', $espInternalId);
-
+                    $count = count($clickData);
                     foreach ( $clickData as $key => $clicker ) {
                         $this->emailRecord->recordDeliverable(
                             self::RECORD_TYPE_CLICKER ,
@@ -193,7 +194,7 @@ class YmlpReportService extends AbstractReportService implements IDataService {
 
                 case 'bounces' :
                     $bounceData = $this->api->getDeliverableStat('bounced', $espInternalId);
-
+                    $count = count($bounceData);
                     foreach ( $bounceData as $key => $bouncer ) {
                        Suppression::recordRawHardBounce($this->api->getId(),$bouncer['Email'],$espInternalId, $bouncer['ErrorMessage'], Carbon::today()->toDateString());
                     }
@@ -201,7 +202,7 @@ class YmlpReportService extends AbstractReportService implements IDataService {
 
                 case 'deliveries' :
                     $deliveredData = $this->api->getDeliverableStat('delivered', $espInternalId);
-
+                    $count = count($deliveredData);
                     foreach ( $deliveredData as $key => $clicker ) {
                         $this->emailRecord->recordDeliverable(
                             self::RECORD_TYPE_DELIVERABLE ,
@@ -219,6 +220,7 @@ class YmlpReportService extends AbstractReportService implements IDataService {
             $jobException->setDelay( 180 );
             throw $jobException;
         }
+        return count($count);
     }
 
     public function pullUnsubsEmailsByLookback($lookback){

@@ -37,7 +37,7 @@ class ImportContentServerStatsJob extends Job implements ShouldQueue
         $service = APIFactory::createMt1DataImportService(self::JOB_NAME);
         $service->run();
 
-        JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking, $this->attempts());
+        JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
     }
 
     public function failed() {

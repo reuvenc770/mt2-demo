@@ -7,7 +7,7 @@
  */
 
 namespace App\Services;
-ini_set('default_socket_timeout', 600);
+ini_set('default_socket_timeout', 60);
 
 use App\Facades\Suppression;
 use App\Library\Campaigner\CampaignManagement;
@@ -330,12 +330,14 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
 
             }
 
-            $this->emailRecord->massRecordDeliverables();
+            $count = $this->emailRecord->massRecordDeliverables();
+            return $count;
         }
         catch (\Exception $e) {
             $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() , JobException::WARNING , $e );
             throw $jobException;
         }
+
     }
 
     public function getCampaignReport($ticketId, $count){

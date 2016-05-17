@@ -271,12 +271,13 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             unset( $recordXML );
             unset( $xpath );
 
-            $this->emailRecord->massRecordDeliverables();
+           $count = $this->emailRecord->massRecordDeliverables();
         } catch ( \Exception $e ) {
             $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() , JobException::WARNING , $e );
             $jobException->setDelay( 60 );
             throw $jobException;
         }
+        return $count;
     }
 
     protected function queueDeliveredRecords ( $xpath , $processState ) {

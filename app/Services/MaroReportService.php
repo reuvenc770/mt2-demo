@@ -192,8 +192,9 @@ class MaroReportService extends AbstractReportService implements IDataService
                 }
                 break;
         }
-        $this->emailRecord->massRecordDeliverables();
+        $total = $this->emailRecord->massRecordDeliverables();
         echo "Matched: $totalCorrect; Missing: $totalIncorrect" . PHP_EOL;
+        return $total;
     }
 
     public function saveRecords ( &$processState, $map ) {
@@ -222,6 +223,7 @@ class MaroReportService extends AbstractReportService implements IDataService
         }
 
         echo "Matched: $totalCorrect; Missing: $totalIncorrect" . PHP_EOL;
+        return $totalCorrect + $totalIncorrect;
     }
 
     public function shouldRetry () {
