@@ -220,7 +220,7 @@ class YmlpReportService extends AbstractReportService implements IDataService {
             $jobException->setDelay( 180 );
             throw $jobException;
         }
-        return count($count);
+        return $count;
     }
 
     public function pullUnsubsEmailsByLookback($lookback){
