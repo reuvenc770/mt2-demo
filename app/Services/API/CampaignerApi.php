@@ -10,6 +10,7 @@ namespace App\Services\API;
 use App\Facades\EspApiAccount;
 use App\Library\Campaigner\CampaignManagement;
 use App\Library\Campaigner\Authentication;
+use Log;
 
 class CampaignerApi extends EspBaseAPI
 {
