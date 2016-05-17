@@ -130,7 +130,7 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
     public function getTypeList ( &$processState ) {
         $typeList = [ "open" , "click" , "unsub" , "bounce" ];
 
-        if($this->emailRecord->withinTwoDays( $processState[ "espAccountId" ] , $processState[ "campaign" ]->esp_internal_id ) ){
+        if($this->emailRecord->withinTwoDays( $processState[ "espAccountId" ] , $processState[ "campaign" ]->esp_internal_id) || 'rerun' === $processState['pipe'] ){
             $typeList[] = "sent";
         }
 
@@ -188,7 +188,33 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
         }
 
         try {
+            // Set deploy id
+            $deployId = $processState["campaign"]->external_deploy_id;
+
             foreach ( $records as $record ) {
+
+                // Need to find cases without seconds and provide up an appropriate second
+                if (preg_match('/\s\d{2}\:\d{2}$/', $record->TimeStamp)) {
+                    $key = md5($record->Email . $deployId . $recordType . $record->TimeStamp);
+
+                    // If the tag already exists, get the (already-incremented) second, and increment again
+                    if (Cache::tags([$recordType, $deployId])->has($key)) {
+                        $count = Cache::tags([$recordType, $deployId])->get($key);
+                        Cache::tags([$recordType, $deployId])->increment($key);
+                    }
+                    else {
+                        // Tag does not exist. Create it with an an appropriate for 30 min.
+                        $count = 0;
+                        Cache::tags([$recordType, $deployId])->put($key, 1, 30);
+                    }
+
+                    // Set up the new timestamp
+                    $padding = $count < 10 ? '0' : '';
+                    $timeStamp = $record->TimeStamp . ':' . $padding . $count;
+                }
+                else {
+                    $timeStamp = $record->TimeStamp;
+                }
 
 
                 $this->emailRecord->queueDeliverable(
@@ -197,8 +223,8 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
                     $processState[ "espId" ] ,
                     $processState[ "campaign" ]->external_deploy_id ,
                     $processState[ "campaign" ]->esp_internal_id ,
-                    $record->TimeStamp
-                ); 
+                    $timeStamp
+                );
             }
 
             $this->emailRecord->massRecordDeliverables();

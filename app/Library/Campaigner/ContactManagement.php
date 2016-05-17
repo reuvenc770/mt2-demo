@@ -104,7 +104,8 @@ class ContactManagement extends \SoapClient
             'compression'=> SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP,
             'soap_version'=> 'SOAP_1_1',
             'trace' => true,
-            'connection_timeout' => 500
+            'connection_timeout' => 3600,
+            'default_socket_timeout' => 3600
         ), $options);
         try {
             parent::__construct($wsdl, $options);

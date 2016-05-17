@@ -10,6 +10,7 @@ use DB;
 class EmailRecordService {
     protected $repo;
     protected $records = [];
+    const MAX_RECORD_COUNT = 50000;
 
     public function __construct ( EmailRecordRepo $repo ) {
         $this->repo = $repo;
@@ -34,14 +35,21 @@ class EmailRecordService {
 
     public function queueDeliverable ( $recordType , $email , $espId , $deployId, $espInternalId , $date ) {
         if ( $this->repo->isValidActionType( $recordType ) ) {
-            $this->records []= [
-                'recordType' => $recordType ,
-                'email' => $email ,
-                'deployId' => $deployId,
-                'espId' => $espId ,
-                'espInternalId' => $espInternalId ,
-                'date' => $date
-            ];
+            if (self::MAX_RECORD_COUNT >= sizeof($this->records)) {
+                $this->records []= [
+                    'recordType' => $recordType ,
+                    'email' => $email ,
+                    'deployId' => $deployId,
+                    'espId' => $espId ,
+                    'espInternalId' => $espInternalId ,
+                    'date' => $date
+                ];
+            }
+            else {
+                // Need to ensure that we aren't queueing up huge arrays
+                $this->massRecordDeliverables();
+            }
+            
         } else {
             Log::error( "Record Type '{$recordType}' is not valid." );
             return false;
@@ -53,6 +61,8 @@ class EmailRecordService {
             $this->repo->massRecordDeliverables($this->records);
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
+        } finally {
+            $this->records = []; // clear out to free up space
         }
     }
 

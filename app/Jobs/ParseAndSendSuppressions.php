@@ -7,6 +7,8 @@ use App\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Facades\JobTracking;
+use App\Models\JobEntry;
 use League\Csv\Writer;
 use Cache;
 use Maknz\Slack\Facades\Slack;
@@ -16,6 +18,7 @@ use Storage;
 class ParseAndSendSuppressions extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
+    CONST JOB_NAME = "BH Daily Usub Report";
     protected $espAccounts;
     protected $espAccountName;
     protected $espAccountId;
@@ -38,6 +41,7 @@ class ParseAndSendSuppressions extends Job implements ShouldQueue
         $this->lookBack = $lookBack;
         $this->tracking = $tracking;
         $this->range = $range;
+        JobTracking::startEspJob(self::JOB_NAME,$this->espName, $this->espAccountId, $this->tracking);
     }
 
     /**
@@ -47,6 +51,7 @@ class ParseAndSendSuppressions extends Job implements ShouldQueue
      */
     public function handle()
     {
+        JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
         $subscriptionService = APP::make("App\\Services\\SuppressionService");
         //TODO Dirty as hell but limited time job
         if($this->range){
@@ -115,5 +120,11 @@ class ParseAndSendSuppressions extends Job implements ShouldQueue
          Slack::to(self::SLACK_CHANNEL)->send($output);
          Cache::tags($this->espName)->flush();
      }
+        JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
+    }
+
+
+    public function failed() {
+        JobTracking::changeJobState(JobEntry::FAILED,$this->tracking);
     }
 }

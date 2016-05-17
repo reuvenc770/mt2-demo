@@ -7,7 +7,7 @@
  */
 
 namespace App\Services;
-
+ini_set('default_socket_timeout', 600);
 
 use App\Facades\Suppression;
 use App\Library\Campaigner\CampaignManagement;
@@ -21,9 +21,9 @@ use App\Services\AbstractReportService;
 use App\Library\Campaigner\DateTimeFilter;
 use App\Library\Campaigner\GetCampaignRunsSummaryReport;
 use Carbon\Carbon;
+use Log;
 use App\Events\RawReportDataWasInserted;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Log;
 use App\Services\Interfaces\IDataService;
 use App\Services\EmailRecordService;
 use App\Exceptions\JobException;
@@ -76,7 +76,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
 
             Event::fire(new RawReportDataWasInserted($this, $arrayReportList));
         } catch ( \Exception $e ) {
-            throw new JobException( 'Failed to insert API stats. ' . $e->getMessage , JobException::ERROR , $e );
+            throw new JobException( 'Failed to insert API stats. ' . $e->getMessage() , JobException::ERROR , $e );
         }
     }
 
@@ -108,6 +108,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                 $emailStats['unsubs'] += $activityResults->getUnsubscribes();
                 $emailStats['spam_complaints'] += $activityResults->getSpamComplaints();
                 $emailStats['run_id'] = $run->getId();
+                $emailStats['run_on'] = $run->getRunDate();
             }
         } else {
             $domains = $runs->getDomains();
@@ -125,6 +126,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             $emailStats['unsubs'] = $activityResults->getUnsubscribes();
             $emailStats['spam_complaints'] = $activityResults->getSpamComplaints();
             $emailStats['run_id'] = $runs->getId();
+            $emailStats['run_on'] = $runs->getRunDate();
         }
 
         return array(
@@ -143,7 +145,8 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             'clicks' => $emailStats['clicks'],
             'unsubs' => $emailStats['unsubs'],
             'spam_complaints' => $emailStats['spam_complaints'],
-            'run_id' => $emailStats['run_id']
+            'run_id' => $emailStats['run_id'],
+            'run_on' => $emailStats['run_on']
         );
 
     }
@@ -162,7 +165,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             'm_deploy_id' => $deployId,
             'esp_account_id' => $report['esp_account_id'],
             'esp_internal_id' => $report['internal_id'],
-            'datetime' => '0000-00-00', //$report[''],
+            'datetime' => $report['run_on'],
             'name' => $report['name'],
             'subject' => $report['subject'],
             'from' => $report['from_name'],
@@ -212,7 +215,8 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         $reportHandle = $manager->RunReport($report);
 
         if ( !!is_a( $reportHandle , 'RunReportResponse' ) || !method_exists( $reportHandle , 'getRunReportResult' ) ) {
-            throw new \Exception( 'Failed to create report.' );
+
+            throw new \Exception($manager->__getLastResponse(). " failed to create report");
         }
 
         $results = $reportHandle->getRunReportResult();
@@ -270,8 +274,8 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
 
         try {
             $skipDelivered = true;
-
-            if ($this->emailRecord->withinTwoDays( $processState[ 'ticket' ][ 'espId' ] , $processState[ 'ticket' ][ 'espInternalId' ] ) ) {
+            if($this->emailRecord->withinTwoDays($processState[ 'ticket' ][ 'espId' ],$processState[ 'ticket' ][ 'espInternalId' ]) || 'rerun' === $processState['pipe']){
+                LOG::info("Yo I am a rerun");
                 $skipDelivered = false;
             }
 
@@ -293,7 +297,6 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             }
 
             foreach ( $recordData as $key => $record ) {
-                if ( $record[ 'action' ] === 'Delivered' && $skipDelivered ) { continue; }
 
                 if ( $record[ 'action' ] === 'Open' ) {
                     $actionType = self::RECORD_TYPE_OPENER;

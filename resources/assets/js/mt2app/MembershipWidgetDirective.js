@@ -1,4 +1,4 @@
-mt2App.directive( 'membershipWidget' , [ "$rootScope" , "$log" , function ( $rootScope , $log ) {
+mt2App.directive( 'membershipWidget' , [ "$rootScope" , "$timeout" , "$log" , function ( $rootScope , $timeout , $log ) {
     return {
         "replace" : true ,
         "scope" : {} ,
@@ -6,6 +6,18 @@ mt2App.directive( 'membershipWidget' , [ "$rootScope" , "$log" , function ( $roo
             var self = this;
 
             $rootScope[ self.widgetname ] = [];
+
+            $rootScope.$watchCollection( self.widgetname , function ( newClients , oldClients ) {
+                $timeout( function () {
+                    angular.forEach( self.recordlist , function ( record , recordIndex ) {
+                        if ( newClients.indexOf( parseInt( record[ self.idfield ] , 10 ) ) !== -1 ) {
+                            self.addSingleRecord( record );
+                        }
+                    } );
+
+                    self.updatecallback();
+                } , 500 );
+            } );
 
             self.namefield = ( typeof( self.namefield ) !== 'undefined' ? self.namefield : 'name' );
             self.idfield = ( typeof( self.idfield ) !== 'undefined' ? self.idfield : 'id' );
@@ -117,25 +129,25 @@ mt2App.directive( 'membershipWidget' , [ "$rootScope" , "$log" , function ( $roo
                 } );
 
                 angular.forEach( recordsToDelete , function ( record , recordIndex ) {
-                    self.removeSingleChosenRecord( record );
+                    self.removeSingleChosenRecord( record , false );
                 } );
+
+                if ( typeof( self.updatecallback ) !== 'undefined' ) {
+                    self.updatecallback();
+                }
             };
 
-            self.removeSingleChosenRecord = function ( record ) {
+            self.removeSingleChosenRecord = function ( record , runCallback ) {
+                runCallback = ( typeof( runCallback ) === 'undefined' ? true : runCallback );
+
                 record.original.chosen = false;
 
                 self.chosenrecordlist.splice( self.chosenrecordlist.indexOf( record ) , 1 );
+
+                if ( typeof( self.updatecallback ) !== 'undefined' && runCallback === true ) {
+                    self.updatecallback();
+                }
             };
-
-            $rootScope.$watchCollection( self.widgetname , function ( newClients , oldClients ) {
-                angular.forEach( self.recordlist , function ( record , recordIndex ) {
-                    if ( newClients.indexOf( parseInt( record[ self.idfield ] , 10 ) ) !== -1 ) {
-                        self.addSingleRecord( record );
-                    }
-                } );
-
-                self.updatecallback();
-            } );
         } ,
         "controllerAs" : "ctrl" ,
         "bindToController" : {
