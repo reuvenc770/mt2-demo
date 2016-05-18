@@ -10,6 +10,7 @@ namespace App\Repositories;
 
 
 use App\Models\CampaignActionsEntry;
+use Carbon\Carbon;
 
 class CampaignActionsRepo
 {
@@ -22,6 +23,12 @@ class CampaignActionsRepo
 
     public function insertNewEntry($entryData){
         return $this->campaignAction->create($entryData);
+    }
+
+    public function updateCampaignAction($entry){
+        return $this->campaignAction->where('esp_account_id', $entry['esp_account_id'])
+                                    ->where('esp_internal_id', $entry['esp_internal_id'])
+                                    ->update($entry['column'], Carbon::now()->toDateTimeString());
     }
 
 }
