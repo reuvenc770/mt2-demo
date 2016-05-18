@@ -31,4 +31,28 @@ class CampaignActionsServices
        return $this->campaignActionsRepo->insertNewEntry($dataToInsert);
     }
 
+    public function recordSuccessRun($esp_account_id, $esp_internal_id, $type){
+        $columnName = "last_success_{$type}";
+    $entry = array (
+        'column'          => $columnName,
+        'esp_account_id' => $esp_account_id,
+        'esp_internal_id' => $esp_internal_id,
+    );
+    $this->campaignActionsRepo->updateCampaignAction($entry);
+
+
+    }
+
+    public function recordFailRun($esp_account_id, $esp_internal_id, $type){
+        $columnName = "last_fail_{$type}";
+        $entry = array (
+            'column'          => $columnName,
+            'esp_account_id' => $esp_account_id,
+            'esp_internal_id' => $esp_internal_id,
+        );
+        $this->campaignActionsRepo->updateCampaignAction($entry);
+
+
+    }
+
 }

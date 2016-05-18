@@ -9,6 +9,7 @@
 namespace App\Services;
 
 #use App\Services\API\BlueHornet;
+use App\Facades\CampaignActionsEntry;
 use App\Facades\Suppression;
 use App\Repositories\ReportRepo;
 use App\Services\API\BlueHornetApi;
@@ -273,10 +274,12 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
             $this->emailRecord->massRecordDeliverables();
         } catch ( \Exception $e ) {
+            CampaignActionsEntry::recordSuccessRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id,$processState[ 'recordType' ] );
             $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() , JobException::WARNING , $e );
             $jobException->setDelay( 60 );
             throw $jobException;
         }
+            CampaignActionsEntry::recordFailRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id,$processState[ 'recordType' ] );
     }
 
     protected function queueDeliveredRecords ( $xpath , $processState ) {
