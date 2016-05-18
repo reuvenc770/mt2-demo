@@ -66,6 +66,8 @@ class BlueHornetSubscriberService
 
 
     public function insertUnsubs($data, $espAccountId){
+
+        //capture all the campaign ids and insert
         foreach ($data as $entry){
             $campaign_id = isset($entry->message_id) ? $entry->message_id : 0;
             if($campaign_id == 0){// System Opt Out
@@ -73,5 +75,6 @@ class BlueHornetSubscriberService
             }
             Suppression::recordRawUnsub($espAccountId,$entry->email,$campaign_id,$entry->method_unsubscribed, $entry->date_deleted);
         }
+
     }
 }
