@@ -16,18 +16,18 @@ class CreateCampaignActionsEntriesTable extends Migration
             $table->increments('id');
             $table->integer('esp_account_id');
             $table->integer("esp_internal_id");
-            $table->dateTime('last_success_clicks')->nullable();
-            $table->dateTime('last_fail_clicks')->nullable();
-            $table->dateTime('last_success_opens')->nullable();
-            $table->dateTime('last_fail_opens')->nullable();
-            $table->dateTime('last_success_deliveres')->nullable();
-            $table->dateTime('last_fail_deliveres')->nullable();
-            $table->dateTime('last_success_unsubs')->nullable();
-            $table->dateTime('last_fail_unsubs')->nullable();
-            $table->dateTime('last_success_hardbounce')->nullable();
-            $table->dateTime('last_fail_unsubs_hardbounce')->nullable();
-            $table->dateTime('last_success_complaints')->nullable();//not used but will be
-            $table->dateTime('last_fail_complaints')->nullable();
+            $table->dateTime('last_success_click')->nullable();
+            $table->dateTime('last_fail_click')->nullable();
+            $table->dateTime('last_success_open')->nullable();
+            $table->dateTime('last_fail_open')->nullable();
+            $table->dateTime('last_success_deliverable')->nullable();
+            $table->dateTime('last_fail_deliverable')->nullable();
+            $table->dateTime('last_success_optout')->nullable();
+            $table->dateTime('last_fail_optout')->nullable();
+            $table->dateTime('last_success_bounce')->nullable();
+            $table->dateTime('last_fail_bounce')->nullable();
+            $table->dateTime('last_success_complaint')->nullable();//not used but will be
+            $table->dateTime('last_fail_complaint')->nullable();
         });
     }
 
