@@ -43,7 +43,7 @@ class CampaignActionsServices
 
     }
 
-    public function recordFailRun($esp_account_id, $esp_internal_id, $type){
+    public function recordFailedRun($esp_account_id, $esp_internal_id, $type){
         $columnName = "last_fail_{$type}";
         $entry = array (
             'column'          => $columnName,
