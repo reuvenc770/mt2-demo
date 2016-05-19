@@ -196,7 +196,7 @@ class EmailRecordRepo {
         $this->emailAddress = $recordData[ 'emailAddress' ];
         $this->recordType = $recordData[ 'recordType' ];
         $this->espId = $recordData[ 'espId' ];
-        $this->deployId = $recordData['deployId'];
+        $this->deployId = (int)$recordData['deployId'];
         $this->espInternalId = $recordData[ 'espInternalId' ];
         $this->date = $recordData[ 'date' ];
     }
