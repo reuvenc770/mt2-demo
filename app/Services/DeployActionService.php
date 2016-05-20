@@ -16,7 +16,7 @@ use App\Repositories\DeployActionRepo;
 class DeployActionService
 {
     protected $deployActionRepo;
-
+    protected $types = ["open","click","optout","bounce","complaint","deliverable"];
     public function __construct(DeployActionRepo $deployActionRepo)
     {
         $this->deployActionRepo = $deployActionRepo;
@@ -33,27 +33,35 @@ class DeployActionService
     }
 
     public function recordSuccessRun($esp_account_id, $esp_internal_id, $type){
-        $columnName = "last_success_{$type}";
-    $entry = array (
-        'column'          => $columnName,
-        'esp_account_id' => $esp_account_id,
-        'esp_internal_id' => $esp_internal_id,
-    );
+        $entry = $this->returnEntry($esp_account_id, $esp_internal_id, $type, 'success');
     $this->deployActionRepo->updateDeployAction($entry);
-
-
     }
 
     public function recordFailedRun($esp_account_id, $esp_internal_id, $type){
-        $columnName = "last_fail_{$type}";
-        $entry = array (
-            'column'          => $columnName,
+        $entry = $this->returnEntry($esp_account_id, $esp_internal_id, $type, 'fail');
+        $this->deployActionRepo->updateDeployAction($entry);
+    }
+
+    public function recordAllSuccess($esp_account_id, $esp_internal_id){
+        foreach($this->types as $type) {
+            $entry = $this->returnEntry($esp_account_id, $esp_internal_id, $type, 'success');
+            $this->deployActionRepo->updateDeployAction($entry);
+        }
+    }
+
+    public function recordAllFail($esp_account_id, $esp_internal_id){
+        foreach($this->types as $type) {
+        $entry = $this->returnEntry($esp_account_id, $esp_internal_id, $type, 'fail');
+        $this->deployActionRepo->updateDeployAction($entry);
+        }
+    }
+
+    private function returnEntry($esp_account_id, $esp_internal_id, $type, $boolName){
+        $columnName = "last_{$boolName}_{$type}";
+        return $entry = array(
+            'column' => $columnName,
             'esp_account_id' => $esp_account_id,
             'esp_internal_id' => $esp_internal_id,
         );
-        $this->deployActionRepo->updateDeployAction($entry);
-
-
     }
-
 }

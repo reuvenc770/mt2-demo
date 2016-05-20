@@ -22,6 +22,7 @@ use App\Library\Campaigner\DateTimeFilter;
 use App\Library\Campaigner\GetCampaignRunsSummaryReport;
 use Carbon\Carbon;
 use Log;
+use App\Facades\DeployActionEntry;
 use App\Events\RawReportDataWasInserted;
 use Illuminate\Support\Facades\Event;
 use App\Services\Interfaces\IDataService;
@@ -271,11 +272,10 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
 
     public function saveRecords ( &$processState, $map ) {
         // $map unneeded
-
+            $typesTouched = array();
         try {
             $skipDelivered = true;
             if($this->emailRecord->withinTwoDays($processState[ 'ticket' ][ 'espId' ],$processState[ 'ticket' ][ 'espInternalId' ]) || 'rerun' === $processState['pipe']){
-                LOG::info("Yo I am a rerun");
                 $skipDelivered = false;
             }
 
@@ -285,6 +285,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                     $processState[ 'ticket' ][ 'rowCount' ]
                 );
             } catch ( \Exception $e ) {
+                DeployActionEntry::recordAllFail($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id);
                 $jobException = new JobException( 'Campaigner API crapping out. ' . $e->getMessage() , JobException::NOTICE );
                 $jobException->setDelay( 180 );
                 throw $jobException;
@@ -310,6 +311,9 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                     $actionType = self::RECORD_TYPE_COMPLAINT;
                 } elseif ( $record[ 'action' ] === 'Delivered' ) {
                     $actionType = self::RECORD_TYPE_DELIVERABLE;
+                    if ($skipDelivered){
+                        $actionType = null;
+                    }
                 }
 
                 if (isset($actionType)) {
@@ -328,8 +332,10 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             }
 
             $this->emailRecord->massRecordDeliverables();
+            DeployActionEntry::recordAllSuccess($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id);
         }
         catch (\Exception $e) {
+            DeployActionEntry::recordAllFail($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id);
             $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() , JobException::WARNING , $e );
             throw $jobException;
         }
