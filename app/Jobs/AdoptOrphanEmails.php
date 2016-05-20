@@ -15,6 +15,7 @@ use App\Models\Email;
 use App\Models\EmailClientInstance;
 use App\Models\OrphanEmail;
 use App\Facades\JobTracking;
+use App\Models\StandardReport;
 
 class AdoptOrphanEmails extends Job implements ShouldQueue
 {
@@ -62,8 +63,16 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
             $failedToProcess = false;
 
             if ( is_object( $orphan ) ) {
+
                 $emailRecordCount = Email::where( 'email_address' , $orphan->email_address )->count();
-                if ( $emailRecordCount > 0 ) {
+                $deployId = (int)$orphan->deploy_id;
+                $found = (int)StandardReport::where('esp_internal_id', $orphan->esp_internal_id)->pluck('external_deploy_id')->first();
+
+                if (0 === $deployId && 0 !== $found) {
+                    $deployId = $found;
+                }
+
+                if ( $emailRecordCount > 0 && $deployId > 0) {
                     $currentEmailId = Email::select( 'id' )->where( 'email_address' , $orphan->email_address )->pluck( 'id' )->first();
 
                     $clientRecordCount = EmailClientInstance::where( 'email_id' , $currentEmailId )->count();
@@ -76,7 +85,7 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
 
                     $value = "('$currentEmailId', '$currentClientId', 
                         '{$orphan->esp_account_id}', 
-                        '{$orphan->deploy_id}', 
+                        '{$deployId}', 
                         '{$orphan->esp_internal_id}', 
                         '{$orphan->action_id}', 
                         '{$orphan->datetime}', NOW(), NOW())";
