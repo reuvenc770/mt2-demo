@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Facades\CampaignActionsEntry;
+use App\Facades\DeployActionEntry;
 use App\Models\Interfaces\IReport;
 use Illuminate\Database\Eloquent\Model;
 use Log;
@@ -19,7 +19,7 @@ class StandardReport extends Model implements IReport
         static::created(function($report)
         {
             Log::info("i am here");
-            CampaignActionsEntry::initCampaignActions($report);
+            DeployActionEntry::initDeployActions($report);
         });
 
     }
