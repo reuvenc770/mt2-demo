@@ -69,7 +69,7 @@ trait PaginateMT1
                     $responsePaginator = $currentPaginator;
                 }
 
-                $this->cachePagination( $currentPaginator , $currentPageNumber , $perPage );
+                $this->cachePagination( $currentPaginator , $currentPageNumber , $perPage , $params );
             }
 
             return $responsePaginator;

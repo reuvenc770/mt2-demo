@@ -62,6 +62,12 @@ return [
             'password' => env("HORNET7_PW"),
         ],
 
+        'dataExportFTP' => [
+            'driver'    => 'ftp' ,
+            'host'     => env( 'DATAEXPORT_FTP_HOST' ),
+            'username' => env( 'DATAEXPORT_FTP_USER' ),
+            'password' => env( 'DATAEXPORT_FTP_PASS' ),
+        ] ,
 
         'sprintUnsubFTP' => [
             'driver'   => 'ftp',

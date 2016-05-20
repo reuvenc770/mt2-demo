@@ -145,3 +145,13 @@ Breadcrumbs::register('dataexport.add', function($breadcrumbs) {
     $breadcrumbs->parent('dataexport.list');
     $breadcrumbs->push('Add/Edit Data Export');
 });
+
+Breadcrumbs::register('datacleanse.list', function($breadcrumbs) {
+    $breadcrumbs->parent('home');
+    $breadcrumbs->push('Data Cleanse' , route( 'datacleanse.list' ));
+});
+
+Breadcrumbs::register('datacleanse.add', function($breadcrumbs) {
+    $breadcrumbs->parent('datacleanse.list');
+    $breadcrumbs->push('Add Data Cleanse');
+});

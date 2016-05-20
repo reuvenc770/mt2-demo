@@ -169,6 +169,14 @@ elixir.extend( 'deployListProfileJs' , function ( mix ) {
     ] , 'public/js/listprofile.js' );
 } );
 
+elixir.extend( 'deployDataCleanseJs' , function ( mix ) {
+    mix.scripts( [
+        'datacleanse/DataCleanseController.js' ,
+        'datacleanse/DataCleanseApiService.js' ,
+        'datacleanse/DataCleanseTableDirective.js'
+    ] , 'public/js/datacleanse.js' );
+} );
+
 elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployBaseAngular( mix );
     mix.deployEspApiJs( mix );
@@ -183,6 +191,7 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployListProfileJs( mix );
     mix.deployClientAttributionJs( mix );
     mix.deployDataExportJs(mix);
+    mix.deployDataCleanseJs(mix);
 } );
 
 elixir.extend( 'runTdd' , function ( mix ) {
@@ -253,7 +262,10 @@ var mt2TaskMap = {
         mix.deployListProfileJs( mix );
     },
     'deployDataExportJs': function(mix) {
-	mix.deployDataExportJs(mix);
+        mix.deployDataExportJs(mix);
+    },
+    'deployDataCleanseJs' : function (mix) {
+        mix.deployDataCleanseJs(mix)
     }
 };
 

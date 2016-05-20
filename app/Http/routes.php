@@ -255,6 +255,33 @@ Route::group(
 
 
 /**
+ * Data Cleanse Routes
+ */
+Route::group(
+    [
+        'prefix' => 'datacleanse' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' , [
+            'as' => 'datacleanse.list' ,
+            'uses' => 'DataCleanseController@listAll'
+        ] );
+
+        Route::get( '/create' , [
+            'as' => 'datacleanse.add' ,
+            'uses' => 'DataCleanseController@create'
+        ] );
+
+        Route::get( '/edit/{id}' , [
+            'as' => 'datacleanse.edit' ,
+            'uses' => 'DataCleanseController@edit'
+        ] );
+    }
+);
+
+
+/**
  * List Profile Routes
  */
 Route::group(
@@ -462,6 +489,12 @@ Route::group(
         );
 
         Route::resource(
+            'datacleanse' ,
+            'DataCleanseController' ,
+            [ 'only' => [ 'index' , 'store' ] ]
+        );
+
+        Route::resource(
             'listprofile' ,
             'ListProfileController' ,
             [ 'except' => [ 'create' , 'edit' , 'copy' ] ]
@@ -560,6 +593,30 @@ Route::group(
             [
                 'as' => 'api.mt1.client.types' ,
                 'uses' => 'MT1API\ClientApiController@types'
+            ]
+        );
+
+        Route::get(
+            'advertiser' ,
+            [
+                'as' => 'api.mt1.advertiser.get' ,
+                'uses' => 'MT1API\AdvertiserController@index'
+            ]
+        );
+
+        Route::get(
+            'country' ,
+            [
+                'as' => 'api.mt1.country.get' ,
+                'uses' => 'MT1API\CountryController@index'
+            ]
+        );
+
+        Route::get(
+            'offercategory' ,
+            [
+                'as' => 'api.mt1.offercategory.get' ,
+                'uses' => 'MT1API\OfferCategoryController@index'
             ]
         );
 
