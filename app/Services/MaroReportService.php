@@ -5,6 +5,7 @@
  */
 
 namespace App\Services;
+use App\Facades\DeployActionEntry;
 use App\Repositories\ReportRepo;
 use App\Services\API\MaroApi;
 use Illuminate\Support\Facades\Event;
@@ -83,10 +84,9 @@ class MaroReportService extends AbstractReportService implements IDataService
     }
 
     public function savePage ( &$processState, $map ) {
+        $type = "";
 
-        $totalCorrect = 0;
-        $totalIncorrect = 0;
-
+        try {
         switch ( $processState[ 'recordType' ] ) {
             case 'opens' :
                 foreach ( $processState[ 'currentPageData' ] as $key => $opener ) {
@@ -101,6 +101,7 @@ class MaroReportService extends AbstractReportService implements IDataService
                     );
 
                 }
+                $type="open";
             break;
 
             case 'clicks' :
@@ -116,6 +117,7 @@ class MaroReportService extends AbstractReportService implements IDataService
                     );
 
                 }
+                $type="click";
             break;
 
             case 'unsubscribes' :
@@ -128,6 +130,7 @@ class MaroReportService extends AbstractReportService implements IDataService
                             $unsub['recorded_on']
                         );
                 }
+                $type="optout";
                 break;
 
             case 'bounces' :
@@ -141,6 +144,7 @@ class MaroReportService extends AbstractReportService implements IDataService
                         );
 
                 }
+                $type="bounce";
                 break;
 
             case 'complaints' :
@@ -155,6 +159,7 @@ class MaroReportService extends AbstractReportService implements IDataService
                         $complainer[ 'recorded_on' ]
                     );
                 }
+                $type="complaint";
                 break;
 
             case 'delivered':
@@ -168,10 +173,18 @@ class MaroReportService extends AbstractReportService implements IDataService
                         $delivered[ 'campaign_id' ] ,
                         Carbon::parse($delivered[ 'created_at' ])
                     );
+                    $type="deliverable";
                 }
                 break;
+            }
+        } catch ( \Exception $e ) {
+            DeployActionEntry::recordFailedRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, $type);
+            $jobException = new JobException( 'Failed to retrieve records. ' . $e->getMessage() , JobException::NOTICE );
+            $jobException->setDelay( 180 );
+            throw $jobException;
         }
-        $this->emailRecord->massRecordDeliverables();
+            $this->emailRecord->massRecordDeliverables();
+            DeployActionEntry::recordSuccessRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, $type );
     }
 
 
