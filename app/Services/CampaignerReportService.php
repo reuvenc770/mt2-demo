@@ -7,8 +7,9 @@
  */
 
 namespace App\Services;
+ini_set('default_socket_timeout', 600);
 
-
+use App\Facades\Suppression;
 use App\Library\Campaigner\CampaignManagement;
 use App\Library\Campaigner\ContactManagement;
 use App\Library\Campaigner\DownloadReport;
@@ -20,9 +21,9 @@ use App\Services\AbstractReportService;
 use App\Library\Campaigner\DateTimeFilter;
 use App\Library\Campaigner\GetCampaignRunsSummaryReport;
 use Carbon\Carbon;
+use Log;
 use App\Events\RawReportDataWasInserted;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Log;
 use App\Services\Interfaces\IDataService;
 use App\Services\EmailRecordService;
 use App\Exceptions\JobException;
@@ -33,9 +34,6 @@ use App\Exceptions\JobException;
  */
 class CampaignerReportService extends AbstractReportService implements IDataService
 {
-
-    CONST NO_CAMPAIGNS = 'M_4.1.1.1_NO-CAMPAIGNRUNS-FOUND';
-
     /**
      * @var string
      */
@@ -47,7 +45,11 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
      */
     public function __construct(ReportRepo $reportRepo, CampaignerApi $api , EmailRecordService $emailRecord )
     {
-        parent::__construct($reportRepo, $api , $emailRecord);
+        try {
+            parent::__construct($reportRepo, $api, $emailRecord);
+        } catch (\Exception $e){
+            throw $e;
+        }
     }
 
     /**
@@ -56,22 +58,26 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
      */
     public function insertApiRawStats($data)
     {
-        $arrayReportList = array();
-        $espAccountId = $this->api->getEspAccountId();
+        try {
+            $arrayReportList = array();
+            $espAccountId = $this->api->getEspAccountId();
 
-        if (count($data->getCampaign()) > 1) {  //another dumb check
-            foreach ($data->getCampaign() as $report) {
-                $convertedReport = $this->mapToRawReport($report);
+            if (count($data->getCampaign()) > 1) {  //another dumb check
+                foreach ($data->getCampaign() as $report) {
+                    $convertedReport = $this->mapToRawReport($report);
+                    $this->insertStats($espAccountId, $convertedReport);
+                    $arrayReportList[] = $convertedReport;
+                }
+            } else {
+                $convertedReport = $this->mapToRawReport($data->getCampaign());
                 $this->insertStats($espAccountId, $convertedReport);
                 $arrayReportList[] = $convertedReport;
             }
-        } else {
-            $convertedReport = $this->mapToRawReport($data->getCampaign());
-            $this->insertStats($espAccountId, $convertedReport);
-            $arrayReportList[] = $convertedReport;
-        }
 
-        Event::fire(new RawReportDataWasInserted($this, $arrayReportList));
+            Event::fire(new RawReportDataWasInserted($this, $arrayReportList));
+        } catch ( \Exception $e ) {
+            throw new JobException( 'Failed to insert API stats. ' . $e->getMessage() , JobException::ERROR , $e );
+        }
     }
 
     /**
@@ -102,6 +108,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                 $emailStats['unsubs'] += $activityResults->getUnsubscribes();
                 $emailStats['spam_complaints'] += $activityResults->getSpamComplaints();
                 $emailStats['run_id'] = $run->getId();
+                $emailStats['run_on'] = $run->getRunDate();
             }
         } else {
             $domains = $runs->getDomains();
@@ -119,6 +126,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             $emailStats['unsubs'] = $activityResults->getUnsubscribes();
             $emailStats['spam_complaints'] = $activityResults->getSpamComplaints();
             $emailStats['run_id'] = $runs->getId();
+            $emailStats['run_on'] = $runs->getRunDate();
         }
 
         return array(
@@ -137,7 +145,8 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             'clicks' => $emailStats['clicks'],
             'unsubs' => $emailStats['unsubs'],
             'spam_complaints' => $emailStats['spam_complaints'],
-            'run_id' => $emailStats['run_id']
+            'run_id' => $emailStats['run_id'],
+            'run_on' => $emailStats['run_on']
         );
 
     }
@@ -156,7 +165,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             'm_deploy_id' => $deployId,
             'esp_account_id' => $report['esp_account_id'],
             'esp_internal_id' => $report['internal_id'],
-            'datetime' => '0000-00-00', //$report[''],
+            'datetime' => $report['run_on'],
             'name' => $report['name'],
             'subject' => $report['subject'],
             'from' => $report['from_name'],
@@ -178,19 +187,23 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
      */
     public function retrieveApiStats($date)
     {
-        $dateObject = Carbon::createFromTimestamp(strtotime($date));
-        $endDate = Carbon::now()->endOfDay();
-        $manager = new CampaignManagement();
-        $dateFilter = new DateTimeFilter();
-        $dateFilter->setFromDate($dateObject->startOfDay());
-        $dateFilter->setToDate($endDate);
-        $params = new GetCampaignRunsSummaryReport($this->api->getAuth(), null, false, $dateFilter);
-        $results = $manager->GetCampaignRunsSummaryReport($params);
-        if($this->checkforHeaderFail($manager,"retrieveApiStats"))
-        {
-            return null;
+        try {
+            $dateObject = Carbon::createFromTimestamp(strtotime($date));
+            $endDate = Carbon::now()->endOfDay();
+            $manager = new CampaignManagement();
+            $dateFilter = new DateTimeFilter();
+            $dateFilter->setFromDate($dateObject->startOfDay());
+            $dateFilter->setToDate($endDate);
+            $params = new GetCampaignRunsSummaryReport($this->api->getAuth(), null, false, $dateFilter);
+            $results = $manager->GetCampaignRunsSummaryReport($params);
+            if($this->api->checkforHeaderFail($manager,"retrieveApiStats"))
+            {
+                return null;
+            }
+            return $results->getGetCampaignRunsSummaryReportResult();
+        } catch ( \Exception $e ) {
+            throw new JobException( 'Failed to retrieve API stats. ' . $e->getMessage() , JobException::ERROR , $e );
         }
-        return $results->getGetCampaignRunsSummaryReportResult();
     }
 
 
@@ -202,12 +215,13 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         $reportHandle = $manager->RunReport($report);
 
         if ( !!is_a( $reportHandle , 'RunReportResponse' ) || !method_exists( $reportHandle , 'getRunReportResult' ) ) {
-            throw new \Exception( 'Failed to create report.' );
+
+            throw new \Exception($manager->__getLastResponse(). " failed to create report");
         }
 
         $results = $reportHandle->getRunReportResult();
 
-        if($this->checkforHeaderFail($manager,"createCampaignReport"))
+        if($this->api->checkforHeaderFail($manager,"createCampaignReport"))
         {
             return null;
         }
@@ -238,7 +252,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         return $jobId;
     }
 
-    public function startTicket ( $espAccountId , $campaign , $recordType = null ) {
+    public function startTicket ( $espAccountId , $campaign , $recordType = null, $isRerun = false) {
         try {
             $runId = $this->getRunId($campaign->esp_internal_id);
             $reportData = $this->createCampaignReport( $runId );
@@ -257,55 +271,67 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
 
     public function saveRecords ( &$processState, $map ) {
         // $map unneeded
-        $skipDelivered = false;
-
-        if ( $this->emailRecord->checkForDeliverables( $processState[ 'ticket' ][ 'espId' ] , $processState[ 'ticket' ][ 'espInternalId' ] ) ) {
-            $skipDelivered = true;
-        }
 
         try {
-            $recordData = $this->getCampaignReport(
-                $processState[ 'ticket' ][ 'ticketName' ] ,
-                $processState[ 'ticket' ][ 'rowCount' ]
-            );
-        } catch ( \Exception $e ) {
-            $jobException = new JobException( 'Campaigner API crapping out. ' . $e->getMessage() , JobException::NOTICE );
-            $jobException->setDelay( 180 );
-            throw $jobException;
-        }
-
-        if ( is_null( $recordData ) ) {
-            $jobException = new JobException( 'Report Not Ready' , JobException::NOTICE );
-            $jobException->setDelay( 180 );
-            throw $jobException;
-        }
-
-        foreach ( $recordData as $key => $record ) {
-            if ( $record[ 'action' ] === 'Delivered' && $skipDelivered ) { continue; }
-
-            if ( $record[ 'action' ] === 'Open' ) {
-                $actionType = self::RECORD_TYPE_OPENER;
-            } elseif ( $record[ 'action' ] === 'Click' ) {
-                $actionType = self::RECORD_TYPE_CLICKER;
-            } elseif ( $record[ 'action' ] === 'Unsubscribe' ) {
-                $actionType = self::RECORD_TYPE_UNSUBSCRIBE;
-            } elseif ( $record[ 'action' ] === 'SpamComplaint' ) {
-                $actionType = self::RECORD_TYPE_COMPLAINT;
-            } elseif ( $record[ 'action' ] === 'Delivered' ) {
-                $actionType = self::RECORD_TYPE_DELIVERABLE;
+            $skipDelivered = true;
+            if($this->emailRecord->withinTwoDays($processState[ 'ticket' ][ 'espId' ],$processState[ 'ticket' ][ 'espInternalId' ]) || 'rerun' === $processState['pipe']){
+                LOG::info("Yo I am a rerun");
+                $skipDelivered = false;
             }
 
-            if (isset($actionType)) {
-                $this->emailRecord->recordDeliverable(
-                    $actionType ,
-                    $record[ 'email' ] ,
-                    $processState[ 'ticket' ][ 'espId' ] ,
-                    $processState['ticket']['deployId'],
-                    $processState[ 'ticket' ][ 'espInternalId' ] ,
-                    $record[ 'actionDate' ]
+            try {
+                $recordData = $this->getCampaignReport(
+                    $processState[ 'ticket' ][ 'ticketName' ] ,
+                    $processState[ 'ticket' ][ 'rowCount' ]
                 );
+            } catch ( \Exception $e ) {
+                $jobException = new JobException( 'Campaigner API crapping out. ' . $e->getMessage() , JobException::NOTICE );
+                $jobException->setDelay( 180 );
+                throw $jobException;
             }
 
+            if ( is_null( $recordData ) ) {
+                $jobException = new JobException( 'Report Not Ready' , JobException::NOTICE );
+                $jobException->setDelay( 180 );
+                throw $jobException;
+            }
+
+            foreach ( $recordData as $key => $record ) {
+
+                if ( $record[ 'action' ] === 'Open' ) {
+                    $actionType = self::RECORD_TYPE_OPENER;
+                } elseif ( $record[ 'action' ] === 'Click' ) {
+                    $actionType = self::RECORD_TYPE_CLICKER;
+                } elseif ( $record[ 'action' ] === 'Unsubscribe' ) {
+                    Suppression::recordRawUnsub($processState[ 'ticket' ][ 'espId' ],$record[ 'email' ],$processState[ 'ticket' ][ 'espInternalId' ],"", $record[ 'actionDate' ]);
+                } elseif ( $record[ 'action' ] === 'Hardbounce' ) {
+                    Suppression::recordRawHardBounce($processState[ 'ticket' ][ 'espId' ],$record[ 'email' ],$processState[ 'ticket' ][ 'espInternalId' ],"", $record[ 'actionDate' ]);
+                }elseif ( $record[ 'action' ] === 'SpamComplaint' ) {
+                    $actionType = self::RECORD_TYPE_COMPLAINT;
+                } elseif ( $record[ 'action' ] === 'Delivered' ) {
+                    $actionType = self::RECORD_TYPE_DELIVERABLE;
+                }
+
+                if (isset($actionType)) {
+                    
+                    $this->emailRecord->queueDeliverable(
+                        $actionType ,
+                        $record[ 'email' ] ,
+                        $processState[ 'ticket' ][ 'espId' ] ,
+                        $processState['ticket']['deployId'],
+                        $processState[ 'ticket' ][ 'espInternalId' ] ,
+                        $record[ 'actionDate' ]
+                    );
+
+                }
+
+            }
+
+            $this->emailRecord->massRecordDeliverables();
+        }
+        catch (\Exception $e) {
+            $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() , JobException::WARNING , $e );
+            throw $jobException;
         }
     }
 
@@ -324,7 +350,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             $upToCount = $offset > 0 ? $offset + $limit -1 : $offset + $limit;
             $report = new DownloadReport($this->api->getAuth(),$ticketId, $offset, $upToCount, "rpt_Detailed_Contact_Results_by_Campaign");
             $manager->DownloadReport($report);
-            if($this->checkforHeaderFail($manager,"getCampaignReport"))
+            if($this->api->checkforHeaderFail($manager,"getCampaignReport"))
             {
                 return null;
             }
@@ -335,26 +361,11 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         return $data;
     }
 
-    private function checkforHeaderFail($manager, $jobName){
-        try {
-            $header = $this->api->parseOutResultHeader($manager);
-        } catch (\Exception $e){
-            throw new \Exception ($e->getMessage());
-        }
-        if ($header['errorFlag'] != "false" ) {
-            throw new \Exception("{$header['errorFlag']} - {$this->api->getApiName()}::{$this->api->getEspAccountId()} Failed {$jobName} because {$header['returnMessage']} - {$header['returnCode']}");
-        } else if ($header['returnCode'] == self::NO_CAMPAIGNS) {
-            Log::info("{$this->api->getApiName()}::{$this->api->getEspAccountId()} had no campaigns");
-            return true;
-        }
-        return false;
-    }
-
     private function parseOutActions($manager){
         $lastResponse = $manager->__getLastResponse();
         $body = simplexml_load_string($lastResponse);
 
-        if ( !$body->asXml() ) {
+        if ( $body === false || !$body->asXml() ) {
             $errors = libxml_get_errors();
             echo "Errors:" . PHP_EOL;
             var_dump($errors);
@@ -381,4 +392,5 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
     private function getRunId($espInternalId) {
         return $this->reportRepo->getRunId($espInternalId);
     }
+
 }

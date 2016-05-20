@@ -120,6 +120,8 @@ Route::group(
             'as' => 'tools.recordlookup' ,
             'uses' => 'ShowInfoController@index'
         ] );
+    }
+);
 
         Route::get( '/bulk-suppression' , [
             'as' => 'tools.bulksuppression' ,
@@ -226,7 +228,7 @@ Route::group(
 
         Route::get( '/attribution' , [
             'as' => 'client.attribution' ,
-            'uses' => 'ClientController@attribution'
+            'uses' => 'AttributionController@listAll'
         ] );
     }
 );
@@ -314,6 +316,41 @@ Route::group(
 );
 
 /**
+ *  Data Export Routes
+ */
+
+Route::group( 
+    [ 
+        'prefix' => 'dataexport', 
+        'middleware' => ['auth', 'pageLevel'] 
+    ],
+    function () {
+        Route::get( '/' , 
+            array(
+                'as' => 'dataexport.list' , 
+                'uses' => 'DataExportController@listActive' 
+            ) 
+        );
+
+        Route::get( 
+            '/create', 
+            array( 
+                'as' => 'dataexport.add', 
+                'uses' => 'DataExportController@create' 
+            )
+        );
+
+        Route::get(
+            '/edit/{id}',
+            array( 
+                'as' => 'dataexport.edit',
+                'uses' => 'DataExportController@edit'
+            )
+        );
+    }
+);
+
+/**
  * API Routes
  */
 Route::group(
@@ -339,18 +376,14 @@ Route::group(
 
         Route::get( '/client/attribution/list' , [
             'as' => 'api.client.attribution.list' ,
-            'uses' => 'ClientController@getAttributionList'
+            'uses' => 'AttributionController@index'
         ] );
 
-        Route::get( '/client/attribution/set/{id}' , [
-            'as' => 'api.client.attribution.set' ,
-            'uses' => 'ClientController@setAttribution'
-        ] );
-
-        Route::get( '/client/attribution/delete/{id}' , [
-            'as' => 'api.client.attribution.delete' ,
-            'uses' => 'ClientController@deleteAttribution'
-        ] );
+        Route::put('/dataexport/update', [ 
+            'as' => 'dataexport.update', 
+            'middleware' => ['auth'], 
+            'uses' => 'DataExportController@message'
+        ]);
 
         /**
          * Client Group API Routes
@@ -463,6 +496,12 @@ Route::group(
             'ShowInfoController' ,
             [ 'only' => [ 'show' , 'store' ] ]
         );
+        
+        Route::resource(
+            'attribution' ,
+            'AttributionController' ,
+            [ 'only' => [ 'store' ] ]
+        );
 
         Route::resource(
             'attribution' ,
@@ -482,6 +521,20 @@ Route::group(
                 'as' => 'api.attribution.bulk' ,
                 'uses' => 'AttributionController@bulk'
             ]
+	);
+	Route::resource(
+            'dataexport', 
+            'DataExportController', 
+            [
+                'except' => ['create', 'edit'], 
+                'middleware' =>['auth']
+            ]
+        );
+
+        Route::resource(
+            'isp' ,
+            'IspController' ,
+            [ 'only' => [ 'index' ] ]
         );
 
         /**
@@ -579,6 +632,12 @@ Route::group(
             'uniqueprofiles' ,
             'MT1API\UniqueProfileApiController' ,
             [ 'only' => [ 'index' , 'show' ] ]
+        );
+
+        Route::resource(
+            'esps', 
+            'MT1API\EspApiController', 
+            ['only' => ['index', 'show']]
         );
     }
 );

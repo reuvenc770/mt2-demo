@@ -76,6 +76,7 @@ class CampaignManagement extends \SoapClient
     /**
      * @param array $options A array of config values
      * @param string $wsdl The wsdl file to use
+     * @throws \Exception
      */
     public function __construct(array $options = array(), $wsdl = 'https://ws.campaigner.com/2013/01/campaignmanagement.asmx?WSDL')
     {
@@ -89,9 +90,14 @@ class CampaignManagement extends \SoapClient
             'compression'=> SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP,
             'soap_version'=> 'SOAP_1_1',
             'trace' => true,
-            'connection_timeout' => 300
+            'connection_timeout' => 3600,
+            'default_socket_timeout' => 3600
         ), $options);
-      parent::__construct($wsdl, $options);
+        try {
+            parent::__construct($wsdl, $options);
+        } catch (\Exception $e){
+            throw $e;
+        }
     }
 
     /**

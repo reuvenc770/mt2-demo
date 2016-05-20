@@ -8,6 +8,7 @@ use App\Models\ActionType;
 use App\Models\EmailClientInstance;
 use App\Models\OrphanEmail;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 
@@ -27,11 +28,12 @@ class EmailRecordRepo {
         $this->email = $email;
     }
 
-    public function massRecordDelierables ( $records = [] ) {
+    public function massRecordDeliverables ( $records = [] ) {
         $validRecords = [];
         $invalidRecords = [];
-
+        
         foreach ( $records as $currentIndex => $currentRecord ) {
+            
             $this->setLocalData( [
                 'emailAddress' => $currentRecord[ 'email' ] ,
                 'recordType' => $currentRecord[ 'recordType' ] ,
@@ -119,6 +121,9 @@ class EmailRecordRepo {
                 );
             }
         }
+
+        $validRecords = null;
+        $invalidRecords = null;
     }
 
     public function recordDeliverable ( $recordType , $emailAddress , $espId , $deployId, $espInternalId , $date ) {
@@ -179,6 +184,10 @@ class EmailRecordRepo {
         return true;
     }
 
+    public function hasDeployId() {
+        return $this->deployId !== 0;
+    }
+
     public function getEmailId () {
         return $this->email->select( 'id' )->where( 'email_address' , $this->emailAddress )->first()->id;
     }
@@ -187,7 +196,7 @@ class EmailRecordRepo {
         $this->emailAddress = $recordData[ 'emailAddress' ];
         $this->recordType = $recordData[ 'recordType' ];
         $this->espId = $recordData[ 'espId' ];
-        $this->deployId = $recordData['deployId'];
+        $this->deployId = (int)$recordData['deployId'];
         $this->espInternalId = $recordData[ 'espInternalId' ];
         $this->date = $recordData[ 'date' ];
     }
@@ -203,12 +212,17 @@ class EmailRecordRepo {
             //Log::error( "Email '{$this->emailAddress}' does not exist." );
 
             $errorFound = true;
-        } elseif ( $this->emailExists() && !$this->hasClient() ) {
+        } elseif ( !$this->hasClient() ) {
             $orphan->missing_email_client_instance = 1;
             $this->errorReason = 'missing_email_client_instance';
 
             Log::error( "Client ID for email '{$this->emailAddress}' does not exist." );
 
+            $errorFound = true;
+        }
+        elseif (!$this->hasDeployId()) {
+            $this->errorReason = 'missing_deploy_id';
+            Log::error("Deploy id for esp internal id '{$this->espInternalId}' does not exist.");
             $errorFound = true;
         }
 
@@ -247,26 +261,16 @@ class EmailRecordRepo {
     }
 
 
-    public function checkForDeliverables($espId,$espInternalId){
+    public function withinTwoDays($espId,$espInternalId){
         $delivevered = false;
-        $actionCount = DB::connection( 'reporting_data' )->table('email_actions')
+        $date = Carbon::today()->subDay(2)->toDateTimeString();
+        $actionCount = DB::connection( 'reporting_data' )->table('standard_reports')
             ->where('esp_account_id', $espId)
             ->where('esp_internal_id',$espInternalId)
-            ->where('action_id',4)->count();
-        if ($actionCount >= 1) {
+            ->where('datetime','>=', $date)->count();
+        if ($actionCount == 1) {
             $delivevered = true;
         }
-        //2nd chance
-        if (!$delivevered){
-            $orphanCount = DB::table('orphan_emails')
-                ->where('esp_account_id', $espId)
-                ->where('esp_internal_id',$espInternalId)
-                ->where('action_id',4)->count();
-            if($orphanCount >= 1){
-                $delivevered = true;
-            }
-        }
-
         return $delivevered;
     }
 }

@@ -17,7 +17,7 @@ class ParseandSendSuppressionsCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'movetoftp:suppressions {espName} {lookBack} {queueName?}';
+    protected $signature = 'movetoftp:suppressions {espName} {lookBack} {queueName?} {range?}';
 
     /**
      * The console command description.
@@ -51,12 +51,12 @@ class ParseandSendSuppressionsCommand extends Command
         $date = Carbon::now()->subDay($this->lookBack)->startOfDay()->toDateString();
         $espName = $this->argument('espName');
         $espAccounts = $this->espRepo->getAccountsByESPName($espName);
-
+        $range =  $this->argument('range') ? (bool)$this->argument('range') : false;
         foreach ($espAccounts as $account){
             Cache::tags($espName)->increment("{$account->name}_accounts_to_go",1);
             $espLogLine = "{$account->name}::{$account->account_name}";
             $this->info($espLogLine);
-            $job = (new ParseAndSendSuppressions($espAccounts,$account->name, $account->account_name, $account->id, $date, str_random(16)))->onQueue($this->queue);
+            $job = (new ParseAndSendSuppressions($espAccounts,$account->name, $account->account_name, $account->id, $date, str_random(16),$range))->onQueue($this->queue);
             $this->dispatch($job);
         }
     }

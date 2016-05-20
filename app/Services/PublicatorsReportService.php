@@ -35,29 +35,33 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
             throw new JobException( "Job prevented via process lock. Another job is authenticating. " , JobException::NOTICE );
         }
 
-        $this->checkAuthentication();
+        try {
+            $this->checkAuthentication();
 
-        $this->api->setDate( $date );
+            $this->api->setDate( $date );
 
-        $campaigns = $this->api->getCampaigns();
-        $campaignDataCollection = [];
+            $campaigns = $this->api->getCampaigns();
+            $campaignDataCollection = [];
 
-        foreach ( $campaigns as $campaign ) {
-            $campaignRecord = (array)$campaign;
+            foreach ( $campaigns as $campaign ) {
+                $campaignRecord = (array)$campaign;
 
-            $campaignRecord[ 'esp_account_id' ] = $this->api->getEspAccountId();
-            $campaignRecord[ 'internal_id' ] = $campaignRecord[ 'ID' ];
-            unset( $campaignRecord[ 'ID' ] );
+                $campaignRecord[ 'esp_account_id' ] = $this->api->getEspAccountId();
+                $campaignRecord[ 'internal_id' ] = $campaignRecord[ 'ID' ];
+                unset( $campaignRecord[ 'ID' ] );
 
-            $campaignStats = $this->api->getCampaignStats( $campaignRecord[ 'internal_id' ] ); 
+                $campaignStats = $this->api->getCampaignStats( $campaignRecord[ 'internal_id' ] ); 
 
-            $campaignStatsRecord = (array)$campaignStats;
-            unset( $campaignStatsRecord[ 'ID' ] );
+                $campaignStatsRecord = (array)$campaignStats;
+                unset( $campaignStatsRecord[ 'ID' ] );
 
-            $campaignDataCollection []= array_merge( $campaignRecord , $campaignStatsRecord );
+                $campaignDataCollection []= array_merge( $campaignRecord , $campaignStatsRecord );
+            }
+
+            return $campaignDataCollection;
+        } catch ( \Exception $e ) {
+            throw new JobException( "Failed to Retrieve Api Stats. " . $e->getMessage() , JobException::ERROR , $e );
         }
-
-        return $campaignDataCollection;
     }
 
     public function insertApiRawStats ( $data ) {
@@ -126,7 +130,7 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
     public function getTypeList ( &$processState ) {
         $typeList = [ "open" , "click" , "unsub" , "bounce" ];
 
-        if( !$this->emailRecord->checkForDeliverables( $processState[ "espAccountId" ] , $processState[ "campaign" ]->esp_internal_id ) ){
+        if($this->emailRecord->withinTwoDays( $processState[ "espAccountId" ] , $processState[ "campaign" ]->esp_internal_id) || 'rerun' === $processState['pipe'] ){
             $typeList[] = "sent";
         }
 
@@ -153,6 +157,12 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
                 return true;
             }
 
+            if ( $processState[ "recordType" ] == "unsub" ) {
+                $this->processUnsubs( $processState );
+
+                return true;
+            }
+
             $records = [];
             $recordType = "";
 
@@ -172,24 +182,56 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
                     $recordType = self::RECORD_TYPE_CLICKER;
                 break;
 
-                case "unsub" :
-                    $records = $this->api->getRecordStats( PublicatorsApi::TYPE_UNSUBSCRIBED_STATS , $processState[ "campaign" ]->esp_internal_id );
-                    $recordType = self::RECORD_TYPE_UNSUBSCRIBE;
-                break;
             }
         } catch ( \Exception $e ) {
             throw new JobException( "Failed to Retrieve Email Record Stats. " . $e->getMessage() , JobException::ERROR , $e );
         }
 
-        foreach ( $records as $record ) {
-            $this->emailRecord->recordDeliverable(
-                $recordType , 
-                $record->Email ,
-                $processState[ "espId" ] ,
-                $processState[ "campaign" ]->external_deploy_id ,
-                $processState[ "campaign" ]->esp_internal_id ,
-                $record->TimeStamp
-            ); 
+        try {
+            // Set deploy id
+            $deployId = $processState["campaign"]->external_deploy_id;
+
+            foreach ( $records as $record ) {
+
+                // Need to find cases without seconds and provide up an appropriate second
+                if (preg_match('/\s\d{2}\:\d{2}$/', $record->TimeStamp)) {
+                    $key = md5($record->Email . $deployId . $recordType . $record->TimeStamp);
+
+                    // If the tag already exists, get the (already-incremented) second, and increment again
+                    if (Cache::tags([$recordType, $deployId])->has($key)) {
+                        $count = Cache::tags([$recordType, $deployId])->get($key);
+                        Cache::tags([$recordType, $deployId])->increment($key);
+                    }
+                    else {
+                        // Tag does not exist. Create it with an an appropriate for 30 min.
+                        $count = 0;
+                        Cache::tags([$recordType, $deployId])->put($key, 1, 30);
+                    }
+
+                    // Set up the new timestamp
+                    $padding = $count < 10 ? '0' : '';
+                    $timeStamp = $record->TimeStamp . ':' . $padding . $count;
+                }
+                else {
+                    $timeStamp = $record->TimeStamp;
+                }
+
+
+                $this->emailRecord->queueDeliverable(
+                    $recordType , 
+                    $record->Email ,
+                    $processState[ "espId" ] ,
+                    $processState[ "campaign" ]->external_deploy_id ,
+                    $processState[ "campaign" ]->esp_internal_id ,
+                    $timeStamp
+                );
+            }
+
+            $this->emailRecord->massRecordDeliverables();
+        }
+        catch (\Exception $e) {
+            $jobException = new JobException( 'Failed to insert publicators deliverables.  ' . $e->getMessage() , JobException::WARNING , $e );
+            throw $jobException;
         }
     }
 
@@ -208,10 +250,24 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
     }
 
     protected function processBounces ( $processState ) {
-        $records = $this->api->getRecordStats( PublicatorsApi::TYPE_OPENS_STATS , $processState[ "campaign" ]->esp_internal_id );
+        $records = $this->api->getRecordStats( PublicatorsApi::TYPE_BOUNCES_STATS , $processState[ "campaign" ]->esp_internal_id );
 
         foreach ( $records as $record ) {
             Suppression::recordRawHardBounce(
+                $processState[ "espId" ] ,
+                $record->Email ,
+                $processState[ "campaign" ]->esp_internal_id ,
+                '' ,
+                $record->TimeStamp
+            );
+        }
+    }
+
+    protected function processUnsubs ( $processState ) {
+        $records = $this->api->getRecordStats( PublicatorsApi::TYPE_UNSUBSCRIBED_STATS , $processState[ "campaign" ]->esp_internal_id );
+
+        foreach ( $records as $record ) {
+            Suppression::recordRawUnsub(
                 $processState[ "espId" ] ,
                 $record->Email ,
                 $processState[ "campaign" ]->esp_internal_id ,

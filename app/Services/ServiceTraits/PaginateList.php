@@ -33,6 +33,8 @@ trait PaginateList {
             }
         }
     }
-
+    public function getType(){
+        return class_basename($this->getModel());
+    }
     abstract public function getModel();
 }

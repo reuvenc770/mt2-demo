@@ -42,6 +42,8 @@ class AdoptOrphanEmails extends Command
      */
     public function handle()
     {
+
+
         $this->table( [ 'Option' , 'Value' ] , [
             [ 'option' => 'maxOrphans' , 'value' => $this->option( 'maxOrphans' ) ] ,
             [ 'option' => 'chunkSize' , 'value' => $this->option( 'chunkSize' ) ] ,
@@ -51,26 +53,65 @@ class AdoptOrphanEmails extends Command
             [ 'option' => 'maxAttempts' , 'value' => $this->option( 'maxAttempts' ) ]
         ] );
 
-        $orderOrphans = ( $this->option( 'order' ) == 'newest' ? 'desc' : 'asc' );
+        if ('all' === $this->option('maxOrphans')) {
+            $maxId = DB::table('orphan_emails')->max('id');
+            $startId = DB::table('orphan_emails')->min('id');
 
-        $orphanTable = DB::table( 'orphan_emails' )
-            ->select( 'id' , 'email_address' )
-            ->where( 'adopt_attempts' , '<' , $this->option( 'maxAttempts' ) )
-            ->orderBy( 'created_at' , $orderOrphans );
+            while ($startId <= $maxId) {
 
-        if ( $this->option( 'maxOrphans' ) != 'all' ) { $orphanTable->take( $this->option( 'maxOrphans' ) ); }
+                $chunkMax = DB::table('orphan_emails')
+                    ->where('id', '>=', $startId)
+                    ->where( 'adopt_attempts' , '<' , $this->option( 'maxAttempts' ) )
+                    ->orderBy('id')
+                    ->skip($this->option('chunkSize'))
+                    ->first();
 
-        $orphanList = collect( $orphanTable->get() );
+                if ($chunkMax) {
+                    $chunkMaxId = $chunkMax->id;
+                }
+                else {
+                    $chunkMaxId = $maxId;
+                }
 
-        $chunks = $orphanList->chunk( $this->option( 'chunkSize' ) );
-       
-        $chunks->each( function ( $orphans , $chunkKey ) {
-            $job = new Orphanage( $orphans , $orphans->first()->id , $orphans->last()->id );
-            $job->onQueue( $this->option( 'queueName' ) );
+                $orphans = DB::table( 'orphan_emails' )
+                    ->select( 'id' , 'email_address' )
+                    ->where( 'adopt_attempts' , '<' , $this->option( 'maxAttempts' ) )
+                    ->whereBetween('id', [$startId, $chunkMaxId])
+                    ->orderBy( 'created_at' , 'asc' )
+                    ->get();
 
-            if ( $this->option( 'chunkDelay' ) > 0 ) $job->delay( $this->option( 'chunkDelay' ) );
+                $job = new Orphanage($orphans, $startId, $chunkMaxId, str_random(16));
+                $job->onQueue($this->option('queueName'));
+                if ( $this->option( 'chunkDelay' ) > 0 ) $job->delay( $this->option( 'chunkDelay' ) );
+                $this->dispatch( $job );
 
-            $this->dispatch( $job );
-        } );
+                $startId = ++$chunkMaxId;
+
+            }
+
+        }
+        else {
+            $orderOrphans = ( $this->option( 'order' ) == 'newest' ? 'desc' : 'asc' );
+
+            $orphanTable = DB::table( 'orphan_emails' )
+                ->select( 'id' , 'email_address' )
+                ->where( 'adopt_attempts' , '<' , $this->option( 'maxAttempts' ) )
+                ->orderBy( 'created_at' , $orderOrphans );
+
+            $orphanTable->take( $this->option( 'maxOrphans' ) );
+            
+            $orphanList = collect( $orphanTable->get() );
+
+            $chunks = $orphanList->chunk( $this->option( 'chunkSize' ) );
+            $chunks->each( function ( $orphans , $chunkKey ) {
+                $job = new Orphanage( $orphans , $orphans->first()->id , $orphans->last()->id, str_random(16));
+                $job->onQueue( $this->option( 'queueName' ) );
+
+                if ( $this->option( 'chunkDelay' ) > 0 ) $job->delay( $this->option( 'chunkDelay' ) );
+
+                $this->dispatch( $job );
+            } );
+        }
+
     }
 }

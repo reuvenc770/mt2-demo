@@ -18,38 +18,30 @@ class DownloadSuppressionFromESP extends Job implements ShouldQueue
     protected $apiName;
     protected $espAccountId;
     protected $date;
-    protected $maxAttempts;
+
 
     public function __construct($apiName, $espAccountId, $date, $tracking){
         $this->apiName = $apiName;
         $this->espAccountId = $espAccountId;
         $this->date = $date;
-        $this->maxAttempts = env('MAX_ATTEMPTS',10);
         $this->tracking = $tracking;
+        JobTracking::startEspJob(self::JOB_NAME,$this->apiName, $this->espAccountId, $this->tracking);
     }
 
     public function handle()
     {
-        JobTracking::startEspJob(self::JOB_NAME,$this->apiName, $this->espAccountId, $this->tracking);
-
+        JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
         $subscriptionService = APIFactory::createApiSubscriptionService($this->apiName,$this->espAccountId);
-        $data = $subscriptionService->pullUnsubsEmailsByLookback($this->date); //Realized that the ESP should get rid of rows not job.
+        $data = $subscriptionService->pullUnsubsEmailsByLookback($this->date);
         if($data){
-            foreach ($data as $entry){
-                $campaign_id = isset($entry->message_id) ? $entry->message_id : 0;
-                if($campaign_id == 0){// System Opt Out
-                    continue;
-                }
-                Suppression::recordRawUnsub($this->espAccountId,$entry->email,$campaign_id,$entry->method_unsubscribed, $entry->date_deleted);
-            }
+                $subscriptionService->insertUnsubs($data, $this->espAccountId);
         }
-
-        JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking, $this->attempts());
+        JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
     }
 
 
     public function failed()
     {
-        JobTracking::changeJobState(JobEntry::FAILED,$this->tracking, $this->maxAttempts);
+        JobTracking::changeJobState(JobEntry::FAILED,$this->tracking);
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
+use DB;
 use Log;
 use App\Models\JobEntry;
 use App\Facades\JobTracking;
@@ -16,6 +17,7 @@ use App\Exceptions\JobException;
 use Carbon\Carbon;
 use App\Models\StandardReport;
 use App\Repositories\StandardApiReportRepo;
+use Storage;
 
 class RetrieveDeliverableReports extends Job implements ShouldQueue
 {
@@ -72,6 +74,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         } else {
             $this->processState = $this->defaultProcessState;
         }
+        $this->initJobEntry();
     }
 
     /**
@@ -80,8 +83,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
      * @return void
      */
     public function handle () {
-        $this->initJobEntry();
-
+        $this->startJobEntry();
         $filterName = $this->currentFilter();
 
         try {
@@ -113,10 +115,13 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     }
 
     protected function startTicket () {
+        $isRerun = $this->processState['pipe'] === 'rerun';
+
         $ticket = $this->reportService->startTicket(
             $this->espAccountId,
             isset($this->processState['campaign']) ? $this->processState['campaign'] : [],
-            isset($this->processState['recordType']) ? $this->processState['recordType'] : ''
+            isset($this->processState['recordType']) ? $this->processState['recordType'] : '',
+            $isRerun
         );
 
         $this->processState[ 'currentFilterIndex' ]++;
@@ -164,6 +169,40 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->changeJobEntry( JobEntry::SUCCESS );
     }
 
+    protected function getMaroDeliverableCampaigns() {
+        $campaigns = $this->standardReportRepo->getCampaigns( $this->espAccountId , $this->date );
+
+        $this->processState['recordType'] = 'delivered';
+        $this->processState[ 'currentFilterIndex' ]++;
+
+        $campaigns->each( function( $campaign , $key ) {
+            $this->processState[ 'campaign' ] = $campaign;
+            $this->processState[ 'espId' ] = $this->espAccountId;
+
+            $this->queueNextJob( $this->defaultQueue );
+        });
+        
+        $this->changeJobEntry( JobEntry::SUCCESS );
+    }
+
+    protected function getRerunCampaigns () {
+        $campaigns = DB::connection( 'reporting_data' )
+            ->table( 'standard_reports_rerun' ) 
+            ->where( 'esp_account_id' , $this->espAccountId )
+            ->orderBy( 'esp_account_id' );
+
+        $this->processState[ 'currentFilterIndex' ]++;
+
+        $campaigns->each( function( $campaign , $key ) {
+            $this->processState[ 'campaign' ] = $campaign;
+            $this->processState[ 'espId' ] = $this->espAccountId;
+
+            $this->queueNextJob( $this->defaultQueue );
+        });
+        
+        $this->changeJobEntry( JobEntry::SUCCESS );
+    }
+
     protected function splitTypes () {
         $this->processState[ 'currentFilterIndex' ]++;
 
@@ -184,6 +223,27 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->reportService->setPageNumber( isset( $this->processState[ 'pageNumber' ] ) ? $this->processState[ 'pageNumber' ] : 1 );
 
         if ( $this->reportService->pageHasData() ) {
+            $this->processState[ 'currentPageData' ] = $this->reportService->getPageData();
+            $this->reportService->savePage( $this->processState, $map );
+            $this->processState[ 'currentPageData' ] = array();
+
+            $this->reportService->nextPage();
+
+            $this->processState[ 'pageNumber' ] = $this->reportService->getPageNumber();
+
+            $this->queueNextJob( $this->defaultQueue );
+        }
+
+        $this->changeJobEntry( JobEntry::SUCCESS );
+    }
+
+
+    protected function savePaginatedCampaignRecords () {
+        $map = $this->standardReportRepo->getEspToInternalMap($this->espAccountId);
+        $this->reportService->setPageType( $this->processState[ 'recordType' ] );
+        $this->reportService->setPageNumber( isset( $this->processState[ 'pageNumber' ] ) ? $this->processState[ 'pageNumber' ] : 1 );
+
+        if ( $this->reportService->pageHasCampaignData($this->processState['campaign']->esp_internal_id) ) {
             $this->processState[ 'currentPageData' ] = $this->reportService->getPageData();
             $this->reportService->savePage( $this->processState, $map );
             $this->processState[ 'currentPageData' ] = array();
@@ -293,13 +353,22 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     }
 
     protected function initJobEntry () {
-        JobTracking::startEspJob( $this->getJobName() ,$this->apiName, $this->espAccountId, $this->tracking);
+        $campaignId = 0;
+        if(isset($this->processState['campaign'])){
+           $campaignId = $this->processState['campaign']->esp_internal_id;
+        }
+        JobTracking::startEspJob( $this->getJobName() ,$this->apiName, $this->espAccountId, $this->tracking, $campaignId);
+        echo "\n\n" . Carbon::now() . " - Queuing Job: " . $this->getJobName() . "\n";
+    }
 
-        echo "\n\n" . Carbon::now() . " - Starting Job: " . $this->getJobName() . "\n";
+    protected function startJobEntry () {
+        JobTracking::changeJobState(JobEntry::RUNNING , $this->tracking);
+
+        echo "\n\n" . Carbon::now() . " - Queuing Job: " . $this->getJobName() . "\n";
     }
 
     protected function changeJobEntry ( $status ) {
-        JobTracking::changeJobState( $status , $this->tracking , $this->attempts() );
+        JobTracking::changeJobState( $status , $this->tracking);
 
         if ( $status == JobEntry::SUCCESS ) echo "\n\n\t" . Carbon::now() . " - Finished Job: " . $this->apiName . ':' . $this->espAccountId . ' ' . $this->getJobName() . "\n\n";
         if ( $status == JobEntry::WAITING ) echo "\n\n\t" . Carbon::now() . " - Throwing Job Back into Queue: " . $this->apiName . ':' . $this->espAccountId . ' ' . $this->getJobName() . "\n\n";
@@ -313,7 +382,12 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         Log::$logMethod( str_repeat( '=' , 20 ) );
         Log::$logMethod( $e->getMessage() );
         Log::$logMethod( $this->getJobInfo() );
-        if ( $e->getCode() > JobException::NOTICE ) { Log::$logMethod( $e->getTraceAsString() ); }
+
+        if ( $e->getCode() > JobException::NOTICE ) {
+            Log::$logMethod( $e->getFile() );
+            Log::$logMethod( $e->getLine() );
+            Log::$logMethod( $e->getTraceAsString() );
+        }
     }
 
     protected function logUncaughtException ( $e ) {

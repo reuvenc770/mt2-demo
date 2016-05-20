@@ -41,7 +41,11 @@ elixir.extend( 'deployNodeModules' , function ( mix ) {
 
     mix.copy( 'node_modules/ui-select/dist/select.min.css' , 'public/css/select.min.css' );
 
+<<<<<<< HEAD
     mix.copy( 'node_modules/ng-flow/dist/ng-flow-standalone.min.js', 'public/js/ng-flow-standalone.min.js' );
+=======
+    mix.copy( 'node_modules/ng-flow/dist/ng-flow-standalone.min.js' , 'public/js/ng-flow-standalone.min.js' );
+>>>>>>> master
 } );
 
 elixir.extend( 'deploySass' , function ( mix ) {
@@ -65,6 +69,7 @@ elixir.extend( 'deployBaseAngular' , function ( mix ) {
         'mt2app/PaginationControlDirective.js' ,
         'mt2app/PaginationButtonDirective.js' ,
         'mt2app/PaginationCountDirective.js',
+        'mt2app/MembershipWidgetDirective.js' ,
         'mt2app/CompileHtml.js'
     ] , 'public/js/angular_base.js' );
 } );
@@ -146,13 +151,28 @@ elixir.extend( 'deployClientAttributionJs' , function ( mix ) {
     ] , 'public/js/clientAttribution.js' );
 } );
 
+<<<<<<< HEAD
+=======
+elixir.extend('deployDataExportJs', function(mix) {
+    mix.scripts([
+        'dataexport/DataExportController.js',
+        'dataexport/DataExportApiService.js',
+        'dataexport/DataExportTableDirective.js',
+	'dataexport/StatusButtonDirective.js',
+	'dataexport/DataExportDeleteDirective.js',
+	'dataexport/DataExportCopyDirective.js'
+    ], 'public/js/dataexport.js');
+});
+
+>>>>>>> master
 elixir.extend( 'deployListProfileJs' , function ( mix ) {
     mix.scripts( [
         'listprofile/ListProfileController.js' ,
         'listprofile/ListProfileApiService.js' ,
         'listprofile/ListProfileTableDirective.js' ,
         'clientgroup/ClientGroupApiService.js' ,
-        'client/ClientApiService.js'
+        'client/ClientApiService.js' ,
+        'mt2app/IspApiService.js'
     ] , 'public/js/listprofile.js' );
 } );
 
@@ -175,8 +195,13 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployClientJs( mix );
     mix.deployClientGroupJs( mix );
     mix.deployListProfileJs( mix );
+<<<<<<< HEAD
     mix.deployBulkSuppressionJs( mix );
     mix.deployClientAttributionJs( mix );
+=======
+    mix.deployClientAttributionJs( mix );
+    mix.deployDataExportJs(mix);
+>>>>>>> master
 } );
 
 elixir.extend( 'runTdd' , function ( mix ) {
@@ -245,9 +270,15 @@ var mt2TaskMap = {
     } ,
     'deployListProfileJs' : function ( mix ) {
         mix.deployListProfileJs( mix );
+<<<<<<< HEAD
     } ,
     'deployBulkSuppressionJs' : function ( mix ) {
         mix.deployBulkSuppressionJs( mix );
+=======
+    },
+    'deployDataExportJs': function(mix) {
+	mix.deployDataExportJs(mix);
+>>>>>>> master
     }
 };
 

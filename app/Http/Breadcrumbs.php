@@ -130,6 +130,27 @@ Breadcrumbs::register('tools.recordlookup', function($breadcrumbs) {
     $breadcrumbs->push('Record Lookup' , route( 'tools.recordlookup' ) );
 });
 
+Breadcrumbs::register( 'client.attribution' , function ( $breadcrumbs ) {
+    $breadcrumbs->parent( 'client.list' );
+    $breadcrumbs->push( 'Attribution' );
+} );
+
+// Data Export Pages
+Breadcrumbs::register('dataexport.list', function($breadcrumbs) {
+    $breadcrumbs->parent('home');
+    $breadcrumbs->push('Data Exports' , route( 'dataexport.list' ) );
+});
+
+Breadcrumbs::register('dataexport.add', function($breadcrumbs) {
+    $breadcrumbs->parent('dataexport.list');
+    $breadcrumbs->push('Add Data Export');
+});
+
+Breadcrumbs::register('dataexport.edit', function($breadcrumbs) {
+    $breadcrumbs->parent('dataexport.list');
+    $breadcrumbs->push('Edit Data Export');
+});
+
 Breadcrumbs::register( 'tools.bulksuppression' , function ( $breadcrumbs ) {
     $breadcrumbs->parent( 'home' );
     $breadcrumbs->push( 'Bulk Suppression' , route( 'tools.bulksuppression' ) );

@@ -4,7 +4,8 @@ mt2App.service( 'ClientApiService' , function ( $http , $log ) {
     self.pagerApiUrl = '/api/pager/Client';
     self.baseApiUrl = '/api/client';
     self.baseMt1ApiUrl = '/api/mt1';
-    self.attributionApiUrl = self.baseApiUrl + '/attribution';
+    self.attributionApiUrl = '/api/attribution';
+    self.attributionListApiUrl = '/api/client/attribution/list';
 
     self.getClient = function ( id , successCallback , failureCallback ) {
         $http( { "method" : "GET" , "url" : this.baseApiUrl + '/' + id } )
@@ -64,7 +65,7 @@ mt2App.service( 'ClientApiService' , function ( $http , $log ) {
     self.getClientAttributionList = function ( currentPage , paginationCount , successCallback , failureCallback ) {
         $http( {
             "method" : "GET" , 
-            "url" : self.attributionApiUrl + '/list',
+            "url" : self.attributionListApiUrl ,
             "params" : {
                 'page' : currentPage ,
                 'count' : paginationCount
@@ -74,16 +75,17 @@ mt2App.service( 'ClientApiService' , function ( $http , $log ) {
 
     self.setAttribution = function ( id , level , successCallback , failureCallback ) {
         $http( {
-            "method" : "GET" ,
-            "url" : self.attributionApiUrl + '/set/' + id ,
-            "params" : { "level" : level }
+            "method" : "POST" ,
+            "url" : self.attributionApiUrl ,
+            "params" : { "cid" : id , "level" : level }
         } ).then( successCallback , failureCallback );
     }
 
     self.deleteAttribution = function ( id , successCallback , failureCallback ) {
         $http( {
-            "method" : "GET" ,
-            "url" : self.attributionApiUrl + '/delete/' + id
+            "method" : "POST" ,
+            "url" : self.attributionApiUrl ,
+            "params" : { "cid" : id , "level" : 255 }
         } ).then( successCallback , failureCallback );
     }
 } );

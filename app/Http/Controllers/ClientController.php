@@ -9,7 +9,6 @@ use App\Http\Controllers\Controller;
 use App\Services\MT1ApiService;
 use App\Http\Requests\ClientEditRequest;
 use App\Services\MT1Services\ClientService;
-use App\Services\MT1Services\ClientAttributionService;
 
 class ClientController extends Controller
 {
@@ -19,12 +18,10 @@ class ClientController extends Controller
 
     protected $api;
     protected $clientApi;
-    protected $attributionApi;
 
-    public function __construct ( MT1ApiService $api , ClientService $clientApi , ClientAttributionService $attrService ) {
+    public function __construct ( MT1ApiService $api , ClientService $clientApi ) {
         $this->api = $api;
         $this->clientApi = $clientApi;
-        $this->attributionApi = $attrService;
     }
 
     /**
