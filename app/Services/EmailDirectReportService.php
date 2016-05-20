@@ -13,7 +13,7 @@ use App\Events\RawReportDataWasInserted;
 use App\Services\Interfaces\IDataService;
 use App\Exceptions\JobException;
 use App\Facades\Suppression;
-
+use App\Facades\DeployActionEntry;
 
 /**
  *
@@ -142,6 +142,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
     }
 
     public function saveRecords ( &$processState, $map ) {
+        $type = '';
         // $map is not needed for this version of saveRecords
         try {
             switch ( $processState[ 'recordType' ] ) {
@@ -158,8 +159,8 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                             $processState[ 'campaign' ]->esp_internal_id ,
                             $deliveryRecord[ 'ActionDate' ]
                         );
-
                     }
+                    $type = 'deliverable';
                 break;
 
                 case 'opens' :
@@ -177,6 +178,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                         );
 
                     }
+                    $type = 'open';
                 break;
 
                 case 'clicks' :
@@ -194,6 +196,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                         );
 
                     }
+                    $type = 'click';
                 break;
 
                 case 'unsubscribes' :
@@ -201,6 +204,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                     foreach ( $unsubs as $key => $unsubRecord ) {
                         Suppression::recordRawUnsub($processState[ 'espId' ] , $unsubRecord[ 'EmailAddress' ],  $processState[ 'campaign' ]->esp_internal_id, "", $unsubRecord[ 'ActionDate' ]);
                     }
+                    $type = 'optout';
                 break;
 
                 case 'hardbounces' :
@@ -209,6 +213,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                     foreach ( $unsubs as $key => $hardbounce ) {
                         Suppression::recordRawUnsub($processState[ 'espId' ] , $hardbounce[ 'EmailAddress' ],  $processState[ 'campaign' ]->esp_internal_id,  "", $hardbounce[ 'ActionDate' ]);
                     }
+                    $type = 'bounce';
                     break;
 
                 case 'complaints' :
@@ -225,13 +230,16 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                             $complainerRecord[ 'ActionDate' ]
                         );
                     }
+                    $type = 'complaint';
                 break;
             }
         } catch ( \Exception $e ) {
+            DeployActionEntry::recordFailedRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, $type);
             $jobException = new JobException( 'Failed to retrieve records. ' . $e->getMessage() , JobException::NOTICE );
             $jobException->setDelay( 180 );
             throw $jobException;
         }
+        DeployActionEntry::recordSuccessRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, $type );
     }
 
     public function getDeliveryReport($campaignId){
