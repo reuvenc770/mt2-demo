@@ -16,7 +16,7 @@ use App\Facades\Suppression;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use App\Exceptions\JobException;
-
+use App\Facades\DeployActionEntry;
 use Cache;
 
 use Carbon\Carbon;
@@ -142,6 +142,7 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
     }
 
     public function saveRecords ( $processState ) {
+        $type = "";
         if ( $this->lockFound() ) {
             $pubException = new JobException( "Job prevented via process lock. Another job is authenticating. " , JobException::NOTICE );
             $pubException->setDelay( 300 );
@@ -153,13 +154,13 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
         try {
             if ( $processState[ "recordType" ] == "bounce" ) {
                 $this->processBounces( $processState );
-
+                DeployActionEntry::recordSuccessRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, "bounce" );
                 return true;
             }
 
             if ( $processState[ "recordType" ] == "unsub" ) {
                 $this->processUnsubs( $processState );
-
+                DeployActionEntry::recordSuccessRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, "optout" );
                 return true;
             }
 
@@ -170,20 +171,24 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
                 case "sent" :
                     $records = $this->api->getRecordStats( PublicatorsApi::TYPE_SENT_STATS , $processState[ "campaign" ]->esp_internal_id );
                     $recordType = self::RECORD_TYPE_DELIVERABLE;
+                    $type = "deliverable";
                 break;
 
                 case "open" :
                     $records = $this->api->getRecordStats( PublicatorsApi::TYPE_OPENS_STATS , $processState[ "campaign" ]->esp_internal_id );
                     $recordType = self::RECORD_TYPE_OPENER;
+                    $type = "open";
                 break;
 
                 case "click" :
                     $records = $this->api->getRecordStats( PublicatorsApi::TYPE_CLICKS_STATS , $processState[ "campaign" ]->esp_internal_id );
                     $recordType = self::RECORD_TYPE_CLICKER;
+                    $type = "click";
                 break;
 
             }
         } catch ( \Exception $e ) {
+            DeployActionEntry::recordFailedRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, $type);
             throw new JobException( "Failed to Retrieve Email Record Stats. " . $e->getMessage() , JobException::ERROR , $e );
         }
 
@@ -228,8 +233,10 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
             }
 
             $this->emailRecord->massRecordDeliverables();
+            DeployActionEntry::recordSuccessRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, $type );
         }
         catch (\Exception $e) {
+            DeployActionEntry::recordFailedRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, $type);
             $jobException = new JobException( 'Failed to insert publicators deliverables.  ' . $e->getMessage() , JobException::WARNING , $e );
             throw $jobException;
         }
