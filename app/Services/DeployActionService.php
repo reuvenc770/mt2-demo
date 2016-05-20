@@ -11,24 +11,25 @@ namespace App\Services;
 
 use App\Models\StandardReport;
 use App\Repositories\CampaignActionsRepo;
+use App\Repositories\DeployActionRepo;
 
-class CampaignActionsServices
+class DeployActionService
 {
-    protected $campaignActionsRepo;
+    protected $deployActionRepo;
 
-    public function __construct(CampaignActionsRepo $campaignActionsRepo)
+    public function __construct(DeployActionRepo $deployActionRepo)
     {
-        $this->campaignActionsRepo = $campaignActionsRepo;
+        $this->deployActionRepo = $deployActionRepo;
     }
 
 
-    public function initCampaignActions(StandardReport $standardReport){
+    public function initDeployActions(StandardReport $standardReport){
         $dataToInsert = array(
           'esp_account_id' => $standardReport->esp_account_id,
           'esp_internal_id' => $standardReport->esp_internal_id,
         );
 
-       return $this->campaignActionsRepo->insertNewEntry($dataToInsert);
+       return $this->deployActionRepo->insertNewEntry($dataToInsert);
     }
 
     public function recordSuccessRun($esp_account_id, $esp_internal_id, $type){
@@ -38,7 +39,7 @@ class CampaignActionsServices
         'esp_account_id' => $esp_account_id,
         'esp_internal_id' => $esp_internal_id,
     );
-    $this->campaignActionsRepo->updateCampaignAction($entry);
+    $this->deployActionRepo->updateDeployAction($entry);
 
 
     }
@@ -50,7 +51,7 @@ class CampaignActionsServices
             'esp_account_id' => $esp_account_id,
             'esp_internal_id' => $esp_internal_id,
         );
-        $this->campaignActionsRepo->updateCampaignAction($entry);
+        $this->deployActionRepo->updateDeployAction($entry);
 
 
     }

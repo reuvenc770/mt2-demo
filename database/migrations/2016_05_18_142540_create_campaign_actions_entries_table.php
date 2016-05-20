@@ -12,7 +12,7 @@ class CreateCampaignActionsEntriesTable extends Migration
      */
     public function up()
     {
-        Schema::create('campaign_actions_entries', function (Blueprint $table) {
+        Schema::create('deploy_action_entries', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('esp_account_id');
             $table->integer("esp_internal_id");
@@ -38,6 +38,6 @@ class CreateCampaignActionsEntriesTable extends Migration
      */
     public function down()
     {
-        Schema::drop('campaign_actions_entries');
+        Schema::drop('deploy_action_entries');
     }
 }

@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class CampaignActionsEntry extends Model
+class DeployActionEntry extends Model
 {
     protected $guarded = ['id'];
     public $timestamps = false;

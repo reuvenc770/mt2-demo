@@ -10,7 +10,7 @@ namespace App\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
-class CampaignActionsEntry extends Facade
+class DeployActionEntry extends Facade
 {
-    protected static function getFacadeAccessor() { return 'CampaignActionEntry'; }
+    protected static function getFacadeAccessor() { return 'DeployActionEntry'; }
 }

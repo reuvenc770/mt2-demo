@@ -2,12 +2,12 @@
 
 namespace App\Providers;
 
-use App\Models\CampaignActionsEntry;
-use App\Repositories\CampaignActionsRepo;
-use App\Services\CampaignActionsServices;
+use App\Models\DeployActionEntry;
+use App\Repositories\DeployActionRepo;
+use App\Services\DeployActionService;
 use Illuminate\Support\ServiceProvider;
 
-class CampaignActionsProvider extends ServiceProvider
+class DeployActionProvider extends ServiceProvider
 {
     /**
      * Bootstrap the application services.
@@ -26,9 +26,9 @@ class CampaignActionsProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('CampaignActionEntry', function()
+        $this->app->singleton('DeployActionEntry', function()
         {
-            return new CampaignActionsServices(new CampaignActionsRepo(new CampaignActionsEntry()));
+            return new DeployActionService(new DeployActionRepo(new DeployActionEntry()));
         });
     }
 }
