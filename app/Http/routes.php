@@ -120,13 +120,11 @@ Route::group(
             'as' => 'tools.recordlookup' ,
             'uses' => 'ShowInfoController@index'
         ] );
-    }
-);
-
         Route::get( '/bulk-suppression' , [
             'as' => 'tools.bulksuppression' ,
             'uses' => 'BulkSuppressionController@index'
         ] );
+
     }
 );
 
