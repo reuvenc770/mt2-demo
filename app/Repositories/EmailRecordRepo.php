@@ -184,6 +184,10 @@ class EmailRecordRepo {
         return true;
     }
 
+    public function hasDeployId() {
+        return $this->deployId !== 0;
+    }
+
     public function getEmailId () {
         return $this->email->select( 'id' )->where( 'email_address' , $this->emailAddress )->first()->id;
     }
@@ -192,7 +196,7 @@ class EmailRecordRepo {
         $this->emailAddress = $recordData[ 'emailAddress' ];
         $this->recordType = $recordData[ 'recordType' ];
         $this->espId = $recordData[ 'espId' ];
-        $this->deployId = $recordData['deployId'];
+        $this->deployId = (int)$recordData['deployId'];
         $this->espInternalId = $recordData[ 'espInternalId' ];
         $this->date = $recordData[ 'date' ];
     }
@@ -208,12 +212,17 @@ class EmailRecordRepo {
             //Log::error( "Email '{$this->emailAddress}' does not exist." );
 
             $errorFound = true;
-        } elseif ( $this->emailExists() && !$this->hasClient() ) {
+        } elseif ( !$this->hasClient() ) {
             $orphan->missing_email_client_instance = 1;
             $this->errorReason = 'missing_email_client_instance';
 
             Log::error( "Client ID for email '{$this->emailAddress}' does not exist." );
 
+            $errorFound = true;
+        }
+        elseif (!$this->hasDeployId()) {
+            $this->errorReason = 'missing_deploy_id';
+            Log::error("Deploy id for esp internal id '{$this->espInternalId}' does not exist.");
             $errorFound = true;
         }
 
