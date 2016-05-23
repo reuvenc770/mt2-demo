@@ -71,6 +71,16 @@ class BlueHornetSubscriberService
             if($campaign_id == 0){// System Opt Out
                 continue;
             }
+                if ($entry->method_unsubscribed == "Spam Complaint"){
+                    Suppression::recordRawComplaint(
+                        $espAccountId ,
+                        $entry->email ,
+                        $campaign_id ,
+                        $entry->method_unsubscribed ,
+                        $entry->date_deleted
+                    );
+                    continue;
+                }
             Suppression::recordRawUnsub($espAccountId,$entry->email,$campaign_id,$entry->method_unsubscribed, $entry->date_deleted);
         }
     }
