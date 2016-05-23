@@ -8,6 +8,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
+use App\Http\Requests\StoreDataCleanseRequest;
 use App\Services\Mt1Services\DataCleanseService;
 use App\Services\MT1ApiService;
 use Storage;
@@ -57,14 +58,8 @@ class DataCleanseController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreDataCleanseRequest $request)
     {
-        $this->validate( $request , [
-            'pname' => 'required' ,
-            'ConfirmEmail' => 'required' ,
-            'aid' => 'required'
-        ] );
-
         Cache::forget( 'datacleanse' );
 
         return response( $this->api->postForm(
