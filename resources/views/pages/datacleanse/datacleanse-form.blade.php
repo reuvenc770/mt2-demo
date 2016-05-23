@@ -4,7 +4,7 @@
     </div>
 
     <div class="panel-body">
-        <md-content>
+        <md-content ng-cloak>
             <md-input-container class="md-icon-float md-block">
                 <label>Data Export Filename</label>
                 <md-icon md-svg-src="img/icons/ic_publish_black_24px.svg"></md-icon>

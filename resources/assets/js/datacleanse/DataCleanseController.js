@@ -101,7 +101,15 @@ mt2App.controller( 'DataCleanseController' , [ '$rootScope' , '$window' , '$loca
         DataCleanseApiService.save( self.current , function ( response ) {
             $mdToast.showSimple( 'Successfully saved Data Cleanse.' );
         } , function ( response ) {
-            $mdToast.showSimple( 'Failed to save Data Cleanse. Please try again.' );
+            if ( typeof( response.data.pname ) != 'undefined' ) {
+                $mdToast.showSimple( 'Data Export Filename is required. Please choose one and try again.' );
+            } else if ( typeof( response.data.aid != 'undefined' ) ) {
+                $anchorScroll( 'suppressionAdvertisers' );
+
+                $mdToast.showSimple( 'At least 1 Advertiser is required. Please choose one and try again.' );
+            } else {
+                $mdToast.showSimple( 'Failed to save Data Cleanse. Please try again.' );
+            }
         } );
     };
 

@@ -19,7 +19,7 @@ mt2App.service( 'DataCleanseApiService' , function ( $http , $log ) {
             "method" : "POST" ,
             "url" : self.baseApiUrl ,
             "params" : data
-        } ).then( successsCallback , failureCallback );
+        } ).then( successCallback , failureCallback );
     };
 
     self.getAdvertisers = function ( successCallback , failureCallback ) {
