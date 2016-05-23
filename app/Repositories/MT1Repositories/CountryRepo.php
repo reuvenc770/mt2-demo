@@ -5,22 +5,27 @@
 
 namespace App\Repositories\MT1Repositories;
 
-use DB;
+use App\Models\ModelTraits\ModelCacheControl;
+use App\Models\MT1Models\Country;
 use Log;
 
 class CountryRepo {
-    public function __construct () {}
+    use ModelCacheControl;
+
+    protected $model;
+
+    public function __construct ( Country $model ) {
+        $this->model = $model;
+    }
 
     public function getAll () {
         try {
-            return DB::connection( 'mt1mail' )
-                ->table( 'Country' )
-                ->select( 'countryID AS id' , 'countryCode AS name' ) 
+            return $this->model::select( 'countryID AS id' , 'countryCode AS name' )
                 ->where( 'visible' , 1 )
                 ->orderBy( 'countryCode' )
                 ->get();
         } catch ( \Exception $e ) {
-            Log::error( 'CountryRepo Error:: ' . $e->getMessage() );
+            Log::error( 'CountryRepo Error: ' . $e->getMessage() );
         }
     }
 }

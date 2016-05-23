@@ -1,4 +1,7 @@
 <?php
+/**
+ * @author Adam Chin <achin@zetainteractive.com>
+ */
 
 namespace App\Repositories\MT1Repositories;
 
