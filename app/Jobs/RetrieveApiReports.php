@@ -51,7 +51,7 @@ class RetrieveApiReports extends Job implements ShouldQueue
     {
 
         JobTracking::changeJobState( JobEntry::RUNNING , $this->tracking);
-
+        $count = 0;
         try {
             $reportService = APIFactory::createAPIReportService( $this->apiName , $this->espAccountId );
 
@@ -59,12 +59,13 @@ class RetrieveApiReports extends Job implements ShouldQueue
 
             if( $data ){
                 $reportService->insertApiRawStats( $data );
+                $count = count($data);
             }
         } catch ( JobException $e ) {
             $this->logJobException( $e );
 
             if ( in_array( $e->getCode() , [ JobException::NOTICE , JobException::WARNING , JobException::ERROR ] ) ) {
-                JobTracking::changeJobState( JobEntry::WAITING , $this->tracking , $this->attempts() );
+                JobTracking::changeJobState( JobEntry::WAITING , $this->tracking);
 
                 $this->release( $e->getDelay() );
             } else {
@@ -76,7 +77,7 @@ class RetrieveApiReports extends Job implements ShouldQueue
             throw $e;
         }
 
-        JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking);
+        JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking , $count);
     }
 
     protected function logJobException ( JobException $e ) {

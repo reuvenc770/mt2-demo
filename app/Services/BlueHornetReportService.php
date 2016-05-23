@@ -238,6 +238,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
     }
 
     public function saveRecords ( &$processState ) {
+        $count = 0;
         try {
             $fileContents = Storage::get( $processState[ 'filePath' ] );
 
@@ -248,41 +249,42 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             
             switch ( $processState[ 'recordType' ] ) {
                 case 'deliverable' :
-                    $this->queueDeliveredRecords( $xpath , $processState );
+                   $count = $this->queueDeliveredRecords( $xpath , $processState );
                 break;
 
                 case 'bounce' :
-                    $this->queueBouncedRecords( $xpath , $processState );
+                    $count = $this->queueBouncedRecords( $xpath , $processState );
                 break;
 
                 case 'open' :
-                    $this->queueOpenedRecords( $xpath , $processState );
+                    $count = $this->queueOpenedRecords( $xpath , $processState );
                 break;
 
                 case 'click' :
-                    $this->queueClickedRecords( $xpath , $processState );
+                    $count = $this->queueClickedRecords( $xpath , $processState );
                 break;
 
                 case 'optout' :
-                    $this->queueOptedOutRecords( $xpath , $processState );
+                    $count = $this->queueOptedOutRecords( $xpath , $processState );
                 break;
             }
 
             unset( $recordXML );
             unset( $xpath );
 
-            $this->emailRecord->massRecordDeliverables();
+           $this->emailRecord->massRecordDeliverables();
         } catch ( \Exception $e ) {
             $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() , JobException::WARNING , $e );
             $jobException->setDelay( 60 );
             throw $jobException;
         }
+        return $count;
     }
 
     protected function queueDeliveredRecords ( $xpath , $processState ) {
         $contacts = $xpath->query( '//contact' );
 
-        $realCount = 0;
+        $count = 0;
         foreach ( $contacts as $current ) {
             $contents = $current->childNodes;
 
@@ -311,11 +313,14 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                     $processState[ 'campaign' ]->esp_internal_id ,
                     $time
                 );
+                $count++;
             }
         }
+        return $count;
     }
 
     protected function queueBouncedRecords ( $xpath , $processState ) {
+        $count = 0;
         $bounces = $xpath->query( '*/bounce' );
 
         foreach ( $bounces as $current ) {
@@ -344,10 +349,13 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                 $reason ,
                 $date
             );
+            $count++;
         }
+         return $count;
     }
 
     protected function queueOpenedRecords ( $xpath , $processState ) {
+        $count = 0;
         $opens = $xpath->query( '*/opens' );
 
         foreach ( $opens as $current ) {
@@ -366,12 +374,15 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                         $processState[ 'campaign' ]->esp_internal_id ,
                         $date->nodeValue
                     );
+                    $count++;
                 }
             }
         }
+        return $count;
     }
 
     protected function queueClickedRecords ( $xpath , $processState ) {
+        $count = 0;
         $clicks = $xpath->query( '///click' );
 
         foreach ( $clicks as $current ) {
@@ -388,12 +399,15 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                         $processState[ 'campaign' ]->esp_internal_id ,
                         $detail->nodeValue
                     );
+                    $count++;
                 }
             }
         }
+        return $count;
     }
 
     protected function queueOptedOutRecords ( $xpath , $processState ) {
+        $count = 0;
         $optouts = $xpath->query( '*/optout' );
 
         foreach ( $optouts as $current ) {
@@ -410,7 +424,9 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                 $processState[ 'campaign' ]->esp_internal_id ,
                 $optoutDate
             );
+            $count++;
         }
+        return $count;
     }
 
     protected function findEmail ( $currentNode , $isParentNode = false ) {

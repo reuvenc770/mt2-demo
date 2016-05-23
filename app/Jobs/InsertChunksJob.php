@@ -88,7 +88,7 @@ class InsertChunksJob extends Job implements ShouldQueue
     }
 
     protected function changeJobEntry ( $status ) {
-        JobTracking::changeJobState( $status , $this->tracking , $this->attempts() );
+        JobTracking::changeJobState( $status , $this->tracking);
     }
 
     public function failed() {

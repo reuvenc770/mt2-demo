@@ -38,11 +38,12 @@ class JobEntryService
 
     }
 
-    public function changeJobState($state, $tracking, $tries = null)//dead field keeping till refactor is done
+    public function changeJobState($state, $tracking, $total = 0)//dead field keeping till refactor is done
     {
         $job = $this->repo->getJobByTracking($tracking);
         $job->status = $state;
         if($state == JobEntry::SUCCESS) {
+            $job->rows_impacted = $total;
             $job->time_finished = Carbon::now();
         } else if($state == JobEntry::RUNNING){
             $job->time_started = Carbon::now();
