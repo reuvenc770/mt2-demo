@@ -2,6 +2,7 @@ mt2App.service( 'DataCleanseApiService' , function ( $http , $log ) {
     var self = this;
 
     self.baseApiUrl = '/api/datacleanse';
+    self.pagerApiUrl = '/api/pager/DataCleanse';
     self.advertiserApiUrl = '/api/mt1/advertiser';
     self.countryApiUrl = '/api/mt1/country';
     self.categoryApiUrl = '/api/mt1/offercategory';
@@ -9,7 +10,7 @@ mt2App.service( 'DataCleanseApiService' , function ( $http , $log ) {
     self.getAll = function ( page , count , successCallback , failureCallback ) {
         $http( {
             "method" : "GET" ,
-            "url" : self.baseApiUrl ,
+            "url" : self.pagerApiUrl ,
             "params" : { "page" : page , "count" : count }
         } ).then( successCallback , failureCallback );
     }

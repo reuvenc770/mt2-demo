@@ -6,10 +6,10 @@
 namespace App\Services\MT1Services;
 
 use App\Repositories\MT1Repositories\DataCleanseRepo;
-use App\Services\ServiceTraits\PaginateMT1Db;
+use App\Services\ServiceTraits\PaginateList;
 
 class DataCleanseService {
-    use PaginateMT1Db;
+    use PaginateList;
 
     public $repo;
 
@@ -17,7 +17,11 @@ class DataCleanseService {
         $this->repo = $repo;
     }
 
-    public function getAll ( $page , $count ) {
-        return $this->getPaginatedJson( 'getAll' , $page , $count );
+    public function getType () {
+        return $this->repo->getType();
+    }
+
+    public function getModel () {
+        return $this->repo->getModel();
     }
 }

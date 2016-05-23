@@ -5,35 +5,30 @@
 
 namespace App\Repositories\MT1Repositories;
 
-use DB;
+use App\Models\MT1Models\DataExport;
 use Log;
-use Carbon\Carbon;
 
 class DataCleanseRepo {
-    public function __construct () {}
+    protected $model;
+
+    public function __construct ( DataExport $model ) {
+        $this->model = $model;
+    }
 
     public function getType () {
         return 'datacleanse';
     }
 
-    public function getAll () {
-        try{
-            return DB::connection('mt1mail')
-                ->table('DataExport')
-                ->select( DB::raw(
-                    'exportID AS `id` ,
-                    fileName AS `name` ,
-                    IFNULL( CONCAT( lastUpdated , " " , lastUpdatedTime ) , "" ) AS `lastUpdated` , 
-                    recordCount AS `count`' ) )
-                ->where( [
-                    [ 'exportType' , 'Cleanse' ] ,
-                    [ 'status' , 'Active' ] ,
-                    [ 'lastUpdated' , '>' , Carbon::now()->subMonths( 2 ) ]
-                ] )
-                ->orderBy( 'fileName' , 'ASC' )
-                ->get();
-        } catch (\Exception $e){
-            Log::error("DataCleanseRepo error:: ".$e->getMessage());
-        }
+    public function getModel () {
+        return $this->model::select(
+                'exportID as id' ,
+                'fileName as name' ,
+                'lastUpdated' ,
+                'recordCount as count'
+            )->where( [
+                [ 'exportType' , 'Cleanse' ] ,
+                [ 'status' , 'Active' ]
+            ] )
+            ->orderBy( 'fileName' , 'ASC' );
     }
 }
