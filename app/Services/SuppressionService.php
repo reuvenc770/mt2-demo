@@ -41,6 +41,22 @@ class SuppressionService
         }
     }
 
+    public function recordRawComplaint($espId,$email,$campaignId,$reason, $date){
+        $rawRecord = array(
+            "esp_account_id" => $espId,
+            "email_address"  => $email,
+            "campaign_id"    => $campaignId,
+            "date"       => $date,
+            "reason"        => $reason //Will be INT once we see whats returned
+        );
+        try{
+            $this->repo->insertComplaint($rawRecord);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage(). ": while trying to record hard bounce");
+            throw new \Exception($e);
+        }
+    }
+
     public function recordRawUnsub($espId,$email,$campaignId,$reason, $date){
         $rawRecord = array(
             "esp_account_id" => $espId,

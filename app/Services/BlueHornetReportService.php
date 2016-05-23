@@ -411,18 +411,37 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         $optouts = $xpath->query( '*/optout' );
 
         foreach ( $optouts as $current ) {
-            $optoutDate = $current->nodeValue;
+            $contents = $current->childNodes;
             $email = $this->findEmail( $current );
+            $reason = null;
+            $date = null;
 
             if ( is_null( $email ) ) { continue; }
 
-            $this->emailRecord->queueDeliverable(
-                self::RECORD_TYPE_UNSUBSCRIBE ,
-                $email ,
+            foreach ( $contents as $detail ) {
+                if ( $detail->nodeName == 'reason' ) {
+                    $reason = $detail->nodeValue;
+                } elseif ( $detail->nodeName == 'date' ) {
+                    $date = $detail->nodeValue;
+                }
+            }
+            if ($reason == "Spam Complaint"){
+                Suppression::recordRawComplaint(
+                    $processState[ 'ticket' ][ 'espId' ] ,
+                    $email ,
+                    $processState[ 'campaign' ]->esp_internal_id ,
+                    $reason ,
+                    $date
+                );
+                continue;
+            }
+
+            Suppression::recordRawUnsub(
                 $processState[ 'ticket' ][ 'espId' ] ,
-                $processState[ 'ticket' ][ 'deployId'] ,
+                $email ,
                 $processState[ 'campaign' ]->esp_internal_id ,
-                $optoutDate
+                $reason ,
+                $date
             );
             $count++;
         }
