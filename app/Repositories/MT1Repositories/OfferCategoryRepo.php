@@ -5,17 +5,22 @@
 
 namespace App\Repositories\MT1Repositories;
 
-use DB;
+use App\Models\ModelTraits\ModelCacheControl;
+use App\Models\MT1Models\CategoryInfo;
 use Log;
 
 class OfferCategoryRepo {
-    public function __construct () {}
+    use ModelCacheControl;
+
+    protected $model;
+
+    public function __construct ( CategoryInfo $model ) {
+        $this->model = $model;
+    }
 
     public function getAll () {
         try {
-            return DB::connection( 'mt1mail' )
-                ->table( 'category_info' )
-                ->select( 'category_id AS id' , 'category_name as name' )
+            return $this->model::select( 'category_id AS id' , 'category_name as name' )
                 ->where( 'status' , 'A' )
                 ->orderBy( 'category_name' )
                 ->get();
