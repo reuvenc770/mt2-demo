@@ -71,9 +71,12 @@ class CampaignerApi extends EspBaseAPI
         } catch (\Exception $e){
             throw new \Exception ($e->getMessage());
         }
-        if ($header['errorFlag'] != "false" ) {
+        if ($header['errorFlag'] !== "false" ) {
+            if  ($header['returnCode'] == self::NO_UNSUBS){
+                return true;
+            }
             throw new \Exception("{$header['errorFlag']} - {$this->getApiName()}::{$this->getEspAccountId()} Failed {$jobName} because {$header['returnMessage']} - {$header['returnCode']}");
-        } else if ($header['returnCode'] == self::NO_CAMPAIGNS || $header['returnCode'] == self::NO_UNSUBS) {
+        } else if ($header['returnCode'] == self::NO_CAMPAIGNS) {
             Log::info("{$this->getApiName()}::{$this->getEspAccountId()} had no campaigns");
             return true;
         }
