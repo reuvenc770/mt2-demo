@@ -144,11 +144,12 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
     public function saveRecords ( &$processState, $map ) {
         $type = '';
         // $map is not needed for this version of saveRecords
+        $count = 0;
         try {
             switch ( $processState[ 'recordType' ] ) {
                 case 'deliveries' :
                     $deliverables = $this->getDeliveryReport( $processState[ 'campaign' ]->esp_internal_id );
-
+                    $count = count($deliverables);
                     foreach ( $deliverables as $key => $deliveryRecord ) {
 
                             $this->emailRecord->recordDeliverable(
@@ -165,7 +166,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
 
                 case 'opens' :
                     $opens = $this->getOpenReport( $processState[ 'campaign' ]->esp_internal_id );
-
+                    $count = count($opens);
                     foreach ( $opens as $key => $openRecord ) {
 
                         $this->emailRecord->recordDeliverable(
@@ -183,7 +184,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
 
                 case 'clicks' :
                     $clicks = $this->getClickReport( $processState[ 'campaign' ]->esp_internal_id );
-
+                    $count = count($clicks);
                     foreach ( $clicks as $key => $clickRecord ) {
 
                         $this->emailRecord->recordDeliverable(
@@ -201,6 +202,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
 
                 case 'unsubscribes' :
                     $unsubs = $this->getUnsubscribeReport( $processState[ 'campaign' ]->esp_internal_id );
+                    $count = count($unsubs);
                     foreach ( $unsubs as $key => $unsubRecord ) {
                         Suppression::recordRawUnsub($processState[ 'espId' ] , $unsubRecord[ 'EmailAddress' ],  $processState[ 'campaign' ]->esp_internal_id, "", $unsubRecord[ 'ActionDate' ]);
                     }
@@ -209,7 +211,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
 
                 case 'hardbounces' :
                    $unsubs = $this->getUnsubscribeReport( $processState[ 'campaign' ]->esp_internal_id );
-
+                    $count = count($unsubs);
                     foreach ( $unsubs as $key => $hardbounce ) {
                         Suppression::recordRawUnsub($processState[ 'espId' ] , $hardbounce[ 'EmailAddress' ],  $processState[ 'campaign' ]->esp_internal_id,  "", $hardbounce[ 'ActionDate' ]);
                     }
@@ -218,7 +220,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
 
                 case 'complaints' :
                     $complainers = $this->getComplaintReport( $processState[ 'campaign' ]->esp_internal_id );
-
+                    $count = count($complainers);
                     foreach ( $complainers as $key => $complainerRecord ) {
 
                         $this->emailRecord->recordDeliverable(
@@ -240,6 +242,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
             throw $jobException;
         }
         DeployActionEntry::recordSuccessRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, $type );
+       return $count;
     }
 
     public function getDeliveryReport($campaignId){

@@ -57,13 +57,16 @@ class EmailRecordService {
     }
 
     public function massRecordDeliverables () {
+        $count = count($this->records);
         try {
             $this->repo->massRecordDeliverables($this->records);
+
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         } finally {
             $this->records = []; // clear out to free up space
         }
+        return $count;
     }
 
     public function withinTwoDays($espId, $campaignId){

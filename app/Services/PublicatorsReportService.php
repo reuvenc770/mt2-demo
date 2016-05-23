@@ -143,6 +143,7 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
 
     public function saveRecords ( $processState ) {
         $type = "";
+        $count = 0;
         if ( $this->lockFound() ) {
             $pubException = new JobException( "Job prevented via process lock. Another job is authenticating. " , JobException::NOTICE );
             $pubException->setDelay( 300 );
@@ -230,10 +231,12 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
                     $processState[ "campaign" ]->esp_internal_id ,
                     $timeStamp
                 );
+                $count++;
             }
 
             $this->emailRecord->massRecordDeliverables();
             DeployActionEntry::recordSuccessRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, $type );
+            return $count;
         }
         catch (\Exception $e) {
             DeployActionEntry::recordFailedRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, $type);

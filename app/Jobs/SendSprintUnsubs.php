@@ -126,7 +126,7 @@ class SendSprintUnsubs extends Job implements ShouldQueue
             if ( count( $campaignFiles ) <= 3 ) {
                 Slack::to( self::SLACK_TARGET_SUBJECT )->send("Sprint Unsub Job - No Campaign files today.");
 
-                JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking , $this->attempts() );
+                JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking);
 
                 return true;
             }
@@ -289,7 +289,7 @@ class SendSprintUnsubs extends Job implements ShouldQueue
 
     public function failed()
     {
-        JobTracking::changeJobState( JobEntry::FAILED , $this->tracking , $this->attempts() );
+        JobTracking::changeJobState( JobEntry::FAILED , $this->tracking);
 
         Slack::to( self::SLACK_TARGET_SUBJECT )->send("Sprint Unsub Job - Failed to run after " . $this->attempts() . " attempts.");
     }

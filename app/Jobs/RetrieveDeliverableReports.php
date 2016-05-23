@@ -165,8 +165,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
             $this->queueNextJob( $this->defaultQueue );
         });
-        
-        $this->changeJobEntry( JobEntry::SUCCESS );
+        $rowCount = count($campaigns);
+        $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
     }
 
     protected function getMaroDeliverableCampaigns() {
@@ -181,15 +181,15 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
             $this->queueNextJob( $this->defaultQueue );
         });
-        
-        $this->changeJobEntry( JobEntry::SUCCESS );
+        $rowCount = count($campaigns);
+        $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
     }
 
     protected function getRerunCampaigns () {
         $campaigns = DB::connection( 'reporting_data' )
             ->table( 'standard_reports_rerun' ) 
             ->where( 'esp_account_id' , $this->espAccountId )
-            ->orderBy( 'esp_account_id' );
+            ->orderBy( 'esp_account_id' )->get();
 
         $this->processState[ 'currentFilterIndex' ]++;
 
@@ -199,15 +199,14 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
             $this->queueNextJob( $this->defaultQueue );
         });
-        
-        $this->changeJobEntry( JobEntry::SUCCESS );
+        $rowCount = count($campaigns);
+        $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
     }
 
     protected function splitTypes () {
         $this->processState[ 'currentFilterIndex' ]++;
 
         $types = $this->reportService->splitTypes( $this->processState );
-
         foreach ( $types as $index => $currentType ) {
             $this->processState[ 'recordType' ] = $currentType;
 
@@ -218,6 +217,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     }
 
     protected function savePaginatedRecords () {
+        $rowCount = 0;
         $map = $this->standardReportRepo->getEspToInternalMap($this->espAccountId);
         $this->reportService->setPageType( $this->processState[ 'recordType' ] );
         $this->reportService->setPageNumber( isset( $this->processState[ 'pageNumber' ] ) ? $this->processState[ 'pageNumber' ] : 1 );
@@ -225,6 +225,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         if ( $this->reportService->pageHasData() ) {
             $this->processState[ 'currentPageData' ] = $this->reportService->getPageData();
             $this->reportService->savePage( $this->processState, $map );
+            $rowCount = count($this->processState[ 'currentPageData' ]);
             $this->processState[ 'currentPageData' ] = array();
 
             $this->reportService->nextPage();
@@ -234,7 +235,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             $this->queueNextJob( $this->defaultQueue );
         }
 
-        $this->changeJobEntry( JobEntry::SUCCESS );
+        $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
     }
 
 
@@ -255,15 +256,16 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             $this->queueNextJob( $this->defaultQueue );
         }
 
-        $this->changeJobEntry( JobEntry::SUCCESS );
+        $rowCount = count($this->processState[ 'currentPageData' ]);
+        $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
     }
 
     protected function saveRecords () {
         if (isset($this->standardReportRepo)) {
             $map = $this->standardReportRepo->getEspToInternalMap($this->espAccountId);
-            $this->reportService->saveRecords( $this->processState, $map );
+            $total = $this->reportService->saveRecords( $this->processState, $map );
 
-            $this->changeJobEntry( JobEntry::SUCCESS );
+            $this->changeJobEntry( JobEntry::SUCCESS, $total );
         }
         else {
             echo "StandardReportRepo not set. ESP account id " . $this->espAccountId . PHP_EOL;
@@ -274,7 +276,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->processState[ 'currentFilterIndex' ]++;
 
         $this->processState[ 'typeList' ] = $this->reportService->getTypeList( $this->processState );
-
+        $this->processState['recordType'] = $this->processState[ 'typeList' ][0];
+        $this->processState[ 'typeIndex' ] = 0;
         $this->queueNextJob( $this->defaultQueue );
 
         $this->changeJobEntry( JobEntry::SUCCESS );
@@ -290,25 +293,19 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             return;
         }
 
-        if ( !isset( $this->processState[ 'typeIndex' ] ) ) {
-            $this->processState[ 'typeIndex' ] = 0;
-        }
-
-        $currentType = $this->processState[ 'typeList' ][ $this->processState[ 'typeIndex' ] ];
-
-        $this->processState[ 'recordType' ] = $currentType;
-
-        $this->reportService->saveRecords( $this->processState );
+        $total = $this->reportService->saveRecords( $this->processState );
 
         $this->processState[ 'typeIndex' ]++;
 
         if ( !isset( $this->processState[ 'typeList' ][ $this->processState[ 'typeIndex' ] ] ) ) {
             $this->processState[ 'currentFilterIndex' ]++;
+        } else {
+            $this->processState[ 'recordType' ] = $this->processState[ 'typeList' ][ $this->processState[ 'typeIndex' ] ];
         }
 
         $this->queueNextJob( $this->defaultQueue );
 
-        $this->changeJobEntry( JobEntry::SUCCESS );
+        $this->changeJobEntry( JobEntry::SUCCESS, $total );
     }
 
     protected function cleanUp () {
@@ -367,8 +364,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         echo "\n\n" . Carbon::now() . " - Queuing Job: " . $this->getJobName() . "\n";
     }
 
-    protected function changeJobEntry ( $status ) {
-        JobTracking::changeJobState( $status , $this->tracking);
+    protected function changeJobEntry ( $status, $totalRows = 0 ) {
+        JobTracking::changeJobState( $status , $this->tracking, $totalRows);
 
         if ( $status == JobEntry::SUCCESS ) echo "\n\n\t" . Carbon::now() . " - Finished Job: " . $this->apiName . ':' . $this->espAccountId . ' ' . $this->getJobName() . "\n\n";
         if ( $status == JobEntry::WAITING ) echo "\n\n\t" . Carbon::now() . " - Throwing Job Back into Queue: " . $this->apiName . ':' . $this->espAccountId . ' ' . $this->getJobName() . "\n\n";
@@ -399,7 +396,11 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     }
 
     protected function getJobName () {
-        return self::JOB_NAME . '::' . $this->currentFilter() . $this->reportService->getUniqueJobId( $this->processState );
+        $type = "";
+        if(isset($this->processState['recordType'])){
+            $type = $this->processState['recordType'];
+        }
+        return self::JOB_NAME . '::' . $this->currentFilter() . $this->reportService->getUniqueJobId( $this->processState ). "::". $type;
     }
 
     protected function getJobInfo () {

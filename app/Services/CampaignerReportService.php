@@ -7,7 +7,7 @@
  */
 
 namespace App\Services;
-ini_set('default_socket_timeout', 600);
+ini_set('default_socket_timeout', 60);
 
 use App\Facades\Suppression;
 use App\Library\Campaigner\CampaignManagement;
@@ -272,7 +272,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
 
     public function saveRecords ( &$processState, $map ) {
         // $map unneeded
-            $typesTouched = array();
+            $count = 0;
         try {
             $skipDelivered = true;
             if($this->emailRecord->withinTwoDays($processState[ 'ticket' ][ 'espId' ],$processState[ 'ticket' ][ 'espInternalId' ]) || 'rerun' === $processState['pipe']){
@@ -326,12 +326,14 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                         $processState[ 'ticket' ][ 'espInternalId' ] ,
                         $record[ 'actionDate' ]
                     );
+                    $count++;
 
                 }
 
             }
 
             $this->emailRecord->massRecordDeliverables();
+            return $count;
             DeployActionEntry::recordAllSuccess($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id);
         }
         catch (\Exception $e) {
@@ -339,6 +341,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() , JobException::WARNING , $e );
             throw $jobException;
         }
+
     }
 
     public function getCampaignReport($ticketId, $count){
