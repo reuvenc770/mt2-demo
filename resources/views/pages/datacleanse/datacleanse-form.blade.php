@@ -33,11 +33,15 @@
 
             <md-input-container class="md-icon-float md-block">
                 <md-icon md-svg-src="img/icons/ic_feedback_black_24px.svg"></md-icon>
-                <md-radio-group ng-model="cleanse.current.ConfirmEmail">
+                <md-radio-group name="ConfirmEmail" ng-model="cleanse.current.ConfirmEmail" ng-required="true">
                     <md-radio-button value="" selected>No Email Confirmation</md-radio-button>
                     <md-radio-button value="alphateam@zetainteractive.com">alphateam@zetainteractive.com</md-radio-button>
                     <md-radio-button value="betateam@zetainteractive.com">betateam@zetainteractive.com</md-radio-button>
                 </md-radio-group>
+
+                <div ng-messages="cleanseForm.ConfirmEmail.$error">
+                    <div ng-message="required">Confirmation Email is required.</div>
+                </div>
             </md-input-container>
 
             <md-input-container md-no-float class="md-block">

@@ -2,12 +2,13 @@ mt2App.controller( 'DataCleanseController' , [ '$rootScope' , '$window' , '$loca
     var self = this;
 
     self.createUrl = '/datacleanse/create';
+    self.testUser = 217;
 
     self.pageCount = 0;
     self.paginationCount = '10';
     self.currentPage = 1;
 
-    self.current = { "exportType" : "Cleanse" , "ConfirmEmail" : "" };
+    self.current = { "exportType" : "Cleanse" , "ConfirmEmail" : "" , "userID" : self.testUser };
     self.cleanses = [];
 
     self.advertisers = [];
@@ -101,12 +102,14 @@ mt2App.controller( 'DataCleanseController' , [ '$rootScope' , '$window' , '$loca
         DataCleanseApiService.save( self.current , function ( response ) {
             $mdToast.showSimple( 'Successfully saved Data Cleanse.' );
         } , function ( response ) {
-            if ( typeof( response.data.pname ) != 'undefined' ) {
+            if ( typeof( response.data.pname ) !== 'undefined' ) {
                 $mdToast.showSimple( 'Data Export Filename is required. Please choose one and try again.' );
-            } else if ( typeof( response.data.aid != 'undefined' ) ) {
+            } else if ( typeof( response.data.aid ) !== 'undefined' ) {
                 $anchorScroll( 'suppressionAdvertisers' );
 
                 $mdToast.showSimple( 'At least 1 Advertiser is required. Please choose one and try again.' );
+            } else if ( typeof( response.data.ConfirmEmail ) !== 'undefined' ) {
+                $mdToast.showSimple( 'A confirmation email is required.' );
             } else {
                 $mdToast.showSimple( 'Failed to save Data Cleanse. Please try again.' );
             }

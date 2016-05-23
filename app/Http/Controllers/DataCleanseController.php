@@ -11,6 +11,7 @@ use App\Http\Requests;
 use App\Services\Mt1Services\DataCleanseService;
 use App\Services\MT1ApiService;
 use Storage;
+use Cache;
 
 class DataCleanseController extends Controller
 {
@@ -60,6 +61,7 @@ class DataCleanseController extends Controller
     {
         $this->validate( $request , [
             'pname' => 'required' ,
+            'ConfirmEmail' => 'required' ,
             'aid' => 'required'
         ] );
 
