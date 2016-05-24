@@ -414,19 +414,20 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
     protected function queueOptedOutRecords ( $xpath , $processState ) {
         $count = 0;
         $optouts = $xpath->query( '*/optout' );
-
         foreach ( $optouts as $current ) {
             $optoutDate = $current->nodeValue;
+
             $email = $this->findEmail( $current );
+            $reason = null;
+            $date = null;
 
             if ( is_null( $email ) ) { continue; }
 
-            $this->emailRecord->queueDeliverable(
-                self::RECORD_TYPE_UNSUBSCRIBE ,
-                $email ,
+            Suppression::recordRawUnsub(
                 $processState[ 'ticket' ][ 'espId' ] ,
-                $processState[ 'ticket' ][ 'deployId'] ,
+                $email ,
                 $processState[ 'campaign' ]->esp_internal_id ,
+                "" ,
                 $optoutDate
             );
             $count++;
