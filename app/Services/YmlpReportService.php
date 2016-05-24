@@ -10,6 +10,7 @@ use App\Repositories\ReportRepo;
 use App\Services\API\YmlpApi;
 use App\Services\AbstractReportService;
 use League\Flysystem\Exception;
+use App\Facades\DeployActionEntry;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use App\Services\Interfaces\IDataService;
@@ -155,6 +156,7 @@ class YmlpReportService extends AbstractReportService implements IDataService {
     }
 
     public function saveRecords(&$processState) {
+        $type = "";
         $count = 0;
         $espInternalId = $processState['campaign']->esp_internal_id;
         // sometimes this doesn't work - if we don't have the campaign saved
@@ -175,6 +177,7 @@ class YmlpReportService extends AbstractReportService implements IDataService {
                             Carbon::parse($opener['Timestamp'])
                         );
                     }
+                    $type = "open";
                 break;
 
                 case 'clicks' :
@@ -190,6 +193,7 @@ class YmlpReportService extends AbstractReportService implements IDataService {
                             Carbon::parse($clicker['Timestamp'])
                         );
                     }
+                    $type = "click";
                 break;
 
                 case 'bounces' :
@@ -198,6 +202,7 @@ class YmlpReportService extends AbstractReportService implements IDataService {
                     foreach ( $bounceData as $key => $bouncer ) {
                        Suppression::recordRawHardBounce($this->api->getId(),$bouncer['Email'],$espInternalId, $bouncer['ErrorMessage'], Carbon::today()->toDateString());
                     }
+                    $type = "bounce";
                     break;
 
                 case 'deliveries' :
@@ -213,9 +218,12 @@ class YmlpReportService extends AbstractReportService implements IDataService {
                             "0000-00-00 00:00:00"
                         );
                     }
+                    $type = "deliverable";
                     break;
             }
+            DeployActionEntry::recordSuccessRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, $type );
         } catch ( \Exception $e ) {
+            DeployActionEntry::recordFailedRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, $type);
             $jobException = new JobException( 'Failed to save records. ' . $e->getMessage() , JobException::NOTICE , $e );
             $jobException->setDelay( 180 );
             throw $jobException;

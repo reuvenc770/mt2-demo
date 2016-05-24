@@ -89,5 +89,6 @@ class BlueHornetSubscriberService
             }
             Suppression::recordRawUnsub($espAccountId, $entry->email, $campaign_id, $entry->method_unsubscribed, $entry->date_deleted);
         }
+
     }
 }
