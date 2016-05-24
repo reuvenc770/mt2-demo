@@ -28,6 +28,7 @@ class PublicatorsApi extends EspBaseAPI {
     const API_CLICKS_STATS = "/api/Reports/GetReportAllClickedMailsByCampaignID";
     const API_BOUNCES_STATS = "/api/Reports/GetReportAllBouncedMailsByCampaignID";
     const API_UNSUBSCRIBED_STATS = "/api/Reports/GetReportAllUnsubscribedMailsByCampaignID";
+    const API_UNSUBSCRIBED_DATERANGE_STATS = "/api/Reports/GetReportAllUnsubscribedMailsByTrackingDateRange";
 
     const TYPE_AUTH = 'auth';
     const TYPE_LIST_CAMPAIGNS = 'listCampaigns';
@@ -37,8 +38,10 @@ class PublicatorsApi extends EspBaseAPI {
     const TYPE_CLICKS_STATS = 'clicksStats';
     const TYPE_BOUNCES_STATS = 'bouncesStats';
     const TYPE_UNSUBSCRIBED_STATS = 'unsubscribedStats';
+    const TYPE_UNSUBSCRIBED_DATERANGE_STATS = "unsubscribedDateRangeStats";
 
     const DATE_FORMAT = "Y/m/d H:i";
+    const FULL_DATE_FORMAT = "Y/m/d H:i:s";
 
     const CACHE_TAG = "publicators";
     const CACHE_KEY = "API_TOKEN";
@@ -60,7 +63,8 @@ class PublicatorsApi extends EspBaseAPI {
         PublicatorsApi::TYPE_OPENS_STATS => PublicatorsApi::API_OPENS_STATS ,
         PublicatorsApi::TYPE_CLICKS_STATS => PublicatorsApi::API_CLICKS_STATS ,
         PublicatorsApi::TYPE_BOUNCES_STATS => PublicatorsApi::API_BOUNCES_STATS ,
-        PublicatorsApi::TYPE_UNSUBSCRIBED_STATS => PublicatorsApi::API_UNSUBSCRIBED_STATS
+        PublicatorsApi::TYPE_UNSUBSCRIBED_STATS => PublicatorsApi::API_UNSUBSCRIBED_STATS ,
+        PublicatorsApi::TYPE_UNSUBSCRIBED_DATERANGE_STATS => PublicatorsApi::API_UNSUBSCRIBED_DATERANGE_STATS
     ];
 
     protected $defaultRequestOptions = [
@@ -155,6 +159,29 @@ class PublicatorsApi extends EspBaseAPI {
         return $responseBody;
     }
 
+    public function getUnsubReport ( $lookback ) {
+        if ( !$this->isAuthenticated() ) {
+            $this->authenticate();
+        }
+
+        $this->setDate( Carbon::now()->startOfDay()->subDay( $lookback ) );
+        $this->setCallType( self::TYPE_UNSUBSCRIBED_DATERANGE_STATS );
+
+        $response = $this->sendApiRequest();
+
+        $responseBody = json_decode( $response->getBody() );
+
+        if ( is_null( $responseBody ) ) {
+            throw new \Exception( "Failed to parse unsub records response. '{$responseBody}'" );
+        }
+
+        if ( isset( $responseBody->TrackingUnsubscribed ) ) {
+            return $responseBody->TrackingUnsubscribed;
+        } else {
+            return [];
+        }
+    }
+
     public function sendApiRequest () {
         if ( is_null( $this->callType ) ) {
             throw new \Exception( "Call type not defined." );
@@ -224,12 +251,20 @@ class PublicatorsApi extends EspBaseAPI {
     protected function constructOptions () {
         if( $this->callType == "auth" ) {
             return $this->defaultRequestOptions + [ "body" => json_encode( [ "Username" => $this->username , "Password" => $this->password ] ) ];
-        } elseif ( $this->callType == "listCampaigns" ) {
+        } elseif ( $this->callType === "listCampaigns" ) {
             return $this->defaultRequestOptions + [
                 "body" => json_encode( [
                     "Auth" => [ "Token" => $this->token ] ,
                     "FromSentDate" => Carbon::parse( $this->date )->startOfDay()->format( self::DATE_FORMAT ) ,
                     "ToSentDate" => Carbon::now()->endOfDay()->format( self::DATE_FORMAT )
+                ] )
+            ];
+        } elseif ( $this->callType === "unsubscribedDateRangeStats" ) {
+            return $this->defaultRequestOptions + [
+                "body" => json_encode( [
+                    "Auth" => [ "Token" => $this->token ] ,
+                    "FromDate" => Carbon::parse( $this->date )->startOfDay()->format( self::FULL_DATE_FORMAT ) ,
+                    "ToDate" => Carbon::now()->endOfDay()->format( self::FULL_DATE_FORMAT )
                 ] )
             ];
         } else {
