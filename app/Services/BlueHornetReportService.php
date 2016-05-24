@@ -274,7 +274,8 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
            $this->emailRecord->massRecordDeliverables();
         } catch ( \Exception $e ) {
-            $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() , JobException::WARNING , $e );
+            $exceptionType  = get_class($e);
+            $jobException = new JobException( "Failed to process report file - $exceptionType: " . $e->getMessage() , JobException::WARNING , $e );
             $jobException->setDelay( 60 );
             throw $jobException;
         }
