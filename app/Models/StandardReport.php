@@ -18,7 +18,6 @@ class StandardReport extends Model implements IReport
 
         static::created(function($report)
         {
-            Log::info("i am here");
             DeployActionEntry::initDeployActions($report);
         });
 
