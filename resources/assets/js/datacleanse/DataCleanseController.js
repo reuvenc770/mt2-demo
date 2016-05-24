@@ -2,13 +2,12 @@ mt2App.controller( 'DataCleanseController' , [ '$rootScope' , '$window' , '$loca
     var self = this;
 
     self.createUrl = '/datacleanse/create';
-    self.testUser = 217;
 
     self.pageCount = 0;
     self.paginationCount = '10';
     self.currentPage = 1;
 
-    self.current = { "exportType" : "Cleanse" , "ConfirmEmail" : "" , "userID" : self.testUser };
+    self.current = { "exportType" : "Cleanse" , "ConfirmEmail" : "alphateam@zetainteractive.com" };
     self.cleanses = [];
 
     self.advertisers = [];

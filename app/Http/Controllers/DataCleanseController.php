@@ -16,7 +16,7 @@ use Cache;
 
 class DataCleanseController extends Controller
 {
-    const DATA_CLEANSE_API_ENDPOINT = 'dataexport_upd';
+    const DATA_CLEANSE_API_ENDPOINT = 'datacleanse_store';
     protected $service;
     protected $api;
 
