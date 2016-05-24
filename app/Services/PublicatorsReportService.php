@@ -200,8 +200,8 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
             foreach ( $records as $record ) {
 
                 // Need to find cases without seconds and provide up an appropriate second
-                if (preg_match('/\s\d{2}\:\d{2}$/', $record->TimeStamp)) {
-                    $key = md5($record->Email . $deployId . $recordType . $record->TimeStamp);
+                $trimmedTime = date('g:ia', strtotime($record->TimeStamp));
+                    $key = md5($record->Email . $deployId . $recordType . $trimmedTime);
 
                     // If the tag already exists, get the (already-incremented) second, and increment again
                     if (Cache::tags([$recordType, $deployId])->has($key)) {
@@ -216,12 +216,7 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
 
                     // Set up the new timestamp
                     $padding = $count < 10 ? '0' : '';
-                    $timeStamp = $record->TimeStamp . ':' . $padding . $count;
-                }
-                else {
-                    $timeStamp = $record->TimeStamp;
-                }
-
+                    $timeStamp = $trimmedTime . ':' . $padding . $count;
 
                 $this->emailRecord->queueDeliverable(
                     $recordType , 
