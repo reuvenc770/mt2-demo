@@ -34,6 +34,13 @@ class SuppressionRepo
             "campaign_id" => $arrayData['campaign_id']], $arrayData);
     }
 
+    public function insertComplaint($arrayData){
+        $arrayData["type_id"] = Suppression::TYPE_COMPLAINT;
+        $this->suppressionModel->updateOrCreate(["email_address" => $arrayData['email_address'],
+            "esp_account_id" => $arrayData["esp_account_id"],
+            "campaign_id" => $arrayData['campaign_id']], $arrayData);
+    }
+
     public function getRecordsByDateEspType($type_id, $espAccountId, $date){
        return $this->suppressionModel->select("email_address","reason")
                                 ->where("type_id",$type_id)
