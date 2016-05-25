@@ -42,6 +42,21 @@ class DeployActionService
         $this->deployActionRepo->updateDeployAction($entry);
     }
 
+    public function recordSuccessRunArray($esp_account_id, $internalIds, $type){
+        foreach($internalIds as $esp_internal_id){
+            $entry = $this->returnEntry($esp_account_id, $esp_internal_id, $type, 'success');
+            $this->deployActionRepo->updateDeployAction($entry);
+        }
+
+    }
+
+    public function recordFailedRunArray($esp_account_id, $internalIds, $type){
+        foreach($internalIds as $esp_internal_id) {
+            $entry = $this->returnEntry($esp_account_id, $esp_internal_id, $type, 'fail');
+            $this->deployActionRepo->updateDeployAction($entry);
+        }
+    }
+
     public function recordAllSuccess($esp_account_id, $esp_internal_id){
         foreach($this->types as $type) {
             $entry = $this->returnEntry($esp_account_id, $esp_internal_id, $type, 'success');
