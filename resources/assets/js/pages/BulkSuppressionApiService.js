@@ -10,8 +10,6 @@ mt2App.service('BulkSuppressionApiService', function ($http) {
             "url": self.baseApiUrl + '/send',
             "params": data
         }).then(function (result) {
-            console.log('result:');
-            console.dir(result);
             var errorRe = /Error/;
             if (errorRe.exec(result['data'])) {
                 failureCallback(result['data']);
