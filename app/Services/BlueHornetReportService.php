@@ -9,6 +9,8 @@
 namespace App\Services;
 
 #use App\Services\API\BlueHornet;
+use App\Facades\CampaignActionsEntry;
+use App\Facades\DeployActionEntry;
 use App\Facades\Suppression;
 use App\Repositories\ReportRepo;
 use App\Services\API\BlueHornetApi;
@@ -274,10 +276,13 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
            $this->emailRecord->massRecordDeliverables();
         } catch ( \Exception $e ) {
-            $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() , JobException::WARNING , $e );
+            $exceptionType  = get_class($e);
+            DeployActionEntry::recordFailedRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id,$processState[ 'recordType' ] );
+            $jobException = new JobException( "Failed to process report file - $exceptionType: " . $e->getMessage() , JobException::WARNING , $e );
             $jobException->setDelay( 60 );
             throw $jobException;
         }
+        DeployActionEntry::recordSuccessRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id,$processState[ 'recordType' ] );
         return $count;
     }
 
@@ -409,19 +414,20 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
     protected function queueOptedOutRecords ( $xpath , $processState ) {
         $count = 0;
         $optouts = $xpath->query( '*/optout' );
-
         foreach ( $optouts as $current ) {
             $optoutDate = $current->nodeValue;
+
             $email = $this->findEmail( $current );
+            $reason = null;
+            $date = null;
 
             if ( is_null( $email ) ) { continue; }
 
-            $this->emailRecord->queueDeliverable(
-                self::RECORD_TYPE_UNSUBSCRIBE ,
-                $email ,
+            Suppression::recordRawUnsub(
                 $processState[ 'ticket' ][ 'espId' ] ,
-                $processState[ 'ticket' ][ 'deployId'] ,
+                $email ,
                 $processState[ 'campaign' ]->esp_internal_id ,
+                "" ,
                 $optoutDate
             );
             $count++;

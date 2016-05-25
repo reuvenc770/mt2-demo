@@ -174,6 +174,14 @@ elixir.extend( 'deployBulkSuppressionJs' , function ( mix ) {
 	'pages/BulkSuppressionController.js',
 	'resources/assets/js/pages/BulkSuppressionApiService.js'	 
     ] , 'public/js/bulksuppression.js' );
+});
+
+elixir.extend( 'deployDataCleanseJs' , function ( mix ) {
+    mix.scripts( [
+        'datacleanse/DataCleanseController.js' ,
+        'datacleanse/DataCleanseApiService.js' ,
+        'datacleanse/DataCleanseTableDirective.js'
+    ] , 'public/js/datacleanse.js' );
 } );
 
 elixir.extend( 'deployMt2Js' , function ( mix ) {
@@ -192,6 +200,7 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployClientAttributionJs( mix );
     mix.deployClientAttributionJs( mix );
     mix.deployDataExportJs(mix);
+    mix.deployDataCleanseJs(mix);
 } );
 
 elixir.extend( 'runTdd' , function ( mix ) {
@@ -265,7 +274,10 @@ var mt2TaskMap = {
         mix.deployBulkSuppressionJs( mix );
     },
     'deployDataExportJs': function(mix) {
-	mix.deployDataExportJs(mix);
+        mix.deployDataExportJs(mix);
+    },
+    'deployDataCleanseJs' : function (mix) {
+        mix.deployDataCleanseJs(mix)
     }
 };
 

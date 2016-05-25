@@ -160,3 +160,13 @@ Breadcrumbs::register( 'client.attribution' , function ( $breadcrumbs ) {
     $breadcrumbs->parent( 'client.list' );
     $breadcrumbs->push( 'Attribution' );
 } );
+
+Breadcrumbs::register('datacleanse.list', function($breadcrumbs) {
+    $breadcrumbs->parent('home');
+    $breadcrumbs->push('Data Cleanse' , route( 'datacleanse.list' ));
+});
+
+Breadcrumbs::register('datacleanse.add', function($breadcrumbs) {
+    $breadcrumbs->parent('datacleanse.list');
+    $breadcrumbs->push('Add Data Cleanse');
+});

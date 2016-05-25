@@ -69,7 +69,12 @@ class APIFactory
     }
 
     public static function createApiSubscriptionService($apiName, $espAccountId){
-        if($apiName == "BlueHornet" || $apiName == "EmailDirect" || "Campaigner" == $apiName) {
+        if( in_array( $apiName , [
+            "BlueHornet" ,
+            "EmailDirect" ,
+            "Campaigner" ,
+            "Publicators"
+        ] ) ) {
             $api = "App\\Services\\API\\{$apiName}Api";
             $service = "App\\Services\\{$apiName}SubscriberService";
             return new $service(new $api($espAccountId));

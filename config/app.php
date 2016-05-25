@@ -166,6 +166,7 @@ return [
         Maknz\Slack\SlackServiceProvider::class,
         Jenssegers\Agent\AgentServiceProvider::class,
         App\Providers\SuppressionProvider::class,
+        App\Providers\DeployActionProvider::class,
     ],
 
     /*
@@ -224,6 +225,7 @@ return [
         'Slack' => Maknz\Slack\Facades\Slack::class,
         'Agent' => Jenssegers\Agent\Facades\Agent::class,
         'Suppression' => App\Facades\Suppression::class,
+        'CampaignActionsEntry' => App\Facades\DeployActionEntry::class,
     ],
 
 ];

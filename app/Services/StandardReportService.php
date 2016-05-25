@@ -2,8 +2,6 @@
 
 namespace App\Services;
 
-use App\Repositories\StandardReportRepo;
-
 
 class StandardReportService {
     protected $repo;

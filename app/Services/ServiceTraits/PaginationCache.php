@@ -23,11 +23,11 @@ trait PaginationCache {
             ->get( $this->getCacheKey( $page , $count, $params ) );
     }
 
-    public function cachePagination ( $json , $page , $count ) {
+    public function cachePagination ( $json , $page , $count , $params = null ) {
         $timeout = env("CACHETIMEOUT",60);
 
         Cache::tags( $this->getType() )->put(
-            $this->getCacheKey( $page , $count ) ,
+            $this->getCacheKey( $page , $count , $params ) ,
             $json ,
             $timeout 
         );
