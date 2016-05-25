@@ -9,6 +9,30 @@ mt2App.service('BulkSuppressionApiService', function ($http) {
             "method": "POST",
             "url": self.baseApiUrl + '/send',
             "params": data
-        }).then(successCallback, failureCallback);
+        }).then(function (result) {
+            console.log('result:');
+            console.dir(result);
+            var errorRe = /Error/;
+            if (errorRe.exec(result['data'])) {
+                failureCallback(result['data']);
+            }
+            else {
+                successCallback();
+            }
+        });
+    }
+
+    self.transferFiles = function(successCallback, failureCallback) {
+        $http({
+            "method": "POST",
+            "url": self.baseApiUrl + '/transfer'
+        }).then(function (result) {
+            if (result['data'].length > 0) {
+                failureCallback(result['data']);
+            }
+            else {
+                successCallback();
+            }
+        });
     }
 });

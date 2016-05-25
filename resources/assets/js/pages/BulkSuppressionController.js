@@ -11,12 +11,9 @@ mt2App.controller( 'BulkSuppressionController' , [ '$log' , 'BulkSuppressionApiS
     self.reason = '';
 
     self.uploadSuppressions = function () {
-        console.log('Testing values:');
-        console.log(self.reason);
 
         self.emails = self.splitString(self.emailString);
         self.emails = self.createUniqueList(self.emails);
-        console.log(self.emails);
 
         var data = {
             'user_id': self.testUserId,
@@ -58,6 +55,22 @@ mt2App.controller( 'BulkSuppressionController' , [ '$log' , 'BulkSuppressionApiS
         return output;
     }
 
+    self.startTransfer = function(file) {
+        // File uploaded to MT2, need to move to MT1bin
+        // and notify when complete
+        self.file = file.relativePath;
+
+        BulkSuppressionApiService.transferFiles(
+            self.fileTransferSuccessCallback,
+            self.fileTransferFailureCallback
+        );
+        
+    }
+
+    self.enableSubmission = function() {
+        self.emailsLoaded = true;
+    }
+
 
     /**
      *  Modals and callbacks
@@ -65,13 +78,27 @@ mt2App.controller( 'BulkSuppressionController' , [ '$log' , 'BulkSuppressionApiS
 
     self.uploadEmailsSuccessCallback = function() {
         self.setModalLabel('Success!');
-        self.setModalBody('Suppression uploaded.');
+        self.setModalBody('Emails suppressed.');
         self.launchModal();
     }
 
-    self.uploadEmailsFailureCallback = function() {
+    self.uploadEmailsFailureCallback = function(message) {
         self.setModalLabel('Error');
-        self.setModalBody('Suppression failed to upload.');
+        self.setModalBody('Suppression failed to upload: ' + message);
+        self.launchModal();
+    }
+
+    self.fileTransferSuccessCallback = function() {
+        self.emailsLoaded = true;
+        self.setModalLabel('Success!');
+        self.setModalBody('File uploaded.');
+        self.launchModal();
+    }
+
+    self.fileTransferFailureCallback = function(files) {
+        var fileString = files['data'].join(', ');
+        self.setModalLabel('Error');
+        self.setModalBody('Suppression of files ' + fileString + ' failed to transfer to server.');
         self.launchModal();
     }
 
