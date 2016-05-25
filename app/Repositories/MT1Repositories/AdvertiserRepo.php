@@ -17,7 +17,7 @@ class AdvertiserRepo {
 
     public function getAll () {
         try {
-            return $this->model::select( 'advertiser_id as id' , 'advertiser_name as name' )
+            return $this->model->select( 'advertiser_id as id' , 'advertiser_name as name' )
                 ->where( [
                     [ 'status' , 'A' ] ,
                     [ 'test_flag' , 'N' ]

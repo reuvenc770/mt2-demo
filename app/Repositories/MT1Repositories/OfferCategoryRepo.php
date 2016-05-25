@@ -17,7 +17,7 @@ class OfferCategoryRepo {
 
     public function getAll () {
         try {
-            return $this->model::select( 'category_id AS id' , 'category_name as name' )
+            return $this->model->select( 'category_id AS id' , 'category_name as name' )
                 ->where( 'status' , 'A' )
                 ->orderBy( 'category_name' )
                 ->get();

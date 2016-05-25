@@ -20,7 +20,7 @@ class DataCleanseRepo {
     }
 
     public function getModel () {
-        return $this->model::select(
+        return $this->model->select(
                 'exportID as id' ,
                 'fileName as name' ,
                 'lastUpdated' ,
