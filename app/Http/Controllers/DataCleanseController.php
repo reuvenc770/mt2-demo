@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Requests\StoreDataCleanseRequest;
-use App\Services\Mt1Services\DataCleanseService;
+use App\Services\MT1Services\DataCleanseService;
 use App\Services\MT1ApiService;
 use Storage;
 use Cache;
