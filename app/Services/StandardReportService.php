@@ -2,13 +2,11 @@
 
 namespace App\Services;
 
-use App\Repositories\StandardApiReportRepo;
-
 
 class StandardReportService {
     protected $repo;
 
-    public function __construct(StandardApiReportRepo $reportRepo){
+    public function __construct($reportRepo){
        $this->repo = $reportRepo;
     }
 
