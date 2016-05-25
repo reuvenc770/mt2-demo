@@ -20,7 +20,6 @@ return[
     'ymlpcampaign.list' => 'YMLP Campaign Mapping',
     'devtools.jobs' => 'Job Tracker',
     'tools.bulksuppression' => 'Bulk Suppression' ,
-    'client.attribution' => 'Attribution'
     'client.attribution' => 'Attribution' ,
     'datacleanse.list' => 'Data Cleanse' ,
     'datacleanse.add' => 'Add Data Cleanse'
