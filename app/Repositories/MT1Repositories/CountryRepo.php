@@ -5,13 +5,10 @@
 
 namespace App\Repositories\MT1Repositories;
 
-use App\Models\ModelTraits\ModelCacheControl;
 use App\Models\MT1Models\Country;
 use Log;
 
 class CountryRepo {
-    use ModelCacheControl;
-
     protected $model;
 
     public function __construct ( Country $model ) {

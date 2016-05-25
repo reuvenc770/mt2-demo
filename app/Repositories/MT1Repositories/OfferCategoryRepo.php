@@ -5,13 +5,10 @@
 
 namespace App\Repositories\MT1Repositories;
 
-use App\Models\ModelTraits\ModelCacheControl;
 use App\Models\MT1Models\CategoryInfo;
 use Log;
 
 class OfferCategoryRepo {
-    use ModelCacheControl;
-
     protected $model;
 
     public function __construct ( CategoryInfo $model ) {
