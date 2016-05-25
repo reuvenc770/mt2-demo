@@ -29,26 +29,28 @@
     <span class="help-block" ng-bind="role.formErrors.permissions" ng-show="role.formErrors.permissions"></span>
 </div>
 
-<md-content layout-wrap layout-padding layout-align="space-around" layout-xs="column" layout="row">
-    <div layout-margin md-whiteframe="4" class="no-padding" ng-repeat="( groupName , permissionGroup ) in role.permissions.routes">
-        <md-toolbar layout="row" layout-fill class="md-hue-2" layout-align="center center">
+<div class="clearfix"></div>
+
+<div layout-xs="column" layout="row" layout-wrap flex>
+    <md-card ng-repeat="( groupName , permissionGroup ) in role.permissions.routes">
+        <md-toolbar class="md-hue-2">
             <div class="md-toolbar-tools">
-                <span>Routes::@{{ groupName }}</span>
+                <h4>Routes::@{{ groupName }}</h4>
+
+                <span flex></span>
+
+                <md-button class="md-icon-button" aria-label="Select All" ng-click="role.selectPermissions( permissionGroup )">
+                    <md-icon md-svg-icon="img/icons/ic_select_all_white_24px.svg"></md-icon>
+                </md-button>
+
+                <md-button class="md-icon-button"  aria-label="Clear All" ng-click="role.unselectPermissions( permissionGroup )">
+                    <md-icon md-svg-icon="img/icons/ic_clear_white_24px.svg"></md-icon>
+                </md-button>
             </div>
-
-            <span flex></span>
-
-            <md-button class="md-icon-button" aria-label="Select All" ng-click="role.selectPermissions( permissionGroup )">
-                <md-icon md-svg-icon="img/icons/ic_select_all_white_24px.svg"></md-icon>
-            </md-button>
-
-            <md-button class="md-icon-button"  aria-label="Clear All" ng-click="role.unselectPermissions( permissionGroup )">
-                <md-icon md-svg-icon="img/icons/ic_clear_white_24px.svg"></md-icon>
-            </md-button>
         </md-toolbar>
 
-        <div layout="row">
-            <md-list class="md-dense" layout-fill>
+        <md-content>
+            <md-list class="md-dense">
                 <md-list-item ng-repeat="permissionName in permissionGroup">
                     <div layout="row">
                         <div layout="column">
@@ -63,28 +65,28 @@
                     <md-divider ng-if="!$last"></md-divider>
                 </md-list-item>
             </md-list>
-        </div>
-    </div>
+        </md-content>
+    </md-card>
 
-    <div layout-margin md-whiteframe="4" class="no-padding" ng-repeat="( groupName , permissionGroup ) in role.permissions.api">
-        <md-toolbar layout="row" layout-fill class="md-accent" layout-align="center center">
+    <md-card ng-repeat="( groupName , permissionGroup ) in role.permissions.api">
+        <md-toolbar class="md-accent">
             <div class="md-toolbar-tools">
-                <span>API::@{{ groupName }}</span>
+                <h4>API::@{{ groupName }}</h4>
+
+                <span flex></span>
+
+                <md-button class="md-icon-button"  aria-label="Select All" ng-click="role.selectPermissions( permissionGroup )">
+                    <md-icon md-svg-icon="img/icons/ic_select_all_white_24px.svg"></md-icon>
+                </md-button>
+
+                <md-button class="md-icon-button"  aria-label="Clear All" ng-click="role.unselectPermissions( permissionGroup )">
+                    <md-icon md-svg-icon="img/icons/ic_clear_white_24px.svg"></md-icon>
+                </md-button>
             </div>
-
-            <span flex></span>
-
-            <md-button class="md-icon-button"  aria-label="Select All" ng-click="role.selectPermissions( permissionGroup )">
-                <md-icon md-svg-icon="img/icons/ic_select_all_white_24px.svg"></md-icon>
-            </md-button>
-
-            <md-button class="md-icon-button"  aria-label="Clear All" ng-click="role.unselectPermissions( permissionGroup )">
-                <md-icon md-svg-icon="img/icons/ic_clear_white_24px.svg"></md-icon>
-            </md-button>
         </md-toolbar>
 
-        <div layout="row">
-            <md-list class="md-dense" layout-fill>
+        <md-content>
+            <md-list class="md-dense">
                 <md-list-item ng-repeat="permissionName in permissionGroup">
                     <div layout="row">
                         <div layout="column">
@@ -99,6 +101,6 @@
                     <md-divider ng-if="!$last"></md-divider>
                 </md-list-item>
             </md-list>
-        </div>
-    </div>
-</md-content>
+        </md-content>
+    </md-card>
+</div>
