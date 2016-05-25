@@ -42,15 +42,39 @@ class BulkSuppressionController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Transfer locally-stored suppression uploads to MT1Bin
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-        return response( $this->api->getJSON( self::BULK_SUPPRESSION_API_ENDPOINT,
-         $request->all() ) );
+        $failed = [];
+        $dateFolder = date('Ymd');
+        $path = storage_path() . "/app/files/uploads/bulksuppression/$dateFolder/";
+        $files = scandir($path);
+
+        $user = env('MT1_FILE_UPLOAD_USER', '');
+        $host = env('MT1_FILE_UPLOAD_HOST', '');
+        $pass = env('MT1_FILE_UPLOAD_PASS', '');
+        $port = env('MT1_FILE_UPLOAD_PORT', '');
+        $remoteDir = env('MT1_FILE_UPLOAD_DIRECTORY', '');
+        $conn = ssh2_connect($host, $port);
+        ssh2_auth_password($conn, $user, $pass);
+
+        foreach ($files as $file) {
+            if (!preg_match('/^\./', $file)) {
+                $filename = $path . $file;
+                $fs[]= $filename;
+                $result = \ssh2_scp_send($conn, $filename, $remoteDir . $file); // returns a bool
+                if (!$result) {
+                    $failed[]= $file;
+                }
+            }
+
+        }
+
+        return $failed;
     }
 
     /**
@@ -82,9 +106,10 @@ class BulkSuppressionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
+        return response( $this->api->getJSON( self::BULK_SUPPRESSION_API_ENDPOINT,
+         $request->all() ) );
     }
 
     /**
