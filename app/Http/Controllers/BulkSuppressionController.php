@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use Laracasts\Flash\Flash;
 use App\Http\Controllers\Controller;
-use App\Services\Mt1ApiService;
+use App\Services\MT1ApiService;
 
 class BulkSuppressionController extends Controller
 {
