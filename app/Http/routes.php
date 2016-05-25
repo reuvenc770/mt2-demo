@@ -451,6 +451,12 @@ Route::group(
                 Route::post('/send', [
                     'as' => 'bulksuppression.update',
                     'middleware' => 'auth',
+                    'uses' => 'BulkSuppressionController@update'
+                ]);
+
+                Route::post('/transfer', [
+                    'as' => 'bulksuppression.transfer',
+                    'middleware' => 'auth',
                     'uses' => 'BulkSuppressionController@store'
                 ]);
             }
