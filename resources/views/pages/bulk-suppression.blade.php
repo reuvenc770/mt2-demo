@@ -13,7 +13,7 @@
 
         <div class="col-xs-12 col-md-6">
             <button type="button" class="btn btn-success btn-md pull-right" 
-                ng-class="{ 'disabled' : supp.emailsLoaded }" 
+                ng-disabled="!supp.emailsLoaded"
                 ng-click="supp.uploadSuppressions()">
                     <span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : supp.emailsLoaded }"></span>
                     Suppress
@@ -30,7 +30,7 @@
                     <md-content flex>
                         <md-input-container class="md-block" ng-cloak>
                             <label>Emails</label>
-                            <textarea ng-model="supp.emailString" rows="5" md-select-on-focus></textarea>
+                            <textarea ng-model="supp.emailString" rows="5" md-select-on-focus ng-change="supp.enableSubmission()"></textarea>
                         </md-input-container>
 
 
@@ -49,7 +49,9 @@
                             </md-select>
                         </md-input-container>
 
-                        <div flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'bulksuppression' , '_token' : '{{ csrf_token() }}' } }" flow-files-submitted="$flow.upload()">
+                        <div flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'bulksuppression' , '_token' : '{{ csrf_token() }}' } }" 
+                             flow-files-submitted="$flow.upload()" 
+                             flow-file-success="supp.startTransfer($file)">
                             <div flow-drop class="dropFile" flow-drag-enter="style={border:'4px solid green'}" flow-drag-leave="style={}" ng-style="style">
                                 <span class="btn btn-default" flow-btn>
                                     Upload Suppression Files
@@ -98,7 +100,9 @@
                                         <td>
                                             <md-progress-linear class="md-warn" md-mode="determinate" ng-value="file.progress() * 100"></md-progress-linear>
                                         </td>
-                                        <td class="text-center" ng-class="{ 'bg-info' : file.isUploading() , 'bg-warning' : file.paused , 'bg-danger' : file.error , 'bg-success' : !file.error }"><strong>@{{ file.isUploading() ? 'Downloading' : ( file.paused ? 'Paused': ( file.error ? 'Failed' : 'Successful' ) ) }}</strong></td>
+                                        <td class="text-center" ng-class="{ 'bg-info' : file.isUploading() , 'bg-warning' : file.paused , 'bg-danger' : file.error , 'bg-success' : !file.error }">
+                                            <strong>@{{ file.isUploading() ? 'Downloading' : ( file.paused ? 'Paused': ( file.error ? 'Failed' : 'Successful' ) ) }}</strong>
+                                        </td>
                                         <td>
                                             <div class="btn-group">
                                                 <a class="btn btn-mini btn-warning" ng-click="file.pause()" ng-hide="file.paused">
@@ -127,7 +131,7 @@
             </div>
 
             <button type="button" class="btn btn-success btn-md pull-right" 
-            ng-class="{ 'disabled' : !supp.emailsLoaded }" 
+            ng-disabled="!supp.emailsLoaded"
             ng-click="supp.uploadSuppressions()">
                 <span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : supp.emailsLoaded }"></span>
                 Suppress
