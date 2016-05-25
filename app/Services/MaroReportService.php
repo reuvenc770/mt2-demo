@@ -9,6 +9,7 @@ namespace App\Services;
 use App\Facades\DeployActionEntry;
 use App\Repositories\ReportRepo;
 use App\Services\API\MaroApi;
+use App\Services\AbstractReportService;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use App\Services\Interfaces\IDataService;
@@ -90,6 +91,7 @@ class MaroReportService extends AbstractReportService implements IDataService
     public function savePage(&$processState, $map)
     {
         $type = "";
+        $internalIds = array();
         try {
             switch ($processState['recordType']) {
                 case 'opens' :
@@ -103,7 +105,7 @@ class MaroReportService extends AbstractReportService implements IDataService
                             $opener['campaign_id'],
                             $opener['recorded_at']
                         );
-
+                    $internalIds[] = $opener['campaign_id'];
                     }
                     $type = "open";
                     break;
@@ -119,8 +121,9 @@ class MaroReportService extends AbstractReportService implements IDataService
                             $clicker['campaign_id'],
                             $clicker['recorded_at']
                         );
-
+                        $internalIds[] = $clicker['campaign_id'];
                     }
+
                     $type = "click";
                     break;
 
@@ -133,7 +136,9 @@ class MaroReportService extends AbstractReportService implements IDataService
                             "",
                             $unsub['recorded_on']
                         );
+                        $internalIds[] = $unsub['campaign_id'];
                     }
+
                     $type = "optout";
                     break;
 
@@ -146,7 +151,7 @@ class MaroReportService extends AbstractReportService implements IDataService
                             $bounce['diagnostic'],
                             $bounce['recorded_on']
                         );
-
+                        $internalIds[] = $bounce['campaign_id'];
                     }
                     $type = "bounce";
                     break;
@@ -162,6 +167,7 @@ class MaroReportService extends AbstractReportService implements IDataService
                             $complainer['campaign_id'],
                             $complainer['recorded_on']
                         );
+                        $internalIds[] = $complainer['campaign_id'];
                     }
                     $type = "complaint";
                     break;
@@ -177,18 +183,19 @@ class MaroReportService extends AbstractReportService implements IDataService
                             $delivered['campaign_id'],
                             Carbon::parse($delivered['created_at'])
                         );
-                        $type = "deliverable";
+                        $internalIds[] = $delivered['campaign_id'];
                     }
+                    $type = "deliverable";
                     break;
             }
         } catch (\Exception $e) {
-            DeployActionEntry::recordFailedRun($this->api->getEspAccountId(), $processState['campaign']->esp_internal_id, $type);
+            DeployActionEntry::recordFailedRunArray($this->api->getEspAccountId(), array_unique($internalIds), $type);
             $jobException = new JobException('Failed to retrieve records. ' . $e->getMessage(), JobException::NOTICE);
             $jobException->setDelay(180);
             throw $jobException;
         }
         $this->emailRecord->massRecordDeliverables();
-        DeployActionEntry::recordSuccessRun($this->api->getEspAccountId(), $processState['campaign']->esp_internal_id, $type);
+        DeployActionEntry::recordSuccessRunArray($this->api->getEspAccountId(), array_unique($internalIds), $type);
     }
 
 
