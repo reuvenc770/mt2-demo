@@ -27,5 +27,5 @@
 @stop
 
 @section( 'pageIncludes' )
-<script src="js/dataCleanse.js"></script>
+<script src="js/datacleanse.js"></script>
 @stop
