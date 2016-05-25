@@ -120,6 +120,11 @@ Route::group(
             'as' => 'tools.recordlookup' ,
             'uses' => 'ShowInfoController@index'
         ] );
+        Route::get( '/bulk-suppression' , [
+            'as' => 'tools.bulksuppression' ,
+            'uses' => 'BulkSuppressionController@index'
+        ] );
+
     }
 );
 
@@ -461,6 +466,29 @@ Route::group(
             }
         );
 
+
+        /**
+         *  Bulk Suppression API Routes
+         */
+
+        Route::group(
+            ['prefix' => 'bulksuppression'],
+            function() {
+
+                Route::post('/send', [
+                    'as' => 'bulksuppression.update',
+                    'middleware' => 'auth',
+                    'uses' => 'BulkSuppressionController@update'
+                ]);
+
+                Route::post('/transfer', [
+                    'as' => 'bulksuppression.transfer',
+                    'middleware' => 'auth',
+                    'uses' => 'BulkSuppressionController@store'
+                ]);
+            }
+        );
+
         /**
          * API Resources
          */
@@ -513,6 +541,25 @@ Route::group(
         );
 
         Route::resource(
+            'attribution' ,
+            'AttributionController' ,
+            [ 'only' => [ 'store'] ]
+        );
+
+        Route::resource(
+            'bulksuppression' ,
+            'BulkSuppressionController' ,
+            [ 'only' => [ 'store' ] ]
+        );
+
+        Route::post(
+            'attribution/bulk' ,
+            [
+                'as' => 'api.attribution.bulk' ,
+                'uses' => 'AttributionController@bulk'
+            ]
+	);
+	Route::resource(
             'dataexport', 
             'DataExportController', 
             [
@@ -559,6 +606,7 @@ Route::group(
                 [ 'only' => [ 'index' ] ]
             );
         } );
+
     }
 );
 
