@@ -1,23 +1,27 @@
 @inject( 'menu' , 'App\Services\NavigationService' )
 
-<nav id="adminNav" class="navmenu navmenu-default navmenu-fixed-left offcanvas" role="navigation">
-    <ul class="nav navmenu-nav">
+<nav id="adminNav" class="navmenu navmenu-default navmenu-fixed-left offcanvas" role="navigation" ng-controller="HelperController as helper">
+    <md-list>
     @foreach ( $menu->getMenu() as $current )
-        <li ng-class="{ active : {{ $current[ 'active' ] }} }">
-            <a href="{{ $current[ 'uri' ] }}" target="_self">{{ $current[ 'name' ] }}</a>
-            @if(isset($current['children']))
-                <ul class="">
-                @foreach ( $current['children'] as $current )
-                   <li> <a href="{{ $current[ 'uri' ] }}" target="_self">{{ $current[ 'name' ] }}</a> </li>
-                @endforeach
-                    </ul>
-            @endif
-        </li>
+        <md-list-item ng-click="helper.redirect( '{{ '/' . $current[ 'uri' ] }}' )">
+            <p><strong>{{ $current[ 'name' ] }}</strong></p>
+        </md-list-item>
+
+        @if(isset($current['children']))
+            @foreach ( $current['children'] as $currentChild )
+            <md-list-item ng-click="helper.redirect( '{{ '/' . $currentChild[ 'uri' ] }}' )">
+                <p class="childMenu">{{ $currentChild[ 'name' ] }}</p>
+            </md-list-item>
+            @endforeach
+        @endif
     @endforeach
         @if(Sentinel::check())
-            <li><a href="{{route("logout")}}" target="_self">Log Out</a></li>
+            <md-list-item ng-click="helper.redirect( '{{'/' . route('logout')}}' )">
+                <p>Log Out</p>
+            </md-list-item>
         @else
-            <li><a href="{{route("login")}}" target="_self">Log In</a></li>
+            <md-list-item ng-click="helper.redirect( '{{'/' . route('login')}}' )">
+            </md-list-item>
         @endif
-    </ul>
+    </md-list>
 </nav>
