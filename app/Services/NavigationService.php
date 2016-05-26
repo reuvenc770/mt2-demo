@@ -39,6 +39,10 @@ class NavigationService {
         }
     } 
 
+    public function getMenuIcon ( $route ) {
+        return config( 'menuicons.' . $route , '' );
+    } 
+
     protected function loadMenu () {
         $this->loadRoutes();
 
