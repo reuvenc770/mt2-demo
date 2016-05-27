@@ -15,6 +15,7 @@ use App\Models\EspAccount;
 use App\Models\EmailAction;
 use App\Models\Email;
 use App\Models\OrphanEmail;
+use App\Facades\Suppression;
 use Maknz\Slack\Facades\Slack;
 use Log;
 
@@ -173,6 +174,12 @@ class SendSprintUnsubs extends Job implements ShouldQueue
                     foreach ( $orphans as $currentOrphan ) {
                         $this->appendEmailToFile( $currentOrphan->email_address , $currentOrphan->datetime );
                     }
+
+                    $suppressionUnsubs = Suppression::getUnsubsByDateEsp( $espDetails[ 'accountId' ] , $this->startOfDay , true );
+
+                    foreach ( $suppressionUnsubs as $currentSupp ) {
+                        $this->appendEmailToFile( $currentSupp->email_address , $this->startOfDay );
+                    }
                 }
 
                 $this->filesProcessed++;
@@ -193,7 +200,7 @@ class SendSprintUnsubs extends Job implements ShouldQueue
             Storage::put( self::DNE_FOLDER . $this->dneCountFileName , $this->unsubCount );
             Storage::append( self::DNE_FOLDER . $this->dneCountFileName , PHP_EOL );
 
-            Storage::disk( 'sprintUnsubFTP' )->put( $this->dneFileName , Storage::get( self::DNE_FOLDER . $this->dneFileName ) );
+            if ( $this->unsubCount > 0 ) { Storage::disk( 'sprintUnsubFTP' )->put( $this->dneFileName , Storage::get( self::DNE_FOLDER . $this->dneFileName ) ); }
             Storage::disk( 'sprintUnsubFTP' )->put( $this->dneCountFileName , Storage::get( self::DNE_FOLDER . $this->dneCountFileName ) );
 
             return true;
