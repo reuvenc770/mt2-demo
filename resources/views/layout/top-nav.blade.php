@@ -1,33 +1,23 @@
 @inject( 'menu' , 'App\Services\NavigationService' )
 
-<nav id="adminNav" class="navmenu navmenu-default navmenu-fixed-left offcanvas" role="navigation" ng-controller="HelperController as helper">
-    <md-list>
+<nav id="adminNav" class="navmenu navmenu-default navmenu-fixed-left offcanvas" role="navigation">
+    <ul class="nav navmenu-nav">
     @foreach ( $menu->getMenu() as $current )
-        <md-list-item ng-click="helper.redirect( '{{ '/' . $current[ 'uri' ] }}' )" layout-align="start center">
-            <h4>{{ $current[ 'name' ] }}</h4>
-            <span flex></span>
-            <md-icon md-svg-icon="{{ $menu->getMenuIcon( $current[ 'uri' ] ) }}"></md-icon>
-        </md-list-item>
-
-        @if(isset($current['children']))
-            @foreach ( $current['children'] as $currentChild )
-            <md-list-item ng-click="helper.redirect( '{{ '/' . $currentChild[ 'uri' ] }}' )">
-                <h5 class="childMenu"><em>{{ $currentChild[ 'name' ] }}</em></h5>
-                <span flex></span>
-            </md-list-item>
-            @endforeach
-        @endif
+        <li ng-class="{ active : {{ $current[ 'active' ] }} }">
+            <a href="{{ $current[ 'uri' ] }}" target="_self">{{ $current[ 'name' ] }}</a>
+            @if(isset($current['children']))
+                <ul class="">
+                @foreach ( $current['children'] as $current )
+                   <li> <a href="{{ $current[ 'uri' ] }}" target="_self">{{ $current[ 'name' ] }}</a> </li>
+                @endforeach
+                    </ul>
+            @endif
+        </li>
     @endforeach
         @if(Sentinel::check())
-            <md-list-item ng-click="helper.redirect( '{{'/' . route('logout')}}' )">
-                <h4>Log Out</h4>
-                <span flex></span>
-            </md-list-item>
+            <li><a href="{{route("logout")}}" target="_self">Log Out</a></li>
         @else
-            <md-list-item ng-click="helper.redirect( '{{'/' . route('login')}}' )">
-                <span flex></span>
-                <h4>Log In</h4>
-            </md-list-item>
+            <li><a href="{{route("login")}}" target="_self">Log In</a></li>
         @endif
-    </md-list>
+    </ul>
 </nav>
