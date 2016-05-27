@@ -189,7 +189,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $campaigns = DB::connection( 'reporting_data' )
             ->table( 'standard_reports_rerun' ) 
             ->where( 'esp_account_id' , $this->espAccountId )
-            ->orderBy( 'esp_account_id' )->get();
+            ->orderBy( 'esp_account_id' );
 
         $this->processState[ 'currentFilterIndex' ]++;
 
