@@ -3,8 +3,14 @@
  */
 var mt2App = angular.module( 'mt2App' , [ 'ngMaterial' , 'ngMessages' , 'ui.select' , 'flow' , 'ngclipboard' ] );
 
-mt2App.config( function ( $locationProvider ) {
+mt2App.config( function ( $locationProvider , $mdThemingProvider ) {
     $locationProvider.html5Mode( true );
+
+    $mdThemingProvider.theme( 'mt2-zeta' , 'light' )
+        .primaryPalette( 'indigo' )
+        .accentPalette( 'deep-purple' )
+        .warnPalette( 'deep-orange' )
+        .backgroundPalette( 'grey' );
 } );
 
 mt2App.filter( 'bytes' , function() {

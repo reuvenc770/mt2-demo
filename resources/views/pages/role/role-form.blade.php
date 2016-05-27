@@ -33,7 +33,7 @@
 
 <div layout-xs="column" layout="row" layout-wrap flex>
     <md-card ng-repeat="( groupName , permissionGroup ) in role.permissions.routes">
-        <md-toolbar class="md-hue-2">
+        <md-toolbar>
             <div class="md-toolbar-tools">
                 <h4>Routes::@{{ groupName }}</h4>
 
@@ -50,11 +50,11 @@
         </md-toolbar>
 
         <md-content>
-            <md-list class="md-dense">
+            <md-list class="md-dense md-hue-2">
                 <md-list-item ng-repeat="permissionName in permissionGroup">
                     <div layout="row">
                         <div layout="column">
-                            <md-checkbox ng-model="selectedPermissions[ permissionName ]" aria-label="@{{ permissionName }}"></md-checkbox>
+                            <md-checkbox class="md-accent md-hue-2" ng-model="selectedPermissions[ permissionName ]" aria-label="@{{ permissionName }}"></md-checkbox>
                         </div>
 
                         <div layout="column">
@@ -69,7 +69,7 @@
     </md-card>
 
     <md-card ng-repeat="( groupName , permissionGroup ) in role.permissions.api">
-        <md-toolbar class="md-accent">
+        <md-toolbar>
             <div class="md-toolbar-tools">
                 <h4>API::@{{ groupName }}</h4>
 
