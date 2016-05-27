@@ -4,8 +4,6 @@
     <md-list>
     @foreach ( $menu->getMenu() as $current )
         <md-list-item ng-click="helper.redirect( '{{ '/' . $current[ 'uri' ] }}' )" layout-align="start center">
-
-
             <h4>{{ $current[ 'name' ] }}</h4>
             <span flex></span>
             <md-icon md-svg-icon="{{ $menu->getMenuIcon( $current[ 'uri' ] ) }}"></md-icon>
@@ -14,7 +12,6 @@
         @if(isset($current['children']))
             @foreach ( $current['children'] as $currentChild )
             <md-list-item ng-click="helper.redirect( '{{ '/' . $currentChild[ 'uri' ] }}' )">
-
                 <h5 class="childMenu"><em>{{ $currentChild[ 'name' ] }}</em></h5>
                 <span flex></span>
             </md-list-item>
