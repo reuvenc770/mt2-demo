@@ -13,6 +13,7 @@ use App\Models\JobEntry;
 use App\Repositories\JobEntryRepo;
 use Carbon\Carbon;
 use Maknz\Slack\Facades\Slack;
+use App\Exceptions\JobCompletedException;
 
 class JobEntryService
 {
@@ -43,6 +44,7 @@ class JobEntryService
         else {
             $espJob->status = JobEntry::SUCCESS;
             $espJob->save();
+            throw new JobCompletedException("Job $jobName already completed");
         }
 
     }
