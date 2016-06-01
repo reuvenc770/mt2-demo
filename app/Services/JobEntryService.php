@@ -40,6 +40,10 @@ class JobEntryService
             $espJob->status = JobEntry::ONQUEUE;
             $espJob->save();
         }
+        else {
+            $espJob->status = JobEntry::SUCCESS;
+            $espJob->save();
+        }
 
     }
 
