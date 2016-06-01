@@ -17,7 +17,7 @@ class SuppressionService
 {
     protected $repo;
 
-    public function __construct(SuppressionRepo $repo)
+    public function __construct(SuppressionRepo $repo )
     {
         $this->repo = $repo;
     }
@@ -25,13 +25,13 @@ class SuppressionService
 
 
     //reason will have an lookup table once i know the options.
-    public function recordRawHardBounce($espId,$email,$campaignId,$reason, $date){
+    public function recordRawHardBounce($espId,$email,$esp_internal_id,$reason, $date){
         $rawRecord = array(
             "esp_account_id" => $espId,
             "email_address"  => $email,
-            "campaign_id"    => $campaignId,
+            "esp_internal_id"    => $esp_internal_id,
             "date"       => $date,
-            "reason"        => $reason //Will be INT once we see whats returned
+            "reason_id"        => $this->getReasonCode($espId, Suppression::TYPE_HARD_BOUNCE)
         );
         try{
             $this->repo->insertHardBounce($rawRecord);
@@ -41,13 +41,13 @@ class SuppressionService
         }
     }
 
-    public function recordRawComplaint($espId,$email,$campaignId,$reason, $date){
+    public function recordRawComplaint($espId,$email,$esp_internal_id,$reason, $date){
         $rawRecord = array(
             "esp_account_id" => $espId,
             "email_address"  => $email,
-            "campaign_id"    => $campaignId,
+            "esp_internal_id"=> $esp_internal_id,
             "date"       => $date,
-            "reason"        => $reason //Will be INT once we see whats returned
+            "reason_id"        => $this->getReasonCode($espId, Suppression::TYPE_COMPLAINT)
         );
         try{
             $this->repo->insertComplaint($rawRecord);
@@ -57,13 +57,13 @@ class SuppressionService
         }
     }
 
-    public function recordRawUnsub($espId,$email,$campaignId,$reason, $date){
+    public function recordRawUnsub($espId,$email,$esp_internal_id,$reason, $date){
         $rawRecord = array(
             "esp_account_id" => $espId,
             "email_address"  => $email,
-            "campaign_id"    => $campaignId,
+            "esp_internal_id"    => $esp_internal_id,
             "date"       => $date,
-            "reason"        => $reason //Will be INT once we see whats returned
+            "reason_id"        => $this->getReasonCode($espId, Suppression::TYPE_UNSUB)
         );
         try{
             $this->repo->insertUnsub($rawRecord);
@@ -93,5 +93,10 @@ class SuppressionService
             throw new \Exception($e);
         }
 
+    }
+
+    public function getReasonCode($esp_account_id, $type_id){
+        $reason = $this->repo->getReasonByAccountType($esp_account_id,$type_id);
+        return $reason->id;
     }
 }

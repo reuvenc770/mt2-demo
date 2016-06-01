@@ -10,4 +10,11 @@ class Suppression extends Model
     CONST TYPE_HARD_BOUNCE = 2;
     CONST TYPE_COMPLAINT = 3;
     protected $guarded = ['id'];
+
+    public function espAccount() {
+        return $this->hasOne('App\Model\EspAccount');
+    }
+    public function suppressionReason(){
+        return $this->hasOne('App\Model\SuppressionReason');
+    }
 }

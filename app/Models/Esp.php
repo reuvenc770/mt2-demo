@@ -20,4 +20,8 @@ class Esp extends Model
     public function deliverableCsvMapping() {
         return $this->hasOne('App\Models\DeliverableCsvMapping');
     }
+
+    public function suppressionReasons(){
+        return $this->hasMany('App\Models\SuppressionReason');
+    }
 }
