@@ -59,6 +59,8 @@ class JobEntryService
         }
         else if (null !== $job->time_finished) {
             $job->status = JobEntry::SUCCESS;
+            $job->save();
+            throw new JobCompletedException("Job $jobName already completed");
         }
         else if($state == JobEntry::RUNNING){
             $job->time_started = Carbon::now();
