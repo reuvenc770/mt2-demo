@@ -13,7 +13,6 @@ use App\Models\JobEntry;
 use App\Repositories\JobEntryRepo;
 use Carbon\Carbon;
 use Maknz\Slack\Facades\Slack;
-use App\Facades\JobTracking;
 
 class JobEntryService
 {
