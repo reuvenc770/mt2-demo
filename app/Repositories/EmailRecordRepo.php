@@ -86,22 +86,12 @@ class EmailRecordRepo {
 
             foreach ( $chunkedRecords as $chunkIndex => $chunk ) {
                 DB::connection( 'reporting_data' )->statement("
-                    INSERT INTO email_actions
+                    INSERT INTO raw_email_deploy_actions
                         ( email_id , client_id , esp_account_id , deploy_id, 
                         esp_internal_id , action_id , datetime , created_at , 
                         updated_at )    
                     VALUES
-                        " . join( ' , ' , $chunk ) . "
-                    ON DUPLICATE KEY UPDATE
-                        email_id = email_id ,
-                        client_id = client_id ,
-                        esp_account_id = esp_account_id ,
-                        deploy_id = deploy_id,
-                        esp_internal_id = esp_internal_id ,
-                        action_id = action_id ,
-                        datetime = datetime ,
-                        created_at = created_at ,
-                        updated_at = NOW()"
+                        " . join( ' , ' , $chunk )
                     );
             }
         }
@@ -138,20 +128,10 @@ class EmailRecordRepo {
 
         if ( $this->isValidRecord() ) {
             DB::connection( 'reporting_data' )->statement("
-                INSERT INTO email_actions
+                INSERT INTO raw_email_deploy_actions
                     ( email_id , client_id , deploy_id, esp_account_id , esp_internal_id , action_id , datetime , created_at , updated_at )    
                 VALUES
-                    ( ? , ? , ? , ? , ? , ? , ? , NOW() , NOW() )
-                ON DUPLICATE KEY UPDATE
-                    email_id = email_id ,
-                    client_id = client_id ,
-                    deploy_id = deploy_id,
-                    esp_account_id = esp_account_id ,
-                    esp_internal_id = esp_internal_id ,
-                    action_id = action_id ,
-                    datetime = datetime ,
-                    created_at = created_at ,
-                    updated_at = NOW()" ,
+                    ( ? , ? , ? , ? , ? , ? , ? , NOW() , NOW() )" ,
                 [
                     $this->getEmailId() ,
                     $this->getClientId() ,
