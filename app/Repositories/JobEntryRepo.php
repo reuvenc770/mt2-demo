@@ -76,4 +76,16 @@ class JobEntryRepo
             ->count() > 0;
     }
 
+    public function isComplete($tracking) {
+        // A job is complete if time_finished is not null
+        // Get entry (by tracking) where the time_finished is not null
+        // If such a row exists, it is complete.
+        
+        $result = $this->entry
+            ->where('tracking', $tracking)
+            ->whereNotNull('time_finished');
+
+        return !$result->isEmpty();
+    }
+
 }

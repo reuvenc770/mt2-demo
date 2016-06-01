@@ -83,11 +83,15 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
      * @return void
      */
     public function handle () {
-        $this->startJobEntry();
-        $filterName = $this->currentFilter();
-
+        
         try {
+            $this->startJobEntry();
+            $filterName = $this->currentFilter();
             $this->$filterName();
+        } catch (JobCompletedException $e) {
+            // killing an attempt at a rerun
+            Log::notice($e->getMessage());
+            exit;
         } catch ( JobException $e ) {
             $this->logJobException( $e );
 
