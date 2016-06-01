@@ -13,6 +13,8 @@ use App\Models\JobEntry;
 use App\Repositories\JobEntryRepo;
 use Carbon\Carbon;
 use Maknz\Slack\Facades\Slack;
+use App\Facades\JobTracking;
+
 class JobEntryService
 {
     protected $repo;
@@ -30,11 +32,15 @@ class JobEntryService
     {
         $this->jobName = $jobName;
         $espJob = $this->repo->startEspJobReturnObject($jobName, $espName, $accountName, $tracking);
-        $espJob->time_fired = Carbon::now();
-        $espJob->attempts = 0;
-        $espJob->campaign_id = $campaignId;
-        $espJob->status = JobEntry::ONQUEUE;
-        $espJob->save();
+
+        // start this job only if it hasn't been finished before
+        if (null === $espJob->time_finished) {
+            $espJob->time_fired = Carbon::now();
+            $espJob->attempts = 0;
+            $espJob->campaign_id = $campaignId;
+            $espJob->status = JobEntry::ONQUEUE;
+            $espJob->save();
+        }
 
     }
 
@@ -45,7 +51,11 @@ class JobEntryService
         if($state == JobEntry::SUCCESS) {
             $job->rows_impacted = $total;
             $job->time_finished = Carbon::now();
-        } else if($state == JobEntry::RUNNING){
+        }
+        else if (null !== $job->time_finished) {
+            $job->status = JobEntry::SUCCESS;
+        }
+        else if($state == JobEntry::RUNNING){
             $job->time_started = Carbon::now();
             $job->attempts = $job->attempts + 1;
         }
