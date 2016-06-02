@@ -50,4 +50,8 @@ class SuppressionRepo
 
     }
 
+    public function getReasonList(){
+        return $this->suppressionReason->select('id as value' , 'display_status as name')->displayable()->get();
+    }
+
 }
