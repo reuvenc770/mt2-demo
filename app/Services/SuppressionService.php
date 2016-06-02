@@ -12,7 +12,7 @@ namespace App\Services;
 use App\Models\Suppression;
 use App\Repositories\SuppressionRepo;
 use Log;
-//TODO could refactor, but not sure where suppression is going in terms of direction so leaving it simple
+    //Todo refactor out dead reason variable. 
 class SuppressionService
 {
     protected $repo;
@@ -21,21 +21,21 @@ class SuppressionService
     {
         $this->repo = $repo;
     }
-    
-    public function recordRawHardBounce($espId,$email,$esp_internal_id,$reason, $date){
-        return $this->recordSuppression($espId,$email,$esp_internal_id,$date, Suppression::TYPE_HARD_BOUNCE);
+
+    public function recordRawHardBounce($espId,$email,$espInternalId,$reason, $date){
+        return $this->recordSuppression($espId,$email,$espInternalId, $date, Suppression::TYPE_HARD_BOUNCE);
     }
 
-    public function recordRawComplaint($espId,$email,$esp_internal_id,$reason, $date){
-        return $this->recordSuppression($espId,$email,$esp_internal_id,$date, Suppression::TYPE_COMPLAINT);
+    public function recordRawComplaint($espId,$email,$espInternalId,$reason, $date){
+        return $this->recordSuppression($espId,$email,$espInternalId,$date, Suppression::TYPE_COMPLAINT);
     }
 
-    public function recordRawUnsub($espId,$email,$esp_internal_id,$reason, $date){
-        return $this->recordSuppression($espId,$email,$esp_internal_id,$date, Suppression::TYPE_UNSUB);
+    public function recordRawUnsub($espId, $email, $espInternalId, $reason, $date){
+        return $this->recordSuppression($espId, $email ,$espInternalId, $date, Suppression::TYPE_UNSUB);
     }
 
-    private function recordSuppression($espId,$email,$esp_internal_id,$date, $type){
-        $record = $this->buildRecord($espId,$email,$esp_internal_id,$date, $type);
+    private function recordSuppression($espId, $email, $espInternalId, $date, $type){
+        $record = $this->buildRecord($espId, $email, $espInternalId, $date, $type);
         try{
             $this->repo->insertSuppression($record);
         } catch (\Exception $e) {
@@ -45,11 +45,11 @@ class SuppressionService
         return true;
     }
 
-    private function buildRecord($espId,$email,$esp_internal_id,$date,$type){
+    private function buildRecord($espId, $email, $espInternalId, $date, $type){
         return  array(
             "esp_account_id" => $espId,
             "email_address"  => $email,
-            "esp_internal_id"    => $esp_internal_id,
+            "esp_internal_id"    => $espInternalId,
             "date"       => $date,
             "reason_id"        => $this->getReasonCode($espId, $type)
         );
