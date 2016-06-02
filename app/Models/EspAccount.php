@@ -52,5 +52,10 @@ class EspAccount extends Model
         return $this->attributes['key_2'];
     }
 
+    public function suppressions()
+    {
+        return $this->hasMany('App\Models\Suppression');
+    }
+
 
 }

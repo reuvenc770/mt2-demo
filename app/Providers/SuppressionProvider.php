@@ -9,6 +9,7 @@
 namespace App\Providers;
 
 use App\Models\Suppression;
+use App\Models\SuppressionReason;
 use App\Repositories\SuppressionRepo;
 use App\Services\SuppressionService;
 use Illuminate\Support\ServiceProvider;
@@ -35,7 +36,7 @@ class SuppressionProvider extends ServiceProvider
     {
         $this->app->singleton('Suppression', function()
         {
-            return new SuppressionService(new SuppressionRepo( new Suppression()));
+            return new SuppressionService(new SuppressionRepo( new Suppression() , new SuppressionReason()));
         });
     }
 }

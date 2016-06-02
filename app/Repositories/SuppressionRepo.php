@@ -9,52 +9,45 @@
 namespace App\Repositories;
 
 use App\Models\Suppression;
+use App\Models\SuppressionReason;
 
 class SuppressionRepo
 {
     protected $suppressionModel;
+    protected $suppressionReason;
 
-    public function __construct(Suppression $suppression)
+    public function __construct(Suppression $suppression, SuppressionReason $reason)
     {
         $this->suppressionModel = $suppression;
+        $this->suppressionReason = $reason;
     }
 
-    public function insertHardBounce($arrayData)
-    {
-        $arrayData["type_id"] = Suppression::TYPE_HARD_BOUNCE;
+    public function insertSuppression($arrayData){
         $this->suppressionModel->updateOrCreate(["email_address" => $arrayData['email_address'],
-            "esp_account_id" => $arrayData["esp_account_id"],
-            "campaign_id" => $arrayData['campaign_id']], $arrayData);
+            "reason_id" => $arrayData['reason_id']], $arrayData);
     }
 
-    public function insertUnsub($arrayData){
-        $arrayData["type_id"] = Suppression::TYPE_UNSUB;
-        $this->suppressionModel->updateOrCreate(["email_address" => $arrayData['email_address'],
-            "esp_account_id" => $arrayData["esp_account_id"],
-            "campaign_id" => $arrayData['campaign_id']], $arrayData);
-    }
-
-    public function insertComplaint($arrayData){
-        $arrayData["type_id"] = Suppression::TYPE_COMPLAINT;
-        $this->suppressionModel->updateOrCreate(["email_address" => $arrayData['email_address'],
-            "esp_account_id" => $arrayData["esp_account_id"],
-            "campaign_id" => $arrayData['campaign_id']], $arrayData);
-    }
-
-    public function getRecordsByDateEspType($type_id, $espAccountId, $date){
+    public function getRecordsByDateEspType($typeId, $espAccountId, $date){
        return $this->suppressionModel->select("email_address","reason")
-                                ->where("type_id",$type_id)
+                                ->where("type_id",$typeId)
                                 ->where("esp_account_id",$espAccountId)
                                 ->where("date",$date )
                                 ->get();
     }
 
-    public function getRecordsByDateToCurrentEspType($type_id, $espAccountId, $date){
+    public function getRecordsByDateToCurrentEspType($typeId, $espAccountId, $date){
         return $this->suppressionModel->select("email_address","reason")
-            ->where("type_id",$type_id)
+            ->where("type_id",$typeId)
             ->where("esp_account_id",$espAccountId)
             ->where("date",'>=', $date )
             ->get();
+    }
+
+    public function getReasonByAccountType($espAccountId, $typeId){
+        return $this->suppressionReason->where('suppression_type',$typeId)
+                                ->join('esp_accounts', 'esp_accounts.esp_id', '=','suppression_reasons.esp_id')
+                                ->where('esp_accounts.id',$espAccountId)->first();
+
     }
 
 }
