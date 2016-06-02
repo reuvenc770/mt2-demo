@@ -12,9 +12,15 @@ class Suppression extends Model
     protected $guarded = ['id'];
 
     public function espAccount() {
-        return $this->hasOne('App\Model\EspAccount');
+        return $this->hasOne('App\Models\EspAccount');
     }
     public function suppressionReason(){
-        return $this->hasOne('App\Model\SuppressionReason');
+        return $this->hasOne('App\Models\SuppressionReason');
     }
+
+    public function email(){
+        return $this->belongsTo('App\Models\Email');
+    }
+
+
 }

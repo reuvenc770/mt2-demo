@@ -21,56 +21,38 @@ class SuppressionService
     {
         $this->repo = $repo;
     }
-
-
-
-    //reason will have an lookup table once i know the options.
+    
     public function recordRawHardBounce($espId,$email,$esp_internal_id,$reason, $date){
-        $rawRecord = array(
-            "esp_account_id" => $espId,
-            "email_address"  => $email,
-            "esp_internal_id"    => $esp_internal_id,
-            "date"       => $date,
-            "reason_id"        => $this->getReasonCode($espId, Suppression::TYPE_HARD_BOUNCE)
-        );
-        try{
-            $this->repo->insertHardBounce($rawRecord);
-        } catch (\Exception $e) {
-            Log::error($e->getMessage(). ": while trying to record hard bounce");
-            throw new \Exception($e);
-        }
+        return $this->recordSuppression($espId,$email,$esp_internal_id,$date, Suppression::TYPE_HARD_BOUNCE);
     }
 
     public function recordRawComplaint($espId,$email,$esp_internal_id,$reason, $date){
-        $rawRecord = array(
-            "esp_account_id" => $espId,
-            "email_address"  => $email,
-            "esp_internal_id"=> $esp_internal_id,
-            "date"       => $date,
-            "reason_id"        => $this->getReasonCode($espId, Suppression::TYPE_COMPLAINT)
-        );
-        try{
-            $this->repo->insertComplaint($rawRecord);
-        } catch (\Exception $e) {
-            Log::error($e->getMessage(). ": while trying to record hard bounce");
-            throw new \Exception($e);
-        }
+        return $this->recordSuppression($espId,$email,$esp_internal_id,$date, Suppression::TYPE_COMPLAINT);
     }
 
     public function recordRawUnsub($espId,$email,$esp_internal_id,$reason, $date){
-        $rawRecord = array(
-            "esp_account_id" => $espId,
-            "email_address"  => $email,
-            "esp_internal_id"    => $esp_internal_id,
-            "date"       => $date,
-            "reason_id"        => $this->getReasonCode($espId, Suppression::TYPE_UNSUB)
-        );
+        return $this->recordSuppression($espId,$email,$esp_internal_id,$date, Suppression::TYPE_UNSUB);
+    }
+
+    private function recordSuppression($espId,$email,$esp_internal_id,$date, $type){
+        $record = $this->buildRecord($espId,$email,$esp_internal_id,$date, $type);
         try{
-            $this->repo->insertUnsub($rawRecord);
+            $this->repo->insertSuppression($record);
         } catch (\Exception $e) {
             Log::error($e->getMessage(). ": while trying to record unsub");
             throw new \Exception($e);
         }
+        return true;
+    }
+
+    private function buildRecord($espId,$email,$esp_internal_id,$date,$type){
+        return  array(
+            "esp_account_id" => $espId,
+            "email_address"  => $email,
+            "esp_internal_id"    => $esp_internal_id,
+            "date"       => $date,
+            "reason_id"        => $this->getReasonCode($espId, $type)
+        );
     }
 
     public function getHardBouncesByDateEsp($espAccountId, $date, $useRange = false){

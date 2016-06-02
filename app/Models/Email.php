@@ -25,4 +25,8 @@ class Email extends Model {
     return $this->hasMany('App\Models\EmailCampaignStatistic');
   }
 
+  public function suppressions() {
+    return $this->hasMany('App\Models\Suppression');
+  }
+
 }
