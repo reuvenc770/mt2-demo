@@ -78,6 +78,31 @@ class SuppressionService
 
     }
 
+    public function convertSuppressionReason($response){
+        $mt2Reasons = array();
+        foreach($response->suppression as $suppression){
+            if($suppression->suppressionReasonDetails !== "Suppression via MT2 Import"){
+                $suppression->suppressionReasonDetails = $this->repo->convertReasonFromLegacy($suppression->suppressionReasonDetails);
+            } else {
+                // its a MT2 import lets clear the list
+                $response->suppression = array();
+            }
+            $reasons = $this->repo->getAllSuppressionsForEmail($suppression->email_addr);
+            foreach ($reasons as $reason){
+                $mt2Reasons[] = array(
+                    "email_addr" => $suppression->email_addr,
+                    "suppressionReasonDetails" => $reason->suppressionReason->display_status,
+                    "espAccountName" => $reason->espAccount->account_name,
+                    "campaignName" => $reason->standardReport->campaign_name
+                );
+            }
+
+
+        }
+        $response->suppression = array_merge($response->suppression, $mt2Reasons);
+        return json_encode($response);
+    }
+
     public function getReasonCode($esp_account_id, $type_id){
         $reason = $this->repo->getReasonByAccountType($esp_account_id,$type_id);
         return $reason->id;

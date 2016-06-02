@@ -6,6 +6,7 @@ mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$mdToast' , 
 
     self.recordId = null;
     self.records = {};
+    self.suppression = {};
 
     self.suppressionReasons = [];
     self.selectedReason = '';
@@ -34,6 +35,7 @@ mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$mdToast' , 
         } else {
             $mdToast.showSimple( 'Please correct form errors and try again.' );
         }
+
     }
 
     /**
@@ -55,13 +57,14 @@ mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$mdToast' , 
      */
 
     self.loadDataSuccessCallback = function ( response ) {
-        if ( typeof( response.data[ 0 ].message ) !== 'undefined' ) {
-            $mdToast.showSimple( 'No info for that ID.' );
-        } else {
-            self.records = response.data;
 
-            $mdToast.showSimple( 'Successfully Loaded Record' );
-        }
+            self.records = response.data.data;
+            self.suppression = response.data.suppression;
+            if(response.data.data[0].message !== "Error: no results found"){
+                $mdToast.showSimple( 'Record information loaded' );
+            } else {
+                $mdToast.showSimple( 'Record had no information' );
+            }
 
         self.isLoading = false;
     };
@@ -80,6 +83,10 @@ mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$mdToast' , 
         $mdToast.showSimple( 'Failed to Load Suppression Reasons' );
     };
 
-    self.suppressRecordSuccessCallback = function ( response ) {};
-    self.suppressRecordFailureCallback = function ( response ) {};
+    self.suppressRecordSuccessCallback = function ( response ) {
+        $mdToast.showSimple( response.data.message);
+    };
+    self.suppressRecordFailureCallback = function ( response ) {
+        $mdToast.showSimple( response.data.message);
+    };
 } ] );
