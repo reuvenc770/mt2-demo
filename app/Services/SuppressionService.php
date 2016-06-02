@@ -12,7 +12,7 @@ namespace App\Services;
 use App\Models\Suppression;
 use App\Repositories\SuppressionRepo;
 use Log;
-    //Todo refactor out dead reason variable. 
+    //Todo refactor out dead reason variable.
 class SuppressionService
 {
     protected $repo;
@@ -81,5 +81,9 @@ class SuppressionService
     public function getReasonCode($esp_account_id, $type_id){
         $reason = $this->repo->getReasonByAccountType($esp_account_id,$type_id);
         return $reason->id;
+    }
+
+    public function listAllReasons(){
+        return $this->repo->getReasonList();
     }
 }
