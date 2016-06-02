@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Facades\Suppression;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -67,6 +68,7 @@ class ShowInfoController extends Controller
         );
 
         if ( $apiResponse === false ) $apiResponse = json_encode( [] );
+        $apiResponse = Suppression::convertSuppressionReason(json_decode($apiResponse));
 
         return response( $apiResponse );
     }
