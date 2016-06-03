@@ -44,7 +44,7 @@ class SuppressionRepo
     }
 
     public function getReasonByAccountType($espAccountId, $typeId){
-        return $this->suppressionReason->where('suppression_type',$typeId)
+        return $this->suppressionReason->select('suppression_reasons.id')->where('suppression_type',$typeId)
                                 ->join('esp_accounts', 'esp_accounts.esp_id', '=','suppression_reasons.esp_id')
                                 ->where('esp_accounts.id',$espAccountId)->first();
 
