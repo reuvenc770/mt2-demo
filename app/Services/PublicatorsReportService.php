@@ -79,16 +79,16 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
     public function mapToRawReport ( $data ) {}
 
     public function mapToStandardReport ( $data ) {
-        $deployId = $this->parseSubID( $data[ "ListName"] );
+        $deployId = $this->parseSubID( $data[ "Contact"] );
 
         return [
             "external_deploy_id" => $deployId , 
-            "campaign_name" => $data[ "ListName" ] ,
+            "campaign_name" => $data[ "Contact" ] ,
             "m_deploy_id" => $deployId ,
             "esp_account_id" => $data[ "esp_account_id" ] ,
             "esp_internal_id" => $data[ "internal_id" ] ,
             "datetime" => $data[ "SentDate" ] ,
-            "name" => $data[ "ListName" ] ,
+            "name" => $data[ "Contact" ] ,
             "subject" => $data[ "Subject" ] ,
             "from" => $data[ "FromName" ] ,
             "from_email" => $data[ "FromEmail" ] ,
@@ -205,18 +205,18 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
 
                     // If the tag already exists, get the (already-incremented) second, and increment again
                     if (Cache::tags([$recordType, $deployId])->has($key)) {
-                        $count = Cache::tags([$recordType, $deployId])->get($key);
+                        $timeCount = Cache::tags([$recordType, $deployId])->get($key);
                         Cache::tags([$recordType, $deployId])->increment($key);
                     }
                     else {
                         // Tag does not exist. Create it with an an appropriate for 30 min.
-                        $count = 0;
+                        $timeCount = 0;
                         Cache::tags([$recordType, $deployId])->put($key, 1, 30);
                     }
 
                     // Set up the new timestamp
-                    $padding = $count < 10 ? '0' : '';
-                    $timeStamp = $trimmedTime . ':' . $padding . $count;
+                    $padding = $timeCount < 10 ? '0' : '';
+                    $timeStamp = $trimmedTime . ':' . $padding . $timeCount;
 
                 $this->emailRecord->queueDeliverable(
                     $recordType , 
