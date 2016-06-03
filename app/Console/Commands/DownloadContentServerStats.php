@@ -13,7 +13,7 @@ class DownloadContentServerStats extends Command
      *
      * @var string
      */
-    protected $signature = 'download:mtstats';
+    protected $signature = 'download:mtstats {date?}';
 
     /**
      * The console command description.
@@ -37,7 +37,14 @@ class DownloadContentServerStats extends Command
      * @return mixed
      */
     public function handle() {
-        $job = new ImportContentServerStatsJob(str_random(16));
+        if ($this->argument('date')) {
+            $start = Carbon::parse($this->argument('date'))->format('Y-m-d');
+        }
+        else {
+            $start = Carbon::yesterday()->format('Y-m-d');
+        }
+        
+        $job = new ImportContentServerStatsJob($start, str_random(16));
         $this->dispatch($job);
     }
 }
