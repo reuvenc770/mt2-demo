@@ -51,6 +51,7 @@ class SuppressionService
             "email_address"  => $email,
             "esp_internal_id"    => $espInternalId,
             "date"       => $date,
+            "type_id" => $type,
             "reason_id"        => $this->getReasonCode($espId, $type)
         );
     }
