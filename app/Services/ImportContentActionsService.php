@@ -14,11 +14,11 @@ class ImportContentActionsService {
         $this->repo = $repo;
     }
 
-    public function run() {
+    public function run($startDateTime) {
 
         // set file for download
         $name = 'csactions.csv';
-        $this->api->exportContentServerActions($name);
+        $this->api->exportContentServerActions($name, $startDateTime);
 
         // transfer file to local server
         $this->api->moveFile($name);

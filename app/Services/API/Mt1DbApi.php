@@ -69,7 +69,9 @@ class Mt1DbApi
             ->get();
     }
 
-    public function exportContentServerActions($filename) {
+    public function exportContentServerActions($filename, $startDate) {
+        $startDateTime = $startDate . ' 00:00:00';
+        $endDateTime = $startDate . ' 23:59:59';
         return DB::connection('mt1_data')
             ->statement("SELECT 
                     eua.emailUserId AS email_id,
@@ -83,7 +85,7 @@ class Mt1DbApi
                     INNER JOIN EmailUserActionType euat ON eua.espActionTypeID = euat.emailUserActionTypeID
                     INNER JOIN EspAdvertiserJoin eaj ON eua.subaffiliateID = eaj.subAffiliateID
                 WHERE
-                    espUserActionDateTime BETWEEN CURDATE() - INTERVAL 1 DAY AND CURDATE()
+                    espUserActionDateTime BETWEEN '$startDateTime' AND '$endDateTime'
 
                 INTO OUTFILE '/data/mysql/tmp/$filename'
                 FIELDS TERMINATED BY ','

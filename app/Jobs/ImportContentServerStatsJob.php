@@ -15,13 +15,15 @@ class ImportContentServerStatsJob extends Job implements ShouldQueue
     use InteractsWithQueue, SerializesModels;
     const JOB_NAME = "DownloadContentServerStats";
     private $tracking;
+    private $start;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($tracking) {
+    public function __construct($start, $tracking) {
+        $this->start = $start;
         $this->tracking = $tracking;
         JobTracking::startAggregationJob(self::JOB_NAME, $this->tracking);
     }
@@ -32,10 +34,10 @@ class ImportContentServerStatsJob extends Job implements ShouldQueue
      * @return void
      */
     public function handle() {
-
+        echo "Starting at: {$this->start}" . PHP_EOL;
         JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
         $service = APIFactory::createMt1DataImportService(self::JOB_NAME);
-        $service->run();
+        $service->run($this->start);
 
         JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
     }
