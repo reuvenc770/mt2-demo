@@ -34,7 +34,6 @@ class ImportContentServerStatsJob extends Job implements ShouldQueue
      * @return void
      */
     public function handle() {
-        echo "Starting at: {$this->start}" . PHP_EOL;
         JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
         $service = APIFactory::createMt1DataImportService(self::JOB_NAME);
         $service->run($this->start);
