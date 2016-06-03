@@ -34,7 +34,7 @@ class JobEntryService
         $espJob = $this->repo->startEspJobReturnObject($jobName, $espName, $accountName, $tracking);
 
         // start this job only if it hasn't been finished before
-        if (null === $espJob->time_finished) {
+        if (null === $espJob->time_finished || '0000-00-00 00:00:00' === $espJob->time_finished) {
             $espJob->time_fired = Carbon::now();
             $espJob->attempts = 0;
             $espJob->campaign_id = $campaignId;
@@ -57,7 +57,7 @@ class JobEntryService
             $job->rows_impacted = $total;
             $job->time_finished = Carbon::now();
         }
-        else if (null !== $job->time_finished) {
+        else if (null !== $job->time_finished && '0000-00-00 00:00:00' !== $job->time_finished) {
             $job->status = JobEntry::SUCCESS;
             $job->save();
             throw new JobCompletedException("Job {$job->job_name} already completed at {$job->time_finished}. Attempted rerun at " . Carbon::now());
