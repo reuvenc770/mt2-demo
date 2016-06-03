@@ -60,4 +60,8 @@ class SuppressionRepo
         return $this->suppressionReason->select('display_status as name')->where('legacy_status',$reason)->first()->name;
     }
 
+    public function getReasonById($reason){
+        return $this->suppressionReason->find($reason);
+    }
+
 }

@@ -20,6 +20,10 @@ class EmailRecordService {
         return $this->repo->getEmailId( $email );
     }
 
+    public function getEmailAddress ( $eid ) {
+        return $this->repo->getEmailAddress( $eid );
+    }
+
     public function recordDeliverable ( $recordType , $email , $espId , $deployId, $espInternalId , $date ) {
         if ( $this->repo->isValidActionType( $recordType ) ) {
             return $this->repo->recordDeliverable( $recordType , $email , $espId , $deployId, $espInternalId , $date );

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Facades\Suppression;
+use App\Services\EmailRecordService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -15,9 +17,11 @@ class ShowInfoController extends Controller
     const SUPPRESSION_ENDPPOINT = '';
 
     protected $api;
+    protected $emailService;
 
-    public function __construct ( MT1ApiService $api ) {
+    public function __construct ( MT1ApiService $api, EmailRecordService $emailRecordService ) {
         $this->api = $api;
+        $this->emailService = $emailRecordService;
     }
 
     /**
@@ -48,6 +52,21 @@ class ShowInfoController extends Controller
      */
     public function store(Request $request)
     {
+        $type = 'email';
+        $records = $request->input('id');
+        if ( preg_match( "/\d{1,}/" , $records ) ) $type = 'eid';
+
+        if($type == "email"){
+            foreach(explode(',',$records) as $record) {
+                Suppression::recordSuppressionByReason($record, Carbon::today()->toDateTimeString(), $request->input('reason'));
+                }
+        }
+        else {
+            foreach(explode(',',$records) as $record) {
+                $email = $this->emailService->getEmailAddress($record);
+                Suppression::recordSuppressionByReason($email, Carbon::today()->toDateTimeString(), $request->input('reason'));
+            }
+        }
         return response( json_encode( [ 'status' => 1 , 'message' => 'Record Suppressed' ] ) );
     }
 
