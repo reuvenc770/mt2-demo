@@ -28,7 +28,7 @@ class SuppressionRepo
     }
 
     public function getRecordsByDateEspType($typeId, $espAccountId, $date){
-       return $this->suppressionModel->select("email_address","reason")
+       return $this->suppressionModel->select("email_address","reason_id")
                                 ->where("type_id",$typeId)
                                 ->where("esp_account_id",$espAccountId)
                                 ->where("date",$date )
@@ -36,7 +36,7 @@ class SuppressionRepo
     }
 
     public function getRecordsByDateToCurrentEspType($typeId, $espAccountId, $date){
-        return $this->suppressionModel->select("email_address","reason")
+        return $this->suppressionModel->select("email_address","reason_id")
             ->where("type_id",$typeId)
             ->where("esp_account_id",$espAccountId)
             ->where("date",'>=', $date )

@@ -517,6 +517,12 @@ Route::group(
         );
 
         Route::resource(
+            'user',
+            'UserApiController',
+            [ 'except' => [ 'create' , 'edit' ] ]
+        );
+        
+        Route::resource(
             'datacleanse' ,
             'DataCleanseController' ,
             [ 'only' => [ 'index' , 'store' ] ]
@@ -582,12 +588,6 @@ Route::group(
                 'as' => 'api.role.permissions' ,
                 'uses' => 'RoleApiController@permissions'
             ] );
-
-            Route::resource(
-                'user',
-                'UserApiController',
-                [ 'except' => [ 'create' , 'edit' ] ]
-            );
 
             Route::resource(
                 'role' ,
