@@ -29,6 +29,6 @@ class AddRerunsTable extends Migration
      * @return void
      */
     public function down() {
-        Schema::drop('deploy_record_repulls');
+        Schema::drop('deploy_record_reruns');
     }
 }
