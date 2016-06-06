@@ -6,7 +6,7 @@ namespace App\Repositories;
 use App\Models\DeployRecordRerun;
 use Carbon\Carbon;
 
-class DeployActionRerunRepo {
+class DeployRecordRerunRepo {
     protected $deployRerun;
 
     public function __construct(DeployRecordRerun $deployRerun) {
@@ -14,7 +14,7 @@ class DeployActionRerunRepo {
     }
 
     public function insert($data){
-        return $this->deployAction->create($data);
+        return $this->deployRerun->updateOrCreate($data);
     }
 
 }
