@@ -12,6 +12,7 @@ use App\Http\Requests\RegistrationFormRequest;
 use App\Http\Requests\RegistrationEditFormRequest;
 use Laracasts\Flash\Flash;
 use Hash;
+use Log;
 class UserApiController extends Controller
 {
     protected $userService;
@@ -131,12 +132,16 @@ class UserApiController extends Controller
     {
         $roles = $request->input('roles');
         $newPass = $request->input('newpass');
-        if(isset($newPass)){
-            $newPW = Hash::make($newPass);
-            $request->merge(array('password' => $newPW));
+        if(isset($newPass) || $newPass != ''){
+            $request->merge(array('password' => $newPass));
+            $input = $request->only('email', 'username', 'first_name', 'last_name', 'password');
+            $this->userService->updateUserAndRoles($input, $roles, $id);
+        } else {
+            $input = $request->only('email', 'username', 'first_name', 'last_name');
+            $this->userService->updateUserAndRoles($input, $roles, $id);
+
         }
-        $input = $request->only('email', 'username', 'first_name', 'last_name', 'password');
-        $this->userService->updateUserAndRoles($input, $roles, $id);
+
         Flash::success("User Successfully Updated");
     }
 

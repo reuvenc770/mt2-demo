@@ -31,12 +31,13 @@
                             <span class="help-block" ng-bind="user.formErrors.last_name" ng-show="user.formErrors.last_name"></span>
                         </div>
                         <!-- Password field -->
+                        <h4>If you would like to update your password please fill out below (Optional)</h4>
                         <div class="form-group" ng-class="{ 'has-error' : user.formErrors.password }">
                             <input placeholder="Password" class="form-control" required="required" name="password" type="password" ng-model="user.currentAccount.password" value="">
                             <span class="help-block" ng-bind="user.formErrors.password" ng-show="user.formErrors.password"></span>
                         </div>
                         <div class="form-group" ng-class="{ 'has-error' : user.formErrors.newpass }">
-                            <input placeholder="New Passowrd" class="form-control" required="required" name="newpass" type="password" ng-model="user.currentAccount.newpass" value="">
+                            <input placeholder="New Password" class="form-control" required="required" name="newpass" type="password" ng-model="user.currentAccount.newpass" value="">
                             <span class="help-block" ng-bind="user.formErrors.newpass" ng-show="user.formErrors.newpass"></span>
                         </div>
                         <!-- Password Confirmation field -->
