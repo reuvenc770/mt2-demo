@@ -19,6 +19,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\AttributionFileUploaded' => [
             'App\Listeners\AttributionMassUpdate',
         ],
+        'App\Events\BulkSuppressionFileWasUploaded' => [
+            'App\Listeners\ParseBulkSuppressionFiles',
+        ],
     ];
 
     /**

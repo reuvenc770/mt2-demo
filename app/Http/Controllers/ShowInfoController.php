@@ -14,8 +14,7 @@ use App\Services\MT1ApiService;
 class ShowInfoController extends Controller
 {
     const SHOW_INFO_ENDPOINT = 'show_info_2';
-    const SUPPRESSION_ENDPPOINT = '';
-
+    const BULK_SUPPRESSION_API_ENDPOINT = 'bulk_suppressions';
     protected $api;
     protected $emailService;
 
@@ -52,9 +51,9 @@ class ShowInfoController extends Controller
      */
     public function store(Request $request)
     {
-        $type = 'email';
+        $type = 'eid';
         $records = $request->input('id');
-        if ( preg_match( "/\d{1,}/" , $records ) ) $type = 'eid';
+        if ( preg_match( "/@+/" , $records ) ) $type = 'email';
 
         if($type == "email"){
             foreach(explode(',',$records) as $record) {
@@ -67,7 +66,13 @@ class ShowInfoController extends Controller
                 Suppression::recordSuppressionByReason($email, Carbon::today()->toDateTimeString(), $request->input('reason'));
             }
         }
-        return response( json_encode( [ 'status' => 1 , 'message' => 'Record Suppressed' ] ) );
+        $payload = array(
+            "emails" => $request->input('id'),
+            'supressionReasonCode' => 'MT2IM',
+            'suppfile' => ''
+        );
+        return response( $this->api->getJSON( self::BULK_SUPPRESSION_API_ENDPOINT,
+            $payload ) );
     }
 
     /**
@@ -78,12 +83,12 @@ class ShowInfoController extends Controller
      */
     public function show( $id )
     {
-        $type = 'email';
-        if ( preg_match( "/\d{1,}/" , $id ) ) $type = 'eid';
+        $type = 'eid';
+        if ( preg_match( "/@+/" , $id ) ) $type = 'email';
 
         $apiResponse = $this->api->getJson(
             self::SHOW_INFO_ENDPOINT ,
-            [ 'type' => $type , 'id' => $id ]
+            [ 'type' => $type , 'id' => str_replace(' ', '', $id) ]
         );
 
         if ( $apiResponse === false ) $apiResponse = json_encode( [] );

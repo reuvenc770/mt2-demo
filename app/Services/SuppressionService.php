@@ -101,6 +101,9 @@ class SuppressionService
     public function convertSuppressionReason($response){
         $mt2Reasons = array();
         foreach($response->suppression as $suppression){
+            if(!isset($suppression->suppressionReasonDetails)){
+                continue;
+            }
             if($suppression->suppressionReasonDetails !== "Suppression via MT2 Import"){
                 $suppression->suppressionReasonDetails = $this->repo->convertReasonFromLegacy($suppression->suppressionReasonDetails);
             } else {
@@ -112,8 +115,8 @@ class SuppressionService
                 $mt2Reasons[] = array(
                     "email_addr" => $suppression->email_addr,
                     "suppressionReasonDetails" => $reason->suppressionReason->display_status,
-                    "espAccountName" => $reason->espAccount->account_name,
-                    "campaignName" => $reason->standardReport->campaign_name
+                    "espAccountName" => isset($reason->espAccount->account_name) ? $reason->espAccount->account_name : '',
+                    "campaignName" => isset($reason->standardReport->campaign_name) ? $reason->standardReport->campaign_name: ''
                 );
             }
 

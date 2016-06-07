@@ -68,7 +68,7 @@
             </tbody>
         </table>
     </div>
-    <h2 class="text-center">Suppressions</h2>
+    <h2 class="text-center" ng-if="info.suppression.length > 0">Suppressions</h2>
     <div id="mtTableContainer" class="table-responsive" ng-if="info.suppression.length > 0">
         <table class="table table-striped table-bordered tabel-hover text-center">
             <thead>
