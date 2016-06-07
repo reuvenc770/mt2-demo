@@ -75,15 +75,7 @@ class EmailActionsRepo {
     public function pullIncompleteDeploys($lookback) {
         return DB::select("SELECT
               deploy_id, 
-              sr.campaign_name,
               sr.datetime,
-              sr.delivered AS 'esp delivered',
-              sr.e_opens AS 'esp opens',
-              sr.e_clicks AS 'esp clicks',
-              SUM(ea.delivered) AS 'delivered received',
-              SUM(opens) AS 'opens_received',
-              SUM(clicks) AS rc_clicks,
-              
               ROUND((SUM(ea.delivered) - sr.delivered) / sr.delivered, 3) AS 'delivers_diff',
               ROUND((SUM(opens) - sr.e_opens) / sr.e_opens, 3) AS 'opens_diff',
               ROUND((SUM(clicks) - sr.e_clicks) / sr.e_clicks, 3) AS 'clicks_diff'
@@ -100,15 +92,15 @@ class EmailActionsRepo {
               WHERE
                 action_id IN (1, 2, 4)
                 AND
-                std.datetime BETWEEN CURDATE() - INTERVAL 5 DAY AND CURDATE() - INTERVAL 2 DAY
+                std.datetime BETWEEN CURDATE() - INTERVAL $lookback DAY AND CURDATE() - INTERVAL 2 DAY
               GROUP BY
                 deploy_id) ea ON ea.deploy_id = sr.external_deploy_id
                
             WHERE
-              sr.datetime BETWEEN CURDATE() - INTERVAL 5 DAY AND CURDATE() - INTERVAL 2 DAY
+              sr.datetime BETWEEN CURDATE() - INTERVAL $lookback DAY AND CURDATE() - INTERVAL 2 DAY
 
             GROUP BY
-                deploy_id, sr.campaign_name
+                deploy_id
             HAVING
               `delivers_diff` < -.075
               || `opens_diff`  < -.075
