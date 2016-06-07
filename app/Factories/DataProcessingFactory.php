@@ -6,21 +6,16 @@ use App\Repositories\EmailActionsRepo;
 use App\Repositories\ActionRepo;
 use App\Repositories\TrackingRepo;
 use App\Repositories\ContentServerActionRepo;
-use App\Repositories\DeployRecordRerunRepo;
 
 use App\Models\EmailCampaignStatistic;
 use App\Models\EmailAction;
 use App\Models\ActionType;
 use App\Models\CakeData;
 use App\Models\ContentServerAction;
-use App\Models\DeployRecordRerun;
-use App\Models\EmailAction;
 
 use App\Services\EmailCampaignAggregationService;
 use App\Services\TrackingDeliverableService;
 use App\Services\UpdateContentServerStatsService;
-use App\Services\CheckDeployService;
-use App\Repositories\EmailActionsRepo;
 
 /**
  *  Create different services for generic data processing/OLTP
@@ -43,9 +38,6 @@ class DataProcessingFactory {
 
             case('ProcessUserAgentsJob'):
                 return self::createUserAgentProcessingService();
-
-            case('CheckDeployStats'):
-                return self::createDeployStatsService();
                 
             default:
                 throw new \Exception("Data processing service {$name} does not exist");
@@ -99,15 +91,5 @@ class DataProcessingFactory {
 
         return new \App\Services\UserAgentProcessingService($sourceRepo, $userAgentRepo);
     }
-
-    private static function createDeployStatsService() {
-        $actionsModel = new EmailAction();
-        $actionsRepo = new EmailActionsRepo($actionsModel);
-        $rerunModel = new DeployRecordRerun();
-        $rerunRepo = new DeployRecordRerunRepo($rerunModel);
-
-        return new CheckDeployService($actionsRepo, $rerunRepo, $this->lookback);
-    }
-
 
 }

@@ -12,14 +12,14 @@ class CheckDeployService {
     private $lookback;
     const THRESHOLD = -0.075;
 
-    public function __construct(EmailActionsRepo $actionsRepo, DeployRecordRerunRepo $rerunRepo, $lookback) {
+    public function __construct(EmailActionsRepo $actionsRepo, DeployRecordRerunRepo $rerunRepo) {
         $this->actionsRepo = $actionsRepo;
         $this->rerunRepo = $rerunRepo;
         $this->lookback = $lookback;
     }
 
-    public function run() {
-        $campaigns = $this->actionsRepo->pullIncompleteDeploys($this->lookback);
+    public function run($lookback) {
+        $campaigns = $this->actionsRepo->pullIncompleteDeploys($lookback);
 
         foreach ($campaigns as $campaign) {
             $data = $this->mapToRerunTable($campaign);
