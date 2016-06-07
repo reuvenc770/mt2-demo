@@ -49,5 +49,19 @@ class SuppressionRepo
                                 ->where('esp_accounts.id',$espAccountId)->first();
 
     }
+    public function getAllSuppressionsForEmail($email){
+        return $this->suppressionModel->where('email_address', $email)->get();
+    }
+    public function getReasonList(){
+        return $this->suppressionReason->select('id as value' , 'display_status as name')->displayable()->get();
+    }
+
+    public function convertReasonFromLegacy($reason){
+        return $this->suppressionReason->select('display_status as name')->where('legacy_status',$reason)->first()->name;
+    }
+
+    public function getReasonById($reason){
+        return $this->suppressionReason->find($reason);
+    }
 
 }

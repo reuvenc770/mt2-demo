@@ -34,20 +34,10 @@
                         </md-input-container>
 
 
-                        <md-input-container class="md-block" flex-gt-sm>
-                            <label>Suppression Reason</label>
-                            <md-select ng-model="supp.reason">
-                                <md-option value="">Select Reason</md-option>
-                                <md-option value="C">Complaint</md-option>
-                                <md-option value="B">Bounce</md-option>
-                                <md-option value="ADVS">Advertiser Screamer</md-option>
-                                <md-option value="I">ImpressionWise</md-option>
-                                <md-option value="IPCMP">IP Provider Complaint</md-option>
-                                <md-option value="LOS">List Owner Screamer</md-option>
-                                <md-option value="SPAMT">Spamtrap</md-option>
-                                <md-option value="SEED">Known Seed</md-option> <!-- Need value for this!!! -->
-                            </md-select>
-                        </md-input-container>
+                        <select name="reason" class="form-control" ng-model="supp.selectedReason" ng-init="supp.loadReasons()" required>
+                            <option value="">Please Choose a Suppression Reason</option>
+                            <option ng-repeat="reason in supp.suppressionReasons" ng-value="reason.value">@{{ reason.name }}</option>
+                        </select>
 
                         <div flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'bulksuppression' , '_token' : '{{ csrf_token() }}' } }" 
                              flow-files-submitted="$flow.upload()" 

@@ -2,23 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\BulkSuppressionFileWasUploaded;
+use App\Services\EmailRecordService;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use Laracasts\Flash\Flash;
+use App\Facades\Suppression;
 use App\Http\Controllers\Controller;
 use App\Services\MT1ApiService;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Event;
 
 class BulkSuppressionController extends Controller
 {
 
     protected $api;
+    protected $emailService;
     const BULK_SUPPRESSION_API_ENDPOINT = 'bulk_suppressions';
 
 
-    public function __construct(MT1ApiService $api)
+    public function __construct(MT1ApiService $api, EmailRecordService $recordService)
     {
         $this->api = $api;
+        $this->emailService = $recordService;
     }
 
     /**
@@ -28,7 +35,7 @@ class BulkSuppressionController extends Controller
      */
     public function index()
     {
-        return response()->view( 'pages.bulk-suppression' );
+        return response()->view('pages.bulk-suppression');
     }
 
     /**
@@ -44,7 +51,7 @@ class BulkSuppressionController extends Controller
     /**
      * Transfer locally-stored suppression uploads to MT1Bin
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -60,12 +67,12 @@ class BulkSuppressionController extends Controller
         $port = env('MT1_FILE_UPLOAD_PORT', '');
         $remoteDir = env('MT1_FILE_UPLOAD_DIRECTORY', '');
         $conn = ssh2_connect($host, $port);
-        ssh2_auth_password($conn, $user, $pass);
+        \ssh2_auth_password($conn, $user, $pass);
 
         foreach ($files as $file) {
             if (!preg_match('/^\./', $file)) {
                 $filename = $path . $file;
-                $fs[]= $filename;
+                $fs[] = $filename;
                 $result = \ssh2_scp_send($conn, $filename, $remoteDir . $file); // returns a bool
                 if (!$result) {
                     $failed[]= $file;
@@ -80,7 +87,7 @@ class BulkSuppressionController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -91,7 +98,7 @@ class BulkSuppressionController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -102,20 +109,39 @@ class BulkSuppressionController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \Illuminate\Http\Request $request
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request)
     {
-        return response( $this->api->getJSON( self::BULK_SUPPRESSION_API_ENDPOINT,
-         $request->all() ) );
+        $type = 'eid';
+        $records = $request->input('emails');
+        $reason = $request->input('suppressionReasonCode');
+        if (preg_match("/@+/", $records)) $type = 'email';
+        if(!empty($records)) {
+            if ($type == "email") {
+                foreach (explode(',', $records) as $record) {
+                    Suppression::recordSuppressionByReason($record, Carbon::today()->toDateTimeString(), $reason);
+                }
+            } else {
+                foreach (explode(',', $records) as $record) {
+                    $email = $this->emailService->getEmailAddress($record);
+                    Suppression::recordSuppressionByReason($email, Carbon::today()->toDateTimeString(), $reason);
+                }
+            }
+        }
+        if (!empty($reason)) {
+            Event::fire(new BulkSuppressionFileWasUploaded($reason, $request->input('suppfile'), date('Ymd')));
+        }
+        return response($this->api->getJSON(self::BULK_SUPPRESSION_API_ENDPOINT,
+            $request->all()));
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

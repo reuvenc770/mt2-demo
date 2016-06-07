@@ -17,4 +17,14 @@ class SuppressionReason extends Model {
     {
         return $this->belongsTo('App\Models\Esp');
     }
+
+    /**
+     * Scope a query to only include active reasons
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeDisplayable($query)
+    {
+        return $query->where('display',true);
+    }
 }

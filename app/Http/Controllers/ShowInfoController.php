@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Facades\Suppression;
+use App\Services\EmailRecordService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -11,12 +14,13 @@ use App\Services\MT1ApiService;
 class ShowInfoController extends Controller
 {
     const SHOW_INFO_ENDPOINT = 'show_info_2';
-    const SUPPRESSION_ENDPPOINT = '';
-
+    const BULK_SUPPRESSION_API_ENDPOINT = 'bulk_suppressions';
     protected $api;
+    protected $emailService;
 
-    public function __construct ( MT1ApiService $api ) {
+    public function __construct ( MT1ApiService $api, EmailRecordService $emailRecordService ) {
         $this->api = $api;
+        $this->emailService = $emailRecordService;
     }
 
     /**
@@ -47,7 +51,28 @@ class ShowInfoController extends Controller
      */
     public function store(Request $request)
     {
-        return response( json_encode( [ 'status' => 1 , 'message' => 'Record Suppressed' ] ) );
+        $type = 'eid';
+        $records = $request->input('id');
+        if ( preg_match( "/@+/" , $records ) ) $type = 'email';
+
+        if($type == "email"){
+            foreach(explode(',',$records) as $record) {
+                Suppression::recordSuppressionByReason($record, Carbon::today()->toDateTimeString(), $request->input('reason'));
+                }
+        }
+        else {
+            foreach(explode(',',$records) as $record) {
+                $email = $this->emailService->getEmailAddress($record);
+                Suppression::recordSuppressionByReason($email, Carbon::today()->toDateTimeString(), $request->input('reason'));
+            }
+        }
+        $payload = array(
+            "emails" => $request->input('id'),
+            'suppressionReasonCode' => 'MT2IM',
+            'suppfile' => ''
+        );
+        return response( $this->api->getJSON( self::BULK_SUPPRESSION_API_ENDPOINT,
+            $payload ) );
     }
 
     /**
@@ -58,15 +83,16 @@ class ShowInfoController extends Controller
      */
     public function show( $id )
     {
-        $type = 'email';
-        if ( preg_match( "/\d{1,}/" , $id ) ) $type = 'eid';
+        $type = 'eid';
+        if ( preg_match( "/@+/" , $id ) ) $type = 'email';
 
         $apiResponse = $this->api->getJson(
             self::SHOW_INFO_ENDPOINT ,
-            [ 'type' => $type , 'id' => $id ]
+            [ 'type' => $type , 'id' => str_replace(' ', '', $id) ]
         );
 
         if ( $apiResponse === false ) $apiResponse = json_encode( [] );
+        $apiResponse = Suppression::convertSuppressionReason(json_decode($apiResponse));
 
         return response( $apiResponse );
     }

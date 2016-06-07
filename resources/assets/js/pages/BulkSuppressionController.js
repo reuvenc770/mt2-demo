@@ -18,14 +18,18 @@ mt2App.controller( 'BulkSuppressionController' , [ '$log' , 'BulkSuppressionApiS
         var data = {
             'user_id': self.testUserId,
             'suppfile': self.file,
-            'suppressionReasonCode': self.reason,
+            'suppressionReasonCode': self.selectedReason,
             'emails': self.emails
         };
 
         BulkSuppressionApiService.uploadEmails(data, 
                 self.uploadEmailsSuccessCallback,
                 self.uploadEmailsFailureCallback);
-    }
+    };
+
+    self.loadReasons = function () {
+        BulkSuppressionApiService.getSuppressionReasons( self.loadReasonsSuccessCallback , self.loadReasonsFailureCallback );
+    };
 
     self.splitString = function(str) {
         var commaTest = /,/;
@@ -101,6 +105,14 @@ mt2App.controller( 'BulkSuppressionController' , [ '$log' , 'BulkSuppressionApiS
         self.setModalBody('Suppression of files ' + fileString + ' failed to transfer to server.');
         self.launchModal();
     }
+
+    self.loadReasonsSuccessCallback = function ( response ) {
+        self.suppressionReasons = response.data;
+    };
+
+    self.loadReasonsFailureCallback = function ( response ) {
+        $mdToast.showSimple( 'Failed to Load Suppression Reasons' );
+    };
 
 
     self.setModalLabel = function ( labelText ) {

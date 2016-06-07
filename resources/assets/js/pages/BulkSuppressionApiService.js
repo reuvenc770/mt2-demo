@@ -2,7 +2,7 @@ mt2App.service('BulkSuppressionApiService', function ($http) {
     var self = this;
 
     self.baseApiUrl = '/api/bulksuppression';
-
+    self.suppressionApiUrl = '/api/suppressionReason';
     self.uploadEmails = function(data, successCallback, failureCallback) {
         data.emails = data.emails.join(',');
         $http({
@@ -19,6 +19,13 @@ mt2App.service('BulkSuppressionApiService', function ($http) {
             }
         });
     }
+
+    self.getSuppressionReasons = function ( successCallback , failureCallback ) {
+        $http( {
+            "method" : "GET" ,
+            "url" : self.suppressionApiUrl
+        } ).then( successCallback , failureCallback );
+    };
 
     self.transferFiles = function(successCallback, failureCallback) {
         $http({

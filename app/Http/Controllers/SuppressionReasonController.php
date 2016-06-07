@@ -1,7 +1,8 @@
 <?php
-namespace App\Http\Controllers\MT1API;
+namespace App\Http\Controllers;
 use App\Services\MT1Services\SuppressionReasonService;
 use App\Http\Controllers\Controller;
+use App\Services\SuppressionService;
 
 /**
  * Created by PhpStorm.
@@ -13,14 +14,14 @@ class SuppressionReasonController extends Controller
 {
     protected $suppressionService;
 
-    public function __construct(SuppressionReasonService $suppressionReasonService)
+    public function __construct(SuppressionService $suppressionService)
     {
-        $this->suppressionService = $suppressionReasonService;
+        $this->suppressionService = $suppressionService;
     }
 
     public function index()
     {
-        return $this->suppressionService->listAll();
+        return $this->suppressionService->listAllReasons();
     }
 
     public function create()

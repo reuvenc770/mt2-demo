@@ -68,6 +68,27 @@
             </tbody>
         </table>
     </div>
+    <h2 class="text-center" ng-if="info.suppression.length > 0">Suppressions</h2>
+    <div id="mtTableContainer" class="table-responsive" ng-if="info.suppression.length > 0">
+        <table class="table table-striped table-bordered tabel-hover text-center">
+            <thead>
+            <th class="text-center">Email Address</th>
+            <th class="text-center">Esp Account</th>
+            <th class="text-center">Campaign Name</th>
+            <th class="text-center">Reason</th>
+            </thead>
+
+            <tbody>
+            <tr ng-repeat="record in info.suppression">
+                <td>@{{ record.email_addr }}</td>
+                <td>@{{ record.espAccountName }}</td>
+                <td>@{{ record.campaignName }}</td>
+                <td>@{{ record.suppressionReasonDetails }}</td>
+            </tr>
+
+            </tbody>
+        </table>
+    </div>
 
     <div class="well" ng-if="info.records.length > 0">
         <h3>Add to Suppression</h3>
