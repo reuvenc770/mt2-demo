@@ -12,6 +12,7 @@ class Kernel extends ConsoleKernel
     const UNSUB_TIME = '01:00';
     const REPORT_TIME = '11:30';
     const EARLY_DELIVERABLE_SCHEDULE_TIME = '01:00';
+    const DEPLOY_CHECK_TIME = '14:00';
 
     /**
      * The Artisan commands provided by your application.
@@ -36,6 +37,7 @@ class Kernel extends ConsoleKernel
         Commands\DownloadSuppressionFromESPCommand::class,
         Commands\ParseandSendSuppressionsCommand::class,
         Commands\InsertChunksUtil::class,
+        Commands\CheckDeployStats::class,
     ];
 
     /**
@@ -114,5 +116,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('emails:download')->cron('*/2 * * * * *')->withoutOverlapping();
         $schedule->command('process:useragents')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME);
         $schedule->command('download:mtstats')->dailyAt(self::DELIVERABLE_SCHEDULE_TIME);
+        $schedule->command('reports:findIncompleteDeploys')->dailyAt(self::DEPLOY_CHECK_TIME);
     }
 }

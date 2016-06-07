@@ -92,5 +92,4 @@ class DataProcessingFactory {
         return new \App\Services\UserAgentProcessingService($sourceRepo, $userAgentRepo);
     }
 
-
 }
