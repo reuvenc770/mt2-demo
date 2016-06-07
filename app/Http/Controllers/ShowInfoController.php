@@ -68,7 +68,7 @@ class ShowInfoController extends Controller
         }
         $payload = array(
             "emails" => $request->input('id'),
-            'supressionReasonCode' => 'MT2IM',
+            'suppressionReasonCode' => 'MT2IM',
             'suppfile' => ''
         );
         return response( $this->api->getJSON( self::BULK_SUPPRESSION_API_ENDPOINT,

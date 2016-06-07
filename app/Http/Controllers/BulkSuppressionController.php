@@ -61,22 +61,22 @@ class BulkSuppressionController extends Controller
         $path = storage_path() . "/app/files/uploads/bulksuppression/$dateFolder/";
         $files = scandir($path);
 
-        // $user = env('MT1_FILE_UPLOAD_USER', '');
-        //$host = env('MT1_FILE_UPLOAD_HOST', '');
-        //$pass = env('MT1_FILE_UPLOAD_PASS', '');
-        //$port = env('MT1_FILE_UPLOAD_PORT', '');
-        //$remoteDir = env('MT1_FILE_UPLOAD_DIRECTORY', '');
-        //$conn = ssh2_connect($host, $port);
-        // ssh2_auth_password($conn, $user, $pass);
+        $user = env('MT1_FILE_UPLOAD_USER', '');
+        $host = env('MT1_FILE_UPLOAD_HOST', '');
+        $pass = env('MT1_FILE_UPLOAD_PASS', '');
+        $port = env('MT1_FILE_UPLOAD_PORT', '');
+        $remoteDir = env('MT1_FILE_UPLOAD_DIRECTORY', '');
+        $conn = ssh2_connect($host, $port);
+        \ssh2_auth_password($conn, $user, $pass);
 
         foreach ($files as $file) {
             if (!preg_match('/^\./', $file)) {
                 $filename = $path . $file;
                 $fs[] = $filename;
-                //$result = \ssh2_scp_send($conn, $filename, $remoteDir . $file); // returns a bool
-                // if (!$result) {
-                //  $failed[]= $file;
-                //}
+                $result = \ssh2_scp_send($conn, $filename, $remoteDir . $file); // returns a bool
+                if (!$result) {
+                    $failed[]= $file;
+                }
             }
 
         }
