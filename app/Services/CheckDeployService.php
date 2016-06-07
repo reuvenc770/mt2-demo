@@ -9,13 +9,11 @@ class CheckDeployService {
 
     private $actionsRepo;
     private $rerunRepo;
-    private $lookback;
     const THRESHOLD = -0.075;
 
     public function __construct(EmailActionsRepo $actionsRepo, DeployRecordRerunRepo $rerunRepo) {
         $this->actionsRepo = $actionsRepo;
         $this->rerunRepo = $rerunRepo;
-        $this->lookback = $lookback;
     }
 
     public function run($lookback) {

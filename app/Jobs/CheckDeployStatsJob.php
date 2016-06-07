@@ -8,13 +8,13 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Facades\JobTracking;
 use App\Models\JobEntry;
+use App\Services\CheckDeployService;
 
 class CheckDeployStatsJob extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
     private $lookback;
     private $tracking;
-    private $service;
     const JOB_NAME = 'CheckDeployStats';
 
     /**
@@ -25,7 +25,6 @@ class CheckDeployStatsJob extends Job implements ShouldQueue
     public function __construct($lookback, $tracking) {
         $this->lookback = $lookback;
         $this->tracking = $tracking;
-        $this->service = $service;
         JobTracking::startAggregationJob(self::JOB_NAME, $this->tracking);
     }
 
