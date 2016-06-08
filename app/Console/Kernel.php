@@ -38,6 +38,7 @@ class Kernel extends ConsoleKernel
         Commands\ParseandSendSuppressionsCommand::class,
         Commands\InsertChunksUtil::class,
         Commands\CheckDeployStats::class,
+        Commands\RerunDeployStats::class,
     ];
 
     /**
