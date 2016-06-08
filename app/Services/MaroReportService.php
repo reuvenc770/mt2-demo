@@ -83,9 +83,32 @@ class MaroReportService extends AbstractReportService implements IDataService
         return $completeData;
     }
 
-    public function splitTypes()
+    public function splitTypes($processState)
     {
-        return ['opens', 'clicks', 'complaints', 'unsubscribes', 'bounces'];
+        if ('rerun' === $processState['pipe']) {
+            $typeList = [];
+            // data in $processState['campaign']
+
+            if (1 == $processState['campaign']->delivers) {
+                $typeList[] = "deliverable";
+            }
+            if (1 == $processState['campaign']->opens) {
+                $typeList[] = 'open';
+            }
+            if (1 == $processState['campaign']->clicks) {
+                $typeList[] = 'click';
+            }
+            if (1 == $processState['campaign']->unsubs) {
+                $typeList[] = 'optout';
+            }
+            if (1 == $processState['campaign']->bounces) {
+                $typeList[] = 'bounce';
+            }
+        }
+        else {
+            $typeList = ['opens', 'clicks', 'complaints', 'unsubscribes', 'bounces'];
+        }
+        return $typeList;
     }
 
     public function savePage(&$processState, $map)

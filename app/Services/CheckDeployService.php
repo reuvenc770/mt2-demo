@@ -3,6 +3,8 @@
 namespace App\Services;
 use App\Repositories\EmailActionsRepo;
 use App\Repositories\DeployRecordRerunRepo;
+use Illuminate\Support\Facades\Event;
+use App\Events\DeploysMissingDataFound;
 
 
 class CheckDeployService {
@@ -23,6 +25,7 @@ class CheckDeployService {
             $data = $this->mapToRerunTable($campaign);
             $this->rerunRepo->insert($data);
         }
+        Event::fire(new DeploysMissingDataFound([]));
     }
 
 

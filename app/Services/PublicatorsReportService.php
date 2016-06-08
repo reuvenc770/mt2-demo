@@ -128,10 +128,32 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
     }
 
     public function getTypeList ( &$processState ) {
-        $typeList = [ "open" , "click" , "unsub" , "bounce" ];
+        if ('rerun' === $processState['pipe']) {
+            $typeList = [];
+            // data in $processState['campaign']
 
-        if($this->emailRecord->withinTwoDays( $processState[ "espAccountId" ] , $processState[ "campaign" ]->esp_internal_id) || 'rerun' === $processState['pipe'] ){
-            $typeList[] = "sent";
+            if (1 == $processState['campaign']->delivers) {
+                $typeList[] = "deliverable";
+            }
+            if (1 == $processState['campaign']->opens) {
+                $typeList[] = 'open';
+            }
+            if (1 == $processState['campaign']->clicks) {
+                $typeList[] = 'click';
+            }
+            if (1 == $processState['campaign']->unsubs) {
+                $typeList[] = 'optout';
+            }
+            if (1 == $processState['campaign']->bounces) {
+                $typeList[] = 'bounce';
+            }
+        }
+        else {
+            $typeList = [ "open" , "click" , "unsub" , "bounce" ];
+
+            if($this->emailRecord->withinTwoDays( $processState[ "espAccountId" ] , $processState[ "campaign" ]->esp_internal_id) || 'rerun' === $processState['pipe'] ){
+                $typeList[] = "sent";
+            }
         }
 
         return $typeList;
