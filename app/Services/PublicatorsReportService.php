@@ -133,7 +133,7 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
             // data in $processState['campaign']
 
             if (1 == $processState['campaign']->delivers) {
-                $typeList[] = "deliverable";
+                $typeList[] = "sent";
             }
             if (1 == $processState['campaign']->opens) {
                 $typeList[] = 'open';
@@ -142,7 +142,7 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
                 $typeList[] = 'click';
             }
             if (1 == $processState['campaign']->unsubs) {
-                $typeList[] = 'optout';
+                $typeList[] = 'unsub';
             }
             if (1 == $processState['campaign']->bounces) {
                 $typeList[] = 'bounce';
