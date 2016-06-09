@@ -50,6 +50,12 @@ return [
             "delivered" => [
                 'getMaroDeliverableCampaigns',
                 'savePaginatedCampaignRecords'
+            ],
+            "rerun" => [
+                'getRerunCampaigns',
+                'splitTypes',
+                'savePaginatedCampaignRecords',
+                'removeDeploys'
             ]
         ]
     ] ,
