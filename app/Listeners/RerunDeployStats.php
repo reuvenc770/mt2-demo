@@ -6,6 +6,7 @@ use App\Events\DeploysMissingDataFound;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Repositories\DeployRecordRerunRepo;
+use Artisan;
 
 class RerunDeployStats
 {
@@ -28,41 +29,20 @@ class RerunDeployStats
      * @return void
      */
     public function handle(DeploysMissingDataFound $event) {
-        if ($event->getSpecifiedDeploys()) {
-            // rerun only specified deploys
 
-            // Somehow pass these in ... mark them?
+        // Will eventually want to use $event->getSpecifiedDeploys()
+        // to rerun user-specified deploys
 
+        $esps = $this->rerunRepo->getEsps();
+
+        foreach($esps as $esp) {
+            if ($esp) {
+                echo $esp->name . PHP_EOL;
+
+                Artisan::call('reports:rerunDeliverables', ['espName' => $esp->name]);
+
+            }   
         }
-        else {
-            // rerun all stored deploys
-
-            /*
-                1. get all esps that appear in the rerun table
-                2. have a hard-coded list?
-            */
-            echo "Running esp check:" . PHP_EOL;
-            $esps = $this->rerunRepo->getEsps();
-
-            foreach($esps as $esp) {
-                if ($esp) {
-                    echo $esp->name . PHP_EOL;
-
-                    /* 
-                        either manually run each job with
-                        Artisan::call('reports:downloadDeliverables',
-                            [
-                                'espName' => $esp->name . ':rerun',
-                                'lookback' => 31,
-                                'queue' => //depends. usually $esp->name
-                            ]
-                        );
-                    */ 
-
-                }
-                
-            }
-        }
+        
     }
-
 }
