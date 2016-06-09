@@ -37,10 +37,7 @@ class RerunDeployStats
 
         foreach($esps as $esp) {
             if ($esp) {
-                echo $esp->name . PHP_EOL;
-
                 Artisan::call('reports:rerunDeliverables', ['espName' => $esp->name]);
-
             }   
         }
         
