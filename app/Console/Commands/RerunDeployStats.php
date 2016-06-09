@@ -14,7 +14,7 @@ class RerunDeployStats extends Command
      *
      * @var string
      */
-    protected $signature = 'reports:rerunDeliverables {espName} {lookBack?} {queueName?}';
+    protected $signature = 'reports:rerunDeliverables {espName}';
 
     /**
      * The console command description.
@@ -22,6 +22,7 @@ class RerunDeployStats extends Command
      * @var string
      */
     protected $description = 'Rerun all stats-deficient deploys.';
+    protected $espsWithQueues = ['BlueHornet', 'Campaigner', 'Publicators'];
 
     /**
      * Create a new command instance.
@@ -38,14 +39,13 @@ class RerunDeployStats extends Command
      * @return mixed
      */
     public function handle() {
-        $lookBack = $this->argument('lookBack') ? $this->argument('lookBack') : env('LOOKBACK', 5);
-        $queue = (string) $this->argument('queueName') ? $this->argument('queueName') : "default";
-        $pipe = 'rerun';
         $espName = $this->argument('espName');
+        $queue = in_array($espName, $this->espsWithQueues) ? $espName : "default";
+        $pipe = 'rerun';
+        
 
         $this->call('reports:downloadDeliverables', [
             'espName' => $espName . ':' . $pipe,
-            'lookBack' => $lookBack,
             'queueName' => $queue,
         ]);
         
