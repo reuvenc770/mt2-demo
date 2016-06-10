@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Route;
+use Log;
 
 use App\Services\PageService;
 use App\Services\PermissionService;
@@ -85,23 +86,31 @@ class UpdatePermissionsFromRoutes extends Command
     {
         $this->processOptions();
 
-         if ( $this->permissionRoleAndPrivilegePresent() ) {
-            $this->info( ( $this->privilege === 'grant' ? 'Granting' : 'Revoking' ) . " '{$this->permissionName}' for '{$this->role}'" );
-            
-            $this->adjustPermissionForRole();
-        } elseif ( $this->roleCrudPageAndPrivilegePresent() ) {
-            $this->info( ( $this->privilege === 'grant' ? 'Granting' : 'Revoking' ) . " '{$this->crudOperation}' access to '{$this->pageRoute}' for '{$this->role}'." );
+        try {
+            if ( $this->permissionRoleAndPrivilegePresent() ) {
+                $this->info( ( $this->privilege === 'grant' ? 'Granting' : 'Revoking' ) . " '{$this->permissionName}' for '{$this->role}'" );
+                
+                $this->adjustPermissionForRole();
+            } elseif ( $this->roleCrudPageAndPrivilegePresent() ) {
+                $this->info( ( $this->privilege === 'grant' ? 'Granting' : 'Revoking' ) . " '{$this->crudOperation}' access to '{$this->pageRoute}' for '{$this->role}'." );
 
-            $this->adjustPagePermissionsForRole();
-        } elseif ( $this->permissionPresent() ){
-            $this->info( "Processing '{$this->permissionName}'..." );
+                $this->adjustPagePermissionsForRole();
+            } elseif ( $this->permissionPresent() ){
+                $this->info( "Processing '{$this->permissionName}'..." );
 
-            $this->processPermission();
-        } else {
-            $this->info( "Looking for new permissions..." );
+                $this->processPermission();
+            } else {
+                $this->info( "Looking for new permissions..." );
 
-            $this->processNewRoutes();
+                $this->processNewRoutes();
+            }
+        } catch ( \Exception $e ) {
+            Log::error( $e->getMessage() );
+
+            return 1;
         }
+
+        return 0;
     }
 
     protected function processOptions () {
@@ -113,9 +122,10 @@ class UpdatePermissionsFromRoutes extends Command
         $this->crudOperation = $this->option( 'crudOperation' );
 
         if ( $this->invalidCrudOperation() ) {
-            $this->info( "'{$this->crudOperation}' is invalid. Valid Operations: " . $this->validCrudOperations->toJSON() );
+            $errorMessage = "'{$this->crudOperation}' is invalid. Valid Operations: " . $this->validCrudOperations->toJSON();
+            $this->error( $errorMessage );
 
-            exit();
+            throw new \Exception( $errorMessage );
         }
 
         if ( $this->option( 'grant' ) ) {
@@ -169,7 +179,10 @@ class UpdatePermissionsFromRoutes extends Command
             $permissionId = $this->permissionService->getId( $this->permissionName );
 
             if ( !is_int( $permissionId ) ) {
-                exit( 0 );
+                $errorMessage = "Could not find ID for permission '{$this->permissionName}'";
+                $this->error( $errorMessage );
+
+                throw new \Exception( $errorMessage );
             }
         }
 
