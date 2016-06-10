@@ -188,13 +188,13 @@ class UpdatePermissionsFromRoutes extends Command
             ) {
 
                 $permissionId = $this->permissionService->addPermission( $newRoute );
-            }
-
-            if ( $this->confirmUser === true ) {
-                $this->assignPermissionToPage( $permissionId );
+                if ( $this->confirmUser === true ) {
+                    $this->assignPermissionToPage( $permissionId );
+                }
             }
 
             $bar->advance();
+            $this->info( '' );
         }
 
         $bar->finish();
