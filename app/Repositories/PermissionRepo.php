@@ -24,4 +24,25 @@ class PermissionRepo
     {
         return $this->permission->all()->sortBy('name');
     }
+
+    public function addPermission ( $routeName , $crudType ) {
+        $permission = new Permission();
+        $permission->name = $routeName;
+        $permission->crud_type = $crudType;
+        $permission->save();
+
+        return $permission->id;
+    }
+
+    public function getCurrentPermissionNames () {
+        $allPermissions = $this->getAllPermissions();
+
+        return $allPermissions->pluck( 'name' )->flatten();
+    }
+
+    public function getId ( $permissionName ) {
+        $permission = $this->permission->where( 'name' , $permissionName )->get();
+
+        return $permission[0]->id;
+    }
 }

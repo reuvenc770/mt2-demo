@@ -66,4 +66,35 @@ class RoleService
 
     }
 
+    public function getIdFromName ( $roleName ) {
+        $roles = $this->roleRepo->where( 'slug' , $roleName )->get();
+
+        return ( count( $roles ) > 0 ? $roles[ 0 ]->id : null );
+    }
+
+    public function adjustPermission ( $roleName , $permission , $action = 'grant' ) {
+        $roles = $this->roleRepo->where( 'slug' , $roleName )->get();
+
+        if ( count( $roles ) > 0 ) {
+            $currentRole = $roles[ 0 ];
+
+            if ( $action === 'grant' ) {
+                $oldPermissions = array_keys( $currentRole->permissions );
+                $oldPermissions []= $permission;
+                $newPermissions = array_unique( $oldPermissions );
+
+                $currentRole->permissions = array();
+
+                foreach ( $newPermissions as $currentPermission ) {
+                    $currentRole->addPermission( $currentPermission );
+                }
+            } else {
+                $currentRole->removePermission( $permission );
+            }
+
+            $currentRole->save();
+        }
+
+        $this->cache->tags('navigation')->flush();
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Facades\Permission;
 use App\Services\RoleService;
+use App\Services\PagePermissionService;
 use Illuminate\Http\Request;
 use Route;
 use Laracasts\Flash\Flash;
@@ -15,10 +16,12 @@ use App\Http\Requests\RoleEditRequest;
 class RoleApiController extends Controller
 {
     protected $roleService;
+    protected $pagePermissionService;
 
-    public function __construct(RoleService $roleService)
+    public function __construct( RoleService $roleService , PagePermissionService $pagePermissionService )
     {
         $this->roleService = $roleService;
+        $this->pagePermissionService = $pagePermissionService;
     }
 
     public function index()
@@ -98,6 +101,18 @@ class RoleApiController extends Controller
         }
 
         return response()->json( $response );
+    }
+
+    public function getPermissionTree ( $id ) {
+        $permissions = [];
+
+        $role = $this->roleService->getRole($id);
+
+        if ( !is_null( $role ) ) {
+            $permissions = array_keys($role->permissions);
+        }
+
+        return response()->json( $this->pagePermissionService->getPermissionTree( $permissions ) );
     }
 
     /**

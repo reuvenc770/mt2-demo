@@ -42,6 +42,8 @@ elixir.extend( 'deployNodeModules' , function ( mix ) {
     mix.copy( 'node_modules/ui-select/dist/select.min.css' , 'public/css/select.min.css' );
 
     mix.copy( 'node_modules/ng-flow/dist/ng-flow-standalone.min.js', 'public/js/ng-flow-standalone.min.js' );
+
+    mix.copy( 'node_modules/angular-ivh-treeview/dist/ivh-treeview.min.js' , 'public/js/ivh-treeview.min.js' );
 } );
 
 elixir.extend( 'deploySass' , function ( mix ) {

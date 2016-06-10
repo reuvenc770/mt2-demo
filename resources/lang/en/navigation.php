@@ -1,6 +1,7 @@
 <?php
 
 return[
+    'home' => 'Home' ,
     'espapi.list' => 'ESP API Accounts' ,
     'espapi.add'  => 'Add API Account',
     'client.list' => 'Clients',
