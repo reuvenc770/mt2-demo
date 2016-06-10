@@ -99,5 +99,17 @@ return [
             ]
 
         ]
-    ]
+    ],
+    "Bronto" => [
+        "pipes" => [
+            "default" => [
+                'splitTypes' ,
+                'savePaginatedRecords'
+            ] ,
+            "delivered" => [
+                'getMaroDeliverableCampaigns',
+                'savePaginatedCampaignRecords'
+            ]
+        ]
+    ] ,
 ];
