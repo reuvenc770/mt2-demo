@@ -34,7 +34,11 @@ class PagePermissionService {
             $typeIndices = [];
 
             foreach ( $permissions as $currentPermission ) {
-                $permissionType = $currentPermission->permissions[ 0 ]->crud_type;
+                if ( isset( $currentPermission->permissions[ 0 ] ) ) {
+                    $permissionType = $currentPermission->permissions[ 0 ]->crud_type;
+                } else {
+                    continue;
+                }
 
                 if ( !isset( $typeIndices[ $permissionType ] ) ) {
                     $currentNode[ 'children' ] []= [

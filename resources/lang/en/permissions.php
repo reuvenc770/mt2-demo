@@ -116,7 +116,7 @@ return [
     'api.mt1.advertiser.get' => 'Retrieve List of Advertisers from MT1' ,
     'api.mt1.country.get' => 'Retrieve List of Countries from MT1' ,
     'api.mt1.offercategory.get' => 'Retrieve List of Offer Categories from MT1' ,
-    'api.mt1.suppressionReason.index' => 'Retrieve List of Suppression Reasons from MT1' ,
+    'api.suppressionReason.index' => 'Retrieve List of Suppression Reasons from MT1' ,
     'api.mt1.clientstatsgrouping.index' => 'Retrieve Client Stats Groups from MT1' ,
     'api.mt1.clientgroup.index' => 'Retrieve List of Client Groups from MT1' ,
     'api.mt1.clientgroup.show' => 'Retrieve Client Group Information from MT1' ,
