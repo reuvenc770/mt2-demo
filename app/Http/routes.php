@@ -558,6 +558,12 @@ Route::group(
             [ 'only' => [ 'store' ] ]
         );
 
+        Route::resource(
+            'suppressionReason' ,
+            'SuppressionReasonController',
+            [ 'only' => [ 'index' ] ]
+        );
+
         Route::post(
             'attribution/bulk' ,
             [
@@ -611,6 +617,7 @@ Route::group(
                 [ 'only' => [ 'index' ] ]
             );
         } );
+
 
     }
 );
@@ -676,11 +683,7 @@ Route::group(
         /**
          * MT1 API Resources
          */
-        Route::resource(
-            'suppressionReason' ,
-            'MT1API\SuppressionReasonController',
-            [ 'only' => [ 'index' ] ]
-        );
+
 
         Route::resource(
             'clientstatsgrouping' ,

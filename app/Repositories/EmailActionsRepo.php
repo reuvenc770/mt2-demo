@@ -71,4 +71,39 @@ class EmailActionsRepo {
             )
         );
     }
+
+    public function pullIncompleteDeploys($lookback) {
+        return DB::select("SELECT
+              deploy_id, 
+              sr.datetime,
+              ROUND((SUM(ea.delivered) - sr.delivered) / sr.delivered, 3) AS 'delivers_diff',
+              ROUND((SUM(opens) - sr.e_opens) / sr.e_opens, 3) AS 'opens_diff',
+              ROUND((SUM(clicks) - sr.e_clicks) / sr.e_clicks, 3) AS 'clicks_diff'
+            FROM
+              mt2_reports.standard_reports sr 
+                LEFT JOIN (SELECT
+                deploy_id,
+                SUM(CASE WHEN action_id = 4 THEN 1 ELSE 0 END) AS delivered,
+                SUM(CASE WHEN (action_id = 1 OR action_id = 2) THEN 1 ELSE 0 END) AS opens,
+                SUM(CASE WHEN (action_id = 2) THEN 1 ELSE 0 END) AS clicks
+              FROM
+                mt2_reports.email_actions ea
+                INNER JOIN mt2_reports.standard_reports std ON ea.deploy_id = std.external_deploy_id
+              WHERE
+                action_id IN (1, 2, 4)
+                AND
+                std.datetime BETWEEN CURDATE() - INTERVAL $lookback DAY AND CURDATE() - INTERVAL 2 DAY
+              GROUP BY
+                deploy_id) ea ON ea.deploy_id = sr.external_deploy_id
+               
+            WHERE
+              sr.datetime BETWEEN CURDATE() - INTERVAL $lookback DAY AND CURDATE() - INTERVAL 2 DAY
+
+            GROUP BY
+                deploy_id
+            HAVING
+              `delivers_diff` < -.075
+              || `opens_diff`  < -.075
+              || `clicks_diff` < -.075");
+    }
 }

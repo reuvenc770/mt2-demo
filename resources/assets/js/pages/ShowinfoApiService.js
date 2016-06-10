@@ -2,7 +2,7 @@ mt2App.service( 'ShowinfoApiService' , function ( $http , $log ) {
     var self = this;
 
     self.apiUrl = '/api/showinfo';
-    self.suppressionApiUrl = '/api/mt1/suppressionReason';
+    self.suppressionApiUrl = '/api/suppressionReason';
 
     self.getRecords = function ( type , id , successCallback , failureCallback ) {
         $http( {

@@ -26,6 +26,7 @@ class StandardizeFieldNames extends Migration
             $table->unique(['email_id', 'deploy_id', 'datetime'], 'email_deploy_time');
             $table->index(['deploy_id', 'datetime'], 'deploy_date');
             $table->index(['esp_internal_id', 'datetime'], 'esp_internal_id_date');
+            $table->index('external_deploy_id');
         });
 
         Schema::table('orphan_emails', function($table) {

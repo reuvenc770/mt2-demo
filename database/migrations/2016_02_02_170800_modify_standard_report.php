@@ -60,6 +60,7 @@ class ModifyStandardReport extends Migration
             $table->timestamps();
 
             $table->unique('deploy_id');
+            $table->index('datetime', 'datetime');
         });
 
 
