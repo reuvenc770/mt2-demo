@@ -54,8 +54,7 @@
 
             <md-divider></md-divider>
 
-            <membership-widget recordlist="cleanse.offerCategories" chosenrecordlist="cleanse.selectedOfferCategories" availablecardtitle="cleanse.availableCategoryWidgetTitle" chosenrecordtitle="cleanse.chosenCategoryWidgetTitle" updatecallback="cleanse.offerCategoryMembershipCallback()" ng-init="cleanse.loadOfferCategories()"></membership-widget>
-
+            <lite-membership-widget recordlist="cleanse.offerCategories" chosenrecordlist="cleanse.selectedOfferCategories" availablerecordtitle="cleanse.availableCategoryWidgetTitle" chosenrecordtitle="cleanse.chosenCategoryWidgetTitle" updatecallback="cleanse.offerCategoryMembershipCallback()" ng-init="cleanse.loadOfferCategories()"></lite-membership-widget>
         </md-content>
 
         <md-content id="suppressionCountries" layout-padding style="margin-bottom: 1em;" ng-cloak>
@@ -63,7 +62,7 @@
 
             <md-divider></md-divider>
 
-            <membership-widget recordlist="cleanse.countries" chosenrecordlist="cleanse.selectedCountries" availablecardtitle="cleanse.availableCountryWidgetTitle" chosenrecordtitle="cleanse.chosenCountryWidgetTitle" updatecallback="cleanse.countryMembershipCallback()" ng-init="cleanse.loadCountries()"></membership-widget>
+            <lite-membership-widget recordlist="cleanse.countries" chosenrecordlist="cleanse.selectedCountries" availablerecordtitle="cleanse.availableCountryWidgetTitle" chosenrecordtitle="cleanse.chosenCountryWidgetTitle" updatecallback="cleanse.countryMembershipCallback()" ng-init="cleanse.loadCountries()"></lite-membership-widget>
 
         </md-content>
 
@@ -72,7 +71,7 @@
 
             <md-divider></md-divider>
 
-            <membership-widget recordlist="cleanse.advertisers" chosenrecordlist="cleanse.selectedAdvertisers" availablecardtitle="cleanse.availableAdvertiserWidgetTitle" chosenrecordtitle="cleanse.chosenAdvertiserWidgetTitle" updatecallback="cleanse.advertiserMembershipCallback()" ng-init="cleanse.loadAdvertisers()"></membership-widget>
+            <lite-membership-widget recordlist="cleanse.advertisers" chosenrecordlist="cleanse.selectedAdvertisers" availablerecordtitle="cleanse.availableAdvertiserWidgetTitle" chosenrecordtitle="cleanse.chosenAdvertiserWidgetTitle" updatecallback="cleanse.advertiserMembershipCallback()" ng-init="cleanse.loadAdvertisers()"></lite-membership-widget>
 
         </md-content>
     </div>
