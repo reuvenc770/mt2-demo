@@ -376,7 +376,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     }
 
     protected function logJobException ( JobException $e ) {
-        $logMethod = $this->logTypeMap[ $e->getCode() ];
+        $logMethod = isset($this->logTypeMap[ $e->getCode() ]) ? $this->logTypeMap[ $e->getCode() ] : "error" ;
 
         Log::$logMethod( str_repeat( '=' , 20 ) );
         Log::$logMethod( '' );
