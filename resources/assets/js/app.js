@@ -1,9 +1,9 @@
 /**
  * MT2 App Module
  */
-var mt2App = angular.module( 'mt2App' , [ 'ngMaterial' , 'ngMessages' , 'ui.select' , 'flow' , 'ngclipboard' ] );
+var mt2App = angular.module( 'mt2App' , [ 'ngMaterial' , 'ngMessages' , 'ui.select' , 'flow' , 'ngclipboard' , 'ivh.treeview' ] );
 
-mt2App.config( function ( $locationProvider , $mdThemingProvider ) {
+mt2App.config( function ( $locationProvider , $mdThemingProvider , ivhTreeviewOptionsProvider ) {
     $locationProvider.html5Mode( true );
 
     $mdThemingProvider.theme( 'mt2-zeta' , 'light' )
@@ -11,6 +11,13 @@ mt2App.config( function ( $locationProvider , $mdThemingProvider ) {
         .accentPalette( 'deep-purple' )
         .warnPalette( 'deep-orange' )
         .backgroundPalette( 'grey' );
+
+    ivhTreeviewOptionsProvider.set( {
+        "expandToDepth" : 1 ,
+        "twistieCollapsedTpl" : '<md-icon md-svg-icon="img/icons/ic_chevron_right_black_24px.svg"></md-icon>',
+        "twistieExpandedTpl" : '<md-icon md-svg-icon="img/icons/ic_expand_more_black_24px.svg"></md-icon>',
+        "twistieLeafTpl" : '<span style="cursor: default;">&#8192;&#8192;</span>'
+    } );
 } );
 
 mt2App.filter( 'bytes' , function() {

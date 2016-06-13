@@ -1,4 +1,4 @@
-mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$timeout' , 'RoleApiService', '$rootScope' , function ( $log , $window , $location , $timeout , RoleApiService, $rootScope ) {
+mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$timeout' , 'RoleApiService', '$rootScope' , 'ivhTreeviewMgr' , 'ivhTreeviewBfs' , function ( $log , $window , $location , $timeout , RoleApiService, $rootScope , ivhTreeviewMgr , ivhTreeviewBfs ) {
     var self = this;
     self.$location = $location;
 
@@ -7,11 +7,45 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
     self.createUrl = 'role/create/';
     self.editUrl = 'role/edit/';
 
-    self.permissions = [];
-    $rootScope.selectedPermissions = {};
-    self.defaultPermissions = [ 'home' , 'login' , 'logout' , 'forget.getemail' , 'forget.postemail' , 'pager' , 'myprofile' , 'profile.update' , 'password.reset' , 'password.store' , 'sessions.create' , 'sessions.destroy' , 'sessions.store' ];
+    self.permissionTree = [];
 
     self.formErrors = "";
+
+    self.loadPermissionTree = function () {
+        var currentPath = $location.path();
+        var pathParts = currentPath.match( new RegExp( /(\d+)/ ) );
+        var prepopPage = (
+            pathParts !== null
+            && angular.isNumber( parseInt( pathParts[ 0 ] ) )
+        );
+        var roleId = ( prepopPage ? pathParts[ 0 ] : 0 );
+
+        RoleApiService.getPermissionTree( roleId , function ( response ) {
+            self.permissionTree = response.data;
+
+            ivhTreeviewMgr.validate(self.permissionTree, false);
+
+            self.updateCurrentRolePermissions();
+        } , function ( response ) { $log.log( response ); } );
+    };
+
+    self.updateSelectedPermissions = function () {
+        self.currentRole.permissions = [];
+
+        self.updateCurrentRolePermissions();
+    };
+
+    self.updateCurrentRolePermissions = function () {
+        ivhTreeviewBfs( self.permissionTree , function ( node ) {
+            if (
+                !node.children
+                && node.selected
+                && self.currentRole.permissions.indexOf( node.id ) === -1
+            ) {
+                self.currentRole.permissions.push( node.id );
+            }
+        } );
+    };
 
     self.initEditPage = function () {
         var currentPath = $location.path();
@@ -21,25 +55,11 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
             && angular.isNumber( parseInt( pathParts[ 0 ] ) )
         );
 
-        self.loadPermissions();
-
         if ( prepopPage ) {
             RoleApiService.getRole( pathParts[ 0 ] , function ( response ) {
                 self.currentRole = response.data;
-
-                angular.forEach( response.data.permissions , function ( value , key ) {
-                    $rootScope.selectedPermissions[ value ] = true;
-                } );
             } );
         }
-    };
-
-    self.initCreatePage = function () {
-        self.loadPermissions();
-
-        angular.forEach( self.defaultPermissions , function ( value , key ) {
-            $rootScope.selectedPermissions[ value ] = true;
-        } );
     };
 
     self.loadRoles = function () {
@@ -48,20 +68,6 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
 
     self.resetForm = function () {
         self.currentRole = {};
-    };
-
-    self.loadPermissions = function () {
-        self.permissions = RoleApiService.getPermissions( self.loadPermissionsSuccessCallback , self.loadPermissionsFailureCallback );
-    };
-
-    self.loadPermissionsSuccessCallback = function ( response ) {
-        $log.log( response );
-
-        self.permissions = response.data;
-    };
-
-    self.loadPermissionsFailureCallback = function ( response ) {
-        $log.log( response );
     };
 
     /**
@@ -82,46 +88,6 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
 
         RoleApiService.editRole( self.currentRole , self.SuccessCallBackRedirect , self.editRoleFailureCallback );
     };
-
-    self.selectPermissions = function ( permissionList ) {
-        if ( angular.isArray( permissionList ) ) {
-            angular.forEach( permissionList , function ( permissionName , key ) {
-                $rootScope.selectedPermissions[ permissionName ] = true;
-            } );
-        } else {
-            angular.forEach( permissionList , function ( value , groupKey ) {
-                angular.forEach( value , function ( permissionName , key ) {
-                    $rootScope.selectedPermissions[ permissionName ] = true;
-                } );
-            } );
-        }
-    }
-
-    self.unselectPermissions = function ( permissionList ) {
-        if ( angular.isArray( permissionList ) ) {
-            angular.forEach( permissionList , function ( permissionName , key ) {
-                $rootScope.selectedPermissions[ permissionName ] = false;
-            } );
-        } else {
-            angular.forEach( permissionList , function ( value , groupKey ) {
-                angular.forEach( value , function ( permissionName , key ) {
-                    $rootScope.selectedPermissions[ permissionName ] = false;
-                } );
-            } );
-        }
-    }
-
-    
-    /**
-     * Watchers
-     */
-    $rootScope.$watchCollection( 'selectedPermissions' , function ( newPermissions , oldPermissions ) {
-        self.currentRole.permissions = [];
-
-        angular.forEach( newPermissions , function ( value , key ) {
-            if ( value === true ) self.currentRole.permissions.push( key );
-        });
-    } );
 
     /**
      * Callbacks

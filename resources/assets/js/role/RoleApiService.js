@@ -6,12 +6,12 @@ mt2App.service( 'RoleApiService' , function ( $http , $log ) {
     self.getRole = function ( id , successCallback ) {
         $http( { "method" : "GET" , "url" : self.baseApiUrl + '/' + id } )
             .then( successCallback );
-    }
+    };
 
     self.getRoles = function ( successCallback , failureCallback ) {
         $http( { "method" : "GET" , "url" : self.baseApiUrl } )
             .then( successCallback , failureCallback );
-    }
+    };
 
     self.saveNewRole = function ( newRole , successCallback , failureCallback ) {
         $http( {
@@ -19,7 +19,7 @@ mt2App.service( 'RoleApiService' , function ( $http , $log ) {
             "url" : self.baseApiUrl ,
             "data" : newRole
         } ).then( successCallback , failureCallback );
-    }
+    };
 
     self.editRole = function ( role , successCallback , failureCallback  ) {
         var request = role;
@@ -31,12 +31,20 @@ mt2App.service( 'RoleApiService' , function ( $http , $log ) {
             "url" : self.baseApiUrl + '/' + role.id ,
             "data" : request
         } ).then( successCallback , failureCallback );
-    }
+    };
 
     self.getPermissions = function ( successCallback , failureCallback ) {
         $http( {
             "method" : "GET" ,
             "url" : self.baseApiUrl + '/permissions'
         } ).then( successCallback , failureCallback );
-    }
+    };
+
+    self.getPermissionTree = function ( roleId , successCallback , failureCallback ) {
+        $http( {
+            "method" : "GET" ,
+            "url" : self.baseApiUrl + '/permissionTree/' + roleId
+        } ).then( successCallback ,  failureCallback );
+
+    };
 } );

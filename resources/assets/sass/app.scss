@@ -25,6 +25,19 @@ $navbar-inverse-brand-hover-color: #9D9D9D;
 @import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
 @import "node_modules/jasny-bootstrap/scss/jasny-bootstrap.scss";
 
+
+/* IVH Includes */
+@import "node_modules/angular-ivh-treeview/dist/ivh-treeview";
+@import "node_modules/angular-ivh-treeview/dist/ivh-treeview-theme-basic";
+
+ul.ivh-treeview ul.ivh-treeview {
+    padding-left: 40px;
+}
+
+.ivh-treeview-node-label {
+    font-size: 1.25em;
+}
+
 /**
  * Custom Vanilla Styling
  */
