@@ -11,7 +11,7 @@ class Kernel extends ConsoleKernel
     const DELIVERABLE_AGGREGATION_TIME = '11:00';
     const UNSUB_TIME = '01:00';
     const REPORT_TIME = '11:30';
-    const EARLY_DELIVERABLE_SCHEDULE_TIME = '01:00';
+    const EARLY_DELIVERABLE_SCHEDULE_TIME = '00:15';
     const DEPLOY_CHECK_TIME = '14:00';
 
     /**
