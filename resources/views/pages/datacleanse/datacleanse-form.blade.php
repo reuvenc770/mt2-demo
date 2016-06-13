@@ -5,19 +5,20 @@
 
     <div class="panel-body">
         <md-content ng-cloak>
-            <md-input-container class="md-icon-float md-block">
-                <label>Data Export Filename</label>
-                <md-icon md-svg-src="img/icons/ic_publish_black_24px.svg"></md-icon>
-                <md-select name="pname" ng-model="cleanse.current.pname" class="bold-text add-bottom-margin" required>
-                    @foreach ( $dataExportFiles as $file )
-                    <md-option value="{{ str_replace( 'Incoming/' , '' , $file ) }}">{{ str_replace( 'Incoming/' , '' , $file ) }}</md-option>
-                    @endforeach
-                </md-select>
+                <label>
+                    <span>Data Export Filename&nbsp;</span>
 
-                <div ng-messages="cleanseForm.pname.$error">
+                    <select name="pname" ng-model="cleanse.current.pname" class="bold-text add-bottom-margin" required ng-required="true">
+                        <option value="">Please Choose a Data Export File</option>
+                        @foreach ( $dataExportFiles as $file )
+                        <option value="{{ str_replace( 'Incoming/' , '' , $file ) }}">{{ str_replace( 'Incoming/' , '' , $file ) }}</option>
+                        @endforeach
+                    </select>
+                </label>
+
+                <div class="bg-danger" ng-show="cleanseForm.pname.$dirty" ng-messages="cleanseForm.pname.$error">
                     <div ng-message="required">Data Export Filename is required.</div>
                 </div>
-            </md-input-container>
 
             <md-input-container class="md-icon-float md-block">
                 <label>Output Filename</label>
