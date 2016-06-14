@@ -118,7 +118,7 @@ class BrontoApi extends EspBaseAPI
     private function setupBronto()
     {
         $this->brontoObject = new BrontoSoapApi();
-        $sessionId = $this->brontoObject->login(new Login($this->token))->getReturn();
+        $sessionId = $this->brontoObject->login(new login($this->token))->getReturn();
         $session_header = new \SoapHeader("http://api.bronto.com/v4",
             'sessionHeader',
             array('sessionId' => $sessionId));
