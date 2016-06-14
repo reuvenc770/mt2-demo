@@ -19,6 +19,7 @@ return [
     'espapi.list' => 'View ESP API Page' ,
     'espapi.add' => 'View Add ESP API Page' ,
     'espapi.edit' => 'View ESP API Edit Page' ,
+    'tools.list' => 'Tools Parent Nav Item' ,
     'tools.recordlookup' => 'View Email & EID Lookup Page' ,
     'tools.bulksuppression' => 'View Bulk Suppression Page' ,
     'ymlpcampaign.list' => 'View YMLP Campaign Page' ,
