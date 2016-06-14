@@ -99,7 +99,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:downloadApi Maro 31')->monthly()->sendOutputTo($filePath);
         //$schedule->command('reports:downloadApi Ymlp 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Publicators 31')->monthly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi Bronto 31')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Bronto 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadTrackingData Cake 31')->monthly()->sendOutputTo($filePath);
 
         /**
