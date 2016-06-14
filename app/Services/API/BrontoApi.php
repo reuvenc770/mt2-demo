@@ -12,6 +12,7 @@ use App\Exceptions\JobException;
 use App\Library\Bronto\messageFilter;
 use App\Library\Bronto\readMessages;
 use App\Library\Bronto\readRecentInboundActivitiesResponse;
+use App\Library\Bronto\readRecentOutboundActivities;
 use App\Services\API\EspBaseAPI;
 use App\Library\Bronto\Login;
 use App\Library\Bronto\deliveryFilter;
@@ -79,6 +80,35 @@ class BrontoApi extends EspBaseAPI
                 throw new JobException($e->getMessage());
             }
         } finally {
+            $records = array_merge($firstSet, $secondSet);
+        }
+        return $records;
+    }
+
+    public function getOutgoingSends($filter){
+        $this->setupBronto();
+        $records = array();
+        $firstSet = array();
+        $secondSet = array();
+        try {
+
+            $firstSet = $this->brontoObject->readRecentOutboundActivities(new readRecentOutboundActivities($filter))->getReturn();
+
+            while (1 != 2) {
+                $filter['readDirection'] = "NEXT";
+                $secondSet = $this->brontoObject->readRecentOutboundActivities(new readRecentOutboundActivities($filter))->getReturn();
+                $records = array_merge($firstSet, $secondSet);
+            }
+        } catch (\SoapFault $e) {
+            if ($e->getMessage() == "116: End of result set.") {
+                //nothing to see here, besides a exception to get out of a while loop.
+            } else {
+                throw new JobException($e->getMessage());
+            }
+        } finally {
+            if(!isset($firstSet)){
+                return $records;
+            }
             $records = array_merge($firstSet, $secondSet);
         }
         return $records;

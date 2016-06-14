@@ -23,6 +23,7 @@ use Event;
 class BrontoReportService extends AbstractReportService implements IDataService
 {
     public $pageNumber = 1;
+    CONST DUMB_ID = "0bce03ee";
     public $pageType;
     public $currentPageData = array();
 
@@ -77,6 +78,27 @@ class BrontoReportService extends AbstractReportService implements IDataService
         $internalIds = array();
         try {
             switch ($processState['recordType']) {
+
+                case 'delivered' :
+                    foreach ($processState['currentPageData'] as $opener) {
+                        $espInternalId = $this->parseInternalId($opener->getDeliveryId());
+                        $deployId = isset($map[$espInternalId]) ?
+                            (int)$map[$espInternalId] : 0;
+                        if ($opener->getDeliveryType() != 'bulk') {
+                            continue;
+                        }
+                        $this->emailRecord->queueDeliverable(
+                            self::RECORD_TYPE_DELIVERABLE,
+                            $opener->getEmailAddress(),
+                            $this->api->getId(),
+                            $deployId,
+                            $espInternalId,
+                            $opener->getCreatedDate()->format('Y-m-d H:i:s')
+                        );
+                        $internalIds[] = $espInternalId;
+                    }
+                    $type = "open";
+                    break;
                 case 'open' :
                     foreach ($processState['currentPageData'] as $opener) {
                         $espInternalId = $this->parseInternalId($opener->getDeliveryId());
@@ -263,5 +285,31 @@ class BrontoReportService extends AbstractReportService implements IDataService
         $hexId = substr($id, $pos + 3);
         $id = base_convert($hexId, 16, 10);
         return $id;
+    }
+
+    public function makeDumbInternalId($id){
+        $converted = base_convert($id,10,16);
+        $padded = str_pad($converted,28,'0',STR_PAD_LEFT);
+        return self::DUMB_ID.$padded;
+    }
+
+    public function pageHasCampaignData($formattedInternalId){
+        $realID = $this->makeDumbInternalId($formattedInternalId);
+        if ($this->pageNumber != 1) {
+            return false;
+        }
+
+        $filter = array(
+            "start" => Carbon::now()->subDay(5)->toAtomString(), //TODO NOT SURE HOW TO GET DATE HERE WELL, HARDCODING TILL WE NEED TO BE DYNAMIC
+            "size" => "5000",
+            "types" => "send",
+            "deliveryId" => $realID,
+            "readDirection" => $this->getPageNumber(),
+        );
+        $data = $this->api->getOutgoingSends($filter);
+        $this->currentPageData = $data;
+
+
+        return true;
     }
 }
