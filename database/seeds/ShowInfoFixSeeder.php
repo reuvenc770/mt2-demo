@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Seeder;
 use Carbon\Carbon;
-use Cache;
 
 class ShowInfoFixSeeder extends Seeder
 {
