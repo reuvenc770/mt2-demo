@@ -97,7 +97,7 @@ class BrontoReportService extends AbstractReportService implements IDataService
                         );
                         $internalIds[] = $espInternalId;
                     }
-                    $type = "open";
+                    $type = "deliverable";
                     break;
                 case 'open' :
                     foreach ($processState['currentPageData'] as $opener) {
@@ -191,7 +191,7 @@ class BrontoReportService extends AbstractReportService implements IDataService
             return false;
         }
         $filter = array(
-            "start" => Carbon::now()->subDay(15)->toAtomString(), //TODO NOT SURE HOW TO GET DATE HERE WELL, HARDCODING TILL WE NEED TO BE DYNAMIC
+            "start" => Carbon::now()->subDay(3)->toAtomString(), //TODO NOT SURE HOW TO GET DATE HERE WELL, HARDCODING TILL WE NEED TO BE DYNAMIC
             "size" => "5000",
             "types" => $this->pageType,
             "readDirection" => $this->getPageNumber(),
@@ -300,7 +300,7 @@ class BrontoReportService extends AbstractReportService implements IDataService
         }
 
         $filter = array(
-            "start" => Carbon::now()->subDay(5)->toAtomString(), //TODO NOT SURE HOW TO GET DATE HERE WELL, HARDCODING TILL WE NEED TO BE DYNAMIC
+            "start" => Carbon::now()->subDay(3)->toAtomString(), //TODO NOT SURE HOW TO GET DATE HERE WELL, HARDCODING TILL WE NEED TO BE DYNAMIC
             "size" => "5000",
             "types" => "send",
             "deliveryId" => $realID,
