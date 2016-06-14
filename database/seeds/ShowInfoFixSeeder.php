@@ -27,19 +27,19 @@ class ShowInfoFixSeeder extends Seeder
         #Assign permissions to roles
         Artisan::call( 'permissions:update' , [
             '--grant' => true ,
-            '--permissionName' => 'tools.list' ,
+            '--permissionName' => self::PERMISSION_NAME ,
             '--role' => 'admin'
         ] );
 
         Artisan::call( 'permissions:update' , [
             '--grant' => true ,
-            '--permissionName' => 'tools.list' ,
+            '--permissionName' => self::PERMISSION_NAME ,
             '--role' => 'gtdev'
         ] );
 
         Artisan::call( 'permissions:update' , [
             '--grant' => true ,
-            '--permissionName' => 'tools.list' ,
+            '--permissionName' => self::PERMISSION_NAME ,
             '--role' => 'standard'
         ] );
 
