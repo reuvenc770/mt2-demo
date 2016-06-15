@@ -120,15 +120,11 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
     self.saveClient = function () {
         self.creatingClient = 1;
 
-        ClientApiService.saveClient( self.getClientData( true ) , self.SuccessCallBackRedirect , self.saveClientFailureCallback );
+        ClientApiService.saveClient( self.getClientData() , self.SuccessCallBackRedirect , self.saveClientFailureCallback );
     };
 
-    self.getClientData = function ( newClient ) {
+    self.getClientData = function () {
         var clientData = {};
-
-        if ( typeof( newClient ) !== 'undefined' && newClient === true ) {
-            self.current.newClient = 1;
-        }
 
         angular.forEach( self.current , function ( field , fieldName ) {
             if ( typeof( field ) == 'object' ) {
@@ -179,7 +175,13 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
 
     self.saveClient = function () {
         self.resetFieldErrors();
-        ClientApiService.saveClient( self.current , self.SuccessCallBackRedirect , self.saveClientFailureCallback );
+
+        var clientData = angular.copy( self.current );
+
+        clientData.list_owner = self.current.list_owner.value;
+        clientData.newClient = 1;
+
+        ClientApiService.saveClient( clientData , self.SuccessCallBackRedirect , self.saveClientFailureCallback );
     };
 
     self.viewAdd = function () {
@@ -219,7 +221,10 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
      */
     self.loadClientSuccessCallback = function ( response ) {
         var currentRecord = response.data[ 0 ];
-        currentRecord[ 'list_owner' ] = currentRecord[ 'list_owner' ].toLowerCase();
+
+        if ( typeof( currentRecord[ 'list_owner' ] ) !== 'undefined' ) {
+            currentRecord[ 'list_owner' ] = currentRecord[ 'list_owner' ].toLowerCase();
+        }
 
         self.current = currentRecord;
     };
