@@ -18,7 +18,7 @@ class UserAgentStringRepo {
     }
 
 
-    public function insert($data) {
+    public function loadData($data) {
         $this->userAgentStringModel->updateOrCreate([
                 'user_agent_string' => $data['user_agent_string']
             ], $data);

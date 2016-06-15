@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Jobs\CheckDeployStatsJob;
+use App\Jobs\DataProcessingJob;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class CheckDeployStats extends Command
@@ -16,6 +16,7 @@ class CheckDeployStats extends Command
      */
     protected $signature = 'reports:findIncompleteDeploys {lookback?}';
     const DEFAULT_LOOKBACK = 5;
+    const JOB_NAME = 'CheckDeployStats';
 
     /**
      * The console command description.
@@ -42,7 +43,7 @@ class CheckDeployStats extends Command
      */
     public function handle() {
         $lookback = $this->argument('lookback') ? $this->argument('lookback') : self::DEFAULT_LOOKBACK;
-        $job = new CheckDeployStatsJob($lookback, str_random(16));
+        $job = new DataProcessingJob(self::JOB_NAME, str_random(16), $lookback);
         $this->dispatch($job);
     }
 }

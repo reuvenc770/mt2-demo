@@ -106,4 +106,21 @@ class EmailActionsRepo {
               || `opens_diff`  < -.075
               || `clicks_diff` < -.075");
     }
+
+    public function pullEspAccount($espAccounts, $date) {
+        $espAccountString = implode(',', $espAccounts);
+
+        return DB::select("SELECT
+            DISTINCT email_address, 
+            email_id
+            FROM
+                mt2_reports.email_actions ea
+                INNER JOIN homestead.emails e ON ea.email_id = e.id
+            WHERE
+                esp_account_id IN ($espAccountString)
+                AND
+                ea.action_id IN (1,2)
+                AND
+                ea.datetime >= $date");
+    }
 }
