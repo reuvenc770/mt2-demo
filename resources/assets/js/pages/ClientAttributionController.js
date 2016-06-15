@@ -1,4 +1,4 @@
-mt2App.controller( 'ClientAttributionController' , [ 'ClientApiService' , '$rootScope' , '$location' , '$window' , '$log' , function ( ClientApiService , $rootScope , $location , $window , $log ) {
+mt2App.controller( 'ClientAttributionController' , [ 'ClientApiService' , '$rootScope' , '$location' , '$window' , '$log' , '$mdDialog' , '$mdToast' , function ( ClientApiService , $rootScope , $location , $window , $log , $mdDialog , $mdToast ) {
     var self = this;
 
     self.clients = [];
@@ -7,6 +7,8 @@ mt2App.controller( 'ClientAttributionController' , [ 'ClientApiService' , '$root
     self.paginationCount = '10';
     self.currentPage = 1;
     self.currentlyLoading = 0;
+
+    self.prevAttributionLevel = 0;
 
     self.redirectUrl = '/client/attribution';
 
@@ -28,20 +30,20 @@ mt2App.controller( 'ClientAttributionController' , [ 'ClientApiService' , '$root
         self.launchModal();
     };
 
-    self.setAttribution = function ( id , level ) {
-        if ( level == '' || level == null ) {
+    self.setAttribution = function ( client , ev ) {
+        if ( client.level == '' || client.level == null ) {
             self.setModalLabel( 'Setting Attribution Level...' );
             self.setModalBody( 'Attribution Level is required.' );
             self.launchModal();
 
             return false;
-        } else if ( level == 255 ) {
+        } else if ( client.level == 255 ) {
             self.setModalLabel( 'Setting Attribution Level...' );
             self.setModalBody( 'Attribution Level can not be 255. Please choose another level.' );
             self.launchModal();
 
             return false;
-        } else if ( !angular.isNumber( level ) ) {
+        } else if ( !angular.isNumber( client.level ) ) {
             self.setModalLabel( 'Setting Attribution Level...' );
             self.setModalBody( 'Attribution Level can not contain letters. Please choose another level.' );
             self.launchModal();
@@ -49,7 +51,30 @@ mt2App.controller( 'ClientAttributionController' , [ 'ClientApiService' , '$root
             return false;
         }
 
-        ClientApiService.setAttribution( id , level , self.setAttributionSuccessCallback , self.setAttributionFailureNotify );
+        var confirm = $mdDialog.confirm()
+            .title( 'Adjusting Attribution Level' )
+            .textContent( 'Are you sure you want to adjust ' + client.name + '\'s attribution level from ' + self.prevAttributionLevel + ' to ' + client.level + '?' )
+            .ariaLabel( 'Adjusting Attribution Level' )
+            .targetEvent( ev )
+            .ok( 'Yes' )
+            .cancel( 'No' );
+
+        $mdDialog.show( confirm ).then( function() {
+            ClientApiService.setAttribution( client.id , client.level , self.setAttributionSuccessCallback , self.setAttributionFailureNotify );
+        } , function () {
+            client.level = self.prevAttributionLevel;
+
+            $mdToast.show(
+                $mdToast.simple()
+                    .textContent( 'Canceled Adjustment' )
+                    .hideDelay( 1500 )
+            );
+        } );
+
+    };
+
+    self.savePreviousLevel = function ( client ) {
+        self.prevAttributionLevel = client.level;
     };
 
     self.setAttributionSuccessCallback = function ( response ) {
@@ -68,8 +93,24 @@ mt2App.controller( 'ClientAttributionController' , [ 'ClientApiService' , '$root
         self.launchModal();
     };
 
-    self.deleteAttribution = function ( id ) {
-        ClientApiService.deleteAttribution( id , self.deleteAttributionSuccessCallback , self.deleteAttributionFailureNotify );
+    self.deleteAttribution = function ( id , ev ) {
+        var confirm = $mdDialog.confirm()
+            .title( 'Delete Attribution Level' )
+            .textContent( 'Are you sure you want to delete this attribution level?' )
+            .ariaLabel( 'Delete Attribution Level' )
+            .targetEvent( ev )
+            .ok( 'Yes' )
+            .cancel( 'No' );
+
+        $mdDialog.show( confirm ).then( function() {
+            ClientApiService.deleteAttribution( id , self.deleteAttributionSuccessCallback , self.deleteAttributionFailureNotify );
+        } , function () {
+            $mdToast.show(
+                $mdToast.simple()
+                    .textContent( 'Cancel Deletion' )
+                    .hideDelay( 3000 )
+            );
+        } );
     };
 
     self.deleteAttributionSuccessCallback = function ( response ) {
@@ -131,7 +172,8 @@ mt2App.directive( 'clientattributionTable' , function () {
             "records" : "=" ,
             "loadingflag" : "=" ,
             "setclient" : "&" ,
-            "deleteclient" : "&"
+            "deleteclient" : "&" ,
+            "savepreviouslevel" : '&'
         } ,
         "templateUrl" : "js/templates/clientattribution-table.html"
     };
