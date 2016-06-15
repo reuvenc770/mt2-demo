@@ -78,7 +78,7 @@ class SuppressionService
 
     }
 
-    public function recordSuppressionByReason($email, $date, $reason){{
+    public function recordSuppressionByReason($email, $date, $reason){
         $record = array(
             "esp_account_id" => 0,
             "email_address"  => $email,
@@ -96,7 +96,6 @@ class SuppressionService
         return true;
     }
 
-}
 
     public function convertSuppressionReason($response){
         $mt2Reasons = array();
