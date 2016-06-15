@@ -76,6 +76,13 @@ return [
             'password' => env( 'SPRINT_UNSUB_FTP_PASS' ),
         ] ,
 
+        'espdata' => [
+            'driver' => 'ftp',
+            'host'     => env( 'ESPDATA_FTP_HOST' ),
+            'username' => env( 'ESPDATA_FTP_USER' ),
+            'password' => env( 'ESPDATA_FTP_PASS' ),
+        ],
+
         'ftp' => [
             'driver'   => 'ftp',
             'host'     => 'ftp.example.com',
