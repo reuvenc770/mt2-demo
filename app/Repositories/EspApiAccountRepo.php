@@ -83,6 +83,17 @@ class EspApiAccountRepo
             ->get();
     }
 
+    public function getAccountIdsForEsp($espName) {
+        $output = [];
+        $accounts = $this->getAccountsByESPName($espName);
+
+        foreach ($accounts as $account) {
+            $output[]= $account->id;
+        }
+
+        return $output;
+    }
+
     /**
      * @param array $newAccount The collection of account details to save.
      */
