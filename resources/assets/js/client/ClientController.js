@@ -120,11 +120,15 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
     self.saveClient = function () {
         self.creatingClient = 1;
 
-        ClientApiService.saveClient( self.getClientData() , self.SuccessCallBackRedirect , self.saveClientFailureCallback );
+        ClientApiService.saveClient( self.getClientData( true ) , self.SuccessCallBackRedirect , self.saveClientFailureCallback );
     };
 
-    self.getClientData = function () {
+    self.getClientData = function ( newClient ) {
         var clientData = {};
+
+        if ( typeof( newClient ) !== 'undefined' && newClient === true ) {
+            self.current.newClient = 1;
+        }
 
         angular.forEach( self.current , function ( field , fieldName ) {
             if ( typeof( field ) == 'object' ) {
