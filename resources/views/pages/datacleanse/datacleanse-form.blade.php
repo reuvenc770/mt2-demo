@@ -5,19 +5,20 @@
 
     <div class="panel-body">
         <md-content ng-cloak>
-            <md-input-container class="md-icon-float md-block">
-                <label>Data Export Filename</label>
-                <md-icon md-svg-src="img/icons/ic_publish_black_24px.svg"></md-icon>
-                <md-select name="pname" ng-model="cleanse.current.pname" class="bold-text add-bottom-margin" required>
-                    @foreach ( $dataExportFiles as $file )
-                    <md-option value="{{ str_replace( 'Incoming/' , '' , $file ) }}">{{ str_replace( 'Incoming/' , '' , $file ) }}</md-option>
-                    @endforeach
-                </md-select>
+                <label>
+                    <span>Data Export Filename&nbsp;</span>
 
-                <div ng-messages="cleanseForm.pname.$error">
+                    <select name="pname" ng-model="cleanse.current.pname" class="bold-text add-bottom-margin" required ng-required="true">
+                        <option value="">Please Choose a Data Export File</option>
+                        @foreach ( $dataExportFiles as $file )
+                        <option value="{{ str_replace( 'Incoming/' , '' , $file ) }}">{{ str_replace( 'Incoming/' , '' , $file ) }}</option>
+                        @endforeach
+                    </select>
+                </label>
+
+                <div class="bg-danger" ng-show="cleanseForm.pname.$dirty" ng-messages="cleanseForm.pname.$error">
                     <div ng-message="required">Data Export Filename is required.</div>
                 </div>
-            </md-input-container>
 
             <md-input-container class="md-icon-float md-block">
                 <label>Output Filename</label>
@@ -54,8 +55,7 @@
 
             <md-divider></md-divider>
 
-            <membership-widget recordlist="cleanse.offerCategories" chosenrecordlist="cleanse.selectedOfferCategories" availablecardtitle="cleanse.availableCategoryWidgetTitle" chosenrecordtitle="cleanse.chosenCategoryWidgetTitle" updatecallback="cleanse.offerCategoryMembershipCallback()" ng-init="cleanse.loadOfferCategories()"></membership-widget>
-
+            <lite-membership-widget recordlist="cleanse.offerCategories" chosenrecordlist="cleanse.selectedOfferCategories" availablerecordtitle="cleanse.availableCategoryWidgetTitle" chosenrecordtitle="cleanse.chosenCategoryWidgetTitle" updatecallback="cleanse.offerCategoryMembershipCallback()" ng-init="cleanse.loadOfferCategories()"></lite-membership-widget>
         </md-content>
 
         <md-content id="suppressionCountries" layout-padding style="margin-bottom: 1em;" ng-cloak>
@@ -63,7 +63,7 @@
 
             <md-divider></md-divider>
 
-            <membership-widget recordlist="cleanse.countries" chosenrecordlist="cleanse.selectedCountries" availablecardtitle="cleanse.availableCountryWidgetTitle" chosenrecordtitle="cleanse.chosenCountryWidgetTitle" updatecallback="cleanse.countryMembershipCallback()" ng-init="cleanse.loadCountries()"></membership-widget>
+            <lite-membership-widget recordlist="cleanse.countries" chosenrecordlist="cleanse.selectedCountries" availablerecordtitle="cleanse.availableCountryWidgetTitle" chosenrecordtitle="cleanse.chosenCountryWidgetTitle" updatecallback="cleanse.countryMembershipCallback()" ng-init="cleanse.loadCountries()"></lite-membership-widget>
 
         </md-content>
 
@@ -72,7 +72,7 @@
 
             <md-divider></md-divider>
 
-            <membership-widget recordlist="cleanse.advertisers" chosenrecordlist="cleanse.selectedAdvertisers" availablecardtitle="cleanse.availableAdvertiserWidgetTitle" chosenrecordtitle="cleanse.chosenAdvertiserWidgetTitle" updatecallback="cleanse.advertiserMembershipCallback()" ng-init="cleanse.loadAdvertisers()"></membership-widget>
+            <lite-membership-widget recordlist="cleanse.advertisers" chosenrecordlist="cleanse.selectedAdvertisers" availablerecordtitle="cleanse.availableAdvertiserWidgetTitle" chosenrecordtitle="cleanse.chosenAdvertiserWidgetTitle" updatecallback="cleanse.advertiserMembershipCallback()" ng-init="cleanse.loadAdvertisers()"></lite-membership-widget>
 
         </md-content>
     </div>

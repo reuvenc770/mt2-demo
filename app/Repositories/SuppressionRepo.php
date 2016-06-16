@@ -78,4 +78,8 @@ class SuppressionRepo
         return $this->suppressionReason->find($reason);
     }
 
+    public function getAllSinceDate($date){
+        return $this->suppressionModel->select('email_address')->where('date','>=',$date)->get();
+    }
+
 }

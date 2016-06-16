@@ -24,7 +24,7 @@
                     <em>OR</em>
                     &nbsp;&nbsp;
 
-                    <strong>Drag & Drop Attribution Files Here</strong>
+                    <strong>Drag & Drop Attribution Level Mapping Files Here</strong>
                 </div>
 
                 <br />
@@ -101,7 +101,7 @@
                 </div>
             </div>
 
-            <clientattribution-table records="clientAttr.clients" loadingflag="clientAttr.currentlyLoading" deleteclient="clientAttr.deleteAttribution( id )" setclient="clientAttr.setAttribution( id , level )" ></clientattribution-table>
+            <clientattribution-table records="clientAttr.clients" loadingflag="clientAttr.currentlyLoading" deleteclient="clientAttr.deleteAttribution( id )" setclient="clientAttr.setAttribution( client , ev )" savepreviouslevel="clientAttr.savePreviousLevel( client )"></clientattribution-table>
 
             <div class="row">
                 <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">

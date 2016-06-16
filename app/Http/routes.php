@@ -14,9 +14,9 @@
 /**
  * Default Routes
  */
-Route::get('/', function () {
+Route::get('/', [ 'as' => 'root' , 'uses' => function () {
     return redirect("/login");
-});
+} ] );
 
 
 /**
@@ -116,6 +116,8 @@ Route::group(
         'middleware' => [ 'auth' , 'pageLevel' ]
     ] ,
     function () {
+        Route::get( '/tools' , [ 'as' => 'tools.list' , 'uses' => function () { return redirect()->route( 'tools.recordlookup' ); } ] );
+
         Route::get( '/show-info' , [
             'as' => 'tools.recordlookup' ,
             'uses' => 'ShowInfoController@index'
@@ -593,6 +595,11 @@ Route::group(
             Route::get( '/role/permissions/' , [
                 'as' => 'api.role.permissions' ,
                 'uses' => 'RoleApiController@permissions'
+            ] );
+
+            Route::get( '/role/permissionTree/{id}' , [
+                'as' => 'api.role.permissions.tree' ,
+                'uses' => 'RoleApiController@getPermissionTree'
             ] );
 
             Route::resource(

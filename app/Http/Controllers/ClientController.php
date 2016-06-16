@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Services\MT1ApiService;
 use App\Http\Requests\ClientEditRequest;
 use App\Services\MT1Services\ClientService;
+use Cache;
 
 class ClientController extends Controller
 {
@@ -59,7 +60,10 @@ class ClientController extends Controller
      */
     public function store(ClientEditRequest $request)
     {
+        Cache::tags( [ $this->clientApi->getType() ] )->flush();
+
         Flash::success("Client was Successfully Updated");
+
         return response( $this->api->postForm( self::CLIENT_UPDATE_API_ENDPOINT , $request->all() ) );
     }
 
@@ -94,7 +98,10 @@ class ClientController extends Controller
      */
     public function update(ClientEditRequest $request, $id)
     {
+        Cache::tags( [ $this->clientApi->getType() ] )->flush();
+
         Flash::success("Client was Successfully Updated");
+
         return response( $this->api->postForm( self::CLIENT_UPDATE_API_ENDPOINT , $request->all() ) );
     }
 

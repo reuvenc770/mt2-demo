@@ -167,23 +167,23 @@
 
         <div class="panel-body">
             <div class="form-group" ng-class="{ 'has-error' : client.formErrors.ftp_url }">
-                <input type="text" class="form-control" id="ftp_url" value="" placeholder="FTP URL" required="required" ng-model="client.current.ftp_url" />
-            <span class="help-block" ng-bind="client.formErrors.ftp_url" ng-show="client.formErrors.ftp_url"></span>
+                <input type="text" class="form-control" id="ftp_url" value="" placeholder="FTP URL" ng-model="client.current.ftp_url" />
+                <span class="help-block" ng-bind="client.formErrors.ftp_url" ng-show="client.formErrors.ftp_url"></span>
             </div>
 
             <div class="form-group" ng-class="{ 'has-error' : client.formErrors.ftp_user }">
-                <input type="text" class="form-control" id="ftp_user" value="" placeholder="FTP User" required="required" ng-model="client.current.ftp_user" />
-        <span class="help-block" ng-bind="client.formErrors.ftp_user" ng-show="client.formErrors.ftp_user"></span>
+                <input type="text" class="form-control" id="ftp_user" value="" placeholder="FTP User" ng-model="client.current.ftp_user" />
+                <span class="help-block" ng-bind="client.formErrors.ftp_user" ng-show="client.formErrors.ftp_user"></span>
             </div>
 
             <div class="form-group" ng-class="{ 'has-error' : client.formErrors.ftp_pw }">
                 <input type="password" class="form-control" id="ftp_password" value="" placeholder="FTP Password" ng-model="client.current.ftp_pw" />
-    <span class="help-block" ng-bind="client.formErrors.ftp_pw" ng-show="client.formErrors.ftp_pw"></span>
+                <span class="help-block" ng-bind="client.formErrors.ftp_pw" ng-show="client.formErrors.ftp_pw"></span>
             </div>
 
             <div class="form-group" ng-class="{ 'has-error' : client.formErrors.rt_pw }">
                 <input type="password" class="form-control" id="ftp_realtime_password" value="" placeholder="FTP Realtime Password" ng-model="client.current.rt_pw" />
-    <span class="help-block" ng-bind="client.formErrors.rt_pw" ng-show="client.formErrors.rt_pw"></span>
+                <span class="help-block" ng-bind="client.formErrors.rt_pw" ng-show="client.formErrors.rt_pw"></span>
             </div>
         </div>
     </div>

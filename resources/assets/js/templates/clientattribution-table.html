@@ -14,8 +14,8 @@
             <tr ng-repeat="record in ctrl.records track by $index">
                 <td>
                     <button class="btn btn-xs btn-warning" ng-click="ctrl.editFlags[ record.id ] = !ctrl.editFlags[ record.id ]" ng-hide="ctrl.editFlags[ record.id ]">Change Level</button>
-                    <button class="btn btn-xs btn-danger" ng-click="ctrl.deleteclient( { id : record.id } )" ng-hide="ctrl.editFlags[ record.id ]">Delete</button>
-                    <button class="btn btn-xs btn-success" ng-click="ctrl.editFlags[ record.id ] = !ctrl.editFlags[ record.id ]; ctrl.setclient( { id : record.id , level : record.level } )" ng-show="ctrl.editFlags[ record.id ]">Save</button>
+                    <button class="btn btn-xs btn-danger" ng-click="ctrl.deleteclient( { id : record.id , ev : $event} )" ng-hide="ctrl.editFlags[ record.id ]">Delete</button>
+                    <button class="btn btn-xs btn-success" ng-click="ctrl.editFlags[ record.id ] = !ctrl.editFlags[ record.id ]; ctrl.setclient( { client : record , ev : $event } )" ng-show="ctrl.editFlags[ record.id ]">Save</button>
                     <button class="btn btn-xs btn-danger" ng-click="ctrl.editFlags[ record.id ] = !ctrl.editFlags[ record.id ]" ng-show="ctrl.editFlags[ record.id ]">Cancel</button>
                 </td>
                 <td>{{ record.name }}</td>
@@ -24,7 +24,7 @@
                     
                     <md-input-container class="md-block" flex-gt-sm ng-show="ctrl.editFlags[ record.id ]">
                         <label>New Attribution Level</label>
-                        <input name="attributionLevel" type="number"  ng-model="record.level" placeholder="100" ng-value="record.level" />
+                        <input name="attributionLevel" type="number"  ng-model="record.level" placeholder="100" ng-value="record.level" ng-focus="ctrl.savepreviouslevel( { client :  record } )" />
                     </md-input-container>
                 </td>
                 <td>{{ record.country }}</td>

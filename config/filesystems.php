@@ -75,6 +75,14 @@ return [
             'username' => env( 'SPRINT_UNSUB_FTP_USER' ),
             'password' => env( 'SPRINT_UNSUB_FTP_PASS' ),
         ] ,
+        'MT1SuppressionDropOff' => [
+            'driver'   => 'ftp',
+            'host'     => env( 'MT1_SUPPRESSION_DROPOFF_HOST' ),
+            'username' => env( 'MT1_SUPPRESSION_DROPOFF_USER' ),
+            'password' => env( 'MT1_SUPPRESSION_DROPOFF_PASSWORD' ),
+        ] ,
+
+
 
         'espdata' => [
             'driver' => 'ftp',

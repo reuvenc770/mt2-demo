@@ -4,7 +4,7 @@
 @section('content')
         <div class="row">
             <div class="col-md-8 col-md-offset-2">
-                <div class="panel panel-default" ng-controller="roleController as role" ng-init="role.initCreatePage()">
+                <div class="panel panel-default" ng-controller="roleController as role">
                     <div class="panel-heading">
                         <h1 class="panel-title">Add Security Role</h1>
                     </div>
