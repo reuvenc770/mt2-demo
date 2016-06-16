@@ -13,7 +13,7 @@ class BlueHornetSuppressionExportReportService {
     private $range = false;
     private $hardbounces;
     private $unsubs;
-    const SLACK_CHANNEL = '#gtddev'; #"#mt2-daily-reports";
+    const SLACK_CHANNEL = "#mt2-daily-reports";
     private $destination;
 
     public function __construct(SuppressionRepo $repo, $espName, $espAccounts, $destination) {
