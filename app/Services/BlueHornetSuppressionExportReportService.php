@@ -13,7 +13,7 @@ class BlueHornetSuppressionExportReportService {
     private $range = false;
     private $hardbounces;
     private $unsubs;
-    const SLACK_CHANNEL = "#mt2-daily-reports";
+    const SLACK_CHANNEL = '#gtddev'; #"#mt2-daily-reports";
     private $destination;
 
     public function __construct(SuppressionRepo $repo, $espName, $espAccounts, $destination) {
@@ -30,16 +30,16 @@ class BlueHornetSuppressionExportReportService {
             $name = $espAccount->account_name;
             $id = $espAccount->id;
 
-            $this->hardbounces = $this->getHardBouncesByDateEsp($espAccount->id, $lookBack, $this->range);
+            $this->hardbounces = $this->getRecordsByDateEsp($espAccount->id, $lookback, $this->range);
             $this->exportBounces($id, $name);
-            $this->unsubs = $this->getUnsubsByDateEsp($espAccount->id, $lookBack, $this->range);
+            $this->unsubs = $this->getRecordsByDateEsp($espAccount->id, $lookback, $this->range);
             $this->exportUnsubs($id, $name);
         }
     }
 
     public function notify() {
 
-        $output = "*##### {$this->espName} Hard Bounce - Unsub Report for {$this->lookBack} ####*\n\n";
+        $output = "*##### {$this->espName} Hard Bounce - Unsub Report for {$this->lookback} ####*\n\n";
 
          foreach ($this->espAccounts as $espAccount){
              $localUnsub = Cache::tags(array($this->espName))->get("{$espAccount->id}_unsub_count");
@@ -60,32 +60,32 @@ class BlueHornetSuppressionExportReportService {
         $writer->insertAll($this->hardbounces->toArray());
 
         if ($this->range) {
-            $this->destination->put("DAILY_UNSUB_HARDBOUNCE/{$this->lookBack}_TO_TODAY_{$name}_HB.csv", $writer->__toString());
-            $this->destination->append("ALL_UNSUB_HARDBOUNCE/{$this->lookBack}_TO_TODAY_ALL_HB.csv", $writer->__toString());
+            $this->destination->put("DAILY_UNSUB_HARDBOUNCE/{$this->lookback}_TO_TODAY_{$name}_HB.csv", $writer->__toString());
+            $this->destination->append("ALL_UNSUB_HARDBOUNCE/{$this->lookback}_TO_TODAY_ALL_HB.csv", $writer->__toString());
         }
         else {
-            Cache::tags($this->espName)->increment("{$id}_hb_count",count($hardbounces));
-            Cache::tags($this->espName)->increment("{$this->espName}_hb_total",count($hardbounces));
+            Cache::tags($this->espName)->increment("{$id}_hb_count",count($this->hardbounces));
+            Cache::tags($this->espName)->increment("{$this->espName}_hb_total",count($this->hardbounces));
 
-            $this->destination->put("DAILY_UNSUB_HARDBOUNCE/{$this->lookBack}_{$name}_HB.csv", $writer->__toString());
-            $this->destination->append("ALL_UNSUB_HARDBOUNCE/{$this->lookBack}_ALL_HB.csv", $writer->__toString());
+            $this->destination->put("DAILY_UNSUB_HARDBOUNCE/{$this->lookback}_{$name}_HB.csv", $writer->__toString());
+            $this->destination->append("ALL_UNSUB_HARDBOUNCE/{$this->lookback}_ALL_HB.csv", $writer->__toString());
         }
     }
 
     protected function exportUnsubs($id, $name) {
         $writer = Writer::createFromFileObject(new \SplTempFileObject());
-        $writer->insertAll($unsubs->toArray());
+        $writer->insertAll($this->unsubs->toArray());
 
         if ($this->range) {
-            $this->destination->put("DAILY_UNSUB_HARDBOUNCE/{$this->lookBack}_TO_TODAY_{$name}_unsubs.csv", $writer->__toString());
-            $this->destination->append("ALL_UNSUB_HARDBOUNCE/{$this->lookBack}_TO_TODAY_ALL_UNSUB.csv", $writer->__toString());
+            $this->destination->put("DAILY_UNSUB_HARDBOUNCE/{$this->lookback}_TO_TODAY_{$name}_unsubs.csv", $writer->__toString());
+            $this->destination->append("ALL_UNSUB_HARDBOUNCE/{$this->lookback}_TO_TODAY_ALL_UNSUB.csv", $writer->__toString());
         }
         else {
-            Cache::tags($this->espName)->increment("{$id}_unsub_count",count($unsubs));
-            Cache::tags($this->espName)->increment("{$this->espName}_unsub_total",count($unsubs));
+            Cache::tags($this->espName)->increment("{$id}_unsub_count",count($this->unsubs));
+            Cache::tags($this->espName)->increment("{$this->espName}_unsub_total",count($this->unsubs));
 
-            $this->destination->put("DAILY_UNSUB_HARDBOUNCE/{$this->lookBack}_{$name}_unsubs.csv", $writer->__toString());
-            $this->destination->append("ALL_UNSUB_HARDBOUNCE/{$this->lookBack}_ALL_UNSUB.csv", $writer->__toString());
+            $this->destination->put("DAILY_UNSUB_HARDBOUNCE/{$this->lookback}_{$name}_unsubs.csv", $writer->__toString());
+            $this->destination->append("ALL_UNSUB_HARDBOUNCE/{$this->lookback}_ALL_UNSUB.csv", $writer->__toString());
         }
     }
 
@@ -95,21 +95,9 @@ class BlueHornetSuppressionExportReportService {
             return $this->repo->getRecordsByDateIntervalEspType($typeId, $espAccountId, $date, $operator);
         } 
         catch (\Exception $e) {
-            Log::error($e->getMessage(). ": while trying get Suppression Records by Hardbounce");
+            Log::error($e->getMessage(). ": while trying get Suppression Records for $typdId");
             throw new \Exception($e);
         }
-    }
-
-    protected function getUnsubsByDateEsp($espAccountId, $date, $typeId, $useRange = false){
-        try{
-            $operator = $useRange ? '>=' : '=';
-            return $this->repo->getRecordsByDateIntervalEspType(Suppression::TYPE_UNSUB, $espAccountId, $date, $operator);
-        }
-        catch (\Exception $e) {
-            Log::error($e->getMessage(). ": while trying get Suppression Records by Unsub");
-            throw new \Exception($e);
-        }
-
     }
 
     public function setRange() {

@@ -58,11 +58,11 @@ class ExportActionsJob extends Job implements ShouldQueue
                 $exportReportService->notify();
 
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
-            }/*
+            }
             catch (\Exception $e) {
                 echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;
                 $this->failed();
-            }*/
+            }
             finally {
                 $this->unlock($this->jobName);
             }

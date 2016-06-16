@@ -27,7 +27,16 @@ class ReportFactory
 
         try {
             $model = new $modelName();
-            $repo = new $repoName($model);
+            
+            if (null !== config("reports.$name.model2")) {
+                $model2Name = "App\Models\\" . config("reports.$name.model2");
+                $model2 = new $model2Name();
+                $repo = new $repoName($model, $model2);
+            }
+            else {
+                $repo = new $repoName($model);
+            }
+
             $destination = Storage::disk(config("reports.$name.destination"));
         }
         catch (\Exception $e) {

@@ -7,6 +7,7 @@ return [
         'service' => 'BlueHornetSuppressionExportReportService',
         'model' => 'Suppression',
         'repo' => 'SuppressionRepo',
+        'model2' => 'SuppressionReason',
     ],
 
     'emailsForOpensClicks' => [
