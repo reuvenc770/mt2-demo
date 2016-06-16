@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Reports;
 use League\Csv\Writer;
 use Cache;
 use Maknz\Slack\Facades\Slack;
@@ -8,7 +8,7 @@ use Illuminate\Database\Query\Builder;
 use App\Models\Suppression;
 use App\Repositories\SuppressionRepo;
 
-class BlueHornetSuppressionExportReportService {
+class BlueHornetSuppressionExportReport {
     private $repo;
     private $range = false;
     private $hardbounces;

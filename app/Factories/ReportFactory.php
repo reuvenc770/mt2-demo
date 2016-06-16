@@ -21,13 +21,13 @@ class ReportFactory
 
     public static function createActionsReport($name, $espName, $espAccounts) {
 
-        $service = "App\Services\\" . config("reports.$name.service");
+        $service = "App\Reports\\" . config("reports.$name.service");
         $repoName = "App\Repositories\\" . config("reports.$name.repo");
         $modelName = "App\Models\\" . config("reports.$name.model");
 
         try {
             $model = new $modelName();
-            
+
             if (null !== config("reports.$name.model2")) {
                 $model2Name = "App\Models\\" . config("reports.$name.model2");
                 $model2 = new $model2Name();

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Services;
+namespace App\Reports;
 use App\Repositories\EmailActionsRepo;
 use Maknz\Slack\Facades\Slack;
 use League\Csv\Writer;
 
-class GenericExportReportService {
+class GenericExportReport {
 
     protected $sourceRepo;
     const SLACK_CHANNEL = "#mt2-daily-reports";

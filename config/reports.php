@@ -4,7 +4,7 @@ return [
 
     'bhSuppression' => [
         'destination' => 'hornet7',
-        'service' => 'BlueHornetSuppressionExportReportService',
+        'service' => 'BlueHornetSuppressionExportReport',
         'model' => 'Suppression',
         'repo' => 'SuppressionRepo',
         'model2' => 'SuppressionReason',
@@ -12,7 +12,7 @@ return [
 
     'emailsForOpensClicks' => [
         'destination' => 'espdata',
-        'service' => 'GenericExportReportService',
+        'service' => 'GenericExportReport',
         'model' => 'EmailAction',
         'repo' => 'EmailActionsRepo',
     ],
