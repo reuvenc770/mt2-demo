@@ -36,6 +36,7 @@ class Kernel extends ConsoleKernel
         Commands\SendSprintUnsubsCommand::class,
         Commands\DownloadSuppressionFromESPCommand::class,
         Commands\InsertChunksUtil::class,
+        Commands\CheckDeployStats::class,
         Commands\ExportActionsElsewhere::class,
         Commands\SendSuppressionsToMT1::class,
     ];
