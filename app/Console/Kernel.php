@@ -38,6 +38,7 @@ class Kernel extends ConsoleKernel
         Commands\ParseandSendSuppressionsCommand::class,
         Commands\InsertChunksUtil::class,
         Commands\CheckDeployStats::class,
+        Commands\ExportActionsElsewhere::class,
     ];
 
     /**
@@ -75,7 +76,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('suppression:downloadESP Publicators 1')->hourly()->dailyAt(self::UNSUB_TIME);
         //$schedule->command('suppression:downloadESP YMLP 1')->hourly()->dailyAt(self::UNSUB_TIME);
         
-        $schedule->command('movetoftp:suppressions BlueHornet 1')->hourly()->dailyAt(self::REPORT_TIME);
+        $schedule->command('export bhSuppression BlueHornet --lookback=1')->hourly()->dailyAt(self::REPORT_TIME);
+        $schedule->command('export emailsForOpensClicks Publicators --lookback=15')->dailyAt(self::REPORT_TIME);
 
         /**
          * Campaign Data Daily
