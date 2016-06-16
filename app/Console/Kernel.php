@@ -76,7 +76,7 @@ class Kernel extends ConsoleKernel
         //$schedule->command('suppression:downloadESP YMLP 1')->hourly()->dailyAt(self::UNSUB_TIME);
         
         $schedule->command('export bhSuppression BlueHornet --lookback=1')->hourly()->dailyAt(self::REPORT_TIME);
-        $schedule->command('export emailsForOpensClicks Publicators --lookback=15')->dailyAt(self::REPORT_TIME);
+        $schedule->command('export emailsForOpensClicks Publicators PUB007 --lookback=15')->dailyAt(self::REPORT_TIME);
 
         /**
          * Campaign Data Daily
