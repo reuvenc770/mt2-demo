@@ -4,9 +4,10 @@ namespace App\Services;
 use App\Repositories\EmailCampaignStatisticRepo;
 use App\Repositories\EmailActionsRepo;
 use App\Repositories\EtlPickupRepo;
+use App\Services\AbstractEtlService;
 use PDO;
 
-class EmailCampaignAggregationService {
+class EmailCampaignAggregationService extends AbstractEtlService {
 
     private $statsRepo;
     private $actionsRepo;
@@ -21,7 +22,7 @@ class EmailCampaignAggregationService {
         $this->actionMap = $actionMap;
     }
 
-    public function run() {
+    public function extract($lookback = null) {
         $startPoint = $this->etlPickupRepo->getLastInsertedForName(self::JOB_NAME);
         $endPoint = $this->actionsRepo->maxId();
 
@@ -56,6 +57,8 @@ class EmailCampaignAggregationService {
 
         $this->etlPickupRepo->updatePosition(self::JOB_NAME, $endPoint);
     }
+
+    public function load() {}
 
     private function mapToEmailCampaignsTable($row) {
 

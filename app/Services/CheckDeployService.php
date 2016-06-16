@@ -3,30 +3,22 @@
 namespace App\Services;
 use App\Repositories\EmailActionsRepo;
 use App\Repositories\DeployRecordRerunRepo;
+use App\Services\AbstractEtlService;
 
 
-class CheckDeployService {
+class CheckDeployService extends AbstractEtlService {
 
-    private $actionsRepo;
-    private $rerunRepo;
     const THRESHOLD = -0.075;
 
     public function __construct(EmailActionsRepo $actionsRepo, DeployRecordRerunRepo $rerunRepo) {
-        $this->actionsRepo = $actionsRepo;
-        $this->rerunRepo = $rerunRepo;
+        parent::__construct($actionsRepo, $rerunRepo);
     }
 
-    public function run($lookback) {
-        $campaigns = $this->actionsRepo->pullIncompleteDeploys($lookback);
-
-        foreach ($campaigns as $campaign) {
-            $data = $this->mapToRerunTable($campaign);
-            $this->rerunRepo->insert($data);
-        }
+    public function extract($lookback) {
+        $this->data = $this->sourceRepo->pullIncompleteDeploys($lookback);
     }
 
-
-    private function mapToRerunTable($row) {
+    protected function transform($row) {
         return [
             'deploy_id' => $row->deploy_id,
             'delivers' => $this->mark($row->delivers_diff),

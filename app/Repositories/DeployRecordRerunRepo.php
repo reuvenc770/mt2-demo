@@ -13,7 +13,7 @@ class DeployRecordRerunRepo {
         $this->deployRerun = $deployRerun;
     }
 
-    public function insert($data){
+    public function loadData($data){
         return $this->deployRerun->updateOrCreate($data);
     }
 
