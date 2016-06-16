@@ -13,7 +13,7 @@ class BlueHornetSuppressionExportReport {
     private $range = false;
     private $hardbounces;
     private $unsubs;
-    const SLACK_CHANNEL = '#gtddev'; #"#mt2-daily-reports";
+    const SLACK_CHANNEL = "#mt2-daily-reports";
     private $destination;
 
     public function __construct(SuppressionRepo $repo, $espName, $espAccounts, $destination) {
@@ -95,7 +95,7 @@ class BlueHornetSuppressionExportReport {
             return $this->repo->getRecordsByDateIntervalEspType($typeId, $espAccountId, $date, $operator);
         } 
         catch (\Exception $e) {
-            Log::error($e->getMessage(). ": while trying get Suppression Records for $typdId");
+            Log::error($e->getMessage(). ": while trying get Suppression Records for $typeId");
             throw new \Exception($e);
         }
     }

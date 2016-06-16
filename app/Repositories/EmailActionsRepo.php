@@ -115,7 +115,7 @@ class EmailActionsRepo {
             email_id
             FROM
                 mt2_reports.email_actions ea
-                INNER JOIN homestead.emails e ON ea.email_id = e.id
+                INNER JOIN mt2_data.emails e ON ea.email_id = e.id
             WHERE
                 esp_account_id IN ($espAccountString)
                 AND
