@@ -8,6 +8,7 @@ return [
         'model' => 'Suppression',
         'repo' => 'SuppressionRepo',
         'model2' => 'SuppressionReason',
+        'setRange' => false,
     ],
 
     'emailsForOpensClicks' => [

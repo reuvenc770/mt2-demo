@@ -43,8 +43,13 @@ class ReportFactory
             echo "Error instantiating ExportReportService: {$e->getMessage()}";
             throw new \Exception($e->getMessage());
         }
+        $s = new $service($repo, $espName, $espAccounts, $destination);
 
-        return new $service($repo, $espName, $espAccounts, $destination);
+        if (true === config("reports.$name.setRange")) {
+            $s->setRange();
+        }
+
+        return $s;
     }
 
 }
