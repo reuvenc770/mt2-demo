@@ -108,19 +108,14 @@ class EmailActionsRepo {
     }
 
     public function pullEspAccount($espAccounts, $date) {
-        $espAccountString = implode(',', $espAccounts);
-
-        return DB::select("SELECT
-            DISTINCT email_address, 
-            email_id
-            FROM
-                mt2_reports.email_actions ea
-                INNER JOIN mt2_data.emails e ON ea.email_id = e.id
-            WHERE
-                esp_account_id IN ($espAccountString)
-                AND
-                ea.action_id IN (1,2)
-                AND
-                ea.created_at >= $date");
+        $date .= ' 00:00:00';
+        return DB::table('mt2_reports.email_actions AS ea')
+            ->join('homestead.emails AS e', 'ea.email_id', '=', 'e.id')
+            ->whereIn('esp_account_id', $espAccounts)
+            ->whereIn('ea.action_id', [1,2])
+            ->where('ea.created_at', '>=', $date)
+            ->select('email_address', 'email_id')
+            ->distinct()
+            ->get();
     }
 }
