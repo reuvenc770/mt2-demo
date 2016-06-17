@@ -30,9 +30,9 @@ class BlueHornetSuppressionExportReport {
             $name = $espAccount->account_name;
             $id = $espAccount->id;
 
-            $this->hardbounces = $this->getRecordsByDateEsp($espAccount->id, $lookback, $this->range);
+            $this->hardbounces = $this->getRecordsByDateEsp($espAccount->id, $lookback, $this->repo->getHardBounceId());
             $this->exportBounces($id, $name);
-            $this->unsubs = $this->getRecordsByDateEsp($espAccount->id, $lookback, $this->range);
+            $this->unsubs = $this->getRecordsByDateEsp($espAccount->id, $lookback, $this->repo->getUnsubId());
             $this->exportUnsubs($id, $name);
         }
     }
@@ -89,9 +89,9 @@ class BlueHornetSuppressionExportReport {
         }
     }
 
-    protected function getRecordsByDateEsp($espAccountId, $date, $typeId, $useRange = false){
+    protected function getRecordsByDateEsp($espAccountId, $date, $typeId){
         try{
-            $operator = $useRange ? '>=' : '=';
+            $operator = $this->range ? '>=' : '=';
             return $this->repo->getRecordsByDateIntervalEspType($typeId, $espAccountId, $date, $operator);
         } 
         catch (\Exception $e) {
