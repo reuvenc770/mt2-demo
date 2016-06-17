@@ -25,7 +25,7 @@ class FtpAdmin extends Command
     const CHANGE_DIR_OWNER_COMMAND = "chown -R %s:sftp %s";
     const CHANGE_DIR_PERMS_COMMAND = "chmod 755 %s";
 
-    CONST SLACK_TARGET_SUBJECT = "@achin"; #"#mt2";
+    CONST SLACK_TARGET_SUBJECT = "#mt2";
 
     /**
      * The name and signature of the console command.
