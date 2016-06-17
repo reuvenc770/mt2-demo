@@ -47,6 +47,10 @@ class BrontoApi extends EspBaseAPI
         $this->setupBronto();
         $deliveries = $this->brontoObject->readDeliveries(new readDeliveries($filter, 0, 0, 1, 0))->getReturn();
         $return = array();
+        if(!isset($deliveries))
+        {
+            return $return;
+        }
         foreach ($deliveries as $delivery) {
             $filter = new messageFilter();
             $filter->id = $delivery->getMessageId();
