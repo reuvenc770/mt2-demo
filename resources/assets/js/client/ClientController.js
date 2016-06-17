@@ -99,7 +99,6 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
         }
     };
 
-
     /**
      * Watchers
      */
@@ -221,6 +220,8 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
      */
     self.loadClientSuccessCallback = function ( response ) {
         var currentRecord = response.data[ 0 ];
+
+        currentRecord.country_id = parseInt( currentRecord[ 'country_id' ] );
 
         if ( typeof( currentRecord[ 'list_owner' ] ) !== 'undefined' ) {
             currentRecord[ 'list_owner' ] = currentRecord[ 'list_owner' ].toLowerCase();

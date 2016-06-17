@@ -240,8 +240,12 @@
             </div>
 
             <div class="form-group" ng-class="{ 'has-error' : client.formErrors.country_id }">
-                <input type="text" class="form-control" id="country_id" value="" placeholder="Country ID" ng-model="client.current.country_id" />
-                <span class="help-block" ng-bind="client.formErrors.country_id" ng-show="client.formErrors.country_id"></span>
+                <select ng-model="client.current.country_id" placeholder="Select Country" class="form-control">
+                    <option ng-selected="@{{ client.current.country_id == '' || client.current.country_id == null }}" value="">Select a Country</option>
+                    @foreach ( $countries as $current )
+                    <option value="{{ $current->id }}">{{ $current->name }}</option>
+                    @endforeach
+                </select>
             </div>
         </div>
     </div>
