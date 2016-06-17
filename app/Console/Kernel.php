@@ -39,6 +39,7 @@ class Kernel extends ConsoleKernel
         Commands\InsertChunksUtil::class,
         Commands\CheckDeployStats::class,
         Commands\SendSuppressionsToMT1::class,
+        Commands\FtpAdmin::class,
     ];
 
     /**
