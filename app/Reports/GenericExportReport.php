@@ -28,8 +28,6 @@ class GenericExportReport {
         $this->data = $this->sourceRepo->pullEspAccount($this->espAccountIds, $date);
         $writer = Writer::createFromFileObject(new \SplTempFileObject());
 
-        var_dump($this->data);
-
         foreach ($this->data as $row) {
             $array = [$row->email_id, $row->email_address];
             $writer->insertOne($array);

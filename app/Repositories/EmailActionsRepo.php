@@ -109,7 +109,6 @@ class EmailActionsRepo {
 
     public function pullEspAccount($espAccounts, $date) {
         $espAccountString = implode(',', $espAccounts);
-
         return DB::select("SELECT
             DISTINCT email_address, 
             email_id
@@ -121,6 +120,6 @@ class EmailActionsRepo {
                 AND
                 ea.action_id IN (1,2)
                 AND
-                ea.created_at >= $date");
+                ea.created_at >= '$date'");
     }
 }
