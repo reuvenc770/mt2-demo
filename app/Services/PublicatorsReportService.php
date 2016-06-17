@@ -195,7 +195,6 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
 
             }
         } catch ( \Exception $e ) {
-            echo "type: $type" . PHP_EOL;
             DeployActionEntry::recordFailedRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, $type);
             throw new JobException( "Failed to Retrieve Email Record Stats. " . $e->getMessage() , JobException::ERROR , $e );
         }
@@ -215,7 +214,7 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
                     we don't exceed 60 actions a minute (which I haven't seen yet).
                 */
                 $trimmedTimestamp = date('Y-m-d H:i', strtotime($record->TimeStamp));
-                $key = md5($record->Email . $trimmedTimestamp);
+                $key = md5($record->Email . $recordType . $trimmedTimestamp);
                 #echo $key . PHP_EOL;
 
                 // If the tag already exists, get the (already-incremented) second, and increment again
