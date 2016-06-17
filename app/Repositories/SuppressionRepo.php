@@ -83,15 +83,15 @@ class SuppressionRepo
     }
 
     public function getUnsubId() {
-        return $this->suppressionModel::TYPE_UNSUB;
+        return Suppression::TYPE_UNSUB;
     }
 
     public function getHardBounceId() {
-        return $this->suppressionModel::TYPE_HARD_BOUNCE;
+        return Suppression::TYPE_HARD_BOUNCE;
     }
 
     public function getComplaintId() {
-        return $this->suppressionModel::TYPE_COMPLAINT;
+        return Suppression::TYPE_COMPLAINT;
     }
 
 }
