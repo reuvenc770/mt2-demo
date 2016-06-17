@@ -121,6 +121,6 @@ class EmailActionsRepo {
                 AND
                 ea.action_id IN (1,2)
                 AND
-                ea.datetime >= $date");
+                ea.created_at >= $date");
     }
 }
