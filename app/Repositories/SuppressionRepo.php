@@ -82,4 +82,16 @@ class SuppressionRepo
         return $this->suppressionModel->select('email_address')->where('date','>=',$date)->get();
     }
 
+    public function getUnsubId() {
+        return $this->suppressionModel::TYPE_UNSUB;
+    }
+
+    public function getHardBounceId() {
+        return $this->suppressionModel::TYPE_HARD_BOUNCE;
+    }
+
+    public function getComplaintId() {
+        return $this->suppressionModel::TYPE_COMPLAINT;
+    }
+
 }
