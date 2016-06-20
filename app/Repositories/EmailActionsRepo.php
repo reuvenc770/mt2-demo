@@ -92,12 +92,12 @@ class EmailActionsRepo {
               WHERE
                 action_id IN (1, 2, 4)
                 AND
-                std.datetime BETWEEN CURDATE() - INTERVAL $lookback DAY AND CURDATE() - INTERVAL 2 DAY
+                std.datetime BETWEEN CURDATE() - INTERVAL $lookback DAY AND CURDATE() - INTERVAL 5 DAY
               GROUP BY
                 deploy_id) ea ON ea.deploy_id = sr.external_deploy_id
                
             WHERE
-              sr.datetime BETWEEN CURDATE() - INTERVAL $lookback DAY AND CURDATE() - INTERVAL 2 DAY
+              sr.datetime BETWEEN CURDATE() - INTERVAL $lookback DAY AND CURDATE() - INTERVAL 5 DAY
 
             GROUP BY
                 deploy_id

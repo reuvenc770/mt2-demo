@@ -189,20 +189,22 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     }
 
     protected function getRerunCampaigns () {
-        $campaigns = DB::connection( 'reporting_data' )
-            ->table( 'standard_reports_rerun' ) 
-            ->where( 'esp_account_id' , $this->espAccountId )
-            ->orderBy( 'esp_account_id' );
+        $deploys = DB::table('deploy_record_reruns AS drr')
+            ->select('external_deploy_id', 'drr.esp_internal_id', 'drr.esp_account_id', 'datetime', 
+                'delivers', 'opens', 'clicks', 'unsubs', 'complaints', 'bounces')
+            ->join('mt2_reports.standard_reports AS sr', 'drr.deploy_id', '=', 'sr.external_deploy_id')
+            ->where('drr.esp_account_id', $this->espAccountId)
+            ->orderBy('drr.esp_account_id');
 
         $this->processState[ 'currentFilterIndex' ]++;
 
-        $campaigns->each( function( $campaign , $key ) {
-            $this->processState[ 'campaign' ] = $campaign;
+        $deploys->each( function( $deploy , $key ) {
+            $this->processState[ 'campaign' ] = $deploy;
             $this->processState[ 'espId' ] = $this->espAccountId;
 
             $this->queueNextJob( $this->defaultQueue );
         });
-        $rowCount = count($campaigns);
+        $rowCount = count($deploys);
         $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
     }
 
@@ -247,9 +249,11 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->reportService->setPageType( $this->processState[ 'recordType' ] );
         $this->reportService->setPageNumber( isset( $this->processState[ 'pageNumber' ] ) ? $this->processState[ 'pageNumber' ] : 1 );
 
-        if ( $this->reportService->pageHasCampaignData($this->processState['campaign']->esp_internal_id) ) {
+        if ( $this->reportService->pageHasCampaignData($this->processState['campaign']->esp_internal_id, $this->processState[ 'recordType' ] )) {
+            echo "we have campaign data" . PHP_EOL;
             $this->processState[ 'currentPageData' ] = $this->reportService->getPageData();
-            $this->reportService->savePage( $this->processState, $map );
+            //var_dump($this->processState['currentPageData']);
+            $this->reportService->saveActionPage( $this->processState, $map );
             $this->processState[ 'currentPageData' ] = array();
 
             $this->reportService->nextPage();
@@ -258,9 +262,16 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
             $this->queueNextJob( $this->defaultQueue );
         }
+        else {
+            $this->processState[ 'currentFilterIndex' ]++;
+        }
 
         $rowCount = count($this->processState[ 'currentPageData' ]);
         $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
+
+        if ('rerun' === $this->processState['pipe']) {
+            $this->queueNextJob( $this->defaultQueue );
+        }
     }
 
     protected function saveRecords () {
@@ -332,6 +343,16 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         if ( !is_null( $queue ) ) { $job->onQueue( $queue ); }
 
         $this->dispatch( $job );
+    }
+
+    protected function removeDeploys() {
+        DB::table('deploy_record_reruns')
+            ->where('deploy_id', $this->processState['campaign']->external_deploy_id)
+            ->delete();
+        $total = 1;
+
+        //$this->queueNextJob( $this->defaultQueue );
+        $this->changeJobEntry( JobEntry::SUCCESS, $total );
     }
 
     protected function currentFilter () {
