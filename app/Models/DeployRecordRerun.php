@@ -8,6 +8,7 @@ class DeployRecordRerun extends Model {
 
     protected $fillable = ['deploy_id', 'delivers', 'opens', 'clicks'];
     public $timestamps = false;
+    protected $primaryKey = 'deploy_id';
   
     public function report() {
         return $this->belongsTo('App\Models\StandardReport');

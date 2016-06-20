@@ -76,9 +76,9 @@ class EmailActionsRepo {
         return DB::select("SELECT
               deploy_id, 
               sr.datetime,
-              ROUND((SUM(ea.delivered) - sr.delivered) / sr.delivered, 3) AS 'delivers_diff',
-              ROUND((SUM(opens) - sr.e_opens) / sr.e_opens, 3) AS 'opens_diff',
-              ROUND((SUM(clicks) - sr.e_clicks) / sr.e_clicks, 3) AS 'clicks_diff'
+              ROUND((SUM(ea.delivered) - SUM(sr.delivered)) / SUM(sr.delivered), 3) AS 'delivers_diff',
+              ROUND((SUM(opens) - SUM(sr.e_opens)) / SUM(sr.e_opens), 3) AS 'opens_diff',
+              ROUND((SUM(clicks) - SUM(sr.e_clicks)) / SUM(sr.e_clicks), 3) AS 'clicks_diff'
             FROM
               mt2_reports.standard_reports sr 
                 LEFT JOIN (SELECT
@@ -100,7 +100,7 @@ class EmailActionsRepo {
               sr.datetime BETWEEN CURDATE() - INTERVAL $lookback DAY AND CURDATE() - INTERVAL 5 DAY
 
             GROUP BY
-                deploy_id
+                deploy_id, sr.datetime
             HAVING
               `delivers_diff` < -.075
               || `opens_diff`  < -.075
