@@ -21,6 +21,7 @@ return [
                 'downloadTicketFile' ,
                 'getTypeList' ,
                 'synchronousSaveTypeRecords' ,
+                'removeDeploys',
                 'cleanUp'
             ]
         ]
@@ -35,7 +36,8 @@ return [
             "rerun" => [
                 'getRerunCampaigns' ,
                 'startTicket' ,
-                'saveRecords'
+                'saveRecords',
+                'removeDeploys'
             ]
         ]
     ] ,
@@ -48,6 +50,12 @@ return [
             "delivered" => [
                 'getDeliverableCampaigns',
                 'savePaginatedCampaignRecords'
+            ],
+            "rerun" => [
+                'getRerunCampaigns',
+                'splitTypes',
+                'savePaginatedCampaignRecords',
+                'removeDeploys'
             ]
         ]
     ] ,
@@ -95,7 +103,8 @@ return [
                 'getRerunCampaigns' ,
                 'getTypeList' ,
                 'splitTypes' ,
-                'saveRecords'
+                'saveRecords',
+                'removeDeploys'
             ]
 
         ]

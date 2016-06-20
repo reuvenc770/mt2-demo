@@ -57,5 +57,9 @@ class EspAccount extends Model
         return $this->hasMany('App\Models\Suppression');
     }
 
+    public function rerunDeploys() {
+        return $this->hasMany('App\Models\DeployRecordRerun');
+    }
+
 
 }

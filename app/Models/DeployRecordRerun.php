@@ -11,6 +11,10 @@ class DeployRecordRerun extends Model {
     protected $primaryKey = 'deploy_id';
   
     public function report() {
-        return $this->belongsTo('App\Model\StandardReport');
+        return $this->belongsTo('App\Models\StandardReport');
+    }
+
+    public function espAccount() {
+        return $this->belongsTo('App\Models\EspAccount');
     }
 }

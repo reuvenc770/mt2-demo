@@ -37,8 +37,14 @@ class Kernel extends ConsoleKernel
         Commands\DownloadSuppressionFromESPCommand::class,
         Commands\InsertChunksUtil::class,
         Commands\CheckDeployStats::class,
+        Commands\RerunDeployStats::class,
         Commands\ExportActionsElsewhere::class,
         Commands\SendSuppressionsToMT1::class,
+        Commands\Generator\EspServiceCommand::class,
+        Commands\Generator\EspApiCommand::class,
+        Commands\Generator\EspGeneration::class,
+        Commands\Generator\EspModelCommand::class,
+        Commands\Generator\EspSeedCommand::class
     ];
 
     /**
