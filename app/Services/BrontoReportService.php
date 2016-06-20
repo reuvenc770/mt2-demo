@@ -284,6 +284,9 @@ class BrontoReportService extends AbstractReportService implements IDataService
         $pos = strrpos($id, '0001');
         $hexId = substr($id, $pos + 3);
         $id = base_convert($hexId, 16, 10);
+        if ($id > 10) {  //not a mailer
+           $id = 0;
+        }
         return $id;
     }
 
@@ -311,5 +314,23 @@ class BrontoReportService extends AbstractReportService implements IDataService
 
 
         return true;
+    }
+
+    public function pullUnsubsEmailsByLookback($date){
+        $filter = array(
+            "start" => Carbon::now()->subDay($date)->toAtomString(), //TODO NOT SURE HOW TO GET DATE HERE WELL, HARDCODING TILL WE NEED TO BE DYNAMIC
+            "size" => "5000",
+            "types" => "unsubscribe",
+            "readDirection" => "FIRST",
+        );
+       return $this->api->getDeliverablesByType($filter);
+    }
+
+    public function insertUnsubs($data, $espAccountId)
+    {
+        foreach ($data as $entry) {
+            $espInternalId = $this->parseInternalId($entry->getDeliveryId());
+            Suppression::recordRawUnsub($espAccountId, $entry->getEmailAddress(), $espInternalId, "", $entry->getCreatedDate()->format('Y-m-d H:i:s'));
+        }
     }
 }
