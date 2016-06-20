@@ -20,6 +20,15 @@ class CheckDeployService extends AbstractEtlService {
         $this->data = $this->sourceRepo->pullIncompleteDeploys($lookback);
     }
 
+    public function load() {
+        foreach ($this->data as $row) {
+            $row = $this->transform($row);
+            $this->targetRepo->loadData($row);
+        }
+
+        Event::fire(new DeploysMissingDataFound([]));
+    }
+
     protected function transform($row) {
         return [
             'deploy_id' => $row->deploy_id,
