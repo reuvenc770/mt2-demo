@@ -76,6 +76,8 @@ class EmailActionsRepo {
         return DB::select("SELECT
               deploy_id, 
               sr.datetime,
+              sr.esp_account_id,
+              sr.esp_internal_id,
               ROUND((SUM(ea.delivered) - SUM(sr.delivered)) / SUM(sr.delivered), 3) AS 'delivers_diff',
               ROUND((SUM(opens) - SUM(sr.e_opens)) / SUM(sr.e_opens), 3) AS 'opens_diff',
               ROUND((SUM(clicks) - SUM(sr.e_clicks)) / SUM(sr.e_clicks), 3) AS 'clicks_diff'
@@ -100,7 +102,7 @@ class EmailActionsRepo {
               sr.datetime BETWEEN CURDATE() - INTERVAL $lookback DAY AND CURDATE() - INTERVAL 5 DAY
 
             GROUP BY
-                deploy_id, sr.datetime
+                deploy_id, sr.datetime, sr.esp_account_id, sr.esp_internal_id
             HAVING
               `delivers_diff` < -.075
               || `opens_diff`  < -.075

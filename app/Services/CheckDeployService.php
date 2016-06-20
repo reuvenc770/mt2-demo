@@ -32,6 +32,8 @@ class CheckDeployService extends AbstractEtlService {
     protected function transform($row) {
         return [
             'deploy_id' => $row->deploy_id,
+            'esp_account_id' => $row->esp_account_id,
+            'esp_internal_id' => $row->esp_internal_id,
             'delivers' => $this->mark($row->delivers_diff),
             'opens' => $this->mark($row->opens_diff),
             'clicks' => $this->mark($row->clicks_diff),

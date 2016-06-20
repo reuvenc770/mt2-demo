@@ -23,7 +23,7 @@ class DeployRecordRerunRepo {
         return DB::table('deploy_record_reruns AS d')
                     ->join('esp_accounts AS eac', 'd.esp_account_id', '=', 'eac.id')
                     ->join('esps AS e', 'eac.esp_id', '=', 'e.id')
-                    ->select('e.name');
+                    ->select('e.name')->get();
     }
 
     public function count() {
