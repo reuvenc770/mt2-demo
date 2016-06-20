@@ -14,7 +14,7 @@ class DeployRecordRerunRepo {
     }
 
     public function loadData($data){
-        return $this->deployRerun->updateOrCreate($data);
+        return $this->deployRerun->updateOrCreate(['deploy_id' => $data['deploy_id']], $data);
     }
 
 }
