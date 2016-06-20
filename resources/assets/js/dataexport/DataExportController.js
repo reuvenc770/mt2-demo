@@ -164,7 +164,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   }
 
   self.saveDataExport = function(event) {
-    var exportType = esps.length > 0 ? "ESP" : "Regular";
+    var exportType = self.formEsps.length > 0 ? "ESP" : "Regular";
 
     var saveData = {
       "exportId": self.viewed.exportId,

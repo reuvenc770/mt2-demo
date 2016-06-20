@@ -99,7 +99,6 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
         }
     };
 
-
     /**
      * Watchers
      */
@@ -175,7 +174,13 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
 
     self.saveClient = function () {
         self.resetFieldErrors();
-        ClientApiService.saveClient( self.current , self.SuccessCallBackRedirect , self.saveClientFailureCallback );
+
+        var clientData = angular.copy( self.current );
+
+        clientData.list_owner = self.current.list_owner.value;
+        clientData.newClient = 1;
+
+        ClientApiService.saveClient( clientData , self.SuccessCallBackRedirect , self.saveClientFailureCallback );
     };
 
     self.viewAdd = function () {
@@ -215,7 +220,12 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
      */
     self.loadClientSuccessCallback = function ( response ) {
         var currentRecord = response.data[ 0 ];
-        currentRecord[ 'list_owner' ] = currentRecord[ 'list_owner' ].toLowerCase();
+
+        currentRecord.country_id = parseInt( currentRecord[ 'country_id' ] );
+
+        if ( typeof( currentRecord[ 'list_owner' ] ) !== 'undefined' ) {
+            currentRecord[ 'list_owner' ] = currentRecord[ 'list_owner' ].toLowerCase();
+        }
 
         self.current = currentRecord;
     };

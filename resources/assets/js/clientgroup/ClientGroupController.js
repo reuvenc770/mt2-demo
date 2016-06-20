@@ -120,7 +120,6 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
     self.saveClientGroup = function ( event ) {
         self.resetFieldErrors();
         self.creatingClientGroup = true;
-        self.updateClientFormField();
 
         var requestData = self.current;
         requestData[ 'action' ] = 'create';
@@ -136,7 +135,6 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
     self.updateClientGroup = function ( event ) {
         self.resetFieldErrors();
         self.updatingClientGroup = true;
-        self.updateClientFormField();
 
         var requestData = self.current;
         requestData[ 'action' ] = 'update';

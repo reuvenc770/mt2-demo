@@ -176,12 +176,14 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
 
         try {
             if ( $processState[ "recordType" ] == "bounce" ) {
+                $type = "bounce";
                 $this->processBounces( $processState );
                 DeployActionEntry::recordSuccessRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, "bounce" );
                 return true;
             }
 
             if ( $processState[ "recordType" ] == "unsub" ) {
+                $type = 'optout';
                 $this->processUnsubs( $processState );
                 DeployActionEntry::recordSuccessRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, "optout" );
                 return true;
@@ -209,6 +211,10 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
                     $type = "click";
                 break;
 
+                default:
+                    echo "Unknown record type: " . $processState['recordType'] . PHP_EOL;
+                break;
+
             }
         } catch ( \Exception $e ) {
             DeployActionEntry::recordFailedRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, $type);
@@ -221,24 +227,33 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
 
             foreach ( $records as $record ) {
 
-                // Need to find cases without seconds and provide up an appropriate second
-                $trimmedTime = date('g:ia', strtotime($record->TimeStamp));
-                    $key = md5($record->Email . $deployId . $recordType . $trimmedTime);
+                /*
+                    Publicators timestamps are of the form YYYY/MM/DD HH:MM:SS
+                    Additionally, they often record multiple actions within a second
+                    (5 or more is not unheard of). Levelocity wants to preserve
+                    each of these actions (they would overwrite each other) so we
+                    must artificially create a second for each action, hoping that 
+                    we don't exceed 60 actions a minute (which I haven't seen yet).
+                */
+                $trimmedTimestamp = date('Y-m-d H:i', strtotime($record->TimeStamp));
+                $key = md5($record->Email . $recordType . $trimmedTimestamp);
+                #echo $key . PHP_EOL;
 
-                    // If the tag already exists, get the (already-incremented) second, and increment again
-                    if (Cache::tags([$recordType, $deployId])->has($key)) {
-                        $timeCount = Cache::tags([$recordType, $deployId])->get($key);
-                        Cache::tags([$recordType, $deployId])->increment($key);
-                    }
-                    else {
-                        // Tag does not exist. Create it with an an appropriate for 30 min.
-                        $timeCount = 0;
-                        Cache::tags([$recordType, $deployId])->put($key, 1, 30);
-                    }
+                // If the tag already exists, get the (already-incremented) second, and increment again
+                if (Cache::tags([$recordType, $deployId])->has($key)) {
+                    $timeCount = Cache::tags([$recordType, $deployId])->get($key);
+                    Cache::tags([$recordType, $deployId])->increment($key);
+                }
+                else {
+                    // Tag does not exist. Create it for 30 min.
+                    $timeCount = 0;
+                    Cache::tags([$recordType, $deployId])->put($key, 1, 30);
+                }
 
-                    // Set up the new timestamp
-                    $padding = $timeCount < 10 ? '0' : '';
-                    $timeStamp = $trimmedTime . ':' . $padding . $timeCount;
+                // Set up the new timestamp
+                $padding = $timeCount < 10 ? '0' : '';
+                $timeStamp = $trimmedTimestamp . ':' . $padding . $timeCount;
+
 
                 $this->emailRecord->queueDeliverable(
                     $recordType , 

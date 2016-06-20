@@ -78,7 +78,7 @@ class SuppressionService
 
     }
 
-    public function recordSuppressionByReason($email, $date, $reason){{
+    public function recordSuppressionByReason($email, $date, $reason){
         $record = array(
             "esp_account_id" => 0,
             "email_address"  => $email,
@@ -96,7 +96,6 @@ class SuppressionService
         return true;
     }
 
-}
 
     public function convertSuppressionReason($response){
         $mt2Reasons = array();
@@ -125,7 +124,9 @@ class SuppressionService
         $response->suppression = array_merge($response->suppression, $mt2Reasons);
         return json_encode($response);
     }
-
+    public function getAllSuppressionsSinceDate($date){
+        return $this->repo->getAllSinceDate($date);
+    }
     public function getTypeByReason($reason){
         $reason = $this->repo->getReasonById($reason);
         return $reason->suppression_type;

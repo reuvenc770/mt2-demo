@@ -11,7 +11,7 @@ class Kernel extends ConsoleKernel
     const DELIVERABLE_AGGREGATION_TIME = '11:00';
     const UNSUB_TIME = '01:00';
     const REPORT_TIME = '11:30';
-    const EARLY_DELIVERABLE_SCHEDULE_TIME = '01:00';
+    const EARLY_DELIVERABLE_SCHEDULE_TIME = '00:15';
     const DEPLOY_CHECK_TIME = '14:00';
 
     /**
@@ -35,10 +35,11 @@ class Kernel extends ConsoleKernel
         Commands\ProcessUserAgents::class,
         Commands\SendSprintUnsubsCommand::class,
         Commands\DownloadSuppressionFromESPCommand::class,
-        Commands\ParseandSendSuppressionsCommand::class,
         Commands\InsertChunksUtil::class,
         Commands\CheckDeployStats::class,
         Commands\RerunDeployStats::class,
+        Commands\ExportActionsElsewhere::class,
+        Commands\SendSuppressionsToMT1::class,
     ];
 
     /**
@@ -76,7 +77,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('suppression:downloadESP Publicators 1')->hourly()->dailyAt(self::UNSUB_TIME);
         //$schedule->command('suppression:downloadESP YMLP 1')->hourly()->dailyAt(self::UNSUB_TIME);
         
-        $schedule->command('movetoftp:suppressions BlueHornet 1')->hourly()->dailyAt(self::REPORT_TIME);
+        $schedule->command('export bhSuppression BlueHornet --lookback=1')->hourly()->dailyAt(self::REPORT_TIME);
+        $schedule->command('export emailsForOpensClicks Publicators PUB007 --lookback=15')->dailyAt(self::REPORT_TIME);
 
         /**
          * Campaign Data Daily
@@ -88,6 +90,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:downloadApi Maro 5')->hourly()->sendOutputTo($filePath);
         //$schedule->command('reports:downloadApi Ymlp 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Publicators 5')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Bronto 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadTrackingData Cake 5')->hourly()->sendOutputTo($filePath);
 
         /**
@@ -99,6 +102,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:downloadApi Maro 31')->monthly()->sendOutputTo($filePath);
         //$schedule->command('reports:downloadApi Ymlp 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Publicators 31')->monthly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi Bronto 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadTrackingData Cake 31')->monthly()->sendOutputTo($filePath);
 
         /**
@@ -112,7 +116,8 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'reports:downloadDeliverables Maro:delivered 2' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         //$schedule->command( 'reports:downloadDeliverables Ymlp 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Publicators 5 Publicators' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-
+        $schedule->command( 'reports:downloadDeliverables Bronto 2' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        //$schedule->command( 'reports:downloadDeliverables Bronto:delivered 2' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         //$schedule->command( 'reports:populateStats')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
         $schedule->command('emails:download')->cron('*/2 * * * * *')->withoutOverlapping();
         $schedule->command('process:useragents')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME);

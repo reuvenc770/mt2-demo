@@ -23,6 +23,7 @@ class StandardApiReportRepo {
             ->select('external_deploy_id', 'campaign_name', 'esp_account_id', 'esp_internal_id', 'datetime')
             ->where( 'created_at' , ">=" , $date )
             ->where( 'esp_account_id' , $espAccountId )
+            ->orderBy('datetime', 'desc')
             ->get();
     }
 

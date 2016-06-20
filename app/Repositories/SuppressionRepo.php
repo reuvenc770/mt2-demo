@@ -43,6 +43,20 @@ class SuppressionRepo
             ->get();
     }
 
+    public function getRecordsByDateIntervalEspType($typeId, $espAccountId, $date, $operator) {
+        $acceptableOperators = ['<>', '=', '!=', '>', '<', '>=', '<='];
+        
+        if (!in_array($operator, $acceptableOperators)) {
+            throw new \Exception("Operator $operator not valid for dates");
+        }
+
+        return $this->suppressionModel->select("email_address","reason_id")
+            ->where("type_id",$typeId)
+            ->where("esp_account_id",$espAccountId)
+            ->where("date", $operator, $date )
+            ->get();
+    }
+
     public function getReasonByAccountType($espAccountId, $typeId){
         return $this->suppressionReason->select('suppression_reasons.id')->where('suppression_type',$typeId)
                                 ->join('esp_accounts', 'esp_accounts.esp_id', '=','suppression_reasons.esp_id')
@@ -62,6 +76,22 @@ class SuppressionRepo
 
     public function getReasonById($reason){
         return $this->suppressionReason->find($reason);
+    }
+
+    public function getAllSinceDate($date){
+        return $this->suppressionModel->select('email_address')->where('date','>=',$date)->get();
+    }
+
+    public function getUnsubId() {
+        return Suppression::TYPE_UNSUB;
+    }
+
+    public function getHardBounceId() {
+        return Suppression::TYPE_HARD_BOUNCE;
+    }
+
+    public function getComplaintId() {
+        return Suppression::TYPE_COMPLAINT;
     }
 
 }

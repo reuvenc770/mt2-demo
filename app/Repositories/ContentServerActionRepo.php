@@ -31,7 +31,7 @@ class ContentServerActionRepo {
         ");
     }
 
-    public function pullAggregatedStats() {
+    public function pull($lookback) {
         return $this->model
             ->select(DB::raw("email_id, 
                 sub_id, 
@@ -41,7 +41,7 @@ class ContentServerActionRepo {
                 SUM(IF(action_type = 'clicker', 1, 0)) AS clicks, 
                 MIN(CASE WHEN action_type = 'clicker' THEN action_time END) AS min_click_date, 
                 MAX(CASE WHEN action_type = 'clicker' THEN action_time END) AS max_click_date"))
-            ->whereBetween('send_date', [DB::raw('CURDATE() - INTERVAL 5 DAY'), DB::raw('CURDATE()')])
+            ->whereBetween('send_date', [DB::raw("CURDATE() - INTERVAL $lookback DAY"), DB::raw('CURDATE()')])
             ->groupBy('email_id', 'sub_id')
             ->get();
     }

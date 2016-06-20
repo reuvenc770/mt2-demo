@@ -26,7 +26,14 @@ trait PreventJobOverlapping {
         }
     }
 
-    protected function unlock() {
-        return unlink($this->mutexPath);
+    protected function unlock($name) {
+        if ('' !== $this->mutexPath) {
+            return unlink($this->mutexPath);
+        }
+        else {
+            $path = $this->getMutexPath($name);
+            return unlink($path);
+        }
+        
     }
 }

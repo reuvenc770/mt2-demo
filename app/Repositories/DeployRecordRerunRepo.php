@@ -14,8 +14,8 @@ class DeployRecordRerunRepo {
         $this->deployRerun = $deployRerun;
     }
 
-    public function insert($data){
-        return $this->deployRerun->updateOrCreate($data);
+    public function loadData($data){
+        return $this->deployRerun->updateOrCreate(['deploy_id' => $data['deploy_id']], $data);
     }
 
     public function getEsps() {

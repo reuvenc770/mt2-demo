@@ -14,8 +14,7 @@ use App\Models\CakeData;
 use App\Models\ContentServerAction;
 
 use App\Services\EmailCampaignAggregationService;
-use App\Services\TrackingDeliverableService;
-use App\Services\UpdateContentServerStatsService;
+use App\Services\CheckDeployService;
 
 /**
  *  Create different services for generic data processing/OLTP
@@ -36,8 +35,14 @@ class DataProcessingFactory {
             case('UpdateContentServerStats'):
                 return self::createUpdateContentServerStatsService();
 
-            case('ProcessUserAgentsJob'):
+            case('ProcessUserAgents'):
                 return self::createUserAgentProcessingService();
+
+            case('CheckDeployStats'):
+                return self::createCheckDeployStatsService();
+
+            case('PublicatorsActions'):
+                return self::createPublicatorsActionService();
                 
             default:
                 throw new \Exception("Data processing service {$name} does not exist");
@@ -45,12 +50,12 @@ class DataProcessingFactory {
     }
 
     private static function createEmailCampaignAggregationService() {
-        $actionTypeModel = new ActionType();
-        $actionTypeRepo = new ActionRepo($actionTypeModel);
-        $actionModel = new EmailAction();
-        $actionsRepo = new EmailActionsRepo($actionModel);
-        $statsModel = new EmailCampaignStatistic();
-        $statsRepo = new EmailCampaignStatisticRepo($statsModel);
+        $actionType = new ActionType;
+        $actionTypeRepo = new ActionRepo($actionType);
+        $actions = new EmailAction();
+        $actionsRepo = new EmailActionsRepo($actions);
+        $stats = new EmailCampaignStatistic();
+        $statsRepo = new EmailCampaignStatisticRepo($stats);
         $actionMap = $actionTypeRepo->getMap();
 
         $etlPickup = new \App\Models\EtlPickup();
@@ -66,30 +71,40 @@ class DataProcessingFactory {
         $trackingModel = new CakeData();
         $trackingRepo = new TrackingRepo($trackingModel);
 
-        return new TrackingDeliverableService($statsRepo, $trackingRepo);        
+        return new \App\Services\TrackingDeliverableService($trackingRepo, $statsRepo);        
     }
 
     private static function createUpdateContentServerStatsService() {
-        // need repo for content_server_actions
         $contentActions = new ContentServerAction();
         $contentActionsRepo = new ContentServerActionRepo($contentActions);
 
         // need repo for email_campaign_statistics
         $statsModel = new EmailCampaignStatistic();
         $statsRepo = new EmailCampaignStatisticRepo($statsModel);
-
-        return new UpdateContentServerStatsService($contentActionsRepo, $statsRepo);      
+        return new \App\Services\UpdateContentServerStatsService($contentActionsRepo, $statsRepo);      
     }
 
     private static function createUserAgentProcessingService() {
         // feed off a source of new user agents
         $sourceModel = new CakeData();
         $sourceRepo = new TrackingRepo($sourceModel);
-
         $userAgent = new \App\Models\UserAgentString();
         $userAgentRepo = new \App\Repositories\UserAgentStringRepo($userAgent);
-
         return new \App\Services\UserAgentProcessingService($sourceRepo, $userAgentRepo);
+    }
+
+    private static function createCheckDeployStatsService() {
+        $actions = new EmailAction();
+        $actionsRepo = new EmailActionsRepo($actions);
+        $rerun = new \App\Models\DeployRecordRerun();
+        $rerunRepo = new \App\Repositories\DeployRecordRerunRepo($rerun);
+        return new CheckDeployService($actionsRepo, $rerunRepo);
+    }
+
+    private static function createPublicatorsActionService() {
+        $actions = new EmailAction();
+        $actionsRepo = new EmailActionsRepo($actions);
+        return new \App\Services\PublicatorsActionService($actionsRepo, $actionsRepo);
     }
 
 }

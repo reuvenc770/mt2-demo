@@ -48,7 +48,7 @@ return [
                 'savePaginatedRecords'
             ] , 
             "delivered" => [
-                'getMaroDeliverableCampaigns',
+                'getDeliverableCampaigns',
                 'savePaginatedCampaignRecords'
             ],
             "rerun" => [
@@ -108,5 +108,17 @@ return [
             ]
 
         ]
-    ]
+    ],
+    "Bronto" => [
+        "pipes" => [
+            "default" => [
+                'splitTypes' ,
+                'savePaginatedRecords'
+            ] ,
+            "delivered" => [
+                'getDeliverableCampaigns',
+                'savePaginatedCampaignRecords'
+            ]
+        ]
+    ] ,
 ];
