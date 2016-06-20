@@ -1,0 +1,246 @@
+<?
+namespace App\Services;
+
+use App\Events\RawReportDataWasInserted;
+use App\Exceptions\JobException;
+use App\Facades\DeployActionEntry;
+use App\Repositories\ReportRepo;
+use App\Services\AbstractReportService;
+use App\Services\API\DummyClassApi;
+use App\Services\EmailRecordService;
+use App\Services\Interfaces\IDataService;
+use Illuminate\Support\Facades\Event;
+
+
+/**
+ * Class DummyClassReportService
+ * @package App\Services
+ */
+class DummyClassReportService extends AbstractReportService implements IDataService
+{
+    /**
+     * DummyClassReportService constructor.
+     * @param ReportRepo $reportRepo
+     * @param $accountNumber
+     */
+
+    const DELIVERABLE_LOOKBACK = 2;
+
+    /**
+     * DummyClassReportService constructor.
+     * @param ReportRepo $reportRepo
+     * @param DummyClassApi $api
+     * @param EmailRecordService $emailRecord
+     */
+    public function __construct(ReportRepo $reportRepo, DummyClassApi $api, EmailRecordService $emailRecord)
+    {
+        parent::__construct($reportRepo, $api, $emailRecord);
+    }
+
+    /**
+     * @param $date
+     * @return \SimpleXMLElement
+     * @throws \Exception
+     */
+    public function retrieveApiStats($date)
+    {
+
+    }
+
+    /**
+     * @param $xmlData
+     */
+    public function insertApiRawStats($xmlData)
+    {
+        $arrayReportList = array();
+        Event::fire(new RawReportDataWasInserted($this, $arrayReportList));
+    }
+
+    /**
+     * @param $report
+     * @return mixed
+     */
+    public function mapToStandardReport($report)
+    {
+        return $report;
+    }
+
+    /**
+     * @param $report
+     * @return mixed
+     */
+    public function mapToRawReport($report)
+    {
+        return $report;
+    }
+
+    /**
+     * @param $processState
+     */
+    public function getUniqueJobId(&$processState)
+    {
+        // This is how the job  will be labeled  in the job_entries table
+    }
+
+    /**
+     * @param $processState
+     */
+    public function getTypeList(&$processState)
+    {
+        //TODO Remove if unneeded
+    }
+
+    /**
+     * @param $espAccountId
+     * @param $campaign
+     * @param $recordType
+     * @param bool $isRerun
+     * @throws JobException
+     */
+    public function startTicket($espAccountId, $campaign, $recordType, $isRerun = false)
+    {
+        try {
+            //TODO Remove if unneeded
+        } catch (\Exception $e) {
+            $jobException = new JobException('Failed to start report ticket. ' . $e->getMessage(), JobException::NOTICE, $e);
+            $jobException->setDelay(180);
+            throw $jobException;
+        }
+    }
+
+    /**
+     * @param $processState
+     * @throws JobException
+     */
+    public function downloadTicketFile(&$processState)
+    {
+        try {
+            //TODO Remove if unneeded
+        } catch (\Exception $e) {
+            $jobException = new JobException('Failed to download report ticket. ' . $e->getMessage(), JobException::NOTICE, $e);
+            $jobException->setDelay(180);
+            throw $jobException;
+        }
+    }
+
+    /**
+     * @param $processState
+     * @return int
+     * @throws JobException
+     */
+    public function saveRecords(&$processState)
+    {
+        $count = 0;
+        try {
+            //TODO Remove if unneeded
+            //RETURN ROW COUNT OF SAVES
+        } catch (\Exception $e) {
+            $exceptionType = get_class($e);
+            DeployActionEntry::recordFailedRun($this->api->getEspAccountId(), $processState['campaign']->esp_internal_id, $processState['recordType']);
+            $jobException = new JobException("Failed to process report file - $exceptionType: " . $e->getMessage(), JobException::WARNING, $e);
+            $jobException->setDelay(60);
+            throw $jobException;
+        }
+        DeployActionEntry::recordSuccessRun($this->api->getEspAccountId(), $processState['campaign']->esp_internal_id, $processState['recordType']);
+        return $count;
+    }
+
+
+    /**
+     * @param $processState
+     */
+    public function cleanUp($processState)
+    {
+        //TODO Remove if unneeded
+    }
+
+    /**
+     * @param $messageId
+     * @param $recordType
+     * @param $isRerun
+     */
+    public function getTicketForMessageSubscriberData($messageId, $recordType, $isRerun)
+    {
+        //TODO Remove if unneeded
+    }
+
+    /**
+     * @param $processState
+     */
+    public function checkTicketStatus(&$processState)
+    {
+        //TODO Remove if unneeded
+    }
+
+    /**
+     * @param $processState
+     */
+    public function splitTypes($processState)
+    {
+        //TODO Remove if unneeded
+    }
+
+    /**
+     * @param $pageType
+     */
+    public function setPageType($pageType)
+    {
+        //TODO Remove if unneeded
+    }
+
+    /**
+     * @param $pageNumber
+     */
+    public function setPageNumber($pageNumber)
+    {
+        //TODO Remove if unneeded
+    }
+
+    /**
+     *
+     */
+    public function getPageNumber()
+    {
+        //TODO Remove if unneeded
+    }
+
+    /**
+     *
+     */
+    public function nextPage()
+    {
+        //TODO Remove if unneeded
+    }
+
+    /**
+     * @param $filePath
+     */
+    public function getFile($filePath)
+    {
+        //TODO Remove if unneeded
+    }
+
+    /**
+     *
+     */
+    public function getPageData()
+    {
+        //TODO Remove if unneeded
+    }
+
+    /**
+     * @param $campaignId
+     */
+    public function pageHasCampaignData($campaignId)
+    {
+        //TODO Remove if unneeded
+    }
+
+    /**
+     * Delete if Unneeded
+     */
+    public function pageHasData()
+    {
+        //TODO Remove if unneeded
+    }
+}

@@ -1,0 +1,25 @@
+<?php
+
+namespace App\Services\API;
+
+
+/**
+ * Class DummyClass
+ * @package App\Services\API
+ */
+class DummyClassApi extends EspBaseAPI
+{
+
+    const ESP_NAME = "DummyClass";
+
+    public function __construct($espAccountId)
+    {
+        parent::__construct(self::ESP_NAME, $espAccountId);
+    }
+
+    public function sendApiRequest()
+    {
+
+    }
+
+}
