@@ -15,7 +15,7 @@ class CheckDeployStats extends Command
      * @var string
      */
     protected $signature = 'reports:findIncompleteDeploys {lookback?}';
-    const DEFAULT_LOOKBACK = 5;
+    const DEFAULT_LOOKBACK = 7;
     const JOB_NAME = 'CheckDeployStats';
 
     /**
