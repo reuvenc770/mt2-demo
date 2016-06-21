@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Services\FtpUserService;
 use App;
 use Illuminate\Console\Command;
 use Storage;
@@ -45,6 +46,7 @@ class FtpAdmin extends Command
     protected $password = null;
     protected $directory = null;
 
+    protected $ftpUserService = null;
     protected $service = null;
 
     protected $commandOutput = [];
@@ -55,9 +57,11 @@ class FtpAdmin extends Command
      *
      * @return void
      */
-    public function __construct()
+    public function __construct( FtpUserService $ftpUserService )
     {
         parent::__construct();
+
+        $this->ftpUserService = $ftpUserService;
     }
 
     /**
@@ -298,8 +302,15 @@ class FtpAdmin extends Command
         $this->errors = false;
     }
 
+    /**
+     *
+     * Uncomment when setting live!!!
+     *
+     */
     protected function saveUserAndPassword () {
-        return $this->service->saveFtpUser( [ "username" => $this->username , "password" => $this->password ] );
+        $this->ftpUserService->save( [ 'username' => $this->username , 'password' => $this->password ] , $this->directory , 'localhost' , get_class( $this->service ) );
+
+        $this->service->saveFtpUser( [ "username" => $this->username , "password" => $this->password ] );
     }
 
     protected function generateNewUsersFromDb () {
@@ -310,6 +321,7 @@ class FtpAdmin extends Command
             $this->password = null;
 
             $this->username = $currentUser->username;
+            $this->directory = 'sftp/' . $currentUser->username;
 
             if ( isset( $currentUser->password ) ) {
                 $this->password = $currentUser->password;
