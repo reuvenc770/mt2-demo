@@ -63,7 +63,6 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'ftp:sendSprintUnsubs' )->dailyAt( '13:00' )->sendOutputTo( $unsubFilePath );
         $schedule->command( 'ftp:sendSprintUnsubs' )->dailyAt( '17:00' )->sendOutputTo( $unsubFilePath );
 
-
         /**
          * Orphan Adoption
          */
@@ -84,6 +83,8 @@ class Kernel extends ConsoleKernel
         
         $schedule->command('export bhSuppression BlueHornet --lookback=1')->hourly()->dailyAt(self::REPORT_TIME);
         $schedule->command('export emailsForOpensClicks Publicators PUB007 --lookback=15')->dailyAt(self::REPORT_TIME);
+
+        $schedule->command( 'suppression:sendToMT1 3' )->dailyAt( self::REPORT_TIME )->sendOutputTo( $unsubFilePath );
 
         /**
          * Campaign Data Daily
