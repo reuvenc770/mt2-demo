@@ -21,7 +21,7 @@ class ProcessUserAgents extends Command
      * @var string
      */
     protected $description = 'Update the user agent list -> device family mapping';
-    const JOB_NAME = 'ProcessUserAgentsJob';
+    const JOB_NAME = 'ProcessUserAgents';
 
     /**
      * Create a new command instance.

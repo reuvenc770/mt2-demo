@@ -65,7 +65,7 @@ class ClientGroupController extends Controller
     {
         Flash::success( 'Client Group was successfully created.' );
 
-        Cache::forget( 'clientgroup' );
+        Cache::tags($this->service->getType())->flush();
 
         return response( $this->api->postForm(
             self::CLIENT_GROUP_API_ENDPOINT ,
@@ -106,7 +106,7 @@ class ClientGroupController extends Controller
     {
         Flash::success( 'Client Group was successfully updated.' );
 
-        Cache::forget( 'clientgroup' );
+        Cache::tags($this->service->getType())->flush();
 
         return response( $this->api->postForm(
             self::CLIENT_GROUP_API_ENDPOINT ,
@@ -117,7 +117,7 @@ class ClientGroupController extends Controller
     public function copy ( $id ) {
         Flash::success( 'Client Group was successfully copied.' );
 
-        Cache::forget( 'clientgroup' );
+        Cache::tags($this->service->getType())->flush();
 
         return response()->json( [
             "id" => $this->api->postForm(
@@ -137,7 +137,7 @@ class ClientGroupController extends Controller
     {
         Flash::success( 'Client Group was successfully deleted.' );
 
-        Cache::forget( 'clientgroup' );
+        Cache::tags($this->service->getType())->flush();
 
         return response()->json( $this->api->postForm(
             self::CLIENT_GROUP_API_ENDPOINT ,

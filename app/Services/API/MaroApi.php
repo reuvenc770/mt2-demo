@@ -13,6 +13,8 @@ class MaroApi extends EspBaseAPI {
 
     const API_URL = "http://api.maropost.com/accounts/%d/reports.json?";
     const DELIVERED_URL = "http://api.maropost.com/accounts/%s/campaigns/%d/delivered_report.json?";
+    const CAMPAIGN_OPEN_URL = "http://api.maropost.com/accounts/%s/campaigns/%d/open_report.json?";
+    const CAMPAIGN_CLICK_URL = "http://api.maropost.com/accounts/%s/campaigns/%d/click_report.json?";
     const OPENS_URL = "http://api.maropost.com/accounts/%d/reports/opens.json?";
     const CLICKS_URL = "http://api.maropost.com/accounts/%d/reports/clicks.json?";
     const BOUNCES_URL = "http://api.maropost.com/accounts/%d/reports/bounces.json?";
@@ -119,8 +121,20 @@ class MaroApi extends EspBaseAPI {
             . $this->apiKey;
     }
 
-    public function setDeliveredUrl ( $campaignId, $pageNumber = 0 ) {
-        $this->url = sprintf( self::DELIVERED_URL , $this->account , $campaignId ) 
+    public function setActionUrl ( $campaignId, $actionType, $pageNumber = 0 ) {
+        switch ($actionType) {
+            case 'opens':
+                $url = self::CAMPAIGN_OPEN_URL;
+                break;
+            case 'clicks':
+                $url = self::CAMPAIGN_CLICK_URL;
+                break;
+            default:
+                $url = self::DELIVERED_URL;
+                break;
+        }
+
+        $this->url = sprintf( $url , $this->account , $campaignId ) 
                     . 'page=' . $pageNumber 
                     . '&auth_token=' . $this->apiKey 
                     . '&from=' . $this->priorDate 

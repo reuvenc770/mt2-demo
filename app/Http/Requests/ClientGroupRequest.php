@@ -30,7 +30,8 @@ class ClientGroupRequest extends Request
         return [
             'gid' => 'required|numeric' ,
             'user_id' => 'required|numeric' ,
-            'groupName' => 'required'
+            'groupName' => 'required',
+            'clients'   => 'required'
         ];
     }
 }

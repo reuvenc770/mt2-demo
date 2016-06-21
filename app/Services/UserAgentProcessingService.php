@@ -4,29 +4,22 @@ namespace App\Services;
 use App\Repositories\UserAgentStringRepo;
 use App\Repositories\TrackingRepo;
 use Jenssegers\Agent\Agent;
+use App\Services\AbstractEtlService;
 
-class UserAgentProcessingService {
-
-    private $sourceRepo;
-    private $uaRepo;
+class UserAgentProcessingService extends AbstractEtlService {
     private $agent;
 
     public function __construct(TrackingRepo $sourceRepo, UserAgentStringRepo $uaRepo) {
-        $this->sourceRepo = $sourceRepo;
-        $this->uaRepo = $uaRepo;
+        parent::__construct($sourceRepo, $uaRepo);
         $this->agent = new Agent();
     }
 
-    public function run() {
-        $data = $this->sourceRepo->pullUserAgents(config('jobs.uas.lookback'));
-
-        foreach ($data as $row) {
-            $row = $this->mapToTable($row);
-            $this->uaRepo->insert($row);
-        }
+    public function extract($lookback) {
+        $lookback = $lookback ? $lookback : config('jobs.uas.lookback');
+        $this->data = $this->sourceRepo->pullUserAgents($lookback);
     }
 
-    private function mapToTable($row) {
+    protected function transform($row) {
         $uas = $row['user_agent_string'];
         $this->agent->setUserAgent($uas);
 

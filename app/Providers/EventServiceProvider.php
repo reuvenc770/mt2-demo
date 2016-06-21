@@ -22,6 +22,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\BulkSuppressionFileWasUploaded' => [
             'App\Listeners\ParseBulkSuppressionFiles',
         ],
+        'App\Events\DeploysMissingDataFound' => [
+            'App\Listeners\RerunDeployStats',
+        ],
     ];
 
     /**

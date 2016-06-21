@@ -35,11 +35,17 @@ class Kernel extends ConsoleKernel
         Commands\ProcessUserAgents::class,
         Commands\SendSprintUnsubsCommand::class,
         Commands\DownloadSuppressionFromESPCommand::class,
-        Commands\ParseandSendSuppressionsCommand::class,
         Commands\InsertChunksUtil::class,
         Commands\CheckDeployStats::class,
+        Commands\RerunDeployStats::class,
+        Commands\ExportActionsElsewhere::class,
         Commands\SendSuppressionsToMT1::class,
         Commands\FtpAdmin::class,
+        Commands\Generator\EspServiceCommand::class,
+        Commands\Generator\EspApiCommand::class,
+        Commands\Generator\EspGeneration::class,
+        Commands\Generator\EspModelCommand::class,
+        Commands\Generator\EspSeedCommand::class
     ];
 
     /**
@@ -77,7 +83,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('suppression:downloadESP Publicators 1')->hourly()->dailyAt(self::UNSUB_TIME);
         //$schedule->command('suppression:downloadESP YMLP 1')->hourly()->dailyAt(self::UNSUB_TIME);
         
-        $schedule->command('movetoftp:suppressions BlueHornet 1')->hourly()->dailyAt(self::REPORT_TIME);
+        $schedule->command('export bhSuppression BlueHornet --lookback=1')->hourly()->dailyAt(self::REPORT_TIME);
+        $schedule->command('export emailsForOpensClicks Publicators PUB007 --lookback=15')->dailyAt(self::REPORT_TIME);
 
         /**
          * Campaign Data Daily

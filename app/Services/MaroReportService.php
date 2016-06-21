@@ -83,9 +83,32 @@ class MaroReportService extends AbstractReportService implements IDataService
         return $completeData;
     }
 
-    public function splitTypes()
+    public function splitTypes($processState)
     {
-        return ['opens', 'clicks', 'complaints', 'unsubscribes', 'bounces'];
+        if ('rerun' === $processState['pipe']) {
+            $typeList = [];
+            // data in $processState['campaign']
+
+            if (1 == $processState['campaign']->delivers) {
+                $typeList[] = "delivered";
+            }
+            if (1 == $processState['campaign']->opens) {
+                $typeList[] = 'opens';
+            }
+            if (1 == $processState['campaign']->clicks) {
+                $typeList[] = 'clicks';
+            }
+            if (1 == $processState['campaign']->unsubs) {
+                $typeList[] = 'unsubscribes';
+            }
+            if (1 == $processState['campaign']->bounces) {
+                $typeList[] = 'bounces';
+            }
+        }
+        else {
+            $typeList = ['opens', 'clicks', 'complaints', 'unsubscribes', 'bounces'];
+        }
+        return $typeList;
     }
 
     public function savePage(&$processState, $map)
@@ -199,6 +222,58 @@ class MaroReportService extends AbstractReportService implements IDataService
     }
 
 
+    public function saveActionPage(&$processState, $map)
+    {
+        $type = "";
+        $internalIds = array();
+
+        switch ($processState['recordType']) {
+
+            case 'delivered':
+                $datetimeField = 'created_at';
+                $type = self::RECORD_TYPE_DELIVERABLE;
+                $deployActionType = 'deliverable';
+                break;
+
+            case 'opens':
+                $datetimeField = 'recorded_at';
+                $type = self::RECORD_TYPE_OPENER;
+                $deployActionType = 'open';
+                break;
+
+            case 'clicks':
+                $datetimeField = 'recorded_at';
+                $type = self::RECORD_TYPE_CLICKER;
+                $deployActionType = 'click';
+                break;
+
+            default:
+                throw new \Exception("Inappropriate type record type {$processState['recordType']} in saveActionPage"); // THIS SHOULD BE SOMETHING ELSE
+        }
+
+        try {
+            foreach ($processState['currentPageData'] as $key => $record) {
+                $deployId = isset($map[$record['campaign_id']]) ? (int)$map[$record['campaign_id']] : 0;
+                $this->emailRecord->queueDeliverable(
+                    $type,
+                    $record['email'],
+                    $this->api->getId(),
+                    $deployId,
+                    $record['campaign_id'],
+                    Carbon::parse($record[$datetimeField])
+                );
+                $internalIds[] = $record['campaign_id'];
+            }
+        } catch (\Exception $e) {
+            DeployActionEntry::recordFailedRunArray($this->api->getEspAccountId(), array_unique($internalIds), $deployActionType);
+            $jobException = new JobException('Failed to retrieve records. ' . $e->getMessage(), JobException::NOTICE);
+            $jobException->setDelay(180);
+            throw $jobException;
+        }
+        $this->emailRecord->massRecordDeliverables();
+        DeployActionEntry::recordSuccessRunArray($this->api->getEspAccountId(), array_unique($internalIds), $deployActionType);
+    }
+
     public function shouldRetry()
     {
         return false; #releases if guzzle result is not HTTP 200
@@ -266,10 +341,10 @@ class MaroReportService extends AbstractReportService implements IDataService
         }
     }
 
-    public function pageHasCampaignData($campaignId)
+    public function pageHasCampaignData($campaignId, $actionType)
     {
         $this->api->setDeliverableLookBack();
-        $this->api->setDeliveredUrl($campaignId, $this->pageNumber);
+        $this->api->setActionUrl($campaignId, $actionType, $this->pageNumber);
 
         $data = $this->api->sendApiRequest();
         $data = $this->processGuzzleResult($data);
