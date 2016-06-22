@@ -88,4 +88,13 @@ class JobEntryRepo
         return !$result->isEmpty();
     }
 
+    public function isRerunJobAlreadyQueued($name, $campaignId) {
+        $count = $this->entry
+                    ->where('job_name', $name)
+                    ->where('campaign_id', $campaignId)
+                    ->whereIn('status', [1,4,5])
+                    ->count();
+        return $count > 0;
+    }
+
 }
