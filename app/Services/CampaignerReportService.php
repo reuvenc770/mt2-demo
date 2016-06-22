@@ -351,7 +351,6 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         }
         catch (\Exception $e) {
             DeployActionEntry::recordAllFail($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id);
-            $e->getMessage();
             $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() , JobException::WARNING , $e );
             throw $jobException;
         }
