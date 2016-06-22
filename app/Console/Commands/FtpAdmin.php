@@ -15,16 +15,9 @@ class FtpAdmin extends Command
     const FTP_ADMIN_INTERFACE_NAME = "App\\Services\\Interfaces\\IFtpAdmin";
     const PASSWORD_LENGTH = 8;
 
-    const CREATE_GROUP_COMMAND = "groupadd sftp";
-    const CHECK_GROUP_COMMAND = "getent group sftp";
     const CREATE_USER_COMMAND = "useradd -g sftp -d %s %s";
-    const DELETE_USER_COMMAND = "userdel %s";
-    const CHECK_USER_COMMAND = "getent passwd %s";
     const SET_PASSWORD_COMMAND = "echo %s:%s | chpasswd";
-    const DISABLE_SSH_ACCESS_COMMAND = "usermod -s nologin %s";
-    const SET_USER_SHELL_COMMAND = "usermod -s /bin/false %s";
     const CREATE_DIR_COMMAND = "mkdir %s";
-    const DELETE_DIR_COMMAND = "rm -R %s";
     const CHANGE_DIR_OWNER_COMMAND = "chown -R %s:sftp %s";
     const CHANGE_DIR_PERMS_COMMAND = "chmod 755 %s";
 
@@ -35,7 +28,7 @@ class FtpAdmin extends Command
      *
      * @var string
      */
-    protected $signature = 'ftp:admin {--g|createGroup : Creates the ftp group for users. You must be root to use this option. } {--d|deleteUser : Deletes user instead of creating one. } {--u|user= : Username to use. } {--p|password= : Password to set.} {--s|service= : The service to use when saving the username and password. The service must implement IFtpAdmin.}';
+    protected $signature = 'ftp:admin {--H|host= : The host to create users on. } {--P|port=22 : The port for ssh connections. } {--U|sshUser= : User to login as.} {--k|sshPublicKey= : Path to public ssh keyfile.} {--K|sshPrivateKey= : Path to private ssh keyfile} {--u|user= : Username to use. } {--p|password= : Password to set.} {--s|service= : The service to use when saving the username and password. The service must implement IFtpAdmin.}';
 
     /**
      * The console command description.
@@ -43,6 +36,13 @@ class FtpAdmin extends Command
      * @var string
      */
     protected $description = 'Admin command for generating ftp users. Credentials are automatically stored via Services. The service must implement IFtpAdmin.';
+
+    protected $host = null;
+    protected $port = null;
+    protected $sshConnection = null;
+    protected $sshUser = null;
+    protected $sshPublicKey = null;
+    protected $sshPrivateKey = null;
 
     protected $username = null;
     protected $password = null;
@@ -76,18 +76,14 @@ class FtpAdmin extends Command
         try {
             $this->processOptions();
 
-            if ( $this->shouldCreateGroup() ) {
-                $this->createFtpGroup();
-            } elseif ( $this->shouldDeleteUser() ) {
-                $this->deleteUserCommand(); 
-            }else {
-                $this->loadService();
+            $this->initSshConnection();
 
-                if ( $this->shouldCreateUser() ) {
-                    $this->setupFtpUser();
-                } else {
-                    $this->generateNewUsersFromDb();
-                }
+            $this->loadService();
+
+            if ( $this->shouldCreateUser() ) {
+                $this->setupFtpUser();
+            } else {
+                $this->generateNewUsersFromDb();
             }
         } catch ( \Exception $e ) {
             Log::error( "FtpAdmin Command - " . $e->getMessage() );
@@ -97,9 +93,32 @@ class FtpAdmin extends Command
     }
 
     protected function processOptions () {
+        $this->host = $this->option( 'host' );
+        $this->port = $this->option( 'port' );
+        $this->sshUser = $this->option( 'sshUser' );
+        $this->sshPublicKey = $this->option( 'sshPublicKey' );
+        $this->sshPrivateKey = $this->option( 'sshPrivateKey' );
+
         $this->username = $this->option( 'user' );
         $this->password = $this->option( 'password' );
         $this->directory = '/home/' . $this->username;
+    }
+
+    protected function initSshConnection () {
+        if ( is_null( $this->host ) ) { throw new \Exception( "FTP Server Host is required." ); }
+        if ( is_null( $this->port ) ) { throw new \Exception( "FTP Server Port is required." ); }
+        if ( is_null( $this->sshUser ) ) { throw new \Exception( "SSH user is required." ); }
+        if ( is_null( $this->sshPublicKey ) ) { throw new \Exception( "SSH public key is required." ); }
+        if ( is_null( $this->sshPrivateKey ) ) { throw new \Exception( "SSH private key is required." ); }
+
+        $this->sshConnection = ssh2_connect( $this->host , $this->port , [ 'hostkey' => 'ssh-rsa' ] );
+
+        ssh2_auth_pubkey_file(
+            $this->sshConnection ,
+            $this->sshUser ,
+            $this->sshPublicKey ,
+            $this->sshPrivateKey
+        );
     }
 
     protected function loadService () {
@@ -125,43 +144,8 @@ class FtpAdmin extends Command
         return in_array( self::FTP_ADMIN_INTERFACE_NAME , class_implements( $this->service ) );        
     }
 
-    protected function shouldCreateGroup () {
-        return ( $this->option( 'createGroup' ) === true && !$this->groupExists() );
-    }
-
-    protected function groupExists () {
-        return !empty( exec( self::CHECK_GROUP_COMMAND ) );
-    }
-
-    protected function createFtpGroup () {
-        exec( self::CREATE_GROUP_COMMAND , $this->commandOutput , $this->errors );
-
-        if ( $this->errors ) {
-            throw new \Exception( 'Errors found when trying to create sftp group. ' . json_encode( $this->commandOutput ) );
-        }
-    }
-
-    protected function shouldDeleteUser () {
-        $deleteOptionPresent = ( $this->option( 'deleteUser' ) === true );
-
-        if ( $deleteOptionPresent && !$this->userExists() ) {
-            throw new \Exception( 'User does not exist. Canceling user deletion.' );
-        }
-
-        return $deleteOptionPresent;
-    }
-
     protected function shouldCreateUser () {
-        return ( !empty( $this->username ) && !$this->userExists() );
-    }
-
-    protected function userExists () {
-        return !empty(
-            exec( escapeshellcmd( sprintf(
-                self::CHECK_USER_COMMAND ,
-                $this->username
-            ) ) )
-        );
+        return !empty( $this->username );
     }
 
     protected function setupFtpUser () {
@@ -186,8 +170,6 @@ class FtpAdmin extends Command
         $this->setPasswordCommand();
         $this->setDirectoryPermissionsCommand();
         $this->setDirectoryOwnerCommand();
-        $this->disableSshAccessCommand();
-        $this->setUsersShellCommand();
     }
 
     protected function generatePassword () {
@@ -197,25 +179,13 @@ class FtpAdmin extends Command
     protected function createUserDirectoryCommand () {
         $command = sprintf( self::CREATE_DIR_COMMAND , $this->directory );
 
-        $this->commandOutput []= $command;
-
-        exec( escapeshellcmd( $command ) , $this->commandOutput , $this->errors );
-
-        if ( $this->errors ) {
-            throw new \Exception( 'Failied to create user directory. output - ' . json_encode( $this->commandOutput )  );
-        }
+        ssh2_exec( $this->sshConnection , $command );
     }
 
     protected function createUserCommand () {
         $command = sprintf( self::CREATE_USER_COMMAND , $this->directory , $this->username );
 
-        $this->commandOutput []= $command;
-
-        exec( escapeshellcmd( $command ) , $this->commandOutput , $this->errors );
-
-        if ( $this->errors ) {
-            throw new \Exception( 'Failied to create user. output - ' . json_encode( $this->commandOutput )  );
-        }
+        ssh2_exec( $this->sshConnection , $command );
     }
 
     protected function setPasswordCommand () {
@@ -225,15 +195,7 @@ class FtpAdmin extends Command
 
         $command = sprintf( self::SET_PASSWORD_COMMAND , $this->username , $this->password );
 
-        $this->commandOutput []= $command;
-
-        exec( escapeshellcmd( $command ) , $this->commandOutput , $this->errors );
-
-        if ( $this->errors ) {
-            $this->deleteUserCommand();
-
-            throw new \Exception( 'Failied to set user\'s password. output - ' . json_encode( $this->commandOutput )  );
-        }
+        ssh2_exec( $this->sshConnection , $command );
     }
 
     protected function setDirectoryOwnerCommand () {
@@ -241,88 +203,13 @@ class FtpAdmin extends Command
 
         $this->commandOutput []= $command;
 
-        exec( escapeshellcmd( $command ) , $this->commandOutput , $this->errors );
-
-        if ( $this->errors ) {
-            $this->deleteUserCommand();
-
-            throw new \Exception( 'Failied to set directory\'s owner. output - ' . json_encode( $this->commandOutput )  );
-        }
+        ssh2_exec( $this->sshConnection , $command );
     }
 
     protected function setDirectoryPermissionsCommand () {
         $command = sprintf( self::CHANGE_DIR_PERMS_COMMAND , $this->directory );
 
-        $this->commandOutput []= $command;
-
-        exec( escapeshellcmd( $command ) , $this->commandOutput , $this->errors );
-
-        if ( $this->errors ) {
-            $this->deleteUserCommand();
-
-            throw new \Exception( 'Failied to set directory\'s permissions. output - ' . json_encode( $this->commandOutput )  );
-        }
-    }
-
-    protected function disableSshAccessCommand () {
-        $command = sprintf( self::DISABLE_SSH_ACCESS_COMMAND , $this->username );
-
-        $this->commandOutput []= $command;
-
-        exec( escapeshellcmd( $command ) , $this->commandOutput , $this->errors );
-
-        if ( $this->errors ) {
-            $this->deleteUserCommand();
-
-            throw new \Exception( 'Failied to disable user\'s ssh access. output - ' . json_encode( $this->commandOutput )  );
-        }
-
-    }
-
-    protected function setUsersShellCommand () {
-        $command = sprintf( self::SET_USER_SHELL_COMMAND , $this->username );
-
-        $this->commandOutput []= $command;
-        
-        exec( escapeshellcmd( $command ) , $this->commandOutput , $this->errors );
-
-        if ( $this->errors ) {
-            $this->deleteUserCommand();
-
-            throw new \Exception( 'Failied to set user\'s shell. output - ' . json_encode( $this->commandOutput )  );
-        }
-    }
-
-    protected function deleteUserCommand () {
-        $this->resetErrors();
-
-        Storage::deleteDirectory( $this->directory );
-
-        $command = sprintf( self::DELETE_USER_COMMAND , $this->username );
-
-        $this->commandOutput []= $command;
-
-        exec( escapeshellcmd( $command ) , $this->commandOutput , $this->errors );
-
-        if ( $this->errors ) {
-            throw new \Exception( 'Failied to delete user. output - ' . json_encode( $this->commandOutput )  );
-        }
-    }
-
-    protected function deleteDirectoryCommand () {
-        $command = sprintf( self::DELETE_DIR_COMMAND , $this->directory );
-
-        $this->commandOutput []= $command;
-
-        exec( escapeshellcmd( $command ) , $this->commandOutput , $this->errors );
-
-        if ( $this->errors ) {
-            throw new \Exception( 'Failied to delete user directory. output - ' . json_encode( $this->commandOutput )  );
-        }
-    }
-
-    protected function resetErrors () {
-        $this->errors = false;
+        ssh2_exec( $this->sshConnection , $command );
     }
 
     /**
