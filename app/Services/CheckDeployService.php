@@ -26,7 +26,7 @@ class CheckDeployService extends AbstractEtlService {
             $this->targetRepo->loadData($row);
         }
 
-        Event::fire(new DeploysMissingDataFound([]));
+        #Event::fire(new DeploysMissingDataFound([]));
     }
 
     protected function transform($row) {
