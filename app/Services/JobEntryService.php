@@ -98,4 +98,8 @@ class JobEntryService
         $espJob->save();
     }
 
+    public function isRerunJobAlreadyQueued($name, $campaignId) {
+        return $this->repo->isRerunJobAlreadyQueued($name, $campaignId);
+    }
+
 }

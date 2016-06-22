@@ -272,10 +272,12 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
 
     public function saveRecords ( &$processState, $map ) {
         // $map unneeded
-            $count = 0;
+        $count = 0;
         try {
             $skipDelivered = true;
-            if($this->emailRecord->withinTwoDays($processState[ 'ticket' ][ 'espId' ],$processState[ 'ticket' ][ 'espInternalId' ]) || 'rerun' === $processState['pipe']){
+
+            if( $this->emailRecord->withinTwoDays($processState[ 'ticket' ][ 'espId' ], $processState[ 'ticket' ][ 'espInternalId' ]) 
+                || ('rerun' === $processState['pipe'] && 1 == $processState['campaign']->delivers) ){
                 $skipDelivered = false;
             }
 
@@ -304,9 +306,22 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                 } elseif ( $record[ 'action' ] === 'Click' ) {
                     $actionType = self::RECORD_TYPE_CLICKER;
                 } elseif ( $record[ 'action' ] === 'Unsubscribe' ) {
-                    Suppression::recordRawUnsub($processState[ 'ticket' ][ 'espId' ],$record[ 'email' ],$processState[ 'ticket' ][ 'espInternalId' ],"", $record[ 'actionDate' ]);
+                    Suppression::recordRawUnsub(
+                        $processState[ 'ticket' ][ 'espId' ],
+                        $record[ 'email' ],
+                        $processState[ 'ticket' ][ 'espInternalId' ],
+                        "", 
+                        Carbon::parse($record[ 'actionDate' ])->format('Y-m-d H:i:s')
+                    );
+
                 } elseif ( $record[ 'action' ] === 'Hardbounce' ) {
-                    Suppression::recordRawHardBounce($processState[ 'ticket' ][ 'espId' ],$record[ 'email' ],$processState[ 'ticket' ][ 'espInternalId' ],"", $record[ 'actionDate' ]);
+                    Suppression::recordRawHardBounce(
+                        $processState[ 'ticket' ][ 'espId' ],
+                        $record[ 'email' ],
+                        $processState[ 'ticket' ][ 'espInternalId' ],
+                        "", 
+                        Carbon::parse($record[ 'actionDate' ])->format('Y-m-d H:i:s')
+                    );
                 }elseif ( $record[ 'action' ] === 'SpamComplaint' ) {
                     $actionType = self::RECORD_TYPE_COMPLAINT;
                 } elseif ( $record[ 'action' ] === 'Delivered' ) {
@@ -317,27 +332,26 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                 }
 
                 if (isset($actionType)) {
-                    
                     $this->emailRecord->queueDeliverable(
                         $actionType ,
                         $record[ 'email' ] ,
                         $processState[ 'ticket' ][ 'espId' ] ,
                         $processState['ticket']['deployId'],
                         $processState[ 'ticket' ][ 'espInternalId' ] ,
-                        $record[ 'actionDate' ]
+                        Carbon::parse($record[ 'actionDate' ])->format('Y-m-d H:i:s')
                     );
                     $count++;
-
                 }
-
             }
 
             $this->emailRecord->massRecordDeliverables();
-            return $count;
             DeployActionEntry::recordAllSuccess($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id);
+            return $count;
+            
         }
         catch (\Exception $e) {
             DeployActionEntry::recordAllFail($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id);
+            $e->getMessage();
             $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() , JobException::WARNING , $e );
             throw $jobException;
         }

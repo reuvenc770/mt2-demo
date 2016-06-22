@@ -14,6 +14,7 @@ use App\Facades\JobTracking;
 use App\Factories\APIFactory;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Exceptions\JobException;
+use App\Exceptions\JobAlreadyQueuedException;
 use Carbon\Carbon;
 use App\Models\StandardReport;
 use App\Repositories\StandardApiReportRepo;
@@ -90,6 +91,9 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
             $this->$filterName();
         } catch (JobCompletedException $e) {
             // killing an attempt at a rerun
+            Log::notice($e->getMessage());
+            exit;
+        } catch (JobAlreadyQueuedException $e) {
             Log::notice($e->getMessage());
             exit;
         } catch ( JobException $e ) {
@@ -249,29 +253,32 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->reportService->setPageType( $this->processState[ 'recordType' ] );
         $this->reportService->setPageNumber( isset( $this->processState[ 'pageNumber' ] ) ? $this->processState[ 'pageNumber' ] : 1 );
 
-        if ( $this->reportService->pageHasCampaignData($this->processState['campaign']->esp_internal_id, $this->processState[ 'recordType' ] )) {
-            echo "we have campaign data" . PHP_EOL;
-            $this->processState[ 'currentPageData' ] = $this->reportService->getPageData();
-            //var_dump($this->processState['currentPageData']);
-            $this->reportService->saveActionPage( $this->processState, $map );
-            $this->processState[ 'currentPageData' ] = array();
+        $rowCount = 0;
+        $continue = true;
 
-            $this->reportService->nextPage();
+        while ($continue) {
+            if ( $this->reportService->pageHasCampaignData($this->processState['campaign']->esp_internal_id, $this->processState[ 'recordType' ] )) {
+                $this->processState[ 'currentPageData' ] = $this->reportService->getPageData();
+                $this->reportService->saveActionPage( $this->processState, $map );
+                $rowCount += count($this->processState[ 'currentPageData' ]);
+                $this->processState[ 'currentPageData' ] = array();
 
-            $this->processState[ 'pageNumber' ] = $this->reportService->getPageNumber();
+                $this->reportService->nextPage();
+                $this->processState[ 'pageNumber' ] = $this->reportService->getPageNumber();
 
-            $this->queueNextJob( $this->defaultQueue );
+            }
+            else {
+                $continue = false;
+                $this->processState[ 'currentFilterIndex' ]++;
+                if ('rerun' === $this->processState['pipe']) {
+                    $this->queueNextJob( $this->defaultQueue );
+                }
+            }
         }
-        else {
-            $this->processState[ 'currentFilterIndex' ]++;
-        }
 
-        $rowCount = count($this->processState[ 'currentPageData' ]);
+
+
         $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
-
-        if ('rerun' === $this->processState['pipe']) {
-            $this->queueNextJob( $this->defaultQueue );
-        }
     }
 
     protected function saveRecords () {
@@ -283,6 +290,11 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         }
         else {
             echo "StandardReportRepo not set. ESP account id " . $this->espAccountId . PHP_EOL;
+        }
+
+        if ('rerun' === $this->processState['pipe']) {
+            $this->processState[ 'currentFilterIndex' ]++;
+            $this->queueNextJob( $this->defaultQueue );
         }
     }
 
@@ -349,10 +361,9 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         DB::table('deploy_record_reruns')
             ->where('deploy_id', $this->processState['campaign']->external_deploy_id)
             ->delete();
-        $total = 1;
+        $rowTotal = 1;
 
-        //$this->queueNextJob( $this->defaultQueue );
-        $this->changeJobEntry( JobEntry::SUCCESS, $total );
+        $this->changeJobEntry( JobEntry::SUCCESS, $rowTotal );
     }
 
     protected function currentFilter () {
@@ -378,6 +389,18 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         if(isset($this->processState['campaign'])){
            $campaignId = $this->processState['campaign']->esp_internal_id;
         }
+
+        if (isset($this->processState['pipe']) 
+            && 'rerun' === $this->processState['pipe'] 
+            && 0 !== $campaignId) {
+
+            $name = $this->getJobName();
+
+            if(JobTracking::isRerunJobAlreadyQueued($name, $campaignId)) {
+                throw new JobAlreadyQueuedException("Job $name already queued");
+            }
+        }
+
         JobTracking::startEspJob( $this->getJobName() ,$this->apiName, $this->espAccountId, $this->tracking, $campaignId);
         echo "\n\n" . Carbon::now() . " - Queuing Job: " . $this->getJobName() . "\n";
     }
@@ -385,7 +408,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     protected function startJobEntry () {
         JobTracking::changeJobState(JobEntry::RUNNING , $this->tracking);
 
-        echo "\n\n" . Carbon::now() . " - Queuing Job: " . $this->getJobName() . "\n";
+        echo "\n\n" . Carbon::now() . " - Queuing Job: " . $this->getJobName() . $this->tracking . "\n";
     }
 
     protected function changeJobEntry ( $status, $totalRows = 0 ) {
@@ -421,10 +444,14 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
     protected function getJobName () {
         $type = "";
+        $rerun = '';
         if(isset($this->processState['recordType'])){
             $type = $this->processState['recordType'];
         }
-        return self::JOB_NAME . '::' . $this->currentFilter() . $this->reportService->getUniqueJobId( $this->processState ). "::". $type;
+        if ('rerun' === $this->processState['pipe']) {
+            $rerun = '-rerun';
+        }
+        return self::JOB_NAME . '::' . $this->currentFilter() . $this->reportService->getUniqueJobId( $this->processState ). "::". $type . $rerun;
     }
 
     protected function getJobInfo () {

@@ -5,10 +5,11 @@ namespace App\Events;
 use App\Events\Event;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class DeploysMissingDataFound extends Event
 {
-    use SerializesModels;
+    use SerializesModels, ShouldQueue;
     private $specifiedDeploys;
 
     /**

@@ -222,8 +222,8 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         }
         else {
             $typeList = [ 'open' , 'click' , 'optout' , 'bounce' ];
-            if($this->emailRecord->withinTwoDays($processState[ 'espAccountId' ],$processState[ 'campaign' ]->esp_internal_id) || 'rerun' === $processState['pipe']){
-		array_unshift($typeList, "deliverable");
+            if($this->emailRecord->withinTwoDays($processState[ 'espAccountId' ],$processState[ 'campaign' ]->esp_internal_id)){
+                array_unshift($typeList, "deliverable");
             }
         }
 
