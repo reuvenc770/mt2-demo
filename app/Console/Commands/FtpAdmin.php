@@ -23,6 +23,8 @@ class FtpAdmin extends Command
     const SET_PASSWORD_COMMAND = "echo %s:%s | chpasswd";
     const DISABLE_SSH_ACCESS_COMMAND = "usermod -s nologin %s";
     const SET_USER_SHELL_COMMAND = "usermod -s /bin/false %s";
+    const CREATE_DIR_COMMAND = "mkdir %s";
+    const DELETE_DIR_COMMAND = "rm -R %s";
     const CHANGE_DIR_OWNER_COMMAND = "chown -R %s:sftp %s";
     const CHANGE_DIR_PERMS_COMMAND = "chmod 755 %s";
 
@@ -77,7 +79,7 @@ class FtpAdmin extends Command
             if ( $this->shouldCreateGroup() ) {
                 $this->createFtpGroup();
             } elseif ( $this->shouldDeleteUser() ) {
-                $this->deleteUser(); 
+                $this->deleteUserCommand(); 
             }else {
                 $this->loadService();
 
@@ -97,7 +99,7 @@ class FtpAdmin extends Command
     protected function processOptions () {
         $this->username = $this->option( 'user' );
         $this->password = $this->option( 'password' );
-        $this->directory = 'sftp/' . $this->username;
+        $this->directory = '/home/' . $this->username;
     }
 
     protected function loadService () {
@@ -137,8 +139,6 @@ class FtpAdmin extends Command
         if ( $this->errors ) {
             throw new \Exception( 'Errors found when trying to create sftp group. ' . json_encode( $this->commandOutput ) );
         }
-
-        Storage::makeDirectory( 'sftp' );
     }
 
     protected function shouldDeleteUser () {
@@ -181,6 +181,7 @@ class FtpAdmin extends Command
     }
 
     protected function createUser () {
+        $this->createUserDirectoryCommand();
         $this->createUserCommand();
         $this->setPasswordCommand();
         $this->setDirectoryPermissionsCommand();
@@ -193,10 +194,20 @@ class FtpAdmin extends Command
         $this->password = str_random( self::PASSWORD_LENGTH );
     }
 
-    protected function createUserCommand () {
-        Storage::makeDirectory( $this->directory );
+    protected function createUserDirectoryCommand () {
+        $command = sprintf( self::CREATE_DIR_COMMAND , $this->directory );
 
-        $command = sprintf( self::CREATE_USER_COMMAND , storage_path() . '/' . $this->directory , $this->username );
+        $this->commandOutput []= $command;
+
+        exec( escapeshellcmd( $command ) , $this->commandOutput , $this->errors );
+
+        if ( $this->errors ) {
+            throw new \Exception( 'Failied to create user directory. output - ' . json_encode( $this->commandOutput )  );
+        }
+    }
+
+    protected function createUserCommand () {
+        $command = sprintf( self::CREATE_USER_COMMAND , $this->directory , $this->username );
 
         $this->commandOutput []= $command;
 
@@ -219,35 +230,35 @@ class FtpAdmin extends Command
         exec( escapeshellcmd( $command ) , $this->commandOutput , $this->errors );
 
         if ( $this->errors ) {
-            $this->deleteUser();
+            $this->deleteUserCommand();
 
             throw new \Exception( 'Failied to set user\'s password. output - ' . json_encode( $this->commandOutput )  );
         }
     }
 
     protected function setDirectoryOwnerCommand () {
-        $command = sprintf( self::CHANGE_DIR_OWNER_COMMAND , $this->username , storage_path() . '/app/' . $this->directory );
+        $command = sprintf( self::CHANGE_DIR_OWNER_COMMAND , $this->username , $this->directory );
 
         $this->commandOutput []= $command;
 
         exec( escapeshellcmd( $command ) , $this->commandOutput , $this->errors );
 
         if ( $this->errors ) {
-            $this->deleteUser();
+            $this->deleteUserCommand();
 
             throw new \Exception( 'Failied to set directory\'s owner. output - ' . json_encode( $this->commandOutput )  );
         }
     }
 
     protected function setDirectoryPermissionsCommand () {
-        $command = sprintf( self::CHANGE_DIR_PERMS_COMMAND , storage_path() . '/app/' . $this->directory );
+        $command = sprintf( self::CHANGE_DIR_PERMS_COMMAND , $this->directory );
 
         $this->commandOutput []= $command;
 
         exec( escapeshellcmd( $command ) , $this->commandOutput , $this->errors );
 
         if ( $this->errors ) {
-            $this->deleteUser();
+            $this->deleteUserCommand();
 
             throw new \Exception( 'Failied to set directory\'s permissions. output - ' . json_encode( $this->commandOutput )  );
         }
@@ -261,7 +272,7 @@ class FtpAdmin extends Command
         exec( escapeshellcmd( $command ) , $this->commandOutput , $this->errors );
 
         if ( $this->errors ) {
-            $this->deleteUser();
+            $this->deleteUserCommand();
 
             throw new \Exception( 'Failied to disable user\'s ssh access. output - ' . json_encode( $this->commandOutput )  );
         }
@@ -276,13 +287,13 @@ class FtpAdmin extends Command
         exec( escapeshellcmd( $command ) , $this->commandOutput , $this->errors );
 
         if ( $this->errors ) {
-            $this->deleteUser();
+            $this->deleteUserCommand();
 
             throw new \Exception( 'Failied to set user\'s shell. output - ' . json_encode( $this->commandOutput )  );
         }
     }
 
-    protected function deleteUser () {
+    protected function deleteUserCommand () {
         $this->resetErrors();
 
         Storage::deleteDirectory( $this->directory );
@@ -295,6 +306,18 @@ class FtpAdmin extends Command
 
         if ( $this->errors ) {
             throw new \Exception( 'Failied to delete user. output - ' . json_encode( $this->commandOutput )  );
+        }
+    }
+
+    protected function deleteDirectoryCommand () {
+        $command = sprintf( self::DELETE_DIR_COMMAND , $this->directory );
+
+        $this->commandOutput []= $command;
+
+        exec( escapeshellcmd( $command ) , $this->commandOutput , $this->errors );
+
+        if ( $this->errors ) {
+            throw new \Exception( 'Failied to delete user directory. output - ' . json_encode( $this->commandOutput )  );
         }
     }
 
@@ -321,7 +344,7 @@ class FtpAdmin extends Command
             $this->password = null;
 
             $this->username = $currentUser->username;
-            $this->directory = 'sftp/' . $currentUser->username;
+            $this->directory = '/home/' . $currentUser->username;
 
             if ( isset( $currentUser->password ) ) {
                 $this->password = $currentUser->password;
