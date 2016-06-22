@@ -8,13 +8,17 @@
 
 namespace App\Services\MT1Services;
 
+use App\Services\Interfaces\IFtpAdmin;
 
 use App\Repositories\MT1Repositories\ClientRepo;
 use App\Services\API\MT1Api;
 
 use App\Services\ServiceTraits\PaginateMT1;
 
-class ClientService
+use DB;
+use Log;
+
+class ClientService implements IFtpAdmin
 {
     use PaginateMT1;
     protected $clientRepo;
@@ -33,5 +37,20 @@ class ClientService
 
     public function getType () {
         return 'client';
+    }
+
+    public function saveFtpUser ( $credentials ) {
+        Log::info( 'Saving user credentials to db. Creds: ' . json_encode( $credentials ) );
+
+        DB::connection( 'mt1mail' )->table( 'user' )
+            ->where( 'username' , $credentials[ 'username' ] )
+            ->update( [ 'ftp_pw' => $credentials[ 'password' ] ] );
+    }
+
+    public function findNewFtpUsers () {
+        return DB::connection( 'mt1mail' )->table( 'user' )
+            ->select( 'username' )
+            ->where( [ 'newClient' => 1 , 'ftp_user' => '' ] )
+            ->get();
     }
 }

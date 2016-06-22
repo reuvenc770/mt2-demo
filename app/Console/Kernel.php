@@ -40,6 +40,7 @@ class Kernel extends ConsoleKernel
         Commands\RerunDeployStats::class,
         Commands\ExportActionsElsewhere::class,
         Commands\SendSuppressionsToMT1::class,
+        Commands\FtpAdmin::class,
         Commands\Generator\EspServiceCommand::class,
         Commands\Generator\EspApiCommand::class,
         Commands\Generator\EspGeneration::class,
