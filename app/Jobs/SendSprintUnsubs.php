@@ -12,10 +12,8 @@ use Carbon\Carbon;
 use Storage;
 use DB;
 use App\Models\EspAccount;
-use App\Models\EmailAction;
-use App\Models\Email;
-use App\Models\OrphanEmail;
-use App\Facades\Suppression;
+use App\Models\StandardReport;
+use App\Models\Suppression;
 use Maknz\Slack\Facades\Slack;
 use Log;
 
@@ -161,24 +159,15 @@ class SendSprintUnsubs extends Job implements ShouldQueue
                     if ( is_null( $espDetails ) ) { continue; }
 
                     $deployId = $this->getDeployId( $campaignName , $campaignDetails , $espDetails );
-                    $unsubs = $this->getUnsubs( $deployId , $espDetails[ 'accountId' ] );
+
+                    $internalEspID = $this->getInternalEspId( $deployId );
+
+                    if ( is_null( $internalEspID ) ) { continue; }
+
+                    $unsubs = $this->getUnsubs( $internalEspID );
 
                     foreach ( $unsubs as $currentUnsub ) {
-                        $unsubEmail = $this->getEmail( $currentUnsub->email_id );
-
-                        $this->appendEmailToFile( $unsubEmail , $currentUnsub->datetime );
-                    }
-
-                    $orphans = $this->getOrphans( $deployId , $espDetails[ 'accountId' ] );
-
-                    foreach ( $orphans as $currentOrphan ) {
-                        $this->appendEmailToFile( $currentOrphan->email_address , $currentOrphan->datetime );
-                    }
-
-                    $suppressionUnsubs = Suppression::getUnsubsByDateEsp( $espDetails[ 'accountId' ] , $this->startOfDay , true );
-
-                    foreach ( $suppressionUnsubs as $currentSupp ) {
-                        $this->appendEmailToFile( $currentSupp->email_address , $this->startOfDay );
+                        $this->appendEmailToFile( $currentUnsub->email_address , $currentUnsub->date );
                     }
                 }
 
@@ -245,27 +234,21 @@ class SendSprintUnsubs extends Job implements ShouldQueue
         return $return;
     }
 
-    protected function getUnsubs ( $deployId , $accountId ) {
-        return EmailAction::where( [
-            [ 'deploy_id' , $deployId ] ,
-            [ 'esp_account_id' , $accountId ] ,
-            [ 'action_id' , self::UNSUB_ACTION_ID ]
-        ] )->whereBetween( 'datetime' , [ $this->startOfDay , $this->endOfDay ] )->get();
+    protected function getInternalEspId ( $deployId ) {
+        $reportRecords = StandardReport::where( 'm_deploy_id' , $deployId )->get();
+
+        if ( $reportRecords->count() >= 1 ) {
+            $current = $reportRecords->pop();
+
+            return $current->esp_internal_id;
+        } else {
+            return null;
+        }
     }
 
-    protected function getEmail ( $emailId ) {
-        $emailRecord = Email::select( 'email_address as email' )->where( 'id' , $emailId )->pluck( 'email' );
-
-        if ( isset( $emailRecord[ 0 ] ) ) return $emailRecord[ 0 ];
-        else return '';
-    }
-
-    protected function getOrphans ( $deployId , $accountId ) {
-        return  OrphanEmail::where( [
-            [ 'deploy_id' , $deployId ] ,
-            [ 'esp_account_id' , $accountId ] ,
-            [ 'action_id' , self::UNSUB_ACTION_ID ]
-        ] )->whereBetween( 'datetime' , [ $this->startOfDay , $this->endOfDay ] )->get();
+    protected function getUnsubs ( $espInternalID ) {
+        return Suppression::where( 'esp_internal_id' , $espInternalID )
+            ->whereBetween( 'date' , [ $this->startOfDay , $this->endOfDay ] )->get();
     }
 
     protected function incrementCount () {
