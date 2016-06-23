@@ -44,7 +44,8 @@ class ClientService implements IFtpAdmin
 
         DB::connection( 'mt1mail' )->table( 'user' )
             ->where( 'username' , $credentials[ 'username' ] )
-            ->update( [ 'ftp_pw' => $credentials[ 'password' ] ] );
+            ->update( [ 'ftp_pw' => $credentials[ 'password' ],
+                'ftp_user' => $credentials[ 'username' ] ] );
     }
 
     public function findNewFtpUsers () {

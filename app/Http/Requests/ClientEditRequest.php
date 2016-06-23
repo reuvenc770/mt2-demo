@@ -39,7 +39,7 @@ class ClientEditRequest extends Request
             'phone' => 'required|alpha_dash',
             'network' => 'required',
             'client_type' => 'required',
-            'list_owner' => 'required|integer',
+            'list_owner' => 'required',
             'country_id' => 'required|integer',
             'check_previous_oc' => 'required',
             'client_has_client_group_restrictions' => 'required',
