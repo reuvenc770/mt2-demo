@@ -45,7 +45,8 @@ class Kernel extends ConsoleKernel
         Commands\Generator\EspApiCommand::class,
         Commands\Generator\EspGeneration::class,
         Commands\Generator\EspModelCommand::class,
-        Commands\Generator\EspSeedCommand::class
+        Commands\Generator\EspSeedCommand::class,
+        Commands\FilterJobQueue::class,
     ];
 
     /**
