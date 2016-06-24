@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Repositories\DeployRecordRerunRepo;
 use Artisan;
 
-class RerunDeployStats
+class RerunDeployStats implements ShouldQueue
 {
 
     private $rerunRepo;
