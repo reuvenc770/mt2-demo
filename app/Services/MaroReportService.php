@@ -181,13 +181,11 @@ class MaroReportService extends AbstractReportService implements IDataService
 
                 case 'complaints' :
                     foreach ($processState['currentPageData'] as $key => $complainer) {
-                        $deployId = isset($map[$complainer['campaign_id']]) ? (int)$map[$complainer['campaign_id']] : 0;
-                        $this->emailRecord->queueDeliverable(
-                            self::RECORD_TYPE_COMPLAINT,
-                            $complainer['contact']['email'],
+                        Suppression::recordRawComplaint(
                             $this->api->getId(),
-                            $deployId,
+                            $complainer['contact']['email'],
                             $complainer['campaign_id'],
+                            "",
                             $complainer['recorded_on']
                         );
                         $internalIds[] = $complainer['campaign_id'];

@@ -42,7 +42,7 @@ class SendSuppressionsToMT1 extends Job implements ShouldQueue
         $trimmedRecords = array_unique($records);
         $writer->insertAll($trimmedRecords);
         Storage::disk("MT1SuppressionDropOff")->put("/MT2/{$this->date}-{$this->tracking}.csv", $writer->__toString());
-
+        JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
     }
 
     public function failed()
