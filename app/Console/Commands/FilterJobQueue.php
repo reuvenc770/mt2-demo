@@ -35,21 +35,28 @@ class FilterJobQueue extends Command
      * @return mixed
      */
     public function handle() {
+
+        $redis = Redis::connection();
     
-        Redis::pipeline(function ($pipe) {
+        Redis::pipeline(function ($redis) {
             $string = $this->argument('string');
             $fromList = $this->argument('list');
             $toList = "TEMPORARY_FILTERING_LIST";
+            $count = 0;
 
-            $values = Redis::lrange($fromList, 0, -1);
+            $values = $redis->lrange($fromList, 0, -1);
 
             foreach($values as $value) {
                 if (!preg_match("/$string/", $value)) {
-                    Redis::rpush($toList, $value);
+                    $redis->rpush($toList, $value);
+                    $count++;
                 }
             }
-
-            Redis::rename($toList, $fromList);
+            
+            if ($count > 0) {
+                $redis->rename($toList, $fromList);
+            }
+            
         });
     }
     
