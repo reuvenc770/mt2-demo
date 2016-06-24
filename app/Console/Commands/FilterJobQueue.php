@@ -35,8 +35,7 @@ class FilterJobQueue extends Command
      * @return mixed
      */
     public function handle() {
-        
-
+    
         Redis::pipeline(function ($pipe) {
             $string = $this->argument('string');
             $fromList = $this->argument('list');
@@ -53,6 +52,5 @@ class FilterJobQueue extends Command
             Redis::rename($toList, $fromList);
         });
     }
-
-
+    
 }
