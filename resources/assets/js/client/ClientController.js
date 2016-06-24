@@ -110,18 +110,7 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
     /**
      * Form Methods
      */
-    self.updateClient = function () {
-        self.updatingClient = 1;
-
-        ClientApiService.updateClient( self.getClientData() , self.SuccessCallBackRedirect , self.updateClientFailureCallback );
-    };
-
-    self.saveClient = function () {
-        self.creatingClient = 1;
-
-        ClientApiService.saveClient( self.getClientData() , self.SuccessCallBackRedirect , self.saveClientFailureCallback );
-    };
-
+  
     self.getClientData = function () {
         var clientData = {};
 
@@ -169,7 +158,10 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
 
     self.updateClient = function () {
         self.resetFieldErrors();
-        ClientApiService.updateClient( self.current , self.SuccessCallBackRedirect , self.updateClientFailureCallback );
+        var clientData = angular.copy( self.current );
+        clientData.list_owner = self.current.list_owner.name;
+        clientData.client_type = self.current.client_type.value;
+        ClientApiService.updateClient( clientData , self.SuccessCallBackRedirect , self.updateClientFailureCallback );
     };
 
     self.saveClient = function () {
@@ -177,8 +169,9 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
 
         var clientData = angular.copy( self.current );
 
-        clientData.list_owner = self.current.list_owner.value;
+        clientData.list_owner = self.current.list_owner.name;
         clientData.newClient = 1;
+        clientData.client_type = self.current.client_type.value;
 
         ClientApiService.saveClient( clientData , self.SuccessCallBackRedirect , self.saveClientFailureCallback );
     };

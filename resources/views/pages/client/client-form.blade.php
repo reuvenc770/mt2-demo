@@ -177,12 +177,12 @@
             </div>
 
             <div class="form-group" ng-class="{ 'has-error' : client.formErrors.ftp_pw }">
-                <input type="password" class="form-control" id="ftp_password" value="" placeholder="FTP Password" ng-model="client.current.ftp_pw" />
+                <input type="text" class="form-control" id="ftp_password" value="" placeholder="FTP Password" ng-model="client.current.ftp_pw" />
                 <span class="help-block" ng-bind="client.formErrors.ftp_pw" ng-show="client.formErrors.ftp_pw"></span>
             </div>
 
             <div class="form-group" ng-class="{ 'has-error' : client.formErrors.rt_pw }">
-                <input type="password" class="form-control" id="ftp_realtime_password" value="" placeholder="FTP Realtime Password" ng-model="client.current.rt_pw" />
+                <input type="text" class="form-control" id="ftp_realtime_password" value="" placeholder="FTP Realtime Password" ng-model="client.current.rt_pw" />
                 <span class="help-block" ng-bind="client.formErrors.rt_pw" ng-show="client.formErrors.rt_pw"></span>
             </div>
         </div>
@@ -240,7 +240,7 @@
             </div>
 
             <div class="form-group" ng-class="{ 'has-error' : client.formErrors.country_id }">
-                <select ng-model="client.current.country_id" placeholder="Select Country" class="form-control">
+                <select ng-model="client.current.country_id" placeholder="Select Country"  convert-to-number class="form-control">
                     <option ng-selected="@{{ client.current.country_id == '' || client.current.country_id == null }}" value="">Select a Country</option>
                     @foreach ( $countries as $current )
                     <option value="{{ $current->id }}">{{ $current->name }}</option>
