@@ -222,15 +222,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                     $complainers = $this->getComplaintReport( $processState[ 'campaign' ]->esp_internal_id );
                     $count = count($complainers);
                     foreach ( $complainers as $key => $complainerRecord ) {
-
-                        $this->emailRecord->recordDeliverable(
-                            self::RECORD_TYPE_COMPLAINT ,
-                            $complainerRecord[ 'EmailAddress' ] ,
-                            $processState[ 'espId' ] ,
-                            $processState[ 'campaign' ]->external_deploy_id ,
-                            $processState[ 'campaign' ]->esp_internal_id ,
-                            $complainerRecord[ 'ActionDate' ]
-                        );
+                        Suppression::recordRawComplaint($processState[ 'espId' ] , $complainerRecord[ 'EmailAddress' ],  $processState[ 'campaign' ]->esp_internal_id,  "", $complainerRecord[ 'ActionDate' ]);
                     }
                     $type = 'complaint';
                 break;
