@@ -140,6 +140,7 @@
                             md-search-text="client.typeSearchText"
                             md-items="item in client.getClientType( client.typeSearchText )"
                             md-item-text="item.name"
+
                             md-selected-item-change="client.setClientType( item )"
                             md-min-length="0"
                             placeholder="Type to Choose a Client Type"

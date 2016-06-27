@@ -159,7 +159,7 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
     self.updateClient = function () {
         self.resetFieldErrors();
         var clientData = angular.copy( self.current );
-        clientData.list_owner = self.current.list_owner.name;
+        clientData.list_owner = self.current.list_owner.value;
         clientData.client_type = self.current.client_type.value;
         ClientApiService.updateClient( clientData , self.SuccessCallBackRedirect , self.updateClientFailureCallback );
     };
@@ -169,7 +169,7 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
 
         var clientData = angular.copy( self.current );
 
-        clientData.list_owner = self.current.list_owner.name;
+        clientData.list_owner = self.current.list_owner.value;
         clientData.newClient = 1;
         clientData.client_type = self.current.client_type.value;
 
@@ -215,10 +215,8 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
         var currentRecord = response.data[ 0 ];
 
         currentRecord.country_id = parseInt( currentRecord[ 'country_id' ] );
-
-        if ( typeof( currentRecord[ 'list_owner' ] ) !== 'undefined' ) {
-            currentRecord[ 'list_owner' ] = currentRecord[ 'list_owner' ].toLowerCase();
-        }
+        currentRecord.client_type = {name:currentRecord[ 'client_type'],value:currentRecord[ 'client_type']};
+        currentRecord.list_owner = {name:currentRecord[ 'list_owner'],value:currentRecord[ 'list_owner']};
 
         self.current = currentRecord;
     };
