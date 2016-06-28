@@ -46,7 +46,7 @@ class SuppressionService
     }
 
     private function buildRecord($espId, $email, $espInternalId, $date, $type){
-        return  array(
+        $record =  array(
             "esp_account_id" => $espId,
             "email_address"  => $email,
             "esp_internal_id"    => $espInternalId,
@@ -54,6 +54,10 @@ class SuppressionService
             "type_id" => $type,
             "reason_id"        => $this->getReasonCode($espId, $type)
         );
+        if($record["esp_internal_id"] == 0){
+            unset($record["esp_internal_id"]);
+        }
+        return $record;
     }
 
     public function getHardBouncesByDateEsp($espAccountId, $date, $useRange = false){
