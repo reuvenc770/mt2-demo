@@ -16,7 +16,7 @@ class CreateAttributionExpirationSchedulesTable extends Migration
     public function up()
     {
         Schema::create('attribution_expiration_schedules', function (Blueprint $table) {
-            $table->integer( 'email_id' )
+            $table->bigInteger( 'email_id' )
             $table->date( 'expiration_date' );
             $table->timestamps();
 
