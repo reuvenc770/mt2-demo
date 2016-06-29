@@ -257,7 +257,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $continue = true;
 
         while ($continue) {
-            if ( $this->reportService->pageHasCampaignData($this->processState['campaign']->esp_internal_id, $this->processState[ 'recordType' ] )) {
+            if ( $this->reportService->pageHasCampaignData($this->processState['campaign']->esp_internal_id, $this->processState[ 'recordType' ], $this->processState['pipe'] )) {
                 $this->processState[ 'currentPageData' ] = $this->reportService->getPageData();
                 $this->reportService->saveActionPage( $this->processState, $map );
                 $rowCount += count($this->processState[ 'currentPageData' ]);
