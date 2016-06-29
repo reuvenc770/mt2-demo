@@ -76,14 +76,14 @@ class Kernel extends ConsoleKernel
         /**
          * Suppression Jobs
          */
-        $schedule->command('suppression:downloadESP BlueHornet 1')->hourly()->dailyAt(self::UNSUB_TIME);
-        $schedule->command('suppression:downloadESP Maro 1')->hourly()->dailyAt(self::UNSUB_TIME);
-        $schedule->command('suppression:downloadESP Campaigner 1')->hourly()->dailyAt(self::UNSUB_TIME);
-        $schedule->command('suppression:downloadESP EmailDirect 1')->hourly()->dailyAt(self::UNSUB_TIME);
-        $schedule->command('suppression:downloadESP Publicators 1')->hourly()->dailyAt(self::UNSUB_TIME);
-        //$schedule->command('suppression:downloadESP YMLP 1')->hourly()->dailyAt(self::UNSUB_TIME);
+        $schedule->command('suppression:downloadESP BlueHornet 1')->dailyAt(self::UNSUB_TIME);
+        $schedule->command('suppression:downloadESP Maro 1')->dailyAt(self::UNSUB_TIME);
+        $schedule->command('suppression:downloadESP Campaigner 1')->dailyAt(self::UNSUB_TIME);
+        $schedule->command('suppression:downloadESP EmailDirect 1')->dailyAt(self::UNSUB_TIME);
+        $schedule->command('suppression:downloadESP Publicators 1')->dailyAt(self::UNSUB_TIME);
+        $schedule->command('suppression:downloadESP Bronto 1')->dailyAt(self::UNSUB_TIME);
         
-        $schedule->command('export bhSuppression BlueHornet --lookback=1')->hourly()->dailyAt(self::REPORT_TIME);
+        $schedule->command('export bhSuppression BlueHornet --lookback=1')->dailyAt(self::REPORT_TIME);
         $schedule->command('export emailsForOpensClicks Publicators PUB007 --lookback=15')->dailyAt(self::REPORT_TIME);
 
         $schedule->command( 'suppression:sendToMT1 3' )->dailyAt( self::REPORT_TIME )->sendOutputTo( $unsubFilePath );
