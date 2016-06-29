@@ -296,7 +296,7 @@ class BrontoReportService extends AbstractReportService implements IDataService
         return self::DUMB_ID.$padded;
     }
 
-    public function pageHasCampaignData($formattedInternalId){
+    public function pageHasCampaignData($formattedInternalId, $type, $pipe){
         $realID = $this->makeDumbInternalId($formattedInternalId);
         if ($this->pageNumber != 1) {
             return false;
@@ -305,10 +305,13 @@ class BrontoReportService extends AbstractReportService implements IDataService
         $filter = array(
             "start" => Carbon::now()->subDay(3)->toAtomString(), //TODO NOT SURE HOW TO GET DATE HERE WELL, HARDCODING TILL WE NEED TO BE DYNAMIC
             "size" => "5000",
-            "types" => "send",
+            "types" => $type,
             "deliveryId" => $realID,
             "readDirection" => $this->getPageNumber(),
         );
+        if ('rerun' === $pipe) {
+            unset($filter['start']);
+        }
         $data = $this->api->getOutgoingSends($filter);
         $this->currentPageData = $data;
 
