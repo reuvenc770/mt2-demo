@@ -20,9 +20,8 @@ class CreateEmailClientAssignmentsTable extends Migration
             $table->integer( 'client_id' )->unsigned();
             $table->timestamps();
 
+            $table->primary( 'email_id' );
             $table->primary( [ 'email_id' , 'client_id' ] );
-            $table->unique( 'email_id' );
-            $table->index( 'client_id' );
         });
     }
 
