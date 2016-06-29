@@ -17,6 +17,7 @@ class DeploysMissingDataFound extends Event
      * @return void
      */
     public function __construct($specifiedDeploys) {
+        echo "Deploys missing data event initiated" . PHP_EOL;
         $this->specifiedDeploys = $specifiedDeploys;
     }
 
