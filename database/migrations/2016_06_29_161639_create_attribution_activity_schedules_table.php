@@ -16,7 +16,7 @@ class CreateAttributionActivitySchedulesTable extends Migration
     public function up()
     {
         Schema::create('attribution_activity_schedules', function (Blueprint $table) {
-            $table->integer( 'email_id' )->unsigned();
+            $table->bigInteger( 'email_id' )->unsigned();
             $table->date( 'inactive_date' );
             $table->timestamps();
 
