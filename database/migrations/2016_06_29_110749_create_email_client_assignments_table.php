@@ -21,7 +21,7 @@ class CreateEmailClientAssignmentsTable extends Migration
             $table->timestamps();
 
             $table->primary( 'email_id' );
-            $table->primary( [ 'email_id' , 'client_id' ] );
+            $table->index( [ 'email_id' , 'client_id' ] );
         });
     }
 
