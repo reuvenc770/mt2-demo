@@ -1,6 +1,9 @@
 <?php
+/**
+ * @author Adam Chin <achin@zetainteractive.com>
+ */
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
