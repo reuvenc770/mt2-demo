@@ -16,7 +16,7 @@ class CreateAttributionRecordTruthsTable extends Migration
     public function up()
     {
         Schema::create('attribution_record_truths', function (Blueprint $table) {
-            $table->integer( 'email_id' )->unsigned();
+            $table->bigInteger( 'email_id' )->unsigned();
             $table->boolean( 'expired' )->default( false );
             $table->boolean( 'active' )->default( false );
             $table->timestamps();
