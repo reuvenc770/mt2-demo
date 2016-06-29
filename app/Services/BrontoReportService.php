@@ -297,6 +297,7 @@ class BrontoReportService extends AbstractReportService implements IDataService
     }
 
     public function pageHasCampaignData($formattedInternalId, $type, $pipe){
+
         $realID = $this->makeDumbInternalId($formattedInternalId);
         if ($this->pageNumber != 1) {
             return false;
@@ -312,7 +313,12 @@ class BrontoReportService extends AbstractReportService implements IDataService
         if ('rerun' === $pipe) {
             unset($filter['start']);
         }
-        $data = $this->api->getOutgoingSends($filter);
+        if($type == "delivered"){
+            $filter['types'] = "send";
+            $data = $this->api->getOutgoingSends($filter);
+        } else {
+            $data = $this->api->getDeliverablesByType($filter);
+        }
         $this->currentPageData = $data;
 
 
