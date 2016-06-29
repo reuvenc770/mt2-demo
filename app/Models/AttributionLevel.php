@@ -9,6 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class AttributionLevel extends Model
 {
+    public function __construct ( $tableName ) {
+        if ( !is_null( $tableName ) ) {
+            $this->table = $tableName;
+        }
+    }
+
     public function client () {
         return $this->belongsTo( 'App\Models\Client' );
     }

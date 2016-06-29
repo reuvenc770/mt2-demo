@@ -13,11 +13,11 @@ class AttributionLevelRepo {
 
     protected $levels;
 
-    public function __construct ( AttributionLevel $levels , $attributionModelId = null ) {
-        $this->levels = $levels;
+    public function __construct ( $attributionModelId = null ) {
+        $this->levels = new AttributionLevel();
 
         if ( !is_null( $attributionModelId ) && is_numeric( $attributionModelId ) ) {
-            $this->table = self::BASE_TABLE_NAME . $attributionModelId;
+            $this->levels = new AttributionLevel( self::BASE_TABLE_NAME . $attributionModelId );
         }
     }
 
