@@ -9,7 +9,7 @@ use App\Models\AttributionLevel;
 use Illuminate\Database\Schema\Blueprint;
 
 class AttributionLevelRepo {
-    const BASE_TABLE_NAME = 'attribution_levels_model';
+    const BASE_TABLE_NAME = 'attribution_levels_model_';
 
     protected $levels;
 
@@ -37,8 +37,8 @@ class AttributionLevelRepo {
         #sets active filed for the given client.
     }
 
-    public function generateTempTable ( $modelId ) {
-        Schema::create( self::BASE_TABLE_NAME . $modelId , function (Blueprint $table) {
+    static public function generateTempTable ( $modelId ) {
+        Schema::create( AttributionLevelRepo::BASE_TABLE_NAME . $modelId , function (Blueprint $table) {
             $table->integer( 'client_id' )->unsigned();
             $table->integer( 'level' )->unsigned();
             $table->boolean( 'active' )->default( true );
@@ -49,7 +49,7 @@ class AttributionLevelRepo {
         });
     }
 
-    public function dropTempTable ( $modelId ) {
-        Schema::drop( self::BASE_TABLE_NAME . $modelId );
+    static public function dropTempTable ( $modelId ) {
+        Schema::drop( AttributionLevelRepo::BASE_TABLE_NAME . $modelId );
     }
 }
