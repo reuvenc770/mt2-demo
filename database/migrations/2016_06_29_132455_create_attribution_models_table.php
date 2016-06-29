@@ -19,8 +19,8 @@ class CreateAttributionModelsTable extends Migration
             $table->increments('id');
             $table->string( 'name' );
             $table->boolean( 'live' );
-            $table->string( 'temp_level_table' );
-            $table->string( 'temp_transient_table' );
+            $table->string( 'attribution_level_table' );
+            $table->string( 'transient_records_table' );
             $table->timestamps();
         });
     }
