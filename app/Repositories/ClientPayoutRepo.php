@@ -19,6 +19,10 @@ class ClientPayoutRepo {
         #create or update payout for given client.
     }
 
+    public function getPayout ( $clientId ) {
+        #returns payout type and amount
+    }
+
     public function createPayoutType ( $name ) {
         #create new payout type
     }
