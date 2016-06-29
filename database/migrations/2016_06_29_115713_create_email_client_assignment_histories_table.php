@@ -16,6 +16,7 @@ class CreateEmailClientAssignmentHistoriesTable extends Migration
     public function up()
     {
         Schema::create('email_client_assignment_histories', function (Blueprint $table) {
+            $table->increments('id');
             $table->integer( 'email_id' )->unsigned();
             $table->integer( 'prev_client_id' )->unsigned();
             $table->integer( 'new_client_id' )->unsigned();

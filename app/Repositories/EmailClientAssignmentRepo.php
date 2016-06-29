@@ -9,36 +9,22 @@ use App\Models\EmailClientAssignment;
 use App\Models\EmailClientAssignmentHistory;
 
 class EmailClientAssignmentRepo {
-    public function __construct () {}
+    protected $assignment;
+    protected $history;
+
+    public function __construct ( EmailClientAssignment $assignment , EmailClientAssignmentHistory $history ) {
+        $this->assignment = $assignment;
+        $this->history = $history;
+    }
 
     public function assignClient ( $emailId , $clientId ) {
-        $relatedAssignment = EmailClientAssignments::where( 'email_id' , $emailId );
-
-        if ( $relatedAssignment->count() > 0 ) {
-            $collection = $relatedAssignment->get();
-
-            foreach ( $collection as $assignment ) {
-                $prevClientId = $assignment->client_id;
-
-                $assignment->client_id = $clientId;
-                $assignment->save();
-
-                $this->recordSwap( $emailId , $prevClientId , $clientId );
-            }
-        } else {
-            $assignment = new EmailClientAssignment();
-            $assignment->email_id = $emailId;
-            $assignment->client_id = $clientId;
-            $assignment->save();
-        }
+        #find current assignment
+        
+        #if exists record the swap and update
+        #else create new assignment
     }
 
     protected function recordSwap ( $emailId , $prevClientId , $newClientId ) {
-        $swapRecord = new EmailClientAssignmentHistory();
-
-        $swapRecord->email_id = $emailId;
-        $swapRecord->prev_client_id = $prevClientId;
-        $swapRecord->new_client_id = $newClientId;
-        $swapRecord->save();
+        #save inputs to table
     }
 }
