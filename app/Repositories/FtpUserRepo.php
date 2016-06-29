@@ -19,6 +19,7 @@ class FtpUserRepo {
         $user->username = $credentials[ 'username' ];
         $user->password = $credentials[ 'password' ];
         $user->directory = $directory;
+        $user->host = "ftp://52.205.67.250";
 
         if ( !is_null( $host ) ) { $user->host = $host; }
         if ( !is_null( $serviceName ) ) { $user->service = $serviceName; }
