@@ -28,8 +28,7 @@ class CreateAttributionReportsTable extends Migration
             $table->integer( 'days_back' );
             $table->timestamps();
 
-            $table->index( 'client_id' );
-            $table->index( 'deploy_id' );
+            $table->index( [ 'client_id' , 'deploy_id' ] );
             $table->index( 'days_back' );
         });
     }
