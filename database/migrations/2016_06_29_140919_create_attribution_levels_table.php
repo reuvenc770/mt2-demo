@@ -22,7 +22,7 @@ class CreateAttributionLevelsTable extends Migration
             $table->timestamps();
 
             $table->primary( 'client_id' );
-            $table->index( [ 'client_id' , 'level' ] );
+            $table->unique( 'level' );
         });
     }
 
