@@ -29,6 +29,7 @@ class RerunDeployStats implements ShouldQueue
      * @return void
      */
     public function handle(DeploysMissingDataFound $event) {
+        echo "Handling deficient deploy event listener" . PHP_EOL;
 
         // Will eventually want to use $event->getSpecifiedDeploys()
         // to rerun user-specified deploys
@@ -37,6 +38,7 @@ class RerunDeployStats implements ShouldQueue
 
         foreach($esps as $esp) {
             if ($esp) {
+                echo "RE-RUNNING RECORD-LEVEL FOR {$esp->name}" . PHP_EOL;
                 Artisan::call('reports:rerunDeliverables', ['espName' => $esp->name]);
             }   
         }

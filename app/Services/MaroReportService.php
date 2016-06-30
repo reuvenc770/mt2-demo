@@ -340,7 +340,7 @@ class MaroReportService extends AbstractReportService implements IDataService
         }
     }
 
-    public function pageHasCampaignData($campaignId, $actionType)
+    public function pageHasCampaignData($campaignId, $actionType, $pipe)
     {
         $this->api->setDeliverableLookBack();
         $this->api->setActionUrl($campaignId, $actionType, $this->pageNumber);
