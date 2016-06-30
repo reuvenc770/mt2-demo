@@ -29,6 +29,6 @@ class CreateClientPayoutTypesTable extends Migration
      */
     public function down()
     {
-        Schema::drop('client_payout_types');
+        Schema::connection( 'attribution' )->drop('client_payout_types');
     }
 }
