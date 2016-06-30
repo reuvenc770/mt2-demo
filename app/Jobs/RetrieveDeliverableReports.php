@@ -227,8 +227,6 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $deploys->each( function( $deploy , $key ) {
             $this->processState[ 'campaign' ] = $deploy;
             $this->processState[ 'espId' ] = $this->espAccountId;
-
-            $espInternalId = $this->processState['campaign']->esp_internal_id;
             $this->queueNextJob( $this->defaultQueue );
         });
         $rowCount = count($deploys);
