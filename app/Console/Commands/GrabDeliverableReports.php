@@ -60,8 +60,6 @@ class GrabDeliverableReports extends Command
         if ( preg_match( '/:/' , $espName ) ) {
             $espParts = explode( ':' , $espName );
             $espName = $espParts[ 0 ];
-            echo "Executing rerun for $espName" . PHP_EOL;
-
             $processState = [ 'pipe' => $espParts[ 1 ] ];
         }
 
