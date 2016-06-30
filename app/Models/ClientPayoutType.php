@@ -9,5 +9,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class ClientPayoutType extends Model
 {
-    //
+    protected $connection = 'attribution';
 }

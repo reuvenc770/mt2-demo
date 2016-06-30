@@ -15,7 +15,7 @@ class CreateClientPayoutsTable extends Migration
      */
     public function up()
     {
-        Schema::create('client_payouts', function (Blueprint $table) {
+        Schema::connection( 'attribution' )->create('client_payouts', function (Blueprint $table) {
             $table->integer( 'client_id' )->unsigned();
             $table->integer( 'client_payout_type_id' )->unsigned();
             $table->decimal( 'amount' , 11 , 3 );
