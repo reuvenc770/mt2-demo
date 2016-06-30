@@ -9,5 +9,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class AttributionModel extends Model
 {
-    //
+    protected $connection = 'attribution';
 }

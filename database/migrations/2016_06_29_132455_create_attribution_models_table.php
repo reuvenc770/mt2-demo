@@ -15,7 +15,7 @@ class CreateAttributionModelsTable extends Migration
      */
     public function up()
     {
-        Schema::create('attribution_models', function (Blueprint $table) {
+        Schema::connection( 'attribution' )->create('attribution_models', function (Blueprint $table) {
             $table->increments('id');
             $table->string( 'name' );
             $table->boolean( 'live' );
