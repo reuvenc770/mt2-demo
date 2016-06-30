@@ -15,7 +15,7 @@ class CreateAttributionExpirationSchedulesTable extends Migration
      */
     public function up()
     {
-        Schema::create('attribution_expiration_schedules', function (Blueprint $table) {
+        Schema::connection( 'attribution' )->create('attribution_expiration_schedules', function (Blueprint $table) {
             $table->bigInteger( 'email_id' )
             $table->date( 'expiration_date' );
             $table->timestamps();
@@ -32,6 +32,6 @@ class CreateAttributionExpirationSchedulesTable extends Migration
      */
     public function down()
     {
-        Schema::drop('attribution_expiration_schedules');
+        Schema::connection( 'attribution' )->drop('attribution_expiration_schedules');
     }
 }

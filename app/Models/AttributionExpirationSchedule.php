@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class AttributionExpirationSchedule extends Model
 {
+    protected $connection = 'attribution';
+
     public function record () {
         return $this->belongsTo( 'emails' , 'email_id' , 'id' );
     }
