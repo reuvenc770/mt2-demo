@@ -30,7 +30,7 @@ class AttributionTransientRecordRepo {
     }
 
     static public function generateTempTable ( $modelId ) {
-        Schema::create( AttributionTransientRecordRepo::BASE_TABLE_NAME . $modelId , function (Blueprint $table) {
+        Schema::connection( 'attribution' )->create( AttributionTransientRecordRepo::BASE_TABLE_NAME . $modelId , function (Blueprint $table) {
             $table->increments('id');
             $table->integer( 'client_id' );
             $table->integer( 'deploy_id' );
@@ -53,6 +53,6 @@ class AttributionTransientRecordRepo {
     }
 
     static public function dropTempTable ( $modelId ) { 
-        Schema::drop( AttributionTransientRecordRepo::BASE_TABLE_NAME . $modelId );
+        Schema::connection( 'attribution' )->drop( AttributionTransientRecordRepo::BASE_TABLE_NAME . $modelId );
     }
 }

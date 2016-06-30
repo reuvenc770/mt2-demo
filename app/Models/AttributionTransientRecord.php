@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class AttributionTransientRecord extends Model
 {
+    protected $connection = 'attribution';
+
     public function __construct ( $tableName ) {
         $this->table = $tableName;
     }
