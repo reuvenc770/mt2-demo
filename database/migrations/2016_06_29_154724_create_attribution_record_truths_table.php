@@ -22,8 +22,8 @@ class CreateAttributionRecordTruthsTable extends Migration
             $table->timestamps();
 
             $table->primary( 'email_id' );
-            $table->index( 'expired' );
-            $table->index( 'active' );
+            $table->index( 'recent_import' );
+            $table->index( 'has_action' );
         });
     }
 
