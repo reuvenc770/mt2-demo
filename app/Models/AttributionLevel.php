@@ -11,7 +11,9 @@ class AttributionLevel extends Model
 {
     protected $connection = "attribution";
 
-    public function __construct ( $tableName ) {
+    public function __construct ( $tableName = null , array $attributes = [] ) {
+        parent::__construct( $attributes );
+
         if ( !is_null( $tableName ) ) {
             $this->table = $tableName;
         }
