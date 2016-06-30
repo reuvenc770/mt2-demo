@@ -15,7 +15,7 @@ class CreateAttributionRecordTruthsTable extends Migration
      */
     public function up()
     {
-        Schema::create('attribution_record_truths', function (Blueprint $table) {
+        Schema::connection( 'attribution' )->create('attribution_record_truths', function (Blueprint $table) {
             $table->bigInteger( 'email_id' )->unsigned();
             $table->boolean( 'expired' )->default( false );
             $table->boolean( 'active' )->default( false );
@@ -34,6 +34,6 @@ class CreateAttributionRecordTruthsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('attribution_record_truths');
+        Schema::connection( 'attribution' )->drop('attribution_record_truths');
     }
 }
