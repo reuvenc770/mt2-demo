@@ -159,7 +159,7 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
     self.updateClient = function () {
         self.resetFieldErrors();
         var clientData = angular.copy( self.current );
-        clientData.list_owner = self.current.list_owner.value;
+        clientData.list_owner = self.current.list_owner.name;
         clientData.client_type = self.current.client_type.value;
         ClientApiService.updateClient( clientData , self.SuccessCallBackRedirect , self.updateClientFailureCallback );
     };
@@ -169,7 +169,7 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
 
         var clientData = angular.copy( self.current );
 
-        clientData.list_owner = self.current.list_owner.value;
+        clientData.list_owner = self.current.list_owner.name;
         clientData.newClient = 1;
         clientData.client_type = self.current.client_type.value;
 

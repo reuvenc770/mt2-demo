@@ -2,9 +2,9 @@
 
 return [
 
-    'bhSuppression' => [
+    'SuppressionReport' => [
         'destination' => 'hornet7',
-        'service' => 'BlueHornetSuppressionExportReport',
+        'service' => 'SuppressionExportReport',
         'model' => 'Suppression',
         'repo' => 'SuppressionRepo',
         'model2' => 'SuppressionReason',
