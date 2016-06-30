@@ -46,6 +46,7 @@ class ClientService implements IFtpAdmin
             ->where( 'username' , $credentials[ 'username' ] )
             ->update( [ 'ftp_pw' => $credentials[ 'password' ],
                 'ftp_user' => $credentials[ 'username' ],
+                'ftp_url' => $credentials['ftp_url'],
                 'newClient' => 0 ] );
     }
 

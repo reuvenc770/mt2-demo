@@ -136,8 +136,7 @@ class MaroApi extends EspBaseAPI {
 
         $this->url = sprintf( $url , $this->account , $campaignId ) 
                     . 'page=' . $pageNumber 
-                    . '&auth_token=' . $this->apiKey 
-                    . '&from=' . $this->priorDate 
-                    . '&to=' . $this->date;
+                    . '&auth_token=' . $this->apiKey;
+
     }
 }
