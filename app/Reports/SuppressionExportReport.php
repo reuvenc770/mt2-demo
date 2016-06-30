@@ -1,14 +1,11 @@
 <?php
 
 namespace App\Reports;
-use League\Csv\Writer;
 use Cache;
 use Maknz\Slack\Facades\Slack;
-use Illuminate\Database\Query\Builder;
-use App\Models\Suppression;
 use App\Repositories\SuppressionRepo;
-
-class BlueHornetSuppressionExportReport {
+use Log;
+class SuppressionExportReport {
     private $repo;
     private $range = false;
     private $hardbounces;
@@ -56,37 +53,15 @@ class BlueHornetSuppressionExportReport {
     }
 
     protected function exportBounces($id, $name) {
-        $writer = Writer::createFromFileObject(new \SplTempFileObject());
-        $writer->insertAll($this->hardbounces->toArray());
-
-        if ($this->range) {
-            $this->destination->put("DAILY_UNSUB_HARDBOUNCE/{$this->lookback}_TO_TODAY_{$name}_HB.csv", $writer->__toString());
-            $this->destination->append("ALL_UNSUB_HARDBOUNCE/{$this->lookback}_TO_TODAY_ALL_HB.csv", $writer->__toString());
-        }
-        else {
             Cache::tags($this->espName)->increment("{$id}_hb_count",count($this->hardbounces));
             Cache::tags($this->espName)->increment("{$this->espName}_hb_total",count($this->hardbounces));
 
-            $this->destination->put("DAILY_UNSUB_HARDBOUNCE/{$this->lookback}_{$name}_HB.csv", $writer->__toString());
-            $this->destination->append("ALL_UNSUB_HARDBOUNCE/{$this->lookback}_ALL_HB.csv", $writer->__toString());
-        }
     }
 
     protected function exportUnsubs($id, $name) {
-        $writer = Writer::createFromFileObject(new \SplTempFileObject());
-        $writer->insertAll($this->unsubs->toArray());
 
-        if ($this->range) {
-            $this->destination->put("DAILY_UNSUB_HARDBOUNCE/{$this->lookback}_TO_TODAY_{$name}_unsubs.csv", $writer->__toString());
-            $this->destination->append("ALL_UNSUB_HARDBOUNCE/{$this->lookback}_TO_TODAY_ALL_UNSUB.csv", $writer->__toString());
-        }
-        else {
             Cache::tags($this->espName)->increment("{$id}_unsub_count",count($this->unsubs));
             Cache::tags($this->espName)->increment("{$this->espName}_unsub_total",count($this->unsubs));
-
-            $this->destination->put("DAILY_UNSUB_HARDBOUNCE/{$this->lookback}_{$name}_unsubs.csv", $writer->__toString());
-            $this->destination->append("ALL_UNSUB_HARDBOUNCE/{$this->lookback}_ALL_UNSUB.csv", $writer->__toString());
-        }
     }
 
     protected function getRecordsByDateEsp($espAccountId, $date, $typeId){
