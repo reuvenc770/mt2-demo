@@ -118,6 +118,12 @@ return [
             "delivered" => [
                 'getDeliverableCampaigns',
                 'savePaginatedCampaignRecords'
+            ],
+            "rerun" => [
+                'getRerunCampaigns',
+                'splitTypes',
+                'savePaginatedCampaignRecords',
+                'removeDeploys'
             ]
         ]
     ] ,
