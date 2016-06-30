@@ -43,6 +43,7 @@ class RerunDeployStats extends Command
         $queue = in_array($espName, $this->espsWithQueues) ? $espName : "default";
         $pipe = 'rerun';
 
+        echo "About to call reports:downloadDeliverables {$espName}:{$pipe} $queue" . PHP_EOL;
         $this->call('reports:downloadDeliverables', [
             'espName' => $espName . ':' . $pipe,
             'queueName' => $queue,
