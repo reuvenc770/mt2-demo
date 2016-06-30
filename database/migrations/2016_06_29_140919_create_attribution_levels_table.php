@@ -32,6 +32,6 @@ class CreateAttributionLevelsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('attribution_levels');
+        Schema::connection( 'attribution' )->drop('attribution_levels');
     }
 }
