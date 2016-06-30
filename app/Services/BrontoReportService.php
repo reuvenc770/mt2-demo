@@ -116,6 +116,7 @@ class BrontoReportService extends AbstractReportService implements IDataService
                 $deployActionType = 'click';
                 break;
 
+	    //TODO - bounces, unsubs
             default:
                 throw new \Exception("Inappropriate type record type {$processState['recordType']} in saveActionPage"); // THIS SHOULD BE SOMETHING ELSE
         }
