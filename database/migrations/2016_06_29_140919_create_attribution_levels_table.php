@@ -8,8 +8,6 @@ use Illuminate\Database\Migrations\Migration;
 
 class CreateAttributionLevelsTable extends Migration
 {
-    protected $connection = "attribution";
-
     /**
      * Run the migrations.
      *
@@ -17,7 +15,7 @@ class CreateAttributionLevelsTable extends Migration
      */
     public function up()
     {
-        Schema::create('attribution_levels', function (Blueprint $table) {
+        Schema::connection( 'attribution' )->create('attribution_levels', function (Blueprint $table) {
             $table->integer( 'client_id' )->unsigned();
             $table->integer( 'level' )->unsigned();
             $table->timestamps();

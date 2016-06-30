@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class AttributionLevel extends Model
 {
+    protected $connection = "attribution";
+
     public function __construct ( $tableName ) {
         if ( !is_null( $tableName ) ) {
             $this->table = $tableName;
