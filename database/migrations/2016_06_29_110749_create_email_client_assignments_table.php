@@ -15,7 +15,7 @@ class CreateEmailClientAssignmentsTable extends Migration
      */
     public function up()
     {
-        Schema::create('email_client_assignments', function (Blueprint $table) {
+        Schema::connection( 'attribution' )->create('email_client_assignments', function (Blueprint $table) {
             $table->bigInteger( 'email_id' )->unsigned();
             $table->integer( 'client_id' )->unsigned();
             $table->timestamps();
@@ -33,6 +33,6 @@ class CreateEmailClientAssignmentsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('email_client_assignments');
+        Schema::connection( 'attribution' )->drop('email_client_assignments');
     }
 }

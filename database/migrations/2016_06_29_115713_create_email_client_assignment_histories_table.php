@@ -15,7 +15,7 @@ class CreateEmailClientAssignmentHistoriesTable extends Migration
      */
     public function up()
     {
-        Schema::create('email_client_assignment_histories', function (Blueprint $table) {
+        Schema::connection( 'attribution' )->create('email_client_assignment_histories', function (Blueprint $table) {
             $table->integer( 'email_id' )->unsigned();
             $table->integer( 'prev_client_id' )->unsigned();
             $table->integer( 'new_client_id' )->unsigned();
@@ -32,6 +32,6 @@ class CreateEmailClientAssignmentHistoriesTable extends Migration
      */
     public function down()
     {
-        Schema::drop('email_client_assignment_histories');
+        Schema::connection( 'attribution' )->drop('email_client_assignment_histories');
     }
 }

@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class EmailClientAssignmentHistory extends Model
 {
+    protected $connection = 'attribution';
+
     public function email () {
         return $this->hasOne( 'App\Models\Email' );
     }
