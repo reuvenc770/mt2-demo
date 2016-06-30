@@ -15,7 +15,7 @@ class CreateAttributionAssignedRecordsTable extends Migration
      */
     public function up()
     {
-        Schema::create('attribution_assigned_records', function (Blueprint $table) {
+        Schema::connection( 'attribution' )->create('attribution_assigned_records', function (Blueprint $table) {
             $table->increments('id');
             $table->integer( 'client_id' );
             $table->integer( 'deploy_id' );
@@ -44,6 +44,6 @@ class CreateAttributionAssignedRecordsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('attribution_assigned_records');
+        Schema::connection( 'attribution' )->drop('attribution_assigned_records');
     }
 }
