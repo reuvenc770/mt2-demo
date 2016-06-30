@@ -46,6 +46,7 @@ class FtpAdmin extends Command
 
     protected $username = null;
     protected $password = null;
+    protected $ftpUrl = null;
     protected $directory = null;
 
     protected $ftpUserService = null;
@@ -219,7 +220,7 @@ class FtpAdmin extends Command
     protected function saveUserAndPassword () {
         $this->ftpUserService->save( [ 'username' => $this->username , 'password' => $this->password ] , $this->directory , 'localhost' , get_class( $this->service ) );
 
-        $this->service->saveFtpUser( [ "username" => $this->username , "password" => $this->password ] );
+        $this->service->saveFtpUser( [ "username" => $this->username , "password" => $this->password, "ftp+url" => $this->ftpUrl ] );
     }
 
     protected function generateNewUsersFromDb () {
@@ -231,7 +232,7 @@ class FtpAdmin extends Command
 
             $this->username = $currentUser->username;
             $this->directory = '/home/' . $currentUser->username;
-
+            $this->ftpUrl = "ftp://52.205.67.250";
             if ( isset( $currentUser->password ) ) {
                 $this->password = $currentUser->password;
             }
