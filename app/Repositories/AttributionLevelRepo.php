@@ -38,7 +38,7 @@ class AttributionLevelRepo {
     }
 
     static public function generateTempTable ( $modelId ) {
-        Schema::create( AttributionLevelRepo::BASE_TABLE_NAME . $modelId , function (Blueprint $table) {
+        Schema::connection( 'attribution' )->create( AttributionLevelRepo::BASE_TABLE_NAME . $modelId , function (Blueprint $table) {
             $table->integer( 'client_id' )->unsigned();
             $table->integer( 'level' )->unsigned();
             $table->boolean( 'active' )->default( true );
@@ -50,6 +50,6 @@ class AttributionLevelRepo {
     }
 
     static public function dropTempTable ( $modelId ) {
-        Schema::drop( AttributionLevelRepo::BASE_TABLE_NAME . $modelId );
+        Schema::connection( 'attribution' )->drop( AttributionLevelRepo::BASE_TABLE_NAME . $modelId );
     }
 }
