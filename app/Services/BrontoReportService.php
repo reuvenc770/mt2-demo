@@ -67,9 +67,81 @@ class BrontoReportService extends AbstractReportService implements IDataService
         return $return;
     }
 
-    public function splitTypes()
-    {
-        return ['open','click','bounce','unsubscribe'];
+    public function splitTypes($processState) {
+        if ('rerun' === $processState['pipe']) {
+            $typeList = [];
+            // data in $processState['campaign']
+
+            if (1 == $processState['campaign']->delivers) {
+                $typeList[] = "delivered";
+            }
+            if (1 == $processState['campaign']->opens) {
+                $typeList[] = 'open';
+            }
+            if (1 == $processState['campaign']->clicks) {
+                $typeList[] = 'click';
+            }
+            if (1 == $processState['campaign']->unsubs) {
+                $typeList[] = 'unsub';
+            }
+            if (1 == $processState['campaign']->bounces) {
+                $typeList[] = 'bounce';
+            }
+            return $typeList;
+        }
+        else {
+            return ['open','click','bounce','unsubscribe'];
+        }
+        
+    }
+
+    public function saveActionPage($processState, $map) {
+        $type = "";
+        $internalIds = array();
+
+        switch ($processState['recordType']) {
+
+            case 'delivered':
+                $type = self::RECORD_TYPE_DELIVERABLE;
+                $deployActionType = 'deliverable';
+                break;
+
+            case 'open':
+                $type = self::RECORD_TYPE_OPENER;
+                $deployActionType = 'open';
+                break;
+
+            case 'click':
+                $type = self::RECORD_TYPE_CLICKER;
+                $deployActionType = 'click';
+                break;
+
+            default:
+                throw new \Exception("Inappropriate type record type {$processState['recordType']} in saveActionPage"); // THIS SHOULD BE SOMETHING ELSE
+        }
+
+        try {
+            foreach ($processState['currentPageData'] as $key => $record) {
+
+                $deployId = $this->getDeployIdFromCampaignName($record->getMessageName());
+                $this->emailRecord->queueDeliverable(
+                    $type,
+                    $record->getEmailAddress(),
+                    $this->api->getId(),
+                    $deployId,
+                    $this->parseInternalId($record->getDeliveryId()), // esp_internal_id
+                    $record->getCreatedDate()->format('Y-m-d H:i:s')
+                );
+                $internalIds[] = $this->parseInternalId($record->getDeliveryId());
+            }
+        } catch (\Exception $e) {
+            DeployActionEntry::recordFailedRunArray($this->api->getEspAccountId(), array_unique($internalIds), $deployActionType);
+            $jobException = new JobException('Failed to retrieve records. ' . $e->getMessage(), JobException::NOTICE);
+            $jobException->setDelay(180);
+            throw $jobException;
+        }
+        $this->emailRecord->massRecordDeliverables();
+        DeployActionEntry::recordSuccessRunArray($this->api->getEspAccountId(), array_unique($internalIds), $deployActionType);
     }
 
     public function savePage(&$processState, $map)
@@ -82,8 +154,8 @@ class BrontoReportService extends AbstractReportService implements IDataService
                 case 'delivered' :
                     foreach ($processState['currentPageData'] as $opener) {
                         $espInternalId = $this->parseInternalId($opener->getDeliveryId());
-                        $deployId = isset($map[$espInternalId]) ?
-                            (int)$map[$espInternalId] : 0;
+                        $deployId = $this->getDeployIdFromCampaignName($opener->getMessageName());
+
                         if ($opener->getDeliveryType() != 'bulk') {
                             continue;
                         }
@@ -102,8 +174,8 @@ class BrontoReportService extends AbstractReportService implements IDataService
                 case 'open' :
                     foreach ($processState['currentPageData'] as $opener) {
                         $espInternalId = $this->parseInternalId($opener->getDeliveryId());
-                        $deployId = isset($map[$espInternalId]) ?
-                            (int)$map[$espInternalId] : 0;
+                        $deployId = $this->getDeployIdFromCampaignName($opener->getMessageName());
+                        
                         if ($opener->getDeliveryType() != 'bulk') {
                             continue;
                         }
@@ -125,7 +197,7 @@ class BrontoReportService extends AbstractReportService implements IDataService
                             continue;
                         }
                         $espInternalId = $this->parseInternalId($opener->getDeliveryId());
-                        $deployId = isset($map[$espInternalId]) ? (int)$map[$espInternalId] : 0;
+                        $deployId = $this->getDeployIdFromCampaignName($opener->getMessageName());
                         $this->emailRecord->queueDeliverable(
                             self::RECORD_TYPE_CLICKER,
                             $opener->getEmailAddress(),
@@ -296,23 +368,31 @@ class BrontoReportService extends AbstractReportService implements IDataService
         return self::DUMB_ID.$padded;
     }
 
-    public function pageHasCampaignData($formattedInternalId, $type, $pipe){
+    public function pageHasCampaignData($processState){
 
-        $realID = $this->makeDumbInternalId($formattedInternalId);
+        $formattedInternalId = $processState['campaign']->esp_internal_id;
+        $type = $processState['recordType'];
+        $datetime = $processState['campaign']->datetime;
+        $pipe = $processState['pipe'];
+
+
+        $realID = 'rerun' === $pipe ? $formattedInternalId : $this->makeDumbInternalId($formattedInternalId);
         if ($this->pageNumber != 1) {
             return false;
         }
 
         $filter = array(
-            "start" => Carbon::now()->subDay(3)->toAtomString(), //TODO NOT SURE HOW TO GET DATE HERE WELL, HARDCODING TILL WE NEED TO BE DYNAMIC
+            "start" => Carbon::parse($datetime)->toAtomString(),
             "size" => "5000",
             "types" => $type,
             "deliveryId" => $realID,
             "readDirection" => $this->getPageNumber(),
         );
+
         if ('rerun' === $pipe) {
-            unset($filter['start']);
+            $filter['start'] = Carbon::parse($datetime)->subDay(1)->toAtomString(); // 
         }
+
         if($type == "delivered"){
             $filter['types'] = "send";
             $data = $this->api->getOutgoingSends($filter);
@@ -327,7 +407,7 @@ class BrontoReportService extends AbstractReportService implements IDataService
 
     public function pullUnsubsEmailsByLookback($date){
         $filter = array(
-            "start" => Carbon::now()->subDay($date)->toAtomString(), //TODO NOT SURE HOW TO GET DATE HERE WELL, HARDCODING TILL WE NEED TO BE DYNAMIC
+            "start" => Carbon::now()->subDay($date)->toAtomString(),
             "size" => "5000",
             "types" => "unsubscribe",
             "readDirection" => "FIRST",
@@ -341,5 +421,9 @@ class BrontoReportService extends AbstractReportService implements IDataService
             $espInternalId = $this->parseInternalId($entry->getDeliveryId());
             Suppression::recordRawUnsub($espAccountId, $entry->getEmailAddress(), $espInternalId, "", $entry->getCreatedDate()->format('Y-m-d H:i:s'));
         }
+    }
+
+    protected function getDeployIdFromCampaignName($campaignName) {
+        return strstr($campaignName, '_', true);
     }
 }
