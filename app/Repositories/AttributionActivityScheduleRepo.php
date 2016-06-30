@@ -18,7 +18,7 @@ class AttributionActivityScheduleRepo {
         #retrieves records that will be set inactive for given date. 
     }
 
-    public function updateActivity ( $date ) {
+    public function updateActivity ( $emailId , $date ) {
         #pushes back records inactivity date to the provided date.
     }
 }
