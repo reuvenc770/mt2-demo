@@ -120,7 +120,7 @@ return [
                 'savePaginatedCampaignRecords'
             ],
             "rerun" => [
-                'getRerunCampaigns',
+                'getBrontoRerunCampaigns',
                 'splitTypes',
                 'savePaginatedCampaignRecords',
                 'removeDeploys'

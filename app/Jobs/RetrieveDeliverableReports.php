@@ -212,6 +212,27 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
     }
 
+    protected function getBrontoRerunCampaigns() {
+        // Bronto campaigns require a different internal id in a different table
+        $deploys = DB::table('deploy_record_reruns AS drr')
+            ->select('external_deploy_id', 'br.internal_id AS esp_internal_id', 'drr.esp_account_id', 'datetime', 
+                'delivers', 'opens', 'clicks', 'unsubs', 'complaints', 'bounces')
+            ->join('mt2_reports.standard_reports AS sr', 'drr.deploy_id', '=', 'sr.external_deploy_id')
+            ->join('mt2_reports.bronto_reports AS br', 'sr.campaign_name', '=', 'br.message_name')
+            ->where('drr.esp_account_id', $this->espAccountId)
+            ->orderBy('drr.esp_account_id');
+
+        $this->processState[ 'currentFilterIndex' ]++;
+
+        $deploys->each( function( $deploy , $key ) {
+            $this->processState[ 'campaign' ] = $deploy;
+            $this->processState[ 'espId' ] = $this->espAccountId;
+            $this->queueNextJob( $this->defaultQueue );
+        });
+        $rowCount = count($deploys);
+        $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
+    }
+
     protected function splitTypes () {
         $this->processState[ 'currentFilterIndex' ]++;
 
@@ -228,6 +249,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     protected function savePaginatedRecords () {
         $rowCount = 0;
         $map = $this->standardReportRepo->getEspToInternalMap($this->espAccountId);
+        
         $this->reportService->setPageType( $this->processState[ 'recordType' ] );
         $this->reportService->setPageNumber( isset( $this->processState[ 'pageNumber' ] ) ? $this->processState[ 'pageNumber' ] : 1 );
 
@@ -250,6 +272,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
     protected function savePaginatedCampaignRecords () {
         $map = $this->standardReportRepo->getEspToInternalMap($this->espAccountId);
+        
         $this->reportService->setPageType( $this->processState[ 'recordType' ] );
         $this->reportService->setPageNumber( isset( $this->processState[ 'pageNumber' ] ) ? $this->processState[ 'pageNumber' ] : 1 );
 
@@ -257,7 +280,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $continue = true;
 
         while ($continue) {
-            if ( $this->reportService->pageHasCampaignData($this->processState['campaign']->esp_internal_id, $this->processState[ 'recordType' ], $this->processState['pipe'] )) {
+            if ( $this->reportService->pageHasCampaignData($this->processState)) {
+
                 $this->processState[ 'currentPageData' ] = $this->reportService->getPageData();
                 $this->reportService->saveActionPage( $this->processState, $map );
                 $rowCount += count($this->processState[ 'currentPageData' ]);

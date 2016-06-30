@@ -69,7 +69,6 @@ class BrontoApi extends EspBaseAPI
         $firstSet = array();
         $secondSet = array();
         try {
-
             $firstSet = $this->brontoObject->readRecentInboundActivities(new readRecentInboundActivities($filter))->getReturn();
             while (1 != 2) {
                 $filter['readDirection'] = "NEXT";
@@ -94,7 +93,6 @@ class BrontoApi extends EspBaseAPI
         $firstSet = array();
         $secondSet = array();
         try {
-
             $firstSet = $this->brontoObject->readRecentOutboundActivities(new readRecentOutboundActivities($filter))->getReturn();
 
             while (1 != 2) {

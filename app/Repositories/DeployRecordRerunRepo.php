@@ -23,7 +23,7 @@ class DeployRecordRerunRepo {
         return DB::table('deploy_record_reruns AS d')
                     ->join('esp_accounts AS eac', 'd.esp_account_id', '=', 'eac.id')
                     ->join('esps AS e', 'eac.esp_id', '=', 'e.id')
-                    ->where('e.name', '<>', 'Bronto')
+                    ->where('e.name', '<>', 'EmailDirect')
                     ->select('e.name')
                     ->distinct()
                     ->get();
