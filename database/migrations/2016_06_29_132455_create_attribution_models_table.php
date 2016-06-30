@@ -32,6 +32,6 @@ class CreateAttributionModelsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('attribution_models');
+        Schema::connection( 'attribution' )->drop('attribution_models');
     }
 }
