@@ -273,10 +273,6 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
 
     protected function savePaginatedCampaignRecords () {
-
-        /**
-            THIS DOESN'T WORK FOR BRONTO
-        */
         $map = $this->standardReportRepo->getEspToInternalMap($this->espAccountId);
         
         $this->reportService->setPageType( $this->processState[ 'recordType' ] );
