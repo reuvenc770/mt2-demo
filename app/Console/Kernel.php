@@ -11,6 +11,7 @@ class Kernel extends ConsoleKernel
     const DELIVERABLE_AGGREGATION_TIME = '11:00';
     const UNSUB_TIME = '01:00';
     const REPORT_TIME = '11:30';
+    const REPORT_TIME_2 = '11:10';
     const EARLY_DELIVERABLE_SCHEDULE_TIME = '00:15';
     const DEPLOY_CHECK_TIME = '14:00';
 
@@ -84,7 +85,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('suppression:downloadESP Bronto 1')->dailyAt(self::UNSUB_TIME);
         
         $schedule->command('export SuppressionReport BlueHornet --lookback=1')->dailyAt(self::REPORT_TIME);
-        $schedule->command('export SuppressionReport Campaigner --lookback=1')->dailyAt(self::REPORT_TIME);
+        $schedule->command('export SuppressionReport Campaigner --lookback=1')->dailyAt(self::REPORT_TIME_2);
         $schedule->command('export emailsForOpensClicks Publicators PUB007 --lookback=15')->dailyAt(self::REPORT_TIME);
 
         $schedule->command( 'suppression:sendToMT1 3' )->dailyAt( self::REPORT_TIME )->sendOutputTo( $unsubFilePath );
