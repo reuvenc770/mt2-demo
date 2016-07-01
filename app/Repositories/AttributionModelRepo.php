@@ -3,14 +3,19 @@
  * @author Adam Chin <achin@zetainteractive.com>
  */
 
+namespace App\Repositories;
+
 use App\Models\AttributionModel;
-use DB;
 
 class AttributionModelRepo {
     protected $models;
 
-    public __construct ( AttributionModel $models ) {
+    public function __construct ( AttributionModel $models ) {
         $this->models = $models;
+    }
+
+    public function getModel () {
+        return $this->models;
     }
 
     public function create ( $name , $templateModelId = null ) {

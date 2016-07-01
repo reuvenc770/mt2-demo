@@ -378,6 +378,25 @@ Route::group(
 );
 
 /**
+ * Attribution Model Routes
+ */
+
+Route::group(
+    [
+        'prefix' => 'attr' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' ,
+            [
+                'as' => 'attr.model.list' ,
+                'uses' => 'AttributionModelController@listAll'
+            ]
+        );
+    }
+);
+
+/**
  * API Routes
  */
 Route::group(
@@ -510,6 +529,12 @@ Route::group(
             'client' ,
             'ClientController' ,
             [ 'except' => [ 'create' , 'edit' , 'pager' ] ]
+        );
+
+        Route::resource(
+            'attribution.model' ,
+            'AttributionModelController' ,
+            [ 'except' => [ 'create' , 'edit' , 'copy' ] ]
         );
 
         Route::resource(

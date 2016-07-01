@@ -150,6 +150,14 @@ elixir.extend( 'deployClientAttributionJs' , function ( mix ) {
     ] , 'public/js/clientAttribution.js' );
 } );
 
+elixir.extend( 'deployRecordAttributionJs' , function ( mix ) {
+    mix.scripts( [
+        'attribution/AttributionController.js' ,
+        'attribution/AttributionApiService.js' ,
+        'attribution/AttributionModelTableDirective.js' ,
+    ] , 'public/js/recordAttribution.js' );
+} );
+
 elixir.extend('deployDataExportJs', function(mix) {
     mix.scripts([
         'dataexport/DataExportController.js',
@@ -204,6 +212,7 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployClientAttributionJs( mix );
     mix.deployDataExportJs(mix);
     mix.deployDataCleanseJs(mix);
+    mix.deployRecordAttributionJs(mix)
 } );
 
 elixir.extend( 'runTdd' , function ( mix ) {
@@ -281,6 +290,9 @@ var mt2TaskMap = {
     },
     'deployDataCleanseJs' : function (mix) {
         mix.deployDataCleanseJs(mix)
+    },
+    'deployRecordAttributionJs' : function (mix) {
+        mix.deployRecordAttributionJs(mix)
     }
 };
 
