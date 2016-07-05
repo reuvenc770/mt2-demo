@@ -24,5 +24,7 @@ return[
     'tools.bulksuppression' => 'Bulk Suppression' ,
     'client.attribution' => 'Attribution' ,
     'datacleanse.list' => 'Data Cleanse' ,
-    'datacleanse.add' => 'Add Data Cleanse'
+    'datacleanse.add' => 'Add Data Cleanse' ,
+    'attr.model.list' => 'Attribution Models' ,
+    'attr.model.add' => 'Add Attribution Model' ,
 ];

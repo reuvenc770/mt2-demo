@@ -393,6 +393,14 @@ Route::group(
                 'uses' => 'AttributionModelController@listAll'
             ]
         );
+
+        Route::get( 
+            '/create', 
+            array( 
+                'as' => 'attr.model.add', 
+                'uses' => 'AttributionModelController@create' 
+            )
+        );
     }
 );
 
@@ -510,6 +518,41 @@ Route::group(
             }
         );
 
+        Route::group(
+            [] ,
+            function () {
+                Route::get( '/attribution/model' , [
+                    'as' => 'api.attribution.model.index' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionModelController@index'
+                ] ); 
+
+                Route::post( '/attribution/model' , [
+                    'as' => 'api.attribution.model.store' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionModelController@store'
+                ] ); 
+
+                Route::put( '/attribution/model/{modelId}' , [
+                    'as' => 'api.attribution.model.update' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionModelController@update'
+                ] ); 
+
+                Route::delete( '/attribution/model/{modelId}' , [
+                    'as' => 'api.attribution.model.destroy' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionModelController@destroy'
+                ] ); 
+
+                Route::get( '/attribution/model/{modelId}' , [
+                    'as' => 'api.attribution.model.show' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionModelController@show'
+                ] ); 
+            }
+        );
+
         /**
          * API Resources
          */
@@ -529,12 +572,6 @@ Route::group(
             'client' ,
             'ClientController' ,
             [ 'except' => [ 'create' , 'edit' , 'pager' ] ]
-        );
-
-        Route::resource(
-            'attribution.model' ,
-            'AttributionModelController' ,
-            [ 'except' => [ 'create' , 'edit' , 'copy' ] ]
         );
 
         Route::resource(
@@ -571,12 +608,6 @@ Route::group(
             'attribution' ,
             'AttributionController' ,
             [ 'only' => [ 'store' ] ]
-        );
-
-        Route::resource(
-            'attribution' ,
-            'AttributionController' ,
-            [ 'only' => [ 'store'] ]
         );
 
         Route::resource(

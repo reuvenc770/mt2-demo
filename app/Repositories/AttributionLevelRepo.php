@@ -6,18 +6,18 @@
 namespace App\Repositories;
 
 use App\Models\AttributionLevel;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 
 class AttributionLevelRepo {
-    const BASE_TABLE_NAME = 'attribution_levels_model_';
 
     protected $levels;
 
     public function __construct ( $attributionModelId = null ) {
-        $this->levels = new AttributionLevel();
-
         if ( !is_null( $attributionModelId ) && is_numeric( $attributionModelId ) ) {
-            $this->levels = new AttributionLevel( self::BASE_TABLE_NAME . $attributionModelId );
+            $this->levels = new AttributionLevel( AttributionLevel::BASE_TABLE_NAME . $attributionModelId );
+        } else {
+            $this->levels = new AttributionLevel();
         }
     }
 
@@ -38,7 +38,7 @@ class AttributionLevelRepo {
     }
 
     static public function generateTempTable ( $modelId ) {
-        Schema::connection( 'attribution' )->create( AttributionLevelRepo::BASE_TABLE_NAME . $modelId , function (Blueprint $table) {
+        Schema::connection( 'attribution' )->create( AttributionLevel::BASE_TABLE_NAME . $modelId , function (Blueprint $table) {
             $table->integer( 'client_id' )->unsigned();
             $table->integer( 'level' )->unsigned();
             $table->boolean( 'active' )->default( true );
@@ -50,6 +50,6 @@ class AttributionLevelRepo {
     }
 
     static public function dropTempTable ( $modelId ) {
-        Schema::connection( 'attribution' )->drop( AttributionLevelRepo::BASE_TABLE_NAME . $modelId );
+        Schema::connection( 'attribution' )->drop( AttributionLevel::BASE_TABLE_NAME . $modelId );
     }
 }

@@ -44,6 +44,8 @@ elixir.extend( 'deployNodeModules' , function ( mix ) {
     mix.copy( 'node_modules/ng-flow/dist/ng-flow-standalone.min.js', 'public/js/ng-flow-standalone.min.js' );
 
     mix.copy( 'node_modules/angular-ivh-treeview/dist/ivh-treeview.min.js' , 'public/js/ivh-treeview.min.js' );
+
+    mix.copy( 'node_modules/angular-drag-and-drop-lists/angular-drag-and-drop-lists.min.js' , 'public/js/angular-drag-and-drop-lists.min.js' );
 } );
 
 elixir.extend( 'deploySass' , function ( mix ) {
@@ -154,6 +156,7 @@ elixir.extend( 'deployRecordAttributionJs' , function ( mix ) {
     mix.scripts( [
         'attribution/AttributionController.js' ,
         'attribution/AttributionApiService.js' ,
+        'client/ClientApiService.js' ,
         'attribution/AttributionModelTableDirective.js' ,
     ] , 'public/js/recordAttribution.js' );
 } );

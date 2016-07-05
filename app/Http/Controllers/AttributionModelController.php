@@ -6,8 +6,18 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 
+use App\Services\AttributionModelService;
+
+use Log;
+
 class AttributionModelController extends Controller
 {
+    protected $service;
+
+    public function __construct ( AttributionModelService $service ) {
+        $this->service = $service; 
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -29,7 +39,7 @@ class AttributionModelController extends Controller
      */
     public function create()
     {
-        //
+        return response()->view( 'pages.attribution.attribution-add' );
     }
 
     /**
@@ -40,7 +50,7 @@ class AttributionModelController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        return response()->json( [ $this->service->create( $request->input( 'name' ) , $request->input( 'levels' ) ) ] );
     }
 
     /**
