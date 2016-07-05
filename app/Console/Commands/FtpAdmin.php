@@ -12,7 +12,7 @@ use Log;
 
 class FtpAdmin extends Command
 {
-    const FTP_ADMIN_INTERFACE_NAME = "App\\Services\\RepoInterfaces\\IFtpAdmin";
+    const FTP_ADMIN_INTERFACE_NAME = "App\\Services\\Interfaces\\IFtpAdmin";
     const PASSWORD_LENGTH = 8;
 
     const CREATE_USER_COMMAND = "useradd -g sftp -d %s %s";
