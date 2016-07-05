@@ -96,7 +96,7 @@ class Kernel extends ConsoleKernel
         $filePath = storage_path('logs')."/downloadAPI.log";
         $schedule->command('reports:downloadApi BlueHornet 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Campaigner 5')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi EmailDirect 5')->hourly()->sendOutputTo($filePath);
+        #$schedule->command('reports:downloadApi EmailDirect 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Maro 5')->hourly()->sendOutputTo($filePath);
         //$schedule->command('reports:downloadApi Ymlp 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Publicators 5')->hourly()->sendOutputTo($filePath);
@@ -108,7 +108,7 @@ class Kernel extends ConsoleKernel
          */
         $schedule->command('reports:downloadApi BlueHornet 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Campaigner 31')->monthly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi EmailDirect 31')->monthly()->sendOutputTo($filePath);
+        #$schedule->command('reports:downloadApi EmailDirect 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Maro 31')->monthly()->sendOutputTo($filePath);
         //$schedule->command('reports:downloadApi Ymlp 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Publicators 31')->monthly()->sendOutputTo($filePath);
@@ -121,7 +121,7 @@ class Kernel extends ConsoleKernel
         $deliverableFilePath = storage_path( 'logs' ) . "/downloadDeliverables.log";
         $schedule->command( 'reports:downloadDeliverables BlueHornet 5 BlueHornet' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Campaigner 5 Campaigner' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables EmailDirect 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        #$schedule->command( 'reports:downloadDeliverables EmailDirect 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Maro 2' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Maro:delivered 2' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         //$schedule->command( 'reports:downloadDeliverables Ymlp 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );

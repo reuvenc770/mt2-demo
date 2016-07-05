@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class DeployRecordRerun extends Model {
 
-    protected $fillable = ['deploy_id', 'delivers', 'opens', 'clicks'];
+    protected $fillable = ['deploy_id', 'esp_internal_id', 'esp_account_id', 'delivers', 'opens', 'clicks'];
     public $timestamps = false;
     protected $primaryKey = 'deploy_id';
   
