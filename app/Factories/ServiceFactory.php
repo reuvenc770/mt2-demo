@@ -28,7 +28,8 @@ class ServiceFactory
 
 
     public static function createFilterService($modelName){
-        $formattedName = "App\\Models\\Attribution{$modelName}Schedule";
+        $casedName = ucfirst($modelName);
+        $formattedName = "App\\Models\\Attribution{$casedName}Schedule";
 
             if (class_exists($formattedName)) {
                 $repo  = new App\Repositories\AttributionScheduleRepo(new $formattedName);
