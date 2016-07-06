@@ -21,21 +21,22 @@ class ScheduledFilterService
         $this->scheduleRepo = $attributionScheduleRepo;
     }
 
-    public function getRecordsByDate($date)
-    {
-        try {
-            return $this->scheduleRepo->getRecordsByDate($date);
-        } catch (\Exception $e) {
-            $class = get_class($this->scheduleRepo);
-            Log::error("Scheduled Filter Service failed to retrieve records for {$class}: {$e->getMessage()} ");
-        }
+    public function getRecordsByDate($date){
+       try{
+          return $this->scheduleRepo->getRecordsByDate($date);
+       } catch (\Exception $e){
+           $class = get_class($this->scheduleRepo);
+           Log::error("Scheduled Filter Service failed to retrieve records for {$class}: {$e->getMessage()} ");
+       }
     }
 
-    public function insertScheduleFilter($emailId, $days)
-    {
+    public function insertScheduleFilter($emailId,$days){
         $date = Carbon::today()->addDays($days)->toDateString();
-
-        return $this->scheduleRepo->insertSchedule($emailId, $date);
-
+        try{
+            return $this->scheduleRepo->insertSchedule($emailId,$date);
+        } catch (\Exception $e){
+            $class = get_class($this->scheduleRepo);
+            Log::error("Scheduled Filter Service failed to insert records for {$class}: {$e->getMessage()} ");
+        }
     }
 }

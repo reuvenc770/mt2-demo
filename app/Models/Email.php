@@ -29,20 +29,4 @@ class Email extends Model {
     return $this->hasMany('App\Models\Suppression');
   }
 
-  public static function boot()
-  {
-    static::creating(function ($model) {
-      // blah blah
-    });
-
-    static::updating(function ($model) {
-      // bleh bleh
-    });
-
-    static::deleting(function ($model) {
-      // bluh bluh
-    });
-
-    parent::boot();
-  }
 }
