@@ -10,6 +10,7 @@ namespace App\Services;
 
 
 use App\Repositories\AttributionScheduleRepo;
+use Carbon\Carbon;
 use Log;
 class ScheduledFilterService
 {
@@ -27,5 +28,15 @@ class ScheduledFilterService
            $class = get_class($this->scheduleRepo);
            Log::error("Scheduled Filter Service failed to retrieve records for {$class}: {$e->getMessage()} ");
        }
+    }
+
+    public function insertScheduleFilter($emailId,$days){
+        $date = Carbon::today()->addDays($days)->toDateString();
+        try{
+            return $this->scheduleRepo->insertSchedule($emailId,$date);
+        } catch (\Exception $e){
+            $class = get_class($this->scheduleRepo);
+            Log::error("Scheduled Filter Service failed to insert records for {$class}: {$e->getMessage()} ");
+        }
     }
 }

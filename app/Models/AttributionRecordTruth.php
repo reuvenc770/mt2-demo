@@ -12,4 +12,5 @@ class AttributionRecordTruth extends Model
     const EXPIRE_COL = "recent_import";
     const ACTIVE_COL = "has_action";
     protected $connection = 'attribution';
+    protected $guarded = [''];
 }
