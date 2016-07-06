@@ -48,6 +48,7 @@ class Kernel extends ConsoleKernel
         Commands\Generator\EspModelCommand::class,
         Commands\Generator\EspSeedCommand::class,
         Commands\FilterJobQueue::class,
+        Commands\RunScheduledFilter::class,
     ];
 
     /**
@@ -140,5 +141,13 @@ class Kernel extends ConsoleKernel
          *
          */
         $schedule->command('ftp:admin -H 52.205.67.250 -U root -k ~/.ssh/mt2ftp.pub -K ~/.ssh/mt2ftp -u -s Client')->everyFiveMinutes();
+
+
+
+        /**
+         * Attribution Jobs
+         */
+        $schedule->command('runFilter activity')->daily();
+        $schedule->command('runFilter expiration')->daily();
     }
 }

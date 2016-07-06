@@ -8,10 +8,11 @@ namespace App\Repositories;
 use App\Models\AttributionRecordTruth;
 
 class AttributionRecordTruthRepo {
-    protected $truths;
 
-    public function __construct ( AttributionRecordTruth $truths ) {
-        $this->truths = $truths;
+    protected $truth;
+
+    public function __construct ( AttributionRecordTruth $truth ) {
+        $this->truth = $truth;
     }
 
     public function getAssignedRecords () {
@@ -26,19 +27,7 @@ class AttributionRecordTruthRepo {
         #resets the record to initial value => expired:false|active:false
     }
 
-    public function setRecordExpired ( $emailId ) {
-        #sets email record to expired
-    }
-
-    public function isRecordExpired ( $emailId ) {
-        #returns expiration status of email record
-    }
-
-    public function toggleRecordActivity ( $emailId , $active = true ) {
-        #sets the email record to active or inactive
-    }
-
-    public function isRecordActive ( $emailId ) {
-        #returns active status of email record
+    public function setField($emailId, $field, $value){
+        return $this->truth->where("email_id", $emailId)->update(array($field =>$value));
     }
 }

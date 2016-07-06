@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 
 abstract class Job
 {
+    CONST SLACK_TARGET_SUBJECT = '#mt2-dev-failed-jobs';
     /*
     |--------------------------------------------------------------------------
     | Queueable Jobs
