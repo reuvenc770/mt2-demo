@@ -15,10 +15,13 @@ use Log;
 class ScheduledFilterService
 {
     private $scheduleRepo;
-
-    public function __construct(AttributionScheduleRepo $attributionScheduleRepo)
+    public $fieldName;
+    public $boolValue;
+    public function __construct(AttributionScheduleRepo $attributionScheduleRepo, $filterName)
     {
         $this->scheduleRepo = $attributionScheduleRepo;
+        $this->fieldName = config( 'scheduledfilters.' . $filterName . '.column' );
+        $this->boolValue = config( 'scheduledfilters.' . $filterName . '.value' );
     }
 
     public function getRecordsByDate($date){

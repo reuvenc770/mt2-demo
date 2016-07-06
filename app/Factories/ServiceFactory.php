@@ -32,7 +32,7 @@ class ServiceFactory
 
             if (class_exists($formattedName)) {
                 $repo  = new App\Repositories\AttributionScheduleRepo(new $formattedName);
-                return new App\Services\ScheduledFilterService($repo);
+                return new App\Services\ScheduledFilterService($repo, $modelName);
             }
             else {
                 throw new \Exception("That Service does not exist");
