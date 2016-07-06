@@ -3,18 +3,19 @@
     <head>
         @include( 'layout.html-head' )
     </head>
-    <body ng-app="mt2App">
-        @include( 'layout.header' )
+    <body ng-app="mt2App" ng-controller="AppController as app" layout="row">
+        @include( 'layout.side-nav' )
 
-        @include( 'layout.top-nav' )
+        <div layout="column" layout-fill flex>
+            @include( 'layout.main-header' )
 
-        <div id="pageContent" class="container-fluid">
+            <md-content layout-padding flex>
+                <div id="flashContainer">
+                    @include('flash::message')
+                </div>
 
-            <div id="flashContainer">
-                @include('flash::message')
-            </div>
-            {!! Breadcrumbs::renderIfExists() !!}
-            @yield( 'content' )
+                @yield( 'content' )
+            </md-content>
         </div>
 
         @include( 'layout.modal' )
