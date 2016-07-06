@@ -10,7 +10,12 @@ mt2App.config( function ( $locationProvider , $mdThemingProvider , ivhTreeviewOp
         .primaryPalette( 'indigo' )
         .accentPalette( 'blue' )
         .warnPalette( 'deep-orange' )
-        .backgroundPalette( 'blue-grey' );
+        .backgroundPalette( 'blue-grey' , {
+            "default" : '50' ,
+            "hue-1" : '200' ,
+            "hue-2" : '400' ,
+            "hue-3" : '700'
+        } );
 
     $mdThemingProvider.setDefaultTheme( 'mt2-zeta' );
 
