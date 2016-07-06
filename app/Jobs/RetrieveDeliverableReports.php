@@ -416,7 +416,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
         if (isset($this->processState['pipe']) 
             && 'rerun' === $this->processState['pipe'] 
-            && 0 !== $campaignId) {
+            && 0 !== $campaignId
+            && is_integer($campaignId)) { // temporary workaround for Bronto
 
             $name = $this->getJobName();
 

@@ -192,7 +192,11 @@ class EmailRecordRepo {
         return $this->email->select( 'id' )->where( 'email_address' , $this->emailAddress )->first()->id;
     }
     public function getEmailAddress($eid){
-        return $this->email->find($eid)->email_address;
+        try {
+            return $this->email->find($eid)->email_address;
+        } catch (\Exception $e){
+            return false;
+        }
     }
 
     protected function setLocalData ( $recordData ) {

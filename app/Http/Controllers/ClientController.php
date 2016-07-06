@@ -52,7 +52,10 @@ class ClientController extends Controller
      */
     public function create()
     {
-        return response()->view( 'pages.client.client-add' , [ 'countries' => $this->countryApi->getAll() ] );
+        $countryList = $this->countryApi->getAll();
+        return response()->view( 'pages.client.client-add' , [
+            'countries' => ( !is_null( $countryList ) ? $countryList : [] )
+        ] );
     }
 
     /**

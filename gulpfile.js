@@ -63,6 +63,7 @@ elixir.extend( 'deployImages' , function ( mix ) {
 elixir.extend( 'deployBaseAngular' , function ( mix ) {
     mix.scripts( [
         'app.js' ,
+        'mt2app/AppController.js' ,
         'mt2app/GenericTableDirective.js' ,
         'mt2app/EditButtonDirective.js' ,
         'mt2app/PaginationDirective.js' ,

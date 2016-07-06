@@ -25,4 +25,18 @@ class ServiceFactory
             throw new \Exception("That Service does not exist");
         }
     }
+
+
+    public static function createFilterService($modelName){
+        $casedName = ucfirst($modelName);
+        $formattedName = "App\\Models\\Attribution{$casedName}Schedule";
+
+            if (class_exists($formattedName)) {
+                $repo  = new App\Repositories\AttributionScheduleRepo(new $formattedName);
+                return new App\Services\ScheduledFilterService($repo);
+            }
+            else {
+                throw new \Exception("That Service does not exist");
+            }
+    }
 }

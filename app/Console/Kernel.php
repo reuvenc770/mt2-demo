@@ -11,6 +11,7 @@ class Kernel extends ConsoleKernel
     const DELIVERABLE_AGGREGATION_TIME = '11:00';
     const UNSUB_TIME = '01:00';
     const REPORT_TIME = '11:30';
+    const REPORT_TIME_2 = '11:10';
     const EARLY_DELIVERABLE_SCHEDULE_TIME = '00:15';
     const DEPLOY_CHECK_TIME = '14:00';
 
@@ -47,6 +48,7 @@ class Kernel extends ConsoleKernel
         Commands\Generator\EspModelCommand::class,
         Commands\Generator\EspSeedCommand::class,
         Commands\FilterJobQueue::class,
+        Commands\RunScheduledFilter::class,
     ];
 
     /**
@@ -84,7 +86,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('suppression:downloadESP Bronto 1')->dailyAt(self::UNSUB_TIME);
         
         $schedule->command('export SuppressionReport BlueHornet --lookback=1')->dailyAt(self::REPORT_TIME);
-        $schedule->command('export SuppressionReport Campaigner --lookback=1')->dailyAt(self::REPORT_TIME);
+        $schedule->command('export SuppressionReport Campaigner --lookback=1')->dailyAt(self::REPORT_TIME_2);
         $schedule->command('export emailsForOpensClicks Publicators PUB007 --lookback=15')->dailyAt(self::REPORT_TIME);
 
         $schedule->command( 'suppression:sendToMT1 3' )->dailyAt( self::REPORT_TIME )->sendOutputTo( $unsubFilePath );
@@ -95,7 +97,7 @@ class Kernel extends ConsoleKernel
         $filePath = storage_path('logs')."/downloadAPI.log";
         $schedule->command('reports:downloadApi BlueHornet 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Campaigner 5')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi EmailDirect 5')->hourly()->sendOutputTo($filePath);
+        #$schedule->command('reports:downloadApi EmailDirect 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Maro 5')->hourly()->sendOutputTo($filePath);
         //$schedule->command('reports:downloadApi Ymlp 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Publicators 5')->hourly()->sendOutputTo($filePath);
@@ -107,7 +109,7 @@ class Kernel extends ConsoleKernel
          */
         $schedule->command('reports:downloadApi BlueHornet 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Campaigner 31')->monthly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi EmailDirect 31')->monthly()->sendOutputTo($filePath);
+        #$schedule->command('reports:downloadApi EmailDirect 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Maro 31')->monthly()->sendOutputTo($filePath);
         //$schedule->command('reports:downloadApi Ymlp 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Publicators 31')->monthly()->sendOutputTo($filePath);
@@ -120,7 +122,7 @@ class Kernel extends ConsoleKernel
         $deliverableFilePath = storage_path( 'logs' ) . "/downloadDeliverables.log";
         $schedule->command( 'reports:downloadDeliverables BlueHornet 5 BlueHornet' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Campaigner 5 Campaigner' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables EmailDirect 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        #$schedule->command( 'reports:downloadDeliverables EmailDirect 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Maro 2' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Maro:delivered 2' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         //$schedule->command( 'reports:downloadDeliverables Ymlp 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
@@ -139,5 +141,13 @@ class Kernel extends ConsoleKernel
          *
          */
         $schedule->command('ftp:admin -H 52.205.67.250 -U root -k ~/.ssh/mt2ftp.pub -K ~/.ssh/mt2ftp -u -s Client')->everyFiveMinutes();
+
+
+
+        /**
+         * Attribution Jobs
+         */
+        $schedule->command('runFilter activity')->daily();
+        $schedule->command('runFilter expiration')->daily();
     }
 }

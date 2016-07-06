@@ -5,12 +5,14 @@
 
 namespace App\Models;
 
+use App\Models\Interfaces\IScheduledFilter;
 use Illuminate\Database\Eloquent\Model;
 
-class AttributionExpirationSchedule extends Model
+class AttributionExpirationSchedule extends Model implements IScheduledFilter
 {
     protected $connection = 'attribution';
-
+    protected $primaryKey = "email_id";
+    protected $guarded = [''];
     public function record () {
         return $this->belongsTo( 'emails' , 'email_id' , 'id' );
     }
