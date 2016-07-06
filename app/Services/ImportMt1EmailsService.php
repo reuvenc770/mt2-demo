@@ -77,7 +77,9 @@ class ImportMt1EmailsService
             if ($this->clientRepo->isActive($clientId)) {
                 $emailRow = $this->mapToEmailTable($record);
                 $this->emailRepo->insertCopy($emailRow);
-                \Event::fire(new NewRecord($record['email_id'], $record['client_id']));
+                if($record['email_id'] != 0 ) {
+                    \Event::fire(new NewRecord($record['email_id'], $record['client_id']));
+                }
                 //We do an upsert so there is no model actions.
                 $emailClientRow = $this->mapToEmailClientTable($record);
                 $this->emailClientRepo->insert($emailClientRow);
