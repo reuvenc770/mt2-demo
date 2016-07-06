@@ -49,4 +49,12 @@ class AttributionRecordTruthService
             Log::error("Could not Expire Record because {$e->getMessage()}");
         }
     }
+
+    public function insertRecord($emailID){
+        try {
+           return  $this->recordTruthRepo->insert($emailID);
+        } catch (\Exception $e) {
+            Log::error("Could not Insert Record because {$e->getMessage()}");
+        }
+    }
 }

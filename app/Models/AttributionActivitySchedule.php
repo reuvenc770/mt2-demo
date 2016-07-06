@@ -12,6 +12,7 @@ class AttributionActivitySchedule extends Model implements IScheduledFilter
 {
     protected $connection = 'attribution';
     protected $primaryKey = "email_id";
+    protected $guarded = [''];
     public function record () {
         return $this->belongsTo( 'emails' , 'email_id' , 'id' );
     }

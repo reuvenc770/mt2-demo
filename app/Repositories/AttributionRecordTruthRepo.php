@@ -30,4 +30,8 @@ class AttributionRecordTruthRepo {
     public function setField($emailId, $field, $value){
         return $this->truth->where("email_id", $emailId)->update(array($field =>$value));
     }
+
+    public function insert($emailId){
+        return $this->truth->create(["email_id" => $emailId, "recent_import" => true]);
+    }
 }

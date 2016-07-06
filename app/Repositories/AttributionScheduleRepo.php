@@ -17,4 +17,8 @@ class AttributionScheduleRepo {
     public function getRecordsByDate($date){
         return $this->schedule->where("trigger_date", $date)->get();
     }
+
+    public function insertSchedule($emailId, $date){
+        return $this->schedule->create(["email_id" => $emailId, "trigger_date" => $date]);
+    }
 }
