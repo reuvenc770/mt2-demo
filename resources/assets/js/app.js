@@ -8,9 +8,11 @@ mt2App.config( function ( $locationProvider , $mdThemingProvider , ivhTreeviewOp
 
     $mdThemingProvider.theme( 'mt2-zeta' , 'light' )
         .primaryPalette( 'indigo' )
-        .accentPalette( 'deep-purple' )
+        .accentPalette( 'blue' )
         .warnPalette( 'deep-orange' )
-        .backgroundPalette( 'grey' );
+        .backgroundPalette( 'blue-grey' );
+
+    $mdThemingProvider.setDefaultTheme( 'mt2-zeta' );
 
     ivhTreeviewOptionsProvider.set( {
         "expandToDepth" : 1 ,

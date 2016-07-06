@@ -1,4 +1,4 @@
-mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , '$log' , function ( $rootScope , $location , $window , $log ) {
+mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , '$mdSidenav' , '$log' , function ( $rootScope , $location , $window , $mdSidenav , $log ) {
     var self = this;
 
     self.fullMenu = false;
@@ -9,7 +9,7 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
         $window.location.href = redirectURL;
     };
 
-    self.toggleMenuSize = function () { self.fullMenu = !self.fullMenu; }
+    self.toggleMenu = function ( navId ) { $mdSidenav( navId ).toggle(); }
 
     self.openDropdownMenu = function( $mdOpenMenu , ev ) {
         originatorEv = ev;
