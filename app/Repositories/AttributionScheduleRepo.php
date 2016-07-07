@@ -6,7 +6,7 @@
 namespace App\Repositories;
 
 use App\Models\Interfaces\IScheduledFilter;
-
+use DB;
 class AttributionScheduleRepo {
     protected $schedule;
 
@@ -19,6 +19,16 @@ class AttributionScheduleRepo {
     }
 
     public function insertSchedule($emailId, $date){
-        return $this->schedule->create(["email_id" => $emailId, "trigger_date" => $date]);
+        return DB::connection("attribution")->statement(
+            "INSERT INTO {$this->schedule->getTable()} (email_id, trigger_date)
+            VALUES(:id, :trigger_date)
+            ON DUPLICATE KEY UPDATE
+            email_id = email_id, trigger_date = trigger_date ",
+            array(
+                ':id' => $emailId,
+                ':trigger_date' => $date,
+
+            )
+        );
     }
 }
