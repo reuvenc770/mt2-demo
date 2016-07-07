@@ -9,7 +9,7 @@
         <div layout="column" layout-fill flex>
             @include( 'layout.main-header' )
 
-            <md-content layout-padding flex>
+            <md-content layout-padding flex class="md-hue-2">
                 <div id="flashContainer">
                     @include('flash::message')
                 </div>
