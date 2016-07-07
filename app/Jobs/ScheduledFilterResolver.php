@@ -16,8 +16,7 @@ class ScheduledFilterResolver extends Job implements ShouldQueue
     use InteractsWithQueue, SerializesModels;
     public $filterName;
     public $date;
-    public $fieldName;
-    public $boolValue;
+
     public $tracking;
 
     /**
@@ -29,8 +28,6 @@ class ScheduledFilterResolver extends Job implements ShouldQueue
     {
         $this->filterName = $filterName;
         $this->date = $date;
-        $this->fieldName = config( 'scheduledfilters.' . $filterName . '.column' );
-        $this->boolValue = config( 'scheduledfilters.' . $filterName . '.value' );
         $this->tracking = $tracking;
         JobTracking::startEspJob("Scheduled Filter {$filterName}","","",$this->tracking);
     }
@@ -47,7 +44,7 @@ class ScheduledFilterResolver extends Job implements ShouldQueue
         $records = $scheduledFilterService->getRecordsByDate($this->date);
         $total = count($records);
         foreach ($records as $record){
-            $truthService->toggleFieldRecord($record->email_id,$this->fieldName, $this->boolValue);
+            $truthService->toggleFieldRecord($record->email_id,$scheduledFilterService->fieldName, $scheduledFilterService->boolValue);
             $record->delete();
         }
         JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking, $total);
