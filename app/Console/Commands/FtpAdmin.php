@@ -220,7 +220,7 @@ class FtpAdmin extends Command
     protected function saveUserAndPassword () {
         $this->ftpUserService->save( [ 'username' => $this->username , 'password' => $this->password ] , $this->directory , 'localhost' , get_class( $this->service ) );
 
-        $this->service->saveFtpUser( [ "username" => $this->username , "password" => $this->password, "ftp+url" => $this->ftpUrl ] );
+        $this->service->saveFtpUser( [ "username" => $this->username , "password" => $this->password, "ftp_url" => $this->ftpUrl ] );
     }
 
     protected function generateNewUsersFromDb () {
