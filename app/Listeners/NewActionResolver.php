@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Events\NewAction;
+use App\Events\NewActions;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Services\AttributionRecordTruthService;
@@ -29,10 +29,10 @@ class NewActionResolver implements ShouldQueue
      * @param  NewRecord $event
      * @return void
      */
-    public function handle(NewAction $event)
+    public function handle(NewActions $event)
     {
         $this->scheduledFilterService = ServiceFactory::createFilterService("activity");
-        $this->truthTableService->toggleFieldRecord($event->getEmailId(), $this->scheduledFilterService->fieldName, true);
-        $this->scheduledFilterService->insertScheduleFilter($event->getEmailId(), 90);
+        $this->truthTableService->bulkToggleFieldRecord($event->getEmails(), $this->scheduledFilterService->fieldName, true);
+        $this->scheduledFilterService->insertScheduleFilterBulk($event->getEmails(), 90);
     }
 }
