@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Events\NewAction;
+use App\Events\NewActions;
 use App\Models\ActionType;
 use App\Models\EmailAction;
 use App\Repositories\EmailRecordRepo;
@@ -70,9 +70,10 @@ class EmailRecordService {
             foreach ($this->records as $record){
                 if($record['recordType'] == AbstractReportService::RECORD_TYPE_OPENER
                     || $record['recordType'] == AbstractReportService::RECORD_TYPE_CLICKER){
-                    \Event::fire(new NewAction($record["email"]));
+
                 }
             }
+            \Event::fire(new NewActions($this->records));
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         } finally {

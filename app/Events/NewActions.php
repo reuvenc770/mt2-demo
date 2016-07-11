@@ -6,27 +6,27 @@ use App\Events\Event;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class NewAction extends Event
+class NewActions extends Event
 {
     use SerializesModels;
-    protected $emailId;
+    protected $emails;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($emailId)
+    public function __construct($emails)
     {
-        $this->emailId = $emailId;
+        $this->emails = $emails;
 
     }
 
     /**
      * @return mixed
      */
-    public function getEmailId()
+    public function getEmails()
     {
-        return $this->emailId;
+        return $this->emails;
     }
 
     /**

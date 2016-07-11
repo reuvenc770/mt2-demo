@@ -28,9 +28,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\NewRecords' => [
             'App\Listeners\NewRecordResolver'
         ],
-        #'App\Events\NewAction' => [
-        #    'App\Listeners\NewActionResolver'
-        #],
+        'App\Events\NewActions' => [
+            'App\Listeners\NewActionResolver'
+        ],
     ];
 
     /**
