@@ -180,3 +180,8 @@ Breadcrumbs::register('attr.model.add', function($breadcrumbs) {
     $breadcrumbs->parent('attr.model.list');
     $breadcrumbs->push('Add Attribution Model');
 });
+
+Breadcrumbs::register('attr.model.edit', function($breadcrumbs) {
+    $breadcrumbs->parent('attr.model.list');
+    $breadcrumbs->push('Edit Attribution Model');
+});

@@ -13,9 +13,9 @@
         <tbody>
             <tr ng-repeat="record in ctrl.records track by $index">
                 <td>
-                    <md-button><md-icon md-svg-src="img/icons/ic_mode_edit_black_18px.svg"></md-icon> Edit</md-button>
-                    <md-button><md-icon md-svg-src="img/icons/ic_content_copy_black_18px.svg"></md-icon> Copy</md-button>
-                    <md-button><md-icon md-svg-src="img/icons/ic_show_chart_black_18px.svg"></md-icon> Projection</md-button>
+                    <md-button ng-href="{{ ctrl.baseurl() + 'attr/edit/' + record.id }}" target="_self"><md-icon md-svg-src="img/icons/ic_mode_edit_black_18px.svg"></md-icon> Edit</md-button>
+                    <md-button ng-click="ctrl.copymodel( {  '$event' : $event , currentModelId : record.id } )" class="align-top"><md-icon md-svg-src="img/icons/ic_content_copy_black_18px.svg"></md-icon> Copy</md-button>
+                    <md-button ng-href="{{ ctrl.baseurl() + 'attr/projection/' + record.id }}"><md-icon md-svg-src="img/icons/ic_show_chart_black_18px.svg"></md-icon> Projection</md-button>
                 </td>
 
                 <td>{{ record.name }}</td>

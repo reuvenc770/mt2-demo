@@ -401,6 +401,14 @@ Route::group(
                 'uses' => 'AttributionModelController@create' 
             )
         );
+
+        Route::get( 
+            '/edit/{modelId}', 
+            array( 
+                'as' => 'attr.model.edit', 
+                'uses' => 'AttributionModelController@edit' 
+            )
+        );
     }
 );
 
@@ -499,7 +507,6 @@ Route::group(
         /**
          *  Bulk Suppression API Routes
          */
-
         Route::group(
             ['prefix' => 'bulksuppression'],
             function() {
@@ -518,6 +525,9 @@ Route::group(
             }
         );
 
+        /**
+         *  Attribution Model API Routes
+         */
         Route::group(
             [] ,
             function () {
@@ -550,6 +560,24 @@ Route::group(
                     'middleware' => 'auth' ,
                     'uses' => 'AttributionModelController@show'
                 ] ); 
+
+                Route::get( '/attribution/model/{modelId}/levels' , [
+                    'as' => 'api.attribution.model.levels' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionModelController@levels'
+                ] );
+
+                Route::get( '/attribution/model/{modelId}/clients' , [
+                    'as' => 'api.attribution.model.clients' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionModelController@getModelClients'
+                ] );
+
+                Route::post( '/attribution/model/copyLevels' , [
+                    'as' => 'api.attribution.model.copyLevels' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionModelController@copyLevels'
+                ] );
             }
         );
 

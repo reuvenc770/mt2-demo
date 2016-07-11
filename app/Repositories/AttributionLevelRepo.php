@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 
 class AttributionLevelRepo {
-
     protected $levels;
 
     public function __construct ( $attributionModelId = null ) {

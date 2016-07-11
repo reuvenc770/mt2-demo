@@ -4,23 +4,24 @@
 
 @section( 'navClientClasses' , 'active' )
 
-@section( 'content' )
-<div class="row">
-    <div class="page-header col-xs-12"><h1 class="text-center">Add Attribution Model</h1></div>
-</div>
+@section( 'angular-controller' , 'ng-controller="AttributionController as attr"' )
 
-<div ng-controller="AttributionController as attr" ng-init="attr.loadClients()">
+@section( 'page-menu' )
+    @if (Sentinel::hasAccess('api.attribution.model.store'))
+        <md-button ng-click="attr.saveModel( $event , attrModelForm )" aria-label="Add Attribution Model">
+            <md-icon ng-hide="app.largePageWidth()" md-svg-src="img/icons/ic_add_circle_outline_white_24px.svg"></md-icon>
+            <span ng-show="app.largePageWidth()">Save Model</span>
+        </md-button>
+    @endif
+@stop
+
+@section( 'content' )
+<div ng-init="attr.loadClients()">
     <div class="row">
         <div class="hidden-xs hidden-sm col-md-3"></div>
 
         <div class="col-xs-12 col-md-6">
-            <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disabled' : attr.creatingModel }" ng-click="attr.saveModel( $event )"><span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : attr.creatingModel }"></span> Save</button>
-
-            <div class="clearfix"></div>
-
             @include( 'pages.attribution.attribution-form' )
-
-            <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disabled' : attr.creatingModel }" ng-click="attr.saveModel( $event )"><span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : attr.creatingModel }"></span> Save</button>
         </div>
     </div>
 </div>
@@ -28,5 +29,4 @@
 
 @section( 'pageIncludes' )
 <script src="js/recordAttribution.js"></script>
-<script src="js/angular-drag-and-drop-lists.min.js"></script>
 @stop

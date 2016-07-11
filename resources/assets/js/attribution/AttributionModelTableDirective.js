@@ -5,7 +5,9 @@ mt2App.directive( 'attributionModelTable' , function () {
         "controllerAs" : "ctrl" ,
         "bindToController" : {
             "records" : "=" ,
-            "loadingflag" : "="
+            "loadingflag" : "=" ,
+            "baseurl" : "&" ,
+            "copymodel" : "&"
         } ,
         "templateUrl" : "js/templates/attribution-model-table.html"
     };

@@ -4,17 +4,20 @@
 
 @section( 'navClientClasses' , 'active' )
 
-@section( 'content' )
-<div class="row">
-    <div class="page-header col-xs-12"><h1 class="text-center">Attribution Model</h1></div>
-</div>
+@section( 'angular-controller' , 'ng-controller="AttributionController as attr"' )
 
-<div ng-controller="AttributionController as attr" ng-init="attr.loadModels()">
-    @if (Sentinel::hasAccess('client.add'))
-    <div class="row">
-        <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="attr.viewAdd()"><span class="glyphicon glyphicon-plus"></span> Add Client</button>
-    </div>
+@section( 'page-menu' )
+    @if (Sentinel::hasAccess('attr.model.add'))
+        <md-button ng-href="{{ route( 'attr.model.add' ) }}" target=
+"_self" aria-label="Add Attribution Model">
+            <md-icon ng-hide="app.largePageWidth()" md-svg-src="img/icons/ic_add_circle_outline_white_24px.svg"></md-icon>
+            <span ng-show="app.largePageWidth()">Add Model</span>
+        </md-button>
     @endif
+@stop
+
+@section( 'content' )
+<div ng-init="attr.loadModels()">
     <div class="row">
         <div class="col-xs-12">
             <div class="row">
@@ -27,7 +30,7 @@
                 </div>
             </div>
 
-            <attribution-model-table records="attr.models" loadingflag="attr.currentlyLoading"></attribution-model-table>
+            <attribution-model-table records="attr.models" loadingflag="attr.currentlyLoading" baseurl="app.getBaseUrl()" copymodel="attr.copyModelPreview( $event , currentModelId  )"></attribution-model-table>
 
             <div class="row">
                 <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
@@ -40,6 +43,8 @@
             </div>
         </div>
     </div>
+
+    @include( 'pages.attribution.attribution-level-copy-sidenav' )
 </div>
 @stop
 

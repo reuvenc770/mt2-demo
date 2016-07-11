@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 
 use App\Services\AttributionModelService;
+use App\Http\Requests\AttributionModelRequest;
 
 use Log;
 
@@ -48,7 +49,7 @@ class AttributionModelController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(AttributionModelRequest $request)
     {
         return response()->json( [ $this->service->create( $request->input( 'name' ) , $request->input( 'levels' ) ) ] );
     }
@@ -61,7 +62,7 @@ class AttributionModelController extends Controller
      */
     public function show($id)
     {
-        //
+        return response()->json( $this->service->get( $id ) );
     }
 
     /**
@@ -72,7 +73,7 @@ class AttributionModelController extends Controller
      */
     public function edit($id)
     {
-        //
+        return response()->view( 'pages.attribution.attribution-edit' );
     }
 
     /**
@@ -82,9 +83,11 @@ class AttributionModelController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(AttributionModelRequest $request, $id)
     {
-        //
+        return response()->json( [
+            'status' => $this->service->updateModel( $id , $request->input( 'name' ) , $request->input( 'levels' ) )
+        ] );
     }
 
     /**
@@ -96,5 +99,23 @@ class AttributionModelController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function levels ( $modelId ) {
+        return response()->json( $this->service->levels( $modelId ) );
+    }
+    
+    public function copyLevels ( Request $request ) {
+        return response()->json( [ "status" => 
+            $this->service->copyLevels(
+                $request->input( 'currentModelId' ) ,
+                $request->input( 'templateModelId' )
+            )
+        ] );
+    }
+
+    public function getModelClients ( $modelId ) {
+        Log::info( 'getModelClients' );
+        return response()->json( $this->service->getModelClients( $modelId ) );
     }
 }
