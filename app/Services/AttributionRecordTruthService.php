@@ -59,8 +59,12 @@ class AttributionRecordTruthService
     }
 
     public function insertBulkRecords($emails){
+        $preppedData= array();
+        foreach($emails as $email){
+            $preppedData[] = ['email_id' => $email['email_id'], "recent_import" => true];
+        }
         try {
-            return  $this->recordTruthRepo->insertBulkRecords($emails);
+            return $this->recordTruthRepo->bulkInsert($preppedData);
         } catch (\Exception $e) {
             Log::error("Could not Bulk Insert Record because {$e->getMessage()}");
         }

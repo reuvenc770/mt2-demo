@@ -36,6 +36,8 @@ class AttributionRecordTruthRepo {
     }
 
     public function bulkInsert($emails){
-        return $this->truth->insert($emails);
+        foreach($emails->chunk(100000) as $chunk) {
+            $this->truth->insert($chunk);
+        }
     }
 }
