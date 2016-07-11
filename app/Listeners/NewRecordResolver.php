@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Events\NewRecord;
+use App\Events\NewRecords;
 use App\Factories\ServiceFactory;
 use App\Services\AttributionRecordTruthService;
 use App\Services\EmailRecordService;
@@ -29,15 +29,14 @@ class NewRecordResolver implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param  NewRecord  $event
+     * @param  NewRecords  $event
      * @return void
      */
-    public function handle(NewRecord $event)
+    public function handle(NewRecords $event)
     {
         $this->scheduledFilterService =  ServiceFactory::createFilterService("expiration");
-        if(!$this->emailService->getEmailAddress($event->getEmailId()) && $event->getEmailId() != 0) {
-            $this->truthTableService->insertRecord($event->getEmailId());
-            $this->scheduledFilterService->insertScheduleFilter($event->getEmailId(), 10);
-        }
+            $this->truthTableService->insertBulkRecords($event->getEmails());
+            $this->scheduledFilterService->insertScheduleFilterBulk($event->getEmails(), 10);
+
     }
 }

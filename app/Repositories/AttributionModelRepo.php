@@ -9,7 +9,7 @@ use DB;
 class AttributionModelRepo {
     protected $models;
 
-    public __construct ( AttributionModel $models ) {
+    public function __construct ( AttributionModel $models ) {
         $this->models = $models;
     }
 

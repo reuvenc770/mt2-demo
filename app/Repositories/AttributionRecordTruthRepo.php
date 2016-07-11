@@ -34,4 +34,10 @@ class AttributionRecordTruthRepo {
     public function insert($emailId){
         return $this->truth->create(["email_id" => $emailId, "recent_import" => true]);
     }
+
+    public function bulkInsert($emails){
+        foreach(array_chunk($emails,10000) as $chunk) {
+            $this->truth->insert($chunk);
+        }
+    }
 }
