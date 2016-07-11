@@ -34,4 +34,8 @@ class AttributionRecordTruthRepo {
     public function insert($emailId){
         return $this->truth->create(["email_id" => $emailId, "recent_import" => true]);
     }
+
+    public function bulkInsert($emails){
+        return $this->truth->insert($emails);
+    }
 }
