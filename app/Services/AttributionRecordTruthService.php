@@ -64,7 +64,7 @@ class AttributionRecordTruthService
             $preppedData[] = ['email_id' => $email['email_id'], "recent_import" => true];
         }
         try {
-            return $this->recordTruthRepo->bulkInsert($preppedData);
+             $this->recordTruthRepo->bulkInsert($preppedData);
         } catch (\Exception $e) {
             Log::error("Could not Bulk Insert Record because {$e->getMessage()}");
         }

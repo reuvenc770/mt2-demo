@@ -34,9 +34,9 @@ class AttributionScheduleRepo {
 
 
     public function insertScheduleBulk($emails){
-        foreach($emails->chunk(10000) as $chunk) {
+        foreach(array_chunk($emails, 10000) as $chunk) {
             DB::connection("attribution")->statement(
-                "INSERT INTO {$this->schedule->getTable()} (email_id, trigger_date)
+                "INSERT INTO {$this->schedule->getTable()} (email_id, trigger_date, created_at, updated_at)
             VALUES
                         " . join(' , ', $chunk) . "
             ON DUPLICATE KEY UPDATE

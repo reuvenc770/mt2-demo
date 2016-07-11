@@ -47,7 +47,7 @@ class ScheduledFilterService
         $date = Carbon::today()->addDays($days)->toDateString();
         $preppedData = array();
         foreach($emails as $email){
-            $preppedData = ['email_id' => $email['email_id'], "trigger_date" => $date];
+            $preppedData[] = "(".join(",",[$email['email_id'],"'".$date."'","NOW()","NOW()"]).")";
         }
         try{
             $this->scheduleRepo->insertScheduleBulk($preppedData);
