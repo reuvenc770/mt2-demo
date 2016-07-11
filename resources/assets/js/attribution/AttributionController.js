@@ -29,7 +29,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'Client
             self.levelCopyClients = response.data;
             self.disableCopyButton = false;
         } );
-    }
+    };
 
     self.getModelId = function () {
         if ( self.current.id > 0 ) { return self.current.id; }

@@ -111,7 +111,7 @@ class AttributionModelRepo {
     }
 
     public function updateModel ( $currentModelId , $currentModelName , $levels ) {
-        $currentModel = AttributionModel::find( $currentModelId );
+        $currentModel = $this->models->find( $currentModelId );
         $currentModel->name = $currentModelName;
         $currentModel->save();
 
