@@ -42,4 +42,18 @@ class ScheduledFilterService
             Log::error("Scheduled Filter Service failed to insert records for {$class}: {$e->getMessage()} ");
         }
     }
+
+    public function insertScheduleFilterBulk($emails,$days){
+        $date = Carbon::today()->addDays($days)->toDateString();
+        $preppedData = array();
+        foreach($emails as $email){
+            $preppedData = ['email_id' => $email['email_id'], "trigger_date" => $date];
+        }
+        try{
+            $this->scheduleRepo->insertScheduleBulk($preppedData);
+        } catch (\Exception $e){
+            $class = get_class($this->scheduleRepo);
+            Log::error("Scheduled Filter Service failed to insert records Bulk for {$class}: {$e->getMessage()} ");
+        }
+    }
 }

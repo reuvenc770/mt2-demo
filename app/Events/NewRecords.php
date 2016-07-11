@@ -6,36 +6,26 @@ use App\Events\Event;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class NewRecord extends Event
+class NewRecords extends Event
 {
     use SerializesModels;
-    protected $emailId;
-    protected $clientId;
+    protected $emails;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($emailId, $clientId)
+    public function __construct($emails)
     {
-        $this->emailId = $emailId;
-        $this->clientId = $clientId;
+        $this->emails = $emails;
     }
 
     /**
      * @return mixed
      */
-    public function getEmailId()
+    public function getEmails()
     {
-        return $this->emailId;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getClientId()
-    {
-        return $this->clientId;
+        return $this->emails;
     }
 
     /**

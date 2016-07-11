@@ -31,4 +31,16 @@ class AttributionScheduleRepo {
             )
         );
     }
+
+
+    public function insertScheduleBulk($emails){
+        foreach($emails->chunk(100000) as $chunk) {
+            DB::connection("attribution")->statement(
+                "INSERT INTO {$this->schedule->getTable()} (email_id, trigger_date)
+            VALUES
+                        " . join(' , ', $chunk) . "
+            ON DUPLICATE KEY UPDATE
+            email_id = email_id, trigger_date = trigger_date ");
+        }
+    }
 }
