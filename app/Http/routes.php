@@ -18,6 +18,14 @@ Route::get('/', [ 'as' => 'root' , 'uses' => function () {
     return redirect("/login");
 } ] );
 
+/**
+ *  Feed Routes
+ */
+
+Route::get('/feeds', [
+    'as'=> 'feeds', 
+    'uses' => 'ClientFeedController@store'
+]);
 
 /**
  * Guest Routes
@@ -200,7 +208,6 @@ Route::group(
         ] );
     }
 );
-
 
 /**
  * Client Routes

@@ -14,4 +14,8 @@ class Client extends Model {
     public function emailAction() {
         return $this->hasMany('App\Models\EmailAction');
     }
+
+    public function feeds() {
+        return $this->hasMany('App\Models\ClientFeed');
+    }
 }
