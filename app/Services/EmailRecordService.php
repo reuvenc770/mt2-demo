@@ -65,15 +65,11 @@ class EmailRecordService {
 
     public function massRecordDeliverables () {
         $count = count($this->records);
+
         try {
             $this->repo->massRecordDeliverables($this->records);
-            foreach ($this->records as $record){
-                if($record['recordType'] == AbstractReportService::RECORD_TYPE_OPENER
-                    || $record['recordType'] == AbstractReportService::RECORD_TYPE_CLICKER){
 
-                }
-            }
-            \Event::fire(new NewActions($this->records));
+
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         } finally {
