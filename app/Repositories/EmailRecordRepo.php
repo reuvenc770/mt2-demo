@@ -11,9 +11,9 @@ use App\Models\OrphanEmail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
-
+use App\Services\AbstractReportService;
 use Log;
-
+use App\Events\NewActions;
 class EmailRecordRepo {
     protected $email;
     protected $emailAddress = '';
@@ -31,7 +31,7 @@ class EmailRecordRepo {
     public function massRecordDeliverables ( $records = [] ) {
         $validRecords = [];
         $invalidRecords = [];
-        
+        $preppedData = array();
         foreach ( $records as $currentIndex => $currentRecord ) {
             
             $this->setLocalData( [
@@ -46,9 +46,10 @@ class EmailRecordRepo {
             $this->errorReason = '';
 
             if ( $this->isValidRecord( false ) ) {
+                $currentId = $this->getEmailId();
                 $validRecord = "( "
                     . join( " , " , [
-                        $this->getEmailId() , 
+                        $currentId ,
                         $this->getClientId() ,
                         $currentRecord[ 'espId' ] ,
                         $currentRecord['deployId'],
@@ -61,6 +62,11 @@ class EmailRecordRepo {
                     . " )";
 
                 $validRecords []= $validRecord;
+
+                if($currentRecord['recordType'] == AbstractReportService::RECORD_TYPE_OPENER
+                    || $currentRecord['recordType'] == AbstractReportService::RECORD_TYPE_CLICKER){
+                    $preppedData[] = $currentId;
+                }
             } else {
                 $invalidRecord = "( " 
                     .join( " , " , [
@@ -105,6 +111,7 @@ class EmailRecordRepo {
                     );
             }
         }
+        \Event::fire(new NewActions($preppedData));
 
         if ( !empty( $invalidRecords ) ) {
             $chunkedRecords = array_chunk( $invalidRecords , 10000 );
