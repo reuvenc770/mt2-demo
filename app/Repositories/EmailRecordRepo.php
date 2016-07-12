@@ -65,6 +65,7 @@ class EmailRecordRepo {
 
                 if($currentRecord['recordType'] == AbstractReportService::RECORD_TYPE_OPENER
                     || $currentRecord['recordType'] == AbstractReportService::RECORD_TYPE_CLICKER){
+                    Log::info("The current ID is {$currentRecord}");
                     $preppedData[] = $currentId;
                 }
             } else {
@@ -111,7 +112,10 @@ class EmailRecordRepo {
                     );
             }
         }
-        \Event::fire(new NewActions($preppedData));
+
+        if(count($preppedData) > 0) {
+            \Event::fire(new NewActions($preppedData));
+        }
 
         if ( !empty( $invalidRecords ) ) {
             $chunkedRecords = array_chunk( $invalidRecords , 10000 );
