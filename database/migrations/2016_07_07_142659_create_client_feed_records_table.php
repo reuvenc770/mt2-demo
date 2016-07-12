@@ -35,7 +35,7 @@ class CreateClientFeedRecordsTable extends Migration
             $table->string('phone')->default(''); // this is a string elsewhere 
             $table->tinyInteger('valid')->default(1);
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
-            $table->timestamp('updated_at')->default(DB::raw('DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
+            $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
 
             $table->index('email_address', 'email_address');
             $table->index('client_feed_id', 'client_feed_id');
