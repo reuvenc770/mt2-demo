@@ -6,15 +6,14 @@
 namespace App\Repositories;
 
 use App\Models\AttributionTransientRecord;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 
 class AttributionTransientRecordRepo {
-    const BASE_TABLE_NAME = 'attribution_transient_records_model_';
-
     protected $records;
 
     public function __construct ( $attributionModelId ) {
-        $this->records = new AttributionTransientRecord( self::BASE_TABLE_NAME . $attributionModelId );
+        $this->records = new AttributionTransientRecord( AttributionTransientRecord::BASE_TABLE_NAME . $attributionModelId );
     }
 
     public function getByClientId ( $clientId , $daysBack ) {
@@ -30,7 +29,7 @@ class AttributionTransientRecordRepo {
     }
 
     static public function generateTempTable ( $modelId ) {
-        Schema::connection( 'attribution' )->create( AttributionTransientRecordRepo::BASE_TABLE_NAME . $modelId , function (Blueprint $table) {
+        Schema::connection( 'attribution' )->create( AttributionTransientRecord::BASE_TABLE_NAME . $modelId , function (Blueprint $table) {
             $table->increments('id');
             $table->integer( 'client_id' );
             $table->integer( 'deploy_id' );
@@ -53,6 +52,6 @@ class AttributionTransientRecordRepo {
     }
 
     static public function dropTempTable ( $modelId ) { 
-        Schema::connection( 'attribution' )->drop( AttributionTransientRecordRepo::BASE_TABLE_NAME . $modelId );
+        Schema::connection( 'attribution' )->drop( AttributionTransientRecord::BASE_TABLE_NAME . $modelId );
     }
 }

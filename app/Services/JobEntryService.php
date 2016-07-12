@@ -49,7 +49,7 @@ class JobEntryService
 
     }
 
-    public function changeJobState($state, $tracking, $total = 0)//dead field keeping till refactor is done
+    public function changeJobState($state, $tracking, $total = 0)
     {
         $job = $this->repo->getJobByTracking($tracking);
         $job->status = $state;

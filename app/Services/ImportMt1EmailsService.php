@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Services;
+use App\Events\NewRecords;
 use App\Repositories\TempStoredEmailRepo;
 use App\Services\API\Mt1DbApi;
 use App\Repositories\EmailRepo;
@@ -35,7 +36,7 @@ class ImportMt1EmailsService
     }
 
     public function run() {
-
+        $recordsToFlag = array();
         // import new clients
         echo "importing new clients" . PHP_EOL;
         $lastLocalClientId = $this->clientRepo->getMaxClientId();
@@ -76,7 +77,10 @@ class ImportMt1EmailsService
             if ($this->clientRepo->isActive($clientId)) {
                 $emailRow = $this->mapToEmailTable($record);
                 $this->emailRepo->insertCopy($emailRow);
-
+                if($record['email_id'] != 0 ) {
+                    $recordsToFlag[] = ["email_id" => $record['email_id'], "client_id" => $record['client_id']];
+                }
+                //We do an upsert so there is no model actions.
                 $emailClientRow = $this->mapToEmailClientTable($record);
                 $this->emailClientRepo->insert($emailClientRow);
             }
@@ -86,7 +90,7 @@ class ImportMt1EmailsService
         if (sizeof($records) > 0) {
             $this->api->cleanTable();
         }
-        
+        \Event::fire(new NewRecords($recordsToFlag));
     }
 
     private function mapToTempTable($row) {

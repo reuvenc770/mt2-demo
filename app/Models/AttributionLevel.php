@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class AttributionLevel extends Model
 {
+    const BASE_TABLE_NAME = 'attribution_levels_model_';
+
     protected $connection = "attribution";
 
     public function __construct ( $tableName = null , array $attributes = [] ) {

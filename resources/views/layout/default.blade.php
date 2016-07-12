@@ -3,19 +3,21 @@
     <head>
         @include( 'layout.html-head' )
     </head>
-    <body ng-app="mt2App">
-        @include( 'layout.header' )
+    <body ng-app="mt2App" ng-controller="AppController as app" layout="row" ng-cloak>
+        @include( 'layout.side-nav' )
 
-        @include( 'layout.top-nav' )
+        <div @yield( 'angular-controller' ) layout="column" layout-fill flex>
+            @include( 'layout.main-header' )
 
-        <div id="pageContent" class="container-fluid">
+         <md-content flex class="md-hue-1">
 
-            <div id="flashContainer">
-                @include('flash::message')
-            </div>
-            {!! Breadcrumbs::renderIfExists() !!}
-            @yield( 'content' )
+                @yield( 'content' )
+            </md-content>
         </div>
+
+        @if (Session::has('flash_notification.message'))
+            <div id="flashContainer" ng-init="app.showToastMessage( '{{ Session::get('flash_notification.message') }}' , '{{ Session::get('flash_notification.level') }}' )"></div>
+        @endif
 
         @include( 'layout.modal' )
 

@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use App\Events\NewActions;
+use App\Models\ActionType;
+use App\Models\EmailAction;
 use App\Repositories\EmailRecordRepo;
 use Log;
 use Carbon\Carbon;
@@ -62,8 +65,10 @@ class EmailRecordService {
 
     public function massRecordDeliverables () {
         $count = count($this->records);
+
         try {
             $this->repo->massRecordDeliverables($this->records);
+
 
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());

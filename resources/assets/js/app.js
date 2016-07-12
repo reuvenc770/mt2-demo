@@ -1,16 +1,31 @@
 /**
  * MT2 App Module
  */
-var mt2App = angular.module( 'mt2App' , [ 'ngMaterial' , 'ngMessages' , 'ui.select' , 'flow' , 'ngclipboard' , 'ivh.treeview' ] );
+var mt2App = angular.module( 'mt2App' , [
+    'ngMaterial' ,
+    'ngMessages' ,
+    'ui.select' ,
+    'flow' ,
+    'ngclipboard' ,
+    'ivh.treeview' , 
+    'dndLists'
+] );
 
 mt2App.config( function ( $locationProvider , $mdThemingProvider , ivhTreeviewOptionsProvider ) {
     $locationProvider.html5Mode( true );
 
     $mdThemingProvider.theme( 'mt2-zeta' , 'light' )
         .primaryPalette( 'indigo' )
-        .accentPalette( 'deep-purple' )
+        .accentPalette( 'blue' )
         .warnPalette( 'deep-orange' )
-        .backgroundPalette( 'grey' );
+        .backgroundPalette( 'blue-grey' , {
+            "default" : '50' ,
+            "hue-1" : '200' ,
+            "hue-2" : '400' ,
+            "hue-3" : '700'
+        } );
+
+    $mdThemingProvider.setDefaultTheme( 'mt2-zeta' );
 
     ivhTreeviewOptionsProvider.set( {
         "expandToDepth" : 1 ,

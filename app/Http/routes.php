@@ -378,6 +378,41 @@ Route::group(
 );
 
 /**
+ * Attribution Model Routes
+ */
+
+Route::group(
+    [
+        'prefix' => 'attr' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' ,
+            [
+                'as' => 'attr.model.list' ,
+                'uses' => 'AttributionModelController@listAll'
+            ]
+        );
+
+        Route::get( 
+            '/create', 
+            array( 
+                'as' => 'attr.model.add', 
+                'uses' => 'AttributionModelController@create' 
+            )
+        );
+
+        Route::get( 
+            '/edit/{modelId}', 
+            array( 
+                'as' => 'attr.model.edit', 
+                'uses' => 'AttributionModelController@edit' 
+            )
+        );
+    }
+);
+
+/**
  * API Routes
  */
 Route::group(
@@ -472,7 +507,6 @@ Route::group(
         /**
          *  Bulk Suppression API Routes
          */
-
         Route::group(
             ['prefix' => 'bulksuppression'],
             function() {
@@ -488,6 +522,62 @@ Route::group(
                     'middleware' => 'auth',
                     'uses' => 'BulkSuppressionController@store'
                 ]);
+            }
+        );
+
+        /**
+         *  Attribution Model API Routes
+         */
+        Route::group(
+            [] ,
+            function () {
+                Route::get( '/attribution/model' , [
+                    'as' => 'api.attribution.model.index' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionModelController@index'
+                ] ); 
+
+                Route::post( '/attribution/model' , [
+                    'as' => 'api.attribution.model.store' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionModelController@store'
+                ] ); 
+
+                Route::put( '/attribution/model/{modelId}' , [
+                    'as' => 'api.attribution.model.update' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionModelController@update'
+                ] ); 
+
+                Route::delete( '/attribution/model/{modelId}' , [
+                    'as' => 'api.attribution.model.destroy' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionModelController@destroy'
+                ] ); 
+
+                Route::get( '/attribution/model/{modelId}' , [
+                    'as' => 'api.attribution.model.show' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionModelController@show'
+                ] ); 
+
+                Route::get( '/attribution/model/{modelId}/levels' , [
+                    'as' => 'api.attribution.model.levels' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionModelController@levels'
+                ] );
+
+                Route::get( '/attribution/model/{modelId}/clients' , [
+                    'as' => 'api.attribution.model.clients' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionModelController@getModelClients'
+                ] );
+
+                Route::post( '/attribution/model/copyLevels' , [
+                    'as' => 'api.attribution.model.copyLevels' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionModelController@copyLevels'
+                ] );
             }
         );
 
@@ -546,12 +636,6 @@ Route::group(
             'attribution' ,
             'AttributionController' ,
             [ 'only' => [ 'store' ] ]
-        );
-
-        Route::resource(
-            'attribution' ,
-            'AttributionController' ,
-            [ 'only' => [ 'store'] ]
         );
 
         Route::resource(

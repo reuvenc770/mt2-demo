@@ -11,9 +11,9 @@ use App\Models\OrphanEmail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
-
+use App\Services\AbstractReportService;
 use Log;
-
+use App\Events\NewActions;
 class EmailRecordRepo {
     protected $email;
     protected $emailAddress = '';
@@ -31,7 +31,7 @@ class EmailRecordRepo {
     public function massRecordDeliverables ( $records = [] ) {
         $validRecords = [];
         $invalidRecords = [];
-        
+        $preppedData = array();
         foreach ( $records as $currentIndex => $currentRecord ) {
             
             $this->setLocalData( [
@@ -46,9 +46,10 @@ class EmailRecordRepo {
             $this->errorReason = '';
 
             if ( $this->isValidRecord( false ) ) {
+                $currentId = $this->getEmailId();
                 $validRecord = "( "
                     . join( " , " , [
-                        $this->getEmailId() , 
+                        $currentId ,
                         $this->getClientId() ,
                         $currentRecord[ 'espId' ] ,
                         $currentRecord['deployId'],
@@ -61,6 +62,12 @@ class EmailRecordRepo {
                     . " )";
 
                 $validRecords []= $validRecord;
+
+                if($currentRecord['recordType'] == AbstractReportService::RECORD_TYPE_OPENER
+                    || $currentRecord['recordType'] == AbstractReportService::RECORD_TYPE_CLICKER){
+                    Log::info("The current ID is {$currentRecord}");
+                    $preppedData[] = $currentId;
+                }
             } else {
                 $invalidRecord = "( " 
                     .join( " , " , [
@@ -104,6 +111,10 @@ class EmailRecordRepo {
                         updated_at = NOW()"
                     );
             }
+        }
+
+        if(count($preppedData) > 0) {
+            \Event::fire(new NewActions($preppedData));
         }
 
         if ( !empty( $invalidRecords ) ) {
@@ -192,7 +203,11 @@ class EmailRecordRepo {
         return $this->email->select( 'id' )->where( 'email_address' , $this->emailAddress )->first()->id;
     }
     public function getEmailAddress($eid){
-        return $this->email->find($eid)->email_address;
+        try {
+            return $this->email->find($eid)->email_address;
+        } catch (\Exception $e){
+            return false;
+        }
     }
 
     protected function setLocalData ( $recordData ) {
