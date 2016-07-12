@@ -44,6 +44,8 @@ elixir.extend( 'deployNodeModules' , function ( mix ) {
     mix.copy( 'node_modules/ng-flow/dist/ng-flow-standalone.min.js', 'public/js/ng-flow-standalone.min.js' );
 
     mix.copy( 'node_modules/angular-ivh-treeview/dist/ivh-treeview.min.js' , 'public/js/ivh-treeview.min.js' );
+
+    mix.copy( 'node_modules/angular-drag-and-drop-lists/angular-drag-and-drop-lists.min.js' , 'public/js/angular-drag-and-drop-lists.min.js' );
 } );
 
 elixir.extend( 'deploySass' , function ( mix ) {
@@ -151,6 +153,15 @@ elixir.extend( 'deployClientAttributionJs' , function ( mix ) {
     ] , 'public/js/clientAttribution.js' );
 } );
 
+elixir.extend( 'deployRecordAttributionJs' , function ( mix ) {
+    mix.scripts( [
+        'attribution/AttributionController.js' ,
+        'attribution/AttributionApiService.js' ,
+        'client/ClientApiService.js' ,
+        'attribution/AttributionModelTableDirective.js' ,
+    ] , 'public/js/recordAttribution.js' );
+} );
+
 elixir.extend('deployDataExportJs', function(mix) {
     mix.scripts([
         'dataexport/DataExportController.js',
@@ -205,6 +216,7 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployClientAttributionJs( mix );
     mix.deployDataExportJs(mix);
     mix.deployDataCleanseJs(mix);
+    mix.deployRecordAttributionJs(mix)
 } );
 
 elixir.extend( 'runTdd' , function ( mix ) {
@@ -282,6 +294,9 @@ var mt2TaskMap = {
     },
     'deployDataCleanseJs' : function (mix) {
         mix.deployDataCleanseJs(mix)
+    },
+    'deployRecordAttributionJs' : function (mix) {
+        mix.deployRecordAttributionJs(mix)
     }
 };
 

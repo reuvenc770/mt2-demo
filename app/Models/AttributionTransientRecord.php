@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class AttributionTransientRecord extends Model
 {
+    const BASE_TABLE_NAME = 'attribution_transient_records_model_';
+
     protected $connection = 'attribution';
 
     public function __construct ( $tableName = null , array $attributes = [] ) {

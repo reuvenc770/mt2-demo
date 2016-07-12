@@ -32,5 +32,10 @@
 <md-toolbar class="md-accent">
     <div class="md-toolbar-tools">
     {!! Breadcrumbs::renderIfExists() !!}
+
+    <span flex></span>
+
+    @yield( 'page-menu' )
     </div>
+
 </md-toolbar>

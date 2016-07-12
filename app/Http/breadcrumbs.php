@@ -170,3 +170,18 @@ Breadcrumbs::register('datacleanse.add', function($breadcrumbs) {
     $breadcrumbs->parent('datacleanse.list');
     $breadcrumbs->push('Add Data Cleanse');
 });
+
+Breadcrumbs::register('attr.model.list', function($breadcrumbs) {
+    $breadcrumbs->parent('home');
+    $breadcrumbs->push('Attribution Models' , route( 'attr.model.list' ));
+});
+
+Breadcrumbs::register('attr.model.add', function($breadcrumbs) {
+    $breadcrumbs->parent('attr.model.list');
+    $breadcrumbs->push('Add Attribution Model');
+});
+
+Breadcrumbs::register('attr.model.edit', function($breadcrumbs) {
+    $breadcrumbs->parent('attr.model.list');
+    $breadcrumbs->push('Edit Attribution Model');
+});

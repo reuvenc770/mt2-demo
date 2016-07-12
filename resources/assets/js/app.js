@@ -1,7 +1,15 @@
 /**
  * MT2 App Module
  */
-var mt2App = angular.module( 'mt2App' , [ 'ngMaterial' , 'ngMessages' , 'ui.select' , 'flow' , 'ngclipboard' , 'ivh.treeview' ] );
+var mt2App = angular.module( 'mt2App' , [
+    'ngMaterial' ,
+    'ngMessages' ,
+    'ui.select' ,
+    'flow' ,
+    'ngclipboard' ,
+    'ivh.treeview' , 
+    'dndLists'
+] );
 
 mt2App.config( function ( $locationProvider , $mdThemingProvider , ivhTreeviewOptionsProvider ) {
     $locationProvider.html5Mode( true );

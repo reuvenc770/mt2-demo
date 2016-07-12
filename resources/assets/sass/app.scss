@@ -46,6 +46,47 @@ ul.ivh-treeview ul.ivh-treeview {
 }
 
 /**
+ * Drag & Drop Lists Styling
+ */
+ul[dnd-list], ul[dnd-list] > li {
+    position: relative;
+}
+ul[dnd-list] {
+    padding-left: 0;
+}
+
+ul[dnd-list] > li:hover {
+    cursor: pointer;
+}
+
+ul[dnd-list] .dndDraggingSource {
+    display: none;
+}
+
+ul[dnd-list] .dndPlaceholder {
+    display: block;
+    background-color: #ddd;
+    min-height: 42px;
+    margin-top: 20px;
+}
+/*
+ul[dnd-list] > li {
+    background-color: #337ab7;
+    display: block;
+    border: none;
+    border-radius: .25em;
+    color: #fff;
+    float: left;
+    font-weight: 700;
+    height: 125px;
+    margin: 5px;
+    padding: 3px;
+    text-align: center;
+    width: 250px;
+}
+*/
+
+/**
  * Custom Vanilla Styling
  */
 html , body { background-color: #EAEAEA; }
@@ -62,11 +103,15 @@ body {
 
 .bold-text { font-weight: bold; }
 
+.text-right { text-align: right; }
+
 .add-bottom-margin { margin-bottom: 24px; }
 
 .no-top-margin { margin-top: 0; }
 
 .no-padding { padding: 0; }
+
+.align-top { vertical-align: top; }
 
 .dropFile {
     padding: 15px;
@@ -111,6 +156,11 @@ body {
 
 .md-list-item span {
     color: rgba(0,0,0,0.54);
+}
+
+.largeListItem {
+    font-weight: bold;
+    font-size: 14px;
 }
 
 /**
