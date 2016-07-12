@@ -3,12 +3,10 @@
 return [
 
     'expiration' => [
-        "column" => "recent_import",
-        "value"  => "false"
+        "column" => ["recent_import" => false]
     ],
     "activity" => [
-    "column" => "has_action",
-    "value"  => "false"
+    "column" => ["has_action" => false, "action_expired" => true]
     ],
 
 ];
