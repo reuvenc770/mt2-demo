@@ -20,11 +20,27 @@ class AttributionRecordTruthRepo {
     }
 
     public function getTransientRecords () {
-        #queries table and finds expired:true|active:false combos and returns their email IDs
+        $union = $this->truth
+                      ->select('email_id', 'capture_date')
+                      ->join(CAPTURE_DATE_TABLE)
+                      ->where('recent_import', 0)
+                      ->where('has_action', 1)
+                      ->where('action_expired', 1)
+                      ->where('additional_imports', 1);
+
+        return $this->truth
+                    ->select('email_id', 'capture_date')
+                    ->join(CAPTURE_DATE_TABLE)
+                    ->where('recent_import', 0)
+                    ->where('has_action', 0)
+                    ->where('additional_imports', 1)
+                    ->union($union)
+                    ->get();
+    
     }
 
     public function resetRecord () {
-        #resets the record to initial value => expired:false|active:false
+        #resets the record to initial value => expired:false|active:false|has_action:?|additional_imports:?
     }
 
     public function setField($emailId, $field, $value){
