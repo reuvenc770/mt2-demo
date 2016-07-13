@@ -31,6 +31,7 @@ class CreateReportsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('reports');
+        #standard_reports gets adjusted and moved to the mt2_reports and is dropped elsewhere. This is unnecessary but leaving it here commented out.
+        #Schema::drop('standard_reports');
     }
 }

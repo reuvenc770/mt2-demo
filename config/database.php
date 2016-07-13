@@ -61,7 +61,7 @@ return [
         'reporting_data' => [
             'driver'    => 'mysql',
             'host'      => env('DB_HOST', 'localhost'),
-            'database'  => env('REPORTS_DB_DATABASE', 'mt2_reports'),
+            'database'  => env('REPORTS_DB_DATABASE' , '' ), #Not using a default since we have multiple envs
             'username'  => env('DB_USERNAME', 'forge'),
             'password'  => env('DB_PASSWORD', ''),
             'charset'   => 'utf8mb4',
@@ -116,7 +116,7 @@ return [
         'attribution' => [
             'driver'    => 'mysql',
             'host'      => env('DB_HOST', 'localhost'),
-            'database'  => env('ATTR_DB_DATABASE', 'attribution'),
+            'database'  => env('ATTR_DB_DATABASE', '' ), #Not using a default since we have multiple envs
             'username'  => env('DB_USERNAME', 'forge'),
             'password'  => env('DB_PASSWORD', ''),
             'charset'   => 'utf8mb4',

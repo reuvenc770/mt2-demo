@@ -17,6 +17,7 @@ class StandardizeFieldNames extends Migration
             $table->renameColumn('sub_id', 'external_deploy_id');
             $table->renameColumn('deploy_id', 'campaign_name');
             $table->integer('esp_internal_id')->after('esp_account_id')->default(0);
+            $table->index('external_deploy_id');
         });
 
         Schema::connection('reporting_data')->table('email_actions', function($table) {
@@ -26,7 +27,6 @@ class StandardizeFieldNames extends Migration
             $table->unique(['email_id', 'deploy_id', 'datetime'], 'email_deploy_time');
             $table->index(['deploy_id', 'datetime'], 'deploy_date');
             $table->index(['esp_internal_id', 'datetime'], 'esp_internal_id_date');
-            $table->index('external_deploy_id');
         });
 
         Schema::table('orphan_emails', function($table) {

@@ -30,6 +30,7 @@ class UpdateSuppression extends Migration
     public function down()
     {
         Schema::table('suppressions', function(Blueprint $table) {
+            $table->renameColumn('esp_internal_id' , 'campaign_id');
             $table->index(['campaign_id', 'esp_account_id', 'email_address']);
             $table->string('reason',255);
             $table->dropColumn('reason_id');
