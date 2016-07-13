@@ -21,6 +21,7 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
         ftp_user: "" ,
         has_client_group_restriction: "0" ,
         list_owner: "" ,
+        clientTypeID: "",
         minimum_acceptable_record_date: "" ,
         network: "" ,
         orange_client: "Y" ,
@@ -222,8 +223,8 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
     };
 
     self.SuccessCallBackRedirect = function ( response ) {
-        $location.url( '/client' );
-        $window.location.href = '/client';
+        $location.url( '/client/edit/'+ response.data.clientId );
+        $window.location.href = '/client/edit/' + response.data.clientId;
     };
 
     self.loadClientFailureCallback = function ( response ) {

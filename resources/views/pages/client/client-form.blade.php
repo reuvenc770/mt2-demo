@@ -168,22 +168,22 @@
 
         <div class="panel-body">
             <div class="form-group" ng-class="{ 'has-error' : client.formErrors.ftp_url }">
-                <input type="text" class="form-control" id="ftp_url" value="" placeholder="FTP URL" ng-model="client.current.ftp_url" />
+                <input type="text" readonly class="form-control" id="ftp_url" value="" placeholder="FTP URL" ng-model="client.current.ftp_url" />
                 <span class="help-block" ng-bind="client.formErrors.ftp_url" ng-show="client.formErrors.ftp_url"></span>
             </div>
 
             <div class="form-group" ng-class="{ 'has-error' : client.formErrors.ftp_user }">
-                <input type="text" class="form-control" id="ftp_user" value="" placeholder="FTP User" ng-model="client.current.ftp_user" />
+                <input type="text" readonly class="form-control" id="ftp_user" value="" placeholder="FTP User" ng-model="client.current.ftp_user" />
                 <span class="help-block" ng-bind="client.formErrors.ftp_user" ng-show="client.formErrors.ftp_user"></span>
             </div>
 
             <div class="form-group" ng-class="{ 'has-error' : client.formErrors.ftp_pw }">
-                <input type="text" class="form-control" id="ftp_password" value="" placeholder="FTP Password" ng-model="client.current.ftp_pw" />
+                <input type="text" readonly class="form-control" id="ftp_password" value="" placeholder="FTP Password" ng-model="client.current.ftp_pw" />
                 <span class="help-block" ng-bind="client.formErrors.ftp_pw" ng-show="client.formErrors.ftp_pw"></span>
             </div>
 
             <div class="form-group" ng-class="{ 'has-error' : client.formErrors.rt_pw }">
-                <input type="text" class="form-control" id="ftp_realtime_password" value="" placeholder="FTP Realtime Password" ng-model="client.current.rt_pw" />
+                <input type="text" readonly class="form-control" id="ftp_realtime_password" value="" placeholder="FTP Realtime Password" ng-model="client.current.rt_pw" />
                 <span class="help-block" ng-bind="client.formErrors.rt_pw" ng-show="client.formErrors.rt_pw"></span>
             </div>
         </div>
@@ -225,6 +225,15 @@
                 <span class="help-block" ng-bind="client.formErrors.list_owner" ng-show="client.formErrors.list_owner"></span>
             </div>
 
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.clientTypeID }">
+                <select ng-model="client.current.clientTypeID" class="form-control">
+                    <option value="">Select a List Owner</option>
+                        <option ng-selected="client.current.clientTypeID == 1" value="1">Internal</option>
+                    <option ng-selected="client.current.clientTypeID == 2" value="2">Broker</option>
+                        <option ng-selected="client.current.clientTypeID == 3" value="3">Direct Owner</option>
+                </select>
+            </div>
+
             <div class="form-group" ng-class="{ 'has-error' : client.formErrors.client_record_source_url }">
                 <input type="text" class="form-control" id="client_record_source_url" value="" placeholder="Source URL" ng-model="client.current.client_record_source_url" />
                 <span class="help-block" ng-bind="client.formErrors.client_record_source_url" ng-show="client.formErrors.client_record_source_url"></span>
@@ -244,7 +253,7 @@
                 <select ng-model="client.current.country_id" placeholder="Select Country"  convert-to-number class="form-control">
                     <option ng-selected="@{{ client.current.country_id == '' || client.current.country_id == null }}" value="">Select a Country</option>
                     @foreach ( $countries as $current )
-                    <option value="{{ $current->id }}">{{ $current->name }}</option>
+                    <option ng-selected="client.current.country_id == {{ $current->id }}" value="{{ $current->id }}">{{ $current->name }}</option>
                     @endforeach
                 </select>
             </div>
