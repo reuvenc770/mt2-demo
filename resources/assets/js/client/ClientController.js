@@ -227,7 +227,7 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
         $window.location.href = '/client/edit/' + response.data.clientId;
     };
     self.SuccessCallBackRedirectList = function ( response ) {
-        $location.url( '/client/';
+        $location.url( '/client/');
         $window.location.href = '/client/';
     };
 
