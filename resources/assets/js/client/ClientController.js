@@ -21,7 +21,7 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
         ftp_user: "" ,
         has_client_group_restriction: "0" ,
         list_owner: "" ,
-        clientTypeID: "",
+        clientTypeId: "",
         minimum_acceptable_record_date: "" ,
         network: "" ,
         orange_client: "Y" ,

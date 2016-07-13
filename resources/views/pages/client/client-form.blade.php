@@ -225,12 +225,12 @@
                 <span class="help-block" ng-bind="client.formErrors.list_owner" ng-show="client.formErrors.list_owner"></span>
             </div>
 
-            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.clientTypeID }">
-                <select ng-model="client.current.clientTypeID" class="form-control">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.clientTypeId }">
+                <select ng-model="client.current.clientTypeId" class="form-control">
                     <option value="">Select a List Owner</option>
-                        <option ng-selected="client.current.clientTypeID == 1" value="1">Internal</option>
-                    <option ng-selected="client.current.clientTypeID == 2" value="2">Broker</option>
-                        <option ng-selected="client.current.clientTypeID == 3" value="3">Direct Owner</option>
+                        <option ng-selected="client.current.clientTypeId == 1" value="1">Internal</option>
+                    <option ng-selected="client.current.clientTypeId == 2" value="2">Broker</option>
+                        <option ng-selected="client.current.clientTypeId == 3" value="3">Direct Owner</option>
                 </select>
             </div>
 
