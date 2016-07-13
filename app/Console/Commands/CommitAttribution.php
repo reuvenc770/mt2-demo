@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\Jobs\CommitAttributionJob;
 
 class CommitAttribution extends Command
 {
@@ -18,7 +19,7 @@ class CommitAttribution extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Run attribution based on the current selected model.';
 
     /**
      * Create a new command instance.
@@ -35,6 +36,7 @@ class CommitAttribution extends Command
      * @return mixed
      */
     public function handle() {
-        //
+        $job = new CommitAttributionJob(str_random(16));
+        $this->dispatch($job);
     }
 }

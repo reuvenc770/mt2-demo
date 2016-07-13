@@ -6,6 +6,8 @@ use DB;
 use Carbon\Carbon;
 use App\Repositories\EmailClientAssignmentRepo;
 use App\Repositories\AttributionRecordTruthRepo;
+use App\Repositories\AttributionScheduleRepo;
+use App\Repositories\EmailClientInstanceRepo;
 
 
 class AttributionService
