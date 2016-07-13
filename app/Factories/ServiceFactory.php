@@ -52,12 +52,16 @@ class ServiceFactory
         $historyModel = "App\\Models\\EmailClientAssignmentHistory";
         $assignmentRepo = "App\\Repositories\\EmailClientAssignmentRepo";
 
+        $emailClientInstanceModel = "App\\Models\\EmailClientInstance";
+        $emailClientInstanceRepo = "App\\Repositories\\EmailClientInstanceRepo";
+
         $truth = new $truthRepo(new $truthModel());
         $schedule = new $scheduleRepo(new $scheduleModel());
         $assignment = new $assignmentRepo(new $assignmentModel(), new $historyModel());
+        $instance = new $emailClientInstanceRepo($emailClientInstanceModel());
 
         $service = "App\\Services\\AttributionService";
 
-        return new $service($truth, $schedule, $assignment);
+        return new $service($truth, $schedule, $assignment, $instance);
     }
 }

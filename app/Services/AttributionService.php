@@ -14,14 +14,20 @@ class AttributionService
     private $truthRepo;
     private $scheduleRepo;
     private $assignmentRepo;
+    private $clientInstanceRepo;
 
-    public function __construct(AttributionRecordTruthRepo $truthRepo, AttributionScheduleRepo $scheduleRepo, EmailClientAssignmentRepo $assignmentRepo) {
+    public function __construct(AttributionRecordTruthRepo $truthRepo, 
+                                AttributionScheduleRepo $scheduleRepo, 
+                                EmailClientAssignmentRepo $assignmentRepo,
+                                EmailClientInstanceRepo $clientInstanceRepo) {
+
         $this->truthRepo = $truthRepo;
         $this->scheduleRepo = $scheduleRepo;
-    }   $this->assignmentRepo = $assignmentRepo;
+        $this->assignmentRepo = $assignmentRepo;
+        $this->clientInstanceRepo = $clientInstanceRepo;
+    }   
 
     protected function getTransientRecords() {
-        // Some records are exempt from attribution. We should know how that works
         return $this->truthRepo->getTransientRecords();
     }
 
@@ -37,8 +43,7 @@ class AttributionService
             $actionExpired = $record->action_expired;
             $subsequentImports = 0;
 
-            $potentialReplacements = $this->service
-                                          ->getPotentialReplacements($record->email_id, $beginDate, $clientId);
+            $potentialReplacements = $this->getPotentialReplacements($record->email_id, $beginDate, $clientId);
 
             foreach ($potentialReplacements as $repl) {
 
@@ -54,8 +59,8 @@ class AttributionService
                 }
             }
 
-            // Only actually run this once we've found the winner
-            if ($oldClientId <> $clientId) {
+            // Only run this once we've found the winner
+            if ($oldClientId !== $clientId) {
                 $this->changeAttribution($record->email_id, $clientId);
                 $this->recordHistory($record->email_id, $oldClientId, $ClientId);
                 $this->updateScheduleTable($record->email_id, $beginDate);
@@ -66,31 +71,7 @@ class AttributionService
     }
 
     protected function getPotentialReplacements($emailId, $beginDate, $clientId) {
-        $attrDb = config('database.connections.mysql.attribution.database');
-
-        $union = DB::table('email_client_instances as eci')
-                ->select('client_id', 'level', 'capture_date')
-                ->join($attrDb . '.attribution_levels as al', 'eci.client_id', '=', 'al.client_id')
-                #->join(CLIENT_FEEDS_TABLE, 'eci.client_feed_id', '=', 'cf.id') -- need to uncomment these when client feeds created
-                ->where('capture_date', $beginDate)
-                ->where('client_id', '<>', $clientId)
-                ->where('email_id', $emailId)
-                #->where('cf.level', 3)
-                ->orderBy('capture_date')
-
-        $reps = DB::table('email_client_instances as eci')
-                ->select('client_id', 'level', 'capture_date')
-                ->join($attrDb . '.attribution_levels as al', 'eci.client_id', '=', 'al.client_id')
-                #->join(CLIENT_FEEDS_TABLE, 'eci.client_feed_id', '=', 'cf.id') -- see above: placeholder for client feeds
-                ->where('capture_date', $beginDate)
-                ->where('client_id', '<>', $clientId)
-                ->where('email_id', $emailId)
-                #->where('cf.level', 3)
-                ->orderBy('capture_date')
-                ->union($union)
-                ->get();
-
-        return $reps;
+        return $this->clientInstanceRepo->getEmailInstancesAfterDate($emailId, $beginDate, $clientId);
     }
 
     protected function shouldChangeAttribution($captureDate, $hasAction, $actionExpired, $currentAttrLevel, $testAttrLevel) {

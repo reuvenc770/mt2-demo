@@ -22,17 +22,17 @@ class AttributionRecordTruthRepo {
     public function getTransientRecords () {
         $attrDb = config('database.connections.mysql.attribution');
 
-        $union = $this->truth
+        $union = DB::connection('attribution')->table('attribution_record_truths AS art')
                       ->select('email_id', 'capture_date')
-                      ->join($attrDb . '.')
+                      ->join($attrDb . '.email_client_assignments as eca', 'art.email_id', '=', 'eca.email_id')
                       ->where('recent_import', 0)
                       ->where('has_action', 1)
                       ->where('action_expired', 1)
                       ->where('additional_imports', 1);
 
-        return $this->truth
+        return DB::connection('attribution')->table('attribution_record_truths AS art')
                     ->select('email_id', 'capture_date')
-                    ->join($attrDb . )
+                    ->join($attrDb . '.email_client_assignments as eca', 'art.email_id', '=', 'eca.email_id')
                     ->where('recent_import', 0)
                     ->where('has_action', 0)
                     ->where('additional_imports', 1)
