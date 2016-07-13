@@ -39,8 +39,8 @@ class GetRepsonceRawReportTable extends Migration
         });
 
         Schema::connection("reporting_data")->table('get_response_reports', function($table) {
-            $tableName = env('DB_DATABASE','homestead');
-            $table->foreign('esp_account_id')->references('id')->on("{$tableName}.esp_accounts");
+            $dbName = env('DB_DATABASE','homestead');
+            $table->foreign('esp_account_id')->references('id')->on("{$dbName}.esp_accounts");
         });
     }
 

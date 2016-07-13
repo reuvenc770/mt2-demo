@@ -43,6 +43,6 @@ class TempStoredEmails extends Migration
      * @return void
      */
     public function down() {
-        Schema::drop('temp_stored_email');
+        Schema::drop('temp_stored_emails');
     }
 }
