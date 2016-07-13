@@ -7,6 +7,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Jobs\Traits\PreventJobOverlapping;
+use App\Factories\ServiceFactory;
 use Event;
 
 class CommitAttributionJob extends Job implements ShouldQueue
@@ -30,7 +31,7 @@ class CommitAttributionJob extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle(AttributionService $service) {
+    public function handle() {
 
         if ($this->jobCanRun($this->jobName)) {
             try {
@@ -38,34 +39,13 @@ class CommitAttributionJob extends Job implements ShouldQueue
                 JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
                 echo "{$this->jobName} running" . PHP_EOL;
 
+                $service = ServiceFactory::createAttributionService();
+
                 $records = $service->getTransientRecords();
-
-                foreach ($records as $record) {
-                    $beginDate = $record->capture_date;
-                    $clientId = $record->client_id;
-                    $currentAttributionLevel = (int)$record->level;
-                    $actionDateTime = $record->action_datetime;
-                    $hasAction = (bool)$record->has_action;
-                    $actionExpired = $record->action_expired;
-
-                    $potentialReplacements = $this->service->getPotentialReplacements($record->email_id);
-
-                    foreach ($potentialReplacements as $repl) {
-                        if ($this->changesAttribution($beginDate, , $repl->level)) {
-
-                            $this->changeAttribution($record->email_id, $repl->client_id);
-
-                            $beginDate = $repl->capture_date;
-                            $currentAttrLevel = (int)$repl->level;
-                            $hasAction = (bool)($repl->capture_date > $actionDateTime);
-                        }
-                    }
-                }
+                $service->run($records);
 
                 Event::fire(''); 
-                // Want to fire off an event when attribution is complete
                 JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
-
             }
             catch (\Exception $e) {
                 echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;

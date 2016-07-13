@@ -20,9 +20,11 @@ class AttributionRecordTruthRepo {
     }
 
     public function getTransientRecords () {
+        $attrDb = config('database.connections.mysql.attribution');
+
         $union = $this->truth
                       ->select('email_id', 'capture_date')
-                      ->join(CAPTURE_DATE_TABLE)
+                      ->join($attrDb . '.')
                       ->where('recent_import', 0)
                       ->where('has_action', 1)
                       ->where('action_expired', 1)
@@ -30,7 +32,7 @@ class AttributionRecordTruthRepo {
 
         return $this->truth
                     ->select('email_id', 'capture_date')
-                    ->join(CAPTURE_DATE_TABLE)
+                    ->join($attrDb . )
                     ->where('recent_import', 0)
                     ->where('has_action', 0)
                     ->where('additional_imports', 1)
@@ -43,6 +45,15 @@ class AttributionRecordTruthRepo {
         #resets the record to initial value => expired:false|active:false|has_action:?|additional_imports:?
     }
 
+    public function setRecord($emailId, $recentImport, $hasAction, $actionExpired, $additionalImports) {
+        return $this->truth->where("email_id", $emailId)->update([
+            'recent_import' => $recentImport,
+            'has_action' => $hasAction,
+            'action_expired' => $actionExpired,
+            'additional_imports' => $additionalImports
+        ]);
+    }
+
     public function setField($emailId, $field, $value){
         return $this->truth->where("email_id", $emailId)->update(array($field =>$value));
     }
@@ -50,7 +61,6 @@ class AttributionRecordTruthRepo {
     public function bulkSetField($emails, $field, $value){
         return $this->truth->whereIn("email_id", $emails)->update(array($field =>$value));
     }
-
 
     public function insert($emailId){
         return $this->truth->create(["email_id" => $emailId, "recent_import" => true]);

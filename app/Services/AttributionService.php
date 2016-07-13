@@ -2,83 +2,103 @@
 
 namespace App\Services;
 
+use DB;
+use Carbon\Carbon;
+use App\Repositories\EmailClientAssignmentRepo;
+use App\Repositories\AttributionRecordTruthRepo;
+
 
 class AttributionService
 {
-    /**
-     * @var EspRepo
-     */
-    protected $espRepo;
+    const EXPIRATION_DAY_RANGE = 10;
+    private $truthRepo;
+    private $scheduleRepo;
+    private $assignmentRepo;
 
-    /**
-     * AttributionService constructor.
-     * @param EspApiRepo $espRepo
-     */
-    public function __construct() {
-        
+    public function __construct(AttributionRecordTruthRepo $truthRepo, AttributionScheduleRepo $scheduleRepo, EmailClientAssignmentRepo $assignmentRepo) {
+        $this->truthRepo = $truthRepo;
+        $this->scheduleRepo = $scheduleRepo;
+    }   $this->assignmentRepo = $assignmentRepo;
+
+    protected function getTransientRecords() {
+        // Some records are exempt from attribution. We should know how that works
+        return $this->truthRepo->getTransientRecords();
     }
 
-    public function getTransientRecords(AttributionRecordTruthRepo $sourceRepo) {
-        return $sourceRepo->getTransientRecords();
-    }
+    public function run($records) {
+        foreach ($records as $record) {
 
-    public function getPotentialReplacements($emailId) {
+            $beginDate = $record->capture_date;
+            $clientId = (int)$record->client_id;
+            $oldClientId = (int)$record->client_id;
+            $currentAttrLevel = (int)$record->level;
+            $actionDateTime = $record->action_datetime;
+            $hasAction = (bool)$record->has_action;
+            $actionExpired = $record->action_expired;
+            $subsequentImports = 0;
 
-        $union = $record->email()
-                ->emailClientInstances()
-                ->select()
-                ->where('capture_date', '>', $beginDate)
-                ->orderBy('capture_date');
+            $potentialReplacements = $this->service
+                                          ->getPotentialReplacements($record->email_id, $beginDate, $clientId);
 
-        $potentialReplacements = $record->email()
-                                        ->emailClientInstances()
-                                        ->select('client_id', 'level')
-                                        ->join('attribution_levels') // need attribution levels
-                                        ->where('capture_date', $beginDate)
-                                        ->where('client_id', '<>', $clientId)
-                                        ->orderBy('capture_date')
-                                        ->union($union)
-                                        ->get();
+            foreach ($potentialReplacements as $repl) {
 
-        /***
-            from transient records, we need
-            email_id
-            client_id
-            client attribution level
-            capture date
-            recent_import
-            has_action
-            action_expired
+                if ($this->shouldChangeAttribution($beginDate, $hasAction, $actionExpired, $currentAttrLevel $repl->level)) {
+                    $beginDate = $repl->capture_date;
+                    $currentAttrLevel = (int)$repl->level;
+                    $hasAction = (bool)($repl->capture_date > $actionDateTime);
+                    $clientId = (int)$repl->client_id;
+                    $subsequentImports = 0;
+                }
+                else {
+                    $subsequentImports++;
+                }
+            }
 
-
-
-            from the potential replacements, we need
+            // Only actually run this once we've found the winner
+            if ($oldClientId <> $clientId) {
+                $this->changeAttribution($record->email_id, $clientId);
+                $this->recordHistory($record->email_id, $oldClientId, $ClientId);
+                $this->updateScheduleTable($record->email_id, $beginDate);
+                $this->updateTruthTable($record->email_id, $beginDate, $hasAction, $actionExpired, $subsequentImports);
+            }
             
-            client_id
-            client_attribution_level
-            capture_date
-
-            // WAIT - some records are EXEMPT from attribution. We need to know how that works.
-
-        */
-
-        return $potentialReplacements;
-
+        }
     }
 
-    /**
-     *  Method changesAttribution()
-     *  @return Boolean
-     *  Should attribution be changed or not?
-     */
+    protected function getPotentialReplacements($emailId, $beginDate, $clientId) {
+        $attrDb = config('database.connections.mysql.attribution.database');
 
-    public function changesAttribution($captureDate, $hasAction, $actionExpired, $currentAttrLevel, $testAttrLevel) {
-        $importExpirationDateRange = 10;
-        $tMinusTenDay = Carbon::today()->subDay($importExpirationDateRange);
+        $union = DB::table('email_client_instances as eci')
+                ->select('client_id', 'level', 'capture_date')
+                ->join($attrDb . '.attribution_levels as al', 'eci.client_id', '=', 'al.client_id')
+                #->join(CLIENT_FEEDS_TABLE, 'eci.client_feed_id', '=', 'cf.id') -- need to uncomment these when client feeds created
+                ->where('capture_date', $beginDate)
+                ->where('client_id', '<>', $clientId)
+                ->where('email_id', $emailId)
+                #->where('cf.level', 3)
+                ->orderBy('capture_date')
 
-        if ($tMinusTenDay->gte($captureDate)) {
-            // needs to be explicitly checked - we don't just have the query to watch this
+        $reps = DB::table('email_client_instances as eci')
+                ->select('client_id', 'level', 'capture_date')
+                ->join($attrDb . '.attribution_levels as al', 'eci.client_id', '=', 'al.client_id')
+                #->join(CLIENT_FEEDS_TABLE, 'eci.client_feed_id', '=', 'cf.id') -- see above: placeholder for client feeds
+                ->where('capture_date', $beginDate)
+                ->where('client_id', '<>', $clientId)
+                ->where('email_id', $emailId)
+                #->where('cf.level', 3)
+                ->orderBy('capture_date')
+                ->union($union)
+                ->get();
 
+        return $reps;
+    }
+
+    protected function shouldChangeAttribution($captureDate, $hasAction, $actionExpired, $currentAttrLevel, $testAttrLevel) {
+
+        // needs to be explicitly checked - we don't just have the query to watch this
+        if ($this->getExpiringDay->gte($captureDate)) {
+            // Older than pre-defined X days ago
+            
             if ($hasAction && $actionExpired) {
                 return true
             }
@@ -86,14 +106,36 @@ class AttributionService
                 // "less than" here means "has a higher attribution level"
                 return true
             }
-        } 
+        }
 
         return false;
     }
 
-    public function changeAttribution($emailId, $clientId) {
-        // update email_client_assignment
+    protected function changeAttribution($emailId, $clientId, $captureDate) {
+        $this->assignmentRepo->assignClient($emailId, $clientId, $captureDate);
+    }
+
+    protected function recordHistory($emailId, $oldClientId, $newClientId) {
+        $this->assignmentRepo->recordSwap($emailId, $oldClientId, $newClientId);
+    }
+
+    protected function updateTruthTable($emailId, $captureDate, $hasAction, $actionExpired, $subseqs) {
+        $addlImports = $subseqs >= 1;
+        $recentImport = Carbon::parse($captureDate)->gte($this->getExpiringDay());
+
+        $this->truthRepo->setRecord($emailId, $recentImport, $hasAction, $actionExpired, $addlImports);
+    }
+
+    protected function updateScheduleTable($emailId, $captureDate) {
         // update schedule tables
-        // update truth table
+        $nextDate = Carbon::parse($captureDate)
+                          ->addDays(self::EXPIRATION_DAY_RANGE)
+                          ->format('Y-m-d');
+
+        $this->scheduleRepo->insertSchedule($emailId, $nextDate);
+    }
+
+    protected function getExpiringDay() {
+        return Carbon::today()->subDays(self::EXPIRATION_DAY_RANGE);
     }
 }
