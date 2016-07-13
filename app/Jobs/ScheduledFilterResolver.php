@@ -46,6 +46,7 @@ class ScheduledFilterResolver extends Job implements ShouldQueue
         $columns = $scheduledFilterService->fieldName;
         foreach ($records as $record){
             foreach($columns as $key => $value){
+                echo "EMAIL ID {$record->email_id} Key {$key} Value {$value}";
                 $truthService->toggleFieldRecord($record->email_id,$key,$value);
             }
             $record->delete();
