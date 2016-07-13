@@ -58,7 +58,7 @@ class ServiceFactory
         $truth = new $truthRepo(new $truthModel());
         $schedule = new $scheduleRepo(new $scheduleModel());
         $assignment = new $assignmentRepo(new $assignmentModel(), new $historyModel());
-        $instance = new $emailClientInstanceRepo($emailClientInstanceModel());
+        $instance = new $emailClientInstanceRepo(new $emailClientInstanceModel());
 
         $service = "App\\Services\\AttributionService";
 

@@ -29,7 +29,7 @@ class AttributionService
         $this->clientInstanceRepo = $clientInstanceRepo;
     }   
 
-    protected function getTransientRecords() {
+    public function getTransientRecords() {
         return $this->truthRepo->getTransientRecords();
     }
 
@@ -49,7 +49,7 @@ class AttributionService
 
             foreach ($potentialReplacements as $repl) {
 
-                if ($this->shouldChangeAttribution($beginDate, $hasAction, $actionExpired, $currentAttrLevel $repl->level)) {
+                if ($this->shouldChangeAttribution($beginDate, $hasAction, $actionExpired, $currentAttrLevel, $repl->level)) {
                     $beginDate = $repl->capture_date;
                     $currentAttrLevel = (int)$repl->level;
                     $hasAction = (bool)($repl->capture_date > $actionDateTime);
@@ -83,11 +83,11 @@ class AttributionService
             // Older than pre-defined X days ago
             
             if ($hasAction && $actionExpired) {
-                return true
+                return true;
             }
             elseif (!$hasAction && $testAttrLevel < $currentAttrLevel) {
                 // "less than" here means "has a higher attribution level"
-                return true
+                return true;
             }
         }
 

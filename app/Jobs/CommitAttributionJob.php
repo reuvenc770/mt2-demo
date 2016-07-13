@@ -8,6 +8,8 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Jobs\Traits\PreventJobOverlapping;
 use App\Factories\ServiceFactory;
+use App\Facades\JobTracking;
+use App\Models\JobEntry;
 use Event;
 
 class CommitAttributionJob extends Job implements ShouldQueue
@@ -15,6 +17,7 @@ class CommitAttributionJob extends Job implements ShouldQueue
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
 
     private $jobName = 'AttributionJob';
+    private $tracking;
 
     /**
      * Create a new job instance.
@@ -22,7 +25,7 @@ class CommitAttributionJob extends Job implements ShouldQueue
      * @return void
      */
     public function __construct($tracking) {
-        //
+        $this->tracking = $tracking;
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 

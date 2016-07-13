@@ -4,9 +4,11 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Jobs\CommitAttributionJob;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class CommitAttribution extends Command
 {
+    use DispatchesJobs;
     /**
      * The name and signature of the console command.
      *
@@ -19,7 +21,7 @@ class CommitAttribution extends Command
      *
      * @var string
      */
-    protected $description = 'Run attribution based on the current selected model.';
+    protected $description = 'Run attribution based on the current model.';
 
     /**
      * Create a new command instance.

@@ -87,7 +87,7 @@ class EmailClientInstanceRepo {
     }
 
     public function getEmailInstancesAfterDate($emailId, $date, $clientId) {
-        $attrDb = config('database.connections.mysql.attribution.database');
+        $attrDb = config('database.connections.attribution.database');
 
         $union = DB::table('email_client_instances as eci')
                 ->select('client_id', 'level', 'capture_date')
@@ -97,7 +97,7 @@ class EmailClientInstanceRepo {
                 ->where('client_id', '<>', $clientId)
                 ->where('email_id', $emailId)
                 #->where('cf.level', 3)
-                ->orderBy('capture_date')
+                ->orderBy('capture_date');
 
         $reps = DB::table('email_client_instances as eci')
                 ->select('client_id', 'level', 'capture_date')
