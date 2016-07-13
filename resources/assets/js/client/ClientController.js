@@ -1,4 +1,4 @@
-mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location' , 'ClientApiService' , function ( $rootScope , $window , $location , ClientApiService ) {
+mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location' , 'ClientApiService', '$mdToast', function ( $rootScope , $window , $location , ClientApiService, $mdToast ) {
     var self = this;
 
     self.current = {
@@ -163,6 +163,12 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
         clientData.list_owner = self.current.list_owner.name;
         clientData.client_type = self.current.client_type.value;
         ClientApiService.updateClient( clientData , self.SuccessCallBackRedirectList , self.updateClientFailureCallback );
+    };
+
+    self.resetPassword = function() {
+        var clientData  = angular.copy( self.current );
+        ClientApiService.updatePassword( clientData , function(){ $mdToast.showSimple( 'Password Reset has been submitted' );} , self.updateClientFailureCallback );
+
     };
 
     self.saveClient = function () {

@@ -14,7 +14,7 @@ use App\Repositories\MT1Repositories\ClientRepo;
 use App\Services\API\MT1Api;
 
 use App\Services\ServiceTraits\PaginateMT1;
-
+use Artisan;
 use DB;
 use Log;
 
@@ -55,5 +55,17 @@ class ClientService implements IFtpAdmin
             ->select( 'username' )
             ->where( [ 'newClient' => 1 , 'ftp_user' => '' ] )
             ->get();
+    }
+
+    public function resetPassword($username){
+        Artisan::call('ftp:admin', [
+            '-H' => "52.205.67.250",
+            '-U' => 'root',
+            '-k' => '~/.ssh/mt2ftp.pub',
+            '-K' => '~/.ssh/mt2ftp',
+            '-u' => $username,
+            '-s' => "Client",
+            '-r' => true
+        ]);
     }
 }

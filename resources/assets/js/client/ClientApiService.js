@@ -6,6 +6,7 @@ mt2App.service( 'ClientApiService' , function ( $http , $log ) {
     self.baseMt1ApiUrl = '/api/mt1';
     self.attributionApiUrl = '/api/attribution';
     self.attributionListApiUrl = '/api/client/attribution/list';
+    self.resetPasswordUrl = '/api/client/updatepassword';
 
     self.getClient = function ( id , successCallback , failureCallback ) {
         $http( { "method" : "GET" , "url" : this.baseApiUrl + '/' + id } )
@@ -38,6 +39,13 @@ mt2App.service( 'ClientApiService' , function ( $http , $log ) {
             "url" : this.baseApiUrl + '/' + clientData.client_id ,
             "params" : { "_method" : "PUT" } ,
             "data" : clientData
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.updatePassword = function ( clientData , successCallback , failureCallback ) {
+        $http( {
+            "method" : "GET" ,
+            "url" : this.resetPasswordUrl + '/' + clientData.ftp_user
         } ).then( successCallback , failureCallback );
     };
 
