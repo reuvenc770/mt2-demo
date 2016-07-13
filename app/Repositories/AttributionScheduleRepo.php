@@ -23,7 +23,7 @@ class AttributionScheduleRepo {
             "INSERT INTO {$this->schedule->getTable()} (email_id, trigger_date)
             VALUES(:id, :trigger_date)
             ON DUPLICATE KEY UPDATE
-            email_id = email_id, trigger_date = trigger_date ",
+            email_id = email_id, trigger_date = VALUES(trigger_date)",
             array(
                 ':id' => $emailId,
                 ':trigger_date' => $date,
@@ -40,7 +40,7 @@ class AttributionScheduleRepo {
             VALUES
                         " . join(' , ', $chunk) . "
             ON DUPLICATE KEY UPDATE
-            email_id = email_id, trigger_date = trigger_date ");
+            email_id = email_id, trigger_date = VALUES(trigger_date), updated_at = VALUES(updated_at)");
         }
     }
 }

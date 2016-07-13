@@ -58,26 +58,21 @@ class ModifyReports extends Migration
     public function down()
     {
         Schema::table('blue_hornet_reports', function($table) {
-            $table->dropForeign('esp_account_id');
+            $table->dropForeign('blue_hornet_reports_esp_account_id_foreign');
             $table->dropColumn('esp_account_id');
             $table->string("account_name");
         });
 
         Schema::table('campaigner_reports', function($table) {
-            $table->dropForeign('esp_account_id');
+            $table->dropForeign('campaigner_reports_esp_account_id_foreign');
             $table->dropColumn('esp_account_id');
             $table->string("account_name");
         });
 
         Schema::table('email_direct_reports', function($table) {
-            $table->dropForeign('esp_account_id');
+            $table->dropForeign('email_direct_reports_esp_account_id_foreign');
             $table->dropColumn('esp_account_id');
             $table->string("account_name");
         });
-
-        Schema::table('email_direct_reports', function($table) {
-            $table->dropForeign('esp_account_id');
-        });
-
     }
 }

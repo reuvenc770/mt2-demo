@@ -65,8 +65,7 @@ class EmailRecordRepo {
 
                 if($currentRecord['recordType'] == AbstractReportService::RECORD_TYPE_OPENER
                     || $currentRecord['recordType'] == AbstractReportService::RECORD_TYPE_CLICKER){
-                    Log::info("The current ID is {$currentRecord}");
-                    $preppedData[] = $currentId;
+                    $preppedData[] = ["email_id" => $currentId, "datetime" => $currentRecord[ 'date' ]];
                 }
             } else {
                 $invalidRecord = "( " 

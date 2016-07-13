@@ -43,8 +43,12 @@ class ScheduledFilterResolver extends Job implements ShouldQueue
         $scheduledFilterService = ServiceFactory::createFilterService($this->filterName);
         $records = $scheduledFilterService->getRecordsByDate($this->date);
         $total = count($records);
+        $columns = $scheduledFilterService->fieldName;
         foreach ($records as $record){
-            $truthService->toggleFieldRecord($record->email_id,$scheduledFilterService->fieldName, $scheduledFilterService->boolValue);
+            foreach($columns as $key => $value){
+                echo "EMAIL ID {$record->email_id} Key {$key} Value {$value}";
+                $truthService->toggleFieldRecord($record->email_id,$key,$value);
+            }
             $record->delete();
         }
         JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking, $total);

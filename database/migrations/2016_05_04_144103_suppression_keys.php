@@ -27,7 +27,8 @@ class SuppressionKeys extends Migration
     {
         Schema::table('suppressions', function(Blueprint $table) {
             $table->dropIndex('suppressions_email_address_index');
-            $table->dropIndex(['suppressions_campaign_id_esp_account_id_email_address_index', 'created_at']);
+
+            $table->dropIndex('suppressions_campaign_id_esp_account_id_email_address_index');
         });
     }
 }
