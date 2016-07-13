@@ -162,7 +162,7 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
         var clientData = angular.copy( self.current );
         clientData.list_owner = self.current.list_owner.name;
         clientData.client_type = self.current.client_type.value;
-        ClientApiService.updateClient( clientData , self.SuccessCallBackRedirect , self.updateClientFailureCallback );
+        ClientApiService.updateClient( clientData , self.SuccessCallBackRedirectList , self.updateClientFailureCallback );
     };
 
     self.saveClient = function () {
@@ -226,6 +226,11 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
         $location.url( '/client/edit/'+ response.data.clientId );
         $window.location.href = '/client/edit/' + response.data.clientId;
     };
+    self.SuccessCallBackRedirectList = function ( response ) {
+        $location.url( '/client/';
+        $window.location.href = '/client/';
+    };
+
 
     self.loadClientFailureCallback = function ( response ) {
         self.setModalLabel( 'Error' );
