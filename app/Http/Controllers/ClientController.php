@@ -127,6 +127,7 @@ class ClientController extends Controller
     }
 
     public function resetClientPassword($username) {
-        return $this->clientApi->resetPassword($username);
+        $this->clientApi->resetPassword($username);
+        return response("true",200);
     }
 }
