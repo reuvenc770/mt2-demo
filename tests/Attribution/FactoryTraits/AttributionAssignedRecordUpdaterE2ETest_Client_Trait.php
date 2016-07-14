@@ -9,7 +9,7 @@ use Log;
 
 trait AttributionAssignedRecordUpdaterE2ETest_Client_Trait {
     public function setUpTestData () {
-        $client = factory( App\Models\Client::class )->create();
+        $client = factory( \App\Models\Client::class )->create();
 
         Log::info( $client );
     }
