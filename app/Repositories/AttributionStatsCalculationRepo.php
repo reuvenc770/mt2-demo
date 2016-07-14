@@ -15,40 +15,19 @@ class AttributionStatsCalculationRepo {
     
     public function __construct() {}
 
-    public function getAllOfficialDeployStats($date) {
-        // get official stats for a start date, grouped by deploy
+    public function getAllOfficialStats($date) {
         return DB::connection('attribution')->statement("SELECT
-            deploy_id,
-            SUM(delivered) AS delivered,
-            SUM(opens) AS opens,
-            SUM(clicks) AS clicks,
-            SUM(conversions) AS conversions,
-            SUM(bounces) AS bounces,
-            SUM(unsubs) AS unsubs,
-            SUM(rev) AS rev,
-            SUM(cost) AS cost,
-            ROUND(SUM(cost) / SUM(delivered), 3) AS ecpm
+            *
           FROM
             attribution_reports
           WHERE
-            date >= ?
-          GROUP BY
-            deploy_id", [$date])->get();
+            date >= ?", [$date])->get();
     }
 
-    public function getDeployOfficialStats($date, $deployId) {
+    public function getOfficialDeployStats($date, $deployId) {
         // get official stats for a particular deploy and start date
         return DB::connection('attribution')->statement("SELECT
-          deploy_id,
-          SUM(delivered) AS delivered,
-          SUM(opens) AS opens,
-          SUM(clicks) AS clicks,
-          SUM(conversions) AS conversions,
-          SUM(bounces) AS bounces,
-          SUM(unsubs) AS unsubs,
-          SUM(rev) AS rev,
-          SUM(cost) AS cost,
-          ROUND(SUM(cost) / SUM(delivered), 3) AS ecpm
+          *
         FROM
           attribution_reports
         WHERE
@@ -57,147 +36,10 @@ class AttributionStatsCalculationRepo {
           deploy_id = ?", [$date, $deployId])->get();
     }
 
-    public function getDeployModelStats($date, $deployId, $modelId) {
-        // get all stats for a particular model, date, and deploy
-
-        $modelTable = "attribution_transient_records_model_" . $modelId;
-        
-        return DB::connection('attribution')->statement("SELECT
-              aar.deploy_id,
-              SUM(aar.delivered) + SUM(m.delivered) AS delivered,
-              SUM(aar.opens) + SUM(m.opens) AS opens,
-              SUM(aar.clicks) + SUM(m.clicks) AS clicks,
-              SUM(aar.conversions) + SUM(m.conversions) AS conversions,
-              SUM(aar.bounces) + SUM(m.bounces) AS bounces,
-              SUM(aar.unsubs) + SUM(m.unsubs) AS unsubs,
-              SUM(aar.rev) + SUM(m.rev) AS rev,
-              SUM(aar.cost) + SUM(m.cost) AS cost,
-              ROUND( (SUM(aar.cost) + SUM(m.cost)) / (SUM(aar.delivered) + SUM(m.delivered)), 3) AS ecpm
-            FROM
-              (SELECT
-                  deploy_id,
-                  SUM(delivered) AS delivered,
-                  SUM(opens) AS opens,
-                  SUM(clicks) AS clicks,
-                  SUM(conversions) AS conversions,
-                  SUM(bounces) AS bounces,
-                  SUM(unsubs) AS unsubs,
-                  SUM(rev) AS rev,
-                  SUM(cost) AS cost,
-                  ROUND(SUM(cost) / SUM(delivered), 3) AS ecpm
-                FROM
-                  attribution_assigned_records
-                WHERE
-                  date >= ?
-                  AND
-                  deploy_id = ?) aar
-                LEFT JOIN (SELECT
-                  deploy_id,
-                  SUM(delivered) AS delivered,
-                  SUM(opens) AS opens,
-                  SUM(clicks) AS clicks,
-                  SUM(conversions) AS conversions,
-                  SUM(bounces) AS bounces,
-                  SUM(unsubs) AS unsubs,
-                  SUM(rev) AS rev,
-                  SUM(cost) AS cost,
-                  ROUND(SUM(cost) / SUM(delivered), 3) AS ecpm
-                FROM
-                  $modelTable
-                WHERE
-                  date >= ?
-                  AND
-                  deploy_id = ?) m ON aar.deploy_id = m.deploy_id", 
-            [$date, $deployId, $date, $deployId])->get();
-    }
-
-    public function getModelDeployStats($date, $modelId) {
-        // get all stats for a particular model and start date, grouped by deploy
-
-        $modelTable = "attribution_transient_records_model_" . $modelId;
-
-        return DB::connection('attribution')->statement("SELECT
-              aar.deploy_id,
-              SUM(aar.delivered) + SUM(m.delivered) AS delivered,
-              SUM(aar.opens) + SUM(m.opens) AS opens,
-              SUM(aar.clicks) + SUM(m.clicks) AS clicks,
-              SUM(aar.conversions) + SUM(m.conversions) AS conversions,
-              SUM(aar.bounces) + SUM(m.bounces) AS bounces,
-              SUM(aar.unsubs) + SUM(m.unsubs) AS unsubs,
-              SUM(aar.rev) + SUM(m.rev) AS rev,
-              SUM(aar.cost) + SUM(m.cost) AS cost,
-              ROUND( (SUM(aar.cost) + SUM(m.cost)) / (SUM(aar.delivered) + SUM(m.delivered)), 3) AS ecpm
-            FROM
-              (SELECT
-                  deploy_id,
-                  SUM(delivered) AS delivered,
-                  SUM(opens) AS opens,
-                  SUM(clicks) AS clicks,
-                  SUM(conversions) AS conversions,
-                  SUM(bounces) AS bounces,
-                  SUM(unsubs) AS unsubs,
-                  SUM(rev) AS rev,
-                  SUM(cost) AS cost,
-                  ROUND(SUM(cost) / SUM(delivered), 3) AS ecpm
-                FROM
-                  attribution_assigned_records
-                WHERE
-                  date >= ?
-                GROUP BY
-                  deploy_id) aar
-                LEFT JOIN (SELECT
-                  deploy_id,
-                  SUM(delivered) AS delivered,
-                  SUM(opens) AS opens,
-                  SUM(clicks) AS clicks,
-                  SUM(conversions) AS conversions,
-                  SUM(bounces) AS bounces,
-                  SUM(unsubs) AS unsubs,
-                  SUM(rev) AS rev,
-                  SUM(cost) AS cost,
-                  ROUND(SUM(cost) / SUM(delivered), 3) AS ecpm
-                FROM
-                  $modelTable
-                WHERE
-                  date >= ?
-                GROUP BY
-                  deploy_id) m ON aar.deploy_id = m.deploy_id", [$date, $date])->get();
-    }
-
-    public function getAllOfficialFeedStats($date) {
-        // get official stats for a start date, grouped by feed
-        return DB::connection('attribution')->statement("SELECT
-            client_id,
-            SUM(delivered) AS delivered,
-            SUM(opens) AS opens,
-            SUM(clicks) AS clicks,
-            SUM(conversions) AS conversions,
-            SUM(bounces) AS bounces,
-            SUM(unsubs) AS unsubs,
-            SUM(rev) AS rev,
-            SUM(cost) AS cost,
-            ROUND(SUM(cost) / SUM(delivered), 3) AS ecpm
-          FROM
-            attribution_reports
-          WHERE
-            date >= ?
-          GROUP BY
-            client_id", [$date])->get();
-    }
-
-    public function getFeedOfficialStats($date, $feedId) {
+    public function getOfficialFeedStats($date, $feedId) {
         // get official stats for a particular feed and start date
         return DB::connection('attribution')->statement("SELECT
-          client_id,
-          SUM(delivered) AS delivered,
-          SUM(opens) AS opens,
-          SUM(clicks) AS clicks,
-          SUM(conversions) AS conversions,
-          SUM(bounces) AS bounces,
-          SUM(unsubs) AS unsubs,
-          SUM(rev) AS rev,
-          SUM(cost) AS cost,
-          ROUND(SUM(cost) / SUM(delivered), 3) AS ecpm
+            *
         FROM
           attribution_reports
         WHERE
@@ -206,107 +48,169 @@ class AttributionStatsCalculationRepo {
           client_id = ?", [$date, $feedId])->get();
     }
 
-    public function getFeedModelStats($date, $feedId, $modelId) {
-        // get all stats for a particular model, date, and feed
+    public function getOfficialDeployFeedStats($date, $deployId, $feedId) {
+        // get official stats for a particular feed, deploy, and start date
+        return DB::connection('attribution')->statement("SELECT
+            *
+        FROM
+          attribution_reports
+        WHERE
+          date >= ?
+          AND
+          client_id = ?
+          AND
+          deploy_id = ?", [$date, $feedId, $deployId])->get();
+    }
+
+    public function getModelFeedStats($date, $modelId, $feedId){
+        // Get model stats for a particular feed
+
+        $modelTable = "attribution_transient_records_model_" . $modelId;
+
+        return DB::connection('attribution')->statement("SELECT
+              aar.deploy_id,
+              aar.client_id,
+              aar.delivered + m.delivered AS delivered,
+              aar.opens + m.opens AS opens,
+              aar.clicks + m.clicks AS clicks,
+              aar.conversions + m.conversions AS conversions,
+              aar.bounces + m.bounces AS bounces,
+              aar.unsubs + m.unsubs AS unsubs,
+              aar.rev + m.rev AS rev,
+              aar.cost + m.cost AS cost,
+              ROUND( (aar.cost + m.cost) / (aar.delivered + m.delivered) * 1000, 3) AS ecpm
+            FROM
+              (SELECT
+                  *
+                FROM
+                  attribution_assigned_records
+                WHERE
+                  date >= ?
+                  AND
+                  client_id = ?) aar
+
+                LEFT JOIN (SELECT
+                  *
+                FROM
+                  $modelTable
+                WHERE
+                  date >= ?
+                  AND
+                  client_id = ?) m ON aar.deploy_id = m.deploy_id AND aar.client_id = m.client_id", 
+            [$date, $feedId, $date, $feedId])->get();
+    }    
+
+    public function getModelDeployFeedStats($date, $modelId, $deployId, $feedId){
+        // get models stats for a particular feed and deploy
+
+        $modelTable = "attribution_transient_records_model_" . $modelId;
+
+        return DB::connection('attribution')->statement("SELECT
+              aar.deploy_id,
+              aar.client_id,
+              aar.delivered + m.delivered AS delivered,
+              aar.opens + m.opens AS opens,
+              aar.clicks + m.clicks AS clicks,
+              aar.conversions + m.conversions AS conversions,
+              aar.bounces + m.bounces AS bounces,
+              aar.unsubs + m.unsubs AS unsubs,
+              aar.rev + m.rev AS rev,
+              aar.cost + m.cost AS cost,
+              ROUND( (aar.cost + m.cost) / (aar.delivered + m.delivered) * 1000, 3) AS ecpm
+            FROM
+              (SELECT
+                  *
+                FROM
+                  attribution_assigned_records
+                WHERE
+                  date >= ?
+                  AND
+                  deploy_id = ?
+                  AND
+                  client_id = ?) aar
+                LEFT JOIN (SELECT
+                  *
+                FROM
+                  $modelTable
+                WHERE
+                  date >= ?
+                  AND
+                  deploy_id = ?
+                  AND
+                  client_id = ?) m ON aar.deploy_id = m.deploy_id AND aar.client_id = m.client_id", 
+            [$date, $deployId, $feedId, $date, $deployId, $feedId])->get();
+
+    }
+
+    public function getModelDeployStats($date, $modelId, $deployId) {
+        // get all stats for a particular model, date, and deploy
+
         $modelTable = "attribution_transient_records_model_" . $modelId;
         
         return DB::connection('attribution')->statement("SELECT
-              aar.feed_id,
-              SUM(aar.delivered) + SUM(m.delivered) AS delivered,
-              SUM(aar.opens) + SUM(m.opens) AS opens,
-              SUM(aar.clicks) + SUM(m.clicks) AS clicks,
-              SUM(aar.conversions) + SUM(m.conversions) AS conversions,
-              SUM(aar.bounces) + SUM(m.bounces) AS bounces,
-              SUM(aar.unsubs) + SUM(m.unsubs) AS unsubs,
-              SUM(aar.rev) + SUM(m.rev) AS rev,
-              SUM(aar.cost) + SUM(m.cost) AS cost,
-              ROUND( (SUM(aar.cost) + SUM(m.cost)) / (SUM(aar.delivered) + SUM(m.delivered)), 3) AS ecpm
+              aar.deploy_id,
+              aar.client_id,
+              aar.delivered + m.delivered AS delivered,
+              aar.opens + m.opens AS opens,
+              aar.clicks + m.clicks AS clicks,
+              aar.conversions + m.conversions AS conversions,
+              aar.bounces + m.bounces AS bounces,
+              aar.unsubs + m.unsubs AS unsubs,
+              aar.rev + m.rev AS rev,
+              aar.cost + m.cost AS cost,
+              ROUND( (aar.cost + m.cost) / (aar.delivered + m.delivered) * 1000, 3) AS ecpm
             FROM
               (SELECT
-                  feed_id,
-                  SUM(delivered) AS delivered,
-                  SUM(opens) AS opens,
-                  SUM(clicks) AS clicks,
-                  SUM(conversions) AS conversions,
-                  SUM(bounces) AS bounces,
-                  SUM(unsubs) AS unsubs,
-                  SUM(rev) AS rev,
-                  SUM(cost) AS cost,
-                  ROUND(SUM(cost) / SUM(delivered), 3) AS ecpm
+                  *
                 FROM
                   attribution_assigned_records
                 WHERE
                   date >= ?
                   AND
-                  feed_id = ?) aar
+                  deploy_id = ?) aar
                 LEFT JOIN (SELECT
-                  feed_id,
-                  SUM(delivered) AS delivered,
-                  SUM(opens) AS opens,
-                  SUM(clicks) AS clicks,
-                  SUM(conversions) AS conversions,
-                  SUM(bounces) AS bounces,
-                  SUM(unsubs) AS unsubs,
-                  SUM(rev) AS rev,
-                  SUM(cost) AS cost,
-                  ROUND(SUM(cost) / SUM(delivered), 3) AS ecpm
+                  *
                 FROM
                   $modelTable
                 WHERE
                   date >= ?
                   AND
-                  client_id = ?) m ON aar.feed_id = m.feed_id" [$date, $feedId, $date, $feedId])->get();
+                  deploy_id = ?) m ON aar.deploy_id = m.deploy_id AND aar.client_id = m.client_id", 
+            [$date, $deployId, $date, $deployId])->get();
     }
 
-    public function getModelFeedStats($date, $modelId) {
-        // get all stats for a particular model and start date, grouped by feed
+    public function getModelStats($date, $modelId) {
+        // get all stats for a particular model and start date
+
         $modelTable = "attribution_transient_records_model_" . $modelId;
 
         return DB::connection('attribution')->statement("SELECT
+              aar.deploy_id,
               aar.client_id,
-              SUM(aar.delivered) + SUM(m.delivered) AS delivered,
-              SUM(aar.opens) + SUM(m.opens) AS opens,
-              SUM(aar.clicks) + SUM(m.clicks) AS clicks,
-              SUM(aar.conversions) + SUM(m.conversions) AS conversions,
-              SUM(aar.bounces) + SUM(m.bounces) AS bounces,
-              SUM(aar.unsubs) + SUM(m.unsubs) AS unsubs,
-              SUM(aar.rev) + SUM(m.rev) AS rev,
-              SUM(aar.cost) + SUM(m.cost) AS cost,
-              ROUND( (SUM(aar.cost) + SUM(m.cost)) / (SUM(aar.delivered) + SUM(m.delivered)), 3) AS ecpm
+              aar.delivered + m.delivered AS delivered,
+              aar.opens + m.opens AS opens,
+              aar.clicks + m.clicks AS clicks,
+              aar.conversions + m.conversions AS conversions,
+              aar.bounces + m.bounces AS bounces,
+              aar.unsubs + m.unsubs AS unsubs,
+              aar.rev + m.rev AS rev,
+              aar.cost + m.cost AS cost,
+              ROUND( (aar.cost + m.cost) / (aar.delivered + m.delivered) * 1000, 3) AS ecpm
             FROM
               (SELECT
-                  client_id,
-                  SUM(delivered) AS delivered,
-                  SUM(opens) AS opens,
-                  SUM(clicks) AS clicks,
-                  SUM(conversions) AS conversions,
-                  SUM(bounces) AS bounces,
-                  SUM(unsubs) AS unsubs,
-                  SUM(rev) AS rev,
-                  SUM(cost) AS cost,
-                  ROUND(SUM(cost) / SUM(delivered), 3) AS ecpm
+                  *
                 FROM
                   attribution_assigned_records
                 WHERE
-                  date >= ?
-                GROUP BY
-                  client_id) aar
+                  date >= ?) aar
+
                 LEFT JOIN (SELECT
-                  client_id,
-                  SUM(delivered) AS delivered,
-                  SUM(opens) AS opens,
-                  SUM(clicks) AS clicks,
-                  SUM(conversions) AS conversions,
-                  SUM(bounces) AS bounces,
-                  SUM(unsubs) AS unsubs,
-                  SUM(rev) AS rev,
-                  SUM(cost) AS cost,
-                  ROUND(SUM(cost) / SUM(delivered), 3) AS ecpm
+                  *
                 FROM
                   $modelTable
                 WHERE
-                  date >= ?
-                GROUP BY
-                  client_id) m ON aar.client_id = m.client_id", [$date, $date])->get();
+                  date >= ?) m ON aar.deploy_id = m.deploy_id AND aar.client_id = m.client_id", 
+            [$date, $date])->get();
     }
+
 }

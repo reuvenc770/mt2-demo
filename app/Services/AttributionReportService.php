@@ -14,74 +14,57 @@ class AttributionReportService {
     }
 
     /**
-     *  Function getDeployStats
-     *  Get numbers for specified deploys and models by date range
+     *  Function getStatsStats
+     *  Get numbers for specified data
      *  @param Array $params
-     *  $params has the fields 'date', 'deployId', 'modelId'
+     *  $params has the fields 
+     *  Required:'date'
+     *  Optional: 'deployId', 'modelId', 'feedId'
      *  @return Laravel Collection
      */
 
-    public function getDeployStats($params) {
+    public function getStats($params) {
 
-        if (! isset($params['date']) {
+        if (!isset($params['date'])) {
             throw new Exception('Attribution model requires a start date');
         }
 
         $date = $params['date'];
         $deployId = isset($params['deployId']) ? (int)$params['deployId'] : null;
         $modelId = isset($params['modelId']) ? (int)$params['modelId'] : null;
-
-        if (!$deployId && !$modelId) {
-            // no deploy or model specified - get live stats grouped by deploy
-            return $this->statsRepo->getAllOfficialDeployStats($date);
-        }
-        elseif ($deployId && !$modelId) {
-            // deploy but no model - get live stats for a deploy
-            return $this->statsRepo->getDeployOfficialStats($date, $deployId);
-        }
-        elseif (!$deployId && $modelId) {
-            // no deploy but a model - get model data for all deploys
-            return $this->statsRepo->getModelDeployStats($date, $modelId);
-        }
-        elseif ($deployId && $modelId) {
-            // deploy and model - get model stats for a deploy
-            return $this->statsRepo->getDeployModelStats($date, $deployId, $modelId);
-        }
-    }
-
-    /**
-     *  Function getFeedStats
-     *  Get numbers for specified deploys and models by date range
-     *  @param Array $params
-     *  $params has the fields 'date', 'feedId', 'modelId'
-     *  @return Laravel Collection
-     */
-
-    public function getFeedStats($params) {
-
-        if (! isset($params['date']) {
-            throw new Exception('Attribution model requires a start date');
-        }
-
-        $date = $params['date'];
         $feedId = isset($params['feedId']) ? (int)$params['feedId'] : null;
-        $modelId = isset($params['modelId']) ? (int)$params['modelId'] : null;
 
-        if (!$feedId && !$modelId) {
-            // no feed or model specified - get live stats grouped by feed
-            return $this->statsRepo->getAllOfficialFeedStats($date);
+        if (!$deployId && !$modelId && !$feedId) {
+            // no deploy, model, or feed specified - get all current stats
+            return $this->statsRepo->getAllOfficialStats($date);
         }
-        elseif ($feedId && !$modelId) {
-            // feed but no model - get live stats for a feed
-            return $this->statsRepo->getFeedOfficialStats($date, $feedId);
+        elseif ($deployId && !$modelId && !$feedId) {
+            // deploy set but no model specified - get live stats for this deploy
+            return $this->statsRepo->getOfficialDeployStats($date, $deployId);
         }
-        elseif (!$feedId && $modelId) {
-            // no feed but a model - get model data for all feeds
-            return $this->statsRepo->getModelFeedStats($date, $modelId);
+        elseif (!$deployId && $modelId && !$feedId) {
+            // no deploy or feed but a model specified - get model data for date range
+            return $this->statsRepo->getModelStats($date, $modelId);
         }
-        elseif ($feedId && $modelId) {
-            // feed and model - get model stats for a feed
-            return $this->statsRepo->getFeedModelStats($date, $feedId, $modelId);
+        elseif ($deployId && $modelId && !$feedId) {
+            // deploy and model, but no feed specified - get model data for this deploy
+            return $this->statsRepo->getModelDeployStats($date, $modelId, $deployId);
+        }
+        elseif (!$deployId && !$modelId && $feedId) {
+            // feed, but no deploy or model specified - get all official data for this feed 
+            return $this->statsRepo->getOfficialFeedStats($date, $feedId);
+        }
+        elseif ($deployId && !$modelId && $feedId) {
+            // deploy and feed, but no model specified - get all official data for this deploy and feed
+            return $this->statsRepo->getOfficialDeployFeedStats($date, $deployId, $feedId);
+        }
+        elseif (!$deployId && $modelId && $feedId) {
+            // feed but no deploy or model - get all model stats for a particular feed
+            return $this->statsRepo->getModelFeedStats($date, $modelId, $deployId, $feedId);
+        }
+        elseif ($deployId && $modelId && $feedId) {
+            // deploy, model, and feed specified - get model data for this particular combination
+            return $this->statsRepo->getModelDeployFeedStats($date, $modelId, $deployId, $feedId);
         }
 
     }
