@@ -126,4 +126,5 @@ return [
     'api.mt1.esps.index' => 'Retrieve List of ESPs from MT1' ,
     'api.mt1.esps.show' => 'Retrieve ESP Information from MT1' ,
     'api.attachment.upload' => 'Upload Attachments' ,
+    'api.client.updatepassword' => "Reset a Clients Password",
 ];

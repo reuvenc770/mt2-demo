@@ -447,6 +447,11 @@ Route::group(
             'uses' => 'DataExportController@message'
         ]);
 
+        Route::get('/client/updatepassword/{username}', [
+            'as' => 'api.client.updatepassword' ,
+            'uses' => 'ClientController@resetClientPassword'
+        ] );
+
         /**
          * Client Group API Routes
          */

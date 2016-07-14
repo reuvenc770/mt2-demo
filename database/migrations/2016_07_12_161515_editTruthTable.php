@@ -29,7 +29,6 @@ class EditTruthTable extends Migration
     {
         Schema::connection( 'attribution' )->table('attribution_record_truths', function (Blueprint $table) {
             $table->index( 'recent_import' );
-            $table->index( 'has_action' );
             $table->dropIndex("recent_action_expire");
             $table->dropColumn("action_expired");
         });

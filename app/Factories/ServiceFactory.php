@@ -31,12 +31,37 @@ class ServiceFactory
         $casedName = ucfirst($modelName);
         $formattedName = "App\\Models\\Attribution{$casedName}Schedule";
 
-            if (class_exists($formattedName)) {
-                $repo  = new App\Repositories\AttributionScheduleRepo(new $formattedName);
-                return new App\Services\ScheduledFilterService($repo, $modelName);
-            }
-            else {
-                throw new \Exception("That Service does not exist");
-            }
+        if (class_exists($formattedName)) {
+            $repo  = new App\Repositories\AttributionScheduleRepo(new $formattedName);
+            return new App\Services\ScheduledFilterService($repo, $modelName);
+        }
+        else {
+            throw new \Exception("That Service does not exist");
+        }
+    }
+
+
+    public static function createAttributionService() {
+        $truthModel = "App\\Models\\AttributionRecordTruth";
+        $truthRepo = "App\\Repositories\\AttributionRecordTruthRepo";
+
+        $scheduleModel = "App\\Models\\AttributionExpirationSchedule";
+        $scheduleRepo = "App\\Repositories\\AttributionScheduleRepo";
+
+        $assignmentModel = "App\\Models\\EmailClientAssignment";
+        $historyModel = "App\\Models\\EmailClientAssignmentHistory";
+        $assignmentRepo = "App\\Repositories\\EmailClientAssignmentRepo";
+
+        $emailClientInstanceModel = "App\\Models\\EmailClientInstance";
+        $emailClientInstanceRepo = "App\\Repositories\\EmailClientInstanceRepo";
+
+        $truth = new $truthRepo(new $truthModel());
+        $schedule = new $scheduleRepo(new $scheduleModel());
+        $assignment = new $assignmentRepo(new $assignmentModel(), new $historyModel());
+        $instance = new $emailClientInstanceRepo(new $emailClientInstanceModel());
+
+        $service = "App\\Services\\AttributionService";
+
+        return new $service($truth, $schedule, $assignment, $instance);
     }
 }
