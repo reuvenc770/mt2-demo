@@ -125,25 +125,8 @@ class ClientController extends Controller
     {
         return response( 'Unauthorized' , 401 );
     }
-    
-    public function attribution () {
-        return response()->view( 'pages.client_attribution' );
-    }
 
-    public function getAttributionList ( Request $request ) {
-        $clients = $this->attributionApi->getClientList( $request->input( 'page' ) , $request->input( 'count' ) );
-
-        return response( $clients );
-    }
-
-    public function setAttribution ( $id , Request $request ) {
-        return response( $this->attributionApi->setAttribution(
-            $id ,
-            $request->input( 'level' )
-        ) );
-    }
-
-    public function deleteAttribution ( $id ) {
-        return response( $this->attributionApi->deleteAttribution( $id ) );
+    public function resetClientPassword($username) {
+        return $this->clientApi->resetPassword($username);
     }
 }

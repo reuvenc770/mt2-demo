@@ -18,6 +18,7 @@
         <div class="col-xs-12 col-md-6">
             <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disable' : client.updatingClient }" ng-click="client.updateClient( $event )"><span class="glyphicon glyphicon-repeat" ng-class="{ 'rotateMe' : client.updatingClient }"></span> Update</button>
             <button type="button" class="btn btn-info btn-md pull-right" ng-class="{ 'disable' : client.generatingLinks }" ng-click="client.generateLinks()"><span class="glyphicon glyphicon-link" ng-class="{ 'rotateMe' : client.generatingLinks }"></span> Generate Links</button>
+            <button type="button" class="btn btn-danger btn-md pull-right"  ng-click="client.resetPassword()"><span class="glyphicon glyphicon-cog" ng-class="{ 'rotateMe' : client.generatingLinks }"></span> Reset FTP Password</button>
 
             <div class="clearfix"></div>
 
