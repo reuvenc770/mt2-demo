@@ -174,7 +174,7 @@ class FtpAdmin extends Command
 
     protected function resetPassword () {
         $this->setPasswordCommand();
-        $this->ftp_url = "ftp://52.205.67.250";
+        $this->ftpUrl = "ftp://52.205.67.250";
         $this->saveUserAndPassword();
         Slack::to( self::SLACK_TARGET_SUBJECT )->send(
             $this->option( 'service' ) . " FTP User Password Reset."
