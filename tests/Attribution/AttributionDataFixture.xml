@@ -1,0 +1,33 @@
+<?xml version="1.0">
+<dataset>
+    <table name="clients">
+    </table>
+
+    <table name="emails">
+
+    </table>
+
+    <table name="email_client_assignments">
+
+    </table>
+
+    <table name="email_client_assignment_model_1">
+
+    </table>
+
+    <table name="email_actions">
+
+    </table>
+
+    <table name="attribution_record_truths">
+
+    </table>
+
+    <table name="attribution_levels">
+
+    </table>
+
+    <table name="attribution_levels_model_1">
+
+    </table>
+</dataset>
