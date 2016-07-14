@@ -128,6 +128,6 @@ class ClientController extends Controller
 
     public function resetClientPassword($username) {
         $this->clientApi->resetPassword($username);
-        return response("true",200);
+        return response()->json( [ 'status' => true ] );
     }
 }

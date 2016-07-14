@@ -58,7 +58,7 @@ class ClientService implements IFtpAdmin
     }
 
     public function resetPassword($username){
-        Artisan::call('ftp:admin', [
+        Artisan::queue('ftp:admin', [
             '-H' => "52.205.67.250",
             '-U' => 'root',
             '-k' => '~/.ssh/mt2ftp.pub',
@@ -67,5 +67,6 @@ class ClientService implements IFtpAdmin
             '-s' => "Client",
             '-r' => true
         ]);
+        return true;
     }
 }
