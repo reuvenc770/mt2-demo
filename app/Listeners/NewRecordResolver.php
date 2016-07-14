@@ -35,8 +35,8 @@ class NewRecordResolver implements ShouldQueue
     public function handle(NewRecords $event)
     {
         $this->scheduledFilterService =  ServiceFactory::createFilterService("expiration");
-            $this->truthTableService->insertBulkRecords($event->getEmails());
-            $this->scheduledFilterService->insertScheduleFilterBulk($event->getEmails(), 10);
+        $this->truthTableService->insertBulkRecords($event->getEmails());
+        $this->scheduledFilterService->insertScheduleFilterBulk($event->getEmails(), 10);
 
     }
 }

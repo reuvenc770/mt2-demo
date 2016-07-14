@@ -49,6 +49,7 @@ class Kernel extends ConsoleKernel
         Commands\Generator\EspSeedCommand::class,
         Commands\FilterJobQueue::class,
         Commands\RunScheduledFilter::class,
+        Commands\CommitAttribution::class,
     ];
 
     /**

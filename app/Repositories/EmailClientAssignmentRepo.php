@@ -17,14 +17,18 @@ class EmailClientAssignmentRepo {
         $this->history = $history;
     }
 
-    public function assignClient ( $emailId , $clientId ) {
-        #find current assignment
-        
-        #if exists record the swap and update
-        #else create new assignment
+    public function assignClient ( $emailId , $clientId , $captureDate ) {
+        $this->assignment->updateOrCreate(['email_id' => $email_id], [
+            'client_id' => $clientId,
+            'capture_date' => $captureDate
+        ]);
     }
 
     protected function recordSwap ( $emailId , $prevClientId , $newClientId ) {
-        #save inputs to table
+        $this->history->create([
+            'email_id' => $emailId,
+            'prev_client_id' => $prevClientId,
+            'new_client_id' => $newClientId
+        ]);
     }
 }
