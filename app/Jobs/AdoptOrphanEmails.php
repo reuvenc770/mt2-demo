@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use App\Services\AbstractReportService;
+use App\Services\AttributionRecordTruthService;
 use Log;
 use App\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
@@ -9,7 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Carbon\Carbon;
 use DB;
-
+use App\Factories\ServiceFactory;
 use App\Models\JobEntry;
 use App\Models\Email;
 use App\Models\EmailClientInstance;
@@ -47,7 +49,7 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle() {
+    public function handle(AttributionRecordTruthService $truthService) {
 
         JobTracking::startEspJob( 'Orphan Adoption: ' . $this->firstId . '-' . $this->lastId , null , null , $this->tracking );
         $attempts = 0;
@@ -55,7 +57,7 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
 
         $inserts = [];
         $deleteIds = [];
-
+        $actionsRecords = [];
         foreach ($this->orphans as $orphan) {
             $orphan = OrphanEmail::find( $orphan->id );
             $currentEmailId = 0;
@@ -73,13 +75,12 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
                 }
 
                 if ( $emailRecordCount > 0 && $deployId > 0) {
-                    $currentEmailId = Email::select( 'id' )->where( 'email_address' , $orphan->email_address )->pluck( 'id' )->first();
+                    $currentEmailId = Email::select('id')->where('email_address', $orphan->email_address)->pluck('id')->first();
 
-                    $clientRecordCount = EmailClientInstance::where( 'email_id' , $currentEmailId )->count();
-                    if ( $clientRecordCount > 0 ) {
-                        $currentClientId = EmailClientInstance::select( 'client_id' )->where( 'email_id' , $currentEmailId )->pluck( 'client_id' )->first();
-                    }
-                    else {
+                    $clientRecordCount = EmailClientInstance::where('email_id', $currentEmailId)->count();
+                    if ($clientRecordCount > 0) {
+                        $currentClientId = EmailClientInstance::select('client_id')->where('email_id', $currentEmailId)->pluck('client_id')->first();
+                    } else {
                         $currentClientId = 0;
                     }
 
@@ -89,14 +90,27 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
                         '{$orphan->esp_internal_id}', 
                         '{$orphan->action_id}', 
                         '{$orphan->datetime}', NOW(), NOW())";
-                    $inserts[]= $value;
+                    $inserts[] = $value;
 
                     $deleteIds[] = $orphan->id;
                     $processed++;
+
+                    if ($orphan->action_id == AbstractReportService::RECORD_TYPE_CLICKER ||
+                        $orphan->action_id == AbstractReportService::RECORD_TYPE_OPENER) {
+                            $actionsRecords[] = ["email_id" =>$currentEmailId, "datetime" => $orphan->datetime];
+                    }
                 } 
                 else {
                     $failedToProcess = true;
                     $attempts++;
+                }
+
+
+                if($currentClientId > 0 && $emailRecordCount > 0){
+                    if ($orphan->action_id == AbstractReportService::RECORD_TYPE_CLICKER ||
+                        $orphan->action_id == AbstractReportService::RECORD_TYPE_OPENER) {
+                        $actionsRecords[] = ["email_id" =>$currentEmailId, "datetime" => $orphan->datetime];
+                    }
                 }
             }
 
@@ -125,6 +139,12 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
                         created_at = created_at ,
                         updated_at = NOW()" 
                 );
+
+                if(count($actionsRecords) > 0) {
+                    $scheduledFilterService = ServiceFactory::createFilterService("activity");
+                    $truthService->bulkToggleFieldRecord($actionsRecords, $scheduledFilterService->fieldName, true);
+                    $scheduledFilterService->insertScheduleFilterBulk($actionsRecords, 90);
+                }
 
                 DB::table('orphan_emails')
                     ->whereIn('id', $deleteIds)
