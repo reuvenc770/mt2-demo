@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
+use App\Models\AttributionReport;
 
 /**
  *  Repository to handle the various models
@@ -13,19 +14,21 @@ use Illuminate\Database\Query\Builder;
 
 class AttributionStatsCalculationRepo {
     
-    public function __construct() {}
+    private $attributionReport;
+
+    public function __construct(AttributionReport $attributionReport) {
+        $this->attributionReport = $attributionReport;
+    }
 
     public function getAllOfficialStats($date) {
-        return DB::connection('attribution')
-                    ->table('attribution_reports')
+        return $this->attributionReport
                     ->where('date', '>=', $date)
                     ->get();
     }
 
     public function getOfficialDeployStats($date, $deployId) {
         // get official stats for a particular deploy and start date
-        return DB::connection('attribution')
-                    ->table('attribution_reports')
+        return $this->attributionReport
                     ->where('date', '>=', $date)
                     ->where('deploy_id', $deployId)
                     ->get();
@@ -33,8 +36,7 @@ class AttributionStatsCalculationRepo {
 
     public function getOfficialFeedStats($date, $feedId) {
         // get official stats for a particular feed and start date
-        return DB::connection('attribution')
-                    ->table('attribution_reports')
+        return $this->attributionReport
                     ->where('date', '>=', $date)
                     ->where('client_id', $feedId)
                     ->get();
@@ -42,8 +44,7 @@ class AttributionStatsCalculationRepo {
 
     public function getOfficialDeployFeedStats($date, $deployId, $feedId) {
         // get official stats for a particular feed, deploy, and start date
-        return DB::connection('attribution')
-                    ->table('attribution_reports')
+        return $this->attributionReport
                     ->where('date', '>=', $date)
                     ->where('client_id', $feedId)
                     ->where('deploy_id', $deployId)
