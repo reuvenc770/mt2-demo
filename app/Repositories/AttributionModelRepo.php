@@ -28,8 +28,6 @@ class AttributionModelRepo {
     public function create ( $name , $levels = null , $templateModelId = null ) {
         $response = [ "status" => false ];
 
-        Log::info( $levels );
-
         #creates new AttributionModel record.
         $newModel = new AttributionModel();
         $newModel->name = $name;
@@ -42,8 +40,6 @@ class AttributionModelRepo {
 
         if ( !is_null( $levels ) ) {
             foreach ( $levels as $currentLevel ) {
-                Log::info( $currentLevel );
-
                 $tempLevelModel = new AttributionLevel( AttributionLevel::BASE_TABLE_NAME . $newModel->id );
                 $tempLevelModel->client_id = $currentLevel[ 'id' ];
                 $tempLevelModel->level = $currentLevel[ 'level' ];
