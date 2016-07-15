@@ -104,6 +104,14 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
                     $failedToProcess = true;
                     $attempts++;
                 }
+
+
+                if($currentClientId > 0 && $emailRecordCount > 0){
+                    if ($orphan->action_id == AbstractReportService::RECORD_TYPE_CLICKER ||
+                        $orphan->action_id == AbstractReportService::RECORD_TYPE_OPENER) {
+                        $actionsRecords[] = ["email_id" =>$currentEmailId, "datetime" => $orphan->datetime];
+                    }
+                }
             }
 
             if ( $failedToProcess ) {
