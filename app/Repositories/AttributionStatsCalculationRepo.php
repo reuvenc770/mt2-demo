@@ -16,50 +16,38 @@ class AttributionStatsCalculationRepo {
     public function __construct() {}
 
     public function getAllOfficialStats($date) {
-        return DB::connection('attribution')->statement("SELECT
-            *
-          FROM
-            attribution_reports
-          WHERE
-            date >= ?", [$date])->get();
+        return DB::connection('attribution')
+                    ->table('attribution_reports')
+                    ->where('date', '>=', $date)
+                    ->get();
     }
 
     public function getOfficialDeployStats($date, $deployId) {
         // get official stats for a particular deploy and start date
-        return DB::connection('attribution')->statement("SELECT
-          *
-        FROM
-          attribution_reports
-        WHERE
-          date >= ?
-          AND
-          deploy_id = ?", [$date, $deployId])->get();
+        return DB::connection('attribution')
+                    ->table('attribution_reports')
+                    ->where('date', '>=', $date)
+                    ->where('deploy_id', $deployId)
+                    ->get();
     }
 
     public function getOfficialFeedStats($date, $feedId) {
         // get official stats for a particular feed and start date
-        return DB::connection('attribution')->statement("SELECT
-            *
-        FROM
-          attribution_reports
-        WHERE
-          date >= ?
-          AND
-          client_id = ?", [$date, $feedId])->get();
+        return DB::connection('attribution')
+                    ->table('attribution_reports')
+                    ->where('date', '>=', $date)
+                    ->where('client_id', $feedId)
+                    ->get();
     }
 
     public function getOfficialDeployFeedStats($date, $deployId, $feedId) {
         // get official stats for a particular feed, deploy, and start date
-        return DB::connection('attribution')->statement("SELECT
-            *
-        FROM
-          attribution_reports
-        WHERE
-          date >= ?
-          AND
-          client_id = ?
-          AND
-          deploy_id = ?", [$date, $feedId, $deployId])->get();
+        return DB::connection('attribution')
+                    ->table('attribution_reports')
+                    ->where('date', '>=', $date)
+                    ->where('client_id', $feedId)
+                    ->where('deploy_id', $deployId)
+                    ->get();
     }
 
     public function getModelFeedStats($date, $modelId, $feedId){
