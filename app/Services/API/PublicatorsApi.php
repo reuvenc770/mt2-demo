@@ -29,6 +29,7 @@ class PublicatorsApi extends EspBaseAPI {
     const API_BOUNCES_STATS = "/api/Reports/GetReportAllBouncedMailsByCampaignID";
     const API_UNSUBSCRIBED_STATS = "/api/Reports/GetReportAllUnsubscribedMailsByCampaignID";
     const API_UNSUBSCRIBED_DATERANGE_STATS = "/api/Reports/GetReportAllUnsubscribedMailsByTrackingDateRange";
+    const API_CHANGE_RECIPIENTS_STATUS = "/api/Recipients/ChangeRecipientsPermission";
 
     const TYPE_AUTH = 'auth';
     const TYPE_LIST_CAMPAIGNS = 'listCampaigns';
@@ -39,6 +40,7 @@ class PublicatorsApi extends EspBaseAPI {
     const TYPE_BOUNCES_STATS = 'bouncesStats';
     const TYPE_UNSUBSCRIBED_STATS = 'unsubscribedStats';
     const TYPE_UNSUBSCRIBED_DATERANGE_STATS = "unsubscribedDateRangeStats";
+    const TYPE_UPDATE_UNSUBS = 'exportUnsubscribes';
 
     const DATE_FORMAT = "Y/m/d H:i";
     const FULL_DATE_FORMAT = "Y/m/d H:i:s";
@@ -46,6 +48,7 @@ class PublicatorsApi extends EspBaseAPI {
     const CACHE_TAG = "publicators";
     const CACHE_KEY = "API_TOKEN";
     const CACHE_TIMEOUT = 4; #in mins
+    const PUBLICATORS_REMOVAL_PERMISSION = 3;
 
     protected $username;
     protected $password;
@@ -64,7 +67,8 @@ class PublicatorsApi extends EspBaseAPI {
         PublicatorsApi::TYPE_CLICKS_STATS => PublicatorsApi::API_CLICKS_STATS ,
         PublicatorsApi::TYPE_BOUNCES_STATS => PublicatorsApi::API_BOUNCES_STATS ,
         PublicatorsApi::TYPE_UNSUBSCRIBED_STATS => PublicatorsApi::API_UNSUBSCRIBED_STATS ,
-        PublicatorsApi::TYPE_UNSUBSCRIBED_DATERANGE_STATS => PublicatorsApi::API_UNSUBSCRIBED_DATERANGE_STATS
+        PublicatorsApi::TYPE_UNSUBSCRIBED_DATERANGE_STATS => PublicatorsApi::API_UNSUBSCRIBED_DATERANGE_STATS,
+        PublicatorsApi::TYPE_UPDATE_UNSUBS => PublicatorsApi::API_CHANGE_RECIPIENTS_STATUS,
     ];
 
     protected $defaultRequestOptions = [
@@ -182,6 +186,24 @@ class PublicatorsApi extends EspBaseAPI {
         }
     }
 
+    public function setToUnsubscribed($emails) {
+        if ( !$this->isAuthenticated() ) {
+            $this->authenticate();
+        }
+
+        $this->emails = $emails;
+
+        $this->setCallType(self::TYPE_UPDATE_UNSUBS);
+        echo "Calling unsubs for {$this->getEspAccountId()}" . PHP_EOL;
+        $response = $this->sendApiRequest();
+
+        $responseBody = json_decode( $response->getBody() );
+        $responseBody = '';
+        if ( is_null( $responseBody ) ) {
+            throw new \Exception( "Failed to parse unsub response. '{$responseBody}'" );
+        }
+    }
+
     public function sendApiRequest () {
         if ( is_null( $this->callType ) ) {
             throw new \Exception( "Call type not defined." );
@@ -266,6 +288,14 @@ class PublicatorsApi extends EspBaseAPI {
                     "FromDate" => Carbon::parse( $this->date )->startOfDay()->format( self::FULL_DATE_FORMAT ) ,
                     "ToDate" => Carbon::now()->endOfDay()->format( self::FULL_DATE_FORMAT )
                 ] )
+            ];
+        } elseif ('exportUnsubscribes' == $this->callType) {
+            return [
+                "body" => json_encode([
+                    "Auth" => [ "Token" => $this->token ],
+                    "Emails" => [$this->emails],
+                    "RecipientPermission" => self::PUBLICATORS_REMOVAL_PERMISSION
+                ])
             ];
         } else {
             return $this->defaultRequestOptions + [
