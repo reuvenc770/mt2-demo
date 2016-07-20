@@ -41,11 +41,15 @@ class PublicatorsSubscriberService {
 
     protected function exportUnsubs() {
         $accounts = $this->accountRepo->getAccountsByESPName('Publicators');
+        $segmentedEmails = array_chunk($this->emails, 1500);
 
         foreach ($accounts as $account) {
             if ($account->id != $this->api->getEspAccountId()) {
                 $exportApi = new PublicatorsApi($account->id);
-                $exportApi->setToUnsubscribed($this->emails);
+
+                foreach ($segmentedEmails as $segment) {
+                    $exportApi->setToUnsubscribed($segment);
+                }
             }
         }
 
