@@ -174,6 +174,75 @@ Route::group(
     }
 );
 
+/** DBA Routes */
+Route::group(
+    [
+        'prefix' => 'dba' ,
+        'middleware' => [ 'auth' , 'admin' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' , [
+            'as' => 'dba.list' ,
+            'uses' => 'DoingBusinessAsController@listAll'
+        ] );
+
+        Route::get( '/create' , [
+            'as' => 'dba.add' ,
+            'uses' => 'DoingBusinessAsController@create'
+        ] );
+
+        Route::get( '/edit/{id}' , [
+            'as' => 'dba.edit' ,
+            'uses' => 'DoingBusinessAsController@edit'
+        ] );
+    }
+);
+/** Proxy Routes */
+Route::group(
+    [
+        'prefix' => 'user' ,
+        'middleware' => [ 'auth' , 'admin' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' , [
+            'as' => 'user.list' ,
+            'uses' => 'UserApiController@listAll'
+        ] );
+
+        Route::get( '/create' , [
+            'as' => 'user.add' ,
+            'uses' => 'UserApiController@create'
+        ] );
+
+        Route::get( '/edit/{id}' , [
+            'as' => 'user.edit' ,
+            'uses' => 'UserApiController@edit'
+        ] );
+    }
+);
+/** Registar */
+Route::group(
+    [
+        'prefix' => 'user' ,
+        'middleware' => [ 'auth' , 'admin' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' , [
+            'as' => 'user.list' ,
+            'uses' => 'UserApiController@listAll'
+        ] );
+
+        Route::get( '/create' , [
+            'as' => 'user.add' ,
+            'uses' => 'UserApiController@create'
+        ] );
+
+        Route::get( '/edit/{id}' , [
+            'as' => 'user.edit' ,
+            'uses' => 'UserApiController@edit'
+        ] );
+    }
+);
 
 /**
  * User Routes
@@ -661,20 +730,38 @@ Route::group(
                 'as' => 'api.attribution.bulk' ,
                 'uses' => 'AttributionController@bulk'
             ]
-	);
-	Route::resource(
+	    );
+	    Route::resource(
             'dataexport', 
             'DataExportController', 
             [
                 'except' => ['create', 'edit'], 
                 'middleware' =>['auth']
             ]
-        );
+            );
 
         Route::resource(
             'isp' ,
             'IspController' ,
             [ 'only' => [ 'index' ] ]
+        );
+
+        Route::resource(
+            'proxy',
+            'ProxyController' ,
+            [ 'except' => [ 'create' , 'edit' ] ]
+        );
+
+        Route::resource(
+            'registrar',
+            'RegistrarController',
+            [ 'except' => ['create', 'edit']]
+        );
+
+        Route::resource(
+            'dba',
+            'DoingBusinessAsController',
+            [ 'except' => ['create', 'edit']]
         );
 
         /**

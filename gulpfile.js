@@ -91,6 +91,13 @@ elixir.extend( 'deployUserJs' , function ( mix ) {
     ] , 'public/js/user.js' );
 } );
 
+elixir.extend( 'deployDBAJs' , function ( mix ) {
+    mix.scripts( [
+        'dba/DBAController.js' ,
+        'dba/DBAApiService.js'
+    ] , 'public/js/dba.js' );
+} );
+
 elixir.extend( 'deployRoleJs' , function ( mix ) {
     mix.scripts( [
         'role/RoleController.js' ,
@@ -209,6 +216,7 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployWizardJs( mix );
     mix.deployYmlpCampaignJs( mix );
     mix.deployClientJs( mix );
+    mix.deployDBAJs( mix );
     mix.deployClientGroupJs( mix );
     mix.deployListProfileJs( mix );
     mix.deployBulkSuppressionJs( mix );
