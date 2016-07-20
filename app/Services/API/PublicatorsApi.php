@@ -290,7 +290,7 @@ class PublicatorsApi extends EspBaseAPI {
                 ] )
             ];
         } elseif ('exportUnsubscribes' == $this->callType) {
-            return [
+            return $this->defaultRequestOptions + [
                 "body" => json_encode([
                     "Auth" => [ "Token" => $this->token ],
                     "Emails" => [$this->emails],
