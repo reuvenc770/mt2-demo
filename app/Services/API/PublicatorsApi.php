@@ -293,7 +293,7 @@ class PublicatorsApi extends EspBaseAPI {
             return $this->defaultRequestOptions + [
                 "body" => json_encode([
                     "Auth" => [ "Token" => $this->token ],
-                    "Emails" => [$this->emails],
+                    "Emails" => $this->emails,
                     "RecipientPermission" => self::PUBLICATORS_REMOVAL_PERMISSION
                 ])
             ];
