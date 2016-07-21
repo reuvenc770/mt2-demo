@@ -92,7 +92,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('export emailsForOpensClicks Publicators PUB007 --lookback=15')->dailyAt(self::REPORT_TIME);
 
         $schedule->command( 'suppression:sendToMT1 3' )->dailyAt( self::REPORT_TIME )->sendOutputTo( $unsubFilePath );
-        $schedule->command('suppression:exportPublicators 1')->cron('* */4 * * *');
+        $schedule->command('suppression:exportPublicators 1')->cron('10 */4 * * *');
         
         /**
          * Campaign Data Daily
