@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRegistarsTable extends Migration
+class CreateRegistrarTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,9 +12,10 @@ class CreateRegistarsTable extends Migration
      */
     public function up()
     {
-        Schema::create('registars', function (Blueprint $table) {
+        Schema::create('registrars', function (Blueprint $table) {
             $table->increments('id');
-            $table->timestamps();
+            $table->string("name",100);
+            $table->string("username");
         });
     }
 

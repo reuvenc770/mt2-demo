@@ -10,7 +10,7 @@ namespace App\Services;
 
 
 use App\Repositories\RegistrarRepo;
-
+use Log;
 class RegistrarService
 {
 
