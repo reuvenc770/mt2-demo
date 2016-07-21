@@ -63,4 +63,8 @@ class ScheduledFilterService
     public function getFields() {
         return array_keys($this->fields);
     }
+
+    public function getDefaultFieldValue($field) {
+        return $this->fields[$field];
+    }
 }

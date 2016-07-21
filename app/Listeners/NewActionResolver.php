@@ -33,7 +33,7 @@ class NewActionResolver implements ShouldQueue
     {
         $this->scheduledFilterService = ServiceFactory::createFilterService("activity");
         foreach ($this->scheduledFilterService->getFields() as $field) {
-            $this->truthTableService->bulkToggleFieldRecord($event->getEmails(), $field, true);
+            $this->truthTableService->bulkToggleFieldRecord($event->getEmails(), $field, $this->scheduledFilterService->getDefaultFieldValue($field));
         }
         
         $this->scheduledFilterService->insertScheduleFilterBulk($event->getEmails(), 90);
