@@ -36,13 +36,11 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
      * Click Handlers
      */
     self.viewAdd = function () {
-        console.log("wtf");
         $location.url( self.createUrl );
         $window.location.href = self.createUrl;
     };
 
     self.saveNewAccount = function () {
-        console.log("wtf");
         self.resetFieldErrors();
 
         ProxyApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback );
