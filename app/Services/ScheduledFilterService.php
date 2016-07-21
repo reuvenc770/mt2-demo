@@ -15,12 +15,12 @@ use Log;
 class ScheduledFilterService
 {
     private $scheduleRepo;
-    public $fieldName;
+    protected $fieldName;
     public $boolValue;
     public function __construct(AttributionScheduleRepo $attributionScheduleRepo, $filterName)
     {
         $this->scheduleRepo = $attributionScheduleRepo;
-        $this->fieldName = config( 'scheduledfilters.' . $filterName . '.column' );
+        $this->fields = config( 'scheduledfilters.' . $filterName . '.column' );
         $this->boolValue = config( 'scheduledfilters.' . $filterName . '.value' );
     }
 
@@ -58,5 +58,9 @@ class ScheduledFilterService
             $class = get_class($this->scheduleRepo);
             Log::error("Scheduled Filter Service failed to insert records Bulk for {$class}: {$e->getMessage()} ");
         }
+    }
+
+    public function getFields() {
+        return array_keys($this->fields);
     }
 }
