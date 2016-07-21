@@ -33,17 +33,18 @@ class SharePublicatorsUnsubsJob extends Job implements ShouldQueue {
 
             $accounts = $accountRepo->getAccountsByESPName($this->espName);
             $emails = $suppressionService->espSuppressionsForDateRange($this->espId, $this->lookback)->toArray();
-            $emails = array_map([$this, 'return_email_address'], $emails);            
+            $emails = array_map([$this, 'returnEmailAddress'], $emails);            
             $segmentedEmails = array_chunk($emails, 1500);
 
             foreach ($accounts as $account) {
                 echo "for {$account->id}" . PHP_EOL;
                 $subscriberService = APIFactory::createApiSubscriptionService($this->espName, $account->id);
-                $listId = $accountRepo->getPublicatorsSuppressionListId($account->id);
-
+                $result = $accountRepo->getPublicatorsSuppressionListId($account->id);
+                $listId = $result->suppression_list_id;
+                
                 foreach ($segmentedEmails as $segment) {
-                    if (in_array('phanfantj11@gmail.com', $segment)) {
-                        echo "phanfantj11@gmail.com sent out to {$account->id}" . PHP_EOL;
+                    if (in_array('ednayalid@yahoo.com', $segment)) {
+                        echo "ednayalid@yahoo.com sent out to {$account->id}" . PHP_EOL;
                     }
 
                     // shouldn't break these out into jobs to prevent multiple
@@ -51,6 +52,7 @@ class SharePublicatorsUnsubsJob extends Job implements ShouldQueue {
                     $subscriberService->uploadEmails($segment, $listId);
                     $subscriberService->exportUnsubs($segment);
                 }
+                
             }
 
             JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
@@ -65,7 +67,7 @@ class SharePublicatorsUnsubsJob extends Job implements ShouldQueue {
         JobTracking::changeJobState(JobEntry::FAILED,$this->tracking);
     }
 
-    protected function return_email_address($item) {
+    protected function returnEmailAddress($item) {
         return $item['email_address'];
     }
 

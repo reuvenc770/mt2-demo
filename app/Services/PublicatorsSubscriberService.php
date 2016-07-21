@@ -33,11 +33,10 @@ class PublicatorsSubscriberService {
     }
 
     public function uploadEmails($emails, $listId) {
-        $this->api->uploadEmails($emails, $listId);
+        $result = $this->api->uploadEmails($emails, $listId);
     }
 
     public function exportUnsubs($emails) {
         $result = $this->api->setToUnsubscribed($emails);
-        var_dump($result);
     }
 } 

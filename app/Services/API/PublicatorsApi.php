@@ -30,7 +30,7 @@ class PublicatorsApi extends EspBaseAPI {
     const API_UNSUBSCRIBED_STATS = "/api/Reports/GetReportAllUnsubscribedMailsByCampaignID";
     const API_UNSUBSCRIBED_DATERANGE_STATS = "/api/Reports/GetReportAllUnsubscribedMailsByTrackingDateRange";
     const API_CHANGE_RECIPIENTS_STATUS = "/api/Recipients/ChangeRecipientsPermission";
-    const API_IMPORT_EMAILS = 'api/Recipients/ImportsRecipients';
+    const API_IMPORT_EMAILS = '/api/Recipients/ImportsRecipients';
 
     const TYPE_AUTH = 'auth';
     const TYPE_LIST_CAMPAIGNS = 'listCampaigns';
@@ -50,7 +50,8 @@ class PublicatorsApi extends EspBaseAPI {
     const CACHE_TAG = "publicators";
     const CACHE_KEY = "API_TOKEN";
     const CACHE_TIMEOUT = 4; #in mins
-    const PUBLICATORS_UNSUB_PERMISSION = 2;
+    const PUBLICATORS_UNSUB_PERMISSION = 3;
+    const DEFAULT_IMPORT_PERMISSION = 2;
 
     protected $username;
     protected $password;
@@ -214,7 +215,7 @@ class PublicatorsApi extends EspBaseAPI {
 
         $this->listId = $listId;
 
-        $this->emails = array_map($emails, [$this, 'transformForImporting'];
+        $this->emails = array_map([$this, 'transformForImporting'], $emails);
         $this->setCallType(self::TYPE_IMPORT_EMAILS);
         $response = $this->sendApiRequest();
 
@@ -316,18 +317,19 @@ class PublicatorsApi extends EspBaseAPI {
                 "body" => json_encode([
                     "Auth" => [ "Token" => $this->token ],
                     "Emails" => $this->emails,
-                    "RecipientPermission" => self::PUBLICATORS_UNSUB_PERMISSION,
-                    "ListId" => $this->listId
+                    "RecipientPermission" => self::PUBLICATORS_UNSUB_PERMISSION
                 ])
             ];
         } elseif ('importEmails' === $this->callType) {
             return $this->defaultRequestOptions + [
                 "body" => json_encode([
-                    "RecipientFieldsNameToBeImported" => [],
+                    "Auth" => [ "Token" => $this->token ],
+                    "RecipientFieldsNameToBeImported" => ['user_email'],
                     "Recipients" => $this->emails,
-                    "StatusPermissionOnlyForNewRecipients" => self::PUBLICATORS_UNSUB_PERMISSION
+                    "ListId" => $this->listId,
+                    "StatusPermissionOnlyForNewRecipients" => self::DEFAULT_IMPORT_PERMISSION
                 ])
-            ]
+            ];
              
         } else {
             return $this->defaultRequestOptions + [
