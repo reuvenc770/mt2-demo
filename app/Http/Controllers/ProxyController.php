@@ -6,7 +6,8 @@ use App\Services\ProxyService;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
-
+use Laracasts\Flash\Flash;
+use Log;
 class ProxyController extends Controller
 {
     protected $proxyService;
@@ -16,6 +17,12 @@ class ProxyController extends Controller
         $this->proxyService = $proxyService;
     }
 
+    public function listAll()
+    {
+        return response()
+            ->view('pages.proxy.proxy-index');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -23,7 +30,18 @@ class ProxyController extends Controller
      */
     public function index()
     {
-        //
+        $proxys = $this->proxyService->getAll();
+        $return = array();
+        foreach ($proxys as $proxy) {
+            $return[] = array(
+                $proxy->id,
+                $proxy->name,
+                $proxy->ip_address,
+                $proxy->provider_name
+
+            );
+        }
+        return response()->json($return);
     }
 
     /**
@@ -33,7 +51,7 @@ class ProxyController extends Controller
      */
     public function create()
     {
-        //
+        return view('pages.proxy.proxy-add');
     }
 
     /**
@@ -44,42 +62,48 @@ class ProxyController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        Flash::success("Proxy was Successfully Created");
+        $request = $this->proxyService->insertRow($request->all());
+        return response()->json( [ 'status' => $request ] );
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified ESP Account.
      *
-     * @param  int  $id
+     * @param  int  $id The ESP Account ID to lookup.
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-        //
+        return $this->proxyService->getProxy( $id );
+
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing the specified ESP Account.
      *
-     * @param  int  $id
+     * @param  int  $id The ESP Account ID to edit.
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit( )
     {
-        //
+        return response()
+            ->view( 'pages.proxy.proxy-edit');
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \App\Http\Requests\EspApiEditRequest  $request
+     * @param  int  $id The ESP Account ID being updated.
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
-        //
+        $this->proxyService->updateAccount( $id , $request->toArray() );
+        Flash::success("Proxy Account was Successfully Updated");
     }
+
 
     /**
      * Remove the specified resource from storage.

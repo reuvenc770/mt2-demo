@@ -20,4 +20,23 @@ class RegistrarRepo
         $this->registrars = $registrar;
     }
 
+    public function insertRow($data){
+        return $this->registrars->insert($data);
+    }
+
+    public function getAll(){
+        return $this->registrars->all();
+    }
+
+    public function fetch($id){
+        return $this->registrars->find($id);
+    }
+
+    public function updateAccount ( $id , $accountData ) {
+        return $this->registrars->where( 'id' , $id )->update( [
+            'name' => $accountData[ 'name' ] ,
+            'state_id' => $accountData[ 'state_id' ] ,
+        ] );
+    }
+
 }

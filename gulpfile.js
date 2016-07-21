@@ -98,6 +98,14 @@ elixir.extend( 'deployDBAJs' , function ( mix ) {
     ] , 'public/js/dba.js' );
 } );
 
+elixir.extend( 'deployProxyJs' , function ( mix ) {
+    mix.scripts( [
+        'proxy/ProxyController.js' ,
+        'proxy/ProxyApiService.js'
+    ] , 'public/js/proxy.js' );
+} );
+
+
 elixir.extend( 'deployRoleJs' , function ( mix ) {
     mix.scripts( [
         'role/RoleController.js' ,
@@ -224,6 +232,7 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployClientAttributionJs( mix );
     mix.deployDataExportJs(mix);
     mix.deployDataCleanseJs(mix);
+    mix.deployProxyJs(mix);
     mix.deployRecordAttributionJs(mix)
 } );
 

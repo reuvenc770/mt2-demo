@@ -14,7 +14,9 @@ class CreateProxiesTable extends Migration
     {
         Schema::create('proxies', function (Blueprint $table) {
             $table->increments('id');
-            $table->timestamps();
+            $table->string("name",100);
+            $table->string("ip_address", 19);
+            $table->string("provider_name", 100);
         });
     }
 
