@@ -15,7 +15,7 @@ use Log;
 class ScheduledFilterService
 {
     private $scheduleRepo;
-    protected $fieldName;
+    protected $fields;
     public $boolValue;
     public function __construct(AttributionScheduleRepo $attributionScheduleRepo, $filterName)
     {
