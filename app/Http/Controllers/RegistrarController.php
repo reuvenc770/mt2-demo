@@ -59,7 +59,7 @@ class RegistrarController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Requests\AddRegistrarRequest $request)
     {
         Flash::success("Registrar was Successfully Created");
         $request = $this->registrarService->insertRow($request->all());
@@ -97,7 +97,7 @@ class RegistrarController extends Controller
      * @param  int  $id The ESP Account ID being updated.
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Requests\EditRegistrarRequest $request, $id)
     {
         $this->registrarService->updateAccount( $id , $request->toArray() );
         Flash::success("Registrar Account was Successfully Updated");
