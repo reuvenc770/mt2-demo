@@ -30,6 +30,7 @@ class PublicatorsApi extends EspBaseAPI {
     const API_UNSUBSCRIBED_STATS = "/api/Reports/GetReportAllUnsubscribedMailsByCampaignID";
     const API_UNSUBSCRIBED_DATERANGE_STATS = "/api/Reports/GetReportAllUnsubscribedMailsByTrackingDateRange";
     const API_CHANGE_RECIPIENTS_STATUS = "/api/Recipients/ChangeRecipientsPermission";
+    const API_IMPORT_EMAILS = 'api/Recipients/ImportsRecipients';
 
     const TYPE_AUTH = 'auth';
     const TYPE_LIST_CAMPAIGNS = 'listCampaigns';
@@ -41,6 +42,7 @@ class PublicatorsApi extends EspBaseAPI {
     const TYPE_UNSUBSCRIBED_STATS = 'unsubscribedStats';
     const TYPE_UNSUBSCRIBED_DATERANGE_STATS = "unsubscribedDateRangeStats";
     const TYPE_UPDATE_UNSUBS = 'exportUnsubscribes';
+    const TYPE_IMPORT_EMAILS = 'importEmails';
 
     const DATE_FORMAT = "Y/m/d H:i";
     const FULL_DATE_FORMAT = "Y/m/d H:i:s";
@@ -48,7 +50,7 @@ class PublicatorsApi extends EspBaseAPI {
     const CACHE_TAG = "publicators";
     const CACHE_KEY = "API_TOKEN";
     const CACHE_TIMEOUT = 4; #in mins
-    const PUBLICATORS_REMOVAL_PERMISSION = 3;
+    const PUBLICATORS_UNSUB_PERMISSION = 2;
 
     protected $username;
     protected $password;
@@ -69,6 +71,7 @@ class PublicatorsApi extends EspBaseAPI {
         PublicatorsApi::TYPE_UNSUBSCRIBED_STATS => PublicatorsApi::API_UNSUBSCRIBED_STATS ,
         PublicatorsApi::TYPE_UNSUBSCRIBED_DATERANGE_STATS => PublicatorsApi::API_UNSUBSCRIBED_DATERANGE_STATS,
         PublicatorsApi::TYPE_UPDATE_UNSUBS => PublicatorsApi::API_CHANGE_RECIPIENTS_STATUS,
+        PublicatorsApi::TYPE_IMPORT_EMAILS => PublicatorsApi::API_IMPORT_EMAILS,
     ];
 
     protected $defaultRequestOptions = [
@@ -194,14 +197,31 @@ class PublicatorsApi extends EspBaseAPI {
         $this->emails = $emails;
 
         $this->setCallType(self::TYPE_UPDATE_UNSUBS);
-        echo "Calling unsubs for {$this->getEspAccountId()}" . PHP_EOL;
         $response = $this->sendApiRequest();
 
         $responseBody = json_decode( $response->getBody() );
-        $responseBody = '';
         if ( is_null( $responseBody ) ) {
             throw new \Exception( "Failed to parse unsub response. '{$responseBody}'" );
         }
+
+        return $responseBody;
+    }
+
+    public function uploadEmails($emails) {
+        if ( !$this->isAuthenticated() ) {
+            $this->authenticate();
+        }
+
+        $this->emails = array_map($emails, [$this, 'transformForImporting'];
+        $this->setCallType(self::TYPE_IMPORT_EMAILS);
+        $response = $this->sendApiRequest();
+
+        $responseBody = json_decode( $response->getBody() );
+        if ( is_null( $responseBody ) ) {
+            throw new \Exception( "Failed to parse unsub response. '{$responseBody}'" );
+        }
+
+        return $responseBody;
     }
 
     public function sendApiRequest () {
@@ -294,9 +314,19 @@ class PublicatorsApi extends EspBaseAPI {
                 "body" => json_encode([
                     "Auth" => [ "Token" => $this->token ],
                     "Emails" => $this->emails,
-                    "RecipientPermission" => self::PUBLICATORS_REMOVAL_PERMISSION
+                    "RecipientPermission" => self::PUBLICATORS_UNSUB_PERMISSION,
+                    "ListId" => 1 ??
                 ])
             ];
+        } elseif ('importEmails' === $this->callType) {
+            return $this->defaultRequestOptions + [
+                "body" => json_encode([
+                    "RecipientFieldsNameToBeImported" => [],
+                    "Recipients" => $this->emails,
+                    "StatusPermissionOnlyForNewRecipients" => self::PUBLICATORS_UNSUB_PERMISSION
+                ])
+            ]
+             
         } else {
             return $this->defaultRequestOptions + [
                 "body" => $this->getStatsRequestBody()
@@ -337,5 +367,11 @@ class PublicatorsApi extends EspBaseAPI {
         echo $output;
 
         return $output;
+    }
+
+    protected function transformForImporting($item) {
+        return [
+            "user_email" => $item,
+        ];
     }
 }

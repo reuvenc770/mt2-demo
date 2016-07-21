@@ -50,6 +50,7 @@ class Kernel extends ConsoleKernel
         Commands\FilterJobQueue::class,
         Commands\RunScheduledFilter::class,
         Commands\CommitAttribution::class,
+        Commands\SharePublicatorsUnsubs::class,
     ];
 
     /**

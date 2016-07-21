@@ -10,6 +10,7 @@ namespace App\Repositories;
 
 use App\Models\Suppression;
 use App\Models\SuppressionReason;
+use DB;
 
 class SuppressionRepo
 {
@@ -80,6 +81,15 @@ class SuppressionRepo
 
     public function getAllSinceDate($date){
         return $this->suppressionModel->select('email_address')->where('date','>=',$date)->get();
+    }
+
+    public function espSuppressionsForDateRange($espId, $lookback) {
+        return $this->suppressionModel
+                    ->select('email_address')
+                    ->join('esp_accounts as eac', 'suppressions.esp_account_id', '=', 'eac.id')
+                    ->where('eac.esp_id', $espId)
+                    ->where('suppressions.created_at', '>=', DB::raw("CURDATE() - INTERVAL $lookback DAY"))
+                    ->get();
     }
 
     public function getUnsubId() {

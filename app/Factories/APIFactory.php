@@ -72,18 +72,12 @@ class APIFactory
         if( in_array( $apiName , [
             "BlueHornet" ,
             "EmailDirect" ,
-            "Campaigner"
+            "Campaigner",
+            "Publicators"
         ] ) ) {
             $api = "App\\Services\\API\\{$apiName}Api";
             $service = "App\\Services\\{$apiName}SubscriberService";
             return new $service(new $api($espAccountId));
-        } elseif ("Publicators" === $apiName) {
-            $api = "App\\Services\\API\\{$apiName}Api";
-            $service = "App\\Services\\{$apiName}SubscriberService";
-            $espAccount = "App\\Models\\EspAccount";
-            $espAccountRepo = "App\\Repositories\\EspApiAccountRepo";
-
-            return new $service(new $api($espAccountId), new $espAccountRepo(new $espAccount));
         } else {
             return self::createApiReportService($apiName, $espAccountId);
         }
