@@ -20,4 +20,24 @@ class RegistrarService
     {
         $this->registrar = $registrarRepo;
     }
+    public function insertRow($request){
+        try {
+            return $this->registrar->insertRow($request);
+        } catch(\Exception $e){
+            Log::error($e->getMessage());
+            return false;
+        }
+    }
+
+    public function getAll(){
+        return $this->registrar->getAll();
+    }
+
+    public function getRegistrar($id){
+        return $this->registrar->fetch($id);
+    }
+
+    public function updateAccount($id, $accountData){
+        return $this->registrar->updateAccount( $id , $accountData );
+    }
 }
