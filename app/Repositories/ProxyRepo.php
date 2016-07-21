@@ -19,4 +19,20 @@ class ProxyRepo
         $this->proxy = $proxy;
     }
 
+    public function insertRow($data){
+        return $this->proxy->insert($data);
+    }
+
+    public function getAll(){
+        return $this->proxy->all();
+    }
+
+    public function fetch($id){
+        return $this->proxy->find($id);
+    }
+
+    public function updateAccount ( $id , $accountData ) {
+        return $this->proxy->where( 'id' , $id )->update($accountData);
+    }
+
 }

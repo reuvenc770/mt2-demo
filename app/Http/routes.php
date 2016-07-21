@@ -200,46 +200,46 @@ Route::group(
 /** Proxy Routes */
 Route::group(
     [
-        'prefix' => 'user' ,
+        'prefix' => 'proxy' ,
         'middleware' => [ 'auth' , 'admin' , 'pageLevel' ]
     ] ,
     function () {
         Route::get( '/' , [
-            'as' => 'user.list' ,
-            'uses' => 'UserApiController@listAll'
+            'as' => 'proxy.list' ,
+            'uses' => 'ProxyController@listAll'
         ] );
 
         Route::get( '/create' , [
-            'as' => 'user.add' ,
-            'uses' => 'UserApiController@create'
+            'as' => 'proxy.add' ,
+            'uses' => 'ProxyController@create'
         ] );
 
         Route::get( '/edit/{id}' , [
-            'as' => 'user.edit' ,
-            'uses' => 'UserApiController@edit'
+            'as' => 'proxy.edit' ,
+            'uses' => 'ProxyController@edit'
         ] );
     }
 );
 /** Registar */
 Route::group(
     [
-        'prefix' => 'user' ,
+        'prefix' => 'registrar' ,
         'middleware' => [ 'auth' , 'admin' , 'pageLevel' ]
     ] ,
     function () {
         Route::get( '/' , [
-            'as' => 'user.list' ,
-            'uses' => 'UserApiController@listAll'
+            'as' => 'registrar.list' ,
+            'uses' => 'RegistrarController@listAll'
         ] );
 
         Route::get( '/create' , [
-            'as' => 'user.add' ,
-            'uses' => 'UserApiController@create'
+            'as' => 'registrar.add' ,
+            'uses' => 'RegistrarController@create'
         ] );
 
         Route::get( '/edit/{id}' , [
-            'as' => 'user.edit' ,
-            'uses' => 'UserApiController@edit'
+            'as' => 'registrar.edit' ,
+            'uses' => 'RegistrarController@edit'
         ] );
     }
 );
