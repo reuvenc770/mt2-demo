@@ -32,7 +32,7 @@ class NewActionResolver implements ShouldQueue
     public function handle(NewActions $event)
     {
         $this->scheduledFilterService = ServiceFactory::createFilterService("activity");
-        foreach ($this->scheduledFilterService->getFields as $field) {
+        foreach ($this->scheduledFilterService->getFields() as $field) {
             $this->truthTableService->bulkToggleFieldRecord($event->getEmails(), $field, true);
         }
         
