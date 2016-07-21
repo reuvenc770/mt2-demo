@@ -33,10 +33,7 @@ class RegistrarRepo
     }
 
     public function updateAccount ( $id , $accountData ) {
-        return $this->registrars->where( 'id' , $id )->update( [
-            'name' => $accountData[ 'name' ] ,
-            'state_id' => $accountData[ 'state_id' ] ,
-        ] );
+        return $this->registrars->where( 'id' , $id )->update($accountData);
     }
 
 }

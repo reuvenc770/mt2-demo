@@ -20,7 +20,7 @@ class RegistrarController extends Controller
     public function listAll()
     {
         return response()
-            ->view('pages.dba.dba-index');
+            ->view('pages.registrar.registrar-index');
     }
 
     /**
@@ -30,13 +30,13 @@ class RegistrarController extends Controller
      */
     public function index()
     {
-        $dbas = $this->registrarService->getAll();
+        $registrars = $this->registrarService->getAll();
         $return = array();
-        foreach ($dbas as $dba) {
+        foreach ($registrars as $registrar) {
             $return[] = array(
-                $dba->id,
-                $dba->name,
-                $dba->state_id
+                $registrar->id,
+                $registrar->name,
+                $registrar->username
 
             );
         }
@@ -50,7 +50,7 @@ class RegistrarController extends Controller
      */
     public function create()
     {
-        return view('pages.dba.dba-add');
+        return view('pages.registrar.registrar-add');
     }
 
     /**
@@ -61,7 +61,7 @@ class RegistrarController extends Controller
      */
     public function store(Request $request)
     {
-        Flash::success("DBA was Successfully Created");
+        Flash::success("Registrar was Successfully Created");
         $request = $this->registrarService->insertRow($request->all());
         return response()->json( [ 'status' => $request ] );
     }
@@ -87,7 +87,7 @@ class RegistrarController extends Controller
     public function edit( )
     {
         return response()
-            ->view( 'pages.dba.dba-edit');
+            ->view( 'pages.registrar.registrar-edit');
     }
 
     /**
