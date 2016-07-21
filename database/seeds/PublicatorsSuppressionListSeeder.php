@@ -57,27 +57,27 @@ class PublicatorsSuppressionListSeeder extends Seeder
         $acct9->save();
 
         $acct10 = new PublicatorsSuppressionList();
-        $acct10->account_name = 'PUB0010';
+        $acct10->account_name = 'PUB010';
         $acct10->suppression_list_id = 82028;
         $acct10->save();
 
         $acct11 = new PublicatorsSuppressionList();
-        $acct11->account_name = 'PUB0011';
+        $acct11->account_name = 'PUB011';
         $acct11->suppression_list_id = 82029;
         $acct11->save();
 
         $acct12 = new PublicatorsSuppressionList();
-        $acct12->account_name = 'PUB0012';
+        $acct12->account_name = 'PUB012';
         $acct12->suppression_list_id = 82030;
         $acct12->save();
 
         $acct13 = new PublicatorsSuppressionList();
-        $acct13->account_name = 'PUB0013';
+        $acct13->account_name = 'PUB013';
         $acct13->suppression_list_id = 82031;
         $acct13->save();
 
         $acct14 = new PublicatorsSuppressionList();
-        $acct14->account_name = 'PUB0014';
+        $acct14->account_name = 'PUB014';
         $acct14->suppression_list_id = 82032;
         $acct14->save();
 
