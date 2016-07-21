@@ -207,10 +207,12 @@ class PublicatorsApi extends EspBaseAPI {
         return $responseBody;
     }
 
-    public function uploadEmails($emails) {
+    public function uploadEmails($emails, $listId) {
         if ( !$this->isAuthenticated() ) {
             $this->authenticate();
         }
+
+        $this->listId = $listId;
 
         $this->emails = array_map($emails, [$this, 'transformForImporting'];
         $this->setCallType(self::TYPE_IMPORT_EMAILS);
@@ -218,7 +220,7 @@ class PublicatorsApi extends EspBaseAPI {
 
         $responseBody = json_decode( $response->getBody() );
         if ( is_null( $responseBody ) ) {
-            throw new \Exception( "Failed to parse unsub response. '{$responseBody}'" );
+            throw new \Exception( "Failed to parse import response. '{$responseBody}'" );
         }
 
         return $responseBody;
@@ -315,7 +317,7 @@ class PublicatorsApi extends EspBaseAPI {
                     "Auth" => [ "Token" => $this->token ],
                     "Emails" => $this->emails,
                     "RecipientPermission" => self::PUBLICATORS_UNSUB_PERMISSION,
-                    "ListId" => 1 ??
+                    "ListId" => $this->listId
                 ])
             ];
         } elseif ('importEmails' === $this->callType) {
