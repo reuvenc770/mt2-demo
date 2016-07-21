@@ -8,15 +8,12 @@ namespace App\Services;
 use App\Services\API\PublicatorsApi;
 use Carbon\Carbon;
 use App\Facades\Suppression;
-use App\Repositories\EspApiAccountRepo;
 
 class PublicatorsSubscriberService {
     protected $api;
-    protected $emails = [];
 
-    public function __construct ( PublicatorsApi $api, EspApiAccountRepo $accountRepo) {
+    public function __construct (PublicatorsApi $api) {
         $this->api = $api;
-        $this->accountRepo = $accountRepo;
     }
 
     public function pullUnsubsEmailsByLookback ( $lookback ) {
@@ -32,26 +29,14 @@ class PublicatorsSubscriberService {
                 '' ,
                 $record->TimeStamp
             );
-
-            $this->emails[] = $record->Email;
         }
-
-        $this->exportUnsubs();
     }
 
-    protected function exportUnsubs() {
-        $accounts = $this->accountRepo->getAccountsByESPName('Publicators');
-        $segmentedEmails = array_chunk($this->emails, 1500);
+    public function uploadEmails($emails, $listId) {
+        $result = $this->api->uploadEmails($emails, $listId);
+    }
 
-        foreach ($accounts as $account) {
-            if ($account->id != $this->api->getEspAccountId()) {
-                $exportApi = new PublicatorsApi($account->id);
-
-                foreach ($segmentedEmails as $segment) {
-                    $exportApi->setToUnsubscribed($segment);
-                }
-            }
-        }
-
+    public function exportUnsubs($emails) {
+        $result = $this->api->setToUnsubscribed($emails);
     }
 } 

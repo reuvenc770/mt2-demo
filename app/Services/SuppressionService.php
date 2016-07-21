@@ -143,4 +143,8 @@ class SuppressionService
     public function listAllReasons(){
         return $this->repo->getReasonList();
     }
+
+    public function espSuppressionsForDateRange($espId, $lookback) {
+        return $this->repo->espSuppressionsForDateRange($espId, $lookback);
+    }
 }

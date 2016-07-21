@@ -126,8 +126,14 @@ class EspApiAccountRepo
     }
 
     public function getAccountsbyEsp($esp){
-        $this->espAccount->where('esp_id', $esp)->get();
+        return $this->espAccount->where('esp_id', $esp)->get();
     }
 
-
+    public function getPublicatorsSuppressionListId($accountId) {
+        return $this->espAccount
+             ->select('psl.suppression_list_id')
+             ->join('publicators_suppression_lists as psl', 'esp_accounts.account_name', '=', 'psl.account_name')
+             ->where('esp_accounts.id', $accountId)
+             ->first();
+    }
 }
