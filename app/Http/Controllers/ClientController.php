@@ -10,6 +10,7 @@ use App\Services\MT1ApiService;
 use App\Http\Requests\ClientEditRequest;
 use App\Services\MT1Services\ClientService;
 use App\Services\MT1Services\CountryService;
+use App\Services\ClientPayoutService;
 use Cache;
 
 class ClientController extends Controller
@@ -21,11 +22,13 @@ class ClientController extends Controller
     protected $api;
     protected $clientApi;
     protected $countryApi;
+    protected $payoutService;
 
-    public function __construct ( MT1ApiService $api , ClientService $clientApi , CountryService $countryApi ) {
+    public function __construct ( MT1ApiService $api , ClientService $clientApi , CountryService $countryApi, ClientPayoutService $payoutService ) {
         $this->api = $api;
         $this->clientApi = $clientApi;
         $this->countryApi = $countryApi;
+        $this->payoutService = $payoutService;
     }
 
     /**
@@ -53,8 +56,10 @@ class ClientController extends Controller
     public function create()
     {
         $countryList = $this->countryApi->getAll();
+        $payoutTypes = $this->payoutService->getTypes() ?: [];
         return response()->view( 'pages.client.client-add' , [
-            'countries' => ( !is_null( $countryList ) ? $countryList : [] )
+            'countries' => ( !is_null( $countryList ) ? $countryList : [] ),
+            'payoutTypes' => $payoutTypes
         ] );
     }
 
@@ -70,7 +75,16 @@ class ClientController extends Controller
 
         Flash::success("Client was Successfully Updated");
 
-        return response( $this->api->postForm( self::CLIENT_UPDATE_API_ENDPOINT , $request->all() ) );
+        $response = response( $this->api->postForm( self::CLIENT_UPDATE_API_ENDPOINT , $request->all() ) );
+        
+        // temporarily picking off fields to be saved
+        $response = json_decode($response, true);
+        $clientId = $response['client_id'];
+        $payoutType = $request->input('payout_type');
+        $payoutAmount = $request->input('payout_amount');
+        $this->payoutService->setPayout($clientId, $payoutType, $payoutAmount);
+
+        return $response;
     }
 
     /**
@@ -81,7 +95,15 @@ class ClientController extends Controller
      */
     public function show($id)
     {
-        return response( $this->api->getJSON( self::CLIENT_API_ENDPOINT , [ 'clientId' => $id ] ) ); 
+        $response = $this->api->getJSON( self::CLIENT_API_ENDPOINT , [ 'clientId' => $id ]); 
+
+        // mixing in variables from MT2
+        $response = json_decode($response, true);
+        $payout = $this->payoutService->getPayout($id)->toArray();
+        $response[0]['payout_type'] = $payout['client_payout_type_id'];
+        $response[0]['payout_amount'] = $payout['amount'];
+
+        return json_encode($response);
     }
 
     /**
@@ -92,7 +114,12 @@ class ClientController extends Controller
      */
     public function edit($id)
     {
-        return response()->view( 'pages.client.client-edit' , [ 'countries' => $this->countryApi->getAll() ] );
+        $countryList = $this->countryApi->getAll() ?: [];
+        $payoutTypes = $this->payoutService->getTypes()->toArray() ?: '';
+        return response()->view( 'pages.client.client-edit' , [ 
+            'countries' =>  $countryList, 
+            'payoutTypes' => $payoutTypes
+        ] );
     }
 
     /**
@@ -107,6 +134,13 @@ class ClientController extends Controller
         Cache::tags( [ $this->clientApi->getType() ] )->flush();
 
         Flash::success("Client was Successfully Updated");
+
+        // temporarily picking off fields to be saved
+        $clientId = $request->input('client_id');
+        $payoutType = $request->input('payout_type');
+        $payoutAmount = $request->input('payout_amount');
+
+        $this->payoutService->setPayout($clientId, $payoutType, $payoutAmount);
 
         return response( $this->api->postForm( self::CLIENT_UPDATE_API_ENDPOINT , $request->all() ) );
     }

@@ -259,4 +259,26 @@
             </div>
         </div>
     </div>
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">Client Payout Information</h3>
+        </div>
+
+        <div class="panel-body">
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.payout_type }">
+                <select ng-model="client.current.payout_type" placeholder="Select Type" required="required" class="form-control">
+                    <option ng-selected="@{{ client.current.payout_type == '' || client.current.payout_type == null }}" value="">Select a Payout Type</option>
+                    @foreach ( $payoutTypes as $payout )
+                    <option ng-selected="client.current.payout_type == {{$payout['id']}}" value="{{ $payout['id'] }}">{{ $payout['name'] }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.payout_amount }">
+                <input type="text" class="form-control" id="payout-amount" value="" placeholder="Payout Amount" required="required" ng-model="client.current.payout_amount" />
+                <span class="help-block" ng-bind="client.formErrors.payout_amount" ng-show="client.formErrors.payout_amount"></span>
+            </div>
+        </div>
+    </div>
 </form>
