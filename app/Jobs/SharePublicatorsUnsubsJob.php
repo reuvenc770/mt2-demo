@@ -47,6 +47,7 @@ class SharePublicatorsUnsubsJob extends Job implements ShouldQueue {
                     // simultaneous authorization attempts
                     $subscriberService->uploadEmails($segment, $listId);
                     $subscriberService->exportUnsubs($segment);
+                    sleep(5);
                 }
                 
             }
