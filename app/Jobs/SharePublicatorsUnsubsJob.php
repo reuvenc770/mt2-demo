@@ -43,10 +43,6 @@ class SharePublicatorsUnsubsJob extends Job implements ShouldQueue {
                 $listId = $result->suppression_list_id;
                 
                 foreach ($segmentedEmails as $segment) {
-                    if (in_array('ednayalid@yahoo.com', $segment)) {
-                        echo "ednayalid@yahoo.com sent out to {$account->id}" . PHP_EOL;
-                    }
-
                     // shouldn't break these out into jobs to prevent multiple
                     // simultaneous authorization attempts
                     $subscriberService->uploadEmails($segment, $listId);
