@@ -61,7 +61,7 @@ class DoingBusinessAsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Requests\AddDBARequest $request)
     {
         Flash::success("DBA was Successfully Created");
         $request = $this->doingBusinessService->insertRow($request->all());
@@ -100,7 +100,7 @@ class DoingBusinessAsController extends Controller
      * @param  int  $id The ESP Account ID being updated.
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Requests\EditDBARequest $request, $id)
     {
         $this->doingBusinessService->updateAccount( $id , $request->toArray() );
         Flash::success("DBA Account was Successfully Updated");

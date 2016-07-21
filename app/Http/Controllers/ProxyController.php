@@ -60,7 +60,7 @@ class ProxyController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Requests\AddProxyRequest $request)
     {
         Flash::success("Proxy was Successfully Created");
         $request = $this->proxyService->insertRow($request->all());
@@ -98,7 +98,7 @@ class ProxyController extends Controller
      * @param  int  $id The ESP Account ID being updated.
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Requests\EditProxyRequest $request, $id)
     {
         $this->proxyService->updateAccount( $id , $request->toArray() );
         Flash::success("Proxy Account was Successfully Updated");
