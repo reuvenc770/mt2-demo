@@ -34,7 +34,7 @@ class DoingBusinessAsRepo
 
     public function updateAccount ( $id , $accountData ) {
         return $this->doingBusinessAs->where( 'id' , $id )->update( [
-            'name' => $accountData[ 'name' ] ,
+            'name' => $accountData[ 'dba_name' ] ,
             'state_id' => $accountData[ 'state_id' ] ,
         ] );
     }
