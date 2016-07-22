@@ -15,12 +15,12 @@ use Log;
 class ScheduledFilterService
 {
     private $scheduleRepo;
-    public $fieldName;
+    protected $fields;
     public $boolValue;
     public function __construct(AttributionScheduleRepo $attributionScheduleRepo, $filterName)
     {
         $this->scheduleRepo = $attributionScheduleRepo;
-        $this->fieldName = config( 'scheduledfilters.' . $filterName . '.column' );
+        $this->fields = config( 'scheduledfilters.' . $filterName . '.column' );
         $this->boolValue = config( 'scheduledfilters.' . $filterName . '.value' );
     }
 
@@ -47,7 +47,7 @@ class ScheduledFilterService
         $preppedData = array();
         foreach($emails as $email){
             $date = isset($email['datetime']) ?
-                Carbon::createFromFormat("Y-m-d H:i:s",$email['datetime'])->addDays($days)->toDateString() : Carbon::today()->addDays($days)->toDateString();
+                Carbon::parse($email['datetime'])->addDays($days)->toDateString() : Carbon::today()->addDays($days)->toDateString();
 
             $emailId = isset($email['email_id']) ? $email['email_id'] : $email;
             $preppedData[] = "(".join(",",[$emailId,"'".$date."'","NOW()","NOW()"]).")";
@@ -58,5 +58,13 @@ class ScheduledFilterService
             $class = get_class($this->scheduleRepo);
             Log::error("Scheduled Filter Service failed to insert records Bulk for {$class}: {$e->getMessage()} ");
         }
+    }
+
+    public function getFields() {
+        return array_keys($this->fields);
+    }
+
+    public function getDefaultFieldValue($field) {
+        return $this->fields[$field];
     }
 }
