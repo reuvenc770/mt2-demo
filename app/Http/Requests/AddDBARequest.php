@@ -26,7 +26,7 @@ class AddDBARequest extends Request
     public function rules()
     {
         return [
-            'name' => 'required|unique:doing_business_as|',
+            'name' => 'required|unique:doing_business_as',
             'state_id'      => 'required',
         ];
     }

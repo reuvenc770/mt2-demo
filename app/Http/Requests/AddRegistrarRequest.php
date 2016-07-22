@@ -26,7 +26,7 @@ class AddRegistrarRequest extends Request
     public function rules()
     {
         return [
-            'name' => 'required|unique:registrars|',
+            'name' => 'required|unique:registrars',
             'username'      => 'required',
         ];
     }

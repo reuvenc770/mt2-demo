@@ -26,7 +26,7 @@ class AddProxyRequest extends Request
     public function rules()
     {
         return [
-            'name' => 'required|unique:proxies|',
+            'name' => 'required|unique:proxies',
             'ip_address'      => 'required',
             'provider_name'      => 'required',
         ];
