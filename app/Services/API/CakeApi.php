@@ -5,6 +5,8 @@ namespace App\Services\API;
 use App\Facades\Guzzle;
 use App\Services\Interfaces\IApi;
 
+use Log;
+
 class CakeApi implements IApi {
 
   // A temporary stub because we will likely be internalizing this
@@ -18,15 +20,24 @@ class CakeApi implements IApi {
     $this->endDate =  $endDate;
   }
 
-  public function sendApiRequest() {
-    $url = $this->constructApiUrl();
+  public function sendApiRequest( $data = null ) {
+    $url = $this->constructApiUrl( $data );
+
     return Guzzle::get($url);
   }
 
-  private function constructApiUrl() {
-    return self::ENDPOINT . 'apiKey=' . self::API_KEY 
-    . '&dtStart=' . $this->startDate 
-    . '&dtEnd=' . $this->endDate;
+  private function constructApiUrl( $data = null ) {
+    $fields = [
+        "apiKey" => self::API_KEY ,
+        "dtStart" => $this->startDate ,
+        "dtEnd" => $this->endDate
+    ];
+
+    if ( !is_null( $data ) ) {
+        $fields += $data;        
+    }
+
+    return self::ENDPOINT . http_build_query( $fields ); 
   }
 
   public function __get($prop) {

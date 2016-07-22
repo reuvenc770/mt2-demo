@@ -17,10 +17,11 @@ class GrabTrackingApiData extends Command
      *
      * @var string
      */
-    protected $signature = 'reports:downloadTrackingData {trackingSource} {lookBack?}';
+    protected $signature = 'reports:downloadTrackingData {trackingSource} {lookBack?} {processType?}';
     protected $trackingRepo;
     protected $lookBack;
     protected $trackingSource;
+    protected $processType = RetrieveTrackingDataJob::PROCESS_TYPE_AGGREGATE;
 
     /**
      * The console command description.
@@ -48,9 +49,21 @@ class GrabTrackingApiData extends Command
         $startDate = Carbon::now()->subDay($this->lookBack)->toDateString();
         $endDate = Carbon::now()->toDateString();
 
+        if ( $this->argument( 'processType' ) == 'record' ) {
+            $this->processType = RetrieveTrackingDataJob::PROCESS_TYPE_RECORD;
+        }
+
         $cakeLog = "Running Cake from {$startDate} to {$endDate}";
         $this->info($cakeLog);
-        $this->dispatch(new RetrieveTrackingDataJob($this->trackingSource, $startDate, $endDate, str_random(16)));
+        $this->dispatch(
+            new RetrieveTrackingDataJob(
+                $this->trackingSource,
+                $startDate ,
+                $endDate,
+                str_random( 16 ) ,
+                $this->processType
+            )
+        );
 
     }
 }
