@@ -681,6 +681,10 @@ Route::group(
             }
         );
 
+        Route::get( '/espapi/espAccounts/{name}' , [
+            'as' => 'api.espapi.GetAll' ,
+            'uses' => 'EspApiController@displayEspAccounts'
+        ] );
         /**
          * API Resources
          */
@@ -689,6 +693,7 @@ Route::group(
             'EspApiController' ,
             [ 'except' => [ 'create' , 'edit' ] ]
         );
+
 
         Route::resource(
             'ymlp-campaign' ,

@@ -3,10 +3,18 @@ mt2App.service( 'DomainService' , function ( $http , $log ) {
 
     self.pagerApiUrl = '/api/pager/Domain';
     self.baseApiUrl = '/api/domain';
+    self.baseEspApiUrl = '/api/espapi/espAccounts/';
 
     self.getAccount = function ( id , successCallback ) {
         $http( { "method" : "GET" , "url" : this.baseApiUrl + '/' + id } )
             .then( successCallback );
+    };
+
+    self.getEspAccounts  = function ( espName  , successCallback , failureCallback ) {
+        $http( {
+            "method" : "GET" ,
+            "url" : self.baseEspApiUrl + espName
+        } ).then( successCallback , failureCallback );
     };
 
     self.getAccounts = function ( page , count , successCallback , failureCallback ) {

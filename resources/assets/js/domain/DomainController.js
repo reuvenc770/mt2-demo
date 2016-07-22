@@ -5,17 +5,18 @@ mt2App.controller( 'domainController' , [ '$rootScope' , '$log' , '$window' , '$
     self.headers = [ '' , 'ID' , 'ESP' , 'Key 1' , 'Key 2' , 'Account' , 'Created' , 'Updated' ];
     self.accounts = [];
 
-    self.currentAccount = { "espId" : "" , "id" : "" , "accountName" : "" , "key1" : "" , "key2" : "" };
+    self.currentAccount = { "domain_type" : "" , "esp_name" : "" , "accountName" : "" , "key1" : "" , "key2" : "" };
 
     self.createUrl = 'espapi/create/';
     self.editUrl = 'espapi/edit/';
-
+    self.espAccounts = [];
     self.formErrors = { "espId" : "" , "id" : "" , "accountName" : "" , "key1" : "" , "key2" : "" };
 
     self.currentlyLoading = 0;
     self.pageCount = 0;
     self.paginationCount = '10';
     self.currentPage = 1;
+    self.updatingAccounts = false;
 
     self.loadAccount = function () {
         var pathMatches = $location.path().match( /^\/domain\/edit\/(\d{1,})/ );
@@ -35,6 +36,14 @@ mt2App.controller( 'domainController' , [ '$rootScope' , '$log' , '$window' , '$
     self.resetCurrentAccount = function () {
 
     };
+
+    self.updateEspAccounts = function (){
+        self.updatingAccounts = true;
+        DomainService.getEspAccounts(
+            self.currentAccount.espName ,
+            self.updateEspAccountsSuccessCallback , self.loadAccountsFailureCallback );
+    };
+
 
     /**
      * Watchers
@@ -59,13 +68,16 @@ mt2App.controller( 'domainController' , [ '$rootScope' , '$log' , '$window' , '$
 
     self.editAccount = function () {
         self.resetFieldErrors();
-
         DomainService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
-    }
+    };
 
     /**
      * Callbacks
      */
+    self.updateEspAccountsSuccessCallback = function ( response ) {
+        self.espAccounts = response.data;
+        self.updatingAccounts = false;
+    };
     self.loadAccountsSuccessCallback = function ( response ) {
         self.accounts = response.data.data;
         self.pageCount = response.data.last_page;

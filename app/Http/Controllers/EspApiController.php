@@ -146,4 +146,8 @@ class EspApiController extends Controller
     {
         //Will not be in use. We don't want to delete ESP Accounts.
     }
+
+    public function displayEspAccounts(Request $request, $name){
+        return $this->espAccountService->getAllAccountsByESPName($name);
+    }
 }

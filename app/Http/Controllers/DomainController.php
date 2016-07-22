@@ -3,17 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Services\DomainService;
+
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
-
+use App\Services\EspApiService;
 class DomainController extends Controller
 {
     public $service;
+    public $espService;
 
-    public function __construct(DomainService $domainService)
+    public function __construct(DomainService $domainService, EspApiService $espService)
     {
         $this->service = $domainService;
+        $this->espService = $espService;
     }
 
     /**
@@ -36,7 +39,9 @@ class DomainController extends Controller
      */
     public function create()
     {
-        //
+        $esps = $this->espService->getAllEsps();
+
+        return response()->view('pages.domain.domain-add', [ 'esps' => $esps ]);
     }
 
     /**
