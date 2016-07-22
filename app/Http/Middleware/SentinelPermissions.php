@@ -28,6 +28,7 @@ class SentinelPermissions
         {
             UserEventLog::insertCustomRequest(Sentinel::getUser()->id,str_replace(".","/",$action),$request->getMethod(),\App\Models\UserEventLog::UNAUTHORIZED);
             if ($request->wantsJson()) {
+                Log::info($action);
                 return response('Unauthorized.', 401);
             } else {
                 Flash::warning('Sorry your account does not have permission to perform this action, please contact your manager.');
