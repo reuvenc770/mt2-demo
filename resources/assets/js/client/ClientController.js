@@ -31,7 +31,9 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
         state: "" ,
         status: "D" ,
         username: "" ,
-        zip: ""
+        zip: "",
+        payout_type: "",
+        payout_amount: "0"
     };
 
     self.clients = [];
