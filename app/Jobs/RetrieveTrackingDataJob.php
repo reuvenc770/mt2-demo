@@ -9,8 +9,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Facades\JobTracking;
 use App\Factories\APIFactory;
 
-use Log;
-
 /**
  * Class RetrieveReports
  * @package App\Jobs

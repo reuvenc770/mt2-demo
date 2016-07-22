@@ -5,8 +5,6 @@ namespace App\Services\API;
 use App\Facades\Guzzle;
 use App\Services\Interfaces\IApi;
 
-use Log;
-
 class CakeApi implements IApi {
 
   // A temporary stub because we will likely be internalizing this

@@ -12,8 +12,6 @@ use League\Flysystem\Exception;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 
-use Log;
-
 class TrackingDataService implements IDataService
 {
 
