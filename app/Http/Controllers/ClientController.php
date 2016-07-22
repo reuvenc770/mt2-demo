@@ -84,7 +84,7 @@ class ClientController extends Controller
         $payoutAmount = $request->input('payout_amount');
         $this->payoutService->setPayout($clientId, $payoutType, $payoutAmount);
 
-        return $response;
+        return response()->json($response);
     }
 
     /**
@@ -104,7 +104,7 @@ class ClientController extends Controller
         $response[0]['payout_type'] = isset($payout['client_payout_type_id']) ? $payout['client_payout_type_id'] : '';
         $response[0]['payout_amount'] = isset($payout['amount']) ? $payout['amount'] : 0;
 
-        return json_encode($response);
+        return response()->json($response);
     }
 
     /**
@@ -117,7 +117,7 @@ class ClientController extends Controller
     {
         $countryList = $this->countryApi->getAll() ?: [];
         $payoutTypes =  $this->payoutService->getTypes();
-        $payoutTypes = $payoutTypes ? $payoutTypes->toArray() ?: '';
+        $payoutTypes = $payoutTypes ? $payoutTypes->toArray() : '';
         return response()->view( 'pages.client.client-edit' , [ 
             'countries' =>  $countryList, 
             'payoutTypes' => $payoutTypes
