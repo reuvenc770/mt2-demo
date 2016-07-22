@@ -84,6 +84,14 @@ elixir.extend( 'deployEspApiJs' , function ( mix ) {
     ] , 'public/js/espapi.js' );
 } );
 
+elixir.extend( 'deployDomainJs' , function ( mix ) {
+    mix.scripts( [
+        'domain/DomainController.js' ,
+        'domain/DomainApiService.js' ,
+        'domain/DomainTableDirective.js'
+    ] , 'public/js/domain.js' );
+} );
+
 elixir.extend( 'deployUserJs' , function ( mix ) {
     mix.scripts( [
         'user/UserController.js' ,
@@ -230,6 +238,7 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployJobJs( mix );
     mix.deployShowInfoJs( mix );
     mix.deployWizardJs( mix );
+    mix.deployDomainJs( mix);
     mix.deployYmlpCampaignJs( mix );
     mix.deployClientJs( mix );
     mix.deployDBAJs( mix );

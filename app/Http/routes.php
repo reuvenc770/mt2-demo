@@ -412,6 +412,32 @@ Route::group(
 );
 
 /**
+ * Domain Routes
+ */
+Route::group(
+    [
+        'prefix' => 'domain' ,
+        'middleware' => [ 'auth' , 'admin' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' , [
+            'as' => 'domain.list' ,
+            'uses' => 'DomainController@listAll'
+        ] );
+
+        Route::get( '/create' , [
+            'as' => 'domain.add' ,
+            'uses' => 'DomainController@create'
+        ] );
+
+        Route::get( '/edit/{id}' , [
+            'as' => 'domain.edit' ,
+            'uses' => 'DomainController@edit'
+        ] );
+    }
+);
+
+/**
  *  Data Export Routes
  */
 
@@ -685,6 +711,12 @@ Route::group(
         Route::resource(
             'user',
             'UserApiController',
+            [ 'except' => [ 'create' , 'edit' ] ]
+        );
+
+        Route::resource(
+            'domain',
+            'DomainController',
             [ 'except' => [ 'create' , 'edit' ] ]
         );
         
