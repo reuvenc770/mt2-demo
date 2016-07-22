@@ -99,9 +99,10 @@ class ClientController extends Controller
 
         // mixing in variables from MT2
         $response = json_decode($response, true);
-        $payout = $this->payoutService->getPayout($id)->toArray();
-        $response[0]['payout_type'] = $payout['client_payout_type_id'];
-        $response[0]['payout_amount'] = $payout['amount'];
+        $payout = $this->payoutService->getPayout($id);
+        $payout = $payout ? $payout->toArray() : [];
+        $response[0]['payout_type'] = isset($payout['client_payout_type_id']) ? $payout['client_payout_type_id'] : '';
+        $response[0]['payout_amount'] = isset($payout['amount']) ? $payout['amount'] : 0;
 
         return json_encode($response);
     }
@@ -115,7 +116,8 @@ class ClientController extends Controller
     public function edit($id)
     {
         $countryList = $this->countryApi->getAll() ?: [];
-        $payoutTypes = $this->payoutService->getTypes()->toArray() ?: '';
+        $payoutTypes =  $this->payoutService->getTypes();
+        $payoutTypes = $payoutTypes ? $payoutTypes->toArray() ?: '';
         return response()->view( 'pages.client.client-edit' , [ 
             'countries' =>  $countryList, 
             'payoutTypes' => $payoutTypes
