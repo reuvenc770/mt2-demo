@@ -26,17 +26,25 @@ class TrackingDataService implements IDataService
   }
 
   public function retrieveApiStats($data = null) {
-    $reportStats = $this->api->sendApiRequest();
+    $reportStats = $this->api->sendApiRequest( $data );
     
     $out = $this->processGuzzleResult($reportStats);
+
     return $out;
   }
 
-  public function insertApiRawStats($data) {
+  public function insertApiRawStats( $data , $recordLevel = false) {
+      if ( $recordLevel ) {
+            $this->insertApiRawRecordStats( $data );
+      } else {
+            $this->insertApiRawAggregateStats( $data );
+      }
+  }
 
+  protected function insertApiRawAggregateStats ( $data ) {
     foreach ($data as $row) {
       $convertedRow = $this->mapToRawReport($row);
-      $this->repo->insertStats($convertedRow);
+      $this->repo->insertAggregateStats($convertedRow);
     }
 
     // need to get data at a different level of aggregation for std report
@@ -44,13 +52,27 @@ class TrackingDataService implements IDataService
     Event::fire(new RawReportDataWasInserted($this, $convertedRows));
   }
 
-  public function insertSegmentedApiRawStats($data, $length) {
+  protected function insertApiRawRecordStats ( $data ) {
+    foreach ( $data as $row ) {
+        $row[ 'email_id' ] = $this->extractEidFromS2( $row[ 's2' ] );
+
+        $this->repo->insertRecordStats( $row );
+    }
+  }
+
+  public function insertSegmentedApiRawStats($data, $length , $recordLevel = false ) {
     $start = 0;
     $end = 5000;
 
-    while ($end < $length) {
+    while ( $end < $length ) {
       $slice = array_slice($data, $start, $end);
-      $this->insertApiRawStats($slice);
+
+      if ( $recordLevel ) {
+          $this->insertApiRawRecordStats( $slice );
+      } else {
+          $this->insertApiRawAggregateStats( $slice );
+      }
+
       $start = $end;
       $end = $end + 5000;
     } 
