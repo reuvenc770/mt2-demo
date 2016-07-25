@@ -48,7 +48,7 @@ return [
         'data' => [
             'advertisers' => ['Sprint', 'Esurance']
         ],
-        'destination' => 'dataExportFTP',
+        'destination' => 'ZxUnsubFtp',
         'service' => 'ZxSuppressionExportReport',
         'model' => 'Suppression',
         'repo' => 'SuppressionRepo',
