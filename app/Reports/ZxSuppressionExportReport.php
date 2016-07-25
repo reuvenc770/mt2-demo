@@ -7,6 +7,7 @@ use App\Repositories\SuppressionRepo;
 use App\Services\MT1Services\CompanyService;
 use Log;
 use League\Csv\Writer;
+use App\Reports\Interfaces\IFormatStrategy;
 
 class ZxSuppressionExportReport {
     private $repo;
@@ -16,13 +17,15 @@ class ZxSuppressionExportReport {
     private $advertisers;
     private $mt1CompanyService;
     private $today;
+    private $formatStrategy;
 
-    public function __construct(CompanyService $mt1CompanyService, SuppressionRepo $repo, $advertisers, $destination) {
+    public function __construct(CompanyService $mt1CompanyService, SuppressionRepo $repo, IFormatStrategy $formatStrategy, $advertisers, $destination) {
         $this->repo = $repo;
         $this->destination = $destination;
         $this->advertisers = $advertisers;
         $this->mt1CompanyService = $mt1CompanyService;
         $this->today = strftime('%Y-%m-%d');
+        $this->formatStrategy = $formatStrategy;
     }
 
     public function execute($date) {
@@ -35,10 +38,10 @@ class ZxSuppressionExportReport {
             $writer = Writer::createFromFileObject(new \SplTempFileObject());
 
             foreach ($unsubs as $row) {
-                $writer->insertOne($row);
+                $writer->insertOne( $this->formatStrategy->formatFile($row) );
             }
 
-            $this->destination->put("{$advertiser}/unsub/Zeta_DNE_{$this->today}.csv", $writer->__toString());
+            $this->destination->put("$advertiser/unsub/" . $this->formatStrategy->formatFileName($date), $writer->__toString());
         }
 
     }
@@ -52,6 +55,7 @@ class ZxSuppressionExportReport {
     protected function getRecordsByDateEsp($espAccountId, $date, $typeId){
         try{
             $operator = $this->range ? '>=' : '=';
+            $operator = '>=';
             return $this->repo->getRecordsByDateIntervalEspType($typeId, $espAccountId, $date, $operator);
         } 
         catch (\Exception $e) {

@@ -43,12 +43,26 @@ return [
         'repo' => 'EmailActionsRepo',
     ],
 
-    'ZxUnsubExport' => [
+    'ZxSprintUnsubExport' => [
         'type' => 'offer',
         'data' => [
-            'advertisers' => ['Sprint', 'Esurance']
+            'advertisers' => ['Sprint'],
+            'formatStrategy' => 'SprintFormatStrategy'
         ],
-        'destination' => 'ZxUnsubFtp',
+        'destination' => 'dataExportFTP',
+        'service' => 'ZxSuppressionExportReport',
+        'model' => 'Suppression',
+        'repo' => 'SuppressionRepo',
+        'model2' => 'SuppressionReason',
+    ],
+
+    'ZxEsuranceUnsubExport' => [
+        'type' => 'offer',
+        'data' => [
+            'advertisers' => ['Esurance'],
+            'formatStrategy' => 'JustEmailFormatStrategy'
+        ],
+        'destination' => 'dataExportFTP',
         'service' => 'ZxSuppressionExportReport',
         'model' => 'Suppression',
         'repo' => 'SuppressionRepo',

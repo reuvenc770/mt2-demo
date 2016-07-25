@@ -91,7 +91,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('exportUnsubs BhSuppressionReport --lookback=1')->dailyAt(self::REPORT_TIME);
         $schedule->command('exportUnsubs CampaignerSuppressionReport --lookback=1')->dailyAt(self::REPORT_TIME_2);
         $schedule->command('exportUnsubs emailsForOpensClicks --lookback=15')->dailyAt(self::REPORT_TIME);
-        $schedule->command('exportUnsubs ZxUnsubExport --lookback=1');
+        $schedule->command('exportUnsubs ZxSprintUnsubExport --lookback=1')->dailyAt(self::REPORT_TIME);
+        $schedule->command('exportUnsubs ZxEsuranceUnsubExport --lookback=1')->dailyAt(self::REPORT_TIME);
 
         $schedule->command( 'suppression:sendToMT1 3' )->dailyAt( self::REPORT_TIME )->sendOutputTo( $unsubFilePath );
         $schedule->command('suppression:exportPublicators 1')->cron('10 */4 * * *');

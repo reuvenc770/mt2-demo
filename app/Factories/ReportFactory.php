@@ -76,6 +76,9 @@ class ReportFactory
 
         $advertisers = config("reports.$name.data.advertisers");
 
+        $formatStrategy = "App\\Reports\\Strategies\\" . config("reports.$name.data.formatStrategy");
+        $formatStrategy = new $formatStrategy();
+        
         try {
             $model = new $modelName();
 
@@ -95,7 +98,7 @@ class ReportFactory
         catch (\Exception $e) {
             throw new \Exception("Error instantiating ReportService for $name: {$e->getMessage()}");
         }
-        return new $service($sourceService, $repo, $advertisers, $destination);
+        return new $service($sourceService, $repo, $formatStrategy, $advertisers, $destination);
     }
 
     protected static function getEspInfoForAccounts($espAccountRepo, $accounts) {
