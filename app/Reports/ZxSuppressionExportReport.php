@@ -55,7 +55,6 @@ class ZxSuppressionExportReport {
     protected function getRecordsByDateEsp($espAccountId, $date, $typeId){
         try{
             $operator = $this->range ? '>=' : '=';
-            $operator = '>=';
             return $this->repo->getRecordsByDateIntervalEspType($typeId, $espAccountId, $date, $operator);
         } 
         catch (\Exception $e) {
