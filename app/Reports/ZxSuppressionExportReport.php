@@ -38,7 +38,7 @@ class ZxSuppressionExportReport {
                 $writer->insertOne($row);
             }
 
-            $this->destination->put("{$advertiser}/{$date}.csv", $writer->__toString());
+            $this->destination->put("{$advertiser}/unsub/Zeta_DNE_{$this->today}.csv", $writer->__toString());
         }
 
     }
