@@ -87,9 +87,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('suppression:downloadESP Publicators 1')->dailyAt(self::UNSUB_TIME);
         $schedule->command('suppression:downloadESP Bronto 1')->dailyAt(self::UNSUB_TIME);
         
-        $schedule->command('export SuppressionReport BlueHornet --lookback=1')->dailyAt(self::REPORT_TIME);
-        $schedule->command('export SuppressionReport Campaigner --lookback=1')->dailyAt(self::REPORT_TIME_2);
-        $schedule->command('export emailsForOpensClicks Publicators PUB007 --lookback=15')->dailyAt(self::REPORT_TIME);
+        $schedule->command('exportUnsubs BhSuppressionReport --lookback=1')->dailyAt(self::REPORT_TIME);
+        $schedule->command('exportUnsubs CampaignerSuppressionReport --lookback=1')->dailyAt(self::REPORT_TIME_2);
+        $schedule->command('exportUnsubs emailsForOpensClicks --lookback=15')->dailyAt(self::REPORT_TIME);
+        $schedule->command('exportUnsubs ZxUnsubExport --lookback=1');
 
         $schedule->command( 'suppression:sendToMT1 3' )->dailyAt( self::REPORT_TIME )->sendOutputTo( $unsubFilePath );
         $schedule->command('suppression:exportPublicators 1')->cron('10 */4 * * *');
