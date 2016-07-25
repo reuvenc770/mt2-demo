@@ -91,6 +91,29 @@ elixir.extend( 'deployUserJs' , function ( mix ) {
     ] , 'public/js/user.js' );
 } );
 
+elixir.extend( 'deployDBAJs' , function ( mix ) {
+    mix.scripts( [
+        'dba/DBAController.js' ,
+        'dba/DBAApiService.js'
+    ] , 'public/js/dba.js' );
+} );
+
+elixir.extend( 'deployProxyJs' , function ( mix ) {
+    mix.scripts( [
+        'proxy/ProxyController.js' ,
+        'proxy/ProxyApiService.js'
+    ] , 'public/js/proxy.js' );
+} );
+
+elixir.extend( 'deployRegistrarJs' , function ( mix ) {
+    mix.scripts( [
+        'registrar/RegistrarController.js' ,
+        'registrar/RegistrarApiService.js'
+    ] , 'public/js/registrar.js' );
+} );
+
+
+
 elixir.extend( 'deployRoleJs' , function ( mix ) {
     mix.scripts( [
         'role/RoleController.js' ,
@@ -209,6 +232,7 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployWizardJs( mix );
     mix.deployYmlpCampaignJs( mix );
     mix.deployClientJs( mix );
+    mix.deployDBAJs( mix );
     mix.deployClientGroupJs( mix );
     mix.deployListProfileJs( mix );
     mix.deployBulkSuppressionJs( mix );
@@ -216,6 +240,8 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployClientAttributionJs( mix );
     mix.deployDataExportJs(mix);
     mix.deployDataCleanseJs(mix);
+    mix.deployRegistrarJs(mix);
+    mix.deployProxyJs(mix);
     mix.deployRecordAttributionJs(mix)
 } );
 

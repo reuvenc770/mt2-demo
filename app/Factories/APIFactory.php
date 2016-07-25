@@ -72,7 +72,7 @@ class APIFactory
         if( in_array( $apiName , [
             "BlueHornet" ,
             "EmailDirect" ,
-            "Campaigner" ,
+            "Campaigner",
             "Publicators"
         ] ) ) {
             $api = "App\\Services\\API\\{$apiName}Api";

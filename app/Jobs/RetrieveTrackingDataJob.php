@@ -17,18 +17,31 @@ class RetrieveTrackingDataJob extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
     CONST JOB_NAME = "RetrieveTrackingApiData-";
+
+    CONST PROCESS_TYPE_AGGREGATE = 1;
+    CONST PROCESS_TYPE_RECORD = 2;
+
     protected $startDate;
     protected $endDate;
 
     protected $tracking;
     protected $source;
 
-    public function __construct($source, $startDate, $endDate, $tracking) {
+    protected $isRecordProcessing = false;
+
+    public function __construct($source, $startDate, $endDate, $tracking , $processType = RetrieveTrackingDataJob::PROCESS_TYPE_AGGREGATE ) {
        $this->source = $source;
        $this->startDate = $startDate;
        $this->endDate = $endDate;
        $this->tracking = $tracking;
-       JobTracking::startTrackingJob(self::JOB_NAME . $this->source,$this->startDate, $this->endDate, $this->tracking);
+
+       if ( $processType === RetrieveTrackingDataJob::PROCESS_TYPE_RECORD ) {
+          $this->isRecordProcessing = true;
+       }
+
+       $fullJobName = self::JOB_NAME . $this->source . '-' . ( $processType == self::PROCESS_TYPE_AGGREGATE ? 'aggregate-' : 'record-' );
+
+       JobTracking::startTrackingJob( $fullJobName ,$this->startDate, $this->endDate, $this->tracking);
     }
 
     /**
@@ -39,19 +52,29 @@ class RetrieveTrackingDataJob extends Job implements ShouldQueue
     public function handle()
     {
         JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
+
         $dataService= APIFactory::createTrackingApiService($this->source, $this->startDate,$this->endDate);
-        $data = $dataService->retrieveApiStats(null);
-        $dataLength = sizeof($data);
 
-        if($data && $dataLength < 10000) {
-            $dataService->insertApiRawStats($data);
+        $apiRequestData = null;
+
+        if ( $this->isRecordProcessing ) {
+            $apiRequestData = [ "recordstats" => 1 ];
         }
-        elseif ($data && $dataLength > 10000) {
-            $dataService->insertSegmentedApiRawStats($data, $dataLength);
+
+        $stats = $dataService->retrieveApiStats( $apiRequestData );
+        $dataLength = sizeof( $stats );
+
+        if ( !empty( $stats ) && $dataLength < 10000 ) {
+            $dataService->insertApiRawStats( $stats , $this->isRecordProcessing );
+        } elseif ( !empty( $stats ) && $dataLength > 10000 ) {
+            $dataService->insertSegmentedApiRawStats(
+                $stats ,
+                $dataLength ,
+                $this->isRecordProcessing
+            );
         }
-        
+
         JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
-
     }
 
 

@@ -12,7 +12,7 @@ use App\Facades\Suppression;
 class PublicatorsSubscriberService {
     protected $api;
 
-    public function __construct ( PublicatorsApi $api ) {
+    public function __construct (PublicatorsApi $api) {
         $this->api = $api;
     }
 
@@ -30,5 +30,13 @@ class PublicatorsSubscriberService {
                 $record->TimeStamp
             );
         }
+    }
+
+    public function uploadEmails($emails, $listId) {
+        $result = $this->api->uploadEmails($emails, $listId);
+    }
+
+    public function exportUnsubs($emails) {
+        $result = $this->api->setToUnsubscribed($emails);
     }
 } 
