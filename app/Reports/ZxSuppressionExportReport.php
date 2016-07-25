@@ -11,7 +11,7 @@ use League\Csv\Writer;
 class ZxSuppressionExportReport {
     private $repo;
     private $unsubs;
-    const SLACK_CHANNEL = "#gtd-slack-tests"; #"#mt2-daily-reports";
+    const SLACK_CHANNEL = "#mt2-daily-reports";
     private $destination;
     private $advertisers;
     private $mt1CompanyService;
