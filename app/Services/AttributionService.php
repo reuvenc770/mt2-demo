@@ -34,7 +34,7 @@ class AttributionService
     }
 
     public function run($records) {
-        foreach ($records as $record) {
+        $records->each(function($record, $key) {
 
             $beginDate = $record->capture_date;
             $clientId = (int)$record->client_id;
@@ -69,7 +69,7 @@ class AttributionService
                 $this->updateTruthTable($record->email_id, $beginDate, $hasAction, $actionExpired, $subsequentImports);
             }
             
-        }
+        });
     }
 
     protected function getPotentialReplacements($emailId, $beginDate, $clientId) {

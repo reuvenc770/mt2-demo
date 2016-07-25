@@ -39,7 +39,7 @@ class AttributionRecordTruthRepo {
                     ->where('has_action', 0)
                     ->where('additional_imports', 1)
                     ->union($union)
-                    ->get();
+                    ->orderBy('email_id');
     
     }
 
