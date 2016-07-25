@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
     const REPORT_TIME_2 = '11:10';
     const EARLY_DELIVERABLE_SCHEDULE_TIME = '00:15';
     const DEPLOY_CHECK_TIME = '14:00';
+    const ATTRIBUTION_UPDATE_TIME = '15:30';
 
     /**
      * The Artisan commands provided by your application.
@@ -138,7 +139,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('process:useragents')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME);
         $schedule->command('download:mtstats')->dailyAt(self::DELIVERABLE_SCHEDULE_TIME);
         $schedule->command('reports:findIncompleteDeploys')->dailyAt(self::DEPLOY_CHECK_TIME);
-
+        
+        /**
+         * Attribution jobs
+         */
+        $schedule->command('attribution:commit')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
 
         /**
          * Constantly firing.

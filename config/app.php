@@ -168,6 +168,7 @@ return [
         App\Providers\SuppressionProvider::class,
         App\Providers\DeployActionProvider::class,
         App\Providers\Mt1CompanyProvider::class,
+        AdrianMejias\States\StatesServiceProvider::class,
     ],
 
     /*
@@ -227,6 +228,7 @@ return [
         'Agent' => Jenssegers\Agent\Facades\Agent::class,
         'Suppression' => App\Facades\Suppression::class,
         'CampaignActionsEntry' => App\Facades\DeployActionEntry::class,
+        'States' => AdrianMejias\States\StatesFacade::class,
     ],
 
 ];
