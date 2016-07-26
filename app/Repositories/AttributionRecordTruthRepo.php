@@ -23,18 +23,20 @@ class AttributionRecordTruthRepo {
         $attrDb = config('database.connections.attribution.database');
 
         $union = DB::connection('attribution')->table('attribution_record_truths AS art')
-                      ->select('art.email_id', 'eca.client_id', 'eca.capture_date')
+                      ->select('art.email_id', 'eca.client_id', 'eca.capture_date', 'al.level', 'art.has_action', 'art.action_expired', DB::raw('aas.trigger_date - INTERVAL 90 DAY as action_datetime'))
                       ->join($attrDb . '.email_client_assignments as eca', 'art.email_id', '=', 'eca.email_id')
                       ->join($attrDb . '.attribution_levels as al', 'eca.client_id', '=', 'al.client_id')
+                      ->join($attrDb . '.attribution_activity_schedules as aas', 'art.email_id', '=', 'aas.email_id')
                       ->where('recent_import', 0)
                       ->where('has_action', 1)
                       ->where('action_expired', 1)
                       ->where('additional_imports', 1);
 
         return DB::connection('attribution')->table('attribution_record_truths AS art')
-                    ->select('art.email_id', 'eca.client_id', 'eca.capture_date')
+                    ->select('art.email_id', 'eca.client_id', 'eca.capture_date', 'al.level', 'art.has_action', 'art.action_expired', DB::raw('aas.trigger_date - INTERVAL 90 DAY as action_datetime'))
                     ->join($attrDb . '.email_client_assignments as eca', 'art.email_id', '=', 'eca.email_id')
                     ->join($attrDb . '.attribution_levels as al', 'eca.client_id', '=', 'al.client_id')
+                    ->join($attrDb . '.attribution_activity_schedules as aas', 'art.email_id', '=', 'aas.email_id')
                     ->where('recent_import', 0)
                     ->where('has_action', 0)
                     ->where('additional_imports', 1)

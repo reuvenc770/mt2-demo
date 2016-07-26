@@ -93,7 +93,7 @@ class EmailClientInstanceRepo {
                 ->select('client_id', 'level', 'capture_date')
                 ->join($attrDb . '.attribution_levels as al', 'eci.client_id', '=', 'al.client_id')
                 #->join(CLIENT_FEEDS_TABLE, 'eci.client_feed_id', '=', 'cf.id') -- need to uncomment these when client feeds created
-                ->where('capture_date', $beginDate)
+                ->where('capture_date', $date)
                 ->where('client_id', '<>', $clientId)
                 ->where('email_id', $emailId)
                 #->where('cf.level', 3)
@@ -103,7 +103,7 @@ class EmailClientInstanceRepo {
                 ->select('client_id', 'level', 'capture_date')
                 ->join($attrDb . '.attribution_levels as al', 'eci.client_id', '=', 'al.client_id')
                 #->join(CLIENT_FEEDS_TABLE, 'eci.client_feed_id', '=', 'cf.id') -- see above: placeholder for client feeds
-                ->where('capture_date', $beginDate)
+                ->where('capture_date', $date)
                 ->where('client_id', '<>', $clientId)
                 ->where('email_id', $emailId)
                 #->where('cf.level', 3)
