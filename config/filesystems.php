@@ -82,7 +82,12 @@ return [
             'password' => env( 'MT1_SUPPRESSION_DROPOFF_PASSWORD' ),
         ] ,
 
-
+        'ZxUnsubFtp' => [
+            'driver' => 'sftp',
+            'host' => env('ZX_FTP_HOST'),
+            'username' => env('ZX_FTP_USER'),
+            'password' => env('ZX_FTP_PASSWORD')
+        ],
 
         'espdata' => [
             'driver' => 'ftp',

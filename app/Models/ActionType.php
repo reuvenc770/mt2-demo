@@ -10,6 +10,6 @@ class ActionType extends Model {
   protected $connection = "reporting_data";
 
   public function emailActions() {
-    return $this->hasMany('App\Model\EmailAction');
+    return $this->hasMany('App\Models\EmailAction');
   }
 }
