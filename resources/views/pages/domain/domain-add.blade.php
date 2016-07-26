@@ -23,7 +23,7 @@
                         </div>
                         <div class="col-md-11">
                         <h2>Current Mailing Domains @{{ domain.extraText }}</h2>
-                            <domain-list-table records="domain.domains"></domain-list-table>
+                            <domain-list-table inactive="domain.inactiveAccount( id )" glythmap="domain.GlythMap"  records="domain.domains"></domain-list-table>
                         </div>
                     </md-content>
                 </md-tab>
@@ -44,7 +44,7 @@
                         </div>
                         <div class="col-md-11">
                             <h2>Current Content Domains @{{ domain.extraText }}</h2>
-                            <domain-list-table records="domain.domains"></domain-list-table>
+                            <domain-list-table inactive="domain.inactiveAccount( id )" glythmap="domain.GlythMap" records="domain.domains"></domain-list-table>
                         </div>
                     </md-content>
                 </md-tab>

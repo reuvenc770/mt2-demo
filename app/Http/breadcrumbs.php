@@ -185,3 +185,45 @@ Breadcrumbs::register('attr.model.edit', function($breadcrumbs) {
     $breadcrumbs->parent('attr.model.list');
     $breadcrumbs->push('Edit Attribution Model');
 });
+
+Breadcrumbs::register('proxy.list', function($breadcrumbs) {
+    $breadcrumbs->parent('home');
+    $breadcrumbs->push('Proxies', route('proxy.list'));
+});
+
+Breadcrumbs::register('proxy.add', function($breadcrumbs) {
+    $breadcrumbs->parent('proxy.list');
+    $breadcrumbs->push('Add Proxy');
+});
+
+Breadcrumbs::register('registrar.list', function($breadcrumbs) {
+    $breadcrumbs->parent('home');
+    $breadcrumbs->push('Registrars', route('registrar.list'));
+});
+
+Breadcrumbs::register('registrar.add', function($breadcrumbs) {
+    $breadcrumbs->parent('registrar.list');
+    $breadcrumbs->push('Add Registrar');
+});
+
+Breadcrumbs::register('dba.list', function($breadcrumbs) {
+    $breadcrumbs->parent('home');
+    $breadcrumbs->push('DBAs', route('dba.list'));
+});
+
+Breadcrumbs::register('dba.add', function($breadcrumbs) {
+    $breadcrumbs->parent('dba.list');
+    $breadcrumbs->push('Add DBA');
+});
+
+
+Breadcrumbs::register('domain.list', function($breadcrumbs) {
+    $breadcrumbs->parent('home');
+    $breadcrumbs->push('Domains', route('domain.list'));
+});
+
+Breadcrumbs::register('domain.add', function($breadcrumbs) {
+    $breadcrumbs->parent('domain.list');
+    $breadcrumbs->push('Add Domain');
+});
+

@@ -38,4 +38,12 @@ class DomainService
         }
         return true;
     }
+
+    public function inactivateDomain($id){
+        return $this->domainRepo->inactivateDomain($id);
+    }
+
+    public function getType(){
+        return "Domain";
+    }
 }

@@ -54,5 +54,9 @@ mt2App.service( 'DomainService' , function ( $http , $log ) {
             "url" : this.baseApiUrl + '/' + account.id ,
             "data" : account
         } ).then( successCallback , failureCallback );
-    }
+    };
+    self.inactiveAccount = function (id, successCallback, failureCallback){
+        $http.delete(self.baseApiUrl + id).then(successCallback, failureCallback);
+    };
+
 } );

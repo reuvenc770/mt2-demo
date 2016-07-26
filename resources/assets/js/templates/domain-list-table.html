@@ -23,8 +23,8 @@
             <td>{{ record.created_at }}</td>
             <td>{{ record.expires_at }}</td>
             <td>{{ record.dba_name }}</td>
-            <td>{{ record.status }}</td>
-            <td><button type="button" class="btn btn-info btn-xs"><span class="glyphicon glyphicon-off"></span><span class="hidden-xs"> Inactivate</span></button>
+            <td><span class="glyphicon" ng-class="[ctrl.glythmap[record.active]]"></span></td>
+            <td><button ng-click="ctrl.inactive( { id : record.dom_id} )" type="button" class="btn btn-info btn-xs"><span class="glyphicon glyphicon-off"></span><span class="hidden-xs"> Deactivate</span></button>
             </td>
         </tr>
         </tbody>

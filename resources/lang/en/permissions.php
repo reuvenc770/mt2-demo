@@ -66,6 +66,7 @@ return [
     'api.espapi.show' => 'Retrieve ESP API Information',
     'api.espapi.update' => 'Update ESP API Information',
     'api.espapi.destroy' => 'Delete ESP API',
+    'api.espapi.GetAll'  => "Retrieve List of Accounts by ESP",
     'api.ymlp-campaign.index' => 'Retrieve List of YMLP Campaigns',
     'api.ymlp-campaign.show' => 'Retrieve YMLP Campaign Information',
     'api.ymlp-campaign.store' => 'Save YMLP Campaign',
@@ -143,6 +144,7 @@ return [
     'api.proxy.show' => "Retrieve Proxy Details",
     'api.proxy.update' => "Update Proxy",
     'api.proxy.destroy' => "Delete Proxy",
+    'api.proxy.listType' => "Retrieve List of Proxies by Type",
     'registrar.list' => "View Registrar Page",
     'registrar.add' => "View Add Registrar Page",
     'registrar.edit' => "View Edit Registrar Page",
@@ -151,4 +153,14 @@ return [
     'api.registrar.destroy' => "Delete Registrar",
     'api.registrar.show' => "Retrieve Registrar Details",
     'api.registrar.update' => "Update Registrar",
+    'domain.list' => "View Domains Page",
+    "domain.add"  => "View Add Domain Page",
+    'api.domain.index' => "Retrieve List of Domains",
+    'api.domain.store' => "Save New Domain",
+    'api.domain.show' => "Retrieve Domain Details",
+    'api.domain.edit' => "Edit Domain",
+    'api.domain.update' => "Update Domain",
+    'api.domain.destroy' => "Deactivate Domain",
+    'api.domain.listDomains' => "Retrieve List of domains by ESP"
+
 ];

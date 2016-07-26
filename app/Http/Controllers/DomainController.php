@@ -5,11 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Domain;
 use App\Services\DoingBusinessAsService;
 use App\Services\DomainService;
-
+use Laracasts\Flash\Flash;
 use App\Services\RegistrarService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Log;
+
 use App\Http\Requests;
 use App\Services\EspApiService;
 class DomainController extends Controller
@@ -84,10 +84,11 @@ class DomainController extends Controller
                 "expires_at"      => $expires,
                 "registrar_id"  => $request->input("registrar"),
                 "domain_name"  => $domainName,
-                "main_site"   => $mainSite
+                "main_site"   => $mainSite,
+                "active"      => 1,
             ];
         }
-
+        Flash::success("Domain was Successfully Added");
         $bool = $this->service->insertDomains($insertArray);
             return response()->json(['success' => $bool]);
     }
@@ -134,7 +135,7 @@ class DomainController extends Controller
      */
     public function destroy($id)
     {
-        //
+       return $this->service->inactivateDomain($id);
     }
 
     public function getDomainsByTypeAndESP($type,$espAccountId){

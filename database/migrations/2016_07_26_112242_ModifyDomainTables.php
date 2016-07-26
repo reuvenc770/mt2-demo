@@ -48,7 +48,7 @@ class ModifyDomainTables extends Migration
         Schema::table('domains', function (Blueprint $table) {
             $table->dropColumn("domain_type");
         });
-        
+
         Schema::table('domains', function (Blueprint $table) {
             $table->enum("domain_type", ['mailing', 'content']);
         });
