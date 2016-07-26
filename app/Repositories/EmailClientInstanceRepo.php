@@ -89,26 +89,15 @@ class EmailClientInstanceRepo {
     public function getEmailInstancesAfterDate($emailId, $date, $clientId) {
         $attrDb = config('database.connections.attribution.database');
 
-        $union = DB::table('email_client_instances as eci')
-                ->select('eci.client_id', 'level', 'eci.capture_date')
-                ->join($attrDb . '.attribution_levels as al', 'eci.client_id', '=', 'al.client_id')
-                #->join(CLIENT_FEEDS_TABLE, 'eci.client_feed_id', '=', 'cf.id') -- need to uncomment these when client feeds created
-                ->where('eci.capture_date', $date)
-                ->where('eci.client_id', '<>', $clientId)
-                ->where('email_id', $emailId)
-                #->where('cf.level', 3)
-                ->orderBy('capture_date');
-
         $reps = DB::table('email_client_instances as eci')
                 ->select('eci.client_id', 'level', 'eci.capture_date')
                 ->join($attrDb . '.attribution_levels as al', 'eci.client_id', '=', 'al.client_id')
                 #->join(CLIENT_FEEDS_TABLE, 'eci.client_feed_id', '=', 'cf.id') -- see above: placeholder for client feeds
-                ->where('eci.capture_date', $date)
+                ->where('eci.capture_date', '>=', $date)
                 ->where('eci.client_id', '<>', $clientId)
                 ->where('email_id', $emailId)
                 #->where('cf.level', 3)
-                ->orderBy('capture_date')
-                ->union($union)
+                ->orderBy('capture_date', 'asc')
                 ->get();
 
         return $reps;
