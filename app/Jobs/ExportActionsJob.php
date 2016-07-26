@@ -17,11 +17,8 @@ class ExportActionsJob extends Job implements ShouldQueue
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
 
     protected $reportName;
-    protected $espAccounts;
-    protected $espName;
     protected $date;
     protected $tracking;
-    protected $range;
     protected $jobName;
 
     /**
@@ -29,16 +26,13 @@ class ExportActionsJob extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($reportName, $espName, $espAccounts, $date, $tracking) {
+    public function __construct($reportName, $date, $tracking) {
         $this->reportName = $reportName;
-        $this->espName = $espName;
-        $this->espAccounts = $espAccounts;
         $this->date = $date;
         $this->tracking = $tracking;
-
         $this->jobName = $reportName . '-' . $date;
 
-        JobTracking::startEspJob($this->jobName, $this->espName, 0, $this->tracking);
+        JobTracking::startEspJob($this->jobName, '', 0, $this->tracking);
     }
 
     /**
@@ -53,7 +47,7 @@ class ExportActionsJob extends Job implements ShouldQueue
                 $this->createLock($this->jobName);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
                 echo "{$this->jobName} running" . PHP_EOL;
-                $exportReportService = ReportFactory::createActionsReport($this->reportName, $this->espName, $this->espAccounts);
+                $exportReportService = ReportFactory::createReport($this->reportName);
                 $exportReportService->execute($this->date);
                 $exportReportService->notify();
 

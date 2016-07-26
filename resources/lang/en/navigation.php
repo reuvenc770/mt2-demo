@@ -9,6 +9,12 @@ return[
     'role.list'   => 'User Roles',
     'user.list'   => 'Users',
     'user.add'    => 'Add User',
+    'proxy.add'   => 'Add Proxy',
+    'proxy.list'  => 'Proxies',
+    'dba.add'     => 'Add DBA',
+    'dba.list'    => 'DBAs',
+    'registrar.list'   => 'Registrars',
+    'registrar.add' => 'Add Registrar',
     'clientgroup.list' => 'Client Group',
     'clientgroup.add' => "Add Client Group",
     'role.add'      => "Add Role",
@@ -27,4 +33,5 @@ return[
     'datacleanse.add' => 'Add Data Cleanse' ,
     'attr.model.list' => 'Attribution Models' ,
     'attr.model.add' => 'Add Attribution Model' ,
+
 ];
