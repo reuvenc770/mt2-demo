@@ -18,7 +18,7 @@ class EmailClientAssignmentRepo {
     }
 
     public function assignClient ( $emailId , $clientId , $captureDate ) {
-        $this->assignment->updateOrCreate(['email_id' => $email_id], [
+        $this->assignment->updateOrCreate(['email_id' => $emailId], [
             'client_id' => $clientId,
             'capture_date' => $captureDate
         ]);
