@@ -5,11 +5,11 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     self.accounts = [];
     self.hideFormView = false;
     //Local Vars
-    currentEspAccount = "";
-    espName = "";
-    espNameQuery = $location.search().name;
-    espAccount = $location.search().espId;
-    espAccountName = $location.search().espAccountName;
+    var currentEspAccount = "";
+    var espName = "";
+    var espNameQuery = $location.search().name;
+    var espAccount = $location.search().espId;
+    var espAccountName = $location.search().espAccountName;
     //View Page
     if (typeof espAccount != 'undefined' && typeof espNameQuery != 'undefined') {
         currentEspAccount = espAccount;

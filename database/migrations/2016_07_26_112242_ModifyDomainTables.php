@@ -24,12 +24,12 @@ class ModifyDomainTables extends Migration
         });
 
         Schema::table('doing_business_as', function (Blueprint $table) {
-            $table->string("registrant name", 100);
+            $table->string("registrant_name", 100);
             $table->string("address", 100);
             $table->string("address_2", 100);
             $table->string("city",100);
             $table->string("state",2);
-            $table->string("zio",5);
+            $table->string("zip",5);
             $table->string("dba_email", 100);
         });
     }
@@ -54,12 +54,12 @@ class ModifyDomainTables extends Migration
         });
 
         Schema::table('doing_business_as', function (Blueprint $table) {
-            $table->dropColumn("registrant name");
+            $table->dropColumn("registrant_name");
             $table->dropColumn("address");
             $table->dropColumn("address_2");
             $table->dropColumn("city");
             $table->dropColumn("state");
-            $table->dropColumn("zio");
+            $table->dropColumn("zip");
             $table->dropColumn("dba_email");
         });
 
