@@ -24,7 +24,7 @@ class EmailClientAssignmentRepo {
         ]);
     }
 
-    protected function recordSwap ( $emailId , $prevClientId , $newClientId ) {
+    public function recordSwap ( $emailId , $prevClientId , $newClientId ) {
         $this->history->create([
             'email_id' => $emailId,
             'prev_client_id' => $prevClientId,
