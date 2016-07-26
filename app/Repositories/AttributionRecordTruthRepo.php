@@ -7,6 +7,7 @@ namespace App\Repositories;
 
 use App\Models\AttributionRecordTruth;
 use DB;
+
 class AttributionRecordTruthRepo {
 
     protected $truth;
@@ -16,7 +17,16 @@ class AttributionRecordTruthRepo {
     }
 
     public function getAssignedRecords () {
-        #queries table for records that are not transient.
+        return DB::connection( 'attribution' )->table( 'attribution_record_truths' )
+                    ->select( 'email_id' )
+                    ->where( 'recent_import' , 1 )
+                    ->orWhere( [
+                        [ 'recent_import' , 0 ] ,
+                        [ 'has_action' , 1 ] ,
+                        [ 'action_expired' , 0 ]
+                    ] )
+                    ->orWhere( 'additional_imports' , 0 )
+                    ->get();
     }
 
     public function getTransientRecords () {
