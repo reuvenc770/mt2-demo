@@ -29,7 +29,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
 
     self.createUrl = 'domain/create/';
     self.espAccounts = [];
-    self.formErrors = {"espId": "", "id": "", "accountName": "", "key1": "", "key2": ""};
+    self.formErrors = [];
     self.currentlyLoading = 0;
     self.pageCount = 0;
     self.paginationCount = '10';
@@ -57,10 +57,11 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     };
 
     self.updateType = function (type) {
+
         self.updatingAccounts = true;
-        self.updateDomains();
         self.currentAccount.domain_type = type;
         self.currentInfo = self.info[type];
+        self.updateDomains();
         self.updateProxies();
     };
     self.init = function (type) {
