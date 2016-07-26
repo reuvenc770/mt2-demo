@@ -64,7 +64,7 @@ class AttributionService
             // Only run this once we've found the winner
             if ($oldClientId !== $clientId) {
                 $this->changeAttribution($record->email_id, $clientId);
-                $this->recordHistory($record->email_id, $oldClientId, $ClientId);
+                $this->recordHistory($record->email_id, $oldClientId, $clientId);
                 $this->updateScheduleTable($record->email_id, $beginDate);
                 $this->updateTruthTable($record->email_id, $beginDate, $hasAction, $actionExpired, $subsequentImports);
             }
