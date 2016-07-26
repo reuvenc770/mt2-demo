@@ -104,4 +104,15 @@ class SuppressionRepo
         return Suppression::TYPE_COMPLAINT;
     }
 
+    public function getSuppressedForDeploys($deploys, $date, $typeId) {
+        $schema = config('database.connections.reporting_data.database');
+        return $this->suppressionModel
+                    ->select('email_address', 'date')
+                    ->join($schema . ".standard_reports as sr", 'suppressions.esp_internal_id', '=', 'sr.esp_internal_id')
+                    ->whereIn('external_deploy_id', $deploys)
+                    ->where('suppressions.date', '>=', $date)
+                    ->where('type_id', $typeId)
+                    ->get();
+    }
+
 }

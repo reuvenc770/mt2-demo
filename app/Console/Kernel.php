@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
     const REPORT_TIME_2 = '11:10';
     const EARLY_DELIVERABLE_SCHEDULE_TIME = '00:15';
     const DEPLOY_CHECK_TIME = '14:00';
+    const ATTRIBUTION_UPDATE_TIME = '15:30';
 
     /**
      * The Artisan commands provided by your application.
@@ -87,9 +88,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('suppression:downloadESP Publicators 1')->dailyAt(self::UNSUB_TIME);
         $schedule->command('suppression:downloadESP Bronto 1')->dailyAt(self::UNSUB_TIME);
         
-        $schedule->command('export SuppressionReport BlueHornet --lookback=1')->dailyAt(self::REPORT_TIME);
-        $schedule->command('export SuppressionReport Campaigner --lookback=1')->dailyAt(self::REPORT_TIME_2);
-        $schedule->command('export emailsForOpensClicks Publicators PUB007 --lookback=15')->dailyAt(self::REPORT_TIME);
+        $schedule->command('exportUnsubs BhSuppressionReport --lookback=1')->dailyAt(self::REPORT_TIME);
+        $schedule->command('exportUnsubs CampaignerSuppressionReport --lookback=1')->dailyAt(self::REPORT_TIME_2);
+        $schedule->command('exportUnsubs emailsForOpensClicks --lookback=15')->dailyAt(self::REPORT_TIME);
+        $schedule->command('exportUnsubs ZxSprintUnsubExport --lookback=1')->dailyAt(self::REPORT_TIME);
+        $schedule->command('exportUnsubs ZxEsuranceUnsubExport --lookback=1')->dailyAt(self::REPORT_TIME);
 
         $schedule->command( 'suppression:sendToMT1 3' )->dailyAt( self::REPORT_TIME )->sendOutputTo( $unsubFilePath );
         $schedule->command('suppression:exportPublicators 1')->cron('10 */4 * * *');
@@ -137,7 +140,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('process:useragents')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME);
         $schedule->command('download:mtstats')->dailyAt(self::DELIVERABLE_SCHEDULE_TIME);
         $schedule->command('reports:findIncompleteDeploys')->dailyAt(self::DEPLOY_CHECK_TIME);
-
+        
+        /**
+         * Attribution jobs
+         */
+        $schedule->command('attribution:commit')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
 
         /**
          * Constantly firing.

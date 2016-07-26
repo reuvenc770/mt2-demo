@@ -167,6 +167,7 @@ return [
         Jenssegers\Agent\AgentServiceProvider::class,
         App\Providers\SuppressionProvider::class,
         App\Providers\DeployActionProvider::class,
+        App\Providers\Mt1CompanyProvider::class,
         AdrianMejias\States\StatesServiceProvider::class,
     ],
 
