@@ -38,4 +38,21 @@ class DomainRepo
            ->groupBy('esp_account_id');
     }
 
+    public function getDomainsByTypeAndEsp($type, $espAccountId){
+    return $this->domain->select('domains.domain_name',
+        'proxies.name as proxy_name',
+        'registrars.name as registrar_name',
+        'doing_business_as.dba_name',
+        'domains.main_site',
+        'domains.created_at',
+        'domains.expires_at',
+        'domains.active')
+        ->where("domains.domain_type", $type)
+        ->where("domains.esp_account_id", $espAccountId)
+        ->join('registrars', 'domains.registrar_id', '=', 'registrars.id')
+        ->join('proxies', 'domains.proxy_id', '=', 'proxies.id')
+        ->join('doing_business_as', 'domains.doing_business_as_id', '=', 'doing_business_as.id')
+        ->get();
+}
+
 }

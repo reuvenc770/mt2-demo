@@ -22,5 +22,20 @@ class DomainService
         $this->domainRepo = $domainRepo;
     }
 
-    public function getModel () { return $this->domainRepo->getModel(); }
+    public function getModel()
+    {
+        return $this->domainRepo->getModel();
+    }
+
+    public function getDomainsByTypeAndEsp($type, $espAccountId)
+    {
+        return $this->domainRepo->getDomainsByTypeAndEsp($type, $espAccountId);
+    }
+
+    public function insertDomains($insertArray){
+        foreach ($insertArray as $item){
+            $this->domainRepo->insertRow($item);
+        }
+        return true;
+    }
 }

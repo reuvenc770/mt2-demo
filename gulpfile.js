@@ -88,7 +88,8 @@ elixir.extend( 'deployDomainJs' , function ( mix ) {
     mix.scripts( [
         'domain/DomainController.js' ,
         'domain/DomainApiService.js' ,
-        'domain/DomainTableDirective.js'
+        'domain/DomainTableDirective.js',
+        'domain/DomainListTableDirective.js'
     ] , 'public/js/domain.js' );
 } );
 

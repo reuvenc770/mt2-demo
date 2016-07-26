@@ -2,21 +2,29 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Domain;
+use App\Services\DoingBusinessAsService;
 use App\Services\DomainService;
 
+use App\Services\RegistrarService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-
+use Log;
 use App\Http\Requests;
 use App\Services\EspApiService;
 class DomainController extends Controller
 {
     public $service;
     public $espService;
-
-    public function __construct(DomainService $domainService, EspApiService $espService)
+    public $dbaService;
+    public $registrarService;
+        //Todo maybe DeployService wraps these smaller ones.
+    public function __construct(DomainService $domainService, EspApiService $espService, DoingBusinessAsService $doingBusinessAsService, RegistrarService $registrarService)
     {
         $this->service = $domainService;
         $this->espService = $espService;
+        $this->dbaService = $doingBusinessAsService;
+        $this->registrarService = $registrarService;
     }
 
     /**
@@ -40,8 +48,9 @@ class DomainController extends Controller
     public function create()
     {
         $esps = $this->espService->getAllEsps();
-
-        return response()->view('pages.domain.domain-add', [ 'esps' => $esps ]);
+        $dbas = $this->dbaService->getAll();
+        $regs = $this->registrarService->getAll();
+        return response()->view('pages.domain.domain-add', [ 'esps' => $esps , 'dbas' => $dbas, 'regs' => $regs]);
     }
 
     /**
@@ -50,9 +59,37 @@ class DomainController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Requests\AddDomainForm $request)
     {
-        //
+        $type = $request->input("domain_type");
+        $domains = explode("\n",$request->input("domains"));
+        $insertArray = [];
+        $expires = $domainName = $mainSite = "";
+        foreach($domains as $domain){
+
+            switch($type){
+                case Domain::MAILING_DOMAIN:
+                    list($domainName,$mainSite,$expires) = explode(",",$domain);
+                    break;
+                case Domain::CONTENT_DOMAIN:
+                    list($domainName,$expires) = explode(",",$domain);
+            }
+
+            $insertArray[] = [
+                "domain_type" => $type,
+                "proxy_id"    => $request->input("proxy"),
+                "doing_business_as_id"      => $request->input("dba"),
+                "esp_account_id" => $request->input("espAccountId"),
+                "created_at"    => Carbon::now()->toDateString(),
+                "expires_at"      => $expires,
+                "registrar_id"  => $request->input("registrar"),
+                "domain_name"  => $domainName,
+                "main_site"   => $mainSite
+            ];
+        }
+
+        $bool = $this->service->insertDomains($insertArray);
+            return response()->json(['success' => $bool]);
     }
 
     /**
@@ -86,7 +123,7 @@ class DomainController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+
     }
 
     /**
@@ -98,5 +135,9 @@ class DomainController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function getDomainsByTypeAndESP($type,$espAccountId){
+        return $this->service->getDomainsByTypeAndEsp($type, $espAccountId);
     }
 }

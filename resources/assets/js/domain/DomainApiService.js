@@ -2,8 +2,9 @@ mt2App.service( 'DomainService' , function ( $http , $log ) {
     var self = this;
 
     self.pagerApiUrl = '/api/pager/Domain';
-    self.baseApiUrl = '/api/domain';
+    self.baseApiUrl = '/api/domain/';
     self.baseEspApiUrl = '/api/espapi/espAccounts/';
+    self.baseProxyUrl = '/api/proxy/proxiesbytype/';
 
     self.getAccount = function ( id , successCallback ) {
         $http( { "method" : "GET" , "url" : this.baseApiUrl + '/' + id } )
@@ -14,6 +15,20 @@ mt2App.service( 'DomainService' , function ( $http , $log ) {
         $http( {
             "method" : "GET" ,
             "url" : self.baseEspApiUrl + espName
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.getDomains = function ( type, espAccountId, successCallback, failureCallback){
+        $http( {
+            "method" : "GET" ,
+            "url" : self.baseApiUrl + "listDomains/" + type + "/" + espAccountId
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.getProxies  = function ( domainType  , successCallback , failureCallback ) {
+        $http( {
+            "method" : "GET" ,
+            "url" : self.baseProxyUrl + domainType
         } ).then( successCallback , failureCallback );
     };
 

@@ -9,4 +9,5 @@ class Proxy extends Model
     use ModelCacheControl;
     protected $guarded = ['id'];
     public $timestamps = false;
+
 }
