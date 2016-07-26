@@ -63,7 +63,7 @@ class AttributionService
 
             // Only run this once we've found the winner
             if ($oldClientId !== $clientId) {
-                $this->changeAttribution($record->email_id, $clientId);
+                $this->changeAttribution($record->email_id, $clientId, $beginDate);
                 $this->recordHistory($record->email_id, $oldClientId, $clientId);
                 $this->updateScheduleTable($record->email_id, $beginDate);
                 $this->updateTruthTable($record->email_id, $beginDate, $hasAction, $actionExpired, $subsequentImports);
@@ -79,7 +79,7 @@ class AttributionService
     protected function shouldChangeAttribution($captureDate, $hasAction, $actionExpired, $currentAttrLevel, $testAttrLevel) {
 
         // needs to be explicitly checked - we don't just have the query to watch this
-        if ($this->getExpiringDay->gte($captureDate)) {
+        if ($this->getExpiringDay()->gte(Carbon::parse($captureDate))) {
             // Older than pre-defined X days ago
             
             if ($hasAction && $actionExpired) {
