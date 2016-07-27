@@ -26,7 +26,7 @@ mt2App.controller( 'MailingTemplateController' , [ '$log' , '$window' , '$locati
             self.currentAccount = {
                 id : response.data.id,
                 name : response.data.template_name,
-                templateType : response.data.template_types,
+                templateType : response.data.template_type,
                 selectedEsps : response.data.esp_accounts,
                 html :response.data.template_html,
                 text : response.data.template_text };

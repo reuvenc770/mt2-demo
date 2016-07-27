@@ -44,7 +44,7 @@ class MailingTemplateController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Requests\AddMailingTemplateForm $request)
     {
        $espIds = explode(',',$request->input("selectedEsps"));
 
@@ -98,7 +98,7 @@ class MailingTemplateController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Requests\EditMailingTemplateForm $request, $id)
     {
         $espIds = explode(',',$request->input("selectedEsps"));
         $insertData = [
