@@ -10,6 +10,9 @@ use Illuminate\Database\Eloquent\Model;
 class EmailClientAssignment extends Model
 {
     protected $connection = 'attribution';
+    protected $fillable = ['email_id', 'client_id', 'capture_date'];
+    protected $primaryKey = "email_id";
+
 
     public function email () {
         return $this->hasOne( 'App\Models\Email' );

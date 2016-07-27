@@ -55,13 +55,16 @@ class ServiceFactory
         $emailClientInstanceModel = "App\\Models\\EmailClientInstance";
         $emailClientInstanceRepo = "App\\Repositories\\EmailClientInstanceRepo";
 
+        $attributionLevelRepo = "App\\Repositories\\AttributionLevelRepo";
+
         $truth = new $truthRepo(new $truthModel());
         $schedule = new $scheduleRepo(new $scheduleModel());
         $assignment = new $assignmentRepo(new $assignmentModel(), new $historyModel());
         $instance = new $emailClientInstanceRepo(new $emailClientInstanceModel());
+        $level = new $attributionLevelRepo(); // when left empty, this instantiates the currently-selected model
 
         $service = "App\\Services\\AttributionService";
 
-        return new $service($truth, $schedule, $assignment, $instance);
+        return new $service($truth, $schedule, $assignment, $instance, $level);
     }
 }
