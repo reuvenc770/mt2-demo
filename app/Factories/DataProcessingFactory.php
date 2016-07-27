@@ -43,6 +43,8 @@ class DataProcessingFactory {
 
             case('PublicatorsActions'):
                 return self::createPublicatorsActionService();
+            case('ProcessCfsStats'):
+                return self::createProcessCfsStatsService();
                 
             default:
                 throw new \Exception("Data processing service {$name} does not exist");
@@ -105,6 +107,25 @@ class DataProcessingFactory {
         $actions = new EmailAction();
         $actionsRepo = new EmailActionsRepo($actions);
         return new \App\Services\PublicatorsActionService($actionsRepo, $actionsRepo);
+    }
+
+    private static function createProcessCfsStatsService() {
+        $eaj = new \App\Models\MT1Models\EspAdvertiserJoin();
+        $eajRepo = new \App\Repositories\MT1Repositories\EspAdvertiserJoinRepo($eaj);
+
+        $stdModel = new \App\Models\StandardReport();
+        $stdRepo = new \App\Repositories\StandardApiReportRepo($stdModel);
+
+        $crModel = new \App\Models\CreativeClickthroughRate();
+        $crRepo = new \App\Repositories\CreativeClickthroughRateRepo($crModel);
+
+        $subjModel = new \App\Models\SubjectOpenRate();
+        $subjRepo = new \App\Repositories\SubjectOpenRateRepo($subjModel);
+
+        $fromModel = new \App\Models\FromOpenRate();
+        $fromRepo = new \App\Repositories\FromOpenRateRepo($fromModel);
+
+        return new \App\Services\PopulateCfsStatsService($eajRepo, $stdRepo, $crRepo, $fromRepo, $subjRepo);
     }
 
 }
