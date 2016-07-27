@@ -19,6 +19,21 @@ class EmailActionsRepo {
         $this->actions = $actions;
     }
 
+    public function getByDateRange ( $dateRange = null ) {
+        if( is_null( $dateRange ) ) {
+            $startDate = Carbon::now()->startOfDay()->toDateTimeString();
+            $endDate = Carbon::now()->endOfDay()->toDateTimeString();
+        } else {
+            $startDate = $dateRange[ 'start' ];
+            $endDate = $dateRange[ 'end' ];
+        }
+
+        return $this->actions
+                    ->whereBetween( 'datetime' , [ $startDate , $endDate ] )
+                    ->get();
+
+    }
+
     public function maxId() {
         return $this->actions->orderBy('id', 'desc')->first()['id'];
     }
