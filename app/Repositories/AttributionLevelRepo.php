@@ -25,7 +25,10 @@ class AttributionLevelRepo {
     }
 
     public function getLevel ( $clientId ) {
-        #returns level for the given client.
+        return $this->levels
+             ->select('level')
+             ->where('client_id', $clientId)
+             ->get();
     }
 
     public function getAllLevels () {

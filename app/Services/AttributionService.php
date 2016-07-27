@@ -8,6 +8,7 @@ use App\Repositories\EmailClientAssignmentRepo;
 use App\Repositories\AttributionRecordTruthRepo;
 use App\Repositories\AttributionScheduleRepo;
 use App\Repositories\EmailClientInstanceRepo;
+use App\Repositories\AttributionLevelRepo;
 
 
 class AttributionService
@@ -21,12 +22,14 @@ class AttributionService
     public function __construct(AttributionRecordTruthRepo $truthRepo, 
                                 AttributionScheduleRepo $scheduleRepo, 
                                 EmailClientAssignmentRepo $assignmentRepo,
-                                EmailClientInstanceRepo $clientInstanceRepo) {
+                                EmailClientInstanceRepo $clientInstanceRepo,
+                                AttributionLevelRepo $levelRepo) {
 
         $this->truthRepo = $truthRepo;
         $this->scheduleRepo = $scheduleRepo;
         $this->assignmentRepo = $assignmentRepo;
         $this->clientInstanceRepo = $clientInstanceRepo;
+        $this->levelRepo = $levelRepo;
     }   
 
     public function getTransientRecords() {
@@ -39,7 +42,10 @@ class AttributionService
             $beginDate = $record->capture_date;
             $clientId = (int)$record->client_id;
             $oldClientId = (int)$record->client_id;
-            $currentAttrLevel = (int)$record->level;
+
+            // Currently get a 95% decrease in query time by running this separately
+            $currentAttrLevel = $this->levelRepo->getLevel($clientId);
+
             $actionDateTime = $record->action_datetime;
             $hasAction = (bool)$record->has_action;
             $actionExpired = $record->action_expired;
@@ -69,7 +75,7 @@ class AttributionService
                 $this->updateTruthTable($record->email_id, $beginDate, $hasAction, $actionExpired, $subsequentImports);
             }
             
-        });
+        }, 50000);
     }
 
     protected function getPotentialReplacements($emailId, $beginDate, $clientId) {
