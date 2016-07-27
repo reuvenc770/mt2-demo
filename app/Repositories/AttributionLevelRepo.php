@@ -28,7 +28,8 @@ class AttributionLevelRepo {
         return $this->levels
              ->select('level')
              ->where('client_id', $clientId)
-             ->get();
+             ->first()
+             ->level;
     }
 
     public function getAllLevels () {
