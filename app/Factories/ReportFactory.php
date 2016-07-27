@@ -41,7 +41,7 @@ class ReportFactory
         $espAccountConfig = config("reports.$name.data.accounts") ?: 'all';
         $espAccounts = $espAccountConfig === 'all' ? 
             $espAccountRepo->getAccountsByESPName($espName) : 
-            $this->getEspInfoForAccounts($espAccountRepo, $espAccountConfig);
+            self::getEspInfoForAccounts($espAccountRepo, $espAccountConfig);
 
         $service = "App\Reports\\" . config("reports.$name.service");
         $repoName = "App\Repositories\\" . config("reports.$name.repo");
