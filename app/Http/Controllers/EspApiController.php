@@ -47,6 +47,10 @@ class EspApiController extends Controller
         return response()->json( $accountList );
     }
 
+    public function returnAll(){
+        return  response()->json($this->espAccountService->getAllAccounts());
+    }
+
     /**
      * Show the ESP Account index page.
      *

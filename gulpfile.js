@@ -121,7 +121,12 @@ elixir.extend( 'deployRegistrarJs' , function ( mix ) {
     ] , 'public/js/registrar.js' );
 } );
 
-
+elixir.extend( 'deployMailingTemplateJs' , function ( mix ) {
+    mix.scripts( [
+        'mailingtemplate/MailingTemplateController.js' ,
+        'mailingtemplate/MailingTemplateApiService.js'
+    ] , 'public/js/mailingtemplate.js' );
+} );
 
 elixir.extend( 'deployRoleJs' , function ( mix ) {
     mix.scripts( [
@@ -245,6 +250,7 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployDBAJs( mix );
     mix.deployClientGroupJs( mix );
     mix.deployListProfileJs( mix );
+    mix.deployMailingTemplateJs( mix);
     mix.deployBulkSuppressionJs( mix );
     mix.deployClientAttributionJs( mix );
     mix.deployClientAttributionJs( mix );
@@ -306,6 +312,9 @@ var mt2TaskMap = {
     } ,
     'deployWizardJs' : function ( mix ) {
         mix.deployWizardJs( mix );
+    } ,
+    'deployMailingJs' : function ( mix ) {
+        mix.deployMailingJs( mix );
     } ,
     'deployYmlpCampaignJs' : function ( mix ) {
         mix.deployYmlpCampaignJs( mix );

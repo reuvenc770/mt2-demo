@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\EspApiAccountService;
 use App\Services\MailingTemplateService;
 use Illuminate\Http\Request;
 
@@ -11,7 +12,7 @@ class MailingTemplateController extends Controller
 {
     public $service;
 
-    public function __construct(MailingTemplateService $mailingTemplateService)
+    public function __construct(MailingTemplateService $mailingTemplateService )
     {
         $this->service = $mailingTemplateService;
     }
@@ -33,7 +34,8 @@ class MailingTemplateController extends Controller
      */
     public function create()
     {
-        //
+
+        return response()->view( 'pages.mailingtemplate.mailingtemplate-add');
     }
 
     /**
@@ -44,7 +46,17 @@ class MailingTemplateController extends Controller
      */
     public function store(Request $request)
     {
-        //
+       $espIds = explode(',',$request->input("selectedEsps"));
+
+        $insertData = [
+                "template_name" => $request->input("name"),
+                "template_type" => $request->input("templateType"),
+                "template_html" => $request->input("html"),
+                "template_text" => $request->input("text"),
+        ];
+
+        $this->service->insertTemplate($insertData, $espIds);
+
     }
 
     /**
@@ -55,7 +67,7 @@ class MailingTemplateController extends Controller
      */
     public function show($id)
     {
-        //
+        return response()->json($this->service->retrieveTemplate($id));
     }
 
     /**
@@ -64,9 +76,19 @@ class MailingTemplateController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit()
     {
-        //
+        return response()->view( 'pages.mailingtemplate.mailingtemplate-edit');
+    }
+
+    public function preview(Request $request, $id = null){
+
+        if($request->has("html")){
+            return response($request->input("html"));
+        }
+        $info = $this->service->retrieveTemplate($id);
+
+        return response($info['template_html']);
     }
 
     /**
@@ -78,7 +100,16 @@ class MailingTemplateController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $espIds = explode(',',$request->input("selectedEsps"));
+        $insertData = [
+            "template_name" => $request->input("name"),
+            "template_type" => $request->input("templateType"),
+            "template_html" => $request->input("html"),
+            "template_text" => $request->input("text"),
+        ];
+        $this->service->updateTemplate($insertData, $id, $espIds);
+        return response()->json(["success"=>true]);
+
     }
 
     /**

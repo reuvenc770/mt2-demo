@@ -20,4 +20,27 @@ class MailingTemplateRepo
         $this->mailingTemplate = $mailingTemplate;
     }
 
+    public function insertRow($data){
+       return $mailingTemplate = $this->mailingTemplate->create($data);
+    }
+
+    public function updateRow($data, $id){
+        $this->mailingTemplate->where( 'id' , $id )->update($data);
+        return $this->getRow($id);
+    }
+
+    public function attachPivot($template, $id){
+        return $template->espAccounts()->attach($id);
+    }
+
+    //adds news rows kills old rows.
+    public function syncPivot($template, $id){
+        return $template->espAccounts()->sync($id);
+
+    }
+
+    public function getRow($id){
+        return $this->mailingTemplate->with("espAccounts")->find($id);
+    }
+
 }

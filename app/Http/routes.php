@@ -220,11 +220,11 @@ Route::group(
         ] );
     }
 );
-/** Registar */
+/** Registrar */
 Route::group(
     [
         'prefix' => 'registrar' ,
-        'middleware' => [ 'auth' , 'admin' , 'pageLevel' ]
+        'middleware' => [ 'auth' , 'pageLevel' ]
     ] ,
     function () {
         Route::get( '/' , [
@@ -243,6 +243,36 @@ Route::group(
         ] );
     }
 );
+
+/** Mailing Template */
+Route::group(
+    [
+        'prefix' => 'mailingtemplate' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get('/', [
+            'as' => 'mailingtemplate.list',
+            'uses' => 'MailingTemplateController@listAll'
+        ]);
+
+        Route::get('/create', [
+            'as' => 'mailingtemplate.add',
+            'uses' => 'MailingTemplateController@create'
+        ]);
+
+        Route::get('/edit/{id}', [
+            'as' => 'mailingtemplate.edit',
+            'uses' => 'MailingTemplateController@edit'
+        ]);
+
+        Route::get('/preview/{id?}', [
+            'as' => 'mailingtemplate.preview',
+            'uses' => 'MailingTemplateController@preview'
+        ]);
+    });
+
+
 
 /**
  * User Routes
@@ -711,6 +741,13 @@ Route::group(
         /**
          * API Resources
          */
+        Route::get(
+            'espapi/all' ,
+            [
+                'as' => 'api.espapi.returnAll' ,
+                'uses' => 'EspApiController@returnAll'
+            ]
+        );
         Route::resource(
             'espapi' ,
             'EspApiController' ,
@@ -791,6 +828,7 @@ Route::group(
                 'uses' => 'AttributionController@bulk'
             ]
 	    );
+
 	    Route::resource(
             'dataexport', 
             'DataExportController', 
@@ -821,6 +859,12 @@ Route::group(
         Route::resource(
             'dba',
             'DoingBusinessAsController',
+            [ 'except' => ['create', 'edit']]
+        );
+
+        Route::resource(
+            'mailingtemplate',
+            'MailingTemplateController',
             [ 'except' => ['create', 'edit']]
         );
 

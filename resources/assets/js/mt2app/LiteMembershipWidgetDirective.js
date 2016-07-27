@@ -25,7 +25,13 @@ mt2App.directive( 'liteMembershipWidget' , [ "$rootScope" , "$log" , function ( 
             self.addSelectedRecords = function () {
                 angular.forEach( self.highlightedSelectedRecords , function ( value , key ) {
                     self.chosenrecordlist.push( value );
+                    var index = self.recordlist.indexOf( value );
+
+                    if ( index >= 0 ) {
+                        self.recordlist.splice( index , 1 );
+                    }
                 } );
+
 
                 if ( typeof( self.updatecallback ) !== 'undefined' ) {
                     self.updatecallback();
@@ -34,6 +40,7 @@ mt2App.directive( 'liteMembershipWidget' , [ "$rootScope" , "$log" , function ( 
 
             self.removeChosenRecords = function () {
                 angular.forEach( self.highlightedChosenRecords , function ( selectedValue , selectedKey ) {
+                    self.recordlist.push( selectedValue );
                     var index = self.chosenrecordlist.indexOf( selectedValue );
 
                     if ( index >= 0 ) {

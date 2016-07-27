@@ -8,7 +8,7 @@
 
 namespace App\Services;
 
-
+use Log;
 use App\Repositories\MailingTemplateRepo;
 
 class MailingTemplateService
@@ -19,5 +19,25 @@ class MailingTemplateService
     public function __construct(MailingTemplateRepo $mailingTemplateRepo)
     {
         $this->mailingTemplateRepo = $mailingTemplateRepo;
+    }
+
+
+    public function insertTemplate($insertData, $espIds){
+        $item = $this->mailingTemplateRepo->insertRow($insertData);
+        foreach($espIds as $espId){
+            $this->mailingTemplateRepo->attachPivot($item,$espId);
+        }
+    }
+
+    public function retrieveTemplate($id){
+        $row = $this->mailingTemplateRepo->getRow($id);
+        return $row;
+    }
+
+    public function updateTemplate($insertData, $id, $espIds){
+        $item = $this->mailingTemplateRepo->updateRow($insertData, $id);
+        Log::info($item);
+        $this->mailingTemplateRepo->syncPivot($item,$espIds);
+        return true;
     }
 }
