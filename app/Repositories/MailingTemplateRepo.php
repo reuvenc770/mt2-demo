@@ -43,4 +43,11 @@ class MailingTemplateRepo
         return $this->mailingTemplate->with("espAccounts")->find($id);
     }
 
+    public function getAll(){
+        return $this->mailingTemplate->get();
+    }
+    public function getModel(){
+        return $this->mailingTemplate;
+    }
+
 }

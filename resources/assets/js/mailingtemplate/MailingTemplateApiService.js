@@ -3,6 +3,7 @@ mt2App.service( 'MailingTemplateApiService' , function ( $http , $log ) {
 
     self.baseApiUrl = '/api/mailingtemplate';
     self.baseEspApiUrl = '/api/espapi/all';
+    self.pagerApiUrl = '/api/pager/MailingTemplate';
     self.getAccount = function ( id , successCallback ) {
         $http( { "method" : "GET" , "url" : this.baseApiUrl + '/' + id } )
             .then( successCallback );
@@ -13,9 +14,12 @@ mt2App.service( 'MailingTemplateApiService' , function ( $http , $log ) {
             .then( successCallback , failCallBack );
     };
 
-    self.getAccounts = function ( successCallback , failureCallback ) {
-        $http( { "method" : "GET" , "url" : this.baseApiUrl } )
-            .then( successCallback , failureCallback );
+    self.getAccounts = function ( page , count , successCallback , failureCallback ) {
+        $http( {
+            "method" : "GET" ,
+            "url" : self.pagerApiUrl ,
+            "params" : { "page" : page , "count" : count }
+        } ).then( successCallback , failureCallback );
     };
 
     self.saveNewAccount = function ( newAccount , successCallback , failureCallback ) {

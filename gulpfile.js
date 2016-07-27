@@ -124,7 +124,8 @@ elixir.extend( 'deployRegistrarJs' , function ( mix ) {
 elixir.extend( 'deployMailingTemplateJs' , function ( mix ) {
     mix.scripts( [
         'mailingtemplate/MailingTemplateController.js' ,
-        'mailingtemplate/MailingTemplateApiService.js'
+        'mailingtemplate/MailingTemplateApiService.js',
+        'mailingtemplate/MailingTemplateTableDirective.js'
     ] , 'public/js/mailingtemplate.js' );
 } );
 

@@ -1,4 +1,4 @@
-mt2App.controller( 'MailingTemplateController' , [ '$log' , '$window' , '$location' , '$timeout' , 'MailingTemplateApiService' , function ( $log , $window , $location , $timeout , MailingTemplateApiService ) {
+mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$window' , '$location' , '$timeout' , 'MailingTemplateApiService' , function ( $rootScope, $log , $window , $location , $timeout , MailingTemplateApiService ) {
     var self = this;
     self.$location = $location;
 
@@ -17,6 +17,12 @@ mt2App.controller( 'MailingTemplateController' , [ '$log' , '$window' , '$locati
     self.espNameField = "account_name";
     self.espIdField = "id";
     self.widgetName = 'esps';
+
+    self.templates = [];
+    self.currentlyLoading = 0;
+    self.pageCount = 0;
+    self.paginationCount = '10';
+    self.currentPage = 1;
 
     self.loadAccount = function () {
         var pathMatches = $location.path().match( /^\/mailingtemplate\/edit\/(\d{1,})/ );
@@ -48,7 +54,8 @@ mt2App.controller( 'MailingTemplateController' , [ '$log' , '$window' , '$locati
 
 
     self.loadAccounts = function () {
-        MailingTemplateApiService.getAccounts( self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
+        self.currentlyLoading = 1;
+        MailingTemplateApiService.getAccounts(self.currentPage , self.paginationCount, self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
     };
 
     self.resetForm = function () {
@@ -82,12 +89,17 @@ mt2App.controller( 'MailingTemplateController' , [ '$log' , '$window' , '$locati
         $window.open('mailingtemplate/preview/?html=' + self.currentAccount.html);
     };
 
+    $rootScope.$on( 'updatePage' , function () {
+        self.loadAccounts();
+    } );
 
     /**
      * Callbacks
      */
     self.loadAccountsSuccessCallback = function ( response ) {
-        self.accounts = response.data;
+        self.currentlyLoading = 0;
+        self.templates = response.data.data;
+        self.pageCount = response.data.last_page;
     };
 
     self.loadEspsSuccessCallback = function ( response ) {

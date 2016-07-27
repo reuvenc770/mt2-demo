@@ -8,12 +8,13 @@
 
 namespace App\Services;
 
+use App\Services\ServiceTraits\PaginateList;
 use Log;
 use App\Repositories\MailingTemplateRepo;
 
 class MailingTemplateService
 {
-
+    use PaginateList;
     protected $mailingTemplateRepo;
 
     public function __construct(MailingTemplateRepo $mailingTemplateRepo)
@@ -21,6 +22,9 @@ class MailingTemplateService
         $this->mailingTemplateRepo = $mailingTemplateRepo;
     }
 
+    public function getAllTemplates(){
+        return $this->mailingTemplateRepo->getAll();
+    }
 
     public function insertTemplate($insertData, $espIds){
         $item = $this->mailingTemplateRepo->insertRow($insertData);
@@ -36,8 +40,12 @@ class MailingTemplateService
 
     public function updateTemplate($insertData, $id, $espIds){
         $item = $this->mailingTemplateRepo->updateRow($insertData, $id);
-        Log::info($item);
         $this->mailingTemplateRepo->syncPivot($item,$espIds);
         return true;
     }
+
+    public function getModel(){
+        return $this->mailingTemplateRepo->getModel();
+    }
+
 }

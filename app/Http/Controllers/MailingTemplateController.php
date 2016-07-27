@@ -24,9 +24,13 @@ class MailingTemplateController extends Controller
      */
     public function index()
     {
-        //
+       return $this->service->getAllTemplates();
     }
-
+    public function listAll()
+    {
+        return response()
+            ->view('pages.mailingtemplate.mailingtemplate-index');
+    }
     /**
      * Show the form for creating a new resource.
      *
