@@ -3,7 +3,7 @@
  * @author Adam Chin <achin@zetainteractive.com>
  */
 
-namespace App\Services;
+namespace App\Services\Attribution;
 
 use DB;
 use Carbon\Carbon;
@@ -20,7 +20,7 @@ use App\Models\AttributionRecordReport;
 
 use App\Exceptions\RecordReportCollectionException;
 
-class AttributionAggregatorService extends AbstractReportAggregatorService {
+class RecordAggregatorService extends AbstractReportAggregatorService {
     protected $conversionService;
     protected $action;
 
@@ -43,35 +43,35 @@ class AttributionAggregatorService extends AbstractReportAggregatorService {
         $this->saveReport();
     }
 
-    protected function buildRecords () {
-        $records = $this->action->getByDateRange( $this->dateRange );
+    protected function getBaseRecords () {
+        return $this->action->getByDateRange( $this->dateRange );
+    }
 
-        foreach ( $records as $current ) {
-            $emailId = $current->email_id;
-            $deployId = $current->deploy_id;
-            $date = Carbon::parse( $current->datetime )->toDateString();
+    protected function processBaseRecord ( $baseRecord ) {
+        $emailId = $baseRecord->email_id;
+        $deployId = $baseRecord->deploy_id;
+        $date = Carbon::parse( $baseRecord->datetime )->toDateString();
 
-            $this->createRowIfMissing( $date , $emailId , $deployId );
+        $this->createRowIfMissing( $date , $emailId , $deployId );
 
-            $currentRow = &$this->getCurrentRow( $date , $emailId , $deployId ); 
+        $currentRow = &$this->getCurrentRow( $date , $emailId , $deployId ); 
 
-            switch ( $current->action_id ) {
-                case 1 :
-                    $currentRow[ 'opened' ]++;
-                break;
+        switch ( $baseRecord->action_id ) {
+            case 1 :
+                $currentRow[ 'opened' ]++;
+            break;
 
-                case 2 :
-                    $currentRow[ 'clicked' ]++;
-                break;
+            case 2 :
+                $currentRow[ 'clicked' ]++;
+            break;
 
-                case 3 :
-                    $currentRow[ 'converted' ]++;
-                break;
+            case 3 :
+                $currentRow[ 'converted' ]++;
+            break;
 
-                case 4 :
-                    $currentRow[ 'delivered' ]++;
-                break;
-            }
+            case 4 :
+                $currentRow[ 'delivered' ]++;
+            break;
         }
     }
 
@@ -118,55 +118,45 @@ class AttributionAggregatorService extends AbstractReportAggregatorService {
         }
     }
 
-    protected function saveReport () {
-        if ( $this->count() ) {
-            $chunkedRows = $this->recordList->chunk( parent::INSERT_CHUNK_AMOUNT );
+    protected function formatRecordToSqlString ( $record ) {
+        return "( 
+            '{$record[ 'email_id' ]}' ,
+            '{$record[ 'deploy_id' ]}' ,
+            '{$record[ 'offer_id' ]}' ,
+            '{$record[ 'delivered' ]}' ,
+            '{$record[ 'opened' ]}' ,
+            '{$record[ 'clicked' ]}' ,
+            '{$record[ 'converted' ]}' ,
+            '{$record[ 'bounced' ]}' ,
+            '{$record[ 'unsubbed' ]}' ,
+            '{$record[ 'revenue' ]}' ,
+            '{$record[ 'date' ]}' ,
+            NOW() ,
+            NOW()
+        )";
+    }
 
-            foreach ( $chunkedRows as $chunk ) {
-                $rowStringList = [];
-
-                foreach ( $chunk as $row ) {
-                    $rowStringList []= "( 
-                        '{$row[ 'email_id' ]}' ,
-                        '{$row[ 'deploy_id' ]}' ,
-                        '{$row[ 'offer_id' ]}' ,
-                        '{$row[ 'delivered' ]}' ,
-                        '{$row[ 'opened' ]}' ,
-                        '{$row[ 'clicked' ]}' ,
-                        '{$row[ 'converted' ]}' ,
-                        '{$row[ 'bounced' ]}' ,
-                        '{$row[ 'unsubbed' ]}' ,
-                        '{$row[ 'revenue' ]}' ,
-                        '{$row[ 'date' ]}' ,
-                        NOW() ,
-                        NOW()
-                    )";
-                }
-
-                $insertString = implode( ',' , $rowStringList );
-
-                DB::connection( 'attribution' )->insert( "
-                    INSERT INTO
-                        attribution_record_reports ( email_id , deploy_id , offer_id , delivered , opened , clicked , converted , bounced , unsubbed , revenue , date , created_at , updated_at )
-                    VALUES
-                        {$insertString}
-                    ON DUPLICATE KEY UPDATE
-                        email_id = email_id ,
-                        deploy_id = deploy_id ,
-                        offer_id = offer_id ,
-                        delivered = VALUES( delivered ) ,
-                        opened = VALUES( opened ) ,
-                        clicked = VALUES( clicked ) ,
-                        converted = VALUES( converted ) ,
-                        bounced = VALUES( bounced ) ,
-                        unsubbed = VALUES( unsubbed ) ,
-                        revenue = VALUES( revenue ) ,
-                        date = date ,
-                        created_at = created_at ,
-                        updated_at = NOW()
-                " );
-            }
-        }
+    protected function runInsertQuery ( $valuesSqlString ) {
+        DB::connection( 'attribution' )->insert( "
+            INSERT INTO
+                attribution_record_reports ( email_id , deploy_id , offer_id , delivered , opened , clicked , converted , bounced , unsubbed , revenue , date , created_at , updated_at )
+            VALUES
+                {$valuesSqlString}
+            ON DUPLICATE KEY UPDATE
+                email_id = email_id ,
+                deploy_id = deploy_id ,
+                offer_id = offer_id ,
+                delivered = VALUES( delivered ) ,
+                opened = VALUES( opened ) ,
+                clicked = VALUES( clicked ) ,
+                converted = VALUES( converted ) ,
+                bounced = VALUES( bounced ) ,
+                unsubbed = VALUES( unsubbed ) ,
+                revenue = VALUES( revenue ) ,
+                date = date ,
+                created_at = created_at ,
+                updated_at = NOW()
+        " );
     }
 
     protected function createRowIfMissing ( $date , $emailId , $deployId , $offerId = null ) {

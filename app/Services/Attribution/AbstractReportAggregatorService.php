@@ -19,9 +19,13 @@ abstract class AbstractReportAggregatorService {
 
     abstract public function buildAndSaveReport( array $dateRange = null );
 
-    abstract protected function buildRecords();
+    abstract protected function getBaseRecords();
 
-    abstract protected function saveReport();
+    abstract protected function processBaseRecord( $baseRecord );
+
+    abstract protected function formatRecordToSqlString( $record );
+
+    abstract protected function runInsertQuery( $valuesSqlString );
 
     public function setDateRange ( $dateRange = null ) {
         if ( is_null( $dateRange ) && !isset( $this->dateRange ) ) {
@@ -37,6 +41,30 @@ abstract class AbstractReportAggregatorService {
 
     public function count () {
         return count( $this->recordList );
+    }
+
+    protected function buildRecords () {
+        foreach ( $this->getBaseRecords() as $current ) {
+            $this->processBaseRecord( $current );
+        }
+    }
+
+    protected function saveReport () {
+        if ( $this->count() ) {
+            $chunkedRows = $this->recordList->chunk( self::INSERT_CHUNK_AMOUNT );
+
+            foreach ( $chunkedRows as $chunk ) {
+                $rowStringList = [];
+
+                foreach ( $chunk as $row ) {
+                    $rowStringList []= $this->formatRecordToSqlString( $row ); 
+                }
+
+                $insertString = implode( ',' , $rowStringList );
+
+                $this->runInsertQuery( $insertString );
+            }
+        }
     }
 
     protected function flattenStruct ( $flattenLevel = null ) {

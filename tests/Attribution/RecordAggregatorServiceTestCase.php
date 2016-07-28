@@ -6,9 +6,9 @@
 namespace Tests\Attribution;
 
 use Tests\TestCase;
-use \App\Services\AttributionAggregatorService;
+use \App\Services\Attribution\RecordAggregatorService;
 
-class AttributionAggregatorServiceTestCase extends TestCase {
+class RecordAggregatorServiceTestCase extends TestCase {
     public function setUp () {
         parent::setUp(); 
     }

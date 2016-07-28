@@ -9,7 +9,7 @@ use Tests\TestCase;
 use \Illuminate\Foundation\Testing\DatabaseMigrations;
 use \Carbon\Carbon;
 
-class AttributionAggregatorServiceTestCase extends TestCase {
+class RecordAggregatorServiceTestCase extends TestCase {
     use DatabaseMigrations;
 
     const TEST_DEPLOY_ID = 1;
@@ -21,7 +21,7 @@ class AttributionAggregatorServiceTestCase extends TestCase {
     public function setUp () {
         parent::setUp();
 
-        $this->sut = \App::make( \App\Services\AttributionAggregatorService::class );
+        $this->sut = \App::make( \App\Services\Attribution\RecordAggregatorService::class );
     }
 
     public function tearDown () {
