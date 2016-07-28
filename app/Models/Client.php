@@ -11,7 +11,4 @@ class Client extends Model {
         return $this->hasMany('App\Models\EmailClientInstance');
     }
 
-    public function emailAction() {
-        return $this->hasMany('App\Models\EmailAction');
-    }
 }

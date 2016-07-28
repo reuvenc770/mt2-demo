@@ -50,7 +50,6 @@ class EmailRecordRepo {
                 $validRecord = "( "
                     . join( " , " , [
                         $currentId ,
-                        $this->getClientId() ,
                         $currentRecord[ 'espId' ] ,
                         $currentRecord['deployId'],
                         $currentRecord[ 'espInternalId' ] ,
@@ -93,14 +92,13 @@ class EmailRecordRepo {
             foreach ( $chunkedRecords as $chunkIndex => $chunk ) {
                 DB::connection( 'reporting_data' )->statement("
                     INSERT INTO email_actions
-                        ( email_id , client_id , esp_account_id , deploy_id, 
+                        ( email_id , esp_account_id , deploy_id, 
                         esp_internal_id , action_id , datetime , created_at , 
                         updated_at )    
                     VALUES
                         " . join( ' , ' , $chunk ) . "
                     ON DUPLICATE KEY UPDATE
                         email_id = email_id ,
-                        client_id = client_id ,
                         esp_account_id = esp_account_id ,
                         deploy_id = deploy_id,
                         esp_internal_id = esp_internal_id ,
@@ -149,12 +147,11 @@ class EmailRecordRepo {
         if ( $this->isValidRecord() ) {
             DB::connection( 'reporting_data' )->statement("
                 INSERT INTO email_actions
-                    ( email_id , client_id , deploy_id, esp_account_id , esp_internal_id , action_id , datetime , created_at , updated_at )    
+                    ( email_id , deploy_id, esp_account_id , esp_internal_id , action_id , datetime , created_at , updated_at )    
                 VALUES
                     ( ? , ? , ? , ? , ? , ? , ? , NOW() , NOW() )
                 ON DUPLICATE KEY UPDATE
                     email_id = email_id ,
-                    client_id = client_id ,
                     deploy_id = deploy_id,
                     esp_account_id = esp_account_id ,
                     esp_internal_id = esp_internal_id ,
@@ -185,13 +182,6 @@ class EmailRecordRepo {
 
     public function emailExists () {
         return $this->email->where( 'email_address' , $this->emailAddress )->count() > 0;
-    }
-
-    public function hasClient () {
-        // TODO
-        //return Email::find( $this->getEmailId() )->emailClientInstances()->count() > 0;
-        // temporary workaround so we don't fail here
-        return true;
     }
 
     public function hasDeployId() {
@@ -229,15 +219,7 @@ class EmailRecordRepo {
             //Log::error( "Email '{$this->emailAddress}' does not exist." );
 
             $errorFound = true;
-        } elseif ( !$this->hasClient() ) {
-            $orphan->missing_email_client_instance = 1;
-            $this->errorReason = 'missing_email_client_instance';
-
-            Log::error( "Client ID for email '{$this->emailAddress}' does not exist." );
-
-            $errorFound = true;
-        }
-        elseif (!$this->hasDeployId()) {
+        } elseif (!$this->hasDeployId()) {
             $this->errorReason = 'missing_deploy_id';
             Log::error("Deploy id for esp internal id '{$this->espInternalId}' does not exist.");
             $errorFound = true;
@@ -256,22 +238,6 @@ class EmailRecordRepo {
         return $errorFound === false;
     }
 
-    protected function getClientId () {
-        // TODO
-        //return Email::find( $this->getEmailId() )->emailClientInstances()->first()->client_id;
-
-        // temporary workaround while missing email client instances and attribution
-
-        $emailClientInstances = Email::find( $this->getEmailId() )->emailClientInstances;
-
-        if ($emailClientInstances->isEmpty()) {
-            return 0;
-        }
-        else {
-            return $emailClientInstances->first()->client_id;
-        }
-
-    }
 
     protected function getActionId ( $actionName ) {
         return ActionType::where( 'name' , $actionName )->first()->id;
@@ -279,15 +245,15 @@ class EmailRecordRepo {
 
 
     public function withinTwoDays($espId,$espInternalId){
-        $delivevered = false;
+        $delivered = false;
         $date = Carbon::today()->subDay(2)->toDateTimeString();
         $actionCount = DB::connection( 'reporting_data' )->table('standard_reports')
             ->where('esp_account_id', $espId)
             ->where('esp_internal_id',$espInternalId)
             ->where('datetime','>=', $date)->count();
         if ($actionCount == 1) {
-            $delivevered = true;
+            $delivered = true;
         }
-        return $delivevered;
+        return $delivered;
     }
 }

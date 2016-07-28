@@ -16,8 +16,4 @@ class EmailAction extends Model {
   public function actionType() {
     return $this->belongsTo('App\Models\ActionType');
   }
-
-  public function client() {
-    return $this->belongsTo('App\Models\Client');
-  }
 }
