@@ -8,6 +8,8 @@ namespace App\Services;
 use DB;
 use Carbon\Carbon;
 
+use App\Services\Attribution\AbstractReportAggregatorService;
+
 use App\Services\EmailActionService;
 use App\Services\CakeConversionService;
 
@@ -18,53 +20,30 @@ use App\Models\AttributionRecordReport;
 
 use App\Exceptions\RecordReportCollectionException;
 
-class AttributionAggregatorService {
-    const STATIC_OFFER_ID_PLACEHOLDER = 0;
-    const WHOLE_NUMBER_MODIFIER = 100000;
-
+class AttributionAggregatorService extends AbstractReportAggregatorService {
+    protected $conversionService;
     protected $action;
-    protected $dateRange;
-    protected $recordList;
-    protected $recordStruct = [];
 
     public function __construct ( CakeConversionService $conversionService , EmailActionService $action ) {
         $this->conversionService = $conversionService;
         $this->action = $action;
     }
 
-    public function setDateRange ( $dateRange = null ) {
-        if ( is_null( $dateRange ) && !isset( $this->dateRange ) ) {
-            $this->dateRange = [ "start" => Carbon::today()->startOfDay()->toDateTimeString() , "end" => Carbon::today()->endOfDay()->ToDateTimeString() ];
-        } elseif ( !is_null( $dateRange ) && isset( $this->dateRange ) ) {
-            $this->dateRange = $dateRange;
-        }
-    }
-
-    public function buildAndSaveReport ( $dateRange = null ) {
+    public function buildAndSaveReport ( array $dateRange = null ) {
         if ( !isset( $this->action ) ) {
             throw new RecordReportCollectionException( 'EmailActionService is required. Please inject a service.' );
         }
 
         $this->setDateRange( $dateRange );
 
-        $this->loadRecords();
+        $this->buildRecords();
         $this->loadRevenue();
         $this->loadSuppressions();
-        $this->buildReportRowsFromStruct();
+        $this->flattenStruct( 3 );
         $this->saveReport();
     }
 
-    public function getRecords () {
-        return $this->recordList;
-    }
-
-    public function count () {
-        return count( $this->recordList );
-    }
-
-    protected function loadRecords ( $dateRange = null ) {
-        $this->setDateRange( $dateRange );
-
+    protected function buildRecords () {
         $records = $this->action->getByDateRange( $this->dateRange );
 
         foreach ( $records as $current ) {
@@ -104,10 +83,10 @@ class AttributionAggregatorService {
         foreach ( $conversions as $current ) {
             $currentRow = &$this->getCurrentRow( Carbon::parse( $current->conversion_date )->toDateString() , $current->email_id , $current->deploy_id ); 
 
-            $wholeRevenue = $currentRow[ 'revenue' ] * self::WHOLE_NUMBER_MODIFIER;
-            $conversionRevenue = $current->revenue * self::WHOLE_NUMBER_MODIFIER;
+            $wholeRevenue = $currentRow[ 'revenue' ] * parent::WHOLE_NUMBER_MODIFIER;
+            $conversionRevenue = $current->revenue * parent::WHOLE_NUMBER_MODIFIER;
 
-            $currentRow[ 'revenue' ] = ( $wholeRevenue + $conversionRevenue ) / self::WHOLE_NUMBER_MODIFIER;
+            $currentRow[ 'revenue' ] = ( $wholeRevenue + $conversionRevenue ) / parent::WHOLE_NUMBER_MODIFIER;
         }
     }
 
@@ -139,13 +118,9 @@ class AttributionAggregatorService {
         }
     }
 
-    protected function buildReportRowsFromStruct () {
-        $this->recordList = collect( collect( $this->recordStruct )->flatten( 3 )->all() );
-    }
-
     protected function saveReport () {
         if ( $this->count() ) {
-            $chunkedRows = $this->recordList->chunk( 10000 );
+            $chunkedRows = $this->recordList->chunk( parent::INSERT_CHUNK_AMOUNT );
 
             foreach ( $chunkedRows as $chunk ) {
                 $rowStringList = [];
@@ -194,7 +169,9 @@ class AttributionAggregatorService {
         }
     }
 
-    protected function createRowIfMissing ( $date , $emailId , $deployId , $offerId = AttributionAggregatorService::STATIC_OFFER_ID_PLACEHOLDER ) {
+    protected function createRowIfMissing ( $date , $emailId , $deployId , $offerId = null ) {
+        if ( is_null( $offerId ) ) { $offerId = parent::STATIC_OFFER_ID_PLACEHOLDER; }
+
         if ( !isset( $this->recordStruct[ $date ][ $emailId ][ $deployId ][ $offerId ] ) ) {
             $this->recordStruct[ $date ][ $emailId ][ $deployId ][ $offerId ] = [
                 "email_id" => $emailId ,
@@ -212,7 +189,9 @@ class AttributionAggregatorService {
         }
     }
 
-    protected function &getCurrentRow ( $date , $emailId , $deployId , $offerId = AttributionAggregatorService::STATIC_OFFER_ID_PLACEHOLDER ) {
+    protected function &getCurrentRow ( $date , $emailId , $deployId , $offerId = null ) {
+        if ( is_null( $offerId ) ) { $offerId = parent::STATIC_OFFER_ID_PLACEHOLDER; }
+
         return $this->recordStruct[ $date ][ $emailId ][ $deployId ][ $offerId ];
     }
 
