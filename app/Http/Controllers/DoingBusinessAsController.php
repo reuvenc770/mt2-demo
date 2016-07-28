@@ -12,10 +12,10 @@ use App\Http\Requests;
 class DoingBusinessAsController extends Controller
 {
     protected $doingBusinessService;
-
-    public function __construct(DoingBusinessAsService $doingBusinessService){
+    protected $states;
+    public function __construct(DoingBusinessAsService $doingBusinessService, States $states){
         $this->doingBusinessService = $doingBusinessService;
-
+        $this->states = $states;
     }
 
     public function listAll()
@@ -32,16 +32,7 @@ class DoingBusinessAsController extends Controller
     public function index()
     {
         $dbas = $this->doingBusinessService->getAll();
-        $return = array();
-        foreach ($dbas as $dba) {
-            $return[] = array(
-                $dba->id,
-                $dba->name,
-                $dba->state_id
-
-            );
-        }
-        return response()->json($return);
+        return response()->json($dbas);
     }
 
     /**

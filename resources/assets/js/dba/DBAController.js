@@ -4,23 +4,21 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
 
     self.headers = [ '' , 'ID', 'name', "state"];
     self.accounts = [];
-    self.currentAccount = { id:"", "name" : "" , "state_id": ""};
+    self.po_box = {address : "", address_2 : "", city : "", state : "", zip: ""};
+    self.currentAccount = { id:"",  dba_name : "" , phone: "",
+        email : "", po_boxes : [], address: "", address_2 : "", city : "", state : "", zip : ""};
+
     self.createUrl = 'dba/create/';
     self.editUrl = 'dba/edit/';
 
     self.formErrors = "";
-
+    self.fuck = [];
     self.loadAccount = function () {
         var pathMatches = $location.path().match( /^\/dba\/edit\/(\d{1,})/ );
 
         DBAApiService.getAccount( pathMatches[ 1 ] , function ( response ) {
             self.currentAccount = response.data;
-        } )
-    };
-    self.loadProfile = function ($id) {
-
-        DBAApiService.getAccount($id , function ( response ) {
-            self.currentAccount = response.data;
+            self.currentAccount.po_boxes = JSON.parse(response.data.po_boxes);
         } )
     };
 
@@ -42,7 +40,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
 
     self.saveNewAccount = function () {
         self.resetFieldErrors();
-
+        self.currentAccount.po_boxes = JSON.stringify(self.currentAccount.po_boxes);
         DBAApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback );
     };
 
@@ -51,6 +49,29 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
 
         DBAApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
+
+
+    self.addPOBox = function () {
+        if(self.po_box.address.length >= 1 || self.po_box.state.length >= 1) {
+            self.currentAccount.po_boxes.push(self.po_box);
+            self.clearPOBox();
+        }
+    };
+
+    self.removePOBox = function (id) {
+        self.currentAccount.po_boxes.splice( id , 1 );
+
+    };
+
+    self.editPOBox = function (id) {
+        self.po_box = self.currentAccount.po_boxes[id];
+        self.currentAccount.po_boxes.splice( id , 1 );
+    };
+
+    self.clearPOBox = function () {
+        self.po_box = {address : "", address_2 : "", city : "", state : "", zip: ""};
+    };
+
 
 
 

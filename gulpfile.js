@@ -103,7 +103,8 @@ elixir.extend( 'deployUserJs' , function ( mix ) {
 elixir.extend( 'deployDBAJs' , function ( mix ) {
     mix.scripts( [
         'dba/DBAController.js' ,
-        'dba/DBAApiService.js'
+        'dba/DBAApiService.js',
+        'dba/DomainListTableDirective.js'
     ] , 'public/js/dba.js' );
 } );
 

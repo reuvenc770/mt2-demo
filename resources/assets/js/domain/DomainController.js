@@ -113,6 +113,8 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     };
 
 
+
+
     /**
      * Callbacks
      */

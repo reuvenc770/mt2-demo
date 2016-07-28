@@ -26,8 +26,14 @@ class AddDBARequest extends Request
     public function rules()
     {
         return [
-            'name' => 'required|unique:doing_business_as',
-            'state_id'      => 'required',
+            'dba_name'      => 'required|unique:doing_business_as',
+            'phone'         => 'required',
+            'zip'           => 'required',
+            'email'         => 'required|email',
+            'address'       => 'required',
+            'city'          => 'required',
+            'state'         => 'required',
+            'registrant_name' => 'required',
         ];
     }
 }

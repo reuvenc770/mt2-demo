@@ -17,7 +17,7 @@
         <div class="row">
             <div class="col-xs-12">
                 <div id="mtTableContainer" class="table-responsive">
-                    <generic-table headers="dba.headers" records="dba.accounts" editurl="dba.editUrl"></generic-table>
+                    <dba-table headers="dba.headers" records="dba.accounts" editurl="dba.editUrl"></dba-table>
                 </div>
             </div>
         </div>
