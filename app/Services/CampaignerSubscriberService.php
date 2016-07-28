@@ -44,7 +44,7 @@ class CampaignerSubscriberService
 
     public function insertUnsubs($data){
         foreach ($data as $entry){
-            Suppression::recordRawUnsub($this->api->getEspAccountId(),$entry['email'],0,"", Carbon::today()->toDateString());
+            Suppression::recordRawUnsub($this->api->getEspAccountId(),$entry['email'],0, Carbon::today()->toDateString());
         }
 
     }

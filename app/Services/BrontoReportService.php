@@ -218,7 +218,6 @@ class BrontoReportService extends AbstractReportService implements IDataService
                             $this->api->getId(),
                             $bounce->getEmailAddress(),
                             $espInternalId,
-                            "",
                             $bounce->getCreatedDate()->format('Y-m-d H:i:s')
                         );
                         $internalIds[] = $espInternalId;
@@ -233,7 +232,6 @@ class BrontoReportService extends AbstractReportService implements IDataService
                             $this->api->getId(),
                             $bounce->getEmailAddress(),
                             $espInternalId,
-                            '',
                             $bounce->getCreatedDate()->format('Y-m-d H:i:s')
                         );
                         $internalIds[] = $espInternalId;
@@ -420,7 +418,7 @@ class BrontoReportService extends AbstractReportService implements IDataService
     {
         foreach ($data as $entry) {
             $espInternalId = $this->parseInternalId($entry->getDeliveryId());
-            Suppression::recordRawUnsub($espAccountId, $entry->getEmailAddress(), $espInternalId, "", $entry->getCreatedDate()->format('Y-m-d H:i:s'));
+            Suppression::recordRawUnsub($espAccountId, $entry->getEmailAddress(), $espInternalId, $entry->getCreatedDate()->format('Y-m-d H:i:s'));
         }
     }
 

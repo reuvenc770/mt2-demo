@@ -200,7 +200,7 @@ class YmlpReportService extends AbstractReportService implements IDataService {
                     $bounceData = $this->api->getDeliverableStat('bounced', $espInternalId);
                     $count = count($bounceData);
                     foreach ( $bounceData as $key => $bouncer ) {
-                       Suppression::recordRawHardBounce($this->api->getId(),$bouncer['Email'],$espInternalId, $bouncer['ErrorMessage'], Carbon::today()->toDateString());
+                       Suppression::recordRawHardBounce($this->api->getId(),$bouncer['Email'],$espInternalId, Carbon::today()->toDateString());
                     }
                     $type = "bounce";
                     break;
@@ -239,7 +239,7 @@ class YmlpReportService extends AbstractReportService implements IDataService {
 
     public function insertUnsubs($data, $espAccountId){
         foreach ($data as $entry){
-            Suppression::recordRawUnsub($espAccountId,$entry["EMAIL"],0,"", Carbon::today()->toDateString());
+            Suppression::recordRawUnsub($espAccountId,$entry["EMAIL"],0, Carbon::today()->toDateString());
         }
     }
 }
