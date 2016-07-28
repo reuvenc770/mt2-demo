@@ -3,7 +3,7 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
     self.$location = $location;
     self.headers = [ '' , 'ID', 'name', "Username" ];
     self.accounts = [];
-    self.currentAccount = { "name" : "" , "username": ""};
+    self.currentAccount = { "id": "", "name" : "" , "username": ""};
     self.createUrl = 'registrar/create/';
     self.editUrl = 'registrar/edit/';
 

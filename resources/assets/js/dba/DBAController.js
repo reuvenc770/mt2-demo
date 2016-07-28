@@ -4,7 +4,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
 
     self.headers = [ '' , 'ID', 'name', "state"];
     self.accounts = [];
-    self.currentAccount = { "name" : "" , "state_id": ""};
+    self.currentAccount = { id:"", "name" : "" , "state_id": ""};
     self.createUrl = 'dba/create/';
     self.editUrl = 'dba/edit/';
 
