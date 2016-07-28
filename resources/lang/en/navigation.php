@@ -35,5 +35,7 @@ return[
     'datacleanse.add' => 'Add Data Cleanse' ,
     'attr.model.list' => 'Attribution Models' ,
     'attr.model.add' => 'Add Attribution Model' ,
+    'mailingtemplate.list' => "Mailing Templates",
+    'mailingtemplate.add' => "Add Mailing Template",
 
 ];

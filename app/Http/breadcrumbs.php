@@ -196,6 +196,12 @@ Breadcrumbs::register('proxy.add', function($breadcrumbs) {
     $breadcrumbs->push('Add Proxy');
 });
 
+
+Breadcrumbs::register('proxy.edit', function($breadcrumbs) {
+    $breadcrumbs->parent('proxy.list');
+    $breadcrumbs->push('Edit Proxy');
+});
+
 Breadcrumbs::register('registrar.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');
     $breadcrumbs->push('Registrars', route('registrar.list'));
@@ -206,6 +212,11 @@ Breadcrumbs::register('registrar.add', function($breadcrumbs) {
     $breadcrumbs->push('Add Registrar');
 });
 
+Breadcrumbs::register('registrar.edit', function($breadcrumbs) {
+    $breadcrumbs->parent('registrar.list');
+    $breadcrumbs->push('Edit Registrar');
+});
+
 Breadcrumbs::register('dba.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');
     $breadcrumbs->push('DBAs', route('dba.list'));
@@ -214,6 +225,10 @@ Breadcrumbs::register('dba.list', function($breadcrumbs) {
 Breadcrumbs::register('dba.add', function($breadcrumbs) {
     $breadcrumbs->parent('dba.list');
     $breadcrumbs->push('Add DBA');
+});
+Breadcrumbs::register('dba.edit', function($breadcrumbs) {
+    $breadcrumbs->parent('dba.list');
+    $breadcrumbs->push('Edit DBA');
 });
 
 
@@ -227,3 +242,17 @@ Breadcrumbs::register('domain.add', function($breadcrumbs) {
     $breadcrumbs->push('Add Domain');
 });
 
+Breadcrumbs::register('mailingtemplate.list', function($breadcrumbs) {
+    $breadcrumbs->parent('home');
+    $breadcrumbs->push('Mailing Templates', route('mailingtemplate.list'));
+});
+
+Breadcrumbs::register('mailingtemplate.add', function($breadcrumbs) {
+    $breadcrumbs->parent('mailingtemplate.list');
+    $breadcrumbs->push('Add Mailing Template');
+});
+
+Breadcrumbs::register( 'mailingtemplate.edit' , function ( $breadcrumbs ) {
+    $breadcrumbs->parent( 'mailingtemplates.list' );
+    $breadcrumbs->push( 'Edit Mailing Template' );
+} );
