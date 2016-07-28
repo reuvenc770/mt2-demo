@@ -61,5 +61,9 @@ class EspAccount extends Model
         return $this->hasMany('App\Models\DeployRecordRerun');
     }
 
+    public function domains(){
+        return $this->hasMany('App\Models\Domains');
+    }
+
 
 }

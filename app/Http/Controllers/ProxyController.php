@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\ProxyService;
+
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -114,5 +115,9 @@ class ProxyController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function returnProxiesByType($type){
+        return $this->proxyService->getAllByType($type);
     }
 }

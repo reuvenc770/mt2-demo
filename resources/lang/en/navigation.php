@@ -13,6 +13,8 @@ return[
     'proxy.list'  => 'Proxies',
     'dba.add'     => 'Add DBA',
     'dba.list'    => 'DBAs',
+    'domain.list' => 'Mail/Content Domains',
+    'domain.add'     => 'Add Domain',
     'registrar.list'   => 'Registrars',
     'registrar.add' => 'Add Registrar',
     'clientgroup.list' => 'Client Group',
