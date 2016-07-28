@@ -1,8 +1,7 @@
 mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$timeout' , 'DBAApiService' , function ( $log , $window , $location , $timeout , DBAApiService ) {
     var self = this;
     self.$location = $location;
-
-    self.headers = [ '' , 'ID', 'name', "state"];
+    
     self.accounts = [];
     self.po_box = {address : "", address_2 : "", city : "", state : "", zip: ""};
     self.currentAccount = { id:"",  dba_name : "" , phone: "",
@@ -12,7 +11,6 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     self.editUrl = 'dba/edit/';
 
     self.formErrors = "";
-    self.fuck = [];
     self.loadAccount = function () {
         var pathMatches = $location.path().match( /^\/dba\/edit\/(\d{1,})/ );
 
