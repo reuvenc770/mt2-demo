@@ -264,7 +264,7 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
 } );
 
 elixir.extend( 'runTdd' , function ( mix ) {
-    mix.phpUnit();
+
 } );
 
 var mt2TaskMap = {
