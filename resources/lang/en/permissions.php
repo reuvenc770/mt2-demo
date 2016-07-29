@@ -67,6 +67,7 @@ return [
     'api.espapi.update' => 'Update ESP API Information',
     'api.espapi.destroy' => 'Delete ESP API',
     'api.espapi.GetAll'  => "Retrieve List of Accounts by ESP",
+    'api.espapi.returnAll' => "Retrieve List of All Esp Accounts",
     'api.ymlp-campaign.index' => 'Retrieve List of YMLP Campaigns',
     'api.ymlp-campaign.show' => 'Retrieve YMLP Campaign Information',
     'api.ymlp-campaign.store' => 'Save YMLP Campaign',
@@ -161,6 +162,15 @@ return [
     'api.domain.edit' => "Edit Domain",
     'api.domain.update' => "Update Domain",
     'api.domain.destroy' => "Deactivate Domain",
-    'api.domain.listDomains' => "Retrieve List of domains by ESP"
+    'api.domain.listDomains' => "Retrieve List of domains by ESP",
+    'mailingtemplate.add'   => "View Add Mailing Template Page",
+    'mailingtemplate.edit'  => "View Edit Mailing Template Page",
+    'mailingtemplate.preview' => "View Preview Mailing Template Page",
+    'mailingtemplate.list'  => "View Mailing Template Page",
+    'api.mailingtemplate.store'  =>  "Save new Mailing Template",
+    'api.mailingtemplate.index'  =>  "Retrieve List of Mailing Templates",
+    'api.mailingtemplate.destroy' => "Delete Mailing Templates",
+    'api.mailingtemplate.show'  =>   "Retrieve single record of Mailing Template",
+    'api.mailingtemplate.update'  => "Update Mailing Template",
 
 ];

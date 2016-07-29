@@ -111,7 +111,7 @@ class NavigationService {
     }
 
     protected function isValidName () {
-        return ( preg_match( '/.{1,}[.]{1}(?!index)(?!edit)(?!show)/' , $this->currentRoute[ 'name' ] ) === 1 );
+        return ( preg_match( '/.{1,}[.]{1}(?!index)(?!edit)(?!show)(?!preview)/' , $this->currentRoute[ 'name' ] ) === 1 );
     }
 
     protected function hasAccess () {
