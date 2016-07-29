@@ -78,4 +78,8 @@ class AttributionRecordTruthService
             Log::error("Could not Bulk Insert Record because {$e->getMessage()}");
         }
     }
+
+    public function getAssignedRecords () {
+        return $this->recordTruthRepo->getAssignedRecords();
+    }
 }

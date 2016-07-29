@@ -18,7 +18,7 @@ class ClientReportCollection extends Collection {
     protected $emailClientService;
     protected $dateRonge;
 
-    protected $clientStruct = [];
+    protected $recordStruct = [];
 
     public function __construct ( $items = [] ) {
         parent::__construct( $items );
