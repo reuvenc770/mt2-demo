@@ -3,6 +3,7 @@
 namespace App\Repositories;
 use App\Models\EmailCampaignStatistic;
 use DB;
+use Carbon\Carbon;
 
 class EmailCampaignStatisticRepo {
     protected $model;
@@ -192,7 +193,10 @@ class EmailCampaignStatisticRepo {
              ->join('standard_reports as sr', 'email_campaign_statistics.deploy_id', '=', 'sr.external_deploy_id')
              ->where('e.email_address', $email)
              ->where('sr.esp_internal_id', $espInternalId)
-             ->update(["email_campaign_statistics.$field" => 1]);
+             ->update([
+                 "email_campaign_statistics.$field" => 1,
+                 "email_campaign_statistics.updated_at" => Carbon::now()->format('Y-m-d H:i:s')
+             ]);
     }
 
 }
