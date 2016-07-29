@@ -8,7 +8,6 @@ namespace App\Reports;
 use Illuminate\Support\Collection;
 use Carbon\Carbon;
 use App\Models\AttributionClientDeployReport;
-use App\Exceptions\ClientDeployReportCollectionException;
 
 class ClientDeployReportCollection extends Collection {
     protected $dateRonge;
