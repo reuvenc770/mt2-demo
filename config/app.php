@@ -169,6 +169,7 @@ return [
         App\Providers\DeployActionProvider::class,
         App\Providers\Mt1CompanyProvider::class,
         AdrianMejias\States\StatesServiceProvider::class,
+        App\Providers\SftpServiceProvider::class,
     ],
 
     /*

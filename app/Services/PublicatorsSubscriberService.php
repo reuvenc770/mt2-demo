@@ -26,7 +26,6 @@ class PublicatorsSubscriberService {
                 $espAccountId ,
                 $record->Email ,
                 $record->CampaignID ,
-                '' ,
                 $record->TimeStamp
             );
         }

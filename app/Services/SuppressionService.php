@@ -12,25 +12,28 @@ namespace App\Services;
 use App\Models\Suppression;
 use App\Repositories\SuppressionRepo;
 use Log;
-    //Todo refactor out dead reason variable.
+use App\Repositories\EmailCampaignStatisticRepo;
+
 class SuppressionService
 {
     protected $repo;
+    protected $statRepo;
 
-    public function __construct(SuppressionRepo $repo )
+    public function __construct(SuppressionRepo $repo, EmailCampaignStatisticRepo $statRepo )
     {
         $this->repo = $repo;
+        $this->statRepo = $statRepo;
     }
 
-    public function recordRawHardBounce($espId,$email,$espInternalId,$reason, $date){
+    public function recordRawHardBounce($espId,$email,$espInternalId, $date){
         return $this->recordSuppression($espId,$email,$espInternalId, $date, Suppression::TYPE_HARD_BOUNCE);
     }
 
-    public function recordRawComplaint($espId,$email,$espInternalId,$reason, $date){
+    public function recordRawComplaint($espId,$email,$espInternalId, $date){
         return $this->recordSuppression($espId,$email,$espInternalId,$date, Suppression::TYPE_COMPLAINT);
     }
 
-    public function recordRawUnsub($espId, $email, $espInternalId, $reason, $date){
+    public function recordRawUnsub($espId, $email, $espInternalId, $date){
         return $this->recordSuppression($espId, $email ,$espInternalId, $date, Suppression::TYPE_UNSUB);
     }
 
@@ -38,6 +41,14 @@ class SuppressionService
         $record = $this->buildRecord($espId, $email, $espInternalId, $date, $type);
         try{
             $this->repo->insertSuppression($record);
+
+            if (Suppression::TYPE_HARD_BOUNCE === $type) {
+                $this->statRepo->updateHardBounce($email, $espInternalId);
+            }
+            else {
+                $this->statRepo->updateUnsubStatus($email, $espInternalId);
+            }
+            
         } catch (\Exception $e) {
             Log::error($e->getMessage(). ": while trying to record unsub");
             throw new \Exception($e);

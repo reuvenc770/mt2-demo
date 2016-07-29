@@ -57,4 +57,11 @@ class StandardApiReportRepo {
                 ->first();
     }
 
+    public function getStatsForDeploy($deployId) {
+        return $this->report
+                    ->select('delivered as delivers', 'e_opens as opens', 'e_clicks as clicks')
+                    ->where('external_deploy_id', $deployId)
+                    ->first();
+    }
+
 }

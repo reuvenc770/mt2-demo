@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class EmailCampaignStatistic extends Model {
   protected $guarded = ['id'];
   protected $connection = "reporting_data";
+  public $timestamps = false;
 
   public function email() {
     return $this->belongsTo('App\Models\Email');

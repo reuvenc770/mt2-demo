@@ -13,6 +13,8 @@ return[
     'proxy.list'  => 'Proxies',
     'dba.add'     => 'Add DBA',
     'dba.list'    => 'DBAs',
+    'domain.list' => 'Mail/Content Domains',
+    'domain.add'     => 'Add Domain',
     'registrar.list'   => 'Registrars',
     'registrar.add' => 'Add Registrar',
     'clientgroup.list' => 'Client Group',
@@ -33,5 +35,7 @@ return[
     'datacleanse.add' => 'Add Data Cleanse' ,
     'attr.model.list' => 'Attribution Models' ,
     'attr.model.add' => 'Add Attribution Model' ,
+    'mailingtemplate.list' => "Mailing Templates",
+    'mailingtemplate.add' => "Add Mailing Template",
 
 ];

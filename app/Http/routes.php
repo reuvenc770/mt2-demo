@@ -220,11 +220,11 @@ Route::group(
         ] );
     }
 );
-/** Registar */
+/** Registrar */
 Route::group(
     [
         'prefix' => 'registrar' ,
-        'middleware' => [ 'auth' , 'admin' , 'pageLevel' ]
+        'middleware' => [ 'auth' , 'pageLevel' ]
     ] ,
     function () {
         Route::get( '/' , [
@@ -243,6 +243,36 @@ Route::group(
         ] );
     }
 );
+
+/** Mailing Template */
+Route::group(
+    [
+        'prefix' => 'mailingtemplate' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get('/', [
+            'as' => 'mailingtemplate.list',
+            'uses' => 'MailingTemplateController@listAll'
+        ]);
+
+        Route::get('/create', [
+            'as' => 'mailingtemplate.add',
+            'uses' => 'MailingTemplateController@create'
+        ]);
+
+        Route::get('/edit/{id}', [
+            'as' => 'mailingtemplate.edit',
+            'uses' => 'MailingTemplateController@edit'
+        ]);
+
+        Route::get('/preview/{id?}', [
+            'as' => 'mailingtemplate.preview',
+            'uses' => 'MailingTemplateController@preview'
+        ]);
+    });
+
+
 
 /**
  * User Routes
@@ -407,6 +437,32 @@ Route::group(
         Route::get( '/edit/{id}' , [
             'as' => 'role.edit' ,
             'uses' => 'RoleApiController@edit'
+        ] );
+    }
+);
+
+/**
+ * Domain Routes
+ */
+Route::group(
+    [
+        'prefix' => 'domain' ,
+        'middleware' => [ 'auth' , 'admin' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' , [
+            'as' => 'domain.list' ,
+            'uses' => 'DomainController@listAll'
+        ] );
+
+        Route::get( '/create' , [
+            'as' => 'domain.add' ,
+            'uses' => 'DomainController@create'
+        ] );
+
+        Route::get( '/edit/{id}' , [
+            'as' => 'domain.edit' ,
+            'uses' => 'DomainController@edit'
         ] );
     }
 );
@@ -577,6 +633,29 @@ Route::group(
             }
         );
 
+        /**
+         * Proxies additional routes
+         */
+        Route::group(
+            [ 'prefix' => 'proxy' ] ,
+            function () {
+                Route::get( '/proxiesbytype/{type}' , [
+                    'as' => 'api.proxy.listType' ,
+                    'uses' => 'ProxyController@returnProxiesByType'
+                ] );
+            }
+        );
+        /**Domain Routes**/
+        Route::group(
+            [ 'prefix' => 'domain' ] ,
+            function () {
+                Route::get( '/listDomains/{type}/{espAccountId}' , [
+                    'as' => 'api.domain.listDomains' ,
+                    'uses' => 'DomainController@getDomainsByTypeAndESP'
+                ] );
+            }
+        );
+
 
         /**
          *  Bulk Suppression API Routes
@@ -655,14 +734,26 @@ Route::group(
             }
         );
 
+        Route::get( '/espapi/espAccounts/{name}' , [
+            'as' => 'api.espapi.GetAll' ,
+            'uses' => 'EspApiController@displayEspAccounts'
+        ] );
         /**
          * API Resources
          */
+        Route::get(
+            'espapi/all' ,
+            [
+                'as' => 'api.espapi.returnAll' ,
+                'uses' => 'EspApiController@returnAll'
+            ]
+        );
         Route::resource(
             'espapi' ,
             'EspApiController' ,
             [ 'except' => [ 'create' , 'edit' ] ]
         );
+
 
         Route::resource(
             'ymlp-campaign' ,
@@ -685,6 +776,12 @@ Route::group(
         Route::resource(
             'user',
             'UserApiController',
+            [ 'except' => [ 'create' , 'edit' ] ]
+        );
+
+        Route::resource(
+            'domain',
+            'DomainController',
             [ 'except' => [ 'create' , 'edit' ] ]
         );
         
@@ -731,6 +828,7 @@ Route::group(
                 'uses' => 'AttributionController@bulk'
             ]
 	    );
+
 	    Route::resource(
             'dataexport', 
             'DataExportController', 
@@ -761,6 +859,12 @@ Route::group(
         Route::resource(
             'dba',
             'DoingBusinessAsController',
+            [ 'except' => ['create', 'edit']]
+        );
+
+        Route::resource(
+            'mailingtemplate',
+            'MailingTemplateController',
             [ 'except' => ['create', 'edit']]
         );
 

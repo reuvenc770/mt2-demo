@@ -84,6 +84,15 @@ elixir.extend( 'deployEspApiJs' , function ( mix ) {
     ] , 'public/js/espapi.js' );
 } );
 
+elixir.extend( 'deployDomainJs' , function ( mix ) {
+    mix.scripts( [
+        'domain/DomainController.js' ,
+        'domain/DomainApiService.js' ,
+        'domain/DomainTableDirective.js',
+        'domain/DomainListTableDirective.js'
+    ] , 'public/js/domain.js' );
+} );
+
 elixir.extend( 'deployUserJs' , function ( mix ) {
     mix.scripts( [
         'user/UserController.js' ,
@@ -94,7 +103,8 @@ elixir.extend( 'deployUserJs' , function ( mix ) {
 elixir.extend( 'deployDBAJs' , function ( mix ) {
     mix.scripts( [
         'dba/DBAController.js' ,
-        'dba/DBAApiService.js'
+        'dba/DBAApiService.js',
+        'dba/DomainListTableDirective.js'
     ] , 'public/js/dba.js' );
 } );
 
@@ -112,7 +122,13 @@ elixir.extend( 'deployRegistrarJs' , function ( mix ) {
     ] , 'public/js/registrar.js' );
 } );
 
-
+elixir.extend( 'deployMailingTemplateJs' , function ( mix ) {
+    mix.scripts( [
+        'mailingtemplate/MailingTemplateController.js' ,
+        'mailingtemplate/MailingTemplateApiService.js',
+        'mailingtemplate/MailingTemplateTableDirective.js'
+    ] , 'public/js/mailingtemplate.js' );
+} );
 
 elixir.extend( 'deployRoleJs' , function ( mix ) {
     mix.scripts( [
@@ -230,11 +246,13 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployJobJs( mix );
     mix.deployShowInfoJs( mix );
     mix.deployWizardJs( mix );
+    mix.deployDomainJs( mix);
     mix.deployYmlpCampaignJs( mix );
     mix.deployClientJs( mix );
     mix.deployDBAJs( mix );
     mix.deployClientGroupJs( mix );
     mix.deployListProfileJs( mix );
+    mix.deployMailingTemplateJs( mix);
     mix.deployBulkSuppressionJs( mix );
     mix.deployClientAttributionJs( mix );
     mix.deployClientAttributionJs( mix );
@@ -246,7 +264,7 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
 } );
 
 elixir.extend( 'runTdd' , function ( mix ) {
-    mix.phpUnit();
+
 } );
 
 var mt2TaskMap = {
@@ -296,6 +314,9 @@ var mt2TaskMap = {
     } ,
     'deployWizardJs' : function ( mix ) {
         mix.deployWizardJs( mix );
+    } ,
+    'deployMailingJs' : function ( mix ) {
+        mix.deployMailingJs( mix );
     } ,
     'deployYmlpCampaignJs' : function ( mix ) {
         mix.deployYmlpCampaignJs( mix );

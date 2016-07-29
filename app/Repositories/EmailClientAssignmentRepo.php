@@ -18,7 +18,7 @@ class EmailClientAssignmentRepo {
     }
 
     public function assignClient ( $emailId , $clientId , $captureDate ) {
-        $this->assignment->updateOrCreate(['email_id' => $email_id], [
+        $this->assignment->updateOrCreate(['email_id' => $emailId], [
             'client_id' => $clientId,
             'capture_date' => $captureDate
         ]);
@@ -28,7 +28,7 @@ class EmailClientAssignmentRepo {
         return $this->assignment->where( 'email_id' , $emailId )->pluck( 'client_id' )->pop();
     }
 
-    protected function recordSwap ( $emailId , $prevClientId , $newClientId ) {
+    public function recordSwap ( $emailId , $prevClientId , $newClientId ) {
         $this->history->create([
             'email_id' => $emailId,
             'prev_client_id' => $prevClientId,

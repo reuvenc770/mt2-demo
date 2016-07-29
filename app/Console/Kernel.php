@@ -53,6 +53,7 @@ class Kernel extends ConsoleKernel
         Commands\CommitAttribution::class,
         Commands\SharePublicatorsUnsubs::class,
         Commands\UpdateAttributionReports::class,
+        Commands\PopulateCfsStatsTables::class,
     ];
 
     /**
@@ -110,6 +111,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:downloadApi Publicators 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Bronto 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadTrackingData Cake 5')->hourly()->sendOutputTo($filePath);
+        $schedule->command('process:cfsStats')->cron('0 */4 * * *');
 
         /**
          * Campaign Data Monthly
@@ -142,10 +144,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('download:mtstats')->dailyAt(self::DELIVERABLE_SCHEDULE_TIME);
         $schedule->command('reports:findIncompleteDeploys')->dailyAt(self::DEPLOY_CHECK_TIME);
         
-        /**
-         * Attribution jobs
-         */
-        $schedule->command('attribution:commit')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
 
         /**
          * Constantly firing.
@@ -160,5 +158,6 @@ class Kernel extends ConsoleKernel
          */
         $schedule->command('runFilter activity')->daily();
         $schedule->command('runFilter expiration')->daily();
+        $schedule->command('attribution:commit')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
     }
 }

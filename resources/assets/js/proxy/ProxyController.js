@@ -4,7 +4,7 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
 
     self.headers = [ '' , 'ID', 'name', "IP Address", "Provider Name"];
     self.accounts = [];
-    self.currentAccount = { "name" : "" , "ip_address": "", "provider_name" : ""};
+    self.currentAccount = {  id: "", "name" : "" , "ip_address": "", "provider_name" : ""};
     self.createUrl = 'proxy/create/';
     self.editUrl = 'proxy/edit/';
 

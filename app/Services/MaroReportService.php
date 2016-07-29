@@ -156,7 +156,6 @@ class MaroReportService extends AbstractReportService implements IDataService
                             $this->api->getId(),
                             $unsub['contact']['email'],
                             $unsub['campaign_id'],
-                            "",
                             $unsub['recorded_on']
                         );
                         $internalIds[] = $unsub['campaign_id'];
@@ -171,7 +170,6 @@ class MaroReportService extends AbstractReportService implements IDataService
                             $this->api->getId(),
                             $bounce['contact']['email'],
                             $bounce['campaign_id'],
-                            $bounce['diagnostic'],
                             $bounce['recorded_on']
                         );
                         $internalIds[] = $bounce['campaign_id'];
@@ -185,7 +183,6 @@ class MaroReportService extends AbstractReportService implements IDataService
                             $this->api->getId(),
                             $complainer['contact']['email'],
                             $complainer['campaign_id'],
-                            "",
                             $complainer['recorded_on']
                         );
                         $internalIds[] = $complainer['campaign_id'];
@@ -457,7 +454,7 @@ class MaroReportService extends AbstractReportService implements IDataService
     public function insertUnsubs($data, $espAccountId)
     {
         foreach ($data as $entry) {
-            Suppression::recordRawUnsub($espAccountId, $entry['contact']['email'], $entry['campaign_id'], "", $entry['recorded_on']);
+            Suppression::recordRawUnsub($espAccountId, $entry['contact']['email'], $entry['campaign_id'], $entry['recorded_on']);
         }
     }
 

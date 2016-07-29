@@ -18,7 +18,8 @@
         "davejamesmiller/laravel-breadcrumbs": "^3.0",
         "maknz/slack": "^1.7",
         "flowjs/flow-php-server": "^1.0" ,
-        "jenssegers/agent": "^2.3"
+        "jenssegers/agent": "^2.3",
+        "league/flysystem-sftp": "^1.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

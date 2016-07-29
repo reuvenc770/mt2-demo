@@ -41,14 +41,15 @@ class ZxSuppressionExportReport {
                 $writer->insertOne( $this->formatStrategy->formatFile($row) );
             }
 
-            $this->destination->put("$advertiser/unsub/" . $this->formatStrategy->formatFileName($date), $writer->__toString());
+            $location = "$advertiser/unsub/" . $this->formatStrategy->formatFileName($date);
+            $this->destination->put($location, $writer->__toString());
         }
 
     }
 
     public function notify() {
-
-        $output = "*##### Offer Unsub Report for {$this->today} ready ####*\n\n";
+        $offers = implode(', ', $this->advertisers);
+        $output = "*##### {$offers} Offer Unsub Report for {$this->today} ready ####*\n\n";
         Slack::to(self::SLACK_CHANNEL)->send($output);
     }
 

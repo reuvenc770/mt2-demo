@@ -49,7 +49,7 @@ return [
             'advertisers' => ['Sprint'],
             'formatStrategy' => 'SprintFormatStrategy'
         ],
-        'destination' => 'dataExportFTP',
+        'destination' => 'ZxUnsubFtp',
         'service' => 'ZxSuppressionExportReport',
         'model' => 'Suppression',
         'repo' => 'SuppressionRepo',
@@ -62,7 +62,7 @@ return [
             'advertisers' => ['Esurance'],
             'formatStrategy' => 'JustEmailFormatStrategy'
         ],
-        'destination' => 'dataExportFTP',
+        'destination' => 'ZxUnsubFtp',
         'service' => 'ZxSuppressionExportReport',
         'model' => 'Suppression',
         'repo' => 'SuppressionRepo',

@@ -299,7 +299,6 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
                 $processState[ "espId" ] ,
                 $record->Email ,
                 $processState[ "campaign" ]->esp_internal_id ,
-                '' ,
                 $record->TimeStamp
             );
         }
@@ -313,7 +312,6 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
                 $processState[ "espId" ] ,
                 $record->Email ,
                 $processState[ "campaign" ]->esp_internal_id ,
-                '' ,
                 $record->TimeStamp
             );
         }

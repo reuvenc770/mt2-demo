@@ -19,7 +19,6 @@ trait PaginateList {
                 $eloquentObj = $this->getModel();
 
                 $paginationJSON = $eloquentObj->paginate( $count )->toJSON();
-
                 $this->cachePagination(
                     $paginationJSON ,
                     $page ,

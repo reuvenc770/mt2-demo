@@ -47,6 +47,10 @@ class EspApiController extends Controller
         return response()->json( $accountList );
     }
 
+    public function returnAll(){
+        return  response()->json($this->espAccountService->getAllAccounts());
+    }
+
     /**
      * Show the ESP Account index page.
      *
@@ -145,5 +149,9 @@ class EspApiController extends Controller
     public function destroy($id)
     {
         //Will not be in use. We don't want to delete ESP Accounts.
+    }
+
+    public function displayEspAccounts(Request $request, $name){
+        return $this->espAccountService->getAllAccountsByESPName($name);
     }
 }

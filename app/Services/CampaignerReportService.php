@@ -310,7 +310,6 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                         $processState[ 'ticket' ][ 'espId' ],
                         $record[ 'email' ],
                         $processState[ 'ticket' ][ 'espInternalId' ],
-                        "", 
                         Carbon::parse($record[ 'actionDate' ])->format('Y-m-d H:i:s')
                     );
 
@@ -319,11 +318,10 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                         $processState[ 'ticket' ][ 'espId' ],
                         $record[ 'email' ],
                         $processState[ 'ticket' ][ 'espInternalId' ],
-                        "", 
                         Carbon::parse($record[ 'actionDate' ])->format('Y-m-d H:i:s')
                     );
                 }elseif ( $record[ 'action' ] === 'SpamComplaint' ) {
-                    Suppression::recordRawComplaint($processState[ 'ticket' ][ 'espId' ],$record[ 'email' ],$processState[ 'ticket' ][ 'espInternalId' ],"", $record[ 'actionDate' ]);
+                    Suppression::recordRawComplaint($processState[ 'ticket' ][ 'espId' ],$record[ 'email' ],$processState[ 'ticket' ][ 'espInternalId' ], $record[ 'actionDate' ]);
                 } elseif ( $record[ 'action' ] === 'Delivered' ) {
                     $actionType = self::RECORD_TYPE_DELIVERABLE;
                     if ($skipDelivered){

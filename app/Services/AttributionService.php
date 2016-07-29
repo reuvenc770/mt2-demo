@@ -8,6 +8,7 @@ use App\Repositories\EmailClientAssignmentRepo;
 use App\Repositories\AttributionRecordTruthRepo;
 use App\Repositories\AttributionScheduleRepo;
 use App\Repositories\EmailClientInstanceRepo;
+use App\Repositories\AttributionLevelRepo;
 
 
 class AttributionService
@@ -21,12 +22,14 @@ class AttributionService
     public function __construct(AttributionRecordTruthRepo $truthRepo, 
                                 AttributionScheduleRepo $scheduleRepo, 
                                 EmailClientAssignmentRepo $assignmentRepo,
-                                EmailClientInstanceRepo $clientInstanceRepo) {
+                                EmailClientInstanceRepo $clientInstanceRepo,
+                                AttributionLevelRepo $levelRepo) {
 
         $this->truthRepo = $truthRepo;
         $this->scheduleRepo = $scheduleRepo;
         $this->assignmentRepo = $assignmentRepo;
         $this->clientInstanceRepo = $clientInstanceRepo;
+        $this->levelRepo = $levelRepo;
     }   
 
     public function getTransientRecords() {
@@ -39,7 +42,10 @@ class AttributionService
             $beginDate = $record->capture_date;
             $clientId = (int)$record->client_id;
             $oldClientId = (int)$record->client_id;
-            $currentAttrLevel = (int)$record->level;
+
+            // Currently get a 95% decrease in query time by running this separately
+            $currentAttrLevel = $this->levelRepo->getLevel($clientId);
+
             $actionDateTime = $record->action_datetime;
             $hasAction = (bool)$record->has_action;
             $actionExpired = $record->action_expired;
@@ -63,13 +69,13 @@ class AttributionService
 
             // Only run this once we've found the winner
             if ($oldClientId !== $clientId) {
-                $this->changeAttribution($record->email_id, $clientId);
-                $this->recordHistory($record->email_id, $oldClientId, $ClientId);
+                $this->changeAttribution($record->email_id, $clientId, $beginDate);
+                $this->recordHistory($record->email_id, $oldClientId, $clientId);
                 $this->updateScheduleTable($record->email_id, $beginDate);
                 $this->updateTruthTable($record->email_id, $beginDate, $hasAction, $actionExpired, $subsequentImports);
             }
             
-        });
+        }, 50000);
     }
 
     protected function getPotentialReplacements($emailId, $beginDate, $clientId) {
@@ -79,7 +85,7 @@ class AttributionService
     protected function shouldChangeAttribution($captureDate, $hasAction, $actionExpired, $currentAttrLevel, $testAttrLevel) {
 
         // needs to be explicitly checked - we don't just have the query to watch this
-        if ($this->getExpiringDay->gte($captureDate)) {
+        if ($this->getExpiringDay()->gte(Carbon::parse($captureDate))) {
             // Older than pre-defined X days ago
             
             if ($hasAction && $actionExpired) {
