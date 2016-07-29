@@ -27,7 +27,13 @@ class EditDBARequest extends Request
     {
         return [
             'name' => 'required',
-            'state_id'      => 'required',
+            'phone'         => 'required',
+            'zip'           => 'required',
+            'email'         => 'required|email',
+            'address'       => 'required',
+            'city'          => 'required',
+            'state'         => 'required',
+            'registrant_name' => 'required',
         ];
     }
 }
