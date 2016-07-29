@@ -272,6 +272,29 @@ Route::group(
         ]);
     });
 
+/** Mass Adjustments */
+Route::group([
+        'prefix' => 'mass-adjustments',
+        'middleware' => ['auth', 'pageLevel']
+    ], 
+    function () {
+        Route::get('/', [
+            'as' => 'massadjustments.list',
+            'uses' => 'CakeMassAdjustmentsController@index'
+        ]);
+
+        Route::get('/create', [
+            'as' => 'massadjustments.add',
+            'uses' => 'CakeMassAdjustmentsController@create'
+        ]);
+
+        Route::get('/edit/{id}', [
+            'as' => 'massadjustments.edit',
+            'uses' => 'CakeMassAdjustmentsController@edit'
+        ]);
+
+    }
+);
 
 
 /**
