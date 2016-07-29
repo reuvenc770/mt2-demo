@@ -9,7 +9,7 @@ use Tests\TestCase;
 use \Illuminate\Foundation\Testing\DatabaseMigrations;
 use \Carbon\Carbon;
 
-class RecordAggregatorServiceTestCase extends TestCase {
+class RecordAggregatorServiceIntegrationTest extends TestCase {
     use DatabaseMigrations;
 
     const TEST_DEPLOY_ID = 1;

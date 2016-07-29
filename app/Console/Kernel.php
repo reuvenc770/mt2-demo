@@ -52,6 +52,7 @@ class Kernel extends ConsoleKernel
         Commands\RunScheduledFilter::class,
         Commands\CommitAttribution::class,
         Commands\SharePublicatorsUnsubs::class,
+        Commands\UpdateAttributionReports::class,
     ];
 
     /**
