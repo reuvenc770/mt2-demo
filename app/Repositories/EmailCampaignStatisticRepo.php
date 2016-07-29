@@ -186,7 +186,7 @@ class EmailCampaignStatisticRepo {
     }
 
     protected function updateSuppressionStatus($email, $espInternalId, $field) {
-        $dataSchema = config('connections.mysql.database');
+        $dataSchema = config('database.connections.mysql.database');
         $this->model
              ->join("$dataSchema.emails as e", 'email_campaign_statistics.email_id', '=', 'e.id')
              ->join('standard_reports as sr', 'email_campaign_statistics.deploy_id', '=', 'sr.external_deploy_id')
