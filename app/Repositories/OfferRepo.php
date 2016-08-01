@@ -14,4 +14,8 @@ class OfferRepo {
         $this->offer = $offer;
     } 
 
+    public function updateOrCreate($data) {
+        $this->offer->updateOrCreate(['id' => $data['id']], $data);
+    }
+
 }

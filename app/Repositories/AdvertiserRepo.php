@@ -14,4 +14,8 @@ class AdvertiserRepo {
         $this->advertiser = $advertiser;
     } 
 
+    public function updateOrCreate($data) {
+        $this->advertiser->updateOrCreate(['id' => $data['id']], $data);
+    }
+
 }

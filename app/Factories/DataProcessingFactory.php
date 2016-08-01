@@ -45,6 +45,16 @@ class DataProcessingFactory {
                 return self::createPublicatorsActionService();
             case('ProcessCfsStats'):
                 return self::createProcessCfsStatsService();
+
+            case ('ImportMt1Advertisers'):
+                $mt1Name = 'CompanyInfo';
+                $mt2Name = 'Advertiser';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case('ImportMt1Offers'):
+                $mt1Name = 'AdvertiserInfo';
+                $mt2Name = 'Offer';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
                 
             default:
                 throw new \Exception("Data processing service {$name} does not exist");
@@ -126,6 +136,22 @@ class DataProcessingFactory {
         $fromRepo = new \App\Repositories\FromOpenRateRepo($fromModel);
 
         return new \App\Services\PopulateCfsStatsService($eajRepo, $stdRepo, $crRepo, $fromRepo, $subjRepo);
+    }
+
+    private static function createMt1ImportService($mt1Name, $mt2Name) {
+
+        $mt1ModelName = "App\\Models\\MT1Models\\{$mt1Name}";
+        $mt1RepoName = "App\\Repositories\\MT1Repositories\\{$mt1Name}Repo";
+        $mt1Repo = new $mt1RepoName( new $mt1ModelName() );
+
+        $mt2ModelName = "App\\Models\\{$mt2Name}";
+        $mt2RepoName = "App\\Repositories\\{$mt2Name}Repo";
+        $mt2Repo = new $mt2RepoName( new $mt2ModelName() );
+
+        $mapStrategyName = "App\\Services\\MapStrategies\\{$mt1Name}{$mt2Name}MapStrategy";
+        $mapStrategy = new $mapStrategyName();
+
+        return new \App\Services\ImportMt1DataService($mt1Repo, $mt2Repo, $mapStrategy);
     }
 
 }

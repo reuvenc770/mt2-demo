@@ -19,4 +19,8 @@ class CompanyInfoRepo {
              ->select('eaj.subAffiliateID')
              ->get();
     }
+
+    public function pullForSync() {
+        return $this->model->get();
+    }
 }
