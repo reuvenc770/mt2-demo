@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
     const EARLY_DELIVERABLE_SCHEDULE_TIME = '00:15';
     const DEPLOY_CHECK_TIME = '14:00';
     const ATTRIBUTION_UPDATE_TIME = '15:30';
+    const MT1_SYNC_TIME = '23:00';
 
     /**
      * The Artisan commands provided by your application.
@@ -53,6 +54,7 @@ class Kernel extends ConsoleKernel
         Commands\CommitAttribution::class,
         Commands\SharePublicatorsUnsubs::class,
         Commands\PopulateCfsStatsTables::class,
+        Commands\ImportMt1Entity::class,
     ];
 
     /**
@@ -138,7 +140,6 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'reports:downloadDeliverables Bronto 2' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         //$schedule->command( 'reports:downloadDeliverables Bronto:delivered 2' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:populateStats')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
-        $schedule->command('emails:download')->cron('*/2 * * * * *')->withoutOverlapping();
         $schedule->command('process:useragents')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME);
         $schedule->command('download:mtstats')->dailyAt(self::DELIVERABLE_SCHEDULE_TIME);
         $schedule->command('reports:findIncompleteDeploys')->dailyAt(self::DEPLOY_CHECK_TIME);
@@ -150,7 +151,12 @@ class Kernel extends ConsoleKernel
          */
         $schedule->command('ftp:admin -H 52.205.67.250 -U root -k ~/.ssh/mt2ftp.pub -K ~/.ssh/mt2ftp -u -s Client')->everyFiveMinutes();
 
-
+        /**
+         *  MT1 data sync jobs
+         */
+        $schedule->command('mt1Import offer')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import advertiser')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('emails:download')->cron('*/2 * * * * *')->withoutOverlapping();
 
         /**
          * Attribution Jobs
