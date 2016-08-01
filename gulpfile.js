@@ -110,6 +110,15 @@ elixir.extend( 'deployDBAJs' , function ( mix ) {
     ] , 'public/js/dba.js' );
 } );
 
+elixir.extend( 'deployDeployJs' , function ( mix ) {
+    mix.scripts( [
+        'deploy/DeployController.js' ,
+        'deploy/DeployApiService.js',
+        'deploy/DeployListTableDirective.js'
+    ] , 'public/js/deploy.js' );
+} );
+
+
 elixir.extend( 'deployProxyJs' , function ( mix ) {
     mix.scripts( [
         'proxy/ProxyController.js' ,
@@ -145,6 +154,8 @@ elixir.extend( 'deployJobJs' , function ( mix ) {
         'job/JobApiService.js'
     ] , 'public/js/job.js' );
 } );
+
+
 
 elixir.extend( 'deployShowInfoJs' , function ( mix ) {
     mix.scripts( [
@@ -260,6 +271,7 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployYmlpCampaignJs( mix );
     mix.deployClientJs( mix );
     mix.deployDBAJs( mix );
+    mix.deployDeployJs( mix );
     mix.deployClientGroupJs( mix );
     mix.deployListProfileJs( mix );
     mix.deployMailingTemplateJs( mix);
