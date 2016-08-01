@@ -273,6 +273,19 @@ Route::group(
     });
 
 
+/** Mailing Template */
+Route::group(
+    [
+        'prefix' => 'deploy' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get('/', [
+            'as' => 'deploy.list',
+            'uses' => 'DeployController@listAll'
+        ]);
+
+    });
 
 /**
  * User Routes
@@ -792,6 +805,13 @@ Route::group(
             'UserApiController',
             [ 'except' => [ 'create' , 'edit' ] ]
         );
+
+        Route::resource(
+            'deploy',
+            'DeployController',
+            [ 'except' => [ 'create' , 'edit' ] ]
+        );
+
 
         Route::resource(
             'domain',
