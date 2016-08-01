@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Advertiser extends Model {
   
-  protected $guarded = ['id'];
+    protected $fillable = ['id', 'name'];
 
-  public function offers() {
-    return $this->hasMany('App\Models\Offer');
-  }
+    public function offers() {
+        return $this->hasMany('App\Models\Offer');
+    }
 }
