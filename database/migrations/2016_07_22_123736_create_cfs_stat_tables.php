@@ -52,7 +52,7 @@ class CreateCfsStatTables extends Migration
      */
     public function down() {
         Schema::connection('reporting_data')->drop('creative_clickthrough_rates');
-        Schema::connection('reporting_data')->drop('creative_clickthrough_rates');
-        Schema::connection('reporting_data')->drop('creative_clickthrough_rates');
+        Schema::connection('reporting_data')->drop('from_open_rates');
+        Schema::connection('reporting_data')->drop('subject_open_rates');
     }
 }
