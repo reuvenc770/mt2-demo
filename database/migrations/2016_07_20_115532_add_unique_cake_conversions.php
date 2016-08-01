@@ -16,7 +16,7 @@ class AddUniqueCakeConversions extends Migration
     public function up()
     {
         Schema::connection( 'reporting_data' )->table( 'cake_conversions' , function ( Blueprint $table ) {
-        
+            $table->index( 'conversion_date' );        
         } );
     }
 
@@ -27,6 +27,8 @@ class AddUniqueCakeConversions extends Migration
      */
     public function down()
     {
-        //
+        Schema::connection( 'reporting_data' )->table( 'cake_conversions' , function ( Blueprint $table ) {
+            $table->dropIndex( 'cake_conversions_conversion_date_index' );        
+        } );
     }
 }
