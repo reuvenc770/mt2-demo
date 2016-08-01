@@ -28,7 +28,7 @@ class ModifyDba extends Migration
     {
         Schema::table('doing_business_as', function (Blueprint $table) {
             $table->dropColumn("phone");
-            $table->integer("state_id",2);
+            $table->integer("state_id");
             $table->dropColumn("po_boxes");
         });
     }
