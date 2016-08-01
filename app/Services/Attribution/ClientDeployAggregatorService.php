@@ -9,23 +9,31 @@ use DB;
 use App\Services\Attribution\AbstractReportAggregatorService;
 use App\Services\Attribution\RecordReportService;
 use App\Services\EmailClientAssignmentService;
+use App\Repositories\Attribution\ClientDeployAggregatorRepo;
+use App\Exceptions\AggregatorServiceException;
 
 class ClientDeployAggregatorService extends AbstractReportAggregatorService {
     protected $recordReport;
     protected $emailClientService;
+    protected $clientDeployRepo;
 
-    public function __construct ( RecordReportService $recordReport , EmailClientAssignmentService $emailClientService ) {
+    public function __construct ( RecordReportService $recordReport , EmailClientAssignmentService $emailClientService , ClientDeployAggregatorRepo $clientDeployRepo ) {
         $this->recordReport = $recordReport;
         $this->emailClientService = $emailClientService;
+        $this->clientDeployRepo = $clientDeployRepo;
     }
 
     public function buildAndSaveReport ( array $dateRange = null ) {
         if ( !isset( $this->recordReport ) ) {
-            throw new ClientReportCollectionException( 'RecordReport Model needed. Please inject a model.' );
+            throw new AggregatorServiceException( 'RecordReportService needed. Please inject a service.' );
         }
 
         if ( !isset( $this->emailClientService ) ) {
-            throw new ClientReportCollectionException( 'EmailClientAssignmentService needed. Please inject a service.' );
+            throw new AggregatorServiceException( 'EmailClientAssignmentService needed. Please inject a service.' );
+        }
+
+        if ( !isset( $this->clientDeployRepo ) ) {
+            throw new AggregatorServiceException( 'ClientDeployAggregatorRepo needed. Please inject a repo.' );
         }
 
         $this->setDateRange( $dateRange );
@@ -80,26 +88,7 @@ class ClientDeployAggregatorService extends AbstractReportAggregatorService {
     }
 
     protected function runInsertQuery ( $valuesSqlString ) {
-        DB::connection( 'attribution' )->insert( "
-            INSERT INTO
-                attribution_client_deploy_reports ( client_id , deploy_id , delivered , opened , clicked , converted , bounced , unsubbed , revenue , cost , date , created_at , updated_at )
-            VALUES
-                {$valuesSqlString}
-            ON DUPLICATE KEY UPDATE
-                client_id = client_id ,
-                deploy_id = deploy_id ,
-                delivered = VALUES( delivered ) ,
-                opened = VALUES( opened ) ,
-                clicked = VALUES( clicked ) ,
-                converted = VALUES( converted ) ,
-                bounced = VALUES( bounced ) ,
-                unsubbed = VALUES( unsubbed ) ,
-                revenue = VALUES( revenue ) ,
-                cost = VALUES( cost ) ,
-                date = date ,
-                created_at = created_at ,
-                updated_at = NOW()
-        " );
+        $this->clientDeployRepo->runInsertQuery( $valuesSqlString );
     }
 
     protected function createRowIfMissing ( $date , $clientId , $deployId ) {
