@@ -67,4 +67,8 @@ class ServiceFactory
 
         return new $service($truth, $schedule, $assignment, $instance, $level);
     }
+
+    public static function createStandardReportService () {
+        return new App\Services\StandardReportService( App::make( App\Repositories\StandardReportRepo::class ) );
+    }
 }

@@ -5,35 +5,41 @@
 
 namespace App\Services\Attribution;
 
-use DB;
 use Carbon\Carbon;
 
+use App\Repositories\Attribution\RecordAggregatorRepo;
 use App\Services\Attribution\AbstractReportAggregatorService;
-
 use App\Services\EmailActionService;
+use App\Services\EmailRecordService;
 use App\Services\CakeConversionService;
-
-use App\Models\Email;
+use App\Services\SuppressionService;
 use App\Models\Suppression;
-use App\Models\StandardReport;
-use App\Models\AttributionRecordReport;
-
-use App\Exceptions\RecordReportCollectionException;
+use App\Factories\ServiceFactory;
 
 class RecordAggregatorService extends AbstractReportAggregatorService {
+    protected $recordRepo;
     protected $conversionService;
-    protected $action;
+    protected $actionService;
+    protected $emailService;
+    protected $suppressionService;
+    protected $standardReportService;
 
-    public function __construct ( CakeConversionService $conversionService , EmailActionService $action ) {
+    public function __construct (
+        RecordAggregatorRepo $recordRepo ,
+        CakeConversionService $conversionService ,
+        EmailActionService $actionService ,
+        EmailRecordService $emailService ,
+        SuppressionService $suppressionService
+    ) {
+        $this->recordRepo = $recordRepo;
         $this->conversionService = $conversionService;
-        $this->action = $action;
+        $this->actionService = $actionService;
+        $this->emailService = $emailService;
+        $this->suppressionService = $suppressionService;
+        $this->standardReportService = ServiceFactory::createStandardReportService();
     }
 
     public function buildAndSaveReport ( array $dateRange = null ) {
-        if ( !isset( $this->action ) ) {
-            throw new RecordReportCollectionException( 'EmailActionService is required. Please inject a service.' );
-        }
-
         $this->setDateRange( $dateRange );
 
         $this->buildRecords();
@@ -44,7 +50,7 @@ class RecordAggregatorService extends AbstractReportAggregatorService {
     }
 
     protected function getBaseRecords () {
-        return $this->action->getByDateRange( $this->dateRange );
+        return $this->actionService->getByDateRange( $this->dateRange );
     }
 
     protected function processBaseRecord ( $baseRecord ) {
@@ -93,13 +99,11 @@ class RecordAggregatorService extends AbstractReportAggregatorService {
     protected function loadSuppressions ( $dateRange = null ) {
         $this->setDateRange( $dateRange );
 
-        $suppressions = Suppression::select( 'email_address' , 'esp_internal_id' , 'type_id' , 'date' )
-            ->whereBetween( 'date' , [ $this->dateRange[ 'start' ] , $this->dateRange[ 'end' ] ] )
-            ->get();
+        $suppressions = $this->suppressionService->getAllSuppressionsDateRange( $this->dateRange );
 
         foreach ( $suppressions as $currentSuppression ) {
-            $emailId = $this->getEmailId( $currentSuppression->email_address ); 
-            $deployId = $this->getDeployId( $currentSuppression->esp_internal_id ); 
+            $emailId = $this->emailService->getEmailId( $currentSuppression->email_address ); 
+            $deployId = $this->standardReportService->getDeployId( $currentSuppression->esp_internal_id ); 
             $date = $currentSuppression->date;
 
             $this->createRowIfMissing( $date , $emailId , $deployId );
@@ -137,26 +141,7 @@ class RecordAggregatorService extends AbstractReportAggregatorService {
     }
 
     protected function runInsertQuery ( $valuesSqlString ) {
-        DB::connection( 'attribution' )->insert( "
-            INSERT INTO
-                attribution_record_reports ( email_id , deploy_id , offer_id , delivered , opened , clicked , converted , bounced , unsubbed , revenue , date , created_at , updated_at )
-            VALUES
-                {$valuesSqlString}
-            ON DUPLICATE KEY UPDATE
-                email_id = email_id ,
-                deploy_id = deploy_id ,
-                offer_id = offer_id ,
-                delivered = VALUES( delivered ) ,
-                opened = VALUES( opened ) ,
-                clicked = VALUES( clicked ) ,
-                converted = VALUES( converted ) ,
-                bounced = VALUES( bounced ) ,
-                unsubbed = VALUES( unsubbed ) ,
-                revenue = VALUES( revenue ) ,
-                date = date ,
-                created_at = created_at ,
-                updated_at = NOW()
-        " );
+        $this->recordRepo->runInsertQuery( $valuesSqlString );
     }
 
     protected function createRowIfMissing ( $date , $emailId , $deployId , $offerId = null ) {
@@ -183,13 +168,5 @@ class RecordAggregatorService extends AbstractReportAggregatorService {
         if ( is_null( $offerId ) ) { $offerId = parent::STATIC_OFFER_ID_PLACEHOLDER; }
 
         return $this->recordStruct[ $date ][ $emailId ][ $deployId ][ $offerId ];
-    }
-
-    protected function getEmailId ( $emailAddress ) {
-        return Email::where( 'email_address' , $emailAddress )->pluck( 'id' )->pop();
-    }
-
-    protected function getDeployId ( $internalId ) {
-        return StandardReport::where( "esp_internal_id" , $internalId )->first()->pluck( 'id' )->pop();
     }
 }

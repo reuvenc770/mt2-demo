@@ -115,4 +115,9 @@ class SuppressionRepo
                     ->get();
     }
 
+    public function getAllSuppressionsDateRange ( array $dateRange ) {
+        return $this->suppressionModel
+            ->whereBetween( 'date' , [ $dateRange[ 'start' ] , $dateRange[ 'end' ] ] )
+            ->get();
+    }
 }
