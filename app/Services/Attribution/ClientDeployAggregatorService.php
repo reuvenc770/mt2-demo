@@ -5,7 +5,6 @@
 
 namespace App\Services\Attribution;
 
-use DB;
 use App\Services\Attribution\AbstractReportAggregatorService;
 use App\Services\Attribution\RecordReportService;
 use App\Services\EmailClientAssignmentService;
