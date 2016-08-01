@@ -34,6 +34,7 @@ class CreateOffersTable extends Migration
      * @return void
      */
     public function down() {
+        $schema = config('database.connections.attribution.database');
         Schema::drop('offers');
         Schema::connection('attribution')->rename('offer_payout_types', 'client_payout_types');
         DB::statement("UPDATE $schema.offer_payout_types SET name = 'Revshare' WHERE name = 'CPC'");
