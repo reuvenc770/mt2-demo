@@ -3,20 +3,52 @@
         <thead>
         <tr>
             <th class="text-center">
-                <strong><span class="glyphicon glyphicon-refresh rotateMe" ng-if="ctrl.loadingflag == 1"></span></strong>
+                <strong><span class="glyphicon glyphicon-refresh rotateMe"
+                              ng-if="ctrl.loadingflag == 1"></span></strong>
             </th>
-            <th class="text-center">ID</th>
-            <th class="text-center">DBA Name</th>
-            <th class="text-center">Email</th>
-            <th class="text-center">Address</th>
+            <th class="text-center">Send Date</th>
+            <th class="text-center">Deploy ID</th>
+            <th class="text-center">EspAccount</th>
+            <th class="text-center">List Profile</th>
             <th class="text-center">State</th>
             <th class="text-center">Phone</th>
         </tr>
         </thead>
 
         <tbody>
+        <tr ng-show="ctrl.showrow == 1">
+            <td></td>
+            <td>
+                <md-datepicker name="dateField" ng-model="ctrl.currentDeploy.send_date"
+                               md-placeholder="Enter date"></md-datepicker>
+                <div class="validation-messages" ng-messages="myForm.dateField.$error">
+                    <div ng-message="valid">The entered value is not a date!</div>
+                    <div ng-message="required">This date is required!</div>
+                    <div ng-message="mindate">Date is too early!</div>
+                    <div ng-message="maxdate">Date is too late!</div>
+                    <div ng-message="filtered">Only weekends are allowed!</div>
+                </div>
+            </td>
+            <td>To Be Generated</td>
+            <td>
+                <div class="form-group" ng-class="{ 'has-error' : ctrl.formErrors.espAccountId }">
+                    <select name="esp_account" id="esp_account"
+                            ng-model="ctrl.currentDeploy.espAccountId" class="form-control"
+                            ng-disabled="ctrl.loadingflag">
+                        <option value="">- Please Choose an ESP Account -</option>
+                        <option ng-repeat="option in ctrl.espaccounts" ng-value="option.id"
+                                ng-selected="option.id == ctrl.currentdeploy.espAccountId">{{ option.account_name }}
+                        </option>
+                    </select>
+                    <span class="help-block" ng-bind="ctrl.formerrors.espAccountId"
+                          ng-show="ctrl.formerrors.espAccountId"></span>
+                </div>
+            </td>
+        </tr>
         <tr ng-repeat="record in ctrl.records track by $index">
-            <td><edit-button editurl="'/dba/edit/'" recordid="record.id"></edit-button></td>
+            <td>
+                <edit-button editurl="'/dba/edit/'" recordid="record.id"></edit-button>
+            </td>
             <td>{{ record.id }}</td>
             <td>{{ record.dba_name }}</td>
             <td>{{ record.email }}</td>

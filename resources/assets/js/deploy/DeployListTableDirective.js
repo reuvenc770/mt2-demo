@@ -5,7 +5,11 @@ mt2App.directive( 'deployTable' , function () {
         "controllerAs" : "ctrl" ,
         "bindToController" : {
             "records" : "=" ,
-            "loadingflag" : "="
+            "loadingflag" : "=",
+            "showrow" : "=",
+            "currentdeploy" : "=",
+            "espaccounts" : "=",
+            "formerrors" : "="
         } ,
         "templateUrl" : "js/templates/deploy-table.html"
     };
