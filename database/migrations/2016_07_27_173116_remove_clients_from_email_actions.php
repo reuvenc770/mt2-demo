@@ -33,7 +33,7 @@ class RemoveClientsFromEmailActions extends Migration
             $table->integer('client_id')->unsigned()->default(0);
         });
 
-        Schema::connection('reportin_data')->table('email_campaign_statistics', function($table) {
+        Schema::connection('reporting_data')->table('email_campaign_statistics', function($table) {
             $table->integer('client_id')->unsigned()->default(0);
             $table->index('client_id', 'client_id');
         });
