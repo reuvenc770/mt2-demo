@@ -25,6 +25,6 @@ class AddPayoutTypes extends Seeder
 
         $type4 = new ClientPayoutType();
         $type4->name = 'Unknown'; // To support legacy data/unfilled
-        $tyle4->save();
+        $type4->save();
     }
 }
