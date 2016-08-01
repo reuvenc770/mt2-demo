@@ -17,7 +17,7 @@ class CreateDeploysTable extends Migration
             $table->string("deploy_name", 100);
             $table->date("send_date");
             $table->integer("esp_account_id");
-            $table->varchar("external_deploy_id", 100);
+            $table->string("external_deploy_id", 100);
             $table->integer("offer_id");
             $table->integer("creative_id");
             $table->integer("from_id");
