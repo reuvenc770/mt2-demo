@@ -3,7 +3,7 @@
  * @author Adam Chin <achin@zetainteractive.com>
  */
 
-namespace App\Reports;
+namespace App\Collections\Attribution;
 
 use Illuminate\Support\Collection;
 use Carbon\Carbon;

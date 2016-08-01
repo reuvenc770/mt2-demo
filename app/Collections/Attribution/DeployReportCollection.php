@@ -3,14 +3,14 @@
  * @author Adam Chin <achin@zetainteractive.com>
  */
 
-namespace App\Reports;
+namespace App\Collections\Attribution;
 
 use Illuminate\Support\Collection;
 use Carbon\Carbon;
-use App\Models\AttributionClientDeployReport;
+use App\Models\AttributionDeployReport;
 
-class ClientDeployReportCollection extends Collection {
-    protected $dateRonge;
+class DeployReportCollection extends Collection {
+    protected $dateRange;
 
     public function __construct ( $items = [] ) {
         parent::__construct( $items );
@@ -19,7 +19,7 @@ class ClientDeployReportCollection extends Collection {
     public function load ( $dateRange = null ) {
         $this->setDateRange( $dateRange );
 
-        parent::__construct( AttributionClientDeployReport::whereBetween( 'date' , [ $this->dateRange[ 'start' ] , $this->dateRange[ 'end' ] ] )->get()->toArray() );
+        parent::__construct( AttributionDeployReport::whereBetween( 'date' , [ $this->dateRange[ 'start' ] , $this->dateRange[ 'end' ] ] )->get()->toArray() );
     }
 
     public function setDateRange ( $dateRange = null ) { 

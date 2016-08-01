@@ -3,17 +3,17 @@
  * @author Adam Chin <achin@zetainteractive.com>
  */
 
-namespace Tests\Reports;
+namespace Tests\Collections\Attribution;
 
 use Tests\TestCase;
 
-class ClientDeployReportCollectionTestCase extends TestCase {
+class RecordReportCollectionTestCase extends TestCase {
     public $sut;
 
     public function setUp () {
         parent::setUp();
 
-        $this->sut = new \App\Reports\ClientDeployReportCollection();
+        $this->sut = new \App\Collections\Attribution\RecordReportCollection();
     }
 
     public function tearDown () {
