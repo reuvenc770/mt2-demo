@@ -5,19 +5,28 @@
 
 namespace App\Services\Attribution;
 
-use DB;
-
 use App\Services\Attribution\AbstractReportAggregatorService;
 use App\Services\Attribution\RecordReportService;
+use App\Repositories\Attribution\DeployAggregatorRepo;
 
 class DeployAggregatorService extends AbstractReportAggregatorService {
     protected $recordReport;
+    protected $deployRepo;
 
-    public function __construct ( RecordReportService $recordReport ) {
+    public function __construct ( RecordReportService $recordReport , DeployAggregatorRepo $deployRepo ) {
         $this->recordReport = $recordReport;
+        $this->deployRepo = $deployRepo;
     }
 
     public function buildAndSaveReport ( array $dateRange = null ) {
+        if ( !isset( $this->recordReport ) ) {
+            throw new AggregatorServiceException( 'RecordReportService needed. Please inject a service.' );                                                                                                        
+        }
+
+        if ( !isset( $this->deployRepo ) ) {
+            throw new AggregatorServiceException( 'DeployAggregatorRepo needed. Please inject a service.' );                                                                                                        
+        }
+
         $this->setDateRange( $dateRange );
 
         $this->buildRecords();
@@ -65,24 +74,7 @@ class DeployAggregatorService extends AbstractReportAggregatorService {
     }
 
     protected function runInsertQuery ( $valuesSqlString ) {
-        DB::connection( 'attribution' )->insert( "
-            INSERT INTO
-                attribution_deploy_reports ( deploy_id , delivered , opened , clicked , converted , bounced , unsubbed , revenue , date , created_at , updated_at )
-            VALUES
-                {$valuesSqlString}
-            ON DUPLICATE KEY UPDATE
-                deploy_id = deploy_id ,
-                delivered = VALUES( delivered ) ,
-                opened = VALUES( opened ) ,
-                clicked = VALUES( clicked ) ,
-                converted = VALUES( converted ) ,
-                bounced = VALUES( bounced ) ,
-                unsubbed = VALUES( unsubbed ) ,
-                revenue = VALUES( revenue ) ,
-                date = date ,
-                created_at = created_at ,
-                updated_at = NOW()
-        " );
+        $this->deployRepo->runInsertQuery( $valuesSqlString );
     }
 
     protected function createRowIfMissing ( $date , $deployId ) {
