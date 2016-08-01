@@ -9,5 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AttributionRecordReport extends Model
 {
+    protected $guarded = ['id'];
+
     protected $connection = 'attribution';
 }

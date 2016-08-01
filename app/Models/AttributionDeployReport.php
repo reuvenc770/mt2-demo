@@ -8,5 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AttributionDeployReport extends Model
 {
+    protected $guarded = ['id'];
+
     protected $connection = 'attribution';
 }
