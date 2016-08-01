@@ -11,6 +11,8 @@ use App\Exceptions\JobException;
 use App\Facades\JobTracking;
 use App\Models\JobEntry;
 
+use App\Factories\ServiceFactory;
+
 use Log;
 use Carbon\Carbon;
 
@@ -21,7 +23,7 @@ class AttributionAggregatorJob extends Job implements ShouldQueue
     private $jobName = 'AttributionAggregator';
     private $tracking;
 
-    private $reportName;
+    private $reportType;
     private $aggregator;
     private $dateRange;
     private $modelId;
@@ -31,11 +33,11 @@ class AttributionAggregatorJob extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct( $reportName , $tracking , array $dateRange = null , $modelId = null )
+    public function __construct( $reportType , $tracking , array $dateRange = null , $modelId = null )
     {
-        $this->jobName .= ":{$reportName}:" . ( is_null( $dateRange ) ? Carbon::today()->toDateString() : $dateRange[ 'start' ] . "-" . $dateRange[ 'end' ] );
+        $this->jobName .= ":{$reportType}:" . ( is_null( $dateRange ) ? Carbon::today()->toDateString() : $dateRange[ 'start' ] . "-" . $dateRange[ 'end' ] );
 
-        $this->reportName = $reportName;
+        $this->reportType = $reportType;
         $this->tracking = $tracking;
         $this->dateRange = $dateRange;
         $this->modelId = $modelId;
@@ -53,13 +55,7 @@ class AttributionAggregatorJob extends Job implements ShouldQueue
         try {
             JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
 
-            $className = "\App\Services\Attribution\\" . $this->reportName . "AggregatorService";
-
-            if ( !class_exists( $className ) ) {
-                throw new JobException( "Aggregator Service {$this->reportName} does not exist. Either enter an existing service or make a new one." );
-            }
-
-            $this->aggregator = \App::make( $className ); 
+            $this->aggregator = ServiceFactory::createAggregatorService( $this->reportType );
 
             $this->aggregator->buildAndSaveReport( $this->dateRange );
 

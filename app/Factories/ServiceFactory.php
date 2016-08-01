@@ -71,4 +71,14 @@ class ServiceFactory
     public static function createStandardReportService () {
         return new App\Services\StandardReportService( App::make( App\Repositories\StandardReportRepo::class ) );
     }
+
+    public static function createAggregatorService ( $aggregatorName ) {
+        $className = "\App\Services\Attribution\\" . $aggregatorName . "AggregatorService";
+
+        if ( !class_exists( $className ) ) {
+            throw new \Exception( "Aggregator Service {$aggregatorName} does not exist. Either enter an existing service or make a new one." );
+        }
+
+        return App::make( $className ); 
+    }
 }

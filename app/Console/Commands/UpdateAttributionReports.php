@@ -22,7 +22,7 @@ class UpdateAttributionReports extends Command
      *
      * @var string
      */
-    protected $signature = 'attribution:updateReports {--R|reportName= : The name of the report to update.} {--d|daysBack=1 : Number of days back to run the report for. If no value is given, it will run for the current day. } {--M|modelId=0 : Model ID to process instead of live tables.} {--Q|queueName=default : The queue to throw the job onto. }';
+    protected $signature = 'attribution:updateReports {--R|reportType= : The name of the report to update.} {--d|daysBack=1 : Number of days back to run the report for. If no value is given, it will run for the current day. } {--M|modelId=0 : Model ID to process instead of live tables.} {--Q|queueName=default : The queue to throw the job onto. }';
 
     /**
      * The console command description.
@@ -32,7 +32,7 @@ class UpdateAttributionReports extends Command
     protected $description = 'Command description';
 
 
-    protected $reportName;
+    protected $reportType;
     protected $dateRange;
     protected $modelId;
     protected $queueName;
@@ -57,7 +57,7 @@ class UpdateAttributionReports extends Command
         $this->processOptions();
 
         $job = ( new AttributionAggregatorJob(
-            $this->reportName ,
+            $this->reportType ,
             str_random( 16 ) ,
             $this->dateRange ,
             $this->modelId
@@ -67,8 +67,8 @@ class UpdateAttributionReports extends Command
     }
 
     protected function processOptions () {
-        if ( $this->option( 'reportName' ) ) {
-            $this->reportName = $this->option( 'reportName' );
+        if ( $this->option( 'reportType' ) ) {
+            $this->reportType = $this->option( 'reportType' );
         } else {
             throw new \Exception( "Missing report name. Please provide one." );
         }
