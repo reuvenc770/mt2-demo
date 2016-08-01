@@ -12,7 +12,7 @@
         <div class="row">
             <div class="col-xs-12">
                 <div id="mtTableContainer" class="table-responsive">
-                    <deploy-table records="deploy.deploys"></deploy-table>
+                    <deploy-table showrow="deploy.showRow"  currentdeploy="deploy.currentDeploy" espaccounts= "deploy.espAccounts" formerrors="deploy.formErrors" loadingflag="deploy.currentlyLoading" records="deploy.deploys"></deploy-table>
                 </div>
             </div>
         </div>
