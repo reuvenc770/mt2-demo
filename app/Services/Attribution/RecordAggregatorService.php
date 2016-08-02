@@ -50,35 +50,21 @@ class RecordAggregatorService extends AbstractReportAggregatorService {
     }
 
     protected function getBaseRecords () {
-        return $this->actionService->getByDateRange( $this->dateRange );
+        return $this->actionService->getAggregatedByDateRange( $this->dateRange );
     }
 
     protected function processBaseRecord ( $baseRecord ) {
         $emailId = $baseRecord->email_id;
         $deployId = $baseRecord->deploy_id;
-        $date = Carbon::parse( $baseRecord->datetime )->toDateString();
+        $date = $baseRecord->date;
 
         $this->createRowIfMissing( $date , $emailId , $deployId );
 
         $currentRow = &$this->getCurrentRow( $date , $emailId , $deployId ); 
 
-        switch ( $baseRecord->action_id ) {
-            case 1 :
-                $currentRow[ 'opened' ]++;
-            break;
-
-            case 2 :
-                $currentRow[ 'clicked' ]++;
-            break;
-
-            case 3 :
-                $currentRow[ 'converted' ]++;
-            break;
-
-            case 4 :
-                $currentRow[ 'delivered' ]++;
-            break;
-        }
+        $currentRow[ 'delivered' ] = $baseRecord->delivered;
+        $currentRow[ 'opened' ] = $baseRecord->opened;
+        $currentRow[ 'clicked' ] = $baseRecord->clicked;
     }
 
     protected function loadRevenue ( $dateRange = null ) {
@@ -93,6 +79,7 @@ class RecordAggregatorService extends AbstractReportAggregatorService {
             $conversionRevenue = $current->revenue * parent::WHOLE_NUMBER_MODIFIER;
 
             $currentRow[ 'revenue' ] = ( $wholeRevenue + $conversionRevenue ) / parent::WHOLE_NUMBER_MODIFIER;
+            $currentRow[ 'converted' ]++;
         }
     }
 

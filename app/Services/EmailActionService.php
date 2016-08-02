@@ -18,6 +18,10 @@ class EmailActionService {
         return $this->repo->getByDateRange( $dateRange );
     }
 
+    public function getAggregatedByDateRange ( $dateRange = null ) {
+        return $this->repo->getAggregatedByDateRange( $dateRange );
+    }
+
     public function get ( $emailIdList , $dateRange = null ) {
         return $this->repo->get( $emailIdList , $dateRange );
     } 
