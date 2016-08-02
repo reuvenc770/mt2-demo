@@ -15,7 +15,7 @@ class ImportMt1Entity extends Command
      *
      * @var string
      */
-    protected $signature = 'mt1Import {type}';
+    protected $signature = 'mt1Import {type} {lookback?}';
 
     /**
      * The console command description.
@@ -40,7 +40,7 @@ class ImportMt1Entity extends Command
      * @return mixed
      */
     public function handle() {
-        $lookback = 0;
+        $lookback = $this->argument('lookback') ?: 5;
         $jobName = $this->getJobName($this->argument('type'));
         $job = new DataProcessingJob($jobName, str_random(16), $lookback);
         $this->dispatch($job);

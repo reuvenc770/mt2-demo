@@ -19,7 +19,7 @@ class ImportMt1DataService {
 
     public function extract($lookback) {
         // does nothing with lookback
-        $this->records = $this->mt1Repo->pullForSync()->toArray();
+        $this->records = $this->mt1Repo->pullForSync($lookback)->toArray();
     }
 
     public function load() {

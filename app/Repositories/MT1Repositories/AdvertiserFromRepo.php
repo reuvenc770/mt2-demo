@@ -2,12 +2,13 @@
 
 namespace App\Repositories\MT1Repositories;
 
-use App\Models\MT1Models\AdvertiserSubject;
+use App\Models\MT1Models\AdvertiserFrom;
+use DB;
 
-class AdvertiserSubjectRepo {
+class AdvertiserFromRepo {
     protected $model;
 
-    public function __construct ( AdvertiserSubject $model ) {
+    public function __construct ( AdvertiserFrom $model ) {
         $this->model = $model;
     }
 

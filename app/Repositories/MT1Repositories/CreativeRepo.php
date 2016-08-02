@@ -3,6 +3,7 @@
 namespace App\Repositories\MT1Repositories;
 
 use App\Models\MT1Models\Creative;
+use DB;
 
 class CreativeRepo {
     protected $model;
@@ -11,7 +12,10 @@ class CreativeRepo {
         $this->model = $model;
     }
 
-    public function pullForSync() {
-        return $this->model->get();
+    public function pullForSync($lookback) {
+        return $this->model
+                    ->whereNull('creative_date')
+                    ->orWhere('creative_date', '>=', DB::raw("CURDATE() - INTERVAL $lookback DAY"))
+                    ->get();
     }
 }
