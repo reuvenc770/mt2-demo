@@ -72,7 +72,7 @@ class BlueHornetSubscriberService
     {
         foreach ($data as $entry) {
             $campaign_id = isset($entry->message_id) ? $entry->message_id : 0;
-            if ($campaign_id == 0 || "Mail Block" == $entry->method_unsubscribed) {// System Opt Out
+            if ($campaign_id == 0) {// System Opt Out
                 continue;
             }
             if ($entry->method_unsubscribed == "Spam Complaint") {
