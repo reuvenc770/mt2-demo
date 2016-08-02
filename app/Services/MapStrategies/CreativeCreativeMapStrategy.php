@@ -14,7 +14,7 @@ class CreativeCreativeMapStrategy implements IMapStrategy {
         return [
             'id' => $record['creative_id'],
             'name' => $record['creative_name'],
-            'file_name' => $record[''],
+            'file_name' => $record['creative_name'],
             'approved' => $record['approved_flag'],
             'status' => $record['status'],
             'creative_html' => $record['html_code']
