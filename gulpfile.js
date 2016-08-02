@@ -48,6 +48,7 @@ elixir.extend( 'deployNodeModules' , function ( mix ) {
     mix.copy( 'node_modules/angular-drag-and-drop-lists/angular-drag-and-drop-lists.min.js' , 'public/js/angular-drag-and-drop-lists.min.js' );
 
     mix.copy( 'node_modules/angular-material-data-table/dist/md-data-table.min.js' , 'public/js/md-data-table.min.js' );
+    mix.copy('node_modules/angu-complete/angucomplete-alt.js', 'public/js/angucomplete-alt.js');
 } );
 
 elixir.extend( 'deploySass' , function ( mix ) {
@@ -327,6 +328,9 @@ var mt2TaskMap = {
     } ,
     'deployRoleJs' : function ( mix ) {
         mix.deployRoleJs( mix );
+    } ,
+    'deployDeployJs' : function ( mix ) {
+        mix.deployDeployJs( mix );
     } ,
     'deployJobJs' : function ( mix ) {
         mix.deployJobJs( mix );

@@ -677,6 +677,19 @@ Route::group(
             }
         );
 
+        /**
+         * Offer Routes
+         */
+        Route::group(
+            [ 'prefix' => 'offer' ] ,
+            function () {
+                Route::get( '/search' , [
+                    'as' => 'api.offer.search' ,
+                    'uses' => 'OfferController@typeAheadSearch'
+                ] );
+            }
+        );
+
 
         /**
          *  Bulk Suppression API Routes

@@ -14,4 +14,5 @@
 <script src="js/ng-flow-standalone.min.js"></script>
 <script src="js/ivh-treeview.min.js"></script>
 <script src="js/angular-drag-and-drop-lists.min.js"></script>
+<script src="js/angucomplete-alt.js"></script>
 <script src="js/md-data-table.min.js"></script>

@@ -1,14 +1,15 @@
 mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$timeout' , 'DeployApiService' , function ( $log , $window , $location , $timeout , DeployApiService ) {
     var self = this;
     self.$location = $location;
-    self.deploy = {};
     self.currentDeploy = { send_date : '', deploy_id : '', esp_account_id : ''};
     self.headers =  ['Send Date'];
     self.espAccounts = [];
     self.currentlyLoading = 0;
     self.showRow = 1;
+    self.offers = [];
     self.formErrors = [];
     self.deploys = [];
+    self.searchText = "";
 
 
     self.loadAccounts = function () {
@@ -22,6 +23,14 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
     };
 
 
+    self.typeAheadSearch = function (term){
+        if(term == undefined) {
+            return self.offers;
+        }
+        console.log(term);
+        self.currentlyLoading = 1;
+        DeployApiService.getOffersSearch(term, self.loadOfferSuccess, self.loadOfferFail)
+    };
 
     /**
      * Callbacks
@@ -32,11 +41,23 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
         self.currentlyLoading = 0;
     };
 
+    self.loadOfferSuccess = function (response){
+        self.offers = response.data;
+        self.currentlyLoading = 0;
+        return self.offers;
+    };
+
     self.loadEspFail = function () {
         self.setModalLabel( 'Error' );
         self.setModalBody( 'Something went wrong loading ESPs' );
         self.launchModal();
     };
+    self.loadOfferFail = function (){
+        self.setModalLabel( 'Error' );
+        self.setModalBody( 'Something went wrong loading Offers' );
+        self.launchModal();
+    };
+
 
     /**
      * Errors

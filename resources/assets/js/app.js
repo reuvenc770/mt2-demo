@@ -4,6 +4,7 @@
 var mt2App = angular.module( 'mt2App' , [
     'ngMaterial' ,
     'ngMessages' ,
+    'angucomplete-alt',
     'ui.select' ,
     'flow' ,
     'ngclipboard' ,
