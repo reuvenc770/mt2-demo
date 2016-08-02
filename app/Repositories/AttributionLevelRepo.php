@@ -27,13 +27,14 @@ class AttributionLevelRepo {
     public function getLevel ( $clientId ) {
         $result = $this->levels
              ->select('level')
-             ->where('client_id', $clientId);
+             ->where('client_id', $clientId)
+             ->first();
 
-        if ($result->isEmpty()) {
+        if (!$result) {
             return 255; // assume this to be the negative state
         }
         else {
-            return $result->first()->level;
+            return $result->level;
         }
     }
 
