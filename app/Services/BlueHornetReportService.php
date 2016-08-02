@@ -366,7 +366,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                     $date = $detail->nodeValue;
                 }
             }
-            if ($reason == "5-Timeout" || $reason == "5-Spam Block"){
+            if ($reason == "5-Timeout" || $reason == "5-Spam Block" || "5-Mail Block" === $reason){
                 continue;
             }
             Log::info("BH REASON IS {$reason}");
