@@ -7,6 +7,7 @@ namespace App\Repositories;
 
 use App\Models\Cake\CakeConversion;
 use Carbon\Carbon;
+use DB;
 
 class CakeConversionRepo {
     protected $model;
@@ -24,14 +25,7 @@ class CakeConversionRepo {
     }
 
     public function getByDeployEmailDate ( $deployId , $emailId , $date  ) {
-        $dateObj = Carbon::parse( $date );
-
-        $dateRange = [
-            "start" => $dateObj->startOfDay()->toDateTimeString() ,
-            "end" => $dateObj->endOfDay()->toDateTimeString() 
-        ];
-
-        return DB::connection( 'reporting_data' )->select( "
+        $records =  DB::connection( 'reporting_data' )->select( "
             SELECT
                 COUNT( * ) AS `conversions` ,
                 SUM( price_received ) AS `revenue`
@@ -44,8 +38,15 @@ class CakeConversionRepo {
         " , [
             ":deployId" => $deployId ,
             ":emailId" => $emailId ,
-            ":start" => $dateRange[ 'start' ] ,
-            ":end" => $dateRange[ 'end' ] 
-        ] )->pluck( 'conversions' , 'revenue')->pop();
+            ":start" => Carbon::parse( $date )->startOfDay()->toDateTimeString() ,
+            ":end" => Carbon::parse( $date )->endOfDay()->toDateTimeString()
+        ] );
+
+        $result = [
+            'conversions' => $records[ 0 ]->conversions ,
+            'revenue' => ( is_null( $records[ 0 ]->revenue ) ? 0.00 : $records[ 0 ]->revenue )
+        ];
+
+        return $result;
     }
 }

@@ -13,7 +13,7 @@ use Carbon\Carbon;;
  */
 class EmailActionsRepo {
   
-    private $actions;
+    protected $actions;
 
     public function __construct(EmailAction $actions) {
         $this->actions = $actions;

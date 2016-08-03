@@ -59,9 +59,9 @@ class DataProcessingFactory {
         $cakeConversion = \App::make( \App\Services\CakeConversionService::class );
         $attrEmailActionsRepo = \App::make( \App\Repositories\Attribution\AttributionEmailActionsRepo::class );
         $emailRecordService = \App::make( \App\Services\EmailRecordService::class );
-        $suppressionService = \App::makeI( \App\Services\SuppressionService::class );
+        $suppressionService = \App::make( \App\Services\SuppressionService::class );
         $standardReportService = \App\Factories\ServiceFactory::createStandardReportService();
-        $etlPickupRepo = \App::make( \App\Models\EtlPickup::class );
+        $etlPickupRepo = \App::make( \App\Repositories\EtlPickupRepo::class );
 
         return new \App\Services\Attribution\RecordAggregatorService(
             $attrRecordRepo ,

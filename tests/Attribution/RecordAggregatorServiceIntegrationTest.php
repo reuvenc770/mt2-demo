@@ -9,6 +9,8 @@ use Tests\TestCase;
 use \Illuminate\Foundation\Testing\DatabaseMigrations;
 use \Carbon\Carbon;
 
+use \Log;
+
 class RecordAggregatorServiceIntegrationTest extends TestCase {
     use DatabaseMigrations;
 
@@ -21,7 +23,7 @@ class RecordAggregatorServiceIntegrationTest extends TestCase {
     public function setUp () {
         parent::setUp();
 
-        $this->sut = \App::make( \App\Services\Attribution\RecordAggregatorService::class );
+        $this->sut = \App\Factories\DataProcessingFactory::create( 'PopulateAttributionRecordReport' ); 
     }
 
     public function tearDown () {
@@ -33,32 +35,27 @@ class RecordAggregatorServiceIntegrationTest extends TestCase {
     public function test_goodPath_dailyRun () {
         $this->goodPath_dailyRun_testData();
         
-        $this->sut->buildAndSaveReport();
+        $this->sut->extract();
+        $this->sut->load();
 
-        #Verifying that there is an element for today's records
-        $this->assertEquals( 3 , $this->sut->count() );
-
-        #Verifying that there are 3 records in the DB
-        $this->assertEquals( 3 , \App\Models\AttributionRecordReport::all()->count() );
-
-        foreach ( $this->sut->getRecords() as $currentRow ) {
+        foreach ( \App\Models\AttributionRecordReport::all() as $currentRow ) {
             switch ( $currentRow[ 'email_id' ] ) {
                 
                 case $this->testEmail1->id : #Verifying that tally is correct for first email
-                    $this->assertTrue( $currentRow[ 'delivered' ] > 0 );
-                    $this->assertTrue( $currentRow[ 'opened' ] > 0 );
-                    $this->assertTrue( $currentRow[ 'unsubbed' ] > 0 );
+                    $this->assertEquals( 1 , $currentRow[ 'delivered' ] );
+                    $this->assertEquals( 1 ,  $currentRow[ 'opened' ] );
+                    $this->assertEquals( 1 , $currentRow[ 'unsubbed' ] );
                 break;
 
                 case $this->testEmail2->id : #Verifying that tally is correct for second email
-                    $this->assertTrue( $currentRow[ 'bounced' ] > 0 );
+                    $this->assertEquals( 1 , $currentRow[ 'bounced' ] );
                 break;
 
                 case $this->testEmail3->id : #Verifying that tally is correct for third email
-                    $this->assertTrue( $currentRow[ 'delivered' ] > 0 );
-                    $this->assertTrue( $currentRow[ 'opened' ] > 0 );
-                    $this->assertTrue( $currentRow[ 'clicked' ] > 0 );
-                    $this->assertTrue( $currentRow[ 'converted' ] > 0 );
+                    $this->assertEquals( 1 , $currentRow[ 'delivered' ] );
+                    $this->assertEquals( 1 , $currentRow[ 'opened' ] );
+                    $this->assertEquals( 1 , $currentRow[ 'clicked' ] );
+                    $this->assertEquals( 2 , $currentRow[ 'converted' ] );
                     $this->assertEquals( 4.258 , $currentRow[ 'revenue' ] );
                 break;
             }
@@ -66,6 +63,12 @@ class RecordAggregatorServiceIntegrationTest extends TestCase {
     }
 
     public function goodPath_dailyRun_testData () {
+        /**
+         * ETL Pickup
+         */
+
+        factory( \App\Models\EtlPickup::class )->create( [ 'name' => 'PopulateAttributionRecordReport' , 'stop_point' => 1 ] );
+
         /**
          * Email Data
          */
@@ -96,7 +99,7 @@ class RecordAggregatorServiceIntegrationTest extends TestCase {
         factory( \App\Models\StandardReport::class )->create( [
             "esp_internal_id" => 10 ,
             "esp_account_id" => 1 ,
-            "m_deploy_id" => self::TEST_DEPLOY_ID
+            "external_deploy_id" => self::TEST_DEPLOY_ID
         ] );
 
         /**

@@ -3,10 +3,11 @@
  * @author Adam Chin <achin@zetainteractive.com>
  */
 
-namespace App\Repositories;
+namespace App\Repositories\Attribution;
 
 use App\Models\EmailAction;
 use App\Repositories\EmailActionsRepo;
+use DB;
 
 class AttributionEmailActionsRepo extends EmailActionsRepo {
     public function __construct ( EmailAction $actions ) {

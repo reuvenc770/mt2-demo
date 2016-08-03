@@ -12,8 +12,10 @@ use App\Repositories\Attribution\AttributionEmailActionsRepo;
 use App\Services\EmailRecordService;
 use App\Services\SuppressionService;
 use App\Services\StandardReportService;
-use App\Models\EtlPickup;
+use App\Repositories\EtlPickupRepo;
 use App\Models\Suppression;
+
+use Log;
 
 class RecordAggregatorService extends AbstractEtlService {
     const JOB_NAME = 'PopulateAttributionRecordReport';
@@ -33,7 +35,7 @@ class RecordAggregatorService extends AbstractEtlService {
         EmailRecordService $emailService ,
         SuppressionService $suppressionService ,
         StandardReportService $standardReportService ,
-        EtlPickup $etlPickupRepo
+        EtlPickupRepo $etlPickupRepo
     ) {
         $this->recordRepo = $recordRepo;
         $this->conversionService = $conversionService;
@@ -78,6 +80,8 @@ class RecordAggregatorService extends AbstractEtlService {
         $this->etlPickupRepo->updatePosition(self::JOB_NAME, $endPoint);
     }
 
+    public function load() {}
+
     protected function mapToAttributionRecordTable ( $row ) {
         $conversions = $this->conversionService->getByDeployEmailDate( $row->deploy_id , $row->email_id , $row->date );
         $suppressions = $this->getSuppressionData( $row->deploy_id , $row->email_id , $row->date );
@@ -89,8 +93,8 @@ class RecordAggregatorService extends AbstractEtlService {
             'delivered' => $row->delivered ,
             'opened' => $row->opened ,
             'clicked' => $row->clicked ,
-            'converted' => $conversions->conversions ,
-            'revenue' => $conversions->revenue ,
+            'converted' => $conversions[ 'conversions' ] ,
+            'revenue' => $conversions[ 'revenue' ] ,
             'unsubbed' => $suppressions[ 'unsubbed' ] ,
             'bounced' => $suppressions[ 'bounced' ]
         ];
