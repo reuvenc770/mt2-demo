@@ -41,7 +41,7 @@ class ServiceFactory
     }
 
 
-    public static function createAttributionService() {
+    public static function createAttributionService($modelId) {
         $truthModel = "App\\Models\\AttributionRecordTruth";
         $truthRepo = "App\\Repositories\\AttributionRecordTruthRepo";
 
@@ -57,14 +57,20 @@ class ServiceFactory
 
         $attributionLevelRepo = "App\\Repositories\\AttributionLevelRepo";
 
+        $etlPickupModel "App\\Models\\EtlPickup";
+        $etlPickupRepo = "App\\Repositories\\EtlPickupRepo";
+
         $truth = new $truthRepo(new $truthModel());
         $schedule = new $scheduleRepo(new $scheduleModel());
         $assignment = new $assignmentRepo(new $assignmentModel(), new $historyModel());
         $instance = new $emailClientInstanceRepo(new $emailClientInstanceModel());
-        $level = new $attributionLevelRepo(); // when left empty, this instantiates the currently-selected model
+        $etlPickup = new $etlPickupRepo(new $etlPickupModel());
+
+        // when left empty, this instantiates the currently-selected model
+        $level = 'none' === $modelId ? new $attributionLevelRepo() : new $attributionLevelRepo($modelId); 
 
         $service = "App\\Services\\AttributionService";
 
-        return new $service($truth, $schedule, $assignment, $instance, $level);
+        return new $service($truth, $schedule, $assignment, $instance, $level, $etlPickup);
     }
 }

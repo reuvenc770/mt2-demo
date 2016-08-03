@@ -18,14 +18,16 @@ class CommitAttributionJob extends Job implements ShouldQueue
 
     private $jobName = 'AttributionJob';
     private $tracking;
+    private $model;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($tracking) {
+    public function __construct($model, $tracking) {
         $this->tracking = $tracking;
+        $this->model = $model;
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
@@ -39,15 +41,15 @@ class CommitAttributionJob extends Job implements ShouldQueue
         if ($this->jobCanRun($this->jobName)) {
             try {
                 $this->createLock($this->jobName);
-                JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
+                JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
                 echo "{$this->jobName} running" . PHP_EOL;
 
                 $service = ServiceFactory::createAttributionService();
 
-                $records = $service->getTransientRecords();
+                $records = $service->getTransientRecords($this->model);
                 $service->run($records);
 
-                Event::fire(''); 
+                Event::fire($this->model); // Attribution finished. Return model id
                 JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
             }
             catch (\Exception $e) {
