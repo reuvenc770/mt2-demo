@@ -24,7 +24,14 @@
                             <th class="text-center">EspAccount</th>
                             <th class="text-center">List Profile</th>
                             <th class="text-center">Offer</th>
-                            <th class="text-center">@{{ deploy.currentlyLoading }}</th>
+                            <th class="text-center">Creative</th>
+                            <th class="text-center">From</th>
+                            <th class="text-center">Subject</th>
+                            <th class="text-center">Template</th>
+                            <th class="text-center">Mailing Domain</th>
+                            <th class="text-center">Content Domain</th>
+                            <th class="text-center">Cake ID</th>
+                            <th class="text-center">Notes</th>
                         </tr>
                         </thead>
 
@@ -44,24 +51,25 @@
                             </td>
                             <td>To Be Generated</td>
                             <td>
-                                <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.espAccountId }">
+                                <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.esp_account_id }">
                                     <select name="esp_account" id="esp_account"
-                                            ng-model="deploy.currentDeploy.espAccountId" class="form-control"
+                                            ng-change="deploy.updateDomains()"
+                                            ng-model="deploy.currentDeploy.esp_account_id" class="form-control"
                                             ng-disabled="deploy.currentlyLoading">
                                         <option value="">- Please Choose an ESP Account -</option>
                                         <option ng-repeat="option in deploy.espAccounts" ng-value="option.id"
-                                                ng-selected="option.id == deploy.currentDeploy.espAccountId">@{{ option.account_name }}
+                                                ng-selected="option.id == deploy.currentDeploy.esp_account_id">@{{ option.account_name }}
                                         </option>
                                     </select>
-                    <span class="help-block" ng-bind="deploy.formerrors.espAccountId"
-                          ng-show="deploy.formerrors.espAccountId"></span>
+                    <span class="help-block" ng-bind="deploy.formErrors.espAccountId"
+                          ng-show="deploy.formErrors.espAccountId"></span>
                                 </div>
                             </td>
                             <td></td>
                             <td>
                                 <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.offerId }">
                                     <div angucomplete-alt
-                                         id="ex5"
+                                         id="offer"
                                          placeholder="Search Offers"
                                          selected-object="deploy.currentDeploy.offer"
                                          remote-url="/api/offer/search?searchTerm="
@@ -71,6 +79,38 @@
                                          minlength="3"
                                          input-class="form-control">
                                     </div>
+                                </div>
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.mailing_domain_id }">
+                                    <select name="mailing_domain" id="mailing_domain"
+                                            ng-model="deploy.currentDeploy.mailing_domain_id" class="form-control"
+                                            ng-disabled="deploy.espLoaded">
+                                        <option value="">- Please Choose a Mailing Domain -</option>
+                                        <option ng-repeat="option in deploy.mailingDomains" ng-value="option.id"
+                                                ng-selected="option.id == deploy.currentDeploy.mailing_domain_id">@{{ option.domain_name }}
+                                        </option>
+                                    </select>
+                    <span class="help-block" ng-bind="deploy.formErrors.mailing_domain_id"
+                          ng-show="deploy.formErrors.mailing_domain_id"></span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.content_domain_id }">
+                                    <select name="content_domain" id="content_domain"
+                                            ng-model="deploy.currentDeploy.content_domain_id" class="form-control"
+                                            ng-disabled="deploy.espLoaded">
+                                        <option value="">- Please Choose an Content Domain -</option>
+                                        <option ng-repeat="option in deploy.contentDomains" ng-value="option.id"
+                                                ng-selected="option.id == deploy.currentDeploy.content_domain_id">@{{ option.domain_name }}
+                                        </option>
+                                    </select>
+                    <span class="help-block" ng-bind="deploy.formErrors.content_domain_id"
+                          ng-show="deploy.formErrors.content_domain_id"></span>
                                 </div>
                             </td>
                         </tr>

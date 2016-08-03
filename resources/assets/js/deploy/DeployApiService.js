@@ -4,6 +4,7 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
     self.baseApiUrl = '/api/deploy';
     self.baseEspApiUrl = '/api/espapi/all';
     self.offerSearchUrl = '/api/offer/search/';
+    self.domainsApiUrl = '/api/domain/listActiveDomains/';
 
     self.getDeploys = function (successCallback, failureCallback) {
         $http({"method": "GET", "url": this.baseApiUrl})
@@ -14,6 +15,14 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
         $http( { "method" : "GET" , "url" : this.baseEspApiUrl } )
             .then( successCallback , failCallBack );
     };
+
+    self.getMailingDomains = function (espAccountId, domainType, successCallback, failCallback){
+        $http( {
+            "method" : "GET" ,
+            "url" : this.domainsApiUrl + domainType + '/' + espAccountId
+        } ).then( successCallback , failCallback );
+    };
+
 
     self.getOffersSearch = function ( searchText , successCallback , failCallback ) {
         $http( {

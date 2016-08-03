@@ -674,6 +674,11 @@ Route::group(
                     'as' => 'api.domain.listDomains' ,
                     'uses' => 'DomainController@getDomainsByTypeAndESP'
                 ] );
+
+                Route::get( '/listActiveDomains/{type}/{espAccountId}' , [
+                    'as' => 'api.domain.listDomains' ,
+                    'uses' => 'DomainController@getActiveDomainsByTypeAndESP'
+                ] );
             }
         );
 

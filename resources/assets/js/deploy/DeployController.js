@@ -1,11 +1,19 @@
 mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$timeout' , 'DeployApiService' , function ( $log , $window , $location , $timeout , DeployApiService ) {
     var self = this;
     self.$location = $location;
-    self.currentDeploy = { send_date : '', deploy_id : '', esp_account_id : ''};
-    self.headers =  ['Send Date'];
+    self.currentDeploy = { send_date : '',
+                            deploy_id : '',
+                            esp_account_id : '',
+                            offer_id: "",
+                            mailing_domain_id: "",
+                            content_domain_id : ""
+                            };
     self.espAccounts = [];
     self.currentlyLoading = 0;
+    self.espLoaded = true;
     self.showRow = 1;
+    self.mailingDomains = []; //id is 1
+    self.contentDomains = []; //id is 2
     self.offers = [];
     self.formErrors = [];
     self.deploys = [];
@@ -22,15 +30,13 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
       DeployApiService.getEspAccounts(self.loadEspSuccess, self.loadEspFail);
     };
 
-
-    self.typeAheadSearch = function (term){
-        if(term == undefined) {
-            return self.offers;
-        }
-        console.log(term);
-        self.currentlyLoading = 1;
-        DeployApiService.getOffersSearch(term, self.loadOfferSuccess, self.loadOfferFail)
+    self.updateDomains = function () {
+        DeployApiService.getMailingDomains(self.currentDeploy.esp_account_id, 1, self.updateMailingSuccess,self.updateDomainsFail);
+        DeployApiService.getMailingDomains(self.currentDeploy.esp_account_id, 2, self.updateContentSuccess,self.updateDomainsFail);
+        self.espLoaded = false;
     };
+
+
 
     /**
      * Callbacks
@@ -41,10 +47,12 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
         self.currentlyLoading = 0;
     };
 
-    self.loadOfferSuccess = function (response){
-        self.offers = response.data;
-        self.currentlyLoading = 0;
-        return self.offers;
+    self.updateContentSuccess = function (response){
+            self.contentDomains = response.data;
+    };
+
+    self.updateMailingSuccess = function (response){
+        self.mailingDomains = response.data;
     };
 
     self.loadEspFail = function () {
@@ -52,7 +60,7 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
         self.setModalBody( 'Something went wrong loading ESPs' );
         self.launchModal();
     };
-    self.loadOfferFail = function (){
+    self.updateDomainsFail = function (){
         self.setModalLabel( 'Error' );
         self.setModalBody( 'Something went wrong loading Offers' );
         self.launchModal();
