@@ -161,5 +161,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('runFilter activity')->daily();
         $schedule->command('runFilter expiration')->daily();
         $schedule->command('attribution:commit')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
+        $schedule->command('attribution:updateReports Client')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
+        $schedule->command('attribution:updateReports ClientDeploy')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
+        $schedule->command('attribution:updateReports Deploy')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
     }
 }

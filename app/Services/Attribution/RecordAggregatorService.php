@@ -6,7 +6,7 @@
 namespace App\Services\Attribution;
 
 use App\Services\AbstractEtlService;
-use App\Repositories\Attribution\RecordAggregatorRepo;
+use App\Repositories\Attribution\RecordReportRepo;
 use App\Services\CakeConversionService;
 use App\Repositories\Attribution\AttributionEmailActionsRepo;
 use App\Services\EmailRecordService;
@@ -14,8 +14,6 @@ use App\Services\SuppressionService;
 use App\Services\StandardReportService;
 use App\Repositories\EtlPickupRepo;
 use App\Models\Suppression;
-
-use Log;
 
 class RecordAggregatorService extends AbstractEtlService {
     const JOB_NAME = 'PopulateAttributionRecordReport';
@@ -29,7 +27,7 @@ class RecordAggregatorService extends AbstractEtlService {
     protected $etlPickupRepo;
 
     public function __construct (
-        RecordAggregatorRepo $recordRepo ,
+        RecordReportRepo $recordRepo ,
         CakeConversionService $conversionService ,
         AttributionEmailActionsRepo $actionsRepo ,
         EmailRecordService $emailService ,

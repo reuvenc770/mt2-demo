@@ -55,7 +55,7 @@ class DataProcessingFactory {
     }
 
     private static function createAttributionRecordAggregationService () {
-        $attrRecordRepo = \App::make( \App\Repositories\Attribution\RecordAggregatorRepo::class );
+        $attrRecordRepo = \App::make( \App\Repositories\Attribution\RecordReportRepo::class );
         $cakeConversion = \App::make( \App\Services\CakeConversionService::class );
         $attrEmailActionsRepo = \App::make( \App\Repositories\Attribution\AttributionEmailActionsRepo::class );
         $emailRecordService = \App::make( \App\Services\EmailRecordService::class );

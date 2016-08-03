@@ -5,12 +5,12 @@
 
 namespace App\Services\Attribution;
 
-use App\Repositories\AttributionRecordReportRepo;
+use App\Repositories\Attribution\RecordReportRepo;
 
 class RecordReportService {
     protected $repo;
 
-    public function __construct ( AttributionRecordReportRepo $repo ) {
+    public function __construct ( RecordReportRepo $repo ) {
         $this->repo = $repo;
     }
 

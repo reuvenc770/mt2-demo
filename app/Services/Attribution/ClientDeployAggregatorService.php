@@ -8,7 +8,7 @@ namespace App\Services\Attribution;
 use App\Services\Attribution\AbstractReportAggregatorService;
 use App\Services\Attribution\RecordReportService;
 use App\Services\EmailClientAssignmentService;
-use App\Repositories\Attribution\ClientDeployAggregatorRepo;
+use App\Repositories\Attribution\ClientDeployReportRepo;
 use App\Exceptions\AggregatorServiceException;
 
 class ClientDeployAggregatorService extends AbstractReportAggregatorService {
@@ -16,7 +16,7 @@ class ClientDeployAggregatorService extends AbstractReportAggregatorService {
     protected $emailClientService;
     protected $clientDeployRepo;
 
-    public function __construct ( RecordReportService $recordReport , EmailClientAssignmentService $emailClientService , ClientDeployAggregatorRepo $clientDeployRepo ) {
+    public function __construct ( RecordReportService $recordReport , EmailClientAssignmentService $emailClientService , ClientDeployReportRepo $clientDeployRepo ) {
         $this->recordReport = $recordReport;
         $this->emailClientService = $emailClientService;
         $this->clientDeployRepo = $clientDeployRepo;
@@ -32,7 +32,7 @@ class ClientDeployAggregatorService extends AbstractReportAggregatorService {
         }
 
         if ( !isset( $this->clientDeployRepo ) ) {
-            throw new AggregatorServiceException( 'ClientDeployAggregatorRepo needed. Please inject a repo.' );
+            throw new AggregatorServiceException( 'ClientDeployReportRepo needed. Please inject a repo.' );
         }
 
         $this->setDateRange( $dateRange );

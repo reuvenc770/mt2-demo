@@ -7,13 +7,13 @@ namespace App\Services\Attribution;
 
 use App\Services\Attribution\AbstractReportAggregatorService;
 use App\Services\Attribution\RecordReportService;
-use App\Repositories\Attribution\DeployAggregatorRepo;
+use App\Repositories\Attribution\DeployReportRepo;
 
 class DeployAggregatorService extends AbstractReportAggregatorService {
     protected $recordReport;
     protected $deployRepo;
 
-    public function __construct ( RecordReportService $recordReport , DeployAggregatorRepo $deployRepo ) {
+    public function __construct ( RecordReportService $recordReport , DeployReportRepo $deployRepo ) {
         $this->recordReport = $recordReport;
         $this->deployRepo = $deployRepo;
     }
@@ -24,7 +24,7 @@ class DeployAggregatorService extends AbstractReportAggregatorService {
         }
 
         if ( !isset( $this->deployRepo ) ) {
-            throw new AggregatorServiceException( 'DeployAggregatorRepo needed. Please inject a service.' );                                                                                                        
+            throw new AggregatorServiceException( 'DeployReportRepo needed. Please inject a service.' );                                                                                                        
         }
 
         $this->setDateRange( $dateRange );

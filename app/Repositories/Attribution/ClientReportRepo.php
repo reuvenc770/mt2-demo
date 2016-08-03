@@ -6,18 +6,23 @@
 namespace App\Repositories\Attribution;
 
 use DB;
+use App\Models\AttributionClientReport;
 
-class DeployAggregatorRepo { 
-    public function __construct () {}
+class ClientReportRepo {
+    protected $model;
+
+    public function __construct ( AttributionClientReport $model ) {
+        $this->model = $model;
+    }
 
     public function runInsertQuery ( $valuesSqlString ) {
         DB::connection( 'attribution' )->insert( "
             INSERT INTO
-                attribution_deploy_reports ( deploy_id , delivered , opened , clicked , converted , bounced , unsubbed , revenue , date , created_at , updated_at )
+                attribution_client_reports ( client_id , delivered , opened , clicked , converted , bounced , unsubbed , revenue , cost , date , created_at , updated_at )
             VALUES
                 {$valuesSqlString}
             ON DUPLICATE KEY UPDATE
-                deploy_id = deploy_id ,
+                client_id = client_id ,
                 delivered = VALUES( delivered ) ,
                 opened = VALUES( opened ) ,
                 clicked = VALUES( clicked ) ,
@@ -25,6 +30,7 @@ class DeployAggregatorRepo {
                 bounced = VALUES( bounced ) ,
                 unsubbed = VALUES( unsubbed ) ,
                 revenue = VALUES( revenue ) ,
+                cost = VALUES( cost ) ,
                 date = date ,
                 created_at = created_at ,
                 updated_at = NOW()

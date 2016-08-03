@@ -5,10 +5,19 @@
 
 namespace App\Repositories\Attribution;
 
+use App\Models\AttributionRecordReport;
 use DB;
 
-class RecordAggregatorRepo {
-    public function __construct () {}
+class RecordReportRepo {
+    protected $report;
+
+    public function __construct ( AttributionRecordReport $report ) {
+        $this->report = $report;
+    }
+
+    public function getByDateRange ( array $dateRange ) {
+        return $this->report->whereBetween( 'date' , [ $dateRange[ 'start' ] , $dateRange[ 'end' ] ] )->get();
+    }
 
     public function runInsertQuery ( $valuesSqlString ) {
         DB::connection( 'attribution' )->insert( "

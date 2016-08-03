@@ -60,6 +60,8 @@ class RecordAggregatorServiceIntegrationTest extends TestCase {
                 break;
             }
         }
+
+        $this->assertEquals( 7 , \App\Models\EtlPickup::where( 'name' , 'PopulateAttributionRecordReport' )->pluck( 'stop_point' )->pop() );
     }
 
     public function goodPath_dailyRun_testData () {
