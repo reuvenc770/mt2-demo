@@ -27,7 +27,7 @@ class DataProcessingJob extends Job implements ShouldQueue {
     public function handle() {
         if ($this->jobCanRun($this->jobName)) {
             try {
-                $this->createLock($this->jobName);
+
                 JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
                 echo "{$this->jobName} running" . PHP_EOL;
                 $service = DataProcessingFactory::create($this->jobName);
@@ -41,7 +41,7 @@ class DataProcessingJob extends Job implements ShouldQueue {
                 $this->failed();
             }
             finally {
-                $this->unlock($this->jobName);
+
             }
         }
         else {

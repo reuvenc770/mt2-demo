@@ -12,7 +12,7 @@ class OfferRepo {
 
     public function __construct(Offer $offer) {
         $this->offer = $offer;
-    } 
+    }
 
     public function updateOrCreate($data) {
         $this->offer->updateOrCreate(['id' => $data['id']], $data);

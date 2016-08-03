@@ -54,6 +54,9 @@ class ImportMt1Entity extends Command
             case "advertiser":
                 return "ImportMt1Advertisers";
 
+            case "listProfile":
+                return "ImportMT1ListProfiles";
+
             default:
                 throw new \Exception('Unsupported entity type: ' . $type);
         }
