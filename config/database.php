@@ -104,10 +104,10 @@ return [
         ],
         'mt1_data' => [
             'driver'    => 'mysql',
-            'host'      => env('MT1_MAIL_DB_HOST', ''),
-            'database'  => env('MT1_MAIL_DB_DATABASE', ''),
-            'username'  => env('MT1_MAIL_DB_USERNAME', ''),
-            'password'  => env('MT1_MAIL_DB_PASSWORD', ''),
+            'host'      => env('MT1_SLAVE_DB_HOST', ''),
+            'database'  => env('MT1_SLAVE_DB_DATABASE', ''),
+            'username'  => env('MT1_SLAVE_DB_USERNAME', ''),
+            'password'  => env('MT1_SLAVE_DB_PASSWORD', ''),
             'charset'   => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix'    => '',
@@ -116,7 +116,7 @@ return [
         'attribution' => [
             'driver'    => 'mysql',
             'host'      => env('DB_HOST', 'localhost'),
-            'database'  => env('ATTR_DB_DATABASE', 'attribution' ), #Not using a default since we have multiple envs
+            'database'  => env('ATTR_DB_DATABASE', '' ), #Not using a default since we have multiple envs
             'username'  => env('DB_USERNAME', 'forge'),
             'password'  => env('DB_PASSWORD', ''),
             'charset'   => 'utf8mb4',
