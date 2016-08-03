@@ -57,7 +57,7 @@ class ServiceFactory
 
         $attributionLevelRepo = "App\\Repositories\\AttributionLevelRepo";
 
-        $etlPickupModel "App\\Models\\EtlPickup";
+        $etlPickupModel = "App\\Models\\EtlPickup";
         $etlPickupRepo = "App\\Repositories\\EtlPickupRepo";
 
         $truth = new $truthRepo(new $truthModel());
