@@ -14,5 +14,6 @@ class AttributionEtlPickupSeeder extends Seeder
         $pickup = new EtlPickup();
         $pickup->name = 'AttributionJob';
         $pickup->stop_point = 1470166204; //'2016-08-02 15:30:04'
+        $pickup->save();
     }
 }
