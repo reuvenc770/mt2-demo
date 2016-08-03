@@ -13,6 +13,6 @@ class AttributionEtlPickupSeeder extends Seeder
     public function run() {
         $pickup = new EtlPickup();
         $pickup->name = 'AttributionJob';
-        $pickup->stop_point = 
+        $pickup->stop_point = 1470166204; //'2016-08-02 15:30:04'
     }
 }
