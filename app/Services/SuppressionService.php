@@ -162,4 +162,8 @@ class SuppressionService
     public function getAllSuppressionsDateRange ( array $dateRange ) {
         return $this->repo->getAllSuppressionsDateRange( $dateRange );
     }
+
+    public function getByInternalEmailDate ( $internalEspId , $emailAddress , $date ) {
+        return $this->repo->getByInternalEmailDate( $internalEspId , $emailAddress , $date );
+    }
 }

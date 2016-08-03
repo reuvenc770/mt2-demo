@@ -11,6 +11,7 @@ namespace App\Repositories;
 use App\Models\Suppression;
 use App\Models\SuppressionReason;
 use DB;
+use Carbon\Carbon;
 
 class SuppressionRepo
 {
@@ -117,6 +118,21 @@ class SuppressionRepo
 
     public function getAllSuppressionsDateRange ( array $dateRange ) {
         return $this->suppressionModel
+            ->whereBetween( 'date' , [ $dateRange[ 'start' ] , $dateRange[ 'end' ] ] )
+            ->get();
+    }
+
+    public function getByInternalEmailDate ( $internalEspId , $emailAddress , $date ) {
+        $dateRange = [
+            "start" => Carbon::parse( $date )->startOfDay()->toDateTimeString() ,
+            "end" => Carbon::parse( $date )->endOfDay()->toDateTimeString()
+        ];
+
+        return $this->suppressionModel
+            ->where( [
+                [ 'esp_internal_id' , $internalEspId ] ,
+                [ 'email_address' , $emailAddress ]   
+            ] )
             ->whereBetween( 'date' , [ $dateRange[ 'start' ] , $dateRange[ 'end' ] ] )
             ->get();
     }

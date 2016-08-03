@@ -18,4 +18,8 @@ class CakeConversionService implements IConversion {
     public function getByDate ( $dateRange = null ) {
         return $this->repo->getByDate( $dateRange );
     }
+
+    public function getByDeployEmailDate ( $deployId , $emailId , $date  ) {
+        return $this->repo->getByDeployEmailDate ( $deployId , $emailId , $date  );
+    }
 }
