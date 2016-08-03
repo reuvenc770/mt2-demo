@@ -13,4 +13,8 @@ class SprintFormatStrategy implements IFormatStrategy {
     public static function formatFileName($date) {
         return "Zeta_DNE_{$date}.txt";
     }
+
+    public static function getDelimiter () {
+        return "\t";
+    }
 }
