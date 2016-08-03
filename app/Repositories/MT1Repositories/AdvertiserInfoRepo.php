@@ -8,7 +8,7 @@ namespace App\Repositories\MT1Repositories;
 use App\Models\MT1Models\AdvertiserInfo;
 use Log;
 
-class AdvertiserRepo {
+class AdvertiserInfoRepo {
     protected $model;
 
     public function __construct ( AdvertiserInfo $model ) {
@@ -25,7 +25,13 @@ class AdvertiserRepo {
                 ->orderBy( 'advertiser_id' , 'DESC' )
                 ->get();
         } catch ( \Exception $e ) {
-            Log::error( "AdvertiserRepo Error:: " . $e->getMessage() );
+            Log::error( "AdvertiserInfoRepo Error:: " . $e->getMessage() );
         }
     }
+
+    public function pullForSync() {
+        return $this->model->get();
+    }
+    
+
 }

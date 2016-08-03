@@ -2,12 +2,12 @@
 
 namespace App\Services\MT1Services;
 
-use App\Repositories\MT1Repositories\AdvertiserRepo;
+use App\Repositories\MT1Repositories\AdvertiserInfoRepo;
 
 class AdvertiserService {
     protected $repo;
 
-    public function __construct ( AdvertiserRepo $repo ) {
+    public function __construct ( AdvertiserInfoRepo $repo ) {
         $this->repo = $repo;
     }
 

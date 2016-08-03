@@ -16,11 +16,15 @@ class AddPayoutTypes extends Seeder
         $type1->save();
 
         $type2 = new ClientPayoutType();
-        $type2->name = 'Revshare';
+        $type2->name = 'CPC';
         $type2->save();
 
         $type3 = new ClientPayoutType();
         $type3->name = 'CPA';
         $type3->save();
+
+        $type4 = new ClientPayoutType();
+        $type4->name = 'Unknown'; // To support legacy data/unfilled
+        $type4->save();
     }
 }
