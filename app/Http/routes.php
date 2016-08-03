@@ -598,6 +598,7 @@ Route::group(
             'uses' => 'ClientController@resetClientPassword'
         ] );
 
+
         /**
          * Client Group API Routes
          */
@@ -914,6 +915,10 @@ Route::group(
             [ 'except' => ['create', 'edit']]
         );
 
+        Route::get('/mailingtemplate/templates/{id}', [
+            'as' => 'api.mailingtemplate.listbyesp',
+            'uses' => 'EspApiController@grabTemplatesByESP'
+        ]);
         Route::resource(
             'mailingtemplate',
             'MailingTemplateController',

@@ -53,7 +53,7 @@
                             <td>
                                 <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.esp_account_id }">
                                     <select name="esp_account" id="esp_account"
-                                            ng-change="deploy.updateDomains()"
+                                            ng-change="deploy.updateSelects()"
                                             ng-model="deploy.currentDeploy.esp_account_id" class="form-control"
                                             ng-disabled="deploy.currentlyLoading">
                                         <option value="">- Please Choose an ESP Account -</option>
@@ -84,9 +84,24 @@
                             <td></td>
                             <td></td>
                             <td></td>
-                            <td></td>
                             <td>
-                                <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.mailing_domain_id }">
+                                <div class="form-group"
+                                      ng-class="{ 'has-error' : deploy.formErrors.template_id }">
+                                    <select name="template" id="template"
+                                            ng-model="deploy.currentDeploy.template_id" class="form-control"
+                                            ng-disabled="deploy.espLoaded">
+                                        <option value="">- Please Choose a Template -</option>
+                                        <option ng-repeat="option in deploy.templates" ng-value="option.id"
+                                                ng-selected="option.id == deploy.currentDeploy.template_id">@{{ option.template_name }}
+                                        </option>
+                                    </select>
+                    <span class="help-block" ng-bind="deploy.formErrors.mailing_domain_id"
+                          ng-show="deploy.formErrors.mailing_domain_id"></span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group"
+                                     ng-class="{ 'has-error' : deploy.formErrors.mailing_domain_id }">
                                     <select name="mailing_domain" id="mailing_domain"
                                             ng-model="deploy.currentDeploy.mailing_domain_id" class="form-control"
                                             ng-disabled="deploy.espLoaded">
@@ -100,7 +115,8 @@
                                 </div>
                             </td>
                             <td>
-                                <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.content_domain_id }">
+                                <div class="form-group"
+                                     ng-class="{ 'has-error' : deploy.formErrors.content_domain_id }">
                                     <select name="content_domain" id="content_domain"
                                             ng-model="deploy.currentDeploy.content_domain_id" class="form-control"
                                             ng-disabled="deploy.espLoaded">
