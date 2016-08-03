@@ -168,4 +168,8 @@ class EspApiAccountService
         return $this->espRepo->getEspInfoByAccountName($name);
     }
 
+    public function getTemplatesByEspId($id){
+        return $this->espRepo->getTemplatesByEspId($id);
+    }
+
 }
