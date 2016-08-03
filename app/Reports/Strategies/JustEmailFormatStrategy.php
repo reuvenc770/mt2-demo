@@ -13,4 +13,8 @@ class JustEmailFormatStrategy implements IFormatStrategy {
     public static function formatFileName($date) {
         return "esurance_unsubs_{$date}.txt";
     }
+
+    public static function getDelimiter () {
+        return ",";
+    }
 }

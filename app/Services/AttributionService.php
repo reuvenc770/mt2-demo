@@ -18,25 +18,49 @@ class AttributionService
     private $scheduleRepo;
     private $assignmentRepo;
     private $clientInstanceRepo;
+    private $pickupRepo;
+    private $name = 'AttributionJob';
 
     public function __construct(AttributionRecordTruthRepo $truthRepo, 
                                 AttributionScheduleRepo $scheduleRepo, 
                                 EmailClientAssignmentRepo $assignmentRepo,
                                 EmailClientInstanceRepo $clientInstanceRepo,
-                                AttributionLevelRepo $levelRepo) {
+                                AttributionLevelRepo $levelRepo,
+                                EtlPickupRepo $pickupRepo) {
 
         $this->truthRepo = $truthRepo;
         $this->scheduleRepo = $scheduleRepo;
         $this->assignmentRepo = $assignmentRepo;
         $this->clientInstanceRepo = $clientInstanceRepo;
         $this->levelRepo = $levelRepo;
+        $this->pickupRepo = $pickupRepo;
     }   
 
-    public function getTransientRecords() {
-        return $this->truthRepo->getTransientRecords();
+    public function getTransientRecords($model) {
+
+        $timestamp = $this->pickupRepo->getLastInsertedForName($this->name);
+        $carbonDate = Carbon::createFromTimestamp($timestamp)->toDateTimeString();
+
+        // Checking whether attribution levels have changed since the last run
+        $lastAttrLevelChange = Carbon::parse($this->levelRepo->getLastUpdate());
+
+        if ('none' !== $model || $lastAttrLevelChange->gte($carbonDate)) {
+            // If a model is specified, or if attribution has changed recently,
+            // execute the full run
+            return $this->truthRepo->getFullTransients();
+        }
+        else {
+            // Otherwise, run the optimized subset
+            $datetime = $carbonDate->toDateTimeString();
+            return $this->truthRepo->getOptimizedTransients($datetime);
+        }
+        
     }
 
     public function run($records) {
+
+        $currentTimestamp = Carbon::now()->timestamp;
+
         $records->each(function($record, $key) {
 
             $beginDate = $record->capture_date;
@@ -76,6 +100,10 @@ class AttributionService
             }
             
         }, 50000);
+        
+        // This is not the current timestamp anymore, but setting it to the start of the run prevents any gaps
+        $this->pickupRepo->updatePosition($this->name, $currentTimestamp);
+        
     }
 
     protected function getPotentialReplacements($emailId, $beginDate, $clientId) {

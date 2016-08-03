@@ -61,4 +61,18 @@ class AttributionLevelRepo {
     static public function dropTempTable ( $modelId ) {
         Schema::connection( 'attribution' )->drop( AttributionLevel::BASE_TABLE_NAME . $modelId );
     }
+
+    public function getLastUpdate() {
+        $result = $this->levels
+             ->select(DB::raw("MAX(updated_at) AS last_update"))
+             ->first();
+
+        if ($result) {
+            return $result->last_update;
+        }
+        else {
+            // No last updated. Shouldn't happen. Return today.
+            return strftime('%Y-%m-%d 00:00:00');
+        }
+    }
 }
