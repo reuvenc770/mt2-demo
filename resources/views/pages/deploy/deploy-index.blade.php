@@ -67,11 +67,11 @@
                             </td>
                             <td></td>
                             <td>
-                                <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.offerId }">
+                                <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.offer_id }">
                                     <div angucomplete-alt
                                          id="offer"
                                          placeholder="Search Offers"
-                                         selected-object="deploy.currentDeploy.offer"
+                                         selected-object="deploy.currentDeploy.offer_id"
                                          remote-url="/api/offer/search?searchTerm="
                                          title-field="name"
                                          text-searching="Looking for Offers..."
@@ -129,7 +129,22 @@
                           ng-show="deploy.formErrors.content_domain_id"></span>
                                 </div>
                             </td>
+                            <td>
+                                <div class="form-group"
+                                     ng-class="{ 'has-error' : deploy.formErrors.cake_affiliate_id }">
+                                    <select name="cake_affiliate_id" id="cake_affiliate_id"
+                                            ng-model="deploy.currentDeploy.cake_affiliate_id" class="form-control">
+                                        <option value="">- Please Choose an Cake ID -</option>
+                                        <option ng-repeat="option in deploy.cakeAffiliates" ng-value="option.affiliateID"
+                                                ng-selected="option.id == deploy.currentDeploy.cake_affiliate_id">@{{ option.affiliateID }}
+                                        </option>
+                                    </select>
+                    <span class="help-block" ng-bind="deploy.formErrors.cake_affiliate_id"
+                          ng-show="deploy.formErrors.cake_affiliate_id"></span>
+                                </div>
+                            </td>
                         </tr>
+
 
                         <tr ng-repeat="record in deploy.deploys track by $index">
                             <td>

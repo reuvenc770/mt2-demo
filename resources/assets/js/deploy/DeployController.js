@@ -7,11 +7,13 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
                             offer_id: "",
                             mailing_domain_id: "",
                             content_domain_id : "",
-                            template_id: ""
+                            template_id: "",
+                            cake_affiliate_id: ""
                             };
     self.espAccounts = [];
     self.currentlyLoading = 0;
     self.templates = [];
+    self.cakeAffiliates = [];
     self.espLoaded = true;
     self.showRow = 1;
     self.mailingDomains = []; //id is 1
@@ -24,6 +26,7 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
 
     self.loadAccounts = function () {
         self.loadEspAccounts();
+        self.loadAffiliates();
     };
 
 
@@ -36,6 +39,10 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
         DeployApiService.getMailingDomains(self.currentDeploy.esp_account_id, 1, self.updateMailingSuccess,self.updateDomainsFail);
         DeployApiService.getMailingDomains(self.currentDeploy.esp_account_id, 2, self.updateContentSuccess,self.updateDomainsFail);
         DeployApiService.getTemplates(self.currentDeploy.esp_account_id, self.updateTemplateSuccess, self.updateTemplateFail);
+    };
+
+    self.loadAffiliates = function () {
+        DeployApiService.getCakeAffiliates(self.loadCakeSuccess, self.loadCakeFail);
     };
 
 
@@ -62,6 +69,10 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
         self.espLoaded = false;
     };
 
+    self.loadCakeSuccess = function (response) {
+        self.cakeAffiliates = response.data;
+    };
+
     self.loadEspFail = function () {
         self.setModalLabel( 'Error' );
         self.setModalBody( 'Something went wrong loading ESPs' );
@@ -79,6 +90,11 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
         self.launchModal();
     };
 
+    self.loadCakeFail = function () {
+        self.setModalLabel( 'Error' );
+        self.setModalBody( 'Something went wrong loading Cake Affiliates' );
+        self.launchModal();
+    };
 
     /**
      * Errors

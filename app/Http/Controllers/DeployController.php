@@ -2,24 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\DeployService;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
 
 class DeployController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    protected $deployService;
+
+    public function __construct(DeployService $deployService)
     {
-        //
+        $this->deployService = $deployService;
     }
 
     public function listAll(){
         return response()->view('pages.deploy.deploy-index');
+    }
+
+    public function returnCakeAffiliates(){
+        $data = $this->deployService->getCakeAffiliates();
+        return response()->json($data);
     }
 
     /**

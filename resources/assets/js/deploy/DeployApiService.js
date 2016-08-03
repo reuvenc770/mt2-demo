@@ -6,6 +6,7 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
     self.offerSearchUrl = '/api/offer/search/';
     self.domainsApiUrl = '/api/domain/listActiveDomains/';
     self.templateUrl = '/api/mailingtemplate/templates/';
+    self.cakeUrl = '/api/deploy/cakeaffiliates/';
 
     self.getDeploys = function (successCallback, failureCallback) {
         $http({"method": "GET", "url": this.baseApiUrl})
@@ -28,6 +29,13 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
         $http( {
             "method" : "GET" ,
             "url" : this.templateUrl + espAccountId
+        } ).then( successCallback , failCallback );
+    };
+
+    self.getCakeAffiliates = function (successCallback, failCallback){
+        $http( {
+            "method" : "GET" ,
+            "url" : this.cakeUrl
         } ).then( successCallback , failCallback );
     };
 

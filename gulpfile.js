@@ -115,7 +115,6 @@ elixir.extend( 'deployDeployJs' , function ( mix ) {
     mix.scripts( [
         'deploy/DeployController.js' ,
         'deploy/DeployApiService.js',
-        'deploy/DeployListTableDirective.js'
     ] , 'public/js/deploy.js' );
 } );
 
