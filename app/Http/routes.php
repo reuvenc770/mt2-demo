@@ -682,6 +682,15 @@ Route::group(
                 ] );
             }
         );
+        Route::group(
+            [ 'prefix' => 'deploy' ] ,
+            function () {
+                Route::get( '/cakeaffiliates' , [
+                    'as' => 'api.deploy.cakeaffiliates' ,
+                    'uses' => 'DeployController@returnCakeAffiliates'
+                ] );
+            }
+        );
 
         /**
          * Offer Routes

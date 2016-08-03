@@ -38,4 +38,9 @@ class EspAdvertiserJoinRepo {
                     ->select(DB::raw("EspAdvertiserJoin.*, espName"))
                     ->get();
     }
+
+    public function getCakeAffiliates(){
+        return $this->model->distinct()->get(['affiliateID']);
+
+    }
 }
