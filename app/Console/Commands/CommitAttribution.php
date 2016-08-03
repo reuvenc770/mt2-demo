@@ -14,7 +14,7 @@ class CommitAttribution extends Command
      *
      * @var string
      */
-    protected $signature = 'attribution:commit';
+    protected $signature = 'attribution:commit {modelId?}';
 
     /**
      * The console command description.
@@ -38,7 +38,8 @@ class CommitAttribution extends Command
      * @return mixed
      */
     public function handle() {
-        $job = new CommitAttributionJob(str_random(16));
+        $model = $this->argument('modelId') ?: 'none';
+        $job = new CommitAttributionJob($model, str_random(16));
         $this->dispatch($job);
     }
 }

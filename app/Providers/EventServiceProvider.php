@@ -31,6 +31,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\NewActions' => [
             'App\Listeners\NewActionResolver'
         ],
+        'App\Events\AttributionCompleted' => [
+            
+        ],
     ];
 
     /**
