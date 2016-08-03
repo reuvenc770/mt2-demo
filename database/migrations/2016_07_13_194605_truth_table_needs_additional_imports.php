@@ -24,7 +24,7 @@ class TruthTableNeedsAdditionalImports extends Migration
      * @return void
      */
     public function down() {
-        Schema::connection('attribution')->table('email_client_assignments', function(Blueprint $table) {
+        Schema::connection('attribution')->table('attribution_record_truths', function(Blueprint $table) {
             $table->dropColumn('additional_imports');
             $table->dropIndex('recent_action_expire_additional');
             $table->index(["recent_import", "has_action", "action_expired"],"recent_action_expire");

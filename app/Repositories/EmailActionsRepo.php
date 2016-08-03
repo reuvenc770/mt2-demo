@@ -13,10 +13,56 @@ use Carbon\Carbon;;
  */
 class EmailActionsRepo {
   
-    private $actions;
+    protected $actions;
 
     public function __construct(EmailAction $actions) {
         $this->actions = $actions;
+    }
+
+    public function getByDateRange ( $dateRange = null ) {
+        if( is_null( $dateRange ) ) {
+            $startDate = Carbon::now()->startOfDay()->toDateTimeString();
+            $endDate = Carbon::now()->endOfDay()->toDateTimeString();
+        } else {
+            $startDate = $dateRange[ 'start' ];
+            $endDate = $dateRange[ 'end' ];
+        }
+
+        return $this->actions
+                    ->whereBetween( 'datetime' , [ $startDate , $endDate ] )
+                    ->get();
+
+    }
+
+    public function getAggregatedByDateRange ( $dateRange = null ) {
+        if( is_null( $dateRange ) ) {
+            $startDate = Carbon::now()->startOfDay()->toDateTimeString();
+            $endDate = Carbon::now()->endOfDay()->toDateTimeString();
+        } else {
+            $startDate = $dateRange[ 'start' ];
+            $endDate = $dateRange[ 'end' ];
+        }
+
+        return DB::connection( 'reporting_data' ) ->select(
+            "SELECT
+                DATE( datetime ) AS `date` ,
+                email_id ,
+                deploy_id ,
+                SUM( IF ( action_id = 4 , 1 , 0 ) ) AS `delivered`,
+                SUM( IF( action_id = 1 , 1 , 0 ) ) AS `opened` ,
+                SUM( IF( action_id = 2 , 1 , 0 ) ) AS `clicked`
+            FROM
+                email_actions
+            WHERE
+                datetime BETWEEN :start AND :end 
+            GROUP BY
+                email_id ,
+                deploy_id ,
+                `date`"
+            , [
+                ':start' => $startDate ,
+                ':end' => $endDate
+            ] );
     }
 
     public function maxId() {

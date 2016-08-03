@@ -26,6 +26,9 @@ class DataProcessingFactory {
 
     public static function create($name) {
         switch($name) {
+            case 'PopulateAttributionRecordReport':
+                return self::createAttributionRecordAggregationService();
+
             case 'PopulateEmailCampaignStats':
                 return self::createEmailCampaignAggregationService();
 
@@ -59,6 +62,26 @@ class DataProcessingFactory {
             default:
                 throw new \Exception("Data processing service {$name} does not exist");
         }
+    }
+
+    private static function createAttributionRecordAggregationService () {
+        $attrRecordRepo = \App::make( \App\Repositories\Attribution\RecordReportRepo::class );
+        $cakeConversion = \App::make( \App\Services\CakeConversionService::class );
+        $attrEmailActionsRepo = \App::make( \App\Repositories\Attribution\AttributionEmailActionsRepo::class );
+        $emailRecordService = \App::make( \App\Services\EmailRecordService::class );
+        $suppressionService = \App::make( \App\Services\SuppressionService::class );
+        $standardReportService = \App\Factories\ServiceFactory::createStandardReportService();
+        $etlPickupRepo = \App::make( \App\Repositories\EtlPickupRepo::class );
+
+        return new \App\Services\Attribution\RecordAggregatorService(
+            $attrRecordRepo ,
+            $cakeConversion ,
+            $attrEmailActionsRepo ,
+            $emailRecordService ,
+            $suppressionService ,
+            $standardReportService ,
+            $etlPickupRepo
+        );
     }
 
     private static function createEmailCampaignAggregationService() {
