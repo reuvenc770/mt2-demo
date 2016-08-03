@@ -10,7 +10,7 @@ use App\Jobs\Traits\PreventJobOverlapping;
 use App\Factories\ServiceFactory;
 use App\Facades\JobTracking;
 use App\Models\JobEntry;
-use Event;
+use App\Events\AttributionCompleted;
 
 class CommitAttributionJob extends Job implements ShouldQueue
 {
@@ -18,16 +18,16 @@ class CommitAttributionJob extends Job implements ShouldQueue
 
     private $jobName = 'AttributionJob';
     private $tracking;
-    private $model;
+    private $modelId;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($model, $tracking) {
+    public function __construct($modelId, $tracking) {
         $this->tracking = $tracking;
-        $this->model = $model;
+        $this->modelId = $modelId;
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
@@ -46,10 +46,10 @@ class CommitAttributionJob extends Job implements ShouldQueue
 
                 $service = ServiceFactory::createAttributionService();
 
-                $records = $service->getTransientRecords($this->model);
+                $records = $service->getTransientRecords($this->modelId);
                 $service->run($records);
 
-                Event::fire($this->model); // Attribution finished. Return model id
+                AttributionCompleted::fire($this->modelId); // Attribution finished. Return model id
                 JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
             }
             catch (\Exception $e) {
