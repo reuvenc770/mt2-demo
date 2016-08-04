@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Subject extends Model
 {
-    protected $fillable = ['id', 'subject_line', 'approved', 'status'];
+    protected $guarded = [];
 }

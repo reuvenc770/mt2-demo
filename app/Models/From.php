@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class From extends Model
 {
-    protected $fillable = ['id', 'from_line', 'approved', 'status'];
+    protected $guarded = [];
 }
