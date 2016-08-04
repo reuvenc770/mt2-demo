@@ -44,7 +44,7 @@ class CommitAttributionJob extends Job implements ShouldQueue
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
                 echo "{$this->jobName} running" . PHP_EOL;
 
-                $service = ServiceFactory::createAttributionService();
+                $service = ServiceFactory::createAttributionService($this->modelId);
 
                 $records = $service->getTransientRecords($this->modelId);
                 $service->run($records);
