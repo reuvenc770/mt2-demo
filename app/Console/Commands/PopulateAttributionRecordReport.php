@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Console\Traits\PreventOverlapping;
+use App\Jobs\DataProcessingJob;
 
 class PopulateAttributionRecordReport extends Command
 {
