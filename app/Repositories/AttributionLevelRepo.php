@@ -8,6 +8,7 @@ namespace App\Repositories;
 use App\Models\AttributionLevel;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
+use DB;
 
 class AttributionLevelRepo {
     protected $levels;

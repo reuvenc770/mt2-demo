@@ -9,7 +9,7 @@ use App\Repositories\AttributionRecordTruthRepo;
 use App\Repositories\AttributionScheduleRepo;
 use App\Repositories\EmailClientInstanceRepo;
 use App\Repositories\AttributionLevelRepo;
-
+use App\Repositories\EtlPickupRepo;
 
 class AttributionService
 {
@@ -39,7 +39,7 @@ class AttributionService
     public function getTransientRecords($model) {
 
         $timestamp = $this->pickupRepo->getLastInsertedForName($this->name);
-        $carbonDate = Carbon::createFromTimestamp($timestamp)->toDateTimeString();
+        $carbonDate = Carbon::createFromTimestamp($timestamp);
 
         // Checking whether attribution levels have changed since the last run
         $lastAttrLevelChange = Carbon::parse($this->levelRepo->getLastUpdate());
