@@ -159,14 +159,12 @@ class AttributionRecordTruthRepo {
     }
 
     public function bulkInsert($emails){
-        foreach(array_chunk($emails,10000) as $chunk) {
             DB::connection("attribution")->statement(
                 "INSERT INTO attribution_record_truths (email_id, recent_import, created_at, updated_at)
             VALUES
-                        " . join(' , ', $chunk) . "
+                        " . join(' , ', $emails) . "
             ON DUPLICATE KEY UPDATE
             email_id = email_id, recent_import = recent_import, created_at = created_at, updated_at = updated_at ");
-        }
     }
 
 }
