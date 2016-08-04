@@ -50,7 +50,6 @@ class ScheduledFilterResolver extends Job implements ShouldQueue
             foreach($columns as $key => $value){
                 $truthService->bulkToggleFieldRecord($emailIds,$key,$value);
             }
-            $scheduledFilterService->deleteSchedules($emailIds);
         }
         JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking, $total);
     }
