@@ -4,5 +4,5 @@ namespace App\Services\Interfaces;
 
 interface IMapStrategy
 {
-    public function mapList($records);
+    public function map($records);
 }

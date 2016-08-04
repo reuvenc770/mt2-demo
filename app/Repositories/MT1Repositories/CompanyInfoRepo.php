@@ -20,7 +20,7 @@ class CompanyInfoRepo {
              ->get();
     }
 
-    public function pullForSync() {
+    public function pullForSync($lookback) {
         return $this->model->get();
     }
 }
