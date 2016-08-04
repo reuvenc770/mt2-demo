@@ -71,11 +71,14 @@ class AttributionRecordTruthService
         $preppedData= array();
         foreach($emails as $email){
             $preppedData[] = "(".join(",",[$email['email_id'],true,"NOW()","NOW()"]).")";
-        }
-        try {
-             $this->recordTruthRepo->bulkInsert($preppedData);
-        } catch (\Exception $e) {
-            Log::error("Could not Bulk Insert Record because {$e->getMessage()}");
+            if(count($preppedData) == 5000) {
+                try {
+                    $this->recordTruthRepo->bulkInsert($preppedData);
+                } catch (\Exception $e) {
+                    Log::error("Could not Bulk Insert Record because {$e->getMessage()}");
+                }
+                $preppedData = [];
+            }
         }
     }
 
