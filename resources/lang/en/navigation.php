@@ -31,6 +31,7 @@ return[
     'devtools.jobs' => 'Job Tracker',
     'tools.bulksuppression' => 'Bulk Suppression' ,
     'client.attribution' => 'Attribution' ,
+    'attr.report.view' => 'Reporting' ,
     'datacleanse.list' => 'Data Cleanse' ,
     'datacleanse.add' => 'Add Data Cleanse' ,
     'attr.model.list' => 'Attribution Models' ,

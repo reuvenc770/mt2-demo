@@ -69,22 +69,15 @@ ul[dnd-list] .dndPlaceholder {
     min-height: 42px;
     margin-top: 20px;
 }
-/*
-ul[dnd-list] > li {
-    background-color: #337ab7;
-    display: block;
-    border: none;
-    border-radius: .25em;
-    color: #fff;
-    float: left;
-    font-weight: 700;
-    height: 125px;
-    margin: 5px;
-    padding: 3px;
-    text-align: center;
-    width: 250px;
+
+/**
+ * MD Data Tables
+ */
+@import "node_modules/angular-material-data-table/dist/md-data-table.min";
+
+.md-table-header-override-whitetext , .md-table-header-override-whitetext .md-sort-icon {
+    color: rgba(255, 255, 255, 0.87) !important;
 }
-*/
 
 /**
  * Custom Vanilla Styling
@@ -119,6 +112,9 @@ body {
     border-radius: 5px;
     line-height: 34px;
 }
+
+.transparent-background , .transparent-background .md-datepicker-input { background-color: rgba(0, 0, 0, 0) !important; } 
+.transparent-background .md-datepicker-expand-triangle { border-top-color: rgba(255,255,255,0.87) !important; }
 
 /**
  * Fields

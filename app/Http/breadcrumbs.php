@@ -186,6 +186,11 @@ Breadcrumbs::register('attr.model.edit', function($breadcrumbs) {
     $breadcrumbs->push('Edit Attribution Model');
 });
 
+Breadcrumbs::register('attr.report.view', function($breadcrumbs) {
+    $breadcrumbs->parent('attr.model.list');
+    $breadcrumbs->push('Reporting');
+});
+
 Breadcrumbs::register('proxy.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');
     $breadcrumbs->push('Proxies', route('proxy.list'));
