@@ -20,12 +20,12 @@ class CreateSubjectsTable extends Migration
             # Potential legacy fields
             $table->integer('offer_id')->default(0);
             $table->boolean('is_original')->default(0);
-            $table->date('date_approved')->nullable();
-            $table->string('approved_by', 20)->nullable();
+            $table->dateTime('date_approved')->nullable();
+            $table->string('approved_by', 30)->nullable();
             $table->date('inactive_date')->nullable();
             $table->boolean('internal_approved_flag')->default(0);
             $table->dateTime('internal_date_approved')->nullable();
-            $table->string('internal_approved_by', 20)->nullable();
+            $table->string('internal_approved_by', 30)->nullable();
             $table->boolean('copywriter')->default(0);
             $table->string('copywriter_name', 5)->nullable();
             $table->index('offer_id', 'offer_id');

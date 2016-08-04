@@ -20,7 +20,7 @@ class CreateFromsTable extends Migration
             # Potential legacy fields
             $table->integer('offer_id')->default(0);
             $table->boolean('is_original')->default(0);
-            $table->date('date_approved')->nullable();
+            $table->dateTime('date_approved')->nullable();
             $table->string('approved_by', 20)->nullable();
             $table->date('inactive_date')->nullable();
             $table->boolean('internal_approved_flag')->default(0);
