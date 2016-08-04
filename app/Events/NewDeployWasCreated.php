@@ -10,7 +10,7 @@ use App\Models\Deploy;
 class NewDeployWasCreated extends Event
 {
     use SerializesModels;
-    private $specifiedDeploys;
+    private $deploy;
 
     /**
      * Create a new event instance.
