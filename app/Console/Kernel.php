@@ -158,6 +158,7 @@ class Kernel extends ConsoleKernel
          *  MT1 data sync jobs
          */
         $schedule->command('mt1Import offer')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import listProfile')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import advertiser')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('emails:download')->cron('*/2 * * * * *')->withoutOverlapping();
 
