@@ -199,4 +199,31 @@ class EmailCampaignStatisticRepo {
              ]);
     }
 
+    public function updateWithTrackingInfo($data) {
+
+        $this->model
+            ->where('email_id', '=', $data['email_id'])
+            ->where('deploy_id', '=', $data['campaign_id'])
+            ->update([
+                'trk_first_click_datetime' => $data['first_click'],
+                'trk_last_click_datetime' => $data['last_click'],
+                'trk_total_clicks' => $data['clicks'],
+                'user_agent_id' => $data['uas_id']
+            ]);
+    }
+
+    public function updateWithContentServerInfo($data) {
+        $this->model
+            ->where('email_id', '=', $data['email_id'])
+            ->where('deploy_id', '=', $data['sub_id'])
+            ->update([
+                'mt_first_open_datetime' => $data['first_open'],
+                'mt_last_open_datetime' => $data['last_open'],
+                'mt_total_opens' => $data['clicks'],
+                'mt_first_click_datetime' => $data['first_click'],
+                'mt_last_click_datetime' => $data['last_click'],
+                'mt_total_clicks' => $data['clicks']
+            ]);
+    }
+
 }
