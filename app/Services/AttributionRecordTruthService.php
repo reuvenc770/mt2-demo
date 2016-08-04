@@ -80,6 +80,9 @@ class AttributionRecordTruthService
                 $preppedData = [];
             }
         }
+        if(count($preppedData) > 0){
+            $this->recordTruthRepo->bulkInsert($preppedData);
+        }
     }
 
     public function getAssignedRecords () {
