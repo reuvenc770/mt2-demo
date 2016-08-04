@@ -63,6 +63,9 @@ class ImportMt1Entity extends Command
             case "subject":
                 return "ImportMt1Subjects";
 
+            case "listProfile":
+                return "ImportMT1ListProfiles";
+
             default:
                 throw new \Exception('Unsupported entity type: ' . $type);
         }

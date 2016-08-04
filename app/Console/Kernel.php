@@ -53,7 +53,9 @@ class Kernel extends ConsoleKernel
         Commands\RunScheduledFilter::class,
         Commands\CommitAttribution::class,
         Commands\SharePublicatorsUnsubs::class,
+        Commands\UpdateAttributionReports::class,
         Commands\PopulateCfsStatsTables::class,
+        Commands\PopulateAttributionRecordReport::class,
         Commands\ImportMt1Entity::class,
     ];
 
@@ -140,6 +142,7 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'reports:downloadDeliverables Bronto 2' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         //$schedule->command( 'reports:downloadDeliverables Bronto:delivered 2' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:populateStats')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
+        $schedule->command( 'reports:populateAttrBaseRecords')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
         $schedule->command('process:useragents')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME);
         $schedule->command('download:mtstats')->dailyAt(self::DELIVERABLE_SCHEDULE_TIME);
         $schedule->command('reports:findIncompleteDeploys')->dailyAt(self::DEPLOY_CHECK_TIME);
@@ -155,6 +158,7 @@ class Kernel extends ConsoleKernel
          *  MT1 data sync jobs
          */
         $schedule->command('mt1Import offer')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import listProfile')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import advertiser')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('emails:download')->cron('*/2 * * * * *')->withoutOverlapping();
         $schedule->command('mt1Import creative')->dailyAt(self::MT1_SYNC_TIME);
@@ -167,5 +171,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('runFilter activity')->daily();
         $schedule->command('runFilter expiration')->daily();
         $schedule->command('attribution:commit')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
+        $schedule->command('attribution:updateReports Client')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
+        $schedule->command('attribution:updateReports ClientDeploy')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
+        $schedule->command('attribution:updateReports Deploy')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
     }
 }

@@ -11,4 +11,6 @@ class UniqueProfile extends Model
     protected $connection = 'mt1mail';
     protected $table = 'UniqueProfile';
     protected $primaryKey = 'profile_id';
+
+    public $timestamps = false;
 }

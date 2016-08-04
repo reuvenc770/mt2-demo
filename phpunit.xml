@@ -9,8 +9,18 @@
          processIsolation="false"
          stopOnFailure="false">
     <testsuites>
-        <testsuite name="Application Test Suite">
-            <directory>./tests/</directory>
+        <testsuite name="app">
+            <directory>./tests/APIEndPoints/</directory>
+        </testsuite>
+        <testsuite name="attribution_full">
+            <directory suffix="IntegrationTest.php">./tests/Attribution/</directory>
+            <directory suffix="TestCase.php">./tests/Attribution/</directory>
+        </testsuite>
+        <testsuite name="attribution_unit">
+            <directory suffix="TestCase.php">./tests/Attribution/</directory>
+        </testsuite>
+        <testsuite name="attribution_integration">
+            <directory suffix="IntegrationTest.php">./tests/Attribution/</directory>
         </testsuite>
     </testsuites>
     <filter>

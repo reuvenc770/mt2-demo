@@ -57,7 +57,7 @@ class ServiceFactory
 
         $attributionLevelRepo = "App\\Repositories\\AttributionLevelRepo";
 
-        $etlPickupModel "App\\Models\\EtlPickup";
+        $etlPickupModel = "App\\Models\\EtlPickup";
         $etlPickupRepo = "App\\Repositories\\EtlPickupRepo";
 
         $truth = new $truthRepo(new $truthModel());
@@ -72,5 +72,19 @@ class ServiceFactory
         $service = "App\\Services\\AttributionService";
 
         return new $service($truth, $schedule, $assignment, $instance, $level, $etlPickup);
+    }
+
+    public static function createStandardReportService () {
+        return new App\Services\StandardReportService( App::make( App\Repositories\StandardReportRepo::class ) );
+    }
+
+    public static function createAggregatorService ( $aggregatorName ) {
+        $className = "\App\Services\Attribution\\" . $aggregatorName . "AggregatorService";
+
+        if ( !class_exists( $className ) ) {
+            throw new \Exception( "Aggregator Service {$aggregatorName} does not exist. Either enter an existing service or make a new one." );
+        }
+
+        return App::make( $className ); 
     }
 }

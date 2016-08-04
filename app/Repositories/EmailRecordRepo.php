@@ -188,8 +188,8 @@ class EmailRecordRepo {
         return $this->deployId !== 0;
     }
 
-    public function getEmailId () {
-        return $this->email->select( 'id' )->where( 'email_address' , $this->emailAddress )->first()->id;
+    public function getEmailId ( $emailAddress = null ) {
+        return $this->email->select( 'id' )->where( 'email_address' , ( is_null( $emailAddress ) ? $this->emailAddress : $emailAddress ) )->first()->id;
     }
     public function getEmailAddress($eid){
         try {
