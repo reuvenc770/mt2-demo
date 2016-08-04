@@ -83,7 +83,7 @@ class AttributionRecordTruthRepo {
                       ->where('recent_import', 0)
                       ->where('has_action', 0)
                       ->where('additional_imports', 1)
-                      ->groupBy('eca.email_id', 'eca.client_id', 'eca.capture_date', 'art.has_action', 'art.action_expired', 'action_datetime')
+                      ->groupBy('eca.email_id', 'eca.client_id', 'eca.capture_date', 'art.has_action', 'art.action_expired')
                       ->havingRaw("MAX(eci.capture_date) >= '$startDateTime'");
 
         // These are records that are not protected by the 10-day recent shield, DID have an action but have lost the 90-day shield, 
@@ -97,7 +97,7 @@ class AttributionRecordTruthRepo {
                       ->where('has_action', 1)
                       ->where('action_expired', 1)
                       ->where('additional_imports', 1)
-                      ->groupBy('eca.email_id', 'eca.client_id', 'eca.capture_date', 'art.has_action', 'art.action_expired', 'action_datetime')
+                      ->groupBy('eca.email_id', 'eca.client_id', 'eca.capture_date', 'art.has_action', 'art.action_expired')
                       ->havingRaw("MAX(eci.capture_date) >= '$startDateTime'");
 
         // These are records that have just lost the 90-day shield today and have subsequent imports
