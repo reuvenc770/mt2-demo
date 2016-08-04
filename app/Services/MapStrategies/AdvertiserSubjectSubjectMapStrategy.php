@@ -14,8 +14,18 @@ class AdvertiserSubjectSubjectMapStrategy implements IMapStrategy {
         return [
             'id' => $record['subject_id'],
             'from_line' => $record['advertiser_subject'],
-            'approved' => $record['approved_flag'],
-            'status' => $record['status'],
+            'approved' => ($record['approved_flag'] === 'Y' ? 1 : 0),
+            'status' => ($record['status'] === 'A' ? 1 : 0),
+            'offer_id' => $record['advertiser_id'],
+            'is_original' => ($record['original_flag'] === 'Y' ? 1 : 0),
+            'date_approved' => $record['date_approved'],
+            'approved_by' => $record['approved_by'],
+            'inactive_date' => $record['inactive_date'],
+            'internal_approved_flag' => ($record['internal_approved_flag'] === 'Y' ? 1 : 0),
+            'internal_date_approved' => $record['internal_date_approved'],
+            'internal_approved_by' => $record['internal_approved_by'],
+            'copywriter' => ($record['copywriter'] == 'Y' ? 1 : 0),
+            'copywriter_name' => $record['copywriter_name'],
         ];
     }
 }
