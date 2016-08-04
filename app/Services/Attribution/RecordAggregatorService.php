@@ -50,7 +50,7 @@ class RecordAggregatorService extends AbstractEtlService {
 
         while ($startPoint < $endPoint) {
             // limit of ~10k rows to prevent memory allocation issues and maximize bulk inserts
-            $limit = 10000;
+            $limit = 5000;
             $segmentEnd = $this->actionsRepo->nextNRows($startPoint, $limit);
 
             // If we've overshot, $segmentEnd will be null
