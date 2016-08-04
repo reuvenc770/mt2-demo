@@ -22,10 +22,8 @@ class ImportMt1DataService {
     }
 
     public function load() {
-
-        $mappedRecords = $this->mapStrategy->mapList($this->records);
-
-        foreach ($mappedRecords as $record) {
+        foreach ($this->records as $record) {
+            $record = $this->mapStrategy->map($record);
             $this->mt2Repo->updateOrCreate($record);
         }
     }

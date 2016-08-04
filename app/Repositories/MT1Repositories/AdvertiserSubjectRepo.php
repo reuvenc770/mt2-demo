@@ -3,6 +3,7 @@
 namespace App\Repositories\MT1Repositories;
 
 use App\Models\MT1Models\AdvertiserSubject;
+use DB;
 
 class AdvertiserSubjectRepo {
     protected $model;

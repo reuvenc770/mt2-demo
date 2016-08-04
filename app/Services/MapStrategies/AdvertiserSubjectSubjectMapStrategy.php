@@ -5,16 +5,12 @@ namespace App\Services\MapStrategies;
 use App\Services\Interfaces\IMapStrategy;
 
 class AdvertiserSubjectSubjectMapStrategy implements IMapStrategy {
-    
-    public function mapList($records) {
-        return array_map([$this, 'map'], $records);
-    }
 
-    protected function map($record) {
+    public function map($record) {
         return [
             'id' => $record['subject_id'],
-            'from_line' => $record['advertiser_subject'],
-            'approved' => ($record['approved_flag'] === 'Y' ? 1 : 0),
+            'subject_line' => $record['advertiser_subject'],
+            'is_approved' => ($record['approved_flag'] === 'Y' ? 1 : 0),
             'status' => ($record['status'] === 'A' ? 1 : 0),
             'offer_id' => $record['advertiser_id'],
             'is_original' => ($record['original_flag'] === 'Y' ? 1 : 0),

@@ -14,8 +14,8 @@ use App\Services\Interfaces\IMapStrategy;
 class UniqueProfileListProfileMapStrategy implements IMapStrategy
 {
     //1 to 1 right now;
-    public function mapList($records) {
-        return $records;
+    public function map($record) {
+        return $record;
     }
 
 }
