@@ -62,9 +62,10 @@ class ScheduledFilterService
                 $preppedData = [];
             }
 
-            if(count($preppedData) > 0){
-                $this->scheduleRepo->insertScheduleBulk($preppedData);
-            }
+        }
+        
+        if(count($preppedData) > 0){
+            $this->scheduleRepo->insertScheduleBulk($preppedData);
         }
 
     }
