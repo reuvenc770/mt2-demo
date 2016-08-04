@@ -70,7 +70,6 @@ class AttributionService
             // Currently get a 95% decrease in query time by running this separately
             $currentAttrLevel = $this->levelRepo->getLevel($clientId);
 
-            $actionDateTime = $record->action_datetime;
             $hasAction = (bool)$record->has_action;
             $actionExpired = $record->action_expired;
             $subsequentImports = 0;
@@ -82,9 +81,10 @@ class AttributionService
                 if ($this->shouldChangeAttribution($beginDate, $hasAction, $actionExpired, $currentAttrLevel, $repl->level)) {
                     $beginDate = $repl->capture_date;
                     $currentAttrLevel = (int)$repl->level;
-                    $hasAction = (bool)($repl->capture_date > $actionDateTime);
+                    $hasAction = 0; // by default must be false - can't switch if an action existed
                     $clientId = (int)$repl->client_id;
                     $subsequentImports = 0;
+                    $actionExpired = 0; // again, can't have an action, so it can't be expired
                 }
                 else {
                     $subsequentImports++;
