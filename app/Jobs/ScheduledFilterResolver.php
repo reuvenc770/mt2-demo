@@ -5,7 +5,7 @@ namespace App\Jobs;
 use App\Factories\ServiceFactory;
 use App\Jobs\Job;
 use App\Models\JobEntry;
-use JobTracking;
+use App\Facades\JobTracking;
 use App\Services\AttributionRecordTruthService;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -43,13 +43,14 @@ class ScheduledFilterResolver extends Job implements ShouldQueue
         $scheduledFilterService = ServiceFactory::createFilterService($this->filterName);
         $records = $scheduledFilterService->getRecordsByDate($this->date);
         $total = count($records);
-        $columns = $scheduledFilterService->fieldName;
-        foreach ($records as $record){
+        $columns = $scheduledFilterService->returnFullFields();
+
+        foreach ($records->chunk(10000) as $chunkRecords){
+            $emailIds = $chunkRecords->pluck("email_id")->all();
             foreach($columns as $key => $value){
-                echo "EMAIL ID {$record->email_id} Key {$key} Value {$value}";
-                $truthService->toggleFieldRecord($record->email_id,$key,$value);
+                $truthService->bulkToggleFieldRecord($emailIds,$key,$value);
             }
-            $record->delete();
+            $scheduledFilterService->deleteSchedules($emailIds);
         }
         JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking, $total);
     }

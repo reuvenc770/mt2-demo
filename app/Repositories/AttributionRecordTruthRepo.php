@@ -146,6 +146,7 @@ class AttributionRecordTruthRepo {
     }
 
     public function bulkSetField($emails, $field, $value){
+
         return $this->truth->whereIn("email_id", $emails)->update(array($field =>$value));
     }
 

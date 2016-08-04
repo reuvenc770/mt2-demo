@@ -111,6 +111,7 @@ class EmailRecordRepo {
         }
 
         if(count($preppedData) > 0) {
+            Log::info("##### I AM FIRING NEW ACTIONS #####");
             \Event::fire(new NewActions($preppedData));
         }
 

@@ -74,7 +74,15 @@ class ScheduledFilterService
         return array_keys($this->fields);
     }
 
+    public function returnFullFields(){
+        return $this->fields;
+    }
+
     public function getDefaultFieldValue($field) {
         return $this->fields[$field];
+    }
+
+    public function deleteSchedules($emails){
+        return $this->scheduleRepo->bulkDelete($emails);
     }
 }

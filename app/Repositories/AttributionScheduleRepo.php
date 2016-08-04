@@ -32,6 +32,9 @@ class AttributionScheduleRepo {
         );
     }
 
+    public function bulkDelete($emails){
+        return $this->schedule->whereIn("email_id", $emails)->delete();
+    }
 
     public function insertScheduleBulk($emails){
             DB::connection("attribution")->statement(
