@@ -111,7 +111,7 @@ class AttributionRecordTruthRepo {
                       ->where('has_action', 1)
                       ->where('action_expired', 1)
                       ->where('additional_imports', 1)
-                      ->where('aas.trigger_date', '>', $startDateTime);
+                      ->whereBetween('aas.trigger_date', [$startDateTime, DB::raw("CURDATE() + INTERVAL 1 HOUR")]);
 
         // records that have just come out of the 10-day window, have no actions, and have subsequent imports
         // can subsequent imports during the shielded time now get this email?
@@ -122,7 +122,7 @@ class AttributionRecordTruthRepo {
                     ->where('recent_import', 0)
                     ->where('has_action', 0)
                     ->where('additional_imports', 1)
-                    ->where('aes.trigger_date', '>', $startDateTime)
+                    ->whereBetween('aes.trigger_date', [$startDateTime, DB::raw("CURDATE() + INTERVAL 1 HOUR")])
                     ->unionAll($union1)
                     ->unionAll($union2)
                     ->unionAll($union3)
