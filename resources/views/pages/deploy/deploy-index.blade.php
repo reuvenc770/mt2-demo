@@ -12,6 +12,7 @@
         <div class="row">
             <div class="col-xs-12">
                 <div id="mtTableContainer">
+                    <button ng-click="deploy.displayForm()" class="btn btn-primary">New Deploy</button>
                     <table class="table table-striped table-bordered table-hover text-center">
                         <thead>
                         <tr>
@@ -36,8 +37,8 @@
                         </thead>
 
                         <tbody>
-                        <tr>
-                            <td></td>
+                        <tr ng-show="deploy.showRow">
+                            <td><button ng-click="deploy.saveNewDeploy()" class="btn btn-small btn-primary">Save Deploy</button></td>
                             <td>
                                 <md-datepicker name="dateField" ng-model="deploy.currentDeploy.send_date"
                                                md-placeholder="Enter date"></md-datepicker>
@@ -143,8 +144,15 @@
                           ng-show="deploy.formErrors.cake_affiliate_id"></span>
                                 </div>
                             </td>
+                            <td>
+                                <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.notes }">
+                                    <div class="form-group" >
+                                        <textarea ng-model="deploy.currentDeploy.notes" class="form-control" rows="1" id="html"></textarea>
+                                    </div>
+                                    <span class="help-block" ng-bind="deploy.formErrors.notes" ng-show="mailing.formErrors.notes"></span>
+                                </div>
+                            </td>
                         </tr>
-
 
                         <tr ng-repeat="record in deploy.deploys track by $index">
                             <td>
@@ -159,6 +167,15 @@
                         </tr>
                         </tbody>
                     </table>
+                    <div class="row">
+                        <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
+                            <pagination-count recordcount="deploy.paginationCount" currentpage="deploy.currentPage"></pagination-count>
+                        </div>
+
+                        <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
+                            <pagination currentpage="deploy.currentPage" maxpage="deploy.pageCount" disableceiling="deploy.reachedMaxPage" disablefloor="deploy.reachedFirstPage"></pagination>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

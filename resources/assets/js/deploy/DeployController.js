@@ -15,7 +15,7 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
     self.templates = [];
     self.cakeAffiliates = [];
     self.espLoaded = true;
-    self.showRow = 1;
+    self.showRow = false;
     self.mailingDomains = []; //id is 1
     self.contentDomains = []; //id is 2
     self.offers = [];
@@ -23,16 +23,25 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
     self.deploys = [];
     self.searchText = "";
 
+    self.pageCount = 0;
+    self.paginationCount = '10';
+    self.currentPage = 1;
+
 
     self.loadAccounts = function () {
         self.loadEspAccounts();
         self.loadAffiliates();
+        self.loadDeploys();
     };
 
 
     self.loadEspAccounts = function (){
       self.currentlyLoading = 1;
       DeployApiService.getEspAccounts(self.loadEspSuccess, self.loadEspFail);
+    };
+    self.loadDeploys = function () {
+        DeployApiService.getDeploys(self.currentPage , self.paginationCount, self.loadDeploySuccess, self.loadDeployFail);
+
     };
 
     self.updateSelects = function () {
@@ -45,11 +54,23 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
         DeployApiService.getCakeAffiliates(self.loadCakeSuccess, self.loadCakeFail);
     };
 
+    self.displayForm = function () {
+        self.showRow = true;
+    };
+
+    self.saveNewDeploy = function () {
+      DeployApiService.saveNewDeploy();
+    };
+
 
 
     /**
      * Callbacks
      */
+    self.loadDeploySuccess = function (response) {
+        self.deploys = response.data.data;
+        self.pageCount = response.data.last_page;
+    };
 
     self.loadEspSuccess = function (response) {
         self.espAccounts = response.data;
@@ -87,6 +108,12 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
     self.updateTemplateFail = function (){
         self.setModalLabel( 'Error' );
         self.setModalBody( 'Something went wrong loading Templates' );
+        self.launchModal();
+    };
+
+    self.loadDeployFail = function (){
+        self.setModalLabel( 'Error' );
+        self.setModalBody( 'Something went wrong loading Deploys' );
         self.launchModal();
     };
 

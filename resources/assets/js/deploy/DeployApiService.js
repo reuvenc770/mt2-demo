@@ -7,10 +7,14 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
     self.domainsApiUrl = '/api/domain/listActiveDomains/';
     self.templateUrl = '/api/mailingtemplate/templates/';
     self.cakeUrl = '/api/deploy/cakeaffiliates/';
+    self.pagerApiUrl = '/api/pager/Deploy';
 
-    self.getDeploys = function (successCallback, failureCallback) {
-        $http({"method": "GET", "url": this.baseApiUrl})
-            .then(successCallback, failureCallback);
+    self.getDeploys = function ( page , count , successCallback , failureCallback ) {
+        $http( {
+            "method" : "GET" ,
+            "url" : self.pagerApiUrl ,
+            "params" : { "page" : page , "count" : count }
+        } ).then( successCallback , failureCallback );
     };
 
     self.getEspAccounts = function (successCallback, failCallBack){
