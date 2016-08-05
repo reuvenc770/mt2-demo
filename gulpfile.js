@@ -46,6 +46,8 @@ elixir.extend( 'deployNodeModules' , function ( mix ) {
     mix.copy( 'node_modules/angular-ivh-treeview/dist/ivh-treeview.min.js' , 'public/js/ivh-treeview.min.js' );
 
     mix.copy( 'node_modules/angular-drag-and-drop-lists/angular-drag-and-drop-lists.min.js' , 'public/js/angular-drag-and-drop-lists.min.js' );
+
+    mix.copy( 'node_modules/angular-material-data-table/dist/md-data-table.min.js' , 'public/js/md-data-table.min.js' );
 } );
 
 elixir.extend( 'deploySass' , function ( mix ) {
@@ -201,6 +203,13 @@ elixir.extend( 'deployRecordAttributionJs' , function ( mix ) {
     ] , 'public/js/recordAttribution.js' );
 } );
 
+elixir.extend( 'deployReportAttributionJs' , function ( mix ) {
+    mix.scripts( [
+        'attribution/AttributionReportController.js' ,
+        'attribution/AttributionApiService.js' ,
+    ] , 'public/js/reportAttribution.js' );
+} );
+
 elixir.extend('deployDataExportJs', function(mix) {
     mix.scripts([
         'dataexport/DataExportController.js',
@@ -261,6 +270,7 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployRegistrarJs(mix);
     mix.deployProxyJs(mix);
     mix.deployRecordAttributionJs(mix)
+    mix.deployReportAttributionJs(mix)
 } );
 
 elixir.extend( 'runTdd' , function ( mix ) {
@@ -344,6 +354,9 @@ var mt2TaskMap = {
     },
     'deployRecordAttributionJs' : function (mix) {
         mix.deployRecordAttributionJs(mix)
+    },
+    'deployReportAttributionJs' : function (mix) {
+        mix.deployReportAttributionJs(mix)
     }
 };
 

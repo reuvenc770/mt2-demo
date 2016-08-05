@@ -5,28 +5,14 @@
 
 namespace App\Collections\Attribution;
 
-use Illuminate\Support\Collection;
 use Carbon\Carbon;
+use App\Collections\AbstractReportCollection;
 use App\Models\AttributionClientDeployReport;
 
-class ClientDeployReportCollection extends Collection {
-    protected $dateRange;
-
+class ClientDeployReportCollection extends AbstractReportCollection {
     public function __construct ( $items = [] ) {
         parent::__construct( $items );
+
+        $this->model = new AttributionClientDeployReport();
     }
-
-    public function load ( $dateRange = null ) {
-        $this->setDateRange( $dateRange );
-
-        parent::__construct( AttributionClientDeployReport::whereBetween( 'date' , [ $this->dateRange[ 'start' ] , $this->dateRange[ 'end' ] ] )->get()->toArray() );
-    }
-
-    public function setDateRange ( $dateRange = null ) { 
-        if ( is_null( $dateRange ) && !isset( $this->dateRange ) ) { 
-            $this->dateRange = [ "start" => Carbon::today()->startOfDay()->toDateTimeString() , "end" => Carbon::today()->endOfDay()->ToDateTimeString() ];
-        } elseif ( !is_null( $dateRange ) && isset( $this->dateRange ) ) { 
-            $this->dateRange = $dateRange;
-        }   
-    } 
 }

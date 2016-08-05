@@ -503,7 +503,7 @@ Route::group(
 );
 
 /**
- * Attribution Model Routes
+ * Attribution Model/Report Routes
  */
 
 Route::group(
@@ -532,6 +532,14 @@ Route::group(
             array( 
                 'as' => 'attr.model.edit', 
                 'uses' => 'AttributionModelController@edit' 
+            )
+        );
+
+        Route::get( 
+            '/report', 
+            array( 
+                'as' => 'attr.report.view', 
+                'uses' => 'AttributionReportController@view' 
             )
         );
     }
@@ -679,11 +687,17 @@ Route::group(
         );
 
         /**
-         *  Attribution Model API Routes
+         *  Attribution API Routes
          */
         Route::group(
             [] ,
             function () {
+                Route::get( '/attribution/report' , [
+                    'as' => 'api.attribution.report' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionReportController@getRecords'
+                ] );
+
                 Route::get( '/attribution/model' , [
                     'as' => 'api.attribution.model.index' ,
                     'middleware' => 'auth' ,

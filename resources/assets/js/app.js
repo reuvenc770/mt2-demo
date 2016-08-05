@@ -8,7 +8,8 @@ var mt2App = angular.module( 'mt2App' , [
     'flow' ,
     'ngclipboard' ,
     'ivh.treeview' , 
-    'dndLists'
+    'dndLists' ,
+    'md.data.table'
 ] );
 
 mt2App.config( function ( $locationProvider , $mdThemingProvider , ivhTreeviewOptionsProvider ) {
