@@ -25,7 +25,7 @@ class AttributionAggregatorJob extends Job implements ShouldQueue
 
     private $reportType;
     private $aggregator;
-    private $dateRange;
+    protected $dateRange;
     private $modelId;
 
     /**
