@@ -56,5 +56,5 @@
 </md-table-container>
 
 <md-content class="md-mt2-zeta-theme md-hue-2">
-    <md-table-pagination md-limit="attr.query.limit" md-limit-options="[5, 10, 15]" md-page="attr.query.page" md-total="@{{attr.meta.recordCount}}" md-on-paginate="attr.getRecords" md-page-select></md-table-pagination>
+    <md-table-pagination md-limit="attr.query.limit" md-limit-options="[50, 100, 250]" md-page="attr.query.page" md-total="@{{attr.meta.recordCount}}" md-on-paginate="attr.getRecords" md-page-select></md-table-pagination>
 </md-content>

@@ -11,7 +11,7 @@ mt2App.controller( 'AttributionReportController' , [ 'AttributionApiService' , '
         "type" : "Record" ,
         "filters" : { "date" : { "start" : self.startDate , "end" : self.endDate } } ,
         "order" : 'date' ,
-        "limit" : 5 ,
+        "limit" : 50 ,
         "page" : 1
     };
 
