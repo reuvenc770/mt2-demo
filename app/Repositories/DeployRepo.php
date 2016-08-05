@@ -19,6 +19,10 @@ class DeployRepo
         $this->deploy = $deploy;
     }
 
+    public function getModel(){
+        return $this->deploy;
+    }
+
     public function updateOrCreate($data) {
         $this->deploy->updateOrCreate(['id' => $data['id']], $data);
     }
