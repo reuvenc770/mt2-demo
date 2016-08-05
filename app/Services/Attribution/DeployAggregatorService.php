@@ -18,7 +18,7 @@ class DeployAggregatorService extends AbstractReportAggregatorService {
         $this->deployRepo = $deployRepo;
     }
 
-    public function buildAndSaveReport ( array $dateRange = null ) {
+    public function buildAndSaveReport ( $dateRange = null ) {
         if ( !isset( $this->recordReport ) ) {
             throw new AggregatorServiceException( 'RecordReportService needed. Please inject a service.' );                                                                                                        
         }

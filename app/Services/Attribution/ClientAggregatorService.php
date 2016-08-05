@@ -22,7 +22,7 @@ class ClientAggregatorService extends AbstractReportAggregatorService {
         $this->clientRepo = $clientRepo;
     }
 
-    public function buildAndSaveReport ( array $dateRange = null ) {
+    public function buildAndSaveReport ( $dateRange = null ) {
         if ( !isset( $this->recordReport ) ) {
             throw new AggregatorServiceException( 'RecordReportService needed. Please inject a service.' );
         }
