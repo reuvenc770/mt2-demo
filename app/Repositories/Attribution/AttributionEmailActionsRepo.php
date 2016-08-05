@@ -21,11 +21,27 @@ class AttributionEmailActionsRepo extends EmailActionsRepo {
             ->first()['id'];    
     }
 
+    public function minId () {
+        return $this->actions
+            ->orderBy('datetime', 'asc')
+            ->orderBy('id', 'asc')
+            ->first()['id'];    
+    }
+
     public function nextNRows ( $start , $offset ) {
         return $this->actions
             ->where('id', '>=', $start)
-            ->orderBy('datetime')
-            ->orderBy('id')
+            ->orderBy('id' , 'desc')
+            ->orderBy('datetime' , 'desc' )
+            ->skip($offset)
+            ->first()['id'];
+    }
+
+    public function prevNRows ( $start , $offset ) {
+        return $this->actions
+            ->where('id', '<=', $start)
+            ->orderBy('id' , 'desc')
+            ->orderBy('datetime' , 'desc' )
             ->skip($offset)
             ->first()['id'];
     }
