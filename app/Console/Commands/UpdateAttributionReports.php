@@ -79,7 +79,7 @@ class UpdateAttributionReports extends Command
             && $this->option( 'daysBack' ) > 1
         ) {
             $this->dateRange = [
-                "start" => Carbon::today()->subDays( $this->option( 'daysBack' ) ) ,
+                "start" => Carbon::today()->subDays( $this->option( 'daysBack' ) )->toDateString() ,
                 "end" => Carbon::today()->toDateString()
             ];
         }
