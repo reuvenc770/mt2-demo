@@ -43,4 +43,26 @@ class SubjectOpenRateRepo {
                     ':opens2' => $opens
                 ]);
     }
+
+    public function getSubjectOfferOpenRate($offerId) {
+        $schema = config("database.connections.mysql.database");
+        return $this->model
+                    ->join("$schema.deploys as d", 'subject_open_rates.deploy_id', '=', 'd.id')
+                    ->where('d.offer_id', $offerId)
+                    ->groupBy('subject_open_rates.subject_id')
+                    ->orderBy("`open_rate`", 'desc')
+                    ->select(DB::raw("subject_open_rates.subject_id, ROUND(SUM(IFNULL(opens, 0)) / SUM(IFNULL(delivers, 0)) * 100, 3) AS `open_rate`"))
+                    ->get();
+    }
+
+    public function getGeneralSubjectOpenRateUsingOffer($offerId) {
+        $schema = config("database.connections.mysql.database");
+        return $this->model
+                    ->join("$schema.deploys as d", 'subject_open_rates.subject_id', '=', 'd.subject_id')
+                    ->where('d.offer_id', $offerId)
+                    ->groupBy('subject_open_rates.subject_id')
+                    ->orderBy("`open_rate`", 'desc')
+                    ->select(DB::raw("subject_open_rates.subject_id, ROUND(SUM(IFNULL(opens, 0)) / SUM(IFNULL(delivers, 0)) * 100, 3) AS `open_rate`"))
+                    ->get();
+    }
 }

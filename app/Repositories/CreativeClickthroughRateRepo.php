@@ -42,4 +42,26 @@ class CreativeClickthroughRateRepo {
                     ':clicks2' => $clicks
                 ]);
     }
+
+    public function getCreativeOfferClickRate($offerId) {
+        $schema = config("database.connections.mysql.database");
+        return $this->model
+                    ->join("$schema.deploys as d", 'creative_clickthrough_rates.deploy_id', '=', 'd.id')
+                    ->where('d.offer_id', $offerId)
+                    ->groupBy('creative_clickthrough_rates.creative_id')
+                    ->orderBy("`click_rate`", 'desc')
+                    ->select(DB::raw("creative_clickthrough_rates.creative_id, ROUND(SUM(IFNULL(clicks, 0)) / SUM(IFNULL(opens, 0)) * 100, 3) AS `click_rate`"))
+                    ->get();
+    }
+
+        public function getGeneralCreativeClickRateUsingOffer($offerId) {
+        $schema = config("database.connections.mysql.database");
+        return $this->model
+                    ->join("$schema.deploys as d", 'creative_clickthrough_rates.creative_id', '=', 'd.creative_id')
+                    ->where('d.offer_id', $offerId)
+                    ->groupBy('creative_clickthrough_rates.creative_id')
+                    ->orderBy("`click_rate`", 'desc')
+                    ->select(DB::raw("creative_clickthrough_rates.creative_id, ROUND(SUM(IFNULL(clicks, 0)) / SUM(IFNULL(opens, 0)) * 100, 3) AS `click_rate`"))
+                    ->get();
+    }
 }
