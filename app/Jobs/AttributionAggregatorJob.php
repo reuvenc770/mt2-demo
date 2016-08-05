@@ -40,6 +40,7 @@ class AttributionAggregatorJob extends Job implements ShouldQueue
         $this->reportType = $reportType;
         $this->tracking = $tracking;
         $this->dateRange = $dateRange;
+
         $this->modelId = $modelId;
 
         JobTracking::startAggregationJob( $this->jobName , $this->tracking );

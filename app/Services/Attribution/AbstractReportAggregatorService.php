@@ -17,7 +17,7 @@ abstract class AbstractReportAggregatorService {
     protected $recordList = [];
     protected $recordStruct = [];
 
-    abstract public function buildAndSaveReport( array $dateRange = null );
+    abstract public function buildAndSaveReport( $dateRange = null );
 
     abstract protected function getBaseRecords();
 
@@ -28,9 +28,9 @@ abstract class AbstractReportAggregatorService {
     abstract protected function runInsertQuery( $valuesSqlString );
 
     public function setDateRange ( $dateRange = null ) {
-        if ( is_null( $dateRange ) && !isset( $this->dateRange ) ) {
+        if ( is_null( $dateRange ) ) {
             $this->dateRange = [ "start" => Carbon::today()->startOfDay()->toDateTimeString() , "end" => Carbon::today()->endOfDay()->ToDateTimeString() ];
-        } elseif ( !is_null( $dateRange ) && isset( $this->dateRange ) ) {
+        } else {
             $this->dateRange = $dateRange;
         }
     }
