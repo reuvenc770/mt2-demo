@@ -46,18 +46,21 @@ class RecordAggregatorService extends AbstractEtlService {
 
     public function extract($lookback = null) {
         $startPoint = $this->etlPickupRepo->getLastInsertedForName( self::JOB_NAME );
-        $endPoint = $this->actionsRepo->maxId();
+        $endPoint = $this->actionsRepo->minId();
+        $segmentEnd = $startPoint - 1000;
 
-        while ($startPoint < $endPoint) {
-            // limit of ~10k rows to prevent memory allocation issues and maximize bulk inserts
-            $limit = 5000;
-            $segmentEnd = $this->actionsRepo->nextNRows($startPoint, $limit);
+        $totalRecords = 0;
+        while ( $startPoint > $endPoint && $totalRecords < 50000 ) {
+            $limit = 1000;
+            $segmentEnd = $this->actionsRepo->prevNRows($startPoint, $limit);
+
+            echo "Segment End: " . $segmentEnd . PHP_EOL;
 
             // If we've overshot, $segmentEnd will be null
             $segmentEnd = $segmentEnd ? $segmentEnd : $endPoint;
 
             echo "Starting " . self::JOB_NAME . " collection at row $startPoint, ending at $segmentEnd" . PHP_EOL;
-            $data = $this->actionsRepo->pullAggregatedActions( $startPoint , $segmentEnd );
+            $data = $this->actionsRepo->pullAggregatedActions( $segmentEnd , $startPoint);
 
             if ($data) {
                 $insertData = [];
@@ -67,6 +70,8 @@ class RecordAggregatorService extends AbstractEtlService {
 
                 $this->recordRepo->massInsertActions($insertData);
                 $startPoint = $segmentEnd;
+
+                $totalRecords += count( $data );
             }
             else {
                 // if no data received
@@ -75,7 +80,7 @@ class RecordAggregatorService extends AbstractEtlService {
             }
         }
 
-        $this->etlPickupRepo->updatePosition(self::JOB_NAME, $endPoint);
+        $this->etlPickupRepo->updatePosition(self::JOB_NAME, $segmentEnd);
     }
 
     public function load() {}
