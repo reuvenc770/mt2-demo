@@ -31,8 +31,8 @@ class AttributionEmailActionsRepo extends EmailActionsRepo {
     public function nextNRows ( $start , $offset ) {
         return $this->actions
             ->where('id', '>=', $start)
-            ->orderBy('id' , 'desc')
-            ->orderBy('datetime' , 'desc' )
+            ->orderBy('id')
+            ->orderBy('datetime')
             ->skip($offset)
             ->first()['id'];
     }
