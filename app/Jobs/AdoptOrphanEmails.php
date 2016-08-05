@@ -142,7 +142,10 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
 
                 if(count($actionsRecords) > 0) {
                     $scheduledFilterService = ServiceFactory::createFilterService("activity");
-                    $truthService->bulkToggleFieldRecord($actionsRecords, $scheduledFilterService->fieldName, true);
+
+                        $emails = collect($actionsRecords)->pluck("email_id")->all();
+                        $truthService->bulkToggleFieldRecord($emails, "has_action", true);
+
                     $scheduledFilterService->insertScheduleFilterBulk($actionsRecords, 90);
                 }
 

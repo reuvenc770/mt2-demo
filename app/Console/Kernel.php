@@ -13,6 +13,7 @@ class Kernel extends ConsoleKernel
     const REPORT_TIME = '11:30';
     const REPORT_TIME_2 = '11:10';
     const EARLY_DELIVERABLE_SCHEDULE_TIME = '00:15';
+    const EXPIRATION_RUNS = "01:15";
     const DEPLOY_CHECK_TIME = '14:00';
     const ATTRIBUTION_UPDATE_TIME = '15:30';
     const MT1_SYNC_TIME = '23:00';
@@ -168,8 +169,8 @@ class Kernel extends ConsoleKernel
         /**
          * Attribution Jobs
          */
-        $schedule->command('runFilter activity')->daily();
-        $schedule->command('runFilter expiration')->daily();
+        $schedule->command('runFilter activity')->dailyAt(self::EXPIRATION_RUNS);
+        $schedule->command('runFilter expiration')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('attribution:commit')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
         $schedule->command('attribution:updateReports Client')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
         $schedule->command('attribution:updateReports ClientDeploy')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);

@@ -44,7 +44,6 @@ class AttributionRecordTruthService
     public function toggleFieldRecord($emailId, $column, $value)
     {
         try {
-            echo "EMAIL ID {$emailId} Key {$column} Value {$value}";
             $this->recordTruthRepo->setField($emailId, $column, $value);
         } catch (\Exception $e) {
             Log::error("Could not Expire Record because {$e->getMessage()} {$e->getLine()}");

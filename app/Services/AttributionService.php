@@ -9,7 +9,7 @@ use App\Repositories\AttributionRecordTruthRepo;
 use App\Repositories\AttributionScheduleRepo;
 use App\Repositories\EmailClientInstanceRepo;
 use App\Repositories\AttributionLevelRepo;
-
+use App\Repositories\EtlPickupRepo;
 
 class AttributionService
 {
@@ -19,6 +19,7 @@ class AttributionService
     private $assignmentRepo;
     private $clientInstanceRepo;
     private $pickupRepo;
+    private $expiringDay;
     private $name = 'AttributionJob';
 
     public function __construct(AttributionRecordTruthRepo $truthRepo, 
@@ -34,12 +35,14 @@ class AttributionService
         $this->clientInstanceRepo = $clientInstanceRepo;
         $this->levelRepo = $levelRepo;
         $this->pickupRepo = $pickupRepo;
+
+        $this->expiringDay = Carbon::today()->subDays(self::EXPIRATION_DAY_RANGE);
     }   
 
     public function getTransientRecords($model) {
 
         $timestamp = $this->pickupRepo->getLastInsertedForName($this->name);
-        $carbonDate = Carbon::createFromTimestamp($timestamp)->toDateTimeString();
+        $carbonDate = Carbon::createFromTimestamp($timestamp);
 
         // Checking whether attribution levels have changed since the last run
         $lastAttrLevelChange = Carbon::parse($this->levelRepo->getLastUpdate());
@@ -67,10 +70,9 @@ class AttributionService
             $clientId = (int)$record->client_id;
             $oldClientId = (int)$record->client_id;
 
-            // Currently get a 95% decrease in query time by running this separately
+            // running this separately currently improves execution time
             $currentAttrLevel = $this->levelRepo->getLevel($clientId);
 
-            $actionDateTime = $record->action_datetime;
             $hasAction = (bool)$record->has_action;
             $actionExpired = $record->action_expired;
             $subsequentImports = 0;
@@ -82,9 +84,10 @@ class AttributionService
                 if ($this->shouldChangeAttribution($beginDate, $hasAction, $actionExpired, $currentAttrLevel, $repl->level)) {
                     $beginDate = $repl->capture_date;
                     $currentAttrLevel = (int)$repl->level;
-                    $hasAction = (bool)($repl->capture_date > $actionDateTime);
+                    $hasAction = 0; // by default must be false - can't switch if an action existed
                     $clientId = (int)$repl->client_id;
                     $subsequentImports = 0;
+                    $actionExpired = 0; // again, can't have an action, so it can't be expired
                 }
                 else {
                     $subsequentImports++;
@@ -113,7 +116,7 @@ class AttributionService
     protected function shouldChangeAttribution($captureDate, $hasAction, $actionExpired, $currentAttrLevel, $testAttrLevel) {
 
         // needs to be explicitly checked - we don't just have the query to watch this
-        if ($this->getExpiringDay()->gte(Carbon::parse($captureDate))) {
+        if ($this->expiringDay->gte(Carbon::parse($captureDate))) {
             // Older than pre-defined X days ago
             
             if ($hasAction && $actionExpired) {
@@ -152,7 +155,4 @@ class AttributionService
         $this->scheduleRepo->insertSchedule($emailId, $nextDate);
     }
 
-    protected function getExpiringDay() {
-        return Carbon::today()->subDays(self::EXPIRATION_DAY_RANGE);
-    }
 }
