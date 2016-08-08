@@ -23,6 +23,7 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
     self.formErrors = [];
     self.deploys = [];
     self.searchText = "";
+    self.listProfiles = [];
 
     self.pageCount = 0;
     self.paginationCount = '10';
@@ -32,7 +33,9 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
     self.loadAccounts = function () {
         self.loadEspAccounts();
         self.loadAffiliates();
+        self.loadListProfiles();
         self.loadDeploys();
+        self.currentlyLoading = 0;
     };
 
 
@@ -40,9 +43,15 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
       self.currentlyLoading = 1;
       DeployApiService.getEspAccounts(self.loadEspSuccess, self.loadEspFail);
     };
-    self.loadDeploys = function () {
-        DeployApiService.getDeploys(self.currentPage , self.paginationCount, self.loadDeploySuccess, self.loadDeployFail);
 
+    self.loadDeploys = function () {
+        self.currentlyLoading = 1;
+        DeployApiService.getDeploys(self.currentPage , self.paginationCount, self.loadDeploySuccess, self.loadDeployFail);
+    };
+
+    self.loadListProfiles = function () {
+        self.currentlyLoading = 1;
+        DeployApiService.getListProfiles(self.loadProfileSuccess, self.loadProfileFail)
     };
 
     self.updateSelects = function () {
@@ -77,7 +86,6 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
 
     self.loadEspSuccess = function (response) {
         self.espAccounts = response.data;
-        self.currentlyLoading = 0;
     };
 
     self.updateContentSuccess = function (response){
@@ -95,6 +103,10 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
 
     self.loadCakeSuccess = function (response) {
         self.cakeAffiliates = response.data;
+    };
+
+    self.loadProfileSuccess = function (response) {
+      self.listProfiles = response.data;
     };
 
     self.loadNewDeploySuccess = function (response) {
@@ -139,6 +151,12 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
     self.loadCakeFail = function () {
         self.setModalLabel( 'Error' );
         self.setModalBody( 'Something went wrong loading Cake Affiliates' );
+        self.launchModal();
+    };
+
+    self.loadProfileFail = function () {
+        self.setModalLabel( 'Error' );
+        self.setModalBody( 'Something went wrong loading List Profiles' );
         self.launchModal();
     };
 
