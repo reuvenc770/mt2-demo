@@ -13,7 +13,6 @@ class CreativeCreativeMapStrategy implements IMapStrategy {
             'approved' => ($record['approved_flag']  == 'N' ? 0 : 1),
             'status' => ($record['status'] == 'A' ? 1 : 0),
             'creative_html' => $record['html_code'],
-
             'is_original' => ($record['original_flag'] == 'N' ? 0 : 1), //
             'trigger_flag' => ($record['trigger_flag'] == 'N' ? 0 : 1), //
             'creative_date' => $record['creative_date'], 

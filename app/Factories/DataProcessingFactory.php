@@ -84,6 +84,21 @@ class DataProcessingFactory {
                 $mt2Name = 'Deploy';
                 return self::createMt1ImportService($mt1Name, $mt2Name);
 
+            case('ImportMT1OfferCreativeMapping'):
+                $mt1Name = "Creative";
+                $mt2Name = "OfferCreativeMap";
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case('ImportMT1OfferFromMapping'):
+                $mt1Name = "AdvertiserFrom";
+                $mt2Name = "OfferFromMap";
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case('ImportMT1OfferSubjectMapping'):
+                $mt1Name = "AdvertiserSubject";
+                $mt2Name = "OfferSubjectMap";
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
             default:
                 throw new \Exception("Data processing service {$name} does not exist");
         }
