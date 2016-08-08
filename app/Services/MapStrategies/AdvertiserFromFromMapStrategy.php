@@ -12,7 +12,6 @@ class AdvertiserFromFromMapStrategy implements IMapStrategy {
             'from_line' => $record['advertiser_from'],
             'is_approved' => ($record['approved_flag'] == 'Y' ? 1 : 0),
             'status' => ($record['status'] == 'A' ? 1 : 0),
-            'offer_id' => $record['advertiser_id'],
             'is_original' => ($record['original_flag'] == 'Y' ? 1 : 0),
             'date_approved' => $record['date_approved'],
             'approved_by' => $record['approved_by'],
