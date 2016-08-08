@@ -79,6 +79,11 @@ class DataProcessingFactory {
                 $mt2Name = "ListProfile";
                 return self::createMt1ImportService($mt1Name, $mt2Name);
 
+            case ('ImportMT1Deploys'):
+                $mt1Name = 'EspAdvertiserJoin';
+                $mt2Name = 'Deploy';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
             default:
                 throw new \Exception("Data processing service {$name} does not exist");
         }
@@ -192,7 +197,7 @@ class DataProcessingFactory {
         $mt2Repo = new $mt2RepoName( new $mt2ModelName() );
 
         $mapStrategyName = "App\\Services\\MapStrategies\\{$mt1Name}{$mt2Name}MapStrategy";
-        $mapStrategy = new $mapStrategyName();
+        $mapStrategy = \App::make($mapStrategyName);
 
         return new \App\Services\ImportMt1DataService($mt1Repo, $mt2Repo, $mapStrategy);
     }

@@ -18,4 +18,10 @@ class OfferRepo {
         $this->offer->updateOrCreate(['id' => $data['id']], $data);
     }
 
+    public function getAdvertiserName($offerId) {
+        $this->offer
+             ->join('advertiser as a', 'offer.advertiser_id', '=', 'a.id')
+             ->get('a.name');
+    }
+
 }
