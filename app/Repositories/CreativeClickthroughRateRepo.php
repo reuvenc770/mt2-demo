@@ -46,9 +46,11 @@ class CreativeClickthroughRateRepo {
     public function getCreativeOfferClickRate($offerId) {
         $schema = config("database.connections.mysql.database");
         return $this->model
-                    ->join("$schema.deploys as d", 'creative_clickthrough_rates.deploy_id', '=', 'd.id')
-                    ->leftJoin("$schema.creatives as c", 'creative_clickthrough_rates.creative.id', '=', 'c.id')
-                    ->where('d.offer_id', $offerId)
+                    ->join("offer_creative_maps as ocm", 'creative_clickthrough_rates.creative_id', '=', 'ocm.creative_id')
+                    ->join("$schema.creatives as c", 'creative_clickthrough_rates.creative_id', '=', 'c.id')
+                    ->where('ocm.offer_id', $offerId)
+                    ->where('c.status', 1)
+                    ->where('c.is_approved', 1)
                     ->groupBy('creative_clickthrough_rates.creative_id', 'name')
                     ->orderBy("click_rate", 'desc')
                     ->select(DB::raw("creative_clickthrough_rates.creative_id, c.file_name as name, ROUND(SUM(IFNULL(clicks, 0)) / SUM(IFNULL(opens, 0)) * 100, 3) AS click_rate"))
@@ -58,9 +60,9 @@ class CreativeClickthroughRateRepo {
         public function getGeneralCreativeClickRateUsingOffer($offerId) {
         $schema = config("database.connections.mysql.database");
         return $this->model
-                    ->join("$schema.deploys as d", 'creative_clickthrough_rates.creative_id', '=', 'd.creative_id')
+                    ->join("offer_creative_maps as ocm", 'creative_clickthrough_rates.deploy_id', '=', 'd.id')
                     ->leftJoin("$schema.creatives as c", 'creative_clickthrough_rates.creative.id', '=', 'c.id')
-                    ->where('d.offer_id', $offerId)
+                    ->where('ocm.offer_id', $offerId)
                     ->groupBy('creative_clickthrough_rates.creative_id', 'name')
                     ->orderBy("click_rate", 'desc')
                     ->select(DB::raw("creative_clickthrough_rates.creative_id, c.file_name as name, ROUND(SUM(IFNULL(clicks, 0)) / SUM(IFNULL(opens, 0)) * 100, 3) AS click_rate"))
