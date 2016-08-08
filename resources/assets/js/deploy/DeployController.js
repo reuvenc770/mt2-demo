@@ -1,4 +1,4 @@
-mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$timeout' , 'DeployApiService' , function ( $log , $window , $location , $timeout , DeployApiService ) {
+mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$timeout' , 'DeployApiService', '$mdToast'  , function ( $log , $window , $location , $timeout , DeployApiService, $mdToast ) {
     var self = this;
     self.$location = $location;
     self.currentDeploy = { send_date : '',
@@ -8,7 +8,8 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
                             mailing_domain_id: "",
                             content_domain_id : "",
                             template_id: "",
-                            cake_affiliate_id: ""
+                            cake_affiliate_id: "",
+                            notes : ""
                             };
     self.espAccounts = [];
     self.currentlyLoading = 0;
@@ -59,7 +60,9 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
     };
 
     self.saveNewDeploy = function () {
-      DeployApiService.saveNewDeploy();
+        self.currentDeploy.offer_id = self.currentDeploy.offer_id.originalObject.id;
+        self.currentDeploy.deploy_id = undefined; //faster then delete
+        DeployApiService.insertDeploy(self.currentDeploy, self.loadNewDeploySuccess, self.loadNewDeployFail);
     };
 
 
@@ -92,6 +95,22 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
 
     self.loadCakeSuccess = function (response) {
         self.cakeAffiliates = response.data;
+    };
+
+    self.loadNewDeploySuccess = function (response) {
+        self.currentDeploy =  { send_date : '',
+            deploy_id : '',
+            esp_account_id : '',
+            offer_id: "",
+            mailing_domain_id: "",
+            content_domain_id : "",
+            template_id: "",
+            cake_affiliate_id: "",
+            notes : ""
+        };
+        $mdToast.showSimple( 'New Deploy Created!' );
+        DeployApiService.getDeploys(self.currentPage , self.paginationCount, self.loadDeploySuccess, self.loadDeployFail);
+
     };
 
     self.loadEspFail = function () {

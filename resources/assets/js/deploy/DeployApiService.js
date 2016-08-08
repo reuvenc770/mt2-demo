@@ -43,12 +43,19 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
         } ).then( successCallback , failCallback );
     };
 
-
     self.getOffersSearch = function ( searchText , successCallback , failCallback ) {
         $http( {
             "method" : "GET" ,
             "url" : this.offerSearchUrl ,
             "params" : {searchTerm : searchText}
+        } ).then( successCallback , failCallback );
+    };
+
+    self.insertDeploy = function ( deployObject , successCallback , failCallback ) {
+        $http( {
+            "method" : "POST" ,
+            "url" : this.baseApiUrl ,
+            "data" : deployObject
         } ).then( successCallback , failCallback );
     };
 

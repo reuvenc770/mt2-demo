@@ -156,14 +156,19 @@
 
                         <tr ng-repeat="record in deploy.deploys track by $index">
                             <td>
-                                <edit-button editurl="'/dba/edit/'" recordid="record.id"></edit-button>
+
                             </td>
-                            <td>@{{ record.id }}</td>
-                            <td>@{{ record.dba_name }}</td>
-                            <td>@{{ record.email }}</td>
-                            <td>@{{ record.address }}</td>
-                            <td>@{{ record.state }}</td>
-                            <td>@{{ record.phone }}</td>
+                            <td>@{{ record.send_date }}</td>
+                            <td>@{{ record.deploy_id }}</td>
+                            <td>@{{ record.account_name }}</td>
+                            <td>@{{ record.list_profile_id }}</td>
+                            <td>@{{ record.offer_name }}</td>
+                            <td></td><td></td><td></td>
+                            <td>@{{ record.template_name }}</td>
+                            <td>@{{ record.content_domain }}</td>
+                            <td>@{{ record.mailing_domain }}</td>
+                            <td>@{{ record.cake_affiliate_id }}</td>
+                            <td>@{{ record.notes }}</td>
                         </tr>
                         </tbody>
                     </table>

@@ -12,9 +12,7 @@ trait PaginateList {
     use PaginationCache;
 
     public function getPaginatedJson ( $page , $count ) {
-        if ( $this->hasCache( $page , $count ) ) {
-            return $this->getCachedJson( $page , $count );
-        } else {
+
             try {
                 $eloquentObj = $this->getModel();
 
@@ -30,7 +28,7 @@ trait PaginateList {
                 Log::error( $e->getMessage() );
                 return false;
             }
-        }
+
     }
     public function getType(){
         return class_basename($this->getModel());
