@@ -42,15 +42,18 @@ class ScheduledFilterResolver extends Job implements ShouldQueue
         JobTracking::changeJobState( JobEntry::RUNNING , $this->tracking);
         $scheduledFilterService = ServiceFactory::createFilterService($this->filterName);
         $records = $scheduledFilterService->getRecordsByDate($this->date);
-        $total = count($records);
+        $total = 0;
         $columns = $scheduledFilterService->returnFullFields();
 
-        foreach ($records->chunk(10000) as $chunkRecords){
-            $emailIds = $chunkRecords->pluck("email_id")->all();
+        $records->chunk(10000, function($results) use (&$total, $columns, $truthService) {
+            $total += count($results);
+            $emailIds = $results->pluck("email_id")->all();
+
             foreach($columns as $key => $value){
                 $truthService->bulkToggleFieldRecord($emailIds,$key,$value);
             }
-        }
+        });
+
         JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking, $total);
     }
 
