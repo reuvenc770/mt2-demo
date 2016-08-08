@@ -17,6 +17,7 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
     self.cakeAffiliates = [];
     self.espLoaded = true;
     self.showRow = false;
+    self.offerLoading =true;
     self.mailingDomains = []; //id is 1
     self.contentDomains = []; //id is 2
     self.offers = [];
@@ -69,10 +70,26 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
     };
 
     self.saveNewDeploy = function () {
-        self.currentDeploy.offer_id = self.currentDeploy.offer_id.originalObject.id;
         self.currentDeploy.deploy_id = undefined; //faster then delete
         DeployApiService.insertDeploy(self.currentDeploy, self.loadNewDeploySuccess, self.loadNewDeployFail);
     };
+
+    self.offerWasSelected = function (item) {
+
+        if(item){
+            self.reloadCFS(item.originalObject.id);
+            self.currentDeploy.offer_id = item.originalObject.id;
+        }
+        self.offerLoading = false;
+    };
+    self.reloadCFS = function(offerId){
+        DeployApiService.getCreatives(offerId, self.updateCreativesSuccess, self.updateCreativesFail);
+        DeployApiService.getSubjects(offerId, self.updateSubjectsSuccess, self.updateSubjectsFail);
+        DeployApiService.getFroms(offerId, self.updateFromsSuccess, self.updateFromsFail);
+    };
+
+
+
 
 
 
@@ -125,6 +142,18 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
 
     };
 
+    self.updateCreativesSuccess = function (response){
+        self.creatives = response.data;
+    };
+
+    self.updateFromsSuccess = function (response){
+      self.froms = response.data;
+    };
+
+    self.updateSubjectsSuccess = function (response){
+        self.subjects = response.data;
+    };
+
     self.loadEspFail = function () {
         self.setModalLabel( 'Error' );
         self.setModalBody( 'Something went wrong loading ESPs' );
@@ -160,6 +189,23 @@ mt2App.controller( 'DeployController' , [ '$log' , '$window' , '$location' , '$t
         self.launchModal();
     };
 
+    self.updateCreativesFail = function () {
+        self.setModalLabel( 'Error' );
+        self.setModalBody( 'Something went wrong loading Creatives' );
+        self.launchModal();
+    };
+
+    self.updateFromsFail = function () {
+        self.setModalLabel( 'Error' );
+        self.setModalBody( 'Something went wrong loading Froms' );
+        self.launchModal();
+    };
+
+    self.updateSubjectsFail = function () {
+        self.setModalLabel( 'Error' );
+        self.setModalBody( 'Something went wrong loading Subjects' );
+        self.launchModal();
+    };
     /**
      * Errors
      */

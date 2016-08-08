@@ -87,7 +87,8 @@
                                     <div angucomplete-alt
                                          id="offer"
                                          placeholder="Search Offers"
-                                         selected-object="deploy.currentDeploy.offer_id"
+                                         selected-object="deploy.offerWasSelected"
+                                         selected-object-data="deploy.currentDeploy.offer_id"
                                          remote-url="/api/offer/search?searchTerm="
                                          title-field="name,id"
                                          text-searching="Looking for Offers..."
@@ -97,9 +98,49 @@
                                     </div>
                                 </div>
                             </td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td>
+                                <div class="form-group"
+                                     ng-class="{ 'has-error' : deploy.formErrors.creative_id }">
+                                    <select name="creative_id" id="creative_id"
+                                            ng-model="deploy.currentDeploy.creative_id" class="form-control"
+                                            ng-disabled="deploy.offerLoading">
+                                        <option value="">- Please Choose a Creative -</option>
+                                        <option ng-repeat="option in deploy.creatives" ng-value="option.id"
+                                                ng-selected="option.id == deploy.currentDeploy.creative_id">@{{ option.name }}
+                                        </option>
+                                    </select>
+                    <span class="help-block" ng-bind="deploy.formErrors.creative_id"
+                          ng-show="deploy.formErrors.creative_id"></span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group"
+                                     ng-class="{ 'has-error' : deploy.formErrors.from_id }">
+                                    <select name="from_id" id="from_id"
+                                            ng-model="deploy.currentDeploy.from_id" class="form-control"
+                                            ng-disabled="deploy.offerLoading">
+                                        <option value="">- Please Choose a From -</option>
+                                        <option ng-repeat="option in deploy.froms" ng-value="option.id"
+                                                ng-selected="option.id == deploy.currentDeploy.from_id">@{{ option.name }}
+                                        </option>
+                                    </select>
+                    <span class="help-block" ng-bind="deploy.formErrors.from_id"
+                          ng-show="deploy.formErrors.from_id"></span>
+                                </div>
+                            </td>
+                            <td><div class="form-group"
+                                     ng-class="{ 'has-error' : deploy.formErrors.subject_id }">
+                                    <select name="subject_id" id="subject_id"
+                                            ng-model="deploy.currentDeploy.subject_id" class="form-control"
+                                            ng-disabled="deploy.offerLoading">
+                                        <option value="">- Please Choose a Subject -</option>
+                                        <option ng-repeat="option in deploy.subjects" ng-value="option.id"
+                                                ng-selected="option.id == deploy.currentDeploy.subject_id">@{{ option.name }}
+                                        </option>
+                                    </select>
+                    <span class="help-block" ng-bind="deploy.formErrors.subject_id"
+                          ng-show="deploy.formErrors.subject_id"></span>
+                                </div></td>
                             <td>
                                 <div class="form-group"
                                       ng-class="{ 'has-error' : deploy.formErrors.template_id }">

@@ -9,6 +9,7 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
     self.cakeUrl = '/api/deploy/cakeaffiliates/';
     self.pagerApiUrl = '/api/pager/Deploy';
     self.listProfileUrl = '/api/listprofile/active/';
+    self.cfsUrl = '/api/cfs/';
 
     self.getDeploys = function ( page , count , successCallback , failureCallback ) {
         $http( {
@@ -64,5 +65,21 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
             "data" : deployObject
         } ).then( successCallback , failCallback );
     };
+
+    self.getCreatives = function (offerId, successCallback, failCallBack){
+        $http( { "method" : "GET" , "url" : this.cfsUrl + 'creatives/' + offerId } )
+            .then( successCallback , failCallBack );
+    };
+
+    self.getFroms = function (offerId, successCallback, failCallBack){
+        $http( { "method" : "GET" , "url" : this.cfsUrl + 'froms/' + offerId  } )
+            .then( successCallback , failCallBack );
+    };
+
+    self.getSubjects = function (offerId, successCallback, failCallBack){
+        $http( { "method" : "GET" , "url" : this.cfsUrl + 'subjects/' + offerId  } )
+            .then( successCallback , failCallBack );
+    };
+
 
 });
