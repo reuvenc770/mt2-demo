@@ -32,4 +32,8 @@ class DeployService
         return $this->deployRepo->getModel();
     }
 
+    public function insertDeploy($data){
+        return $this->deployRepo->insert($data);
+    }
+
 }
