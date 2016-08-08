@@ -652,6 +652,11 @@ Route::group(
                     'as' => 'api.listprofile.zips' ,
                     'uses' => 'ListProfileController@zips'
                 ] );
+
+                Route::get( '/active' , [
+                    'as' => 'api.listprofile.active' ,
+                    'uses' => 'ListProfileController@listActive'
+                ] );
             }
         );
 

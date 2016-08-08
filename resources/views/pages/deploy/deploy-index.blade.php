@@ -66,7 +66,22 @@
                           ng-show="deploy.formErrors.espAccountId"></span>
                                 </div>
                             </td>
-                            <td></td>
+                            <td>
+                                <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.list_profile_id }">
+                                    <select name="list_profile_id" id="list_profile_id"
+                                            ng-model="deploy.currentDeploy.list_profile_id" class="form-control"
+                                            ng-disabled="deploy.currentlyLoading">
+                                        <option value="">- Please Choose a List Profile -</option>
+                                        <option ng-repeat="option in deploy.listProfiles" ng-value="option.id"
+                                                ng-selected="option.id == deploy.currentDeploy.list_profile_id">@{{ option.profile_name }}
+                                        </option>
+                                    </select>
+                    <span class="help-block" ng-bind="deploy.formErrors.list_profile_id"
+                          ng-show="deploy.formErrors.list_profile_id"></span>
+                                </div>
+                            </td>
+
+                            </td>
                             <td>
                                 <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.offer_id }">
                                     <div angucomplete-alt
@@ -74,7 +89,7 @@
                                          placeholder="Search Offers"
                                          selected-object="deploy.currentDeploy.offer_id"
                                          remote-url="/api/offer/search?searchTerm="
-                                         title-field="name"
+                                         title-field="name,id"
                                          text-searching="Looking for Offers..."
                                          selected-object-data="offer"
                                          minlength="3"
