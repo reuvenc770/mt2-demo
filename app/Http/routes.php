@@ -732,6 +732,31 @@ Route::group(
             }
         );
 
+
+        /**
+         *  CFS API Routes
+         */
+        Route::group(
+            ['prefix' => 'cfs'],
+            function() {
+
+                Route::get('/creatives/{id}', [
+                    'as' => 'api.cfs.creatives',
+                    'uses' => 'CreativeFromSubjectController@getCreatives'
+                ]);
+
+                Route::get('/froms/{id}', [
+                    'as' => 'api.cfs.froms',
+                    'uses' => 'CreativeFromSubjectController@getFroms'
+                ]);
+
+                Route::get('/subjects/{id}', [
+                    'as' => 'api.cfs.subjects',
+                    'uses' => 'CreativeFromSubjectController@getSubjects'
+                ]);
+            }
+        );
+
         /**
          *  Attribution API Routes
          */
