@@ -38,9 +38,9 @@ class AttributionRecordTruthRepo {
      */
 
     public function getFullTransients() {
-        $attrDb = config('database.connections.attribution.database');
+        $attrDb = config('database.connections.slave_attribution.database');
 
-        $union = DB::connection('attribution')->table('attribution_record_truths AS art')
+        $union = DB::connection('slave_attribution')->table('attribution_record_truths AS art')
                       ->select('art.email_id', 'eca.client_id', 'eca.capture_date', 'art.has_action', 'art.action_expired')
                       ->join($attrDb . '.email_client_assignments as eca', 'art.email_id', '=', 'eca.email_id')
                       ->where('recent_import', 0)
@@ -48,7 +48,7 @@ class AttributionRecordTruthRepo {
                       ->where('action_expired', 1)
                       ->where('additional_imports', 1);
 
-        return DB::connection('attribution')->table('attribution_record_truths AS art')
+        return DB::connection('slave_attribution')->table('attribution_record_truths AS art')
                     ->select('art.email_id', 'eca.client_id', 'eca.capture_date', 'art.has_action', 'art.action_expired')
                     ->join($attrDb . '.email_client_assignments as eca', 'art.email_id', '=', 'eca.email_id')
                     ->where('recent_import', 0)
@@ -69,14 +69,14 @@ class AttributionRecordTruthRepo {
 
     public function getOptimizedTransients($startDateTime) {
         
-        $attrDb = config('database.connections.attribution.database');
-        $dataDb = config('database.connections.mysql.database');
+        $attrDb = config('database.connections.slave_attribution.database');
+        $dataDb = config('database.connections.slave_data.database');
 
         // These are records that are not protected by the 10-day recent shield, that never had an action, that have subsequent_imports
         // that have a recent import in the past day
         // previous imports are unlikely to change things (they've failed before), but the new one might
         // We can set the starting "capture_date" to the startDateTime because we only want instances after that time
-        $union1 = DB::connection('attribution')->table('attribution_record_truths AS art')
+        $union1 = DB::connection('slave_attribution')->table('attribution_record_truths AS art')
                       ->select('art.email_id', 'eca.client_id', DB::raw("'$startDateTime' as capture_date"), 'art.has_action', 'art.action_expired')
                       ->join($attrDb . '.email_client_assignments as eca', 'art.email_id', '=', 'eca.email_id')
                       ->join("$dataDb.email_client_instances as eci", 'art.email_id', '=', 'eci.email_id')
@@ -90,7 +90,7 @@ class AttributionRecordTruthRepo {
         // and have subsequent imports, and have a recent import in the past day.
         // Previous imports won't change things (they've failed before), but the new one(s) might
         // See above for reasoning about using $startDateTime as capture_date
-        $union2 = DB::connection('attribution')->table('attribution_record_truths AS art')
+        $union2 = DB::connection('slave_attribution')->table('attribution_record_truths AS art')
                       ->select('art.email_id', 'eca.client_id', DB::raw("'{$startDateTime}' as capture_date"), 'art.has_action', 'art.action_expired')
                       ->join("$attrDb.email_client_assignments as eca", 'art.email_id', '=', 'eca.email_id')
                       ->join("$dataDb.email_client_instances as eci", 'art.email_id', '=', 'eci.email_id')
@@ -103,7 +103,7 @@ class AttributionRecordTruthRepo {
 
         // These are records that have just lost the 90-day shield today and have subsequent imports
         // we need to investigate whether records received during the shielded period can now grab this email
-        $union3 = DB::connection('attribution')->table('attribution_record_truths AS art')
+        $union3 = DB::connection('slave_attribution')->table('attribution_record_truths AS art')
                       ->select('art.email_id', 'eca.client_id', 'eca.capture_date', 'art.has_action', 'art.action_expired')
                       ->join("$attrDb.email_client_assignments as eca", 'art.email_id', '=', 'eca.email_id')
                       ->join("$attrDb.attribution_activity_schedules as aas", 'art.email_id', '=', 'aas.email_id')
@@ -115,7 +115,7 @@ class AttributionRecordTruthRepo {
 
         // records that have just come out of the 10-day window, have no actions, and have subsequent imports
         // can subsequent imports during the shielded time now get this email?
-        return DB::connection('attribution')->table('attribution_record_truths AS art')
+        return DB::connection('slave_attribution')->table('attribution_record_truths AS art')
                     ->select('art.email_id', 'eca.client_id', 'eca.capture_date', 'art.has_action', 'art.action_expired')
                     ->join("$attrDb.email_client_assignments as eca", 'art.email_id', '=', 'eca.email_id')
                     ->join("$attrDb.attribution_expiration_schedules as aes", 'art.email_id', '=', 'aes.email_id')
