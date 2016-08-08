@@ -163,7 +163,7 @@
                                             ng-model="deploy.currentDeploy.mailing_domain_id" class="form-control"
                                             ng-disabled="deploy.espLoaded">
                                         <option value="">- Please Choose a Mailing Domain -</option>
-                                        <option ng-repeat="option in deploy.mailingDomains" ng-value="option.id"
+                                        <option ng-repeat="option in deploy.mailingDomains track by $index" ng-value="option.id"
                                                 ng-selected="option.id == deploy.currentDeploy.mailing_domain_id">@{{ option.domain_name }}
                                         </option>
                                     </select>
@@ -212,14 +212,16 @@
 
                         <tr ng-repeat="record in deploy.deploys track by $index">
                             <td>
-
+                                <span ng-click="deploy.editRow( record.deploy_id)" class="glyphicon glyphicon-edit"></span>
                             </td>
                             <td>@{{ record.send_date }}</td>
                             <td>@{{ record.deploy_id }}</td>
                             <td>@{{ record.account_name }}</td>
                             <td>@{{ record.list_profile_id }}</td>
                             <td>@{{ record.offer_name }}</td>
-                            <td></td><td></td><td></td>
+                            <td>@{{ record.creative_name }}</td>
+                            <td>@{{ record.creative_name }}</td>
+                            <td>@{{ record.creative_name }}</td>
                             <td>@{{ record.template_name }}</td>
                             <td>@{{ record.content_domain }}</td>
                             <td>@{{ record.mailing_domain }}</td>
