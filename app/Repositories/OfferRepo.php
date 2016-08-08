@@ -19,9 +19,17 @@ class OfferRepo {
     }
 
     public function getAdvertiserName($offerId) {
-        $this->offer
-             ->join('advertiser as a', 'offer.advertiser_id', '=', 'a.id')
-             ->get('a.name');
+        $result = $this->offer
+             ->join('advertisers as a', 'offers.advertiser_id', '=', 'a.id')
+             ->where('offers.id', $offerId)
+             ->first();
+
+        if ($result) {
+            return $result->name;
+        }
+        else {
+            return '';
+        }
     }
 
 }

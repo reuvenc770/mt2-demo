@@ -3,7 +3,7 @@
 namespace App\Repositories\MT1Repositories;
 
 use App\Models\MT1Models\EspAdvertiserJoin;
-7use DB;
+use DB;
 
 class EspAdvertiserJoinRepo {
     protected $model;
