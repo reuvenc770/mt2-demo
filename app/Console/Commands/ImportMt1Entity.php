@@ -66,6 +66,15 @@ class ImportMt1Entity extends Command
             case "listProfile":
                 return "ImportMT1ListProfiles";
 
+            case "offerCreativeMap":
+                return "ImportMT1OfferCreativeMapping";
+
+            case "offerFromMap":
+                return "ImportMT1OfferFromMapping";
+
+            case "offerSubjectMap":
+                return "ImportMT1OfferSubjectMapping";
+
             default:
                 throw new \Exception('Unsupported entity type: ' . $type);
         }
