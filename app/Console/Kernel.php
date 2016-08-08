@@ -165,6 +165,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('mt1Import creative')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import from')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import subject')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import deploy')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerCreativeMap')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerFromMap')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerSubjectMap')->dailyAt(self::MT1_SYNC_TIME);

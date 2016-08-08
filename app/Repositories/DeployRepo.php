@@ -18,4 +18,8 @@ class DeployRepo
     public function __construct(Deploy $deploy){
         $this->deploy = $deploy;
     }
+
+    public function updateOrCreate($data) {
+        $this->deploy->updateOrCreate(['id' => $data['id']], $data);
+    }
 }
