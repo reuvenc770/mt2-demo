@@ -43,8 +43,8 @@ class DeployController extends Controller
      */
     public function store(Request $request)
     {
-      $deploy=  $this->deployService->insertDeploy($request->all());
-        return response()->json(["deploy_id" => $deployId->id]);
+      $deploy =  $this->deployService->insertDeploy($request->all());
+        return response()->json(["deploy_id" => $deploy->id]);
     }
 
     /**
@@ -55,7 +55,7 @@ class DeployController extends Controller
      */
     public function show($id)
     {
-        //
+        return response()->json($this->deployService->getDeploy($id));
     }
 
     /**

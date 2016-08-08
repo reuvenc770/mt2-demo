@@ -1,7 +1,7 @@
 mt2App.service( 'DeployApiService' , function ( $http , $log ) {
     var self = this;
 
-    self.baseApiUrl = '/api/deploy';
+    self.baseApiUrl = '/api/deploy/';
     self.baseEspApiUrl = '/api/espapi/all';
     self.offerSearchUrl = '/api/offer/search/';
     self.domainsApiUrl = '/api/domain/listActiveDomains/';
@@ -17,6 +17,11 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
             "url" : self.pagerApiUrl ,
             "params" : { "page" : page , "count" : count }
         } ).then( successCallback , failureCallback );
+    };
+
+    self.getDeploy = function (deployID ,successCallback, failCallBack){
+        $http( { "method" : "GET" , "url" : this.baseApiUrl + deployID } )
+            .then( successCallback , failCallBack )
     };
 
     self.getEspAccounts = function (successCallback, failCallBack){

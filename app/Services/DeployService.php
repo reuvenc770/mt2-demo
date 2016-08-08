@@ -36,4 +36,11 @@ class DeployService
         return $this->deployRepo->insert($data);
     }
 
+    public function getDeploy($deployId){
+        $deploy = $this->deployRepo->getDeploy($deployId);
+        $deploy->offer_id = ['id'=> $deploy->offer_id, "name"=> $deploy->offer_name];
+        unset($deploy->offer_name);
+        return $deploy;
+    }
+
 }

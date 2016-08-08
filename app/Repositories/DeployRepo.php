@@ -41,6 +41,12 @@ class DeployRepo
         return $this->deploy->create($data);
     }
 
+    public function getDeploy($id){
+        return $this->deploy->leftJoin('offers', 'offers.id', '=', 'deploys.offer_id')
+                            ->select(['deploys.*','offers.name as offer_name'])
+                            ->where('deploys.id',$id)->first();
+    }
+
 
     public function updateOrCreate($data) {
         $this->deploy->updateOrCreate(['id' => $data['id']], $data);
