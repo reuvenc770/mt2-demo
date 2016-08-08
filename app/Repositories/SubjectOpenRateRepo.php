@@ -47,11 +47,13 @@ class SubjectOpenRateRepo {
     public function getSubjectOfferOpenRate($offerId) {
         $schema = config("database.connections.mysql.database");
         return $this->model
-                    ->join("$schema.deploys as d", 'subject_open_rates.deploy_id', '=', 'd.id')
-                    ->leftJoin("$schema.subjects as s", 'subject_open_rates.subject_id', '=', 's.id')
-                    ->where('d.offer_id', $offerId)
-                    ->groupBy('subject_open_rates.subject_id')
-                    ->groupBy('subject_open_rates.subject_id', '`name`')
+                    ->join("offer_subject_maps as osm", 'subject_open_rates.subject_id', '=', 'osm.subject_id')
+                    ->join("$schema.subjects as s", 'subject_open_rates.subject_id', '=', 's.id')
+                    ->where('osm.offer_id', $offerId)
+                    ->where('s.status', 1)
+                    ->where('s.is_approved', 1)
+                    ->groupBy('subject_open_rates.subject_id', 'name')
+                    ->orderBy("open_rate", 'desc')
                     ->select(DB::raw("subject_open_rates.subject_id, s.subject_line as name, ROUND(SUM(IFNULL(opens, 0)) / SUM(IFNULL(delivers, 0)) * 100, 3) AS `open_rate`"))
                     ->get();
     }
@@ -62,9 +64,9 @@ class SubjectOpenRateRepo {
                     ->join("$schema.deploys as d", 'subject_open_rates.subject_id', '=', 'd.subject_id')
                     ->leftJoin("$schema.subjects as s", 'subject_open_rates.subject_id', '=', 's.id')
                     ->where('d.offer_id', $offerId)
-                    ->groupBy('subject_open_rates.subject_id', '`name`')
-                    ->orderBy("`open_rate`", 'desc')
-                    ->select(DB::raw("subject_open_rates.subject_id, s.subject_line as name, ROUND(SUM(IFNULL(opens, 0)) / SUM(IFNULL(delivers, 0)) * 100, 3) AS `open_rate`"))
+                    ->groupBy('subject_open_rates.subject_id', 'name')
+                    ->orderBy("open_rate", 'desc')
+                    ->select(DB::raw("subject_open_rates.subject_id, s.subject_line as name, ROUND(SUM(IFNULL(opens, 0)) / SUM(IFNULL(delivers, 0)) * 100, 3) AS open_rate"))
                     ->get();
     }
 }
