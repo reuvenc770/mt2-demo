@@ -41,14 +41,12 @@
                             <td><button ng-click="deploy.actionLink()" class="btn btn-small btn-primary">@{{ deploy.actionText() }}</button></td>
                             <td>
                                 <md-datepicker name="dateField" ng-model="deploy.currentDeploy.send_date"
+                                               required
                                                md-placeholder="Enter date"></md-datepicker>
-                                <div class="validation-messages" ng-messages="myForm.dateField.$error">
-                                    <div ng-message="valid">The entered value is not a date!</div>
-                                    <div ng-message="required">This date is required!</div>
-                                    <div ng-message="mindate">Date is too early!</div>
-                                    <div ng-message="maxdate">Date is too late!</div>
-                                    <div ng-message="filtered">Only weekends are allowed!</div>
+                                <div class="validation-messages" ng-show="deploy.formErrors.send_date">
+                                    <div ng-bind="deploy.formErrors.send_date"></div>
                                 </div>
+
                             </td>
                             <td>@{{ deploy.deployIdDisplay }}</td>
                             <td>
@@ -62,8 +60,8 @@
                                                 ng-selected="option.id == deploy.currentDeploy.esp_account_id">@{{ option.account_name }}
                                         </option>
                                     </select>
-                    <span class="help-block" ng-bind="deploy.formErrors.espAccountId"
-                          ng-show="deploy.formErrors.espAccountId"></span>
+                    <span class="help-block" ng-bind="deploy.formErrors.esp_account_id"
+                          ng-show="deploy.formErrors.esp_account_id"></span>
                                 </div>
                             </td>
                             <td>
@@ -97,6 +95,9 @@
                                          input-class="form-control">
                                     </div>
                                 </div>
+                                <span class="help-block" ng-bind="deploy.formErrors.offer_id"
+                                      ng-show="deploy.formErrors.offer_id"></span>
+                </div>
                             </td>
                             <td>
                                 <div class="form-group"

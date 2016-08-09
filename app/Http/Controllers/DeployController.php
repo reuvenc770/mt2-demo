@@ -41,7 +41,7 @@ class DeployController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Requests\AddDeployRequest $request)
     {
       $deploy =  $this->deployService->insertDeploy($request->all());
         return response()->json(["deploy_id" => $deploy->id]);
@@ -76,7 +76,7 @@ class DeployController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Requests\EditDeployRequest $request, $id)
     {
         $data = $request->except(["deploy_id","_method"]);
          $this->deployService->updateDeploy($data, $id);

@@ -90,10 +90,10 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
 
     self.saveNewDeploy = function () {
         self.currentDeploy.deploy_id = undefined; //faster then delete
-        DeployApiService.insertDeploy(self.currentDeploy, self.loadNewDeploySuccess, self.loadNewDeployFail);
+        DeployApiService.insertDeploy(self.currentDeploy, self.loadNewDeploySuccess, self.formFail);
     };
     self.updateDeploy = function () {
-        DeployApiService.updateDeploy(self.currentDeploy, self.updateDeploySuccess, self.loadNewDeployFail);
+        DeployApiService.updateDeploy(self.currentDeploy, self.updateDeploySuccess, self.formFail);
     };
 
     self.offerWasSelected = function (item) {
@@ -250,6 +250,10 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.subjects = response.data;
     };
 
+    self.formFail = function (response) {
+        self.loadFieldErrors(response);
+    };
+
     self.loadEspFail = function () {
         self.setModalLabel('Error');
         self.setModalBody('Something went wrong loading ESPs');
@@ -321,6 +325,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
 
     self.resetAccount = function () {
         $rootScope.$broadcast('angucomplete-alt:clearInput');
+        self.resetFieldErrors();
         return {
             send_date: '',
             deploy_id: '',
