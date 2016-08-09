@@ -29,7 +29,7 @@
         <tbody md-body>
             <tr md-row ng-repeat="record in { true : attr.records , false : [] }[ attr.query.type === 'Client' ]">
                 <td md-cell>@{{record.date}}</td>
-                <td md-cell>@{{record.client_id}}</td>
+                <td md-cell>@{{attr.clientNameMap[ record.client_id ]}} (@{{record.client_id}})</td>
                 <td md-cell>@{{record.delivered}}</td>
                 <td md-cell>@{{record.opened}}</td>
                 <td md-cell>@{{record.clicked}}</td>
