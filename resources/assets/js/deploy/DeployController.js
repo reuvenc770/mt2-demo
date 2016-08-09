@@ -13,6 +13,9 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         cake_affiliate_id: "",
         notes: ""
     };
+    var text = "ID to Be Generated";
+    self.deployIdDisplay = text;
+    self.editView = false;
     self.espAccounts = [];
     self.currentlyLoading = 0;
     self.templates = [];
@@ -79,13 +82,18 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.displayForm = function () {
-        self.showRow = true;
+        self.deployIdDisplay = text;
         self.resetAccount();
+        self.showRow = true;
     };
 
     self.saveNewDeploy = function () {
         self.currentDeploy.deploy_id = undefined; //faster then delete
         DeployApiService.insertDeploy(self.currentDeploy, self.loadNewDeploySuccess, self.loadNewDeployFail);
+    };
+    self.updateDeploy = function () {
+        DeployApiService.updateDeploy(self.currentDeploy, self.updateDeploySuccess, self.loadNewDeployFail);
+        self.editView = false;
     };
 
     self.offerWasSelected = function (item) {
@@ -107,6 +115,23 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.currentDeploy = self.resetAccount();
         DeployApiService.getDeploy(deployId, self.loadDeploySuccess, self.loadDeployFail);
         self.espLoaded = false;
+        self.editView = true;
+    };
+
+    self.actionLink = function () {
+        if(self.editView){
+            self.updateDeploy();
+        } else {
+            self.saveNewDeploy();
+        }
+    };
+
+    self.actionText = function () {
+        if(self.editView){
+           return "Edit"
+        } else {
+           return "Save"
+        }
     };
 
 
@@ -119,10 +144,19 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
     self.loadDeploySuccess = function (response) {
         self.currentDeploy.esp_account_id = response.data.esp_account_id;
+        self.deployIdDisplay = response.data.id;
         self.updateSelects();
         self.tempDeploy = response.data;
         self.currentDeploy = response.data;
         self.showRow = true;
+    };
+
+    self.updateDeploySuccess = function (response){
+        self.currentDeploy = self.resetAccount();
+        $rootScope.$broadcast('angucomplete-alt:clearInput');
+        $mdToast.showSimple('Deploy Edited!');
+        DeployApiService.getDeploys(self.currentPage, self.paginationCount, self.loadDeploysSuccess, self.loadDeployFail);
+        self.showRow = false;
     };
 
     self.loadEspSuccess = function (response) {
@@ -153,9 +187,10 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
 
     self.loadNewDeploySuccess = function (response) {
         self.currentDeploy = self.resetAccount();
+        $rootScope.$broadcast('angucomplete-alt:clearInput');
         $mdToast.showSimple('New Deploy Created!');
-        DeployApiService.getDeploys(self.currentPage, self.paginationCount, self.loadDeploySuccess, self.loadDeployFail);
-
+        DeployApiService.getDeploys(self.currentPage, self.paginationCount, self.loadDeploysSuccess, self.loadDeployFail);
+        self.showRow = false;
     };
 
     self.updateCreativesSuccess = function (response) {

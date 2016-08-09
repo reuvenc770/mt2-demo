@@ -38,7 +38,7 @@
 
                         <tbody>
                         <tr ng-show="deploy.showRow">
-                            <td><button ng-click="deploy.saveNewDeploy()" class="btn btn-small btn-primary">Save Deploy</button></td>
+                            <td><button ng-click="deploy.actionLink()" class="btn btn-small btn-primary">@{{ deploy.actionText() }}</button></td>
                             <td>
                                 <md-datepicker name="dateField" ng-model="deploy.currentDeploy.send_date"
                                                md-placeholder="Enter date"></md-datepicker>
@@ -50,7 +50,7 @@
                                     <div ng-message="filtered">Only weekends are allowed!</div>
                                 </div>
                             </td>
-                            <td>To Be Generated</td>
+                            <td>@{{ deploy.deployIdDisplay }}</td>
                             <td>
                                 <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.esp_account_id }">
                                     <select name="esp_account" id="esp_account"
@@ -217,14 +217,14 @@
                             <td>@{{ record.send_date }}</td>
                             <td>@{{ record.deploy_id }}</td>
                             <td>@{{ record.account_name }}</td>
-                            <td>@{{ record.list_profile_id }}</td>
+                            <td>@{{ record.list_profile }}</td>
                             <td>@{{ record.offer_name }}</td>
-                            <td>@{{ record.creative_name }}</td>
-                            <td>@{{ record.creative_name }}</td>
-                            <td>@{{ record.creative_name }}</td>
+                            <td>@{{ record.creative }}</td>
+                            <td>@{{ record.from }}</td>
+                            <td>@{{ record.subject }}</td>
                             <td>@{{ record.template_name }}</td>
-                            <td>@{{ record.content_domain }}</td>
                             <td>@{{ record.mailing_domain }}</td>
+                            <td>@{{ record.content_domain }}</td>
                             <td>@{{ record.cake_affiliate_id }}</td>
                             <td>@{{ record.notes }}</td>
                         </tr>
