@@ -43,4 +43,8 @@ class DeployService
         return $deploy;
     }
 
+    public function updateDeploy($data, $id){
+        $this->deployRepo->update($data, $id);
+    }
+
 }

@@ -78,7 +78,9 @@ class DeployController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $data = $request->except(["deploy_id","_method"]);
+         $this->deployService->updateDeploy($data, $id);
+        return response()->json(["success" => true]);
     }
 
     /**

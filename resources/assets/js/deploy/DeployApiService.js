@@ -86,5 +86,17 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
             .then( successCallback , failCallBack );
     };
 
+    self.updateDeploy = function ( deploy , successCallback , failureCallback  ) {
+        var request = deploy;
+
+        request[ '_method' ] = 'PUT';
+
+        $http( {
+            "method" : "PUT" ,
+            "url" : this.baseApiUrl + deploy.id ,
+            "data" : request
+        } ).then( successCallback , failureCallback );
+    }
+
 
 });
