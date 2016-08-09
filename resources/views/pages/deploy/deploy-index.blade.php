@@ -212,7 +212,8 @@
 
                         <tr ng-repeat="record in deploy.deploys track by $index">
                             <td>
-                                <span ng-click="deploy.editRow( record.deploy_id)" class="glyphicon glyphicon-edit"></span>
+                                <span  ng-click="deploy.editRow( record.deploy_id)" class="glyphicon glyphicon-edit"></span>
+                                <span ng-click="deploy.copyRow( record.deploy_id)" class="glyphicon glyphicon-copy"></span>
                             </td>
                             <td>@{{ record.send_date }}</td>
                             <td>@{{ record.deploy_id }}</td>
