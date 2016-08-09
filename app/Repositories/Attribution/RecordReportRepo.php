@@ -46,30 +46,44 @@ class RecordReportRepo {
         $insertList = [];
 
         foreach ( $massData as $row ) {
-            $insertList []= "(
-                '{$row[ 'email_id' ]}' ,
-                '{$row[ 'deploy_id' ]}' ,
-                0 ,
-                '{$row[ 'delivered' ]}' ,
-                '{$row[ 'opened' ]}' ,
-                '{$row[ 'clicked' ]}' ,
-                '{$row[ 'converted' ]}' ,
-                '{$row[ 'bounced' ]}' ,
-                '{$row[ 'unsubbed' ]}' ,
-                '{$row[ 'revenue' ]}' ,
-                '{$row[ 'date' ]}' ,
-                NOW() ,
-                NOW()
-            )";
+            $insertList []= $this->mapData( $row );
         }
 
         $insertString = implode( ',' , $insertList );
 
+        $this->runAccumulativeQuery( $insertString );
+    }
+
+    public function insertAction ( $actionData ) {
+        $insertString = $this->mapData( $actionData );
+
+        $this->runAccumulativeQuery( $insertString );
+    }
+
+    public function mapData ( $row ) {
+        return "(
+            '{$row[ 'email_id' ]}' ,
+            '{$row[ 'deploy_id' ]}' ,
+            0 ,
+            '{$row[ 'delivered' ]}' ,
+            '{$row[ 'opened' ]}' ,
+            '{$row[ 'clicked' ]}' ,
+            '{$row[ 'converted' ]}' ,
+            '{$row[ 'bounced' ]}' ,
+            '{$row[ 'unsubbed' ]}' ,
+            '{$row[ 'revenue' ]}' ,
+            '{$row[ 'date' ]}' ,
+            NOW() ,
+            NOW()
+        )";
+    }
+
+    public function runAccumulativeQuery ( $valueSqlString ) {
         DB::connection( 'attribution' )->insert( "
             INSERT INTO
                 attribution_record_reports ( email_id , deploy_id , offer_id , delivered , opened , clicked , converted , bounced , unsubbed , revenue , date , created_at , updated_at )
             VALUES
-                {$insertString}
+                {$valueSqlString}
             ON DUPLICATE KEY UPDATE
                 email_id = email_id ,
                 deploy_id = deploy_id ,
