@@ -1,4 +1,4 @@
-mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout', 'DeployApiService', '$mdToast', '$rootScope', function ($log, $window, $location, $timeout, DeployApiService, $mdToast, $rootScope) {
+mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout', 'DeployApiService', '$mdToast', '$rootScope', '$q', function ($log, $window, $location, $timeout, DeployApiService, $mdToast, $rootScope, $q) {
     var self = this;
     self.$location = $location;
     self.currentDeploy = {
@@ -61,30 +61,31 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         DeployApiService.getListProfiles(self.loadProfileSuccess, self.loadProfileFail)
     };
 
-    self.updateSelects = function () {
-        DeployApiService.getMailingDomains(self.currentDeploy.esp_account_id, 1, self.updateMailingSuccess, self.updateDomainsFail);
-        DeployApiService.getMailingDomains(self.currentDeploy.esp_account_id, 2, self.updateContentSuccess, self.updateDomainsFail);
-        DeployApiService.getTemplates(self.currentDeploy.esp_account_id, self.updateTemplateSuccess, self.updateTemplateFail);
+    self.updateSelects = function (callBack) {
+        $q.all([
+            DeployApiService.getMailingDomains(self.currentDeploy.esp_account_id, 1, self.updateMailingSuccess, self.updateDomainsFail),
+            DeployApiService.getMailingDomains(self.currentDeploy.esp_account_id, 2, self.updateContentSuccess, self.updateDomainsFail),
+            DeployApiService.getTemplates(self.currentDeploy.esp_account_id, self.updateTemplateSuccessNoCopy, self.updateTemplateFail)
+        ]).then(callBack);
     };
 
     self.loadAffiliates = function () {
         DeployApiService.getCakeAffiliates(self.loadCakeSuccess, self.loadCakeFail);
     };
 
-    self.UpdateCurrentDeploy = function () {
-        if (self.tempDeploy) {
-            var pieces = self.tempDeploy.send_date.split('-');
-            self.currentDeploy = self.tempDeploy;
-            self.currentDeploy.send_date = new Date(pieces[0],pieces[1] - 1 ,pieces[2]);
-            $rootScope.$broadcast('angucomplete-alt:changeInput', 'offer', self.currentDeploy.offer_id);
-            self.tempDeploy = false;
-        }
+    self.copyRow = function (id){
+        self.showRow = false;
+        DeployApiService.getDeploy(id, self.loadDeployCopySuccess, self.loadDeployFail);
+        self.espLoaded = false;
+        self.editView = false;
     };
+
 
     self.displayForm = function () {
         self.deployIdDisplay = text;
-        self.resetAccount();
+        self.currentDeploy = self.resetAccount();
         self.showRow = true;
+        self.editView = false;
     };
 
     self.saveNewDeploy = function () {
@@ -93,21 +94,28 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
     self.updateDeploy = function () {
         DeployApiService.updateDeploy(self.currentDeploy, self.updateDeploySuccess, self.loadNewDeployFail);
-        self.editView = false;
     };
 
     self.offerWasSelected = function (item) {
-        if (item) {
-            self.reloadCFS(item.originalObject.id);
-            self.currentDeploy.offer_id = item.originalObject.id;
+        if (typeof item != 'undefined') {
+            if (item.title === undefined) {
+                    self.currentDeploy.offer_id = item.originalObject.id;
+                    self.offerLoading = false;
+            } else {
+                self.reloadCFS(item.originalObject.id, function () {
+                    self.currentDeploy.offer_id = item.originalObject.id;
+                    self.offerLoading = false;
+                });
+            }
         }
-        self.offerLoading = false;
     };
 
-    self.reloadCFS = function (offerId) {
-        DeployApiService.getCreatives(offerId, self.updateCreativesSuccess, self.updateCreativesFail);
-        DeployApiService.getSubjects(offerId, self.updateSubjectsSuccess, self.updateSubjectsFail);
-        DeployApiService.getFroms(offerId, self.updateFromsSuccess, self.updateFromsFail);
+    self.reloadCFS = function (offerId, callBack) {
+        $q.all([
+            DeployApiService.getCreatives(offerId, self.updateCreativesSuccess, self.updateCreativesFail),
+            DeployApiService.getSubjects(offerId, self.updateSubjectsSuccess, self.updateSubjectsFail),
+            DeployApiService.getFroms(offerId, self.updateFromsSuccess, self.updateFromsFail)
+        ]).then(callBack);
     };
 
     self.editRow = function (deployId) {
@@ -128,9 +136,9 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
 
     self.actionText = function () {
         if(self.editView){
-           return "Edit"
+           return "Edit Row"
         } else {
-           return "Save"
+           return "Save Row"
         }
     };
 
@@ -142,20 +150,53 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.deploys = response.data.data;
         self.pageCount = response.data.last_page;
     };
+
     self.loadDeploySuccess = function (response) {
         self.currentDeploy.esp_account_id = response.data.esp_account_id;
         self.deployIdDisplay = response.data.id;
-        self.updateSelects();
-        self.tempDeploy = response.data;
-        self.currentDeploy = response.data;
+        self.updateSelects(function () {
+            var deployData = response.data;
+            self.reloadCFS(deployData.offer_id.id ,function () {
+                var pieces = deployData.send_date.split('-');
+                self.currentDeploy = deployData;
+                self.currentDeploy.offer_id = deployData.offer_id.id;
+                self.currentDeploy.send_date = new Date(pieces[0], pieces[1] - 1, pieces[2]);
+                self.offerLoading = false;
+            });
+            $rootScope.$broadcast('angucomplete-alt:changeInput', 'offer', deployData.offer_id);
+        });
         self.showRow = true;
     };
+
+    self.loadDeployCopySuccess = function (response) {
+        self.currentDeploy = self.resetAccount();
+        self.currentDeploy.esp_account_id = response.data.esp_account_id;
+        self.updateSelects(function () {
+            var deployData = response.data;
+            self.reloadCFS(response.data.offer_id.id ,function (){
+                var pieces = deployData.send_date.split('-');
+                self.currentDeploy.send_date = new Date(pieces[0], pieces[1] - 1, pieces[2]);
+                self.currentDeploy.notes = deployData.notes;
+                self.currentDeploy.list_profile_id = deployData.list_profile_id;
+                self.currentDeploy.template_id = deployData.template_id;
+                self.currentDeploy.mailing_domain_id = deployData.mailing_domain_id;
+                self.currentDeploy.content_domain_id = deployData.content_domain_id;
+                self.currentDeploy.cake_affiliate_id = deployData.cake_affiliate_id;
+                self.offerLoading = false;
+            });
+            $rootScope.$broadcast('angucomplete-alt:changeInput', 'offer', deployData.offer_id);
+
+        });
+        self.showRow = true;
+    };
+
 
     self.updateDeploySuccess = function (response){
         self.currentDeploy = self.resetAccount();
         $rootScope.$broadcast('angucomplete-alt:clearInput');
         $mdToast.showSimple('Deploy Edited!');
         DeployApiService.getDeploys(self.currentPage, self.paginationCount, self.loadDeploysSuccess, self.loadDeployFail);
+        self.editView = false;
         self.showRow = false;
     };
 
@@ -171,10 +212,14 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.mailingDomains = response.data;
     };
 
+    self.updateTemplateSuccessNoCopy = function (response) {
+        self.templates = response.data;
+        self.espLoaded = false;
+    };
+
     self.updateTemplateSuccess = function (response) {
         self.templates = response.data;
         self.espLoaded = false;
-        self.UpdateCurrentDeploy();
     };
 
     self.loadCakeSuccess = function (response) {
@@ -275,7 +320,19 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.resetAccount = function () {
-        return [];
+        $rootScope.$broadcast('angucomplete-alt:clearInput');
+        return {
+            send_date: '',
+            deploy_id: '',
+            esp_account_id: '',
+            offer_id: "",
+            list_profile_id :"",
+            mailing_domain_id: "",
+            content_domain_id: "",
+            template_id: "",
+            cake_affiliate_id: "",
+            notes: ""
+        }
     };
 
     /**
