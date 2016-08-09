@@ -17,7 +17,7 @@ class GrabTrackingApiData extends Command
      *
      * @var string
      */
-    protected $signature = 'reports:downloadTrackingData {trackingSource} {lookBack?} {processType?}';
+    protected $signature = 'reports:downloadTrackingData {trackingSource} {lookBack?} {processType?} {--s|startDate=none} {--e|endDate=none}';
     protected $trackingRepo;
     protected $lookBack;
     protected $trackingSource;
@@ -48,6 +48,11 @@ class GrabTrackingApiData extends Command
 
         $startDate = Carbon::now()->subDay($this->lookBack)->toDateString();
         $endDate = Carbon::now()->toDateString();
+
+        if ( $this->option( 'startDate' ) != 'none' && $this->option( 'endDate' ) != 'none' ) {
+            $startDate = $this->option( 'startDate' );
+            $endDate = $this->option( 'endDate' );
+        }
 
         if ( $this->argument( 'processType' ) == 'record' ) {
             $this->processType = RetrieveTrackingDataJob::PROCESS_TYPE_RECORD;
