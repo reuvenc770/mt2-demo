@@ -11,6 +11,7 @@ use App\Repositories\Interfaces\CakeTargetRepo;
 use League\Flysystem\Exception;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
+use Carbon\Carbon;
 
 class TrackingDataService implements IDataService
 {
@@ -35,7 +36,7 @@ class TrackingDataService implements IDataService
 
   public function insertApiRawStats( $data , $recordLevel = false) {
       if ( $recordLevel ) {
-            $this->insertApiRawRecordStats( $data );
+            $this->insertApiRawRecordStats( $data , \App::make( \App\Repositories\Attribution\RecordReportRepo::class ) );
       } else {
             $this->insertApiRawAggregateStats( $data );
       }
@@ -52,23 +53,44 @@ class TrackingDataService implements IDataService
     Event::fire(new RawReportDataWasInserted($this, $convertedRows));
   }
 
-  protected function insertApiRawRecordStats ( $data ) {
+  protected function insertApiRawRecordStats ( $data , $reportRepo ) {
     foreach ( $data as $row ) {
         $row[ 'email_id' ] = $this->extractEidFromS2( $row[ 's2' ] );
 
         $this->repo->insertRecordStats( $row );
+
+        if ( $row[ 'price_received' ] > 0 ) {
+            $reportRepo->insertAction( [
+                "email_id" => $row[ 'email_id' ] ,
+                "deploy_id" => $row[ 's1' ] ,
+                "offer_id" => 0 ,
+                "delivered" => 0 ,
+                "opened" => 0 ,
+                "clicked" => 0 ,
+                "converted" => 1 , 
+                "bounced" => 0 ,
+                "unsubbed" => 0 ,
+                "revenue" => $row[ 'price_received' ] ,
+                "date" => Carbon::parse( $row[ 'conversion_date' ] )->toDateString()
+            ] );
+        }
     }
   }
 
   public function insertSegmentedApiRawStats($data, $length , $recordLevel = false ) {
     $start = 0;
     $end = 5000;
+    $recordRepo = null;
 
     while ( $end < $length ) {
       $slice = array_slice($data, $start, $end);
 
       if ( $recordLevel ) {
-          $this->insertApiRawRecordStats( $slice );
+          if ( is_null( $recordRepo ) ) {
+            $recordRepo = \App::make( \App\Repositories\Attribution\RecordReportRepo::class );
+          }
+
+          $this->insertApiRawRecordStats( $slice , $recordRepo );
       } else {
           $this->insertApiRawAggregateStats( $slice );
       }
