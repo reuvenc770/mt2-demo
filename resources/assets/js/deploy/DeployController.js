@@ -13,6 +13,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         cake_affiliate_id: "",
         notes: ""
     };
+    self.selectedRows = [];
     var text = "ID to Be Generated";
     self.deployIdDisplay = text;
     self.editView = false;
@@ -31,6 +32,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.deploys = [];
     self.searchText = "";
     self.listProfiles = [];
+    self.exportable = false;
 
     self.pageCount = 0;
     self.paginationCount = '10';
@@ -140,6 +142,27 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         } else {
            return "Save Row"
         }
+    };
+
+    self.toggleRow = function (selectedValue) {
+        var index = self.selectedRows.indexOf( selectedValue );
+
+        if ( index >= 0 ) {
+            self.selectedRows.splice( index , 1 );
+        } else {
+            self.selectedRows.push(selectedValue);
+        }
+
+        if(self.selectedRows.length > 0){
+            self.exportable = true;
+        } else {
+            self.exportable = false;
+        }
+    };
+
+    self.exportCsv = function () {
+      returnUrl = DeployApiService.exportCsv(self.selectedRows);
+        $window.open(returnUrl);
     };
 
 
@@ -252,6 +275,10 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
 
     self.formFail = function (response) {
         self.loadFieldErrors(response);
+    };
+
+    self.exportCsvSuccess = function (response) {
+       $window.open(response);
     };
 
     self.loadEspFail = function () {

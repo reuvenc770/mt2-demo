@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Deploy extends Model
 {
     protected $guarded = [];
+    protected $hidden = array('created_at', 'updated_at');
     use ModelCacheControl;
 
     public function ListProfiles(){

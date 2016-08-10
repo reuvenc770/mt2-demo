@@ -6,6 +6,7 @@ use App\Services\DeployService;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
+use Illuminate\Support\Facades\Response;
 
 class DeployController extends Controller
 {
@@ -81,6 +82,23 @@ class DeployController extends Controller
         $data = $request->except(["deploy_id","_method"]);
          $this->deployService->updateDeploy($data, $id);
         return response()->json(["success" => true]);
+    }
+
+
+    public function exportCsv(Request $request){
+
+        $data = $request->get("ids");
+        $rows = explode(',',$data);
+        $csv = $this->deployService->exportCsv($rows);
+        $headers = array(
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="tweets.csv"',
+        );
+
+        // our response, this will be equivalent to your download() but
+        // without using a local file
+        return Response::make(rtrim($csv, "\n"), 200, $headers);
+
     }
 
     /**

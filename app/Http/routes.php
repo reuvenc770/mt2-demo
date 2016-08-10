@@ -694,6 +694,11 @@ Route::group(
                     'as' => 'api.deploy.cakeaffiliates' ,
                     'uses' => 'DeployController@returnCakeAffiliates'
                 ] );
+
+                Route::any( '/exportcsv' , [
+                    'as' => 'api.deploy.exportcsv' ,
+                    'uses' => 'DeployController@exportCsv'
+                ] );
             }
         );
 

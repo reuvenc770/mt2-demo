@@ -13,6 +13,7 @@
             <div class="col-xs-12">
                 <div id="mtTableContainer">
                     <button ng-click="deploy.displayForm()" class="btn btn-primary">New Deploy</button>
+                    <button ng-click="deploy.exportCsv()"  ng-show="deploy.exportable" class="btn btn-primary">Export to CSV</button>
                     <table class="table table-striped table-bordered table-hover text-center">
                         <thead>
                         <tr>
@@ -213,8 +214,13 @@
 
                         <tr ng-repeat="record in deploy.deploys track by $index">
                             <td>
-                                <span  ng-click="deploy.editRow( record.deploy_id)" class="glyphicon glyphicon-edit"></span>
-                                <span ng-click="deploy.copyRow( record.deploy_id)" class="glyphicon glyphicon-copy"></span>
+                                <div class="checkbox">
+                                    <span  ng-click="deploy.editRow( record.deploy_id)" class="glyphicon glyphicon-edit"></span>
+                                    <span ng-click="deploy.copyRow( record.deploy_id)" class="glyphicon glyphicon-copy"></span>
+                                    <label>
+                                        <input type="checkbox" name="selectedRows" ng-click="deploy.toggleRow(record.deploy_id)">
+                                    </label>
+                                </div>
                             </td>
                             <td>@{{ record.send_date }}</td>
                             <td>@{{ record.deploy_id }}</td>

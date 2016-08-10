@@ -12,7 +12,7 @@ namespace App\Services;
 use App\Repositories\DeployRepo;
 use App\Repositories\MT1Repositories\EspAdvertiserJoinRepo;
 use App\Services\ServiceTraits\PaginateList;
-
+use League\Csv\Writer;
 class DeployService
 {
     protected $deployRepo;
@@ -45,6 +45,19 @@ class DeployService
 
     public function updateDeploy($data, $id){
         $this->deployRepo->update($data, $id);
+    }
+
+    public function exportCsv($rows){
+        $rows = $this->deployRepo->retrieveRowsForCsv($rows);
+        $writer = Writer::createFromFileObject(new \SplTempFileObject());
+        $schema = $this->deployRepo->returnCsvHeader();
+
+        $writer->insertOne($schema);
+
+        foreach ($rows as $row){
+            $writer->insertOne($row->toArray());
+        }
+        return $writer->__toString();
     }
 
 }

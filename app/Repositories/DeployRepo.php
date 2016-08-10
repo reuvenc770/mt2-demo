@@ -63,4 +63,26 @@ class DeployRepo
     public function update($data,$id){
         return $this->deploy->where('id',$id)->update($data);
     }
+
+    public function retrieveRowsForCsv($rows){
+        return $this->deploy->whereIn('id', $rows)
+            ->select("id as deploy_id",
+                "send_date as deploy_date",
+                "offer_id",
+                "creative_id",
+                "from_id",
+                "subject_id",
+                "template_id",
+                "mailing_domain_id",
+                "content_domain_id",
+                "list_profile_id",
+                "cake_affiliate_id",
+                "notes"
+            )->get();
+    }
+
+    public function returnCsvHeader(){
+        return ['deploy_id',"deploy_date","offer_id","creative_id", "from_id", "subject_id", "template_id",
+            "mailing_domain_id", "content_domain_id", "list_profile_id", "cake_affiliate_id", "notes"];
+    }
 }

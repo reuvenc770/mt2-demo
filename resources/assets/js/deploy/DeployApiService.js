@@ -76,6 +76,11 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
             .then( successCallback , failCallBack );
     };
 
+    self.exportCsv = function (selectedRows) {
+        return this.baseApiUrl + 'exportcsv/?ids=' + selectedRows.join(',');
+
+    };
+
     self.getFroms = function (offerId, successCallback, failCallBack){
         $http( { "method" : "GET" , "url" : this.cfsUrl + 'froms/' + offerId  } )
             .then( successCallback , failCallBack );
@@ -96,7 +101,7 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
             "url" : this.baseApiUrl + deploy.id ,
             "data" : request
         } ).then( successCallback , failureCallback );
-    }
+    };
 
 
 });
