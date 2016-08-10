@@ -166,6 +166,12 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
 
+    self.fileUploaded = function (){
+        console.log("sdfs");
+        $( '#validateModal' ).modal('show');
+    };
+
+
     /**
      * Callbacks
      */

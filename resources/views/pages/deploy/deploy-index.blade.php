@@ -12,8 +12,23 @@
         <div class="row">
             <div class="col-xs-12">
                 <div id="mtTableContainer">
-                    <button ng-click="deploy.displayForm()" class="btn btn-primary">New Deploy</button>
-                    <button ng-click="deploy.exportCsv()"  ng-show="deploy.exportable" class="btn btn-primary">Export to CSV</button>
+                    <button ng-click="deploy.displayForm()" class="btn btn-primary btn-sm">New Deploy</button>
+                    <button ng-click="deploy.exportCsv()"  ng-show="deploy.exportable" class="btn btn-primary btn-sm">Export to CSV</button>
+                    <div flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'deploys' , '_token' : '{{ csrf_token() }}' } }"
+                        flow-files-submitted="$flow.upload()"
+                        flow-file-success="deploy.fileUploaded()">
+                        <span class="btn btn-primary btn-sm" flow-btn>
+                                    Upload Deploy List
+                                    <input type="file" style="visibility: hidden; position: absolute;" />
+                                </span>
+                        <table>
+                            <tr ng-repeat="file in $flow.files">
+                                <td>@{{$index+1}}</td>
+                                <td>@{{file.name}}</td>
+                                <td>@{{file.msg}}</td>
+                            </tr>
+                        </table>
+                    </div>
                     <table class="table table-striped table-bordered table-hover text-center">
                         <thead>
                         <tr>
@@ -251,6 +266,7 @@
             </div>
         </div>
     </div>
+    <deploy-validate-modal records="client.urlList"></deploy-validate-modal>
 @stop
 
 @section( 'pageIncludes' )
