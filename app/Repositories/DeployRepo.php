@@ -45,7 +45,7 @@ class DeployRepo
                 'creatives.file_name as creative',
                 'list_profiles.profile_name as list_profile',
                 'cake_affiliate_id',
-                'notes');
+                'notes')->orderBy('deploy_id', 'desc');
     }
 
     public function insert($data)
@@ -186,10 +186,13 @@ class DeployRepo
             $errors[] = "List Profile ID is missing";
         }
         //cake
-        //$count = DB::connection('mt1_data')->select("Select count(*) as count from EspAdvertiserJoin where affiliateID = :id",['id'=> $deploy['deploy_id']])[0];
-        //if($count->count == 0){
-        //    $errors[] = ['cake_affiliate_id' => "Cake Affiliate is missing"];
-        // }
+        if (isset($deploy['list_profile_id'])) {
+        $count = DB::connection('mt1_data')->select("Select count(*) as count from EspAdvertiserJoin where affiliateID = :id",['id'=> $deploy['deploy_id']])[0];
+        if($count->count == 0){
+            $errors[] = "Cake Affiliate is wrong";
+         } } else {
+            $errors[] = "Cake Affiliate ID is missing";
+        }
 
         return $errors;
     }

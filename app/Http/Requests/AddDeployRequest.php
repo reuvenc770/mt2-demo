@@ -36,7 +36,7 @@ class AddDeployRequest extends Request
             'subject_id'            => 'required',
             'content_domain_id'            => 'required',
             'mailing_domain_id'        => 'required',
-            'cake_affiliate_id'          => 'required'
+            //'cake_affiliate_id'          => 'required'
         ];
     }
 }
