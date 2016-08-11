@@ -31,4 +31,5 @@ class Deploy extends Model
     public function mailingTemplate(){
         return $this->belongsTo('App\Models\MailingTemplate', 'template_id', 'id');
     }
+
 }

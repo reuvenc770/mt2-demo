@@ -16,7 +16,7 @@
                     <button ng-click="deploy.exportCsv()"  ng-show="deploy.exportable" class="btn btn-primary btn-sm">Export to CSV</button>
                     <div flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'deploys' , '_token' : '{{ csrf_token() }}' } }"
                         flow-files-submitted="$flow.upload()"
-                        flow-file-success="deploy.fileUploaded()">
+                        flow-file-success="deploy.fileUploaded($file); $flow.cancel()">
                         <span class="btn btn-primary btn-sm" flow-btn>
                                     Upload Deploy List
                                     <input type="file" style="visibility: hidden; position: absolute;" />
@@ -265,8 +265,9 @@
                 </div>
             </div>
         </div>
+    <deploy-validate-modal upload-errors="deploy.uploadErrors" mass-upload="deploy.massUploadList()" records="deploy.uploadedDeploys"></deploy-validate-modal>
     </div>
-    <deploy-validate-modal records="client.urlList"></deploy-validate-modal>
+
 @stop
 
 @section( 'pageIncludes' )

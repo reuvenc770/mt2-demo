@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use Illuminate\Support\Facades\Response;
-
+use League\Csv\Reader;
 class DeployController extends Controller
 {
     protected $deployService;
@@ -90,9 +90,11 @@ class DeployController extends Controller
         $data = $request->get("ids");
         $rows = explode(',',$data);
         $csv = $this->deployService->exportCsv($rows);
+        $random = str_random(10);
+        $filename = "deployExport{$random}";
         $headers = array(
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="tweets.csv"',
+            'Content-Disposition' => "attachment; filename=\"{$filename}.csv\"",
         );
 
         // our response, this will be equivalent to your download() but
@@ -100,6 +102,36 @@ class DeployController extends Controller
         return Response::make(rtrim($csv, "\n"), 200, $headers);
 
     }
+
+    public function validateMassUpload(Request $request){
+        $fileName = $request->get("filename");
+        $returnData = array();
+        $dateFolder = date('Ymd');
+        $path = storage_path() . "/app/files/uploads/deploys/$dateFolder/$fileName";
+
+        $reader = Reader::createFromPath($path);
+        $headers = $reader->fetchOne();
+        $reader->setOffset(1);
+        $flag = false;
+        $results = $reader->fetchAssoc($headers);
+
+        foreach ($results as $key => $row) {
+            $row['valid'] = $this->deployService->validateDeploy($row);
+            if(count($row['valid']) > 0){
+                $flag = true;
+            }
+            $returnData['rows'][] = $row;
+            $returnData['errors'] = $flag;
+
+        }
+        return response()->json($returnData);
+    }
+
+    public function massupload(Request $request){
+        $data = $request->all();
+        return response()->json(['success' =>$this->deployService->massUpload($data)]);
+    }
+
 
     /**
      * Remove the specified resource from storage.

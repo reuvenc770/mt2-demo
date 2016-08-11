@@ -598,6 +598,32 @@ Route::group(
             'uses' => 'ClientController@resetClientPassword'
         ] );
 
+        Route::group(
+            [ 'prefix' => 'deploy' ] ,
+            function () {
+                Route::get( '/cakeaffiliates' , [
+                    'as' => 'api.deploy.cakeaffiliates' ,
+                    'uses' => 'DeployController@returnCakeAffiliates'
+                ] );
+
+                Route::post( '/validatedeploys' , [
+                    'as' => 'api.deploy.validateDeploys' ,
+                    'uses' => 'DeployController@validateMassUpload'
+                ] );
+
+                Route::post( '/massupload' , [
+                    'as' => 'api.deploy.massupload' ,
+                    'uses' => 'DeployController@massupload'
+                ] );
+
+                Route::get( '/exportcsv' , [
+                    'as' => 'api.deploy.exportcsv' ,
+                    'uses' => 'DeployController@exportCsv'
+                ] );
+
+            }
+        );
+
 
         /**
          * Client Group API Routes
@@ -687,20 +713,7 @@ Route::group(
                 ] );
             }
         );
-        Route::group(
-            [ 'prefix' => 'deploy' ] ,
-            function () {
-                Route::get( '/cakeaffiliates' , [
-                    'as' => 'api.deploy.cakeaffiliates' ,
-                    'uses' => 'DeployController@returnCakeAffiliates'
-                ] );
 
-                Route::any( '/exportcsv' , [
-                    'as' => 'api.deploy.exportcsv' ,
-                    'uses' => 'DeployController@exportCsv'
-                ] );
-            }
-        );
 
         /**
          * Offer Routes

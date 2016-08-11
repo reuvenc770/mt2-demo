@@ -90,6 +90,14 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
         $http( { "method" : "GET" , "url" : this.cfsUrl + 'subjects/' + offerId  } )
             .then( successCallback , failCallBack );
     };
+    self.massUpload = function ( deploy , successCallback , failureCallback  ) {
+        var request = deploy;
+        $http( {
+            "method" : "POST" ,
+            "url" : this.baseApiUrl + "massupload" ,
+            "data" : request
+        } ).then( successCallback , failureCallback );
+    };
 
     self.updateDeploy = function ( deploy , successCallback , failureCallback  ) {
         var request = deploy;
@@ -103,5 +111,14 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
         } ).then( successCallback , failureCallback );
     };
 
-
+    self.validateDeploy = function ( deploy , successCallback , failureCallback  ) {
+        var request = deploy;
+        console.log(request);
+        $http( {
+            "method" : "POST" ,
+            "url" : this.baseApiUrl + "validatedeploys" ,
+            "data" : {filename: request}
+        } ).then( successCallback , failureCallback );
+    };
 });
+

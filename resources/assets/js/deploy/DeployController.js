@@ -6,7 +6,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         deploy_id: '',
         esp_account_id: '',
         offer_id: "",
-        list_profile_id :"",
+        list_profile_id: "",
         mailing_domain_id: "",
         content_domain_id: "",
         template_id: "",
@@ -17,6 +17,8 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     var text = "ID to Be Generated";
     self.deployIdDisplay = text;
     self.editView = false;
+    self.uploadedDeploys = [];
+    self.uploadErrors = false;
     self.espAccounts = [];
     self.currentlyLoading = 0;
     self.templates = [];
@@ -33,7 +35,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.searchText = "";
     self.listProfiles = [];
     self.exportable = false;
-
+    self.file = "";
     self.pageCount = 0;
     self.paginationCount = '10';
     self.currentPage = 1;
@@ -75,7 +77,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         DeployApiService.getCakeAffiliates(self.loadCakeSuccess, self.loadCakeFail);
     };
 
-    self.copyRow = function (id){
+    self.copyRow = function (id) {
         self.showRow = false;
         DeployApiService.getDeploy(id, self.loadDeployCopySuccess, self.loadDeployFail);
         self.espLoaded = false;
@@ -101,8 +103,8 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.offerWasSelected = function (item) {
         if (typeof item != 'undefined') {
             if (item.title === undefined) {
-                    self.currentDeploy.offer_id = item.originalObject.id;
-                    self.offerLoading = false;
+                self.currentDeploy.offer_id = item.originalObject.id;
+                self.offerLoading = false;
             } else {
                 self.reloadCFS(item.originalObject.id, function () {
                     self.currentDeploy.offer_id = item.originalObject.id;
@@ -129,7 +131,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.actionLink = function () {
-        if(self.editView){
+        if (self.editView) {
             self.updateDeploy();
         } else {
             self.saveNewDeploy();
@@ -137,23 +139,23 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.actionText = function () {
-        if(self.editView){
-           return "Edit Row"
+        if (self.editView) {
+            return "Edit Row"
         } else {
-           return "Save Row"
+            return "Save Row"
         }
     };
 
     self.toggleRow = function (selectedValue) {
-        var index = self.selectedRows.indexOf( selectedValue );
+        var index = self.selectedRows.indexOf(selectedValue);
 
-        if ( index >= 0 ) {
-            self.selectedRows.splice( index , 1 );
+        if (index >= 0) {
+            self.selectedRows.splice(index, 1);
         } else {
             self.selectedRows.push(selectedValue);
         }
 
-        if(self.selectedRows.length > 0){
+        if (self.selectedRows.length > 0) {
             self.exportable = true;
         } else {
             self.exportable = false;
@@ -161,20 +163,47 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.exportCsv = function () {
-      returnUrl = DeployApiService.exportCsv(self.selectedRows);
+        returnUrl = DeployApiService.exportCsv(self.selectedRows);
         $window.open(returnUrl);
     };
 
 
-    self.fileUploaded = function (){
-        console.log("sdfs");
-        $( '#validateModal' ).modal('show');
+    self.fileUploaded = function ($file) {
+        self.file = $file.relativePath;
+        DeployApiService.validateDeploy(self.file, self.validateSuccess, self.validateFail);
     };
+
+    self.massUploadList = function (){
+        console.log("here");
+        console.log(self.uploadErrors);
+        console.log(self.uploadedDeploys.length);
+        if(!self.uploadErrors && self.uploadedDeploys.length > 0)  {
+            DeployApiService.massUpload(self.uploadedDeploys,self.massUploadSuccess, self.massUploadFail)
+        }
+    };
+
+
 
 
     /**
      * Callbacks
      */
+
+    self.massUploadSuccess = function (response){
+        console.log(response);
+        self.currentDeploy = self.resetAccount();
+        $rootScope.$broadcast('angucomplete-alt:clearInput');
+        $mdToast.showSimple('Deploys Uploaded!');
+        DeployApiService.getDeploys(self.currentPage, self.paginationCount, self.loadDeploysSuccess, self.loadDeployFail);
+        self.editView = false;
+        self.showRow = false;
+    };
+
+    self.validateSuccess = function (response) {
+        self.uploadedDeploys = response.data.rows;
+        self.uploadErrors = response.data.errors;
+        $('#validateModal').modal('show');
+    };
     self.loadDeploysSuccess = function (response) {
         self.deploys = response.data.data;
         self.pageCount = response.data.last_page;
@@ -185,7 +214,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.deployIdDisplay = response.data.id;
         self.updateSelects(function () {
             var deployData = response.data;
-            self.reloadCFS(deployData.offer_id.id ,function () {
+            self.reloadCFS(deployData.offer_id.id, function () {
                 var pieces = deployData.send_date.split('-');
                 self.currentDeploy = deployData;
                 self.currentDeploy.offer_id = deployData.offer_id.id;
@@ -202,7 +231,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.currentDeploy.esp_account_id = response.data.esp_account_id;
         self.updateSelects(function () {
             var deployData = response.data;
-            self.reloadCFS(response.data.offer_id.id ,function (){
+            self.reloadCFS(response.data.offer_id.id, function () {
                 var pieces = deployData.send_date.split('-');
                 self.currentDeploy.send_date = new Date(pieces[0], pieces[1] - 1, pieces[2]);
                 self.currentDeploy.notes = deployData.notes;
@@ -220,7 +249,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
 
-    self.updateDeploySuccess = function (response){
+    self.updateDeploySuccess = function (response) {
         self.currentDeploy = self.resetAccount();
         $rootScope.$broadcast('angucomplete-alt:clearInput');
         $mdToast.showSimple('Deploy Edited!');
@@ -284,8 +313,11 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.exportCsvSuccess = function (response) {
-       $window.open(response);
+        $window.open(response);
     };
+
+
+
 
     self.loadEspFail = function () {
         self.setModalLabel('Error');
@@ -339,6 +371,8 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.setModalBody('Something went wrong loading Subjects');
         self.launchModal();
     };
+
+
     /**
      * Errors
      */
@@ -364,7 +398,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
             deploy_id: '',
             esp_account_id: '',
             offer_id: "",
-            list_profile_id :"",
+            list_profile_id: "",
             mailing_domain_id: "",
             content_domain_id: "",
             template_id: "",
@@ -372,6 +406,8 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
             notes: ""
         }
     };
+
+
 
     /**
      * Page Modal

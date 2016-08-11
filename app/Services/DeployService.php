@@ -60,4 +60,16 @@ class DeployService
         return $writer->__toString();
     }
 
+    public function validateDeploy($deploy){
+        return $this->deployRepo->validateOldDeploy($deploy);
+    }
+
+    public function massUpload($data){
+        return $this->deployRepo->massInsert($data);
+    }
+    //upldated return model so its a builder not a deploy
+    public function getType(){
+        return "Deploy";
+    }
+
 }
