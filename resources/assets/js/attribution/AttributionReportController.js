@@ -1,4 +1,4 @@
-mt2App.controller( 'AttributionReportController' , [ 'AttributionApiService' , '$filter' , '$mdToast' , '$log' , function ( AttributionApiService , $filter , $mdToast , $log ) {
+mt2App.controller( 'AttributionReportController' , [ 'AttributionApiService' , 'ClientApiService' , '$filter' , '$mdToast' , '$log' , function ( AttributionApiService , ClientApiService , $filter , $mdToast , $log ) {
     var self = this;
 
     self.startDate = new Date();
@@ -14,6 +14,8 @@ mt2App.controller( 'AttributionReportController' , [ 'AttributionApiService' , '
         "limit" : 50 ,
         "page" : 1
     };
+
+    self.clientNameMap = {};
 
     self.loadRecords = function () {
         self.getRecords();
@@ -37,6 +39,22 @@ mt2App.controller( 'AttributionReportController' , [ 'AttributionApiService' , '
     };
 
     self.switchReportType = function ( type ) {
+        if ( type == 'Client' && Object.keys( self.clientNameMap ).length == 0 ) {
+            ClientApiService.getAllClients(
+                function ( response ) {
+                    angular.forEach( response.data , function ( value , key ) {
+                        self.clientNameMap[ value.client_id ] = value.username;
+                    } );
+                } ,
+                function ( response ) {
+                    $mdToast.show(
+                        $mdToast.simple()
+                            .textContent( 'Failed to load Client names. Please contact support.' )
+                            .hideDelay( 1500 )
+                    );
+                } );
+        }
+
         self.query.type = type;
 
         self.records = [];

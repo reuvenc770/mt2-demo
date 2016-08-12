@@ -207,6 +207,7 @@ elixir.extend( 'deployReportAttributionJs' , function ( mix ) {
     mix.scripts( [
         'attribution/AttributionReportController.js' ,
         'attribution/AttributionApiService.js' ,
+        'client/ClientApiService.js' ,
     ] , 'public/js/reportAttribution.js' );
 } );
 
