@@ -22,19 +22,14 @@ class ClientReportRepo {
     public function runInsertQuery ( $valuesSqlString ) {
         DB::connection( 'attribution' )->insert( "
             INSERT INTO
-                attribution_client_reports ( client_id , delivered , opened , clicked , converted , bounced , unsubbed , revenue , cost , date , created_at , updated_at )
+                attribution_client_reports ( client_id , revenue , mt1_uniques , mt2_uniques , date , created_at , updated_at )
             VALUES
                 {$valuesSqlString}
             ON DUPLICATE KEY UPDATE
                 client_id = client_id ,
-                delivered = VALUES( delivered ) ,
-                opened = VALUES( opened ) ,
-                clicked = VALUES( clicked ) ,
-                converted = VALUES( converted ) ,
-                bounced = VALUES( bounced ) ,
-                unsubbed = VALUES( unsubbed ) ,
                 revenue = VALUES( revenue ) ,
-                cost = VALUES( cost ) ,
+                mt1_uniques = VALUES( mt1_uniques ) ,
+                mt2_uniques = VALUES( mt2_uniques ) ,
                 date = date ,
                 created_at = created_at ,
                 updated_at = NOW()

@@ -16,6 +16,7 @@ class ClientAggregatorServiceIntegrationTest extends TestCase {
     const EMAIL_CLASS = \App\Models\Email::class;
     const ATTR_RECORD_REPORT_CLASS = \App\Models\AttributionRecordReport::class;
     const EMAIL_CLIENT_ASSIGN_CLASS = \App\Models\EmailClientAssignment::class;
+    const EMAIL_CLIENT_INSTANCE_CLASS = \App\Models\EmailClientInstance::class;
 
     const TEST_DEPLOY_ID = 1;
     const TEST_OFFER_ID = 0;
@@ -46,38 +47,28 @@ class ClientAggregatorServiceIntegrationTest extends TestCase {
 
         #Verifying that there is a record for each client in the DB
         $this->assertEquals( 3 , \App\Models\AttributionClientReport::all()->count() );
-
+        
         foreach ( $this->sut->getRecords() as $currentRow ) {
             switch ( $currentRow[ "client_id" ] ) {
                 case $this->testClients[ 0 ]->id :
-                    $this->assertTrue( $currentRow[ "delivered" ] === 3 );
-                    $this->assertTrue( $currentRow[ "opened" ] === 6 );
-                    $this->assertTrue( $currentRow[ "clicked" ] === 3 );
-                    $this->assertTrue( $currentRow[ "converted" ] === 3 );
-                    $this->assertTrue( $currentRow[ "revenue" ] === 6.00 );
+                    $this->assertTrue( $currentRow[ "revenue" ] === 4.00 );
+                    $this->assertTrue( $currentRow[ "mt1_uniques" ] === 2 );
+                    $this->assertTrue( $currentRow[ "mt2_uniques" ] === 2 );
                 break;
 
                 case $this->testClients[ 1 ]->id :
-                    $this->assertTrue( $currentRow[ "delivered" ] === 2 );
-                    $this->assertTrue( $currentRow[ "opened" ] === 3 );
-                    $this->assertTrue( $currentRow[ "clicked" ] === 1 );
-                    $this->assertTrue( $currentRow[ "converted" ] === 1 );
-                    $this->assertTrue( $currentRow[ "unsubbed" ] === 1 );
-                    $this->assertTrue( $currentRow[ "bounced" ] === 1 );
-                    $this->assertTrue( $currentRow[ "revenue" ] === 2.00 );
+                    $this->assertTrue( $currentRow[ "revenue" ] === 6.00 );
+                    $this->assertTrue( $currentRow[ "mt1_uniques" ] === 3 );
+                    $this->assertTrue( $currentRow[ "mt2_uniques" ] === 3 );
                 break;
 
                 case $this->testClients[ 2 ]->id :
-                    $this->assertTrue( $currentRow[ "delivered" ] === 2 );
-                    $this->assertTrue( $currentRow[ "opened" ] === 2 );
-                    $this->assertTrue( $currentRow[ "bounced" ] === 1 );
-                    $this->assertTrue( $currentRow[ "unsubbed" ] === 1 );
+                    $this->assertTrue( $currentRow[ "revenue" ] === 0.00 );
+                    $this->assertTrue( $currentRow[ "mt1_uniques" ] === 0 );
+                    $this->assertTrue( $currentRow[ "mt2_uniques" ] === 0 );
                 break;
             }
         }
-
-        unset( $recordReport );
-        unset( $emailClient );
     }
 
     public function goodPath_dailyRun_testData () {
@@ -102,10 +93,25 @@ class ClientAggregatorServiceIntegrationTest extends TestCase {
          */
         $clientAssigns = [];
         for ( $index = 1 , $clientIndex = 0 ; $index <= count( $emails ) ; $index++ ) {
+            $date = Carbon::today()->toDateString();
+    
+            if (
+                ( $clientIndex === 0 && $index % 3 === 0 )
+                || ( $clientIndex === 2 ) 
+            ) {
+                $date = Carbon::yesterday()->toDateString();
+            }
+
             $clientAssigns[ $index ] =factory( self::EMAIL_CLIENT_ASSIGN_CLASS )->create( [
                 "email_id" => $emails[ $index ]->id ,
                 "client_id" => $this->testClients[ $clientIndex ]->id ,
-                "capture_date" => Carbon::today()->toDateString()
+                "capture_date" => $date 
+            ] );
+
+            factory( self::EMAIL_CLIENT_INSTANCE_CLASS )->create( [
+                "email_id" => $emails[ $index ]->id ,
+                "client_id" => $this->testClients[ $clientIndex ]->id ,
+                "capture_date" => $date 
             ] );
 
             if ( $index % 3 === 0 ) { $clientIndex++; }
@@ -115,15 +121,15 @@ class ClientAggregatorServiceIntegrationTest extends TestCase {
          * AttributionRecordReport Data
          */
         $recordRows = [
-            [ "delivered" => 1 , "opened" => 2 , "clicked" => 1 , "converted" => 1 , "unsubbed" => 0 , "bounced" => 0 , "revenue" => 2.00 ] ,
-            [ "delivered" => 1 , "opened" => 1 , "clicked" => 1 , "converted" => 1 , "unsubbed" => 0 , "bounced" => 0 , "revenue" => 2.00 ] ,
-            [ "delivered" => 1 , "opened" => 3 , "clicked" => 1 , "converted" => 1 , "unsubbed" => 0 , "bounced" => 0 , "revenue" => 2.00 ] ,
-            [ "delivered" => 1 , "opened" => 2 , "clicked" => 1 , "converted" => 1 , "unsubbed" => 0 , "bounced" => 0 , "revenue" => 2.00 ] ,
-            [ "delivered" => 1 , "opened" => 1 , "clicked" => 0 , "converted" => 0 , "unsubbed" => 1 , "bounced" => 0 , "revenue" => 0.00 ] ,
-            [ "delivered" => 0 , "opened" => 0 , "clicked" => 0 , "converted" => 0 , "unsubbed" => 0 , "bounced" => 1 , "revenue" => 0.00 ] ,
-            [ "delivered" => 1 , "opened" => 0 , "clicked" => 0 , "converted" => 0 , "unsubbed" => 0 , "bounced" => 0 , "revenue" => 0.00 ] ,
-            [ "delivered" => 1 , "opened" => 2 , "clicked" => 0 , "converted" => 0 , "unsubbed" => 1 , "bounced" => 0 , "revenue" => 0.00 ] ,
-            [ "delivered" => 0 , "opened" => 0 , "clicked" => 0 , "converted" => 0 , "unsubbed" => 0 , "bounced" => 1 , "revenue" => 0.00 ] ,
+            [ "revenue" => 2.00 ] ,
+            [ "revenue" => 2.00 ] ,
+            [ "revenue" => 0.00 ] ,
+            [ "revenue" => 2.00 ] ,
+            [ "revenue" => 2.00 ] ,
+            [ "revenue" => 2.00 ] ,
+            [ "revenue" => 0.00 ] ,
+            [ "revenue" => 0.00 ] ,
+            [ "revenue" => 0.00 ] ,
         ];
 
         for ( $index = 1 ; $index <= count( $emails ) ; $index++ ) {

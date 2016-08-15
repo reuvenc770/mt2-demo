@@ -103,4 +103,41 @@ class EmailClientInstanceRepo {
         return $reps;
     }
 
+    public function getMt1UniqueCountForClientAndDate( $clientId , $date ) {
+        $results =  DB::connection( 'mt1mail' )->table( 'ClientRecordTotalsByIsp' )
+            ->select( DB::raw( "sum( uniqueRecords ) as 'uniques'" ) )
+            ->where( [
+                [ 'clientID' , $clientId ] ,
+                [ 'processedDate' , $date ]
+            ] )->get();
+
+        if ( count( $results ) > 0 ) {
+            return $results[ 0 ]->uniques;
+        } else {
+            return 0;
+        }
+    }
+
+    public function getMt2UniqueCountForClientAndDate( $clientId , $date ) {
+        $mt1Db = config('database.connections.mt1_data.database');
+
+        $results = DB::select( DB::raw( "
+            SELECT
+                COUNT( * ) AS 'uniques'
+            FROM
+                {$mt1Db}.email_client_instances e1
+                LEFT JOIN {$mt1Db}.email_client_instances e2 ON( e1.email_id = e2.email_id AND e1.id <> e2.id AND e2.capture_date < :dateCeiling )
+            WHERE
+                e1.client_id = :clientId
+                AND e1.capture_date = :date
+                AND e2.id IS NULL" ) , 
+            [ ':dateCeiling' => $date , ':date' => $date , ':clientId' => $clientId ]     
+        );
+
+        if ( count( $results ) > 0 ) {
+            return $results[ 0 ]->uniques;
+        } else {
+            return 0;
+        }
+    }
 }
