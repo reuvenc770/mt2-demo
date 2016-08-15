@@ -7,12 +7,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ClientPayout extends Model
+class OfferPayout extends Model
 {
     protected $connection = 'attribution';
-    protected $fillable = ['client_id', 'client_payout_type_id', 'amount'];
+    protected $fillable = ['offer_id', 'offer_payout_type_id', 'amount'];
 
     public function type () {
-        return $this->hasOne( 'App\Models\ClientPayoutType' );
+        return $this->hasOne( 'App\Models\OfferPayoutType' );
     }
 }

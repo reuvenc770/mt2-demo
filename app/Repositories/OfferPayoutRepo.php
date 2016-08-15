@@ -5,32 +5,32 @@
 
 namespace App\Repositories;
 
-use App\Models\ClientPayout;
-use App\Models\ClientPayoutType;
+use App\Models\OfferPayout;
+use App\Models\OfferPayoutType;
 
-class ClientPayoutRepo {
+class OfferPayoutRepo {
     protected $payout;
     protected $payoutType;
 
-    public function __construct ( ClientPayout $payout , ClientPayoutType $payoutType ) {
+    public function __construct ( OfferPayout $payout , OfferPayoutType $payoutType ) {
         $this->payout = $payout;
         $this->payoutType = $payoutType;
     }
 
     public function setPayout ( $clientId , $typeId , $amount ) {
         #create or update payout for given client.
-        $this->payout->updateOrCreate(['client_id' => $clientId],
+        $this->payout->updateOrCreate(['offer_id' => $clientId],
         [
-            'client_id' => $clientId,
-            'client_payout_type_id' => $typeId,
+            'offer_id' => $clientId,
+            'offer_payout_type_id' => $typeId,
             'amount' => $amount
         ]);
     }
 
-    public function getPayout ( $clientId ) {
+    public function getPayout ( $offerId ) {
         return $this->payout
-                    ->select('client_payout_type_id', 'amount')
-                    ->where('client_id', $clientId)
+                    ->select('offer_payout_type_id', 'amount')
+                    ->where('offer_id', $offerId)
                     ->first();
     }
 

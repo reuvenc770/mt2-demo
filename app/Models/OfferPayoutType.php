@@ -7,7 +7,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ClientPayoutType extends Model
+class OfferPayoutType extends Model
 {
     protected $connection = 'attribution';
 }
