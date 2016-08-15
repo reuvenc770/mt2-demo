@@ -23,7 +23,7 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
     self.profileList = [];
     self.clientGroupList = [];
     self.ispList = [];
-    
+
     /**
      * Pagination Properties
      */
@@ -40,7 +40,6 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
     /**
      * ISP AutoComplete
      */
-
     self.ispSearchText = '';
     self.selectedIsps = [];
     self.currentSelectedIsp = '';
@@ -309,7 +308,7 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
     self.loadListProfilesSuccessCallback = function ( response ) {
         self.currentlyLoading = 0;
 
-        self.profileList = response.data.data; 
+        self.profileList = response.data.data;
 
         self.pageCount = response.data.last_page;
     };
@@ -342,7 +341,7 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
         IspApiService.getAll( function ( response ) {
             self.ispList = response.data;
         } , function ( response ) {
-            self.showToast( 'Error retrieving ISPs. Please contact support.' );        
+            self.showToast( 'Error retrieving ISPs. Please contact support.' );
         } );
     }
 
@@ -351,7 +350,7 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
      */
     self.prepopNormalFields = function ( response ) {
         self.current.profile_name = response.data.profile_name;
-        self.deliveryDays = response.data.DeliveryDays; 
+        self.deliveryDays = response.data.DeliveryDays;
     };
 
     self.prepopGender = function ( response ) {
@@ -384,7 +383,7 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
                 typeNumber = ( rangeNumber > 0 ? rangeNumber : '' );
 
                 if (
-                    response.data[ type + '_end' + typeNumber ] > 0    
+                    response.data[ type + '_end' + typeNumber ] > 0
                 ) {
                     self.rangeData.count[ typeMap[ type ] ][ rangeNumber ].min =
                         response.data[ type + '_start' + typeNumber ];
@@ -439,8 +438,8 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
             var currentChip = { "id" : parseInt( key ) , "name" : value };
 
             var chipIndex = self.ispChipList.map(
-                function ( chip ) { return parseInt( chip.id ) }        
-            ).indexOf( parseInt( key ) ); 
+                function ( chip ) { return parseInt( chip.id ) }
+            ).indexOf( parseInt( key ) );
 
             var chipExists = ( chipIndex !== -1 );
 
@@ -527,7 +526,7 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
 
         /*
         var parentEl = angular.element( document.body );
-        
+
         $mdDialog.show( {
             "parent" : parentEl ,
             "targetEvent" : event ,
@@ -557,7 +556,7 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
     };
 
     self.saveListProfileSuccessCallback = function ( response ) {
-        $log.log( response ); 
+        $log.log( response );
 
         //Need to run calculations. This is the placeholder success callback to implement that.
         //redirect to list page
@@ -591,7 +590,7 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
 
     self.copyListProfile = function ( event , id ) {
         var parentEl = angular.element( document.body );
-        
+
         $mdDialog.show( {
             "parent" : parentEl ,
             "targetEvent" : event ,
@@ -620,21 +619,21 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
     self.prepV1Fields = function () {
         self.setDefaultFields( self.v1Form );
         self.setDateFields( self.v1Form );
-        self.setCountRangeFields( self.v1Form , true ); 
+        self.setCountRangeFields( self.v1Form , true );
 
         self.v1Form.DeliveryDays = self.current.deliveryDays;
         self.v1Form.seeds = self.seedList.map( function ( seed ) { return seed; } ).join( "\n" );
     };
 
     self.prepV2Fields = function () {
-        self.v2Form.volume_desired = self.current.volume_desired;    
+        self.v2Form.volume_desired = self.current.volume_desired;
         self.setDefaultFields( self.v2Form );
         self.setDateFields( self.v2Form );
-        self.setCountRangeFields( self.v2Form ); 
+        self.setCountRangeFields( self.v2Form );
     };
 
     self.prepV3Fields = function () {
-        self.v3Form.volume_desired = self.current.volume_desired;    
+        self.v3Form.volume_desired = self.current.volume_desired;
         self.setDefaultFields( self.v3Form );
     };
 
@@ -648,7 +647,7 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
         formObject.max_age = self.rangeData.count.age.max;
         self.setGenderField( formObject );
     };
-    
+
     self.setGenderField = function ( formObject ) {
         if ( self.genderType === 'empty' ) {
             formObject.gender = 'Empty';
@@ -711,7 +710,7 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
         $http( {
             "method" : "GET" ,
             "url" : '/api/clientgroup/search' ,
-            "params" : { 'page' : self.currentClientGroupPage , 'query' : $select.search } 
+            "params" : { 'page' : self.currentClientGroupPage , 'query' : $select.search }
         } ).then( function ( response ) {
                 angular.forEach( response.data , function ( value , key ) {
                     self.clientGroupList.push( value );
@@ -753,7 +752,7 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
      */
     self.preventDelimitedChips = function ( listName , chip ) {
         if ( chip.search( /[;,|]/g ) > -1 ) {
-            self.addChips( listName , chip );   
+            self.addChips( listName , chip );
             return null;
         } else return;
     };
@@ -761,7 +760,7 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
     self.addChips = function ( listName , chip ) {
         if ( chip.search( /[;,|]/g ) > -1 ) {
             var chipList = [];
-            
+
             if ( chip.search( /[;]/g ) > -1 ) {
                 chipList = chip.split( ';' );
             } else if ( chip.search( /[,]/g ) > -1 ) {
@@ -793,9 +792,9 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
             dialogOptions.locals.number = null;
 
             angular.forEach( rangeList , function ( value , key ) {
-                if ( 
+                if (
                     value.filled === false
-                    && dialogOptions.locals.label === null 
+                    && dialogOptions.locals.label === null
                 ) {
                     dialogOptions.locals.label = value.label;
                     dialogOptions.locals.number = key;
@@ -823,7 +822,7 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
 
     self.filterRangeChips = function ( chip ) {
         if ( typeof( chip.type ) === 'undefined' ) return null;
-        
+
         return;
     };
 
@@ -831,9 +830,9 @@ mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' ,
         var currentData = {};
 
         if ( typeof( chip.number ) != 'undefined' ) {
-            currentData = self.rangeData[ chip.type ][ chip.subtype ][ chip.number ]; 
+            currentData = self.rangeData[ chip.type ][ chip.subtype ][ chip.number ];
         } else {
-            currentData = self.rangeData[ chip.type ][ chip.subtype ]; 
+            currentData = self.rangeData[ chip.type ][ chip.subtype ];
         }
 
         currentData.min = 0;
