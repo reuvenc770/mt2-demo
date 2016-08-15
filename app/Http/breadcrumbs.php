@@ -59,16 +59,16 @@ Breadcrumbs::register('role.edit', function($breadcrumbs) {
 //Client Feeds
 Breadcrumbs::register('client.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');
-    $breadcrumbs->push("Clients", route('client.list'));
+    $breadcrumbs->push("Feeds", route('client.list'));
 });
 Breadcrumbs::register('client.add', function($breadcrumbs) {
     $breadcrumbs->parent('client.list');
-    $breadcrumbs->push('Add Client');
+    $breadcrumbs->push('Add Feed');
 });
 
 Breadcrumbs::register('client.edit', function($breadcrumbs) {
     $breadcrumbs->parent('client.list');
-    $breadcrumbs->push('Edit Client');
+    $breadcrumbs->push('Edit Feed');
 });
 
 //Client Feeds

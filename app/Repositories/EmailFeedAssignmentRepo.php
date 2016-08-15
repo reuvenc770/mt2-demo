@@ -19,7 +19,7 @@ class EmailFeedAssignmentRepo {
 
     public function assignFeed ( $emailId , $feedId , $captureDate ) {
         $this->assignment->updateOrCreate(['email_id' => $emailId], [
-            'feed_id' => $clientId,
+            'feed_id' => $feedId,
             'capture_date' => $captureDate
         ]);
     }

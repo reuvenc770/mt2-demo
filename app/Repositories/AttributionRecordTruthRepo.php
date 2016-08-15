@@ -92,7 +92,7 @@ class AttributionRecordTruthRepo {
         // See above for reasoning about using $startDateTime as capture_date
         $union2 = DB::connection('slave_attribution')->table('attribution_record_truths AS art')
                       ->select('art.email_id', 'efa.feed_id', DB::raw("'{$startDateTime}' as capture_date"), 'art.has_action', 'art.action_expired')
-                      ->join("$attrDb.email_client_assignments as eca", 'art.email_id', '=', 'efa.email_id')
+                      ->join("$attrDb.email_feed_assignments as efa", 'art.email_id', '=', 'efa.email_id')
                       ->join("$dataDb.email_feed_instances as efi", 'art.email_id', '=', 'efi.email_id')
                       ->where('recent_import', 0)
                       ->where('has_action', 1)
@@ -105,7 +105,7 @@ class AttributionRecordTruthRepo {
         // we need to investigate whether records received during the shielded period can now grab this email
         $union3 = DB::connection('slave_attribution')->table('attribution_record_truths AS art')
                       ->select('art.email_id', 'efa.feed_id', 'efa.capture_date', 'art.has_action', 'art.action_expired')
-                      ->join("$attrDb.email_client_assignments as eca", 'art.email_id', '=', 'efa.email_id')
+                      ->join("$attrDb.email_feed_assignments as efa", 'art.email_id', '=', 'efa.email_id')
                       ->join("$attrDb.attribution_activity_schedules as aas", 'art.email_id', '=', 'aas.email_id')
                       ->where('recent_import', 0)
                       ->where('has_action', 1)
@@ -117,7 +117,7 @@ class AttributionRecordTruthRepo {
         // can subsequent imports during the shielded time now get this email?
         return DB::connection('slave_attribution')->table('attribution_record_truths AS art')
                     ->select('art.email_id', 'efa.feed_id', 'efa.capture_date', 'art.has_action', 'art.action_expired')
-                    ->join("$attrDb.email_client_assignments as eca", 'art.email_id', '=', 'efa.email_id')
+                    ->join("$attrDb.email_feed_assignments as efa", 'art.email_id', '=', 'efa.email_id')
                     ->join("$attrDb.attribution_expiration_schedules as aes", 'art.email_id', '=', 'aes.email_id')
                     ->where('recent_import', 0)
                     ->where('has_action', 0)
