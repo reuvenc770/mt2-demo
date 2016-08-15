@@ -15,6 +15,10 @@ class ClientReportRepo {
         $this->model = $model;
     }
 
+    public function getByDateRange ( array $dateRange ) {
+        return $this->model->whereBetween( 'date' , [ $dateRange[ 'start' ] , $dateRange[ 'end' ] ] )->get();
+    }
+
     public function runInsertQuery ( $valuesSqlString ) {
         DB::connection( 'attribution' )->insert( "
             INSERT INTO
