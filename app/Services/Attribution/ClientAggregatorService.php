@@ -9,16 +9,19 @@ use App\Services\Attribution\AbstractReportAggregatorService;
 use App\Services\Attribution\RecordReportService;
 use App\Repositories\Attribution\ClientReportRepo;
 use App\Services\EmailClientAssignmentService;
+use App\Services\EmailClientInstanceService;
 use App\Exceptions\AggregatorServiceException;
 
 class ClientAggregatorService extends AbstractReportAggregatorService {
     protected $recordReport;
-    protected $emailClientService;
+    protected $emailClientAssignmentService;
+    protected $emailClientInstanceService;
     protected $clientRepo;
 
-    public function __construct ( RecordReportService $recordReport , EmailClientAssignmentService $emailClientService , ClientReportRepo $clientRepo ) {
+    public function __construct ( RecordReportService $recordReport , EmailClientAssignmentService $emailClientAssignmentService , EmailClientInstanceService $emailClientInstanceService , ClientReportRepo $clientRepo ) {
         $this->recordReport = $recordReport;
-        $this->emailClientService = $emailClientService;
+        $this->emailClientAssignmentService = $emailClientAssignmentService;
+        $this->emailClientInstanceService = $emailClientInstanceService;
         $this->clientRepo = $clientRepo;
     }
 
@@ -27,8 +30,12 @@ class ClientAggregatorService extends AbstractReportAggregatorService {
             throw new AggregatorServiceException( 'RecordReportService needed. Please inject a service.' );
         }
 
-        if ( !isset( $this->emailClientService ) ) {
+        if ( !isset( $this->emailClientAssignmentService ) ) {
             throw new AggregatorServiceException( 'EmailClientAssignmentService needed. Please inject a service.' );
+        }
+
+        if ( !isset( $this->emailClientInstanceService ) ) {
+            throw new AggregatorServiceException( 'EmailClientInstanceService needed. Please inject a service.' );
         }
 
         if ( !isset( $this->clientRepo ) ) {
@@ -50,18 +57,20 @@ class ClientAggregatorService extends AbstractReportAggregatorService {
 
     protected function processBaseRecord ( $baseRecord ) {
         $date = $baseRecord->date;
-        $clientId = $this->emailClientService->getAssignedClient( $baseRecord->email_id );
+        $clientId = $this->emailClientAssignmentService->getAssignedClient( $baseRecord->email_id );
         
         $this->createRowIfMissing( $date , $clientId );
 
         $currentRow = &$this->getCurrentRow( $date , $clientId );
 
-        $currentRow[ "delivered" ] += $baseRecord[ "delivered" ];
-        $currentRow[ "opened" ] += $baseRecord[ "opened" ];
-        $currentRow[ "clicked" ] += $baseRecord[ "clicked" ];
-        $currentRow[ "converted" ] += $baseRecord[ "converted" ];
-        $currentRow[ "bounced" ] += $baseRecord[ "bounced" ];
-        $currentRow[ "unsubbed" ] += $baseRecord[ "unsubbed" ];
+        if ( is_null( $currentRow[ 'mt1_uniques' ] ) ) {
+            $currentRow[ 'mt1_uniques' ] = (int)$this->emailClientInstanceService->getMt1UniqueCountForClientAndDate( $clientId , $date );
+        }
+
+        if ( is_null( $currentRow[ 'mt2_uniques' ] ) ) {
+            $currentRow[ 'mt2_uniques' ] = (int)$this->emailClientInstanceService->getMt2UniqueCountForClientAndDate( $clientId , $date );
+        }
+
         $currentRow[ "revenue" ] = (
             ( $currentRow[ "revenue" ] * parent::WHOLE_NUMBER_MODIFIER ) + ( $baseRecord[ "revenue" ] * parent::WHOLE_NUMBER_MODIFIER )
         ) / parent::WHOLE_NUMBER_MODIFIER;
@@ -70,14 +79,9 @@ class ClientAggregatorService extends AbstractReportAggregatorService {
     protected function formatRecordToSqlString ( $record ) {
         return "( 
             '{$record[ 'client_id' ]}' ,
-            '{$record[ 'delivered' ]}' ,
-            '{$record[ 'opened' ]}' ,
-            '{$record[ 'clicked' ]}' ,
-            '{$record[ 'converted' ]}' ,
-            '{$record[ 'bounced' ]}' ,
-            '{$record[ 'unsubbed' ]}' ,
             '{$record[ 'revenue' ]}' ,
-            '{$record[ 'cost' ]}' ,
+            '{$record[ 'mt1_uniques' ]}' ,
+            '{$record[ 'mt2_uniques' ]}' ,
             '{$record[ 'date' ]}' ,
             NOW() ,
             NOW()
@@ -92,14 +96,9 @@ class ClientAggregatorService extends AbstractReportAggregatorService {
         if ( !isset( $this->recordStruct[ $date ][ $clientId ] ) ) {
             $this->recordStruct[ $date ][ $clientId ] = [
                 "client_id" => $clientId ,
-                "delivered" => 0 ,
-                "opened" => 0 ,
-                "clicked" => 0 ,
-                "converted" => 0 ,
-                "bounced" => 0 ,
-                "unsubbed" => 0 ,
                 "revenue" => 0 ,
-                "cost" => 0.00 ,
+                "mt1_uniques" => null ,
+                "mt2_uniques" => null ,
                 "date" => $date
             ];
         }
