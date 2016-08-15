@@ -1,4 +1,4 @@
-mt2App.directive( 'clientTable' , function () {
+mt2App.directive( 'feedTable' , function () {
     return {
         "scope" : {} ,
         "controller" : function () {} ,
@@ -7,6 +7,6 @@ mt2App.directive( 'clientTable' , function () {
             "records" : "=" ,
             "loadingflag" : "="
         } ,
-        "templateUrl" : "js/templates/client-table.html"
+        "templateUrl" : "js/templates/feed-table.html"
     };
 } );

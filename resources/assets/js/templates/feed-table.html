@@ -12,7 +12,7 @@
                 <th class="text-center">Group Restriction</th>
                 <th class="text-center">List Owner</th>
                 <th class="text-center">CAKE Sub-Affiliate</th>
-                <th class="text-center">Client Type</th>
+                <th class="text-center">Feed Type</th>
                 <th class="text-center">Network</th>
                 <th class="text-center">Source URL</th>
                 <th class="text-center">Source IP</th>
@@ -27,7 +27,7 @@
 
         <tbody>
             <tr ng-repeat="record in ctrl.records track by $index">
-                <td><edit-button editurl="'/client/edit/'" recordid="record.client_id"></edit-button></td>
+                <td><edit-button editurl="'/feed/edit/'" recordid="record.client_id"></edit-button></td>
                 <td>{{ record.username }}</td>
                 <td ng-class="{ 'bg-success' : record.status == 'A' , 'bg-warn' : record.status == 'P' , 'bg-danger' : record.status == 'D' }"><strong>{{ record.status == 'A' ? 'Active' : record.status == 'P' ? 'Paused' : 'Inactive'  }}</strong></td>
                 <td ng-class="{ 'bg-success' : record.check_global_suppression == 'Y' , 'bg-danger' : record.check_global_suppression != 'Y' }"><strong>{{ record.check_global_suppression == 'Y' ? 'ON' : 'OFF'  }}</strong></td>

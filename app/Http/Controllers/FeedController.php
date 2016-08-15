@@ -7,13 +7,13 @@ use Laracasts\Flash\Flash;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Services\MT1ApiService;
-use App\Http\Requests\ClientEditRequest;
+use App\Http\Requests\FeedEditRequest;
 use App\Services\MT1Services\ClientService;
 use App\Services\MT1Services\CountryService;
 use App\Services\ClientPayoutService;
 use Cache;
 
-class ClientController extends Controller
+class FeedController extends Controller
 {
     const CLIENT_API_ENDPOINT = 'clients_list';
     const CLIENT_UPDATE_API_ENDPOINT = 'client_update';
@@ -45,7 +45,7 @@ class ClientController extends Controller
      *
      */
     public function listAll () {
-        return response()->view( 'pages.client.client-index' );
+        return response()->view( 'pages.feed.feed-index' );
     }
 
     /**
@@ -57,7 +57,7 @@ class ClientController extends Controller
     {
         $countryList = $this->countryApi->getAll();
         $payoutTypes = $this->payoutService->getTypes() ?: [];
-        return response()->view( 'pages.client.client-add' , [
+        return response()->view( 'pages.feed.feed-add' , [
             'countries' => ( !is_null( $countryList ) ? $countryList : [] ),
             'payoutTypes' => $payoutTypes
         ] );
@@ -73,7 +73,7 @@ class ClientController extends Controller
     {
         Cache::tags( [ $this->clientApi->getType() ] )->flush();
 
-        Flash::success("Client was Successfully Updated");
+        Flash::success("Feed was Successfully Updated");
 
         $response = response( $this->api->postForm( self::CLIENT_UPDATE_API_ENDPOINT , $request->all() ) );
         

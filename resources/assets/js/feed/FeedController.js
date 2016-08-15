@@ -1,4 +1,4 @@
-mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location' , 'ClientApiService', '$mdToast', function ( $rootScope , $window , $location , ClientApiService, $mdToast ) {
+mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' , 'FeedApiService', '$mdToast', function ( $rootScope , $window , $location , FeedApiService, $mdToast ) {
     var self = this;
 
     self.current = {
@@ -36,9 +36,9 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
         payout_amount: "0"
     };
 
-    self.clients = [];
+    self.feeds = [];
 
-    self.createUrl = '/client/create';
+    self.createUrl = '/feed/create';
 
     self.pageCount = 0;
     self.paginationCount = '10';
@@ -46,8 +46,8 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
 
     self.currentlyLoading = 0;
     self.generatingLinks = 0;
-    self.updatingClient = 0;
-    self.creatingClient = 0;
+    self.updatingFeed = 0;
+    self.creatingFeed = 0;
 
     self.clientTypes = [];
     self.typeSearchText = '';
@@ -61,22 +61,22 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
      * Init Methods
      */
     self.loadAutoComplete = function () {
-        self.loadClientTypes();
+        self.loadFeedTypes();
         self.loadListOwners();
     };
 
-    self.loadClient = function () {
+    self.loadFeed = function () {
         var currentPath = $location.path();
         var matches = currentPath.match( /\/(\d{1,})/ );
         var id = matches[ 1 ]; 
 
-        ClientApiService.getClient( id , self.loadClientSuccessCallback , self.loadClientSuccessCallback );
+        FeedApiService.getFeed( id , self.loadFeedSuccessCallback , self.loadFeedFailureCallback );
     };
 
-    self.loadClients = function () {
+    self.loadFeeds = function () {
         self.currentlyLoading = 1;
 
-        ClientApiService.getClients( self.currentPage , self.paginationCount , self.loadClientsSuccessCallback , self.loadClientsFailureCallback );
+        FeedApiService.getFeeds( self.currentPage , self.paginationCount , self.loadFeedsSuccessCallback , self.loadFeedsFailureCallback );
     };
 
 
@@ -92,7 +92,7 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
         if ( self.urlList.length === 0 ) {
             self.generatingLinks = 1;
 
-            ClientApiService.generateLinks(
+            FeedApiService.generateLinks(
                 self.current.client_id ,
                 self.generateLinksSuccessCallback ,
                 self.generateLinksFailureCallback
@@ -106,7 +106,7 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
      * Watchers
      */
     $rootScope.$on( 'updatePage' , function () {
-        self.loadClients();
+        self.loadFeeds();
     } );
 
 
@@ -114,7 +114,7 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
      * Form Methods
      */
   
-    self.getClientData = function () {
+    self.getFeedData = function () {
         var clientData = {};
 
         angular.forEach( self.current , function ( field , fieldName ) {
@@ -132,12 +132,12 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
     /**
      * Look-forwward Fields
      */
-    self.getClientType = function ( searchText ) {
+    self.getFeedType = function ( searchText ) {
         return searchText ? self.clientTypes.filter( function ( obj ) { return obj.name.toLowerCase().indexOf( searchText.toLowerCase() ) === 0; } ) : self.clientTypes;
     };
 
-    self.loadClientTypes = function () {
-        ClientApiService.getTypes( self.loadClientTypesSuccessCallback , self.loadClientTypesFailureCallback );
+    self.loadFeedTypes = function () {
+        FeedApiService.getTypes( self.loadFeedTypesSuccessCallback , self.loadFeedTypesFailureCallback );
     };
 
     self.getListOwners = function ( searchText ) {
@@ -145,7 +145,7 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
     };
 
     self.loadListOwners = function () {
-        ClientApiService.getListOwners( self.loadListOwnersSuccessCallback , self.loadListOwnersFailureCallback );
+        FeedApiService.getListOwners( self.loadListOwnersSuccessCallback , self.loadListOwnersFailureCallback );
     };
 
     self.loadListOwnersSuccessCallback = function ( response ) {
@@ -154,35 +154,35 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
 
     self.loadListOwnersFailureCallback = function ( response ) {
         self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to load client types.' );
+        self.setModalBody( 'Failed to load feed types.' );
 
         self.launchModal();
     };
 
-    self.updateClient = function () {
+    self.updateFeed = function () {
         self.resetFieldErrors();
-        var clientData = angular.copy( self.current );
-        clientData.list_owner = self.current.list_owner.name;
-        clientData.client_type = self.current.client_type.value;
-        ClientApiService.updateClient( clientData , self.SuccessCallBackRedirectList , self.updateClientFailureCallback );
+        var feedData = angular.copy( self.current );
+        feedData.list_owner = self.current.list_owner.name;
+        feedData.client_type = self.current.client_type.value;
+        FeedApiService.updateFeed( feedData , self.SuccessCallBackRedirectList , self.updateFeedFailureCallback );
     };
 
     self.resetPassword = function() {
-        var clientData  = angular.copy( self.current );
-        ClientApiService.updatePassword( clientData , function(){ $mdToast.showSimple( 'Password Reset has been submitted' );} , self.updateClientFailureCallback );
+        var feedData  = angular.copy( self.current );
+        FeedApiService.updatePassword( feedData , function(){ $mdToast.showSimple( 'Password Reset has been submitted' );} , self.updateFeedFailureCallback );
 
     };
 
-    self.saveClient = function () {
+    self.saveFeed = function () {
         self.resetFieldErrors();
 
-        var clientData = angular.copy( self.current );
+        var feedData = angular.copy( self.current );
 
-        clientData.list_owner = self.current.list_owner.name;
-        clientData.newClient = 1;
-        clientData.client_type = self.current.client_type.value;
+        feedData.list_owner = self.current.list_owner.name;
+        feedData.newClient = 1;
+        feedData.client_type = self.current.client_type.value;
 
-        ClientApiService.saveClient( clientData , self.SuccessCallBackRedirect , self.saveClientFailureCallback );
+        FeedApiService.saveFeed( feedData , self.SuccessCallBackRedirect , self.saveFeedFailureCallback );
     };
 
     self.viewAdd = function () {
@@ -220,7 +220,7 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
     /**
      * Callbacks
      */
-    self.loadClientSuccessCallback = function ( response ) {
+    self.loadFeedSuccessCallback = function ( response ) {
         var currentRecord = response.data[ 0 ];
 
         currentRecord.country_id = parseInt( currentRecord[ 'country_id' ] );
@@ -231,49 +231,49 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
     };
 
     self.SuccessCallBackRedirect = function ( response ) {
-        $location.url( '/client/edit/'+ response.data.clientId );
-        $window.location.href = '/client/edit/' + response.data.clientId;
+        $location.url( '/feed/edit/'+ response.data.clientId );
+        $window.location.href = '/feed/edit/' + response.data.clientId;
     };
     self.SuccessCallBackRedirectList = function ( response ) {
-        $location.url( '/client/');
-        $window.location.href = '/client/';
+        $location.url( '/feed/');
+        $window.location.href = '/feed/';
     };
 
 
-    self.loadClientFailureCallback = function ( response ) {
+    self.loadFeedFailureCallback = function ( response ) {
         self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to load client.' );
+        self.setModalBody( 'Failed to load feed.' );
 
         self.launchModal();
     };
 
-    self.loadClientsSuccessCallback = function ( response ) {
-        self.clients = response.data.data;
+    self.loadFeedsSuccessCallback = function ( response ) {
+        self.feeds = response.data.data;
 
         self.pageCount = response.data.last_page;
 
         self.currentlyLoading = 0;
     };
 
-    self.loadClientsFailureCallback = function ( response ) {
+    self.loadFeedsFailureCallback = function ( response ) {
         self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to load clients.' );
+        self.setModalBody( 'Failed to load feeds.' );
 
         self.launchModal();
     };
 
-    self.updateClientSuccessCallback = function () {
-        self.setModalLabel( 'Update Client' );
-        self.setModalBody( 'Successfully updated client.' );
+    self.updateFeedSuccessCallback = function () {
+        self.setModalLabel( 'Update Feed' );
+        self.setModalBody( 'Successfully updated feed.' );
 
         self.launchModal();
     };
     
-    self.updateClientFailureCallback = function (response) {
+    self.updateFeedFailureCallback = function (response) {
         self.loadFieldErrors(response);
     };
     
-    self.saveClientFailureCallback = function (response) {
+    self.saveFeedFailureCallback = function (response) {
         self.loadFieldErrors(response);
     };
 
@@ -286,13 +286,13 @@ mt2App.controller( 'ClientController' , [ '$rootScope' , '$window' , '$location'
         });
     };
 
-    self.loadClientTypesSuccessCallback = function ( response ) {
+    self.loadFeedTypesSuccessCallback = function ( response ) {
         self.clientTypes = response.data;
     };
 
-    self.loadClientTypesFailureCallback = function ( response ) {
+    self.loadFeedTypesFailureCallback = function ( response ) {
         self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to load client types.' );
+        self.setModalBody( 'Failed to load feed types.' );
 
         self.launchModal();
     };

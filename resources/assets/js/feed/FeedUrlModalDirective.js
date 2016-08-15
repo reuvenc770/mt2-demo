@@ -1,4 +1,4 @@
-mt2App.directive( 'clientUrlModal' , function () {
+mt2App.directive( 'feedUrlModal' , function () {
     return {
         "scope" : {} ,
         "controller" : function () {} ,
@@ -6,6 +6,6 @@ mt2App.directive( 'clientUrlModal' , function () {
         "bindToController" : {
             "records" : "="
         } ,
-        "templateUrl" : "js/templates/client-url-modal.html"
+        "templateUrl" : "js/templates/feed-url-modal.html"
     };
 } );

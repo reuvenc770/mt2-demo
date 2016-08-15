@@ -5,7 +5,7 @@ use Sentinel;
 use App\Http\Requests\Request;
 use Log;
 
-class ClientEditRequest extends Request
+class FeedEditRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.

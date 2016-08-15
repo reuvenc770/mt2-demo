@@ -1,4 +1,4 @@
-mt2App.service( 'ClientApiService' , function ( $http , $log ) {
+mt2App.service( 'FeedApiService' , function ( $http , $log ) {
     var self = this;
 
     self.pagerApiUrl = '/api/pager/Client';
@@ -8,12 +8,12 @@ mt2App.service( 'ClientApiService' , function ( $http , $log ) {
     self.attributionListApiUrl = '/api/client/attribution/list';
     self.resetPasswordUrl = '/api/client/updatepassword';
 
-    self.getClient = function ( id , successCallback , failureCallback ) {
+    self.getFeed = function ( id , successCallback , failureCallback ) {
         $http( { "method" : "GET" , "url" : this.baseApiUrl + '/' + id } )
             .then( successCallback , failureCallback );
     };
 
-    self.getClients = function ( page , count , successCallback , failureCallback ) {
+    self.getFeeds = function ( page , count , successCallback , failureCallback ) {
         $http( {
             "method" : "GET" ,
             "url" : self.pagerApiUrl , 
@@ -21,19 +21,19 @@ mt2App.service( 'ClientApiService' , function ( $http , $log ) {
         } ).then( successCallback , failureCallback );
     };
 
-    self.getAllClients = function ( successCallback , failureCallback ) {
+    self.getAllFeeds = function ( successCallback , failureCallback ) {
         $http( {
             "method" : "GET" ,
             "url" : self.baseApiUrl
         } ).then( successCallback , failureCallback );
     };
 
-    self.saveClient = function ( clientData , successCallback , failureCallback ) {
+    self.saveFeed = function ( clientData , successCallback , failureCallback ) {
         $http( { "method" : "POST" , "url" : this.baseApiUrl , "data" : clientData } )
             .then( successCallback , failureCallback );
     };
 
-    self.updateClient = function ( clientData , successCallback , failureCallback ) {
+    self.updateFeed = function ( clientData , successCallback , failureCallback ) {
         $http( {
             "method" : "PUT" ,
             "url" : this.baseApiUrl + '/' + clientData.client_id ,
@@ -70,7 +70,7 @@ mt2App.service( 'ClientApiService' , function ( $http , $log ) {
         } ).then( successCallback , failureCallback );
     };
 
-    self.getClientAttributionList = function ( currentPage , paginationCount , successCallback , failureCallback ) {
+    self.getFeedAttributionList = function ( currentPage , paginationCount , successCallback , failureCallback ) {
         $http( {
             "method" : "GET" , 
             "url" : self.attributionListApiUrl ,
