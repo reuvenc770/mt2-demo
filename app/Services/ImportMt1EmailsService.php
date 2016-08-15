@@ -6,7 +6,7 @@ use App\Repositories\TempStoredEmailRepo;
 use App\Services\API\Mt1DbApi;
 use App\Repositories\EmailRepo;
 use App\Repositories\EmailClientInstanceRepo;
-use App\Repositories\ClientRepo;
+use App\Repositories\FeedRepo;
 use App\Repositories\EmailDomainRepo;
 
 class ImportMt1EmailsService
@@ -16,7 +16,7 @@ class ImportMt1EmailsService
     private $api;
     private $emailRepo;
     private $emailFeedRepo;
-    private $clientRepo;
+    private $feedRepo;
     private $emailDomainRepo;
 
     public function __construct(
@@ -24,22 +24,22 @@ class ImportMt1EmailsService
         TempStoredEmailRepo $tempEmailRepo, 
         EmailRepo $emailRepo, 
         EmailFeedInstanceRepo $emailFeedRepo,
-        ClientRepo $clientRepo,
+        FeedRepo $feedRepo,
         EmailDomainRepo $emailDomainRepo) {
 
         $this->api = $api;
         $this->tempEmailRepo = $tempEmailRepo;
         $this->emailRepo = $emailRepo;
         $this->emailFeedRepo = $emailFeedRepo;
-        $this->clientRepo = $clientRepo;
+        $this->feedRepo = $feedRepo;
         $this->emailDomainRepo = $emailDomainRepo;
     }
 
     public function run() {
         $recordsToFlag = array();
-        // import new clients
+        // import new feeds
         echo "importing new feeds" . PHP_EOL;
-        $lastLocalFeedId = $this->clientRepo->getMaxFeedId();
+        $lastLocalFeedId = $this->feedRepo->getMaxFeedId();
         $remoteMaxFeed = $this->api->getMaxFeedId();
 
         if ($remoteMaxFeed > $lastLocalFeedId) {
@@ -49,11 +49,11 @@ class ImportMt1EmailsService
 
             foreach ($newFeeds as $row) {
                 $feed = $this->mapToFeedTable($row);
-                $this->clientRepo->insert($feed);
+                $this->feedRepo->insert($feed);
             }
         }
         else {
-            echo "No new clients" . PHP_EOL;
+            echo "No new feeds" . PHP_EOL;
         }
 
         // import emails
@@ -74,15 +74,15 @@ class ImportMt1EmailsService
             // insert into email_feed_instances
             $feedId = $record['feed_id'];
 
-            if ($this->clientRepo->isActive($feedId)) {
+            if ($this->feedRepo->isActive($feedId)) {
                 $emailRow = $this->mapToEmailTable($record);
                 $this->emailRepo->insertCopy($emailRow);
                 if($record['email_id'] != 0 ) {
                     $recordsToFlag[] = ["email_id" => $record['email_id'], "feed_id" => $record['feed_id']];
                 }
                 //We do an upsert so there is no model actions.
-                $emailClientRow = $this->mapToEmailFeedTable($record);
-                $this->emailClientRepo->insert($emailClientRow);
+                $emailFeedRow = $this->mapToEmailFeedTable($record);
+                $this->emailFeedRepo->insert($emailFeedRow);
             }
 
         }
@@ -96,7 +96,7 @@ class ImportMt1EmailsService
     private function mapToTempTable($row) {
         return [
             'email_id' => $row->email_user_id,
-            'feed_id' => $row->client_id,
+            'feed_id' => $row->feed_id,
             'email_addr' => $row->email_addr,
             'status' => $row->status,
             'first_name' => $row->first_name,
@@ -130,7 +130,7 @@ class ImportMt1EmailsService
     private function mapToEmailFeedTable($row) {
         return [
             'email_id' => $row['email_id'],
-            'feed_id' => $row['client_id'],
+            'feed_id' => $row['feed_id'],
             'subscribe_datetime' => 'NOW()', 
             'unsubscribe_datetime' => null, // null for now, at least
             'status' => $this->convertStatus($row['status']),
@@ -173,8 +173,8 @@ class ImportMt1EmailsService
             'zip' => $row->zip,
             'phone' => $row->phone,
             'email_address' => $row->email_addr,
-            'status' => $this->convertClientStatus($row->status),
-            'source_url' => $row->clientRecordSourceURL,
+            'status' => $this->convertFeedStatus($row->status),
+            'source_url' => $row->feedRecordSourceURL,
             'created_at' => $row->create_datetime,
             'updated_at' => $row->overall_updated
         ];

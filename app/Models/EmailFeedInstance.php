@@ -12,7 +12,7 @@ class EmailFeedInstance extends Model {
         return $this->belongsTo('App\Models\Email');
     }
 
-    public function client() {
-        return $this->belongsTo('App\Models\Client');
+    public function feed() {
+        return $this->belongsTo('App\Models\Feed');
     }
 }

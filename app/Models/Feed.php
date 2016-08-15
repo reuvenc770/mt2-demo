@@ -5,9 +5,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Client extends Model {
+class Feed extends Model {
     
-    public function emailClientInstances() {
+    public function emailFeedInstances() {
         return $this->hasMany('App\Models\EmailFeedInstance');
     }
 

@@ -162,7 +162,6 @@ class EmailRecordRepo {
                     updated_at = NOW()" ,
                 [
                     $this->getEmailId() ,
-                    $this->getClientId() ,
                     $deployId,
                     $espId ,
                     $espInternalId ,

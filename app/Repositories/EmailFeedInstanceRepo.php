@@ -86,15 +86,15 @@ class EmailFeedInstanceRepo {
         );        
     }
 
-    public function getEmailInstancesAfterDate($emailId, $date, $clientId) {
+    public function getEmailInstancesAfterDate($emailId, $date, $feedId) {
         $attrDb = config('database.connections.attribution.database');
 
-        $reps = DB::table('email_feed_instances as eci')
-                ->select('eci.feed_id', 'level', 'eci.capture_date')
-                ->join($attrDb . '.attribution_levels as al', 'eci.client_id', '=', 'al.client_id')
-                #->join(CLIENT_FEEDS_TABLE, 'eci.client_feed_id', '=', 'cf.id') -- see above: placeholder for client feeds
-                ->where('eci.capture_date', '>=', $date)
-                ->where('eci.feed_id', '<>', $clientId)
+        $reps = DB::table('email_feed_instances as efi')
+                ->select('efi.feed_id', 'level', 'efi.capture_date')
+                ->join($attrDb . '.attribution_levels as al', 'efi.feed_id', '=', 'al.client_id')
+                #->join(FEEDS_TABLE, 'efi.feed_id', '=', 'cf.id') -- see above: placeholder for feeds
+                ->where('efi.capture_date', '>=', $date)
+                ->where('efi.feed_id', '<>', $feedId)
                 ->where('email_id', $emailId)
                 #->where('cf.level', 3)
                 ->orderBy('capture_date', 'asc')

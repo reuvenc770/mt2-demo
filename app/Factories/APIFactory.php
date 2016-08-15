@@ -145,8 +145,8 @@ class APIFactory
                 $emailFeedModel = new \App\Models\EmailFeedInstance();
                 $emailFeedRepo = new \App\Repositories\EmailFeedInstanceRepo($emailFeedModel);
 
-                $clientModel = new \App\Models\Client();
-                $clientRepo = new \App\Repositories\ClientRepo($clientModel);
+                $feedModel = new \App\Models\Feed();
+                $feedRepo = new \App\Repositories\FeedRepo($feedModel);
 
                 $domainModel = new \App\Models\EmailDomain();
                 $domainRepo = new \App\Repositories\EmailDomainRepo($domainModel);
@@ -156,7 +156,7 @@ class APIFactory
                     $repo, 
                     $emailRepo, 
                     $emailFeedRepo,
-                    $clientRepo,
+                    $feedRepo,
                     $domainRepo);
 
             case 'DownloadContentServerStats':

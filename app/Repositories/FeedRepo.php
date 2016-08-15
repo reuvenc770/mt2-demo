@@ -2,35 +2,35 @@
 
 namespace App\Repositories;
 
-use App\Models\Client;
+use App\Models\Feed;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 
 /**
  *
  */
-class ClientRepo {
+class FeedRepo {
   
-    private $client;
+    private $feed;
 
-    public function __construct(Client $client) {
-        $this->client = $client;
+    public function __construct(Feed $feed) {
+        $this->feed = $feed;
     }
 
     public function isActive($id) {
         return $this
-                ->client
+                ->feed
                 ->select('status')
                 ->where('id', $id)
                 ->get()[0]['status'] === 'Active';
     }
 
-    public function getMaxClientId() {
-        return (int)$this->client->orderBy('id', 'desc')->first()['id'];
+    public function getMaxFeedId() {
+        return (int)$this->feed->orderBy('id', 'desc')->first()['id'];
     }
 
     public function insert($data) {
-        $this->client->insert($data);
+        $this->feed->insert($data);
     }
 
 }

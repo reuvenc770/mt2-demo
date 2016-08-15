@@ -9,7 +9,7 @@ class Email extends Model {
   protected $guarded = ['id'];
   public $timestamps = false;
     
-  public function emailClientInstances() {
+  public function emailFeedInstances() {
     return $this->hasMany('App\Models\EmailFeedInstance');
   }
 
