@@ -234,9 +234,9 @@ elixir.extend( 'deployListProfileJs' , function ( mix ) {
 } );
 
 elixir.extend( 'deployBulkSuppressionJs' , function ( mix ) {
-    mix.scripts( [ 
+    mix.scripts( [
 	'pages/BulkSuppressionController.js',
-	'resources/assets/js/pages/BulkSuppressionApiService.js'	 
+	'resources/assets/js/pages/BulkSuppressionApiService.js'
     ] , 'public/js/bulksuppression.js' );
 });
 
@@ -358,6 +358,9 @@ var mt2TaskMap = {
     },
     'deployReportAttributionJs' : function (mix) {
         mix.deployReportAttributionJs(mix)
+    },
+    'deployDBAJs' : function (mix) {
+        mix.deployDBAJs(mix)
     }
 };
 

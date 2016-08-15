@@ -3,9 +3,6 @@
 @section( 'title' , 'Client Group' )
 
 @section( 'content' )
-<div class="row">
-    <div class="page-header col-xs-12"><h1 class="text-center">List Profile</h1></div>
-</div>
 
 <div ng-controller="ListProfileController as listProfile" ng-init="listProfile.loadListProfiles()">
     @if (Sentinel::hasAccess('listprofile.add'))

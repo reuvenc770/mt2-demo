@@ -3,9 +3,6 @@
 @section( 'title' , 'Add List Profile' )
 
 @section( 'content' )
-<div class="row">
-    <div class="page-header col-xs-12"><h1 class="text-center">Add List Profile</h1></div>
-</div>
 
 <div ng-controller="ListProfileController as listProfile">
     <div class="row">

@@ -3,16 +3,13 @@
 @section( 'title' , 'Bulk Suppression' )
 
 @section( 'content' )
-<div class="row">
-    <div class="page-header col-xs-12"><h1 class="text-center">Bulk Suppression</h1></div>
-</div>
 
 <div ng-controller="BulkSuppressionController as supp">
     <div class="row">
         <div class="hidden-xs hidden-sm col-md-3"></div>
 
         <div class="col-xs-12 col-md-6">
-            <button type="button" class="btn btn-success btn-md pull-right" 
+            <button type="button" class="btn btn-success btn-md pull-right"
                 ng-disabled="!supp.emailsLoaded"
                 ng-click="supp.uploadSuppressions()">
                     <span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : supp.emailsLoaded }"></span>
@@ -39,8 +36,8 @@
                             <option ng-repeat="reason in supp.suppressionReasons" ng-value="reason.value">@{{ reason.name }}</option>
                         </select>
 
-                        <div flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'bulksuppression' , '_token' : '{{ csrf_token() }}' } }" 
-                             flow-files-submitted="$flow.upload()" 
+                        <div flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'bulksuppression' , '_token' : '{{ csrf_token() }}' } }"
+                             flow-files-submitted="$flow.upload()"
                              flow-file-success="supp.startTransfer($file)">
                             <div flow-drop class="dropFile" flow-drag-enter="style={border:'4px solid green'}" flow-drag-leave="style={}" ng-style="style">
                                 <span class="btn btn-default" flow-btn>
@@ -120,7 +117,7 @@
                 </div>
             </div>
 
-            <button type="button" class="btn btn-success btn-md pull-right" 
+            <button type="button" class="btn btn-success btn-md pull-right"
             ng-disabled="!supp.emailsLoaded"
             ng-click="supp.uploadSuppressions()">
                 <span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : supp.emailsLoaded }"></span>

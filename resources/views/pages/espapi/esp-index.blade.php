@@ -6,9 +6,6 @@
 @section( 'navEspClasses' , 'active' )
 
 @section( 'content' )
-<div class="row">
-    <div class="page-header col-xs-12"><h1 class="text-center">ESP Accounts</h1></div>
-</div>
 
 <div ng-controller="espController as esp" ng-init="esp.loadAccounts()">
     @if (Sentinel::hasAccess('espapi.add'))

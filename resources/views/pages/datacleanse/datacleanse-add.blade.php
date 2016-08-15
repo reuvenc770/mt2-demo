@@ -3,9 +3,6 @@
 @section( 'title' , 'Add Data Cleanse' )
 
 @section( 'content' )
-<div class="row">
-    <div class="page-header col-xs-12"><h1 class="text-center">Add Data Cleanse</h1></div>
-</div>
 
 <div ng-controller="DataCleanseController as cleanse">
     <div class="row">

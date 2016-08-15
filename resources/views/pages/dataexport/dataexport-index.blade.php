@@ -3,11 +3,8 @@
 @section('title', 'Data Exports')
 
 @section('content')
-<div class="row">
-  <div class="page-header col-xs-12"><h1 class="text-center">Data Exports</h1></div>
-</div>
 <div ng-controller="DataExportController as dataExport" ng-init="dataExport.loadActiveDataExports()">
-  
+
   <div class="row">
     <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="dataExport.switchDisplayedStatus()">
       <span>@{{dataExport.displayedStatusButtonText}}</span>
@@ -19,7 +16,7 @@
     </button>
     @endif
   </div>
-  
+
 
   <div class="row">
     <div class="col-xs-12">
@@ -33,8 +30,8 @@
           </div>
         </div>
 
-        <dataexport-table records="dataExport.dataExports" 
-        changestatus="dataExport.changeDataExportStatus(id)" loadingflag="dataExport.currentlyLoading" 
+        <dataexport-table records="dataExport.dataExports"
+        changestatus="dataExport.changeDataExportStatus(id)" loadingflag="dataExport.currentlyLoading"
         toggleinclusion="dataExport.toggleInclusion(id)" statuschangebuttontext="dataExport.massActionButtonText"
         deleteexport="dataExport.deleteDataExport(id)" copyexport="dataExport.copyDataExport(id)">
         </dataexport-table>

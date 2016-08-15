@@ -7,9 +7,6 @@
 
 
 @section( 'content' )
-<div class="row">
-    <div class="page-header col-xs-12"><h1 class="text-center">Edit Client</h1></div>
-</div>
 
 <div ng-controller="ClientController as client" ng-init="client.loadClient()">
     <div class="row">

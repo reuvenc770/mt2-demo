@@ -5,10 +5,6 @@
 
 
 @section( 'content' )
-    <div class="row">
-        <div class="page-header col-xs-12"><h1 class="text-center">Domains</h1></div>
-    </div>
-
     <div ng-controller="domainController as domain" ng-init="domain.loadAccounts()">
         @if (Sentinel::hasAccess('domain.add'))
             <div class="row">

@@ -3,9 +3,6 @@
 @section( 'title' , 'Client Group' )
 
 @section( 'content' )
-<div class="row">
-    <div class="page-header col-xs-12"><h1 class="text-center">Client Groups</h1></div>
-</div>
 
 <div ng-controller="ClientGroupController as clientGroup" ng-init="clientGroup.loadClientGroups()">
     @if (Sentinel::hasAccess('clientgroup.add'))

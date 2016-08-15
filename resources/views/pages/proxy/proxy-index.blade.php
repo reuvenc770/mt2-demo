@@ -4,9 +4,6 @@
 
 
 @section( 'content' )
-    <div class="row">
-        <div class="page-header col-xs-12"><h1 class="text-center">Proxies</h1></div>
-    </div>
 
     <div ng-controller="ProxyController as proxy" ng-init="proxy.loadAccounts()">
         @if (Sentinel::hasAccess('proxy.add'))

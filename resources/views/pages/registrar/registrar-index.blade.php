@@ -3,10 +3,7 @@
 @section( 'title' , 'MT2 Registrar List' )
 
 
-@section( 'content' )
-    <div class="row">
-        <div class="page-header col-xs-12"><h1 class="text-center">Registrars</h1></div>
-    </div>
+@section( 'content' )\
 
     <div ng-controller="RegistrarController as registrar" ng-init="registrar.loadAccounts()">
         @if (Sentinel::hasAccess('registrar.add'))

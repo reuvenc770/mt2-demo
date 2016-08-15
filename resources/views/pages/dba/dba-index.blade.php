@@ -4,9 +4,6 @@
 
 
 @section( 'content' )
-    <div class="row">
-        <div class="page-header col-xs-12"><h1 class="text-center">DBA Accounts</h1></div>
-    </div>
 
     <div ng-controller="DBAController as dba" ng-init="dba.loadAccounts()">
         @if (Sentinel::hasAccess('dba.add'))

@@ -3,9 +3,6 @@
 @section( 'title' , 'Add Client Group' )
 
 @section( 'content' )
-<div class="row">
-    <div class="page-header col-xs-12"><h1 class="text-center">Add Client Group</h1></div>
-</div>
 
 <div ng-controller="ClientGroupController as clientGroup" ng-init="clientGroup.loadClientList()">
     <div class="row">

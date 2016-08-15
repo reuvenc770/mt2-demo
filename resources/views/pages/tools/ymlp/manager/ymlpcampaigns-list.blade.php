@@ -5,9 +5,6 @@
 
 
 @section( 'content' )
-    <div class="row">
-        <div class="page-header col-xs-12"><h1 class="text-center">YMLP Campaigns</h1></div>
-    </div>
 
     <div ng-controller="ymlpCampaignController as ymlp" ng-init="ymlp.loadCampaigns()">
         @if (Sentinel::hasAccess('ymlpcampaign.add'))
