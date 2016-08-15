@@ -2,11 +2,11 @@ mt2App.service( 'FeedApiService' , function ( $http , $log ) {
     var self = this;
 
     self.pagerApiUrl = '/api/pager/Client';
-    self.baseApiUrl = '/api/client';
+    self.baseApiUrl = '/api/feed';
     self.baseMt1ApiUrl = '/api/mt1';
     self.attributionApiUrl = '/api/attribution';
-    self.attributionListApiUrl = '/api/client/attribution/list';
-    self.resetPasswordUrl = '/api/client/updatepassword';
+    self.attributionListApiUrl = '/api/feed/attribution/list';
+    self.resetPasswordUrl = '/api/feed/updatepassword';
 
     self.getFeed = function ( id , successCallback , failureCallback ) {
         $http( { "method" : "GET" , "url" : this.baseApiUrl + '/' + id } )

@@ -302,27 +302,27 @@ Route::group(
 
 
 /**
- * Client Routes
+ * Feed Routes
  */
 Route::group(
     [
-        'prefix' => 'client' ,
+        'prefix' => 'feed' ,
         'middleware' => [ 'auth' , 'pageLevel' ]
     ] ,
     function () {
         Route::get( '/' , [
             'as' => 'client.list' ,
-            'uses' => 'ClientController@listAll'
+            'uses' => 'FeedController@listAll'
         ] );
 
         Route::get( '/create' , [
             'as' => 'client.add' ,
-            'uses' => 'ClientController@create'
+            'uses' => 'FeedController@create'
         ] );
 
         Route::get( '/edit/{id}' , [
             'as' => 'client.edit' ,
-            'uses' => 'ClientController@edit'
+            'uses' => 'FeedController@edit'
         ] );
 
         Route::get( '/attribution' , [
@@ -569,7 +569,7 @@ Route::group(
             'uses' => 'AttachmentApiController@flow'
         ] );
 
-        Route::get( '/client/attribution/list' , [
+        Route::get( '/feed/attribution/list' , [
             'as' => 'api.client.attribution.list' ,
             'uses' => 'AttributionController@index'
         ] );
@@ -776,8 +776,8 @@ Route::group(
         );
 
         Route::resource(
-            'client' ,
-            'ClientController' ,
+            'feed' ,
+            'FeedController' ,
             [ 'except' => [ 'create' , 'edit' , 'pager' ] ]
         );
 

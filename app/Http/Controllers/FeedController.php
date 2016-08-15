@@ -10,7 +10,6 @@ use App\Services\MT1ApiService;
 use App\Http\Requests\FeedEditRequest;
 use App\Services\MT1Services\ClientService;
 use App\Services\MT1Services\CountryService;
-use App\Services\ClientPayoutService;
 use Cache;
 
 class FeedController extends Controller
@@ -24,11 +23,10 @@ class FeedController extends Controller
     protected $countryApi;
     protected $payoutService;
 
-    public function __construct ( MT1ApiService $api , ClientService $clientApi , CountryService $countryApi, ClientPayoutService $payoutService ) {
+    public function __construct ( MT1ApiService $api , ClientService $clientApi , CountryService $countryApi ) {
         $this->api = $api;
         $this->clientApi = $clientApi;
         $this->countryApi = $countryApi;
-        $this->payoutService = $payoutService;
     }
 
     /**
@@ -56,7 +54,6 @@ class FeedController extends Controller
     public function create()
     {
         $countryList = $this->countryApi->getAll();
-        $payoutTypes = $this->payoutService->getTypes() ?: [];
         return response()->view( 'pages.feed.feed-add' , [
             'countries' => ( !is_null( $countryList ) ? $countryList : [] ),
             'payoutTypes' => $payoutTypes
@@ -69,7 +66,7 @@ class FeedController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(ClientEditRequest $request)
+    public function store(FeedEditRequest $request)
     {
         Cache::tags( [ $this->clientApi->getType() ] )->flush();
 
@@ -79,11 +76,6 @@ class FeedController extends Controller
         
         // temporarily picking off fields to be saved
         $response = json_decode($response, true);
-        $clientId = $response['client_id'];
-        $payoutType = $request->input('payout_type');
-        $payoutAmount = $request->input('payout_amount');
-        $this->payoutService->setPayout($clientId, $payoutType, $payoutAmount);
-
         return response()->json($response);
     }
 
@@ -99,11 +91,6 @@ class FeedController extends Controller
 
         // mixing in variables from MT2
         $response = json_decode($response, true);
-        $payout = $this->payoutService->getPayout($id);
-        $payout = $payout ? $payout->toArray() : [];
-        $response[0]['payout_type'] = isset($payout['client_payout_type_id']) ? $payout['client_payout_type_id'] : '';
-        $response[0]['payout_amount'] = isset($payout['amount']) ? $payout['amount'] : 0;
-
         return response()->json($response);
     }
 
@@ -116,11 +103,8 @@ class FeedController extends Controller
     public function edit($id)
     {
         $countryList = $this->countryApi->getAll() ?: [];
-        $payoutTypes =  $this->payoutService->getTypes();
-        $payoutTypes = $payoutTypes ? $payoutTypes->toArray() : '';
-        return response()->view( 'pages.client.client-edit' , [ 
-            'countries' =>  $countryList, 
-            'payoutTypes' => $payoutTypes
+        return response()->view( 'pages.feed.feed-edit' , [ 
+            'countries' =>  $countryList
         ] );
     }
 
@@ -131,18 +115,11 @@ class FeedController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(ClientEditRequest $request, $id)
+    public function update(FeedEditRequest $request, $id)
     {
         Cache::tags( [ $this->clientApi->getType() ] )->flush();
 
-        Flash::success("Client was Successfully Updated");
-
-        // temporarily picking off fields to be saved
-        $clientId = $request->input('client_id');
-        $payoutType = $request->input('payout_type');
-        $payoutAmount = $request->input('payout_amount');
-
-        $this->payoutService->setPayout($clientId, $payoutType, $payoutAmount);
+        Flash::success("Feed was Successfully Updated");
 
         return response( $this->api->postForm( self::CLIENT_UPDATE_API_ENDPOINT , $request->all() ) );
     }

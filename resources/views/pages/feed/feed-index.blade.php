@@ -9,8 +9,8 @@
     <div class="page-header col-xs-12"><h1 class="text-center">Feeds</h1></div>
 </div>
 
-<div ng-controller="FeedController as feed" ng-init="feed.loadClients()">
-    @if (Sentinel::hasAccess('feed.add'))
+<div ng-controller="FeedController as feed" ng-init="feed.loadFeeds()">
+    @if (Sentinel::hasAccess('client.add'))
     <div class="row">
         <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="feed.viewAdd()"><span class="glyphicon glyphicon-plus"></span> Add Feed</button>
     </div>
@@ -27,7 +27,7 @@
                 </div>
             </div>
 
-            <client-table records="feed.clients" loadingflag="feed.currentlyLoading"></client-table>
+            <feed-table records="feed.feeds" loadingflag="feed.currentlyLoading"></feed-table>
 
             <div class="row">
                 <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">

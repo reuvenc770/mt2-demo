@@ -168,20 +168,20 @@ elixir.extend( 'deployYmlpCampaignJs' , function ( mix ) {
     ] , 'public/js/ymlpcampaign.js' );
 } );
 
-elixir.extend( 'deployClientJs' , function ( mix ) {
+elixir.extend( 'deployFeedJs' , function ( mix ) {
     mix.scripts( [
-        'client/ClientController.js' ,
-        'client/ClientApiService.js' ,
-        'client/ClientTableDirective.js' ,
-        'client/ClientUrlModalDirective.js'
-    ] , 'public/js/client.js' );
+        'feed/FeedController.js' ,
+        'feed/FeedApiService.js' ,
+        'feed/FeedTableDirective.js' ,
+        'feed/FeedUrlModalDirective.js'
+    ] , 'public/js/feed.js' );
 } );
 
 elixir.extend( 'deployClientGroupJs' , function ( mix ) {
     mix.scripts( [
         'clientgroup/ClientGroupController.js' ,
         'clientgroup/ClientGroupApiService.js' ,
-        'client/ClientApiService.js' ,
+        'feed/FeedApiService.js' ,
         'clientgroup/ClientGroupTableDirective.js' ,
         'clientgroup/ClientGroupChildrenTableDirective.js'
     ] , 'public/js/clientgroup.js' );
@@ -190,7 +190,7 @@ elixir.extend( 'deployClientGroupJs' , function ( mix ) {
 elixir.extend( 'deployClientAttributionJs' , function ( mix ) {
     mix.scripts( [
         'pages/ClientAttributionController.js' ,
-        'client/ClientApiService.js'
+        'feed/FeedApiService.js'
     ] , 'public/js/clientAttribution.js' );
 } );
 
@@ -198,7 +198,7 @@ elixir.extend( 'deployRecordAttributionJs' , function ( mix ) {
     mix.scripts( [
         'attribution/AttributionController.js' ,
         'attribution/AttributionApiService.js' ,
-        'client/ClientApiService.js' ,
+        'feed/FeedApiService.js' ,
         'attribution/AttributionModelTableDirective.js' ,
     ] , 'public/js/recordAttribution.js' );
 } );
@@ -207,7 +207,7 @@ elixir.extend( 'deployReportAttributionJs' , function ( mix ) {
     mix.scripts( [
         'attribution/AttributionReportController.js' ,
         'attribution/AttributionApiService.js' ,
-        'client/ClientApiService.js' ,
+        'feed/FeedApiService.js' ,
     ] , 'public/js/reportAttribution.js' );
 } );
 
@@ -228,7 +228,7 @@ elixir.extend( 'deployListProfileJs' , function ( mix ) {
         'listprofile/ListProfileApiService.js' ,
         'listprofile/ListProfileTableDirective.js' ,
         'clientgroup/ClientGroupApiService.js' ,
-        'client/ClientApiService.js' ,
+        'feed/FeedApiService.js' ,
         'mt2app/IspApiService.js'
     ] , 'public/js/listprofile.js' );
 } );
@@ -258,7 +258,7 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployWizardJs( mix );
     mix.deployDomainJs( mix);
     mix.deployYmlpCampaignJs( mix );
-    mix.deployClientJs( mix );
+    mix.deployFeedJs( mix );
     mix.deployDBAJs( mix );
     mix.deployClientGroupJs( mix );
     mix.deployListProfileJs( mix );
@@ -332,8 +332,8 @@ var mt2TaskMap = {
     'deployYmlpCampaignJs' : function ( mix ) {
         mix.deployYmlpCampaignJs( mix );
     } ,
-    'deployClientJs' : function ( mix ) {
-        mix.deployClientJs( mix );
+    'deployFeedJs' : function ( mix ) {
+        mix.deployFeedJs( mix );
     } ,
     'deployClientGroupJs' : function ( mix ) {
         mix.deployClientGroupJs( mix );
