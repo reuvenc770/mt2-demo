@@ -1,11 +1,11 @@
 mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$timeout' , 'DBAApiService' , function ( $log , $window , $location , $timeout , DBAApiService ) {
     var self = this;
     self.$location = $location;
-    
+
     self.accounts = [];
     self.po_box = {address : "", address_2 : "", city : "", state : "", zip: ""};
     self.currentAccount = { id:"",  dba_name : "" , phone: "",
-        email : "", po_boxes : [], address: "", address_2 : "", city : "", state : "", zip : ""};
+        dba_email : "", po_boxes : [], address: "", address_2 : "", city : "", state : "", zip : ""};
 
     self.createUrl = 'dba/create/';
     self.editUrl = 'dba/edit/';

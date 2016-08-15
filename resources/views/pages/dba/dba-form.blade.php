@@ -4,9 +4,9 @@
             <input placeholder="Name" value="" class="form-control" ng-model="dba.currentAccount.dba_name" required="required" name="name" type="text">
             <span class="help-block" ng-bind="dba.formErrors.dba_name" ng-show="dba.formErrors.dba_name"></span>
         </div>
-        <div class="form-group" ng-class="{ 'has-error' : dba.formErrors.email }">
-            <input placeholder="Email" value="" class="form-control" ng-model="dba.currentAccount.email" required="required" name="email" type="email">
-            <span class="help-block" ng-bind="dba.formErrors.email" ng-show="dba.formErrors.email"></span>
+        <div class="form-group" ng-class="{ 'has-error' : dba.formErrors.dba_email }">
+            <input placeholder="Email" value="" class="form-control" ng-model="dba.currentAccount.dba_email" required="required" name="dba_email" type="email">
+            <span class="help-block" ng-bind="dba.formErrors.dba_email" ng-show="dba.formErrors.dba_email"></span>
         </div>
         <div class="form-group" ng-class="{ 'has-error' : dba.formErrors.phone }">
             <input placeholder="Phone" value="" class="form-control" ng-model="dba.currentAccount.phone" required="required" name="phone" type="text">
