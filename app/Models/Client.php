@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Client extends Model {
     
     public function emailClientInstances() {
-        return $this->hasMany('App\Models\EmailClientInstance');
+        return $this->hasMany('App\Models\EmailFeedInstance');
     }
 
 }

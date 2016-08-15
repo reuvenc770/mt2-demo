@@ -15,7 +15,7 @@ class ImportMt1EmailsService
     private $tempEmailRepo;
     private $api;
     private $emailRepo;
-    private $emailClientRepo;
+    private $emailFeedRepo;
     private $clientRepo;
     private $emailDomainRepo;
 
@@ -23,14 +23,14 @@ class ImportMt1EmailsService
         Mt1DbApi $api, 
         TempStoredEmailRepo $tempEmailRepo, 
         EmailRepo $emailRepo, 
-        EmailClientInstanceRepo $emailClientRepo,
+        EmailFeedInstanceRepo $emailFeedRepo,
         ClientRepo $clientRepo,
         EmailDomainRepo $emailDomainRepo) {
 
         $this->api = $api;
         $this->tempEmailRepo = $tempEmailRepo;
         $this->emailRepo = $emailRepo;
-        $this->emailClientRepo = $emailClientRepo;
+        $this->emailFeedRepo = $emailFeedRepo;
         $this->clientRepo = $clientRepo;
         $this->emailDomainRepo = $emailDomainRepo;
     }
@@ -38,18 +38,18 @@ class ImportMt1EmailsService
     public function run() {
         $recordsToFlag = array();
         // import new clients
-        echo "importing new clients" . PHP_EOL;
-        $lastLocalClientId = $this->clientRepo->getMaxClientId();
-        $remoteMaxClient = $this->api->getMaxClientId();
+        echo "importing new feeds" . PHP_EOL;
+        $lastLocalFeedId = $this->clientRepo->getMaxFeedId();
+        $remoteMaxFeed = $this->api->getMaxFeedId();
 
-        if ($remoteMaxClient > $lastLocalClientId) {
-            echo "local max client id: $lastLocalClientId" . PHP_EOL;
-            echo "remote max client id: $remoteMaxClient" . PHP_EOL;
-            $newClients = $this->api->getNewClients($lastLocalClientId);
+        if ($remoteMaxFeed > $lastLocalFeedId) {
+            echo "local max feed id: $lastLocalFeedId" . PHP_EOL;
+            echo "remote max feed id: $remoteMaxFeed" . PHP_EOL;
+            $newFeeds = $this->api->getNewFeeds($lastLocalFeedId);
 
-            foreach ($newClients as $row) {
-                $client = $this->mapToClientTable($row);
-                $this->clientRepo->insert($client);
+            foreach ($newFeeds as $row) {
+                $feed = $this->mapToFeedTable($row);
+                $this->clientRepo->insert($feed);
             }
         }
         else {
@@ -71,17 +71,17 @@ class ImportMt1EmailsService
             $this->tempEmailRepo->insert($record);
 
             // insert into emails
-            // insert into email_client_instances
-            $clientId = $record['client_id'];
+            // insert into email_feed_instances
+            $feedId = $record['feed_id'];
 
-            if ($this->clientRepo->isActive($clientId)) {
+            if ($this->clientRepo->isActive($feedId)) {
                 $emailRow = $this->mapToEmailTable($record);
                 $this->emailRepo->insertCopy($emailRow);
                 if($record['email_id'] != 0 ) {
-                    $recordsToFlag[] = ["email_id" => $record['email_id'], "client_id" => $record['client_id']];
+                    $recordsToFlag[] = ["email_id" => $record['email_id'], "feed_id" => $record['feed_id']];
                 }
                 //We do an upsert so there is no model actions.
-                $emailClientRow = $this->mapToEmailClientTable($record);
+                $emailClientRow = $this->mapToEmailFeedTable($record);
                 $this->emailClientRepo->insert($emailClientRow);
             }
 
@@ -96,7 +96,7 @@ class ImportMt1EmailsService
     private function mapToTempTable($row) {
         return [
             'email_id' => $row->email_user_id,
-            'client_id' => $row->client_id,
+            'feed_id' => $row->client_id,
             'email_addr' => $row->email_addr,
             'status' => $row->status,
             'first_name' => $row->first_name,
@@ -127,10 +127,10 @@ class ImportMt1EmailsService
         ];
     }
 
-    private function mapToEmailClientTable($row) {
+    private function mapToEmailFeedTable($row) {
         return [
             'email_id' => $row['email_id'],
-            'client_id' => $row['client_id'],
+            'feed_id' => $row['client_id'],
             'subscribe_datetime' => 'NOW()', 
             'unsubscribe_datetime' => null, // null for now, at least
             'status' => $this->convertStatus($row['status']),
@@ -158,11 +158,11 @@ class ImportMt1EmailsService
         return $status === 'Active' ? 'A' : 'U';
     }
 
-    private function convertClientStatus($status) {
+    private function convertFeedStatus($status) {
         return $status === 'A' ? 'Active' : 'Deleted';
     }
 
-    private function mapToClientTable($row) {
+    private function mapToFeedTable($row) {
         return [
             'id' => $row->user_id,
             'name' => $row->username,

@@ -10,7 +10,7 @@ class Email extends Model {
   public $timestamps = false;
     
   public function emailClientInstances() {
-    return $this->hasMany('App\Models\EmailClientInstance');
+    return $this->hasMany('App\Models\EmailFeedInstance');
   }
 
   public function emailDomain() {

@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class EmailClientInstance extends Model {
+class EmailFeedInstance extends Model {
 
     protected $guarded = ['id'];
     

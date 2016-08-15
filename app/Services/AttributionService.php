@@ -7,7 +7,7 @@ use Carbon\Carbon;
 use App\Repositories\EmailClientAssignmentRepo;
 use App\Repositories\AttributionRecordTruthRepo;
 use App\Repositories\AttributionScheduleRepo;
-use App\Repositories\EmailClientInstanceRepo;
+use App\Repositories\EmailFeedInstanceRepo;
 use App\Repositories\AttributionLevelRepo;
 use App\Repositories\EtlPickupRepo;
 
@@ -17,7 +17,7 @@ class AttributionService
     private $truthRepo;
     private $scheduleRepo;
     private $assignmentRepo;
-    private $clientInstanceRepo;
+    private $feedInstanceRepo;
     private $pickupRepo;
     private $expiringDay;
     private $name = 'AttributionJob';
@@ -25,14 +25,14 @@ class AttributionService
     public function __construct(AttributionRecordTruthRepo $truthRepo, 
                                 AttributionScheduleRepo $scheduleRepo, 
                                 EmailClientAssignmentRepo $assignmentRepo,
-                                EmailClientInstanceRepo $clientInstanceRepo,
+                                EmailFeedInstanceRepo $feedInstanceRepo,
                                 AttributionLevelRepo $levelRepo,
                                 EtlPickupRepo $pickupRepo) {
 
         $this->truthRepo = $truthRepo;
         $this->scheduleRepo = $scheduleRepo;
         $this->assignmentRepo = $assignmentRepo;
-        $this->clientInstanceRepo = $clientInstanceRepo;
+        $this->feedInstanceRepo = $feedInstanceRepo;
         $this->levelRepo = $levelRepo;
         $this->pickupRepo = $pickupRepo;
 
@@ -110,7 +110,7 @@ class AttributionService
     }
 
     protected function getPotentialReplacements($emailId, $beginDate, $clientId) {
-        return $this->clientInstanceRepo->getEmailInstancesAfterDate($emailId, $beginDate, $clientId);
+        return $this->feedInstanceRepo->getEmailInstancesAfterDate($emailId, $beginDate, $clientId);
     }
 
     protected function shouldChangeAttribution($captureDate, $hasAction, $actionExpired, $currentAttrLevel, $testAttrLevel) {

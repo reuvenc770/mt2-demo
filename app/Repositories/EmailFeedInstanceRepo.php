@@ -2,19 +2,19 @@
 
 namespace App\Repositories;
 
-use App\Models\EmailClientInstance;
+use App\Models\EmailFeedInstance;
 use DB;
 use Illuminate\Database\Query\Builder;
 
 /**
  *
  */
-class EmailClientInstanceRepo {
+class EmailFeedInstanceRepo {
 
-    private $emailClientModel;
+    private $emailFeedModel;
 
-    public function __construct(EmailClientInstance $emailClientModel) {
-        $this->emailClientModel = $emailClientModel;
+    public function __construct(EmailFeedInstance $emailFeedModel) {
+        $this->emailFeedModel = $emailFeedModel;
     }
 
     public function getEmailId($emailAddress) {
@@ -24,22 +24,22 @@ class EmailClientInstanceRepo {
 
     public function insert($row) {        
         DB::statement(
-            "INSERT INTO email_client_instances
-            (email_id, client_id, subscribe_datetime, unsubscribe_datetime,
+            "INSERT INTO email_feed_instances
+            (email_id, feed_id, subscribe_datetime, unsubscribe_datetime,
             status, first_name, last_name, address, address2, city, state, 
             zip, country, dob, gender, phone, mobile_phone, work_phone, 
             capture_date, source_url, ip )
 
             VALUES
 
-            (:email_id, :client_id, :subscribe_datetime, :unsubscribe_datetime,
+            (:email_id, :feed_id, :subscribe_datetime, :unsubscribe_datetime,
             :status, :first_name, :last_name, :address, :address2, :city, :state, 
             :zip, :country, :dob, :gender, :phone, :mobile_phone, :work_phone, 
             :capture_date, :source_url, :ip )
 
             ON DUPLICATE KEY UPDATE
             email_id= email_id,
-            client_id= client_id,
+            feed_id= feed_id,
             subscribe_datetime= subscribe_datetime,
             unsubscribe_datetime= unsubscribe_datetime,
             status= status,
@@ -62,7 +62,7 @@ class EmailClientInstanceRepo {
 
             array(
                 ':email_id' => $row['email_id'],
-                ':client_id' => $row['client_id'],
+                ':feed_id' => $row['feed_id'],
                 ':subscribe_datetime' => $row['subscribe_datetime'],
                 ':unsubscribe_datetime' => $row['unsubscribe_datetime'],
                 ':status' => $row['status'],
@@ -89,12 +89,12 @@ class EmailClientInstanceRepo {
     public function getEmailInstancesAfterDate($emailId, $date, $clientId) {
         $attrDb = config('database.connections.attribution.database');
 
-        $reps = DB::table('email_client_instances as eci')
-                ->select('eci.client_id', 'level', 'eci.capture_date')
+        $reps = DB::table('email_feed_instances as eci')
+                ->select('eci.feed_id', 'level', 'eci.capture_date')
                 ->join($attrDb . '.attribution_levels as al', 'eci.client_id', '=', 'al.client_id')
                 #->join(CLIENT_FEEDS_TABLE, 'eci.client_feed_id', '=', 'cf.id') -- see above: placeholder for client feeds
                 ->where('eci.capture_date', '>=', $date)
-                ->where('eci.client_id', '<>', $clientId)
+                ->where('eci.feed_id', '<>', $clientId)
                 ->where('email_id', $emailId)
                 #->where('cf.level', 3)
                 ->orderBy('capture_date', 'asc')
