@@ -1,73 +1,73 @@
-<form id="clientForm" ng-init="client.loadAutoComplete()">
+<form id="clientForm" ng-init="feed.loadAutoComplete()">
     <div class="panel panel-primary">
         <div class="panel-heading">
-            <h3 class="panel-title">Client Settings</h3>
+            <h3 class="panel-title">Feed Settings</h3>
         </div>
 
         <div class="panel-body">
-            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.status }">
+            <div class="form-group" ng-class="{ 'has-error' : feed.formErrors.status }">
                 <label>Status</label>
                 <div class="btn-group btn-group-justified" role="group" aria-label="...">
-                    <input type="hidden" ng-model="client.current.status" />
+                    <input type="hidden" ng-model="feed.current.status" />
 
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-default" ng-click="client.current.status = 'A'" ng-class="{ active : client.current.status == 'A' }">Active</button>
+                        <button type="button" class="btn btn-default" ng-click="feed.current.status = 'A'" ng-class="{ active : feed.current.status == 'A' }">Active</button>
                     </div>
 
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-default" ng-click="client.current.status = 'D'" ng-class="{ active : client.current.status != 'A' }">Inactive</button>
+                        <button type="button" class="btn btn-default" ng-click="feed.current.status = 'D'" ng-class="{ active : feed.current.status != 'A' }">Inactive</button>
                     </div>
                 </div>
-                <span class="help-block" ng-bind="client.formErrors.country_id" ng-show="client.formErrors.status"></span>
+                <span class="help-block" ng-bind="feed.formErrors.country_id" ng-show="feed.formErrors.status"></span>
             </div>
 
-            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.check_global_suppression}">
+            <div class="form-group" ng-class="{ 'has-error' : feed.formErrors.check_global_suppression}">
                 <label>Global Suppression</label>
                 <div class="btn-group btn-group-justified" role="group" aria-label="...">
-                    <input type="hidden" ng-model="client.current.check_global_suppression" />
+                    <input type="hidden" ng-model="feed.current.check_global_suppression" />
 
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-default" ng-click="client.current.check_global_suppression = 'Y'" ng-class="{ active : client.current.check_global_suppression == 'Y' }">On</button>
+                        <button type="button" class="btn btn-default" ng-click="feed.current.check_global_suppression = 'Y'" ng-class="{ active : feed.current.check_global_suppression == 'Y' }">On</button>
                     </div>
 
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-default" ng-click="client.current.check_global_suppression = 'N'" ng-class="{ active : client.current.check_global_suppression != 'Y' }">Off</button>
+                        <button type="button" class="btn btn-default" ng-click="feed.current.check_global_suppression = 'N'" ng-class="{ active : feed.current.check_global_suppression != 'Y' }">Off</button>
                     </div>
                 </div>
-                <span class="help-block" ng-bind="client.formErrors.country_id" ng-show="client.formErrors.check_global_suppression"></span>
+                <span class="help-block" ng-bind="feed.formErrors.country_id" ng-show="feed.formErrors.check_global_suppression"></span>
             </div>
 
-            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.client_has_client_group_restrictions }">
+            <div class="form-group" ng-class="{ 'has-error' : feed.formErrors.client_has_client_group_restrictions }">
                 <label>Group Restriction</label>
                 <div class="btn-group btn-group-justified" role="group" aria-label="...">
-                    <input type="hidden" ng-model="client.current.has_client_group_restriction" />
-                    <input type="hidden" ng-model="client.current.client_has_client_group_restrictions" />
+                    <input type="hidden" ng-model="feed.current.has_client_group_restriction" />
+                    <input type="hidden" ng-model="feed.current.client_has_client_group_restrictions" />
 
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-default" ng-click="client.current.has_client_group_restriction = 1; client.current.client_has_client_group_restrictions = 1;" ng-class="{ active : client.current.has_client_group_restriction == 1 }">Yes</button>
+                        <button type="button" class="btn btn-default" ng-click="feed.current.has_client_group_restriction = 1; feed.current.client_has_client_group_restrictions = 1;" ng-class="{ active : feed.current.has_client_group_restriction == 1 }">Yes</button>
                     </div>
 
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-default" ng-click="client.current.has_client_group_restriction = 0; client.current.client_has_client_group_restrictions = 0;" ng-class="{ active : client.current.has_client_group_restriction != 1 }">No</button>
+                        <button type="button" class="btn btn-default" ng-click="feed.current.has_client_group_restriction = 0; feed.current.client_has_client_group_restrictions = 0;" ng-class="{ active : feed.current.has_client_group_restriction != 1 }">No</button>
                     </div>
                 </div>
-                <span class="help-block" ng-bind="client.formErrors.country_id" ng-show="client.formErrors.client_has_client_group_restrictions"></span>
+                <span class="help-block" ng-bind="feed.formErrors.country_id" ng-show="feed.formErrors.client_has_client_group_restrictions"></span>
             </div>
 
-            <div class="form-group" ng-class="{ 'has-error' : client.formErrors.check_previous_oc }">
+            <div class="form-group" ng-class="{ 'has-error' : feed.formErrors.check_previous_oc }">
                 <label>Filter By Historical OC</label>
                 <div class="btn-group btn-group-justified" role="group" aria-label="...">
-                    <input type="hidden" ng-model="client.current.check_previous_oc" />
+                    <input type="hidden" ng-model="feed.current.check_previous_oc" />
 
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-default" ng-click="client.current.check_previous_oc = 1" ng-class="{ active : client.current.check_previous_oc == 1 }">Yes</button>
+                        <button type="button" class="btn btn-default" ng-click="feed.current.check_previous_oc = 1" ng-class="{ active : feed.current.check_previous_oc == 1 }">Yes</button>
                     </div>
 
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-default" ng-click="client.current.check_previous_oc = 0" ng-class="{ active : client.current.check_previous_oc != 1 }">No</button>
+                        <button type="button" class="btn btn-default" ng-click="feed.current.check_previous_oc = 0" ng-class="{ active : feed.current.check_previous_oc != 1 }">No</button>
                     </div>
                 </div>
-                <span class="help-block" ng-bind="client.formErrors.country_id" ng-show="client.formErrors.check_previous_oc"></span>
+                <span class="help-block" ng-bind="feed.formErrors.country_id" ng-show="feed.formErrors.check_previous_oc"></span>
             </div>
         </div>
     </div>
