@@ -8,17 +8,17 @@ namespace App\Services\Attribution;
 use App\Services\Attribution\AbstractReportAggregatorService;
 use App\Services\Attribution\RecordReportService;
 use App\Repositories\Attribution\ClientReportRepo;
-use App\Services\EmailClientAssignmentService;
+use App\Services\EmailFeedAssignmentService;
 use App\Exceptions\AggregatorServiceException;
 
 class ClientAggregatorService extends AbstractReportAggregatorService {
     protected $recordReport;
-    protected $emailClientService;
+    protected $emailFeedService;
     protected $clientRepo;
 
-    public function __construct ( RecordReportService $recordReport , EmailClientAssignmentService $emailClientService , ClientReportRepo $clientRepo ) {
+    public function __construct ( RecordReportService $recordReport , EmailFeedAssignmentService $emailFeedService , ClientReportRepo $clientRepo ) {
         $this->recordReport = $recordReport;
-        $this->emailClientService = $emailClientService;
+        $this->emailFeedService = $emailFeedService;
         $this->clientRepo = $clientRepo;
     }
 
@@ -27,8 +27,8 @@ class ClientAggregatorService extends AbstractReportAggregatorService {
             throw new AggregatorServiceException( 'RecordReportService needed. Please inject a service.' );
         }
 
-        if ( !isset( $this->emailClientService ) ) {
-            throw new AggregatorServiceException( 'EmailClientAssignmentService needed. Please inject a service.' );
+        if ( !isset( $this->emailFeedService ) ) {
+            throw new AggregatorServiceException( 'EmailFeedAssignmentService needed. Please inject a service.' );
         }
 
         if ( !isset( $this->clientRepo ) ) {
@@ -50,7 +50,7 @@ class ClientAggregatorService extends AbstractReportAggregatorService {
 
     protected function processBaseRecord ( $baseRecord ) {
         $date = $baseRecord->date;
-        $clientId = $this->emailClientService->getAssignedClient( $baseRecord->email_id );
+        $clientId = $this->emailFeedService->getAssignedClient( $baseRecord->email_id );
         
         $this->createRowIfMissing( $date , $clientId );
 

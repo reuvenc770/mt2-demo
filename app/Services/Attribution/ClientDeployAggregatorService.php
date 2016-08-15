@@ -7,18 +7,18 @@ namespace App\Services\Attribution;
 
 use App\Services\Attribution\AbstractReportAggregatorService;
 use App\Services\Attribution\RecordReportService;
-use App\Services\EmailClientAssignmentService;
+use App\Services\EmailFeedAssignmentService;
 use App\Repositories\Attribution\ClientDeployReportRepo;
 use App\Exceptions\AggregatorServiceException;
 
 class ClientDeployAggregatorService extends AbstractReportAggregatorService {
     protected $recordReport;
-    protected $emailClientService;
+    protected $emailFeedService;
     protected $clientDeployRepo;
 
-    public function __construct ( RecordReportService $recordReport , EmailClientAssignmentService $emailClientService , ClientDeployReportRepo $clientDeployRepo ) {
+    public function __construct ( RecordReportService $recordReport , EmailFeedAssignmentService $emailFeedService , ClientDeployReportRepo $clientDeployRepo ) {
         $this->recordReport = $recordReport;
-        $this->emailClientService = $emailClientService;
+        $this->emailFeedService = $emailFeedService;
         $this->clientDeployRepo = $clientDeployRepo;
     }
 
@@ -27,8 +27,8 @@ class ClientDeployAggregatorService extends AbstractReportAggregatorService {
             throw new AggregatorServiceException( 'RecordReportService needed. Please inject a service.' );
         }
 
-        if ( !isset( $this->emailClientService ) ) {
-            throw new AggregatorServiceException( 'EmailClientAssignmentService needed. Please inject a service.' );
+        if ( !isset( $this->emailFeedService ) ) {
+            throw new AggregatorServiceException( 'EmailFeedAssignmentService needed. Please inject a service.' );
         }
 
         if ( !isset( $this->clientDeployRepo ) ) {
@@ -50,7 +50,7 @@ class ClientDeployAggregatorService extends AbstractReportAggregatorService {
 
     protected function processBaseRecord ( $baseRecord ) {
         $date = $baseRecord->date;
-        $clientId = $this->emailClientService->getAssignedClient( $baseRecord->email_id );
+        $clientId = $this->emailFeedService->getAssignedClient( $baseRecord->email_id );
         $deployId = $baseRecord->deploy_id;
         
         $this->createRowIfMissing( $date , $clientId , $deployId );
