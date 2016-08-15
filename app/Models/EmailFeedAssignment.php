@@ -7,10 +7,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class EmailClientAssignment extends Model
+class EmailFeedAssignment extends Model
 {
     protected $connection = 'attribution';
-    protected $fillable = ['email_id', 'client_id', 'capture_date'];
+    protected $fillable = ['email_id', 'feed_id', 'capture_date'];
     protected $primaryKey = "email_id";
 
 
@@ -18,11 +18,11 @@ class EmailClientAssignment extends Model
         return $this->hasOne( 'App\Models\Email' );
     }
 
-    public function client () {
-        return $this->hasOne( 'App\Models\Client' );
+    public function feed () {
+        return $this->hasOne( 'App\Models\Feed' );
     }
 
     public function history () {
-        return $this->hasMany( 'App\Models\EmailClientAssignmentHistory' );
+        return $this->hasMany( 'App\Models\EmailFeedAssignmentHistory' );
     }
 }

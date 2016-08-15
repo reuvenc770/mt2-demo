@@ -14,10 +14,10 @@ use \Log;
 class ClientDeployAggregatorServiceIntegrationTest extends TestCase {
     use DatabaseMigrations;
 
-    const CLIENT_CLASS = \App\Models\Client::class;
+    const CLIENT_CLASS = \App\Models\Feed::class;
     const EMAIL_CLASS = \App\Models\Email::class;
     const ATTR_RECORD_REPORT_CLASS = \App\Models\AttributionRecordReport::class;
-    const EMAIL_CLIENT_ASSIGN_CLASS = \App\Models\EmailClientAssignment::class;
+    const EMAIL_CLIENT_ASSIGN_CLASS = \App\Models\EmailFeedAssignment::class;
 
     const TEST_OFFER_ID = 0;
 
@@ -132,7 +132,7 @@ class ClientDeployAggregatorServiceIntegrationTest extends TestCase {
         for ( $index = 1 , $clientIndex = 0 ; $index <= count( $emails ) ; $index++ ) {
             $clientAssigns[ $index ] =factory( self::EMAIL_CLIENT_ASSIGN_CLASS )->create( [
                 "email_id" => $emails[ $index ]->id ,
-                "client_id" => $this->testClients[ $clientIndex ]->id ,
+                "feed_id" => $this->testClients[ $clientIndex ]->id ,
                 "capture_date" => Carbon::today()->toDateString()
             ] );
 

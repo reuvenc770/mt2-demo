@@ -48,9 +48,9 @@ class ServiceFactory
         $scheduleModel = "App\\Models\\AttributionExpirationSchedule";
         $scheduleRepo = "App\\Repositories\\AttributionScheduleRepo";
 
-        $assignmentModel = "App\\Models\\EmailClientAssignment";
-        $historyModel = "App\\Models\\EmailClientAssignmentHistory";
-        $assignmentRepo = "App\\Repositories\\EmailClientAssignmentRepo";
+        $assignmentModel = "App\\Models\\EmailFeedAssignment";
+        $historyModel = "App\\Models\\EmailFeedAssignmentHistory";
+        $assignmentRepo = "App\\Repositories\\EmailFeedAssignmentRepo";
 
         $emailFeedInstanceModel = "App\\Models\\EmailFeedInstance";
         $emailFeedInstanceRepo = "App\\Repositories\\EmailFeedInstanceRepo";

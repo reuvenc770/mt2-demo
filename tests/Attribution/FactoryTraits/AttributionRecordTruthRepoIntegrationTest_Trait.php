@@ -9,13 +9,13 @@ use Log;
 
 trait AttributionRecordTruthRepoIntegrationTest_Trait {
     public function setUpTestData_goodAssignedRecordRetrieval () {
-        $client = factory( \App\Models\Client::class )->create();
+        $feed = factory( \App\Models\Feed::class )->create();
 
 
         $email1 = factory( \App\Models\Email::class )->create();
 
-        $email1Assign = factory( \App\Models\EmailClientAssignment::class )->create( [
-            'client_id' => $client->id ,
+        $email1Assign = factory( \App\Models\EmailFeedAssignment::class )->create( [
+            'feed_id' => $feed->id ,
             'email_id' => $email1->id
         ] );
 
@@ -30,8 +30,8 @@ trait AttributionRecordTruthRepoIntegrationTest_Trait {
 
         $email2 = factory( \App\Models\Email::class )->create();
 
-        $email2Assign = factory( \App\Models\EmailClientAssignment::class )->create( [
-            'client_id' => $client->id ,
+        $email2Assign = factory( \App\Models\EmailFeedAssignment::class )->create( [
+            'feed_id' => $feed->id ,
             'email_id' => $email2->id
         ] );
 
@@ -46,8 +46,8 @@ trait AttributionRecordTruthRepoIntegrationTest_Trait {
 
         $email3 = factory( \App\Models\Email::class )->create();
 
-        $email3Assign = factory( \App\Models\EmailClientAssignment::class )->create( [
-            'client_id' => $client->id ,
+        $email3Assign = factory( \App\Models\EmailFeedAssignment::class )->create( [
+            'feed_id' => $feed->id ,
             'email_id' => $email3->id
         ] );
 

@@ -16,7 +16,7 @@ class EmailClientAssignmentIntegrationTest extends TestCase {
     public function setUp () {
         parent::setUp();
 
-        $this->sut = \App::make( \App\Services\EmailClientAssignmentService::class );
+        $this->sut = \App::make( \App\Services\EmailFeedAssignmentService::class );
     }
 
     public function tearDown () {

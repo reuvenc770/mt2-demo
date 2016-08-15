@@ -6,7 +6,7 @@
 namespace Tests;
 
 use Tests\TestCase;
-use \App\Services\EmailClientAssignmentService;
+use \App\Services\EmailFeedAssignmentService;
 
 class EmailClientAssignmentServiceTestCase extends TestCase {
     public $mockRepo;
@@ -15,9 +15,9 @@ class EmailClientAssignmentServiceTestCase extends TestCase {
     public function setUp () {
         parent::setUp();
 
-        $this->mockRepo = $this->getMockBuilder( \App\Repositories\EmailClientAssignmentRepo::class )
+        $this->mockRepo = $this->getMockBuilder( \App\Repositories\EmailFeedAssignmentRepo::class )
 
-        $this->sut = new EmailClientAssignmentService( $this->mockRepo );
+        $this->sut = new EmailFeedAssignmentService( $this->mockRepo );
     }
 
     public function tearDown () {

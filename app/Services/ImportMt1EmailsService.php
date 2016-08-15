@@ -5,7 +5,7 @@ use App\Events\NewRecords;
 use App\Repositories\TempStoredEmailRepo;
 use App\Services\API\Mt1DbApi;
 use App\Repositories\EmailRepo;
-use App\Repositories\EmailClientInstanceRepo;
+use App\Repositories\EmailFeedInstanceRepo;
 use App\Repositories\FeedRepo;
 use App\Repositories\EmailDomainRepo;
 
