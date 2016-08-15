@@ -30,6 +30,18 @@ class ClientService implements IFtpAdmin
         $this->api = $apiService;
     }
 
+    public function getAssignedListOwnerId ( $clientId ) {
+        $results = DB::connection( 'mt1mail' )->table( 'user' )
+            ->select( 'clientStatsGroupingID' )
+            ->where( 'user_id' , $clientId )
+            ->get();
+
+        if ( count( $results ) > 0 ) {
+            return $results[ 0 ]->clientStatsGroupingID;
+        } else {
+            return 0;
+        }
+    }
 
     public function getAllTypes(){
         return $this->clientRepo->getClientTypes();
