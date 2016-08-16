@@ -23,4 +23,8 @@ class ListProfileRepo
         $this->listProfile->updateOrCreate(['profile_id' => $data['profile_id']], $data);
     }
 
+    public function returnActiveProfiles(){
+       return $this->listProfile->where("status", "A")->select('id','profile_name')->get();
+    }
+
 }

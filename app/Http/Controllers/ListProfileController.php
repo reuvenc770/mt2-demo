@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ListProfileService;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -20,11 +21,12 @@ class ListProfileController extends Controller
     protected $api;
     protected $service;
     protected $clientGroup;
-
-    public function __construct ( MT1ApiService $api , UniqueProfileService $service , ClientGroupService $clientGroup ) {
+    protected $listProfile;
+    public function __construct ( MT1ApiService $api , UniqueProfileService $service , ClientGroupService $clientGroup, ListProfileService $listProfileService) {
         $this->api = $api;
         $this->service = $service;
         $this->clientGroup = $clientGroup;
+        $this->listProfile = $listProfileService;
     }
 
     /**
@@ -150,6 +152,13 @@ class ListProfileController extends Controller
     public function zips ( $profileId ) {
         return response()->json(
             $this->service->getZipsByProfileId( $profileId )
+        );
+    }
+
+    //USES LIST PROFILE DB NOT MT1 UNIQUE PROFILE
+    public function listActive(){
+        return response()->json(
+            $this->listProfile->getActiveListProflies()
         );
     }
 }

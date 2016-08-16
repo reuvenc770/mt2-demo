@@ -273,6 +273,19 @@ Route::group(
     });
 
 
+/** Mailing Template */
+Route::group(
+    [
+        'prefix' => 'deploy' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get('/', [
+            'as' => 'deploy.list',
+            'uses' => 'DeployController@listAll'
+        ]);
+
+    });
 
 /**
  * User Routes
@@ -585,6 +598,33 @@ Route::group(
             'uses' => 'ClientController@resetClientPassword'
         ] );
 
+        Route::group(
+            [ 'prefix' => 'deploy' ] ,
+            function () {
+                Route::get( '/cakeaffiliates' , [
+                    'as' => 'api.deploy.cakeaffiliates' ,
+                    'uses' => 'DeployController@returnCakeAffiliates'
+                ] );
+
+                Route::post( '/validatedeploys' , [
+                    'as' => 'api.deploy.validateDeploys' ,
+                    'uses' => 'DeployController@validateMassUpload'
+                ] );
+
+                Route::post( '/massupload' , [
+                    'as' => 'api.deploy.massupload' ,
+                    'uses' => 'DeployController@massupload'
+                ] );
+
+                Route::get( '/exportcsv' , [
+                    'as' => 'api.deploy.exportcsv' ,
+                    'uses' => 'DeployController@exportCsv'
+                ] );
+
+            }
+        );
+
+
         /**
          * Client Group API Routes
          */
@@ -638,6 +678,11 @@ Route::group(
                     'as' => 'api.listprofile.zips' ,
                     'uses' => 'ListProfileController@zips'
                 ] );
+
+                Route::get( '/active' , [
+                    'as' => 'api.listprofile.active' ,
+                    'uses' => 'ListProfileController@listActive'
+                ] );
             }
         );
 
@@ -661,6 +706,25 @@ Route::group(
                     'as' => 'api.domain.listDomains' ,
                     'uses' => 'DomainController@getDomainsByTypeAndESP'
                 ] );
+
+                Route::get( '/listActiveDomains/{type}/{espAccountId}' , [
+                    'as' => 'api.domain.listDomains' ,
+                    'uses' => 'DomainController@getActiveDomainsByTypeAndESP'
+                ] );
+            }
+        );
+
+
+        /**
+         * Offer Routes
+         */
+        Route::group(
+            [ 'prefix' => 'offer' ] ,
+            function () {
+                Route::get( '/search' , [
+                    'as' => 'api.offer.search' ,
+                    'uses' => 'OfferController@typeAheadSearch'
+                ] );
             }
         );
 
@@ -682,6 +746,31 @@ Route::group(
                     'as' => 'bulksuppression.transfer',
                     'middleware' => 'auth',
                     'uses' => 'BulkSuppressionController@store'
+                ]);
+            }
+        );
+
+
+        /**
+         *  CFS API Routes
+         */
+        Route::group(
+            ['prefix' => 'cfs'],
+            function() {
+
+                Route::get('/creatives/{id}', [
+                    'as' => 'api.cfs.creatives',
+                    'uses' => 'CreativeFromSubjectController@getCreatives'
+                ]);
+
+                Route::get('/froms/{id}', [
+                    'as' => 'api.cfs.froms',
+                    'uses' => 'CreativeFromSubjectController@getFroms'
+                ]);
+
+                Route::get('/subjects/{id}', [
+                    'as' => 'api.cfs.subjects',
+                    'uses' => 'CreativeFromSubjectController@getSubjects'
                 ]);
             }
         );
@@ -794,6 +883,13 @@ Route::group(
         );
 
         Route::resource(
+            'deploy',
+            'DeployController',
+            [ 'except' => [ 'create' , 'edit' ] ]
+        );
+
+
+        Route::resource(
             'domain',
             'DomainController',
             [ 'except' => [ 'create' , 'edit' ] ]
@@ -876,6 +972,10 @@ Route::group(
             [ 'except' => ['create', 'edit']]
         );
 
+        Route::get('/mailingtemplate/templates/{id}', [
+            'as' => 'api.mailingtemplate.listbyesp',
+            'uses' => 'EspApiController@grabTemplatesByESP'
+        ]);
         Route::resource(
             'mailingtemplate',
             'MailingTemplateController',

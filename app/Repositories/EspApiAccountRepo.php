@@ -11,6 +11,7 @@ namespace App\Repositories;
 use App\Models\EspAccount;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
+
 //TODO ADD CACHING ONCE ESP SECTION IS DONE
 
 /**
@@ -135,5 +136,12 @@ class EspApiAccountRepo
              ->join('publicators_suppression_lists as psl', 'esp_accounts.account_name', '=', 'psl.account_name')
              ->where('esp_accounts.id', $accountId)
              ->first();
+    }
+
+
+    public function getTemplatesByEspId($id){
+        $data = $this->espAccount->with('mailingTemplate')->find($id);
+       return $data->mailingTemplate;
+
     }
 }

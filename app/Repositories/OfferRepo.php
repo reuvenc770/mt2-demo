@@ -32,4 +32,8 @@ class OfferRepo {
         }
     }
 
+    public function fuzzySearchBack($term){
+        return $this->offer->where('name', 'like', $term . '%')->select("id","name")->get();
+    }
+
 }
