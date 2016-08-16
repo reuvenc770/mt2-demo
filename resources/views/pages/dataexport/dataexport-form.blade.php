@@ -222,9 +222,9 @@
           </div>
 
           <div class="col-sm-3">
-            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.viewed.fields.client_id" ng-true-value="'client_id'">Client ID</md-checkbox>
-            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.viewed.fields.username" ng-true-value="'username'">Client name</md-checkbox>
-            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.viewed.fields.client_network" ng-true-value="'client_network'">Client Network</md-checkbox>
+            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.viewed.fields.client_id" ng-true-value="'client_id'">Feed ID</md-checkbox>
+            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.viewed.fields.username" ng-true-value="'username'">Feed name</md-checkbox>
+            <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.viewed.fields.client_network" ng-true-value="'client_network'">Feed Network</md-checkbox>
             <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.viewed.fields.url" ng-true-value="'url'">Source Url</md-checkbox>
             <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.viewed.fields.Status" ng-true-value="'Status'">Status</md-checkbox>
             <md-checkbox name="fields" class="col-xs-12" ng-model="dataExport.viewed.fields.adate" ng-true-value="'adate'">Action Date</md-checkbox>

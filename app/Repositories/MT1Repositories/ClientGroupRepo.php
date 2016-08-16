@@ -36,7 +36,7 @@ class ClientGroupRepo
     }
 
     public function getModel () {
-        return $this->clientGroup->select('client_group_id as id' , 'group_name as name' )->orderBy("name");
+        return $this->clientGroup;
     }
 
     public function getAllClientsForGroup($id){

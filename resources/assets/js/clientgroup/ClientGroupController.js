@@ -260,7 +260,12 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
     self.loadClientGroupsSuccessCallback = function ( response ) {
         self.currentlyLoading = 0;
 
-        self.clientGroups = response.data.data;
+        self.clientGroups = response.data.data.map(function(item) { 
+            return {
+                'id': item['client_group_id'], 
+                "name": item["group_name"]
+            }; 
+        });
         self.pageCount = response.data.last_page;
     };
 
