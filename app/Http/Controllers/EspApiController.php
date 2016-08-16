@@ -154,4 +154,10 @@ class EspApiController extends Controller
     public function displayEspAccounts(Request $request, $name){
         return $this->espAccountService->getAllAccountsByESPName($name);
     }
+
+
+    public function grabTemplatesByESP($id){
+        $data = $this->espAccountService->getTemplatesByEspId($id);
+        return  response()->json($data);
+    }
 }

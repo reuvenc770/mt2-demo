@@ -61,6 +61,11 @@ class DomainRepo
             ->get();
     }
 
+    public function getActiveDomainsByTypeAndEsp($type, $espAccountId)
+    {
+        return $this->domain->where("active",1)->where("domain_type", $type)->where("esp_account_id", $espAccountId)->get();
+    }
+
     public function inactivateDomain($id){
         return $this->domain->where("id",$id)->update([ "active" => 0]);
     }

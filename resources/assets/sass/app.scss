@@ -113,7 +113,7 @@ body {
     line-height: 34px;
 }
 
-.transparent-background , .transparent-background .md-datepicker-input { background-color: rgba(0, 0, 0, 0) !important; } 
+.transparent-background , .transparent-background .md-datepicker-input { background-color: rgba(0, 0, 0, 0) !important; }
 .transparent-background .md-datepicker-expand-triangle { border-top-color: rgba(255,255,255,0.87) !important; }
 
 /**
@@ -236,4 +236,47 @@ Domain Add
 **/
 md-content{
     background: rgb(176,190,197);
+}
+
+
+.angucomplete-holder {
+    position: relative;
+}
+
+.angucomplete-dropdown {
+    border-color: #ececec;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 2px;
+    text-align: left;
+    padding: 6px;
+    cursor: pointer;
+    z-index: 9999;
+    position: absolute;
+    overflow-y: auto;
+    max-height: 200px;
+    margin-top: -3px;
+    background-color: #ffffff;
+}
+
+.angucomplete-searching {
+    color: #acacac;
+    font-size: 14px;
+}
+
+.angucomplete-description {
+    font-size: 14px;
+}
+
+.angucomplete-row {
+    padding: 5px;
+    color: #000000;
+    margin-bottom: 4px;
+    text-align: left;
+    clear: both;
+}
+
+.angucomplete-selected-row {
+    background-color: lightblue;
+    color: #ffffff;
 }

@@ -32,6 +32,11 @@ class DomainService
         return $this->domainRepo->getDomainsByTypeAndEsp($type, $espAccountId);
     }
 
+    public function getActiveDomainsByTypeAndEsp($type, $espAccountId)
+    {
+        return $this->domainRepo->getActiveDomainsByTypeAndEsp($type, $espAccountId);
+    }
+
     public function insertDomains($insertArray){
         foreach ($insertArray as $item){
             $this->domainRepo->insertRow($item);

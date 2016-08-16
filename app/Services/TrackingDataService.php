@@ -60,6 +60,12 @@ class TrackingDataService implements IDataService
         $this->repo->insertRecordStats( $row );
 
         if ( $row[ 'price_received' ] > 0 ) {
+            $date = $row[ 'conversion_date' ];
+
+            if ( $date === '0000-00-00 00:00:00' ) {
+                $date = $row[ 'click_date' ];
+            }
+
             $reportRepo->insertAction( [
                 "email_id" => $row[ 'email_id' ] ,
                 "deploy_id" => $row[ 's1' ] ,
@@ -71,7 +77,7 @@ class TrackingDataService implements IDataService
                 "bounced" => 0 ,
                 "unsubbed" => 0 ,
                 "revenue" => $row[ 'price_received' ] ,
-                "date" => Carbon::parse( $row[ 'conversion_date' ] )->toDateString()
+                "date" => Carbon::parse( $date )->toDateString()
             ] );
         }
     }

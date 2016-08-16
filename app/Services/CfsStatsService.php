@@ -3,19 +3,22 @@
 namespace App\Services;
 
 use App\Repositories\CreativeClickthroughRateRepo;
+use App\Repositories\CreativeRepo;
 use App\Repositories\FromOpenRateRepo;
+use App\Repositories\FromRepo;
 use App\Repositories\SubjectOpenRateRepo;
+use App\Repositories\SubjectRepo;
 
 class CfsStatsService {
     
     private $creativeRepo;
-    private $fromRepo;
     private $subjectRepo;
+    private $fromLine;
 
-    public function __construct(CreativeClickthroughRateRepo $creativeRepo, FromOpenRateRepo $fromRepo, SubjectOpenRateRepo $subjectRepo) {
+    public function __construct(CreativeRepo $creativeRepo, SubjectRepo $subjectRepo, FromRepo $fromLineRepo) {
         $this->creativeRepo = $creativeRepo;
-        $this->fromRepo = $fromRepo;
         $this->subjectRepo = $subjectRepo;
+        $this->fromLine = $fromLineRepo;
     }
 
     // first - cfs for this offer - how has it performed for this offer?
@@ -24,7 +27,7 @@ class CfsStatsService {
     }
 
     public function getFromOfferOpenRate($offerId) {
-        return $this->fromRepo->getFromOfferOpenRate($offerId);
+        return $this->fromLine->getFromOfferOpenRate($offerId);
     }
 
     public function getSubjectOfferOpenRate($offerId) {
@@ -32,16 +35,5 @@ class CfsStatsService {
     }
 
 
-    // second - cfses for the same offer, but how they've performed across all offers
-    public function getGeneralCreativeClickRateUsingOffer($offerId) {
-        return $this->creativeRepo->getGeneralCreativeClickRateUsingOffer($offerId);
-    }
 
-    public function getGeneralFromOpenRateUsingOffer($offerId) {
-        return $this->fromRepo->getGeneralFromOpenRateUsingOffer($offerId);
-    }
-
-    public function getGeneralSubjectOpenRateUsingOffer($offerId) {
-        return $this->subjectRepo->getGeneralSubjectOpenRateUsingOffer($offerId);
-    }
 }
