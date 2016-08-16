@@ -96,7 +96,7 @@ class ImportMt1EmailsService
     private function mapToTempTable($row) {
         return [
             'email_id' => $row->email_user_id,
-            'feed_id' => $row->feed_id,
+            'feed_id' => $row->client_id,  // these are stored under "client_id" in mt1
             'email_addr' => $row->email_addr,
             'status' => $row->status,
             'first_name' => $row->first_name,

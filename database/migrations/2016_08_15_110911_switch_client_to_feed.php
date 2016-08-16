@@ -45,6 +45,10 @@ class SwitchClientToFeed extends Migration
             $table->renameColumn('client_id', 'feed_id');
         });
 
+        Schema::table('temp_stored_emails', function($table) {
+            $table->renameColumn('client_id', 'feed_id');
+        });
+
         DB::statement("UPDATE permissions SET name = 'api.feed.index' WHERE name = 'api.client.index'");
         DB::statement("UPDATE permissions SET name = 'api.feed.store' WHERE name = 'api.client.store'");
         DB::statement("UPDATE permissions SET name = 'api.feed.show' WHERE name = 'api.client.show'");
@@ -89,6 +93,10 @@ class SwitchClientToFeed extends Migration
         });
 
         Schema::connection('attribution')->table('attribution_levels', function($table) {
+            $table->renameColumn('feed_id', 'client_id');
+        });
+
+        Schema::table('temp_stored_emails', function($table) {
             $table->renameColumn('feed_id', 'client_id');
         });
 
