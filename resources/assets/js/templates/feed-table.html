@@ -32,16 +32,16 @@
                 <td ng-class="{ 'bg-success' : record.status == 'A' , 'bg-warn' : record.status == 'P' , 'bg-danger' : record.status == 'D' }"><strong>{{ record.status == 'A' ? 'Active' : record.status == 'P' ? 'Paused' : 'Inactive'  }}</strong></td>
                 <td ng-class="{ 'bg-success' : record.check_global_suppression == 'Y' , 'bg-danger' : record.check_global_suppression != 'Y' }"><strong>{{ record.check_global_suppression == 'Y' ? 'ON' : 'OFF'  }}</strong></td>
                 <td ng-class="{ 'bg-success' : record.check_previous_oc == '1' , 'bg-danger' : record.check_previous_oc != '1'}"><strong>{{ record.check_previous_oc == '1' ? 'ON' : 'OFF' }}</strong></td>
-                <td ng-class="{ 'bg-success' : record.client_has_client_group_restrictions == '1' , 'bg-danger' : record.client_has_client_group_restrictions != '1'}"><strong>{{ record.client_has_client_group_restrictions == '1' ? 'ON' : 'OFF' }}</strong></td>
+                <td ng-class="{ 'bg-success' : record.feed_has_client_restrictions == '1' , 'bg-danger' : record.feed_has_client_restrictions != '1'}"><strong>{{ record.feed_has_client_restrictions == '1' ? 'ON' : 'OFF' }}</strong></td>
                 <td>{{ record.list_owner }}</td>
                 <td>{{ record.cake_sub_id }}</td>
-                <td>{{ record.client_type }}</td>
+                <td>{{ record.feed_type }}</td>
                 <td>{{ record.network }}</td>
-                <td>{{ record.client_record_source_url }}</td>
-                <td>{{ record.client_record_ip }}</td>
+                <td>{{ record.feed_record_source_url }}</td>
+                <td>{{ record.feed_record_ip }}</td>
                 <td>{{ record.ftp_url }}</td>
                 <td>{{ record.ftp_user }}</td>
-                <td>{{ record.client_main_name }}</td>
+                <td>{{ record.feed_main_name }}</td>
                 <td>{{ record.email_addr }}</td>
                 <td>{{ record.address  + ' ' + record.address2  + ' ' + record.city + ' ' + record.state + ' ' + record.zip }}</td>
                 <td>{{ record.phone }}</td>

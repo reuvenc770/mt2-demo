@@ -10,7 +10,7 @@
 </div>
 
 <div ng-controller="FeedController as feed" ng-init="feed.loadFeeds()">
-    @if (Sentinel::hasAccess('client.add'))
+    @if (Sentinel::hasAccess('feed.add'))
     <div class="row">
         <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="feed.viewAdd()"><span class="glyphicon glyphicon-plus"></span> Add Feed</button>
     </div>

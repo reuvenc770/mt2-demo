@@ -82,8 +82,8 @@ class AttributionModelRepo {
     public function getModelClients ( $modelId ) {
         return DB::connection( 'attribution' )
             ->table( AttributionLevel::BASE_TABLE_NAME . $modelId . ' AS al' )
-            ->select( 'al.client_id as id' , 'c.name as name' )
-            ->leftJoin( 'homestead.clients AS c' , 'c.id' , '=' , 'al.client_id' )
+            ->select( 'al.feed_id as id' , 'c.name as name' )
+            ->leftJoin( 'homestead.clients AS c' , 'c.id' , '=' , 'al.feed_id' )
             ->orderBy( 'al.level' )
             ->get();
     }

@@ -8,20 +8,20 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
         check_global_suppression: "Y" ,
         check_previous_oc: "0" ,
         city: "" ,
-        client_has_client_group_restrictions: "0" ,
-        client_id: "" ,
-        client_main_name: "" ,
-        client_record_ip: "" ,
-        client_record_source_url: "" ,
-        client_type: "" ,
+        feed_has_client_restrictions: "0" ,
+        feed_id: "" ,
+        feed_main_name: "" ,
+        feed_record_ip: "" ,
+        feed_record_source_url: "" ,
+        feed_type: "" ,
         country_id: "" ,
         email_addr: "" ,
         ftp_pw: "" ,
         ftp_url: "" ,
         ftp_user: "" ,
-        has_client_group_restriction: "0" ,
+        has_client_restriction: "0" ,
         list_owner: "" ,
-        clientTypeId: "",
+        feedTypeId: "",
         minimum_acceptable_record_date: "" ,
         network: "" ,
         orange_client: "Y" ,
@@ -49,7 +49,7 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
     self.updatingFeed = 0;
     self.creatingFeed = 0;
 
-    self.clientTypes = [];
+    self.feedTypes = [];
     self.typeSearchText = '';
     self.formErrors = [];
     self.listOwners = [];
@@ -93,7 +93,7 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
             self.generatingLinks = 1;
 
             FeedApiService.generateLinks(
-                self.current.client_id ,
+                self.current.feed_id ,
                 self.generateLinksSuccessCallback ,
                 self.generateLinksFailureCallback
             );
@@ -115,7 +115,7 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
      */
   
     self.getFeedData = function () {
-        var clientData = {};
+        var feedData = {};
 
         angular.forEach( self.current , function ( field , fieldName ) {
             if ( typeof( field ) == 'object' ) {
@@ -123,9 +123,9 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
             } else {
                 this[ fieldName ] = field;
             }
-        } , clientData );
+        } , feedData );
 
-        return clientData;
+        return feedData;
     };
 
 
@@ -133,7 +133,7 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
      * Look-forwward Fields
      */
     self.getFeedType = function ( searchText ) {
-        return searchText ? self.clientTypes.filter( function ( obj ) { return obj.name.toLowerCase().indexOf( searchText.toLowerCase() ) === 0; } ) : self.clientTypes;
+        return searchText ? self.clientTypes.filter( function ( obj ) { return obj.name.toLowerCase().indexOf( searchText.toLowerCase() ) === 0; } ) : self.feedTypes;
     };
 
     self.loadFeedTypes = function () {
@@ -163,7 +163,7 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
         self.resetFieldErrors();
         var feedData = angular.copy( self.current );
         feedData.list_owner = self.current.list_owner.name;
-        feedData.client_type = self.current.client_type.value;
+        feedData.feed_type = self.current.feed_type.value;
         FeedApiService.updateFeed( feedData , self.SuccessCallBackRedirectList , self.updateFeedFailureCallback );
     };
 
@@ -179,8 +179,8 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
         var feedData = angular.copy( self.current );
 
         feedData.list_owner = self.current.list_owner.name;
-        feedData.newClient = 1;
-        feedData.client_type = self.current.client_type.value;
+        feedData.newFeed = 1;
+        feedData.feed_type = self.current.feed_type.value;
 
         FeedApiService.saveFeed( feedData , self.SuccessCallBackRedirect , self.saveFeedFailureCallback );
     };
@@ -224,7 +224,7 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
         var currentRecord = response.data[ 0 ];
 
         currentRecord.country_id = parseInt( currentRecord[ 'country_id' ] );
-        currentRecord.client_type = {name:currentRecord[ 'client_type'],value:currentRecord[ 'client_type']};
+        currentRecord.client_type = {name:currentRecord[ 'feed_type'],value:currentRecord[ 'feed_type']};
         currentRecord.list_owner = {name:currentRecord[ 'list_owner'],value:currentRecord[ 'list_owner']};
 
         self.current = currentRecord;
@@ -303,7 +303,7 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
 
     self.loadListOwnersFailureCallback = function ( response ) {
         self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to load client types.' );
+        self.setModalBody( 'Failed to load feed types.' );
 
         self.launchModal();
     };

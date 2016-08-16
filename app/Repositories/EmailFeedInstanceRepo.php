@@ -91,7 +91,7 @@ class EmailFeedInstanceRepo {
 
         $reps = DB::table('email_feed_instances as efi')
                 ->select('efi.feed_id', 'level', 'efi.capture_date')
-                ->join($attrDb . '.attribution_levels as al', 'efi.feed_id', '=', 'al.client_id')
+                ->join($attrDb . '.attribution_levels as al', 'efi.feed_id', '=', 'al.feed_id')
                 #->join(FEEDS_TABLE, 'efi.feed_id', '=', 'cf.id') -- see above: placeholder for feeds
                 ->where('efi.capture_date', '>=', $date)
                 ->where('efi.feed_id', '<>', $feedId)

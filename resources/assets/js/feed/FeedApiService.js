@@ -28,24 +28,24 @@ mt2App.service( 'FeedApiService' , function ( $http , $log ) {
         } ).then( successCallback , failureCallback );
     };
 
-    self.saveFeed = function ( clientData , successCallback , failureCallback ) {
-        $http( { "method" : "POST" , "url" : this.baseApiUrl , "data" : clientData } )
+    self.saveFeed = function ( feedData , successCallback , failureCallback ) {
+        $http( { "method" : "POST" , "url" : this.baseApiUrl , "data" : feedData } )
             .then( successCallback , failureCallback );
     };
 
-    self.updateFeed = function ( clientData , successCallback , failureCallback ) {
+    self.updateFeed = function ( feedData , successCallback , failureCallback ) {
         $http( {
             "method" : "PUT" ,
-            "url" : this.baseApiUrl + '/' + clientData.client_id ,
+            "url" : this.baseApiUrl + '/' + feedData.client_id ,
             "params" : { "_method" : "PUT" } ,
-            "data" : clientData
+            "data" : feedData
         } ).then( successCallback , failureCallback );
     };
 
-    self.updatePassword = function ( clientData , successCallback , failureCallback ) {
+    self.updatePassword = function ( feedData , successCallback , failureCallback ) {
         $http( {
             "method" : "GET" ,
-            "url" : this.resetPasswordUrl + '/' + clientData.ftp_user
+            "url" : this.resetPasswordUrl + '/' + feedData.ftp_user
         } ).then( successCallback , failureCallback );
     };
 
