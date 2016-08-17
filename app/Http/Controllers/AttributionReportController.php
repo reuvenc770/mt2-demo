@@ -17,6 +17,7 @@ class AttributionReportController extends Controller
     protected $reportType;
     protected $collection;
     protected $records;
+    protected $totals;
     protected $currentRequest;
 
     protected $defaultTotalsList = [
@@ -54,7 +55,7 @@ class AttributionReportController extends Controller
     protected function buildCollection () {
         $this->reportType = $this->currentRequest->input( 'type' );
 
-        $className = "\App\Collections\Attribution\\" . $this->reportType . "ReportCollection";
+        $className = "\App\Collections\\" . $this->reportType . "ReportCollection";
 
         $this->collection = \App::make( $className ); 
 
@@ -85,11 +86,9 @@ class AttributionReportController extends Controller
 
         $responseContainer = [
             "totalRecords" => $this->collection->recordCount() ,
-            "totals" => [] ,
+            "totals" => $this->totals ,
             "records" => $this->records->all()
         ];
-
-        $this->sumTotals( $responseContainer );
 
         return $responseContainer;
     }
@@ -100,12 +99,9 @@ class AttributionReportController extends Controller
 
         $this->collection->load();
 
-        $this->records = $this->collection->forPage( $page , $chunkSize );
-    }
-
-    protected function sumTotals ( &$responseContainer ) {
-        foreach ( $this->totalsMap[ $this->reportType ] as $field ) {
-            $responseContainer[ 'totals' ][ $field ] = $this->records->pluck( $field )->sum();
-        }
+        $data = $this->collection->getRecordsAndTotals( [ 'page' => $page , 'chunkSize' => $chunkSize ] );
+        
+        $this->records = $data[ 'records' ];
+        $this->totals = $data[ 'totals' ];
     }
 }

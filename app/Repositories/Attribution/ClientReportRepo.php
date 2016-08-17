@@ -7,6 +7,7 @@ namespace App\Repositories\Attribution;
 
 use DB;
 use App\Models\AttributionClientReport;
+use Carbon\Carbon;
 
 class ClientReportRepo {
     protected $model;
@@ -14,6 +15,21 @@ class ClientReportRepo {
     public function __construct ( AttributionClientReport $model ) {
         $this->model = $model;
     }
+
+    public function getAggregateForIdAndMonth ( $clientId , $date ) { 
+        $dateRange = [ 'start' => Carbon::parse( $date )->startOfMonth()->toDateString() , 'end' => Carbon::parse( $date )->endOfMonth()->toDateString() ];
+
+        return $this->model
+            ->select( DB::raw( "
+                SUM( revenue ) as revenue ,
+                SUM( mt1_uniques ) as mt1_uniques ,
+                SUM( mt2_uniques ) as mt2_uniques
+            " ) ) 
+            ->where( 'client_id' , $clientId )
+            ->whereBetween( 'date' , [ $dateRange[ 'start' ] , $dateRange[ 'end' ] ] ) 
+            ->get()
+            ->pop();
+    }   
 
     public function getByDateRange ( array $dateRange ) {
         return $this->model->whereBetween( 'date' , [ $dateRange[ 'start' ] , $dateRange[ 'end' ] ] )->get();
