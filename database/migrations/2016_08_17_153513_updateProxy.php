@@ -15,9 +15,9 @@ class UpdateProxy extends Migration
         Schema::table('proxies', function (Blueprint $table) {
             $table->text("esp_names")->nullable();
             $table->text("isp_names")->nullable();
-            //$table->text("notes")->nullable();
-            //$table->renameColumn("ip_address","ip_addresses");
-            //$table->dropColumn("domain_type");
+            $table->text("notes")->nullable();
+            $table->renameColumn("ip_address","ip_addresses");
+            $table->dropColumn("domain_type");
             $table->boolean("status");
         });
 
