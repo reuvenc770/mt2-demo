@@ -4,6 +4,7 @@
 
         <span flex></span>
 
+        <md-button class="md-raised" ng-click="attr.exportReport()">Export</md-button>
         <md-button class="md-raised" ng-click="attr.getRecords()">Refresh</md-button>
     </div>
 </md-toolbar>

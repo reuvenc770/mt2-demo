@@ -6,6 +6,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 
 use App\Http\Requests;
 use Carbon\Carbon;
@@ -50,6 +51,23 @@ class AttributionReportController extends Controller
         $this->buildCollection();
 
         return response()->json( $this->getTableData() );
+    }
+
+    public function export ( Request $request ) {
+        $this->currentRequest = $request;
+
+        $this->buildCollection();
+
+        $csv = $this->collection->getCsv();
+        $fileName = $this->reportType . '.' . Carbon::today()->format( 'Y.m.d.G.i' ) . '.csv';
+
+        $headers = [
+            "Content-Type" => "text/csv" ,
+            "Content-Disposition" => "attachment; filename=\"{$fileName}\"" ,
+            "Content-Length" => strlen( $csv )
+        ];
+
+        return Response::make( $csv , 200 , $headers );
     }
 
     protected function buildCollection () {

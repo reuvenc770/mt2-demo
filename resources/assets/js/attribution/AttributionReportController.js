@@ -1,4 +1,4 @@
-mt2App.controller( 'AttributionReportController' , [ 'AttributionApiService' , 'ClientApiService' , '$filter' , '$mdToast' , '$log' , function ( AttributionApiService , ClientApiService , $filter , $mdToast , $log ) {
+mt2App.controller( 'AttributionReportController' , [ 'AttributionApiService' , 'ClientApiService' , '$filter' , '$mdToast' , '$log' , '$window' , '$httpParamSerializer' , function ( AttributionApiService , ClientApiService , $filter , $mdToast , $log , $window , $httpParamSerializer ) {
     var self = this;
 
     self.startDate = new Date();
@@ -23,6 +23,8 @@ mt2App.controller( 'AttributionReportController' , [ 'AttributionApiService' , '
         "lastMonth" : moment().subtract( 1 , 'month' ).format( 'MMMM' ) ,
         "twoMonthsAgo" : moment().subtract( 2 , 'month' ).format( 'MMMM' )
     };
+
+    self.exportUrl = '/attr/report/export';
 
     self.loadRecords = function () {
         ClientApiService.getAllClients(
@@ -73,6 +75,12 @@ mt2App.controller( 'AttributionReportController' , [ 'AttributionApiService' , '
                 );
             }
         );
+    };
+
+    self.exportReport = function () {
+        var fullUrl = self.exportUrl + '?' + $httpParamSerializer( self.query );
+
+        $window.open( fullUrl , '_blank' );        
     };
 
     self.switchReportType = function ( type ) {
