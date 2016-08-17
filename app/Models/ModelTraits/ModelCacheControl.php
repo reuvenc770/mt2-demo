@@ -1,6 +1,7 @@
 <?php
 namespace App\Models\ModelTraits;
 use Cache;
+use Log;
 /**
  * Created by PhpStorm.
  * User: pcunningham
@@ -10,6 +11,7 @@ use Cache;
 trait ModelCacheControl
 {
     public function getClassName(){
+
         return class_basename($this);
     }
     public static function bootModelCacheControl()

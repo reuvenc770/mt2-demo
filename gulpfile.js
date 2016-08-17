@@ -48,6 +48,7 @@ elixir.extend( 'deployNodeModules' , function ( mix ) {
     mix.copy( 'node_modules/angular-drag-and-drop-lists/angular-drag-and-drop-lists.min.js' , 'public/js/angular-drag-and-drop-lists.min.js' );
 
     mix.copy( 'node_modules/angular-material-data-table/dist/md-data-table.min.js' , 'public/js/md-data-table.min.js' );
+    mix.copy('node_modules/angu-complete/angucomplete-alt.js', 'public/js/angucomplete-alt.js');
 } );
 
 elixir.extend( 'deploySass' , function ( mix ) {
@@ -110,6 +111,15 @@ elixir.extend( 'deployDBAJs' , function ( mix ) {
     ] , 'public/js/dba.js' );
 } );
 
+elixir.extend( 'deployDeployJs' , function ( mix ) {
+    mix.scripts( [
+        'deploy/DeployController.js' ,
+        'deploy/DeployApiService.js',
+        'deploy/DeployValidateModalDirective.js'
+    ] , 'public/js/deploy.js' );
+} );
+
+
 elixir.extend( 'deployProxyJs' , function ( mix ) {
     mix.scripts( [
         'proxy/ProxyController.js' ,
@@ -145,6 +155,8 @@ elixir.extend( 'deployJobJs' , function ( mix ) {
         'job/JobApiService.js'
     ] , 'public/js/job.js' );
 } );
+
+
 
 elixir.extend( 'deployShowInfoJs' , function ( mix ) {
     mix.scripts( [
@@ -260,6 +272,7 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployYmlpCampaignJs( mix );
     mix.deployFeedJs( mix );
     mix.deployDBAJs( mix );
+    mix.deployDeployJs( mix );
     mix.deployClientGroupJs( mix );
     mix.deployListProfileJs( mix );
     mix.deployMailingTemplateJs( mix);
@@ -316,6 +329,9 @@ var mt2TaskMap = {
     } ,
     'deployRoleJs' : function ( mix ) {
         mix.deployRoleJs( mix );
+    } ,
+    'deployDeployJs' : function ( mix ) {
+        mix.deployDeployJs( mix );
     } ,
     'deployJobJs' : function ( mix ) {
         mix.deployJobJs( mix );

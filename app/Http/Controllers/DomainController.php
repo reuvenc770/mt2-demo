@@ -141,4 +141,8 @@ class DomainController extends Controller
     public function getDomainsByTypeAndESP($type,$espAccountId){
         return $this->service->getDomainsByTypeAndEsp($type, $espAccountId);
     }
+
+    public function getActiveDomainsByTypeAndESP($type,$espAccountId){
+        return $this->service->getActiveDomainsByTypeAndEsp($type, $espAccountId);
+    }
 }
