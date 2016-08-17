@@ -45,14 +45,4 @@ class ProxyService
         }
     }
 
-
-    public function getAllByType($type){
-        try {
-            return $this->proxyRepo->getRowsByType($type);
-        } catch( \Exception $e){
-            Log::error($e->getMessage());
-            return false;
-        }
-    }
-
 }

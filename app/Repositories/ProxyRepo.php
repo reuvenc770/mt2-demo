@@ -35,8 +35,5 @@ class ProxyRepo
         return $this->proxy->where( 'id' , $id )->update($accountData);
     }
 
-    public function getRowsByType($type){
-        return $this->proxy->where("domain_type",$type)->get();
-    }
 
 }
