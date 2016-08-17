@@ -5,15 +5,19 @@
 
 @section( 'navEspClasses' , 'active' )
 
-@section( 'content' )
+@section( 'angular-controller' , 'ng-controller="MailingTemplateController as mailing"' )
 
-<div ng-controller="MailingTemplateController as mailing" ng-init="mailing.loadAccounts()">
+@section( 'page-menu' )
     @if (Sentinel::hasAccess('mailingtemplate.add'))
-    <div class="row">
-        <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="mailing.viewAdd()"><span class="glyphicon glyphicon-plus"></span> Add Mailing Template</button>
-    </div>
+        <md-button ng-click="mailing.viewAdd()" aria-label="Add Mailing Templates">
+            <md-icon ng-hide="app.largePageWidth()" md-svg-src="img/icons/ic_add_circle_outline_white_24px.svg"></md-icon>
+            <span ng-show="app.largePageWidth()">Add Mailing Templates</span>
+        </md-button>
     @endif
+@stop
 
+@section( 'content' )
+<div ng-init="mailing.loadAccounts()">
     <div class="row">
         <div class="col-xs-12">
             <div class="row">

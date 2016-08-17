@@ -2,15 +2,19 @@
 
 @section( 'title' , 'MT2 Proxy List' )
 
+@section ( 'angular-controller' , 'ng-controller="ProxyController as proxy"' )
+
+@section( 'page-menu' )
+    @if (Sentinel::hasAccess('proxy.add'))
+        <md-button ng-click="proxy.viewAdd()" aria-label="Add Proxy">
+            <md-icon ng-hide="app.largePageWidth()" md-svg-src="img/icons/ic_add_circle_outline_white_24px.svg"></md-icon>
+            <span ng-show="app.largePageWidth()">Add Proxy</span>
+        </md-button>
+    @endif
+@stop
 
 @section( 'content' )
-
-    <div ng-controller="ProxyController as proxy" ng-init="proxy.loadAccounts()">
-        @if (Sentinel::hasAccess('proxy.add'))
-        <div class="row">
-            <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="proxy.viewAdd()"><span class="glyphicon glyphicon-plus"></span> Add Proxy</button>
-        </div>
-        @endif
+    <div ng-init="proxy.loadAccounts()">
         <div class="row">
             <div class="col-xs-12">
                 <div id="mtTableContainer" class="table-responsive">

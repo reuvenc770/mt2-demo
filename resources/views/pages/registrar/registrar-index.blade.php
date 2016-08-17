@@ -2,15 +2,19 @@
 
 @section( 'title' , 'MT2 Registrar List' )
 
+@section ( 'angular-controller' , 'ng-controller="RegistrarController as registrar"' )
 
-@section( 'content' )\
+@section ( 'page-menu' )
+    @if (Sentinel::hasAccess('registrar.add'))
+        <md-button ng-click="registrar.viewAdd()" aria-label="Add Registrar">
+            <md-icon ng-hide="app.largePageWidth()" md-svg-src="img/icons/ic_add_circle_outline_white_24px.svg"></md-icon>
+            <span ng-show="app.largePageWidth()">Add Registrar</span>
+        </md-button>
+    @endif
+@stop
 
+@section( 'content' )
     <div ng-controller="RegistrarController as registrar" ng-init="registrar.loadAccounts()">
-        @if (Sentinel::hasAccess('registrar.add'))
-        <div class="row">
-            <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="registrar.viewAdd()"><span class="glyphicon glyphicon-plus"></span> Add Registrar</button>
-        </div>
-        @endif
         <div class="row">
             <div class="col-xs-12">
                 <div id="mtTableContainer" class="table-responsive">

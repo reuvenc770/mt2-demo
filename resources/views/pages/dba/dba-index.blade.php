@@ -2,15 +2,19 @@
 
 @section( 'title' , 'MT2 DBA List' )
 
+@section ( 'angular-controller' , 'ng-controller="DBAController as dba"' )
+
+@section( 'page-menu' )
+    @if (Sentinel::hasAccess('dba.add'))
+        <md-button ng-click="dba.viewAdd()" aria-label="Add DBA Account">
+            <md-icon ng-hide="app.largePageWidth()" md-svg-src="img/icons/ic_add_circle_outline_white_24px.svg"></md-icon>
+            <span ng-show="app.largePageWidth()">Add DBA Account</span>
+        </md-button>
+    @endif
+@stop
 
 @section( 'content' )
-
-    <div ng-controller="DBAController as dba" ng-init="dba.loadAccounts()">
-        @if (Sentinel::hasAccess('dba.add'))
-        <div class="row">
-            <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="dba.viewAdd()"><span class="glyphicon glyphicon-plus"></span> Add DBA Account</button>
-        </div>
-        @endif
+    <div ng-init="dba.loadAccounts()">
         <div class="row">
             <div class="col-xs-12">
                 <div id="mtTableContainer" class="table-responsive">

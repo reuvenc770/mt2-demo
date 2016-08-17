@@ -4,14 +4,19 @@
 
 @section( 'navEspClasses' , 'active' )
 
-@section( 'content' )
+@section( 'angular-controller', 'ng-controller="userController as user"' )
 
-    <div ng-controller="userController as user" ng-init="user.loadAccounts()">
-        @if (Sentinel::hasAccess('user.add'))
-        <div class="row">
-            <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="user.viewAdd()"><span class="glyphicon glyphicon-plus"></span> Add User Account</button>
-        </div>
-        @endif
+@section( 'page-menu' )
+    @if (Sentinel::hasAccess('user.add'))
+        <md-button ng-click="user.viewAdd()" aria-label="Add User Account">
+            <md-icon ng-hide="app.largePageWidth()" md-svg-src="img/icons/ic_add_circle_outline_white_24px.svg"></md-icon>
+            <span ng-show="app.largePageWidth()">Add User Account</span>
+        </md-button>
+    @endif
+@stop
+
+@section( 'content' )
+    <div ng-init="user.loadAccounts()">
         <div class="row">
             <div class="col-xs-12">
                 <div id="mtTableContainer" class="table-responsive">

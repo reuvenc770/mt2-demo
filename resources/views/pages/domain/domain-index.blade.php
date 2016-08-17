@@ -3,15 +3,19 @@
 
 @section( 'title' , 'Domain List' )
 
+@section( 'angular-controller' , 'ng-controller="domainController as domain"' )
+
+@section( 'page-menu' )
+    @if (Sentinel::hasAccess('domain.add'))
+        <md-button ng-click="domain.viewAdd()" aria-label="Add Domain">
+            <md-icon ng-hide="app.largePageWidth()" md-svg-src="img/icons/ic_add_circle_outline_white_24px.svg"></md-icon>
+            <span ng-show="app.largePageWidth()">Add Domain</span>
+        </md-button>
+    @endif
+@stop
 
 @section( 'content' )
-    <div ng-controller="domainController as domain" ng-init="domain.loadAccounts()">
-        @if (Sentinel::hasAccess('domain.add'))
-            <div class="row">
-                <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="domain.viewAdd()"><span class="glyphicon glyphicon-plus"></span> Add Domain</button>
-            </div>
-        @endif
-
+    <div ng-init="domain.loadAccounts()">
         <div class="row">
             <div class="col-xs-12">
                 <div class="row">

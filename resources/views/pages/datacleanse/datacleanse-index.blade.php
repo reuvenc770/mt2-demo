@@ -2,15 +2,19 @@
 
 @section( 'title' , 'Data Cleanse' )
 
-@section( 'content' )
+@section( 'angular-controller' , 'ng-controller="DataCleanseController as cleanse"')
 
-<div ng-controller="DataCleanseController as cleanse" ng-init="cleanse.load()">
+@section( 'page-menu' )
     @if ( Sentinel::hasAccess( 'datacleanse.add' ) )
-    <div class="row">
-        <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="cleanse.viewAdd()"><span class="glyphicon glyphicon-plus"></span> Add Data Cleanse</button>
-    </div>
+        <md-button ng-click="cleanse.viewAdd()" aria-label="Add Data Cleanse">
+            <md-icon ng-hide="app.largePageWidth()" md-svg-src="img/icons/ic_add_circle_outline_white_24px.svg"></md-icon>
+            <span ng-show="app.largePageWidth()">Add Data Cleanse</span>
+        </md-button>
     @endif
+@stop
 
+@section( 'content' )
+<div ng-init="cleanse.load()">
     <div class="row">
         <div class="col-xs-12">
             <div class="row">

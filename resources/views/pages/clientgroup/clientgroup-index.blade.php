@@ -2,14 +2,19 @@
 
 @section( 'title' , 'Client Group' )
 
-@section( 'content' )
+@section( 'angular-controller' , 'ng-controller="ClientGroupController as clientGroup"' )
 
-<div ng-controller="ClientGroupController as clientGroup" ng-init="clientGroup.loadClientGroups()">
+@section( 'page-menu' )
     @if (Sentinel::hasAccess('clientgroup.add'))
-    <div class="row">
-        <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="clientGroup.viewAdd()"><span class="glyphicon glyphicon-plus"></span> Add Client Group</button>
-    </div>
+        <md-button ng-click="clientGroup.viewAdd()" aria-label="Add Client Group">
+            <md-icon ng-hide="app.largePageWidth()" md-svg-src="img/icons/ic_add_circle_outline_white_24px.svg"></md-icon>
+            <span ng-show="app.largePageWidth()">Add Client Group</span>
+        </md-button>
     @endif
+@stop
+
+@section( 'content' )
+<div ng-init="clientGroup.loadClientGroups()">
     <div class="row">
         <div class="col-xs-12">
             <div class="row">

@@ -2,21 +2,43 @@
 
 @section('title', 'Data Exports')
 
+@section( 'angular-controller' , 'ng-controller="DataExportController as dataExport"')
+
+@section( 'page-menu' )
+    <div ng-show="app.largePageWidth()">
+      <md-button ng-click="dataExport.switchDisplayedStatus()">
+          <span>@{{dataExport.displayedStatusButtonText}}</span>
+      </md-button>
+      @if (Sentinel::hasAccess('dataexport.add'))
+        <md-button ng-click="dataExport.viewAdd()" aria-label="Add Data Export">
+            <span>Add Data Export</span>
+        </md-button>
+      @endif
+    </div>
+
+    <md-menu ng-hide="app.largePageWidth()" md-position-mode="target-right target">
+      <md-button aria-label="Open menu" class="md-icon-button" ng-click="$mdOpenMenu($event)">
+        <md-icon md-svg-src="img/icons/ic_more_horiz_white_24px.svg"></md-icon>
+      </md-button>
+      <md-menu-content width="3">
+        <md-menu-item>
+          <md-button ng-click="dataExport.switchDisplayedStatus()">
+              <span>@{{dataExport.displayedStatusButtonText}}</span>
+          </md-button>
+        </md-menu-item>
+        @if (Sentinel::hasAccess('dataexport.add'))
+          <md-menu-item>
+            <md-button ng-click="dataExport.viewAdd()" aria-label="Add Data Export">
+                <span>Add Data Export</span>
+            </md-button>
+          </md-menu-item>
+        @endif
+      </md-menu-content>
+    </md-menu>
+@stop
+
 @section('content')
-<div ng-controller="DataExportController as dataExport" ng-init="dataExport.loadActiveDataExports()">
-
-  <div class="row">
-    <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="dataExport.switchDisplayedStatus()">
-      <span>@{{dataExport.displayedStatusButtonText}}</span>
-    </button>
-    @if (Sentinel::hasAccess('dataexport.add'))
-    <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="dataExport.viewAdd()">
-      <span class="glyphicon glyphicon-plus"></span>
-      Add Data Export
-    </button>
-    @endif
-  </div>
-
+<div ng-init="dataExport.loadActiveDataExports()">
 
   <div class="row">
     <div class="col-xs-12">

@@ -2,14 +2,20 @@
 
 @section( 'title' , 'Client Group' )
 
+@section( 'angular-controller' , 'ng-controller="ListProfileController as listProfile"')
+
+@section( 'page-menu' )
+    @if (Sentinel::hasAccess('listprofile.add'))
+        <md-button ng-click="listProfile.viewAdd()" aria-label="Add List Profile">
+            <md-icon ng-hide="app.largePageWidth()" md-svg-src="img/icons/ic_add_circle_outline_white_24px.svg"></md-icon>
+            <span ng-show="app.largePageWidth()">Add List Profile</span>
+        </md-button>
+    @endif
+@stop
+
 @section( 'content' )
 
-<div ng-controller="ListProfileController as listProfile" ng-init="listProfile.loadListProfiles()">
-    @if (Sentinel::hasAccess('listprofile.add'))
-    <div class="row">
-        <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="listProfile.viewAdd()"><span class="glyphicon glyphicon-plus"></span> Add List Profile</button>
-    </div>
-    @endif
+<div ng-init="listProfile.loadListProfiles()">
     <div class="row">
         <div class="col-xs-12">
             <div class="row">
