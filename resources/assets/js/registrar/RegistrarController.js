@@ -3,7 +3,18 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
     self.$location = $location;
     self.headers = [ '' , 'ID', 'name', "Username" ];
     self.accounts = [];
-    self.currentAccount = { "id": "", "name" : "" , "username": ""};
+    self.currentAccount = { "id": "",
+                            "name" : "" ,
+                            "username": "",
+                            "contact_name":"",
+                            "contact_email":"",
+                            "phone_number":"",
+                            "address": "",
+                            "address_2" : "",
+                            "city" : "",
+                            "state" : "",
+                            "zip" : "",
+                            "entity_name":""};
     self.createUrl = 'registrar/create/';
     self.editUrl = 'registrar/edit/';
 
@@ -41,7 +52,7 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
 
     self.saveNewAccount = function () {
         self.resetFieldErrors();
-
+        self.currentAccount.status = 1;
         RegistrarApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback );
     };
 
