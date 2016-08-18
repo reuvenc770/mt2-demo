@@ -27,6 +27,9 @@ class RegistrarRepo
     public function getAll(){
         return $this->registrars->all();
     }
+    public function getAllActive(){
+        return $this->registrars->where('status',1)->get();
+    }
 
     public function fetch($id){
         return $this->registrars->find($id);

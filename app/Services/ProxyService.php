@@ -32,6 +32,10 @@ class ProxyService
         return $this->proxyRepo->getAll();
     }
 
+    public function getAllActive(){
+        return $this->proxyRepo->getAllActive();
+    }
+
     public function getProxy($id){
         return $this->proxyRepo->fetch($id);
     }

@@ -36,6 +36,11 @@ class ProxyController extends Controller
         return response()->json($this->proxyService->getAll());
     }
 
+    public function indexActive()
+    {
+        return response()->json($this->proxyService->getAllActive());
+    }
+
     /**
      * Show the form for creating a new resource.
      *

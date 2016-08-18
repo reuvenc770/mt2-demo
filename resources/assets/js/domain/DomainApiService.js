@@ -4,7 +4,7 @@ mt2App.service( 'DomainService' , function ( $http , $log ) {
     self.pagerApiUrl = '/api/pager/Domain';
     self.baseApiUrl = '/api/domain/';
     self.baseEspApiUrl = '/api/espapi/espAccounts/';
-    self.baseProxyUrl = '/api/proxy/';
+    self.baseProxyUrl = '/api/proxy/active';
 
     self.getAccount = function ( id , successCallback ) {
         $http( { "method" : "GET" , "url" : this.baseApiUrl + '/' + id } )

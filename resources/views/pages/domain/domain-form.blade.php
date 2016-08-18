@@ -14,7 +14,7 @@
         <div class="form-group" ng-class="{ 'has-error' : domain.formErrors.espAccountId }">
             <select name="esp_account" id="esp_account"
                     ng-model="domain.currentAccount.espAccountId" ng-change="domain.updateDomains()" class="form-control"
-                    ng-disabled="domain.updatingAccounts">
+                    ng-disabled="domain.espNotChosen">
                 <option value="">- Please Choose an ESP Account -</option><option ng-repeat="option in domain.espAccounts" ng-value="option.id" ng-selected="option.id == domain.currentAccount.espAccountId">@{{ option.account_name }}</option>
             </select>
             <span class="help-block" ng-bind="domain.formErrors.espAccountId" ng-show="domain.formErrors.espAccountId"></span>

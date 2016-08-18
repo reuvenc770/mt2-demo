@@ -9,6 +9,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     var espName = "";
     var espNameQuery = $location.search().name;
     var espAccount = $location.search().espId;
+     self.espNotChosen = true;
     var espAccountName = $location.search().espAccountName;
     //View Page
     if (typeof espAccount != 'undefined' && typeof espNameQuery != 'undefined') {
@@ -38,7 +39,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     self.info = ["", "Enter Domain Info (Domain, Main Site, Expiration Date (2016-11-22)", "Enter Domain Info (Domain, Expiration Date (2016-11-22))"];
     self.currentInfo = self.info[1];
     self.GlythMap  = { 1:"glyphicon-ok-circle", 0:"glyphicon glyphicon-ban-circle"};
-    self.updatingAccounts = false;
+    self.updatingAccounts = true;
     self.type = 1;
 
 
@@ -84,6 +85,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
 
     self.updateEspAccounts = function () {
         self.updatingAccounts = true;
+        self.espNotChosen = true;
         DomainService.getEspAccounts(
             self.currentAccount.espName,
             self.updateEspAccountsSuccessCallback, self.loadAccountsFailureCallback);
@@ -125,6 +127,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     self.updateEspAccountsSuccessCallback = function (response) {
         self.espAccounts = response.data;
         self.updatingAccounts = false;
+        self.espNotChosen = false;
     };
 
     self.updateDomainsSuccessCallback = function (response) {
