@@ -5,7 +5,8 @@ mt2App.directive( 'dbaTable' , function () {
         "controllerAs" : "ctrl" ,
         "bindToController" : {
             "records" : "=" ,
-            "loadingflag" : "="
+            "loadingflag" : "=",
+            "toggle"      : "&"
         } ,
         "templateUrl" : "js/templates/dba-table.html"
     };

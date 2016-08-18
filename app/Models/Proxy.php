@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\Models\ModelTraits\ModelCacheControl;
 use Illuminate\Database\Eloquent\Model;
-use MongoDB\Driver\Query;
+
 
 class Proxy extends Model
 {

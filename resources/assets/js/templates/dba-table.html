@@ -11,11 +11,14 @@
             <th class="text-center">Address</th>
             <th class="text-center">State</th>
             <th class="text-center">Phone</th>
+            <th class="text-center">
+                <strong><span class="glyphicon glyphicon-refresh rotateMe" ng-if="ctrl.loadingflag == 1"></span></strong>
+            </th>
         </tr>
         </thead>
 
         <tbody>
-        <tr ng-repeat="record in ctrl.records track by $index">
+        <tr ng-repeat="record in ctrl.records track by $index" ng-class="{ rowDisabled : record.status == 0 }">
             <td><edit-button editurl="'/dba/edit/'" recordid="record.id"></edit-button></td>
             <td>{{ record.id }}</td>
             <td>{{ record.dba_name }}</td>
@@ -23,6 +26,10 @@
             <td>{{ record.address }}</td>
             <td>{{ record.state }}</td>
             <td>{{ record.phone }}</td>
+            <td>
+                <span ng-if="record.status == 1" class="btn btn-danger" ng-click="ctrl.toggle({recordId : record.id, direction : 0})">Deactivate</span>
+                <span ng-if="record.status == 0" class="btn btn-success" ng-click="ctrl.toggle({recordId : record.id, direction : 1})">Activate</span>
+            </td>
         </tr>
         </tbody>
     </table>

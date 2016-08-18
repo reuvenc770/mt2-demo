@@ -38,4 +38,12 @@ class DoingBusinessAsRepo
             'state_id' => $accountData[ 'state_id' ] ,
         ] );
     }
+
+    public function toggleRow($id, $direction){
+        return $this->doingBusinessAs->find($id)->update(["status" => $direction]);
+    }
+
+    public function getModel(){
+        return $this->doingBusinessAs->activeFirst();
+    }
 }
