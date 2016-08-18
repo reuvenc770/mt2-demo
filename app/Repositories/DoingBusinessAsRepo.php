@@ -33,7 +33,7 @@ class DoingBusinessAsRepo
     }
 
     public function updateAccount ( $id , $accountData ) {
-        return $this->doingBusinessAs->where( 'id' , $id )->update( [
+        return $this->doingBusinessAs->find( $id )->update( [
             'dba_name' => $accountData[ 'dba_name' ] ,
             'state_id' => $accountData[ 'state_id' ] ,
         ] );

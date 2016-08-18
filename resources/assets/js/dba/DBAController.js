@@ -1,4 +1,4 @@
-mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$timeout' , 'DBAApiService', '$mdToast' , function ( $log , $window , $location , $timeout , DBAApiService, $mdToast ) {
+mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$timeout' , 'DBAApiService', '$rootScope', '$mdToast' , function ( $log , $window , $location , $timeout , DBAApiService, $rootScope, $mdToast ) {
     var self = this;
     self.$location = $location;
     
@@ -95,6 +95,13 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     self.toggle = function(recordId,direction) {
         DBAApiService.toggleRow(recordId, direction, self.toggleRowSuccess, self.toggleRowFailure)
     };
+
+    /**
+     * Watchers
+     */
+    $rootScope.$on( 'updatePage' , function () {
+        self.loadAccounts();
+    } );
 
 
 

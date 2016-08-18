@@ -32,7 +32,7 @@ class ProxyRepo
     }
 
     public function updateAccount ( $id , $accountData ) {
-        return $this->proxy->where( 'id' , $id )->update($accountData);
+        return $this->proxy->find($id )->update($accountData);
     }
 
     public function getModel(){

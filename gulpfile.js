@@ -131,7 +131,8 @@ elixir.extend( 'deployProxyJs' , function ( mix ) {
 elixir.extend( 'deployRegistrarJs' , function ( mix ) {
     mix.scripts( [
         'registrar/RegistrarController.js' ,
-        'registrar/RegistrarApiService.js'
+        'registrar/RegistrarApiService.js',
+        'registrar/RegistrarTableDirective.js'
     ] , 'public/js/registrar.js' );
 } );
 

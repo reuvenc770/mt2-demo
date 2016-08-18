@@ -1,0 +1,36 @@
+<div id="mtTableContainer" class="table-responsive">
+    <table class="table table-striped table-bordered table-hover text-center">
+        <thead>
+        <tr>
+            <th class="text-center">
+                <strong><span class="glyphicon glyphicon-refresh rotateMe" ng-if="ctrl.loadingflag == 1"></span></strong>
+            </th>
+            <th class="text-center">Registrar Name</th>
+            <th class="text-center">Username</th>
+            <th class="text-center">Contact Name</th>
+            <th class="text-center">Contact Email</th>
+            <th class="text-center">Phone</th>
+            <th class="text-center">Entity Name</th>
+            <th class="text-center">
+                <strong><span class="glyphicon glyphicon-refresh rotateMe" ng-if="ctrl.loadingflag == 1"></span></strong>
+            </th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr ng-repeat="record in ctrl.records track by $index" ng-class="{ rowDisabled : record.status == 0 }">
+            <td><edit-button editurl="'/proxy/edit/'" recordid="record.id"></edit-button></td>
+            <td>{{ record.name }}</td>
+            <td>{{ record.user }}</td>
+            <td>{{ record.contact_name }}</td>
+            <td>{{ record.contact_email }}</td>
+            <td>{{ record.phone_numbers }}</td>
+            <td>{{ record.entity_name }}</td>
+            <td>
+                <span ng-if="record.status == 1" class="btn btn-danger" ng-click="ctrl.toggle({recordId : record.id, direction : 0})">Deactivate</span>
+                <span ng-if="record.status == 0" class="btn btn-success" ng-click="ctrl.toggle({recordId : record.id, direction : 1})">Activate</span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
