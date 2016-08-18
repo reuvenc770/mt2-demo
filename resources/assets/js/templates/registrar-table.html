@@ -21,10 +21,10 @@
         <tr ng-repeat="record in ctrl.records track by $index" ng-class="{ rowDisabled : record.status == 0 }">
             <td><edit-button editurl="'/proxy/edit/'" recordid="record.id"></edit-button></td>
             <td>{{ record.name }}</td>
-            <td>{{ record.user }}</td>
+            <td>{{ record.username }}</td>
             <td>{{ record.contact_name }}</td>
             <td>{{ record.contact_email }}</td>
-            <td>{{ record.phone_numbers }}</td>
+            <td>{{ record.phone_number }}</td>
             <td>{{ record.entity_name }}</td>
             <td>
                 <span ng-if="record.status == 1" class="btn btn-danger" ng-click="ctrl.toggle({recordId : record.id, direction : 0})">Deactivate</span>

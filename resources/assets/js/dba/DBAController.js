@@ -96,6 +96,15 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
         DBAApiService.toggleRow(recordId, direction, self.toggleRowSuccess, self.toggleRowFailure)
     };
 
+    self.formatBox = function(box){
+      var boxes = JSON.parse(box);
+        var text = "";
+        angular.forEach(boxes, function(value, key) {
+        text+= value.sub + "-" + value.address + " " + value.city + " " + value.state + "" +  value.zip + "-" + value.phone + " - Brands -" + value.brands + "\n\n";
+        });
+        return text;
+    };
+
     /**
      * Watchers
      */

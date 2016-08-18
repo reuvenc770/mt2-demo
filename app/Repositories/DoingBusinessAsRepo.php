@@ -21,7 +21,7 @@ class DoingBusinessAsRepo
 
     }
     public function insertRow($data){
-      return $this->doingBusinessAs->insert($data);
+      return $this->doingBusinessAs->create($data);
     }
 
     public function getAll(){

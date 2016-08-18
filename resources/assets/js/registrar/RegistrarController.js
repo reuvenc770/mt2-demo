@@ -21,7 +21,7 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
     self.formErrors = "";
 
     self.pageCount = 0;
-    self.paginationCount = 10;
+    self.paginationCount = '10';
     self.currentPage = 1;
     self.currentlyLoading = 0;
 

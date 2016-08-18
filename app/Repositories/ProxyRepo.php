@@ -20,7 +20,7 @@ class ProxyRepo
     }
 
     public function insertRow($data){
-        return $this->proxy->insert($data);
+        return $this->proxy->create($data);
     }
 
     public function getAll(){
