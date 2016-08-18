@@ -7,7 +7,7 @@ namespace Tests\Attribution;
 
 use Tests\TestCase;
 
-class ClientAggregatorServiceTestCase extends TestCase {
+class FeedAggregatorServiceTestCase extends TestCase {
 
     public function setUp () {
         parent::setUp();

@@ -74,7 +74,7 @@ class ThreeMonthReportCollectionIntegrationTest extends TestCase {
                 $clientCount = $listOwnerFeedCount[ $currentListOwner->client_stats_grouping_id ];
                 $clientIndex = $listOwnerFeedIndex[ $currentListOwner->client_stats_grouping_id ];
                 for ( $feedIndex = $clientIndex , $feedCount = 0 ; $feedCount < $clientCount ; $feedCount++, $feedIndex++  ) {
-                    factory( \App\Models\AttributionClientReport::class )->create( [
+                    factory( \App\Models\AttributionFeedReport::class )->create( [
                         "client_id" => $testClients[ $feedIndex ]->id ,
                         "revenue" => $currentListOwner->standard_revenue / $clientCount ,
                         "mt1_uniques" => $currentListOwner->mt1_uniques / $clientCount ,

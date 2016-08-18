@@ -13,7 +13,7 @@ class ListOwnerAggregatorServiceIntegrationTest extends TestCase {
     use DatabaseMigrations;
 
     const CLIENT_CLASS = \App\Models\Client::class;
-    const ATTR_CLIENT_REPORT_CLASS = \App\Models\AttributionClientReport::class;
+    const ATTR_FEED_REPORT_CLASS = \App\Models\AttributionFeedReport::class;
 
     const LISTOWNER_ID_1 = 11; #client 1, 2, 3, & 4 are assigned to this in dev
     const LISTOWNER_ID_2 = 12; #client 5 & 6 are assigned to this in dev
@@ -108,7 +108,7 @@ class ListOwnerAggregatorServiceIntegrationTest extends TestCase {
 
         $this->testClientRecords = [];
         foreach ( $this->testClients as $clientIndex => $client ) {
-            $this->testClientRecords[ $clientIndex ] = factory( self::ATTR_CLIENT_REPORT_CLASS )->create( [
+            $this->testClientRecords[ $clientIndex ] = factory( self::ATTR_FEED_REPORT_CLASS )->create( [
                 "client_id" => $client->id ,
                 "revenue" => mt_rand( 100 , 200 ) ,
                 "mt1_uniques" => mt_rand( 1000 , 2000 ) ,

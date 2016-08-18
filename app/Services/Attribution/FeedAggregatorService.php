@@ -7,22 +7,22 @@ namespace App\Services\Attribution;
 
 use App\Services\Attribution\AbstractReportAggregatorService;
 use App\Services\Attribution\RecordReportService;
-use App\Repositories\Attribution\ClientReportRepo;
+use App\Repositories\Attribution\FeedReportRepo;
 use App\Services\EmailClientAssignmentService;
 use App\Services\EmailClientInstanceService;
 use App\Exceptions\AggregatorServiceException;
 
-class ClientAggregatorService extends AbstractReportAggregatorService {
+class FeedAggregatorService extends AbstractReportAggregatorService {
     protected $recordReport;
     protected $emailClientAssignmentService;
     protected $emailClientInstanceService;
-    protected $clientRepo;
+    protected $feedRepo;
 
-    public function __construct ( RecordReportService $recordReport , EmailClientAssignmentService $emailClientAssignmentService , EmailClientInstanceService $emailClientInstanceService , ClientReportRepo $clientRepo ) {
+    public function __construct ( RecordReportService $recordReport , EmailClientAssignmentService $emailClientAssignmentService , EmailClientInstanceService $emailClientInstanceService , FeedReportRepo $feedRepo ) {
         $this->recordReport = $recordReport;
         $this->emailClientAssignmentService = $emailClientAssignmentService;
         $this->emailClientInstanceService = $emailClientInstanceService;
-        $this->clientRepo = $clientRepo;
+        $this->feedRepo = $feedRepo;
     }
 
     public function buildAndSaveReport ( $dateRange = null ) {
@@ -38,8 +38,8 @@ class ClientAggregatorService extends AbstractReportAggregatorService {
             throw new AggregatorServiceException( 'EmailClientInstanceService needed. Please inject a service.' );
         }
 
-        if ( !isset( $this->clientRepo ) ) {
-            throw new AggregatorServiceException( 'ClientReportRepo needed. Please inject a repo.' );
+        if ( !isset( $this->feedRepo ) ) {
+            throw new AggregatorServiceException( 'FeedReportRepo needed. Please inject a repo.' );
         }
 
         $this->setDateRange( $dateRange );
@@ -89,7 +89,7 @@ class ClientAggregatorService extends AbstractReportAggregatorService {
     }
 
     protected function runInsertQuery ( $valuesSqlString ) {
-        $this->clientRepo->runInsertQuery( $valuesSqlString );
+        $this->feedRepo->runInsertQuery( $valuesSqlString );
     }
 
     protected function createRowIfMissing ( $date , $clientId ) {

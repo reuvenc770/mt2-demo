@@ -7,20 +7,20 @@ namespace App\Services\Attribution;
 
 use App\Services\Attribution\AbstractReportAggregatorService;
 use App\Repositories\Attribution\ListOwnerReportRepo;
-use App\Repositories\Attribution\ClientReportRepo;
+use App\Repositories\Attribution\FeedReportRepo;
 use App\Services\MT1Services\ClientService;
 use App\Exceptions\AggregatorServiceException;
 use Carbon\Carbon;
 
 class ListOwnerAggregatorService extends AbstractReportAggregatorService {
     protected $clientService;
-    protected $clientReportRepo;
+    protected $feedReportRepo;
     protected $listOwnerRepo;
 
-    public function __construct ( ClientService $clientService , ListOwnerReportRepo $listOwnerRepo , ClientReportRepo $clientReportRepo ) {
+    public function __construct ( ClientService $clientService , ListOwnerReportRepo $listOwnerRepo , FeedReportRepo $feedReportRepo ) {
         $this->clientService = $clientService;
         $this->listOwnerRepo = $listOwnerRepo;
-        $this->clientReportRepo = $clientReportRepo;
+        $this->feedReportRepo = $feedReportRepo;
     }
 
     public function buildAndSaveReport ( $dateRange = null ) {
@@ -32,8 +32,8 @@ class ListOwnerAggregatorService extends AbstractReportAggregatorService {
             throw new AggregatorServiceException( 'ListOwnerReportRepo needed. Please inject a repo.' );
         }
 
-        if ( !isset( $this->clientReportRepo ) ) {
-            throw new AggregatorServiceException( 'ClientReportRepo needed. Please inject a repo.' );
+        if ( !isset( $this->feedReportRepo ) ) {
+            throw new AggregatorServiceException( 'FeedReportRepo needed. Please inject a repo.' );
         }
 
         $this->setDateRange( $dateRange );
@@ -46,7 +46,7 @@ class ListOwnerAggregatorService extends AbstractReportAggregatorService {
     }
 
     protected function getBaseRecords () {
-        return $this->clientReportRepo->getByDateRange( $this->dateRange );
+        return $this->feedReportRepo->getByDateRange( $this->dateRange );
     }
 
     protected function processBaseRecord ( $baseRecord ) {

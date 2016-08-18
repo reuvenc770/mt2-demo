@@ -9,7 +9,7 @@ use Illuminate\Support\Collection;
 use Carbon\Carbon;
 
 class ThreeMonthReportCollection extends Collection {
-    protected $clientReportRepo;
+    protected $feedReportRepo;
     protected $listOwnerReportRepo;
     protected $clientStatsGroupingService;
     protected $clientService;
@@ -23,7 +23,7 @@ class ThreeMonthReportCollection extends Collection {
     public function __construct ( $items = [] ) {
         parent::__construct( $items );
 
-        $this->clientReportRepo = \App::make( \App\Repositories\Attribution\ClientReportRepo::class );
+        $this->feedReportRepo = \App::make( \App\Repositories\Attribution\FeedReportRepo::class );
         $this->listOwnerReportRepo = \App::make( \App\Repositories\Attribution\ListOwnerReportRepo::class );
         $this->clientStatsGroupingService = \App::make( \App\Services\MT1Services\ClientStatsGroupingService::class );
         $this->clientService = \App::make( \App\Services\MT1Services\ClientService::class );
@@ -148,7 +148,7 @@ class ThreeMonthReportCollection extends Collection {
 
         $currentClientRow[ 'client_id' ] = $feedId;
         foreach ( $this->dates as $dateKey => $date ) {
-            $feedRecord = $this->clientReportRepo->getAggregateForIdAndMonth( $feedId , $date );
+            $feedRecord = $this->feedReportRepo->getAggregateForIdAndMonth( $feedId , $date );
 
             if ( $this->compileCsv ) {
                 $currentClientCsvRow []= $feedRecord->revenue;

@@ -9,7 +9,7 @@ use Tests\TestCase;
 use \Illuminate\Foundation\Testing\DatabaseMigrations;
 use \Carbon\Carbon;
 
-class ClientAggregatorServiceIntegrationTest extends TestCase {
+class FeedAggregatorServiceIntegrationTest extends TestCase {
     use DatabaseMigrations;
 
     const CLIENT_CLASS = \App\Models\Client::class;
@@ -28,7 +28,7 @@ class ClientAggregatorServiceIntegrationTest extends TestCase {
     public function setUp () {
         parent::setUp();
 
-        $this->sut = \App::make( \App\Services\Attribution\ClientAggregatorService::class );
+        $this->sut = \App::make( \App\Services\Attribution\FeedAggregatorService::class );
     }
 
     public function tearDown () {
@@ -46,25 +46,22 @@ class ClientAggregatorServiceIntegrationTest extends TestCase {
         $this->assertEquals( 3 , $this->sut->count() );
 
         #Verifying that there is a record for each client in the DB
-        $this->assertEquals( 3 , \App\Models\AttributionClientReport::all()->count() );
+        $this->assertEquals( 3 , \App\Models\AttributionFeedReport::all()->count() );
         
         foreach ( $this->sut->getRecords() as $currentRow ) {
             switch ( $currentRow[ "client_id" ] ) {
                 case $this->testClients[ 0 ]->id :
                     $this->assertTrue( $currentRow[ "revenue" ] === 4.00 );
-                    $this->assertTrue( $currentRow[ "mt1_uniques" ] === 2 );
                     $this->assertTrue( $currentRow[ "mt2_uniques" ] === 2 );
                 break;
 
                 case $this->testClients[ 1 ]->id :
                     $this->assertTrue( $currentRow[ "revenue" ] === 6.00 );
-                    $this->assertTrue( $currentRow[ "mt1_uniques" ] === 3 );
                     $this->assertTrue( $currentRow[ "mt2_uniques" ] === 3 );
                 break;
 
                 case $this->testClients[ 2 ]->id :
                     $this->assertTrue( $currentRow[ "revenue" ] === 0.00 );
-                    $this->assertTrue( $currentRow[ "mt1_uniques" ] === 0 );
                     $this->assertTrue( $currentRow[ "mt2_uniques" ] === 0 );
                 break;
             }

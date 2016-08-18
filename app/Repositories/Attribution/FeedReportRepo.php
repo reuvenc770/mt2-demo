@@ -6,13 +6,13 @@
 namespace App\Repositories\Attribution;
 
 use DB;
-use App\Models\AttributionClientReport;
+use App\Models\AttributionFeedReport;
 use Carbon\Carbon;
 
-class ClientReportRepo {
+class FeedReportRepo {
     protected $model;
 
-    public function __construct ( AttributionClientReport $model ) {
+    public function __construct ( AttributionFeedReport $model ) {
         $this->model = $model;
     }
 
@@ -38,7 +38,7 @@ class ClientReportRepo {
     public function runInsertQuery ( $valuesSqlString ) {
         DB::connection( 'attribution' )->insert( "
             INSERT INTO
-                attribution_client_reports ( client_id , revenue , mt1_uniques , mt2_uniques , date , created_at , updated_at )
+                attribution_feed_reports ( client_id , revenue , mt1_uniques , mt2_uniques , date , created_at , updated_at )
             VALUES
                 {$valuesSqlString}
             ON DUPLICATE KEY UPDATE

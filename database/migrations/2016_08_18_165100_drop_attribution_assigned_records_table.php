@@ -38,12 +38,12 @@ class DropAttributionAssignedRecordsTable extends Migration
             $table->decimal( 'rev' , 11 , 3 )->default( 0.000 );
             $table->decimal( 'cost' , 9 , 3 )->default( 0.000 );
             $table->decimal( 'ecpm' , 7 , 3 )->default( 0.000 );
-            $table->integer( 'days_back' );
+            $table->integer( 'date' );
             $table->timestamps();
 
             $table->index( 'client_id' );
             $table->index( 'deploy_id' );
-            $table->index( 'days_back' );
+            $table->index( 'date' );
         });
     }
 }
