@@ -17,7 +17,6 @@ class Deploy extends Model
 
     public function espAccount(){
         return $this->belongsTo('App\Models\EspAccount');
-
     }
 
     public function offer(){
@@ -30,6 +29,18 @@ class Deploy extends Model
 
     public function mailingTemplate(){
         return $this->belongsTo('App\Models\MailingTemplate', 'template_id', 'id');
+    }
+
+    public function creative() {
+        return $this->belongsTo('App\Models\Creative');
+    }
+
+    public function from() {
+        return $this->belongsTo('App\Models\From');
+    }
+
+    public function subject() {
+        return $this->belongsTo('App\Models\Subject');
     }
 
 }
