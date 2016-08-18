@@ -67,7 +67,7 @@ class DoingBusinessAsController extends Controller
      */
     public function show($id)
     {
-        return $this->doingBusinessService->getDBA( $id );
+        return response()->json($this->doingBusinessService->getDBA( $id ));
 
     }
 

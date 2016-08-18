@@ -33,6 +33,7 @@ class AddDBARequest extends Request
             'address'       => 'required',
             'city'          => 'required',
             'state'         => 'required',
+            'entity_name'   => 'required',
             'registrant_name' => 'required',
         ];
     }

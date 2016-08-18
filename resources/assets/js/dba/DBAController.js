@@ -3,9 +3,10 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     self.$location = $location;
     
     self.accounts = [];
-    self.po_box = {address : "", address_2 : "", city : "", state : "", zip: ""};
+    self.po_box = {sub : "",address : "", address_2 : "", city : "", state : "", zip: "", phone : "", brands: []};
+    self.brand = "";
     self.currentAccount = { id:"",  dba_name : "" , phone: "",
-        email : "", po_boxes : [], address: "", address_2 : "", city : "", state : "", zip : ""};
+        email : "", po_boxes : [], address: "", address_2 : "", city : "", state : "", zip : "",entity_name: ""};
 
     self.createUrl = 'dba/create/';
     self.editUrl = 'dba/edit/';
@@ -39,6 +40,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     self.saveNewAccount = function () {
         self.resetFieldErrors();
         self.currentAccount.po_boxes = JSON.stringify(self.currentAccount.po_boxes);
+        self.currentAccount.status = 1;
         DBAApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback );
     };
 
@@ -48,6 +50,20 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
         DBAApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 
+    self.addBrand = function () {
+            self.po_box.brands.push(self.brand);
+            self.brand = "";
+    };
+
+    self.removeBrand = function (id) {
+        self.po_box.brands.splice( id , 1 );
+
+    };
+
+    self.editBrand = function (id) {
+        self.brand = self.po_box.brands[id];
+        self.po_box.brands.splice( id , 1 );
+    };
 
     self.addPOBox = function () {
         if(self.po_box.address.length >= 1 || self.po_box.state.length >= 1) {
@@ -67,7 +83,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     };
 
     self.clearPOBox = function () {
-        self.po_box = {address : "", address_2 : "", city : "", state : "", zip: ""};
+        self.po_box = {address : "", address_2 : "", city : "", state : "", zip: "" , phone:"", brands:[], brand: ""};
     };
 
 
@@ -99,6 +115,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     };
 
     self.saveNewAccountFailureCallback = function ( response ) {
+        self.currentAccount.po_boxes = JSON.parse(self.currentAccount.po_boxes);
         self.loadFieldErrors(response);
     };
 
