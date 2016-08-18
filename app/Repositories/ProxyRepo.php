@@ -35,5 +35,14 @@ class ProxyRepo
         return $this->proxy->where( 'id' , $id )->update($accountData);
     }
 
+    public function getModel(){
+        return $this->proxy->activeFirst();
+    }
+
+    public function toggleRow($id, $direction){
+
+        return $this->proxy->find($id)->update(["status" => $direction]);
+    }
+
 
 }

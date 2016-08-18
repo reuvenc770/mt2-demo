@@ -123,7 +123,8 @@ elixir.extend( 'deployDeployJs' , function ( mix ) {
 elixir.extend( 'deployProxyJs' , function ( mix ) {
     mix.scripts( [
         'proxy/ProxyController.js' ,
-        'proxy/ProxyApiService.js'
+        'proxy/ProxyApiService.js',
+        'proxy/ProxyTableDirective.js'
     ] , 'public/js/proxy.js' );
 } );
 

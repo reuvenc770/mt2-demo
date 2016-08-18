@@ -116,6 +116,12 @@ body {
 .transparent-background , .transparent-background .md-datepicker-input { background-color: rgba(0, 0, 0, 0) !important; }
 .transparent-background .md-datepicker-expand-triangle { border-top-color: rgba(255,255,255,0.87) !important; }
 
+
+.table-striped > tbody > tr {
+    &.rowDisabled{
+    background-color: #ffc4c4;
+    }
+}
 /**
  * Fields
  */
