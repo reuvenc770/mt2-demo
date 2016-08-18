@@ -9,13 +9,12 @@
             <th class="text-center">Created</th>
             <th class="text-center">Expires</th>
             <th class="text-center">DBA</th>
-            <th class="text-center">Status</th>
             <th class="text-center">Actions</th>
         </tr>
         </thead>
 
         <tbody>
-        <tr ng-repeat="record in ctrl.records track by $index">
+        <tr ng-repeat="record in ctrl.records track by $index" ng-class="{ rowDisabled : record.active == 0 }">
             <td>{{ record.domain_name }}</td>
             <td>{{ record.proxy_name }}</td>
             <td>{{ record.registrar_name }}</td>
@@ -23,8 +22,7 @@
             <td>{{ record.created_at }}</td>
             <td>{{ record.expires_at }}</td>
             <td>{{ record.dba_name }}</td>
-            <td><span class="glyphicon" ng-class="[ctrl.glythmap[record.active]]"></span></td>
-            <td><button ng-click="ctrl.inactive( { id : record.dom_id} )" type="button" class="btn btn-info btn-xs"><span class="glyphicon glyphicon-off"></span><span class="hidden-xs"> Deactivate</span></button>
+            <td><button ng-if="record.active == 1" ng-click="ctrl.inactive( { id : record.dom_id} )" type="button" class="btn btn-info btn-xs"><span class="glyphicon glyphicon-off"></span><span class="hidden-xs"> Deactivate</span></button>
             </td>
         </tr>
         </tbody>

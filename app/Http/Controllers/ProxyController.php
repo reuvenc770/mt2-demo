@@ -33,18 +33,7 @@ class ProxyController extends Controller
      */
     public function index()
     {
-        $proxys = $this->proxyService->getAll();
-        $return = array();
-        foreach ($proxys as $proxy) {
-            $return[] = array(
-                $proxy->id,
-                $proxy->name,
-                $proxy->ip_address,
-                $proxy->provider_name
-
-            );
-        }
-        return response()->json($return);
+        return response()->json($this->proxyService->getAll());
     }
 
     /**

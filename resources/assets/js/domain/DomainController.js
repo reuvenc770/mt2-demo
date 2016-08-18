@@ -39,6 +39,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     self.currentInfo = self.info[1];
     self.GlythMap  = { 1:"glyphicon-ok-circle", 0:"glyphicon glyphicon-ban-circle"};
     self.updatingAccounts = false;
+    self.type = 1;
 
 
 
@@ -61,7 +62,10 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         self.updatingAccounts = true;
         self.currentAccount.domain_type = type;
         self.currentInfo = self.info[type];
-        self.updateDomains();
+        self.type = type;
+        if(self.currentAccount.espAccountId.length > 0) {
+            self.updateDomains();
+        }
         self.updateProxies();
     };
     self.init = function (type) {
