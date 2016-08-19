@@ -59,7 +59,7 @@ class AttributionReportController extends Controller
         $this->buildCollection();
 
         $csv = $this->collection->getCsv();
-        $fileName = $this->reportType . '.' . Carbon::today()->format( 'Y.m.d.G.i' ) . '.csv';
+        $fileName = $this->reportType . '.' . Carbon::now()->format( 'Y.m.d.G.i.s' ) . '.csv';
 
         $headers = [
             "Content-Type" => "text/csv" ,

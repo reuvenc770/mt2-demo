@@ -84,7 +84,7 @@ class ThreeMonthReportCollection extends Collection {
             $thirdGroupPrefix . 'Mt2Uniques'
         ] );
 
-        $clientList = $this->ClientReportRepo->getClientsFromLastThreeMonths();
+        $clientList = $this->clientReportRepo->getClientsFromLastThreeMonths();
 
         foreach ( $clientList as $client ) {
             $csv .= "\n" . $this->getClientRow( $client->id );
@@ -95,12 +95,35 @@ class ThreeMonthReportCollection extends Collection {
             }
         }
 
+        $csv .= "\n" . implode( ',' , [
+            'Totals' ,
+            '' ,
+            $this->totalsCollector[ 'two_months_ago' ][ 'standard_revenue' ] ,
+            $this->totalsCollector[ 'two_months_ago' ][ 'standard_revenue' ] * 0.15 ,
+            $this->totalsCollector[ 'two_months_ago' ][ 'cpm_revenue' ] ,
+            $this->totalsCollector[ 'two_months_ago' ][ 'cpm_revenue' ] * 0.15 ,
+            $this->totalsCollector[ 'two_months_ago' ][ 'mt1_uniques' ] ,
+            $this->totalsCollector[ 'two_months_ago' ][ 'mt2_uniques' ] ,
+            $this->totalsCollector[ 'last_month' ][ 'standard_revenue' ] ,
+            $this->totalsCollector[ 'last_month' ][ 'standard_revenue' ] * 0.15 ,
+            $this->totalsCollector[ 'last_month' ][ 'cpm_revenue' ] ,
+            $this->totalsCollector[ 'last_month' ][ 'cpm_revenue' ] * 0.15 ,
+            $this->totalsCollector[ 'last_month' ][ 'mt1_uniques' ] ,
+            $this->totalsCollector[ 'last_month' ][ 'mt2_uniques' ] ,
+            $this->totalsCollector[ 'current_month' ][ 'standard_revenue' ] ,
+            $this->totalsCollector[ 'current_month' ][ 'standard_revenue' ] * 0.15 ,
+            $this->totalsCollector[ 'current_month' ][ 'cpm_revenue' ] ,
+            $this->totalsCollector[ 'current_month' ][ 'cpm_revenue' ] * 0.15 ,
+            $this->totalsCollector[ 'current_month' ][ 'mt1_uniques' ] ,
+            $this->totalsCollector[ 'current_month' ][ 'mt2_uniques' ]
+        ] );
+
         return $csv;
     }
 
     protected function getClientRow ( $clientId ) {
         $currentListOwnerRow = [];
-        $currentListOwnerCsvRow = [ $clientId , '' ];
+        $currentListOwnerCsvRow = [ $this->clientStatsGroupingService->getListOwnerName( $clientId ) . " ($clientId)" , '' ];
 
         $currentListOwnerRow[ 'client_stats_grouping_id' ] = $clientId;
         foreach  ( $this->dates as $dateKey => $date ) {
@@ -118,9 +141,9 @@ class ThreeMonthReportCollection extends Collection {
                 $currentListOwnerRow[ $dateKey ][ 'cpm_revenue' ] = $clientRecord->cpm_revenue;
                 $currentListOwnerRow[ $dateKey ][ 'mt1_uniques' ] = $clientRecord->mt1_uniques;
                 $currentListOwnerRow[ $dateKey ][ 'mt2_uniques' ] = $clientRecord->mt2_uniques;
-
-                $this->updateTotals( $dateKey , $clientRecord );
             }
+
+            $this->updateTotals( $dateKey , $clientRecord );
         }
 
         return ( $this->compileCsv ? implode( ',' , $currentListOwnerCsvRow ) : $currentListOwnerRow );
@@ -144,7 +167,7 @@ class ThreeMonthReportCollection extends Collection {
 
     protected function getFeedRow ( $feedId ) {
         $currentClientRow = [];
-        $currentClientCsvRow = [ '' , $feedId ];
+        $currentClientCsvRow = [ '' , $this->clientService->getFeedName( $feedId ) . " ($feedId)" ];
 
         $currentClientRow[ 'client_id' ] = $feedId;
         foreach ( $this->dates as $dateKey => $date ) {

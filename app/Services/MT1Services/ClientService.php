@@ -55,6 +55,19 @@ class ClientService implements IFtpAdmin
         }
     }
 
+    public function getFeedName ( $feedId ) {
+        $results = DB::connection( 'mt1mail' )->table( 'user' )->where( 'user_id' , $feedId )->pluck( 'username' );
+
+        Log::info( $results );
+
+        $name = '';
+        if ( !empty( $results ) && is_array( $results ) ) {
+            $name = array_pop( $results );
+        }
+
+        return $name;
+    }
+
     public function getAllTypes(){
         return $this->clientRepo->getClientTypes();
     }
