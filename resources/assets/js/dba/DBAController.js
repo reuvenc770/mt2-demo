@@ -93,7 +93,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     };
 
     self.toggle = function(recordId,direction) {
-        DBAApiService.toggleRow(recordId, direction, self.toggleRowSuccess, self.toggleRowFailure)
+        DBAApiService.toggleRow(recordId, direction, self.toggleRowSuccess, self.toggleRowFailure);
     };
 
     self.formatBox = function(box){
