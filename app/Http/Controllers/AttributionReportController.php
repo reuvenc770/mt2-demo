@@ -93,7 +93,9 @@ class AttributionReportController extends Controller
             "sort" => [
                 "field" =>  ( $descSort ? substr( $this->currentRequest->input( 'order' ) , 1 ) : $this->currentRequest->input( 'order' ) ) ,
                 "desc" => $descSort
-            ]
+            ] ,
+            "limit" => $this->currentRequest->input( 'limit' ) ,
+            "page" => $this->currentRequest->input( 'page' )
         ];
 
         return $query;
