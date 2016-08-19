@@ -6,6 +6,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 
 use App\Http\Requests;
 use Carbon\Carbon;
@@ -17,6 +18,7 @@ class AttributionReportController extends Controller
     protected $reportType;
     protected $collection;
     protected $records;
+    protected $totals;
     protected $currentRequest;
 
     protected $defaultTotalsList = [
@@ -51,10 +53,27 @@ class AttributionReportController extends Controller
         return response()->json( $this->getTableData() );
     }
 
+    public function export ( Request $request ) {
+        $this->currentRequest = $request;
+
+        $this->buildCollection();
+
+        $csv = $this->collection->getCsv();
+        $fileName = $this->reportType . '.' . Carbon::now()->format( 'Y.m.d.G.i.s' ) . '.csv';
+
+        $headers = [
+            "Content-Type" => "text/csv" ,
+            "Content-Disposition" => "attachment; filename=\"{$fileName}\"" ,
+            "Content-Length" => strlen( $csv )
+        ];
+
+        return Response::make( $csv , 200 , $headers );
+    }
+
     protected function buildCollection () {
         $this->reportType = $this->currentRequest->input( 'type' );
 
-        $className = "\App\Collections\Attribution\\" . $this->reportType . "ReportCollection";
+        $className = "\App\Collections\\" . $this->reportType . "ReportCollection";
 
         $this->collection = \App::make( $className ); 
 
@@ -85,11 +104,9 @@ class AttributionReportController extends Controller
 
         $responseContainer = [
             "totalRecords" => $this->collection->recordCount() ,
-            "totals" => [] ,
+            "totals" => $this->totals ,
             "records" => $this->records->all()
         ];
-
-        $this->sumTotals( $responseContainer );
 
         return $responseContainer;
     }
@@ -100,12 +117,9 @@ class AttributionReportController extends Controller
 
         $this->collection->load();
 
-        $this->records = $this->collection->forPage( $page , $chunkSize );
-    }
-
-    protected function sumTotals ( &$responseContainer ) {
-        foreach ( $this->totalsMap[ $this->reportType ] as $field ) {
-            $responseContainer[ 'totals' ][ $field ] = $this->records->pluck( $field )->sum();
-        }
+        $data = $this->collection->getRecordsAndTotals( [ 'page' => $page , 'chunkSize' => $chunkSize ] );
+        
+        $this->records = $data[ 'records' ];
+        $this->totals = $data[ 'totals' ];
     }
 }

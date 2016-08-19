@@ -23,4 +23,8 @@ class ClientStatsGroupingService
     public function getListGroups(){
        return $this->clientGroupingRepo->getGroupingNameAndLabels();
     }
+
+    public function getListOwnerName ( $listOwnerId ) {
+        return $this->clientGroupingRepo->getListOwnerName( $listOwnerId );
+    }
 }

@@ -555,6 +555,14 @@ Route::group(
                 'uses' => 'AttributionReportController@view' 
             )
         );
+
+        Route::get( 
+            '/report/export', 
+            array( 
+                'as' => 'attr.report.export', 
+                'uses' => 'AttributionReportController@export' 
+            )
+        );
     }
 );
 
