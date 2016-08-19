@@ -35,4 +35,25 @@ class EmailClientAssignmentRepo {
             'new_client_id' => $newClientId
         ]);
     }
+
+    public function setLevelModel ( $modelId ) {
+        $this->assignment->setModelTable( $modelId );
+    }
+
+    static public function generateTempTable ( $modelId ) {
+        Schema::connection( 'attribution' )->create( EmailClientAssignment::BASE_TABLE_NAME . $modelId , function (Blueprint $table) {
+            $table->bigInteger( 'email_id' )->unsigned();
+            $table->integer( 'client_id' )->unsigned();
+            $table->date('capture_date');
+            $table->timestamps();
+
+            $table->primary( 'email_id' );
+            $table->index( 'client_id' );
+            $table->index( [ 'email_id' , 'client_id' ] );
+        });
+    }
+
+    static public function dropTempTable ( $modelId ) {
+        Schema::connection( 'attribution' )->drop( EmailClientAssignment::BASE_TABLE_NAME . $modelId );
+    }
 }

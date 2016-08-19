@@ -7,6 +7,7 @@ namespace App\Repositories;
 
 use DB;
 use App\Repositories\AttributionLevelRepo;
+use App\Repositories\EmailClientAssignmentRepo;
 use App\Models\AttributionLevel;
 use App\Models\AttributionModel;
 
@@ -33,6 +34,7 @@ class AttributionModelRepo {
             
         #generates temp level table
         AttributionLevelRepo::generateTempTable( $newModel->id );
+        EmailClientAssignmentRepo::generateTempTable( $newModel->id );
 
         if ( !is_null( $levels ) ) {
             foreach ( $levels as $currentLevel ) {
