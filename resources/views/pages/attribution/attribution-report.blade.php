@@ -21,7 +21,7 @@
             </md-card>
         </md-tab>
 
-        <md-tab label="Mesa de Danny" md-on-select="attr.switchReportType( 'EmailCampaignStatistics' )">
+        <md-tab label="Delivered Records Report" md-on-select="attr.switchReportType( 'EmailCampaignStatistics' )">
             <md-card class="md-mt2-zeta-theme" flex>
                 @include( 'pages.attribution.reports.email-campaign-statistics-report' )
             </md-card>
