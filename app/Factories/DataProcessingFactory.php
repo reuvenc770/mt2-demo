@@ -99,6 +99,11 @@ class DataProcessingFactory {
                 $mt2Name = "OfferSubjectMap";
                 return self::createMt1ImportService($mt1Name, $mt2Name);
 
+            case('ImportMt1CakeEncryptionMapping'):
+                $mt1Name = "AffiliateCakeEncryption";
+                $mt2Name = "CakeEncryptedLink";
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
             default:
                 throw new \Exception("Data processing service {$name} does not exist");
         }

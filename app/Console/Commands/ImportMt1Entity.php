@@ -78,6 +78,9 @@ class ImportMt1Entity extends Command
             case "offerSubjectMap":
                 return "ImportMT1OfferSubjectMapping";
 
+            case "cakeEncryptedLinkMap":
+                return "ImportMt1CakeEncryptionMapping";
+
             default:
                 throw new \Exception('Unsupported entity type: ' . $type);
         }

@@ -169,6 +169,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('mt1Import offerCreativeMap')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerFromMap')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerSubjectMap')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import cakeEncryptedLinkMap')->dailyAt(self::MT1_SYNC_TIME);
 
         /**
          * Attribution Jobs
