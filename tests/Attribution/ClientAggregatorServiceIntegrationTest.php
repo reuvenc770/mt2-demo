@@ -9,7 +9,7 @@ use Tests\TestCase;
 use \Illuminate\Foundation\Testing\DatabaseMigrations;
 use \Carbon\Carbon;
 
-class ListOwnerAggregatorServiceIntegrationTest extends TestCase {
+class ClientAggregatorServiceIntegrationTest extends TestCase {
     use DatabaseMigrations;
 
     const CLIENT_CLASS = \App\Models\Client::class;
@@ -24,7 +24,7 @@ class ListOwnerAggregatorServiceIntegrationTest extends TestCase {
     public function setUp () {
         parent::setUp();
 
-        $this->sut = \App::make( \App\Services\Attribution\ListOwnerAggregatorService::class );
+        $this->sut = \App::make( \App\Services\Attribution\ClientAggregatorService::class );
     }
 
     public function tearDown() {
@@ -42,7 +42,7 @@ class ListOwnerAggregatorServiceIntegrationTest extends TestCase {
         $this->assertEquals( 3 , $this->sut->count() );
 
         #Verifying that there is a record for each list owner in the Db
-        $this->assertEquals( 3 , \App\Models\AttributionListOwnerReport::all()->count() );
+        $this->assertEquals( 3 , \App\Models\AttributionClientReport::all()->count() );
 
         foreach ( $this->sut->getRecords() as $currentRow ) {
             switch ( $currentRow[ 'client_stats_grouping_id' ] ) {

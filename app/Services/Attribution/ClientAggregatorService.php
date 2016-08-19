@@ -6,20 +6,20 @@
 namespace App\Services\Attribution;
 
 use App\Services\Attribution\AbstractReportAggregatorService;
-use App\Repositories\Attribution\ListOwnerReportRepo;
+use App\Repositories\Attribution\ClientReportRepo;
 use App\Repositories\Attribution\FeedReportRepo;
 use App\Services\MT1Services\ClientService;
 use App\Exceptions\AggregatorServiceException;
 use Carbon\Carbon;
 
-class ListOwnerAggregatorService extends AbstractReportAggregatorService {
+class ClientAggregatorService extends AbstractReportAggregatorService {
     protected $clientService;
     protected $feedReportRepo;
-    protected $listOwnerRepo;
+    protected $clientRepo;
 
-    public function __construct ( ClientService $clientService , ListOwnerReportRepo $listOwnerRepo , FeedReportRepo $feedReportRepo ) {
+    public function __construct ( ClientService $clientService , ClientReportRepo $clientRepo , FeedReportRepo $feedReportRepo ) {
         $this->clientService = $clientService;
-        $this->listOwnerRepo = $listOwnerRepo;
+        $this->clientRepo = $clientRepo;
         $this->feedReportRepo = $feedReportRepo;
     }
 
@@ -28,8 +28,8 @@ class ListOwnerAggregatorService extends AbstractReportAggregatorService {
             throw new AggregatorServiceException( 'ClientService needed. Please inject a service.' );
         }
 
-        if ( !isset( $this->listOwnerRepo ) ) {
-            throw new AggregatorServiceException( 'ListOwnerReportRepo needed. Please inject a repo.' );
+        if ( !isset( $this->clientRepo ) ) {
+            throw new AggregatorServiceException( 'ClientReportRepo needed. Please inject a repo.' );
         }
 
         if ( !isset( $this->feedReportRepo ) ) {
@@ -51,11 +51,11 @@ class ListOwnerAggregatorService extends AbstractReportAggregatorService {
 
     protected function processBaseRecord ( $baseRecord ) {
         $date = $baseRecord->date;
-        $listOwnerId = $this->clientService->getAssignedListOwnerId( $baseRecord->client_id );
+        $clientId = $this->clientService->getAssignedListOwnerId( $baseRecord->client_id );
         
-        $this->createRowIfMissing( $date , $listOwnerId );
+        $this->createRowIfMissing( $date , $clientId );
 
-        $currentRow = &$this->getCurrentRow( $date , $listOwnerId );
+        $currentRow = &$this->getCurrentRow( $date , $clientId );
 
         $currentRow[ "standard_revenue" ] = (
             ( $currentRow[ "standard_revenue" ] * parent::WHOLE_NUMBER_MODIFIER ) + ( $baseRecord[ "revenue" ] * parent::WHOLE_NUMBER_MODIFIER )
@@ -83,15 +83,15 @@ class ListOwnerAggregatorService extends AbstractReportAggregatorService {
     }
 
     protected function runInsertQuery ( $valuesSqlString ) {
-        $this->listOwnerRepo->runInsertQuery( $valuesSqlString );
+        $this->clientRepo->runInsertQuery( $valuesSqlString );
     }
 
-    protected function createRowIfMissing ( $date , $clientStatsGroupingId ) {
+    protected function createRowIfMissing ( $date , $clientId ) {
         $date = Carbon::parse( $date )->startOfMonth()->toDateString();
 
-        if ( !isset( $this->recordStruct[ $date ][ $clientStatsGroupingId ] ) ) {
-            $this->recordStruct[ $date ][ $clientStatsGroupingId ] = [
-                "client_stats_grouping_id" => $clientStatsGroupingId ,
+        if ( !isset( $this->recordStruct[ $date ][ $clientId ] ) ) {
+            $this->recordStruct[ $date ][ $clientId ] = [
+                "client_stats_grouping_id" => $clientId ,
                 "standard_revenue" => 0 ,
                 "cpm_revenue" => 0 ,
                 "mt1_uniques" => 0 ,
@@ -101,9 +101,9 @@ class ListOwnerAggregatorService extends AbstractReportAggregatorService {
         }
     }
 
-    protected function &getCurrentRow ( $date , $clientStatsGroupingId ) {
+    protected function &getCurrentRow ( $date , $clientId ) {
         $date = Carbon::parse( $date )->startOfMonth()->toDateString();
 
-        return $this->recordStruct[ $date ][ $clientStatsGroupingId ];
+        return $this->recordStruct[ $date ][ $clientId ];
     }
 }

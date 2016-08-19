@@ -10,7 +10,7 @@ use Carbon\Carbon;
 
 class ThreeMonthReportCollection extends Collection {
     protected $feedReportRepo;
-    protected $listOwnerReportRepo;
+    protected $clientReportRepo;
     protected $clientStatsGroupingService;
     protected $clientService;
 
@@ -24,7 +24,7 @@ class ThreeMonthReportCollection extends Collection {
         parent::__construct( $items );
 
         $this->feedReportRepo = \App::make( \App\Repositories\Attribution\FeedReportRepo::class );
-        $this->listOwnerReportRepo = \App::make( \App\Repositories\Attribution\ListOwnerReportRepo::class );
+        $this->clientReportRepo = \App::make( \App\Repositories\Attribution\ClientReportRepo::class );
         $this->clientStatsGroupingService = \App::make( \App\Services\MT1Services\ClientStatsGroupingService::class );
         $this->clientService = \App::make( \App\Services\MT1Services\ClientService::class );
 
@@ -36,12 +36,12 @@ class ThreeMonthReportCollection extends Collection {
     }
     
     public function load () {
-        $listOwnerList = $this->listOwnerReportRepo->getListOwnersFromLastThreeMonths();
+        $clientList = $this->clientReportRepo->getClientsFromLastThreeMonths();
 
-        foreach ( $listOwnerList as $listOwner ) {
-            $this->recordCollector []= $this->getListOwnerRow( $listOwner->id );
+        foreach ( $clientList as $client ) {
+            $this->recordCollector []= $this->getClientRow( $client->id );
             
-            $clientFeeds = $this->clientService->getClientFeedsForListOwner( $listOwner->id );
+            $clientFeeds = $this->clientService->getClientFeedsForListOwner( $client->id );
             foreach ( $clientFeeds as $feedId ) {
                 $this->recordCollector []= $this->getFeedRow( $feedId );
             }
@@ -84,12 +84,12 @@ class ThreeMonthReportCollection extends Collection {
             $thirdGroupPrefix . 'Mt2Uniques'
         ] );
 
-        $listOwnerList = $this->listOwnerReportRepo->getListOwnersFromLastThreeMonths();
+        $clientList = $this->ClientReportRepo->getClientsFromLastThreeMonths();
 
-        foreach ( $listOwnerList as $listOwner ) {
-            $csv .= "\n" . $this->getListOwnerRow( $listOwner->id );
+        foreach ( $clientList as $client ) {
+            $csv .= "\n" . $this->getClientRow( $client->id );
             
-            $clientFeeds = $this->clientService->getClientFeedsForListOwner( $listOwner->id );
+            $clientFeeds = $this->clientService->getClientFeedsForListOwner( $client->id );
             foreach ( $clientFeeds as $feedId ) {
                 $csv .= "\n" . $this->getFeedRow( $feedId );
             }
@@ -98,35 +98,35 @@ class ThreeMonthReportCollection extends Collection {
         return $csv;
     }
 
-    protected function getListOwnerRow ( $listOwnerId ) {
+    protected function getClientRow ( $clientId ) {
         $currentListOwnerRow = [];
-        $currentListOwnerCsvRow = [ $listOwnerId , '' ];
+        $currentListOwnerCsvRow = [ $clientId , '' ];
 
-        $currentListOwnerRow[ 'client_stats_grouping_id' ] = $listOwnerId;
+        $currentListOwnerRow[ 'client_stats_grouping_id' ] = $clientId;
         foreach  ( $this->dates as $dateKey => $date ) {
-            $listOwnerRecord = $this->listOwnerReportRepo->getAggregateForIdAndMonth( $listOwnerId , $date );    
+            $clientRecord = $this->clientReportRepo->getAggregateForIdAndMonth( $clientId , $date );    
 
             if ( $this->compileCsv ) {
-                $currentListOwnerCsvRow []= $listOwnerRecord->standard_revenue;
-                $currentListOwnerCsvRow []= $listOwnerRecord->standard_revenue * 0.15;
-                $currentListOwnerCsvRow []= $listOwnerRecord->cpm_revenue;
-                $currentListOwnerCsvRow []= $listOwnerRecord->cpm_revenue * 0.15;
-                $currentListOwnerCsvRow []= $listOwnerRecord->mt1_uniques;
-                $currentListOwnerCsvRow []= $listOwnerRecord->mt2_uniques;
+                $currentListOwnerCsvRow []= $clientRecord->standard_revenue;
+                $currentListOwnerCsvRow []= $clientRecord->standard_revenue * 0.15;
+                $currentListOwnerCsvRow []= $clientRecord->cpm_revenue;
+                $currentListOwnerCsvRow []= $clientRecord->cpm_revenue * 0.15;
+                $currentListOwnerCsvRow []= $clientRecord->mt1_uniques;
+                $currentListOwnerCsvRow []= $clientRecord->mt2_uniques;
             } else {
-                $currentListOwnerRow[ $dateKey ][ 'standard_revenue' ] = $listOwnerRecord->standard_revenue;
-                $currentListOwnerRow[ $dateKey ][ 'cpm_revenue' ] = $listOwnerRecord->cpm_revenue;
-                $currentListOwnerRow[ $dateKey ][ 'mt1_uniques' ] = $listOwnerRecord->mt1_uniques;
-                $currentListOwnerRow[ $dateKey ][ 'mt2_uniques' ] = $listOwnerRecord->mt2_uniques;
+                $currentListOwnerRow[ $dateKey ][ 'standard_revenue' ] = $clientRecord->standard_revenue;
+                $currentListOwnerRow[ $dateKey ][ 'cpm_revenue' ] = $clientRecord->cpm_revenue;
+                $currentListOwnerRow[ $dateKey ][ 'mt1_uniques' ] = $clientRecord->mt1_uniques;
+                $currentListOwnerRow[ $dateKey ][ 'mt2_uniques' ] = $clientRecord->mt2_uniques;
 
-                $this->updateTotals( $dateKey , $listOwnerRecord );
+                $this->updateTotals( $dateKey , $clientRecord );
             }
         }
 
         return ( $this->compileCsv ? implode( ',' , $currentListOwnerCsvRow ) : $currentListOwnerRow );
     }
 
-    protected function updateTotals ( $dateKey , $listOwnerRecord ) {
+    protected function updateTotals ( $dateKey , $clientRecord ) {
         if ( !isset( $this->totalsCollector[ $dateKey ] ) ) {
             $this->totalsCollector[ $dateKey ] = [
                 'standard_revenue' => 0 ,
@@ -136,10 +136,10 @@ class ThreeMonthReportCollection extends Collection {
             ];
         }
 
-        $this->totalsCollector[ $dateKey ][ 'standard_revenue' ] += $listOwnerRecord->standard_revenue;
-        $this->totalsCollector[ $dateKey ][ 'cpm_revenue' ] += $listOwnerRecord->cpm_revenue;
-        $this->totalsCollector[ $dateKey ][ 'mt1_uniques' ] += $listOwnerRecord->mt1_uniques;
-        $this->totalsCollector[ $dateKey ][ 'mt2_uniques' ] += $listOwnerRecord->mt2_uniques;
+        $this->totalsCollector[ $dateKey ][ 'standard_revenue' ] += $clientRecord->standard_revenue;
+        $this->totalsCollector[ $dateKey ][ 'cpm_revenue' ] += $clientRecord->cpm_revenue;
+        $this->totalsCollector[ $dateKey ][ 'mt1_uniques' ] += $clientRecord->mt1_uniques;
+        $this->totalsCollector[ $dateKey ][ 'mt2_uniques' ] += $clientRecord->mt2_uniques;
     }
 
     protected function getFeedRow ( $feedId ) {

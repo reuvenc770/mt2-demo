@@ -59,7 +59,7 @@ class ThreeMonthReportCollectionIntegrationTest extends TestCase {
                 $date = Carbon::today()->subMonths( 2 )->toDateString();
             }
 
-            $currentListOwner = factory( \App\Models\AttributionListOwnerReport::class )->create( [
+            $currentListOwner = factory( \App\Models\AttributionClientReport::class )->create( [
                 "client_stats_grouping_id" => $currentId ,
                 "standard_revenue" => mt_rand( 10.00 , 100.00 ) ,
                 "cpm_revenue" => mt_rand( 10.00 , 100.00 ) ,

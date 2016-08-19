@@ -6,17 +6,17 @@
 namespace App\Repositories\Attribution;
 
 use DB;
-use App\Models\AttributionListOwnerReport;
+use App\Models\AttributionClientReport;
 use Carbon\Carbon;
 
-class ListOwnerReportRepo {
+class ClientReportRepo {
     protected $model;
 
-    public function __construct ( AttributionListOwnerReport $model ) {
+    public function __construct ( AttributionClientReport $model ) {
         $this->model = $model;
     }
 
-    public function getAggregateForIdAndMonth ( $listOwnerId , $date ) {
+    public function getAggregateForIdAndMonth ( $clientId , $date ) {
         $dateRange = [ 'start' => Carbon::parse( $date )->startOfMonth()->toDateString() , 'end' => Carbon::parse( $date )->endOfMonth()->toDateString() ];
 
         return $this->model
@@ -26,13 +26,13 @@ class ListOwnerReportRepo {
                 SUM( mt1_uniques ) as mt1_uniques ,
                 SUM( mt2_uniques ) as mt2_uniques
             " ) )
-            ->where( 'client_stats_grouping_id' , $listOwnerId )
+            ->where( 'client_stats_grouping_id' , $clientId )
             ->whereBetween( 'date' , [ $dateRange[ 'start' ] , $dateRange[ 'end' ] ] )
             ->get()
             ->pop();
     }
 
-    public function getListOwnersFromLastThreeMonths () {
+    public function getClientsFromLastThreeMonths () {
         return $this->model
                     ->select( 'client_stats_grouping_id as id' )
                     ->distinct()
@@ -43,7 +43,7 @@ class ListOwnerReportRepo {
     public function runInsertQuery ( $valuesSqlString ) {
         DB::connection( 'attribution' )->insert( "
             INSERT INTO
-                attribution_list_owner_reports ( client_stats_grouping_id , standard_revenue , cpm_revenue , mt1_uniques , mt2_uniques , date , created_at , updated_at )
+                attribution_client_reports ( client_stats_grouping_id , standard_revenue , cpm_revenue , mt1_uniques , mt2_uniques , date , created_at , updated_at )
             VALUES
                 {$valuesSqlString}
             ON DUPLICATE KEY UPDATE
