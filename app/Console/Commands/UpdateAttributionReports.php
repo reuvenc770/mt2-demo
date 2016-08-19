@@ -22,7 +22,7 @@ class UpdateAttributionReports extends Command
      *
      * @var string
      */
-    protected $signature = 'attribution:updateReports {--R|reportType= : The name of the report to update.} {--d|daysBack=1 : Number of days back to run the report for. If no value is given, it will run for the current day. } {--M|modelId=0 : Model ID to process instead of live tables.} {--Q|queueName=default : The queue to throw the job onto. }';
+    protected $signature = 'attribution:updateReports {--R|reportType= : The name of the report to update.} {--d|daysBack=1 : Number of days back to run the report for. If no value is given, it will run for the current day. } {--M|modelId=0 : Model ID to process instead of live tables.} {--Q|queueName=default : The queue to throw the job onto. } {--s|startDate=none} {--e|endDate=none}';
 
     /**
      * The console command description.
@@ -81,6 +81,13 @@ class UpdateAttributionReports extends Command
             $this->dateRange = [
                 "start" => Carbon::today()->subDays( $this->option( 'daysBack' ) )->toDateString() ,
                 "end" => Carbon::today()->toDateString()
+            ];
+        }
+
+        if ( $this->option( 'startDate' ) != 'none' && $this->option( 'endDate' ) != 'none' ) {
+            $this->dateRange = [
+                "start" => $this->option( 'startDate' ) ,
+                "end" => $this->option( 'endDate' )
             ];
         }
 
