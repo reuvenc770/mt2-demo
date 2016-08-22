@@ -26,7 +26,7 @@ class EditDBARequest extends Request
     public function rules()
     {
         return [
-            'name' => 'required',
+            'dba_name' => 'required',
             'phone'         => 'required',
             'zip'           => 'required',
             'email'         => 'required|email',
