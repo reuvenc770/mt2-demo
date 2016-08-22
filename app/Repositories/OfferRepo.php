@@ -36,4 +36,8 @@ class OfferRepo {
         return $this->offer->where('name', 'like', $term . '%')->select("id","name")->get();
     }
 
+    public function offerCanBeMailedOnDay($offerId, $date) {
+        
+    }
+
 }
