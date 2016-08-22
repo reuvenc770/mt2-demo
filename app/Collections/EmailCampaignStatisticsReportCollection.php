@@ -26,13 +26,30 @@ class EmailCampaignStatisticsReportCollection extends AbstractReportCollection {
         $this->model = new EmailCampaignStatistic();
     }
 
+    public function recordCount () {
+        return $this->model->count();
+    }
+
+    public function getRecordsAndTotals ( $options = [] ) {
+        $records = $this;
+
+        return [
+            'records' => &$records ,
+            'totals' => $this->sumTotals( $records , $this->totalFields )
+        ];
+    }
+
     protected function processQuery () {
         $order = 'asc';
         if ( $this->query[ 'sort' ][ 'desc' ] ) {
             $order = 'desc';
         }
 
-        return $this->model->orderBy( $this->query[ 'sort' ][ 'field' ] , $order );
+        $lastPage = $this->query[ 'page' ] - 1;
+
+        $recordsToSkip = ( $lastPage > 0 ? $this->query[ 'limit' ] * ( $lastPage ) : 0 );
+
+        return $this->model->skip( $recordsToSkip )->take( $this->query[ 'limit' ] )->orderBy( $this->query[ 'sort' ][ 'field' ] , $order );
     }
 
     protected function getDateField () { return 'updated_at'; }
