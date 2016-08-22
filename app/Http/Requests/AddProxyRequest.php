@@ -27,7 +27,7 @@ class AddProxyRequest extends Request
     {
         return [
             'name' => 'required|unique:proxies',
-            'ip_address'      => 'required|ip',
+            'ip_addresses'      => 'required',
             'provider_name'      => 'required',
         ];
     }

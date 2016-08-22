@@ -10,9 +10,11 @@ namespace App\Services;
 
 
 use App\Repositories\ProxyRepo;
+use App\Services\ServiceTraits\PaginateList;
 use Log;
 class ProxyService
 {
+    use PaginateList;
     protected $proxyRepo;
 
     public function __construct(ProxyRepo $proxyRepo)
@@ -32,6 +34,10 @@ class ProxyService
         return $this->proxyRepo->getAll();
     }
 
+    public function getAllActive(){
+        return $this->proxyRepo->getAllActive();
+    }
+
     public function getProxy($id){
         return $this->proxyRepo->fetch($id);
     }
@@ -45,14 +51,17 @@ class ProxyService
         }
     }
 
+    public function getModel(){
+        return $this->proxyRepo->getModel();
+    }
 
-    public function getAllByType($type){
-        try {
-            return $this->proxyRepo->getRowsByType($type);
-        } catch( \Exception $e){
-            Log::error($e->getMessage());
-            return false;
-        }
+    public function toggleRow($id, $direction){
+        return $this->proxyRepo->toggleRow($id,$direction);
+    }
+
+    //override return model so its a builder and not Collection
+    public function getType(){
+        return "Proxy";
     }
 
 }

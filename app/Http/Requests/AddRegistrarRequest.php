@@ -26,8 +26,19 @@ class AddRegistrarRequest extends Request
     public function rules()
     {
         return [
-            'name' => 'required|unique:registrars',
+            'name'          => 'required',
             'username'      => 'required',
+            'contact_name'  => 'required',
+            'contact_email' => 'required|email',
+            'phone_number'  => 'required',
+            'last_cc'       => 'required|integer',
+            'contact_credit_card' => 'required',
+            'address'       => 'required',
+            'city'          => 'required',
+            'state'         => 'required',
+            'zip'           => 'required|integer',
+            'entity_name'   => 'required',
+
         ];
     }
 }

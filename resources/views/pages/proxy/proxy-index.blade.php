@@ -17,14 +17,44 @@
     <div ng-init="proxy.loadAccounts()">
         <div class="row">
             <div class="col-xs-12">
-                <div id="mtTableContainer" class="table-responsive">
-                    <generic-table headers="proxy.headers" records="proxy.accounts" editurl="proxy.editUrl"></generic-table>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="row">
+                            <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
+                                <pagination-count recordcount="proxy.paginationCount"
+                                                  currentpage="proxy.currentPage"></pagination-count>
+                            </div>
+
+                            <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
+                                <pagination currentpage="proxy.currentPage" maxpage="proxy.pageCount"></pagination>
+                            </div>
+                        </div>
+                        <div id="mtTableContainer" class="table-responsive">
+                            <proxy-table toggle="proxy.toggle(recordId, direction)"
+                                         records="proxy.accounts"></proxy-table>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="row">
+                                    <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
+                                        <pagination-count recordcount="proxy.paginationCount"
+                                                          currentpage="proxy.currentPage"></pagination-count>
+                                    </div>
+
+                                    <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
+                                        <pagination currentpage="proxy.currentPage"
+                                                    maxpage="proxy.pageCount"></pagination>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-@stop
+                    @stop
 
-@section( 'pageIncludes' )
-    <script src="js/proxy.js"></script>
+                    @section( 'pageIncludes' )
+                        <script src="js/proxy.js"></script>
 @stop

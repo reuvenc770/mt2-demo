@@ -16,7 +16,6 @@ class CreateDoingBusinessAsTable extends Migration
             $table->increments('id');
             $table->string("dba_name", 100);
             $table->integer("state_id");
-            $table->timestamps();
         });
     }
 

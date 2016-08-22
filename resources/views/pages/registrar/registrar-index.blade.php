@@ -17,8 +17,28 @@
     <div ng-controller="RegistrarController as registrar" ng-init="registrar.loadAccounts()">
         <div class="row">
             <div class="col-xs-12">
+                <div class="row">
+                    <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
+                        <pagination-count recordcount="registrar.paginationCount"
+                                          currentpage="registrar.currentPage"></pagination-count>
+                    </div>
+
+                    <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
+                        <pagination currentpage="registrar.currentPage" maxpage="registrar.pageCount"></pagination>
+                    </div>
+                </div>
                 <div id="mtTableContainer" class="table-responsive">
-                    <generic-table headers="registrar.headers" records="registrar.accounts" editurl="registrar.editUrl"></generic-table>
+                    <registrar-table records="registrar.accounts" toggle="registrar.toggle(recordId, direction)"></registrar-table>
+                </div>
+                <div class="row">
+                    <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
+                        <pagination-count recordcount="registrar.paginationCount"
+                                          currentpage="registrar.currentPage"></pagination-count>
+                    </div>
+
+                    <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
+                        <pagination currentpage="registrar.currentPage" maxpage="registrar.pageCount"></pagination>
+                    </div>
                 </div>
             </div>
         </div>

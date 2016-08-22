@@ -20,11 +20,15 @@ class ProxyRepo
     }
 
     public function insertRow($data){
-        return $this->proxy->insert($data);
+        return $this->proxy->create($data);
     }
 
     public function getAll(){
         return $this->proxy->all();
+    }
+
+    public function getAllActive(){
+        return $this->proxy->where("status",1)->get();
     }
 
     public function fetch($id){
@@ -32,11 +36,17 @@ class ProxyRepo
     }
 
     public function updateAccount ( $id , $accountData ) {
-        return $this->proxy->where( 'id' , $id )->update($accountData);
+        return $this->proxy->find($id )->update($accountData);
     }
 
-    public function getRowsByType($type){
-        return $this->proxy->where("domain_type",$type)->get();
+    public function getModel(){
+        return $this->proxy->activeFirst();
     }
+
+    public function toggleRow($id, $direction){
+
+        return $this->proxy->find($id)->update(["status" => $direction]);
+    }
+
 
 }
