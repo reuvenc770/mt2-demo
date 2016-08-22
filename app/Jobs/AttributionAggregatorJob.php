@@ -54,22 +54,30 @@ class AttributionAggregatorJob extends Job implements ShouldQueue
      */
     public function handle()
     {
-        try {
-            JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
+        if ( $this->jobCanRun( $this->jobName ) ) {
+            try {
+                JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
 
-            $this->aggregator = ServiceFactory::createAggregatorService( $this->reportType );
+                $this->aggregator = ServiceFactory::createAggregatorService( $this->reportType );
 
-            $this->aggregator->buildAndSaveReport( $this->dateRange );
+                $this->aggregator->buildAndSaveReport( $this->dateRange );
 
-            JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking );
-        } catch ( JobException $e ) {
-            $this->logJobException( $e );
+                JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking );
+            } catch ( JobException $e ) {
+                $this->logJobException( $e );
 
-            throw $e;
-        } catch ( \Exception $e ) {
-            $this->logUncaughtException( $e );
+                throw $e;
+            } catch ( \Exception $e ) {
+                $this->logUncaughtException( $e );
 
-            throw $e;
+                throw $e;
+            } finally {
+                $this->unlock( $this->jobName );
+            }
+        } else {
+            echo "Still running {$this->jobName} - job level" . PHP_EOL;
+
+            JobTracking::changeJobState( JobEntry::SKIPPED , $this->tracking );
         }
     }
 
