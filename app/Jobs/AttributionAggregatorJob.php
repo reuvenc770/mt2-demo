@@ -7,6 +7,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Exceptions\JobException;
+use App\Jobs\Traits\PreventJobOverlapping;
 
 use App\Facades\JobTracking;
 use App\Models\JobEntry;
@@ -18,7 +19,7 @@ use Carbon\Carbon;
 
 class AttributionAggregatorJob extends Job implements ShouldQueue
 {
-    use InteractsWithQueue, SerializesModels;
+    use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
 
     private $jobName = 'AttributionAggregator';
     private $tracking;
