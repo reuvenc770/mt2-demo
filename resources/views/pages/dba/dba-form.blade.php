@@ -35,9 +35,9 @@
             <span class="help-block" ng-bind="dba.formErrors.zip" ng-show="dba.formErrors.zip"></span>
         </div>
 
-        <div class="form-group" ng-class="{ 'has-error' : dba.formErrors.email }">
-            <input placeholder="Contact Email" value="" class="form-control" ng-model="dba.currentAccount.email" required="required" name="email" type="email">
-            <span class="help-block" ng-bind="dba.formErrors.email" ng-show="dba.formErrors.email"></span>
+        <div class="form-group" ng-class="{ 'has-error' : dba.formErrors.dba_email }">
+            <input placeholder="Contact Email" value="" class="form-control" ng-model="dba.currentAccount.dba_email" required="required" name="email" type="email">
+            <span class="help-block" ng-bind="dba.formErrors.dba_email" ng-show="dba.formErrors.dba_email"></span>
         </div>
 
         <div class="form-group" ng-class="{ 'has-error' : dba.formErrors.entity_name }">
