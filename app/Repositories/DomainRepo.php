@@ -36,7 +36,7 @@ class DomainRepo
             ->join('esp_accounts', 'domains.esp_account_id', '=', 'esp_accounts.id')
             ->join('esps', 'esp_accounts.esp_id', '=', 'esps.id')
             ->join('registrars', 'domains.registrar_id', '=', 'registrars.id')
-            ->join('proxies', 'domains.proxy_id', '=', 'proxies.id')
+            ->leftjoin('proxies', 'domains.proxy_id', '=', 'proxies.id')
             ->join('doing_business_as', 'domains.doing_business_as_id', '=', 'doing_business_as.id')
             ->groupBy('esp_account_id');
     }

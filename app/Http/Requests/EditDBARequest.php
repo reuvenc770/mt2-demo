@@ -26,10 +26,10 @@ class EditDBARequest extends Request
     public function rules()
     {
         return [
-            'name' => 'required',
+            'dba_name' => 'required',
             'phone'         => 'required',
             'zip'           => 'required',
-            'email'         => 'required|email',
+            'dba_email'         => 'required|email',
             'address'       => 'required',
             'city'          => 'required',
             'state'         => 'required',

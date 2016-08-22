@@ -6,33 +6,34 @@
 namespace App\Services\Attribution;
 
 use App\Services\Attribution\AbstractReportAggregatorService;
-use App\Services\Attribution\RecordReportService;
 use App\Repositories\Attribution\ClientReportRepo;
-use App\Services\EmailClientAssignmentService;
+use App\Repositories\Attribution\FeedReportRepo;
+use App\Services\MT1Services\ClientService;
 use App\Exceptions\AggregatorServiceException;
+use Carbon\Carbon;
 
 class ClientAggregatorService extends AbstractReportAggregatorService {
-    protected $recordReport;
-    protected $emailClientService;
+    protected $clientService;
+    protected $feedReportRepo;
     protected $clientRepo;
 
-    public function __construct ( RecordReportService $recordReport , EmailClientAssignmentService $emailClientService , ClientReportRepo $clientRepo ) {
-        $this->recordReport = $recordReport;
-        $this->emailClientService = $emailClientService;
+    public function __construct ( ClientService $clientService , ClientReportRepo $clientRepo , FeedReportRepo $feedReportRepo ) {
+        $this->clientService = $clientService;
         $this->clientRepo = $clientRepo;
+        $this->feedReportRepo = $feedReportRepo;
     }
 
     public function buildAndSaveReport ( $dateRange = null ) {
-        if ( !isset( $this->recordReport ) ) {
-            throw new AggregatorServiceException( 'RecordReportService needed. Please inject a service.' );
-        }
-
-        if ( !isset( $this->emailClientService ) ) {
-            throw new AggregatorServiceException( 'EmailClientAssignmentService needed. Please inject a service.' );
+        if ( !isset( $this->clientService ) ) {
+            throw new AggregatorServiceException( 'ClientService needed. Please inject a service.' );
         }
 
         if ( !isset( $this->clientRepo ) ) {
             throw new AggregatorServiceException( 'ClientReportRepo needed. Please inject a repo.' );
+        }
+
+        if ( !isset( $this->feedReportRepo ) ) {
+            throw new AggregatorServiceException( 'FeedReportRepo needed. Please inject a repo.' );
         }
 
         $this->setDateRange( $dateRange );
@@ -45,40 +46,37 @@ class ClientAggregatorService extends AbstractReportAggregatorService {
     }
 
     protected function getBaseRecords () {
-        return $this->recordReport->getByDateRange( $this->dateRange );
+        return $this->feedReportRepo->getByDateRange( $this->dateRange );
     }
 
     protected function processBaseRecord ( $baseRecord ) {
         $date = $baseRecord->date;
-        $clientId = $this->emailClientService->getAssignedClient( $baseRecord->email_id );
+        $clientId = $this->clientService->getAssignedListOwnerId( $baseRecord->client_id );
         
         $this->createRowIfMissing( $date , $clientId );
 
         $currentRow = &$this->getCurrentRow( $date , $clientId );
 
-        $currentRow[ "delivered" ] += $baseRecord[ "delivered" ];
-        $currentRow[ "opened" ] += $baseRecord[ "opened" ];
-        $currentRow[ "clicked" ] += $baseRecord[ "clicked" ];
-        $currentRow[ "converted" ] += $baseRecord[ "converted" ];
-        $currentRow[ "bounced" ] += $baseRecord[ "bounced" ];
-        $currentRow[ "unsubbed" ] += $baseRecord[ "unsubbed" ];
-        $currentRow[ "revenue" ] = (
-            ( $currentRow[ "revenue" ] * parent::WHOLE_NUMBER_MODIFIER ) + ( $baseRecord[ "revenue" ] * parent::WHOLE_NUMBER_MODIFIER )
+        $currentRow[ "standard_revenue" ] = (
+            ( $currentRow[ "standard_revenue" ] * parent::WHOLE_NUMBER_MODIFIER ) + ( $baseRecord[ "revenue" ] * parent::WHOLE_NUMBER_MODIFIER )
         ) / parent::WHOLE_NUMBER_MODIFIER;
+
+        #Need to hook in CPM revenue here
+
+        $currentRow[ "mt1_uniques" ] += $baseRecord[ "mt1_uniques" ];
+        $currentRow[ "mt2_uniques" ] += $baseRecord[ "mt2_uniques" ];
     }
 
     protected function formatRecordToSqlString ( $record ) {
+        $date = Carbon::parse( $record[ 'date' ] )->startOfMonth()->toDateString();
+
         return "( 
-            '{$record[ 'client_id' ]}' ,
-            '{$record[ 'delivered' ]}' ,
-            '{$record[ 'opened' ]}' ,
-            '{$record[ 'clicked' ]}' ,
-            '{$record[ 'converted' ]}' ,
-            '{$record[ 'bounced' ]}' ,
-            '{$record[ 'unsubbed' ]}' ,
-            '{$record[ 'revenue' ]}' ,
-            '{$record[ 'cost' ]}' ,
-            '{$record[ 'date' ]}' ,
+            '{$record[ 'client_stats_grouping_id' ]}' ,
+            '{$record[ 'standard_revenue' ]}' ,
+            '{$record[ 'cpm_revenue' ]}' ,
+            '{$record[ 'mt1_uniques' ]}' ,
+            '{$record[ 'mt2_uniques' ]}' ,
+            '{$date}' ,
             NOW() ,
             NOW()
         )";
@@ -89,23 +87,23 @@ class ClientAggregatorService extends AbstractReportAggregatorService {
     }
 
     protected function createRowIfMissing ( $date , $clientId ) {
+        $date = Carbon::parse( $date )->startOfMonth()->toDateString();
+
         if ( !isset( $this->recordStruct[ $date ][ $clientId ] ) ) {
             $this->recordStruct[ $date ][ $clientId ] = [
-                "client_id" => $clientId ,
-                "delivered" => 0 ,
-                "opened" => 0 ,
-                "clicked" => 0 ,
-                "converted" => 0 ,
-                "bounced" => 0 ,
-                "unsubbed" => 0 ,
-                "revenue" => 0 ,
-                "cost" => 0.00 ,
+                "client_stats_grouping_id" => $clientId ,
+                "standard_revenue" => 0 ,
+                "cpm_revenue" => 0 ,
+                "mt1_uniques" => 0 ,
+                "mt2_uniques" => 0 ,
                 "date" => $date
             ];
         }
     }
 
     protected function &getCurrentRow ( $date , $clientId ) {
+        $date = Carbon::parse( $date )->startOfMonth()->toDateString();
+
         return $this->recordStruct[ $date ][ $clientId ];
     }
 }
