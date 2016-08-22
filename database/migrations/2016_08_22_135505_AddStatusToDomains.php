@@ -14,6 +14,7 @@ class AddStatusToDomains extends Migration
     {
         Schema::table('domains', function (Blueprint $table) {
             $table->boolean("status");
+            $table->integer("proxy_id")->nullable()->change();
         });
     }
 

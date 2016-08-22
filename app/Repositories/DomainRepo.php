@@ -55,7 +55,7 @@ class DomainRepo
             ->where("domains.domain_type", $type)
             ->where("domains.esp_account_id", $espAccountId)
             ->join('registrars', 'domains.registrar_id', '=', 'registrars.id')
-            ->join('proxies', 'domains.proxy_id', '=', 'proxies.id')
+            ->leftjoin('proxies', 'domains.proxy_id', '=', 'proxies.id')
             ->join('doing_business_as', 'domains.doing_business_as_id', '=', 'doing_business_as.id')
             ->orderBy('domains.status', "DESC")
             ->get();
