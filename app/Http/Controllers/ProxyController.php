@@ -26,6 +26,7 @@ class ProxyController extends Controller
             ->view('pages.proxy.proxy-index');
     }
 
+
     /**
      * Display a listing of the resource.
      *
@@ -36,7 +37,7 @@ class ProxyController extends Controller
         return response()->json($this->proxyService->getAll());
     }
 
-    public function indexActive()
+    public function listAllActive()
     {
         return response()->json($this->proxyService->getAllActive());
     }
