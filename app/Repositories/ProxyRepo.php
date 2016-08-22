@@ -28,7 +28,7 @@ class ProxyRepo
     }
 
     public function getAllActive(){
-        return $this->proxy->where("active",1)->get();
+        return $this->proxy->where("status",1)->get();
     }
 
     public function fetch($id){

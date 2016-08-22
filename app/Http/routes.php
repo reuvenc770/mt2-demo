@@ -208,10 +208,6 @@ Route::group(
             'as' => 'proxy.list' ,
             'uses' => 'ProxyController@listAll'
         ] );
-        Route::get( '/active' , [
-            'as' => 'proxy.list' ,
-            'uses' => 'ProxyController@listAllActive'
-        ] );
 
         Route::get( '/create' , [
             'as' => 'proxy.add' ,
@@ -635,6 +631,16 @@ Route::group(
 
             }
         );
+        Route::group(
+            [ 'prefix' => 'proxy' ] ,
+            function () {
+                Route::get('/active', [
+                    'as' => 'proxy.list',
+                    'uses' => 'ProxyController@listAllActive'
+                ]);
+            }
+        );
+
 
 
         /**
