@@ -21,7 +21,7 @@ class RegistrarRepo
     }
 
     public function insertRow($data){
-        return $this->registrars->insert($data);
+        return $this->registrars->create($data);
     }
 
     public function getAll(){
@@ -33,7 +33,15 @@ class RegistrarRepo
     }
 
     public function updateAccount ( $id , $accountData ) {
-        return $this->registrars->where( 'id' , $id )->update($accountData);
+        return $this->registrars->find($id)->update($accountData);
+    }
+
+    public function toggleRow($id, $direction){
+        return $this->registrars->find($id)->update(['status'=> $direction]);
+    }
+
+    public function getModel(){
+        return $this->registrars->activeFirst();
     }
 
 }

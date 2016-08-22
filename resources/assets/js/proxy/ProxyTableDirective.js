@@ -1,4 +1,4 @@
-mt2App.directive( 'dbaTable' , function () {
+mt2App.directive( 'proxyTable' , function () {
     return {
         "scope" : {} ,
         "controller" : function () {} ,
@@ -6,9 +6,8 @@ mt2App.directive( 'dbaTable' , function () {
         "bindToController" : {
             "records" : "=" ,
             "loadingflag" : "=",
-            "toggle"      : "&",
-            "formatBox"   : '&'
+            "toggle"  : "&"
         } ,
-        "templateUrl" : "js/templates/dba-table.html"
+        "templateUrl" : "js/templates/proxy-table.html"
     };
 } );

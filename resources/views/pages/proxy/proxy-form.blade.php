@@ -9,7 +9,7 @@
         </div>
 
         <div class="form-group" ng-class="{ 'has-error' : proxy.formErrors.provider_name }">
-            <input placeholder="Provider's Name" v class="form-control" ng-model="proxy.currentAccount.provider_name"
+            <input placeholder="Provider's Name"  class="form-control" ng-model="proxy.currentAccount.provider_name"
                    required="required" name="provider_name" type="text">
             <span class="help-block" ng-bind="proxy.formErrors.provider_name"
                   ng-show="proxy.formErrors.provider_name"></span>

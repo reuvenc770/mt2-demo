@@ -10,11 +10,12 @@ namespace App\Services;
 
 
 use App\Repositories\DoingBusinessAsRepo;
+use App\Services\ServiceTraits\PaginateList;
 use Log;
 class DoingBusinessAsService
 {
     protected $doingBusinessAsRepo;
-
+    use PaginateList;
     public function __construct(DoingBusinessAsRepo $businessAsRepo)
     {
         $this->doingBusinessAsRepo = $businessAsRepo;
@@ -41,4 +42,17 @@ class DoingBusinessAsService
     public function updateAccount($id, $accountData){
         return $this->doingBusinessAsRepo->updateAccount( $id , $accountData );
     }
+
+    public function toggleRow($id, $direction){
+        return $this->doingBusinessAsRepo->toggleRow($id,$direction);
+    }
+
+    public function getModel(){
+        return $this->doingBusinessAsRepo->getModel();
+    }
+
+    //override return model so its a builder and not Collection
+    public function getType(){
+        return "DoingBusinessAs";
+   }
 }

@@ -1,4 +1,4 @@
-mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$timeout' , 'DBAApiService' , function ( $log , $window , $location , $timeout , DBAApiService ) {
+mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$timeout' , 'DBAApiService', '$rootScope', '$mdToast' , function ( $log , $window , $location , $timeout , DBAApiService, $rootScope, $mdToast ) {
     var self = this;
     self.$location = $location;
     
@@ -12,6 +12,12 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     self.editUrl = 'dba/edit/';
 
     self.formErrors = "";
+
+    self.pageCount = 0;
+    self.paginationCount = '10';
+    self.currentPage = 1;
+    self.currentlyLoading = 0;
+
     self.loadAccount = function () {
         var pathMatches = $location.path().match( /^\/dba\/edit\/(\d{1,})/ );
 
@@ -22,7 +28,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     };
 
     self.loadAccounts = function () {
-        DBAApiService.getAccounts( self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
+        DBAApiService.getAccounts(self.currentPage, self.paginationCount,  self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
     };
 
     self.resetForm = function () {
@@ -86,6 +92,26 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
         self.po_box = {address : "", address_2 : "", city : "", state : "", zip: "" , phone:"", brands:[], brand: ""};
     };
 
+    self.toggle = function(recordId,direction) {
+        DBAApiService.toggleRow(recordId, direction, self.toggleRowSuccess, self.toggleRowFailure);
+    };
+
+    self.formatBox = function(box){
+      var boxes = JSON.parse(box);
+        var text = "";
+        angular.forEach(boxes, function(value, key) {
+        text+= value.sub + "-" + value.address + " " + value.city + " " + value.state + "" +  value.zip + "-" + value.phone + " - Brands -" + value.brands + "\n\n";
+        });
+        return text;
+    };
+
+    /**
+     * Watchers
+     */
+    $rootScope.$on( 'updatePage' , function () {
+        self.loadAccounts();
+    } );
+
 
 
 
@@ -94,7 +120,9 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
      * Callbacks
      */
     self.loadAccountsSuccessCallback = function ( response ) {
-        self.accounts = response.data;
+        self.accounts = response.data.data;
+        self.pageCount = response.data.last_page;
+        self.currentlyLoading = 0;
     };
 
     self.loadAccountsFailureCallback = function ( response ) {
@@ -121,6 +149,11 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
 
     self.editAccountFailureCallback = function ( response ) {
         self.loadFieldErrors(response);
+    };
+
+    self.toggleRowSuccess = function ( response ) {
+        $mdToast.showSimple("DBA Updated");
+        self.loadAccounts();
     };
 
     /**

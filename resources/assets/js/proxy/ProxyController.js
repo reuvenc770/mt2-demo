@@ -1,4 +1,4 @@
-mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$timeout' , 'ProxyApiService' , function ( $log , $window , $location , $timeout , ProxyApiService ) {
+mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$timeout' , 'ProxyApiService', '$rootScope','$mdToast', function ( $log , $window , $location , $timeout , ProxyApiService, $rootScope, $mdToast ) {
     var self = this;
     self.$location = $location;
 
@@ -16,6 +16,11 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
     self.editUrl = 'proxy/edit/';
 
     self.formErrors = "";
+
+    self.pageCount = 0;
+    self.paginationCount = '10';
+    self.currentPage = 1;
+    self.currentlyLoading = 0;
 
     self.loadAccount = function () {
         var pathMatches = $location.path().match( /^\/proxy\/edit\/(\d{1,})/ );
@@ -35,11 +40,16 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
     };
 
     self.loadAccounts = function () {
-        ProxyApiService.getAccounts( self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
+        self.currentlyLoading = 1;
+        ProxyApiService.getAccounts(self.currentPage , self.paginationCount , self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
     };
 
     self.resetForm = function () {
         self.currentAccount = {};
+    };
+
+    self.toggle = function(recordId,direction) {
+        ProxyApiService.toggleRow(recordId, direction, self.toggleRowSuccess, self.toggleRowFailure)
     };
 
     /**
@@ -109,13 +119,24 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
 
 
 
+    /**
+     * Watchers
+     */
+    $rootScope.$on( 'updatePage' , function () {
+        self.loadAccounts();
+    } );
+
+
+
 
 
     /**
      * Callbacks
      */
     self.loadAccountsSuccessCallback = function ( response ) {
-        self.accounts = response.data;
+        self.accounts = response.data.data;
+        self.pageCount = response.data.last_page;
+        self.currentlyLoading = 0;
     };
 
     self.loadAccountsFailureCallback = function ( response ) {
@@ -133,6 +154,12 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
     self.SuccessProfileCallBackRedirect = function ( response ) {
         $location.url( '/home' );
         $window.location.href = '/home';
+    };
+
+
+    self.toggleRowSuccess = function ( response ) {
+        $mdToast.showSimple("Proxy Updated");
+        self.loadAccounts();
     };
 
     self.saveNewAccountFailureCallback = function ( response ) {
