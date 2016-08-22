@@ -27,6 +27,9 @@ class DoingBusinessAsRepo
     public function getAll(){
         return $this->doingBusinessAs->all();
     }
+    public function getAllActive(){
+        return $this->doingBusinessAs->where('status',1)->get();
+    }
 
     public function fetch($id){
         return $this->doingBusinessAs->find($id);

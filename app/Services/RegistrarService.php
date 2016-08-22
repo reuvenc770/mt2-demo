@@ -33,6 +33,9 @@ class RegistrarService
     public function getAll(){
         return $this->registrar->getAll();
     }
+    public function getAllActive(){
+        return $this->registrar->getAllActive();
+    }
 
     public function getRegistrar($id){
         return $this->registrar->fetch($id);

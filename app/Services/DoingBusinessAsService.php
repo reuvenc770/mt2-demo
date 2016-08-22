@@ -35,6 +35,10 @@ class DoingBusinessAsService
         return $this->doingBusinessAsRepo->getAll();
     }
 
+    public function getAllActive(){
+        return $this->doingBusinessAsRepo->getAll();
+    }
+
     public function getDBA($id){
         return $this->doingBusinessAsRepo->fetch($id);
     }
