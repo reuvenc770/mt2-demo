@@ -13,11 +13,17 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         cake_affiliate_id: "",
         notes: ""
     };
+    self.search = {
+        esp_account_id: ''
+    };
     self.selectedRows = [];
+    self.esps = [];
     var text = "ID to Be Generated";
     self.deployIdDisplay = text;
     self.editView = false;
     self.uploadedDeploys = [];
+    self.searchType = "";
+    self.searchData = "";
     self.uploadErrors = false;
     self.espAccounts = [];
     self.currentlyLoading = 0;
@@ -38,13 +44,14 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.file = "";
     self.pageCount = 0;
     self.paginationCount = '10';
-    self.currentPage = 1;
+    self.currentPage = '1';
 
 
     self.loadAccounts = function () {
         self.loadEspAccounts();
         self.loadAffiliates();
         self.loadListProfiles();
+        self.loadEsps();
         self.loadDeploys();
         self.currentlyLoading = 0;
     };
@@ -57,7 +64,11 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
 
     self.loadDeploys = function () {
         self.currentlyLoading = 1;
-        DeployApiService.getDeploys(self.currentPage, self.paginationCount, self.loadDeploysSuccess, self.loadDeploysFail);
+        DeployApiService.getDeploys(self.currentPage, self.paginationCount, self.searchType, self.searchData, self.loadDeploysSuccess, self.loadDeploysFail);
+    };
+
+    self.loadEsps = function (){
+
     };
 
     self.loadListProfiles = function () {
@@ -84,7 +95,20 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.editView = false;
     };
 
+    self.updateSearchDate = function () {
+        var startString = '';
+        var endString = '';
+        if(self.search.startDate){
+            startString =  new Date(self.search.startDate).toISOString().slice(0, 10);
+        }
 
+        if(self.search.endDate){
+            endString =  new Date(self.search.endDate).toISOString().slice(0, 10);
+        }
+        if(self.search.startDate && self.search.endDate) {
+            self.search.dates = startString + ',' + endString;
+        }
+    };
     self.displayForm = function () {
         self.deployIdDisplay = text;
         self.currentDeploy = self.resetAccount();
@@ -99,6 +123,15 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.updateDeploy = function () {
         DeployApiService.updateDeploy(self.currentDeploy, self.updateDeploySuccess, self.formFail);
     };
+
+    self.searchDeploys = function (type, searchData, text){
+        self.searchType = type;
+        self.searchData = searchData;
+        self.loadDeploys();
+        self.currentlyLoading = 0;
+        self.search = {};
+    };
+
 
     self.offerWasSelected = function (item) {
         if (typeof item != 'undefined') {
@@ -174,7 +207,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.massUploadList = function (){
-        console.log("here");
         console.log(self.uploadErrors);
         console.log(self.uploadedDeploys.length);
         if(!self.uploadErrors && self.uploadedDeploys.length > 0)  {
@@ -182,6 +214,14 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         }
     };
 
+
+    /**
+     * Watchers
+     */
+    $rootScope.$on( 'updatePage' , function () {
+        self.loadDeploys();
+        self.currentlyLoading = 0;
+    } );
 
 
 
