@@ -379,6 +379,9 @@ var mt2TaskMap = {
     },
     'deployDBAJs' : function (mix) {
         mix.deployDBAJs(mix)
+    },
+    'deployRegistrarJs' : function (mix) {
+        mix.deployRegistrarJs(mix)
     }
 };
 

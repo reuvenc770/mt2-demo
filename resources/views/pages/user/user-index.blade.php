@@ -16,15 +16,15 @@
 @stop
 
 @section( 'content' )
-    <div ng-init="user.loadAccounts()">
-        <div class="row">
-            <div class="col-xs-12">
+    <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
+        <div flex="grow" layout-padding>
+            <div ng-init="user.loadAccounts()">
                 <div id="mtTableContainer" class="table-responsive">
                     <generic-table headers="user.headers" records="user.accounts" editurl="user.editUrl"></generic-table>
                 </div>
             </div>
         </div>
-    </div>
+    </md-content>
 @stop
 
 @section( 'pageIncludes' )

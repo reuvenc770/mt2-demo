@@ -5,10 +5,9 @@
 @section( 'content' )
 
 <div ng-controller="ListProfileController as listProfile">
-    <div class="row">
-        <div class="hidden-xs hidden-sm col-md-3"></div>
+    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
 
-        <div class="col-xs-12 col-md-6">
+        <div flex-gt-md="50" flex="100">
             <form name="profileForm" novalidate>
                 <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disabled' : listProfile.creatingListProfile }" ng-click="listProfile.calculateListProfile( $event , profileForm )"><span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : listProfile.creatingListProfile }"></span> Save</button>
 
@@ -19,7 +18,7 @@
                 <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disabled' : listProfile.creatingListProfile }" ng-click="listProfile.calculateListProfile( $event , profileForm )"><span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : listProfile.creatingListProfile }"></span> Save</button>
             </form>
         </div>
-    </div>
+    </md-content>
 </div>
 @stop
 

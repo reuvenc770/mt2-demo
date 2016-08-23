@@ -39,17 +39,17 @@
 
 @section('content')
 <div ng-init="dataExport.loadActiveDataExports()">
-
-  <div class="row">
-    <div class="col-xs-12">
-        <div class="row">
-          <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
+  <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
+    <md-card>
+      <md-card-content>
+        <div layout="row">
+          <md-input-container flex-gt-sm="10" flex="30">
             <pagination-count recordcount="dataExport.paginationCount" currentpage="dataExport.currentPage"></pagination-count>
-          </div>
+          </md-input-container>
 
-          <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
+          <md-input-container flex="auto">
             <pagination currentpage="dataExport.currentPage" maxpage="dataExport.pageCount"></pagination>
-          </div>
+          </md-input-container>
         </div>
 
         <dataexport-table records="dataExport.dataExports"
@@ -58,19 +58,20 @@
         deleteexport="dataExport.deleteDataExport(id)" copyexport="dataExport.copyDataExport(id)">
         </dataexport-table>
 
-        <div class="row">
-          <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
+        <div layout="row">
+          <md-input-container flex-gt-sm="10" flex="30">
             <pagination-count recordcount="dataExport.paginationCount" currentpage="dataExport.currentPage"></pagination-count>
-          </div>
+          </md-input-container>
 
-          <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
+          <md-input-container flex="auto">
             <pagination currentpage="dataExport.currentPage" maxpage="dataExport.pageCount"></pagination>
-          </div>
+          </md-input-container>
         </div>
-    </div>
-  </div>
+      </md-card-content>
+    </md-card>
+  </md-content>
 
-  <div class="row">
+  <div layout="row" layout-align="end center">
     <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="dataExport.pauseSelected()">
       <span class="glyphicon glyphicons-arrow-down"></span>
       <span>@{{dataExport.massActionButtonText}} Exports</span>

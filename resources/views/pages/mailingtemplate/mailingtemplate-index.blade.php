@@ -18,31 +18,33 @@
 
 @section( 'content' )
 <div ng-init="mailing.loadAccounts()">
-    <div class="row">
-        <div class="col-xs-12">
-            <div class="row">
-                <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                    <pagination-count recordcount="mailing.paginationCount" currentpage="mailing.currentPage"></pagination-count>
+    <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
+        <md-card>
+            <md-card-content>
+                <div layout="row">
+                    <md-input-container flex-gt-sm="10" flex="30">
+                        <pagination-count recordcount="mailing.paginationCount" currentpage="mailing.currentPage"></pagination-count>
+                    </md-input-container>
+
+                    <md-input-container flex="auto">
+                        <pagination currentpage="mailing.currentPage" maxpage="mailing.pageCount" disableceiling="mailing.reachedMaxPage" disablefloor="mailing.reachedFirstPage"></pagination>
+                    </md-input-container>
                 </div>
 
-                <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                    <pagination currentpage="mailing.currentPage" maxpage="mailing.pageCount" disableceiling="mailing.reachedMaxPage" disablefloor="mailing.reachedFirstPage"></pagination>
-                </div>
-            </div>
+                <mailingtemplate-table loadingflag="mailing.currentlyLoading" records="mailing.templates"></mailingtemplate-table>
 
-            <mailingtemplate-table loadingflag="mailing.currentlyLoading" records="mailing.templates"></mailingtemplate-table>
+                <div layout="row">
+                    <md-input-container flex-gt-sm="10" flex="30">
+                        <pagination-count recordcount="mailing.paginationCount" currentpage="mailing.currentPage"></pagination-count>
+                    </md-input-container>
 
-            <div class="row">
-                <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                    <pagination-count recordcount="mailing.paginationCount" currentpage="mailing.currentPage"></pagination-count>
+                    <md-input-container flex="auto">
+                        <pagination currentpage="mailing.currentPage" maxpage="mailing.pageCount" disableceiling="mailing.reachedMaxPage" disablefloor="mailing.reachedFirstPage"></pagination>
+                    </md-input-container>
                 </div>
-
-                <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                    <pagination currentpage="mailing.currentPage" maxpage="mailing.pageCount" disableceiling="mailing.reachedMaxPage" disablefloor="mailing.reachedFirstPage"></pagination>
-                </div>
-            </div>
-        </div>
-    </div>
+            </md-card-content>
+        </md-card>
+    </md-content>
 </div>
 @stop
 

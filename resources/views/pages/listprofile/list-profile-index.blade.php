@@ -1,6 +1,6 @@
 @extends( 'layout.default' )
 
-@section( 'title' , 'Client Group' )
+@section( 'title' , 'List Profile' )
 
 @section( 'angular-controller' , 'ng-controller="ListProfileController as listProfile"')
 
@@ -16,31 +16,33 @@
 @section( 'content' )
 
 <div ng-init="listProfile.loadListProfiles()">
-    <div class="row">
-        <div class="col-xs-12">
-            <div class="row">
-                <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                    <pagination-count recordcount="listProfile.paginationCount" currentpage="listProfile.currentPage"></pagination-count>
+    <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
+        <md-card>
+            <md-card-content>
+                <div layout="row">
+                    <md-input-container flex-gt-sm="10" flex="30">
+                        <pagination-count recordcount="listProfile.paginationCount" currentpage="listProfile.currentPage"></pagination-count>
+                    </md-input-container>
+
+                    <md-input-container flex="auto">
+                        <pagination currentpage="listProfile.currentPage" maxpage="listProfile.pageCount"></pagination>
+                    </md-input-container>
                 </div>
 
-                <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                    <pagination currentpage="listProfile.currentPage" maxpage="listProfile.pageCount"></pagination>
-                </div>
-            </div>
+                <listprofile-table records="listProfile.profileList" loadingflag="clientGroup.currentlyLoading" copy="listProfile.copyListProfile( event , id )" delete="listProfile.deleteListProfile( id )"></listprofile-table>
 
-            <listprofile-table records="listProfile.profileList" loadingflag="clientGroup.currentlyLoading" copy="listProfile.copyListProfile( event , id )" delete="listProfile.deleteListProfile( id )"></clientgroup-table>
+                <div layout="row">
+                    <md-input-container flex-gt-sm="10" flex="30">
+                        <pagination-count recordcount="listProfile.paginationCount" currentpage="listProfile.currentPage"></pagination-count>
+                    </md-input-container>
 
-            <div class="row">
-                <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                    <pagination-count recordcount="listProfile.paginationCount" currentpage="listProfile.currentPage"></pagination-count>
+                    <md-input-container flex="auto">
+                        <pagination currentpage="listProfile.currentPage" maxpage="listProfile.pageCount"></pagination>
+                    </md-input-container>
                 </div>
-
-                <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                    <pagination currentpage="listProfile.currentPage" maxpage="listProfile.pageCount"></pagination>
-                </div>
-            </div>
-        </div>
-    </div>
+            </md-card-content>
+        </md-card>
+    </md-content>
 </div>
 @stop
 

@@ -16,15 +16,15 @@
 @stop
 
 @section( 'content' )
-    <div ng-init="role.loadRoles()">
-        <div class="row">
-            <div class="col-xs-12">
+    <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
+        <div flex="grow" layout-padding>
+            <div ng-init="role.loadRoles()">
                 <div id="mtTableContainer" class="table-responsive">
                     <generic-table headers="role.headers" records="role.roles" editurl="role.editUrl"></generic-table>
                 </div>
             </div>
         </div>
-    </div>
+    </md-content>
 @stop
 
 @section( 'pageIncludes' )

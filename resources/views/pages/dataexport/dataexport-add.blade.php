@@ -5,10 +5,8 @@
 @section( 'content' )
 
 <div ng-controller="DataExportController as dataExport">
-    <div class="row">
-        <div class="hidden-xs hidden-sm col-md-3"></div>
-
-        <div class="col-xs-12 col-md-6">
+    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
+        <div flex-gt-sm="50" flex="100">
             <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disabled' : dataExport.creatingDataExport }" ng-click="dataExport.saveDataExport( $event )">
                 <span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : dataExport.creatingDataExport }"></span>
                 Save
@@ -23,7 +21,7 @@
                 Save
             </button>
         </div>
-    </div>
+    </md-content>
 </div>
 @stop
 

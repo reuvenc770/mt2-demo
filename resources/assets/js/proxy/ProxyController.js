@@ -141,7 +141,7 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
 
     self.loadAccountsFailureCallback = function ( response ) {
         self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to load Users.' );
+        self.setModalBody( 'Failed to load accounts.' );
 
         self.launchModal();
     };

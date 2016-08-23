@@ -7,110 +7,111 @@
 @section( 'content' )
 
 <div ng-controller="ClientAttributionController as clientAttr" ng-init="clientAttr.loadClients()">
-    <div class="row">
-        <div class="hidden-xs col-md-2"></div>
-        <div class="panel panel-default col-xs-12 col-md-8" style="padding-top: 20px;">
-            <div flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'attribution' , '_token' : '{{ csrf_token() }}' } }" flow-files-submitted="$flow.upload()">
-                <div flow-drop class="dropFile" flow-drag-enter="style={border:'4px solid green'}" flow-drag-leave="style={}" ng-style="style">
-                    <span class="btn btn-xs btn-default" flow-btn>
-                        Upload Attribution Files
-                        <input type="file" style="visibility: hidden; position: absolute;" />
-                    </span>
+<md-content class="md-mt2-zeta-theme">
+    <div layout="row" layout-align="center center">
+        <md-card flex-gt-sm="70" flex="100">
+            <md-card-content style="padding-top: 20px;">
+                <div flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'attribution' , '_token' : '{{ csrf_token() }}' } }" flow-files-submitted="$flow.upload()">
+                    <div flow-drop class="dropFile" flow-drag-enter="style={border:'4px solid green'}" flow-drag-leave="style={}" ng-style="style">
+                        <span class="btn btn-xs btn-default" flow-btn>
+                            Upload Attribution Files
+                            <input type="file" style="visibility: hidden; position: absolute;" />
+                        </span>
 
-                    &nbsp;&nbsp;
-                    <em>OR</em>
-                    &nbsp;&nbsp;
+                        &nbsp;&nbsp;
+                        <em>OR</em>
+                        &nbsp;&nbsp;
 
-                    <strong>Drag & Drop Attribution Level Mapping Files Here</strong>
+                        <strong>Drag & Drop Attribution Level Mapping Files Here</strong>
+                    </div>
+
+                    <br />
+                    <br />
+
+                    <div class="well">
+                        <a class="btn btn-xs btn-success" ng-click="$flow.resume()">Resume</a>
+                        <a class="btn btn-xs btn-warning" ng-click="$flow.pause()">Pause</a>
+                        <a class="btn btn-xs btn-danger" ng-click="$flow.cancel()">Cancel</a>
+
+                        <h4 class="pull-right">
+                            <span class="label label-md label-info">Total File Size: @{{$flow.getSize() | bytes }}</span>
+                            <span class="label label-md" ng-class="{ 'label-default' : !$flow.isUploading() , 'label-success' : $flow.isUploading() }">Is Uploading: @{{$flow.isUploading() ? 'Yes' : 'No' }}</span>
+                        </h4>
+                    </div>
+
+                    <table class="table table-hover table-bordered table-striped" flow-transfers ng-cloak>
+                        <thead>
+                            <tr>
+                                <th class="text-center">#</th>
+                                <th class="text-center">Name</th>
+                                <th class="text-center">File Size</th>
+                                <th class="text-center">#Chunks</th>
+                                <th class="text-center">Progress</th>
+                                <th class="text-center">Download Status</th>
+                                <th class="text-center">Settings</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="file in transfers">
+                                <td>@{{ $index + 1 }}</td>
+                                <td>@{{ file.name }}</td>
+                                <td class="text-center">@{{ file.size | bytes }}</td>
+                                <td class="text-center">@{{ file.chunks.length }}</td>
+                                <td>
+                                    <md-progress-linear class="md-warn" md-mode="determinate" ng-value="file.progress() * 100"></md-progress-linear>
+                                </td>
+                                <td class="text-center" ng-class="{ 'bg-info' : file.isUploading() , 'bg-warning' : file.paused , 'bg-danger' : file.error , 'bg-success' : !file.error }"><strong>@{{ file.isUploading() ? 'Downloading' : ( file.paused ? 'Paused': ( file.error ? 'Failed' : 'Successful' ) ) }}</strong></td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a class="btn btn-xs btn-warning" ng-click="file.pause()" ng-hide="file.paused">
+                                        Pause
+                                        </a>
+
+                                        <a class="btn btn-xs btn-warning" ng-click="file.resume()" ng-show="file.paused">
+                                        Resume
+                                        </a>
+
+                                        <a class="btn btn-xs btn-danger" ng-click="file.cancel()">
+                                        Cancel
+                                        </a>
+
+                                        <a class="btn btn-xs btn-info" ng-click="file.retry()" ng-show="file.error">
+                                        Retry
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-
-                <br />
-                <br />
-
-                <div class="well">
-                    <a class="btn btn-xs btn-success" ng-click="$flow.resume()">Resume</a>
-                    <a class="btn btn-xs btn-warning" ng-click="$flow.pause()">Pause</a>
-                    <a class="btn btn-xs btn-danger" ng-click="$flow.cancel()">Cancel</a>
-
-                    <h4 class="pull-right">
-                        <span class="label label-md label-info">Total File Size: @{{$flow.getSize() | bytes }}</span>
-                        <span class="label label-md" ng-class="{ 'label-default' : !$flow.isUploading() , 'label-success' : $flow.isUploading() }">Is Uploading: @{{$flow.isUploading() ? 'Yes' : 'No' }}</span>
-                    </h4>
-                </div>
-
-                <table class="table table-hover table-bordered table-striped" flow-transfers ng-cloak>
-                    <thead>
-                        <tr>
-                            <th class="text-center">#</th>
-                            <th class="text-center">Name</th>
-                            <th class="text-center">File Size</th>
-                            <th class="text-center">#Chunks</th>
-                            <th class="text-center">Progress</th>
-                            <th class="text-center">Download Status</th>
-                            <th class="text-center">Settings</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="file in transfers">
-                            <td>@{{ $index + 1 }}</td>
-                            <td>@{{ file.name }}</td>
-                            <td class="text-center">@{{ file.size | bytes }}</td>
-                            <td class="text-center">@{{ file.chunks.length }}</td>
-                            <td>
-                                <md-progress-linear class="md-warn" md-mode="determinate" ng-value="file.progress() * 100"></md-progress-linear>
-                            </td>
-                            <td class="text-center" ng-class="{ 'bg-info' : file.isUploading() , 'bg-warning' : file.paused , 'bg-danger' : file.error , 'bg-success' : !file.error }"><strong>@{{ file.isUploading() ? 'Downloading' : ( file.paused ? 'Paused': ( file.error ? 'Failed' : 'Successful' ) ) }}</strong></td>
-                            <td>
-                                <div class="btn-group">
-                                    <a class="btn btn-xs btn-warning" ng-click="file.pause()" ng-hide="file.paused">
-                                    Pause
-                                    </a>
-
-                                    <a class="btn btn-xs btn-warning" ng-click="file.resume()" ng-show="file.paused">
-                                    Resume
-                                    </a>
-
-                                    <a class="btn btn-xs btn-danger" ng-click="file.cancel()">
-                                    Cancel
-                                    </a>
-
-                                    <a class="btn btn-xs btn-info" ng-click="file.retry()" ng-show="file.error">
-                                    Retry
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+            </md-card-content>
+        </md-card>
     </div>
 
-    <div class="row">
-        <div class="col-xs-12">
-            <div class="row">
-                <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                    <pagination-count recordcount="clientAttr.paginationCount" currentpage="clientAttr.currentPage"></pagination-count>
-                </div>
+    <div layout="column" layout-padding>
+        <div layout="row">
+            <md-input-container flex-gt-sm="10" flex="30">
+                <pagination-count recordcount="clientAttr.paginationCount" currentpage="clientAttr.currentPage"></pagination-count>
+            </md-input-container>
 
-                <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                    <pagination currentpage="clientAttr.currentPage" maxpage="clientAttr.pageCount" disableceiling="clientAttr.reachedMaxPage" disablefloor="clientAttr.reachedFirstPage"></pagination>
-                </div>
-            </div>
+            <md-input-container flex="auto">
+                <pagination currentpage="clientAttr.currentPage" maxpage="clientAttr.pageCount" disableceiling="clientAttr.reachedMaxPage" disablefloor="clientAttr.reachedFirstPage"></pagination>
+            </md-input-container>
+        </div>
 
-            <clientattribution-table records="clientAttr.clients" loadingflag="clientAttr.currentlyLoading" deleteclient="clientAttr.deleteAttribution( id )" setclient="clientAttr.setAttribution( client , ev )" savepreviouslevel="clientAttr.savePreviousLevel( client )"></clientattribution-table>
+        <clientattribution-table records="clientAttr.clients" loadingflag="clientAttr.currentlyLoading" deleteclient="clientAttr.deleteAttribution( id )" setclient="clientAttr.setAttribution( client , ev )" savepreviouslevel="clientAttr.savePreviousLevel( client )"></clientattribution-table>
 
-            <div class="row">
-                <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                    <pagination-count recordcount="clientAttr.paginationCount" currentpage="clientAttr.currentPage"></pagination-count>
-                </div>
+        <div layout="row">
+            <md-input-container flex-gt-sm="10" flex="30">
+                <pagination-count recordcount="clientAttr.paginationCount" currentpage="clientAttr.currentPage"></pagination-count>
+            </md-input-container>
 
-                <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                    <pagination currentpage="clientAttr.currentPage" maxpage="clientAttr.pageCount" disableceiling="clientAttr.reachedMaxPage" disablefloor="clientAttr.reachedFirstPage"></pagination>
-                </div>
-            </div>
+            <md-input-container flex="auto">
+                <pagination currentpage="clientAttr.currentPage" maxpage="clientAttr.pageCount" disableceiling="clientAttr.reachedMaxPage" disablefloor="clientAttr.reachedFirstPage"></pagination>
+            </md-input-container>
         </div>
     </div>
+</md-content>
 </div>
 @stop
 

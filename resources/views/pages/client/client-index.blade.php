@@ -17,31 +17,33 @@
 
 @section( 'content' )
 <div ng-init="client.loadClients()">
-    <div class="row">
-        <div class="col-xs-12">
-            <div class="row">
-                <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                    <pagination-count recordcount="client.paginationCount" currentpage="client.currentPage"></pagination-count>
+    <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
+        <md-card>
+            <md-card-content>
+                <div layout="row">
+                    <md-input-container flex-gt-sm="10" flex="30">
+                        <pagination-count recordcount="client.paginationCount" currentpage="client.currentPage"></pagination-count>
+                    </md-input-container>
+
+                    <md-input-container flex="auto">
+                        <pagination currentpage="client.currentPage" maxpage="client.pageCount" disableceiling="client.reachedMaxPage" disablefloor="client.reachedFirstPage"></pagination>
+                    </md-input-container>
                 </div>
 
-                <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                    <pagination currentpage="client.currentPage" maxpage="client.pageCount" disableceiling="client.reachedMaxPage" disablefloor="client.reachedFirstPage"></pagination>
-                </div>
-            </div>
+                <client-table records="client.clients" loadingflag="client.currentlyLoading"></client-table>
 
-            <client-table records="client.clients" loadingflag="client.currentlyLoading"></client-table>
+                <div layout="row">
+                    <md-input-container flex-gt-sm="10" flex="30">
+                        <pagination-count recordcount="client.paginationCount" currentpage="client.currentPage"></pagination-count>
+                    </md-input-container>
 
-            <div class="row">
-                <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                    <pagination-count recordcount="client.paginationCount" currentpage="client.currentPage"></pagination-count>
+                    <md-input-container flex="auto">
+                        <pagination currentpage="client.currentPage" maxpage="client.pageCount" disableceiling="client.reachedMaxPage" disablefloor="client.reachedFirstPage"></pagination>
+                    </md-input-container>
                 </div>
-
-                <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                    <pagination currentpage="client.currentPage" maxpage="client.pageCount" disableceiling="client.reachedMaxPage" disablefloor="client.reachedFirstPage"></pagination>
-                </div>
-            </div>
-        </div>
-    </div>
+            </md-card-content>
+        </md-card>
+    </md-content>
 </div>
 @stop
 

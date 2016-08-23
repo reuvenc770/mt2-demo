@@ -7,10 +7,9 @@
 @section( 'content' )
 
 <div ng-controller="ClientController as client">
-    <div class="row">
-        <div class="hidden-xs hidden-sm col-md-3"></div>
+    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
 
-        <div class="col-xs-12 col-md-6">
+		<div flex-gt-sm="50" flex="100">
             <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disabled' : client.creatingClient }" ng-click="client.saveClient( $event )"><span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : client.creatingClient }"></span> Save</button>
 
             <div class="clearfix"></div>
@@ -18,8 +17,8 @@
             @include( 'pages.client.client-form' )
 
             <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disabled' : client.creatingClient }" ng-click="client.saveClient( $event )"><span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : client.creatingClient }"></span> Save</button>
-        </div>
-    </div>
+   	</div>
+   </md-content>
 </div>
 @stop
 

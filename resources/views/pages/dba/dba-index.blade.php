@@ -15,33 +15,35 @@
 
 @section( 'content' )
     <div ng-init="dba.loadAccounts()">
-        <div class="row">
-            <div class="col-xs-12">
-                <div class="row">
-                    <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                        <pagination-count recordcount="dba.paginationCount"
-                                          currentpage="proxy.currentPage"></pagination-count>
-                    </div>
+        <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
+            <md-card>
+                <md-card-content>
+                    <div layout="row">
+                        <md-input-container flex-gt-sm="10" flex="30">
+                            <pagination-count recordcount="dba.paginationCount"
+                                              currentpage="proxy.currentPage"></pagination-count>
+                        </md-input-container>
 
-                    <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                        <pagination currentpage="dba.currentPage" maxpage="dba.pageCount"></pagination>
+                        <md-input-container flex="auto">
+                            <pagination currentpage="dba.currentPage" maxpage="dba.pageCount"></pagination>
+                        </md-input-container>
                     </div>
-                </div>
-                <div id="mtTableContainer" class="table-responsive">
-                    <dba-table format-box="dba.formatBox(box)" toggle="dba.toggle(recordId, direction)" records="dba.accounts" ></dba-table>
-                </div>
-                <div class="row">
-                    <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                        <pagination-count recordcount="dba.paginationCount"
-                                          currentpage="dba.currentPage"></pagination-count>
+                    <div id="mtTableContainer" class="table-responsive">
+                        <dba-table format-box="dba.formatBox(box)" toggle="dba.toggle(recordId, direction)" records="dba.accounts" ></dba-table>
                     </div>
+                    <div layout="row">
+                        <md-input-container flex-gt-sm="10" flex="30">
+                            <pagination-count recordcount="dba.paginationCount"
+                                              currentpage="dba.currentPage"></pagination-count>
+                        </md-input-container>
 
-                    <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                        <pagination currentpage="dba.currentPage" maxpage="dba.pageCount"></pagination>
+                        <md-input-container flex="auto">
+                            <pagination currentpage="dba.currentPage" maxpage="dba.pageCount"></pagination>
+                        </md-input-container>
                     </div>
-                </div>
-            </div>
-        </div>
+                </md-card-content>
+            </md-card>
+        </md-content>
     </div>
 @stop
 
