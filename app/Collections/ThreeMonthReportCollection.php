@@ -95,7 +95,11 @@ class ThreeMonthReportCollection extends Collection {
             
             $clientFeeds = $this->clientService->getClientFeedsForListOwner( $client->id );
             foreach ( $clientFeeds as $feedId ) {
-                $csv .= "\n" . $this->getFeedRow( $feedId );
+                $feedRow = $this->getFeedRow( $feedId );
+
+                if ( !is_null( $feedRow ) ) {
+                    $csv .= "\n" . $feedRow;
+                }
             }
         }
 
