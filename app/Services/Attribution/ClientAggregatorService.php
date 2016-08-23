@@ -63,8 +63,8 @@ class ClientAggregatorService extends AbstractReportAggregatorService {
 
         #Need to hook in CPM revenue here
 
-        $currentRow[ "mt1_uniques" ] += $baseRecord[ "mt1_uniques" ];
-        $currentRow[ "mt2_uniques" ] += $baseRecord[ "mt2_uniques" ];
+        $currentRow[ "mt1_uniques" ] += isset( $baseRecord[ "mt1_uniques" ] ) ? $baseRecord[ "mt1_uniques" ] : 0;
+        $currentRow[ "mt2_uniques" ] += isset( $baseRecord[ "mt2_uniques" ] ) ? $baseRecord[ "mt2_uniques" ] : 0;
     }
 
     protected function formatRecordToSqlString ( $record ) {
