@@ -43,7 +43,11 @@ class ThreeMonthReportCollection extends Collection {
             
             $clientFeeds = $this->clientService->getClientFeedsForListOwner( $client->id );
             foreach ( $clientFeeds as $feedId ) {
-                $this->recordCollector []= $this->getFeedRow( $feedId );
+                $feedRecord = $this->getFeedRow( $feedId );
+
+                if ( !is_null( $feedRecord ) ) {
+                    $this->recordCollector []= $feedRecord;
+                }
             }
         }
 
@@ -170,8 +174,13 @@ class ThreeMonthReportCollection extends Collection {
         $currentClientCsvRow = [ '' , $this->clientService->getFeedName( $feedId ) . " ($feedId)" ];
 
         $currentClientRow[ 'client_id' ] = $feedId;
+        $nullSections = [];
         foreach ( $this->dates as $dateKey => $date ) {
             $feedRecord = $this->feedReportRepo->getAggregateForIdAndMonth( $feedId , $date );
+
+            if ( is_null( $feedRecord->revenue ) && is_null( $feedRecord->mt1_uniques ) && is_null( $feedRecord->mt2_uniques )  ) {
+                $nullSections[ $dateKey ] = true;
+            }
 
             if ( $this->compileCsv ) {
                 $currentClientCsvRow []= $feedRecord->revenue;
@@ -186,6 +195,8 @@ class ThreeMonthReportCollection extends Collection {
                 $currentClientRow[ $dateKey ][ 'mt2_uniques' ] = $feedRecord->mt2_uniques;
             }
         }
+
+        if ( count( $nullSections ) === 3 ) { return null; }
 
         return ( $this->compileCsv ? implode( ',' , $currentClientCsvRow ) : $currentClientRow );
     }
