@@ -87,7 +87,7 @@ class ClientAggregatorService extends AbstractReportAggregatorService {
     }
 
     protected function createRowIfMissing ( $date , $clientId ) {
-        $date = Carbon::parse( $date )->startOfMonth()->toDateString();
+        $date = Carbon::parse( $date )->startOfDay()->toDateString();
 
         if ( !isset( $this->recordStruct[ $date ][ $clientId ] ) ) {
             $this->recordStruct[ $date ][ $clientId ] = [
