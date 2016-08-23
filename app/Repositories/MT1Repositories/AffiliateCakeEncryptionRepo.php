@@ -14,7 +14,6 @@ class AffiliateCakeEncryptionRepo {
 
     public function pullForSync($lookback) {
         return $this->model
-                    ->where('lastUpdated', '>=', DB::raw("CURDATE() - INTERVAL $lookback DAY"))
-                    ->get();
+                    ->where('lastUpdated', '>=', DB::raw("CURDATE() - INTERVAL $lookback DAY"));
     }
 }
