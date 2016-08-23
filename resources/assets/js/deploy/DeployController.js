@@ -67,10 +67,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         DeployApiService.getDeploys(self.currentPage, self.paginationCount, self.searchType, self.searchData, self.loadDeploysSuccess, self.loadDeploysFail);
     };
 
-    self.loadEsps = function (){
-
-    };
-
     self.loadListProfiles = function () {
         self.currentlyLoading = 1;
         DeployApiService.getListProfiles(self.loadProfileSuccess, self.loadProfileFail)
@@ -207,8 +203,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.massUploadList = function (){
-        console.log(self.uploadErrors);
-        console.log(self.uploadedDeploys.length);
         if(!self.uploadErrors && self.uploadedDeploys.length > 0)  {
             DeployApiService.massUpload(self.uploadedDeploys,self.massUploadSuccess, self.massUploadFail)
         }
