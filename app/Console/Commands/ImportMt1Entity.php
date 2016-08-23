@@ -81,6 +81,9 @@ class ImportMt1Entity extends Command
             case "cakeEncryptedLinkMap":
                 return "ImportMt1CakeEncryptionMapping";
 
+            case "link":
+                return "ImportMt1Links";
+
             default:
                 throw new \Exception('Unsupported entity type: ' . $type);
         }
