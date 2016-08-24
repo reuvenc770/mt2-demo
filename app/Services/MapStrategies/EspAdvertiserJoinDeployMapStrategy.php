@@ -35,6 +35,8 @@ class EspAdvertiserJoinDeployMapStrategy implements IMapStrategy {
             'mailing_domain_id' => 0,
             'template_id' => 0,
             'deploy_name' => ($this->buildName($record)),
+            'encrypt_cake' => 1,
+            'fully_encrypt' => 1,
             'notes' => $notes
         ];
     }
