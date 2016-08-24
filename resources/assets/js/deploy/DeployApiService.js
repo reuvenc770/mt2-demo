@@ -11,17 +11,23 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
     self.listProfileUrl = '/api/listprofile/active/';
     self.cfsUrl = '/api/cfs/';
 
-    self.getDeploys = function ( page , count , successCallback , failureCallback ) {
+
+    self.getDeploys = function ( page , count , type, data, successCallback , failureCallback ) {
         $http( {
             "method" : "GET" ,
             "url" : self.pagerApiUrl ,
-            "params" : { "page" : page , "count" : count }
+            "params" : { "page" : page , "count" : count, "type": type, "data" : data }
         } ).then( successCallback , failureCallback );
     };
 
     self.getDeploy = function (deployID ,successCallback, failCallBack){
         $http( { "method" : "GET" , "url" : this.baseApiUrl + deployID } )
             .then( successCallback , failCallBack )
+    };
+
+    self.getEspAccounts = function (successCallback, failCallBack){
+        $http( { "method" : "GET" , "url" : this.baseEspApiUrl } )
+            .then( successCallback , failCallBack );
     };
 
     self.getEspAccounts = function (successCallback, failCallBack){
