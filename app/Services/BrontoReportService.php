@@ -63,6 +63,7 @@ class BrontoReportService extends AbstractReportService implements IDataService
         foreach ($data->toArray() as $key => $field) {
             $return[snake_case($key)] = $field;
         }
+        
         $return['message_name'] = $data->messageName;
         return $return;
     }

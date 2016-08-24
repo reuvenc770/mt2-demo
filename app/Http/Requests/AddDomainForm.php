@@ -31,7 +31,6 @@ class AddDomainForm extends Request
             'registrar'      => 'required',
             'dba'            => 'required',
             'domains'        => 'required',
-            'proxy'          => 'required'
         ];
     }
 }

@@ -1,13 +1,29 @@
-mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , '$timeout' , 'RegistrarApiService' , function ( $log , $window , $location , $timeout , RegistrarApiService ) {
+mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , '$timeout' , 'RegistrarApiService' ,'$rootScope', '$mdToast', function ( $log , $window , $location , $timeout , RegistrarApiService, $rootScope, $mdToast ) {
     var self = this;
     self.$location = $location;
     self.headers = [ '' , 'ID', 'name', "Username" ];
     self.accounts = [];
-    self.currentAccount = { "id": "", "name" : "" , "username": ""};
+    self.currentAccount = { "id": "",
+                            "dba_name" : "" ,
+                            "username": "",
+                            "contact_name":"",
+                            "contact_email":"",
+                            "phone_number":"",
+                            "address": "",
+                            "address_2" : "",
+                            "city" : "",
+                            "state" : "",
+                            "zip" : "",
+                            "entity_name":""};
     self.createUrl = 'registrar/create/';
     self.editUrl = 'registrar/edit/';
 
     self.formErrors = "";
+
+    self.pageCount = 0;
+    self.paginationCount = '10';
+    self.currentPage = 1;
+    self.currentlyLoading = 0;
 
     self.loadAccount = function () {
         var pathMatches = $location.path().match( /^\/registrar\/edit\/(\d{1,})/ );
@@ -24,11 +40,17 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
     };
 
     self.loadAccounts = function () {
-        RegistrarApiService.getAccounts( self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
+        self.currentlyLoading = 1;
+        RegistrarApiService.getAccounts(self.currentPage, self.paginationCount, self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
     };
 
     self.resetForm = function () {
         self.currentAccount = {};
+    };
+
+
+    self.toggle = function(recordId,direction) {
+        RegistrarApiService.toggleRow(recordId, direction, self.toggleRowSuccess, self.toggleRowFailure)
     };
 
     /**
@@ -41,7 +63,7 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
 
     self.saveNewAccount = function () {
         self.resetFieldErrors();
-
+        self.currentAccount.status = 1;
         RegistrarApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback );
     };
 
@@ -52,13 +74,23 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
     };
 
 
+    /**
+     * Watchers
+     */
+    $rootScope.$on( 'updatePage' , function () {
+        self.loadAccounts();
+    } );
+
+
 
 
     /**
      * Callbacks
      */
     self.loadAccountsSuccessCallback = function ( response ) {
-        self.accounts = response.data;
+        self.accounts = response.data.data;
+        self.pageCount = response.data.last_page;
+        self.currentlyLoading = 0;
     };
 
     self.loadAccountsFailureCallback = function ( response ) {
@@ -85,6 +117,12 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
     self.editAccountFailureCallback = function ( response ) {
         self.loadFieldErrors(response);
     };
+
+    self.toggleRowSuccess = function ( response ) {
+        $mdToast.showSimple("Registrar Updated");
+        self.loadAccounts();
+    };
+
 
     /**
      * Errors

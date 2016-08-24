@@ -79,6 +79,46 @@ ul[dnd-list] .dndPlaceholder {
     color: rgba(255, 255, 255, 0.87) !important;
 }
 
+.mt2-cell-left-padding {
+    padding-left: 1em !important;
+}
+
+/**
+ * 3 Month Report Styling
+ */
+.mt2-total-row {
+    font-weight: bold;
+}
+
+.mt2-month-header {
+    text-align: center !important;
+    font-size: 1.25em !important;
+}
+
+.mt2-current-month-header {
+    background-color: #3a76ad;
+}
+
+.mt2-current-month-cell {
+    background-color: #dee1e2;
+}
+
+.mt2-last-month-header {
+    background-color: #366da0;
+}
+
+.mt2-last-month-cell {
+    background-color: #d1d4d6;
+}
+
+.mt2-two-months-ago-header {
+    background-color: #326493;
+}
+
+.mt2-two-months-ago-cell {
+    background-color: #c5c7c9;
+}
+
 /**
  * Custom Vanilla Styling
  */
@@ -116,11 +156,23 @@ body {
 .transparent-background , .transparent-background .md-datepicker-input { background-color: rgba(0, 0, 0, 0) !important; }
 .transparent-background .md-datepicker-expand-triangle { border-top-color: rgba(255,255,255,0.87) !important; }
 
+
+.table-striped > tbody > tr {
+    &.rowDisabled{
+    background-color: #ffc4c4;
+    }
+}
 /**
  * Fields
  */
 .btn {
     margin: .5em;
+}
+
+.input-group-btn{
+    .btn{
+        margin:0;
+    }
 }
 
 .chipList {

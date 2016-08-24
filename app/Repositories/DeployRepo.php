@@ -11,7 +11,8 @@ namespace App\Repositories;
 
 use App\Models\Deploy;
 use DB;
-
+use App\Facades\EspApiAccount;
+use Log;
 class DeployRepo
 {
     protected $deploy;
@@ -21,9 +22,9 @@ class DeployRepo
         $this->deploy = $deploy;
     }
 
-    public function getModel()
+    public function getModel($searchType = null, $searchData = null)
     {
-        return $this->deploy
+        $query = $this->deploy
             ->leftJoin('esp_accounts', 'deploys.esp_account_id', '=', 'esp_accounts.id')
             ->leftJoin('offers', 'offers.id', '=', 'deploys.offer_id')
             ->leftJoin('mailing_templates', 'mailing_templates.id', '=', 'deploys.template_id')
@@ -45,7 +46,14 @@ class DeployRepo
                 'creatives.file_name as creative',
                 'list_profiles.profile_name as list_profile',
                 'cake_affiliate_id',
-                'notes')->orderBy('deploy_id', 'desc');
+                'deployed',
+                'notes');
+        if($searchData && $searchType) {
+            $query = $this->mapQuery($searchType, $searchData, $query);
+        }
+
+        $query->orderBy('deploy_id', 'desc');
+        return $query;
     }
 
     public function insert($data)
@@ -213,5 +221,37 @@ class DeployRepo
     {
         return ['deploy_id', "deploy_date", "esp_account_id", "offer_id", "creative_id", "from_id", "subject_id", "template_id",
             "mailing_domain_id", "content_domain_id", "list_profile_id", "cake_affiliate_id", "notes"];
+    }
+
+
+    private function mapQuery($searchType, $searchData, $query){
+
+
+        switch($searchType){
+            case "esp":
+                $espAccounts = collect(EspApiAccount::getAllAccountsByESPName($searchData));
+                $espAccountIds = $espAccounts->pluck('id');
+                $query = $query->wherein('domains.esp_account_id',$espAccountIds);
+                break;
+            case "espAccount":
+                $query = $query->where('domains.esp_account_id',$searchData);
+                break;
+            case "status":
+                $query = $query->where('deploys.deployed',$searchData);
+                break;
+            case "date":
+                $dates = explode(',',$searchData);
+                $query = $query->whereBetween('deploys.send_date',$dates);
+                break;
+            case "offer":
+                $query = $query->where('offers.name','LIKE', "$searchData%");
+                break;
+            case "deploy":
+                $query = $query->where('deploys.id',$searchData);
+                break;
+            default:
+
+        };
+        return $query;
     }
 }

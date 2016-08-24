@@ -555,6 +555,14 @@ Route::group(
                 'uses' => 'AttributionReportController@view' 
             )
         );
+
+        Route::get( 
+            '/report/export', 
+            array( 
+                'as' => 'attr.report.export', 
+                'uses' => 'AttributionReportController@export' 
+            )
+        );
     }
 );
 
@@ -623,6 +631,16 @@ Route::group(
 
             }
         );
+        Route::group(
+            [ 'prefix' => 'proxy' ] ,
+            function () {
+                Route::get('/active', [
+                    'as' => 'proxy.list',
+                    'uses' => 'ProxyController@listAllActive'
+                ]);
+            }
+        );
+
 
 
         /**
@@ -689,15 +707,7 @@ Route::group(
         /**
          * Proxies additional routes
          */
-        Route::group(
-            [ 'prefix' => 'proxy' ] ,
-            function () {
-                Route::get( '/proxiesbytype/{type}' , [
-                    'as' => 'api.proxy.listType' ,
-                    'uses' => 'ProxyController@returnProxiesByType'
-                ] );
-            }
-        );
+
         /**Domain Routes**/
         Route::group(
             [ 'prefix' => 'domain' ] ,

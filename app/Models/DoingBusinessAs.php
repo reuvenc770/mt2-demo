@@ -10,4 +10,9 @@ class DoingBusinessAs extends Model
     use ModelCacheControl;
     protected $guarded = ['id'];
     public $timestamps = false;
+
+    public function scopeActiveFirst($query)
+    {
+        return $query->orderBy('status','DESC');
+    }
 }

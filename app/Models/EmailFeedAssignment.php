@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class EmailFeedAssignment extends Model
 {
+    const BASE_TABLE_NAME = 'email_client_assignments_model_';
+
     protected $connection = 'attribution';
     protected $fillable = ['email_id', 'feed_id', 'capture_date'];
     protected $primaryKey = "email_id";
@@ -24,5 +26,11 @@ class EmailFeedAssignment extends Model
 
     public function history () {
         return $this->hasMany( 'App\Models\EmailFeedAssignmentHistory' );
+    }
+
+    public function setModelTable ( $modelId ) {
+        if ( $modelId > 0 ) {
+            $this->table = self::BASE_TABLE_NAME . $modelId;
+        }
     }
 }

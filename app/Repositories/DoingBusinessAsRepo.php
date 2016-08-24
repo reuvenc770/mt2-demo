@@ -21,11 +21,14 @@ class DoingBusinessAsRepo
 
     }
     public function insertRow($data){
-      return $this->doingBusinessAs->insert($data);
+      return $this->doingBusinessAs->create($data);
     }
 
     public function getAll(){
         return $this->doingBusinessAs->all();
+    }
+    public function getAllActive(){
+        return $this->doingBusinessAs->where('status',1)->get();
     }
 
     public function fetch($id){
@@ -33,9 +36,17 @@ class DoingBusinessAsRepo
     }
 
     public function updateAccount ( $id , $accountData ) {
-        return $this->doingBusinessAs->where( 'id' , $id )->update( [
+        return $this->doingBusinessAs->find( $id )->update( [
             'dba_name' => $accountData[ 'dba_name' ] ,
             'state_id' => $accountData[ 'state_id' ] ,
         ] );
+    }
+
+    public function toggleRow($id, $direction){
+        return $this->doingBusinessAs->find($id)->update(["status" => $direction]);
+    }
+
+    public function getModel(){
+        return $this->doingBusinessAs->activeFirst();
     }
 }

@@ -9,21 +9,21 @@
 @section( 'content' )
 <md-content layout="column" class="md-mt2-zeta-theme">
     <md-tabs md-dynamic-height md-border-bottom>
-        <md-tab label="Record" md-on-select="attr.switchReportType( 'Record' )" md-active>
-            <md-card class="md-mt2-zeta-theme" flex>
-                @include( 'pages.attribution.reports.record-report' )
-            </md-card>
-        </md-tab>
-
-        <md-tab label="Client" md-on-select="attr.switchReportType( 'Client' )">
-            <md-card class="md-mt2-zeta-theme" flex>
-                @include( 'pages.attribution.reports.client-report' )
+        <md-tab label="Revenue (3 Months)" md-on-select="attr.switchReportType( 'ThreeMonth' )">
+            <md-card class="md-mt2-zeta-theme" flex md-active>
+                @include( 'pages.attribution.reports.three-month-report' ) 
             </md-card>
         </md-tab>
 
         <md-tab label="Deploy" md-on-select="attr.switchReportType( 'Deploy' )">
             <md-card class="md-mt2-zeta-theme" flex>
-                @include( 'pages.attribution.reports.deploy-report' )
+                @include( 'pages.attribution.reports.standard-report' )
+            </md-card>
+        </md-tab>
+
+        <md-tab label="Delivered Records Report" md-on-select="attr.switchReportType( 'EmailCampaignStatistics' )">
+            <md-card class="md-mt2-zeta-theme" flex>
+                @include( 'pages.attribution.reports.email-campaign-statistics-report' )
             </md-card>
         </md-tab>
     </md-tabs>

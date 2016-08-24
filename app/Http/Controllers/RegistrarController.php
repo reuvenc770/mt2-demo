@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use Log;
 use Laracasts\Flash\Flash;
+use AdrianMejias\States\States;
 class RegistrarController extends Controller
 {
     protected $registrarService;
@@ -50,7 +51,8 @@ class RegistrarController extends Controller
      */
     public function create()
     {
-        return view('pages.registrar.registrar-add');
+        $states = States::all();
+        return view('pages.registrar.registrar-add', ['states' => $states]);
     }
 
     /**
@@ -86,8 +88,9 @@ class RegistrarController extends Controller
      */
     public function edit( )
     {
+        $states = States::all();
         return response()
-            ->view( 'pages.registrar.registrar-edit');
+            ->view( 'pages.registrar.registrar-edit', ['states' => $states]);
     }
 
     /**
@@ -110,8 +113,8 @@ class RegistrarController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        //
+        $this->registrarService->toggleRow($id,$request->get("direction"));
     }
 }

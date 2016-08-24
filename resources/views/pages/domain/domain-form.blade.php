@@ -13,8 +13,8 @@
         </div>
         <div class="form-group" ng-class="{ 'has-error' : domain.formErrors.espAccountId }">
             <select name="esp_account" id="esp_account"
-                    ng-model="domain.currentAccount.espAccountId" class="form-control"
-                    ng-disabled="domain.updatingAccounts" ng-change="domain.updateDomains()">
+                    ng-model="domain.currentAccount.espAccountId" ng-change="domain.updateDomains()" class="form-control"
+                    ng-disabled="domain.espNotChosen">
                 <option value="">- Please Choose an ESP Account -</option><option ng-repeat="option in domain.espAccounts" ng-value="option.id" ng-selected="option.id == domain.currentAccount.espAccountId">@{{ option.account_name }}</option>
             </select>
             <span class="help-block" ng-bind="domain.formErrors.espAccountId" ng-show="domain.formErrors.espAccountId"></span>
@@ -29,10 +29,10 @@
             </select>
             <span class="help-block" ng-bind="domain.formErrors.registrar" ng-show="domain.formErrors.registrar"></span>
         </div>
-        <div class="form-group" ng-class="{ 'has-error' : domain.formErrors.proxy }">
+        <div class="form-group" ng-class="{ 'has-error' : domain.formErrors.proxy }" ng-if="domain.type ==2">
             <select name="proxy" id="proxy"
-                    ng-options='(option.name + "-" + option.ip_address) for option in domain.proxies'
-                    ng-model="domain.currentAccount.proxy" class="form-control"
+                    ng-options='(option.name + " - " + option.ip_addresses) for option in domain.proxies'
+                    ng-model="domain.selectedProxy" class="form-control"
                     ng-disabled="domain.updatingAccounts">
                 <option value="">- Please Choose a Proxy -</option>
             </select>

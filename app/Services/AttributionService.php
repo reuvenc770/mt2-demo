@@ -60,7 +60,7 @@ class AttributionService
         
     }
 
-    public function run($records) {
+    public function run( $records , $isModelRun = false ) {
 
         $currentTimestamp = Carbon::now()->timestamp;
 
@@ -97,9 +97,12 @@ class AttributionService
             // Only run this once we've found the winner
             if ($oldFeedId !== $feedId) {
                 $this->changeAttribution($record->email_id, $feedId, $beginDate);
-                $this->recordHistory($record->email_id, $oldFeedId, $feedId);
-                $this->updateScheduleTable($record->email_id, $beginDate);
-                $this->updateTruthTable($record->email_id, $beginDate, $hasAction, $actionExpired, $subsequentImports);
+		
+		if ($isModelRun === false) {
+		    $this->recordHistory($record->email_id, $oldFeedId, $feedId);
+		    $this->updateScheduleTable($record->email_id, $beginDate);
+		    $this->updateTruthTable($record->email_id, $beginDate, $hasAction, $actionExpired, $subsequentImports);
+                }
             }
             
         }, 50000);

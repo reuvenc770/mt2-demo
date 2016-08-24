@@ -67,7 +67,7 @@ class DoingBusinessAsController extends Controller
      */
     public function show($id)
     {
-        return $this->doingBusinessService->getDBA( $id );
+        return response()->json($this->doingBusinessService->getDBA( $id ));
 
     }
 
@@ -104,8 +104,8 @@ class DoingBusinessAsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        //
+        $this->doingBusinessService->toggleRow($id,$request->get("direction"));
     }
 }

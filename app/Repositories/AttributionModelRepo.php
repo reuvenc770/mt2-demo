@@ -7,9 +7,8 @@ namespace App\Repositories;
 
 use DB;
 use App\Repositories\AttributionLevelRepo;
-use App\Repositories\AttributionTransientRecordRepo;
+use App\Repositories\EmailClientAssignmentRepo;
 use App\Models\AttributionLevel;
-use App\Models\AttributionTransientRecord;
 use App\Models\AttributionModel;
 
 use Log;
@@ -25,7 +24,7 @@ class AttributionModelRepo {
         return $this->models;
     }
 
-    public function create ( $name , $levels = null , $templateModelId = null ) {
+    public function create ( $name , $levels = null ) {
         $response = [ "status" => false ];
 
         #creates new AttributionModel record.
@@ -35,8 +34,7 @@ class AttributionModelRepo {
             
         #generates temp level table
         AttributionLevelRepo::generateTempTable( $newModel->id );
-        $newModel->attribution_level_table = AttributionLevel::BASE_TABLE_NAME . $newModel->id;
-        $newModel->save();
+        EmailClientAssignmentRepo::generateTempTable( $newModel->id );
 
         if ( !is_null( $levels ) ) {
             foreach ( $levels as $currentLevel ) {
@@ -48,13 +46,6 @@ class AttributionModelRepo {
                 unset( $tempLevelModel );
             }
         } 
-
-        #generates temp transient record table
-        AttributionTransientRecordRepo::generateTempTable( $newModel->id );
-        $newModel->transient_records_table = AttributionTransientRecord::BASE_TABLE_NAME . $newModel->id;
-        $newModel->save();
-        
-        #injects levels if template model ID present
 
         $response[ 'status' ] = true;
 

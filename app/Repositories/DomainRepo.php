@@ -36,7 +36,7 @@ class DomainRepo
             ->join('esp_accounts', 'domains.esp_account_id', '=', 'esp_accounts.id')
             ->join('esps', 'esp_accounts.esp_id', '=', 'esps.id')
             ->join('registrars', 'domains.registrar_id', '=', 'registrars.id')
-            ->join('proxies', 'domains.proxy_id', '=', 'proxies.id')
+            ->leftjoin('proxies', 'domains.proxy_id', '=', 'proxies.id')
             ->join('doing_business_as', 'domains.doing_business_as_id', '=', 'doing_business_as.id')
             ->groupBy('esp_account_id');
     }
@@ -51,23 +51,23 @@ class DomainRepo
             'domains.main_site',
             'domains.created_at',
             'domains.expires_at',
-            'domains.active')
+            'domains.status')
             ->where("domains.domain_type", $type)
             ->where("domains.esp_account_id", $espAccountId)
             ->join('registrars', 'domains.registrar_id', '=', 'registrars.id')
-            ->join('proxies', 'domains.proxy_id', '=', 'proxies.id')
+            ->leftjoin('proxies', 'domains.proxy_id', '=', 'proxies.id')
             ->join('doing_business_as', 'domains.doing_business_as_id', '=', 'doing_business_as.id')
-            ->orderBy('domains.active', "DESC")
+            ->orderBy('domains.status', "DESC")
             ->get();
     }
 
     public function getActiveDomainsByTypeAndEsp($type, $espAccountId)
     {
-        return $this->domain->where("active",1)->where("domain_type", $type)->where("esp_account_id", $espAccountId)->get();
+        return $this->domain->where("status",1)->where("domain_type", $type)->where("esp_account_id", $espAccountId)->get();
     }
 
-    public function inactivateDomain($id){
-        return $this->domain->where("id",$id)->update([ "active" => 0]);
+    public function toggleRow($id, $direction){
+        return $this->domain->find($id)->update(["status" => $direction]);
     }
 
 }

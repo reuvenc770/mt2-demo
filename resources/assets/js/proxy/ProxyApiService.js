@@ -2,14 +2,18 @@ mt2App.service( 'ProxyApiService' , function ( $http , $log ) {
     var self = this;
 
     self.baseApiUrl = '/api/proxy';
+    self.pagerApiUrl = '/api/pager/Proxy';
     self.getAccount = function ( id , successCallback ) {
         $http( { "method" : "GET" , "url" : this.baseApiUrl + '/' + id } )
             .then( successCallback );
     };
 
-    self.getAccounts = function ( successCallback , failureCallback ) {
-        $http( { "method" : "GET" , "url" : this.baseApiUrl } )
-            .then( successCallback , failureCallback );
+    self.getAccounts = function ( page , count , successCallback , failureCallback ) {
+        $http( {
+            "method" : "GET" ,
+            "url" : self.pagerApiUrl ,
+            "params" : { "page" : page , "count" : count }
+        } ).then( successCallback , failureCallback );
     };
 
     self.saveNewAccount = function ( newAccount , successCallback , failureCallback ) {
@@ -26,6 +30,14 @@ mt2App.service( 'ProxyApiService' , function ( $http , $log ) {
             "method" : "PUT" ,
             "url" : this.baseApiUrl + '/' + account.id ,
             "data" : request
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.toggleRow = function ( recordId, direction, successCallback, failureCallback ) {
+        $http( {
+            "method" : "DELETE" ,
+            "url" : this.baseApiUrl + '/' + recordId,
+            "params" : { "direction" : direction }
         } ).then( successCallback , failureCallback );
     };
 
