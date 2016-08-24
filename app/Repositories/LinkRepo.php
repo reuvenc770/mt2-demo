@@ -12,5 +12,11 @@ class LinkRepo {
         $this->model = $model;
     }
 
-    
+    public function updateOrCreate($data) {
+        $this->model->updateOrCreate(['id' => $data['id']], $data);
+    }
+
+    public function getLinkId($url) {
+        return $this->model->firstOrCreate(['url' => $url], ['url' => $url])->id;
+    }
 }

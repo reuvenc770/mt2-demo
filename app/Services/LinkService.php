@@ -18,8 +18,8 @@ class LinkService {
         // returns 
     }
 
-    public function addLink($url) {
-        throw new Exception('Not implemented yet');
-        // eventually this will insert (or not) the url into the `links` table and return the linkId
+    public function getLinkId($url) {
+        return $this->repo->getLinkId($url);
     }
+
 }
