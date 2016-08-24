@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Offer extends Model {
   
-    protected $fillable = ['id', 'name', 'advertiser_id', 'offer_payout_type_id'];
+    protected $guarded = [];
 
     public function advertiser() {
         return $this->belongsTo('App\Models\Advertiser');

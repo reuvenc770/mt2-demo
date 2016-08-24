@@ -23,11 +23,16 @@ class Deploy extends Model
         return $this->belongsTo('App\Models\Offer');
     }
 
-    public function mailingDomain(){
-        return $this->belongsTo('App\Models\Domain');
+    // The next two are stored in the same table
+    public function mailingDomain() {
+        return $this->belongsTo('App\Models\Domain', 'mailing_domain_id');
     }
 
-    public function mailingTemplate(){
+    public function contentDomain() {
+        return $this->belongsTo('App\Models\Domain', 'content_domain_id');
+    }
+
+    public function mailingTemplate() {
         return $this->belongsTo('App\Models\MailingTemplate', 'template_id', 'id');
     }
 
