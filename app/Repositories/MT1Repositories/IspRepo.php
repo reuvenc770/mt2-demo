@@ -3,6 +3,7 @@
 namespace App\Repositories\MT1Repositories;
 
 use DB;
+use Log;
 
 class IspRepo {
     public function __construct () {}
@@ -13,7 +14,7 @@ class IspRepo {
                 ->select( 'class_id as id' , 'class_name as name' )
                 ->where( 'status' , 'Active' )
                 ->get();
-            
+
         } catch (\Exception $e){
             Log::error("IspRepo error:: ".$e->getMessage());
         }

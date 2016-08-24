@@ -2,22 +2,25 @@
 @section('title', 'Add Proxy')
 
 @section('content')
-        <div class="row">
-            <div class="col-md-6 col-md-offset-3">
-                <div class="panel panel-default" ng-controller="ProxyController as proxy">
-                    <div class="panel-heading">
-                        <h1 class="panel-title">Add Proxy</h1>
+    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
+        <div flex-gt-sm="50" flex="100">
+            <md-card ng-controller="ProxyController as proxy">
+                <md-toolbar class="md-hue-3">
+                    <div class="md-toolbar-tools">
+                        <span>Add Proxy</span>
                     </div>
+                </md-toolbar>
+                <md-card-content>
                     @include( 'pages.proxy.proxy-form' )
-                                <!-- Submit field -->
-                                <div class="form-group">
-                                    <input class="btn btn-primary btn-block" ng-click="proxy.saveNewAccount()" type="submit" value="Create Proxy">
-                                </div>
-                            </fieldset>
-                    </div>
-                </div>
-            </div>
+                        <!-- Submit field -->
+                        <div class="form-group">
+                            <input class="btn btn-primary btn-block" ng-click="proxy.saveNewAccount()" type="submit" value="Create Proxy">
+                        </div>
+                    </fieldset>
+                </md-card-content>
+            </md-card>
         </div>
+    </md-content>
 @endsection
 
 

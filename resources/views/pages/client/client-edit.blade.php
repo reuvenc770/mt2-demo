@@ -7,15 +7,11 @@
 
 
 @section( 'content' )
-<div class="row">
-    <div class="page-header col-xs-12"><h1 class="text-center">Edit Client</h1></div>
-</div>
 
 <div ng-controller="ClientController as client" ng-init="client.loadClient()">
-    <div class="row">
-        <div class="hidden-xs hidden-sm col-md-3"></div>
+    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
 
-        <div class="col-xs-12 col-md-6">
+        <div flex-gt-sm="50" flex="100">
             <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disable' : client.updatingClient }" ng-click="client.updateClient( $event )"><span class="glyphicon glyphicon-repeat" ng-class="{ 'rotateMe' : client.updatingClient }"></span> Update</button>
             <button type="button" class="btn btn-info btn-md pull-right" ng-class="{ 'disable' : client.generatingLinks }" ng-click="client.generateLinks()"><span class="glyphicon glyphicon-link" ng-class="{ 'rotateMe' : client.generatingLinks }"></span> Generate Links</button>
             <button type="button" class="btn btn-danger btn-md pull-right"  ng-click="client.resetPassword()"><span class="glyphicon glyphicon-cog" ng-class="{ 'rotateMe' : client.generatingLinks }"></span> Reset FTP Password</button>
@@ -27,7 +23,7 @@
             <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disable' : client.updatingClient }" ng-click="client.updateClient( $event )"><span class="glyphicon glyphicon-repeat" ng-class="{ 'rotateMe' : client.updatingClient }"></span> Update</button>
             <button type="button" class="btn btn-info btn-md pull-right" ng-class="{ 'disable' : client.generatingLinks }" ng-click="client.generateLinks()"><span class="glyphicon glyphicon-link" ng-class="{ 'rotateMe' : client.generatingLinks }"></span> Generate Links</button>
         </div>
-    </div>
+    </md-content>
 
     <client-url-modal records="client.urlList"></client-url-modal>
 </div>

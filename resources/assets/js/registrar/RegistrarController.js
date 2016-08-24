@@ -14,9 +14,10 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
                             "city" : "",
                             "state" : "",
                             "zip" : "",
-                            "entity_name":""};
+                            "entity_name":"",};
     self.createUrl = 'registrar/create/';
     self.editUrl = 'registrar/edit/';
+    self.pageType = 'add';
 
     self.formErrors = "";
 
@@ -53,6 +54,9 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
         RegistrarApiService.toggleRow(recordId, direction, self.toggleRowSuccess, self.toggleRowFailure)
     };
 
+    self.setPageType = function(pageType){
+        self.pageType = pageType;
+    };
     /**
      * Click Handlers
      */

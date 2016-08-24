@@ -2,42 +2,46 @@
 
 @section( 'title' , 'Client Group' )
 
-@section( 'content' )
-<div class="row">
-    <div class="page-header col-xs-12"><h1 class="text-center">Client Groups</h1></div>
-</div>
+@section( 'angular-controller' , 'ng-controller="ClientGroupController as clientGroup"' )
 
-<div ng-controller="ClientGroupController as clientGroup" ng-init="clientGroup.loadClientGroups()">
+@section( 'page-menu' )
     @if (Sentinel::hasAccess('clientgroup.add'))
-    <div class="row">
-        <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="clientGroup.viewAdd()"><span class="glyphicon glyphicon-plus"></span> Add Client Group</button>
-    </div>
+        <md-button ng-click="clientGroup.viewAdd()" aria-label="Add Client Group">
+            <md-icon ng-hide="app.largePageWidth()" md-svg-src="img/icons/ic_add_circle_outline_white_24px.svg"></md-icon>
+            <span ng-show="app.largePageWidth()">Add Client Group</span>
+        </md-button>
     @endif
-    <div class="row">
-        <div class="col-xs-12">
-            <div class="row">
-                <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                    <pagination-count recordcount="clientGroup.paginationCount" currentpage="clientGroup.currentPage"></pagination-count>
+@stop
+
+@section( 'content' )
+<div ng-init="clientGroup.loadClientGroups()">
+    <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
+        <md-card>
+            <md-card-content>
+                <div layout="row">
+                    <md-input-container flex-gt-sm="10" flex="30">
+                        <pagination-count recordcount="clientGroup.paginationCount" currentpage="clientGroup.currentPage"></pagination-count>
+                    </md-input-container>
+
+                    <md-input-container flex="auto">
+                        <pagination currentpage="clientGroup.currentPage" maxpage="clientGroup.pageCount"></pagination>
+                    </md-input-container>
                 </div>
 
-                <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                    <pagination currentpage="clientGroup.currentPage" maxpage="clientGroup.pageCount"></pagination>
-                </div>
-            </div>
+                <clientgroup-table records="clientGroup.clientGroups" children="clientGroup.clientMap" loadingflag="clientGroup.currentlyLoading" loadchildren="clientGroup.loadClients( groupID )" copygroup="clientGroup.copyClientGroup( groupID )" deletegroup="clientGroup.deleteClientGroup( groupID )" copyingflag="clientGroup.copyingClientGroup" deletingflag="clientGroup.deletingClientGroup"></clientgroup-table>
 
-            <clientgroup-table records="clientGroup.clientGroups" children="clientGroup.clientMap" loadingflag="clientGroup.currentlyLoading" loadchildren="clientGroup.loadClients( groupID )" copygroup="clientGroup.copyClientGroup( groupID )" deletegroup="clientGroup.deleteClientGroup( groupID )" copyingflag="clientGroup.copyingClientGroup" deletingflag="clientGroup.deletingClientGroup"></clientgroup-table>
+                <div layout="row">
+                    <md-input-container flex-gt-sm="10" flex="30">
+                        <pagination-count recordcount="clientGroup.paginationCount" currentpage="clientGroup.currentPage"></pagination-count>
+                    </md-input-container>
 
-            <div class="row">
-                <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                    <pagination-count recordcount="clientGroup.paginationCount" currentpage="clientGroup.currentPage"></pagination-count>
+                    <md-input-container flex="auto">
+                        <pagination currentpage="clientGroup.currentPage" maxpage="clientGroup.pageCount"></pagination>
+                    </md-input-container>
                 </div>
-
-                <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                    <pagination currentpage="clientGroup.currentPage" maxpage="clientGroup.pageCount"></pagination>
-                </div>
-            </div>
-        </div>
-    </div>
+            </md-card-content>
+        </md-card>
+    </md-content>
 </div>
 @stop
 

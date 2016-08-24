@@ -31,6 +31,9 @@ class ClientGroupRepo
     }
 
     public function getAllClientGroups(){
+        Log::info( 'All Client Groups' );
+        Log::info( $this->clientGroup->all() );
+
         return $this->clientGroup->select('client_group_id as id' , 'group_name as name' )
             ->orderBy("name")->get();
     }
@@ -46,7 +49,7 @@ class ClientGroupRepo
                 ->select( 'user.user_id as client_id' , 'user.username as name', 'user.status')
                 ->where('ClientGroupClients.client_group_id',$id )
                 ->get();
-            
+
         } catch (\Exception $e){
             Log::error("ClientGroup error:: ".$e->getMessage());
         }

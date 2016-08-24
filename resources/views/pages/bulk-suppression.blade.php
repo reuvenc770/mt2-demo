@@ -3,16 +3,12 @@
 @section( 'title' , 'Bulk Suppression' )
 
 @section( 'content' )
-<div class="row">
-    <div class="page-header col-xs-12"><h1 class="text-center">Bulk Suppression</h1></div>
-</div>
 
 <div ng-controller="BulkSuppressionController as supp">
-    <div class="row">
-        <div class="hidden-xs hidden-sm col-md-3"></div>
+    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
 
-        <div class="col-xs-12 col-md-6">
-            <button type="button" class="btn btn-success btn-md pull-right" 
+        <div flex-gt-md="50" flex="100">
+            <button type="button" class="btn btn-success btn-md pull-right"
                 ng-disabled="!supp.emailsLoaded"
                 ng-click="supp.uploadSuppressions()">
                     <span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : supp.emailsLoaded }"></span>
@@ -21,13 +17,14 @@
 
             <div class="clearfix"></div>
 
-            <div class="panel panel-primary">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Bulk Suppression Options</h3>
-                </div>
+            <md-card>
+                <md-toolbar class="md-hue-3">
+                    <div class="md-toolbar-tools">
+                        <span>Bulk Suppression Options</span>
+                    </div>
+                </md-toolbar>
 
-                <div class="panel-body">
-                    <md-content flex>
+                    <md-card-content flex>
                         <md-input-container class="md-block" ng-cloak>
                             <label>Emails</label>
                             <textarea ng-model="supp.emailString" rows="5" md-select-on-focus ng-change="supp.enableSubmission()"></textarea>
@@ -39,8 +36,8 @@
                             <option ng-repeat="reason in supp.suppressionReasons" ng-value="reason.value">@{{ reason.name }}</option>
                         </select>
 
-                        <div flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'bulksuppression' , '_token' : '{{ csrf_token() }}' } }" 
-                             flow-files-submitted="$flow.upload()" 
+                        <div flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'bulksuppression' , '_token' : '{{ csrf_token() }}' } }"
+                             flow-files-submitted="$flow.upload()"
                              flow-file-success="supp.startTransfer($file)">
                             <div flow-drop class="dropFile" flow-drag-enter="style={border:'4px solid green'}" flow-drag-leave="style={}" ng-style="style">
                                 <span class="btn btn-default" flow-btn>
@@ -116,18 +113,17 @@
                                 </tbody>
                             </table>
                         </div>
-                    </md-content>
-                </div>
-            </div>
+                    </md-card-content>
+            </md-card>
 
-            <button type="button" class="btn btn-success btn-md pull-right" 
+            <button type="button" class="btn btn-success btn-md pull-right"
             ng-disabled="!supp.emailsLoaded"
             ng-click="supp.uploadSuppressions()">
                 <span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : supp.emailsLoaded }"></span>
                 Suppress
             </button>
         </div>
-    </div>
+    </md-content>
 </div>
 @stop
 
