@@ -95,11 +95,11 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         var startString = '';
         var endString = '';
         if(self.search.startDate){
-            startString =  new Date(self.search.startDate).toISOString().slice(0, 10);
+            startString =  moment( self.search.startDate ).format( 'YYYY-MM-DD' );
         }
 
         if(self.search.endDate){
-            endString =  new Date(self.search.endDate).toISOString().slice(0, 10);
+            endString =  moment( self.search.startDate ).format( 'YYYY-MM-DD' );
         }
         if(self.search.startDate && self.search.endDate) {
             self.search.dates = startString + ',' + endString;

@@ -154,6 +154,10 @@
                             <td>
                                 <button ng-click="deploy.actionLink()"
                                         class="btn btn-small btn-primary">@{{ deploy.actionText() }}</button>
+
+                                <button ng-click="deploy.showRow = false"
+                                        class="btn btn-small btn-danger">Cancel</button>
+
                             </td>
                             <td>
                                 <md-datepicker name="dateField" ng-model="deploy.currentDeploy.send_date"
