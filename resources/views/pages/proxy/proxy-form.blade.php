@@ -15,12 +15,12 @@
                   ng-show="proxy.formErrors.provider_name"></span>
         </div>
 
-        <div class="form-group" ng-class="{ 'has-error' : proxy.formErrors.ip_address }">
+        <div class="form-group" ng-class="{ 'has-error' : proxy.formErrors.ip_addresses }">
             <div class="input-group">
                 <input placeholder="IP Address" class="form-control" ng-model="proxy.ip_address" required="required"
                        name="ip_address" type="text">
-                <span class="help-block" ng-bind="proxy.formErrors.ip_address"
-                      ng-show="proxy.formErrors.ip_address"></span>
+                <span class="help-block" ng-bind="proxy.formErrors.ip_addresses"
+                      ng-show="proxy.formErrors.ip_addresses"></span>
                  <span class="input-group-btn">
             <button class="btn btn-primary" ng-click="proxy.addIpAddress()" type="button">Add IP</button>
                      </span>
