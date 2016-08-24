@@ -261,3 +261,8 @@ Breadcrumbs::register( 'mailingtemplate.edit' , function ( $breadcrumbs ) {
     $breadcrumbs->parent( 'mailingtemplates.list' );
     $breadcrumbs->push( 'Edit Mailing Template' );
 } );
+
+Breadcrumbs::register('deploy.list', function($breadcrumbs) {
+    $breadcrumbs->parent('home');
+    $breadcrumbs->push('Deploy Package', route('deploy.list'));
+});
