@@ -10,6 +10,6 @@ class AffiliateCakeEncryption extends Model
     protected $table = 'AffiliateCakeEncryption';
     protected $primaryKey = 'affiliateID';
     
-    // The primary key in this table is a compound key, which Doctrine does not support, hence the incorrect declaration.
+    // The primary key in this table is a compound key, which Eloquent does not support, hence the incorrect declaration.
     // Hopefully this doesn't break anything.
 }

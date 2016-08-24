@@ -60,7 +60,6 @@ class DeployRepo
             ->where('deploys.id', $id)->first();
     }
 
-
     public function updateOrCreate($data)
     {
         $this->deploy->updateOrCreate(['id' => $data['id']], $data);
