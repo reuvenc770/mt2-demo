@@ -68,7 +68,7 @@ class ClientAggregatorService extends AbstractReportAggregatorService {
     }
 
     protected function formatRecordToSqlString ( $record ) {
-        $date = Carbon::parse( $record[ 'date' ] )->startOfMonth()->toDateString();
+        $date = Carbon::parse( $record[ 'date' ] )->startOfDay()->toDateString();
 
         return "( 
             '{$record[ 'client_stats_grouping_id' ]}' ,
@@ -102,7 +102,7 @@ class ClientAggregatorService extends AbstractReportAggregatorService {
     }
 
     protected function &getCurrentRow ( $date , $clientId ) {
-        $date = Carbon::parse( $date )->startOfMonth()->toDateString();
+        $date = Carbon::parse( $date )->startOfDay()->toDateString();
 
         return $this->recordStruct[ $date ][ $clientId ];
     }
