@@ -6,18 +6,24 @@
 
 @section( 'page-menu' )
     <div ng-show="app.largePageWidth()">
+        @if (Sentinel::hasAccess('api.deploy.store'))
         <md-button ng-click="deploy.displayForm()">
             <span>New Deploy</span>
         </md-button>
+        @endif
+        @if (Sentinel::hasAccess('api.attachment.upload'))
         <md-button flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'deploys' , '_token' : '{{ csrf_token() }}' } }"
                 flow-files-submitted="$flow.upload()"
                 flow-file-success="deploy.fileUploaded($file); $flow.cancel()" flow-btn>
                 <span>Upload Deploy List</span>
                 <input type="file" style="visibility: hidden; position: absolute;"/>
         </md-button>
+        @endif
+        @if (Sentinel::hasAccess('deploy.exportcsv'))
         <md-button ng-click="deploy.exportCsv()" ng-show="deploy.exportable">
             <span>Export to CSV</span>
         </md-button>
+        @endif
     </div>
 
     <md-menu ng-hide="app.largePageWidth()" md-position-mode="target-right target">
@@ -25,11 +31,14 @@
             <md-icon md-svg-src="img/icons/ic_more_horiz_white_24px.svg"></md-icon>
         </md-button>
         <md-menu-content width="3">
+            @if (Sentinel::hasAccess('api.deploy.store'))
             <md-menu-item>
                 <md-button ng-click="deploy.displayForm()">
                     <span>New Deploy</span>
                 </md-button>
             </md-menu-item>
+            @endif
+            @if (Sentinel::hasAccess('api.attachment.upload'))
             <md-menu-item>
                 <md-button flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'deploys' , '_token' : '{{ csrf_token() }}' } }"
                         flow-files-submitted="$flow.upload()"
@@ -38,11 +47,14 @@
                         <input type="file" style="visibility: hidden; position: absolute;"/>
                 </md-button>
             </md-menu-item>
+            @endif
+            @if (Sentinel::hasAccess('api.deploy.exportcsv'))
             <md-menu-item ng-show="deploy.exportable">
                 <md-button ng-click="deploy.exportCsv()">
                     <span>Export to CSV</span>
                 </md-button>
             </md-menu-item>
+            @endif
         </md-menu-content>
     </md-menu>
 @stop
@@ -186,9 +198,10 @@
                             <tbody>
                             <tr ng-show="deploy.showRow">
                                 <td>
+                                    @if (Sentinel::hasAccess('api.deploy.update'))
                                     <button ng-click="deploy.actionLink()"
                                             class="btn btn-small btn-primary">@{{ deploy.actionText() }}</button>
-
+                                    @endif
                                     <button ng-click="deploy.showRow = false"
                                             class="btn btn-small btn-danger">Cancel</button>
 
