@@ -18,8 +18,10 @@ class SwitchClientToFeed extends Migration
         // email_client_instances to email_feed_instances
         Schema::rename('email_client_instances', 'email_feed_instances');
 
+        $db =  App::make(Illuminate\Database\DatabaseManager::class);
+        $DB = $db->connection();
         // Need raw query because Doctrine does not support ALTER TABLE on tables with ENUM()
-        DB::statement("ALTER TABLE email_feed_instances CHANGE `client_id` `feed_id` int(10) unsigned NOT NULL DEFAULT '0'");
+        $DB->statement("ALTER TABLE email_feed_instances CHANGE `client_id` `feed_id` int(10) unsigned NOT NULL DEFAULT '0'");
 
         // email client assignments
         Schema::connection('attribution')->rename('email_client_assignments', 'email_feed_assignments');
@@ -73,18 +75,23 @@ class SwitchClientToFeed extends Migration
     public function down() {
         
         Schema::rename('feeds', 'clients');
+
+        $db =  App::make(Illuminate\Database\DatabaseManager::class);
+        $DB = $db->connection();
+        $DB->statement("ALTER TABLE email_feed_instances CHANGE `feed_id` `client_id` int(10) unsigned NOT NULL DEFAULT '0'");
         
         Schema::rename('email_feed_instances', 'email_client_instances');
         Schema::connection('attribution')->rename('email_feed_assignments', 'email_client_assignments');
+
+        Schema::connection('attribution')->table('email_feed_assignment_histories', function($table) {
+            $table->renameColumn('prev_feed_id', 'prev_client_id');
+            $table->renameColumn('new_feed_id', 'new_client_id');
+        });
+
         Schema::connection('attribution')->rename('email_feed_assignment_histories', 'email_client_assignment_histories');
         Schema::connection('attribution')->rename('offer_payouts', 'client_payouts');
 
-        DB::statement("ALTER TABLE email_feed_instances CHANGE `feed_id` `client_id` int(10) unsigned NOT NULL DEFAULT '0'");
-
-        Schema::connection('attribution')->table('email_client_assignment_histories', function($table) {
-            $table->renameColumn('prev_client_id', 'prev_feed_id');
-            $table->renameColumn('new_feed_id', 'new_feed_id');
-        });
+        
         
 
         Schema::connection('attribution')->table('client_payouts', function($table) {
