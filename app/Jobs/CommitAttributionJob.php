@@ -47,9 +47,12 @@ class CommitAttributionJob extends Job implements ShouldQueue
                 $service = ServiceFactory::createAttributionService($this->modelId);
 
                 $records = $service->getTransientRecords($this->modelId);
-                $service->run($records);
 
-                \Event::fire(new AttributionCompleted($this->modelId)); // Attribution finished. Return model id
+                $isModelRun = ( 'none' !== $this->modelId );
+                $service->run( $records , $isModelRun );
+
+                if ( $isModelRun ) { \Event::fire(new AttributionCompleted($this->modelId)); } // Attribution finished. Return model id
+
                 JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
             }
             catch (\Exception $e) {

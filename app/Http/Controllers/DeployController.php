@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\DeployService;
+use App\Services\EspApiService;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -17,8 +18,9 @@ class DeployController extends Controller
         $this->deployService = $deployService;
     }
 
-    public function listAll(){
-        return response()->view('pages.deploy.deploy-index');
+    public function listAll(EspApiService $espService){
+        $esps = $espService->getAllEsps();
+        return response()->view('pages.deploy.deploy-index', ['esps' => $esps]);
     }
 
     public function returnCakeAffiliates(){

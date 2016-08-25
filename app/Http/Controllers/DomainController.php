@@ -85,7 +85,7 @@ class DomainController extends Controller
                 "registrar_id"  => $request->input("registrar"),
                 "domain_name"  => $domainName,
                 "main_site"   => $mainSite,
-                "active"      => 1,
+                "status"      => 1,
             ];
         }
         Flash::success("Domain was Successfully Added");
@@ -133,9 +133,9 @@ class DomainController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-       return $this->service->inactivateDomain($id);
+        $this->service->toggleRow($id,$request->get("direction"));
     }
 
     public function getDomainsByTypeAndESP($type,$espAccountId){

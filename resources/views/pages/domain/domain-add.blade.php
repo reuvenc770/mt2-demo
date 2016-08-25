@@ -28,7 +28,7 @@
 
                         <div flex>
                         <h2>Current Mailing Domains @{{ domain.extraText }}</h2>
-                            <domain-list-table inactive="domain.inactiveAccount( id )" glythmap="domain.GlythMap"  records="domain.domains"></domain-list-table>
+                            <domain-list-table toggle="domain.toggle(recordId, direction)"  records="domain.domains"></domain-list-table>
                         </div>
                     </md-content>
                 </md-tab>
@@ -52,7 +52,7 @@
                         </div>
                         <div flex>
                             <h2>Current Content Domains @{{ domain.extraText }}</h2>
-                            <domain-list-table inactive="domain.inactiveAccount( id )" glythmap="domain.GlythMap" records="domain.domains"></domain-list-table>
+                            <domain-list-table toggle="domain.toggle(recordId, direction)" records="domain.domains"></domain-list-table>
                         </div>
                     </md-content>
                 </md-tab>

@@ -30,6 +30,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
 
     self.createUrl = 'domain/create/';
     self.espAccounts = [];
+    self.selectedProxy = [];
     self.formErrors = [];
     self.currentlyLoading = 0;
     self.pageCount = 0;
@@ -102,7 +103,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
 
     self.saveNewAccount = function () {
         self.resetFieldErrors();
-        self.currentAccount.proxy = self.currentAccount.proxy.id;
+        self.currentAccount.proxy = self.selectedProxy.id;
         DomainService.saveNewAccount(self.currentAccount, self.SuccessCallBackRedirect, self.saveNewAccountFailureCallback);
     };
 
@@ -111,11 +112,8 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         DomainService.editAccount(self.currentAccount, self.SuccessCallBackRedirect, self.editAccountFailureCallback);
     };
 
-    self.inactiveAccount = function (id) {
-        DomainService.inactiveAccount(id, function () {
-            $mdToast.showSimple( 'Domain has Been deactivated' );
-            self.updateDomains();
-        }, self.saveNewAccountFailureCallback);
+    self.toggle = function(recordId,direction) {
+        DomainService.toggleRow(recordId, direction, self.toggleRowSuccess, self.toggleRowFailure)
     };
 
 
@@ -139,9 +137,14 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         self.pageCount = response.data.last_page;
     };
 
+    self.toggleRowSuccess = function ( response ) {
+        $mdToast.showSimple("Domain Updated");
+        self.updateDomains();
+    };
+
     self.loadAccountsFailureCallback = function (response) {
-        self.setModalLabel('Erro r');
-        self.setModalBody('Failed to load ESP Accounts.');
+        self.setModalLabel('Error');
+        self.setModalBody('Failed to load Domains.');
 
         self.launchModal();
     };

@@ -32,7 +32,7 @@
         <div class="form-group" ng-class="{ 'has-error' : domain.formErrors.proxy }" ng-if="domain.type ==2">
             <select name="proxy" id="proxy"
                     ng-options='(option.name + " - " + option.ip_addresses) for option in domain.proxies'
-                    ng-model="domain.currentAccount.proxy" class="form-control"
+                    ng-model="domain.selectedProxy" class="form-control"
                     ng-disabled="domain.updatingAccounts">
                 <option value="">- Please Choose a Proxy -</option>
             </select>

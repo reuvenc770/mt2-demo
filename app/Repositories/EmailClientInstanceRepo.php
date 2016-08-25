@@ -119,14 +119,14 @@ class EmailClientInstanceRepo {
     }
 
     public function getMt2UniqueCountForClientAndDate( $clientId , $date ) {
-        $mt1Db = config('database.connections.mt1_data.database');
+        $mt2Db = config('database.connections.slave_data.database');
 
         $results = DB::select( DB::raw( "
             SELECT
                 COUNT( * ) AS 'uniques'
             FROM
-                {$mt1Db}.email_client_instances e1
-                LEFT JOIN {$mt1Db}.email_client_instances e2 ON( e1.email_id = e2.email_id AND e1.id <> e2.id AND e2.capture_date < :dateCeiling )
+                {$mt2Db}.email_client_instances e1
+                LEFT JOIN {$mt2Db}.email_client_instances e2 ON( e1.email_id = e2.email_id AND e1.id <> e2.id AND e2.capture_date < :dateCeiling )
             WHERE
                 e1.client_id = :clientId
                 AND e1.capture_date = :date

@@ -67,7 +67,13 @@ class ServiceFactory
         $etlPickup = new $etlPickupRepo(new $etlPickupModel());
 
         // when left empty, this instantiates the currently-selected model
-        $level = 'none' === $modelId ? new $attributionLevelRepo() : new $attributionLevelRepo($modelId); 
+        if ( 'none' !== $modelId ) {
+            $level = new $attributionLevelRepo($modelId); 
+
+            $assignment->setLevelModel( $modelId );
+        } else {
+            $level = new $attributionLevelRepo(); 
+        }
 
         $service = "App\\Services\\AttributionService";
 
