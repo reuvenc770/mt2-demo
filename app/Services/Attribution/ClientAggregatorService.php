@@ -52,11 +52,11 @@ class ClientAggregatorService extends AbstractReportAggregatorService {
 
     protected function processBaseRecord ( $baseRecord ) {
         $date = $baseRecord->date;
-        $clientId = $this->clientService->getAssignedListOwnerId( $baseRecord->feed_id );
+        $feedId = $this->clientService->getAssignedListOwnerId( $baseRecord->feed_id );
         
-        $this->createRowIfMissing( $date , $clientId );
+        $this->createRowIfMissing( $date , $feedId );
 
-        $currentRow = &$this->getCurrentRow( $date , $clientId );
+        $currentRow = &$this->getCurrentRow( $date , $feedId );
 
         $currentRow[ "standard_revenue" ] = (
             ( $currentRow[ "standard_revenue" ] * parent::WHOLE_NUMBER_MODIFIER ) + ( $baseRecord[ "revenue" ] * parent::WHOLE_NUMBER_MODIFIER )

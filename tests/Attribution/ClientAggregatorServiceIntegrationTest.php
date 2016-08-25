@@ -12,7 +12,7 @@ use \Carbon\Carbon;
 class ClientAggregatorServiceIntegrationTest extends TestCase {
     use DatabaseMigrations;
 
-    const CLIENT_CLASS = \App\Models\Feed::class;
+    const FEED_CLASS = \App\Models\Feed::class;
     const EMAIL_CLASS = \App\Models\Email::class;
     const ATTR_FEED_REPORT_CLASS = \App\Models\AttributionFeedReport::class;
 
@@ -108,7 +108,7 @@ class ClientAggregatorServiceIntegrationTest extends TestCase {
 
         $this->testFeeds = [];
         for ( $index = 0 ; $index < 9 ; $index++ ) {
-            $this->testFeeds[ $index ] = factory( self::CLIENT_CLASS )->create();
+            $this->testFeeds[ $index ] = factory( self::FEED_CLASS )->create();
         }
 
         $this->testClientRecords = [];

@@ -11,9 +11,10 @@ class SwitchClientToFeed extends Migration
      * @return void
      */
     public function up() {
+        
         //clients to feeds
         Schema::rename('clients', 'feeds');
-
+        
         // email_client_instances to email_feed_instances
         Schema::rename('email_client_instances', 'email_feed_instances');
 
@@ -60,6 +61,7 @@ class SwitchClientToFeed extends Migration
         DB::statement("UPDATE permissions SET name = 'feed.edit' WHERE name = 'client.edit'");
 
         DB::statement("UPDATE pages SET name = 'feed.list' WHERE name = 'client.list'");
+        
 
     }
 
@@ -69,7 +71,9 @@ class SwitchClientToFeed extends Migration
      * @return void
      */
     public function down() {
+        
         Schema::rename('feeds', 'clients');
+        
         Schema::rename('email_feed_instances', 'email_client_instances');
         Schema::connection('attribution')->rename('email_feed_assignments', 'email_client_assignments');
         Schema::connection('attribution')->rename('email_feed_assignment_histories', 'email_client_assignment_histories');
@@ -111,5 +115,6 @@ class SwitchClientToFeed extends Migration
         DB::statement("UPDATE permissions SET name = 'feed.edit' WHERE name = 'client.edit'");
 
         DB::statement("UPDATE pages SET name = 'feed.list' WHERE name = 'client.list'");
+        
     }
 }
