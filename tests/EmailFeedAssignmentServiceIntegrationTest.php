@@ -8,7 +8,7 @@ namespace Tests;
 use Tests\TestCase;
 use \Illuminate\Foundation\Testing\DatabaseMigrations;
 
-class EmailClientAssignmentIntegrationTest extends TestCase {
+class EmailFeedAssignmentIntegrationTest extends TestCase {
     use DatabaseMigrations;
 
     public $sut;

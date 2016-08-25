@@ -20,20 +20,20 @@ class ClientAttributionService {
         return 'clientattribution';
     }
 
-    public function getClientList ( $page , $count ) {
+    public function getFeedList ( $page , $count ) {
         if ( $this->hasCache( $page , $count ) ) {
             return $this->getCachedJson( $page , $count );
         } else {
             try {
-                $clients = $this->clientAttributionRepo->getClientsByAttribution( $count );
+                $feeds = $this->clientAttributionRepo->getFeedsByAttribution( $count );
 
                 $this->cachePagination(
-                    $clients ,
+                    $feeds ,
                     $page ,
                     $count
                 );
 
-                return $clients;
+                return $feeds;
             } catch ( \Exception $e ) {
                 Log::error( $e->getMessage() );
                 return false;

@@ -103,11 +103,11 @@ class EmailFeedInstanceRepo {
         return $reps;
     }
 
-    public function getMt1UniqueCountForClientAndDate( $clientId , $date ) {
+    public function getMt1UniqueCountForFeedAndDate( $feedId , $date ) {
         $results =  DB::connection( 'mt1mail' )->table( 'ClientRecordTotalsByIsp' )
             ->select( DB::raw( "sum( uniqueRecords ) as 'uniques'" ) )
             ->where( [
-                [ 'clientID' , $clientId ] ,
+                [ 'clientID' , $feedId ] ,
                 [ 'processedDate' , $date ]
             ] )->get();
 
@@ -118,20 +118,20 @@ class EmailFeedInstanceRepo {
         }
     }
 
-    public function getMt2UniqueCountForClientAndDate( $clientId , $date ) {
+    public function getMt2UniqueCountForFeedAndDate( $feedId , $date ) {
         $mt2Db = config('database.connections.slave_data.database');
 
         $results = DB::select( DB::raw( "
             SELECT
                 COUNT( * ) AS 'uniques'
             FROM
-                {$mt2Db}.email_client_instances e1
-                LEFT JOIN {$mt2Db}.email_client_instances e2 ON( e1.email_id = e2.email_id AND e1.id <> e2.id AND e2.capture_date < :dateCeiling )
+                {$mt2Db}.email_feed_instances e1
+                LEFT JOIN {$mt2Db}.email_feed_instances e2 ON( e1.email_id = e2.email_id AND e1.id <> e2.id AND e2.capture_date < :dateCeiling )
             WHERE
-                e1.client_id = :clientId
+                e1.feed_id = :feedId
                 AND e1.capture_date = :date
                 AND e2.id IS NULL" ) , 
-            [ ':dateCeiling' => $date , ':date' => $date , ':clientId' => $clientId ]     
+            [ ':dateCeiling' => $date , ':date' => $date , ':feedId' => $feedId ]     
         );
 
         if ( count( $results ) > 0 ) {

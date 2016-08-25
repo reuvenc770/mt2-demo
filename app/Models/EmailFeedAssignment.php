@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class EmailFeedAssignment extends Model
 {
-    const BASE_TABLE_NAME = 'email_client_assignments_model_';
+    const BASE_TABLE_NAME = 'email_feed_assignments_model_';
 
     protected $connection = 'attribution';
     protected $fillable = ['email_id', 'feed_id', 'capture_date'];

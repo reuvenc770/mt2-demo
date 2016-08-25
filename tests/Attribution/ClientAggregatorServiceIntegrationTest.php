@@ -12,15 +12,9 @@ use \Carbon\Carbon;
 class ClientAggregatorServiceIntegrationTest extends TestCase {
     use DatabaseMigrations;
 
-<<<<<<< HEAD
     const CLIENT_CLASS = \App\Models\Feed::class;
     const EMAIL_CLASS = \App\Models\Email::class;
-    const ATTR_RECORD_REPORT_CLASS = \App\Models\AttributionRecordReport::class;
-    const EMAIL_CLIENT_ASSIGN_CLASS = \App\Models\EmailFeedAssignment::class;
-=======
-    const CLIENT_CLASS = \App\Models\Client::class;
     const ATTR_FEED_REPORT_CLASS = \App\Models\AttributionFeedReport::class;
->>>>>>> master
 
     const LISTOWNER_ID_1 = 11; #client 1, 2, 3, & 4 are assigned to this in dev
     const LISTOWNER_ID_2 = 12; #client 5 & 6 are assigned to this in dev
@@ -108,69 +102,22 @@ class ClientAggregatorServiceIntegrationTest extends TestCase {
     }
 
     public function goodPath_dailyRun_testData () {
-<<<<<<< HEAD
         /**
          * Feed Data
          */
-=======
->>>>>>> master
-        $this->testClients = [];
+
+        $this->testFeeds = [];
         for ( $index = 0 ; $index < 9 ; $index++ ) {
-            $this->testClients[ $index ] = factory( self::CLIENT_CLASS )->create();
+            $this->testFeeds[ $index ] = factory( self::CLIENT_CLASS )->create();
         }
 
-<<<<<<< HEAD
-        /**
-         *  Email Data
-         */
-        $emails = [];
-        for ( $index = 1 ; $index <= 9 ; $index++ ) {
-            $emails[ $index ] = factory( self::EMAIL_CLASS )->create();
-        }
-
-        /**
-         * EmailFeedAssignment Data
-         */
-        $clientAssigns = [];
-        for ( $index = 1 , $clientIndex = 0 ; $index <= count( $emails ) ; $index++ ) {
-            $clientAssigns[ $index ] =factory( self::EMAIL_CLIENT_ASSIGN_CLASS )->create( [
-                "email_id" => $emails[ $index ]->id ,
-                "feed_id" => $this->testClients[ $clientIndex ]->id ,
-                "capture_date" => Carbon::today()->toDateString()
-            ] );
-
-            if ( $index % 3 === 0 ) { $clientIndex++; }
-        }
-
-        /**
-         * AttributionRecordReport Data
-         */
-        $recordRows = [
-            [ "delivered" => 1 , "opened" => 2 , "clicked" => 1 , "converted" => 1 , "unsubbed" => 0 , "bounced" => 0 , "revenue" => 2.00 ] ,
-            [ "delivered" => 1 , "opened" => 1 , "clicked" => 1 , "converted" => 1 , "unsubbed" => 0 , "bounced" => 0 , "revenue" => 2.00 ] ,
-            [ "delivered" => 1 , "opened" => 3 , "clicked" => 1 , "converted" => 1 , "unsubbed" => 0 , "bounced" => 0 , "revenue" => 2.00 ] ,
-            [ "delivered" => 1 , "opened" => 2 , "clicked" => 1 , "converted" => 1 , "unsubbed" => 0 , "bounced" => 0 , "revenue" => 2.00 ] ,
-            [ "delivered" => 1 , "opened" => 1 , "clicked" => 0 , "converted" => 0 , "unsubbed" => 1 , "bounced" => 0 , "revenue" => 0.00 ] ,
-            [ "delivered" => 0 , "opened" => 0 , "clicked" => 0 , "converted" => 0 , "unsubbed" => 0 , "bounced" => 1 , "revenue" => 0.00 ] ,
-            [ "delivered" => 1 , "opened" => 0 , "clicked" => 0 , "converted" => 0 , "unsubbed" => 0 , "bounced" => 0 , "revenue" => 0.00 ] ,
-            [ "delivered" => 1 , "opened" => 2 , "clicked" => 0 , "converted" => 0 , "unsubbed" => 1 , "bounced" => 0 , "revenue" => 0.00 ] ,
-            [ "delivered" => 0 , "opened" => 0 , "clicked" => 0 , "converted" => 0 , "unsubbed" => 0 , "bounced" => 1 , "revenue" => 0.00 ] ,
-        ];
-
-        for ( $index = 1 ; $index <= count( $emails ) ; $index++ ) {
-            factory( self::ATTR_RECORD_REPORT_CLASS )->create( [
-                "email_id" => $emails[ $index ]->id ,
-                "deploy_id" => self::TEST_DEPLOY_ID ,
-                "offer_id" => self::TEST_OFFER_ID ,
-=======
         $this->testClientRecords = [];
-        foreach ( $this->testClients as $clientIndex => $client ) {
+        foreach ( $this->testFeeds as $clientIndex => $client ) {
             $this->testClientRecords[ $clientIndex ] = factory( self::ATTR_FEED_REPORT_CLASS )->create( [
-                "client_id" => $client->id ,
+                "feed_id" => $client->id ,
                 "revenue" => mt_rand( 100 , 200 ) ,
                 "mt1_uniques" => mt_rand( 1000 , 2000 ) ,
                 "mt2_uniques" => mt_rand( 800 , 1500 ) , #mt2 uniques are lower since we imported only some email records
->>>>>>> master
                 "date" => Carbon::today()->toDateString()
             ] );
         }

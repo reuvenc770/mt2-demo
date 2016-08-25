@@ -12,18 +12,18 @@ use \Carbon\Carbon;
 class FeedAggregatorServiceIntegrationTest extends TestCase {
     use DatabaseMigrations;
 
-    const CLIENT_CLASS = \App\Models\Client::class;
+    const FEED_CLASS = \App\Models\Feed::class;
     const EMAIL_CLASS = \App\Models\Email::class;
     const ATTR_RECORD_REPORT_CLASS = \App\Models\AttributionRecordReport::class;
-    const EMAIL_CLIENT_ASSIGN_CLASS = \App\Models\EmailClientAssignment::class;
-    const EMAIL_CLIENT_INSTANCE_CLASS = \App\Models\EmailClientInstance::class;
+    const EMAIL_FEED_ASSIGN_CLASS = \App\Models\EmailFeedAssignment::class;
+    const EMAIL_FEED_INSTANCE_CLASS = \App\Models\EmailFeedInstance::class;
 
     const TEST_DEPLOY_ID = 1;
     const TEST_OFFER_ID = 0;
 
     public $sut;
 
-    public $testClients;
+    public $testFeeds;
 
     public function setUp () {
         parent::setUp();
@@ -49,18 +49,18 @@ class FeedAggregatorServiceIntegrationTest extends TestCase {
         $this->assertEquals( 3 , \App\Models\AttributionFeedReport::all()->count() );
         
         foreach ( $this->sut->getRecords() as $currentRow ) {
-            switch ( $currentRow[ "client_id" ] ) {
-                case $this->testClients[ 0 ]->id :
+            switch ( $currentRow[ "feed_id" ] ) {
+                case $this->testFeeds[ 0 ]->id :
                     $this->assertTrue( $currentRow[ "revenue" ] === 4.00 );
                     $this->assertTrue( $currentRow[ "mt2_uniques" ] === 2 );
                 break;
 
-                case $this->testClients[ 1 ]->id :
+                case $this->testFeeds[ 1 ]->id :
                     $this->assertTrue( $currentRow[ "revenue" ] === 6.00 );
                     $this->assertTrue( $currentRow[ "mt2_uniques" ] === 3 );
                 break;
 
-                case $this->testClients[ 2 ]->id :
+                case $this->testFeeds[ 2 ]->id :
                     $this->assertTrue( $currentRow[ "revenue" ] === 0.00 );
                     $this->assertTrue( $currentRow[ "mt2_uniques" ] === 0 );
                 break;
@@ -72,9 +72,9 @@ class FeedAggregatorServiceIntegrationTest extends TestCase {
         /**
          * Client Data
          */
-        $this->testClients = [];
+        $this->testFeeds = [];
         for ( $index = 0 ; $index < 3 ; $index++ ) {
-            $this->testClients[ $index ] = factory( self::CLIENT_CLASS )->create();
+            $this->testFeeds[ $index ] = factory( self::FEED_CLASS )->create();
         }
 
         /**
@@ -88,30 +88,30 @@ class FeedAggregatorServiceIntegrationTest extends TestCase {
         /**
          * EmailClientAssignment Data
          */
-        $clientAssigns = [];
-        for ( $index = 1 , $clientIndex = 0 ; $index <= count( $emails ) ; $index++ ) {
+        $feedAssigns = [];
+        for ( $index = 1 , $feedIndex = 0 ; $index <= count( $emails ) ; $index++ ) {
             $date = Carbon::today()->toDateString();
     
             if (
-                ( $clientIndex === 0 && $index % 3 === 0 )
-                || ( $clientIndex === 2 ) 
+                ( $feedIndex === 0 && $index % 3 === 0 )
+                || ( $feedIndex === 2 ) 
             ) {
                 $date = Carbon::yesterday()->toDateString();
             }
 
-            $clientAssigns[ $index ] =factory( self::EMAIL_CLIENT_ASSIGN_CLASS )->create( [
+            $feedAssigns[ $index ] =factory( self::EMAIL_FEED_ASSIGN_CLASS )->create( [
                 "email_id" => $emails[ $index ]->id ,
-                "client_id" => $this->testClients[ $clientIndex ]->id ,
+                "feed_id" => $this->testFeeds[ $feedIndex ]->id ,
                 "capture_date" => $date 
             ] );
 
-            factory( self::EMAIL_CLIENT_INSTANCE_CLASS )->create( [
+            factory( self::EMAIL_FEED_INSTANCE_CLASS )->create( [
                 "email_id" => $emails[ $index ]->id ,
-                "client_id" => $this->testClients[ $clientIndex ]->id ,
+                "feed_id" => $this->testFeeds[ $feedIndex ]->id ,
                 "capture_date" => $date 
             ] );
 
-            if ( $index % 3 === 0 ) { $clientIndex++; }
+            if ( $index % 3 === 0 ) { $feedIndex++; }
         }
 
         /**

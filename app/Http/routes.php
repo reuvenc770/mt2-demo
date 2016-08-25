@@ -324,17 +324,17 @@ Route::group(
     ] ,
     function () {
         Route::get( '/' , [
-            'as' => 'client.list' ,
+            'as' => 'feed.list' ,
             'uses' => 'FeedController@listAll'
         ] );
 
         Route::get( '/create' , [
-            'as' => 'client.add' ,
+            'as' => 'feed.add' ,
             'uses' => 'FeedController@create'
         ] );
 
         Route::get( '/edit/{id}' , [
-            'as' => 'client.edit' ,
+            'as' => 'feed.edit' ,
             'uses' => 'FeedController@edit'
         ] );
 
@@ -836,7 +836,7 @@ Route::group(
                 Route::get( '/attribution/model/{modelId}/clients' , [
                     'as' => 'api.attribution.model.clients' ,
                     'middleware' => 'auth' ,
-                    'uses' => 'AttributionModelController@getModelClients'
+                    'uses' => 'AttributionModelController@getModelFeeds'
                 ] );
 
                 Route::post( '/attribution/model/copyLevels' , [

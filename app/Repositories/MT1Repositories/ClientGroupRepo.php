@@ -39,7 +39,7 @@ class ClientGroupRepo
         return $this->clientGroup;
     }
 
-    public function getAllClientsForGroup($id){
+    public function getAllFeedsForGroup($id){
         try{
             return DB::connection('mt1mail')->table('ClientGroupClients')
                 ->join('user', 'user.user_id', '=', 'ClientGroupClients.client_id')

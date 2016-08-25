@@ -17,11 +17,11 @@ class OfferPayoutRepo {
         $this->payoutType = $payoutType;
     }
 
-    public function setPayout ( $clientId , $typeId , $amount ) {
-        #create or update payout for given client.
-        $this->payout->updateOrCreate(['offer_id' => $clientId],
+    public function setPayout ( $offerId , $typeId , $amount ) {
+        #create or update payout for given offer.
+        $this->payout->updateOrCreate(['offer_id' => $offerId],
         [
-            'offer_id' => $clientId,
+            'offer_id' => $offerId,
             'offer_payout_type_id' => $typeId,
             'amount' => $amount
         ]);

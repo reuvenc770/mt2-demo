@@ -7,48 +7,26 @@ namespace App\Services\Attribution;
 
 use App\Services\Attribution\AbstractReportAggregatorService;
 use App\Repositories\Attribution\ClientReportRepo;
-<<<<<<< HEAD
 use App\Services\EmailFeedAssignmentService;
-=======
 use App\Repositories\Attribution\FeedReportRepo;
 use App\Services\MT1Services\ClientService;
->>>>>>> master
 use App\Exceptions\AggregatorServiceException;
 use Carbon\Carbon;
 
 class ClientAggregatorService extends AbstractReportAggregatorService {
-<<<<<<< HEAD
-    protected $recordReport;
-    protected $emailFeedService;
-    protected $clientRepo;
-
-    public function __construct ( RecordReportService $recordReport , EmailFeedAssignmentService $emailFeedService , ClientReportRepo $clientRepo ) {
-        $this->recordReport = $recordReport;
-        $this->emailFeedService = $emailFeedService;
-=======
     protected $clientService;
     protected $feedReportRepo;
     protected $clientRepo;
 
     public function __construct ( ClientService $clientService , ClientReportRepo $clientRepo , FeedReportRepo $feedReportRepo ) {
         $this->clientService = $clientService;
->>>>>>> master
         $this->clientRepo = $clientRepo;
         $this->feedReportRepo = $feedReportRepo;
     }
 
     public function buildAndSaveReport ( $dateRange = null ) {
-<<<<<<< HEAD
-        if ( !isset( $this->recordReport ) ) {
-            throw new AggregatorServiceException( 'RecordReportService needed. Please inject a service.' );
-        }
-
-        if ( !isset( $this->emailFeedService ) ) {
-            throw new AggregatorServiceException( 'EmailFeedAssignmentService needed. Please inject a service.' );
-=======
         if ( !isset( $this->clientService ) ) {
             throw new AggregatorServiceException( 'ClientService needed. Please inject a service.' );
->>>>>>> master
         }
 
         if ( !isset( $this->clientRepo ) ) {
@@ -74,11 +52,7 @@ class ClientAggregatorService extends AbstractReportAggregatorService {
 
     protected function processBaseRecord ( $baseRecord ) {
         $date = $baseRecord->date;
-<<<<<<< HEAD
-        $clientId = $this->emailFeedService->getAssignedClient( $baseRecord->email_id );
-=======
-        $clientId = $this->clientService->getAssignedListOwnerId( $baseRecord->client_id );
->>>>>>> master
+        $clientId = $this->clientService->getAssignedListOwnerId( $baseRecord->feed_id );
         
         $this->createRowIfMissing( $date , $clientId );
 

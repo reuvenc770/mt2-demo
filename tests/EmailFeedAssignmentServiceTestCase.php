@@ -8,7 +8,7 @@ namespace Tests;
 use Tests\TestCase;
 use \App\Services\EmailFeedAssignmentService;
 
-class EmailClientAssignmentServiceTestCase extends TestCase {
+class EmailFeedAssignmentServiceTestCase extends TestCase {
     public $mockRepo;
     public $sut;
 
