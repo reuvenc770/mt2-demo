@@ -5,6 +5,7 @@ namespace App\Services;
 use Sentinel;
 use Route;
 use Cache;
+
 class NavigationService {
     protected $auth;
     protected $currentUser;
@@ -23,25 +24,28 @@ class NavigationService {
         $this->router = $router;
     }
 
-    public function getMenu () {
+    public function getMenuHtml () {
         $userPresent = $this->loadUser();
         if ( $userPresent ) {
             $cachedMenu = Cache::tags("navigation")->get( $this->cacheId );
             if ( is_null( $cachedMenu ) ) {
-                if ( empty( $this->menuList ) ) $this->loadMenu();
+                $this->loadMenu();
+                $sideNav = view( 'layout.side-nav', [ 'menuItems' => $this->menuList ] )->render() ;
 
-                return $this->menuList;
+                Cache::tags('navigation')->forever( $this->cacheId , $sideNav);
+
+                return $sideNav;
             } else {
                 return $cachedMenu;
             }
         } else {
-            return [];
+            return view( 'layout.side-nav-guest' );
         }
-    } 
+    }
 
     public function getMenuIcon ( $route ) {
         return config( 'menuicons.' . $route , '' );
-    } 
+    }
 
     protected function loadMenu () {
         $this->loadRoutes();
@@ -72,8 +76,6 @@ class NavigationService {
                 }
             }
         }
-
-        Cache::tags('navigation')->forever( $this->cacheId , $this->menuList );
     }
 
     protected function loadUser () {
@@ -123,7 +125,8 @@ class NavigationService {
             "name" => $this->getMenuName() ,
             "uri" => $this->currentRoute[ 'uri' ] ,
             "active" => ( $this->currentRoute[ 'name' ] == $this->landingRoute ? 1 : 0 ),
-            "prefix" => str_replace("/","",$this->currentRoute['prefix'])
+            "prefix" => str_replace("/","",$this->currentRoute['prefix']),
+            "icon" => $this->getMenuIcon($this->currentRoute[ 'uri' ])
         ];
     }
 
