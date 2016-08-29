@@ -12,7 +12,7 @@ use \Carbon\Carbon;
 class ThreeMonthReportCollectionIntegrationTest extends TestCase {
     use DatabaseMigrations;
 
-    const CLIENT_CLASS = \App\Models\Client::class;
+    const FEED_CLASS = \App\Models\Feed::class;
 
     public $sut;
 
@@ -37,9 +37,9 @@ class ThreeMonthReportCollectionIntegrationTest extends TestCase {
     }
 
     public function goodPath_dailyRun_TestData () {
-        $testClients = [];
+        $testFeeds = [];
         for ( $index = 0 ; $index < 9 ; $index++ ) {
-            $testClients[ $index ] = factory( self::CLIENT_CLASS )->create();
+            $testFeeds[ $index ] = factory( self::FEED_CLASS )->create();
         }
 
         $recordCount = 18;
@@ -75,7 +75,7 @@ class ThreeMonthReportCollectionIntegrationTest extends TestCase {
                 $clientIndex = $listOwnerFeedIndex[ $currentListOwner->client_stats_grouping_id ];
                 for ( $feedIndex = $clientIndex , $feedCount = 0 ; $feedCount < $clientCount ; $feedCount++, $feedIndex++  ) {
                     factory( \App\Models\AttributionFeedReport::class )->create( [
-                        "client_id" => $testClients[ $feedIndex ]->id ,
+                        "feed_id" => $testFeeds[ $feedIndex ]->id ,
                         "revenue" => $currentListOwner->standard_revenue / $clientCount ,
                         "mt1_uniques" => $currentListOwner->mt1_uniques / $clientCount ,
                         "mt2_uniques" => $currentListOwner->mt2_uniques / $clientCount ,

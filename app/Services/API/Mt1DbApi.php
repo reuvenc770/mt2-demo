@@ -52,7 +52,7 @@ class Mt1DbApi
         
     }
 
-    public function getMaxClientId() {
+    public function getMaxFeedId() {
         $result = DB::connection('mt1_data')
             ->table('user')
             ->orderBy('user_id', 'desc')
@@ -62,10 +62,10 @@ class Mt1DbApi
         return (int)$result;
     }
 
-    public function getNewClients($clientId) {
+    public function getNewFeeds($feedId) {
         return DB::connection('mt1_data')
             ->table('user')
-            ->where('user_id', '>', $clientId)
+            ->where('user_id', '>', $feedId)
             ->get();
     }
 

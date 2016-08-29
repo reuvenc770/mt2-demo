@@ -114,8 +114,8 @@ class AttributionModelController extends Controller
         ] );
     }
 
-    public function getModelClients ( $modelId ) {
-        Log::info( 'getModelClients' );
-        return response()->json( $this->service->getModelClients( $modelId ) );
+    public function getModelFeeds ( $modelId ) {
+        Log::info( 'getModelFeeds' );
+        return response()->json( $this->service->getModelFeeds( $modelId ) );
     }
 }

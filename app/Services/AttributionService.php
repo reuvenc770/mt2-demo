@@ -4,10 +4,10 @@ namespace App\Services;
 
 use DB;
 use Carbon\Carbon;
-use App\Repositories\EmailClientAssignmentRepo;
+use App\Repositories\EmailFeedAssignmentRepo;
 use App\Repositories\AttributionRecordTruthRepo;
 use App\Repositories\AttributionScheduleRepo;
-use App\Repositories\EmailClientInstanceRepo;
+use App\Repositories\EmailFeedInstanceRepo;
 use App\Repositories\AttributionLevelRepo;
 use App\Repositories\EtlPickupRepo;
 
@@ -17,22 +17,22 @@ class AttributionService
     private $truthRepo;
     private $scheduleRepo;
     private $assignmentRepo;
-    private $clientInstanceRepo;
+    private $feedInstanceRepo;
     private $pickupRepo;
     private $expiringDay;
     private $name = 'AttributionJob';
 
     public function __construct(AttributionRecordTruthRepo $truthRepo, 
                                 AttributionScheduleRepo $scheduleRepo, 
-                                EmailClientAssignmentRepo $assignmentRepo,
-                                EmailClientInstanceRepo $clientInstanceRepo,
+                                EmailFeedAssignmentRepo $assignmentRepo,
+                                EmailFeedInstanceRepo $feedInstanceRepo,
                                 AttributionLevelRepo $levelRepo,
                                 EtlPickupRepo $pickupRepo) {
 
         $this->truthRepo = $truthRepo;
         $this->scheduleRepo = $scheduleRepo;
         $this->assignmentRepo = $assignmentRepo;
-        $this->clientInstanceRepo = $clientInstanceRepo;
+        $this->feedInstanceRepo = $feedInstanceRepo;
         $this->levelRepo = $levelRepo;
         $this->pickupRepo = $pickupRepo;
 
@@ -67,17 +67,17 @@ class AttributionService
         $records->each(function($record, $key) {
 
             $beginDate = $record->capture_date;
-            $clientId = (int)$record->client_id;
-            $oldClientId = (int)$record->client_id;
+            $feedId = (int)$record->feed_id;
+            $oldFeedId = (int)$record->feed_id;
 
             // running this separately currently improves execution time
-            $currentAttrLevel = $this->levelRepo->getLevel($clientId);
+            $currentAttrLevel = $this->levelRepo->getLevel($feedId);
 
             $hasAction = (bool)$record->has_action;
             $actionExpired = $record->action_expired;
             $subsequentImports = 0;
 
-            $potentialReplacements = $this->getPotentialReplacements($record->email_id, $beginDate, $clientId);
+            $potentialReplacements = $this->getPotentialReplacements($record->email_id, $beginDate, $feedId);
 
             foreach ($potentialReplacements as $repl) {
 
@@ -85,7 +85,7 @@ class AttributionService
                     $beginDate = $repl->capture_date;
                     $currentAttrLevel = (int)$repl->level;
                     $hasAction = 0; // by default must be false - can't switch if an action existed
-                    $clientId = (int)$repl->client_id;
+                    $feedId = (int)$repl->feed_id;
                     $subsequentImports = 0;
                     $actionExpired = 0; // again, can't have an action, so it can't be expired
                 }
@@ -95,13 +95,13 @@ class AttributionService
             }
 
             // Only run this once we've found the winner
-            if ($oldClientId !== $clientId) {
-                $this->changeAttribution($record->email_id, $clientId, $beginDate);
-
-                if ( $isModelRun === false ) { 
-                    $this->recordHistory($record->email_id, $oldClientId, $clientId);
-                    $this->updateScheduleTable($record->email_id, $beginDate);
-                    $this->updateTruthTable($record->email_id, $beginDate, $hasAction, $actionExpired, $subsequentImports);
+            if ($oldFeedId !== $feedId) {
+                $this->changeAttribution($record->email_id, $feedId, $beginDate);
+		
+		if ($isModelRun === false) {
+		    $this->recordHistory($record->email_id, $oldFeedId, $feedId);
+		    $this->updateScheduleTable($record->email_id, $beginDate);
+		    $this->updateTruthTable($record->email_id, $beginDate, $hasAction, $actionExpired, $subsequentImports);
                 }
             }
             
@@ -112,8 +112,8 @@ class AttributionService
         
     }
 
-    protected function getPotentialReplacements($emailId, $beginDate, $clientId) {
-        return $this->clientInstanceRepo->getEmailInstancesAfterDate($emailId, $beginDate, $clientId);
+    protected function getPotentialReplacements($emailId, $beginDate, $feedId) {
+        return $this->feedInstanceRepo->getEmailInstancesAfterDate($emailId, $beginDate, $feedId);
     }
 
     protected function shouldChangeAttribution($captureDate, $hasAction, $actionExpired, $currentAttrLevel, $testAttrLevel) {
@@ -134,12 +134,12 @@ class AttributionService
         return false;
     }
 
-    protected function changeAttribution($emailId, $clientId, $captureDate) {
-        $this->assignmentRepo->assignClient($emailId, $clientId, $captureDate);
+    protected function changeAttribution($emailId, $feedId, $captureDate) {
+        $this->assignmentRepo->assignFeed($emailId, $feedId, $captureDate);
     }
 
-    protected function recordHistory($emailId, $oldClientId, $newClientId) {
-        $this->assignmentRepo->recordSwap($emailId, $oldClientId, $newClientId);
+    protected function recordHistory($emailId, $oldFeedId, $newFeedId) {
+        $this->assignmentRepo->recordSwap($emailId, $oldFeedId, $newFeedId);
     }
 
     protected function updateTruthTable($emailId, $captureDate, $hasAction, $actionExpired, $subseqs) {

@@ -8,20 +8,20 @@ namespace App\Services\Attribution;
 use App\Services\Attribution\AbstractReportAggregatorService;
 use App\Services\Attribution\RecordReportService;
 use App\Repositories\Attribution\FeedReportRepo;
-use App\Services\EmailClientAssignmentService;
-use App\Services\EmailClientInstanceService;
+use App\Services\EmailFeedAssignmentService;
+use App\Services\EmailFeedInstanceService;
 use App\Exceptions\AggregatorServiceException;
 
 class FeedAggregatorService extends AbstractReportAggregatorService {
     protected $recordReport;
-    protected $emailClientAssignmentService;
-    protected $emailClientInstanceService;
+    protected $emailFeedAssignmentService;
+    protected $emailFeedInstanceService;
     protected $feedRepo;
 
-    public function __construct ( RecordReportService $recordReport , EmailClientAssignmentService $emailClientAssignmentService , EmailClientInstanceService $emailClientInstanceService , FeedReportRepo $feedRepo ) {
+    public function __construct ( RecordReportService $recordReport , EmailFeedAssignmentService $emailFeedAssignmentService , EmailFeedInstanceService $emailFeedInstanceService , FeedReportRepo $feedRepo ) {
         $this->recordReport = $recordReport;
-        $this->emailClientAssignmentService = $emailClientAssignmentService;
-        $this->emailClientInstanceService = $emailClientInstanceService;
+        $this->emailFeedAssignmentService = $emailFeedAssignmentService;
+        $this->emailFeedInstanceService = $emailFeedInstanceService;
         $this->feedRepo = $feedRepo;
     }
 
@@ -30,12 +30,12 @@ class FeedAggregatorService extends AbstractReportAggregatorService {
             throw new AggregatorServiceException( 'RecordReportService needed. Please inject a service.' );
         }
 
-        if ( !isset( $this->emailClientAssignmentService ) ) {
-            throw new AggregatorServiceException( 'EmailClientAssignmentService needed. Please inject a service.' );
+        if ( !isset( $this->emailFeedAssignmentService ) ) {
+            throw new AggregatorServiceException( 'EmailFeedAssignmentService needed. Please inject a service.' );
         }
 
-        if ( !isset( $this->emailClientInstanceService ) ) {
-            throw new AggregatorServiceException( 'EmailClientInstanceService needed. Please inject a service.' );
+        if ( !isset( $this->emailFeedInstanceService ) ) {
+            throw new AggregatorServiceException( 'EmailFeedInstanceService needed. Please inject a service.' );
         }
 
         if ( !isset( $this->feedRepo ) ) {
@@ -57,18 +57,18 @@ class FeedAggregatorService extends AbstractReportAggregatorService {
 
     protected function processBaseRecord ( $baseRecord ) {
         $date = $baseRecord->date;
-        $clientId = $this->emailClientAssignmentService->getAssignedClient( $baseRecord->email_id );
+        $feedId = $this->emailFeedAssignmentService->getAssignedFeed( $baseRecord->email_id );
         
-        $this->createRowIfMissing( $date , $clientId );
+        $this->createRowIfMissing( $date , $feedId );
 
-        $currentRow = &$this->getCurrentRow( $date , $clientId );
+        $currentRow = &$this->getCurrentRow( $date , $feedId );
 
         if ( is_null( $currentRow[ 'mt1_uniques' ] ) ) {
-            $currentRow[ 'mt1_uniques' ] = (int)$this->emailClientInstanceService->getMt1UniqueCountForClientAndDate( $clientId , $date );
+            $currentRow[ 'mt1_uniques' ] = (int)$this->emailFeedInstanceService->getMt1UniqueCountForFeedAndDate( $feedId , $date );
         }
 
         if ( is_null( $currentRow[ 'mt2_uniques' ] ) ) {
-            $currentRow[ 'mt2_uniques' ] = (int)$this->emailClientInstanceService->getMt2UniqueCountForClientAndDate( $clientId , $date );
+            $currentRow[ 'mt2_uniques' ] = (int)$this->emailFeedInstanceService->getMt2UniqueCountForFeedAndDate( $feedId , $date );
         }
 
         $currentRow[ "revenue" ] = (
@@ -78,7 +78,7 @@ class FeedAggregatorService extends AbstractReportAggregatorService {
 
     protected function formatRecordToSqlString ( $record ) {
         return "( 
-            '{$record[ 'client_id' ]}' ,
+            '{$record[ 'feed_id' ]}' ,
             '{$record[ 'revenue' ]}' ,
             '{$record[ 'mt1_uniques' ]}' ,
             '{$record[ 'mt2_uniques' ]}' ,
@@ -92,10 +92,10 @@ class FeedAggregatorService extends AbstractReportAggregatorService {
         $this->feedRepo->runInsertQuery( $valuesSqlString );
     }
 
-    protected function createRowIfMissing ( $date , $clientId ) {
-        if ( !isset( $this->recordStruct[ $date ][ $clientId ] ) ) {
-            $this->recordStruct[ $date ][ $clientId ] = [
-                "client_id" => $clientId ,
+    protected function createRowIfMissing ( $date , $feedId ) {
+        if ( !isset( $this->recordStruct[ $date ][ $feedId ] ) ) {
+            $this->recordStruct[ $date ][ $feedId ] = [
+                "feed_id" => $feedId ,
                 "revenue" => 0 ,
                 "mt1_uniques" => null ,
                 "mt2_uniques" => null ,
@@ -104,7 +104,7 @@ class FeedAggregatorService extends AbstractReportAggregatorService {
         }
     }
 
-    protected function &getCurrentRow ( $date , $clientId ) {
-        return $this->recordStruct[ $date ][ $clientId ];
+    protected function &getCurrentRow ( $date , $feedId ) {
+        return $this->recordStruct[ $date ][ $feedId ];
     }
 }

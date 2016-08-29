@@ -49,7 +49,7 @@ class DataExportController extends Controller
      */
     public function store(Request $request)
     {
-        Flash::success("Client was Successfully Updated");
+        Flash::success("Feed was Successfully Updated");
 
         $this->api->flushPaginatedCache( self::DATA_EXPORT_API_ENDPOINT );
 

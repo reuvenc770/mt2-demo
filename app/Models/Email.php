@@ -9,8 +9,8 @@ class Email extends Model {
   protected $guarded = ['id'];
   public $timestamps = false;
     
-  public function emailClientInstances() {
-    return $this->hasMany('App\Models\EmailClientInstance');
+  public function emailFeedInstances() {
+    return $this->hasMany('App\Models\EmailFeedInstance');
   }
 
   public function emailDomain() {

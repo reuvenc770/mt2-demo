@@ -14,7 +14,7 @@ use DB;
 use App\Factories\ServiceFactory;
 use App\Models\JobEntry;
 use App\Models\Email;
-use App\Models\EmailClientInstance;
+use App\Models\EmailFeedInstance;
 use App\Models\OrphanEmail;
 use App\Facades\JobTracking;
 use App\Models\StandardReport;
@@ -61,7 +61,6 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
         foreach ($this->orphans as $orphan) {
             $orphan = OrphanEmail::find( $orphan->id );
             $currentEmailId = 0;
-            $currentClientId = 0;
             $failedToProcess = false;
 
             if ( is_object( $orphan ) ) {
@@ -77,14 +76,7 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
                 if ( $emailRecordCount > 0 && $deployId > 0) {
                     $currentEmailId = Email::select('id')->where('email_address', $orphan->email_address)->pluck('id')->first();
 
-                    $clientRecordCount = EmailClientInstance::where('email_id', $currentEmailId)->count();
-                    if ($clientRecordCount > 0) {
-                        $currentClientId = EmailClientInstance::select('client_id')->where('email_id', $currentEmailId)->pluck('client_id')->first();
-                    } else {
-                        $currentClientId = 0;
-                    }
-
-                    $value = "('$currentEmailId', '$currentClientId', 
+                    $value = "('$currentEmailId', 
                         '{$orphan->esp_account_id}', 
                         '{$deployId}', 
                         '{$orphan->esp_internal_id}', 
@@ -106,7 +98,7 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
                 }
 
 
-                if($currentClientId > 0 && $emailRecordCount > 0){
+                if($currentFeedId > 0 && $emailRecordCount > 0){
                     if ($orphan->action_id == AbstractReportService::RECORD_TYPE_CLICKER ||
                         $orphan->action_id == AbstractReportService::RECORD_TYPE_OPENER) {
                         $actionsRecords[] = ["email_id" =>$currentEmailId, "datetime" => $orphan->datetime];
@@ -125,12 +117,11 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
                 $insertString = implode(',', $inserts);
                 DB::connection( 'reporting_data' )->statement("
                     INSERT INTO email_actions
-                        ( email_id , client_id , esp_account_id , deploy_id, esp_internal_id , action_id , datetime , created_at , updated_at )    
+                        ( email_id , esp_account_id , deploy_id, esp_internal_id , action_id , datetime , created_at , updated_at )    
                         VALUES
                         $insertString
                         ON DUPLICATE KEY UPDATE
                         email_id = email_id ,
-                        client_id = client_id ,
                         esp_account_id = esp_account_id ,
                         deploy_id = deploy_id,
                         esp_internal_id = esp_internal_id ,

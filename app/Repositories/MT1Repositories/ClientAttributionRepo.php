@@ -7,7 +7,7 @@ use DB;
 class ClientAttributionRepo {
     public function __construct () {} 
 
-    public function getClientsByAttribution ( $count ) {
+    public function getFeedsByAttribution ( $count ) {
         $clients = DB::connection( 'mt1mail' )->table( 'user' )
             ->select( 'user_id as id' , 'username as name' , 'AttributeLevel as level' , 'countryCode as country' , 'company' )
             ->join( 'Country' , 'user.countryID' , '=' , 'Country.countryID' )

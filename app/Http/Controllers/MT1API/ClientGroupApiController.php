@@ -64,7 +64,7 @@ class ClientGroupApiController extends Controller
     public function clients ( $id ) {
         return response()->json( [
             "groupid" => $id ,
-            "records" => $this->clientGroupService->getClientsForClientGroup($id)
+            "records" => $this->clientGroupService->getFeedsForClientGroup($id)
         ] );
     }
 
