@@ -78,7 +78,7 @@ class ImportMt1EmailsService
                 $emailRow = $this->mapToEmailTable($record);
                 $this->emailRepo->insertCopy($emailRow);
                 if($record['email_id'] != 0 ) {
-                    $recordsToFlag[] = ["email_id" => $record['email_id'], "feed_id" => $record['feed_id']];
+                    $recordsToFlag[] = ["email_id" => $record['email_id'], "feed_id" => $record['feed_id'], "datetime" => $record['capture_date'] ];
                 }
                 //We do an upsert so there is no model actions.
                 $emailFeedRow = $this->mapToEmailFeedTable($record);
