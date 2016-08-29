@@ -8,7 +8,7 @@ use App\Repositories\FromOpenRateRepo;
 use App\Repositories\FromRepo;
 use App\Repositories\SubjectOpenRateRepo;
 use App\Repositories\SubjectRepo;
-
+//TODO: more Generic name, more specific repository?  or more another service same repo for crud actions on CFS
 class CfsStatsService {
     
     private $creativeRepo;
@@ -32,6 +32,19 @@ class CfsStatsService {
 
     public function getSubjectOfferOpenRate($offerId) {
         return $this->subjectRepo->getSubjectOfferOpenRate($offerId);
+    }
+
+
+
+
+
+    /**
+     * Crud stuff
+     */
+
+
+    public function getCreativeByOfferId($offerId){
+       return $this->creativeRepo->getCreativesByOffer($offerId);
     }
 
 
