@@ -174,7 +174,7 @@ class ImportMt1EmailsService
             'phone' => $row->phone,
             'email_address' => $row->email_addr,
             'status' => $this->convertFeedStatus($row->status),
-            'source_url' => $row->feedRecordSourceURL,
+            'source_url' => $row->clientRecordSourceURL,
             'created_at' => $row->create_datetime,
             'updated_at' => $row->overall_updated
         ];
