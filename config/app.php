@@ -170,7 +170,6 @@ return [
         App\Providers\Mt1CompanyProvider::class,
         AdrianMejias\States\StatesServiceProvider::class,
         App\Providers\SftpServiceProvider::class,
-	Nwidart\DbExporter\DbExportHandlerServiceProvider::class,
     ],
 
     /*
