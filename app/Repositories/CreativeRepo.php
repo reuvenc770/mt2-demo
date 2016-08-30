@@ -11,7 +11,6 @@ class CreativeRepo {
 
     public function __construct(Creative $model) {
         $this->model = $model;
-        \DB::enableQueryLog();
     } 
 
     public function updateOrCreate($data) {
