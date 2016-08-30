@@ -64,7 +64,7 @@ class AttributionService
 
         $currentTimestamp = Carbon::now()->timestamp;
 
-        $records->each(function($record, $key) {
+        $records->each(function($record, $key) use ( $isModelRun ) {
 
             $beginDate = $record->capture_date;
             $feedId = (int)$record->feed_id;
