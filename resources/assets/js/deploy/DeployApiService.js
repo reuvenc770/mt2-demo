@@ -30,11 +30,6 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
             .then( successCallback , failCallBack );
     };
 
-    self.getEspAccounts = function (successCallback, failCallBack){
-        $http( { "method" : "GET" , "url" : this.baseEspApiUrl } )
-            .then( successCallback , failCallBack );
-    };
-
     self.getListProfiles = function (successCallback, failCallBack){
         $http( { "method" : "GET" , "url" : this.listProfileUrl } )
             .then( successCallback , failCallBack );

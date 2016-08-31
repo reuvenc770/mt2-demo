@@ -38,5 +38,8 @@ return[
     'attr.model.add' => 'Add Attribution Model' ,
     'mailingtemplate.list' => "Mailing Templates",
     'mailingtemplate.add' => "Add Mailing Template",
+    'deploy.list'         => "Deploy Packages",
+    'cfs.list'            =>'CFS',
+    'offer.list'          => 'Offers'
 
 ];
