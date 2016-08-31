@@ -1,8 +1,9 @@
-mt2App.controller( 'AttributionProjectionController' , [ 'AttributionApiService' , 'FeedApiService' , '$log' , '$location' , function ( AttributionApiService , FeedApiService , $log , $location ) {
+mt2App.controller( 'AttributionProjectionController' , [ 'AttributionApiService' , 'FeedApiService' , '$mdToast' , '$location' , function ( AttributionApiService , FeedApiService , $mdToast , $location ) {
     var self = this;
 
     self.modelId = 0;
     self.records = [];
+    self.chartData = [];
 
     self.initPage = function () {
         self.setModelIdFromPath();
@@ -19,28 +20,27 @@ mt2App.controller( 'AttributionProjectionController' , [ 'AttributionApiService'
 
     self.initChart = function () {
         google.charts.load('current', {packages: ['corechart']});
-        google.charts.setOnLoadCallback( self.loadChart );
+        google.charts.setOnLoadCallback( self.getChartData );
     };
 
-    self.loadChart = function () {
-        var liveRev = google.visualization.arrayToDataTable( [
-            [ 'Client Name' , 'Live Revenue' ] ,
-            [ 'Client 1' , 10000 ] ,
-            [ 'Client 2' , 20000 ] ,
-            [ 'Client 3' , 5000 ] ,
-            [ 'Client 4' , 7000 ] ,
-            [ 'Client 5' , 15000 ] ,
-        ] );
+    self.getChartData = function () {
+        AttributionApiService.getProjectionChartData(
+            self.modelId ,
+            function ( response ) {
+                self.chartData = response.data;
+                self.drawChart();
+            } ,
+            function ( response ) {
+                $mdToast.show(
+                    $mdToast.simple()
+                        .textContent( 'Failed to load chart data. Please contact support.' )
+                        .hideDelay( 1500 )
+                );
+            }
+        );
+    };
 
-        var modelRev = google.visualization.arrayToDataTable( [
-            [ 'Client Name' , 'Model Revenue' ] ,
-            [ 'Client 1' , 10000 ] ,
-            [ 'Client 2' , 15000 ] ,
-            [ 'Client 3' , 10000 ] ,
-            [ 'Client 4' , 6000 ] ,
-            [ 'Client 5' , 16000 ] ,
-        ] );
-
+    self.drawChart = function () {
         var options = {
             diff: {
                 newData: {
@@ -52,11 +52,14 @@ mt2App.controller( 'AttributionProjectionController' , [ 'AttributionApiService'
             legend: { position: 'top' }
         };
 
-        var colChartDiff = new google.visualization.BarChart( document.getElementById( 'projectionChart' ) );
+        var barChartDiff = new google.visualization.BarChart( document.getElementById( 'projectionChart' ) );
 
-        var diffData = colChartDiff.computeDiff( liveRev , modelRev );
+        var diffData = barChartDiff.computeDiff(
+            google.visualization.arrayToDataTable( self.chartData.live ) ,
+            google.visualization.arrayToDataTable( self.chartData.model ) 
+        );
 
-        colChartDiff.draw( diffData , options );
+        barChartDiff.draw( diffData , options );
     };
 
     self.loadRecords = function () {
@@ -66,7 +69,11 @@ mt2App.controller( 'AttributionProjectionController' , [ 'AttributionApiService'
                 self.records = response.data;
             } ,
             function ( response ) {
-                $log.info( response );
+                $mdToast.show(
+                    $mdToast.simple()
+                        .textContent( 'Failed to load table data. Please contact support.' )
+                        .hideDelay( 1500 )
+                );
             }
         );
     };

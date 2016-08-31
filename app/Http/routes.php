@@ -870,6 +870,12 @@ Route::group(
                     'middleware' => 'auth' ,
                     'uses' => 'AttributionProjectionController@getReportData'
                 ] );
+
+                Route::get( '/attribution/projection/chart/{modelId}' , [
+                    'as' => 'api.attribution.projection.chart' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionProjectionController@getChartData'
+                ] );
             }
         );
 
