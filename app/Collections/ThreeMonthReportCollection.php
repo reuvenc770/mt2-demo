@@ -43,7 +43,11 @@ class ThreeMonthReportCollection extends Collection {
             
             $clientFeeds = $this->clientService->getClientFeedsForListOwner( $client->id );
             foreach ( $clientFeeds as $feedId ) {
-                $this->recordCollector []= $this->getFeedRow( $feedId );
+                $feedRecord = $this->getFeedRow( $feedId );
+
+                if ( !is_null( $feedRecord ) ) {
+                    $this->recordCollector []= $feedRecord;
+                }
             }
         }
 
@@ -91,7 +95,11 @@ class ThreeMonthReportCollection extends Collection {
             
             $clientFeeds = $this->clientService->getClientFeedsForListOwner( $client->id );
             foreach ( $clientFeeds as $feedId ) {
-                $csv .= "\n" . $this->getFeedRow( $feedId );
+                $feedRow = $this->getFeedRow( $feedId );
+
+                if ( !is_null( $feedRow ) ) {
+                    $csv .= "\n" . $feedRow;
+                }
             }
         }
 
@@ -166,28 +174,35 @@ class ThreeMonthReportCollection extends Collection {
     }
 
     protected function getFeedRow ( $feedId ) {
-        $currentClientRow = [];
-        $currentClientCsvRow = [ '' , $this->clientService->getFeedName( $feedId ) . " ($feedId)" ];
+        $currentFeedRow = [];
+        $currentFeedCsvRow = [ '' , $this->clientService->getFeedName( $feedId ) . " ($feedId)" ];
 
-        $currentClientRow[ 'client_id' ] = $feedId;
+        $currentFeedRow[ 'feed_id' ] = $feedId;
+        $nullSections = [];
         foreach ( $this->dates as $dateKey => $date ) {
             $feedRecord = $this->feedReportRepo->getAggregateForIdAndMonth( $feedId , $date );
 
+            if ( is_null( $feedRecord->revenue ) && is_null( $feedRecord->mt1_uniques ) && is_null( $feedRecord->mt2_uniques )  ) {
+                $nullSections[ $dateKey ] = true;
+            }
+
             if ( $this->compileCsv ) {
-                $currentClientCsvRow []= $feedRecord->revenue;
-                $currentClientCsvRow []= $feedRecord->revenue * 0.15;
-                $currentClientCsvRow []= '';
-                $currentClientCsvRow []= '';
-                $currentClientCsvRow []= $feedRecord->mt1_uniques;
-                $currentClientCsvRow []= $feedRecord->mt2_uniques;
+                $currentFeedCsvRow []= $feedRecord->revenue;
+                $currentFeedCsvRow []= $feedRecord->revenue * 0.15;
+                $currentFeedCsvRow []= '';
+                $currentFeedCsvRow []= '';
+                $currentFeedCsvRow []= $feedRecord->mt1_uniques;
+                $currentFeedCsvRow []= $feedRecord->mt2_uniques;
             } else {
-                $currentClientRow[ $dateKey ][ 'standard_revenue' ] = $feedRecord->revenue;
-                $currentClientRow[ $dateKey ][ 'mt1_uniques' ] = $feedRecord->mt1_uniques;
-                $currentClientRow[ $dateKey ][ 'mt2_uniques' ] = $feedRecord->mt2_uniques;
+                $currentFeedRow[ $dateKey ][ 'standard_revenue' ] = $feedRecord->revenue;
+                $currentFeedRow[ $dateKey ][ 'mt1_uniques' ] = $feedRecord->mt1_uniques;
+                $currentFeedRow[ $dateKey ][ 'mt2_uniques' ] = $feedRecord->mt2_uniques;
             }
         }
 
-        return ( $this->compileCsv ? implode( ',' , $currentClientCsvRow ) : $currentClientRow );
+        if ( count( $nullSections ) === 3 ) { return null; }
+
+        return ( $this->compileCsv ? implode( ',' , $currentFeedCsvRow ) : $currentFeedRow );
     }
 
     #Need these methods since the controller calls this method

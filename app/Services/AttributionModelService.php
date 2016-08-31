@@ -42,7 +42,7 @@ class AttributionModelService {
         return $this->repo->updateModel( $currentModelId , $currentModelName , $levels );
     }
 
-    public function getModelClients ( $modelId ) {
-        return $this->repo->getModelClients( $modelId );
+    public function getModelFeeds ( $modelId ) {
+        return $this->repo->getModelFeeds( $modelId );
     }
 }

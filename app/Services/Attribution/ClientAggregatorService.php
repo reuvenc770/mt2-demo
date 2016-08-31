@@ -7,6 +7,7 @@ namespace App\Services\Attribution;
 
 use App\Services\Attribution\AbstractReportAggregatorService;
 use App\Repositories\Attribution\ClientReportRepo;
+use App\Services\EmailFeedAssignmentService;
 use App\Repositories\Attribution\FeedReportRepo;
 use App\Services\MT1Services\ClientService;
 use App\Exceptions\AggregatorServiceException;
@@ -51,11 +52,11 @@ class ClientAggregatorService extends AbstractReportAggregatorService {
 
     protected function processBaseRecord ( $baseRecord ) {
         $date = $baseRecord->date;
-        $clientId = $this->clientService->getAssignedListOwnerId( $baseRecord->client_id );
+        $feedId = $this->clientService->getAssignedListOwnerId( $baseRecord->feed_id );
         
-        $this->createRowIfMissing( $date , $clientId );
+        $this->createRowIfMissing( $date , $feedId );
 
-        $currentRow = &$this->getCurrentRow( $date , $clientId );
+        $currentRow = &$this->getCurrentRow( $date , $feedId );
 
         $currentRow[ "standard_revenue" ] = (
             ( $currentRow[ "standard_revenue" ] * parent::WHOLE_NUMBER_MODIFIER ) + ( $baseRecord[ "revenue" ] * parent::WHOLE_NUMBER_MODIFIER )
@@ -63,12 +64,12 @@ class ClientAggregatorService extends AbstractReportAggregatorService {
 
         #Need to hook in CPM revenue here
 
-        $currentRow[ "mt1_uniques" ] += $baseRecord[ "mt1_uniques" ];
-        $currentRow[ "mt2_uniques" ] += $baseRecord[ "mt2_uniques" ];
+        $currentRow[ "mt1_uniques" ] += isset( $baseRecord[ "mt1_uniques" ] ) ? $baseRecord[ "mt1_uniques" ] : 0;
+        $currentRow[ "mt2_uniques" ] += isset( $baseRecord[ "mt2_uniques" ] ) ? $baseRecord[ "mt2_uniques" ] : 0;
     }
 
     protected function formatRecordToSqlString ( $record ) {
-        $date = Carbon::parse( $record[ 'date' ] )->startOfMonth()->toDateString();
+        $date = Carbon::parse( $record[ 'date' ] )->startOfDay()->toDateString();
 
         return "( 
             '{$record[ 'client_stats_grouping_id' ]}' ,
@@ -87,7 +88,7 @@ class ClientAggregatorService extends AbstractReportAggregatorService {
     }
 
     protected function createRowIfMissing ( $date , $clientId ) {
-        $date = Carbon::parse( $date )->startOfMonth()->toDateString();
+        $date = Carbon::parse( $date )->startOfDay()->toDateString();
 
         if ( !isset( $this->recordStruct[ $date ][ $clientId ] ) ) {
             $this->recordStruct[ $date ][ $clientId ] = [
@@ -102,7 +103,7 @@ class ClientAggregatorService extends AbstractReportAggregatorService {
     }
 
     protected function &getCurrentRow ( $date , $clientId ) {
-        $date = Carbon::parse( $date )->startOfMonth()->toDateString();
+        $date = Carbon::parse( $date )->startOfDay()->toDateString();
 
         return $this->recordStruct[ $date ][ $clientId ];
     }

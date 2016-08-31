@@ -48,7 +48,7 @@ class CommitAttributionJob extends Job implements ShouldQueue
 
                 $records = $service->getTransientRecords($this->modelId);
 
-                $isModelRun = ( 'none' !== $model );
+                $isModelRun = ( 'none' !== $this->modelId );
                 $service->run( $records , $isModelRun );
 
                 if ( $isModelRun ) { \Event::fire(new AttributionCompleted($this->modelId)); } // Attribution finished. Return model id

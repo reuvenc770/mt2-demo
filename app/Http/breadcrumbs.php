@@ -57,18 +57,18 @@ Breadcrumbs::register('role.edit', function($breadcrumbs) {
 });
 
 //Client Feeds
-Breadcrumbs::register('client.list', function($breadcrumbs) {
+Breadcrumbs::register('feed.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');
-    $breadcrumbs->push("Clients", route('client.list'));
+    $breadcrumbs->push("Feeds", route('feed.list'));
 });
-Breadcrumbs::register('client.add', function($breadcrumbs) {
-    $breadcrumbs->parent('client.list');
-    $breadcrumbs->push('Add Client');
+Breadcrumbs::register('feed.add', function($breadcrumbs) {
+    $breadcrumbs->parent('feed.list');
+    $breadcrumbs->push('Add Feed');
 });
 
-Breadcrumbs::register('client.edit', function($breadcrumbs) {
-    $breadcrumbs->parent('client.list');
-    $breadcrumbs->push('Edit Client');
+Breadcrumbs::register('feed.edit', function($breadcrumbs) {
+    $breadcrumbs->parent('feed.list');
+    $breadcrumbs->push('Edit Feed');
 });
 
 //Client Feeds
@@ -131,7 +131,7 @@ Breadcrumbs::register('tools.recordlookup', function($breadcrumbs) {
 });
 
 Breadcrumbs::register( 'client.attribution' , function ( $breadcrumbs ) {
-    $breadcrumbs->parent( 'client.list' );
+    $breadcrumbs->parent( 'feed.list' );
     $breadcrumbs->push( 'Attribution' );
 } );
 
@@ -157,7 +157,7 @@ Breadcrumbs::register( 'tools.bulksuppression' , function ( $breadcrumbs ) {
 } );
 
 Breadcrumbs::register( 'client.attribution' , function ( $breadcrumbs ) {
-    $breadcrumbs->parent( 'client.list' );
+    $breadcrumbs->parent( 'feed.list' );
     $breadcrumbs->push( 'Attribution' );
 } );
 

@@ -29,7 +29,7 @@ class AttributionController extends Controller
      */
     public function index( Request $request )
     {
-        $clients = $this->attributionApi->getClientList( $request->input( 'page' ) , $request->input( 'count' ) );
+        $clients = $this->attributionApi->getFeedList( $request->input( 'page' ) , $request->input( 'count' ) );
 
         return response( $clients );
     }

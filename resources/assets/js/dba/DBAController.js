@@ -61,6 +61,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
             self.brand = "";
     };
 
+
     self.removeBrand = function (id) {
         self.po_box.brands.splice( id , 1 );
 

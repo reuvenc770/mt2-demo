@@ -7,8 +7,8 @@ namespace App\Repositories;
 
 use DB;
 use App\Repositories\AttributionLevelRepo;
-use App\Repositories\EmailClientAssignmentRepo;
 use App\Repositories\Attribution\FeedReportRepo;
+use App\Repositories\EmailFeedAssignmentRepo;
 use App\Models\AttributionLevel;
 use App\Models\AttributionModel;
 
@@ -35,13 +35,13 @@ class AttributionModelRepo {
             
         #generates temp level table
         AttributionLevelRepo::generateTempTable( $newModel->id );
-        EmailClientAssignmentRepo::generateTempTable( $newModel->id );
         FeedReportRepo::generateTempTable( $newModel->id );
+        EmailFeedAssignmentRepo::generateTempTable( $newModel->id );
 
         if ( !is_null( $levels ) ) {
             foreach ( $levels as $currentLevel ) {
                 $tempLevelModel = new AttributionLevel( AttributionLevel::BASE_TABLE_NAME . $newModel->id );
-                $tempLevelModel->client_id = $currentLevel[ 'id' ];
+                $tempLevelModel->feed_id = $currentLevel[ 'id' ];
                 $tempLevelModel->level = $currentLevel[ 'level' ];
                 $tempLevelModel->save();
 
@@ -94,11 +94,12 @@ class AttributionModelRepo {
     }
 
     #sort by level
-    public function getModelClients ( $modelId ) {
+    public function getModelFeeds ( $modelId ) {
+        $schema = config('database.connections.mysql.database');
         return DB::connection( 'attribution' )
             ->table( AttributionLevel::BASE_TABLE_NAME . $modelId . ' AS al' )
-            ->select( 'al.client_id as id' , 'c.name as name' )
-            ->leftJoin( 'homestead.clients AS c' , 'c.id' , '=' , 'al.client_id' )
+            ->select( 'al.feed_id as id' , 'f.name as name' )
+            ->leftJoin( "$schema.feeds AS f" , 'f.id' , '=' , 'al.feed_id' )
             ->orderBy( 'al.level' )
             ->get();
     }
@@ -111,7 +112,7 @@ class AttributionModelRepo {
         $templateModelLevel->get()->each( function ( $item , $key ) use ( $currentModelId ) {
             $newLevel = new AttributionLevel( AttributionLevel::BASE_TABLE_NAME . $currentModelId );
 
-            $newLevel->client_id = $item->client_id;
+            $newLevel->feed_id = $item->feed_id;
             $newLevel->level = $item->level;
             $newLevel->save();
 
@@ -131,7 +132,7 @@ class AttributionModelRepo {
         foreach ( $levels as $current ) {
             $newLevel = new AttributionLevel( AttributionLevel::BASE_TABLE_NAME . $currentModelId );
 
-            $newLevel->client_id = $current[ 'id' ];
+            $newLevel->feed_id = $current[ 'id' ];
             $newLevel->level = $current[ 'level' ];
             $newLevel->save();
 

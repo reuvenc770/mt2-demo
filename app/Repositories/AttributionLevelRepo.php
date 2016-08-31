@@ -21,14 +21,14 @@ class AttributionLevelRepo {
         }
     }
 
-    public function setLevel ( $clientId , $level ) {
-        #insert or update given client and level.
+    public function setLevel ( $feedId , $level ) {
+        #insert or update given feed and level.
     }
 
-    public function getLevel ( $clientId ) {
+    public function getLevel ( $feedId ) {
         $result = $this->levels
              ->select('level')
-             ->where('client_id', $clientId)
+             ->where('feed_id', $feedId)
              ->first();
 
         if (!$result) {
@@ -43,19 +43,19 @@ class AttributionLevelRepo {
         #returns all levels
     }
 
-    public function toggleActiveStatus ( $clientId , $isActive ) {
-        #sets active filed for the given client.
+    public function toggleActiveStatus ( $feedId , $isActive ) {
+        #sets active filed for the given feed.
     }
 
     static public function generateTempTable ( $modelId ) {
         Schema::connection( 'attribution' )->create( AttributionLevel::BASE_TABLE_NAME . $modelId , function (Blueprint $table) {
-            $table->integer( 'client_id' )->unsigned();
+            $table->integer( 'feed_id' )->unsigned();
             $table->integer( 'level' )->unsigned();
             $table->boolean( 'active' )->default( true );
             $table->timestamps();
 
-            $table->primary( 'client_id' );
-            $table->index( [ 'client_id' , 'level' ] );
+            $table->primary( 'feed_id' );
+            $table->index( [ 'feed_id' , 'level' ] );
         });
     }
 
