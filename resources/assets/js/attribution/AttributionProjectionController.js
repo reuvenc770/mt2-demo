@@ -9,6 +9,12 @@ mt2App.controller( 'AttributionProjectionController' , [ 'AttributionApiService'
         self.setModelIdFromPath();
     };
 
+    self.refreshPage = function () {
+        self.getChartData();
+
+        self.loadRecords();
+    };
+
     self.setModelIdFromPath = function () {
         var path = $location.path();
         var idMatches = path.match( /\d+$/ );

@@ -5,6 +5,11 @@
 @section( 'angular-controller' , 'ng-controller="AttributionProjectionController as proj"' )
 
 @section( 'page-menu' )
+    @if (Sentinel::hasAccess('api.attribution.projection.report'))
+        <md-button ng-click="proj.refreshPage()" aria-label="Refresh Page">
+            <span>Refresh</span>
+        </md-button>
+    @endif
 @stop
 
 @section( 'content' )
