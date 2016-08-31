@@ -156,11 +156,6 @@ Breadcrumbs::register( 'tools.bulksuppression' , function ( $breadcrumbs ) {
     $breadcrumbs->push( 'Bulk Suppression' , route( 'tools.bulksuppression' ) );
 } );
 
-Breadcrumbs::register( 'client.attribution' , function ( $breadcrumbs ) {
-    $breadcrumbs->parent( 'feed.list' );
-    $breadcrumbs->push( 'Attribution' );
-} );
-
 Breadcrumbs::register('datacleanse.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');
     $breadcrumbs->push('Data Cleanse' , route( 'datacleanse.list' ));
