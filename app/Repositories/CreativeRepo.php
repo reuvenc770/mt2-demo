@@ -23,8 +23,8 @@ class CreativeRepo {
             ->leftJoin("$schema.offer_creative_maps as ocm", 'creatives.id', '=', 'ocm.creative_id')
             ->leftJoin("$schema.creative_clickthrough_rates as crate", 'crate.creative_id', '=', 'creatives.id')
             ->where('ocm.offer_id', $offerId)
-            ->where('creatives.status', 'Y')
-            ->where('creatives.approved', 'A')
+            ->where('creatives.status', 'A')
+            ->where('creatives.approved', 'Y')
             ->groupBy('creatives.id', 'name')
             ->orderBy("click_rate", 'desc')
             ->select(DB::raw("creatives.id, creatives.file_name as name, ROUND(SUM(IFNULL(clicks, 0)) / SUM(IFNULL(opens, 0)) * 100, 3) AS click_rate"))
@@ -37,8 +37,8 @@ class CreativeRepo {
         return $this->model//LAME
             ->leftJoin("$schema.offer_creative_maps as ocm", 'creatives.id', '=', 'ocm.creative_id')
             ->where('ocm.offer_id', $offerId)
-            ->where('creatives.status', 'Y')
-            ->where('creatives.approved', 'A')
+            ->where('creatives.status', 'A')
+            ->where('creatives.approved', 'Y')
             ->get();
     }
 
