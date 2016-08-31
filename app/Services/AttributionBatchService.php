@@ -86,7 +86,7 @@ class AttributionBatchService {
                 }
             }
 
-        }, 50000);
+        }
     }
 
 
