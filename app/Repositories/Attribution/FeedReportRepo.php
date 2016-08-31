@@ -12,16 +12,24 @@ use App\Models\AttributionFeedReport;
 use Carbon\Carbon;
 
 class FeedReportRepo {
-    protected $model;
+    protected $feedReport;
 
-    public function __construct ( AttributionFeedReport $model ) {
-        $this->model = $model;
+    public function __construct ( AttributionFeedReport $feedReport ) {
+        $this->feedReport = $feedReport;
+    }
+
+    public function switchToLiveTable () {
+        $this->feedReport->switchToLiveTable();
+    }
+
+    public function setModelId ( $modelId ) {
+        $this->feedReport->setModelId( $modelId );
     }
 
     public function getAggregateForIdAndMonth ( $feedId , $date ) { 
         $dateRange = [ 'start' => Carbon::parse( $date )->startOfMonth()->toDateString() , 'end' => Carbon::parse( $date )->endOfMonth()->toDateString() ];
 
-        return $this->model
+        return $this->feedReport
             ->select( DB::raw( "
                 SUM( revenue ) as revenue ,
                 SUM( mt1_uniques ) as mt1_uniques ,
@@ -34,7 +42,7 @@ class FeedReportRepo {
     }   
 
     public function getByDateRange ( array $dateRange ) {
-        return $this->model->whereBetween( 'date' , [ $dateRange[ 'start' ] , $dateRange[ 'end' ] ] )->get();
+        return $this->feedReport->whereBetween( 'date' , [ $dateRange[ 'start' ] , $dateRange[ 'end' ] ] )->get();
     }
 
     public function runInsertQuery ( $valuesSqlString ) {
@@ -52,6 +60,14 @@ class FeedReportRepo {
                 created_at = created_at ,
                 updated_at = NOW()
         " );
+    }
+
+    public function getFeedsForDateRange ( $startDate , $endDate ) {
+        return $this->feedReport
+            ->select( 'feed_id as id' )
+            ->distinct()
+            ->whereBetween( 'date' , [ $startDate , $endDate ] )
+            ->get();
     }
 
     static public function generateTempTable ( $modelId ) {

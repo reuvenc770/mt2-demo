@@ -22,10 +22,10 @@ mt2App.service( 'AttributionApiService' , function ( $http , $log ) {
         } ).then( successCallback , failureCallback );
     };
 
-    self.getModelClients = function ( modelId , successCallback , failureCallback ) {
+    self.getModelFeeds = function ( modelId , successCallback , failureCallback ) {
         $http( {
             "method" : "GET" ,
-            "url" : self.baseApiUrl + '/' + modelId + '/clients'
+            "url" : self.baseApiUrl + '/' + modelId + '/feeds'
         } ).then( successCallback , failureCallback ); 
     };
 

@@ -1,5 +1,21 @@
-mt2App.controller( 'AttributionProjectionController' , [ 'AttributionApiService' , 'ClientApiService' , '$log' , function ( AttributionApiService , ClientApiService , $log ) {
+mt2App.controller( 'AttributionProjectionController' , [ 'AttributionApiService' , 'FeedApiService' , '$log' , '$location' , function ( AttributionApiService , FeedApiService , $log , $location ) {
     var self = this;
+
+    self.modelId = 0;
+    self.records = [];
+
+    self.initPage = function () {
+        self.setModelIdFromPath();
+    };
+
+    self.setModelIdFromPath = function () {
+        var path = $location.path();
+        var idMatches = path.match( /\d+$/ );
+
+        if ( null != idMatches ) {
+            self.modelId = parseInt( idMatches[ 0 ] );
+        }
+    };
 
     self.initChart = function () {
         google.charts.load('current', {packages: ['corechart']});
@@ -44,6 +60,14 @@ mt2App.controller( 'AttributionProjectionController' , [ 'AttributionApiService'
     };
 
     self.loadRecords = function () {
-    
+        AttributionApiService.getProjectionRecords(
+            self.modelId ,
+            function ( response ) {
+                self.records = response.data;
+            } ,
+            function ( response ) {
+                $log.info( response );
+            }
+        );
     };
 } ] );

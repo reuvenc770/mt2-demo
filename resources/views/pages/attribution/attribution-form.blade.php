@@ -27,15 +27,15 @@
         </md-toolbar>
 
         <md-content>
-            <ul dnd-list="attr.clients"
+            <ul dnd-list="attr.feeds"
                 dnd-horizontal-list="true"
                 layout="column"
                 flex
             >
                 <li 
-                    ng-repeat="client in attr.clients"
+                    ng-repeat="client in attr.feeds"
                     dnd-draggable="client"
-                    dnd-moved="attr.clients.splice($index, 1)"
+                    dnd-moved="attr.feeds.splice($index, 1)"
                     dnd-effect-allowed="move"
                     flex
                 >

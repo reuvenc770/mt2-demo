@@ -623,7 +623,7 @@ Route::group(
 
         Route::get('/client/updatepassword/{username}', [
             'as' => 'api.client.updatepassword' ,
-            'uses' => 'ClientController@resetClientPassword'
+            'uses' => 'FeedController@resetClientPassword'
         ] );
 
         Route::group(
@@ -864,6 +864,12 @@ Route::group(
                     'middleware' => 'auth' ,
                     'uses' => 'AttributionModelController@copyLevels'
                 ] );
+
+                Route::get( '/attribution/projection/report/{modelId}' , [
+                    'as' => 'api.attribution.projection.report' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionProjectionController@getReportData'
+                ] );
             }
         );
 
@@ -1070,7 +1076,7 @@ Route::group(
             'client/generatelinks/{id}' ,
             [
                 'as' => 'api.mt1.client.generatelinks' ,
-                'uses' => 'ClientController@generatelinks'
+                'uses' => 'FeedController@generatelinks'
             ]
         );
 

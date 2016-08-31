@@ -228,7 +228,8 @@ elixir.extend( 'deployReportAttributionJs' , function ( mix ) {
 elixir.extend( 'deployProjectionAttributionJs' , function ( mix ) {
     mix.scripts( [
         'attribution/AttributionProjectionController.js' ,
-        'attribution/AttributionApiService.js' ,
+        'feed/FeedApiService.js' ,
+        'attribution/AttributionApiService.js'
     ] , 'public/js/projectionAttribution.js' );
 } );
 
@@ -237,9 +238,9 @@ elixir.extend('deployDataExportJs', function(mix) {
         'dataexport/DataExportController.js',
         'dataexport/DataExportApiService.js',
         'dataexport/DataExportTableDirective.js',
-	'dataexport/StatusButtonDirective.js',
-	'dataexport/DataExportDeleteDirective.js',
-	'dataexport/DataExportCopyDirective.js'
+        'dataexport/StatusButtonDirective.js',
+        'dataexport/DataExportDeleteDirective.js',
+        'dataexport/DataExportCopyDirective.js'
     ], 'public/js/dataexport.js');
 });
 

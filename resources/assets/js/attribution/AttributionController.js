@@ -1,10 +1,10 @@
-mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'ClientApiService' , '$mdToast'  , '$mdSidenav' , '$log' , '$location' , function ( AttributionApiService , ClientApiService , $mdToast , $mdSidenav , $log , $location ) {
+mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedApiService' , '$mdToast'  , '$mdSidenav' , '$log' , '$location' , function ( AttributionApiService , FeedApiService , $mdToast , $mdSidenav , $log , $location ) {
     var self = this;
 
     self.current = { "id" : 0 , "name" : '' };
 
     self.models = [];
-    self.clients = [];
+    self.feeds = [];
     self.clientLevels = {};
 
     self.levelCopySideNavId = 'levelCopy';
@@ -76,7 +76,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'Client
         var defaultSuccessCallback = function ( response ) {
             angular.forEach( response.data , function ( levelClient , key ) {
                 var clientIndex = self.clientIndex[ levelClient.client_id ];
-                self.clients[ clientIndex ].attribution_level = levelClient.level;
+                self.feeds[ clientIndex ].attribution_level = levelClient.level;
             } );
         };
 
@@ -130,7 +130,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'Client
 
         var levels = [];
 
-        angular.forEach( self.clients , function ( value , key ) {
+        angular.forEach( self.feeds , function ( value , key ) {
             levels.push( { "id" : value.id , "level" : key + 1 } );
         } );
 
@@ -163,7 +163,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'Client
 
         var levels = [];
 
-        angular.forEach( self.clients , function ( value , key ) {
+        angular.forEach( self.feeds , function ( value , key ) {
             levels.push( { "id" : value.id , "level" : key + 1 } );
         } );
 
@@ -210,9 +210,9 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'Client
 
     self.loadClients = function ( altModelId , altSuccessCallback ) {
         var successCallback = function ( response ) { 
-            self.clients = response.data;
+            self.feeds = response.data;
 
-            angular.forEach( self.clients , function ( value , key ) {
+            angular.forEach( self.feeds , function ( value , key ) {
                 self.clientLevels[ value.id ] = key + 1;
             } );
         };
@@ -228,26 +228,26 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'Client
         }
 
         if ( modelId === null ) {
-            ClientApiService.getAllClients(
+            FeedApiService.getAllFeeds(
                 function ( response ) {
-                    var clientList = [];
+                    var feedList = [];
 
                     angular.forEach( response.data , function ( client , key ) {
-                        clientList.push( { "id" : client.client_id , "name" : client.username } );
+                        feedList.push( { "id" : client.client_id , "name" : client.username } );
                     } );
 
-                    self.clients = clientList;
+                    self.feeds = feedList;
                 } ,
                 function ( response ) {
-                    self.displayToast( 'Failed to load Clients. Please contact support.' );
+                    self.displayToast( 'Failed to load Feeds. Please contact support.' );
                 }
             );
         } else {
-            AttributionApiService.getModelClients(
+            AttributionApiService.getModelFeeds(
                 modelId ,
                 successCallback ,
                 function ( response ) {
-                    self.displayToast( 'Failed to load Clients. Please contact support.' );
+                    self.displayToast( 'Failed to load Feeds. Please contact support.' );
                 }
             );
         }

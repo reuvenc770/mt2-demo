@@ -8,7 +8,7 @@
 @stop
 
 @section( 'content' )
-<md-content class="md-mt2-zeta-theme" layout="row" layout-align="center center" ng-init="">
+<md-content class="md-mt2-zeta-theme" layout="row" layout-align="center center" ng-init="proj.initPage()">
     <div class="md-whiteframe-4dp" layout="column" layout-margin flex="100" flex-gt-lg="70" ng-init="proj.initChart()">
             <md-toolbar layout="row" class="md-hue-3" layout-fill>
                 <div class="md-toolbar-tools">
@@ -36,16 +36,28 @@
                             <th class="md-table-header-override-whitetext" md-column md-numeric>Model Level</th>
                             <th class="md-table-header-override-whitetext" md-column md-numeric>Live Revenue</th>
                             <th class="md-table-header-override-whitetext" md-column md-numeric>Model Revenue</th>
+                            <th class="md-table-header-override-whitetext" md-column md-numeric>Live CPM Revenue</th>
+                            <th class="md-table-header-override-whitetext" md-column md-numeric>Model CPM Revenue</th>
+                            <th class="md-table-header-override-whitetext" md-column md-numeric>Live MT1 Uniques</th>
+                            <th class="md-table-header-override-whitetext" md-column md-numeric>Model MT1 Uniques</th>
+                            <th class="md-table-header-override-whitetext" md-column md-numeric>Live MT2 Uniques</th>
+                            <th class="md-table-header-override-whitetext" md-column md-numeric>Model MT2 Uniques</th>
                         </tr>
                     </thead>
                     <tbody md-body>
                         <tr ng-repeat="record in proj.records" ng-class="{ 'mt2-total-row' : record.client_stats_grouping_id }" md-row>
                             <td md-cell>@{{ record.client_stats_grouping_id ? proj.listOwnerNameMap[ record.client_stats_grouping_id ] + ' (' + record.client_stats_grouping_id + ')' : '' }}</td>
-                            <td md-cell>@{{ record.client_id ? proj.clientNameMap[ record.client_id ] + ' (' + record.client_id + ')' : '' }}</td>
+                            <td md-cell>@{{ record.feed_id ? proj.clientNameMap[ record.feed_id ] + ' (' + record.feed_id + ')' : '' }}</td>
                             <td md-cell ng-bind="record.live.level"></td>
                             <td md-cell ng-bind="record.model.level"></td>
-                            <td md-cell ng-bind="record.live.revenue"></td>
-                            <td md-cell ng-bind="record.model.revenue"></td>
+                            <td md-cell ng-bind="record.live.standard_revenue"></td>
+                            <td md-cell ng-bind="record.model.standard_revenue"></td>
+                            <td md-cell ng-bind="record.live.cpm_revenue"></td>
+                            <td md-cell ng-bind="record.model.cpm_revenue"></td>
+                            <td md-cell ng-bind="record.live.mt1_uniques"></td>
+                            <td md-cell ng-bind="record.model.mt1_uniques"></td>
+                            <td md-cell ng-bind="record.live.mt2_uniques"></td>
+                            <td md-cell ng-bind="record.model.mt2_uniques"></td>
                         </tr>
                     </tbody>
                 </table>
