@@ -231,10 +231,10 @@ class DeployRepo
             case "esp":
                 $espAccounts = collect(EspApiAccount::getAllAccountsByESPName($searchData));
                 $espAccountIds = $espAccounts->pluck('id');
-                $query = $query->wherein('domains.esp_account_id',$espAccountIds);
+                $query = $query->wherein('deploys.esp_account_id',$espAccountIds);
                 break;
             case "espAccount":
-                $query = $query->where('domains.esp_account_id',$searchData);
+                $query = $query->where('deploys.esp_account_id',$searchData);
                 break;
             case "status":
                 $query = $query->where('deploys.deployed',$searchData);
