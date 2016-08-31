@@ -61,8 +61,7 @@ class AttributionService
         $records->chunk(65000, function ($results) {
             Artisan::call('attribution:processBatch', [
                 'data' => $results, 
-                'modelId' => $modelId, 
-                'timestamp' => $currentTimestamp
+                'modelId' => $modelId
             ]);
 
             Cache::increment($this->name);

@@ -19,17 +19,15 @@ class AttributionBatchProcessJob extends Job implements ShouldQueue
     private $jobName;
     private $data;
     private $modelId;
-    private $timestamp;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($data, $modelId, $timestamp, $tracking) {
+    public function __construct($data, $modelId, $tracking) {
         $this->data = $data;
         $this->modelId = $modelId;
-        $this->timestamp = $timestamp;
         $this->jobName = 'AttributionBatchJob' . $modelId . $timestamp . $tracking;
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
@@ -48,7 +46,7 @@ class AttributionBatchProcessJob extends Job implements ShouldQueue
                 echo "{$this->jobName} running" . PHP_EOL;
 
                 $service = ServiceFactory::createAttributionBatchService($this->modelId);       
-                $service->process($this->data, $this->modelId, $this->timestamp);
+                $service->process($this->data, $this->modelId);
 
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
             }

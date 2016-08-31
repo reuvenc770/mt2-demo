@@ -32,7 +32,7 @@ class AttributionBatchService {
     }
 
 
-    public function process($records, $modelId, $timestamp) {
+    public function process($records, $modelId) {
 
         $isModelRun = 'none' !== $modelId;
 
