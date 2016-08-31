@@ -17,7 +17,7 @@ class PageTableSeeder extends Seeder
         DB::table( 'pages' )->insert( [
             [ 'name' => 'home' , 'created_at' => $date , 'updated_at' => $date ] ,
             [ 'name' => 'espapi.list' , 'created_at' => $date , 'updated_at' => $date ] ,
-            [ 'name' => 'client.list' , 'created_at' => $date , 'updated_at' => $date ] ,
+            [ 'name' => 'feed.list' , 'created_at' => $date , 'updated_at' => $date ] ,
             [ 'name' => 'role.list' , 'created_at' => $date , 'updated_at' => $date ] ,
             [ 'name' => 'user.list' , 'created_at' => $date , 'updated_at' => $date ] ,
             [ 'name' => 'clientgroup.list' , 'created_at' => $date , 'updated_at' => $date ] ,

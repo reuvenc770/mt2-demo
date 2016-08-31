@@ -13,6 +13,7 @@ use App\Repositories\DeployRepo;
 use App\Repositories\MT1Repositories\EspAdvertiserJoinRepo;
 use App\Services\ServiceTraits\PaginateList;
 use League\Csv\Writer;
+use Log;
 class DeployService
 {
     protected $deployRepo;
@@ -28,8 +29,10 @@ class DeployService
         return $this->espAdvertiser->getCakeAffiliates();
     }
 
-    public function getModel(){
-        return $this->deployRepo->getModel();
+    public function getModel($searchType,$searchData){
+
+        return $this->deployRepo->getModel($searchType,$searchData);
+
     }
 
     public function insertDeploy($data){
@@ -70,6 +73,35 @@ class DeployService
     //upldated return model so its a builder not a deploy
     public function getType(){
         return "Deploy";
+    }
+
+    public function getPaginatedJson ( $page , $count, $params = null) {
+        $searchType = null;
+        $searchData = null;
+        if ( $this->hasCache( $page , $count, $params ) ) {
+            return $this->getCachedJson( $page , $count, $params );
+        } else {
+            try {
+                if(isset($params['type'])){
+                    $searchType = $params['type'];
+                    $searchData = $params['data'];
+                }
+                $eloquentObj = $this->getModel($searchType,$searchData);
+
+                $paginationJSON = $eloquentObj->paginate( $count )->toJSON();
+
+                $this->cachePagination(
+                    $paginationJSON ,
+                    $page ,
+                    $count, $params
+                );
+
+                return $paginationJSON;
+            } catch ( \Exception $e ) {
+                Log::error( $e->getMessage() );
+                return false;
+            }
+        }
     }
 
 }

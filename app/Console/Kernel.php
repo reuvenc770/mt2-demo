@@ -178,8 +178,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('runFilter activity')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('runFilter expiration')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('attribution:commit')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
-        $schedule->command('attribution:updateReports Client')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
-        $schedule->command('attribution:updateReports ClientDeploy')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
-        $schedule->command('attribution:updateReports Deploy')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
+        //$schedule->command('attribution:updateReports Client')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
     }
 }

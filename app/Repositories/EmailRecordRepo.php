@@ -5,7 +5,7 @@ namespace App\Repositories;
 use App\Models\Email;
 use App\Models\EmailAction;
 use App\Models\ActionType;
-use App\Models\EmailClientInstance;
+use App\Models\EmailFeedInstance;
 use App\Models\OrphanEmail;
 
 use Carbon\Carbon;
@@ -162,7 +162,6 @@ class EmailRecordRepo {
                     updated_at = NOW()" ,
                 [
                     $this->getEmailId() ,
-                    $this->getClientId() ,
                     $deployId,
                     $espId ,
                     $espInternalId ,

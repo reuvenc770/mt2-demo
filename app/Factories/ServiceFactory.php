@@ -48,12 +48,12 @@ class ServiceFactory
         $scheduleModel = "App\\Models\\AttributionExpirationSchedule";
         $scheduleRepo = "App\\Repositories\\AttributionScheduleRepo";
 
-        $assignmentModel = "App\\Models\\EmailClientAssignment";
-        $historyModel = "App\\Models\\EmailClientAssignmentHistory";
-        $assignmentRepo = "App\\Repositories\\EmailClientAssignmentRepo";
+        $assignmentModel = "App\\Models\\EmailFeedAssignment";
+        $historyModel = "App\\Models\\EmailFeedAssignmentHistory";
+        $assignmentRepo = "App\\Repositories\\EmailFeedAssignmentRepo";
 
-        $emailClientInstanceModel = "App\\Models\\EmailClientInstance";
-        $emailClientInstanceRepo = "App\\Repositories\\EmailClientInstanceRepo";
+        $emailFeedInstanceModel = "App\\Models\\EmailFeedInstance";
+        $emailFeedInstanceRepo = "App\\Repositories\\EmailFeedInstanceRepo";
 
         $attributionLevelRepo = "App\\Repositories\\AttributionLevelRepo";
 
@@ -63,11 +63,17 @@ class ServiceFactory
         $truth = new $truthRepo(new $truthModel());
         $schedule = new $scheduleRepo(new $scheduleModel());
         $assignment = new $assignmentRepo(new $assignmentModel(), new $historyModel());
-        $instance = new $emailClientInstanceRepo(new $emailClientInstanceModel());
+        $instance = new $emailFeedInstanceRepo(new $emailFeedInstanceModel());
         $etlPickup = new $etlPickupRepo(new $etlPickupModel());
 
         // when left empty, this instantiates the currently-selected model
-        $level = 'none' === $modelId ? new $attributionLevelRepo() : new $attributionLevelRepo($modelId); 
+        if ( 'none' !== $modelId ) {
+            $level = new $attributionLevelRepo($modelId); 
+
+            $assignment->setLevelModel( $modelId );
+        } else {
+            $level = new $attributionLevelRepo(); 
+        }
 
         $service = "App\\Services\\AttributionService";
 

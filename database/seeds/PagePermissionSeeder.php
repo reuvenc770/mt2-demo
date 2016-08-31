@@ -31,17 +31,17 @@ class PagePermissionSeeder extends Seeder
             "api.attribution.store" , 
             "api.attribution.bulk"
         ] ,
-        "client.list" => [
-            "client.list" , 
-            "client.add" , 
-            "client.edit" , 
+        "feed.list" => [
+            "feed.list" , 
+            "feed.add" , 
+            "feed.edit" , 
             "api.pager" , 
             "api.mt1.clientstatsgrouping.index" , 
-            "api.client.index" , 
-            "api.client.store" , 
-            "api.client.show" , 
-            "api.client.update" , 
-            "api.client.destroy" , 
+            "api.feed.index" , 
+            "api.feed.store" , 
+            "api.feed.show" , 
+            "api.feed.update" , 
+            "api.feed.destroy" , 
             "api.mt1.client.generatelinks" , 
             "api.mt1.client.types"
         ] ,

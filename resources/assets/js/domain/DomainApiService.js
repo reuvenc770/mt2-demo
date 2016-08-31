@@ -51,12 +51,16 @@ mt2App.service( 'DomainService' , function ( $http , $log ) {
     self.editAccount = function ( account , successCallback , failureCallback  ) {
         $http( {
             "method" : "PUT" ,
-            "url" : this.baseApiUrl + '/' + account.id ,
+            "url" : this.baseApiUrl  + account.id ,
             "data" : account
         } ).then( successCallback , failureCallback );
     };
-    self.inactiveAccount = function (id, successCallback, failureCallback){
-        $http.delete(self.baseApiUrl + id).then(successCallback, failureCallback);
+    self.toggleRow = function ( recordId, direction, successCallback, failureCallback ) {
+        $http( {
+            "method" : "DELETE" ,
+            "url" : this.baseApiUrl + recordId,
+            "params" : { "direction" : direction }
+        } ).then( successCallback , failureCallback );
     };
 
 } );

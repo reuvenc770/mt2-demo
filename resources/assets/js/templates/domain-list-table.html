@@ -14,7 +14,7 @@
         </thead>
 
         <tbody>
-        <tr ng-repeat="record in ctrl.records track by $index" ng-class="{ rowDisabled : record.active == 0 }">
+        <tr ng-repeat="record in ctrl.records track by $index" ng-class="{ rowDisabled : record.status == 0 }">
             <td>{{ record.domain_name }}</td>
             <td>{{ record.proxy_name }}</td>
             <td>{{ record.registrar_name }}</td>
@@ -22,7 +22,8 @@
             <td>{{ record.created_at }}</td>
             <td>{{ record.expires_at }}</td>
             <td>{{ record.dba_name }}</td>
-            <td><button ng-if="record.active == 1" ng-click="ctrl.inactive( { id : record.dom_id} )" type="button" class="btn btn-info btn-xs"><span class="glyphicon glyphicon-off"></span><span class="hidden-xs"> Deactivate</span></button>
+            <td>  <span ng-if="record.status == 1" class="btn btn-danger" ng-click="ctrl.toggle({recordId : record.dom_id, direction : 0})">Deactivate</span>
+                <span ng-if="record.status == 0" class="btn btn-success" ng-click="ctrl.toggle({recordId : record.dom_id, direction : 1})">Activate</span>
             </td>
         </tr>
         </tbody>

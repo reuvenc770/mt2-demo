@@ -5,9 +5,8 @@ mt2App.directive( 'domainListTable' , function () {
         "controllerAs" : "ctrl" ,
         "bindToController" : {
             "records" : "=" ,
-            "inactive" : "&",
-            "glythmap" : "=",
-            "loadingflag" : "="
+            "loadingflag" : "=",
+            "toggle"  : "&"
         } ,
         "templateUrl" : "js/templates/domain-list-table.html"
     };

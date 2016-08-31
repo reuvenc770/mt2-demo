@@ -44,6 +44,10 @@ class DomainService
         return true;
     }
 
+    public function toggleRow($id, $direction){
+        return $this->domainRepo->toggleRow($id,$direction);
+    }
+
     public function inactivateDomain($id){
         return $this->domainRepo->inactivateDomain($id);
     }

@@ -39,6 +39,7 @@ class UpdateProxy extends Migration
             $table->dropColumn("notes");
             $table->renameColumn("ip_addresses","ip_address");
             $table->dropColumn("status");
+            $table->tinyInteger("domain_type");
         });
 
         Schema::table('proxies', function (Blueprint $table) {

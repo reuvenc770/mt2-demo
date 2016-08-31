@@ -14,8 +14,8 @@ class AttributionAssignedRecordRepo {
         $this->records = $records;
     }
 
-    public function getByClientId ( $clientId , $daysBack ) {
-        #returns stats for given client ID
+    public function getByFeedId ( $feedId , $daysBack ) {
+        #returns stats for given feed ID
     }
 
     public function getByDeployId ( $deployId , $daysBack ) {

@@ -24,7 +24,7 @@ use App\Models\EmailAction;
 use App\Models\ActionType;
 use App\Models\EmailDomain;
 use App\Models\DomainGroup;
-use App\Models\EmailClientInstance;
+use App\Models\EmailFeedInstance;
 use App\Repositories\EmailRecordRepo;
 use App\Services\EmailRecordService;
 
@@ -56,7 +56,7 @@ class APIFactory
                 new ActionType() ,
                 new EmailDomain() ,
                 new DomainGroup() ,
-                new EmailClientInstance()
+                new EmailFeedInstance()
             )
         );
 
@@ -138,15 +138,15 @@ class APIFactory
                 $repo = new \App\Repositories\TempStoredEmailRepo($model);
                 $api = new \App\Services\API\Mt1DbApi();
 
-                // need emails, email_client_instances
+                // need emails, email_feed_instances
 
                 $emailModel = new \App\Models\Email();
                 $emailRepo = new \App\Repositories\EmailRepo($emailModel);
-                $emailClientModel = new \App\Models\EmailClientInstance();
-                $emailClientRepo = new \App\Repositories\EmailClientInstanceRepo($emailClientModel);
+                $emailFeedModel = new \App\Models\EmailFeedInstance();
+                $emailFeedRepo = new \App\Repositories\EmailFeedInstanceRepo($emailFeedModel);
 
-                $clientModel = new \App\Models\Client();
-                $clientRepo = new \App\Repositories\ClientRepo($clientModel);
+                $feedModel = new \App\Models\Feed();
+                $feedRepo = new \App\Repositories\FeedRepo($feedModel);
 
                 $domainModel = new \App\Models\EmailDomain();
                 $domainRepo = new \App\Repositories\EmailDomainRepo($domainModel);
@@ -155,8 +155,8 @@ class APIFactory
                     $api, 
                     $repo, 
                     $emailRepo, 
-                    $emailClientRepo,
-                    $clientRepo,
+                    $emailFeedRepo,
+                    $feedRepo,
                     $domainRepo);
 
             case 'DownloadContentServerStats':
