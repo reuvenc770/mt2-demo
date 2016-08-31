@@ -33,8 +33,8 @@ class AttributionService
     public function getTransientRecords($model) {
 
         $timestamp = $this->pickupRepo->getLastInsertedForName($this->name);
-        Log::info('Attribution beginning from timestamp: ' . $timstamp);
-        
+        Log::info('Attribution beginning from timestamp: ' . $timestamp);
+
         $carbonDate = Carbon::createFromTimestamp($timestamp);
 
         // Checking whether attribution levels have changed since the last run
