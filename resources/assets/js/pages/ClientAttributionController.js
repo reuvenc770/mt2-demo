@@ -1,4 +1,4 @@
-mt2App.controller( 'ClientAttributionController' , [ 'ClientApiService' , '$rootScope' , '$location' , '$window' , '$log' , '$mdDialog' , '$mdToast' , function ( ClientApiService , $rootScope , $location , $window , $log , $mdDialog , $mdToast ) {
+mt2App.controller( 'ClientAttributionController' , [ 'FeedApiService' , '$rootScope' , '$location' , '$window' , '$log' , '$mdDialog' , '$mdToast' , function ( FeedApiService , $rootScope , $location , $window , $log , $mdDialog , $mdToast ) {
     var self = this;
 
     self.clients = [];
@@ -15,7 +15,7 @@ mt2App.controller( 'ClientAttributionController' , [ 'ClientApiService' , '$root
     self.loadClients = function () {
         self.currentlyLoading = 1;
 
-        ClientApiService.getClientAttributionList( self.currentPage , self.paginationCount , self.loadClientsSuccessCallback , self.loadClientsFailureCallback );
+        FeedApiService.getFeedAttributionList( self.currentPage , self.paginationCount , self.loadClientsSuccessCallback , self.loadClientsFailureCallback );
     };
 
     self.loadClientsSuccessCallback = function ( response ) {
@@ -60,7 +60,7 @@ mt2App.controller( 'ClientAttributionController' , [ 'ClientApiService' , '$root
             .cancel( 'No' );
 
         $mdDialog.show( confirm ).then( function() {
-            ClientApiService.setAttribution( client.id , client.level , self.setAttributionSuccessCallback , self.setAttributionFailureNotify );
+            FeedApiService.setAttribution( client.id , client.level , self.setAttributionSuccessCallback , self.setAttributionFailureNotify );
         } , function () {
             client.level = self.prevAttributionLevel;
 
@@ -103,7 +103,7 @@ mt2App.controller( 'ClientAttributionController' , [ 'ClientApiService' , '$root
             .cancel( 'No' );
 
         $mdDialog.show( confirm ).then( function() {
-            ClientApiService.deleteAttribution( id , self.deleteAttributionSuccessCallback , self.deleteAttributionFailureNotify );
+            FeedApiService.deleteAttribution( id , self.deleteAttributionSuccessCallback , self.deleteAttributionFailureNotify );
         } , function () {
             $mdToast.show(
                 $mdToast.simple()
