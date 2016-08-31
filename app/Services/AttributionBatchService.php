@@ -80,7 +80,7 @@ class AttributionBatchService {
             if (0 === (int)Cache::get($this->keyName)) {
                 Cache::forget($this->keyName);  // remove from redis
 
-                if ($thisIsModelRun) {
+                if ($IsModelRun) {
                     // Attribution finished. Return model id and remove from storage
                     \Event::fire(new AttributionCompleted($modelId)); // need model id
                 }
