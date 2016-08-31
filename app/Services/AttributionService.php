@@ -144,7 +144,7 @@ class AttributionService
 
     protected function updateTruthTable($emailId, $captureDate, $hasAction, $actionExpired, $subseqs) {
         $addlImports = $subseqs >= 1;
-        $recentImport = Carbon::parse($captureDate)->gte($this->getExpiringDay());
+        $recentImport = Carbon::parse($captureDate)->gte($this->expiringDay);
 
         $this->truthRepo->setRecord($emailId, $recentImport, $hasAction, $actionExpired, $addlImports);
     }
