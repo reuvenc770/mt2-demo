@@ -516,7 +516,7 @@ Route::group(
 );
 
 /**
- * Attribution Model/Report Routes
+ * Attribution Model/Projection/Report Routes
  */
 
 Route::group(
@@ -563,8 +563,28 @@ Route::group(
                 'uses' => 'AttributionReportController@export' 
             )
         );
+
+        Route::get( 
+            '/projection/{id}', 
+            array( 
+                'as' => 'attr.projection.show', 
+                'uses' => 'AttributionReportController@export' 
+            )
+        );
     }
 );
+
+
+
+
+Route::get( 
+    '/attr/projection/{id}', 
+    array( 
+        'as' => 'attr.projection.show', 
+        'uses' => 'AttributionProjectionController@show' 
+    )
+);
+
 
 /**
  * API Routes

@@ -8,6 +8,7 @@ namespace App\Repositories;
 use DB;
 use App\Repositories\AttributionLevelRepo;
 use App\Repositories\EmailClientAssignmentRepo;
+use App\Repositories\Attribution\FeedReportRepo;
 use App\Models\AttributionLevel;
 use App\Models\AttributionModel;
 
@@ -35,6 +36,7 @@ class AttributionModelRepo {
         #generates temp level table
         AttributionLevelRepo::generateTempTable( $newModel->id );
         EmailClientAssignmentRepo::generateTempTable( $newModel->id );
+        FeedReportRepo::generateTempTable( $newModel->id );
 
         if ( !is_null( $levels ) ) {
             foreach ( $levels as $currentLevel ) {
@@ -67,6 +69,28 @@ class AttributionModelRepo {
         $modelLevelTable = new AttributionLevel( AttributionLevel::BASE_TABLE_NAME . $modelId );
 
         return $modelLevelTable->get();
+    }
+
+    public function getLevel ( $clientId , $modelId = null ) {
+        $levelTable = null;
+
+        if ( !is_null( $modelId ) ) {
+            $levelTable = new AttributionLevel( AttributionLevel::BASE_TABLE_NAME . $modelId );
+        } else {
+            $levelTable = new AttributionLevel();
+        } 
+
+        $result = $levelTable
+             ->select( 'level' )
+             ->where( 'client_id' , $clientId )
+             ->first();
+
+        if ( !$result ) {
+            return 255; // assume this to be the negative state
+        }
+        else {
+            return $result->level;
+        }
     }
 
     #sort by level

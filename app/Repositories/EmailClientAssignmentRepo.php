@@ -5,6 +5,8 @@
 
 namespace App\Repositories;
 
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 use App\Models\EmailClientAssignment;
 use App\Models\EmailClientAssignmentHistory;
 

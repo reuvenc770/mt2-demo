@@ -6,6 +6,8 @@
 namespace App\Repositories\Attribution;
 
 use DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 use App\Models\AttributionFeedReport;
 use Carbon\Carbon;
 
@@ -50,5 +52,23 @@ class FeedReportRepo {
                 created_at = created_at ,
                 updated_at = NOW()
         " );
+    }
+
+    static public function generateTempTable ( $modelId ) {
+        Schema::connection( 'attribution' )->create( AttributionFeedReport::BASE_TABLE_NAME . $modelId, function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer( 'feed_id' )->unsigned();
+            $table->decimal( 'revenue' , 11 , 3 )->unsigned()->default( 0.00 );
+            $table->integer( 'mt1_uniques' )->unsigned()->default( 0 );
+            $table->integer( 'mt2_uniques' )->unsigned()->default( 0 );
+            $table->date( 'date' );
+            $table->timestamps();
+
+            $table->unique( [ 'feed_id' , 'date' ] );
+        });
+    }
+
+    static public function dropTempTable ( $modelId ) {
+        Schema::connection( 'attribution' )->drop( AttributionFeedReport::BASE_TABLE_NAME . $modelId );
     }
 }

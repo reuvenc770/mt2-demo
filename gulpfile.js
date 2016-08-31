@@ -225,6 +225,13 @@ elixir.extend( 'deployReportAttributionJs' , function ( mix ) {
     ] , 'public/js/reportAttribution.js' );
 } );
 
+elixir.extend( 'deployProjectionAttributionJs' , function ( mix ) {
+    mix.scripts( [
+        'attribution/AttributionProjectionController.js' ,
+        'attribution/AttributionApiService.js' ,
+    ] , 'public/js/projectionAttribution.js' );
+} );
+
 elixir.extend('deployDataExportJs', function(mix) {
     mix.scripts([
         'dataexport/DataExportController.js',
@@ -285,8 +292,9 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployDataCleanseJs(mix);
     mix.deployRegistrarJs(mix);
     mix.deployProxyJs(mix);
-    mix.deployRecordAttributionJs(mix)
-    mix.deployReportAttributionJs(mix)
+    mix.deployRecordAttributionJs(mix);
+    mix.deployReportAttributionJs(mix);
+    mix.deployProjectionAttributionJs(mix);
 } );
 
 elixir.extend( 'runTdd' , function ( mix ) {
@@ -376,7 +384,11 @@ var mt2TaskMap = {
     },
     'deployReportAttributionJs' : function (mix) {
         mix.deployReportAttributionJs(mix)
+    },
+    'deployProjectionAttributionJs' : function (mix) {
+        mix.deployProjectionAttributionJs(mix)
     }
+
 };
 
 elixir( ( argv.run ? mt2TaskMap[ argv.run ] : mt2TaskMap.deployAll ) );

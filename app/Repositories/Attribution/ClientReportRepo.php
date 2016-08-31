@@ -32,12 +32,16 @@ class ClientReportRepo {
             ->pop();
     }
 
-    public function getClientsFromLastThreeMonths () {
+    public function getClientsForDateRange ( $startDate , $endDate ) {
         return $this->model
                     ->select( 'client_stats_grouping_id as id' )
                     ->distinct()
-                    ->whereBetween( 'date' , [ Carbon::today()->subMonths( 2 )->toDateString() , Carbon::today()->endOfMonth()->toDateString() ] )
+                    ->whereBetween( 'date' , [ $startDate , $endDate ] )
                     ->get();
+    }
+
+    public function getClientsFromLastThreeMonths () {
+        return $this->getClientsForDateRange( Carbon::today()->subMonths( 2 )->toDateString() , Carbon::today()->endOfMonth()->toDateString() );
     }
 
     public function runInsertQuery ( $valuesSqlString ) {

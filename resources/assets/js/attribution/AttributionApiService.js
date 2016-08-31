@@ -4,6 +4,7 @@ mt2App.service( 'AttributionApiService' , function ( $http , $log ) {
     self.baseApiUrl = '/api/attribution/model';
     self.pagerApiUrl = '/api/pager/AttributionModel';
     self.reportApiUrl = '/api/attribution/report';
+    self.projectionApiUrl = '/api/attribution/projection';
     
     self.getRecords = function ( query , successCallback , failureCallback ) {
         return $http( {
@@ -66,4 +67,18 @@ mt2App.service( 'AttributionApiService' , function ( $http , $log ) {
             "data" : { "currentModelId" : currentModelId , "templateModelId" : templateModelId  }
         } ).then( successCallback , failureCallback );
     };
+
+    self.getProjectionChartData = function ( modelId , successCallback , failureCallback ) {
+        $http( {
+            "method" : "GET" ,
+            "url" : self.projectionApiUrl + '/chart/' + modelId 
+        } ).then( successCallback , failureCallback );
+    }
+
+    self.getProjectionRecords = function ( modelId , successCallback , failureCallback ) {
+        $http( {
+            "method" : "GET" ,
+            "url" : self.projectionApiUrl + '/report/' + modelId 
+        } ).then( successCallback , failureCallback );
+    }
 } );
