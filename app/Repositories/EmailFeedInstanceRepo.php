@@ -103,6 +103,21 @@ class EmailFeedInstanceRepo {
         return $reps;
     }
 
+    public function getInstances($emailId) {
+        $attrDb = config('database.connections.attribution.database');
+
+        $reps = DB::table('email_feed_instances as efi')
+                ->select('efi.feed_id', 'level', 'efi.capture_date')
+                ->join($attrDb . '.attribution_levels as al', 'efi.feed_id', '=', 'al.feed_id')
+                #->join(FEEDS_TABLE, 'efi.feed_id', '=', 'cf.id') -- see above: placeholder for feeds
+                ->where('email_id', $emailId)
+                #->where('cf.level', 3)
+                ->orderBy('capture_date', 'asc')
+                ->get();
+
+        return $reps;
+    }
+
     public function getMt1UniqueCountForFeedAndDate( $feedId , $date ) {
         $results =  DB::connection( 'mt1mail' )->table( 'ClientRecordTotalsByIsp' )
             ->select( DB::raw( "sum( uniqueRecords ) as 'uniques'" ) )
@@ -140,4 +155,5 @@ class EmailFeedInstanceRepo {
             return 0;
         }
     }
+
 }
