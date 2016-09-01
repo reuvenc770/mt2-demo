@@ -13,7 +13,6 @@ use Artisan;
 
 class AttributionService
 {
-    const EXPIRATION_DAY_RANGE = 10;
     private $truthRepo;
     private $pickupRepo;
     private $levelRepo;
