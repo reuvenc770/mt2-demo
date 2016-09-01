@@ -58,6 +58,7 @@ class Kernel extends ConsoleKernel
         Commands\PopulateCfsStatsTables::class,
         Commands\PopulateAttributionRecordReport::class,
         Commands\ImportMt1Entity::class,
+        Commands\AttributionBatchProcess::class,
     ];
 
     /**
