@@ -13,6 +13,7 @@ use App\Models\MT1Models\ClientGroup;
 use Exception;
 use Log;
 use DB;
+
 class ClientGroupRepo
 {
     protected $clientGroup;
@@ -31,9 +32,6 @@ class ClientGroupRepo
     }
 
     public function getAllClientGroups(){
-        Log::info( 'All Client Groups' );
-        Log::info( $this->clientGroup->all() );
-
         return $this->clientGroup->select('client_group_id as id' , 'group_name as name' )
             ->orderBy("name")->get();
     }
