@@ -58,7 +58,7 @@ class AttributionService
         $currentTimestamp = Carbon::now()->timestamp;
         Cache::forever($this->name, 0);
 
-        $records->chunk(65000, function ($results) {
+        $records->chunk(65000, function ($results) use ($modelId) {
             Artisan::call('attribution:processBatch', [
                 'data' => $results, 
                 'modelId' => $modelId
