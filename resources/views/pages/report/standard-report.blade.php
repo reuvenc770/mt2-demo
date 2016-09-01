@@ -4,15 +4,15 @@
 
         <span flex></span>
 
-        <md-datepicker class="md-mt2-zeta-theme transparent-background" ng-model="attr.query.filters.date.start" md-placeholder="Start Date"></md-datepicker>
-        <md-datepicker class="md-mt2-zeta-theme transparent-background" ng-model="attr.query.filters.date.end" md-placeholder="End Date"></md-datepicker>
-        <md-button class="md-raised" ng-click="attr.getRecords()">Filter</md-button>
+        <md-datepicker class="md-mt2-zeta-theme transparent-background" ng-model="report.query.filters.date.start" md-placeholder="Start Date"></md-datepicker>
+        <md-datepicker class="md-mt2-zeta-theme transparent-background" ng-model="report.query.filters.date.end" md-placeholder="End Date"></md-datepicker>
+        <md-button class="md-raised" ng-click="report.getRecords()">Filter</md-button>
     </div>
 </md-toolbar>
 
 <md-table-container>
-    <table md-table md-progress="attr.queryPromise">
-        <thead md-head md-order="attr.query.order" md-on-reorder="attr.getRecords">
+    <table md-table md-progress="report.queryPromise">
+        <thead md-head md-order="report.query.order" md-on-reorder="report.getRecords">
             <tr md-row>
                 <th md-column md-order-by="datetime" class="md-table-header-override-whitetext">Date</th>
                 <th md-column md-order-by="external_deploy_id" class="md-table-header-override-whitetext">Deploy ID</th>
@@ -46,7 +46,7 @@
             </tr>
         </thead>
         <tbody md-body>
-            <tr md-row ng-repeat="record in { true : attr.records , false : [] }[ attr.query.type === 'Deploy' ]">
+            <tr md-row ng-repeat="record in { true : report.records , false : [] }[ report.query.type === 'Deploy' ]">
                 <td md-cell>@{{ record.datetime }}</td>
                 <td md-cell>@{{ record.external_deploy_id }}</td>
                 <td md-cell>@{{ record.campaign_name }}</td>
@@ -87,31 +87,31 @@
                 <td md-cell></td>
                 <td md-cell></td>
                 <td md-cell></td>
-                <td md-cell>@{{ attr.meta.recordTotals.m_sent }}</td>
-                <td md-cell>@{{ attr.meta.recordTotals.e_sent }}</td>
-                <td md-cell>@{{ attr.meta.recordTotals.delivered }}</td>
-                <td md-cell>@{{ attr.meta.recordTotals.bounced }}</td>
-                <td md-cell>@{{ attr.meta.recordTotals.optouts }}</td>
-                <td md-cell>@{{ attr.meta.recordTotals.m_opens }}</td>
-                <td md-cell>@{{ attr.meta.recordTotals.m_opens_unique }}</td>
-                <td md-cell>@{{ attr.meta.recordTotals.e_opens }}</td>
-                <td md-cell>@{{ attr.meta.recordTotals.e_opens_unique }}</td>
-                <td md-cell>@{{ attr.meta.recordTotals.t_opens }}</td>
-                <td md-cell>@{{ attr.meta.recordTotals.t_opens_unique }}</td>
-                <td md-cell>@{{ attr.meta.recordTotals.m_clicks }}</td>
-                <td md-cell>@{{ attr.meta.recordTotals.m_clicks_unique }}</td>
-                <td md-cell>@{{ attr.meta.recordTotals.e_clicks }}</td>
-                <td md-cell>@{{ attr.meta.recordTotals.e_clicks_unique }}</td>
-                <td md-cell>@{{ attr.meta.recordTotals.t_clicks }}</td>
-                <td md-cell>@{{ attr.meta.recordTotals.t_clicks_unique }}</td>
-                <td md-cell>@{{ attr.meta.recordTotals.conversions }}</td>
-                <td md-cell>$@{{ attr.meta.recordTotals.cost ? ( attr.meta.recordTotals.cost ).toFixed( 2 ) : ( 0.0 ).toFixed( 2 ) }}</td>
-                <td md-cell>$@{{ attr.meta.recordTotals.revenue ? ( attr.meta.recordTotals.revenue ).toFixed( 2 ) : ( 0.0 ).toFixed( 2 ) }}</td>
+                <td md-cell>@{{ report.meta.recordTotals.m_sent }}</td>
+                <td md-cell>@{{ report.meta.recordTotals.e_sent }}</td>
+                <td md-cell>@{{ report.meta.recordTotals.delivered }}</td>
+                <td md-cell>@{{ report.meta.recordTotals.bounced }}</td>
+                <td md-cell>@{{ report.meta.recordTotals.optouts }}</td>
+                <td md-cell>@{{ report.meta.recordTotals.m_opens }}</td>
+                <td md-cell>@{{ report.meta.recordTotals.m_opens_unique }}</td>
+                <td md-cell>@{{ report.meta.recordTotals.e_opens }}</td>
+                <td md-cell>@{{ report.meta.recordTotals.e_opens_unique }}</td>
+                <td md-cell>@{{ report.meta.recordTotals.t_opens }}</td>
+                <td md-cell>@{{ report.meta.recordTotals.t_opens_unique }}</td>
+                <td md-cell>@{{ report.meta.recordTotals.m_clicks }}</td>
+                <td md-cell>@{{ report.meta.recordTotals.m_clicks_unique }}</td>
+                <td md-cell>@{{ report.meta.recordTotals.e_clicks }}</td>
+                <td md-cell>@{{ report.meta.recordTotals.e_clicks_unique }}</td>
+                <td md-cell>@{{ report.meta.recordTotals.t_clicks }}</td>
+                <td md-cell>@{{ report.meta.recordTotals.t_clicks_unique }}</td>
+                <td md-cell>@{{ report.meta.recordTotals.conversions }}</td>
+                <td md-cell>$@{{ report.meta.recordTotals.cost ? ( report.meta.recordTotals.cost ).toFixed( 2 ) : ( 0.0 ).toFixed( 2 ) }}</td>
+                <td md-cell>$@{{ report.meta.recordTotals.revenue ? ( report.meta.recordTotals.revenue ).toFixed( 2 ) : ( 0.0 ).toFixed( 2 ) }}</td>
             </tr>
         </tbody>
     </table>
 </md-table-container>
 
 <md-content class="md-mt2-zeta-theme md-hue-2">
-    <md-table-pagination md-limit="attr.query.limit" md-limit-options="[50, 100, 250]" md-page="attr.query.page" md-total="@{{attr.meta.recordCount}}" md-on-paginate="attr.getRecords" md-page-select></md-table-pagination>
+    <md-table-pagination md-limit="report.query.limit" md-limit-options="[50, 100, 250]" md-page="report.query.page" md-total="@{{report.meta.recordCount}}" md-on-paginate="report.getRecords" md-page-select></md-table-pagination>
 </md-content>

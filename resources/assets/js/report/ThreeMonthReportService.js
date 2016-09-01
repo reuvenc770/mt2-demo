@@ -1,7 +1,7 @@
-mt2App.service( 'ThreeMonthReportService' , [ 'AttributionApiService' , 'FeedApiService' , '$mdToast' , '$window' , '$httpParamSerializer' , function ( AttributionApiService , FeedApiService , $mdToast , $window , $httpParamSerializer ) {
+mt2App.service( 'ThreeMonthReportService' , [ 'ReportApiService' , 'FeedApiService' , '$mdToast' , '$window' , '$httpParamSerializer' , function ( ReportApiService , FeedApiService , $mdToast , $window , $httpParamSerializer ) {
     var self = this;
 
-    self.exportUrl = '/attr/report/export';
+    self.exportUrl = '/report/export';
 
     self.startDate = new Date();
     self.endDate = new Date();
@@ -31,7 +31,7 @@ mt2App.service( 'ThreeMonthReportService' , [ 'AttributionApiService' , 'FeedApi
     };
 
     self.getRecords = function ( successCallback , failureCallback ) {
-        return AttributionApiService.getRecords(
+        return ReportApiService.getRecords(
             self.query ,
             successCallback ,
             failureCallback 

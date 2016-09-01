@@ -172,6 +172,7 @@ return [
     'api.mailingtemplate.destroy' => "Delete Mailing Templates",
     'api.mailingtemplate.show'  =>   "Retrieve single record of Mailing Template",
     'api.mailingtemplate.update'  => "Update Mailing Template",
-    'attr.report.view' => "View Attribution Reporting Page" ,
-    'api.attribution.report' => "Retrieve Attribution Reporting Data"
+    'report.list' => "View Reporting Page" ,
+    'api.report.getRecords' => "Retrieve Reporting Records" ,
+    'report.export' => 'Export Report' ,
 ];

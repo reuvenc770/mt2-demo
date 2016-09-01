@@ -186,8 +186,8 @@ Breadcrumbs::register('attr.model.edit', function($breadcrumbs) {
     $breadcrumbs->push('Edit Attribution Model');
 });
 
-Breadcrumbs::register('attr.report.view', function($breadcrumbs) {
-    $breadcrumbs->parent('attr.model.list');
+Breadcrumbs::register('report.list', function($breadcrumbs) {
+    $breadcrumbs->parent('home');
     $breadcrumbs->push('Reporting');
 });
 

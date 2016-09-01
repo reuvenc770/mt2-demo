@@ -3,16 +3,7 @@ mt2App.service( 'AttributionApiService' , function ( $http , $log ) {
 
     self.baseApiUrl = '/api/attribution/model';
     self.pagerApiUrl = '/api/pager/AttributionModel';
-    self.reportApiUrl = '/api/attribution/report';
     self.projectionApiUrl = '/api/attribution/projection';
-    
-    self.getRecords = function ( query , successCallback , failureCallback ) {
-        return $http( {
-            "method" : "GET" ,
-            "url" : self.reportApiUrl ,
-            "params" : query
-        } ).then( successCallback , failureCallback );
-    };
 
     self.getModels = function ( page , count , successCallback , failureCallback ) {
         return $http( {

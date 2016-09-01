@@ -218,12 +218,11 @@ elixir.extend( 'deployRecordAttributionJs' , function ( mix ) {
     ] , 'public/js/recordAttribution.js' );
 } );
 
-elixir.extend( 'deployReportAttributionJs' , function ( mix ) {
+elixir.extend( 'deployReportJs' , function ( mix ) {
     mix.scripts( [
-        'attribution/AttributionReportController.js' ,
-        'attribution/AttributionApiService.js' ,
-        'feed/FeedApiService.js' ,
-    ] , 'public/js/reportAttribution.js' );
+        'report/ReportController.js' ,
+        'report/ReportApiService.js' ,
+    ] , 'public/js/report.js' );
 } );
 
 elixir.extend( 'deployProjectionAttributionJs' , function ( mix ) {
@@ -295,7 +294,7 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployRegistrarJs(mix);
     mix.deployProxyJs(mix);
     mix.deployRecordAttributionJs(mix);
-    mix.deployReportAttributionJs(mix);
+    mix.deployReportJs(mix);
     mix.deployProjectionAttributionJs(mix);
 } );
 
@@ -384,8 +383,8 @@ var mt2TaskMap = {
     'deployRecordAttributionJs' : function (mix) {
         mix.deployRecordAttributionJs(mix)
     },
-    'deployReportAttributionJs' : function (mix) {
-        mix.deployReportAttributionJs(mix)
+    'deployReportJs' : function (mix) {
+        mix.deployReportJs(mix)
     },
     'deployProjectionAttributionJs' : function (mix) {
         mix.deployProjectionAttributionJs(mix)

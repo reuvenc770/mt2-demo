@@ -516,7 +516,7 @@ Route::group(
 );
 
 /**
- * Attribution Model/Projection/Report Routes
+ * Attribution Model/Projection Routes
  */
 
 Route::group(
@@ -547,28 +547,31 @@ Route::group(
                 'uses' => 'AttributionModelController@edit' 
             )
         );
+    }
+);
 
+/**
+ * Report Routes
+ */
+Route::group(
+    [
+        'prefix' => 'report' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
         Route::get( 
-            '/report', 
+            '/', 
             array( 
-                'as' => 'attr.report.view', 
-                'uses' => 'AttributionReportController@view' 
+                'as' => 'report.list', 
+                'uses' => 'ReportController@view' 
             )
         );
 
         Route::get( 
-            '/report/export', 
+            '/export', 
             array( 
-                'as' => 'attr.report.export', 
-                'uses' => 'AttributionReportController@export' 
-            )
-        );
-
-        Route::get( 
-            '/projection/{id}', 
-            array( 
-                'as' => 'attr.projection.show', 
-                'uses' => 'AttributionReportController@export' 
+                'as' => 'report.export', 
+                'uses' => 'ReportController@export' 
             )
         );
     }
@@ -806,17 +809,26 @@ Route::group(
         );
 
         /**
+         * Report API Routes
+         */
+        Route::group(
+            ['prefix' => 'report'],
+            function() {
+                Route::get( '/' , [
+                    'as' => 'api.report.getRecords' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'ReportController@getRecords'
+                ] );
+            }
+        );
+
+
+        /**
          *  Attribution API Routes
          */
         Route::group(
             [] ,
             function () {
-                Route::get( '/attribution/report' , [
-                    'as' => 'api.attribution.report' ,
-                    'middleware' => 'auth' ,
-                    'uses' => 'AttributionReportController@getRecords'
-                ] );
-
                 Route::get( '/attribution/model' , [
                     'as' => 'api.attribution.model.index' ,
                     'middleware' => 'auth' ,
