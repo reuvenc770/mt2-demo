@@ -91,7 +91,7 @@ class EmailFeedInstanceRepo {
                 ->where('efi.capture_date', '>=', $date)
                 ->where('efi.feed_id', '<>', $feedId)
                 ->where('email_id', $emailId)
-                ->where('f.level', 3)
+                ->where('f.party', 3)
                 ->orderBy('capture_date', 'asc')
                 ->get();
 
@@ -106,7 +106,7 @@ class EmailFeedInstanceRepo {
                 ->join($attrDb . '.attribution_levels as al', 'efi.feed_id', '=', 'al.feed_id')
                 ->join('feeds', 'efi.feed_id', '=', 'f.id')
                 ->where('email_id', $emailId)
-                ->where('f.part', 3)
+                ->where('f.party', 3)
                 ->orderBy('capture_date', 'asc')
                 ->get();
 
