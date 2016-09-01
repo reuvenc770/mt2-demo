@@ -19,6 +19,7 @@ class AttributionBatchProcessJob extends Job implements ShouldQueue
     private $jobName;
     private $data;
     private $modelId;
+    private $tracking;
 
     /**
      * Create a new job instance.
@@ -28,7 +29,8 @@ class AttributionBatchProcessJob extends Job implements ShouldQueue
     public function __construct($data, $modelId, $tracking) {
         $this->data = $data;
         $this->modelId = $modelId;
-        $this->jobName = 'AttributionBatchJob' . $modelId . $timestamp . $tracking;
+        $this->tracking = $tracking;
+        $this->jobName = 'AttributionBatchJob' . $modelId . $tracking;
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
