@@ -37,26 +37,6 @@ class ImportMt1EmailsService
 
     public function run() {
         $recordsToFlag = array();
-        // import new feeds
-        echo "importing new feeds" . PHP_EOL;
-        $lastLocalFeedId = $this->feedRepo->getMaxFeedId();
-        $remoteMaxFeed = $this->api->getMaxFeedId();
-
-        if ($remoteMaxFeed > $lastLocalFeedId) {
-            echo "local max feed id: $lastLocalFeedId" . PHP_EOL;
-            echo "remote max feed id: $remoteMaxFeed" . PHP_EOL;
-            $newFeeds = $this->api->getNewFeeds($lastLocalFeedId);
-
-            foreach ($newFeeds as $row) {
-                $feed = $this->mapToFeedTable($row);
-                $this->feedRepo->insert($feed);
-            }
-        }
-        else {
-            echo "No new feeds" . PHP_EOL;
-        }
-
-        // import emails
 
         $now = time();
         echo "Beginning data pull" . PHP_EOL;
@@ -75,6 +55,8 @@ class ImportMt1EmailsService
             $feedId = $record['feed_id'];
 
             if ($this->feedRepo->isActive($feedId)) {
+                // checks for active and 3rd party vs. 1st party
+
                 $emailRow = $this->mapToEmailTable($record);
                 $this->emailRepo->insertCopy($emailRow);
                 if($record['email_id'] != 0 ) {
@@ -156,27 +138,5 @@ class ImportMt1EmailsService
 
     private function convertStatus($status) {
         return $status === 'Active' ? 'A' : 'U';
-    }
-
-    private function convertFeedStatus($status) {
-        return $status === 'A' ? 'Active' : 'Deleted';
-    }
-
-    private function mapToFeedTable($row) {
-        return [
-            'id' => $row->user_id,
-            'name' => $row->username,
-            'address' => $row->address,
-            'address2' => $row->address2,
-            'city' => $row->city,
-            'state' => $row->state,
-            'zip' => $row->zip,
-            'phone' => $row->phone,
-            'email_address' => $row->email_addr,
-            'status' => $this->convertFeedStatus($row->status),
-            'source_url' => $row->clientRecordSourceURL,
-            'created_at' => $row->create_datetime,
-            'updated_at' => $row->overall_updated
-        ];
     }
 }
