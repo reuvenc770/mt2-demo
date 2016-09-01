@@ -4,8 +4,8 @@ return[
     'home' => 'Home' ,
     'espapi.list' => 'ESP API Accounts' ,
     'espapi.add'  => 'Add API Account',
-    'client.list' => 'Clients',
-    'client.add'  => "Add Client",
+    'feed.list' => 'Feeds',
+    'feed.add'  => "Add Feed",
     'role.list'   => 'User Roles',
     'user.list'   => 'Users',
     'user.add'    => 'Add User',
@@ -38,5 +38,8 @@ return[
     'attr.model.add' => 'Add Attribution Model' ,
     'mailingtemplate.list' => "Mailing Templates",
     'mailingtemplate.add' => "Add Mailing Template",
+    'deploy.list'         => "Deploy Packages",
+    'cfs.list'            =>'CFS',
+    'offer.list'          => 'Offers'
 
 ];

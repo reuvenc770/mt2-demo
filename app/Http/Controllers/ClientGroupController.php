@@ -30,7 +30,7 @@ class ClientGroupController extends Controller
      */
     public function index()
     {
-        return response()->json( $this->service->getAllClientGroups() );
+        return response()->json( $this->service->getAll() );
     }
 
     public function paginateSearch ( Request $request ) {

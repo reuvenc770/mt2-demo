@@ -12,7 +12,8 @@ use \Carbon\Carbon;
 class ClientAggregatorServiceIntegrationTest extends TestCase {
     use DatabaseMigrations;
 
-    const CLIENT_CLASS = \App\Models\Client::class;
+    const FEED_CLASS = \App\Models\Feed::class;
+    const EMAIL_CLASS = \App\Models\Email::class;
     const ATTR_FEED_REPORT_CLASS = \App\Models\AttributionFeedReport::class;
 
     const LISTOWNER_ID_1 = 11; #client 1, 2, 3, & 4 are assigned to this in dev
@@ -101,15 +102,19 @@ class ClientAggregatorServiceIntegrationTest extends TestCase {
     }
 
     public function goodPath_dailyRun_testData () {
-        $this->testClients = [];
+        /**
+         * Feed Data
+         */
+
+        $this->testFeeds = [];
         for ( $index = 0 ; $index < 9 ; $index++ ) {
-            $this->testClients[ $index ] = factory( self::CLIENT_CLASS )->create();
+            $this->testFeeds[ $index ] = factory( self::FEED_CLASS )->create();
         }
 
         $this->testClientRecords = [];
-        foreach ( $this->testClients as $clientIndex => $client ) {
+        foreach ( $this->testFeeds as $clientIndex => $client ) {
             $this->testClientRecords[ $clientIndex ] = factory( self::ATTR_FEED_REPORT_CLASS )->create( [
-                "client_id" => $client->id ,
+                "feed_id" => $client->id ,
                 "revenue" => mt_rand( 100 , 200 ) ,
                 "mt1_uniques" => mt_rand( 1000 , 2000 ) ,
                 "mt2_uniques" => mt_rand( 800 , 1500 ) , #mt2 uniques are lower since we imported only some email records
