@@ -1,4 +1,4 @@
-mt2App.controller( 'AttributionReportController' , [ 'AttributionApiService' , 'ClientApiService' , '$filter' , '$mdToast' , '$log' , '$window' , '$httpParamSerializer' , function ( AttributionApiService , ClientApiService , $filter , $mdToast , $log , $window , $httpParamSerializer ) {
+mt2App.controller( 'AttributionReportController' , [ 'AttributionApiService' , 'FeedApiService' , '$filter' , '$mdToast' , '$log' , '$window' , '$httpParamSerializer' , function ( AttributionApiService , FeedApiService , $filter , $mdToast , $log , $window , $httpParamSerializer ) {
     var self = this;
 
     self.startDate = new Date();
@@ -27,7 +27,7 @@ mt2App.controller( 'AttributionReportController' , [ 'AttributionApiService' , '
     self.exportUrl = '/attr/report/export';
 
     self.loadRecords = function () {
-        ClientApiService.getAllClients(
+        FeedApiService.getAllFeeds(
             function ( response ) {
                 angular.forEach( response.data , function ( value , key ) {
                     self.clientNameMap[ value.client_id ] = value.username;
@@ -42,7 +42,7 @@ mt2App.controller( 'AttributionReportController' , [ 'AttributionApiService' , '
             }
         );
 
-        ClientApiService.getListOwners(
+        FeedApiService.getListOwners(
             function ( response ) {
                 angular.forEach( response.data , function ( value , key ) {
                     self.listOwnerNameMap[ value.value ] = value.name;

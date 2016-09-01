@@ -211,6 +211,7 @@ elixir.extend( 'deployClientAttributionJs' , function ( mix ) {
 elixir.extend( 'deployRecordAttributionJs' , function ( mix ) {
     mix.scripts( [
         'attribution/AttributionController.js' ,
+        'report/ThreeMonthReportService.js' ,
         'attribution/AttributionApiService.js' ,
         'feed/FeedApiService.js' ,
         'attribution/AttributionModelTableDirective.js' ,

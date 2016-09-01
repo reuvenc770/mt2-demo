@@ -1,4 +1,4 @@
-mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedApiService' , '$mdToast'  , '$mdSidenav' , '$log' , '$location' , function ( AttributionApiService , FeedApiService , $mdToast , $mdSidenav , $log , $location ) {
+mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedApiService' , 'ThreeMonthReportService' , '$mdToast'  , '$mdSidenav' , '$log' , '$location' , function ( AttributionApiService , FeedApiService , ThreeMonthReportService , $mdToast , $mdSidenav , $log , $location ) {
     var self = this;
 
     self.current = { "id" : 0 , "name" : '' };
@@ -19,6 +19,55 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     self.pageCount = 0;
     self.reachedFirstPage = true;
     self.reachedMaxPage = false;
+
+    self.showModelActions = false;
+    self.selectedModelId = 0;
+    self.selectedModel = [];
+    self.modelQueryPromise = null;
+
+    self.reportRecords = [];
+    self.reportRecordTotals = {};
+    self.reportQueryPromise = null;
+
+    self.currentMonth = ThreeMonthReportService.currentMonth;
+    self.lastMonth = ThreeMonthReportService.lastMonth;
+    self.twoMonthsAgo = ThreeMonthReportService.twoMonthsAgo;
+
+    self.feedNameMap = ThreeMonthReportService.feedNameMap;
+    self.clientNameMap = ThreeMonthReportService.clientNameMap;
+    self.exportReport = ThreeMonthReportService.exportReport;
+
+    self.initIndexPage = function () {
+        self.loadModels();
+        self.loadReportRecords();
+        ThreeMonthReportService.loadClientAndFeedNames();
+    };
+    
+    self.toggleModelActionButtons = function () {
+        if ( self.selectedModel.length > 0 ) {
+            self.selectedModelId = self.selectedModel[0].id;
+            self.showModelActions = true;
+        } else {
+            self.selectedModelId = 0;
+            self.showModelActions = false;
+        }
+    };
+
+    self.loadReportRecords = function () {
+        self.reportQueryPromise = ThreeMonthReportService.getRecords(
+            function ( response ) {
+                self.reportRecords = response.data.records;
+                self.reportRecordTotals = response.data.totals;
+            } ,
+            function ( response ) {
+                $mdToast.show(
+                    $mdToast.simple()
+                        .textContent( 'Failed to load Attribution Report Records. Please contact support.' )
+                        .hideDelay( 1500 )
+                );
+            }
+        );
+    }
 
     self.initLevelCopyPanel = function () {
         self.loadModels();
@@ -96,7 +145,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     self.loadModels = function () {
         self.currentlyLoading = 1;
 
-        AttributionApiService.getModels(
+        self.modelQueryPromise = AttributionApiService.getModels(
             self.currentPage ,
             self.paginationCount ,
             function ( response ) {
