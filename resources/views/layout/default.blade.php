@@ -1,10 +1,12 @@
+@inject( 'menu' , 'App\Services\NavigationService' )
+
 <!doctype html>
 <html>
     <head>
         @include( 'layout.html-head' )
     </head>
     <body ng-app="mt2App" ng-controller="AppController as app" layout="row" ng-cloak>
-        @include( 'layout.side-nav' )
+        {!! $menu->getMenuHtml() !!}
 
         <div @yield( 'angular-controller' ) layout="column" layout-fill flex>
             @include( 'layout.main-header' )
