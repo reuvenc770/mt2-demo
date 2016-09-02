@@ -89,7 +89,6 @@ class UniqueProfileRepo
 
     public function pullForSync($lookback) {
         return $this->profile
-                    ->where('last_updated', '>=', DB::raw("CURDATE() - INTERVAL $lookback DAY"))
-                    ->get();
+                    ->where('last_updated', '>=', DB::raw("CURDATE() - INTERVAL $lookback DAY"));
     }
 }
