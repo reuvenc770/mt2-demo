@@ -51,7 +51,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.loadEspAccounts();
         self.loadAffiliates();
         self.loadListProfiles();
-        self.loadEsps();
         self.loadDeploys();
         self.currentlyLoading = 0;
     };
@@ -224,11 +223,10 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
      */
 
     self.massUploadSuccess = function (response){
-        console.log(response);
         self.currentDeploy = self.resetAccount();
         $rootScope.$broadcast('angucomplete-alt:clearInput');
         $mdToast.showSimple('Deploys Uploaded!');
-        DeployApiService.getDeploys(self.currentPage, self.paginationCount, self.loadDeploysSuccess, self.loadDeployFail);
+        self.loadDeploys();
         self.editView = false;
         self.showRow = false;
     };

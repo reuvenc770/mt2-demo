@@ -99,6 +99,11 @@ class DataProcessingFactory {
                 $mt2Name = "OfferSubjectMap";
                 return self::createMt1ImportService($mt1Name, $mt2Name);
 
+            case ('ImportMt1Feeds'):
+                $mt1Name = "User";
+                $mt2Name = "Feed";
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
             default:
                 throw new \Exception("Data processing service {$name} does not exist");
         }

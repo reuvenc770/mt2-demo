@@ -13,9 +13,6 @@ class CreativeRepo {
     }
 
     public function pullForSync($lookback) {
-        return $this->model
-                    ->whereNull('creative_date')
-                    ->orWhere('creative_date', '>=', DB::raw("CURDATE() - INTERVAL $lookback DAY"))
-                    ->get();
+        return $this->model;
     }
 }

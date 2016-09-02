@@ -18,11 +18,17 @@ class FeedRepo {
     }
 
     public function isActive($id) {
-        return $this
+        $result = $this
                 ->feed
                 ->select('status')
                 ->where('id', $id)
-                ->get()[0]['status'] === 'Active';
+                ->where('party', 3) // third party only, otherwise ignore
+                ->first();
+
+        if ($result) {
+            return $result->status === 'Active';
+        }
+        return false;
     }
 
     public function getMaxFeedId() {
@@ -31,6 +37,10 @@ class FeedRepo {
 
     public function insert($data) {
         $this->feed->insert($data);
+    }
+
+    public function updateOrCreate($data) {
+        $this->feed->updateOrCreate(['id' => $data['id']], $data);
     }
 
 }

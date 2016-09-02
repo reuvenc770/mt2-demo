@@ -17,11 +17,6 @@ class EmailFeedInstanceRepo {
         $this->emailFeedModel = $emailFeedModel;
     }
 
-    public function getEmailId($emailAddress) {
-        #return $this->emailModel->select( 'id' )->where( 'email_address' , $email )->get();
-        return mt_rand(1, 100000);
-    }
-
     public function insert($row) {        
         DB::statement(
             "INSERT INTO email_feed_instances
@@ -92,11 +87,26 @@ class EmailFeedInstanceRepo {
         $reps = DB::table('email_feed_instances as efi')
                 ->select('efi.feed_id', 'level', 'efi.capture_date')
                 ->join($attrDb . '.attribution_levels as al', 'efi.feed_id', '=', 'al.feed_id')
-                #->join(FEEDS_TABLE, 'efi.feed_id', '=', 'cf.id') -- see above: placeholder for feeds
+                ->join('feeds as f', 'efi.feed_id', '=', 'f.id')
                 ->where('efi.capture_date', '>=', $date)
                 ->where('efi.feed_id', '<>', $feedId)
                 ->where('email_id', $emailId)
-                #->where('cf.level', 3)
+                ->where('f.party', 3)
+                ->orderBy('capture_date', 'asc')
+                ->get();
+
+        return $reps;
+    }
+
+    public function getInstances($emailId) {
+        $attrDb = config('database.connections.attribution.database');
+
+        $reps = DB::table('email_feed_instances as efi')
+                ->select('efi.feed_id', 'level', 'efi.capture_date')
+                ->join($attrDb . '.attribution_levels as al', 'efi.feed_id', '=', 'al.feed_id')
+                ->join('feeds as f', 'efi.feed_id', '=', 'f.id')
+                ->where('email_id', $emailId)
+                ->where('f.party', 3)
                 ->orderBy('capture_date', 'asc')
                 ->get();
 
@@ -140,4 +150,5 @@ class EmailFeedInstanceRepo {
             return 0;
         }
     }
+
 }
