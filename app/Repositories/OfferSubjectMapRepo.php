@@ -6,7 +6,7 @@ use App\Models\OfferSubjectMap;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 
-class OfferSubjectMapRepo {
+class OfferSubjectMapRepo extends AbstractDataSyncRepo{
   
     private $model;
 
@@ -19,6 +19,11 @@ class OfferSubjectMapRepo {
             'offer_id' => $data['offer_id'], 
             'subject_id' => $data['subject_id']
         ], $data);
+    }
+
+    public function bulkInsert()
+    {
+        //Interface Adherence and maybe update later
     }
 
 }

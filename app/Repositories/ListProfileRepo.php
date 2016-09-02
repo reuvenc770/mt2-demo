@@ -11,7 +11,7 @@ namespace App\Repositories;
 
 use App\Models\ListProfile;
 
-class ListProfileRepo
+class ListProfileRepo extends AbstractDataSyncRepo
 {
     private $listProfile;
 
@@ -25,6 +25,11 @@ class ListProfileRepo
 
     public function returnActiveProfiles(){
        return $this->listProfile->where("status", "A")->select('id','profile_name')->get();
+    }
+
+    public function bulkInsert()
+    {
+        //Interface Adherence and maybe update later
     }
 
 }

@@ -13,7 +13,7 @@ use App\Models\Deploy;
 use DB;
 use App\Facades\EspApiAccount;
 use Log;
-class DeployRepo
+class DeployRepo extends AbstractDataSyncRepo
 {
     protected $deploy;
 
@@ -253,5 +253,10 @@ class DeployRepo
 
         };
         return $query;
+    }
+
+    public function bulkInsert()
+    {
+        //Interface Adherence and maybe update later
     }
 }

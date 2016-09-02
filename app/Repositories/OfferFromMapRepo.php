@@ -6,7 +6,7 @@ use App\Models\OfferFromMap;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 
-class OfferFromMapRepo {
+class OfferFromMapRepo extends AbstractDataSyncRepo{
   
     private $model;
 
@@ -21,4 +21,8 @@ class OfferFromMapRepo {
         ], $data);
     }
 
+    public function bulkInsert()
+    {
+        //Interface Adherence and maybe update later
+    }
 }

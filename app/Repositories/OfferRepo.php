@@ -6,7 +6,7 @@ use App\Models\Offer;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 
-class OfferRepo {
+class OfferRepo extends AbstractDataSyncRepo{
   
     private $offer;
 
@@ -36,4 +36,8 @@ class OfferRepo {
         return $this->offer->where('name', 'like', $term . '%')->select("id","name")->get();
     }
 
+    public function bulkInsert()
+    {
+        //Interface Adherence and maybe update later
+    }
 }

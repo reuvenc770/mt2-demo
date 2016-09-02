@@ -29,5 +29,9 @@ class ImportMt1DataService {
             }
         });
 
+        if($this->mt2Repo->recordsStillLeft()){
+            $this->mt2Repo->bulkInsert();
+        }
+
     }
 }

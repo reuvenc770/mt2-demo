@@ -6,7 +6,7 @@ use App\Models\OfferCreativeMap;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 
-class OfferCreativeMapRepo {
+class OfferCreativeMapRepo extends AbstractDataSyncRepo{
   
     private $model;
 
@@ -19,6 +19,11 @@ class OfferCreativeMapRepo {
             'offer_id' => $data['offer_id'], 
             'creative_id' => $data['creative_id']
         ], $data);
+    }
+
+    public function bulkInsert()
+    {
+        //Interface Adherence and maybe update later
     }
 
 }
