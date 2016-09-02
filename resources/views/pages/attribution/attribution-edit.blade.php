@@ -38,5 +38,5 @@
 
 
 @section( 'pageIncludes' )
-<script src="js/recordAttribution.js"></script>
+<script src="js/attribution.js"></script>
 @stop

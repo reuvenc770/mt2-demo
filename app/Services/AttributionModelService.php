@@ -45,4 +45,8 @@ class AttributionModelService {
     public function getModelFeeds ( $modelId ) {
         return $this->repo->getModelFeeds( $modelId );
     }
+
+    public function setLive ( $modelId ) {
+        return $this->repo->setLive( $modelId );
+    }
 }

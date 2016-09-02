@@ -2,19 +2,19 @@
 
 @section( 'title' , 'Attribution Model Projection' )
 
-@section( 'angular-controller' , 'ng-controller="AttributionProjectionController as proj"' )
+@section( 'angular-controller' , 'ng-controller="AttributionController as attr"' )
 
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('api.attribution.projection.report'))
-        <md-button ng-click="proj.refreshPage()" aria-label="Refresh Page">
+        <md-button ng-click="attr.refreshProjectionPage()" aria-label="Refresh Page">
             <span>Refresh</span>
         </md-button>
     @endif
 @stop
 
 @section( 'content' )
-<md-content class="md-mt2-zeta-theme" layout="row" layout-align="center center" ng-init="proj.initPage()">
-    <div class="md-whiteframe-4dp" layout="column" layout-margin flex="95" ng-init="proj.initChart()">
+<md-content class="md-mt2-zeta-theme" layout="row" layout-align="center center" ng-init="attr.initProjectionPage()">
+    <div class="md-whiteframe-4dp" layout="column" layout-margin flex="95" ng-init="attr.initProjectionChart()">
             <md-toolbar layout="row" class="md-hue-3" layout-fill>
                 <div class="md-toolbar-tools">
                     Projection Chart
@@ -31,7 +31,7 @@
                 </div>
             </md-toolbar>
 
-            <md-table-container layout-fill ng-init="proj.loadRecords()">
+            <md-table-container layout-fill ng-init="attr.loadProjectionRecords()">
                 <table md-table>
                     <thead md-head>
                         <tr md-row>
@@ -54,9 +54,9 @@
                         </tr>
                     </thead>
                     <tbody md-body>
-                        <tr ng-repeat="record in proj.records" ng-class="{ 'mt2-total-row' : record.client_stats_grouping_id }" md-row>
-                            <td md-cell>@{{ record.client_stats_grouping_id ? proj.listOwnerNameMap[ record.client_stats_grouping_id ] + ' (' + record.client_stats_grouping_id + ')' : '' }}</td>
-                            <td md-cell>@{{ record.feed_id ? proj.clientNameMap[ record.feed_id ] + ' (' + record.feed_id + ')' : '' }}</td>
+                        <tr ng-repeat="record in attr.projectionRecords" ng-class="{ 'mt2-total-row' : record.client_stats_grouping_id }" md-row>
+                            <td md-cell>@{{ record.client_stats_grouping_id ? attr.clientNameMap[ record.client_stats_grouping_id ] + ' (' + record.client_stats_grouping_id + ')' : '' }}</td>
+                            <td md-cell>@{{ record.feed_id ? attr.feedNameMap[ record.feed_id ] + ' (' + record.feed_id + ')' : '' }}</td>
                             <td md-cell ng-bind="record.live.level"></td>
                             <td md-cell ng-bind="record.model.level"></td>
                             <td md-cell ng-bind="record.live.standard_revenue"></td>
@@ -81,5 +81,5 @@
 
 @section( 'pageIncludes' )
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-<script src="js/projectionAttribution.js"></script>
+<script src="js/attribution.js"></script>
 @stop

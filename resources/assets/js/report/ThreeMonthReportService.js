@@ -18,18 +18,6 @@ mt2App.service( 'ThreeMonthReportService' , [ 'ReportApiService' , 'FeedApiServi
     self.feedNameMap = {};
     self.clientNameMap = {};
 
-    self.setOrder = function ( order ) {
-        self.query.order = order;
-    };
-
-    self.setLimit = function ( limit ) {
-        self.query.limit = limit;
-    };
-
-    self.setPage = function ( page ) {
-        self.query.page = page;
-    };
-
     self.getRecords = function ( successCallback , failureCallback ) {
         return ReportApiService.getRecords(
             self.query ,

@@ -12,10 +12,13 @@ use App\Repositories\Attribution\FeedReportRepo;
 use App\Repositories\EmailFeedAssignmentRepo;
 use App\Models\AttributionLevel;
 use App\Models\AttributionModel;
+use Maknz\Slack\Facades\Slack;
 
 use Log;
 
 class AttributionModelRepo {
+    CONST SLACK_TARGET_SUBJECT = '#mt2-dev-failed-jobs';
+
     protected $models;
 
     public function __construct ( AttributionModel $models ) {
@@ -122,6 +125,37 @@ class AttributionModelRepo {
         } );
 
         return true;
+    }
+
+    public function setLive ( $modelId ) {
+        try {
+            DB::connection( 'attribution' )->table( 'attribution_models' )
+                ->update( [ 'live' => 0 ] );
+
+            DB::connection( 'attribution' )->table( 'attribution_models' )
+                ->where( 'id' , $modelId )
+                ->update( [ 'live' => 1 ] );
+
+            DB::connection( 'attribution' )->table( 'attribution_levels' )->truncate();
+
+            $templateModelLevel = new AttributionLevel( AttributionLevel::BASE_TABLE_NAME . $modelId );
+
+            $templateModelLevel->get()->each( function ( $item , $key ) {
+                $newLevel = new AttributionLevel();
+
+                $newLevel->feed_id = $item->feed_id;
+                $newLevel->level = $item->level;
+                $newLevel->save();
+
+                unset( $newLevel );
+            } );
+
+            return true;
+        } catch ( \Exception $e ) {
+            Slack::to( self::SLACK_TARGET_SUBJECT )->send( "Failed to set Model {$modelId} live.\n\n" . $e->getMessage() );
+
+            return false;
+        }
     }
 
     public function updateModel ( $currentModelId , $currentModelName , $levels ) {

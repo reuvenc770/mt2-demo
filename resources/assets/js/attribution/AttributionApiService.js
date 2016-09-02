@@ -51,6 +51,21 @@ mt2App.service( 'AttributionApiService' , function ( $http , $log ) {
         } ).then( successCallback , failureCallback );
     };
 
+    self.setModelLive = function ( modelId , successCallback , failureCallback ) {
+        return $http( {
+            "method" : "GET" ,
+            "url" : self.baseApiUrl + '/setlive/' + modelId
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.runAttribution = function ( modelId , successCallback , failureCallback ) {
+        return $http( {
+            "method" : "POST" ,
+            "url" : self.baseApiUrl + '/run',
+            "data" : { "modelId" : modelId }
+        } ).then( successCallback , failureCallback );
+    };
+
     self.copyLevels = function ( currentModelId , templateModelId , successCallback , failureCallback ) {
         return $http( {
             "method" : "POST" ,

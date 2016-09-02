@@ -1,8 +1,7 @@
-mt2App.controller( 'AttributionProjectionController' , [ 'AttributionApiService' , 'FeedApiService' , '$mdToast' , '$location' , function ( AttributionApiService , FeedApiService , $mdToast , $location ) {
+mt2App.service( 'AttributionProjectionService' , [ 'AttributionApiService' , '$mdToast' , '$location' , function ( AttributionApiService , $mdToast , $location ) {
     var self = this;
 
     self.modelId = 0;
-    self.records = [];
     self.chartData = [];
 
     self.initPage = function () {
@@ -68,19 +67,11 @@ mt2App.controller( 'AttributionProjectionController' , [ 'AttributionApiService'
         barChartDiff.draw( diffData , options );
     };
 
-    self.loadRecords = function () {
-        AttributionApiService.getProjectionRecords(
+    self.loadRecords = function ( successCallback , failureCallback ) {
+        return AttributionApiService.getProjectionRecords(
             self.modelId ,
-            function ( response ) {
-                self.records = response.data;
-            } ,
-            function ( response ) {
-                $mdToast.show(
-                    $mdToast.simple()
-                        .textContent( 'Failed to load table data. Please contact support.' )
-                        .hideDelay( 1500 )
-                );
-            }
+            successCallback ,
+            failureCallback
         );
     };
 } ] );

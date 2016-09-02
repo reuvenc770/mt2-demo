@@ -7,11 +7,17 @@
 @section( 'angular-controller' , 'ng-controller="AttributionController as attr"' )
 
 @section( 'page-menu' )
-    @if (Sentinel::hasAccess('attr.model.add'))
-        <md-button ng-href="{{ route( 'attr.model.add' ) }}" target=
+    @if (Sentinel::hasAccess('attributionModel.add'))
+        <md-button ng-href="{{ route( 'attributionModel.add' ) }}" target=
 "_self" aria-label="Add Attribution Model">
             <md-icon ng-hide="app.largePageWidth()" md-svg-src="img/icons/ic_add_circle_outline_white_24px.svg"></md-icon>
             <span ng-show="app.largePageWidth()">Add Model</span>
+        </md-button>
+    @endif
+
+    @if (Sentinel::hasAccess('api.attribution.run'))
+        <md-button ng-click="attr.runAttribution( false )" aria-label="Run Attribution">
+            <span>Run Attribution</span>
         </md-button>
     @endif
 @stop
@@ -25,13 +31,15 @@
 
         <md-tab label="Report">
             <md-card class="md-mt2-zeta-theme" flex> 
-            @include( 'pages.attribution.reports.three-month-report' )
+            @include( 'pages.attribution.indexPartials.three-month-report' )
             </md-card>
         </md-tab>
     <md-tabs>
+
+    @include( 'pages.attribution.attribution-level-copy-sidenav' )
 </md-content>
 @stop
 
 @section( 'pageIncludes' )
-<script src="js/recordAttribution.js"></script>
+<script src="js/attribution.js"></script>
 @stop

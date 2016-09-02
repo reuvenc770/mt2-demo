@@ -1,76 +1,36 @@
 <?php
+/**
+ * @author Adam Chin <achin@zetainteractive.com>
+ */
 
-namespace App\Http\Controllers;
+namespace App\Collections\Attribution;
 
-use Illuminate\Http\Request;
-
-use App\Http\Requests;
-
+use Illuminate\Support\Collection;
 use Carbon\Carbon;
+
 use App\Repositories\Attribution\ClientReportRepo;
 use App\Repositories\Attribution\FeedReportRepo;
 use App\Services\MT1Services\ClientService;
 use App\Services\AttributionModelService;
-use App\Services\MT1Services\ClientStatsGroupingService;
 
-class AttributionProjectionController extends Controller
-{
+class ProjectionReportCollection extends Collection {
     protected $clientReport;
     protected $feedReport;
     protected $clientService;
     protected $attrService;
-    protected $clientStatsGroupingService;
 
     protected $reportRecords = [];
-    protected $chartData = [
-        "live" => [
-            [ 'Client Name' , 'Live Revenue' ]
-        ] , 
-        "model" => [
-            [ 'Client Name' , 'Model Revenue' ]
-        ]
-    ];
 
     public function __construct (
         ClientReportRepo $clientReport ,
         FeedReportRepo $feedReport ,
         ClientService $clientService ,
-        AttributionModelService $attrService ,
-        ClientStatsGroupingService $clientStatsGroupingService
+        AttributionModelService $attrService
     ) {
         $this->clientReport = $clientReport;
         $this->feedReport = $feedReport;
         $this->clientService = $clientService;
         $this->attrService = $attrService;
-        $this->clientStatsGroupingService = $clientStatsGroupingService;
-    }
-
-    public function show($id)
-    {
-        return response()->view( 'pages.attribution.attribution-projection' );
-    }
-
-    public function getChartData ( $modelId ) {
-        $clientList = $this->clientReport->getClientsForDateRange(
-            Carbon::today()->startOfMonth()->toDateString() ,
-            Carbon::today()->endOfMonth()->toDateString()
-        );
-
-        foreach ( $clientList as $client ) {
-            $clientName = $this->clientStatsGroupingService->getListOwnerName( $client->id );
-
-            $this->clientReport->switchToLiveTable();
-            $clientLiveRecord = $this->clientReport->getAggregateForIdAndMonth( $client->id , Carbon::today()->startOfMonth()->toDateString() );
-
-            $this->chartData[ 'live' ] []= [ $clientName , $clientLiveRecord->standard_revenue + $clientLiveRecord->cpm_revenue ];
-
-            $this->clientReport->setModelId( $modelId );
-            $clientModelRecord = $this->clientReport->getAggregateForIdAndMonth( $client->id , Carbon::today()->startOfMonth()->toDateString() );
-
-            $this->chartData[ 'model' ] []= [ $clientName , $clientModelRecord->standard_revenue + $clientModelRecord->cpm_revenue ];
-        }
-
-        return response()->json( $this->chartData );
     }
 
     public function getReportData ( $modelId ) {

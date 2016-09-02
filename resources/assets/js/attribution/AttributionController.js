@@ -1,4 +1,4 @@
-mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedApiService' , 'ThreeMonthReportService' , '$mdToast'  , '$mdSidenav' , '$log' , '$location' , function ( AttributionApiService , FeedApiService , ThreeMonthReportService , $mdToast , $mdSidenav , $log , $location ) {
+mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedApiService' , 'AttributionProjectionService' , 'ThreeMonthReportService' , '$mdToast'  , '$mdSidenav' , '$log' , '$location' , function ( AttributionApiService , FeedApiService , AttributionProjectionService , ThreeMonthReportService , $mdToast , $mdSidenav , $log , $location ) {
     var self = this;
 
     self.current = { "id" : 0 , "name" : '' };
@@ -24,6 +24,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     self.selectedModelId = 0;
     self.selectedModel = [];
     self.modelQueryPromise = null;
+    self.disableProjection = false;
 
     self.reportRecords = [];
     self.reportRecordTotals = {};
@@ -37,16 +38,31 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     self.clientNameMap = ThreeMonthReportService.clientNameMap;
     self.exportReport = ThreeMonthReportService.exportReport;
 
+    self.projectionRecords = [];
+    self.initProjectionChart = AttributionProjectionService.initChart;
+    self.refreshProjectionPage = AttributionProjectionService.refreshPage;
+
     self.initIndexPage = function () {
         self.loadModels();
         self.loadReportRecords();
         ThreeMonthReportService.loadClientAndFeedNames();
     };
-    
+
+    self.initProjectionPage = function () {
+        ThreeMonthReportService.loadClientAndFeedNames();
+        AttributionProjectionService.initPage();
+    }
+
     self.toggleModelActionButtons = function () {
         if ( self.selectedModel.length > 0 ) {
             self.selectedModelId = self.selectedModel[0].id;
             self.showModelActions = true;
+
+            if ( self.selectedModel[0].live == 1 ) {
+                self.disableProjection = true;
+            } else {
+                self.disableProjection = false;
+            }
         } else {
             self.selectedModelId = 0;
             self.showModelActions = false;
@@ -68,6 +84,21 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
             }
         );
     }
+
+    self.loadProjectionRecords = function () { 
+        self.projectionReportQueryPromise = AttributionProjectionService.loadRecords(
+            function ( response ) {
+                self.projectionRecords = response.data;
+            } ,
+            function ( response ) {
+                $mdToast.show(
+                    $mdToast.simple()
+                        .textContent( 'Failed to load projection table data. Please contact support.' )
+                        .hideDelay( 1500 )
+                );
+            }
+        );
+    };
 
     self.initLevelCopyPanel = function () {
         self.loadModels();
@@ -226,6 +257,36 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
             function ( response ) {
                 self.displayToast( 'Failed to update Model. Please contact support.' );
         } );
+    };
+
+    self.setModelLive = function () {
+        AttributionApiService.setModelLive(
+            self.selectedModelId ,
+            function ( response ) {
+                self.displayToast( 'Feed Levels are updated. Please run attribution.' );
+
+                self.loadModels();
+            },
+            function ( response ) {
+                self.displayToast( 'Failed to update Feed Levels. Please contact support.' );
+            }
+        );
+    };
+
+    self.runAttribution = function ( modelRun ) {
+        var modelId = '';
+        if ( modelRun ) {
+            modelId = self.selectedModelId;
+        }
+
+        AttributionApiService.runAttribution(
+            modelId ,
+            function ( response ) {
+                self.displayToast( 'Attribution is running.' );
+            } , function ( response ) {
+                self.displayToast( 'Failed to start Attribution Run. Please contact support.' );
+            }
+        );
     };
 
     self.copyModelPreview = function ( $event , currentModelId ) {

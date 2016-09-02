@@ -156,11 +156,6 @@ Breadcrumbs::register( 'tools.bulksuppression' , function ( $breadcrumbs ) {
     $breadcrumbs->push( 'Bulk Suppression' , route( 'tools.bulksuppression' ) );
 } );
 
-Breadcrumbs::register( 'client.attribution' , function ( $breadcrumbs ) {
-    $breadcrumbs->parent( 'feed.list' );
-    $breadcrumbs->push( 'Attribution' );
-} );
-
 Breadcrumbs::register('datacleanse.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');
     $breadcrumbs->push('Data Cleanse' , route( 'datacleanse.list' ));
@@ -171,19 +166,24 @@ Breadcrumbs::register('datacleanse.add', function($breadcrumbs) {
     $breadcrumbs->push('Add Data Cleanse');
 });
 
-Breadcrumbs::register('attr.model.list', function($breadcrumbs) {
+Breadcrumbs::register('attribution.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');
-    $breadcrumbs->push('Attribution Models' , route( 'attr.model.list' ));
+    $breadcrumbs->push('Attribution' , route( 'attribution.list' ));
 });
 
-Breadcrumbs::register('attr.model.add', function($breadcrumbs) {
-    $breadcrumbs->parent('attr.model.list');
+Breadcrumbs::register('attributionModel.add', function($breadcrumbs) {
+    $breadcrumbs->parent('attribution.list');
     $breadcrumbs->push('Add Attribution Model');
 });
 
-Breadcrumbs::register('attr.model.edit', function($breadcrumbs) {
-    $breadcrumbs->parent('attr.model.list');
+Breadcrumbs::register('attributionModel.edit', function($breadcrumbs) {
+    $breadcrumbs->parent('attribution.list');
     $breadcrumbs->push('Edit Attribution Model');
+});
+
+Breadcrumbs::register('attributionProjection.show', function($breadcrumbs) {
+    $breadcrumbs->parent('attribution.list');
+    $breadcrumbs->push('Projection');
 });
 
 Breadcrumbs::register('report.list', function($breadcrumbs) {

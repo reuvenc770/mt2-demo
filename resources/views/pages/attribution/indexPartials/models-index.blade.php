@@ -6,11 +6,21 @@
             <span flex></span>
 
             <span ng-show="attr.showModelActions">
-                <md-button ng-href="@{{ 'attr/projection/' + attr.selectedModelId }}" target="_self"><md-icon md-svg-src="img/icons/ic_show_chart_white_18px.svg"></md-icon> Projection</md-button>
-                <md-button><md-icon md-svg-src="img/icons/ic_cached_white_18px.svg"></md-icon> Refresh</md-button>
-                <md-button ng-href="@{{ 'attr/edit/' + attr.selectedModelId }}" target="_self"><md-icon md-svg-src="img/icons/ic_mode_edit_white_18px.svg"></md-icon> Edit</md-button>
-                <md-button ng-click="ctrl.copymodel( {  '$event' : $event , currentModelId : attr.selectedModelId } )" class="align-top"><md-icon md-svg-src="img/icons/ic_content_copy_white_18px.svg"></md-icon> Copy</md-button>
-                <md-button><md-icon md-svg-src="img/icons/ic_send_white_18px.svg"></md-icon> Set Live</md-button>   
+                @if (Sentinel::hasAccess('attributionProjection.show'))
+                <md-button ng-hide="attr.disableProjection" ng-href="@{{ 'attribution/projection/' + attr.selectedModelId }}" target="_self"><md-icon md-svg-src="img/icons/ic_show_chart_white_18px.svg"></md-icon> Projection</md-button>
+                @endif
+
+                @if (Sentinel::hasAccess('api.attribution.run'))
+                <md-button ng-hide="attr.disableProjection" ng-click="attr.runAttribution( true )"><md-icon md-svg-src="img/icons/ic_cached_white_18px.svg"></md-icon> Refresh</md-button>
+                @endif
+
+                @if (Sentinel::hasAccess('attributionModel.edit'))
+                <md-button ng-href="@{{ 'attribution/edit/' + attr.selectedModelId }}" target="_self"><md-icon md-svg-src="img/icons/ic_mode_edit_white_18px.svg"></md-icon> Edit</md-button>
+                @endif
+
+                @if (Sentinel::hasAccess('api.attribution.model.setlive'))
+                <md-button ng-hide="attr.disableProjection" ng-click="attr.setModelLive()"><md-icon md-svg-src="img/icons/ic_send_white_18px.svg"></md-icon> Set Live</md-button>   
+                @endif
             </span>
         </div>
     </md-toolbar>

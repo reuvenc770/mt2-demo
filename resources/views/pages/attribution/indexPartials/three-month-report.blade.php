@@ -49,23 +49,23 @@
                 <td md-cell>@{{ record.client_stats_grouping_id ? attr.clientNameMap[ record.client_stats_grouping_id ] + ' (' + record.client_stats_grouping_id + ')' : '' }}</td>
                 <td md-cell>@{{ record.feed_id ? attr.feedNameMap[ record.feed_id ] + ' (' + record.feed_id + ')' : '' }}</td>
 
-                <td class="mt2-two-months-ago-cell mt2-cell-left-padding" md-cell>$@{{ record.two_months_ago.standard_revenue ? record.two_months_ago.standard_revenue : (0.0).toFixed( 2 ) }}</td>
+                <td class="mt2-two-months-ago-cell mt2-cell-left-padding" md-cell>$@{{ record.two_months_ago.standard_revenue ? record.two_months_ago.standard_revenue.slice( 0 , -1 ) : (0.0).toFixed( 2 ) }}</td>
                 <td class="mt2-two-months-ago-cell" md-cell>$@{{ record.two_months_ago.standard_revenue ? ( record.two_months_ago.standard_revenue * 0.15 ).toFixed( 2 ) : (0.0).toFixed( 2 ) }}</td>
-                <td class="mt2-two-months-ago-cell" md-cell>$@{{ record.two_months_ago.cpm_revenue ? record.two_months_ago.cpm_revenue : (0.0).toFixed( 2 ) }}</td>
+                <td class="mt2-two-months-ago-cell" md-cell>$@{{ record.two_months_ago.cpm_revenue ? record.two_months_ago.cpm_revenue.slice( 0 , -1 ) : (0.0).toFixed( 2 ) }}</td>
                 <td class="mt2-two-months-ago-cell" md-cell>$@{{ record.two_months_ago.cpm_revenue ? ( record.two_months_ago.cpm_revenue * 0.15 ).toFixed( 2 ) : (0.0).toFixed( 2 ) }}</td>
                 <td class="mt2-two-months-ago-cell" md-cell>@{{ record.two_months_ago.mt1_uniques ? record.two_months_ago.mt1_uniques : 0 }}</td>
                 <td class="mt2-two-months-ago-cell" md-cell>@{{ record.two_months_ago.mt2_uniques ? record.two_months_ago.mt2_uniques : 0 }}</td>
 
-                <td class="mt2-last-month-cell mt2-cell-left-padding" md-cell>$@{{ record.last_month.standard_revenue ? record.last_month.standard_revenue : (0.0).toFixed( 2 ) }}</td>
+                <td class="mt2-last-month-cell mt2-cell-left-padding" md-cell>$@{{ record.last_month.standard_revenue ? record.last_month.standard_revenue.slice( 0 , -1 ) : (0.0).toFixed( 2 ) }}</td>
                 <td class="mt2-last-month-cell" md-cell>$@{{ record.last_month.standard_revenue ? ( record.last_month.standard_revenue * 0.15 ).toFixed( 2 ) : (0.0).toFixed( 2 ) }}</td>
-                <td class="mt2-last-month-cell" md-cell>$@{{ record.last_month.cpm_revenue ? record.last_month.cpm_revenue : (0.0).toFixed( 2 ) }}</td>
+                <td class="mt2-last-month-cell" md-cell>$@{{ record.last_month.cpm_revenue ? record.last_month.cpm_revenue.slice( 0 , -1 ) : (0.0).toFixed( 2 ) }}</td>
                 <td class="mt2-last-month-cell" md-cell>$@{{ record.last_month.cpm_revenue ? ( record.last_month.cpm_revenue * 0.15 ).toFixed( 2 ) : (0.0).toFixed( 2 ) }}</td>
                 <td class="mt2-last-month-cell" md-cell>@{{ record.last_month.mt1_uniques ? record.last_month.mt1_uniques : 0 }}</td>
                 <td class="mt2-last-month-cell" md-cell>@{{ record.last_month.mt2_uniques ? record.last_month.mt2_uniques : 0 }}</td>
 
-                <td class="mt2-current-month-cell mt2-cell-left-padding" md-cell>$@{{ record.current_month.standard_revenue ? record.current_month.standard_revenue : (0.0).toFixed( 2 ) }}</td>
+                <td class="mt2-current-month-cell mt2-cell-left-padding" md-cell>$@{{ record.current_month.standard_revenue ? record.current_month.standard_revenue.slice( 0 , -1 ) : (0.0).toFixed( 2 ) }}</td>
                 <td class="mt2-current-month-cell" md-cell>$@{{ record.current_month.standard_revenue ? ( record.current_month.standard_revenue * 0.15 ).toFixed( 2 ) : (0.0).toFixed( 2 ) }}</td>
-                <td class="mt2-current-month-cell" md-cell>$@{{ record.current_month.cpm_revenue ? record.current_month.cpm_revenue : (0.0).toFixed( 2 ) }}</td>
+                <td class="mt2-current-month-cell" md-cell>$@{{ record.current_month.cpm_revenue ? record.current_month.cpm_revenue.slice( 0 , -1 ) : (0.0).toFixed( 2 ) }}</td>
                 <td class="mt2-current-month-cell" md-cell>$@{{ record.current_month.cpm_revenue ? ( record.current_month.cpm_revenue * 0.15 ).toFixed( 2 ) : (0.0).toFixed( 2 ) }}</td>
                 <td class="mt2-current-month-cell" md-cell>@{{ record.current_month.mt1_uniques ? record.current_month.mt1_uniques : 0 }}</td>
                 <td class="mt2-current-month-cell" md-cell>@{{ record.current_month.mt2_uniques ? record.current_month.mt2_uniques : 0 }}</td>
