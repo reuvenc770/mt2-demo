@@ -24,7 +24,7 @@ class ImportMt1DataService {
     public function load() {
         $this->records->chunk(5000, function($records) {
             foreach ($this->records as $record) {
-                $record = $this->mapStrategy->map($record);
+                $record = $this->mapStrategy->map($record->toArray());
                 $this->mt2Repo->updateOrCreate($record);
             }
         });
