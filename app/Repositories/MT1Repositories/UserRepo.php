@@ -25,7 +25,7 @@ class UserRepo {
                     ->orWhere(function ($query) {
                         $query->where('status', 'D')
                               ->where('OrangeClient', 'Y');
-                    })
-                    ->get();
+                    });
+
     }
 }

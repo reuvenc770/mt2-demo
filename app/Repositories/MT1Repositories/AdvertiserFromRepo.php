@@ -13,6 +13,6 @@ class AdvertiserFromRepo {
     }
 
     public function pullForSync($lookback) {
-        return $this->model->all();
+        return $this->model;
     }
 }

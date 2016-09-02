@@ -18,13 +18,16 @@ class ImportMt1DataService {
     }
 
     public function extract($lookback) {
-        $this->records = $this->mt1Repo->pullForSync($lookback)->toArray();
+        $this->records = $this->mt1Repo->pullForSync($lookback);
     }
 
     public function load() {
-        foreach ($this->records as $record) {
-            $record = $this->mapStrategy->map($record);
-            $this->mt2Repo->updateOrCreate($record);
-        }
+        $this->records->chunk(5000, function($records) {
+            foreach ($records as $record) {
+                $record = $this->mapStrategy->map($record->toArray());
+                $this->mt2Repo->updateOrCreate($record);
+            }
+        });
+
     }
 }
