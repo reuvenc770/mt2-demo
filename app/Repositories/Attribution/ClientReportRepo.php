@@ -82,6 +82,8 @@ class ClientReportRepo {
             $table->integer( 'mt2_uniques' )->unsigned()->default( 0 );
             $table->date( 'date' );
             $table->timestamps();
+
+            $table->unique( [ 'client_stats_grouping_id' , 'date' ] , 'id_date_unique' );
         });
     }
 
