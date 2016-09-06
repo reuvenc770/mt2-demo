@@ -1,6 +1,6 @@
 @inject( 'menu' , 'App\Services\NavigationService' )
 
-<md-sidenav md-component-id="mainNav" class="md-sidenav-left md-accent">
+<md-sidenav ng-cloak md-component-id="mainNav" class="md-sidenav-left md-accent">
     <md-list layout-align="center start">
     @foreach ( $menu->getMenu() as $current )
         <md-list-item ng-click="app.redirect( '{{ '/' . $current[ 'uri' ] }}' )" layout-align="start center" aria-label="{{ $current[ 'name' ] }}">
