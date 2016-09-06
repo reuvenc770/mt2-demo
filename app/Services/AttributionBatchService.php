@@ -8,6 +8,7 @@ use App\Repositories\AttributionRecordTruthRepo;
 use App\Repositories\AttributionScheduleRepo;
 use App\Repositories\EmailFeedInstanceRepo;
 use Cache;
+use Log;
 
 class AttributionBatchService {
     
@@ -47,6 +48,8 @@ class AttributionBatchService {
             $hasAction = (bool)$record->has_action;
             $actionExpired = $record->action_expired;
             $subsequentImports = 0;
+            
+            Log::info("{$record->email_id} being processed with $oldFeedId");
 
             $potentialReplacements = $this->getPotentialReplacements($record->email_id, $beginDate, $feedId);
 
@@ -68,7 +71,7 @@ class AttributionBatchService {
             // Only run this once we've found the winner
             if ($oldFeedId !== $feedId) {
                 $this->changeAttribution($record->email_id, $feedId, $beginDate);
-        
+                Log::info("Attribution changing to $feedId, captured on $beginDate");
                 if (!$isModelRun) {
                     $this->recordHistory($record->email_id, $oldFeedId, $feedId);
                     $this->updateScheduleTable($record->email_id, $beginDate);
