@@ -31,9 +31,7 @@ class AdvertiserInfoRepo {
     }
 
     public function pullForSync($lookback) {
-        return $this->model
-                    ->whereNull('date_approved')
-                    ->orWhere('date_approved', '>=', DB::raw("CURDATE() - INTERVAL $lookback DAY"));
+        return $this->model;
     }
     
 

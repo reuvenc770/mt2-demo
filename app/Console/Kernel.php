@@ -58,6 +58,7 @@ class Kernel extends ConsoleKernel
         Commands\PopulateCfsStatsTables::class,
         Commands\PopulateAttributionRecordReport::class,
         Commands\ImportMt1Entity::class,
+        Commands\AttributionBatchProcess::class,
     ];
 
     /**
@@ -171,6 +172,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('mt1Import offerSubjectMap')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import cakeEncryptedLinkMap')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import link')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import feed')->cron('0 * * * * *');
 
         /**
          * Attribution Jobs

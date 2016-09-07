@@ -4,7 +4,6 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
     self.headers = [ '' , 'ID', 'name', "Username" ];
     self.accounts = [];
     self.currentAccount = { "id": "",
-                            "dba_name" : "" ,
                             "username": "",
                             "contact_name":"",
                             "contact_email":"",

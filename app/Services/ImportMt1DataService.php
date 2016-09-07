@@ -22,9 +22,11 @@ class ImportMt1DataService {
     }
 
     public function load() {
-        $this->records->each(function($record, $key) {
-            $record = $this->mapStrategy->map($record);
-            $this->mt2Repo->updateOrCreate($record);
-        }, 50000);
+        $this->records->chunk(5000, function($records) {
+            foreach ($records as $record) {
+                $record = $this->mapStrategy->map($record->toArray());
+                $this->mt2Repo->updateOrCreate($record);
+            }
+        });
     }
 }

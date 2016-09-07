@@ -31,5 +31,13 @@ class CreativeFromSubjectController extends Controller
 
         return $this->cfsService->getSubjectOfferOpenRate($offerId);
     }
+
+
+    public function previewCreative(Request $request ,$offerId){
+        $creatives  = $this->cfsService->getCreativeByOfferId($offerId);
+
+         return response()
+            ->view( 'pages.cfs.creative-preview', ["creatives" => $creatives] );
+    }
 }
 

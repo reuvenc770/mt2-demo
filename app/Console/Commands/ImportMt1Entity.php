@@ -77,6 +77,9 @@ class ImportMt1Entity extends Command
 
             case "offerSubjectMap":
                 return "ImportMT1OfferSubjectMapping";
+                
+            case "feed":
+                return "ImportMt1Feeds";
 
             case "cakeEncryptedLinkMap":
                 return "ImportMt1CakeEncryptionMapping";

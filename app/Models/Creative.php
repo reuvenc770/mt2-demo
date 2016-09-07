@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Creative extends Model
 {
     protected $guarded = [];
+    const DEFAULT_DOMAIN = "wealthpurse.com";
 
     public function deploys() {
         return $this->hasMany('App\Models\Deploys');

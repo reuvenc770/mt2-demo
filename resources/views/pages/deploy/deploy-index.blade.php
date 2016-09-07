@@ -227,11 +227,12 @@
                                 ng-disabled="deploy.offerLoading">
                             <option value="">- Please Choose a Creative -</option>
                             <option ng-repeat="option in deploy.creatives" ng-value="option.id"
-                                    ng-selected="option.id == deploy.currentDeploy.creative_id">@{{ option.name }}
+                                    ng-selected="option.id == deploy.currentDeploy.creative_id">@{{ option.name }} - @{{ option.id }} - @{{ option.click_rate }}
                             </option>
                         </select>
                     <span class="help-block" ng-bind="deploy.formErrors.creative_id"
                           ng-show="deploy.formErrors.creative_id"></span>
+                        <a ng-show="deploy.creatives.length > 0" target="_blank" href="creatives/preview/@{{ deploy.currentDeploy.offer_id }}">Preview All Creatives</a>
                     </div>
                 </td>
                 <td>
@@ -242,7 +243,7 @@
                                 ng-disabled="deploy.offerLoading">
                             <option value="">- Please Choose a From -</option>
                             <option ng-repeat="option in deploy.froms" ng-value="option.id"
-                                    ng-selected="option.id == deploy.currentDeploy.from_id">@{{ option.name }}
+                                    ng-selected="option.id == deploy.currentDeploy.from_id">@{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate }}
                             </option>
                         </select>
                     <span class="help-block" ng-bind="deploy.formErrors.from_id"
@@ -257,7 +258,7 @@
                                 ng-disabled="deploy.offerLoading">
                             <option value="">- Please Choose a Subject -</option>
                             <option ng-repeat="option in deploy.subjects" ng-value="option.id"
-                                    ng-selected="option.id == deploy.currentDeploy.subject_id">@{{ option.name }}
+                                    ng-selected="option.id == deploy.currentDeploy.subject_id">@{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate }}
                             </option>
                         </select>
                     <span class="help-block" ng-bind="deploy.formErrors.subject_id"

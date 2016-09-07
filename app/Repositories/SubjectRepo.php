@@ -25,7 +25,7 @@ class SubjectRepo {
             ->leftjoin("$schema.offer_subject_maps as osm", 'subjects.id', '=', 'osm.subject_id')
             ->leftjoin("$schema.subject_open_rates as sorate", 'sorate.subject_id', '=', 'subjects.id')
             ->where('osm.offer_id', $offerId)
-            ->where('subjects.status', 1)
+            ->where('subjects.status', 'A')
             ->where('subjects.is_approved', 1)
             ->groupBy('subjects.id', 'name')
             ->orderBy("open_rate", 'desc')

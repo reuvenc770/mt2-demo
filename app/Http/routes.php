@@ -480,6 +480,29 @@ Route::group(
     }
 );
 
+Route::group(
+    [
+        'prefix' => 'creatives' ,
+        'middleware' => [ 'auth' , 'admin' ,  ]
+    ] ,
+    function () {
+        Route::get( '/preview/{offerId}' , [
+            'as' => 'creatives.preview' ,
+            'uses' => 'CreativeFromSubjectController@previewCreative'
+        ] );
+
+        Route::get( '/create' , [
+            'as' => 'domain.add' ,
+            'uses' => 'DomainController@create'
+        ] );
+
+        Route::get( '/edit/{id}' , [
+            'as' => 'domain.edit' ,
+            'uses' => 'DomainController@edit'
+        ] );
+    }
+);
+
 /**
  *  Data Export Routes
  */
