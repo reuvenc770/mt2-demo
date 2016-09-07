@@ -14,15 +14,21 @@ use Carbon\Carbon;
 class FeedReportRepo {
     protected $feedReport;
 
+    protected $modelId;
+
     public function __construct ( AttributionFeedReport $feedReport ) {
         $this->feedReport = $feedReport;
     }
 
     public function switchToLiveTable () {
+        $this->modelId = null;
+
         $this->feedReport->switchToLiveTable();
     }
 
     public function setModelId ( $modelId ) {
+        $this->modelId = $modelId;
+
         $this->feedReport->setModelId( $modelId );
     }
 
@@ -46,9 +52,15 @@ class FeedReportRepo {
     }
 
     public function runInsertQuery ( $valuesSqlString ) {
+        $tableName = AttributionFeedReport::LIVE_TABLE_NAME;
+
+        if ( !is_null( $this->modelId ) ) {
+            $tableName = AttributionFeedReport::BASE_TABLE_NAME . $this->modelId;
+        }
+
         DB::connection( 'attribution' )->insert( "
             INSERT INTO
-                attribution_feed_reports ( feed_id , revenue , mt1_uniques , mt2_uniques , date , created_at , updated_at )
+                {$tableName} ( feed_id , revenue , mt1_uniques , mt2_uniques , date , created_at , updated_at )
             VALUES
                 {$valuesSqlString}
             ON DUPLICATE KEY UPDATE

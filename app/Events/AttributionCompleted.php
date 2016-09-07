@@ -10,15 +10,19 @@ class AttributionCompleted extends Event
 {
     use SerializesModels;
 
+    protected $modelId;
+
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($id)
+    public function __construct($modelId)
     {
-        //
+        $this->modelId = $modelId;
     }
+
+    public function getModelId () { return $this->modelId; }
 
     /**
      * Get the channels the event should be broadcast on.

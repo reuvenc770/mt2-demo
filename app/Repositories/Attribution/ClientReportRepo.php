@@ -14,15 +14,21 @@ use Carbon\Carbon;
 class ClientReportRepo {
     protected $clientReport;
 
+    protected $modelId;
+
     public function __construct ( AttributionClientReport $clientReport ) {
         $this->clientReport = $clientReport;
     }
 
     public function switchToLiveTable () {
+        $this->modelId = null;
+
         $this->clientReport->switchToLiveTable();
     }
 
     public function setModelId ( $modelId ) {
+        $this->modelId = $modelId;
+
         $this->clientReport->setModelId( $modelId );
     }
 
@@ -55,9 +61,17 @@ class ClientReportRepo {
     }
 
     public function runInsertQuery ( $valuesSqlString ) {
+        $tableName = AttributionClientReport::LIVE_TABLE_NAME;
+
+        if ( !is_null( $this->modelId ) ) {
+            $tableName = AttributionClientReport::BASE_TABLE_NAME . $this->modelId;
+        }
+
+        \Log::info( $tableName );
+
         DB::connection( 'attribution' )->insert( "
             INSERT INTO
-                attribution_client_reports ( client_stats_grouping_id , standard_revenue , cpm_revenue , mt1_uniques , mt2_uniques , date , created_at , updated_at )
+                {$tableName} ( client_stats_grouping_id , standard_revenue , cpm_revenue , mt1_uniques , mt2_uniques , date , created_at , updated_at )
             VALUES
                 {$valuesSqlString}
             ON DUPLICATE KEY UPDATE

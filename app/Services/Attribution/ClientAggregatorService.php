@@ -18,10 +18,19 @@ class ClientAggregatorService extends AbstractReportAggregatorService {
     protected $feedReportRepo;
     protected $clientRepo;
 
+    protected $modelId;
+
     public function __construct ( ClientService $clientService , ClientReportRepo $clientRepo , FeedReportRepo $feedReportRepo ) {
         $this->clientService = $clientService;
         $this->clientRepo = $clientRepo;
         $this->feedReportRepo = $feedReportRepo;
+    }
+
+    public function setModelId ( $modelId ) {
+        $this->modelId = $modelId;
+
+        $this->feedReportRepo->setModelId( $modelId );
+        $this->clientRepo->setModelId( $modelId );
     }
 
     public function buildAndSaveReport ( $dateRange = null ) {

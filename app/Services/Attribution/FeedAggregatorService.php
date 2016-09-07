@@ -18,11 +18,20 @@ class FeedAggregatorService extends AbstractReportAggregatorService {
     protected $emailFeedInstanceService;
     protected $feedRepo;
 
+    protected $modelId;
+
     public function __construct ( RecordReportService $recordReport , EmailFeedAssignmentService $emailFeedAssignmentService , EmailFeedInstanceService $emailFeedInstanceService , FeedReportRepo $feedRepo ) {
         $this->recordReport = $recordReport;
         $this->emailFeedAssignmentService = $emailFeedAssignmentService;
         $this->emailFeedInstanceService = $emailFeedInstanceService;
         $this->feedRepo = $feedRepo;
+    }
+
+    public function setModelId ( $modelId ) {
+        $this->modelId = $modelId;
+
+        $this->feedRepo->setModelId( $modelId );
+        $this->emailFeedAssignmentService->setLevelModel( $modelId );
     }
 
     public function buildAndSaveReport ( $dateRange = null ) {
