@@ -47,7 +47,7 @@ class DeployRepo
                 'creatives.file_name as creative',
                 'list_profiles.profile_name as list_profile',
                 'cake_affiliate_id',
-                'deployed',
+                'deployment_status',
                 'notes');
         if($searchData && $searchType) {
             $query = $this->mapQuery($searchType, $searchData, $query);
@@ -219,7 +219,7 @@ class DeployRepo
     }
 
     public function deployPackages($data){
-        $this->deploy->wherein('id',$data)->update(['deployed' => Deploy::PENDING_PACKAGE_STATUS]);
+        $this->deploy->wherein('id',$data)->update(['deployment_status' => Deploy::PENDING_PACKAGE_STATUS]);
         Cache::tags($this->deploy->getClassName())->flush();
         return true;
     }
@@ -244,7 +244,7 @@ class DeployRepo
                 $query = $query->where('deploys.esp_account_id',$searchData);
                 break;
             case "status":
-                $query = $query->where('deploys.deployed',$searchData);
+                $query = $query->where('deploys.deployment_status',$searchData);
                 break;
             case "date":
                 $dates = explode(',',$searchData);
@@ -263,6 +263,6 @@ class DeployRepo
     }
 
     public function getPendingDeploys() {
-        return $this->deploy->where('deployed',Deploy::PENDING_PACKAGE_STATUS)->get();
+        return $this->deploy->where('deployment_status',Deploy::PENDING_PACKAGE_STATUS)->get();
     }
 }

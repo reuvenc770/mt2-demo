@@ -14,6 +14,7 @@ class AddUserAndStatus extends Migration
     {
         Schema::table('deploys', function (Blueprint $table) {
            $table->integer("user_id");
+            $table->renameColumn("deployed", "deployment_status");
         });
 
     }
@@ -28,6 +29,7 @@ class AddUserAndStatus extends Migration
     {
         Schema::table('deploys', function (Blueprint $table) {
             $table->dropColumn("user_id");
+            $table->renameColumn("deployment_status","deployed");
         });
     }
 }
