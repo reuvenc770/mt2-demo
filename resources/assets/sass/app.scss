@@ -101,6 +101,13 @@ table.md-table.md-row-select tbody.md-body > tr.md-row:not([disabled]):hover {
 }
 
 /**
+ * Materials Menu Styling
+ */
+md-menu-content.md-mt2-zeta-theme md-menu-item {
+    color: rgba(0,0,0,0.87) !important;
+}
+
+/**
  * 3 Month Report Styling
  */
 .mt2-total-row {

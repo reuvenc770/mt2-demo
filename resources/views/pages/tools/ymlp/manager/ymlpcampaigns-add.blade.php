@@ -5,13 +5,15 @@
 @section( 'navEspClasses' , 'active' )
 
 @section( 'content' )
-    <div class="row">
-        <div class="col-md-6 col-md-offset-3">
-            <div class="panel panel-default" ng-controller="ymlpCampaignController as ymlp">
-                <div class="panel-heading">
-                    <h1 class="panel-title">Create YMLP Campaign</h1>
-                </div>
-                <div class="panel-body">
+    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
+        <div flex-gt-sm="50" flex="100">
+            <md-card ng-controller="ymlpCampaignController as ymlp">
+                <md-toolbar class="md-hue-3">
+                    <div class="md-toolbar-tools">
+                        <span>Create YMLP Campaign</span>
+                    </div>
+                </md-toolbar>
+                <md-card-content>
                     <form class="form-horizontal">
                         <div class="form-group" ng-class="{ 'has-error' : ymlp.formErrors.esp_account_id }">
                             <label for="esp_account_id" class="col-sm-2 control-label">ESP Account</label>
@@ -61,11 +63,10 @@
                             </div>
                         </div>
                     </form>
-                </div>
-
-            </div>
+                </md-card-content>
+            </md-card>
         </div>
-    </div>
+    </md-content>
 @stop
 
 @section( 'pageIncludes' )

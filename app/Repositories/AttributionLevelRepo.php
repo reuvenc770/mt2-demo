@@ -76,4 +76,28 @@ class AttributionLevelRepo {
             return strftime('%Y-%m-%d 00:00:00');
         }
     }
+
+    public function syncLevelsWithMT1 () {
+        $mt1Levels = DB::connection( 'mt1_data' )->table( 'user' )
+                    ->select( 'user_id as feedId' , 'AttributeLevel as level' )
+                    ->where( [
+                        [ 'status' => 'A' ] ,
+                        [ 'OrangeClient' => 'Y' ] ,
+                        [ 'AttributeLevel' , '<>' , 255 ]
+                    ] )->get();
+
+        foreach ( $mt1Levels as $current ) {
+            $feed = $this->levels->find( $current->feedId );
+
+            if ( !$feed->isEmpty() ) {
+                $feed->level = $current->level;
+                $feed->save();
+            } else {
+                $newFeed = new AttributionLevel();
+                $newFeed->feed_id = $current->feedId;
+                $newFeed->level = $current->level;
+                $newFeed->save();
+            }
+        }
+    }
 }

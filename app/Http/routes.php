@@ -502,30 +502,30 @@ Route::group(
  *  Data Export Routes
  */
 
-Route::group( 
-    [ 
-        'prefix' => 'dataexport', 
-        'middleware' => ['auth', 'pageLevel'] 
+Route::group(
+    [
+        'prefix' => 'dataexport',
+        'middleware' => ['auth', 'pageLevel']
     ],
     function () {
-        Route::get( '/' , 
+        Route::get( '/' ,
             array(
-                'as' => 'dataexport.list' , 
-                'uses' => 'DataExportController@listActive' 
-            ) 
+                'as' => 'dataexport.list' ,
+                'uses' => 'DataExportController@listActive'
+            )
         );
 
-        Route::get( 
-            '/create', 
-            array( 
-                'as' => 'dataexport.add', 
-                'uses' => 'DataExportController@create' 
+        Route::get(
+            '/create',
+            array(
+                'as' => 'dataexport.add',
+                'uses' => 'DataExportController@create'
             )
         );
 
         Route::get(
             '/edit/{id}',
-            array( 
+            array(
                 'as' => 'dataexport.edit',
                 'uses' => 'DataExportController@edit'
             )
@@ -631,9 +631,9 @@ Route::group(
             'uses' => 'AttachmentApiController@flow'
         ] );
 
-        Route::put('/dataexport/update', [ 
-            'as' => 'dataexport.update', 
-            'middleware' => ['auth'], 
+        Route::put('/dataexport/update', [
+            'as' => 'dataexport.update',
+            'middleware' => ['auth'],
             'uses' => 'DataExportController@message'
         ]);
 
@@ -671,7 +671,7 @@ Route::group(
             [ 'prefix' => 'proxy' ] ,
             function () {
                 Route::get('/active', [
-                    'as' => 'proxy.list',
+                    'as' => 'api.proxy.list',
                     'uses' => 'ProxyController@listAllActive'
                 ]);
             }
@@ -973,7 +973,7 @@ Route::group(
             'DomainController',
             [ 'except' => [ 'create' , 'edit' ] ]
         );
-        
+
         Route::resource(
             'datacleanse' ,
             'DataCleanseController' ,
@@ -1005,10 +1005,10 @@ Route::group(
         );
 
 	    Route::resource(
-            'dataexport', 
-            'DataExportController', 
+            'dataexport',
+            'DataExportController',
             [
-                'except' => ['create', 'edit'], 
+                'except' => ['create', 'edit'],
                 'middleware' =>['auth']
             ]
             );
@@ -1165,8 +1165,8 @@ Route::group(
         );
 
         Route::resource(
-            'esps', 
-            'MT1API\EspApiController', 
+            'esps',
+            'MT1API\EspApiController',
             ['only' => ['index', 'show']]
         );
     }

@@ -118,7 +118,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:downloadApi Publicators 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Bronto 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadTrackingData Cake 5')->hourly()->sendOutputTo($filePath);
-        $schedule->command( 'reports:downloadTrackingData Cake 0 record' )->dailyAt( self::CAKE_CONVERSION_UPDATE_TIME )->sendOutputTo( $filePath )
+        $schedule->command( 'reports:downloadTrackingData Cake 0 record' )->dailyAt( self::CAKE_CONVERSION_UPDATE_TIME )->sendOutputTo( $filePath );
         $schedule->command('process:cfsStats')->cron('0 */4 * * *');
 
         /**
