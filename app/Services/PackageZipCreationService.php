@@ -19,8 +19,14 @@ class PackageZipCreationService {
 
     const STORAGE_PATH_BASE = './files';
 
-    private $saveDirectory;
+    const IMAGE_REPLACEMENT_ACCOUNTS = [
+        'BH001', 'BH002', 'BH003', 'BH004', 'BH005', 'BH006', 
+        'BH007', 'BH008', 'BH009', 'BH010', 'BH011', 'BH012', 
+        'BH013', 'BH014', 'BH015', 'BH016', 'BH017', 'BH018',
+        'MAR1', 'MAR2', 'MAR3', 'MAR4', 'MAR5', 'MAR6', 'MAR7', 
+    ];
 
+    private $saveDirectory;
 
     public function __construct(
             DeployRepo $deployRepo, 
@@ -52,7 +58,6 @@ class PackageZipCreationService {
         $offerTypeId = $offer->offer_payout_type_id;
         $contentDomain = $deploy->contentDomain()->first()->main_site;
 
-
         // 1. validate package
         $this->validate($deploy);
 
@@ -65,6 +70,7 @@ class PackageZipCreationService {
         $creative = $deploy->creative;
         $creativeHtml = $creative->creative_html;
 
+        // hopefully we can remove this in the near future due to redoing how links are handled
         if ( preg_match('/redir1\.cgi/', $creativeHtml) && preg_match('/\&ccID\=/', $creativeHtml) ) {
 
             $creativeHtml = preg_replace('/\&sub\=/', '&XXX=', $creativeHtml);
@@ -74,65 +80,58 @@ class PackageZipCreationService {
             $creativeHtml = $this->parseCCIDLinks($html);
         }
 
-        // 4. (insert unsub url into links) >> need to get link id
+        // 4. Format offer unsub link (merged with 10)
         $offerUnsubLink = $offer->unsub_link;
         $offerUnsubLinkId = $this->linkService->getLinkId($offerUnsubLink);
-        $this->linkService->checkLink($offerUnsubLink);
+        $this->linkService->checkLink($offerUnsubLink); // do something with this result
 
+        /* 5-9 MERGED WITH 11 */ /* 10 MERGED WITH 4 */
 
-        // 5. get offer tracking url from advertiser_tracking based off of offer and feed (port table), and process: (see lines 561-572) - need to import advertiser_tracking (19M records)
-        // is link_num 1
-        $offerTrackingUrl = $offer-> ? // need to figure out advertiser_tracking - do we really need "client"
-
-        // 6. encrypt link in creative html_code, encrypt offer tracking url
-        if ($deploy->encrypt_cake && strpos($creativeHtml, '{{URL}}') !== false) {
-            $offerTrackingUrl = $this->encryptionService->encryptCakeLink($offerTrackingUrl);
-        }
-
-        if ($deploy->fully_encrypt) {
-            $offerTrackingUrl = $this->encryptionService->fullyEncryptLink($offerTrackingUrl);
-        }
-
-        // 7. insert "encrypted" offer tracking url into links
-        // maybe these two lines (7 & 8) are conditional
-        $offerTrackingUrlLinkId = $this->linkService->getLinkId($offerTrackingUrl);
-
-        // 8. Check link
-        $linkValid = $this->linkService->checkLink($offerTrackingUrl);
-
-        // 9. this is "the link placed in the actual creative which goes out to our content serviers. It is the redirect link - its purpose is to hide the cake links"
-        $redirectLink = "http://$contentDomain/cgi-bin/redir1.cgi?eid=$emailId&cid=1&em=$emailAddressField&id=$linkId&n=$feedId&f=$fid&s=$sid&c=$crid&tid=$templateId&footerid=$footerId&ctype=R";
-        $redirectLink = $this->format($deploy->urlFormat, $redirectLink);
-
-        // 11. skipping to replacing tokens in the full html
+        // 11. replacing tokens in the full html
 
         $templateHtml = $deploy->mailingTemplate()->first()->template_html;
 
-        // remove html & body from creative right here
+        // remove doctype, html, & body from creative
+        $dom = new DOMDocument();
+        $dom->loadHTML($creativeHtml);
+        $dom->doctype->parentNode->removeChild($dom->doctype);
+        $this->stripEnclosingElement($dom, "html");
+        $this->stripEnclosingElement($dom, "body");
+
+        $creativeHtml = $dom->saveHTML();
+
 
         $fullHtml = str_replace("{{CREATIVE}}", $creativeHtml, $fullHtml);
         $fullHtml = str_replace("{{TRACKING}}", replace, $fullHtml);
         $fullHtml = str_replace("{{TIMESTAMP}}", strftime('%Y%m%d%H%M%S'), $fullHtml);
 
-        $unsubText = $this->createUnsubHtml($offer, $imageUrlPrefix);
+        // Need to get random strings for image domains $img_prefix
+        $random1 = $this->urlFormatter->getDefinedRandomString();
+        $random2 = $this->urlFormatter->getDefinedRandomString();
+        $imgPrefix = "$contentDomain/$random1/$random2"; // this is used in a little bit
+
+        $unsubText = $this->createUnsubHtml($offer, $imgPrefix);
         $fullHtml = str_replace("{{ADV_UNSUB}}", $unsubText, $fullHtml);
 
-        // the urls silliness right here
-        // this might not exactly stick around
-        $i = 1;
+        foreach($offer->trackingLinks()->get() as $link) {
 
-        while ($i <= 29) {
-            if (strpos($fullHtml, "{{URL$i}}") !== false) {
-                $linkNumber = $i + 1; // {{URL}} is link number 1, so {{URL1}} is link number 2
+            $linkNumber = $link->link_num;
+            $url = $link->url;
 
-                $url = $this->getOfferTrackingLink($offerId, $feedId, $linkNumber); // one question to Dimitri - will we even need "client" id anymore?
+            $token = $linkNumber === 1 ? "{{URL}}" ; "{{URL$i}}";
+
+            if (strpos($fullHtml, $token) !== false) {
+
+                $url = $this->getOfferTrackingLink($offerId, $linkNumber);
 
                 $url = str_replace("{{CID}}", $esp ...., $url);
                 $url = str_replace("{{FOOTER}}", "{{FOOTER}}_{$sendDate}", $url);
-                $url = preg_replace('/a=\d+/', "a=$affiliateId", $url); // old subaffiliate id
+                $url = preg_replace('/a=\d+/', "a=$affiliateId", $url); // old affiliate id
                 $url = str_replace("up.gravitypresence.com", $espCakeDomain, $url);
                 $url = str_replace($defaultCakeDomain, $espCakeDomain, $url);
                 $url = str_replace('a=13', "a=$affiliateId", $url);
+
+                $creativeLink = str_replace("{{DEPLOY_ID}}", $this->deployId, $url); // used at least for 1 ...
 
                 if ($deploy->encrypt_cake) {
                     $url = $this->encryptionService->encryptCakeLink($url);
@@ -141,31 +140,19 @@ class PackageZipCreationService {
                     $url = $offerTrackingUrl = $this->encryptionService->fullEncryptLink($url);
                 }
 
-                $this->checkLink($url);
+                $linkValid = $this->linkService->checkLink($url);
 
-                // Save this link away and get its 
-                $linkId = $this->linkService->saveLink($url);
+                $linkId = $this->linkService->getLinkId($url);
 
-                // generate a redirect link with the linkId hidden in it
-                if ('New' === $urlFormat) {
-                    $redirectLink = $this->urlFormatter->formatNewUrl($type, $contentDomain, $emailId, $linkId);
-                }
-                elseif ('GMail' === $urlFormat) {
-                    $redirectLink = $this->urlFormatter->formatGmailUrl($type, $contentDomain, $emailId, $linkId);
-                }
-                else {
+                $redirectLink = $this->formatUrl($deploy->urlFormat, $linkId) 
+                                ?: "http://$content_domain/cgi-bin/redir1.cgi?eid=$eidfield&cid=1&em=$emailfield&id=$linkId&n=$clientID&f=$fid&s=$sid&c=$crid&tid=$template_id&footerid=$footer_id&ctype=R";
 
-                    // what is content_domain, again? 
-                    ..
-                    $redirectLink="http://$content_domain/cgi-bin/redir1.cgi?eid=$eidfield&cid=1&em=$emailfield&id=$tlink_id&n=$clientID&f=$fid&s=$sid&c=$crid&tid=$template_id&footerid=$footer_id&ctype=R";
-                }
-
-                $fullHtml = str_replace("{{URL$i}}", $redirectLink);
+                $fullHtml = str_replace($token, $redirectLink);
             }    
-            $i++;
         }
 
-        $fullHtml = str_replace("{{URL}}", $redirectLink, $fullHtml);
+        #$fullHtml = str_replace("{{URL}}", $redirectLink, $fullHtml);
+        $fullHtml = str_replace('{{CID}}', 1, $fullHtml); // all other instances not caught replaced with "1"
         $fullHtml = str_replace("{{ADV_UNSUB_URL}}", $offerUnsubLink, $fullHtml);
         $fullHtml = str_replace("{{CRID}}", $creativeId, $fullHtml);
         $fullHtml = str_replace("{{FID}}", replace, $fullHtml);
@@ -218,10 +205,11 @@ class PackageZipCreationService {
         // 14. Callbacks
     }
 
+
     // can't be this simple - we need quite a bit more, as seen from the signature
     // we also need to switch emailId and emailAddress for emailIdToken and emailAddressToken -
 
-    private function formatUrl($urlFormat, $link) {
+    private function formatUrl($urlFormat, $linkId) {
         if ('New' === $urlFormat) {
             return $this->urlFormatter->formatNewUrl($type, $contentDomain, $emailId, $linkId);
         }
@@ -229,7 +217,7 @@ class PackageZipCreationService {
             return $this->urlFormatter->formatGmailUrl($type, $contentDomain, $emailId, $linkId);
         }
         else {
-            return $link;
+            return '';
         }
     }
 
@@ -248,8 +236,20 @@ TXT;
 
 
     /*
-    create image prefix of content_domain and two random strings
+        Method used to 
     */
+    private function stripEnclosingElement(&$dom, $elementName) {
+
+        $element = $dom->getElementsByTagName($elementName)->item(0);
+        $fragment = $dom->createDocumentFragment();
+
+        while ($element->childNodes->length > 0) {
+            $frament->appendChild($html->childNodes->item(0))
+        }
+
+        $element->parentNode->replaceChild($fragment, $element);
+    }
+
 
     private function createUnsubHtml($offer, $imageUrlPrefix) {
         if ($offer) {
@@ -262,18 +262,18 @@ TXT;
 
                 if (preg_match('/\//', $unsubImg)) {
                     if (0 === $offerUnsubLinkId) {
-                        $unsubText = "<img src=\"http://$img_prefix/$unsub_img\" border=0><br><br>";
+                        $unsubText = "<img src=\"http://$imageUrlPrefix/$unsub_img\" border=0><br><br>";
                     }
                     else {
-                        $unsubText = "<a href=\"{{ADV_UNSUB_URL}}\"><img src=\"http://$img_prefix/{$offer->unsub_img}\" border=0></a><br><br>";
+                        $unsubText = "<a href=\"{{ADV_UNSUB_URL}}\"><img src=\"http://$imageUrlPrefix/{$offer->unsub_img}\" border=0></a><br><br>";
                     }
                 }
                 else {
                     if (0 === $offerUnsubLinkId) {
-                        $unsubText = "<img src=\"http://$img_prefix/images/unsub/{$offer->unsub_img}\" border=0><br><br>";
+                        $unsubText = "<img src=\"http://$imageUrlPrefix/images/unsub/{$offer->unsub_img}\" border=0><br><br>";
                     }
                     else {
-                        $unsubText = "<a href=\"{{ADV_UNSUB_URL}}\"><img src=\"http://$img_prefix/images/unsub/{$offer->unsub_img}\" border=0></a><br><br>";
+                        $unsubText = "<a href=\"{{ADV_UNSUB_URL}}\"><img src=\"http://$imageUrlPrefix/images/unsub/{$offer->unsub_img}\" border=0></a><br><br>";
                     }
                 }
             }
@@ -403,14 +403,7 @@ TXT;
     }
 
     private function shouldReplaceImageUrl($espAccountName) {
-        $accounts = [
-            'BH001', 'BH002', 'BH003', 'BH004', 'BH005', 'BH006', 
-            'BH007', 'BH008', 'BH009', 'BH010', 'BH011', 'BH012', 
-            'BH013', 'BH014', 'BH015', 'BH016', 'BH017', 'BH018',
-            'MAR1', 'MAR2', 'MAR3', 'MAR4', 'MAR5', 'MAR6', 'MAR7', 
-        ];
-
-        return in_array($espAccountName, $accounts);
+        return in_array($espAccountName, self::IMAGE_REPLACEMENT_ACCOUNTS);
     }
 
     private function shouldRemoveFileExtension($espAccountName) {
