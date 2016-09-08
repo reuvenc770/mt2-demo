@@ -1,4 +1,4 @@
-<div class="panel-body">
+
     <input name="_token" type="hidden" value="{{ csrf_token() }}">
     <fieldset>
         <!-- Email field -->

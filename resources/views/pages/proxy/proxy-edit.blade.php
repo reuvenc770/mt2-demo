@@ -2,22 +2,25 @@
 @section('title', 'Edit Proxy')
 
 @section('content')
-    <div class="row">
-        <div class="col-md-6 col-md-offset-3">
-            <div class="panel panel-default" ng-controller="ProxyController as proxy" ng-init="proxy.loadAccount()">
-                <div class="panel-heading">
-                    <h1 class="panel-title">Edit Proxy</h1>
-                </div>
+    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
+        <div flex-gt-sm="50" flex="100">
+            <md-card ng-controller="ProxyController as proxy" ng-init="proxy.loadAccount()">
+                <md-toolbar class="md-hue-3">
+                    <div class="md-toolbar-tools">
+                        <span>Edit Proxy</span>
+                    </div>
+                </md-toolbar>
+                <md-card-content>
                 @include( 'pages.proxy.proxy-form' )
                         <!-- Submit field -->
                         <div class="form-group">
                             <input class="btn btn-lg btn-primary btn-block" ng-click="proxy.editAccount()" type="submit" value="Edit Proxy">
                         </div>
                     </fieldset>
-                </div>
-            </div>
+                </md-card-content>
+            </md-card>
         </div>
-    </div>
+    </md-content>
 @endsection
 
 

@@ -3,11 +3,8 @@
 @section( 'title' , 'Show Info' )
 
 @section( 'content' )
-<div class="row">
-    <div class="page-header col-xs-12"><h1 class="text-center">Search Record Information</h1></div>
-</div>
 
-<div ng-controller="ShowinfoController as info">
+<div layout="column" layout-padding ng-controller="ShowinfoController as info">
     <div class="well">
         <form name="recordForm" novalidate>
             <div class="form-group" ng-class="{ 'has-error' : ( recordForm.recordId.$touched && recordForm.recordId.$error.required ) }">

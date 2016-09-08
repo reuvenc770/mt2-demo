@@ -5,13 +5,9 @@
 @section( 'navEspClasses' , 'active' )
 
 @section( 'content' )
-    <div class="row">
-        <div class="page-header col-xs-12"><h1 class="text-center">Last 50 Job Runs</h1></div>
-    </div>
-
-    <div ng-controller="jobController as job" ng-init="job.loadJobs()">
-        <div class="row">
-            <div class="col-xs-12">
+    <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
+        <div flex="grow" layout-padding>
+            <div ng-controller="jobController as job" ng-init="job.loadJobs()">
                 <div id="mtTableContainer" class="table-responsive">
                     <table class="table table-striped table-bordered table-hover text-center table-condensed">
                         <thead>
@@ -32,11 +28,10 @@
                         </tr>
                         </tbody>
                     </table>
-
                 </div>
             </div>
         </div>
-    </div>
+    </md-content>
 @stop
 
 @section( 'pageIncludes' )

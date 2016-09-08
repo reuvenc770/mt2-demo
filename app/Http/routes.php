@@ -507,30 +507,30 @@ Route::group(
  *  Data Export Routes
  */
 
-Route::group( 
-    [ 
-        'prefix' => 'dataexport', 
-        'middleware' => ['auth', 'pageLevel'] 
+Route::group(
+    [
+        'prefix' => 'dataexport',
+        'middleware' => ['auth', 'pageLevel']
     ],
     function () {
-        Route::get( '/' , 
+        Route::get( '/' ,
             array(
-                'as' => 'dataexport.list' , 
-                'uses' => 'DataExportController@listActive' 
-            ) 
+                'as' => 'dataexport.list' ,
+                'uses' => 'DataExportController@listActive'
+            )
         );
 
-        Route::get( 
-            '/create', 
-            array( 
-                'as' => 'dataexport.add', 
-                'uses' => 'DataExportController@create' 
+        Route::get(
+            '/create',
+            array(
+                'as' => 'dataexport.add',
+                'uses' => 'DataExportController@create'
             )
         );
 
         Route::get(
             '/edit/{id}',
-            array( 
+            array(
                 'as' => 'dataexport.edit',
                 'uses' => 'DataExportController@edit'
             )
@@ -555,35 +555,35 @@ Route::group(
             ]
         );
 
-        Route::get( 
-            '/create', 
-            array( 
-                'as' => 'attr.model.add', 
-                'uses' => 'AttributionModelController@create' 
+        Route::get(
+            '/create',
+            array(
+                'as' => 'attr.model.add',
+                'uses' => 'AttributionModelController@create'
             )
         );
 
-        Route::get( 
-            '/edit/{modelId}', 
-            array( 
-                'as' => 'attr.model.edit', 
-                'uses' => 'AttributionModelController@edit' 
+        Route::get(
+            '/edit/{modelId}',
+            array(
+                'as' => 'attr.model.edit',
+                'uses' => 'AttributionModelController@edit'
             )
         );
 
-        Route::get( 
-            '/report', 
-            array( 
-                'as' => 'attr.report.view', 
-                'uses' => 'AttributionReportController@view' 
+        Route::get(
+            '/report',
+            array(
+                'as' => 'attr.report.view',
+                'uses' => 'AttributionReportController@view'
             )
         );
 
-        Route::get( 
-            '/report/export', 
-            array( 
-                'as' => 'attr.report.export', 
-                'uses' => 'AttributionReportController@export' 
+        Route::get(
+            '/report/export',
+            array(
+                'as' => 'attr.report.export',
+                'uses' => 'AttributionReportController@export'
             )
         );
     }
@@ -618,9 +618,9 @@ Route::group(
             'uses' => 'AttributionController@index'
         ] );
 
-        Route::put('/dataexport/update', [ 
-            'as' => 'dataexport.update', 
-            'middleware' => ['auth'], 
+        Route::put('/dataexport/update', [
+            'as' => 'dataexport.update',
+            'middleware' => ['auth'],
             'uses' => 'DataExportController@message'
         ]);
 
@@ -658,7 +658,7 @@ Route::group(
             [ 'prefix' => 'proxy' ] ,
             function () {
                 Route::get('/active', [
-                    'as' => 'proxy.list',
+                    'as' => 'api.proxy.list',
                     'uses' => 'ProxyController@listAllActive'
                 ]);
             }
@@ -824,31 +824,31 @@ Route::group(
                     'as' => 'api.attribution.model.index' ,
                     'middleware' => 'auth' ,
                     'uses' => 'AttributionModelController@index'
-                ] ); 
+                ] );
 
                 Route::post( '/attribution/model' , [
                     'as' => 'api.attribution.model.store' ,
                     'middleware' => 'auth' ,
                     'uses' => 'AttributionModelController@store'
-                ] ); 
+                ] );
 
                 Route::put( '/attribution/model/{modelId}' , [
                     'as' => 'api.attribution.model.update' ,
                     'middleware' => 'auth' ,
                     'uses' => 'AttributionModelController@update'
-                ] ); 
+                ] );
 
                 Route::delete( '/attribution/model/{modelId}' , [
                     'as' => 'api.attribution.model.destroy' ,
                     'middleware' => 'auth' ,
                     'uses' => 'AttributionModelController@destroy'
-                ] ); 
+                ] );
 
                 Route::get( '/attribution/model/{modelId}' , [
                     'as' => 'api.attribution.model.show' ,
                     'middleware' => 'auth' ,
                     'uses' => 'AttributionModelController@show'
-                ] ); 
+                ] );
 
                 Route::get( '/attribution/model/{modelId}/levels' , [
                     'as' => 'api.attribution.model.levels' ,
@@ -927,7 +927,7 @@ Route::group(
             'DomainController',
             [ 'except' => [ 'create' , 'edit' ] ]
         );
-        
+
         Route::resource(
             'datacleanse' ,
             'DataCleanseController' ,
@@ -945,7 +945,7 @@ Route::group(
             'ShowInfoController' ,
             [ 'only' => [ 'show' , 'store' ] ]
         );
-        
+
         Route::resource(
             'attribution' ,
             'AttributionController' ,
@@ -973,10 +973,10 @@ Route::group(
 	    );
 
 	    Route::resource(
-            'dataexport', 
-            'DataExportController', 
+            'dataexport',
+            'DataExportController',
             [
-                'except' => ['create', 'edit'], 
+                'except' => ['create', 'edit'],
                 'middleware' =>['auth']
             ]
             );
@@ -1133,8 +1133,8 @@ Route::group(
         );
 
         Route::resource(
-            'esps', 
-            'MT1API\EspApiController', 
+            'esps',
+            'MT1API\EspApiController',
             ['only' => ['index', 'show']]
         );
     }

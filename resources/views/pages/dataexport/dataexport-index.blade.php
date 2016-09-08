@@ -2,56 +2,76 @@
 
 @section('title', 'Data Exports')
 
+@section( 'angular-controller' , 'ng-controller="DataExportController as dataExport"')
+
+@section( 'page-menu' )
+    <div ng-show="app.largePageWidth()">
+      <md-button ng-click="dataExport.switchDisplayedStatus()">
+          <span>@{{dataExport.displayedStatusButtonText}}</span>
+      </md-button>
+      @if (Sentinel::hasAccess('dataexport.add'))
+        <md-button ng-click="dataExport.viewAdd()" aria-label="Add Data Export">
+            <span>Add Data Export</span>
+        </md-button>
+      @endif
+    </div>
+
+    <md-menu ng-hide="app.largePageWidth()" md-position-mode="target-right target">
+      <md-button aria-label="Open menu" class="md-icon-button" ng-click="$mdOpenMenu($event)">
+        <md-icon md-svg-src="img/icons/ic_more_horiz_white_24px.svg"></md-icon>
+      </md-button>
+      <md-menu-content width="3">
+        <md-menu-item>
+          <md-button ng-click="dataExport.switchDisplayedStatus()">
+              <span>@{{dataExport.displayedStatusButtonText}}</span>
+          </md-button>
+        </md-menu-item>
+        @if (Sentinel::hasAccess('dataexport.add'))
+          <md-menu-item>
+            <md-button ng-click="dataExport.viewAdd()" aria-label="Add Data Export">
+                <span>Add Data Export</span>
+            </md-button>
+          </md-menu-item>
+        @endif
+      </md-menu-content>
+    </md-menu>
+@stop
+
 @section('content')
-<div class="row">
-  <div class="page-header col-xs-12"><h1 class="text-center">Data Exports</h1></div>
-</div>
-<div ng-controller="DataExportController as dataExport" ng-init="dataExport.loadActiveDataExports()">
-  
-  <div class="row">
-    <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="dataExport.switchDisplayedStatus()">
-      <span>@{{dataExport.displayedStatusButtonText}}</span>
-    </button>
-    @if (Sentinel::hasAccess('dataexport.add'))
-    <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="dataExport.viewAdd()">
-      <span class="glyphicon glyphicon-plus"></span>
-      Add Data Export
-    </button>
-    @endif
-  </div>
-  
-
-  <div class="row">
-    <div class="col-xs-12">
-        <div class="row">
-          <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
+<div ng-init="dataExport.loadActiveDataExports()">
+  <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
+    <md-card>
+      <md-card-content>
+        <div layout="row">
+          <md-input-container flex-gt-sm="10" flex="30">
             <pagination-count recordcount="dataExport.paginationCount" currentpage="dataExport.currentPage"></pagination-count>
-          </div>
+          </md-input-container>
 
-          <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
+          <md-input-container flex="auto">
             <pagination currentpage="dataExport.currentPage" maxpage="dataExport.pageCount"></pagination>
-          </div>
+          </md-input-container>
         </div>
 
-        <dataexport-table records="dataExport.dataExports" 
-        changestatus="dataExport.changeDataExportStatus(id)" loadingflag="dataExport.currentlyLoading" 
+        <dataexport-table records="dataExport.dataExports"
+        changestatus="dataExport.changeDataExportStatus(id)" loadingflag="dataExport.currentlyLoading"
         toggleinclusion="dataExport.toggleInclusion(id)" statuschangebuttontext="dataExport.massActionButtonText"
         deleteexport="dataExport.deleteDataExport(id)" copyexport="dataExport.copyDataExport(id)">
         </dataexport-table>
 
-        <div class="row">
-          <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
+        <div layout="row">
+          <md-input-container flex-gt-sm="10" flex="30">
             <pagination-count recordcount="dataExport.paginationCount" currentpage="dataExport.currentPage"></pagination-count>
-          </div>
+          </md-input-container>
 
-          <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
+          <md-input-container flex="auto">
             <pagination currentpage="dataExport.currentPage" maxpage="dataExport.pageCount"></pagination>
-          </div>
+          </md-input-container>
         </div>
-    </div>
-  </div>
+      </md-card-content>
+    </md-card>
+  </md-content>
 
-  <div class="row">
+  <div layout="row" layout-align="end center">
     <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="dataExport.pauseSelected()">
       <span class="glyphicon glyphicons-arrow-down"></span>
       <span>@{{dataExport.massActionButtonText}} Exports</span>
