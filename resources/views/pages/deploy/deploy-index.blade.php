@@ -190,8 +190,8 @@
                                             ng-model="deploy.currentDeploy.list_profile_id" class="form-control"
                                             ng-disabled="deploy.currentlyLoading">
                                         <option value="">- Please Choose a List Profile -</option>
-                                        <option ng-repeat="option in deploy.listProfiles" ng-value="option.id"
-                                                ng-selected="option.id == deploy.currentDeploy.list_profile_id">@{{ option.profile_name }}
+                                        <option ng-repeat="option in deploy.listProfiles" value="@{{ option.id }}">
+                                            @{{ option.profile_name }}
                                         </option>
                                     </select>
                     <span class="help-block" ng-bind="deploy.formErrors.list_profile_id"
@@ -226,8 +226,8 @@
                                 ng-model="deploy.currentDeploy.creative_id" class="form-control"
                                 ng-disabled="deploy.offerLoading">
                             <option value="">- Please Choose a Creative -</option>
-                            <option ng-repeat="option in deploy.creatives" ng-value="option.id"
-                                    ng-selected="option.id == deploy.currentDeploy.creative_id">@{{ option.name }} - @{{ option.id }} - @{{ option.click_rate }}
+                            <option ng-repeat="option in deploy.creatives" value="@{{ option.id }}">
+                                @{{ option.name }} - @{{ option.id }} - @{{ option.click_rate }}
                             </option>
                         </select>
                     <span class="help-block" ng-bind="deploy.formErrors.creative_id"
@@ -242,8 +242,8 @@
                                 ng-model="deploy.currentDeploy.from_id" class="form-control"
                                 ng-disabled="deploy.offerLoading">
                             <option value="">- Please Choose a From -</option>
-                            <option ng-repeat="option in deploy.froms" ng-value="option.id"
-                                    ng-selected="option.id == deploy.currentDeploy.from_id">@{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate }}
+                            <option ng-repeat="option in deploy.froms" value="@{{ option.id }}">
+                                @{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate }}
                             </option>
                         </select>
                     <span class="help-block" ng-bind="deploy.formErrors.from_id"
@@ -257,8 +257,8 @@
                                 ng-model="deploy.currentDeploy.subject_id" class="form-control"
                                 ng-disabled="deploy.offerLoading">
                             <option value="">- Please Choose a Subject -</option>
-                            <option ng-repeat="option in deploy.subjects" ng-value="option.id"
-                                    ng-selected="option.id == deploy.currentDeploy.subject_id">@{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate }}
+                            <option ng-repeat="option in deploy.subjects" value="@{{ option.id }}">
+                                @{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate }}
                             </option>
                         </select>
                     <span class="help-block" ng-bind="deploy.formErrors.subject_id"
@@ -272,8 +272,8 @@
                                 ng-model="deploy.currentDeploy.template_id" class="form-control"
                                 ng-disabled="deploy.espLoaded">
                             <option value="">- Please Choose a Template -</option>
-                            <option ng-repeat="option in deploy.templates" ng-value="option.id"
-                                    ng-selected="option.id == deploy.currentDeploy.template_id">@{{ option.template_name }}
+                            <option ng-repeat="option in deploy.templates" ng-value="@{{ option.id }}">
+                                @{{ option.template_name }}
                             </option>
                         </select>
                     <span class="help-block" ng-bind="deploy.formErrors.mailing_domain_id"
@@ -287,8 +287,8 @@
                                 ng-model="deploy.currentDeploy.mailing_domain_id" class="form-control"
                                 ng-disabled="deploy.espLoaded">
                             <option value="">- Please Choose a Mailing Domain -</option>
-                            <option ng-repeat="option in deploy.mailingDomains track by $index" ng-value="option.id"
-                                    ng-selected="option.id == deploy.currentDeploy.mailing_domain_id">@{{ option.domain_name }}
+                            <option ng-repeat="option in deploy.mailingDomains track by $index" value="@{{ option.id }}">
+                                @{{ option.domain_name }}
                             </option>
                         </select>
                     <span class="help-block" ng-bind="deploy.formErrors.mailing_domain_id"
@@ -302,8 +302,8 @@
                                 ng-model="deploy.currentDeploy.content_domain_id" class="form-control"
                                 ng-disabled="deploy.espLoaded">
                             <option value="">- Please Choose an Content Domain -</option>
-                            <option ng-repeat="option in deploy.contentDomains" ng-value="option.id"
-                                    ng-selected="option.id == deploy.currentDeploy.content_domain_id">@{{ option.domain_name }}
+                            <option ng-repeat="option in deploy.contentDomains" value="@{{ option.id }}">
+                                @{{ option.domain_name }}
                             </option>
                         </select>
                     <span class="help-block" ng-bind="deploy.formErrors.content_domain_id"
@@ -316,8 +316,8 @@
                         <select name="cake_affiliate_id" id="cake_affiliate_id"
                                 ng-model="deploy.currentDeploy.cake_affiliate_id" class="form-control">
                             <option value="">- Please Choose an Cake ID -</option>
-                            <option ng-repeat="option in deploy.cakeAffiliates" ng-value="option.affiliateID"
-                                    ng-selected="option.id == deploy.currentDeploy.cake_affiliate_id">@{{ option.affiliateID }}
+                            <option ng-repeat="option in deploy.cakeAffiliates" value="@{{ option.affiliateID }}">
+                                @{{ option.affiliateID }}
                             </option>
                         </select>
                     <span class="help-block" ng-bind="deploy.formErrors.cake_affiliate_id"
