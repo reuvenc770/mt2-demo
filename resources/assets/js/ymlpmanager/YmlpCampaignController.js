@@ -4,7 +4,7 @@ mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window
 
     self.campaigns = [];
     self.currentCampaign = {"esp_account_id" : "" , "sub_id" : "" , "date" : ""};
-    self.createUrl = 'tools/ymlp-campaign/create/';
+    self.createUrl = 'ymlp/ymlp-campaign/create/';
     self.currentlyLoading = 0;
     self.pageCount = 0;
     self.paginationCount = '10';
@@ -14,7 +14,7 @@ mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window
     self.queryPromise = null;
 
     self.loadCampaign = function () {
-        var pathMatches = $location.path().match( /^\/tools\/ymlp-campaign\/edit\/(\d{1,})/ );
+        var pathMatches = $location.path().match( /^\/ymlp\/ymlp-campaign\/edit\/(\d{1,})/ );
 
         YmlpCampaignApiService.getCampaign( pathMatches[ 1 ] , function ( response ) {
             self.currentCampaign = response.data;
@@ -82,8 +82,8 @@ mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window
     };
 
     self.SuccessCallBackRedirect = function ( response ) {
-        $location.url( '/tools/ymlp-campaign' );
-        $window.location.href = '/tools/ymlp-campaign';
+        $location.url( '/ymlp/ymlp-campaign' );
+        $window.location.href = '/ymlp/ymlp-campaign';
     };
 
     self.editCampaignFailureCallback = function ( response ) {

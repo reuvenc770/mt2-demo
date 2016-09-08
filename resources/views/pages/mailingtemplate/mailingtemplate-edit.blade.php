@@ -2,13 +2,15 @@
 @section('title', 'Edit Mailing Template')
 
 @section('content')
-<div class="row">
-    <div class="col-md-10 col-md-offset-1">
-        <div class="panel panel-default" ng-controller="MailingTemplateController as mailing" ng-init="mailing.loadAccount()">
-            <div class="panel-heading">
-                <h1 class="panel-title">Edit Mailing Template</h1>
-            </div>
-            <div class="panel-body">
+<md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
+    <div flex-gt-sm="80" flex="100">
+        <md-card ng-controller="MailingTemplateController as mailing" ng-init="mailing.loadAccount()">
+            <md-toolbar class="md-hue-3">
+                <div class="md-toolbar-tools">
+                    <span>Edit Mailing Template</span>
+                </div>
+            </md-toolbar>
+            <md-card-content>
                 <fieldset>
 
                     @include( 'pages.mailingtemplate.mailingtemplate-form' )
@@ -20,10 +22,10 @@
                         <input class="btn btn-lg btn-primary btn-block" ng-click="mailing.preview()" type="submit" value="Preview Template">
                     </div>
                 </fieldset>
-            </div>
-        </div>
+            </md-card-content>
+        </md-card>
     </div>
-</div>
+</md-content>
 @endsection
 
 

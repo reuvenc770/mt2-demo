@@ -3,15 +3,11 @@
 @section( 'title' , 'Bulk Suppression' )
 
 @section( 'content' )
-<div class="row">
-    <div class="page-header col-xs-12"><h1 class="text-center">Bulk Suppression</h1></div>
-</div>
 
 <div ng-controller="BulkSuppressionController as supp">
-    <div class="row">
-        <div class="hidden-xs hidden-sm col-md-3"></div>
+    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
 
-        <div class="col-xs-12 col-md-6">
+        <div flex-gt-md="50" flex="100">
             <button type="button" class="btn btn-success btn-md pull-right"
                 ng-disabled="!supp.emailsLoaded"
                 ng-click="supp.uploadSuppressions()">
@@ -21,13 +17,14 @@
 
             <div class="clearfix"></div>
 
-            <div class="panel panel-primary">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Bulk Suppression Options</h3>
-                </div>
+            <md-card>
+                <md-toolbar class="md-hue-3">
+                    <div class="md-toolbar-tools">
+                        <span>Bulk Suppression Options</span>
+                    </div>
+                </md-toolbar>
 
-                <div class="panel-body">
-                    <md-content flex>
+                    <md-card-content flex>
                         <md-input-container class="md-block" ng-cloak>
                             <label>Emails</label>
                             <textarea ng-model="supp.emailString" rows="5" md-select-on-focus ng-change="supp.enableSubmission()"></textarea>
@@ -108,9 +105,8 @@
                             </md-table-container>
 
                         </div>
-                    </md-content>
-                </div>
-            </div>
+                    </md-card-content>
+            </md-card>
 
             <button type="button" class="btn btn-success btn-md pull-right"
             ng-disabled="!supp.emailsLoaded"
@@ -119,7 +115,7 @@
                 Suppress
             </button>
         </div>
-    </div>
+    </md-content>
 </div>
 @stop
 

@@ -2,56 +2,53 @@
 
 @section( 'title' , 'MT2 Proxy List' )
 
+@section ( 'angular-controller' , 'ng-controller="ProxyController as proxy"' )
+
+@section( 'page-menu' )
+    @if (Sentinel::hasAccess('proxy.add'))
+        <md-button ng-click="proxy.viewAdd()" aria-label="Add Proxy">
+            <md-icon ng-hide="app.largePageWidth()" md-svg-src="img/icons/ic_add_circle_outline_white_24px.svg"></md-icon>
+            <span ng-show="app.largePageWidth()">Add Proxy</span>
+        </md-button>
+    @endif
+@stop
 
 @section( 'content' )
-    <div class="row">
-        <div class="page-header col-xs-12"><h1 class="text-center">Proxies</h1></div>
-    </div>
+    <div ng-init="proxy.loadAccounts()">
+        <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
+            <md-card>
+                <md-card-content>
+                    <div layout="row">
+                        <md-input-container flex-gt-sm="10" flex="30">
+                            <pagination-count recordcount="proxy.paginationCount"
+                                              currentpage="proxy.currentPage"></pagination-count>
+                        </md-input-container>
 
-    <div ng-controller="ProxyController as proxy" ng-init="proxy.loadAccounts()">
-        @if (Sentinel::hasAccess('proxy.add'))
-            <div class="row">
-                <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="proxy.viewAdd()">
-                    <span class="glyphicon glyphicon-plus"></span> Add Proxy
-                </button>
-            </div>
-        @endif
-        <div class="row">
-            <div class="col-xs-12">
-                <div class="row">
-                    <div class="col-xs-12">
-                        <div class="row">
-                            <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                                <pagination-count recordcount="proxy.paginationCount"
-                                                  currentpage="proxy.currentPage"></pagination-count>
-                            </div>
-
-                            <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                                <pagination currentpage="proxy.currentPage" maxpage="proxy.pageCount"></pagination>
-                            </div>
-                        </div>
-                        <div id="mtTableContainer" class="table-responsive">
-                            <proxy-table toggle="proxy.toggle(recordId, direction)"
-                                         records="proxy.accounts"></proxy-table>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-12">
-                                <div class="row">
-                                    <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                                        <pagination-count recordcount="proxy.paginationCount"
-                                                          currentpage="proxy.currentPage"></pagination-count>
-                                    </div>
-
-                                    <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                                        <pagination currentpage="proxy.currentPage"
-                                                    maxpage="proxy.pageCount"></pagination>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <md-input-container flex="auto">
+                            <pagination currentpage="proxy.currentPage" maxpage="proxy.pageCount"></pagination>
+                        </md-input-container>
                     </div>
-                    @stop
+                    <div id="mtTableContainer" class="table-responsive">
+                        <proxy-table toggle="proxy.toggle(recordId, direction)"
+                                     records="proxy.accounts"></proxy-table>
+                    </div>
+                    <div layout="row">
+                        <md-input-container flex-gt-sm="10" flex="30">
+                            <pagination-count recordcount="proxy.paginationCount"
+                                              currentpage="proxy.currentPage"></pagination-count>
+                        </md-input-container>
 
-                    @section( 'pageIncludes' )
-                        <script src="js/proxy.js"></script>
+                        <md-input-container flex="auto">
+                            <pagination currentpage="proxy.currentPage"
+                                        maxpage="proxy.pageCount"></pagination>
+                        </md-input-container>
+                    </div>
+                </md-card-content>
+            </md-card>
+        </md-content>
+    </div>
+@stop
+
+@section( 'pageIncludes' )
+    <script src="js/proxy.js"></script>
 @stop

@@ -32,7 +32,7 @@
                 layout="column"
                 flex
             >
-                <li 
+                <li
                     ng-repeat="client in attr.clients"
                     dnd-draggable="client"
                     dnd-moved="attr.clients.splice($index, 1)"

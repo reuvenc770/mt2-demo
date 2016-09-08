@@ -1,4 +1,4 @@
-<div class="panel-body">
+
     <input name="_token" type="hidden" value="{{ csrf_token() }}">
     <fieldset>
         <!-- Email field -->
@@ -84,5 +84,10 @@
                   ng-show="registrar.formErrors.entity_name"></span>
         </div>
 
+        <div class="form-group">
+            <input class="btn btn-lg btn-primary btn-block" ng-click="registrar.saveNewAccount()" type="submit" value="Create Registrar" ng-show="registrar.pageType == 'add'">
+            <input class="btn btn-lg btn-primary btn-block" ng-click="registrar.editAccount()" type="submit" value="Edit Registrar" ng-show="registrar.pageType == 'edit'">
+        </div>
+    </fieldset>
 
 

@@ -13,6 +13,7 @@ use App\Models\MT1Models\ClientGroup;
 use Exception;
 use Log;
 use DB;
+
 class ClientGroupRepo
 {
     protected $clientGroup;
@@ -46,7 +47,7 @@ class ClientGroupRepo
                 ->select( 'user.user_id as client_id' , 'user.username as name', 'user.status')
                 ->where('ClientGroupClients.client_group_id',$id )
                 ->get();
-            
+
         } catch (\Exception $e){
             Log::error("ClientGroup error:: ".$e->getMessage());
         }

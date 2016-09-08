@@ -5,26 +5,24 @@
 
 @section( 'navEspClasses' , 'active' )
 
-@section( 'content' )
-<div class="row">
-    <div class="page-header col-xs-12"><h1 class="text-center">ESP Accounts</h1></div>
-</div>
+@section( 'angular-controller' , 'ng-controller="espController as esp"' )
 
-<div ng-controller="espController as esp" ng-init="esp.loadAccounts()">
+@section( 'page-menu' )
     @if (Sentinel::hasAccess('espapi.add'))
-    <div class="row">
-        <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="esp.viewAdd()"><span class="glyphicon glyphicon-plus"></span> Add ESP Account</button>
-    </div>
+        <md-button ng-click="esp.viewAdd()" aria-label="Add ESP Account">
+            <md-icon ng-hide="app.largePageWidth()" md-svg-src="img/icons/ic_add_circle_outline_white_24px.svg"></md-icon>
+            <span ng-show="app.largePageWidth()">Add ESP Account</span>
+        </md-button>
     @endif
+@stop
 
-    <div class="row">
-        <div class="col-xs-12">
-
-            <md-content class="md-mt2-zeta-theme">
+@section( 'content' )
+<div ng-init="esp.loadAccounts()">
+    <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
+        <md-card>
             @include( 'pages.espapi.esp-table' )
-            </md-content>
-        </div>
-    </div>
+        </md-card>
+    </md-content>
 </div>
 @stop
 
