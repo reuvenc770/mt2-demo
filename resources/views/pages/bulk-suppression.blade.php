@@ -12,7 +12,7 @@
         <div class="hidden-xs hidden-sm col-md-3"></div>
 
         <div class="col-xs-12 col-md-6">
-            <button type="button" class="btn btn-success btn-md pull-right" 
+            <button type="button" class="btn btn-success btn-md pull-right"
                 ng-disabled="!supp.emailsLoaded"
                 ng-click="supp.uploadSuppressions()">
                     <span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : supp.emailsLoaded }"></span>
@@ -39,8 +39,8 @@
                             <option ng-repeat="reason in supp.suppressionReasons" ng-value="reason.value">@{{ reason.name }}</option>
                         </select>
 
-                        <div flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'bulksuppression' , '_token' : '{{ csrf_token() }}' } }" 
-                             flow-files-submitted="$flow.upload()" 
+                        <div flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'bulksuppression' , '_token' : '{{ csrf_token() }}' } }"
+                             flow-files-submitted="$flow.upload()"
                              flow-file-success="supp.startTransfer($file)">
                             <div flow-drop class="dropFile" flow-drag-enter="style={border:'4px solid green'}" flow-drag-leave="style={}" ng-style="style">
                                 <span class="btn btn-default" flow-btn>
@@ -69,58 +69,50 @@
                                 </h4>
                             </div>
 
-                            <table class="table table-hover table-bordered table-striped" flow-transfers ng-cloak>
-                                <thead>
-                                    <tr>
-                                        <th class="text-center">#</th>
-                                        <th class="text-center">Name</th>
-                                        <th class="text-center">File Size</th>
-                                        <th class="text-center">#Chunks</th>
-                                        <th class="text-center">Progress</th>
-                                        <th class="text-center">Download Status</th>
-                                        <th class="text-center">Settings</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat="file in transfers">
-                                        <td>@{{ $index + 1 }}</td>
-                                        <td>@{{ file.name }}</td>
-                                        <td class="text-center">@{{ file.size | bytes }}</td>
-                                        <td class="text-center">@{{ file.chunks.length }}</td>
-                                        <td>
-                                            <md-progress-linear class="md-warn" md-mode="determinate" ng-value="file.progress() * 100"></md-progress-linear>
-                                        </td>
-                                        <td class="text-center" ng-class="{ 'bg-info' : file.isUploading() , 'bg-warning' : file.paused , 'bg-danger' : file.error , 'bg-success' : !file.error }">
-                                            <strong>@{{ file.isUploading() ? 'Downloading' : ( file.paused ? 'Paused': ( file.error ? 'Failed' : 'Successful' ) ) }}</strong>
-                                        </td>
-                                        <td>
-                                            <div class="btn-group">
-                                                <a class="btn btn-mini btn-warning" ng-click="file.pause()" ng-hide="file.paused">
-                                                Pause
-                                                </a>
+                            <md-table-container>
+                                <table md-table>
+                                    <thead md-head>
+                                        <tr md-row>
+                                            <th md-column class="md-table-header-override-whitetext" md-numeric>#</th>
+                                            <th md-column class="md-table-header-override-whitetext">Name</th>
+                                            <th md-column class="md-table-header-override-whitetext" md-numeric>File Size</th>
+                                            <th md-column class="md-table-header-override-whitetext">#Chunks</th>
+                                            <th md-column class="md-table-header-override-whitetext">Progress</th>
+                                            <th md-column class="md-table-header-override-whitetext mt2-th-center">Download Status</th>
+                                            <th md-column class="md-table-header-override-whitetext mt2-th-center">Settings</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr md-row ng-repeat="file in transfers">
+                                            <td md-cell>@{{ $index + 1 }}</td>
+                                            <td md-cell>@{{ file.name }}</td>
+                                            <td md-cell>@{{ file.size | bytes }}</td>
+                                            <td md-cell>@{{ file.chunks.length }}</td>
+                                            <td md-cell>
+                                                <md-progress-linear class="md-warn" md-mode="determinate" ng-value="file.progress() * 100"></md-progress-linear>
+                                            </td>
+                                            <td md-cell class="mt2-td-center" ng-class="{ 'bg-info' : file.isUploading() , 'bg-warning' : file.paused , 'bg-danger' : file.error , 'bg-success' : !file.error }">
+                                                <strong>@{{ file.isUploading() ? 'Downloading' : ( file.paused ? 'Paused': ( file.error ? 'Failed' : 'Successful' ) ) }}</strong>
+                                            </td>
+                                            <td md-cell class="mt2-td-center">
+                                                <div layout="row" layout-align="center center">
+                                                    <md-button class="md-raised md-warn mt2-button-xs" ng-click="file.pause()" ng-hide="file.paused">Pause</md-button>
+                                                    <md-button class="md-raised mt2-button-success mt2-button-xs" ng-click="file.resume()" ng-show="file.paused">Resume</md-button>
+                                                    <md-button class="md-raised md-warn md-hue-2 mt2-button-xs" ng-click="file.cancel()">Cancel</md-button>
+                                                    <md-button class="md-raised md-accent mt2-button-xs" ng-click="file.retry()" ng-show="file.error">Retry</md-button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </md-table-container>
 
-                                                <a class="btn btn-mini btn-warning" ng-click="file.resume()" ng-show="file.paused">
-                                                Resume
-                                                </a>
-
-                                                <a class="btn btn-mini btn-danger" ng-click="file.cancel()">
-                                                Cancel
-                                                </a>
-
-                                                <a class="btn btn-mini btn-info" ng-click="file.retry()" ng-show="file.error">
-                                                Retry
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
                         </div>
                     </md-content>
                 </div>
             </div>
 
-            <button type="button" class="btn btn-success btn-md pull-right" 
+            <button type="button" class="btn btn-success btn-md pull-right"
             ng-disabled="!supp.emailsLoaded"
             ng-click="supp.uploadSuppressions()">
                 <span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : supp.emailsLoaded }"></span>

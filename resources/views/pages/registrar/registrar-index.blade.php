@@ -16,29 +16,9 @@
         @endif
         <div class="row">
             <div class="col-xs-12">
-                <div class="row">
-                    <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                        <pagination-count recordcount="registrar.paginationCount"
-                                          currentpage="registrar.currentPage"></pagination-count>
-                    </div>
-
-                    <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                        <pagination currentpage="registrar.currentPage" maxpage="registrar.pageCount"></pagination>
-                    </div>
-                </div>
-                <div id="mtTableContainer" class="table-responsive">
-                    <registrar-table records="registrar.accounts" toggle="registrar.toggle(recordId, direction)"></registrar-table>
-                </div>
-                <div class="row">
-                    <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                        <pagination-count recordcount="registrar.paginationCount"
-                                          currentpage="registrar.currentPage"></pagination-count>
-                    </div>
-
-                    <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                        <pagination currentpage="registrar.currentPage" maxpage="registrar.pageCount"></pagination>
-                    </div>
-                </div>
+                <md-content class="md-mt2-zeta-theme">
+                @include( 'pages.registrar.registrar-table' )
+                </md-content>
             </div>
         </div>
     </div>

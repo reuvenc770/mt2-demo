@@ -22,7 +22,9 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
     self.pageCount = 0;
     self.paginationCount = '10';
     self.currentPage = 1;
-    self.currentlyLoading = 0;
+    self.accountTotal = 0;
+    self.sort = '-status';
+    self.queryPromise = null;
 
     self.loadAccount = function () {
         var pathMatches = $location.path().match( /^\/registrar\/edit\/(\d{1,})/ );
@@ -39,8 +41,11 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
     };
 
     self.loadAccounts = function () {
-        self.currentlyLoading = 1;
-        RegistrarApiService.getAccounts(self.currentPage, self.paginationCount, self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
+        self.queryPromise = RegistrarApiService.getAccounts(
+            self.currentPage,
+            self.paginationCount,
+            self.sort,
+            self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
     };
 
     self.resetForm = function () {
@@ -89,7 +94,7 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
     self.loadAccountsSuccessCallback = function ( response ) {
         self.accounts = response.data.data;
         self.pageCount = response.data.last_page;
-        self.currentlyLoading = 0;
+        self.accountTotal = response.data.total;
     };
 
     self.loadAccountsFailureCallback = function ( response ) {

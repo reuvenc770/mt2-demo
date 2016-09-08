@@ -83,7 +83,6 @@ elixir.extend( 'deployEspApiJs' , function ( mix ) {
     mix.scripts( [
         'espapi/EspController.js' ,
         'espapi/EspApiService.js' ,
-        'espapi/EspapiTableDirective.js'
     ] , 'public/js/espapi.js' );
 } );
 
@@ -132,7 +131,6 @@ elixir.extend( 'deployRegistrarJs' , function ( mix ) {
     mix.scripts( [
         'registrar/RegistrarController.js' ,
         'registrar/RegistrarApiService.js',
-        'registrar/RegistrarTableDirective.js'
     ] , 'public/js/registrar.js' );
 } );
 
@@ -178,7 +176,6 @@ elixir.extend( 'deployYmlpCampaignJs' , function ( mix ) {
     mix.scripts( [
         'ymlpmanager/YmlpCampaignController.js' ,
         'ymlpmanager/YmlpCampaignApiService.js',
-        'ymlpmanager/YmlpCampaignTableDirective.js'
     ] , 'public/js/ymlpcampaign.js' );
 } );
 
@@ -248,9 +245,9 @@ elixir.extend( 'deployListProfileJs' , function ( mix ) {
 } );
 
 elixir.extend( 'deployBulkSuppressionJs' , function ( mix ) {
-    mix.scripts( [ 
+    mix.scripts( [
 	'pages/BulkSuppressionController.js',
-	'resources/assets/js/pages/BulkSuppressionApiService.js'	 
+	'resources/assets/js/pages/BulkSuppressionApiService.js'
     ] , 'public/js/bulksuppression.js' );
 });
 
@@ -376,6 +373,9 @@ var mt2TaskMap = {
     },
     'deployReportAttributionJs' : function (mix) {
         mix.deployReportAttributionJs(mix)
+    },
+    'deployRegistrarJs' : function(mix) {
+        mix.deployRegistrarJs(mix)
     }
 };
 

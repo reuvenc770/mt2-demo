@@ -18,27 +18,11 @@
 
         <div class="row">
             <div class="col-xs-12">
-                <div class="row">
-                    <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                        <pagination-count recordcount="ymlp.paginationCount" currentpage="ymlp.currentPage"></pagination-count>
-                    </div>
 
-                    <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                        <pagination currentpage="ymlp.currentPage" maxpage="ymlp.pageCount"></pagination>
-                    </div>
-                </div>
+                <md-content class="md-mt2-zeta-theme">
+                @include( 'pages.tools.ymlp.manager.ymlpcampaigns-table' )
+                </md-content>
 
-                <ymlpcampaign-table records="ymlp.campaigns"></ymlpcampaign-table>
-
-                <div class="row">
-                    <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                        <pagination-count recordcount="ymlp.paginationCount" currentpage="ymlp.currentPage"></pagination-count>
-                    </div>
-
-                    <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                        <pagination currentpage="ymlp.currentPage" maxpage="ymlp.pageCount"></pagination>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

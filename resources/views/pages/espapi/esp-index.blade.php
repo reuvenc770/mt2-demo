@@ -19,27 +19,10 @@
 
     <div class="row">
         <div class="col-xs-12">
-            <div class="row">
-                <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                    <pagination-count recordcount="esp.paginationCount" currentpage="esp.currentPage"></pagination-count>
-                </div>
 
-                <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                    <pagination currentpage="esp.currentPage" maxpage="esp.pageCount"></pagination>
-                </div>
-            </div>
-
-            <espapi-table records="esp.accounts"></espapi-table>
-
-            <div class="row">
-                <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                    <pagination-count recordcount="esp.paginationCount" currentpage="esp.currentPage"></pagination-count>
-                </div>
-
-                <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                    <pagination currentpage="esp.currentPage" maxpage="esp.pageCount"></pagination>
-                </div>
-            </div>
+            <md-content class="md-mt2-zeta-theme">
+            @include( 'pages.espapi.esp-table' )
+            </md-content>
         </div>
     </div>
 </div>

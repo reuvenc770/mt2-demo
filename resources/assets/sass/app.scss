@@ -84,6 +84,37 @@ ul[dnd-list] .dndPlaceholder {
 }
 
 /**
+ * Bulk Sup Styling
+ */
+table.md-table th.md-column.mt2-th-center{
+    height: 56px;
+    text-align: center;
+    padding: 0 10px !important;
+}
+table.md-table td.md-cell.mt2-td-center{
+    text-align: center;
+    padding: 0 10px !important;
+}
+.md-button.mt2-button-xs{
+    padding: 0 10px;
+    margin: 5px;
+    min-width: 64px;
+    min-height: 23px;
+    line-height: 32px;
+    font-size: 13px;
+    font-weight: 600;
+}
+.md-button.md-mt2-zeta-theme.md-raised.mt2-button-success,
+.md-button.mt2-button-success{
+    color: rgb(255,255,255);
+    background-color: #5cb85c;
+}
+a.md-button.md-mt2-zeta-theme.md-raised.mt2-button-success:not([disabled]):hover,
+.md-button.md-mt2-zeta-theme.md-raised.mt2-button-success:not([disabled]):hover{
+    background-color: #5cb85c;
+}
+
+/**
  * 3 Month Report Styling
  */
 .mt2-total-row {

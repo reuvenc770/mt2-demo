@@ -8,7 +8,7 @@ var mt2App = angular.module( 'mt2App' , [
     'ui.select' ,
     'flow' ,
     'ngclipboard' ,
-    'ivh.treeview' , 
+    'ivh.treeview' ,
     'dndLists' ,
     'md.data.table'
 ] );
@@ -16,16 +16,24 @@ var mt2App = angular.module( 'mt2App' , [
 mt2App.config( function ( $locationProvider , $mdThemingProvider , ivhTreeviewOptionsProvider ) {
     $locationProvider.html5Mode( true );
 
+    var extendWarnPalette = $mdThemingProvider.extendPalette('deep-orange', {
+        "500" : '#FFA726',
+        "contrastDefaultColor" : 'light'
+    });
+
+    $mdThemingProvider.definePalette('mt2-warnPalette', extendWarnPalette);
+
     $mdThemingProvider.theme( 'mt2-zeta' , 'light' )
         .primaryPalette( 'indigo' )
         .accentPalette( 'blue' )
-        .warnPalette( 'deep-orange' )
+        .warnPalette( 'mt2-warnPalette')
         .backgroundPalette( 'blue-grey' , {
             "default" : '50' ,
             "hue-1" : '200' ,
             "hue-2" : '400' ,
             "hue-3" : '700'
         } );
+
 
     $mdThemingProvider.setDefaultTheme( 'mt2-zeta' );
 
