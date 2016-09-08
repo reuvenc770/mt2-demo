@@ -14,6 +14,5 @@ class DeployDataCleanseListener {
     public function handle (NewDeployWasCreated $event) {
     
         $deploy = $event->getDeployId();
-       Log::info($deploy);
     }
 }
