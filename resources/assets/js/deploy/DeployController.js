@@ -51,7 +51,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.loadEspAccounts();
         self.loadAffiliates();
         self.loadListProfiles();
-        self.loadEsps();
         self.loadDeploys();
         self.currentlyLoading = 0;
     };
@@ -224,11 +223,10 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
      */
 
     self.massUploadSuccess = function (response){
-        console.log(response);
         self.currentDeploy = self.resetAccount();
         $rootScope.$broadcast('angucomplete-alt:clearInput');
         $mdToast.showSimple('Deploys Uploaded!');
-        DeployApiService.getDeploys(self.currentPage, self.paginationCount, self.loadDeploysSuccess, self.loadDeployFail);
+        self.loadDeploys();
         self.editView = false;
         self.showRow = false;
     };
@@ -251,6 +249,14 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
             self.reloadCFS(deployData.offer_id.id, function () {
                 var pieces = deployData.send_date.split('-');
                 self.currentDeploy = deployData;
+                self.currentDeploy.creative_id = deployData.creative_id.toString();
+                self.currentDeploy.list_profile_id = deployData.list_profile_id.toString();
+                self.currentDeploy.from_id = deployData.from_id.toString();
+                self.currentDeploy.subject_id = deployData.subject_id.toString();
+                self.currentDeploy.template_id = deployData.template_id.toString();
+                self.currentDeploy.mailing_domain_id = deployData.mailing_domain_id.toString();
+                self.currentDeploy.content_domain_id = deployData.content_domain_id.toString();
+                self.currentDeploy.cake_affiliate_id = deployData.cake_affiliate_id.toString();
                 self.currentDeploy.offer_id = deployData.offer_id.id;
                 self.currentDeploy.send_date = new Date(pieces[0], pieces[1] - 1, pieces[2]);
                 self.offerLoading = false;

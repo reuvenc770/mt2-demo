@@ -58,6 +58,7 @@ class Kernel extends ConsoleKernel
         Commands\PopulateCfsStatsTables::class,
         Commands\PopulateAttributionRecordReport::class,
         Commands\ImportMt1Entity::class,
+        Commands\AttributionBatchProcess::class,
     ];
 
     /**
@@ -169,6 +170,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('mt1Import offerCreativeMap')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerFromMap')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerSubjectMap')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import feed')->cron('0 * * * * *');
 
         /**
          * Attribution Jobs
@@ -176,8 +178,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('runFilter activity')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('runFilter expiration')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('attribution:commit')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
-        $schedule->command('attribution:updateReports Client')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
-        $schedule->command('attribution:updateReports ClientDeploy')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
-        $schedule->command('attribution:updateReports Deploy')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
+        //$schedule->command('attribution:updateReports Client')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
     }
 }

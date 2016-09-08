@@ -35,8 +35,7 @@ class EspAdvertiserJoinRepo {
         return $this->model
                     ->join('ESP as e', 'EspAdvertiserJoin.espID', '=', 'e.espID')
                     ->where('lastUpdated', '>=', DB::raw("CURDATE() - INTERVAL $lookback DAY"))
-                    ->select(DB::raw("EspAdvertiserJoin.*, espName"))
-                    ->get();
+                    ->select(DB::raw("EspAdvertiserJoin.*, espName"));
     }
 
     public function getCakeAffiliates(){

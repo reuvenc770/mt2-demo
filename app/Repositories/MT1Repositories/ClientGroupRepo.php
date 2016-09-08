@@ -13,6 +13,7 @@ use App\Models\MT1Models\ClientGroup;
 use Exception;
 use Log;
 use DB;
+
 class ClientGroupRepo
 {
     protected $clientGroup;
@@ -31,18 +32,15 @@ class ClientGroupRepo
     }
 
     public function getAllClientGroups(){
-        Log::info( 'All Client Groups' );
-        Log::info( $this->clientGroup->all() );
-
         return $this->clientGroup->select('client_group_id as id' , 'group_name as name' )
             ->orderBy("name")->get();
     }
 
     public function getModel () {
-        return $this->clientGroup->select('client_group_id as id' , 'group_name as name' )->orderBy("name");
+        return $this->clientGroup;
     }
 
-    public function getAllClientsForGroup($id){
+    public function getAllFeedsForGroup($id){
         try{
             return DB::connection('mt1mail')->table('ClientGroupClients')
                 ->join('user', 'user.user_id', '=', 'ClientGroupClients.client_id')

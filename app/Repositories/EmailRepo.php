@@ -22,12 +22,12 @@ class EmailRepo {
         return $this->emailModel->select( 'id' )->where( 'email_address' , $emailAddress )->get();
     }
 
-    public function getAttributedClient($identifier) {
+    public function getAttributedFeed($identifier) {
         if (is_numeric($identifier)) {
             return $this->getAttributionForId($identifier);
         }
         elseif (filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
-            return $this->getAttributedClientForAddress($identifier);
+            return $this->getAttributedFeedForAddress($identifier);
         }
         else {
             throw new \Exception("Invalid identification type for email");
@@ -51,14 +51,14 @@ class EmailRepo {
 
     private function getAttributionForId($id) {
         // TODO: flesh out attribution.
-        // This will return a client_id
+        // This will return a feed_id
         // will look something like 
-        // $this->emailModel->emailAttribution->clientId->get()
+        // $this->emailModel->emailAttribution->feedId->get()
         return 1;
     }
 
-    private function getAttributedClientForAddress($emailAddr) {
-        # TODO: flesh out attribution. This will return a client_id
+    private function getAttributedFeedForAddress($emailAddr) {
+        # TODO: flesh out attribution. This will return a feed_id
         return 1;
     }
 

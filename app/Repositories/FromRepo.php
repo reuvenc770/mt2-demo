@@ -24,7 +24,7 @@ class FromRepo {
             ->leftJoin("$schema.offer_from_maps as ofm", 'froms.id', '=', 'ofm.from_id')
             ->leftJoin("$schema.from_open_rates as forate", 'forate.from_id', '=', 'froms.id')
             ->where('ofm.offer_id', $offerId)
-            ->where('froms.status', 1)
+            ->where('froms.status', 'A')
             ->where('froms.is_approved', 1)
             ->groupBy('forate.from_id', 'name')
             ->orderBy("open_rate", 'desc')

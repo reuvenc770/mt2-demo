@@ -1,4 +1,4 @@
-mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window' , '$location' , 'ClientGroupApiService' , 'ClientApiService' , function ( $rootScope , $log , $window , $location , ClientGroupApiService , ClientApiService ) {
+mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window' , '$location' , 'ClientGroupApiService' , 'FeedApiService' , function ( $rootScope , $log , $window , $location , ClientGroupApiService , FeedApiService ) {
     /**
      * Contants
      */
@@ -98,11 +98,11 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
     }
 
     self.loadClientList = function () {
-        ClientApiService.getAllClients( function ( response ) {
+        FeedApiService.getAllFeeds( function ( response ) {
             self.clientList = response.data;
         } , function ( response ) {
             self.setModalLabel( 'Error' );
-            self.setModalBody( 'Failed to load Client Group\'s list of clients.' );
+            self.setModalBody( 'Failed to load Client Group\'s list of feeds.' );
 
             self.launchModal();
         } );
@@ -260,7 +260,12 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
     self.loadClientGroupsSuccessCallback = function ( response ) {
         self.currentlyLoading = 0;
 
-        self.clientGroups = response.data.data;
+        self.clientGroups = response.data.data.map(function(item) { 
+            return {
+                'id': item['client_group_id'], 
+                "name": item["group_name"]
+            }; 
+        });
         self.pageCount = response.data.last_page;
     };
 

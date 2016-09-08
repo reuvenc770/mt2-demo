@@ -45,39 +45,54 @@ class ServiceFactory
         $truthModel = "App\\Models\\AttributionRecordTruth";
         $truthRepo = "App\\Repositories\\AttributionRecordTruthRepo";
 
-        $scheduleModel = "App\\Models\\AttributionExpirationSchedule";
-        $scheduleRepo = "App\\Repositories\\AttributionScheduleRepo";
-
-        $assignmentModel = "App\\Models\\EmailClientAssignment";
-        $historyModel = "App\\Models\\EmailClientAssignmentHistory";
-        $assignmentRepo = "App\\Repositories\\EmailClientAssignmentRepo";
-
-        $emailClientInstanceModel = "App\\Models\\EmailClientInstance";
-        $emailClientInstanceRepo = "App\\Repositories\\EmailClientInstanceRepo";
-
         $attributionLevelRepo = "App\\Repositories\\AttributionLevelRepo";
 
         $etlPickupModel = "App\\Models\\EtlPickup";
         $etlPickupRepo = "App\\Repositories\\EtlPickupRepo";
 
         $truth = new $truthRepo(new $truthModel());
-        $schedule = new $scheduleRepo(new $scheduleModel());
-        $assignment = new $assignmentRepo(new $assignmentModel(), new $historyModel());
-        $instance = new $emailClientInstanceRepo(new $emailClientInstanceModel());
         $etlPickup = new $etlPickupRepo(new $etlPickupModel());
 
         // when left empty, this instantiates the currently-selected model
         if ( 'none' !== $modelId ) {
             $level = new $attributionLevelRepo($modelId); 
-
-            $assignment->setLevelModel( $modelId );
         } else {
             $level = new $attributionLevelRepo(); 
         }
 
         $service = "App\\Services\\AttributionService";
 
-        return new $service($truth, $schedule, $assignment, $instance, $level, $etlPickup);
+        return new $service($truth, $level, $etlPickup);
+    }
+
+
+    public static function createAttributionBatchService($modelId) {
+        $truthModel = "App\\Models\\AttributionRecordTruth";
+        $truthRepo = "App\\Repositories\\AttributionRecordTruthRepo";
+
+        $scheduleModel = "App\\Models\\AttributionExpirationSchedule";
+        $scheduleRepo = "App\\Repositories\\AttributionScheduleRepo";
+
+        $assignmentModel = "App\\Models\\EmailFeedAssignment";
+        $historyModel = "App\\Models\\EmailFeedAssignmentHistory";
+        $assignmentRepo = "App\\Repositories\\EmailFeedAssignmentRepo";
+
+        $emailFeedInstanceModel = "App\\Models\\EmailFeedInstance";
+        $emailFeedInstanceRepo = "App\\Repositories\\EmailFeedInstanceRepo";
+
+        $truth = new $truthRepo(new $truthModel());
+        $schedule = new $scheduleRepo(new $scheduleModel());
+        $assignment = new $assignmentRepo(new $assignmentModel(), new $historyModel());
+        $instance = new $emailFeedInstanceRepo(new $emailFeedInstanceModel());
+
+        // when left empty, this instantiates the currently-selected model
+        if ( 'none' !== $modelId ) {
+            $assignment->setLevelModel( $modelId );
+        }
+
+        $service = "App\\Services\\AttributionBatchService";
+
+        return new $service($truth, $schedule, $assignment, $instance);
     }
 
     public static function createStandardReportService () {

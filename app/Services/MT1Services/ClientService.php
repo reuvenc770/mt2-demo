@@ -42,10 +42,10 @@ class ClientService implements IFtpAdmin
         }
     }
 
-    public function getAssignedListOwnerId ( $clientId ) {
+    public function getAssignedListOwnerId ( $feedId ) {
         $results = DB::connection( 'mt1mail' )->table( 'user' )
             ->select( 'clientStatsGroupingID' )
-            ->where( 'user_id' , $clientId )
+            ->where( 'user_id' , $feedId )
             ->get();
 
         if ( count( $results ) > 0 ) {

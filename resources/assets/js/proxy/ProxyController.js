@@ -104,6 +104,10 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
         self.esp_names.splice( id , 1 );
 
     };
+    self.removeIpAddress = function (id) {
+        self.ip_addresses.splice( id , 1 );
+
+    };
 
     self.addIsp = function () {
         if(self.isp_name.length > 0){
