@@ -272,7 +272,7 @@
                                 ng-model="deploy.currentDeploy.template_id" class="form-control"
                                 ng-disabled="deploy.espLoaded">
                             <option value="">- Please Choose a Template -</option>
-                            <option ng-repeat="option in deploy.templates" ng-value="@{{ option.id }}">
+                            <option ng-repeat="option in deploy.templates" value="@{{ option.id }}">
                                 @{{ option.template_name }}
                             </option>
                         </select>
