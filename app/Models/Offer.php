@@ -11,4 +11,8 @@ class Offer extends Model {
     public function advertiser() {
         return $this->belongsTo('App\Models\Advertiser');
     }
+
+    public function trackingLinks() {
+        return $this->hasMany('App\Models\OfferTrackingLink');
+    }
 }
