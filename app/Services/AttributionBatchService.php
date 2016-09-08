@@ -48,10 +48,10 @@ class AttributionBatchService {
             $hasAction = (bool)$record->has_action;
             $actionExpired = $record->action_expired;
             $subsequentImports = 0;
-            
-            Log::info("{$record->email_id} being processed with $oldFeedId");
 
             $potentialReplacements = $this->getPotentialReplacements($record->email_id, $beginDate, $feedId);
+            
+            Log::info("{$record->email_id} being processed with $oldFeedId / $feedId starting at $beginDate: " . count($potentialReplacements));
 
             foreach ($potentialReplacements as $repl) {
 
