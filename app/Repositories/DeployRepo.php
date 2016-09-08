@@ -13,6 +13,7 @@ use App\Models\Deploy;
 use DB;
 use App\Facades\EspApiAccount;
 use Log;
+use Cache;
 class DeployRepo
 {
     protected $deploy;
@@ -76,7 +77,7 @@ class DeployRepo
 
     public function update($data, $id)
     {
-        return $this->deploy->where('id', $id)->update($data);
+        return $this->deploy->find($id)->update($data);
     }
 
     public function retrieveRowsForCsv($rows)
@@ -217,6 +218,12 @@ class DeployRepo
         return true;
     }
 
+    public function deployPackages($data){
+        $this->deploy->wherein('id',$data)->update(['deployed' => Deploy::PENDING_PACKAGE_STATUS]);
+        Cache::tags($this->deploy->getClassName())->flush();
+        return true;
+    }
+
     public function returnCsvHeader()
     {
         return ['deploy_id', "deploy_date", "esp_account_id", "offer_id", "creative_id", "from_id", "subject_id", "template_id",
@@ -253,5 +260,9 @@ class DeployRepo
 
         };
         return $query;
+    }
+
+    public function getPendingDeploys() {
+        return $this->deploy->where('deployed',Deploy::PENDING_PACKAGE_STATUS)->get();
     }
 }

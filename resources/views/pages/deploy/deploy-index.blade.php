@@ -266,7 +266,6 @@
 
                                 <span class="help-block" ng-bind="deploy.formErrors.offer_id"
                                       ng-show="deploy.formErrors.offer_id"></span>
-                </div>
                 </td>
                 <td>
                     <div class="form-group"

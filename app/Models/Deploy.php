@@ -9,6 +9,9 @@ class Deploy extends Model
 {
     protected $guarded = [];
     protected $hidden = array('created_at', 'updated_at');
+    const PENDING_PACKAGE_STATUS = 2;
+    const NO_PACKAGE_STATUS = 0;
+    const CREATED_PACKAGE_STATUS = 1;
     use ModelCacheControl;
 
     public function ListProfiles(){

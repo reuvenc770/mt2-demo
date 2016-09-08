@@ -1,4 +1,4 @@
-mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout', 'DeployApiService', '$mdToast', '$rootScope', '$q', function ($log, $window, $location, $timeout, DeployApiService, $mdToast, $rootScope, $q) {
+mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout', 'DeployApiService', '$mdToast', '$rootScope', '$q', '$interval', function ($log, $window, $location, $timeout, DeployApiService, $mdToast, $rootScope, $q, $interval) {
     var self = this;
     self.$location = $location;
     self.currentDeploy = {
@@ -11,7 +11,8 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         content_domain_id: "",
         template_id: "",
         cake_affiliate_id: "",
-        notes: ""
+        notes: "",
+        user_id: ""
     };
     self.search = {
         esp_account_id: ''
@@ -40,8 +41,9 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.deploys = [];
     self.searchText = "";
     self.listProfiles = [];
-    self.exportable = false;
+    self.disableExport = true;
     self.file = "";
+    self.polling = "";
     self.pageCount = 0;
     self.paginationCount = '10';
     self.currentPage = '1';
@@ -90,6 +92,19 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.editView = false;
     };
 
+
+    self.startPolling = function () {
+        //Set the Timer start message.
+        self.polling = $interval(function () {
+           DeployApiService.checkForPackages(self.successCheckPackageStatus,self.failCheckPacakgeStatus);
+        }, 3000);
+    };
+
+    //Timer stop function.
+    self.stopPolling = function () {
+             $interval.cancel(self.polling);
+    };
+
     self.updateSearchDate = function () {
         var startString = '';
         var endString = '';
@@ -112,11 +127,17 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.saveNewDeploy = function () {
+        self.currentDeploy.user_id = _config.userId;
         self.currentDeploy.deploy_id = undefined; //faster then delete
         DeployApiService.insertDeploy(self.currentDeploy, self.loadNewDeploySuccess, self.formFail);
     };
     self.updateDeploy = function () {
         DeployApiService.updateDeploy(self.currentDeploy, self.updateDeploySuccess, self.formFail);
+    };
+
+    self.createPackages = function () {
+       var packageIds = self.selectedRows;
+        DeployApiService.deployPackages(packageIds, self.createPackageSuccess, self.createPackagesFailed)
     };
 
     self.searchDeploys = function (type, searchData, text){
@@ -184,9 +205,9 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         }
 
         if (self.selectedRows.length > 0) {
-            self.exportable = true;
+            self.disableExport = false;
         } else {
-            self.exportable = false;
+            self.disableExport = true;
         }
     };
 
@@ -293,7 +314,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.currentDeploy = self.resetAccount();
         $rootScope.$broadcast('angucomplete-alt:clearInput');
         $mdToast.showSimple('Deploy Edited!');
-        DeployApiService.getDeploys(self.currentPage, self.paginationCount, self.loadDeploysSuccess, self.loadDeployFail);
+        self.loadDeploys();
         self.editView = false;
         self.showRow = false;
     };
@@ -332,7 +353,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.currentDeploy = self.resetAccount();
         $rootScope.$broadcast('angucomplete-alt:clearInput');
         $mdToast.showSimple('New Deploy Created!');
-        DeployApiService.getDeploys(self.currentPage, self.paginationCount, self.loadDeploysSuccess, self.loadDeployFail);
+        self.loadDeploys();
         self.showRow = false;
     };
 
@@ -354,6 +375,20 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
 
     self.exportCsvSuccess = function (response) {
         $window.open(response);
+    };
+
+    self.createPackageSuccess = function (response){
+        $mdToast.showSimple('Packages are being generated');
+        self.loadDeploys();
+        self.startPolling();
+    };
+
+    self.successCheckPackageStatus = function (response){
+        var count = response.data.length;
+        if(count == 0){
+            self.stopPolling();
+            self.loadDeploys()
+        }
     };
 
 

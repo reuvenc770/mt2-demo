@@ -626,7 +626,7 @@ Route::group(
 
         Route::get('/client/updatepassword/{username}', [
             'as' => 'api.client.updatepassword' ,
-            'uses' => 'ClientController@resetClientPassword'
+            'uses' => 'FeedController@resetClientPassword'
         ] );
 
         Route::group(
@@ -645,6 +645,16 @@ Route::group(
                 Route::post( '/massupload' , [
                     'as' => 'api.deploy.massupload' ,
                     'uses' => 'DeployController@massupload'
+                ] );
+
+                Route::get( '/check' , [
+                    'as' => 'api.deploy.checkProgress' ,
+                    'uses' => 'DeployController@checkProgress'
+                ] );
+
+                Route::post( '/package/create' , [
+                    'as' => 'api.deploy.deploypackages' ,
+                    'uses' => 'DeployController@deployPackages'
                 ] );
 
                 Route::get( '/exportcsv' , [
@@ -1073,7 +1083,7 @@ Route::group(
             'client/generatelinks/{id}' ,
             [
                 'as' => 'api.mt1.client.generatelinks' ,
-                'uses' => 'ClientController@generatelinks'
+                'uses' => 'FeedController@generatelinks'
             ]
         );
 
