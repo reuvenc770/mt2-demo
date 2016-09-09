@@ -140,7 +140,7 @@ class AttributionBatchService {
 
     protected function updateTruthTable($emailId, $captureDate, $hasAction, $actionExpired, $subseqs) {
         $addlImports = $subseqs >= 1;
-        $recentImport = Carbon::parse($captureDate)->gte($this->expiringDay);
+        $recentImport = Carbon::parse($captureDate)->addDays(self::EXPIRATION_DAY_RANGE)->gte($this->today);
 
         $this->truthRepo->setRecord($emailId, $recentImport, $hasAction, $actionExpired, $addlImports);
     }
