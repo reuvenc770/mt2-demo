@@ -21,4 +21,14 @@ class OfferTrackingLinkRepo {
             ]
             , $data);
     }
+
+    public function getOfferTrackingLink($offerId, $linkNumber) {
+        $url = $this->tracking
+                    ->select('url')
+                    ->where('offer_id', $offerId)
+                    ->where('link_num', $linkNumber)
+                    ->first();
+
+        return $url ? $url->url : '';
+    }
 }

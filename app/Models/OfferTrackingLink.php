@@ -11,7 +11,7 @@ class OfferTrackingLink extends Model {
         return $this->belongsTo('App\Models\Offer');
     }
 
-    public function link() {
+    public function link() { //?
         return $this->belongsTo('App\Models\Link');
     }
 }

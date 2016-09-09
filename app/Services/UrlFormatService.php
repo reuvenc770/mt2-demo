@@ -11,16 +11,16 @@ class UrlFormatService {
     public function construct() {}
 
 
-    public function formatNewUrl($type, $contentDomain, $emailId, $linkId) {
+    public function formatNewUrl($type, $contentDomain, $emailIdField, $linkId) {
         $suffix = 'REDIRECT' === $type ? 'R' : 'A';
 
         $redirRandomString = $this->randomString(6, 9, self::USE_NUMBERS_TRUE, self::USE_LOWERCASE_TRUE);
         $redirRandomString = strtolower($randString2);
-        return "http://$contentDomain/z/$redirRandomString/$emailId|1|$linkId|$suffix";
+        return "http://$contentDomain/z/$redirRandomString/$emailIdField|1|$linkId|$suffix";
     }
 
 
-    public function formatGmailUrl($type, $contentDomain, $emailId, $linkId) {
+    public function formatGmailUrl($type, $contentDomain, $emailIdField, $linkId) {
         // generate a random number and random letter string
         // e.g. "http://yourcontentdomain.com/7U4R/jqbjlsfx/%%cf_EID%%|cjztnj|29541380|933736"
 
@@ -40,7 +40,11 @@ class UrlFormatService {
             $endingString = $this->randomString(4, 4, self::USE_NUMBERS_FALSE, self::USE_LOWERCASE_TRUE);
         }
         
-        return "http://$contentDomain/$randString1/$randString2/$emailId|$linkId|$endingString";
+        return "http://$contentDomain/$randString1/$randString2/$emailIdField|$linkId|$endingString";
+    }
+
+    public function getDefinedRandomString() {
+        return $this->randomString(6, 9, self::USE_NUMBERS_TRUE, self::USE_LOWERCASE_TRUE);
     }
 
 
