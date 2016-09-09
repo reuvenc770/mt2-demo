@@ -54,6 +54,7 @@ class AttributionBatchService {
             Log::info("{$record->email_id} being processed with $oldFeedId / $feedId starting at $beginDate: " . count($potentialReplacements));
 
             foreach ($potentialReplacements as $repl) {
+                Log::info("\t$beginDate, $hasAction, $actionExpired, $currentAttrLevel, {$repl->level}");
 
                 if ($this->shouldChangeAttribution($beginDate, $hasAction, $actionExpired, $currentAttrLevel, $repl->level)) {
                     $beginDate = $repl->capture_date;
