@@ -2,13 +2,15 @@
 @section('title', 'Edit DBA')
 
 @section('content')
-    <div class="row">
-        <div class="col-md-6 col-md-offset-3">
-            <div class="panel panel-default" ng-controller="DBAController as dba" ng-init="dba.loadAccount()">
-                <div class="panel-heading">
-                    <h1 class="panel-title">Edit DBA</h1>
-                </div>
-                <div class="panel-body">
+    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
+        <div flex-gt-sm="50" flex="100">
+            <md-card ng-controller="DBAController as dba" ng-init="dba.loadAccount()">
+                <md-toolbar class="md-hue-3">
+                    <div class="md-toolbar-tools">
+                        <span>Edit DBA</span>
+                    </div>
+                </md-toolbar>
+                <md-card-content>
                     <input name="_token" type="hidden" value="{{ csrf_token() }}">
                     <fieldset>
                 @include( 'pages.dba.dba-form' )
@@ -16,10 +18,10 @@
                             <input class="btn btn-lg btn-primary btn-block" ng-click="dba.editAccount()" type="submit" value="Update DBA Account">
                         </div>
                     </fieldset>
-                </div>
-            </div>
+                </md-card-content>
+            </md-card>
         </div>
-    </div>
+    </md-content>
 @endsection
 
 

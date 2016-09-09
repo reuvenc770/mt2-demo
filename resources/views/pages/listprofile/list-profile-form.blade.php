@@ -54,7 +54,7 @@
 
                 <md-chips ng-model="listProfile.rangeList" md-transform-chip="listProfile.filterRangeChips( $chip )" md-on-remove="listProfile.removeRangeChip( $chip )" placeholder="Choose a Type Below" secondary-placeholder="Choose Another Range">
                     <md-chip-template>
-                        <span>@{{ ( $chip.subtype ? $chip.subtype + " " : "" ) + $chip.type }}: @{{ $chip.min }} - @{{ $chip.max }}</span> 
+                        <span>@{{ ( $chip.subtype ? $chip.subtype + " " : "" ) + $chip.type }}: @{{ $chip.min }} - @{{ $chip.max }}</span>
                     </md-chip-template>
                 </md-chips>
 
@@ -120,7 +120,7 @@
 
                 <md-divider></md-divider>
 
-                <membership-widget recordlist="listProfile.ispList" chosenrecordlist="listProfile.selectedIsps" availablecardtitle="listProfile.availableWidgetTitle" chosenrecordtitle="listProfile.chosenWidgetTitle" ng-init="listProfile.loadIsps()"></membership-widget>
+                <membership-widget recordlist="listProfile.ispList" chosenrecordlist="listProfile.selectedIsps" availablecardtitle="listProfile.availableWidgetTitle" chosenrecordtitle="listProfile.chosenWidgetTitle" ng-init="listProfile.loadIsps()" widgetname="'isps'"></membership-widget>
 
             </md-content>
 

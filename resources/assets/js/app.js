@@ -8,7 +8,7 @@ var mt2App = angular.module( 'mt2App' , [
     'ui.select' ,
     'flow' ,
     'ngclipboard' ,
-    'ivh.treeview' , 
+    'ivh.treeview' ,
     'dndLists' ,
     'md.data.table'
 ] );
@@ -22,7 +22,7 @@ mt2App.config( function ( $locationProvider , $mdThemingProvider , ivhTreeviewOp
         .warnPalette( 'deep-orange' )
         .backgroundPalette( 'blue-grey' , {
             "default" : '50' ,
-            "hue-1" : '200' ,
+            "hue-1" : '100' ,
             "hue-2" : '400' ,
             "hue-3" : '700'
         } );

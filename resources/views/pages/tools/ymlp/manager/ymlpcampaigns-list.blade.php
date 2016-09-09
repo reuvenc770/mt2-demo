@@ -3,44 +3,46 @@
 
 @section( 'title' , 'YMLP Campaigns' )
 
+@section( 'angular-controller' , 'ng-controller="ymlpCampaignController as ymlp"' )
+
+@section( 'page-menu' )
+    @if (Sentinel::hasAccess('ymlpcampaign.add'))
+        <md-button ng-click="ymlp.viewAdd()" aria-label="Add YMLP Campaign">
+            <md-icon ng-hide="app.largePageWidth()" md-svg-src="img/icons/ic_add_circle_outline_white_24px.svg"></md-icon>
+            <span ng-show="app.largePageWidth()">Add YMLP Campaign</span>
+        </md-button>
+    @endif
+@stop
 
 @section( 'content' )
-    <div class="row">
-        <div class="page-header col-xs-12"><h1 class="text-center">YMLP Campaigns</h1></div>
-    </div>
+    <div ng-init="ymlp.loadCampaigns()">
+        <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
+            <md-card>
+                <md-card-content>
+                    <div layout="row">
+                        <md-input-container flex-gt-sm="10" flex="30">
+                            <pagination-count recordcount="ymlp.paginationCount" currentpage="ymlp.currentPage"></pagination-count>
+                        </md-input-container>
 
-    <div ng-controller="ymlpCampaignController as ymlp" ng-init="ymlp.loadCampaigns()">
-        @if (Sentinel::hasAccess('ymlpcampaign.add'))
-            <div class="row">
-                <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="ymlp.viewAdd()"><span class="glyphicon glyphicon-plus"></span> Add YMLP Campaign</button>
-            </div>
-        @endif
-
-        <div class="row">
-            <div class="col-xs-12">
-                <div class="row">
-                    <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                        <pagination-count recordcount="ymlp.paginationCount" currentpage="ymlp.currentPage"></pagination-count>
+                        <md-input-container flex="auto">
+                            <pagination currentpage="ymlp.currentPage" maxpage="ymlp.pageCount"></pagination>
+                        </md-input-container>
                     </div>
 
-                    <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                        <pagination currentpage="ymlp.currentPage" maxpage="ymlp.pageCount"></pagination>
-                    </div>
-                </div>
+                    <ymlpcampaign-table records="ymlp.campaigns"></ymlpcampaign-table>
 
-                <ymlpcampaign-table records="ymlp.campaigns"></ymlpcampaign-table>
+                    <div layout="row">
+                        <md-input-container flex-gt-sm="10" flex="auto">
+                            <pagination-count recordcount="ymlp.paginationCount" currentpage="ymlp.currentPage"></pagination-count>
+                        </md-input-container>
 
-                <div class="row">
-                    <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                        <pagination-count recordcount="ymlp.paginationCount" currentpage="ymlp.currentPage"></pagination-count>
+                        <md-input-container flex="auto">
+                            <pagination currentpage="ymlp.currentPage" maxpage="ymlp.pageCount"></pagination>
+                        </md-input-container>
                     </div>
-
-                    <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                        <pagination currentpage="ymlp.currentPage" maxpage="ymlp.pageCount"></pagination>
-                    </div>
-                </div>
-            </div>
-        </div>
+                </md-card-content>
+            </md-card>
+        </md-content>
     </div>
 @stop
 
