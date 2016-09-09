@@ -12,7 +12,7 @@ use Log;
 
 class AttributionBatchService {
     
-    private $expiringDay;
+    private $today;
     private $truthRepo;
     private $scheduleRepo;
     private $assignmentRepo;
@@ -30,7 +30,7 @@ class AttributionBatchService {
         $this->assignmentRepo = $assignmentRepo;
         $this->feedInstanceRepo = $feedInstanceRepo;
 
-        $this->expiringDay = Carbon::today()->subDays(self::EXPIRATION_DAY_RANGE);
+        $this->today = Carbon::today();
     }
 
 
@@ -111,7 +111,7 @@ class AttributionBatchService {
     protected function shouldChangeAttribution($captureDate, $hasAction, $actionExpired, $currentAttrLevel, $testAttrLevel) {
 
         // needs to be explicitly checked - we don't just have the query to watch this
-        if ($this->expiringDay->gte(Carbon::parse($captureDate))) {
+        if ( $this->today->gte(Carbon::parse($captureDate)->addDays(self::EXPIRATION_DAY_RANGE)) ) {
             // Older than pre-defined X days ago
             
             if ($hasAction && $actionExpired) {
