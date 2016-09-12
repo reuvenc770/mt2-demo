@@ -238,12 +238,31 @@ body {
     }
 }
 
-.mt2-nav-main-item{
+.mt2-nav-main-item,
+.mt2-nav-sub-item {
+    min-height: auto;
+    font-size: 14px;
+    color: #ffffff;
+}
+
+md-list-item.mt2-nav-sub-item .md-list-item-inner {
+    min-height: auto;
+}
+
+md-list-item > md-icon.mt2-nav-icon:first-child,
+md-list-item .md-list-item-inner > md-icon.mt2-nav-icon:first-child {
+    width: 20px;
+    margin-right: 20px;
+    margin-top: 10px;
+    margin-bottom: 8px;
+}
+
+.mt2-nav-main-item {
     font-weight: 600;
 }
 
-.mt2-nav-sub-item{
-    margin-left: 10px;
+.mt2-sub-toolbar {
+    height: 50px;
 }
 
 @media (min-width: 768px)

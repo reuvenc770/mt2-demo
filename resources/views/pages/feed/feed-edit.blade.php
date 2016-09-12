@@ -5,17 +5,13 @@
 
 @section( 'navFeedClasses' , 'active' )
 
+@section( 'angular-controller' , 'ng-controller="FeedController as feed"' )
 
 @section( 'content' )
-<div class="row">
-    <div class="page-header col-xs-12"><h1 class="text-center">Edit Feed</h1></div>
-</div>
 
-<div ng-controller="FeedController as feed" ng-init="feed.loadFeed()">
-    <div class="row">
-        <div class="hidden-xs hidden-sm col-md-3"></div>
-
-        <div class="col-xs-12 col-md-6">
+<div ng-init="feed.loadFeed()">
+    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
+        <div flex-gt-md="50" flex="100">
             <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disable' : feed.updatingFeed }" ng-click="feed.updateFeed( $event )"><span class="glyphicon glyphicon-repeat" ng-class="{ 'rotateMe' : feed.updatingFeed }"></span> Update</button>
             <button type="button" class="btn btn-info btn-md pull-right" ng-class="{ 'disable' : feed.generatingLinks }" ng-click="feed.generateLinks()"><span class="glyphicon glyphicon-link" ng-class="{ 'rotateMe' : feed.generatingLinks }"></span> Generate Links</button>
             <button type="button" class="btn btn-danger btn-md pull-right"  ng-click="feed.resetPassword()"><span class="glyphicon glyphicon-cog" ng-class="{ 'rotateMe' : feed.generatingLinks }"></span> Reset FTP Password</button>
@@ -27,7 +23,7 @@
             <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disable' : feed.updatingFeed }" ng-click="feed.updateFeed( $event )"><span class="glyphicon glyphicon-repeat" ng-class="{ 'rotateMe' : feed.updatingFeed }"></span> Update</button>
             <button type="button" class="btn btn-info btn-md pull-right" ng-class="{ 'disable' : feed.generatingLinks }" ng-click="feed.generateLinks()"><span class="glyphicon glyphicon-link" ng-class="{ 'rotateMe' : feed.generatingLinks }"></span> Generate Links</button>
         </div>
-    </div>
+    </md-content>
 
     <feed-url-modal records="feed.urlList"></feed-url-modal>
 </div>
