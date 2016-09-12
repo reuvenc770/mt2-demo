@@ -63,6 +63,7 @@ Time to setup the shared folders.  Make sure that the next section looks simlila
 * once there cd into `/home/vagrant/laravel/mt2/`
 * run `php artisan migrate` this should create all the database tables
 * when seed data is done(incomplete)  run `php artisan db:seed`
+* still in `mt2` folder, run `gulp`. You may have to run `npm update` first.
 
 
 ## Running Console Commands & Queues
