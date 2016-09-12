@@ -660,6 +660,16 @@ Route::group(
                     'uses' => 'DeployController@massupload'
                 ] );
 
+                Route::get( '/check' , [
+                    'as' => 'api.deploy.checkProgress' ,
+                    'uses' => 'DeployController@checkProgress'
+                ] );
+
+                Route::post( '/package/create' , [
+                    'as' => 'api.deploy.deploypackages' ,
+                    'uses' => 'DeployController@deployPackages'
+                ] );
+
                 Route::get( '/exportcsv' , [
                     'as' => 'api.deploy.exportcsv' ,
                     'uses' => 'DeployController@exportCsv'

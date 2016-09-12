@@ -9,11 +9,13 @@
 namespace App\Services;
 
 
+use App\Events\NewDeployWasCreated;
 use App\Repositories\DeployRepo;
 use App\Repositories\MT1Repositories\EspAdvertiserJoinRepo;
 use App\Services\ServiceTraits\PaginateList;
 use League\Csv\Writer;
 use Log;
+use Event;
 class DeployService
 {
     protected $deployRepo;
@@ -70,6 +72,13 @@ class DeployService
     public function massUpload($data){
         return $this->deployRepo->massInsert($data);
     }
+
+    public function deployPackages($data){
+        foreach($data as $id){
+            Event::fire(new NewDeployWasCreated($id));
+        }
+        return $this->deployRepo->deployPackages($data);
+    }
     //upldated return model so its a builder not a deploy
     public function getType(){
         return "Deploy";
@@ -102,6 +111,10 @@ class DeployService
                 return false;
             }
         }
+    }
+
+    public function getPendingDeploys() {
+        return $this->deployRepo->getPendingDeploys();
     }
 
 }
