@@ -49,10 +49,9 @@ class DeployRepo
                 'cake_affiliate_id',
                 'deployment_status',
                 'notes');
-        if($searchData && $searchType) {
+        if($searchType) {
             $query = $this->mapQuery($searchType, $searchData, $query);
         }
-
         $query->orderBy('deploy_id', 'desc');
         return $query;
     }
