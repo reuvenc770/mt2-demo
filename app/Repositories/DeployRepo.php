@@ -264,4 +264,28 @@ class DeployRepo
     public function getPendingDeploys() {
         return $this->deploy->where('deployment_status',Deploy::PENDING_PACKAGE_STATUS)->get();
     }
+
+    public function getDeployDetailsByDate($date){
+        return $this->deploy
+            ->leftJoin('esp_accounts', 'deploys.esp_account_id', '=', 'esp_accounts.id')
+            ->leftJoin('offers', 'offers.id', '=', 'deploys.offer_id')
+            ->leftJoin('mailing_templates', 'mailing_templates.id', '=', 'deploys.template_id')
+            ->leftJoin('domains', 'domains.id', '=', 'deploys.mailing_domain_id')
+            ->leftJoin('domains as domains2', 'domains2.id', '=', 'deploys.content_domain_id')
+            ->leftJoin('subjects', 'subjects.id', '=', 'deploys.subject_id')
+            ->leftJoin('froms', 'froms.id', '=', 'deploys.from_id')
+            ->leftJoin('creatives', 'creatives.id', '=', 'deploys.creative_id')
+            ->leftJoin('list_profiles', 'list_profiles.id', '=', 'deploys.list_profile_id')
+            ->where("send_date",$date)
+            ->where("deploy_status",1)
+            ->select("send_date",
+                'deploys.id as deploy_id',
+                'esp_accounts.account_name',
+                'mailing_templates.template_name',
+                'domains.domain_name as mailing_domain',
+                'domains2.domain_name as content_domain',
+                'subjects.subject_line as subject',
+                'froms.from_line as from',
+                'creatives.file_name as creative')->get();
+    }
 }

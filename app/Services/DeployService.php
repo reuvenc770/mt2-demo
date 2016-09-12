@@ -117,4 +117,14 @@ class DeployService
         return $this->deployRepo->getPendingDeploys();
     }
 
+    public function getdeployTextDetailsForDate($date){
+
+        $records = $this->deployRepo->getDeployDetailsByDate($date)->toArray();
+        return $records;
+    }
+
+    public function getHeaderRow(){
+        return ['Send Date','Deploy ID','ESP Account',"Mailing Template", "Mailing Domain",
+            "Content Domain", "Subject", "From", "Creative"];
+    }
 }
