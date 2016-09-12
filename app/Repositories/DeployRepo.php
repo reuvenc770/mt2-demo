@@ -13,6 +13,7 @@ use App\Models\Deploy;
 use DB;
 use App\Facades\EspApiAccount;
 use Log;
+use Cache;
 class DeployRepo
 {
     protected $deploy;
@@ -46,12 +47,11 @@ class DeployRepo
                 'creatives.file_name as creative',
                 'list_profiles.profile_name as list_profile',
                 'cake_affiliate_id',
-                'deployed',
+                'deployment_status',
                 'notes');
-        if($searchData && $searchType) {
+        if($searchType) {
             $query = $this->mapQuery($searchType, $searchData, $query);
         }
-
         $query->orderBy('deploy_id', 'desc');
         return $query;
     }
@@ -76,7 +76,7 @@ class DeployRepo
 
     public function update($data, $id)
     {
-        return $this->deploy->where('id', $id)->update($data);
+        return $this->deploy->find($id)->update($data);
     }
 
     public function retrieveRowsForCsv($rows)
@@ -217,6 +217,12 @@ class DeployRepo
         return true;
     }
 
+    public function deployPackages($data){
+        $this->deploy->wherein('id',$data)->update(['deployment_status' => Deploy::PENDING_PACKAGE_STATUS]);
+        Cache::tags($this->deploy->getClassName())->flush();
+        return true;
+    }
+
     public function returnCsvHeader()
     {
         return ['deploy_id', "deploy_date", "esp_account_id", "offer_id", "creative_id", "from_id", "subject_id", "template_id",
@@ -237,7 +243,7 @@ class DeployRepo
                 $query = $query->where('deploys.esp_account_id',$searchData);
                 break;
             case "status":
-                $query = $query->where('deploys.deployed',$searchData);
+                $query = $query->where('deploys.deployment_status',$searchData);
                 break;
             case "date":
                 $dates = explode(',',$searchData);
@@ -253,5 +259,9 @@ class DeployRepo
 
         };
         return $query;
+    }
+
+    public function getPendingDeploys() {
+        return $this->deploy->where('deployment_status',Deploy::PENDING_PACKAGE_STATUS)->get();
     }
 }

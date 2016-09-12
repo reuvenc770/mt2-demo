@@ -10,19 +10,19 @@ use App\Models\Deploy;
 class NewDeployWasCreated extends Event
 {
     use SerializesModels;
-    private $deploy;
+    private $deployId;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Deploy $deploy) {
-        $this->deploy = $deploy;
+    public function __construct($deployId) {
+        $this->deployId = $deployId;
     }
     
-    public function getDeploy() {
-        return $this->deploy;
+    public function getDeployId() {
+        return $this->deployId;
     }
 
     /**
