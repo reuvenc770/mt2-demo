@@ -30,16 +30,14 @@ return[
     'ymlpcampaign.list' => 'Campaign Mapping',
     'devtools.jobs' => 'Job Tracker',
     'tools.bulksuppression' => 'Bulk Suppression' ,
-    'client.attribution' => 'Attribution' ,
-    'attr.report.view' => 'Reporting' ,
+    'report.list' => 'Reporting' ,
     'datacleanse.list' => 'Data Cleanse' ,
     'datacleanse.add' => 'Add Data Cleanse' ,
-    'attr.model.list' => 'Attribution Models' ,
-    'attr.model.add' => 'Add Attribution Model' ,
+    'attribution.list' => 'Attribution' ,
+    'attributionModel.add' => 'Add Attribution Model' ,
     'mailingtemplate.list' => "Mailing Templates",
     'mailingtemplate.add' => "Add Mailing Template",
     'deploy.list'         => "Deploy Packages",
     'cfs.list'            =>'CFS',
     'offer.list'          => 'Offers'
-
 ];

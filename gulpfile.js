@@ -201,28 +201,23 @@ elixir.extend( 'deployClientGroupJs' , function ( mix ) {
     ] , 'public/js/clientgroup.js' );
 } );
 
-elixir.extend( 'deployClientAttributionJs' , function ( mix ) {
-    mix.scripts( [
-        'pages/ClientAttributionController.js' ,
-        'feed/FeedApiService.js'
-    ] , 'public/js/clientAttribution.js' );
-} );
-
-elixir.extend( 'deployRecordAttributionJs' , function ( mix ) {
+elixir.extend( 'deployAttributionJs' , function ( mix ) {
     mix.scripts( [
         'attribution/AttributionController.js' ,
+        'report/ThreeMonthReportService.js' ,
+        'report/ReportApiService.js' ,
+        'attribution/AttributionProjectionService.js' ,
         'attribution/AttributionApiService.js' ,
         'feed/FeedApiService.js' ,
         'attribution/AttributionModelTableDirective.js' ,
-    ] , 'public/js/recordAttribution.js' );
+    ] , 'public/js/attribution.js' );
 } );
 
-elixir.extend( 'deployReportAttributionJs' , function ( mix ) {
+elixir.extend( 'deployReportJs' , function ( mix ) {
     mix.scripts( [
-        'attribution/AttributionReportController.js' ,
-        'attribution/AttributionApiService.js' ,
-        'feed/FeedApiService.js' ,
-    ] , 'public/js/reportAttribution.js' );
+        'report/ReportController.js' ,
+        'report/ReportApiService.js' ,
+    ] , 'public/js/report.js' );
 } );
 
 elixir.extend('deployDataExportJs', function(mix) {
@@ -230,9 +225,9 @@ elixir.extend('deployDataExportJs', function(mix) {
         'dataexport/DataExportController.js',
         'dataexport/DataExportApiService.js',
         'dataexport/DataExportTableDirective.js',
-	'dataexport/StatusButtonDirective.js',
-	'dataexport/DataExportDeleteDirective.js',
-	'dataexport/DataExportCopyDirective.js'
+        'dataexport/StatusButtonDirective.js',
+        'dataexport/DataExportDeleteDirective.js',
+        'dataexport/DataExportCopyDirective.js'
     ], 'public/js/dataexport.js');
 });
 
@@ -279,14 +274,12 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployListProfileJs( mix );
     mix.deployMailingTemplateJs( mix);
     mix.deployBulkSuppressionJs( mix );
-    mix.deployClientAttributionJs( mix );
-    mix.deployClientAttributionJs( mix );
     mix.deployDataExportJs(mix);
     mix.deployDataCleanseJs(mix);
     mix.deployRegistrarJs(mix);
     mix.deployProxyJs(mix);
-    mix.deployRecordAttributionJs(mix)
-    mix.deployReportAttributionJs(mix)
+    mix.deployAttributionJs(mix);
+    mix.deployReportJs(mix);
 } );
 
 elixir.extend( 'runTdd' , function ( mix ) {
@@ -356,9 +349,6 @@ var mt2TaskMap = {
     'deployClientGroupJs' : function ( mix ) {
         mix.deployClientGroupJs( mix );
     } ,
-    'deployClientAttributionJs' : function ( mix ) {
-        mix.deployClientAttributionJs( mix );
-    } ,
     'deployListProfileJs' : function ( mix ) {
         mix.deployListProfileJs( mix );
     } ,
@@ -371,11 +361,11 @@ var mt2TaskMap = {
     'deployDataCleanseJs' : function (mix) {
         mix.deployDataCleanseJs(mix)
     },
-    'deployRecordAttributionJs' : function (mix) {
-        mix.deployRecordAttributionJs(mix)
+    'deployAttributionJs' : function (mix) {
+        mix.deployAttributionJs(mix)
     },
-    'deployReportAttributionJs' : function (mix) {
-        mix.deployReportAttributionJs(mix)
+    'deployReportJs' : function (mix) {
+        mix.deployReportJs(mix)
     },
     'deployDBAJs' : function (mix) {
         mix.deployDBAJs(mix)

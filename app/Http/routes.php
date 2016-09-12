@@ -337,11 +337,6 @@ Route::group(
             'as' => 'feed.edit' ,
             'uses' => 'FeedController@edit'
         ] );
-
-        Route::get( '/attribution' , [
-            'as' => 'client.attribution' ,
-            'uses' => 'AttributionController@listAll'
-        ] );
     }
 );
 
@@ -539,55 +534,78 @@ Route::group(
 );
 
 /**
- * Attribution Model/Report Routes
+ * Attribution Routes
  */
 
 Route::group(
     [
-        'prefix' => 'attr' ,
+        'prefix' => 'attribution' ,
         'middleware' => [ 'auth' , 'pageLevel' ]
     ] ,
     function () {
         Route::get( '/' ,
             [
-                'as' => 'attr.model.list' ,
-                'uses' => 'AttributionModelController@listAll'
+                'as' => 'attribution.list' ,
+                'uses' => 'AttributionController@listAll'
             ]
         );
 
-        Route::get(
-            '/create',
-            array(
-                'as' => 'attr.model.add',
-                'uses' => 'AttributionModelController@create'
+        Route::get( 
+            '/create', 
+            array( 
+                'as' => 'attributionModel.add', 
+                'uses' => 'AttributionController@create' 
             )
         );
 
-        Route::get(
-            '/edit/{modelId}',
-            array(
-                'as' => 'attr.model.edit',
-                'uses' => 'AttributionModelController@edit'
+        Route::get( 
+            '/edit/{modelId}', 
+            array( 
+                'as' => 'attributionModel.edit', 
+                'uses' => 'AttributionController@edit' 
             )
         );
 
-        Route::get(
-            '/report',
-            array(
-                'as' => 'attr.report.view',
-                'uses' => 'AttributionReportController@view'
-            )
-        );
-
-        Route::get(
-            '/report/export',
-            array(
-                'as' => 'attr.report.export',
-                'uses' => 'AttributionReportController@export'
+        Route::get( 
+            '/projection/{id}', 
+            array( 
+                'as' => 'attributionProjection.show', 
+                'uses' => 'AttributionController@showProjection' 
             )
         );
     }
 );
+
+/**
+ * Report Routes
+ */
+Route::group(
+    [
+        'prefix' => 'report' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( 
+            '/', 
+            array( 
+                'as' => 'report.list', 
+                'uses' => 'ReportController@view' 
+            )
+        );
+
+        Route::get( 
+            '/export', 
+            array( 
+                'as' => 'report.export', 
+                'uses' => 'ReportController@export' 
+            )
+        );
+    }
+);
+
+
+
+
 
 /**
  * API Routes
@@ -611,11 +629,6 @@ Route::group(
         Route::any('/attachment/upload', [
             'as' => 'api.attachment.upload' ,
             'uses' => 'AttachmentApiController@flow'
-        ] );
-
-        Route::get( '/feed/attribution/list' , [
-            'as' => 'api.client.attribution.list' ,
-            'uses' => 'AttributionController@index'
         ] );
 
         Route::put('/dataexport/update', [
@@ -819,63 +832,96 @@ Route::group(
         );
 
         /**
+         * Report API Routes
+         */
+        Route::group(
+            ['prefix' => 'report'],
+            function() {
+                Route::get( '/' , [
+                    'as' => 'api.report.getRecords' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'ReportController@getRecords'
+                ] );
+            }
+        );
+
+
+        /**
          *  Attribution API Routes
          */
         Route::group(
             [] ,
             function () {
-                Route::get( '/attribution/report' , [
-                    'as' => 'api.attribution.report' ,
-                    'middleware' => 'auth' ,
-                    'uses' => 'AttributionReportController@getRecords'
-                ] );
-
                 Route::get( '/attribution/model' , [
                     'as' => 'api.attribution.model.index' ,
                     'middleware' => 'auth' ,
-                    'uses' => 'AttributionModelController@index'
-                ] );
+                    'uses' => 'AttributionController@index'
+                ] ); 
 
                 Route::post( '/attribution/model' , [
                     'as' => 'api.attribution.model.store' ,
                     'middleware' => 'auth' ,
-                    'uses' => 'AttributionModelController@store'
-                ] );
+                    'uses' => 'AttributionController@store'
+                ] ); 
 
                 Route::put( '/attribution/model/{modelId}' , [
                     'as' => 'api.attribution.model.update' ,
                     'middleware' => 'auth' ,
-                    'uses' => 'AttributionModelController@update'
-                ] );
+                    'uses' => 'AttributionController@update'
+                ] ); 
 
                 Route::delete( '/attribution/model/{modelId}' , [
                     'as' => 'api.attribution.model.destroy' ,
                     'middleware' => 'auth' ,
-                    'uses' => 'AttributionModelController@destroy'
-                ] );
+                    'uses' => 'AttributionController@destroy'
+                ] ); 
 
                 Route::get( '/attribution/model/{modelId}' , [
                     'as' => 'api.attribution.model.show' ,
                     'middleware' => 'auth' ,
-                    'uses' => 'AttributionModelController@show'
-                ] );
+                    'uses' => 'AttributionController@show'
+                ] ); 
 
                 Route::get( '/attribution/model/{modelId}/levels' , [
                     'as' => 'api.attribution.model.levels' ,
                     'middleware' => 'auth' ,
-                    'uses' => 'AttributionModelController@levels'
+                    'uses' => 'AttributionController@levels'
                 ] );
 
-                Route::get( '/attribution/model/{modelId}/clients' , [
+                Route::get( '/attribution/model/{modelId}/feeds' , [
                     'as' => 'api.attribution.model.clients' ,
                     'middleware' => 'auth' ,
-                    'uses' => 'AttributionModelController@getModelFeeds'
+                    'uses' => 'AttributionController@getModelFeeds'
                 ] );
 
                 Route::post( '/attribution/model/copyLevels' , [
                     'as' => 'api.attribution.model.copyLevels' ,
                     'middleware' => 'auth' ,
-                    'uses' => 'AttributionModelController@copyLevels'
+                    'uses' => 'AttributionController@copyLevels'
+                ] );
+
+                Route::get( '/attribution/model/setlive/{modelId}' , [
+                    'as' => 'api.attribution.model.setlive' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionController@setModelLive'
+                ] );
+
+                Route::post( '/attribution/model/run' , [
+                    'as' => 'api.attribution.run' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionController@runAttribution'
+                ] );
+
+                Route::get( '/attribution/projection/report/{modelId}' , [
+                    'as' => 'api.attribution.projection.report' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionController@getReportData'
+                ] );
+
+                Route::get( '/attribution/projection/chart/{modelId}' , [
+                    'as' => 'api.attribution.projection.chart' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionController@getChartData'
                 ] );
             }
         );
@@ -957,12 +1003,6 @@ Route::group(
         );
 
         Route::resource(
-            'attribution' ,
-            'AttributionController' ,
-            [ 'only' => [ 'store' ] ]
-        );
-
-        Route::resource(
             'bulksuppression' ,
             'BulkSuppressionController' ,
             [ 'only' => [ 'store' ] ]
@@ -973,14 +1013,6 @@ Route::group(
             'SuppressionReasonController',
             [ 'only' => [ 'index' ] ]
         );
-
-        Route::post(
-            'attribution/bulk' ,
-            [
-                'as' => 'api.attribution.bulk' ,
-                'uses' => 'AttributionController@bulk'
-            ]
-	    );
 
 	    Route::resource(
             'dataexport',

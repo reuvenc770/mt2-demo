@@ -90,9 +90,27 @@ md-menu-content.md-mt2-zeta-theme md-menu-item {
     padding-left: 1em !important;
 }
 
+.md-table-pagination .label {
+    color: rgba(0, 0, 0, 0.54) !important;
+}
+
+.mt2-live-row {
+    background-color: #AED581 !important;
+    font-weight: bold;
+}
+
+.mt2-live-cell-content-fix {
+    margin-top: 1em;
+}
+
+table.md-table.md-row-select tbody.md-body > tr.md-row:not([disabled]):hover {
+    cursor: pointer;
+}
+
 .no-padding{
     padding:0px;
 }
+
 /**
  * Materials Menu Styling
  */

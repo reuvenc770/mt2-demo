@@ -21,6 +21,8 @@ class FeedAggregatorServiceIntegrationTest extends TestCase {
     const TEST_DEPLOY_ID = 1;
     const TEST_OFFER_ID = 0;
 
+    const TEST_MODEL_ID = 5;
+
     public $sut;
 
     public $testFeeds;
@@ -29,10 +31,16 @@ class FeedAggregatorServiceIntegrationTest extends TestCase {
         parent::setUp();
 
         $this->sut = \App::make( \App\Services\Attribution\FeedAggregatorService::class );
+
+        \App\Repositories\Attribution\FeedReportRepo::generateTempTable( self::TEST_MODEL_ID );
+        \App\Repositories\EmailFeedAssignmentRepo::generateTempTable( self::TEST_MODEL_ID );
     }
 
     public function tearDown () {
         unset( $this->sut );
+
+        \App\Repositories\Attribution\FeedReportRepo::dropTempTable( self::TEST_MODEL_ID );
+        \App\Repositories\EmailFeedAssignmentRepo::dropTempTable( self::TEST_MODEL_ID );
 
         parent::tearDown();
     }
@@ -68,7 +76,40 @@ class FeedAggregatorServiceIntegrationTest extends TestCase {
         }
     }
 
-    public function goodPath_dailyRun_testData () {
+    public function test_goodPath_modelRun () {
+        $this->goodPath_dailyRun_testData( true );
+
+        $this->sut->setModelId( self::TEST_MODEL_ID );
+
+        $this->sut->buildAndSaveReport();
+
+        #Verifying that there is a record for each client.
+        $this->assertEquals( 3 , $this->sut->count() );
+
+        #Verifying that there is a record for each client in the DB
+        $this->assertEquals( 3 , count( \DB::connection( 'attribution' )->table( \App\Models\AttributionFeedReport::BASE_TABLE_NAME . self::TEST_MODEL_ID )->get() ) );
+        
+        foreach ( $this->sut->getRecords() as $currentRow ) {
+            switch ( $currentRow[ "feed_id" ] ) {
+                case $this->testFeeds[ 0 ]->id :
+                    $this->assertTrue( $currentRow[ "revenue" ] === 4.00 );
+                    $this->assertTrue( $currentRow[ "mt2_uniques" ] === 2 );
+                break;
+
+                case $this->testFeeds[ 1 ]->id :
+                    $this->assertTrue( $currentRow[ "revenue" ] === 6.00 );
+                    $this->assertTrue( $currentRow[ "mt2_uniques" ] === 3 );
+                break;
+
+                case $this->testFeeds[ 2 ]->id :
+                    $this->assertTrue( $currentRow[ "revenue" ] === 0.00 );
+                    $this->assertTrue( $currentRow[ "mt2_uniques" ] === 0 );
+                break;
+            }
+        }
+    }
+
+    public function goodPath_dailyRun_testData ( $modelRun = false ) {
         /**
          * Client Data
          */
@@ -99,11 +140,21 @@ class FeedAggregatorServiceIntegrationTest extends TestCase {
                 $date = Carbon::yesterday()->toDateString();
             }
 
-            $feedAssigns[ $index ] =factory( self::EMAIL_FEED_ASSIGN_CLASS )->create( [
-                "email_id" => $emails[ $index ]->id ,
-                "feed_id" => $this->testFeeds[ $feedIndex ]->id ,
-                "capture_date" => $date 
-            ] );
+            if ( $modelRun ) {
+                $feedAssigns[ $index ] = \DB::connection( 'attribution' )
+                    ->table( \App\Models\EmailFeedAssignment::BASE_TABLE_NAME . self::TEST_MODEL_ID )
+                    ->insert( [
+                        "email_id" => $emails[ $index ]->id ,
+                        "feed_id" => $this->testFeeds[ $feedIndex ]->id ,
+                        "capture_date" => $date 
+                    ] );
+            } else {
+                $feedAssigns[ $index ] =factory( self::EMAIL_FEED_ASSIGN_CLASS )->create( [
+                    "email_id" => $emails[ $index ]->id ,
+                    "feed_id" => $this->testFeeds[ $feedIndex ]->id ,
+                    "capture_date" => $date 
+                ] );
+            }
 
             factory( self::EMAIL_FEED_INSTANCE_CLASS )->create( [
                 "email_id" => $emails[ $index ]->id ,

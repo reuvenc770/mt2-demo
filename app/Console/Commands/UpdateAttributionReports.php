@@ -56,14 +56,36 @@ class UpdateAttributionReports extends Command
     {
         $this->processOptions();
 
-        $job = ( new AttributionAggregatorJob(
-            $this->reportType ,
-            str_random( 16 ) ,
-            $this->dateRange ,
-            $this->modelId
-        ) )->onQueue( $this->queueName );
+        if (
+            $this->option( 'daysBack' )
+            && is_numeric( $this->option( 'daysBack' ) )
+            && $this->option( 'daysBack' ) > 1
+        ) {
+            $totalDays = $this->option( 'daysBack' ); 
 
-        $this->dispatch( $job );
+            for ( $currentIndex = 0 ; $currentIndex <= $totalDays ; $currentIndex++ ) {
+                $job = ( new AttributionAggregatorJob(
+                    $this->reportType ,
+                    str_random( 16 ) ,
+                    [
+                        "start" => Carbon::today()->subDays( $currentIndex )->startOfDay()->toDateString() ,
+                        "end" => Carbon::today()->subDays( $currentIndex )->endOfDay()->toDateString()
+                    ] ,
+                    $this->modelId
+                ) )->onQueue( $this->queueName );
+
+                $this->dispatch( $job );
+            }
+        } else {
+            $job = ( new AttributionAggregatorJob(
+                $this->reportType ,
+                str_random( 16 ) ,
+                $this->dateRange ,
+                $this->modelId
+            ) )->onQueue( $this->queueName );
+
+            $this->dispatch( $job );
+        }
     }
 
     protected function processOptions () {
@@ -71,17 +93,6 @@ class UpdateAttributionReports extends Command
             $this->reportType = $this->option( 'reportType' );
         } else {
             throw new \Exception( "Missing report name. Please provide one." );
-        }
-
-        if (
-            $this->option( 'daysBack' )
-            && is_numeric( $this->option( 'daysBack' ) )
-            && $this->option( 'daysBack' ) > 1
-        ) {
-            $this->dateRange = [
-                "start" => Carbon::today()->subDays( $this->option( 'daysBack' ) )->toDateString() ,
-                "end" => Carbon::today()->toDateString()
-            ];
         }
 
         if ( $this->option( 'startDate' ) != 'none' && $this->option( 'endDate' ) != 'none' ) {
