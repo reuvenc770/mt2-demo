@@ -2,7 +2,7 @@
 
 ##Dev Environment
 If you do not have vagrant, virtualbox, and composer installed please do so before starting.
-Make sure to run `composer install` before starting.
+Make sure to run `composer install`.
 
 *	run `vagrant box add laravel/homestead`
 *  create a new folder named `laravel`
