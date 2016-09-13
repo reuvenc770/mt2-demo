@@ -16,22 +16,22 @@ var mt2App = angular.module( 'mt2App' , [
 mt2App.config( function ( $locationProvider , $mdThemingProvider , ivhTreeviewOptionsProvider ) {
     $locationProvider.html5Mode( true );
 
-    var mt2ZetaPalette = $mdThemingProvider.extendPalette('indigo' , {
+    var mt2Primary = $mdThemingProvider.extendPalette('indigo' , {
         '500' : '16416c'
     });
 
-    var mt2ZetaBackground = $mdThemingProvider.extendPalette('grey' , {
+    var mt2Background = $mdThemingProvider.extendPalette('grey' , {
         '800' : '383F47'
     });
 
-    $mdThemingProvider.definePalette('mt2-zeta-palette', mt2ZetaPalette );
-    $mdThemingProvider.definePalette('mt2-zeta-background', mt2ZetaBackground );
+    $mdThemingProvider.definePalette('mt2-primary', mt2Primary );
+    $mdThemingProvider.definePalette('mt2-background', mt2Background );
 
     $mdThemingProvider.theme( 'mt2-zeta' , 'light' )
-        .primaryPalette( 'mt2-zeta-palette' )
+        .primaryPalette( 'mt2-primary' )
         .accentPalette( 'blue' )
         .warnPalette( 'deep-orange' )
-        .backgroundPalette( 'mt2-zeta-background' , {
+        .backgroundPalette( 'mt2-background' , {
             "default" : '50' ,
             "hue-1" : '100' ,
             "hue-2" : '400' ,

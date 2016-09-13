@@ -1,5 +1,6 @@
 <md-toolbar>
     <div class="md-toolbar-tools">
+    @if(Sentinel::check())
         <md-button class="md-icon-button" aria-label="Open Navigation" ng-click="app.toggleMenu( 'mainNav' )" ng-hide="app.largePageWidth()">
             <md-icon md-svg-icon="img/icons/ic_menu_white_36px.svg"></md-icon>
         </md-button>
@@ -7,6 +8,7 @@
         <md-button class="md-icon-button" aria-label="Open Navigation" ng-click="app.lockSideNav=!app.lockSideNav" ng-show="app.largePageWidth()">
             <md-icon md-svg-icon="img/icons/ic_menu_white_36px.svg"></md-icon>
         </md-button>
+    @endif
 
         <h2><span>MT2</span></h2>
 
