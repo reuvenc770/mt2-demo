@@ -265,7 +265,7 @@ class DeployRepo
         return $this->deploy->where('deployment_status',Deploy::PENDING_PACKAGE_STATUS)->get();
     }
 
-    public function getDeployDetailsByDate($date){
+    public function getDeployDetailsByIds($deployIds){
         return $this->deploy
             ->leftJoin('esp_accounts', 'deploys.esp_account_id', '=', 'esp_accounts.id')
             ->leftJoin('offers', 'offers.id', '=', 'deploys.offer_id')
@@ -276,7 +276,7 @@ class DeployRepo
             ->leftJoin('froms', 'froms.id', '=', 'deploys.from_id')
             ->leftJoin('creatives', 'creatives.id', '=', 'deploys.creative_id')
             ->leftJoin('list_profiles', 'list_profiles.id', '=', 'deploys.list_profile_id')
-            ->where("send_date",$date)
+            ->wherein("id",explode(",",$deployIds))
             ->where("deploy_status",1)
             ->select("send_date",
                 'deploys.id as deploy_id',

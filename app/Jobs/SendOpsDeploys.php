@@ -16,12 +16,12 @@ class SendOpsDeploys extends Job implements ShouldQueue
     use InteractsWithQueue, SerializesModels;
 
     protected $tracking;
-    protected $date;
+    protected $deploys;
     CONST JOB_NAME = "SendOpsDeploys";
 
-    public function __construct($date, $tracking)
+    public function __construct($deploys, $tracking)
     {
-        $this->date = $date;
+        $this->deploys = $deploys;
         $this->tracking = $tracking;
         JobTracking::startEspJob(self::JOB_NAME,"", "", $this->tracking);
     }
@@ -34,12 +34,12 @@ class SendOpsDeploys extends Job implements ShouldQueue
     public function handle(DeployService $service)
     {
         JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
-        $records = $service->getdeployTextDetailsForDate($this->date);
+        $records = $service->getdeployTextDetailsForDeploys($this->deploys);
         $writer = Writer::createFromFileObject(new \SplTempFileObject());
         $writer->insertOne($service->getHeaderRow());
         $writer->insertAll($records);
         //FTP LOCATION TO BE DETERMINED
-        Storage::put("/deploys/{$this->date}-{$this->tracking}.csv", $writer->__toString());
+        Storage::put("/deploys/{$this->tracking}.csv", $writer->__toString());
         JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
     }
 

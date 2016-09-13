@@ -16,7 +16,7 @@ use App\Services\ServiceTraits\PaginateList;
 use League\Csv\Writer;
 use Log;
 use Event;
-
+use Illuminate\Support\Facades\Artisan;
 class DeployService
 {
     protected $deployRepo;
@@ -92,6 +92,7 @@ class DeployService
             foreach ($data as $id) {
                 Event::fire(new NewDeployWasCreated($id));
             }
+            Artisan::call('reports:rerunDeliverables', ['deploys' => join(",",$data)]);
         }
 
         $this->deployRepo->deployPackages($data);
@@ -139,10 +140,10 @@ class DeployService
         return $this->deployRepo->getPendingDeploys();
     }
 
-    public function getdeployTextDetailsForDate($date)
+    public function getdeployTextDetailsForDeploys($deployIds)
     {
 
-        $records = $this->deployRepo->getDeployDetailsByDate($date)->toArray();
+        $records = $this->deployRepo->getDeployDetailsByIds($deployIds)->toArray();
         return $records;
     }
 

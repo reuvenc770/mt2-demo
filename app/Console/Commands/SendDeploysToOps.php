@@ -15,8 +15,8 @@ class SendDeploysToOps extends Command
      *
      * @var string
      */
-    protected $lookBack;
-    protected $signature = 'deploys:sendtoops {lookback=0}';
+    protected $deploys;
+    protected $signature = 'deploys:sendtoops {deploys}';
 
     /**
      * The console command description.
@@ -42,9 +42,8 @@ class SendDeploysToOps extends Command
      */
     public function handle()
     {
-        $this->lookBack = $this->argument("lookback");
-        $date = Carbon::now()->subDay($this->lookBack)->startOfDay()->toDateString();
-        $job = (new SendOpsDeploys($date, str_random(16)));
+        $this->deploys = $this->argument("deploys");
+        $job = (new SendOpsDeploys($this->deploys, str_random(16)));
         $this->dispatch($job);
     }
 }
