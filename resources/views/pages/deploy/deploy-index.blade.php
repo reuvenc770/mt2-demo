@@ -27,7 +27,7 @@
 
             @if (Sentinel::hasAccess('api.deploy.deploypackages'))
                 <md-button ng-click="deploy.createPackages()" ng-disabled="deploy.disableExport" >
-                    <span>Deploy Packages</span>
+                    <span>@{{ deploy.deployLinkText }}</span>
                 </md-button>
             @endif
 

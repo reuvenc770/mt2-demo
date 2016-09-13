@@ -129,8 +129,10 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
 
     self.deployPackages = function (packages, successCallback, failCallBack){
         var request = packages;
+        var responseType = packages.length > 1 ? "json" : "arraybuffer";
         $http( {
             "method" : "POST" ,
+            "responseType" : responseType,
             "url" : this.baseApiUrl + "package/create" ,
             "data" : request
         } ).then( successCallback , failCallBack );
