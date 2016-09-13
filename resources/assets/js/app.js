@@ -16,6 +16,7 @@ var mt2App = angular.module( 'mt2App' , [
 mt2App.config( function ( $locationProvider , $mdThemingProvider , ivhTreeviewOptionsProvider ) {
     $locationProvider.html5Mode( true );
 
+
     var extendWarnPalette = $mdThemingProvider.extendPalette('deep-orange', {
         "500" : '#FFA726',
         "contrastDefaultColor" : 'light'
@@ -23,15 +24,27 @@ mt2App.config( function ( $locationProvider , $mdThemingProvider , ivhTreeviewOp
 
     $mdThemingProvider.definePalette('mt2-warnPalette', extendWarnPalette);
 
+    var mt2Primary = $mdThemingProvider.extendPalette('indigo' , {
+        '500' : '16416c'
+    });
+
+    var mt2Background = $mdThemingProvider.extendPalette('grey' , {
+        '800' : '383F47'
+    });
+
+    $mdThemingProvider.definePalette('mt2-primary', mt2Primary );
+    $mdThemingProvider.definePalette('mt2-background', mt2Background );
+
+
     $mdThemingProvider.theme( 'mt2-zeta' , 'light' )
-        .primaryPalette( 'indigo' )
+        .primaryPalette( 'mt2-primary' )
         .accentPalette( 'blue' )
         .warnPalette( 'mt2-warnPalette')
-        .backgroundPalette( 'blue-grey' , {
+        .backgroundPalette( 'mt2-background' , {
             "default" : '50' ,
             "hue-1" : '100' ,
             "hue-2" : '400' ,
-            "hue-3" : '700'
+            "hue-3" : '800'
         } );
 
 

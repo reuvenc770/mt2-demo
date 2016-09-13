@@ -8,6 +8,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Exceptions\JobException;
 use App\Jobs\Traits\PreventJobOverlapping;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 
 use App\Facades\JobTracking;
 use App\Models\JobEntry;
@@ -19,7 +20,10 @@ use Carbon\Carbon;
 
 class AttributionAggregatorJob extends Job implements ShouldQueue
 {
-    use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
+    use InteractsWithQueue, SerializesModels, PreventJobOverlapping, DispatchesJobs;
+
+    const DEFAULT_QUEUE_NAME = 'modelAttribution';
+    const DEFAULT_NEXT_REPORT_TYPE = 'Client';
 
     private $jobName = 'AttributionAggregator';
     private $tracking;
@@ -56,11 +60,19 @@ class AttributionAggregatorJob extends Job implements ShouldQueue
     {
         if ( $this->jobCanRun( $this->jobName ) ) {
             try {
+                $this->createLock($this->jobName);
+
                 JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
 
                 $this->aggregator = ServiceFactory::createAggregatorService( $this->reportType );
 
+                if ( $this->modelId > 0 ) {
+                    $this->aggregator->setModelId( $this->modelId );
+                }
+
                 $this->aggregator->buildAndSaveReport( $this->dateRange );
+
+                $this->queueNextJob( $this->reportType , $this->dateRange );
 
                 JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking );
             } catch ( JobException $e ) {
@@ -78,6 +90,22 @@ class AttributionAggregatorJob extends Job implements ShouldQueue
             echo "Still running {$this->jobName} - job level" . PHP_EOL;
 
             JobTracking::changeJobState( JobEntry::SKIPPED , $this->tracking );
+        }
+    }
+
+    protected function queueNextJob ( $reportType , $dateRange ) {
+        $feedJobIsDone = ( $reportType === 'Feed'  );
+        $isSingleDayRun = ( Carbon::parse( $dateRange[ 'start' ] )->diffInDays( Carbon::parse( $dateRange[ 'end' ] ) ) === 0 );
+
+        if ( $feedJobIsDone && $isSingleDayRun ) {
+            $job = ( new AttributionAggregatorJob(
+                self::DEFAULT_NEXT_REPORT_TYPE ,
+                str_random( 16 ) ,
+                $dateRange ,
+                $this->modelId
+            ) )->onQueue( self::DEFAULT_QUEUE_NAME );
+
+            $this->dispatch( $job );
         }
     }
 

@@ -22,6 +22,10 @@ class AttributionModelService {
         return $this->repo->create( $name , $levels , $templateModelId );
     }
 
+    public function getLevel ( $clientId , $modelId = null ) {
+        return $this->repo->getLevel( $clientId , $modelId );
+    }
+
     public function levels ( $modelId ) {
         return $this->repo->levels( $modelId );
     }
@@ -40,5 +44,9 @@ class AttributionModelService {
 
     public function getModelFeeds ( $modelId ) {
         return $this->repo->getModelFeeds( $modelId );
+    }
+
+    public function setLive ( $modelId ) {
+        return $this->repo->setLive( $modelId );
     }
 }

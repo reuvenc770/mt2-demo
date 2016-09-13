@@ -15,7 +15,9 @@ class Kernel extends ConsoleKernel
     const EARLY_DELIVERABLE_SCHEDULE_TIME = '00:15';
     const EXPIRATION_RUNS = "01:15";
     const DEPLOY_CHECK_TIME = '14:00';
+    const CAKE_CONVERSION_UPDATE_TIME = '14:00';
     const ATTRIBUTION_UPDATE_TIME = '15:30';
+    const ATTRIBUTION_REPORT_UPDATE_TIME = '18:30';
     const MT1_SYNC_TIME = '23:00';
 
     /**
@@ -116,6 +118,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:downloadApi Publicators 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Bronto 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadTrackingData Cake 5')->hourly()->sendOutputTo($filePath);
+        $schedule->command( 'reports:downloadTrackingData Cake 0 record' )->dailyAt( self::CAKE_CONVERSION_UPDATE_TIME )->sendOutputTo( $filePath );
         $schedule->command('process:cfsStats')->cron('0 */4 * * *');
 
         /**
@@ -178,6 +181,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('runFilter activity')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('runFilter expiration')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('attribution:commit')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
-        //$schedule->command('attribution:updateReports Client')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
+        $schedule->command('attribution:updateReports --reportType=Feed')->dailyAt(self::ATTRIBUTION_REPORT_UPDATE_TIME);
     }
 }

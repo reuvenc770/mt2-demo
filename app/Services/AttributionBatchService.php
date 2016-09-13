@@ -12,7 +12,7 @@ use Log;
 
 class AttributionBatchService {
     
-    private $expiringDay;
+    private $today;
     private $truthRepo;
     private $scheduleRepo;
     private $assignmentRepo;
@@ -30,7 +30,7 @@ class AttributionBatchService {
         $this->assignmentRepo = $assignmentRepo;
         $this->feedInstanceRepo = $feedInstanceRepo;
 
-        $this->expiringDay = Carbon::today()->subDays(self::EXPIRATION_DAY_RANGE);
+        $this->today = Carbon::today();
     }
 
 
@@ -54,8 +54,9 @@ class AttributionBatchService {
             Log::info("{$record->email_id} being processed with $oldFeedId / $feedId starting at $beginDate: " . count($potentialReplacements));
 
             foreach ($potentialReplacements as $repl) {
+                Log::info("\t$beginDate, $hasAction, $actionExpired, $currentAttrLevel, {$repl->level}");
 
-                if ($this->shouldChangeAttribution($beginDate, $hasAction, $actionExpired, $currentAttrLevel, $repl->level)) {
+                if ($this->shouldChangeAttribution($hasAction, $actionExpired, $currentAttrLevel, $repl->level)) {
                     $beginDate = $repl->capture_date;
                     $currentAttrLevel = (int)$repl->level;
                     $hasAction = 0; // by default must be false - can't switch if an action existed
@@ -107,26 +108,22 @@ class AttributionBatchService {
     }
 
 
-    protected function shouldChangeAttribution($captureDate, $hasAction, $actionExpired, $currentAttrLevel, $testAttrLevel) {
-
-        // needs to be explicitly checked - we don't just have the query to watch this
-        if ($this->expiringDay->gte(Carbon::parse($captureDate))) {
-            // Older than pre-defined X days ago
-            
-            if ($hasAction && $actionExpired) {
-                return true;
-            }
-            elseif (0 === $currentAttrLevel) {
-                // no attribution at all, so we need to set it
-                return true;
-            }
-            elseif (!$hasAction && $testAttrLevel < $currentAttrLevel) {
-                // "less than" here means "has a higher attribution level"
-                return true;
-            }
+    protected function shouldChangeAttribution($hasAction, $actionExpired, $currentAttrLevel, $testAttrLevel) {
+    
+        if ($hasAction && $actionExpired) {
+            return true;
         }
-
-        return false;
+        elseif (0 === $currentAttrLevel) {
+            // no attribution at all, so we need to set it
+            return true;
+        }
+        elseif (!$hasAction && $testAttrLevel < $currentAttrLevel) {
+            // "less than" here means "has a higher attribution level"
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     protected function changeAttribution($emailId, $feedId, $captureDate) {
@@ -139,7 +136,7 @@ class AttributionBatchService {
 
     protected function updateTruthTable($emailId, $captureDate, $hasAction, $actionExpired, $subseqs) {
         $addlImports = $subseqs >= 1;
-        $recentImport = Carbon::parse($captureDate)->gte($this->expiringDay);
+        $recentImport = Carbon::parse($captureDate)->addDays(self::EXPIRATION_DAY_RANGE)->gte($this->today);
 
         $this->truthRepo->setRecord($emailId, $recentImport, $hasAction, $actionExpired, $addlImports);
     }

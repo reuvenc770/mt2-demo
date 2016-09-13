@@ -7,48 +7,39 @@
 @section( 'angular-controller' , 'ng-controller="AttributionController as attr"' )
 
 @section( 'page-menu' )
-    @if (Sentinel::hasAccess('attr.model.add'))
-        <md-button ng-href="{{ route( 'attr.model.add' ) }}" target="_self" aria-label="Add Attribution Model">
+    @if (Sentinel::hasAccess('attributionModel.add'))
+        <md-button ng-href="{{ route( 'attributionModel.add' ) }}" target=
+"_self" aria-label="Add Attribution Model">
             <md-icon ng-hide="app.largePageWidth()" md-svg-src="img/icons/ic_add_circle_outline_white_24px.svg"></md-icon>
             <span ng-show="app.largePageWidth()">Add Model</span>
+        </md-button>
+    @endif
+
+    @if (Sentinel::hasAccess('api.attribution.run'))
+        <md-button ng-click="attr.runAttribution( false )" aria-label="Run Attribution">
+            <span>Run Attribution</span>
         </md-button>
     @endif
 @stop
 
 @section( 'content' )
-<div ng-init="attr.loadModels()">
-    <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
-        <md-card>
-            <md-card-content>
-                <div layout="row">
-                    <md-input-container flex-gt-sm="10" flex="30">
-                        <pagination-count recordcount="attr.paginationCount" currentpage="attr.currentPage"></pagination-count>
-                    </md-input-container>
+<md-content layout="column" class="md-mt2-zeta-theme" ng-init="attr.initIndexPage()">
+    <md-tabs md-dynamic-height md-border-bottom>
+        <md-tab label="Models">
+            @include( 'pages.attribution.indexPartials.models-index' )
+        </md-tab>
 
-                    <md-input-container flex="auto">
-                        <pagination currentpage="attr.currentPage" maxpage="attr.pageCount" disableceiling="attr.reachedMaxPage" disablefloor="attr.reachedFirstPage"></pagination>
-                    </md-input-container>
-                </div>
-
-                <attribution-model-table records="attr.models" loadingflag="attr.currentlyLoading" baseurl="app.getBaseUrl()" copymodel="attr.copyModelPreview( $event , currentModelId  )"></attribution-model-table>
-
-                <div layout="row">
-                    <md-input-container flex-gt-sm="10" flex="30">
-                        <pagination-count recordcount="attr.paginationCount" currentpage="attr.currentPage"></pagination-count>
-                    </md-input-container>
-
-                    <md-input-container flex="auto">
-                        <pagination currentpage="attr.currentPage" maxpage="attr.pageCount" disableceiling="attr.reachedMaxPage" disablefloor="attr.reachedFirstPage"></pagination>
-                    </md-input-container>
-                </div>
-            </md-card-content>
-        </md-card>
-    </md-content>
+        <md-tab label="Report">
+            <md-card class="md-mt2-zeta-theme" flex> 
+            @include( 'pages.attribution.indexPartials.three-month-report' )
+            </md-card>
+        </md-tab>
+    <md-tabs>
 
     @include( 'pages.attribution.attribution-level-copy-sidenav' )
-</div>
+</md-content>
 @stop
 
 @section( 'pageIncludes' )
-<script src="js/recordAttribution.js"></script>
+<script src="js/attribution.js"></script>
 @stop

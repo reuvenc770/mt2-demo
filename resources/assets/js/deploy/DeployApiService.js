@@ -121,5 +121,19 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
             "data" : {filename: request}
         } ).then( successCallback , failureCallback );
     };
+
+    self.checkForPackages = function (successCallback,failCallBack){
+        $http( { "method" : "GET" , "url" : this.baseApiUrl + 'check' } )
+            .then( successCallback , failCallBack );
+    };
+
+    self.deployPackages = function (packages, successCallback, failCallBack){
+        var request = packages;
+        $http( {
+            "method" : "POST" ,
+            "url" : this.baseApiUrl + "package/create" ,
+            "data" : request
+        } ).then( successCallback , failCallBack );
+    };
 });
 

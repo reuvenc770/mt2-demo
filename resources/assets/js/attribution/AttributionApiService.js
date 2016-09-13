@@ -3,33 +3,25 @@ mt2App.service( 'AttributionApiService' , function ( $http , $log ) {
 
     self.baseApiUrl = '/api/attribution/model';
     self.pagerApiUrl = '/api/pager/AttributionModel';
-    self.reportApiUrl = '/api/attribution/report';
-    
-    self.getRecords = function ( query , successCallback , failureCallback ) {
-        return $http( {
-            "method" : "GET" ,
-            "url" : self.reportApiUrl ,
-            "params" : query
-        } ).then( successCallback , failureCallback );
-    };
+    self.projectionApiUrl = '/api/attribution/projection';
 
     self.getModels = function ( page , count , successCallback , failureCallback ) {
-        $http( {
+        return $http( {
             "method" : "GET" ,
             "url" : self.pagerApiUrl , 
             "params" : { "page" : page , "count" : count }
         } ).then( successCallback , failureCallback );
     };
 
-    self.getModelClients = function ( modelId , successCallback , failureCallback ) {
-        $http( {
+    self.getModelFeeds = function ( modelId , successCallback , failureCallback ) {
+        return $http( {
             "method" : "GET" ,
-            "url" : self.baseApiUrl + '/' + modelId + '/clients'
+            "url" : self.baseApiUrl + '/' + modelId + '/feeds'
         } ).then( successCallback , failureCallback ); 
     };
 
     self.saveNewModel = function ( name , levels , successCallback , failureCallback ) {
-        $http( {
+        return $http( {
             "method" : "POST" ,
             "url" : self.baseApiUrl ,
             "data" : { 'name' : name , 'levels' : levels }
@@ -37,7 +29,7 @@ mt2App.service( 'AttributionApiService' , function ( $http , $log ) {
     };
 
     self.updateModel = function ( modelId , modelName, levels , successCallback , failureCallback ) {
-        $http( {
+        return $http( {
             "method" : "PUT" ,
             "url" : this.baseApiUrl + '/' + modelId ,
             "params" : { "_method" : "PUT" } ,
@@ -46,24 +38,53 @@ mt2App.service( 'AttributionApiService' , function ( $http , $log ) {
     };
 
     self.getLevels = function ( modelId , successCallback , failureCallback ) {
-        $http( {
+        return $http( {
             "method" : "GET" ,
             "url" : self.baseApiUrl + '/' + modelId + '/levels'
         } ).then( successCallback , failureCallback );
     };
 
     self.getModel = function ( modelId , successCallback , failureCallback ) {
-        $http( {
+        return $http( {
             "method" : "GET" ,
             "url" : self.baseApiUrl + '/' + modelId
         } ).then( successCallback , failureCallback );
     };
 
+    self.setModelLive = function ( modelId , successCallback , failureCallback ) {
+        return $http( {
+            "method" : "GET" ,
+            "url" : self.baseApiUrl + '/setlive/' + modelId
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.runAttribution = function ( modelId , successCallback , failureCallback ) {
+        return $http( {
+            "method" : "POST" ,
+            "url" : self.baseApiUrl + '/run',
+            "data" : { "modelId" : modelId }
+        } ).then( successCallback , failureCallback );
+    };
+
     self.copyLevels = function ( currentModelId , templateModelId , successCallback , failureCallback ) {
-        $http( {
+        return $http( {
             "method" : "POST" ,
             "url" : self.baseApiUrl + '/copyLevels' ,
             "data" : { "currentModelId" : currentModelId , "templateModelId" : templateModelId  }
         } ).then( successCallback , failureCallback );
     };
+
+    self.getProjectionChartData = function ( modelId , successCallback , failureCallback ) {
+        return $http( {
+            "method" : "GET" ,
+            "url" : self.projectionApiUrl + '/chart/' + modelId 
+        } ).then( successCallback , failureCallback );
+    }
+
+    self.getProjectionRecords = function ( modelId , successCallback , failureCallback ) {
+        return $http( {
+            "method" : "GET" ,
+            "url" : self.projectionApiUrl + '/report/' + modelId 
+        } ).then( successCallback , failureCallback );
+    }
 } );
