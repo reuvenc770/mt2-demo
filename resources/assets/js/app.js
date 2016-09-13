@@ -16,15 +16,26 @@ var mt2App = angular.module( 'mt2App' , [
 mt2App.config( function ( $locationProvider , $mdThemingProvider , ivhTreeviewOptionsProvider ) {
     $locationProvider.html5Mode( true );
 
+    var mt2Primary = $mdThemingProvider.extendPalette('indigo' , {
+        '500' : '16416c'
+    });
+
+    var mt2Background = $mdThemingProvider.extendPalette('grey' , {
+        '800' : '383F47'
+    });
+
+    $mdThemingProvider.definePalette('mt2-primary', mt2Primary );
+    $mdThemingProvider.definePalette('mt2-background', mt2Background );
+
     $mdThemingProvider.theme( 'mt2-zeta' , 'light' )
-        .primaryPalette( 'indigo' )
+        .primaryPalette( 'mt2-primary' )
         .accentPalette( 'blue' )
         .warnPalette( 'deep-orange' )
-        .backgroundPalette( 'blue-grey' , {
+        .backgroundPalette( 'mt2-background' , {
             "default" : '50' ,
             "hue-1" : '100' ,
             "hue-2" : '400' ,
-            "hue-3" : '700'
+            "hue-3" : '800'
         } );
 
     $mdThemingProvider.setDefaultTheme( 'mt2-zeta' );

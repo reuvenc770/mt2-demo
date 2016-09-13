@@ -1,7 +1,8 @@
 mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , '$mdSidenav' , '$mdToast' , '$mdMedia' , '$log' , function ( $rootScope , $location , $window , $mdSidenav , $mdToast , $mdMedia , $log ) {
     var self = this;
+    self.lockSideNav = true;
 
-    self.getBaseUrl = function () { 
+    self.getBaseUrl = function () {
         return $location.protocol() + '://' + $location.host() + '/';
     };
 
