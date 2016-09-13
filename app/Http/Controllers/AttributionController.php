@@ -132,6 +132,10 @@ class AttributionController extends Controller
         ] );
     }
 
+    public function syncLevelsWithMT1 () {
+        return response()->json( [ "status" => $this->service->syncLevelsWithMT1() ] );
+    }
+
     public function setModelLive ( $modelId ) {
         $status = $this->service->setLive( $modelId );
 

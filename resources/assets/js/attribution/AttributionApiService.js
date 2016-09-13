@@ -74,6 +74,13 @@ mt2App.service( 'AttributionApiService' , function ( $http , $log ) {
         } ).then( successCallback , failureCallback );
     };
 
+    self.syncMt1Levels = function ( successCallback , failureCallback ) {
+        return $http( {
+            "method" : "GET" ,
+            "url" : '/api/attribution/syncLevels'
+        } ).then( successCallback , failureCallback );
+    };
+
     self.getProjectionChartData = function ( modelId , successCallback , failureCallback ) {
         return $http( {
             "method" : "GET" ,

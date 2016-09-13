@@ -6,6 +6,7 @@
 namespace App\Repositories;
 
 use App\Models\AttributionLevel;
+use App\Repositories\AttributionModelRepo;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use DB;
@@ -86,6 +87,12 @@ class AttributionLevelRepo {
                         [ 'AttributeLevel' , '<>' , 255 ]
                     ] )->get();
 
+        $liveModelId = AttributionModelRepo::getLiveModelId();
+
+        if ( !is_null( $liveModelId ) ) {
+            DB::connection( 'attribution' )->table( AttributionLevel::BASE_TABLE_NAME . $liveModelId )->truncate();
+        }
+
         foreach ( $mt1Levels as $current ) {
             $feed = $this->levels->find( $current->feedId );
 
@@ -98,6 +105,15 @@ class AttributionLevelRepo {
                 $newFeed->level = $current->level;
                 $newFeed->save();
             }
+
+            if ( !is_null( $liveModelId ) ) {
+                $modelFeed = new AttributionLevel( AttributionLevel::BASE_TABLE_NAME . $liveModelId );
+                $modelFeed->feed_id = $current->feedId;
+                $modelFeed->level = $current->level;
+                $modelFeed->save();
+            }
         }
+
+        return true;
     }
 }
