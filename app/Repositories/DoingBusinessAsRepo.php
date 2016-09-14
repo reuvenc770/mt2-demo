@@ -36,10 +36,7 @@ class DoingBusinessAsRepo
     }
 
     public function updateAccount ( $id , $accountData ) {
-        return $this->doingBusinessAs->find( $id )->update( [
-            'dba_name' => $accountData[ 'dba_name' ] ,
-            'state' => $accountData[ 'state' ] ,
-        ] );
+        return $this->doingBusinessAs->find( $id )->update( $accountData);
     }
 
     public function toggleRow($id, $direction){
