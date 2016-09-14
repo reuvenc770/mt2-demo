@@ -278,14 +278,18 @@ class DeployRepo
             ->leftJoin('list_profiles', 'list_profiles.id', '=', 'deploys.list_profile_id')
             ->wherein("deploys.id",explode(",",$deployIds))
             ->where("deploy_status",1)
-            ->select("send_date",
-                'deploys.id as deploy_id',
-                'esp_accounts.account_name',
-                'mailing_templates.template_name',
-                'domains.domain_name as mailing_domain',
-                'domains2.domain_name as content_domain',
-                'subjects.subject_line as subject',
-                'froms.from_line as from',
-                'creatives.file_name as creative')->get();
+            ->selectRaw('send_date, deploys.id as deploy_id,
+              IFNULL(esp_accounts.account_name, "DATA IS MISSING") AS account_name,
+                IFNULL(offers.name, "DATA IS MISSING") as offer_name,
+                IFNULL(mailing_templates.template_name, "DATA IS MISSING") as template_name,
+                IFNULL(domains.domain_name, "DATA IS MISSING") as mailing_domain,
+                IFNULL(domains2.domain_name, "DATA IS MISSING") as content_domain,
+                IFNULL(subjects.subject_line, "DATA IS MISSING") as subject,
+                IFNULL(froms.from_line, "DATA IS MISSING") as from,
+                IFNULL(creatives.file_name, "DATA IS MISSING") as creative,
+                IFNULL(list_profiles.profile_name, "DATA IS MISSING") as list_profile,
+                IFNULL(cake_affiliate_id, "DATA IS MISSING") as cake_affiliate_id,
+                IFNULL(deployment_status, "DATA IS MISSING") as deployment_status,
+                IFNULL(notes, "DATA IS MISSING") as notes')->get();
     }
 }
