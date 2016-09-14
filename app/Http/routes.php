@@ -178,7 +178,7 @@ Route::group(
 Route::group(
     [
         'prefix' => 'dba' ,
-        'middleware' => [ 'auth' , 'admin' , 'pageLevel' ]
+        'middleware' => [ 'auth' , 'pageLevel' ]
     ] ,
     function () {
         Route::get( '/' , [
@@ -201,7 +201,7 @@ Route::group(
 Route::group(
     [
         'prefix' => 'proxy' ,
-        'middleware' => [ 'auth' , 'admin' , 'pageLevel' ]
+        'middleware' => [ 'auth' , 'pageLevel' ]
     ] ,
     function () {
         Route::get( '/' , [
@@ -293,7 +293,7 @@ Route::group(
 Route::group(
     [
         'prefix' => 'user' ,
-        'middleware' => [ 'auth' , 'admin' , 'pageLevel' ]
+        'middleware' => [ 'auth' , 'pageLevel' ]
     ] ,
     function () {
         Route::get( '/' , [
@@ -429,7 +429,7 @@ Route::group(
 Route::group(
     [
         'prefix' => 'role' ,
-        'middleware' => [ 'auth' , 'admin' , 'pageLevel' ]
+        'middleware' => [ 'auth' , 'pageLevel' ]
     ] ,
     function () {
         Route::get( '/' , [
@@ -455,7 +455,7 @@ Route::group(
 Route::group(
     [
         'prefix' => 'domain' ,
-        'middleware' => [ 'auth' , 'admin' , 'pageLevel' ]
+        'middleware' => [ 'auth' , 'pageLevel' ]
     ] ,
     function () {
         Route::get( '/' , [
@@ -478,7 +478,7 @@ Route::group(
 Route::group(
     [
         'prefix' => 'creatives' ,
-        'middleware' => [ 'auth' , 'admin' ,  ]
+        'middleware' => [ 'auth'  ]
     ] ,
     function () {
         Route::get( '/preview/{offerId}' , [
@@ -1066,7 +1066,7 @@ Route::group(
         /**
          * Admin Level API Group
          */
-        Route::group( [ 'middleware' => 'admin' ] , function () {
+        Route::group( [ 'middleware' => 'pageLevel' ] , function () {
             Route::get( '/role/permissions/' , [
                 'as' => 'api.role.permissions' ,
                 'uses' => 'RoleApiController@permissions'
