@@ -276,7 +276,7 @@ class DeployRepo
             ->leftJoin('froms', 'froms.id', '=', 'deploys.from_id')
             ->leftJoin('creatives', 'creatives.id', '=', 'deploys.creative_id')
             ->leftJoin('list_profiles', 'list_profiles.id', '=', 'deploys.list_profile_id')
-            ->wherein("id",explode(",",$deployIds))
+            ->wherein("deploys.id",explode(",",$deployIds))
             ->where("deploy_status",1)
             ->select("send_date",
                 'deploys.id as deploy_id',
