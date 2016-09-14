@@ -54,7 +54,7 @@ return [
     |
     */
 
-    'from' => ['address' => 'admin@mt2.com', 'name' => "MT2 Bot"],
+    'from' => ['address' => 'admin@mtroute.com', 'name' => 'MT2 Admin'],
 
     /*
     |--------------------------------------------------------------------------
