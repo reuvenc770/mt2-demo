@@ -92,7 +92,7 @@ class DeployService
             foreach ($data as $id) {
                 Event::fire(new NewDeployWasCreated($id));
             }
-            Artisan::call('reports:rerunDeliverables', ['deploys' => join(",",$data)]);
+            Artisan::call('deploys:sendtoops', ['deploysCommaList' => join(",",$data)]);
         }
 
         $this->deployRepo->deployPackages($data);

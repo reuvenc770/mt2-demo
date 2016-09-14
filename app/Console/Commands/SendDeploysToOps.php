@@ -16,14 +16,14 @@ class SendDeploysToOps extends Command
      * @var string
      */
     protected $deploys;
-    protected $signature = 'deploys:sendtoops {deploys}';
+    protected $signature = 'deploys:sendtoops {deploysCommaList}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Grabs all Deploys for  X Days and places them on the Ops FTP';
+    protected $description = 'Grabs Deploys for the Comma delimited deploy list and places them on the Ops FTP';
 
     /**
      * Create a new command instance.
@@ -42,7 +42,7 @@ class SendDeploysToOps extends Command
      */
     public function handle()
     {
-        $this->deploys = $this->argument("deploys");
+        $this->deploys = $this->argument("deploysCommaList");
         $job = (new SendOpsDeploys($this->deploys, str_random(16)));
         $this->dispatch($job);
     }
