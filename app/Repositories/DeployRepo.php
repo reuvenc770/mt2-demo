@@ -277,7 +277,7 @@ class DeployRepo
             ->leftJoin('creatives', 'creatives.id', '=', 'deploys.creative_id')
             ->leftJoin('list_profiles', 'list_profiles.id', '=', 'deploys.list_profile_id')
             ->wherein("deploys.id",explode(",",$deployIds))
-            ->where("deploy_status",1)
+            ->where("deployment_status",1)
             ->selectRaw('send_date, deploys.id as deploy_id,
               IFNULL(esp_accounts.account_name, "DATA IS MISSING") AS account_name,
                 IFNULL(mailing_templates.template_name, "DATA IS MISSING") as template_name,
