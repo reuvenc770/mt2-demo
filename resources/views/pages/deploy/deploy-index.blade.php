@@ -27,7 +27,7 @@
 
             @if (Sentinel::hasAccess('api.deploy.deploypackages'))
                 <md-button ng-click="deploy.createPackages()" ng-disabled="deploy.disableExport" >
-                    <span>Deploy Packages</span>
+                    <span>@{{ deploy.deployLinkText }}</span>
                 </md-button>
             @endif
 
@@ -56,9 +56,16 @@
             </md-menu-item>
             @endif
             @if (Sentinel::hasAccess('api.deploy.exportcsv'))
-            <md-menu-item ng-show="deploy.exportable">
-                <md-button ng-click="deploy.exportCsv()">
+            <md-menu-item>
+                <md-button ng-click="deploy.exportCsv()" ng-disabled="deploy.disableExport">
                     <span>Export to CSV</span>
+                </md-button>
+            </md-menu-item>
+            @endif
+            @if (Sentinel::hasAccess('api.deploy.deploypackages'))
+            <md-menu-item>
+                <md-button ng-click="deploy.createPackages()" ng-disabled="deploy.disableExport" >
+                    <span>Deploy Packages</span>
                 </md-button>
             </md-menu-item>
             @endif
@@ -76,96 +83,102 @@
                             <span>Search Deploys</span>
                         </div>
                     </md-toolbar>
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <div class="form-group">
-                                    <div class="input-group">
-                                        <select name="esp_account_search" id="esp_account_search"
-                                                ng-model="deploy.search.esp_id" class="form-control"
-                                                ng-disabled="deploy.currentlyLoading">
-                                            <option value="">- Please Choose an ESP -</option>
-                                            @foreach ( $esps as $esp )
-                                                <option value="{{ $esp['name'] }}">{{ $esp['name'] }}</option>
-                                            @endforeach
-                                        </select>
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-primary" type="button"
-                                                    ng-click="deploy.searchDeploys('esp',deploy.search.esp_id)">Search By Esp
-                                            </button>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <div class="input-group">
-                                        <select name="esp_account_search" id="esp_account_search"
-                                                ng-model="deploy.search.esp_account_id" class="form-control"
-                                                ng-disabled="deploy.currentlyLoading">
-                                            <option value="">- Please Choose an ESP Account -</option>
-                                            <option ng-repeat="option in deploy.espAccounts" ng-value="option.id"
-                                                    ng-selected="option.id == deploy.search.esp_account_id">@{{ option.account_name }}
-                                            </option>
-                                        </select>
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-primary" type="button"
-                                                ng-click="deploy.searchDeploys('espAccount',deploy.search.esp_account_id)">Search By Esp Account
-                                            </button>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" id="search_offer" value=""
-                                               placeholder="Offer Name* wildcard" ng-model="deploy.search.offer"/>
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-primary" type="button"
-                                                ng-click="deploy.searchDeploys('offer',deploy.search.offer)">Search By Offer
-                                            </button>
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" id="deploy_id" value=""
-                                               placeholder="Deploy ID" ng-model="deploy.search.deployId"/>
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-primary" type="button"
-                                                    ng-click="deploy.searchDeploys('deploy',deploy.search.deployId)">Search By Deploy ID
-                                            </button>
-                                        </span>
-                                    </div>
+                    <md-card-content>
+                        <div layout="column" layout-gt-sm="row">
+                            <div layout="row" flex-gt-sm="45">
+                                <md-input-container flex>
+                                    <label>Choose an ESP</label>
+                                    <md-select name="esp_account_search" id="esp_account_search"
+                                        ng-model="deploy.search.esp_id"
+                                        ng-disabled="deploy.currentlyLoading">
+                                        @foreach ( $esps as $esp )
+                                            <md-option value="{{ $esp['name'] }}">{{ $esp['name'] }}</md-option>
+                                        @endforeach
+                                    </md-select>
+                                </md-input-container>
+                                <div>
+                                    <md-button class="md-raised md-accent" ng-click="deploy.searchDeploys('esp',deploy.search.esp_id)">
+                                        Search By ESP
+                                    </md-button>
                                 </div>
                             </div>
-                            <div class="col-sm-6">
-                                <div class="form-group">
-                                    <md-datepicker name="dateField" ng-change="deploy.updateSearchDate()" ng-model="deploy.search.startDate"
-                                                   md-placeholder="Start Date"></md-datepicker>
-                                    <md-datepicker name="dateField" ng-change="deploy.updateSearchDate()" ng-model="deploy.search.endDate"
-                                                   md-placeholder="End date"></md-datepicker>
-                                    <button class="btn btn-primary btn-block" type="button"
-                                            ng-click="deploy.searchDeploys('date',deploy.search.dates)">Search By Date Range
-                                    </button>
-                                </div>
-
-                                <div class="form-group">
-                                    <div class="input-group">
-                                        <select name="deploy_status" id="deploy_status"
-                                                ng-model="deploy.search.status" class="form-control">
-                                            <option ng-selected="'' == deploy.search.status" value="">- Please Choose a Status -</option>
-                                            <option ng-selected=" 0 == deploy.search.status" value="0">Not Deployed</option>
-                                            <option ng-selected=" 1 == deploy.search.status" value="1">Deployed</option>
-                                        </select>
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-primary" type="button"
-                                                    ng-click="deploy.searchDeploys('status',deploy.search.status)">Search By Status
-                                            </button>
-                                        </span>
+                            <div flex hide-sm hide-xs></div>
+                            <div layout="row" flex-gt-sm="45">
+                                <md-input-container flex>
+                                    <label>Choose an ESP Account</label>
+                                    <md-select name="esp_account_search" id="esp_account_search"
+                                            ng-model="deploy.search.esp_account_id"
+                                            ng-disabled="deploy.currentlyLoading">
+                                        <md-option ng-repeat="option in deploy.espAccounts" ng-value="option.id"
+                                                ng-selected="option.id == deploy.search.esp_account_id">@{{ option.account_name }}
+                                        </md-option>
+                                    </md-select>
+                                </md-input-container>
+                                    <div>
+                                        <md-button class="md-raised md-accent" ng-click="deploy.searchDeploys('espAccount',deploy.search.esp_account_id)">
+                                            Search By ESP Account
+                                        </md-button>
                                     </div>
+                            </div>
+                        </div>
+                        <div layout="column" layout-gt-sm="row">
+                            <div layout="row" flex-gt-sm="45">
+                                <md-input-container flex>
+                                    <label>Offer Name* wildcard</label>
+                                    <input type="text" id="search_offer" value="" ng-model="deploy.search.offer"/>
+                                </md-input-container>
+                                <div>
+                                    <md-button class="md-raised md-accent"
+                                        ng-click="deploy.searchDeploys('offer',deploy.search.offer)">Search By Offer
+                                    </md-button>
+                                </div>
+                            </div>
+                            <div flex hide-sm hide-xs></div>
+                            <div layout="row" flex-gt-sm="45">
+                                <md-input-container flex>
+                                    <label>Deploy ID</label>
+                                    <input id="deploy_id" value="" ng-model="deploy.search.deployId"/>
+                                </md-input-container>
+                                <div>
+                                    <md-button class="md-raised md-accent"
+                                            ng-click="deploy.searchDeploys('deploy',deploy.search.deployId)">Search By Deploy ID
+                                    </md-button>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                        <div layout="column" layout-gt-sm="row">
+                            <div layout="column" flex-gt-sm="45">
+                                <div layout="row">
+                                    <md-datepicker flex="50" name="dateField" ng-change="deploy.updateSearchDate()" ng-model="deploy.search.startDate"
+                                                   md-placeholder="Start Date"></md-datepicker>
+                                    <md-datepicker flex="50" name="dateField" ng-change="deploy.updateSearchDate()" ng-model="deploy.search.endDate"
+                                                   md-placeholder="End date"></md-datepicker>
+                               </div>
+                                <div layout="column">
+                                    <md-button flex="grow" class="md-raised md-accent"
+                                            ng-click="deploy.searchDeploys('date',deploy.search.dates)">Search By Date Range
+                                    </md-button>
+                                </div>
+                            </div>
+                            <div flex hide-sm hide-xs></div>
+                            <div layout="row" flex-gt-sm="45">
+                                <md-input-container flex>
+                                    <label>Choose a Status</label>
+                                    <md-select name="deploy_status" id="deploy_status"
+                                            ng-model="deploy.search.status">
+                                        <md-option ng-selected="'' == deploy.search.status" value="">Clear Search</md-option>
+                                        <md-option ng-selected=" 0 == deploy.search.status" value="0">Not Deployed</md-option>
+                                        <md-option ng-selected=" 1 == deploy.search.status" value="1">Deployed</md-option>
+                                    </md-select>
+                                </md-input-container>
+                                <div>
+                                    <md-button class="md-raised md-accent"
+                                            ng-click="deploy.searchDeploys('status',deploy.search.status)">Search By Status
+                                    </md-button>
+                                </div>
+                            </div>
+                        </div>
+                    </md-card-content>
                 </md-card>
             </div>
         </md-content>
@@ -183,6 +196,7 @@
                         <table class="table table-striped table-bordered table-hover text-center">
                             <thead>
                             <tr>
+                                <th></th>
                                 <th class="text-center">
                                     <strong><span class="glyphicon glyphicon-refresh rotateMe"
                                                   ng-if="deploy.loadingflag == 1"></span></strong>
@@ -391,14 +405,12 @@
                                                                                      warning : record.deployment_status == 2
                                                                                      }">
                         <td>
-                            <div class="checkbox">
-                                <span ng-click="deploy.editRow( record.deploy_id)" class="glyphicon glyphicon-edit"></span>
-                                <span ng-click="deploy.copyRow( record.deploy_id)" class="glyphicon glyphicon-copy"></span>
-                                <label>
-                                    <input type="checkbox" name="selectedRows"
-                                           ng-click="deploy.toggleRow(record.deploy_id)">
-                                </label>
-                            </div>
+                            <md-checkbox aria-label="Select" name="selectedRows"
+                                         ng-click="deploy.toggleRow(record.deploy_id)"> </md-checkbox>
+                        </td>
+                        <td>
+                            <md-button class="md-raised" ng-click="deploy.editRow( record.deploy_id)">Edit</md-button>
+                            <md-button class="md-raised md-accent" ng-click="deploy.copyRow( record.deploy_id)">Copy</md-button>
                         </td>
                         <td>@{{ record.send_date }}</td>
                         <td>@{{ record.deploy_id }}</td>

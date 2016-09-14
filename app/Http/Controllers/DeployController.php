@@ -149,7 +149,11 @@ class DeployController extends Controller
     public function deployPackages(Request $request)
     {
         $data = $request->all();
-        return response()->json(['success' => $this->deployService->deployPackages($data)]);
+        $filePath = $this->deployService->deployPackages($data);
+        if($filePath){
+            return response()->download($filePath);
+        }
+        return response()->json(['success' => true] );
     }
 
 

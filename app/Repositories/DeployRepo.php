@@ -264,4 +264,27 @@ class DeployRepo
     public function getPendingDeploys() {
         return $this->deploy->where('deployment_status',Deploy::PENDING_PACKAGE_STATUS)->get();
     }
+
+    public function getDeployDetailsByIds($deployIds){
+        return $this->deploy
+            ->leftJoin('esp_accounts', 'deploys.esp_account_id', '=', 'esp_accounts.id')
+            ->leftJoin('offers', 'offers.id', '=', 'deploys.offer_id')
+            ->leftJoin('mailing_templates', 'mailing_templates.id', '=', 'deploys.template_id')
+            ->leftJoin('domains', 'domains.id', '=', 'deploys.mailing_domain_id')
+            ->leftJoin('domains as domains2', 'domains2.id', '=', 'deploys.content_domain_id')
+            ->leftJoin('subjects', 'subjects.id', '=', 'deploys.subject_id')
+            ->leftJoin('froms', 'froms.id', '=', 'deploys.from_id')
+            ->leftJoin('creatives', 'creatives.id', '=', 'deploys.creative_id')
+            ->leftJoin('list_profiles', 'list_profiles.id', '=', 'deploys.list_profile_id')
+            ->wherein("deploys.id",explode(",",$deployIds))
+            ->where("deployment_status",1)
+            ->selectRaw('send_date, deploys.id as deploy_id,
+              IFNULL(esp_accounts.account_name, "DATA IS MISSING") AS account_name,
+                IFNULL(mailing_templates.template_name, "DATA IS MISSING") as template_name,
+                IFNULL(domains.domain_name, "DATA IS MISSING") as mailing_domain,
+                IFNULL(domains2.domain_name, "DATA IS MISSING") as content_domain,
+                IFNULL(subjects.subject_line, "DATA IS MISSING") as subject_line,
+                IFNULL(froms.from_line, "DATA IS MISSING") as from_line,
+                IFNULL(creatives.file_name, "DATA IS MISSING") as creative')->get();
+    }
 }
