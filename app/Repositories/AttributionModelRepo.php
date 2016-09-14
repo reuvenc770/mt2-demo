@@ -130,7 +130,7 @@ class AttributionModelRepo {
     static public function getLiveModelId () {
         $levelResult = DB::connection( 'attribution' )->table( 'attribution_models' )->select( 'id' )->where( 'live' , '1' )->get();
 
-        if ( count( $levelResult ) ) {
+        if ( count( $levelResult ) <= 0 ) {
             return null;
         }
 
