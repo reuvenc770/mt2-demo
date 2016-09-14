@@ -8,7 +8,7 @@
     <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
         <div flex-gt-sm="50" flex="100">
             <md-card ng-controller="espController as esp">
-                <md-toolbar class="md-hue-3">
+                <md-toolbar>
                     <div class="md-toolbar-tools">
                         <span>Add ESP API Account</span>
                     </div>

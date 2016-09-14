@@ -52,7 +52,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
 
     self.editAccount = function () {
         self.resetFieldErrors();
-
+        self.currentAccount.po_boxes = JSON.stringify(self.currentAccount.po_boxes);
         DBAApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 
