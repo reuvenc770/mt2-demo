@@ -85,11 +85,6 @@ class ServiceFactory
         $assignment = new $assignmentRepo(new $assignmentModel(), new $historyModel());
         $instance = new $emailFeedInstanceRepo(new $emailFeedInstanceModel());
 
-        // when left empty, this instantiates the currently-selected model
-        if ( 'none' !== $modelId ) {
-            $assignment->setLevelModel( $modelId );
-        }
-
         $service = "App\\Services\\AttributionBatchService";
 
         return new $service($truth, $schedule, $assignment, $instance);
