@@ -6,6 +6,7 @@
 namespace App\Repositories;
 
 use App\Models\AttributionLevel;
+use App\Repositories\AttributionModelRepo;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use DB;
@@ -86,18 +87,34 @@ class AttributionLevelRepo {
                         [ 'AttributeLevel' , '<>' , 255 ]
                     ] )->get();
 
-        foreach ( $mt1Levels as $current ) {
-            $feed = $this->levels->find( $current->feedId );
+        $liveModelId = AttributionModelRepo::getLiveModelId();
 
-            if ( !$feed->isEmpty() ) {
-                $feed->level = $current->level;
-                $feed->save();
-            } else {
-                $newFeed = new AttributionLevel();
-                $newFeed->feed_id = $current->feedId;
-                $newFeed->level = $current->level;
-                $newFeed->save();
-            }
+        if ( !is_null( $liveModelId ) ) {
+            DB::connection( 'attribution' )->table( AttributionLevel::BASE_TABLE_NAME . $liveModelId )->truncate();
         }
+
+        DB::connnection( 'attribution' )->table( AttributionLevel::LIVE_TABLE_NAME )->truncate();
+
+        foreach ( $mt1Levels as $current ) {
+            if ( !is_null( $liveModelId ) ) {
+                $this->updateFeedLevel( $current->feedId , $current->level , $liveModelId );
+            }
+
+            $this->updateFeedLevel( $current->feedId , $current->level );
+        }
+
+        return true;
+    }
+
+    public function updateFeedLevel ( $feedId , $level , $modelId = null ) {
+        if ( !is_null( $modelId ) ) {
+            $feed = new AttributionLevel( AttributionLevel::BASE_TABLE_NAME . $modelId );
+        } else {
+            $feed = new AttributionLevel();
+        }
+
+        $feed->feed_id = $feedId;
+        $feed->level = $level;
+        $feed->save();
     }
 }

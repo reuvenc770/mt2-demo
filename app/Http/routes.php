@@ -923,6 +923,12 @@ Route::group(
                     'middleware' => 'auth' ,
                     'uses' => 'AttributionController@getChartData'
                 ] );
+
+                Route::get( '/attribution/syncLevels' , [
+                    'as' => 'api.attribution.model.syncLevels' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionController@syncLevelsWithMT1'
+                ] );
             }
         );
 
