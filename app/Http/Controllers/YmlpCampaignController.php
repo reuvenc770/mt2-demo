@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Facades\EspApiAccount;
-use App\Services\EspApiService;
+use App\Services\EspService;
 use App\Services\ServiceTraits\PaginationCache;
 use Illuminate\Http\Request;
 use App\Http\Requests\YmlpFormRequest;
@@ -14,7 +14,7 @@ class YmlpCampaignController extends Controller
 {
     protected $campaignService;
 
-    public function __construct(YmlpCampaignService $service, EspApiService $espService)
+    public function __construct(YmlpCampaignService $service, EspService $espService)
     {
         $this->campaignService = $service;
         $this->espService = $espService;

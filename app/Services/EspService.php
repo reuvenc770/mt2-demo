@@ -8,7 +8,7 @@ use League\Csv\Reader;
  * Class EspApiService
  * @package App\Services
  */
-class EspApiService
+class EspService
 {
     /**
      * @var EspRepo
@@ -16,7 +16,7 @@ class EspApiService
     protected $espRepo;
 
     /**
-     * EspApiService constructor.
+     * EspService constructor.
      * @param EspApiRepo $espRepo
      */
     public function __construct(EspApiRepo $espRepo)
