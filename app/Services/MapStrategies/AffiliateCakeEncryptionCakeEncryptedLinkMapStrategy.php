@@ -10,7 +10,7 @@ class AffiliateCakeEncryptionCakeEncryptedLinkMapStrategy implements IMapStrateg
         return [
             'affiliate_id' => $record['affiliateID'],
             'creative_id' => $record['creativeID'],
-            'encrypt_hash' => $record['encryptHash'],
+            'encrypted_hash' => $record['encryptHash'],
             'created_at' => $record['lastUpdated'],
             'updated_at' => $record['lastUpdated']
         ];

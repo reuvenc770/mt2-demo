@@ -15,7 +15,7 @@ class CakeRedirectDomainRepo {
     public function getRedirectDomain($affiliateId, $offerTypeId) {
         $result = $this->model
                       ->select('redirect_domain')
-                       ->where('cake_affililiate_id', $affiliateId)
+                       ->where('cake_affiliate_id', $affiliateId)
                        ->where('offer_payout_type_id', $offerTypeId)
                        ->first();
 

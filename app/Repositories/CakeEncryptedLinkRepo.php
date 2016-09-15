@@ -15,17 +15,24 @@ class CakeEncryptedLinkRepo {
 
     public function getHash($affiliateId, $creativeId) {
         try {
-            return = $this->model
+            return $this->model
                         ->where('affiliate_id', $affiliateId)
                         ->where('creative_id', $creativeId)
-                        ->select('encrypt_hash')
+                        ->select('encrypted_hash')
                         ->firstOrFail()
-                        ->encrypt_hash;
+                        ->encrypted_hash;
         }
         catch (ModelNotFoundException $e) {
             // give it a better message than the default one
             throw new ModelNotFoundException("No encrypted hash found for affiliate_id $affiliateId and creative_id $creativeId");
         }
 
+    }
+
+    public function updateOrCreate($data) {
+        $this->model->updateOrCreate([
+            'affiliate_id' => $data['affiliate_id'], 
+            'creative_id' => $data['creative_id']
+            ], $data);
     }
 }

@@ -21,6 +21,7 @@ class TableExtensionsForDeploys extends Migration
         Schema::table('deploys', function ($table) {
             $table->boolean('encrypt_cake')->default(0)->after('cake_affiliate_id');
             $table->boolean('fully_encrypt')->default(0)->after('encrypt_cake');
+            $table->string('url_format', 20)->default('new')->after('fully_encrypt');
         });
     }
 

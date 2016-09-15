@@ -12,7 +12,7 @@ class AdvertiserInfoOfferMapStrategy implements IMapStrategy {
             'name' => $record['advertiser_name'],
             'advertiser_id' => $record['company_id'],
             'offer_payout_type_id' => $this->mapPayoutType($record['offer_type']),
-            'unsub_link' => $record['unsub_link'],
+            'unsub_link' => $record['unsub_link'] ?: '',
             'exclude_days' => $record['exclude_days']
         ];
     }

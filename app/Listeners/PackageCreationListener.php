@@ -6,19 +6,22 @@ use App\Events\AttributionFileUploaded;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Events\NewDeployWasCreated;
+use App\Factories\ServiceFactory;
 
-class DeployDataCleanseListener {
+use Log;
+
+class PackageCreationListener {
     
     public function __construct() {}
   
     public function handle (NewDeployWasCreated $event) {
     
-        $deploy = $event->getDeploy();
-        $segments = $deploy->getSegments();
+        $deployId = $event->getDeployId();
         
-        foreach ($segments as $segment) {
-            // we do something here
-        }    
-    
+        $service = ServiceFactory::createPackageCreationService();
+
+        $html = $service->createPackage($deployId);
+
+        Log::info($html);
     }
 }

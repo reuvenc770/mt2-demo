@@ -15,7 +15,7 @@ class UrlFormatService {
         $suffix = 'REDIRECT' === $type ? 'R' : 'A';
 
         $redirRandomString = $this->randomString(6, 9, self::USE_NUMBERS_TRUE, self::USE_LOWERCASE_TRUE);
-        $redirRandomString = strtolower($randString2);
+        $redirRandomString = strtolower($redirRandomString);
         return "http://$contentDomain/z/$redirRandomString/$emailIdField|1|$linkId|$suffix";
     }
 
@@ -24,7 +24,7 @@ class UrlFormatService {
         // generate a random number and random letter string
         // e.g. "http://yourcontentdomain.com/7U4R/jqbjlsfx/%%cf_EID%%|cjztnj|29541380|933736"
 
-        $randString1 = $this->randomString(4, 0, self::USE_NUMBERS_FALSE, self::USE_LOWERCASE_TRUE);
+        $randString1 = $this->randomString(4, 0, self::USE_NUMBERS_TRUE, self::USE_LOWERCASE_TRUE);
         $randString1 = ucfirst($randString1);
 
         $randString2 = $this->randomString(6, 9, self::USE_NUMBERS_TRUE, self::USE_LOWERCASE_TRUE);
@@ -40,7 +40,7 @@ class UrlFormatService {
             $endingString = $this->randomString(4, 4, self::USE_NUMBERS_FALSE, self::USE_LOWERCASE_TRUE);
         }
         
-        return "http://$contentDomain/$randString1/$randString2/$emailIdField|$linkId|$endingString";
+        return "http://$contentDomain/$randString1/$randString2/$emailIdField|$randString3|$linkId|$endingString";
     }
 
     public function getDefinedRandomString() {
@@ -56,12 +56,12 @@ class UrlFormatService {
     private function randomString($minLength, $range, $useNumbers = false, $useLowercase = false) {
         $choices = [];
         $length = $this->randomDigits($minLength, $range); // even the length is randomized
-        $randomString = '';
+        $return = '';
 
         // This works by adding the ordinal values for these characters
 
         // adding upper case letters by default
-        for ($i = 65; $i <= 90; i++) {
+        for ($i = 65; $i <= 90; $i++) {
             $choices[] = $i;
         }
 
@@ -77,12 +77,14 @@ class UrlFormatService {
             }
         }
 
+        $choicesLength = sizeof($choices);
+
         // pick $length random values from the choices array
         for ($i = 0; $i < $length; $i++) {
-            $key = mt_rand(0, $length - 1);
-            $randomString .= $choices[$key];
+            $key = mt_rand(0, $choicesLength - 1);
+            $return .= chr($choices[$key]); // return from ordinals back to characters
         }
 
-        return $randomString;
+        return $return;
     }
 }

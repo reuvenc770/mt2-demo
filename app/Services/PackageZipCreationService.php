@@ -6,10 +6,13 @@ use App\Exceptions\ValidationException;
 use App\Services\CakeEncryptedLinkService;
 use App\Services\UrlFormatService;
 use App\Services\LinkService;
-use App\Services\CakeRedirectDomainRepo;
+use App\Repositories\CakeRedirectDomainRepo;
+use App\Repositories\OfferRepo;
+use App\Repositories\OfferTrackingLinkRepo;
 use League\Flysystem\Filesystem;
 use League\Flysystem\ZipArchive\ZipArchiveAdapter;
 use Storage;
+use DOMDocument;
 
 class PackageZipCreationService {
 
@@ -26,6 +29,8 @@ class PackageZipCreationService {
         'MAR1', 'MAR2', 'MAR3', 'MAR4', 'MAR5', 'MAR6', 'MAR7', 
     ];
 
+    private $serveGentLinks = [];
+
     private $saveDirectory;
 
     public function __construct(
@@ -33,13 +38,17 @@ class PackageZipCreationService {
             CakeEncryptedLinkService $encryptionService, 
             UrlFormatService $urlFormatter, 
             LinkService $linkService,
-            CakeRedirectDomainRepo $cakeRedirectRepo) {
+            CakeRedirectDomainRepo $cakeRedirectRepo,
+            OfferRepo $offerRepo,
+            OfferTrackingLinkRepo $offerTrackingLinkRepo) {
 
         $this->deployRepo = $deployRepo;
         $this->encryptionService = $encryptionService;
         $this->urlFormatter = $urlFormatter;
         $this->linkService = $linkService;
         $this->cakeRedirectRepo = $cakeRedirectRepo;
+        $this->offerRepo = $offerRepo;
+        $this->offerTrackingLinkRepo = $offerTrackingLinkRepo;
 
     }
 
@@ -56,25 +65,24 @@ class PackageZipCreationService {
 
         $offer = $deploy->offer;
         $offerTypeId = $offer->offer_payout_type_id;
-        $this->contentDomain = $deploy->contentDomain()->first()->main_site;
+        #$this->contentDomain = $deploy->contentDomain()->first()->main_site;
+        $this->contentDomain = 'test.com';
 
         $this->espAccountName = $deploy->espAccount()->first()->account_name;
+
+        $espId = $deploy->espAccount()->first()->id;
 
         $fieldOptions = $deploy->espAccount()->first()
                                ->esp()->first()
                                ->fieldOptions()->first();
 
-        $emailIdField = $fieldOptions->email_id_field;
+        $this->emailIdField = $fieldOptions->email_id_field;
         $emailAddressField = $fieldOptions->email_address_field;
 
-        $templateId = $deploy->template_id;
-        $fromId = $deploy->from_id;
+        $templateId = $deploy->template_id; // "tid"
+        $fromId = $deploy->from_id; // "fid"
         $subjectId = $deploy->subject_id; // "sid"
-
-        /**
-            $espID comes from the file
-            $aid -> "advertiser" id / offer id
-        */
+        $creativeId = $deploy->creative_id; // "crid"
 
         // 1. validate package
         $this->validate($deploy);
@@ -99,9 +107,17 @@ class PackageZipCreationService {
         }
 
         // 4. Format offer unsub link (merged with 10)
-        $offerUnsubLink = $offer->unsub_link;
-        $offerUnsubLinkId = $this->linkService->getLinkId($offerUnsubLink);
-        $this->linkService->checkLink($offerUnsubLink); // do something with this result
+        $offerRealUnsubLink = $offer->unsub_link;
+
+        if ('' !== $offerRealUnsubLink) {
+            $offerUnsubLinkId = $this->linkService->getLinkId($offerRealUnsubLink);
+            $this->validateLink($offerRealUnsubLink);
+            $offerUnsubLink = $this->formatUrl('ADVUNSUB', $deploy->url_format, $offerUnsubLinkId, $this->emailIdField);
+        }
+        else {
+            $offerUnsubLinkId = 0;
+        }
+        
 
         /* 5-9 MERGED WITH 11 */ /* 10 MERGED WITH 4 */
 
@@ -115,9 +131,10 @@ class PackageZipCreationService {
         $dom->doctype->parentNode->removeChild($dom->doctype);
         $this->stripEnclosingElement($dom, "html");
         $this->stripEnclosingElement($dom, "body");
-        $creativeHtml = $dom->saveHTML();
+        $creativeHtml = urldecode($dom->saveHTML());
 
-        $tracking = "<IMG SRC='http://{$this->contentDomain}/cgi-bin/open.cgi?eid=$emailIdField&cid=1&em=$emailAddressField&n=$clientID&f=$fromId&s=$subjectId&c=$creativeId&did=&binding=&tid=$templateId&openflag=1&nod=1&espID=$espID&subaff={$deploy->id}' border=0 height=1 width=1>";
+        // n used to be clientId - removed, should be safe
+        $tracking = "<IMG SRC='http://{$this->contentDomain}/cgi-bin/open.cgi?eid={$this->emailIdField}&cid=1&em=$emailAddressField&n=0&f=$fromId&s=$subjectId&c=$creativeId&did=&binding=&tid=$templateId&openflag=1&nod=1&espID=$espId&subaff={$deploy->id}' border=0 height=1 width=1>";
 
         $fullHtml = str_replace("{{CREATIVE}}", $creativeHtml, $fullHtml);
         $fullHtml = str_replace("{{TRACKING}}", $tracking, $fullHtml);
@@ -136,20 +153,20 @@ class PackageZipCreationService {
             $linkNumber = $link->link_num;
             $url = $link->url;
 
-            $token = $linkNumber === 1 ? "{{URL}}" ; "{{URL$i}}";
+            $token = $linkNumber === 1 ? "{{URL}}" : "{{URL$linkNumber}}";
 
             if (strpos($fullHtml, $token) !== false) {
-
-                $url = $this->getOfferTrackingLink($offerId, $linkNumber);
+                $url = $this->offerTrackingLinkRepo->getOfferTrackingLink($offer->id, $linkNumber);
 
                 $url = str_replace("{{CID}}", $this->espAccountName, $url);
-                $url = str_replace("{{FOOTER}}", "{{FOOTER}}_{$sendDate}", $url);
+                $url = str_replace("{{FOOTER}}", "{{FOOTER}}_{$deploy->send_date}", $url);
                 $url = preg_replace('/a=\d+/', "a=$affiliateId", $url); // old affiliate id
-                $url = str_replace("up.gravitypresence.com", $this->espCakeDomain, $url);
+                $url = str_replace("up.gravitypresence.com", $this->espCakeDomain, $url); // maybe {{CAKE_DOMAIN}}?
                 $url = str_replace($defaultCakeDomain, $this->espCakeDomain, $url);
                 $url = str_replace('a=13', "a=$affiliateId", $url);
+                $url = str_replace("{{DEPLOY_ID}}", $this->deployId, $url); // used at least for 1 ...
 
-                $creativeLink = str_replace("{{DEPLOY_ID}}", $this->deployId, $url); // used at least for 1 ...
+                echo "after replacements: " . $url . PHP_EOL;
 
                 if ($deploy->encrypt_cake) {
                     $url = $this->encryptionService->encryptCakeLink($url);
@@ -158,28 +175,32 @@ class PackageZipCreationService {
                     $url = $offerTrackingUrl = $this->encryptionService->fullEncryptLink($url);
                 }
 
-                $linkValid = $this->linkService->checkLink($url);
+                echo "After encryption: $url" . PHP_EOL;
+
+                $this->validateLink($url);
 
                 $linkId = $this->linkService->getLinkId($url);
 
-                /**
-                    clientId (param "n") can probably be zeroed
-                */
-                $redirectLink = $this->formatUrl($deploy->urlFormat, $linkId) 
-                                ?: "http://{$this->contentDomain}/cgi-bin/redir1.cgi?eid=$emailIdField&cid=1&em=$emailAddressField&id=$linkId&n=0&f=$fromId&s=$subjectId&c=$crid&tid=$templateId&footerid=0&ctype=R";
+                $redirectLink = $this->formatUrl('REDIRECT', $deploy->url_format, $linkId, $this->emailIdField) 
+                                ?: "http://{$this->contentDomain}/cgi-bin/redir1.cgi?eid={$this->emailIdField}&cid=1&em=$emailAddressField&id=$linkId&n=0&f=$fromId&s=$subjectId&c=$creativeId&tid=$templateId&footerid=0&ctype=R";
 
-                $fullHtml = str_replace($token, $redirectLink);
+
+                echo "Redirect link: $redirectLink" . PHP_EOL;
+
+                echo PHP_EOL . PHP_EOL;
+                $fullHtml = str_replace($token, $redirectLink, $fullHtml);
             }    
         }
 
         #$fullHtml = str_replace("{{NID}}", replace, $fullHtml); // this is the esp "client" id ... trash?
-        $fullHtml = str_replace("{{ADV_UNSUB_URL}}", $offerUnsubLink, $fullHtml);
+        $fullHtml = str_replace("{{ADV_UNSUB_URL}}", $offerUnsubLink, $fullHtml); // keeping this for legacy reasons
+        $fullHtml = str_replace("{{OFFER_UNSUB_URL}}", $offerUnsubLink, $fullHtml);
         $fullHtml = str_replace("{{CRID}}", $creativeId, $fullHtml);
         $fullHtml = str_replace("{{F}}", $fromId, $fullHtml);
         $fullHtml = str_replace("{{S}}", $subjectId, $fullHtml);
         $fullHtml = str_replace("{{TID}}", $templateId, $fullHtml);
         $fullHtml = str_replace("{{EMAIL_ADDR}}", $emailAddressField, $fullHtml);
-        $fullHtml = str_replace("{{EMAIL_USER_ID}}", $emailIdField, $fullHtml);
+        $fullHtml = str_replace("{{EMAIL_USER_ID}}", $this->emailIdField, $fullHtml);
 
         $fullHtml = $this->presetChanges($fullHtml);
 
@@ -188,7 +209,9 @@ class PackageZipCreationService {
 
         $fullHtml = $this->parseImageLinks($fullHtml);
 
+        $fullHtml =  html_entity_decode($fullHtml);
 
+        echo $fullHtml . PHP_EOL;
 
         // Test the above functionality first before building out the ZIP
         /*
@@ -231,15 +254,28 @@ class PackageZipCreationService {
     // can't be this simple - we need quite a bit more, as seen from the signature
     // we also need to switch emailId and emailAddress for emailIdToken and emailAddressToken -
 
-    private function formatUrl($urlFormat, $linkId) {
-        if ('New' === $urlFormat) {
-            return $this->urlFormatter->formatNewUrl($type, $this->contentDomain, $emailId, $linkId);
+    private function formatUrl($type, $urlFormat, $linkId, $emailIdFormat) {
+        if ('new' === $urlFormat) {
+            echo "using new format" . PHP_EOL;
+            return $this->urlFormatter->formatNewUrl($type, $this->contentDomain, $emailIdFormat, $linkId);
         }
-        elseif ('GMail' === $urlFormat) {
-            return $this->urlFormatter->formatGmailUrl($type, $this->contentDomain, $emailId, $linkId);
+        elseif ('gmail' === $urlFormat) {
+            echo "using gmail format" . PHP_EOL;
+            return $this->urlFormatter->formatGmailUrl($type, $this->contentDomain, $emailIdFormat, $linkId);
         }
         else {
+            echo "using no format: $urlFormat" . PHP_EOL;
             return '';
+        }
+    }
+
+    private function validateLink($url) {
+        $result = $this->linkService->checkLink($url);
+
+        if (false === $result) {
+            // populate data for Dimitri - might want more information like
+            // offer id, offer name, link id, esp, ... country?
+            $this->serveGentLinks []= $url;
         }
     }
 
@@ -267,7 +303,7 @@ TXT;
         $fragment = $dom->createDocumentFragment();
 
         while ($element->childNodes->length > 0) {
-            $frament->appendChild($html->childNodes->item(0))
+            $fragment->appendChild($element->childNodes->item(0));
         }
 
         $element->parentNode->replaceChild($fragment, $element);
@@ -317,6 +353,8 @@ TXT;
 
     private function parseImageLinks($html) {
         $dom = new DOMDocument();
+
+        $internalErrors = libxml_use_internal_errors(true);
         $dom->loadHTML($html);
 
         #$urls = [];
@@ -324,8 +362,8 @@ TXT;
         $dom = $this->parseImageLinksLoop($dom, 'img');
         $dom = $this->parseImageLinksLoop($dom, 'background');
         $dom = $this->parseImageLinksLoop($dom, 'input');
-
-        return $dom->saveHTML();
+        libxml_use_internal_errors($internalErrors);
+        return urldecode($dom->saveHTML());
 
         /*
         $urls = array_unique($urls);
@@ -351,29 +389,30 @@ TXT;
         foreach($dom->getElementsByTagName($element) as $link) {
             $url = $link->getAttribute('href');
 
-            $url = preg_replace('/\{\{DOMAIN\}\}/', 'contentstaging-01.mtroute.com', $url);
-            $url = preg_replace('/\{\{IMG_DOMAIN\}\}/', 'contentstaging-01.mtroute.com', $url);
-            $urlContents = parse_url($url);
-
-            $scheme = $urlContents['scheme'];
-            $host = $urlContents['host'];
-            $path = $urlContents['path'];
-            $query = $urlContents['query'];
-
-            $fileName = '';
-            $directories = '';
-            $location = $this->getSaveDirectory() . '/images';
-
             if ('' === $url) {
                 continue;
             }
             elseif (strpos($url, 'open.cgi') === false) {
+
+                $url = preg_replace('/\{\{DOMAIN\}\}/', 'contentstaging-01.mtroute.com', $url);
+                $url = preg_replace('/\{\{IMG_DOMAIN\}\}/', 'contentstaging-01.mtroute.com', $url);
+                $urlContents = parse_url($url);
+
+                $scheme = $urlContents['scheme'];
+                $host = $urlContents['host'];
+                $path = $urlContents['path'];
+                $query = $urlContents['query'];
+
+                $fileName = '';
+                $directories = '';
+                $location = $this->getSaveDirectory() . '/images';
+
                 $filename = $this->saveFileGetType($url, $location, $fileName);
 
                 if ($this->shouldReplaceImageUrl($this->espAccountName)) {
                     $newUrl = "http://{$this->contentDomain}/$fileName";
                 }
-                elseif (publicators) {
+                elseif (false) {
                     if ($this->shouldRemoveFileExtension($this->espAccountName)) {
                         $fileName = str_replace('.jpg', '', $fileName);
                     }
@@ -453,7 +492,7 @@ TXT;
 
         $dom = $this->parseCCIDLinksLoop($dom, 'a');
         $dom = $this->parseCCIDLinksLoop($dom, 'area');
-        return $dom->saveHTML();
+        return urldecode($dom->saveHTML());
  
     }
 
@@ -471,6 +510,8 @@ TXT;
 
                 /**
                     Test to make sure that these are required
+
+                    need url_format, along with several other variables
                 */
                 $url = preg_replace('/\?/', '\?', $url);
                 $url = preg_replace('/\[/', '\[', $url);
@@ -497,9 +538,9 @@ TXT;
 
                 $trackingLinkId = $this->linkService->getLinkId($trackingUrl);
 
-                $this->linkService->checkLink($trackingLink);
+                $this->validateLink($trackingLink);
 
-                $publicLink = $this->formatUrl($urlFormat, $link);
+                $publicLink = $this->formatUrl('REDIRECT', $urlFormat, $link, $this->emailIdField);
 
                 $link->setAttribute('href', $publicLink);
             }
@@ -545,11 +586,11 @@ TXT;
     private function validate($deploy) {
         $this->isValid($deploy->offer, 'Offer');
         $this->isValid($deploy->send_date, 'Send date');
-        $this->isValid($deploy->esp_account, 'ESP account');
-        $this->isValid($deploy->creative, 'Creative');
-        $this->isValid($deploy->from, 'From');
-        $this->isValid($deploy->subject, 'Subject');
-        $this->isValid($deploy->mailingTemplate, 'Mailing template');
+        $this->isValid($deploy->espAccount(), 'ESP account');
+        $this->isValid($deploy->creative(), 'Creative');
+        $this->isValid($deploy->from(), 'From');
+        $this->isValid($deploy->subject(), 'Subject');
+        $this->isValid($deploy->mailingTemplate(), 'Mailing template');
         $this->validSendDate($deploy->offer->id, $deploy->send_date);
     }
 

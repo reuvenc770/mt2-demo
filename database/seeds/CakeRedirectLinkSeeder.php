@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 use App\Models\CakeRedirectDomain;
-use App\Models\ClientPayoutType;
+use App\Models\OfferPayoutType;
 
 class CakeRedirectLinkSeeder extends Seeder {
     
@@ -13,12 +13,12 @@ class CakeRedirectLinkSeeder extends Seeder {
         // 2: CPC
         // 3: CPA
 
-        $p = new ClientPayoutType(); // This will soon change to OfferPayoutType
-        $p->name('CPS');
+        $p = new OfferPayoutType(); // This will soon change to OfferPayoutType
+        $p->name = 'CPS';
         $p->save();
 
-        $p = new ClientPayoutType();
-        $p->name('REV');
+        $p = new OfferPayoutType();
+        $p->name = 'REV';
         $p->save();
 
         // 4: CPS

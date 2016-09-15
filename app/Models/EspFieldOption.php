@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class EspFieldOption extends Model{
+class EspFieldOption extends Model {
     
     protected $primaryKey = 'esp_id';
     protected $guarded = [];
