@@ -82,8 +82,8 @@ class AttributionLevelRepo {
         $mt1Levels = DB::connection( 'mt1_data' )->table( 'user' )
                     ->select( 'user_id as feedId' , 'AttributeLevel as level' )
                     ->where( [
-                        [ 'status' => 'A' ] ,
-                        [ 'OrangeClient' => 'Y' ] ,
+                        [ 'status' , 'A' ] ,
+                        [ 'OrangeClient' , 'Y' ] ,
                         [ 'AttributeLevel' , '<>' , 255 ]
                     ] )->get();
 
