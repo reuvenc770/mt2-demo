@@ -93,7 +93,7 @@ class AttributionLevelRepo {
             DB::connection( 'attribution' )->table( AttributionLevel::BASE_TABLE_NAME . $liveModelId )->truncate();
         }
 
-        DB::connnection( 'attribution' )->table( AttributionLevel::LIVE_TABLE_NAME )->truncate();
+        DB::connection( 'attribution' )->table( AttributionLevel::LIVE_TABLE_NAME )->truncate();
 
         foreach ( $mt1Levels as $current ) {
             if ( !is_null( $liveModelId ) ) {
