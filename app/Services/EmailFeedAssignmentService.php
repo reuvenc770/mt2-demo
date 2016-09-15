@@ -17,4 +17,8 @@ class EmailFeedAssignmentService {
     public function getAssignedFeed ( $emailId , $modelId = null ) {
         return $this->repo->getAssignedFeed( $emailId , $modelId );
     }
+
+    public function setLevelModel ( $modelId ) {
+        $this->repo->setLevelModel( $modelId );
+    }
 }

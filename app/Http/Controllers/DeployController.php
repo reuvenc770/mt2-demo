@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use Illuminate\Support\Facades\Response;
 use League\Csv\Reader;
+
 class DeployController extends Controller
 {
     protected $deployService;
@@ -16,14 +17,17 @@ class DeployController extends Controller
     public function __construct(DeployService $deployService)
     {
         $this->deployService = $deployService;
+
     }
 
-    public function listAll(EspApiService $espService){
+    public function listAll(EspApiService $espService)
+    {
         $esps = $espService->getAllEsps();
         return response()->view('pages.deploy.deploy-index', ['esps' => $esps]);
     }
 
-    public function returnCakeAffiliates(){
+    public function returnCakeAffiliates()
+    {
         $data = $this->deployService->getCakeAffiliates();
         return response()->json($data);
     }
@@ -41,19 +45,19 @@ class DeployController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Requests\AddDeployRequest $request)
     {
-      $deploy =  $this->deployService->insertDeploy($request->all());
+        $deploy = $this->deployService->insertDeploy($request->all());
         return response()->json(["deploy_id" => $deploy->id]);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -64,7 +68,7 @@ class DeployController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -75,22 +79,23 @@ class DeployController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \Illuminate\Http\Request $request
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function update(Requests\EditDeployRequest $request, $id)
     {
-        $data = $request->except(["deploy_id","_method"]);
-         $this->deployService->updateDeploy($data, $id);
+        $data = $request->except(["deploy_id", "_method"]);
+        $this->deployService->updateDeploy($data, $id);
         return response()->json(["success" => true]);
     }
 
 
-    public function exportCsv(Request $request){
+    public function exportCsv(Request $request)
+    {
 
         $data = $request->get("ids");
-        $rows = explode(',',$data);
+        $rows = explode(',', $data);
         $csv = $this->deployService->exportCsv($rows);
         $random = str_random(10);
         $filename = "deployExport{$random}";
@@ -105,7 +110,8 @@ class DeployController extends Controller
 
     }
 
-    public function validateMassUpload(Request $request){
+    public function validateMassUpload(Request $request)
+    {
         $fileName = $request->get("filename");
         $returnData = array();
         $dateFolder = date('Ymd');
@@ -119,7 +125,7 @@ class DeployController extends Controller
 
         foreach ($results as $key => $row) {
             $row['valid'] = $this->deployService->validateDeploy($row);
-            if(count($row['valid']) > 0){
+            if (count($row['valid']) > 0) {
                 $flag = true;
             }
             $returnData['rows'][] = $row;
@@ -129,16 +135,32 @@ class DeployController extends Controller
         return response()->json($returnData);
     }
 
-    public function massupload(Request $request){
+    public function massupload(Request $request)
+    {
         $data = $request->all();
-        return response()->json(['success' =>$this->deployService->massUpload($data)]);
+        return response()->json(['success' => $this->deployService->massUpload($data)]);
+    }
+
+    public function checkProgress(Request $request)
+    {
+        return response()->json($this->deployService->getPendingDeploys());
+    }
+
+    public function deployPackages(Request $request)
+    {
+        $data = $request->all();
+        $filePath = $this->deployService->deployPackages($data);
+        if($filePath){
+            return response()->download($filePath);
+        }
+        return response()->json(['success' => true] );
     }
 
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

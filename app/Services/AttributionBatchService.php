@@ -7,6 +7,7 @@ use App\Repositories\EmailFeedAssignmentRepo;
 use App\Repositories\AttributionRecordTruthRepo;
 use App\Repositories\AttributionScheduleRepo;
 use App\Repositories\EmailFeedInstanceRepo;
+use App\Events\AttributionCompleted;
 use Cache;
 use Log;
 
@@ -56,7 +57,7 @@ class AttributionBatchService {
             foreach ($potentialReplacements as $repl) {
                 Log::info("\t$beginDate, $hasAction, $actionExpired, $currentAttrLevel, {$repl->level}");
 
-                if ($this->shouldChangeAttribution($beginDate, $hasAction, $actionExpired, $currentAttrLevel, $repl->level)) {
+                if ($this->shouldChangeAttribution($hasAction, $actionExpired, $currentAttrLevel, $repl->level)) {
                     $beginDate = $repl->capture_date;
                     $currentAttrLevel = (int)$repl->level;
                     $hasAction = 0; // by default must be false - can't switch if an action existed
@@ -108,26 +109,22 @@ class AttributionBatchService {
     }
 
 
-    protected function shouldChangeAttribution($captureDate, $hasAction, $actionExpired, $currentAttrLevel, $testAttrLevel) {
-
-        // needs to be explicitly checked - we don't just have the query to watch this
-        if ( $this->today->gte(Carbon::parse($captureDate)->addDays(self::EXPIRATION_DAY_RANGE)) ) {
-            // Older than pre-defined X days ago
-            
-            if ($hasAction && $actionExpired) {
-                return true;
-            }
-            elseif (0 === $currentAttrLevel) {
-                // no attribution at all, so we need to set it
-                return true;
-            }
-            elseif (!$hasAction && $testAttrLevel < $currentAttrLevel) {
-                // "less than" here means "has a higher attribution level"
-                return true;
-            }
+    protected function shouldChangeAttribution($hasAction, $actionExpired, $currentAttrLevel, $testAttrLevel) {
+    
+        if ($hasAction && $actionExpired) {
+            return true;
         }
-
-        return false;
+        elseif (0 === $currentAttrLevel) {
+            // no attribution at all, so we need to set it
+            return true;
+        }
+        elseif (!$hasAction && $testAttrLevel < $currentAttrLevel) {
+            // "less than" here means "has a higher attribution level"
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     protected function changeAttribution($emailId, $feedId, $captureDate) {

@@ -1,10 +1,10 @@
-mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'ClientApiService' , '$mdToast'  , '$mdSidenav' , '$log' , '$location' , function ( AttributionApiService , ClientApiService , $mdToast , $mdSidenav , $log , $location ) {
+mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedApiService' , 'AttributionProjectionService' , 'ThreeMonthReportService' , '$mdToast'  , '$mdSidenav' , '$log' , '$location' , function ( AttributionApiService , FeedApiService , AttributionProjectionService , ThreeMonthReportService , $mdToast , $mdSidenav , $log , $location ) {
     var self = this;
 
     self.current = { "id" : 0 , "name" : '' };
 
     self.models = [];
-    self.clients = [];
+    self.feeds = [];
     self.clientLevels = {};
 
     self.levelCopySideNavId = 'levelCopy';
@@ -19,6 +19,86 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'Client
     self.pageCount = 0;
     self.reachedFirstPage = true;
     self.reachedMaxPage = false;
+
+    self.showModelActions = false;
+    self.selectedModelId = 0;
+    self.selectedModel = [];
+    self.modelQueryPromise = null;
+    self.disableProjection = false;
+
+    self.reportRecords = [];
+    self.reportRecordTotals = {};
+    self.reportQueryPromise = null;
+
+    self.currentMonth = ThreeMonthReportService.currentMonth;
+    self.lastMonth = ThreeMonthReportService.lastMonth;
+    self.twoMonthsAgo = ThreeMonthReportService.twoMonthsAgo;
+
+    self.feedNameMap = ThreeMonthReportService.feedNameMap;
+    self.clientNameMap = ThreeMonthReportService.clientNameMap;
+    self.exportReport = ThreeMonthReportService.exportReport;
+
+    self.projectionRecords = [];
+    self.initProjectionChart = AttributionProjectionService.initChart;
+    self.refreshProjectionPage = AttributionProjectionService.refreshPage;
+
+    self.initIndexPage = function () {
+        self.loadModels();
+        self.loadReportRecords();
+        ThreeMonthReportService.loadClientAndFeedNames();
+    };
+
+    self.initProjectionPage = function () {
+        ThreeMonthReportService.loadClientAndFeedNames();
+        AttributionProjectionService.initPage();
+    }
+
+    self.toggleModelActionButtons = function () {
+        if ( self.selectedModel.length > 0 ) {
+            self.selectedModelId = self.selectedModel[0].id;
+            self.showModelActions = true;
+
+            if ( self.selectedModel[0].live == 1 ) {
+                self.disableProjection = true;
+            } else {
+                self.disableProjection = false;
+            }
+        } else {
+            self.selectedModelId = 0;
+            self.showModelActions = false;
+        }
+    };
+
+    self.loadReportRecords = function () {
+        self.reportQueryPromise = ThreeMonthReportService.getRecords(
+            function ( response ) {
+                self.reportRecords = response.data.records;
+                self.reportRecordTotals = response.data.totals;
+            } ,
+            function ( response ) {
+                $mdToast.show(
+                    $mdToast.simple()
+                        .textContent( 'Failed to load Attribution Report Records. Please contact support.' )
+                        .hideDelay( 1500 )
+                );
+            }
+        );
+    }
+
+    self.loadProjectionRecords = function () { 
+        self.projectionReportQueryPromise = AttributionProjectionService.loadRecords(
+            function ( response ) {
+                self.projectionRecords = response.data;
+            } ,
+            function ( response ) {
+                $mdToast.show(
+                    $mdToast.simple()
+                        .textContent( 'Failed to load projection table data. Please contact support.' )
+                        .hideDelay( 1500 )
+                );
+            }
+        );
+    };
 
     self.initLevelCopyPanel = function () {
         self.loadModels();
@@ -56,15 +136,16 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'Client
             self.current.id = modelId;
 
             self.loadClients();
-            self.getModelName( modelId );
+            self.getModel( modelId );
         }
     };
 
-    self.getModelName = function ( modelId ) {
+    self.getModel = function ( modelId ) {
         AttributionApiService.getModel(
             modelId ,
             function ( response ) {
                 self.current.name = response.data[ 0 ].name;
+                self.current.live = response.data[ 0 ].live;
             } ,
             function ( response ) {
                 self.displayToast( 'Failed to load Model Information. Please contact support.' );
@@ -76,7 +157,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'Client
         var defaultSuccessCallback = function ( response ) {
             angular.forEach( response.data , function ( levelClient , key ) {
                 var clientIndex = self.clientIndex[ levelClient.client_id ];
-                self.clients[ clientIndex ].attribution_level = levelClient.level;
+                self.feeds[ clientIndex ].attribution_level = levelClient.level;
             } );
         };
 
@@ -96,7 +177,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'Client
     self.loadModels = function () {
         self.currentlyLoading = 1;
 
-        AttributionApiService.getModels(
+        self.modelQueryPromise = AttributionApiService.getModels(
             self.currentPage ,
             self.paginationCount ,
             function ( response ) {
@@ -130,7 +211,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'Client
 
         var levels = [];
 
-        angular.forEach( self.clients , function ( value , key ) {
+        angular.forEach( self.feeds , function ( value , key ) {
             levels.push( { "id" : value.id , "level" : key + 1 } );
         } );
 
@@ -163,7 +244,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'Client
 
         var levels = [];
 
-        angular.forEach( self.clients , function ( value , key ) {
+        angular.forEach( self.feeds , function ( value , key ) {
             levels.push( { "id" : value.id , "level" : key + 1 } );
         } );
 
@@ -177,6 +258,36 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'Client
             function ( response ) {
                 self.displayToast( 'Failed to update Model. Please contact support.' );
         } );
+    };
+
+    self.setModelLive = function () {
+        AttributionApiService.setModelLive(
+            self.selectedModelId ,
+            function ( response ) {
+                self.displayToast( 'Feed Levels are updated. Please run attribution.' );
+
+                self.loadModels();
+            },
+            function ( response ) {
+                self.displayToast( 'Failed to update Feed Levels. Please contact support.' );
+            }
+        );
+    };
+
+    self.runAttribution = function ( modelRun ) {
+        var modelId = '';
+        if ( modelRun ) {
+            modelId = self.selectedModelId;
+        }
+
+        AttributionApiService.runAttribution(
+            modelId ,
+            function ( response ) {
+                self.displayToast( 'Attribution is running.' );
+            } , function ( response ) {
+                self.displayToast( 'Failed to start Attribution Run. Please contact support.' );
+            }
+        );
     };
 
     self.copyModelPreview = function ( $event , currentModelId ) {
@@ -200,7 +311,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'Client
 
                 $mdSidenav( self.levelCopySideNavId ).close();
 
-                self.displayToast( 'Successfully copied client levels.' );
+                self.displayToast( 'Successfully copied feed levels.' );
             } , 
             function ( response ) {
                 self.displayToast( 'Failed to copy client levels. Please contact support.' );
@@ -208,11 +319,23 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'Client
         );
     };
 
+    self.syncMt1Levels = function () {
+        AttributionApiService.syncMt1Levels(
+            function ( response ) {
+                self.loadLevels( self.getModelId() );
+                self.displayToast( 'Successfully synced MT1 feed levels.' );
+            } , 
+            function ( response ) {
+                self.displayToast( 'Failed to sync MT1 feed levels. Please contact support.' );
+            } 
+        );
+    };
+
     self.loadClients = function ( altModelId , altSuccessCallback ) {
         var successCallback = function ( response ) { 
-            self.clients = response.data;
+            self.feeds = response.data;
 
-            angular.forEach( self.clients , function ( value , key ) {
+            angular.forEach( self.feeds , function ( value , key ) {
                 self.clientLevels[ value.id ] = key + 1;
             } );
         };
@@ -228,26 +351,26 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'Client
         }
 
         if ( modelId === null ) {
-            ClientApiService.getAllClients(
+            FeedApiService.getAllFeeds(
                 function ( response ) {
-                    var clientList = [];
+                    var feedList = [];
 
                     angular.forEach( response.data , function ( client , key ) {
-                        clientList.push( { "id" : client.client_id , "name" : client.username } );
+                        feedList.push( { "id" : client.client_id , "name" : client.username } );
                     } );
 
-                    self.clients = clientList;
+                    self.feeds = feedList;
                 } ,
                 function ( response ) {
-                    self.displayToast( 'Failed to load Clients. Please contact support.' );
+                    self.displayToast( 'Failed to load Feeds. Please contact support.' );
                 }
             );
         } else {
-            AttributionApiService.getModelClients(
+            AttributionApiService.getModelFeeds(
                 modelId ,
                 successCallback ,
                 function ( response ) {
-                    self.displayToast( 'Failed to load Clients. Please contact support.' );
+                    self.displayToast( 'Failed to load Feeds. Please contact support.' );
                 }
             );
         }

@@ -45,7 +45,7 @@
                     </div>
                 </div>
                 <div style="text-align:center">
-                    <p><a href="{{ url('forgot_password') }}">Forgot Password?</a></p>
+                    <p><a target="_parent" href="{{ url('forgot_password') }}">Forgot Password?</a></p>
                 </div>
             </div>
         </div>

@@ -20,30 +20,45 @@
                 <span>Copy Model</span>
             </md-button>
         @endif
+
+        <!-- MAKE ROUTE -->
+        @if (Sentinel::hasAccess('api.attribution.model.syncLevels'))
+            <md-button ng-click="attr.syncMt1Levels( $event )" ng-show="attr.current.live" aria-label="Sync MT1 Levels">
+                <span>Sync MT1 Levels</span>
+            </md-button>
+        @endif
     </div>
 
     <md-menu ng-hide="app.largePageWidth()" md-position-mode="target-right target">
-      <md-button aria-label="Open menu" class="md-icon-button" ng-click="$mdOpenMenu($event)">
-        <md-icon md-svg-src="img/icons/ic_more_horiz_white_24px.svg"></md-icon>
-      </md-button>
-      <md-menu-content width="3">
-        <md-menu-item>
+        <md-button aria-label="Open menu" class="md-icon-button" ng-click="$mdOpenMenu($event)">
+            <md-icon md-svg-src="img/icons/ic_more_horiz_white_24px.svg"></md-icon>
+        </md-button>
+        <md-menu-content width="3">
             @if (Sentinel::hasAccess('api.attribution.model.update'))
+            <md-menu-item>
                 <md-button ng-click="attr.updateModel( $event , attrModelForm )" aria-label="Add Attribution Model">
                     <span>Update Model</span>
                 </md-button>
+            </md-menu-item>
             @endif
-        </md-menu-item>
-          <md-menu-item>
+
             @if (Sentinel::hasAccess('api.attribution.model.copyLevels'))
+            <md-menu-item>
                 <md-button ng-click="attr.copyModelPreview( $event )" aria-label="Add Attribution Model">
                     <span>Copy Model</span>
                 </md-button>
+            </md-menu-item>
             @endif
-          </md-menu-item>
-      </md-menu-content>
-    </md-menu>
 
+            @if (Sentinel::hasAccess('api.attribution.model.syncLevels'))
+            <md-menu-item ng-show="attr.current.live">
+                <md-button ng-click="attr.syncMt1Levels( $event )" aria-label="Sync MT1 Levels">
+                    <span>Sync MT1 Levels</span>
+                </md-button>
+            </md-menu-item>
+            @endif
+        </md-menu-content>
+    </md-menu>
 @stop
 
 @section( 'content' )
@@ -60,5 +75,5 @@
 
 
 @section( 'pageIncludes' )
-<script src="js/recordAttribution.js"></script>
+<script src="js/attribution.js"></script>
 @stop

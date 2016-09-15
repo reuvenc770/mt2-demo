@@ -1,25 +1,38 @@
 <?php
+/**
+ * @author Adam Chin <achin@zetainteractive.com>
+ */
 
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
-use App\Services\MT1ApiService;
-use App\Http\Requests\AttributionPostRequest;
-use App\Services\MT1Services\ClientAttributionService;
-use Laracasts\Flash\Flash;
+
+use App\Services\AttributionModelService;
+use App\Http\Requests\AttributionModelRequest;
+
+use App\Collections\Attribution\ProjectionChartCollection;
+use App\Collections\Attribution\ProjectionReportCollection;
+
+use Artisan;
+use Cache;
 
 class AttributionController extends Controller
 {
-    const ATTRIBUTION_UPLOAD_ENDPOINT ="attribution_update";
+    protected $service;
 
-    protected $api;
-    protected $attributionApi;
+    protected $chartCollection;
+    protected $reportCollection;
 
-    public function __construct ( MT1ApiService $api, ClientAttributionService $attrService  ) {
-        $this->api = $api;
-        $this->attributionApi = $attrService;
+    public function __construct (
+        AttributionModelService $service ,
+        ProjectionChartCollection $chartCollection ,
+        ProjectionReportCollection $reportCollection
+    ) {
+        $this->service = $service; 
+        $this->chartCollection = $chartCollection;
+        $this->reportCollection = $reportCollection;
     }
 
     /**
@@ -27,15 +40,13 @@ class AttributionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index( Request $request )
+    public function index()
     {
-        $clients = $this->attributionApi->getFeedList( $request->input( 'page' ) , $request->input( 'count' ) );
-
-        return response( $clients );
+        //
     }
 
     public function listAll () {
-        return response()->view( 'pages.client_attribution' );
+        return response()->view( 'pages.attribution.attribution-index' );
     }
 
     /**
@@ -45,7 +56,7 @@ class AttributionController extends Controller
      */
     public function create()
     {
-        return response( 'Unauthorized' , 401 );
+        return response()->view( 'pages.attribution.attribution-add' );
     }
 
     /**
@@ -54,20 +65,9 @@ class AttributionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store( AttributionPostRequest $request )
+    public function store(AttributionModelRequest $request)
     {
-        $response = [ 'status' => false ];
-
-        $postResponse =  $this->api->postForm( self::ATTRIBUTION_UPLOAD_ENDPOINT , $request->all() );
-
-        $responseArr = json_decode( $postResponse , true );
-
-        if ( array_key_exists( 'status' , $responseArr )  )  {
-            $response[ 'status' ] = true;
-            $this->attributionApi->flushCache();
-        }
-
-        return response()->json( $response );
+        return response()->json( [ $this->service->create( $request->input( 'name' ) , $request->input( 'levels' ) ) ] );
     }
 
     /**
@@ -78,7 +78,7 @@ class AttributionController extends Controller
      */
     public function show($id)
     {
-        return response( 'Unauthorized' , 401 );
+        return response()->json( $this->service->get( $id ) );
     }
 
     /**
@@ -89,7 +89,7 @@ class AttributionController extends Controller
      */
     public function edit($id)
     {
-        return response( 'Unauthorized' , 401 );
+        return response()->view( 'pages.attribution.attribution-edit' );
     }
 
     /**
@@ -99,9 +99,13 @@ class AttributionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(AttributionModelRequest $request, $id)
     {
-        return response( 'Unauthorized' , 401 );
+        $status = $this->service->updateModel( $id , $request->input( 'name' ) , $request->input( 'levels' ) );
+
+        Cache::tags( 'AttributionModel' )->flush();
+
+        return response()->json( [ 'status' => $status ] );
     }
 
     /**
@@ -112,6 +116,59 @@ class AttributionController extends Controller
      */
     public function destroy($id)
     {
-        return response( 'Unauthorized' , 401 );
+        //
+    }
+
+    public function levels ( $modelId ) {
+        return response()->json( $this->service->levels( $modelId ) );
+    }
+    
+    public function copyLevels ( Request $request ) {
+        return response()->json( [ "status" => 
+            $this->service->copyLevels(
+                $request->input( 'currentModelId' ) ,
+                $request->input( 'templateModelId' )
+            )
+        ] );
+    }
+
+    public function syncLevelsWithMT1 () {
+        return response()->json( [ "status" => $this->service->syncLevelsWithMT1() ] );
+    }
+
+    public function setModelLive ( $modelId ) {
+        $status = $this->service->setLive( $modelId );
+
+        Cache::tags( 'AttributionModel' )->flush();
+
+        return response()->json( [ "status" => $status ] );
+    }
+
+    public function runAttribution ( Request $request ) {
+        if ( $request->input( 'modelId' ) > 0 ) {
+            Artisan::queue( 'attribution:commit' , [ 
+                'modelId' => $request->input( 'modelId' )
+            ] );
+        } else {
+            Artisan::queue( 'attribution:commit' );
+        }
+
+        return response()->json( [ "status" => true ] );
+    }
+
+    public function getModelFeeds ( $modelId ) {
+        return response()->json( $this->service->getModelFeeds( $modelId ) );
+    }
+
+    public function showProjection ( $modelId ) {
+        return response()->view( 'pages.attribution.attribution-projection' );
+    }
+
+    public function getChartData ( $modelId ) {
+        return $this->chartCollection->getChartData( $modelId );
+    }
+
+    public function getReportData ( $modelId ) {
+        return $this->reportCollection->getReportData( $modelId );
     }
 }

@@ -7,6 +7,11 @@
     </head>
     <body ng-app="mt2App" ng-controller="AppController as app" layout="row" ng-cloak>
         {!! $menu->getMenuHtml() !!}
+        <script type="text/javascript">
+            var _config = {
+                userId : {{Sentinel::check() ? Sentinel::getUser()->id: 0}}
+            };
+        </script>
 
         <div @yield( 'angular-controller' ) layout="column" layout-fill flex>
             @include( 'layout.main-header' )

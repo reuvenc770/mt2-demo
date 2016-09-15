@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
-use App\Jobs\SyncMT1FeedLevels;
+use App\Jobs\SyncMT1FeedLevels as SyncJob;
 
 class SyncMT1FeedLevels extends Command
 {
@@ -43,6 +43,6 @@ class SyncMT1FeedLevels extends Command
      */
     public function handle()
     {
-        $this->dispatch( new SyncMT1FeedLevels( str_random( 16 ) ) );
+        $this->dispatch( new SyncJob( str_random( 16 ) ) );
     }
 }

@@ -30,7 +30,7 @@ class EspAdvertiserJoinDeployMapStrategy implements IMapStrategy {
             'from_id' => $record['fromID'],
             'subject_id' => $record['subjectID'],
             'cake_affiliate_id' => $record['affiliateID'],
-            'deployed' => 1,
+            'deployment_status' => 1,
             'content_domain_id' => 0,
             'mailing_domain_id' => 0,
             'template_id' => 0,

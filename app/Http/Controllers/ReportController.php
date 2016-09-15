@@ -13,7 +13,7 @@ use Carbon\Carbon;
 
 use Log;
 
-class AttributionReportController extends Controller
+class ReportController extends Controller
 {
     protected $reportType;
     protected $collection;
@@ -42,7 +42,7 @@ class AttributionReportController extends Controller
     }
 
     public function view () {
-        return response()->view( 'pages.attribution.attribution-report' );
+        return response()->view( 'pages.report.report-index' );
     }
 
     public function getRecords ( Request $request ) {

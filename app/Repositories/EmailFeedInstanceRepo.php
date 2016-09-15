@@ -133,15 +133,71 @@ class EmailFeedInstanceRepo {
 
         $results = DB::select( DB::raw( "
             SELECT
-                COUNT( * ) AS 'uniques'
+                COUNT( x.email_address ) AS 'uniques'
             FROM
-                {$mt2Db}.email_feed_instances e1
-                LEFT JOIN {$mt2Db}.email_feed_instances e2 ON( e1.email_id = e2.email_id AND e1.id <> e2.id AND e2.capture_date < :dateCeiling )
-            WHERE
-                e1.feed_id = :feedId
-                AND e1.capture_date = :date
-                AND e2.id IS NULL" ) , 
-            [ ':dateCeiling' => $date , ':date' => $date , ':feedId' => $feedId ]     
+               ( SELECT
+                   e.email_address
+               FROM
+                   mt2_data.email_feed_instances efi1
+                   LEFT JOIN mt2_data.email_feed_instances efi2 ON efi1.email_id = efi2.email_id
+                   INNER JOIN mt2_data.emails e ON efi1.email_id = e.id
+                  
+               WHERE
+                   efi1.capture_date = '{$date}'
+                   AND
+                   efi1.id <> efi2.id
+                   AND
+                   efi2.capture_date <= '{$date}'
+                   AND
+                   efi2.id IS NULL
+                   AND
+                   efi1.feed_id = '{$feedId}'
+             
+               UNION DISTINCT
+             
+               SELECT
+                   e.email_address
+               FROM
+                   mt2_data.email_feed_instances efi
+                   INNER JOIN attribution.email_feed_assignments efa ON efi.email_id = efa.email_id
+                   INNER JOIN mt2_data.emails e ON efa.email_id = e.id
+               WHERE
+                   efi.feed_id = '{$feedId}'
+                   AND
+                   efi.capture_date = '{$date}'
+                   AND
+                   efa.capture_date < '{$date}' - INTERVAL 90 DAY
+                   AND
+                   efi.feed_id <> efa.feed_id
+                   AND
+                   efi.status = 'A'
+             
+               UNION DISTINCT
+             
+               SELECT
+                   e.email_address
+               FROM
+                   mt2_data.email_feed_instances efi FORCE INDEX(email_client_instances_capture_date_index)
+                   INNER JOIN attribution.email_feed_assignments efa ON efi.email_id = efa.email_id
+                   LEFT JOIN mt2_reports.email_campaign_statistics ecs ON efi.email_id = ecs.email_id
+                   INNER JOIN mt2_data.emails e ON efa.email_id = e.id
+                   INNER JOIN attribution.attribution_levels alImport ON efi.feed_id = alImport.feed_id
+                   INNER JOIN attribution.attribution_levels alOld ON efa.feed_id = alOld.feed_id
+               WHERE
+                   efi.capture_date = '{$date}'
+                   AND
+                   efa.capture_date BETWEEN '{$date}' - INTERVAL 90 DAY AND '{$date}' - INTERVAL 10 DAY
+                   AND
+                   alImport.level < alOld.level
+                   AND
+                   efi.status = 'A'
+                   AND
+                   efi.feed_id = '{$feedId}'
+               GROUP BY
+                   efi.email_id
+              
+               HAVING
+                   SUM(IFNULL(ecs.esp_total_opens, 0)) = 0 ) x" )
         );
 
         if ( count( $results ) > 0 ) {
