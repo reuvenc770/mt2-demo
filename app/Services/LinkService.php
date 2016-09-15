@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Repositories\LinkRepo;
+use Exception;
+use Guzzle;
 
 class LinkService {
     
@@ -12,11 +14,37 @@ class LinkService {
         $this->repo = $repo;
     }
 
-    public function checkLink($link) {
-        throw new Exception('Not implemented yet');
+    /**
+     *  Checks link validity
+     *  If the redirects fail, throw an exception
+     *  If the old cookie domain servegent.com appears, return false
+     *  Otherwise, return true
+     */
 
-        // returns 
+    public function checkLink($link) {
+        $result = Guzzle::get($link, [
+            'allow_redirects' => [
+                    'max' => 500,
+                    'strict' => false,
+                    'referrer' => false,
+                    'protocols' => ['http', 'https'],
+                    'track_redirects' => true
+                ],
+        ]);
+
+        if (404 === (int)$result->getStatusCode()) {
+            throw new Exception("Link $link is a 404");
+        }
+
+        $body = (string)$result->getBody();
+
+        if (strpos($body, 'servegent.com')) {
+            return false; // continue with this here, or throw another exception?
+        }
+
+        return true;
     }
+
 
     public function getLinkId($url) {
         return $this->repo->getLinkId($url);
