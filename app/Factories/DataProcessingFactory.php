@@ -119,6 +119,11 @@ class DataProcessingFactory {
                 $mt2Name = 'OfferTrackingLink';
                 return self::createMt1ImportService($mt1Name, $mt2Name);
 
+            case ('ImportMt1MailingTemplate'):
+                $mt1Name = 'BrandTemplate';
+                $mt2Name = 'MailingTemplate';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
             default:
                 throw new \Exception("Data processing service {$name} does not exist");
         }

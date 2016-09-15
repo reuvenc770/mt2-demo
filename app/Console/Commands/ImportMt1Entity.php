@@ -90,6 +90,9 @@ class ImportMt1Entity extends Command
             case "offerTrackingLink":
                 return "ImportMt1OfferTracking";
 
+            case "mailingTemplate":
+                return "ImportMt1MailingTemplate";
+
             default:
                 throw new \Exception('Unsupported entity type: ' . $type);
         }
