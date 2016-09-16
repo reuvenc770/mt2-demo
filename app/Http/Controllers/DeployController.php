@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\DeployService;
-use App\Services\EspApiService;
+use App\Services\EspService;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -20,7 +20,7 @@ class DeployController extends Controller
 
     }
 
-    public function listAll(EspApiService $espService)
+    public function listAll(EspService $espService)
     {
         $esps = $espService->getAllEsps();
         return response()->view('pages.deploy.deploy-index', ['esps' => $esps]);

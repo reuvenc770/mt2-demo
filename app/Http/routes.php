@@ -91,17 +91,37 @@ Route::group(
     function () {
         Route::get( '/' , [
             'as' => 'espapi.list' ,
-            'uses' => 'EspApiController@listAll'
+            'uses' => 'EspApiAccountController@listAll'
         ] );
 
         Route::get( '/create' , [
             'as' => 'espapi.add' ,
-            'uses' => 'EspApiController@create'
+            'uses' => 'EspApiAccountController@create'
         ] );
 
         Route::get( '/edit/{id}' , [
             'as' => 'espapi.edit' ,
-            'uses' => 'EspApiController@edit'
+            'uses' => 'EspApiAccountController@edit'
+        ] );
+    }
+);
+/**
+ *
+ */
+Route::group(
+    [
+        'prefix' => 'esp',
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' , [
+            'as' => 'esp.list' ,
+            'uses' => 'EspController@listAll'
+        ] );
+
+        Route::get( '/edit/{id}' , [
+            'as' => 'esp.edit' ,
+            'uses' => 'EspController@edit'
         ] );
     }
 );
@@ -934,7 +954,7 @@ Route::group(
 
         Route::get( '/espapi/espAccounts/{name}' , [
             'as' => 'api.espapi.GetAll' ,
-            'uses' => 'EspApiController@displayEspAccounts'
+            'uses' => 'EspController@displayEspAccounts'
         ] );
         /**
          * API Resources
@@ -943,15 +963,20 @@ Route::group(
             'espapi/all' ,
             [
                 'as' => 'api.espapi.returnAll' ,
-                'uses' => 'EspApiController@returnAll'
+                'uses' => 'EspApiAccountController@returnAll'
             ]
         );
         Route::resource(
-            'espapi' ,
-            'EspApiController' ,
+            'esp' ,
+            'EspController' ,
             [ 'except' => [ 'create' , 'edit' ] ]
         );
 
+        Route::resource(
+            'espapi' ,
+            'EspApiAccountController' ,
+            [ 'except' => [ 'create' , 'edit' ] ]
+        );
 
         Route::resource(
             'ymlp-campaign' ,
@@ -1055,7 +1080,7 @@ Route::group(
 
         Route::get('/mailingtemplate/templates/{id}', [
             'as' => 'api.mailingtemplate.listbyesp',
-            'uses' => 'EspApiController@grabTemplatesByESP'
+            'uses' => 'EspController@grabTemplatesByESP'
         ]);
         Route::resource(
             'mailingtemplate',

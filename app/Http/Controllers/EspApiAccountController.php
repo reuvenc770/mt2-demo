@@ -8,17 +8,17 @@ use Illuminate\Http\Response;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Services\EspApiAccountService;
-use App\Services\EspApiService;
+use App\Services\EspService;
 use App\Http\Requests\EspApiAddRequest;
 use App\Http\Requests\EspApiEditRequest;
 use Laracasts\Flash\Flash;
-class EspApiController extends Controller
+class EspApiAccountController extends Controller
 {
     protected $espService;
 
     protected $espAccountService;
 
-    public function __construct ( EspApiService $espService , EspApiAccountService $espAccountService ) {
+    public function __construct (EspService $espService , EspApiAccountService $espAccountService ) {
         $this->espService = $espService;
         $this->espAccountService = $espAccountService;
     }
