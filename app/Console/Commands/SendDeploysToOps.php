@@ -2,29 +2,28 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\SendOpsDeploys;
 use Illuminate\Console\Command;
-
+use Carbon\Carbon;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
-use App\Jobs\SyncMT1FeedLevels as SyncJob;
-
-class SyncMT1FeedLevels extends Command
+class SendDeploysToOps extends Command
 {
     use DispatchesJobs;
-
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'attribution:mt1LevelSync';
+    protected $deploys;
+    protected $signature = 'deploys:sendtoops {deploysCommaList}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'This command fires a job to update Feed levels with MT1.';
+    protected $description = 'Grabs Deploys for the Comma delimited deploy list and places them on the Ops FTP';
 
     /**
      * Create a new command instance.
@@ -43,6 +42,8 @@ class SyncMT1FeedLevels extends Command
      */
     public function handle()
     {
-        $this->dispatch( new SyncJob( str_random( 16 ) ) );
+        $this->deploys = $this->argument("deploysCommaList");
+        $job = (new SendOpsDeploys($this->deploys, str_random(16)));
+        $this->dispatch($job);
     }
 }

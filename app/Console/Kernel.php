@@ -61,6 +61,8 @@ class Kernel extends ConsoleKernel
         Commands\PopulateAttributionRecordReport::class,
         Commands\ImportMt1Entity::class,
         Commands\AttributionBatchProcess::class,
+        Commands\SendDeploysToOps::class,
+        Commands\SyncMT1FeedLevels::class,
     ];
 
     /**
