@@ -105,6 +105,26 @@ Route::group(
         ] );
     }
 );
+/**
+ *
+ */
+Route::group(
+    [
+        'prefix' => 'esp',
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' , [
+            'as' => 'esp.list' ,
+            'uses' => 'EspController@listAll'
+        ] );
+
+        Route::get( '/edit/{id}' , [
+            'as' => 'esp.edit' ,
+            'uses' => 'EspController@edit'
+        ] );
+    }
+);
 
 
 /**
@@ -947,11 +967,16 @@ Route::group(
             ]
         );
         Route::resource(
+            'esp' ,
+            'EspController' ,
+            [ 'except' => [ 'create' , 'edit' ] ]
+        );
+
+        Route::resource(
             'espapi' ,
             'EspApiAccountController' ,
             [ 'except' => [ 'create' , 'edit' ] ]
         );
-
 
         Route::resource(
             'ymlp-campaign' ,

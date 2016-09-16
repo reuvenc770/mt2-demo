@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Services\EspService;
+use Laracasts\Flash\Flash;
 class EspController extends Controller
 {
     protected $espService;
@@ -22,7 +23,7 @@ class EspController extends Controller
      */
     public function index()
     {
-        $accounts = $this->espService->getAllAccounts();
+        $accounts = $this->espService->getAllEsps();
 
         return response()->json( $accounts );
     }
@@ -50,7 +51,7 @@ class EspController extends Controller
      */
     public function show($id)
     {
-        return $this->espAccountService->getAccount( $id );
+        return $this->espService->getAccount( $id );
 
     }
 
@@ -62,7 +63,8 @@ class EspController extends Controller
      */
     public function edit( $id )
     {
-
+        return response()
+            ->view( 'pages.esp.esp-edit' );
     }
 
     /**

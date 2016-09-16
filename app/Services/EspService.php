@@ -2,7 +2,8 @@
 
 namespace App\Services;
 
-use App\Repositories\EspApiRepo;
+use App\Repositories\EspRepo;
+use App\Services\ServiceTraits\PaginateList;
 use League\Csv\Reader;
 /**
  * Class EspApiService
@@ -10,6 +11,7 @@ use League\Csv\Reader;
  */
 class EspService
 {
+    use PaginateList;
     /**
      * @var EspRepo
      */
@@ -17,11 +19,15 @@ class EspService
 
     /**
      * EspService constructor.
-     * @param EspApiRepo $espRepo
+     * @param EspRepo $espRepo
      */
-    public function __construct(EspApiRepo $espRepo)
+    public function __construct(EspRepo $espRepo)
     {
         $this->espRepo = $espRepo;
+    }
+
+    public function getAccount($id){
+        return $this->espRepo->getAccountWithFields($id);
     }
 
     /**
@@ -34,5 +40,23 @@ class EspService
     public function getIdByName($name){
         $esp = $this->espRepo->getEspByName($name);
         return $esp->id;
+    }
+
+    public function updateMappings($mapping){
+        return $this->updateEspMappings($mapping);
+    }
+
+    public function getModel(){
+        return $this->espRepo->returnModelwithFields();
+    }
+
+    public function updateAccount($id, $fieldOptions){
+        //only field options for now
+       return  $this->espRepo->updateFieldOptions($id, $fieldOptions);
+    }
+
+    //override return model so its a builder and not Collection
+    public function getType(){
+        return "Esp";
     }
 }

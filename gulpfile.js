@@ -87,6 +87,14 @@ elixir.extend( 'deployEspApiJs' , function ( mix ) {
     ] , 'public/js/espapi.js' );
 } );
 
+elixir.extend( 'deployEspJs' , function ( mix ) {
+    mix.scripts( [
+        'esp/EspController.js' ,
+        'esp/EspService.js' ,
+        'esp/EspTableDirective.js'
+    ] , 'public/js/esp.js' );
+} );
+
 elixir.extend( 'deployDomainJs' , function ( mix ) {
     mix.scripts( [
         'domain/DomainController.js' ,
@@ -259,6 +267,7 @@ elixir.extend( 'deployDataCleanseJs' , function ( mix ) {
 
 elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployBaseAngular( mix );
+    mix.deployEspJs( mix );
     mix.deployEspApiJs( mix );
     mix.deployUserJs( mix );
     mix.deployRoleJs( mix );
@@ -318,6 +327,9 @@ var mt2TaskMap = {
     } ,
     'deployEspApiJs' : function  ( mix ) {
         mix.deployEspApiJs( mix );
+    } ,
+    'deployEspJs' : function  ( mix ) {
+        mix.deployEspJs( mix );
     } ,
     'deployUserJs' : function ( mix ) {
         mix.deployUserJs( mix );
