@@ -9,13 +9,17 @@
             <th md-column md-order-by="contact_email" class="md-table-header-override-whitetext">Contact Email</th>
             <th md-column md-order-by="phone_number" class="md-table-header-override-whitetext">Phone</th>
             <th md-column md-order-by="entity_name" class="md-table-header-override-whitetext">Entity Name</th>
-            <th md-column></th>
+            <th md-column md-order-by="status" class="md-table-header-override-whitetext">Status</th>
         </tr>
         </thead>
 
         <tbody md-body>
-        <tr md-row ng-repeat="record in registrar.accounts track by $index" ng-class="{ rowDisabled : registrar.status == 0 }">
-            <td md-cell><edit-button editurl="'/registrar/edit/'" recordid="record.id"></edit-button></td>
+        <tr md-row ng-repeat="record in registrar.accounts track by $index" ng-class="{ 'mt2-row-disable' : record.status == 0 }">
+            <td md-cell>
+                <md-button class="md-raised" ng-class="{'md-icon-button mt2-icon-button-xs' : !app.mediumPageWidth() , 'mt2-button-xs' : app.mediumPageWidth() }" ng-href="@{{ '/registrar/edit/' + record.id }}" target="_self">
+                    <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon><span ng-show="app.mediumPageWidth()"> Edit</span>
+                </md-button>
+            </td>
             <td md-cell>@{{ record.name }}</td>
             <td md-cell>@{{ record.username }}</td>
             <td md-cell>@{{ record.contact_name }}</td>
@@ -23,8 +27,8 @@
             <td md-cell>@{{ record.phone_number }}</td>
             <td md-cell>@{{ record.entity_name }}</td>
             <td md-cell>
-                <span ng-if="record.status == 1" class="btn btn-danger" ng-click="ctrl.toggle({recordId : record.id, direction : 0})">Deactivate</span>
-                <span ng-if="record.status == 0" class="btn btn-success" ng-click="ctrl.toggle({recordId : record.id, direction : 1})">Activate</span>
+                <md-button ng-if="record.status == 1" class="md-raised md-warn md-hue-2 mt2-button-xs" ng-click="registrar.toggle( record.id , 0 )">Deactivate</md-button>
+                <md-button ng-if="record.status == 0" class="md-raised mt2-button-success mt2-button-xs" ng-click="registrar.toggle(record.id, 1 )">Activate</span>
             </td>
         </tr>
         </tbody>

@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 
+use Illuminate\Support\Facades\Cache;
+
 class MailingTemplateController extends Controller
 {
     public $service;
@@ -61,6 +63,7 @@ class MailingTemplateController extends Controller
 
         $this->service->insertTemplate($insertData, $espIds);
 
+        Cache::tags( $this->service->getType() )->flush();
     }
 
     /**
@@ -112,8 +115,10 @@ class MailingTemplateController extends Controller
             "template_text" => $request->input("text"),
         ];
         $this->service->updateTemplate($insertData, $id, $espIds);
-        return response()->json(["success"=>true]);
 
+        Cache::tags( $this->service->getType() )->flush();
+
+        return response()->json(["success"=>true]);
     }
 
     /**

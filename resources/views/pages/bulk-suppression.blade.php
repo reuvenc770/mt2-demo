@@ -7,7 +7,7 @@
 <div ng-controller="BulkSuppressionController as supp">
     <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
 
-        <div flex-gt-md="50" flex="100">
+        <div flex-gt-md="80" flex="100">
             <button type="button" class="btn btn-success btn-md pull-right"
                 ng-disabled="!supp.emailsLoaded"
                 ng-click="supp.uploadSuppressions()">
@@ -75,12 +75,13 @@
                                             <th md-column class="md-table-header-override-whitetext" md-numeric>File Size</th>
                                             <th md-column class="md-table-header-override-whitetext">#Chunks</th>
                                             <th md-column class="md-table-header-override-whitetext">Progress</th>
-                                            <th md-column class="md-table-header-override-whitetext mt2-th-center">Download Status</th>
-                                            <th md-column class="md-table-header-override-whitetext mt2-th-center">Settings</th>
+                                            <th md-column class="md-table-header-override-whitetext mt2-table-header-center">Download Status</th>
+                                            <th md-column class="md-table-header-override-whitetext mt2-table-header-center">Settings</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr md-row ng-repeat="file in transfers">
+                                        <!-- <tr md-row ng-repeat="file in [{},{},{}]"> -->
                                             <td md-cell>@{{ $index + 1 }}</td>
                                             <td md-cell>@{{ file.name }}</td>
                                             <td md-cell>@{{ file.size | bytes }}</td>
@@ -88,10 +89,10 @@
                                             <td md-cell>
                                                 <md-progress-linear class="md-warn" md-mode="determinate" ng-value="file.progress() * 100"></md-progress-linear>
                                             </td>
-                                            <td md-cell class="mt2-td-center" ng-class="{ 'bg-info' : file.isUploading() , 'bg-warning' : file.paused , 'bg-danger' : file.error , 'bg-success' : !file.error }">
+                                            <td md-cell class="mt2-table-cell-center" ng-class="{ 'bg-info' : file.isUploading() , 'bg-warning' : file.paused , 'bg-danger' : file.error , 'bg-success' : !file.error }">
                                                 <strong>@{{ file.isUploading() ? 'Downloading' : ( file.paused ? 'Paused': ( file.error ? 'Failed' : 'Successful' ) ) }}</strong>
                                             </td>
-                                            <td md-cell class="mt2-td-center">
+                                            <td md-cell class="mt2-table-cell-center">
                                                 <div layout="row" layout-align="center center">
                                                     <md-button class="md-raised md-warn mt2-button-xs" ng-click="file.pause()" ng-hide="file.paused">Pause</md-button>
                                                     <md-button class="md-raised mt2-button-success mt2-button-xs" ng-click="file.resume()" ng-show="file.paused">Resume</md-button>

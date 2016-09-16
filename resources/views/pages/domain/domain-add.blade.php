@@ -27,8 +27,10 @@
                         </div>
 
                         <div flex>
-                        <h2>Current Mailing Domains @{{ domain.extraText }}</h2>
-                            <domain-list-table toggle="domain.toggle(recordId, direction)"  records="domain.domains"></domain-list-table>
+                        <h2>&nbsp;Current Mailing Domains @{{ domain.extraText }}</h2>
+                        <md-card>
+                            @include( 'pages.domain.domain-list-table' )
+                        </md-card>
                         </div>
                     </md-content>
                 </md-tab>
@@ -51,8 +53,10 @@
                             </md-card>
                         </div>
                         <div flex>
-                            <h2>Current Content Domains @{{ domain.extraText }}</h2>
-                            <domain-list-table toggle="domain.toggle(recordId, direction)" records="domain.domains"></domain-list-table>
+                            <h2>&nbsp;Current Content Domains @{{ domain.extraText }}</h2>
+                            <md-card>
+                                @include( 'pages.domain.domain-list-table' )
+                            </md-card>
                         </div>
                     </md-content>
                 </md-tab>

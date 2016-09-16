@@ -6,6 +6,9 @@ mt2App.controller( 'DataCleanseController' , [ '$rootScope' , '$window' , '$loca
     self.pageCount = 0;
     self.paginationCount = '10';
     self.currentPage = 1;
+    self.cleanseTotal = 0;
+    self.sort = 'name';
+    self.queryPromise = null;
 
     self.current = { "exportType" : "Cleanse" , "ConfirmEmail" : "alphateam@zetainteractive.com" };
     self.cleanses = [];
@@ -29,16 +32,17 @@ mt2App.controller( 'DataCleanseController' , [ '$rootScope' , '$window' , '$loca
      * Loading Methods
      */
     self.load = function () {
-        DataCleanseApiService.getAll( self.currentPage , self.paginationCount , function ( response ) {
-            self.cleanses = response.data.data; 
+        self.queryPromise = DataCleanseApiService.getAll( self.currentPage , self.paginationCount , self.sort , function ( response ) {
+            self.cleanses = response.data.data;
             self.pageCount = response.data.last_page;
+            self.cleanseTotal = response.data.total;
         } , function ( response ) {
             $mdToast.showSimple( 'Failed to load Data Cleanses. Please contact support.' );
         } );
     };
 
     self.loadAdvertisers = function () {
-        DataCleanseApiService.getAdvertisers( function ( response ) { 
+        DataCleanseApiService.getAdvertisers( function ( response ) {
             self.advertisers = response.data;
         } , function ( response ) {
             $mdToast.showSimple( 'Failed to load Advertiser Suppression. Please contact support.' );

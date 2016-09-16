@@ -56,7 +56,6 @@ class FeedController extends Controller
         $countryList = $this->countryApi->getAll();
         return response()->view( 'pages.feed.feed-add' , [
             'countries' => ( !is_null( $countryList ) ? $countryList : [] ),
-            'payoutTypes' => $payoutTypes
         ] );
     }
 
@@ -73,7 +72,7 @@ class FeedController extends Controller
         Flash::success("Feed was Successfully Updated");
 
         $response = response( $this->api->postForm( self::CLIENT_UPDATE_API_ENDPOINT , $request->all() ) );
-        
+
         // temporarily picking off fields to be saved
         $response = json_decode($response, true);
         return response()->json($response);
@@ -87,7 +86,7 @@ class FeedController extends Controller
      */
     public function show($id)
     {
-        $response = $this->api->getJSON( self::CLIENT_API_ENDPOINT , [ 'clientId' => $id ]); 
+        $response = $this->api->getJSON( self::CLIENT_API_ENDPOINT , [ 'clientId' => $id ]);
 
         // mixing in variables from MT2
         $response = json_decode($response, true);
@@ -103,7 +102,7 @@ class FeedController extends Controller
     public function edit($id)
     {
         $countryList = $this->countryApi->getAll() ?: [];
-        return response()->view( 'pages.feed.feed-edit' , [ 
+        return response()->view( 'pages.feed.feed-edit' , [
             'countries' =>  $countryList
         ] );
     }

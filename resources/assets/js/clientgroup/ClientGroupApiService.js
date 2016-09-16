@@ -12,11 +12,18 @@ mt2App.service( 'ClientGroupApiService' , function ( $http ) {
         } ).then( successCallback , failureCallback );
     };
 
-    self.getClientGroups = function ( page , count , successCallback , failureCallback ) {
-        $http( {
+    self.getClientGroups = function ( page , count , sortField , successCallback , failureCallback ) {
+        var sort = { 'field' : sortField , 'desc' : false };
+
+        if (/^\-/.test( sortField ) ) {
+            sort.field = sort.field.substring( 1 );
+            sort.desc = true;
+        }
+
+        return $http( {
             "method" : "GET" ,
             "url" : self.pagerApiUrl ,
-            "params" : { "page" : page , "count" : count }
+            "params" : { "page" : page , "count" : count , "sort" : sort }
         } ).then( successCallback , failureCallback );
     };
 

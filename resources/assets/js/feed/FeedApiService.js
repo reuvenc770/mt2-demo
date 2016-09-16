@@ -14,9 +14,10 @@ mt2App.service( 'FeedApiService' , function ( $http , $log ) {
     };
 
     self.getFeeds = function ( page , count , successCallback , failureCallback ) {
-        $http( {
+
+        return $http( {
             "method" : "GET" ,
-            "url" : self.pagerApiUrl , 
+            "url" : self.pagerApiUrl ,
             "params" : { "page" : page , "count" : count }
         } ).then( successCallback , failureCallback );
     };
@@ -65,14 +66,14 @@ mt2App.service( 'FeedApiService' , function ( $http , $log ) {
 
     self.generateLinks = function ( id , successCallback , failureCallback ) {
         $http( {
-            "method" : "GET" , 
+            "method" : "GET" ,
             "url" : self.baseMt1ApiUrl + '/client/generatelinks/' + id
         } ).then( successCallback , failureCallback );
     };
 
     self.getFeedAttributionList = function ( currentPage , paginationCount , successCallback , failureCallback ) {
         $http( {
-            "method" : "GET" , 
+            "method" : "GET" ,
             "url" : self.attributionListApiUrl ,
             "params" : {
                 'page' : currentPage ,

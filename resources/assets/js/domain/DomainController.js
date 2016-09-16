@@ -42,11 +42,13 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     self.GlythMap  = { 1:"glyphicon-ok-circle", 0:"glyphicon glyphicon-ban-circle"};
     self.updatingAccounts = true;
     self.type = 1;
+    self.accountTotal = 0;
+    self.queryPromise = null;
 
 
 
     self.loadAccounts = function () {
-        DomainService.getAccounts(
+        self.queryPromise = DomainService.getAccounts(
             self.currentPage,
             self.paginationCount,
             self.loadAccountsSuccessCallback, self.loadAccountsFailureCallback);
@@ -135,6 +137,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     self.loadAccountsSuccessCallback = function (response) {
         self.accounts = response.data.data;
         self.pageCount = response.data.last_page;
+        self.accountTotal = response.data.total;
     };
 
     self.toggleRowSuccess = function ( response ) {

@@ -12,7 +12,13 @@
 
         <tbody md-body>
             <tr md-row ng-repeat="record in ymlp.campaigns track by $index">
-                <td md-cell><md-button ng-href="@{{'/ymlp/ymlp-campaign/edit/' + record.id}}" target="_self">Edit</md-button></td>
+                <td md-cell>
+                    <md-button class="md-raised"
+                                ng-class="{'md-icon-button mt2-icon-button-xs' : !app.mediumPageWidth() , 'mt2-button-xs' : app.mediumPageWidth() }"
+                                ng-href="@{{'/ymlp/ymlp-campaign/edit/' + record.id}}" target="_self">
+                       <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon><span ng-show="app.mediumPageWidth()"> Edit</span>
+                    </md-button>
+                </td>
                 <td md-cell>@{{ record.id }}</td>
                 <td md-cell>@{{ record.sub_id }}</td>
                 <td md-cell>@{{ record.esp_account_id }}</td>

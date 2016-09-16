@@ -18,7 +18,7 @@
 
     <md-menu ng-hide="app.largePageWidth()" md-position-mode="target-right target">
       <md-button aria-label="Open menu" class="md-icon-button" ng-click="$mdOpenMenu($event)">
-        <md-icon md-svg-src="img/icons/ic_more_horiz_white_24px.svg"></md-icon>
+        <md-icon md-svg-src="img/icons/ic_more_horiz_black_24px.svg"></md-icon>
       </md-button>
       <md-menu-content width="3">
         <md-menu-item>
@@ -41,44 +41,16 @@
 <div ng-init="dataExport.loadActiveDataExports()">
   <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
     <md-card>
-      <md-card-content>
-        <div layout="row">
-          <md-input-container flex-gt-sm="10" flex="30">
-            <pagination-count recordcount="dataExport.paginationCount" currentpage="dataExport.currentPage"></pagination-count>
-          </md-input-container>
-
-          <md-input-container flex="auto">
-            <pagination currentpage="dataExport.currentPage" maxpage="dataExport.pageCount"></pagination>
-          </md-input-container>
-        </div>
-
-        <dataexport-table records="dataExport.dataExports"
-        changestatus="dataExport.changeDataExportStatus(id)" loadingflag="dataExport.currentlyLoading"
-        toggleinclusion="dataExport.toggleInclusion(id)" statuschangebuttontext="dataExport.massActionButtonText"
-        deleteexport="dataExport.deleteDataExport(id)" copyexport="dataExport.copyDataExport(id)">
-        </dataexport-table>
-
-        <div layout="row">
-          <md-input-container flex-gt-sm="10" flex="30">
-            <pagination-count recordcount="dataExport.paginationCount" currentpage="dataExport.currentPage"></pagination-count>
-          </md-input-container>
-
-          <md-input-container flex="auto">
-            <pagination currentpage="dataExport.currentPage" maxpage="dataExport.pageCount"></pagination>
-          </md-input-container>
-        </div>
-      </md-card-content>
+      @include( 'pages.dataexport.dataexport-table' )
     </md-card>
   </md-content>
-
   <div layout="row" layout-align="end center">
-    <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="dataExport.pauseSelected()">
-      <span class="glyphicon glyphicons-arrow-down"></span>
-      <span>@{{dataExport.massActionButtonText}} Exports</span>
-    </button>
-    <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="dataExport.rePullSelected()">
-      Re-pull Exports
-    </button>
+    <md-button class="md-raised md-warn" ng-click="dataExport.pauseSelected()">
+      <md-icon md-svg-icon="img/icons/ic_pause_white_18px.svg"></md-icon> @{{dataExport.massActionButtonText}} Exports
+    </md-button>
+    <md-button class="md-raised md-accent" ng-click="dataExport.rePullSelected()">
+      <md-icon md-svg-icon="img/icons/ic_refresh_white_18px.svg"></md-icon> Re-pull Exports
+    </md-button>
   </div>
 </div>
 @stop

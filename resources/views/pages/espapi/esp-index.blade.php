@@ -10,7 +10,7 @@
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('espapi.add'))
         <md-button ng-click="esp.viewAdd()" aria-label="Add ESP Account">
-            <md-icon ng-hide="app.largePageWidth()" md-svg-src="img/icons/ic_add_circle_outline_white_24px.svg"></md-icon>
+            <md-icon ng-hide="app.largePageWidth()" md-svg-src="img/icons/ic_add_circle_outline_black_24px.svg"></md-icon>
             <span ng-show="app.largePageWidth()">Add ESP Account</span>
         </md-button>
     @endif

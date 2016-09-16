@@ -44,6 +44,6 @@ class DoingBusinessAsRepo
     }
 
     public function getModel(){
-        return $this->doingBusinessAs->activeFirst();
+        return $this->doingBusinessAs;
     }
 }

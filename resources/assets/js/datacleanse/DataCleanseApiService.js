@@ -7,11 +7,18 @@ mt2App.service( 'DataCleanseApiService' , function ( $http , $log ) {
     self.countryApiUrl = '/api/mt1/country';
     self.categoryApiUrl = '/api/mt1/offercategory';
 
-    self.getAll = function ( page , count , successCallback , failureCallback ) {
-        $http( {
+    self.getAll = function ( page , count , sortField , successCallback , failureCallback ) {
+        var sort = { 'field' : sortField , 'desc' : false };
+
+        if (/^\-/.test( sortField ) ) {
+            sort.field = sort.field.substring( 1 );
+            sort.desc = true;
+        }
+
+        return $http( {
             "method" : "GET" ,
             "url" : self.pagerApiUrl ,
-            "params" : { "page" : page , "count" : count }
+            "params" : { "page" : page , "count" : count , "sort" : sort }
         } ).then( successCallback , failureCallback );
     }
 

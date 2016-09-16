@@ -15,7 +15,13 @@
 
         <tbody md-body>
             <tr md-row ng-repeat="record in esp.accounts track by $index">
-                <td md-cell><edit-button editurl="'/espapi/edit/'" recordid="record.id"></edit-button></td>
+                <td md-cell>
+                    <md-button class="md-raised"
+                        ng-class="{'md-icon-button mt2-icon-button-xs' : !app.mediumPageWidth() , 'mt2-button-xs' : app.mediumPageWidth() }"
+                        ng-href="@{{ '/espapi/edit/' + record.id }}" target="_self">
+                        <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon><span ng-show="app.mediumPageWidth()"> Edit</span>
+                    </md-button>
+                </td>
                 <td md-cell>@{{ record.id }}</td>
                 <td md-cell>@{{ record.account_name }}</td>
                 <td md-cell>@{{ record.key_1 }}</td>

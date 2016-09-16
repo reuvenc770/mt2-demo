@@ -7,7 +7,7 @@
 @section ( 'page-menu' )
     @if (Sentinel::hasAccess('registrar.add'))
         <md-button ng-click="registrar.viewAdd()" aria-label="Add Registrar">
-            <md-icon ng-hide="app.largePageWidth()" md-svg-src="img/icons/ic_add_circle_outline_white_24px.svg"></md-icon>
+            <md-icon ng-hide="app.largePageWidth()" md-svg-src="img/icons/ic_add_circle_outline_black_24px.svg"></md-icon>
             <span ng-show="app.largePageWidth()">Add Registrar</span>
         </md-button>
     @endif
