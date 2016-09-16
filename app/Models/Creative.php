@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\ModelTraits\Mailable;
 
 class Creative extends Model
 {
+    use Mailable;
+
     protected $guarded = [];
     const DEFAULT_DOMAIN = "wealthpurse.com";
 

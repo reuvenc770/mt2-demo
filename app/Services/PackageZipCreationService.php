@@ -55,8 +55,12 @@ class PackageZipCreationService {
     // useful name for now
     public function createPackage($id) {
 
-        // Prepare some required values
         $deploy = $this->deployRepo->getDeploy($id);
+
+        // 1. validate package
+        $this->validate($deploy);
+
+        // Prepare some required values
         $this->deployId = $deploy->id;
 
         $this->saveDirectory = self::STORAGE_PATH_BASE . '/' . $deploy->id . '/';
@@ -68,13 +72,11 @@ class PackageZipCreationService {
         #$this->contentDomain = $deploy->contentDomain()->first()->main_site;
         $this->contentDomain = 'test.com';
 
-        $this->espAccountName = $deploy->espAccount()->first()->account_name;
+        $this->espAccountName = $deploy->espAccount->account_name;
 
-        $espId = $deploy->espAccount()->first()->id;
+        $espId = $deploy->espAccount->id;
 
-        $fieldOptions = $deploy->espAccount()->first()
-                               ->esp()->first()
-                               ->fieldOptions()->first();
+        $fieldOptions = $deploy->espAccount->esp->fieldOptions;
 
         $this->emailIdField = $fieldOptions->email_id_field;
         $emailAddressField = $fieldOptions->email_address_field;
@@ -83,9 +85,7 @@ class PackageZipCreationService {
         $fromId = $deploy->from_id; // "fid"
         $subjectId = $deploy->subject_id; // "sid"
         $creativeId = $deploy->creative_id; // "crid"
-
-        // 1. validate package
-        $this->validate($deploy);
+        
 
         // 2. assign espCakeDomain based off of offer type and affiliate id
         // will be used to remove cake domain in offer tracking url and elsewhere
@@ -118,7 +118,6 @@ class PackageZipCreationService {
             $offerUnsubLinkId = 0;
         }
         
-
         /* 5-9 MERGED WITH 11 */ /* 10 MERGED WITH 4 */
 
         // 11. replacing tokens in the full html
@@ -166,16 +165,12 @@ class PackageZipCreationService {
                 $url = str_replace('a=13', "a=$affiliateId", $url);
                 $url = str_replace("{{DEPLOY_ID}}", $this->deployId, $url); // used at least for 1 ...
 
-                echo "after replacements: " . $url . PHP_EOL;
-
                 if ($deploy->encrypt_cake) {
                     $url = $this->encryptionService->encryptCakeLink($url);
                 }
                 if ($deploy->fully_encrypt) {
                     $url = $offerTrackingUrl = $this->encryptionService->fullEncryptLink($url);
                 }
-
-                echo "After encryption: $url" . PHP_EOL;
 
                 $this->validateLink($url);
 
@@ -184,10 +179,6 @@ class PackageZipCreationService {
                 $redirectLink = $this->formatUrl('REDIRECT', $deploy->url_format, $linkId, $this->emailIdField) 
                                 ?: "http://{$this->contentDomain}/cgi-bin/redir1.cgi?eid={$this->emailIdField}&cid=1&em=$emailAddressField&id=$linkId&n=0&f=$fromId&s=$subjectId&c=$creativeId&tid=$templateId&footerid=0&ctype=R";
 
-
-                echo "Redirect link: $redirectLink" . PHP_EOL;
-
-                echo PHP_EOL . PHP_EOL;
                 $fullHtml = str_replace($token, $redirectLink, $fullHtml);
             }    
         }
@@ -256,15 +247,12 @@ class PackageZipCreationService {
 
     private function formatUrl($type, $urlFormat, $linkId, $emailIdFormat) {
         if ('new' === $urlFormat) {
-            echo "using new format" . PHP_EOL;
             return $this->urlFormatter->formatNewUrl($type, $this->contentDomain, $emailIdFormat, $linkId);
         }
         elseif ('gmail' === $urlFormat) {
-            echo "using gmail format" . PHP_EOL;
             return $this->urlFormatter->formatGmailUrl($type, $this->contentDomain, $emailIdFormat, $linkId);
         }
         else {
-            echo "using no format: $urlFormat" . PHP_EOL;
             return '';
         }
     }
@@ -273,8 +261,7 @@ class PackageZipCreationService {
         $result = $this->linkService->checkLink($url);
 
         if (false === $result) {
-            // populate data for Dimitri - might want more information like
-            // offer id, offer name, link id, esp, ... country?
+            // populate data for Dimitri
             $this->serveGentLinks []= $url;
         }
     }
@@ -412,7 +399,7 @@ TXT;
                 if ($this->shouldReplaceImageUrl($this->espAccountName)) {
                     $newUrl = "http://{$this->contentDomain}/$fileName";
                 }
-                elseif (false) {
+                elseif (false) { // this is publicators
                     if ($this->shouldRemoveFileExtension($this->espAccountName)) {
                         $fileName = str_replace('.jpg', '', $fileName);
                     }
@@ -584,28 +571,28 @@ TXT;
 
 
     private function validate($deploy) {
-        $this->isValid($deploy->offer, 'Offer');
-        $this->isValid($deploy->send_date, 'Send date');
-        $this->isValid($deploy->espAccount(), 'ESP account');
-        $this->isValid($deploy->creative(), 'Creative');
-        $this->isValid($deploy->from(), 'From');
-        $this->isValid($deploy->subject(), 'Subject');
-        $this->isValid($deploy->mailingTemplate(), 'Mailing template');
-        $this->validSendDate($deploy->offer->id, $deploy->send_date);
-    }
-
-    private function isValid($value, $field) {
-        if ($value === null) {
-            throw new ValidationException("$field is empty.");
+        if (!$deploy->creative || $deploy->creative->returnApprovalAndStatus() !== 'allowed') {
+            // we lose information this way, though
+            throw new ValidationException('Creative is not permitted. Check approval and status.');
         }
-        return true;
-    }
-
-    private function validSendDate($offerId, $sendDate) {
-        if (!$this->offerRepo->offerCanBeMailedOnDay($offerId, $sendDate)) {
-            throw new ValidationException("Offer cannot be sent on $sendDate.");
-        } 
-        return true;
+        elseif (!$deploy->from || $deploy->from->returnApprovalAndStatus() !== 'allowed') {
+            throw new ValidationException('From line is not permitted. Check approval and status.');
+        }
+        elseif (!$deploy->subject || $deploy->subject->returnApprovalAndStatus() !== 'allowed') {
+            throw new ValidationException('Subject line is not permitted. Check approval and status.');
+        }
+        elseif (!$deploy->offer || $deploy->offer->returnApprovalAndStatus() !== 'allowed') {
+            throw new ValidationException('Offer is not permitted. Check approval and status.');
+        }
+        elseif (!$deploy->espAccount) {
+            throw new ValidationException('ESP Account does not exist.');
+        }
+        elseif (!$deploy->mailingTemplate ) {
+            throw new ValidationException('Mailing template does not exist.');
+        }
+        elseif (!$this->offerRepo->offerCanBeMailedOnDay($deploy->offer->id, $deploy->send_date)) {
+            throw new ValidationException("Offer cannot be sent on {$deploy->send_date}.");
+        }
     }
 
 }

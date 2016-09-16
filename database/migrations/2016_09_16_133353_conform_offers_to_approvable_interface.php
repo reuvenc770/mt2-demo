@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class MakeCreativesApprovedConform extends Migration
+class ConformOffersToApprovableInterface extends Migration
 {
     /**
      * Run the migrations.
@@ -11,9 +11,9 @@ class MakeCreativesApprovedConform extends Migration
      * @return void
      */
     public function up() {
-        Schema::table('creatives', function($table) {
-            $table->dropColumn('approved');
-            $table->boolean('is_approved')->after('creative_html')->default(0);
+        Schema::table('offers', function($table) {
+            $table->boolean('is_approved')->after('name')->default(0);
+            $table->char('status', 1)->after('is_approved')->default('I');
         });
     }
 
@@ -23,9 +23,9 @@ class MakeCreativesApprovedConform extends Migration
      * @return void
      */
     public function down() {
-        Schema::table('creatives', function($table) {
+        Schema::table('offers', function($table) {
             $table->dropColumn('is_approved');
-            $table->char('approved', 1)->after('creative_html')->default('N');
+            $table->dropColumn('status');
         });
     }
 }

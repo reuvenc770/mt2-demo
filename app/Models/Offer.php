@@ -3,8 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\ModelTraits\Mailable;
 
 class Offer extends Model {
+
+    use Mailable;
   
     protected $guarded = [];
 

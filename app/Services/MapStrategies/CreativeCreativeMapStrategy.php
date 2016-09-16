@@ -10,7 +10,7 @@ class CreativeCreativeMapStrategy implements IMapStrategy {
         return [
             'id' => $record['creative_id'],
             'file_name' => $record['creative_name'],
-            'is_approved' => $record['approved_flag'],
+            'is_approved' => ($record['approved_flag'] === 'Y' ? 1 : 0),
             'status' => $record['status'],
             'creative_html' => $record['html_code'],
             'is_original' => ($record['original_flag'] == 'N' ? 0 : 1), //
