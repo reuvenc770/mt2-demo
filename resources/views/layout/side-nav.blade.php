@@ -10,7 +10,7 @@
         @if(isset($current['children']))
             @foreach ( $current['children'] as $currentChild )
             <md-list-item class="mt2-nav-sub-item" ng-click="app.redirect( '{{ '/' . $currentChild[ 'uri' ] }}' )" aria-label="{{ $current[ 'name' ] }}">
-                <span flex="15"></span>
+                <span flex="20"></span>
                 <span class="childMenu"><em>{{ $currentChild[ 'name' ] }}</em></span>
                 <span flex></span>
             </md-list-item>

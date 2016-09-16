@@ -48,6 +48,8 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.pageCount = 0;
     self.paginationCount = '10';
     self.currentPage = '1';
+    self.deployTotal = 0;
+    self.queryPromise = null;
 
 
     self.loadAccounts = function () {
@@ -65,8 +67,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.loadDeploys = function () {
-        self.currentlyLoading = 1;
-        DeployApiService.getDeploys(self.currentPage, self.paginationCount, self.searchType, self.searchData, self.loadDeploysSuccess, self.loadDeploysFail);
+        self.queryPromise = DeployApiService.getDeploys(self.currentPage, self.paginationCount, self.searchType, self.searchData, self.loadDeploysSuccess, self.loadDeploysFail);
     };
 
     self.loadListProfiles = function () {
@@ -267,6 +268,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.loadDeploysSuccess = function (response) {
         self.deploys = response.data.data;
         self.pageCount = response.data.last_page;
+        self.deployTotal = response.data.total;
     };
 
     self.loadDeploySuccess = function (response) {
