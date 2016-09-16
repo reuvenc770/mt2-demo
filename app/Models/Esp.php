@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use App\Models\ModelTraits\ModelCacheControl;
 use Illuminate\Database\Eloquent\Model;
 
 class Esp extends Model
 {
-
+    use ModelCacheControl;
     public function espAccounts()
     {
         return $this->hasMany('App\Models\EspAccount');

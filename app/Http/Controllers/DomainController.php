@@ -11,7 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
-use App\Services\EspApiService;
+use App\Services\EspService;
 class DomainController extends Controller
 {
     public $service;
@@ -19,7 +19,7 @@ class DomainController extends Controller
     public $dbaService;
     public $registrarService;
         //Todo maybe DeployService wraps these smaller ones.
-    public function __construct(DomainService $domainService, EspApiService $espService, DoingBusinessAsService $doingBusinessAsService, RegistrarService $registrarService)
+    public function __construct(DomainService $domainService, EspService $espService, DoingBusinessAsService $doingBusinessAsService, RegistrarService $registrarService)
     {
         $this->service = $domainService;
         $this->espService = $espService;
