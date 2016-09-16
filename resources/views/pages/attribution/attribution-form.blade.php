@@ -29,14 +29,19 @@
         <md-content>
             <ul dnd-list="attr.feeds"
                 dnd-horizontal-list="true"
+                dnd-drop="attr.onLevelDrop( item , index )"
                 layout="column"
                 flex
             >
                 <li 
-                    ng-repeat="client in attr.feeds"
-                    dnd-draggable="client"
-                    dnd-moved="attr.feeds.splice($index, 1)"
+                    ng-repeat="feed in attr.feeds"
+                    dnd-draggable="attr.getSelectedFeedsIncluding( feed )"
+                    dnd-dragstart="attr.onDragStart( event )"
+                    dnd-dragend="attr.draggingLevels = false"
+                    dnd-selected="feed.selected = !feed.selected"
                     dnd-effect-allowed="move"
+                    ng-class="{ 'selectedListItem' : feed.selected }"
+                    ng-hide="feed.selected && attr.draggingLevels"
                     flex
                 >
                     <div layout="row">
@@ -46,7 +51,7 @@
 
                         <span flex></span>
 
-                        <p ng-bind="client.name"></p>
+                        <p ng-bind="feed.name"></p>
 
                         <span flex></span>
 

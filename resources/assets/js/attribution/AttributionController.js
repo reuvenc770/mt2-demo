@@ -12,6 +12,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     self.levelCopyClients = [];
     self.levelCopyClientIndex = {};
     self.disableCopyButton = true;
+    self.draggingLevels = false;
 
     self.currentlyLoading = false;
     self.paginationCount = '10';
@@ -318,12 +319,49 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         );
     };
 
+
+    self.getSelectedFeedsIncluding = function ( feed ) {
+        $log.info( 'getSelectedFeedsIncluding' );
+
+        feed.selected = true; 
+
+        return self.feeds.filter( function ( currentFeed ) { return currentFeed.selected; } );
+    };
+
+    self.onDragStart = function ( event ) {
+        self.draggingLevels = true;
+
+        if (event.dataTransfer.setDragImage) {
+            var img = new Image();
+            img.src = 'img/icons/ic_swap_vert_black_24dp_1x.png';
+            event.dataTransfer.setDragImage(img, 0, 0);
+        }
+    };
+
+    self.onLevelDrop = function ( selectedFeeds , index ) {
+        $log.info( 'onLevelDrop' );
+
+        $log.info( selectedFeeds );
+        $log.info( index );
+
+        self.feeds = self.feeds.filter( function( currentFeed ) { return !currentFeed.selected; });
+
+        self.feeds = self.feeds.slice( 0 , index )
+            .concat( selectedFeeds )
+            .concat( self.feeds.slice( index ) );
+
+        angular.forEach( self.feeds , function( currentFeed ) { currentFeed.selected = false; });
+
+        return true;
+    }
+
     self.loadClients = function ( altModelId , altSuccessCallback ) {
         var successCallback = function ( response ) { 
             self.feeds = response.data;
 
             angular.forEach( self.feeds , function ( value , key ) {
                 self.clientLevels[ value.id ] = key + 1;
+                value.selected = false;
             } );
         };
 
@@ -343,7 +381,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
                     var feedList = [];
 
                     angular.forEach( response.data , function ( client , key ) {
-                        feedList.push( { "id" : client.client_id , "name" : client.username } );
+                        feedList.push( { "id" : client.client_id , "name" : client.username , "selected" : false } );
                     } );
 
                     self.feeds = feedList;
