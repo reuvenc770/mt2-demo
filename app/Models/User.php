@@ -2,9 +2,11 @@
 
 namespace App\Models;
 use Cartalyst\Sentinel\Users\EloquentUser as SentinelUser;
+use Illuminate\Contracts\Auth\CanResetPassword;
 
-class User extends SentinelUser {
+class User extends SentinelUser implements CanResetPassword{
 
+    use \Illuminate\Auth\Passwords\CanResetPassword;
     protected $fillable = [
         'email',
         'username',
@@ -15,5 +17,7 @@ class User extends SentinelUser {
     ];
 
     protected $loginNames = ['email', 'username'];
+
+
 
 }

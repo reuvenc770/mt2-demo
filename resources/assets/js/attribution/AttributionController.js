@@ -137,15 +137,16 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
             self.current.id = modelId;
 
             self.loadClients();
-            self.getModelName( modelId );
+            self.getModel( modelId );
         }
     };
 
-    self.getModelName = function ( modelId ) {
+    self.getModel = function ( modelId ) {
         AttributionApiService.getModel(
             modelId ,
             function ( response ) {
                 self.current.name = response.data[ 0 ].name;
+                self.current.live = response.data[ 0 ].live;
             } ,
             function ( response ) {
                 self.displayToast( 'Failed to load Model Information. Please contact support.' );
@@ -311,14 +312,13 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
 
                 $mdSidenav( self.levelCopySideNavId ).close();
 
-                self.displayToast( 'Successfully copied client levels.' );
+                self.displayToast( 'Successfully copied feed levels.' );
             } , 
             function ( response ) {
                 self.displayToast( 'Failed to copy client levels. Please contact support.' );
             } 
         );
     };
-
 
     self.getSelectedFeedsIncluding = function ( feed ) {
         $log.info( 'getSelectedFeedsIncluding' );
@@ -354,6 +354,18 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
 
         return true;
     }
+
+    self.syncMt1Levels = function () {
+        AttributionApiService.syncMt1Levels(
+            function ( response ) {
+                self.loadLevels( self.getModelId() );
+                self.displayToast( 'Successfully synced MT1 feed levels.' );
+            } , 
+            function ( response ) {
+                self.displayToast( 'Failed to sync MT1 feed levels. Please contact support.' );
+            } 
+        );
+    };
 
     self.loadClients = function ( altModelId , altSuccessCallback ) {
         var successCallback = function ( response ) { 

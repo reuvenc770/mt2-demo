@@ -7,6 +7,7 @@ use App\Repositories\EmailFeedAssignmentRepo;
 use App\Repositories\AttributionRecordTruthRepo;
 use App\Repositories\AttributionScheduleRepo;
 use App\Repositories\EmailFeedInstanceRepo;
+use App\Events\AttributionCompleted;
 use Cache;
 use Log;
 

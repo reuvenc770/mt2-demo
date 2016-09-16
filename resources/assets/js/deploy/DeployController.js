@@ -29,6 +29,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.espAccounts = [];
     self.currentlyLoading = 0;
     self.templates = [];
+    self.deployLinkText = "Download Package";
     self.tempDeploy = false;
     self.cakeAffiliates = [];
     self.espLoaded = true;
@@ -209,6 +210,12 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         } else {
             self.disableExport = true;
         }
+
+        if (self.selectedRows.length > 1) {
+            self.deployLinkText = "Send Packages to FTP"
+        } else {
+            self.deployLinkText = "Download Package";
+        }
     };
 
     self.exportCsv = function () {
@@ -378,6 +385,19 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.createPackageSuccess = function (response){
+        if(!response.data.success) {
+            var headers = response.headers();
+            var blob = new Blob([response.data],{'type':"application/octet-stream"});
+            var windowUrl = (window.URL || window.webkitURL);
+            var downloadUrl = windowUrl.createObjectURL(blob);
+            var anchor = document.createElement("a");
+            anchor.href = downloadUrl;
+            var fileNamePattern = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+            anchor.download = fileNamePattern.exec(headers['content-disposition'])[1].replace(/['"]+/g, '');
+            document.body.appendChild(anchor);
+            anchor.click();
+            windowUrl.revokeObjectURL(blob);
+        }
         $mdToast.showSimple('Packages are being generated');
         self.loadDeploys();
         self.startPolling();

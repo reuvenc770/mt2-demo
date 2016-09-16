@@ -11,7 +11,7 @@
                         <h3 class="panel-title">Password Reset Link</h3>
                     </div>
                     <div class="panel-body">
-                        <form method="POST" action="{{route('forgetpassword.postemail')}}" accept-charset="UTF-8">
+                        <form method="POST" action="{{route('forget.postemail')}}" accept-charset="UTF-8">
                             <input name="_token" type="hidden" value="{{ csrf_token() }}">
                             <fieldset>
                                 <p>Enter your email and we will send you a link to reset your password.</p>
