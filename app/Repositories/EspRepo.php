@@ -58,7 +58,6 @@ class EspRepo
     }
 
     public function updateFieldOptions($id, $fieldOptions){
-        $this->esp->se = true;
        $return =  $this->esp->find($id)->fieldOptions()->updateOrCreate(["esp_id" => $id],
                 ["email_address_field" => $fieldOptions['email_address_field'],
                     "email_id_field" => $fieldOptions['email_id_field'],
