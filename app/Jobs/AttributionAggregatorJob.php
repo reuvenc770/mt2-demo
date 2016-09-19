@@ -122,12 +122,16 @@ class AttributionAggregatorJob extends Job implements ShouldQueue
 
                     JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking );
  
+                    $this->unlock( $this->jobName );
+ 
                     exit();
                 break;
 
                 default :
                     JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking );
-
+                    
+                    $this->unlock( $this->jobName );
+                    
                     exit();
                 break;
             }
