@@ -236,7 +236,7 @@ class DeployRepo
         }
 
         if (isset($deploy['url_format'])) {
-            $options = ['new',"old,","gmail"];
+            $options = ['new',"old","gmail"];
             if(!in_array($deploy['url_format'],$options)){
                 $errors[] = "Url Format is wrong";
             }
