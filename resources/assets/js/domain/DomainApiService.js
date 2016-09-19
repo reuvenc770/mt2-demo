@@ -33,7 +33,7 @@ mt2App.service( 'DomainService' , function ( $http , $log ) {
     };
 
     self.getAccounts = function ( page , count , successCallback , failureCallback ) {
-        $http( {
+        return $http( {
             "method" : "GET" ,
             "url" : self.pagerApiUrl ,
             "params" : { "page" : page , "count" : count }
