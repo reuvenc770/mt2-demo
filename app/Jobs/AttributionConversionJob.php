@@ -59,6 +59,8 @@ class AttributionConversionJob extends Job implements ShouldQueue
      */
     public function handle( CakeConversionService $cakeService )
     {
+        JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
+
         do {
             if ( is_null( $this->currentDate ) ) {
                 $this->currentDate = $this->dateRange[ 'start' ];
