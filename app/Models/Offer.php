@@ -18,4 +18,8 @@ class Offer extends Model {
     public function trackingLinks() {
         return $this->hasMany('App\Models\OfferTrackingLink');
     }
+
+    public function payoutType() {
+        return $this->belongsTo('App\Models\OfferPayoutType', 'offer_payout_type_id');
+    }
 }
