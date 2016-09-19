@@ -108,8 +108,4 @@ class ServiceFactory
 
         return App::make( $className ); 
     }
-
-    public static function createConversionService () {
-        return App::make( App\Services\CakeConversionService::class );
-    }
 }

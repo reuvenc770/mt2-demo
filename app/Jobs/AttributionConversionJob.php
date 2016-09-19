@@ -13,6 +13,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Carbon\Carbon;
 
 use App\Factories\ServiceFactory;
+use App\Services\CakeConversionService;
 use App\Models\JobEntry;
 use App\Facades\JobTracking;
 
@@ -25,8 +26,6 @@ class AttributionConversionJob extends Job implements ShouldQueue
     const PROCESS_MODE_SAVE = 'save';
     const PROCESS_MODE_REALTIME = 'realtime';
     const PROCESS_MODE_RERUN = 'rerun';
-
-    protected $cakeService;
 
     protected $processMode;
     protected $dateRange;
@@ -58,7 +57,7 @@ class AttributionConversionJob extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle( CakeConversionService $cakeService )
     {
         do {
             if ( is_null( $this->currentDate ) ) {
@@ -67,9 +66,7 @@ class AttributionConversionJob extends Job implements ShouldQueue
                 $this->currentDate = Carbon::parse( $this->currentDate )->addDay()->toDateString();
             }
 
-            $this->cakeService = ServiceFactory::createConversionService();
-
-            $this->cakeService->updateConversionsFromAPI( $this->processMode , $this->recordType , $this->currentDate );
+            $cakeService->updateConversionsFromAPI( $this->processMode , $this->recordType , $this->currentDate );
 
             if ( in_array( $this->processMode , [ 'rerun' , 'realtime' ] ) ) {
                 $job = new AttributionAggregatorJob(
