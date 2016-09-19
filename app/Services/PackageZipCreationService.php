@@ -9,10 +9,12 @@ use App\Services\LinkService;
 use App\Repositories\CakeRedirectDomainRepo;
 use App\Repositories\OfferRepo;
 use App\Repositories\OfferTrackingLinkRepo;
+use App\Repositories\EspApiAccountRepo;
 use League\Flysystem\Filesystem;
 use League\Flysystem\ZipArchive\ZipArchiveAdapter;
 use Storage;
 use DOMDocument;
+use App\Services\Url;
 
 class PackageZipCreationService {
 
@@ -21,13 +23,6 @@ class PackageZipCreationService {
     private $deploy;
 
     const STORAGE_PATH_BASE = './files';
-
-    const IMAGE_REPLACEMENT_ACCOUNTS = [
-        'BH001', 'BH002', 'BH003', 'BH004', 'BH005', 'BH006', 
-        'BH007', 'BH008', 'BH009', 'BH010', 'BH011', 'BH012', 
-        'BH013', 'BH014', 'BH015', 'BH016', 'BH017', 'BH018',
-        'MAR1', 'MAR2', 'MAR3', 'MAR4', 'MAR5', 'MAR6', 'MAR7', 
-    ];
 
     private $serveGentLinks = [];
 
@@ -40,7 +35,8 @@ class PackageZipCreationService {
             LinkService $linkService,
             CakeRedirectDomainRepo $cakeRedirectRepo,
             OfferRepo $offerRepo,
-            OfferTrackingLinkRepo $offerTrackingLinkRepo) {
+            OfferTrackingLinkRepo $offerTrackingLinkRepo,
+            EspApiAccountRepo $espAccountRepo) {
 
         $this->deployRepo = $deployRepo;
         $this->encryptionService = $encryptionService;
@@ -49,6 +45,7 @@ class PackageZipCreationService {
         $this->cakeRedirectRepo = $cakeRedirectRepo;
         $this->offerRepo = $offerRepo;
         $this->offerTrackingLinkRepo = $offerTrackingLinkRepo;
+        $this->espAccountRepo = $espAccountRepo;
 
     }
 
@@ -56,6 +53,7 @@ class PackageZipCreationService {
     public function createPackage($id) {
 
         $deploy = $this->deployRepo->getDeploy($id);
+        $this->deploy = $deploy;
 
         // 1. validate package
         $this->validate($deploy);
@@ -69,8 +67,8 @@ class PackageZipCreationService {
 
         $offer = $deploy->offer;
         $offerTypeId = $offer->offer_payout_type_id;
-        #$this->contentDomain = $deploy->contentDomain()->first()->main_site;
-        $this->contentDomain = 'test.com';
+        #$this->contentDomain = $deploy->contentDomain->main_site;
+        $this->contentDomain = 'tmrsupdatesjbs3.com';
 
         $this->espAccountName = $deploy->espAccount->account_name;
 
@@ -103,7 +101,7 @@ class PackageZipCreationService {
             $creativeHtml = preg_replace('/\&amp;/', '&', $creativeHtml);
 
             // parse "extra" links that use the ccID parameter
-            $creativeHtml = $this->parseCCIDLinks($html);
+            $creativeHtml = $this->parseCCIDLinks($creativeHtml);
         }
 
         // 4. Format offer unsub link (merged with 10)
@@ -208,11 +206,8 @@ class PackageZipCreationService {
         /*
         // 12. Create files and zip
 
-        $deployId = $deploy->id;
-        $espAccountName = $deploy->espAccount()->first()->account_name;
-        $offerName = $deploy->offer()->first()->name;
-        $creativeName = $deploy->creative()->first()->file_name;
-        $creativeId = $deploy->creative_id;
+        $offerName = $deploy->offer->name;
+        $creativeName = $deploy->creative->file_name;
 
         // Make the temporary directory
         $dir = $deployId;
@@ -341,13 +336,12 @@ TXT;
     private function parseImageLinks($html) {
         $dom = new DOMDocument();
 
-        $internalErrors = libxml_use_internal_errors(true);
+        $internalErrors = libxml_use_internal_errors(true); // suppress minor HTML validation errors
         $dom->loadHTML($html);
 
         #$urls = [];
 
         $dom = $this->parseImageLinksLoop($dom, 'img');
-        $dom = $this->parseImageLinksLoop($dom, 'background');
         $dom = $this->parseImageLinksLoop($dom, 'input');
         libxml_use_internal_errors($internalErrors);
         return urldecode($dom->saveHTML());
@@ -374,12 +368,11 @@ TXT;
 
     private function parseImageLinksLoop($dom, $element) {
         foreach($dom->getElementsByTagName($element) as $link) {
-            $url = $link->getAttribute('href');
+            $url = $link->getAttribute('src');
 
-            if ('' === $url) {
-                continue;
-            }
-            elseif (strpos($url, 'open.cgi') === false) {
+            if (strpos($url, 'open.cgi') === false) {
+
+                echo "Running inside parse image links loop with $url" . PHP_EOL;
 
                 $url = preg_replace('/\{\{DOMAIN\}\}/', 'contentstaging-01.mtroute.com', $url);
                 $url = preg_replace('/\{\{IMG_DOMAIN\}\}/', 'contentstaging-01.mtroute.com', $url);
@@ -387,33 +380,43 @@ TXT;
 
                 $scheme = $urlContents['scheme'];
                 $host = $urlContents['host'];
-                $path = $urlContents['path'];
-                $query = $urlContents['query'];
+                $path = isset($urlContents['path']) ? $urlContents['path'] : '';
 
-                $fileName = '';
-                $directories = '';
-                $location = $this->getSaveDirectory() . '/images';
+                // path is the part between the domain and the query string:
+                // e.g. http://www.my-site.com/dir1/dir2/test.php?s1=test
+                // the path is "/dir1/dir2/test.php"
+                $pathArray = explode('/', $path);
+                $pathArrayLength = sizeof($pathArray);
+                $fileName = $pathArray[$pathArrayLength - 1];
 
-                $filename = $this->saveFileGetType($url, $location, $fileName);
+                $testForExtension = explode('.', $fileName);
 
-                if ($this->shouldReplaceImageUrl($this->espAccountName)) {
-                    $newUrl = "http://{$this->contentDomain}/$fileName";
+                $fileName = sizeof($testForExtension) > 1 ? $fileName : $fileName . '.jpg';
+
+                echo "file name is $fileName" . PHP_EOL;
+
+                $location = $this->getSaveDirectory() . 'images/';
+
+                echo "Save directory is: $location" . PHP_EOL;
+
+                $fileName = $this->saveFileGetName($url, $location, $fileName);
+
+                $imageLinkFormat = $this->espAccountRepo->getImageLinkFormat($this->deploy->espAccount->id);
+                $urlFormat = $imageLinkFormat->url_format;
+
+                $newUrl = str_replace('{{CONTENT_DOMAIN}}', $this->contentDomain, $urlFormat);
+
+                if (1 === (int)$imageLinkFormat->remove_file_extension) {
+                    $fileName = str_replace('.jpg', '', $fileName);
                 }
-                elseif (false) { // this is publicators
-                    if ($this->shouldRemoveFileExtension($this->espAccountName)) {
-                        $fileName = str_replace('.jpg', '', $fileName);
-                    }
-                    $newUrl = "http://{$this->contentDomain}/$fileName";
 
-                    str_replace();
-                }
-                else {
-                    $newUrl = "/images/$fileName";
-                }
+                $newUrl = str_replace('{{FILE_NAME}}', $fileName, $newUrl);
+
+                echo "New URL is : $newUrl" . PHP_EOL;
                 
             }
 
-            $link->setAttribute('href', $newUrl);
+            $link->setAttribute('src', $newUrl);
         }
 
         return $dom;
@@ -423,7 +426,7 @@ TXT;
      *  We need to pull the files and save them in an /images directory
      *  and also get the MIME type for the image so we can correct it in the creative.
      */
-    private function saveFile($url, $saveLocation, $fileName) {
+    private function saveFileGetName($url, $saveLocation, $fileName) {
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -444,19 +447,11 @@ TXT;
             $fileName = str_replace('.jpg', '.bmp', $fileName);
         }
         
-        // save this file to the designated location
+        // save this file to the designated location for the package
         $path = $saveLocation . '/' . $fileName;
         Storage::disk("local")->put($path, $result);
 
         return $fileName;
-    }
-
-    private function shouldReplaceImageUrl($espAccountName) {
-        return in_array($espAccountName, self::IMAGE_REPLACEMENT_ACCOUNTS);
-    }
-
-    private function shouldRemoveFileExtension($espAccountName) {
-        return !in_array($espAccountName, ['PUB008', 'PUB009', 'PUB010', 'PUB014']);
     }
 
     private function getSaveDirectory() {
@@ -475,59 +470,59 @@ TXT;
 
     private function parseCCIDLinks($html) {
         $dom = new DOMDocument();
+        $internalErrors = libxml_use_internal_errors(true);
         $dom->loadHTML($html);
 
         $dom = $this->parseCCIDLinksLoop($dom, 'a');
         $dom = $this->parseCCIDLinksLoop($dom, 'area');
+        libxml_use_internal_errors($internalErrors);
         return urldecode($dom->saveHTML());
  
     }
 
     private function parseCCIDLinksLoop($dom, $element) {
         foreach($dom->getElementsByTagName($element) as $link) {
-            $url = $link->getAttribute('href');
+            /**
+            // Non-optimal. Place a factory?
+            */
 
-            if ('' === $url) {
-                continue;
-            }
-            elseif (preg_match('/\{\{URL\}\}/', $url) || preg_match('/\{\{ADV_UNSUB_URL\}\}/', $url)) {
-                continue;
-            }
-            elseif (preg_match('/ccID/', $url)) {
+            echo "about to parse this url: " . $link->getAttribute('href') . PHP_EOL;
+            $parsedUrl = new Url($link->getAttribute('href'));
 
-                /**
-                    Test to make sure that these are required
+            if (!$parsedUrl->find('{{URL}}') && !$parsedUrl->find('{{ADV_UNSUB_URL}}') && $parsedUrl->find('ccID')) {
 
-                    need url_format, along with several other variables
-                */
-                $url = preg_replace('/\?/', '\?', $url);
-                $url = preg_replace('/\[/', '\[', $url);
+                $parsedUrl->regexReplace('/\?/', '\?');
+                $parsedUrl->regexReplace('/\[/', '\[');
 
-                $ccIdIndex = strpos($url, '&ccID='); 
-                $ccId = substr($url, $ccIdIndex); // it appears that ccId must be the last item in the URL 
+                $ccId = $parsedUrl->getQueryParam('ccID');
 
-                $trackingLink = "http://{$this->espCakeDomain}/?a=$affiliateID&c=$ccID&s1="
+                echo "ccid: $ccId" . PHP_EOL;
+                $trackingLink = "http://{$this->espCakeDomain}/?a={$this->deploy->cake_affiliate_id}&c=$ccId&s1="
                                 . $this->deployId 
-                                ."&s2={{EMAIL_USER_ID}}_".$crid."_".$fromId."_".$subjectId."_".$templateId
-                                ."&s4={$this->espAccountName}&s5=0_0_0_0_".$global_senddate;
+                                ."&s2={{EMAIL_USER_ID}}_".$this->deploy->creative_id
+                                ."_".$this->deploy->from_id
+                                ."_".$this->deploy->subject_id
+                                ."_".$this->deploy->mailing_template_id
+                                ."&s4={$this->espAccountName}&s5=0_0_0_0_"
+                                .$this->deploy->send_date;
 
-                if ($offer_type === 'CPC') { // need to get this somehow
+                if ('CPC' === $this->deploy->offer->payoutType->name) {
                     $trackingLink .= '&p=c';
                 }
 
-                if ($deploy->encrypt_cake) { // probably need to pass in deploy
-                    $trackingLink = $this->encryptionService->encryptCakeLink($trackingUrl);
+                if ($this->deploy->encrypt_cake) { // probably need to pass in deploy
+                    $trackingLink = $this->encryptionService->encryptCakeLink($trackingLink);
                 }
 
-                if ($deploy->full_encrypt) {
-                    $trackingLink = $this->encryptionService->fullEncryptLink($trackingUrl);
+                if ($this->deploy->full_encrypt) {
+                    $trackingLink = $this->encryptionService->fullEncryptLink($trackingLink);
                 }
 
-                $trackingLinkId = $this->linkService->getLinkId($trackingUrl);
+                $trackingLinkId = $this->linkService->getLinkId($trackingLink);
 
                 $this->validateLink($trackingLink);
 
-                $publicLink = $this->formatUrl('REDIRECT', $urlFormat, $link, $this->emailIdField);
+                $publicLink = $this->formatUrl('REDIRECT', $this->deploy->url_format, $trackingLinkId, $this->emailIdField);
 
                 $link->setAttribute('href', $publicLink);
             }

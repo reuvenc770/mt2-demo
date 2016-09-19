@@ -15,6 +15,7 @@ class Url {
     private $query;
     private $directoryPath;
     private $mimeType = '';
+    private $queryValues;
 
     public function __construct($url) {
 
@@ -31,6 +32,7 @@ class Url {
         $this->query = $parsed['query'];
         $this->directoryPath = $splitPath[0];
         $this->fileName = $splitPath[1];
+        $this->queryValues = $this->parseQueryParameters($this->query);
 
     }
 
@@ -46,7 +48,7 @@ class Url {
     }
 
     public function checkUrl() {
-        // this is the check Link methodology
+        // this is the check Link method
     }
 
     public function stringReplace($from, $to) {
@@ -71,6 +73,26 @@ class Url {
         }
 
         return $this->mimeType;
+    }
+
+    public function getQueryParam($param) {
+        return $this->queryValues[$param] ?: '';
+    }
+
+    public function find($substr) {
+        return substr_count($this->url, $substr) > 0;
+    }
+
+    private function parseQueryParameters($query) {
+        $pairs = explode('&', $query);
+        $args = [];
+
+        foreach($pairs as $str) {
+            $tmp = explode('=', $str);
+            $args[$tmp[0]] = $tmp[1];
+        }
+
+        return $args;
     }
 
     private function executeCurl() {

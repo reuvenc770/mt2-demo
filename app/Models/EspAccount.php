@@ -70,5 +70,8 @@ class EspAccount extends Model
         return $this->hasMany('App\Models\Domains');
     }
 
+    public function imageLinkFormat() {
+        return $this->hasOne('App\Models\EspAccountImageLinkFormat');
+    }
 
 }
