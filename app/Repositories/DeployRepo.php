@@ -93,6 +93,9 @@ class DeployRepo
                 "content_domain_id",
                 "list_profile_id",
                 "cake_affiliate_id",
+                "encrypt_cake",
+                "fully_encrypt",
+                "url_format",
                 "notes"
             )->get();
     }
@@ -216,6 +219,32 @@ class DeployRepo
             $errors[] = "Cake Affiliate ID is missing";
         }
 
+        if (isset($deploy['encrypt_cake'])) {
+            if($deploy['encrypt_cake'] != '1' || $deploy['encrypt_cake'] !='0');{
+                $errors[] = "Encrypt Cake Value is wrong";
+            }
+        } else {
+                $errors[] = "Encrypt Cake Links options is missing";
+        }
+
+        if (isset($deploy['fully_encrypt'])) {
+            if($deploy['fully_encrypt'] != '1' || $deploy['fully_encrypt'] !='0'){
+                $errors[] = "Full Encrypt Value is wrong";
+            }
+        } else {
+            $errors[] = "Full Encrypt Links options is missing";
+        }
+
+        if (isset($deploy['url_format'])) {
+            $options = array['new',"old,","gmail"];
+            if(!in_array($deploy['url_format'],$options)){
+                $errors[] = "Url Format is wrong";
+            }
+        } else {
+            $errors[] = "Url Format is missing";
+        }
+
+
 
         return $errors;
     }
@@ -241,7 +270,7 @@ class DeployRepo
     public function returnCsvHeader()
     {
         return ['deploy_id', "deploy_date", "esp_account_id", "offer_id", "creative_id", "from_id", "subject_id", "template_id",
-            "mailing_domain_id", "content_domain_id", "list_profile_id", "cake_affiliate_id", "notes"];
+            "mailing_domain_id", "content_domain_id", "list_profile_id", "cake_affiliate_id","encrypt_cake", "fully_encrypt", "url_format", "notes"];
     }
 
 
