@@ -497,6 +497,9 @@
                                 <td>@{{ record.mailing_domain }}</td>
                                 <td>@{{ record.content_domain }}</td>
                                 <td>@{{ record.cake_affiliate_id }}</td>
+                                <th ng-show="deploy.showRow" class="text-center"></th>
+                                <th ng-show="deploy.showRow" class="text-center"></th>
+                                <th ng-show="deploy.showRow" class="text-center"></th>
                                 <td>@{{ record.notes }}</td>
                             </tr>
                             </tbody>
