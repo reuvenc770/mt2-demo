@@ -23,6 +23,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.deployIdDisplay = text;
     self.editView = false;
     self.uploadedDeploys = [];
+    self.offerData = [];
     self.searchType = "";
     self.searchData = "";
     self.uploadErrors = false;
@@ -153,11 +154,13 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.offerWasSelected = function (item) {
         if (typeof item != 'undefined') {
             if (item.title === undefined) {
+                self.offerData = item.originalObject;
                 self.currentDeploy.offer_id = item.originalObject.id;
                 self.offerLoading = false;
             } else {
                 self.reloadCFS(item.originalObject.id, function () {
                     self.currentDeploy.offer_id = item.originalObject.id;
+                    self.offerData = item.originalObject;
                     self.offerLoading = false;
                 });
             }
@@ -233,6 +236,12 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         if(!self.uploadErrors && self.uploadedDeploys.length > 0)  {
             DeployApiService.massUpload(self.uploadedDeploys,self.massUploadSuccess, self.massUploadFail)
         }
+    };
+
+    self.canOfferBeMailed = function (date){
+        var day = date.getDay();
+        var dateChar = self.offerData.exclude_days.charAt(day);
+        return dateChar === 'N';
     };
 
 

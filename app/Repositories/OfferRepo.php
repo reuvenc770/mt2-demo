@@ -34,7 +34,7 @@ class OfferRepo {
     }
 
     public function fuzzySearchBack($term){
-        return $this->offer->where('name', 'like', $term . '%')->select("id","name")->get();
+        return $this->offer->where('name', 'like', $term . '%')->select("id","name","exclude_days")->get();
     }
 
     public function offerCanBeMailedOnDay($offerId, $date) {

@@ -196,7 +196,6 @@
                         <table class="table table-striped table-bordered table-hover text-center">
                             <thead>
                             <tr>
-                                <th></th>
                                 <th class="text-center">
                                     <strong><span class="glyphicon glyphicon-refresh rotateMe"
                                                   ng-if="deploy.loadingflag == 1"></span></strong>
@@ -231,9 +230,14 @@
                                 <td>
                                     <md-datepicker name="dateField" ng-model="deploy.currentDeploy.send_date"
                                                    required
-                                                   md-placeholder="Enter date"></md-datepicker>
+                                                   md-placeholder="Enter date"
+                                                   ng-disabled="deploy.offerLoading"
+                                                   md-date-filter="deploy.canOfferBeMailed"></md-datepicker>
                                     <div class="validation-messages" ng-show="deploy.formErrors.send_date">
                                         <div ng-bind="deploy.formErrors.send_date"></div>
+                                    </div>
+                                    <div class="validation-messages" ng-messages="deploy.currentDeploy.send_date.$error">
+                                        <div ng-message="filtered">Only weekends are allowed!</div>
                                     </div>
 
                             </td>
@@ -407,11 +411,10 @@
                         <td>
                             <md-checkbox aria-label="Select" name="selectedRows"
                                          ng-click="deploy.toggleRow(record.deploy_id)"> </md-checkbox>
-                        </td>
-                        <td>
                             <md-button class="md-raised" ng-click="deploy.editRow( record.deploy_id)">Edit</md-button>
                             <md-button class="md-raised md-accent" ng-click="deploy.copyRow( record.deploy_id)">Copy</md-button>
                         </td>
+
                         <td>@{{ record.send_date }}</td>
                         <td>@{{ record.deploy_id }}</td>
                         <td>@{{ record.account_name }}</td>
