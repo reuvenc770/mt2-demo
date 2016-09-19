@@ -12,7 +12,11 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         template_id: "",
         cake_affiliate_id: "",
         notes: "",
-        user_id: ""
+        user_id: "",
+        encrypt_cake: "",
+        fully_encrypt:"",
+        url_format:""
+
     };
     self.search = {
         esp_account_id: ''
@@ -294,6 +298,8 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
                 self.currentDeploy.mailing_domain_id = deployData.mailing_domain_id.toString();
                 self.currentDeploy.content_domain_id = deployData.content_domain_id.toString();
                 self.currentDeploy.cake_affiliate_id = deployData.cake_affiliate_id.toString();
+                self.currentDeploy.fully_encrypt = deployData.fully_encrypt.toString();
+                self.currentDeploy.encrypt_cake = deployData.encrypt_cake.toString();
                 self.currentDeploy.offer_id = deployData.offer_id.id;
                 self.currentDeploy.send_date = new Date(pieces[0], pieces[1] - 1, pieces[2]);
                 self.offerLoading = false;
