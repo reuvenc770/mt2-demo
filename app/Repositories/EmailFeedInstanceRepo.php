@@ -114,7 +114,7 @@ class EmailFeedInstanceRepo {
     }
 
     public function getMt1UniqueCountForFeedAndDate( $feedId , $date ) {
-        $results =  DB::connection( 'mt1mail' )->table( 'ClientRecordTotalsByIsp' )
+        $results =  DB::connection( 'mt1_data' )->table( 'ClientRecordTotalsByIsp' )
             ->select( DB::raw( "sum( uniqueRecords ) as 'uniques'" ) )
             ->where( [
                 [ 'clientID' , $feedId ] ,
