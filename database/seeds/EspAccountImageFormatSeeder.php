@@ -38,7 +38,7 @@ class EspAccountImageFormatSeeder extends Seeder
             }
             else {
                 $linkFormat->remove_file_extension = 0;
-                $linkFormat->url_format = "/images/{{FILE_NAME}}";
+                $linkFormat->url_format = "./images/{{FILE_NAME}}";
             }
 
             $linkFormat->save();

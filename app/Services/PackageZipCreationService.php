@@ -52,7 +52,6 @@ class PackageZipCreationService {
 
     }
 
-    // useful name for now
     public function createPackage($id) {
         $html = $this->createHtml($id);
 
@@ -84,11 +83,50 @@ class PackageZipCreationService {
         $fullZipPath = $filePath . $zipName;
         $this->zipDir($filePath, $fullZipPath);
 
-        // 14. sendESPCSV() (which means place on ftp if required) ??
-
-        // 15. Send message ... to someone (Archana requested)
-
         return $fullZipPath;
+    }
+
+    /**
+     *  Similar to the above, but uploading it to the ftp
+     */
+
+    public function uploadPackage($id) {
+        $html = $this->createHtml($id);
+
+        // Email Ops regarding any errors
+        $this->sendRedirectWarningEmail();
+
+        // Make the temporary directory
+        $saveDirectory = self::STORAGE_PATH_BASE . '/' . $this->deploy->id . '/';
+        Storage::createDir($saveDirectory);
+        
+        // 12. Create files and zip
+        $offerName = $this->deploy->offer->name;
+        $creativeName = $this->deploy->creative->file_name;
+
+        // store the HTML 
+        $fileName = "{$this->deploy->send_date}_{$offerName}_{$creativeName}_{$this->deploy->creative_id}_{$this->nameLinkId}";
+        Storage::disk("local")->put($saveDirectory . "$fileName.html", $html);
+
+        // create the asset.txt file
+        $assetText = $this->createAssetText($this->deploy);
+        Storage::disk("local")->put($saveDirectory . "asset.txt", $assetText);
+
+        // Store just the text and links in a file
+        $textFile = $this->returnNonHtmlDocument($html);
+        Storage::disk("local")->put($saveDirectory . "$fileName.txt", $textFile);
+        
+        $zipName = "{$this->deploy->id}_{$this->espAccountName}_{$this->deploy->send_date}_{$this->deploy->offer->name}_{$this->contentDomain}_{$this->deploy->mailing_template_id}.zip";
+        $filePath = storage_path() . '/app/files/' . $this->deploy->id . '/';
+        $fullZipPath = $filePath . $zipName;
+        $this->zipDir($filePath, $fullZipPath);
+
+        // Upload this to ftp
+        $file = fopen($fullZipPath);
+        Storage::disk('dataExportFTP')->put("packages/$zipName", $file);
+        fclose($file);
+
+        return $zipName;
     }
 
     private function folderToZip($folder, &$zipFile, $exclusiveLength) { 
@@ -123,12 +161,16 @@ class PackageZipCreationService {
         $z->close(); 
     } 
 
+    /**
+     *  Public method that runs through the creation of the html itself
+     */
+
     public function createHtml($id) {
 
         $deploy = $this->deployRepo->getDeploy($id);
         $this->deploy = $deploy;
 
-        // 1. validate package
+        // Validate package
         $this->validate($deploy);
 
         // Prepare some required values
@@ -137,11 +179,7 @@ class PackageZipCreationService {
 
         $offer = $deploy->offer;
         $offerTypeId = $offer->offer_payout_type_id;
-        #$this->contentDomain = $deploy->contentDomain->main_site;
-        /**
-            Need to replace this
-        */
-        $this->contentDomain = 'tmrsupdatesjbs3.com';
+        $this->contentDomain = $deploy->contentDomain->main_site;
 
         $this->espAccountName = $deploy->espAccount->account_name;
 
@@ -157,12 +195,12 @@ class PackageZipCreationService {
         $subjectId = $deploy->subject_id; // "sid"
         $creativeId = $deploy->creative_id; // "crid"
         
-        // 2. assign espCakeDomain based off of offer type and affiliate id
+        // Assign espCakeDomain based off of offer type and affiliate id
         // will be used to remove cake domain in offer tracking url and elsewhere
         $defaultCakeDomain = $this->cakeRedirectRepo->getDefaultRedirectDomain();
         $this->espCakeDomain = $this->cakeRedirectRepo->getRedirectDomain($affiliateId, $offerTypeId);
 
-        // 3. process redir1.cgi and ccID links
+        // Process redir1.cgi and ccID links
         $creative = $deploy->creative;
         $creativeHtml = $creative->creative_html;
 
@@ -176,7 +214,7 @@ class PackageZipCreationService {
             $creativeHtml = $this->parseCCIDLinks($creativeHtml);
         }
 
-        // 4. Format offer unsub link (merged with 10)
+        // Format offer unsub link (merged with 10)
         $offerRealUnsubLink = $offer->unsub_link;
 
         if ('' !== $offerRealUnsubLink) {
@@ -188,9 +226,7 @@ class PackageZipCreationService {
             $offerUnsubLinkId = 0;
         }
         
-        /* 5-9 MERGED WITH 11 */ /* 10 MERGED WITH 4 */
-
-        // 11. replacing tokens in the full html
+        // Replacing tokens in the full html
 
         $fullHtml = $deploy->mailingTemplate()->first()->template_html;
 
@@ -215,7 +251,7 @@ class PackageZipCreationService {
         // Need to get random strings for image domains $img_prefix
         $random1 = $this->urlFormatter->getDefinedRandomString();
         $random2 = $this->urlFormatter->getDefinedRandomString();
-        $imgPrefix = "{$this->contentDomain}/$random1/$random2"; // this is used in a little bit
+        $imgPrefix = "{$this->contentDomain}/$random1/$random2";
 
         $unsubText = $this->createUnsubHtml($offer, $imgPrefix, $offerUnsubLinkId);
         $fullHtml = str_replace("{{ADV_UNSUB}}", $unsubText, $fullHtml);
@@ -262,9 +298,8 @@ class PackageZipCreationService {
             }    
         }
 
-        #$fullHtml = str_replace("{{NID}}", replace, $fullHtml); // this is the esp "client" id ... trash?
-        $fullHtml = str_replace("{{ADV_UNSUB_URL}}", $offerUnsubLink, $fullHtml); // keeping this for legacy reasons
-        $fullHtml = str_replace("{{OFFER_UNSUB_URL}}", $offerUnsubLink, $fullHtml);
+        $fullHtml = str_replace("{{ADV_UNSUB_URL}}", $offerUnsubLink, $fullHtml); // keeping this naming scheme for legacy reasons
+        $fullHtml = str_replace("{{OFFER_UNSUB_URL}}", $offerUnsubLink, $fullHtml); // this should be the new one going forward
         $fullHtml = str_replace("{{CRID}}", $creativeId, $fullHtml);
         $fullHtml = str_replace("{{F}}", $fromId, $fullHtml);
         $fullHtml = str_replace("{{S}}", $subjectId, $fullHtml);
@@ -422,7 +457,6 @@ TXT;
 
         $text = implode(PHP_EOL, $allText) . PHP_EOL . PHP_EOL;
 
-        $links = array_unique($links);
         $links = array_keys(array_flip($links));
         $length = sizeof($links);
 
@@ -679,7 +713,7 @@ TXT;
             "{{HEADER_TEXT}}" => "", 
             "{{FOOTER_TEXT}}" => "",
             "{{FOOTER_STR}}" => "", 
-            "footerid={{FOOTER}}" => "0", // in urls, set to 0
+            "footerid={{FOOTER}}" => "footerid=0", // in urls, set to 0
             "{{FOOTER}}" => "", // if the above is not found, use ""
             "{{CID}}" => "1",
             "{{MID}}" => "",
@@ -712,6 +746,9 @@ TXT;
         }
         elseif (!$deploy->offer || $deploy->offer->returnApprovalAndStatus() !== 'allowed') {
             throw new ValidationException('Offer is not permitted. Check approval and status.');
+        }
+        elseif (!$deploy->contentDomain || !$deploy->contentDomain->contentDomainValidForEspAccount($deploy->esp_account_id)) {
+            throw new ValidationException('Content domain not permitted. Check status, type, and esp account.');
         }
         elseif (!$deploy->espAccount) {
             throw new ValidationException('ESP Account does not exist.');
