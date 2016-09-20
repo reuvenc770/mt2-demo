@@ -167,4 +167,12 @@ class DeployController extends Controller
     {
         //
     }
+
+    public function previewDeploy(Request $request ,$deployId){
+        $html  = $this->deployService->someAwesomeMethodRobMakes($deployId);
+
+        return response()
+            ->view( 'pages.deploy.deploy-preview', ["html" => $html] );
+    }
+
 }

@@ -193,6 +193,7 @@ return [
     'api.cfs.subjects'     => "Retrieve Subjects",
     'api.offer.search'      => 'Search for Offers',
     'deploy.list'           => 'View Deploy List Screen',
+    'deploy.preview'        => 'Preview Deploy',
     'api.deploy.index'      => 'Retrieve List of Deploys',
     'api.deploy.show'      => 'Show a deploy',
     'api.deploy.cakeaffiliates' =>'Retrieve Cake Affiliates',
