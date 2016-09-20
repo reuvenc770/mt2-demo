@@ -1080,7 +1080,7 @@ Route::group(
 
         Route::get('/mailingtemplate/templates/{id}', [
             'as' => 'api.mailingtemplate.listbyesp',
-            'uses' => 'EspController@grabTemplatesByESP'
+            'uses' => 'EspApiAccountController@grabTemplatesByESP'
         ]);
         Route::resource(
             'mailingtemplate',
