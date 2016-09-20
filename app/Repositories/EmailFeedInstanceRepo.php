@@ -114,7 +114,7 @@ class EmailFeedInstanceRepo {
     }
 
     public function getMt1UniqueCountForFeedAndDate( $feedId , $date ) {
-        $results =  DB::connection( 'mt1mail' )->table( 'ClientRecordTotalsByIsp' )
+        $results =  DB::connection( 'mt1_data' )->table( 'ClientRecordTotalsByIsp' )
             ->select( DB::raw( "sum( uniqueRecords ) as 'uniques'" ) )
             ->where( [
                 [ 'clientID' , $feedId ] ,
@@ -129,7 +129,9 @@ class EmailFeedInstanceRepo {
     }
 
     public function getMt2UniqueCountForFeedAndDate( $feedId , $date ) {
-        $mt2Db = config('database.connections.slave_data.database');
+        $mt2Db = config( 'database.connections.slave_data.database' );
+        $attrDb = config( 'database.connections.attribution.database' );
+        $reportDb = config( 'database.connections.reporting_data.database' );
 
         $results = DB::select( DB::raw( "
             SELECT
@@ -138,9 +140,9 @@ class EmailFeedInstanceRepo {
                ( SELECT
                    e.email_address
                FROM
-                   mt2_data.email_feed_instances efi1
-                   LEFT JOIN mt2_data.email_feed_instances efi2 ON efi1.email_id = efi2.email_id
-                   INNER JOIN mt2_data.emails e ON efi1.email_id = e.id
+                   $mt2Db.email_feed_instances efi1
+                   LEFT JOIN $mt2Db.email_feed_instances efi2 ON efi1.email_id = efi2.email_id
+                   INNER JOIN $mt2Db.emails e ON efi1.email_id = e.id
                   
                WHERE
                    efi1.capture_date = '{$date}'
@@ -158,9 +160,9 @@ class EmailFeedInstanceRepo {
                SELECT
                    e.email_address
                FROM
-                   mt2_data.email_feed_instances efi
-                   INNER JOIN attribution.email_feed_assignments efa ON efi.email_id = efa.email_id
-                   INNER JOIN mt2_data.emails e ON efa.email_id = e.id
+                   $mt2Db.email_feed_instances efi
+                   INNER JOIN $attrDb.email_feed_assignments efa ON efi.email_id = efa.email_id
+                   INNER JOIN $mt2Db.emails e ON efa.email_id = e.id
                WHERE
                    efi.feed_id = '{$feedId}'
                    AND
@@ -177,12 +179,12 @@ class EmailFeedInstanceRepo {
                SELECT
                    e.email_address
                FROM
-                   mt2_data.email_feed_instances efi FORCE INDEX(email_client_instances_capture_date_index)
-                   INNER JOIN attribution.email_feed_assignments efa ON efi.email_id = efa.email_id
-                   LEFT JOIN mt2_reports.email_campaign_statistics ecs ON efi.email_id = ecs.email_id
-                   INNER JOIN mt2_data.emails e ON efa.email_id = e.id
-                   INNER JOIN attribution.attribution_levels alImport ON efi.feed_id = alImport.feed_id
-                   INNER JOIN attribution.attribution_levels alOld ON efa.feed_id = alOld.feed_id
+                   $mt2Db.email_feed_instances efi FORCE INDEX(email_client_instances_capture_date_index)
+                   INNER JOIN $attrDb.email_feed_assignments efa ON efi.email_id = efa.email_id
+                   LEFT JOIN $reportDb.email_campaign_statistics ecs ON efi.email_id = ecs.email_id
+                   INNER JOIN $mt2Db.emails e ON efa.email_id = e.id
+                   INNER JOIN $attrDb.attribution_levels alImport ON efi.feed_id = alImport.feed_id
+                   INNER JOIN $attrDb.attribution_levels alOld ON efa.feed_id = alOld.feed_id
                WHERE
                    efi.capture_date = '{$date}'
                    AND

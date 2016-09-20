@@ -15,7 +15,7 @@
 @section( 'content' )
 <md-content class="md-mt2-zeta-theme" layout="row" layout-align="center center" ng-init="attr.initProjectionPage()">
     <div class="md-whiteframe-4dp" layout="column" layout-margin flex="95" ng-init="attr.initProjectionChart()">
-            <md-toolbar layout="row" class="md-hue-3" layout-fill>
+            <md-toolbar layout="row" class="md-mt2-zeta-theme md-hue-2" layout-fill>
                 <div class="md-toolbar-tools">
                     Projection Chart
                 </div>
@@ -25,7 +25,7 @@
                 <div id="projectionChart" flex="100" style="overflow: hidden;"></div>
             </md-content>
 
-            <md-toolbar layout="row" class="md-hue-3" layout-fill>
+            <md-toolbar layout="row" class="md-mt2-zeta-theme md-hue-2" layout-fill>
                 <div class="md-toolbar-tools">
                     Projection Report
                 </div>
@@ -47,10 +47,6 @@
                             <th class="md-table-header-override-whitetext" md-column md-numeric>Model CPM Revenue</th>
                             <th class="md-table-header-override-whitetext" md-column md-numeric>Live CPM Revshare</th>
                             <th class="md-table-header-override-whitetext" md-column md-numeric>Model CPM Revshare</th>
-                            <th class="md-table-header-override-whitetext" md-column md-numeric>Live MT1 Uniques</th>
-                            <th class="md-table-header-override-whitetext" md-column md-numeric>Model MT1 Uniques</th>
-                            <th class="md-table-header-override-whitetext" md-column md-numeric>Live MT2 Uniques</th>
-                            <th class="md-table-header-override-whitetext" md-column md-numeric>Model MT2 Uniques</th>
                         </tr>
                     </thead>
                     <tbody md-body>
@@ -67,10 +63,6 @@
                             <td md-cell ng-bind="record.model.cpm_revenue"></td>
                             <td md-cell ng-bind="record.live.cpm_revshare"></td>
                             <td md-cell ng-bind="record.model.cpm_revshare"></td>
-                            <td md-cell ng-bind="record.live.mt1_uniques"></td>
-                            <td md-cell ng-bind="record.model.mt1_uniques"></td>
-                            <td md-cell ng-bind="record.live.mt2_uniques"></td>
-                            <td md-cell ng-bind="record.model.mt2_uniques"></td>
                         </tr>
                     </tbody>
                 </table>

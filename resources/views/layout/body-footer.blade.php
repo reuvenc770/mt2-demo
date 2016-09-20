@@ -16,3 +16,4 @@
 <script src="js/angular-drag-and-drop-lists.min.js"></script>
 <script src="js/angucomplete-alt.js"></script>
 <script src="js/md-data-table.min.js"></script>
+<script src="js/angular-cookies.min.js"></script>

@@ -72,7 +72,7 @@ class AttributionBatchService {
 
             // Only run this once we've found the winner
             if ($oldFeedId !== $feedId) {
-                $this->changeAttribution($record->email_id, $feedId, $beginDate);
+                $this->changeAttribution($record->email_id, $feedId, $beginDate, $modelId);
                 Log::info("Attribution changing to $feedId, captured on $beginDate");
                 if (!$isModelRun) {
                     $this->recordHistory($record->email_id, $oldFeedId, $feedId);
@@ -127,7 +127,11 @@ class AttributionBatchService {
         }
     }
 
-    protected function changeAttribution($emailId, $feedId, $captureDate) {
+    protected function changeAttribution($emailId, $feedId, $captureDate, $modelId) {
+        if ( 'none' !== $modelId ) {
+            $this->assignmentRepo->setLevelModel( $modelId );
+        }
+
         $this->assignmentRepo->assignFeed($emailId, $feedId, $captureDate);
     }
 
