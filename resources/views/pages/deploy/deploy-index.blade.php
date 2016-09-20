@@ -38,6 +38,12 @@
             </md-button>
         @endif
 
+            @if (Sentinel::hasAccess('deploy.downloadhtml'))
+                <md-button ng-click="deploy.downloadHtml()" ng-disabled="deploy.disableExport">
+                    <span>Get Html</span>
+                </md-button>
+            @endif
+
     </div>
 
     <md-menu ng-hide="app.largePageWidth()" md-position-mode="target-right target">
@@ -84,6 +90,13 @@
                     </md-button>
                 </md-menu-item>
             @endif
+                @if (Sentinel::hasAccess('deploy.downloadhtml'))
+                    <md-menu-item>
+                        <md-button ng-click="deploy.downloadHtml()" ng-disabled="deploy.disableExport">
+                            <span>Get Html</span>
+                        </md-button>
+                    </md-menu-item>
+                @endif
         </md-menu-content>
     </md-menu>
 @stop

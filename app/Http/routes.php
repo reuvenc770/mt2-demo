@@ -310,6 +310,12 @@ Route::group(
             'uses' => 'DeployController@previewDeploy'
         ] );
 
+
+        Route::get( '/downloadhtml/{deployId}' , [
+            'as' => 'deploy.downloadhtml' ,
+            'uses' => 'DeployController@downloadHtml'
+        ] );
+
     });
 
 /**
