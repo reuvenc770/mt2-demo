@@ -14,7 +14,9 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\ZipArchive\ZipArchiveAdapter;
 use Storage;
 use DOMDocument;
+use DOMXPath;
 use App\Services\Url;
+use ZipArchive;
 
 class PackageZipCreationService {
 
@@ -25,8 +27,7 @@ class PackageZipCreationService {
     const STORAGE_PATH_BASE = './files';
 
     private $serveGentLinks = [];
-
-    private $saveDirectory;
+    private $nameLinkId;
 
     public function __construct(
             DeployRepo $deployRepo, 
@@ -46,11 +47,83 @@ class PackageZipCreationService {
         $this->offerRepo = $offerRepo;
         $this->offerTrackingLinkRepo = $offerTrackingLinkRepo;
         $this->espAccountRepo = $espAccountRepo;
+        $this->nameLinkId = 0; // link id used in file name
+
 
     }
 
     // useful name for now
     public function createPackage($id) {
+        $html = $this->createHtml($id);
+
+        // Email Ops regarding any errors
+        $this->sendRedirectWarningEmail();
+
+        // Make the temporary directory
+        $saveDirectory = self::STORAGE_PATH_BASE . '/' . $this->deploy->id . '/';
+        Storage::createDir($saveDirectory);
+        
+        // 12. Create files and zip
+        $offerName = $this->deploy->offer->name;
+        $creativeName = $this->deploy->creative->file_name;
+
+        // store the HTML 
+        $fileName = "{$this->deploy->send_date}_{$offerName}_{$creativeName}_{$this->deploy->creative_id}_{$this->nameLinkId}";
+        Storage::disk("local")->put($saveDirectory . "$fileName.html", $html);
+
+        // create the asset.txt file
+        $assetText = $this->createAssetText($this->deploy);
+        Storage::disk("local")->put($saveDirectory . "asset.txt", $assetText);
+
+        // Store just the text and links in a file
+        $textFile = $this->returnNonHtmlDocument($html);
+        Storage::disk("local")->put($saveDirectory . "$fileName.txt", $textFile);
+        
+        $zipName = "{$this->deploy->id}_{$this->espAccountName}_{$this->deploy->send_date}_{$this->deploy->offer->name}_{$this->contentDomain}_{$this->deploy->mailing_template_id}.zip";
+        $filePath = storage_path() . '/app/files/' . $this->deploy->id . '/';
+        $fullZipPath = $filePath . $zipName;
+        $this->zipDir($filePath, $fullZipPath);
+
+        // 14. sendESPCSV() (which means place on ftp if required) ??
+
+        // 15. Send message ... to someone (Archana requested)
+
+        return $fullZipPath;
+    }
+
+    private function folderToZip($folder, &$zipFile, $exclusiveLength) { 
+        $handle = opendir($folder); 
+        while (false !== $f = readdir($handle)) { 
+            if ($f != '.' && $f != '..') { 
+                $filePath = "$folder/$f"; 
+                // Remove prefix from file path before add to zip. 
+                $localPath = substr($filePath, $exclusiveLength); 
+                if (is_file($filePath)) { 
+                    $zipFile->addFile($filePath, $localPath); 
+                } 
+                elseif (is_dir($filePath)) { 
+                    // Add sub-directory. 
+                    $zipFile->addEmptyDir($localPath); 
+                    $this->folderToZip($filePath, $zipFile, $exclusiveLength); 
+                } 
+            } 
+        } 
+        closedir($handle); 
+    }
+
+    private function zipDir($sourcePath, $outZipPath) { 
+        $pathInfo = pathInfo($sourcePath); 
+        $parentPath = $pathInfo['dirname']; 
+        $dirName = $pathInfo['basename']; 
+
+        $z = new ZipArchive(); 
+        $z->open($outZipPath, ZIPARCHIVE::CREATE); 
+        $z->addEmptyDir($dirName); 
+        $this->folderToZip($sourcePath, $z, strlen("$parentPath/")); 
+        $z->close(); 
+    } 
+
+    public function createHtml($id) {
 
         $deploy = $this->deployRepo->getDeploy($id);
         $this->deploy = $deploy;
@@ -60,14 +133,14 @@ class PackageZipCreationService {
 
         // Prepare some required values
         $this->deployId = $deploy->id;
-
-        $this->saveDirectory = self::STORAGE_PATH_BASE . '/' . $deploy->id . '/';
-
         $affiliateId = $deploy->cake_affiliate_id;
 
         $offer = $deploy->offer;
         $offerTypeId = $offer->offer_payout_type_id;
         #$this->contentDomain = $deploy->contentDomain->main_site;
+        /**
+            Need to replace this
+        */
         $this->contentDomain = 'tmrsupdatesjbs3.com';
 
         $this->espAccountName = $deploy->espAccount->account_name;
@@ -84,7 +157,6 @@ class PackageZipCreationService {
         $subjectId = $deploy->subject_id; // "sid"
         $creativeId = $deploy->creative_id; // "crid"
         
-
         // 2. assign espCakeDomain based off of offer type and affiliate id
         // will be used to remove cake domain in offer tracking url and elsewhere
         $defaultCakeDomain = $this->cakeRedirectRepo->getDefaultRedirectDomain();
@@ -124,17 +196,20 @@ class PackageZipCreationService {
 
         // remove doctype, html, & body from creative
         $dom = new DOMDocument();
+        $errors = libxml_use_internal_errors(true); // suppressing errors on non-escaped ampersands
         $dom->loadHTML($creativeHtml);
         $dom->doctype->parentNode->removeChild($dom->doctype);
         $this->stripEnclosingElement($dom, "html");
         $this->stripEnclosingElement($dom, "body");
         $creativeHtml = urldecode($dom->saveHTML());
+        libxml_use_internal_errors($errors);
 
         // n used to be clientId - removed, should be safe
-        $tracking = "<IMG SRC='http://{$this->contentDomain}/cgi-bin/open.cgi?eid={$this->emailIdField}&cid=1&em=$emailAddressField&n=0&f=$fromId&s=$subjectId&c=$creativeId&did=&binding=&tid=$templateId&openflag=1&nod=1&espID=$espId&subaff={$deploy->id}' border=0 height=1 width=1>";
+        $openPixel = "<IMG SRC='http://{$this->contentDomain}/cgi-bin/open.cgi?eid={$this->emailIdField}&cid=1&em=$emailAddressField&n=0&f=$fromId&s=$subjectId&c=$creativeId&did=&binding=&tid=$templateId&openflag=1&nod=1&espID=$espId&subaff={$deploy->id}' border=0 height=1 width=1>";
 
         $fullHtml = str_replace("{{CREATIVE}}", $creativeHtml, $fullHtml);
-        $fullHtml = str_replace("{{TRACKING}}", $tracking, $fullHtml);
+        $fullHtml = str_replace("{{TRACKING}}", $openPixel, $fullHtml);
+
         $fullHtml = str_replace("{{TIMESTAMP}}", strftime('%Y%m%d%H%M%S'), $fullHtml);
 
         // Need to get random strings for image domains $img_prefix
@@ -150,7 +225,13 @@ class PackageZipCreationService {
             $linkNumber = $link->link_num;
             $url = $link->url;
 
-            $token = $linkNumber === 1 ? "{{URL}}" : "{{URL$linkNumber}}";
+            if (1 === $linkNumber) {
+                $token = "{{URL}}";
+                $this->nameLinkId = $link->id;
+            }
+            else {
+                $token = "{{URL$linkNumber}}";
+            }
 
             if (strpos($fullHtml, $token) !== false) {
                 $url = $this->offerTrackingLinkRepo->getOfferTrackingLink($offer->id, $linkNumber);
@@ -200,45 +281,13 @@ class PackageZipCreationService {
 
         $fullHtml =  html_entity_decode($fullHtml);
 
-        echo $fullHtml . PHP_EOL;
-
-        // Test the above functionality first before building out the ZIP
-        /*
-        // 12. Create files and zip
-
-        $offerName = $deploy->offer->name;
-        $creativeName = $deploy->creative->file_name;
-
-        // Make the temporary directory
-        $dir = $deployId;
-        Storage::createDir($dir);
-
-        // store the HTML 
-        $fileName = "{$sendDate}_{$offerName}_{$creativeName}_{$creativeId}_{$offerTrackingUrlLinkId}";
-        Storage::disk("local")->put($this->saveDirectory . "$fileName.html", $fullHtml);
-
-        // Store just the text and links in a file
-        [...]
-        Storage::disk("local")->put($this->saveDirectory . "$fileName.txt", $fullHtml);
-
-        // create the asset.txt file
-        $assetText = $this->createAssetText($deploy);
-        Storage::disk("local")->put($this->saveDirectory . "asset.txt", $assetText);
-        
-        $zipName = "$deployId_$espAccountName_"
-        $zipper = new FileSystem(new ZipArchiveAdapter("/files/$dir/"));
-
-        // send this file to the esp
-
-        // 13. Email Dimitri and JHecht
-        // 14. Callbacks
-
-        */
+        return $fullHtml;
     }
 
 
-    // can't be this simple - we need quite a bit more, as seen from the signature
-    // we also need to switch emailId and emailAddress for emailIdToken and emailAddressToken -
+    /**
+     *  Format the url based off of the new/gmail settings
+     */
 
     private function formatUrl($type, $urlFormat, $linkId, $emailIdFormat) {
         if ('new' === $urlFormat) {
@@ -261,23 +310,132 @@ class PackageZipCreationService {
         }
     }
 
+    private function sendRedirectWarningEmail() {
+        if (sizeof($this->serveGentLinks) > 0) {
+            $to = "dpezas@zetainteractive.com,jhecht@zetainteractive.com";
+            $testTo = 'rbertorelli@zetainteractive.com';
+            $subject = "QA HTTP Redirect Alert";
+            $message = implode(', ', $this->serveGentLinks);
+            $headers = 'From: QA HTTP Redirect Alert <info\@zetainteractive.com>\r\nX-Priority: 1\r\nX-MSMail-Priority: High\r\n';
+            mail($testTo, $subject, $message, $headers);
+        }
+    }
+
 
     private function createAssetText($deploy) {
-        // do we still need CLIENT?
+        // do we still need CLIENT or FOOTER?
         $text = <<<TXT
-FROM: {$deploy->from()->first()->from}
-SUBJECT: {$deploy->subject()->first()->subject}
+FROM: {$deploy->from->from_line}
+SUBJECT: {$deploy->subject->subject_line}
 TEMPLATE: {$deploy->mailingTemplate()->first()->template_name}
-CLIENT: {$deploy->espAccount()->first()->esp()->first()->name}
+CLIENT: {$deploy->espAccount->account_name}
 FOOTER: 
 TXT;
 
         return $text;
     }
 
+    /**
+     *  Takes and HTML file and returns a text-only string with the following format:
+     *  Place any text, any links, and any image title text
+     *  All unique links in the document are placed and numbered in-order beneath the text
+     */
+
+    /**
+        Probably want to improve on this in some way
+    */
+
+    private function returnNonHtmlDocument($html) {
+        $dom = new DOMDocument();
+        $internalErrors = libxml_use_internal_errors(true); // suppress minor HTML validation errors
+        $dom->loadHTML($html);
+
+        $xpath = new DOMXPath($dom);
+        $allNodes = $xpath->query('//node()');
+
+        $allText = [];
+        $links = [];
+
+        $prevText = '';
+
+        foreach ($allNodes as $node) { 
+            $type = get_class($node);
+
+            if ('DOMElement' === $type && $node->hasAttribute('href')) {
+                $link = $node->getAttribute('href');
+
+                // Determine proper text for DOMElement node.
+                // If the textContent property is not empty, use that
+                // Otherwise, check if this node has any children
+                // and take all titles from them
+                // N.B. This procedure strongly assumes that the child nodes
+                // are image tags. Any changes to creatives will result in a change here.
+
+                if ($node->textContent) {
+                    $prevText = $node->textContent;
+                    $text = $node->textContent . ' [' . $link . ']';
+                }
+                elseif ($node->hasChildNodes()) {
+                    $text = '';
+
+                    foreach ($node->childNodes as $child) {
+                        $text .= $child->getAttribute('title');
+                    }
+                    $prevText = $text;
+
+                    $text .= ' [' . $link . ']';
+                }
+                else {
+                    $text = '';
+                    $prevText = '';
+                }
+                   
+            }
+            elseif ('DOMElement' === $type && $node->hasAttribute('src') 
+                && $node->textContent !== $prevText 
+                && $node->getAttribute('title') !== $prevText) {
+                // For images, suppress the link, get the image title
+                $link = '';
+                $text = $node->textContent ?: $node->getAttribute('title');
+                $prevText = $text;
+            }
+            elseif ('DOMText' === $type && $node->textContent !== $prevText) {
+                $text = $node->textContent;
+                $link = '';
+                $prevText = $text;
+            } 
+            else {
+                continue;
+            }
+
+            if ($text !== '') {
+                $allText []= $text;
+            }
+
+            if ($link !== '') {
+                $links []= $link;
+            }
+            
+        }
+
+        libxml_use_internal_errors($internalErrors);
+
+        $text = implode(PHP_EOL, $allText) . PHP_EOL . PHP_EOL;
+
+        $links = array_unique($links);
+        $links = array_keys(array_flip($links));
+        $length = sizeof($links);
+
+        for ($i = 0; $i < $length; $i++) {
+            $text .= ($i + 1) . '. ' . $links[$i] . PHP_EOL; // links not zero-indexed in file
+        }
+
+        return $text;
+    }
+
 
     /*
-        Method used to 
+        Method used to remove a specified node and replace it with its children
     */
     private function stripEnclosingElement(&$dom, $elementName) {
 
@@ -326,80 +484,34 @@ TXT;
 
     /**
      *  Link Processor 1: Process Image links
-     *
-     *
-     *
-     *
-     *
+     *  Format them based off of per-esp rules
      */
 
     private function parseImageLinks($html) {
         $dom = new DOMDocument();
-
         $internalErrors = libxml_use_internal_errors(true); // suppress minor HTML validation errors
         $dom->loadHTML($html);
-
-        #$urls = [];
 
         $dom = $this->parseImageLinksLoop($dom, 'img');
         $dom = $this->parseImageLinksLoop($dom, 'input');
         libxml_use_internal_errors($internalErrors);
         return urldecode($dom->saveHTML());
-
-        /*
-        $urls = array_unique($urls);
-
-        foreach($urls as $map) {
-            $old = $map['from'];
-            $new = $map['to'];
-
-            $html = str_replace($old, $new, $html);
-        }
-
-        return $html;
-        */
     }
 
-    // what we could do instead is return an array of updates to make
-    // and then run through them once and do a global update on the updated html
-    // array unique on the key
-    // the array is formatted as follows:
-    // [['from' => $oldText, 'to' => $newText, 'type' => regular|regex]]
-
-    private function parseImageLinksLoop($dom, $element) {
+    
+    private function parseImageLinksLoop(&$dom, $element) {
         foreach($dom->getElementsByTagName($element) as $link) {
-            $url = $link->getAttribute('src');
+            $parsedUrl = new Url($link->getAttribute('src'));
 
-            if (strpos($url, 'open.cgi') === false) {
+            if ($link->getAttribute('src') !== '' && !$parsedUrl->contains('open.cgi')) {
 
-                echo "Running inside parse image links loop with $url" . PHP_EOL;
+                $parsedUrl->stringReplace('{{DOMAIN}}', 'contentstaging-01.mtroute.com');
+                $parsedUrl->stringReplace('{{IMG_DOMAIN}}', 'contentstaging-01.mtroute.com');
 
-                $url = preg_replace('/\{\{DOMAIN\}\}/', 'contentstaging-01.mtroute.com', $url);
-                $url = preg_replace('/\{\{IMG_DOMAIN\}\}/', 'contentstaging-01.mtroute.com', $url);
-                $urlContents = parse_url($url);
-
-                $scheme = $urlContents['scheme'];
-                $host = $urlContents['host'];
-                $path = isset($urlContents['path']) ? $urlContents['path'] : '';
-
-                // path is the part between the domain and the query string:
-                // e.g. http://www.my-site.com/dir1/dir2/test.php?s1=test
-                // the path is "/dir1/dir2/test.php"
-                $pathArray = explode('/', $path);
-                $pathArrayLength = sizeof($pathArray);
-                $fileName = $pathArray[$pathArrayLength - 1];
-
-                $testForExtension = explode('.', $fileName);
-
-                $fileName = sizeof($testForExtension) > 1 ? $fileName : $fileName . '.jpg';
-
-                echo "file name is $fileName" . PHP_EOL;
+                $fileName = sizeof(explode('.', $parsedUrl->fileName)) > 1 ? $parsedUrl->fileName : $parsedUrl->fileName . '.jpg';
 
                 $location = $this->getSaveDirectory() . 'images/';
-
-                echo "Save directory is: $location" . PHP_EOL;
-
-                $fileName = $this->saveFileGetName($url, $location, $fileName);
+                $fileName = $this->saveFileGetName($parsedUrl->url, $location, $fileName);
 
                 $imageLinkFormat = $this->espAccountRepo->getImageLinkFormat($this->deploy->espAccount->id);
                 $urlFormat = $imageLinkFormat->url_format;
@@ -412,11 +524,9 @@ TXT;
 
                 $newUrl = str_replace('{{FILE_NAME}}', $fileName, $newUrl);
 
-                echo "New URL is : $newUrl" . PHP_EOL;
-                
+                $link->setAttribute('src', $newUrl);
             }
 
-            $link->setAttribute('src', $newUrl);
         }
 
         return $dom;
@@ -469,34 +579,55 @@ TXT;
      */
 
     private function parseCCIDLinks($html) {
+        $urls = [];
+
         $dom = new DOMDocument();
         $internalErrors = libxml_use_internal_errors(true);
         $dom->loadHTML($html);
 
-        $dom = $this->parseCCIDLinksLoop($dom, 'a');
-        $dom = $this->parseCCIDLinksLoop($dom, 'area');
+        $urls = $this->parseCCIDLinksLoop($dom, 'a');
+        $urls = array_merge($urls, $this->parseCCIDLinksLoop($dom, 'area'));
         libxml_use_internal_errors($internalErrors);
-        return urldecode($dom->saveHTML());
- 
+        
+        $dom = null;
+
+        foreach($urls as $map) {
+            $old = $map['from'];
+            $new = $map['to'];
+
+            $html = str_replace($old, urldecode($new), $html);
+        }
+
+        return $html;
     }
 
-    private function parseCCIDLinksLoop($dom, $element) {
-        foreach($dom->getElementsByTagName($element) as $link) {
-            /**
-            // Non-optimal. Place a factory?
-            */
+    /**
+     *  Find and create mapping of ccID links 
+     *  Format of ['from' => $oldUrl, 'to' => $newUrl]
+     *  This is required (rather than directly updating the dom) because
+     *  we need to keep links the same for the non-html.
+     *  We also maintain the uniqueness of the froms here
+     */
 
-            echo "about to parse this url: " . $link->getAttribute('href') . PHP_EOL;
+    private function parseCCIDLinksLoop($dom, $element) {
+        $urls = [];
+        $froms = [];
+
+        foreach($dom->getElementsByTagName($element) as $link) {
             $parsedUrl = new Url($link->getAttribute('href'));
 
-            if (!$parsedUrl->find('{{URL}}') && !$parsedUrl->find('{{ADV_UNSUB_URL}}') && $parsedUrl->find('ccID')) {
+            if (!$parsedUrl->contains('{{URL}}') 
+                && !$parsedUrl->contains('{{ADV_UNSUB_URL}}') 
+                && $parsedUrl->contains('ccID') 
+                && !in_array($parsedUrl->url, $froms)) {
+
+                $pair = ['from' => $parsedUrl->url];
 
                 $parsedUrl->regexReplace('/\?/', '\?');
                 $parsedUrl->regexReplace('/\[/', '\[');
 
                 $ccId = $parsedUrl->getQueryParam('ccID');
 
-                echo "ccid: $ccId" . PHP_EOL;
                 $trackingLink = "http://{$this->espCakeDomain}/?a={$this->deploy->cake_affiliate_id}&c=$ccId&s1="
                                 . $this->deployId 
                                 ."&s2={{EMAIL_USER_ID}}_".$this->deploy->creative_id
@@ -510,11 +641,11 @@ TXT;
                     $trackingLink .= '&p=c';
                 }
 
-                if ($this->deploy->encrypt_cake) { // probably need to pass in deploy
+                if ($this->deploy->encrypt_cake) {
                     $trackingLink = $this->encryptionService->encryptCakeLink($trackingLink);
                 }
 
-                if ($this->deploy->full_encrypt) {
+                if ($this->deploy->fully_encrypt) {
                     $trackingLink = $this->encryptionService->fullEncryptLink($trackingLink);
                 }
 
@@ -524,11 +655,14 @@ TXT;
 
                 $publicLink = $this->formatUrl('REDIRECT', $this->deploy->url_format, $trackingLinkId, $this->emailIdField);
 
-                $link->setAttribute('href', $publicLink);
+                $pair['to'] = $publicLink;
+
+                $urls []= $pair;
             }
         }
 
-        return $dom;
+        return $urls;
+
     }
 
 
