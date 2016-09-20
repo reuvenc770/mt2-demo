@@ -6,6 +6,10 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
         return $location.protocol() + '://' + $location.host() + '/';
     };
 
+    self.isMobile = function () {
+        return !$mdMedia( 'gt-sm' );
+    };
+
     self.largePageWidth = function () {
         return $mdMedia( 'gt-md' );
     };

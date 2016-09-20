@@ -292,8 +292,6 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     };
 
     self.copyModelPreview = function ( $event , currentModelId ) {
-        $log.log( currentModelId );
-
         if ( typeof( currentModelId ) !== 'undefined' ) {
             self.current.id = currentModelId;
 
@@ -321,8 +319,6 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     };
 
     self.getSelectedFeedsIncluding = function ( feed ) {
-        $log.info( 'getSelectedFeedsIncluding' );
-
         feed.selected = true; 
 
         return self.feeds.filter( function ( currentFeed ) { return currentFeed.selected; } );
@@ -331,19 +327,14 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     self.onDragStart = function ( event ) {
         self.draggingLevels = true;
 
-        if (event.dataTransfer.setDragImage) {
+        if ( event.dataTransfer.setDragImage ) {
             var img = new Image();
             img.src = 'img/icons/ic_swap_vert_black_24dp_1x.png';
-            event.dataTransfer.setDragImage(img, 0, 0);
+            event.dataTransfer.setDragImage( img , -20 , 0 );
         }
     };
 
     self.onLevelDrop = function ( selectedFeeds , index ) {
-        $log.info( 'onLevelDrop' );
-
-        $log.info( selectedFeeds );
-        $log.info( index );
-
         self.feeds = self.feeds.filter( function( currentFeed ) { return !currentFeed.selected; });
 
         self.feeds = self.feeds.slice( 0 , index )
