@@ -172,6 +172,13 @@ class DeployController extends Controller
         $html  = $this->deployService->someAwesomeMethodRobMakes($deployId);
 
         return response()
+            ->view( 'html', ["html" => $html] );
+    }
+
+    public function downloadHtml(Request $request ,$deployId){
+        $html  = $this->deployService->someAwesomeMethodRobMakes($deployId);
+
+        return response()
             ->view( 'pages.deploy.deploy-preview', ["html" => $html] );
     }
 

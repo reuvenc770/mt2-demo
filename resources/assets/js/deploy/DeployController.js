@@ -255,7 +255,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
             $window.open(url + packageIds[index]);
         }
     };
-    self.previewDeploys = function (){
+    self.downloadHtml = function (){
         var packageIds = self.selectedRows;
         var url ="/deploy/downloadhtml/";
         for (index = 0; index < packageIds.length; ++index) {
