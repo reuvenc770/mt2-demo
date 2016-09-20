@@ -7,19 +7,19 @@
 
             <span ng-show="attr.showModelActions">
                 @if (Sentinel::hasAccess('attributionProjection.show'))
-                <md-button ng-hide="attr.disableProjection" ng-href="@{{ 'attribution/projection/' + attr.selectedModelId }}" target="_self"><md-icon md-svg-src="img/icons/ic_show_chart_white_18px.svg"></md-icon> Projection</md-button>
+                <md-button ng-class="{ 'md-icon-button' : app.isMobile() }" ng-hide="attr.disableProjection" ng-href="@{{ 'attribution/projection/' + attr.selectedModelId }}" target="_self"><md-icon md-svg-src="img/icons/ic_show_chart_white_18px.svg"></md-icon> <span hide-xs hide-sm>Projection</span></md-button>
                 @endif
 
                 @if (Sentinel::hasAccess('api.attribution.run'))
-                <md-button ng-hide="attr.disableProjection" ng-click="attr.runAttribution( true )"><md-icon md-svg-src="img/icons/ic_cached_white_18px.svg"></md-icon> Refresh</md-button>
+                <md-button ng-class="{ 'md-icon-button' : app.isMobile() }" ng-hide="attr.disableProjection" ng-click="attr.runAttribution( true )"><md-icon md-svg-src="img/icons/ic_cached_white_18px.svg"></md-icon> <span hide-xs hide-sm>Run Attribution</span></md-button>
                 @endif
 
                 @if (Sentinel::hasAccess('attributionModel.edit'))
-                <md-button ng-href="@{{ 'attribution/edit/' + attr.selectedModelId }}" target="_self"><md-icon md-svg-src="img/icons/ic_mode_edit_white_18px.svg"></md-icon> Edit</md-button>
+                <md-button ng-class="{ 'md-icon-button' : app.isMobile() }" ng-href="@{{ 'attribution/edit/' + attr.selectedModelId }}" target="_self"><md-icon md-svg-src="img/icons/ic_mode_edit_white_18px.svg"></md-icon> <span hide-xs hide-sm>Edit</span></md-button>
                 @endif
 
                 @if (Sentinel::hasAccess('api.attribution.model.setlive'))
-                <md-button ng-hide="attr.disableProjection" ng-click="attr.setModelLive()"><md-icon md-svg-src="img/icons/ic_send_white_18px.svg"></md-icon> Set Live</md-button>   
+                <md-button ng-class="{ 'md-icon-button' : app.isMobile() }" ng-hide="attr.disableProjection" ng-click="attr.setModelLive()"><md-icon md-svg-src="img/icons/ic_send_white_18px.svg"></md-icon> <span hide-xs hide-sm>Set Live</span></md-button>   
                 @endif
             </span>
         </div>

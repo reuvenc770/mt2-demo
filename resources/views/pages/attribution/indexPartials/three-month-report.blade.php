@@ -46,8 +46,8 @@
         </thead>
         <tbody md-body>
             <tr ng-repeat="record in attr.reportRecords" ng-class="{ 'mt2-total-row' : record.client_stats_grouping_id }" md-row>
-                <td md-cell>@{{ record.client_stats_grouping_id ? attr.clientNameMap[ record.client_stats_grouping_id ] + ' (' + record.client_stats_grouping_id + ')' : '' }}</td>
-                <td md-cell>@{{ record.feed_id ? attr.feedNameMap[ record.feed_id ] + ' (' + record.feed_id + ')' : '' }}</td>
+                <td md-cell>@{{ record.client_stats_grouping_id ? attr.clientNameMap[ record.client_stats_grouping_id ] + ' (' + record.client_stats_grouping_id + ')' : 'Unknown' + ' (' + record.feed_id + ')' }}</td>
+                <td md-cell>@{{ record.feed_id ? attr.feedNameMap[ record.feed_id ] + ' (' + record.feed_id + ')' : 'Unknown' + ' (' + record.feed_id + ')' }}</td>
 
                 <td class="mt2-two-months-ago-cell mt2-cell-left-padding" md-cell>$@{{ record.two_months_ago.standard_revenue ? record.two_months_ago.standard_revenue.slice( 0 , -1 ) : (0.0).toFixed( 2 ) }}</td>
                 <td class="mt2-two-months-ago-cell" md-cell>$@{{ record.two_months_ago.standard_revenue ? ( record.two_months_ago.standard_revenue * 0.15 ).toFixed( 2 ) : (0.0).toFixed( 2 ) }}</td>

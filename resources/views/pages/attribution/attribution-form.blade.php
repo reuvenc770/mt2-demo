@@ -1,6 +1,6 @@
 <div class="md-whiteframe-4dp" style="background-color:#FFF;">
     <form name="attrModelForm" novalidate>
-        <md-toolbar layout="row" class="md-hue-3">
+        <md-toolbar layout="row" class="md-mt2-zeta-theme md-hue-2">
           <div class="md-toolbar-tools">
             <span>Attribution Model Details</span>
           </div>
@@ -20,7 +20,7 @@
             </div>
         </md-content>
 
-        <md-toolbar layout="row" class="md-hue-3">
+        <md-toolbar layout="row" class="md-mt2-zeta-theme md-hue-2">
           <div class="md-toolbar-tools">
             <span>Client Attribution Levels</span>
           </div>

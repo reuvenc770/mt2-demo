@@ -8,16 +8,31 @@
 
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('api.attribution.model.store'))
+    <div ng-hide="app.isMobile()">
         <md-button ng-click="attr.saveModel( $event , attrModelForm )" aria-label="Add Attribution Model">
-            <md-icon ng-hide="app.largePageWidth()" md-svg-src="img/icons/ic_add_circle_outline_white_24px.svg"></md-icon>
-            <span ng-show="app.largePageWidth()">Save Model</span>
+            <span>Save Model</span>
         </md-button>
+    </div>
+
+    <md-menu ng-show="app.isMobile()" md-position-mode="target-right target">
+        <md-button aria-label="Open Menu" class="md-icon-button" ng-click="$mdOpenMenu($event)">
+            <md-icon md-svg-src="img/icons/ic_more_horiz_black_24px.svg"></md-icon>
+        </md-button>
+
+        <md-menu-content width="3">
+            <md-menu-item>
+                <md-button ng-click="attr.saveModel( $event , attrModelForm )">
+                    <span>Save Model</span>
+                </md-button>
+            </md-menu-item>
+        </md-menu-content>
+    </md-menu>
     @endif
 @stop
 
 @section( 'content' )
 <div ng-init="attr.loadClients()">
-    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
+    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1" layout-padding>
         <div flex-gt-sm="50" flex="100">
             @include( 'pages.attribution.attribution-form' )
         </div>

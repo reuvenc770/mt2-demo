@@ -74,9 +74,7 @@ class ProjectionReportCollection extends Collection {
             "standard_revenue" => $clientRecord->standard_revenue ,
             "standard_revshare" => $clientRecord->standard_revenue * 0.15 ,
             "cpm_revenue" => $clientRecord->cpm_revenue ,
-            "cpm_revshare" => $clientRecord->cpm_revenue * 0.15 ,
-            "mt1_uniques" => $clientRecord->mt1_uniques ,
-            "mt2_uniques" => $clientRecord->mt2_uniques
+            "cpm_revshare" => $clientRecord->cpm_revenue * 0.15
         ];
     }
 
@@ -102,9 +100,7 @@ class ProjectionReportCollection extends Collection {
             "standard_revenue" => $feedRecord->revenue ,
             "standard_revshare" => $feedRecord->revenue * 0.15 ,
             "cpm_revenue" => 0 ,
-            "cpm_revshare" => 0 ,
-            "mt1_uniques" => $feedRecord->mt1_uniques ,
-            "mt2_uniques" => $feedRecord->mt2_uniques
+            "cpm_revshare" => 0
         ];
     }
 }
