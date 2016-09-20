@@ -39,7 +39,7 @@ class LinkService {
         $body = (string)$result->getBody();
 
         if (strpos($body, 'servegent.com')) {
-            return false; // continue with this here, or throw another exception?
+            return false;
         }
 
         return true;

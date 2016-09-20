@@ -270,5 +270,11 @@ class CakeRedirectLinkSeeder extends Seeder {
         $r1->redirect_domain = 'precisionfigure.com';
         $r1->save();
 
+        $r1 = new CakeRedirectDomain();
+        $r1->cake_affiliate_id = 309;
+        $r1->offer_payout_type_id = 1;
+        $r1->redirect_domain = 'aztechking.com';
+        $r1->save();
+
     }
 }
