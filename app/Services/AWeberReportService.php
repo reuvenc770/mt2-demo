@@ -1,31 +1,47 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: pcunningham
- * Date: 3/11/16
- * Time: 9:13 AM
- */
-
 namespace App\Services;
 
-use App\Repositories\ReportRepo;
-use App\Services\API\AWeberApi;
-use App\Services\Interfaces\IDataService;
-use Event;
 use App\Events\RawReportDataWasInserted;
+use App\Exceptions\JobException;
+use App\Facades\DeployActionEntry;
+use App\Repositories\ReportRepo;
+use App\Services\AbstractReportService;
+use App\Services\API\AWeberApi;
 use App\Services\EmailRecordService;
+use App\Services\Interfaces\IDataService;
+use Illuminate\Support\Facades\Event;
 use Log;
 
+/**
+ * Class AWeberReportService
+ * @package App\Services
+ */
 class AWeberReportService extends AbstractReportService implements IDataService
 {
-    protected $dataRetrievalFailed = false;
+    /**
+     * AWeberReportService constructor.
+     * @param ReportRepo $reportRepo
+     * @param $accountNumber
+     */
 
-    public function __construct(ReportRepo $reportRepo, AWeberApi $api , EmailRecordService $emailRecord )
+    const DELIVERABLE_LOOKBACK = 2;
+
+    /**
+     * AWeberReportService constructor.
+     * @param ReportRepo $reportRepo
+     * @param AWeberApi $api
+     * @param EmailRecordService $emailRecord
+     */
+    public function __construct(ReportRepo $reportRepo, AWeberApi $api, EmailRecordService $emailRecord)
     {
-        parent::__construct($reportRepo, $api , $emailRecord );
+        parent::__construct($reportRepo, $api, $emailRecord);
     }
 
-    //we may have to use date to hold offset, and build something that queries per page...
+    /**
+     * @param $date
+     * @return \SimpleXMLElement
+     * @throws \Exception
+     */
     public function retrieveApiStats($date)
     {
         $startTime = microtime( true );
@@ -35,26 +51,32 @@ class AWeberReportService extends AbstractReportService implements IDataService
         $date = null; //unfortunately date does not matter here.
         $campaignData = array();
         $campaigns = $this->api->getCampaigns(20);
-          foreach ($campaigns as $campaign) {
-                Log::info( 'Processing Aweber Campaign ' . $campaign->id );
+        $i=0;
+        foreach ($campaigns as $campaign) {
+            Log::info( 'Processing Aweber Campaign ' . $campaign->id );
 
-              $clickEmail = $this->api->getStateValue($campaign->id, "unique_clicks");
-              $openEmail = $this->api->getStateValue($campaign->id, "unique_opens");
-              $row = array(
-                  "internal_id" => $campaign->id,
-                  "subject" => $campaign->subject,
-                  "sent_at" => $campaign->sent_at,
-                  "info_url" => $campaign->self_link,
-                  "total_sent" => $campaign->total_sent,
-                  "total_opens" => $campaign->total_opens,
-                  "total_unsubscribes" => $campaign->total_unsubscribes,
-                  "total_clicks" => $campaign->total_clicks,
-                  "total_undelivered" => $campaign->total_undelivered,
-                  "unique_clicks" => $clickEmail,
-                  "unique_opens" => $openEmail,
-              );
-              $campaignData[] = $row;
-          }
+            $clickEmail =0;//$this->api->getStateValue($campaign->id, "unique_clicks");
+            $openEmail = 0;//$this->api->getStateValue($campaign->id, "unique_opens");
+            $row = array(
+                "internal_id" => $campaign->id,
+                "subject" => $campaign->subject,
+                "sent_at" => $campaign->sent_at,
+                "info_url" => $campaign->self_link,
+                "total_sent" => $campaign->total_sent,
+                "total_opens" => $campaign->total_opens,
+                "total_unsubscribes" => $campaign->total_unsubscribes,
+                "total_clicks" => $campaign->total_clicks,
+                "total_undelivered" => $campaign->total_undelivered,
+                "unique_clicks" => $clickEmail,
+                "unique_opens" => $openEmail,
+            );
+            $campaignData[] = $row;
+
+        }
+        $i++;
+        if($i == 20){
+            return  $campaignData;
+        }
 
         $endTime = microtime( true );
 
@@ -64,7 +86,9 @@ class AWeberReportService extends AbstractReportService implements IDataService
         return $campaignData;
     }
 
-
+    /**
+     * @param $xmlData
+     */
     public function insertApiRawStats($data)
     {
         $convertedDataArray = [];
@@ -84,7 +108,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
             "esp_account_id" => $this->api->getEspAccountId(),
             "info_url"  => $data['info_url'],
             "subject" => $data['subject'],
-            "sent_at" => $data['sent_at'],
+            "datetime" => $data['sent_at'],
             "total_sent" => $data['total_sent'],
             "total_opens" => $data['total_opens'],
             "total_unsubscribes" => $data['total_unsubscribes'],
@@ -118,79 +142,120 @@ class AWeberReportService extends AbstractReportService implements IDataService
         );
     }
 
-    public function getCampaigns ( $espAccountId , $date ) {
-        return $this->reportRepo->getCampaigns( $espAccountId , $date )->splice( 0 , 20 );
+
+    /**
+     * @param $processState
+     */
+    public function getUniqueJobId(&$processState)
+    {
+        // This is how the job  will be labeled  in the job_entries table
     }
 
-    public function getUniqueJobId ( $processState ) {
-        if ( isset( $processState[ 'campaignId' ] ) && !isset( $processState[ 'recordType' ] ) ) {
-            return '::Campaign' . $processState[ 'campaignId' ];
-        } elseif ( isset( $processState[ 'campaignId' ] ) && isset( $processState[ 'recordType' ] ) ) {
-            return '::Campaign' . $processState[ 'campaignId' ] . '::' . $processState[ 'recordType' ];
-        } else {
-            return '';
+    /**
+     * @param $processState
+     */
+    public function getTypeList(&$processState)
+    {
+        //TODO Remove if unneeded
+    }
+
+    /**
+     * @param $espAccountId
+     * @param $campaign
+     * @param $recordType
+     * @param bool $isRerun
+     * @throws JobException
+     */
+    public function startTicket($espAccountId, $campaign, $recordType, $isRerun = false)
+    {
+        try {
+            //TODO Remove if unneeded
+        } catch (\Exception $e) {
+            $jobException = new JobException('Failed to start report ticket. ' . $e->getMessage(), JobException::NOTICE, $e);
+            $jobException->setDelay(180);
+            throw $jobException;
         }
     }
 
-    public function splitTypes () {
-        return [ 'opens' , 'clicks' ];
-    }
-
-    public function saveRecords ( &$processState ) {
-        $this->dataRetrievalFailed = false;
-
-        switch ( $processState[ 'recordType' ] ) {
-            case 'opens' :
-                try {
-                    $opens = $this->api->getOpenReport( $processState[ 'campaignId' ] );
-                } catch ( \Exception $e ) {
-                    Log::error( 'Failed to retrieve open report. ' . $e->getMessage() );
-
-                    $this->processState[ 'delay' ] = 180;
-
-                    $this->dataRetrievalFailed = true;
-
-                    return;
-                }
-
-                foreach ( $opens as $key => $openRecord ) {
-                    $this->emailRecord->recordDeliverable(
-                        self::RECORD_TYPE_OPENER ,
-                        $openRecord[ 'email' ] ,
-                        $processState[ 'espId' ] ,
-                        $processState[ 'campaignId' ] ,
-                        $openRecord[ 'actionDate' ]
-                    );
-                }
-            break;
-
-            case 'clicks' :
-                try {
-                    $clicks = $this->api->getClickReport( $processState[ 'campaignId' ] );
-                } catch ( \Exception $e ) {
-                    Log::error( 'Failed to retrieve click report. ' . $e->getMessage() );
-
-                    $this->processState[ 'delay' ] = 180;
-
-                    $this->dataRetrievalFailed = true;
-
-                    return;
-                }
-
-                foreach ( $clicks as $key => $clickRecord ) {
-                    $this->emailRecord->recordDeliverable(
-                        self::RECORD_TYPE_CLICKER ,
-                        $clickRecord[ 'email' ] , 
-                        $processState[ 'espId' ] ,
-                        $processState[ 'campaignId' ] ,
-                        $clickRecord[ 'actionDate' ]
-                    );
-                }
-            break;
+    /**
+     * @param $processState
+     * @throws JobException
+     */
+    public function downloadTicketFile(&$processState)
+    {
+        try {
+            //TODO Remove if unneeded
+        } catch (\Exception $e) {
+            $jobException = new JobException('Failed to download report ticket. ' . $e->getMessage(), JobException::NOTICE, $e);
+            $jobException->setDelay(180);
+            throw $jobException;
         }
     }
 
-    public function shouldRetry () { return $this->dataRetrievalFailed; }
+    /**
+     * @param $processState
+     * @return int
+     * @throws JobException
+     */
+    public function saveRecords(&$processState)
+    {
+        $count = 0;
+        try {
+            //TODO Remove if unneeded
+            //RETURN ROW COUNT OF SAVES
+        } catch (\Exception $e) {
+            $exceptionType = get_class($e);
+            DeployActionEntry::recordFailedRun($this->api->getEspAccountId(), $processState['campaign']->esp_internal_id, $processState['recordType']);
+            $jobException = new JobException("Failed to process report file - $exceptionType: " . $e->getMessage(), JobException::WARNING, $e);
+            $jobException->setDelay(60);
+            throw $jobException;
+        }
+        DeployActionEntry::recordSuccessRun($this->api->getEspAccountId(), $processState['campaign']->esp_internal_id, $processState['recordType']);
+        return $count;
+    }
+
+
+    /**
+     * @param $processState
+     */
+    public function cleanUp($processState)
+    {
+        //TODO Remove if unneeded
+    }
+
+    /**
+     * @param $messageId
+     * @param $recordType
+     * @param $isRerun
+     */
+    public function getTicketForMessageSubscriberData($messageId, $recordType, $isRerun)
+    {
+        //TODO Remove if unneeded
+    }
+
+    /**
+     * @param $processState
+     */
+    public function checkTicketStatus(&$processState)
+    {
+        //TODO Remove if unneeded
+    }
+
+    /**
+     * @param $processState
+     */
+    public function splitTypes($processState)
+    {
+        //TODO Remove if unneeded
+    }
+
+    /**
+     * @param $pageType
+     */
+    public function setPageType($pageType)
+    {
+        //TODO Remove if unneeded
+    }
 
 
     public function pushRecords(array $records, $targetId) {}
