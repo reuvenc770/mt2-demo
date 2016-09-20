@@ -48,6 +48,10 @@ class AttributionAggregatorJob extends Job implements ShouldQueue
 
         $this->modelId = $modelId;
 
+        if ( !is_null( $this->modelId ) ) {
+            $this->jobName .= ":Model-" . $this->modelId;
+        }
+
         $this->chainOptions = $chainOptions;
 
         JobTracking::startAggregationJob( $this->jobName , $this->tracking );
@@ -69,7 +73,7 @@ class AttributionAggregatorJob extends Job implements ShouldQueue
                 $this->aggregator = ServiceFactory::createAggregatorService( $this->reportType );
                 $this->aggregator->setChainOptions( $this->chainOptions );
 
-                if ( $this->modelId > 0 ) {
+                if ( !is_null( $this->modelId ) ) {
                     $this->aggregator->setModelId( $this->modelId );
                 }
 
@@ -112,13 +116,15 @@ class AttributionAggregatorJob extends Job implements ShouldQueue
                 break;
 
                 case 'Client' :
-                    $this->dispatch( new AttributionConversionJob(
-                        $this->chainOptions[ 'processMode' ] ,
-                        'all' ,
-                        str_random( 16 ) , 
-                        $this->chainOptions[ 'dateRange' ] ,
-                        $this->chainOptions[ 'currentDate' ]
-                    ) );
+                    if ( is_null( $this->modelId ) ) {
+                        $this->dispatch( new AttributionConversionJob(
+                            $this->chainOptions[ 'processMode' ] ,
+                            'all' ,
+                            str_random( 16 ) , 
+                            $this->chainOptions[ 'dateRange' ] ,
+                            $this->chainOptions[ 'currentDate' ]
+                        ) );
+                    }
 
                     JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking );
  
