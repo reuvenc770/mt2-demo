@@ -48,4 +48,10 @@ class MailingTemplateService
         return $this->mailingTemplateRepo->getModel();
     }
 
+    // return model so its a builder not a deploy
+    public function getType()
+    {
+        return "MailingTemplate";
+    }
+
 }

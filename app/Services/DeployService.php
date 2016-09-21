@@ -99,11 +99,7 @@ class DeployService
         return $filename;
     }
 
-    //upldated return model so its a builder not a deploy
-    public function getType()
-    {
-        return "Deploy";
-    }
+
 
     public function getPaginatedJson($page, $count, $params = null)
     {

@@ -25,7 +25,7 @@ class MailingTemplateRepo
     }
 
     public function updateRow($data, $id){
-        $this->mailingTemplate->where( 'id' , $id )->update($data);
+        $this->mailingTemplate->find( $id )->update($data);
         return $this->getRow($id);
     }
 
