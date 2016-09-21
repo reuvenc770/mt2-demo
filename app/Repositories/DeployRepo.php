@@ -148,7 +148,7 @@ class DeployRepo
         }
         //creative ok?
         if (isset($deploy['creative_id'])) {
-            $count = DB::select("Select count(*) as count from creatives where id = :id and approved = 'Y' and status = 'A'", ['id' => $deploy['creative_id']])[0];
+            $count = DB::select("Select count(*) as count from creatives where id = :id and is_approved = 'Y' and status = 'A'", ['id' => $deploy['creative_id']])[0];
             if ($count->count == 0) {
                 $errors[] = "Creative is not active or wrong";
             }
