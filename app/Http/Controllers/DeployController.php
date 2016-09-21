@@ -152,7 +152,18 @@ class DeployController extends Controller
     public function deployPackages(Request $request)
     {
         $data = $request->all();
-        $filePath = $this->deployService->deployPackages($data);
+        $filePath = false;
+        if (count($data) == 1) {
+            $filePath = $this->packageService->createPackage($data);
+        } else {
+            foreach ($data as $id) {
+               $this->packageService->uploadPackage($id);
+            }
+            Artisan::call('deploys:sendtoops', ['deploysCommaList' => join(",",$data)]);
+        }
+
+        $this->deployService->deployPackages($data);
+
         if($filePath){
             return response()->download($filePath);
         }
@@ -173,7 +184,7 @@ class DeployController extends Controller
 
     public function previewDeploy(Request $request ,$deployId){
         //currently void method
-        $html  = $this->packageService->createPackage($deployId);
+        $html  = $this->packageService->createHtml($deployId);
 
         return response()
             ->view( 'html', ["html" => $html] );
@@ -181,7 +192,7 @@ class DeployController extends Controller
 
     public function downloadHtml(Request $request ,$deployId){
         //currently void method
-        $html  = $this->packageService->createPackage($deployId);
+        $html  = $this->packageService->createHtml($deployId);
 
         return response()
             ->view( 'pages.deploy.deploy-preview', ["html" => $html] );
