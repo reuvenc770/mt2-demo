@@ -78,7 +78,7 @@ class PackageZipCreationService {
         $this->zipDir($filePath, $fullZipPath);
 
         // Upload this to ftp
-        $file = fopen($fullZipPath);
+        $file = fopen($fullZipPath, 'r');
         Storage::disk('dataExportFTP')->put("packages/$zipName", $file);
         fclose($file);
 
@@ -87,7 +87,7 @@ class PackageZipCreationService {
 
     private function packageSetup($id) {
         // Setting value for image formatting for packages
-        $this->stringImages = true;
+        $this->stripImages = true;
 
         $html = $this->createHtml($id);
 
