@@ -103,8 +103,4 @@ class ServiceFactory
 
         return App::make( $className ); 
     }
-
-    public static function createPackageCreationService() {
-        return App::make(App\Services\PackageZipCreationService::class);
-    }
 }
