@@ -27,7 +27,7 @@ class PackageZipCreationService {
     const STORAGE_PATH_BASE = './files';
 
     private $serveGentLinks = [];
-    private $nameLinkId;
+    private $nameLinkId = 0; // link id used in file name
 
     private $stripImages = false;
 
@@ -49,15 +49,13 @@ class PackageZipCreationService {
         $this->offerRepo = $offerRepo;
         $this->offerTrackingLinkRepo = $offerTrackingLinkRepo;
         $this->espAccountRepo = $espAccountRepo;
-        $this->nameLinkId = 0; // link id used in file name
-
 
     }
 
     public function createPackage($id) {
         $this->packageSetup($id);
         
-        $zipName = "{$this->deploy->id}_{$this->espAccountName}_{$this->deploy->send_date}_{$this->deploy->offer->name}_{$this->contentDomain}_{$this->deploy->mailing_template_id}.zip";
+        $zipName = "{$this->deploy->id}_{$this->espAccountName}_{$this->deploy->offer_id}_{$this->deploy->send_date}.zip";
         $filePath = storage_path() . '/app/files/' . $this->deploy->id . '/';
         $fullZipPath = $filePath . $zipName;
         $this->zipDir($filePath, $fullZipPath);
@@ -72,7 +70,7 @@ class PackageZipCreationService {
     public function uploadPackage($id) {
         $this->packageSetup($id);
         
-        $zipName = "{$this->deploy->id}_{$this->espAccountName}_{$this->deploy->send_date}_{$this->deploy->offer->name}_{$this->contentDomain}_{$this->deploy->mailing_template_id}.zip";
+        $zipName = "{$this->deploy->id}_{$this->espAccountName}_{$this->deploy->offer_id}_{$this->deploy->send_date}.zip";
         $filePath = storage_path() . '/app/files/' . $this->deploy->id . '/';
         $fullZipPath = $filePath . $zipName;
         $this->zipDir($filePath, $fullZipPath);
