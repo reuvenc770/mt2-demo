@@ -28,8 +28,6 @@ class CakeRedirectDomainRepo {
     }
 
     public function getDefaultRedirectDomain() {
-        // probably want to improve on this
-        //$cake_domain=$util->getConfigVal("CAKE_REDIR_DOMAIN"); hard-coded .. really?
         return env('DEFAULT_CAKE_REDIRECT_DOMAIN');
     }
 }
