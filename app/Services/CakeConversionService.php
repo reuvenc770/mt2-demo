@@ -75,7 +75,7 @@ class CakeConversionService implements IConversion {
                 "'{$currentRecord->s5}'" ,
                 $currentRecord->click_id ,
                 "'{$currentRecord->conversion_datetime}'" ,
-                $currentRecord->conversion_id ,
+                "'{$currentRecord->conversion_id}'" ,
                 ( $recordType === 'cpc' ? 1 : 0 ) ,
                 $currentRecord->req_id ,
                 $currentRecord->affiliate_id ,
