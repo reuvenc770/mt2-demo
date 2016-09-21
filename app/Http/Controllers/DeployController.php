@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\DeployService;
 use App\Services\EspService;
+use App\Services\PackageZipCreationService;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -13,10 +14,12 @@ use League\Csv\Reader;
 class DeployController extends Controller
 {
     protected $deployService;
+    protected $packageService;
 
-    public function __construct(DeployService $deployService)
+    public function __construct(DeployService $deployService, PackageZipCreationService $packageService)
     {
         $this->deployService = $deployService;
+        $this->packageService = $packageService;
 
     }
 
@@ -169,14 +172,16 @@ class DeployController extends Controller
     }
 
     public function previewDeploy(Request $request ,$deployId){
-        $html  = $this->deployService->someAwesomeMethodRobMakes($deployId);
+        //currently void method
+        $html  = $this->packageService->createPackage($deployId);
 
         return response()
             ->view( 'html', ["html" => $html] );
     }
 
     public function downloadHtml(Request $request ,$deployId){
-        $html  = $this->deployService->someAwesomeMethodRobMakes($deployId);
+        //currently void method
+        $html  = $this->packageService->createPackage($deployId);
 
         return response()
             ->view( 'pages.deploy.deploy-preview', ["html" => $html] );

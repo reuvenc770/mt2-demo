@@ -87,6 +87,8 @@ class DeployService
     {
         $filename = false;
         if (count($data) == 1) {
+
+            //still needs a method returning filepath to zip
             $filename = "some name"; // CALL direct service call to create package and return file path.
         } else {
             foreach ($data as $id) {
