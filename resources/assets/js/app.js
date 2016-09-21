@@ -20,16 +20,22 @@ mt2App.config( function ( $locationProvider , $mdThemingProvider , ivhTreeviewOp
         '500' : '16416c'
     });
 
+    var mt2Accent = $mdThemingProvider.extendPalette('blue' , {
+        'A100' : 'b4d74c' ,
+        'contrastDefaultColor' : 'light'
+    });
+
     var mt2Background = $mdThemingProvider.extendPalette('grey' , {
         '800' : '383F47'
     });
 
     $mdThemingProvider.definePalette('mt2-primary', mt2Primary );
+    $mdThemingProvider.definePalette('mt2-accent', mt2Accent );
     $mdThemingProvider.definePalette('mt2-background', mt2Background );
 
     $mdThemingProvider.theme( 'mt2-zeta' , 'light' )
         .primaryPalette( 'mt2-primary' )
-        .accentPalette( 'blue' )
+        .accentPalette( 'mt2-accent' )
         .warnPalette( 'deep-orange' )
         .backgroundPalette( 'mt2-background' , {
             "default" : '50' ,

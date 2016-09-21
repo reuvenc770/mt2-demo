@@ -5,19 +5,25 @@
 @section( 'content' )
 
 <div layout="column" layout-padding ng-controller="ShowinfoController as info">
-    <div class="well">
-        <form name="recordForm" novalidate>
-            <div class="form-group" ng-class="{ 'has-error' : ( recordForm.recordId.$touched && recordForm.recordId.$error.required ) }">
-                <label for="eid">Record ID</label>
-                <input name="recordId" type="text" class="form-control" id="eid" required placeholder="Please enter EID or email" ng-model="info.recordId" />
-                <div ng-show="recordForm.recordId.$touched">
-                    <span class="help-block" ng-show="recordForm.recordId.$error.required">EID or Email is required</span>
+    <md-card>
+        <md-card-content>
+            <form name="recordForm" layout="column" novalidate>
+                <md-input-container>
+                    <label>Record ID</label>
+                    <input type="text" name="recordId" ng-required="true" ng-model="info.recordId" />
+                    <div class="hint">Enter EID or Email</div>
+                    <div ng-messages="recordForm.recordId.$error">
+                        <div ng-message="required">EID or Email is required.</div>
+                    </div>
+                </md-input-container>
+                <div layout="row">
+                    <md-button class="md-raised mt2-button-save" ng-click="info.loadData( $event , recordForm )" flex-gt-xs="20" flex="100" layout="row">
+                        <span flex>Search</span> <md-progress-circular ng-show="info.isLoading" md-mode="indeterminate" md-diameter="24"></md-progress-circular>
+                    </md-button>
                 </div>
-            </div>
-
-            <md-button class="md-primary" ng-click="info.loadData( $event , recordForm )" layout="row"><span flex>Search</span><md-progress-circular ng-show="info.isLoading" md-mode="indeterminate" md-diameter="24"></md-progress-circular></md-button>
-        </form>
-    </div>
+            </form>
+        </md-card-content>
+    </md-card>
 
     <div id="mtTableContainer" class="table-responsive" ng-if="info.records.length > 0">
         <table class="table table-striped table-bordered tabel-hover text-center">

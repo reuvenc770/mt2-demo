@@ -112,6 +112,7 @@ class MailingTemplateController extends Controller
             "template_text" => $request->input("text"),
         ];
         $this->service->updateTemplate($insertData, $id, $espIds);
+
         return response()->json(["success"=>true]);
 
     }
