@@ -14,7 +14,7 @@ class RerunAttributionAggregator
 {
     use DispatchesJobs;
 
-    const DEFAULT_QUEUE_NAME = 'modelAttribution';
+    const DEFAULT_QUEUE_NAME = 'default'; #'modelAttribution';
     const DEFAULT_REPORT_TYPE = 'Feed';
 
     /**

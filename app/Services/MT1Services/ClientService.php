@@ -31,7 +31,7 @@ class ClientService implements IFtpAdmin
     }
 
     public function getClientFeedsForListOwner ( $listOwnerId ) {
-        $results = DB::connection( 'mt1mail' )->table( 'user' )
+        $results = DB::connection( 'mt1_data' )->table( 'user' )
             ->where( 'clientStatsGroupingID' , $listOwnerId )
             ->pluck( 'user_id' );
 
@@ -43,7 +43,7 @@ class ClientService implements IFtpAdmin
     }
 
     public function getAssignedListOwnerId ( $feedId ) {
-        $results = DB::connection( 'mt1mail' )->table( 'user' )
+        $results = DB::connection( 'mt1_data' )->table( 'user' )
             ->select( 'clientStatsGroupingID' )
             ->where( 'user_id' , $feedId )
             ->get();
@@ -56,7 +56,7 @@ class ClientService implements IFtpAdmin
     }
 
     public function getFeedName ( $feedId ) {
-        $results = DB::connection( 'mt1mail' )->table( 'user' )->where( 'user_id' , $feedId )->pluck( 'username' );
+        $results = DB::connection( 'mt1_data' )->table( 'user' )->where( 'user_id' , $feedId )->pluck( 'username' );
 
         $name = '';
         if ( !empty( $results ) && is_array( $results ) ) {
@@ -77,7 +77,7 @@ class ClientService implements IFtpAdmin
     public function saveFtpUser ( $credentials ) {
         Log::info( 'Saving user credentials to db. Creds: ' . json_encode( $credentials ) );
 
-        DB::connection( 'mt1mail' )->table( 'user' )
+        DB::connection( 'mt1_data' )->table( 'user' )
             ->where( 'username' , $credentials[ 'username' ] )
             ->update( [ 'ftp_pw' => $credentials[ 'password' ],
                 'ftp_user' => $credentials[ 'username' ],
@@ -86,7 +86,7 @@ class ClientService implements IFtpAdmin
     }
 
     public function findNewFtpUsers () {
-        return DB::connection( 'mt1mail' )->table( 'user' )
+        return DB::connection( 'mt1_data' )->table( 'user' )
             ->select( 'username' )
             ->where( [ 'newClient' => 1 , 'ftp_user' => '' ] )
             ->get();

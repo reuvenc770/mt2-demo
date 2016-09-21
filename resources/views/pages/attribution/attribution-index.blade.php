@@ -7,19 +7,43 @@
 @section( 'angular-controller' , 'ng-controller="AttributionController as attr"' )
 
 @section( 'page-menu' )
-    @if (Sentinel::hasAccess('attributionModel.add'))
-        <md-button ng-href="{{ route( 'attributionModel.add' ) }}" target=
-"_self" aria-label="Add Attribution Model">
-            <md-icon ng-hide="app.largePageWidth()" md-svg-src="img/icons/ic_add_circle_outline_white_24px.svg"></md-icon>
-            <span ng-show="app.largePageWidth()">Add Model</span>
+    <div ng-hide="app.isMobile()">
+        @if (Sentinel::hasAccess('attributionModel.add'))
+        <md-button ng-href="{{ route( 'attributionModel.add' ) }}" target="_self" aria-label="Add Attribution Model">
+            <span>Add Model</span>
         </md-button>
-    @endif
+        @endif
 
-    @if (Sentinel::hasAccess('api.attribution.run'))
-        <md-button ng-click="attr.runAttribution( false )" aria-label="Run Attribution">
-            <span>Run Attribution</span>
+        @if (Sentinel::hasAccess('api.attribution.run'))
+        <md-button ng-click="attr.runAttribution( false )" aria-label="Run Live Attribution">
+            <span>Run Live Attribution</span>
         </md-button>
-    @endif
+        @endif
+    </div>
+
+    <md-menu ng-show="app.isMobile()" md-position-mode="target-right target">
+        <md-button aria-label="Open Menu" class="md-icon-button" ng-click="$mdOpenMenu( $event )">
+            <md-icon md-svg-src="img/icons/ic_more_horiz_black_24px.svg"></md-icon>
+        </md-button>
+    
+        <md-menu-content width="3">
+            @if (Sentinel::hasAccess('attributionModel.add'))
+            <md-menu-item>
+                <md-button ng-href="{{ route( 'attributionModel.add' ) }}" target="_self" aria-label="Add Attribution Model">
+                    <span>Add Model</span>
+                </md-button>
+            </md-menu-item>
+            @endif
+
+            @if (Sentinel::hasAccess('api.attribution.run'))
+            <md-menu-item>
+                <md-button ng-click="attr.runAttribution( false )" aria-label="Run Live Attribution">
+                    <span>Run Live Attribution</span>
+                </md-button>
+            </md-menu-item>
+            @endif
+        </md-menu-content>
+    </md-menu>
 @stop
 
 @section( 'content' )

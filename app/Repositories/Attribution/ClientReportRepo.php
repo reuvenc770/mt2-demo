@@ -57,7 +57,7 @@ class ClientReportRepo {
     }
 
     public function getClientsFromLastThreeMonths () {
-        return $this->getClientsForDateRange( Carbon::today()->subMonths( 2 )->toDateString() , Carbon::today()->endOfMonth()->toDateString() );
+        return $this->getClientsForDateRange( Carbon::today()->subMonths( 2 )->startOfMonth()->toDateString() , Carbon::today()->endOfMonth()->toDateString() );
     }
 
     public function runInsertQuery ( $valuesSqlString ) {

@@ -22,8 +22,7 @@ class AttributionAggregatorJob extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping, DispatchesJobs;
 
-    const DEFAULT_QUEUE_NAME = 'modelAttribution';
-    const DEFAULT_NEXT_REPORT_TYPE = 'Client';
+    const DEFAULT_QUEUE_NAME = 'default'; #'modelAttribution';
 
     private $jobName = 'AttributionAggregator';
     private $tracking;
@@ -32,13 +31,14 @@ class AttributionAggregatorJob extends Job implements ShouldQueue
     private $aggregator;
     private $dateRange;
     private $modelId;
+    private $chainOptions;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct( $reportType , $tracking , array $dateRange = null , $modelId = null )
+    public function __construct( $reportType , $tracking , array $dateRange = null , $modelId = null , $chainOptions = [] )
     {
         $this->jobName .= ":{$reportType}:" . ( is_null( $dateRange ) ? Carbon::today()->toDateString() : $dateRange[ 'start' ] . "-" . $dateRange[ 'end' ] );
 
@@ -47,6 +47,12 @@ class AttributionAggregatorJob extends Job implements ShouldQueue
         $this->dateRange = $dateRange;
 
         $this->modelId = $modelId;
+
+        if ( !is_null( $this->modelId ) ) {
+            $this->jobName .= ":Model-" . $this->modelId;
+        }
+
+        $this->chainOptions = $chainOptions;
 
         JobTracking::startAggregationJob( $this->jobName , $this->tracking );
     }
@@ -65,8 +71,9 @@ class AttributionAggregatorJob extends Job implements ShouldQueue
                 JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
 
                 $this->aggregator = ServiceFactory::createAggregatorService( $this->reportType );
+                $this->aggregator->setChainOptions( $this->chainOptions );
 
-                if ( $this->modelId > 0 ) {
+                if ( !is_null( $this->modelId ) ) {
                     $this->aggregator->setModelId( $this->modelId );
                 }
 
@@ -94,15 +101,53 @@ class AttributionAggregatorJob extends Job implements ShouldQueue
     }
 
     protected function queueNextJob ( $reportType , $dateRange ) {
-        $feedJobIsDone = ( $reportType === 'Feed'  );
         $isSingleDayRun = ( Carbon::parse( $dateRange[ 'start' ] )->diffInDays( Carbon::parse( $dateRange[ 'end' ] ) ) === 0 );
 
-        if ( $feedJobIsDone && $isSingleDayRun ) {
+        if ( $isSingleDayRun ) {
+            $nextReportType = "";
+
+            switch ( $reportType ) {
+                case 'Record' :
+                    $nextReportType = 'Feed';
+                break;
+
+                case 'Feed' :
+                    $nextReportType = 'Client';
+                break;
+
+                case 'Client' :
+                    if ( is_null( $this->modelId ) ) {
+                        $this->dispatch( new AttributionConversionJob(
+                            $this->chainOptions[ 'processMode' ] ,
+                            'all' ,
+                            str_random( 16 ) , 
+                            $this->chainOptions[ 'dateRange' ] ,
+                            $this->chainOptions[ 'currentDate' ]
+                        ) );
+                    }
+
+                    JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking );
+ 
+                    $this->unlock( $this->jobName );
+ 
+                    exit();
+                break;
+
+                default :
+                    JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking );
+                    
+                    $this->unlock( $this->jobName );
+                    
+                    exit();
+                break;
+            }
+
             $job = ( new AttributionAggregatorJob(
-                self::DEFAULT_NEXT_REPORT_TYPE ,
+                $nextReportType ,
                 str_random( 16 ) ,
                 $dateRange ,
-                $this->modelId
+                $this->modelId ,
+                $this->chainOptions
             ) )->onQueue( self::DEFAULT_QUEUE_NAME );
 
             $this->dispatch( $job );

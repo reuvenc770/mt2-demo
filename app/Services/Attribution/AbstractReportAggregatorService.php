@@ -16,6 +16,7 @@ abstract class AbstractReportAggregatorService {
     protected $dateRange;
     protected $recordList = [];
     protected $recordStruct = [];
+    protected $chainOptions = [];
 
     abstract public function buildAndSaveReport( $dateRange = null );
 
@@ -41,6 +42,10 @@ abstract class AbstractReportAggregatorService {
 
     public function count () {
         return count( $this->recordList );
+    }
+
+    public function setChainOptions ( $options ) {
+        $this->chainOptions = $options;
     }
 
     protected function buildRecords () {

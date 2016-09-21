@@ -24,7 +24,7 @@ class CakeApi implements IApi {
     return Guzzle::get($url);
   }
 
-  private function constructApiUrl( $data = null ) {
+  protected function constructApiUrl( $data = null ) {
     $fields = [
         "apiKey" => self::API_KEY ,
         "dtStart" => $this->startDate ,

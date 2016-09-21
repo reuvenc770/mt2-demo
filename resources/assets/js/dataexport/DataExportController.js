@@ -294,8 +294,6 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
   self.mdToggleInclusion = function ( dataExport ) {
     self.toggleInclusion( dataExport.exportID );
-
-    $log.log(dataExport);
   };
 
   self.pauseSelected = function() {
