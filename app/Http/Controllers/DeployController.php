@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\DeployService;
 use App\Services\EspService;
+use App\Services\PackageZipCreationService;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -13,10 +14,12 @@ use League\Csv\Reader;
 class DeployController extends Controller
 {
     protected $deployService;
+    protected $packageService;
 
-    public function __construct(DeployService $deployService)
+    public function __construct(DeployService $deployService, PackageZipCreationService $packageService)
     {
         $this->deployService = $deployService;
+        $this->packageService = $packageService;
 
     }
 
@@ -149,7 +152,20 @@ class DeployController extends Controller
     public function deployPackages(Request $request)
     {
         $data = $request->all();
-        $filePath = $this->deployService->deployPackages($data);
+        $filePath = false;
+        //Only one package is selected return the filepath and make it a download response
+        if (count($data) == 1) {
+            $filePath = $this->packageService->createPackage($data);
+        } else {
+            //more then 1 package selection create the packages on the FTP and kick off the OPS file job
+            foreach ($data as $id) {
+               $this->packageService->uploadPackage($id);
+            }
+            Artisan::call('deploys:sendtoops', ['deploysCommaList' => join(",",$data)]);
+        }
+        //Update deploy status to pending
+        $this->deployService->deployPackages($data);
+
         if($filePath){
             return response()->download($filePath);
         }
@@ -167,4 +183,21 @@ class DeployController extends Controller
     {
         //
     }
+
+    public function previewDeploy(Request $request ,$deployId){
+        //currently void method
+        $html  = $this->packageService->createHtml($deployId);
+
+        return response()
+            ->view( 'html', ["html" => $html] );
+    }
+
+    public function downloadHtml(Request $request ,$deployId){
+        //currently void method
+        $html  = $this->packageService->createHtml($deployId);
+
+        return response()
+            ->view( 'pages.deploy.deploy-preview', ["html" => $html] );
+    }
+
 }

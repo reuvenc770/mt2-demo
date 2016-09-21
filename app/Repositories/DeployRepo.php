@@ -262,7 +262,7 @@ class DeployRepo
     }
 
     public function deployPackages($data){
-        $this->deploy->wherein('id',$data)->update(['deployment_status' => Deploy::PENDING_PACKAGE_STATUS]);
+        $this->deploy->wherein('id',$data)->update(['deployment_status' => Deploy::CREATED_PACKAGE_STATUS]);
         Cache::tags($this->deploy->getClassName())->flush();
         return true;
     }

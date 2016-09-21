@@ -26,11 +26,23 @@
             </md-button>
         @endif
 
+            @if (Sentinel::hasAccess('deploy.preview'))
+                <md-button ng-click="deploy.previewDeploys()" ng-disabled="deploy.disableExport">
+                    <span>Preview Deploy(s)</span>
+                </md-button>
+            @endif
+
         @if (Sentinel::hasAccess('api.deploy.deploypackages'))
             <md-button ng-click="deploy.createPackages()" ng-disabled="deploy.disableExport">
                 <span>@{{ deploy.deployLinkText }}</span>
             </md-button>
         @endif
+
+            @if (Sentinel::hasAccess('deploy.downloadhtml'))
+                <md-button ng-click="deploy.downloadHtml()" ng-disabled="deploy.disableExport">
+                    <span>Get Html</span>
+                </md-button>
+            @endif
 
     </div>
 
@@ -57,6 +69,13 @@
                     </md-button>
                 </md-menu-item>
             @endif
+                @if (Sentinel::hasAccess('deploy.preview'))
+                    <md-menu-item>
+                    <md-button ng-click="deploy.previewDeploys()" ng-disabled="deploy.disableExport">
+                        <span>Preview Deploy(s)</span>
+                    </md-button>
+                    </md-menu-item>
+                @endif
             @if (Sentinel::hasAccess('api.deploy.exportcsv'))
                 <md-menu-item>
                     <md-button ng-click="deploy.exportCsv()" ng-disabled="deploy.disableExport">
@@ -71,6 +90,13 @@
                     </md-button>
                 </md-menu-item>
             @endif
+                @if (Sentinel::hasAccess('deploy.downloadhtml'))
+                    <md-menu-item>
+                        <md-button ng-click="deploy.downloadHtml()" ng-disabled="deploy.disableExport">
+                            <span>Get Html</span>
+                        </md-button>
+                    </md-menu-item>
+                @endif
         </md-menu-content>
     </md-menu>
 @stop
