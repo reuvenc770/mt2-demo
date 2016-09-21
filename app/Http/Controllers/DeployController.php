@@ -153,15 +153,17 @@ class DeployController extends Controller
     {
         $data = $request->all();
         $filePath = false;
+        //Only one package is selected return the filepath and make it a download response
         if (count($data) == 1) {
             $filePath = $this->packageService->createPackage($data);
         } else {
+            //more then 1 package selection create the packages on the FTP and kick off the OPS file job
             foreach ($data as $id) {
                $this->packageService->uploadPackage($id);
             }
             Artisan::call('deploys:sendtoops', ['deploysCommaList' => join(",",$data)]);
         }
-
+        //Update deploy status to pending
         $this->deployService->deployPackages($data);
 
         if($filePath){
