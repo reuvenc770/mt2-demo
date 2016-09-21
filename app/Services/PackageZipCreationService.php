@@ -29,6 +29,8 @@ class PackageZipCreationService {
     private $serveGentLinks = [];
     private $nameLinkId;
 
+    private $stripImages = false;
+
     public function __construct(
             DeployRepo $deployRepo, 
             CakeEncryptedLinkService $encryptionService, 
@@ -53,30 +55,7 @@ class PackageZipCreationService {
     }
 
     public function createPackage($id) {
-        $html = $this->createHtml($id);
-
-        // Email Ops regarding any errors
-        $this->sendRedirectWarningEmail();
-
-        // Make the temporary directory
-        $saveDirectory = self::STORAGE_PATH_BASE . '/' . $this->deploy->id . '/';
-        Storage::createDir($saveDirectory);
-        
-        // 12. Create files and zip
-        $offerName = $this->deploy->offer->name;
-        $creativeName = $this->deploy->creative->file_name;
-
-        // store the HTML 
-        $fileName = "{$this->deploy->send_date}_{$offerName}_{$creativeName}_{$this->deploy->creative_id}_{$this->nameLinkId}";
-        Storage::disk("local")->put($saveDirectory . "$fileName.html", $html);
-
-        // create the asset.txt file
-        $assetText = $this->createAssetText($this->deploy);
-        Storage::disk("local")->put($saveDirectory . "asset.txt", $assetText);
-
-        // Store just the text and links in a file
-        $textFile = $this->returnNonHtmlDocument($html);
-        Storage::disk("local")->put($saveDirectory . "$fileName.txt", $textFile);
+        $this->packageSetup($id);
         
         $zipName = "{$this->deploy->id}_{$this->espAccountName}_{$this->deploy->send_date}_{$this->deploy->offer->name}_{$this->contentDomain}_{$this->deploy->mailing_template_id}.zip";
         $filePath = storage_path() . '/app/files/' . $this->deploy->id . '/';
@@ -91,6 +70,25 @@ class PackageZipCreationService {
      */
 
     public function uploadPackage($id) {
+        $this->packageSetup($id);
+        
+        $zipName = "{$this->deploy->id}_{$this->espAccountName}_{$this->deploy->send_date}_{$this->deploy->offer->name}_{$this->contentDomain}_{$this->deploy->mailing_template_id}.zip";
+        $filePath = storage_path() . '/app/files/' . $this->deploy->id . '/';
+        $fullZipPath = $filePath . $zipName;
+        $this->zipDir($filePath, $fullZipPath);
+
+        // Upload this to ftp
+        $file = fopen($fullZipPath);
+        Storage::disk('dataExportFTP')->put("packages/$zipName", $file);
+        fclose($file);
+
+        return $zipName;
+    }
+
+    private function packageSetup($id) {
+        // Setting value for image formatting for packages
+        $this->stringImages = true;
+
         $html = $this->createHtml($id);
 
         // Email Ops regarding any errors
@@ -100,7 +98,7 @@ class PackageZipCreationService {
         $saveDirectory = self::STORAGE_PATH_BASE . '/' . $this->deploy->id . '/';
         Storage::createDir($saveDirectory);
         
-        // 12. Create files and zip
+        // Create files and zip
         $offerName = $this->deploy->offer->name;
         $creativeName = $this->deploy->creative->file_name;
 
@@ -115,18 +113,6 @@ class PackageZipCreationService {
         // Store just the text and links in a file
         $textFile = $this->returnNonHtmlDocument($html);
         Storage::disk("local")->put($saveDirectory . "$fileName.txt", $textFile);
-        
-        $zipName = "{$this->deploy->id}_{$this->espAccountName}_{$this->deploy->send_date}_{$this->deploy->offer->name}_{$this->contentDomain}_{$this->deploy->mailing_template_id}.zip";
-        $filePath = storage_path() . '/app/files/' . $this->deploy->id . '/';
-        $fullZipPath = $filePath . $zipName;
-        $this->zipDir($filePath, $fullZipPath);
-
-        // Upload this to ftp
-        $file = fopen($fullZipPath);
-        Storage::disk('dataExportFTP')->put("packages/$zipName", $file);
-        fclose($file);
-
-        return $zipName;
     }
 
     private function folderToZip($folder, &$zipFile, $exclusiveLength) { 
@@ -190,10 +176,10 @@ class PackageZipCreationService {
         $this->emailIdField = $fieldOptions->email_id_field;
         $emailAddressField = $fieldOptions->email_address_field;
 
-        $templateId = $deploy->template_id; // "tid"
-        $fromId = $deploy->from_id; // "fid"
-        $subjectId = $deploy->subject_id; // "sid"
-        $creativeId = $deploy->creative_id; // "crid"
+        $templateId = $deploy->template_id;
+        $fromId = $deploy->from_id;
+        $subjectId = $deploy->subject_id;
+        $creativeId = $deploy->creative_id;
         
         // Assign espCakeDomain based off of offer type and affiliate id
         // will be used to remove cake domain in offer tracking url and elsewhere
@@ -376,10 +362,6 @@ TXT;
      *  All unique links in the document are placed and numbered in-order beneath the text
      */
 
-    /**
-        Probably want to improve on this in some way
-    */
-
     private function returnNonHtmlDocument($html) {
         $dom = new DOMDocument();
         $internalErrors = libxml_use_internal_errors(true); // suppress minor HTML validation errors
@@ -539,26 +521,29 @@ TXT;
 
             if ($link->getAttribute('src') !== '' && !$parsedUrl->contains('open.cgi')) {
 
-                $parsedUrl->stringReplace('{{DOMAIN}}', 'contentstaging-01.mtroute.com');
-                $parsedUrl->stringReplace('{{IMG_DOMAIN}}', 'contentstaging-01.mtroute.com');
+                if ($this->stripImages) {
 
-                $fileName = sizeof(explode('.', $parsedUrl->fileName)) > 1 ? $parsedUrl->fileName : $parsedUrl->fileName . '.jpg';
+                    $parsedUrl->stringReplace('{{DOMAIN}}', 'contentstaging-01.mtroute.com');
+                    $parsedUrl->stringReplace('{{IMG_DOMAIN}}', 'contentstaging-01.mtroute.com');
 
-                $location = $this->getSaveDirectory() . 'images/';
-                $fileName = $this->saveFileGetName($parsedUrl->url, $location, $fileName);
+                    $fileName = sizeof(explode('.', $parsedUrl->fileName)) > 1 ? $parsedUrl->fileName : $parsedUrl->fileName . '.jpg';
 
-                $imageLinkFormat = $this->espAccountRepo->getImageLinkFormat($this->deploy->espAccount->id);
-                $urlFormat = $imageLinkFormat->url_format;
+                    $location = $this->getSaveDirectory() . 'images/';
+                    $fileName = $this->saveFileGetName($parsedUrl->url, $location, $fileName);
 
-                $newUrl = str_replace('{{CONTENT_DOMAIN}}', $this->contentDomain, $urlFormat);
+                    $imageLinkFormat = $this->espAccountRepo->getImageLinkFormat($this->deploy->espAccount->id);
+                    $urlFormat = $imageLinkFormat->url_format;
 
-                if (1 === (int)$imageLinkFormat->remove_file_extension) {
-                    $fileName = str_replace('.jpg', '', $fileName);
+                    $newUrl = str_replace('{{CONTENT_DOMAIN}}', $this->contentDomain, $urlFormat);
+
+                    if (1 === (int)$imageLinkFormat->remove_file_extension) {
+                        $fileName = str_replace('.jpg', '', $fileName);
+                    }
+
+                    $newUrl = str_replace('{{FILE_NAME}}', $fileName, $newUrl);
+
+                    $link->setAttribute('src', $newUrl);
                 }
-
-                $newUrl = str_replace('{{FILE_NAME}}', $fileName, $newUrl);
-
-                $link->setAttribute('src', $newUrl);
             }
 
         }
