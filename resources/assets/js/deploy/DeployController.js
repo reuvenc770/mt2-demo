@@ -248,6 +248,21 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         return dateChar === 'N';
     };
 
+    self.previewDeploys = function (){
+        var packageIds = self.selectedRows;
+        var url ="/deploy/preview/";
+        for (index = 0; index < packageIds.length; ++index) {
+            $window.open(url + packageIds[index]);
+        }
+    };
+    self.downloadHtml = function (){
+        var packageIds = self.selectedRows;
+        var url ="/deploy/downloadhtml/";
+        for (index = 0; index < packageIds.length; ++index) {
+            $window.open(url + packageIds[index]);
+        }
+    };
+
 
     /**
      * Watchers

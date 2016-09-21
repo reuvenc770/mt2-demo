@@ -305,6 +305,17 @@ Route::group(
             'uses' => 'DeployController@listAll'
         ]);
 
+        Route::get( '/preview/{deployId}' , [
+            'as' => 'deploy.preview' ,
+            'uses' => 'DeployController@previewDeploy'
+        ] );
+
+
+        Route::get( '/downloadhtml/{deployId}' , [
+            'as' => 'deploy.downloadhtml' ,
+            'uses' => 'DeployController@downloadHtml'
+        ] );
+
     });
 
 /**
