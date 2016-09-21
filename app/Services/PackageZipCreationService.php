@@ -250,7 +250,7 @@ class PackageZipCreationService {
                 $this->nameLinkId = $link->id;
             }
             else {
-                $token = "{{URL$linkNumber}}";
+                $token = "{{URL" . $linkNumber . "}}";
             }
 
             if (strpos($fullHtml, $token) !== false) {
@@ -347,7 +347,7 @@ class PackageZipCreationService {
 FROM: {$deploy->from->from_line}
 SUBJECT: {$deploy->subject->subject_line}
 TEMPLATE: {$deploy->mailingTemplate()->first()->template_name}
-CLIENT: {$deploy->espAccount->account_name}
+ESP ACCOUNT: {$deploy->espAccount->account_name}
 FOOTER: 
 TXT;
 

@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Exceptions\ValidationException;
-use GuzzleHttp\Client;
 
 class Url {
     
