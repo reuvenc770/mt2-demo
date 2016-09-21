@@ -18,13 +18,16 @@ class Url {
     private $queryValues;
 
     public function __construct($url) {
+        $this->url = $url;
+        $this->parseUrl();
+    }
 
-        $parsed = parse_url($url);
+    private function parseUrl() {
+        $parsed = parse_url($this->url);
 
         if ($parsed === false) {
             throw new ValidationException("URL $url is not valid.");
         }
-        $this->url = $url;
 
         if ($this->url === $parsed['path']) {
             // We have a url with no scheme
@@ -74,10 +77,12 @@ class Url {
 
     public function stringReplace($from, $to) {
         $this->url = str_replace($from, $to, $this->url);
+        $this->parseUrl(); // re-parse url 
     }
 
     public function regexReplace($from, $to) {
         $this->url = preg_replace($from, $to, $this->url);
+        $this->parseUrl();
     }
 
     public function getContents() {
