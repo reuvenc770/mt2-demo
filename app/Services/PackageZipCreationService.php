@@ -212,7 +212,7 @@ class PackageZipCreationService {
         
         // Replacing tokens in the full html
 
-        $fullHtml = $deploy->mailingTemplate()->first()->template_html;
+        $fullHtml = $deploy->mailingTemplate->template_html;
 
         // remove doctype, html, & body from creative
         $dom = new DOMDocument();
