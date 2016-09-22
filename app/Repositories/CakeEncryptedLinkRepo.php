@@ -24,7 +24,7 @@ class CakeEncryptedLinkRepo {
         }
         catch (ModelNotFoundException $e) {
             // give it a better message than the default one
-            throw new ModelNotFoundException("No encrypted hash found for affiliate_id $affiliateId and cake creative $creativeId");
+            throw new ModelNotFoundException("No encrypted hash found for affiliate_id $affiliateId and cake creative $cakeCreativeId");
         }
 
     }
