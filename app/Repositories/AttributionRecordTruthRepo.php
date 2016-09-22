@@ -37,9 +37,10 @@ class AttributionRecordTruthRepo {
      *      Order of magnitude: hours
      */
 
-    public function getFullTransients() {
+    public function getFullTransients($remainder) {
         $attrDb = config('database.connections.slave_attribution.database');
 
+        
         $union = DB::connection('slave_attribution')->table('attribution_record_truths AS art')
                       ->select('art.email_id', DB::raw('IFNULL(efa.feed_id, 0) as feed_id'), 'efa.capture_date', 'art.has_action', 'art.action_expired', DB::raw('IFNULL(al.level, 0) as level'))
                       ->leftJoin($attrDb . '.email_feed_assignments as efa', 'art.email_id', '=', 'efa.email_id')
@@ -47,7 +48,8 @@ class AttributionRecordTruthRepo {
                       ->where('recent_import', 0)
                       ->where('has_action', 1)
                       ->where('action_expired', 1)
-                      ->where('additional_imports', 1);
+                      ->where('additional_imports', 1)
+                      ->whereRaw("art.email_id % 5 = $remainder");
 
         return DB::connection('slave_attribution')->table('attribution_record_truths AS art')
                     ->select('art.email_id', DB::raw('IFNULL(efa.feed_id, 0) as feed_id'), 'efa.capture_date', 'art.has_action', 'art.action_expired', DB::raw('IFNULL(al.level, 0) as level'))
@@ -55,9 +57,63 @@ class AttributionRecordTruthRepo {
                     ->leftJoin($attrDb . '.attribution_levels as al', 'efa.feed_id', '=', 'al.feed_id')
                     ->where('recent_import', 0)
                     ->where('has_action', 0)
+                    ->whereRaw('action_expired IN (0,1)')
                     ->where('additional_imports', 1)
+                    ->whereRaw("art.email_id % 5 = $remainder")
                     ->unionAll($union)
                     ->orderBy('email_id');
+
+        /*
+        return DB::connection('slave_attribution')->select("
+            SELECT
+                art.email_id,
+                IFNULL(efa.feed_id, 0) AS feed_id, 
+                efa.capture_date,
+                art.has_action,
+                art.action_expired,
+                IFNULL(al.level, 0) AS level
+
+            FROM
+                $attrDb.attribution_record_truths as art
+                left join $attrDb.email_feed_assignments as efa ON art.email_id = efa.email_id
+                left join $attrDb.attribution_levels as al on efa.feed_id = al.feed_id
+            WHERE
+                recent_import = 0
+                AND
+                has_action = 1
+                AND
+                action_expired = 1
+                AND
+                additional_imports = 1
+                AND
+                art.email_id % 5 = $remainder
+                
+            UNION ALL
+                
+            SELECT
+                art.email_id,
+                IFNULL(efa.feed_id, 0) AS feed_id, 
+                efa.capture_date,
+                art.has_action,
+                art.action_expired,
+                IFNULL(al.level, 0) AS level
+
+            FROM
+                $attrDb.attribution_record_truths as art
+                left join $attrDb.email_feed_assignments as efa ON art.email_id = efa.email_id
+                left join $attrDb.attribution_levels as al on efa.feed_id = al.feed_id
+            WHERE
+                recent_import = 0
+                AND
+                has_action = 0
+                AND
+                action_expired IN (0,1)
+                AND
+                additional_imports = 1
+                AND
+                art.email_id % 5 = $remainder
+        ");
+        */
     }
 
 
