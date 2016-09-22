@@ -34,9 +34,6 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\AttributionCompleted' => [
             
         ],
-        'App\Events\NewDeployWasCreated' => [
-            'App\Listeners\DeployDataCleanseListener'
-        ],
     ];
 
     /**
