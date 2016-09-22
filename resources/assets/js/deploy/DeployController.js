@@ -6,7 +6,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         deploy_id: '',
         esp_account_id: '',
         offer_id: "",
-        list_profile_id: "",
+        list_profile_id: "0",
         mailing_domain_id: "",
         content_domain_id: "",
         template_id: "",
@@ -53,7 +53,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.loadAccounts = function () {
         self.loadEspAccounts();
         self.loadAffiliates();
-        self.loadListProfiles();
+        //self.loadListProfiles();
         self.loadDeploys();
         self.currentlyLoading = 0;
     };

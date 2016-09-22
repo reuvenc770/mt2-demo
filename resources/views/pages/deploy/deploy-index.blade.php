@@ -204,7 +204,6 @@
                                 <th class="text-center">Send Date</th>
                                 <th class="text-center">Deploy ID</th>
                                 <th class="text-center">EspAccount</th>
-                                <th class="text-center">List Profile</th>
                                 <th class="text-center">Offer</th>
                                 <th class="text-center">Creative</th>
                                 <th class="text-center">From</th>
@@ -251,20 +250,6 @@
                                     </select>
                     <span class="help-block" ng-bind="deploy.formErrors.esp_account_id"
                           ng-show="deploy.formErrors.esp_account_id"></span>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.list_profile_id }">
-                                    <select name="list_profile_id" id="list_profile_id"
-                                            ng-model="deploy.currentDeploy.list_profile_id" class="form-control"
-                                            ng-disabled="deploy.currentlyLoading">
-                                        <option value="">- Please Choose a List Profile -</option>
-                                        <option ng-repeat="option in deploy.listProfiles" value="@{{ option.id }}">
-                                            @{{ option.profile_name }}
-                                        </option>
-                                    </select>
-                    <span class="help-block" ng-bind="deploy.formErrors.list_profile_id"
-                          ng-show="deploy.formErrors.list_profile_id"></span>
                                 </div>
                             </td>
                                 <td>
@@ -415,7 +400,6 @@
                         <td>@{{ record.send_date }}</td>
                         <td>@{{ record.deploy_id }}</td>
                         <td>@{{ record.account_name }}</td>
-                        <td>@{{ record.list_profile }}</td>
                         <td>@{{ record.offer_name }}</td>
                         <td>@{{ record.creative }}</td>
                         <td>@{{ record.from }}</td>
