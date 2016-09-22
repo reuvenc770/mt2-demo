@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class EmailFeedAssignment extends Model
 {
+    const LIVE_TABLE_NAME = 'email_feed_assignments';
     const BASE_TABLE_NAME = 'email_feed_assignments_model_';
 
     protected $connection = 'attribution';
@@ -28,9 +29,13 @@ class EmailFeedAssignment extends Model
         return $this->hasMany( 'App\Models\EmailFeedAssignmentHistory' );
     }
 
+    public function setLiveTable () {
+        $this->setTable( self::LIVE_TABLE_NAME );
+    }
+
     public function setModelTable ( $modelId ) {
         if ( $modelId > 0 ) {
-            $this->table = self::BASE_TABLE_NAME . $modelId;
+            $this->setTable( self::BASE_TABLE_NAME . $modelId );
         }
     }
 }

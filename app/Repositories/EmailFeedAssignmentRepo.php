@@ -39,7 +39,21 @@ class EmailFeedAssignmentRepo {
     }
 
     public function getAssignedFeed ( $emailId , $modelId = null ) {
-        return $this->assignment->where( 'email_id' , $emailId )->pluck( 'feed_id' )->pop();
+        $feedId = $this->assignment->where( 'email_id' , $emailId )->pluck( 'feed_id' )->pop();
+
+        if ( is_null( $feedId ) && !is_null( $modelId ) ) {
+            $this->assignment->setLiveTable();
+
+            $feedId = $this->assignment->where( 'email_id' , $emailId )->pluck( 'feed_id' )->pop();
+
+            $this->assignment->setModelTable( $modelId );
+        }
+       
+        if ( is_null( $feedId ) ) {
+            return 0;
+        }
+
+        return $feedId;
     }
 
     public function recordSwap ( $emailId , $prevFeedId , $newFeedId ) {
