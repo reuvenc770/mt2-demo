@@ -11,6 +11,8 @@ use Illuminate\Database\Schema\Blueprint;
 use App\Models\EmailFeedAssignment;
 use App\Models\EmailFeedAssignmentHistory;
 
+use DB;
+
 class EmailFeedAssignmentRepo {
     protected $assignment;
     protected $history;
