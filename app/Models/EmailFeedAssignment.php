@@ -35,7 +35,7 @@ class EmailFeedAssignment extends Model
 
     public function setModelTable ( $modelId ) {
         if ( $modelId > 0 ) {
-            $this->table = self::BASE_TABLE_NAME . $modelId;
+            $this->setTable( self::BASE_TABLE_NAME . $modelId );
         }
     }
 }
