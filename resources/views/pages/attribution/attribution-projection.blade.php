@@ -56,7 +56,7 @@
                             <td md-cell ng-bind="record.live.level"></td>
                             <td ng-class="{ 'mt2-proj-increase-bg' : record.model.level > record.live.level , 'mt2-proj-decrease-bg' : record.model.level < record.live.level }" md-cell ng-bind="record.model.level"></td>
                             <td md-cell>$@{{ record.live.standard_revenue.toFixed( 2 ) }}</td>
-                            <td ng-class="{ 'mt2-proj-increase-bg' : record.model.revenue > record.live.revenue , 'mt2-proj-decrease-bg' : record.model.standard_revenue < record.live.standard_revenue }" md-cell>$@{{ record.model.standard_revenue.toFixed( 2 ) }}</td>
+                            <td ng-class="{ 'mt2-proj-increase-bg' : record.model.standard_revenue > record.live.standard_revenue , 'mt2-proj-decrease-bg' : record.model.standard_revenue < record.live.standard_revenue }" md-cell>$@{{ record.model.standard_revenue.toFixed( 2 ) }}</td>
                             <td md-cell>$@{{ record.live.standard_revshare.toFixed( 2 ) }}</td>
                             <td ng-class="{ 'mt2-proj-increase-bg' : record.model.standard_revshare > record.live.standard_revshare , 'mt2-proj-decrease-bg' : record.model.standard_revshare < record.live.standard_revshare }" md-cell>$@{{ record.model.standard_revshare.toFixed( 2 ) }}</td>
                             <td md-cell>$@{{ record.live.cpm_revenue.toFixed( 2 ) }}</td>
