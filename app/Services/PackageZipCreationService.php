@@ -17,7 +17,7 @@ use DOMDocument;
 use DOMXPath;
 use App\Services\Url;
 use ZipArchive;
-
+use Mail;
 class PackageZipCreationService {
 
     private $deployRepo;
@@ -331,12 +331,12 @@ class PackageZipCreationService {
 
     private function sendRedirectWarningEmail() {
         if (sizeof($this->serveGentLinks) > 0) {
-            $to = "dpezas@zetainteractive.com,jhecht@zetainteractive.com";
-            $testTo = 'rbertorelli@zetainteractive.com';
-            $subject = "QA HTTP Redirect Alert";
-            $message = implode(', ', $this->serveGentLinks);
-            $headers = 'From: QA HTTP Redirect Alert <info\@zetainteractive.com>\r\nX-Priority: 1\r\nX-MSMail-Priority: High\r\n';
-            mail($testTo, $subject, $message, $headers);
+            Mail::raw(implode(', ', $this->serveGentLinks), function ($message) {
+                $message->to('dpezas@zetainteractive.com');
+                $message->to('jhecht@zetainteractive.com');
+                $message->subject('"QA HTTP Redirect Alert"');
+                $message->priority(1);
+            });
         }
     }
 
@@ -475,7 +475,7 @@ TXT;
 
                 if (preg_match('/\//', $unsubImg)) {
                     if (0 === $offerUnsubLinkId) {
-                        $unsubText = "<img src=\"http://$imageUrlPrefix/$unsub_img\" border=0><br><br>";
+                        $unsubText = "<img src=\"http://$imageUrlPrefix/$offer->unsub_img\" border=0><br><br>";
                     }
                     else {
                         $unsubText = "<a href=\"{{ADV_UNSUB_URL}}\"><img src=\"http://$imageUrlPrefix/{$offer->unsub_img}\" border=0></a><br><br>";
