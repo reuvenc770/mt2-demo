@@ -346,6 +346,53 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         return true;
     }
 
+    self.onLevelRise = function ( feed , index ) {
+        if ( index === 0 ) {
+            return true;
+        }
+
+        var startingFeeds = self.feeds.slice( 0 , index - 1 );
+        var prevFeed = self.feeds.slice( index - 1 , index );
+        var endingFeeds = self.feeds.slice( index + 1 );
+
+        self.feeds = startingFeeds.concat( [ feed ] ).concat( prevFeed ).concat( endingFeeds );
+    }
+
+    self.onLevelDrop = function ( feed , index ) {
+        var startingFeeds = self.feeds.slice( 0 , index );
+        var nextFeed = self.feeds.slice( index + 1 , index + 2 );
+        var endingFeeds = self.feeds.slice( index + 2 );
+
+        self.feeds = startingFeeds.concat( nextFeed ).concat( [ feed ] ).concat( endingFeeds );
+    }
+
+    self.moveToTop = function ( feed , index ) {
+        var startingFeeds = self.feeds.slice( 0 , index );
+        var endingFeeds = self.feeds.slice( index + 1 );
+
+        self.feeds = [ feed ].concat( startingFeeds ).concat( endingFeeds );
+    }
+
+    self.moveToMiddle = function ( feed , index ) {
+        var startingFeeds = self.feeds.slice( 0 , index );
+        var endingFeeds = self.feeds.slice( index + 1 );
+
+        var newFeeds = startingFeeds.concat( endingFeeds );
+        var middleIndex = newFeeds.length / 2;
+
+        var newStartingFeeds = newFeeds.slice( 0 , middleIndex );
+        var newEndingFeeds = newFeeds.slice( middleIndex );
+
+        self.feeds = newStartingFeeds.concat( [ feed ] ).concat( newEndingFeeds );
+    }
+
+    self.moveToBottom = function ( feed , index ) {
+        var startingFeeds = self.feeds.slice( 0 , index );
+        var endingFeeds = self.feeds.slice( index + 1 );
+
+        self.feeds = startingFeeds.concat( endingFeeds ).concat( [ feed ] );
+    }
+
     self.syncMt1Levels = function () {
         AttributionApiService.syncMt1Levels(
             function ( response ) {

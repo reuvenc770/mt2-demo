@@ -27,42 +27,29 @@
         </md-toolbar>
 
         <md-content>
-            <ul dnd-list="attr.feeds"
-                dnd-horizontal-list="true"
-                dnd-drop="attr.onLevelDrop( item , index )"
-                layout="column"
-                flex
-            >
-                <li 
-                    ng-repeat="feed in attr.feeds"
-                    dnd-draggable="attr.getSelectedFeedsIncluding( feed )"
-                    dnd-dragstart="attr.onDragStart( event )"
-                    dnd-dragend="attr.draggingLevels = false"
-                    dnd-selected="feed.selected = !feed.selected"
-                    dnd-effect-allowed="move"
-                    ng-class="{ 'selectedListItem' : feed.selected }"
-                    ng-hide="feed.selected && attr.draggingLevels"
-                    flex
-                >
-                    <div layout="row">
-                        <span flex="10"></span>
+            <md-list class="md-dense" flex>
+                <md-list-item ng-repeat="feed in attr.feeds track by $index" ng-class="{ 'mt2-proj-increase-bg' : attr.clientLevels[ feed.id ] > ( $index + 1 ) , 'mt2-proj-decrease-bg' : attr.clientLevels[ feed.id ] < ( $index + 1 ) }">
+                    <md-checkbox ng-model="feed.selected"></md-checkbox>
 
-                        <md-icon md-svg-src="img/icons/ic_drag_handle_black_18px.svg"></md-icon>
+                    <div class="md-list-item-text" layout="column">
+                        <h4 ng-bind="feed.name"></h4>
 
-                        <span flex></span>
-
-                        <p ng-bind="feed.name"></p>
-
-                        <span flex></span>
-
-                        <p ng-bind="$index + 1"></p>
-
-                        <span flex="10"></span>
+                        <p>Current Level: @{{ $index + 1 }} <span ng-show="attr.clientLevels[ feed.id ] !== ( $index + 1 )"> - Original Level: @{{ attr.clientLevels[ feed.id ] }}</span></p>
                     </div>
 
-                    <md-divider ng-if="!$last"></md-divider>
-                </li>
-            </ul>
+                    <span flex></span>
+
+                    <md-icon class="md-secondary" ng-click="attr.moveToTop( feed , $index )" aria-label="Move To Top" md-svg-icon="img/icons/ic_vertical_align_top_black_18px.svg"></md-icon>
+
+                    <md-icon class="md-secondary" ng-click="attr.moveToMiddle( feed , $index )" aria-label="Move To Middle" md-svg-icon="img/icons/ic_vertical_align_center_black_18px.svg"></md-icon>
+
+                    <md-icon class="md-secondary" ng-click="attr.moveToBottom( feed , $index )" aria-label="Move to Bottom" md-svg-icon="img/icons/ic_vertical_align_bottom_black_18px.svg"></md-icon>
+
+                    <md-icon class="md-secondary" ng-click="attr.onLevelRise( feed , $index )" aria-label="Move Feed Up" md-svg-icon="img/icons/ic_arrow_upward_black_18px.svg"></md-icon>
+
+                    <md-icon class="md-secondary" ng-click="attr.onLevelDrop( feed , $index )" aria-label="Move Feed Down" md-svg-icon="img/icons/ic_arrow_downward_black_18px.svg"></md-icon>
+                </md-list-item>
+            </md-list>
         </md-content>
     </form>
 </div>
