@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Facades\JobTracking;
 use App\Factories\APIFactory;
 use App\Jobs\Traits\PreventJobOverlapping;
+use App\Services\ImportMt1EmailsService;
 
 class ImportMt1EmailsJob extends Job implements ShouldQueue {
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
@@ -22,12 +23,13 @@ class ImportMt1EmailsJob extends Job implements ShouldQueue {
         JobTracking::startAggregationJob(self::JOB_NAME, $this->tracking);
     }
 
-    public function handle() {
+    public function handle(ImportMt1EmailsService $service) {
         if ($this->jobCanRun(self::JOB_NAME)) {
             $this->createLock(self::JOB_NAME);
             JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
-            $service = APIFactory::createMt1DataImportService(self::JOB_NAME);
+
             $service->run();
+            
             JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
             $result = $this->unlock(self::JOB_NAME);
             echo "Successfully removed lock: $result" . PHP_EOL;

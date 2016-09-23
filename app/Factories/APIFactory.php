@@ -133,9 +133,6 @@ class APIFactory
 
         switch ($name) {
 
-            case 'ImportMt1Emails':
-                return App::make(\App\Services\ImportMt1EmailsService::class);
-
             case 'DownloadContentServerStats':
                 $model = new \App\Models\ContentServerAction();
                 $repo = new \App\Repositories\ContentServerActionRepo($model);
