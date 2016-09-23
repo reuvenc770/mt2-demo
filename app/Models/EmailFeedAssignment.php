@@ -18,11 +18,11 @@ class EmailFeedAssignment extends Model
 
 
     public function email () {
-        return $this->hasOne( 'App\Models\Email' );
+        return $this->belongsTo( 'App\Models\Email' );
     }
 
     public function feed () {
-        return $this->hasOne( 'App\Models\Feed' );
+        return $this->belongsTo( 'App\Models\Feed' );
     }
 
     public function history () {

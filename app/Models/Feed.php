@@ -13,4 +13,8 @@ class Feed extends Model {
         return $this->hasMany('App\Models\EmailFeedInstance');
     }
 
+    public function attributionLevel() {
+        return $this->hasOne('App\Models\AttributionLevel');
+    }
+
 }
