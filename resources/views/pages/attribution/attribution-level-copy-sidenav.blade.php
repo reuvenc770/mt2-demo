@@ -34,7 +34,10 @@
                 <md-list-item ng-repeat="client in attr.levelCopyClients">
                     <div layout="row" flex>
                         <div>
-                           @{{ attr.clientLevels[ client.id ] }} <md-icon md-svg-src="img/icons/ic_chevron_right_black_18px.svg"></md-icon> @{{ $index + 1 }}
+                           @{{ attr.clientLevels[ client.id ] }}
+                                <md-icon ng-show="attr.clientLevels[ client.id ] == ( $index + 1 )" md-svg-src="img/icons/ic_chevron_right_black_18px.svg"></md-icon>
+                                <md-icon ng-show="attr.clientLevels[ client.id ] < ( $index + 1 )" md-svg-src="img/icons/ic_chevron_right_red_18px.svg"></md-icon>
+                                <md-icon ng-show="attr.clientLevels[ client.id ] > ( $index + 1 )" md-svg-src="img/icons/ic_chevron_right_green_18px.svg"></md-icon> @{{ $index + 1 }}
                         </div>
 
                         <div layout="row" layout-align="center center" flex>

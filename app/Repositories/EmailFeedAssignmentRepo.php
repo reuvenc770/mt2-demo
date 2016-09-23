@@ -11,6 +11,8 @@ use Illuminate\Database\Schema\Blueprint;
 use App\Models\EmailFeedAssignment;
 use App\Models\EmailFeedAssignmentHistory;
 
+use DB;
+
 class EmailFeedAssignmentRepo {
     protected $assignment;
     protected $history;
@@ -21,14 +23,37 @@ class EmailFeedAssignmentRepo {
     }
 
     public function assignFeed ( $emailId , $feedId , $captureDate ) {
-        $this->assignment->updateOrCreate(['email_id' => $emailId], [
-            'feed_id' => $feedId,
-            'capture_date' => $captureDate
-        ]);
+        $tableName = $this->assignment->getTable();
+
+        DB::connection( 'attribution' )->insert( "
+            INSERT INTO
+                {$tableName} ( email_id , feed_id , capture_date , created_at ,updated_at )
+            VALUES
+                ( '{$emailId}' , '{$feedId}' , '{$captureDate}' , NOW() , NOW() )
+            ON DUPLICATE KEY UPDATE
+                feed_id = VALUES( feed_id ) ,
+                capture_date = VALUES( capture_date ) ,
+                created_at = created_at ,
+                updated_at = NOW()
+        " );
     }
 
     public function getAssignedFeed ( $emailId , $modelId = null ) {
-        return $this->assignment->where( 'email_id' , $emailId )->pluck( 'feed_id' )->pop();
+        $feedId = $this->assignment->where( 'email_id' , $emailId )->pluck( 'feed_id' )->pop();
+
+        if ( is_null( $feedId ) && !is_null( $modelId ) ) {
+            $this->assignment->setLiveTable();
+
+            $feedId = $this->assignment->where( 'email_id' , $emailId )->pluck( 'feed_id' )->pop();
+
+            $this->assignment->setModelTable( $modelId );
+        }
+       
+        if ( is_null( $feedId ) ) {
+            return 0;
+        }
+
+        return $feedId;
     }
 
     public function recordSwap ( $emailId , $prevFeedId , $newFeedId ) {

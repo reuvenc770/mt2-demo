@@ -71,9 +71,9 @@ class ProjectionReportCollection extends Collection {
     protected function formatClientRow ( $clientRecord ) {
         return [
             "level" => '' ,
-            "standard_revenue" => $clientRecord->standard_revenue ,
+            "standard_revenue" => (float)$clientRecord->standard_revenue ,
             "standard_revshare" => $clientRecord->standard_revenue * 0.15 ,
-            "cpm_revenue" => $clientRecord->cpm_revenue ,
+            "cpm_revenue" => (float)$clientRecord->cpm_revenue ,
             "cpm_revshare" => $clientRecord->cpm_revenue * 0.15
         ];
     }
@@ -97,7 +97,7 @@ class ProjectionReportCollection extends Collection {
     protected function formatFeedRow ( $feedRecord , $feedId , $modelId = null ) {
         return [
             "level" => $this->attrService->getLevel( $feedId , $modelId ) ,
-            "standard_revenue" => $feedRecord->revenue ,
+            "standard_revenue" => (float)$feedRecord->revenue ,
             "standard_revshare" => $feedRecord->revenue * 0.15 ,
             "cpm_revenue" => 0 ,
             "cpm_revshare" => 0

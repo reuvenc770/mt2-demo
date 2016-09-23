@@ -9,5 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class OfferPayoutType extends Model
 {
-    protected $connection = 'attribution';
+    public function offers() {
+        return $this->hasMany('App\Models\Offer');
+    }
 }

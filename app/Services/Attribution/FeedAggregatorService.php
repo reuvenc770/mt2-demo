@@ -66,7 +66,7 @@ class FeedAggregatorService extends AbstractReportAggregatorService {
 
     protected function processBaseRecord ( $baseRecord ) {
         $date = $baseRecord->date;
-        $feedId = $this->emailFeedAssignmentService->getAssignedFeed( $baseRecord->email_id );
+        $feedId = $this->emailFeedAssignmentService->getAssignedFeed( $baseRecord->email_id , $this->modelId );
         
         $this->createRowIfMissing( $date , $feedId );
 

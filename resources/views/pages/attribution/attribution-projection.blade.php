@@ -50,19 +50,19 @@
                         </tr>
                     </thead>
                     <tbody md-body>
-                        <tr ng-repeat="record in attr.projectionRecords" ng-class="{ 'mt2-total-row' : record.client_stats_grouping_id }" md-row>
+                        <tr ng-repeat="record in attr.projectionRecords" ng-hide="record.live.level == 255" ng-class="{ 'mt2-total-row' : record.client_stats_grouping_id }" md-row>
                             <td md-cell>@{{ record.client_stats_grouping_id ? attr.clientNameMap[ record.client_stats_grouping_id ] + ' (' + record.client_stats_grouping_id + ')' : '' }}</td>
                             <td md-cell>@{{ record.feed_id ? attr.feedNameMap[ record.feed_id ] + ' (' + record.feed_id + ')' : '' }}</td>
                             <td md-cell ng-bind="record.live.level"></td>
-                            <td md-cell ng-bind="record.model.level"></td>
-                            <td md-cell ng-bind="record.live.standard_revenue"></td>
-                            <td md-cell ng-bind="record.model.standard_revenue"></td>
-                            <td md-cell ng-bind="record.live.standard_revshare"></td>
-                            <td md-cell ng-bind="record.model.standard_revshare"></td>
-                            <td md-cell ng-bind="record.live.cpm_revenue"></td>
-                            <td md-cell ng-bind="record.model.cpm_revenue"></td>
-                            <td md-cell ng-bind="record.live.cpm_revshare"></td>
-                            <td md-cell ng-bind="record.model.cpm_revshare"></td>
+                            <td ng-class="{ 'mt2-proj-increase-bg' : record.model.level < record.live.level , 'mt2-proj-decrease-bg' : record.model.level > record.live.level }" md-cell ng-bind="record.model.level"></td>
+                            <td md-cell>$@{{ record.live.standard_revenue.toFixed( 2 ) }}</td>
+                            <td ng-class="{ 'mt2-proj-increase-bg' : record.model.standard_revenue > record.live.standard_revenue , 'mt2-proj-decrease-bg' : record.model.standard_revenue < record.live.standard_revenue }" md-cell>$@{{ record.model.standard_revenue.toFixed( 2 ) }}</td>
+                            <td md-cell>$@{{ record.live.standard_revshare.toFixed( 2 ) }}</td>
+                            <td ng-class="{ 'mt2-proj-increase-bg' : record.model.standard_revshare > record.live.standard_revshare , 'mt2-proj-decrease-bg' : record.model.standard_revshare < record.live.standard_revshare }" md-cell>$@{{ record.model.standard_revshare.toFixed( 2 ) }}</td>
+                            <td md-cell>$@{{ record.live.cpm_revenue.toFixed( 2 ) }}</td>
+                            <td ng-class="{ 'mt2-proj-increase-bg' : record.model.cpm_revenue > record.live.cpm_revenue , 'mt2-proj-decrease-bg' : record.model.cpm_revenue < record.live.cpm_revenue }" md-cell>$@{{ record.model.cpm_revenue.toFixed( 2 ) }}</td>
+                            <td md-cell>$@{{ record.live.cpm_revshare.toFixed( 2 ) }}</td>
+                            <td ng-class="{ 'mt2-proj-increase-bg' : record.model.cpm_revshare > record.live.cpm_revshare , 'mt2-proj-decrease-bg' : record.model.cpm_revshare < record.live.cpm_revshare }" md-cell>$@{{ record.model.cpm_revshare.toFixed( 2 ) }}</td>
                         </tr>
                     </tbody>
                 </table>

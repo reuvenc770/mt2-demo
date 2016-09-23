@@ -50,4 +50,8 @@ class MailingTemplateRepo
         return $this->mailingTemplate;
     }
 
+    public function updateOrCreate($data) {
+        $this->mailingTemplate->updateOrCreate(['id' => $data['id']], $data);
+    }
+
 }

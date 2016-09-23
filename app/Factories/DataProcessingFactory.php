@@ -99,9 +99,29 @@ class DataProcessingFactory {
                 $mt2Name = "OfferSubjectMap";
                 return self::createMt1ImportService($mt1Name, $mt2Name);
 
+            case('ImportMt1CakeEncryptionMapping'):
+                $mt1Name = "AffiliateCakeEncryption";
+                $mt2Name = "CakeEncryptedLink";
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case ("ImportMt1Links"):
+                $mt1Name = 'Link';
+                $mt2Name = 'Link';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+            
             case ('ImportMt1Feeds'):
                 $mt1Name = "User";
                 $mt2Name = "Feed";
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case ('ImportMt1OfferTracking'):
+                $mt1Name = 'AdvertiserTracking';
+                $mt2Name = 'OfferTrackingLink';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case ('ImportMt1MailingTemplate'):
+                $mt1Name = 'BrandTemplate';
+                $mt2Name = 'MailingTemplate';
                 return self::createMt1ImportService($mt1Name, $mt2Name);
 
             default:

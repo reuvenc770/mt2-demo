@@ -32,10 +32,7 @@ class EventServiceProvider extends ServiceProvider
             'App\Listeners\NewActionResolver'
         ],
         'App\Events\AttributionCompleted' => [
-            
-        ],
-        'App\Events\NewDeployWasCreated' => [
-            'App\Listeners\DeployDataCleanseListener'
+            'App\Listeners\RerunAttributionAggregator'
         ],
     ];
 

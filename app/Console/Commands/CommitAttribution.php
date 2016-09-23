@@ -16,6 +16,8 @@ class CommitAttribution extends Command
      */
     protected $signature = 'attribution:commit {modelId?}';
 
+    const MOD_BASE = 5;
+
     /**
      * The console command description.
      *
@@ -39,7 +41,11 @@ class CommitAttribution extends Command
      */
     public function handle() {
         $model = $this->argument('modelId') ?: 'none';
-        $job = new CommitAttributionJob($model, str_random(16));
-        $this->dispatch($job);
+
+        for ($remainder = 0; $remainder < self::MOD_BASE; $remainder++) {
+            $job = new CommitAttributionJob($model, $remainder, str_random(16));
+            $this->dispatch($job);
+        }
+        
     }
 }
