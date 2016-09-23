@@ -39,6 +39,7 @@ class TableExtensionsForDeploys extends Migration
         Schema::table('deploys', function($table) {
             $table->dropColumn('encrypt_cake');
             $table->dropColumn('fully_encrypt');
+            $table->dropColumn('url_format');
         });
     }
 }

@@ -527,7 +527,7 @@ TXT;
                     $fileName = sizeof(explode('.', $parsedUrl->fileName)) > 1 ? $parsedUrl->fileName : $parsedUrl->fileName . '.jpg';
 
                     $location = $this->getSaveDirectory() . 'images/';
-                    $fileName = $this->saveFileGetName($parsedUrl->url, $location, $fileName);
+                    $fileName = $this->saveFileGetName($parsedUrl, $location, $fileName);
 
                     $imageLinkFormat = $this->espAccountRepo->getImageLinkFormat($this->deploy->espAccount->id);
                     $urlFormat = $imageLinkFormat->url_format;
@@ -553,15 +553,9 @@ TXT;
      *  We need to pull the files and save them in an /images directory
      *  and also get the MIME type for the image so we can correct it in the creative.
      */
-    private function saveFileGetName($url, $saveLocation, $fileName) {
+    private function saveFileGetName(Url $parsedUrl, $saveLocation, $fileName) {
 
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        $result = curl_exec($ch);
-        $mimeType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
-        curl_close($ch);
+        $mimeType = $parsedUrl->getMimeType();
 
         // give file correct file type based off of $mimeType
         if (strpos($mimeType, 'gif') !== false) {

@@ -126,7 +126,7 @@ class Url {
     }
 
     private function executeCurl() {
-        $ch = curl_init($url);
+        $ch = curl_init($this->url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
