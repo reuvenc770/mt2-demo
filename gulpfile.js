@@ -91,8 +91,6 @@ elixir.extend( 'deployDomainJs' , function ( mix ) {
     mix.scripts( [
         'domain/DomainController.js' ,
         'domain/DomainApiService.js' ,
-        'domain/DomainTableDirective.js',
-        'domain/DomainListTableDirective.js'
     ] , 'public/js/domain.js' );
 } );
 
@@ -107,7 +105,6 @@ elixir.extend( 'deployDBAJs' , function ( mix ) {
     mix.scripts( [
         'dba/DBAController.js' ,
         'dba/DBAApiService.js',
-        'dba/DomainListTableDirective.js'
     ] , 'public/js/dba.js' );
 } );
 
@@ -124,7 +121,6 @@ elixir.extend( 'deployProxyJs' , function ( mix ) {
     mix.scripts( [
         'proxy/ProxyController.js' ,
         'proxy/ProxyApiService.js',
-        'proxy/ProxyTableDirective.js'
     ] , 'public/js/proxy.js' );
 } );
 
@@ -139,7 +135,6 @@ elixir.extend( 'deployMailingTemplateJs' , function ( mix ) {
     mix.scripts( [
         'mailingtemplate/MailingTemplateController.js' ,
         'mailingtemplate/MailingTemplateApiService.js',
-        'mailingtemplate/MailingTemplateTableDirective.js'
     ] , 'public/js/mailingtemplate.js' );
 } );
 
@@ -184,7 +179,6 @@ elixir.extend( 'deployFeedJs' , function ( mix ) {
     mix.scripts( [
         'feed/FeedController.js' ,
         'feed/FeedApiService.js' ,
-        'feed/FeedTableDirective.js' ,
         'feed/FeedUrlModalDirective.js'
     ] , 'public/js/feed.js' );
 } );
@@ -194,8 +188,6 @@ elixir.extend( 'deployClientGroupJs' , function ( mix ) {
         'clientgroup/ClientGroupController.js' ,
         'clientgroup/ClientGroupApiService.js' ,
         'feed/FeedApiService.js' ,
-        'clientgroup/ClientGroupTableDirective.js' ,
-        'clientgroup/ClientGroupChildrenTableDirective.js'
     ] , 'public/js/clientgroup.js' );
 } );
 
@@ -222,7 +214,6 @@ elixir.extend('deployDataExportJs', function(mix) {
     mix.scripts([
         'dataexport/DataExportController.js',
         'dataexport/DataExportApiService.js',
-        'dataexport/DataExportTableDirective.js',
         'dataexport/StatusButtonDirective.js',
         'dataexport/DataExportDeleteDirective.js',
         'dataexport/DataExportCopyDirective.js'
@@ -251,7 +242,6 @@ elixir.extend( 'deployDataCleanseJs' , function ( mix ) {
     mix.scripts( [
         'datacleanse/DataCleanseController.js' ,
         'datacleanse/DataCleanseApiService.js' ,
-        'datacleanse/DataCleanseTableDirective.js'
     ] , 'public/js/datacleanse.js' );
 } );
 

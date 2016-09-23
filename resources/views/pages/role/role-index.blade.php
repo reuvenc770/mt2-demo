@@ -9,8 +9,8 @@
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('role.add'))
         <md-button ng-click="role.viewAdd()" aria-label="Add a new Role">
-            <md-icon ng-hide="app.largePageWidth()" md-svg-src="img/icons/ic_add_circle_outline_black_24px.svg"></md-icon>
-            <span ng-show="app.largePageWidth()">Add a new Role</span>
+            <md-icon ng-show="app.isMobile()" md-svg-src="img/icons/ic_add_circle_outline_black_24px.svg"></md-icon>
+            <span ng-hide="app.isMobile()">Add a new Role</span>
         </md-button>
     @endif
 @stop
@@ -19,7 +19,32 @@
 <div ng-init="role.loadRoles()">
     <md-content layout="row" class="md-mt2-zeta-theme md-hue-1" layout-align="center center">
         <md-card flex-gt-md="70" flex="100">
-            @include( 'pages.role.role-table' )
+            <md-table-container>
+                <table md-table>
+                    <thead md-head>
+                        <tr md-row>
+                            <th md-column></th>
+                            <th md-column class="md-table-header-override-whitetext">ID</th>
+                            <th md-column class="md-table-header-override-whitetext">Slug</th>
+                            <th md-column class="md-table-header-override-whitetext">Name</th>
+                        </tr>
+                    </thead>
+
+                    <tbody md-body>
+                        <tr md-row ng-repeat="record in role.roles track by $index">
+                            <td md-cell>
+                                <div layout="row" layout-align="center center">
+                                    <md-button class="md-raised" ng-class="{'md-icon-button mt2-icon-button-xs' : app.isMobile() , 'mt2-button-xs' : !app.isMobile() }" ng-href="@{{ role.editUrl + record.id }}" target="_self">
+                                        <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon><span ng-show="!app.isMobile()"> Edit</span>
+                                    </md-button>
+                                </div>
+                            </td>
+                            <td md-cell>@{{ record.id }}</td>
+                            <td md-cell>@{{ record.slug }}</td>
+                            <td md-cell>@{{ record.name }}</td>
+                    </tbody>
+                </table>
+            </md-table-container>
         </md-card>
     </md-content>
 </div>

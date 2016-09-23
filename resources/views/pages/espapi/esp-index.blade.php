@@ -24,9 +24,9 @@
                 <table md-table md-progress="esp.queryPromise">
                     <thead md-head md-order="esp.sort" md-on-reorder="esp.loadAccounts">
                         <tr md-row>
-                            <th md-column md-numeric>
+                            <th md-column>
                             </th>
-                            <th md-column md-order-by="id" class="md-table-header-override-whitetext" md-numeric>ID</th>
+                            <th md-column md-order-by="id" class="md-table-header-override-whitetext">ID</th>
                             <th md-column md-order-by="account_name" class="md-table-header-override-whitetext">ESP</th>
                             <th md-column md-order-by="key_1" class="md-table-header-override-whitetext">Key 1</th>
                             <th md-column md-order-by="key_2" class="md-table-header-override-whitetext">Key 2</th>
@@ -38,11 +38,13 @@
                     <tbody md-body>
                         <tr md-row ng-repeat="record in esp.accounts track by $index">
                             <td md-cell>
-                                <md-button class="md-raised"
-                                    ng-class="{'md-icon-button mt2-icon-button-xs' : app.isMobile() , 'mt2-button-xs' : !app.isMobile() }"
-                                    ng-href="@{{ '/espapi/edit/' + record.id }}" target="_self">
-                                    <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon><span ng-show="app.mediumPageWidth()"> Edit</span>
-                                </md-button>
+                                <div layout="row" layout-align="center center">
+                                    <md-button class="md-raised"
+                                        ng-class="{'md-icon-button mt2-icon-button-xs' : app.isMobile() , 'mt2-button-xs' : !app.isMobile() }"
+                                        ng-href="@{{ '/espapi/edit/' + record.id }}" target="_self">
+                                        <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon><span ng-show="!app.isMobile()"> Edit</span>
+                                    </md-button>
+                                </div>
                             </td>
                             <td md-cell>@{{ record.id }}</td>
                             <td md-cell>@{{ record.account_name }}</td>

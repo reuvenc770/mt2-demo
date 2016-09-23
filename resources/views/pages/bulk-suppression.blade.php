@@ -70,7 +70,7 @@
                                 <table md-table>
                                     <thead md-head>
                                         <tr md-row>
-                                            <th md-column class="md-table-header-override-whitetext" md-numeric>#</th>
+                                            <th md-column class="md-table-header-override-whitetext">#</th>
                                             <th md-column class="md-table-header-override-whitetext">Name</th>
                                             <th md-column class="md-table-header-override-whitetext" md-numeric>File Size</th>
                                             <th md-column class="md-table-header-override-whitetext">#Chunks</th>
@@ -81,7 +81,6 @@
                                     </thead>
                                     <tbody>
                                         <tr md-row ng-repeat="file in transfers">
-                                        <!-- <tr md-row ng-repeat="file in [{},{},{}]"> -->
                                             <td md-cell>@{{ $index + 1 }}</td>
                                             <td md-cell>@{{ file.name }}</td>
                                             <td md-cell>@{{ file.size | bytes }}</td>
@@ -90,9 +89,9 @@
                                                 <md-progress-linear class="md-warn" md-mode="determinate" ng-value="file.progress() * 100"></md-progress-linear>
                                             </td>
                                             <td md-cell class="mt2-table-cell-center" ng-class="{ 'bg-info' : file.isUploading() , 'bg-warning' : file.paused , 'bg-danger' : file.error , 'bg-success' : !file.error }">
-                                                <strong>@{{ file.isUploading() ? 'Downloading' : ( file.paused ? 'Paused': ( file.error ? 'Failed' : 'Successful' ) ) }}</strong>
+                                                @{{ file.isUploading() ? 'Downloading' : ( file.paused ? 'Paused': ( file.error ? 'Failed' : 'Successful' ) ) }}
                                             </td>
-                                            <td md-cell class="mt2-table-cell-center">
+                                            <td md-cell>
                                                 <div layout="row" layout-align="center center">
                                                     <md-button class="md-raised md-warn mt2-button-xs" ng-click="file.pause()" ng-hide="file.paused">Pause</md-button>
                                                     <md-button class="md-raised mt2-button-success mt2-button-xs" ng-click="file.resume()" ng-show="file.paused">Resume</md-button>

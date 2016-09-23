@@ -13,24 +13,24 @@
                         <table md-table>
                             <thead md-head>
                             <tr md-row>
-                                <th md-column class="md-table-header-override-whitetext" md-numeric>Job</th>
+                                <th md-column class="md-table-header-override-whitetext">Job</th>
                                 <th md-column class="md-table-header-override-whitetext">Account</th>
                                 <th md-column class="md-table-header-override-whitetext">Account Name</th>
                                 <th md-column class="md-table-header-override-whitetext">Time Started</th>
                                 <th md-column class="md-table-header-override-whitetext">Time Completed</th>
                                 <th md-column class="md-table-header-override-whitetext">Attempts</th>
-                                <th md-column class="md-table-header-override-whitetext">Status</th>
+                                <th md-column class="md-table-header-override-whitetext mt2-table-header-center">Status</th>
                             </tr>
                             </thead>
                             <tbody md-body>
-                            <tr md-row ng-repeat="record in job.entries" ng-class="[ job.rowStatusMap[ record.status ] ]">
+                            <tr md-row ng-repeat="record in job.entries">
                                 <td md-cell>@{{ record.job_name }}</td>
                                 <td md-cell>@{{ record.account_name }}</td>
                                 <td md-cell>@{{ record.account_number }}</td>
                                 <td md-cell>@{{ record.time_started }}</td>
                                 <td md-cell>@{{ record.time_finished }}</td>
                                 <td md-cell>@{{ record.attempts }}</td>
-                                <td md-cell><span class="glyphicon" ng-class="[job.GlythMap[record.status]]"></span></td>
+                                <td md-cell class="mt2-table-cell-center" ng-class="[ job.rowStatusMap[ record.status ] ]" ng-bind="{{ json_encode($statusNames) }}[ record.status ]"></td>
                             </tr>
                             </tbody>
                         </table>

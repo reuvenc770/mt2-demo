@@ -26,7 +26,7 @@ class RoleApiController extends Controller
 
     public function index()
     {
-        $rawRolesList = $this->roleService->getAllRoles()->toArray();
+        $rawRolesList = $this->roleService->getAllRoles();
 
         $roles = [];
         foreach ( $rawRolesList as $currentRole ) {
@@ -37,7 +37,7 @@ class RoleApiController extends Controller
             ];
         }
 
-        return response()->json($roles);
+        return response()->json( $roles );
     }
 
     /**
