@@ -63,7 +63,6 @@ class MailingTemplateController extends Controller
 
         $this->service->insertTemplate($insertData, $espIds);
 
-        Cache::tags( $this->service->getType() )->flush();
     }
 
     /**
@@ -115,8 +114,6 @@ class MailingTemplateController extends Controller
             "template_text" => $request->input("text"),
         ];
         $this->service->updateTemplate($insertData, $id, $espIds);
-
-        Cache::tags( $this->service->getType() )->flush();
 
         return response()->json(["success"=>true]);
     }
