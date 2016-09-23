@@ -498,7 +498,6 @@
                                 <td>@{{ record.send_date }}</td>
                                 <td>@{{ record.deploy_id }}</td>
                                 <td>@{{ record.account_name }}</td>
-                                <td>@{{ record.list_profile }}</td>
                                 <td>@{{ record.offer_name }}</td>
                                 <td>@{{ record.creative }}</td>
                                 <td>@{{ record.from }}</td>
