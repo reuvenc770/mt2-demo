@@ -144,4 +144,8 @@ class EspApiAccountRepo
        return $data->mailingTemplate;
 
     }
+
+    public function getImageLinkFormat($id) {
+        return $this->espAccount->find($id)->imageLinkFormat;
+    }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\EspApiService;
+use App\Services\EspService;
 use App\Services\ProxyService;
 
 use Illuminate\Http\Request;
@@ -14,7 +14,7 @@ class ProxyController extends Controller
 {
     protected $proxyService;
     protected $espService;
-    public function __construct(ProxyService $proxyService, EspApiService $espService)
+    public function __construct(ProxyService $proxyService, EspService $espService)
     {
         $this->proxyService = $proxyService;
         $this->espService = $espService;

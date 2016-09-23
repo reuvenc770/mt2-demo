@@ -12,8 +12,8 @@ namespace App\Repositories;
 use App\Models\Deploy;
 use DB;
 use App\Facades\EspApiAccount;
-use Log;
 use Cache;
+use Carbon\Carbon;
 class DeployRepo
 {
     protected $deploy;
@@ -68,7 +68,6 @@ class DeployRepo
             ->where('deploys.id', $id)->first();
     }
 
-
     public function updateOrCreate($data)
     {
         $this->deploy->updateOrCreate(['id' => $data['id']], $data);
@@ -94,6 +93,9 @@ class DeployRepo
                 "content_domain_id",
                 "list_profile_id",
                 "cake_affiliate_id",
+                "encrypt_cake",
+                "fully_encrypt",
+                "url_format",
                 "notes"
             )->get();
     }
@@ -113,6 +115,7 @@ class DeployRepo
                 $errors[] = "Deploy ID is missing";
             }
         }
+
         if (isset($deploy['esp_account_id'])) {
             $count = DB::select("Select count(*) as count from esp_accounts where id = :id", ['id' => $deploy['esp_account_id']])[0];
             if ($count->count == 0) {
@@ -120,6 +123,19 @@ class DeployRepo
             }
         } else {
             $errors[] = "Esp Account ID is missing";
+        }
+
+        if (isset($deploy['deploy_date'])) {
+            // exclude_days is a 7 char string of Y/N
+            $days = DB::select("Select exclude_days from offers where id = :id", ['id' => $deploy['offer_id']])[0];
+            // value below is 0-indexed with Sun as 0 and Sat as 6
+            $dayOfWeek = Carbon::parse($deploy['deploy_date'])->dayOfWeek;
+            // 'N' means that the offer is not excluded and can be mailed
+          if ($days->exclude_days[$dayOfWeek] !== 'N'){
+              $errors[] = "Offer cannot be deployed on this day";
+          }
+        } else {
+            $errors[] = "Deploy Date is missing";
         }
         //offer real?
         if (isset($deploy['offer_id'])) {
@@ -132,7 +148,7 @@ class DeployRepo
         }
         //creative ok?
         if (isset($deploy['creative_id'])) {
-            $count = DB::select("Select count(*) as count from creatives where id = :id and approved = 1 and status = 1", ['id' => $deploy['creative_id']])[0];
+            $count = DB::select("Select count(*) as count from creatives where id = :id and is_approved = 'Y' and status = 'A'", ['id' => $deploy['creative_id']])[0];
             if ($count->count == 0) {
                 $errors[] = "Creative is not active or wrong";
             }
@@ -141,7 +157,7 @@ class DeployRepo
         }
         //from ok?
         if (isset($deploy['from_id'])) {
-            $count = DB::select("Select count(*) as count from froms where id = :id and is_approved = 1 and status = 1", ['id' => $deploy['from_id']])[0];
+            $count = DB::select("Select count(*) as count from froms where id = :id and is_approved = 1 and status = 'A'", ['id' => $deploy['from_id']])[0];
             if ($count->count == 0) {
                 $errors[] = "From is not active or wrong";
             }
@@ -150,7 +166,7 @@ class DeployRepo
         }
         //subject ok?
         if (isset($deploy['subject_id'])) {
-            $count = DB::select("Select count(*) as count from subjects where id = :id and is_approved = 1 and status = 1", ['id' => $deploy['subject_id']])[0];
+            $count = DB::select("Select count(*) as count from subjects where id = :id and is_approved = 1 and status = 'A'", ['id' => $deploy['subject_id']])[0];
             if ($count->count == 0) {
                 $errors[] = "Subject is not active or wrong";
             }
@@ -194,13 +210,41 @@ class DeployRepo
             $errors[] = "List Profile ID is missing";
         }
         //cake
-        if (isset($deploy['list_profile_id'])) {
+
+        if (isset($deploy['cake_affiliate_id'])) {
         $count = DB::connection('mt1_data')->select("Select count(*) as count from EspAdvertiserJoin where affiliateID = :id",['id'=> $deploy['deploy_id']])[0];
         if($count->count == 0){
             $errors[] = "Cake Affiliate is wrong";
          } } else {
             $errors[] = "Cake Affiliate ID is missing";
         }
+
+        if (isset($deploy['encrypt_cake'])) {
+            if($deploy['encrypt_cake'] != '1' || $deploy['encrypt_cake'] !='0');{
+                $errors[] = "Encrypt Cake Value is wrong";
+            }
+        } else {
+                $errors[] = "Encrypt Cake Links options is missing";
+        }
+
+        if (isset($deploy['fully_encrypt'])) {
+            if($deploy['fully_encrypt'] != '1' || $deploy['fully_encrypt'] !='0'){
+                $errors[] = "Full Encrypt Value is wrong";
+            }
+        } else {
+            $errors[] = "Full Encrypt Links options is missing";
+        }
+
+        if (isset($deploy['url_format'])) {
+            $options = ['new',"old","gmail"];
+            if(!in_array($deploy['url_format'],$options)){
+                $errors[] = "Url Format is wrong";
+            }
+        } else {
+            $errors[] = "Url Format is missing";
+        }
+
+
 
         return $errors;
     }
@@ -218,7 +262,7 @@ class DeployRepo
     }
 
     public function deployPackages($data){
-        $this->deploy->wherein('id',$data)->update(['deployment_status' => Deploy::PENDING_PACKAGE_STATUS]);
+        $this->deploy->wherein('id',$data)->update(['deployment_status' => Deploy::CREATED_PACKAGE_STATUS]);
         Cache::tags($this->deploy->getClassName())->flush();
         return true;
     }
@@ -226,7 +270,7 @@ class DeployRepo
     public function returnCsvHeader()
     {
         return ['deploy_id', "deploy_date", "esp_account_id", "offer_id", "creative_id", "from_id", "subject_id", "template_id",
-            "mailing_domain_id", "content_domain_id", "list_profile_id", "cake_affiliate_id", "notes"];
+            "mailing_domain_id", "content_domain_id", "list_profile_id", "cake_affiliate_id","encrypt_cake", "fully_encrypt", "url_format", "notes"];
     }
 
 

@@ -28,6 +28,5 @@ class ImportMt1DataService {
                 $this->mt2Repo->updateOrCreate($record);
             }
         });
-
     }
 }
