@@ -41,6 +41,7 @@ class FeedDateEmailBreakdownRepo {
                     ':feed_id' => $feedId,
                     ':date' => $date,
                     ':total_emails' => 0, // currently not putting in anything for total emails because we don't get them from MT1
+                    ':valid_emails' => $valid,
                     ':suppressed' => $statuses['suppressed'],
                     ':fresh' => $statuses['fresh'],
                     ':duplicates' => $statuses['duplicates'],
