@@ -50,7 +50,7 @@
                         </tr>
                     </thead>
                     <tbody md-body>
-                        <tr ng-repeat="record in attr.projectionRecords" ng-class="{ 'mt2-total-row' : record.client_stats_grouping_id }" md-row>
+                        <tr ng-repeat="record in attr.projectionRecords" ng-hide="record.live.level == 255" ng-class="{ 'mt2-total-row' : record.client_stats_grouping_id }" md-row>
                             <td md-cell>@{{ record.client_stats_grouping_id ? attr.clientNameMap[ record.client_stats_grouping_id ] + ' (' + record.client_stats_grouping_id + ')' : '' }}</td>
                             <td md-cell>@{{ record.feed_id ? attr.feedNameMap[ record.feed_id ] + ' (' + record.feed_id + ')' : '' }}</td>
                             <td md-cell ng-bind="record.live.level"></td>
