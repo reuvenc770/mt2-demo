@@ -64,6 +64,10 @@ class AttributionConversionJob extends Job implements ShouldQueue
         do {
             if ( is_null( $this->currentDate ) ) {
                 $this->currentDate = $this->dateRange[ 'start' ];
+            } elseif ( $this->currentDate == $this->dateRange[ 'end' ] ) {
+                JobTracking::changeJobState( JobEntry::SKIPPED , $this->tracking );
+                
+                exit();
             } else {
                 $this->currentDate = Carbon::parse( $this->currentDate )->addDay()->toDateString();
             }
