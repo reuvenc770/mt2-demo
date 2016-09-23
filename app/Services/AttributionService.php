@@ -47,7 +47,7 @@ class AttributionService
         else {
             // Otherwise, run the optimized subset
             $datetime = $carbonDate->toDateTimeString();
-            return $this->truthRepo->getOptimizedTransients($datetime);
+            return $this->truthRepo->getOptimizedTransients($datetime, $remainder);
         }
         
     }
