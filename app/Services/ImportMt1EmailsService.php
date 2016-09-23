@@ -22,6 +22,7 @@ class ImportMt1EmailsService
     private $feedRepo;
     private $emailDomainRepo;
     private $breakdownRepo;
+    private $attributionLevelRepo;
     private $processingDate;
 
     public function __construct(
