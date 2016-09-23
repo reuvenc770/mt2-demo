@@ -27,7 +27,7 @@
         </md-toolbar>
 
         <md-content>
-            <md-list class="md-dense" flex>
+            <md-list class="md-dense" flex ng-cloak>
                 <md-list-item ng-repeat="feed in attr.feeds track by $index" ng-class="{ 'mt2-proj-increase-bg' : attr.clientLevels[ feed.id ] > ( $index + 1 ) , 'mt2-proj-decrease-bg' : attr.clientLevels[ feed.id ] < ( $index + 1 ) }">
                     <md-checkbox ng-model="feed.selected"></md-checkbox>
 
@@ -39,15 +39,15 @@
 
                     <span flex></span>
 
+                    <md-icon class="md-secondary" ng-click="attr.onLevelRise( feed , $index )" aria-label="Move Feed Up" md-svg-icon="img/icons/ic_arrow_upward_black_18px.svg"></md-icon>
+
+                    <md-icon class="md-secondary" ng-click="attr.onLevelDrop( feed , $index )" aria-label="Move Feed Down" md-svg-icon="img/icons/ic_arrow_downward_black_18px.svg"></md-icon>
+
                     <md-icon class="md-secondary" ng-click="attr.moveToTop( feed , $index )" aria-label="Move To Top" md-svg-icon="img/icons/ic_vertical_align_top_black_18px.svg"></md-icon>
 
                     <md-icon class="md-secondary" ng-click="attr.moveToMiddle( feed , $index )" aria-label="Move To Middle" md-svg-icon="img/icons/ic_vertical_align_center_black_18px.svg"></md-icon>
 
                     <md-icon class="md-secondary" ng-click="attr.moveToBottom( feed , $index )" aria-label="Move to Bottom" md-svg-icon="img/icons/ic_vertical_align_bottom_black_18px.svg"></md-icon>
-
-                    <md-icon class="md-secondary" ng-click="attr.onLevelRise( feed , $index )" aria-label="Move Feed Up" md-svg-icon="img/icons/ic_arrow_upward_black_18px.svg"></md-icon>
-
-                    <md-icon class="md-secondary" ng-click="attr.onLevelDrop( feed , $index )" aria-label="Move Feed Down" md-svg-icon="img/icons/ic_arrow_downward_black_18px.svg"></md-icon>
                 </md-list-item>
             </md-list>
         </md-content>

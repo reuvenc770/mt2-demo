@@ -347,50 +347,144 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     }
 
     self.onLevelRise = function ( feed , index ) {
-        if ( index === 0 ) {
-            return true;
+        if ( feed.selected ) {
+            var selectedFeeds = [];
+            var otherFeeds = [];
+            var firstIndex = -1;
+                
+            angular.forEach( self.feeds , function ( currentFeed , currentIndex ) {
+                if ( currentFeed.selected ) {
+                    if ( firstIndex === -1 ) {
+                        firstIndex = currentIndex - 1;
+                    }
+
+                    selectedFeeds.push( currentFeed );
+                } else {
+                    otherFeeds.push( currentFeed );
+                }
+            } );
+
+            var startingFeeds = otherFeeds.slice( 0 , firstIndex );
+            var endingFeeds = otherFeeds.slice( firstIndex );
+
+            self.feeds = startingFeeds.concat( selectedFeeds ).concat( endingFeeds );
+        } else {
+            if ( index === 0 ) {
+                return true;
+            }
+
+            var startingFeeds = self.feeds.slice( 0 , index - 1 );
+            var prevFeed = self.feeds.slice( index - 1 , index );
+            var endingFeeds = self.feeds.slice( index + 1 );
+
+            self.feeds = startingFeeds.concat( [ feed ] ).concat( prevFeed ).concat( endingFeeds );
         }
-
-        var startingFeeds = self.feeds.slice( 0 , index - 1 );
-        var prevFeed = self.feeds.slice( index - 1 , index );
-        var endingFeeds = self.feeds.slice( index + 1 );
-
-        self.feeds = startingFeeds.concat( [ feed ] ).concat( prevFeed ).concat( endingFeeds );
     }
 
     self.onLevelDrop = function ( feed , index ) {
-        var startingFeeds = self.feeds.slice( 0 , index );
-        var nextFeed = self.feeds.slice( index + 1 , index + 2 );
-        var endingFeeds = self.feeds.slice( index + 2 );
+        if ( feed.selected ) {
+            var selectedFeeds = [];
+            var otherFeeds = [];
+            var lastIndex = -1;
+                
+            angular.forEach( self.feeds , function ( currentFeed , currentIndex ) {
+                if ( currentFeed.selected ) {
+                    lastIndex = currentIndex + 2;
 
-        self.feeds = startingFeeds.concat( nextFeed ).concat( [ feed ] ).concat( endingFeeds );
+                    selectedFeeds.push( currentFeed );
+                } else {
+                    otherFeeds.push( currentFeed );
+                }
+            } );
+
+            var startingFeeds = otherFeeds.slice( 0 , lastIndex - selectedFeeds.length );
+            var endingFeeds = otherFeeds.slice( lastIndex - selectedFeeds.length );
+
+            self.feeds = startingFeeds.concat( selectedFeeds ).concat( endingFeeds );
+        } else {
+            var startingFeeds = self.feeds.slice( 0 , index );
+            var nextFeed = self.feeds.slice( index + 1 , index + 2 );
+            var endingFeeds = self.feeds.slice( index + 2 );
+
+            self.feeds = startingFeeds.concat( nextFeed ).concat( [ feed ] ).concat( endingFeeds );
+        }
     }
 
     self.moveToTop = function ( feed , index ) {
-        var startingFeeds = self.feeds.slice( 0 , index );
-        var endingFeeds = self.feeds.slice( index + 1 );
+        if ( feed.selected ) {
+            var selectedFeeds = [];
+            var otherFeeds = [];
+                
+            angular.forEach( self.feeds , function ( currentFeed , index ) {
+                if ( currentFeed.selected ) {
+                    selectedFeeds.push( currentFeed );
+                } else {
+                    otherFeeds.push( currentFeed );
+                }
+            } );
 
-        self.feeds = [ feed ].concat( startingFeeds ).concat( endingFeeds );
+            self.feeds = selectedFeeds.concat( otherFeeds );
+        } else {
+            var startingFeeds = self.feeds.slice( 0 , index );
+            var endingFeeds = self.feeds.slice( index + 1 );
+
+            self.feeds = [ feed ].concat( startingFeeds ).concat( endingFeeds );
+        }
     }
 
     self.moveToMiddle = function ( feed , index ) {
-        var startingFeeds = self.feeds.slice( 0 , index );
-        var endingFeeds = self.feeds.slice( index + 1 );
+        if ( feed.selected ) {
+            var selectedFeeds = [];
+            var otherFeeds = [];
+                
+            angular.forEach( self.feeds , function ( currentFeed , index ) {
+                if ( currentFeed.selected ) {
+                    selectedFeeds.push( currentFeed );
+                } else {
+                    otherFeeds.push( currentFeed );
+                }
+            } );
 
-        var newFeeds = startingFeeds.concat( endingFeeds );
-        var middleIndex = newFeeds.length / 2;
+            var middleIndex = otherFeeds.length / 2;
 
-        var newStartingFeeds = newFeeds.slice( 0 , middleIndex );
-        var newEndingFeeds = newFeeds.slice( middleIndex );
+            var startingFeeds = otherFeeds.slice( 0 , middleIndex );
+            var endingFeeds = otherFeeds.slice( middleIndex );
 
-        self.feeds = newStartingFeeds.concat( [ feed ] ).concat( newEndingFeeds );
+            self.feeds = startingFeeds.concat( selectedFeeds ).concat( endingFeeds );
+        } else {
+            var startingFeeds = self.feeds.slice( 0 , index );
+            var endingFeeds = self.feeds.slice( index + 1 );
+
+            var newFeeds = startingFeeds.concat( endingFeeds );
+            var middleIndex = newFeeds.length / 2;
+
+            var newStartingFeeds = newFeeds.slice( 0 , middleIndex );
+            var newEndingFeeds = newFeeds.slice( middleIndex );
+
+            self.feeds = newStartingFeeds.concat( [ feed ] ).concat( newEndingFeeds );
+        }
     }
 
     self.moveToBottom = function ( feed , index ) {
-        var startingFeeds = self.feeds.slice( 0 , index );
-        var endingFeeds = self.feeds.slice( index + 1 );
+        if ( feed.selected ) {
+            var selectedFeeds = [];
+            var otherFeeds = [];
+                
+            angular.forEach( self.feeds , function ( currentFeed , index ) {
+                if ( currentFeed.selected ) {
+                    selectedFeeds.push( currentFeed );
+                } else {
+                    otherFeeds.push( currentFeed );
+                }
+            } );
 
-        self.feeds = startingFeeds.concat( endingFeeds ).concat( [ feed ] );
+            self.feeds = otherFeeds.concat( selectedFeeds );
+        } else {
+            var startingFeeds = self.feeds.slice( 0 , index );
+            var endingFeeds = self.feeds.slice( index + 1 );
+
+            self.feeds = startingFeeds.concat( endingFeeds ).concat( [ feed ] );
+        }
     }
 
     self.syncMt1Levels = function () {
