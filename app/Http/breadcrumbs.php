@@ -258,7 +258,7 @@ Breadcrumbs::register('mailingtemplate.add', function($breadcrumbs) {
 });
 
 Breadcrumbs::register( 'mailingtemplate.edit' , function ( $breadcrumbs ) {
-    $breadcrumbs->parent( 'mailingtemplates.list' );
+    $breadcrumbs->parent( 'mailingtemplate.list' );
     $breadcrumbs->push( 'Edit Mailing Template' );
 } );
 

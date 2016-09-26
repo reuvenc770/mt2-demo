@@ -570,7 +570,7 @@ TXT;
         
         // save this file to the designated location for the package
         $path = $saveLocation . '/' . $fileName;
-        Storage::disk("local")->put($path, $result);
+        Storage::disk("local")->put($path, $parsedUrl->getContents());
 
         return $fileName;
     }
