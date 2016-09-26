@@ -247,6 +247,7 @@
 
                     <tbody md-body>
                     <tr md-row ng-show="deploy.showRow">
+                        <td md-cell></td>
                         <td md-cell>
                             @if (Sentinel::hasAccess('api.deploy.update'))
                             <button ng-click="deploy.actionLink()"
@@ -279,20 +280,6 @@
                                 </select>
                                 <span class="help-block" ng-bind="deploy.formErrors.esp_account_id"
                                       ng-show="deploy.formErrors.esp_account_id"></span>
-                            </div>
-                        </td>
-                        <td md-cell>
-                            <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.list_profile_id }">
-                                <select name="list_profile_id" id="list_profile_id"
-                                        ng-model="deploy.currentDeploy.list_profile_id" class="form-control"
-                                        ng-disabled="deploy.currentlyLoading">
-                                    <option value="">- Please Choose a List Profile -</option>
-                                    <option ng-repeat="option in deploy.listProfiles" value="@{{ option.id }}">
-                                        @{{ option.profile_name }}
-                                    </option>
-                                </select>
-                                <span class="help-block" ng-bind="deploy.formErrors.list_profile_id"
-                                      ng-show="deploy.formErrors.list_profile_id"></span>
                             </div>
                         </td>
                         <td md-cell>
@@ -469,9 +456,9 @@
                         </td>
                         </tr>
 
-                        <tr md-row ng-repeat="record in deploy.deploys track by $index" ng-class="{ mt2-bg-info : record.deployment_status == 0,
-                                         mt2-bg-success : record.deployment_status ==1,
-                                         mt2-warning : record.deployment_status == 2 }">
+                        <tr md-row ng-repeat="record in deploy.deploys track by $index" ng-class="{ 'mt2-bg-info' : record.deployment_status == 0,
+                                         'mt2-bg-success' : record.deployment_status ==1,
+                                         'mt2-warning' : record.deployment_status == 2 }">
                             <td md-cell>
                                 <md-checkbox aria-label="Select" name="selectedRows"
                                              ng-click="deploy.toggleRow(record.deploy_id)"> </md-checkbox>

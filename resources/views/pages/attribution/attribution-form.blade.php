@@ -22,47 +22,48 @@
 
         <md-toolbar layout="row" class="md-mt2-zeta-theme md-hue-2">
           <div class="md-toolbar-tools">
+            <span flex="2"></span>
+
+            <md-button class="md-icon-button md-primary" aria-label="Clear Checkboxes" ng-click="attr.resetLevelFields()" flex="4" flex-offset="6">
+                <md-tooltip md-direction="bottom">Clear Selected</md-tooltip>
+
+                <md-icon md-svg-icon="img/icons/ic_clear_white_36px.svg"></md-icon>
+            </md-button>
+
             <span>Client Attribution Levels</span>
+
+            <span flex></span>
+
+            <span ng-bind="attr.feeds.length + ' Feeds'"></span>
           </div>
         </md-toolbar>
 
         <md-content>
-            <ul dnd-list="attr.feeds"
-                dnd-horizontal-list="true"
-                dnd-drop="attr.onLevelDrop( item , index )"
-                layout="column"
-                flex
-            >
-                <li 
-                    ng-repeat="feed in attr.feeds"
-                    dnd-draggable="attr.getSelectedFeedsIncluding( feed )"
-                    dnd-dragstart="attr.onDragStart( event )"
-                    dnd-dragend="attr.draggingLevels = false"
-                    dnd-selected="feed.selected = !feed.selected"
-                    dnd-effect-allowed="move"
-                    ng-class="{ 'selectedListItem' : feed.selected }"
-                    ng-hide="feed.selected && attr.draggingLevels"
-                    flex
-                >
-                    <div layout="row">
-                        <span flex="10"></span>
+            <md-list class="md-dense" flex ng-cloak>
+                <md-list-item ng-repeat="feed in attr.feeds track by $index" class="md-no-proxy" ng-class="{ 'mt2-proj-increase-bg' : attr.clientLevels[ feed.id ] > ( $index + 1 ) , 'mt2-proj-decrease-bg' : attr.clientLevels[ feed.id ] < ( $index + 1 ) }">
+                    <md-checkbox ng-model="feed.selected" aria-label="Feed Checkbox"></md-checkbox>
 
-                        <md-icon md-svg-src="img/icons/ic_drag_handle_black_18px.svg"></md-icon>
-
-                        <span flex></span>
-
-                        <p ng-bind="feed.name"></p>
-
-                        <span flex></span>
-
-                        <p ng-bind="$index + 1"></p>
-
-                        <span flex="10"></span>
+                    <div class="md-list-item-text" layout="column" flex="40">
+                        <h4 ng-bind="feed.name"></h4>
                     </div>
 
-                    <md-divider ng-if="!$last"></md-divider>
-                </li>
-            </ul>
+                    <div layout="row" layout-align="end center" flex="10">
+                        <input ng-init="feed.newLevel = $index + 1" ng-model="feed.newLevel" />
+
+                        <md-button ng-click="attr.changeLevel( feed , $index )">Change</md-button>
+                    </div>
+
+                    <md-icon class="md-secondary" ng-click="attr.onLevelRise( feed , $index )" aria-label="Move Feed Up" md-svg-icon="img/icons/ic_arrow_upward_black_18px.svg"></md-icon>
+
+                    <md-icon class="md-secondary" ng-click="attr.onLevelDrop( feed , $index )" aria-label="Move Feed Down" md-svg-icon="img/icons/ic_arrow_downward_black_18px.svg"></md-icon>
+
+                    <md-icon class="md-secondary" ng-click="attr.moveToTop( feed , $index )" aria-label="Move To Top" md-svg-icon="img/icons/ic_vertical_align_top_black_18px.svg"></md-icon>
+
+                    <md-icon class="md-secondary" ng-click="attr.moveToMiddle( feed , $index )" aria-label="Move To Middle" md-svg-icon="img/icons/ic_vertical_align_center_black_18px.svg"></md-icon>
+
+                    <md-icon class="md-secondary" ng-click="attr.moveToBottom( feed , $index )" aria-label="Move to Bottom" md-svg-icon="img/icons/ic_vertical_align_bottom_black_18px.svg"></md-icon>
+                </md-list-item>
+            </md-list>
         </md-content>
     </form>
 </div>

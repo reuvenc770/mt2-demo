@@ -318,32 +318,193 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         );
     };
 
-    self.getSelectedFeedsIncluding = function ( feed ) {
-        feed.selected = true; 
+    self.resetLevelFields = function () {
+        angular.forEach( self.feeds , function ( currentFeed , currentIndex ) {
+            currentFeed.newLevel = currentIndex + 1;
+            currentFeed.selected = false;
+        } );
+    }; 
 
-        return self.feeds.filter( function ( currentFeed ) { return currentFeed.selected; } );
-    };
+    self.changeLevel = function ( feed , index ) {
+        var newLevel = feed.newLevel - 1;
 
-    self.onDragStart = function ( event ) {
-        self.draggingLevels = true;
+        if ( newLevel < 0 || newLevel >= self.feeds.length ) {
+            self.displayToast( 'You must choose a level between 1 and ' + self.feeds.length );
 
-        if ( event.dataTransfer.setDragImage ) {
-            var img = new Image();
-            img.src = 'img/icons/ic_swap_vert_black_24dp_1x.png';
-            event.dataTransfer.setDragImage( img , -20 , 0 );
+            self.resetLevelFields();
+
+            return false;
+        }
+
+        if ( newLevel != index ) {
+            var startingFeeds = self.feeds.slice( 0 , index );
+            var endingFeeds = self.feeds.slice( index + 1 );
+
+            var cleanFeeds = startingFeeds.concat( endingFeeds );
+
+            cleanFeeds.splice( newLevel , 0 , feed );
+
+            self.feeds = cleanFeeds;
+
+            self.resetLevelFields();
         }
     };
 
-    self.onLevelDrop = function ( selectedFeeds , index ) {
-        self.feeds = self.feeds.filter( function( currentFeed ) { return !currentFeed.selected; });
+    self.onLevelRise = function ( feed , index ) {
+        if ( feed.selected ) {
+            var selectedFeeds = [];
+            var otherFeeds = [];
+            var firstIndex = null;
+                
+            angular.forEach( self.feeds , function ( currentFeed , currentIndex ) {
+                if ( currentFeed.selected ) {
+                    if ( firstIndex === null ) {
+                        firstIndex = currentIndex - 1;
+                    }
 
-        self.feeds = self.feeds.slice( 0 , index )
-            .concat( selectedFeeds )
-            .concat( self.feeds.slice( index ) );
+                    selectedFeeds.push( currentFeed );
+                } else {
+                    otherFeeds.push( currentFeed );
+                }
+            } );
 
-        angular.forEach( self.feeds , function( currentFeed ) { currentFeed.selected = false; });
+            if ( firstIndex < 0 ) {
+                self.displayToast( 'No room for selected feeds. Please uncheck the first checkbox.' );
 
-        return true;
+                return false;
+            }
+
+            var startingFeeds = otherFeeds.slice( 0 , firstIndex );
+            var endingFeeds = otherFeeds.slice( firstIndex );
+
+            self.feeds = startingFeeds.concat( selectedFeeds ).concat( endingFeeds );
+        } else {
+            if ( index === 0 ) {
+                return true;
+            }
+
+            var startingFeeds = self.feeds.slice( 0 , index - 1 );
+            var prevFeed = self.feeds.slice( index - 1 , index );
+            var endingFeeds = self.feeds.slice( index + 1 );
+
+            self.feeds = startingFeeds.concat( [ feed ] ).concat( prevFeed ).concat( endingFeeds );
+        }
+
+        self.resetLevelFields();
+    }
+
+    self.onLevelDrop = function ( feed , index ) {
+        if ( feed.selected ) {
+            var selectedFeeds = [];
+            var otherFeeds = [];
+            var lastIndex = -1;
+                
+            angular.forEach( self.feeds , function ( currentFeed , currentIndex ) {
+                if ( currentFeed.selected ) {
+                    lastIndex = currentIndex + 2;
+
+                    selectedFeeds.push( currentFeed );
+                } else {
+                    otherFeeds.push( currentFeed );
+                }
+            } );
+
+            var startingFeeds = otherFeeds.slice( 0 , lastIndex - selectedFeeds.length );
+            var endingFeeds = otherFeeds.slice( lastIndex - selectedFeeds.length );
+
+            self.feeds = startingFeeds.concat( selectedFeeds ).concat( endingFeeds );
+        } else {
+            var startingFeeds = self.feeds.slice( 0 , index );
+            var nextFeed = self.feeds.slice( index + 1 , index + 2 );
+            var endingFeeds = self.feeds.slice( index + 2 );
+
+            self.feeds = startingFeeds.concat( nextFeed ).concat( [ feed ] ).concat( endingFeeds );
+        }
+
+        self.resetLevelFields();
+    }
+
+    self.moveToTop = function ( feed , index ) {
+        if ( feed.selected ) {
+            var selectedFeeds = [];
+            var otherFeeds = [];
+                
+            angular.forEach( self.feeds , function ( currentFeed , index ) {
+                if ( currentFeed.selected ) {
+                    selectedFeeds.push( currentFeed );
+                } else {
+                    otherFeeds.push( currentFeed );
+                }
+            } );
+
+            self.feeds = selectedFeeds.concat( otherFeeds );
+        } else {
+            var startingFeeds = self.feeds.slice( 0 , index );
+            var endingFeeds = self.feeds.slice( index + 1 );
+
+            self.feeds = [ feed ].concat( startingFeeds ).concat( endingFeeds );
+        }
+
+        self.resetLevelFields();
+    }
+
+    self.moveToMiddle = function ( feed , index ) {
+        if ( feed.selected ) {
+            var selectedFeeds = [];
+            var otherFeeds = [];
+                
+            angular.forEach( self.feeds , function ( currentFeed , index ) {
+                if ( currentFeed.selected ) {
+                    selectedFeeds.push( currentFeed );
+                } else {
+                    otherFeeds.push( currentFeed );
+                }
+            } );
+
+            var middleIndex = otherFeeds.length / 2;
+
+            var startingFeeds = otherFeeds.slice( 0 , middleIndex );
+            var endingFeeds = otherFeeds.slice( middleIndex );
+
+            self.feeds = startingFeeds.concat( selectedFeeds ).concat( endingFeeds );
+        } else {
+            var startingFeeds = self.feeds.slice( 0 , index );
+            var endingFeeds = self.feeds.slice( index + 1 );
+
+            var newFeeds = startingFeeds.concat( endingFeeds );
+            var middleIndex = newFeeds.length / 2;
+
+            var newStartingFeeds = newFeeds.slice( 0 , middleIndex );
+            var newEndingFeeds = newFeeds.slice( middleIndex );
+
+            self.feeds = newStartingFeeds.concat( [ feed ] ).concat( newEndingFeeds );
+        }
+
+        self.resetLevelFields();
+    }
+
+    self.moveToBottom = function ( feed , index ) {
+        if ( feed.selected ) {
+            var selectedFeeds = [];
+            var otherFeeds = [];
+                
+            angular.forEach( self.feeds , function ( currentFeed , index ) {
+                if ( currentFeed.selected ) {
+                    selectedFeeds.push( currentFeed );
+                } else {
+                    otherFeeds.push( currentFeed );
+                }
+            } );
+
+            self.feeds = otherFeeds.concat( selectedFeeds );
+        } else {
+            var startingFeeds = self.feeds.slice( 0 , index );
+            var endingFeeds = self.feeds.slice( index + 1 );
+
+            self.feeds = startingFeeds.concat( endingFeeds ).concat( [ feed ] );
+        }
+
+        self.resetLevelFields();
     }
 
     self.syncMt1Levels = function () {
