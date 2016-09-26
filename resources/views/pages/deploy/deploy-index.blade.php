@@ -307,8 +307,8 @@
                                         ng-model="deploy.currentDeploy.creative_id" class="form-control"
                                         ng-disabled="deploy.offerLoading">
                                     <option value="">- Please Choose a Creative -</option>
-                                    <option ng-repeat="option in deploy.creatives" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'yesterday-red' : ''}}">
-                                        @{{ option.name }} - @{{ option.id }} - @{{ option.click_rate }}
+                                    <option ng-repeat="option in deploy.creatives" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'mt2-bg-super-danger' : ''}}">
+                                        @{{ option.name }} - @{{ option.id }} - @{{ option.click_rate.toFixed(2) }}%
                                     </option>
                                 </select>
                             <span class="help-block" ng-bind="deploy.formErrors.creative_id"
@@ -323,8 +323,8 @@
                                         ng-model="deploy.currentDeploy.from_id" class="form-control"
                                         ng-disabled="deploy.offerLoading">
                                     <option value="">- Please Choose a From -</option>
-                                    <option ng-repeat="option in deploy.froms" value="@{{ option.id }}">
-                                        @{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate }}
+                                    <option ng-repeat="option in deploy.froms" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'mt2-bg-super-danger' : ''}}">
+                                        @{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate.toFixed(2) }}%
                                     </option>
                                 </select>
                             <span class="help-block" ng-bind="deploy.formErrors.from_id"
@@ -338,8 +338,8 @@
                                         ng-model="deploy.currentDeploy.subject_id" class="form-control"
                                         ng-disabled="deploy.offerLoading">
                                     <option value="">- Please Choose a Subject -</option>
-                                    <option ng-repeat="option in deploy.subjects" value="@{{ option.id }}">
-                                        @{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate }}
+                                    <option ng-repeat="option in deploy.subjects" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'mt2-bg-super-danger' : ''}}">
+                                        @{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate.toFixed(2) }}%
                                     </option>
                                 </select>
                             <span class="help-block" ng-bind="deploy.formErrors.subject_id"
