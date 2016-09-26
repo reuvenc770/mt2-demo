@@ -469,9 +469,9 @@
                         </td>
                         </tr>
 
-                        <tr md-row ng-repeat="record in deploy.deploys track by $index" ng-class="{ mt2-bg-info : record.deployment_status == 0,
-                                         mt2-bg-success : record.deployment_status ==1,
-                                         mt2-warning : record.deployment_status == 2 }">
+                        <tr md-row ng-repeat="record in deploy.deploys track by $index" ng-class="{ 'mt2-bg-info' : record.deployment_status == 0,
+                                         'mt2-bg-success' : record.deployment_status ==1,
+                                         'mt2-warning' : record.deployment_status == 2 }">
                             <td md-cell>
                                 <md-checkbox aria-label="Select" name="selectedRows"
                                              ng-click="deploy.toggleRow(record.deploy_id)"> </md-checkbox>
