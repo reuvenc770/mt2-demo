@@ -131,6 +131,9 @@ class DeployService
         $records = $this->deployRepo->getDeployDetailsByIds($deployIds)->toArray();
         return $records;
     }
+    public function getType(){
+        return "Deploy";
+    }
 
     public function getHeaderRow()
     {
