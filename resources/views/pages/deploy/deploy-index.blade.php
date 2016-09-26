@@ -30,6 +30,18 @@
                     <span>@{{ deploy.deployLinkText }}</span>
                 </md-button>
             @endif
+            @if (Sentinel::hasAccess('deploy.preview'))
+
+                    <md-button ng-click="deploy.previewDeploys()" ng-disabled="deploy.disableExport">
+                        <span>Preview Deploy(s)</span>
+                    </md-button>
+            @endif
+
+            @if (Sentinel::hasAccess('deploy.downloadhtml'))
+                    <md-button ng-click="deploy.downloadHtml()" ng-disabled="deploy.disableExport">
+                        <span>Get Html</span>
+                    </md-button>
+            @endif
 
     </div>
 
@@ -68,7 +80,22 @@
                     <span>Deploy Packages</span>
                 </md-button>
             </md-menu-item>
+                    @if (Sentinel::hasAccess('deploy.preview'))
+                        <md-menu-item>
+                        <md-button ng-click="deploy.previewDeploys()" ng-disabled="deploy.disableExport">
+                            <span>Preview Deploy(s)</span>
+                        </md-button>
+                            </md-menu-item>
+                    @endif
+
             @endif
+                @if (Sentinel::hasAccess('deploy.downloadhtml'))
+                    <md-menu-item>
+                        <md-button ng-click="deploy.downloadHtml()" ng-disabled="deploy.disableExport">
+                            <span>Get Html</span>
+                        </md-button>
+                    </md-menu-item>
+                @endif
         </md-menu-content>
     </md-menu>
 @stop
@@ -203,7 +230,6 @@
                         <th md-column class="md-table-header-override-whitetext">Send Date</th>
                         <th md-column class="md-table-header-override-whitetext">Deploy ID</th>
                         <th md-column class="md-table-header-override-whitetext">EspAccount</th>
-                        <th md-column class="md-table-header-override-whitetext">List Profile</th>
                         <th md-column class="md-table-header-override-whitetext">Offer</th>
                         <th md-column class="md-table-header-override-whitetext">Creative</th>
                         <th md-column class="md-table-header-override-whitetext">From</th>
@@ -211,7 +237,10 @@
                         <th md-column class="md-table-header-override-whitetext">Template</th>
                         <th md-column class="md-table-header-override-whitetext">Mailing Domain</th>
                         <th md-column class="md-table-header-override-whitetext">Content Domain</th>
-                        <th md-column class="md-table-header-override-whitetext">Cake ID</th>
+                        <th md-column >Cake ID</th>
+                        <th ng-show="deploy.showRow" class="md-table-header-override-whitetext" >Cake Encryption</th>
+                        <th ng-show="deploy.showRow" class="md-table-header-override-whitetext" >Full Encryption</th>
+                        <th ng-show="deploy.showRow" class="md-table-header-override-whitetext">URL Format</th>
                         <th md-column class="md-table-header-override-whitetext">Notes</th>
                     </tr>
                     </thead>
@@ -229,8 +258,8 @@
                         </td>
                         <td md-cell>
                             <md-datepicker name="dateField" ng-model="deploy.currentDeploy.send_date"
-                                           required
-                                           md-placeholder="Enter date"></md-datepicker>
+                                 required md-placeholder="Enter date" ng-disabled="deploy.offerLoading" md-date-filter="deploy.canOfferBeMailed">
+                            </md-datepicker>
                             <div class="validation-messages" ng-show="deploy.formErrors.send_date">
                                 <div ng-bind="deploy.formErrors.send_date"></div>
                             </div>
@@ -390,6 +419,47 @@
                             </div>
                         </td>
                         <td md-cell>
+                            <div class="form-group"
+                                 ng-class="{ 'has-error' : deploy.formErrors.encrypt_cake }">
+                                <select name="encrypt_cake" id="encrypt_cake"
+                                        ng-model="deploy.currentDeploy.encrypt_cake" class="form-control">
+                                    <option value="">- Encrypt Cake? -</option>
+                                    <option value="1">Yes</option>
+                                    <option value="2">No</option>
+                                </select>
+                    <span class="help-block" ng-bind="deploy.formErrors.encrypt_cake"
+                          ng-show="deploy.formErrors.encrypt_cake"></span>
+                            </div>
+                        </td>
+                        <td md-cell>
+                            <div class="form-group"
+                                 ng-class="{ 'has-error' : deploy.formErrors.fully_encrypt }">
+                                <select name="fully_encrypt" id="fully_encrypt"
+                                        ng-model="deploy.currentDeploy.fully_encrypt" class="form-control">
+                                    <option value="">- Fully Encrypt Links? -</option>
+                                    <option value="1">Yes</option>
+                                    <option value="2">No</option>
+                                </select>
+                    <span class="help-block" ng-bind="deploy.formErrors.fully_encrypt"
+                          ng-show="deploy.formErrors.fully_encrypt"></span>
+                            </div>
+                        </td>
+                        <td md-cell>
+                            <div class="form-group"
+                                 ng-class="{ 'has-error' : deploy.formErrors.url_format }">
+                                <select name="url_format" id="url_format"
+                                        ng-model="deploy.currentDeploy.url_format" class="form-control">
+                                    <option value="">- Pick URL Format -</option>
+                                    <option value="new">New</option>
+                                    <option value="gmail">Gmail</option>
+                                    <option value="old">Old</option>
+
+                                </select>
+                    <span class="help-block" ng-bind="deploy.formErrors.url_format"
+                          ng-show="deploy.formErrors.url_format"></span>
+                            </div>
+                        </td>
+                        <td md-cell>
                             <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.notes }">
                             <div class="form-group">
                                 <textarea ng-model="deploy.currentDeploy.notes" class="form-control" rows="1"
@@ -413,7 +483,6 @@
                             <td md-cell>@{{ record.send_date }}</td>
                             <td md-cell>@{{ record.deploy_id }}</td>
                             <td md-cell>@{{ record.account_name }}</td>
-                            <td md-cell>@{{ record.list_profile }}</td>
                             <td md-cell>@{{ record.offer_name }}</td>
                             <td md-cell>@{{ record.creative }}</td>
                             <td md-cell>@{{ record.from }}</td>
@@ -422,6 +491,9 @@
                             <td md-cell>@{{ record.mailing_domain }}</td>
                             <td md-cell>@{{ record.content_domain }}</td>
                             <td md-cell>@{{ record.cake_affiliate_id }}</td>
+                            <td ng-show="deploy.showRow" md-cell></td>
+                            <td ng-show="deploy.showRow" md-cell></td>
+                            <td ng-show="deploy.showRow" md-cell></td>
                             <td md-cell>@{{ record.notes }}</td>
                         </tr>
                     </tbody>
