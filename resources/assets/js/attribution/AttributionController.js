@@ -354,11 +354,11 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         if ( feed.selected ) {
             var selectedFeeds = [];
             var otherFeeds = [];
-            var firstIndex = -1;
+            var firstIndex = null;
                 
             angular.forEach( self.feeds , function ( currentFeed , currentIndex ) {
                 if ( currentFeed.selected ) {
-                    if ( firstIndex === -1 ) {
+                    if ( firstIndex === null ) {
                         firstIndex = currentIndex - 1;
                     }
 
@@ -368,7 +368,11 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
                 }
             } );
 
-            $log.info( firstIndex );
+            if ( firstIndex < 0 ) {
+                self.displayToast( 'No room for selected feeds. Please uncheck the first checkbox.' );
+
+                return false;
+            }
 
             var startingFeeds = otherFeeds.slice( 0 , firstIndex );
             var endingFeeds = otherFeeds.slice( firstIndex );
