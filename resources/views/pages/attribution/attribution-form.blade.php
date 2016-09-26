@@ -22,22 +22,36 @@
 
         <md-toolbar layout="row" class="md-mt2-zeta-theme md-hue-2">
           <div class="md-toolbar-tools">
+            <span flex="2"></span>
+
+            <md-button class="md-icon-button md-primary" aria-label="Clear Checkboxes" ng-click="attr.resetLevelFields()" flex="4" flex-offset="6">
+                <md-tooltip md-direction="bottom">Clear Selected</md-tooltip>
+
+                <md-icon md-svg-icon="img/icons/ic_clear_white_36px.svg"></md-icon>
+            </md-button>
+
             <span>Client Attribution Levels</span>
+
+            <span flex></span>
+
+            <span ng-bind="attr.feeds.length + ' Feeds'"></span>
           </div>
         </md-toolbar>
 
         <md-content>
             <md-list class="md-dense" flex ng-cloak>
-                <md-list-item ng-repeat="feed in attr.feeds track by $index" ng-class="{ 'mt2-proj-increase-bg' : attr.clientLevels[ feed.id ] > ( $index + 1 ) , 'mt2-proj-decrease-bg' : attr.clientLevels[ feed.id ] < ( $index + 1 ) }">
-                    <md-checkbox ng-model="feed.selected"></md-checkbox>
+                <md-list-item ng-repeat="feed in attr.feeds track by $index" class="md-no-proxy" ng-class="{ 'mt2-proj-increase-bg' : attr.clientLevels[ feed.id ] > ( $index + 1 ) , 'mt2-proj-decrease-bg' : attr.clientLevels[ feed.id ] < ( $index + 1 ) }">
+                    <md-checkbox ng-model="feed.selected" aria-label="Feed Checkbox"></md-checkbox>
 
-                    <div class="md-list-item-text" layout="column">
+                    <div class="md-list-item-text" layout="column" flex="40">
                         <h4 ng-bind="feed.name"></h4>
-
-                        <p>Current Level: @{{ $index + 1 }} <span ng-show="attr.clientLevels[ feed.id ] !== ( $index + 1 )"> - Original Level: @{{ attr.clientLevels[ feed.id ] }}</span></p>
                     </div>
 
-                    <span flex></span>
+                    <div layout="row" layout-align="end center" flex="10">
+                        <input ng-init="feed.newLevel = $index + 1" ng-model="feed.newLevel" />
+
+                        <md-button ng-click="attr.changeLevel( feed , $index )">Change</md-button>
+                    </div>
 
                     <md-icon class="md-secondary" ng-click="attr.onLevelRise( feed , $index )" aria-label="Move Feed Up" md-svg-icon="img/icons/ic_arrow_upward_black_18px.svg"></md-icon>
 

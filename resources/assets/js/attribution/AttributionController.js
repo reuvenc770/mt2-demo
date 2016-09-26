@@ -318,33 +318,37 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         );
     };
 
-    self.getSelectedFeedsIncluding = function ( feed ) {
-        feed.selected = true; 
+    self.resetLevelFields = function () {
+        angular.forEach( self.feeds , function ( currentFeed , currentIndex ) {
+            currentFeed.newLevel = currentIndex + 1;
+            currentFeed.selected = false;
+        } );
+    }; 
 
-        return self.feeds.filter( function ( currentFeed ) { return currentFeed.selected; } );
-    };
+    self.changeLevel = function ( feed , index ) {
+        var newLevel = feed.newLevel - 1;
 
-    self.onDragStart = function ( event ) {
-        self.draggingLevels = true;
+        if ( newLevel < 0 || newLevel >= self.feeds.length ) {
+            self.displayToast( 'You must choose a level between 1 and ' + self.feeds.length );
 
-        if ( event.dataTransfer.setDragImage ) {
-            var img = new Image();
-            img.src = 'img/icons/ic_swap_vert_black_24dp_1x.png';
-            event.dataTransfer.setDragImage( img , -20 , 0 );
+            self.resetLevelFields();
+
+            return false;
+        }
+
+        if ( newLevel != index ) {
+            var startingFeeds = self.feeds.slice( 0 , index );
+            var endingFeeds = self.feeds.slice( index + 1 );
+
+            var cleanFeeds = startingFeeds.concat( endingFeeds );
+
+            cleanFeeds.splice( newLevel , 0 , feed );
+
+            self.feeds = cleanFeeds;
+
+            self.resetLevelFields();
         }
     };
-
-    self.onLevelDrop = function ( selectedFeeds , index ) {
-        self.feeds = self.feeds.filter( function( currentFeed ) { return !currentFeed.selected; });
-
-        self.feeds = self.feeds.slice( 0 , index )
-            .concat( selectedFeeds )
-            .concat( self.feeds.slice( index ) );
-
-        angular.forEach( self.feeds , function( currentFeed ) { currentFeed.selected = false; });
-
-        return true;
-    }
 
     self.onLevelRise = function ( feed , index ) {
         if ( feed.selected ) {
@@ -364,6 +368,8 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
                 }
             } );
 
+            $log.info( firstIndex );
+
             var startingFeeds = otherFeeds.slice( 0 , firstIndex );
             var endingFeeds = otherFeeds.slice( firstIndex );
 
@@ -379,6 +385,8 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
 
             self.feeds = startingFeeds.concat( [ feed ] ).concat( prevFeed ).concat( endingFeeds );
         }
+
+        self.resetLevelFields();
     }
 
     self.onLevelDrop = function ( feed , index ) {
@@ -408,6 +416,8 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
 
             self.feeds = startingFeeds.concat( nextFeed ).concat( [ feed ] ).concat( endingFeeds );
         }
+
+        self.resetLevelFields();
     }
 
     self.moveToTop = function ( feed , index ) {
@@ -430,6 +440,8 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
 
             self.feeds = [ feed ].concat( startingFeeds ).concat( endingFeeds );
         }
+
+        self.resetLevelFields();
     }
 
     self.moveToMiddle = function ( feed , index ) {
@@ -463,6 +475,8 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
 
             self.feeds = newStartingFeeds.concat( [ feed ] ).concat( newEndingFeeds );
         }
+
+        self.resetLevelFields();
     }
 
     self.moveToBottom = function ( feed , index ) {
@@ -485,6 +499,8 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
 
             self.feeds = startingFeeds.concat( endingFeeds ).concat( [ feed ] );
         }
+
+        self.resetLevelFields();
     }
 
     self.syncMt1Levels = function () {
