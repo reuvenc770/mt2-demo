@@ -247,6 +247,7 @@
 
                     <tbody md-body>
                     <tr md-row ng-show="deploy.showRow">
+                        <td md-cell></td>
                         <td md-cell>
                             @if (Sentinel::hasAccess('api.deploy.update'))
                             <button ng-click="deploy.actionLink()"
