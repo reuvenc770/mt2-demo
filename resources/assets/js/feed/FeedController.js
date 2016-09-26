@@ -43,8 +43,9 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
     self.pageCount = 0;
     self.paginationCount = '10';
     self.currentPage = 1;
+    self.feedTotal = 0;
+    self.queryPromise = null;
 
-    self.currentlyLoading = 0;
     self.generatingLinks = 0;
     self.updatingFeed = 0;
     self.creatingFeed = 0;
@@ -68,15 +69,14 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
     self.loadFeed = function () {
         var currentPath = $location.path();
         var matches = currentPath.match( /\/(\d{1,})/ );
-        var id = matches[ 1 ]; 
+        var id = matches[ 1 ];
 
         FeedApiService.getFeed( id , self.loadFeedSuccessCallback , self.loadFeedFailureCallback );
     };
 
     self.loadFeeds = function () {
-        self.currentlyLoading = 1;
 
-        FeedApiService.getFeeds( self.currentPage , self.paginationCount , self.loadFeedsSuccessCallback , self.loadFeedsFailureCallback );
+        self.queryPromise = FeedApiService.getFeeds( self.currentPage , self.paginationCount , self.loadFeedsSuccessCallback , self.loadFeedsFailureCallback );
     };
 
 
@@ -113,7 +113,7 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
     /**
      * Form Methods
      */
-  
+
     self.getFeedData = function () {
         var feedData = {};
 
@@ -149,7 +149,7 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
     };
 
     self.loadListOwnersSuccessCallback = function ( response ) {
-        self.listOwners = response.data; 
+        self.listOwners = response.data;
     };
 
     self.loadListOwnersFailureCallback = function ( response ) {
@@ -252,7 +252,7 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
 
         self.pageCount = response.data.last_page;
 
-        self.currentlyLoading = 0;
+        self.feedTotal = response.data.total;
     };
 
     self.loadFeedsFailureCallback = function ( response ) {
@@ -268,11 +268,11 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
 
         self.launchModal();
     };
-    
+
     self.updateFeedFailureCallback = function (response) {
         self.loadFieldErrors(response);
     };
-    
+
     self.saveFeedFailureCallback = function (response) {
         self.loadFieldErrors(response);
     };

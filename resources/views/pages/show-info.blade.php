@@ -19,73 +19,76 @@
         </form>
     </div>
 
-    <div id="mtTableContainer" class="table-responsive" ng-if="info.records.length > 0">
-        <table class="table table-striped table-bordered tabel-hover text-center">
-            <thead>
-                <th class="text-center">EID</th>
-                <th class="text-center">Email</th>
-                <th class="text-center">First Name</th>
-                <th class="text-center">Last Name</th>
-                <th class="text-center">Address</th>
-                <th class="text-center">Source</th>
-                <th class="text-center">IP</th>
-                <th class="text-center">Date</th>
-                <th class="text-center">Birth Date</th>
-                <th class="text-center">Gender</th>
-                <th class="text-center">Network</th>
-                <th class="text-center">Action</th>
-                <th class="text-center">Action Date</th>
-                <th class="text-center">Subscribe Date</th>
-                <th class="text-center">Status</th>
-                <th class="text-center">Removal Date</th>
-                <th class="text-center">Suppressed</th>
-            </thead>
-
-            <tbody>
-                <tr ng-repeat="record in info.records">
-                    <td>@{{ record.eid }}</td>
-                    <td>@{{ record.email_addr }}</td>
-                    <td>@{{ record.first_name }}</td>
-                    <td>@{{ record.last_name }}</td>
-                    <td>@{{ record.address }}</td>
-                    <td>@{{ record.source_url }}</td>
-                    <td>@{{ record.ip }}</td>
-                    <td>@{{ record.date }}</td>
-                    <td>@{{ record.birthdate }}</td>
-                    <td>@{{ record.gender }}</td>
-                    <td>@{{ record.network }}</td>
-                    <td>@{{ record.action }}</td>
-                    <td>@{{ record.action_date }}</td>
-                    <td>@{{ record.subscribe_datetime }}</td>
-                    <td>@{{ record.status }}</td>
-                    <td>@{{ record.removal_date }}</td>
-                    <td>@{{ record.suppressed ? 'Suppressed' : '' }}</td>
+    <md-table-container ng-if="info.records.length > 0">
+        <table md-table>
+            <thead md-head>
+                <tr md-row>
+                    <th md-column class="md-table-header-override-whitetext" md-numeric>EID</th>
+                    <th md-column class="md-table-header-override-whitetext">Email</th>
+                    <th md-column class="md-table-header-override-whitetext">First Name</th>
+                    <th md-column class="md-table-header-override-whitetext">Last Name</th>
+                    <th md-column class="md-table-header-override-whitetext">Address</th>
+                    <th md-column class="md-table-header-override-whitetext">Source</th>
+                    <th md-column class="md-table-header-override-whitetext">IP</th>
+                    <th md-column class="md-table-header-override-whitetext">Date</th>
+                    <th md-column class="md-table-header-override-whitetext">Birth Date</th>
+                    <th md-column class="md-table-header-override-whitetext">Gender</th>
+                    <th md-column class="md-table-header-override-whitetext">Network</th>
+                    <th md-column class="md-table-header-override-whitetext">Action</th>
+                    <th md-column class="md-table-header-override-whitetext">Action Date</th>
+                    <th md-column class="md-table-header-override-whitetext">Subscribe Date</th>
+                    <th md-column class="md-table-header-override-whitetext">Status</th>
+                    <th md-column class="md-table-header-override-whitetext">Removal Date</th>
+                    <th md-column class="md-table-header-override-whitetext">Suppressed</th>
                 </tr>
-
-            </tbody>
-        </table>
-    </div>
-    <h2 class="text-center" ng-if="info.suppression.length > 0">Suppressions</h2>
-    <div id="mtTableContainer" class="table-responsive" ng-if="info.suppression.length > 0">
-        <table class="table table-striped table-bordered tabel-hover text-center">
-            <thead>
-            <th class="text-center">Email Address</th>
-            <th class="text-center">Esp Account</th>
-            <th class="text-center">Campaign Name</th>
-            <th class="text-center">Reason</th>
             </thead>
 
-            <tbody>
-            <tr ng-repeat="record in info.suppression">
-                <td>@{{ record.email_addr }}</td>
-                <td>@{{ record.espAccountName }}</td>
-                <td>@{{ record.campaignName }}</td>
-                <td>@{{ record.suppressionReasonDetails }}</td>
-            </tr>
-
+            <tbody md-body>
+                <tr md-row ng-repeat="record in info.records">
+                    <td md-cell>@{{ record.eid }}</td>
+                    <td md-cell>@{{ record.email_addr }}</td>
+                    <td md-cell>@{{ record.first_name }}</td>
+                    <td md-cell>@{{ record.last_name }}</td>
+                    <td md-cell>@{{ record.address }}</td>
+                    <td md-cell>@{{ record.source_url }}</td>
+                    <td md-cell>@{{ record.ip }}</td>
+                    <td md-cell>@{{ record.date }}</td>
+                    <td md-cell>@{{ record.birthdate }}</td>
+                    <td md-cell>@{{ record.gender }}</td>
+                    <td md-cell>@{{ record.network }}</td>
+                    <td md-cell>@{{ record.action }}</td>
+                    <td md-cell>@{{ record.action_date }}</td>
+                    <td md-cell>@{{ record.subscribe_datetime }}</td>
+                    <td md-cell>@{{ record.status }}</td>
+                    <td md-cell>@{{ record.removal_date }}</td>
+                    <td md-cell>@{{ record.suppressed ? 'Suppressed' : '' }}</td>
+                </tr>
             </tbody>
         </table>
-    </div>
+    </md-table-container>
+
+    <h2 class="text-center" ng-if="info.suppression.length > 0">Suppressions</h2>
+    <md-table-container ng-if="info.suppression.length > 0">
+        <table md-table>
+            <thead md-head>
+                <tr md-row>
+                    <th md-column class="md-table-header-override-whitetext">Email Address</th>
+                    <th md-column class="md-table-header-override-whitetext">Esp Account</th>
+                    <th md-column class="md-table-header-override-whitetext">Campaign Name</th>
+                    <th md-column class="md-table-header-override-whitetext">Reason</th>
+                </tr>
+            </thead>
+
+            <tbody md-body>
+                <tr md-row ng-repeat="record in info.suppression">
+                    <td md-cell>@{{ record.email_addr }}</td>
+                    <td md-cell>@{{ record.espAccountName }}</td>
+                    <td md-cell>@{{ record.campaignName }}</td>
+                    <td md-cell>@{{ record.suppressionReasonDetails }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </md-table-container>
 
     <div class="well" ng-if="info.records.length > 0">
         <h3>Add to Suppression</h3>

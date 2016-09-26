@@ -17,12 +17,16 @@ mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$win
     self.espNameField = "account_name";
     self.espIdField = "id";
     self.widgetName = 'esps';
+    self.templateTypeMap = [ 'N/A', 'Normal HTML' , 'HTML Lite (no images)' , 'Image Only' , 'Image Map' , 'Newsletter' , 'Clickable Button' ];
 
     self.templates = [];
     self.currentlyLoading = 0;
     self.pageCount = 0;
     self.paginationCount = '10';
     self.currentPage = 1;
+    self.templateTotal = 0;
+    self.sort = "-id";
+    self.queryPromise = null;
 
     self.loadAccount = function () {
         var pathMatches = $location.path().match( /^\/mailingtemplate\/edit\/(\d{1,})/ );
@@ -54,8 +58,7 @@ mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$win
 
 
     self.loadAccounts = function () {
-        self.currentlyLoading = 1;
-        MailingTemplateApiService.getAccounts(self.currentPage , self.paginationCount, self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
+        self.queryPromise = MailingTemplateApiService.getAccounts(self.currentPage , self.paginationCount, self.sort , self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
     };
 
     self.resetForm = function () {
@@ -97,9 +100,9 @@ mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$win
      * Callbacks
      */
     self.loadAccountsSuccessCallback = function ( response ) {
-        self.currentlyLoading = 0;
         self.templates = response.data.data;
         self.pageCount = response.data.last_page;
+        self.templateTotal = response.data.total;
     };
 
     self.loadEspsSuccessCallback = function ( response ) {

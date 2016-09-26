@@ -5,7 +5,7 @@
 @section( 'angular-controller' , 'ng-controller="DataExportController as dataExport"')
 
 @section( 'page-menu' )
-    <div ng-show="app.largePageWidth()">
+    <div ng-hide="app.isMobile()">
       <md-button ng-click="dataExport.switchDisplayedStatus()">
           <span>@{{dataExport.displayedStatusButtonText}}</span>
       </md-button>
@@ -16,9 +16,9 @@
       @endif
     </div>
 
-    <md-menu ng-hide="app.largePageWidth()" md-position-mode="target-right target">
+    <md-menu ng-show="app.isMobile()" md-position-mode="target-right target">
       <md-button aria-label="Open menu" class="md-icon-button" ng-click="$mdOpenMenu($event)">
-        <md-icon md-svg-src="img/icons/ic_more_horiz_white_24px.svg"></md-icon>
+        <md-icon md-svg-src="img/icons/ic_more_horiz_black_24px.svg"></md-icon>
       </md-button>
       <md-menu-content width="3">
         <md-menu-item>
@@ -41,44 +41,74 @@
 <div ng-init="dataExport.loadActiveDataExports()">
   <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
     <md-card>
-      <md-card-content>
-        <div layout="row">
-          <md-input-container flex-gt-sm="10" flex="30">
-            <pagination-count recordcount="dataExport.paginationCount" currentpage="dataExport.currentPage"></pagination-count>
-          </md-input-container>
+      <md-table-container>
+        <table md-table class="mt2-table-large" md-row-select multiple="true" md-progress="dataExport.queryPromise" ng-model="dataExport.mdSelectedExports">
+            <thead md-head>
+                <tr md-row>
+                <th md-column></th>
+                <th md-column class="md-table-header-override-whitetext mt2-table-header-center">Status</th>
+                <th md-column class="md-table-header-override-whitetext mt2-cell-left-padding">Filename</th>
+                <th md-column class="md-table-header-override-whitetext">Client</th>
+                <th md-column class="md-table-header-override-whitetext">Profile</th>
+                <th md-column class="md-table-header-override-whitetext">FTP username</th>
+                <th md-column class="md-table-header-override-whitetext">Frequency</th>
+                <th md-column class="md-table-header-override-whitetext">Last Pulled</th>
+                <th md-column class="md-table-header-override-whitetext" md-numeric>Records</th>
+                </tr>
+            </thead>
 
-          <md-input-container flex="auto">
-            <pagination currentpage="dataExport.currentPage" maxpage="dataExport.pageCount"></pagination>
-          </md-input-container>
-        </div>
+            <tbody md-body>
+                <tr md-row
+                    md-auto-select="false"
+                    md-select="record"
+                    md-select-id="exportID"
+                    md-on-select="dataExport.mdToggleInclusion"
+                    md-on-deselect="dataExport.mdToggleInclusion"
+                    ng-repeat="record in dataExport.dataExports track by $index">
+                    <td md-cell>
+                      <div layout="row" layout-align="center center">
+                        <md-button class="md-raised md-icon-button mt2-icon-button-xs" ng-href="@{{'/dataexport/edit/' + record.exportID}}" target="_self" aria-label="Edit">
+                            <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon>
+                        </md-button>
 
-        <dataexport-table records="dataExport.dataExports"
-        changestatus="dataExport.changeDataExportStatus(id)" loadingflag="dataExport.currentlyLoading"
-        toggleinclusion="dataExport.toggleInclusion(id)" statuschangebuttontext="dataExport.massActionButtonText"
-        deleteexport="dataExport.deleteDataExport(id)" copyexport="dataExport.copyDataExport(id)">
-        </dataexport-table>
+                        <md-button class="md-raised md-warn md-icon-button mt2-icon-button-xs" ng-click="dataExport.changeDataExportStatus(record.exportID)" aria-label="Pause">
+                            <md-icon md-svg-icon="img/icons/ic_pause_white_18px.svg"></md-icon>
+                        </md-button>
 
-        <div layout="row">
-          <md-input-container flex-gt-sm="10" flex="30">
-            <pagination-count recordcount="dataExport.paginationCount" currentpage="dataExport.currentPage"></pagination-count>
-          </md-input-container>
+                        <md-button class="md-raised md-accent md-icon-button mt2-icon-button-xs" ng-click="dataExport.copyDataExport(record.exportID)" aria-label="Copy">
+                            <md-icon md-svg-icon="img/icons/ic_content_copy_white_18px.svg"></md-icon>
+                        </md-button>
 
-          <md-input-container flex="auto">
-            <pagination currentpage="dataExport.currentPage" maxpage="dataExport.pageCount"></pagination>
-          </md-input-container>
-        </div>
-      </md-card-content>
+                        <md-button class="md-raised md-warn md-hue-2 md-icon-button mt2-icon-button-xs" ng-click="dataExport.deleteDataExport(record.exportID)" aria-label="Delete">
+                            <md-icon md-svg-icon="img/icons/ic_clear_white_24px.svg"></md-icon></md-button>
+                        </md-button>
+                      </div>
+                    </td>
+                    <td md-cell class="mt2-table-cell-center" ng-class="{ 'mt2-bg-success' : record.status == 'Active' , 'mt2-bg-warn' : record.status == 'Paused' , 'mt2-bg-danger' : record.status == 'Deleted' }">@{{ record.status == 'Active' ? 'Active' : record.status == 'Paused' ? 'Paused' : 'Deleted'  }}</td>
+                    <td md-cell class="mt2-cell-left-padding">@{{ record.fileName }}</td>
+                    <td md-cell>@{{ record.group_name }}</td>
+                    <td md-cell>@{{ record.profile_name }}</td>
+                    <td md-cell>@{{ record.ftpUser }}</td>
+                    <td md-cell>@{{ record.frequency }}</td>
+                    <td md-cell>@{{ record.lastUpdated }}</td>
+                    <td md-cell>@{{ record.recordCount }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </md-table-container>
+
+<md-content class="md-mt2-zeta-theme md-hue-2">
+    <md-table-pagination md-limit="dataExport.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="dataExport.currentPage" md-total="@{{dataExport.dataExportTotal}}" md-on-paginate="dataExport.mdLoadActiveDataExports" md-page-select></md-table-pagination>
+</md-content>
     </md-card>
   </md-content>
-
   <div layout="row" layout-align="end center">
-    <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="dataExport.pauseSelected()">
-      <span class="glyphicon glyphicons-arrow-down"></span>
-      <span>@{{dataExport.massActionButtonText}} Exports</span>
-    </button>
-    <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="dataExport.rePullSelected()">
-      Re-pull Exports
-    </button>
+    <md-button class="md-raised md-warn" ng-click="dataExport.pauseSelected()">
+      <md-icon md-svg-icon="img/icons/ic_pause_white_18px.svg"></md-icon> @{{dataExport.massActionButtonText}} Exports
+    </md-button>
+    <md-button class="md-raised md-accent" ng-click="dataExport.rePullSelected()">
+      <md-icon md-svg-icon="img/icons/ic_refresh_white_18px.svg"></md-icon> Re-pull Exports
+    </md-button>
   </div>
 </div>
 @stop

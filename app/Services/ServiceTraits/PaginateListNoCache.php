@@ -9,10 +9,22 @@ use Log;
 
 trait PaginateListNoCache {
 
-    public function getPaginatedJson ( $page , $count ) {
+    public function getPaginatedJson ( $page , $count, $options=[] ) {
 
             try {
                 $eloquentObj = $this->getModel();
+
+                if ( isset( $options['sort'] ) ){
+                    $sort = json_decode( $options['sort'] , true );
+
+                    $order = 'asc';
+
+                    if ( isset( $sort[ 'desc' ] ) && $sort[ 'desc' ] === true ) {
+                        $order = 'desc';
+                    }
+
+                    $eloquentObj = $eloquentObj->orderBy($sort['field'], $order );
+                }
 
                 $paginationJSON = $eloquentObj->paginate( $count )->toJSON();
 

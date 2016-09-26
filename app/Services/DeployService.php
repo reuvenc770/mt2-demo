@@ -88,11 +88,7 @@ class DeployService
         $this->deployRepo->deployPackages($data);
     }
 
-    //upldated return model so its a builder not a deploy
-    public function getType()
-    {
-        return "Deploy";
-    }
+
 
     public function getPaginatedJson($page, $count, $params = null)
     {
@@ -134,6 +130,9 @@ class DeployService
 
         $records = $this->deployRepo->getDeployDetailsByIds($deployIds)->toArray();
         return $records;
+    }
+    public function getType(){
+        return "Deploy";
     }
 
     public function getHeaderRow()

@@ -10,7 +10,7 @@
             <md-card ng-controller="ymlpCampaignController as ymlp">
                 <md-toolbar class="md-hue-3">
                     <div class="md-toolbar-tools">
-                        <span>Create YMLP Campaign</span>
+                        <span>Add YMLP Campaign</span>
                     </div>
                 </md-toolbar>
                 <md-card-content>
