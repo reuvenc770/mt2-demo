@@ -24,7 +24,7 @@ class CreativeRepo {
             ->leftJoin("$schema.creative_clickthrough_rates as crate", 'crate.creative_id', '=', 'creatives.id')
             ->where('ocm.offer_id', $offerId)
             ->where('creatives.status', 'A')
-            ->where('creatives.is_approved', 'Y')
+            ->where('creatives.is_approved', 1)
             ->groupBy('creatives.id', 'name')
             ->orderBy("click_rate", 'desc')
             ->select(DB::raw("creatives.id, creatives.file_name as name, ROUND(SUM(IFNULL(clicks, 0)) / SUM(IFNULL(opens, 0)) * 100, 3) AS click_rate"))
