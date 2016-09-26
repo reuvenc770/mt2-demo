@@ -38,7 +38,7 @@ class CreativeRepo {
             ->leftJoin("$schema.offer_creative_maps as ocm", 'creatives.id', '=', 'ocm.creative_id')
             ->where('ocm.offer_id', $offerId)
             ->where('creatives.status', 'A')
-            ->where('creatives.is_approved', 'Y')
+            ->where('creatives.is_approved', 1)
             ->get();
     }
 
