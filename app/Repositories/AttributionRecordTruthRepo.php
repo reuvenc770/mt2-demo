@@ -125,7 +125,7 @@ class AttributionRecordTruthRepo {
      *      Order of magnitude: minutes 
      */
 
-    public function getOptimizedTransients($startDateTime) {
+    public function getOptimizedTransients($startDateTime, $remainder) {
         
         $attrDb = config('database.connections.slave_attribution.database');
         $dataDb = config('database.connections.slave_data.database');
@@ -144,7 +144,9 @@ class AttributionRecordTruthRepo {
                       ->where('recent_import', 0)
                       ->where('has_action', 0)
                       ->where('additional_imports', 1)
+                      ->whereRaw('action_expired IN (0,1)')
                       ->where('aes.trigger_date', '<', $startDateTime)
+                      ->whereRaw("art.email_id % 5 = $remainder")
                       ->groupBy('efa.email_id', 'efa.feed_id', 'efa.capture_date', 'art.has_action', 'art.action_expired')
                       ->havingRaw("MAX(efi.capture_date) >= '$startDateTime'");
 
@@ -163,6 +165,7 @@ class AttributionRecordTruthRepo {
                       ->where('action_expired', 1)
                       ->where('additional_imports', 1)
                       ->where('aas.trigger_date', '<', $startDateTime)
+                      ->whereRaw("art.email_id % 5 = $remainder")
                       ->groupBy('efa.email_id', 'efa.feed_id', 'efa.capture_date', 'art.has_action', 'art.action_expired')
                       ->havingRaw("MAX(efi.capture_date) >= '$startDateTime'");
 
@@ -177,6 +180,7 @@ class AttributionRecordTruthRepo {
                       ->where('has_action', 1)
                       ->where('action_expired', 1)
                       ->where('additional_imports', 1)
+                      ->whereRaw("art.email_id % 5 = $remainder")
                       ->whereBetween('aas.trigger_date', [$startDateTime, DB::raw("CURDATE() + INTERVAL 1 HOUR")]);
 
         // records that have just come out of the 10-day window, have no actions, and have subsequent imports
@@ -190,6 +194,8 @@ class AttributionRecordTruthRepo {
                     ->where('has_action', 0)
                     ->where('additional_imports', 1)
                     ->whereBetween('aes.trigger_date', [$startDateTime, DB::raw("CURDATE() + INTERVAL 1 HOUR")])
+                    ->whereRaw('action_expired IN (0,1)')
+                    ->whereRaw("art.email_id % 5 = $remainder")
                     ->unionAll($union1)
                     ->unionAll($union2)
                     ->unionAll($union3)

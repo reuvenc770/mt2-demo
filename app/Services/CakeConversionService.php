@@ -89,7 +89,7 @@ class CakeConversionService implements IConversion {
                 $currentRecord->paid_usa ,
                 $currentRecord->paid_currency_id ,
                 $currentRecord->received_currency_id ,
-                $currentRecord->conversion_rate ,
+                ( $currentRecord->conversion_rate > 0 ? $currentRecord->conversion_rate : 1.00 ) ,
                 "'{$currentRecord->ip}'" ,
                 'NOW()' ,
                 'NOW()'
