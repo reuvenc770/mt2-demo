@@ -965,7 +965,7 @@ Route::group(
 
         Route::get( '/espapi/espAccounts/{name}' , [
             'as' => 'api.espapi.GetAll' ,
-            'uses' => 'EspController@displayEspAccounts'
+            'uses' => 'EspApiAccountController@displayEspAccounts'
         ] );
         /**
          * API Resources
