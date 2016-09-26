@@ -20,6 +20,6 @@ class MailingTemplate extends Model
 
     public function espAccounts()
     {
-        return $this->belongsToMany('App\Models\espAccount');
+        return $this->belongsToMany('App\Models\EspAccount');
     }
 }
