@@ -28,7 +28,7 @@ class EditDeployRequest extends Request
     {
         return [
             'esp_account_id'        => 'required',
-            'list_profile_id'   => 'required',
+            #'list_profile_id'   => 'required',
             'template_id'      => 'required',
             'offer_id'            => 'required',
             'creative_id'            => 'required',
