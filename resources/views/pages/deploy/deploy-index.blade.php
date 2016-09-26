@@ -307,7 +307,7 @@
                                         ng-model="deploy.currentDeploy.creative_id" class="form-control"
                                         ng-disabled="deploy.offerLoading">
                                     <option value="">- Please Choose a Creative -</option>
-                                    <option ng-repeat="option in deploy.creatives" value="@{{ option.id }}">
+                                    <option ng-repeat="option in deploy.creatives" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'yesterday-red' : ''}}">
                                         @{{ option.name }} - @{{ option.id }} - @{{ option.click_rate }}
                                     </option>
                                 </select>

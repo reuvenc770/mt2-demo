@@ -24,19 +24,37 @@ class CfsStatsService {
 
     // first - cfs for this offer - how has it performed for this offer?
     public function getCreativeOfferClickRate($offerId) {
-        return $this->creativeRepo->getCreativeOfferClickRate($offerId);
+        return $this->displaySort($this->creativeRepo->getCreativeOfferClickRate($offerId));
     }
 
     public function getFromOfferOpenRate($offerId) {
-        return $this->fromLine->getFromOfferOpenRate($offerId);
+        return $this->displaySort($this->fromLine->getFromOfferOpenRate($offerId));
     }
 
     public function getSubjectOfferOpenRate($offerId) {
         return $this->subjectRepo->getSubjectOfferOpenRate($offerId);
     }
 
+    /**
+     *  Display sort:
+     *  make sure that sends from yesterday are at the very bottom of the list
+     */
 
+    private function displaySort($data) {        
+        $nonYesterday = [];
+        $yesterday = [];
 
+        foreach($data as $row) {
+            if (1 >= (int)$row['days_ago']) {
+                $yesterday[] = $row;
+            }
+            else {
+                $nonYesterday[] = $row;
+            }
+        }
+
+        return array_merge($nonYesterday, $yesterday);
+    }
 
 
     /**
