@@ -25,12 +25,23 @@
         </md-button>
         @endif
 
-            @if (Sentinel::hasAccess('api.deploy.deploypackages'))
-                <md-button ng-click="deploy.createPackages()" ng-disabled="deploy.disableExport" >
-                    <span>@{{ deploy.deployLinkText }}</span>
-                </md-button>
-            @endif
+        @if (Sentinel::hasAccess('deploy.preview'))
+            <md-button ng-click="deploy.previewDeploys()" ng-disabled="deploy.disableExport">
+                <span>Preview Deploy(s)</span>
+            </md-button>
+        @endif
 
+        @if (Sentinel::hasAccess('api.deploy.deploypackages'))
+            <md-button ng-click="deploy.createPackages()" ng-disabled="deploy.disableExport">
+                <span>@{{ deploy.deployLinkText }}</span>
+            </md-button>
+        @endif
+
+        @if (Sentinel::hasAccess('deploy.downloadhtml'))
+            <md-button ng-click="deploy.downloadHtml()" ng-disabled="deploy.disableExport">
+                <span>Get Html</span>
+            </md-button>
+        @endif
     </div>
 
     <md-menu ng-show="app.isMobile()" md-position-mode="target-right target">
@@ -55,6 +66,13 @@
                 </md-button>
             </md-menu-item>
             @endif
+            @if (Sentinel::hasAccess('deploy.preview'))
+                <md-menu-item>
+                <md-button ng-click="deploy.previewDeploys()" ng-disabled="deploy.disableExport">
+                    <span>Preview Deploy(s)</span>
+                </md-button>
+                </md-menu-item>
+            @endif
             @if (Sentinel::hasAccess('api.deploy.exportcsv'))
             <md-menu-item>
                 <md-button ng-click="deploy.exportCsv()" ng-disabled="deploy.disableExport">
@@ -68,6 +86,13 @@
                     <span>Deploy Packages</span>
                 </md-button>
             </md-menu-item>
+            @endif
+            @if (Sentinel::hasAccess('deploy.downloadhtml'))
+                <md-menu-item>
+                    <md-button ng-click="deploy.downloadHtml()" ng-disabled="deploy.disableExport">
+                        <span>Get Html</span>
+                    </md-button>
+                </md-menu-item>
             @endif
         </md-menu-content>
     </md-menu>
@@ -196,13 +221,10 @@
                     <thead md-head>
                     <tr md-row>
                         <th md-column></th>
-                        <th md-column class="md-table-header-override-whitetext">
-                            <strong><span class="glyphicon glyphicon-refresh rotateMe"
-                                          ng-if="deploy.loadingflag == 1"></span></strong>
-                        </th>
+                        <th md-column></th>
                         <th md-column class="md-table-header-override-whitetext">Send Date</th>
                         <th md-column class="md-table-header-override-whitetext">Deploy ID</th>
-                        <th md-column class="md-table-header-override-whitetext">EspAccount</th>
+                        <th md-column class="md-table-header-override-whitetext">ESP Account</th>
                         <th md-column class="md-table-header-override-whitetext">List Profile</th>
                         <th md-column class="md-table-header-override-whitetext">Offer</th>
                         <th md-column class="md-table-header-override-whitetext">Creative</th>
@@ -212,27 +234,37 @@
                         <th md-column class="md-table-header-override-whitetext">Mailing Domain</th>
                         <th md-column class="md-table-header-override-whitetext">Content Domain</th>
                         <th md-column class="md-table-header-override-whitetext">Cake ID</th>
+                        <th md-column class="md-table-header-override-whitetext" ng-show="deploy.showRow">Cake Encryption</th>
+                        <th md-column class="md-table-header-override-whitetext" ng-show="deploy.showRow">Full Encryption</th>
+                        <th md-column class="md-table-header-override-whitetext" ng-show="deploy.showRow">URL Format</th>
                         <th md-column class="md-table-header-override-whitetext">Notes</th>
                     </tr>
                     </thead>
 
                     <tbody md-body>
                     <tr md-row ng-show="deploy.showRow">
+                        <td md-cell></td>
                         <td md-cell>
                             @if (Sentinel::hasAccess('api.deploy.update'))
-                            <button ng-click="deploy.actionLink()"
-                                    class="btn btn-small btn-primary">@{{ deploy.actionText() }}</button>
+                            <md-button ng-click="deploy.actionLink()"
+                                    class="md-raised md-accent">@{{ deploy.actionText() }}</md-button>
                             @endif
-                            <button ng-click="deploy.showRow = false"
-                                    class="btn btn-small btn-danger">Cancel</button>
+                            <md-button ng-click="deploy.showRow = false"
+                                    class="md-raised md-warn md-hue-2">Cancel</md-button>
 
                         </td>
                         <td md-cell>
                             <md-datepicker name="dateField" ng-model="deploy.currentDeploy.send_date"
                                            required
-                                           md-placeholder="Enter date"></md-datepicker>
+                                           md-placeholder="Enter date"
+                                           ng-disabled="deploy.offerLoading"
+                                           md-date-filter="deploy.canOfferBeMailed"></md-datepicker>
                             <div class="validation-messages" ng-show="deploy.formErrors.send_date">
                                 <div ng-bind="deploy.formErrors.send_date"></div>
+                            </div>
+                            <div class="validation-messages"
+                                 ng-messages="deploy.currentDeploy.send_date.$error">
+                                <div ng-message="filtered">Only weekends are allowed!</div>
                             </div>
 
                         </td>
@@ -390,6 +422,48 @@
                             </div>
                         </td>
                         <td md-cell>
+                            <div class="form-group"
+                                 ng-class="{ 'has-error' : deploy.formErrors.encrypt_cake }">
+                                <select name="encrypt_cake" id="encrypt_cake"
+                                        ng-model="deploy.currentDeploy.encrypt_cake" class="form-control">
+                                    <option value="">- Encrypt Cake? -</option>
+                                    <option value="1">Yes</option>
+                                    <option value="2">No</option>
+                                </select>
+                                <span class="help-block" ng-bind="deploy.formErrors.encrypt_cake"
+                                      ng-show="deploy.formErrors.encrypt_cake"></span>
+                            </div>
+                        </td>
+                        <td md-cell>
+                            <div class="form-group"
+                                 ng-class="{ 'has-error' : deploy.formErrors.fully_encrypt }">
+                                <select name="fully_encrypt" id="fully_encrypt"
+                                        ng-model="deploy.currentDeploy.fully_encrypt" class="form-control">
+                                    <option value="">- Fully Encrypt Links? -</option>
+                                    <option value="1">Yes</option>
+                                    <option value="2">No</option>
+                                </select>
+                                <span class="help-block" ng-bind="deploy.formErrors.fully_encrypt"
+                                      ng-show="deploy.formErrors.fully_encrypt"></span>
+                            </div>
+                        </td>
+                        <td md-cell>
+                            <div class="form-group"
+                                 ng-class="{ 'has-error' : deploy.formErrors.url_format }">
+                                <select name="url_format" id="url_format"
+                                        ng-model="deploy.currentDeploy.url_format" class="form-control">
+                                    <option value="">- Pick URL Format -</option>
+                                    <option value="new">New</option>
+                                    <option value="gmail">Gmail</option>
+                                    <option value="old">Old</option>
+
+                                </select>
+                                <span class="help-block" ng-bind="deploy.formErrors.url_format"
+                                      ng-show="deploy.formErrors.url_format"></span>
+                            </div>
+                        </td>
+
+                        <td md-cell>
                             <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.notes }">
                             <div class="form-group">
                                 <textarea ng-model="deploy.currentDeploy.notes" class="form-control" rows="1"
@@ -399,9 +473,9 @@
                         </td>
                         </tr>
 
-                        <tr md-row ng-repeat="record in deploy.deploys track by $index" ng-class="{ info : record.deployment_status == 0,
-                                         success : record.deployment_status ==1,
-                                         warning : record.deployment_status == 2 }">
+                        <tr md-row ng-repeat="record in deploy.deploys track by $index" ng-class="{ 'mt2-bg-info' : record.deployment_status == 0,
+                                         'mt2-bg-success' : record.deployment_status ==1,
+                                         'mt2-bg-warning' : record.deployment_status == 2 }">
                             <td md-cell>
                                 <md-checkbox aria-label="Select" name="selectedRows"
                                              ng-click="deploy.toggleRow(record.deploy_id)"> </md-checkbox>
@@ -422,6 +496,9 @@
                             <td md-cell>@{{ record.mailing_domain }}</td>
                             <td md-cell>@{{ record.content_domain }}</td>
                             <td md-cell>@{{ record.cake_affiliate_id }}</td>
+                            <td md-cell ng-show="deploy.showRow"></td>
+                            <td md-cell ng-show="deploy.showRow"></td>
+                            <td md-cell ng-show="deploy.showRow"></td>
                             <td md-cell>@{{ record.notes }}</td>
                         </tr>
                     </tbody>
