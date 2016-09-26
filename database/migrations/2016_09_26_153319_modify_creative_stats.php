@@ -22,6 +22,8 @@ class ModifyCreativeStats extends Migration
      * @return void
      */
     public function down() {
-        $table->dropColumn('delivers');
+        Schema::connection('reporting_data')->table('creative_clickthrough_rates', function($table) {
+            $table->dropColumn('delivers');
+        });
     }
 }
