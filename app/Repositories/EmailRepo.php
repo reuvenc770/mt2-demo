@@ -54,16 +54,38 @@ class EmailRepo {
         return 1;
     }
 
+    /**
+     *  Returns attributed feed id for provided email id
+     *  If nothing found, returns 0
+     */
+
     public function getCurrentAttributedFeedId($emailId) {
-        return $this->emailModel->find($emailId)->feedAssignment->feed_id;
+        $assignment = $this->emailModel->find($emailId)->feedAssignment;
+        if ($assignment) {
+            return $assignment->feed_id;
+        }
+        else {
+            return 0;
+        } 
     }
 
     public function getSetAttributionLevel($emailId) {
         return $this->emailModel->find($emailId)->feedAssignment->feed->attributionLevel->level;
     }
 
+    /**
+     *  Returns boolean for "is a recent import?" for provided email id
+     *  unless nothing found, in which case it returns 0 (so be sure to use ===)
+     */
+
     public function isRecentImport($emailId) {
-        return ($this->emailModel->find($emailId)->attributionTruths->recent_import == 1);
+        $truth = $this->emailModel->find($emailId)->attributionTruths;
+        if ($truth) {
+            return ($truth->recent_import == 1);
+        }
+        else {
+            return 0;
+        }
     }
 
     public function hasAction($emailId) {
