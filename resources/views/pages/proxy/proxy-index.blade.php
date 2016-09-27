@@ -26,7 +26,7 @@
                             <th md-column md-order-by="name" class="md-table-header-override-whitetext mt2-cell-left-padding">Proxy Name</th>
                             <th md-column md-order-by="provider_name" class="md-table-header-override-whitetext">Provider Name</th>
                             <th md-column class="md-table-header-override-whitetext">IPs</th>
-                            <th md-column class="md-table-header-override-whitetext">Esps</th>
+                            <th md-column class="md-table-header-override-whitetext">Esp Accounts</th>
                             <th md-column class="md-table-header-override-whitetext">Isps</th>
                             <th md-column class="md-table-header-override-whitetext">Notes</th>
                         </tr>
@@ -48,8 +48,8 @@
                             </td>
                             <td md-cell class="mt2-cell-left-padding">@{{ record.name }}</td>
                             <td md-cell>@{{ record.provider_name }}</td>
-                            <td md-cell>@{{ record.ip_addresses }}</td>
-                            <td md-cell>@{{ record.esp_names }}</td>
+                            <td md-cell><p ng-repeat="value in record.ip_addresses.split(',')" >@{{ value }}</p></td>
+                            <td md-cell>@{{ record.esp_account_names }}</td>
                             <td md-cell>@{{ record.isp_names }}</td>
                             <td md-cell>@{{ record.notes }}</td>
                         </tr>

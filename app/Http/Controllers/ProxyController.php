@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\EspService;
+
+use App\Services\EspApiAccountService;
+
 use App\Services\ProxyService;
 
 use Illuminate\Http\Request;
@@ -13,11 +15,11 @@ use Log;
 class ProxyController extends Controller
 {
     protected $proxyService;
-    protected $espService;
-    public function __construct(ProxyService $proxyService, EspService $espService)
+    protected $espAccountService;
+    public function __construct(ProxyService $proxyService, EspApiAccountService $espAccountService)
     {
         $this->proxyService = $proxyService;
-        $this->espService = $espService;
+        $this->espAccountService = $espAccountService;
     }
 
     public function listAll()
@@ -49,7 +51,7 @@ class ProxyController extends Controller
      */
     public function create()
     {
-        $esps = $this->espService->getAllEsps();
+        $esps = $this->espAccountService->getAllAccounts();
         return view('pages.proxy.proxy-add',['esps' => $esps]);
     }
 
@@ -86,7 +88,7 @@ class ProxyController extends Controller
      */
     public function edit()
     {
-        $esps = $this->espService->getAllEsps();
+        $esps = $this->espAccountService->getAllAccounts();
         return response()
             ->view('pages.proxy.proxy-edit',['esps' => $esps]);
     }
@@ -100,7 +102,8 @@ class ProxyController extends Controller
      */
     public function update(Requests\EditProxyRequest $request, $id)
     {
-        $this->proxyService->updateAccount($id, $request->toArray());
+        $proxy = $request->toArray();
+        $this->proxyService->updateAccount($id, $proxy);
         Flash::success("Proxy Account was Successfully Updated");
     }
 
