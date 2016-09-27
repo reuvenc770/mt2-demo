@@ -133,32 +133,6 @@ class APIFactory
 
         switch ($name) {
 
-            case 'ImportMt1Emails':
-                $model = new \App\Models\TempStoredEmail();
-                $repo = new \App\Repositories\TempStoredEmailRepo($model);
-                $api = new \App\Services\API\Mt1DbApi();
-
-                // need emails, email_feed_instances
-
-                $emailModel = new \App\Models\Email();
-                $emailRepo = new \App\Repositories\EmailRepo($emailModel);
-                $emailFeedModel = new \App\Models\EmailFeedInstance();
-                $emailFeedRepo = new \App\Repositories\EmailFeedInstanceRepo($emailFeedModel);
-
-                $feedModel = new \App\Models\Feed();
-                $feedRepo = new \App\Repositories\FeedRepo($feedModel);
-
-                $domainModel = new \App\Models\EmailDomain();
-                $domainRepo = new \App\Repositories\EmailDomainRepo($domainModel);
-
-                return new \App\Services\ImportMt1EmailsService(
-                    $api, 
-                    $repo, 
-                    $emailRepo, 
-                    $emailFeedRepo,
-                    $feedRepo,
-                    $domainRepo);
-
             case 'DownloadContentServerStats':
                 $model = new \App\Models\ContentServerAction();
                 $repo = new \App\Repositories\ContentServerActionRepo($model);

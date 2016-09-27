@@ -49,17 +49,29 @@ class EmailRepo {
         );
     }
 
-    private function getAttributionForId($id) {
-        // TODO: flesh out attribution.
-        // This will return a feed_id
-        // will look something like 
-        // $this->emailModel->emailAttribution->feedId->get()
-        return 1;
-    }
-
     private function getAttributedFeedForAddress($emailAddr) {
         # TODO: flesh out attribution. This will return a feed_id
         return 1;
+    }
+
+    public function getCurrentAttributedFeedId($emailId) {
+        return $this->emailModel->find($emailId)->feedAssignment->feed_id;
+    }
+
+    public function getSetAttributionLevel($emailId) {
+        return $this->emailModel->find($emailId)->feedAssignment->feed->attributionLevel->level;
+    }
+
+    public function isRecentImport($emailId) {
+        return ($this->emailModel->find($emailId)->attributionTruths->recent_import == 1);
+    }
+
+    public function hasAction($emailId) {
+        return ($this->emailModel->find($emailId)->attributionTruths->has_action == 1);
+    }
+
+    public function getCaptureDate($emailId) {
+        return $this->emailModel->find($emailId)->feedAssignment->capture_date;
     }
 
 }
