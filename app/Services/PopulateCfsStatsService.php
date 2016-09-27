@@ -52,7 +52,7 @@ class PopulateCfsStatsService
 
                 // Currently list profile id is 0 because MT1 does not save that information
                 $listProfileId = 0;
-                $this->creativeRepo->saveStats($creativeId, $listProfileId, $deployId, $opens, $clicks);
+                $this->creativeRepo->saveStats($creativeId, $listProfileId, $deployId, $delivers, $opens, $clicks);
                 $this->subjRepo->saveStats($subjectId, $listProfileId, $deployId, $delivers, $opens);
                 $this->fromRepo->saveStats($fromId, $listProfileId, $deployId, $delivers, $opens);
             }

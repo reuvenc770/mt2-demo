@@ -121,6 +121,10 @@ table.md-table.md-row-select tbody.md-body > tr.md-row:not([disabled]):hover {
     background-color: #f2dede;
 }
 
+.mt2-bg-super-danger {
+    background-color: #ef8a81;
+}
+
 table.mt2-table-large td.md-cell:nth-child(n+2):nth-last-child(n+2),
 table.mt2-table-large th.md-column:nth-child(n+2):nth-last-child(n+2) {
     padding: 0 10px 0 10px ;
@@ -496,3 +500,4 @@ md-content{
     background-color: lightblue;
     color: #ffffff;
 }
+
