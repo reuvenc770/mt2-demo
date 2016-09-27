@@ -6,13 +6,17 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         deploy_id: '',
         esp_account_id: '',
         offer_id: "",
-        list_profile_id: "",
+        list_profile_id: "0",
         mailing_domain_id: "",
         content_domain_id: "",
         template_id: "",
         cake_affiliate_id: "",
         notes: "",
-        user_id: ""
+        user_id: "",
+        encrypt_cake: "",
+        fully_encrypt:"",
+        url_format:""
+
     };
     self.search = {
         esp_account_id: ''
@@ -23,6 +27,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.deployIdDisplay = text;
     self.editView = false;
     self.uploadedDeploys = [];
+    self.offerData = [];
     self.searchType = "";
     self.searchData = "";
     self.uploadErrors = false;
@@ -48,12 +53,14 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.pageCount = 0;
     self.paginationCount = '10';
     self.currentPage = '1';
+    self.deployTotal = 0;
+    self.queryPromise = null;
 
 
     self.loadAccounts = function () {
         self.loadEspAccounts();
         self.loadAffiliates();
-        self.loadListProfiles();
+        //self.loadListProfiles();
         self.loadDeploys();
         self.currentlyLoading = 0;
     };
@@ -65,8 +72,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.loadDeploys = function () {
-        self.currentlyLoading = 1;
-        DeployApiService.getDeploys(self.currentPage, self.paginationCount, self.searchType, self.searchData, self.loadDeploysSuccess, self.loadDeploysFail);
+        self.queryPromise = DeployApiService.getDeploys(self.currentPage, self.paginationCount, self.searchType, self.searchData, self.loadDeploysSuccess, self.loadDeploysFail);
     };
 
     self.loadListProfiles = function () {
@@ -153,11 +159,13 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.offerWasSelected = function (item) {
         if (typeof item != 'undefined') {
             if (item.title === undefined) {
+                self.offerData = item.originalObject;
                 self.currentDeploy.offer_id = item.originalObject.id;
                 self.offerLoading = false;
             } else {
                 self.reloadCFS(item.originalObject.id, function () {
                     self.currentDeploy.offer_id = item.originalObject.id;
+                    self.offerData = item.originalObject;
                     self.offerLoading = false;
                 });
             }
@@ -235,6 +243,27 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         }
     };
 
+    self.canOfferBeMailed = function (date){
+        var day = date.getDay();
+        var dateChar = self.offerData.exclude_days.charAt(day);
+        return dateChar === 'N';
+    };
+
+    self.previewDeploys = function (){
+        var packageIds = self.selectedRows;
+        var url ="/deploy/preview/";
+        for (index = 0; index < packageIds.length; ++index) {
+            $window.open(url + packageIds[index]);
+        }
+    };
+    self.downloadHtml = function (){
+        var packageIds = self.selectedRows;
+        var url ="/deploy/downloadhtml/";
+        for (index = 0; index < packageIds.length; ++index) {
+            $window.open(url + packageIds[index]);
+        }
+    };
+
 
     /**
      * Watchers
@@ -267,6 +296,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.loadDeploysSuccess = function (response) {
         self.deploys = response.data.data;
         self.pageCount = response.data.last_page;
+        self.deployTotal = response.data.total;
     };
 
     self.loadDeploySuccess = function (response) {
@@ -278,13 +308,15 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
                 var pieces = deployData.send_date.split('-');
                 self.currentDeploy = deployData;
                 self.currentDeploy.creative_id = deployData.creative_id.toString();
-                self.currentDeploy.list_profile_id = deployData.list_profile_id.toString();
+               // self.currentDeploy.list_profile_id = deployData.list_profile_id.toString();
                 self.currentDeploy.from_id = deployData.from_id.toString();
                 self.currentDeploy.subject_id = deployData.subject_id.toString();
                 self.currentDeploy.template_id = deployData.template_id.toString();
-                self.currentDeploy.mailing_domain_id = deployData.mailing_domain_id.toString();
-                self.currentDeploy.content_domain_id = deployData.content_domain_id.toString();
+                self.currentDeploy.mailing_domain_id = deployData.mailing_domain_id == 0 ? null : deployData.mailing_domain_id.toString();
+                self.currentDeploy.content_domain_id = deployData.content_domain_id == 0 ? null : deployData.content_domain_id.toString();
                 self.currentDeploy.cake_affiliate_id = deployData.cake_affiliate_id.toString();
+                self.currentDeploy.fully_encrypt = deployData.fully_encrypt.toString();
+                self.currentDeploy.encrypt_cake = deployData.encrypt_cake.toString();
                 self.currentDeploy.offer_id = deployData.offer_id.id;
                 self.currentDeploy.send_date = new Date(pieces[0], pieces[1] - 1, pieces[2]);
                 self.offerLoading = false;
@@ -303,11 +335,11 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
                 var pieces = deployData.send_date.split('-');
                 self.currentDeploy.send_date = new Date(pieces[0], pieces[1] - 1, pieces[2]);
                 self.currentDeploy.notes = deployData.notes;
-                self.currentDeploy.list_profile_id = deployData.list_profile_id;
-                self.currentDeploy.template_id = deployData.template_id;
-                self.currentDeploy.mailing_domain_id = deployData.mailing_domain_id;
-                self.currentDeploy.content_domain_id = deployData.content_domain_id;
-                self.currentDeploy.cake_affiliate_id = deployData.cake_affiliate_id;
+               // self.currentDeploy.list_profile_id = deployData.list_profile_id;
+                self.currentDeploy.template_id = deployData.template_id.toString();
+                self.currentDeploy.mailing_domain_id = deployData.mailing_domain_id.toString();
+                self.currentDeploy.content_domain_id = deployData.content_domain_id.toString();
+                self.currentDeploy.cake_affiliate_id = deployData.cake_affiliate_id.toString();
                 self.offerLoading = false;
             });
             $rootScope.$broadcast('angucomplete-alt:changeInput', 'offer', deployData.offer_id);

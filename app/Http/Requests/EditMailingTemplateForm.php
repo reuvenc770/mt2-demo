@@ -13,7 +13,7 @@ class EditMailingTemplateForm extends Request
      */
     public function authorize()
     {
-        if(Sentinel::hasAccess("mailingtemplates.edit")){
+        if(Sentinel::hasAccess("mailingtemplate.edit")){
             return true;
         }
         return false;

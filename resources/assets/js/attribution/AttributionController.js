@@ -12,6 +12,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     self.levelCopyClients = [];
     self.levelCopyClientIndex = {};
     self.disableCopyButton = true;
+    self.draggingLevels = false;
 
     self.currentlyLoading = false;
     self.paginationCount = '10';
@@ -291,8 +292,6 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     };
 
     self.copyModelPreview = function ( $event , currentModelId ) {
-        $log.log( currentModelId );
-
         if ( typeof( currentModelId ) !== 'undefined' ) {
             self.current.id = currentModelId;
 
@@ -319,6 +318,195 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         );
     };
 
+    self.resetLevelFields = function () {
+        angular.forEach( self.feeds , function ( currentFeed , currentIndex ) {
+            currentFeed.newLevel = currentIndex + 1;
+            currentFeed.selected = false;
+        } );
+    }; 
+
+    self.changeLevel = function ( feed , index ) {
+        var newLevel = feed.newLevel - 1;
+
+        if ( newLevel < 0 || newLevel >= self.feeds.length ) {
+            self.displayToast( 'You must choose a level between 1 and ' + self.feeds.length );
+
+            self.resetLevelFields();
+
+            return false;
+        }
+
+        if ( newLevel != index ) {
+            var startingFeeds = self.feeds.slice( 0 , index );
+            var endingFeeds = self.feeds.slice( index + 1 );
+
+            var cleanFeeds = startingFeeds.concat( endingFeeds );
+
+            cleanFeeds.splice( newLevel , 0 , feed );
+
+            self.feeds = cleanFeeds;
+
+            self.resetLevelFields();
+        }
+    };
+
+    self.onLevelRise = function ( feed , index ) {
+        if ( feed.selected ) {
+            var selectedFeeds = [];
+            var otherFeeds = [];
+            var firstIndex = null;
+                
+            angular.forEach( self.feeds , function ( currentFeed , currentIndex ) {
+                if ( currentFeed.selected ) {
+                    if ( firstIndex === null ) {
+                        firstIndex = currentIndex - 1;
+                    }
+
+                    selectedFeeds.push( currentFeed );
+                } else {
+                    otherFeeds.push( currentFeed );
+                }
+            } );
+
+            if ( firstIndex < 0 ) {
+                self.displayToast( 'No room for selected feeds. Please uncheck the first checkbox.' );
+
+                return false;
+            }
+
+            var startingFeeds = otherFeeds.slice( 0 , firstIndex );
+            var endingFeeds = otherFeeds.slice( firstIndex );
+
+            self.feeds = startingFeeds.concat( selectedFeeds ).concat( endingFeeds );
+        } else {
+            if ( index === 0 ) {
+                return true;
+            }
+
+            var startingFeeds = self.feeds.slice( 0 , index - 1 );
+            var prevFeed = self.feeds.slice( index - 1 , index );
+            var endingFeeds = self.feeds.slice( index + 1 );
+
+            self.feeds = startingFeeds.concat( [ feed ] ).concat( prevFeed ).concat( endingFeeds );
+        }
+
+        self.resetLevelFields();
+    }
+
+    self.onLevelDrop = function ( feed , index ) {
+        if ( feed.selected ) {
+            var selectedFeeds = [];
+            var otherFeeds = [];
+            var lastIndex = -1;
+                
+            angular.forEach( self.feeds , function ( currentFeed , currentIndex ) {
+                if ( currentFeed.selected ) {
+                    lastIndex = currentIndex + 2;
+
+                    selectedFeeds.push( currentFeed );
+                } else {
+                    otherFeeds.push( currentFeed );
+                }
+            } );
+
+            var startingFeeds = otherFeeds.slice( 0 , lastIndex - selectedFeeds.length );
+            var endingFeeds = otherFeeds.slice( lastIndex - selectedFeeds.length );
+
+            self.feeds = startingFeeds.concat( selectedFeeds ).concat( endingFeeds );
+        } else {
+            var startingFeeds = self.feeds.slice( 0 , index );
+            var nextFeed = self.feeds.slice( index + 1 , index + 2 );
+            var endingFeeds = self.feeds.slice( index + 2 );
+
+            self.feeds = startingFeeds.concat( nextFeed ).concat( [ feed ] ).concat( endingFeeds );
+        }
+
+        self.resetLevelFields();
+    }
+
+    self.moveToTop = function ( feed , index ) {
+        if ( feed.selected ) {
+            var selectedFeeds = [];
+            var otherFeeds = [];
+                
+            angular.forEach( self.feeds , function ( currentFeed , index ) {
+                if ( currentFeed.selected ) {
+                    selectedFeeds.push( currentFeed );
+                } else {
+                    otherFeeds.push( currentFeed );
+                }
+            } );
+
+            self.feeds = selectedFeeds.concat( otherFeeds );
+        } else {
+            var startingFeeds = self.feeds.slice( 0 , index );
+            var endingFeeds = self.feeds.slice( index + 1 );
+
+            self.feeds = [ feed ].concat( startingFeeds ).concat( endingFeeds );
+        }
+
+        self.resetLevelFields();
+    }
+
+    self.moveToMiddle = function ( feed , index ) {
+        if ( feed.selected ) {
+            var selectedFeeds = [];
+            var otherFeeds = [];
+                
+            angular.forEach( self.feeds , function ( currentFeed , index ) {
+                if ( currentFeed.selected ) {
+                    selectedFeeds.push( currentFeed );
+                } else {
+                    otherFeeds.push( currentFeed );
+                }
+            } );
+
+            var middleIndex = otherFeeds.length / 2;
+
+            var startingFeeds = otherFeeds.slice( 0 , middleIndex );
+            var endingFeeds = otherFeeds.slice( middleIndex );
+
+            self.feeds = startingFeeds.concat( selectedFeeds ).concat( endingFeeds );
+        } else {
+            var startingFeeds = self.feeds.slice( 0 , index );
+            var endingFeeds = self.feeds.slice( index + 1 );
+
+            var newFeeds = startingFeeds.concat( endingFeeds );
+            var middleIndex = newFeeds.length / 2;
+
+            var newStartingFeeds = newFeeds.slice( 0 , middleIndex );
+            var newEndingFeeds = newFeeds.slice( middleIndex );
+
+            self.feeds = newStartingFeeds.concat( [ feed ] ).concat( newEndingFeeds );
+        }
+
+        self.resetLevelFields();
+    }
+
+    self.moveToBottom = function ( feed , index ) {
+        if ( feed.selected ) {
+            var selectedFeeds = [];
+            var otherFeeds = [];
+                
+            angular.forEach( self.feeds , function ( currentFeed , index ) {
+                if ( currentFeed.selected ) {
+                    selectedFeeds.push( currentFeed );
+                } else {
+                    otherFeeds.push( currentFeed );
+                }
+            } );
+
+            self.feeds = otherFeeds.concat( selectedFeeds );
+        } else {
+            var startingFeeds = self.feeds.slice( 0 , index );
+            var endingFeeds = self.feeds.slice( index + 1 );
+
+            self.feeds = startingFeeds.concat( endingFeeds ).concat( [ feed ] );
+        }
+
+        self.resetLevelFields();
+    }
+
     self.syncMt1Levels = function () {
         AttributionApiService.syncMt1Levels(
             function ( response ) {
@@ -337,6 +525,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
 
             angular.forEach( self.feeds , function ( value , key ) {
                 self.clientLevels[ value.id ] = key + 1;
+                value.selected = false;
             } );
         };
 
@@ -356,7 +545,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
                     var feedList = [];
 
                     angular.forEach( response.data , function ( client , key ) {
-                        feedList.push( { "id" : client.client_id , "name" : client.username } );
+                        feedList.push( { "id" : client.client_id , "name" : client.username , "selected" : false } );
                     } );
 
                     self.feeds = feedList;

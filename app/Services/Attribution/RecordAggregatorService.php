@@ -5,124 +5,88 @@
 
 namespace App\Services\Attribution;
 
-use App\Services\AbstractEtlService;
+use App\Services\Attribution\AbstractReportAggregatorService;
+
 use App\Repositories\Attribution\RecordReportRepo;
 use App\Services\CakeConversionService;
-use App\Repositories\Attribution\AttributionEmailActionsRepo;
-use App\Services\EmailRecordService;
-use App\Services\SuppressionService;
-use App\Services\StandardReportService;
-use App\Repositories\EtlPickupRepo;
-use App\Models\Suppression;
 
-class RecordAggregatorService extends AbstractEtlService {
-    const JOB_NAME = 'PopulateAttributionRecordReport';
-
+class RecordAggregatorService extends AbstractReportAggregatorService {
     protected $recordRepo;
     protected $conversionService;
-    protected $actionsRepo;
-    protected $emailService;
-    protected $suppressionService;
-    protected $standardReportService;
-    protected $etlPickupRepo;
 
     public function __construct (
         RecordReportRepo $recordRepo ,
-        CakeConversionService $conversionService ,
-        AttributionEmailActionsRepo $actionsRepo ,
-        EmailRecordService $emailService ,
-        SuppressionService $suppressionService ,
-        StandardReportService $standardReportService ,
-        EtlPickupRepo $etlPickupRepo
+        CakeConversionService $conversionService
     ) {
         $this->recordRepo = $recordRepo;
         $this->conversionService = $conversionService;
-        $this->actionsRepo = $actionsRepo;
-        $this->emailService = $emailService;
-        $this->suppressionService = $suppressionService;
-        $this->standardReportService = $standardReportService;
-        $this->etlPickupRepo = $etlPickupRepo;
     }
 
-    public function extract($lookback = null) {
-        $startPoint = $this->etlPickupRepo->getLastInsertedForName( self::JOB_NAME );
-        $endPoint = $this->actionsRepo->minId();
-        $segmentEnd = $startPoint - 1000;
+    public function setProcessMode ( $mode ) {
+        $this->processMode = $mode;
+    }
 
-        $totalRecords = 0;
-        while ( $startPoint > $endPoint && $totalRecords < 50000 ) {
-            $limit = 1000;
-            $segmentEnd = $this->actionsRepo->prevNRows($startPoint, $limit);
+    public function buildAndSaveReport ( $dateRange = null ) {
+        $this->setDateRange( $dateRange );
 
-            echo "Segment End: " . $segmentEnd . PHP_EOL;
+        $this->buildRecords();
+        $this->flattenStruct( 3 );
+        $this->saveReport();
+    }
 
-            // If we've overshot, $segmentEnd will be null
-            $segmentEnd = $segmentEnd ? $segmentEnd : $endPoint;
+    public function getBaseRecords () {
+        $baseRecords = $this->conversionService->getByDate( $this->dateRange );
 
-            echo "Starting " . self::JOB_NAME . " collection at row $startPoint, ending at $segmentEnd" . PHP_EOL;
-            $data = $this->actionsRepo->pullAggregatedActions( $segmentEnd , $startPoint);
+        return $baseRecords;
+    }
 
-            if ($data) {
-                $insertData = [];
-                foreach ($data as $row) {
-                    $insertData []= $this->mapToAttributionRecordTable($row);
-                }
+    protected function processBaseRecord ( $baseRecord ) {
+        $emailId = $baseRecord->email_id;
+        $deployId = $baseRecord->deploy_id;
+        $date = $baseRecord->date;
 
-                $this->recordRepo->massInsertActions($insertData);
-                $startPoint = $segmentEnd;
+        $this->createRowIfMissing( $date , $emailId , $deployId );
 
-                $totalRecords += count( $data );
-            }
-            else {
-                // if no data received
-                echo "No data received" . PHP_EOL;
-                continue;
-            }
+        $currentRow = &$this->getCurrentRow( $date , $emailId , $deployId ); 
+
+        $currentRow[ "revenue" ] = (
+            ( $currentRow[ "revenue" ] * parent::WHOLE_NUMBER_MODIFIER ) + ( $baseRecord[ "revenue" ] * parent::WHOLE_NUMBER_MODIFIER )
+        ) / parent::WHOLE_NUMBER_MODIFIER;
+    }
+
+    protected function formatRecordToSqlString ( $record ) {
+        return "( 
+            '{$record[ 'email_id' ]}' ,
+            '{$record[ 'deploy_id' ]}' ,
+            '{$record[ 'offer_id' ]}' ,
+            '{$record[ 'revenue' ]}' ,
+            '{$record[ 'date' ]}' ,
+            NOW() ,
+            NOW()
+        )";
+    }
+
+    protected function runInsertQuery ( $valuesSqlString ) {
+        $this->recordRepo->runInsertQuery( $valuesSqlString );
+    }
+
+    protected function createRowIfMissing ( $date , $emailId , $deployId , $offerId = null ) {
+        if ( is_null( $offerId ) ) { $offerId = parent::STATIC_OFFER_ID_PLACEHOLDER; }
+
+        if ( !isset( $this->recordStruct[ $date ][ $emailId ][ $deployId ][ $offerId ] ) ) {
+            $this->recordStruct[ $date ][ $emailId ][ $deployId ][ $offerId ] = [
+                "email_id" => $emailId ,
+                "deploy_id" => $deployId ,
+                "offer_id" => $offerId ,
+                "revenue" => 0.00 ,
+                "date" => $date 
+            ];
         }
-
-        $this->etlPickupRepo->updatePosition(self::JOB_NAME, $segmentEnd);
     }
 
-    public function load() {}
+    protected function &getCurrentRow ( $date , $emailId , $deployId , $offerId = null ) {
+        if ( is_null( $offerId ) ) { $offerId = parent::STATIC_OFFER_ID_PLACEHOLDER; }
 
-    protected function mapToAttributionRecordTable ( $row ) {
-        $conversions = $this->conversionService->getByDeployEmailDate( $row->deploy_id , $row->email_id , $row->date );
-        $suppressions = $this->getSuppressionData( $row->deploy_id , $row->email_id , $row->date );
-
-        return [
-            'email_id' => $row->email_id ,
-            'deploy_id' => $row->deploy_id ,
-            'date' => $row->date ,
-            'delivered' => $row->delivered ,
-            'opened' => $row->opened ,
-            'clicked' => $row->clicked ,
-            'converted' => $conversions[ 'conversions' ] ,
-            'revenue' => $conversions[ 'revenue' ] ,
-            'unsubbed' => $suppressions[ 'unsubbed' ] ,
-            'bounced' => $suppressions[ 'bounced' ]
-        ];
-    }
-
-    protected function getSuppressionData ( $deployId , $emailId , $date ) {
-        $emailAddress = $this->emailService->getEmailAddress( $emailId );
-        $internalEspId = $this->standardReportService->getInternalEspId( $deployId );
-
-        $suppressions = $this->suppressionService->getByInternalEmailDate( $internalEspId , $emailAddress , $date );
-
-        $results = [ "unsubbed" => 0 , "bounced" => 0 ];
-
-        foreach ( $suppressions as $currentSuppression ) {
-            switch ( $currentSuppression->type_id ) {
-                case Suppression::TYPE_UNSUB:
-                    $results[ "unsubbed" ]++;
-                break;
-
-                case Suppression::TYPE_HARD_BOUNCE:
-                    $results[ "bounced" ]++;
-                break;
-            }
-        }
-
-        return $results;
+        return $this->recordStruct[ $date ][ $emailId ][ $deployId ][ $offerId ];
     }
 }

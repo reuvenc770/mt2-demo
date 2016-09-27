@@ -54,7 +54,9 @@ mt2App.service( 'AttributionProjectionService' , [ 'AttributionApiService' , '$m
                     color: '#4285F4'
                 } 
             } ,
-            legend: { position: 'top' }
+            legend: { position: 'top' } ,
+            height: 3000 ,
+            chartArea : { left : "10%" , top : "5%" , width : "90%" , height : "90%" }
         };
 
         var barChartDiff = new google.visualization.BarChart( document.getElementById( 'projectionChart' ) );

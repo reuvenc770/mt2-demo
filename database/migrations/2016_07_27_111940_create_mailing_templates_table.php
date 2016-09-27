@@ -19,7 +19,7 @@ class CreateMailingTemplatesTable extends Migration
             $table->text("template_html");
             $table->text(("template_text"));
         });
-        Schema::create('esp_account_mailing_templates', function (Blueprint $table) {
+        Schema::create('esp_account_mailing_template', function (Blueprint $table) {
             $table->integer('esp_account_id');
             $table->integer('mailing_template_id');
 
@@ -34,6 +34,6 @@ class CreateMailingTemplatesTable extends Migration
     public function down()
     {
         Schema::drop('mailing_templates');
-        Schema::drop('esp_account_mailing_templates');
+        Schema::drop('esp_account_mailing_template');
     }
 }

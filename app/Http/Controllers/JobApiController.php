@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\JobEntryService;
+use App\Models\JobEntry;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -26,7 +27,7 @@ class JobApiController extends Controller
      */
     public function listAll() {
         return response()
-            ->view( 'pages.devtools.job-index' );
+            ->view( 'pages.devtools.job-index' , ['statusNames'=>JobEntry::getPrettyStatusNames()] );
     }
 
 

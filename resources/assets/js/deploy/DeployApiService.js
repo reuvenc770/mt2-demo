@@ -13,7 +13,7 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
 
 
     self.getDeploys = function ( page , count , type, data, successCallback , failureCallback ) {
-        $http( {
+        return $http( {
             "method" : "GET" ,
             "url" : self.pagerApiUrl ,
             "params" : { "page" : page , "count" : count, "type": type, "data" : data }

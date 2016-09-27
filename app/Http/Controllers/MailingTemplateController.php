@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 
+use Illuminate\Support\Facades\Cache;
+
 class MailingTemplateController extends Controller
 {
     public $service;
@@ -114,7 +116,6 @@ class MailingTemplateController extends Controller
         $this->service->updateTemplate($insertData, $id, $espIds);
 
         return response()->json(["success"=>true]);
-
     }
 
     /**

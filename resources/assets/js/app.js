@@ -4,6 +4,7 @@
 var mt2App = angular.module( 'mt2App' , [
     'ngMaterial' ,
     'ngMessages' ,
+    'ngCookies' ,
     'angucomplete-alt',
     'ui.select' ,
     'flow' ,
@@ -20,23 +21,32 @@ mt2App.config( function ( $locationProvider , $mdThemingProvider , ivhTreeviewOp
         '500' : '16416c'
     });
 
+    var mt2Warn = $mdThemingProvider.extendPalette('deep-orange', {
+        "500" : '#FFA726',
+        "contrastDefaultColor" : 'light'
+    });
+
     var mt2Background = $mdThemingProvider.extendPalette('grey' , {
         '800' : '383F47'
     });
 
     $mdThemingProvider.definePalette('mt2-primary', mt2Primary );
+    $mdThemingProvider.definePalette('mt2-warn', mt2Warn);
     $mdThemingProvider.definePalette('mt2-background', mt2Background );
 
-    $mdThemingProvider.theme( 'mt2-zeta' , 'light' )
-        .primaryPalette( 'mt2-primary' )
+    $mdThemingProvider.theme( 'mt2-zeta' , 'dark' )
+        .primaryPalette( 'mt2-primary' , {
+            'hue-1' : '200'
+        } )
         .accentPalette( 'blue' )
-        .warnPalette( 'deep-orange' )
+        .warnPalette( 'mt2-warn')
         .backgroundPalette( 'mt2-background' , {
             "default" : '50' ,
             "hue-1" : '100' ,
             "hue-2" : '400' ,
             "hue-3" : '800'
         } );
+
 
     $mdThemingProvider.setDefaultTheme( 'mt2-zeta' );
 

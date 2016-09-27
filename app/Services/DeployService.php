@@ -85,25 +85,10 @@ class DeployService
 
     public function deployPackages($data)
     {
-        $filename = false;
-        if (count($data) == 1) {
-            $filename = "some name"; // CALL direct service call to create package and return file path.
-        } else {
-            foreach ($data as $id) {
-                Event::fire(new NewDeployWasCreated($id));
-            }
-            Artisan::call('deploys:sendtoops', ['deploysCommaList' => join(",",$data)]);
-        }
-
         $this->deployRepo->deployPackages($data);
-        return $filename;
     }
 
-    //upldated return model so its a builder not a deploy
-    public function getType()
-    {
-        return "Deploy";
-    }
+
 
     public function getPaginatedJson($page, $count, $params = null)
     {
@@ -145,6 +130,9 @@ class DeployService
 
         $records = $this->deployRepo->getDeployDetailsByIds($deployIds)->toArray();
         return $records;
+    }
+    public function getType(){
+        return "Deploy";
     }
 
     public function getHeaderRow()

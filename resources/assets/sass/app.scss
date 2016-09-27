@@ -128,11 +128,87 @@ table.md-table.md-row-select tbody.md-body > tr.md-row:not([disabled]):hover {
     cursor: pointer;
 }
 
-.no-padding{
+.no-padding {
     padding:0px;
 }
 
-/**
+.mt2-bg-success {
+    background-color: #dff0d8;
+}
+.mt2-bg-warn {
+    background-color: #fcf8e3;
+}
+.mt2-bg-danger {
+    background-color: #f2dede;
+}
+
+.mt2-bg-super-danger {
+    background-color: #ef8a81;
+}
+
+table.mt2-table-large td.md-cell:nth-child(n+2):nth-last-child(n+2),
+table.mt2-table-large th.md-column:nth-child(n+2):nth-last-child(n+2) {
+    padding: 0 10px 0 10px ;
+}
+
+table.mt2-table-large th.mt2-table-header-wrap {
+    white-space: normal;
+}
+
+table.md-table th.md-column.mt2-table-header-center {
+    height: 56px;
+    text-align: center;
+    padding: 0 10px !important;
+}
+
+table.md-table td.md-cell.mt2-table-cell-center {
+    text-align: center;
+    padding: 0 10px !important;
+}
+
+.mt2-nested-table thead {
+    background-color: #2196F3;
+}
+
+th md-checkbox.md-mt2-zeta-theme:not(.md-checked) .md-icon {
+    border-color: rgba(255, 255, 255, 0.87);
+}
+/*
+ * Button Styling
+ */
+.md-button.mt2-button-xs{
+    padding: 0 5px;
+    margin: 5px;
+    min-width: 80px;
+    min-height: 23px;
+    line-height: 28px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.md-button.mt2-icon-button-xs{
+    width: 34px;
+    height: 34px;
+    min-height: 34px;
+}
+.md-button.mt2-button-xs md-icon,
+.md-button.mt2-icon-button-xs md-icon{
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    min-height: 16px;
+}
+.md-button.md-mt2-zeta-theme.md-raised.mt2-button-success,
+.md-button.mt2-button-success {
+    color: rgb(255,255,255);
+    background-color: #5cb85c;
+}
+a.md-button.md-mt2-zeta-theme.md-raised.mt2-button-success:not([disabled]):hover,
+.md-button.md-mt2-zeta-theme.md-raised.mt2-button-success:not([disabled]):hover {
+    background-color: #5cb85c;
+}
+
+
+/*
  * Materials Menu Styling
  */
 md-menu-content.md-mt2-zeta-theme md-menu-item {
@@ -225,6 +301,18 @@ body {
     background-color: #ffc4c4;
     }
 }
+
+/**
+ * Attribution Projections Styling
+ */
+.mt2-proj-increase-bg {
+    background-color: #DFF0DB;
+}
+
+.mt2-proj-decrease-bg {
+    background-color: #efdcdc;
+}
+
 /**
  * Fields
  */
@@ -283,9 +371,17 @@ body {
     font-size: 14px;
 }
 
+.selectedListItem {
+    background-color: #A5D6A7 !important;
+}
+
 /**
  * Nav
  */
+md-sidenav {
+    width: 260px;
+}
+
 .navbar-toggle {
     background-color: #000;
     float: left;
@@ -337,7 +433,10 @@ thead {
     background-color: #2e5c89;
     color: #FFF;
 }
-
+table.md-table th.md-column md-icon {
+    min-width: 16px;
+    min-height: 16px;
+}
 .mtNestedTable thead {
     background-color: #468cce;
 }
@@ -431,3 +530,4 @@ md-content{
     background-color: lightblue;
     color: #ffffff;
 }
+

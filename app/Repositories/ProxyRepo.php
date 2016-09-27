@@ -40,7 +40,7 @@ class ProxyRepo
     }
 
     public function getModel(){
-        return $this->proxy->activeFirst();
+        return $this->proxy;
     }
 
     public function toggleRow($id, $direction){

@@ -1,14 +1,14 @@
 @extends( 'layout.default' )
 
-@section( 'title' , 'MT2 DBA List' )
+@section( 'title' , 'DBA List' )
 
 @section ( 'angular-controller' , 'ng-controller="DBAController as dba"' )
 
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('dba.add'))
         <md-button ng-click="dba.viewAdd()" aria-label="Add DBA Account">
-            <md-icon ng-hide="app.largePageWidth()" md-svg-src="img/icons/ic_add_circle_outline_white_24px.svg"></md-icon>
-            <span ng-show="app.largePageWidth()">Add DBA Account</span>
+            <md-icon ng-show="app.isMobile()" md-svg-src="img/icons/ic_add_circle_outline_black_24px.svg"></md-icon>
+            <span ng-hide="app.isMobile()">Add DBA Account</span>
         </md-button>
     @endif
 @stop
@@ -17,31 +17,53 @@
     <div ng-init="dba.loadAccounts()">
         <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
             <md-card>
-                <md-card-content>
-                    <div layout="row">
-                        <md-input-container flex-gt-sm="10" flex="30">
-                            <pagination-count recordcount="dba.paginationCount"
-                                              currentpage="proxy.currentPage"></pagination-count>
-                        </md-input-container>
+                <md-table-container>
+                    <table md-table md-progress="dba.queryPromise">
+                        <thead md-head md-order="dba.sort" md-on-reorder="dba.loadAccounts">
+                        <tr md-row>
+                            <th md-column></th>
+                            <th md-column md-order-by="status" class="md-table-header-override-whitetext mt2-table-header-center">Status</th>
+                            <th md-column md-order-by="dba_name" class="md-table-header-override-whitetext mt2-cell-left-padding">DBA Name</th>
+                            <th md-column md-order-by="registrant_name" class="md-table-header-override-whitetext">Registrant Name</th>
+                            <th md-column md-order-by="address" class="md-table-header-override-whitetext">Address</th>
+                            <th md-column md-order-by="dba_email" class="md-table-header-override-whitetext">Email</th>
+                            <th md-column md-order-by="phone" class="md-table-header-override-whitetext">Phone</th>
+                            <th md-column md-order-by="po_boxes" class="md-table-header-override-whitetext">PO Boxes</th>
+                            <th md-column md-order-by="entity_name" class="md-table-header-override-whitetext">Entity Name</th>
+                        </tr>
+                        </thead>
 
-                        <md-input-container flex="auto">
-                            <pagination currentpage="dba.currentPage" maxpage="dba.pageCount"></pagination>
-                        </md-input-container>
-                    </div>
-                    <div id="mtTableContainer" class="table-responsive">
-                        <dba-table format-box="dba.formatBox(box)" toggle="dba.toggle(recordId, direction)" records="dba.accounts" ></dba-table>
-                    </div>
-                    <div layout="row">
-                        <md-input-container flex-gt-sm="10" flex="30">
-                            <pagination-count recordcount="dba.paginationCount"
-                                              currentpage="dba.currentPage"></pagination-count>
-                        </md-input-container>
+                        <tbody md-body>
+                        <tr md-row ng-repeat="record in dba.accounts track by $index">
+                            <td md-cell>
+                                <div layout="row" layout-align="center center">
+                                    <md-button class="md-raised"
+                                                ng-class="{'md-icon-button mt2-icon-button-xs' : app.isMobile() , 'mt2-button-xs' : !app.isMobile() }"
+                                                ng-href="@{{ '/dba/edit/' + record.id }}" target="_self">
+                                        <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon><span ng-hide="app.isMobile()"> Edit</span>
+                                    </md-button>
+                                    <md-button ng-if="record.status == 1" class="md-raised md-accent mt2-button-xs" ng-click="dba.toggle( record.id , 0 )">Deactivate</md-button>
+                                    <md-button ng-if="record.status == 0" class="md-raised md-accent mt2-button-xs" ng-click="dba.toggle( record.id , 1 )">Activate</md-button>
+                                </div>
+                            </td>
+                            <td md-cell class="mt2-table-cell-center" ng-class="{ 'mt2-bg-success' : record.status == 1 , 'mt2-bg-danger' : record.status == 0 }">
+                                @{{ record.status == 1 ? 'Active' : 'Inactive' }}
+                            </td>
+                            <td md-cell class="mt2-cell-left-padding">@{{ record.dba_name }}</td>
+                            <td md-cell>@{{ record.registrant_name }}</td>
+                            <td md-cell>@{{ record.address }} @{{ record.city }} @{{ record.state }} @{{ record.zip }}</td>
+                            <td md-cell>@{{ record.dba_email }}</td>
+                            <td md-cell>@{{ record.phone }}</td>
+                            <td md-cell>@{{ dba.formatBox(record.po_boxes) }}</td>
+                            <td md-cell>@{{ record.entity_name }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </md-table-container>
 
-                        <md-input-container flex="auto">
-                            <pagination currentpage="dba.currentPage" maxpage="dba.pageCount"></pagination>
-                        </md-input-container>
-                    </div>
-                </md-card-content>
+                <md-content class="md-mt2-zeta-theme md-hue-2">
+                    <md-table-pagination md-limit="dba.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="dba.currentPage" md-total="@{{dba.accountTotal}}" md-on-paginate="dba.loadAccounts" md-page-select></md-table-pagination>
+                </md-content>
             </md-card>
         </md-content>
     </div>

@@ -17,4 +17,5 @@ class AttributionRecordTruth extends Model
     public function email() {
         return $this->belongsTo( 'App\Models\Email' );
     }
+
 }

@@ -44,7 +44,7 @@ class RegistrarRepo
     }
 
     public function getModel(){
-        return $this->registrars->activeFirst();
+        return $this->registrars;
     }
 
 }

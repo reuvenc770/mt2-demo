@@ -9,6 +9,9 @@ mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window
     self.pageCount = 0;
     self.paginationCount = '10';
     self.currentPage = 1;
+    self.campaignTotal = 0;
+    self.sort = '-id';
+    self.queryPromise = null;
 
     self.loadCampaign = function () {
         var pathMatches = $location.path().match( /^\/ymlp\/ymlp-campaign\/edit\/(\d{1,})/ );
@@ -20,9 +23,10 @@ mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window
     }
 
     self.loadCampaigns = function () {
-        YmlpCampaignApiService.getCampaigns(
+        self.queryPromise = YmlpCampaignApiService.getCampaigns(
             self.currentPage ,
             self.paginationCount ,
+            self.sort ,
             self.loadCampaignSuccessCallback , self.loadCampaignsFailureCallback );
     };
 
@@ -95,6 +99,7 @@ mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window
     self.loadCampaignSuccessCallback = function ( response ) {
         self.campaigns = response.data.data;
         self.pageCount = response.data.last_page;
+        self.campaignTotal = response.data.total;
     };
 
     self.loadCampaignsFailureCallback = function ( response ) {

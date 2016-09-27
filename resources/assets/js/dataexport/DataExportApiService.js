@@ -17,7 +17,7 @@ mt2App.service( 'DataExportApiService' , function ( $http ) {
     };
 
     self.getActiveDataExports = function ( page , count , successCallback , failureCallback ) {
-        $http( {
+        return $http( {
             "method" : "GET" ,
             "url" : self.pagerApiUrl,
             "params" : { "page" : page , "count" : count, "action" : "listActive" }
@@ -25,7 +25,7 @@ mt2App.service( 'DataExportApiService' , function ( $http ) {
     };
 
     self.getPausedDataExports = function ( page , count , successCallback , failureCallback ) {
-        $http( {
+        return $http( {
             "method" : "GET" ,
             "url" : self.pagerApiUrl,
             "params" : { "page" : page , "count" : count, "action" : "listPaused" }
@@ -82,7 +82,7 @@ mt2App.service( 'DataExportApiService' , function ( $http ) {
     };
 
     self.massPauseDataExports = function (ids, successCallback, failureCallback) {
-        $http({            
+        $http({
             "method": "PUT",
             "url": self.baseApiUrl + '/update',
             "params": {"action": "massPause", "eidArr": ids.join(',')}

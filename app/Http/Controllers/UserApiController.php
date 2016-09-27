@@ -35,22 +35,7 @@ class UserApiController extends Controller
      */
     public function index()
     {
-        $users = $this->userService->getAllUsersWithRolesNames();
-        $return = array();
-        foreach ($users as $user) {
-            $return[] = array(
-                $user->id,
-                $user->email,
-                $user->username,
-                $user->first_name,
-                $user->last_name,
-                implode(',', $user->roles->toArray()),
-                $user->activations ? "active" : 'deactivated',
-                $user->last_login
-            );
-        }
-        return $return;
-
+        return response()->json($this->userService->getAllUsersWithRolesNames());
     }
 
     /**

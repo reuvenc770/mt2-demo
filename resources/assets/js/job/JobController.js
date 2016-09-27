@@ -4,8 +4,7 @@ mt2App.controller( 'jobController' , [ '$log' , '$window' , '$location' , '$time
 
     self.headers = [ 'Job' , 'Account', 'Account Name', 'Time Started', 'Time Completed', 'Attempts', "Status"];
     self.entries = [];
-    self.rowStatusMap = {0:"info", 1:"active", 2:"success", 3:"danger"};
-    self.GlythMap  = { 1:"glyphicon-forward", 2:"glyphicon-remove-sign", 3:"glyphicon-remove-sign"};
+    self.rowStatusMap = { 1:"mt2-bg-warn", 2:"mt2-bg-success", 3:"mt2-bg-danger", 4:"mt2-bg-warn", 5:"mt2-bg-warn" };
     self.loadJobs = function () {
         JobApiService.getJobs( self.loadJobsSuccessCallback , self.loadAccountsFailureCallback );
         $interval(function() {

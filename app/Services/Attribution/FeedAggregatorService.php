@@ -66,18 +66,20 @@ class FeedAggregatorService extends AbstractReportAggregatorService {
 
     protected function processBaseRecord ( $baseRecord ) {
         $date = $baseRecord->date;
-        $feedId = $this->emailFeedAssignmentService->getAssignedFeed( $baseRecord->email_id );
+        $feedId = $this->emailFeedAssignmentService->getAssignedFeed( $baseRecord->email_id , $this->modelId );
         
         $this->createRowIfMissing( $date , $feedId );
 
         $currentRow = &$this->getCurrentRow( $date , $feedId );
 
-        if ( is_null( $currentRow[ 'mt1_uniques' ] ) ) {
-            $currentRow[ 'mt1_uniques' ] = (int)$this->emailFeedInstanceService->getMt1UniqueCountForFeedAndDate( $feedId , $date );
-        }
+        if ( is_null( $this->modelId ) ) {
+            if ( is_null( $currentRow[ 'mt1_uniques' ] ) ) {
+                $currentRow[ 'mt1_uniques' ] = (int)$this->emailFeedInstanceService->getMt1UniqueCountForFeedAndDate( $feedId , $date );
+            }
 
-        if ( is_null( $currentRow[ 'mt2_uniques' ] ) ) {
-            $currentRow[ 'mt2_uniques' ] = (int)$this->emailFeedInstanceService->getMt2UniqueCountForFeedAndDate( $feedId , $date );
+            if ( is_null( $currentRow[ 'mt2_uniques' ] ) ) {
+                $currentRow[ 'mt2_uniques' ] = (int)$this->emailFeedInstanceService->getMt2UniqueCountForFeedAndDate( $feedId , $date );
+            }
         }
 
         $currentRow[ "revenue" ] = (

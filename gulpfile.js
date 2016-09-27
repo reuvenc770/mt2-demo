@@ -49,6 +49,7 @@ elixir.extend( 'deployNodeModules' , function ( mix ) {
 
     mix.copy( 'node_modules/angular-material-data-table/dist/md-data-table.min.js' , 'public/js/md-data-table.min.js' );
     mix.copy('node_modules/angu-complete/angucomplete-alt.js', 'public/js/angucomplete-alt.js');
+    mix.copy('node_modules/angular-cookies/angular-cookies.min.js', 'public/js/angular-cookies.min.js');
 } );
 
 elixir.extend( 'deploySass' , function ( mix ) {
@@ -83,16 +84,21 @@ elixir.extend( 'deployEspApiJs' , function ( mix ) {
     mix.scripts( [
         'espapi/EspController.js' ,
         'espapi/EspApiService.js' ,
-        'espapi/EspapiTableDirective.js'
     ] , 'public/js/espapi.js' );
+} );
+
+elixir.extend( 'deployEspJs' , function ( mix ) {
+    mix.scripts( [
+        'esp/EspController.js' ,
+        'esp/EspService.js' ,
+        'esp/EspTableDirective.js'
+    ] , 'public/js/esp.js' );
 } );
 
 elixir.extend( 'deployDomainJs' , function ( mix ) {
     mix.scripts( [
         'domain/DomainController.js' ,
         'domain/DomainApiService.js' ,
-        'domain/DomainTableDirective.js',
-        'domain/DomainListTableDirective.js'
     ] , 'public/js/domain.js' );
 } );
 
@@ -107,7 +113,6 @@ elixir.extend( 'deployDBAJs' , function ( mix ) {
     mix.scripts( [
         'dba/DBAController.js' ,
         'dba/DBAApiService.js',
-        'dba/DomainListTableDirective.js'
     ] , 'public/js/dba.js' );
 } );
 
@@ -124,7 +129,6 @@ elixir.extend( 'deployProxyJs' , function ( mix ) {
     mix.scripts( [
         'proxy/ProxyController.js' ,
         'proxy/ProxyApiService.js',
-        'proxy/ProxyTableDirective.js'
     ] , 'public/js/proxy.js' );
 } );
 
@@ -132,7 +136,6 @@ elixir.extend( 'deployRegistrarJs' , function ( mix ) {
     mix.scripts( [
         'registrar/RegistrarController.js' ,
         'registrar/RegistrarApiService.js',
-        'registrar/RegistrarTableDirective.js'
     ] , 'public/js/registrar.js' );
 } );
 
@@ -140,7 +143,6 @@ elixir.extend( 'deployMailingTemplateJs' , function ( mix ) {
     mix.scripts( [
         'mailingtemplate/MailingTemplateController.js' ,
         'mailingtemplate/MailingTemplateApiService.js',
-        'mailingtemplate/MailingTemplateTableDirective.js'
     ] , 'public/js/mailingtemplate.js' );
 } );
 
@@ -178,7 +180,6 @@ elixir.extend( 'deployYmlpCampaignJs' , function ( mix ) {
     mix.scripts( [
         'ymlpmanager/YmlpCampaignController.js' ,
         'ymlpmanager/YmlpCampaignApiService.js',
-        'ymlpmanager/YmlpCampaignTableDirective.js'
     ] , 'public/js/ymlpcampaign.js' );
 } );
 
@@ -186,7 +187,6 @@ elixir.extend( 'deployFeedJs' , function ( mix ) {
     mix.scripts( [
         'feed/FeedController.js' ,
         'feed/FeedApiService.js' ,
-        'feed/FeedTableDirective.js' ,
         'feed/FeedUrlModalDirective.js'
     ] , 'public/js/feed.js' );
 } );
@@ -196,8 +196,6 @@ elixir.extend( 'deployClientGroupJs' , function ( mix ) {
         'clientgroup/ClientGroupController.js' ,
         'clientgroup/ClientGroupApiService.js' ,
         'feed/FeedApiService.js' ,
-        'clientgroup/ClientGroupTableDirective.js' ,
-        'clientgroup/ClientGroupChildrenTableDirective.js'
     ] , 'public/js/clientgroup.js' );
 } );
 
@@ -224,7 +222,6 @@ elixir.extend('deployDataExportJs', function(mix) {
     mix.scripts([
         'dataexport/DataExportController.js',
         'dataexport/DataExportApiService.js',
-        'dataexport/DataExportTableDirective.js',
         'dataexport/StatusButtonDirective.js',
         'dataexport/DataExportDeleteDirective.js',
         'dataexport/DataExportCopyDirective.js'
@@ -253,12 +250,12 @@ elixir.extend( 'deployDataCleanseJs' , function ( mix ) {
     mix.scripts( [
         'datacleanse/DataCleanseController.js' ,
         'datacleanse/DataCleanseApiService.js' ,
-        'datacleanse/DataCleanseTableDirective.js'
     ] , 'public/js/datacleanse.js' );
 } );
 
 elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployBaseAngular( mix );
+    mix.deployEspJs( mix );
     mix.deployEspApiJs( mix );
     mix.deployUserJs( mix );
     mix.deployRoleJs( mix );
@@ -319,6 +316,9 @@ var mt2TaskMap = {
     'deployEspApiJs' : function  ( mix ) {
         mix.deployEspApiJs( mix );
     } ,
+    'deployEspJs' : function  ( mix ) {
+        mix.deployEspJs( mix );
+    } ,
     'deployUserJs' : function ( mix ) {
         mix.deployUserJs( mix );
     } ,
@@ -372,6 +372,15 @@ var mt2TaskMap = {
     },
     'deployRegistrarJs' : function (mix) {
         mix.deployRegistrarJs(mix)
+    },
+    'deployProxyJs' : function(mix) {
+        mix.deployProxyJs(mix)
+    },
+    'deployMailingTemplateJs' : function(mix) {
+        mix.deployMailingTemplateJs(mix)
+    },
+    'deployDomainJs' : function(mix) {
+        mix.deployDomainJs(mix)
     }
 };
 

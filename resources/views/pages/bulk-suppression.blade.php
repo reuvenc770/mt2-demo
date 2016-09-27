@@ -74,52 +74,44 @@
                                 </md-card-content>
                             </md-card>
 
-                            <table class="table table-hover table-bordered table-striped" flow-transfers ng-cloak>
-                                <thead>
-                                    <tr>
-                                        <th class="text-center">#</th>
-                                        <th class="text-center">Name</th>
-                                        <th class="text-center">File Size</th>
-                                        <th class="text-center">#Chunks</th>
-                                        <th class="text-center">Progress</th>
-                                        <th class="text-center">Download Status</th>
-                                        <th class="text-center">Settings</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat="file in transfers">
-                                        <td>@{{ $index + 1 }}</td>
-                                        <td>@{{ file.name }}</td>
-                                        <td class="text-center">@{{ file.size | bytes }}</td>
-                                        <td class="text-center">@{{ file.chunks.length }}</td>
-                                        <td>
-                                            <md-progress-linear class="md-warn" md-mode="determinate" ng-value="file.progress() * 100"></md-progress-linear>
-                                        </td>
-                                        <td class="text-center" ng-class="{ 'bg-info' : file.isUploading() , 'bg-warning' : file.paused , 'bg-danger' : file.error , 'bg-success' : !file.error }">
-                                            <strong>@{{ file.isUploading() ? 'Downloading' : ( file.paused ? 'Paused': ( file.error ? 'Failed' : 'Successful' ) ) }}</strong>
-                                        </td>
-                                        <td>
-                                            <div class="btn-group">
-                                                <a class="btn btn-mini btn-warning" ng-click="file.pause()" ng-hide="file.paused">
-                                                Pause
-                                                </a>
+                            <md-table-container>
+                                <table md-table>
+                                    <thead md-head>
+                                        <tr md-row>
+                                            <th md-column class="md-table-header-override-whitetext">#</th>
+                                            <th md-column class="md-table-header-override-whitetext">Name</th>
+                                            <th md-column class="md-table-header-override-whitetext" md-numeric>File Size</th>
+                                            <th md-column class="md-table-header-override-whitetext">#Chunks</th>
+                                            <th md-column class="md-table-header-override-whitetext">Progress</th>
+                                            <th md-column class="md-table-header-override-whitetext mt2-table-header-center">Download Status</th>
+                                            <th md-column class="md-table-header-override-whitetext mt2-table-header-center">Settings</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr md-row ng-repeat="file in transfers">
+                                            <td md-cell>@{{ $index + 1 }}</td>
+                                            <td md-cell>@{{ file.name }}</td>
+                                            <td md-cell>@{{ file.size | bytes }}</td>
+                                            <td md-cell>@{{ file.chunks.length }}</td>
+                                            <td md-cell>
+                                                <md-progress-linear class="md-warn" md-mode="determinate" ng-value="file.progress() * 100"></md-progress-linear>
+                                            </td>
+                                            <td md-cell class="mt2-table-cell-center" ng-class="{ 'bg-info' : file.isUploading() , 'bg-warning' : file.paused , 'bg-danger' : file.error , 'bg-success' : !file.error }">
+                                                @{{ file.isUploading() ? 'Downloading' : ( file.paused ? 'Paused': ( file.error ? 'Failed' : 'Successful' ) ) }}
+                                            </td>
+                                            <td md-cell>
+                                                <div layout="row" layout-align="center center">
+                                                    <md-button class="md-raised md-warn mt2-button-xs" ng-click="file.pause()" ng-hide="file.paused">Pause</md-button>
+                                                    <md-button class="md-raised mt2-button-success mt2-button-xs" ng-click="file.resume()" ng-show="file.paused">Resume</md-button>
+                                                    <md-button class="md-raised md-warn md-hue-2 mt2-button-xs" ng-click="file.cancel()">Cancel</md-button>
+                                                    <md-button class="md-raised md-accent mt2-button-xs" ng-click="file.retry()" ng-show="file.error">Retry</md-button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </md-table-container>
 
-                                                <a class="btn btn-mini btn-warning" ng-click="file.resume()" ng-show="file.paused">
-                                                Resume
-                                                </a>
-
-                                                <a class="btn btn-mini btn-danger" ng-click="file.cancel()">
-                                                Cancel
-                                                </a>
-
-                                                <a class="btn btn-mini btn-info" ng-click="file.retry()" ng-show="file.error">
-                                                Retry
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
                         </div>
                     </md-card-content>
             </md-card>

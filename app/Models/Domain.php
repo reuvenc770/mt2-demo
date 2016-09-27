@@ -24,4 +24,15 @@ class Domain extends Model
         return $this->hasOne('App\Models\Proxy');
     }
 
+    public function contentDomainValidForEspAccount($espAccountId) {
+        if ($this->esp_account_id === $espAccountId
+            && $this->domain_type === self::CONTENT_DOMAIN
+            && $this->status === 1) {
+
+            return true;
+        }
+
+        return false;
+    }
+
 }

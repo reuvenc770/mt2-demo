@@ -28,7 +28,7 @@ class EditDeployRequest extends Request
     {
         return [
             'esp_account_id'        => 'required',
-            'list_profile_id'   => 'required',
+            #'list_profile_id'   => 'required',
             'template_id'      => 'required',
             'offer_id'            => 'required',
             'creative_id'            => 'required',
@@ -36,7 +36,10 @@ class EditDeployRequest extends Request
             'subject_id'            => 'required',
             'content_domain_id'            => 'required',
             'mailing_domain_id'        => 'required',
-            'cake_affiliate_id'          => 'required'
+            'cake_affiliate_id'          => 'required',
+            'encrypt_cake'              => 'required',
+            'fully_encrypt'          => 'required',
+            'url_format'            => 'required'
         ];
     }
 }

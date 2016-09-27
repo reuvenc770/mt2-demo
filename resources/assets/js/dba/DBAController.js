@@ -16,7 +16,9 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     self.pageCount = 0;
     self.paginationCount = '10';
     self.currentPage = 1;
-    self.currentlyLoading = 0;
+    self.accountTotal = 0;
+    self.sort = "-status";
+    self.queryPromise = null;
 
     self.loadAccount = function () {
         var pathMatches = $location.path().match( /^\/dba\/edit\/(\d{1,})/ );
@@ -28,7 +30,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     };
 
     self.loadAccounts = function () {
-        DBAApiService.getAccounts(self.currentPage, self.paginationCount,  self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
+        self.queryPromise = DBAApiService.getAccounts(self.currentPage, self.paginationCount, self.sort , self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
     };
 
     self.resetForm = function () {
@@ -123,7 +125,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     self.loadAccountsSuccessCallback = function ( response ) {
         self.accounts = response.data.data;
         self.pageCount = response.data.last_page;
-        self.currentlyLoading = 0;
+        self.accountTotal = response.data.total;
     };
 
     self.loadAccountsFailureCallback = function ( response ) {

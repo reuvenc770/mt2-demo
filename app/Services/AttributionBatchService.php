@@ -9,7 +9,6 @@ use App\Repositories\AttributionScheduleRepo;
 use App\Repositories\EmailFeedInstanceRepo;
 use App\Events\AttributionCompleted;
 use Cache;
-use Log;
 
 class AttributionBatchService {
     
@@ -52,10 +51,7 @@ class AttributionBatchService {
 
             $potentialReplacements = $this->getPotentialReplacements($record->email_id, $beginDate, $feedId);
             
-            Log::info("{$record->email_id} being processed with $oldFeedId / $feedId starting at $beginDate: " . count($potentialReplacements));
-
             foreach ($potentialReplacements as $repl) {
-                Log::info("\t$beginDate, $hasAction, $actionExpired, $currentAttrLevel, {$repl->level}");
 
                 if ($this->shouldChangeAttribution($hasAction, $actionExpired, $currentAttrLevel, $repl->level)) {
                     $beginDate = $repl->capture_date;
@@ -72,8 +68,8 @@ class AttributionBatchService {
 
             // Only run this once we've found the winner
             if ($oldFeedId !== $feedId) {
-                $this->changeAttribution($record->email_id, $feedId, $beginDate);
-                Log::info("Attribution changing to $feedId, captured on $beginDate");
+                $this->changeAttribution($record->email_id, $feedId, $beginDate, $modelId);
+                
                 if (!$isModelRun) {
                     $this->recordHistory($record->email_id, $oldFeedId, $feedId);
                     $this->updateScheduleTable($record->email_id, $beginDate);
@@ -127,7 +123,11 @@ class AttributionBatchService {
         }
     }
 
-    protected function changeAttribution($emailId, $feedId, $captureDate) {
+    protected function changeAttribution($emailId, $feedId, $captureDate, $modelId) {
+        if ( 'none' !== $modelId ) {
+            $this->assignmentRepo->setLevelModel( $modelId );
+        }
+
         $this->assignmentRepo->assignFeed($emailId, $feedId, $captureDate);
     }
 

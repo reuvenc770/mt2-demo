@@ -9,11 +9,18 @@ mt2App.service( 'EspApiService' , function ( $http , $log ) {
             .then( successCallback );
     }
 
-    self.getAccounts = function ( page , count , successCallback , failureCallback ) {
-        $http( {
-            "method" : "GET" , 
+    self.getAccounts = function ( page , count , sortField, successCallback , failureCallback ) {
+        var sort = { 'field' : sortField , 'desc' : false };
+
+        if (/^\-/.test( sortField ) ) {
+            sort.field = sort.field.substring( 1 );
+            sort.desc = true;
+        }
+
+        return $http( {
+            "method" : "GET" ,
             "url" : self.pagerApiUrl ,
-            "params" : { "page" : page , "count" : count }
+            "params" : { "page" : page , "count" : count , 'sort' : sort }
         } ).then( successCallback , failureCallback );
     }
 

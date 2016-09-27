@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Jobs\SharePublicatorsUnsubsJob;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use App\Repositories\EspApiRepo;
+use App\Repositories\EspRepo;
 
 class SharePublicatorsUnsubs extends Command
 {
@@ -39,7 +39,7 @@ class SharePublicatorsUnsubs extends Command
      *
      * @return mixed
      */
-    public function handle(EspApiRepo $esp) {
+    public function handle(EspRepo $esp) {
         $espId = $esp->getEspByName('Publicators')->id;
         $this->lookback = $this->argument('lookback') ? $this->argument('lookback') : 1;
         $job = new SharePublicatorsUnsubsJob($espId, $this->lookback, str_random(16));

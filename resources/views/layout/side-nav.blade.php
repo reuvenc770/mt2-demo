@@ -1,4 +1,4 @@
-<md-sidenav md-component-id="mainNav" class="md-sidenav-left mt2-sidenav-dark md-hue-3" md-is-locked-open="app.lockSideNav && $mdMedia( 'gt-md' )" ng-cloak>
+<md-sidenav md-component-id="mainNav" class="md-sidenav-left mt2-sidenav-dark md-hue-3" md-is-locked-open="app.lockSidenav && app.largePageWidth()" ng-cloak ng-init="app.setSidenavCookie()">
     <md-list layout-align="center start">
     @foreach ( $menuItems as $current )
         <md-list-item class="mt2-nav-main-item" ng-click="app.redirect( '{{ '/' . $current[ 'uri' ] }}' )" layout-align="start center" aria-label="{{ $current[ 'name' ] }}">
@@ -10,7 +10,7 @@
         @if(isset($current['children']))
             @foreach ( $current['children'] as $currentChild )
             <md-list-item class="mt2-nav-sub-item" ng-click="app.redirect( '{{ '/' . $currentChild[ 'uri' ] }}' )" aria-label="{{ $current[ 'name' ] }}">
-                <span flex="15"></span>
+                <span flex="20"></span>
                 <span class="childMenu"><em>{{ $currentChild[ 'name' ] }}</em></span>
                 <span flex></span>
             </md-list-item>

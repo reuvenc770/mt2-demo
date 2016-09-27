@@ -21,19 +21,35 @@ class Deploy extends Model
 
     public function espAccount(){
         return $this->belongsTo('App\Models\EspAccount');
-
     }
 
     public function offer(){
         return $this->belongsTo('App\Models\Offer');
     }
 
-    public function mailingDomain(){
-        return $this->belongsTo('App\Models\Domain');
+    // The next two are stored in the same table
+    public function mailingDomain() {
+        return $this->belongsTo('App\Models\Domain', 'mailing_domain_id');
     }
 
-    public function mailingTemplate(){
+    public function contentDomain() {
+        return $this->belongsTo('App\Models\Domain', 'content_domain_id');
+    }
+
+    public function mailingTemplate() {
         return $this->belongsTo('App\Models\MailingTemplate', 'template_id', 'id');
+    }
+
+    public function creative() {
+        return $this->belongsTo('App\Models\Creative');
+    }
+
+    public function from() {
+        return $this->belongsTo('App\Models\From');
+    }
+
+    public function subject() {
+        return $this->belongsTo('App\Models\Subject');
     }
 
 }

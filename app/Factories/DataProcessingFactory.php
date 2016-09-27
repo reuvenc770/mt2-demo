@@ -99,34 +99,34 @@ class DataProcessingFactory {
                 $mt2Name = "OfferSubjectMap";
                 return self::createMt1ImportService($mt1Name, $mt2Name);
 
+            case('ImportMt1CakeEncryptionMapping'):
+                $mt1Name = "AffiliateCakeEncryption";
+                $mt2Name = "CakeEncryptedLink";
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case ("ImportMt1Links"):
+                $mt1Name = 'Link';
+                $mt2Name = 'Link';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+            
             case ('ImportMt1Feeds'):
                 $mt1Name = "User";
                 $mt2Name = "Feed";
                 return self::createMt1ImportService($mt1Name, $mt2Name);
 
+            case ('ImportMt1OfferTracking'):
+                $mt1Name = 'AdvertiserTracking';
+                $mt2Name = 'OfferTrackingLink';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case ('ImportMt1MailingTemplate'):
+                $mt1Name = 'BrandTemplate';
+                $mt2Name = 'MailingTemplate';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
             default:
                 throw new \Exception("Data processing service {$name} does not exist");
         }
-    }
-
-    private static function createAttributionRecordAggregationService () {
-        $attrRecordRepo = \App::make( \App\Repositories\Attribution\RecordReportRepo::class );
-        $cakeConversion = \App::make( \App\Services\CakeConversionService::class );
-        $attrEmailActionsRepo = \App::make( \App\Repositories\Attribution\AttributionEmailActionsRepo::class );
-        $emailRecordService = \App::make( \App\Services\EmailRecordService::class );
-        $suppressionService = \App::make( \App\Services\SuppressionService::class );
-        $standardReportService = \App\Factories\ServiceFactory::createStandardReportService();
-        $etlPickupRepo = \App::make( \App\Repositories\EtlPickupRepo::class );
-
-        return new \App\Services\Attribution\RecordAggregatorService(
-            $attrRecordRepo ,
-            $cakeConversion ,
-            $attrEmailActionsRepo ,
-            $emailRecordService ,
-            $suppressionService ,
-            $standardReportService ,
-            $etlPickupRepo
-        );
     }
 
     private static function createEmailCampaignAggregationService() {

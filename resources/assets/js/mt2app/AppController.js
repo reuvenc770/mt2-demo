@@ -1,9 +1,13 @@
-mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , '$mdSidenav' , '$mdToast' , '$mdMedia' , '$log' , function ( $rootScope , $location , $window , $mdSidenav , $mdToast , $mdMedia , $log ) {
+mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , '$mdSidenav' , '$mdToast' , '$mdMedia' , '$cookies' , '$log' , function ( $rootScope , $location , $window , $mdSidenav , $mdToast , $mdMedia , $cookies , $log ) {
     var self = this;
-    self.lockSideNav = true;
+    self.lockSidenav = true;
 
     self.getBaseUrl = function () {
         return $location.protocol() + '://' + $location.host() + '/';
+    };
+
+    self.isMobile = function () {
+        return !$mdMedia( 'gt-sm' );
     };
 
     self.largePageWidth = function () {
@@ -16,7 +20,15 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
         $window.location.href = redirectURL;
     };
 
-    self.toggleMenu = function ( navId ) { $mdSidenav( navId ).toggle(); }
+    self.toggleMenu = function ( navId , event ) {
+        if ( self.largePageWidth() ){
+            self.lockSidenav = !self.lockSidenav;
+
+            self.setSidenavCookie( event );
+        } else {
+            $mdSidenav( navId ).toggle();
+        }
+    };
 
     self.openDropdownMenu = function( $mdOpenMenu , ev ) {
         originatorEv = ev;
@@ -36,4 +48,15 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
 
         $mdToast.show( toast );
     };
+
+    self.setSidenavCookie = function( event ) {
+        var currentSidenavCookie = $cookies.get('sidenavCookie');
+
+        if ( typeof(currentSidenavCookie) != 'undefined' && typeof(event) == 'undefined' ) {
+            self.lockSidenav = currentSidenavCookie === 'true' ? true : false;
+        } else {
+            $cookies.put( 'sidenavCookie' , self.lockSidenav );
+        }
+    };
+
 } ] );

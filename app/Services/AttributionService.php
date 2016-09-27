@@ -29,7 +29,7 @@ class AttributionService
         
     }   
 
-    public function getTransientRecords($model) {
+    public function getTransientRecords($remainder, $model) {
 
         $timestamp = $this->pickupRepo->getLastInsertedForName($this->name);
         Log::info('Attribution beginning from timestamp: ' . $timestamp);
@@ -42,12 +42,12 @@ class AttributionService
         if ('none' !== $model || $lastAttrLevelChange->gte($carbonDate)) {
             // If a model is specified, or if attribution has changed recently,
             // execute the full run
-            return $this->truthRepo->getFullTransients();
+            return $this->truthRepo->getFullTransients($remainder);
         }
         else {
             // Otherwise, run the optimized subset
             $datetime = $carbonDate->toDateTimeString();
-            return $this->truthRepo->getOptimizedTransients($datetime);
+            return $this->truthRepo->getOptimizedTransients($datetime, $remainder);
         }
         
     }

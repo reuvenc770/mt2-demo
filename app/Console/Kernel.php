@@ -63,6 +63,7 @@ class Kernel extends ConsoleKernel
         Commands\AttributionBatchProcess::class,
         Commands\SendDeploysToOps::class,
         Commands\SyncMT1FeedLevels::class,
+        Commands\AttributionConversionCommand::class,
     ];
 
     /**
@@ -120,7 +121,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:downloadApi Publicators 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Bronto 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadTrackingData Cake 5')->hourly()->sendOutputTo($filePath);
-        $schedule->command( 'reports:downloadTrackingData Cake 0 record' )->dailyAt( self::CAKE_CONVERSION_UPDATE_TIME )->sendOutputTo( $filePath );
         $schedule->command('process:cfsStats')->cron('0 */4 * * *');
 
         /**
@@ -175,7 +175,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('mt1Import offerCreativeMap')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerFromMap')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerSubjectMap')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import cakeEncryptedLinkMap')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import link')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import feed')->cron('0 * * * * *');
+        $schedule->command('mt1Import offerTrackingLink')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import mailingTemplate')->dailyAt(self::MT1_SYNC_TIME);
 
         /**
          * Attribution Jobs
@@ -183,6 +187,5 @@ class Kernel extends ConsoleKernel
         $schedule->command('runFilter activity')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('runFilter expiration')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('attribution:commit')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
-        $schedule->command('attribution:updateReports --reportType=Feed')->dailyAt(self::ATTRIBUTION_REPORT_UPDATE_TIME);
     }
 }
