@@ -344,10 +344,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
                 self.currentDeploy.notes = deployData.notes;
                // self.currentDeploy.list_profile_id = deployData.list_profile_id;
                 self.currentDeploy.template_id = deployData.template_id.toString();
-                //c
-                if(array.filter(function ( obj ) {
-                        return obj.id === name;
-                    }))
                 self.currentDeploy.mailing_domain_id = deployData.mailing_domain_id.toString();
                 self.currentDeploy.content_domain_id = deployData.content_domain_id.toString();
                 self.currentDeploy.cake_affiliate_id = deployData.cake_affiliate_id.toString();
