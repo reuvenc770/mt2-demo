@@ -44,7 +44,7 @@ class FeedDateEmailBreakdownRepo {
                     ':valid_emails' => $valid,
                     ':suppressed' => $statuses['suppressed'],
                     ':fresh' => $statuses['fresh'],
-                    ':duplicates' => $statuses['duplicates'],
+                    ':duplicates' => $statuses['duplicate'],
                     ':non_fresh' => $statuses['non_fresh'],
                 ]);
 
