@@ -45,7 +45,7 @@ class FeedDateEmailBreakdownRepo {
                     ':suppressed' => $statuses['suppressed'],
                     ':fresh' => $statuses['fresh'],
                     ':duplicates' => $statuses['duplicate'],
-                    ':non_fresh' => $statuses['non_fresh'],
+                    ':non_fresh' => $statuses['non-fresh'],
                 ]);
 
         }
