@@ -120,6 +120,9 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
      */
     self.loadAccountsSuccessCallback = function ( response ) {
         self.accounts = response.data.data;
+        for (var i = 0, len = response.data.data.length; i < len; i++){
+            self.accounts[i].po_boxes = JSON.parse(self.accounts[i].po_boxes);
+        }
         self.pageCount = response.data.last_page;
         self.accountTotal = response.data.total;
     };
