@@ -308,7 +308,7 @@
                                         ng-disabled="deploy.offerLoading">
                                     <option value="">- Please Choose a Creative -</option>
                                     <option ng-repeat="option in deploy.creatives" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'mt2-bg-super-danger' : ''}}">
-                                        @{{ option.name }} - @{{ option.id }} - @{{ option.click_rate.toFixed(2) }}%
+                                        @{{ option.name }} - @{{ option.id }} - @{{ option.click_rate ? parseFloat(option.click_rate).toFixed(2) + '%' : '' }}
                                     </option>
                                 </select>
                             <span class="help-block" ng-bind="deploy.formErrors.creative_id"
@@ -324,7 +324,7 @@
                                         ng-disabled="deploy.offerLoading">
                                     <option value="">- Please Choose a From -</option>
                                     <option ng-repeat="option in deploy.froms" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'mt2-bg-super-danger' : ''}}">
-                                        @{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate.toFixed(2) }}%
+                                        @{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate ? parseFloat(option.open_rate).toFixed(2) + '%' : '' }}
                                     </option>
                                 </select>
                             <span class="help-block" ng-bind="deploy.formErrors.from_id"
@@ -339,7 +339,7 @@
                                         ng-disabled="deploy.offerLoading">
                                     <option value="">- Please Choose a Subject -</option>
                                     <option ng-repeat="option in deploy.subjects" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'mt2-bg-super-danger' : ''}}">
-                                        @{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate.toFixed(2) }}%
+                                        @{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate ? parseFloat(option.open_rate).toFixed(2) + '%' : '' }}
                                     </option>
                                 </select>
                             <span class="help-block" ng-bind="deploy.formErrors.subject_id"
