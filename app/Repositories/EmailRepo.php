@@ -88,7 +88,7 @@ class EmailRepo {
         }
     }
 
-    public function hasAction($emailId) {
+    public function hasActions($emailId) {
         return ($this->emailModel->find($emailId)->attributionTruths->has_action == 1);
     }
 
