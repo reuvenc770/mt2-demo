@@ -20,6 +20,14 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
         } ).then( successCallback , failureCallback );
     };
 
+    self.searchDeploys = function ( count , data, successCallback , failureCallback ) {
+        return $http( {
+            "method" : "GET" ,
+            "url" : self.pagerApiUrl ,
+            "params" : { "page" : 1 , "count" : count, "data" : data }
+        } ).then( successCallback , failureCallback );
+    };
+
     self.getDeploy = function (deployID ,successCallback, failCallBack){
         $http( { "method" : "GET" , "url" : this.baseApiUrl + deployID } )
             .then( successCallback , failCallBack )
