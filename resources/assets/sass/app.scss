@@ -71,6 +71,27 @@ ul[dnd-list] .dndPlaceholder {
 }
 
 /**
+ * Label Styles
+ */
+.mt2-label{
+    display: inline;
+    padding: .2em .6em .3em;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: .25em;
+}
+.mt2-label-info{
+    background-color: #5bc0de;
+}
+.mt2-label-default{
+    background-color: #777777;
+}
+.mt2-label-success{
+    background-color: #5cb85c;
+}
+/**
  * Materials Overrides
  */
 md-menu-content.md-mt2-zeta-theme md-menu-item {

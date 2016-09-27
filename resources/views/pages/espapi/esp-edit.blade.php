@@ -40,7 +40,7 @@
                             </div>
                         </md-input-container>
 
-                        <md-button class="md-mt2-zeta-theme md-raised mt2-button-save" ng-click="esp.editAccount()">Save</md-button>
+                        <md-button class="md-raised md-accent" ng-click="esp.editAccount()">Save</md-button>
                     </form>
                 </md-card-content>
             </md-card>

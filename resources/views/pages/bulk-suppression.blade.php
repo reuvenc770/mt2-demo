@@ -7,64 +7,72 @@
 <div ng-controller="BulkSuppressionController as supp">
     <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
 
-        <div flex-gt-md="50" flex="100">
-            <button type="button" class="btn btn-success btn-md pull-right"
-                ng-disabled="!supp.emailsLoaded"
-                ng-click="supp.uploadSuppressions()">
-                    <span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : supp.emailsLoaded }"></span>
-                    Suppress
-            </button>
-
-            <div class="clearfix"></div>
+        <div flex-gt-md="60" flex="100">
+            <div layout="column" layout-align="end end">
+                <md-button class="md-raised md-accent"
+                    ng-disabled="!supp.emailsLoaded"
+                    ng-click="supp.uploadSuppressions()">
+                        <md-icon md-svg-icon="img/icons/ic_block_white_18px.svg"></md-icon> Suppress
+                </md-button>
+            </div>
 
             <md-card>
-                <md-toolbar class="md-hue-3">
+                <md-toolbar>
                     <div class="md-toolbar-tools">
                         <span>Bulk Suppression Options</span>
                     </div>
                 </md-toolbar>
 
-                    <md-card-content flex>
-                        <md-input-container class="md-block" ng-cloak>
-                            <label>Emails</label>
-                            <textarea ng-model="supp.emailString" rows="5" md-select-on-focus ng-change="supp.enableSubmission()"></textarea>
-                        </md-input-container>
+                    <md-card-content>
+                        <form name="suppressionForm" layout="column" novalidate>
+                            <md-input-container class="md-block" ng-cloak>
+                                <label>Emails</label>
+                                <textarea ng-model="supp.emailString" rows="5" md-select-on-focus ng-change="supp.enableSubmission()"></textarea>
+                            </md-input-container>
 
-
-                        <select name="reason" class="form-control" ng-model="supp.selectedReason" ng-init="supp.loadReasons()" required>
-                            <option value="">Please Choose a Suppression Reason</option>
-                            <option ng-repeat="reason in supp.suppressionReasons" ng-value="reason.value">@{{ reason.name }}</option>
-                        </select>
+                            <md-input-container>
+                                <label>Suppression Reason</label>
+                                <md-select name="reason" ng-model="supp.selectedReason" ng-init="supp.loadReasons()" ng-required="true">
+                                    <md-option ng-repeat="reason in supp.suppressionReasons" ng-value="reason.value">@{{ reason.name }}</md-option>
+                                </md-select>
+                                <div ng-messages="suppressionForm.reason.$error">
+                                    <div ng-message="required">Suppression Reason is required.</div>
+                                </div>
+                            </md-input-container>
+                        </form>
 
                         <div flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'bulksuppression' , '_token' : '{{ csrf_token() }}' } }"
                              flow-files-submitted="$flow.upload()"
                              flow-file-success="supp.startTransfer($file)">
-                            <div flow-drop class="dropFile" flow-drag-enter="style={border:'4px solid green'}" flow-drag-leave="style={}" ng-style="style">
-                                <span class="btn btn-default" flow-btn>
+                            <div flow-drop class="dropFile" flow-drag-enter="style={border:'2px solid green'}" flow-drag-leave="style={}" ng-style="style" layout="row" layout-xs="column" layout-align-xs="center center" layout-align-gt-xs="start center">
+                                <md-button class="md-raised" flow-btn>
                                     Upload Suppression Files
                                     <input type="file" style="visibility: hidden; position: absolute;" />
-                                </span>
-
+                                </md-button>
+                                <span>
                                 &nbsp;&nbsp;
                                 <em>OR</em>
                                 &nbsp;&nbsp;
+                                </span>
 
-                                <strong>Drag & Drop Suppression Files Here</strong>
+                                <span><strong>Drag & Drop Suppression Files Here</strong></span>
                             </div>
 
                             <br />
                             <br />
 
-                            <div class="well">
-                                <a class="btn btn-small btn-success" ng-click="$flow.resume()">Resume</a>
-                                <a class="btn btn-small btn-warning" ng-click="$flow.pause()">Pause</a>
-                                <a class="btn btn-small btn-danger" ng-click="$flow.cancel()">Cancel</a>
-
-                                <h4 class="pull-right">
-                                    <span class="label label-md label-info">Total File Size: @{{$flow.getSize() | bytes }}</span>
-                                    <span class="label label-md" ng-class="{ 'label-default' : !$flow.isUploading() , 'label-success' : $flow.isUploading() }">Is Uploading: @{{$flow.isUploading() ? 'Yes' : 'No' }}</span>
-                                </h4>
-                            </div>
+                            <md-card>
+                                <md-card-content layout="row" layout-align="center center">
+                                    <md-button class="md-raised mt2-button-xs mt2-button-success" ng-click="$flow.resume()">Resume</md-button>
+                                    <md-button class="md-raised mt2-button-xs md-warn" ng-click="$flow.pause()">Pause</md-button>
+                                    <md-button class="md-raised mt2-button-xs md-warn md-hue-2" ng-click="$flow.cancel()">Cancel</md-button>
+                                    <div flex="auto"></div>
+                                    <div flex="initial">
+                                        <div class="mt2-label mt2-label-info">Total File Size: @{{$flow.getSize() | bytes }}</div>
+                                        <div class="mt2-label" ng-class="{ 'mt2-label-default' : !$flow.isUploading() , 'mt2-label-success' : $flow.isUploading() }">Is Uploading: @{{$flow.isUploading() ? 'Yes' : 'No' }}</div>
+                                    </div>
+                                </md-card-content>
+                            </md-card>
 
                             <table class="table table-hover table-bordered table-striped" flow-transfers ng-cloak>
                                 <thead>
@@ -116,12 +124,14 @@
                     </md-card-content>
             </md-card>
 
-            <button type="button" class="btn btn-success btn-md pull-right"
-            ng-disabled="!supp.emailsLoaded"
-            ng-click="supp.uploadSuppressions()">
-                <span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : supp.emailsLoaded }"></span>
-                Suppress
-            </button>
+            <div layout="column" layout-align="end end">
+                <md-button class="md-raised md-accent"
+                    ng-disabled="!supp.emailsLoaded"
+                    ng-click="supp.uploadSuppressions()">
+                        <md-icon md-svg-icon="img/icons/ic_block_white_18px.svg"></md-icon> Suppress
+                </md-button>
+            </div>
+
         </div>
     </md-content>
 </div>

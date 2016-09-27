@@ -54,7 +54,7 @@
                             <input type="text" id="key2" name="key2" ng-model="esp.currentAccount.key2" />
                         </md-input-container>
 
-                        <md-button class="md-raised mt2-button-save" ng-click="esp.saveNewAccount( $event , addEspForm )">Save</md-button>
+                        <md-button class="md-raised md-accent" ng-click="esp.saveNewAccount( $event , addEspForm )">Save</md-button>
 
                     </form>
                 </md-card-content>

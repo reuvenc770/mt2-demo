@@ -80,7 +80,7 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
             $mdToast.showSimple( 'Please fix errors and try again.' );
 
             return false;
-        }
+        };
 
         EspApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , function( response ) {
             angular.forEach( response.data , function( error , fieldName ) {

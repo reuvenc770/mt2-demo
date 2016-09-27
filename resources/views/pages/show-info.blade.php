@@ -17,7 +17,7 @@
                     </div>
                 </md-input-container>
                 <div layout="row">
-                    <md-button class="md-raised mt2-button-save" ng-click="info.loadData( $event , recordForm )" flex-gt-xs="20" flex="100" layout="row">
+                    <md-button class="md-raised md-accent" ng-click="info.loadData( $event , recordForm )" flex-gt-xs="20" flex="100" layout="row">
                         <span flex>Search</span> <md-progress-circular ng-show="info.isLoading" md-mode="indeterminate" md-diameter="24"></md-progress-circular>
                     </md-button>
                 </div>
@@ -93,25 +93,26 @@
         </table>
     </div>
 
-    <div class="well" ng-if="info.records.length > 0">
-        <h3>Add to Suppression</h3>
-        <form name="suppressionForm" novalidate>
-            <div class="form-group" ng-class="{ 'has-error' : ( suppressionForm.suppressionReason.$touched && suppressionForm.suppressionReason.$error.required ) }">
-                <label for="suppressionReason">Reason</label>
+    <md-card ng-if="info.records.length > 0">
+        <md-card-content>
+            <form name="suppressionForm" layout="column" novalidate>
+                <md-input-container>
+                    <label>Suppression Reason</label>
+                    <md-select name="suppressionReason" ng-model="info.selectedReason" ng-init="info.loadReasons()" ng-required="true">
+                        <option ng-repeat="reason in info.suppressionReasons" ng-value="reason.value">@{{ reason.name }}</option>
+                    </md-select>
+                    <div ng-messages="suppressionForm.suppressionReason.$error">
+                        <div ng-message="required">Suppression Reason is required.</div>
+                    </div>
+                </md-input-container>
 
-                <select name="suppressionReason" class="form-control" ng-model="info.selectedReason" ng-init="info.loadReasons()" required>
-                    <option value="">Please Choose a Suppression Reason</option>
-                    <option ng-repeat="reason in info.suppressionReasons" ng-value="reason.value">@{{ reason.name }}</option>
-                </select>
-
-                <div ng-show="suppressionForm.suppressionReason.$touched">
-                    <span class="help-block" ng-show="suppressionForm.suppressionReason.$error.required">Suppression Reason is required</span>
+                <div layout="row">
+                    <md-button class="md-raised md-accent" flex-gt-xs="20" flex="100" ng-click="info.suppressRecord( $event , suppressionForm )">Suppress Record</md-button>
                 </div>
-            </div>
+            </form>
+        </md-card-content>
+    </md-card>
 
-            <button type="submit" class="btn btn-danger btn-lg" ng-click="info.suppressRecord( $event , suppressionForm )">Suppress Record</button>
-        </form>
-    </div>
 </div>
 @stop
 

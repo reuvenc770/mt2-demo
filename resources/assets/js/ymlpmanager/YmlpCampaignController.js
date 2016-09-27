@@ -1,4 +1,4 @@
-mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window' , '$location' , '$timeout' , 'YmlpCampaignApiService' , function ( $rootScope , $log , $window , $location , $timeout , YmlpCampaignApiService ) {
+mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window' , '$location' , '$timeout' , '$mdToast', 'YmlpCampaignApiService' , function ( $rootScope , $log , $window , $location , $timeout , $mdToast , YmlpCampaignApiService ) {
     var self = this;
     self.$location = $location;
 
@@ -45,10 +45,42 @@ mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window
         $window.location.href = self.createUrl;
     };
 
-    self.saveNewCampaign = function () {
+    self.onFormFieldChange = function ( event , form , fieldName ) {
+        form[ fieldName ].$setValidity('custom', true);
+
+        self.formErrors[ fieldName ] = [];
+    };
+
+    self.saveNewCampaign = function ( event , form ) {
         self.resetFieldErrors();
 
-        YmlpCampaignApiService.saveNewCampaign( self.currentCampaign , self.SuccessCallBackRedirect , self.saveNewCampaignFailureCallback );
+        var errorFound = false;
+
+        angular.forEach( form.$error.required , function( field ) {
+            field.$setDirty();
+            field.$setTouched();
+
+            errorFound = true;
+        });
+
+        if ( errorFound ) {
+            $mdToast.showSimple( 'Please fix errors and try again.' );
+
+            return false;
+        }
+
+        YmlpCampaignApiService.saveNewCampaign( self.currentCampaign , self.SuccessCallBackRedirect , function( response ) {
+            angular.forEach( response.data , function( error , fieldName ) {
+
+                form[fieldName].$setDirty();
+                form[fieldName].$setTouched();
+                form[fieldName].$setValidity('custom' , false);
+
+                $log.debug(form[fieldName]);
+            });
+
+            self.saveNewCampaignFailureCallback( response );
+        });
     };
 
     self.editCampaign = function () {
