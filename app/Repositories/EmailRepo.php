@@ -69,8 +69,22 @@ class EmailRepo {
         } 
     }
 
+    /**
+     *  Returns the attribution level for the feed that the $emailId is currently associated to
+     *  However, if no attribution level exists for that particular feed, return 1000 (a number far below any attr level)
+     *  This last case should only be a temporary problem - we don't want this situation in MT2 (and neither do they)
+     */
+
     public function getSetAttributionLevel($emailId) {
-        return $this->emailModel->find($emailId)->feedAssignment->feed->attributionLevel->level;
+        $attributionLevel = $this->emailModel->find($emailId)->feedAssignment->feed->attributionLevel;
+
+        if ($attributionLevel) {
+            return $attributionLevel->level;
+        }
+        else {
+            return 1000;
+        }
+        
     }
 
     /**
