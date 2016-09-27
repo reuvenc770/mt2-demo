@@ -1,11 +1,11 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
 class FeedDateEmailBreakdown extends Model
 {
-    protected $timestamps = false;
+    public $timestamps = false;
     protected $guarded = ['id'];
 }
