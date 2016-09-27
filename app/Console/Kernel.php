@@ -17,7 +17,7 @@ class Kernel extends ConsoleKernel
     const DEPLOY_CHECK_TIME = '14:00';
     const CAKE_CONVERSION_UPDATE_TIME = '14:00';
     const ATTRIBUTION_UPDATE_TIME = '15:30';
-    const ATTRIBUTION_REPORT_UPDATE_TIME = '18:30';
+    const ATTRIBUTION_REPORT_UPDATE_TIME = '0:30';
     const MT1_SYNC_TIME = '23:00';
 
     /**
@@ -187,5 +187,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('runFilter activity')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('runFilter expiration')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('attribution:commit')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
+        $schedule->command( 'attribution:conversion -P realtime' )->dailyAt( self::REPORT_TIME_2 ); #early conversion grab & report updating
+        $schedule->command( 'attribution:conversion -P rerun' )->dailyAt( self::ATTRIBUTION_REPORT_UPDATE_TIME ); #daily rerun
+        $schedule->command( 'attribution:conversion -P rerun -d 7' )->weekly(); #weekly rerun
+        $schedule->command( 'attribution:conversion -P rerun -D month -m current' )->monthlyOn( 20 , self::ATTRIBUTION_REPORT_UPDATE_TIME ); #early monthly rerun
+        $schedule->command( 'attribution:conversion -P rerun -D month -m current' )->monthlyOn( 28 , self::ATTRIBUTION_REPORT_UPDATE_TIME ); #monthly rerun
+        $schedule->command( 'attribution:conversion -P rerun -D month -m last' )->monthlyOn( 1 , self::ATTRIBUTION_REPORT_UPDATE_TIME ); #final monthly rerun
     }
 }
