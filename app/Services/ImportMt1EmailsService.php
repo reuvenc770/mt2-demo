@@ -243,7 +243,7 @@ class ImportMt1EmailsService
             $hasActions = $this->emailRepo->hasActions($emailId);
             $currentAttributionLevel = $this->emailRepo->getSetAttributionLevel($emailId);
             $importingAttrLevel = $this->attributionLevelRepo->getLevel($importingFeedId);
-            $captureDate = $this->emailRepo->getCaptureDate($emailId);
+            $captureDate = Carbon::parse($this->emailRepo->getCaptureDate($emailId));
 
             // Was the old record > 90 days old at the processing date (following MT1's lead here)
             if ( $this->processingDate->subDays(90)->gte($captureDate) ) {
