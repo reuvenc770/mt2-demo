@@ -32,7 +32,7 @@ class CfsStatsService {
     }
 
     public function getSubjectOfferOpenRate($offerId) {
-        return $this->subjectRepo->getSubjectOfferOpenRate($offerId);
+        return $this->displaySort($this->subjectRepo->getSubjectOfferOpenRate($offerId));
     }
 
     /**
