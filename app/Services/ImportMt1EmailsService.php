@@ -236,7 +236,7 @@ class ImportMt1EmailsService
                 return 'fresh';
             }
             else {
-                return (($importingFeedId === $currentFeedId) ? 'duplicate' : 'non-fresh';
+                return (($importingFeedId === $currentFeedId) ? 'duplicate' : 'non-fresh');
             }
         }
 
