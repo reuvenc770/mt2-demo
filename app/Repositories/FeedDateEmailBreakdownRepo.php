@@ -26,7 +26,7 @@ class FeedDateEmailBreakdownRepo {
                 (feed_id, date, total_emails, valid_emails, suppressed_emails, fresh_emails, feed_duplicates, cross_feed_duplicates)
 
                 VALUES 
-                (:feed_id, :date, :total_emails, :valid_emails, :suppressed, :fresh, :duplicates, :non_fresh)
+                (:feed_id, CURDATE(), :total_emails, :valid_emails, :suppressed, :fresh, :duplicates, :non_fresh)
 
                 ON DUPLICATE KEY UPDATE
                     feed_id = feed_id,
@@ -39,7 +39,6 @@ class FeedDateEmailBreakdownRepo {
                     cross_feed_duplicates = cross_feed_duplicates + VALUES(cross_feed_duplicates)", [
 
                     ':feed_id' => $feedId,
-                    ':date' => $date,
                     ':total_emails' => 0, // currently not putting in anything for total emails because we don't get them from MT1
                     ':valid_emails' => $valid,
                     ':suppressed' => $statuses['suppressed'],
