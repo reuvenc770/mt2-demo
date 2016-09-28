@@ -5,7 +5,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     self.accounts = [];
     self.po_box = {sub : "",address : "", address_2 : "", city : "", state : "", zip: "", phone : "", brands: [], notes: ""};
     self.brand = "";
-    self.currentAccount = { id:"",  dba_name : "" , phone: "",
+    self.currentAccount = { id:"",  dba_name : "" , phone: "", password: "",
     dba_email : "", po_boxes : [], address: "", address_2 : "", city : "", state : "", zip : "",entity_name: ""};
 
     self.createUrl = 'dba/create/';

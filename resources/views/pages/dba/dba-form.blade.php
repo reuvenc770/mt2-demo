@@ -44,6 +44,11 @@
             <span class="help-block" ng-bind="dba.formErrors.entity_name" ng-show="dba.formErrors.entity_name"></span>
         </div>
 
+        <div class="form-group" ng-class="{ 'has-error' : dba.formErrors.password }">
+            <input placeholder="Password" value="" class="form-control" ng-model="dba.currentAccount.password" required="required" name="password" type="text">
+            <span class="help-block" ng-bind="dba.formErrors.password" ng-show="dba.formErrors.password"></span>
+        </div>
+
         <div class="form-group" ng-class="{ 'has-error' : dba.formErrors.phone }">
             <input placeholder="Phone" value="" class="form-control" ng-model="dba.currentAccount.phone" required="required" name="phone" type="text">
             <span class="help-block" ng-bind="dba.formErrors.phone" ng-show="dba.formErrors.phone"></span>
