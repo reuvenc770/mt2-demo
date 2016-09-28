@@ -27,7 +27,7 @@
                             <th md-column md-order-by="registrant_name" class="md-table-header-override-whitetext">Registrant Name</th>
                             <th md-column md-order-by="address" class="md-table-header-override-whitetext">Address</th>
                             <th md-column md-order-by="dba_email" class="md-table-header-override-whitetext">Email</th>
-                            <th md-column md-order-by="dba_email" class="md-table-header-override-whitetext">Password</th>
+                            <th md-column md-order-by="password" class="md-table-header-override-whitetext">Password</th>
                             <th md-column md-order-by="phone" class="md-table-header-override-whitetext">Phone</th>
                             <th md-column md-order-by="po_boxes" class="md-table-header-override-whitetext">PO Boxes</th>
                             <th md-column md-order-by="entity_name" class="md-table-header-override-whitetext">Entity Name</th>
