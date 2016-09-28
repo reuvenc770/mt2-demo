@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Jobs\Job;
 use App\Services\DeployService;
+use Carbon\Carbon;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -17,12 +18,14 @@ class SendOpsDeploys extends Job implements ShouldQueue
 
     protected $tracking;
     protected $deploys;
+    protected $username;
     CONST JOB_NAME = "SendOpsDeploys";
 
-    public function __construct($deploys, $tracking)
+    public function __construct($deploys, $tracking, $username)
     {
         $this->deploys = $deploys;
         $this->tracking = $tracking;
+        $this->username = $username;
         JobTracking::startEspJob(self::JOB_NAME,"", "", $this->tracking);
     }
 
@@ -38,8 +41,9 @@ class SendOpsDeploys extends Job implements ShouldQueue
         $writer = Writer::createFromFileObject(new \SplTempFileObject());
         $writer->insertOne($service->getHeaderRow());
         $writer->insertAll($records);
+        $date = Carbon::today()->toDateString();
         //FTP LOCATION TO BE DETERMINED
-        Storage::put("/deploys/{$this->tracking}.csv", $writer->__toString());
+        Storage::put("/deploys/{$date}_{$this->username}_{$this->tracking}.csv", $writer->__toString());
         JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
     }
 
