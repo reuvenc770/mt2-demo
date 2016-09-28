@@ -8,12 +8,12 @@
 
 namespace App\Repositories;
 
-
 use App\Models\Deploy;
 use DB;
 use App\Facades\EspApiAccount;
 use Cache;
 use Carbon\Carbon;
+
 class DeployRepo
 {
     protected $deploy;
@@ -23,8 +23,8 @@ class DeployRepo
         $this->deploy = $deploy;
     }
 
-    public function getModel($searchType = null, $searchData = null)
-    {
+    public function getModel($searchData = null)
+    {        
         $query = $this->deploy
             ->leftJoin('esp_accounts', 'deploys.esp_account_id', '=', 'esp_accounts.id')
             ->leftJoin('offers', 'offers.id', '=', 'deploys.offer_id')
@@ -49,8 +49,9 @@ class DeployRepo
                 'cake_affiliate_id',
                 'deployment_status',
                 'notes');
-        if($searchType) {
-            $query = $this->mapQuery($searchType, $searchData, $query);
+
+        if('' !== $searchData) {
+            $query = $this->mapQuery($searchData, $query);
         }
         $query->orderBy('deploy_id', 'desc');
         return $query;
@@ -274,34 +275,36 @@ class DeployRepo
     }
 
 
-    private function mapQuery($searchType, $searchData, $query){
+    private function mapQuery($searchData, $query){
+        $searchData = json_decode($searchData, true);
+        
+        if (isset($searchData['esp'])) {
+            $espAccounts = collect(EspApiAccount::getAllAccountsByESPName($searchData['esp']));
+            $espAccountIds = $espAccounts->pluck('id');
+            $query->whereIn('deploys.esp_account_id', $espAccountIds);
+        }
 
+        if (isset($searchData['espAccountId'])) {
+            $query->where('deploys.esp_account_id', (int)$searchData['espAccountId']);
+        }
 
-        switch($searchType){
-            case "esp":
-                $espAccounts = collect(EspApiAccount::getAllAccountsByESPName($searchData));
-                $espAccountIds = $espAccounts->pluck('id');
-                $query = $query->wherein('deploys.esp_account_id',$espAccountIds);
-                break;
-            case "espAccount":
-                $query = $query->where('deploys.esp_account_id',$searchData);
-                break;
-            case "status":
-                $query = $query->where('deploys.deployment_status',$searchData);
-                break;
-            case "date":
-                $dates = explode(',',$searchData);
-                $query = $query->whereBetween('deploys.send_date',$dates);
-                break;
-            case "offer":
-                $query = $query->where('offers.name','LIKE', "$searchData%");
-                break;
-            case "deploy":
-                $query = $query->where('deploys.id',$searchData);
-                break;
-            default:
+        if (isset($searchData['deployId'])) {
+            $query->where('deploys.id', (int)$searchData['deployId']);
+        }
 
-        };
+        if (isset($searchData['status'])) {
+            $query->where('deploys.deployment_status', (int)$searchData['status']);
+        }
+
+        if (isset($searchData['offerNameWildcard'])) {
+            $query->where('offers.name','LIKE', $searchData['offerNameWildcard'] . '%');
+        }
+
+        if (isset($searchData['dates'])) {
+            $dates = explode(',', $searchData['dates']);
+            $query->whereBetween('deploys.send_date',$dates);
+        }
+
         return $query;
     }
 

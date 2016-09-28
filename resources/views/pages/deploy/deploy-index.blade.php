@@ -116,18 +116,13 @@
                             <md-input-container flex>
                                 <label>Choose an ESP</label>
                                 <md-select name="esp_account_search" id="esp_account_search"
-                                    ng-model="deploy.search.esp_id"
+                                    ng-model="deploy.search.esp"
                                     ng-disabled="deploy.currentlyLoading">
                                     @foreach ( $esps as $esp )
                                         <md-option value="{{ $esp['name'] }}">{{ $esp['name'] }}</md-option>
                                     @endforeach
                                 </md-select>
                             </md-input-container>
-                            <div>
-                                <md-button class="md-raised md-accent" ng-click="deploy.searchDeploys('esp',deploy.search.esp_id)">
-                                    Search By ESP
-                                </md-button>
-                            </div>
                         </div>
                         <div flex hide-sm hide-xs></div>
                         <div layout="row" flex-gt-sm="45">
@@ -141,11 +136,6 @@
                                     </md-option>
                                 </md-select>
                             </md-input-container>
-                                <div>
-                                    <md-button class="md-raised md-accent" ng-click="deploy.searchDeploys('espAccount',deploy.search.esp_account_id)">
-                                        Search By ESP Account
-                                    </md-button>
-                                </div>
                         </div>
                     </div>
                     <div layout="column" layout-gt-sm="row">
@@ -154,11 +144,6 @@
                                 <label>Offer Name* wildcard</label>
                                 <input type="text" id="search_offer" value="" ng-model="deploy.search.offer"/>
                             </md-input-container>
-                            <div>
-                                <md-button class="md-raised md-accent"
-                                    ng-click="deploy.searchDeploys('offer',deploy.search.offer)">Search By Offer
-                                </md-button>
-                            </div>
                         </div>
                         <div flex hide-sm hide-xs></div>
                         <div layout="row" flex-gt-sm="45">
@@ -166,11 +151,6 @@
                                 <label>Deploy ID</label>
                                 <input id="deploy_id" value="" ng-model="deploy.search.deployId"/>
                             </md-input-container>
-                            <div>
-                                <md-button class="md-raised md-accent"
-                                        ng-click="deploy.searchDeploys('deploy',deploy.search.deployId)">Search By Deploy ID
-                                </md-button>
-                            </div>
                         </div>
                     </div>
                     <div layout="column" layout-gt-sm="row">
@@ -181,11 +161,6 @@
                                 <md-datepicker flex="50" name="dateField" ng-change="deploy.updateSearchDate()" ng-model="deploy.search.endDate"
                                                md-placeholder="End date"></md-datepicker>
                            </div>
-                            <div layout="column">
-                                <md-button flex="grow" class="md-raised md-accent"
-                                        ng-click="deploy.searchDeploys('date',deploy.search.dates)">Search By Date Range
-                                </md-button>
-                            </div>
                         </div>
                         <div flex hide-sm hide-xs></div>
                         <div layout="row" flex-gt-sm="45">
@@ -198,12 +173,10 @@
                                     <md-option ng-selected=" 1 == deploy.search.status" value="1">Deployed</md-option>
                                 </md-select>
                             </md-input-container>
-                            <div>
-                                <md-button class="md-raised md-accent"
-                                        ng-click="deploy.searchDeploys('status',deploy.search.status)">Search By Status
-                                </md-button>
-                            </div>
                         </div>
+                    </div>
+                    <div layout="row">
+                        <md-button class="md-raised md-accent" ng-click="deploy.searchDeploys()">Search</md-button>
                     </div>
                 </md-card-content>
             </md-card>
@@ -214,7 +187,7 @@
         <md-card>
             <md-toolbar class="md-hue-2">
                 <div class="md-toolbar-tools">
-                    <span>Deploys </span>
+                    <span>Deploys</span>
                     <span ng-if="deploy.searchType.length > 0">&nbsp;<md-icon md-svg-src="img/icons/ic_chevron_right_black_36px.svg"></md-icon> Search by @{{ deploy.searchType }}</span>
                 </div>
             </md-toolbar>
