@@ -5,7 +5,7 @@
 
 @section( 'content' )
 
-            {!! htmlentities($html, ENT_SUBSTITUTE) !!}
+            <pre>{{ $html }}</pre>
 @stop
 
 @section( 'pageIncludes' )
