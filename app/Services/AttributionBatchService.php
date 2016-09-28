@@ -77,9 +77,9 @@ class AttributionBatchService {
                 }
             }
 
-            Cache::decrement($this->keyName);
-
         }
+        
+        Cache::decrement($this->keyName);
 
         if (0 === (int)Cache::get($this->keyName)) {
             Cache::forget($this->keyName);  // remove from redis
