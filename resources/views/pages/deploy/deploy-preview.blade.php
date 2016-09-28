@@ -1,11 +1,11 @@
 @extends( 'layout.default' )
 
-@section( 'title' , 'Creative Preview' )
+@section( 'title' , 'View Deploy HTML' )
 
 
 @section( 'content' )
 
-            {!! $html !!}
+            {!! htmlentities($html, ENT_SUBSTITUTE) !!}
 @stop
 
 @section( 'pageIncludes' )
