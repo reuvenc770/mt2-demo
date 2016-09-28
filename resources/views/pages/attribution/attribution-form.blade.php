@@ -43,14 +43,16 @@
                 <md-list-item ng-repeat="feed in attr.feeds track by $index" class="md-no-proxy" ng-class="{ 'mt2-proj-increase-bg' : attr.clientLevels[ feed.id ] > ( $index + 1 ) , 'mt2-proj-decrease-bg' : attr.clientLevels[ feed.id ] < ( $index + 1 ) }">
                     <md-checkbox ng-model="feed.selected" aria-label="Feed Checkbox"></md-checkbox>
 
-                    <div class="md-list-item-text" layout="column" flex="40">
-                        <h4 ng-bind="feed.name"></h4>
-                    </div>
+                    <div layout="column" layout-gt-lg="row" flex="noshrink" flex-gt-lg="100">
+                        <div class="md-list-item-text" layout="column" flex="noshrink" flex-gt-lg="40">
+                            <h4 ng-bind="feed.name"></h4>
+                        </div>
 
-                    <div layout="row" layout-align="end center" flex="10">
-                        <input ng-init="feed.newLevel = $index + 1" ng-model="feed.newLevel" />
+                        <div layout="row" layout-align="start center" layout-align-gt-md="end center" flex="10">
+                            <input ng-init="feed.newLevel = $index + 1" ng-model="feed.newLevel" style="width:50px;" />
 
-                        <md-button ng-click="attr.changeLevel( feed , $index )">Change</md-button>
+                            <md-button ng-click="attr.changeLevel( feed , $index )">Change</md-button>
+                        </div>
                     </div>
 
                     <md-icon class="md-secondary" ng-click="attr.onLevelRise( feed , $index )" aria-label="Move Feed Up" md-svg-icon="img/icons/ic_arrow_upward_black_18px.svg"></md-icon>
@@ -59,9 +61,9 @@
 
                     <md-icon class="md-secondary" ng-click="attr.moveToTop( feed , $index )" aria-label="Move To Top" md-svg-icon="img/icons/ic_vertical_align_top_black_18px.svg"></md-icon>
 
-                    <md-icon class="md-secondary" ng-click="attr.moveToMiddle( feed , $index )" aria-label="Move To Middle" md-svg-icon="img/icons/ic_vertical_align_center_black_18px.svg"></md-icon>
-
                     <md-icon class="md-secondary" ng-click="attr.moveToBottom( feed , $index )" aria-label="Move to Bottom" md-svg-icon="img/icons/ic_vertical_align_bottom_black_18px.svg"></md-icon>
+
+                    <md-icon class="md-secondary" ng-click="attr.confirmDeletion( feed.id )" aria-label="Move to Bottom" md-svg-icon="img/icons/ic_delete_black_18px.svg"></md-icon>
                 </md-list-item>
             </md-list>
         </md-content>

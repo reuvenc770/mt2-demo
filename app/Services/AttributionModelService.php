@@ -56,4 +56,8 @@ class AttributionModelService {
     public function setLive ( $modelId ) {
         return $this->repo->setLive( $modelId );
     }
+
+    public function removeFeed ( $modelId , $feedId ) {
+        $this->levels->removeFeed( $modelId , $feedId );
+    }
 }

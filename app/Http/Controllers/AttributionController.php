@@ -114,9 +114,9 @@ class AttributionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy( $modelId , $feedId )
     {
-        //
+        $this->service->removeFeed( $modelId , $feedId );
     }
 
     public function levels ( $modelId ) {

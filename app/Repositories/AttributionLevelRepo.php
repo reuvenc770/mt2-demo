@@ -117,4 +117,32 @@ class AttributionLevelRepo {
         $feed->level = $level;
         $feed->save();
     }
+
+    public function removeFeed ( $modelId , $feedId ) {
+        $this->levels->setTable( AttributionLevel::BASE_TABLE_NAME . $modelId ); 
+
+        $currentLevelOrder = $this->levels->all();
+
+        $newLevelOrder = $currentLevelOrder->reject( function ( $value , $key ) use ( &$feedId ) {
+            return $value->feed_id == $feedId;
+        } );
+
+        $isLiveModel = ( $modelId == AttributionModelRepo::getLiveModelId() );
+
+        DB::connection( 'attribution' )->table( AttributionLevel::BASE_TABLE_NAME . $modelId )->truncate();
+
+        if ( $isLiveModel ) {
+            DB::connection( 'attribution' )->table( AttributionLevel::LIVE_TABLE_NAME )->truncate();
+        }
+
+        $self = &$this;
+
+        $newLevelOrder->each( function ( $currentFeed , $key ) use ( &$self , $modelId , $isLiveModel ) {
+            $self->updateFeedLevel( $currentFeed->feed_id , $key + 1 , $modelId );
+
+            if ( $isLiveModel ) {
+                $self->updateFeedLevel( $currentFeed->feed_id , $key + 1 );
+            }
+        } );
+    }
 }

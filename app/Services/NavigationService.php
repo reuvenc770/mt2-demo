@@ -24,13 +24,20 @@ class NavigationService {
         $this->router = $router;
     }
 
-    public function getMenuHtml () {
-        $userPresent = $this->loadUser();
+    public function getMenuHtml ( $isNonResponsive = false ) {
+        $userPresent = $this->loadUser( $isNonResponsive );
         if ( $userPresent ) {
             $cachedMenu = Cache::tags("navigation")->get( $this->cacheId );
             if ( is_null( $cachedMenu ) ) {
                 $this->loadMenu();
-                $sideNav = view( 'layout.side-nav', [ 'menuItems' => $this->menuList ] )->render() ;
+
+                $template = 'layout.side-nav';
+
+                if ( $isNonResponsive ) {
+                    $template = 'layout.side-nav-nonresp';
+                }
+
+                $sideNav = view( $template , [ 'menuItems' => $this->menuList ] )->render() ;
 
                 Cache::tags('navigation')->forever( $this->cacheId , $sideNav);
 
@@ -78,12 +85,15 @@ class NavigationService {
         }
     }
 
-    protected function loadUser () {
-        $this->currentUser = Sentinel::getUser();
+    protected function loadUser ( $isNonResponsive = false ) {
+        $this->currentUser = Sentinel::getUser(); 
         if ( is_null( $this->currentUser ) ) return false;
 
-
         $this->cacheId = 'nav-' . $this->currentUser->getUserId();
+
+        if ( $isNonResponsive ) {
+            $this->cacheId .= '-nonresp';
+        }
 
         return true;
     }

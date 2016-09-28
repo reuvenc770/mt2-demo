@@ -1,4 +1,4 @@
-mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedApiService' , 'AttributionProjectionService' , 'ThreeMonthReportService' , '$mdToast'  , '$mdSidenav' , '$log' , '$location' , function ( AttributionApiService , FeedApiService , AttributionProjectionService , ThreeMonthReportService , $mdToast , $mdSidenav , $log , $location ) {
+mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedApiService' , 'AttributionProjectionService' , 'ThreeMonthReportService' , '$mdToast' , '$mdDialog' , '$mdSidenav' , '$log' , '$location' , function ( AttributionApiService , FeedApiService , AttributionProjectionService , ThreeMonthReportService , $mdToast , $mdDialog , $mdSidenav , $log , $location ) {
     var self = this;
 
     self.current = { "id" : 0 , "name" : '' };
@@ -348,6 +348,38 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
 
             self.resetLevelFields();
         }
+    };
+
+    self.confirmDeletion = function ( feedId , ev ) {
+        var confirm = $mdDialog.confirm()
+            .title( 'Feed Removal' )
+            .textContent( 'Would you like to remove this feed from attribution?' )
+            .ariaLabel( 'Remove from Attribution' )
+            .targetEvent( ev )
+            .ok( 'Remove Feed' )
+            .cancel( 'Cancel' );
+
+        $mdDialog.show( confirm ).then(
+            function () {
+                //delete feed
+                AttributionApiService.deleteFeed(
+                    self.getModelId() ,
+                    feedId ,
+                    function ( response ) {
+                        self.loadLevels( self.getModelId() );
+
+                        self.displayToast( 'Successfully Removed Feed from Attribution' ); 
+                    } ,
+                    function ( response ) {
+                        self.displayToast( "Failed to remove feed. Please contact support." );
+                    }
+                );
+            } ,
+            function () {
+                //canceled
+                self.displayToast( 'Removal Canceled' );
+            }
+        );
     };
 
     self.onLevelRise = function ( feed , index ) {

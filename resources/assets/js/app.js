@@ -10,7 +10,6 @@ var mt2App = angular.module( 'mt2App' , [
     'flow' ,
     'ngclipboard' ,
     'ivh.treeview' ,
-    'dndLists' ,
     'md.data.table'
 ] );
 

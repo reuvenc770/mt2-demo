@@ -1,4 +1,4 @@
-@extends( 'layout.default' )
+@extends( 'layout.default-nonresp' )
 
 @section( 'title' , 'Attribution Model Projection' )
 
@@ -13,8 +13,8 @@
 @stop
 
 @section( 'content' )
-<md-content class="md-mt2-zeta-theme" layout="row" layout-align="center center" ng-init="attr.initProjectionPage()">
-    <div class="md-whiteframe-4dp" layout="column" layout-margin flex="95" ng-init="attr.initProjectionChart()">
+<md-content class="md-mt2-zeta-theme" layout="row" layout-align="center center" ng-init="attr.initProjectionPage()" flex="none">
+    <div class="md-whiteframe-4dp" layout="column" layout-margin flex="none" ng-init="attr.initProjectionChart()">
             <md-toolbar layout="row" class="md-mt2-zeta-theme md-hue-2" layout-fill>
                 <div class="md-toolbar-tools">
                     Projection Chart
@@ -74,4 +74,6 @@
 @section( 'pageIncludes' )
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script src="js/attribution.js"></script>
+@include( 'layout.side-nav-nonresp-css' , [ 'width' => 1764 ] )
 @stop
+
