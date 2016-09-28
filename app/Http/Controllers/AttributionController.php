@@ -161,7 +161,7 @@ class AttributionController extends Controller
     }
 
     public function showProjection ( $modelId ) {
-        return response()->view( 'pages.attribution.attribution-projection' );
+        return response()->view( 'pages.attribution.attribution-projection' , [ 'modelId' => $modelId ] );
     }
 
     public function getChartData ( $modelId ) {
