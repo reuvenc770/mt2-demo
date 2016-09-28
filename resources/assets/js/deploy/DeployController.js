@@ -271,6 +271,13 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         }
     };
 
+    self.checkStatus = function(approval,status){
+        if(approval == 1 && status == 'A'){
+            return true;
+        }
+        return false;
+    };
+
 
     /**
      * Watchers

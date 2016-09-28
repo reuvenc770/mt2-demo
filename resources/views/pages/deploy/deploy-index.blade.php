@@ -433,20 +433,34 @@
                                          'mt2-bg-success' : record.deployment_status ==1,
                                          'mt2-warning' : record.deployment_status == 2 }">
                             <td md-cell>
-                                <md-checkbox aria-label="Select" name="selectedRows"
+                                <md-checkbox ng-show="@{{deploy.checkStatus(record.creative_approval,record.creative_status)
+                                && deploy.checkStatus(record.from_approval,record.from_status)
+                                && deploy.checkStatus(record.subject_approval,record.subject_status)}}" aria-label="Select" name="selectedRows"
                                              ng-click="deploy.toggleRow(record.deploy_id)"> </md-checkbox>
                             </td>
                             <td md-cell>
-                                <md-button class="md-raised" ng-click="deploy.editRow( record.deploy_id)">Edit</md-button>
+                                <md-button ng-hide="record.deployment_status ==1" class="md-raised" ng-click="deploy.editRow( record.deploy_id)">Edit</md-button>
                                 <md-button class="md-raised md-accent" ng-click="deploy.copyRow( record.deploy_id)">Copy</md-button>
                             </td>
                             <td md-cell>@{{ record.send_date }}</td>
                             <td md-cell>@{{ record.deploy_id }}</td>
                             <td md-cell>@{{ record.account_name }}</td>
                             <td md-cell>@{{ record.offer_name }}</td>
-                            <td md-cell>@{{ record.creative }}</td>
-                            <td md-cell>@{{ record.from }}</td>
-                            <td md-cell>@{{ record.subject }}</td>
+                            <td md-cell>
+                                @{{ record.creative }}
+                                <span ng-hide="deploy.checkStatus(record.creative_approval,record.creative_status)"
+                                      class="deploy-error mt2-bg-danger">!! Creative has been unapproved or deactivate !!</span>
+                            </td>
+                            <td md-cell>
+                                @{{ record.from }}
+                                <span ng-hide="deploy.checkStatus(record.from_approval,record.from_status)"
+                                      class="deploy-error mt2-bg-danger">!! From has been unapproved or deactivate !!</span>
+                            </td>
+                            <td md-cell>
+                                @{{ record.subject }}
+                                <span ng-hide="deploy.checkStatus(record.subject_approval,record.subject_status)"
+                                      class="deploy-error mt2-bg-danger">!! Subject has been unapproved or deactivate !!</span>
+                            </td>
                             <td md-cell>@{{ record.template_name }}</td>
                             <td md-cell>@{{ record.mailing_domain }}</td>
                             <td md-cell>@{{ record.content_domain }}</td>

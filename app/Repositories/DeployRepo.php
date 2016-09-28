@@ -48,6 +48,10 @@ class DeployRepo
                 'list_profiles.profile_name as list_profile',
                 'cake_affiliate_id',
                 'deployment_status',
+                'creatives.is_approved as creative_approval',
+                'creatives.status as creative_status','subjects.is_approved as subject_approval',
+                'subjects.status as subject_status','froms.is_approved as from_approval',
+                'froms.status as from_status',
                 'notes');
 
         if('' !== $searchData) {
