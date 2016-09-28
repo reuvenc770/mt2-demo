@@ -135,13 +135,11 @@ class AttributionLevelRepo {
             DB::connection( 'attribution' )->table( AttributionLevel::LIVE_TABLE_NAME )->truncate();
         }
 
-        $self = &$this;
-
-        $newLevelOrder->each( function ( $currentFeed , $key ) use ( &$self , $modelId , $isLiveModel ) {
-            $self->updateFeedLevel( $currentFeed->feed_id , $key + 1 , $modelId );
+        $newLevelOrder->each( function ( $currentFeed , $key ) use ( $modelId , $isLiveModel ) {
+            $this->updateFeedLevel( $currentFeed->feed_id , $key + 1 , $modelId );
 
             if ( $isLiveModel ) {
-                $self->updateFeedLevel( $currentFeed->feed_id , $key + 1 );
+                $this->updateFeedLevel( $currentFeed->feed_id , $key + 1 );
             }
         } );
     }
