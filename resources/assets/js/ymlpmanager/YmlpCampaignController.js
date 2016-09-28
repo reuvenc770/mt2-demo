@@ -79,8 +79,6 @@ mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window
                 form[fieldName].$setDirty();
                 form[fieldName].$setTouched();
                 form[fieldName].$setValidity('custom' , false);
-
-                $log.debug(form[fieldName]);
             });
 
             self.saveNewCampaignFailureCallback( response );

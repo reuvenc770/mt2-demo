@@ -20,7 +20,7 @@
                             <label>Account Name</label>
                             <input type="text" id="accountName" name="accountName" ng-model="esp.currentAccount.accountName" ng-required="true" />
                             <div ng-messages="editEspForm.accountName.$error">
-                                <div ng-message="required">ESP Account Name is required.</div>
+                                <div ng-message="required">ESP account name is required.</div>
                             </div>
                         </md-input-container>
 
@@ -28,7 +28,7 @@
                             <label>Key 1</label>
                             <input type="text" id="key1" name="key1" ng-model="esp.currentAccount.key1" ng-required="true" />
                             <div ng-messages="editEspForm.key1.$error">
-                                <div ng-message="required">ESP Key 1 is required.</div>
+                                <div ng-message="required">ESP key 1 is required.</div>
                             </div>
                         </md-input-container>
 

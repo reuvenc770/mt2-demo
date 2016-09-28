@@ -31,7 +31,7 @@
                             <label>Account Name</label>
                             <input type="text" id="accountName" name="accountName" ng-required="true" ng-model="esp.currentAccount.accountName" ng-change="esp.onFormFieldChange( $event , addEspForm , 'accountName' )" />
                             <div ng-messages="addEspForm.accountName.$error">
-                                <div ng-message="required">ESP Account Name is required.</div>
+                                <div ng-message="required">ESP account name is required.</div>
                                 <div ng-repeat="error in esp.formErrors.accountName">
                                     <div ng-bind="error"></div>
                                 </div>
@@ -42,7 +42,7 @@
                             <label>Key 1</label>
                             <input type="text" id="key1" name="key1" ng-required="true" ng-model="esp.currentAccount.key1" ng-change="esp.onFormFieldChange( $event , addEspForm , 'key1' )" />
                             <div ng-messages="addEspForm.key1.$error">
-                                <div ng-message="required">ESP Key 1 is required.</div>
+                                <div ng-message="required">ESP key 1 is required.</div>
                                 <div ng-repeat="error in esp.formErrors.key1">
                                     <div ng-bind="error"></div>
                                 </div>
