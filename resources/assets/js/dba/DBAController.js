@@ -16,6 +16,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     self.pageCount = 0;
     self.paginationCount = '10';
     self.currentPage = 1;
+    self.poBoxHolder = {};
     self.accountTotal = 0;
     self.sort = "-status";
     self.queryPromise = null;
@@ -25,7 +26,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
 
         DBAApiService.getAccount( pathMatches[ 1 ] , function ( response ) {
             self.currentAccount = response.data;
-            self.currentAccount.po_boxes = JSON.parse(response.data.po_boxes);
+            self.poBoxHolder = JSON.parse(response.data.po_boxes);
         } )
     };
 
@@ -47,14 +48,14 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
 
     self.saveNewAccount = function () {
         self.resetFieldErrors();
-        self.currentAccount.po_boxes = JSON.stringify(self.currentAccount.po_boxes);
+        self.currentAccount.po_boxes = JSON.stringify(self.poBoxHolder);
         self.currentAccount.status = 1;
         DBAApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback );
     };
 
     self.editAccount = function () {
         self.resetFieldErrors();
-        self.currentAccount.po_boxes = JSON.stringify(self.currentAccount.po_boxes);
+        self.currentAccount.po_boxes = JSON.stringify(self.poBoxHolder);
         DBAApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 
@@ -145,7 +146,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     };
 
     self.saveNewAccountFailureCallback = function ( response ) {
-        self.currentAccount.po_boxes = JSON.parse(self.currentAccount.po_boxes);
+        self.currentAccount.po_boxes = JSON.parse(self.poBoxHolder);
         self.loadFieldErrors(response);
     };
 

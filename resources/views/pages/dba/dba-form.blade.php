@@ -108,8 +108,8 @@
                     <input class="btn btn-lg btn-primary btn-block" ng-click="dba.addPOBox()" type="submit" value="Create P.O. Box">
                 </div>
             </div>
-            <div ng-show="dba.currentAccount.po_boxes.length > 0" class="panel-footer">
-                <p ng-repeat="(key, value) in dba.currentAccount.po_boxes track by $index"> @{{value.sub}} - @{{value.address}} @{{value.address_2}} @{{value.city}} @{{value.state}} @{{value.zip}} @{{value.phone}} @{{value.brands}} <a ng-click="dba.editPOBox(key)">Edit</a> <a ng-click="dba.removePOBox(key)">Remove</a> </p>
+            <div ng-show="dba.poBoxHolder.length > 0" class="panel-footer">
+                <p ng-repeat="(key, value) in dba.poBoxHolder track by $index"> @{{value.sub}} - @{{value.address}} @{{value.address_2}} @{{value.city}} @{{value.state}} @{{value.zip}} @{{value.phone}} @{{value.brands}} <a ng-click="dba.editPOBox(key)">Edit</a> <a ng-click="dba.removePOBox(key)">Remove</a> </p>
             </div>
         </div>
         <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.notes }">
