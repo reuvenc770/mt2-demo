@@ -3,7 +3,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     self.$location = $location;
 
     self.accounts = [];
-    self.po_box = {sub : "",address : "", address_2 : "", city : "", state : "", zip: "", phone : "", brands: []};
+    self.po_box = {sub : "",address : "", address_2 : "", city : "", state : "", zip: "", phone : "", brands: [], notes: ""};
     self.brand = "";
     self.currentAccount = { id:"",  dba_name : "" , phone: "",
     dba_email : "", po_boxes : [], address: "", address_2 : "", city : "", state : "", zip : "",entity_name: ""};
@@ -101,11 +101,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
 
     self.formatBox = function(box){
       var boxes = JSON.parse(box);
-        var text = "";
-        angular.forEach(boxes, function(value, key) {
-        text+= value.sub + "-" + value.address + " " + value.city + " " + value.state + "" +  value.zip + "-" + value.phone + " - Brands -" + value.brands + "\n\n";
-        });
-        return text;
+        return boxes;
     };
 
     /**
@@ -124,6 +120,9 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
      */
     self.loadAccountsSuccessCallback = function ( response ) {
         self.accounts = response.data.data;
+        for (var i = 0, len = response.data.data.length; i < len; i++){
+            self.accounts[i].po_boxes = JSON.parse(self.accounts[i].po_boxes);
+        }
         self.pageCount = response.data.last_page;
         self.accountTotal = response.data.total;
     };

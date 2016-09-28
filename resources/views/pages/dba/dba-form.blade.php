@@ -107,3 +107,9 @@
                 <p ng-repeat="(key, value) in dba.currentAccount.po_boxes track by $index"> @{{value.sub}} - @{{value.address}} @{{value.address_2}} @{{value.city}} @{{value.state}} @{{value.zip}} @{{value.phone}} @{{value.brands}} <a ng-click="dba.editPOBox(key)">Edit</a> <a ng-click="dba.removePOBox(key)">Remove</a> </p>
             </div>
         </div>
+        <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.notes }">
+            <div class="form-group">Notes:
+                                <textarea ng-model="dba.currentAccount.notes" class="form-control" rows="5"
+                                          id="notes"></textarea>
+            </div>
+        </div>

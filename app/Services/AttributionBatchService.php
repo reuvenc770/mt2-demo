@@ -79,15 +79,15 @@ class AttributionBatchService {
 
             Cache::decrement($this->keyName);
 
-            if (0 === (int)Cache::get($this->keyName)) {
-                Cache::forget($this->keyName);  // remove from redis
+        }
 
-                if ($isModelRun) {
-                    // Attribution finished. Return model id and remove from storage
-                    \Event::fire(new AttributionCompleted($modelId)); // need model id
-                }
+        if (0 === (int)Cache::get($this->keyName)) {
+            Cache::forget($this->keyName);  // remove from redis
+
+            if ($isModelRun) {
+                // Attribution finished. Return model id and remove from storage
+                \Event::fire(new AttributionCompleted($modelId)); // need model id
             }
-
         }
     }
 

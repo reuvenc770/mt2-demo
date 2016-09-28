@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Jobs\CommitAttributionJob;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Cache;
 
 class CommitAttribution extends Command
 {
@@ -15,6 +16,7 @@ class CommitAttribution extends Command
      * @var string
      */
     protected $signature = 'attribution:commit {modelId?}';
+    private $keyName = 'AttributionJob';
 
     const MOD_BASE = 5;
 
@@ -41,6 +43,8 @@ class CommitAttribution extends Command
      */
     public function handle() {
         $model = $this->argument('modelId') ?: 'none';
+        Cache::forget($this->keyName); // Forget any current instance
+        Cache::forever($this->keyName, 0); // Reset to 0
 
         for ($remainder = 0; $remainder < self::MOD_BASE; $remainder++) {
             $job = new CommitAttributionJob($model, $remainder, str_random(16));

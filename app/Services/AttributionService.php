@@ -55,7 +55,6 @@ class AttributionService
     public function run( $records , $modelId = 'none' ) {
 
         $currentTimestamp = Carbon::now()->timestamp;
-        Cache::forever($this->name, 0);
 
         $records->chunk(65000, function ($results) use ($modelId) {
             Artisan::call('attribution:processBatch', [
@@ -63,6 +62,8 @@ class AttributionService
                 'modelId' => $modelId
             ]);
 
+            // This depends on the query completing faster than the processing job
+            // This is currently a good assumption, but is not necessarily true
             Cache::increment($this->name);
         });
 

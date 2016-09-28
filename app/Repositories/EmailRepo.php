@@ -54,19 +54,55 @@ class EmailRepo {
         return 1;
     }
 
+    /**
+     *  Returns attributed feed id for provided email id
+     *  If nothing found, returns 0
+     */
+
     public function getCurrentAttributedFeedId($emailId) {
-        return $this->emailModel->find($emailId)->feedAssignment->feed_id;
+        $assignment = $this->emailModel->find($emailId)->feedAssignment;
+        if ($assignment) {
+            return $assignment->feed_id;
+        }
+        else {
+            return 0;
+        } 
     }
+
+    /**
+     *  Returns the attribution level for the feed that the $emailId is currently associated to
+     *  However, if no attribution level exists for that particular feed, return 1000 (a number far below any attr level)
+     *  This last case should only be a temporary problem - we don't want this situation in MT2 (and neither do they)
+     */
 
     public function getSetAttributionLevel($emailId) {
-        return $this->emailModel->find($emailId)->feedAssignment->feed->attributionLevel->level;
+        $attributionLevel = $this->emailModel->find($emailId)->feedAssignment->feed->attributionLevel;
+
+        if ($attributionLevel) {
+            return $attributionLevel->level;
+        }
+        else {
+            return 1000;
+        }
+        
     }
+
+    /**
+     *  Returns boolean for "is a recent import?" for provided email id
+     *  unless nothing found, in which case it returns 0 (so be sure to use ===)
+     */
 
     public function isRecentImport($emailId) {
-        return ($this->emailModel->find($emailId)->attributionTruths->recent_import == 1);
+        $truth = $this->emailModel->find($emailId)->attributionTruths;
+        if ($truth) {
+            return ($truth->recent_import == 1);
+        }
+        else {
+            return 0;
+        }
     }
 
-    public function hasAction($emailId) {
+    public function hasActions($emailId) {
         return ($this->emailModel->find($emailId)->attributionTruths->has_action == 1);
     }
 
