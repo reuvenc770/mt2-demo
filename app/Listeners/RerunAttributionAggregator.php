@@ -27,7 +27,7 @@ class RerunAttributionAggregator
      *
      * @return void
      */
-    public function __construct( AttributiuonModelService $attrService )
+    public function __construct( AttributionModelService $attrService )
     {
         $this->attrService = $attrService;
     }
