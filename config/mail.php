@@ -54,7 +54,7 @@ return [
     |
     */
 
-    'from' => ['address' => 'admin@mtroute.com', 'name' => 'MT2 Admin'],
+    'from' => ['address' => 'postmaster@mailgun.mtroute.com', 'name' => 'MT2 Admin'],
 
     /*
     |--------------------------------------------------------------------------
