@@ -74,6 +74,6 @@
 @section( 'pageIncludes' )
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script src="js/attribution.js"></script>
-@include( 'layout.side-nav-nonresp-css' , [ 'width' => 1764 ] )
+@include( 'layout.side-nav-nonresp-css' , [ 'width' => 1900 ] )
 @stop
 
