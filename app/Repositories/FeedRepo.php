@@ -17,6 +17,10 @@ class FeedRepo {
         $this->feed = $feed;
     }
 
+    public function getFeeds () {
+        return $this->feed->all();
+    }
+
     public function isActive($id) {
         $result = $this
                 ->feed
