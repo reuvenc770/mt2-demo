@@ -34,7 +34,7 @@ class AttributionBatchService {
     }
 
 
-    public function process($records, $modelId) {
+    public function process($records, $modelId, $userEmail = 'none') {
 
         $isModelRun = 'none' !== $modelId;
 
@@ -86,7 +86,7 @@ class AttributionBatchService {
 
             if ($isModelRun) {
                 // Attribution finished. Return model id and remove from storage
-                \Event::fire(new AttributionCompleted($modelId)); // need model id
+                \Event::fire(new AttributionCompleted($modelId,$userEmail)); // need model id
             }
         }
     }

@@ -56,4 +56,8 @@ class AttributionModelService {
     public function setLive ( $modelId ) {
         return $this->repo->setLive( $modelId );
     }
+
+    public function setProcessingFlag ( $modelId , $running = false ) {
+        $this->repo->setProcessingFlag( $modelId , $running );
+    }
 }
