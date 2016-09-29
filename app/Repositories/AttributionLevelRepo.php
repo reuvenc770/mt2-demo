@@ -121,7 +121,7 @@ class AttributionLevelRepo {
     public function removeFeed ( $modelId , $feedId ) {
         $this->levels->setTable( AttributionLevel::BASE_TABLE_NAME . $modelId ); 
 
-        $currentLevelOrder = $this->levels->all();
+        $currentLevelOrder = $this->levels->get();
 
         $newLevelOrder = $currentLevelOrder->reject( function ( $value , $key ) use ( &$feedId ) {
             return $value->feed_id == $feedId;

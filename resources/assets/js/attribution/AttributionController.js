@@ -366,7 +366,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
                     self.getModelId() ,
                     feedId ,
                     function ( response ) {
-                        self.loadLevels( self.getModelId() );
+                        self.prepopModel();
 
                         self.displayToast( 'Successfully Removed Feed from Attribution' ); 
                     } ,
@@ -558,6 +558,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
             angular.forEach( self.feeds , function ( value , key ) {
                 self.clientLevels[ value.id ] = key + 1;
                 value.selected = false;
+                value.newLevel = key + 1;
             } );
         };
 

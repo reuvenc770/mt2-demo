@@ -27,10 +27,10 @@
             <md-button class="md-icon-button md-primary" aria-label="Clear Checkboxes" ng-click="attr.resetLevelFields()" flex="4" flex-offset="6">
                 <md-tooltip md-direction="bottom">Clear Selected</md-tooltip>
 
-                <md-icon md-svg-icon="img/icons/ic_clear_white_36px.svg"></md-icon>
+                <md-icon md-font-set="material-icons" style="color: #FFF;">clear</md-icon>
             </md-button>
 
-            <span>Client Attribution Levels</span>
+            <span>Feed Attribution Levels</span>
 
             <span flex></span>
 
@@ -43,27 +43,25 @@
                 <md-list-item ng-repeat="feed in attr.feeds track by $index" class="md-no-proxy" ng-class="{ 'mt2-proj-increase-bg' : attr.clientLevels[ feed.id ] > ( $index + 1 ) , 'mt2-proj-decrease-bg' : attr.clientLevels[ feed.id ] < ( $index + 1 ) }">
                     <md-checkbox ng-model="feed.selected" aria-label="Feed Checkbox"></md-checkbox>
 
-                    <div layout="column" layout-gt-lg="row" flex="noshrink" flex-gt-lg="100">
-                        <div class="md-list-item-text" layout="column" flex="noshrink" flex-gt-lg="40">
-                            <h4 ng-bind="feed.name"></h4>
-                        </div>
-
-                        <div layout="row" layout-align="start center" layout-align-gt-md="end center" flex="10">
-                            <input ng-init="feed.newLevel = $index + 1" ng-model="feed.newLevel" style="width:50px;" />
-
-                            <md-button ng-click="attr.changeLevel( feed , $index )">Change</md-button>
-                        </div>
+                    <div class="md-list-item-text" flex="noshrink" flex-gt-md="100">
+                        <h4 ng-bind="feed.name"></h4>
                     </div>
 
-                    <md-icon class="md-secondary" ng-click="attr.onLevelRise( feed , $index )" aria-label="Move Feed Up" md-svg-icon="img/icons/ic_arrow_upward_black_18px.svg"></md-icon>
+                    <div layout="row" class="md-secondary">
+                        <input ng-model="feed.newLevel" style="width:50px;" />
 
-                    <md-icon class="md-secondary" ng-click="attr.onLevelDrop( feed , $index )" aria-label="Move Feed Down" md-svg-icon="img/icons/ic_arrow_downward_black_18px.svg"></md-icon>
+                        <md-button ng-click="attr.changeLevel( feed , $index )">Change</md-button>
+                    </div>
 
-                    <md-icon class="md-secondary" ng-click="attr.moveToTop( feed , $index )" aria-label="Move To Top" md-svg-icon="img/icons/ic_vertical_align_top_black_18px.svg"></md-icon>
+                    <md-icon class="md-secondary" ng-click="attr.onLevelRise( feed , $index )" aria-label="Move Feed Up" md-font-set="material-icons" style="color: #000;">arrow_upward</md-icon>
 
-                    <md-icon class="md-secondary" ng-click="attr.moveToBottom( feed , $index )" aria-label="Move to Bottom" md-svg-icon="img/icons/ic_vertical_align_bottom_black_18px.svg"></md-icon>
+                    <md-icon class="md-secondary" ng-click="attr.onLevelDrop( feed , $index )" aria-label="Move Feed Down" md-font-set="material-icons" style="color: #000;">arrow_downward</md-icon>
 
-                    <md-icon class="md-secondary" ng-click="attr.confirmDeletion( feed.id )" aria-label="Move to Bottom" md-svg-icon="img/icons/ic_delete_black_18px.svg"></md-icon>
+                    <md-icon class="md-secondary" ng-click="attr.moveToTop( feed , $index )" aria-label="Move To Top" md-font-set="material-icons" style="color: #000;">vertical_align_top</md-icon>
+
+                    <md-icon class="md-secondary" ng-click="attr.moveToBottom( feed , $index )" aria-label="Move to Bottom" md-font-set="material-icons" style="color: #000;">vertical_align_bottom</md-icon>
+
+                    <md-icon class="md-secondary" ng-click="attr.confirmDeletion( feed.id )" aria-label="Move to Bottom" md-font-set="material-icons" style="color: #000;">delete</md-icon>
                 </md-list-item>
             </md-list>
         </md-content>
