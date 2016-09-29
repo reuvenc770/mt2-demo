@@ -43,7 +43,7 @@ class SendOpsDeploys extends Job implements ShouldQueue
         $writer->insertAll($records);
         $date = Carbon::today()->toDateString();
         //FTP LOCATION TO BE DETERMINED
-        Storage::put("/deploys/{$date}_{$this->username}_{$this->tracking}.csv", $writer->__toString());
+        Storage::connection("dataExportFTP")->put("/deploys/{$date}_{$this->username}_{$this->tracking}.csv", $writer->__toString());
         JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
     }
 
