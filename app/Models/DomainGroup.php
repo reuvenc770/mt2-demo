@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class DomainGroup extends Model {
 
   use ModelCacheControl;
+  protected $guarded = ['id'];
+  public $timestamps = false;
+
 
   public function domains() {
     return $this->hasMany("App\\Models\\EmailDomain");

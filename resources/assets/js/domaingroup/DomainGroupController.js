@@ -3,7 +3,7 @@ mt2App.controller( 'DomainGroupController' , [ '$log' , '$window' , '$location' 
     self.$location = $location;
 
     self.accounts = [];
-    self.currentAccount = {  id: "", "name" : "" , "domainCount": [], "country":""};
+    self.currentAccount = {  "name" : "" ,"country":""};
     self.domainGroupNameField = "domain_name";
     self.domainGroupIdField = "id";
     self.createUrl = 'ispgroup/create/';
@@ -22,12 +22,10 @@ mt2App.controller( 'DomainGroupController' , [ '$log' , '$window' , '$location' 
         var pathMatches = $location.path().match( /^\/ispgroup\/edit\/(\d{1,})/ );
 
         DomainGroupApiService.getAccount( pathMatches[ 1 ] , function ( response ) {
+            self.currentAccount = response.data;
         } )
     };
 
-    self.init = function () {
-        DomainGroupApiService.getEmailDomains( self.loadEmailDomainsSuccessCallback , self.loadAccountsFailureCallback );
-    };
     self.loadProfile = function ($id) {
 
         DomainGroupApiService.getAccount($id , function ( response ) {
@@ -54,6 +52,7 @@ mt2App.controller( 'DomainGroupController' , [ '$log' , '$window' , '$location' 
 
     self.saveNewAccount = function () {
         self.resetFieldErrors();
+        self.currentAccount.status = "Active";
         DomainGroupApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback );
     };
 
@@ -79,9 +78,6 @@ mt2App.controller( 'DomainGroupController' , [ '$log' , '$window' , '$location' 
     /**
      * Callbacks
      */
-    self.loadEmailDomainsSuccessCallback = function ( response) {
-       self.emailDomains = response.data;
-    };
     self.loadAccountsSuccessCallback = function ( response ) {
         self.accounts = response.data.data;
         self.pageCount = response.data.last_page;
@@ -96,8 +92,8 @@ mt2App.controller( 'DomainGroupController' , [ '$log' , '$window' , '$location' 
     };
 
     self.SuccessCallBackRedirect = function ( response ) {
-        $location.url( '/proxy' );
-        $window.location.href = '/proxy';
+        $location.url( '/ispgroup' );
+        $window.location.href = '/ispgroup';
     };
 
     self.SuccessProfileCallBackRedirect = function ( response ) {
@@ -107,7 +103,7 @@ mt2App.controller( 'DomainGroupController' , [ '$log' , '$window' , '$location' 
 
 
     self.toggleRowSuccess = function ( response ) {
-        $mdToast.showSimple("Proxy Updated");
+        $mdToast.showSimple("ISP Group Updated");
         self.loadAccounts();
     };
 

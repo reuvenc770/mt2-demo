@@ -12,29 +12,38 @@ namespace App\Services;
 use App\Repositories\DomainGroupRepo;
 use App\Repositories\EmailDomainRepo;
 use App\Services\ServiceTraits\PaginateList;
-
+use Log;
 class DomainGroupService
 {
     use PaginateList;
     protected $domainGroupRepo;
-    protected $emailDomainRepo;
 
-    public function __construct(DomainGroupRepo $domainGroupRepo, EmailDomainRepo $emailDomainRepo)
+    public function __construct(DomainGroupRepo $domainGroupRepo)
     {
         $this->domainGroupRepo = $domainGroupRepo;
-        $this->emailDomainRepo = $emailDomainRepo;
     }
 
     public function getModel(){
         return $this->domainGroupRepo->getModel();
     }
 
-    public function getDomains(){
-        return $this->emailDomainRepo->getAll();
-    }
 
     public function getType(){
         return "DomainGroup";
+    }
+
+    public function getDomainGroupById($id){
+        return $this->domainGroupRepo->getRow($id);
+    }
+
+    public function insertGroup($request){
+
+            return $this->domainGroupRepo->insertRow($request);
+
+    }
+
+    public function updateGroup($id, $groupData){
+        return $this->domainGroupRepo->updateRow($id, $groupData);
     }
 
 }

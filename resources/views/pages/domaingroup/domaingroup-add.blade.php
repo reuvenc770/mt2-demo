@@ -4,7 +4,7 @@
 @section('content')
     <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
         <div flex-gt-sm="50" flex="100">
-            <md-card ng-controller="DomainGroupController as dg" ng-init="dg.ini()">
+            <md-card ng-controller="DomainGroupController as dg">
                 <md-toolbar class="md-hue-3">
                     <div class="md-toolbar-tools">
                         <span>Add ISP Group</span>

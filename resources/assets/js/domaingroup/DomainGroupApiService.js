@@ -24,12 +24,6 @@ mt2App.service( 'DomainGroupApiService' , function ( $http , $log ) {
         } ).then( successCallback , failureCallback );
     };
 
-    self.getEmailDomains = function ( successCallback , failureCallback ) {
-        return $http( {
-            "method" : "GET" ,
-            "url" : self.emailDomainUrl
-        } ).then( successCallback , failureCallback );
-    };
 
     self.saveNewAccount = function ( newAccount , successCallback , failureCallback ) {
         $http( {

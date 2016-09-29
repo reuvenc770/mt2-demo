@@ -6,7 +6,7 @@ use App\Services\DomainGroupService;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
-
+use Laracasts\Flash\Flash;
 class DomainGroupController extends Controller
 {
     protected $domainGroupService;
@@ -20,10 +20,6 @@ class DomainGroupController extends Controller
     {
         return response()
             ->view('pages.domaingroup.domaingroup-index');
-    }
-
-    public function getEmailDomains(){
-        return response()->json($this->domainGroupService->getDomains());
     }
 
     /**
@@ -54,7 +50,9 @@ class DomainGroupController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        Flash::success("ISP Group was Successfully Created");
+        $request = $this->domainGroupService->insertGroup($request->all());
+        return response()->json( [ 'status' => $request ] );
     }
 
     /**
@@ -65,7 +63,7 @@ class DomainGroupController extends Controller
      */
     public function show($id)
     {
-        //
+        return response()->json( $this->domainGroupService->getDomainGroupById( $id ));
     }
 
     /**
@@ -76,7 +74,8 @@ class DomainGroupController extends Controller
      */
     public function edit($id)
     {
-        //
+        return response()
+            ->view('pages.domaingroup.domaingroup-edit');
     }
 
     /**
@@ -88,7 +87,8 @@ class DomainGroupController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $this->domainGroupService->updateGroup( $id , $request->toArray() );
+        Flash::success("ISP Group was Successfully Updated");
     }
 
     /**
