@@ -60,6 +60,15 @@ class ProjectionReportCollection extends Collection {
 
         $tableRows = [];
         foreach ( $this->reportRecords as $currentRow ) {
+            if (
+                0 == $currentRow[ 'model' ][ 'standard_revenue' ]
+                && 0 == $currentRow[ 'live' ][ 'standard_revenue' ]
+                && 0 == $currentRow[ 'model' ][ 'cpm_revenue' ]
+                && 0 == $currentRow[ 'live' ][ 'cpm_revenue' ]
+            ) {
+                continue;
+            }
+        
             $rowClass = '';
             $rowClientName = '';
             if ( isset( $currentRow[ 'client_stats_grouping_id' ] ) ) {
