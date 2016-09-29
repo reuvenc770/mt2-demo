@@ -4,7 +4,7 @@
 @section('content')
     <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
         <div flex-gt-sm="50" flex="100">
-            <md-card ng-controller="emailDomainController as emailDomain" ng-init="emailDomain.loadAccount()">
+            <md-card ng-controller="EmailDomainController as emailDomain" ng-init="emailDomain.loadAccount()">
                 <md-toolbar class="md-hue-3">
                     <div class="md-toolbar-tools">
                         <span>Edit ISP Domain</span>
@@ -26,5 +26,5 @@
 
 
 @section( 'pageIncludes' )
-    <script src="js/domaingroup.js"></script>
+    <script src="js/emaildomain.js"></script>
 @stop

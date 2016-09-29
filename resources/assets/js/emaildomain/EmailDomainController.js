@@ -13,7 +13,7 @@ mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' 
     self.paginationCount = '10';
     self.currentPage = 1;
     self.accountTotal = 0;
-    self.sort = '-domain_name';
+    self.sort = '-id';
     self.queryPromise = null;
 
     self.loadAccount = function () {
@@ -89,8 +89,8 @@ mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' 
     };
 
     self.SuccessCallBackRedirect = function ( response ) {
-        $location.url( '/ispgroup' );
-        $window.location.href = '/ispgroup';
+        $location.url( '/isp' );
+        $window.location.href = '/isp';
     };
 
     self.SuccessProfileCallBackRedirect = function ( response ) {

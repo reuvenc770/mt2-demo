@@ -45,10 +45,10 @@ class DomainGroupController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Requests\DomainGroupRequest $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Requests\DomainGroupRequest $request)
     {
         Flash::success("ISP Group was Successfully Created");
         $request = $this->domainGroupService->insertGroup($request->all());
@@ -81,11 +81,11 @@ class DomainGroupController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Requests\DomainGroupRequest  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Requests\DomainGroupRequest $request, $id)
     {
         $this->domainGroupService->updateGroup( $id , $request->toArray() );
         Flash::success("ISP Group was Successfully Updated");

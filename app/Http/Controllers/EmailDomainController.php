@@ -38,10 +38,10 @@ class EmailDomainController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Requests\EmailDomainRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Requests\EmailDomainRequest $request)
     {
         Flash::success("ISP Domain was Successfully Created");
         $request = $this->emailDomainService->insertDomain($request->all());
@@ -76,11 +76,11 @@ class EmailDomainController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Requests\EmailDomainRequest  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Requests\EmailDomainRequest $request, $id)
     {
         $this->emailDomainService->updateDomain( $id , $request->toArray() );
         Flash::success("ISP Domain was Successfully Updated");
