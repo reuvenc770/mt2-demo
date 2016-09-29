@@ -9,7 +9,8 @@
         {!! $menu->getMenuHtml() !!}
         <script type="text/javascript">
             var _config = {
-                userId : {{Sentinel::check() ? Sentinel::getUser()->id: 0}}
+                userId : {{Sentinel::check() ? Sentinel::getUser()->id: 0}},
+                userName : "{{Sentinel::check() ? Sentinel::getUser()->username: 0}}"
             };
         </script>
 
