@@ -635,6 +635,32 @@ Route::group(
 );
 
 
+/**
+ * ISP Group
+ */
+Route::group(
+    [
+        'prefix' => 'ispgroup' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' , [
+            'as' => 'ispgroup.list' ,
+            'uses' => 'DomainGroupController@listAll'
+        ] );
+
+        Route::get( '/create' , [
+            'as' => 'ispgroup.add' ,
+            'uses' => 'DomainGroupController@create'
+        ] );
+
+        Route::get( '/edit/{id}' , [
+            'as' => 'ispgroup.edit' ,
+            'uses' => 'DomainGroupController@edit'
+        ] );
+
+    }
+);
 
 
 
@@ -672,6 +698,17 @@ Route::group(
             'as' => 'api.client.updatepassword' ,
             'uses' => 'FeedController@resetClientPassword'
         ] );
+
+        Route::group(
+            ['prefix' => 'ispgroup'],
+            function() {
+
+                Route::get('/domains', [
+                    'as' => 'ispgroup.domainslist',
+                    'uses' => 'DomainGroupController@getEmailDomains'
+                ]);
+            }
+        );
 
         Route::group(
             [ 'prefix' => 'deploy' ] ,
@@ -836,7 +873,6 @@ Route::group(
                 ]);
             }
         );
-
 
         /**
          *  CFS API Routes
@@ -1016,6 +1052,12 @@ Route::group(
         Route::resource(
             'deploy',
             'DeployController',
+            [ 'except' => [ 'create' , 'edit' ] ]
+        );
+
+        Route::resource(
+            'ispgroup',
+            'DomainGroupController',
             [ 'except' => [ 'create' , 'edit' ] ]
         );
 

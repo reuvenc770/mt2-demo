@@ -183,6 +183,13 @@ elixir.extend( 'deployYmlpCampaignJs' , function ( mix ) {
     ] , 'public/js/ymlpcampaign.js' );
 } );
 
+elixir.extend( 'deployDomainGroupJs' , function ( mix ) {
+    mix.scripts( [
+        'domaingroup/DomainGroupController.js' ,
+        'domaingroup/DomainGroupApiService.js'
+    ] , 'public/js/domaingroup.js' );
+} );
+
 elixir.extend( 'deployFeedJs' , function ( mix ) {
     mix.scripts( [
         'feed/FeedController.js' ,
@@ -277,6 +284,7 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployProxyJs(mix);
     mix.deployAttributionJs(mix);
     mix.deployReportJs(mix);
+    mix.deployDomainGroupJs(mix);
 } );
 
 elixir.extend( 'runTdd' , function ( mix ) {
@@ -321,6 +329,9 @@ var mt2TaskMap = {
     } ,
     'deployUserJs' : function ( mix ) {
         mix.deployUserJs( mix );
+    } ,
+    'deployDomainGroupJs' : function ( mix ) {
+        mix.deployDomainGroupJs( mix );
     } ,
     'deployRoleJs' : function ( mix ) {
         mix.deployRoleJs( mix );

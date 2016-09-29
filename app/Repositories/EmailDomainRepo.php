@@ -31,5 +31,9 @@ class EmailDomainRepo {
         return 0;
     }
 
+    public function getAll(){
+        return $this->emailDomainModel->all();
+    }
+
 
 }
