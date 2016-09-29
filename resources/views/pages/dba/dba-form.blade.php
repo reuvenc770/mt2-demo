@@ -44,6 +44,11 @@
             <span class="help-block" ng-bind="dba.formErrors.entity_name" ng-show="dba.formErrors.entity_name"></span>
         </div>
 
+        <div class="form-group" ng-class="{ 'has-error' : dba.formErrors.password }">
+            <input placeholder="Password" value="" class="form-control" ng-model="dba.currentAccount.password" required="required" name="password" type="text">
+            <span class="help-block" ng-bind="dba.formErrors.password" ng-show="dba.formErrors.password"></span>
+        </div>
+
         <div class="form-group" ng-class="{ 'has-error' : dba.formErrors.phone }">
             <input placeholder="Phone" value="" class="form-control" ng-model="dba.currentAccount.phone" required="required" name="phone" type="text">
             <span class="help-block" ng-bind="dba.formErrors.phone" ng-show="dba.formErrors.phone"></span>
@@ -103,8 +108,8 @@
                     <input class="btn btn-lg btn-primary btn-block" ng-click="dba.addPOBox()" type="submit" value="Create P.O. Box">
                 </div>
             </div>
-            <div ng-show="dba.currentAccount.po_boxes.length > 0" class="panel-footer">
-                <p ng-repeat="(key, value) in dba.currentAccount.po_boxes track by $index"> @{{value.sub}} - @{{value.address}} @{{value.address_2}} @{{value.city}} @{{value.state}} @{{value.zip}} @{{value.phone}} @{{value.brands}} <a ng-click="dba.editPOBox(key)">Edit</a> <a ng-click="dba.removePOBox(key)">Remove</a> </p>
+            <div ng-show="dba.poBoxHolder.length > 0" class="panel-footer">
+                <p ng-repeat="(key, value) in dba.poBoxHolder track by $index"> @{{value.sub}} - @{{value.address}} @{{value.address_2}} @{{value.city}} @{{value.state}} @{{value.zip}} @{{value.phone}} @{{value.brands}} <a ng-click="dba.editPOBox(key)">Edit</a> <a ng-click="dba.removePOBox(key)">Remove</a> </p>
             </div>
         </div>
         <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.notes }">
