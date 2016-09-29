@@ -154,7 +154,7 @@ class ProjectionReportCollection extends Collection {
     } 
 
     protected function loadFeedNames () {
-        $this->feedNameList = $this->feedRepo()->getFeeds()->keyBy( 'id' )->toArray();
+        $this->feedNameList = $this->feedRepo->getFeeds()->keyBy( 'id' )->toArray();
     }
 
     protected function loadClientNames () {
