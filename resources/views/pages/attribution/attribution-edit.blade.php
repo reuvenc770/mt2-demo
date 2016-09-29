@@ -62,7 +62,7 @@
 @section( 'content' )
 <div ng-init="attr.prepopModel()">
     <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1" layout-padding>
-        <div flex-gt-sm="80" flex="100">
+        <div flex-gt-md="80" flex="100">
             @include( 'pages.attribution.attribution-form' )
         </div>
     </md-content>
