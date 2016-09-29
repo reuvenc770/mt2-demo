@@ -69,7 +69,7 @@ class ProjectionReportCollection extends Collection {
 
             $rowFeedName = '';
             if ( isset( $currentRow[ 'feed_id' ] ) ) {
-                $rowFeedName = $this->feedNameList[ $currentRow[ 'feed_id' ] ] . ' (' . $currentRow[ 'feed_id' ] . ')';
+                $rowFeedName = $this->feedNameList[ $currentRow[ 'feed_id' ] ][ 'name' ] . ' (' . $currentRow[ 'feed_id' ] . ')';
             }
 
             $levelClass = '';
