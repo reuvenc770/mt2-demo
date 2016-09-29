@@ -10,6 +10,7 @@ use Carbon\Carbon;
 
 use App\Repositories\Attribution\ClientReportRepo;
 use App\Repositories\Attribution\FeedReportRepo;
+use App\Repositories\FeedRepo;
 use App\Services\MT1Services\ClientService;
 use App\Services\AttributionModelService;
 use App\Services\MT1ApiService;
@@ -20,9 +21,9 @@ class ProjectionReportCollection extends Collection {
 
     protected $clientReport;
     protected $feedReport;
+    protected $feedRepo;
     protected $clientService;
     protected $attrService;
-    protected $mt1Service;
     protected $listOwnerService;
 
     protected $reportRecords = [];
@@ -33,16 +34,16 @@ class ProjectionReportCollection extends Collection {
     public function __construct (
         ClientReportRepo $clientReport ,
         FeedReportRepo $feedReport ,
+        FeedRepo $feedRepo ,
         ClientService $clientService ,
         AttributionModelService $attrService ,
-        MT1ApiService $mt1Service ,
         ClientStatsGroupingService $listOwnerService
     ) {
         $this->clientReport = $clientReport;
         $this->feedReport = $feedReport;
+        $this->feedRepo = $feedRepo;
         $this->clientService = $clientService;
         $this->attrService = $attrService;
-        $this->mt1Service = $mt1Service;
         $this->listOwnerService = $listOwnerService;
     }
 
@@ -153,7 +154,7 @@ class ProjectionReportCollection extends Collection {
     } 
 
     protected function loadFeedNames () {
-        $this->feedNameList = collect( json_decode( $this->mt1Service->getJSON( self::CLIENT_API_ENDPOINT ) , true ) )->keyBy( 'feed_id' )->toArray();
+        $this->feedNameList = $this->feedRepo()->getFeeds()->keyBy( 'id' )->toArray();
     }
 
     protected function loadClientNames () {
