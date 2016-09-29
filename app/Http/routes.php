@@ -662,6 +662,30 @@ Route::group(
     }
 );
 
+Route::group(
+    [
+        'prefix' => 'isp' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' , [
+            'as' => 'isp.list' ,
+            'uses' => 'EmailDomainController@listAll'
+        ] );
+
+        Route::get( '/create' , [
+            'as' => 'isp.add' ,
+            'uses' => 'EmailDomainController@create'
+        ] );
+
+        Route::get( '/edit/{id}' , [
+            'as' => 'isp.edit' ,
+            'uses' => 'EmailDomainController@edit'
+        ] );
+
+    }
+);
+
 
 
 /**
@@ -698,17 +722,6 @@ Route::group(
             'as' => 'api.client.updatepassword' ,
             'uses' => 'FeedController@resetClientPassword'
         ] );
-
-        Route::group(
-            ['prefix' => 'ispgroup'],
-            function() {
-
-                Route::get('/domains', [
-                    'as' => 'ispgroup.domainslist',
-                    'uses' => 'DomainGroupController@getEmailDomains'
-                ]);
-            }
-        );
 
         Route::group(
             [ 'prefix' => 'deploy' ] ,
@@ -1058,6 +1071,12 @@ Route::group(
         Route::resource(
             'ispgroup',
             'DomainGroupController',
+            [ 'except' => [ 'create' , 'edit' ] ]
+        );
+
+        Route::resource(
+            'isp',
+            'EmailDomainController',
             [ 'except' => [ 'create' , 'edit' ] ]
         );
 

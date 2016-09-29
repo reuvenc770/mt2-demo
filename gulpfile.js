@@ -190,6 +190,13 @@ elixir.extend( 'deployDomainGroupJs' , function ( mix ) {
     ] , 'public/js/domaingroup.js' );
 } );
 
+elixir.extend( 'deployEmailDomainJs' , function ( mix ) {
+    mix.scripts( [
+        'emaildomain/EmailDomainController.js' ,
+        'emaildomain/EmailDomainApiService.js'
+    ] , 'public/js/emaildomain.js' );
+} );
+
 elixir.extend( 'deployFeedJs' , function ( mix ) {
     mix.scripts( [
         'feed/FeedController.js' ,
@@ -285,6 +292,7 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployAttributionJs(mix);
     mix.deployReportJs(mix);
     mix.deployDomainGroupJs(mix);
+    mix.deployEmailDomainJs(mix);
 } );
 
 elixir.extend( 'runTdd' , function ( mix ) {
@@ -332,6 +340,9 @@ var mt2TaskMap = {
     } ,
     'deployDomainGroupJs' : function ( mix ) {
         mix.deployDomainGroupJs( mix );
+    } ,
+    'deployEmailDomainJs' : function ( mix ) {
+        mix.deployEmailDomainJs( mix );
     } ,
     'deployRoleJs' : function ( mix ) {
         mix.deployRoleJs( mix );

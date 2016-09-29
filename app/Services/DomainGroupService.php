@@ -46,4 +46,8 @@ class DomainGroupService
         return $this->domainGroupRepo->updateRow($id, $groupData);
     }
 
+    public function getAll(){
+        return $this->domainGroupRepo->getAll();
+    }
+
 }

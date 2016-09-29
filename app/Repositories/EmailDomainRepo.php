@@ -36,4 +36,23 @@ class EmailDomainRepo {
     }
 
 
+    public function getModel(){
+        return $this->emailDomainModel
+            ->join("domain_groups","email_domains.domain_group_id", "=", "domain_groups.id")
+            ->select("email_domains.id","email_domains.domain_name","domain_groups.name as domain_group");
+    }
+
+    public function getRow($id){
+        return $this->emailDomainModel->find($id);
+    }
+
+    public function updateRow($id, $groupData){
+        return $this->emailDomainModel->find( $id )->update( $groupData);
+    }
+
+    public function insertRow($data){
+        return $this->emailDomainModel->create($data);
+    }
+
+
 }

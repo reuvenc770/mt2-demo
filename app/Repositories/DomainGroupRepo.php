@@ -40,4 +40,8 @@ class DomainGroupRepo
         return $this->domainGroup->create($data);
     }
 
+    public function getAll(){
+        return $this->domainGroup->all();
+    }
+
 }
