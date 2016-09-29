@@ -34,10 +34,10 @@ class DeployService
         return $this->espAdvertiser->getCakeAffiliates();
     }
 
-    public function getModel($searchType, $searchData)
+    public function getModel($searchData)
     {
 
-        return $this->deployRepo->getModel($searchType, $searchData);
+        return $this->deployRepo->getModel($searchData);
 
     }
 
@@ -88,22 +88,16 @@ class DeployService
         $this->deployRepo->deployPackages($data);
     }
 
-
-
     public function getPaginatedJson($page, $count, $params = null)
     {
-        $searchType = null;
         $searchData = null;
         if ($this->hasCache($page, $count, $params)) {
             return $this->getCachedJson($page, $count, $params);
         } else {
             try {
-                if (isset($params['type'])) {
-                    $searchType = $params['type'];
-                    $searchData = $params['data'];
-                }
-                $eloquentObj = $this->getModel($searchType, $searchData);
 
+                $searchData = isset($params['data']) ? $params['data'] : null;
+                $eloquentObj = $this->getModel($searchData);
                 $paginationJSON = $eloquentObj->paginate($count)->toJSON();
 
                 $this->cachePagination(

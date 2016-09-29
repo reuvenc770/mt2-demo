@@ -120,12 +120,13 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         }
 
         if(self.search.endDate){
-            endString =  moment( self.search.startDate ).format( 'YYYY-MM-DD' );
+            endString =  moment( self.search.endDate ).format( 'YYYY-MM-DD' );
         }
         if(self.search.startDate && self.search.endDate) {
             self.search.dates = startString + ',' + endString;
         }
     };
+
     self.displayForm = function () {
         self.deployIdDisplay = text;
         self.currentDeploy = self.resetAccount();
@@ -147,14 +148,20 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         DeployApiService.deployPackages(packageIds, self.createPackageSuccess, self.createPackagesFailed)
     };
 
-    self.searchDeploys = function (type, searchData, text){
-        self.searchType = type;
-        self.searchData = searchData;
-        self.loadDeploys();
+    self.searchDeploys = function() {
+        var searchObj = {
+            "dates": self.search.dates || undefined,
+            "deployId": self.search.deployId || undefined,
+            "espAccountId": self.search.esp_account_id || undefined,
+            "status": self.search.status || undefined,
+            "esp": self.search.esp || undefined,
+            "offerNameWildcard": self.search.offer || undefined
+        };
+
+        self.queryPromise = DeployApiService.searchDeploys(self.paginationCount, searchObj, self.loadDeploysSuccess, self.loadDeploysFail);
         self.currentlyLoading = 0;
         self.search = {};
-    };
-
+    }
 
     self.offerWasSelected = function (item) {
         if (typeof item != 'undefined') {
@@ -262,6 +269,13 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         for (index = 0; index < packageIds.length; ++index) {
             $window.open(url + packageIds[index]);
         }
+    };
+
+    self.checkStatus = function(approval,status){
+        if(approval == 1 && status == 'A'){
+            return true;
+        }
+        return false;
     };
 
 

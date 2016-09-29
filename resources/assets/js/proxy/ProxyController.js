@@ -4,14 +4,14 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
 
     self.headers = [ '' , 'ID', 'name', "IP Address", "Provider Name"];
     self.accounts = [];
-    self.currentAccount = {  id: "", "name" : "" , "ip_addresses": [], "provider_name" : "", "esp_names" :[], "isp_names": [] };
+    self.currentAccount = {  id: "", "name" : "" , "ip_addresses": [], "provider_name" : "", "esp_account_names" :[], "isp_names": [] };
     self.ip_address = "";
     self.isp_names = [];
     self.isps =  ["AOL","GMAIL","YAHOO","HOTMAIL"];
     self.isp_name= "";
     self.ip_addresses = [];
-    self.esp_name = "";
-    self.esp_names = [];
+    self.esp_account_name = "";
+    self.esp_account_names = [];
     self.createUrl = 'proxy/create/';
     self.editUrl = 'proxy/edit/';
 
@@ -30,7 +30,7 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
         ProxyApiService.getAccount( pathMatches[ 1 ] , function ( response ) {
             self.currentAccount = response.data;
             self.ip_addresses = self.currentAccount.ip_addresses.split(',');
-            self.esp_names = self.currentAccount.esp_names.split(',');
+            self.esp_account_names = self.currentAccount.esp_account_names.split(',');
             self.isp_names = self.currentAccount.isp_names.split(',');
         } )
     };
@@ -63,16 +63,18 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
 
     self.saveNewAccount = function () {
         self.resetFieldErrors();
-        self.currentAccount.ip_addresses = self.ip_addresses.join(',');
-        self.currentAccount.esp_names = self.esp_names.join(',');
-        self.currentAccount.isp_names = self.isp_names.join(',');
+        self.currentAccount.ip_addresses = self.ip_addresses.join(', ');
+        self.currentAccount.esp_account_names = self.esp_account_names.join(', ');
+        self.currentAccount.isp_names = self.isp_names.join(', ');
         self.currentAccount.status =1;
         ProxyApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback );
     };
 
     self.editAccount = function () {
         self.resetFieldErrors();
-
+        self.currentAccount.ip_addresses = self.ip_addresses.join(', ');
+        self.currentAccount.esp_account_names = self.esp_account_names.join(', ');
+        self.currentAccount.isp_names = self.isp_names.join(',');
         ProxyApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 
@@ -94,15 +96,15 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
         self.ip_addresses.splice( id , 1 );
     };
 
-    self.addEsp = function () {
-        if(self.esp_name.length > 0){
-            self.esp_names.push(self.esp_name);
-            self.esp_name = "";
+    self.addEspAccount = function () {
+        if(self.esp_account_name.length > 0){
+            self.esp_account_names.push(self.esp_account_name);
+            self.esp_account_name = "";
         }
     };
 
-    self.removeEsp = function (id) {
-        self.esp_names.splice( id , 1 );
+    self.removeEspAccount = function (id) {
+        self.esp_account_names.splice( id , 1 );
 
     };
     self.removeIpAddress = function (id) {

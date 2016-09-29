@@ -16,7 +16,7 @@ class AddEspDeployFields extends Seeder
         
         $bh = new EspFieldOption();
         $bh->esp_id = $esp->where('name', "BlueHornet")->first()->id;
-        $bh->email_id_field = '%%cf_EID%%';
+        $bh->email_id_field = '%%&zwj;cf_EID%%';
         $bh->email_address_field = '%%to_email%%';
         $bh->save();
 

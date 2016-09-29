@@ -24,14 +24,15 @@ class Mt1DbApi
         $count = (int)$count[0]->total;
         echo "Count:" . $count . PHP_EOL;
 
-        $pull = DB::connection('mt1_data')->select("SELECT * FROM client_record_log ORDER BY lastUpdated LIMIT 50000");
+        $pull = DB::connection('mt1_data')->select("SELECT * FROM client_record_log ORDER BY lastUpdated, email_user_id LIMIT 50000");
         $len = sizeof($pull);
         
         if ($len > 0) {
             end($pull);
             $last = key($pull);
             $this->finalLastUpdated = $pull[$last]->lastUpdated;
-            echo $this->finalLastUpdated . PHP_EOL;
+            $this->lastEmailId = $pull[$last]->email_user_id;
+            echo $this->finalLastUpdated . ' and ' . $this->lastEmailId . PHP_EOL;
             
             return $pull;
         }
@@ -47,9 +48,12 @@ class Mt1DbApi
         
         DB::connection('mt1_table_sync')
             ->table('client_record_log')
-            ->where('lastUpdated', '<=', $this->finalLastUpdated)
+            ->where('lastUpdated', '<', $this->finalLastUpdated)
+            ->orWhere(function($query) {
+                $query->where('lastUpdated', '=', $this->finalLastUpdated)
+                      ->where('email_user_id', '<=', $this->lastEmailId);
+            })
             ->delete();
-        
     }
 
     public function getMaxFeedId() {

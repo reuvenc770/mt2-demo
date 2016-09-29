@@ -30,6 +30,7 @@
                             <th md-column md-order-by="phone" class="md-table-header-override-whitetext">Phone</th>
                             <th md-column md-order-by="po_boxes" class="md-table-header-override-whitetext">PO Boxes</th>
                             <th md-column md-order-by="entity_name" class="md-table-header-override-whitetext">Entity Name</th>
+                            <th md-column md-order-by="notes" class="md-table-header-override-whitetext"> Notes</th>
                         </tr>
                         </thead>
 
@@ -54,8 +55,9 @@
                             <td md-cell>@{{ record.address }} @{{ record.city }} @{{ record.state }} @{{ record.zip }}</td>
                             <td md-cell>@{{ record.dba_email }}</td>
                             <td md-cell>@{{ record.phone }}</td>
-                            <td md-cell>@{{ dba.formatBox(record.po_boxes) }}</td>
+                            <td md-cell><p ng-repeat="value in record.po_boxes">@{{ value.sub  }} - @{{value.address}} @{{value.city }} @{{value.state}} @{{value.zip}} - @{{value.phone}} - Brands - @{{ value.brands}}</p></td>
                             <td md-cell>@{{ record.entity_name }}</td>
+                            <td md-cell>@{{ record.notes }}</td>
                         </tr>
                         </tbody>
                     </table>

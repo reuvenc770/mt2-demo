@@ -31,6 +31,7 @@
                 <thead md-head md-order="" md-on-reorder="">
                     <tr md-row>
                         <th md-column md-order-by="" class="md-table-header-override-whitetext">Name</th>
+                        <th md-column md-order-by="" class="md-table-header-override-whitetext">Processing</th>
                         <th md-column md-order-by="" class="md-table-header-override-whitetext">Created</th>
                         <th md-column md-order-by="" class="md-table-header-override-whitetext">Updated</th>
                     </tr>
@@ -48,6 +49,7 @@
                         ng-class="{ 'mt2-live-row' : model.live == 1 }"
                         ng-repeat="model in attr.models track by $index">
                             <td md-cell ng-bind="model.name"></td>
+                            <td md-cell ng-bind="model.processing ? 'Running' : 'Completed'"></td>
                             <td md-cell ng-bind="model.created_at"></td>
                             <td md-cell ng-bind="model.updated_at"></td>
                     </tr>

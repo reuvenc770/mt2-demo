@@ -32,25 +32,26 @@
             </div>
         </div>
 
-        <div class="form-group" ng-class="{ 'has-error' : proxy.formErrors.esp_names }">
+        <div class="form-group" ng-class="{ 'has-error' : proxy.formErrors.esp_account_names }">
             <div class="input-group">
 
-                <span class="help-block" ng-bind="proxy.formErrors.esp_names"
-                      ng-show="proxy.formErrors.esp_names"></span>
-                <select ng-model="proxy.esp_name" placeholder="Select ESP" required="required"
+                <span class="help-block" ng-bind="proxy.formErrors.esp_account_names"
+                      ng-show="proxy.formErrors.esp_account_names"></span>
+                <select ng-model="proxy.esp_account_name" placeholder="Select ESP Account" required="required"
                         class="form-control">
-                    <option value="">Select Esp</option>
+                    <option value="">Select EspAccount</option>
+                    <option value="ALL">All Esp Accounts</option>
                     @foreach ( $esps as $esp )
-                        <option value="{{ $esp['name'] }}">{{ $esp['name'] }}</option>
+                        <option value="{{ $esp['account_name'] }}">{{ $esp['account_name'] }}</option>
                     @endforeach
                 </select>
                  <span class="input-group-btn">
-            <button class="btn btn-primary" ng-click="proxy.addEsp()" type="button">Add Esp</button>
+            <button class="btn btn-primary" ng-click="proxy.addEspAccount()" type="button">Add Esp Account</button>
                      </span>
             </div>
-            <div ng-show="proxy.esp_names.length > 0" class="panel-footer">
-                <p ng-repeat="(key, value) in proxy.esp_names track by $index"> @{{value}}
-                    <a ng-click="proxy.removeEsp(key)">Remove</a></p>
+            <div ng-show="proxy.esp_account_names.length > 0" class="panel-footer">
+                <p ng-repeat="(key, value) in proxy.esp_account_names track by $index"> @{{value}}
+                    <a ng-click="proxy.removeEspAccount(key)">Remove</a></p>
             </div>
         </div>
         <div class="form-group" ng-class="{ 'has-error' : domain.formErrors.isp_names }">
