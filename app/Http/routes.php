@@ -901,7 +901,7 @@ Route::group(
                     'uses' => 'AttributionController@update'
                 ] ); 
 
-                Route::delete( '/attribution/model/{modelId}' , [
+                Route::delete( '/attribution/model/{modelId}/{feedId}' , [
                     'as' => 'api.attribution.model.destroy' ,
                     'middleware' => 'auth' ,
                     'uses' => 'AttributionController@destroy'

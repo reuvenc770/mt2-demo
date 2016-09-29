@@ -37,6 +37,14 @@ mt2App.service( 'AttributionApiService' , function ( $http , $log ) {
         } ).then( successCallback , failureCallback );
     };
 
+    self.deleteFeed = function ( modelId , feedId , successCallback , failureCallback ) {
+        return $http( {
+            "method" : "DELETE" ,
+            "url" : this.baseApiUrl + '/' + modelId  + '/' + feedId ,
+            "params" : { "_method" : "DELETE" }
+        } ).then( successCallback , failureCallback );
+    };
+
     self.getLevels = function ( modelId , successCallback , failureCallback ) {
         return $http( {
             "method" : "GET" ,

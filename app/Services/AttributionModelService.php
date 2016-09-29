@@ -57,6 +57,10 @@ class AttributionModelService {
         return $this->repo->setLive( $modelId );
     }
 
+    public function removeFeed ( $modelId , $feedId ) {
+        $this->levels->removeFeed( $modelId , $feedId );
+    }
+
     public function setProcessingFlag ( $modelId , $running = false ) {
         $this->repo->setProcessingFlag( $modelId , $running );
     }
