@@ -14,7 +14,6 @@ class CakeCreativeOfferJoinRepo {
 
     public function pullForSync($lookback) {
         // We want only active offers
-        return $this->model
-                    ->join('advertiser_info as ai', 'CakeCreativeOfferJoin.creativeID', '=', 'ai.cake_creativeID')
+        return $this->model->join('advertiser_info as ai', 'CakeCreativeOfferJoin.creativeID', '=', 'ai.cake_creativeID');
     }
 }

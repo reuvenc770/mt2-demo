@@ -13,6 +13,6 @@ class CakeOfferRepo {
     }
 
     public function pullForSync($lookback) {
-        return $this->model
+        return $this->model;
     }
 }

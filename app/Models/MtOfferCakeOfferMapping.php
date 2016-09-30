@@ -6,6 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class MtOfferCakeOfferMapping extends Model {
     
-    protected $primaryKey = '';
     protected $guarded = [];
+    public $timestamps = false;
 }
