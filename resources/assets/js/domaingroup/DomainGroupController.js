@@ -61,20 +61,6 @@ mt2App.controller( 'DomainGroupController' , [ '$log' , '$window' , '$location' 
         DomainGroupApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 
-
-
-
-    /**
-     * Watchers
-     */
-    $rootScope.$on( 'updatePage' , function () {
-        self.loadAccounts();
-    } );
-
-
-
-
-
     /**
      * Callbacks
      */

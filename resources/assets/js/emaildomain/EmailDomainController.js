@@ -58,20 +58,6 @@ mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' 
         EmailDomainApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 
-
-
-
-    /**
-     * Watchers
-     */
-    $rootScope.$on( 'updatePage' , function () {
-        self.loadAccounts();
-    } );
-
-
-
-
-
     /**
      * Callbacks
      */
