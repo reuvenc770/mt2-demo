@@ -46,8 +46,12 @@ class DataProcessingFactory {
 
             case('PublicatorsActions'):
                 return self::createPublicatorsActionService();
+
             case('ProcessCfsStats'):
                 return self::createProcessCfsStatsService();
+
+            case('ListProfileAggregation'):
+                return \App::make(\App\Services\ListProfileActionAggregationService::class);
 
             case ('ImportMt1Advertisers'):
                 $mt1Name = 'CompanyInfo';
