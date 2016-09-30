@@ -635,6 +635,56 @@ Route::group(
 );
 
 
+/**
+ * ISP Group
+ */
+Route::group(
+    [
+        'prefix' => 'ispgroup' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' , [
+            'as' => 'ispgroup.list' ,
+            'uses' => 'DomainGroupController@listAll'
+        ] );
+
+        Route::get( '/create' , [
+            'as' => 'ispgroup.add' ,
+            'uses' => 'DomainGroupController@create'
+        ] );
+
+        Route::get( '/edit/{id}' , [
+            'as' => 'ispgroup.edit' ,
+            'uses' => 'DomainGroupController@edit'
+        ] );
+
+    }
+);
+
+Route::group(
+    [
+        'prefix' => 'isp' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' , [
+            'as' => 'isp.list' ,
+            'uses' => 'EmailDomainController@listAll'
+        ] );
+
+        Route::get( '/create' , [
+            'as' => 'isp.add' ,
+            'uses' => 'EmailDomainController@create'
+        ] );
+
+        Route::get( '/edit/{id}' , [
+            'as' => 'isp.edit' ,
+            'uses' => 'EmailDomainController@edit'
+        ] );
+
+    }
+);
 
 
 
@@ -837,7 +887,6 @@ Route::group(
             }
         );
 
-
         /**
          *  CFS API Routes
          */
@@ -1016,6 +1065,18 @@ Route::group(
         Route::resource(
             'deploy',
             'DeployController',
+            [ 'except' => [ 'create' , 'edit' ] ]
+        );
+
+        Route::resource(
+            'ispgroup',
+            'DomainGroupController',
+            [ 'except' => [ 'create' , 'edit' ] ]
+        );
+
+        Route::resource(
+            'isp',
+            'EmailDomainController',
             [ 'except' => [ 'create' , 'edit' ] ]
         );
 
