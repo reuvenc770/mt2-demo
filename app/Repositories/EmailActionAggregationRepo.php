@@ -44,9 +44,9 @@ class EmailActionAggregationRepo {
     }
 
     private function prepareData($row) {
-        return "('{$this->email_id}', '{$this->deploy_id}', 
-            '{$this->date}', '{$this->deliveries}', '{$this->opens}', 
-            '{$this->clicks}', '{$this->conversions}', NOW(), NOW())";
+        return "('{$row->email_id}', '{$row->deploy_id}', 
+            '{$row->date}', '{$row->deliveries}', '{$row->opens}', 
+            '{$row->clicks}', '{$row->conversions}', NOW(), NOW())";
     }
 
     private function insertBatchData() {
