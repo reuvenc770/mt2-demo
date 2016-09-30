@@ -134,4 +134,21 @@ class DeployService
         return ['Send Date', 'Deploy ID', 'ESP Account', "Mailing Template", "Mailing Domain",
             "Content Domain", "Subject", "From", "Creative"];
     }
+
+    public function copyToFutureDate($data){
+        $errorCollection = array();
+        foreach($data['deploy_ids'] as $deployId){
+          $newDeploy = $this->deployRepo->duplicateDomainToDate($deployId, $data['future_date']);
+            $errors = $this->deployRepo->validateDeploy($newDeploy->toArray());
+            if(count($errors) == 0){
+                $newDeploy->save();
+                Log::info("I GOT HERE");
+            }
+            else {
+                $errors['deploy_id'] = $deployId;
+                $errorCollection[] = $errors;
+            }
+        }
+        return $errorCollection;
+    }
 }

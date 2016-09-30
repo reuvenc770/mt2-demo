@@ -54,6 +54,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.paginationCount = '10';
     self.currentPage = '1';
     self.deployTotal = 0;
+    self.sort = "-status";
     self.queryPromise = null;
 
 
@@ -279,6 +280,13 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
 
+    self.copyToFuture = function() {
+        var packageIds = self.selectedRows;
+        var date = "2022-09-28";
+        DeployApiService.copyToFuture(packageIds, date, self.copyToFutureSuccess, self.copyToFutureFailure)
+    };
+
+
     /**
      * Watchers
      */
@@ -457,6 +465,40 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         }
     };
 
+    self.copyToFutureSuccess = function (response){
+        var errors = response.data.errors;
+        var errorText = "";
+        if(response.data.errors.length > 1){
+            self.setModalLabel('Error');
+            for (i = 0; i < errors.length; i++) {
+                deploy_id = errors[i].deploy_id;
+                delete errors[i].deploy_id;
+                errorText += "<b>Deploy ID " + deploy_id + " has errors:</b><br/>";
+                textErrors = Object.keys(errors[i]).map(function(k) { return errors[i][k] });
+                for (y = 0; y < textErrors.length; y++) {
+                    console.log(textErrors[y]);
+                    errorText += textErrors[y];
+                }
+                errorText += "<br/>";
+            }
+            self.setModalBody(errorText);
+            self.launchModal();
+        } else {
+            $mdToast.showSimple('Deploys have been created!');
+        }
+        self.currentDeploy = self.resetAccount();
+        $rootScope.$broadcast('angucomplete-alt:clearInput');
+        self.selectedRows = [];
+        self.disableExport = true;
+        self.loadDeploys();
+        self.editView = false;
+        self.showRow = false;
+    };
+
+    self.copyToFutureFailure = function (response){
+        $mdToast.showSimple('FAIL');
+    };
+
 
 
 
@@ -563,7 +605,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.setModalBody = function (bodyText) {
         var modalBody = angular.element(document.querySelector('#pageModalBody'));
 
-        modalBody.text(bodyText);
+        modalBody.html(bodyText);
     };
 
     self.launchModal = function () {

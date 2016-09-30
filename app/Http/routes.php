@@ -676,6 +676,11 @@ Route::group(
         Route::group(
             [ 'prefix' => 'deploy' ] ,
             function () {
+                Route::post( '/copytofuture' , [
+                    'as' => 'api.deploy.copytofuture' ,
+                    'uses' => 'DeployController@copyToFuture'
+                ] );
+
                 Route::get( '/cakeaffiliates' , [
                     'as' => 'api.deploy.cakeaffiliates' ,
                     'uses' => 'DeployController@returnCakeAffiliates'
@@ -705,7 +710,6 @@ Route::group(
                     'as' => 'api.deploy.exportcsv' ,
                     'uses' => 'DeployController@exportCsv'
                 ] );
-
             }
         );
         Route::group(
