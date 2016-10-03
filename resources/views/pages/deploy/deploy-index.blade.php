@@ -26,7 +26,7 @@
         @endif
 
             @if (Sentinel::hasAccess('api.deploy.copytofuture'))
-                <md-button ng-click="deploy.copyToFuture()" ng-disabled="deploy.disableExport">
+                <md-button ng-click="deploy.copyToFuture( $event )" ng-disabled="deploy.disableExport">
                     <span>Copy To Future</span>
                 </md-button>
             @endif
@@ -489,8 +489,6 @@
 </md-card-content>
     <deploy-validate-modal upload-errors="deploy.uploadErrors" mass-upload="deploy.massUploadList()"
                            records="deploy.uploadedDeploys"></deploy-validate-modal>
-
-
 @stop
 
 @section( 'pageIncludes' )

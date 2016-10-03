@@ -1,4 +1,4 @@
-mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout', 'DeployApiService', '$mdToast', '$rootScope', '$q', '$interval', function ($log, $window, $location, $timeout, DeployApiService, $mdToast, $rootScope, $q, $interval) {
+mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout', 'DeployApiService', '$mdToast', '$rootScope', '$q', '$interval' , '$mdDialog' , function ($log, $window, $location, $timeout, DeployApiService, $mdToast, $rootScope, $q, $interval , $mdDialog ) {
     var self = this;
     self.$location = $location;
     self.currentDeploy = {
@@ -56,7 +56,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.deployTotal = 0;
     self.sort = "-status";
     self.queryPromise = null;
-
+    self.copyToFutureDate = '';
 
     self.loadAccounts = function () {
         self.loadEspAccounts();
@@ -280,12 +280,43 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
 
-    self.copyToFuture = function() {
-        var packageIds = self.selectedRows;
-        var date = "2022-09-28";
-        DeployApiService.copyToFuture(packageIds, date, self.copyToFutureSuccess, self.copyToFutureFailure)
-    };
+    self.copyToFuture = function( ev ) {
+        $mdDialog.show( {
+            targetEvent : ev ,
+            template :
+                '<md-dialog>' + 
+                    '<md-toolbar>' +
+                        '<div class="md-toolbar-tools">' +
+                            '<h2>Scedule Future Deploy</h2>' +
+                        '</div>' +
+                    '</md-toolbar>' +
+                    '<md-dialog-content>' + 
+                        '<div class="md-dialog-content">' +
+                            '<h4>Please choose a future date for selected deploys</h4>' +
+                        '</div>' +
+                        '<md-datepicker ng-model="deployDate" md-min-date="minDate" md-placeholder="Pick a Date"></md-datepicker>'  +
+                    '</md-dialog-content>' +
+                    '<md-dialog-actions>' +
+                        '<md-button ng-click="answer( false )">Cancel</md-button>' +
+                        '<md-button ng-click="answer( true )">Submit Date</md-button>' +
+                    '</md-dialog-actions>' +
+                '</md-dialog>' ,
+            controller : function DeployFutureDateController ( $scope , $mdDialog ) {
+                $scope.deployDate = ( self.copyToFutureDate != '' ? new Date( self.copyToFutureDate ) : new Date() ); 
+                $scope.minDate = new Date();
 
+                $scope.answer = function ( submit ) {
+                    if ( submit === true ) {
+                        self.copyToFutureDate = moment( $scope.deployDate ).format( 'L' );
+
+                        DeployApiService.copyToFuture( self.selectedRows, self.copyToFutureDate, self.copyToFutureSuccess, self.copyToFutureFailure );
+                    }
+
+                    $mdDialog.hide();
+                }
+            }
+        } );
+    };
 
     /**
      * Watchers
