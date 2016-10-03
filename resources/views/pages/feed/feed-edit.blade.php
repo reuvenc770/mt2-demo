@@ -64,8 +64,8 @@
 
                                 <tbody md-body>
                                     <tr md-row ng-repeat="record in feed.urlList track by $index">
-                                        <td md-cell>@{{ record.offerId }}</td>
-                                        <td md-cell>@{{ record.url }}</td>
+                                        <td md-cell ng-bind="::record.offerId"></td>
+                                        <td md-cell ng-bind="::record.url"></td>
                                     </tr>
                                 </tbody>
                             </table>

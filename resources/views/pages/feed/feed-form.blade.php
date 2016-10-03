@@ -203,14 +203,14 @@
 
             <md-autocomplete
                 ng-required="true"
-                md-input-name="client_type"
+                md-input-name="feed_type"
                 md-floating-label="Feed Type"
                 md-search-text="feed.typeSearchText"
-                md-items="item in feed.getClientType( feed.typeSearchText )"
+                md-items="item in feed.getFeedType( feed.typeSearchText )"
                 md-item-text="item.name"
                 md-selected-item-change="feed.setClientType( item )"
                 md-min-length="0"
-                md-selected-item="feed.current.client_type">
+                md-selected-item="feed.current.feed_type">
 
                 <md-item-template>
                     <span md-highlight-text="feed.typeSearchText" md-highlight-flags="^i">@{{item.name}}</span>
@@ -219,9 +219,9 @@
                 <md-not-found>
                     No feed types matching "@{{feed.typeSearchText}}" were found.
                 </md-not-found>
-                <div ng-messages="feedForm.client_type.$error">
+                <div ng-messages="feedForm.feed_type.$error">
                     <div ng-message="required">Feed type is required.</div>
-                    <div ng-repeat="error in feed.formErrors.client_type">
+                    <div ng-repeat="error in feed.formErrors.feed_type">
                         <div ng-bind="error"></div>
                     </div>
                 </div>
