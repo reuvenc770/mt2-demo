@@ -65,6 +65,7 @@ class Kernel extends ConsoleKernel
         Commands\SyncMT1FeedLevels::class,
         Commands\AttributionConversionCommand::class,
         Commands\PopulateListProfileAggregationTable::class,
+        Commands\SendDomainExpirationNotice::class,
     ];
 
     /**
