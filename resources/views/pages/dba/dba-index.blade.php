@@ -61,7 +61,7 @@
                             <td md-cell>@{{ record.address }} @{{ record.city }} @{{ record.state }} @{{ record.zip }}</td>
                             <td md-cell>@{{ record.dba_email }}</td>
                             <td md-cell>@{{ record.phone }}</td>
-                            <td md-cell><p ng-repeat="value in record.po_boxes">@{{ value.sub  }} - @{{value.address}} @{{value.city }} @{{value.state}} @{{value.zip}} - @{{value.phone}} - Brands - @{{ value.brands}}</p></td>
+                            <td md-cell><p ng-repeat="value in record.po_boxes">@{{ value.sub  }} - @{{value.address}} @{{value.city }} @{{value.state}} @{{value.zip}} - @{{value.phone}} <span ng-if="value.brands.length > 0">- Brands:</span> @{{ value.brands.join(', ') }}</p></td>
                             <td md-cell>@{{ record.entity_name }}</td>
                             <td md-cell>@{{ record.notes }}</td>
                         </tr>

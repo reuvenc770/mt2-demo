@@ -12,11 +12,10 @@
                 </md-toolbar>
                 <md-card-content>
                     <form name="dbaForm" layout="column" novalidate>
-                        <input name="_token" type="hidden" value="{{ csrf_token() }}">
-                    @include( 'pages.dba.dba-form' )
-                            <div class="form-group">
-                                <input class="btn btn-lg btn-primary btn-block" ng-click="dba.editAccount()" type="submit" value="Update DBA Account">
-                            </div>
+
+                        @include( 'pages.dba.dba-form' )
+
+                        <md-button class="md-raised md-accent" ng-click="dba.editAccount( $event, dbaForm )">Update Account</md-button>
                     </form>
                 </md-card-content>
             </md-card>

@@ -1,4 +1,4 @@
-mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$timeout' , 'UserApiService' , function ( $log , $window , $location , $timeout , UserApiService ) {
+mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$timeout' , 'UserApiService' , '$mdToast' , function ( $log , $window , $location , $timeout , UserApiService , $mdToast ) {
     var self = this;
     self.$location = $location;
 
@@ -41,10 +41,44 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
         $window.location.href = self.createUrl;
     };
 
-    self.saveNewAccount = function () {
+    self.onFormFieldChange = function ( event , form , fieldName ) {
+
+        form[ fieldName ].$setValidity('isValid', true);
+
+        self.formErrors[ fieldName ] = [];
+    };
+
+    self.saveNewAccount = function ( event , form ) {
         self.resetFieldErrors();
 
-        UserApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback );
+        var errorFound = false;
+
+        angular.forEach( form.$error.required , function( field ) {
+
+            field.$setDirty();
+            field.$setTouched();
+
+            errorFound = true;
+        } );
+
+        if ( errorFound ) {
+            $mdToast.showSimple( 'Please fix errors and try again.' );
+
+            return false;
+        };
+
+        UserApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , function(response){
+           angular.forEach( response.data , function( error , fieldName ) {
+
+                if (fieldName != 'roles'){
+                    form[ fieldName ].$setDirty();
+                    form[ fieldName ].$setTouched();
+                    form[ fieldName ].$setValidity('isValid' , false);
+                }
+            });
+
+            self.saveNewAccountFailureCallback(response);
+        } );
     };
 
     self.editAccount = function () {
@@ -53,10 +87,35 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
         UserApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 
-    self.updateProfile = function () {
+    self.updateProfile = function ( event , form ) {
         self.resetFieldErrors();
 
-        UserApiService.updateProfile( self.currentAccount , self.SuccessProfileCallBackRedirect , self.editAccountFailureCallback );
+        var errorFound = false;
+
+        angular.forEach( form.$error.required , function( field ) {
+
+            field.$setDirty();
+            field.$setTouched();
+
+            errorFound = true;
+        } );
+
+        if ( errorFound ) {
+            $mdToast.showSimple( 'Please fix errors and try again.' );
+
+            return false;
+        };
+
+        UserApiService.updateProfile( self.currentAccount , self.SuccessProfileCallBackRedirect , function(response) {
+            angular.forEach( response.data , function( error , fieldName ) {
+
+                form[ fieldName ].$setDirty();
+                form[ fieldName ].$setTouched();
+                form[ fieldName ].$setValidity('isValid' , false);
+            });
+
+            self.editAccountFailureCallback(response);
+        });
     };
 
     self.toggleSelection = function (role) {

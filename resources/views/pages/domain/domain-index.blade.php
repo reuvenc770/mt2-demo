@@ -33,10 +33,10 @@
                         <tr md-row ng-repeat="record in domain.accounts track by $index">
                             <td md-cell>
                                 <div layout="row" layout-align="center center">
-                                    <md-button target="_self" class="md-raised md-accent"
-                                                ng-class="{'md-icon-button mt2-icon-button-xs' : app.isMobile() , 'mt2-button-xs' : !app.isMobile() }"
+                                    <md-button target="_self" class="md-icon-button" aria-label="View"
                                                 ng-href="@{{ '/domain/create/?name=' + record.esp_name + '&espId=' + record.esp_account_id + '&espAccountName=' + record.account_name }}">
-                                     <md-icon md-svg-icon="img/icons/ic_view_list_white_24px.svg"></md-icon><span ng-hide="app.isMobile()"> View</span>
+                                     <md-icon md-svg-icon="img/icons/ic_view_list_black_24px.svg"></md-icon>
+                                     <md-tooltip md-direction="bottom">View</md-tooltip>
                                     </md-button>
                                 </div>
                             </td>

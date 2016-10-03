@@ -37,4 +37,12 @@ class AddDBARequest extends Request
             'registrant_name' => 'required',
         ];
     }
+
+    public function messages ()
+    {
+        return [
+            'dba_name.unique' => 'This DBA name already exists.' ,
+            'dba_email.email' => 'Email is not in a valid format.'
+        ];
+    }
 }

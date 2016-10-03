@@ -13,6 +13,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
 
     self.formErrors = "";
 
+    self.editingPOBox = false;
     self.pageCount = 0;
     self.paginationCount = '10';
     self.currentPage = 1;
@@ -45,11 +46,48 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
         $window.location.href = self.createUrl;
     };
 
-    self.saveNewAccount = function () {
+    self.onFormFieldChange = function ( event , form , fieldName ) {
+        form[ fieldName ].$setValidity('isValid', true);
+
+        self.formErrors[ fieldName ] = [];
+    };
+
+    self.saveNewAccount = function ( event , form ) {
         self.resetFieldErrors();
+
+        var errorFound = false;
+
+        angular.forEach( form.$error.required , function( field ) {
+            if (field.$name.match(/^po_box+/i) == null ) {
+                field.$setDirty();
+                field.$setTouched();
+
+                if ( field.$name == 'state' ) {
+                    form.state.$error.required = true;
+                }
+
+                errorFound = true;
+            }
+        } );
+
+        if ( errorFound ) {
+            $mdToast.showSimple( 'Please fix errors and try again.' );
+
+            return false;
+        };
+
         self.currentAccount.po_boxes = JSON.stringify(self.currentAccount.po_boxes);
         self.currentAccount.status = 1;
-        DBAApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback );
+        DBAApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , function( response ) {
+            angular.forEach( response.data , function( error , fieldName ) {
+
+                form[ fieldName ].$setDirty();
+                form[ fieldName ].$setTouched();
+                form[ fieldName ].$setValidity('isValid' , false);
+            });
+
+            self.saveNewAccountFailureCallback( response );
+        } );
     };
 
     self.editAccount = function () {
@@ -74,11 +112,12 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
         self.po_box.brands.splice( id , 1 );
     };
 
-    self.addPOBox = function () {
+    self.addPOBox = function ( event , form ) {
         if(self.po_box.address.length >= 1 || self.po_box.state.length >= 1) {
             self.currentAccount.po_boxes.push(self.po_box);
             self.clearPOBox();
         }
+        self.editingPOBox = false;
     };
 
     self.removePOBox = function (id) {
@@ -89,6 +128,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     self.editPOBox = function (id) {
         self.po_box = self.currentAccount.po_boxes[id];
         self.currentAccount.po_boxes.splice( id , 1 );
+        self.editingPOBox = true;
     };
 
     self.clearPOBox = function () {

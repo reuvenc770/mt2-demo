@@ -12,11 +12,9 @@
                 </md-toolbar>
                 <md-card-content>
                     <form name="dbaForm" layout="column" novalidate>
-                        <input name="_token" type="hidden" value="{{ csrf_token() }}">
-                    @include( 'pages.dba.dba-form' )
+                        @include( 'pages.dba.dba-form' )
 
                         <md-button class="md-raised md-accent" ng-click="dba.saveNewAccount( $event, dbaForm )">Create Account</md-button>
-
                     </form>
                 </md-card-content>
             </md-card>

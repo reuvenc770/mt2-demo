@@ -27,7 +27,7 @@ class EditProxyRequest extends Request
     {
         return [
             'name' => 'required',
-            'ip_addresses'      => 'required|ip',
+            'ip_addresses'      => 'required',
             'provider_name'      => 'required',
         ];
     }

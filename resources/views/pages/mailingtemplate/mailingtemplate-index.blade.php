@@ -35,8 +35,9 @@
                         <tr md-row ng-repeat="record in mailing.templates track by $index">
                             <td md-cell>
                                 <div layout="row" layout-align="center center">
-                                    <md-button class="md-raised" ng-class="{'md-icon-button mt2-icon-button-xs' : app.isMobile() , 'mt2-button-xs' : !app.isMobile() }" ng-href="@{{ '/mailingtemplate/edit/' + record.id }}" target="_self">
-                                        <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon><span ng-hide="app.isMobile()"> Edit</span>
+                                    <md-button class="md-icon-button" ng-href="@{{ '/mailingtemplate/edit/' + record.id }}" target="_self" aria-label="Edit">
+                                        <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon>
+                                        <md-tooltip md-direction="bottom">Edit</md-tooltip>
                                     </md-button>
                                 </div>
                             </td>

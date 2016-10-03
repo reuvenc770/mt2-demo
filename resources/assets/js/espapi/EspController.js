@@ -63,7 +63,7 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     };
 
     self.onFormFieldChange = function ( event , form , fieldName ) {
-        form[ fieldName ].$setValidity('custom', true);
+        form[ fieldName ].$setValidity('isValid', true);
 
         self.formErrors[ fieldName ] = [];
     };
@@ -91,7 +91,7 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
 
                 form[ fieldName ].$setDirty();
                 form[ fieldName ].$setTouched();
-                form[ fieldName ].$setValidity('custom' , false);
+                form[ fieldName ].$setValidity('isValid' , false);
 
             });
 

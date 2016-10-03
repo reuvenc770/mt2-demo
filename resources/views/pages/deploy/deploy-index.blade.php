@@ -464,8 +464,14 @@
                                              ng-click="deploy.toggleRow(record.deploy_id)"> </md-checkbox>
                             </td>
                             <td md-cell>
-                                <md-button class="md-raised" ng-click="deploy.editRow( record.deploy_id)">Edit</md-button>
-                                <md-button class="md-raised md-accent" ng-click="deploy.copyRow( record.deploy_id)">Copy</md-button>
+                                <md-button class="md-icon-button" ng-click="deploy.editRow( record.deploy_id)" aria-label="Edit">
+                                    <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon>
+                                    <md-tooltip md-direction="bottom">Edit</md-tooltip>
+                                </md-button>
+                                <md-button class="md-icon-button" ng-click="deploy.copyRow( record.deploy_id)" aria-label="Copy">
+                                    <md-icon md-svg-icon="img/icons/ic_content_copy_black_18px.svg"></md-icon>
+                                    <md-tooltip md-direction="bottom">Copy</md-tooltip>
+                                </md-button>
                             </td>
                             <td md-cell>@{{ record.send_date }}</td>
                             <td md-cell>@{{ record.deploy_id }}</td>

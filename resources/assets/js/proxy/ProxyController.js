@@ -1,4 +1,4 @@
-mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$timeout' , 'ProxyApiService', '$rootScope','$mdToast', function ( $log , $window , $location , $timeout , ProxyApiService, $rootScope, $mdToast ) {
+mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$timeout' , 'ProxyApiService', '$rootScope','$mdToast', '$mdConstant' , function ( $log , $window , $location , $timeout , ProxyApiService, $rootScope, $mdToast , $mdConstant ) {
     var self = this;
     self.$location = $location;
 
@@ -14,7 +14,7 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
     self.esp_names = [];
     self.createUrl = 'proxy/create/';
     self.editUrl = 'proxy/edit/';
-
+    self.mdChipSeparatorKeys = [$mdConstant.KEY_CODE.ENTER , $mdConstant.KEY_CODE.COMMA , 9];
     self.formErrors = "";
 
     self.pageCount = 0;
@@ -61,18 +61,64 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
         $window.location.href = self.createUrl;
     };
 
-    self.saveNewAccount = function () {
+    self.onFormFieldChange = function ( event , form , fieldName ) {
+
+        form[ fieldName ].$setValidity('isValid', true);
+
+        self.formErrors[ fieldName ] = [];
+    };
+
+    self.saveNewAccount = function ( event , form) {
         self.resetFieldErrors();
+
+        var errorFound = false;
+
+        angular.forEach( form.$error.required , function( field ) {
+
+            field.$setDirty();
+            field.$setTouched();
+
+            errorFound = true;
+        } );
+
+        if ( self.ip_addresses.length < 1  ) {
+
+            form['ip_addresses'].$setDirty();
+            form['ip_addresses'].$setTouched();
+            form['ip_addresses'].$setValidity('isValid', false);
+            form['ip_addresses'].$error.required = true;
+
+            errorFound = true;
+        }
+
+        if ( errorFound ) {
+            $mdToast.showSimple( 'Please fix errors and try again.' );
+
+            return false;
+        };
+
         self.currentAccount.ip_addresses = self.ip_addresses.join(',');
         self.currentAccount.esp_names = self.esp_names.join(',');
         self.currentAccount.isp_names = self.isp_names.join(',');
         self.currentAccount.status =1;
-        ProxyApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback );
+        ProxyApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , function( response ) {
+            angular.forEach( response.data , function( error , fieldName ) {
+
+                form[ fieldName ].$setDirty();
+                form[ fieldName ].$setTouched();
+                form[ fieldName ].$setValidity('isValid' , false);
+            });
+
+            self.saveNewAccountFailureCallback( response);
+        } );
     };
 
     self.editAccount = function () {
         self.resetFieldErrors();
 
+        self.currentAccount.ip_addresses = self.ip_addresses.join(',');
+        self.currentAccount.esp_names = self.esp_names.join(',');
+        self.currentAccount.isp_names = self.isp_names.join(',');
         ProxyApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 

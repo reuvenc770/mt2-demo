@@ -50,7 +50,7 @@ mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window
     };
 
     self.onFormFieldChange = function ( event , form , fieldName ) {
-        form[ fieldName ].$setValidity('custom', true);
+        form[ fieldName ].$setValidity('isValid', true);
 
         self.formErrors[ fieldName ] = [];
     };
@@ -78,7 +78,7 @@ mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window
 
                 form[fieldName].$setDirty();
                 form[fieldName].$setTouched();
-                form[fieldName].$setValidity('custom' , false);
+                form[fieldName].$setValidity('isValid' , false);
             });
 
             self.saveNewCampaignFailureCallback( response );

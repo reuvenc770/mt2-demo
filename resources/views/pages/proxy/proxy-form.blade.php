@@ -1,78 +1,91 @@
 
     <input name="_token" type="hidden" value="{{ csrf_token() }}">
-    <fieldset>
-        <!-- Email field -->
-        <div class="form-group" ng-class="{ 'has-error' : proxy.formErrors.name }">
-            <input placeholder="Name" class="form-control" ng-model="proxy.currentAccount.name" required="required"
-                   name="name" type="text">
-            <span class="help-block" ng-bind="proxy.formErrors.name" ng-show="proxy.formErrors.name"></span>
-        </div>
-
-        <div class="form-group" ng-class="{ 'has-error' : proxy.formErrors.provider_name }">
-            <input placeholder="Provider's Name"  class="form-control" ng-model="proxy.currentAccount.provider_name"
-                   required="required" name="provider_name" type="text">
-            <span class="help-block" ng-bind="proxy.formErrors.provider_name"
-                  ng-show="proxy.formErrors.provider_name"></span>
-        </div>
-
-        <div class="form-group" ng-class="{ 'has-error' : proxy.formErrors.ip_addresses }">
-            <div class="input-group">
-                <input placeholder="IP Address" class="form-control" ng-model="proxy.ip_address" required="required"
-                       name="ip_address" type="text">
-                <span class="help-block" ng-bind="proxy.formErrors.ip_addresses"
-                      ng-show="proxy.formErrors.ip_addresses"></span>
-                 <span class="input-group-btn">
-            <button class="btn btn-primary" ng-click="proxy.addIpAddress()" type="button">Add IP</button>
-                     </span>
-            </div>
-            <div ng-show="proxy.ip_addresses.length > 0" class="panel-footer">
-                <p ng-repeat="(key, value) in proxy.ip_addresses track by $index"> @{{value}}
-                    <a ng-click="proxy.editIpAddress(key)">Edit</a>
-                    <a ng-click="proxy.removeIpAddress(key)">Remove</a></p>
+    <!-- Email field -->
+    <md-input-container>
+        <label>Name</label>
+        <input type="text" name="name" ng-required="true" ng-model="proxy.currentAccount.name" ng-change="proxy.onFormFieldChange( $event , proxyForm , 'name' )"/>
+        <div ng-messages="proxyForm.name.$error">
+            <div ng-message="required">Name is required.</div>
+            <div ng-repeat="error in proxy.formErrors.name">
+                <div ng-bind="error"></div>
             </div>
         </div>
-
-        <div class="form-group" ng-class="{ 'has-error' : proxy.formErrors.esp_names }">
-            <div class="input-group">
-
-                <span class="help-block" ng-bind="proxy.formErrors.esp_names"
-                      ng-show="proxy.formErrors.esp_names"></span>
-                <select ng-model="proxy.esp_name" placeholder="Select ESP" required="required"
-                        class="form-control">
-                    <option value="">Select Esp</option>
-                    @foreach ( $esps as $esp )
-                        <option value="{{ $esp['name'] }}">{{ $esp['name'] }}</option>
-                    @endforeach
-                </select>
-                 <span class="input-group-btn">
-            <button class="btn btn-primary" ng-click="proxy.addEsp()" type="button">Add Esp</button>
-                     </span>
-            </div>
-            <div ng-show="proxy.esp_names.length > 0" class="panel-footer">
-                <p ng-repeat="(key, value) in proxy.esp_names track by $index"> @{{value}}
-                    <a ng-click="proxy.removeEsp(key)">Remove</a></p>
-            </div>
+    </md-input-container>
+    <md-input-container>
+        <label>Provider's Name</label>
+        <input type="text" name="provider_name" ng-required="true" ng-model="proxy.currentAccount.provider_name" />
+        <div ng-messages="proxyForm.provider_name.$error">
+            <div ng-message="required">Provider name is required.</div>
         </div>
-        <div class="form-group" ng-class="{ 'has-error' : domain.formErrors.isp_names }">
-            <div class="input-group">
-                <select name="isp_name" id="isp_name"
-                        ng-model="proxy.isp_name" class="form-control">
-                    <option value="">Select ISP</option>
-                    <option ng-repeat="option in proxy.isps" ng-value="option">@{{ option }}</option>
-                </select>
-                    <span class="input-group-btn">
-            <button class="btn btn-primary" ng-click="proxy.addIsp()" type="button">Add Isp</button>
-                     </span>
-            </div>
-            <div ng-show="proxy.isp_names.length > 0" class="panel-footer">
-                <p ng-repeat="(key, value) in proxy.isp_names track by $index"> @{{value}}
-                    <a ng-click="proxy.removeIsp(key)">Remove</a></p>
-            </div>
-        </div>
+    </md-input-container>
 
-        <div class="form-group" ng-class="{ 'has-error' : proxy.formErrors.notes }">
-            <textarea placeholder="Notes" class="form-control" ng-model="proxy.currentAccount.notes" required="required"
-                   name="name" rows="5" ></textarea>
-            <span class="help-block" ng-bind="proxy.formErrors.notes" ng-show="proxy.formErrors.notes"></span>
-        </div>
 
+    <md-chips name="ip_addresses" placeholder="IP Address*" secondary-placeholder="+ IP Address"
+                ng-model="proxy.ip_addresses"
+                md-removable="true"
+                md-enable-chip-edit="true"
+                md-separator-keys="proxy.mdChipSeparatorKeys"
+                md-add-on-blur="true"
+                ng-change="proxy.onFormFieldChange( $event , proxyForm, 'ip_addresses' )">
+
+    </md-chips>
+    <div ng-messages="proxyForm.ip_addresses.$error" >
+        <div ng-message="required" class="error-message">At least 1 IP address is required.</div>
+        <div ng-repeat="error in proxy.formErrors.ip_addresses">
+            <div ng-bind="error" class="error-message"></div>
+        </div>
+    </div>
+
+    <div layout="row" layout-align="center center">
+        <md-input-container flex>
+            <label>ESP</label>
+            <md-select name="esp_name" ng-model="proxy.esp_name">
+                @foreach ( $esps as $esp )
+                    <md-option value="{{ $esp['name'] }}">{{ $esp['name'] }}</md-option>
+                @endforeach
+            </md-select>
+            <div ng-messages="proxyForm.esp_name.$error">
+                <div ng-repeat="error in proxy.formErrors.esp_names">
+                    <div ng-bind="error"></div>
+                </div>
+            </div>
+        </md-input-container>
+        <div ng-show="proxy.esp_names.length > 0">
+            <md-button class="md-icon-button" flex="auto" ng-click="proxy.addEsp()">
+                <md-icon md-svg-icon="img/icons/ic_add_circle_outline_black_24px.svg"></md-icon>
+                <md-tooltip md-direction>Add ESP</md-tooltip>
+            </md-button>
+        </div>
+    </div>
+    <div ng-show="proxy.esp_names.length > 0" layout-padding>
+        <p class="no-margin" ng-repeat="(key, value) in proxy.esp_names track by $index"> @{{value}}
+            <a ng-click="proxy.removeEsp(key)">Remove</a></p>
+    </div>
+    <div layout="row" layout-align="center center">
+        <md-input-container flex>
+            <label>ISP</label>
+            <md-select name="isp_name" id="isp_name" ng-model="proxy.isp_name">
+                <md-option ng-repeat="option in proxy.isps" ng-value="option">@{{ option }}</md-option>
+            </md-select>
+            <div ng-messages="proxyForm.isp_name.$error">
+                <div ng-repeat="error in proxy.formErrors.isp_names">
+                    <div ng-bind="error"></div>
+                </div>
+            </div>
+        </md-input-container>
+        <div ng-show="proxy.isp_names.length > 0">
+            <md-button class="md-icon-button" flex="auto" ng-click="proxy.addIsp()">
+                <md-icon md-svg-icon="img/icons/ic_add_circle_outline_black_24px.svg"></md-icon>
+                <md-tooltip md-direction>Add ISP</md-tooltip>
+            </md-button>
+        </div>
+    </div>
+    <div ng-show="proxy.isp_names.length > 0" layout-padding>
+        <p class="no-margin" ng-repeat="(key, value) in proxy.isp_names track by $index"> @{{value}}
+            <a ng-click="proxy.removeIsp(key)">Remove</a></p>
+    </div>
+
+    <md-input-container>
+        <label>Notes</label>
+        <textarea ng-model="proxy.currentAccount.notes" rows="5" id="notes"></textarea>
+    </md-input-container>

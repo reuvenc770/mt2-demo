@@ -36,16 +36,19 @@
                                         <md-icon md-svg-icon="img/icons/ic_expand_more_black_18px.svg" ng-hide="clientGroup.clientFeedMap[record.id]"></md-icon>
                                         <md-icon md-svg-icon="img/icons/ic_expand_less_black_18px.svg" ng-show="clientGroup.clientFeedMap[record.id]"></md-icon>
                                     </md-button>
-                                    <md-button class="md-raised" ng-class="{'md-icon-button mt2-icon-button-xs' : app.isMobile() , 'mt2-button-xs' : !app.isMobile() }" ng-href="@{{ '/clientgroup/edit/' + record.id }}" target="_self">
-                                        <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon><span ng-hide="app.isMobile()"> Edit</span>
+                                    <md-button class="md-icon-button" ng-href="@{{ '/clientgroup/edit/' + record.id }}" target="_self" aria-label="Edit">
+                                        <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon>
+                                        <md-tooltip md-direction="bottom">Edit</md-tooltip>
                                     </md-button>
 
-                                    <md-button class="md-raised md-accent" ng-class="{'md-icon-button mt2-icon-button-xs' : app.isMobile() , 'mt2-button-xs' : !app.isMobile() }" ng-click="clientGroup.copyClientGroup( record.id )">
-                                        <md-icon md-svg-icon="img/icons/ic_content_copy_white_18px.svg"></md-icon><span ng-hide="app.isMobile()"> Copy</span>
+                                    <md-button class="md-icon-button" ng-click="clientGroup.copyClientGroup( record.id )" aria-label="Copy">
+                                        <md-icon md-svg-icon="img/icons/ic_content_copy_black_18px.svg"></md-icon>
+                                        <md-tooltip md-direction="bottom">Copy</md-tooltip>
                                     </md-button>
 
-                                    <md-button class="md-raised md-warn md-hue-2" ng-class="{'md-icon-button mt2-icon-button-xs' : app.isMobile() , 'mt2-button-xs' : !app.isMobile() }" ng-click="ctrl.deletegroup( { groupID : record.id } )">
-                                        <md-icon md-svg-icon="img/icons/ic_clear_white_24px.svg"></md-icon><span ng-hide="app.isMobile()"> Delete</span>
+                                    <md-button class="md-icon-button" ng-click="ctrl.deletegroup( { groupID : record.id } )" aria-label="Delete">
+                                        <md-icon md-svg-icon="img/icons/ic_clear_black_24px.svg"></md-icon>
+                                        <md-tooltip md-direction="bottom">Delete</md-tooltip>
                                     </md-button>
                                 </div>
                             </td>

@@ -135,6 +135,10 @@ table.md-table.md-row-select tbody.md-body > tr.md-row:not([disabled]):hover {
     padding:0px;
 }
 
+.no-margin {
+    margin: 0px;
+}
+
 .mt2-bg-success {
     background-color: #dff0d8;
 }
@@ -210,7 +214,20 @@ a.md-button.md-mt2-zeta-theme.md-raised.mt2-button-success:not([disabled]):hover
     background-color: #5cb85c;
 }
 
-
+.mt2-button-option{
+    margin: 6px 0;
+}
+.mt2-button-option[disabled]{
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+}
+.mt2-button-option-left{
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+}
+.mt2-button-option-right{
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+}
 /*
  * Materials Menu Styling
  */
@@ -360,6 +377,18 @@ body {
     &:not([disabled]):hover{
         background-color: rgb(166,201,43);
     }
+}
+
+.md-chips {
+    font-size: inherit;
+}
+
+md-chips.md-mt2-zeta-theme.ng-invalid .md-chips {
+    box-shadow: 0 2px rgb(221,44,0);
+}
+
+.error-message {
+    color: rgb(221,44,0);
 }
 /**
  * Lists
