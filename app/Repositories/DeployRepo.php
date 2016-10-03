@@ -218,7 +218,6 @@ class DeployRepo
     }
 
     public function validateDeploy($deploy){
-        Log::info($deploy);
         $errors = array();
         if (isset($deploy['esp_account_id'])) {
             $count = DB::select("Select count(*) as count from esp_accounts where id = :id", ['id' => $deploy['esp_account_id']])[0];

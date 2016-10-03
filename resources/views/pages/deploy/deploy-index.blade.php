@@ -439,7 +439,7 @@
                                          'mt2-bg-success' : record.deployment_status ==1,
                                          'mt2-warning' : record.deployment_status == 2 }">
                             <td md-cell>
-                                <md-checkbox ng-show="@{{deploy.checkStatus(record.creative_approval,record.creative_status)
+                                <md-checkbox ng-checked="deploy.checkChecked(record.deploy_id)" ng-show="@{{deploy.checkStatus(record.creative_approval,record.creative_status)
                                 && deploy.checkStatus(record.from_approval,record.from_status)
                                 && deploy.checkStatus(record.subject_approval,record.subject_status)}}" aria-label="Select" name="selectedRows"
                                              ng-click="deploy.toggleRow(record.deploy_id)"> </md-checkbox>

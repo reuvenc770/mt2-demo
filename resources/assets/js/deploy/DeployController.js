@@ -234,6 +234,11 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         }
     };
 
+    self.checkChecked = function(selectedValue){
+        var index = self.selectedRows.indexOf(selectedValue);
+        return index >= 0;
+    };
+
     self.exportCsv = function () {
         returnUrl = DeployApiService.exportCsv(self.selectedRows);
         $window.open(returnUrl);
@@ -307,7 +312,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
 
                 $scope.answer = function ( submit ) {
                     if ( submit === true ) {
-                        self.copyToFutureDate = moment( $scope.deployDate ).format( 'L' );
+                        self.copyToFutureDate = $scope.deployDate;
 
                         DeployApiService.copyToFuture( self.selectedRows, self.copyToFutureDate, self.copyToFutureSuccess, self.copyToFutureFailure );
                     }
@@ -507,7 +512,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
                 errorText += "<b>Deploy ID " + deploy_id + " has errors:</b><br/>";
                 textErrors = Object.keys(errors[i]).map(function(k) { return errors[i][k] });
                 for (y = 0; y < textErrors.length; y++) {
-                    console.log(textErrors[y]);
                     errorText += textErrors[y];
                 }
                 errorText += "<br/>";
