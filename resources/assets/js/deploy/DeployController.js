@@ -54,7 +54,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.paginationCount = '10';
     self.currentPage = '1';
     self.deployTotal = 0;
-    self.sort = "-status";
+    self.sort = "-deployment_status";
     self.queryPromise = null;
     self.copyToFutureDate = '';
 
