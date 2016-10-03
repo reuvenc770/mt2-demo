@@ -142,7 +142,6 @@ class DeployService
             $errors = $this->deployRepo->validateDeploy($newDeploy->toArray());
             if(count($errors) == 0){
                 $newDeploy->save();
-                Log::info("I GOT HERE");
             }
             else {
                 $errors['deploy_id'] = $deployId;

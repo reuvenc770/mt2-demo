@@ -13,7 +13,6 @@ use DB;
 use App\Facades\EspApiAccount;
 use Cache;
 use Carbon\Carbon;
-use Log;
 class DeployRepo
 {
     protected $deploy;
