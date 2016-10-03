@@ -5,7 +5,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     self.accounts = [];
     self.po_box = {sub : "",address : "", address_2 : "", city : "", state : "", zip: "", phone : "", brands: [], notes: ""};
     self.brand = "";
-    self.currentAccount = { id:"",  dba_name : "" , phone: "",
+    self.currentAccount = { id:"",  dba_name : "" , phone: "", password: "",
     dba_email : "", po_boxes : [], address: "", address_2 : "", city : "", state : "", zip : "",entity_name: ""};
 
     self.createUrl = 'dba/create/';
@@ -17,6 +17,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     self.pageCount = 0;
     self.paginationCount = '10';
     self.currentPage = 1;
+    self.poBoxHolder = {};
     self.accountTotal = 0;
     self.sort = "-status";
     self.queryPromise = null;
@@ -26,7 +27,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
 
         DBAApiService.getAccount( pathMatches[ 1 ] , function ( response ) {
             self.currentAccount = response.data;
-            self.currentAccount.po_boxes = JSON.parse(response.data.po_boxes);
+            self.poBoxHolder = JSON.parse(response.data.po_boxes);
         } )
     };
 
@@ -76,7 +77,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
             return false;
         };
 
-        self.currentAccount.po_boxes = JSON.stringify(self.currentAccount.po_boxes);
+        self.currentAccount.po_boxes = JSON.stringify(self.poBoxHolder);
         self.currentAccount.status = 1;
         DBAApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , function( response ) {
             angular.forEach( response.data , function( error , fieldName ) {
@@ -92,7 +93,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
 
     self.editAccount = function () {
         self.resetFieldErrors();
-        self.currentAccount.po_boxes = JSON.stringify(self.currentAccount.po_boxes);
+        self.currentAccount.po_boxes = JSON.stringify(self.poBoxHolder);
         DBAApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 
@@ -114,20 +115,22 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
 
     self.addPOBox = function ( event , form ) {
         if(self.po_box.address.length >= 1 || self.po_box.state.length >= 1) {
-            self.currentAccount.po_boxes.push(self.po_box);
+            self.poBoxHolder.push(self.po_box);
             self.clearPOBox();
         }
         self.editingPOBox = false;
     };
 
     self.removePOBox = function (id) {
-        self.currentAccount.po_boxes.splice( id , 1 );
+        self.poBoxHolder.splice( id , 1 );
 
     };
 
     self.editPOBox = function (id) {
-        self.po_box = self.currentAccount.po_boxes[id];
-        self.currentAccount.po_boxes.splice( id , 1 );
+        var parsedPOBoxes = angular.fromJson( self.currentAccount.po_boxes );
+
+        self.po_box = parsedPOBoxes[id];
+        self.poBoxHolder.splice( id , 1 );
         self.editingPOBox = true;
     };
 
@@ -185,7 +188,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     };
 
     self.saveNewAccountFailureCallback = function ( response ) {
-        self.currentAccount.po_boxes = JSON.parse(self.currentAccount.po_boxes);
+        self.currentAccount.po_boxes = JSON.parse(self.poBoxHolder);
         self.loadFieldErrors(response);
     };
 

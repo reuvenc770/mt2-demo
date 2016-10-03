@@ -20,6 +20,14 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
         } ).then( successCallback , failureCallback );
     };
 
+    self.searchDeploys = function ( count , data, successCallback , failureCallback ) {
+        return $http( {
+            "method" : "GET" ,
+            "url" : self.pagerApiUrl ,
+            "params" : { "page" : 1 , "count" : count, "data" : data }
+        } ).then( successCallback , failureCallback );
+    };
+
     self.getDeploy = function (deployID ,successCallback, failCallBack){
         $http( { "method" : "GET" , "url" : this.baseApiUrl + deployID } )
             .then( successCallback , failCallBack )
@@ -127,13 +135,13 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
             .then( successCallback , failCallBack );
     };
 
-    self.deployPackages = function (packages, successCallback, failCallBack){
+    self.deployPackages = function (packages, userName, successCallback, failCallBack){
         var request = packages;
         var responseType = packages.length > 1 ? "json" : "arraybuffer";
         $http( {
             "method" : "POST" ,
             "responseType" : responseType,
-            "url" : this.baseApiUrl + "package/create" ,
+            "url" : this.baseApiUrl + "package/create?username=" + userName ,
             "data" : request
         } ).then( successCallback , failCallBack );
     };

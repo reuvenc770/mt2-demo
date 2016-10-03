@@ -19,7 +19,6 @@
         </div>
     </md-input-container>
 
-
     <md-chips name="ip_addresses" placeholder="IP Address*" secondary-placeholder="+ IP Address"
                 ng-model="proxy.ip_addresses"
                 md-removable="true"
@@ -39,26 +38,26 @@
     <div layout="row" layout-align="center center">
         <md-input-container flex>
             <label>ESP</label>
-            <md-select name="esp_name" ng-model="proxy.esp_name">
+            <md-select name="esp_account_name" ng-model="proxy.esp_account_name">
                 @foreach ( $esps as $esp )
                     <md-option value="{{ $esp['name'] }}">{{ $esp['name'] }}</md-option>
                 @endforeach
             </md-select>
-            <div ng-messages="proxyForm.esp_name.$error">
-                <div ng-repeat="error in proxy.formErrors.esp_names">
+            <div ng-messages="proxyForm.esp_account_name.$error">
+                <div ng-repeat="error in proxy.formErrors.esp_account_names">
                     <div ng-bind="error"></div>
                 </div>
             </div>
         </md-input-container>
-        <div ng-show="proxy.esp_names.length > 0">
+        <div ng-show="proxy.esp_account_names.length > 0">
             <md-button class="md-icon-button" flex="auto" ng-click="proxy.addEsp()">
                 <md-icon md-svg-icon="img/icons/ic_add_circle_outline_black_24px.svg"></md-icon>
                 <md-tooltip md-direction>Add ESP</md-tooltip>
             </md-button>
         </div>
     </div>
-    <div ng-show="proxy.esp_names.length > 0" layout-padding>
-        <p class="no-margin" ng-repeat="(key, value) in proxy.esp_names track by $index"> @{{value}}
+    <div ng-show="proxy.esp_account_names.length > 0" layout-padding>
+        <p class="no-margin" ng-repeat="(key, value) in proxy.esp_account_names track by $index"> @{{value}}
             <a ng-click="proxy.removeEsp(key)">Remove</a></p>
     </div>
     <div layout="row" layout-align="center center">

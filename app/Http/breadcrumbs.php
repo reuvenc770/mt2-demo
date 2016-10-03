@@ -266,3 +266,17 @@ Breadcrumbs::register('deploy.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');
     $breadcrumbs->push('Deploy Package', route('deploy.list'));
 });
+
+Breadcrumbs::register('ispgroup.list', function($breadcrumbs) {
+    $breadcrumbs->parent('home');
+    $breadcrumbs->push('Isp Groups', route('ispgroup.list'));
+});
+Breadcrumbs::register('ispgroup.add', function($breadcrumbs) {
+    $breadcrumbs->parent('ispgroup.list');
+    $breadcrumbs->push('Add ISP Group');
+});
+Breadcrumbs::register('ispgroup.edit', function($breadcrumbs) {
+    $breadcrumbs->parent('ispgroup.list');
+    $breadcrumbs->push('Edit ISP Group');
+});
+

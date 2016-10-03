@@ -185,7 +185,7 @@
 
         <md-content ng-show="dba.currentAccount.po_boxes.length > 0" layout-padding>
             <md-list class="md-dense">
-                <md-list-item class="md-3-line" ng-repeat="(key, value) in dba.currentAccount.po_boxes track by $index">
+                <md-list-item class="md-3-line" ng-repeat="(key, value) in dba.poBoxHolder track by $index">
                     <div class="md-list-item-text">
                         <p><strong>PO Box:</strong> <span ng-if="value.sub">(Sub# @{{value.sub}})</span> @{{value.address}} @{{value.address_2}} @{{value.city}} @{{value.state}} @{{value.zip}}</p>
                         <p>@{{value.phone}}</p>

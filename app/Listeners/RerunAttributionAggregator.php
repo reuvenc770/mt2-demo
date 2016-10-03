@@ -9,6 +9,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\AttributionAggregatorJob;
 use Carbon\Carbon;
+use Mail;
+
+use App\Services\AttributionModelService;
 
 class RerunAttributionAggregator
 {
@@ -17,14 +20,16 @@ class RerunAttributionAggregator
     const DEFAULT_QUEUE_NAME = 'default'; #'modelAttribution';
     const DEFAULT_REPORT_TYPE = 'Feed';
 
+    private $attrService;
+
     /**
      * Create the event listener.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct( AttributionModelService $attrService )
     {
-        //
+        $this->attrService = $attrService;
     }
 
     /**
@@ -49,6 +54,18 @@ class RerunAttributionAggregator
             ) )->onQueue( self::DEFAULT_QUEUE_NAME );
 
             $this->dispatch( $job );
+        }
+
+        $this->attrService->setProcessingFlag( $event->getModelId() , false );
+
+        $userEmail = $event->getUserEmail()
+        if ( !is_null( $userEmail ) && $userEmail != 'none' ) {
+            Mail::raw( 'Projection processing for Model' . $event->getModelId() . ' completed.' , function ($message) {
+                $message->to( $userEmail );
+                $message->to('achin@zetainteractive.com');
+                $message->subject('"Projection Processing Completed"');
+                $message->priority(1);
+            });
         }
     }
 }

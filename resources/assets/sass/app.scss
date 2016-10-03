@@ -149,6 +149,13 @@ table.md-table.md-row-select tbody.md-body > tr.md-row:not([disabled]):hover {
     background-color: #f2dede;
 }
 
+.deploy-error{
+    padding: 5px;
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
 .mt2-bg-super-danger {
     background-color: #ef8a81;
 }
@@ -565,4 +572,3 @@ md-content{
     background-color: lightblue;
     color: #ffffff;
 }
-

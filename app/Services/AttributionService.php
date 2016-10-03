@@ -52,14 +52,15 @@ class AttributionService
         
     }
 
-    public function run( $records , $modelId = 'none' ) {
+    public function run( $records , $modelId = 'none' , $userEmail = 'none' ) {
 
         $currentTimestamp = Carbon::now()->timestamp;
 
         $records->chunk(65000, function ($results) use ($modelId) {
             Artisan::call('attribution:processBatch', [
                 'data' => $results, 
-                'modelId' => $modelId
+                'modelId' => $modelId ,
+                'userEmail' => $userEmail
             ]);
 
             // This depends on the query completing faster than the processing job

@@ -14,7 +14,7 @@ class AttributionBatchProcess extends Command
      *
      * @var string
      */
-    protected $signature = 'attribution:processBatch {data} {modelId}';
+    protected $signature = 'attribution:processBatch {data} {modelId} {userEmail}';
 
     /**
      * The console command description.
@@ -41,7 +41,8 @@ class AttributionBatchProcess extends Command
     public function handle() {
         $data = $this->argument('data');
         $modelId = $this->argument('modelId');
-        $job = (new AttributionBatchProcessJob($data, $modelId, str_random(16)))->onQueue($this->queue);
+        $userEmail = $this->argument('userEmail');
+        $job = (new AttributionBatchProcessJob($data, $modelId, str_random(16), $userEmail))->onQueue($this->queue);
         $this->dispatch($job);
     }
 }

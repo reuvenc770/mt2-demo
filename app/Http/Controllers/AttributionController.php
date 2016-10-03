@@ -17,6 +17,7 @@ use App\Collections\Attribution\ProjectionReportCollection;
 
 use Artisan;
 use Cache;
+use Sentinel;
 
 class AttributionController extends Controller
 {
@@ -114,9 +115,9 @@ class AttributionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy( $modelId , $feedId )
     {
-        //
+        $this->service->removeFeed( $modelId , $feedId );
     }
 
     public function levels ( $modelId ) {
@@ -146,9 +147,21 @@ class AttributionController extends Controller
 
     public function runAttribution ( Request $request ) {
         if ( $request->input( 'modelId' ) > 0 ) {
+            $userEmail = null;
+
+            $currentUser = Sentinel::getUser();
+            if ( !is_null( $currentUser ) ) {
+                $userEmail = $currentUser->email;
+            }
+
             Artisan::queue( 'attribution:commit' , [ 
-                'modelId' => $request->input( 'modelId' )
+                'modelId' => $request->input( 'modelId' ) ,
+                'userEmail' => $userEmail
             ] );
+
+            $this->service->setProcessingFlag( $request->input( 'modelId' ) , true );
+
+            Cache::tags( 'AttributionModel' )->flush();
         } else {
             Artisan::queue( 'attribution:commit' );
         }
@@ -161,7 +174,7 @@ class AttributionController extends Controller
     }
 
     public function showProjection ( $modelId ) {
-        return response()->view( 'pages.attribution.attribution-projection' );
+        return response()->view( 'pages.attribution.attribution-projection' , [ 'modelId' => $modelId ] );
     }
 
     public function getChartData ( $modelId ) {

@@ -88,6 +88,7 @@ class PackageZipCreationService {
         $this->stripImages = true;
 
         $html = $this->createHtml($id);
+        $html =  html_entity_decode($html);
 
         // Email Ops regarding any errors
         $this->sendRedirectWarningEmail();
@@ -147,6 +148,7 @@ class PackageZipCreationService {
 
     /**
      *  Public method that runs through the creation of the html itself
+     *  Note that this HTML is _escaped_. To get the proper html, run html_entity_decode()
      */
 
     public function createHtml($id) {
@@ -298,8 +300,11 @@ class PackageZipCreationService {
 
         $fullHtml = $this->parseImageLinks($fullHtml);
 
-        $fullHtml =  html_entity_decode($fullHtml);
-
+        // Unfortunately, BH's email id token includes an entity (%cf) that gets converted
+        // We've placed another html entity (a zero-width joiner) between the % and cf
+        // to prevent this from happening during the call to parseImageLinks()
+        // additionally, when this gets decoded or displayed, the &zwj; - true to its name - disappears
+        $fullHtml = str_replace('%%&zwj;cf', '%%cf', $fullHtml);
         return $fullHtml;
     }
 

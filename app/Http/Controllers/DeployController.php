@@ -151,7 +151,8 @@ class DeployController extends Controller
 
     public function deployPackages(Request $request)
     {
-        $data = $request->all();
+        $username = $request->get("username");
+        $data = $request->except("username");
         $filePath = false;
         //Only one package is selected return the filepath and make it a download response
         if (count($data) == 1) {
@@ -161,7 +162,7 @@ class DeployController extends Controller
             foreach ($data as $id) {
                $this->packageService->uploadPackage($id);
             }
-            Artisan::call('deploys:sendtoops', ['deploysCommaList' => join(",",$data)]);
+            Artisan::call('deploys:sendtoops', ['deploysCommaList' => join(",",$data), 'username' => $username]);
         }
         //Update deploy status to pending
         $this->deployService->deployPackages($data);

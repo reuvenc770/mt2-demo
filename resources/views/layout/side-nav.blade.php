@@ -2,7 +2,9 @@
     <md-list layout-align="center start">
     @foreach ( $menuItems as $current )
         <md-list-item class="mt2-nav-main-item" ng-click="app.redirect( '{{ '/' . $current[ 'uri' ] }}' )" layout-align="start center" aria-label="{{ $current[ 'name' ] }}">
-            <md-icon class="mt2-nav-icon" md-svg-icon="{{ $current[ 'icon' ] }}"></md-icon>
+            @if ( $current[ 'icon' ] != '' )
+            <md-icon class="mt2-nav-icon" md-font-set="material-icons" style="color: #FFF;">{{$current[ 'icon' ]}}</md-icon>
+            @endif
             <span class="mt2-nav-main-item">{{ $current[ 'name' ] }}</span>
             <span flex></span>
         </md-list-item>
