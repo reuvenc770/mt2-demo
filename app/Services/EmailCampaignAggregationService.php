@@ -36,7 +36,7 @@ class EmailCampaignAggregationService extends AbstractEtlService {
             $segmentEnd = $segmentEnd ? $segmentEnd : $endPoint;
 
             echo "Starting " . self::JOB_NAME . " collection at row $startPoint, ending at $segmentEnd" . PHP_EOL;
-            $data = $this->actionsRepo->pullAggregatedActions($startPoint, $segmentEnd);
+            $data = $this->actionsRepo->pullAggregatedReportActions($startPoint, $segmentEnd);
 
             if ($data) {
                 // perform mass insert

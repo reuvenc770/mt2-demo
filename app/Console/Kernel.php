@@ -64,6 +64,7 @@ class Kernel extends ConsoleKernel
         Commands\SendDeploysToOps::class,
         Commands\SyncMT1FeedLevels::class,
         Commands\AttributionConversionCommand::class,
+        Commands\PopulateListProfileAggregationTable::class,
     ];
 
     /**
@@ -187,5 +188,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('runFilter activity')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('runFilter expiration')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('attribution:commit')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
+
+        /**
+         *  List profile jobs
+         */
+
+        $schedule->command('listprofile:aggregateActions 3')->dailyAt(self::EXPIRATION_RUNS);
     }
 }

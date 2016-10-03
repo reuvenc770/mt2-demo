@@ -89,7 +89,7 @@ class EmailActionsRepo {
             ->get();
     }
 
-    public function pullAggregatedActions($startPoint, $endPoint) {
+    public function pullAggregatedReportActions($startPoint, $endPoint) {
 
         return DB::connection('reporting_data')->select("SELECT
           email_id,
@@ -116,6 +116,25 @@ class EmailActionsRepo {
                 ':endPoint' => $endPoint
             )
         );
+    }
+
+    public function pullAggregatedActions($daysBack) {
+
+        return $this->actions
+                    ->select('email_actions.email_id', 'deploy_id', 
+                        DB::raw('DATE(datetime) AS date'), 
+                        DB::raw('SUM(IF(action_id = 4, 1, 0)) as deliveries'), 
+                        DB::raw('SUM(IF(action_id = 1, 1, 0)) as opens'), 
+                        DB::raw('SUM(IF(action_id = 2, 1, 0)) as clicks'), 
+                        DB::raw('SUM(IFNULL(cake.conversions, 0)) as conversions'))
+                    ->leftJoin('cake_aggregated_data as cake', function($query) {
+                        // not entirely correct, but all we have for now
+                        $query->on('email_actions.email_id', '=', 'cake.email_id')
+                              ->on('email_actions.deploy_id', '=', 'cake.subid_1')
+                              ->on(DB::raw('DATE(email_actions.datetime)'), '=', 'cake.clickDate');
+                    }) 
+                    ->whereRaw("email_actions.datetime >= CURDATE() - INTERVAL $daysBack DAY")
+                    ->groupBy('email_actions.email_id', 'email_actions.deploy_id', 'date');
     }
 
     public function pullIncompleteDeploys($lookback) {
