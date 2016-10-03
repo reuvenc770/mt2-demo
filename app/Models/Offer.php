@@ -22,4 +22,8 @@ class Offer extends Model {
     public function payoutType() {
         return $this->belongsTo('App\Models\OfferPayoutType', 'offer_payout_type_id');
     }
+
+    public function cakeOffers() {
+        return $this->belongsToMany('App\Models\CakeOffer', 'mt_offer_cake_offer_mappings', 'offer_id', 'cake_offer_id');
+    }
 }

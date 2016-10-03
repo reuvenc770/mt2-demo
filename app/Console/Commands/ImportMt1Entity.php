@@ -93,6 +93,15 @@ class ImportMt1Entity extends Command
             case "mailingTemplate":
                 return "ImportMt1MailingTemplate";
 
+            case "cakeOffer":
+                return "ImportMt1CakeOffers";
+
+            case "cakeVertical":
+                return "ImportMt1CakeVertical";
+
+            case "cakeOfferMap":
+                return "ImportMt1CakeOfferMapping";
+
             default:
                 throw new \Exception('Unsupported entity type: ' . $type);
         }
