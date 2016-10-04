@@ -55,4 +55,8 @@ class DomainService
     public function getType(){
         return "Domain";
     }
+
+    public function getExpiringDomainsByDate($date){
+        return $this->domainRepo->getDomainsByExpiration($date);
+    }
 }
