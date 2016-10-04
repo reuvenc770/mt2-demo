@@ -293,35 +293,38 @@ class DeployRepo
         } else {
             $errors[] = "Mailing Domain is missing";
         }
+
         //content domain
         if (isset($deploy['content_domain_id'])) {
             $count = DB::select("Select count(*) as count from domains where id = :id and domain_type = 2", ['id' => $deploy['content_domain_id']])[0];
             if ($count->count == 0) {
                 $errors[] = "Content Domain is invalid or not content domain";
+            } else {
+                $errors[] = "Content Domain is missing";
             }
-        } else {
-            $errors[] = "Content Domain is missing";
         }
-        //list profile
-        if (isset($deploy['list_profile_id'])) {
-            $count = DB::select("Select count(*) as count from list_profiles where id = :id", ['id' => $deploy['list_profile_id']])[0];
-            if ($count->count == 0) {
-                $errors[] = "List Profile is not active or wrong";
-            }
-        } else {
-            $errors[] = "List Profile ID is missing";
-        }
-        //cake
 
+        //list profile for now commented out
         /**
-        if (isset($deploy['cake_affiliate_id'])) {
-            $count = DB::connection('mt1_data')->select("Select count(*) as count from EspAdvertiserJoin where affiliateID = :id",['id'=> $deploy['cake_affiliate_id']])[0];
-            if($count->count == 0){
-                $errors[] = "Cake Affiliate is wrong";
-            } } else {
-            $errors[] = "Cake Affiliate ID is missing";
+        if (isset($deploy['list_profile_id'])) {
+        $count = DB::select("Select count(*) as count from list_profiles where id = :id", ['id' => $deploy['list_profile_id']])[0];
+        if ($count->count == 0) {
+        $errors[] = "List Profile is not active or wrong";
+        }
+        } else {
+        $errors[] = "List Profile ID is missing";
         }
          **/
+        //cake
+
+        if (isset($deploy['cake_affiliate_id'])) {
+            $count = DB::connection('mt1_data')->select("Select count(*) as count from EspAdvertiserJoin where affiliateID = :id", ['id' => $deploy['cake_affiliate_id']])[0];
+            if ($count->count == 0) {
+                $errors[] = "Cake Affiliate is wrong";
+            } else {
+                $errors[] = "Cake Affiliate ID is missing";
+            }
+        }
 
         if (isset($deploy['encrypt_cake'])) {
             if($deploy['encrypt_cake'] != '1' && $deploy['encrypt_cake'] != '0'){
