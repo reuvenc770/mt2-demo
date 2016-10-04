@@ -1,28 +1,25 @@
 <md-sidenav md-component-id="mainNav" class="md-sidenav-left mt2-sidenav-dark md-hue-3" md-is-locked-open="app.lockSidenav && app.largePageWidth()" ng-cloak ng-init="app.setSidenavCookie()">
     <md-list layout-align="center start">
-    @foreach ( $menuItems as $current )
-        <md-list-item class="mt2-nav-main-item" ng-click="app.redirect( '{{ '/' . $current[ 'uri' ] }}' )" layout-align="start center" aria-label="{{ $current[ 'name' ] }}">
-            @if ( $current[ 'icon' ] != '' )
-            <md-icon class="mt2-nav-icon" md-font-set="material-icons" style="color: #FFF;">{{$current[ 'icon' ]}}</md-icon>
+    @foreach ( $menuItems as $section )
+        <md-list-item class="mt2-nav-main-item" ng-click="app.openSideNavMenu( '{{ $section[ 'name' ] }}' )" layout-align="start center" aria-label="{{ $section[ 'name' ] }}">
+            @if ( $section[ 'icon' ] != '' )
+            <md-icon class="mt2-nav-icon" md-font-set="material-icons" style="color: #FFF;">{{$section[ 'icon' ]}}</md-icon>
             @endif
-            <span class="mt2-nav-main-item">{{ $current[ 'name' ] }}</span>
+            <span class="mt2-nav-main-item">{{ $section[ 'name' ] }}</span>
             <span flex></span>
         </md-list-item>
 
-        @if(isset($current['children']))
-            @foreach ( $current['children'] as $currentChild )
-            <md-list-item class="mt2-nav-sub-item" ng-click="app.redirect( '{{ '/' . $currentChild[ 'uri' ] }}' )" aria-label="{{ $current[ 'name' ] }}">
-                <span flex="20"></span>
-                <span class="childMenu"><em>{{ $currentChild[ 'name' ] }}</em></span>
-                <span flex></span>
-            </md-list-item>
+        <div ng-class="app.sidenavSectionClasses[ '{{$section[ 'name' ]}}' ]" ng-init="app.initSideNavMenu( '{{$section[ 'name' ]}}' )">
+            @foreach ( $section[ 'children' ] as $currentChild )
+            <a href="{{ '/' . $currentChild[ 'uri' ] }}" target="_self">
+                <md-list-item class="mt2-nav-sub-item" aria-label="{{ $currentChild[ 'name' ] }}">
+                    <span flex="20"></span>
+                    <span class="childMenu"><em>{{ $currentChild[ 'name' ] }}</em></span>
+                    <span flex></span>
+                </md-list-item>
+            </a>
             @endforeach
-        @endif
+        </div>
     @endforeach
-
-        <md-list-item ng-click="app.redirect( '{{ route('logout')}}' )" aria-label="Log Out">
-            <h4 class="mt2-nav-main-item">Log Out</h4>
-            <span flex></span>
-        </md-list-item>
     </md-list>
 </md-sidenav>

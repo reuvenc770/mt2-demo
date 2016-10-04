@@ -3,6 +3,7 @@
 return[
     'home' => 'Home' ,
     'espapi.list' => 'ESP API Accounts' ,
+    'esp.list' => 'ESPs' ,
     'espapi.add'  => 'Add API Account',
     'feed.list' => 'Feeds',
     'feed.add'  => "Add Feed",

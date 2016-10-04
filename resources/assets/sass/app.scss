@@ -507,3 +507,31 @@ md-content{
     background-color: lightblue;
     color: #ffffff;
 }
+
+/**
+ * Menu Styling & Animation
+ */
+.mt2-nav-main-item:hover {
+    cursor: pointer;
+}
+
+.mt2-nav-children-closed {
+    opacity: 0;
+    height: 0;
+}
+
+.mt2-nav-children-open {
+    animation: 0.5s menu_accordian;
+}
+
+@keyframes menu_accordian {
+    from {
+        opacity: 0;
+        height: 0;
+    }
+
+    to {
+        opacity: 1;
+        height: 100%;
+    }
+}

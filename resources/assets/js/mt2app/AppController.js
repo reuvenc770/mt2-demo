@@ -2,6 +2,22 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
     var self = this;
     self.lockSidenav = true;
 
+    self.sidenavClosedClass = 'mt2-nav-children-closed';
+    self.sidenavOpenClass = 'mt2-nav-children-open';
+    self.sidenavSectionClasses = {};
+
+    self.initSideNavMenu = function ( sectionName ) {
+        self.sidenavSectionClasses[ sectionName ] = [ self.sidenavClosedClass ]; 
+    };
+
+    self.openSideNavMenu = function ( sectionName ) {
+         angular.forEach( self.sideNavSectionClasses , function ( section , key ) {
+            self.sideNavSectionClasses[ key ] = [];
+         } );
+
+         self.sidenavSectionClasses[ sectionName ] = [ self.sidenavOpenClass ]; 
+    };
+
     self.getBaseUrl = function () {
         return $location.protocol() + '://' + $location.host() + '/';
     };

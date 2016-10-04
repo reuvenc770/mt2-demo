@@ -23,5 +23,11 @@ return [
     'deploy' => 'flight_takeoff' ,
     'attribution' => 'local_atm' ,
     'report' => 'insert_chart' ,
-    'domain' => 'language'
+    'domain' => 'language' ,
+    'Admin' => 'person' ,
+    'Data' => 'storage' ,
+    'Deploys' => 'flight_takeoff' ,
+    'Operations' => 'supervisor_account' ,
+    'Reporting' => 'insert_chart' ,
+
 ];
