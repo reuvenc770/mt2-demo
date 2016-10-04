@@ -34,6 +34,13 @@
                 </md-button>
             </md-menu-item>
             @endif
+            @if (Sentinel::hasAccess('api.deploy.copytofuture'))
+            <md-menu-item>
+                <md-button ng-click="deploy.copyToFuture( $event )" ng-disabled="deploy.disableExport">
+                    <span>Copy to Future</span>
+                </md-button>
+            </md-menu-item>
+            @endif
             @if (Sentinel::hasAccess('api.deploy.deploypackages'))
             <md-menu-item>
                 <md-button ng-click="deploy.createPackages()" ng-disabled="deploy.disableExport" >
