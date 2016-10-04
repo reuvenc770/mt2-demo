@@ -85,8 +85,8 @@
         </div>
 
         <div class="form-group">
-            <input class="btn btn-lg btn-primary btn-block" ng-click="registrar.saveNewAccount()" type="submit" value="Create Registrar" ng-show="registrar.pageType == 'add'">
-            <input class="btn btn-lg btn-primary btn-block" ng-click="registrar.editAccount()" type="submit" value="Edit Registrar" ng-show="registrar.pageType == 'edit'">
+            <input class="btn btn-lg btn-primary btn-block" ng-click="registrar.saveNewAccount()" type="submit"  ng-disabled="registrar.formsubmitted" value="Create Registrar" ng-show="registrar.pageType == 'add'">
+            <input class="btn btn-lg btn-primary btn-block" ng-click="registrar.editAccount()" type="submit"  ng-disabled="registrar.formsubmitted" value="Edit Registrar" ng-show="registrar.pageType == 'edit'">
         </div>
     </fieldset>
 

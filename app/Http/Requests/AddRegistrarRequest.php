@@ -31,7 +31,7 @@ class AddRegistrarRequest extends Request
             'contact_name'  => 'required',
             'contact_email' => 'required|email',
             'phone_number'  => 'required',
-            'last_cc'       => 'required|integer',
+            'last_cc'       => 'required',
             'contact_credit_card' => 'required',
             'address'       => 'required',
             'city'          => 'required',
