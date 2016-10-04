@@ -70,4 +70,15 @@ class DomainRepo
         return $this->domain->find($id)->update(["status" => $direction]);
     }
 
+    public function getDomainsByExpiration($date){
+        return $this->domain->select(
+            'domains.domain_name',
+            'registrars.name as registrar_name',
+            'domains.expires_at')
+            ->where("domains.expires_at", $date)
+            ->where("domains.status", 1)
+            ->join('registrars', 'domains.registrar_id', '=', 'registrars.id')
+            ->get();
+    }
+
 }

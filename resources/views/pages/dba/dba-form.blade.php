@@ -183,7 +183,7 @@
 
         </md-card-content>
 
-        <md-content ng-show="dba.currentAccount.po_boxes.length > 0" layout-padding>
+        <md-content ng-show="dba.poBoxHolder.length > 0" layout-padding>
             <md-list class="md-dense">
                 <md-list-item class="md-3-line" ng-repeat="(key, value) in dba.poBoxHolder track by $index">
                     <div class="md-list-item-text">

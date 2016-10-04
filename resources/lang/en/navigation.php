@@ -39,5 +39,8 @@ return[
     'mailingtemplate.add' => "Add Mailing Template",
     'deploy.list'         => "Deploy Packages",
     'cfs.list'            =>'CFS',
-    'offer.list'          => 'Offers'
+    'offer.list'          => 'Offers',
+    'isp.list'            => 'ISP Domains',
+    'ispgroup.list'       => 'ISP Groups',
+    'esp.list'            => 'ESP Accounts',
 ];

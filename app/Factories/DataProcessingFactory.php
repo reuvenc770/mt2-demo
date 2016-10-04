@@ -46,8 +46,12 @@ class DataProcessingFactory {
 
             case('PublicatorsActions'):
                 return self::createPublicatorsActionService();
+
             case('ProcessCfsStats'):
                 return self::createProcessCfsStatsService();
+
+            case('ListProfileAggregation'):
+                return \App::make(\App\Services\ListProfileActionAggregationService::class);
 
             case ('ImportMt1Advertisers'):
                 $mt1Name = 'CompanyInfo';
@@ -123,6 +127,22 @@ class DataProcessingFactory {
                 $mt1Name = 'BrandTemplate';
                 $mt2Name = 'MailingTemplate';
                 return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case ('ImportMt1CakeOffers'):
+                $mt1Name = 'CakeOffer';
+                $mt2Name = 'CakeOffer';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case('ImportMt1CakeVertical'):
+                $mt1Name = 'CakeVertical';
+                $mt2Name = 'CakeVertical';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case('ImportMt1CakeOfferMapping'):
+                $mt1Name = 'CakeCreativeOfferJoin';
+                $mt2Name = 'MtOfferCakeOfferMapping';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
 
             default:
                 throw new \Exception("Data processing service {$name} does not exist");

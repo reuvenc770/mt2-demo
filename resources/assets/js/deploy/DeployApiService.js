@@ -122,7 +122,6 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
 
     self.validateDeploy = function ( deploy , successCallback , failureCallback  ) {
         var request = deploy;
-        console.log(request);
         $http( {
             "method" : "POST" ,
             "url" : this.baseApiUrl + "validatedeploys" ,
@@ -144,6 +143,14 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
             "url" : this.baseApiUrl + "package/create?username=" + userName ,
             "data" : request
         } ).then( successCallback , failCallBack );
+    };
+
+    self.copyToFuture = function ( deployIds , date, successCallback , failureCallback  ) {
+        $http( {
+            "method" : "POST" ,
+            "url" : this.baseApiUrl + "copytofuture" ,
+            "data" : {deploy_ids: deployIds, "future_date": date}
+        } ).then( successCallback , failureCallback );
     };
 });
 

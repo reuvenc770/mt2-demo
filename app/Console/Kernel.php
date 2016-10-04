@@ -64,6 +64,8 @@ class Kernel extends ConsoleKernel
         Commands\SendDeploysToOps::class,
         Commands\SyncMT1FeedLevels::class,
         Commands\AttributionConversionCommand::class,
+        Commands\PopulateListProfileAggregationTable::class,
+        Commands\SendDomainExpirationNotice::class,
     ];
 
     /**
@@ -180,6 +182,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('mt1Import feed')->cron('0 * * * * *');
         $schedule->command('mt1Import offerTrackingLink')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import mailingTemplate')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import cakeOffer')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import cakeVertical')->dailyAt(self::MT1_SYNC_TIME);
+        #$schedule->command('mt1Import cakeOfferMap')->dailyAt(self::MT1_SYNC_TIME);
 
         /**
          * Attribution Jobs
@@ -187,5 +192,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('runFilter activity')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('runFilter expiration')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('attribution:commit')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
+
+        /**
+         *  List profile jobs
+         */
+
+        $schedule->command('listprofile:aggregateActions 3')->dailyAt(self::EXPIRATION_RUNS);
     }
 }

@@ -201,4 +201,10 @@ class DeployController extends Controller
             ->view( 'pages.deploy.deploy-preview', ["html" => $html] );
     }
 
+
+    public function copyToFuture(Request $request){
+        $data = $request->all();
+        return response()->json(['errors' => $this->deployService->copyToFutureDate($data)]);
+    }
+
 }

@@ -25,21 +25,28 @@
         </md-button>
         @endif
 
+            @if (Sentinel::hasAccess('api.deploy.copytofuture'))
+                <md-button ng-click="deploy.copyToFuture( $event )" ng-disabled="deploy.disableExport">
+                    <span>Copy To Future</span>
+                </md-button>
+            @endif
+
             @if (Sentinel::hasAccess('api.deploy.deploypackages'))
             <md-menu-item>
                 <md-button ng-click="deploy.createPackages()" ng-disabled="deploy.disableExport" >
                     <span>Send zips to FTP</span>
                 </md-button>
             </md-menu-item>
-                    @if (Sentinel::hasAccess('deploy.preview'))
-                        <md-menu-item>
-                        <md-button ng-click="deploy.previewDeploys()" ng-disabled="deploy.disableExport">
-                            <span>Preview Deploy(s)</span>
-                        </md-button>
-                            </md-menu-item>
-                    @endif
-
             @endif
+
+            @if (Sentinel::hasAccess('deploy.preview'))
+                <md-menu-item>
+                <md-button ng-click="deploy.previewDeploys()" ng-disabled="deploy.disableExport">
+                    <span>Preview Deploy(s)</span>
+                </md-button>
+                    </md-menu-item>
+            @endif
+
 
             @if (Sentinel::hasAccess('deploy.downloadhtml'))
                     <md-button ng-click="deploy.downloadHtml()" ng-disabled="deploy.disableExport">
@@ -438,7 +445,7 @@
                                          'mt2-bg-success' : record.deployment_status ==1,
                                          'mt2-warning' : record.deployment_status == 2 }">
                             <td md-cell>
-                                <md-checkbox ng-show="@{{deploy.checkStatus(record.creative_approval,record.creative_status)
+                                <md-checkbox ng-checked="deploy.checkChecked(record.deploy_id)" ng-show="@{{deploy.checkStatus(record.creative_approval,record.creative_status)
                                 && deploy.checkStatus(record.from_approval,record.from_status)
                                 && deploy.checkStatus(record.subject_approval,record.subject_status)}}" aria-label="Select" name="selectedRows"
                                              ng-click="deploy.toggleRow(record.deploy_id)"> </md-checkbox>
@@ -501,8 +508,6 @@
 </md-card-content>
     <deploy-validate-modal upload-errors="deploy.uploadErrors" mass-upload="deploy.massUploadList()"
                            records="deploy.uploadedDeploys"></deploy-validate-modal>
-
-
 @stop
 
 @section( 'pageIncludes' )

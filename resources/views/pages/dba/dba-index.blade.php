@@ -41,15 +41,15 @@
                                 <div layout-gt-md="row" layout="column" layout-align="center center">
                                     <md-button class="md-icon-button" aria-label="Edit"
                                                 ng-href="@{{ '/dba/edit/' + record.id }}" target="_self">
-                                        <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon>
+                                        <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
                                         <md-tooltip md-direction="bottom">Edit</md-tooltip>
                                     </md-button>
                                     <md-button ng-if="record.status == 1" class="md-icon-button" ng-click="dba.toggle( record.id , 0 )">
-                                        <md-icon md-svg-icon="img/icons/ic_pause_black_18px.svg"></md-icon>
+                                        <md-icon md-font-set="material-icons" class="mt2-icon-black">pause</md-icon>
                                         <md-tooltip md-direction="bottom">Deactivate</md-tooltip>
                                     </md-button>
                                     <md-button ng-if="record.status == 0" class="md-icon-button" ng-click="dba.toggle( record.id , 1 )">
-                                        <md-icon md-svg-icon="img/icons/ic_play_arrow_18px.svg"></md-icon>
+                                        <md-icon md-font-set="material-icons" class="mt2-icon-black">play_arrow</md-icon>
                                         <md-tooltip md-direction="bottom">Activate</md-tooltip>
                                     </md-button>
                                 </div>

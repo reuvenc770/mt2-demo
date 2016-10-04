@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Services\EspApiAccountService;
 
+use App\Services\EspService;
 use App\Services\ProxyService;
 
 use Illuminate\Http\Request;
@@ -16,10 +17,12 @@ class ProxyController extends Controller
 {
     protected $proxyService;
     protected $espAccountService;
-    public function __construct(ProxyService $proxyService, EspApiAccountService $espAccountService)
+    protected $espService;
+    public function __construct(ProxyService $proxyService, EspApiAccountService $espAccountService, EspService $espService)
     {
         $this->proxyService = $proxyService;
         $this->espAccountService = $espAccountService;
+        $this->espService = $espService;
     }
 
     public function listAll()
@@ -51,8 +54,9 @@ class ProxyController extends Controller
      */
     public function create()
     {
-        $esps = $this->espAccountService->getAllAccounts();
-        return view('pages.proxy.proxy-add',['esps' => $esps]);
+        $espAccounts = $this->espAccountService->getAllAccounts();
+        $esps = $this->espService->getAllEsps();
+        return view('pages.proxy.proxy-add',['espAccounts' => $espAccounts, 'esps' => $esps]);
     }
 
     /**
@@ -88,9 +92,10 @@ class ProxyController extends Controller
      */
     public function edit()
     {
-        $esps = $this->espAccountService->getAllAccounts();
+        $espAccounts = $this->espAccountService->getAllAccounts();
+        $esps = $this->espService->getAllEsps();
         return response()
-            ->view('pages.proxy.proxy-edit',['esps' => $esps]);
+            ->view('pages.proxy.proxy-edit',['espAccounts' => $espAccounts, 'esps' => $esps]);
     }
 
     /**

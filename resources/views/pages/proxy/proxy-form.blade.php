@@ -37,10 +37,14 @@
 
     <div layout="row" layout-align="center center">
         <md-input-container flex>
-            <label>ESP</label>
+            <label>ESP Account</label>
             <md-select name="esp_account_name" ng-model="proxy.esp_account_name">
+                <md-option value="All ESP Accounts">All Esp Accounts</md-option>
                 @foreach ( $esps as $esp )
-                    <md-option value="{{ $esp['name'] }}">{{ $esp['name'] }}</md-option>
+                    <md-option value="{{ $esp['name'] }}">{{ $esp['name'] }} Accounts</md-option>
+                @endforeach
+                @foreach ( $espAccounts as $espAccount )
+                    <md-option value="{{ $espAccount['account_name'] }}">{{ $espAccount['account_name'] }}</md-option>
                 @endforeach
             </md-select>
             <div ng-messages="proxyForm.esp_account_name.$error">
@@ -49,8 +53,8 @@
                 </div>
             </div>
         </md-input-container>
-        <div ng-show="proxy.esp_account_names.length > 0">
-            <md-button class="md-icon-button" flex="auto" ng-click="proxy.addEsp()">
+        <div>
+            <md-button class="md-icon-button" flex="auto" ng-click="proxy.addEspAccount()">
                 <md-icon md-svg-icon="img/icons/ic_add_circle_outline_black_24px.svg"></md-icon>
                 <md-tooltip md-direction>Add ESP</md-tooltip>
             </md-button>
@@ -58,8 +62,9 @@
     </div>
     <div ng-show="proxy.esp_account_names.length > 0" layout-padding>
         <p class="no-margin" ng-repeat="(key, value) in proxy.esp_account_names track by $index"> @{{value}}
-            <a ng-click="proxy.removeEsp(key)">Remove</a></p>
+            <a ng-click="proxy.removeEspAccount(key)">Remove</a></p>
     </div>
+
     <div layout="row" layout-align="center center">
         <md-input-container flex>
             <label>ISP</label>
@@ -72,7 +77,7 @@
                 </div>
             </div>
         </md-input-container>
-        <div ng-show="proxy.isp_names.length > 0">
+        <div>
             <md-button class="md-icon-button" flex="auto" ng-click="proxy.addIsp()">
                 <md-icon md-svg-icon="img/icons/ic_add_circle_outline_black_24px.svg"></md-icon>
                 <md-tooltip md-direction>Add ISP</md-tooltip>

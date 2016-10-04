@@ -19,7 +19,7 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
     self.pageType = 'add';
 
     self.formErrors = "";
-
+    self.formsubmitted = false;
     self.pageCount = 0;
     self.paginationCount = '10';
     self.currentPage = 1;
@@ -77,6 +77,7 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
 
 
     self.saveNewAccount = function ( event , form ) {
+        self.formsubmitted = true;
         self.resetFieldErrors();
 
         var errorFound = false;
@@ -156,6 +157,7 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
 
     self.saveNewAccountFailureCallback = function ( response ) {
         self.loadFieldErrors(response);
+        self.formsubmitted = false;
     };
 
     self.editAccountFailureCallback = function ( response ) {
