@@ -5,58 +5,7 @@
 @section( 'angular-controller' , 'ng-controller="DeployController as deploy"' )
 
 @section( 'page-menu' )
-    <div ng-show="app.largePageWidth()">
-        @if (Sentinel::hasAccess('api.deploy.store'))
-        <md-button ng-click="deploy.displayForm()">
-            <span>New Deploy</span>
-        </md-button>
-        @endif
-        @if (Sentinel::hasAccess('api.attachment.upload'))
-        <md-button flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'deploys' , '_token' : '{{ csrf_token() }}' } }"
-                flow-files-submitted="$flow.upload()"
-                flow-file-success="deploy.fileUploaded($file); $flow.cancel()" flow-btn>
-                <span>Upload Deploy List</span>
-                <input type="file" style="visibility: hidden; position: absolute;"/>
-        </md-button>
-        @endif
-        @if (Sentinel::hasAccess('api.deploy.exportcsv'))
-        <md-button ng-click="deploy.exportCsv()" ng-disabled="deploy.disableExport">
-            <span>Export to CSV</span>
-        </md-button>
-        @endif
-
-            @if (Sentinel::hasAccess('api.deploy.copytofuture'))
-                <md-button ng-click="deploy.copyToFuture( $event )" ng-disabled="deploy.disableExport">
-                    <span>Copy To Future</span>
-                </md-button>
-            @endif
-
-            @if (Sentinel::hasAccess('api.deploy.deploypackages'))
-            <md-menu-item>
-                <md-button ng-click="deploy.createPackages()" ng-disabled="deploy.disableExport" >
-                    <span>Send zips to FTP</span>
-                </md-button>
-            </md-menu-item>
-            @endif
-
-            @if (Sentinel::hasAccess('deploy.preview'))
-                <md-menu-item>
-                <md-button ng-click="deploy.previewDeploys()" ng-disabled="deploy.disableExport">
-                    <span>Preview Deploy(s)</span>
-                </md-button>
-                    </md-menu-item>
-            @endif
-
-
-            @if (Sentinel::hasAccess('deploy.downloadhtml'))
-                    <md-button ng-click="deploy.downloadHtml()" ng-disabled="deploy.disableExport">
-                        <span>Get Html</span>
-                    </md-button>
-            @endif
-
-    </div>
-
-    <md-menu ng-hide="app.largePageWidth()" md-position-mode="target-right target">
+    <md-menu md-position-mode="target-right target">
         <md-button aria-label="Options" class="md-icon-button" ng-click="$mdOpenMenu($event)">
             <md-icon md-font-set="material-icons" class="mt2-icon-black">more_horiz</md-icon>
         </md-button>
@@ -82,6 +31,13 @@
             <md-menu-item>
                 <md-button ng-click="deploy.exportCsv()" ng-disabled="deploy.disableExport">
                     <span>Export to CSV</span>
+                </md-button>
+            </md-menu-item>
+            @endif
+            @if (Sentinel::hasAccess('api.deploy.copytofuture'))
+            <md-menu-item>
+                <md-button ng-click="deploy.copyToFuture( $event )" ng-disabled="deploy.disableExport">
+                    <span>Copy to Future</span>
                 </md-button>
             </md-menu-item>
             @endif
@@ -129,6 +85,7 @@
                                 <md-select name="esp_account_search" id="esp_account_search"
                                     ng-model="deploy.search.esp"
                                     ng-disabled="deploy.currentlyLoading">
+                                    <md-option value="">--</md-option>
                                     @foreach ( $esps as $esp )
                                         <md-option value="{{ $esp['name'] }}">{{ $esp['name'] }}</md-option>
                                     @endforeach
@@ -142,6 +99,7 @@
                                 <md-select name="esp_account_search" id="esp_account_search"
                                         ng-model="deploy.search.esp_account_id"
                                         ng-disabled="deploy.currentlyLoading">
+                                    <md-option value="">--</md-option>
                                     <md-option ng-repeat="option in deploy.espAccounts" ng-value="option.id"
                                             ng-selected="option.id == deploy.search.esp_account_id">@{{ option.account_name }}
                                     </md-option>

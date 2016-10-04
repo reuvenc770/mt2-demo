@@ -25,7 +25,7 @@ class ListProfileActionAggregationService implements IEtl {
 
         $this->resultSet->each(function($data, $key) {
             $this->aggregationRepo->insertBatch($data);
-        });
+        }, 50000);
 
         $this->aggregationRepo->cleanUpBatch();
     }
