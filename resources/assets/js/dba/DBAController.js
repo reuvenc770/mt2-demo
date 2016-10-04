@@ -16,7 +16,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     self.pageCount = 0;
     self.paginationCount = '10';
     self.currentPage = 1;
-    self.poBoxHolder = {};
+    self.poBoxHolder = [];
     self.accountTotal = 0;
     self.sort = "-status";
     self.queryPromise = null;
