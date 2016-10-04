@@ -27,12 +27,13 @@ class CreateRecordDatasTable extends Migration
             $table->string('phone'); // do we want a specific format for this?
             $table->string('source_url')->default('');
             $table->date('dob')->nullable();
+            $table->string('device_type')->default('');
+            $table->string('device_name')->default('');
+            $table->string('carrier')->default('');
             $table->date('capture_date');
             $table->json('other_fields')->nullable();
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
-
-            // missing - device type, device, carrier?
 
             // indexes required
             $table->primary('email_id');
@@ -40,8 +41,9 @@ class CreateRecordDatasTable extends Migration
             $table->index('city');
             $table->index('state');
             $table->index('gender');
-
-            // device type, device, carrier
+            $table->index('device_type');
+            $table->index('device_name');
+            $table->index('carrier');
         });
     }
 
