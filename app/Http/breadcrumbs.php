@@ -247,6 +247,11 @@ Breadcrumbs::register('domain.add', function($breadcrumbs) {
     $breadcrumbs->push('Add Domain');
 });
 
+Breadcrumbs::register('domain.listview', function($breadcrumbs) {
+    $breadcrumbs->parent('domain.list');
+    $breadcrumbs->push('View Domains');
+});
+
 Breadcrumbs::register('mailingtemplate.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');
     $breadcrumbs->push('Mailing Templates', route('mailingtemplate.list'));
