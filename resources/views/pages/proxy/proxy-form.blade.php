@@ -41,7 +41,7 @@
             <md-select name="esp_account_name" ng-model="proxy.esp_account_name">
                 <md-option value="All ESP Accounts">All Esp Accounts</md-option>
                 @foreach ( $esps as $esp )
-                    <md-option value="{{ $esp['name'] }}">{{ $esp['name'] }} Accounts</md-option>
+                    <md-option value="All {{ $esp['name'] }} Accounts">{{ $esp['name'] }} Accounts</md-option>
                 @endforeach
                 @foreach ( $espAccounts as $espAccount )
                     <md-option value="{{ $espAccount['account_name'] }}">{{ $espAccount['account_name'] }}</md-option>

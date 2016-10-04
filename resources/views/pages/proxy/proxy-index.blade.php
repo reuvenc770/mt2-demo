@@ -26,8 +26,8 @@
                             <th md-column md-order-by="name" class="md-table-header-override-whitetext mt2-cell-left-padding">Proxy Name</th>
                             <th md-column md-order-by="provider_name" class="md-table-header-override-whitetext">Provider Name</th>
                             <th md-column class="md-table-header-override-whitetext">IPs</th>
-                            <th md-column class="md-table-header-override-whitetext">Esp Accounts</th>
-                            <th md-column class="md-table-header-override-whitetext">Isps</th>
+                            <th md-column class="md-table-header-override-whitetext">ESP Accounts</th>
+                            <th md-column class="md-table-header-override-whitetext">ISPs</th>
                             <th md-column class="md-table-header-override-whitetext">Notes</th>
                         </tr>
                         </thead>
