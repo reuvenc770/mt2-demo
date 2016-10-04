@@ -40,9 +40,12 @@
                 <select ng-model="proxy.esp_account_name" placeholder="Select ESP Account" required="required"
                         class="form-control">
                     <option value="">Select EspAccount</option>
-                    <option value="ALL">All Esp Accounts</option>
+                    <option value="All ESP Accounts">All Esp Accounts</option>
                     @foreach ( $esps as $esp )
-                        <option value="{{ $esp['account_name'] }}">{{ $esp['account_name'] }}</option>
+                        <option value="All {{ $esp['name'] }} Accounts">All {{ $esp['name'] }} Accounts</option>
+                    @endforeach
+                    @foreach ( $espAccounts as $espAccount )
+                        <option value="{{ $espAccount['account_name'] }}">{{ $espAccount['account_name'] }}</option>
                     @endforeach
                 </select>
                  <span class="input-group-btn">
