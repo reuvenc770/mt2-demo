@@ -124,6 +124,7 @@
                                 <md-select name="esp_account_search" id="esp_account_search"
                                     ng-model="deploy.search.esp"
                                     ng-disabled="deploy.currentlyLoading">
+                                    <md-option value="">--</md-option>
                                     @foreach ( $esps as $esp )
                                         <md-option value="{{ $esp['name'] }}">{{ $esp['name'] }}</md-option>
                                     @endforeach
@@ -137,6 +138,7 @@
                                 <md-select name="esp_account_search" id="esp_account_search"
                                         ng-model="deploy.search.esp_account_id"
                                         ng-disabled="deploy.currentlyLoading">
+                                    <md-option value="">--</md-option>
                                     <md-option ng-repeat="option in deploy.espAccounts" ng-value="option.id"
                                             ng-selected="option.id == deploy.search.esp_account_id">@{{ option.account_name }}
                                     </md-option>
