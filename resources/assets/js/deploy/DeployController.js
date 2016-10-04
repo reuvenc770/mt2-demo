@@ -161,7 +161,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
 
         self.queryPromise = DeployApiService.searchDeploys(self.paginationCount, searchObj, self.loadDeploysSuccess, self.loadDeploysFail);
         self.currentlyLoading = 0;
-        self.search = {};
     }
 
     self.offerWasSelected = function (item) {
