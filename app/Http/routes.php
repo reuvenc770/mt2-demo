@@ -493,6 +493,10 @@ Route::group(
             'as' => 'domain.list' ,
             'uses' => 'DomainController@listAll'
         ] );
+        Route::get( '/listview' , [
+            'as' => 'domain.listview' ,
+            'uses' => 'DomainController@listView'
+        ] );
 
         Route::get( '/create' , [
             'as' => 'domain.add' ,
@@ -503,6 +507,7 @@ Route::group(
             'as' => 'domain.edit' ,
             'uses' => 'DomainController@edit'
         ] );
+
     }
 );
 
@@ -515,16 +520,6 @@ Route::group(
         Route::get( '/preview/{offerId}' , [
             'as' => 'creatives.preview' ,
             'uses' => 'CreativeFromSubjectController@previewCreative'
-        ] );
-
-        Route::get( '/create' , [
-            'as' => 'domain.add' ,
-            'uses' => 'DomainController@create'
-        ] );
-
-        Route::get( '/edit/{id}' , [
-            'as' => 'domain.edit' ,
-            'uses' => 'DomainController@edit'
         ] );
     }
 );

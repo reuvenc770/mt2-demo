@@ -233,4 +233,5 @@ return [
     'api.esp.edit' => "Edit ESP",
     'api.esp.update' => "Update ESP",
     'api.esp.destroy' => "Deactivate ESP",
+    'domain.listview' => "View Domains By ESP",
 ];

@@ -17,8 +17,10 @@
                                         <span>Add Mailing Domain</span>
                                     </div>
                                 </md-toolbar>
+
                                 @include( 'pages.domain.domain-form' , ['type' => 1])
                                 <md-button class="md-raised md-accent" ng-click="domain.saveNewAccount( $event , domainForm1 )">Create Mailing Domains</md-button>
+
                             </md-card>
                         </div>
 
@@ -40,9 +42,11 @@
                                         <span>Add Content Domain</span>
                                     </div>
                                 </md-toolbar>
+
                                 @include( 'pages.domain.domain-form' , ['type' => 2])
 
                                 <md-button class="md-raised md-accent" ng-click="domain.saveNewAccount( $event , domainForm2 )">Create Content Domains</md-button>
+
                             </md-card>
                         </div>
                         <div flex>

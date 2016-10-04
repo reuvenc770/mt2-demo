@@ -53,6 +53,12 @@ class DomainController extends Controller
         return response()->view('pages.domain.domain-add', [ 'esps' => $esps , 'dbas' => $dbas, 'regs' => $regs]);
     }
 
+
+    public function listView()
+    {
+        return response()->view('pages.domain.domain-listview');
+    }
+
     /**
      * Store a newly created resource in storage.
      *
