@@ -73,7 +73,14 @@ class ProjectionReportCollection extends Collection {
             $rowClientName = '';
             if ( isset( $currentRow[ 'client_stats_grouping_id' ] ) ) {
                 $rowClass = 'class="mt2-total-row"';
-                $rowClientName =( $currentRow[ 'client_stats_grouping_id' ] == 0 ? 'Unassigned' :  $this->clientNameList[ $currentRow[ 'client_stats_grouping_id' ] ][ 'name' ] . ' (' . $currentRow[ 'client_stats_grouping_id' ] . ')' );
+                
+                $clientName = 'Untitled Client';
+                
+                if ( isset( $this->clientNameList[ $currentRow[ 'client_stats_grouping_id' ] ] ) ) {
+                    $clientName = $this->clientNameList[ $currentRow[ 'client_stats_grouping_id' ] ][ 'name' ];
+                }
+                
+                $rowClientName = $clientName . ' (' . $currentRow[ 'client_stats_grouping_id' ] . ')';
             }
 
             $rowFeedName = '';
