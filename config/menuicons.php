@@ -23,5 +23,10 @@ return [
     'deploy' => 'flight_takeoff' ,
     'attribution' => 'local_atm' ,
     'report' => 'insert_chart' ,
-    'domain' => 'language'
+    'domain' => 'language',
+    'esp'   => 'settings_input_hdmi',
+    'isp'   => 'done',
+    'ispgroup'=> 'doneall',
+
+
 ];
