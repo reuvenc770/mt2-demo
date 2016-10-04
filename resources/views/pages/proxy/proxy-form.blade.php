@@ -29,9 +29,9 @@
 
     </md-chips>
     <div ng-messages="proxyForm.ip_addresses.$error" >
-        <div ng-message="required" class="error-message">At least 1 IP address is required.</div>
+        <div ng-message="required" class="mt2-error-message">At least 1 IP address is required.</div>
         <div ng-repeat="error in proxy.formErrors.ip_addresses">
-            <div ng-bind="error" class="error-message"></div>
+            <div ng-bind="error" class="mt2-error-message"></div>
         </div>
     </div>
 

@@ -12,7 +12,7 @@
     <div flex-gt-md="50" flex="100">
         <div layout="row" layout-align="end end">
             <md-button layout="row" class="md-raised md-accent" ng-disabled="feed.creatingFeed" ng-click="feed.saveFeed( $event , feedForm )">
-                <md-icon class="material-icons" md-font-set="material-icons" ng-hide="feed.creatingFeed"></md-icon>
+                <md-icon class="material-icons" md-font-set="material-icons" ng-hide="feed.creatingFeed">save</md-icon>
                 <md-progress-circular ng-show="feed.creatingFeed" md-mode="indeterminate" md-diameter="16"></md-progress-circular> <span flex>Save</span>
             </md-button>
         </div>
@@ -21,7 +21,7 @@
 
         <div layout="row" layout-align="end end">
             <md-button layout="row" class="md-raised md-accent" ng-disabled="feed.creatingFeed" ng-click="feed.saveFeed( $event , feedForm )">
-                <md-icon class="material-icons" md-font-set="material-icons" ng-hide="feed.creatingFeed"></md-icon>
+                <md-icon class="material-icons" md-font-set="material-icons" ng-hide="feed.creatingFeed">save</md-icon>
                 <md-progress-circular ng-show="feed.creatingFeed" md-mode="indeterminate" md-diameter="16"></md-progress-circular> <span flex>Save</span>
             </md-button>
         </div>

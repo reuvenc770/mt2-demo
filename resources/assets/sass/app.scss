@@ -190,6 +190,14 @@ th md-checkbox.md-mt2-zeta-theme:not(.md-checked) .md-icon {
 /*
  * Button Styling
  */
+ md-icon.md-mt2-zeta-theme.mt2-icon-black{
+    color: #000000;
+ }
+
+ md-icon.md-mt2-zeta-theme.mt2-icon-white{
+    color: #ffffff;
+ }
+
 .md-button.mt2-button-xs{
     padding: 0 5px;
     margin: 5px;
@@ -394,7 +402,7 @@ md-chips.md-mt2-zeta-theme.ng-invalid .md-chips {
     box-shadow: 0 2px rgb(221,44,0);
 }
 
-.error-message {
+.mt2-error-message {
     color: rgb(221,44,0);
 }
 /**

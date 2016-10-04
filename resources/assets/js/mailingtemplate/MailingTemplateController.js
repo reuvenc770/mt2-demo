@@ -1,4 +1,4 @@
-mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$window' , '$location' , '$timeout' , 'MailingTemplateApiService' , function ( $rootScope, $log , $window , $location , $timeout , MailingTemplateApiService ) {
+mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$window' , '$location' , '$timeout' , 'MailingTemplateApiService' , '$mdToast' , function ( $rootScope, $log , $window , $location , $timeout , MailingTemplateApiService , $mdToast ) {
     var self = this;
     self.$location = $location;
 
@@ -12,8 +12,8 @@ mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$win
     self.selectedEsps = [];
     self.espList = [];
     self.currentAccount = { name : "", templateType : "", selectedEsps :[], html : "", text : "" };
-    self.availableWidgetTitle = "Available Esps";
-    self.chosenWidgetTitle = "Chosen Esps";
+    self.availableWidgetTitle = "Available ESP Accounts";
+    self.chosenWidgetTitle = "Chosen ESP Accounts";
     self.espNameField = "account_name";
     self.espIdField = "id";
     self.widgetName = 'esps';
@@ -53,6 +53,11 @@ mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$win
         angular.forEach( self.selectedEsps , function ( client , clientIndex ) {
             espIdList.push( client[ self.espIdField ] ); //lol
         } );
+
+        if (espIdList.length > 0) {
+            self.formErrors.selectedEsps = "";
+        }
+
         self.currentAccount.selectedEsps = espIdList.join(",");
     };
 
@@ -73,9 +78,45 @@ mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$win
         $window.location.href = self.createUrl;
     };
 
-    self.saveNewAccount = function () {
+    self.onFormFieldChange = function ( event , form , fieldName ) {
+        form[ fieldName ].$setValidity('isValid', true);
+
+        self.formErrors[ fieldName ] = [];
+    };
+
+    self.saveNewAccount = function ( event , form ) {
         self.resetFieldErrors();
-        MailingTemplateApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback );
+
+        var errorFound = false;
+
+        angular.forEach( form.$error.required , function( field ) {
+            field.$setDirty();
+            field.$setTouched();
+
+            errorFound = true;
+        } );
+
+        if (self.selectedEsps.length < 1) {
+            self.setFieldError( 'selectedEsps' , 'At least 1 ESP is required.' );
+            errorFound = true;
+        }
+
+        if ( errorFound ) {
+            $mdToast.showSimple( 'Please fix errors and try again.' );
+
+            return false;
+        };
+
+        MailingTemplateApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , function(response) {
+            angular.forEach( response.data , function( error , fieldName ) {
+
+                form[ fieldName ].$setDirty();
+                form[ fieldName ].$setTouched();
+                form[ fieldName ].$setValidity('isValid' , false);
+            });
+
+            self.saveNewAccountFailureCallback(response);
+            } );
     };
 
     self.editAccount = function () {

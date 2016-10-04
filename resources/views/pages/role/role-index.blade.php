@@ -9,7 +9,7 @@
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('role.add'))
         <md-button ng-click="role.viewAdd()" aria-label="Add a new Role">
-            <md-icon ng-show="app.isMobile()" md-svg-src="img/icons/ic_add_circle_outline_black_24px.svg"></md-icon>
+            <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-show="app.isMobile()">add_circle_outline</md-icon>
             <span ng-hide="app.isMobile()">Add a new Role</span>
         </md-button>
     @endif
@@ -35,7 +35,7 @@
                             <td md-cell>
                                 <div layout="row" layout-align="center center">
                                     <md-button class="md-icon-button" ng-href="@{{ role.editUrl + record.id }}" target="_self" aria-label="Edit">
-                                        <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon>
+                                        <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
                                         <md-tooltip md-direction="bottom">Edit</md-tooltip>
                                     </md-button>
                                 </div>

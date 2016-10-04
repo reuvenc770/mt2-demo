@@ -12,17 +12,13 @@
                     <md-content class="md-padding">
                         <div layout="row" layout-align="center center" ng-hide="domain.hideFormView">
                             <md-card flex-gt-sm="50" flex="100">
-                                <md-toolbar class="md-hue-3">
+                                <md-toolbar>
                                     <div class="md-toolbar-tools">
                                         <span>Add Mailing Domain</span>
                                     </div>
                                 </md-toolbar>
-                                @include( 'pages.domain.domain-form' )
-                                <div class="form-group">
-                                    <input class="btn btn-lg btn-primary btn-block" ng-click="domain.saveNewAccount()" type="submit" value="Create Mailing Domains">
-                                </div>
-                                </fieldset>
-                            </div>
+                                @include( 'pages.domain.domain-form' , ['type' => 1])
+                                <md-button class="md-raised md-accent" ng-click="domain.saveNewAccount( $event , domainForm1 )">Create Mailing Domains</md-button>
                             </md-card>
                         </div>
 
@@ -39,17 +35,14 @@
                     <md-content class="md-padding">
                         <div layout="row" layout-align="center center" ng-hide="domain.hideFormView">
                             <md-card flex-gt-sm="50" flex="100">
-                                <md-toolbar class="md-hue-3">
+                                <md-toolbar>
                                     <div class="md-toolbar-tools">
                                         <span>Add Content Domain</span>
                                     </div>
                                 </md-toolbar>
-                                @include( 'pages.domain.domain-form' )
-                                    <div class="form-group">
-                                        <input class="btn btn-lg btn-primary btn-block" ng-click="domain.saveNewAccount()" type="submit" value="Create Content Domains">
-                                    </div>
-                                    </fieldset>
-                                </div>
+                                @include( 'pages.domain.domain-form' , ['type' => 2])
+
+                                <md-button class="md-raised md-accent" ng-click="domain.saveNewAccount( $event , domainForm2 )">Create Content Domains</md-button>
                             </md-card>
                         </div>
                         <div flex>

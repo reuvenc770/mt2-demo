@@ -58,15 +58,15 @@
                     <td md-cell>@{{ record.address }}</td>
                     <td md-cell>@{{ record.source_url }}</td>
                     <td md-cell>@{{ record.ip }}</td>
-                    <td md-cell>@{{ record.date }}</td>
-                    <td md-cell>@{{ record.birthdate }}</td>
+                    <td md-cell nowrap>@{{ record.date }}</td>
+                    <td md-cell nowrap>@{{ record.birthdate }}</td>
                     <td md-cell>@{{ record.gender }}</td>
                     <td md-cell>@{{ record.network }}</td>
                     <td md-cell>@{{ record.action }}</td>
-                    <td md-cell>@{{ record.action_date }}</td>
-                    <td md-cell>@{{ record.subscribe_datetime }}</td>
+                    <td md-cell nowrap>@{{ record.action_date }}</td>
+                    <td md-cell nowrap>@{{ record.subscribe_datetime }}</td>
                     <td md-cell>@{{ record.status }}</td>
-                    <td md-cell>@{{ record.removal_date }}</td>
+                    <td md-cell nowrap>@{{ record.removal_date }}</td>
                     <td md-cell>@{{ record.suppressed ? 'Suppressed' : '' }}</td>
                 </tr>
             </tbody>

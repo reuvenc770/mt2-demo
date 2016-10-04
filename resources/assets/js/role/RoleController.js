@@ -1,4 +1,4 @@
-mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$timeout' , 'RoleApiService', '$rootScope' , 'ivhTreeviewMgr' , 'ivhTreeviewBfs' , function ( $log , $window , $location , $timeout , RoleApiService, $rootScope , ivhTreeviewMgr , ivhTreeviewBfs ) {
+mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$timeout' , 'RoleApiService', '$rootScope' , 'ivhTreeviewMgr' , 'ivhTreeviewBfs' , '$mdToast' , function ( $log , $window , $location , $timeout , RoleApiService, $rootScope , ivhTreeviewMgr , ivhTreeviewBfs , $mdToast) {
     var self = this;
     self.$location = $location;
 
@@ -78,8 +78,30 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
         $window.location.href = self.createUrl;
     };
 
-    self.saveNewRole = function () {
+    self.onFormFieldChange = function ( event , form , fieldName ) {
+        form[ fieldName ].$setValidity('isValid', true);
+
+        self.formErrors[ fieldName ] = [];
+    };
+
+    self.saveNewRole = function ( event , form ) {
         self.resetFieldErrors();
+
+        var errorFound = false;
+
+        angular.forEach( form.$error.required , function( field ) {
+            field.$setDirty();
+            field.$setTouched();
+
+            errorFound = true;
+        } );
+
+        if ( errorFound ) {
+            $mdToast.showSimple( 'Please fix errors and try again.' );
+
+            return false;
+        };
+
         RoleApiService.saveNewRole( self.currentRole , self.SuccessCallBackRedirect , self.saveNewRoleFailureCallback );
     };
 
@@ -127,7 +149,7 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
      */
     self.loadFieldErrors = function ( field , response ) {
         if ( typeof( response.data[ field ] ) != 'undefined' ) {
-            self.setFieldError( field , response.data[ field ].join( ' ' ) );
+            self.setFieldError( field , response.data[ field ] );
         }
     };
 

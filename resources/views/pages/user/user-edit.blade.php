@@ -67,7 +67,7 @@
                                 <div ng-messages="userForm.roles.$error">
                                     <div ng-message="required">A role is required.</div>
                                     <div ng-repeat="error in user.formErrors.roles">
-                                        <div ng-bind="error" class="error-message"></div>
+                                        <div ng-bind="error" class="mt2-error-message"></div>
                                     </div>
                                 </div>
                             </div>

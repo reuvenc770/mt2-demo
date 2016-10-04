@@ -19,11 +19,11 @@
             <td md-cell>
                 <div layout="row" layout-align="center center">
                     <md-button ng-if="record.status == 1" class="md-icon-button" ng-click="domain.toggle( record.dom_id, 0 )">
-                        <md-icon md-svg-icon="img/icons/ic_pause_black_18px.svg"></md-icon>
+                        <md-icon md-font-set="material-icons" class="mt2-icon-black">pause</md-icon>
                         <md-tooltip md-direction="bottom">Deactivate</md-tooltip>
                     </md-button>
                     <md-button ng-if="record.status == 0" class="md-icon-button" ng-click="domain.toggle( record.dom_id, 1 )">
-                        <md-icon md-svg-icon="img/icons/ic_play_arrow_18px.svg"></md-icon>
+                        <md-icon md-font-set="material-icons" class="mt2-icon-black">play_arrow</md-icon>
                         <md-tooltip md-direction="bottom">Activate</md-tooltip>
                     </md-button>
                 </div>

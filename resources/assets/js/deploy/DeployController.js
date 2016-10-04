@@ -134,7 +134,23 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.editView = false;
     };
 
-    self.saveNewDeploy = function () {
+    self.saveNewDeploy = function ( event , form ) {
+        var errorFound = false;
+
+        angular.forEach( form.$error.required , function( field ) {
+
+            field.$setDirty();
+            field.$setTouched();
+
+            errorFound = true;
+        } );
+
+        if ( errorFound ) {
+            $mdToast.showSimple( 'Please fix errors and try again.' );
+
+            return false;
+        };
+
         self.currentDeploy.user_id = _config.userId;
         self.currentDeploy.deploy_id = undefined; //faster then delete
         DeployApiService.insertDeploy(self.currentDeploy, self.loadNewDeploySuccess, self.formFail);
@@ -195,11 +211,11 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.editView = true;
     };
 
-    self.actionLink = function () {
+    self.actionLink = function ( event , form ) {
         if (self.editView) {
             self.updateDeploy();
         } else {
-            self.saveNewDeploy();
+            self.saveNewDeploy( event , form );
         }
     };
 

@@ -15,14 +15,14 @@
             <div layout="row" layout-align="end end">
 
                 <md-button class="md-raised md-accent" ng-click="feed.resetPassword()">
-                    <md-icon class="material-icons" md-font-set="material-icons"></md-icon>Reset FTP Password
+                    <md-icon class="material-icons" md-font-set="material-icons">settings</md-icon>Reset FTP Password
                 </md-button>
                 <md-button layout="row" class="md-raised md-accent" ng-disabled="feed.generatingLinks" ng-click="feed.generateLinks()">
-                    <md-icon class="material-icons" md-font-set="material-icons" ng-hide="feed.generatingLinks"></md-icon>
+                    <md-icon class="material-icons" md-font-set="material-icons" ng-hide="feed.generatingLinks">link</md-icon>
                     <md-progress-circular ng-show="feed.generatingLinks" md-mode="indeterminate" md-diameter="16"></md-progress-circular> <span flex> Generate Links</span>
                 </md-button>
                 <md-button layout="row" class="md-raised md-accent" ng-disabled="feed.updatingFeed" ng-click="feed.updateFeed( $event , feedForm )">
-                    <md-icon class="material-icons" md-font-set="material-icons" ng-hide="feed.updatingFeed"></md-icon>
+                    <md-icon class="material-icons" md-font-set="material-icons" ng-hide="feed.updatingFeed">save</md-icon>
                     <md-progress-circular ng-show="feed.updatingFeed" md-mode="indeterminate" md-diameter="16"></md-progress-circular> <span flex>Update</span>
                 </md-button>
             </div>
@@ -30,11 +30,11 @@
             @include( 'pages.feed.feed-form' )
             <div layout="row" layout-align="end end">
                 <md-button layout="row" class="md-raised md-accent" ng-disabled="feed.generatingLinks" ng-click="feed.generateLinks()">
-                    <md-icon class="material-icons" md-font-set="material-icons" ng-hide="feed.generatingLinks"></md-icon>
-                    <md-progress-circular ng-show="feed.generatingLinks" md-mode="indeterminate" md-diameter="16"></md-progress-circular> <span flex> Generate Links</span>
+                    <md-icon class="material-icons" md-font-set="material-icons" ng-hide="feed.generatingLinks">settings</md-icon>
+                    <md-progress-circular ng-show="feed.generatingLinks" md-mode="indeterminate" md-diameter="16">link</md-progress-circular> <span flex> Generate Links</span>
                 </md-button>
                 <md-button layout="row" class="md-raised md-accent" ng-disabled="feed.updatingFeed" ng-click="feed.updateFeed( $event , feedForm )">
-                    <md-icon class="material-icons" md-font-set="material-icons" ng-hide="feed.updatingFeed"></md-icon>
+                    <md-icon class="material-icons" md-font-set="material-icons" ng-hide="feed.updatingFeed">save</md-icon>
                     <md-progress-circular ng-show="feed.updatingFeed" md-mode="indeterminate" md-diameter="16"></md-progress-circular> <span flex> Update</span>
                 </md-button>
             </div>
