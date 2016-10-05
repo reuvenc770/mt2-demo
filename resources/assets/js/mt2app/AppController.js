@@ -5,17 +5,27 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
     self.sidenavClosedClass = 'mt2-nav-children-closed';
     self.sidenavOpenClass = 'mt2-nav-children-open';
     self.sidenavSectionClasses = {};
+    self.sidenavSectionOpenStatus = {};
+    self.sideNavMinimized = false;
 
     self.initSideNavMenu = function ( sectionName ) {
         self.sidenavSectionClasses[ sectionName ] = [ self.sidenavClosedClass ]; 
+        self.sidenavSectionOpenStatus[ sectionName ] = false;
     };
 
     self.openSideNavMenu = function ( sectionName ) {
-         angular.forEach( self.sideNavSectionClasses , function ( section , key ) {
-            self.sideNavSectionClasses[ key ] = [];
-         } );
+        angular.forEach( self.sidenavSectionClasses , function ( section , key ) {
+            $log.info( key );
+            self.sidenavSectionClasses[ key ] = [ self.sidenavClosedClass ];
+            self.sidenavSectionOpenStatus[ key ] = false;
+        } );
 
-         self.sidenavSectionClasses[ sectionName ] = [ self.sidenavOpenClass ]; 
+        self.sidenavSectionClasses[ sectionName ] = [ self.sidenavOpenClass ]; 
+        self.sidenavSectionOpenStatus[ sectionName ] = true;
+    };
+
+    self.toggleNavSize = function () {
+        self.sideNavMinimized = !self.sideNavMinimized; 
     };
 
     self.getBaseUrl = function () {
