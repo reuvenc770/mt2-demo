@@ -32,7 +32,7 @@ class EspRepo
      * @return Illuminate\Database\Eloquent\Collection
      */
     public function getAllEsps () {
-        return $this->esp->all();
+        return $this->esp->all()->sortBy("name");
     }
 
     public function getEspByName($name){

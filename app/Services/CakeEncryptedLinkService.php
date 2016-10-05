@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\CakeEncryptedLinkRepo;
-
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 class CakeEncryptedLinkService {
     
     private $linkRepo;
@@ -24,7 +24,11 @@ class CakeEncryptedLinkService {
         $creativeId = $params['c'] ?: '';
 
         // this will throw an exception if nothing found:
-        $encryptHash = $this->linkRepo->getHash($affiliateId, $creativeId);
+        try {
+            $encryptHash = $this->linkRepo->getHash($affiliateId, $creativeId);
+        } catch (ModelNotFoundException $e){
+            throw $e;
+        }
 
         $url = $contents['scheme'] . '://' . $contents['host'] . $contents['path'] . '?' . $encryptHash;
         foreach ($params as $token => $value) {
