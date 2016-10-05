@@ -24,7 +24,35 @@ class Mt1DbApi
         $count = (int)$count[0]->total;
         echo "Count:" . $count . PHP_EOL;
 
-        $pull = DB::connection('mt1_data')->select("SELECT * FROM client_record_log ORDER BY lastUpdated, email_user_id LIMIT 50000");
+        $pull = DB::connection('mt1_data')->select("SELECT 
+            email_user_id, 
+            client_id, 
+            email_addr,  
+            IF(unsubscribe_datetime = '0000-00-00 00:00:00', NULL, unsubscribe_datetime) as unsubscribe_datetime,
+            status,
+            first_name,
+            last_name,
+            address,
+            address2,
+            city,
+            state,
+            zip,
+            country,
+            if(dob = '0000-00-00 00:00:00', NULL, dob) as dob,
+            gender,
+            phone,
+            mobile_phone,
+            work_phone,
+            if(capture_date = '0000-00-00 00:00:00' OR capture_date > CURDATE(), CURDATE(), DATE(capture_date)) as capture_date,
+            source_url,
+            ip,
+            lastUpdated
+            FROM 
+                client_record_log 
+            ORDER BY 
+                lastUpdated, email_user_id 
+            LIMIT 
+                50000");
         $len = sizeof($pull);
         
         if ($len > 0) {
