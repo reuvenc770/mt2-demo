@@ -7,12 +7,18 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , 'Client
     self.mdChipSeparatorKeys = [ keycodeEnter , keycodeComma , keycodeTab ];
 
     self.current = {
-      'globalSupp' : '' ,
-      'listSupp' : '' ,
-      'offerSupp' : '' ,
-      'cities': [] ,
-      'zips' : [] ,
-      'states' : []
-      }
+        'globalSupp' : '' ,
+        'listSupp' : '' ,
+        'offerSupp' : '' ,
+        'cities': [] ,
+        'zips' : [] ,
+        'states' : [],
+        'actionRanges' : {
+            'deliverable' : { 'min' : 0 , 'max' : 0 },
+            'opener' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 },
+            'clicker' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 },
+            'converter' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 }
+        }
+    };
 
 } ] );

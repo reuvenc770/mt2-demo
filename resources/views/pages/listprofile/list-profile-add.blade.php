@@ -9,7 +9,7 @@
 
 @section( 'content' )
 <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
-   <div flex-gt-sm="60" flex="100">
+   <div flex-gt-sm="70" flex="100">
 
          @include( 'pages.listprofile.list-profile-form' )
 
