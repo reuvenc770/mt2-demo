@@ -68,7 +68,7 @@ class DeployRepo
     public function getDeploy($id)
     {
         return $this->deploy->leftJoin('offers', 'offers.id', '=', 'deploys.offer_id')
-            ->select(['deploys.*', 'offers.name as offer_name'])
+            ->select(['deploys.*', 'offers.name as offer_name', 'offers.exclude_days'])
             ->where('deploys.id', $id)->first();
     }
 
