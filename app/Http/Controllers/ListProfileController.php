@@ -8,12 +8,34 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
+use App\Repositories\FeedRepo;
+use App\Services\MT1Services\ClientStatsGroupingService;
+use App\Services\MT1Services\ClientService;
+use App\Services\MT1Services\CountryService;
+use AdrianMejias\States\States;
+
 class ListProfileController extends Controller
 {
     protected $listProfile;
+    protected $feedRepo;
+    protected $clientService;
+    protected $mt1ClientService;
+    protected $states;
 
-    public function __construct ( ListProfileService $listProfileService) {
+    public function __construct (
+        ListProfileService $listProfileService ,
+        FeedRepo $feedRepo ,
+        ClientStatsGroupingService $clientService ,
+        ClientService $mt1ClientService ,
+        CountryService $mt1CountryService ,
+        States $states
+    ) {
         $this->listProfile = $listProfileService;
+        $this->feedRepo = $feedRepo;
+        $this->clientService = $clientService;
+        $this->mt1ClientService = $mt1ClientService;
+        $this->mt1CountryService = $mt1CountryService;
+        $this->states = $states;
     }
 
     /**
@@ -27,7 +49,7 @@ class ListProfileController extends Controller
     }
 
     public function listAll () {
-        return response()->view( 'pages.listprofile.list-profile-index' );
+        return response()->view( 'pages.listprofile.list-profile-index' , [ 'profiles' => $this->listActive() ] );
     }
 
     /**
@@ -37,7 +59,7 @@ class ListProfileController extends Controller
      */
     public function create()
     {
-        return response()->view( 'pages.listprofile.list-profile-add' );
+        return response()->view( 'pages.listprofile.list-profile-add' , $this->getFormFieldOptions() );
     }
 
     /**
@@ -68,7 +90,7 @@ class ListProfileController extends Controller
      */
     public function edit($id)
     {
-        return response()->view( 'pages.listprofile.list-profile-edit' );
+        return response()->view( 'pages.listprofile.list-profile-edit' , $this->getFormFieldOptions() );
     }
 
     /**
@@ -97,5 +119,32 @@ class ListProfileController extends Controller
         return response()->json(
             $this->listProfile->getActiveListProflies()
         );
+    }
+
+    protected function getFormFieldOptions () {
+        $feeds = $this->feedRepo->getFeeds()->keyBy( 'id' )->toArray();
+        $clients = $this->clientService->getListGroups()->keyBy( 'value' )->toArray();
+
+        $clientFeedMap = [];
+
+        foreach ( $clients as $currentClientId => $currentClient ) {
+            $clientFeedList = $this->mt1ClientService->getClientFeedsForListOwner( $currentClientId );
+
+            foreach ( $clientFeedList as $currentFeedId ) {
+                if ( !isset( $clientFeedMap[ $currentClientId ] ) ) {
+                    $clientFeedMap[ $currentClientId ] = [];
+                }
+
+                $clientFeedMap[ $currentClientId ] []= $currentFeedId;
+            }
+        }
+
+        return [
+            'feeds' => $feeds ,
+            'clients' => $clients ,
+            'clientFeedMap' => $clientFeedMap ,
+            'countries' => $this->mt1CountryService->getAll() ,
+            'states' => $this->states->all()
+        ];
     }
 }
