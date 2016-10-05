@@ -94,7 +94,7 @@ class RecordDataRepo {
         $this->batchDataCount = 0;
     }
 
-        private function transformRowToString($row) {
+    private function transformRowToString($row) {
         $pdo = DB::connection()->getPdo();
 
         return '('
@@ -115,5 +115,40 @@ class RecordDataRepo {
             . $pdo->quote($row['capture_date']) . ','
             . "'{}'" // other fields empty for now
             . ')';
+    }
+
+    public function updateDeviceData($data) {
+        if (sizeof($data) > 0) {
+            $data = implode(',', $data);
+        
+            DB::statement("INSERT INTO record_data (email_id, device_type, device_name, carrier)
+            
+                VALUES
+            
+                $data
+            
+                ON DUPLICATE KEY UPDATE
+                email_id = email_id,
+                first_name = first_name,
+                last_name = last_name,
+                address = address,
+                address2 = address2,
+                city = city,
+                state = state,
+                zip = zip,
+                country = country,
+                gender = gender,
+                ip = ip,
+                phone = phone,
+                source_url = source_url,
+                dob = dob,
+                device_type = values(device_type),
+                device_name = values(device_name),
+                carrier = values(carrier),
+                capture_date = capture_date,
+                other_fields = other_fields
+            ");
+        }
+
     }
 }
