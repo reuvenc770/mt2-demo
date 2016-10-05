@@ -23,7 +23,8 @@ class CakeDeviceService {
     }
 
     public function extract($lookback) {
-        $this->data = $this->jsonToInsertArray($this->api->sendApiRequest($lookback));
+        $result = $this->api->sendApiRequest($lookback);
+        $this->data = $this->jsonToInsertArray($result->getBody()->getContents());
     }
 
     public function load() {
@@ -31,25 +32,29 @@ class CakeDeviceService {
     }
 
     private function jsonToInsertArray($data) {
-        $data = json_decode($this->data, true);
+        $data = json_decode($data, true);
         $output = [];
 
         foreach($data as $row) {
-            $output[] = $this->mapToInsert($row);
+            $emailId = $this->subIdToEmailId($row['subid_2']);
+
+            if ($emailId > 0) {
+                $output[] = $this->mapToInsert($emailId, $row);
+            }
         }
 
         return $output;
     }
 
-    private function mapToInsert($array) {
+    private function mapToInsert($emailId, $array) {
         $type = $this->getDeviceType($array);
         $device = $this->getDevice($array['os'], $array['device']);
 
-        return '(' . 
-            . $this->pdo->quote( $this->subIdToEmailId($array['email_id']) ) . ','
+        return '('
+            . $this->pdo->quote($emailId) . ','
             . $this->pdo->quote($type) . ','
             . $this->pdo->quote($device) . ','
-            . $this->pdo->quote($array['carrier']) . ')';
+            . $this->pdo->quote($array['provider']) . ')';
     }
 
     private function subIdToEmailId($subId) {
@@ -76,7 +81,7 @@ class CakeDeviceService {
             return 'Mobile';
         }
         elseif (in_array($array['os'], self::DESKTOP_OS)) {
-            return 'Desktop'
+            return 'Desktop';
         }
         elseif ('' === $array['os'] && 'Other' !== $array['device']) {
             return 'Mobile';

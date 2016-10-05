@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Jobs\DataProcessingJob;
 
 class PullCakeRecordData extends Command
 {
@@ -14,7 +15,7 @@ class PullCakeRecordData extends Command
      * @var string
      */
     protected $signature = 'listprofile:getRecordAgentData';
-    private $name = 'CakeDeviceData';
+    private $jobName = 'CakeDeviceData';
 
     /**
      * The console command description.
@@ -38,7 +39,7 @@ class PullCakeRecordData extends Command
      * @return mixed
      */
     public function handle() {
-        $job = new DataProcessingJob($this->name, str_random(16));
+        $job = new DataProcessingJob($this->jobName, str_random(16));
         $this->dispatch($job);
     }
 }
