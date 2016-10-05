@@ -5,53 +5,7 @@
 @section( 'angular-controller' , 'ng-controller="DeployController as deploy"' )
 
 @section( 'page-menu' )
-    <div ng-hide="app.isMobile()">
-        @if (Sentinel::hasAccess('api.deploy.store'))
-        <md-button ng-click="deploy.displayForm()">
-            <span>New Deploy</span>
-        </md-button>
-        @endif
-        @if (Sentinel::hasAccess('api.attachment.upload'))
-        <md-button flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'deploys' , '_token' : '{{ csrf_token() }}' } }"
-                flow-files-submitted="$flow.upload()"
-                flow-file-success="deploy.fileUploaded($file); $flow.cancel()" flow-btn>
-                <span>Upload Deploy List</span>
-                <input type="file" style="visibility: hidden; position: absolute;"/>
-        </md-button>
-        @endif
-        @if (Sentinel::hasAccess('api.deploy.exportcsv'))
-        <md-button ng-click="deploy.exportCsv()" ng-disabled="deploy.disableExport">
-            <span>Export to CSV</span>
-        </md-button>
-        @endif
-
-            @if (Sentinel::hasAccess('api.deploy.copytofuture'))
-                <md-button ng-click="deploy.copyToFuture( $event )" ng-disabled="deploy.disableExport">
-                    <span>Copy To Future</span>
-                </md-button>
-            @endif
-
-            @if (Sentinel::hasAccess('api.deploy.deploypackages'))
-                <md-button ng-click="deploy.createPackages()" ng-disabled="deploy.disableExport" >
-                    <span>@{{ deploy.deployLinkText }}</span>
-                </md-button>
-            @endif
-            @if (Sentinel::hasAccess('deploy.preview'))
-
-                    <md-button ng-click="deploy.previewDeploys()" ng-disabled="deploy.disableExport">
-                        <span>Preview Deploy(s)</span>
-                    </md-button>
-            @endif
-
-            @if (Sentinel::hasAccess('deploy.downloadhtml'))
-                    <md-button ng-click="deploy.downloadHtml()" ng-disabled="deploy.disableExport">
-                        <span>Get Html</span>
-                    </md-button>
-            @endif
-
-    </div>
-
-    <md-menu ng-show="app.isMobile()" md-position-mode="target-right target">
+    <md-menu md-position-mode="target-right target">
         <md-button aria-label="Options" class="md-icon-button" ng-click="$mdOpenMenu($event)">
             <md-icon md-svg-src="img/icons/ic_more_horiz_black_24px.svg"></md-icon>
         </md-button>
@@ -77,6 +31,13 @@
             <md-menu-item>
                 <md-button ng-click="deploy.exportCsv()" ng-disabled="deploy.disableExport">
                     <span>Export to CSV</span>
+                </md-button>
+            </md-menu-item>
+            @endif
+            @if (Sentinel::hasAccess('api.deploy.copytofuture'))
+            <md-menu-item>
+                <md-button ng-click="deploy.copyToFuture( $event )" ng-disabled="deploy.disableExport">
+                    <span>Copy to Future</span>
                 </md-button>
             </md-menu-item>
             @endif
