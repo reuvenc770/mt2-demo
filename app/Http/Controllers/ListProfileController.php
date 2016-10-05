@@ -7,25 +7,12 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use App\Services\MT1ApiService;
-use Laracasts\Flash\Flash;
-use App\Services\MT1Services\UniqueProfileService;
-use App\Services\MT1Services\ClientGroupService;
-use Cache;
 
 class ListProfileController extends Controller
 {
-    CONST LIST_PROFILE_API_ENDPOINT = 'profile_calc';
-    CONST LIST_PROFILE_ACTION_API_ENDPOINT = 'profile_action';
-
-    protected $api;
-    protected $service;
-    protected $clientGroup;
     protected $listProfile;
-    public function __construct ( MT1ApiService $api , UniqueProfileService $service , ClientGroupService $clientGroup, ListProfileService $listProfileService) {
-        $this->api = $api;
-        $this->service = $service;
-        $this->clientGroup = $clientGroup;
+
+    public function __construct ( ListProfileService $listProfileService) {
         $this->listProfile = $listProfileService;
     }
 
@@ -50,7 +37,7 @@ class ListProfileController extends Controller
      */
     public function create()
     {
-        return response()->view( 'pages.listprofile.list-profile-add' , [ 'clientGroups' => $this->clientGroup->getAll() ] );
+        return response()->view( 'pages.listprofile.list-profile-add' );
     }
 
     /**
@@ -61,13 +48,6 @@ class ListProfileController extends Controller
      */
     public function store(Request $request)
     {
-        Flash::success( "List Profile was Successfully Saved" );
-
-        Cache::tags('uniqueprofile')->flush();
-
-        $versionString = ( $request->input( 'form_version' ) > 1 ? '_v' . $request->input( 'form_version' ) : '' );
-
-        return response(  $this->api->postForm( self::LIST_PROFILE_API_ENDPOINT . $versionString , $request->all() ) )->header( 'Content-Type' , 'text/html' );
     }
 
     /**
@@ -78,7 +58,6 @@ class ListProfileController extends Controller
      */
     public function show($id)
     {
-        return response()->json( $this->service->getById( $id ) );
     }
 
     /**
@@ -89,7 +68,7 @@ class ListProfileController extends Controller
      */
     public function edit($id)
     {
-        return response()->view( 'pages.listprofile.list-profile-edit' , [ 'clientGroups' => $this->clientGroup->getAll() ] );
+        return response()->view( 'pages.listprofile.list-profile-edit' );
     }
 
     /**
@@ -101,11 +80,6 @@ class ListProfileController extends Controller
      */
     public function update(Request $request, $id)
     {
-        Flash::success( "List Profile was Successfully Updated" );
-
-        Cache::tags('uniqueprofile')->flush();
-
-        return response( $this->api->postForm( self::LIST_PROFILE_ACTION_API_ENDPOINT , $request->all() ) );
     }
 
     /**
@@ -116,43 +90,6 @@ class ListProfileController extends Controller
      */
     public function destroy($id)
     {
-        Flash::success( "List Profile was Successfully Deleted" );
-
-        Cache::tags('uniqueprofile')->flush();
-
-        return response( $this->api->postForm( self::LIST_PROFILE_ACTION_API_ENDPOINT , [ "action" => "delete" , "pid" => $id ] ) );
-    }
-
-    public function copy ( Request $request ) {
-        Flash::success( "List Profile '" . $request->input( 'pname' ) . "' was Successfully Copied" );
-
-        Cache::tags('uniqueprofile')->flush();
-
-        return response( $this->api->postForm( self::LIST_PROFILE_ACTION_API_ENDPOINT , $request->all() ) );
-    }
-
-    public function isps ( $profileId ) {
-        return response()->json(
-            $this->service->getIspsByProfileId( $profileId )
-        );
-    }
-
-    public function sources ( $profileId ) {
-        return response()->json(
-            $this->service->getSourcesByProfileId( $profileId )
-        );
-    }
-
-    public function seeds ( $profileId ) {
-        return response()->json(
-            $this->service->getSeedsByProfileId( $profileId )
-        );
-    }
-
-    public function zips ( $profileId ) {
-        return response()->json(
-            $this->service->getZipsByProfileId( $profileId )
-        );
     }
 
     //USES LIST PROFILE DB NOT MT1 UNIQUE PROFILE
