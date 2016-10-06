@@ -67,6 +67,7 @@ class Kernel extends ConsoleKernel
         Commands\PopulateListProfileAggregationTable::class,
         Commands\SendDomainExpirationNotice::class,
         Commands\PullCakeRecordData::class,
+        Commands\InflateEmailHistoriesUtil::class,
     ];
 
     /**
