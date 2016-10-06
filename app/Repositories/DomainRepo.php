@@ -81,4 +81,14 @@ class DomainRepo
             ->get();
     }
 
+    public function updateRow($domain){
+        $id = $domain['id'];
+        unset($domain['id']);
+        return $this->domain->find($id)->update($domain);
+    }
+
+    public function getRow($id){
+        return $this->domain->find($id);
+    }
+
 }

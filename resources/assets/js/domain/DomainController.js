@@ -28,12 +28,25 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         "espAccountId": currentEspAccount
     };
 
+
+    self.currentDomain = {
+        "id" : "",
+        "domain_name": "",
+        "proxy_id": "",
+        "registrar_id": "",
+        "main_site" : "",
+        "expires_at" : ""
+        //"esp_account_id": ""
+
+    };
+
     self.createUrl = 'domain/create/';
     self.espAccounts = [];
     self.selectedProxy = [];
     self.formErrors = [];
     self.currentlyLoading = 0;
     self.pageCount = 0;
+    self.rowBeingEdited = "0";
     self.paginationCount = '10';
     self.currentPage = 1;
     self.proxies = [];
@@ -54,6 +67,10 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
             self.loadAccountsSuccessCallback, self.loadAccountsFailureCallback);
     };
 
+    self.loadAccount = function(id){
+        DomainService.getAccount(id,self.loadAccountSuccessCallback, self.loadAccountsFailureCallback);
+    };
+
     self.updateProxies = function () {
         DomainService.getProxies(self.currentAccount.domain_type, function (response) {
             self.proxies = response.data;
@@ -70,6 +87,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         if(self.currentAccount.espAccountId.length > 0) {
             self.updateDomains();
         }
+        self.rowBeingEdited = 0;
         self.updateProxies();
     };
     self.init = function (type) {
@@ -95,6 +113,18 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
             self.updateEspAccountsSuccessCallback, self.loadAccountsFailureCallback);
     };
 
+    self.beingEdited = function (domId){
+        return self.rowBeingEdited == domId;
+    };
+
+    self.editRow = function (domId) {
+        self.rowBeingEdited = domId;
+        self.currendDomain = {};
+        self.loadAccount(domId);
+    };
+
+
+
 
     /**
      * Click Handlers
@@ -119,6 +149,10 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         DomainService.toggleRow(recordId, direction, self.toggleRowSuccess, self.toggleRowFailure)
     };
 
+    self.editDomain = function() {
+        var domain = self.currentDomain;
+        DomainService.editAccount(domain,self.editRowSuccess, self.editRowFailure)
+    };
 
 
 
@@ -145,6 +179,22 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         $mdToast.showSimple("Domain Updated");
         self.updateDomains();
     };
+
+    self.loadAccountSuccessCallback = function (response){
+        self.currentDomain = response.data;
+    };
+
+    self.editRowSuccess = function (){
+        $mdToast.showSimple("Domain Updated");
+        self.rowBeingEdited = 0;
+        self.currendDomain = {};
+        self.updateDomains();
+    };
+    self.loadAccountFailureCallback = function (response){
+        $mdToast.showSimple("Domain did not load");
+        self.rowBeingEdited = 0;
+    };
+
 
     self.loadAccountsFailureCallback = function (response) {
         self.setModalLabel('Error');
@@ -180,7 +230,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         var modalBody = angular.element(document.querySelector('#pageModalBody'));
 
         modalBody.text(bodyText);
-    }
+    };
 
     self.launchModal = function () {
         $('#pageModal').modal('show');

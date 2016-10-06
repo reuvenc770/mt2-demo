@@ -56,12 +56,12 @@ class DomainController extends Controller
 
     public function listView()
     {
-        return response()->view('pages.domain.domain-listview');
+        $regs = $this->registrarService->getAllActive();
+        return response()->view('pages.domain.domain-listview', [ 'regs' => $regs]);
     }
 
     /**
      * Store a newly created resource in storage.
-     *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
@@ -107,7 +107,7 @@ class DomainController extends Controller
      */
     public function show($id)
     {
-        //
+        return response()->json($this->service->getDomain($id));
     }
 
     /**
@@ -130,7 +130,9 @@ class DomainController extends Controller
      */
     public function update(Request $request, $id)
     {
-
+        $domain = $request->toArray();
+        $bool = $this->service->updateDomain($domain);
+        return response()->json(['success' => $bool]);
     }
 
     /**
