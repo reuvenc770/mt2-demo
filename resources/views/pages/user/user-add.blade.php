@@ -17,7 +17,7 @@
                         <md-input-container>
                             <label>Email</label>
                             <input type="email" name="email" ng-required="true" ng-model="user.currentAccount.email"
-                                    ng-change="user.onFormFieldChange( $event , userForm , 'email' )">
+                                    ng-change="user.change( userForm , 'email' )">
                             <div ng-messages="userForm.email.$error">
                                 <div ng-message="required">Email is required.</div>
                                 <div ng-message="email">Invalid email format.</div>
@@ -29,7 +29,7 @@
                         <md-input-container>
                             <label>Username</label>
                             <input type="text" name="username" ng-required="true" ng-model="user.currentAccount.username"
-                                    ng-change="user.onFormFieldChange( $event , userForm , 'username' )">
+                                    ng-change="user.change( userForm , 'username' )">
                             <div ng-messages="userForm.username.$error">
                                 <div ng-message="required">Username is required.</div>
                                 <div ng-repeat="error in user.formErrors.username">
@@ -41,7 +41,7 @@
                         <md-input-container>
                             <label>Password</label>
                             <input type="password" name="password" ng-required="true" ng-model="user.currentAccount.password"
-                                    ng-change="user.onFormFieldChange( $event , userForm , 'password' )">
+                                    ng-change="user.change( userForm , 'password' )">
                             <div ng-messages="userForm.password.$error">
                                 <div ng-message="required">Password is required.</div>
                                 <div ng-repeat="error in user.formErrors.password">
@@ -54,7 +54,7 @@
                             <label>Password Confirm</label>
                             <input type="password" name="password_confirmation"
                                     ng-model="user.currentAccount.password_confirmation"
-                                    ng-change="user.onFormFieldChange( $event , userForm , 'password' )">
+                                    ng-change="user.change( userForm , 'password' )">
                             <div ng-messages="userForm.password_confirmation.$error">
                                 <div ng-repeat="error in user.formErrors.password_confirmation">
                                     <div ng-bind="error"></div>

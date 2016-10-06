@@ -69,13 +69,6 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
         $window.location.href = self.createUrl;
     };
 
-    self.onFormFieldChange = function ( event , form , fieldName ) {
-        form[ fieldName ].$setValidity('isValid', true);
-
-        self.formErrors[ fieldName ] = [];
-    };
-
-
     self.saveNewAccount = function ( event , form ) {
         self.formsubmitted = true;
         self.resetFieldErrors();

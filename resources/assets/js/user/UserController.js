@@ -1,4 +1,4 @@
-mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$timeout' , 'UserApiService' , '$mdToast' , function ( $log , $window , $location , $timeout , UserApiService , $mdToast ) {
+mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$timeout' , 'UserApiService' , '$mdToast' , 'CustomValidationService' , function ( $log , $window , $location , $timeout , UserApiService , $mdToast , CustomValidationService ) {
     var self = this;
     self.$location = $location;
 
@@ -41,11 +41,8 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
         $window.location.href = self.createUrl;
     };
 
-    self.onFormFieldChange = function ( event , form , fieldName ) {
-
-        form[ fieldName ].$setValidity('isValid', true);
-
-        self.formErrors[ fieldName ] = [];
+    self.change = function ( form , fieldName ) {
+        CustomValidationService.onChangeResetValidity( self , form , fieldName );
     };
 
     self.saveNewAccount = function ( event , form ) {

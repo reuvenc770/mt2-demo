@@ -37,7 +37,7 @@
 
                         <md-input-container>
                             <label>Date</label>
-                            <input type="text" id="date" name="date" ng-required="true" ng-model="ymlp.currentCampaign.date" ng-change="ymlp.onFormFieldChange( $event, ymlpForm, 'date' )" />
+                            <input type="text" id="date" name="date" ng-required="true" ng-model="ymlp.currentCampaign.date" ng-change="ymlp.change( ymlpForm, 'date' )" />
                             <div ng-messages="ymlpForm.date.$error">
                                 <div ng-message="required">Date is required.</div>
                                 <div ng-repeat="error in ymlp.formErrors.date">

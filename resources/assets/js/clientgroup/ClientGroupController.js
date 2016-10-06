@@ -1,4 +1,4 @@
-mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window' , '$location' , 'ClientGroupApiService' , 'FeedApiService' , '$mdToast' , function ( $rootScope , $log , $window , $location , ClientGroupApiService , FeedApiService , $mdToast) {
+mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window' , '$location' , 'ClientGroupApiService' , 'FeedApiService' , '$mdToast' , function ( $rootScope , $log , $window , $location , ClientGroupApiService , FeedApiService , $mdToast ) {
     /**
      * Contants
      */
@@ -119,12 +119,6 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
     self.viewAdd = function () {
         $location.url( self.createUrl );
         $window.location.href = self.createUrl;
-    };
-
-    self.onFormFieldChange = function ( event , form , fieldName ) {
-        form[ fieldName ].$setValidity('isValid', true);
-
-        self.formErrors[ fieldName ] = [];
     };
 
     self.saveClientGroup = function ( event , form ) {

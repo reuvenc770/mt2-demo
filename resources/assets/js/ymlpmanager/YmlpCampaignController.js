@@ -1,4 +1,4 @@
-mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window' , '$location' , '$timeout' , '$mdToast', 'YmlpCampaignApiService' , function ( $rootScope , $log , $window , $location , $timeout , $mdToast , YmlpCampaignApiService ) {
+mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window' , '$location' , '$timeout' , '$mdToast', 'YmlpCampaignApiService' , 'CustomValidationService' , function ( $rootScope , $log , $window , $location , $timeout , $mdToast , YmlpCampaignApiService,  CustomValidationService ) {
     var self = this;
     self.$location = $location;
 
@@ -12,6 +12,7 @@ mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window
     self.campaignTotal = 0;
     self.sort = '-id';
     self.queryPromise = null;
+    self.formErrors = {};
 
     self.loadCampaign = function () {
         var pathMatches = $location.path().match( /^\/ymlp\/ymlp-campaign\/edit\/(\d{1,})/ );
@@ -49,10 +50,8 @@ mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window
         $window.location.href = self.createUrl;
     };
 
-    self.onFormFieldChange = function ( event , form , fieldName ) {
-        form[ fieldName ].$setValidity('isValid', true);
-
-        self.formErrors[ fieldName ] = [];
+    self.change = function ( form , fieldName ) {
+        CustomValidationService.onChangeResetValidity( self , form , fieldName );
     };
 
     self.saveNewCampaign = function ( event , form ) {

@@ -42,13 +42,9 @@
     </md-input-container>
     <md-input-container>
         <label>Last 4 CC Digits</label>
-        <input type="text" name="last_cc" ng-required="true" ng-model="registrar.currentAccount.last_cc"
-                ng-change="registrar.onFormFieldChange( $event , registrarForm , 'last_cc' )">
+        <input type="text" name="last_cc" ng-required="true" ng-model="registrar.currentAccount.last_cc" />
         <div ng-messages="registrarForm.last_cc.$error">
             <div ng-message="required">Last 4 CC digits are required.</div>
-            <div ng-repeat="error in registrar.formErrors.last_cc">
-                <div ng-bind="error"></div>
-            </div>
         </div>
     </md-input-container>
     <md-input-container>

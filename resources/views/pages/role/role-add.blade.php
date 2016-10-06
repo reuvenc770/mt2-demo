@@ -14,7 +14,7 @@
                     <form name="roleForm" layout="column" novalidate>
                         <md-input-container>
                             <label>Name</label>
-                            <input type="text" name="name" ng-model="role.currentRole.name" ng-required="true" ng-change="role.onFormFieldChange( $event, roleForm, 'name')">
+                            <input type="text" name="name" ng-model="role.currentRole.name" ng-required="true" ng-change="role.change( roleForm, 'name')">
                             <div ng-messages="roleForm.name.$error">
                                 <div ng-message="required">Role name is required.</div>
                                 <div ng-repeat="error in role.formErrors.name">

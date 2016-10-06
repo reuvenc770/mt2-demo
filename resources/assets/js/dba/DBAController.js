@@ -1,4 +1,4 @@
-mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$timeout' , 'DBAApiService', '$rootScope', '$mdToast' , function ( $log , $window , $location , $timeout , DBAApiService, $rootScope, $mdToast ) {
+mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$timeout' , 'DBAApiService', '$rootScope', '$mdToast' , 'CustomValidationService' , function ( $log , $window , $location , $timeout , DBAApiService, $rootScope, $mdToast , CustomValidationService ) {
     var self = this;
     self.$location = $location;
 
@@ -47,10 +47,8 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
         $window.location.href = self.createUrl;
     };
 
-    self.onFormFieldChange = function ( event , form , fieldName ) {
-        form[ fieldName ].$setValidity('isValid', true);
-
-        self.formErrors[ fieldName ] = [];
+    self.change = function ( form , fieldName ) {
+        CustomValidationService.onChangeResetValidity( self , form , fieldName );
     };
 
     self.saveNewAccount = function ( event , form ) {

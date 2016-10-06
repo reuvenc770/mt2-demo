@@ -1,4 +1,4 @@
-mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$location' , '$timeout' , '$mdToast' , 'EspApiService' , function ( $rootScope , $log , $window , $location , $timeout , $mdToast , EspApiService ) {
+mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$location' , '$timeout' , '$mdToast' , 'EspApiService' , 'CustomValidationService' , function ( $rootScope , $log , $window , $location , $timeout , $mdToast , EspApiService , CustomValidationService ) {
     var self = this;
     self.$location = $location;
 
@@ -62,10 +62,8 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         $window.location.href = self.createUrl;
     };
 
-    self.onFormFieldChange = function ( event , form , fieldName ) {
-        form[ fieldName ].$setValidity('isValid', true);
-
-        self.formErrors[ fieldName ] = [];
+    self.change = function ( form , fieldName ) {
+        CustomValidationService.onChangeResetValidity( self , form , fieldName );
     };
 
     self.saveNewAccount = function ( event , form ) {

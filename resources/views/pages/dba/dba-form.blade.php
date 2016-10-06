@@ -2,7 +2,7 @@
     <input name="_token" type="hidden" value="{{ csrf_token() }}">
     <md-input-container>
         <label>DBA Name</label>
-        <input type="text" name="dba_name" ng-required="true" ng-model="dba.currentAccount.dba_name" ng-change="dba.onFormFieldChange( $event , dbaForm , 'dba_name' )"/>
+        <input type="text" name="dba_name" ng-required="true" ng-model="dba.currentAccount.dba_name" ng-change="dba.change( dbaForm , 'dba_name' )"/>
         <div ng-messages="dbaForm.dba_name.$error">
             <div ng-message="required">DBA name is required.</div>
             <div ng-repeat="error in dba.formErrors.dba_name">

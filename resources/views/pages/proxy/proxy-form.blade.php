@@ -3,7 +3,7 @@
     <!-- Email field -->
     <md-input-container>
         <label>Name</label>
-        <input type="text" name="name" ng-required="true" ng-model="proxy.currentAccount.name" ng-change="proxy.onFormFieldChange( $event , proxyForm , 'name' )"/>
+        <input type="text" name="name" ng-required="true" ng-model="proxy.currentAccount.name" ng-change="proxy.change( proxyForm , 'name' )"/>
         <div ng-messages="proxyForm.name.$error">
             <div ng-message="required">Name is required.</div>
             <div ng-repeat="error in proxy.formErrors.name">
@@ -25,7 +25,7 @@
                 md-enable-chip-edit="true"
                 md-separator-keys="proxy.mdChipSeparatorKeys"
                 md-add-on-blur="true"
-                ng-change="proxy.onFormFieldChange( $event , proxyForm, 'ip_addresses' )">
+                md-on-add="proxy.change( proxyForm , 'ip_addresses' )">
 
     </md-chips>
     <div ng-messages="proxyForm.ip_addresses.$error" >

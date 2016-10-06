@@ -3,7 +3,7 @@
         <!-- Email field -->
         <md-input-container>
             <label>Name</label>
-            <input type="text" name="name" ng-required="true" ng-model="mailing.currentAccount.name" value="{{old('name') }}" ng-change="mailing.onFormFieldChange( $event , mailingForm , 'name' )" />
+            <input type="text" name="name" ng-required="true" ng-model="mailing.currentAccount.name" value="{{old('name') }}" ng-change="mailing.change( mailingForm , 'name' )" />
             <div ng-messages="mailingForm.name.$error">
                 <div ng-message="required">Mailing template name is required.</div>
                 <div ng-repeat="error in mailing.formErrors.name">

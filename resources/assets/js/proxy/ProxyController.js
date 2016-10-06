@@ -1,4 +1,4 @@
-mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$timeout' , 'ProxyApiService', '$rootScope','$mdToast', '$mdConstant' , function ( $log , $window , $location , $timeout , ProxyApiService, $rootScope, $mdToast , $mdConstant ) {
+mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$timeout' , 'ProxyApiService', '$rootScope','$mdToast', '$mdConstant' , 'CustomValidationService' , function ( $log , $window , $location , $timeout , ProxyApiService, $rootScope, $mdToast , $mdConstant , CustomValidationService ) {
     var self = this;
     self.$location = $location;
 
@@ -61,11 +61,12 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
         $window.location.href = self.createUrl;
     };
 
-    self.onFormFieldChange = function ( event , form , fieldName ) {
+    self.change = function ( form , fieldName ) {
+        if ( fieldName == 'ip_addresses' ) {
+            delete( form['ip_addresses'].$error.required );
+        }
 
-        form[ fieldName ].$setValidity('isValid', true);
-
-        self.formErrors[ fieldName ] = [];
+        CustomValidationService.onChangeResetValidity( self , form , fieldName );
     };
 
     self.saveNewAccount = function ( event , form) {

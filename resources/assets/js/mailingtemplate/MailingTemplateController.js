@@ -1,4 +1,4 @@
-mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$window' , '$location' , '$timeout' , 'MailingTemplateApiService' , '$mdToast' , function ( $rootScope, $log , $window , $location , $timeout , MailingTemplateApiService , $mdToast ) {
+mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$window' , '$location' , '$timeout' , 'MailingTemplateApiService' , '$mdToast' , 'CustomValidationService' , function ( $rootScope, $log , $window , $location , $timeout , MailingTemplateApiService , $mdToast , CustomValidationService ) {
     var self = this;
     self.$location = $location;
 
@@ -78,10 +78,8 @@ mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$win
         $window.location.href = self.createUrl;
     };
 
-    self.onFormFieldChange = function ( event , form , fieldName ) {
-        form[ fieldName ].$setValidity('isValid', true);
-
-        self.formErrors[ fieldName ] = [];
+    self.change = function ( form , fieldName ) {
+        CustomValidationService.onChangeResetValidity( self , form , fieldName );
     };
 
     self.saveNewAccount = function ( event , form ) {
