@@ -4,9 +4,86 @@
         <md-toolbar>
             <div class="md-toolbar-tools"><span>List Profile</span></div>
         </md-toolbar>
-        <md-card-content>
 
-        </md-card-content>
+      <md-card-content layout="column">
+        <md-input-container>
+            <label>Profile Name</label>
+
+            <input type="text" name="name" id="name" ng-model="listProfile.current.name" />
+        </md-input-container>
+
+        <md-input-container>
+            <label>Countries</label>
+
+            <md-select name="countries" id="countries" ng-model="listProfile.current.countries" multiple>
+                @foreach ( $countries as $country )
+                <md-option ng-value="::'{{ $country[ 'id' ] }}'">{{ $country[ 'name' ] }}</md-option>
+                @endforeach
+            </md-select>
+        </md-input-container>
+
+        <div layout="row" layout-align="space-around stretch" ng-init="listProfile.clientFeedMap = {{json_encode( $clientFeedMap )}}">
+            <md-card flex>
+                <md-card-title>
+                    <h4>Available Feeds</h4>
+
+                    <span flex></span>
+
+                    <md-button class="md-icon-button" ng-click="listProfile.addFeeds()">
+                        <md-icon md-font-set="material-icons" style="color: #000;">add_circle_outline</md-icon>
+                    </md-button>
+                </md-card-title>
+
+                <md-card-content>
+                    <select ng-model="listProfile.highlightedFeeds" multiple style="width: 100%; height: 150px;">
+                        @foreach ( $feeds as $feed )
+                        <option value="{{$feed[ 'id' ]}}" ng-init="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ] = true;listProfile.feedNameMap[ {{$feed[ 'id' ]}} ] = '{{$feed[ 'name' ]}}';" ng-show="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ]">{{$feed[ 'name' ]}}</option>
+                        @endforeach
+                    </select>
+                </md-card-content>
+
+                <md-card-footer layout="row">
+                    <md-input-container flex>
+                        <label>Filter by Client</label>
+
+                        <md-select name="clients" id="clients" ng-model="listProfile.feedClientFilters" md-on-close="listProfile.updateFeedVisibility()" multiple>
+                            @foreach ( $clients as $client )
+                            <md-option ng-value="::'{{ $client[ 'value' ] }}'">{{ $client[ 'name' ] }}</md-option>
+                            @endforeach
+                        </md-select>
+                    </md-input-container>
+
+                    <md-button class="md-icon-button" ng-click="listProfile.clearClientFeedFilter()">
+                        <md-icon md-font-set="material-icons" style="color: #000">cancel</md-icon>
+
+                        <md-tooltip>Clear Client Filters</md-tooltip>
+                    </md-button>
+                </md-card-footer>
+            </md-card>
+
+            <md-card flex>
+                <md-card-title flex="nogrow">
+                    <h4>Selected Feeds</h4>
+
+                    <span flex></span>
+
+                    <md-button class="md-icon-button" ng-click="listProfile.removeFeeds()">
+                        <md-icon md-font-set="material-icons" style="color: #000;">remove_circle_outline</md-icon>
+                    </md-button>
+                </md-card-title>
+
+                <md-card-content>
+                    <select ng-model="listProfile.highlightedFeedsForRemoval" multiple="" style="width: 100%; height: 150px;">
+                        <option ng-repeat="( feedId , feedName ) in listProfile.current.feeds" ng-value="::feedId">@{{::feedName}}</option>
+                    </select>
+                </md-card-content>
+
+                <md-card-footer layout="column">
+
+                </md-card-footer>
+            </md-card>
+        </div>
+      </md-card-content>
 
         <md-divider></md-divider>
 
