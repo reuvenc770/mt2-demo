@@ -18,6 +18,15 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , 'Client
             'opener' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 },
             'clicker' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 },
             'converter' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 }
+        },
+        'attributeFilters' : {
+            'age' : { 'min' : 0 , 'max' : 0 , 'unknown' : false },
+            'gender' : [],
+            'zips' : [],
+            'cities' : [],
+            'states' : [],
+            'deviceTypes' : [],
+            'mobileCarriers' : []
         }
     };
 

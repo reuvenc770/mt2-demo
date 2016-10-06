@@ -77,7 +77,7 @@
                 </div>
             </div>
 
-            <div hide-gt-xs>&nbsp;</div>q
+            <div hide-gt-xs>&nbsp;</div>
 
             <div layout-xs="column" layout="row" layout-align="center start" layout-align-gt-xs="start center">
                 <label flex-gt-xs="25" flex="100">Converters Range:</label>
@@ -114,6 +114,21 @@
         </md-toolbar>
 
         <md-card-content>
+
+            <div layout-xs="column" layout="row" layout-align="center start" layout-align-gt-xs="start center">
+                <label flex-gt-xs="25" flex="100">Age:</label>
+                <div layout="row" layout-align="start center">
+                    <md-input-container>
+                        <input type="number" name="filterAgeMin" model="listProfile.current.attributeFilters.age.min" min="0" />
+                        <div class="hint">Min</div>
+                    </md-input-container>
+                    <sup><md-icon md-font-set="material-icons" class="mt2-icon-black">remove</md-icon></sup>
+                    <md-input-container>
+                        <input type="number" name="filterAgeMax" model="listProfile.current.attributeFilters.age.max" min="0" />
+                        <div class="hint">Max</div>
+                    </md-input-container>
+                </div>
+            </div>
 
         </md-card-content>
 
