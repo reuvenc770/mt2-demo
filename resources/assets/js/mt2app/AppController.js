@@ -2,25 +2,18 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
     var self = this;
     self.lockSidenav = true;
 
-    self.sidenavClosedClass = 'mt2-nav-children-closed';
-    self.sidenavOpenClass = 'mt2-nav-children-open';
-    self.sidenavSectionClasses = {};
     self.sidenavSectionOpenStatus = {};
     self.sideNavMinimized = false;
 
     self.initSideNavMenu = function ( sectionName ) {
-        self.sidenavSectionClasses[ sectionName ] = [ self.sidenavClosedClass ]; 
         self.sidenavSectionOpenStatus[ sectionName ] = false;
     };
 
     self.openSideNavMenu = function ( sectionName ) {
-        angular.forEach( self.sidenavSectionClasses , function ( section , key ) {
-            $log.info( key );
-            self.sidenavSectionClasses[ key ] = [ self.sidenavClosedClass ];
+        angular.forEach( self.sidenavSectionOpenStatus , function ( section , key ) {
             self.sidenavSectionOpenStatus[ key ] = false;
         } );
 
-        self.sidenavSectionClasses[ sectionName ] = [ self.sidenavOpenClass ]; 
         self.sidenavSectionOpenStatus[ sectionName ] = true;
     };
 

@@ -20,10 +20,10 @@
             <md-icon ng-show="app.sidenavSectionOpenStatus[ '{{ $section[ 'name' ] }}' ]" md-font-set="material-icons" style="color: #adb0b2">expand_more</md-icon>
         </md-list-item>
 
-        <div ng-class="app.sidenavSectionClasses[ '{{$section[ 'name' ]}}' ]" ng-init="app.initSideNavMenu( '{{$section[ 'name' ]}}' )" style="background-color: #21262d;">
+        <div ng-init="app.initSideNavMenu( '{{$section[ 'name' ]}}' )" style="background-color: #21262d;">
             @foreach ( $section[ 'children' ] as $currentChild )
             <a href="{{ '/' . $currentChild[ 'uri' ] }}" target="_self">
-                <md-list-item class="mt2-nav-sub-item" aria-label="{{ $currentChild[ 'name' ] }}">
+                <md-list-item class="mt2-nav-sub-item" ng-show="app.sidenavSectionOpenStatus[ '{{ $section[ 'name' ] }}' ]" aria-label="{{ $currentChild[ 'name' ] }}">
                     <span flex="20"></span>
                     <span class="childMenu"><em>{{ $currentChild[ 'name' ] }}</em></span>
                     <span flex></span>
