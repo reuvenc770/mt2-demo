@@ -346,6 +346,15 @@
 
         </md-card-content>
 
+        <md-divider></md-divider>
+
+        <md-card-content>
+            <label>Select and Order Columns</label>
+            <div>
+                <lite-membership-widget recordlist="listProfile.columnList" chosenrecordlist="listProfile.selectedColumns" availablerecordtitle="Available Columns" chosenrecordtitle="Selected Columns" idfield="" namefield="" updatecallback=""></lite-membership-widget>
+            </div>
+        </md-card-content>
+
     </md-card>
 
 </form>

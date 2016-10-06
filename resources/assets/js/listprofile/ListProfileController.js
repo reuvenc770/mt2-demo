@@ -39,6 +39,8 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , 'Client
     self.clientFeedMap = {};
     self.feedNameMap = {};
     self.feedVisibility = {};
+    self.columnList = ['email_id', 'first_name', 'last_name', 'address'];
+    self.selectedColumns = [];
 
     self.addFeeds = function () {
         angular.forEach( self.highlightedFeeds , function ( feedId ) {
