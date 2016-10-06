@@ -80,9 +80,9 @@
     </md-input-container>
     <md-input-container>
         <label>State</label>
-        <md-select name="state" ng-required="true" convert-to-number ng-model="registrar.currentAccount.state">
+        <md-select name="state" ng-required="true" ng-model="registrar.currentAccount.state">
             @foreach ( $states as $state )
-                <md-option ng-selected="registrar.currentAccount.state == {{ $state->iso_3166_2 }}" value="{{ $state->iso_3166_2 }}">{{ $state->name }}</md-option>
+                <md-option value="{{ $state->iso_3166_2 }}">{{ $state->name }}</md-option>
             @endforeach
         </md-select>
         <div ng-messages="registrarForm.state.$error">

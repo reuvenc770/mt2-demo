@@ -42,9 +42,9 @@
     </md-input-container>
     <md-input-container>
         <label>State</label>
-        <md-select name="state" ng-required="true" convert-to-number ng-model="dba.currentAccount.state">
+        <md-select name="state" ng-required="true" ng-model="dba.currentAccount.state">
             @foreach ( $states as $state )
-                <md-option ng-selected="dba.currentAccount.state == {{ $state->iso_3166_2 }}" value="{{ $state->iso_3166_2 }}">{{ $state->name }}</md-option>
+                <md-option value="{{ $state->iso_3166_2 }}">{{ $state->name }}</md-option>
             @endforeach
         </md-select>
         <div ng-messages="dbaForm.state.$error">
@@ -128,9 +128,9 @@
             </md-input-container>
             <md-input-container>
                 <label>State</label>
-                <md-select name="po_box_state" convert-to-number ng-model="dba.po_box.state">
+                <md-select name="po_box_state" ng-model="dba.po_box.state">
                     @foreach ( $states as $state )
-                        <md-option ng-selected="dba.po_box.state == {{ $state->iso_3166_2 }}" value="{{ $state->iso_3166_2 }}">{{ $state->name }}</md-option>
+                        <md-option value="{{ $state->iso_3166_2 }}">{{ $state->name }}</md-option>
                     @endforeach
                 </md-select>
                 <div ng-messages="dbaForm.po_box_state.$error">

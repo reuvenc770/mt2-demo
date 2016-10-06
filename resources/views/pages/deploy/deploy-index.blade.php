@@ -179,9 +179,9 @@
                         <th md-column class="md-table-header-override-whitetext">Mailing Domain</th>
                         <th md-column class="md-table-header-override-whitetext">Content Domain</th>
                         <th md-column class="md-table-header-override-whitetext">Cake ID</th>
-                        <th ng-show="deploy.showRow" class="md-table-header-override-whitetext">Cake Encryption</th>
-                        <th ng-show="deploy.showRow" class="md-table-header-override-whitetext">Full Encryption</th>
-                        <th ng-show="deploy.showRow" class="md-table-header-override-whitetext">URL Format</th>
+                        <th md-column ng-show="deploy.showRow" class="md-table-header-override-whitetext">Cake Encryption</th>
+                        <th md-column ng-show="deploy.showRow" class="md-table-header-override-whitetext">Full Encryption</th>
+                        <th md-column ng-show="deploy.showRow" class="md-table-header-override-whitetext">URL Format</th>
                         <th md-column class="md-table-header-override-whitetext">Notes</th>
                     </tr>
                     </thead>
