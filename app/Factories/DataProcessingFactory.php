@@ -53,6 +53,9 @@ class DataProcessingFactory {
             case('ListProfileAggregation'):
                 return \App::make(\App\Services\ListProfileActionAggregationService::class);
 
+            case('CakeDeviceData'):
+                return \App::make(\App\Services\CakeDeviceService::class);
+
             case ('ImportMt1Advertisers'):
                 $mt1Name = 'CompanyInfo';
                 $mt2Name = 'Advertiser';

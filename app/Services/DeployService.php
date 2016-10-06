@@ -49,7 +49,8 @@ class DeployService
     public function getDeploy($deployId)
     {
         $deploy = $this->deployRepo->getDeploy($deployId);
-        $deploy->offer_id = ['id' => $deploy->offer_id, "name" => $deploy->offer_name];
+        $deploy->offer_id = ['id' => $deploy->offer_id, "name" => $deploy->offer_name, "exclude_days" => $deploy->exclude_days];
+        unset($deploy->exclude_days);
         unset($deploy->offer_name);
         return $deploy;
     }

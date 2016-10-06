@@ -44,6 +44,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.contentDomains = []; //id is 2
     self.offers = [];
     self.formErrors = [];
+    self.minDate = new Date();
     self.deploys = [];
     self.searchText = "";
     self.listProfiles = [];

@@ -1,4 +1,5 @@
-@extends( 'layout.default' )
+
+@extends( 'layout.default-nonresp' )
 
 @section( 'title' , 'Deploy Packages' )
 
@@ -69,8 +70,8 @@
 
 @section( 'content' )
 <md-card-content ng-init="deploy.loadAccounts()">
-    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
-        <div flex-gt-md="60" flex="100">
+    <md-content layout="row" layout-align="left left" class="md-mt2-zeta-theme md-hue-1">
+        <div style="width:800px">
             <md-card>
                 <md-toolbar class="md-hue-2">
                     <div class="md-toolbar-tools">
@@ -115,7 +116,7 @@
                             </md-input-container>
                         </div>
                         <div flex hide-sm hide-xs></div>
-                        <div layout="row" flex-gt-sm="45">
+                        <div layout="row">
                             <md-input-container flex>
                                 <label>Deploy ID</label>
                                 <input id="deploy_id" value="" ng-model="deploy.search.deployId"/>
@@ -152,7 +153,7 @@
         </div>
     </md-content>
 
-    <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
+    <md-content layout="column" class="md-mt2-zeta-theme md-hue-1" flex="none">
         <md-card>
             <md-toolbar class="md-hue-2">
                 <div class="md-toolbar-tools">
@@ -202,7 +203,10 @@
                         </td>
                         <td md-cell>
                             <md-datepicker name="dateField" ng-model="deploy.currentDeploy.send_date"
-                                 required md-placeholder="Enter date" ng-disabled="deploy.offerLoading" md-date-filter="deploy.canOfferBeMailed">
+                                 required md-placeholder="Enter date"
+                                           ng-disabled="deploy.offerLoading"
+                                           md-date-filter="deploy.canOfferBeMailed"
+                                           md-min-date="deploy.minDate">
                             </md-datepicker>
                             <div class="validation-messages" ng-show="deploy.formErrors.send_date">
                                 <div ng-bind="deploy.formErrors.send_date"></div>
@@ -471,3 +475,5 @@
 @section( 'pageIncludes' )
     <script src="js/deploy.js"></script>
 @stop
+
+@include( 'layout.side-nav-nonresp-css' , [ 'width' => 3400 ] )
