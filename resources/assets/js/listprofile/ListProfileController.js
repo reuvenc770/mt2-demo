@@ -7,12 +7,77 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , 'Client
     self.mdChipSeparatorKeys = [ keycodeEnter , keycodeComma , keycodeTab ];
 
     self.current = {
-      'globalSupp' : '' ,
-      'listSupp' : '' ,
-      'offerSupp' : '' ,
-      'cities': [] ,
-      'zips' : [] ,
-      'states' : []
-      }
+        'name' : '' ,
+        'countries' : [] ,
+        'globalSupp' : '' ,
+        'listSupp' : '' ,
+        'offerSupp' : '' ,
+        'cities': [] ,
+        'zips' : [] ,
+        'states' : [] ,
+        'feeds' : {}
+    }
 
+    self.highlightedFeeds = [];
+    self.highlightedFeedsForRemoval = [];
+    self.feedClientFilters = [];
+    self.clientFeedMap = {};
+    self.feedNameMap = {};
+    self.feedVisibility = {};
+
+    self.addFeeds = function () {
+        angular.forEach( self.highlightedFeeds , function ( feedId ) {
+            self.feedVisibility[ feedId ] = false;
+
+            self.current.feeds[ feedId ] = self.feedNameMap[ feedId ];
+        } );
+
+        self.highlightedFeeds = [];
+    };
+
+    self.removeFeeds = function () {
+        angular.forEach( self.highlightedFeedsForRemoval , function ( feedId ) {
+            self.feedVisibility[ feedId ] = true;
+
+            delete( self.current.feeds[ feedId ] );
+        } );
+
+        self.updateFeedVisibility();
+
+        self.highlightedFeedsForRemoval = [];
+    };
+
+    self.updateFeedVisibility = function () {
+        var showAll = false;
+        var noClientFiltersSelected = self.feedClientFilters.length <= 0;
+
+        if ( noClientFiltersSelected ) {
+            showAll = true;
+        }
+
+        angular.forEach( self.feedVisibility , function ( visibility , feedId ) {
+            var feedNotSelected = typeof( self.current.feeds[ parseInt( feedId ) ] ) == 'undefined';
+
+            if ( showAll && feedNotSelected ) {
+                self.feedVisibility[ feedId ] = true;
+            } else {
+                self.feedVisibility[ feedId ] = false;
+
+                angular.forEach( self.feedClientFilters , function ( clientId ) {
+                    var feedListExists = typeof( self.clientFeedMap[ parseInt( clientId ) ] ) != 'undefined';
+                    var feedBelongsToClient = self.clientFeedMap[ parseInt( clientId ) ].indexOf( parseInt( feedId ) ) !== -1;
+
+                    if( feedListExists && feedNotSelected && feedBelongsToClient ) {
+                        self.feedVisibility[ feedId ] = true;
+                    }
+                } );
+            }
+        } );
+    };
+
+    self.clearClientFeedFilter = function () {
+        self.feedClientFilters = [];
+
+        self.updateFeedVisibility();
+    }
 } ] );
