@@ -9,15 +9,13 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , 'Client
     self.current = {
         'name' : '' ,
         'countries' : [] ,
-        'globalSupp' : '' ,
-        'listSupp' : '' ,
-        'offerSupp' : '' ,
-        'attributeSupp' : {
-            'cities': [] ,
-            'zips' : [] ,
-            'states' : []
-        },
         'feeds' : {},
+        'suppression' : {
+            'global' : '' ,
+            'list' : '' ,
+            'offer' : '' ,
+            'attribute' : { 'cities': [] , 'zips' : [] , 'states' : [] }
+        },
         'actionRanges' : {
             'deliverable' : { 'min' : 0 , 'max' : 0 },
             'opener' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 },
@@ -26,7 +24,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , 'Client
         },
         'attributeFilters' : {
             'age' : { 'min' : 0 , 'max' : 0 , 'unknown' : false },
-            'gender' : [],
+            'genders' : [],
             'zips' : [],
             'cities' : [],
             'states' : [],
@@ -95,5 +93,20 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , 'Client
         self.feedClientFilters = [];
 
         self.updateFeedVisibility();
-    }
+    };
+
+    self.toggleSelection = function (gender) {
+        var idx = self.current.attributeFilters.genders.indexOf(gender);
+
+        // is currently selected
+        if (idx > -1) {
+            self.current.attributeFilters.genders.splice(idx, 1);
+        }
+
+        // is newly selected
+        else {
+            self.current.attributeFilters.genders.push(gender);
+        }
+    };
+
 } ] );
