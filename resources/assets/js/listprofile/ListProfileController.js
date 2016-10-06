@@ -12,16 +12,18 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , 'Client
         'globalSupp' : '' ,
         'listSupp' : '' ,
         'offerSupp' : '' ,
-        'cities': [] ,
-        'zips' : [] ,
-        'states' : [],
+        'attributeSupp' : {
+            'cities': [] ,
+            'zips' : [] ,
+            'states' : []
+        },
+        'feeds' : {},
         'actionRanges' : {
             'deliverable' : { 'min' : 0 , 'max' : 0 },
             'opener' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 },
             'clicker' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 },
             'converter' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 }
         },
-        'feeds' : {},
         'attributeFilters' : {
             'age' : { 'min' : 0 , 'max' : 0 , 'unknown' : false },
             'gender' : [],
