@@ -64,10 +64,9 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , 'Client
                 self.feedVisibility[ feedId ] = false;
 
                 angular.forEach( self.feedClientFilters , function ( clientId ) {
-                    var feedListExists = typeof( self.clientFeedMap[ parseInt( clientId ) ] ) != 'undefined';
-                    var feedBelongsToClient = self.clientFeedMap[ parseInt( clientId ) ].indexOf( parseInt( feedId ) ) !== -1;
+                    var feedListExistsAndBelongsToClient = ( typeof( self.clientFeedMap[ parseInt( clientId ) ] ) != 'undefined' && self.clientFeedMap[ parseInt( clientId ) ].indexOf( parseInt( feedId ) ) !== -1 );
 
-                    if( feedListExists && feedNotSelected && feedBelongsToClient ) {
+                    if( feedListExistsAndBelongsToClient && feedNotSelected ) {
                         self.feedVisibility[ feedId ] = true;
                     }
                 } );
