@@ -67,4 +67,10 @@ class DomainService
     public function updateDomain($domain){
         $this->domainRepo->updateRow($domain);
     }
+
+    public function searchDomains($searchData){
+        return $this->domainRepo->getDomainsBySearch($searchData);
+
+
+    }
 }

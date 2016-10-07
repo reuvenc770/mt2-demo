@@ -1,4 +1,4 @@
-mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$location', '$timeout', 'DomainService', '$mdToast', function ($rootScope, $log, $window, $location, $timeout, DomainService, $mdToast) {
+mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$location', '$timeout', 'DomainService', '$mdToast', '$httpParamSerializer', function ($rootScope, $log, $window, $location, $timeout, DomainService, $mdToast, $httpParamSerializer) {
     var self = this;
     self.$location = $location;
 
@@ -35,9 +35,8 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         "proxy_id": "",
         "registrar_id": "",
         "main_site" : "",
-        "expires_at" : ""
-        //"esp_account_id": ""
-
+        "expires_at" : "",
+        "esp_account_id": ""
     };
 
     self.createUrl = 'domain/create/';
@@ -49,6 +48,11 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     self.rowBeingEdited = "0";
     self.paginationCount = '10';
     self.currentPage = 1;
+    self.search = {"esp": espName,
+        "eps_account_id" : undefined,
+        "doing_business_as_id": undefined ,
+        "registrar_id": undefined,
+        "proxy_id": undefined};
     self.proxies = [];
     self.info = ["", "Enter Domain Info (Domain, Main Site, Expiration Date (2016-11-22)", "Enter Domain Info (Domain, Expiration Date (2016-11-22))"];
     self.currentInfo = self.info[1];
@@ -110,6 +114,13 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         self.espNotChosen = true;
         DomainService.getEspAccounts(
             self.currentAccount.espName,
+            self.updateEspAccountsSuccessCallback, self.loadAccountsFailureCallback);
+    };
+
+    self.updateSearchEspAccounts = function () {
+        self.updatingAccounts = true;
+        DomainService.getEspAccounts(
+            self.search.esp,
             self.updateEspAccountsSuccessCallback, self.loadAccountsFailureCallback);
     };
 
@@ -182,6 +193,12 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         DomainService.editAccount(domain,self.editRowSuccess, self.editRowFailure)
     };
 
+    self.searchDomains = function (){
+       var params = $httpParamSerializer(self.search);
+        $location.url('/domain/search?'+ params);
+        $window.location.href = '/domain/search?'+ params;
+    };
+
 
 
     /**
@@ -201,6 +218,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         self.accounts = response.data.data;
         self.pageCount = response.data.last_page;
         self.accountTotal = response.data.total;
+        self.updatingAccounts = false;
     };
 
     self.toggleRowSuccess = function ( response ) {

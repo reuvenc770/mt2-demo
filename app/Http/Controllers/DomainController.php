@@ -38,7 +38,10 @@ class DomainController extends Controller
     }
 
     public function listAll(){
-        return response()->view( 'pages.domain.domain-index' );
+        $regs = $this->registrarService->getAllActive();
+        $esps = $this->espService->getAllEsps();
+        $dbas = $this->dbaService->getAllActive();
+        return response()->view( 'pages.domain.domain-index',  [ 'esps' => $esps , 'dbas' => $dbas, 'regs' => $regs] );
     }
     /**
      * Show the form for creating a new resource.
@@ -57,8 +60,10 @@ class DomainController extends Controller
     public function listView()
     {
         $regs = $this->registrarService->getAllActive();
-        return response()->view('pages.domain.domain-listview', [ 'regs' => $regs]);
-    }
+        $esps = $this->espService->getAllEsps();
+        $dbas = $this->dbaService->getAllActive();
+      return response()->view('pages.domain.domain-listview', [ 'esps' => $esps , 'dbas' => $dbas, 'regs' => $regs]);
+}
 
     /**
      * Store a newly created resource in storage.
@@ -133,6 +138,14 @@ class DomainController extends Controller
         $domain = $request->toArray();
         $bool = $this->service->updateDomain($domain);
         return response()->json(['success' => $bool]);
+    }
+
+    public function searchDomains(Request $request){
+        $regs = $this->registrarService->getAllActive();
+        $esps = $this->espService->getAllEsps();
+        $dbas = $this->dbaService->getAllActive();
+        $domains = $this->service->searchDomains($request->toArray());
+        return response()->view('pages.domain.domain-searchview', [ 'esps' => $esps , 'dbas' => $dbas, 'regs' => $regs, 'domains' => $domains]);
     }
 
     /**
