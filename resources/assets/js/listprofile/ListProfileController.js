@@ -30,7 +30,9 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , 'Client
             'states' : [],
             'deviceTypes' : [],
             'mobileCarriers' : []
-        }
+        },
+        'selectedColumns' : [],
+        'includeCsvHeader' : false
     };
 
     self.highlightedFeeds = [];
@@ -39,8 +41,34 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , 'Client
     self.clientFeedMap = {};
     self.feedNameMap = {};
     self.feedVisibility = {};
-    self.columnList = ['email_id', 'first_name', 'last_name', 'address'];
+
+    self.columnList = [
+        { 'header' : 'email_id' , 'label' : 'Email ID' },
+        { 'header' : 'first_name' , 'label' : 'First Name' },
+        { 'header' : 'last_name' , 'label' : 'Last Name' },
+        { 'header' : 'address' , 'label' : 'Address' },
+        { 'header' : 'address2' , 'label' : 'Address 2'},
+        { 'header' : 'city' , 'label' : 'City' },
+        { 'header' : 'state' , 'label' : 'State' },
+        { 'header' : 'zip' , 'label' : 'Zip' },
+        { 'header' : 'country' , 'label' : 'Country' },
+        { 'header' : 'gender' , 'label' : 'Gender' },
+        { 'header' : 'ip' , 'label' : 'IP Address' },
+        { 'header' : 'phone' , 'label' : 'Phone Number' },
+        { 'header' : 'source_url' , 'label' : 'Source URL' },
+        { 'header' : 'age' , 'label' : 'Age' },
+        { 'header' : 'device_type' , 'label' : 'Device Type' },
+        { 'header' : 'device_name' , 'label' : 'Device Name' },
+        { 'header' : 'carrier' , 'label' : 'Carrier' },
+        { 'header' : 'capture_date' , 'label' : 'Capture Date' },
+        { 'header' : 'esp_account' , 'label' : 'ESP Account' },
+        { 'header' : 'email_address' , 'label' : 'Email Address' }
+    ];
     self.selectedColumns = [];
+    self.availableWidgetTitle = "Available Columns";
+    self.chosenWidgetTitle = "Selected Columns";
+    self.columnLabelField = 'label';
+    self.columnHeaderField = 'header';
 
     self.addFeeds = function () {
         angular.forEach( self.highlightedFeeds , function ( feedId ) {
@@ -110,5 +138,14 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , 'Client
             self.current.attributeFilters.genders.push(gender);
         }
     };
+
+    self.columnMembershipCallback = function (){
+        var columnList = [];
+        angular.forEach( self.selectedColumns , function ( column , columnIndex ) {
+            columnList.push( column[ self.columnHeaderField ] );
+        } );
+        self.current.selectedColumns = columnList;
+    };
+
 
 } ] );

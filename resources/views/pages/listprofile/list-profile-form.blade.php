@@ -308,7 +308,7 @@
                 </md-select>
             </md-input-container>
 
-            <label>Attribute Suppression</label>
+            <h5><strong>Attribute Suppression</strong></h5>
 
             <md-chips name="city" placeholder="City/Cities" secondary-placeholder="+ City"
                    ng-model="listProfile.current.suppression.attribute.cities"
@@ -346,13 +346,20 @@
 
         </md-card-content>
 
-        <md-divider></md-divider>
+        <md-toolbar>
+            <div class="md-toolbar-tools"><span>Select and Order Columns</span></div>
+        </md-toolbar>
 
-        <md-card-content>
-            <label>Select and Order Columns</label>
+        <md-card-content layout="column">
             <div>
-                <lite-membership-widget recordlist="listProfile.columnList" chosenrecordlist="listProfile.selectedColumns" availablerecordtitle="Available Columns" chosenrecordtitle="Selected Columns" idfield="" namefield="" updatecallback=""></lite-membership-widget>
+                <lite-membership-widget recordlist="listProfile.columnList" chosenrecordlist="listProfile.selectedColumns" availablerecordtitle="listProfile.availableWidgetTitle" chosenrecordtitle="listProfile.chosenWidgetTitle" namefield="listProfile.columnLabelField" updatecallback="listProfile.columnMembershipCallback()"></lite-membership-widget>
             </div>
+
+            <md-input-container layout-padding>
+                <md-checkbox ng-model="listProfile.current.includeCsvHeader" ng-true-value="true" ng-false-value="false">
+                    Include header line
+                </md-checkbox>
+            </md-input-container>
         </md-card-content>
 
     </md-card>
