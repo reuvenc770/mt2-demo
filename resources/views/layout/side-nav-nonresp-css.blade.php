@@ -1,6 +1,6 @@
 <style>
 html , body {
-    background-color: #383F47 !important;
+    background-color: #191c21 !important;
 }
 body {
     width: {{ $width }}px;

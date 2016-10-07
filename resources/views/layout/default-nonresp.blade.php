@@ -6,8 +6,8 @@
     <head>
         @include( 'layout.html-head' )
     </head>
-    <body ng-app="mt2App" ng-controller="AppController as app" layout="row" flex="none" ng-cloak>
-        {!! $menu->getMenuHtml( true ) !!}
+    <body ng-app="mt2App" ng-controller="AppController as app" ng-init="app.currentPath = '{{ Request::path() }}'" layout="row" flex="none" ng-cloak>
+        {!! $menu->getMenuHtml() !!}
         <script type="text/javascript">
             var _config = {
                 userId : {{Sentinel::check() ? Sentinel::getUser()->id: 0}}
