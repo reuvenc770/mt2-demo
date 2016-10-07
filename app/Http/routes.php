@@ -486,7 +486,7 @@ Route::group(
 Route::group(
     [
         'prefix' => 'domain' ,
-        'middleware' => [ 'auth' , 'pageLevel' ]
+        'middleware' => [ 'auth' , ]
     ] ,
     function () {
         Route::get( '/' , [
@@ -497,6 +497,13 @@ Route::group(
             'as' => 'domain.listview' ,
             'uses' => 'DomainController@listView'
         ] );
+
+        Route::get( '/search' , [
+            'as' => 'domain.search' ,
+            'uses' => 'DomainController@searchDomains'
+        ] );
+
+
 
         Route::get( '/create' , [
             'as' => 'domain.add' ,

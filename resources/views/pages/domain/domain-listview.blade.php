@@ -4,8 +4,12 @@
 
 
 @section( 'content' )
+    <md-content class="md-mt2-zeta-theme md-padding" ng-controller="domainController as domain" ng-init="domain.init(1)">
+    <h1>ESP Account View</h1>
+    @include( 'pages.domain.domain-search' )
     <md-content class="md-mt2-zeta-theme">
-        <div ng-controller="domainController as domain" ng-init="domain.init(1)">
+        <md-card>
+
             <md-tabs md-dynamic-height md-border-bottom>
 
                 <md-tab label="Mailing Domains" md-on-select="domain.updateType(1)">
@@ -30,7 +34,7 @@
                     </md-content>
                 </md-tab>
             </md-tabs>
-        </div>
+            </md-card>
     </md-content>
 @stop
 
