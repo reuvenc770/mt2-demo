@@ -11,6 +11,7 @@ use App\Repositories\EmailDomainRepo;
 use App\Repositories\AttributionLevelRepo;
 use App\Repositories\FeedDateEmailBreakdownRepo;
 use App\Repositories\RecordDataRepo;
+use App\Repositories\EmailIdHistoryRepo;
 use Carbon\Carbon;
 
 class ImportMt1EmailsService
@@ -25,6 +26,7 @@ class ImportMt1EmailsService
     private $breakdownRepo;
     private $attributionLevelRepo;
     private $recordDataRepo;
+    private $historyRepo;
     private $processingDate;
     private $formattedDate;
 
@@ -39,7 +41,8 @@ class ImportMt1EmailsService
         EmailDomainRepo $emailDomainRepo,
         AttributionLevelRepo $attributionLevelRepo,
         FeedDateEmailBreakdownRepo $breakdownRepo,
-        RecordDataRepo $recordDataRepo) {
+        RecordDataRepo $recordDataRepo,
+        EmailIdHistoryRepo $historyRepo) {
 
         $this->api = $api;
         $this->tempEmailRepo = $tempEmailRepo;
@@ -50,6 +53,7 @@ class ImportMt1EmailsService
         $this->attributionLevelRepo = $attributionLevelRepo;
         $this->breakdownRepo = $breakdownRepo;
         $this->recordDataRepo = $recordDataRepo;
+        $this->historyRepo = $historyRepo;
 
         $this->processingDate = Carbon::today();
         $this->formattedDate = $this->processingDate->format('Y-m-d');
@@ -90,28 +94,28 @@ class ImportMt1EmailsService
             if ($this->feedRepo->isActive($feedId)) {
 
                 $emailAddress = $record['email_addr'];
-                $emailId = (int)$record['email_id'];
+                $importingEmailId = (int)$record['email_id'];
                
                 // we need to know if this is new or not.
                 // if it is new, insert it
 
-                if (0 === $emailId) {
+                if (0 === $importingEmailId) {
                     $emailStatus = 'suppressed';
                 }
                 else {
                     // one of fresh, non-fresh, duplicate
-                    $existsCheck = $this->emailRepo->getEmailId($emailAddress);
+                    $existsCheck = $this->emailRepo->getEmailId($emailAddress)->first();
                     
                     $recordsToFlag[] = [
-                        "email_id" => $emailId, 
+                        "email_id" => $importingEmailId, 
                         "feed_id" => $feedId, 
                         "datetime" => $record['capture_date']
                     ];
 
-                    if (isset($this->emailIdCache[$emailId])) {
+                    if (isset($this->emailIdCache[$importingEmailId])) {
                         // email id is already a duplicate within this import
                     }
-                    elseif (null === $existsCheck->first() && !isset($this->emailIdCache[$emailId])) {
+                    elseif (null === $existsCheck && !isset($this->emailIdCache[$importingEmailId])) {
                         // not inserted yet
                         // breaking encapsulation in order to improve performance
                         $emailStatus = 'fresh';
@@ -119,13 +123,33 @@ class ImportMt1EmailsService
                         // insert at this point
                         $emailRow = $this->mapToEmailTable($record);
                         $this->emailRepo->insertDelayedBatch($emailRow);
-                        $this->emailIdCache[$emailId] = 1;
+                        $this->emailIdCache[$importingEmailId] = 1;
 
                         $this->recordDataRepo->insert($record);
                     }
-                    elseif ($existsCheck->first()) {
-                        $emailStatus = $this->getStatusForExistingEmail($emailId, $feedId);
+                    elseif ($existsCheck) {
+                        $currentEmailId = (int)$existsCheck->id;
+
+                        if ($currentEmailId === $importingEmailId) {
+                            // Everything is normal. Just importing another instance of this
+                            $emailStatus = $this->getStatusForExistingEmail($importingEmailId, $feedId);
+                            
+                        }
+                        else {
+                            // An email is being re-imported, but its email id differs due to MT1 ... logic
+                            $this->historyRepo->insertIntoHistory($currentEmailId, $importingEmailId);
+
+                            $emailStatus = $this->getStatusForExistingEmail($currentEmailId, $feedId);
+
+                            // update emails table
+                            $this->emailRepo->updateEmailId($currentEmailId, $importingEmailId);
+                            $this->emailIdCache[$importingEmailId] = 1;
+                            $record['email_id'] = $importingEmailId;
+
+                        }
+
                         $this->recordDataRepo->insert($record);
+
                     }
 
                 }

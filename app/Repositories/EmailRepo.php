@@ -144,4 +144,11 @@ class EmailRepo {
         return $this->emailModel->find($emailId)->feedAssignment->capture_date;
     }
 
+    // A temporary, necessary evil
+    public function updateEmailId($oldEmailId, $newEmailId) {
+        $this->emailModel
+             ->where('id', $oldEmailId)
+             ->update(['id' => $newEmailId]);
+    }
+
 }
