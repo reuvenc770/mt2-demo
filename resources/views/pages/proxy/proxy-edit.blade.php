@@ -14,7 +14,7 @@
                 @include( 'pages.proxy.proxy-form' )
                         <!-- Submit field -->
                         <div class="form-group">
-                            <input class="btn btn-lg btn-primary btn-block" ng-click="proxy.editAccount()" type="submit" value="Edit Proxy">
+                            <input class="btn btn-lg btn-primary btn-block" ng-click="proxy.editAccount()" type="submit" value="Save Proxy">
                         </div>
                     </fieldset>
                 </md-card-content>

@@ -29,5 +29,7 @@ return [
     'Deploys' => 'flight_takeoff' ,
     'Operations' => 'supervisor_account' ,
     'Reporting' => 'insert_chart' ,
-
+    'esp'   => 'settings_input_hdmi',
+    'isp'   => 'done',
+    'ispgroup'=> 'doneall',
 ];

@@ -67,7 +67,7 @@ class EspApiAccountRepo
      */
     public function getAllAccounts(){
         $accountObject = $this->espAccount; //cannot use $this-> to invoke static method
-        return $accountObject::with( 'esp' )->get();
+        return $accountObject::with( 'esp' )->get()->sortBy("account_name");
     }
 
     /**

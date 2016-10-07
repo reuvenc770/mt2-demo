@@ -49,7 +49,8 @@ class DeployService
     public function getDeploy($deployId)
     {
         $deploy = $this->deployRepo->getDeploy($deployId);
-        $deploy->offer_id = ['id' => $deploy->offer_id, "name" => $deploy->offer_name];
+        $deploy->offer_id = ['id' => $deploy->offer_id, "name" => $deploy->offer_name, "exclude_days" => $deploy->exclude_days];
+        unset($deploy->exclude_days);
         unset($deploy->offer_name);
         return $deploy;
     }
@@ -133,5 +134,21 @@ class DeployService
     {
         return ['Send Date', 'Deploy ID', 'ESP Account', "Mailing Template", "Mailing Domain",
             "Content Domain", "Subject", "From", "Creative"];
+    }
+
+    public function copyToFutureDate($data){
+        $errorCollection = array();
+        foreach($data['deploy_ids'] as $deployId){
+          $newDeploy = $this->deployRepo->duplicateDomainToDate($deployId, $data['future_date']);
+            $errors = $this->deployRepo->validateDeploy($newDeploy->toArray());
+            if(count($errors) == 0){
+                $newDeploy->save();
+            }
+            else {
+                $errors['deploy_id'] = $deployId;
+                $errorCollection[] = $errors;
+            }
+        }
+        return $errorCollection;
     }
 }

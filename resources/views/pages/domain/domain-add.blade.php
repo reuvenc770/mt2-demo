@@ -21,8 +21,6 @@
                                 <div class="form-group">
                                     <input class="btn btn-lg btn-primary btn-block" ng-click="domain.saveNewAccount()" type="submit" value="Create Mailing Domains">
                                 </div>
-                                </fieldset>
-                            </div>
                             </md-card>
                         </div>
 
@@ -48,8 +46,6 @@
                                     <div class="form-group">
                                         <input class="btn btn-lg btn-primary btn-block" ng-click="domain.saveNewAccount()" type="submit" value="Create Content Domains">
                                     </div>
-                                    </fieldset>
-                                </div>
                             </md-card>
                         </div>
                         <div flex>

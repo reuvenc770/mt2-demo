@@ -58,7 +58,7 @@ class RerunAttributionAggregator
 
         $this->attrService->setProcessingFlag( $event->getModelId() , false );
 
-        $userEmail = $event->getUserEmail()
+        $userEmail = $event->getUserEmail();
         if ( !is_null( $userEmail ) && $userEmail != 'none' ) {
             Mail::raw( 'Projection processing for Model' . $event->getModelId() . ' completed.' , function ($message) {
                 $message->to( $userEmail );

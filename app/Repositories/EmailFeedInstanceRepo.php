@@ -12,12 +12,136 @@ use Illuminate\Database\Query\Builder;
 class EmailFeedInstanceRepo {
 
     private $emailFeedModel;
+    private $batchInstances = [];
+    private $batchInstanceCount = 0;
+    const INSERT_THRESHOLD = 10000;
 
     public function __construct(EmailFeedInstance $emailFeedModel) {
         $this->emailFeedModel = $emailFeedModel;
     }
 
-    public function insert($row) {        
+    public function insertDelayedBatch($row) {
+        if ($this->batchInstanceCount >= self::INSERT_THRESHOLD) {
+
+            // Doing this (switching type signature) to save on some memory, given that these lists can be rather large
+            $this->batchInstances = implode(', ', $this->batchInstances);
+
+            DB::statement(
+                "INSERT INTO email_feed_instances
+                (email_id, feed_id, subscribe_datetime, unsubscribe_datetime,
+                status, first_name, last_name, address, address2, city, state, 
+                zip, country, dob, gender, phone, mobile_phone, work_phone, 
+                capture_date, source_url, ip )
+
+                VALUES
+
+                {$this->batchInstances}
+
+                ON DUPLICATE KEY UPDATE
+                email_id = email_id,
+                feed_id = feed_id,
+                subscribe_datetime = subscribe_datetime,
+                unsubscribe_datetime = unsubscribe_datetime,
+                status = status,
+                first_name = first_name,
+                last_name = last_name,
+                address = address,
+                address2 = address2,
+                city = city,
+                state = state,
+                zip = zip,
+                country = country,
+                dob = dob,
+                gender = gender,
+                phone = phone,
+                mobile_phone = mobile_phone,
+                work_phone = work_phone,
+                capture_date = capture_date,
+                source_url = source_url,
+                ip = ip"
+            );
+
+
+            $this->batchInstances = [$this->transformRowToString($row)];
+            $this->batchInstanceCount = 1;
+        }
+        else {
+            $this->batchInstances[] = $this->transformRowToString($row);
+            $this->batchInstanceCount++;
+        }
+    }
+
+    public function insertStored() {        
+        $this->batchInstances = implode(', ', $this->batchInstances);
+
+        DB::statement(
+            "INSERT INTO email_feed_instances
+            (email_id, feed_id, subscribe_datetime, unsubscribe_datetime,
+            status, first_name, last_name, address, address2, city, state, 
+            zip, country, dob, gender, phone, mobile_phone, work_phone, 
+            capture_date, source_url, ip )
+
+            VALUES
+
+            {$this->batchInstances}
+
+            ON DUPLICATE KEY UPDATE
+            email_id = email_id,
+            feed_id = feed_id,
+            subscribe_datetime = subscribe_datetime,
+            unsubscribe_datetime = unsubscribe_datetime,
+            status = status,
+            first_name = first_name,
+            last_name = last_name,
+            address = address,
+            address2 = address2,
+            city = city,
+            state = state,
+            zip = zip,
+            country = country,
+            dob = dob,
+            gender = gender,
+            phone = phone,
+            mobile_phone = mobile_phone,
+            work_phone = work_phone,
+            capture_date = capture_date,
+            source_url = source_url,
+            ip = ip"
+        );
+
+        $this->batchInstances = [];
+        $this->batchInstanceCount = 0;
+    }
+
+    private function transformRowToString($row) {
+        $pdo = DB::connection()->getPdo();
+
+        return '('
+            . $pdo->quote($row['email_id']) . ','
+            . $pdo->quote($row['feed_id']) . ','
+            . $pdo->quote($row['subscribe_datetime']) . ','
+            . $pdo->quote($row['unsubscribe_datetime']) . ','
+            . $pdo->quote($row['status']) . ','
+            . $pdo->quote($row['first_name']) . ','
+            . $pdo->quote($row['last_name']) . ','
+            . $pdo->quote($row['address']) . ','
+            . $pdo->quote($row['address2']) . ','
+            . $pdo->quote($row['city']) . ','
+            . $pdo->quote($row['state']) . ','
+            . $pdo->quote($row['zip']) . ','
+            . $pdo->quote($row['country']) . ','
+            . $pdo->quote($row['dob']) . ','
+            . $pdo->quote($row['gender']) . ','
+            . $pdo->quote($row['phone']) . ','
+            . $pdo->quote($row['mobile_phone']) . ','
+            . $pdo->quote($row['work_phone']) . ','
+            . $pdo->quote($row['capture_date']) . ','
+            . $pdo->quote($row['source_url']) . ','
+            . $pdo->quote($row['ip'])
+            . ')';
+    }
+
+    public function insert($row) {
         DB::statement(
             "INSERT INTO email_feed_instances
             (email_id, feed_id, subscribe_datetime, unsubscribe_datetime,

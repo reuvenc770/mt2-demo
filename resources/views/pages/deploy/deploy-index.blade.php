@@ -1,51 +1,12 @@
-@extends( 'layout.default' )
+
+@extends( 'layout.default-nonresp' )
 
 @section( 'title' , 'Deploy Packages' )
 
 @section( 'angular-controller' , 'ng-controller="DeployController as deploy"' )
 
 @section( 'page-menu' )
-    <div ng-hide="app.isMobile()">
-        @if (Sentinel::hasAccess('api.deploy.store'))
-        <md-button ng-click="deploy.displayForm()">
-            <span>New Deploy</span>
-        </md-button>
-        @endif
-        @if (Sentinel::hasAccess('api.attachment.upload'))
-        <md-button flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'deploys' , '_token' : '{{ csrf_token() }}' } }"
-                flow-files-submitted="$flow.upload()"
-                flow-file-success="deploy.fileUploaded($file); $flow.cancel()" flow-btn>
-                <span>Upload Deploy List</span>
-                <input type="file" style="visibility: hidden; position: absolute;"/>
-        </md-button>
-        @endif
-        @if (Sentinel::hasAccess('api.deploy.exportcsv'))
-        <md-button ng-click="deploy.exportCsv()" ng-disabled="deploy.disableExport">
-            <span>Export to CSV</span>
-        </md-button>
-        @endif
-
-            @if (Sentinel::hasAccess('api.deploy.deploypackages'))
-                <md-button ng-click="deploy.createPackages()" ng-disabled="deploy.disableExport" >
-                    <span>@{{ deploy.deployLinkText }}</span>
-                </md-button>
-            @endif
-            @if (Sentinel::hasAccess('deploy.preview'))
-
-                    <md-button ng-click="deploy.previewDeploys()" ng-disabled="deploy.disableExport">
-                        <span>Preview Deploy(s)</span>
-                    </md-button>
-            @endif
-
-            @if (Sentinel::hasAccess('deploy.downloadhtml'))
-                    <md-button ng-click="deploy.downloadHtml()" ng-disabled="deploy.disableExport">
-                        <span>Get Html</span>
-                    </md-button>
-            @endif
-
-    </div>
-
-    <md-menu ng-show="app.isMobile()" md-position-mode="target-right target">
+    <md-menu md-position-mode="target-right target">
         <md-button aria-label="Options" class="md-icon-button" ng-click="$mdOpenMenu($event)">
             <md-icon md-svg-src="img/icons/ic_more_horiz_black_24px.svg"></md-icon>
         </md-button>
@@ -71,6 +32,13 @@
             <md-menu-item>
                 <md-button ng-click="deploy.exportCsv()" ng-disabled="deploy.disableExport">
                     <span>Export to CSV</span>
+                </md-button>
+            </md-menu-item>
+            @endif
+            @if (Sentinel::hasAccess('api.deploy.copytofuture'))
+            <md-menu-item>
+                <md-button ng-click="deploy.copyToFuture( $event )" ng-disabled="deploy.disableExport">
+                    <span>Copy to Future</span>
                 </md-button>
             </md-menu-item>
             @endif
@@ -102,8 +70,8 @@
 
 @section( 'content' )
 <md-card-content ng-init="deploy.loadAccounts()">
-    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
-        <div flex-gt-md="60" flex="100">
+    <md-content layout="row" layout-align="left left" class="md-mt2-zeta-theme md-hue-1">
+        <div style="width:800px">
             <md-card>
                 <md-toolbar class="md-hue-2">
                     <div class="md-toolbar-tools">
@@ -118,6 +86,7 @@
                                 <md-select name="esp_account_search" id="esp_account_search"
                                     ng-model="deploy.search.esp"
                                     ng-disabled="deploy.currentlyLoading">
+                                    <md-option value="">--</md-option>
                                     @foreach ( $esps as $esp )
                                         <md-option value="{{ $esp['name'] }}">{{ $esp['name'] }}</md-option>
                                     @endforeach
@@ -131,6 +100,7 @@
                                 <md-select name="esp_account_search" id="esp_account_search"
                                         ng-model="deploy.search.esp_account_id"
                                         ng-disabled="deploy.currentlyLoading">
+                                    <md-option value="">--</md-option>
                                     <md-option ng-repeat="option in deploy.espAccounts" ng-value="option.id"
                                             ng-selected="option.id == deploy.search.esp_account_id">@{{ option.account_name }}
                                     </md-option>
@@ -146,7 +116,7 @@
                             </md-input-container>
                         </div>
                         <div flex hide-sm hide-xs></div>
-                        <div layout="row" flex-gt-sm="45">
+                        <div layout="row">
                             <md-input-container flex>
                                 <label>Deploy ID</label>
                                 <input id="deploy_id" value="" ng-model="deploy.search.deployId"/>
@@ -183,7 +153,7 @@
         </div>
     </md-content>
 
-    <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
+    <md-content layout="column" class="md-mt2-zeta-theme md-hue-1" flex="none">
         <md-card>
             <md-toolbar class="md-hue-2">
                 <div class="md-toolbar-tools">
@@ -202,7 +172,7 @@
                         </th>
                         <th md-column class="md-table-header-override-whitetext">Send Date</th>
                         <th md-column class="md-table-header-override-whitetext">Deploy ID</th>
-                        <th md-column class="md-table-header-override-whitetext">EspAccount</th>
+                        <th md-column class="md-table-header-override-whitetext">ESP Account</th>
                         <th md-column class="md-table-header-override-whitetext">Offer</th>
                         <th md-column class="md-table-header-override-whitetext">Creative</th>
                         <th md-column class="md-table-header-override-whitetext">From</th>
@@ -210,7 +180,7 @@
                         <th md-column class="md-table-header-override-whitetext">Template</th>
                         <th md-column class="md-table-header-override-whitetext">Mailing Domain</th>
                         <th md-column class="md-table-header-override-whitetext">Content Domain</th>
-                        <th md-column >Cake ID</th>
+                        <th md-column class="md-table-header-override-whitetext">Cake ID</th>
                         <th ng-show="deploy.showRow" class="md-table-header-override-whitetext" >Cake Encryption</th>
                         <th ng-show="deploy.showRow" class="md-table-header-override-whitetext" >Full Encryption</th>
                         <th ng-show="deploy.showRow" class="md-table-header-override-whitetext">URL Format</th>
@@ -232,7 +202,10 @@
                         </td>
                         <td md-cell>
                             <md-datepicker name="dateField" ng-model="deploy.currentDeploy.send_date"
-                                 required md-placeholder="Enter date" ng-disabled="deploy.offerLoading" md-date-filter="deploy.canOfferBeMailed">
+                                 required md-placeholder="Enter date"
+                                           ng-disabled="deploy.offerLoading"
+                                           md-date-filter="deploy.canOfferBeMailed"
+                                           md-min-date="deploy.minDate">
                             </md-datepicker>
                             <div class="validation-messages" ng-show="deploy.formErrors.send_date">
                                 <div ng-bind="deploy.formErrors.send_date"></div>
@@ -413,7 +386,6 @@
                                     <option value="new">New</option>
                                     <option value="gmail">Gmail</option>
                                     <option value="old">Old</option>
-
                                 </select>
                     <span class="help-block" ng-bind="deploy.formErrors.url_format"
                           ng-show="deploy.formErrors.url_format"></span>
@@ -433,7 +405,7 @@
                                          'mt2-bg-success' : record.deployment_status ==1,
                                          'mt2-warning' : record.deployment_status == 2 }">
                             <td md-cell>
-                                <md-checkbox ng-show="@{{deploy.checkStatus(record.creative_approval,record.creative_status)
+                                <md-checkbox ng-checked="deploy.checkChecked(record.deploy_id)" ng-show="@{{deploy.checkStatus(record.creative_approval,record.creative_status)
                                 && deploy.checkStatus(record.from_approval,record.from_status)
                                 && deploy.checkStatus(record.subject_approval,record.subject_status)}}" aria-label="Select" name="selectedRows"
                                              ng-click="deploy.toggleRow(record.deploy_id)"> </md-checkbox>
@@ -483,10 +455,10 @@
 </md-card-content>
     <deploy-validate-modal upload-errors="deploy.uploadErrors" mass-upload="deploy.massUploadList()"
                            records="deploy.uploadedDeploys"></deploy-validate-modal>
-
-
 @stop
 
 @section( 'pageIncludes' )
     <script src="js/deploy.js"></script>
 @stop
+
+@include( 'layout.side-nav-nonresp-css' , [ 'width' => 3400 ] )

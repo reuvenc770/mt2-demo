@@ -13,7 +13,6 @@ use DB;
 use App\Facades\EspApiAccount;
 use Cache;
 use Carbon\Carbon;
-
 class DeployRepo
 {
     protected $deploy;
@@ -69,7 +68,7 @@ class DeployRepo
     public function getDeploy($id)
     {
         return $this->deploy->leftJoin('offers', 'offers.id', '=', 'deploys.offer_id')
-            ->select(['deploys.*', 'offers.name as offer_name'])
+            ->select(['deploys.*', 'offers.name as offer_name', 'offers.exclude_days'])
             ->where('deploys.id', $id)->first();
     }
 
@@ -87,7 +86,7 @@ class DeployRepo
     {
         return $this->deploy->whereIn('id', $rows)
             ->select("id as deploy_id",
-                "send_date as deploy_date",
+                "send_date",
                 "esp_account_id",
                 "offer_id",
                 "creative_id",
@@ -121,145 +120,16 @@ class DeployRepo
             }
         }
 
-        if (isset($deploy['esp_account_id'])) {
-            $count = DB::select("Select count(*) as count from esp_accounts where id = :id", ['id' => $deploy['esp_account_id']])[0];
-            if ($count->count == 0) {
-                $errors[] = "Esp Account ID is not Valid.";
-            }
-        } else {
-            $errors[] = "Esp Account ID is missing";
-        }
-
-        if (isset($deploy['deploy_date'])) {
-            // exclude_days is a 7 char string of Y/N
-            $days = DB::select("Select exclude_days from offers where id = :id", ['id' => $deploy['offer_id']])[0];
-            // value below is 0-indexed with Sun as 0 and Sat as 6
-            $dayOfWeek = Carbon::parse($deploy['deploy_date'])->dayOfWeek;
-            // 'N' means that the offer is not excluded and can be mailed
-          if ($days->exclude_days[$dayOfWeek] !== 'N'){
-              $errors[] = "Offer cannot be deployed on this day";
-          }
-        } else {
-            $errors[] = "Deploy Date is missing";
-        }
-        //offer real?
-        if (isset($deploy['offer_id'])) {
-            $count = DB::select("Select count(*) as count from offers where id = :id", ['id' => $deploy['offer_id']])[0];
-            if ($count->count == 0) {
-                $errors[] = "Offer ID is not Valid.";
-            }
-        } else {
-            $errors[] = "Offer ID is missing";
-        }
-        //creative ok?
-        if (isset($deploy['creative_id'])) {
-            $count = DB::select("Select count(*) as count from creatives where id = :id and is_approved = 'Y' and status = 'A'", ['id' => $deploy['creative_id']])[0];
-            if ($count->count == 0) {
-                $errors[] = "Creative is not active or wrong";
-            }
-        } else {
-            $errors[] = "Creative ID is missing";
-        }
-        //from ok?
-        if (isset($deploy['from_id'])) {
-            $count = DB::select("Select count(*) as count from froms where id = :id and is_approved = 1 and status = 'A'", ['id' => $deploy['from_id']])[0];
-            if ($count->count == 0) {
-                $errors[] = "From is not active or wrong";
-            }
-        } else {
-            $errors[] = "From  ID is missing";
-        }
-        //subject ok?
-        if (isset($deploy['subject_id'])) {
-            $count = DB::select("Select count(*) as count from subjects where id = :id and is_approved = 1 and status = 'A'", ['id' => $deploy['subject_id']])[0];
-            if ($count->count == 0) {
-                $errors[] = "Subject is not active or wrong";
-            }
-        } else {
-            $errors[] = "Subject Id is missing";
-        }
-        //template_ok
-        if (isset($deploy['template_id'])) {
-            $count = DB::select("Select count(*) as count from mailing_templates where id = :id", ['id' => $deploy['template_id']])[0];
-            if ($count->count == 0) {
-                $errors[] = "Template ID is not active or wrong";
-            }
-        } else {
-            $errors[] = "Template ID is missing";
-        }
-        //mailing domain
-        if (isset($deploy['mailing_domain_id'])) {
-            $count = DB::select("Select count(*) as count from domains where id = :id and domain_type = 1", ['id' => $deploy['mailing_domain_id']])[0];
-            if ($count->count == 0) {
-                $errors[] = "Mailing Domain ID is invalid or not Mailing Domain";
-            }
-        } else {
-            $errors[] = "Mailing Domain is missing";
-        }
-        //content domain
-        if (isset($deploy['content_domain_id'])) {
-            $count = DB::select("Select count(*) as count from domains where id = :id and domain_type = 2", ['id' => $deploy['content_domain_id']])[0];
-            if ($count->count == 0) {
-                $errors[] = "Content Domain is invalid or not content domain";
-            }
-        } else {
-            $errors[] = "Content Domain is missing";
-        }
-        //list profile
-        if (isset($deploy['list_profile_id'])) {
-            $count = DB::select("Select count(*) as count from list_profiles where id = :id", ['id' => $deploy['list_profile_id']])[0];
-            if ($count->count == 0) {
-                $errors[] = "List Profile is not active or wrong";
-            }
-        } else {
-            $errors[] = "List Profile ID is missing";
-        }
-        //cake
-
-        if (isset($deploy['cake_affiliate_id'])) {
-        $count = DB::connection('mt1_data')->select("Select count(*) as count from EspAdvertiserJoin where affiliateID = :id",['id'=> $deploy['deploy_id']])[0];
-        if($count->count == 0){
-            $errors[] = "Cake Affiliate is wrong";
-         } } else {
-            $errors[] = "Cake Affiliate ID is missing";
-        }
-
-        if (isset($deploy['encrypt_cake'])) {
-            if($deploy['encrypt_cake'] != '1' || $deploy['encrypt_cake'] !='0');{
-                $errors[] = "Encrypt Cake Value is wrong";
-            }
-        } else {
-                $errors[] = "Encrypt Cake Links options is missing";
-        }
-
-        if (isset($deploy['fully_encrypt'])) {
-            if($deploy['fully_encrypt'] != '1' || $deploy['fully_encrypt'] !='0'){
-                $errors[] = "Full Encrypt Value is wrong";
-            }
-        } else {
-            $errors[] = "Full Encrypt Links options is missing";
-        }
-
-        if (isset($deploy['url_format'])) {
-            $options = ['new',"old","gmail"];
-            if(!in_array($deploy['url_format'],$options)){
-                $errors[] = "Url Format is wrong";
-            }
-        } else {
-            $errors[] = "Url Format is missing";
-        }
+        $otherErrors = $this->validateDeploy($deploy);
+        return array_merge($errors,$otherErrors);
 
 
-
-        return $errors;
     }
 
     public function massInsert($data){
         foreach($data as $row){
             $row['id'] = $row['deploy_id'];
-            $row['send_date'] = $row['deploy_date'];
             unset($row['deploy_id']);
-            unset($row['deploy_date']);
             unset($row['valid']);
             $this->deploy->updateOrCreate(['id'=> $row['id']],$row);
         }
@@ -274,7 +144,7 @@ class DeployRepo
 
     public function returnCsvHeader()
     {
-        return ['deploy_id', "deploy_date", "esp_account_id", "offer_id", "creative_id", "from_id", "subject_id", "template_id",
+        return ['deploy_id', "send_date", "esp_account_id", "offer_id", "creative_id", "from_id", "subject_id", "template_id",
             "mailing_domain_id", "content_domain_id", "list_profile_id", "cake_affiliate_id","encrypt_cake", "fully_encrypt", "url_format", "notes"];
     }
 
@@ -337,5 +207,150 @@ class DeployRepo
                 IFNULL(subjects.subject_line, "DATA IS MISSING") as subject_line,
                 IFNULL(froms.from_line, "DATA IS MISSING") as from_line,
                 IFNULL(creatives.file_name, "DATA IS MISSING") as creative')->get();
+    }
+
+    public function duplicateDomainToDate($deployId, $date){
+        $deploy = $this->deploy->find($deployId);
+        $newDeploy = $deploy->replicate();
+        $newDeploy->send_date = $date;
+        return  $newDeploy;
+    }
+
+    public function validateDeploy($deploy){
+        $errors = array();
+        if (isset($deploy['esp_account_id'])) {
+            $count = DB::select("Select count(*) as count from esp_accounts where id = :id", ['id' => $deploy['esp_account_id']])[0];
+            if ($count->count == 0) {
+                $errors[] = "Esp Account ID is not Valid.";
+            }
+        } else {
+            $errors[] = "Esp Account ID is missing";
+        }
+
+        if (isset($deploy['send_date'])) {
+            // exclude_days is a 7 char string of Y/N
+            $days = DB::select("Select exclude_days from offers where id = :id", ['id' => $deploy['offer_id']])[0];
+            // value below is 0-indexed with Sun as 0 and Sat as 6
+            $dayOfWeek = Carbon::parse($deploy['send_date'])->dayOfWeek;
+            // 'N' means that the offer is not excluded and can be mailed
+            if ($days->exclude_days[$dayOfWeek] !== 'N'){
+                $errors[] = "Offer cannot be deployed on this day";
+            }
+        } else {
+            $errors[] = "Deploy Date is missing";
+        }
+        //offer real?
+        if (isset($deploy['offer_id'])) {
+            $count = DB::select("Select count(*) as count from offers where id = :id", ['id' => $deploy['offer_id']])[0];
+            if ($count->count == 0) {
+                $errors[] = "Offer ID is not Valid.";
+            }
+        } else {
+            $errors[] = "Offer ID is missing";
+        }
+        //creative ok?
+        if (isset($deploy['creative_id'])) {
+            $count = DB::select("Select count(*) as count from creatives where id = :id and is_approved = '1' and status = 'A'", ['id' => $deploy['creative_id']])[0];
+            if ($count->count == 0) {
+                $errors[] = "Creative is not active or wrong";
+            }
+        } else {
+            $errors[] = "Creative ID is missing";
+        }
+        //from ok?
+        if (isset($deploy['from_id'])) {
+            $count = DB::select("Select count(*) as count from froms where id = :id and is_approved = 1 and status = 'A'", ['id' => $deploy['from_id']])[0];
+            if ($count->count == 0) {
+                $errors[] = "From is not active or wrong";
+            }
+        } else {
+            $errors[] = "From  ID is missing";
+        }
+        //subject ok?
+        if (isset($deploy['subject_id'])) {
+            $count = DB::select("Select count(*) as count from subjects where id = :id and is_approved = 1 and status = 'A'", ['id' => $deploy['subject_id']])[0];
+            if ($count->count == 0) {
+                $errors[] = "Subject is not active or wrong";
+            }
+        } else {
+            $errors[] = "Subject Id is missing";
+        }
+        //template_ok
+        if (isset($deploy['template_id'])) {
+            $count = DB::select("Select count(*) as count from mailing_templates where id = :id", ['id' => $deploy['template_id']])[0];
+            if ($count->count == 0) {
+                $errors[] = "Template ID is not active or wrong";
+            }
+        } else {
+            $errors[] = "Template ID is missing";
+        }
+        //mailing domain
+        if (isset($deploy['mailing_domain_id'])) {
+            $count = DB::select("Select count(*) as count from domains where id = :id and domain_type = 1", ['id' => $deploy['mailing_domain_id']])[0];
+            if ($count->count == 0) {
+                $errors[] = "Mailing Domain ID is invalid or not Mailing Domain";
+            }
+        } else {
+            $errors[] = "Mailing Domain is missing";
+        }
+
+        //content domain
+        if (isset($deploy['content_domain_id'])) {
+            $count = DB::select("Select count(*) as count from domains where id = :id and domain_type = 2", ['id' => $deploy['content_domain_id']])[0];
+            if ($count->count == 0) {
+                $errors[] = "Content Domain is invalid or not content domain";
+            } else {
+                $errors[] = "Content Domain is missing";
+            }
+        }
+
+        //list profile for now commented out
+        /**
+        if (isset($deploy['list_profile_id'])) {
+        $count = DB::select("Select count(*) as count from list_profiles where id = :id", ['id' => $deploy['list_profile_id']])[0];
+        if ($count->count == 0) {
+        $errors[] = "List Profile is not active or wrong";
+        }
+        } else {
+        $errors[] = "List Profile ID is missing";
+        }
+         **/
+        //cake
+
+        if (isset($deploy['cake_affiliate_id'])) {
+            $count = DB::connection('mt1_data')->select("Select count(*) as count from EspAdvertiserJoin where affiliateID = :id", ['id' => $deploy['cake_affiliate_id']])[0];
+            if ($count->count == 0) {
+                $errors[] = "Cake Affiliate is wrong";
+            } else {
+                $errors[] = "Cake Affiliate ID is missing";
+            }
+        }
+
+        if (isset($deploy['encrypt_cake'])) {
+            if($deploy['encrypt_cake'] != '1' && $deploy['encrypt_cake'] != '0'){
+                $errors[] = "Encrypt Cake Value is wrong";
+            }
+        } else {
+            $errors[] = "Encrypt Cake Links options is missing";
+        }
+
+        if (isset($deploy['fully_encrypt'])) {
+            if($deploy['fully_encrypt'] != '1' && $deploy['fully_encrypt'] != '0'){
+                $errors[] = "Full Encrypt Value is wrong";
+            }
+        } else {
+            $errors[] = "Full Encrypt Links options is missing";
+        }
+
+        if (isset($deploy['url_format'])) {
+            $options = ['new',"old","gmail"];
+            if(!in_array($deploy['url_format'],$options)){
+                $errors[] = "Url Format is wrong";
+            }
+        } else {
+            $errors[] = "Url Format is missing";
+        }
+
+        return $errors;
     }
 }

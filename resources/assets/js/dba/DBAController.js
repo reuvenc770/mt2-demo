@@ -16,7 +16,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     self.pageCount = 0;
     self.paginationCount = '10';
     self.currentPage = 1;
-    self.poBoxHolder = {};
+    self.poBoxHolder = [];
     self.accountTotal = 0;
     self.sort = "-status";
     self.queryPromise = null;
@@ -77,19 +77,19 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
 
     self.addPOBox = function () {
         if(self.po_box.address.length >= 1 || self.po_box.state.length >= 1) {
-            self.currentAccount.po_boxes.push(self.po_box);
+            self.poBoxHolder.push(self.po_box);
             self.clearPOBox();
         }
     };
 
     self.removePOBox = function (id) {
-        self.currentAccount.po_boxes.splice( id , 1 );
+        self.poBoxHolder.splice( id , 1 );
 
     };
 
     self.editPOBox = function (id) {
-        self.po_box = self.currentAccount.po_boxes[id];
-        self.currentAccount.po_boxes.splice( id , 1 );
+        self.po_box = self.poBoxHolder[id];
+        self.poBoxHolder.splice( id , 1 );
     };
 
     self.clearPOBox = function () {

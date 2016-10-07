@@ -13,6 +13,9 @@ use DB;
 class EmailRepo {
 
     private $emailModel;
+    private $batchEmails = [];
+    private $batchEmailCount = 0;
+    const INSERT_THRESHOLD = 10000;
 
     public function __construct(Email $emailModel) {
         $this->emailModel = $emailModel;
@@ -32,6 +35,24 @@ class EmailRepo {
         else {
             throw new \Exception("Invalid identification type for email");
         }
+    }
+
+    public function insertDelayedBatch($row) {
+        if ($this->batchEmailCount >= self::INSERT_THRESHOLD) {
+            $this->emailModel->insert($this->batchEmails);
+            $this->batchEmails = [$row];
+            $this->batchEmailCount = 1;
+        }
+        else {
+            $this->batchEmails[] = $row;
+            $this->batchEmailCount++;
+        }
+    }
+
+    public function insertStored() {
+        $this->emailModel->insert($this->batchEmails);
+        $this->batchEmails = [];
+        $this->batchEmailCount = 0;
     }
 
     public function insertCopy($emailData) {
@@ -75,7 +96,7 @@ class EmailRepo {
      *  This last case should only be a temporary problem - we don't want this situation in MT2 (and neither do they)
      */
 
-    public function getSetAttributionLevel($emailId) {
+    public function getCurrentAttributionLevel($emailId) {
         $attributionLevel = $this->emailModel->find($emailId)->feedAssignment->feed->attributionLevel;
 
         if ($attributionLevel) {
@@ -85,6 +106,18 @@ class EmailRepo {
             return 1000;
         }
         
+    }
+
+
+    public function getAttributionTruths($emailId) {
+        $email = $this->emailModel->find($emailId);
+
+        if ($email) {
+            return $email->attributionTruths;
+        }
+        else {
+            return 0;
+        }
     }
 
     /**
@@ -102,12 +135,20 @@ class EmailRepo {
         }
     }
 
+
     public function hasActions($emailId) {
         return ($this->emailModel->find($emailId)->attributionTruths->has_action == 1);
     }
 
     public function getCaptureDate($emailId) {
         return $this->emailModel->find($emailId)->feedAssignment->capture_date;
+    }
+
+    // A temporary, necessary evil
+    public function updateEmailId($oldEmailId, $newEmailId) {
+        $this->emailModel
+             ->where('id', $oldEmailId)
+             ->update(['id' => $newEmailId]);
     }
 
 }
