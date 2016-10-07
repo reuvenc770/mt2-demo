@@ -104,10 +104,38 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         $window.location.href = self.createUrl;
     };
 
-    self.saveNewAccount = function () {
+    self.saveNewAccount = function ( event, form ) {
         self.resetFieldErrors();
+
+        var errorFound = false;
+
+        angular.forEach( form.$error.required , function( field ) {
+
+            field.$setDirty();
+            field.$setTouched();
+
+            errorFound = true;
+        } );
+
+        if ( errorFound ) {
+            $mdToast.showSimple( 'Please fix errors and try again.' );
+
+            return false;
+        };
+
         self.currentAccount.proxy = self.selectedProxy.id;
-        DomainService.saveNewAccount(self.currentAccount, self.SuccessCallBackRedirect, self.saveNewAccountFailureCallback);
+        DomainService.saveNewAccount(self.currentAccount, self.SuccessCallBackRedirect, function(response){
+            angular.forEach( response.data , function( error , fieldName ) {
+
+                form[ fieldName ].$setDirty();
+                form[ fieldName ].$setTouched();
+                form[ fieldName ].$setValidity('isValid' , false);
+
+            });
+
+            self.saveNewAccountFailureCallback(response);
+        });
+
     };
 
     self.editAccount = function () {

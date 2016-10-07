@@ -39,10 +39,9 @@
                         <tr md-row ng-repeat="record in esp.accounts track by $index">
                             <td md-cell>
                                 <div layout="row" layout-align="center center">
-                                    <md-button class="md-raised"
-                                        ng-class="{'md-icon-button mt2-icon-button-xs' : app.isMobile() , 'mt2-button-xs' : !app.isMobile() }"
-                                        ng-href="@{{ '/espapi/edit/' + record.id }}" target="_self">
-                                        <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon><span ng-show="!app.isMobile()"> Edit</span>
+                                    <md-button class="md-icon-button" ng-href="@{{ '/espapi/edit/' + record.id }}" aria-label="Edit" target="_self">
+                                        <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon>
+                                        <md-tooltip md-direction="bottom">Edit</md-tooltip>
                                     </md-button>
                                 </div>
                             </td>
@@ -50,8 +49,8 @@
                             <td md-cell>@{{ record.account_name }}</td>
                             <td md-cell>@{{ record.key_1 }}</td>
                             <td md-cell>@{{ record.key_2 }}</td>
-                            <td md-cell>@{{ record.created_at }}</td>
-                            <td md-cell>@{{ record.updated_at }}</td>
+                            <td md-cell nowrap>@{{ record.created_at }}</td>
+                            <td md-cell nowrap>@{{ record.updated_at }}</td>
                         </tr>
                     </tbody>
                 </table>

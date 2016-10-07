@@ -1,4 +1,4 @@
-mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' , 'FeedApiService', '$mdToast', function ( $rootScope , $window , $location , FeedApiService, $mdToast ) {
+mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' , 'FeedApiService', '$mdToast', '$mdDialog', function ( $rootScope , $window , $location , FeedApiService, $mdToast , $mdDialog ) {
     var self = this;
 
     self.current = {
@@ -98,10 +98,17 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
                 self.generateLinksFailureCallback
             );
         } else {
-            $( '#urlModal' ).modal('show');
+            $mdDialog.show({
+                contentElement: '#urlModal',
+                clickOutsideToClose: true,
+                disableParentScroll: false
+            });
         }
     };
 
+    self.closeUrlModal = function () {
+        $mdDialog.cancel();
+    };
     /**
      * Watchers
      */
@@ -173,8 +180,27 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
 
     };
 
-    self.saveFeed = function () {
+    self.saveFeed = function ( event , form ) {
         self.resetFieldErrors();
+
+        var errorFound = false;
+
+        angular.forEach( form.$error.required , function( field ) {
+            field.$setDirty();
+            field.$setTouched();
+
+            if ( field.$name == 'state' ) {
+                form.state.$error.required = true;
+            }
+
+            errorFound = true;
+        } );
+
+        if ( errorFound ) {
+            $mdToast.showSimple( 'Please fix errors and try again.' );
+
+            return false;
+        };
 
         var feedData = angular.copy( self.current );
 
@@ -182,7 +208,16 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
         feedData.newFeed = 1;
         feedData.feed_type = self.current.feed_type.value;
 
-        FeedApiService.saveFeed( feedData , self.SuccessCallBackRedirect , self.saveFeedFailureCallback );
+        FeedApiService.saveFeed( feedData , self.SuccessCallBackRedirect , function( response ) {
+            angular.forEach( response.data , function( error , fieldName ) {
+
+                form[ fieldName ].$setDirty();
+                form[ fieldName ].$setTouched();
+                form[ fieldName ].$setValidity('isValid' , false);
+            });
+
+            self.saveFeedFailureCallback( response );
+        });
     };
 
     self.viewAdd = function () {
@@ -313,7 +348,11 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
 
         self.urlList = response.data;
 
-        $( '#urlModal' ).modal('show');
+        $mdDialog.show({
+            contentElement: '#urlModal',
+            clickOutsideToClose: true,
+            disableParentScroll: false
+        });
     };
 
     self.generateLinksFailureCallback = function ( response ) {

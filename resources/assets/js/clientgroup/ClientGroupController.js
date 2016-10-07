@@ -1,4 +1,4 @@
-mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window' , '$location' , 'ClientGroupApiService' , 'FeedApiService' , function ( $rootScope , $log , $window , $location , ClientGroupApiService , FeedApiService ) {
+mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window' , '$location' , 'ClientGroupApiService' , 'FeedApiService' , '$mdToast' , function ( $rootScope , $log , $window , $location , ClientGroupApiService , FeedApiService , $mdToast ) {
     /**
      * Contants
      */
@@ -121,8 +121,29 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
         $window.location.href = self.createUrl;
     };
 
-    self.saveClientGroup = function ( event ) {
+    self.saveClientGroup = function ( event , form ) {
         self.resetFieldErrors();
+
+        var errorFound = false;
+
+        angular.forEach( form.$error.required , function( field ) {
+            field.$setDirty();
+            field.$setTouched();
+
+            errorFound = true;
+        } );
+
+        if (self.selectedClients.length < 1) {
+            self.setFieldError( 'clients' , 'At least 1 client is required.' );
+            errorFound = true;
+        }
+
+        if ( errorFound ) {
+            $mdToast.showSimple( 'Please fix errors and try again.' );
+
+            return false;
+        };
+
         self.creatingClientGroup = true;
 
         var requestData = self.current;
@@ -231,6 +252,10 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
         angular.forEach( self.selectedClients , function ( client , clientIndex ) {
             clientIdList.push( client[ self.clientIdField ] );
         } );
+
+        if (clientIdList.length > 0) {
+            self.formErrors.clients = "";
+        }
 
         self.current.clients = clientIdList.join( "\n" );
     };

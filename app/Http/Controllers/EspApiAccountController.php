@@ -48,7 +48,7 @@ class EspApiAccountController extends Controller
     }
 
     public function returnAll(){
-        return  response()->json($this->espAccountService->getAllAccounts());
+        return  response()->json( array_values( $this->espAccountService->getAllAccounts()->toArray() ));
     }
 
     /**

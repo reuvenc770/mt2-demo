@@ -71,6 +71,27 @@ ul[dnd-list] .dndPlaceholder {
 }
 
 /**
+ * Label Styles
+ */
+.mt2-label{
+    display: inline;
+    padding: .2em .6em .3em;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: .25em;
+}
+.mt2-label-info{
+    background-color: #5bc0de;
+}
+.mt2-label-default{
+    background-color: #777777;
+}
+.mt2-label-success{
+    background-color: #5cb85c;
+}
+/**
  * Materials Overrides
  */
 md-menu-content.md-mt2-zeta-theme md-menu-item {
@@ -82,6 +103,9 @@ md-menu-content.md-mt2-zeta-theme md-menu-item {
  */
 @import "node_modules/angular-material-data-table/dist/md-data-table.min";
 
+table.md-table:not(.md-row-select) td.md-cell:nth-child(n+2):nth-last-child(n+2), table.md-table:not(.md-row-select) th.md-column:nth-child(n+2):nth-last-child(n+2){
+    padding: 0 28px 0 0;
+}
 .md-table-header-override-whitetext , .md-table-header-override-whitetext .md-sort-icon {
     color: rgba(255, 255, 255, 0.87) !important;
 }
@@ -109,6 +133,10 @@ table.md-table.md-row-select tbody.md-body > tr.md-row:not([disabled]):hover {
 
 .no-padding {
     padding:0px;
+}
+
+.no-margin {
+    margin: 0px;
 }
 
 .mt2-bg-success {
@@ -162,6 +190,14 @@ th md-checkbox.md-mt2-zeta-theme:not(.md-checked) .md-icon {
 /*
  * Button Styling
  */
+ md-icon.md-mt2-zeta-theme.mt2-icon-black{
+    color: #000000;
+ }
+
+ md-icon.md-mt2-zeta-theme.mt2-icon-white{
+    color: #ffffff;
+ }
+
 .md-button.mt2-button-xs{
     padding: 0 5px;
     margin: 5px;
@@ -193,7 +229,20 @@ a.md-button.md-mt2-zeta-theme.md-raised.mt2-button-success:not([disabled]):hover
     background-color: #5cb85c;
 }
 
-
+.mt2-button-option{
+    margin: 6px 0;
+}
+.mt2-button-option[disabled]{
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+}
+.mt2-button-option-left{
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+}
+.mt2-button-option-right{
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+}
 /*
  * Materials Menu Styling
  */
@@ -302,6 +351,9 @@ body {
 /**
  * Fields
  */
+ md-input-container{
+    margin: 18px 0 10px;
+ }
 .btn {
     margin: .5em;
 }
@@ -331,7 +383,28 @@ body {
 .membershipBox {
     height: 300px;
 }
+.md-button.md-mt2-zeta-theme.mt2-button-save{
+    font-weight: 600;
+    font-size: 16px;
+    color: #ffffff;
+    background-color: rgb(180,215,76);
 
+    &:not([disabled]):hover{
+        background-color: rgb(166,201,43);
+    }
+}
+
+.md-chips {
+    font-size: inherit;
+}
+
+md-chips.md-mt2-zeta-theme.ng-invalid .md-chips {
+    box-shadow: 0 2px rgb(221,44,0);
+}
+
+.mt2-error-message {
+    color: rgb(221,44,0);
+}
 /**
  * Lists
  */

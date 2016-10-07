@@ -69,11 +69,40 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
         $window.location.href = self.createUrl;
     };
 
-    self.saveNewAccount = function () {
+    self.saveNewAccount = function ( event , form ) {
         self.formsubmitted = true;
         self.resetFieldErrors();
+
+        var errorFound = false;
+
+        angular.forEach( form.$error.required , function( field ) {
+            field.$setDirty();
+            field.$setTouched();
+
+            if ( field.$name == 'state' ) {
+                form.state.$error.required = true;
+            }
+
+            errorFound = true;
+        } );
+
+        if ( errorFound ) {
+            $mdToast.showSimple( 'Please fix errors and try again.' );
+
+            return false;
+        };
+
         self.currentAccount.status = 1;
-        RegistrarApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback );
+        RegistrarApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , function (response) {
+            angular.forEach( response.data , function( error , fieldName ) {
+
+                form[ fieldName ].$setDirty();
+                form[ fieldName ].$setTouched();
+                form[ fieldName ].$setValidity('isValid' , false);
+            });
+
+            self.saveNewAccountFailureCallback(response);
+        });
     };
 
     self.editAccount = function () {

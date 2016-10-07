@@ -1,21 +1,29 @@
-<div class="panel panel-primary" ng-init="clientGroup.prepopPage()">
-    <div class="panel-heading">
-        <h3 class="panel-title">Client Group Details</h3>
-    </div>
-
-    <div class="panel-body">
-        <div class="form-group" ng-class="{ 'has-error' : clientGroup.formErrors.groupName }">
-            <input type="text" class="form-control" id="groupName" value="" placeholder="Client Group Name" ng-model="clientGroup.current.groupName" required="required" />
-
-            <span class="help-block" ng-bind="clientGroup.formErrors.groupName" ng-show="clientGroup.formErrors.groupName"></span>
+<md-card>
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <span>Feed Group Details</span>
         </div>
-        <div ng-class="{ 'has-error' : clientGroup.formErrors.clients }">
-        <membership-widget recordlist="clientGroup.clientList" chosenrecordlist="clientGroup.selectedClients" availablecardtitle="clientGroup.availableWidgetTitle" chosenrecordtitle="clientGroup.chosenWidgetTitle" idfield="clientGroup.clientIdField" namefield="clientGroup.clientNameField" updatecallback="clientGroup.clientMembershipCallback()" widgetname="clientGroup.widgetName"></membership-widget>
-            <span class="help-block" ng-bind="clientGroup.formErrors.clients" ng-show="clientGroup.formErrors.clients"></span>
-        </div>
-        <div class="form-group">
-            <md-switch ng-true-value="'Y'" ng-false-value="'N'" ng-model="clientGroup.current.excludeFromSuper" aria-label="Exclude From Super">Exclude From Super</md-switch>
-        </div>
-    </div>
-</div>
+    </md-toolbar>
+    <md-card-content>
+        <form name="feedGroupForm" layout="column" novalidate>
+            <md-input-container>
+                <label>Feed Group Name</label>
+                <input type="text" name="groupName" id="groupName" ng-required="true" ng-model="clientGroup.current.groupName">
 
+                <div ng-messages="feedGroupForm.groupName.$error">
+                    <div ng-message="required">Feed group name is required.</div>
+                </div>
+            </md-input-container>
+
+            <div>
+                <membership-widget recordlist="clientGroup.clientList" chosenrecordlist="clientGroup.selectedClients" availablecardtitle="clientGroup.availableWidgetTitle" chosenrecordtitle="clientGroup.chosenWidgetTitle" idfield="clientGroup.clientIdField" namefield="clientGroup.clientNameField" updatecallback="clientGroup.clientMembershipCallback()" widgetname="clientGroup.widgetName"></membership-widget>
+
+                <span class="mt2-error-message" ng-bind="clientGroup.formErrors.clients" ng-show="clientGroup.formErrors.clients"></span>
+            </div>
+
+            <div>
+                 <md-switch ng-true-value="'Y'" ng-false-value="'N'" ng-model="clientGroup.current.excludeFromSuper" aria-label="Exclude From Super">Exclude From Super</md-switch>
+            </div>
+        </form>
+    </md-card-content>
+</md-card>

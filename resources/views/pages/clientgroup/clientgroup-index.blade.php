@@ -1,14 +1,14 @@
 @extends( 'layout.default' )
 
-@section( 'title' , 'Client Group' )
+@section( 'title' , 'Feed Group' )
 
 @section( 'angular-controller' , 'ng-controller="ClientGroupController as clientGroup"' )
 
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('clientgroup.add'))
-        <md-button ng-click="clientGroup.viewAdd()" aria-label="Add Client Group">
-            <md-icon ng-show="app.isMobile()" md-svg-src="img/icons/ic_add_circle_outline_black_24px.svg"></md-icon>
-            <span ng-hide="app.isMobile()">Add Client Group</span>
+        <md-button ng-click="clientGroup.viewAdd()" aria-label="Add Feed Group">
+            <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-show="app.isMobile()">add_circle_outline</md-icon>
+            <span ng-hide="app.isMobile()">Add Feed Group</span>
         </md-button>
     @endif
 @stop
@@ -33,19 +33,22 @@
                                 <div layout="row" layout-align="center center">
                                     <md-button class="md-icon-button" aria-label="View Feeds"
                                                 ng-click="clientGroup.clientFeedMap[record.id]=!clientGroup.clientFeedMap[record.id]">
-                                        <md-icon md-svg-icon="img/icons/ic_expand_more_black_18px.svg" ng-hide="clientGroup.clientFeedMap[record.id]"></md-icon>
-                                        <md-icon md-svg-icon="img/icons/ic_expand_less_black_18px.svg" ng-show="clientGroup.clientFeedMap[record.id]"></md-icon>
+                                        <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-hide="clientGroup.clientFeedMap[record.id]">expand_more</md-icon>
+                                        <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-show="clientGroup.clientFeedMap[record.id]">expand_less</md-icon>
                                     </md-button>
-                                    <md-button class="md-raised" ng-class="{'md-icon-button mt2-icon-button-xs' : app.isMobile() , 'mt2-button-xs' : !app.isMobile() }" ng-href="@{{ '/clientgroup/edit/' + record.id }}" target="_self">
-                                        <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon><span ng-hide="app.isMobile()"> Edit</span>
-                                    </md-button>
-
-                                    <md-button class="md-raised md-accent" ng-class="{'md-icon-button mt2-icon-button-xs' : app.isMobile() , 'mt2-button-xs' : !app.isMobile() }" ng-click="clientGroup.copyClientGroup( record.id )">
-                                        <md-icon md-svg-icon="img/icons/ic_content_copy_white_18px.svg"></md-icon><span ng-hide="app.isMobile()"> Copy</span>
+                                    <md-button class="md-icon-button" ng-href="@{{ '/clientgroup/edit/' + record.id }}" target="_self" aria-label="Edit">
+                                        <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
+                                        <md-tooltip md-direction="bottom">Edit</md-tooltip>
                                     </md-button>
 
-                                    <md-button class="md-raised md-warn md-hue-2" ng-class="{'md-icon-button mt2-icon-button-xs' : app.isMobile() , 'mt2-button-xs' : !app.isMobile() }" ng-click="ctrl.deletegroup( { groupID : record.id } )">
-                                        <md-icon md-svg-icon="img/icons/ic_clear_white_24px.svg"></md-icon><span ng-hide="app.isMobile()"> Delete</span>
+                                    <md-button class="md-icon-button" ng-click="clientGroup.copyClientGroup( record.id )" aria-label="Copy">
+                                        <md-icon md-font-set="material-icons" class="mt2-icon-black">content_copy</md-icon>
+                                        <md-tooltip md-direction="bottom">Copy</md-tooltip>
+                                    </md-button>
+
+                                    <md-button class="md-icon-button" ng-click="ctrl.deletegroup( { groupID : record.id } )" aria-label="Delete">
+                                        <md-icon md-font-set="material-icons" class="mt2-icon-black">clear</md-icon>
+                                        <md-tooltip md-direction="bottom">Delete</md-tooltip>
                                     </md-button>
                                 </div>
                             </td>

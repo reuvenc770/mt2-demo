@@ -18,8 +18,14 @@
         <tr md-row ng-repeat="record in domain.domains track by $index">
             <td md-cell>
                 <div layout="row" layout-align="center center">
-                    <md-button ng-if="record.status == 1" class="md-raised md-accent mt2-button-xs" ng-click="domain.toggle( record.dom_id, 0 )">Deactivate</md-button>
-                    <md-button ng-if="record.status == 0" class="md-raised md-accent mt2-button-xs" ng-click="domain.toggle( record.dom_id, 1 )">Activate</md-button>
+                    <md-button ng-if="record.status == 1" class="md-icon-button" ng-click="domain.toggle( record.dom_id, 0 )">
+                        <md-icon md-font-set="material-icons" class="mt2-icon-black">pause</md-icon>
+                        <md-tooltip md-direction="bottom">Deactivate</md-tooltip>
+                    </md-button>
+                    <md-button ng-if="record.status == 0" class="md-icon-button" ng-click="domain.toggle( record.dom_id, 1 )">
+                        <md-icon md-font-set="material-icons" class="mt2-icon-black">play_arrow</md-icon>
+                        <md-tooltip md-direction="bottom">Activate</md-tooltip>
+                    </md-button>
                 </div>
             </td>
             <td md-cell class="mt2-table-cell-center" ng-class="{ 'mt2-bg-success' : record.status == 1 , 'mt2-bg-danger' : record.status == 0 }">

@@ -36,4 +36,11 @@ class EditDBARequest extends Request
             'registrant_name' => 'required',
         ];
     }
+
+    public function messages ()
+    {
+        return [
+            'dba_email.email' => 'Email is not in a valid format.'
+        ];
+    }
 }

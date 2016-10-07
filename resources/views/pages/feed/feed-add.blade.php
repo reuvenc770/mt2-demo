@@ -4,26 +4,29 @@
 
 @section( 'navClientClasses' , 'active' )
 
+@section( 'angular-controller' , 'ng-controller="FeedController as feed"' )
+
 @section( 'content' )
-<div class="row">
-    <div class="page-header col-xs-12"><h1 class="text-center">Add Feed</h1></div>
-</div>
+<md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
 
-<div ng-controller="FeedController as feed">
-    <div class="row">
-        <div class="hidden-xs hidden-sm col-md-3"></div>
+    <div flex-gt-md="50" flex="100">
+        <div layout="row" layout-align="end end">
+            <md-button layout="row" class="md-raised md-accent" ng-disabled="feed.creatingFeed" ng-click="feed.saveFeed( $event , feedForm )">
+                <md-icon class="material-icons" md-font-set="material-icons" ng-hide="feed.creatingFeed">save</md-icon>
+                <md-progress-circular ng-show="feed.creatingFeed" md-mode="indeterminate" md-diameter="16"></md-progress-circular> <span flex>Save</span>
+            </md-button>
+        </div>
 
-        <div class="col-xs-12 col-md-6">
-            <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disabled' : feed.creatingFeed }" ng-click="feed.saveFeed( $event )"><span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : feed.creatingFeed }"></span> Save</button>
+        @include( 'pages.feed.feed-form' )
 
-            <div class="clearfix"></div>
-
-            @include( 'pages.feed.feed-form' )
-
-            <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disabled' : feed.creatingFeed }" ng-click="feed.saveFeed( $event )"><span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : feed.creatingFeed }"></span> Save</button>
+        <div layout="row" layout-align="end end">
+            <md-button layout="row" class="md-raised md-accent" ng-disabled="feed.creatingFeed" ng-click="feed.saveFeed( $event , feedForm )">
+                <md-icon class="material-icons" md-font-set="material-icons" ng-hide="feed.creatingFeed">save</md-icon>
+                <md-progress-circular ng-show="feed.creatingFeed" md-mode="indeterminate" md-diameter="16"></md-progress-circular> <span flex>Save</span>
+            </md-button>
         </div>
     </div>
-</div>
+</md-content>
 @stop
 
 @section( 'pageIncludes' )
