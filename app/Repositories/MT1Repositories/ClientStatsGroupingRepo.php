@@ -25,4 +25,8 @@ class ClientStatsGroupingRepo
     public function getListOwnerName ( $listOwnerId ) {
         return $this->clientGrouping->where( 'clientStatsGroupingID' , $listOwnerId )->pluck( 'clientStatsGroupingLabel' )->pop();
     } 
+
+    public function pullForSync($lookback) {
+        return $this->clientGrouping;
+    }
 }
