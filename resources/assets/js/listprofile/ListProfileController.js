@@ -9,7 +9,10 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , 'Client
     self.current = {
         'name' : '' ,
         'countries' : [] ,
-        'feeds' : {},
+        'feeds' : {} ,
+        'isps' : {} ,
+        'categories' : {} ,
+        'offers' : {} ,
         'suppression' : {
             'global' : '' ,
             'list' : '' ,
@@ -41,6 +44,21 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , 'Client
     self.clientFeedMap = {};
     self.feedNameMap = {};
     self.feedVisibility = {};
+
+    self.highlightedIsps = [];
+    self.highlightedIspsForRemoval = [];
+    self.ispVisibility = [];
+    self.ispNameMap = {};
+
+    self.highlightedCategories = [];
+    self.highlightedCategoriesForRemoval = [];
+    self.categoryVisibility = [];
+    self.categoryNameMap = {};
+
+    self.highlightedOffers = [];
+    self.highlightedOffersForRemoval = [];
+    self.offerVisibility = [];
+    self.offerNameMap = {};
 
     self.columnList = [
         { 'header' : 'email_id' , 'label' : 'Email ID' },
@@ -123,6 +141,67 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , 'Client
         self.feedClientFilters = [];
 
         self.updateFeedVisibility();
+    };
+
+    self.addIsps = function () {
+        angular.forEach( self.highlightedIsps , function ( ispId ) {
+            self.ispVisibility[ ispId ] = false;
+
+            self.current.isps[ ispId ] = self.ispNameMap[ ispId ];
+        } );
+
+        self.highlightedIsps = [];
+    };
+
+    self.removeIsps = function () {
+        angular.forEach( self.highlightedIspsForRemoval , function ( ispId ) {
+            self.ispVisibility[ ispId ] = true;
+
+            delete( self.current.isps[ ispId ] );
+        } );
+
+        self.highlightedIspsForRemoval = [];
+    };
+
+
+    self.addCategories = function () {
+        angular.forEach( self.highlightedCategories , function ( categoryId ) {
+            self.categoryVisibility[ categoryId ] = false;
+
+            self.current.categories[ categoryId ] = self.categoryNameMap[ categoryId ];
+        } );
+
+        self.highlightedCategories = [];
+    };
+
+    self.removeCategories = function () {
+        angular.forEach( self.highlightedCategoriesForRemoval , function ( categoryId ) {
+            self.categoryVisibility[ categoryId ] = true;
+
+            delete( self.current.categories[ categoryId ] );
+        } );
+
+        self.highlightedCategoriesForRemoval = [];
+    };
+
+    self.addOffers = function () {
+        angular.forEach( self.highlightedOffers , function ( offerId ) {
+            self.offerVisibility[ offerId ] = false;
+
+            self.current.offers[ offerId ] = self.offerNameMap[ offerId ];
+        } );
+
+        self.highlightedOffers = [];
+    };
+
+    self.removeOffers = function () {
+        angular.forEach( self.highlightedOffersForRemoval , function ( offerId ) {
+            self.offerVisibility[ offerId ] = true;
+
+            delete( self.current.offers[ offerId ] );
+        } );
+
+        self.highlightedOffersForRemoval = [];
     };
 
     self.toggleSelection = function (gender) {

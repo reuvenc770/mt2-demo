@@ -183,8 +183,130 @@
         <md-divider></md-divider>
 
         <md-card-content>
-            <!-- ISP/category/offer fields -->
-        </md-card-content>
+        <div layout="row" layout-align="space-around stretch">
+            <md-card flex>
+                <md-card-title>
+                    <h4>Available ISP Groups</h4>
+
+                    <span flex></span>
+
+                    <md-button class="md-icon-button" ng-click="listProfile.addIsps()">
+                        <md-icon md-font-set="material-icons" style="color: #000;">add_circle_outline</md-icon>
+                    </md-button>
+                </md-card-title>
+
+                <md-card-content>
+                    <select ng-model="listProfile.highlightedIsps" multiple style="width: 100%; height: 150px;">
+                        @foreach ( $isps as $isp )
+                        <option value="{{$isp[ 'id' ]}}" ng-init="listProfile.ispVisibility[ {{$isp[ 'id' ]}} ] = true;listProfile.ispNameMap[ {{$isp[ 'id' ]}} ] = '{{$isp[ 'name' ]}}';" ng-show="listProfile.ispVisibility[ {{$isp[ 'id' ]}} ]">{{$isp[ 'name' ]}}</option>
+                        @endforeach
+                    </select>
+                </md-card-content>
+            </md-card>
+
+            <md-card flex>
+                <md-card-title flex="nogrow">
+                    <h4>Selected ISP Groups</h4>
+
+                    <span flex></span>
+
+                    <md-button class="md-icon-button" ng-click="listProfile.removeIsps()">
+                        <md-icon md-font-set="material-icons" style="color: #000;">remove_circle_outline</md-icon>
+                    </md-button>
+                </md-card-title>
+
+                <md-card-content>
+                    <select ng-model="listProfile.highlightedIspsForRemoval" multiple="" style="width: 100%; height: 150px;">
+                        <option ng-repeat="( ispId , ispName ) in listProfile.current.isps" ng-value="::ispId">@{{::ispName}}</option>
+                    </select>
+                </md-card-content>
+            </md-card>
+        </div>
+      </md-card-content>
+
+      <md-card-content>
+        <div layout="row" layout-align="space-around stretch">
+            <md-card flex>
+                <md-card-title>
+                    <h4>Available Category Actions</h4>
+
+                    <span flex></span>
+
+                    <md-button class="md-icon-button" ng-click="listProfile.addCategories()">
+                        <md-icon md-font-set="material-icons" style="color: #000;">add_circle_outline</md-icon>
+                    </md-button>
+                </md-card-title>
+
+                <md-card-content>
+                    <select ng-model="listProfile.highlightedCategories" multiple style="width: 100%; height: 150px;">
+                        @foreach ( $categories as $category )
+                        <option value="{{$category[ 'id' ]}}" ng-init="listProfile.categoryVisibility[ {{$category[ 'id' ]}} ] = true;listProfile.categoryNameMap[ {{$category[ 'id' ]}} ] = '{{$category[ 'name' ]}}';" ng-show="listProfile.categoryVisibility[ {{$category[ 'id' ]}} ]">{{$category[ 'name' ]}}</option>
+                        @endforeach
+                    </select>
+                </md-card-content>
+            </md-card>
+
+            <md-card flex>
+                <md-card-title flex="nogrow">
+                    <h4>Selected Category Actions</h4>
+
+                    <span flex></span>
+
+                    <md-button class="md-icon-button" ng-click="listProfile.removeCategories()">
+                        <md-icon md-font-set="material-icons" style="color: #000;">remove_circle_outline</md-icon>
+                    </md-button>
+                </md-card-title>
+
+                <md-card-content>
+                    <select ng-model="listProfile.highlightedCategoriesForRemoval" multiple style="width: 100%; height: 150px;">
+                        <option ng-repeat="( categoryId , categoryName ) in listProfile.current.categories" ng-value="::categoryId">@{{::categoryName}}</option>
+                    </select>
+                </md-card-content>
+            </md-card>
+        </div>
+      </md-card-content>
+
+      <md-card-content>
+        <div layout="row" layout-align="space-around stretch">
+            <md-card flex>
+                <md-card-title>
+                    <h4>Available Offers</h4>
+
+                    <span flex></span>
+
+                    <md-button class="md-icon-button" ng-click="listProfile.addOffers()">
+                        <md-icon md-font-set="material-icons" style="color: #000;">add_circle_outline</md-icon>
+                    </md-button>
+                </md-card-title>
+
+                <md-card-content>
+                    <select ng-model="listProfile.highlightedOffers" multiple style="width: 100%; height: 150px;">
+                        @foreach ( $offers as $offer )
+                        <option value="{{$offer[ 'id' ]}}" ng-init="listProfile.offerVisibility[ {{$offer[ 'id' ]}} ] = true;listProfile.offerNameMap[ {{$offer[ 'id' ]}} ] = '{{$offer[ 'name' ]}}';" ng-show="listProfile.offerVisibility[ {{$offer[ 'id' ]}} ]">{{$offer[ 'name' ]}}</option>
+                        @endforeach
+                    </select>
+                </md-card-content>
+            </md-card>
+
+            <md-card flex>
+                <md-card-title flex="nogrow">
+                    <h4>Selected Offers</h4>
+
+                    <span flex></span>
+
+                    <md-button class="md-icon-button" ng-click="listProfile.removeOffers()">
+                        <md-icon md-font-set="material-icons" style="color: #000;">remove_circle_outline</md-icon>
+                    </md-button>
+                </md-card-title>
+
+                <md-card-content>
+                    <select ng-model="listProfile.highlightedOffersForRemoval" multiple style="width: 100%; height: 150px;">
+                        <option ng-repeat="( offerId , offerName ) in listProfile.current.offers" ng-value="::offerId">@{{::offerName}}</option>
+                    </select>
+                </md-card-content>
+            </md-card>
+        </div>
+      </md-card-content>
 
         <md-toolbar>
             <div class="md-toolbar-tools"><span>Attribute Filtering</span></div>
@@ -302,9 +424,9 @@
             <md-input-container>
                 <label>Offer Suppression</label>
                 <md-select name="offerSupp" ng-model="listProfile.current.suppression.offer" multiple>
-                    <md-option value="Offer 1">Offer 1</md-option>
-                    <md-option value="Offer 2">Offer 2</md-option>
-                    <md-option value="Offer 3">Offer 3</md-option>
+                    @foreach ( $offers as $offer )
+                    <md-option value="{{$offer[ 'id' ]}}">{{$offer[ 'name' ]}}</md-option>
+                    @endforeach
                 </md-select>
             </md-input-container>
 

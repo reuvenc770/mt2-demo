@@ -13,6 +13,9 @@ use App\Services\MT1Services\ClientStatsGroupingService;
 use App\Services\MT1Services\ClientService;
 use App\Services\MT1Services\CountryService;
 use AdrianMejias\States\States;
+use App\Services\DomainGroupService;
+use App\Models\CakeVertical;
+use App\Services\OfferService;
 
 class ListProfileController extends Controller
 {
@@ -21,6 +24,8 @@ class ListProfileController extends Controller
     protected $clientService;
     protected $mt1ClientService;
     protected $states;
+    protected $ispService;
+    protected $offerService;
 
     public function __construct (
         ListProfileService $listProfileService ,
@@ -28,7 +33,9 @@ class ListProfileController extends Controller
         ClientStatsGroupingService $clientService ,
         ClientService $mt1ClientService ,
         CountryService $mt1CountryService ,
-        States $states
+        States $states ,
+        DomainGroupService $ispService ,
+        OfferService $offerService
     ) {
         $this->listProfile = $listProfileService;
         $this->feedRepo = $feedRepo;
@@ -36,6 +43,8 @@ class ListProfileController extends Controller
         $this->mt1ClientService = $mt1ClientService;
         $this->mt1CountryService = $mt1CountryService;
         $this->states = $states;
+        $this->ispService = $ispService;
+        $this->offerService = $offerService;
     }
 
     /**
@@ -144,7 +153,10 @@ class ListProfileController extends Controller
             'clients' => $clients ,
             'clientFeedMap' => $clientFeedMap ,
             'countries' => $this->mt1CountryService->getAll() ,
-            'states' => $this->states->all()
+            'states' => $this->states->all() ,
+            'isps' => $this->ispService->getAll() ,
+            'categories' => CakeVertical::all() ,
+            'offers' => $this->offerService->all() 
         ];
     }
 }
