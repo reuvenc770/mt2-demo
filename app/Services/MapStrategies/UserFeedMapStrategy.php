@@ -10,24 +10,23 @@ class UserFeedMapStrategy implements IMapStrategy {
         return [
             'id' => $row['user_id'],
             'name' => $row['username'],
+            'client_id' => $row['clientStatsGroupingID'] ?: 1,
             'party' => $this->getPartyLevel($row),
-            'address' => $row['address'],
-            'address2' => $row['address2'],
-            'city' => $row['city'],
-            'state' => $row['state'],
-            'zip' => $row['zip'],
-            'phone' => $row['phone'],
-            'email_address' => $row['email_addr'],
+            'short_name' => $row['company'],
             'status' => $this->convertFeedStatus($row['status']),
             'source_url' => $row['clientRecordSourceURL'] ?: '',
+            'frequency' => $row['upl_freq'],
+            'type_id' => $row['clientTypeId'] ?: 1,
+            'country_id' => $row['countryID'] ?: 1,
             'created_at' => $row['create_datetime'],
             'updated_at' => $row['overall_updated']
+            // don't have vertical information yet
         ];
     }
 
 
     private function convertFeedStatus($status) {
-        return $status === 'A' ? 'Active' : 'Deleted';
+        return $status === 'A' ? 'Active' : 'Inactive';
     }
 
     private function getPartyLevel($row) {
