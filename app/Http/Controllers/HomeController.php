@@ -14,4 +14,8 @@ class HomeController extends Controller
     public function home() {
         return view('layout.app');
     }
+
+    public function redirect(){
+        return redirect('login');
+    }
 }

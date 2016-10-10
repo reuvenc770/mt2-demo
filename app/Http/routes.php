@@ -14,9 +14,10 @@
 /**
  * Default Routes
  */
-Route::get('/', [ 'as' => 'root' , 'uses' => function () {
-    return redirect("/login");
-} ] );
+Route::get( '/' , [
+    'as' => 'root' ,
+    'uses' => 'HomeController@redirect'
+] );
 
 
 /**
