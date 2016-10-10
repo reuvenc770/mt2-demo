@@ -33,7 +33,6 @@ class Inspire extends Command
      */
     public function handle()
     {
-            $test  = new BlueHornetSubscriberService( new BlueHornetApi(1));
-            $test->pullBounceEmailsByLookback(4);
+           echo "test";
     }
 }
