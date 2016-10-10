@@ -18,4 +18,8 @@ class HomeController extends Controller
     public function redirect(){
         return redirect('login');
     }
+
+    public function redirectTools(){
+        return redirect('tools.recordlookup');
+    }
 }

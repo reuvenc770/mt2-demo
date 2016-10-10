@@ -137,7 +137,11 @@ Route::group(
         'middleware' => [ 'auth' , 'pageLevel' ]
     ] ,
     function () {
-        Route::get( '/tools' , [ 'as' => 'tools.list' , 'uses' => function () { return redirect()->route( 'tools.recordlookup' ); } ] );
+
+        Route::get( '/tools' , [
+            'as' => 'tools.list' ,
+            'uses' => 'HomeController@redirectTools'
+        ] );
 
         Route::get( '/show-info' , [
             'as' => 'tools.recordlookup' ,
