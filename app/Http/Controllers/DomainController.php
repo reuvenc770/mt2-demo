@@ -145,7 +145,7 @@ class DomainController extends Controller
         $esps = $this->espService->getAllEsps();
         $dbas = $this->dbaService->getAllActive();
         $domains = $this->service->searchDomains($request->toArray());
-        return response()->view('pages.domain.domain-searchview', [ 'esps' => $esps , 'dbas' => $dbas, 'regs' => $regs, 'domains' => $domains]);
+        return response()->view('pages.domain.domain-searchview', [ 'esps' => $esps , 'dbas' => $dbas, 'regs' => $regs, 'domains' => json_encode($domains)]);
     }
 
     /**

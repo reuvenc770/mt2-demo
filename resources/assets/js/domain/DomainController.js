@@ -18,6 +18,9 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         self.hideFormView = true;
         self.extraText = "For " + espNameQuery + " - " + espAccountName;
     }
+    if(typeof searchDomains != 'undefined'){
+        self.domains = searchDomains;
+    }
     self.currentAccount = {
         "espName": espName,
         "domain_type": "1",
