@@ -76,7 +76,8 @@ elixir.extend( 'deployBaseAngular' , function ( mix ) {
         'mt2app/PaginationCountDirective.js',
         'mt2app/MembershipWidgetDirective.js' ,
         'mt2app/LiteMembershipWidgetDirective.js' ,
-        'mt2app/CompileHtml.js'
+        'mt2app/CompileHtml.js' ,
+        'mt2app/CustomValidationService.js' ,
     ] , 'public/js/angular_base.js' );
 } );
 
@@ -194,7 +195,7 @@ elixir.extend( 'deployEmailDomainJs' , function ( mix ) {
     mix.scripts( [
         'emaildomain/EmailDomainController.js' ,
         'emaildomain/EmailDomainApiService.js'
-    ] , 'public/js/emaildomain.js' );
+    ] , 'public/js/emailDomain.js' );
 } );
 
 elixir.extend( 'deployFeedJs' , function ( mix ) {

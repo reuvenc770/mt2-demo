@@ -102,6 +102,9 @@ class ImportMt1Entity extends Command
             case "cakeOfferMap":
                 return "ImportMt1CakeOfferMapping";
 
+            case "client":
+                return "ImportMt1Client";
+
             default:
                 throw new \Exception('Unsupported entity type: ' . $type);
         }

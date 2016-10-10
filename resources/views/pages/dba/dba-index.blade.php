@@ -38,14 +38,20 @@
                         <tbody md-body>
                         <tr md-row ng-repeat="record in dba.accounts track by $index">
                             <td md-cell>
-                                <div layout="row" layout-align="center center">
-                                    <md-button class="md-raised"
-                                                ng-class="{'md-icon-button mt2-icon-button-xs' : app.isMobile() , 'mt2-button-xs' : !app.isMobile() }"
+                                <div layout-gt-md="row" layout="column" layout-align="center center">
+                                    <md-button class="md-icon-button" aria-label="Edit"
                                                 ng-href="@{{ '/dba/edit/' + record.id }}" target="_self">
-                                        <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon><span ng-hide="app.isMobile()"> Edit</span>
+                                        <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
+                                        <md-tooltip md-direction="bottom">Edit</md-tooltip>
                                     </md-button>
-                                    <md-button ng-if="record.status == 1" class="md-raised md-accent mt2-button-xs" ng-click="dba.toggle( record.id , 0 )">Deactivate</md-button>
-                                    <md-button ng-if="record.status == 0" class="md-raised md-accent mt2-button-xs" ng-click="dba.toggle( record.id , 1 )">Activate</md-button>
+                                    <md-button ng-if="record.status == 1" class="md-icon-button" ng-click="dba.toggle( record.id , 0 )">
+                                        <md-icon md-font-set="material-icons" class="mt2-icon-black">pause</md-icon>
+                                        <md-tooltip md-direction="bottom">Deactivate</md-tooltip>
+                                    </md-button>
+                                    <md-button ng-if="record.status == 0" class="md-icon-button" ng-click="dba.toggle( record.id , 1 )">
+                                        <md-icon md-font-set="material-icons" class="mt2-icon-black">play_arrow</md-icon>
+                                        <md-tooltip md-direction="bottom">Activate</md-tooltip>
+                                    </md-button>
                                 </div>
                             </td>
                             <td md-cell class="mt2-table-cell-center" ng-class="{ 'mt2-bg-success' : record.status == 1 , 'mt2-bg-danger' : record.status == 0 }">
@@ -57,7 +63,7 @@
                             <td md-cell>@{{ record.dba_email }}</td>
                             <td md-cell>@{{ record.password }}</td>
                             <td md-cell>@{{ record.phone }}</td>
-                            <td md-cell><p ng-repeat="value in record.po_boxes">@{{ value.sub  }} - @{{value.address}} @{{value.city }} @{{value.state}} @{{value.zip}} - @{{value.phone}} - Brands - @{{ value.brands}}</p></td>
+                            <td md-cell><p ng-repeat="value in record.po_boxes">@{{ value.sub  }} - @{{value.address}} @{{value.city }} @{{value.state}} @{{value.zip}} - @{{value.phone}} <span ng-if="value.brands.length > 0">- Brands:</span> @{{ value.brands.join(', ') }}</p></td>
                             <td md-cell>@{{ record.entity_name }}</td>
                             <td md-cell>@{{ record.notes }}</td>
                         </tr>

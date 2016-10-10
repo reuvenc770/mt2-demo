@@ -1,4 +1,5 @@
-@extends( 'layout.default' )
+
+@extends( 'layout.default-nonresp' )
 
 @section( 'title' , 'Deploy Packages' )
 
@@ -7,7 +8,7 @@
 @section( 'page-menu' )
     <md-menu md-position-mode="target-right target">
         <md-button aria-label="Options" class="md-icon-button" ng-click="$mdOpenMenu($event)">
-            <md-icon md-svg-src="img/icons/ic_more_horiz_black_24px.svg"></md-icon>
+            <md-icon md-font-set="material-icons" class="mt2-icon-black">more_horiz</md-icon>
         </md-button>
         <md-menu-content width="3">
             @if (Sentinel::hasAccess('api.deploy.store'))
@@ -44,7 +45,7 @@
             @if (Sentinel::hasAccess('api.deploy.deploypackages'))
             <md-menu-item>
                 <md-button ng-click="deploy.createPackages()" ng-disabled="deploy.disableExport" >
-                    <span>Deploy Packages</span>
+                    <span>Send zips to FTP</span>
                 </md-button>
             </md-menu-item>
                     @if (Sentinel::hasAccess('deploy.preview'))
@@ -69,8 +70,8 @@
 
 @section( 'content' )
 <md-card-content ng-init="deploy.loadAccounts()">
-    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
-        <div flex-gt-md="60" flex="100">
+    <md-content layout="row" layout-align="left left" class="md-mt2-zeta-theme md-hue-1">
+        <div style="width:800px">
             <md-card>
                 <md-toolbar class="md-hue-2">
                     <div class="md-toolbar-tools">
@@ -115,7 +116,7 @@
                             </md-input-container>
                         </div>
                         <div flex hide-sm hide-xs></div>
-                        <div layout="row" flex-gt-sm="45">
+                        <div layout="row">
                             <md-input-container flex>
                                 <label>Deploy ID</label>
                                 <input id="deploy_id" value="" ng-model="deploy.search.deployId"/>
@@ -144,7 +145,7 @@
                             </md-input-container>
                         </div>
                     </div>
-                    <div layout="row">
+                    <div layout="row" layout-align="end end">
                         <md-button class="md-raised md-accent" ng-click="deploy.searchDeploys()">Search</md-button>
                     </div>
                 </md-card-content>
@@ -152,26 +153,24 @@
         </div>
     </md-content>
 
-    <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
+    <md-content layout="column" class="md-mt2-zeta-theme md-hue-1" flex="none">
         <md-card>
             <md-toolbar class="md-hue-2">
                 <div class="md-toolbar-tools">
                     <span>Deploys</span>
-                    <span ng-if="deploy.searchType.length > 0">&nbsp;<md-icon md-svg-src="img/icons/ic_chevron_right_black_36px.svg"></md-icon> Search by @{{ deploy.searchType }}</span>
+                    <span ng-if="deploy.searchType.length > 0">&nbsp;<md-icon md-font-set="material-icons" class="mt2-icon-black">chevron_right</md-icon> Search by @{{ deploy.searchType }}</span>
                 </div>
             </md-toolbar>
+        <form name="deployForm" novalidate>
             <md-table-container>
                 <table md-table md-progress="deploy.queryPromise">
                     <thead md-head>
                     <tr md-row>
                         <th md-column></th>
-                        <th md-column class="md-table-header-override-whitetext">
-                            <strong><span class="glyphicon glyphicon-refresh rotateMe"
-                                          ng-if="deploy.loadingflag == 1"></span></strong>
-                        </th>
+                        <th md-column class="md-table-header-override-whitetext"></th>
                         <th md-column class="md-table-header-override-whitetext">Send Date</th>
                         <th md-column class="md-table-header-override-whitetext">Deploy ID</th>
-                        <th md-column class="md-table-header-override-whitetext">EspAccount</th>
+                        <th md-column class="md-table-header-override-whitetext">ESP Account</th>
                         <th md-column class="md-table-header-override-whitetext">Offer</th>
                         <th md-column class="md-table-header-override-whitetext">Creative</th>
                         <th md-column class="md-table-header-override-whitetext">From</th>
@@ -180,9 +179,9 @@
                         <th md-column class="md-table-header-override-whitetext">Mailing Domain</th>
                         <th md-column class="md-table-header-override-whitetext">Content Domain</th>
                         <th md-column class="md-table-header-override-whitetext">Cake ID</th>
-                        <th ng-show="deploy.showRow" class="md-table-header-override-whitetext" >Cake Encryption</th>
-                        <th ng-show="deploy.showRow" class="md-table-header-override-whitetext" >Full Encryption</th>
-                        <th ng-show="deploy.showRow" class="md-table-header-override-whitetext">URL Format</th>
+                        <th md-column ng-show="deploy.showRow" class="md-table-header-override-whitetext">Cake Encryption</th>
+                        <th md-column ng-show="deploy.showRow" class="md-table-header-override-whitetext">Full Encryption</th>
+                        <th md-column ng-show="deploy.showRow" class="md-table-header-override-whitetext">URL Format</th>
                         <th md-column class="md-table-header-override-whitetext">Notes</th>
                     </tr>
                     </thead>
@@ -192,16 +191,22 @@
                         <td md-cell></td>
                         <td md-cell>
                             @if (Sentinel::hasAccess('api.deploy.update'))
-                            <button ng-click="deploy.actionLink()"
-                                    class="btn btn-small btn-primary">@{{ deploy.actionText() }}</button>
+                            <md-button ng-click="deploy.actionLink( $event , deployForm )" class="md-icon-button">
+                                <md-icon md-font-set="material-icons" class="mt2-icon-black">save</md-icon>
+                                <md-tooltip>@{{ deploy.actionText() }}</md-tooltip>
+                            </md-button>
                             @endif
-                            <button ng-click="deploy.showRow = false"
-                                    class="btn btn-small btn-danger">Cancel</button>
-
+                            <md-button ng-click="deploy.showRow = false" class="md-icon-button">
+                                <md-icon md-font-set="material-icons" class="mt2-icon-black">clear</md-icon>
+                                <md-tooltip>Cancel</md-tooltip>
+                            </md-button>
                         </td>
                         <td md-cell>
                             <md-datepicker name="dateField" ng-model="deploy.currentDeploy.send_date"
-                                 required md-placeholder="Enter date" ng-disabled="deploy.offerLoading" md-date-filter="deploy.canOfferBeMailed">
+                                 required md-placeholder="Enter date"
+                                           ng-disabled="deploy.offerLoading"
+                                           md-date-filter="deploy.canOfferBeMailed"
+                                           md-min-date="deploy.minDate">
                             </md-datepicker>
                             <div class="validation-messages" ng-show="deploy.formErrors.send_date">
                                 <div ng-bind="deploy.formErrors.send_date"></div>
@@ -210,24 +215,26 @@
                         </td>
                         <td md-cell>@{{ deploy.deployIdDisplay }}</td>
                         <td md-cell>
-                            <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.esp_account_id }">
-                                <select name="esp_account" id="esp_account"
+                            <md-input-container>
+                                <label>ESP Account</label>
+                                <md-select name="esp_account" id="esp_account" ng-required="true"
                                         ng-change="deploy.updateSelects()"
-                                        ng-model="deploy.currentDeploy.esp_account_id" class="form-control"
+                                        ng-model="deploy.currentDeploy.esp_account_id"
                                         ng-disabled="deploy.currentlyLoading">
-                                    <option value="">- Please Choose an ESP Account -</option>
-                                    <option ng-repeat="option in deploy.espAccounts" ng-value="option.id"
+                                    <md-option ng-repeat="option in deploy.espAccounts" ng-value="option.id"
                                             ng-selected="option.id == deploy.currentDeploy.esp_account_id">@{{ option.account_name }}
-                                    </option>
-                                </select>
-                                <span class="help-block" ng-bind="deploy.formErrors.esp_account_id"
-                                      ng-show="deploy.formErrors.esp_account_id"></span>
-                            </div>
+                                    </md-option>
+                                </md-select>
+                                <div ng-messages="deployForm.esp_account.$error">
+                                    <div ng-message="required">ESP account name is required.</div>
+                                </div>
+                            </md-input-container>
                         </td>
                         <td md-cell>
                             <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.offer_id }">
-                                <div angucomplete-alt
+                                <div angucomplete-alt ng-required="true"
                                      id="offer"
+                                     name="offer_id"
                                      placeholder="Search Offers"
                                      selected-object="deploy.offerWasSelected"
                                      selected-object-data="deploy.currentDeploy.offer_id"
@@ -239,162 +246,160 @@
                                      input-class="form-control">
                                 </div>
                             </div>
-                            <span class="help-block" ng-bind="deploy.formErrors.offer_id"
+                            <span class="mt2-error-message" ng-bind="deploy.formErrors.offer_id"
                                   ng-show="deploy.formErrors.offer_id"></span>
                         </td>
                         <td md-cell>
-                            <div class="form-group"
-                                 ng-class="{ 'has-error' : deploy.formErrors.creative_id }">
-                                <select name="creative_id" id="creative_id"
-                                        ng-model="deploy.currentDeploy.creative_id" class="form-control"
+                            <div layout="column">
+                            <md-input-container>
+                                <label>Creative</label>
+                                <md-select name="creative_id" id="creative_id" ng-required="true"
+                                        ng-model="deploy.currentDeploy.creative_id"
                                         ng-disabled="deploy.offerLoading">
-                                    <option value="">- Please Choose a Creative -</option>
-                                    <option ng-repeat="option in deploy.creatives" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'mt2-bg-super-danger' : ''}}">
+                                    <md-option ng-repeat="option in deploy.creatives" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'mt2-bg-super-danger' : ''}}">
                                         @{{ option.name }} - @{{ option.id }} - @{{ option.click_rate ? parseFloat(option.click_rate).toFixed(2) + '%' : '' }}
-                                    </option>
-                                </select>
-                            <span class="help-block" ng-bind="deploy.formErrors.creative_id"
-                                  ng-show="deploy.formErrors.creative_id"></span>
+                                    </md-option>
+                                </md-select>
+                                <div ng-messages="deployForm.creative_id.$error">
+                                    <div ng-message="required">A creative is required.</div>
+                                </div>
                                 <a ng-show="deploy.creatives.length > 0" target="_blank" href="creatives/preview/@{{ deploy.currentDeploy.offer_id }}">Preview All Creatives</a>
+                            </md-input-container>
                             </div>
                         </td>
                         <td md-cell>
-                            <div class="form-group"
-                                 ng-class="{ 'has-error' : deploy.formErrors.from_id }">
-                                <select name="from_id" id="from_id"
-                                        ng-model="deploy.currentDeploy.from_id" class="form-control"
+                            <md-input-container>
+                                <label>From</label>
+                                <md-select name="from_id" id="from_id" ng-required="true"
+                                        ng-model="deploy.currentDeploy.from_id"
                                         ng-disabled="deploy.offerLoading">
-                                    <option value="">- Please Choose a From -</option>
-                                    <option ng-repeat="option in deploy.froms" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'mt2-bg-super-danger' : ''}}">
+                                    <md-option ng-repeat="option in deploy.froms" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'mt2-bg-super-danger' : ''}}">
                                         @{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate ? parseFloat(option.open_rate).toFixed(2) + '%' : '' }}
-                                    </option>
-                                </select>
-                            <span class="help-block" ng-bind="deploy.formErrors.from_id"
-                                  ng-show="deploy.formErrors.from_id"></span>
-                            </div>
+                                    </md-option>
+                                </md-select>
+                                <div ng-messages="deployForm.from_id.$error">
+                                    <div ng-message="required">From field is required.</div>
+                                </div>
+                            </md-input-container>
                         </td>
                         <td md-cell>
-                            <div class="form-group"
-                                 ng-class="{ 'has-error' : deploy.formErrors.subject_id }">
-                                <select name="subject_id" id="subject_id"
-                                        ng-model="deploy.currentDeploy.subject_id" class="form-control"
+                            <md-input-container>
+                                <label>Subject</label>
+                                <md-select name="subject_id" id="subject_id" ng-required="true"
+                                        ng-model="deploy.currentDeploy.subject_id"
                                         ng-disabled="deploy.offerLoading">
-                                    <option value="">- Please Choose a Subject -</option>
-                                    <option ng-repeat="option in deploy.subjects" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'mt2-bg-super-danger' : ''}}">
+                                    <md-option ng-repeat="option in deploy.subjects" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'mt2-bg-super-danger' : ''}}">
                                         @{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate ? parseFloat(option.open_rate).toFixed(2) + '%' : '' }}
-                                    </option>
-                                </select>
-                            <span class="help-block" ng-bind="deploy.formErrors.subject_id"
-                                  ng-show="deploy.formErrors.subject_id"></span>
-                            </div>
+                                    </md-option>
+                                </md-select>
+                                <div ng-messages="deployForm.subject_id.$error">
+                                    <div ng-message="required">Subject is required.</div>
+                                </div>
+                            </md-input-container>
                         </td>
                         <td md-cell>
-                            <div class="form-group"
-                                 ng-class="{ 'has-error' : deploy.formErrors.template_id }">
-                                <select name="template" id="template"
-                                        ng-model="deploy.currentDeploy.template_id" class="form-control"
+                            <md-input-container>
+                                <label>Template</label>
+                                <md-select name="template" id="template" ng-required="true"
+                                        ng-model="deploy.currentDeploy.template_id"
                                         ng-disabled="deploy.espLoaded">
-                                    <option value="">- Please Choose a Template -</option>
-                                    <option ng-repeat="option in deploy.templates" value="@{{ option.id }}">
+                                    <md-option ng-repeat="option in deploy.templates" value="@{{ option.id }}">
                                         @{{ option.template_name }}
-                                    </option>
-                                </select>
-                            <span class="help-block" ng-bind="deploy.formErrors.mailing_domain_id"
-                                  ng-show="deploy.formErrors.mailing_domain_id"></span>
-                            </div>
+                                    </md-option>
+                                </md-select>
+                                <div ng-messages="deployForm.template.$error">
+                                    <div ng-message="required">Template is required.</div>
+                                </div>
+                            </md-input-container>
                         </td>
                         <td md-cell>
-                            <div class="form-group"
-                                 ng-class="{ 'has-error' : deploy.formErrors.mailing_domain_id }">
-                                <select name="mailing_domain" id="mailing_domain"
-                                        ng-model="deploy.currentDeploy.mailing_domain_id" class="form-control"
+                            <md-input-container>
+                                <label>Mailing Domain</label>
+                                <md-select name="mailing_domain" id="mailing_domain" ng-required="true"
+                                        ng-model="deploy.currentDeploy.mailing_domain_id"
                                         ng-disabled="deploy.espLoaded">
-                                    <option value="">- Please Choose a Mailing Domain -</option>
-                                    <option ng-repeat="option in deploy.mailingDomains track by $index" value="@{{ option.id }}">
+                                    <md-option ng-repeat="option in deploy.mailingDomains track by $index" value="@{{ option.id }}">
                                         @{{ option.domain_name }}
-                                    </option>
-                                </select>
-                            <span class="help-block" ng-bind="deploy.formErrors.mailing_domain_id"
-                                  ng-show="deploy.formErrors.mailing_domain_id"></span>
-                            </div>
+                                    </md-option>
+                                </md-select>
+                                <div ng-messages="deployForm.mailing_domain.$error">
+                                    <div ng-message="required">Mailing domain is required.</div>
+                                </div>
+                            </md-input-container>
                         </td>
                         <td md-cell>
-                            <div class="form-group"
-                                 ng-class="{ 'has-error' : deploy.formErrors.content_domain_id }">
-                                <select name="content_domain" id="content_domain"
-                                        ng-model="deploy.currentDeploy.content_domain_id" class="form-control"
+                            <md-input-container>
+                                <label>Content Domain</label>
+                                <md-select name="content_domain" id="content_domain" ng-required="true"
+                                        ng-model="deploy.currentDeploy.content_domain_id"
                                         ng-disabled="deploy.espLoaded">
-                                    <option value="">- Please Choose an Content Domain -</option>
                                     <option ng-repeat="option in deploy.contentDomains" value="@{{ option.id }}">
                                         @{{ option.domain_name }}
-                                    </option>
-                                </select>
-                            <span class="help-block" ng-bind="deploy.formErrors.content_domain_id"
-                                  ng-show="deploy.formErrors.content_domain_id"></span>
-                            </div>
+                                </md-select>
+                                <div ng-messages="deployForm.content_domain.$error">
+                                    <div ng-message="required">Content domain is required.</div>
+                                </div>
+                            </md-input-container>
                         </td>
                         <td md-cell>
-                            <div class="form-group"
-                                 ng-class="{ 'has-error' : deploy.formErrors.cake_affiliate_id }">
-                                <select name="cake_affiliate_id" id="cake_affiliate_id"
-                                        ng-model="deploy.currentDeploy.cake_affiliate_id" class="form-control">
-                                    <option value="">- Please Choose an Cake ID -</option>
-                                    <option ng-repeat="option in deploy.cakeAffiliates" value="@{{ option.affiliateID }}">
+                            <md-input-container>
+                                <label>Cake ID</label>
+                                <md-select name="cake_affiliate_id" id="cake_affiliate_id" ng-required="true"
+                                        ng-model="deploy.currentDeploy.cake_affiliate_id">
+                                    <md-option ng-repeat="option in deploy.cakeAffiliates" value="@{{ option.affiliateID }}">
                                         @{{ option.affiliateID }}
-                                    </option>
-                                </select>
-                            <span class="help-block" ng-bind="deploy.formErrors.cake_affiliate_id"
-                                  ng-show="deploy.formErrors.cake_affiliate_id"></span>
-                            </div>
+                                    </md-option>
+                                </md-select>
+                                <div ng-messages="deployForm.cake_affiliate_id.$error">
+                                    <div ng-message="required">Cake ID is required.</div>
+                                </div>
+                            </md-input-container>
                         </td>
                         <td md-cell>
-                            <div class="form-group"
-                                 ng-class="{ 'has-error' : deploy.formErrors.encrypt_cake }">
-                                <select name="encrypt_cake" id="encrypt_cake"
-                                        ng-model="deploy.currentDeploy.encrypt_cake" class="form-control">
-                                    <option value="">- Encrypt Cake? -</option>
-                                    <option value="1">Yes</option>
-                                    <option value="2">No</option>
-                                </select>
-                    <span class="help-block" ng-bind="deploy.formErrors.encrypt_cake"
-                          ng-show="deploy.formErrors.encrypt_cake"></span>
-                            </div>
+                            <md-input-container>
+                                <label>Encrypt Cake?</label>
+                                <md-select name="encrypt_cake" id="encrypt_cake" ng-required="true"
+                                        ng-model="deploy.currentDeploy.encrypt_cake">
+                                    <md-option value="1">Yes</md-option>
+                                    <md-option value="2">No</md-option>
+                                </md-select>
+                                <div ng-messages="deployForm.encrypt_cake.$error">
+                                    <div ng-message="required">Required.</div>
+                                </div>
+                            </md-input-container>
                         </td>
                         <td md-cell>
-                            <div class="form-group"
-                                 ng-class="{ 'has-error' : deploy.formErrors.fully_encrypt }">
-                                <select name="fully_encrypt" id="fully_encrypt"
-                                        ng-model="deploy.currentDeploy.fully_encrypt" class="form-control">
-                                    <option value="">- Fully Encrypt Links? -</option>
-                                    <option value="1">Yes</option>
-                                    <option value="2">No</option>
-                                </select>
-                    <span class="help-block" ng-bind="deploy.formErrors.fully_encrypt"
-                          ng-show="deploy.formErrors.fully_encrypt"></span>
-                            </div>
+                            <md-input-container>
+                                <label>Fully Encrypt Links?</label>
+                                <md-select name="fully_encrypt" id="fully_encrypt" ng-required="true"
+                                        ng-model="deploy.currentDeploy.fully_encrypt">
+                                    <md-option value="1">Yes</md-option>
+                                    <md-option value="2">No</md-option>
+                                </md-select>
+                                <div ng-messages="deployForm.fully_encrypt.$error">
+                                    <div ng-message="required">Required.</div>
+                                </div>
+                            </md-input-container>
                         </td>
                         <td md-cell>
-                            <div class="form-group"
-                                 ng-class="{ 'has-error' : deploy.formErrors.url_format }">
-                                <select name="url_format" id="url_format"
-                                        ng-model="deploy.currentDeploy.url_format" class="form-control">
-                                    <option value="">- Pick URL Format -</option>
-                                    <option value="new">New</option>
-                                    <option value="gmail">Gmail</option>
-                                    <option value="old">Old</option>
-
-                                </select>
-                    <span class="help-block" ng-bind="deploy.formErrors.url_format"
-                          ng-show="deploy.formErrors.url_format"></span>
-                            </div>
+                            <md-input-container>
+                                <label>URL Format</label>
+                                <md-select name="url_format" id="url_format" ng-required="true"
+                                        ng-model="deploy.currentDeploy.url_format">
+                                    <md-option value="new">New</md-option>
+                                    <md-option value="gmail">Gmail</md-option>
+                                    <md-option value="old">Old</md-option>
+                                </md-select>
+                                <div ng-messages="deployForm.url_format.$error">
+                                    <div ng-message="required">URL format is required.</div>
+                                </div>
+                            </md-input-container>
                         </td>
                         <td md-cell>
-                            <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.notes }">
-                            <div class="form-group">
-                                <textarea ng-model="deploy.currentDeploy.notes" class="form-control" rows="1"
-                                          id="html"></textarea>
-                            </div>
-                            </div>
+                            <md-input-container>
+                                <label>Notes</label>
+                                <textarea ng-model="deploy.currentDeploy.notes" rows="1" id="html"></textarea>
+                            </md-input-container>
                         </td>
                         </tr>
 
@@ -408,8 +413,14 @@
                                              ng-click="deploy.toggleRow(record.deploy_id)"> </md-checkbox>
                             </td>
                             <td md-cell>
-                                <md-button ng-hide="record.deployment_status ==1" class="md-raised" ng-click="deploy.editRow( record.deploy_id)">Edit</md-button>
-                                <md-button class="md-raised md-accent" ng-click="deploy.copyRow( record.deploy_id)">Copy</md-button>
+                                <md-button class="md-icon-button" ng-hide="record.deployment_status ==1" ng-click="deploy.editRow( record.deploy_id)" aria-label="Edit">
+                                    <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
+                                    <md-tooltip md-direction="bottom">Edit</md-tooltip>
+                                </md-button>
+                                <md-button class="md-icon-button" ng-click="deploy.copyRow( record.deploy_id)" aria-label="Copy">
+                                    <md-icon md-font-set="material-icons" class="mt2-icon-black">content_copy</md-icon>
+                                    <md-tooltip md-direction="bottom">Copy Row</md-tooltip>
+                                </md-button>
                             </td>
                             <td md-cell>@{{ record.send_date }}</td>
                             <td md-cell>@{{ record.deploy_id }}</td>
@@ -418,17 +429,24 @@
                             <td md-cell>
                                 @{{ record.creative }}
                                 <span ng-hide="deploy.checkStatus(record.creative_approval,record.creative_status)"
-                                      class="deploy-error mt2-bg-danger">!! Creative has been unapproved or deactivate !!</span>
+                                      class="deploy-error mt2-bg-danger">!! Creative has been unapproved or deactivated !!</span>
                             </td>
                             <td md-cell>
                                 @{{ record.from }}
                                 <span ng-hide="deploy.checkStatus(record.from_approval,record.from_status)"
-                                      class="deploy-error mt2-bg-danger">!! From has been unapproved or deactivate !!</span>
+                                      class="deploy-error mt2-bg-danger">!! From has been unapproved or deactivated !!</span>
                             </td>
                             <td md-cell>
-                                @{{ record.subject }}
+                                <span>
+                                @{{ record.subject.substring(0,10) }}...
+                                <md-tooltip md-direction="top">@{{ record.subject }}</md-tooltip>
+                                </span>
+                                <md-button class="md-icon-button" ngclipboard data-clipboard-text="@{{record.subject}}">
+                                    <md-icon md-font-set="material-icons" class="mt2-icon-black">content_copy</md-icon>
+                                    <md-tooltip md-direction="bottom">Copy Subject</md-tooltip>
+                                </md-button>
                                 <span ng-hide="deploy.checkStatus(record.subject_approval,record.subject_status)"
-                                      class="deploy-error mt2-bg-danger">!! Subject has been unapproved or deactivate !!</span>
+                                      class="deploy-error mt2-bg-danger">!! Subject has been unapproved or deactivated !!</span>
                             </td>
                             <td md-cell>@{{ record.template_name }}</td>
                             <td md-cell>@{{ record.mailing_domain }}</td>
@@ -442,7 +460,7 @@
                     </tbody>
                 </table>
             </md-table-container>
-
+        </form>
             <md-content class="md-mt2-zeta-theme md-hue-2">
                 <md-table-pagination md-limit="deploy.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="deploy.currentPage" md-total="@{{deploy.deployTotal}}" md-on-paginate="deploy.loadAccounts" md-page-select></md-table-pagination>
             </md-content>
@@ -457,3 +475,5 @@
 @section( 'pageIncludes' )
     <script src="js/deploy.js"></script>
 @stop
+
+@include( 'layout.side-nav-nonresp-css' , [ 'width' => 3400 ] )

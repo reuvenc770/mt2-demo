@@ -5,7 +5,7 @@
     <head>
         @include( 'layout.html-head' )
     </head>
-    <body ng-app="mt2App" ng-controller="AppController as app" layout="row" ng-cloak>
+    <body ng-app="mt2App" ng-controller="AppController as app" ng-init="app.currentPath = '{{ Request::path() }}'" layout="row" ng-cloak>
         {!! $menu->getMenuHtml() !!}
         <script type="text/javascript">
             var _config = {
