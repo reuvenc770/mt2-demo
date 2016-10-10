@@ -195,7 +195,7 @@ elixir.extend( 'deployEmailDomainJs' , function ( mix ) {
     mix.scripts( [
         'emaildomain/EmailDomainController.js' ,
         'emaildomain/EmailDomainApiService.js'
-    ] , 'public/js/emaildomain.js' );
+    ] , 'public/js/emailDomain.js' );
 } );
 
 elixir.extend( 'deployFeedJs' , function ( mix ) {
