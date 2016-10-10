@@ -1,6 +1,8 @@
 mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , 'ClientGroupApiService' , 'IspApiService', '$mdToast' , '$log' , function ( ListProfileApiService , ClientGroupApiService , IspApiService , $mdToast , $log ) {
     var self = this;
 
+    self.nameDisabled = true;
+
     var keycodeEnter = 13 ;
     var keycodeComma = 188 ;
     var keycodeTab = 9 ;
@@ -37,6 +39,8 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , 'Client
         'selectedColumns' : [],
         'includeCsvHeader' : false
     };
+
+    self.countryCodeMap = {};
 
     self.highlightedFeeds = [];
     self.highlightedFeedsForRemoval = [];
@@ -88,6 +92,85 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , 'Client
     self.columnLabelField = 'label';
     self.columnHeaderField = 'header';
 
+    self.rangesForName = [];
+    self.rangeCodeMap = {
+        'deliverable' : 'D' ,
+        'opener' : 'O' ,
+        'clicker' : 'C' ,
+        'converter' : 'CV'
+    };
+
+    self.generateName = function () {
+        /**
+         * Need to allow for manual editing. Should put a flag here to leave this function if user is defining name.
+         */
+
+        var nameParts = [];
+
+        nameParts.push( self.getFormattedFeedName() );
+        nameParts.push( self.getFormattedIspName() );
+        nameParts.push( self.getFormattedCountryName() );
+        nameParts.push( self.getFormattedRangeName() );
+
+        self.current.name = nameParts.join( '_' );
+    };
+
+    self.getFormattedFeedName = function () {
+        /**
+         * Need to switch these out for shortnames
+         */ 
+        var feedNames = [];
+        angular.forEach( self.current.feeds , function ( currentFeedName , feedId ) {
+            feedNames.push( currentFeedName );
+        } );
+
+        return feedNames.join( '|' );
+    };
+
+    self.getFormattedIspName = function () {
+        var ispGroupNames = [];
+        angular.forEach( self.current.isps , function ( currentIspName , ispId ) {
+            ispGroupNames.push( currentIspName );
+        } );
+
+        return ispGroupNames.join( '|' );
+    };
+
+    self.getFormattedCountryName = function () {
+        var countryNames = [];
+        angular.forEach( self.current.countries , function ( countryId ) {
+            countryNames.push( self.countryCodeMap[ countryId ] );
+        } );
+
+        return countryNames.join( '|' );
+    };
+
+    self.getFormattedRangeName = function () {
+        var rangeNames = {};
+        angular.forEach( self.current.actionRanges , function ( currentRange , rangeType ) {
+            if ( currentRange.max > 0 ) {
+                var currentRangeValue = currentRange.max;
+
+                if ( currentRange.min > 0 ) {
+                    currentRangeValue = currentRange.min + 'to' + currentRangeValue;
+                }
+
+                if ( typeof( rangeNames[ currentRangeValue ] ) == 'undefined' ) {
+                    rangeNames[ currentRangeValue ] = [];
+                }
+
+                rangeNames[ currentRangeValue ].push( self.rangeCodeMap[ rangeType ] );
+            }
+        } );
+
+        var fullRangeName = '';
+        angular.forEach( rangeNames , function ( rangeTypes , rangeValue ) {
+            fullRangeName = fullRangeName + rangeValue + rangeTypes.join( '' );
+        } )
+
+        return fullRangeName;
+    };
+
     self.addFeeds = function () {
         angular.forEach( self.highlightedFeeds , function ( feedId ) {
             self.feedVisibility[ feedId ] = false;
@@ -96,6 +179,8 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , 'Client
         } );
 
         self.highlightedFeeds = [];
+
+        self.generateName();
     };
 
     self.removeFeeds = function () {
@@ -108,6 +193,8 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , 'Client
         self.updateFeedVisibility();
 
         self.highlightedFeedsForRemoval = [];
+
+        self.generateName();
     };
 
     self.updateFeedVisibility = function () {
@@ -151,6 +238,8 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , 'Client
         } );
 
         self.highlightedIsps = [];
+
+        self.generateName();
     };
 
     self.removeIsps = function () {
@@ -161,6 +250,8 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , 'Client
         } );
 
         self.highlightedIspsForRemoval = [];
+
+        self.generateName();
     };
 
 

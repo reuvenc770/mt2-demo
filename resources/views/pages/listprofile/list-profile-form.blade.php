@@ -9,15 +9,15 @@
         <md-input-container>
             <label>Profile Name</label>
 
-            <input type="text" name="name" id="name" ng-model="listProfile.current.name" />
+            <input type="text" name="name" id="name" ng-model="listProfile.current.name" ng-disabled="listProfile.nameDisabled" />
         </md-input-container>
 
         <md-input-container>
             <label>Countries</label>
 
-            <md-select name="countries" id="countries" ng-model="listProfile.current.countries" multiple>
+            <md-select name="countries" id="countries" md-on-close="listProfile.generateName()" ng-model="listProfile.current.countries" multiple>
                 @foreach ( $countries as $country )
-                <md-option ng-value="::'{{ $country[ 'id' ] }}'">{{ $country[ 'name' ] }}</md-option>
+                <md-option ng-value="::'{{ $country[ 'id' ] }}'" ng-init="listProfile.countryCodeMap[ {{$country[ 'id' ]}} ] = '{{$country[ 'code' ]}}'">{{ $country[ 'name' ] }}</md-option>
                 @endforeach
             </md-select>
         </md-input-container>
@@ -92,12 +92,12 @@
                 <label flex-gt-xs="25" flex="100">Deliverables Range:</label>
                 <div layout="row" layout-align="start center">
                     <md-input-container>
-                        <input type="number" name="deliverableMin" ng-model="listProfile.current.actionRanges.deliverable.min" min="0" aria-label="Deliverable Min" />
+                        <input type="number" name="deliverableMin" ng-model="listProfile.current.actionRanges.deliverable.min" ng-change="listProfile.generateName()" min="0" aria-label="Deliverable Min" />
                         <div class="hint">Min</div>
                     </md-input-container>
                     <sup><md-icon md-font-set="material-icons" class="mt2-icon-black">remove</md-icon></sup>
                     <md-input-container>
-                        <input type="number" name="deliverableMax" ng-model="listProfile.current.actionRanges.deliverable.max" min="0" aria-label="Deliverable Max" />
+                        <input type="number" name="deliverableMax" ng-model="listProfile.current.actionRanges.deliverable.max" ng-change="listProfile.generateName()" min="0" aria-label="Deliverable Max" />
                         <div class="hint">Max</div>
                     </md-input-container>
                     <span>&nbsp;days back </span>
@@ -110,12 +110,12 @@
                 <label flex-gt-xs="25" flex="100">Openers Range:</label>
                 <div layout="row" layout-align="start center">
                     <md-input-container>
-                        <input type="number" name="openerMin" ng-model="listProfile.current.actionRanges.opener.min" min="0" aria-label="Opener Min" />
+                        <input type="number" name="openerMin" ng-model="listProfile.current.actionRanges.opener.min" ng-change="listProfile.generateName()" min="0" aria-label="Opener Min" />
                         <div class="hint">Min</div>
                     </md-input-container>
                     <sup><md-icon md-font-set="material-icons" class="mt2-icon-black">remove</md-icon></sup>
                     <md-input-container>
-                        <input type="number" name="openerMax" ng-model="listProfile.current.actionRanges.opener.max" min="0" aria-label="Opener Max" />
+                        <input type="number" name="openerMax" ng-model="listProfile.current.actionRanges.opener.max" ng-change="listProfile.generateName()" min="0" aria-label="Opener Max" />
                         <div class="hint">Max</div>
                     </md-input-container>
                     <span flex="5"></span>
@@ -135,12 +135,12 @@
                 <label flex-gt-xs="25" flex="100">Clickers Range:</label>
                 <div layout="row" layout-align="start center">
                     <md-input-container>
-                        <input type="number" name="clickerMin" ng-model="listProfile.current.actionRanges.clicker.min" min="0" aria-label="Clicker Min" />
+                        <input type="number" name="clickerMin" ng-model="listProfile.current.actionRanges.clicker.min" ng-change="listProfile.generateName()" min="0" aria-label="Clicker Min" />
                         <div class="hint">Min</div>
                     </md-input-container>
                     <sup><md-icon md-font-set="material-icons" class="mt2-icon-black">remove</md-icon></sup>
                     <md-input-container>
-                        <input type="number" name="clickerMax" ng-model="listProfile.current.actionRanges.clicker.max" min="0" aria-label="Clicker Max" />
+                        <input type="number" name="clickerMax" ng-model="listProfile.current.actionRanges.clicker.max" ng-change="listProfile.generateName()" min="0" aria-label="Clicker Max" />
                         <div class="hint">Max</div>
                     </md-input-container>
                     <span flex="5"></span>
@@ -160,12 +160,12 @@
                 <label flex-gt-xs="25" flex="100">Converters Range:</label>
                 <div layout="row" layout-align="start center">
                     <md-input-container>
-                        <input type="number" name="converterMin" ng-model="listProfile.current.actionRanges.converter.min" min="0" aria-label="Converter Min" />
+                        <input type="number" name="converterMin" ng-model="listProfile.current.actionRanges.converter.min" ng-change="listProfile.generateName()" min="0" aria-label="Converter Min" />
                         <div class="hint">Min</div>
                     </md-input-container>
                     <sup><md-icon md-font-set="material-icons" class="mt2-icon-black">remove</md-icon></sup>
                     <md-input-container>
-                        <input type="number" name="converterMax" ng-model="listProfile.current.actionRanges.converter.max" min="0" aria-label="Converter Max" />
+                        <input type="number" name="converterMax" ng-model="listProfile.current.actionRanges.converter.max" ng-change="listProfile.generateName()" min="0" aria-label="Converter Max" />
                         <div class="hint">Max</div>
                     </md-input-container>
                     <span flex="5"></span>
