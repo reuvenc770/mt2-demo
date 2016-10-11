@@ -2,53 +2,22 @@
  * MT2 App Module
  */
 var mt2App = angular.module( 'mt2App' , [
-    'ngMaterial' ,
     'ngMessages' ,
     'ngCookies' ,
     'angucomplete-alt',
     'ui.select' ,
+    'ngMaterial',
     'flow' ,
     'ngclipboard' ,
     'ivh.treeview' ,
-    'md.data.table'
+    'md.data.table',
+    'headroom'
 ] );
 
-mt2App.config( function ( $locationProvider , $mdThemingProvider , ivhTreeviewOptionsProvider ) {
+mt2App.config( function ( $locationProvider ,$mdThemingProvider, ivhTreeviewOptionsProvider ) {
     $locationProvider.html5Mode( true );
-
-    var mt2Primary = $mdThemingProvider.extendPalette('indigo' , {
-        '500' : '16416c'
-    });
-
-    var mt2Warn = $mdThemingProvider.extendPalette('deep-orange', {
-        "500" : '#FFA726',
-        "contrastDefaultColor" : 'light'
-    });
-
-    var mt2Background = $mdThemingProvider.extendPalette('grey' , {
-        '800' : '383F47'
-    });
-
-    $mdThemingProvider.definePalette('mt2-primary', mt2Primary );
-    $mdThemingProvider.definePalette('mt2-warn', mt2Warn);
-    $mdThemingProvider.definePalette('mt2-background', mt2Background );
-
-    $mdThemingProvider.theme( 'mt2-zeta' , 'dark' )
-        .primaryPalette( 'mt2-primary' , {
-            'hue-1' : '200'
-        } )
-        .accentPalette( 'blue' )
-        .warnPalette( 'mt2-warn')
-        .backgroundPalette( 'mt2-background' , {
-            "default" : '50' ,
-            "hue-1" : '100' ,
-            "hue-2" : '400' ,
-            "hue-3" : '800'
-        } );
-
-
-    $mdThemingProvider.setDefaultTheme( 'mt2-zeta' );
-
+    $mdThemingProvider.generateThemesOnDemand( true );
+    //Need to replace
     ivhTreeviewOptionsProvider.set( {
         "expandToDepth" : 1 ,
         "twistieCollapsedTpl" : '<md-icon md-svg-icon="img/icons/ic_chevron_right_black_24px.svg"></md-icon>',

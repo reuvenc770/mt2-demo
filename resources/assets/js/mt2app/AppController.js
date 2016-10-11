@@ -1,4 +1,4 @@
-mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , '$mdSidenav' , '$mdToast' , '$mdMedia' , '$cookies' , '$timeout' , '$log' , function ( $rootScope , $location , $window , $mdSidenav , $mdToast , $mdMedia , $cookies , $timeout , $log ) {
+mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' ,  '$mdToast' , '$mdMedia' , '$cookies' , '$timeout' , '$log' , function ( $rootScope , $location , $window , $mdToast , $mdMedia , $cookies , $timeout , $log ) {
     var self = this;
 
     /**

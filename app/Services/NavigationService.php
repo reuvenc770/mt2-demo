@@ -28,11 +28,11 @@ class NavigationService {
     public function getMenuHtml () {
         $userPresent = $this->loadUser();
         if ( $userPresent ) {
-            $cachedMenu = Cache::tags("navigation")->get( $this->cacheId );
+            $cachedMenu = null;
             if ( is_null( $cachedMenu ) ) {
                 $this->loadMenu();
 
-                $template = 'layout.side-nav';
+                $template = 'bootstrap.layout.side-nav';
 
                 $sideNav = view( $template , [ 'menuItems' => $this->menuList ] )->render() ;
 
