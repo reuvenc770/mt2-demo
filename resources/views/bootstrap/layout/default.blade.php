@@ -17,7 +17,6 @@
 </script>
 <div @yield( 'angular-controller' )class="container pinned-container" ng-cloak>
     @include( 'bootstrap.layout.internal-navigation' )
-    @yield( 'page-menu' )
     {!! Breadcrumbs::renderIfExists() !!}
     @yield( 'content' )
 </div>
