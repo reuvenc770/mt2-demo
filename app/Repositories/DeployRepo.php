@@ -24,6 +24,7 @@ class DeployRepo
 
     public function getModel($searchData = null)
     {        
+        $listProfileSchema = config('database.connections.list_profile.database');
         $query = $this->deploy
             ->leftJoin('esp_accounts', 'deploys.esp_account_id', '=', 'esp_accounts.id')
             ->leftJoin('offers', 'offers.id', '=', 'deploys.offer_id')
@@ -33,7 +34,7 @@ class DeployRepo
             ->leftJoin('subjects', 'subjects.id', '=', 'deploys.subject_id')
             ->leftJoin('froms', 'froms.id', '=', 'deploys.from_id')
             ->leftJoin('creatives', 'creatives.id', '=', 'deploys.creative_id')
-            ->leftJoin('list_profiles', 'list_profiles.id', '=', 'deploys.list_profile_id')
+            ->leftJoin("$listProfileSchema.list_profiles", 'list_profiles.id', '=', 'deploys.list_profile_id')
             ->select("send_date",
                 'deploys.id as deploy_id',
                 'esp_accounts.account_name',
