@@ -6,21 +6,28 @@
         </md-toolbar>
 
       <md-card-content layout="column">
-        <md-input-container>
-            <label>Profile Name</label>
+        <div class="form-group">
+            <label for="name">Profile Name</label>
 
-            <input type="text" name="name" id="name" ng-model="listProfile.current.name" ng-disabled="listProfile.nameDisabled" />
-        </md-input-container>
+            <div class="input-group">
+                <input type="text" name="name" id="name" class="form-control" ng-model="listProfile.current.name" ng-disabled="listProfile.nameDisabled" />
 
-        <md-input-container>
-            <label>Countries</label>
+                <span class="input-group-btn">
+                    <button class="btn btn-default" ng-show="!listProfile.customName" ng-click="listProfile.toggleEditName( $event )">Edit</button>
+                    <button class="btn btn-danger" ng-show="listProfile.customName" ng-click="listProfile.toggleEditName( $event , true )">Reset To Default</button>
+                </span>
+            </div>
+        </div>
 
-            <md-select name="countries" id="countries" md-on-close="listProfile.generateName()" ng-model="listProfile.current.countries" multiple>
+        <div class="form-group">
+            <label for="countries">Countries</label>
+
+            <select name="countries" id="countries" class="form-control" ng-change="listProfile.generateName()" ng-model="listProfile.current.countries" multiple>
                 @foreach ( $countries as $country )
-                <md-option ng-value="::'{{ $country[ 'id' ] }}'" ng-init="listProfile.countryCodeMap[ {{$country[ 'id' ]}} ] = '{{$country[ 'code' ]}}'">{{ $country[ 'name' ] }}</md-option>
+                <option ng-value="::'{{ $country[ 'id' ] }}'" ng-init="listProfile.countryCodeMap[ {{$country[ 'id' ]}} ] = '{{$country[ 'code' ]}}'">{{ $country[ 'name' ] }}</option>
                 @endforeach
-            </md-select>
-        </md-input-container>
+            </select>
+        </div>
 
         <div layout="row" layout-align="space-around stretch" ng-init="listProfile.clientFeedMap = {{json_encode( $clientFeedMap )}}">
             <md-card flex>
@@ -37,7 +44,7 @@
                 <md-card-content>
                     <select ng-model="listProfile.highlightedFeeds" multiple style="width: 100%; height: 150px;">
                         @foreach ( $feeds as $feed )
-                        <option value="{{$feed[ 'id' ]}}" ng-init="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ] = true;listProfile.feedNameMap[ {{$feed[ 'id' ]}} ] = '{{$feed[ 'name' ]}}';" ng-show="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ]">{{$feed[ 'name' ]}}</option>
+                        <option value="{{$feed[ 'id' ]}}" ng-init="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ] = true;listProfile.feedNameMap[ {{$feed[ 'id' ]}} ] = '{{$feed[ 'short_name' ]}}';" ng-show="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ]">{{ $feed[ 'short_name' ] . ' (' . $feed[ 'name' ] . ')' }}</option>
                         @endforeach
                     </select>
                 </md-card-content>
@@ -88,94 +95,87 @@
         <md-divider></md-divider>
 
         <md-card-content>
-            <div layout-xs="column" layout="row" layout-align="center start" layout-align-gt-xs="start center">
-                <label flex-gt-xs="25" flex="100">Deliverables Range:</label>
-                <div layout="row" layout-align="start center">
-                    <md-input-container>
-                        <input type="number" name="deliverableMin" ng-model="listProfile.current.actionRanges.deliverable.min" ng-change="listProfile.generateName()" min="0" aria-label="Deliverable Min" />
-                        <div class="hint">Min</div>
-                    </md-input-container>
-                    <sup><md-icon md-font-set="material-icons" class="mt2-icon-black">remove</md-icon></sup>
-                    <md-input-container>
-                        <input type="number" name="deliverableMax" ng-model="listProfile.current.actionRanges.deliverable.max" ng-change="listProfile.generateName()" min="0" aria-label="Deliverable Max" />
-                        <div class="hint">Max</div>
-                    </md-input-container>
-                    <span>&nbsp;days back </span>
+            <div class="form-group">
+                <label><h4>Deliverables Range</h4></label>
+
+                <div class="row">
+                    <div class="col-lg-5">
+                        <label>Min</label>
+                        <input type="number" name="deliverableMin" class="form-control" ng-model="listProfile.current.actionRanges.deliverable.min" ng-change="listProfile.generateName()" min="0" aria-label="Deliverable Min" />
+                    </div>
+
+                    <div class="col-lg-5">
+                        <label>Max</label>
+                        <input type="number" name="deliverableMax" class="form-control" ng-model="listProfile.current.actionRanges.deliverable.max" ng-change="listProfile.generateName()" min="0" aria-label="Deliverable Max" />
+                    </div>
+
+                    <div class="col-lg-2"></div>
                 </div>
             </div>
 
-            <div hide-gt-xs>&nbsp;</div>
+            <div class="form-group">
+                <label><h4>Openers Range</h4></label>
 
-            <div layout-xs="column" layout="row" layout-align="center start" layout-align-gt-xs="start center">
-                <label flex-gt-xs="25" flex="100">Openers Range:</label>
-                <div layout="row" layout-align="start center">
-                    <md-input-container>
-                        <input type="number" name="openerMin" ng-model="listProfile.current.actionRanges.opener.min" ng-change="listProfile.generateName()" min="0" aria-label="Opener Min" />
-                        <div class="hint">Min</div>
-                    </md-input-container>
-                    <sup><md-icon md-font-set="material-icons" class="mt2-icon-black">remove</md-icon></sup>
-                    <md-input-container>
-                        <input type="number" name="openerMax" ng-model="listProfile.current.actionRanges.opener.max" ng-change="listProfile.generateName()" min="0" aria-label="Opener Max" />
-                        <div class="hint">Max</div>
-                    </md-input-container>
-                    <span flex="5"></span>
-                    <md-input-container>
-                        <input type="number" name="openerMultiaction" ng-model="listProfile.current.actionRanges.opener.multiaction" min="1" aria-label="Number of Times Opened">
-                        <div class="hint">Multiaction</div>
-                        <md-tooltip md-direction="top">The user opened # or more times.</md-tooltip>
-                        </input>
-                    </md-input-container>
-                    <span> X</span>
+                <div class="row">
+                    <div class="col-lg-5 form-group">
+                        <label>Min</label>
+                        <input type="number" name="openerMin" class="form-control" ng-model="listProfile.current.actionRanges.opener.min" ng-change="listProfile.generateName()" min="0" aria-label="Opener Min" />
+                    </div>
+
+                    <div class="col-lg-5 form-group">
+                        <label>Max</label>
+                        <input type="number" name="openerMax" class="form-control" ng-model="listProfile.current.actionRanges.opener.max" ng-change="listProfile.generateName()" min="0" aria-label="Opener Max" />
+                    </div>
+
+                    <div class="col-lg-2 form-group">
+                        <label>MultiAction</label>
+                        <input type="number" name="openerMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.opener.multiaction" min="1" aria-label="Number of Times Opened">
+                        <i>The user opened # or more times</i>
+                    </div>
                 </div>
             </div>
 
-            <div hide-gt-xs>&nbsp;</div>
+            <div class="form-group">
+                <label><h4>Clickers Range</h4></label>
 
-            <div layout-xs="column" layout="row" layout-align="center start" layout-align-gt-xs="start center">
-                <label flex-gt-xs="25" flex="100">Clickers Range:</label>
-                <div layout="row" layout-align="start center">
-                    <md-input-container>
-                        <input type="number" name="clickerMin" ng-model="listProfile.current.actionRanges.clicker.min" ng-change="listProfile.generateName()" min="0" aria-label="Clicker Min" />
-                        <div class="hint">Min</div>
-                    </md-input-container>
-                    <sup><md-icon md-font-set="material-icons" class="mt2-icon-black">remove</md-icon></sup>
-                    <md-input-container>
-                        <input type="number" name="clickerMax" ng-model="listProfile.current.actionRanges.clicker.max" ng-change="listProfile.generateName()" min="0" aria-label="Clicker Max" />
-                        <div class="hint">Max</div>
-                    </md-input-container>
-                    <span flex="5"></span>
-                    <md-input-container>
-                        <input type="number" name="clickerMultiaction" ng-model="listProfile.current.actionRanges.clicker.multiaction" min="1" aria-label="Number of Times Clicked" >
-                        <div class="hint">Multiaction</div>
-                        <md-tooltip md-direction="top">The user clicked # or more times.</md-tooltip>
-                        </input>
-                    </md-input-container>
-                    <span> X</span>
+                <div class="row">
+                    <div class="col-lg-5 form-group">
+                        <label>Min</label>
+                        <input type="number" name="clickerMin" class="form-control" ng-model="listProfile.current.actionRanges.clicker.min" ng-change="listProfile.generateName()" min="0" aria-label="Clicker Min" />
+                    </div>
+
+                    <div class="col-lg-5 form-group">
+                        <label>Max</label>
+                        <input type="number" name="clickerMax" class="form-control" ng-model="listProfile.current.actionRanges.clicker.max" ng-change="listProfile.generateName()" min="0" aria-label="Clicker Max" />
+                    </div>
+
+                    <div class="col-lg-2 form-group">
+                        <label>Multiaction</label>
+                        <input type="number" name="clickerMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.clicker.multiaction" min="1" aria-label="Number of Times Clicked" >
+                        <i>The user clicked # or more times.</i>
+                    </div>
                 </div>
             </div>
 
-            <div hide-gt-xs>&nbsp;</div>
+            <div class="form-group">
+                <label><h4>Converters Range</h4></label>
 
-            <div layout-xs="column" layout="row" layout-align="center start" layout-align-gt-xs="start center">
-                <label flex-gt-xs="25" flex="100">Converters Range:</label>
-                <div layout="row" layout-align="start center">
-                    <md-input-container>
-                        <input type="number" name="converterMin" ng-model="listProfile.current.actionRanges.converter.min" ng-change="listProfile.generateName()" min="0" aria-label="Converter Min" />
-                        <div class="hint">Min</div>
-                    </md-input-container>
-                    <sup><md-icon md-font-set="material-icons" class="mt2-icon-black">remove</md-icon></sup>
-                    <md-input-container>
-                        <input type="number" name="converterMax" ng-model="listProfile.current.actionRanges.converter.max" ng-change="listProfile.generateName()" min="0" aria-label="Converter Max" />
-                        <div class="hint">Max</div>
-                    </md-input-container>
-                    <span flex="5"></span>
-                    <md-input-container>
-                        <input type="number" name="converterMultiaction" ng-model="listProfile.current.actionRanges.converter.multiaction" min="1" aria-label="Number of Times Converted">
-                        <div class="hint">Multiaction</div>
-                        <md-tooltip md-direction="top">The user coverted # or more times.</md-tooltip>
-                        </input>
-                    </md-input-container>
-                    <span> X</span>
+                <div class="row">
+                    <div class="col-lg-5 form-group">
+                        <label>Min</label>
+                        <input type="number" name="converterMin" class="form-control" ng-model="listProfile.current.actionRanges.converter.min" ng-change="listProfile.generateName()" min="0" aria-label="Converter Min" />
+                    </div>
+
+                    <div class="col-lg-5 form-group">
+                        <label>Max</label>
+                        <input type="number" name="converterMax" class="form-control" ng-model="listProfile.current.actionRanges.converter.max" ng-change="listProfile.generateName()" min="0" aria-label="Converter Max" />
+                    </div>
+
+                    <div class="col-lg-2 form-group">
+                        <label>Multiaction</label>
+                        <input type="number" name="converterMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.converter.multiaction" min="1" aria-label="Number of Times Converted">
+                        <i>The user coverted # or more times.</i>
+                    </div>
                 </div>
             </div>
         </md-card-content>
@@ -314,27 +314,26 @@
 
         <md-card-content layout="column">
 
-            <div layout-xs="column" layout="row" layout-align="center start" layout-align-gt-xs="start center">
-                <label flex-gt-xs="25" flex="100">Age:</label>
-                <div layout="row" layout-align="start center">
-                    <md-input-container>
-                        <input type="number" name="filterAgeMin" ng-model="listProfile.current.attributeFilters.age.min" min="0" aria-label="Minimum Age"/>
-                        <div class="hint">Min</div>
-                    </md-input-container>
-                    <sup><md-icon md-font-set="material-icons" class="mt2-icon-black">remove</md-icon></sup>
-                    <md-input-container>
-                        <input type="number" name="filterAgeMax" ng-model="listProfile.current.attributeFilters.age.max" min="0" aria-label="Maximum Age" />
-                        <div class="hint">Max</div>
-                    </md-input-container>
-                    <span flex="5"></span>
-                    <md-checkbox name="filterAgeUnknown" ng-model="listProfile.current.attributeFilters.age.unknown" ng-true-value="true" ng-false-value="false">
-                        Unknown
-                    </md-checkbox>
+            <div class="form-group">
+                <label>Age</label>
+                <div class="row">
+                    <div class="form-group col-lg-5">
+                        <label>Min</label>
+                        <input type="number" name="filterAgeMin" class="form-control" ng-model="listProfile.current.attributeFilters.age.min" min="0" aria-label="Minimum Age"/>
+                    </div>
+
+                    <div class="form-group col-lg-5">
+                        <label>Max</label>
+                        <input type="number" name="filterAgeMax" class="form-control" ng-model="listProfile.current.attributeFilters.age.max" min="0" aria-label="Maximum Age" />
+                    </div>
+                    <div class="form-group col-lg-2">
+                        <md-checkbox name="filterAgeUnknown" ng-model="listProfile.current.attributeFilters.age.unknown" ng-true-value="true" ng-false-value="false" style="margin-top: 25px">Unknown</md-checkbox>
+                    </div>
                 </div>
             </div>
 
-            <div layout-xs="column" layout="row" layout-align="center start" layout-align-gt-xs="start center">
-                <label flex-gt-xs="25" flex="100">Gender:</label>
+            <div class="form-group">
+                <label>Gender:</label>
                 <div layout="row" layout-align="start center">
                     <md-checkbox name="filterGenderMale" value="Male" ng-checked="listProfile.current.attributeFilters.genders.indexOf('Male') > -1" ng-click="listProfile.toggleSelection('Male')">
                         Male
@@ -350,51 +349,46 @@
                 </div>
             </div>
 
-            <md-chips name="zip" placeholder="Zip Code(s)" secondary-placeholder="+ Zip Code"
-                   ng-model="listProfile.current.attributeFilters.zips"
-                   md-removable="true"
-                   md-enable-chip-edit="true"
-                   md-separator-keys="listProfile.mdChipSeparatorKeys"
-                   md-add-on-blur="true">
+            <div class="form-group">
+                <label>Zip Codes(s)</label>
+                <textarea name="zip" class="form-control" placeholder="Zip Code(s)" ng-model="listProfile.current.attributeFilters.zips" rows="5"></textarea>
+            </div>
 
-            </md-chips>
+            <div class="form-group">
+                <label>City/Cities</label>
+                <textarea name="city" class="form-control" placeholder="City/Cities" ng-model="listProfile.current.attributeFilters.cities" rows="5"></textarea>
+            </div>
 
-            <md-chips name="city" placeholder="City/Cities" secondary-placeholder="+ City"
-                   ng-model="listProfile.current.attributeFilters.cities"
-                   md-removable="true"
-                   md-enable-chip-edit="true"
-                   md-separator-keys="listProfile.mdChipSeparatorKeys"
-                   md-add-on-blur="true">
+            <div class="form-group">
+                <label for="stateFilter">State(s)</label>
 
-            </md-chips>
-
-            <md-input-container>
-                <label>State(s)</label>
-                <md-select name="state" convert-to-number ng-model="listProfile.current.attributeFilters.states" multiple>
+                <select name="state" id="stateFilter" class="form-control" ng-model="listProfile.current.attributeFilters.states" multiple>
                     @foreach ( $states as $state )
-                        <md-option ng-value="::'{{ $state[ 'iso_3166_2' ] }}'">{{ $state[ 'name' ] }}</md-option>
+                        <option ng-value="::'{{ $state[ 'iso_3166_2' ] }}'">{{ $state[ 'name' ] }}</option>
                     @endforeach
-                </md-select>
-            </md-input-container>
+                </select>
+            </div>
 
-            <md-input-container>
-                <label>Device Type</label>
-                <md-select name="deviceType" ng-model="listProfile.current.attributeFilters.deviceTypes" multiple>
-                    <md-option value="Galaxy Note 7">Galaxy Note 7</md-option>
-                    <md-option value="iPhone 6S Plus">iPhone 6S Plus</md-option>
-                    <md-option value="iPhone 6S">iPhone 6S</md-option>
-                </md-select>
-            </md-input-container>
+            <div class="form-group">
+                <label for="deviceType">Device Type</label>
 
-            <md-input-container>
-                <label>Mobile Carriers</label>
-                <md-select name="mobileCarriers" ng-model="listProfile.current.attributeFilters.mobileCarriers" multiple>
-                    <md-option value="ATT">AT&amp;T</md-option>
-                    <md-option value="Sprint">Sprint</md-option>
-                    <md-option value="T-Mobile">T-Mobile</md-option>
-                    <md-option value="Verizon">Verizon</md-option>
-                </md-select>
-            </md-input-container>
+                <select name="deviceType" id="deviceType" class="form-control" ng-model="listProfile.current.attributeFilters.deviceTypes" multiple>
+                    <option value="Galaxy Note 7">Galaxy Note 7</option>
+                    <option value="iPhone 6S Plus">iPhone 6S Plus</option>
+                    <option value="iPhone 6S">iPhone 6S</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="mobileCarriers">Mobile Carriers</label>
+
+                <select name="mobileCarriers" id="mobilecarriers" class="form-control" ng-model="listProfile.current.attributeFilters.mobileCarriers" multiple>
+                    <option value="ATT">AT&amp;T</option>
+                    <option value="Sprint">Sprint</option>
+                    <option value="T-Mobile">T-Mobile</option>
+                    <option value="Verizon">Verizon</option>
+                </select>
+            </div>
 
         </md-card-content>
 
@@ -402,63 +396,65 @@
             <div class="md-toolbar-tools"><span>Suppression</span></div>
         </md-toolbar>
         <md-card-content layout="column">
-            <md-input-container>
-                <label>Global Suppression</label>
-                <md-select name="globalSupp" ng-required="true" ng-model="listProfile.current.suppression.global" multiple>
-                    <md-option value="Orange Global">Orange Global</md-option>
-                    <md-option value="Red Global">Red Global</md-option>
-                    <md-option value="Purple Global">Purple Global</md-option>
-                    <md-option value="Blue Global">Blue Global</md-option>
-                </md-select>
-            </md-input-container>
+            <div class="form-group">
+                <label for="globalSupp">Global Suppression</label>
 
-            <md-input-container>
-                <label>List Suppression</label>
-                <md-select name="listSupp" ng-model="listProfile.current.suppression.list" multiple>
-                    <md-option value="List Option 1">List Option 1</md-option>
-                    <md-option value="List Option 2">List Option 2</md-option>
-                    <md-option value="List Option 3">List Option 3</md-option>
-                </md-select>
-            </md-input-container>
+                <select name="globalSupp" id="globalSupp" class="form-control" ng-required="true" ng-model="listProfile.current.suppression.global" multiple>
+                    <option value="Orange Global">Orange Global</option>
+                    <option value="Red Global">Red Global</option>
+                    <option value="Purple Global">Purple Global</option>
+                    <option value="Blue Global">Blue Global</option>
+                </select>
+            </div>
 
-            <md-input-container>
-                <label>Offer Suppression</label>
-                <md-select name="offerSupp" ng-model="listProfile.current.suppression.offer" multiple>
+            <div class="form-group">
+                <label for="listSupp">List Suppression</label>
+
+                <select name="listSupp" id="listSupp" class="form-control" ng-model="listProfile.current.suppression.list" multiple>
+                    <option value="List Option 1">List Option 1</option>
+                    <option value="List Option 2">List Option 2</option>
+                    <option value="List Option 3">List Option 3</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="offerSupp">Offer Suppression</label>
+
+                <select name="offerSupp" id="offerSupp" class="form-control" ng-model="listProfile.current.suppression.offer" multiple>
                     @foreach ( $offers as $offer )
-                    <md-option value="{{$offer[ 'id' ]}}">{{$offer[ 'name' ]}}</md-option>
+                    <option value="{{$offer[ 'id' ]}}">{{$offer[ 'name' ]}}</option>
                     @endforeach
-                </md-select>
-            </md-input-container>
+                </select>
+            </div>
 
-            <h5><strong>Attribute Suppression</strong></h5>
+        </md-card-content>
 
-            <md-chips name="city" placeholder="City/Cities" secondary-placeholder="+ City"
-                   ng-model="listProfile.current.suppression.attribute.cities"
-                   md-removable="true"
-                   md-enable-chip-edit="true"
-                   md-separator-keys="listProfile.mdChipSeparatorKeys"
-                   md-add-on-blur="true">
+        <md-toolbar>
+            <div class="md-toolbar-tools"><span>Attribute Suppression</span></div>
+        </md-toolbar>
 
-            </md-chips>
+        <md-card-content>
+            <div class="form-group">
+                <label>City/Cities</label>
 
-            <md-input-container>
-                <label>State(s)</label>
-                <md-select name="state" convert-to-number ng-model="listProfile.current.suppression.attribute.states" multiple>
+                <textarea name="city" class="form-control" placeholder="City/Cities" ng-model="listProfile.current.suppression.attribute.cities"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="state">State(s)</label>
+
+                <select name="state" id="state" class="form-control" ng-model="listProfile.current.suppression.attribute.states" multiple>
                     @foreach ( $states as $state )
-                        <md-option ng-value="::'{{ $state[ 'iso_3166_2' ] }}'">{{ $state[ 'name' ] }}</md-option>
+                        <option value="{{ $state[ 'iso_3166_2' ] }}">{{ $state[ 'name' ] }}</option>
                     @endforeach
-                </md-select>
-            </md-input-container>
+                </select>
+            </div>
 
-            <md-chips name="zip" placeholder="Zip Code(s)" secondary-placeholder="+ Zip Code"
-                   ng-model="listProfile.current.suppression.attribute.zips"
-                   md-removable="true"
-                   md-enable-chip-edit="true"
-                   md-separator-keys="listProfile.mdChipSeparatorKeys"
-                   md-add-on-blur="true">
 
-            </md-chips>
-
+            <div class="form-group">
+                <label>Zip Code(s)</label>
+                <textarea name="zip" class="form-control" placeholder="Zip Code(s)" ng-model="listProfile.current.suppression.attribute.zips"></textarea>
+            </div>
         </md-card-content>
 
         <md-toolbar>

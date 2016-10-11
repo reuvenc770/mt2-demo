@@ -1,7 +1,8 @@
-mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , 'ClientGroupApiService' , 'IspApiService', '$mdToast' , '$log' , function ( ListProfileApiService , ClientGroupApiService , IspApiService , $mdToast , $log ) {
+mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToast' , '$mdDialog' , '$log' , function ( ListProfileApiService , $mdToast , $mdDialog , $log ) {
     var self = this;
 
     self.nameDisabled = true;
+    self.customName = false;
 
     var keycodeEnter = 13 ;
     var keycodeComma = 188 ;
@@ -101,9 +102,9 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , 'Client
     };
 
     self.generateName = function () {
-        /**
-         * Need to allow for manual editing. Should put a flag here to leave this function if user is defining name.
-         */
+        if ( self.customName ) {
+            return true;
+        }
 
         var nameParts = [];
 
@@ -169,6 +170,26 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , 'Client
         } )
 
         return fullRangeName;
+    };
+
+    self.toggleEditName = function ( ev , setDefaultName ) {
+        if ( setDefaultName ) {
+            self.nameDisabled = true;
+            self.customName = false;
+            self.generateName();
+        } else {
+            var confirm = $mdDialog.confirm()
+                .title( 'Are you sure you want to edit this field?' )
+                .ariaLabel( 'Are you sure you want to edit this field?' )
+                .targetEvent( ev )
+                .ok( 'Yes I Am Sure' )
+                .cancel( 'No, Leave Default Name' );
+
+            $mdDialog.show(confirm).then( function() {
+                self.nameDisabled = false;
+                self.customName = true;
+            } );
+        }
     };
 
     self.addFeeds = function () {
