@@ -4,10 +4,10 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
     self.nameDisabled = true;
     self.customName = false;
 
-    var keycodeEnter = 13 ;
-    var keycodeComma = 188 ;
-    var keycodeTab = 9 ;
-    self.mdChipSeparatorKeys = [ keycodeEnter , keycodeComma , keycodeTab ];
+    self.enableAdmiral = false;
+    self.showAttrFilters = false;
+
+    self.enabledSuppression = { "list" : false , "offer" : false };
 
     self.current = {
         'name' : '' ,
@@ -17,9 +17,9 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         'categories' : {} ,
         'offers' : {} ,
         'suppression' : {
-            'global' : '' ,
-            'list' : '' ,
-            'offer' : '' ,
+            'global' : [ "1" ] ,
+            'list' : [] ,
+            'offer' : [] ,
             'attribute' : { 'cities': [] , 'zips' : [] , 'states' : [] }
         },
         'actionRanges' : {
@@ -37,8 +37,15 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
             'deviceTypes' : [],
             'mobileCarriers' : []
         },
-        'selectedColumns' : [],
-        'includeCsvHeader' : false
+        'impressionwise' : false ,
+        'tower' : {
+            'run' : false ,
+            'cleanseMonth' : null ,
+            'cleanseYear' : null
+        } ,
+        'selectedColumns' : [] ,
+        'includeCsvHeader' : false ,
+        'admiralsOnly' : false
     };
 
     self.countryCodeMap = {};
@@ -185,10 +192,62 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
                 .ok( 'Yes I Am Sure' )
                 .cancel( 'No, Leave Default Name' );
 
-            $mdDialog.show(confirm).then( function() {
+            $mdDialog.show( confirm ).then( function() {
                 self.nameDisabled = false;
                 self.customName = true;
             } );
+        }
+    };
+
+    self.confirmMaxDateRange = function ( ev , maxRangeValue ) {
+        if ( maxRangeValue.max > 90 && maxRangeValue.allowLargeValue !== true ) {
+            var confirm = $mdDialog.confirm()
+                            .title( 'Are you sure you want to set this to more than 90 days?' )
+                            .ariaLabel( 'Max Date Range Warning' )
+                            .targetEvent( ev )
+                            .ok( 'Yes I am Sure' )
+                            .cancel( 'No, Set to Max Value' );
+
+            $mdDialog.show( confirm ).then(
+                function () {
+                    maxRangeValue.allowLargeValue = true;
+                } ,
+                function () {
+                    maxRangeValue.max = 90;
+                }
+            );
+        }
+    };
+
+    self.sanitizeMultiAction = function ( range ) {
+        if ( typeof( range.multiaction ) ==='undefined'  ) {
+            range.multiaction = 1;
+        }
+    };
+
+    self.sanitizeGlobalSupp = function () {
+        if ( typeof( self.current.suppression.global ) == 'undefined' ) {
+            self.current.suppression.global = [ "1" ];
+        }
+    };
+
+    self.confirmSuppressionConfig = function ( ev , type ) {
+        if ( !self.enabledSuppression[ type ] && self.current.suppression[ type ].length > 0 ) {
+            var confirm = $mdDialog.confirm()
+                            .title( 'Are you sure you?' )
+                            .ariaLabel( 'Suppression Warning' )
+                            .targetEvent( ev )
+                            .ok( 'Yes' )
+                            .cancel( 'Cancel' );
+
+            $mdDialog.show( confirm ).then(
+                function () {
+                    self.enabledSuppression[ type ] = true;
+                } ,
+                function () {
+                    self.current.suppression[ type ] = [];
+                }
+            );
         }
     };
 
