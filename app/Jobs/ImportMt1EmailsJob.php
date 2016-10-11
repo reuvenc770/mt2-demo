@@ -25,24 +25,34 @@ class ImportMt1EmailsJob extends Job implements ShouldQueue {
 
     public function handle(ImportMt1EmailsService $service) {
         if ($this->jobCanRun(self::JOB_NAME)) {
-            $this->createLock(self::JOB_NAME);
-            JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
+            try {
+                $this->createLock(self::JOB_NAME);
+                JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
 
-            $service->run();
-            
-            JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
-            $result = $this->unlock(self::JOB_NAME);
-            echo "Successfully removed lock: $result" . PHP_EOL;
+                $service->run();
+                
+                JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
+                $result = $this->unlock(self::JOB_NAME);
+                echo "Successfully removed lock: $result" . PHP_EOL;      
+            }
+            catch (\Exception $e) {
+                echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;
+                $this->failed();
+            }
+            finally {
+                $this->unlock($this->jobName);
+            }
+
         }
         else {
-            JobTracking::changeJobState(JobEntry::SKIPPED,$this->tracking);
+            JobTracking::changeJobState(JobEntry::SKIPPED, $this->tracking);
             echo "Still running " . self::JOB_NAME . " - job level" . PHP_EOL;
         }
 
     }
 
     public function failed() {
-        JobTracking::changeJobState(JobEntry::FAILED,$this->tracking);
+        JobTracking::changeJobState(JobEntry::FAILED, $this->tracking);
         $this->unlock(self::JOB_NAME);
     }
 }
