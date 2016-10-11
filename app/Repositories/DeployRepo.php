@@ -45,7 +45,7 @@ class DeployRepo
                 'subjects.subject_line as subject',
                 'froms.from_line as from',
                 'creatives.file_name as creative',
-                'list_profiles.profile_name as list_profile',
+                'list_profiles.name as list_profile',
                 'cake_affiliate_id',
                 'deployment_status',
                 'creatives.is_approved as creative_approval',
