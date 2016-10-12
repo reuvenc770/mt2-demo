@@ -15,7 +15,7 @@
         userName: "{{Sentinel::check() ? Sentinel::getUser()->username: 0}}"
     };
 </script>
-<div @yield( 'angular-controller' )class="container pinned-container" ng-cloak>
+<div @yield( 'angular-controller' )class="@yield('container', 'container') pinned-container" ng-cloak>
     @include( 'bootstrap.layout.internal-navigation' )
     {!! Breadcrumbs::renderIfExists() !!}
     @yield( 'content' )

@@ -13,7 +13,6 @@
 
 @section( 'content' )
     <div ng-init="dg.loadAccounts()">
-        <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
             <md-card>
                 <md-table-container>
                     <table md-table md-progress="dg.queryPromise">
@@ -52,7 +51,6 @@
                     <md-table-pagination md-limit="dg.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="dg.currentPage" md-total="@{{dg.accountTotal}}" md-on-paginate="dg.loadAccounts" md-page-select></md-table-pagination>
                 </md-content>
             </md-card>
-        </md-content>
     </div>
 @stop
 
