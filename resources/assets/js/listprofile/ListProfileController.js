@@ -108,6 +108,143 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         'converter' : 'CV'
     };
 
+    self.towerDateOptions = [];
+
+    self.demoProfiles = [
+        {
+            'name' : 'ADK3_Yahoo_US_7to30D' ,
+            'countries' : [ "1" ] ,
+            'feeds' : { 2984 : "ADK3" } ,
+            'isps' : { 4 : "Yahoo" } ,
+            'categories' : {} ,
+            'offers' : {} ,
+            'suppression' : {
+                'global' : [ "1" ] ,
+                'list' : [] ,
+                'offer' : [] ,
+                'attribute' : { 'cities': [] , 'zips' : [] , 'states' : [] }
+            },
+            'actionRanges' : {
+                'deliverable' : { 'min' : 7 , 'max' : 30 },
+                'opener' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 },
+                'clicker' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 },
+                'converter' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 }
+            },
+            'attributeFilters' : {
+                'age' : { 'min' : 0 , 'max' : 0 , 'unknown' : false },
+                'genders' : [],
+                'zips' : [],
+                'cities' : [],
+                'states' : [],
+                'deviceTypes' : [],
+                'mobileCarriers' : []
+            },
+            'impressionwise' : false ,
+            'tower' : {
+                'run' : false ,
+                'cleanseMonth' : null ,
+                'cleanseYear' : null
+            } ,
+            'selectedColumns' : [] ,
+            'includeCsvHeader' : false ,
+            'admiralsOnly' : false ,
+            'lastPull' : moment().subtract( 30 , 'minutes' ).format( 'LLL' ) ,
+            'recordCount' : Math.floor( Math.random() * ( Math.floor( 20000 ) - Math.ceil( 10000 ) + 1 ) ) + Math.ceil( 10000 )
+        } ,
+        {
+            'name' : 'JTST_Gmail_GB_30OCCV' ,
+            'countries' : [ '235' ] ,
+            'feeds' : { 2962 : "JTST" } ,
+            'isps' : { 8 : "Gmail" } ,
+            'categories' : {} ,
+            'offers' : {} ,
+            'suppression' : {
+                'global' : [ "1" ] ,
+                'list' : [] ,
+                'offer' : [] ,
+                'attribute' : { 'cities': [] , 'zips' : [] , 'states' : [] }
+            },
+            'actionRanges' : {
+                'deliverable' : { 'min' : 0 , 'max' : 0 },
+                'opener' : { 'min' : 0 , 'max' : 30 , 'multiaction' : 1 },
+                'clicker' : { 'min' : 0 , 'max' : 30 , 'multiaction' : 1 },
+                'converter' : { 'min' : 0 , 'max' : 30 , 'multiaction' : 1 }
+            },
+            'attributeFilters' : {
+                'age' : { 'min' : 0 , 'max' : 0 , 'unknown' : false },
+                'genders' : [],
+                'zips' : [],
+                'cities' : [],
+                'states' : [],
+                'deviceTypes' : [],
+                'mobileCarriers' : []
+            },
+            'impressionwise' : false ,
+            'tower' : {
+                'run' : false ,
+                'cleanseMonth' : null ,
+                'cleanseYear' : null
+            } ,
+            'selectedColumns' : [] ,
+            'includeCsvHeader' : false ,
+            'admiralsOnly' : false ,
+            'lastPull' : moment().subtract( 2 , 'days' ).add( 5 , 'hours' ).add( 40 , 'minutes' ).format( 'LLL' ) ,
+            'recordCount' : Math.floor( Math.random() * ( Math.floor( 10000 ) - Math.ceil( 3000 ) + 1 ) ) + Math.ceil( 3000 )
+        } ,
+        {
+            'name' : 'NPR_AOL_GB_7OCCV' ,
+            'countries' : [ '235' ] ,
+            'feeds' : { 2956 : "NPR" } ,
+            'isps' : { 2 : "AOL" } ,
+            'categories' : {} ,
+            'offers' : {} ,
+            'suppression' : {
+                'global' : [ "1" ] ,
+                'list' : [] ,
+                'offer' : [] ,
+                'attribute' : { 'cities': [] , 'zips' : [] , 'states' : [] }
+            },
+            'actionRanges' : {
+                'deliverable' : { 'min' : 0 , 'max' : 0 },
+                'opener' : { 'min' : 0 , 'max' : 7 , 'multiaction' : 2 },
+                'clicker' : { 'min' : 0 , 'max' : 7 , 'multiaction' : 1 },
+                'converter' : { 'min' : 0 , 'max' : 7 , 'multiaction' : 1 }
+            },
+            'attributeFilters' : {
+                'age' : { 'min' : 0 , 'max' : 0 , 'unknown' : false },
+                'genders' : [],
+                'zips' : [],
+                'cities' : [],
+                'states' : [],
+                'deviceTypes' : [],
+                'mobileCarriers' : []
+            },
+            'impressionwise' : false ,
+            'tower' : {
+                'run' : false ,
+                'cleanseMonth' : null ,
+                'cleanseYear' : null
+            } ,
+            'selectedColumns' : [] ,
+            'includeCsvHeader' : false ,
+            'admiralsOnly' : false ,
+            'lastPull' : moment().subtract( 1 , 'days' ).subtract( 2 , 'hours' ).add( 20 , 'minutes' ).format( 'LLL' ) ,
+            'recordCount' : Math.floor( Math.random() * ( Math.floor( 60000 ) - Math.ceil( 40000 ) + 1 ) ) + Math.ceil( 40000 )
+        } ,
+    ];
+
+    self.prepop = function ( id ) {
+        self.current = self.demoProfiles[ id - 1 ];
+    };
+
+    self.generateTowerDateOptions = function () {
+        var lastYear = moment().subtract( 1 , 'years' ).year();
+        self.towerDateOptions.push( { "value" : lastYear , "name" : lastYear } );
+
+        var thisYear = moment().year();
+        self.towerDateOptions.push( { "value" : thisYear , "name" : thisYear } );
+    };
+
     self.generateName = function () {
         if ( self.customName ) {
             return true;
@@ -115,42 +252,26 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
 
         var nameParts = [];
 
-        nameParts.push( self.getFormattedFeedName() );
-        nameParts.push( self.getFormattedIspName() );
-        nameParts.push( self.getFormattedCountryName() );
+        nameParts.push( self.getFormattedName( self.current.feeds ) );
+        nameParts.push( self.getFormattedName( self.current.isps ) );
+        nameParts.push( self.getFormattedName( self.current.countries , self.countryCodeMap ) );
         nameParts.push( self.getFormattedRangeName() );
 
         self.current.name = nameParts.join( '_' );
     };
 
-    self.getFormattedFeedName = function () {
-        /**
-         * Need to switch these out for shortnames
-         */ 
-        var feedNames = [];
-        angular.forEach( self.current.feeds , function ( currentFeedName , feedId ) {
-            feedNames.push( currentFeedName );
+    self.getFormattedName = function ( list , map ) {
+        var names = [];
+
+        angular.forEach( list , function ( current ) {
+            if ( typeof( map ) !== 'undefined' && Object.keys( map ).length > 0 ) {
+                names.push( map[ current ] );
+            } else {
+                names.push( current );
+            }
         } );
 
-        return feedNames.join( '|' );
-    };
-
-    self.getFormattedIspName = function () {
-        var ispGroupNames = [];
-        angular.forEach( self.current.isps , function ( currentIspName , ispId ) {
-            ispGroupNames.push( currentIspName );
-        } );
-
-        return ispGroupNames.join( '|' );
-    };
-
-    self.getFormattedCountryName = function () {
-        var countryNames = [];
-        angular.forEach( self.current.countries , function ( countryId ) {
-            countryNames.push( self.countryCodeMap[ countryId ] );
-        } );
-
-        return countryNames.join( '|' );
+        return names.join( '|' );
     };
 
     self.getFormattedRangeName = function () {
@@ -251,30 +372,51 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         }
     };
 
-    self.addFeeds = function () {
-        angular.forEach( self.highlightedFeeds , function ( feedId ) {
-            self.feedVisibility[ feedId ] = false;
+    self.addMembershipItems = function ( container , context , callback ) {
+        angular.forEach( container.highlighted , function ( id ) {
+            container.visibility[ id ] = false;
 
-            self.current.feeds[ feedId ] = self.feedNameMap[ feedId ];
+            context[ id ] = container.map[ id ];
         } );
 
-        self.highlightedFeeds = [];
+        container.highlighted = [];
 
-        self.generateName();
+        if ( typeof( callback ) !== 'undefined' ) {
+            callback();
+        }
+    }
+
+    self.removeMembershipItems = function ( container , context , callback ) {
+        angular.forEach( container.highlightedForRemoval , function ( id ) {
+            container.visibility[ id ] = true;
+
+            delete( context[ id ] );
+        } );
+
+        container.highlightedForRemoval = [];
+
+        if ( typeof( callback ) !== 'undefined' ) {
+            callback();
+        }
+    }
+
+    self.addFeeds = function () {
+        self.addMembershipItems(
+            { "highlighted" : self.highlightedFeeds , "visibility" : self.feedVisibility , "map" : self.feedNameMap } ,
+            self.current.feeds ,
+            self.generateName
+        );
     };
 
     self.removeFeeds = function () {
-        angular.forEach( self.highlightedFeedsForRemoval , function ( feedId ) {
-            self.feedVisibility[ feedId ] = true;
-
-            delete( self.current.feeds[ feedId ] );
-        } );
-
-        self.updateFeedVisibility();
-
-        self.highlightedFeedsForRemoval = [];
-
-        self.generateName();
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedFeedsForRemoval , "visibility" : self.feedVisibility } ,
+            self.current.feeds ,
+            function () {
+                self.updateFeedVisibility();
+                self.generateName();
+            }
+        );
     };
 
     self.updateFeedVisibility = function () {
@@ -311,68 +453,47 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
     };
 
     self.addIsps = function () {
-        angular.forEach( self.highlightedIsps , function ( ispId ) {
-            self.ispVisibility[ ispId ] = false;
-
-            self.current.isps[ ispId ] = self.ispNameMap[ ispId ];
-        } );
-
-        self.highlightedIsps = [];
-
-        self.generateName();
+        self.addMembershipItems(
+            { "highlighted" : self.highlightedIsps , "visibility" : self.ispVisibility , "map" : self.ispNameMap } ,
+            self.current.isps ,
+            self.generateName
+        );
     };
 
     self.removeIsps = function () {
-        angular.forEach( self.highlightedIspsForRemoval , function ( ispId ) {
-            self.ispVisibility[ ispId ] = true;
-
-            delete( self.current.isps[ ispId ] );
-        } );
-
-        self.highlightedIspsForRemoval = [];
-
-        self.generateName();
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedIspsForRemoval , "visibility" : self.ispVisibility } ,        
+            self.current.isps ,
+            self.generateName
+        );
     };
 
-
     self.addCategories = function () {
-        angular.forEach( self.highlightedCategories , function ( categoryId ) {
-            self.categoryVisibility[ categoryId ] = false;
-
-            self.current.categories[ categoryId ] = self.categoryNameMap[ categoryId ];
-        } );
-
-        self.highlightedCategories = [];
+        self.addMembershipItems(
+            { "highlighted" : self.highlightedCategories , "visibility" : self.categoryVisibility , "map" : self.categoryNameMap } ,
+            self.current.categories
+        );  
     };
 
     self.removeCategories = function () {
-        angular.forEach( self.highlightedCategoriesForRemoval , function ( categoryId ) {
-            self.categoryVisibility[ categoryId ] = true;
-
-            delete( self.current.categories[ categoryId ] );
-        } );
-
-        self.highlightedCategoriesForRemoval = [];
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedCategoriesForRemoval , "visibility" : self.categoryVisibility } ,
+            self.current.categories
+        );  
     };
 
     self.addOffers = function () {
-        angular.forEach( self.highlightedOffers , function ( offerId ) {
-            self.offerVisibility[ offerId ] = false;
-
-            self.current.offers[ offerId ] = self.offerNameMap[ offerId ];
-        } );
-
-        self.highlightedOffers = [];
+        self.addMembershipItems(
+            { "highlighted" : self.highlightedOffers , "visibility" : self.offerVisibility , "map" : self.offerNameMap } ,
+            self.current.offers
+        );
     };
 
     self.removeOffers = function () {
-        angular.forEach( self.highlightedOffersForRemoval , function ( offerId ) {
-            self.offerVisibility[ offerId ] = true;
-
-            delete( self.current.offers[ offerId ] );
-        } );
-
-        self.highlightedOffersForRemoval = [];
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedOffersForRemoval , "visibility" : self.offerVisibility } ,
+            self.current.offers
+        );
     };
 
     self.toggleSelection = function (gender) {
@@ -396,6 +517,4 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         } );
         self.current.selectedColumns = columnList;
     };
-
-
 } ] );

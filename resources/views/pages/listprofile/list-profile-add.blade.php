@@ -14,11 +14,11 @@
          @include( 'pages.listprofile.list-profile-form' )
 
          <div layout="row" layout-align="end end">
-             <md-button layout="row" class="md-raised md-accent">
+             <md-button layout="row" class="md-raised md-accent" ng-click="app.redirect( '/listprofile' )">
                  <md-icon class="material-icons" md-font-set="material-icons">archive</md-icon>
                  <span flex> Export to FTP</span>
              </md-button>
-             <md-button layout="row" class="md-raised md-accent">
+             <md-button layout="row" class="md-raised md-accent" ng-click="app.redirect( '/listprofile' )">
                  <md-icon class="material-icons" md-font-set="material-icons">save</md-icon>
                  <span flex> Save</span>
              </md-button>

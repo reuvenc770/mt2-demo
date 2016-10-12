@@ -58,7 +58,7 @@ class ListProfileController extends Controller
     }
 
     public function listAll () {
-        return response()->view( 'pages.listprofile.list-profile-index' , [ 'profiles' => $this->listActive() ] );
+        return response()->view( 'pages.listprofile.list-profile-index' );
     }
 
     /**
@@ -99,7 +99,7 @@ class ListProfileController extends Controller
      */
     public function edit($id)
     {
-        return response()->view( 'pages.listprofile.list-profile-edit' , $this->getFormFieldOptions() );
+        return response()->view( 'pages.listprofile.list-profile-edit' , $this->getFormFieldOptions( [ 'id' => $id ] ) );
     }
 
     /**
@@ -130,7 +130,7 @@ class ListProfileController extends Controller
         );
     }
 
-    protected function getFormFieldOptions () {
+    protected function getFormFieldOptions ( $addOptions = [] ) {
         $feeds = $this->feedRepo->getFeeds()->keyBy( 'id' )->toArray();
         $clients = $this->clientService->getListGroups()->keyBy( 'value' )->toArray();
 
@@ -148,7 +148,7 @@ class ListProfileController extends Controller
             }
         }
 
-        return [
+        return array_merge( [
             'feeds' => $feeds ,
             'clients' => $clients ,
             'clientFeedMap' => $clientFeedMap ,
@@ -157,6 +157,6 @@ class ListProfileController extends Controller
             'isps' => $this->ispService->getAll() ,
             'categories' => CakeVertical::all() ,
             'offers' => $this->offerService->all() 
-        ];
+        ] , $addOptions );
     }
 }

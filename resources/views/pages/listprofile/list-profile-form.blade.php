@@ -6,7 +6,9 @@
 
                 <span flex></span>
 
+                @if ( Sentinel::inRole( 'admiral' ) )
                 <md-switch ng-model="listProfile.enableAdmiral" aria-label="Enable Admiral Features" ng-true-value="true" ng-false-value="false">Enable Admiral Features</md-switch>
+                @endif
             </div>
         </md-toolbar>
 
@@ -24,7 +26,9 @@
                 </div>
             </div>
 
+            @if ( Sentinel::inRole( 'admiral' ) )
             <md-checkbox ng-model="listProfile.current.admiralsOnly" ng-show="listProfile.enableAdmiral" aria-label="Admirals Only" ng-true-value="true" ng-false-value="false">Admirals Only</md-checkbox>
+            @endif
 
             <div class="form-group">
                 <label for="countries">Countries</label>
@@ -438,6 +442,7 @@
         </md-toolbar>
 
         <md-card-content layout="column">
+            @if ( Sentinel::inRole( 'admiral' ) )
             <div class="form-group" ng-show="listProfile.enableAdmiral">
                 <label for="globalSupp">Global Suppression</label>
 
@@ -448,7 +453,9 @@
                     <option value="4">White Global</option>
                 </select>
             </div>
+            @endif
 
+            @if ( Sentinel::inRole( 'admiral' ) )
             <div class="form-group" ng-show="listProfile.enableAdmiral">
                 <label for="listSupp">List Suppression</label>
 
@@ -458,6 +465,7 @@
                     <option value="List Option 3">List Option 3</option>
                 </select>
             </div>
+            @endif
 
             <div class="form-group">
                 <label for="offerSupp">Offer Suppression</label>
@@ -518,8 +526,10 @@
                         <div class="input-group">
                             <span class="input-group-addon">Year</span>
 
-                            <select class="form-control" ng-model="listProfile.current.tower.cleanseYear">
+                            <select class="form-control" ng-model="listProfile.current.tower.cleanseYear" ng-init="listProfile.generateTowerDateOptions()">
                                 <option value="">Year</option>
+                                <option ng-value="::listProfile.towerDateOptions[ 0 ].value">@{{ ::listProfile.towerDateOptions[ 0 ].value }}</option>
+                                <option ng-value="::listProfile.towerDateOptions[ 1 ].value">@{{ ::listProfile.towerDateOptions[ 1 ].value }}</option>
                             </select>
                         </div>
                     </div>
@@ -530,6 +540,18 @@
 
                             <select class="form-control" ng-model="listProfile.current.tower.cleanseMonth">
                                 <option value="">Month</option>
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
                             </select>
                         </div>
                     </div>
