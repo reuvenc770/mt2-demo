@@ -20,8 +20,10 @@ class RegistrarController extends Controller
 
     public function listAll()
     {
+        $value = $_COOKIE['sidenavCookie'];
+        $page = $value ? "bootstrap." : "";
         return response()
-            ->view('pages.registrar.registrar-index');
+            ->view("{$page}pages.registrar.registrar-index");
     }
 
     /**
@@ -51,8 +53,10 @@ class RegistrarController extends Controller
      */
     public function create()
     {
+        $value = $_COOKIE['sidenavCookie'];
+        $page = $value ? "bootstrap." : "";
         $states = States::all();
-        return view('pages.registrar.registrar-add', ['states' => $states]);
+        return view("{$page}pages.registrar.registrar-add", ['states' => $states]);
     }
 
     /**
@@ -88,9 +92,11 @@ class RegistrarController extends Controller
      */
     public function edit( )
     {
+        $value = $_COOKIE['sidenavCookie'];
+        $page = $value ? "bootstrap." : "";
         $states = States::all();
         return response()
-            ->view( 'pages.registrar.registrar-edit', ['states' => $states]);
+            ->view( "{$page}pages.registrar.registrar-edit", ['states' => $states]);
     }
 
     /**
