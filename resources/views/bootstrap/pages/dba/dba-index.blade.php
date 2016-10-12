@@ -75,6 +75,3 @@
 @stop
 
 
-<?php Assets::add(
-        ['resources/assets/js/bootstrap/dba/DBAController.js',
-                'resources/assets/js/bootstrap/dba/DBAApiService.js'],'js','pageLevel') ?>
