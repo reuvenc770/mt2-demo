@@ -18,8 +18,10 @@ class DomainGroupController extends Controller
 
     public function listAll()
     {
+        $value = $_COOKIE['sidenavCookie'];
+        $page = $value ? "bootstrap." : "";
         return response()
-            ->view('pages.domaingroup.domaingroup-index');
+            ->view("{$page}pages.domaingroup.domaingroup-index");
     }
 
     /**
@@ -39,7 +41,9 @@ class DomainGroupController extends Controller
      */
     public function create()
     {
-        return view('pages.domaingroup.domaingroup-add');
+        $value = $_COOKIE['sidenavCookie'];
+        $page = $value ? "bootstrap." : "";
+        return view("{$page}.pages.domaingroup.domaingroup-add");
     }
 
     /**
@@ -74,8 +78,10 @@ class DomainGroupController extends Controller
      */
     public function edit($id)
     {
+        $value = $_COOKIE['sidenavCookie'];
+        $page = $value ? "bootstrap." : "";
         return response()
-            ->view('pages.domaingroup.domaingroup-edit');
+            ->view("{$page}pages.domaingroup.domaingroup-edit");
     }
 
     /**
