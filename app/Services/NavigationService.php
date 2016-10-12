@@ -28,7 +28,27 @@ class NavigationService {
     public function getMenuHtml () {
         $userPresent = $this->loadUser();
         if ( $userPresent ) {
-            $cachedMenu = null;
+            $cachedMenu = Cache::tags("navigation")->get( $this->cacheId );
+            if ( is_null( $cachedMenu ) ) {
+                $this->loadMenu();
+                    $template = 'layout.side-nav';
+                $sideNav = view( $template , [ 'menuItems' => $this->menuList ] )->render() ;
+
+                Cache::tags('navigation')->forever( $this->cacheId , $sideNav);
+
+                return $sideNav;
+            } else {
+                return $cachedMenu;
+            }
+        } else {
+            return view( 'layout.side-nav-guest' );
+        }
+    }
+
+    public function getMenuHtmlBootStrap() {
+        $userPresent = $this->loadUser();
+        if ( $userPresent ) {
+            $cachedMenu = Cache::tags("navigation-bootstrap")->get( $this->cacheId );
             if ( is_null( $cachedMenu ) ) {
                 $this->loadMenu();
 
@@ -36,7 +56,7 @@ class NavigationService {
 
                 $sideNav = view( $template , [ 'menuItems' => $this->menuList ] )->render() ;
 
-                Cache::tags('navigation')->forever( $this->cacheId , $sideNav);
+                Cache::tags('navigation-bootstrap')->forever( $this->cacheId , $sideNav);
 
                 return $sideNav;
             } else {

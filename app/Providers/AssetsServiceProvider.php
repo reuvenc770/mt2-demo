@@ -51,12 +51,5 @@ class AssetsServiceProvider extends ServiceProvider {
 			return new Assets($app['config']['assets'], $filesystem);
 		});
 
-		// Command-line functions
-		// Don't use array access here - it is hard to mock / unit-test.  Use bind() and make() instead.
-		$this->app->bind('command.assets.purge', $this->app->share(function(Application $app) {
-			return new Purge($app->make('assets'));
-		}));
-
-		$this->commands(['command.assets.purge']);
 	}
 }

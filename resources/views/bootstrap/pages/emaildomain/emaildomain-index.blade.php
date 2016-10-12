@@ -52,5 +52,5 @@
 @stop
 
 <?php Assets::add(
-        ['resources/assets/js/emaildomain/EmailDomainController.js',
-        'resources/assets/js/emaildomain/EmailDomainApiService.js'],'js','pageLevel') ?>
+        ['resources/assets/js/bootstrap/emaildomain/EmailDomainController.js',
+        'resources/assets/js/bootstrap/emaildomain/EmailDomainApiService.js'],'js','pageLevel') ?>

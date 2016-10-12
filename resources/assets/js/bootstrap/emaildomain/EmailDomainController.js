@@ -1,4 +1,4 @@
-mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' , '$timeout' , 'EmailDomainApiService', '$rootScope','$mdToast', function ( $log , $window , $location , $timeout , EmailDomainApiService, $rootScope, $mdToast ) {
+mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' , '$timeout' , 'EmailDomainApiService', '$rootScope','$mdToast','formValidationService','modalService', function ( $log , $window , $location , $timeout , EmailDomainApiService, $rootScope, $mdToast, formValidationService, modalService ) {
     var self = this;
     self.$location = $location;
 
@@ -14,6 +14,7 @@ mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' 
     self.currentPage = 1;
     self.accountTotal = 0;
     self.sort = '-id';
+    self.editForm = false;
     self.queryPromise = null;
 
     self.loadAccount = function () {
@@ -25,12 +26,10 @@ mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' 
     };
 
     self.loadProfile = function ($id) {
-
         EmailDomainApiService.getAccount($id , function ( response ) {
             self.currentAccount = response.data;
         } )
     };
-
     self.loadAccounts = function () {
         self.queryPromise = EmailDomainApiService.getAccounts(self.currentPage , self.paginationCount , self.sort , self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
     };
@@ -38,7 +37,6 @@ mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' 
     self.resetForm = function () {
         self.currentAccount = {};
     };
-
 
     /**
      * Click Handlers
@@ -49,28 +47,16 @@ mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' 
     };
 
     self.saveNewAccount = function () {
-        self.resetFieldErrors();
+        formValidationService.resetFieldErrors(self);
+        self.editForm = true;
         EmailDomainApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback );
     };
 
     self.editAccount = function () {
-        self.resetFieldErrors();
+        formValidationService.resetFieldErrors(self);
+        self.editForm = true;
         EmailDomainApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
-
-
-
-
-    /**
-     * Watchers
-     */
-    $rootScope.$on( 'updatePage' , function () {
-        self.loadAccounts();
-    } );
-
-
-
-
 
     /**
      * Callbacks
@@ -82,10 +68,9 @@ mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' 
     };
 
     self.loadAccountsFailureCallback = function ( response ) {
-        self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to load accounts.' );
-
-        self.launchModal();
+        modalService.setModalLabel( 'Error' );
+        modalService.setModalBody( 'Failed to load accounts.' );
+        modalService.launchModal();
     };
 
     self.SuccessCallBackRedirect = function ( response ) {
@@ -105,54 +90,13 @@ mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' 
     };
 
     self.saveNewAccountFailureCallback = function ( response ) {
-        self.loadFieldErrors(response);
+        self.editForm = false;
+        formValidationService.loadFieldErrors(self,response);
     };
 
-    self.editAccountFailureCallback = function ( response ) {
-        self.loadFieldErrors(response);
+    self.editAccountFailureCallback = function (response ) {
+        self.editForm = false;
+        formValidationService.loadFieldErrors(self,response);
     };
 
-    /**
-     * Errors
-     */
-    self.loadFieldErrors = function (response ) {
-        angular.forEach(response.data, function(value, key) {
-            self.setFieldError( key , value );
-        });
-    };
-
-    self.setFieldError = function ( field , errorMessage ) {
-        self.formErrors[ field ] = errorMessage;
-    };
-
-    self.resetFieldErrors = function () {
-        self.formErrors = {};
-    };
-
-    /**
-     * Page Modal
-     */
-
-    self.setModalLabel = function ( labelText ) {
-        var modalLabel = angular.element( document.querySelector( '#pageModalLabel' ) );
-
-        modalLabel.text( labelText );
-    };
-
-    self.setModalBody = function ( bodyText ) {
-        var modalBody = angular.element( document.querySelector( '#pageModalBody' ) );
-
-        modalBody.text( bodyText );
-    };
-
-    self.launchModal = function () {
-        $( '#pageModal' ).modal('show');
-    };
-
-    self.resetModal = function () {
-        self.setModalLabel( '' );
-        self.setModalBody( '' );
-
-        $( '#pageModal' ).modal('hide');
-    };
 } ] );
