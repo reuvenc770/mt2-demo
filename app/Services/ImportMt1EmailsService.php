@@ -124,6 +124,7 @@ class ImportMt1EmailsService
                         $emailRow = $this->mapToEmailTable($record);
                         $this->emailRepo->insertDelayedBatch($emailRow);
                         $this->emailIdCache[$importingEmailId] = 1;
+                        $record['is_deliverable'] = 1;
 
                         $this->recordDataRepo->insert($record);
                     }
@@ -147,6 +148,9 @@ class ImportMt1EmailsService
                             $record['email_id'] = $importingEmailId;
 
                         }
+                        // maybe there's a way to remove this?
+                        $isDeliverable = $this->recordDataRepo->getDeliverableStatus($record['email_id']);
+                        $record['is_deliverable'] = $isDeliverable;
 
                         $this->recordDataRepo->insert($record);
 

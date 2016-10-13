@@ -23,7 +23,7 @@ class RecordDataRepo {
             $this->batchData = implode(', ', $this->batchData);
 
             DB::statement("
-                INSERT INTO record_data (email_id, first_name, last_name, 
+                INSERT INTO record_data (email_id, is_deliverable, first_name, last_name, 
                     address, address2, city, state, zip, country, gender, 
                     ip, phone, source_url, dob, capture_date, other_fields)
 
@@ -33,6 +33,7 @@ class RecordDataRepo {
 
                 ON DUPLICATE KEY UPDATE
                 email_id = email_id,
+                is_deliverable = VALUES(is_deliverable),
                 first_name = VALUES(first_name),
                 last_name = VALUES(last_name),
                 address = VALUES(address),
@@ -63,7 +64,7 @@ class RecordDataRepo {
         $this->batchData = implode(', ', $this->batchData);
 
         DB::statement("
-            INSERT INTO record_data (email_id, first_name, last_name, 
+            INSERT INTO record_data (email_id, is_deliverable, first_name, last_name, 
                 address, address2, city, state, zip, country, gender, 
                 ip, phone, source_url, dob, capture_date, other_fields)
 
@@ -73,6 +74,7 @@ class RecordDataRepo {
 
             ON DUPLICATE KEY UPDATE
             email_id = email_id,
+            is_deliverable = VALUES(is_deliverable),
             first_name = VALUES(first_name),
             last_name = VALUES(last_name),
             address = VALUES(address),
@@ -99,6 +101,7 @@ class RecordDataRepo {
 
         return '('
             . $pdo->quote($row['email_id']) . ','
+            . $pdo->quote($row['is_deliverable']) . ','
             . $pdo->quote($row['first_name']) . ','
             . $pdo->quote($row['last_name']) . ','
             . $pdo->quote($row['address']) . ','
@@ -129,6 +132,7 @@ class RecordDataRepo {
             
                 ON DUPLICATE KEY UPDATE
                 email_id = email_id,
+                is_deliverable = is_deliverable,
                 first_name = first_name,
                 last_name = last_name,
                 address = address,
@@ -150,5 +154,16 @@ class RecordDataRepo {
             ");
         }
 
+    }
+
+    public function getDeliverableStatus($emailId) {
+        $data = $this->model->find($emailId);
+
+        if ($data) {
+            return $data->is_deliverable;
+        }
+        else {
+            return 1; // default set to deliverable ... 
+        }
     }
 }
