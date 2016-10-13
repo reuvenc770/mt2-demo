@@ -9,14 +9,16 @@
 </div>
 <div class="panel panel-success">
     <div class="panel-heading">
-        <div class="panel-title">Attribution Levels <span class="pull-right"><b>Displaying @{{ attr.rowLimit }} of @{{ attr.feeds.length }} Feeds</b> </span></div>
+        <!--//I wanted to move controls up here ,but its out of the scope of the loop, could push feeds on array and loop -->
+        <div class="panel-title">Attribution Levels <span ng-if="attr.selectFeedCount > 1"><b> - Buttons Controlling Selected Group - </b> </span>
+            <span class="pull-right"><b>Displaying @{{ attr.rowLimit }} of @{{ attr.feeds.length }} Feeds</b> </span></div>
     </div>
     <div class="panel-body">
         <ul class="list-group" ng-cloak>
             <li ng-repeat="feed in attr.feeds | limitObjects:attr.rowLimit track by $index"
                 class="list-group-item clearfix" ng-class="{ 'list-group-item-success' : attr.clientLevels[ feed.id ] > ( $index + 1 ) , 'list-group-item-danger' : attr.clientLevels[ feed.id ] < ( $index + 1 )}">
                 <div class="col-sm-1">
-                    <input ng-model="feed.selected" type="checkbox">
+                    <input ng-change="attr.toggleGroupController(feed , $index)" ng-model="feed.selected" type="checkbox">
                 </div>
                 <div class="col-sm-5">
                     <h4>@{{ feed.name }}</h4>
@@ -33,7 +35,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-3 attribution-actions">
+                <div  class="col-sm-3 attribution-actions">
                     <span ng-click="attr.onLevelRise( feed , $index )" class="glyphicon glyphicon-arrow-up"></span>
                     <span ng-click="attr.onLevelDrop( feed , $index )" class="glyphicon glyphicon-arrow-down"></span>
                     <span ng-click="attr.moveToTop( feed , $index )" class="glyphicon glyphicon-open"></span>

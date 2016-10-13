@@ -29,7 +29,6 @@
         </div>
     </div>
 </div>
-@include( 'pages.attribution.attribution-level-copy-sidenav' )
 @stop
 
 <?php Assets::add(

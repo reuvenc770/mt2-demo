@@ -10,6 +10,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     self.levelCopySideNavId = 'levelCopy';
     self.levelCopyModelId = 0;
     self.levelCopyClients = [];
+    self.selectFeedCount = 0;
     self.levelCopyClientIndex = {};
     self.disableCopyButton = true;
     self.draggingLevels = false;
@@ -303,6 +304,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
             currentFeed.newLevel = currentIndex + 1;
             currentFeed.selected = false;
         } );
+        selectFeedCount = 0;
     }; 
 
     self.changeLevel = function ( feed , index ) {
@@ -360,6 +362,10 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
                 self.displayToast( 'Removal Canceled' );
             }
         );
+    };
+
+    self.toggleGroupController = function ( feed , index ) {
+        feed.selected ? self.selectFeedCount++:  self.selectFeedCount--;
     };
 
     self.onLevelRise = function ( feed , index ) {
