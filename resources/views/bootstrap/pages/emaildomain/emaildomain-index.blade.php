@@ -12,8 +12,7 @@
 
 @section( 'content' )
     <div ng-init="emailDomain.loadAccounts()">
-        <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
-            <md-card flex-gt-md="50" flex="50">
+            <md-card >
                 <md-table-container>
                     <table md-table md-progress="emailDomain.queryPromise">
                         <thead md-head md-order="emailDomain.sort" md-on-reorder="emailDomain.loadAccounts">
@@ -47,7 +46,6 @@
                     <md-table-pagination md-limit="emailDomain.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="emailDomain.currentPage" md-total="@{{emailDomain.accountTotal}}" md-on-paginate="emailDomain.loadAccounts" md-page-select></md-table-pagination>
                 </md-content>
             </md-card>
-        </md-content>
     </div>
 @stop
 

@@ -12,9 +12,14 @@ mt2App.service( 'modalService' , [ function () {
 
         modalBody.text( bodyText );
     };
+    self.setModalBodyHtml = function ( selector ) {
+        var modalBody = angular.element( document.querySelector( '#pageModalBody' ) );
+        modalBody.html( angular.element(document.querySelector( selector)).html() );
+    };
 
-    self.launchModal = function () {
-        $( '#pageModal' ).modal('show');
+    self.launchModal = function (modal) {
+        var modal = (typeof modal !== 'undefined') ?  modal : '#pageModal';
+        $( modal ).modal('show');
     };
 
     self.resetModal = function () {

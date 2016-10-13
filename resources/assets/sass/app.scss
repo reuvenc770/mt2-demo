@@ -14,14 +14,15 @@
 $navbar-margin-bottom: 20px;
 $navbar-default-bg: rgb(22,65,108);
 $navbar-inverse-bg: #16416C;
+$navbar-default-link-color: #fff;
 
 $navbar-inverse-brand-color: #FFF;
 $navbar-inverse-brand-hover-color: #9D9D9D;
-
-
-/**
- *Bootstrap Includes
- */
+$modal-sm: 400px;
+$navbar-default-link-hover-bg: #fff;
+    /**
+     *Bootstrap Includes
+     */
 @import "node_modules/angular-material/angular-material.scss";
 @import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
 @import "node_modules/jasny-bootstrap/scss/jasny-bootstrap.scss";
@@ -815,7 +816,16 @@ md-list-item.mt2-nav-sub-item .md-list-item-inner {
     }
 }
 
-
 md-table-container{
     overflow: visible;
+}
+.attribution-actions{
+    .glyphicon{
+        font-size: 20px;
+        padding: 0 10px;
+    }
+}
+.list-group-item h4{
+    margin-top:5px;
+    margin-bottom: 5px;
 }

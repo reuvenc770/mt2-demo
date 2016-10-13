@@ -1,77 +1,60 @@
-@extends( 'layout.default' )
+@extends( 'bootstrap.layout.default' )
 
 @section( 'title' , 'Edit Attribution Model' )
-
-@section( 'navClientClasses' , 'active' )
 
 @section( 'angular-controller' , 'ng-controller="AttributionController as attr"' )
 
 @section( 'page-menu' )
-    <div ng-hide="app.isMobile()">
         @if (Sentinel::hasAccess('api.attribution.model.update'))
-            <md-button ng-click="attr.updateModel( $event , attrModelForm )" aria-label="Add Attribution Model">
-                <span>Update Model</span>
-            </md-button>
+            <li><a ng-click="attr.updateModel( $event , attrModelForm )" aria-label="Update Attribution Model">
+                Update Model</a>
+            </li>
         @endif
 
         @if (Sentinel::hasAccess('api.attribution.model.copyLevels'))
-            <md-button ng-click="attr.copyModelPreview( $event )" aria-label="Import Levels">
-                <span>Import Levels</span>
-            </md-button>
+            <li><a ng-click="attr.copyModelPreview( $event )" aria-label="Import Levels">
+                Import Levels</a>
+            </li>
         @endif
 
         @if (Sentinel::hasAccess('api.attribution.model.syncLevels'))
-            <md-button ng-click="attr.syncMt1Levels( $event )" ng-show="attr.current.live" aria-label="Sync MT1 Levels">
-                <span>Sync MT1 Levels</span>
-            </md-button>
+            <li><a ng-click="attr.syncMt1Levels( $event )" ng-show="attr.current.live" aria-label="Sync MT1 Levels">
+                Sync MT1 Levels</a>
+            </li>
         @endif
-    </div>
-
-    <md-menu ng-show="app.isMobile()" md-position-mode="target-right target">
-        <md-button aria-label="Open menu" class="md-icon-button" ng-click="$mdOpenMenu($event)">
-            <md-icon md-svg-src="img/icons/ic_more_horiz_black_24px.svg"></md-icon>
-        </md-button>
-        <md-menu-content width="3">
-            @if (Sentinel::hasAccess('api.attribution.model.update'))
-            <md-menu-item>
-                <md-button ng-click="attr.updateModel( $event , attrModelForm )" aria-label="Add Attribution Model">
-                    <span>Update Model</span>
-                </md-button>
-            </md-menu-item>
-            @endif
-
-            @if (Sentinel::hasAccess('api.attribution.model.copyLevels'))
-            <md-menu-item>
-                <md-button ng-click="attr.copyModelPreview( $event )" aria-label="Import Levels">
-                    <span>Import Levels</span>
-                </md-button>
-            </md-menu-item>
-            @endif
-
-            @if (Sentinel::hasAccess('api.attribution.model.syncLevels'))
-            <md-menu-item ng-show="attr.current.live">
-                <md-button ng-click="attr.syncMt1Levels( $event )" aria-label="Sync MT1 Levels">
-                    <span>Sync MT1 Levels</span>
-                </md-button>
-            </md-menu-item>
-            @endif
-        </md-menu-content>
-    </md-menu>
 @stop
 
 @section( 'content' )
-<div ng-init="attr.prepopModel()">
-    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1" layout-padding>
-        <div flex-gt-md="80" flex="100">
-            @include( 'pages.attribution.attribution-form' )
+    <div ng-init="attr.prepopModel()">
+        <div class="panel panel-primary" >
+            <div class="panel-heading">
+                <div class="panel-title">Update Attribution<input class="btn btn-sm btn-success pull-right" ng-click="attr.updateModel()"  ng-disabled="attr.formSubmitted" type="submit" value="Update Attribution Model">
+                </div>
+            </div>
+            <div class="panel-body">
+                <fieldset>
+                    @include( 'bootstrap.pages.attribution.attribution-form' )
+                </fieldset>
+            </div>
+            <div class="panel-footer">
+                <div class="form-group">
+                    <input class="btn btn-lg btn-primary btn-block" ng-click="attr.updateModel()"  ng-disabled="attr.formSubmitted" type="submit" value="Update Attribution Model">
+                </div>
+            </div>
         </div>
-    </md-content>
-
-    @include( 'pages.attribution.attribution-level-copy-sidenav' )
-</div>
+    </div>
+    @include( 'bootstrap.pages.attribution.attribution-level-copy-sidenav' )
 @stop
 
-
-@section( 'pageIncludes' )
-<script src="js/attribution.js"></script>
-@stop
+<?php Assets::add(
+        [
+                'resources/assets/js/bootstrap/attribution/AttributionController.js',
+                'resources/assets/js/bootstrap/attribution/AttributionApiService.js',
+                'resources/assets/js/bootstrap/attribution/AttributionProjectionService.js',
+                'resources/assets/js/bootstrap/attribution/AttributionModelTableDirective.js',
+                'resources/assets/js/bootstrap/report/ThreeMonthReportService.js',
+                'resources/assets/js/bootstrap/report/ReportApiService.js',
+                'resources/assets/js/feed/FeedApiService.js', //REFACTOR WHEN FEEDS ARE REFACTORED
+        ],
+        'js','pageLevel')
+?>

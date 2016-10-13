@@ -1,4 +1,4 @@
-mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedApiService' , 'AttributionProjectionService' , 'ThreeMonthReportService' , '$mdToast'  , '$log' , '$location' , function ( AttributionApiService , FeedApiService , AttributionProjectionService , ThreeMonthReportService , $mdToast , $log , $location ) {
+mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedApiService' , 'AttributionProjectionService' , 'ThreeMonthReportService' , '$mdToast'  , '$log' , '$location' , 'formValidationService', 'modalService', function ( AttributionApiService , FeedApiService , AttributionProjectionService , ThreeMonthReportService , $mdToast , $log , $location, formValidationService, modalService) {
     var self = this;
 
     self.current = { "id" : 0 , "name" : '' };
@@ -20,13 +20,14 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     self.pageCount = 0;
     self.reachedFirstPage = true;
     self.reachedMaxPage = false;
-
+    self.formErrors = {};
     self.showModelActions = false;
     self.selectedModelId = 0;
     self.selectedModel = [];
     self.modelQueryPromise = null;
     self.disableProjection = false;
-
+    self.formSubmitted = false;
+    self.rowLimit = 30;
     self.reportRecords = [];
     self.reportRecordTotals = {};
     self.reportQueryPromise = null;
@@ -101,7 +102,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         );
     };
 
-    self.initLevelCopyPanel = function () {
+    self.initLevelCopyPanel = function () {  ///THIS NEEDS TO BE FIXED CALLING PAGER TO JUST FILL IN ID AND NAME
         self.loadModels();
     };
  
@@ -194,24 +195,10 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         );
     };
 
-    self.saveModel = function ( $event , form ) {
-        var errorFound = false;
-
-        angular.forEach( form.$error.required , function ( field ) {
-            field.$setDirty();
-            field.$setTouched();
-
-            errorFound = true;
-        } );
-
-        if ( errorFound ) {
-            self.displayToast( 'Please fix errors and try again.' );
-
-            return false;
-        }
-
+    self.saveModel = function () {
+        self.formSubmitted = true;
+        formValidationService.resetFieldErrors(self);
         var levels = [];
-
         angular.forEach( self.feeds , function ( value , key ) {
             levels.push( { "id" : value.id , "level" : key + 1 } );
         } );
@@ -220,29 +207,19 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
             self.current.name ,
             levels ,
             function ( response ) {
+                self.formSubmitted = false;
                 self.displayToast( 'Successfully saved Model.' );
             } ,
             function ( response ) {
+                self.formSubmitted = false;
+                formValidationService.loadFieldErrors(self,response);
                 self.displayToast( 'Failed to save Model. Please contact support.' );
         } );
     };
 
-    self.updateModel = function ( $event , form ) {
-        var errorFound = false;
-
-        angular.forEach( form.$error.required , function ( field ) {
-            field.$setDirty();
-            field.$setTouched();
-
-            errorFound = true;
-        } );
-
-        if ( errorFound ) {
-            self.displayToast( 'Please fix errors and try again.' );
-
-            return false;
-        }
-
+    self.updateModel = function () {
+        self.formSubmitted = true;
+        formValidationService.resetFieldErrors(self);
         var levels = [];
 
         angular.forEach( self.feeds , function ( value , key ) {
@@ -254,9 +231,12 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
             self.current.name ,
             levels ,
             function ( response ) {
+                self.formSubmitted = false;
                 self.displayToast( 'Successfully updated Model.' );
             } ,
             function ( response ) {
+                self.formSubmitted = false;
+                formValidationService.loadFieldErrors(self,response);
                 self.displayToast( 'Failed to update Model. Please contact support.' );
         } );
     };
@@ -294,11 +274,11 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     self.copyModelPreview = function ( $event , currentModelId ) {
         if ( typeof( currentModelId ) !== 'undefined' ) {
             self.current.id = currentModelId;
-
             self.loadClients( currentModelId );
         }
+        self.initLevelCopyPanel();
+        modalService.launchModal("#loadModels");
 
-        $mdSidenav( self.levelCopySideNavId ).open();
     };
 
     self.copyLevels = function () {
@@ -478,7 +458,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         }
 
         self.resetLevelFields();
-    }
+    };
 
     self.moveToMiddle = function ( feed , index ) {
         if ( feed.selected ) {
@@ -513,7 +493,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         }
 
         self.resetLevelFields();
-    }
+    };
 
     self.moveToBottom = function ( feed , index ) {
         if ( feed.selected ) {
@@ -538,7 +518,14 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
 
         self.resetLevelFields();
     };
+    self.loadMore = function () {
+        self.rowLimit = self.rowLimit + 10;
+    };
+    self.loadLess = function () {
+        self.rowLimit = self.rowLimit - 10;
+    };
 
+    //DO WE NEED ANYMORE
     self.syncMt1Levels = function () {
         AttributionApiService.syncMt1Levels(
             function ( response ) {

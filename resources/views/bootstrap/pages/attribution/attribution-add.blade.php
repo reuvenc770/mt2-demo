@@ -11,7 +11,7 @@
 <div ng-init="attr.loadClients()">
     <div class="panel panel-primary" >
         <div class="panel-heading">
-            <div class="panel-title">Add Attribution<input class="btn btn-sm btn-primary" ng-click="attr.saveModel( $event , attrModelForm )"  ng-disabled="attr.formSubmitted" type="submit" value="Add Attribution Model">
+            <div class="panel-title">Add Attribution<input class="btn btn-sm btn-success pull-right" ng-click="attr.saveModel()"  ng-disabled="attr.formSubmitted" type="submit" value="Add Attribution Model">
             </div>
         </div>
         <div class="panel-body">
@@ -21,7 +21,7 @@
         </div>
         <div class="panel-footer">
             <div class="form-group">
-                <input class="btn btn-lg btn-primary btn-block" ng-click="attr.saveModel( $event , attrModelForm )"  ng-disabled="attr.formSubmitted" type="submit" value="Add Attribution Model">
+                <input class="btn btn-lg btn-primary btn-block" ng-click="attr.saveModel()"  ng-disabled="attr.formSubmitted" type="submit" value="Add Attribution Model">
             </div>
         </div>
     </div>

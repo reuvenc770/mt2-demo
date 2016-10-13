@@ -1,16 +1,16 @@
-@extends( 'layout.default-nonresp' )
+@extends( 'bootstrap.layout.default' )
 
 @inject( 'projection' , 'App\Collections\Attribution\ProjectionReportCollection' )
 
 @section( 'title' , 'Attribution Model Projection' )
-
+@section( 'container' , 'container-fluid' )
 @section( 'angular-controller' , 'ng-controller="AttributionController as attr"' )
 
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('api.attribution.projection.report'))
-        <md-button ng-click="attr.refreshProjectionPage()" aria-label="Refresh Page">
-            <span>Refresh</span>
-        </md-button>
+        <li><a ng-click="attr.refreshProjectionPage()" aria-label="Refresh Page">
+            Refresh</a>
+        </li>
     @endif
 @stop
 
@@ -34,6 +34,7 @@
             </md-toolbar>
 
             <md-table-container layout-fill>
+                <md-table>
                 <table md-table>
                     <thead md-head>
                         <tr md-row>
@@ -56,13 +57,23 @@
                     </tbody>
                 </table>
             </md-table>
+                </md-table-container>
     </div>
 </md-content>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 @stop
 
-@section( 'pageIncludes' )
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-<script src="js/attribution.js"></script>
-@include( 'layout.side-nav-nonresp-css' , [ 'width' => 2000 ] )
-@stop
+
+<?php Assets::add(
+        [
+                'resources/assets/js/bootstrap/attribution/AttributionController.js',
+                'resources/assets/js/bootstrap/attribution/AttributionApiService.js',
+                'resources/assets/js/bootstrap/attribution/AttributionProjectionService.js',
+                'resources/assets/js/bootstrap/attribution/AttributionModelTableDirective.js',
+                'resources/assets/js/bootstrap/report/ThreeMonthReportService.js',
+                'resources/assets/js/bootstrap/report/ReportApiService.js',
+                'resources/assets/js/feed/FeedApiService.js', //REFACTOR WHEN FEEDS ARE REFACTORED
+        ],
+        'js','pageLevel')
+?>
 
