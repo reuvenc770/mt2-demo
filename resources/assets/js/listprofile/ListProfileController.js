@@ -1,6 +1,8 @@
 mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToast' , '$mdDialog' , '$log' , function ( ListProfileApiService , $mdToast , $mdDialog , $log ) {
     var self = this;
 
+    $(function () { $('[data-toggle="tooltip"]').tooltip() });
+
     self.nameDisabled = true;
     self.customName = false;
 
@@ -11,7 +13,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
 
     self.current = {
         'name' : '' ,
-        'countries' : [] ,
+        'countries' : {} ,
         'feeds' : {} ,
         'isps' : {} ,
         'categories' : {} ,
@@ -30,7 +32,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         },
         'attributeFilters' : {
             'age' : { 'min' : 0 , 'max' : 0 , 'unknown' : false },
-            'genders' : [],
+            'genders' : {},
             'zips' : [],
             'cities' : [],
             'states' : {},
@@ -48,7 +50,9 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         'admiralsOnly' : false
     };
 
-    self.countryCodeMap = {};
+    self.countryCodeMap = { 1 : 'US' , 235 : 'UK' };
+    self.countryNameMap = { 'United States' : 1 , 'United Kingdom' : 235 };
+    self.genderNameMap = { 'Male' : 'M' , 'Female' : 'F' , 'Unknown' : 'U' };
 
     self.highlightedFeeds = [];
     self.highlightedFeedsForRemoval = [];
@@ -129,7 +133,14 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         { 'header' : 'esp_account' , 'label' : 'ESP Account' },
         { 'header' : 'email_address' , 'label' : 'Email Address' } ,
         { 'header' : 'lower_md5' , 'label' : 'Lowercase MD5' },
-        { 'header' : 'upper_md5' , 'label' : 'Uppercase MD5' }
+        { 'header' : 'upper_md5' , 'label' : 'Uppercase MD5' } ,
+        { 'header' : 'domain_group_id' , 'label' : "ISP" } ,
+        { 'header' : 'dob' , 'label' : "Date of Birth" } ,
+        { 'header' : 'feed_id' , 'label' : "Feed ID" } ,
+        { 'header' : 'feed_name' , 'label' : "Feed Name" } ,
+        { 'header' : 'client_name' , 'label' : "Client" } ,
+        { 'header' : 'subscribe_date' , 'label' : 'Subscribe Date' } ,
+        { 'header' : 'status' , 'label' : 'Status' }
     ];
     self.selectedColumns = [];
     self.availableWidgetTitle = "Available Columns";
@@ -643,17 +654,15 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         );
     };
 
-    self.toggleSelection = function (gender) {
-        var idx = self.current.attributeFilters.genders.indexOf(gender);
-
-        // is currently selected
-        if (idx > -1) {
-            self.current.attributeFilters.genders.splice(idx, 1);
+    self.toggleSelection = function ( list , nameMap , name , callback ) {
+        if ( typeof( list[ name ] ) !== 'undefined' ) {
+            delete( list[ name ] );
+        } else {
+            list[ name ] = nameMap[ name ];
         }
 
-        // is newly selected
-        else {
-            self.current.attributeFilters.genders.push(gender);
+        if ( typeof( callback ) != 'undefined' ) {
+            callback();
         }
     };
 

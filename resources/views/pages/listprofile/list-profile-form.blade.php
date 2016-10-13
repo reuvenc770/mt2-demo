@@ -13,22 +13,20 @@
     </div>
 </div>
 
-@if ( Sentinel::inRole( 'admiral' ) )
-<md-switch ng-model="listProfile.enableAdmiral" aria-label="Enable Admiral Features" ng-true-value="true" ng-false-value="false">Enable Admiral Features</md-switch>
-@endif
-
-@if ( Sentinel::inRole( 'admiral' ) )
-<md-checkbox ng-model="listProfile.current.admiralsOnly" ng-show="listProfile.enableAdmiral" aria-label="Admirals Only" ng-true-value="true" ng-false-value="false">Admirals Only</md-checkbox>
-@endif
-
 <div class="form-group">
-    <label for="countries">Countries</label>
+    <label>Country</label>
 
-    <select name="countries" id="countries" class="form-control" ng-change="listProfile.generateName()" ng-model="listProfile.current.countries" multiple>
-        @foreach ( $countries as $country )
-        <option ng-value="::'{{ $country[ 'id' ] }}'" ng-init="listProfile.countryCodeMap[ {{$country[ 'id' ]}} ] = '{{$country[ 'code' ]}}'">{{ $country[ 'name' ] }}</option>
-        @endforeach
-    </select>
+    <div layout="row" layout-align="start center">
+        <md-checkbox name="countryUS" value="1" ng-checked="listProfile.current.countries[ 'United States' ]" ng-click="listProfile.toggleSelection( listProfile.current.countries , listProfile.countryNameMap ,'United States' , listProfile.generateName )">
+            United States
+        </md-checkbox>
+
+        <span flex="5"></span>
+
+        <md-checkbox name="countryGB" value="235" ng-checked="listProfile.current.countries[ 'United Kingdom' ]" ng-click="listProfile.toggleSelection( listProfile.current.countries , listProfile.countryNameMap , 'United Kingdom' , listProfile.generateName )">
+            United Kingdom
+        </md-checkbox>
+    </div>
 </div>
 
 <div layout="row" layout-align="space-around stretch" ng-init="listProfile.clientFeedMap = {{json_encode( $clientFeedMap )}}">
@@ -96,15 +94,19 @@
 
     <div class="row">
         <div class="col-lg-5">
-            <label>Min</label>
+            <div class="input-group">
+                <span class="input-group-addon">Min</span>
 
-            <input type="number" name="deliverableMin" class="form-control" ng-model="listProfile.current.actionRanges.deliverable.min" ng-change="listProfile.generateName()" min="0" aria-label="Deliverable Min" />
+                <input type="number" name="deliverableMin" class="form-control" ng-model="listProfile.current.actionRanges.deliverable.min" ng-change="listProfile.generateName()" min="0" aria-label="Deliverable Min" />
+            </div>
         </div>
 
         <div class="col-lg-5">
-            <label>Max</label>
+            <div class="input-group">
+                <span class="input-group-addon">Max</span>
 
-            <input type="number" name="deliverableMax" class="form-control" ng-model="listProfile.current.actionRanges.deliverable.max" ng-change="listProfile.generateName()" ng-blur="listProfile.confirmMaxDateRange( $event , listProfile.current.actionRanges.deliverable )" min="0" aria-label="Deliverable Max" />
+                <input type="number" name="deliverableMax" class="form-control" ng-model="listProfile.current.actionRanges.deliverable.max" ng-change="listProfile.generateName()" ng-blur="listProfile.confirmMaxDateRange( $event , listProfile.current.actionRanges.deliverable )" min="0" aria-label="Deliverable Max" />
+            </div>
         </div>
 
         <div class="col-lg-2"></div>
@@ -115,24 +117,28 @@
     <label><h4>Openers Range</h4></label>
 
     <div class="row">
-        <div class="col-lg-5 form-group">
-            <label>Min</label>
+        <div class="col-lg-5">
+            <div class="input-group">
+                <span class="input-group-addon">Min</span>
 
-            <input type="number" name="openerMin" class="form-control" ng-model="listProfile.current.actionRanges.opener.min" ng-change="listProfile.generateName()" min="0" aria-label="Opener Min" />
+                <input type="number" name="openerMin" class="form-control" ng-model="listProfile.current.actionRanges.opener.min" ng-change="listProfile.generateName()" min="0" aria-label="Opener Min" />
+            </div>
         </div>
 
-        <div class="col-lg-5 form-group">
-            <label>Max</label>
+        <div class="col-lg-5">
+            <div class="input-group">
+                <span class="input-group-addon">Max</span>
 
-            <input type="number" name="openerMax" class="form-control" ng-model="listProfile.current.actionRanges.opener.max" ng-change="listProfile.generateName()" ng-blur="listProfile.confirmMaxDateRange( $event , listProfile.current.actionRanges.opener )" min="0" aria-label="Opener Max" />
+                <input type="number" name="openerMax" class="form-control" ng-model="listProfile.current.actionRanges.opener.max" ng-change="listProfile.generateName()" ng-blur="listProfile.confirmMaxDateRange( $event , listProfile.current.actionRanges.opener )" min="0" aria-label="Opener Max" />
+            </div>
         </div>
 
-        <div class="col-lg-2 form-group">
-            <label>MultiAction</label>
+        <div class="col-lg-2">
+            <div class="input-group" data-toggle="tooltip" data-placement="top" title="The user opened # or more times">
+                <span class="input-group-addon">MultiAction</span>
 
-            <input type="number" name="openerMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.opener.multiaction" ng-blur="listProfile.sanitizeMultiAction( listProfile.current.actionRanges.opener )" min="1" aria-label="Number of Times Opened">
-
-            <i>The user opened # or more times</i>
+                <input type="number" name="openerMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.opener.multiaction" ng-blur="listProfile.sanitizeMultiAction( listProfile.current.actionRanges.opener )" min="1" aria-label="Number of Times Opened" />
+            </div>
         </div>
     </div>
 </div>
@@ -141,24 +147,28 @@
     <label><h4>Clickers Range</h4></label>
 
     <div class="row">
-        <div class="col-lg-5 form-group">
-            <label>Min</label>
+        <div class="col-lg-5">
+            <div class="input-group">
+                <span class="input-group-addon">Min</span>
 
-            <input type="number" name="clickerMin" class="form-control" ng-model="listProfile.current.actionRanges.clicker.min" ng-change="listProfile.generateName()" min="0" aria-label="Clicker Min" />
+                <input type="number" name="clickerMin" class="form-control" ng-model="listProfile.current.actionRanges.clicker.min" ng-change="listProfile.generateName()" min="0" aria-label="Clicker Min" />
+            </div>
         </div>
 
-        <div class="col-lg-5 form-group">
-            <label>Max</label>
+        <div class="col-lg-5">
+            <div class="input-group">
+                <span class="input-group-addon">Max</span>
 
-            <input type="number" name="clickerMax" class="form-control" ng-model="listProfile.current.actionRanges.clicker.max" ng-change="listProfile.generateName()" ng-blur="listProfile.confirmMaxDateRange( $event , listProfile.current.actionRanges.clicker )" min="0" aria-label="Clicker Max" />
+                <input type="number" name="clickerMax" class="form-control" ng-model="listProfile.current.actionRanges.clicker.max" ng-change="listProfile.generateName()" ng-blur="listProfile.confirmMaxDateRange( $event , listProfile.current.actionRanges.clicker )" min="0" aria-label="Clicker Max" />
+            </div>
         </div>
 
-        <div class="col-lg-2 form-group">
-            <label>Multiaction</label>
+        <div class="col-lg-2">
+            <div class="input-group" data-toggle="tooltip" data-placement="top" title="The user clicked # or more times">
+                <span class="input-group-addon">Multiaction</span>
 
-            <input type="number" name="clickerMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.clicker.multiaction" ng-blur="listProfile.sanitizeMultiAction( listProfile.current.actionRanges.clicker )" min="1" aria-label="Number of Times Clicked" >
-
-            <i>The user clicked # or more times.</i>
+                <input type="number" name="clickerMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.clicker.multiaction" ng-blur="listProfile.sanitizeMultiAction( listProfile.current.actionRanges.clicker )" min="1" aria-label="Number of Times Clicked" >
+            </div>
         </div>
     </div>
 </div>
@@ -167,24 +177,28 @@
     <label><h4>Converters Range</h4></label>
 
     <div class="row">
-        <div class="col-lg-5 form-group">
-            <label>Min</label>
+        <div class="col-lg-5">
+            <div class="input-group">
+                <span class="input-group-addon">Min</span>
 
-            <input type="number" name="converterMin" class="form-control" ng-model="listProfile.current.actionRanges.converter.min" ng-change="listProfile.generateName()" min="0" aria-label="Converter Min" />
+                <input type="number" name="converterMin" class="form-control" ng-model="listProfile.current.actionRanges.converter.min" ng-change="listProfile.generateName()" min="0" aria-label="Converter Min" />
+            </div>
         </div>
 
-        <div class="col-lg-5 form-group">
-            <label>Max</label>
+        <div class="col-lg-5">
+            <div class="input-group">
+                <span class="input-group-addon">Max</span>
 
-            <input type="number" name="converterMax" class="form-control" ng-model="listProfile.current.actionRanges.converter.max" ng-change="listProfile.generateName()" ng-blur="listProfile.confirmMaxDateRange( $event , listProfile.current.actionRanges.converter )" min="0" aria-label="Converter Max" />
+                <input type="number" name="converterMax" class="form-control" ng-model="listProfile.current.actionRanges.converter.max" ng-change="listProfile.generateName()" ng-blur="listProfile.confirmMaxDateRange( $event , listProfile.current.actionRanges.converter )" min="0" aria-label="Converter Max" />
+            </div>
         </div>
 
-        <div class="col-lg-2 form-group">
-            <label>Multiaction</label>
+        <div class="col-lg-2">
+            <div class="input-group" data-toggle="tooltip" data-placement="top" title="The user converted # or more times">
+                <span class="input-group-addon">Multiaction</span>
 
-            <input type="number" name="converterMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.converter.multiaction" ng-blur="listProfile.sanitizeMultiAction( listProfile.current.actionRanges.converter )" min="1" aria-label="Number of Times Converted">
-
-            <i>The user coverted # or more times.</i>
+                <input type="number" name="converterMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.converter.multiaction" ng-blur="listProfile.sanitizeMultiAction( listProfile.current.actionRanges.converter )" min="1" aria-label="Number of Times Converted">
+            </div>
         </div>
     </div>
 </div>
@@ -309,14 +323,9 @@
     </md-card>
 </div>
 
-<h3>Attribute Filtering
-    <md-button class="md-icon-button" aria-label="Show Attribute Filters" ng-show="!listProfile.showAttrFilters" ng-click="listProfile.showAttrFilters = true;">
-        <md-icon md-font-set="material-icons">chevron_right</md-icon>
-    </md-button>
-
-    <md-button class="md-icon-button" aria-label="Show Attribute Filters" ng-show="listProfile.showAttrFilters" ng-click="listProfile.showAttrFilters = false;">
-        <md-icon md-font-set="material-icons">expand_more</md-icon>
-    </md-button>
+<h3 ng-click="listProfile.showAttrFilters = !listProfile.showAttrFilters">Attribute Filtering
+    <md-icon md-font-set="material-icons" ng-show="!listProfile.showAttrFilters">chevron_right</md-icon>
+    <md-icon md-font-set="material-icons" ng-show="listProfile.showAttrFilters">expand_more</md-icon>
 </h3>
 
 <div ng-show="listProfile.showAttrFilters">
@@ -324,41 +333,45 @@
         <label>Age</label>
 
         <div class="row">
-            <div class="form-group col-lg-5">
-                <label>Min</label>
+            <div class="col-lg-5">
+                <div class="input-group">
+                    <span class="input-group-addon">Min</span>
 
-                <input type="number" name="filterAgeMin" class="form-control" ng-model="listProfile.current.attributeFilters.age.min" min="0" aria-label="Minimum Age"/>
+                    <input type="number" name="filterAgeMin" class="form-control" ng-model="listProfile.current.attributeFilters.age.min" min="0" aria-label="Minimum Age"/>
+                </div>
             </div>
 
-            <div class="form-group col-lg-5">
-                <label>Max</label>
+            <div class="col-lg-5">
+                <div class="input-group">
+                    <span class="input-group-addon">Max</span>
 
-                <input type="number" name="filterAgeMax" class="form-control" ng-model="listProfile.current.attributeFilters.age.max" min="0" aria-label="Maximum Age" />
+                    <input type="number" name="filterAgeMax" class="form-control" ng-model="listProfile.current.attributeFilters.age.max" min="0" aria-label="Maximum Age" />
+                </div>
             </div>
 
-            <div class="form-group col-lg-2">
-                <md-checkbox name="filterAgeUnknown" ng-model="listProfile.current.attributeFilters.age.unknown" ng-true-value="true" ng-false-value="false" style="margin-top: 25px">Unknown</md-checkbox>
+            <div class="col-lg-2">
+                <md-checkbox name="filterAgeUnknown" ng-model="listProfile.current.attributeFilters.age.unknown" ng-true-value="true" ng-false-value="false" style="margin-top: 7px">Unknown</md-checkbox>
             </div>
         </div>
     </div>
 
     <div class="form-group">
-        <label>Gender:</label>
+        <label>Gender</label>
 
         <div layout="row" layout-align="start center">
-            <md-checkbox name="filterGenderMale" value="Male" ng-checked="listProfile.current.attributeFilters.genders.indexOf('Male') > -1" ng-click="listProfile.toggleSelection('Male')">
+            <md-checkbox name="filterGenderMale" value="Male" ng-checked="listProfile.current.attributeFilters.genders.Male" ng-click="listProfile.toggleSelection( listProfile.current.attributeFilters.genders , listProfile.genderNameMap ,'Male' )">
                 Male
             </md-checkbox>
 
             <span flex="5"></span>
 
-            <md-checkbox name="filterGenderFemale" value="Female" ng-checked="listProfile.current.attributeFilters.genders.indexOf('Female') > -1" ng-click="listProfile.toggleSelection('Female')">
+            <md-checkbox name="filterGenderFemale" value="Female" ng-checked="listProfile.current.attributeFilters.genders.Female" ng-click="listProfile.toggleSelection( listProfile.current.attributeFilters.genders , listProfile.genderNameMap , 'Female' )">
                 Female
             </md-checkbox>
 
             <span flex="5"></span>
 
-            <md-checkbox name="filterGenderUnknown" value="Unknown" ng-checked="listProfile.current.attributeFilters.genders.indexOf('Unknown') > -1" ng-click="listProfile.toggleSelection('Unknown')">
+            <md-checkbox name="filterGenderUnknown" value="Unknown" ng-checked="listProfile.current.attributeFilters.genders.Unknown" ng-click="listProfile.toggleSelection( listProfile.current.attributeFilters.genders , listProfile.genderNameMap , 'Unknown' )">
                 Unknown
             </md-checkbox>
         </div>
@@ -735,8 +748,13 @@
     <lite-membership-widget recordlist="listProfile.columnList" chosenrecordlist="listProfile.selectedColumns" availablerecordtitle="listProfile.availableWidgetTitle" chosenrecordtitle="listProfile.chosenWidgetTitle" namefield="listProfile.columnLabelField" updatecallback="listProfile.columnMembershipCallback()"></lite-membership-widget>
 </div>
 
-<md-input-container layout-padding>
-    <md-checkbox ng-model="listProfile.current.includeCsvHeader" ng-true-value="true" ng-false-value="false">
-        Include header line
-    </md-checkbox>
-</md-input-container>
+<br />
+
+<md-checkbox ng-model="listProfile.current.includeCsvHeader" ng-true-value="true" ng-false-value="false">
+    Include header line
+</md-checkbox>
+
+@if ( Sentinel::inRole( 'admiral' ) )
+<md-switch ng-model="listProfile.enableAdmiral" aria-label="Enable Admiral Features" ng-true-value="true" ng-false-value="false">Enable Admiral Features</md-switch>
+<md-checkbox ng-model="listProfile.current.admiralsOnly" ng-show="listProfile.enableAdmiral" aria-label="Admirals Only" ng-true-value="true" ng-false-value="false">Admirals Only</md-checkbox>
+@endif
