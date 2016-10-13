@@ -174,10 +174,10 @@ class ImportMt1EmailsService
 
         // Delete records
         if (sizeof($records) > 0) {
-            $this->api->cleanTable();
+            #$this->api->cleanTable();
         }
 
-        \Event::fire(new NewRecords($recordsToFlag));
+        #\Event::fire(new NewRecords($recordsToFlag));
     }
 
     private function mapToTempTable($row) {

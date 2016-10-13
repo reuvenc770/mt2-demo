@@ -36,11 +36,11 @@ class ImportMt1EmailsJob extends Job implements ShouldQueue {
                 echo "Successfully removed lock: $result" . PHP_EOL;      
             }
             catch (\Exception $e) {
-                echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;
+                echo self::JOB_NAME . " failed with {$e->getMessage()}" . PHP_EOL;
                 $this->failed();
             }
             finally {
-                $this->unlock($this->jobName);
+                $this->unlock(self::JOB_NAME);
             }
 
         }
