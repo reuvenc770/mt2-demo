@@ -2,28 +2,24 @@
 
 @section( 'title' , 'Edit List Profile' )
 
-@section( 'angular-controller' , 'ng-controller="ListProfileController as listProfile"')
-
-@section( 'page-menu' )
-@stop
-
 @section( 'content' )
-<md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
-    <div flex-gt-sm="70" flex="100" ng-init="listProfile.prepop( {{ $id }} )">
-         @include( 'pages.listprofile.list-profile-form' )
-
-        <div layout="row" layout-align="end end">
-            <md-button layout="row" class="md-raised md-accent" ng-click="app.redirect( '/listprofile' )">
-                <md-icon class="material-icons" md-font-set="material-icons">archive</md-icon>
-                <span flex> Export to FTP</span>
-            </md-button>
-            <md-button layout="row" class="md-raised md-accent" ng-click="app.redirect( '/listprofile' )">
-                <md-icon class="material-icons" md-font-set="material-icons">save</md-icon>
-                <span flex> Update</span>
-            </md-button>
+<div class="panel" ng-class="{ 'panel-primary' : !listProfile.enableAdmiral , 'panel-danger' : listProfile.enableAdmiral }" ng-controller="ListProfileController as listProfile" ng-init="listProfile.prepop( {{ $id }} )">
+    <div class="panel-heading">
+        <div class="panel-title">Update List Profile</div>
+    </div>
+    <div class="panel-body">
+        <input name="_token" type="hidden" value="{{ csrf_token() }}">
+        <fieldset>
+            @include( 'pages.listprofile.list-profile-form' )
+        </fieldset>
+    </div>
+    <div class="panel-footer">
+        <div class="form-group">
+            <input class="btn btn-lg btn-block" ng-class="{ 'btn-primary' : !listProfile.enableAdmiral , 'btn-danger' : listProfile.enableAdmiral }"  ng-click="app.redirect( '/listprofile' )" type="submit" value="Export to FTP">
+            <input class="btn btn-lg btn-block" ng-class="{ 'btn-primary' : !listProfile.enableAdmiral , 'btn-danger' : listProfile.enableAdmiral }" ng-click="app.redirect( '/listprofile' )" type="submit" value="Update">
         </div>
     </div>
-</md-content>
+</div>
 @stop
 
 @section( 'pageIncludes' )

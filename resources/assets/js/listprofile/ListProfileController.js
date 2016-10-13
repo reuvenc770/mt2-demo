@@ -17,10 +17,10 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         'categories' : {} ,
         'offers' : {} ,
         'suppression' : {
-            'global' : [ "1" ] ,
-            'list' : [] ,
-            'offer' : [] ,
-            'attribute' : { 'cities': [] , 'zips' : [] , 'states' : [] }
+            'global' : { 1 : "Orange Global" } ,
+            'list' : {} ,
+            'offer' : {} ,
+            'attribute' : { 'cities': [] , 'zips' : [] , 'states' : {} }
         },
         'actionRanges' : {
             'deliverable' : { 'min' : 0 , 'max' : 0 },
@@ -33,9 +33,9 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
             'genders' : [],
             'zips' : [],
             'cities' : [],
-            'states' : [],
-            'deviceTypes' : [],
-            'mobileCarriers' : []
+            'states' : {},
+            'deviceTypes' : {},
+            'mobileCarriers' : {}
         },
         'impressionwise' : false ,
         'tower' : {
@@ -59,7 +59,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
 
     self.highlightedIsps = [];
     self.highlightedIspsForRemoval = [];
-    self.ispVisibility = [];
+    self.ispVisibility = {};
     self.ispNameMap = {};
 
     self.highlightedCategories = [];
@@ -69,8 +69,43 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
 
     self.highlightedOffers = [];
     self.highlightedOffersForRemoval = [];
-    self.offerVisibility = [];
+    self.offerVisibility = {};
     self.offerNameMap = {};
+
+    self.highlightedStateFilters = [];
+    self.highlightedStateFiltersForRemoval = [];
+    self.stateFilterVisibility = {};
+    self.stateFilterNameMap = {};
+
+    self.highlightedDeviceTypeFilters = [];
+    self.highlightedDeviceTypeFiltersForRemoval = [];
+    self.deviceTypeFilterVisibility = { 'mobile' : true , 'desktop' : true , 'unknown' : true };
+    self.deviceTypeFilterNameMap = { 'mobile' : 'Mobile' , 'desktop' : 'Desktop' , 'unknown' : "Unknown" };
+
+    self.highlightedCarrierFilters = [];
+    self.highlightedCarrierFiltersForRemoval = [];
+    self.carrierFilterVisibility = { 'att' : true , 'sprint' : true , 'tmobile' : true , 'verizon' : true };
+    self.carrierFilterNameMap = { 'att' : 'AT&T' , 'sprint' : 'Sprint' , 'tmobile' : 'T-Mobile' , 'verizon' : 'Verizon' };
+
+    self.highlightedGlobalSupp = [];
+    self.highlightedGlobalSuppForRemoval = [];
+    self.globalSuppVisibility = { 1 : false , 2 : true , 3 : true , 4 : true };
+    self.globalSuppNameMap = { 1 : 'Orange Global' , 2 : 'Blue Global' , 3 : 'Green Global' , 4 : 'Gold Global' };
+
+    self.highlightedListSupp = [];
+    self.highlightedListSuppForRemoval = [];
+    self.listSuppVisibility = { 1 : true , 2 : true , 3 : true , 4 : true };
+    self.listSuppNameMap = { 1 : 'Sprint Yahoo' , 2 : 'Verizon Gmail' , 3 : 'Trendr Hotmail' , 4 : 'RMP Hotmail' };
+
+    self.highlightedOfferSupp = [];
+    self.highlightedOfferSuppForRemoval = [];
+    self.offerSuppVisibility = {};
+    self.offerSuppNameMap = {};
+
+    self.highlightedStateSupp = [];
+    self.highlightedStateSuppForRemoval = [];
+    self.stateSuppVisibility = {};
+    self.stateSuppNameMap = {};
 
     self.columnList = [
         { 'header' : 'email_id' , 'label' : 'Email ID' },
@@ -92,7 +127,9 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         { 'header' : 'carrier' , 'label' : 'Carrier' },
         { 'header' : 'capture_date' , 'label' : 'Capture Date' },
         { 'header' : 'esp_account' , 'label' : 'ESP Account' },
-        { 'header' : 'email_address' , 'label' : 'Email Address' }
+        { 'header' : 'email_address' , 'label' : 'Email Address' } ,
+        { 'header' : 'lower_md5' , 'label' : 'Lowercase MD5' },
+        { 'header' : 'upper_md5' , 'label' : 'Uppercase MD5' }
     ];
     self.selectedColumns = [];
     self.availableWidgetTitle = "Available Columns";
@@ -353,7 +390,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
     };
 
     self.confirmSuppressionConfig = function ( ev , type ) {
-        if ( !self.enabledSuppression[ type ] && self.current.suppression[ type ].length > 0 ) {
+        if ( !self.enabledSuppression[ type ] ) {
             var confirm = $mdDialog.confirm()
                             .title( 'Are you sure you?' )
                             .ariaLabel( 'Suppression Warning' )
@@ -493,6 +530,116 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         self.removeMembershipItems(
             { "highlightedForRemoval" : self.highlightedOffersForRemoval , "visibility" : self.offerVisibility } ,
             self.current.offers
+        );
+    };
+
+    self.addStateFilters = function () {
+        self.addMembershipItems(
+            { "highlighted" : self.highlightedStateFilters , "visibility" : self.stateFilterVisibility , "map" : self.stateFilterNameMap } ,
+            self.current.attributeFilters.states
+        );
+    };
+
+    self.removeStateFilters = function () {
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedStateFiltersForRemoval , "visibility" : self.stateFilterVisibility } ,
+            self.current.attributeFilters.states
+        );
+    };
+
+    self.addDeviceTypeFilters = function () {
+        self.addMembershipItems(
+            { "highlighted" : self.highlightedDeviceTypeFilters , "visibility" : self.deviceTypeFilterVisibility , "map" : self.deviceTypeFilterNameMap } ,
+            self.current.attributeFilters.deviceTypes
+        );
+    };
+
+    self.removeDeviceTypeFilters = function () {
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedDeviceTypeFiltersForRemoval , "visibility" : self.deviceTypeFilterVisibility } ,
+            self.current.attributeFilters.deviceTypes
+        );
+    };
+
+    self.addCarrierFilters = function () {
+        self.addMembershipItems(
+            { "highlighted" : self.highlightedCarrierFilters , "visibility" : self.carrierFilterVisibility , "map" : self.carrierFilterNameMap } ,
+            self.current.attributeFilters.mobileCarriers
+        );
+    };
+
+    self.removeCarrierFilters = function () {
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedCarrierFiltersForRemoval , "visibility" : self.carrierFilterVisibility } ,
+            self.current.attributeFilters.mobileCarriers
+        );
+    };
+
+    self.addGlobalSupp = function () {
+        self.addMembershipItems(
+            { "highlighted" : self.highlightedGlobalSupp , "visibility" : self.globalSuppVisibility , "map" : self.globalSuppNameMap } ,
+            self.current.suppression.global
+        );
+    };
+
+    self.removeGlobalSupp = function () {
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedGlobalSuppForRemoval , "visibility" : self.globalSuppVisibility } ,
+            self.current.suppression.global
+        );
+    };
+
+    self.addListSupp = function ( $event ) {
+        if ( self.enabledSuppression[ 'list' ] ) {
+            self.addMembershipItems(
+                { "highlighted" : self.highlightedListSupp , "visibility" : self.listSuppVisibility , "map" : self.listSuppNameMap } ,
+                self.current.suppression.list
+            );
+
+            return true;
+        }
+
+        self.confirmSuppressionConfig( $event , 'list' );
+    };
+
+    self.removeListSupp = function () {
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedListSuppForRemoval , "visibility" : self.listSuppVisibility } ,
+            self.current.suppression.list
+        );
+    };
+
+    self.addOfferSupp = function ( $event ) {
+        if ( self.enabledSuppression[ 'offer' ] ) {
+            self.addMembershipItems(
+                { "highlighted" : self.highlightedOfferSupp , "visibility" : self.offerSuppVisibility , "map" : self.offerSuppNameMap } ,
+                self.current.suppression.offer
+            );
+
+            return true;
+        }
+
+        self.confirmSuppressionConfig( $event , 'offer' );
+    };
+
+    self.removeOfferSupp = function () {
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedOfferSuppForRemoval , "visibility" : self.offerSuppVisibility } ,
+            self.current.suppression.offer
+        );
+    };
+
+    self.addStateSupp = function ( $event ) {
+        self.addMembershipItems(
+            { "highlighted" : self.highlightedStateSupp , "visibility" : self.stateSuppVisibility , "map" : self.stateSuppNameMap } ,
+            self.current.suppression.attribute.states
+        );
+    };
+
+    self.removeStateSupp = function () {
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedStateSuppForRemoval , "visibility" : self.stateSuppVisibility } ,
+            self.current.suppression.attribute.states
         );
     };
 
