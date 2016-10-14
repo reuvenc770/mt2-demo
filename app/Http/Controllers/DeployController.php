@@ -26,7 +26,7 @@ class DeployController extends Controller
     public function listAll(EspService $espService)
     {
         $esps = $espService->getAllEsps();
-        return response()->view('pages.deploy.deploy-index', ['esps' => $esps]);
+        return response()->view('bootstrap.pages.deploy.deploy-index', ['esps' => $esps]);
     }
 
     public function returnCakeAffiliates()
@@ -198,7 +198,7 @@ class DeployController extends Controller
         $html  = $this->packageService->createHtml($deployId);
 
         return response()
-            ->view( 'pages.deploy.deploy-preview', ["html" => $html] );
+            ->view( 'bootstrap.pages.deploy.deploy-preview', ["html" => $html] );
     }
 
 

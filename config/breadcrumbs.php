@@ -2,6 +2,6 @@
 
 return [
 
-	'view' => getenv("type")  == "bootstrap" ? "layout/breadcrumbs" : "layout/toolbar-breadcrumbs"
+	'view' =>  "layout/breadcrumbs"  #"layout/toolbar-breadcrumbs"
 
 ];

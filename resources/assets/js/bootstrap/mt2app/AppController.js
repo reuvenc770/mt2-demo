@@ -4,8 +4,6 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
     self.activeSection = {};
 
     self.setCurrentActiveSection = function ( sectionName , path ) {
-        $log.info( 'running setCurrentActiveSection' );
-
         if ( path == self.currentPath ) {
             self.activeSection = {};
             self.activeSection[ sectionName ] = true;
