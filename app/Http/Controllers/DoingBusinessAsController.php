@@ -20,10 +20,8 @@ class DoingBusinessAsController extends Controller
 
     public function listAll()
     {
-        $value = $_COOKIE['sidenavCookie'];
-        $page = $value ? "bootstrap." : "";
         return response()
-            ->view("{$page}pages.dba.dba-index");
+            ->view("bootstrap.pages.dba.dba-index");
     }
 
     /**
@@ -44,10 +42,8 @@ class DoingBusinessAsController extends Controller
      */
     public function create()
     {
-        $value = $_COOKIE['sidenavCookie'];
-        $page = $value ? "bootstrap." : "";
         $states = States::all();
-        return view("{$page}pages.dba.dba-add", array("states" => $states));
+        return view("bootstrap.pages.dba.dba-add", array("states" => $states));
     }
 
     /**
@@ -83,11 +79,9 @@ class DoingBusinessAsController extends Controller
      */
     public function edit( )
     {
-        $value = $_COOKIE['sidenavCookie'];
-        $page = $value ? "bootstrap." : "";
         $states = States::all();
         return response()
-            ->view( "{$page}pages.dba.dba-edit", array("states" => $states));
+            ->view( "bootstrap.pages.dba.dba-edit", array("states" => $states));
     }
 
     /**

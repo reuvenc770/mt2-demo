@@ -20,10 +20,8 @@ class EmailDomainController extends Controller
 
     public function listAll()
     {
-        $value = $_COOKIE['sidenavCookie'];
-        $page = $value ? "bootstrap." : "";
         return response()
-            ->view("{$page}pages.emaildomain.emaildomain-index");
+            ->view("bootstrap.pages.emaildomain.emaildomain-index");
     }
 
     /**
@@ -33,10 +31,8 @@ class EmailDomainController extends Controller
      */
     public function create(DomainGroupService $domainGroupService)
     {
-        $value = $_COOKIE['sidenavCookie'];
-        $page = $value ? "bootstrap." : "";
         $domainGroups = $domainGroupService->getAll();
-        return view("{$page}pages.emaildomain.emaildomain-add" ,['domainGroups' => $domainGroups]);
+        return view("bootstrap.pages.emaildomain.emaildomain-add" ,['domainGroups' => $domainGroups]);
     }
 
     /**
@@ -72,11 +68,9 @@ class EmailDomainController extends Controller
      */
     public function edit($id,DomainGroupService $domainGroupService)
     {
-        $value = $_COOKIE['sidenavCookie'];
-        $page = $value ? "bootstrap." : "";
         $domainGroups = $domainGroupService->getAll();
         return response()
-            ->view("{$page}pages.emaildomain.emaildomain-edit", ['domainGroups' => $domainGroups]);
+            ->view("bootstrap.pages.emaildomain.emaildomain-edit", ['domainGroups' => $domainGroups]);
     }
 
     /**

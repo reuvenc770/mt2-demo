@@ -47,9 +47,7 @@ class AttributionController extends Controller
     }
 
     public function listAll () {
-        $value = $_COOKIE['sidenavCookie'];
-        $page = $value ? "bootstrap." : "";
-        return response()->view( "{$page}pages.attribution.attribution-index" );
+        return response()->view( "bootstrap.pages.attribution.attribution-index" );
     }
 
     /**
@@ -59,9 +57,7 @@ class AttributionController extends Controller
      */
     public function create()
     {
-        $value = $_COOKIE['sidenavCookie'];
-        $page = $value ? "bootstrap." : "";
-        return response()->view( "{$page}pages.attribution.attribution-add" );
+        return response()->view( "bootstrap.pages.attribution.attribution-add" );
     }
 
     /**
@@ -94,9 +90,7 @@ class AttributionController extends Controller
      */
     public function edit($id)
     {
-        $value = $_COOKIE['sidenavCookie'];
-        $page = $value ? "bootstrap." : "";
-        return response()->view( "{$page}pages.attribution.attribution-edit" );
+        return response()->view( "bootstrap.pages.attribution.attribution-edit" );
     }
 
     /**
@@ -182,7 +176,7 @@ class AttributionController extends Controller
     public function showProjection ( $modelId ) {
         $value = $_COOKIE['sidenavCookie'];
         $page = $value ? "bootstrap." : "";
-        return response()->view( "{$page}pages.attribution.attribution-projection" , [ 'modelId' => $modelId ] );
+        return response()->view( "bootstrap.pages.attribution.attribution-projection" , [ 'modelId' => $modelId ] );
     }
 
     public function getChartData ( $modelId ) {
