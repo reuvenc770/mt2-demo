@@ -1,9 +1,32 @@
 <nav id="myNavmenu" class="navmenu navmenu-default navmenu-fixed-left offcanvas" role="navigation">
-    <div class="mt2-nav-toggle" type="button" class="navbar-toggle" data-toggle="offcanvas" data-target="#myNavmenu" data-canvas="body" ng-click="app.toggleNavSize( $event )">
-        <i class="material-icons">menu</i>
-    </div>
+    <a class="navmenu-brand center-block" href="#">
+        <img src="/img/mt2_icon.png" />
+    </a>
+
+
+    <md-button ng-click="app.toggleNavSize( $event )">minimize</md-button>
+
+    <ul class="nav navmenu-nav">
+        @foreach ( $menuItems as $section )
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                @if ( $section[ 'icon' ] != '' )
+                <md-icon class="mt2-nav-icon" md-font-set="material-icons">{{$section[ 'icon' ]}}</md-icon>
+                @endif
+                {{ $section[ 'name' ] }} <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu navmenu-nav" role="menu">
+                @foreach ( $section[ 'children' ] as $currentChild )
+                <li ng-class="{ 'active' : '{{$currentChild[ 'uri' ]}}' == app.currentPath }"><a href="{{ '/' . $currentChild[ 'uri' ] }}">{{ $currentChild[ 'name' ] }}</a></li>
+                @endforeach
+            </ul>
+        </li>
+        @endforeach
+    </ul>
+
 
     <!-- Normal Menu -->
+    <!--
     <div class="mt2-logo-container" layout="row" ng-hide="app.sideNavMinimized">
         <img src="/img/mt2_icon.png" class="mt2-logo-img"><h2 class="mt2-logo-text">MT2</h2>
     </div>
@@ -37,8 +60,10 @@
         </div>
     @endforeach
     </md-list>
+    -->
 
     <!-- Mini Menu -->
+    <!--
     <div class="mt2-mini-logo-container" layout="row" ng-show="app.sideNavMinimized" ng-mouseover="app.closeHoverMenu()">
         <img src="/img/mt2_icon.png">
     </div>
@@ -68,6 +93,7 @@
         </md-list>
     </div>
     @endforeach
+    -->
 
     <div ng-mouseover="app.closeHoverMenu()" style="height: 20px;"></div>
 </nav>

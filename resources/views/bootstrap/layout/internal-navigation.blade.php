@@ -1,6 +1,13 @@
 <header headroom tolerance="5" class="navbar navbar-fixed-top navbar-default" role="navigation">
     <div class="container-fluid">
+
         <ul class="nav navbar-nav navbar-left">
+            <li>
+
+                <div class="mt2-nav-toggle" type="button" class="navbar-toggle" data-toggle="offcanvas" data-target="#myNavmenu" data-canvas="body" ng-click="app.toggleNavSize( $event )" layout="row" layout-align="center center">
+                    <md-icon md-font-set="material-icons">menu</md-icon>
+                </div>
+            </li>
            @yield('page-menu')
         </ul>
         <ul class="nav navbar-nav navbar-right">

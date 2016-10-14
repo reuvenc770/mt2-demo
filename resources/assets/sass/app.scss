@@ -591,15 +591,13 @@ md-list-item.mt2-nav-sub-item .md-list-item-inner {
 .mt2-nav-toggle {
     width: 36px;
     height: 36px;
+    margin: 7px;
+    border-radius: 5px;
     background-color: #383F47;
-    position: absolute;
-    right: -36px;
-    top: 12px;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
 
-    i {
+    md-icon {
         color: #FFF;
+
     }
 }
 
@@ -610,13 +608,6 @@ md-list-item.mt2-nav-sub-item .md-list-item-inner {
 .mt2-sidenav-minimized {
     width: 70px !important;
 }
-
-.mt2-nav-toggle i {
-    position: absolute;
-    top: 6px;
-    left: 6px;
-}
-
 
 .mt2-nav-main-item {
     padding-left: 3px;

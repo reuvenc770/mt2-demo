@@ -8,7 +8,7 @@
 </head>
 <body ng-app="mt2App" ng-controller="AppController as app" ng-init="app.currentPath = '{{ Request::path() }}'" ng-cloak>
 
-<!--!! $menu->getMenuHtml() !! add back in -->
+{!! $menu->getMenuHtmlBootStrap() !!}
 <script type="text/javascript">
     var _config = {
         userId: {{Sentinel::check() ? Sentinel::getUser()->id: 0}},
