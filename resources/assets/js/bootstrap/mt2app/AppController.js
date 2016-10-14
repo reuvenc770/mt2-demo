@@ -1,6 +1,17 @@
 mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' ,  '$mdToast' , '$mdMedia' , '$cookies' , '$timeout' , '$log' , function ( $rootScope , $location , $window , $mdToast , $mdMedia , $cookies , $timeout , $log ) {
     var self = this;
 
+    self.activeSection = {};
+
+    self.setCurrentActiveSection = function ( sectionName , path ) {
+        $log.info( 'running setCurrentActiveSection' );
+
+        if ( path == self.currentPath ) {
+            self.activeSection = {};
+            self.activeSection[ sectionName ] = true;
+        }
+    };
+
     /**
      * Main Side Nav
      */

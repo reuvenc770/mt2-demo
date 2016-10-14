@@ -1,23 +1,22 @@
-<nav id="myNavmenu" class="navmenu navmenu-default navmenu-fixed-left offcanvas" role="navigation">
+<nav id="mainSideNav" class="navmenu navmenu-inverse navmenu-fixed-left offcanvas" role="navigation">
     <a class="navmenu-brand center-block" href="#">
         <img src="/img/mt2_icon.png" />
     </a>
 
-
-    <md-button ng-click="app.toggleNavSize( $event )">minimize</md-button>
-
     <ul class="nav navmenu-nav">
         @foreach ( $menuItems as $section )
-        <li class="dropdown">
+        <li class="dropdown" ng-class="{ 'open' : app.activeSection[ '{{{$section[ 'name' ]}}}' ] }">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                 @if ( $section[ 'icon' ] != '' )
-                <md-icon class="mt2-nav-icon" md-font-set="material-icons">{{$section[ 'icon' ]}}</md-icon>
+                <md-icon class="nav-icon" md-font-set="material-icons">{{$section[ 'icon' ]}}</md-icon>
                 @endif
-                {{ $section[ 'name' ] }} <b class="caret"></b>
+                <span class="mt2-nav-main-text">{{ $section[ 'name' ] }}</span>
             </a>
             <ul class="dropdown-menu navmenu-nav" role="menu">
                 @foreach ( $section[ 'children' ] as $currentChild )
-                <li ng-class="{ 'active' : '{{$currentChild[ 'uri' ]}}' == app.currentPath }"><a href="{{ '/' . $currentChild[ 'uri' ] }}">{{ $currentChild[ 'name' ] }}</a></li>
+                <li class="nav-child-item" ng-class="{ 'active' : '{{$currentChild[ 'uri' ]}}' == app.currentPath }" ng-init="app.setCurrentActiveSection( '{{$section[ 'name' ]}}' , '{{$currentChild[ 'uri' ]}}' )">
+                    <a href="{{ '/' . $currentChild[ 'uri' ] }}" target="_self"><span class="nav-child-text">{{ $currentChild[ 'name' ] }}</span></a>
+                </li>
                 @endforeach
             </ul>
         </li>

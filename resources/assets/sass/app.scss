@@ -686,6 +686,43 @@ md-list-item.mt2-nav-sub-item .md-list-item-inner {
         color: #039be5;
     }
 }
+
+
+/**
+ * Bootstrap Nav
+ */
+#mainSideNav li.dropdown:hover , #mainSideNav li.dropdown.open {
+    border-left: #039be5 3px solid;
+    background-color: rgba(158,158,158,0.2);
+}
+
+.nav-icon {
+    margin-right: 1em;
+}
+
+.nav-child-text {
+    font-size: 14px;
+    margin-left: 1em;
+    font-style: italic;
+}
+
+.nav-child-item {
+    padding: 0.5em;
+    background-color: #21262d;
+}
+
+.navmenu-inverse .navmenu-nav.dropdown-menu > .active > a {
+    background-color: #21262d;
+}
+
+.dropdown-menu {
+    padding-bottom: 0;
+}
+
+.navmenu-inverse, .navbar-inverse .navbar-offcanvas {
+    background-color: #000;
+}
+
 //Headroom
 .headroom {
     -webkit-animation-duration: 0.5s;
