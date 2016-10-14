@@ -805,6 +805,16 @@ md-list-item.mt2-nav-sub-item .md-list-item-inner {
     + md-card{
         margin:0;
     }
+    ul {
+        li {
+            a{
+                color:#fff;
+                &:hover{
+                    color: #333;
+                }
+            }
+        }
+    }
 }
 
 md-table-container{

@@ -69,10 +69,4 @@ mt2App.filter( 'bytes' , function() {
     }
 } );
 
-mt2App.filter('limitObjects', function() {
-    return function( object , limit ) {
-        console.log(object);
-        console.log(limit);
-    }
-});
 
