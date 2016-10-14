@@ -25,7 +25,7 @@ class UserApiController extends Controller
     public function listAll()
     {
         return response()
-            ->view('pages.user.user-index');
+            ->view('bootstrap.pages.user.user-index');
     }
 
     /**
@@ -46,7 +46,7 @@ class UserApiController extends Controller
     public function create()
     {
         $roles = $this->userService->getAvailableRoles();
-        return view('pages.user.user-add', array("roles" => $roles));
+        return view('bootstrap.pages.user.user-add', array("roles" => $roles));
     }
 
     /**
@@ -88,7 +88,7 @@ class UserApiController extends Controller
             return redirect("/user");
         }
         $roles = $this->userService->getAvailableRoles();
-        return view('pages.user.user-edit', array("roles" => $roles));
+        return view('bootstrap.pages.user.user-edit', array("roles" => $roles));
     }
 
     /**
@@ -110,7 +110,7 @@ class UserApiController extends Controller
     {
         $user = \Sentinel::getUser();
         return response()
-            ->view('pages.user.user-profile', array( "id" => $user->getUserId()));
+            ->view('bootstrap.pages.user.user-profile', array( "id" => $user->getUserId()));
     }
 
     public function updateProfile(ProfileUpdate $request, $id)
