@@ -17,7 +17,7 @@ class CountryRepo {
 
     public function getAll () {
         try {
-            return $this->model->select( 'countryID AS id' , 'countryName AS name' )
+            return $this->model->select( 'countryID AS id' , 'countryName AS name' , 'countryCode AS code' )
                 ->where( 'visible' , 1 )
                 ->orderBy( 'countryCode' )
                 ->get();
