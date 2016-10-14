@@ -283,6 +283,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
 
     self.prepop = function ( id ) {
         self.current = self.demoProfiles[ id - 1 ];
+        self.generateName();
     };
 
     self.generateTowerDateOptions = function () {
