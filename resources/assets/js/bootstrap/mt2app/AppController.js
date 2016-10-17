@@ -1,7 +1,7 @@
 mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' ,  '$mdToast' , '$mdMedia' , '$cookies' , '$timeout' , '$log' , function ( $rootScope , $location , $window , $mdToast , $mdMedia , $cookies , $timeout , $log ) {
     var self = this;
 
-    self.staticWidthPage = false;
+    self.fixedNav = false;
     self.activeSection = {};
 
     self.setCurrentActiveSection = function ( sectionName , path ) {
@@ -11,8 +11,16 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
         }
     };
 
-    self.setToStaticWidth = function () {
-        self.staticWidthPage = true;
+    self.setFixedNav = function ( status ) {
+        if ( typeof( status ) !== 'undefined' ) {
+            self.fixedNav = status;
+        } else {
+            self.fixedNav = true;
+        }
+    }
+
+    self.isFixedNav = function () {
+        return self.fixedNav;
     }
 
     /**

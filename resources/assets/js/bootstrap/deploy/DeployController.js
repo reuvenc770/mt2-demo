@@ -59,9 +59,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.queryPromise = null;
     self.copyToFutureDate = '';
 
-    self.tableWrapperStyle = { "width" : "1600px" };
-
-
     self.loadAccounts = function () {
         self.loadEspAccounts();
         self.loadAffiliates();
@@ -202,8 +199,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         DeployApiService.getDeploy(deployId, self.loadDeploySuccess, self.loadDeployFail);
         self.espLoaded = false;
         self.editView = true;
-        
-        self.tableWrapperStyle.width = "3000px";
     };
 
     self.actionLink = function ( event , form ) {
@@ -435,7 +430,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.editView = false;
         self.showRow = false;
 
-        self.tableWrapperStyle.width = "1600px";
         self.formSubmitting = false;
     };
 
@@ -480,7 +474,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.loadDeploys();
         self.showRow = false;
         
-        self.tableWrapperStyle.width = "1600px";
         self.formSubmitting = false;
     };
 
