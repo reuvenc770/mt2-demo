@@ -1,67 +1,49 @@
-@extends( 'layout.default' )
+@extends( 'bootstrap.layout.default' )
 
 @section( 'title' , 'Domain Add' )
 
 
 @section( 'content' )
-    <md-content class="md-mt2-zeta-theme">
-        <div ng-controller="domainController as domain" ng-init="domain.init(1)">
-            <md-tabs md-dynamic-height md-border-bottom>
 
-                <md-tab label="Mailing Domains" md-on-select="domain.updateType(1)">
-                    <md-content class="md-padding">
-                        <div layout="row" layout-align="center center" ng-hide="domain.hideFormView">
-                            <md-card flex-gt-sm="50" flex="100">
-                                <md-toolbar>
-                                    <div class="md-toolbar-tools">
-                                        <span>Add Mailing Domain</span>
-                                    </div>
-                                </md-toolbar>
 
-                                @include( 'pages.domain.domain-form' , ['type' => 1])
-                                <md-button class="md-raised md-accent" ng-click="domain.saveNewAccount( $event , domainForm1 )">Create Mailing Domains</md-button>
 
-                            </md-card>
-                        </div>
 
-                        <div flex>
-                        <h2>&nbsp;Current Mailing Domains @{{ domain.extraText }}</h2>
-                        <md-card>
-                            @include( 'pages.domain.domain-list-table' )
-                        </md-card>
-                        </div>
-                    </md-content>
-                </md-tab>
+<div ng-controller="domainController as domain" ng-init="domain.init(1)">
+        <ul class="nav nav-tabs" role="tablist" >
+            <li ng-click="domain.updateType(1)" role="presentation" class="active"><a href="#model"  aria-controls="models" role="tab" data-toggle="tab">Mailing Domains</a></li>
+            <li ng-click="domain.updateType(2)" role="presentation"><a href="#reporttab" aria-controls="reporttab" role="tab" data-toggle="tab">Content Domains</a></li>
+        </ul>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="model">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <div class="panel-title">Add Mailing Domains</div>
+                    </div>
+                    <div class="panel-body">
+                        @include( 'bootstrap.pages.domain.domain-form' , ['type' => 1])
+                        <button class="btn btn-primary btn-block" ng-click="domain.saveNewAccount()">Create Mailing Domains</button>
 
-                <md-tab label="Content Domains" md-on-select="domain.updateType(2)">
-                    <md-content class="md-padding">
-                        <div layout="row" layout-align="center center" ng-hide="domain.hideFormView">
-                            <md-card flex-gt-sm="50" flex="100">
-                                <md-toolbar>
-                                    <div class="md-toolbar-tools">
-                                        <span>Add Content Domain</span>
-                                    </div>
-                                </md-toolbar>
-
-                                @include( 'pages.domain.domain-form' , ['type' => 2])
-
-                                <md-button class="md-raised md-accent" ng-click="domain.saveNewAccount( $event , domainForm2 )">Create Content Domains</md-button>
-
-                            </md-card>
-                        </div>
-                        <div flex>
-                            <h2>&nbsp;Current Content Domains @{{ domain.extraText }}</h2>
-                            <md-card>
-                                @include( 'pages.domain.domain-list-table' )
-                            </md-card>
-                        </div>
-                    </md-content>
-                </md-tab>
-            </md-tabs>
+                    </div>
+                </div>
+                @include( 'bootstrap.pages.domain.domain-list-table' )
+            </div>
+            <div role="tabpanel" class="tab-pane" id="reporttab">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <div class="panel-title">Add Content Domains</div>
+                    </div>
+                    <div class="panel-body">
+                        @include( 'bootstrap.pages.domain.domain-form' , ['type' => 2])
+                        <button class="btn btn-primary btn-block" ng-click="domain.saveNewAccount()">Create Content Domains</button>
+                    </div>
+                </div>
+                @include( 'bootstrap.pages.domain.domain-list-table' )
+            </div>
         </div>
-    </md-content>
+</div>
 @stop
 
-@section( 'pageIncludes' )
-    <script src="js/domain.js"></script>
-@stop
+
+<?php Assets::add(
+        ['resources/assets/js/bootstrap/domain/DomainController.js',
+                'resources/assets/js/bootstrap/domain/DomainApiService.js'],'js','pageLevel') ?>

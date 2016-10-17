@@ -1,38 +1,38 @@
-@extends( 'bootstrap.layout.default' )
+@extends( '.bootstrap.layout.default' )
 
 @section( 'title' , 'Domain List View' )
 
+
 @section( 'content' )
-kkk
-        <div ng-controller="domainController as domain" ng-init="domain.init(1)">
-            <md-tabs md-dynamic-height md-border-bottom>
-
-                <md-tab label="Mailing Domains" md-on-select="domain.updateType(1)">
-                    <md-content class="md-padding">
-                        <div flex>
-                            <h2>&nbsp;Current Mailing Domains @{{ domain.extraText }}</h2>
-                            <md-card>
-
-                            </md-card>
-                        </div>
-                    </md-content>
-                </md-tab>
-
-                <md-tab label="Content Domains" md-on-select="domain.updateType(2)">
-                    <md-content class="md-padding">
-                        <div flex>
-                            <h2>&nbsp;Current Content Domains @{{ domain.extraText }}</h2>
-                            <md-card>
-                              .  @include( 'pages.domain.domain-list-table' )
-                            </md-card>
-                        </div>
-                    </md-content>
-                </md-tab>
-            </md-tabs>
+    <div ng-controller="domainController as domain" ng-init="domain.init(1)">
+        <h1>ESP Account View</h1>
+        @include( 'bootstrap.pages.domain.domain-search' )
+        <div ng-init="attr.initIndexPage()">
+            <ul class="nav nav-tabs" role="tablist">
+                <li ng-click="domain.updateType(1)" role="presentation" class="active"><a href="#model" aria-controls="models" role="tab"
+                                                          data-toggle="tab">Mailing Domains</a></li>
+                <li ng-click="domain.updateType(2)" role="presentation"><a href="#reporttab" aria-controls="reporttab" role="tab" data-toggle="tab">Content Domains</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="model">
+                    <h2>Current Mailing Domains @{{ domain.extraText }}</h2>
+                    <md-card>
+                        @include( 'bootstrap.pages.domain.domain-list-table' )
+                    </md-card>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="reporttab">
+                    <h2>&nbsp;Current Content Domains @{{ domain.extraText }}</h2>
+                    <md-card>
+                        @include( 'bootstrap.pages.domain.domain-list-table' )
+                    </md-card>
+                </div>
+            </div>
         </div>
-    </md-content>
+    </div>
 @stop
 
-@section( 'pageIncludes' )
-    <script src="js/domain.js"></script>
-@stop
+
+<?php Assets::add(
+        ['resources/assets/js/bootstrap/domain/DomainController.js',
+                'resources/assets/js/bootstrap/domain/DomainApiService.js'],'js','pageLevel') ?>
