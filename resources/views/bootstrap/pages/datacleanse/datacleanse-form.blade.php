@@ -90,6 +90,8 @@
             <lite-membership-widget recordlist="cleanse.offerCategories" chosenrecordlist="cleanse.selectedOfferCategories" availablerecordtitle="cleanse.availableCategoryWidgetTitle" chosenrecordtitle="cleanse.chosenCategoryWidgetTitle" updatecallback="cleanse.offerCategoryMembershipCallback()" ng-init="cleanse.loadOfferCategories()"></lite-membership-widget>
         </div>
 
+        <br/>
+
         <div id="suppressionCountries" ng-cloak>
             <h4 class="text-center">Suppression Countries</h4>
 
@@ -97,6 +99,8 @@
 
             <lite-membership-widget recordlist="cleanse.countries" chosenrecordlist="cleanse.selectedCountries" availablerecordtitle="cleanse.availableCountryWidgetTitle" chosenrecordtitle="cleanse.chosenCountryWidgetTitle" updatecallback="cleanse.countryMembershipCallback()" ng-init="cleanse.loadCountries()"></lite-membership-widget>
         </div>
+
+        <br/>
 
         <div id="suppressionAdvertisers" ng-class="{ 'has-error' : cleanse.formErrors.aid }" ng-cloak>
             <h4 class="text-center">Advertiser Suppression</h4>
@@ -112,8 +116,6 @@
         </div>
 
     </fieldset>
-  </div>
-  <div class="panel-footer">
   </div>
 </div>
 
