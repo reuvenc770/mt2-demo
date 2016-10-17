@@ -735,6 +735,10 @@ md-list-item.mt2-nav-sub-item .md-list-item-inner {
     background-color: #000;
 }
 
+.navbar-nav > li > a {
+    cursor: pointer;
+}
+
 //Headroom
 .headroom {
     -webkit-animation-duration: 0.5s;
