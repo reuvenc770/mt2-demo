@@ -7,7 +7,7 @@ mt2App.service( 'DomainService' , function ( $http , $log ) {
     self.baseProxyUrl = '/api/proxy/active';
 
     self.getAccount = function ( id , successCallback ) {
-        $http( { "method" : "GET" , "url" : this.baseApiUrl + '/' + id } )
+        $http( { "method" : "GET" , "url" : this.baseApiUrl + id } )
             .then( successCallback );
     };
 

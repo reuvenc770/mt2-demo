@@ -38,7 +38,10 @@ class DomainController extends Controller
     }
 
     public function listAll(){
-        return response()->view( 'bootstrap.pages.domain.domain-index' );
+        $regs = $this->registrarService->getAllActive();
+        $esps = $this->espService->getAllEsps();
+        $dbas = $this->dbaService->getAllActive();
+        return response()->view( 'pages.domain.domain-index',  [ 'esps' => $esps , 'dbas' => $dbas, 'regs' => $regs] );
     }
     /**
      * Show the form for creating a new resource.
@@ -50,18 +53,20 @@ class DomainController extends Controller
         $esps = $this->espService->getAllEsps();
         $dbas = $this->dbaService->getAllActive();
         $regs = $this->registrarService->getAllActive();
-        return response()->view('bootstrap.pages.domain.domain-add', [ 'esps' => $esps , 'dbas' => $dbas, 'regs' => $regs]);
+        return response()->view('pages.domain.domain-add', [ 'esps' => $esps , 'dbas' => $dbas, 'regs' => $regs]);
     }
 
 
     public function listView()
     {
-        return response()->view('bootstrap.domain.domain-listview');
-    }
+        $regs = $this->registrarService->getAllActive();
+        $esps = $this->espService->getAllEsps();
+        $dbas = $this->dbaService->getAllActive();
+      return response()->view('pages.domain.domain-listview', [ 'esps' => $esps , 'dbas' => $dbas, 'regs' => $regs]);
+}
 
     /**
      * Store a newly created resource in storage.
-     *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
@@ -107,7 +112,7 @@ class DomainController extends Controller
      */
     public function show($id)
     {
-        //
+        return response()->json($this->service->getDomain($id));
     }
 
     /**
@@ -130,7 +135,17 @@ class DomainController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $domain = $request->toArray();
+        $bool = $this->service->updateDomain($domain);
+        return response()->json(['success' => $bool]);
+    }
 
+    public function searchDomains(Request $request){
+        $regs = $this->registrarService->getAllActive();
+        $esps = $this->espService->getAllEsps();
+        $dbas = $this->dbaService->getAllActive();
+        $domains = $this->service->searchDomains($request->toArray());
+        return response()->view('pages.domain.domain-searchview', [ 'esps' => $esps , 'dbas' => $dbas, 'regs' => $regs, 'domains' => json_encode($domains)]);
     }
 
     /**

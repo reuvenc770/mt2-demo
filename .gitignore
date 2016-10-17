@@ -18,5 +18,3 @@ Homestead.json
 *.csv
 *.sql
 *.log
-!RouteCacheCommand.php
-!RouteCollection.php
