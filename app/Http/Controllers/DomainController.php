@@ -38,7 +38,7 @@ class DomainController extends Controller
     }
 
     public function listAll(){
-        return response()->view( 'pages.domain.domain-index' );
+        return response()->view( 'bootstrap.pages.domain.domain-index' );
     }
     /**
      * Show the form for creating a new resource.
@@ -50,13 +50,13 @@ class DomainController extends Controller
         $esps = $this->espService->getAllEsps();
         $dbas = $this->dbaService->getAllActive();
         $regs = $this->registrarService->getAllActive();
-        return response()->view('pages.domain.domain-add', [ 'esps' => $esps , 'dbas' => $dbas, 'regs' => $regs]);
+        return response()->view('bootstrap.pages.domain.domain-add', [ 'esps' => $esps , 'dbas' => $dbas, 'regs' => $regs]);
     }
 
 
     public function listView()
     {
-        return response()->view('pages.domain.domain-listview');
+        return response()->view('bootstrap.domain.domain-listview');
     }
 
     /**
