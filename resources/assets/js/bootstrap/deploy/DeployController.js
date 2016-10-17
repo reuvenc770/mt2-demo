@@ -1,4 +1,4 @@
-mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout', 'DeployApiService', '$mdToast', '$rootScope', '$q', '$interval' , '$mdDialog' , function ($log, $window, $location, $timeout, DeployApiService, $mdToast, $rootScope, $q, $interval , $mdDialog ) {
+mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout', 'DeployApiService', '$rootScope', '$q', '$interval' , '$mdDialog' , 'modalService' , 'formValidationService' , function ($log, $window, $location, $timeout, DeployApiService, $rootScope, $q, $interval , $mdDialog , modalService , formValidationService ) {
     var self = this;
     self.$location = $location;
     self.currentDeploy = {
@@ -58,6 +58,9 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.sort = "-deployment_status";
     self.queryPromise = null;
     self.copyToFutureDate = '';
+
+    self.tableWrapperStyle = { "width" : "1600px" };
+
 
     self.loadAccounts = function () {
         self.loadEspAccounts();
@@ -136,28 +139,17 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.editView = false;
     };
 
-    self.saveNewDeploy = function ( event , form ) {
-        var errorFound = false;
-
-        angular.forEach( form.$error.required , function( field ) {
-
-            field.$setDirty();
-            field.$setTouched();
-
-            errorFound = true;
-        } );
-
-        if ( errorFound ) {
-            $mdToast.showSimple( 'Please fix errors and try again.' );
-
-            return false;
-        };
+    self.saveNewDeploy = function ( event ) {
+        self.formSubmitting = true;
 
         self.currentDeploy.user_id = _config.userId;
         self.currentDeploy.deploy_id = undefined; //faster then delete
         DeployApiService.insertDeploy(self.currentDeploy, self.loadNewDeploySuccess, self.formFail);
     };
+
     self.updateDeploy = function () {
+        self.formSubmitting = true;
+
         DeployApiService.updateDeploy(self.currentDeploy, self.updateDeploySuccess, self.formFail);
     };
 
@@ -210,6 +202,8 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         DeployApiService.getDeploy(deployId, self.loadDeploySuccess, self.loadDeployFail);
         self.espLoaded = false;
         self.editView = true;
+        
+        self.tableWrapperStyle.width = "3000px";
     };
 
     self.actionLink = function ( event , form ) {
@@ -356,7 +350,11 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.massUploadSuccess = function (response){
         self.currentDeploy = self.resetAccount();
         $rootScope.$broadcast('angucomplete-alt:clearInput');
-        $mdToast.showSimple('Deploys Uploaded!');
+
+        modalService.setModalLabel('Success');
+        modalService.setModalBody('Deploys Uploaded!');
+        modalService.launchModal();
+
         self.loadDeploys();
         self.editView = false;
         self.showRow = false;
@@ -371,6 +369,8 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.deploys = response.data.data;
         self.pageCount = response.data.last_page;
         self.deployTotal = response.data.total;
+
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
     };
 
     self.loadDeploySuccess = function (response) {
@@ -426,10 +426,17 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.updateDeploySuccess = function (response) {
         self.currentDeploy = self.resetAccount();
         $rootScope.$broadcast('angucomplete-alt:clearInput');
-        $mdToast.showSimple('Deploy Edited!');
+
+        modalService.setModalLabel('Success');
+        modalService.setModalBody('Deploy Edited!');
+        modalService.launchModal();
+
         self.loadDeploys();
         self.editView = false;
         self.showRow = false;
+
+        self.tableWrapperStyle.width = "1600px";
+        self.formSubmitting = false;
     };
 
     self.loadEspSuccess = function (response) {
@@ -465,9 +472,16 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.loadNewDeploySuccess = function (response) {
         self.currentDeploy = self.resetAccount();
         $rootScope.$broadcast('angucomplete-alt:clearInput');
-        $mdToast.showSimple('New Deploy Created!');
+
+        modalService.setModalLabel('Success');
+        modalService.setModalBody('New Deploy Created!');
+        modalService.launchModal();
+
         self.loadDeploys();
         self.showRow = false;
+        
+        self.tableWrapperStyle.width = "1600px";
+        self.formSubmitting = false;
     };
 
     self.updateCreativesSuccess = function (response) {
@@ -483,7 +497,11 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.formFail = function (response) {
-        self.loadFieldErrors(response);
+        formValidationService.resetFieldErrors( self );
+
+        formValidationService.loadFieldErrors( self , response );
+
+        self.formSubmitting = false;
     };
 
     self.exportCsvSuccess = function (response) {
@@ -504,7 +522,11 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
             anchor.click();
             windowUrl.revokeObjectURL(blob);
         }
-        $mdToast.showSimple('Packages are being generated');
+
+        modalService.setModalLabel('Success');
+        modalService.setModalBody('Packages are being generated');
+        modalService.launchModal();
+
         self.loadDeploys();
         self.startPolling();
     };
@@ -521,7 +543,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         var errors = response.data.errors;
         var errorText = "";
         if(response.data.errors.length > 1){
-            self.setModalLabel('Error');
+            modalService.setModalLabel('Error');
             for (i = 0; i < errors.length; i++) {
                 deploy_id = errors[i].deploy_id;
                 delete errors[i].deploy_id;
@@ -532,10 +554,12 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
                 }
                 errorText += "<br/>";
             }
-            self.setModalBody(errorText);
-            self.launchModal();
+            modalService.setModalBody(errorText);
+            modalService.launchModal();
         } else {
-            $mdToast.showSimple('Deploys have been created!');
+            modalService.setModalLabel('Success');
+            modalService.setModalBody('Deploys have been created!');
+            modalService.launchModal();
         }
         self.currentDeploy = self.resetAccount();
         $rootScope.$broadcast('angucomplete-alt:clearInput');
@@ -547,86 +571,70 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.copyToFutureFailure = function (response){
-        $mdToast.showSimple('FAIL');
+        modalService.setModalLabel('Error');
+        modalService.setModalBody('FAIL');
+        modalService.launchModal();
     };
 
 
 
 
     self.loadEspFail = function () {
-        self.setModalLabel('Error');
-        self.setModalBody('Something went wrong loading ESPs');
-        self.launchModal();
+        modalService.setModalLabel('Error');
+        modalService.setModalBody('Something went wrong loading ESPs');
+        modalService.launchModal();
     };
     self.updateDomainsFail = function () {
-        self.setModalLabel('Error');
-        self.setModalBody('Something went wrong loading Offers');
-        self.launchModal();
+        modalService.setModalLabel('Error');
+        modalService.setModalBody('Something went wrong loading Offers');
+        modalService.launchModal();
     };
 
     self.updateTemplateFail = function () {
-        self.setModalLabel('Error');
-        self.setModalBody('Something went wrong loading Templates');
-        self.launchModal();
+        modalService.setModalLabel('Error');
+        modalService.setModalBody('Something went wrong loading Templates');
+        modalService.launchModal();
     };
 
     self.loadDeploysFail = function () {
-        self.setModalLabel('Error');
-        self.setModalBody('Something went wrong loading Deploys');
-        self.launchModal();
+        modalService.setModalLabel('Error');
+        modalService.setModalBody('Something went wrong loading Deploys');
+        modalService.launchModal();
     };
 
     self.loadCakeFail = function () {
-        self.setModalLabel('Error');
-        self.setModalBody('Something went wrong loading Cake Affiliates');
-        self.launchModal();
+        modalService.setModalLabel('Error');
+        modalService.setModalBody('Something went wrong loading Cake Affiliates');
+        modalService.launchModal();
     };
 
     self.loadProfileFail = function () {
-        self.setModalLabel('Error');
-        self.setModalBody('Something went wrong loading List Profiles');
-        self.launchModal();
+        modalService.setModalLabel('Error');
+        modalService.setModalBody('Something went wrong loading List Profiles');
+        modalService.launchModal();
     };
 
     self.updateCreativesFail = function () {
-        self.setModalLabel('Error');
-        self.setModalBody('Something went wrong loading Creatives');
-        self.launchModal();
+        modalService.setModalLabel('Error');
+        modalService.setModalBody('Something went wrong loading Creatives');
+        modalService.launchModal();
     };
 
     self.updateFromsFail = function () {
-        self.setModalLabel('Error');
-        self.setModalBody('Something went wrong loading Froms');
-        self.launchModal();
+        modalService.setModalLabel('Error');
+        modalService.setModalBody('Something went wrong loading Froms');
+        modalService.launchModal();
     };
 
     self.updateSubjectsFail = function () {
-        self.setModalLabel('Error');
-        self.setModalBody('Something went wrong loading Subjects');
-        self.launchModal();
-    };
-
-
-    /**
-     * Errors
-     */
-    self.loadFieldErrors = function (response) {
-        angular.forEach(response.data, function (value, key) {
-            self.setFieldError(key, value);
-        });
-    };
-
-    self.setFieldError = function (field, errorMessage) {
-        self.formErrors[field] = errorMessage;
-    };
-
-    self.resetFieldErrors = function () {
-        self.formErrors = {};
+        modalService.setModalLabel('Error');
+        modalService.setModalBody('Something went wrong loading Subjects');
+        modalService.launchModal();
     };
 
     self.resetAccount = function () {
         $rootScope.$broadcast('angucomplete-alt:clearInput');
-        self.resetFieldErrors();
+        formValidationService.resetFieldErrors( self );
         return {
             send_date: '',
             deploy_id: '',
@@ -639,34 +647,5 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
             cake_affiliate_id: "",
             notes: ""
         }
-    };
-
-
-
-    /**
-     * Page Modal
-     */
-
-    self.setModalLabel = function (labelText) {
-        var modalLabel = angular.element(document.querySelector('#pageModalLabel'));
-
-        modalLabel.text(labelText);
-    };
-
-    self.setModalBody = function (bodyText) {
-        var modalBody = angular.element(document.querySelector('#pageModalBody'));
-
-        modalBody.html(bodyText);
-    };
-
-    self.launchModal = function () {
-        $('#pageModal').modal('show');
-    };
-
-    self.resetModal = function () {
-        self.setModalLabel('');
-        self.setModalBody('');
-
-        $('#pageModal').modal('hide');
     };
 }]);

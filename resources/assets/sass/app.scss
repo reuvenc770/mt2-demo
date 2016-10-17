@@ -42,6 +42,10 @@ $table-bg-accent-2 : #eaeaea;
 
 .tooltip-inner { min-width: 100px; }
 
+.fixed-sidenav-offset {
+    margin-left: 300px;
+}
+
 /* IVH Includes */
 @import "node_modules/angular-ivh-treeview/dist/ivh-treeview";
 @import "node_modules/angular-ivh-treeview/dist/ivh-treeview-theme-basic";

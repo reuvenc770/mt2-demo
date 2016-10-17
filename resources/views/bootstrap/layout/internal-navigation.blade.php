@@ -1,8 +1,8 @@
-<header headroom tolerance="5" class="navbar navbar-fixed-top navbar-default" role="navigation">
+<header headroom tolerance="5" class="navbar navbar-fixed-top navbar-default" ng-class="{ 'fixed-sidenav-offset' : app.staticWidthPage === true }" role="navigation">
     <div class="container-fluid">
 
         <ul class="nav navbar-nav navbar-left">
-            <li>
+            <li ng-show="app.staticWidthPage !== true">
                 <div class="mt2-nav-toggle" type="button" class="navbar-toggle" data-toggle="offcanvas" data-target="#mainSideNav" data-canvas="body" layout="row" layout-align="center center">
                     <md-icon md-font-set="material-icons">menu</md-icon>
                 </div>

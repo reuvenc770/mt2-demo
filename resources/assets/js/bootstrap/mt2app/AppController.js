@@ -1,6 +1,7 @@
 mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' ,  '$mdToast' , '$mdMedia' , '$cookies' , '$timeout' , '$log' , function ( $rootScope , $location , $window , $mdToast , $mdMedia , $cookies , $timeout , $log ) {
     var self = this;
 
+    self.staticWidthPage = false;
     self.activeSection = {};
 
     self.setCurrentActiveSection = function ( sectionName , path ) {
@@ -9,6 +10,10 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
             self.activeSection[ sectionName ] = true;
         }
     };
+
+    self.setToStaticWidth = function () {
+        self.staticWidthPage = true;
+    }
 
     /**
      * Main Side Nav
