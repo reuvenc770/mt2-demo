@@ -17,6 +17,10 @@ $navbar-inverse-bg: #16416C;
 $navbar-inverse-brand-color: #FFF;
 $navbar-inverse-brand-hover-color: #9D9D9D;
 
+/**
+ * Materials Variable Overrides
+ */
+$card-padding: 6px;
 
 /**
  *Bootstrap Includes
@@ -32,6 +36,8 @@ $table-bg-accent-2 : #eaeaea;
         background-color: $table-bg-accent-2;
     }
 }
+
+.tooltip-inner { min-width: 100px; }
 
 /* IVH Includes */
 @import "node_modules/angular-ivh-treeview/dist/ivh-treeview";
