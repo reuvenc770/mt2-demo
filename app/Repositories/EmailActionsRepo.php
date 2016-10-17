@@ -130,6 +130,52 @@ class EmailActionsRepo {
                     ->groupBy('email_actions.email_id', 'email_actions.deploy_id', 'date');
     }
 
+    public function pullAggregatedListProfileActions($start, $end) {
+        return DB::select("SELECT
+            ea.email_id,
+            ea.deploy_id,
+            ea.date,
+            e.email_address,
+            ed.id as email_domain_id,
+            dg.id as email_domain_group_id,
+            IFNULL(d.offer_id, 0) as offer_id,
+            FLOOR(RAND() * 20) as cake_vertical_id, # Temporary until we get a offer-offer mapping. Please mention if found.
+            ea.deliveries,
+            ea.opens,
+            ea.clicks,
+            ea.created_at,
+            ea.updated_at
+   
+        FROM (SELECT
+                email_id,
+                deploy_id,
+                DATE(datetime) as date,
+                
+                SUM(IF(action_id = 4, 1, 0)) as deliveries,
+                SUM(IF(action_id = 1, 1, 0)) as opens,
+                SUM(IF(action_id = 2, 1, 0)) as clicks,
+                NOW() as created_at,
+                NOW() as updated_at
+            FROM
+                mt2_reports.email_actions
+            WHERE
+                id between :start and :end
+            GROUP BY
+                 email_id, deploy_id, `date`) ea
+
+            INNER JOIN emails e on ea.email_id = e.id
+            INNER JOIN email_domains ed on e.email_domain_id = ed.id
+            LEFT JOIN domain_groups dg on ed.domain_group_id = dg.id
+            LEFT JOIN deploys d on ea.deploy_id = d.id
+            LEFT JOIN mt_offer_cake_offer_mappings cake_map ON d.offer_id = cake_map.offer_id
+            LEFT JOIN cake_offers co ON cake_map.cake_offer_id = co.id
+            LEFT JOIN cake_verticals cv ON co.vertical_id = cv.id", 
+            array(
+                ':start' => $start,
+                ':end' => $end
+            ));
+    }
+
     public function pullIncompleteDeploys($lookback) {
         return DB::select("SELECT
               deploy_id, 
