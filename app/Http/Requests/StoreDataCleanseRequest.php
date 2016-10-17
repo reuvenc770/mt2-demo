@@ -29,4 +29,16 @@ class StoreDataCleanseRequest extends Request
             'aid' => 'required'
         ];
     }
+
+    /**
+     *
+     */
+    public function messages ()
+    {
+        return [
+            'pname.required' => 'Data export filename is required.' ,
+            'ConfirmEmail.required' => 'Confirmation email is required.',
+            'aid.required' => 'At least 1 advertiser is required.'
+        ];
+    }
 }
