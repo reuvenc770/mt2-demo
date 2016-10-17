@@ -23,6 +23,7 @@ class ExpandListProfileSchema extends Migration
             $table->json('device_os')->after('device_type');
             $table->json('mobile_carrier')->after('device_type');
             $table->boolean('insert_header')->default(0)->after('mobile_carrier');
+            $table->integer('total_count')->unsigned()->default(0)->after('insert_header');
         });
     }
 
@@ -42,6 +43,7 @@ class ExpandListProfileSchema extends Migration
             $table->dropColumn('device_os');
             $table->dropColumn('mobile_carrier');
             $table->dropColumn('insert_header');
+            $table->dropColumn('total_count');
 
             $table->json('attributes')->after('device_type');
         });

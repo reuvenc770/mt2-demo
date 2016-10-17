@@ -54,6 +54,7 @@ class ListProfileService
         $listProfile = $this->profileRepo->getProfile($id);
         $queries = $this->returnQueriesData($listProfile);
         $queryNumber = 1;
+        $totalCount = 0;
 
         $fileName = 'ListProfiles/' . $listProfile->name . '.csv';
         $listProfileTag = 'list_profile-' . $listProfile->id . '-' . $listProfile->name;
@@ -83,7 +84,7 @@ class ListProfileService
                     $this->saveToCache($listProfileTag, $row->{$this->uniqueColumn});
                     $row = $this->mapDataToColumns($columns, $row);
                     $this->append($fileName, $row);
-
+                    $totalCount++;
                 }
             }
 
@@ -94,6 +95,8 @@ class ListProfileService
         }
 
         Cache::tags($listProfileTag)->flush();
+
+        $listProfile->total_count = $totalCount;
 
     }
 
