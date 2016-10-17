@@ -18,7 +18,7 @@ mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$win
     self.espIdField = "id";
     self.widgetName = 'esps';
     self.templateTypeMap = [ 'N/A', 'Normal HTML' , 'HTML Lite (no images)' , 'Image Only' , 'Image Map' , 'Newsletter' , 'Clickable Button' ];
-
+    self.formErrors = [];
     self.templates = [];
     self.currentlyLoading = 0;
     self.pageCount = 0;
@@ -84,7 +84,7 @@ mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$win
         formValidationService.resetFieldErrors(self);
         self.formSubmitted = true;
         if (self.selectedEsps.length < 1) {
-            self.setFieldError( 'selectedEsps' , 'At least 1 ESP is required.' );
+            formValidationService.setFieldError(self, 'selectedEsps' , 'At least 1 ESP is required.' );
             $mdToast.showSimple( 'Please fix errors and try again.' );
             return false;
         }

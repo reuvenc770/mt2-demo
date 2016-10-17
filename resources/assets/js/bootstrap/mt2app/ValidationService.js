@@ -3,11 +3,11 @@ mt2App.service( 'formValidationService' , [ function () {
     var self = this;
     self.loadFieldErrors = function (controllerScope, response ) {
         angular.forEach(response.data, function(value, key) {
-            self.setFieldError( key , value, controllerScope );
+            self.setFieldError(controllerScope,key , value);
         });
     };
 
-    self.setFieldError = function (field , errorMessage, controllerScope ) {
+    self.setFieldError = function (controllerScope, field , errorMessage) {
 
         controllerScope.formErrors[ field ] = errorMessage;
     };

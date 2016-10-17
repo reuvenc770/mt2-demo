@@ -19,7 +19,7 @@
         <option value="6">Clickable Button</option>
     </select>
     <div class="help-block"  ng-show="mailing.formErrors.templateType">
-        <div ng-repeat="error in emailDomain.formErrors.templateType">
+        <div ng-repeat="error in mailing.formErrors.templateType">
             <span ng-bind="error"></span>
         </div>
     </div>
