@@ -1,4 +1,4 @@
-<nav id="mainSideNav" class="navmenu navmenu-inverse navmenu-fixed-left offcanvas" role="navigation">
+<nav id="mainSideNav" class="navmenu navmenu-inverse navmenu-fixed-left" ng-class="{ 'offcanvas' : app.isFixedNav() === false }" role="navigation">
     <a class="navmenu-brand center-block" href="#">
         <img src="/img/mt2_icon.png" />
     </a>
