@@ -87,7 +87,7 @@ class ListProfileController extends Controller
      */
     public function edit($id)
     {
-        return response()->view( 'bootstrap.listprofile.list-profile-edit' , $this->getFormFieldOptions( [ 'id' => $id ] ) );
+        return response()->view( 'bootstrap.pages.listprofile.list-profile-edit' , $this->getFormFieldOptions( [ 'id' => $id ] ) );
     }
 
     /**

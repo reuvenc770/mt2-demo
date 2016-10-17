@@ -5,7 +5,7 @@
 @section( 'angular-controller' , 'ng-controller="ListProfileController as listProfile"')
 
 @section( 'content' )
-<div class="panel" ng-class="{ 'panel-primary' : !listProfile.enableAdmiral , 'panel-danger' : listProfile.enableAdmiral }" ng-controller="ListProfileController as listProfile">
+<div class="panel" ng-class="{ 'panel-primary' : !listProfile.enableAdmiral , 'panel-danger' : listProfile.enableAdmiral }">
     <div class="panel-heading">
         <div class="panel-title">Add List Profile</div>
     </div>

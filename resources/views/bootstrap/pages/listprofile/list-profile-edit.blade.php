@@ -1,9 +1,11 @@
-@extends( 'layout.default' )
+@extends( 'bootstrap.layout.default' )
 
 @section( 'title' , 'Edit List Profile' )
 
+@section( 'angular-controller' , 'ng-controller="ListProfileController as listProfile"')
+
 @section( 'content' )
-<div class="panel" ng-class="{ 'panel-primary' : !listProfile.enableAdmiral , 'panel-danger' : listProfile.enableAdmiral }" ng-controller="ListProfileController as listProfile" ng-init="listProfile.prepop( {{ $id }} )">
+<div class="panel" ng-class="{ 'panel-primary' : !listProfile.enableAdmiral , 'panel-danger' : listProfile.enableAdmiral }" ng-init="listProfile.prepop( {{ $id }} )">
     <div class="panel-heading">
         <div class="panel-title">Update List Profile</div>
     </div>
