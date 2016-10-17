@@ -1,4 +1,4 @@
-mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$timeout' , 'UserApiService' , '$mdToast' , 'CustomValidationService' , function ( $log , $window , $location , $timeout , UserApiService , $mdToast , CustomValidationService ) {
+mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$timeout' , 'UserApiService' , '$mdToast' , 'formValidationService' , 'modalService' , function ( $log , $window , $location , $timeout , UserApiService , $mdToast , formValidationService , modalService ) {
     var self = this;
     self.$location = $location;
 
@@ -8,6 +8,7 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
     self.currentAccount.roles = [];
     self.createUrl = 'user/create/';
     self.editUrl = 'user/edit/';
+    self.editForm = false;
 
     self.formErrors = "";
 
@@ -42,19 +43,22 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
     };
 
     self.saveNewAccount = function () {
-        self.resetFieldErrors();
+        self.editForm = true;
+        formValidationService.resetFieldErrors(self);
 
         UserApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback );
     };
 
     self.editAccount = function () {
-        self.resetFieldErrors();
+        self.editForm = true;
+        formValidationService.resetFieldErrors(self);
 
         UserApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 
     self.updateProfile = function () {
-        self.resetFieldErrors();
+        self.editForm = true;
+        formValidationService.resetFieldErrors(self);
 
         UserApiService.updateProfile( self.currentAccount , self.SuccessProfileCallBackRedirect , self.editAccountFailureCallback);
     };
@@ -82,10 +86,10 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
     };
 
     self.loadAccountsFailureCallback = function ( response ) {
-        self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to load Users.' );
+        modalService.setModalLabel( 'Error' );
+        modalService.setModalBody( 'Failed to load Users.' );
 
-        self.launchModal();
+        modalService.launchModal();
     };
 
     self.SuccessCallBackRedirect = function ( response ) {
@@ -99,54 +103,13 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
     };
 
     self.saveNewAccountFailureCallback = function ( response ) {
-        self.loadFieldErrors(response);
+        self.editForm = false;
+        formValidationService.loadFieldErrors(self, response);
     };
 
     self.editAccountFailureCallback = function ( response ) {
-        self.loadFieldErrors(response);
+        self.editForm = false;
+        formValidationService.loadFieldErrors(self, response);
     };
 
-    /**
-     * Errors
-     */
-    self.loadFieldErrors = function (response ) {
-        angular.forEach(response.data, function(value, key) {
-            self.setFieldError( key , value );
-        });
-    };
-
-    self.setFieldError = function ( field , errorMessage ) {
-        self.formErrors[ field ] = errorMessage;
-    };
-
-    self.resetFieldErrors = function () {
-        self.formErrors = {};
-    };
-
-    /**
-     * Page Modal
-     */
-
-    self.setModalLabel = function ( labelText ) {
-        var modalLabel = angular.element( document.querySelector( '#pageModalLabel' ) );
-
-        modalLabel.text( labelText );
-    };
-
-    self.setModalBody = function ( bodyText ) {
-        var modalBody = angular.element( document.querySelector( '#pageModalBody' ) );
-
-        modalBody.text( bodyText );
-    };
-
-    self.launchModal = function () {
-        $( '#pageModal' ).modal('show');
-    };
-
-    self.resetModal = function () {
-        self.setModalLabel( '' );
-        self.setModalBody( '' );
-
-        $( '#pageModal' ).modal('hide');
-    };
 } ] );

@@ -46,7 +46,7 @@ class UserApiController extends Controller
     public function create()
     {
         $roles = $this->userService->getAvailableRoles();
-        return view('bootstrap.pages.user.user-add', array("roles" => $roles));
+        return view('bootstrap.pages.user.user-add', array("roles" => $roles), ["formType"=> 'add']);
     }
 
     /**
@@ -88,7 +88,7 @@ class UserApiController extends Controller
             return redirect("/user");
         }
         $roles = $this->userService->getAvailableRoles();
-        return view('bootstrap.pages.user.user-edit', array("roles" => $roles));
+        return view('bootstrap.pages.user.user-edit', array("roles" => $roles), ["formType"=> 'edit']);
     }
 
     /**

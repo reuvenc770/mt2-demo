@@ -70,7 +70,7 @@
     </div>
     <div class="panel-footer">
         <div class="form-group">
-            <input class="btn btn-lg btn-primary btn-block" ng-click="user.updateProfile()" type="submit" value="Update Profile">
+            <input class="btn btn-lg btn-primary btn-block" ng-click="user.updateProfile()" ng-disabled="user.editForm" type="submit" value="Update Profile">
         </div>
     </div>
 </div>
