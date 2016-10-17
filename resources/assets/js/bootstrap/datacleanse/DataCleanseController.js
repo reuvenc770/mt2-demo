@@ -33,45 +33,19 @@ mt2App.controller( 'DataCleanseController' , [ '$rootScope' , '$window' , '$loca
      * Loading Methods
      */
     self.load = function () {
-        self.queryPromise = DataCleanseApiService.getAll( self.currentPage , self.paginationCount , self.sort , function ( response ) {
-            self.cleanses = response.data.data;
-            self.pageCount = response.data.last_page;
-            self.cleanseTotal = response.data.total;
-        } , function ( response ) {
-            modalService.setModalLabel( 'Error' );
-            modalService.setModalBody( 'Failed to load Data Cleanses. Please contact support.' );
-            modalService.launchModal();
-        } );
+        self.queryPromise = DataCleanseApiService.getAll( self.currentPage , self.paginationCount , self.sort , self.loadCleanseSuccessCallback, self.loadCleanseFailureCallback );
     };
 
     self.loadAdvertisers = function () {
-        DataCleanseApiService.getAdvertisers( function ( response ) {
-            self.advertisers = response.data;
-        } , function ( response ) {
-            modalService.setModalLabel( 'Error' );
-            modalService.setModalBody( 'Failed to load Advertiser Suppression. Please contact support.' );
-            modalService.launchModal();
-        } );
+        DataCleanseApiService.getAdvertisers( self.loadAdvertisersSuccessCallback , self.loadAdvertisersFailureCallback );
     };
 
     self.loadCountries = function () {
-        DataCleanseApiService.getCountries( function ( response ) {
-            self.countries = response.data;
-        } , function ( response ) {
-            modalService.setModalLabel( 'Error' );
-            modalService.setModalBody( 'Failed to load Suppression Countries. Please contact support.' );
-            modalService.launchModal();
-        } );
+        DataCleanseApiService.getCountries( self.loadCountriesSuccessCallback , self.loadCountriesFailureCallback );
     };
 
     self.loadOfferCategories = function () {
-        DataCleanseApiService.getOfferCategories( function ( response ) {
-            self.offerCategories = response.data;
-        } , function ( response ) {
-            modalService.setModalLabel( 'Error' );
-            modalService.setModalBody( 'Failed to load Suppression Offer Countries. Please contact support.' );
-            modalService.launchModal();
-        } );
+        DataCleanseApiService.getOfferCategories( self.loadOfferCategoriesSuccessCallback , self.loadOfferCategoriesFailureCallback );
     };
 
     /**
@@ -91,16 +65,7 @@ mt2App.controller( 'DataCleanseController' , [ '$rootScope' , '$window' , '$loca
         self.creatingCleanse = true;
         formValidationService.resetFieldErrors(self);
 
-        DataCleanseApiService.save( self.current , function ( response ) {
-            self.creatingCleanse = false;
-            modalService.setModalLabel( 'Success' );
-            modalService.setModalBody( 'Successfully saved Data Cleanse.' );
-            modalService.launchModal();
-
-        } , function ( response ) {
-            self.creatingCleanse = false;
-            formValidationService.loadFieldErrors( self , response );
-        } );
+        DataCleanseApiService.save( self.current , self.saveCleanseSuccessCallback , self.saveCleanseFailureCallback );
 
     };
 
@@ -135,6 +100,63 @@ mt2App.controller( 'DataCleanseController' , [ '$rootScope' , '$window' , '$loca
         } );
 
         self.current.scatid = offerCategoryIdList;
+    };
+
+    /**
+     * Callbacks
+     */
+    self.loadCleanseSuccessCallback = function ( response ) {
+        self.cleanses = response.data.data;
+        self.pageCount = response.data.last_page;
+        self.cleanseTotal = response.data.total;
+    };
+
+    self.loadCleanseFailureCallback = function ( response ) {
+        modalService.setModalLabel( 'Error' );
+        modalService.setModalBody( 'Failed to load Data Cleanses. Please contact support.' );
+        modalService.launchModal();
+    };
+
+    self.loadAdvertisersSuccessCallback = function ( response ) {
+        self.advertisers = response.data;
+    };
+
+    self.loadAdvertisersFailureCallback = function ( response ) {
+        modalService.setModalLabel( 'Error' );
+        modalService.setModalBody( 'Failed to load Advertiser Suppression. Please contact support.' );
+        modalService.launchModal();
+    };
+
+    self.loadCountriesSuccessCallback = function ( response ) {
+        self.countries = response.data;
+    };
+
+    self.loadCountriesFailureCallback = function ( response ) {
+        modalService.setModalLabel( 'Error' );
+        modalService.setModalBody( 'Failed to load Suppression Countries. Please contact support.' );
+        modalService.launchModal();
+    };
+
+    self.loadOfferCategoriesSuccessCallback = function ( response ) {
+        self.offerCategories = response.data;
+    };
+
+    self.loadOfferCategoriesFailureCallback = function ( response ) {
+        modalService.setModalLabel( 'Error' );
+        modalService.setModalBody( 'Failed to load Suppression Offer Countries. Please contact support.' );
+        modalService.launchModal();
+    };
+
+    self.saveCleanseSuccessCallback = function ( response ) {
+        self.creatingCleanse = false;
+        modalService.setModalLabel( 'Success' );
+        modalService.setModalBody( 'Successfully saved Data Cleanse.' );
+        modalService.launchModal();
+    };
+
+    self.saveCleanseFailureCallback = function ( response ) {
+        self.creatingCleanse = false;
+        formValidationService.loadFieldErrors( self , response );
     };
 
 } ] );

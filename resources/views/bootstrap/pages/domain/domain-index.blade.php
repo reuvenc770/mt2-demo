@@ -1,5 +1,5 @@
 
-@extends( 'layout.default' )
+@extends( 'bootstrap.layout.default' )
 
 @section( 'title' , 'Domain List' )
 
@@ -7,19 +7,15 @@
 
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('domain.add'))
-        <md-button ng-click="domain.viewAdd()" aria-label="Add Domain">
-            <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-show="app.isMobile()">add_circle_outline</md-icon>
-            <span ng-hide="app.isMobile()">Add Domain</span>
-        </md-button>
+        <li><a ng-click="domain.viewAdd()" aria-label="Add Domain">Add Domain</a>
+        </li>
     @endif
 @stop
 
 @section( 'content' )
-    <h1>ESP View</h1>
-    @include( 'pages.domain.domain-search' )
+    @include( 'bootstrap.pages.domain.domain-search' )
     <div ng-init="domain.loadAccounts()">
-        <md-content layout="row" layout-align="center" class="md-mt2-zeta-theme md-hue-1">
-            <md-card flex-gt-md="70" flex="100">
+            <md-card>
                 <md-table-container>
                     <table md-table md-progress="domain.queryPromise">
                         <thead md-head>
@@ -54,10 +50,10 @@
                     <md-table-pagination md-limit="domain.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="domain.currentPage" md-total="@{{domain.accountTotal}}" md-on-paginate="domain.loadAccounts" md-page-select></md-table-pagination>
                 </md-content>
             </md-card>
-        </md-content>
     </div>
 @stop
 
-@section( 'pageIncludes' )
-    <script src="js/domain.js"></script>
-@stop
+
+<?php Assets::add(
+        ['resources/assets/js/bootstrap/domain/DomainController.js',
+                'resources/assets/js/bootstrap/domain/DomainApiService.js'],'js','pageLevel') ?>

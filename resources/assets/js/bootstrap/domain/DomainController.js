@@ -1,4 +1,4 @@
-mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$location', '$timeout', 'DomainService', '$mdToast', '$httpParamSerializer', function ($rootScope, $log, $window, $location, $timeout, DomainService, $mdToast, $httpParamSerializer) {
+mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$location', '$timeout', 'DomainService', '$mdToast', '$httpParamSerializer','formValidationService', 'modalService', function ($rootScope, $log, $window, $location, $timeout, DomainService, $mdToast, $httpParamSerializer, formValidationService, modalService) {
     var self = this;
     self.$location = $location;
 
@@ -9,6 +9,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     var espName = "";
     var espNameQuery = $location.search().name;
     var espAccount = $location.search().espId;
+    self.formSubmitted = false;
      self.espNotChosen = true;
     var espAccountName = $location.search().espAccountName;
     //View Page
@@ -105,6 +106,9 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
             self.updateEspAccounts();
             self.currentAccount.espAccountId = currentEspAccount;
         }
+        if(self.currentAccount.espAccountId.length > 0) {
+            self.updateDomains();
+        }
     };
 
     self.updateDomains = function () {
@@ -148,42 +152,17 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         $window.location.href = self.createUrl;
     };
 
-    self.saveNewAccount = function ( event, form ) {
-        self.resetFieldErrors();
-
-        var errorFound = false;
-
-        angular.forEach( form.$error.required , function( field ) {
-
-            field.$setDirty();
-            field.$setTouched();
-
-            errorFound = true;
-        } );
-
-        if ( errorFound ) {
-            $mdToast.showSimple( 'Please fix errors and try again.' );
-
-            return false;
-        };
-
+    self.saveNewAccount = function () {
+        self.formSubmitted = true;
+        formValidationService.resetFieldErrors(self);
         self.currentAccount.proxy = self.selectedProxy.id;
-        DomainService.saveNewAccount(self.currentAccount, self.SuccessCallBackRedirect, function(response){
-            angular.forEach( response.data , function( error , fieldName ) {
-
-                form[ fieldName ].$setDirty();
-                form[ fieldName ].$setTouched();
-                form[ fieldName ].$setValidity('isValid' , false);
-
-            });
-
-            self.saveNewAccountFailureCallback(response);
-        });
+        DomainService.saveNewAccount(self.currentAccount, self.SuccessCallBackRedirect, self.saveNewAccountFailureCallback);
 
     };
 
     self.editAccount = function () {
-        self.resetFieldErrors();
+        self.formSubmitted = true;
+        form.resetFieldErrors(self);
         DomainService.editAccount(self.currentAccount, self.SuccessCallBackRedirect, self.editAccountFailureCallback);
     };
 
@@ -210,12 +189,14 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     self.updateEspAccountsSuccessCallback = function (response) {
         self.espAccounts = response.data;
         self.updatingAccounts = false;
+        self.formSubmitted = false;
         self.espNotChosen = false;
     };
 
     self.updateDomainsSuccessCallback = function (response) {
         self.domains = response.data;
         self.updatingAccounts = false;
+        self.formSubmitted = false;
     };
     self.loadAccountsSuccessCallback = function (response) {
         self.accounts = response.data.data;
@@ -231,12 +212,14 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
 
     self.loadAccountSuccessCallback = function (response){
         self.currentDomain = response.data;
+        self.currentDomain.registrar_id = String(response.data.registrar_id);
     };
 
     self.editRowSuccess = function (){
         $mdToast.showSimple("Domain Updated");
         self.rowBeingEdited = 0;
         self.currendDomain = {};
+        self.formSubmitted = false;
         self.updateDomains();
     };
     self.loadAccountFailureCallback = function (response){
@@ -246,10 +229,10 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
 
 
     self.loadAccountsFailureCallback = function (response) {
-        self.setModalLabel('Error');
-        self.setModalBody('Failed to load Domains.');
+        modalService.setModalLabel('Error');
+        modalService.setModalBody('Failed to load Domains.');
 
-        self.launchModal();
+        modalService.launchModal();
     };
 
     self.SuccessCallBackRedirect = function (response) {
@@ -258,54 +241,13 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     };
 
     self.saveNewAccountFailureCallback = function (response) {
-        self.loadFieldErrors(response);
+        self.formSubmitted = false;
+        formValidationService.loadFieldErrors(self,response);
     };
 
     self.editAccountFailureCallback = function (response) {
-        self.loadFieldErrors(response);
+        self.formSubmitted = false;
+        formValidationService.loadFieldErrors(self,response);
     };
 
-    /**
-     * Page Modal
-     */
-
-    self.setModalLabel = function (labelText) {
-        var modalLabel = angular.element(document.querySelector('#pageModalLabel'));
-
-        modalLabel.text(labelText);
-    };
-
-    self.setModalBody = function (bodyText) {
-        var modalBody = angular.element(document.querySelector('#pageModalBody'));
-
-        modalBody.text(bodyText);
-    };
-
-    self.launchModal = function () {
-        $('#pageModal').modal('show');
-    };
-
-    self.resetModal = function () {
-        self.setModalLabel('');
-        self.setModalBody('');
-
-        $('#pageModal').modal('hide');
-    };
-
-    /**
-     * Errors
-     */
-    self.loadFieldErrors = function (response) {
-        angular.forEach(response.data, function (value, key) {
-            self.setFieldError(key, value);
-        });
-    };
-
-    self.setFieldError = function (field, errorMessage) {
-        self.formErrors[field] = errorMessage;
-    };
-
-    self.resetFieldErrors = function () {
-        self.formErrors = {};
-    };
 }]);
