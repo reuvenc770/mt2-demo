@@ -1,6 +1,6 @@
 <header headroom tolerance="5" class="navbar navbar-fixed-top navbar-default" ng-class="{ 'fixed-sidenav-offset' : app.isFixedNav() === true }" role="navigation">
     <div class="container-fluid">
-        <div class="mt2-nav-toggle" type="button" class="navbar-toggle" data-toggle="offcanvas" data-target="#mainSideNav" data-canvas="body" layout="row" layout-align="center center" ng-show="app.isFixedNav() === false">
+        <div id="navToggleButton" class="mt2-nav-toggle" type="button" class="navbar-toggle" data-toggle="offcanvas" data-target="#mainSideNav" data-canvas="body" data-autohide="false" layout="row" layout-align="center center" ng-show="app.isFixedNav() === false">
             <md-icon md-font-set="material-icons">menu</md-icon>
         </div>
 
