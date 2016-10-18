@@ -1,8 +1,8 @@
 <?php
 
 return [
-    'espapi.list' => 'Deploys' ,
-    'mailingtemplate.list' => 'Deploys' ,
+    'espapi.list' => 'Operations' ,
+    'mailingtemplate.list' => 'Operations' ,
     'deploy.list' => 'Deploys' ,
     'feed.list' => 'Data' ,
     'attribution.list' => 'Data' ,
@@ -22,4 +22,6 @@ return [
     'ymlpcampaign.list' => 'Operations' ,
     'user.list' => 'Admin' ,
     'role.list' => 'Admin' ,
+    'ispgroup.list' => 'Operations' ,
+    'isp.list' => 'Operations' ,
 ];

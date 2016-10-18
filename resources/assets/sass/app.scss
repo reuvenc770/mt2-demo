@@ -603,23 +603,6 @@ md-list-item.mt2-nav-sub-item .md-list-item-inner {
     font-size: 28px;
 }
 
-.mt2-nav-toggle {
-    width: 36px;
-    height: 36px;
-    margin: 7px;
-    border-radius: 5px;
-    background-color: #383F47;
-
-    md-icon {
-        color: #FFF;
-
-    }
-}
-
-.mt2-nav-toggle:hover {
-    cursor: pointer;
-}
-
 .mt2-sidenav-minimized {
     width: 70px !important;
 }
@@ -706,9 +689,19 @@ md-list-item.mt2-nav-sub-item .md-list-item-inner {
 /**
  * Bootstrap Nav
  */
-#mainSideNav li.dropdown:hover , #mainSideNav li.dropdown.open {
+#mainSideNav li.dropdown:hover a.dropdown-toggle , #mainSideNav.navmenu-inverse .navmenu-nav > .open > a {
     border-left: #039be5 3px solid;
-    background-color: rgba(158,158,158,0.2);
+    background-color: #21262d;
+}
+
+#mainSideNav h3 {
+    margin: 0;
+    color: #FFF;
+    font-weight: bolder;
+}
+
+#mainSideNav a {
+    padding-bottom: 0.5em;
 }
 
 .nav-icon {
@@ -735,11 +728,43 @@ md-list-item.mt2-nav-sub-item .md-list-item-inner {
 }
 
 .navmenu-inverse, .navbar-inverse .navbar-offcanvas {
-    background-color: #000;
+    background-color: #191c21;
 }
 
 .navbar-nav > li > a {
     cursor: pointer;
+}
+
+.page-action-menu {
+    margin-left: 2em;
+}
+
+.mt2-nav-toggle {
+    position: absolute;
+    left: 0;
+    width: 36px;
+    height: 36px;
+    margin: 7px 7px 7px 0;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    background-color: #383F47;
+
+    md-icon {
+        color: #FFF;
+
+    }
+}
+
+.mt2-nav-toggle:hover {
+    cursor: pointer;
+}
+
+.navmenu-inverse .navmenu-nav > .active > a {
+    color: #039be5 !important;
+}
+
+.navmenu-inverse .navmenu-nav > .active > a > span:before {
+    content:"• ";
 }
 
 //Headroom
