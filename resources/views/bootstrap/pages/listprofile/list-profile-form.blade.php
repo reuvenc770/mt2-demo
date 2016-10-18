@@ -39,7 +39,7 @@
 
         <select ng-model="listProfile.highlightedFeeds" multiple style="width: 100%; height: 150px;">
             @foreach ( $feeds as $feed )
-            <option value="{{$feed[ 'id' ]}}" ng-init="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ] = true;listProfile.feedNameMap[ {{$feed[ 'id' ]}} ] = '{{{$feed[ 'short_name' ]}}}';" ng-show="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ]">{{ $feed[ 'short_name' ] . ' (' . $feed[ 'name' ] . ')' }}</option>
+            <option value="{{$feed[ 'id' ]}}" ng-init="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ] = true;listProfile.feedNameMap[ {{$feed[ 'id' ]}} ] = '{{{ addslashes( $feed[ 'short_name' ] )}}}';" ng-show="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ]">{{ $feed[ 'short_name' ] . ' (' . $feed[ 'name' ] . ')' }}</option>
             @endforeach
         </select>
 
