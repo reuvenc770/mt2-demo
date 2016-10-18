@@ -49,34 +49,6 @@ return [
     'destination_url' => '',
 
     // --------------------------------------------------------------------------
-    // What tools do we use to filter our CSS files?
-    // --------------------------------------------------------------------------
-    // The default set of tools minify the assets to improve performance
-    // Filters must be instances of Fisharebest\LaravelAssets\FilterInterface
-    'css_filters' => [
-        new Fisharebest\LaravelAssets\Filters\RewriteCssUrls,
-        new Fisharebest\LaravelAssets\Filters\MinifyCss,
-    ],
-
-    // --------------------------------------------------------------------------
-    // What tools do we use to filter our JS files?
-    // --------------------------------------------------------------------------
-    // Before we can concatenate JS files we must ensure they end with a newline.
-    // Filters must be instances of Fisharebest\LaravelAssets\FilterInterface
-    'js_filters' => [
-        new Fisharebest\LaravelAssets\Filters\FinalNewline,
-        new Fisharebest\LaravelAssets\Filters\MinifyJs,
-    ],
-
-    // --------------------------------------------------------------------------
-    // How do we load external files?
-    // --------------------------------------------------------------------------
-    // By default, we load files using file_get_contents().  If your server is
-    // behind a proxy server or requires authentication, you can write your own.
-    // Loaders must be instances of Fisharebest\LaravelAssets\LoaderInterface
-    'loader' => new Fisharebest\LaravelAssets\Loaders\FileGetContents,
-
-    // --------------------------------------------------------------------------
     // What should we do after we create an asset file?
     // --------------------------------------------------------------------------
     // You could use this opportunity to upload the asset file to your CDN.

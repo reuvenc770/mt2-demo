@@ -21,6 +21,7 @@ namespace App\Models;
 
 use Fisharebest\LaravelAssets\Commands\Purge;
 use Fisharebest\LaravelAssets\Filters\FilterInterface;
+use Fisharebest\LaravelAssets\Filters\RewriteCssUrls;
 use Fisharebest\LaravelAssets\Loaders\LoaderInterface;
 use Fisharebest\LaravelAssets\Notifiers\NotifierInterface;
 use InvalidArgumentException;
@@ -194,9 +195,9 @@ class Assets {
 			->setJsSource($config['js_source'])
 			->setDestination($config['destination'])
 			->setDestinationUrl($config['destination_url'])
-			->setCssFilters($config['css_filters'])
-			->setJsFilters($config['js_filters'])
-			->setLoader($config['loader'])
+			->setCssFilters([new \Fisharebest\LaravelAssets\Filters\RewriteCssUrls, new \Fisharebest\LaravelAssets\Filters\MinifyCss])
+			->setJsFilters([new \Fisharebest\LaravelAssets\Filters\FinalNewline,new \Fisharebest\LaravelAssets\Filters\MinifyJs])
+			->setLoader(new \Fisharebest\LaravelAssets\Loaders\FileGetContents)
 			->setNotifiers($config['notifiers'])
 			->setInlineThreshold($config['inline_threshold'])
 			->setGzipStatic($config['gzip_static'])
