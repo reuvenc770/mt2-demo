@@ -1,6 +1,6 @@
 @extends( 'bootstrap.layout.default' )
 
-@section( 'title' , 'Edit ESP' )
+@section( 'title' , 'Edit ESP API Account' )
 
 @section( 'navEspClasses' , 'active' )
 
