@@ -32,4 +32,14 @@ class RoleEditRequest extends Request
             'permissions'      => 'required',
         ];
     }
+    /**
+     *
+     */
+    public function messages ()
+    {
+        return [
+            'name.required' => 'Role name is required.' ,
+            'permissions.required' => 'At least 1 permission is required.'
+        ];
+    }
 }
