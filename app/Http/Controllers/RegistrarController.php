@@ -21,7 +21,7 @@ class RegistrarController extends Controller
     public function listAll()
     {
         return response()
-            ->view('pages.registrar.registrar-index');
+            ->view("bootstrap.pages.registrar.registrar-index");
     }
 
     /**
@@ -52,7 +52,7 @@ class RegistrarController extends Controller
     public function create()
     {
         $states = States::all();
-        return view('pages.registrar.registrar-add', ['states' => $states]);
+        return view("bootstrap.pages.registrar.registrar-add", ['states' => $states]);
     }
 
     /**
@@ -90,7 +90,7 @@ class RegistrarController extends Controller
     {
         $states = States::all();
         return response()
-            ->view( 'pages.registrar.registrar-edit', ['states' => $states]);
+            ->view( "bootstrap.pages.registrar.registrar-edit", ['states' => $states]);
     }
 
     /**

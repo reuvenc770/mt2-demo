@@ -11,11 +11,15 @@
 /**
  * Custom Styling Override
  */
-$navbar-margin-bottom: 0;
+$navbar-margin-bottom: 20px;
+$navbar-default-bg: rgb(22,65,108);
 $navbar-inverse-bg: #16416C;
+$navbar-default-link-color: #fff;
 
 $navbar-inverse-brand-color: #FFF;
 $navbar-inverse-brand-hover-color: #9D9D9D;
+$modal-sm: 400px;
+$navbar-default-link-hover-bg: #fff;
 
 /**
  * Materials Variable Overrides
@@ -28,7 +32,6 @@ $card-padding: 6px;
 @import "node_modules/angular-material/angular-material.scss";
 @import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
 @import "node_modules/jasny-bootstrap/scss/jasny-bootstrap.scss";
-
 $table-bg-accent-2 : #eaeaea;
 
 .table-striped {
@@ -38,6 +41,10 @@ $table-bg-accent-2 : #eaeaea;
 }
 
 .tooltip-inner { min-width: 100px; }
+
+.fixed-sidenav-offset {
+    margin-left: 300px;
+}
 
 /* IVH Includes */
 @import "node_modules/angular-ivh-treeview/dist/ivh-treeview";
@@ -103,6 +110,9 @@ ul[dnd-list] .dndPlaceholder {
 md-menu-content.md-mt2-zeta-theme md-menu-item {
     color: rgba(0,0,0,0.87);
 }
+
+md-dialog { background-color: #FFF; }
+md-switch.md-checked .md-thumb:before { background-color: #3F51B5; }
 
 /**
  * MD Data Tables
@@ -353,9 +363,7 @@ body {
  md-input-container{
     margin: 18px 0 10px;
  }
-.btn {
-    margin: .5em;
-}
+
 
 .input-group-btn{
     .btn{
@@ -598,15 +606,13 @@ md-list-item.mt2-nav-sub-item .md-list-item-inner {
 .mt2-nav-toggle {
     width: 36px;
     height: 36px;
+    margin: 7px;
+    border-radius: 5px;
     background-color: #383F47;
-    position: absolute;
-    right: -36px;
-    top: 12px;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
 
-    i {
+    md-icon {
         color: #FFF;
+
     }
 }
 
@@ -617,13 +623,6 @@ md-list-item.mt2-nav-sub-item .md-list-item-inner {
 .mt2-sidenav-minimized {
     width: 70px !important;
 }
-
-.mt2-nav-toggle i {
-    position: absolute;
-    top: 6px;
-    left: 6px;
-}
-
 
 .mt2-nav-main-item {
     padding-left: 3px;
@@ -701,4 +700,189 @@ md-list-item.mt2-nav-sub-item .md-list-item-inner {
     :hover {
         color: #039be5;
     }
+}
+
+
+/**
+ * Bootstrap Nav
+ */
+#mainSideNav li.dropdown:hover , #mainSideNav li.dropdown.open {
+    border-left: #039be5 3px solid;
+    background-color: rgba(158,158,158,0.2);
+}
+
+.nav-icon {
+    margin-right: 1em;
+}
+
+.nav-child-text {
+    font-size: 14px;
+    margin-left: 1em;
+    font-style: italic;
+}
+
+.nav-child-item {
+    padding: 0.5em;
+    background-color: #21262d;
+}
+
+.navmenu-inverse .navmenu-nav.dropdown-menu > .active > a {
+    background-color: #21262d;
+}
+
+.dropdown-menu {
+    padding-bottom: 0;
+}
+
+.navmenu-inverse, .navbar-inverse .navbar-offcanvas {
+    background-color: #000;
+}
+
+.navbar-nav > li > a {
+    cursor: pointer;
+}
+
+//Headroom
+.headroom {
+    -webkit-animation-duration: 0.5s;
+    -moz-animation-duration: 0.5s;
+    -o-animation-duration: 0.5s;
+    animation-duration: 0.5s;
+    -webkit-animation-fill-mode: both;
+    -moz-animation-fill-mode: both;
+    -o-animation-fill-mode: both;
+    animation-fill-mode: both;
+    will-change: transform, opacity;
+}
+.headroom--pinned {
+    -webkit-animation-name: slideDown;
+    -moz-animation-name: slideDown;
+    -o-animation-name: slideDown;
+    animation-name: slideDown;
+}
+.headroom--unpinned {
+    -webkit-animation-name: slideUp;
+    -moz-animation-name: slideUp;
+    -o-animation-name: slideUp;
+    animation-name: slideUp;
+}
+
+@-webkit-keyframes slideDown {
+    0% {
+        -webkit-transform: translateY(-100%)
+    }
+
+    100% {
+        -webkit-transform: translateY(0)
+    }
+}
+
+@-moz-keyframes slideDown {
+    0% {
+        -moz-transform: translateY(-100%)
+    }
+
+    100% {
+        -moz-transform: translateY(0)
+    }
+}
+
+@-o-keyframes slideDown {
+    0% {
+        -o-transform: translateY(-100%)
+    }
+
+    100% {
+        -o-transform: translateY(0)
+    }
+}
+
+@keyframes slideDown {
+    0% {
+        transform: translateY(-100%)
+    }
+
+    100% {
+        transform: translateY(0)
+    }
+}
+
+@-webkit-keyframes slideUp {
+    0% {
+        -webkit-transform: translateY(0)
+    }
+
+    100% {
+        -webkit-transform: translateY(-100%)
+    }
+}
+
+@-moz-keyframes slideUp {
+    0% {
+        -moz-transform: translateY(0)
+    }
+
+    100% {
+        -moz-transform: translateY(-100%)
+    }
+}
+
+@-o-keyframes slideUp {
+    0% {
+        -o-transform: translateY(0)
+    }
+
+    100% {
+        -o-transform: translateY(-100%)
+    }
+}
+
+@keyframes slideUp {
+    0% {
+        transform: translateY(0)
+    }
+
+    100% {
+        transform: translateY(-100%)
+    }
+}
+
+
+//** Should break this out into partials soon**/
+
+.pinned-container{
+    margin-top: 70px;
+}
+
+.navbar-topper{
+    margin: 0;
+    border-radius: 0;
+    background-color: rgb(40,53,147);
+    + md-card{
+        margin:0;
+    }
+    ul {
+        li {
+            a{
+                color:#fff;
+                &:hover{
+                    color: #333;
+                }
+            }
+        }
+    }
+}
+
+md-table-container{
+    overflow: visible;
+}
+.attribution-actions{
+    .glyphicon{
+        font-size: 20px;
+        padding: 0 10px;
+    }
+}
+.list-group-item h4{
+    margin-top:5px;
+    margin-bottom: 5px;
 }

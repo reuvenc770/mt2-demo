@@ -58,6 +58,7 @@ elixir.extend( 'deploySass' , function ( mix ) {
 
 elixir.extend( 'deployTemplates' , function ( mix ) {
     mix.copy( 'resources/assets/js/templates' , 'public/js/templates' );
+    mix.copy( 'resources/assets/js/bootstrap/templates' , 'public/js/bootstrap/templates' );
 } );
 
 elixir.extend( 'deployImages' , function ( mix ) {

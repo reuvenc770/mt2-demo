@@ -15,6 +15,8 @@
 @stop
 
 @section( 'content' )
+    <h1>ESP View</h1>
+    @include( 'pages.domain.domain-search' )
     <div ng-init="domain.loadAccounts()">
         <md-content layout="row" layout-align="center" class="md-mt2-zeta-theme md-hue-1">
             <md-card flex-gt-md="70" flex="100">
@@ -33,10 +35,10 @@
                         <tr md-row ng-repeat="record in domain.accounts track by $index">
                             <td md-cell>
                                 <div layout="row" layout-align="center center">
-                                    <md-button target="_self" class="md-icon-button" aria-label="View"
-                                                ng-href="@{{ '/domain/create/?name=' + record.esp_name + '&espId=' + record.esp_account_id + '&espAccountName=' + record.account_name }}">
-                                    <md-icon md-font-set="material-icons" class="mt2-icon-black">view_list</md-icon>
-                                     <md-tooltip md-direction="bottom">View</md-tooltip>
+                                    <md-button target="_self" class="md-raised md-accent"
+                                                ng-class="{'md-icon-button mt2-icon-button-xs' : app.isMobile() , 'mt2-button-xs' : !app.isMobile() }"
+                                                ng-href="@{{ '/domain/listview/?name=' + record.esp_name + '&espId=' + record.esp_account_id + '&espAccountName=' + record.account_name }}">
+                                     <md-icon md-svg-icon="img/icons/ic_view_list_white_24px.svg"></md-icon><span ng-hide="app.isMobile()"> Account View</span>
                                     </md-button>
                                 </div>
                             </td>

@@ -170,6 +170,7 @@ return [
         App\Providers\Mt1CompanyProvider::class,
         AdrianMejias\States\StatesServiceProvider::class,
         App\Providers\SftpServiceProvider::class,
+        App\Providers\AssetsServiceProvider::class,
     ],
 
     /*
@@ -230,6 +231,7 @@ return [
         'Suppression' => App\Facades\Suppression::class,
         'CampaignActionsEntry' => App\Facades\DeployActionEntry::class,
         'States' => AdrianMejias\States\StatesFacade::class,
+        'Assets' => Fisharebest\LaravelAssets\AssetsFacade::class,
     ],
 
 ];
