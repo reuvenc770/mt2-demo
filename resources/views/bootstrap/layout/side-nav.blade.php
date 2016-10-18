@@ -1,20 +1,24 @@
 <nav id="mainSideNav" class="navmenu navmenu-inverse navmenu-fixed-left" ng-class="{ 'offcanvas' : app.isFixedNav() === false }" role="navigation">
-    <a class="navmenu-brand center-block" href="#">
-        <img src="/img/mt2_icon.png" />
+    <a class="navmenu-brand center-block" href="/" target="_self">
+        <h3><img src="/img/mt2_icon.png" /> CMP</h3>
     </a>
 
     <ul class="nav navmenu-nav">
         @foreach ( $menuItems as $section )
-        <li class="dropdown" ng-class="{ 'open' : app.activeSection[ '{{{$section[ 'name' ]}}}' ] }">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        <li class="dropdown custom-dropdown" id="{{{$section[ 'name' ]}}}Menu" ng-class="{ 'open' : app.activeSection[ '{{{$section[ 'name' ]}}}' ] }">
+            <a href="#" class="dropdown-toggle" ng-click="app.toggleDropdown( $event )">
                 @if ( $section[ 'icon' ] != '' )
                 <md-icon class="nav-icon" md-font-set="material-icons">{{$section[ 'icon' ]}}</md-icon>
                 @endif
                 <span class="mt2-nav-main-text">{{ $section[ 'name' ] }}</span>
+                <div class="pull-right">
+                    <span class="glyphicon glyphicon-menu-right" aria-hidden="true" ng-hide="app.menuIsOpen( '{{{$section[ 'name' ]}}}Menu' )"></span>
+                    <span class="glyphicon glyphicon-menu-down" aria-hidden="true" ng-show="app.menuIsOpen( '{{{$section[ 'name' ]}}}Menu' )"></span>
+                </div>
             </a>
             <ul class="dropdown-menu navmenu-nav" role="menu">
                 @foreach ( $section[ 'children' ] as $currentChild )
-                <li class="nav-child-item" ng-class="{ 'active' : '{{$currentChild[ 'uri' ]}}' == app.currentPath }" ng-init="app.setCurrentActiveSection( '{{$section[ 'name' ]}}' , '{{$currentChild[ 'uri' ]}}' )">
+                <li class="nav-child-item" ng-class="{ 'active' : '{{$currentChild[ 'uri' ]}}' == app.currentPath || app.activeMenuLink[ '{{$currentChild[ 'name' ]}}' ] }" ng-init="app.setCurrentActiveSection( '{{$section[ 'name' ]}}' , '{{$currentChild[ 'name' ]}}' , '{{$currentChild[ 'uri' ]}}' )">
                     <a href="{{ '/' . $currentChild[ 'uri' ] }}" target="_self"><span class="nav-child-text">{{ $currentChild[ 'name' ] }}</span></a>
                 </li>
                 @endforeach

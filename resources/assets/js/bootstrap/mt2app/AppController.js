@@ -3,11 +3,29 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
 
     self.fixedNav = false;
     self.activeSection = {};
+    self.activeMenuLink = {};
 
-    self.setCurrentActiveSection = function ( sectionName , path ) {
+    self.setCurrentActiveSection = function ( sectionName , linkName , path ) {
+        if ( typeof( path ) === 'undefined' ) {
+            self.activeSection = {};
+            self.activeSection[ sectionName ] = true;
+            
+            return true;
+        }        
+
         if ( path == self.currentPath ) {
             self.activeSection = {};
             self.activeSection[ sectionName ] = true;
+        } else {
+            var periodIndex = path.indexOf( '/' );
+            var pathPrefix = periodIndex >= 0 ? path.slice( 0 , periodIndex ) : path;
+
+            if ( $location.url().indexOf( pathPrefix ) >= 0 ) {
+                self.activeSection = {};
+                self.activeSection[ sectionName ] = true;
+
+                self.activeMenuLink[ linkName ] = true;
+            }
         }
     };
 
@@ -21,7 +39,15 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
 
     self.isFixedNav = function () {
         return self.fixedNav;
-    }
+    };
+
+    self.toggleDropdown = function ( ev ) {
+        angular.element( ev.target ).parent().toggleClass( 'open' );
+    };
+
+    self.menuIsOpen = function ( menuId ) {
+        return angular.element( document.getElementById( menuId ) ).hasClass( 'open' );
+    };
 
     /**
      * Main Side Nav
