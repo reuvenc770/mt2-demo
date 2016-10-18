@@ -111,6 +111,9 @@ md-menu-content.md-mt2-zeta-theme md-menu-item {
     color: rgba(0,0,0,0.87);
 }
 
+md-dialog { background-color: #FFF; }
+md-switch.md-checked .md-thumb:before { background-color: #3F51B5; }
+
 /**
  * MD Data Tables
  */

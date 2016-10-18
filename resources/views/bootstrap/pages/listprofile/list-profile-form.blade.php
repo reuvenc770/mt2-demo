@@ -53,10 +53,8 @@
             </md-select>
         </md-input-container>
 
-        <md-button class="md-icon-button" ng-click="listProfile.clearClientFeedFilter()">
+        <md-button class="md-icon-button" data-toggle="tooltip" data-placement="bottom" title="Clear Client Filters" ng-click="listProfile.clearClientFeedFilter()">
             <md-icon md-font-set="material-icons" style="color: #000">cancel</md-icon>
-
-            <md-tooltip>Clear Client Filters</md-tooltip>
         </md-button>
     </div>
 
