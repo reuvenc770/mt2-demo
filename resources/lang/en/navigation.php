@@ -38,7 +38,7 @@ return[
     'attributionModel.add' => 'Add Attribution Model' ,
     'mailingtemplate.list' => "Mailing Templates",
     'mailingtemplate.add' => "Add Mailing Template",
-    'deploy.list'         => "Deploy Packages",
+    'deploy.list'         => "Schedule",
     'cfs.list'            =>'CFS',
     'offer.list'          => 'Offers',
     'isp.list'            => 'ISP Domains',

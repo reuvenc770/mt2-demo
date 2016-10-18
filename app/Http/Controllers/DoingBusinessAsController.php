@@ -21,7 +21,7 @@ class DoingBusinessAsController extends Controller
     public function listAll()
     {
         return response()
-            ->view('pages.dba.dba-index');
+            ->view("bootstrap.pages.dba.dba-index");
     }
 
     /**
@@ -43,7 +43,7 @@ class DoingBusinessAsController extends Controller
     public function create()
     {
         $states = States::all();
-        return view('pages.dba.dba-add', array("states" => $states));
+        return view("bootstrap.pages.dba.dba-add", array("states" => $states));
     }
 
     /**
@@ -81,7 +81,7 @@ class DoingBusinessAsController extends Controller
     {
         $states = States::all();
         return response()
-            ->view( 'pages.dba.dba-edit', array("states" => $states));
+            ->view( "bootstrap.pages.dba.dba-edit", array("states" => $states));
     }
 
     /**

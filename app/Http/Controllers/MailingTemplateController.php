@@ -31,7 +31,7 @@ class MailingTemplateController extends Controller
     public function listAll()
     {
         return response()
-            ->view('pages.mailingtemplate.mailingtemplate-index');
+            ->view('bootstrap.pages.mailingtemplate.mailingtemplate-index');
     }
     /**
      * Show the form for creating a new resource.
@@ -41,7 +41,7 @@ class MailingTemplateController extends Controller
     public function create()
     {
 
-        return response()->view( 'pages.mailingtemplate.mailingtemplate-add');
+        return response()->view( 'bootstrap.pages.mailingtemplate.mailingtemplate-add');
     }
 
     /**
@@ -84,7 +84,7 @@ class MailingTemplateController extends Controller
      */
     public function edit()
     {
-        return response()->view( 'pages.mailingtemplate.mailingtemplate-edit');
+        return response()->view( 'bootstrap.pages.mailingtemplate.mailingtemplate-edit');
     }
 
     public function preview(Request $request, $id = null){

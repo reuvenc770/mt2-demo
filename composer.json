@@ -20,7 +20,8 @@
         "flowjs/flow-php-server": "^1.0" ,
         "jenssegers/agent": "^2.3",
         "league/flysystem-sftp": "^1.0",
-        "league/flysystem-ziparchive": "^1.0"
+        "league/flysystem-ziparchive": "^1.0",
+        "fisharebest/laravel-assets": "~1.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
