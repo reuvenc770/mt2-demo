@@ -48,7 +48,7 @@ class RoleApiController extends Controller
     public function listAll()
     {
         return response()
-            ->view( 'pages.role.role-index' );
+            ->view( 'bootstrap.pages.role.role-index' );
     }
 
     /**
@@ -58,7 +58,7 @@ class RoleApiController extends Controller
      */
     public function create()
     {
-        return view( 'pages.role.role-add' );
+        return view( 'bootstrap.pages.role.role-add' );
 
     }
 
@@ -153,7 +153,7 @@ class RoleApiController extends Controller
      */
     public function edit()
     {
-        return view('pages.role.role-edit');
+        return view('bootstrap.pages.role.role-edit');
     }
 
     /**
