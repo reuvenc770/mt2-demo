@@ -657,6 +657,8 @@
 </md-checkbox>
 
 @if ( Sentinel::inRole( 'admiral' ) )
-<md-switch ng-model="listProfile.enableAdmiral" aria-label="Enable Admiral Features" ng-true-value="true" ng-false-value="false">Enable Admiral Features</md-switch>
-<md-checkbox ng-model="listProfile.current.admiralsOnly" ng-show="listProfile.enableAdmiral" aria-label="Admirals Only" ng-true-value="true" ng-false-value="false">Admirals Only</md-checkbox>
+<br />
+<md-checkbox ng-model="listProfile.enableAdmiral" aria-label="Turn Admiral Features On" ng-true-value="true" ng-false-value="false">Enable Admiral Features</md-checkbox>
+<br />
+<md-checkbox ng-model="listProfile.current.admiralsOnly" ng-show="listProfile.enableAdmiral" aria-label="Admirals Only" ng-true-value="true" ng-false-value="false">This list is for Admirals ONLY</md-checkbox>
 @endif

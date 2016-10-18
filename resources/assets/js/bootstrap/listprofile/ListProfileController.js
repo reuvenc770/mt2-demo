@@ -320,9 +320,9 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
 
         angular.forEach( list , function ( current ) {
             if ( typeof( map ) !== 'undefined' && Object.keys( map ).length > 0 ) {
-                names.push( map[ current ] );
+                names.push( map[ current ].trim() );
             } else {
-                names.push( current );
+                names.push( current.trim() );
             }
         } );
 
