@@ -54,7 +54,7 @@
 @stop
 
 @section( 'content' )
-<div ng-init="deploy.loadAccounts();">
+<div ng-init="deploy.loadAccounts();app.setAlwaysFluid()">
         <div style="width:800px">
             <div class="panel panel-primary center-block"> 
                 <div class="panel-heading">   

@@ -15,7 +15,7 @@
 
 @section( 'content' )
 
-<div  ng-init="attr.initIndexPage()">
+<div  ng-init="attr.initIndexPage();app.setAlwaysFluid()">
     <ul class="nav nav-tabs" role="tablist">
         <li role="presentation" class="active"><a href="#model" aria-controls="models" role="tab" data-toggle="tab">Models</a></li>
         <li role="presentation"><a href="#reporttab" aria-controls="reporttab" role="tab" data-toggle="tab">Report</a></li>
