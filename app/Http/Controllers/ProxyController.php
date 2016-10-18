@@ -28,7 +28,7 @@ class ProxyController extends Controller
     public function listAll()
     {
         return response()
-            ->view('pages.proxy.proxy-index');
+            ->view('bootstrap.pages.proxy.proxy-index');
     }
 
 
@@ -56,7 +56,7 @@ class ProxyController extends Controller
     {
         $espAccounts = $this->espAccountService->getAllAccounts();
         $esps = $this->espService->getAllEsps();
-        return view('pages.proxy.proxy-add',['espAccounts' => $espAccounts, 'esps' => $esps]);
+        return view('bootstrap.pages.proxy.proxy-add',['espAccounts' => $espAccounts, 'esps' => $esps]);
     }
 
     /**
@@ -95,7 +95,7 @@ class ProxyController extends Controller
         $espAccounts = $this->espAccountService->getAllAccounts();
         $esps = $this->espService->getAllEsps();
         return response()
-            ->view('pages.proxy.proxy-edit',['espAccounts' => $espAccounts, 'esps' => $esps]);
+            ->view('bootstrap.pages.proxy.proxy-edit',['espAccounts' => $espAccounts, 'esps' => $esps]);
     }
 
     /**
