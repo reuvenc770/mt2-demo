@@ -187,18 +187,30 @@ class DeployController extends Controller
 
     public function previewDeploy(Request $request ,$deployId){
         //currently void method
-        $html  = $this->packageService->createHtml($deployId);
+        try {
+            $html  = $this->packageService->createHtml($deployId);
 
-        return response()
-            ->view( 'html', ["html" => $html] );
+            return response()
+                ->view( 'html', ["html" => $html] );
+        }
+        catch (Exception $e){
+            return $e->getMessage();
+        }   
+        
     }
 
     public function downloadHtml(Request $request ,$deployId){
-        //currently void method
-        $html  = $this->packageService->createHtml($deployId);
+        try {
+            //currently void method
+            $html  = $this->packageService->createHtml($deployId);
 
-        return response()
-            ->view( 'bootstrap.pages.deploy.deploy-preview', ["html" => $html] );
+            return response()
+                ->view( 'bootstrap.pages.deploy.deploy-preview', ["html" => $html] ); 
+        }
+        catch (Exception $e) {
+            return $e->getMessage();
+        }
+        
     }
 
 

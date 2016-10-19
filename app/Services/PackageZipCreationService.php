@@ -3,6 +3,7 @@
 namespace App\Services;
 use App\Repositories\DeployRepo;
 use App\Exceptions\ValidationException;
+use App\Exceptions\UrlValidationException;
 use App\Services\CakeEncryptedLinkService;
 use App\Services\UrlFormatService;
 use App\Services\LinkService;
@@ -18,6 +19,7 @@ use DOMXPath;
 use App\Services\Url;
 use ZipArchive;
 use Mail;
+
 class PackageZipCreationService {
 
     private $deployRepo;
@@ -152,160 +154,172 @@ class PackageZipCreationService {
      */
 
     public function createHtml($id) {
+        try {
 
-        $deploy = $this->deployRepo->getDeploy($id);
-        $this->deploy = $deploy;
+            $deploy = $this->deployRepo->getDeploy($id);
+            $this->deploy = $deploy;
 
-        // Validate package
-        $this->validate($deploy);
+            // Validate package
+            $this->validate($deploy);
 
-        // Prepare some required values
-        $this->deployId = $deploy->id;
-        $affiliateId = $deploy->cake_affiliate_id;
+            // Prepare some required values
+            $this->deployId = $deploy->id;
+            $affiliateId = $deploy->cake_affiliate_id;
 
-        $offer = $deploy->offer;
-        $offerTypeId = $offer->offer_payout_type_id;
-        $this->contentDomain = $deploy->contentDomain->main_site;
+            $offer = $deploy->offer;
+            $offerTypeId = $offer->offer_payout_type_id;
+            $this->contentDomain = $deploy->contentDomain->main_site;
 
-        $this->espAccountName = $deploy->espAccount->account_name;
+            $this->espAccountName = $deploy->espAccount->account_name;
 
-        $espId = $deploy->espAccount->id;
+            $espId = $deploy->espAccount->id;
 
-        $fieldOptions = $deploy->espAccount->esp->fieldOptions;
+            $fieldOptions = $deploy->espAccount->esp->fieldOptions;
 
-        $this->emailIdField = $fieldOptions->email_id_field;
-        $emailAddressField = $fieldOptions->email_address_field;
+            $this->emailIdField = $fieldOptions->email_id_field;
+            $emailAddressField = $fieldOptions->email_address_field;
 
-        $templateId = $deploy->template_id;
-        $fromId = $deploy->from_id;
-        $subjectId = $deploy->subject_id;
-        $creativeId = $deploy->creative_id;
-        
-        // Assign espCakeDomain based off of offer type and affiliate id
-        // will be used to remove cake domain in offer tracking url and elsewhere
-        $defaultCakeDomain = $this->cakeRedirectRepo->getDefaultRedirectDomain();
-        $this->espCakeDomain = $this->cakeRedirectRepo->getRedirectDomain($affiliateId, $offerTypeId);
+            $templateId = $deploy->template_id;
+            $fromId = $deploy->from_id;
+            $subjectId = $deploy->subject_id;
+            $creativeId = $deploy->creative_id;
+            
+            // Assign espCakeDomain based off of offer type and affiliate id
+            // will be used to remove cake domain in offer tracking url and elsewhere
+            $defaultCakeDomain = $this->cakeRedirectRepo->getDefaultRedirectDomain();
+            $this->espCakeDomain = $this->cakeRedirectRepo->getRedirectDomain($affiliateId, $offerTypeId);
 
-        // Process redir1.cgi and ccID links
-        $creative = $deploy->creative;
-        $creativeHtml = $creative->creative_html;
+            // Process redir1.cgi and ccID links
+            $creative = $deploy->creative;
+            $creativeHtml = $creative->creative_html;
 
-        // hopefully we can remove this in the near future due to redoing how links are handled
-        if ( preg_match('/redir1\.cgi/', $creativeHtml) && preg_match('/\&ccID\=/', $creativeHtml) ) {
+            // hopefully we can remove this in the near future due to redoing how links are handled
+            if ( preg_match('/redir1\.cgi/', $creativeHtml) && preg_match('/\&ccID\=/', $creativeHtml) ) {
 
-            $creativeHtml = preg_replace('/\&sub\=/', '&XXX=', $creativeHtml);
-            $creativeHtml = preg_replace('/\&amp;/', '&', $creativeHtml);
+                $creativeHtml = preg_replace('/\&sub\=/', '&XXX=', $creativeHtml);
+                $creativeHtml = preg_replace('/\&amp;/', '&', $creativeHtml);
 
-            // parse "extra" links that use the ccID parameter
-            $creativeHtml = $this->parseCCIDLinks($creativeHtml);
-        }
+                // parse "extra" links that use the ccID parameter
+                $creativeHtml = $this->parseCCIDLinks($creativeHtml);
+            }
 
-        // Format offer unsub link (merged with 10)
-        $offerRealUnsubLink = $offer->unsub_link;
+            // Format offer unsub link (merged with 10)
+            $offerRealUnsubLink = $offer->unsub_link;
 
-        if ('' !== $offerRealUnsubLink) {
-            $offerUnsubLinkId = $this->linkService->getLinkId($offerRealUnsubLink);
-            $this->validateLink($offerRealUnsubLink);
-            $offerUnsubLink = $this->formatUrl('ADVUNSUB', $deploy->url_format, $offerUnsubLinkId, $this->emailIdField);
-        }
-        else {
-            $offerUnsubLinkId = 0;
-        }
-        
-        // Replacing tokens in the full html
-
-        $fullHtml = $deploy->mailingTemplate->template_html;
-
-        // remove doctype, html, & body from creative
-        $dom = new DOMDocument();
-        $errors = libxml_use_internal_errors(true); // suppressing errors on non-escaped ampersands
-        $dom->loadHTML($creativeHtml);
-        $dom->doctype->parentNode->removeChild($dom->doctype);
-        $this->stripEnclosingElement($dom, "html");
-        $this->stripEnclosingElement($dom, "body");
-        $creativeHtml = urldecode($dom->saveHTML());
-        libxml_use_internal_errors($errors);
-
-        // n used to be clientId - removed, should be safe
-        $openPixel = "<IMG SRC='http://{$this->contentDomain}/cgi-bin/open.cgi?eid={$this->emailIdField}&cid=1&em=$emailAddressField&n=0&f=$fromId&s=$subjectId&c=$creativeId&did=&binding=&tid=$templateId&openflag=1&nod=1&espID=$espId&subaff={$deploy->id}' border=0 height=1 width=1>";
-
-        $fullHtml = str_replace("{{CREATIVE}}", $creativeHtml, $fullHtml);
-        $fullHtml = str_replace("{{TRACKING}}", $openPixel, $fullHtml);
-
-        $fullHtml = str_replace("{{TIMESTAMP}}", strftime('%Y%m%d%H%M%S'), $fullHtml);
-
-        // Need to get random strings for image domains $img_prefix
-        $random1 = $this->urlFormatter->getDefinedRandomString();
-        $random2 = $this->urlFormatter->getDefinedRandomString();
-        $imgPrefix = "{$this->contentDomain}/$random1/$random2";
-
-        $unsubText = $this->createUnsubHtml($offer, $imgPrefix, $offerUnsubLinkId);
-        $fullHtml = str_replace("{{ADV_UNSUB}}", $unsubText, $fullHtml);
-
-        foreach($offer->trackingLinks()->get() as $link) {
-
-            $linkNumber = $link->link_num;
-            $url = $link->url;
-
-            if (1 === $linkNumber) {
-                $token = "{{URL}}";
-                $this->nameLinkId = $link->id;
+            if ('' !== $offerRealUnsubLink) {
+                $offerUnsubLinkId = $this->linkService->getLinkId($offerRealUnsubLink);
+                $this->validateLink($offerRealUnsubLink);
+                $offerUnsubLink = $this->formatUrl('ADVUNSUB', $deploy->url_format, $offerUnsubLinkId, $this->emailIdField);
             }
             else {
-                $token = "{{URL" . $linkNumber . "}}";
+                $offerUnsubLinkId = 0;
+            }
+            
+            // Replacing tokens in the full html
+
+            $fullHtml = $deploy->mailingTemplate->template_html;
+
+            // remove doctype, html, & body from creative
+            $dom = new DOMDocument();
+            $errors = libxml_use_internal_errors(true); // suppressing errors on non-escaped ampersands
+            $dom->loadHTML($creativeHtml);
+            $dom->doctype->parentNode->removeChild($dom->doctype);
+            $this->stripEnclosingElement($dom, "html");
+            $this->stripEnclosingElement($dom, "body");
+            $creativeHtml = urldecode($dom->saveHTML());
+            libxml_use_internal_errors($errors);
+
+            // n used to be clientId - removed, should be safe
+            $openPixel = "<IMG SRC='http://{$this->contentDomain}/cgi-bin/open.cgi?eid={$this->emailIdField}&cid=1&em=$emailAddressField&n=0&f=$fromId&s=$subjectId&c=$creativeId&did=&binding=&tid=$templateId&openflag=1&nod=1&espID=$espId&subaff={$deploy->id}' border=0 height=1 width=1>";
+
+            $fullHtml = str_replace("{{CREATIVE}}", $creativeHtml, $fullHtml);
+            $fullHtml = str_replace("{{TRACKING}}", $openPixel, $fullHtml);
+
+            $fullHtml = str_replace("{{TIMESTAMP}}", strftime('%Y%m%d%H%M%S'), $fullHtml);
+
+            // Need to get random strings for image domains $img_prefix
+            $random1 = $this->urlFormatter->getDefinedRandomString();
+            $random2 = $this->urlFormatter->getDefinedRandomString();
+            $imgPrefix = "{$this->contentDomain}/$random1/$random2";
+
+            $unsubText = $this->createUnsubHtml($offer, $imgPrefix, $offerUnsubLinkId);
+            $fullHtml = str_replace("{{ADV_UNSUB}}", $unsubText, $fullHtml);
+
+            foreach($offer->trackingLinks()->get() as $link) {
+
+                $linkNumber = $link->link_num;
+                $url = $link->url;
+
+                if (1 === $linkNumber) {
+                    $token = "{{URL}}";
+                    $this->nameLinkId = $link->id;
+                }
+                else {
+                    $token = "{{URL" . $linkNumber . "}}";
+                }
+
+                if (strpos($fullHtml, $token) !== false) {
+                    $url = $this->offerTrackingLinkRepo->getOfferTrackingLink($offer->id, $linkNumber);
+
+                    $url = str_replace("{{CID}}", $this->espAccountName, $url);
+                    $url = str_replace("{{FOOTER}}", "{{FOOTER}}_{$deploy->send_date}", $url);
+                    $url = preg_replace('/a=\d+/', "a=$affiliateId", $url); // old affiliate id
+                    $url = str_replace("up.gravitypresence.com", $this->espCakeDomain, $url); // maybe {{CAKE_DOMAIN}}?
+                    $url = str_replace($defaultCakeDomain, $this->espCakeDomain, $url);
+                    $url = str_replace('a=13', "a=$affiliateId", $url);
+                    $url = str_replace("{{DEPLOY_ID}}", $this->deployId, $url); // used at least for 1 ...
+
+                    if ($deploy->encrypt_cake) {
+                        $url = $this->encryptionService->encryptCakeLink($url);
+                    }
+                    if ($deploy->fully_encrypt) {
+                        $url = $offerTrackingUrl = $this->encryptionService->fullEncryptLink($url);
+                    }
+
+                    $this->validateLink($url);
+
+                    $linkId = $this->linkService->getLinkId($url);
+
+                    $redirectLink = $this->formatUrl('REDIRECT', $deploy->url_format, $linkId, $this->emailIdField) 
+                                    ?: "http://{$this->contentDomain}/cgi-bin/redir1.cgi?eid={$this->emailIdField}&cid=1&em=$emailAddressField&id=$linkId&n=0&f=$fromId&s=$subjectId&c=$creativeId&tid=$templateId&footerid=0&ctype=R";
+
+                    $fullHtml = str_replace($token, $redirectLink, $fullHtml);
+                }    
             }
 
-            if (strpos($fullHtml, $token) !== false) {
-                $url = $this->offerTrackingLinkRepo->getOfferTrackingLink($offer->id, $linkNumber);
+            $fullHtml = str_replace("{{ADV_UNSUB_URL}}", $offerUnsubLink, $fullHtml); // keeping this naming scheme for legacy reasons
+            $fullHtml = str_replace("{{OFFER_UNSUB_URL}}", $offerUnsubLink, $fullHtml); // this should be the new one going forward
+            $fullHtml = str_replace("{{CRID}}", $creativeId, $fullHtml);
+            $fullHtml = str_replace("{{F}}", $fromId, $fullHtml);
+            $fullHtml = str_replace("{{S}}", $subjectId, $fullHtml);
+            $fullHtml = str_replace("{{TID}}", $templateId, $fullHtml);
+            $fullHtml = str_replace("{{EMAIL_ADDR}}", $emailAddressField, $fullHtml);
+            $fullHtml = str_replace("{{EMAIL_USER_ID}}", $this->emailIdField, $fullHtml);
 
-                $url = str_replace("{{CID}}", $this->espAccountName, $url);
-                $url = str_replace("{{FOOTER}}", "{{FOOTER}}_{$deploy->send_date}", $url);
-                $url = preg_replace('/a=\d+/', "a=$affiliateId", $url); // old affiliate id
-                $url = str_replace("up.gravitypresence.com", $this->espCakeDomain, $url); // maybe {{CAKE_DOMAIN}}?
-                $url = str_replace($defaultCakeDomain, $this->espCakeDomain, $url);
-                $url = str_replace('a=13', "a=$affiliateId", $url);
-                $url = str_replace("{{DEPLOY_ID}}", $this->deployId, $url); // used at least for 1 ...
+            $fullHtml = $this->presetChanges($fullHtml);
 
-                if ($deploy->encrypt_cake) {
-                    $url = $this->encryptionService->encryptCakeLink($url);
-                }
-                if ($deploy->fully_encrypt) {
-                    $url = $offerTrackingUrl = $this->encryptionService->fullEncryptLink($url);
-                }
+            $fullHtml = str_replace("{{IMG_DOMAIN}}", $this->contentDomain, $fullHtml);
+            $fullHtml = str_replace("{{DOMAIN}}", $this->contentDomain, $fullHtml);
 
-                $this->validateLink($url);
+            $fullHtml = $this->parseImageLinks($fullHtml);
 
-                $linkId = $this->linkService->getLinkId($url);
-
-                $redirectLink = $this->formatUrl('REDIRECT', $deploy->url_format, $linkId, $this->emailIdField) 
-                                ?: "http://{$this->contentDomain}/cgi-bin/redir1.cgi?eid={$this->emailIdField}&cid=1&em=$emailAddressField&id=$linkId&n=0&f=$fromId&s=$subjectId&c=$creativeId&tid=$templateId&footerid=0&ctype=R";
-
-                $fullHtml = str_replace($token, $redirectLink, $fullHtml);
-            }    
+            // Unfortunately, BH's email id token includes an entity (%cf) that gets converted
+            // We've placed another html entity (a zero-width joiner) between the % and cf
+            // to prevent this from happening during the call to parseImageLinks()
+            // additionally, when this gets decoded or displayed, the &zwj; - true to its name - disappears
+            $fullHtml = str_replace('%%&zwj;cf', '%%cf', $fullHtml);
+            return $fullHtml;
         }
+        catch (UrlValidationException $e) {
+            $deploy = $this->deployRepo->getDeploy($id);
+            $templateId = $deploy->template_id;
+            $creativeId = $deploy->creative_id;
 
-        $fullHtml = str_replace("{{ADV_UNSUB_URL}}", $offerUnsubLink, $fullHtml); // keeping this naming scheme for legacy reasons
-        $fullHtml = str_replace("{{OFFER_UNSUB_URL}}", $offerUnsubLink, $fullHtml); // this should be the new one going forward
-        $fullHtml = str_replace("{{CRID}}", $creativeId, $fullHtml);
-        $fullHtml = str_replace("{{F}}", $fromId, $fullHtml);
-        $fullHtml = str_replace("{{S}}", $subjectId, $fullHtml);
-        $fullHtml = str_replace("{{TID}}", $templateId, $fullHtml);
-        $fullHtml = str_replace("{{EMAIL_ADDR}}", $emailAddressField, $fullHtml);
-        $fullHtml = str_replace("{{EMAIL_USER_ID}}", $this->emailIdField, $fullHtml);
-
-        $fullHtml = $this->presetChanges($fullHtml);
-
-        $fullHtml = str_replace("{{IMG_DOMAIN}}", $this->contentDomain, $fullHtml);
-        $fullHtml = str_replace("{{DOMAIN}}", $this->contentDomain, $fullHtml);
-
-        $fullHtml = $this->parseImageLinks($fullHtml);
-
-        // Unfortunately, BH's email id token includes an entity (%cf) that gets converted
-        // We've placed another html entity (a zero-width joiner) between the % and cf
-        // to prevent this from happening during the call to parseImageLinks()
-        // additionally, when this gets decoded or displayed, the &zwj; - true to its name - disappears
-        $fullHtml = str_replace('%%&zwj;cf', '%%cf', $fullHtml);
-        return $fullHtml;
+            return "{$e->getMessage()} is not a valid URL. Please check template {$templateId} and creative {$creativeId}";
+        }
+        catch (\Exception $e) {
+            return $e->getMessage();
+        }
     }
 
 
