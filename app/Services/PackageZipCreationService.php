@@ -746,6 +746,9 @@ TXT;
         elseif (!$deploy->contentDomain || !$deploy->contentDomain->contentDomainValidForEspAccount($deploy->esp_account_id)) {
             throw new ValidationException('Content domain not permitted. Check status, type, and esp account.');
         }
+        elseif ('' === $deploy->contentDomain->main_site) {
+            throw new ValidationException('Content domain url is empty.');
+        }
         elseif (!$deploy->espAccount) {
             throw new ValidationException('ESP Account does not exist.');
         }
