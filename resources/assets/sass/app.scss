@@ -30,6 +30,7 @@ $card-padding: 6px;
  *Bootstrap Includes
  */
 @import "node_modules/angular-material/angular-material.scss";
+@import "material.min";
 @import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
 @import "node_modules/jasny-bootstrap/scss/jasny-bootstrap.scss";
 $table-bg-accent-2 : #eaeaea;
@@ -703,6 +704,14 @@ md-list-item.mt2-nav-sub-item .md-list-item-inner {
 #mainSideNav li.dropdown:hover a.dropdown-toggle , #mainSideNav.navmenu-inverse .navmenu-nav > .open > a {
     border-left: #039be5 3px solid;
     background-color: #21262d;
+}
+
+#mainSideNav li.dropdown md-icon {
+    color: #777777;
+}
+
+#mainSideNav li.dropdown:hover md-icon , #mainSideNav li.dropdown.open md-icon {
+    color: #FFF;
 }
 
 #mainSideNav h3 {
