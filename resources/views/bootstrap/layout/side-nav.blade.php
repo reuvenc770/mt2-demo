@@ -16,7 +16,7 @@
             </a>
             <ul class="dropdown-menu navmenu-nav" role="menu">
                 @foreach ( $section[ 'children' ] as $currentChild )
-                <li class="nav-child-item" ng-class="{ 'active' : '{{$currentChild[ 'uri' ]}}' == app.currentPath || app.activeMenuLink[ '{{$currentChild[ 'name' ]}}' ] }" ng-init="app.setCurrentActiveSection( '{{$section[ 'name' ]}}' , '{{$currentChild[ 'name' ]}}' , '{{$currentChild[ 'uri' ]}}' )">
+                <li class="nav-child-item" ng-class="{ 'active' : app.activeMenuLink[ '{{$currentChild[ 'name' ]}}' ] }" ng-init="app.setCurrentActiveSection( '{{$section[ 'name' ]}}' , '{{$currentChild[ 'name' ]}}' , '{{$currentChild[ 'uri' ]}}' )">
                     <a href="{{ '/' . $currentChild[ 'uri' ] }}" target="_self"><span class="nav-child-text">{{ $currentChild[ 'name' ] }}</span></a>
                 </li>
                 @endforeach
