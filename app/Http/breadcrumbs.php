@@ -28,17 +28,17 @@ Breadcrumbs::register('user.edit', function($breadcrumbs) {
 //ESP API
 Breadcrumbs::register('espapi.list', function($breadcrumbs) {
     $breadcrumbs->push('Home', route('home'));
-    $breadcrumbs->push('Esp API Accounts', route('espapi.list'));
+    $breadcrumbs->push('ESP API Accounts', route('espapi.list'));
 });
 
 Breadcrumbs::register('espapi.add', function($breadcrumbs) {
     $breadcrumbs->parent('espapi.list');
-    $breadcrumbs->push('Add API Account');
+    $breadcrumbs->push('Add ESP API Account');
 });
 
 Breadcrumbs::register('espapi.edit', function($breadcrumbs) {
     $breadcrumbs->parent('espapi.list');
-    $breadcrumbs->push('Edit API Account');
+    $breadcrumbs->push('Edit ESP API Account');
 });
 
 //Roles
@@ -74,16 +74,16 @@ Breadcrumbs::register('feed.edit', function($breadcrumbs) {
 //Client Feeds
 Breadcrumbs::register('clientgroup.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');
-    $breadcrumbs->push("Client Groups", route('clientgroup.list'));
+    $breadcrumbs->push("Feed Groups", route('clientgroup.list'));
 });
 Breadcrumbs::register('clientgroup.add', function($breadcrumbs) {
     $breadcrumbs->parent('clientgroup.list');
-    $breadcrumbs->push('Add Client Group');
+    $breadcrumbs->push('Add Feed Group');
 });
 
 Breadcrumbs::register('clientgroup.edit', function($breadcrumbs) {
     $breadcrumbs->parent('clientgroup.list');
-    $breadcrumbs->push('Edit Client Group');
+    $breadcrumbs->push('Edit Feed Group');
 });
 
 //List Profiles

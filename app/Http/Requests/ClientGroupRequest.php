@@ -34,4 +34,14 @@ class ClientGroupRequest extends Request
             'clients'   => 'required'
         ];
     }
+    /**
+     *
+     */
+    public function messages ()
+    {
+        return [
+            'groupName.required' => 'A feed group name is required.' ,
+            'clients.required' => 'At least 1 client is required.'
+        ];
+    }
 }

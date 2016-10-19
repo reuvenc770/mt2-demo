@@ -42,7 +42,7 @@ class ClientGroupController extends Controller
     }
 
     public function listAll () {
-        return response()->view( 'pages.clientgroup.clientgroup-index' );
+        return response()->view( 'bootstrap.pages.clientgroup.clientgroup-index' );
     }
 
     /**
@@ -52,7 +52,7 @@ class ClientGroupController extends Controller
      */
     public function create()
     {
-        return response()->view( 'pages.clientgroup.clientgroup-add' );
+        return response()->view( 'bootstrap.pages.clientgroup.clientgroup-add' );
     }
 
     /**
@@ -63,7 +63,7 @@ class ClientGroupController extends Controller
      */
     public function store( ClientGroupRequest $request)
     {
-        Flash::success( 'Client Group was successfully created.' );
+        Flash::success( 'Feed Group was successfully created.' );
 
         Cache::tags($this->service->getType())->flush();
 
@@ -92,7 +92,7 @@ class ClientGroupController extends Controller
      */
     public function edit($id)
     {
-        return response()->view( 'pages.clientgroup.clientgroup-update' );
+        return response()->view( 'bootstrap.pages.clientgroup.clientgroup-update' );
     }
 
     /**
@@ -104,7 +104,7 @@ class ClientGroupController extends Controller
      */
     public function update( ClientGroupRequest $request, $id)
     {
-        Flash::success( 'Client Group was successfully updated.' );
+        Flash::success( 'Feed Group was successfully updated.' );
 
         Cache::tags($this->service->getType())->flush();
 
@@ -115,7 +115,7 @@ class ClientGroupController extends Controller
     }
 
     public function copy ( $id ) {
-        Flash::success( 'Client Group was successfully copied.' );
+        Flash::success( 'Feed Group was successfully copied.' );
 
         Cache::tags($this->service->getType())->flush();
 
@@ -135,13 +135,13 @@ class ClientGroupController extends Controller
      */
     public function destroy( $id )
     {
-        Flash::success( 'Client Group was successfully deleted.' );
+        Flash::success( 'Feed Group was successfully deleted.' );
 
         Cache::tags($this->service->getType())->flush();
 
         return response()->json( $this->api->postForm(
             self::CLIENT_GROUP_API_ENDPOINT ,
-            [ 'action' => 'delete' , 'gid' => $id ] 
+            [ 'action' => 'delete' , 'gid' => $id ]
         ) );
     }
 }
