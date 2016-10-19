@@ -15,28 +15,31 @@
 @stop
 
 @section( 'content' )
-<md-content class="md-mt2-zeta-theme" layout="row" layout-align="center center" ng-init="attr.initProjectionPage()" flex="none">
-    <div class="md-whiteframe-4dp" layout="column" layout-margin flex="none" ng-init="attr.initProjectionChart()">
-            <md-toolbar layout="row" class="md-mt2-zeta-theme md-hue-2" layout-fill>
-                <div class="md-toolbar-tools">
-                    Projection Chart
-                </div>
-            </md-toolbar>
-
-            <md-content flex="grow" layout-fill>
-                <div id="projectionChart" flex="100" style="overflow: hidden;"></div>
-            </md-content>
-
-            <md-toolbar layout="row" class="md-mt2-zeta-theme md-hue-2" layout-fill>
-                <div class="md-toolbar-tools">
-                    Projection Report
-                </div>
-            </md-toolbar>
-
-            <md-table-container layout-fill>
+    <div  ng-init="attr.initProjectionPage()">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#chart" aria-controls="chart" role="tab" data-toggle="tab">Projection Chart</a></li>
+            <li role="presentation"><a href="#report" aria-controls="report" role="tab" data-toggle="tab">Projection Report</a></li>
+        </ul>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="chart" ng-init="attr.initProjectionChart()">
+                <md-toolbar layout="row" class="md-mt2-zeta-theme md-hue-2" layout-fill>
+                    <div class="md-toolbar-tools">
+                        Projection Chart
+                    </div>
+                </md-toolbar>
+                <md-card >
+                    <div id="projectionChart"></div>
+                </md-card>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="report">
+                <md-toolbar layout="row" class="md-mt2-zeta-theme md-hue-2" layout-fill>
+                    <div class="md-toolbar-tools">
+                        Projection Report
+                    </div>
+                </md-toolbar>
                 <md-table>
-                <table md-table>
-                    <thead md-head>
+                    <table md-table>
+                        <thead md-head>
                         <tr md-row>
                             <th class="md-table-header-override-whitetext" md-column>Client</th>
                             <th class="md-table-header-override-whitetext" md-column>Feed</th>
@@ -51,15 +54,15 @@
                             <th class="md-table-header-override-whitetext" md-column md-numeric>Live CPM Revshare</th>
                             <th class="md-table-header-override-whitetext" md-column md-numeric>Model CPM Revshare</th>
                         </tr>
-                    </thead>
-                    <tbody md-body>
+                        </thead>
+                        <tbody md-body>
                         {!! $projection->getReportRowsHtml( $modelId ) !!}
-                    </tbody>
-                </table>
-            </md-table>
-                </md-table-container>
+                        </tbody>
+                    </table>
+                </md-table>
+            </div>
+        </div>
     </div>
-</md-content>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 @stop
 
