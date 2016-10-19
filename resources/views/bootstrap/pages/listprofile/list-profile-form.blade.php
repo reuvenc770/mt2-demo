@@ -252,7 +252,7 @@
             <label ng-click="listProfile.addOffers()" role="button" tabindex="0">Add Selected <span class="glyphicon glyphicon-plus"></span></label>
         </div>
 
-        <select ng-model="listProfile.highlightedOffers" multiple style="width: 100%; height: 150px;">
+        <select ng-model="listProfile.highlightedOffers" multiple style="width: 100%; height: 250px;">
             @foreach ( $offers as $offer )
             <option value="{{$offer[ 'id' ]}}" ng-init="listProfile.offerVisibility[ {{$offer[ 'id' ]}} ] = true;listProfile.offerNameMap[ {{$offer[ 'id' ]}} ] = '{{{$offer[ 'name' ]}}}';" ng-show="listProfile.offerVisibility[ {{$offer[ 'id' ]}} ]">{{$offer[ 'name' ]}}</option>
             @endforeach
@@ -266,7 +266,7 @@
             <label ng-click="listProfile.removeOffers()" role="button" tabindex="0">Remove Selected <span class="glyphicon glyphicon-minus"></span></label>
         </div>
 
-        <select ng-model="listProfile.highlightedOffersForRemoval" multiple style="width: 100%; height: 150px;">
+        <select ng-model="listProfile.highlightedOffersForRemoval" multiple style="width: 100%; height: 250px;">
             <option ng-repeat="( offerId , offerName ) in listProfile.current.offers" ng-value="::offerId">@{{::offerName}}</option>
         </select>
     </div>
@@ -533,7 +533,7 @@
             <label ng-click="listProfile.addOfferSupp( $event )" role="button" tabindex="0">Add Selected <span class="glyphicon glyphicon-plus"></span></label>
         </div>
 
-        <select ng-model="listProfile.highlightedOfferSupp" multiple style="width: 100%; height: 75px;">
+        <select ng-model="listProfile.highlightedOfferSupp" multiple style="width: 100%; height: 250px;">
             @foreach ( $offers as $offer )
             <option value="{{$offer[ 'id' ]}}" ng-init="listProfile.offerSuppVisibility[ {{$offer[ 'id' ]}} ] = true;listProfile.offerSuppNameMap[ {{$offer[ 'id' ]}} ] = '{{$offer[ 'name' ]}}';" ng-show="listProfile.offerSuppVisibility[ {{$offer[ 'id' ]}} ]">{{$offer[ 'name' ]}}</option>
             @endforeach
@@ -547,7 +547,7 @@
             <label ng-click="listProfile.removeOfferSupp()" role="button" tabindex="0">Remove Selected <span class="glyphicon glyphicon-minus"></span></label>
         </div>
 
-        <select ng-model="listProfile.highlightedOfferSuppForRemoval" multiple style="width: 100%; height: 75px;">
+        <select ng-model="listProfile.highlightedOfferSuppForRemoval" multiple style="width: 100%; height: 250px;">
             <option ng-repeat="( offerSuppId , offerSuppName ) in listProfile.current.suppression.offer" ng-value="offerSuppId">@{{offerSuppName}}</option>
         </select>
     </div>
@@ -647,7 +647,7 @@
 <h3>Select and Order Columns</h3>
 
 <div>
-    <lite-membership-widget recordlist="listProfile.columnList" chosenrecordlist="listProfile.selectedColumns" availablerecordtitle="listProfile.availableWidgetTitle" chosenrecordtitle="listProfile.chosenWidgetTitle" namefield="listProfile.columnLabelField" updatecallback="listProfile.columnMembershipCallback()"></lite-membership-widget>
+    <lite-membership-widget recordlist="listProfile.columnList" chosenrecordlist="listProfile.selectedColumns" availablerecordtitle="listProfile.availableWidgetTitle" chosenrecordtitle="listProfile.chosenWidgetTitle" namefield="listProfile.columnLabelField" updatecallback="listProfile.columnMembershipCallback()" height="200"></lite-membership-widget>
 </div>
 
 <br />
@@ -658,7 +658,7 @@
 
 @if ( Sentinel::inRole( 'admiral' ) )
 <br />
-<md-checkbox ng-model="listProfile.enableAdmiral" aria-label="Turn Admiral Features On" ng-true-value="true" ng-false-value="false">Enable Admiral Features</md-checkbox>
+<md-checkbox ng-model="listProfile.enableAdmiral" ng-click="listProfile.admiralToggleFix()" aria-label="Turn Admiral Features On" ng-true-value="true" ng-false-value="false">Enable Admiral Features</md-checkbox>
 <br />
 <md-checkbox ng-model="listProfile.current.admiralsOnly" ng-show="listProfile.enableAdmiral" aria-label="Admirals Only" ng-true-value="true" ng-false-value="false">This list is for Admirals ONLY</md-checkbox>
 @endif

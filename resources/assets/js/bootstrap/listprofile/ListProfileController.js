@@ -1,4 +1,4 @@
-mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToast' , '$mdDialog' , '$log' , function ( ListProfileApiService , $mdToast , $mdDialog , $log ) {
+mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToast' , '$mdDialog' , '$timeout' , '$log' , function ( ListProfileApiService , $mdToast , $mdDialog , $timeout , $log ) {
     var self = this;
 
     $(function () { $('[data-toggle="tooltip"]').tooltip() });
@@ -693,5 +693,12 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
             columnList.push( column[ self.columnHeaderField ] );
         } );
         self.current.selectedColumns = columnList;
+    };
+
+    self.admiralToggleFix = function () {
+        if ( !self.enableAdmiral ) { //value is not true till after this is called
+            $log.info( 'go to bottom:' + document.body.scrollHeight  );
+            $timeout( function () { window.scrollTo( 0 , ( document.body.scrollHeight + 300 ) ); } , 1 );
+        }
     };
 } ] );
