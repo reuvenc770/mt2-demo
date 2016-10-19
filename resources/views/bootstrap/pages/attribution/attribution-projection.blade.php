@@ -60,9 +60,7 @@
                         Projection Chart
                     </div>
                 </md-toolbar>
-                <md-card >
-                    <div id="projectionChart"></div>
-                </md-card>
+                    <div id="projectionChart" style="width:100%"></div>
             </div>
         </div>
     </div>
