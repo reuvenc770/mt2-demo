@@ -16,7 +16,7 @@ class OfferRepo {
     }
 
     public function all () {
-        return $this->offer->where( 'is_approved' , 1 )->get();
+        return $this->offer->where( [ [ 'is_approved' , '=' , 1 ] , [ 'status' , '=' , 'A' ] ] )->orderBy( 'id' , 'desc' )->get();
     }
 
     public function updateOrCreate($data) {
