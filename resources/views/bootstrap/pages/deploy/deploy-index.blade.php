@@ -361,7 +361,7 @@
                                 ng-model="deploy.currentDeploy.fully_encrypt">
                             <option value="">Fully Encrypt Links?</option>
                             <option value="1">Yes</option>
-                            <option value="2">No</option>
+                            <option value="0">No</option>
                         </select>
 
                         <div class="help-block text-danger" ng-show="deploy.formErrors.fully_encrypt">
