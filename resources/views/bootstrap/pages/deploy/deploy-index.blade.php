@@ -289,8 +289,8 @@
                             </option>
                         </select>
 
-                        <div class="help-block text-danger" ng-show="deploy.formErrors.template">
-                            <div ng-repeat="error in deploy.formErrors.template">
+                        <div class="help-block text-danger" ng-show="deploy.formErrors.template_id">
+                            <div ng-repeat="error in deploy.formErrors.template_id">
                                 <span ng-bind="error"></span>
                             </div>
                         </div>
@@ -305,8 +305,8 @@
                             </option>
                         </select>
 
-                        <div class="help-block text-danger" ng-show="deploy.formErrors.mailing_domain">
-                            <div ng-repeat="error in deploy.formErrors.mailing_domain">
+                        <div class="help-block text-danger" ng-show="deploy.formErrors.mailing_domain_id">
+                            <div ng-repeat="error in deploy.formErrors.mailing_domain_id">
                                 <span ng-bind="error"></span>
                             </div>
                         </div>
@@ -321,8 +321,8 @@
                             </option>
                         </select>
 
-                        <div class="help-block text-danger" ng-show="deploy.formErrors.content_domain">
-                            <div ng-repeat="error in deploy.formErrors.content_domain">
+                        <div class="help-block text-danger" ng-show="deploy.formErrors.content_domain_id">
+                            <div ng-repeat="error in deploy.formErrors.content_domain_id">
                                 <span ng-bind="error"></span>
                             </div>
                         </div>
