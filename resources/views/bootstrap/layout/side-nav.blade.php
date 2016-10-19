@@ -6,15 +6,13 @@
     <ul class="nav navmenu-nav">
         @foreach ( $menuItems as $section )
         <li class="dropdown custom-dropdown" id="{{{$section[ 'name' ]}}}Menu" ng-class="{ 'open' : app.activeSection[ '{{{$section[ 'name' ]}}}' ] }">
-            <a href="#" class="dropdown-toggle" ng-click="app.toggleDropdown( $event )">
+            <a href="" class="dropdown-toggle" ng-click="app.toggleDropdown( $event )">
                 @if ( $section[ 'icon' ] != '' )
                 <md-icon class="nav-icon" md-font-set="material-icons">{{$section[ 'icon' ]}}</md-icon>
                 @endif
                 <span class="mt2-nav-main-text">{{ $section[ 'name' ] }}</span>
-                <div class="pull-right">
-                    <span class="glyphicon glyphicon-menu-right" aria-hidden="true" ng-hide="app.menuIsOpen( '{{{$section[ 'name' ]}}}Menu' )"></span>
-                    <span class="glyphicon glyphicon-menu-down" aria-hidden="true" ng-show="app.menuIsOpen( '{{{$section[ 'name' ]}}}Menu' )"></span>
-                </div>
+                <span class="glyphicon glyphicon-menu-right pull-right" aria-hidden="true" ng-hide="app.menuIsOpen( '{{{$section[ 'name' ]}}}Menu' )"></span>
+                <span class="glyphicon glyphicon-menu-down pull-right" aria-hidden="true" ng-show="app.menuIsOpen( '{{{$section[ 'name' ]}}}Menu' )"></span>
             </a>
             <ul class="dropdown-menu navmenu-nav" role="menu">
                 @foreach ( $section[ 'children' ] as $currentChild )

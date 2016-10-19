@@ -2,8 +2,17 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
     var self = this;
 
     self.fixedNav = false;
+    self.alwaysFluid = false;
     self.activeSection = {};
     self.activeMenuLink = {};
+
+    angular.element( document.getElementById( 'mainSideNav' ) ).on( 'show.bs.offcanvas' , function () {
+            angular.element( document ).find( 'body > div[ng-controller]' ).addClass( 'container-no-left' );
+    } );
+
+    angular.element( document.getElementById( 'mainSideNav' ) ).on( 'hide.bs.offcanvas' , function () {
+            angular.element( document ).find( 'body > div[ng-controller]' ).removeClass( 'container-no-left' );
+    } );
 
     self.setCurrentActiveSection = function ( sectionName , linkName , path ) {
         if ( typeof( path ) === 'undefined' ) {
@@ -29,6 +38,14 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
         }
     };
 
+    self.setAlwaysFluid = function ( status ) {
+        if ( typeof( status ) !== 'undefined' ) {
+            self.alwaysFluid = status;
+        } else {
+            self.alwaysFluid = true;
+        }
+    };
+
     self.setFixedNav = function ( status ) {
         if ( typeof( status ) !== 'undefined' ) {
             self.fixedNav = status;
@@ -42,7 +59,11 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
     };
 
     self.toggleDropdown = function ( ev ) {
-        angular.element( ev.target ).parent().toggleClass( 'open' );
+        if ( angular.element( ev.target ).hasClass( 'dropdown-toggle' ) ) {
+            angular.element( ev.target ).parent().toggleClass( 'open' );
+        } else {
+            angular.element( ev.target ).parent().parent().toggleClass( 'open' );
+        }
     };
 
     self.menuIsOpen = function ( menuId ) {

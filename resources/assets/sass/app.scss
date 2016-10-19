@@ -46,6 +46,17 @@ $table-bg-accent-2 : #eaeaea;
     margin-left: 300px;
 }
 
+.container-no-left{
+    margin-right: auto;
+    margin-left: 0!important;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.md-datepicker-calendar {
+    background-color: #FFF;
+}
+
 /* IVH Includes */
 @import "node_modules/angular-ivh-treeview/dist/ivh-treeview";
 @import "node_modules/angular-ivh-treeview/dist/ivh-treeview-theme-basic";

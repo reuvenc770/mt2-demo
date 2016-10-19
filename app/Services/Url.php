@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Exceptions\ValidationException;
+use App\Exceptions\UrlValidationException;
 
 class Url {
     
@@ -25,7 +25,7 @@ class Url {
         $parsed = parse_url($this->url);
 
         if ($parsed === false) {
-            throw new ValidationException("URL $url is not valid.");
+            throw new UrlValidationException($this->url);
         }
 
         if ($this->url === $parsed['path']) {

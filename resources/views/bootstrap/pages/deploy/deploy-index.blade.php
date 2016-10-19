@@ -54,7 +54,7 @@
 @stop
 
 @section( 'content' )
-<div ng-init="deploy.loadAccounts();">
+<div ng-init="deploy.loadAccounts()">
         <div style="width:800px">
             <div class="panel panel-primary center-block"> 
                 <div class="panel-heading">   
@@ -289,8 +289,8 @@
                             </option>
                         </select>
 
-                        <div class="help-block text-danger" ng-show="deploy.formErrors.template">
-                            <div ng-repeat="error in deploy.formErrors.template">
+                        <div class="help-block text-danger" ng-show="deploy.formErrors.template_id">
+                            <div ng-repeat="error in deploy.formErrors.template_id">
                                 <span ng-bind="error"></span>
                             </div>
                         </div>
@@ -305,8 +305,8 @@
                             </option>
                         </select>
 
-                        <div class="help-block text-danger" ng-show="deploy.formErrors.mailing_domain">
-                            <div ng-repeat="error in deploy.formErrors.mailing_domain">
+                        <div class="help-block text-danger" ng-show="deploy.formErrors.mailing_domain_id">
+                            <div ng-repeat="error in deploy.formErrors.mailing_domain_id">
                                 <span ng-bind="error"></span>
                             </div>
                         </div>
@@ -321,8 +321,8 @@
                             </option>
                         </select>
 
-                        <div class="help-block text-danger" ng-show="deploy.formErrors.content_domain">
-                            <div ng-repeat="error in deploy.formErrors.content_domain">
+                        <div class="help-block text-danger" ng-show="deploy.formErrors.content_domain_id">
+                            <div ng-repeat="error in deploy.formErrors.content_domain_id">
                                 <span ng-bind="error"></span>
                             </div>
                         </div>
@@ -347,7 +347,7 @@
                                 ng-model="deploy.currentDeploy.encrypt_cake">
                             <option value="">Encrypt Cake?</option>
                             <option value="1">Yes</option>
-                            <option value="2">No</option>
+                            <option value="0">No</option>
                         </select>
 
                         <div class="help-block text-danger" ng-show="deploy.formErrors.encrypt_cake">
@@ -361,7 +361,7 @@
                                 ng-model="deploy.currentDeploy.fully_encrypt">
                             <option value="">Fully Encrypt Links?</option>
                             <option value="1">Yes</option>
-                            <option value="2">No</option>
+                            <option value="0">No</option>
                         </select>
 
                         <div class="help-block text-danger" ng-show="deploy.formErrors.fully_encrypt">

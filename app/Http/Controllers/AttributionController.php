@@ -174,8 +174,6 @@ class AttributionController extends Controller
     }
 
     public function showProjection ( $modelId ) {
-        $value = $_COOKIE['sidenavCookie'];
-        $page = $value ? "bootstrap." : "";
         return response()->view( "bootstrap.pages.attribution.attribution-projection" , [ 'modelId' => $modelId ] );
     }
 
