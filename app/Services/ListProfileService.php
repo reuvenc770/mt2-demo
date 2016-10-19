@@ -48,8 +48,7 @@ class ListProfileService
     public function pullProfile($id) {
         /**
             - Run against hygiene
-            - What is action date?
-        */
+         */
 
         $listProfile = $this->profileRepo->getProfile($id);
         $queries = $this->returnQueriesData($listProfile);
