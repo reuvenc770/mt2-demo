@@ -266,7 +266,7 @@ class PackageZipCreationService {
                     $url = preg_replace('/a=\d+/', "a=$affiliateId", $url); // old affiliate id
                     $url = str_replace("up.gravitypresence.com", $this->espCakeDomain, $url); // maybe {{CAKE_DOMAIN}}?
                     $url = str_replace($defaultCakeDomain, $this->espCakeDomain, $url);
-                    $url = str_replace('a=13', "a=$affiliateId", $url);
+                    $url = str_replace('a=13&', "a=$affiliateId&", $url);
                     $url = str_replace("{{DEPLOY_ID}}", $this->deployId, $url); // used at least for 1 ...
 
                     if ($deploy->encrypt_cake) {
