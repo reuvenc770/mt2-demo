@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Services\EspService;
+use App\Http\Requests\EspEditRequest;
 use Laracasts\Flash\Flash;
+
 class EspController extends Controller
 {
     protected $espService;
@@ -38,7 +40,7 @@ class EspController extends Controller
     public function listAll ()
     {
         return response()
-            ->view( 'pages.esp.esp-index' );
+            ->view( 'bootstrap.pages.esp.esp-index' );
     }
 
 
@@ -64,7 +66,7 @@ class EspController extends Controller
     public function edit( $id )
     {
         return response()
-            ->view( 'pages.esp.esp-edit' );
+            ->view( 'bootstrap.pages.esp.esp-edit' );
     }
 
     /**
@@ -74,10 +76,10 @@ class EspController extends Controller
      * @param  int  $id The ESP Account ID being updated.
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(EspEditRequest $request, $id)
     {
         $this->espService->updateAccount( $id , $request->toArray() );
-        Flash::success("API Account was Successfully Updated");
+        Flash::success("ESP Account was Successfully Updated");
     }
 
     /**

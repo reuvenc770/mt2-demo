@@ -41,6 +41,17 @@ Breadcrumbs::register('espapi.edit', function($breadcrumbs) {
     $breadcrumbs->push('Edit API Account');
 });
 
+//ESP
+Breadcrumbs::register('esp.list', function($breadcrumbs) {
+    $breadcrumbs->push('Home', route('home'));
+    $breadcrumbs->push('ESP Accounts', route('esp.list'));
+});
+
+Breadcrumbs::register('esp.edit', function($breadcrumbs) {
+    $breadcrumbs->parent('esp.list');
+    $breadcrumbs->push('Edit ESP Account');
+});
+
 //Roles
 Breadcrumbs::register('role.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');
