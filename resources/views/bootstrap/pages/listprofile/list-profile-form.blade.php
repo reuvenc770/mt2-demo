@@ -531,9 +531,7 @@
         </div>
 
         <select ng-model="listProfile.highlightedOfferSupp" multiple style="width: 100%; height: 75px;">
-            @foreach ( $offers as $offer )
-            <option value="{{$offer[ 'id' ]}}" ng-init="listProfile.offerSuppVisibility[ {{$offer[ 'id' ]}} ] = true;listProfile.offerSuppNameMap[ {{$offer[ 'id' ]}} ] = '{{$offer[ 'name' ]}}';" ng-show="listProfile.offerSuppVisibility[ {{$offer[ 'id' ]}} ]">{{$offer[ 'name' ]}}</option>
-            @endforeach
+            <option value="">NEED LIST</option>
         </select>
     </div>
 
