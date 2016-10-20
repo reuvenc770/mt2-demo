@@ -30,17 +30,17 @@
                 <tr md-row ng-repeat="record in esp.accounts track by $index">
                     <td md-cell>
                         <div layout="row" layout-align="center center">
-                            <md-button class="md-icon-button" ng-href="@{{ '/esp/edit/' + record.id }}" aria-label="Edit" target="_self">
+                            <md-button class="md-icon-button" ng-href="@{{ '/esp/edit/' + record.id }}" aria-label="Edit" target="_self"
+                                        data-toggle="tooltip" data-placement="bottom" title="Edit">
                                 <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon>
-                                <md-tooltip md-direction="bottom">Edit</md-tooltip>
                             </md-button>
                         </div>
                     </td>
-                    <td md-cell>@{{ record.id }}</td>
-                    <td md-cell>@{{ record.name }}</td>
-                    <td md-cell>@{{ record.field_options.email_id_field }}</td>
-                    <td md-cell>@{{ record.field_options.email_address_field }}</td>
-                    <td md-cell>@{{ record.updated_at }}</td>
+                    <td md-cell ng-bind="record.id"></td>
+                    <td md-cell ng-bind="record.name"></td>
+                    <td md-cell ng-bind="record.field_options.email_id_field"></td>
+                    <td md-cell ng-bind="record.field_options.email_address_field"></td>
+                    <td md-cell ng-bind=record.updated_at></td>
                 </tr>
             </tbody>
             <tfoot>

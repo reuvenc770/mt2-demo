@@ -15,6 +15,7 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     self.accountTotal = 0;
     self.formSubmitted = false;
 
+
     self.loadAccount = function () {
         var pathMatches = $location.path().match( /^\/esp\/edit\/(\d{1,})/ );
 
@@ -51,6 +52,8 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         self.accounts = response.data.data;
         self.pageCount = response.data.last_page;
         self.accountTotal = response.data.total;
+
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
     };
 
     self.loadAccountsFailureCallback = function ( response ) {
@@ -69,5 +72,6 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         self.formSubmitted = false;
         formValidationService.loadFieldErrors( self , response );
     };
+
 
 } ] );
