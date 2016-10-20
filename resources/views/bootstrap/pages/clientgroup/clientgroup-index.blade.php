@@ -82,12 +82,18 @@
                         </td>
                     </tr>
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3">
+                            <md-content class="md-mt2-zeta-theme md-hue-2">
+                                <md-table-pagination md-limit="clientGroup.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="clientGroup.currentPage" md-total="@{{clientGroup.clientGroupTotal}}" md-on-paginate="clientGroup.loadClientGroups" md-page-select></md-table-pagination>
+                            </md-content>
+                        </td>
+                    </tr>
+                </tfoot>
             </table>
         </md-table-container>
 
-        <md-content class="md-mt2-zeta-theme md-hue-2">
-            <md-table-pagination md-limit="clientGroup.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="clientGroup.currentPage" md-total="@{{clientGroup.clientGroupTotal}}" md-on-paginate="clientGroup.loadClientGroups" md-page-select></md-table-pagination>
-        </md-content>
     </md-card>
 </div>
 @stop

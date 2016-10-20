@@ -164,14 +164,6 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
     };
 
     /**
-     * Watchers
-     */
-    $rootScope.$on( 'updatePage' , function () {
-        $( '.collapse' ).collapse( 'hide' );
-        self.loadClientGroups();
-    } );
-
-    /**
      * Success Callbacks
      */
     self.getAllFeedsSuccessCallback = function ( response ) {

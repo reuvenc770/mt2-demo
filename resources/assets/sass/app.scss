@@ -137,6 +137,9 @@ table.md-table:not(.md-row-select) td.md-cell:nth-child(n+2):nth-last-child(n+2)
     padding-left: 1em !important;
 }
 
+.md-table-pagination {
+    justify-content: flex-start;
+}
 .md-table-pagination .label {
     color: rgba(0, 0, 0, 0.54) !important;
 }
@@ -377,7 +380,10 @@ body {
         margin:0;
     }
 }
-
+.btn:focus,
+.btn-group > .btn:focus {
+    outline: 0 !important;
+}
 .chipList {
     min-height: 75px;
     margin-bottom: 10px;

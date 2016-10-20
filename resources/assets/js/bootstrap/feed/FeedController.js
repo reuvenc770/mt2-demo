@@ -137,10 +137,10 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
 
 
     /**
-     * Look-forwward Fields
+     * Look-forward Fields
      */
     self.getFeedType = function ( searchText ) {
-        return searchText ? self.clientTypes.filter( function ( obj ) { return obj.name.toLowerCase().indexOf( searchText.toLowerCase() ) === 0; } ) : self.feedTypes;
+        return searchText ? self.feedTypes.filter( function ( obj ) { return obj.name.toLowerCase().indexOf( searchText.toLowerCase() ) === 0; } ) : self.feedTypes;
     };
 
     self.loadFeedTypes = function () {
@@ -183,41 +183,13 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
     self.saveFeed = function ( event , form ) {
         self.resetFieldErrors();
 
-        var errorFound = false;
-
-        angular.forEach( form.$error.required , function( field ) {
-            field.$setDirty();
-            field.$setTouched();
-
-            if ( field.$name == 'state' ) {
-                form.state.$error.required = true;
-            }
-
-            errorFound = true;
-        } );
-
-        if ( errorFound ) {
-            $mdToast.showSimple( 'Please fix errors and try again.' );
-
-            return false;
-        };
-
         var feedData = angular.copy( self.current );
 
         feedData.list_owner = self.current.list_owner.name;
         feedData.newFeed = 1;
         feedData.feed_type = self.current.feed_type.value;
 
-        FeedApiService.saveFeed( feedData , self.SuccessCallBackRedirect , function( response ) {
-            angular.forEach( response.data , function( error , fieldName ) {
-
-                form[ fieldName ].$setDirty();
-                form[ fieldName ].$setTouched();
-                form[ fieldName ].$setValidity('isValid' , false);
-            });
-
-            self.saveFeedFailureCallback( response );
-        });
+        FeedApiService.saveFeed( feedData , self.SuccessCallBackRedirect , self.saveFeedFailureCallback );
     };
 
     self.viewAdd = function () {
@@ -322,7 +294,7 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
     };
 
     self.loadFeedTypesSuccessCallback = function ( response ) {
-        self.clientTypes = response.data;
+        self.feedTypes = response.data;
     };
 
     self.loadFeedTypesFailureCallback = function ( response ) {

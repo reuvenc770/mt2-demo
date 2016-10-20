@@ -56,9 +56,9 @@ class FeedEditRequest extends Request
     protected function updateUrls() {
         $data = $this->all();
 
-        if ('http://' !== substr($data['client_record_source_url'], 0, 7)) {
-            $newUrl = 'http://' . $data['client_record_source_url'];
-            $this->merge(array('client_record_source_url' => $newUrl));
+        if ('http://' !== substr($data['feed_record_source_url'], 0, 7)) {
+            $newUrl = 'http://' . $data['feed_record_source_url'];
+            $this->merge(array('feed_record_source_url' => $newUrl));
         }
         if ('http://' !== substr($data['ftp_url'], 0, 7)) {
             $newUrl = 'http://' . $data['ftp_url'];

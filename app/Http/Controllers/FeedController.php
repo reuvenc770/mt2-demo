@@ -43,7 +43,7 @@ class FeedController extends Controller
      *
      */
     public function listAll () {
-        return response()->view( 'pages.feed.feed-index' );
+        return response()->view( 'bootstrap.pages.feed.feed-index' );
     }
 
     /**
@@ -54,7 +54,7 @@ class FeedController extends Controller
     public function create()
     {
         $countryList = $this->countryApi->getAll();
-        return response()->view( 'pages.feed.feed-add' , [
+        return response()->view( 'bootstrap.pages.feed.feed-add' , [
             'countries' => ( !is_null( $countryList ) ? $countryList : [] ),
         ] );
     }
@@ -102,7 +102,7 @@ class FeedController extends Controller
     public function edit($id)
     {
         $countryList = $this->countryApi->getAll() ?: [];
-        return response()->view( 'pages.feed.feed-edit' , [
+        return response()->view( 'bootstrap.pages.feed.feed-edit' , [
             'countries' =>  $countryList
         ] );
     }
