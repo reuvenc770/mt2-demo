@@ -31,6 +31,7 @@ class AddDomainForm extends Request
             'registrar'      => 'required',
             'dba'            => 'required',
             'domains'        => 'required',
+            'in_use'         => 'required',
         ];
     }
 }

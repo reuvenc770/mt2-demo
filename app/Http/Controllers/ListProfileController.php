@@ -128,7 +128,6 @@ class ListProfileController extends Controller
             'states' => $this->states->all() ,
             'isps' => $this->ispService->getAll() ,
             'categories' => CakeVertical::all() ,
-            'offers' => $this->offerService->all()->take( 25 ) 
         ] , $addOptions );
     }
 }

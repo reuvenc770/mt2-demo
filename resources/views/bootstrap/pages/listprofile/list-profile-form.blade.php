@@ -253,12 +253,9 @@
         <div class="pull-right">
             <label ng-click="listProfile.addOffers()" role="button" tabindex="0">Add Selected <span class="glyphicon glyphicon-plus"></span></label>
         </div>
-
-        <select ng-model="listProfile.highlightedOffers" multiple style="width: 100%; height: 250px;">
-            @foreach ( $offers as $offer )
-            <option value="{{$offer[ 'id' ]}}" ng-init="listProfile.offerVisibility[ {{$offer[ 'id' ]}} ] = true;listProfile.offerNameMap[ {{$offer[ 'id' ]}} ] = '{{{$offer[ 'name' ]}}}';" ng-show="listProfile.offerVisibility[ {{$offer[ 'id' ]}} ]">{{$offer[ 'name' ]}}</option>
-            @endforeach
-        </select>
+            <input type="text" style="margin-bottom:5px" placeholder="First 3 Letters of Offer Name" name="searchBy" id="searchBy" class="form-control" ng-change="listProfile.search.populateOffers()" ng-model="listProfile.search.offer"  />
+        <select ng-model="listProfile.highlightedOffers" multiple style="width: 100%; height: 150px;" ng-options="offer.name for offer in listProfile.search.offerResults" >
+            </select>
     </div>
 
     <div class="col-sm-6">
@@ -268,8 +265,7 @@
             <label ng-click="listProfile.removeOffers()" role="button" tabindex="0">Remove Selected <span class="glyphicon glyphicon-minus"></span></label>
         </div>
 
-        <select ng-model="listProfile.highlightedOffersForRemoval" multiple style="width: 100%; height: 250px;">
-            <option ng-repeat="( offerId , offerName ) in listProfile.current.offers" ng-value="::offerId">@{{::offerName}}</option>
+        <select  ng-model="listProfile.highlightedOffersForRemoval" multiple ng-options="offer.name for offer in listProfile.current.offers" style="width: 100%; height: 150px; margin-top:40px">
         </select>
     </div>
 </div>
@@ -535,10 +531,8 @@
             <label ng-click="listProfile.addOfferSupp( $event )" role="button" tabindex="0">Add Selected <span class="glyphicon glyphicon-plus"></span></label>
         </div>
 
-        <select ng-model="listProfile.highlightedOfferSupp" multiple style="width: 100%; height: 250px;">
-            @foreach ( $offers as $offer )
-            <option value="{{$offer[ 'id' ]}}" ng-init="listProfile.offerSuppVisibility[ {{$offer[ 'id' ]}} ] = true;listProfile.offerSuppNameMap[ {{$offer[ 'id' ]}} ] = '{{$offer[ 'name' ]}}';" ng-show="listProfile.offerSuppVisibility[ {{$offer[ 'id' ]}} ]">{{$offer[ 'name' ]}}</option>
-            @endforeach
+        <select ng-model="listProfile.highlightedOfferSupp" multiple style="width: 100%; height: 75px;">
+            <option value="">NEED LIST</option>
         </select>
     </div>
 
