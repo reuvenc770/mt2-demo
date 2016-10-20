@@ -26,7 +26,7 @@ class DeployController extends Controller
     public function listAll(EspService $espService)
     {
         $esps = $espService->getAllEsps();
-        return response()->view('pages.deploy.deploy-index', ['esps' => $esps]);
+        return response()->view('bootstrap.pages.deploy.deploy-index', ['esps' => $esps]);
     }
 
     public function returnCakeAffiliates()
@@ -151,7 +151,8 @@ class DeployController extends Controller
 
     public function deployPackages(Request $request)
     {
-        $data = $request->all();
+        $username = $request->get("username");
+        $data = $request->except("username");
         $filePath = false;
         //Only one package is selected return the filepath and make it a download response
         if (count($data) == 1) {
@@ -161,7 +162,7 @@ class DeployController extends Controller
             foreach ($data as $id) {
                $this->packageService->uploadPackage($id);
             }
-            Artisan::call('deploys:sendtoops', ['deploysCommaList' => join(",",$data)]);
+            Artisan::call('deploys:sendtoops', ['deploysCommaList' => join(",",$data), 'username' => $username]);
         }
         //Update deploy status to pending
         $this->deployService->deployPackages($data);
@@ -186,18 +187,36 @@ class DeployController extends Controller
 
     public function previewDeploy(Request $request ,$deployId){
         //currently void method
-        $html  = $this->packageService->createHtml($deployId);
+        try {
+            $html  = $this->packageService->createHtml($deployId);
 
-        return response()
-            ->view( 'html', ["html" => $html] );
+            return response()
+                ->view( 'html', ["html" => $html] );
+        }
+        catch (Exception $e){
+            return $e->getMessage();
+        }   
+        
     }
 
     public function downloadHtml(Request $request ,$deployId){
-        //currently void method
-        $html  = $this->packageService->createHtml($deployId);
+        try {
+            //currently void method
+            $html  = $this->packageService->createHtml($deployId);
 
-        return response()
-            ->view( 'pages.deploy.deploy-preview', ["html" => $html] );
+            return response()
+                ->view( 'bootstrap.pages.deploy.deploy-preview', ["html" => $html] ); 
+        }
+        catch (Exception $e) {
+            return $e->getMessage();
+        }
+        
+    }
+
+
+    public function copyToFuture(Request $request){
+        $data = $request->all();
+        return response()->json(['errors' => $this->deployService->copyToFutureDate($data)]);
     }
 
 }

@@ -1,4 +1,4 @@
-mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout', 'DeployApiService', '$mdToast', '$rootScope', '$q', '$interval', function ($log, $window, $location, $timeout, DeployApiService, $mdToast, $rootScope, $q, $interval) {
+mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout', 'DeployApiService', '$mdToast', '$rootScope', '$q', '$interval' , '$mdDialog' , function ($log, $window, $location, $timeout, DeployApiService, $mdToast, $rootScope, $q, $interval , $mdDialog ) {
     var self = this;
     self.$location = $location;
     self.currentDeploy = {
@@ -44,6 +44,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.contentDomains = []; //id is 2
     self.offers = [];
     self.formErrors = [];
+    self.minDate = new Date();
     self.deploys = [];
     self.searchText = "";
     self.listProfiles = [];
@@ -54,8 +55,9 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.paginationCount = '10';
     self.currentPage = '1';
     self.deployTotal = 0;
+    self.sort = "-deployment_status";
     self.queryPromise = null;
-
+    self.copyToFutureDate = '';
 
     self.loadAccounts = function () {
         self.loadEspAccounts();
@@ -120,12 +122,13 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         }
 
         if(self.search.endDate){
-            endString =  moment( self.search.startDate ).format( 'YYYY-MM-DD' );
+            endString =  moment( self.search.endDate ).format( 'YYYY-MM-DD' );
         }
         if(self.search.startDate && self.search.endDate) {
             self.search.dates = startString + ',' + endString;
         }
     };
+
     self.displayForm = function () {
         self.deployIdDisplay = text;
         self.currentDeploy = self.resetAccount();
@@ -133,7 +136,23 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.editView = false;
     };
 
-    self.saveNewDeploy = function () {
+    self.saveNewDeploy = function ( event , form ) {
+        var errorFound = false;
+
+        angular.forEach( form.$error.required , function( field ) {
+
+            field.$setDirty();
+            field.$setTouched();
+
+            errorFound = true;
+        } );
+
+        if ( errorFound ) {
+            $mdToast.showSimple( 'Please fix errors and try again.' );
+
+            return false;
+        };
+
         self.currentDeploy.user_id = _config.userId;
         self.currentDeploy.deploy_id = undefined; //faster then delete
         DeployApiService.insertDeploy(self.currentDeploy, self.loadNewDeploySuccess, self.formFail);
@@ -144,17 +163,22 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
 
     self.createPackages = function () {
        var packageIds = self.selectedRows;
-        DeployApiService.deployPackages(packageIds, self.createPackageSuccess, self.createPackagesFailed)
+        DeployApiService.deployPackages(packageIds, _config.userName, self.createPackageSuccess, self.createPackagesFailed)
     };
 
-    self.searchDeploys = function (type, searchData, text){
-        self.searchType = type;
-        self.searchData = searchData;
-        self.loadDeploys();
+    self.searchDeploys = function() {
+        var searchObj = {
+            "dates": self.search.dates || undefined,
+            "deployId": self.search.deployId || undefined,
+            "espAccountId": self.search.esp_account_id || undefined,
+            "status": self.search.status || undefined,
+            "esp": self.search.esp || undefined,
+            "offerNameWildcard": self.search.offer || undefined
+        };
+
+        self.queryPromise = DeployApiService.searchDeploys(self.paginationCount, searchObj, self.loadDeploysSuccess, self.loadDeploysFail);
         self.currentlyLoading = 0;
-        self.search = {};
-    };
-
+    }
 
     self.offerWasSelected = function (item) {
         if (typeof item != 'undefined') {
@@ -188,11 +212,11 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.editView = true;
     };
 
-    self.actionLink = function () {
+    self.actionLink = function ( event , form ) {
         if (self.editView) {
             self.updateDeploy();
         } else {
-            self.saveNewDeploy();
+            self.saveNewDeploy( event , form );
         }
     };
 
@@ -224,6 +248,11 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         } else {
             self.deployLinkText = "Download Package";
         }
+    };
+
+    self.checkChecked = function(selectedValue){
+        var index = self.selectedRows.indexOf(selectedValue);
+        return index >= 0;
     };
 
     self.exportCsv = function () {
@@ -264,6 +293,51 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         }
     };
 
+    self.checkStatus = function(approval,status){
+        if(approval == 1 && status == 'A'){
+            return true;
+        }
+        return false;
+    };
+
+
+    self.copyToFuture = function( ev ) {
+        $mdDialog.show( {
+            targetEvent : ev ,
+            template :
+                '<md-dialog>' + 
+                    '<md-toolbar>' +
+                        '<div class="md-toolbar-tools">' +
+                            '<h2>Scedule Future Deploy</h2>' +
+                        '</div>' +
+                    '</md-toolbar>' +
+                    '<md-dialog-content>' + 
+                        '<div class="md-dialog-content">' +
+                            '<h4>Please choose a future date for selected deploys</h4>' +
+                        '</div>' +
+                        '<md-datepicker ng-model="deployDate" md-min-date="minDate" md-placeholder="Pick a Date"></md-datepicker>'  +
+                    '</md-dialog-content>' +
+                    '<md-dialog-actions>' +
+                        '<md-button ng-click="answer( false )">Cancel</md-button>' +
+                        '<md-button ng-click="answer( true )">Submit Date</md-button>' +
+                    '</md-dialog-actions>' +
+                '</md-dialog>' ,
+            controller : function DeployFutureDateController ( $scope , $mdDialog ) {
+                $scope.deployDate = ( self.copyToFutureDate != '' ? new Date( self.copyToFutureDate ) : new Date() ); 
+                $scope.minDate = new Date();
+
+                $scope.answer = function ( submit ) {
+                    if ( submit === true ) {
+                        self.copyToFutureDate = $scope.deployDate;
+
+                        DeployApiService.copyToFuture( self.selectedRows, self.copyToFutureDate, self.copyToFutureSuccess, self.copyToFutureFailure );
+                    }
+
+                    $mdDialog.hide();
+                }
+            }
+        } );
+    };
 
     /**
      * Watchers
@@ -443,6 +517,39 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         }
     };
 
+    self.copyToFutureSuccess = function (response){
+        var errors = response.data.errors;
+        var errorText = "";
+        if(response.data.errors.length > 1){
+            self.setModalLabel('Error');
+            for (i = 0; i < errors.length; i++) {
+                deploy_id = errors[i].deploy_id;
+                delete errors[i].deploy_id;
+                errorText += "<b>Deploy ID " + deploy_id + " has errors:</b><br/>";
+                textErrors = Object.keys(errors[i]).map(function(k) { return errors[i][k] });
+                for (y = 0; y < textErrors.length; y++) {
+                    errorText += textErrors[y];
+                }
+                errorText += "<br/>";
+            }
+            self.setModalBody(errorText);
+            self.launchModal();
+        } else {
+            $mdToast.showSimple('Deploys have been created!');
+        }
+        self.currentDeploy = self.resetAccount();
+        $rootScope.$broadcast('angucomplete-alt:clearInput');
+        self.selectedRows = [];
+        self.disableExport = true;
+        self.loadDeploys();
+        self.editView = false;
+        self.showRow = false;
+    };
+
+    self.copyToFutureFailure = function (response){
+        $mdToast.showSimple('FAIL');
+    };
+
 
 
 
@@ -549,7 +656,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.setModalBody = function (bodyText) {
         var modalBody = angular.element(document.querySelector('#pageModalBody'));
 
-        modalBody.text(bodyText);
+        modalBody.html(bodyText);
     };
 
     self.launchModal = function () {

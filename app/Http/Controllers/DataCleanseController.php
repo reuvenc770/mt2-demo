@@ -32,14 +32,14 @@ class DataCleanseController extends Controller
      */
     public function index( Request $request )
     {
-        return response( $this->service->getAll( 
+        return response( $this->service->getAll(
             $request->input( 'page' ) ,
             $request->input( 'count' )
         ) );
     }
 
     public function listAll () {
-        return response()->view( 'pages.datacleanse.datacleanse-index' );
+        return response()->view( 'bootstrap.pages.datacleanse.datacleanse-index' );
     }
 
     /**
@@ -49,7 +49,7 @@ class DataCleanseController extends Controller
      */
     public function create()
     {
-        return response()->view( 'pages.datacleanse.datacleanse-add' , [ 'dataExportFiles' => Storage::disk( 'dataExportFTP' )->files( 'Incoming' ) ] );
+        return response()->view( 'bootstrap.pages.datacleanse.datacleanse-add' , [ 'dataExportFiles' => Storage::disk( 'dataExportFTP' )->files( 'Incoming' ) ] );
     }
 
     /**

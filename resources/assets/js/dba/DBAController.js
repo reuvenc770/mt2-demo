@@ -1,11 +1,11 @@
-mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$timeout' , 'DBAApiService', '$rootScope', '$mdToast' , function ( $log , $window , $location , $timeout , DBAApiService, $rootScope, $mdToast ) {
+mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$timeout' , 'DBAApiService', '$rootScope', '$mdToast' , 'CustomValidationService' , function ( $log , $window , $location , $timeout , DBAApiService, $rootScope, $mdToast , CustomValidationService ) {
     var self = this;
     self.$location = $location;
 
     self.accounts = [];
-    self.po_box = {sub : "",address : "", address_2 : "", city : "", state : "", zip: "", phone : "", brands: []};
+    self.po_box = {sub : "",address : "", address_2 : "", city : "", state : "", zip: "", phone : "", brands: [], notes: ""};
     self.brand = "";
-    self.currentAccount = { id:"",  dba_name : "" , phone: "",
+    self.currentAccount = { id:"",  dba_name : "" , phone: "", password: "",
     dba_email : "", po_boxes : [], address: "", address_2 : "", city : "", state : "", zip : "",entity_name: ""};
 
     self.createUrl = 'dba/create/';
@@ -13,9 +13,11 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
 
     self.formErrors = "";
 
+    self.editingPOBox = false;
     self.pageCount = 0;
     self.paginationCount = '10';
     self.currentPage = 1;
+    self.poBoxHolder = [];
     self.accountTotal = 0;
     self.sort = "-status";
     self.queryPromise = null;
@@ -25,7 +27,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
 
         DBAApiService.getAccount( pathMatches[ 1 ] , function ( response ) {
             self.currentAccount = response.data;
-            self.currentAccount.po_boxes = JSON.parse(response.data.po_boxes);
+            self.poBoxHolder = JSON.parse(response.data.po_boxes);
         } )
     };
 
@@ -45,16 +47,51 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
         $window.location.href = self.createUrl;
     };
 
-    self.saveNewAccount = function () {
+    self.change = function ( form , fieldName ) {
+        CustomValidationService.onChangeResetValidity( self , form , fieldName );
+    };
+
+    self.saveNewAccount = function ( event , form ) {
         self.resetFieldErrors();
-        self.currentAccount.po_boxes = JSON.stringify(self.currentAccount.po_boxes);
+
+        var errorFound = false;
+
+        angular.forEach( form.$error.required , function( field ) {
+            if (field.$name.match(/^po_box+/i) == null ) {
+                field.$setDirty();
+                field.$setTouched();
+
+                if ( field.$name == 'state' ) {
+                    form.state.$error.required = true;
+                }
+
+                errorFound = true;
+            }
+        } );
+
+        if ( errorFound ) {
+            $mdToast.showSimple( 'Please fix errors and try again.' );
+
+            return false;
+        };
+
+        self.currentAccount.po_boxes = JSON.stringify(self.poBoxHolder);
         self.currentAccount.status = 1;
-        DBAApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback );
+        DBAApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , function( response ) {
+            angular.forEach( response.data , function( error , fieldName ) {
+
+                form[ fieldName ].$setDirty();
+                form[ fieldName ].$setTouched();
+                form[ fieldName ].$setValidity('isValid' , false);
+            });
+
+            self.saveNewAccountFailureCallback( response );
+        } );
     };
 
     self.editAccount = function () {
         self.resetFieldErrors();
-        self.currentAccount.po_boxes = JSON.stringify(self.currentAccount.po_boxes);
+        self.currentAccount.po_boxes = JSON.stringify(self.poBoxHolder);
         DBAApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 
@@ -74,21 +111,24 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
         self.po_box.brands.splice( id , 1 );
     };
 
-    self.addPOBox = function () {
+    self.addPOBox = function ( event , form ) {
         if(self.po_box.address.length >= 1 || self.po_box.state.length >= 1) {
-            self.currentAccount.po_boxes.push(self.po_box);
+            self.poBoxHolder.push(self.po_box);
             self.clearPOBox();
         }
+        self.editingPOBox = false;
     };
 
     self.removePOBox = function (id) {
-        self.currentAccount.po_boxes.splice( id , 1 );
+        self.poBoxHolder.splice( id , 1 );
 
     };
 
     self.editPOBox = function (id) {
-        self.po_box = self.currentAccount.po_boxes[id];
-        self.currentAccount.po_boxes.splice( id , 1 );
+        self.po_box = self.poBoxHolder[id];
+        self.poBoxHolder.splice( id , 1 );
+
+        self.editingPOBox = true;
     };
 
     self.clearPOBox = function () {
@@ -101,11 +141,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
 
     self.formatBox = function(box){
       var boxes = JSON.parse(box);
-        var text = "";
-        angular.forEach(boxes, function(value, key) {
-        text+= value.sub + "-" + value.address + " " + value.city + " " + value.state + "" +  value.zip + "-" + value.phone + " - Brands -" + value.brands + "\n\n";
-        });
-        return text;
+        return boxes;
     };
 
     /**
@@ -124,6 +160,9 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
      */
     self.loadAccountsSuccessCallback = function ( response ) {
         self.accounts = response.data.data;
+        for (var i = 0, len = response.data.data.length; i < len; i++){
+            self.accounts[i].po_boxes = JSON.parse(self.accounts[i].po_boxes);
+        }
         self.pageCount = response.data.last_page;
         self.accountTotal = response.data.total;
     };
@@ -146,7 +185,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     };
 
     self.saveNewAccountFailureCallback = function ( response ) {
-        self.currentAccount.po_boxes = JSON.parse(self.currentAccount.po_boxes);
+        self.currentAccount.po_boxes = JSON.parse(self.poBoxHolder);
         self.loadFieldErrors(response);
     };
 

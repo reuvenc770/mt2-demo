@@ -48,7 +48,7 @@ class EspApiAccountController extends Controller
     }
 
     public function returnAll(){
-        return  response()->json($this->espAccountService->getAllAccounts());
+        return  response()->json( array_values( $this->espAccountService->getAllAccounts()->toArray() ));
     }
 
     /**
@@ -59,7 +59,7 @@ class EspApiAccountController extends Controller
     public function listAll ()
     {
         return response()
-            ->view( 'pages.espapi.esp-index' );
+            ->view( 'bootstrap.pages.espapi.esp-index' );
     }
 
     /**
@@ -69,15 +69,8 @@ class EspApiAccountController extends Controller
      */
     public function create()
     {
-        $esps = $this->espService->getAllEsps();
-
-        $espList = array();
-        foreach ( $esps as $esp ) {
-            $espList[ $esp->id ] = $esp->name;
-        }
-
         return response()
-            ->view( 'pages.espapi.esp-add' , [ 'espList' => $espList ] );
+            ->view( 'bootstrap.pages.espapi.esp-add' , [ 'espList' => $this->getEspList() , 'formType' => 'add' ] );
     }
 
     /**
@@ -118,12 +111,14 @@ class EspApiAccountController extends Controller
             return redirect("/espapi");
         }
         return response()
-            ->view( 'pages.espapi.esp-edit' , [
+            ->view( 'bootstrap.pages.espapi.esp-edit' , [
                 'accountId' => $account->id ,
                 'espName' => $account->esp->name ,
                 'accountName' => $account->account_name ,
                 'key1' => $account->key_1 ,
-                'key2' => $account->key_2
+                'key2' => $account->key_2 ,
+                'espList' => $this->getEspList() ,
+                'formType' => 'edit'
             ] );
     }
 
@@ -159,5 +154,17 @@ class EspApiAccountController extends Controller
     public function grabTemplatesByESP($id){
         $data = $this->espAccountService->getTemplatesByEspId($id);
         return  response()->json($data);
+    }
+
+    protected function getEspList() {
+
+        $esps = $this->espService->getAllEsps();
+
+        $espList = array();
+        foreach ( $esps as $esp ) {
+            $espList[ $esp->id ] = $esp->name;
+        }
+
+        return $espList;
     }
 }

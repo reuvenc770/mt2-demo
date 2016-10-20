@@ -46,8 +46,15 @@ class DataProcessingFactory {
 
             case('PublicatorsActions'):
                 return self::createPublicatorsActionService();
+
             case('ProcessCfsStats'):
                 return self::createProcessCfsStatsService();
+
+            case('ListProfileAggregation'):
+                return \App::make(\App\Services\ListProfileActionAggregationService::class);
+
+            case('CakeDeviceData'):
+                return \App::make(\App\Services\CakeDeviceService::class);
 
             case ('ImportMt1Advertisers'):
                 $mt1Name = 'CompanyInfo';
@@ -122,6 +129,26 @@ class DataProcessingFactory {
             case ('ImportMt1MailingTemplate'):
                 $mt1Name = 'BrandTemplate';
                 $mt2Name = 'MailingTemplate';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case ('ImportMt1CakeOffers'):
+                $mt1Name = 'CakeOffer';
+                $mt2Name = 'CakeOffer';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case('ImportMt1CakeVertical'):
+                $mt1Name = 'CakeVertical';
+                $mt2Name = 'CakeVertical';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case('ImportMt1CakeOfferMapping'):
+                $mt1Name = 'CakeOfferCreativeData';
+                $mt2Name = 'MtOfferCakeOfferMapping';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case('ImportMt1Client'):
+                $mt1Name = 'ClientStatsGrouping';
+                $mt2Name = 'Client';
                 return self::createMt1ImportService($mt1Name, $mt2Name);
 
             default:

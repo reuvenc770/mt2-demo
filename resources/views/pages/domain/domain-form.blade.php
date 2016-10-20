@@ -1,57 +1,73 @@
-<div class="panel-body">
-    <input name="_token" type="hidden" value="{{ csrf_token() }}">
-    <fieldset>
-        <div class="form-group" ng-class="{ 'has-error' : domain.formErrors.espName }">
-            <select ng-model="domain.currentAccount.espName" placeholder="Select ESP" required="required"
-                    ng-change="domain.updateEspAccounts()" class="form-control" ng-disabled="domain.updatingAccounts">
-                <option value="">Select Esp</option>
+<md-card-content>
+    <form name="domainForm{{$type}}" layout="column" novalidate>
+        <input name="_token" type="hidden" value="{{ csrf_token() }}">
+        <md-input-container>
+            <label>ESP</label>
+            <md-select ng-model="domain.currentAccount.espName" ng-required="true" name="espName"
+                        ng-change="domain.updateEspAccounts()" ng-disabled="domain.updatingAccounts">
                 @foreach ( $esps as $esp )
-                    <option value="{{ $esp['name'] }}">{{ $esp['name'] }}</option>
+                    <md-option value="{{ $esp['name'] }}">{{ $esp['name'] }}</md-option>
                 @endforeach
-            </select>
-            <span class="help-block" ng-bind="domain.formErrors.espName" ng-show="domain.formErrors.espName"></span>
-        </div>
-        <div class="form-group" ng-class="{ 'has-error' : domain.formErrors.espAccountId }">
-            <select name="esp_account" id="esp_account"
-                    ng-model="domain.currentAccount.espAccountId" ng-change="domain.updateDomains()" class="form-control"
-                    ng-disabled="domain.espNotChosen">
-                <option value="">- Please Choose an ESP Account -</option><option ng-repeat="option in domain.espAccounts" ng-value="option.id" ng-selected="option.id == domain.currentAccount.espAccountId">@{{ option.account_name }}</option>
-            </select>
-            <span class="help-block" ng-bind="domain.formErrors.espAccountId" ng-show="domain.formErrors.espAccountId"></span>
-        </div>
-        <div class="form-group" ng-class="{ 'has-error' : domain.formErrors.registrar }">
-            <select ng-model="domain.currentAccount.registrar" placeholder="Select DBA" required="required"
-                    class="form-control">
-                <option value="">Select Registrar</option>
+            </md-select>
+            <div ng-messages="domainForm{{$type}}.espName.$error">
+                <div ng-message="required">ESP is required.</div>
+            </div>
+        </md-input-container>
+
+        <md-input-container>
+            <label>ESP Account</label>
+            <md-select ng-model="domain.currentAccount.espAccountId" ng-required="true" name="espAccountId" id="esp_account"
+                        ng-change="domain.updateDomains()" ng-disabled="domain.espNotChosen">
+               <md-option ng-repeat="option in domain.espAccounts" ng-value="option.id" ng-selected="option.id == domain.currentAccount.espAccountId">@{{ option.account_name }}</md-option>
+            </md-select>
+            <div ng-messages="domainForm{{$type}}.espAccountId.$error">
+                <div ng-message="required">ESP account is required.</div>
+            </div>
+        </md-input-container>
+
+        <md-input-container>
+            <label>Registrar</label>
+            <md-select ng-required="true" name="registrar" ng-model="domain.currentAccount.registrar">
                 @foreach ( $regs as $reg )
-                    <option value="{{ $reg['id'] }}">{{ $reg['name'] }}</option>
+                    <md-option value="{{ $reg['id'] }}">{{ $reg['name'] }}</md-option>
                 @endforeach
-            </select>
-            <span class="help-block" ng-bind="domain.formErrors.registrar" ng-show="domain.formErrors.registrar"></span>
-        </div>
-        <div class="form-group" ng-class="{ 'has-error' : domain.formErrors.proxy }" ng-if="domain.type ==2">
-            <select name="proxy" id="proxy"
-                    ng-options='(option.name + " - " + option.ip_addresses) for option in domain.proxies'
-                    ng-model="domain.selectedProxy" class="form-control"
-                    ng-disabled="domain.updatingAccounts">
-                <option value="">- Please Choose a Proxy -</option>
-            </select>
-            <span class="help-block" ng-bind="domain.formErrors.proxy" ng-show="domain.formErrors.proxy"></span>
-        </div>
+            </md-select>
+            <div ng-messages="domainForm{{$type}}.registrar.$error">
+                <div ng-message="required">Registrar is required.</div>
+            </div>
+        </md-input-container>
 
-        <div class="form-group" ng-class="{ 'has-error' : domain.formErrors.dba }">
-            <select ng-model="domain.currentAccount.dba" placeholder="Select DBA" required="required"
-                    class="form-control">
-                <option value="">Select DBA</option>
+        <md-input-container ng-if="domain.type ==2">
+            <label>Proxy</label>
+            <md-select name="proxy" id="proxy"
+                        ng-model="domain.selectedProxy" ng-disabled="domain.updatingAccounts">
+                <md-option ng-repeat="option in domain.proxies" ng-value="option">@{{option.name }} - @{{option.ip_addresses}}</md-option>
+            </md-select>
+            <div ng-messages="domainForm{{$type}}.registrar.$error">
+                <div ng-repeat="error in domain.formErrors.proxies">
+                    <div ng-bind="error"></div>
+                </div>
+            </div>
+        </md-input-container>
+
+        <md-input-container>
+            <label>DBA</label>
+            <md-select ng-required="true" name="dba" ng-model="domain.currentAccount.dba">
                 @foreach ( $dbas as $dba )
-                    <option value="{{ $dba['id'] }}">{{ $dba['dba_name'] }}</option>
+                    <md-option value="{{ $dba['id'] }}">{{ $dba['dba_name'] }}</md-option>
                 @endforeach
-                <span class="help-block" ng-bind="domain.formErrors.dba" ng-show="domain.formErrors.dba"></span>
-            </select>
-        </div>
+            </md-select>
+            <div ng-messages="domainForm{{$type}}.dba.$error">
+                <div ng-message="required">DBA is required.</div>
+            </div>
+        </md-input-container>
 
-        <div class="form-group" ng-class="{ 'has-error' : domain.formErrors.domains }">
-            <label for="domains">@{{ domain.currentInfo }}</label>
-            <textarea ng-model="domain.currentAccount.domains" class="form-control" rows="5" id="domains"></textarea>
-            <span class="help-block" ng-bind="domain.formErrors.domains" ng-show="domain.formErrors.domains"></span>
-        </div>
+        <md-input-container>
+            <label>@{{ domain.currentInfo }}</label>
+            <textarea ng-model="domain.currentAccount.domains" ng-required="true" name="domains" rows="5" id="domains"></textarea>
+            <div ng-messages="domainForm{{$type}}.domains.$error">
+                <div ng-message="required">Domain info is required.</div>
+            </div>
+        </md-input-container>
+    </form>
+</md-card-content>

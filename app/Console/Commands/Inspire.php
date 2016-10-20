@@ -3,6 +3,10 @@
 namespace App\Console\Commands;
 
 
+use App\Library\Campaigner\Authentication;
+use App\Library\Campaigner\ContactManagement;
+use App\Library\Campaigner\ListAttributes;
+use App\Library\Campaigner\ListAttributesFilter;
 use App\Services\API\BlueHornetApi;
 use App\Services\BlueHornetSubscriberService;
 use App\Services\EmailRecordService;
@@ -33,7 +37,12 @@ class Inspire extends Command
      */
     public function handle()
     {
-            $test  = new BlueHornetSubscriberService( new BlueHornetApi(1));
-            $test->pullBounceEmailsByLookback(4);
+         $contactManager = new ContactManagement();
+        $auth = new Authentication('api@dailyhealthywoodhills.com','#caapi7#');
+
+        $filter = new ListAttributesFilter(true,true,true);
+        $t= new ListAttributes($auth,$filter);
+        $result = $contactManager->ListAttributes($t);
+        die($result->__getLastResponse());
     }
 }

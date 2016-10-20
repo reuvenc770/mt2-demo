@@ -67,20 +67,24 @@
                     ng-repeat="record in dataExport.dataExports track by $index">
                     <td md-cell>
                       <div layout="row" layout-align="center center">
-                        <md-button class="md-raised md-icon-button mt2-icon-button-xs" ng-href="@{{'/dataexport/edit/' + record.exportID}}" target="_self" aria-label="Edit">
+                        <md-button class="md-icon-button" ng-href="@{{'/dataexport/edit/' + record.exportID}}" target="_self" aria-label="Edit">
                             <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon>
+                            <md-tooltip md-direction="bottom">Edit</md-tooltip>
                         </md-button>
 
-                        <md-button class="md-raised md-warn md-icon-button mt2-icon-button-xs" ng-click="dataExport.changeDataExportStatus(record.exportID)" aria-label="Pause">
-                            <md-icon md-svg-icon="img/icons/ic_pause_white_18px.svg"></md-icon>
+                        <md-button class="md-icon-button" ng-click="dataExport.changeDataExportStatus(record.exportID)" aria-label="Pause">
+                            <md-icon md-svg-icon="img/icons/ic_pause_black_18px.svg"></md-icon>
+                            <md-tooltip md-direction="bottom">Pause</md-tooltip>
                         </md-button>
 
-                        <md-button class="md-raised md-accent md-icon-button mt2-icon-button-xs" ng-click="dataExport.copyDataExport(record.exportID)" aria-label="Copy">
-                            <md-icon md-svg-icon="img/icons/ic_content_copy_white_18px.svg"></md-icon>
+                        <md-button class="md-icon-button" ng-click="dataExport.copyDataExport(record.exportID)" aria-label="Copy">
+                            <md-icon md-svg-icon="img/icons/ic_content_copy_black_18px.svg"></md-icon>
+                            <md-tooltip md-direction="bottom">Copy</md-tooltip>
                         </md-button>
 
-                        <md-button class="md-raised md-warn md-hue-2 md-icon-button mt2-icon-button-xs" ng-click="dataExport.deleteDataExport(record.exportID)" aria-label="Delete">
-                            <md-icon md-svg-icon="img/icons/ic_clear_white_24px.svg"></md-icon></md-button>
+                        <md-button class="md-icon-button" ng-click="dataExport.deleteDataExport(record.exportID)" aria-label="Delete">
+                            <md-icon md-svg-icon="img/icons/ic_clear_black_24px.svg"></md-icon>
+                            <md-tooltip md-direction="bottom">Delete</md-tooltip>
                         </md-button>
                       </div>
                     </td>
@@ -90,7 +94,7 @@
                     <td md-cell>@{{ record.profile_name }}</td>
                     <td md-cell>@{{ record.ftpUser }}</td>
                     <td md-cell>@{{ record.frequency }}</td>
-                    <td md-cell>@{{ record.lastUpdated }}</td>
+                    <td md-cell nowrap>@{{ record.lastUpdated }}</td>
                     <td md-cell>@{{ record.recordCount }}</td>
                 </tr>
             </tbody>

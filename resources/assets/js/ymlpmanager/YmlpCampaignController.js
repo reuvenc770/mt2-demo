@@ -1,4 +1,4 @@
-mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window' , '$location' , '$timeout' , 'YmlpCampaignApiService' , function ( $rootScope , $log , $window , $location , $timeout , YmlpCampaignApiService ) {
+mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window' , '$location' , '$timeout' , '$mdToast', 'YmlpCampaignApiService' , 'CustomValidationService' , function ( $rootScope , $log , $window , $location , $timeout , $mdToast , YmlpCampaignApiService,  CustomValidationService ) {
     var self = this;
     self.$location = $location;
 
@@ -12,6 +12,7 @@ mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window
     self.campaignTotal = 0;
     self.sort = '-id';
     self.queryPromise = null;
+    self.formErrors = {};
 
     self.loadCampaign = function () {
         var pathMatches = $location.path().match( /^\/ymlp\/ymlp-campaign\/edit\/(\d{1,})/ );
@@ -49,10 +50,38 @@ mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window
         $window.location.href = self.createUrl;
     };
 
-    self.saveNewCampaign = function () {
+    self.change = function ( form , fieldName ) {
+        CustomValidationService.onChangeResetValidity( self , form , fieldName );
+    };
+
+    self.saveNewCampaign = function ( event , form ) {
         self.resetFieldErrors();
 
-        YmlpCampaignApiService.saveNewCampaign( self.currentCampaign , self.SuccessCallBackRedirect , self.saveNewCampaignFailureCallback );
+        var errorFound = false;
+
+        angular.forEach( form.$error.required , function( field ) {
+            field.$setDirty();
+            field.$setTouched();
+
+            errorFound = true;
+        });
+
+        if ( errorFound ) {
+            $mdToast.showSimple( 'Please fix errors and try again.' );
+
+            return false;
+        }
+
+        YmlpCampaignApiService.saveNewCampaign( self.currentCampaign , self.SuccessCallBackRedirect , function( response ) {
+            angular.forEach( response.data , function( error , fieldName ) {
+
+                form[fieldName].$setDirty();
+                form[fieldName].$setTouched();
+                form[fieldName].$setValidity('isValid' , false);
+            });
+
+            self.saveNewCampaignFailureCallback( response );
+        });
     };
 
     self.editCampaign = function () {

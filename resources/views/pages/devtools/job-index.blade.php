@@ -27,8 +27,8 @@
                                 <td md-cell>@{{ record.job_name }}</td>
                                 <td md-cell>@{{ record.account_name }}</td>
                                 <td md-cell>@{{ record.account_number }}</td>
-                                <td md-cell>@{{ record.time_started }}</td>
-                                <td md-cell>@{{ record.time_finished }}</td>
+                                <td md-cell nowrap>@{{ record.time_started }}</td>
+                                <td md-cell nowrap>@{{ record.time_finished }}</td>
                                 <td md-cell>@{{ record.attempts }}</td>
                                 <td md-cell class="mt2-table-cell-center" ng-class="[ job.rowStatusMap[ record.status ] ]" ng-bind="{{ json_encode($statusNames) }}[ record.status ]"></td>
                             </tr>

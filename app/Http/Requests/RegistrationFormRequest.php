@@ -28,4 +28,11 @@ class RegistrationFormRequest extends Request
             'roles'      => 'required',
         ];
     }
+
+    public function messages ()
+    {
+        return [
+            'roles.required' => 'At least 1 role is required.'
+        ];
+    }
 }

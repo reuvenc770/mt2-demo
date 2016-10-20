@@ -5,11 +5,12 @@
     <head>
         @include( 'layout.html-head' )
     </head>
-    <body ng-app="mt2App" ng-controller="AppController as app" layout="row" ng-cloak>
+    <body ng-app="mt2App" ng-controller="AppController as app" ng-init="app.currentPath = '{{ Request::path() }}'" layout="row" ng-cloak>
         {!! $menu->getMenuHtml() !!}
         <script type="text/javascript">
             var _config = {
-                userId : {{Sentinel::check() ? Sentinel::getUser()->id: 0}}
+                userId : {{Sentinel::check() ? Sentinel::getUser()->id: 0}},
+                userName : "{{Sentinel::check() ? Sentinel::getUser()->username: 0}}"
             };
         </script>
 

@@ -14,9 +14,10 @@
 /**
  * Default Routes
  */
-Route::get('/', [ 'as' => 'root' , 'uses' => function () {
-    return redirect("/login");
-} ] );
+Route::get( '/' , [
+    'as' => 'root' ,
+    'uses' => 'HomeController@redirect'
+] );
 
 
 /**
@@ -136,7 +137,11 @@ Route::group(
         'middleware' => [ 'auth' , 'pageLevel' ]
     ] ,
     function () {
-        Route::get( '/tools' , [ 'as' => 'tools.list' , 'uses' => function () { return redirect()->route( 'tools.recordlookup' ); } ] );
+
+        Route::get( '/tools' , [
+            'as' => 'tools.list' ,
+            'uses' => 'HomeController@redirectTools'
+        ] );
 
         Route::get( '/show-info' , [
             'as' => 'tools.recordlookup' ,
@@ -486,13 +491,24 @@ Route::group(
 Route::group(
     [
         'prefix' => 'domain' ,
-        'middleware' => [ 'auth' , 'pageLevel' ]
+        'middleware' => [ 'auth' , ]
     ] ,
     function () {
         Route::get( '/' , [
             'as' => 'domain.list' ,
             'uses' => 'DomainController@listAll'
         ] );
+        Route::get( '/listview' , [
+            'as' => 'domain.listview' ,
+            'uses' => 'DomainController@listView'
+        ] );
+
+        Route::get( '/search' , [
+            'as' => 'domain.search' ,
+            'uses' => 'DomainController@searchDomains'
+        ] );
+
+
 
         Route::get( '/create' , [
             'as' => 'domain.add' ,
@@ -503,6 +519,7 @@ Route::group(
             'as' => 'domain.edit' ,
             'uses' => 'DomainController@edit'
         ] );
+
     }
 );
 
@@ -515,16 +532,6 @@ Route::group(
         Route::get( '/preview/{offerId}' , [
             'as' => 'creatives.preview' ,
             'uses' => 'CreativeFromSubjectController@previewCreative'
-        ] );
-
-        Route::get( '/create' , [
-            'as' => 'domain.add' ,
-            'uses' => 'DomainController@create'
-        ] );
-
-        Route::get( '/edit/{id}' , [
-            'as' => 'domain.edit' ,
-            'uses' => 'DomainController@edit'
         ] );
     }
 );
@@ -635,6 +642,56 @@ Route::group(
 );
 
 
+/**
+ * ISP Group
+ */
+Route::group(
+    [
+        'prefix' => 'ispgroup' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' , [
+            'as' => 'ispgroup.list' ,
+            'uses' => 'DomainGroupController@listAll'
+        ] );
+
+        Route::get( '/create' , [
+            'as' => 'ispgroup.add' ,
+            'uses' => 'DomainGroupController@create'
+        ] );
+
+        Route::get( '/edit/{id}' , [
+            'as' => 'ispgroup.edit' ,
+            'uses' => 'DomainGroupController@edit'
+        ] );
+
+    }
+);
+
+Route::group(
+    [
+        'prefix' => 'isp' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' , [
+            'as' => 'isp.list' ,
+            'uses' => 'EmailDomainController@listAll'
+        ] );
+
+        Route::get( '/create' , [
+            'as' => 'isp.add' ,
+            'uses' => 'EmailDomainController@create'
+        ] );
+
+        Route::get( '/edit/{id}' , [
+            'as' => 'isp.edit' ,
+            'uses' => 'EmailDomainController@edit'
+        ] );
+
+    }
+);
 
 
 
@@ -676,6 +733,11 @@ Route::group(
         Route::group(
             [ 'prefix' => 'deploy' ] ,
             function () {
+                Route::post( '/copytofuture' , [
+                    'as' => 'api.deploy.copytofuture' ,
+                    'uses' => 'DeployController@copyToFuture'
+                ] );
+
                 Route::get( '/cakeaffiliates' , [
                     'as' => 'api.deploy.cakeaffiliates' ,
                     'uses' => 'DeployController@returnCakeAffiliates'
@@ -705,7 +767,6 @@ Route::group(
                     'as' => 'api.deploy.exportcsv' ,
                     'uses' => 'DeployController@exportCsv'
                 ] );
-
             }
         );
         Route::group(
@@ -837,7 +898,6 @@ Route::group(
             }
         );
 
-
         /**
          *  CFS API Routes
          */
@@ -901,7 +961,7 @@ Route::group(
                     'uses' => 'AttributionController@update'
                 ] ); 
 
-                Route::delete( '/attribution/model/{modelId}' , [
+                Route::delete( '/attribution/model/{modelId}/{feedId}' , [
                     'as' => 'api.attribution.model.destroy' ,
                     'middleware' => 'auth' ,
                     'uses' => 'AttributionController@destroy'
@@ -1016,6 +1076,18 @@ Route::group(
         Route::resource(
             'deploy',
             'DeployController',
+            [ 'except' => [ 'create' , 'edit' ] ]
+        );
+
+        Route::resource(
+            'ispgroup',
+            'DomainGroupController',
+            [ 'except' => [ 'create' , 'edit' ] ]
+        );
+
+        Route::resource(
+            'isp',
+            'EmailDomainController',
             [ 'except' => [ 'create' , 'edit' ] ]
         );
 

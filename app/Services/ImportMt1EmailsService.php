@@ -8,6 +8,11 @@ use App\Repositories\EmailRepo;
 use App\Repositories\EmailFeedInstanceRepo;
 use App\Repositories\FeedRepo;
 use App\Repositories\EmailDomainRepo;
+use App\Repositories\AttributionLevelRepo;
+use App\Repositories\FeedDateEmailBreakdownRepo;
+use App\Repositories\RecordDataRepo;
+use App\Repositories\EmailIdHistoryRepo;
+use Carbon\Carbon;
 
 class ImportMt1EmailsService
 {
@@ -18,6 +23,14 @@ class ImportMt1EmailsService
     private $emailFeedRepo;
     private $feedRepo;
     private $emailDomainRepo;
+    private $breakdownRepo;
+    private $attributionLevelRepo;
+    private $recordDataRepo;
+    private $historyRepo;
+    private $processingDate;
+    private $formattedDate;
+
+    private $emailIdCache = [];
 
     public function __construct(
         Mt1DbApi $api, 
@@ -25,7 +38,11 @@ class ImportMt1EmailsService
         EmailRepo $emailRepo, 
         EmailFeedInstanceRepo $emailFeedRepo,
         FeedRepo $feedRepo,
-        EmailDomainRepo $emailDomainRepo) {
+        EmailDomainRepo $emailDomainRepo,
+        AttributionLevelRepo $attributionLevelRepo,
+        FeedDateEmailBreakdownRepo $breakdownRepo,
+        RecordDataRepo $recordDataRepo,
+        EmailIdHistoryRepo $historyRepo) {
 
         $this->api = $api;
         $this->tempEmailRepo = $tempEmailRepo;
@@ -33,6 +50,13 @@ class ImportMt1EmailsService
         $this->emailFeedRepo = $emailFeedRepo;
         $this->feedRepo = $feedRepo;
         $this->emailDomainRepo = $emailDomainRepo;
+        $this->attributionLevelRepo = $attributionLevelRepo;
+        $this->breakdownRepo = $breakdownRepo;
+        $this->recordDataRepo = $recordDataRepo;
+        $this->historyRepo = $historyRepo;
+
+        $this->processingDate = Carbon::today();
+        $this->formattedDate = $this->processingDate->format('Y-m-d');
     }
 
     public function run() {
@@ -46,6 +70,8 @@ class ImportMt1EmailsService
         $total = $finish - $now;
         echo "total time: " . $total . PHP_EOL;
 
+        $statuses = [];
+
         foreach ($records as $id => $record) {
             $record = $this->mapToTempTable($record);
             $this->tempEmailRepo->insert($record);
@@ -54,24 +80,99 @@ class ImportMt1EmailsService
             // insert into email_feed_instances
             $feedId = $record['feed_id'];
 
-            if ($this->feedRepo->isActive($feedId)) {
-                // checks for active and 3rd party vs. 1st party
+            // Note structure
+            if (!isset($statuses[$feedId])) {
+                $statuses[$feedId] = [
+                    'fresh' => 0,
+                    'non-fresh' => 0,
+                    'suppressed' => 0,
+                    'duplicate' => 0
+                ];
+            }
 
-                $emailRow = $this->mapToEmailTable($record);
-                $this->emailRepo->insertCopy($emailRow);
-                if($record['email_id'] != 0 ) {
-                    $recordsToFlag[] = ["email_id" => $record['email_id'], "feed_id" => $record['feed_id'], "datetime" => $record['capture_date'] ];
+            // checks for active and 3rd party vs. 1st party
+            if ($this->feedRepo->isActive($feedId)) {
+
+                $emailAddress = $record['email_addr'];
+                $importingEmailId = (int)$record['email_id'];
+               
+                // we need to know if this is new or not.
+                // if it is new, insert it
+
+                if (0 === $importingEmailId) {
+                    $emailStatus = 'suppressed';
                 }
-                //We do an upsert so there is no model actions.
+                else {
+                    // one of fresh, non-fresh, duplicate
+                    $existsCheck = $this->emailRepo->getEmailId($emailAddress)->first();
+                    
+                    $recordsToFlag[] = [
+                        "email_id" => $importingEmailId, 
+                        "feed_id" => $feedId, 
+                        "datetime" => $record['capture_date']
+                    ];
+
+                    if (isset($this->emailIdCache[$importingEmailId])) {
+                        // email id is already a duplicate within this import
+                    }
+                    elseif (null === $existsCheck && !isset($this->emailIdCache[$importingEmailId])) {
+                        // not inserted yet
+                        // breaking encapsulation in order to improve performance
+                        $emailStatus = 'fresh';
+                    
+                        // insert at this point
+                        $emailRow = $this->mapToEmailTable($record);
+                        $this->emailRepo->insertDelayedBatch($emailRow);
+                        $this->emailIdCache[$importingEmailId] = 1;
+
+                        $this->recordDataRepo->insert($record);
+                    }
+                    elseif ($existsCheck) {
+                        $currentEmailId = (int)$existsCheck->id;
+
+                        if ($currentEmailId === $importingEmailId) {
+                            // Everything is normal. Just importing another instance of this
+                            $emailStatus = $this->getStatusForExistingEmail($importingEmailId, $feedId);
+                            
+                        }
+                        else {
+                            // An email is being re-imported, but its email id differs due to MT1 ... logic
+                            $this->historyRepo->insertIntoHistory($currentEmailId, $importingEmailId);
+
+                            $emailStatus = $this->getStatusForExistingEmail($currentEmailId, $feedId);
+
+                            // update emails table
+                            $this->emailRepo->updateEmailId($currentEmailId, $importingEmailId);
+                            $this->emailIdCache[$importingEmailId] = 1;
+                            $record['email_id'] = $importingEmailId;
+
+                        }
+
+                        $this->recordDataRepo->insert($record);
+
+                    }
+
+                }
+
+                //We do an upsert so there are no model actions and we can't do this via batch.
                 $emailFeedRow = $this->mapToEmailFeedTable($record);
-                $this->emailFeedRepo->insert($emailFeedRow);
+                $this->emailFeedRepo->insertDelayedBatch($emailFeedRow);
+
+                $statuses[$feedId][$emailStatus]++;
             }
 
         }
+
+        $this->breakdownRepo->massUpdateStatuses($statuses, $this->formattedDate);
+        $this->emailRepo->insertStored(); // Clear out remaining inserts
+        $this->recordDataRepo->insertStored();
+        $this->emailFeedRepo->insertStored();
+
         // Delete records
         if (sizeof($records) > 0) {
             $this->api->cleanTable();
         }
+
         \Event::fire(new NewRecords($recordsToFlag));
     }
 
@@ -138,5 +239,71 @@ class ImportMt1EmailsService
 
     private function convertStatus($status) {
         return $status === 'Active' ? 'A' : 'U';
+    }
+
+    /**
+     *      RULES FOR EMAIL STATUS:
+     *      Record processing first checks if an email is not suppressed. If not, it checks whether this email already exists in the database. 
+     *       If not, the email is fresh. If it does already exist for an Orange client, pull the data from the email_list table. 
+     *
+     *       (1). If the email is Active (all records here are Active) and was imported > 90 days ago, check feed ids. If the importing feed id matches the currently-set feed id, 
+     *           reject the record as a dupe. If they don't match, accept this as fresh.
+     *       (2). Otherwise, if the email is Active, was imported > 10 days ago, has not had any actions (i.e. is "deliverable" and not "opener" or 
+     *           "clicker"), and the importing feed has a higher attribution level than the currently-attributed feed, accept this as fresh.
+     *       (3). Otherwise, if the email is Active and it's been less than 91 days: reject as duplicate if the feed ids match and reject as non-fresh 
+     *           if they don't. Mark it as duplicate for "fresh." If the importing attribution level is greater than the current one, switch attribution. (this will be removed)
+     *       (4). For all other cases, record as duplicate with the reason being duplicate (if the feed ids match) or non-fresh (if they don't)
+     *      
+     *      Returns one of 'fresh', 'non-fresh', 'duplicate'
+     */
+
+    private function getStatusForExistingEmail($emailId, $importingFeedId) {
+        $currentFeedId = $this->emailRepo->getCurrentAttributedFeedId($emailId);
+
+        // Catching an edge case where the email id does exist
+        // but no attribution has been set
+        // We might have an issue here where older imported data simply 
+        // didn't have attribution set up, but this should slowly converge to the real numbers
+        // as we go forward
+
+        if (0 === $currentFeedId) {
+            return 'fresh';
+        }
+
+        $attributionTruths = $this->emailRepo->getAttributionTruths($emailId);
+
+        if (0 === $attributionTruths) {
+            return 'fresh'; // We don't have attribution info for this one yet
+        }
+
+        $isRecentImport = $attributionTruths->is_recent_import;
+
+        if (0 === $isRecentImport) {
+            return 'fresh';
+        }
+
+        $hasActions = $attributionTruths->has_action;
+
+        // Catching an edge case where email id does exist, attribution is set up
+        // but somehow the feed itself is missing
+        // this could backfire and lead to incorrect numbers if the feed simply hasn't been imported
+        // but should not occur if we've passed the prior test
+        $currentAttributionLevel = $this->emailRepo->getCurrentAttributionLevel($emailId);
+        $importingAttrLevel = $this->attributionLevelRepo->getLevel($importingFeedId);
+        $captureDate = Carbon::parse($this->emailRepo->getCaptureDate($emailId));
+
+        // Was the old record > 90 days old at the processing date (following MT1's lead here)
+        if ( $this->processingDate->subDays(90)->gte($captureDate) ) {
+            return ($importingFeedId !== $currentFeedId) ? 'fresh' : 'duplicate';
+        }
+        elseif ( !$isRecentImport
+            && !$hasActions
+            && $importingAttrLevel < $currentAttributionLevel) {
+
+            return 'fresh';
+        }
+        else {
+            return (($importingFeedId === $currentFeedId) ? 'duplicate' : 'non-fresh');
+        }
     }
 }

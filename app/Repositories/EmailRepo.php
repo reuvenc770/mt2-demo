@@ -13,6 +13,9 @@ use DB;
 class EmailRepo {
 
     private $emailModel;
+    private $batchEmails = [];
+    private $batchEmailCount = 0;
+    const INSERT_THRESHOLD = 10000;
 
     public function __construct(Email $emailModel) {
         $this->emailModel = $emailModel;
@@ -34,6 +37,24 @@ class EmailRepo {
         }
     }
 
+    public function insertDelayedBatch($row) {
+        if ($this->batchEmailCount >= self::INSERT_THRESHOLD) {
+            $this->emailModel->insert($this->batchEmails);
+            $this->batchEmails = [$row];
+            $this->batchEmailCount = 1;
+        }
+        else {
+            $this->batchEmails[] = $row;
+            $this->batchEmailCount++;
+        }
+    }
+
+    public function insertStored() {
+        $this->emailModel->insert($this->batchEmails);
+        $this->batchEmails = [];
+        $this->batchEmailCount = 0;
+    }
+
     public function insertCopy($emailData) {
         #$this->emailModel->updateOrCreate($emailData);
         DB::statement(
@@ -49,17 +70,85 @@ class EmailRepo {
         );
     }
 
-    private function getAttributionForId($id) {
-        // TODO: flesh out attribution.
-        // This will return a feed_id
-        // will look something like 
-        // $this->emailModel->emailAttribution->feedId->get()
-        return 1;
-    }
-
     private function getAttributedFeedForAddress($emailAddr) {
         # TODO: flesh out attribution. This will return a feed_id
         return 1;
+    }
+
+    /**
+     *  Returns attributed feed id for provided email id
+     *  If nothing found, returns 0
+     */
+
+    public function getCurrentAttributedFeedId($emailId) {
+        $assignment = $this->emailModel->find($emailId)->feedAssignment;
+        if ($assignment) {
+            return $assignment->feed_id;
+        }
+        else {
+            return 0;
+        } 
+    }
+
+    /**
+     *  Returns the attribution level for the feed that the $emailId is currently associated to
+     *  However, if no attribution level exists for that particular feed, return 1000 (a number far below any attr level)
+     *  This last case should only be a temporary problem - we don't want this situation in MT2 (and neither do they)
+     */
+
+    public function getCurrentAttributionLevel($emailId) {
+        $attributionLevel = $this->emailModel->find($emailId)->feedAssignment->feed->attributionLevel;
+
+        if ($attributionLevel) {
+            return $attributionLevel->level;
+        }
+        else {
+            return 1000;
+        }
+        
+    }
+
+
+    public function getAttributionTruths($emailId) {
+        $email = $this->emailModel->find($emailId);
+
+        if ($email) {
+            return $email->attributionTruths;
+        }
+        else {
+            return 0;
+        }
+    }
+
+    /**
+     *  Returns boolean for "is a recent import?" for provided email id
+     *  unless nothing found, in which case it returns 0 (so be sure to use ===)
+     */
+
+    public function isRecentImport($emailId) {
+        $truth = $this->emailModel->find($emailId)->attributionTruths;
+        if ($truth) {
+            return ($truth->recent_import == 1);
+        }
+        else {
+            return 0;
+        }
+    }
+
+
+    public function hasActions($emailId) {
+        return ($this->emailModel->find($emailId)->attributionTruths->has_action == 1);
+    }
+
+    public function getCaptureDate($emailId) {
+        return $this->emailModel->find($emailId)->feedAssignment->capture_date;
+    }
+
+    // A temporary, necessary evil
+    public function updateEmailId($oldEmailId, $newEmailId) {
+        $this->emailModel
+             ->where('id', $oldEmailId)
+             ->update(['id' => $newEmailId]);
     }
 
 }

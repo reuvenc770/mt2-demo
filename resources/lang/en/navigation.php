@@ -3,6 +3,7 @@
 return[
     'home' => 'Home' ,
     'espapi.list' => 'ESP API Accounts' ,
+    'esp.list' => 'ESPs' ,
     'espapi.add'  => 'Add API Account',
     'feed.list' => 'Feeds',
     'feed.add'  => "Add Feed",
@@ -17,8 +18,8 @@ return[
     'domain.add'     => 'Add Domain',
     'registrar.list'   => 'Registrars',
     'registrar.add' => 'Add Registrar',
-    'clientgroup.list' => 'Client Group',
-    'clientgroup.add' => "Add Client Group",
+    'clientgroup.list' => 'Feed Group',
+    'clientgroup.add' => "Add Feed Group",
     'role.add'      => "Add Role",
     'tools.list' => "Tools" ,
     'tools.recordlookup' => "Email & EID Lookup" ,
@@ -37,7 +38,12 @@ return[
     'attributionModel.add' => 'Add Attribution Model' ,
     'mailingtemplate.list' => "Mailing Templates",
     'mailingtemplate.add' => "Add Mailing Template",
-    'deploy.list'         => "Deploy Packages",
+    'deploy.list'         => "Schedule",
     'cfs.list'            =>'CFS',
-    'offer.list'          => 'Offers'
+    'offer.list'          => 'Offers',
+    'isp.list'            => 'ISP Domains',
+    'isp.add'             =>  'Add ISP',
+    'ispgroup.add'        => 'Add ISP Grouo',
+    'ispgroup.list'       => 'ISP Groups',
+    'esp.list'            => 'ESP Accounts',
 ];

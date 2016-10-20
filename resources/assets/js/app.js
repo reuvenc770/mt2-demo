@@ -10,7 +10,6 @@ var mt2App = angular.module( 'mt2App' , [
     'flow' ,
     'ngclipboard' ,
     'ivh.treeview' ,
-    'dndLists' ,
     'md.data.table'
 ] );
 
@@ -69,3 +68,5 @@ mt2App.filter( 'bytes' , function() {
         return ( bytes / Math.pow( 1024 , Math.floor( number ) ) ).toFixed( precision ) +  ' ' + units[ number ];
     }
 } );
+
+

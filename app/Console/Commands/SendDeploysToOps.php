@@ -16,7 +16,8 @@ class SendDeploysToOps extends Command
      * @var string
      */
     protected $deploys;
-    protected $signature = 'deploys:sendtoops {deploysCommaList}';
+    protected $username;
+    protected $signature = 'deploys:sendtoops {deploysCommaList} {username}';
 
     /**
      * The console command description.
@@ -43,7 +44,8 @@ class SendDeploysToOps extends Command
     public function handle()
     {
         $this->deploys = $this->argument("deploysCommaList");
-        $job = (new SendOpsDeploys($this->deploys, str_random(16)));
+        $this->username = $this->argument("username");
+        $job = (new SendOpsDeploys($this->deploys, str_random(16),$this->username));
         $this->dispatch($job);
     }
 }

@@ -11,7 +11,7 @@ namespace App\Repositories;
 
 use App\Models\Domain;
 use DB;
-
+use App\Facades\EspApiAccount;
 class DomainRepo
 {
     protected $domain;
@@ -51,7 +51,8 @@ class DomainRepo
             'domains.main_site',
             'domains.created_at',
             'domains.expires_at',
-            'domains.status')
+            'domains.status',
+            'domains.in_use')
             ->where("domains.domain_type", $type)
             ->where("domains.esp_account_id", $espAccountId)
             ->join('registrars', 'domains.registrar_id', '=', 'registrars.id')
@@ -63,11 +64,94 @@ class DomainRepo
 
     public function getActiveDomainsByTypeAndEsp($type, $espAccountId)
     {
-        return $this->domain->where("status",1)->where("domain_type", $type)->where("esp_account_id", $espAccountId)->get();
+        return $this->domain->where("status",1)->where("in_use",1)->where("domain_type", $type)->where("esp_account_id", $espAccountId)->get();
     }
 
     public function toggleRow($id, $direction){
         return $this->domain->find($id)->update(["status" => $direction]);
     }
+
+    public function getDomainsByExpiration($date){
+        return $this->domain->select(
+            'domains.domain_name',
+            'registrars.name as registrar_name',
+            'domains.expires_at')
+            ->where("domains.expires_at", $date)
+            ->where("domains.status", 1)
+            ->join('registrars', 'domains.registrar_id', '=', 'registrars.id')
+            ->get();
+    }
+
+    public function updateRow($domain){
+        $id = $domain['id'];
+        unset($domain['id']);
+        return $this->domain->find($id)->update($domain);
+    }
+
+    public function getRow($id){
+        return $this->domain->find($id);
+    }
+
+    public function getDomainsBySearch($searchData){
+            $query = $this->domain->select('domains.id as dom_id',
+                'esps.name as esp_account',
+                'esp_accounts.account_name as esp_account_name',
+                'domains.domain_name',
+                'proxies.name as proxy_name',
+                'registrars.name as registrar_name',
+                'doing_business_as.dba_name',
+                'domains.main_site',
+                'domains.created_at',
+                'domains.expires_at',
+                'domains.status',
+                'domains.in_use')
+                ->join('registrars', 'domains.registrar_id', '=', 'registrars.id')
+                ->join('doing_business_as', 'domains.doing_business_as_id', '=', 'doing_business_as.id')
+                ->leftjoin('proxies', 'domains.proxy_id', '=', 'proxies.id')
+                ->join('esp_accounts', 'domains.esp_account_id', '=', 'esp_accounts.id')
+                ->join('esps','esp_accounts.esp_id', '=', 'esps.id' );
+        return $this->mapQuery($searchData, $query)->orderBy('domains.status', "DESC")->get();
+
+    }
+
+
+    private function mapQuery($searchData, $query){
+
+        if (isset($searchData['esp'])) {
+            $espAccounts = collect(EspApiAccount::getAllAccountsByESPName($searchData['esp']));
+            $espAccountIds = $espAccounts->pluck('id');
+            $query->whereIn('domains.esp_account_id', $espAccountIds);
+        }
+
+        if (isset($searchData['esp_account_id'])) {
+            $query->where('domains.esp_account_id', (int)$searchData['esp_account_id']);
+        }
+
+        if (isset($searchData['proxy_id'])) {
+            $query->where('domains.proxy_id', (int)$searchData['proxy_id']);
+        }
+
+        if (isset($searchData['registrar_id'])) {
+            $query->where('domains.registrar_id', (int)$searchData['registrar_id']);
+        }
+
+        if (isset($searchData['doing_business_as_id'])) {
+            $query->where('domains.doing_business_as_id', (int)$searchData['doing_business_as_id']);
+        }
+
+        if (isset($searchData['domain'])) {
+            $query->where('domains.domain_name','LIKE', $searchData['domain'] . '%');
+        }
+
+        if (isset($searchData['domain_type'])) {
+            $query->where('domains.domain_type', (int)$searchData['domain_type']);
+        }
+
+
+        return $query;
+    }
+
+
+
 
 }

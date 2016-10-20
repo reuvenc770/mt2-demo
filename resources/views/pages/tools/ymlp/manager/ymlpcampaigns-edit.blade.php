@@ -9,7 +9,7 @@
         <div flex-gt-sm="50" flex="100">
             <md-card ng-controller="ymlpCampaignController as ymlp"
                  ng-init="ymlp.loadCampaign()">
-                <md-toolbar class="md-hue-3">
+                <md-toolbar>
                     <div class="md-toolbar-tools">
                         <span>Edit YMLP Campaign :: @{{ymlp.currentCampaign.sub_id}}</span>
                     </div>

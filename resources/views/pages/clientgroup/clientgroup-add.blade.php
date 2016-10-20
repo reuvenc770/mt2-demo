@@ -1,6 +1,6 @@
 @extends( 'layout.default' )
 
-@section( 'title' , 'Add Client Group' )
+@section( 'title' , 'Add Feed Group' )
 
 @section( 'content' )
 
@@ -8,13 +8,21 @@
     <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
 
         <div flex-gt-md="50" flex="100">
-            <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disabled' : clientGroup.creatingClientGroup }" ng-click="clientGroup.saveClientGroup( $event )"><span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : clientGroup.creatingClientGroup }"></span> Save</button>
-
-            <div class="clearfix"></div>
+            <div layout="column" layout-align="end end">
+               <md-button class="md-raised md-accent" ng-disabled="clientGroup.creatingClientGroup" ng-click="clientGroup.saveClientGroup( $event , feedGroupForm )" layout="row">
+                  <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-hide="clientGroup.creatingClientGroup">save</md-icon>
+                  <md-progress-circular ng-show="clientGroup.creatingClientGroup" md-mode="indeterminate" md-diameter="16"></md-progress-circular><span flex>Save</span>
+               </md-button>
+            </div>
 
             @include( 'pages.clientgroup.clientgroup-form' )
 
-            <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disabled' : clientGroup.creatingClientGroup }" ng-click="clientGroup.saveClientGroup( $event )"><span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : clientGroup.creatingClientGroup }"></span> Save</button>
+            <div layout="column" layout-align="end end">
+               <md-button class="md-raised md-accent" ng-disabled="clientGroup.creatingClientGroup" ng-click="clientGroup.saveClientGroup( $event , feedGroupForm )" layout="row">
+                  <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-hide="clientGroup.creatingClientGroup">save</md-icon>
+                  <md-progress-circular ng-show="clientGroup.creatingClientGroup" md-mode="indeterminate" md-diameter="16"></md-progress-circular>&nbsp;<span flex>Save</span>
+               </md-button>
+            </div>
         </div>
     </md-content>
 </div>

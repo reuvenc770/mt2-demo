@@ -38,4 +38,15 @@ class ProfileUpdate extends Request
         );
 
     }
+
+    /**
+     *
+     */
+    public function messages ()
+    {
+        return [
+            'password.hash' => 'Current password is incorrect.',
+            'newpass.confirmed' => 'Password confirmation does not match.'
+        ];
+    }
 }

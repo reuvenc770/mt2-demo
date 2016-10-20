@@ -41,6 +41,17 @@ Breadcrumbs::register('espapi.edit', function($breadcrumbs) {
     $breadcrumbs->push('Edit API Account');
 });
 
+//ESP
+Breadcrumbs::register('esp.list', function($breadcrumbs) {
+    $breadcrumbs->push('Home', route('home'));
+    $breadcrumbs->push('ESP Accounts', route('esp.list'));
+});
+
+Breadcrumbs::register('esp.edit', function($breadcrumbs) {
+    $breadcrumbs->parent('esp.list');
+    $breadcrumbs->push('Edit ESP Account');
+});
+
 //Roles
 Breadcrumbs::register('role.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');
@@ -247,6 +258,11 @@ Breadcrumbs::register('domain.add', function($breadcrumbs) {
     $breadcrumbs->push('Add Domain');
 });
 
+Breadcrumbs::register('domain.listview', function($breadcrumbs) {
+    $breadcrumbs->parent('domain.list');
+    $breadcrumbs->push('View Domains');
+});
+
 Breadcrumbs::register('mailingtemplate.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');
     $breadcrumbs->push('Mailing Templates', route('mailingtemplate.list'));
@@ -266,3 +282,17 @@ Breadcrumbs::register('deploy.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');
     $breadcrumbs->push('Deploy Package', route('deploy.list'));
 });
+
+Breadcrumbs::register('ispgroup.list', function($breadcrumbs) {
+    $breadcrumbs->parent('home');
+    $breadcrumbs->push('Isp Groups', route('ispgroup.list'));
+});
+Breadcrumbs::register('ispgroup.add', function($breadcrumbs) {
+    $breadcrumbs->parent('ispgroup.list');
+    $breadcrumbs->push('Add ISP Group');
+});
+Breadcrumbs::register('ispgroup.edit', function($breadcrumbs) {
+    $breadcrumbs->parent('ispgroup.list');
+    $breadcrumbs->push('Edit ISP Group');
+});
+

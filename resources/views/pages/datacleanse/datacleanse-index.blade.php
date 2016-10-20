@@ -7,7 +7,7 @@
 @section( 'page-menu' )
     @if ( Sentinel::hasAccess( 'datacleanse.add' ) )
         <md-button ng-click="cleanse.viewAdd()" aria-label="Add Data Cleanse">
-            <md-icon ng-show="app.isMobile()" md-svg-src="img/icons/ic_add_circle_outline_black_24px.svg"></md-icon>
+            <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-show="app.isMobile()">add_circle_outline</md-icon>
             <span ng-hide="app.isMobile()">Add Data Cleanse</span>
         </md-button>
     @endif

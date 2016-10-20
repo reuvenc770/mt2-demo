@@ -7,15 +7,21 @@
 <div ng-controller="DataCleanseController as cleanse">
     <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
         <div flex-gt-sm="50" flex="100">
-            <form name="cleanseForm" novalidate>
-                <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disabled' : cleanse.creatingCleanse }" ng-click="cleanse.saveCleanse( $event , cleanseForm )"><span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : cleanse.creatingCleanse }"></span> Save</button>
+            <div layout="column" layout-align="end end">
+               <md-button class="md-raised md-accent" ng-disabled="cleanse.creatingCleanse" ng-click="cleanse.saveCleanse( $event , cleanseForm )" layout="row">
+                  <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-hide="cleanse.creatingCleanse">save</md-icon>
+                  <md-progress-circular ng-show="cleanse.creatingCleanse" md-mode="indeterminate" md-diameter="16"></md-progress-circular><span flex>Save</span>
+               </md-button>
+            </div>
 
-                <div class="clearfix"></div>
+            @include( 'pages.datacleanse.datacleanse-form' )
 
-                @include( 'pages.datacleanse.datacleanse-form' )
-
-                <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disabled' : cleanse.creatingCleanse }" ng-click="cleanse.saveCleanse( $event , cleanseForm )"><span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : cleanse.creatingCleanse }"></span> Save</button>
-            </form>
+            <div layout="column" layout-align="end end">
+               <md-button class="md-raised md-accent" ng-disabled="cleanse.creatingCleanse" ng-click="cleanse.saveCleanse( $event , cleanseForm )" layout="row">
+                  <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-hide="cleanse.creatingCleanse">save</md-icon>
+                  <md-progress-circular ng-show="cleanse.creatingCleanse" md-mode="indeterminate" md-diameter="16"></md-progress-circular><span flex>Save</span>
+               </md-button>
+            </div>
         </div>
     </md-content>
 </div>

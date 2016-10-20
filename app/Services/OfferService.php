@@ -20,6 +20,10 @@ class OfferService
         $this->offerRepo = $offerRepo;
     }
 
+    public function all () {
+        return $this->offerRepo->all();
+    }
+
     public function autoCompleteSearch($term){
         return $this->offerRepo->fuzzySearchBack($term);
     }

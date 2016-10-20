@@ -34,10 +34,10 @@ class DeployService
         return $this->espAdvertiser->getCakeAffiliates();
     }
 
-    public function getModel($searchType, $searchData)
+    public function getModel($searchData)
     {
 
-        return $this->deployRepo->getModel($searchType, $searchData);
+        return $this->deployRepo->getModel($searchData);
 
     }
 
@@ -49,7 +49,8 @@ class DeployService
     public function getDeploy($deployId)
     {
         $deploy = $this->deployRepo->getDeploy($deployId);
-        $deploy->offer_id = ['id' => $deploy->offer_id, "name" => $deploy->offer_name];
+        $deploy->offer_id = ['id' => $deploy->offer_id, "name" => $deploy->offer_name, "exclude_days" => $deploy->exclude_days];
+        unset($deploy->exclude_days);
         unset($deploy->offer_name);
         return $deploy;
     }
@@ -88,22 +89,16 @@ class DeployService
         $this->deployRepo->deployPackages($data);
     }
 
-
-
     public function getPaginatedJson($page, $count, $params = null)
     {
-        $searchType = null;
         $searchData = null;
         if ($this->hasCache($page, $count, $params)) {
             return $this->getCachedJson($page, $count, $params);
         } else {
             try {
-                if (isset($params['type'])) {
-                    $searchType = $params['type'];
-                    $searchData = $params['data'];
-                }
-                $eloquentObj = $this->getModel($searchType, $searchData);
 
+                $searchData = isset($params['data']) ? $params['data'] : null;
+                $eloquentObj = $this->getModel($searchData);
                 $paginationJSON = $eloquentObj->paginate($count)->toJSON();
 
                 $this->cachePagination(
@@ -139,5 +134,21 @@ class DeployService
     {
         return ['Send Date', 'Deploy ID', 'ESP Account', "Mailing Template", "Mailing Domain",
             "Content Domain", "Subject", "From", "Creative"];
+    }
+
+    public function copyToFutureDate($data){
+        $errorCollection = array();
+        foreach($data['deploy_ids'] as $deployId){
+          $newDeploy = $this->deployRepo->duplicateDomainToDate($deployId, $data['future_date']);
+            $errors = $this->deployRepo->validateDeploy($newDeploy->toArray());
+            if(count($errors) == 0){
+                $newDeploy->save();
+            }
+            else {
+                $errors['deploy_id'] = $deployId;
+                $errorCollection[] = $errors;
+            }
+        }
+        return $errorCollection;
     }
 }

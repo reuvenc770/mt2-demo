@@ -58,6 +58,7 @@ elixir.extend( 'deploySass' , function ( mix ) {
 
 elixir.extend( 'deployTemplates' , function ( mix ) {
     mix.copy( 'resources/assets/js/templates' , 'public/js/templates' );
+    mix.copy( 'resources/assets/js/bootstrap/templates' , 'public/js/bootstrap/templates' );
 } );
 
 elixir.extend( 'deployImages' , function ( mix ) {
@@ -76,7 +77,8 @@ elixir.extend( 'deployBaseAngular' , function ( mix ) {
         'mt2app/PaginationCountDirective.js',
         'mt2app/MembershipWidgetDirective.js' ,
         'mt2app/LiteMembershipWidgetDirective.js' ,
-        'mt2app/CompileHtml.js'
+        'mt2app/CompileHtml.js' ,
+        'mt2app/CustomValidationService.js' ,
     ] , 'public/js/angular_base.js' );
 } );
 
@@ -183,6 +185,20 @@ elixir.extend( 'deployYmlpCampaignJs' , function ( mix ) {
     ] , 'public/js/ymlpcampaign.js' );
 } );
 
+elixir.extend( 'deployDomainGroupJs' , function ( mix ) {
+    mix.scripts( [
+        'domaingroup/DomainGroupController.js' ,
+        'domaingroup/DomainGroupApiService.js'
+    ] , 'public/js/domaingroup.js' );
+} );
+
+elixir.extend( 'deployEmailDomainJs' , function ( mix ) {
+    mix.scripts( [
+        'emaildomain/EmailDomainController.js' ,
+        'emaildomain/EmailDomainApiService.js'
+    ] , 'public/js/emailDomain.js' );
+} );
+
 elixir.extend( 'deployFeedJs' , function ( mix ) {
     mix.scripts( [
         'feed/FeedController.js' ,
@@ -277,6 +293,8 @@ elixir.extend( 'deployMt2Js' , function ( mix ) {
     mix.deployProxyJs(mix);
     mix.deployAttributionJs(mix);
     mix.deployReportJs(mix);
+    mix.deployDomainGroupJs(mix);
+    mix.deployEmailDomainJs(mix);
 } );
 
 elixir.extend( 'runTdd' , function ( mix ) {
@@ -321,6 +339,12 @@ var mt2TaskMap = {
     } ,
     'deployUserJs' : function ( mix ) {
         mix.deployUserJs( mix );
+    } ,
+    'deployDomainGroupJs' : function ( mix ) {
+        mix.deployDomainGroupJs( mix );
+    } ,
+    'deployEmailDomainJs' : function ( mix ) {
+        mix.deployEmailDomainJs( mix );
     } ,
     'deployRoleJs' : function ( mix ) {
         mix.deployRoleJs( mix );

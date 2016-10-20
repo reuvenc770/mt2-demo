@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+
+use App\Services\EspApiAccountService;
+
 use App\Services\EspService;
 use App\Services\ProxyService;
 
@@ -13,17 +16,19 @@ use Log;
 class ProxyController extends Controller
 {
     protected $proxyService;
+    protected $espAccountService;
     protected $espService;
-    public function __construct(ProxyService $proxyService, EspService $espService)
+    public function __construct(ProxyService $proxyService, EspApiAccountService $espAccountService, EspService $espService)
     {
         $this->proxyService = $proxyService;
+        $this->espAccountService = $espAccountService;
         $this->espService = $espService;
     }
 
     public function listAll()
     {
         return response()
-            ->view('pages.proxy.proxy-index');
+            ->view('bootstrap.pages.proxy.proxy-index');
     }
 
 
@@ -49,8 +54,9 @@ class ProxyController extends Controller
      */
     public function create()
     {
+        $espAccounts = $this->espAccountService->getAllAccounts();
         $esps = $this->espService->getAllEsps();
-        return view('pages.proxy.proxy-add',['esps' => $esps]);
+        return view('bootstrap.pages.proxy.proxy-add',['espAccounts' => $espAccounts, 'esps' => $esps]);
     }
 
     /**
@@ -86,9 +92,10 @@ class ProxyController extends Controller
      */
     public function edit()
     {
+        $espAccounts = $this->espAccountService->getAllAccounts();
         $esps = $this->espService->getAllEsps();
         return response()
-            ->view('pages.proxy.proxy-edit',['esps' => $esps]);
+            ->view('bootstrap.pages.proxy.proxy-edit',['espAccounts' => $espAccounts, 'esps' => $esps]);
     }
 
     /**
@@ -100,7 +107,8 @@ class ProxyController extends Controller
      */
     public function update(Requests\EditProxyRequest $request, $id)
     {
-        $this->proxyService->updateAccount($id, $request->toArray());
+        $proxy = $request->toArray();
+        $this->proxyService->updateAccount($id, $proxy);
         Flash::success("Proxy Account was Successfully Updated");
     }
 

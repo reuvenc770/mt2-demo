@@ -1,6 +1,7 @@
 /vendor
 /public/css/*.*
 /public/js/*.*
+/public/js/min/*.*
 /public/js/templates/*.*
 /public/app.js
 /node_modules

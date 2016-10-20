@@ -16,12 +16,8 @@ class ProjectionChartCollection extends Collection {
     protected $clientStatsGroupingService;
 
     protected $chartData = [
-        "live" => [
-            [ 'Client Name' , 'Live Revenue' ]
-        ] , 
-        "model" => [
-            [ 'Client Name' , 'Model Revenue' ]
-        ]
+        "live" => [] , 
+        "model" => []
     ];
 
     public function __construct (
@@ -51,6 +47,12 @@ class ProjectionChartCollection extends Collection {
 
             $this->chartData[ 'model' ] []= [ $clientName , $clientModelRecord->standard_revenue + $clientModelRecord->cpm_revenue ];
         }
+
+        $this->chartData[ 'live' ] = collect( $this->chartData[ 'live' ] )->sortBy( 0 )->toArray();
+        $this->chartData[ 'model' ] = collect( $this->chartData[ 'model' ] )->sortBy( 0 )->toArray();
+
+        array_unshift( $this->chartData[ 'live' ] , [ 'Client Name' , 'Live Revenue' ] );
+        array_unshift( $this->chartData[ 'model' ] , [ 'Client Name' , 'Model Revenue' ] );
 
         return response()->json( $this->chartData );
     }

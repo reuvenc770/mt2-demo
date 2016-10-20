@@ -12,6 +12,14 @@ use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 class HomeController extends Controller
 {
     public function home() {
-        return view('layout.app');
+        return view('bootstrap.layout.app');
+    }
+
+    public function redirect(){
+        return redirect('login');
+    }
+
+    public function redirectTools(){
+        return redirect('tools.recordlookup');
     }
 }
