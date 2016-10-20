@@ -46,7 +46,7 @@ class ListProfileController extends Controller
     }
 
     public function listAll () {
-        return response()->view( 'pages.listprofile.list-profile-index' );
+        return response()->view( 'bootstrap.pages.listprofile.list-profile-index' );
     }
 
     /**
@@ -56,7 +56,7 @@ class ListProfileController extends Controller
      */
     public function create()
     {
-        return response()->view( 'pages.listprofile.list-profile-add' , $this->getFormFieldOptions() );
+        return response()->view( 'bootstrap.pages.listprofile.list-profile-add' , $this->getFormFieldOptions() );
     }
 
     /**
@@ -87,7 +87,7 @@ class ListProfileController extends Controller
      */
     public function edit($id)
     {
-        return response()->view( 'pages.listprofile.list-profile-edit' , $this->getFormFieldOptions( [ 'id' => $id ] ) );
+        return response()->view( 'bootstrap.pages.listprofile.list-profile-edit' , $this->getFormFieldOptions( [ 'id' => $id ] ) );
     }
 
     /**
@@ -128,7 +128,6 @@ class ListProfileController extends Controller
             'states' => $this->states->all() ,
             'isps' => $this->ispService->getAll() ,
             'categories' => CakeVertical::all() ,
-            'offers' => $this->offerService->all() 
         ] , $addOptions );
     }
 }

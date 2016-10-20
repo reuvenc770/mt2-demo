@@ -47,7 +47,7 @@ class AttributionController extends Controller
     }
 
     public function listAll () {
-        return response()->view( 'pages.attribution.attribution-index' );
+        return response()->view( "bootstrap.pages.attribution.attribution-index" );
     }
 
     /**
@@ -57,7 +57,7 @@ class AttributionController extends Controller
      */
     public function create()
     {
-        return response()->view( 'pages.attribution.attribution-add' );
+        return response()->view( "bootstrap.pages.attribution.attribution-add" );
     }
 
     /**
@@ -90,7 +90,7 @@ class AttributionController extends Controller
      */
     public function edit($id)
     {
-        return response()->view( 'pages.attribution.attribution-edit' );
+        return response()->view( "bootstrap.pages.attribution.attribution-edit" );
     }
 
     /**
@@ -174,7 +174,7 @@ class AttributionController extends Controller
     }
 
     public function showProjection ( $modelId ) {
-        return response()->view( 'pages.attribution.attribution-projection' , [ 'modelId' => $modelId ] );
+        return response()->view( "bootstrap.pages.attribution.attribution-projection" , [ 'modelId' => $modelId ] );
     }
 
     public function getChartData ( $modelId ) {
