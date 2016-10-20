@@ -3,11 +3,19 @@ mt2App.service( 'ListProfileApiService' , function ( $http ) {
 
     self.pagerApiUrl = '/api/pager/UniqueProfile';
     self.baseApiUrl = '/api/listprofile';
+    self.offerSearch = '/api/offer/search?searchTerm=';
 
     self.getListProfile = function ( id , successCallback , failureCallback ) {
         $http( {
             "method" : "GET" ,
             "url" : self.baseApiUrl + '/' + id
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.searchOffers = function ( string , successCallback , failureCallback ) {
+        $http( {
+            "method" : "GET" ,
+            "url" : self.offerSearch + string
         } ).then( successCallback , failureCallback );
     };
 
