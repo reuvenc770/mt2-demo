@@ -142,7 +142,7 @@ class DataProcessingFactory {
                 return self::createMt1ImportService($mt1Name, $mt2Name);
 
             case('ImportMt1CakeOfferMapping'):
-                $mt1Name = 'CakeCreativeOfferJoin';
+                $mt1Name = 'CakeOfferCreativeData';
                 $mt2Name = 'MtOfferCakeOfferMapping';
                 return self::createMt1ImportService($mt1Name, $mt2Name);
 
