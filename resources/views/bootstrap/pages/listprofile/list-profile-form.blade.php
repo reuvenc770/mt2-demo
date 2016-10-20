@@ -39,10 +39,11 @@
 
         <select ng-model="listProfile.highlightedFeeds" multiple style="width: 100%; height: 150px;">
             @foreach ( $feeds as $feed )
-            <option value="{{$feed[ 'id' ]}}" ng-init="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ] = true;listProfile.feedNameMap[ {{$feed[ 'id' ]}} ] = '{{{ addslashes( $feed[ 'short_name' ] )}}}';" ng-show="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ]">{{ $feed[ 'short_name' ] . ' (' . $feed[ 'name' ] . ')' }}</option>
+            <option value="{{$feed[ 'id' ]}}" ng-init="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ] = true;listProfile.feedNameMap[ {{$feed[ 'id' ]}} ] = '{{{ addslashes( $feed[ 'short_name' ] )}}}';" ng-show="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ]">{{ $feed[ 'short_name' ] }}</option>
             @endforeach
         </select>
 
+        @if ( Sentinel::inRole( 'admiral' ) )
         <md-input-container flex>
             <label>Filter by Client</label>
 
@@ -56,6 +57,7 @@
         <md-button class="md-icon-button" data-toggle="tooltip" data-placement="bottom" title="Clear Client Filters" ng-click="listProfile.clearClientFeedFilter()">
             <md-icon md-font-set="material-icons" style="color: #000">cancel</md-icon>
         </md-button>
+        @endif
     </div>
 
     <div class="col-sm-6">
@@ -72,115 +74,115 @@
 </div>
 
 <div class="form-group">
-    <label><h4>Deliverables Range</h4></label>
+    <label><h4>Deliverables Day Range</h4> <h5><i>All day ranges are inclusive</i></h5></label>
 
     <div class="row">
-        <div class="col-lg-5">
-            <div class="input-group">
-                <span class="input-group-addon">Min</span>
-
+        <div class="col-xs-12 col-lg-6 form-inline field-top-margin">
+            <div class="form-group">
                 <input type="number" name="deliverableMin" class="form-control" ng-model="listProfile.current.actionRanges.deliverable.min" ng-change="listProfile.generateName()" min="0" aria-label="Deliverable Min" />
-            </div>
-        </div>
 
-        <div class="col-lg-5">
-            <div class="input-group">
-                <span class="input-group-addon">Max</span>
+                <span class="range-delimiter">TO</span>
 
                 <input type="number" name="deliverableMax" class="form-control" ng-model="listProfile.current.actionRanges.deliverable.max" ng-change="listProfile.generateName()" ng-blur="listProfile.confirmMaxDateRange( $event , listProfile.current.actionRanges.deliverable )" min="0" aria-label="Deliverable Max" />
+
+                <label>&nbsp;Days Back</label>
             </div>
         </div>
 
-        <div class="col-lg-2"></div>
+        <div class="col-xs-12 col-sm-0 col-lg-3"></div>
+
+        <div class="col-xs-12 col-sm-12 col-lg-3 field-top-margin">
+            <md-datepicker ng-model="listProfile.current.actionRanges.deliverable.date" md-placeholder="Enter date"></md-datepicker>
+        </div>
     </div>
 </div>
 
 <div class="form-group">
-    <label><h4>Openers Range</h4></label>
+    <label><h4>Openers Day Range</h4> <h5><i>All day ranges are inclusive</i></h5></label>
 
     <div class="row">
-        <div class="col-lg-5">
-            <div class="input-group">
-                <span class="input-group-addon">Min</span>
-
+        <div class="col-xs-12 col-lg-6 form-inline field-top-margin">
+            <div class="form-group">
                 <input type="number" name="openerMin" class="form-control" ng-model="listProfile.current.actionRanges.opener.min" ng-change="listProfile.generateName()" min="0" aria-label="Opener Min" />
-            </div>
-        </div>
 
-        <div class="col-lg-5">
-            <div class="input-group">
-                <span class="input-group-addon">Max</span>
+                <span class="range-delimiter">TO</span>
 
                 <input type="number" name="openerMax" class="form-control" ng-model="listProfile.current.actionRanges.opener.max" ng-change="listProfile.generateName()" ng-blur="listProfile.confirmMaxDateRange( $event , listProfile.current.actionRanges.opener )" min="0" aria-label="Opener Max" />
+
+                <label>&nbsp;Days Back</label>
             </div>
         </div>
 
-        <div class="col-lg-2">
-            <div class="input-group" data-toggle="tooltip" data-placement="top" title="The user opened # or more times">
-                <span class="input-group-addon">MultiAction</span>
+        <div class="col-xs-12 col-sm-6 col-lg-3 form-inline field-top-margin">
+            <div class="form-group" data-toggle="tooltip" data-placement="top" title="The user opened # or more times">
+                <input type="number" name="openerMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.opener.multiaction" ng-blur="listProfile.sanitizeMultiAction( listProfile.current.actionRanges.opener )" min="1" aria-label="Number of Times Opened" >
 
-                <input type="number" name="openerMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.opener.multiaction" ng-blur="listProfile.sanitizeMultiAction( listProfile.current.actionRanges.opener )" min="1" aria-label="Number of Times Opened" />
+                <label>&nbsp;Multiaction</label>
             </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-lg-3 field-top-margin">
+            <md-datepicker ng-model="listProfile.current.actionRanges.opener.date" md-placeholder="Enter date"></md-datepicker>
         </div>
     </div>
 </div>
 
 <div class="form-group">
-    <label><h4>Clickers Range</h4></label>
+    <label><h4>Clickers Day Range</h4> <h5><i>All day ranges are inclusive</i></h5></label>
 
     <div class="row">
-        <div class="col-lg-5">
-            <div class="input-group">
-                <span class="input-group-addon">Min</span>
-
+        <div class="col-xs-12 col-lg-6 form-inline field-top-margin">
+            <div class="form-group">
                 <input type="number" name="clickerMin" class="form-control" ng-model="listProfile.current.actionRanges.clicker.min" ng-change="listProfile.generateName()" min="0" aria-label="Clicker Min" />
-            </div>
-        </div>
 
-        <div class="col-lg-5">
-            <div class="input-group">
-                <span class="input-group-addon">Max</span>
+                <span class="range-delimiter">TO</span>
 
                 <input type="number" name="clickerMax" class="form-control" ng-model="listProfile.current.actionRanges.clicker.max" ng-change="listProfile.generateName()" ng-blur="listProfile.confirmMaxDateRange( $event , listProfile.current.actionRanges.clicker )" min="0" aria-label="Clicker Max" />
+
+                <label>&nbsp;Days Back</label>
             </div>
         </div>
 
-        <div class="col-lg-2">
-            <div class="input-group" data-toggle="tooltip" data-placement="top" title="The user clicked # or more times">
-                <span class="input-group-addon">Multiaction</span>
-
+        <div class="col-xs-12 col-sm-6 col-lg-3 form-inline field-top-margin">
+            <div class="form-group" data-toggle="tooltip" data-placement="top" title="The user clicked # or more times">
                 <input type="number" name="clickerMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.clicker.multiaction" ng-blur="listProfile.sanitizeMultiAction( listProfile.current.actionRanges.clicker )" min="1" aria-label="Number of Times Clicked" >
+
+                <label>&nbsp;Multiaction</label>
             </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-lg-3 field-top-margin">
+            <md-datepicker ng-model="listProfile.current.actionRanges.clicker.date" md-placeholder="Enter date"></md-datepicker>
         </div>
     </div>
 </div>
 
 <div class="form-group">
-    <label><h4>Converters Range</h4></label>
+    <label><h4>Converters Day Range</h4> <h5><i>All day ranges are inclusive</i></h5></label>
 
     <div class="row">
-        <div class="col-lg-5">
-            <div class="input-group">
-                <span class="input-group-addon">Min</span>
-
+        <div class="col-xs-12 col-lg-6 form-inline field-top-margin">
+            <div class="form-group">
                 <input type="number" name="converterMin" class="form-control" ng-model="listProfile.current.actionRanges.converter.min" ng-change="listProfile.generateName()" min="0" aria-label="Converter Min" />
-            </div>
-        </div>
 
-        <div class="col-lg-5">
-            <div class="input-group">
-                <span class="input-group-addon">Max</span>
+                <span class="range-delimiter">TO</span>
 
                 <input type="number" name="converterMax" class="form-control" ng-model="listProfile.current.actionRanges.converter.max" ng-change="listProfile.generateName()" ng-blur="listProfile.confirmMaxDateRange( $event , listProfile.current.actionRanges.converter )" min="0" aria-label="Converter Max" />
+
+                <label>&nbsp;Days Back</label>
             </div>
         </div>
 
-        <div class="col-lg-2">
-            <div class="input-group" data-toggle="tooltip" data-placement="top" title="The user converted # or more times">
-                <span class="input-group-addon">Multiaction</span>
+        <div class="col-xs-12 col-sm-6 col-lg-3 form-inline field-top-margin">
+            <div class="form-group" data-toggle="tooltip" data-placement="top" title="The user converted # or more times">
+                <input type="number" name="converterMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.converter.multiaction" ng-blur="listProfile.sanitizeMultiAction( listProfile.current.actionRanges.converter )" min="1" aria-label="Number of Times Converted" >
 
-                <input type="number" name="converterMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.converter.multiaction" ng-blur="listProfile.sanitizeMultiAction( listProfile.current.actionRanges.converter )" min="1" aria-label="Number of Times Converted">
+                <label>&nbsp;Multiaction</label>
             </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-6 col-lg-3 field-top-margin">
+            <md-datepicker ng-model="listProfile.current.actionRanges.converter.date" md-placeholder="Enter date"></md-datepicker>
         </div>
     </div>
 </div>
@@ -605,21 +607,9 @@
 <md-checkbox ng-model="listProfile.current.tower.run" ng-true-value="true" ng-false-value="false">Tower</md-checkbox>
 
 <div class="form-group" ng-show="listProfile.current.tower.run">
-    <label>Cleansed After The Following Date</label>
+    <label>Cleansed Since</label>
     
     <div class="row">
-        <div class="col-lg-6">
-            <div class="input-group">
-                <span class="input-group-addon">Year</span>
-
-                <select class="form-control" ng-model="listProfile.current.tower.cleanseYear" ng-init="listProfile.generateTowerDateOptions()">
-                    <option value="">Year</option>
-                    <option ng-value="::listProfile.towerDateOptions[ 0 ].value">@{{ ::listProfile.towerDateOptions[ 0 ].value }}</option>
-                    <option ng-value="::listProfile.towerDateOptions[ 1 ].value">@{{ ::listProfile.towerDateOptions[ 1 ].value }}</option>
-                </select>
-            </div>
-        </div>
-
         <div class="col-lg-6">
             <div class="input-group">
                 <span class="input-group-addon">Month</span>
@@ -641,13 +631,57 @@
                 </select>
             </div>
         </div>
+
+        <div class="col-lg-6">
+            <div class="input-group">
+                <span class="input-group-addon">Year</span>
+
+                <select class="form-control" ng-model="listProfile.current.tower.cleanseYear" ng-init="listProfile.generateTowerDateOptions()">
+                    <option value="">Year</option>
+                    <option ng-value="::listProfile.towerDateOptions[ 0 ].value">@{{ ::listProfile.towerDateOptions[ 0 ].value }}</option>
+                    <option ng-value="::listProfile.towerDateOptions[ 1 ].value">@{{ ::listProfile.towerDateOptions[ 1 ].value }}</option>
+                </select>
+            </div>
+        </div>
     </div>
 </div>
 
 <h3>Select and Order Columns</h3>
 
-<div>
-    <lite-membership-widget recordlist="listProfile.columnList" chosenrecordlist="listProfile.selectedColumns" availablerecordtitle="listProfile.availableWidgetTitle" chosenrecordtitle="listProfile.chosenWidgetTitle" namefield="listProfile.columnLabelField" updatecallback="listProfile.columnMembershipCallback()" height="200"></lite-membership-widget>
+<div class="row draggable-membership-widget">
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">Available Columns</div>
+
+            <div class="panel-body">
+                <ul dnd-list="listProfile.columnList">
+                    <li
+                        ng-repeat="listItem in listProfile.columnList"
+                        dnd-draggable="listItem"
+                        dnd-moved="listProfile.columnList.splice( $index , 1 )"
+                        dnd-effect-allowed="move"
+                        ng-bind="listItem.label"></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">Selected Columns</div>
+
+            <div class="panel-body">
+                <ul dnd-list="listProfile.current.selectedColumns">
+                    <li
+                        ng-repeat="listItem in listProfile.current.selectedColumns"
+                        dnd-draggable="listItem"
+                        dnd-moved="listProfile.current.selectedColumns.splice( $index , 1 )"
+                        dnd-effect-allowed="move"
+                        ng-bind="listItem.label"></li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>
 
 <br />
@@ -655,6 +689,70 @@
 <md-checkbox ng-model="listProfile.current.includeCsvHeader" ng-true-value="true" ng-false-value="false">
     Include header line
 </md-checkbox>
+
+<h3>Export Options</h3>
+
+<div class="row">
+    <div class="col-md-3">
+        <md-checkbox ng-click="listProfile.toggleExportOption( 'immediately' )" ng-checked="listProfile.isSelectedExportOption( 'immediately' )">IMMEDIATELY</md-checkbox>
+    </div>
+
+    <div class="col-md-3">
+        <md-checkbox ng-click="listProfile.toggleExportOption( 'daily' )" ng-checked="listProfile.isSelectedExportOption( 'daily' )">Daily</md-checkbox>
+    </div>
+
+    <div class="col-md-3">
+        <md-checkbox ng-click="listProfile.toggleExportOption( 'weekly' )" ng-checked="listProfile.isSelectedExportOption( 'weekly' )">Weekly</md-checkbox>
+    </div>
+
+    <div class="col-md-3">
+        <md-checkbox ng-click="listProfile.toggleExportOption( 'monthly' )" ng-checked="listProfile.isSelectedExportOption( 'monthly' )">Monthly</md-checkbox>
+    </div>
+</div>
+
+<div class="form-group">
+    <div class="row">
+        <div class="col-xs-12" ng-show="listProfile.isSelectedExportOption( 'weekly' )">
+            <label class="radio-inline">
+                <input type="radio" name="dailyExportRadio" ng-model="listProfile.current.exportOptions.dayOfWeek" value="7"> Sunday
+            </label>
+
+            <label class="radio-inline">
+                <input type="radio" name="dailyExportRadio" ng-model="listProfile.current.exportOptions.dayOfWeek" value="1"> Monday
+            </label>
+
+            <label class="radio-inline">
+                <input type="radio" name="dailyExportRadio" ng-model="listProfile.current.exportOptions.dayOfWeek" value="2"> Tuesday 
+            </label>
+
+            <label class="radio-inline">
+                <input type="radio" name="dailyExportRadio" ng-model="listProfile.current.exportOptions.dayOfWeek" value="3"> Wednesday
+            </label>
+
+            <label class="radio-inline">
+                <input type="radio" name="dailyExportRadio" ng-model="listProfile.current.exportOptions.dayOfWeek" value="4"> Thursday
+            </label>
+
+            <label class="radio-inline">
+                <input type="radio" name="dailyExportRadio" ng-model="listProfile.current.exportOptions.dayOfWeek" value="5"> Friday 
+            </label>
+
+            <label class="radio-inline">
+                <input type="radio" name="dailyExportRadio" ng-model="listProfile.current.exportOptions.dayOfWeek" value="6"> Saturday
+            </label>
+        </div>
+
+        <div class="col-xs-12 form-inline field-top-margin" ng-show="listProfile.isSelectedExportOption( 'monthly' )">
+            <div class="form-group">
+                <label>Day of Month</label>
+
+                <input type="number" class="form-control" ng-model="listProfile.current.exportOptions.dayOfMonth" min="1" max="31" step="1" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3>Admiral Settings</h3>
 
 @if ( Sentinel::inRole( 'admiral' ) )
 <br />

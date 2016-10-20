@@ -25,10 +25,10 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
             'attribute' : { 'cities': [] , 'zips' : [] , 'states' : {} }
         },
         'actionRanges' : {
-            'deliverable' : { 'min' : 0 , 'max' : 0 },
-            'opener' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 },
-            'clicker' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 },
-            'converter' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 }
+            'deliverable' : { 'min' : 0 , 'max' : 0 , 'date' : null },
+            'opener' : { 'min' : 0 , 'max' : 0 , 'date' : null , 'multiaction' : 1 },
+            'clicker' : { 'min' : 0 , 'max' : 0 , 'date' : null , 'multiaction' : 1 },
+            'converter' : { 'min' : 0 , 'max' : 0 , 'date' : null , 'multiaction' : 1 }
         },
         'attributeFilters' : {
             'age' : { 'min' : 0 , 'max' : 0 , 'unknown' : false },
@@ -48,6 +48,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         } ,
         'selectedColumns' : [] ,
         'includeCsvHeader' : false ,
+        'exportOptions' : { 'interval' : [] , 'dayOfWeek' : '' , 'dayOfMonth' : '' } ,
         'admiralsOnly' : false
     };
 
@@ -146,7 +147,8 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         { 'header' : 'feed_name' , 'label' : "Feed Name" } ,
         { 'header' : 'client_name' , 'label' : "Client" } ,
         { 'header' : 'subscribe_date' , 'label' : 'Subscribe Date' } ,
-        { 'header' : 'status' , 'label' : 'Status' }
+        { 'header' : 'status' , 'label' : 'Status' } ,
+        { 'header' : 'tower_date' , 'label' : 'Tower Date' }
     ];
     self.selectedColumns = [];
     self.availableWidgetTitle = "Available Columns";
@@ -701,4 +703,26 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
             $timeout( function () { window.scrollTo( 0 , ( document.body.scrollHeight + 300 ) ); } , 1 );
         }
     };
+
+    self.toggleExportOption = function ( option ) {
+        var optionIndex = self.current.exportOptions.interval.indexOf( option );
+
+        if ( optionIndex < 0 ) {
+            var immediatelyExists = ( self.current.exportOptions.interval.indexOf( 'immediately' ) >= 0 );
+            var itemsChosen = self.current.exportOptions.interval.length;
+
+            if (
+                ( immediatelyExists && itemsChosen === 1 )
+                || ( !immediatelyExists && option == 'immediately' && itemsChosen === 1 )
+                || ( itemsChosen === 0 ) ) {
+                self.current.exportOptions.interval.push( option ); 
+            }
+        } else {
+            self.current.exportOptions.interval.splice( optionIndex , 1 ); 
+        }
+    };
+        
+    self.isSelectedExportOption = function ( option ) {
+        return self.current.exportOptions.interval.indexOf( option ) >= 0;
+    }
 } ] );
