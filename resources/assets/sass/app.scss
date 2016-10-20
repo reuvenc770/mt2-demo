@@ -131,6 +131,11 @@ md-switch.md-checked .md-thumb:before { background-color: #3F51B5; }
  */
 @import "node_modules/angular-material-data-table/dist/md-data-table.min";
 
+table.md-table {
+    border: 1px solid #ccc;
+    background-color: #fff;
+}
+
 table.md-table:not(.md-row-select) td.md-cell:nth-child(n+2):nth-last-child(n+2), table.md-table:not(.md-row-select) th.md-column:nth-child(n+2):nth-last-child(n+2){
     padding: 0 28px 0 0;
 }
