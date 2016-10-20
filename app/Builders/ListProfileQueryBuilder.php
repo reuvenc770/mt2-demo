@@ -61,7 +61,7 @@ class ListProfileQueryBuilder {
         $this->dataSchema = config('database.connections.mysql.database');
     }
     
-    public function buildQuery($listProfile, $queryData) {
+    public function buildQuery($listProfile, $queryData, $additionalOfferId) {
         $this->setValues($listProfile);
 
         if ('deliverable' === $queryData['type']) {

@@ -14,6 +14,7 @@ class ExpandListProfileSchema extends Migration
         Schema::connection('list_profile')->table('list_profiles', function(Blueprint $table) {
             $table->dropColumn('attributes');
             $table->boolean('use_global_suppression')->default(1)->after('conversion_count');
+            $table->json('feeds_suppressed')->after('use_global_suppression');
             $table->json('age_range')->after('use_global_suppression');
             $table->json('gender')->after('age_range');
             $table->json('zip')->after('gender');

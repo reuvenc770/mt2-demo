@@ -45,7 +45,7 @@ class ListProfileService
     }
 
 
-    public function pullProfile($id) {
+    public function pullProfile($id, $additionalOfferId) {
         /**
             - Run against hygiene
          */
@@ -61,7 +61,7 @@ class ListProfileService
         Storage::delete($fileName); // clear the file currently saved
 
         foreach ($queries as $queryData) {
-            $query = $this->builder->buildQuery($listProfile, $queryData);
+            $query = $this->builder->buildQuery($listProfile, $queryData, $additionalOfferId);
 
             // .. if we have hygiene, we write out both files. Write full one to a secret location. Send the other one (just email address/md5) out.
             // When the second returns. Find a way to subtract it from the first
