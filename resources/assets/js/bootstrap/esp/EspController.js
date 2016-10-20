@@ -18,11 +18,7 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     self.loadAccount = function () {
         var pathMatches = $location.path().match( /^\/esp\/edit\/(\d{1,})/ );
 
-        EspService.getAccount( pathMatches[ 1 ] , function ( response ) {
-            self.currentAccount = response.data;
-            self.currentAccount.email_id_field = response.data.field_options.email_id_field;
-            self.currentAccount.email_address_field = response.data.field_options.email_address_field;
-        } )
+        EspService.getAccount( pathMatches[ 1 ] , self.loadAccountSuccesCallback )
     };
 
     self.loadAccounts = function () {
@@ -46,6 +42,11 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     /**
      * Callbacks
      */
+    self.loadAccountSuccesCallback = function ( response ) {
+        self.currentAccount = response.data;
+        self.currentAccount.email_id_field = response.data.field_options.email_id_field;
+        self.currentAccount.email_address_field = response.data.field_options.email_address_field;
+    }
     self.loadAccountsSuccessCallback = function ( response ) {
         self.accounts = response.data.data;
         self.pageCount = response.data.last_page;
