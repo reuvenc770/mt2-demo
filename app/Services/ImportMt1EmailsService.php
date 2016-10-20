@@ -12,6 +12,7 @@ use App\Repositories\AttributionLevelRepo;
 use App\Repositories\FeedDateEmailBreakdownRepo;
 use App\Repositories\RecordDataRepo;
 use App\Repositories\EmailIdHistoryRepo;
+use App\Repositories\EmailFeedStatusRepo;
 use Carbon\Carbon;
 
 class ImportMt1EmailsService
@@ -29,6 +30,7 @@ class ImportMt1EmailsService
     private $historyRepo;
     private $processingDate;
     private $formattedDate;
+    private $emailFeedStatusRepo;
 
     private $emailIdCache = [];
     private $emailAddressCache = [];
@@ -44,7 +46,8 @@ class ImportMt1EmailsService
         AttributionLevelRepo $attributionLevelRepo,
         FeedDateEmailBreakdownRepo $breakdownRepo,
         RecordDataRepo $recordDataRepo,
-        EmailIdHistoryRepo $historyRepo) {
+        EmailIdHistoryRepo $historyRepo,
+        EmailFeedStatusRepo $emailFeedStatusRepo) {
 
         $this->api = $api;
         $this->tempEmailRepo = $tempEmailRepo;
@@ -56,6 +59,7 @@ class ImportMt1EmailsService
         $this->breakdownRepo = $breakdownRepo;
         $this->recordDataRepo = $recordDataRepo;
         $this->historyRepo = $historyRepo;
+        $this->emailFeedStatusRepo = $emailFeedStatusRepo;
 
         $this->processingDate = Carbon::today();
         $this->formattedDate = $this->processingDate->format('Y-m-d');
@@ -107,6 +111,9 @@ class ImportMt1EmailsService
                 else {
                     // one of fresh, non-fresh, duplicate
                     $existsCheck = $this->emailRepo->getEmailId($emailAddress)->first();
+
+                    $statusRow = $this->buildStatusRow($record);
+                    $this->emailFeedStatusRepo->batchInsert($statusRow);
                     
                     $recordsToFlag[] = [
                         "email_id" => $importingEmailId, 
@@ -197,6 +204,8 @@ class ImportMt1EmailsService
         $this->emailRepo->insertStored(); // Clear out remaining inserts
         $this->recordDataRepo->insertStored();
         $this->emailFeedRepo->insertStored();
+        $this->emailFeedStatusRepo->insertStored();
+
         // Need to handle in-batch switching between email ids
         $this->emailRepo->updateInBatchIdSwitches($this->inBatchSwitches);
 
@@ -271,6 +280,14 @@ class ImportMt1EmailsService
 
     private function convertStatus($status) {
         return $status === 'Active' ? 'A' : 'U';
+    }
+
+    private function buildStatusRow($record) {
+        return [
+            'email_id' => $record['email_id'],
+            'feed_id' => $record['feed_id'],
+            'status' => 'Active'
+        ];
     }
 
     /**
