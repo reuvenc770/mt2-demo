@@ -139,7 +139,7 @@ class EmailActionsRepo {
             ed.id as email_domain_id,
             dg.id as email_domain_group_id,
             IFNULL(d.offer_id, 0) as offer_id,
-            FLOOR(RAND() * 20) as cake_vertical_id, # Temporary until we get a offer-offer mapping. Please mention if found.
+            IFNULL(cv.id, 0) as cake_vertical_id,
             ea.deliveries,
             ea.opens,
             ea.clicks,
