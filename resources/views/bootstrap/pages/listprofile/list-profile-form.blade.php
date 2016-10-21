@@ -77,7 +77,7 @@
     <label><h4>Deliverables Day Range</h4> <h5><i>All day ranges are inclusive</i></h5></label>
 
     <div class="row">
-        <div class="col-xs-12 col-lg-6 form-inline field-top-margin">
+        <div class="col-xs-12 col-md-7 form-inline field-top-margin">
             <div class="form-group">
                 <input type="number" name="deliverableMin" class="form-control" ng-model="listProfile.current.actionRanges.deliverable.min" ng-change="listProfile.generateName()" min="0" aria-label="Deliverable Min" />
 
@@ -89,11 +89,7 @@
             </div>
         </div>
 
-        <div class="col-xs-12 col-sm-0 col-lg-3"></div>
-
-        <div class="col-xs-12 col-sm-12 col-lg-3 field-top-margin">
-            <md-datepicker ng-model="listProfile.current.actionRanges.deliverable.date" md-placeholder="Enter date"></md-datepicker>
-        </div>
+        <div class="col-xs-12 col-md-5"></div>
     </div>
 </div>
 
@@ -101,7 +97,7 @@
     <label><h4>Openers Day Range</h4> <h5><i>All day ranges are inclusive</i></h5></label>
 
     <div class="row">
-        <div class="col-xs-12 col-lg-6 form-inline field-top-margin">
+        <div class="col-xs-12 col-md-7 form-inline field-top-margin">
             <div class="form-group">
                 <input type="number" name="openerMin" class="form-control" ng-model="listProfile.current.actionRanges.opener.min" ng-change="listProfile.generateName()" min="0" aria-label="Opener Min" />
 
@@ -113,16 +109,12 @@
             </div>
         </div>
 
-        <div class="col-xs-12 col-sm-6 col-lg-3 form-inline field-top-margin">
+        <div class="col-xs-12 col-md-5 form-inline field-top-margin">
             <div class="form-group" data-toggle="tooltip" data-placement="top" title="The user opened # or more times">
                 <input type="number" name="openerMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.opener.multiaction" ng-blur="listProfile.sanitizeMultiAction( listProfile.current.actionRanges.opener )" min="1" aria-label="Number of Times Opened" >
 
                 <label>&nbsp;Multiaction</label>
             </div>
-        </div>
-
-        <div class="col-xs-12 col-sm-6 col-lg-3 field-top-margin">
-            <md-datepicker ng-model="listProfile.current.actionRanges.opener.date" md-placeholder="Enter date"></md-datepicker>
         </div>
     </div>
 </div>
@@ -131,7 +123,7 @@
     <label><h4>Clickers Day Range</h4> <h5><i>All day ranges are inclusive</i></h5></label>
 
     <div class="row">
-        <div class="col-xs-12 col-lg-6 form-inline field-top-margin">
+        <div class="col-xs-12 col-md-7 form-inline field-top-margin">
             <div class="form-group">
                 <input type="number" name="clickerMin" class="form-control" ng-model="listProfile.current.actionRanges.clicker.min" ng-change="listProfile.generateName()" min="0" aria-label="Clicker Min" />
 
@@ -143,16 +135,12 @@
             </div>
         </div>
 
-        <div class="col-xs-12 col-sm-6 col-lg-3 form-inline field-top-margin">
+        <div class="col-xs-12 col-md-5 form-inline field-top-margin">
             <div class="form-group" data-toggle="tooltip" data-placement="top" title="The user clicked # or more times">
                 <input type="number" name="clickerMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.clicker.multiaction" ng-blur="listProfile.sanitizeMultiAction( listProfile.current.actionRanges.clicker )" min="1" aria-label="Number of Times Clicked" >
 
                 <label>&nbsp;Multiaction</label>
             </div>
-        </div>
-
-        <div class="col-xs-12 col-sm-6 col-lg-3 field-top-margin">
-            <md-datepicker ng-model="listProfile.current.actionRanges.clicker.date" md-placeholder="Enter date"></md-datepicker>
         </div>
     </div>
 </div>
@@ -161,7 +149,7 @@
     <label><h4>Converters Day Range</h4> <h5><i>All day ranges are inclusive</i></h5></label>
 
     <div class="row">
-        <div class="col-xs-12 col-lg-6 form-inline field-top-margin">
+        <div class="col-xs-12 col-md-7 form-inline field-top-margin">
             <div class="form-group">
                 <input type="number" name="converterMin" class="form-control" ng-model="listProfile.current.actionRanges.converter.min" ng-change="listProfile.generateName()" min="0" aria-label="Converter Min" />
 
@@ -173,16 +161,12 @@
             </div>
         </div>
 
-        <div class="col-xs-12 col-sm-6 col-lg-3 form-inline field-top-margin">
+        <div class="col-xs-12 col-md-5 form-inline field-top-margin">
             <div class="form-group" data-toggle="tooltip" data-placement="top" title="The user converted # or more times">
                 <input type="number" name="converterMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.converter.multiaction" ng-blur="listProfile.sanitizeMultiAction( listProfile.current.actionRanges.converter )" min="1" aria-label="Number of Times Converted" >
 
                 <label>&nbsp;Multiaction</label>
             </div>
-        </div>
-
-        <div class="col-xs-12 col-sm-6 col-lg-3 field-top-margin">
-            <md-datepicker ng-model="listProfile.current.actionRanges.converter.date" md-placeholder="Enter date"></md-datepicker>
         </div>
     </div>
 </div>

@@ -25,10 +25,10 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
             'attribute' : { 'cities': [] , 'zips' : [] , 'states' : {} }
         },
         'actionRanges' : {
-            'deliverable' : { 'min' : 0 , 'max' : 0 , 'date' : null },
-            'opener' : { 'min' : 0 , 'max' : 0 , 'date' : null , 'multiaction' : 1 },
-            'clicker' : { 'min' : 0 , 'max' : 0 , 'date' : null , 'multiaction' : 1 },
-            'converter' : { 'min' : 0 , 'max' : 0 , 'date' : null , 'multiaction' : 1 }
+            'deliverable' : { 'min' : 0 , 'max' : 0 },
+            'opener' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 },
+            'clicker' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 },
+            'converter' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 }
         },
         'attributeFilters' : {
             'age' : { 'min' : 0 , 'max' : 0 , 'unknown' : false },
