@@ -152,7 +152,9 @@ class NavigationService {
     }
 
     protected function isException () {
-        return ( preg_match( '/^(?!api).+(?:bulksuppression|jobs|recordlookup)/' , $this->currentRoute[ 'name' ] ) === 1 );
+        $exceptionString = implode( '|' , trans( 'navigationExceptions.list' ) );
+
+        return ( preg_match( '/^(?!api).+(?:' . $exceptionString . ')/' , $this->currentRoute[ 'name' ] ) === 1 );
     }
 
     protected function hasAccess () {
