@@ -25,7 +25,10 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
         if ( path == self.currentPath ) {
             self.activeSection = {};
             self.activeSection[ sectionName ] = true;
-        } else {
+
+            self.activeMenuLink = {};
+            self.activeMenuLink[ linkName ] = true;
+        } else if ( Object.keys( self.activeMenuLink ).length == 0  ) {
             var periodIndex = path.indexOf( '/' );
             var pathPrefix = periodIndex >= 0 ? path.slice( 0 , periodIndex ) : path;
 
@@ -33,6 +36,7 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
                 self.activeSection = {};
                 self.activeSection[ sectionName ] = true;
 
+                self.activeMenuLink = {};
                 self.activeMenuLink[ linkName ] = true;
             }
         }

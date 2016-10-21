@@ -8,7 +8,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
 
     self.enableAdmiral = false;
     self.showAttrFilters = false;
-
+    self.search = {};
     self.enabledSuppression = { "list" : false , "offer" : false };
 
     self.current = {
@@ -17,7 +17,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         'feeds' : {} ,
         'isps' : {} ,
         'categories' : {} ,
-        'offers' : {} ,
+        'offers' : [] ,
         'suppression' : {
             'global' : { 1 : "Orange Global" } ,
             'list' : {} ,
@@ -507,6 +507,16 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         self.updateFeedVisibility();
     };
 
+
+    self.search.populateOffers = function (){
+        if(self.search.offer.length >= 3){
+            ListProfileApiService.searchOffers(self.search.offer,function(response){
+                self.search.offerResults = response.data;
+            },function(){});
+        }
+
+    };
+
     self.addIsps = function () {
         self.addMembershipItems(
             { "highlighted" : self.highlightedIsps , "visibility" : self.ispVisibility , "map" : self.ispNameMap } ,
@@ -538,18 +548,29 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
     };
 
     self.addOffers = function () {
-        self.addMembershipItems(
-            { "highlighted" : self.highlightedOffers , "visibility" : self.offerVisibility , "map" : self.offerNameMap } ,
-            self.current.offers
-        );
+        angular.forEach( self.highlightedOffers , function ( value , key ) {
+            self.current.offers.push( value );
+            var index = self.search.offerResults.indexOf( value );
+
+            if ( index >= 0 ) {
+                self.search.offerResults.splice( index , 1 );
+            }
+        } );
     };
 
     self.removeOffers = function () {
-        self.removeMembershipItems(
-            { "highlightedForRemoval" : self.highlightedOffersForRemoval , "visibility" : self.offerVisibility } ,
-            self.current.offers
-        );
+        angular.forEach( self.highlightedOffersForRemoval , function ( selectedValue , selectedKey ) {
+            self.search.offerResults.push( selectedValue );
+            var index = self.current.offers.indexOf( selectedValue );
+
+            if ( index >= 0 ) {
+                self.current.offers.splice( index , 1 );
+            }
+        } );
+
     };
+
+
 
     self.addStateFilters = function () {
         self.addMembershipItems(

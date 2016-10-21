@@ -63,6 +63,19 @@
         </div>
     </div>
 </div>
+<div class="form-group" ng-class="{ 'has-error' : domain.formErrors.in_use }">
+    <select ng-required="true" name="in_use" class="form-control"  ng-model="domain.currentAccount.in_use">
+        <option value="">Is Domain in Use?</option>
+        <option value="1">Yes</option>
+        <option value="0">No</option>
+
+    </select>
+    <div class="help-block"  ng-show="domain.formErrors.in_use">
+        <div ng-repeat="error in domain.formErrors.in_use">
+            <span ng-bind="error"></span>
+        </div>
+    </div>
+</div>
 <div class="form-group" ng-class="{ 'has-error' : domain.formErrors.domains }">
     <label>@{{ domain.currentInfo }}</label>
     <textarea ng-model="domain.currentAccount.domains"  class="form-control" name="domains" rows="5" id="domains"></textarea>
@@ -72,3 +85,4 @@
         </div>
     </div>
 </div>
+
