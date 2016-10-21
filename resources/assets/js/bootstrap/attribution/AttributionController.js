@@ -1,4 +1,4 @@
-mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedApiService' , 'AttributionProjectionService' , 'ThreeMonthReportService' , '$mdToast'  , '$log' , '$location' , 'formValidationService', 'modalService', function ( AttributionApiService , FeedApiService , AttributionProjectionService , ThreeMonthReportService , $mdToast , $log , $location, formValidationService, modalService) {
+mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedApiService' , 'AttributionProjectionService' , 'ThreeMonthReportService' , '$mdToast'  , '$log' , '$location' , 'formValidationService', 'modalService', '$mdDialog' , function ( AttributionApiService , FeedApiService , AttributionProjectionService , ThreeMonthReportService , $mdToast , $log , $location, formValidationService, modalService , $mdDialog ) {
     var self = this;
 
     self.current = { "id" : 0 , "name" : '' };
@@ -258,18 +258,31 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
 
     self.runAttribution = function ( modelRun ) {
         var modelId = '';
+        var modelText = "";
         if ( modelRun ) {
             modelId = self.selectedModelId;
+
+            modelText = " for model " + modelId;
         }
 
-        AttributionApiService.runAttribution(
-            modelId ,
-            function ( response ) {
-                self.displayToast( 'Attribution is running.' );
-            } , function ( response ) {
-                self.displayToast( 'Failed to start Attribution Run. Please contact support.' );
-            }
-        );
+        var confirm = $mdDialog.confirm()
+            .title( 'Attribution Run Confirmation' )
+            .ariaLabel( 'Attribution Run Confirmation' )
+            .textContent( 'Are you sure you want to run attribution' + modelText + '?' )
+            .ok( 'Yes, I am sure.' )
+            .cancel( 'No' );
+
+        $mdDialog.show( confirm ).then( function () {
+            AttributionApiService.runAttribution(
+                modelId ,
+                function ( response ) {
+                    self.displayToast( 'Attribution is running.' );
+                    self.loadModels();
+                } , function ( response ) {
+                    self.displayToast( 'Failed to start Attribution Run. Please contact support.' );
+                }
+            );
+        } );
     };
 
     self.copyModelPreview = function ( $event , currentModelId ) {
