@@ -21,7 +21,7 @@ class ListProfileService
 {
     protected $profileRepo;
     protected $builder;
-    private $rows;
+    private $rows = [];
     private $rowCount = 0;
     const INSERT_THRESHOLD = 50000;
     private $uniqueColumn;
@@ -65,7 +65,7 @@ class ListProfileService
 
             // .. if we have hygiene, we write out both files. Write full one to a secret location. Send the other one (just email address/md5) out.
             // When the second returns. Find a way to subtract it from the first
-
+            
             $insertHeader = $listProfile->insert_header === 1;
             $columns = $this->builder->getColumns();
 

@@ -4,33 +4,11 @@ namespace App\Builders;
 
 use App\Exceptions\ValidationException;
 use DB;
+use Carbon\Carbon;
 
 class ListProfileQueryBuilder {
 
-    private static $columnMapping = [
-        'email_id' => 'flat.email_id',
-        'first_name' => 'rd.first_name',
-        'last_name' => 'rd.last_name',
-        'gender' => 'rd.gender',
-        'address' => 'rd.address',
-        'address2' => 'rd.address2',
-        'city' => 'rd.city',
-        'state' => 'rd.state',
-        'zip' => 'rd.zip',
-        'dob' => 'rd.dob',
-        'phone' => 'rd.phone',
-        'ip' => 'rd.ip',
-        'subscribe_date' => 'rd.subscribe_date',
-        'feed_id' => 'efa.feed_id',
-        'domain_group_name' => 'dg.name', 
-        'country' => 'dg.country',
-        'feed_name' => 'f.name', 
-        'source_url' => 'f.source_url',
-        'client_name' => 'c.name',
-        'email_address' => 'e.email_address', 
-        'lower_case_md5' => 'e.lower_case_md5', 
-        'upper_case_md5' => 'e.upper_case_md5'
-    ];
+    private $columnMapping; 
 
     private $mainTableAlias = 'flat';
 
@@ -54,11 +32,38 @@ class ListProfileQueryBuilder {
     private $stateAttributes;
     private $deviceAttributes;
     private $carrierAttributes;
+    private $feedsWithSuppression;
 
 
     public function __construct() {
         $this->attributionSchema = config('database.connections.attribution.database');
         $this->dataSchema = config('database.connections.mysql.database');
+
+        $this->columnMapping = [
+            'email_id' => 'flat.email_id',
+            'first_name' => 'rd.first_name',
+            'last_name' => 'rd.last_name',
+            'gender' => 'rd.gender',
+            'address' => 'rd.address',
+            'address2' => 'rd.address2',
+            'city' => 'rd.city',
+            'state' => 'rd.state',
+            'zip' => 'rd.zip',
+            'dob' => 'rd.dob',
+            'age' => DB::raw("ROUND(DATEDIFF(CURDATE(), rd.dob) / 365) as age"),
+            'phone' => 'rd.phone',
+            'ip' => 'rd.ip',
+            'subscribe_date' => 'rd.subscribe_date',
+            'feed_id' => 'efa.feed_id',
+            'domain_group_name' => 'dg.name', 
+            'country' => 'dg.country',
+            'feed_name' => 'f.name', 
+            'source_url' => 'f.source_url',
+            'client_name' => 'c.name',
+            'email_address' => 'e.email_address', 
+            'lower_case_md5' => 'e.lower_case_md5', 
+            'upper_case_md5' => 'e.upper_case_md5'
+        ];
     }
     
     public function buildQuery($listProfile, $queryData, $additionalOfferId) {
@@ -72,6 +77,7 @@ class ListProfileQueryBuilder {
         }
 
         $query = $this->buildSuppression($listProfile, $query);
+        $query = $this->buildFeedSearch($query);
         $query = $this->addConditionsAndJoins($listProfile, $query);
         $query = $this->buildSelects($query);
 
@@ -100,12 +106,16 @@ class ListProfileQueryBuilder {
         if (empty($this->offerIds)) {
             $this->offerIds = $this->getofferIds($listProfile);
         }
+        if (empty($this->feedsWithSuppression)) {
+            $tmp = $this->getFeedsWithIneligibleEmails($listProfile);
+            $this->feedsWithSuppression = $tmp ?: [];
+        }
 
 
         // Setting up columns for selects
 
         if (empty($this->recordDataColumns)) {
-            $this->recordDataColumns = array_intersect(['first_name', 'last_name', 'gender', 'address', 'address2', 'city', 'state', 'zip', 'dob', 'phone', 'ip', 'subscribe_date'], $this->columns);
+            $this->recordDataColumns = array_intersect(['first_name', 'last_name', 'gender', 'address', 'address2', 'city', 'state', 'zip', 'dob', 'age', 'phone', 'ip', 'subscribe_date'], $this->columns);
         }
         if (empty($this->attributionColumns)) {
             $this->attributionColumns = array_intersect(['feed_id'], $this->columns);
@@ -202,26 +212,19 @@ class ListProfileQueryBuilder {
         }
 
         /**
-            To do: advertiser/list suppression here
+            To do: advertiser suppression 
         */
 
         return $query;
     }
 
-
-    private function addConditionsAndJoins($listProfile, $query) {
-        // Would have loved to make this neater, but it's all unique logic
-
+    private function buildFeedSearch($query) {
         if (sizeof($this->feedIds) > 0 
             || $this->attributionColumns 
             || $this->feedColumns 
             || $this->clientColumns) {
 
             $query = $query->join("{$this->attributionSchema}.email_feed_assignments as efa", "{$this->mainTableAlias}.email_id", '=', 'efa.email_id');
-
-            if (sizeof($this->feedIds) > 0) {
-                $query = $query->whereIn('efa.feed_id', $this->feedIds);
-            }
 
             if ($this->feedColumns || $this->clientColumns) {
                 $query = $query->join("{$this->dataSchema}.feeds as f", 'efa.feed_id', '=', 'f.id');
@@ -230,7 +233,47 @@ class ListProfileQueryBuilder {
                     $query = $query->join("{$this->dataSchema}.clients as c", 'f.client_id', '=', 'c.id');
                 }
             }
+
+            $feedsWithoutIgnores = array_diff($this->feedIds, $this->feedsWithSuppression);
+            $feedsWithIgnores = $this->feedsWithSuppression;
+
+            if (sizeof($feedsWithoutIgnores) > 0 && sizeof($this->feedsWithSuppression) > 0) {
+                // Get everything from the selected feeds, less those deliberately ignored
+
+                $query = $query->join("{$this->dataSchema}.email_feed_status as efs", function($join) {
+                    $join->on('efa.feed_id', '=', 'efs.feed_id');
+                    $join->on("{$this->mainTableAlias}.email_id", '=', 'efs.email_id');
+                })->where(function ($q) use ($feedsWithIgnores) {
+                    $q->whereIn('efs.feed_id', $feedsWithIgnores)->where('efs.status', 'Active');
+                })->orWhere(function ($q) use ($feedsWithoutIgnores) {
+                    $q->whereIn('efs.feed_id', $feedsWithoutIgnores);
+                });
+            }
+            elseif (sizeof($feedsWithoutIgnores) > 0) {
+                // Get everything from the selected feeds - no ignores required
+                $query = $query->whereIn('efa.feed_id', $feedsWithoutIgnores);
+            }
+            elseif ($sizeof($this->feedsWithSuppression) > 0) {
+                // Get data from all feeds, except those emails ignored for these
+                $query = $query->join("{$this->dataSchema}.email_feed_status as efs", function($join) {
+                    $join->on('efa.feed_id', '=', 'efs.feed_id');
+                    $join->on("{$this->mainTableAlias}.email_id", '=', 'efs.email_id');
+                })->whereNotIn('efs.feed_id', $feedsWithIgnores)
+                  ->orWhere(function ($q) use ($feedsWithIgnores) {
+                    $q->whereIn('efs.feed_id', $feedsWithIgnores)->where('efs.status', 'Active');
+                });
+            }
+            else {
+                // Get everything - no conditions
+            }
         }
+
+        return $query;
+    }
+
+
+    private function addConditionsAndJoins($listProfile, $query) {
+        // Would have loved to make this neater, but it's all unique logic
 
         if ($this->recordDataColumns 
             || $this->ageAttributes 
@@ -246,7 +289,7 @@ class ListProfileQueryBuilder {
                 $query = $query->join("{$this->dataSchema}.record_data as rd", "{$this->mainTableAlias}.email_id", '=', 'rd.email_id');
             }
             
-            $query = $this->buildAgeAttributes($query, 'dob', $this->ageAttributes);
+            $query = $this->buildAgeAttributes($query, $this->ageAttributes);
             $query = $this->buildAttributes($query, 'gender', $this->genderAttributes);
             $query = $this->buildAttributes($query, 'zip', $this->zipAttributes);
             $query = $this->buildAttributes($query, 'city', $this->cityAttributes);
@@ -320,11 +363,16 @@ class ListProfileQueryBuilder {
     }
 
 
+    private function getFeedsWithIneligibleEmails($listProfile) {
+        return json_decode($listProfile->feeds_suppressed, true);
+    }
+
+
     private function buildSelects($query) {
         $selects = [];
         foreach($this->columns as $column) {
-            if (isset(self::$columnMapping[$column])) {
-                $selects[] = self::$columnMapping[$column];
+            if (isset($this->columnMapping[$column])) {
+                $selects[] = $this->columnMapping[$column];
             }
         }
 
