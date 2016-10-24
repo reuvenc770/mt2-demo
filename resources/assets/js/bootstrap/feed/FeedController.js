@@ -1,42 +1,22 @@
-mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' , 'FeedApiService', '$mdToast', '$mdDialog', function ( $rootScope , $window , $location , FeedApiService, $mdToast , $mdDialog ) {
+mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' , '$timeout', 'FeedApiService', '$mdToast', '$mdDialog', '$log' , 'formValidationService' , 'modalService' , function ( $rootScope , $window , $location , $timeout , FeedApiService, $mdToast , $mdDialog , $log , formValidationService , modalService) {
     var self = this;
+    self.$location = $location;
 
     self.current = {
-        address: "" ,
-        address2: "" ,
-        cake_sub_id: "" ,
-        check_global_suppression: "Y" ,
-        check_previous_oc: "0" ,
-        city: "" ,
-        feed_has_client_restrictions: "0" ,
-        feed_id: "" ,
-        feed_main_name: "" ,
-        feed_record_ip: "" ,
-        feed_record_source_url: "" ,
-        feed_type: "" ,
-        country_id: "" ,
-        email_addr: "" ,
-        ftp_pw: "" ,
-        ftp_url: "" ,
-        ftp_user: "" ,
-        has_client_restriction: "0" ,
-        list_owner: "" ,
-        feedTypeId: "",
-        minimum_acceptable_record_date: "" ,
-        network: "" ,
-        orange_client: "Y" ,
-        password: "" ,
-        phone: "" ,
-        rt_pw: "" ,
-        state: "" ,
-        status: "D" ,
-        username: "" ,
-        zip: "",
-        payout_type: "",
-        payout_amount: "0"
+        id: "",
+        client_id: "" ,
+        party: 1 ,
+        short_name: "" ,
+        status: "Active" ,
+        vertical_id: "" ,
+        frequency: "" ,
+        type_id: "" ,
+        country_id: 1 ,
+        source_url: ""
     };
 
     self.feeds = [];
+    self.frequency = [ "TBD", "RT" , "Daily" , "Weekly" , "Monthly"];
 
     self.createUrl = '/feed/create';
 
@@ -45,38 +25,28 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
     self.currentPage = 1;
     self.feedTotal = 0;
     self.queryPromise = null;
+    self.sort= "-id";
 
-    self.generatingLinks = 0;
-    self.updatingFeed = 0;
-    self.creatingFeed = 0;
+    self.formSubmitted = false;
 
-    self.feedTypes = [];
-    self.typeSearchText = '';
     self.formErrors = [];
-    self.listOwners = [];
-    self.ownerSearchText = '';
-
-    self.urlList = [];
 
     /**
      * Init Methods
      */
-    self.loadAutoComplete = function () {
-        self.loadFeedTypes();
-        self.loadListOwners();
-    };
 
     self.loadFeed = function () {
-        var currentPath = $location.path();
-        var matches = currentPath.match( /\/(\d{1,})/ );
-        var id = matches[ 1 ];
+        var pathMatches = $location.path().match( /^\/feed\/edit\/(\d{1,})/ );
 
-        FeedApiService.getFeed( id , self.loadFeedSuccessCallback , self.loadFeedFailureCallback );
+        FeedApiService.getFeed( pathMatches[1] , self.loadFeedSuccessCallback , self.loadFeedFailureCallback );
     };
 
     self.loadFeeds = function () {
-
-        self.queryPromise = FeedApiService.getFeeds( self.currentPage , self.paginationCount , self.loadFeedsSuccessCallback , self.loadFeedsFailureCallback );
+        self.queryPromise = FeedApiService.getFeeds(
+            self.currentPage ,
+            self.paginationCount ,
+            self.sort,
+            self.loadFeedsSuccessCallback , self.loadFeedsFailureCallback );
     };
 
 
@@ -88,90 +58,18 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
         $window.location.href = self.createUrl;
     };
 
-    self.generateLinks = function () {
-        if ( self.urlList.length === 0 ) {
-            self.generatingLinks = 1;
+    self.saveFeed = function () {
+        self.formSubmitted = true;
+        formValidationService.resetFieldErrors(self);
 
-            FeedApiService.generateLinks(
-                self.current.feed_id ,
-                self.generateLinksSuccessCallback ,
-                self.generateLinksFailureCallback
-            );
-        } else {
-            $mdDialog.show({
-                contentElement: '#urlModal',
-                clickOutsideToClose: true,
-                disableParentScroll: false
-            });
-        }
-    };
-
-    self.closeUrlModal = function () {
-        $mdDialog.cancel();
-    };
-    /**
-     * Watchers
-     */
-    $rootScope.$on( 'updatePage' , function () {
-        self.loadFeeds();
-    } );
-
-
-    /**
-     * Form Methods
-     */
-
-    self.getFeedData = function () {
-        var feedData = {};
-
-        angular.forEach( self.current , function ( field , fieldName ) {
-            if ( typeof( field ) == 'object' ) {
-                this[ fieldName ] = field.value;
-            } else {
-                this[ fieldName ] = field;
-            }
-        } , feedData );
-
-        return feedData;
-    };
-
-
-    /**
-     * Look-forward Fields
-     */
-    self.getFeedType = function ( searchText ) {
-        return searchText ? self.feedTypes.filter( function ( obj ) { return obj.name.toLowerCase().indexOf( searchText.toLowerCase() ) === 0; } ) : self.feedTypes;
-    };
-
-    self.loadFeedTypes = function () {
-        FeedApiService.getTypes( self.loadFeedTypesSuccessCallback , self.loadFeedTypesFailureCallback );
-    };
-
-    self.getListOwners = function ( searchText ) {
-        return searchText ? self.listOwners.filter( function ( obj ) { return obj.name.toLowerCase().indexOf( searchText.toLowerCase() ) === 0; } ) : self.listOwners;
-    };
-
-    self.loadListOwners = function () {
-        FeedApiService.getListOwners( self.loadListOwnersSuccessCallback , self.loadListOwnersFailureCallback );
-    };
-
-    self.loadListOwnersSuccessCallback = function ( response ) {
-        self.listOwners = response.data;
-    };
-
-    self.loadListOwnersFailureCallback = function ( response ) {
-        self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to load feed types.' );
-
-        self.launchModal();
+        FeedApiService.saveFeed( self.current , self.SuccessCallBackRedirect , self.saveFeedFailureCallback );
     };
 
     self.updateFeed = function () {
-        self.resetFieldErrors();
-        var feedData = angular.copy( self.current );
-        feedData.list_owner = self.current.list_owner.name;
-        feedData.feed_type = self.current.feed_type.value;
-        FeedApiService.updateFeed( feedData , self.SuccessCallBackRedirectList , self.updateFeedFailureCallback );
+        self.formSubmitted = true;
+        formValidationService.resetFieldErrors(self);
+
+        FeedApiService.updateFeed( self.current , self.SuccessCallBackRedirectList , self.updateFeedFailureCallback );
     };
 
     self.resetPassword = function() {
@@ -180,61 +78,14 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
 
     };
 
-    self.saveFeed = function ( event , form ) {
-        self.resetFieldErrors();
-
-        var feedData = angular.copy( self.current );
-
-        feedData.list_owner = self.current.list_owner.name;
-        feedData.newFeed = 1;
-        feedData.feed_type = self.current.feed_type.value;
-
-        FeedApiService.saveFeed( feedData , self.SuccessCallBackRedirect , self.saveFeedFailureCallback );
-    };
-
-    self.viewAdd = function () {
-        $location.url( self.createUrl );
-        $window.location.href = self.createUrl;
-    };
-
-    /**
-     * Page Modal
-     */
-    self.setModalLabel = function ( labelText ) {
-        var modalLabel = angular.element( document.querySelector( '#pageModalLabel' ) );
-
-        modalLabel.text( labelText );
-    };
-
-    self.setModalBody = function ( bodyText ) {
-        var modalBody = angular.element( document.querySelector( '#pageModalBody' ) );
-
-        modalBody.text( bodyText );
-    }
-
-    self.launchModal = function () {
-        $( '#pageModal' ).modal('show');
-    };
-
-    self.resetModal = function () {
-        self.setModalLabel( '' );
-        self.setModalBody( '' );
-
-        $( '#pageModal' ).modal('hide');
-    };
-
-
     /**
      * Callbacks
      */
     self.loadFeedSuccessCallback = function ( response ) {
-        var currentRecord = response.data[ 0 ];
-
-        currentRecord.country_id = parseInt( currentRecord[ 'country_id' ] );
-        currentRecord.client_type = {name:currentRecord[ 'feed_type'],value:currentRecord[ 'feed_type']};
-        currentRecord.list_owner = {name:currentRecord[ 'list_owner'],value:currentRecord[ 'list_owner']};
-
-        self.current = currentRecord;
+        self.current = response.data;
+        self.current.vertical_id = String(response.data.vertical_id);
+        self.current.client_id = String(response.data.client_id);
+        self.current.type_id = String(response.data.type_id);
     };
 
     self.SuccessCallBackRedirect = function ( response ) {
@@ -248,10 +99,10 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
 
 
     self.loadFeedFailureCallback = function ( response ) {
-        self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to load feed.' );
+        modalService.setModalLabel( 'Error' );
+        modalService.setModalBody( 'Failed to load feed.' );
 
-        self.launchModal();
+        modalService.launchModal();
     };
 
     self.loadFeedsSuccessCallback = function ( response ) {
@@ -260,88 +111,32 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
         self.pageCount = response.data.last_page;
 
         self.feedTotal = response.data.total;
+
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
     };
 
     self.loadFeedsFailureCallback = function ( response ) {
-        self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to load feeds.' );
+        modalService.setModalLabel( 'Error' );
+        modalService.setModalBody( 'Failed to load feeds.' );
 
-        self.launchModal();
+        modalService.launchModal();
     };
 
     self.updateFeedSuccessCallback = function () {
-        self.setModalLabel( 'Update Feed' );
-        self.setModalBody( 'Successfully updated feed.' );
+        modalService.setModalLabel( 'Update Feed' );
+        modalService.setModalBody( 'Successfully updated feed.' );
 
-        self.launchModal();
+        modalService.launchModal();
     };
 
     self.updateFeedFailureCallback = function (response) {
-        self.loadFieldErrors(response);
+        self.formSubmitted = false;
+        formValidationService.loadFieldErrors( self , response );
     };
 
     self.saveFeedFailureCallback = function (response) {
-        self.loadFieldErrors(response);
-    };
-
-    /**
-     * Errors
-     */
-    self.loadFieldErrors = function (response ) {
-        angular.forEach(response.data, function(value, key) {
-            self.setFieldError( key , value );
-        });
-    };
-
-    self.loadFeedTypesSuccessCallback = function ( response ) {
-        self.feedTypes = response.data;
-    };
-
-    self.loadFeedTypesFailureCallback = function ( response ) {
-        self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to load feed types.' );
-
-        self.launchModal();
-    };
-
-    self.loadListOwnersSuccessCallback = function ( response ) {
-        self.listOwners = response.data;
-    };
-
-    self.loadListOwnersFailureCallback = function ( response ) {
-        self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to load feed types.' );
-
-        self.launchModal();
-    };
-
-    self.generateLinksSuccessCallback = function ( response ) {
-        self.generatingLinks = 0;
-
-        self.urlList = response.data;
-
-        $mdDialog.show({
-            contentElement: '#urlModal',
-            clickOutsideToClose: true,
-            disableParentScroll: false
-        });
-    };
-
-    self.generateLinksFailureCallback = function ( response ) {
-        self.generatingLinks = 0;
-
-        self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to generate links.' );
-
-        self.launchModal();
-    }
-
-    self.setFieldError = function ( field , errorMessage ) {
-        self.formErrors[ field ] = errorMessage;
-    };
-
-    self.resetFieldErrors = function () {
-        self.formErrors = {};
+        self.formSubmitted = false;
+        formValidationService.loadFieldErrors( self , response );
     };
 
 } ] );

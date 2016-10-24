@@ -10,7 +10,7 @@ use Illuminate\Database\Query\Builder;
  *
  */
 class FeedRepo {
-  
+
     private $feed;
 
     public function __construct(Feed $feed) {
@@ -19,6 +19,10 @@ class FeedRepo {
 
     public function getFeeds () {
         return $this->feed->all();
+    }
+
+    public function fetch($id) {
+        return $this->feed->find($id);
     }
 
     public function isActive($id) {
@@ -47,4 +51,25 @@ class FeedRepo {
         $this->feed->updateOrCreate(['id' => $data['id']], $data);
     }
 
+    public function getModel() {
+        return $this->feed
+            ->join( 'clients' , 'feeds.client_id' , '=' , 'clients.id' )
+            ->leftJoin( 'cake_verticals' , 'feeds.vertical_id' , '=' , 'cake_verticals.id' )
+            ->leftJoin( 'feed_types' , 'feeds.type_id' , '=' , 'feed_types.id' )
+            ->leftJoin( 'countries' , 'feeds.country_id' , '=' , 'countries.id' )
+            ->select(
+                'feeds.id' ,
+                'clients.name as clientName' ,
+                'feeds.party' ,
+                'feeds.short_name' ,
+                'feeds.status' ,
+                'cake_verticals.name as feedVertical',
+                'feeds.frequency' ,
+                'feed_types.name as feedType' ,
+                'countries.abbr as country' ,
+                'feeds.source_url' ,
+                'feeds.created_at' ,
+                'feeds.updated_at'
+            );
+    }
 }

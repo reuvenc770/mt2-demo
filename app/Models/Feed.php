@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Feed extends Model {
 
     protected $guarded = [];
-    
+
     public function emailFeedInstances() {
         return $this->hasMany('App\Models\EmailFeedInstance');
     }
@@ -17,4 +17,7 @@ class Feed extends Model {
         return $this->hasOne('App\Models\AttributionLevel');
     }
 
+    public function client() {
+        return $this->belongsTo('App\Models\Client');
+    }
 }

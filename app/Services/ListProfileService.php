@@ -12,7 +12,7 @@ namespace App\Services;
 use App\Repositories\ListProfileRepo;
 use App\Repositories\FeedRepo;
 use App\Services\MT1Services\ClientStatsGroupingService;
-use App\Services\MT1Services\ClientService;
+use App\Services\MT1Services\ClientService as MT1ClientService;
 
 class ListProfileService
 {
@@ -21,7 +21,7 @@ class ListProfileService
     protected $clientService;
     protected $mt1ClientService;
 
-    public function __construct( ListProfileRepo $repo , FeedRepo $feedRepo , ClientStatsGroupingService $clientService , ClientService $mt1ClientService )
+    public function __construct( ListProfileRepo $repo , FeedRepo $feedRepo , ClientStatsGroupingService $clientService , MT1ClientService $mt1ClientService )
     {
         $this->profileRepo = $repo;
         $this->feedRepo = $feedRepo;

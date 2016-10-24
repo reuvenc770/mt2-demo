@@ -1,85 +1,34 @@
-
 @extends( 'bootstrap.layout.default' )
 
 @section( 'title' , 'Edit Feed' )
 
-@section( 'navFeedClasses' , 'active' )
-
 @section( 'angular-controller' , 'ng-controller="FeedController as feed"' )
 
 @section( 'content' )
-
 <div ng-init="feed.loadFeed()">
-    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
-        <div flex-gt-md="50" flex="100">
-            <div layout="row" layout-align="end end">
-
-                <md-button class="md-raised md-accent" ng-click="feed.resetPassword()">
-                    <md-icon class="material-icons" md-font-set="material-icons">settings</md-icon>Reset FTP Password
-                </md-button>
-                <md-button layout="row" class="md-raised md-accent" ng-disabled="feed.generatingLinks" ng-click="feed.generateLinks()">
-                    <md-icon class="material-icons" md-font-set="material-icons" ng-hide="feed.generatingLinks">link</md-icon>
-                    <md-progress-circular ng-show="feed.generatingLinks" md-mode="indeterminate" md-diameter="16"></md-progress-circular> <span flex> Generate Links</span>
-                </md-button>
-                <md-button layout="row" class="md-raised md-accent" ng-disabled="feed.updatingFeed" ng-click="feed.updateFeed( $event , feedForm )">
-                    <md-icon class="material-icons" md-font-set="material-icons" ng-hide="feed.updatingFeed">save</md-icon>
-                    <md-progress-circular ng-show="feed.updatingFeed" md-mode="indeterminate" md-diameter="16"></md-progress-circular> <span flex>Update</span>
-                </md-button>
-            </div>
-
-            @include( 'pages.feed.feed-form' )
-            <div layout="row" layout-align="end end">
-                <md-button layout="row" class="md-raised md-accent" ng-disabled="feed.generatingLinks" ng-click="feed.generateLinks()">
-                    <md-icon class="material-icons" md-font-set="material-icons" ng-hide="feed.generatingLinks">settings</md-icon>
-                    <md-progress-circular ng-show="feed.generatingLinks" md-mode="indeterminate" md-diameter="16">link</md-progress-circular> <span flex> Generate Links</span>
-                </md-button>
-                <md-button layout="row" class="md-raised md-accent" ng-disabled="feed.updatingFeed" ng-click="feed.updateFeed( $event , feedForm )">
-                    <md-icon class="material-icons" md-font-set="material-icons" ng-hide="feed.updatingFeed">save</md-icon>
-                    <md-progress-circular ng-show="feed.updatingFeed" md-mode="indeterminate" md-diameter="16"></md-progress-circular> <span flex> Update</span>
-                </md-button>
-            </div>
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <div class="panel-title">Edit Feed</div>
         </div>
-    </md-content>
+        <fieldset>
+            <input type="hidden" ng-model="feed.current.id" />
 
-    <div style="visibility: hidden;">
-        <div class="md-dialog-container" id="urlModal" ng-cloak>
-            <md-dialog layout="column">
-                <md-toolbar>
-                    <div class="md-toolbar-tools" layout="row">
-                        <h4 id="urlModalLabel">Feed URLs</h4>
-                        <span flex></span>
-                        <md-button class="md-icon-button" ng-click="feed.closeUrlModal()"><md-icon md-svg-src="img/icons/ic_clear_white_24px.svg"></md-icon></md-button>
-                    </div>
-                </md-toolbar>
-                <md-dialog-content>
-                    <div class="md-dialog-content" id="urlModalBody">
-                        <md-table-container>
-                            <table md-table id="urlTable">
-                                <thead md-head>
-                                    <tr md-row>
-                                        <th md-column class="md-table-header-override-whitetext">Feed ID</th>
-                                        <th md-column class="md-table-header-override-whitetext">URL</th>
-                                    </tr>
-                                </thead>
+            @include( 'bootstrap.pages.feed.feed-form' )
 
-                                <tbody md-body>
-                                    <tr md-row ng-repeat="record in feed.urlList track by $index">
-                                        <td md-cell ng-bind="::record.offerId"></td>
-                                        <td md-cell ng-bind="::record.url"></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </md-table-container>
-                    </div>
-                </md-dialog-content>
-                <md-dialog-actions layout="row" layout-align="end end">
-                    <md-button class="md-raised" ngclipboard data-clipboard-target="#urlTable">Copy URLs</md-button>
-                </md-dialog-actions>
-            </md-dialog>
+        </fieldset>
+        <div class="panel-footer">
+            <div class="row">
+                <div class="form-group col-sm-6">
+                    <input class="btn btn-primary btn-block" ng-click="feed.updateFeed()" ng-disabled="feed.formSubmitted" type="submit" value="Create Feed">
+                </div>
+                <div class="form-group col-sm-6">
+                    <input class="btn btn-success btn-block" ng-click="feed.resetPassword()" ng-disabled="feed.formSubmitted" type="submit" value="Reset Password">
+                </div>
+            </div>
         </div>
     </div>
-
 </div>
+
 @stop
 
 <?php Assets::add(

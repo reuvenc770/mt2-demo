@@ -1,9 +1,8 @@
 @extends( 'bootstrap.layout.default' )
+
 @section( 'container' , 'container-fluid' )
 
-@section( 'title' , 'Feed' )
-
-@section( 'navFeedClasses' , 'active' )
+@section( 'title' , 'Feeds' )
 
 @section( 'angular-controller' , 'ng-controller="FeedController as feed"' )
 
@@ -15,80 +14,61 @@
 
 @section( 'content' )
 <div ng-init="feed.loadFeeds()">
-        <md-table-container>
-            <table md-table class="mt2-table-large" md-progress="feed.queryPromise">
-                <thead md-head>
-                    <tr md-row>
-                        <th md-column></th>
-                        <th md-column class="md-table-header-override-whitetext">Name</th>
-                        <th md-column class="md-table-header-override-whitetext mt2-table-header-center">Status</th>
-                        <th md-column class="md-table-header-override-whitetext mt2-table-header-center mt2-table-header-wrap">Global Suppression</th>
-                        <th md-column class="md-table-header-override-whitetext mt2-table-header-center mt2-table-header-wrap">OC Check</th>
-                        <th md-column class="md-table-header-override-whitetext mt2-table-header-center mt2-table-header-wrap">Group Restriction</th>
-                        <th md-column class="md-table-header-override-whitetext mt2-cell-left-padding">List Owner</th>
-                        <th md-column class="md-table-header-override-whitetext mt2-table-header-wrap">CAKE Sub-Affiliate</th>
-                        <th md-column class="md-table-header-override-whitetext">Feed Type</th>
-                        <th md-column class="md-table-header-override-whitetext">Network</th>
-                        <th md-column class="md-table-header-override-whitetext">Source URL</th>
-                        <th md-column class="md-table-header-override-whitetext">Source IP</th>
-                        <th md-column class="md-table-header-override-whitetext">FTP URL</th>
-                        <th md-column class="md-table-header-override-whitetext">FTP User</th>
-                        <th md-column class="md-table-header-override-whitetext">Contact</th>
-                        <th md-column class="md-table-header-override-whitetext">Email</th>
-                        <th md-column class="md-table-header-override-whitetext">Address</th>
-                        <th md-column class="md-table-header-override-whitetext">Phone</th>
-                    </tr>
-                </thead>
+    <md-table-container>
+        <table md-table class="mt2-table-large" md-progress="feed.queryPromise">
+            <thead md-head md-order="feed.sort" md-on-reorder="feed.loadFeeds">
+                <tr md-row>
+                    <th md-column></th>
+                    <th md-column md-order-by="id" class="md-table-header-override-whitetext">ID</th>
+                    <th md-column md-order-by="clientName" class="md-table-header-override-whitetext">Client</th>
+                    <th md-column md-order-by="short_name" class="md-table-header-override-whitetext">Short Name</th>
+                    <th md-column md-order-by="status" class="md-table-header-override-whitetext mt2-table-header-center mt2-table-header-wrap">Status</th>
+                    <th md-column md-order-by="feedVertical" class="md-table-header-override-whitetext mt2-cell-left-padding">Feed Vertical</th>
+                    <th md-column md-order-by="frequency" class="md-table-header-override-whitetext">Frequency</th>
+                    <th md-column md-order-by="country" class="md-table-header-override-whitetext">Country</th>
+                    <th md-column md-order-by="feedType" class="md-table-header-override-whitetext">Feed Type</th>
+                    <th md-column md-order-by="party" class="md-table-header-override-whitetext">Party</th>
+                    <th md-column class="md-table-header-override-whitetext">Source URL</th>
+                    <th md-column md-order-by="created_at" class="md-table-header-override-whitetext">Created</th>
+                    <th md-column md-order-by="updated_at" class="md-table-header-override-whitetext">Updated</th>
+                </tr>
+            </thead>
 
-                <tbody md-body>
-                    <tr md-row ng-repeat="record in feed.feeds track by $index">
-                        <td md-cell>
-                            <div layout="row" layout-align="center center">
-                                <md-button class="md-icon-button" ng-href="@{{'/feed/edit/' + record.client_id}}" target="_self" aria-label="Edit">
-                                    <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon>
-                                    <md-tooltip md-direction="bottom">Edit</md-tooltip>
-                                </md-button>
-                            </div>
-                        </td>
-                        <td md-cell>@{{ record.username }}</td>
-                        <td md-cell class="mt2-table-cell-center" ng-class="{ 'mt2-bg-success' : record.status == 'A' , 'mt2-bg-warn' : record.status == 'P' , 'mt2-bg-danger' : record.status == 'D' }">
-                            @{{ record.status == 'A' ? 'Active' : record.status == 'P' ? 'Paused' : 'Inactive'  }}
-                        </td>
-                        <td md-cell class="mt2-table-cell-center" ng-class="{ 'mt2-bg-success' : record.check_global_suppression == 'Y' , 'mt2-bg-danger' : record.check_global_suppression != 'Y' }">
-                            @{{ record.check_global_suppression == 'Y' ? 'ON' : 'OFF'  }}
-                        </td>
-                        <td md-cell class="mt2-table-cell-center" ng-class="{ 'mt2-bg-success' : record.check_previous_oc == '1' , 'mt2-bg-danger' : record.check_previous_oc != '1'}">
-                            @{{ record.check_previous_oc == '1' ? 'ON' : 'OFF' }}
-                        </td>
-                        <td md-cell class="mt2-table-cell-center" ng-class="{ 'mt2-bg-success' : record.feed_has_client_restrictions == '1' , 'mt2-bg-danger' : record.feed_has_client_restrictions != '1'}">
-                            @{{ record.feed_has_client_restrictions == '1' ? 'ON' : 'OFF' }}
-                        </td>
-                        <td md-cell class="mt2-cell-left-padding">@{{ record.list_owner }}</td>
-                        <td md-cell>@{{ record.cake_sub_id }}</td>
-                        <td md-cell>@{{ record.feed_type }}</td>
-                        <td md-cell>@{{ record.network }}</td>
-                        <td md-cell>@{{ record.feed_record_source_url }}</td>
-                        <td md-cell>@{{ record.feed_record_ip }}</td>
-                        <td md-cell>@{{ record.ftp_url }}</td>
-                        <td md-cell>@{{ record.ftp_user }}</td>
-                        <td md-cell>@{{ record.feed_main_name }}</td>
-                        <td md-cell>@{{ record.email_addr }}</td>
-                        <td md-cell>@{{ record.address  + ' ' + record.address2  + ' ' + record.city + ' ' + record.state + ' ' + record.zip }}</td>
-                        <td md-cell>@{{ record.phone }}</td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="18">
-                            <md-content class="md-mt2-zeta-theme md-hue-2">
-                                <md-table-pagination md-limit="feed.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="feed.currentPage" md-total="@{{feed.feedTotal}}" md-on-paginate="feed.loadFeeds" md-page-select></md-table-pagination>
-                            </md-content>
-                        </td>
-                    </tr>
-                </tfoot>
-            </table>
-        </md-table-container>
-
+            <tbody md-body>
+                <tr md-row ng-repeat="record in feed.feeds track by $index">
+                    <td md-cell>
+                        <div layout="row" layout-align="center center">
+                            <md-button class="md-icon-button" ng-href="@{{'/feed/edit/' + record.id}}" target="_self" aria-label="Edit" data-toggle="tooltip" data-placement="bottom" title="Edit">
+                                <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon>
+                            </md-button>
+                        </div>
+                    </td>
+                    <td md-cell ng-bind="record.id"></td>
+                    <td md-cell ng-bind="record.clientName"></td>
+                    <td md-cell ng-bind="record.short_name"></td>
+                    <td md-cell class="mt2-table-cell-center" ng-class="{ 'bg-success' : record.status == 'Active' , 'bg-warning' : record.status == 'Paused' , 'bg-danger' : record.status == 'Inactive' }" ng-bind="record.status">
+                    </td>
+                    <td md-cell class="mt2-cell-left-padding" ng-bind="record.feedVertical"></td>
+                    <td md-cell ng-bind="record.frequency"></td>
+                    <td md-cell ng-bind="record.country"></td>
+                    <td md-cell ng-bind="record.feedType"></td>
+                    <td md-cell ng-bind="record.party"></td>
+                    <td md-cell ng-bind="record.source_url"></td>
+                    <td md-cell nowrap ng-bind="record.created_at"></td>
+                    <td md-cell nowrap ng-bind="record.updated_at"></td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="13">
+                        <md-content class="md-mt2-zeta-theme md-hue-2">
+                            <md-table-pagination md-limit="feed.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="feed.currentPage" md-total="@{{feed.feedTotal}}" md-on-paginate="feed.loadFeeds" md-page-select></md-table-pagination>
+                        </md-content>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </md-table-container>
 </div>
 @stop
 

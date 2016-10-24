@@ -6,27 +6,20 @@ use Illuminate\Http\Request;
 use Laracasts\Flash\Flash;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use App\Services\MT1ApiService;
 use App\Http\Requests\FeedEditRequest;
-use App\Services\MT1Services\ClientService;
-use App\Services\MT1Services\CountryService;
+use App\Services\ClientService;
+use App\Services\FeedService;
 use Cache;
 
 class FeedController extends Controller
 {
-    const CLIENT_API_ENDPOINT = 'clients_list';
-    const CLIENT_UPDATE_API_ENDPOINT = 'client_update';
-    const GEN_LINKS_API_ENDPOINT = 'gen_tracking_link';
 
-    protected $api;
-    protected $clientApi;
-    protected $countryApi;
-    protected $payoutService;
+    protected $clientService;
+    protected $feedService;
 
-    public function __construct ( MT1ApiService $api , ClientService $clientApi , CountryService $countryApi ) {
-        $this->api = $api;
-        $this->clientApi = $clientApi;
-        $this->countryApi = $countryApi;
+    public function __construct ( ClientService $clientService , FeedService $feedService ) {
+        $this->clientService = $clientService;
+        $this->feedService = $feedService;
     }
 
     /**
@@ -36,14 +29,21 @@ class FeedController extends Controller
      */
     public function index()
     {
-        return response( $this->api->getJSON( self::CLIENT_API_ENDPOINT ) );
+
     }
 
     /**
      *
      */
     public function listAll () {
-        return response()->view( 'bootstrap.pages.feed.feed-index' );
+        $countryList = $this->feedService->getCountries();
+
+        return response()->view( 'bootstrap.pages.feed.feed-index' , [
+            'countries' => ( !is_null( $countryList ) ? $countryList : [] ),
+            'clients' => $this->clientService->get(),
+            'clientTypes' => $this->feedService->getClientTypes(),
+            'feedTypes' => $this->feedService->getFeedTypes()
+        ] );
     }
 
     /**
@@ -53,9 +53,13 @@ class FeedController extends Controller
      */
     public function create()
     {
-        $countryList = $this->countryApi->getAll();
+        $countryList = $this->feedService->getCountries();
+
         return response()->view( 'bootstrap.pages.feed.feed-add' , [
             'countries' => ( !is_null( $countryList ) ? $countryList : [] ),
+            'clients' => $this->clientService->get(),
+            'clientTypes' => $this->feedService->getClientTypes(),
+            'feedTypes' => $this->feedService->getFeedTypes()
         ] );
     }
 
@@ -67,15 +71,7 @@ class FeedController extends Controller
      */
     public function store(FeedEditRequest $request)
     {
-        Cache::tags( [ $this->clientApi->getType() ] )->flush();
 
-        Flash::success("Feed was Successfully Updated");
-
-        $response = response( $this->api->postForm( self::CLIENT_UPDATE_API_ENDPOINT , $request->all() ) );
-
-        // temporarily picking off fields to be saved
-        $response = json_decode($response, true);
-        return response()->json($response);
     }
 
     /**
@@ -86,11 +82,7 @@ class FeedController extends Controller
      */
     public function show($id)
     {
-        $response = $this->api->getJSON( self::CLIENT_API_ENDPOINT , [ 'clientId' => $id ]);
-
-        // mixing in variables from MT2
-        $response = json_decode($response, true);
-        return response()->json($response);
+        return $this->feedService->getFeed( $id );
     }
 
     /**
@@ -101,9 +93,14 @@ class FeedController extends Controller
      */
     public function edit($id)
     {
-        $countryList = $this->countryApi->getAll() ?: [];
+
+        $countryList = $this->feedService->getCountries() ?: [];
+
         return response()->view( 'bootstrap.pages.feed.feed-edit' , [
-            'countries' =>  $countryList
+            'countries' =>  $countryList,
+            'clients' => $this->clientService->get(),
+            'clientTypes' => $this->feedService->getClientTypes(),
+            'feedTypes' => $this->feedService->getFeedTypes()
         ] );
     }
 
@@ -116,15 +113,7 @@ class FeedController extends Controller
      */
     public function update(FeedEditRequest $request, $id)
     {
-        Cache::tags( [ $this->clientApi->getType() ] )->flush();
 
-        Flash::success("Feed was Successfully Updated");
-
-        return response( $this->api->postForm( self::CLIENT_UPDATE_API_ENDPOINT , $request->all() ) );
-    }
-
-    public function generateLinks ( $id ) {
-        return response( $this->api->getJSON( self::GEN_LINKS_API_ENDPOINT , array( 'cid' => $id ) ) );
     }
 
     /**
@@ -139,7 +128,6 @@ class FeedController extends Controller
     }
 
     public function resetClientPassword($username) {
-        $this->clientApi->resetPassword($username);
-        return response()->json( [ 'status' => true ] );
+
     }
 }
