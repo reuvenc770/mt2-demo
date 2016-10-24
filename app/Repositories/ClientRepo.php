@@ -19,4 +19,11 @@ class ClientRepo {
         $this->client->updateOrCreate(['id' => $data['id']], $data);
     }
 
+    public function getModel () {
+        return $this->client;
+    }
+
+    public function getAll () {
+        return $this->client->get();
+    }
 }

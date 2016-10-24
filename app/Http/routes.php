@@ -376,6 +376,31 @@ Route::group(
     }
 );
 
+/**
+ * Client Routes
+ */
+Route::group(
+    [
+        'prefix' => 'client' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' , [
+            'as' => 'client.list' , 
+            'uses' => 'ClientController@listAll'
+        ] );
+
+        Route::get( '/create' , [
+            'as' => 'client.add' ,
+            'uses' => 'ClientController@create'
+        ] );
+
+        Route::get( '/edit/{id}' , [
+            'as' => 'client.edit' ,
+            'uses' => 'ClientController@edit'
+        ] );
+    }
+);
 
 /**
  * Client Group Routes
@@ -1059,6 +1084,12 @@ Route::group(
             'feed' ,
             'FeedController' ,
             [ 'except' => [ 'create' , 'edit' , 'pager' ] ]
+        );
+
+        Route::resource(
+            'client' ,
+            'ClientController' ,
+            [ 'only' => [ 'store' , 'update' , 'destroy' ] ]
         );
 
         Route::resource(
