@@ -56,7 +56,6 @@ class EmailRepo {
     }
 
     public function insertCopy($emailData) {
-        #$this->emailModel->updateOrCreate($emailData);
         DB::statement(
             "INSERT INTO emails (id, email_address, email_domain_id)
             VALUES(:id, :addr, :domain_id)

@@ -29,7 +29,9 @@ class AttributionService
         
     }   
 
-    public function getTransientRecords($remainder, $model) {
+    public function getTransientRecords($argObj, $remainder) {
+
+        $model = $argObj['model'];
 
         $timestamp = $this->pickupRepo->getLastInsertedForName($this->name);
         Log::info('Attribution beginning from timestamp: ' . $timestamp);
@@ -39,9 +41,26 @@ class AttributionService
         // Checking whether attribution levels have changed since the last run
         $lastAttrLevelChange = Carbon::parse($this->levelRepo->getLastUpdate());
 
-        if ('none' !== $model || $lastAttrLevelChange->gte($carbonDate)) {
-            // If a model is specified, or if attribution has changed recently,
-            // execute the full run
+        if ('feedInvalidation' === $argObj['type']) {
+            /*
+                We need to get (EITHER) feed transients or all feed instances
+                (or maybe something else)
+            */
+
+            $feedId = $argObj['feedId'];
+
+            return $this->truthRepo->getFeedAttributions($feedId, $remainder);
+        }
+        elseif ('none' !== $model || $lastAttrLevelChange->gte($carbonDate)) {
+            /* 
+                If a model is specified, or if attribution has changed recently,
+                we need to pick up all available transients. This is distinct from
+                rerunning *all* records because it does not need to trawl the entire database -
+                only two cases in the attribution flow chart.
+                There *are* some cases that this will miss in the case of level change:
+                something *would have* changed had the levels been different at some point in the past.
+                However, this omission is deliberate - attribution only moves forward.
+            */ 
             return $this->truthRepo->getFullTransients($remainder);
         }
         else {

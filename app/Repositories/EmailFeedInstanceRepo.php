@@ -216,6 +216,7 @@ class EmailFeedInstanceRepo {
                 ->where('efi.feed_id', '<>', $feedId)
                 ->where('email_id', $emailId)
                 ->where('f.party', 3)
+                ->where('f.status', 'Active')
                 ->orderBy('capture_date', 'asc')
                 ->get();
 
@@ -231,6 +232,7 @@ class EmailFeedInstanceRepo {
                 ->join('feeds as f', 'efi.feed_id', '=', 'f.id')
                 ->where('email_id', $emailId)
                 ->where('f.party', 3)
+                ->where('f.status', 'Active')
                 ->orderBy('capture_date', 'asc')
                 ->get();
 

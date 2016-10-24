@@ -154,9 +154,10 @@ class AttributionController extends Controller
                 $userEmail = $currentUser->email;
             }
 
-            Artisan::queue( 'attribution:commit' , [ 
-                'modelId' => $request->input( 'modelId' ) ,
-                'userEmail' => $userEmail
+            Artisan::queue( 'attribution:commit' , [
+                '--type' => "model",
+                '--modelId' => $request->input( 'modelId' ) ,
+                '--userEmail' => $userEmail
             ] );
 
             $this->service->setProcessingFlag( $request->input( 'modelId' ) , true );
