@@ -2,11 +2,14 @@
 
 namespace App\Services;
 
+use App\Repositories\NavigationParentRepo;
+use App\Repositories\PermissionRepo;
 use Sentinel;
 use Route;
 use Cache;
 
-class NavigationService {
+class NavigationService
+{
     protected $auth;
     protected $currentUser;
 
@@ -14,116 +17,119 @@ class NavigationService {
     protected $routeList;
     protected $menuList = [];
     protected $sectionList = [];
+    protected $sectionRepo;
+    protected $permissionRepo;
 
     protected $landingRoute;
-    protected $currentRoute = [ "prefix" => "" , "name" => "" , "uri" => "" ];
+    protected $currentRoute = ["prefix" => "", "name" => "", "uri" => ""];
 
     protected $cacheId;
 
-    public function __construct ( Sentinel $auth , Route $router ) {
+    public function __construct(Sentinel $auth, Route $router, PermissionRepo $permissionRepo, NavigationParentRepo $parent)
+    {
         $this->auth = $auth;
         $this->router = $router;
+        $this->permissionRepo = $permissionRepo;
+        $this->sectionRepo = $parent;
     }
 
-    public function getMenuHtml () {
+    public function getMenuHtml()
+    {
         $userPresent = $this->loadUser();
-        if ( $userPresent ) {
-            $cachedMenu = Cache::tags("navigation")->get( $this->cacheId );
-            if ( is_null( $cachedMenu ) ) {
+        if ($userPresent) {
+            $cachedMenu = Cache::tags("navigation")->get($this->cacheId);
+            if (is_null($cachedMenu)) {
                 $this->loadMenu();
-                    $template = 'layout.side-nav';
-                $sideNav = view( $template , [ 'menuItems' => $this->menuList ] )->render() ;
+                $template = 'layout.side-nav';
+                $sideNav = view($template, ['menuItems' => $this->menuList])->render();
 
-                Cache::tags('navigation')->forever( $this->cacheId , $sideNav);
+                Cache::tags('navigation')->forever($this->cacheId, $sideNav);
 
                 return $sideNav;
             } else {
                 return $cachedMenu;
             }
         } else {
-            return view( 'layout.side-nav-guest' );
+            return view('layout.side-nav-guest');
         }
     }
 
-    public function getMenuHtmlBootStrap() {
+    public function getMenuHtmlBootStrap()
+    {
         $userPresent = $this->loadUser();
-        if ( $userPresent ) {
-            $cachedMenu = Cache::tags("navigation-bootstrap")->get( $this->cacheId );
-            if ( is_null( $cachedMenu ) ) {
+        if ($userPresent) {
+            $cachedMenu = null;//Cache::tags("navigation-bootstrap")->get( $this->cacheId );
+            if (is_null($cachedMenu)) {
                 $this->loadMenu();
 
                 $template = 'bootstrap.layout.side-nav';
 
-                $sideNav = view( $template , [ 'menuItems' => $this->menuList ] )->render() ;
+                $sideNav = view($template, ['menuItems' => $this->menuList])->render();
 
-                Cache::tags('navigation-bootstrap')->forever( $this->cacheId , $sideNav);
+                Cache::tags('navigation-bootstrap')->forever($this->cacheId, $sideNav);
 
                 return $sideNav;
             } else {
                 return $cachedMenu;
             }
         } else {
-            return view( 'layout.side-nav-guest' );
+            return view('layout.side-nav-guest');
         }
     }
 
-    public function getMenuIcon ( $route ) {
-        return config( 'menuicons.' . $route , '' );
+    public function getMenuIcon($route)
+    {
+        return config('menuicons.' . $route, '');
     }
 
-    protected function loadMenu () {
+    protected function loadMenu()
+    {
         $this->loadRoutes();
+        $sections = $this->sectionRepo->getAllSections();
 
-        foreach ( $this->routeList as $route ) {
-            $prefix = str_replace("/","",$route->getPrefix());
-            $name = $route->getName();
-            $this->loadPrefix( $route );
-            $this->loadName( $route );
-            $this->loadUri( $route );
+        foreach ($sections as $section) {
 
-            if (
-                ( ( $this->isPrefixValid() && $this->isValidName() ) || $this->isException() )
-                && $this->hasAccess()
-            ) {
-                if ( !$this->getSectionName() )  {
-                    continue;
+            $this->menuList[$section->name]['name'] = $section->name;
+            $this->menuList[$section->name]['glyth'] = $section->glyth;
+
+            $permissions = $this->permissionRepo->getAllPermissionsWithParent($section->id);
+            foreach ($permissions as $permission) {
+                $route = $this->routeList->getByName($permission->name);
+                $this->loadPrefix($route);
+                $this->loadName($route);
+                $this->loadUri($route);
+
+                if ($this->hasAccess()){
+
+                    $this->menuList[$section->name]['children'] [] = $this->getCurrentMenuItem();
                 }
-
-                if ( !isset( $this->menuList[ $this->getSectionName() ] ) ) {
-                    $this->menuList[ $this->getSectionName() ] = [
-                        'name' => $this->getSectionName() ,
-                        'children' => [] ,
-                        "icon" => $this->getMenuIcon( $this->getSectionName() )
-                    ];
-                }
-
-                $this->menuList[ $this->getSectionName() ][ 'children' ] []= $this->getCurrentMenuItem();
             }
         }
 
-        ksort( $this->menuList );
 
-        foreach ( $this->menuList as &$section ) {
-            uasort( $section[ 'children' ] , array( $this , 'compareMenuItems' ) );
+    }
+
+    protected function compareMenuItems($itemA, $itemB)
+    {
+        if ($itemA['name'] == $itemB['name']) {
+            return 0;
         }
+
+        return $itemA['name'] < $itemB['name'] ? -1 : 1;
     }
 
-    protected function compareMenuItems ( $itemA , $itemB ) {
-        if ( $itemA[ 'name' ] == $itemB[ 'name' ] ) { return 0; }
-
-        return $itemA[ 'name' ] < $itemB[ 'name' ] ? -1 : 1;
-    }
-
-    protected function loadUser () {
-        $this->currentUser = Sentinel::getUser(); 
-        if ( is_null( $this->currentUser ) ) return false;
+    protected function loadUser()
+    {
+        $this->currentUser = Sentinel::getUser();
+        if (is_null($this->currentUser)) return false;
 
         $this->cacheId = 'nav-' . $this->currentUser->getUserId();
 
         return true;
     }
 
-    protected function loadRoutes () {
+    protected function loadRoutes()
+    {
         $routeObj = $this->router;
 
         $this->landingRoute = $routeObj::currentRouteName();
@@ -131,50 +137,60 @@ class NavigationService {
         $this->routeList = $routeObj::getRoutes();
     }
 
-    protected function loadPrefix ( $route ) {
-        $this->currentRoute[ 'prefix' ] = $route->getPrefix();
+    protected function loadPrefix($route)
+    {
+        $this->currentRoute['prefix'] = $route->getPrefix();
     }
 
-    protected function loadName ( $route ) {
-        $this->currentRoute[ 'name' ] = $route->getName();
+    protected function loadName($route)
+    {
+        $this->currentRoute['name'] = $route->getName();
     }
 
-    protected function loadUri ( $route ) {
-        $this->currentRoute[ 'uri' ] = $route->getUri();
+    protected function loadUri($route)
+    {
+        $this->currentRoute['uri'] = $route->getUri();
     }
 
-    protected function isPrefixValid () {
-        return ( preg_match( '/^\/(?!api)(?!tools)/' , $this->currentRoute[ 'prefix' ] ) === 1 );
+    protected function isPrefixValid()
+    {
+        return (preg_match('/^\/(?!api)(?!tools)/', $this->currentRoute['prefix']) === 1);
     }
 
-    protected function isValidName () {
-        return ( preg_match( '/(list)$/' , $this->currentRoute[ 'name' ] ) === 1 );
+    protected function isValidName()
+    {
+        return (preg_match('/(list)$/', $this->currentRoute['name']) === 1);
     }
 
-    protected function isException () {
-        $exceptionString = implode( '|' , trans( 'navigationExceptions.list' ) );
+    protected function isException()
+    {
+        $exceptionString = implode('|', trans('navigationExceptions.list'));
 
-        return ( preg_match( '/^(?!api).+(?:' . $exceptionString . ')/' , $this->currentRoute[ 'name' ] ) === 1 );
+        return (preg_match('/^(?!api).+(?:' . $exceptionString . ')/', $this->currentRoute['name']) === 1);
     }
 
-    protected function hasAccess () {
-        return $this->currentUser->hasAccess( [ $this->currentRoute[ 'name' ] ] );
+    protected function hasAccess()
+    {
+        return $this->currentUser->hasAccess([$this->currentRoute['name']]);
     }
 
-    protected function getCurrentMenuItem () {
+    protected function getCurrentMenuItem()
+    {
         return [
-            "name" => $this->getMenuName() ,
-            "uri" => $this->currentRoute[ 'uri' ] ,
-            "active" => ( $this->currentRoute[ 'name' ] == $this->landingRoute ? 1 : 0 ),
-            "prefix" => str_replace("/","",$this->currentRoute['prefix']),
+            "name" => $this->getMenuName(),
+            "uri" => $this->currentRoute['uri'],
+            "active" => ($this->currentRoute['name'] == $this->landingRoute ? 1 : 0),
+            "prefix" => str_replace("/", "", $this->currentRoute['prefix']),
         ];
     }
 
-    protected function getSectionName () {
-        return trans( 'navigationSections.' . $this->currentRoute[ 'name' ] );
+    protected function getSectionName()
+    {
+        return trans('navigationSections.' . $this->currentRoute['name']);
     }
 
-    protected function getMenuName () {
-        return trans( 'navigation.' . $this->currentRoute[ 'name' ] );
+    protected function getMenuName()
+    {
+        return trans('navigation.' . $this->currentRoute['name']);
     }
 }

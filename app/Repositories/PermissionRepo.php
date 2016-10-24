@@ -25,6 +25,11 @@ class PermissionRepo
         return $this->permission->all()->sortBy('name');
     }
 
+    public function getAllPermissionsWithParent($id)
+    {
+        return $this->permission->where("parent",$id)->orderBy("rank")->get();
+    }
+
     public function addPermission ( $routeName , $crudType ) {
         $permission = new Permission();
         $permission->name = $routeName;
