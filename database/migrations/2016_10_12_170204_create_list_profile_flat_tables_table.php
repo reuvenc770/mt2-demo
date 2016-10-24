@@ -26,6 +26,11 @@ class CreateListProfileFlatTablesTable extends Migration
             $table->integer('conversions')->unsigned()->default(0);
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
+
+            $table->unique(['email_id', 'deploy_id', 'date'], 'email_deploy_date');
+            $table->index(['email_id', 'date'], 'email_date');
+            $table->index(['deploy_id', 'date'], 'deploy_date');
+            $table->index('date', 'date');
         });
     }
 
