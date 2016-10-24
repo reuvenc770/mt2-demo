@@ -25,7 +25,7 @@ class AddIsDeliverableToRecordData extends Migration
      */
     public function down() {
         Schema::table('record_data', function(Blueprint $table) {
-            $table->dropIndex('email_status');
+            $table->dropIndex('email_status_date');
             $table->dropColumn('is_deliverable');
             $table->dropColumn('subscribe_date');
         });
