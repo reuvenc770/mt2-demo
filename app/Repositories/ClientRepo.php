@@ -8,7 +8,7 @@ use Illuminate\Database\Query\Builder;
 use Carbon\Carbon;
 
 class ClientRepo {
-  
+
     private $client;
 
     public function __construct(Client $client) {
@@ -25,5 +25,9 @@ class ClientRepo {
 
     public function getAll () {
         return $this->client->get();
+    }
+
+    public function getAccount ($id) {
+        return $this->client->find( $id );
     }
 }

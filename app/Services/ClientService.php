@@ -8,7 +8,7 @@ namespace App\Services;
 use App\Services\ServiceTraits\PaginateList;
 use App\Repositories\ClientRepo;
 
-class CilentService {
+class ClientService {
     use PaginateList;
 
     protected $clientRepo;
@@ -16,7 +16,7 @@ class CilentService {
     public function __construct ( ClientRepo $clientRepo ) {
         $this->clientRepo = $clientRepo;
     }
-    
+
     public function getModel () {
         return $this->clientRepo->getModel();
     }
@@ -27,5 +27,9 @@ class CilentService {
 
     public function getAll () {
         return $this->clientRepo->getAll();
+    }
+
+    public function getAccount ( $id ) {
+        return $this->clientRepo->getAccount( $id );
     }
 }

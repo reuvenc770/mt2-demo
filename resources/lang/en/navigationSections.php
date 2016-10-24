@@ -25,4 +25,5 @@ return [
     'ispgroup.list' => 'Operations' ,
     'isp.list' => 'Operations' ,
     'tools.appendeid' => 'Data' ,
+    'client.list' => 'Data'
 ];

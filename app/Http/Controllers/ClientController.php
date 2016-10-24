@@ -5,30 +5,42 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Laracasts\Flash\Flash;
 use App\Http\Requests;
+use AdrianMejias\States\States;
 
 use App\Services\ClientService;
 #use App\Services\FeedService;
 
 class ClientController extends Controller
 {
+    protected $states;
     protected $clientService;
     #protected $feedService;
 
-    public function __construct ( ClientService $clientService /* , FeedService $feedService*/) {
+    public function __construct ( States $states , ClientService $clientService /* , FeedService $feedService*/) {
+        $this->states = $states;
         $this->clientService = $clientService;
         #$this->feedService = $feedService;
     }
 
     public function listAll () {
-        $this->response()->view( 'bootstrap.pages.client.client-index' );
+        return response()->view( 'bootstrap.pages.client.client-index' );
     }
 
     public function create () {
-        $this->response()->view( 'bootstrap.pages.client.client-add' );
+        $states = States::all();
+
+        return response()->view( 'bootstrap.pages.client.client-add' , [ "states" => $states ] );
+    }
+
+    public function show ( $clientId ) {
+        return response()->json( $this->clientService->getAccount( $clientId ) );
     }
 
     public function edit ( $clientId ) {
-        $this->response()->view( 'bootstrap.pages.client.client-update' , [
+        $states = States::all();
+
+        return response()->view( 'bootstrap.pages.client.client-update' , [
+            "states" => $states,
             'clientId' => $clientId ,
             'feeds' => [] #Need to inject feeds, its in another branch melissa is working on.
         ] );

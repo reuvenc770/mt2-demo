@@ -1089,7 +1089,7 @@ Route::group(
         Route::resource(
             'client' ,
             'ClientController' ,
-            [ 'only' => [ 'store' , 'update' , 'destroy' ] ]
+            [ 'only' => [ 'store' , 'update' , 'destroy' , 'show' ] ]
         );
 
         Route::resource(
