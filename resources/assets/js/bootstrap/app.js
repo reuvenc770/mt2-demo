@@ -11,7 +11,8 @@ var mt2App = angular.module( 'mt2App' , [
     'ngclipboard' ,
     'ivh.treeview' ,
     'md.data.table',
-    'headroom'
+    'headroom' ,
+    'dndLists'
 ] );
 
 mt2App.config( function ( $locationProvider ,$mdThemingProvider, ivhTreeviewOptionsProvider ) {
