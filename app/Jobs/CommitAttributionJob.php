@@ -31,7 +31,7 @@ class CommitAttributionJob extends Job implements ShouldQueue
     public function __construct($argObj, $remainder, $tracking) {
         $this->argObj = $argObj;
         $this->tracking = $tracking;
-        $this->modelId = $argObj['model'];
+        $this->modelId = $argObj['modelId'];
         $this->remainder = $remainder;
         $this->jobName = $this->jobName . '::mod-' . $remainder . '-';
         $this->userEmail = $argObj['userEmail'];

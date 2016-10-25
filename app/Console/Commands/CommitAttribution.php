@@ -62,7 +62,7 @@ class CommitAttribution extends Command
 
         $argObj = [
             'type' => $type,
-            'model' => $modelId,
+            'modelId' => $modelId,
             'userEmail' => $userEmail,
             'feedId' => $feedId
         ];
