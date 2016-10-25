@@ -50,4 +50,16 @@ class PermissionRepo
 
         return $permission[0]->id;
     }
+
+    public function getAllOrphanPermissions(){
+        return $this->permission->where("parent", 0)->get();
+    }
+
+    public function updateParentAndRank($id, $parentId, $rank){
+        return $this->permission->find($id)->update(['parent'=>$parentId, 'rank' =>$rank]);
+    }
+
+    public function makeBatmans($wealthyKidsWithParents){
+        return $this->permission->whereNotIn('id',$wealthyKidsWithParents)->update(['parent'=>0,'rank'=>0]);
+    }
 }

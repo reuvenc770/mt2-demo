@@ -134,7 +134,7 @@ Route::group(
 Route::group(
     [
         'prefix' => 'tools' ,
-        'middleware' => [ 'auth' , 'pageLevel' ]
+        'middleware' => [ 'auth'  ]
     ] ,
     function () {
 
@@ -150,6 +150,11 @@ Route::group(
         Route::get( '/bulk-suppression' , [
             'as' => 'tools.bulksuppression' ,
             'uses' => 'BulkSuppressionController@index'
+        ] );
+
+        Route::get( '/navigation' , [
+            'as' => 'tools.navigation' ,
+            'uses' => 'NavigationController@index'
         ] );
 
     }
@@ -728,6 +733,19 @@ Route::group(
         Route::get('/client/updatepassword/{username}', [
             'as' => 'api.client.updatepassword' ,
             'uses' => 'FeedController@resetClientPassword'
+        ] );
+        Route::get('/navigation/gettree', [
+            'as' => 'api.tools.navigation.getTree' ,
+            'uses' => 'NavigationController@returnCurrentNavigation'
+        ] );
+        Route::get('/navigation/orphans', [
+            'as' => 'api.tools.navigation.getOrphans' ,
+            'uses' => 'NavigationController@returnValidOrphanNavigation'
+        ] );
+
+        Route::post('/navigation', [
+            'as' => 'api.tools.navigation.update' ,
+            'uses' => 'NavigationController@update'
         ] );
 
         Route::group(

@@ -58,10 +58,9 @@ class NavigationService
     {
         $userPresent = $this->loadUser();
         if ($userPresent) {
-            $cachedMenu = null;//Cache::tags("navigation-bootstrap")->get( $this->cacheId );
+            $cachedMenu = Cache::tags("navigation-bootstrap")->get( $this->cacheId );
             if (is_null($cachedMenu)) {
                 $this->loadMenu();
-
                 $template = 'bootstrap.layout.side-nav';
 
                 $sideNav = view($template, ['menuItems' => $this->menuList])->render();
@@ -99,7 +98,7 @@ class NavigationService
                 $this->loadName($route);
                 $this->loadUri($route);
 
-                if ($this->hasAccess()){
+                if ($this->hasAccess()) {
 
                     $this->menuList[$section->name]['children'] [] = $this->getCurrentMenuItem();
                 }
@@ -179,7 +178,6 @@ class NavigationService
         return [
             "name" => $this->getMenuName(),
             "uri" => $this->currentRoute['uri'],
-            "active" => ($this->currentRoute['name'] == $this->landingRoute ? 1 : 0),
             "prefix" => str_replace("/", "", $this->currentRoute['prefix']),
         ];
     }
@@ -192,5 +190,61 @@ class NavigationService
     protected function getMenuName()
     {
         return trans('navigation.' . $this->currentRoute['name']);
+    }
+
+
+    public function getMenuTreeJson()
+    {
+        $this->loadRoutes();
+        $parents = $this->sectionRepo->getAllSections();
+        $returnArray = array();
+        foreach ($parents as $section) {
+            $permissionsArray = array();
+            $permissions = $this->permissionRepo->getAllPermissionsWithParent($section->id);
+            foreach ($permissions as $permission) {
+                $route = $this->routeList->getByName($permission->name);
+                $permissionsArray[] = ["id" => $permission->id, "parent" => $permission->parent, "name" => trans('navigation.' . $route->getName())];
+            }
+            $returnArray[] = ["id" => $section->id, "name" => $section->name, "childrenItems" => $permissionsArray];
+        }
+        return $returnArray;
+    }
+
+    public function getValidRoutesWithNoParent()
+    {
+        $this->loadRoutes();
+        $permissionsArray = array();
+        $permissions = $this->permissionRepo->getAllOrphanPermissions();
+
+        foreach ($permissions as $permission) {
+            $route = $this->routeList->getByName($permission->name);
+            $exceptionString = implode('|', trans('navigationSkip.list'));
+            if ($route) {
+                if (preg_match('/^\/(?!api)/', $route->getPrefix())  &&
+                    !preg_match('/(?:' . $exceptionString . ')/', $route->getName())) {
+                    $permissionsArray[] = ["id" => $permission->id, "name" => trans('navigation.' . $route->getName())];
+                }
+            }
+
+        }
+        return $permissionsArray;
+    }
+
+    public function updateNavigation($navigation)
+    {
+        $parentRank = 1;
+        $childrenToKillParentsOf = array();
+        foreach ($navigation as $parentItem) {
+            $this->sectionRepo->updateRank($parentItem['id'], $parentRank);
+            $childRank = 1;
+            foreach ($parentItem['childrenItems'] as $childItem) {
+                $this->permissionRepo->updateParentAndRank($childItem['id'], $parentItem['id'], $childRank);
+                $childrenToKillParentsOf[] = $childItem['id'];
+                $childRank++;
+            }
+            $this->permissionRepo->makeBatmans($childrenToKillParentsOf);
+            $parentRank++;
+        }
+        return true;
     }
 }

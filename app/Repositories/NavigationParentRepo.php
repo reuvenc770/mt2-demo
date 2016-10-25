@@ -21,7 +21,12 @@ class NavigationParentRepo
     }
 
     public function getAllSections(){
-        return $this->navigationModel->all();
+        return $this->navigationModel->orderBy('rank')->get();
+    }
+
+
+    public function updateRank($id, $rank){
+        return $this->navigationModel->find($id)->update(['rank'=>$rank]);
     }
 
 }

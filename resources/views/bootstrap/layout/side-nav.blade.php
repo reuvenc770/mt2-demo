@@ -15,11 +15,13 @@
                 <span class="glyphicon glyphicon-menu-down pull-right" aria-hidden="true" ng-show="app.menuIsOpen( '{{{$section[ 'name' ]}}}Menu' )"></span>
             </a>
             <ul class="dropdown-menu navmenu-nav" role="menu">
+                @if(isset($section[ 'children' ]))
                 @foreach ( $section[ 'children' ] as $currentChild )
                 <li class="nav-child-item" ng-class="{ 'active' : app.activeMenuLink[ '{{$currentChild[ 'name' ]}}' ] }" ng-init="app.setCurrentActiveSection( '{{$section[ 'name' ]}}' , '{{$currentChild[ 'name' ]}}' , '{{$currentChild[ 'uri' ]}}' )">
                     <a href="{{ '/' . $currentChild[ 'uri' ] }}" target="_self"><span class="nav-child-text">{{ $currentChild[ 'name' ] }}</span></a>
                 </li>
                 @endforeach
+                @endif
             </ul>
         </li>
         @endforeach
