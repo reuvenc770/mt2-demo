@@ -18,7 +18,6 @@ class AttributionBatchService {
     private $assignmentRepo;
     private $feedInstanceRepo;
     private $keyName = 'AttributionJob';
-    private $activeFeeds = [];
     const EXPIRATION_DAY_RANGE = 10;
 
     public function __construct(AttributionRecordTruthRepo $truthRepo, 
@@ -32,8 +31,6 @@ class AttributionBatchService {
         $this->feedInstanceRepo = $feedInstanceRepo;
 
         $this->today = Carbon::today();
-
-        $this->activeFeeds = [];
     }
 
 
