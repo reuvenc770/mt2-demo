@@ -27,6 +27,6 @@ class EmailFeedStateTable extends Migration
      * @return void
      */
     public function down() {
-        Schema::drop('email_feed_status');
+        Schema::drop('email_feed_statuses');
     }
 }
