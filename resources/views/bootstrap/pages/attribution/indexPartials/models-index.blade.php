@@ -1,21 +1,21 @@
 <div class="navbar navbar-topper navbar-primary" role="navigation">
     <div class="container-fluid">
 
-        <ul class="nav navbar-nav navbar-right" >
+        <ul class="nav navbar-nav navbar-right" ng-show="attr.showModelActions">
                 @if (Sentinel::hasAccess('attributionProjection.show'))
                     <li> <a ng-hide="attr.disableProjection" ng-href="@{{ 'attribution/projection/' + attr.selectedModelId }}" target="_self"> Projection</a></li>
                 @endif
 
                 @if (Sentinel::hasAccess('api.attribution.run'))
-                    <li><a ng-hide="attr.disableProjection" ng-click="attr.runAttribution( true )">Run Attribution</a></li>
+                    <li><a ng-hide="attr.disableProjection || attr.selectedModel[ 0 ].processing" ng-click="attr.runAttribution( true )">Run Attribution</a></li>
                 @endif
 
                 @if (Sentinel::hasAccess('attributionModel.edit'))
-                    <li><a ng-href="@{{ 'attribution/edit/' + attr.selectedModelId }}" target="_self">Edit</a></li>
+                    <li><a ng-hide="attr.selectedModel[ 0 ].processing" ng-href="@{{ 'attribution/edit/' + attr.selectedModelId }}" target="_self">Edit</a></li>
                 @endif
 
                 @if (Sentinel::hasAccess('api.attribution.model.setlive'))
-                    <li><a ng-hide="attr.disableProjection" ng-click="attr.setModelLive()">Set Live</a></li>
+                    <li><a ng-hide="attr.disableProjection || attr.selectedModel[ 0 ].processing" ng-click="attr.setModelLive()">Set Live</a></li>
                 @endif
         </ul>
     </div>

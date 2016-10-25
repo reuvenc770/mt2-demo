@@ -37,6 +37,10 @@ class ProjectionChartCollection extends Collection {
         foreach ( $clientList as $client ) {
             $clientName = $this->clientStatsGroupingService->getListOwnerName( $client->id );
 
+            if ( $clientName == null ) {
+                $clientName = 'Untitled Client';
+            } 
+
             $this->clientReport->switchToLiveTable();
             $clientLiveRecord = $this->clientReport->getAggregateForIdAndMonth( $client->id , Carbon::today()->startOfMonth()->toDateString() );
 

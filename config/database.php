@@ -166,7 +166,7 @@ return [
         'list_profile' => [
             'driver'    => 'mysql',
             'host'      => env('DB_HOST', 'localhost'),
-            'database'  => env('LIST_PROFILE_SCHEMA', 'list_profile' ), #Not using a default since we have multiple envs
+            'database'  => env('LIST_PROFILE_SCHEMA', 'list_profile' ),
             'username'  => env('DB_USERNAME', 'forge'),
             'password'  => env('DB_PASSWORD', ''),
             'charset'   => 'utf8mb4',

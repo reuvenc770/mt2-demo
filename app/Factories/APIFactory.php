@@ -25,6 +25,7 @@ use App\Models\ActionType;
 use App\Models\EmailDomain;
 use App\Models\DomainGroup;
 use App\Models\EmailFeedInstance;
+use App\Models\RecordData;
 use App\Repositories\EmailRecordRepo;
 use App\Services\EmailRecordService;
 
@@ -52,11 +53,7 @@ class APIFactory
         $emailRecord = new EmailRecordService(
             new EmailRecordRepo(
                 new Email() ,
-                new EmailAction() ,
-                new ActionType() ,
-                new EmailDomain() ,
-                new DomainGroup() ,
-                new EmailFeedInstance()
+                new RecordData()
             )
         );
 
