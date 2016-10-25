@@ -74,19 +74,7 @@ class FeedController extends Controller
     {
         Flash::success( 'Feed was successfully saved.' );
 
-        $this->feedService->updateOrCreate( [
-            'id' => null ,
-            'client_id' => $request->input( 'client_id' ) ,
-            'name' => $request->input( 'name' ) ,
-            'party' => $request->input( 'party' ) ,
-            'short_name' => $request->input( 'short_name' ) ,
-            'status' => $request->input( 'status' ) ,
-            'vertical_id' => $request->input( 'vertical_id' ) ,
-            'frequency' => $request->input( 'frequency' ) ,
-            'type_id' => $request->input( 'type_id' ) ,
-            'country_id' => $request->input( 'country_id' ) ,
-            'source_url' => $request->input( 'source_url' )
-        ] );
+        $this->feedService->updateOrCreate( $request->all() );
 
     }
 

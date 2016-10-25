@@ -20,8 +20,6 @@ class FeedGroupRepo {
     }
 
     public function updateOrCreate ( $data ) {
-        \Log::info( $data );
-
         $record = $this->feedGroups->updateOrCreate(
             [ 'id' => isset( $data[ 'id' ] ) ? $data[ 'id' ] : null ] ,
             [ 'name' => $data[ 'name' ] ]
