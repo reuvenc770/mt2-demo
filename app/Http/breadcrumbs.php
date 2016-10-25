@@ -72,17 +72,17 @@ Breadcrumbs::register('feed.edit', function($breadcrumbs) {
 });
 
 //Client Feeds
-Breadcrumbs::register('clientgroup.list', function($breadcrumbs) {
+Breadcrumbs::register('feedgroup.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');
-    $breadcrumbs->push("Feed Groups", route('clientgroup.list'));
+    $breadcrumbs->push("Feed Groups", route('feedgroup.list'));
 });
-Breadcrumbs::register('clientgroup.add', function($breadcrumbs) {
-    $breadcrumbs->parent('clientgroup.list');
+Breadcrumbs::register('feedgroup.add', function($breadcrumbs) {
+    $breadcrumbs->parent('feedgroup.list');
     $breadcrumbs->push('Add Feed Group');
 });
 
-Breadcrumbs::register('clientgroup.edit', function($breadcrumbs) {
-    $breadcrumbs->parent('clientgroup.list');
+Breadcrumbs::register('feedgroup.edit', function($breadcrumbs) {
+    $breadcrumbs->parent('feedgroup.list');
     $breadcrumbs->push('Edit Feed Group');
 });
 

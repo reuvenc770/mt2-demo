@@ -24,4 +24,5 @@ return [
     'role.list' => 'Admin' ,
     'ispgroup.list' => 'Operations' ,
     'isp.list' => 'Operations' ,
+    'feedgroup.list' => 'Data' ,
 ];

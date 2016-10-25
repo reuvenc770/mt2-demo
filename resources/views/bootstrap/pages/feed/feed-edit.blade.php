@@ -19,7 +19,7 @@
         <div class="panel-footer">
             <div class="row">
                 <div class="form-group col-sm-6">
-                    <input class="btn btn-primary btn-block" ng-click="feed.updateFeed()" ng-disabled="feed.formSubmitted" type="submit" value="Create Feed">
+                    <input class="btn btn-primary btn-block" ng-click="feed.updateFeed()" ng-disabled="feed.formSubmitted" type="submit" value="Update Feed">
                 </div>
                 <div class="form-group col-sm-6">
                     <input class="btn btn-success btn-block" ng-click="feed.resetPassword()" ng-disabled="feed.formSubmitted" type="submit" value="Reset Password">

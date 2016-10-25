@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
 use Sentinel;
-class ClientGroupRequest extends Request
+class FeedGroupRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class ClientGroupRequest extends Request
      */
     public function authorize()
     {
-        if ( Sentinel::hasAccess( "clientgroup.edit" ) || Sentinel::hasAccess( "clientgroup.add" ) ) {
+        if ( Sentinel::hasAccess( "feedgroup.edit" ) || Sentinel::hasAccess( "feedgroup.add" ) ) {
             return true;
         } else {
             return false;
@@ -28,10 +28,7 @@ class ClientGroupRequest extends Request
     public function rules()
     {
         return [
-            'gid' => 'required|numeric' ,
-            'user_id' => 'required|numeric' ,
-            'groupName' => 'required',
-            'clients'   => 'required'
+            'name' => 'required' ,
         ];
     }
     /**
@@ -40,8 +37,7 @@ class ClientGroupRequest extends Request
     public function messages ()
     {
         return [
-            'groupName.required' => 'A feed group name is required.' ,
-            'clients.required' => 'At least 1 client is required.'
+            'name.required' => 'A feed group name is required.' ,
         ];
     }
 }

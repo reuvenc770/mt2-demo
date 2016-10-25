@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Models\ModelTraits\ModelCacheControl;
 
 use Illuminate\Database\Eloquent\Model;
 
 class Feed extends Model {
+    use ModelCacheControl;
 
     protected $guarded = [];
 
@@ -19,5 +21,9 @@ class Feed extends Model {
 
     public function client() {
         return $this->belongsTo('App\Models\Client');
+    }
+
+    public function feedGroups () {
+        return $this->belongsToMany( 'App\Models\FeedGroup' , 'feedgroup_feed' );
     }
 }

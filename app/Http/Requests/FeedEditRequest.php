@@ -14,7 +14,7 @@ class FeedEditRequest extends Request
      */
     public function authorize()
     {
-        if (Sentinel::hasAccess("client.edit")) {
+        if (Sentinel::hasAccess("feed.edit")) {
             return true;
         }
         return false;

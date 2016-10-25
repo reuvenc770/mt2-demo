@@ -6,6 +6,7 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
         id: "",
         client_id: "" ,
         party: 1 ,
+        name : '' ,
         short_name: "" ,
         status: "Active" ,
         vertical_id: "" ,
@@ -62,7 +63,7 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
         self.formSubmitted = true;
         formValidationService.resetFieldErrors(self);
 
-        FeedApiService.saveFeed( self.current , self.SuccessCallBackRedirect , self.saveFeedFailureCallback );
+        FeedApiService.saveFeed( self.current , self.SuccessCallBackRedirectList , self.saveFeedFailureCallback );
     };
 
     self.updateFeed = function () {
@@ -88,10 +89,6 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
         self.current.type_id = String(response.data.type_id);
     };
 
-    self.SuccessCallBackRedirect = function ( response ) {
-        $location.url( '/feed/edit/'+ response.data.clientId );
-        $window.location.href = '/feed/edit/' + response.data.clientId;
-    };
     self.SuccessCallBackRedirectList = function ( response ) {
         $location.url( '/feed/');
         $window.location.href = '/feed/';

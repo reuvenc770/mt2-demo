@@ -24,6 +24,10 @@ class FeedService
         $this->feedRepo = $feedRepo;
     }
 
+    public function getFeeds () {
+        return $this->feedRepo->getFeeds();
+    }
+
     public function getFeed($id) {
         return $this->feedRepo->fetch($id);
     }
@@ -42,5 +46,13 @@ class FeedService
 
     public function getModel() {
         return $this->feedRepo->getModel();
+    }
+
+    public function updateOrCreate ( $data ) {
+        $this->feedRepo->updateOrCreate( $data );
+    }
+
+    public function getType () {
+        return 'Feed';
     }
 }

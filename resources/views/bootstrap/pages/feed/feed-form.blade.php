@@ -1,3 +1,4 @@
+<input name="_token" type="hidden" ng-init="feed.current._token = '{{ csrf_token() }}'" ng-model="feed.current._token" />
 
 <div class="panel-body">
     <div class="form-group" ng-class="{ 'has-error' : feed.formErrors.client_id }">
@@ -10,6 +11,15 @@
         <div class="help-block" ng-show="feed.formErrors.client_id">
             <div ng-repeat="error in feed.formErrors.client_id">
                 <span ng-bind="error"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group" ng-class="{ 'has-error' : feed.formErrors.name }" ng-hide="'{{$hideName}}' === 'hide'">
+        <input type="text" class="form-control" id="name" value="" placeholder="Feed Name" required="required" ng-model="feed.current.name" />
+        <div class="help-block" ng-show="feed.formErrors.short_name">
+            <div ng-repeat="error in feed.formErrors.short_name">
+                <div ng-bind="error"></div>
             </div>
         </div>
     </div>
