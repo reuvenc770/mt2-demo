@@ -17,7 +17,13 @@ mt2App.service( 'EspService' , function ( $http , $log ) {
         } ).then( successCallback , failureCallback );
     };
 
-
+    self.saveNewAccount = function ( newAccount , successCallback , failureCallback ) {
+        $http( {
+            "method" : "POST" ,
+            "url" : this.baseApiUrl ,
+            "data" : newAccount
+        } ).then( successCallback , failureCallback );
+    };
 
     self.editAccount = function ( account , successCallback , failureCallback  ) {
         var request = account;

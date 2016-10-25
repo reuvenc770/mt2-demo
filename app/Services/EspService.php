@@ -26,6 +26,16 @@ class EspService
         $this->espRepo = $espRepo;
     }
 
+    public function insertRow ( $request ) {
+        try {
+            $esp = $this->espRepo->insertRow( [ 'name' => $request[ 'name' ] ] );
+
+            $this->espRepo->updateFieldOptions( $esp->id , $request );
+        } catch(\Exception $e){
+            \Log::error($e->getMessage());
+            return false;
+        }
+    }
     public function getAccount($id){
         return $this->espRepo->getAccountWithFields($id);
     }

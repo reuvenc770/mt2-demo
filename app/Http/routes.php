@@ -124,6 +124,11 @@ Route::group(
             'as' => 'esp.edit' ,
             'uses' => 'EspController@edit'
         ] );
+
+        Route::get( '/create' , [
+            'as' => 'esp.add' ,
+            'uses' => 'EspController@create'
+        ] );
     }
 );
 

@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
+use App\Http\Controllers\Controller;
 use App\Services\EspService;
+use App\Http\Requests\EspAddRequest;
 use App\Http\Requests\EspEditRequest;
 use Laracasts\Flash\Flash;
 
@@ -43,7 +45,29 @@ class EspController extends Controller
             ->view( 'bootstrap.pages.esp.esp-index' );
     }
 
+    /**
+     * Show the form for creating a new ESP Account.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        return response()
+            ->view( 'bootstrap.pages.esp.esp-add' , ['formType' => 'add' ] );
+    }
 
+    /**
+     * Store a newly created ESP Account.
+     *
+     * @param  EspAddRequest  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(EspAddRequest $request)
+    {
+        Flash::success("ESP Account was Successfully Added");
+        $request = $this->espService->insertRow( $request->all() );
+        return response()->json( [ 'status' => $request ] );
+    }
 
     /**
      * Display the specified ESP Account.
@@ -66,7 +90,7 @@ class EspController extends Controller
     public function edit( $id )
     {
         return response()
-            ->view( 'bootstrap.pages.esp.esp-edit' );
+            ->view( 'bootstrap.pages.esp.esp-edit' , ['formType' => 'edit' ] );
     }
 
     /**
