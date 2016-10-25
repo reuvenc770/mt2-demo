@@ -190,15 +190,17 @@
                     </td>
                     <td md-cell>@{{ deploy.deployIdDisplay }}</td>
                     <td md-cell>
-                        <select name="esp_account" id="esp_account"
-                                ng-change="deploy.updateSelects()"
-                                ng-model="deploy.currentDeploy.esp_account_id"
-                                ng-disabled="deploy.currentlyLoading">
-                            <option value="">ESP Account</option>
-                            <option ng-repeat="option in deploy.espAccounts" ng-value="option.id"
-                                    ng-selected="option.id == deploy.currentDeploy.esp_account_id">@{{ option.account_name }}
-                            </option>
-                        </select>
+                        <div class="form-group">
+                            <select name="esp_account" id="esp_account" class="form-control"
+                                    ng-change="deploy.updateSelects()"
+                                    ng-model="deploy.currentDeploy.esp_account_id"
+                                    ng-disabled="deploy.currentlyLoading">
+                                <option value="">ESP Account</option>
+                                <option ng-repeat="option in deploy.espAccounts" ng-value="option.id"
+                                        ng-selected="option.id == deploy.currentDeploy.esp_account_id">@{{ option.account_name }}
+                                </option>
+                            </select>
+                        </div>
 
                         <div class="help-block" ng-show="deploy.formErrors.esp_account_id">
                             <div ng-repeat="error in deploy.formErrors.esp_account_id">
@@ -230,14 +232,16 @@
                         </div>
                     </td>
                     <td md-cell>
-                        <select name="creative_id" id="creative_id" ng-required="true"
-                                ng-model="deploy.currentDeploy.creative_id"
-                                ng-disabled="deploy.offerLoading">
-                            <option value="">Creative</option>
-                            <option ng-repeat="option in deploy.creatives" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'mt2-bg-super-danger' : ''}}">
-                                @{{ option.name }} - @{{ option.id }} - @{{ option.click_rate ? parseFloat(option.click_rate).toFixed(2) + '%' : '' }}
-                            </option>
-                        </select>
+                        <div class="form-group">
+                            <select name="creative_id" id="creative_id" class="form-control" ng-required="true"
+                                    ng-model="deploy.currentDeploy.creative_id"
+                                    ng-disabled="deploy.offerLoading">
+                                <option value="">Creative</option>
+                                <option ng-repeat="option in deploy.creatives" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'mt2-bg-super-danger' : ''}}">
+                                    @{{ option.name }} - @{{ option.id }} - @{{ option.click_rate ? parseFloat(option.click_rate).toFixed(2) + '%' : '' }}
+                                </option>
+                            </select>
+                        </div>
 
                         <div class="help-block text-danger" ng-show="deploy.formErrors.creative_id">
                             <div ng-repeat="error in deploy.formErrors.creative_id">
@@ -248,14 +252,16 @@
                         <a ng-show="deploy.creatives.length > 0" target="_blank" href="creatives/preview/@{{ deploy.currentDeploy.offer_id }}">Preview All Creatives</a>
                     </td>
                     <td md-cell>
-                        <select name="from_id" id="from_id" ng-required="true"
-                                ng-model="deploy.currentDeploy.from_id"
-                                ng-disabled="deploy.offerLoading">
-                            <option value="">From</option>
-                            <option ng-repeat="option in deploy.froms" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'mt2-bg-super-danger' : ''}}">
-                                @{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate ? parseFloat(option.open_rate).toFixed(2) + '%' : '' }}
-                            </option>
-                        </select>
+                        <div class="form-group">
+                            <select name="from_id" id="from_id" class="form-control" ng-required="true"
+                                    ng-model="deploy.currentDeploy.from_id"
+                                    ng-disabled="deploy.offerLoading">
+                                <option value="">From</option>
+                                <option ng-repeat="option in deploy.froms" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'mt2-bg-super-danger' : ''}}">
+                                    @{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate ? parseFloat(option.open_rate).toFixed(2) + '%' : '' }}
+                                </option>
+                            </select>
+                        </div>
 
                         <div class="help-block text-danger" ng-show="deploy.formErrors.from_id">
                             <div ng-repeat="error in deploy.formErrors.from_id">
@@ -264,14 +270,16 @@
                         </div>
                     </td>
                     <td md-cell>
-                        <select name="subject_id" id="subject_id" ng-required="true"
-                                ng-model="deploy.currentDeploy.subject_id"
-                                ng-disabled="deploy.offerLoading">
-                            <option value="">Subject</option>
-                            <option ng-repeat="option in deploy.subjects" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'mt2-bg-super-danger' : ''}}">
-                                @{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate ? parseFloat(option.open_rate).toFixed(2) + '%' : '' }}
-                            </option>
-                        </select>
+                        <div class="form-group">
+                            <select name="subject_id" id="subject_id" class="form-control" ng-required="true"
+                                    ng-model="deploy.currentDeploy.subject_id"
+                                    ng-disabled="deploy.offerLoading">
+                                <option value="">Subject</option>
+                                <option ng-repeat="option in deploy.subjects" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'mt2-bg-super-danger' : ''}}">
+                                    @{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate ? parseFloat(option.open_rate).toFixed(2) + '%' : '' }}
+                                </option>
+                            </select>
+                        </div>
 
                         <div class="help-block text-danger" ng-show="deploy.formErrors.subject_id">
                             <div ng-repeat="error in deploy.formErrors.subject_id">
@@ -280,14 +288,16 @@
                         </div>
                     </td>
                     <td md-cell>
-                        <select name="template" id="template" ng-required="true"
-                                ng-model="deploy.currentDeploy.template_id"
-                                ng-disabled="deploy.espLoaded">
-                            <option value="">Template</option>
-                            <option ng-repeat="option in deploy.templates" value="@{{ option.id }}">
-                                @{{ option.template_name }}
-                            </option>
-                        </select>
+                        <div class="form-group">
+                            <select name="template" id="template" class="form-control" ng-required="true"
+                                    ng-model="deploy.currentDeploy.template_id"
+                                    ng-disabled="deploy.espLoaded">
+                                <option value="">Template</option>
+                                <option ng-repeat="option in deploy.templates" value="@{{ option.id }}">
+                                    @{{ option.template_name }}
+                                </option>
+                            </select>
+                        </div>
 
                         <div class="help-block text-danger" ng-show="deploy.formErrors.template_id">
                             <div ng-repeat="error in deploy.formErrors.template_id">
@@ -296,14 +306,16 @@
                         </div>
                     </td>
                     <td md-cell>
-                        <select name="mailing_domain" id="mailing_domain" ng-required="true"
-                                ng-model="deploy.currentDeploy.mailing_domain_id"
-                                ng-disabled="deploy.espLoaded">
-                            <option value="">Mailing Domain</option>
-                            <option ng-repeat="option in deploy.mailingDomains track by $index" value="@{{ option.id }}">
-                                @{{ option.domain_name }}
-                            </option>
-                        </select>
+                        <div class="form-group">
+                            <select name="mailing_domain" id="mailing_domain" class="form-control" ng-required="true"
+                                    ng-model="deploy.currentDeploy.mailing_domain_id"
+                                    ng-disabled="deploy.espLoaded">
+                                <option value="">Mailing Domain</option>
+                                <option ng-repeat="option in deploy.mailingDomains track by $index" value="@{{ option.id }}">
+                                    @{{ option.domain_name }}
+                                </option>
+                            </select>
+                        </div>
 
                         <div class="help-block text-danger" ng-show="deploy.formErrors.mailing_domain_id">
                             <div ng-repeat="error in deploy.formErrors.mailing_domain_id">
@@ -312,14 +324,16 @@
                         </div>
                     </td>
                     <td md-cell>
-                        <select name="content_domain" id="content_domain" ng-required="true"
-                                ng-model="deploy.currentDeploy.content_domain_id"
-                                ng-disabled="deploy.espLoaded">
-                            <option value="">Content Domain</option>
-                            <option ng-repeat="option in deploy.contentDomains" value="@{{ option.id }}">
-                                @{{ option.domain_name }}
-                            </option>
-                        </select>
+                        <div class="form-group">
+                            <select name="content_domain" id="content_domain" class="form-control" ng-required="true"
+                                    ng-model="deploy.currentDeploy.content_domain_id"
+                                    ng-disabled="deploy.espLoaded">
+                                <option value="">Content Domain</option>
+                                <option ng-repeat="option in deploy.contentDomains" value="@{{ option.id }}">
+                                    @{{ option.domain_name }}
+                                </option>
+                            </select>
+                        </div>
 
                         <div class="help-block text-danger" ng-show="deploy.formErrors.content_domain_id">
                             <div ng-repeat="error in deploy.formErrors.content_domain_id">
@@ -328,13 +342,15 @@
                         </div>
                     </td>
                     <td md-cell>
-                        <select name="cake_affiliate_id" id="cake_affiliate_id" ng-required="true"
-                                ng-model="deploy.currentDeploy.cake_affiliate_id">
-                            <option value="">Cake ID</option>
-                            <option ng-repeat="option in deploy.cakeAffiliates" value="@{{ option.affiliateID }}">
-                                @{{ option.affiliateID }}
-                            </option>
-                        </select>
+                        <div class="form-group">
+                            <select name="cake_affiliate_id" id="cake_affiliate_id" class="form-control" ng-required="true"
+                                    ng-model="deploy.currentDeploy.cake_affiliate_id">
+                                <option value="">Cake ID</option>
+                                <option ng-repeat="option in deploy.cakeAffiliates" value="@{{ option.affiliateID }}">
+                                    @{{ option.affiliateID }}
+                                </option>
+                            </select>
+                        </div>
 
                         <div class="help-block text-danger" ng-show="deploy.formErrors.cake_affiliate_id">
                             <div ng-repeat="error in deploy.formErrors.cake_affiliate_id">
@@ -343,12 +359,14 @@
                         </div>
                     </td>
                     <td md-cell>
-                        <select name="encrypt_cake" id="encrypt_cake" ng-required="true"
-                                ng-model="deploy.currentDeploy.encrypt_cake">
-                            <option value="">Encrypt Cake?</option>
-                            <option value="1">Yes</option>
-                            <option value="0">No</option>
-                        </select>
+                        <div class="form-group">
+                            <select name="encrypt_cake" id="encrypt_cake" class="form-control" ng-required="true"
+                                    ng-model="deploy.currentDeploy.encrypt_cake">
+                                <option value="">Encrypt Cake?</option>
+                                <option value="1">Yes</option>
+                                <option value="0">No</option>
+                            </select>
+                        </div>
 
                         <div class="help-block text-danger" ng-show="deploy.formErrors.encrypt_cake">
                             <div ng-repeat="error in deploy.formErrors.encrypt_cake">
@@ -357,12 +375,14 @@
                         </div>
                     </td>
                     <td md-cell>
-                        <select name="fully_encrypt" id="fully_encrypt" ng-required="true"
-                                ng-model="deploy.currentDeploy.fully_encrypt">
-                            <option value="">Fully Encrypt Links?</option>
-                            <option value="1">Yes</option>
-                            <option value="0">No</option>
-                        </select>
+                        <div class="form-group">
+                            <select name="fully_encrypt" id="fully_encrypt" class="form-control" ng-required="true"
+                                    ng-model="deploy.currentDeploy.fully_encrypt">
+                                <option value="">Fully Encrypt Links?</option>
+                                <option value="1">Yes</option>
+                                <option value="0">No</option>
+                            </select>
+                        </div>
 
                         <div class="help-block text-danger" ng-show="deploy.formErrors.fully_encrypt">
                             <div ng-repeat="error in deploy.formErrors.fully_encrypt">
@@ -371,13 +391,15 @@
                         </div>
                     </td>
                     <td md-cell>
-                        <select name="url_format" id="url_format" ng-required="true"
-                                ng-model="deploy.currentDeploy.url_format">
-                            <option value="">URL Format</option>
-                            <option value="new">New</option>
-                            <option value="gmail">Gmail</option>
-                            <option value="old">Old</option>
-                        </select>
+                        <div class="form-group">
+                            <select name="url_format" id="url_format" class="form-control" ng-required="true"
+                                    ng-model="deploy.currentDeploy.url_format">
+                                <option value="">URL Format</option>
+                                <option value="new">New</option>
+                                <option value="gmail">Gmail</option>
+                                <option value="old">Old</option>
+                            </select>
+                        </div>
 
                         <div class="help-block text-danger" ng-show="deploy.formErrors.url_format">
                             <div ng-repeat="error in deploy.formErrors.url_format">
@@ -386,7 +408,9 @@
                         </div>
                     </td>
                     <td md-cell>
-                        <textarea ng-model="deploy.currentDeploy.notes" rows="2" id="html"></textarea>
+                        <div class="form-group">
+                            <textarea ng-model="deploy.currentDeploy.notes" class="form-control" rows="2" id="html"></textarea>
+                        </div>
                     </td>
                     </tr>
 
