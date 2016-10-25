@@ -12,6 +12,7 @@ use App\Repositories\AttributionLevelRepo;
 use App\Repositories\FeedDateEmailBreakdownRepo;
 use App\Repositories\RecordDataRepo;
 use App\Repositories\EmailIdHistoryRepo;
+use App\Repositories\EmailFeedStatusRepo;
 use Carbon\Carbon;
 
 class ImportMt1EmailsService
@@ -29,8 +30,11 @@ class ImportMt1EmailsService
     private $historyRepo;
     private $processingDate;
     private $formattedDate;
+    private $emailFeedStatusRepo;
 
     private $emailIdCache = [];
+    private $emailAddressCache = [];
+    private $inBatchSwitches = [];
 
     public function __construct(
         Mt1DbApi $api, 
@@ -42,7 +46,8 @@ class ImportMt1EmailsService
         AttributionLevelRepo $attributionLevelRepo,
         FeedDateEmailBreakdownRepo $breakdownRepo,
         RecordDataRepo $recordDataRepo,
-        EmailIdHistoryRepo $historyRepo) {
+        EmailIdHistoryRepo $historyRepo,
+        EmailFeedStatusRepo $emailFeedStatusRepo) {
 
         $this->api = $api;
         $this->tempEmailRepo = $tempEmailRepo;
@@ -54,6 +59,7 @@ class ImportMt1EmailsService
         $this->breakdownRepo = $breakdownRepo;
         $this->recordDataRepo = $recordDataRepo;
         $this->historyRepo = $historyRepo;
+        $this->emailFeedStatusRepo = $emailFeedStatusRepo;
 
         $this->processingDate = Carbon::today();
         $this->formattedDate = $this->processingDate->format('Y-m-d');
@@ -105,6 +111,9 @@ class ImportMt1EmailsService
                 else {
                     // one of fresh, non-fresh, duplicate
                     $existsCheck = $this->emailRepo->getEmailId($emailAddress)->first();
+
+                    $statusRow = $this->buildStatusRow($record);
+                    $this->emailFeedStatusRepo->batchInsert($statusRow);
                     
                     $recordsToFlag[] = [
                         "email_id" => $importingEmailId, 
@@ -115,7 +124,8 @@ class ImportMt1EmailsService
                     if (isset($this->emailIdCache[$importingEmailId])) {
                         // email id is already a duplicate within this import
                     }
-                    elseif (null === $existsCheck && !isset($this->emailIdCache[$importingEmailId])) {
+                    elseif (null === $existsCheck && !isset($this->emailIdCache[$importingEmailId]) && !isset($this->emailAddressCache[$emailAddress])) {
+
                         // not inserted yet
                         // breaking encapsulation in order to improve performance
                         $emailStatus = 'fresh';
@@ -124,8 +134,31 @@ class ImportMt1EmailsService
                         $emailRow = $this->mapToEmailTable($record);
                         $this->emailRepo->insertDelayedBatch($emailRow);
                         $this->emailIdCache[$importingEmailId] = 1;
+                        $this->emailAddressCache[$emailAddress] = $importingEmailId;
+                        $record['is_deliverable'] = 1;
 
                         $this->recordDataRepo->insert($record);
+                    }
+                    elseif (null === $existsCheck && !isset($this->emailIdCache[$importingEmailId]) && isset($this->emailAddressCache[$emailAddress])) {
+                        // this particular email address appears in this batch, but not under this email id
+
+                        $firstEmailId = $this->emailAddressCache[$emailAddress];
+
+                        // we need to pick a canonical email id. Let's stick with the last one for now 
+                        // (would have to tell the email repo to forget that, which would be a mess)
+                        $this->emailIdCache[$importingEmailId] = 1;
+                        $emailStatus = 'duplicate'; // hard-coded because the check will fail otherwise
+
+                        // but how do we deal with this? It won't exist in the db ... 
+                        // and they can be in any order
+                        $this->inBatchSwitches[] = ['old' => min($firstEmailId, $importingEmailId), 'new' => max($firstEmailId, $importingEmailId)];
+
+                        if ($importingEmailId > $firstEmailId) {
+                            // Switching the base here ... in order to handle future versions
+                            $this->emailAddressCache[$emailAddress] = $importingEmailId;
+                            $this->historyRepo->insertIntoHistory($firstEmailId, $importingEmailId); 
+                        }
+
                     }
                     elseif ($existsCheck) {
                         $currentEmailId = (int)$existsCheck->id;
@@ -148,6 +181,10 @@ class ImportMt1EmailsService
 
                         }
 
+                        // maybe there's a way to remove this?
+                        $isDeliverable = $this->recordDataRepo->getDeliverableStatus($record['email_id']);
+                        $record['is_deliverable'] = $isDeliverable;
+
                         $this->recordDataRepo->insert($record);
 
                     }
@@ -167,6 +204,10 @@ class ImportMt1EmailsService
         $this->emailRepo->insertStored(); // Clear out remaining inserts
         $this->recordDataRepo->insertStored();
         $this->emailFeedRepo->insertStored();
+        $this->emailFeedStatusRepo->insertStored();
+
+        // Need to handle in-batch switching between email ids
+        $this->emailRepo->updateInBatchIdSwitches($this->inBatchSwitches);
 
         // Delete records
         if (sizeof($records) > 0) {
@@ -239,6 +280,14 @@ class ImportMt1EmailsService
 
     private function convertStatus($status) {
         return $status === 'Active' ? 'A' : 'U';
+    }
+
+    private function buildStatusRow($record) {
+        return [
+            'email_id' => $record['email_id'],
+            'feed_id' => $record['feed_id'],
+            'status' => 'Active'
+        ];
     }
 
     /**

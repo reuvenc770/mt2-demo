@@ -42,8 +42,7 @@ class EmailRecordService {
 
     public function queueDeliverable ( $recordType , $email , $espId , $deployId, $espInternalId , $date ) {
         if ( $this->repo->isValidActionType( $recordType ) ) {
-            if (self::MAX_RECORD_COUNT >= sizeof($this->records)) {
-                $this->records []= [
+            $this->records []= [
                     'recordType' => $recordType ,
                     'email' => $email ,
                     'deployId' => $deployId,
@@ -51,9 +50,8 @@ class EmailRecordService {
                     'espInternalId' => $espInternalId ,
                     'date' => $date
                 ];
-            }
-            else {
-                // Need to ensure that we aren't queueing up huge arrays
+
+            if (self::MAX_RECORD_COUNT <= sizeof($this->records)) {
                 $this->massRecordDeliverables();
             }
             
