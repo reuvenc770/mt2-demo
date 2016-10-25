@@ -53,8 +53,6 @@ class CommitAttributionJob extends Job implements ShouldQueue
 
                 $service = ServiceFactory::createAttributionService($this->modelId);
 
-                // Need to somehow specify job type here now that we have three types.
-
                 $records = $service->getTransientRecords($this->argObj, $this->remainder);
                 $service->run($records, $this->modelId, $this->userEmail);
 
