@@ -134,7 +134,7 @@ Route::group(
 Route::group(
     [
         'prefix' => 'tools' ,
-        'middleware' => [ 'auth'  ]
+        'middleware' => [ 'auth','pageLevel' ]
     ] ,
     function () {
 
