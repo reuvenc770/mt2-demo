@@ -19,4 +19,12 @@ class ClientRepo {
         $this->client->updateOrCreate(['id' => $data['id']], $data);
     }
 
+    public function getAllClientsArray() {
+        return $this->client->orderBy('id')->get()->toArray();
+    }
+
+    public function getAllClients() {
+        return $this->client->get();
+    }
+
 }

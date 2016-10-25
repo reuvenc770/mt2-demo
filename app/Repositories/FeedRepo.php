@@ -21,6 +21,10 @@ class FeedRepo {
         return $this->feed->all();
     }
 
+    public function getAllFeedsArray() {
+        return $this->feed->orderBy('id')->get()->toArray();
+    }
+
     public function isActive($id) {
         $result = $this
                 ->feed

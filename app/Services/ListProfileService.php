@@ -16,6 +16,7 @@ use Cache;
 use App\Repositories\FeedRepo;
 use App\Services\MT1Services\ClientStatsGroupingService;
 use App\Services\MT1Services\ClientService;
+use App\Services\ListProfileBaseTableService;
 
 class ListProfileService
 {
@@ -26,17 +27,12 @@ class ListProfileService
     const INSERT_THRESHOLD = 50000;
     private $uniqueColumn;
     const ROW_STORAGE_TIME = 60;
-    protected $feedRepo;
-    protected $clientService;
-    protected $mt1ClientService;
+    protected $baseTableService;
 
-    public function __construct(ListProfileRepo $profileRepo, ListProfileQueryBuilder $builder, FeedRepo $feedRepo , ClientStatsGroupingService $clientService , ClientService $mt1ClientService)
-    {
+    public function __construct(ListProfileRepo $profileRepo, ListProfileQueryBuilder $builder, ListProfileBaseTableService $baseTableService) {
         $this->profileRepo = $profileRepo;
         $this->builder = $builder;
-        $this->feedRepo = $feedRepo;
-        $this->clientService = $clientService;
-        $this->mt1ClientService = $mt1ClientService;
+        $this->baseTableService = $baseTableService;
     }
 
 
@@ -45,7 +41,7 @@ class ListProfileService
     }
 
 
-    public function pullProfile($id, $additionalOfferId) {
+    public function buildProfileTable($id) {
         /**
             - Run against hygiene
          */
@@ -61,7 +57,7 @@ class ListProfileService
         Storage::delete($fileName); // clear the file currently saved
 
         foreach ($queries as $queryData) {
-            $query = $this->builder->buildQuery($listProfile, $queryData, $additionalOfferId);
+            $query = $this->builder->buildQuery($listProfile, $queryData);
 
             // .. if we have hygiene, we write out both files. Write full one to a secret location. Send the other one (just email address/md5) out.
             // When the second returns. Find a way to subtract it from the first
@@ -69,12 +65,19 @@ class ListProfileService
             $insertHeader = $listProfile->insert_header === 1;
             $columns = $this->builder->getColumns();
 
+            /**
+                Need to create the table here.
+            */
+
             // set up unique column. Can be one of email_id, email_address, or ''
             $this->uniqueColumn = $this->getUniqueColumn($columns);
 
+            /**
+            This has to be moved elsewhere
             if ($insertHeader && 1 === $queryNumber) {
                 Storage::append($fileName, implode(',', $columns));
             }
+            */
 
             $resource = $query->cursor();
 
@@ -82,6 +85,10 @@ class ListProfileService
                 if ($this->isUnique($listProfileTag, $row)) {
                     $this->saveToCache($listProfileTag, $row->{$this->uniqueColumn});
                     $row = $this->mapDataToColumns($columns, $row);
+
+                    /**
+                        Rewrite this to do an insert into a table
+                    */
                     $this->append($fileName, $row);
                     $totalCount++;
                 }
@@ -182,37 +189,5 @@ class ListProfileService
 
     private function saveToCache($tag, $value) {
         Cache::tags($tag)->put($value, 1, self::ROW_STORAGE_TIME);
-    }
-
-
-    public function getFeeds () {
-        return $this->feedRepo->getFeeds()->keyBy( 'id' )->toArray();
-    }
-
-
-    public function getClients () {
-        return $this->clientService->getListGroups()->keyBy( 'value' )->toArray();
-    }
-
-
-    public function getClientFeedMap () {
-        $feeds = $this->feedRepo->getFeeds()->keyBy( 'id' )->toArray();
-        $clients = $this->clientService->getListGroups()->keyBy( 'value' )->toArray();
-
-        $clientFeedMap = [];
-
-        foreach ( $clients as $currentClientId => $currentClient ) {
-            $clientFeedList = $this->mt1ClientService->getClientFeedsForListOwner( $currentClientId );
-
-            foreach ( $clientFeedList as $currentFeedId ) {
-                if ( !isset( $clientFeedMap[ $currentClientId ] ) ) {
-                    $clientFeedMap[ $currentClientId ] = [];
-                }
-
-                $clientFeedMap[ $currentClientId ] []= $currentFeedId;
-            }
-        }
-
-        return $clientFeedMap;
     }
 }
