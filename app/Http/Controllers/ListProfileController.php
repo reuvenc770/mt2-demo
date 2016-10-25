@@ -114,7 +114,7 @@ class ListProfileController extends Controller
     //USES LIST PROFILE DB NOT MT1 UNIQUE PROFILE
     public function listActive(){
         return response()->json(
-            $this->listProfile->getActiveListProflies()
+            $this->listProfile->getActiveListProfiles()
         );
     }
 
@@ -128,7 +128,6 @@ class ListProfileController extends Controller
             'states' => $this->states->all() ,
             'isps' => $this->ispService->getAll() ,
             'categories' => CakeVertical::all() ,
-            'offers' => $this->offerService->all() 
         ] , $addOptions );
     }
 }

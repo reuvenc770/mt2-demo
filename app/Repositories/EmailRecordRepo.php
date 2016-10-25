@@ -7,6 +7,7 @@ use App\Models\EmailAction;
 use App\Models\ActionType;
 use App\Models\EmailFeedInstance;
 use App\Models\OrphanEmail;
+use App\Models\RecordData;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,7 @@ use Log;
 use App\Events\NewActions;
 class EmailRecordRepo {
     protected $email;
+    protected $recordData;
     protected $emailAddress = '';
     protected $recordType = '';
     protected $espId = 0;
@@ -24,8 +26,9 @@ class EmailRecordRepo {
 
     protected $errorReason = '';
 
-    public function __construct ( Email $email ) {
+    public function __construct ( Email $email, RecordData $recordData ) {
         $this->email = $email;
+        $this->recordData = $recordData;
     }
 
     public function massRecordDeliverables ( $records = [] ) {
@@ -47,6 +50,10 @@ class EmailRecordRepo {
 
             if ( $this->isValidRecord( false ) ) {
                 $currentId = $this->getEmailId();
+
+                $this->recordData->find($currentId)->is_deliverable = 0;
+                $this->recordData->save();
+
                 $validRecord = "( "
                     . join( " , " , [
                         $currentId ,

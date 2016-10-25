@@ -52,10 +52,12 @@ mt2App.service( 'AttributionProjectionService' , [ 'AttributionApiService' , '$m
                     widthFactor: 0.3 ,
                     opacity: 1 ,
                     color: '#4285F4'
+
                 } 
             } ,
             legend: { position: 'top' } ,
             height: 3000 ,
+            width: 1200,
             chartArea : { left : "10%" , top : "5%" , width : "90%" , height : "90%" }
         };
 

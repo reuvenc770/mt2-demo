@@ -1,4 +1,4 @@
-mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToast' , '$mdDialog' , '$log' , function ( ListProfileApiService , $mdToast , $mdDialog , $log ) {
+mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToast' , '$mdDialog' , '$timeout' , '$log' , function ( ListProfileApiService , $mdToast , $mdDialog , $timeout , $log ) {
     var self = this;
 
     $(function () { $('[data-toggle="tooltip"]').tooltip() });
@@ -8,7 +8,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
 
     self.enableAdmiral = false;
     self.showAttrFilters = false;
-
+    self.search = {};
     self.enabledSuppression = { "list" : false , "offer" : false };
 
     self.current = {
@@ -17,7 +17,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         'feeds' : {} ,
         'isps' : {} ,
         'categories' : {} ,
-        'offers' : {} ,
+        'offers' : [] ,
         'suppression' : {
             'global' : { 1 : "Orange Global" } ,
             'list' : {} ,
@@ -48,6 +48,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         } ,
         'selectedColumns' : [] ,
         'includeCsvHeader' : false ,
+        'exportOptions' : { 'interval' : [] , 'dayOfWeek' : '' , 'dayOfMonth' : '' } ,
         'admiralsOnly' : false
     };
 
@@ -146,7 +147,8 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         { 'header' : 'feed_name' , 'label' : "Feed Name" } ,
         { 'header' : 'client_name' , 'label' : "Client" } ,
         { 'header' : 'subscribe_date' , 'label' : 'Subscribe Date' } ,
-        { 'header' : 'status' , 'label' : 'Status' }
+        { 'header' : 'status' , 'label' : 'Status' } ,
+        { 'header' : 'tower_date' , 'label' : 'Tower Date' }
     ];
     self.selectedColumns = [];
     self.availableWidgetTitle = "Available Columns";
@@ -507,6 +509,16 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         self.updateFeedVisibility();
     };
 
+
+    self.search.populateOffers = function (){
+        if(self.search.offer.length >= 3){
+            ListProfileApiService.searchOffers(self.search.offer,function(response){
+                self.search.offerResults = response.data;
+            },function(){});
+        }
+
+    };
+
     self.addIsps = function () {
         self.addMembershipItems(
             { "highlighted" : self.highlightedIsps , "visibility" : self.ispVisibility , "map" : self.ispNameMap } ,
@@ -538,18 +550,29 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
     };
 
     self.addOffers = function () {
-        self.addMembershipItems(
-            { "highlighted" : self.highlightedOffers , "visibility" : self.offerVisibility , "map" : self.offerNameMap } ,
-            self.current.offers
-        );
+        angular.forEach( self.highlightedOffers , function ( value , key ) {
+            self.current.offers.push( value );
+            var index = self.search.offerResults.indexOf( value );
+
+            if ( index >= 0 ) {
+                self.search.offerResults.splice( index , 1 );
+            }
+        } );
     };
 
     self.removeOffers = function () {
-        self.removeMembershipItems(
-            { "highlightedForRemoval" : self.highlightedOffersForRemoval , "visibility" : self.offerVisibility } ,
-            self.current.offers
-        );
+        angular.forEach( self.highlightedOffersForRemoval , function ( selectedValue , selectedKey ) {
+            self.search.offerResults.push( selectedValue );
+            var index = self.current.offers.indexOf( selectedValue );
+
+            if ( index >= 0 ) {
+                self.current.offers.splice( index , 1 );
+            }
+        } );
+
     };
+
+
 
     self.addStateFilters = function () {
         self.addMembershipItems(
@@ -694,4 +717,33 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         } );
         self.current.selectedColumns = columnList;
     };
+
+    self.admiralToggleFix = function () {
+        if ( !self.enableAdmiral ) { //value is not true till after this is called
+            $log.info( 'go to bottom:' + document.body.scrollHeight  );
+            $timeout( function () { window.scrollTo( 0 , ( document.body.scrollHeight + 300 ) ); } , 1 );
+        }
+    };
+
+    self.toggleExportOption = function ( option ) {
+        var optionIndex = self.current.exportOptions.interval.indexOf( option );
+
+        if ( optionIndex < 0 ) {
+            var immediatelyExists = ( self.current.exportOptions.interval.indexOf( 'immediately' ) >= 0 );
+            var itemsChosen = self.current.exportOptions.interval.length;
+
+            if (
+                ( immediatelyExists && itemsChosen === 1 )
+                || ( !immediatelyExists && option == 'immediately' && itemsChosen === 1 )
+                || ( itemsChosen === 0 ) ) {
+                self.current.exportOptions.interval.push( option ); 
+            }
+        } else {
+            self.current.exportOptions.interval.splice( optionIndex , 1 ); 
+        }
+    };
+        
+    self.isSelectedExportOption = function ( option ) {
+        return self.current.exportOptions.interval.indexOf( option ) >= 0;
+    }
 } ] );
