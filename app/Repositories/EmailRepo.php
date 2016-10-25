@@ -40,11 +40,11 @@ class EmailRepo {
     public function insertDelayedBatch($row) {
         if ($this->batchEmailCount >= self::INSERT_THRESHOLD) {
             $this->emailModel->insert($this->batchEmails);
-            $this->batchEmails = [$row];
+            $this->batchEmails = [$this->createRow($row)];
             $this->batchEmailCount = 1;
         }
         else {
-            $this->batchEmails[] = $row;
+            $this->batchEmails[] = $this->createRow($row);
             $this->batchEmailCount++;
         }
     }
@@ -57,14 +57,20 @@ class EmailRepo {
 
     public function insertCopy($emailData) {
         DB::statement(
-            "INSERT INTO emails (id, email_address, email_domain_id)
-            VALUES(:id, :addr, :domain_id)
+            "INSERT INTO emails (id, email_address, email_domain_id, lower_case_md5, upper_case_md5)
+            VALUES(:id, :addr, :domain_id, :lower_md5, :upper_md5)
             ON DUPLICATE KEY UPDATE
-            id = id, email_address=email_address, email_domain_id=email_domain_id ",
+            id = id, 
+            email_address=email_address, 
+            email_domain_id=email_domain_id, 
+            lower_case_md5=lower_case_md5, 
+            upper_case_md5 = upper_case_md5",
             array(
                 ':id' => $emailData['id'],
                 ':addr' => $emailData['email_address'],
-                ':domain_id' => $emailData['email_domain_id']
+                ':domain_id' => $emailData['email_domain_id'],
+                ':lower_md5' => md5(strtolower($emailData['email_address'])),
+                ':upper_md5' => md5(strtoupper($emailData['email_address']))
             )
         );
     }
@@ -72,6 +78,16 @@ class EmailRepo {
     private function getAttributedFeedForAddress($emailAddr) {
         # TODO: flesh out attribution. This will return a feed_id
         return 1;
+    }
+
+    private function createRow($row) {
+        return [
+            'id' => $row['id'],
+            'email_address' => $row['email_address'],
+            'email_domain_id' => $row['email_domain_id'],
+            'lower_case_md5' => md5(strtolower($row['email_address'])),
+            'upper_case_md5' => md5(strtoupper($row['email_address']))
+        ];
     }
 
     /**
@@ -148,6 +164,16 @@ class EmailRepo {
         $this->emailModel
              ->where('id', $oldEmailId)
              ->update(['id' => $newEmailId]);
+    }
+
+    // More of the above
+    public function updateInBatchIdSwitches($switches) {
+        foreach ($switches as $row) {
+            $old = $row['old'];
+            $new = $row['new'];
+
+            $this->emailModel->where('id', $old)->update(['id' => $new]);
+        }
     }
 
 }

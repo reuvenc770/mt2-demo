@@ -46,4 +46,5 @@ return[
     'ispgroup.add'        => 'Add ISP Grouo',
     'ispgroup.list'       => 'ISP Groups',
     'esp.list'            => 'ESP Accounts',
+    'tools.appendeid' => 'Append EID' ,
 ];
