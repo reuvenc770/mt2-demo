@@ -1,14 +1,16 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Jobs\AppendEidEmail;
 use App\Services\AppendEidService;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use League\Csv\Reader;
 class AppendEidController extends Controller
 {
+    use DispatchesJobs;
     private $appendEidService;
 
     public function __construct(AppendEidService $service)
@@ -23,14 +25,11 @@ class AppendEidController extends Controller
     public function manageUpload(Request $request){
 
         $fileName = $request->input("fileName");
-        $returnData = array();
         $dateFolder = date('Ymd');
         $path = storage_path() . "/app/files/uploads/appendEID/$dateFolder/$fileName";
+        $this->dispatch(new AppendEidEmail($path,true,true));
 
-        $reader = Reader::createFromPath($path);
-        $flag = false;
-        $results = $reader->fetchAssoc(["eid"]);
-        $file = $this->appendEidService->createFile($results);
-        return response()->json($returnData);
+
+        return response()->json(["success" => true]);
     }
 }

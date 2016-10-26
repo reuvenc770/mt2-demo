@@ -31,6 +31,10 @@ class RecordDataRepo {
         }
     }
 
+    public function getRecordDataFromEid($eid){
+        return $this->model->find($eid);
+    }
+
     public function insertStored() {
         $this->batchData = implode(', ', $this->batchData);
 
