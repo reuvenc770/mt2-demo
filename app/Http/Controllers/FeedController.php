@@ -40,7 +40,7 @@ class FeedController extends Controller
 
         return response()->view( 'bootstrap.pages.feed.feed-index' , [
             'countries' => ( !is_null( $countryList ) ? $countryList : [] ),
-            'clients' => $this->clientService->get(),
+            'clients' => $this->clientService->getAll(),
             'clientTypes' => $this->feedService->getClientTypes(),
             'feedTypes' => $this->feedService->getFeedTypes()
         ] );
@@ -58,7 +58,7 @@ class FeedController extends Controller
         return response()->view( 'bootstrap.pages.feed.feed-add' , [
             'hideName' => 'show' ,
             'countries' => ( !is_null( $countryList ) ? $countryList : [] ),
-            'clients' => $this->clientService->get(),
+            'clients' => $this->clientService->getAll(),
             'clientTypes' => $this->feedService->getClientTypes(),
             'feedTypes' => $this->feedService->getFeedTypes()
         ] );

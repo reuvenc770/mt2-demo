@@ -30,4 +30,8 @@ class ClientRepo {
     public function getAccount ($id) {
         return $this->client->find( $id );
     }
+
+    public function getFeeds ( $id ) {
+        return $this->client->find( $id )->feeds()->get();
+    }
 }

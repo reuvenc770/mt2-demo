@@ -7,7 +7,7 @@
 
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('client.add'))
-        <li><a ng-click="client.viewAdd()">Add Client</a></li>
+        <li><a ng-href="/client/create" target="_self">Add Client</a></li>
     @endif
 @stop
 

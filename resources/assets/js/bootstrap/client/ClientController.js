@@ -1,6 +1,5 @@
 mt2App.controller( 'ClientController' , [ '$log' , '$window' , '$location', '$timeout' , 'ClientApiService' , '$rootScope' , '$mdToast' , 'formValidationService' , 'modalService' , function ( $log , $window , $location , $timeout , ClientApiService , $rootScope, $mdToast , formValidationService, modalService) {
     var self = this;
-    self.$location = $location;
 
     self.accounts = [];
     self.current = {
@@ -27,12 +26,6 @@ mt2App.controller( 'ClientController' , [ '$log' , '$window' , '$location', '$ti
     self.queryPromise = null;
     self.formSubmitted = false;
 
-    self.loadAccount = function () {
-        var pathMatches = $location.path().match( /^\/client\/edit\/(\d{1,})/ );
-
-        ClientApiService.getAccount( pathMatches[ 1 ] , self.loadAccountSuccessCallback );
-    };
-
     self.loadAccounts = function () {
         self.queryPromise = ClientApiService.getAccounts(
             self.currentPage ,
@@ -41,13 +34,21 @@ mt2App.controller( 'ClientController' , [ '$log' , '$window' , '$location', '$ti
             self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
     };
 
-    /**
-     * Click Handlers
-     */
-     self.viewAdd = function () {
-        $location.url( self.createUrl );
-        $window.location.href = self.createUrl;
-     };
+    self.setData = function ( currentClient ) {
+        self.current = currentClient;
+    };
+
+    self.saveClient = function () {
+        self.formSubmitted = true;
+
+        ClientApiService.saveClient( self.current , self.successRedirectCallback , self.saveClientFailureCallback );
+    };
+
+    self.updateClient = function () {
+        self.formSubmitted = true;
+
+        ClientApiService.updateClient( self.current , self.successRedirectCallback , self.updateClientFailureCallback );
+    };
 
     /**
      * Callbacks
@@ -71,4 +72,24 @@ mt2App.controller( 'ClientController' , [ '$log' , '$window' , '$location', '$ti
         modalService.launchModal();
     };
 
+    self.successRedirectCallback = function () {
+        $location.url( '/client' );
+        $window.location.href = '/client';
+    };
+
+    self.saveClientFailureCallback = function( response ) {
+        self.formSubmitted = false;
+
+        modalService.setModalLabel( 'Error' );
+        modalService.setModalBody( 'Failed to save clients.' );
+        modalService.launchModal();
+    };
+
+    self.updateClientFailureCallback = function( response ) {
+        self.formSubmitted = false;
+
+        modalService.setModalLabel( 'Error' );
+        modalService.setModalBody( 'Failed to update clients.' );
+        modalService.launchModal();
+    };
 } ] );

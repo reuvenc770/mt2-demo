@@ -32,4 +32,8 @@ class ClientService {
     public function getAccount ( $id ) {
         return $this->clientRepo->getAccount( $id );
     }
+
+    public function getFeeds ( $id ) {
+        return $this->clientRepo->getFeeds( $id );
+    }
 }

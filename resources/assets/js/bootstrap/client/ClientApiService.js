@@ -24,4 +24,20 @@ mt2App.service( 'ClientApiService' , function( $http , $log ) {
         } ).then( successCallback , failureCallback );
     }
 
+    self.saveClient = function ( clientData , successCallback , failureCallback ) {
+        return $http( {
+            "method" : "POST" ,
+            "url" : self.baseApiUrl ,
+            "data" : clientData
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.updateClient = function ( clientData , successCallback , failureCallback ) {
+        return $http( {
+            "method" : "PUT" ,
+            "params" : { "_method" : "PUT" } ,
+            "url" : self.baseApiUrl + '/' + clientData.id,
+            "data" : clientData
+        } ).then( successCallback , failureCallback );
+    };
 } );

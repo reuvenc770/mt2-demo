@@ -6,20 +6,19 @@ use Illuminate\Http\Request;
 use Laracasts\Flash\Flash;
 use App\Http\Requests;
 use AdrianMejias\States\States;
+use App\Http\Requests\ClientStoreRequest;
+use App\Http\Requests\ClientUpdateRequest;
 
 use App\Services\ClientService;
-#use App\Services\FeedService;
 
 class ClientController extends Controller
 {
     protected $states;
     protected $clientService;
-    #protected $feedService;
 
-    public function __construct ( States $states , ClientService $clientService /* , FeedService $feedService*/) {
+    public function __construct ( States $states , ClientService $clientService ) {
         $this->states = $states;
         $this->clientService = $clientService;
-        #$this->feedService = $feedService;
     }
 
     public function listAll () {
@@ -40,22 +39,27 @@ class ClientController extends Controller
         $states = States::all();
 
         return response()->view( 'bootstrap.pages.client.client-update' , [
+            "clientData" => $this->clientService->getAccount( $clientId )->toJSON() ,
             "states" => $states,
             'clientId' => $clientId ,
-            'feeds' => [] #Need to inject feeds, its in another branch melissa is working on.
+            'feeds' => $this->clientService->getFeeds( $clientId )
         ] );
     }
 
     public function store ( ClientStoreRequest $request ) {
         Flash::success( 'Client was successfully created.' );
 
-        return response()->json( [ 'message' => 'dummy response' ] );
+        $this->clientService->updateOrCreate( $request->all() );
+
+        return response()->json( [ 'status' => true ] );
     }
 
-    public function update ( ClientUpdateRequest $request ) {
+    public function update ( ClientUpdateRequest $request , $id ) {
         Flash::success( 'Client was successfully updated.' );
 
-        return response()->json( [ 'message' => 'dummy response' ] );
+        $this->clientService->updateOrCreate( $request->all() );
+
+        return response()->json( [ 'status' => true ] );
     }
 
     public function destroy ( $id ) {

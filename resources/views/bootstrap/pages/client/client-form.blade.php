@@ -63,7 +63,7 @@
     </div>
 </div>
 <div class="form-group" ng-class="{ 'has-error' : client.formErrors.email_address }">
-    <input placeholder="Address" value="" class="form-control" ng-model="client.current.email_address" required="required" name="email_address" type="text">
+    <input placeholder="Email Address" value="" class="form-control" ng-model="client.current.email_address" required="required" name="email_address" type="text">
     <div class="help-block" ng-show="client.formErrors.email_address">
         <div ng-repeat="error in client.formErrors.email_address">
             <span ng-bind="error"></span>
@@ -71,7 +71,7 @@
     </div>
 </div>
 <div class="form-group" ng-class="{ 'has-error' : client.formErrors.phone }">
-    <input placeholder="Address" value="" class="form-control" ng-model="client.current.phone" required="required" name="phone" type="text">
+    <input placeholder="Phone" value="" class="form-control" ng-model="client.current.phone" required="required" name="phone" type="text">
     <div class="help-block" ng-show="client.formErrors.phone">
         <div ng-repeat="error in client.formErrors.phone">
             <span ng-bind="error"></span>
