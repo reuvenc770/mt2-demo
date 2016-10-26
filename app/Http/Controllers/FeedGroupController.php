@@ -4,23 +4,18 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Laracasts\Flash\Flash;
-use Cache;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use App\Services\MT1ApiService;
-use App\Http\Requests\ClientGroupRequest;
-use App\Services\MT1Services\ClientGroupService;
+use App\Http\Requests\FeedGroupRequest;
+use App\Services\FeedGroupService;
 
-class ClientGroupController extends Controller
+class FeedGroupController extends Controller
 {
-    const CLIENT_GROUP_API_ENDPOINT = 'clientgroup';
-    protected $api;
-    protected $service;
+    protected $feedGroupService;
 
-    public function __construct ( MT1ApiService $api , ClientGroupService $service ) {
-        $this->api = $api;
-        $this->service = $service;
+    public function __construct ( FeedGroupService $feedGroupService ) {
+        $this->feedGroupService = $feedGroupService;
     }
 
     /**
@@ -42,7 +37,7 @@ class ClientGroupController extends Controller
     }
 
     public function listAll () {
-        return response()->view( 'pages.clientgroup.clientgroup-index' );
+        return response()->view( 'bootstrap.pages.feedgroup.feedgroup-index' );
     }
 
     /**
@@ -52,25 +47,29 @@ class ClientGroupController extends Controller
      */
     public function create()
     {
-        return response()->view( 'pages.clientgroup.clientgroup-add' );
+        return response()->view( 'bootstrap.pages.feedgroup.feedgroup-add' );
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  App\Http\Requests\ClientGroupRequest  $request
+     * @param  App\Http\Requests\FeedGroupRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store( ClientGroupRequest $request)
+    public function store( FeedGroupRequest $request)
     {
-        Flash::success( 'Client Group was successfully created.' );
+        Flash::success( 'Feed Group was successfully created.' );
 
-        Cache::tags($this->service->getType())->flush();
+        $this->saveFeedGroup( $request );
+    }
 
-        return response( $this->api->postForm(
-            self::CLIENT_GROUP_API_ENDPOINT ,
-            $request->all()
-        ) );
+    protected function saveFeedGroup ( $request ) {
+        $id = $this->feedGroupService->updateOrCreate( $request->all() );
+
+        $this->feedGroupService->updateFeeds( [
+            'id' => $id ,
+            'feeds' => $request->input( 'feeds' )
+        ] );
     }
 
     /**
@@ -92,32 +91,29 @@ class ClientGroupController extends Controller
      */
     public function edit($id)
     {
-        return response()->view( 'pages.clientgroup.clientgroup-update' );
+        return response()->view( 'bootstrap.pages.feedgroup.feedgroup-update' , [
+            'id' => $id ,
+            'name' => $this->feedGroupService->getName( $id ) ,
+            'feeds' => $this->feedGroupService->getFeeds( $id )
+        ] );
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  App\Http\Requests\ClientGroupRequest  $request
+     * @param  App\Http\Requests\FeedGroupRequest  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update( ClientGroupRequest $request, $id)
+    public function update( FeedGroupRequest $request, $id)
     {
-        Flash::success( 'Client Group was successfully updated.' );
+        Flash::success( 'Feed Group was successfully updated.' );
 
-        Cache::tags($this->service->getType())->flush();
-
-        return response( $this->api->postForm(
-            self::CLIENT_GROUP_API_ENDPOINT ,
-            $request->all()
-        ) );
+        $this->saveFeedGroup( $request );
     }
 
     public function copy ( $id ) {
-        Flash::success( 'Client Group was successfully copied.' );
-
-        Cache::tags($this->service->getType())->flush();
+        Flash::success( 'Feed Group was successfully copied.' );
 
         return response()->json( [
             "id" => $this->api->postForm(
@@ -135,13 +131,11 @@ class ClientGroupController extends Controller
      */
     public function destroy( $id )
     {
-        Flash::success( 'Client Group was successfully deleted.' );
-
-        Cache::tags($this->service->getType())->flush();
+        Flash::success( 'Feed Group was successfully deleted.' );
 
         return response()->json( $this->api->postForm(
             self::CLIENT_GROUP_API_ENDPOINT ,
-            [ 'action' => 'delete' , 'gid' => $id ] 
+            [ 'action' => 'delete' , 'gid' => $id ]
         ) );
     }
 }
