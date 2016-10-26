@@ -8,7 +8,7 @@ use Illuminate\Database\Query\Builder;
 use Carbon\Carbon;
 
 class ClientRepo {
-  
+
     private $client;
 
     public function __construct(Client $client) {
@@ -17,6 +17,10 @@ class ClientRepo {
 
     public function updateOrCreate($data) {
         $this->client->updateOrCreate(['id' => $data['id']], $data);
+    }
+
+    public function get() {
+        return $this->client->get();
     }
 
 }

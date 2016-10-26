@@ -51,8 +51,8 @@ class EmailRecordRepo {
             if ( $this->isValidRecord( false ) ) {
                 $currentId = $this->getEmailId();
 
-                $this->recordData->find($currentId)->is_deliverable = 0;
-                $this->recordData->save();
+                #$this->recordData->find($currentId)->is_deliverable = 0;
+                #$this->recordData->save();
 
                 $validRecord = "( "
                     . join( " , " , [

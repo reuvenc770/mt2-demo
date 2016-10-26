@@ -4,7 +4,7 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
 
     self.accounts = [];
 
-    self.currentAccount = { "id" : "" , "name" : "" , "email_id_field" : "" , "email_address_field" : "" };
+    self.currentAccount = { "_token" : "" , "id" : "" , "name" : "" , "email_id_field" : "" , "email_address_field" : "" };
 
     self.editUrl = 'esp/edit/';
 
@@ -32,7 +32,12 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     /**
      * Click Handlers
      */
+     self.saveNewAccount = function () {
+        self.formSubmitted = true;
+        formValidationService.resetFieldErrors(self);
 
+        EspService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self. saveNewAccountFailureCallback );
+     };
 
     self.editAccount = function () {
         self.formSubmitted = true;
@@ -44,9 +49,16 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
      * Callbacks
      */
     self.loadAccountSuccesCallback = function ( response ) {
+        var currentToken = self.currentAccount._token;
+
         self.currentAccount = response.data;
-        self.currentAccount.email_id_field = response.data.field_options.email_id_field;
-        self.currentAccount.email_address_field = response.data.field_options.email_address_field;
+        self.currentAccount._token = currentToken;
+
+        if ( response.data.field_options != null ) {
+            self.currentAccount.email_id_field = response.data.field_options.email_id_field;
+            self.currentAccount.email_address_field = response.data.field_options.email_address_field;
+        }
+
     }
     self.loadAccountsSuccessCallback = function ( response ) {
         self.accounts = response.data.data;
@@ -66,6 +78,11 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     self.SuccessCallBackRedirect = function ( response ) {
         $location.url( '/esp' );
         $window.location.href = '/esp';
+    };
+
+    self.saveNewAccountFailureCallback = function ( response ) {
+        self.formSubmitted = false;
+        formValidationService.loadFieldErrors( self , response );
     };
 
     self.editAccountFailureCallback = function ( response ) {
