@@ -41,7 +41,7 @@ mt2App.service( 'FeedApiService' , function ( $http , $log ) {
     self.updateFeed = function ( feedData , successCallback , failureCallback ) {
         $http( {
             "method" : "PUT" ,
-            "url" : this.baseApiUrl + '/' + feedData.client_id ,
+            "url" : this.baseApiUrl + '/' + feedData.id ,
             "params" : { "_method" : "PUT" } ,
             "data" : feedData
         } ).then( successCallback , failureCallback );

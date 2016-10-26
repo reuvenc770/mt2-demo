@@ -48,8 +48,8 @@ class FeedService
         return $this->feedRepo->getModel();
     }
 
-    public function updateOrCreate ( $data ) {
-        $this->feedRepo->updateOrCreate( $data );
+    public function updateOrCreate ( $data , $id = null ) {
+        $this->feedRepo->updateOrCreate( $data , $id );
     }
 
     public function getType () {

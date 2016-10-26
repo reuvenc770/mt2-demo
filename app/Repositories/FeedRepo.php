@@ -47,8 +47,8 @@ class FeedRepo {
         $this->feed->insert($data);
     }
 
-    public function updateOrCreate($data) {
-        $this->feed->updateOrCreate(['id' => $data['id']], $data);
+    public function updateOrCreate( $data , $id = null ) {
+        $this->feed->updateOrCreate(['id' => $id], $data);
     }
 
     public function getModel() {
