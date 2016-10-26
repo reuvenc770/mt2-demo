@@ -233,16 +233,16 @@ class NavigationService
     public function updateNavigation($navigation)
     {
         $parentRank = 1;
-        $childrenToKillParentsOf = array();
+        $childrenToOrphan = array();
         foreach ($navigation as $parentItem) {
             $this->sectionRepo->updateRank($parentItem['id'], $parentRank);
             $childRank = 1;
             foreach ($parentItem['childrenItems'] as $childItem) {
                 $this->permissionRepo->updateParentAndRank($childItem['id'], $parentItem['id'], $childRank);
-                $childrenToKillParentsOf[] = $childItem['id'];
+                $childrenToOrphan[] = $childItem['id'];
                 $childRank++;
             }
-            $this->permissionRepo->makeBatmans($childrenToKillParentsOf);
+            $this->permissionRepo->removeParents($childrenToOrphan);
             $parentRank++;
         }
         return true;
