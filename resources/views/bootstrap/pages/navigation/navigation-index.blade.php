@@ -37,7 +37,7 @@
                             <div class="panel-title">@{{ items.name }}</div>
                         </div>
                         <div class="panel-body">
-                            <ul class="list-group"  style="min-height:50px" dnd-list="items.childrenItems"
+                            <ul class="list-group"  style="min-height:100px" dnd-list="items.childrenItems"
                                 dnd-allowed-types="['itemType']"
                                 dnd-horizontal-list="true">
                                 <li class="list-group-item" ng-repeat="item in items.childrenItems"

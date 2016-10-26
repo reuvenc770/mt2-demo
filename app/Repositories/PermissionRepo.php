@@ -59,7 +59,7 @@ class PermissionRepo
         return $this->permission->find($id)->update(['parent'=>$parentId, 'rank' =>$rank]);
     }
 
-    public function makeBatmans($wealthyKidsWithParents){
-        return $this->permission->whereNotIn('id',$wealthyKidsWithParents)->update(['parent'=>0,'rank'=>0]);
+    public function removeParents($childrenToOrphan){
+        return $this->permission->whereNotIn('id',$childrenToOrphan)->update(['parent'=>0,'rank'=>0]);
     }
 }
