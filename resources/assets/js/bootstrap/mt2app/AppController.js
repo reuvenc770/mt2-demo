@@ -32,7 +32,7 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
             var periodIndex = path.indexOf( '/' );
             var pathPrefix = periodIndex >= 0 ? path.slice( 0 , periodIndex ) : path;
 
-            if ( $location.url().indexOf( pathPrefix ) >= 0 ) {
+            if ( $location.path().indexOf( pathPrefix ) >= 0 ) {
                 self.activeSection = {};
                 self.activeSection[ sectionName ] = true;
 
