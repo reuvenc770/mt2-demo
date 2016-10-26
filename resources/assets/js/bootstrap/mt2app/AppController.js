@@ -7,11 +7,11 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
     self.activeMenuLink = {};
 
     angular.element( document.getElementById( 'mainSideNav' ) ).on( 'show.bs.offcanvas' , function () {
-            angular.element( document ).find( 'body > div[ng-controller]' ).addClass( 'container-no-left' );
+            angular.element( document.getElementById( 'containerSizer' ) ).addClass( 'container-no-left' );
     } );
 
     angular.element( document.getElementById( 'mainSideNav' ) ).on( 'hide.bs.offcanvas' , function () {
-            angular.element( document ).find( 'body > div[ng-controller]' ).removeClass( 'container-no-left' );
+            angular.element( document.getElementById( 'containerSizer' ) ).removeClass( 'container-no-left' );
     } );
 
     self.setCurrentActiveSection = function ( sectionName , linkName , path ) {
@@ -32,7 +32,7 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
             var periodIndex = path.indexOf( '/' );
             var pathPrefix = periodIndex >= 0 ? path.slice( 0 , periodIndex ) : path;
 
-            if ( $location.url().indexOf( pathPrefix ) >= 0 ) {
+            if ( $location.path().indexOf( pathPrefix ) >= 0 ) {
                 self.activeSection = {};
                 self.activeSection[ sectionName ] = true;
 

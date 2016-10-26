@@ -13,7 +13,6 @@ class FeedGroup extends Model
     use ModelCacheControl;
 
     protected $guarded = [ '' ];
-    protected $connection = '';
 
     public function feeds () {
         return $this->belongsToMany( 'App\Models\Feed' , 'feedgroup_feed' , 'feedgroup_id' , 'feed_id' );

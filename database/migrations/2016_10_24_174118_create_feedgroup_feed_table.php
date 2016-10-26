@@ -17,6 +17,7 @@ class CreateFeedgroupFeedTable extends Migration
             $table->integer( 'feed_id' );
             $table->nullableTimestamps();
             $table->primary( [ 'feedgroup_id' , 'feed_id' ] );
+            $table->index( 'feed_id' );
         } );
     }
 

@@ -31,6 +31,11 @@ class EspRepo
     /**
      * @return Illuminate\Database\Eloquent\Collection
      */
+
+    public function insertRow ( $data ) {
+        return $this->esp->create( $data );
+    }
+
     public function getAllEsps () {
         return $this->esp->all()->sortBy("name");
     }

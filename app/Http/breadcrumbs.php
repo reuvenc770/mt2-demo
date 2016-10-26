@@ -47,6 +47,11 @@ Breadcrumbs::register('esp.list', function($breadcrumbs) {
     $breadcrumbs->push('ESP Accounts', route('esp.list'));
 });
 
+Breadcrumbs::register('esp.add', function($breadcrumbs) {
+    $breadcrumbs->parent('esp.list');
+    $breadcrumbs->push('Add ESP Account');
+});
+
 Breadcrumbs::register('esp.edit', function($breadcrumbs) {
     $breadcrumbs->parent('esp.list');
     $breadcrumbs->push('Edit ESP Account');
