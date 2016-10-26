@@ -11,7 +11,7 @@ namespace App\Services;
 
 use App\Repositories\ListProfileRepo;
 use App\Builders\ListProfileQueryBuilder;
-use Storage;
+#use Storage;
 use Cache;
 use App\Repositories\FeedRepo;
 use App\Services\MT1Services\ClientStatsGroupingService;
@@ -24,7 +24,7 @@ class ListProfileService
     protected $builder;
     private $rows = [];
     private $rowCount = 0;
-    const INSERT_THRESHOLD = 50000;
+    const INSERT_THRESHOLD = 1000; // Low threshold due to MySQL / PHP placeholder limits (2^16 - 1)
     private $uniqueColumn;
     const ROW_STORAGE_TIME = 60;
     protected $baseTableService;
@@ -45,7 +45,6 @@ class ListProfileService
         /**
             - Run against hygiene
          */
-
         $listProfile = $this->profileRepo->getProfile($id);
         $queries = $this->returnQueriesData($listProfile);
         $queryNumber = 1;
@@ -54,8 +53,10 @@ class ListProfileService
         $fileName = 'ListProfiles/' . $listProfile->name . '.csv';
         $listProfileTag = 'list_profile-' . $listProfile->id . '-' . $listProfile->name;
 
-        Storage::delete($fileName); // clear the file currently saved
-
+        /**
+        #Storage::delete($fileName); // clear the file currently saved
+        */
+        
         foreach ($queries as $queryData) {
             $query = $this->builder->buildQuery($listProfile, $queryData);
 
@@ -65,11 +66,13 @@ class ListProfileService
             $insertHeader = $listProfile->insert_header === 1;
             $columns = $this->builder->getColumns();
 
-            /**
-                Need to create the table here.
-            */
+            if (1 === $queryNumber) {
+                $this->baseTableService->createTable($id, $columns);
+            }
 
             // set up unique column. Can be one of email_id, email_address, or ''
+            // Not entirely needed anymore given that we use email_id in all list profiles
+            // We could hardcode this instead
             $this->uniqueColumn = $this->getUniqueColumn($columns);
 
             /**
@@ -85,16 +88,12 @@ class ListProfileService
                 if ($this->isUnique($listProfileTag, $row)) {
                     $this->saveToCache($listProfileTag, $row->{$this->uniqueColumn});
                     $row = $this->mapDataToColumns($columns, $row);
-
-                    /**
-                        Rewrite this to do an insert into a table
-                    */
-                    $this->append($fileName, $row);
+                    $this->batch($row);
                     $totalCount++;
                 }
             }
 
-            $this->write($fileName);
+            $this->batchInsert();
             $this->clear();
             
             $queryNumber++;
@@ -130,17 +129,17 @@ class ListProfileService
     private function mapDataToColumns($columns, $row) {
         $output = [];
 
-        foreach ($columns as $column) {
-            $output[] = $row->$column;
+        foreach ($columns as $id=>$column) {
+            $output[$column] = $row->$column ?: '';
         }
 
-        return implode(',', $output);
+        return $output;
     }
 
 
-    private function append($fileName, $row) {
+    private function batch($row) {
         if ($this->rowCount >= self::INSERT_THRESHOLD) {
-            $this->write($fileName);
+            $this->batchInsert();
 
             $this->rows = [$row];
             $this->rowCount = 0;
@@ -152,9 +151,8 @@ class ListProfileService
     }
 
 
-    private function write($fileName) {
-        $string = implode(PHP_EOL, $this->rows);
-        Storage::append($fileName, $string);
+    private function batchInsert() {
+        $this->baseTableService->massInsert($this->rows);
     }
 
 

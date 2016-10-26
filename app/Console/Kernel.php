@@ -69,7 +69,7 @@ class Kernel extends ConsoleKernel
         Commands\SendDomainExpirationNotice::class,
         Commands\PullCakeRecordData::class,
         Commands\InflateEmailHistoriesUtil::class,
-        Commands\ExportScheduledProfiles::class,
+        Commands\BuildScheduledProfileBaseTables::class,
     ];
 
     /**
@@ -210,6 +210,9 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('listprofile:aggregateActions')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('listprofile:getRecordAgentData')->dailyAt(self::EXPIRATION_RUNS);
-        $schedule->command('listprofile:exports')->dailyAt(self::NEVER);
+        /**
+            PLEASE MENTION IF THIS IS STILL FOUND
+        */
+        $schedule->command('listprofile:exports')->dailyAt(self::EXPIRATION_RUNS);
     }
 }

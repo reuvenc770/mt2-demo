@@ -3,11 +3,11 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Jobs\ListProfileExportJob;
+use App\Jobs\ListProfileBaseExportJob;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Repositories\ListProfileScheduleRepo;
 
-class ExportScheduledProfiles extends Command
+class BuildScheduledProfileBaseTables extends Command
 {
     use DispatchesJobs;
     protected $name = 'StartProfileExports';
@@ -17,14 +17,14 @@ class ExportScheduledProfiles extends Command
      *
      * @var string
      */
-    protected $signature = 'listprofile:exports';
+    protected $signature = 'listprofile:baseTables';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = "Run today's scheduled list profiles";
+    protected $description = "Create base tables for today's list profiles.";
 
     /**
      * Create a new command instance.
@@ -44,8 +44,9 @@ class ExportScheduledProfiles extends Command
     public function handle(ListProfileScheduleRepo $repo) {
         $profiles = $repo->getProfilesForToday();
 
-        foreach ($profiles as $profileSchedules) {
-            $job = new ListProfileExportJob($profile->id, str_random(16));
+        foreach ($profiles as $profileSchedule) {
+            $job = new ListProfileBaseExportJob($profileSchedule->list_profile_id, str_random(16));
+            $this->dispatch($job);
         }
     }
 }

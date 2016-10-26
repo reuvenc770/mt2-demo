@@ -23,14 +23,16 @@ class ListProfileScheduleRepo {
     }
 
     public function getProfilesForToday() {
-        $currentWeekDay = Carbon::today()->format('l');
-        $currentDayNumber = Carbon::today()->format('d');
+        $dataDb = config('database.connections.mysql.database');
+        $currentWeekDay = Carbon::today()->format('l'); // day of week, e.g. "Wednesday"
+        $currentDayNumber = Carbon::today()->format('d'); // day number
 
-        return $this->model
+        $union = $this->model
+                    ->select('list_profile_id')
                     ->where(function ($q) {
                         $q->where('run_daily', 1)
                           ->whereRaw("last_run < CURDATE()");
-                    })->orWhere(function($q use ($currentWeekDay)) {
+                    })->orWhere(function($q) use ($currentWeekDay) {
                         $q->where('run_weekly', 1)
                           ->where('day_of_week', $currentWeekDay)
                           ->whereRaw("last_run < CURDATE()");
@@ -38,6 +40,13 @@ class ListProfileScheduleRepo {
                         $q->where('run_monthly', 1)
                           ->where('day_of_month', $currentDayNumber)
                           ->whereRaw("last_run < CURDATE()");
-                    })->get();
+                    });
+
+        return $this->model
+             ->select('d.list_profile_id')
+             ->join("$dataDb.deploys as d", "list_profile_schedules.id", '=', 'd.list_profile_id')
+             ->whereRaw("d.send_date = CURDATE()")
+             ->union($union)
+             ->get();
     }
 }

@@ -12,10 +12,9 @@ class CreateListProfileSchedulesTable extends Migration
      */
     public function up()
     {
-        Schema::create('list_profile_schedules', function (Blueprint $table) {
+        Schema::connection('list_profile')->create('list_profile_schedules', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('list_profile_id')->unsigned()->default(0);
-            $table->integer('offer_id')->unsigned()->default(0);
             $table->boolean('run_daily')->default(0);
             $table->boolean('run_weekly')->default(0);
             $table->enum('day_of_week', ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', null]);
