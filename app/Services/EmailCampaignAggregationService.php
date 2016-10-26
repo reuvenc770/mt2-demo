@@ -51,6 +51,7 @@ class EmailCampaignAggregationService extends AbstractEtlService {
             else {
                 // if no data received
                 echo "No data received" . PHP_EOL;
+                $startPoint = $segmentEnd;
                 continue;
             }
         }

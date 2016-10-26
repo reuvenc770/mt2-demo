@@ -114,7 +114,7 @@ class ListProfileController extends Controller
     //USES LIST PROFILE DB NOT MT1 UNIQUE PROFILE
     public function listActive(){
         return response()->json(
-            $this->listProfile->getActiveListProflies()
+            $this->listProfile->getActiveListProfiles()
         );
     }
 

@@ -27,4 +27,7 @@ class ListProfileRepo
        return $this->listProfile->where("status", "A")->select('id','profile_name')->get();
     }
 
+    public function getProfile($id) {
+        return $this->listProfile->where('id', $id)->firstOrFail();
+    }
 }

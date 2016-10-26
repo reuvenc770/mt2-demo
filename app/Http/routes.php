@@ -403,27 +403,27 @@ Route::group(
 );
 
 /**
- * Client Group Routes
+ * Feed Group Routes
  */
 Route::group(
     [
-        'prefix' => 'clientgroup' ,
+        'prefix' => 'feedgroup' ,
         'middleware' => [ 'auth' , 'pageLevel' ]
     ] ,
     function () {
         Route::get( '/' , [
-            'as' => 'clientgroup.list' ,
-            'uses' => 'ClientGroupController@listAll'
+            'as' => 'feedgroup.list' ,
+            'uses' => 'FeedGroupController@listAll'
         ] );
 
         Route::get( '/create' , [
-            'as' => 'clientgroup.add' ,
-            'uses' => 'ClientGroupController@create'
+            'as' => 'feedgroup.add' ,
+            'uses' => 'FeedGroupController@create'
         ] );
 
         Route::get( '/edit/{id}' , [
-            'as' => 'clientgroup.edit' ,
-            'uses' => 'ClientGroupController@edit'
+            'as' => 'feedgroup.edit' ,
+            'uses' => 'FeedGroupController@edit'
         ] );
     }
 );
@@ -804,31 +804,6 @@ Route::group(
             }
         );
 
-
-
-        /**
-         * Client Group API Routes
-         */
-        Route::group(
-            [ 'prefix' => 'clientgroup' ] ,
-            function () {
-                Route::get( '/search' , [
-                    'as' => 'api.clientgroup.search' ,
-                    'uses' => 'ClientGroupController@paginateSearch'
-                ] );
-
-                Route::get( '/all' , [
-                    'as' => 'api.clientgroup.all' ,
-                    'uses' => 'ClientGroupController@index'
-                ] );
-
-                Route::get( '/copy/{id}' , [
-                    'as' => 'api.clientgroup.copy' ,
-                    'uses' => 'ClientGroupController@copy'
-                ] );
-            }
-        );
-
         /**
          * List Profile API Routes
          */
@@ -1093,9 +1068,9 @@ Route::group(
         );
 
         Route::resource(
-            'clientgroup' ,
-            'ClientGroupController' ,
-            [ 'except' => [ 'index' , 'create' , 'edit' , 'copy' ] ]
+            'feedgroup' ,
+            'FeedGroupController' ,
+            [ 'except' => [ 'create' , 'edit' ] ]
         );
 
         Route::resource(

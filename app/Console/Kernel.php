@@ -207,7 +207,7 @@ class Kernel extends ConsoleKernel
          *  List profile jobs
          */
 
-        $schedule->command('listprofile:aggregateActions 3')->dailyAt(self::EXPIRATION_RUNS);
+        $schedule->command('listprofile:aggregateActions')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('listprofile:getRecordAgentData')->dailyAt(self::EXPIRATION_RUNS);
     }
 }

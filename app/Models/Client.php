@@ -11,6 +11,6 @@ class Client extends Model
     protected $guarded = [];
 
     public function feeds() {
-        return $this->hasMany('App\Models\Feeds');
+        return $this->hasMany('App\Models\Feed');
     }
 }
