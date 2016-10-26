@@ -7,7 +7,7 @@ use App\Services\AppendEidService;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
-
+use Mail;
 class AppendEidEmail extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
@@ -34,7 +34,11 @@ class AppendEidEmail extends Job implements ShouldQueue
      */
     public function handle(AppendEidService $service)
     {
-       $test = $service->createFile($this->filePath, $this->feed, $this->fields);
-        echo $test;
+       $csv = $service->createFile($this->filePath, $this->feed, $this->fields);
+        Mail::raw("here is your file", function ($message) use ($csv) {
+            $message->attachData($csv, "download.csv");
+            $message->subject("your file");
+            $message->to("cunninghamx@gmail.com");
+        });
     }
 }

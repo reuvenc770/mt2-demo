@@ -70,8 +70,7 @@ class AppendEidService
         foreach ($data as $row) {
             $writer->insertOne($row);
         }
-        $writer->output($newPath);
-        return $newPath;
+        return $writer->__toString();
     }
 
 
