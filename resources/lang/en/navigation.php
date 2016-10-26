@@ -3,7 +3,6 @@
 return[
     'home' => 'Home' ,
     'espapi.list' => 'ESP API Accounts' ,
-    'esp.list' => 'ESPs' ,
     'espapi.add'  => 'Add API Account',
     'feed.list' => 'Feeds',
     'feed.add'  => "Add Feed",
@@ -47,4 +46,5 @@ return[
     'ispgroup.list'       => 'ISP Groups',
     'esp.list'            => 'ESP Accounts',
     'tools.appendeid' => 'Append EID' ,
+    'tools.navigation' => 'Manage Navigation' ,
 ];
