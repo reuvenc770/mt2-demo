@@ -49,4 +49,9 @@ class ListProfileScheduleRepo {
              ->union($union)
              ->get();
     }
+
+    public function updateSuccess($id) {
+        $today = Carbon::today()->format('Y-m-d');
+        $this->model->where('list_profile_id', $id)->update(['last_run' => $today]);
+    }
 }

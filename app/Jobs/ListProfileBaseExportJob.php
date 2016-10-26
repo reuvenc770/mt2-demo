@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Facades\JobTracking;
 use App\Jobs\Traits\PreventJobOverlapping;
 use App\Services\ListProfileService;
+use App\Services\ListProfileScheduleService;
 
 class ListProfileBaseExportJob extends Job implements ShouldQueue {
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
@@ -24,7 +25,7 @@ class ListProfileBaseExportJob extends Job implements ShouldQueue {
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
-    public function handle(ListProfileService $service) {
+    public function handle(ListProfileService $service, ListProfileScheduleService $schedule) {
         if ($this->jobCanRun($this->jobName)) {
             try {
                 $this->createLock($this->jobName);
@@ -32,6 +33,7 @@ class ListProfileBaseExportJob extends Job implements ShouldQueue {
                 echo "{$this->jobName} running" . PHP_EOL;
 
                 $service->buildProfileTable($this->profileId);
+                $schedule->updateSuccess($this->profileId);
 
                 JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
             }
