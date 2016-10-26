@@ -34,5 +34,5 @@
 @stop
 
 <?php Assets::add(
-        ['resources/assets/js/bootstrap/job/jobController.js',
+        ['resources/assets/js/bootstrap/job/JobController.js',
                 'resources/assets/js/bootstrap/job/JobApiService.js'],'js','pageLevel') ?>
