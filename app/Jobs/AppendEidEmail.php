@@ -18,13 +18,15 @@ class AppendEidEmail extends Job implements ShouldQueue
      * @return void
      */
     private $filePath;
-    private $feed;
-    private $fields;
-    public function __construct($filePath,$feed,$fields)
+    private $includeFeed;
+    private $includeFields;
+    private $includeSuppression;
+    public function __construct($filePath,$feed,$fields,$suppression)
     {
         $this->filePath = $filePath;
-        $this->feed = $feed;
-        $this->fields = $fields;
+        $this->includeFeed = $feed;
+        $this->includeFields = $fields;
+        $this->includeSuppression = $suppression;
     }
 
     /**
@@ -34,10 +36,11 @@ class AppendEidEmail extends Job implements ShouldQueue
      */
     public function handle(AppendEidService $service)
     {
-       $csv = $service->createFile($this->filePath, $this->feed, $this->fields);
-        Mail::raw("here is your file", function ($message) use ($csv) {
-            $message->attachData($csv, "download.csv");
-            $message->subject("your file");
+       $csv = $service->createFile($this->filePath, $this->includeFeed, $this->includeFields, $this->includeSuppression);
+        Mail::raw("Here is results of your Appending", function ($message) use ($csv) {
+            $message->attachData($csv, "results.csv");
+            $message->subject("Append EID Results");
+            $message->priority(1);
             $message->to("cunninghamx@gmail.com");
         });
     }

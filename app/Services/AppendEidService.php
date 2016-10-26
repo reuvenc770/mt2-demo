@@ -8,6 +8,7 @@
 
 namespace App\Services;
 
+use App\Facades\Suppression;
 use App\Repositories\EmailRepo;
 use App\Repositories\FeedRepo;
 use App\Repositories\RecordDataRepo;
@@ -27,43 +28,55 @@ class AppendEidService
         $this->recordData = $recordDataRepo;
     }
 
-    public function createFile($file, $feed, $fields)
+    public function createFile($file, $includeFeed, $includeFields, $includeSuppression)
     {
         $reader = Reader::createFromPath($file);
 
         $rows = $reader->fetchAssoc(["email"]);
         $csvData = array();
         $feedName = null;
-        $fieldData = null;
+        $fieldData = array();
+        $stats = null;
         $i = 1;
         try {
             foreach ($rows as $row) {
-                print_r($i);
-                $emailReturn = $this->emailRepo->getEmailId($row['email']);
-                $emailId = $emailReturn[0]->id;
-                if ($feed) {
-                    $feedId = $this->emailRepo->getCurrentAttributedFeedId($emailId);
-                    $feedName = $this->feedRepo->getFeed($feedId)->name;
+
+                $suppressionInfo = Suppression::checkGlobalSuppression($row['email']);
+                $rowIsActive = count($suppressionInfo) == 0;
+                if($rowIsActive || $includeSuppression) {
+                    print_r($i);
+                    $emailReturn = $this->emailRepo->getEmailId($row['email']);
+                    $emailId = $emailReturn[0]->id;
+                    if ($includeFeed) {
+                        $feedId = $this->emailRepo->getCurrentAttributedFeedId($emailId);
+                        $feedName = $this->feedRepo->getFeed($feedId)->name;
+                    }
+                    if ($includeFields) {
+                        $fieldData = $this->recordData->getRecordDataFromEid($emailId);
+                        $fieldData = $fieldData ? $fieldData->toArray() : array();
+                    }
+                    $rowResult = array_merge(["email" => $row['email'], "email_id" => $emailId, "feedname" => $feedName,], $fieldData);
+                    if($includeSuppression){
+                        $value = $rowIsActive ? "A" : "U";
+                        $rowResult = array_merge($rowResult, ['status'=> "$value"]);
+                    }
+                    $i++;
+
+                    $csvData[] = $rowResult;
                 }
-                if ($fields) {
-                    $fieldData = $this->recordData->getRecordDataFromEid($emailId);
-                    $fieldData =  $fieldData ?  $fieldData->toArray() : array();
-                }
-                $csvData[] = array_merge(["email" => $row['email'],"email_id" => $emailId, "feedname" => $feedName], $fieldData);
-                $i++;
             }
         } catch (\Exception $e) {
             Log::info($e);
         }
 
-        return $this->createCsv($csvData,$feed,$fields);
+        return $this->createCsv($csvData,$includeFeed,$includeFields,$includeSuppression);
     }
 
-    public function createCsv($data,$feed,$fields)
+    public function createCsv($data,$includeFeed,$includeFields,$includeSuppression)
     {
-        $newPath = storage_path('downloads') . "/file.csv";
+
         $writer = Writer::createFromFileObject(new \SplTempFileObject());
-        $schema = $this->returnCsvHeader($feed,$fields);
+        $schema = $this->returnCsvHeader($includeFeed,$includeFields,$includeSuppression);
 
         $writer->insertOne($schema);
 
@@ -74,18 +87,21 @@ class AppendEidService
     }
 
 
-    private function returnCsvHeader($feed,$fields)
+    private function returnCsvHeader($includeFeed,$includeFields, $includeSuppression)
     {
-        $header = array();
-        $base = array("email_adddress","eid");
-        if($feed){
-            $header = array_merge($base, ['feed_name']);
+        $header = array("email_adddress","eid");
+        if($includeFeed){
+            $header = array_merge($header, ['feed_name']);
         }
-        if($fields){
+        if($includeFields){
             $header = array_merge($header, ["first_name", "last_name", "address", "address2", "city", "state", "zip", "country", "gender", "ip", "phone",
                 "source_url", "dob", "device_type", "device_name", "carrier", "capture_date", "other_fields", "created_at",
                 "updated_at"]);
         }
+        if($includeSuppression){
+            array_merge($header,['status']);  //keeping style
+        }
+
         return $header;
     }
 }

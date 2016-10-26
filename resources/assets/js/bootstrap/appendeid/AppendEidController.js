@@ -4,9 +4,18 @@ mt2App.controller('AppendEidController', ['$log', '$window', '$location', '$time
     self.text = "File not ready";
     self.formSubmitted = true;
     self.file ="";
+    self.fields = false;
+    self.suppress = false;
+    self.feed = false;
 
     self.createFile = function () {
-        AppendEidApiService.uploadList(self.file, self.uploadSuccessCallback,self.uploadFailCallback);
+        var data = {
+            'fileName' : self.file,
+            'feed' : self.feed,
+            'suppress' : self.suppress,
+            'fields': self.fields
+        };
+        AppendEidApiService.uploadList(data, self.uploadSuccessCallback,self.uploadFailCallback);
     };
 
     self.uploadSuccessCallback = function(response){

@@ -3,11 +3,11 @@ mt2App.service( 'AppendEidApiService' , function ( $http , $log ) {
 
     self.uploadListUrl = '/api/appendeid/upload';
 
-    self.uploadList = function ( list , successCallback , failureCallback  ) {
+    self.uploadList = function ( data , successCallback , failureCallback  ) {
         $http( {
             "method" : "POST" ,
             "url" : this.uploadListUrl,
-            "data" : {fileName: list}
+            "data" : data
         } ).then( successCallback , failureCallback );
     };
 

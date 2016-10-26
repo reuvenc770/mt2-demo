@@ -6,11 +6,21 @@
 
     <div class="panel panel-primary" ng-controller="AppendEidController as append">
         <div class="panel-heading">
-            <div class="panel-title">Add Mailing Template</div>
+            <div class="panel-title">Append EID</div>
         </div>
         <div class="panel-body">
             <fieldset>
-
+                <div class="form-group">
+                    <md-switch ng-model="append.feed" aria-label="Include Current Feed Name?">
+                        Include Current Feed Name?
+                    </md-switch>
+                    <md-switch ng-model="append.fields" aria-label=" Include Email Information">
+                        Include Email Information
+                    </md-switch>
+                    <md-switch ng-model="append.suppress" aria-label=" Include Suppressed Records">
+                        Include Suppressed Records
+                    </md-switch>
+                </div>
                 <div class="btn-group" flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'appendEID' , '_token' : '{{ csrf_token() }}' } }"
                     flow-files-submitted="$flow.upload()"
                     flow-file-success="append.unlockButtonLoadFile($file); $flow.cancel()" flow-btn>
