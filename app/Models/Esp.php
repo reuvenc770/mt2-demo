@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Esp extends Model
 {
     use ModelCacheControl;
+    protected $guarded = ['id'];
+
     public function espAccounts()
     {
         return $this->hasMany('App\Models\EspAccount');

@@ -7,7 +7,7 @@
 
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('esp.add'))
-        <li><a ng-click="esp.viewAdd()">Add ESP Account</a></li>
+        <li><a ng-href="/esp/create" target="_self">Add ESP Account</a></li>
     @endif
 @stop
 
