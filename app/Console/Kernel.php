@@ -164,7 +164,7 @@ class Kernel extends ConsoleKernel
          * Constantly firing.
          *
          */
-        $schedule->command('ftp:admin -H 52.205.67.250 -U root -k ~/.ssh/mt2ftp.pub -K ~/.ssh/mt2ftp -u -s Client')->everyFiveMinutes();
+        #$schedule->command('ftp:admin -H 52.205.67.250 -U root -k ~/.ssh/mt2ftp.pub -K ~/.ssh/mt2ftp -u -s Client')->everyFiveMinutes();
 
         /**
          *  MT1 data sync jobs
