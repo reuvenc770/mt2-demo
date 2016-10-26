@@ -2,43 +2,53 @@
 
 namespace App\Jobs;
 
-use App\Models\JobEntry;
+use App\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Facades\JobTracking;
+use App\Models\JobEntry;
 use App\Jobs\Traits\PreventJobOverlapping;
-use App\Services\ListProfileService;
-use App\Services\ListProfileScheduleService;
-use App\Events\ListProfileCompleted;
+use App\Services\ListProfileExportService;
 
-class ListProfileBaseExportJob extends Job implements ShouldQueue {
+class ExportListProfileJob extends Job implements ShouldQueue
+{
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
-
-    private $tracking;
-    private $profileId;
+    const BASE_NAME = 'ListProfileExport-';
     private $jobName;
+    private $listProfileId;
+    private $offerId;
+    private $tracking;
 
-    public function __construct($profileId, $tracking) {
-        $this->profileId = $profileId;
+    /**
+     * Create a new job instance.
+     *
+     * @return void
+     */
+    public function __construct($listProfileId, $offerId, $tracking) {
+        $this->listProfileId = $listProfileId;
+        $this->offerId = $offerId;
         $this->tracking = $tracking;
-        $this->jobName = 'ListProfileExport-' . $profileId;
+
+        $this->jobName = self::BASE_NAME . $listProfileId . ':' . $offerId;
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
-    public function handle(ListProfileService $service, ListProfileScheduleService $schedule) {
+    /**
+     * Execute the job.
+     *
+     * @return void
+     */
+    public function handle(ListProfileExportService $service) {
         if ($this->jobCanRun($this->jobName)) {
             try {
                 $this->createLock($this->jobName);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
-                echo "{$this->jobName} running" . PHP_EOL;
+                echo "List Profile Export {$this->jobName}" . PHP_EOL;
 
-                $service->buildProfileTable($this->profileId);
-                $schedule->updateSuccess($this->profileId);
+                $service->export($this->listProfileId, $this->offerId);
 
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
-
-                \Event::fire(new ListProfileCompleted($this->profileId));
             }
             catch (\Exception $e) {
                 echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;
@@ -58,5 +68,4 @@ class ListProfileBaseExportJob extends Job implements ShouldQueue {
         JobTracking::changeJobState(JobEntry::FAILED, $this->tracking);
         $this->unlock($this->jobName);
     }
-
 }

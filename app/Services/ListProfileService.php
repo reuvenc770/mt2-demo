@@ -11,7 +11,6 @@ namespace App\Services;
 
 use App\Repositories\ListProfileRepo;
 use App\Builders\ListProfileQueryBuilder;
-#use Storage;
 use Cache;
 use App\Repositories\FeedRepo;
 use App\Services\MT1Services\ClientStatsGroupingService;
@@ -50,20 +49,14 @@ class ListProfileService
         $queryNumber = 1;
         $totalCount = 0;
 
-        $fileName = 'ListProfiles/' . $listProfile->name . '.csv';
         $listProfileTag = 'list_profile-' . $listProfile->id . '-' . $listProfile->name;
 
-        /**
-        #Storage::delete($fileName); // clear the file currently saved
-        */
-        
         foreach ($queries as $queryData) {
             $query = $this->builder->buildQuery($listProfile, $queryData);
 
             // .. if we have hygiene, we write out both files. Write full one to a secret location. Send the other one (just email address/md5) out.
             // When the second returns. Find a way to subtract it from the first
             
-            $insertHeader = $listProfile->insert_header === 1;
             $columns = $this->builder->getColumns();
 
             if (1 === $queryNumber) {
@@ -74,13 +67,6 @@ class ListProfileService
             // Not entirely needed anymore given that we use email_id in all list profiles
             // We could hardcode this instead
             $this->uniqueColumn = $this->getUniqueColumn($columns);
-
-            /**
-            This has to be moved elsewhere
-            if ($insertHeader && 1 === $queryNumber) {
-                Storage::append($fileName, implode(',', $columns));
-            }
-            */
 
             $resource = $query->cursor();
 
@@ -101,7 +87,7 @@ class ListProfileService
 
         Cache::tags($listProfileTag)->flush();
 
-        $listProfile->total_count = $totalCount;
+        $this->profileRepo->updateTotalCount($listProfile->id, $totalCount);
 
     }
 

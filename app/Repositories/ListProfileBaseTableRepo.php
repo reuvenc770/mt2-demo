@@ -17,4 +17,13 @@ class ListProfileBaseTableRepo {
     public function insert($row) {
         $this->model->insert($row);
     }
+
+
+    public function suppressWithOfferId($offerId) {
+        /**
+            Need to build out suppression tables.
+         */
+
+        return $this->model;
+    }
 }
