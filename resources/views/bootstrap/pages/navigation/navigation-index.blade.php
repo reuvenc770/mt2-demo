@@ -1,6 +1,6 @@
 @extends( 'bootstrap.layout.default' )
 
-@section( 'title' , 'List Profile' )
+@section( 'title' , 'Manage Navigation' )
 
 @section( 'angular-controller' , 'ng-controller="NavigationController as navController"')
 
@@ -56,7 +56,7 @@
         </div>
         <div class="panel-footer">
             <div class="form-group">
-                <input class="btn btn-lg btn-block btn-primary" ng-click="navController.updateNavigation()" type="submit" value="Save">
+                <input class="btn btn-lg btn-block btn-primary"   ng-disabled="navController.formSubmitted" ng-click="navController.updateNavigation()" type="submit" value="Update Navigation">
             </div>
         </div>
     </div>

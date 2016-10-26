@@ -1,7 +1,8 @@
-mt2App.controller( 'NavigationController' , [ 'NavigationApiService' , '$mdToast' , '$mdDialog' , '$log' , function ( NavigationApiService , $mdToast , $mdDialog , $log ) {
+mt2App.controller( 'NavigationController' , [ 'NavigationApiService' , '$mdToast' , 'modalService' , function ( NavigationApiService , $mdToast , modalService ) {
     var self = this;
     self.navigation = [];
     self.orphans = [];
+    self.formSubmitted = false;
 
     self.loadNavigation = function (){
        NavigationApiService.getPermissionsTree(self.successNavCallback,self.failNavCallback);
@@ -10,8 +11,9 @@ mt2App.controller( 'NavigationController' , [ 'NavigationApiService' , '$mdToast
 
 
     self.updateNavigation = function(){
-        NavigationApiService.updateNavigation(self.navigation,self.successUpdateCallback,self.failNavCallback)
-    }
+        self.formSubmitted = true;
+        NavigationApiService.updateNavigation(self.navigation,self.successUpdateCallback,self.failUpdateCallback)
+    };
 
     self.successNavCallback = function (response) {
         self.navigation = response.data;
@@ -22,6 +24,26 @@ mt2App.controller( 'NavigationController' , [ 'NavigationApiService' , '$mdToast
     };
 
     self.successUpdateCallback = function (){
+        self.formSubmitted = false;
+        $mdToast.showSimple( 'Navigation has been updated, please refresh page to see new navigation' );
+    };
 
-    }
+    self.failNavCallback = function() {
+        modalService.setModalLabel( 'Error' );
+        modalService.setModalBody( 'Failed to get Nav Tree' );
+        modalService.launchModal();
+    };
+
+    self.failOrphanCallback = function () {
+        modalService.setModalLabel( 'Error' );
+        modalService.setModalBody( 'Failed to load unused routes' );
+        modalService.launchModal();
+    };
+
+    self.failUpdateCallback = function (){
+        modalService.setModalLabel( 'Error' );
+        modalService.setModalBody( 'Failed to Update Navigation' );
+        modalService.launchModal();
+    };
+
 } ] );
