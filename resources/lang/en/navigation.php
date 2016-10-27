@@ -3,7 +3,6 @@
 return[
     'home' => 'Home' ,
     'espapi.list' => 'ESP API Accounts' ,
-    'esp.list' => 'ESPs' ,
     'espapi.add'  => 'Add API Account',
     'feed.list' => 'Feeds',
     'feed.add'  => "Add Feed",
@@ -18,8 +17,8 @@ return[
     'domain.add'     => 'Add Domain',
     'registrar.list'   => 'Registrars',
     'registrar.add' => 'Add Registrar',
-    'clientgroup.list' => 'Feed Group',
-    'clientgroup.add' => "Add Feed Group",
+    'feedgroup.list' => 'Feed Group',
+    'feedgroup.add' => "Add Feed Group",
     'role.add'      => "Add Role",
     'tools.list' => "Tools" ,
     'tools.recordlookup' => "Email & EID Lookup" ,
@@ -47,4 +46,5 @@ return[
     'ispgroup.list'       => 'ISP Groups',
     'esp.list'            => 'ESP Accounts',
     'tools.appendeid' => 'Append EID' ,
+    'tools.navigation' => 'Manage Navigation' ,
 ];

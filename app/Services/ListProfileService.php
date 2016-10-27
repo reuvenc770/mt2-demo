@@ -14,7 +14,6 @@ use App\Builders\ListProfileQueryBuilder;
 use Cache;
 use App\Repositories\FeedRepo;
 use App\Services\MT1Services\ClientStatsGroupingService;
-use App\Services\MT1Services\ClientService;
 use App\Services\ListProfileBaseTableService;
 
 class ListProfileService

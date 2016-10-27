@@ -124,6 +124,11 @@ Route::group(
             'as' => 'esp.edit' ,
             'uses' => 'EspController@edit'
         ] );
+
+        Route::get( '/create' , [
+            'as' => 'esp.add' ,
+            'uses' => 'EspController@create'
+        ] );
     }
 );
 
@@ -134,7 +139,7 @@ Route::group(
 Route::group(
     [
         'prefix' => 'tools' ,
-        'middleware' => [ 'auth' , 'pageLevel' ]
+        'middleware' => [ 'auth','pageLevel' ]
     ] ,
     function () {
 
@@ -150,6 +155,11 @@ Route::group(
         Route::get( '/bulk-suppression' , [
             'as' => 'tools.bulksuppression' ,
             'uses' => 'BulkSuppressionController@index'
+        ] );
+
+        Route::get( '/navigation' , [
+            'as' => 'tools.navigation' ,
+            'uses' => 'NavigationController@index'
         ] );
 
     }
@@ -378,27 +388,27 @@ Route::group(
 
 
 /**
- * Client Group Routes
+ * Feed Group Routes
  */
 Route::group(
     [
-        'prefix' => 'clientgroup' ,
+        'prefix' => 'feedgroup' ,
         'middleware' => [ 'auth' , 'pageLevel' ]
     ] ,
     function () {
         Route::get( '/' , [
-            'as' => 'clientgroup.list' ,
-            'uses' => 'ClientGroupController@listAll'
+            'as' => 'feedgroup.list' ,
+            'uses' => 'FeedGroupController@listAll'
         ] );
 
         Route::get( '/create' , [
-            'as' => 'clientgroup.add' ,
-            'uses' => 'ClientGroupController@create'
+            'as' => 'feedgroup.add' ,
+            'uses' => 'FeedGroupController@create'
         ] );
 
         Route::get( '/edit/{id}' , [
-            'as' => 'clientgroup.edit' ,
-            'uses' => 'ClientGroupController@edit'
+            'as' => 'feedgroup.edit' ,
+            'uses' => 'FeedGroupController@edit'
         ] );
     }
 );
@@ -729,6 +739,19 @@ Route::group(
             'as' => 'api.client.updatepassword' ,
             'uses' => 'FeedController@resetClientPassword'
         ] );
+        Route::get('/navigation/gettree', [
+            'as' => 'api.tools.navigation.getTree' ,
+            'uses' => 'NavigationController@returnCurrentNavigation'
+        ] );
+        Route::get('/navigation/orphans', [
+            'as' => 'api.tools.navigation.getOrphans' ,
+            'uses' => 'NavigationController@returnValidOrphanNavigation'
+        ] );
+
+        Route::post('/navigation', [
+            'as' => 'api.tools.navigation.update' ,
+            'uses' => 'NavigationController@update'
+        ] );
 
         Route::group(
             [ 'prefix' => 'deploy' ] ,
@@ -776,31 +799,6 @@ Route::group(
                     'as' => 'api.proxy.list',
                     'uses' => 'ProxyController@listAllActive'
                 ]);
-            }
-        );
-
-
-
-        /**
-         * Client Group API Routes
-         */
-        Route::group(
-            [ 'prefix' => 'clientgroup' ] ,
-            function () {
-                Route::get( '/search' , [
-                    'as' => 'api.clientgroup.search' ,
-                    'uses' => 'ClientGroupController@paginateSearch'
-                ] );
-
-                Route::get( '/all' , [
-                    'as' => 'api.clientgroup.all' ,
-                    'uses' => 'ClientGroupController@index'
-                ] );
-
-                Route::get( '/copy/{id}' , [
-                    'as' => 'api.clientgroup.copy' ,
-                    'uses' => 'ClientGroupController@copy'
-                ] );
             }
         );
 
@@ -1062,9 +1060,9 @@ Route::group(
         );
 
         Route::resource(
-            'clientgroup' ,
-            'ClientGroupController' ,
-            [ 'except' => [ 'index' , 'create' , 'edit' , 'copy' ] ]
+            'feedgroup' ,
+            'FeedGroupController' ,
+            [ 'except' => [ 'create' , 'edit' ] ]
         );
 
         Route::resource(

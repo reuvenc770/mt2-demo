@@ -20,7 +20,7 @@ class ClientService {
 
     public function getClientFeedMap () {
         $map = [];
-        $clients = $this->repo->getAllClients();
+        $clients = $this->repo->get();
 
         foreach ($clients as $client) {
             $feeds = [];
@@ -34,4 +34,9 @@ class ClientService {
 
         return $map;
     }
+
+    public function get() {
+        return $this->repo->get();
+    }
+
 }

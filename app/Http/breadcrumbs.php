@@ -28,23 +28,28 @@ Breadcrumbs::register('user.edit', function($breadcrumbs) {
 //ESP API
 Breadcrumbs::register('espapi.list', function($breadcrumbs) {
     $breadcrumbs->push('Home', route('home'));
-    $breadcrumbs->push('Esp API Accounts', route('espapi.list'));
+    $breadcrumbs->push('ESP API Accounts', route('espapi.list'));
 });
 
 Breadcrumbs::register('espapi.add', function($breadcrumbs) {
     $breadcrumbs->parent('espapi.list');
-    $breadcrumbs->push('Add API Account');
+    $breadcrumbs->push('Add ESP API Account');
 });
 
 Breadcrumbs::register('espapi.edit', function($breadcrumbs) {
     $breadcrumbs->parent('espapi.list');
-    $breadcrumbs->push('Edit API Account');
+    $breadcrumbs->push('Edit ESP API Account');
 });
 
 //ESP
 Breadcrumbs::register('esp.list', function($breadcrumbs) {
     $breadcrumbs->push('Home', route('home'));
     $breadcrumbs->push('ESP Accounts', route('esp.list'));
+});
+
+Breadcrumbs::register('esp.add', function($breadcrumbs) {
+    $breadcrumbs->parent('esp.list');
+    $breadcrumbs->push('Add ESP Account');
 });
 
 Breadcrumbs::register('esp.edit', function($breadcrumbs) {
@@ -83,18 +88,18 @@ Breadcrumbs::register('feed.edit', function($breadcrumbs) {
 });
 
 //Client Feeds
-Breadcrumbs::register('clientgroup.list', function($breadcrumbs) {
+Breadcrumbs::register('feedgroup.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');
-    $breadcrumbs->push("Client Groups", route('clientgroup.list'));
+    $breadcrumbs->push("Feed Groups", route('feedgroup.list'));
 });
-Breadcrumbs::register('clientgroup.add', function($breadcrumbs) {
-    $breadcrumbs->parent('clientgroup.list');
-    $breadcrumbs->push('Add Client Group');
+Breadcrumbs::register('feedgroup.add', function($breadcrumbs) {
+    $breadcrumbs->parent('feedgroup.list');
+    $breadcrumbs->push('Add Feed Group');
 });
 
-Breadcrumbs::register('clientgroup.edit', function($breadcrumbs) {
-    $breadcrumbs->parent('clientgroup.list');
-    $breadcrumbs->push('Edit Client Group');
+Breadcrumbs::register('feedgroup.edit', function($breadcrumbs) {
+    $breadcrumbs->parent('feedgroup.list');
+    $breadcrumbs->push('Edit Feed Group');
 });
 
 //List Profiles

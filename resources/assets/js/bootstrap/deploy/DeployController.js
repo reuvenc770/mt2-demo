@@ -263,7 +263,9 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
 
     self.canOfferBeMailed = function (date){
         var day = date.getDay();
-        var dateChar = self.offerData.exclude_days.charAt(day);
+        var dayIndex = ( day == 0 ? 6 : day - 1 );
+        var dateChar = self.offerData.exclude_days.charAt( dayIndex );
+
         return dateChar === 'N';
     };
 

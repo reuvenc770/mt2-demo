@@ -8,7 +8,7 @@ use Illuminate\Database\Query\Builder;
 use Carbon\Carbon;
 
 class ClientRepo {
-  
+
     private $client;
 
     public function __construct(Client $client) {
@@ -23,7 +23,7 @@ class ClientRepo {
         return $this->client->orderBy('id')->get()->toArray();
     }
 
-    public function getAllClients() {
+    public function get() {
         return $this->client->get();
     }
 
