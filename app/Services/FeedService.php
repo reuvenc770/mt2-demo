@@ -6,7 +6,6 @@ use App\Repositories\FeedRepo;
 use App\Models\CakeVertical;
 use App\Models\FeedType;
 use App\Repositories\CountryRepo;
-use App\Repositories\FeedRepo;
 use App\Services\ServiceTraits\PaginateList;
 
 class FeedService {
@@ -50,10 +49,6 @@ class FeedService {
         }
 
         return $map;
-    }
-
-    public function getFeeds () {
-        return $this->feedRepo->getFeeds();
     }
 
     public function getFeed($id) {
