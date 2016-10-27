@@ -44,7 +44,6 @@ class AppendEidService
                 $suppressionInfo = Suppression::checkGlobalSuppression($row['email']);
                 $rowIsActive = count($suppressionInfo) == 0;
                 if($rowIsActive || $includeSuppression) {
-                    print_r($i);
                     $emailReturn = $this->emailRepo->getEmailId($row['email']);
                     $emailId = $emailReturn[0]->id;
                     if ($includeFeed) {
@@ -53,7 +52,7 @@ class AppendEidService
                     }
                     if ($includeFields) {
                         $fieldData = $this->recordData->getRecordDataFromEid($emailId);
-                        $fieldData = $fieldData ? $fieldData->toArray() : array();
+                        $fieldData = $fieldData ? $fieldData->toArray() :array_fill(0, 19, '');
                     }
                     $rowResult = array_merge(["email" => $row['email'], "email_id" => $emailId, "feedname" => $feedName,], $fieldData);
                     if($includeSuppression){
@@ -83,7 +82,7 @@ class AppendEidService
         foreach ($data as $row) {
             $writer->insertOne($row);
         }
-        return $writer->__toString();
+         dd($writer->__toString());
     }
 
 

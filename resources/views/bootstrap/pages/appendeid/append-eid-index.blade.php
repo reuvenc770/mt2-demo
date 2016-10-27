@@ -10,6 +10,10 @@
         </div>
         <div class="panel-body">
             <fieldset>
+                <div class="form-group" >
+                    <input placeholder="Email Address" value="" class="form-control" ng-model="append.email" required="required"
+                           name="email" type="email">
+                </div>
                 <div class="form-group">
                     <md-switch ng-model="append.feed" aria-label="Include Current Feed Name?">
                         Include Current Feed Name?
@@ -24,19 +28,18 @@
                 <div class="btn-group" flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'appendEID' , '_token' : '{{ csrf_token() }}' } }"
                     flow-files-submitted="$flow.upload()"
                     flow-file-success="append.unlockButtonLoadFile($file); $flow.cancel()" flow-btn>
-                    <a  class="btn btn-primary" href="#">Upload Deploy List</a>
+                    <a  class="btn btn-primary" href="#">Upload EID List</a>
                     <input type="file" style="visibility: hidden; position: absolute;"/>
                 </div>
                 <div class="btn-group">
-                    <button ng-click="append.createFile()" ng-disable="append.formSubmitted" ng-class="{ 'btn-success' : append.file != '' , 'btn-danger' : append.file == '' }"
+                    <button ng-click="append.createFile()" ng-disabled="append.formSubmitted" ng-class="{ 'btn-success' : append.file != '' , 'btn-danger' : append.file == '' }"
                             class="btn">@{{ append.text }}</button>
                 </div>
-
             </fieldset>
         </div>
 
     </div>
-    <div id="loading"></div>
+
 @endsection
 
 <?php Assets::add(

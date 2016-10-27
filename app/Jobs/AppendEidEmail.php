@@ -21,12 +21,14 @@ class AppendEidEmail extends Job implements ShouldQueue
     private $includeFeed;
     private $includeFields;
     private $includeSuppression;
-    public function __construct($filePath,$feed,$fields,$suppression)
+    private $email;
+    public function __construct($filePath,$email,$feed,$fields,$suppression)
     {
         $this->filePath = $filePath;
         $this->includeFeed = $feed;
         $this->includeFields = $fields;
         $this->includeSuppression = $suppression;
+        $this->email = $email;
     }
 
     /**
@@ -41,7 +43,7 @@ class AppendEidEmail extends Job implements ShouldQueue
             $message->attachData($csv, "results.csv");
             $message->subject("Append EID Results");
             $message->priority(1);
-            $message->to("cunninghamx@gmail.com");
+            $message->to($this->email);
         });
     }
 }
