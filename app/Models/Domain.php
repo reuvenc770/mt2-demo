@@ -28,7 +28,7 @@ class Domain extends Model
         if ($this->esp_account_id === $espAccountId
             && $this->domain_type === self::CONTENT_DOMAIN
             && $this->status === 1
-            && $this->in_use === 1) {
+            && $this->live_a_record === 1) {
 
             return true;
         }
