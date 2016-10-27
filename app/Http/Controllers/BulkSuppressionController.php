@@ -7,6 +7,7 @@ use App\Services\EmailRecordService;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
+use App\Http\Requests\BulkSuppressionRequest;
 use Laracasts\Flash\Flash;
 use App\Facades\Suppression;
 use App\Http\Controllers\Controller;
@@ -35,7 +36,7 @@ class BulkSuppressionController extends Controller
      */
     public function index()
     {
-        return response()->view('pages.bulk-suppression');
+        return response()->view('bootstrap.pages.bulk-suppression');
     }
 
     /**
@@ -113,7 +114,7 @@ class BulkSuppressionController extends Controller
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function update(BulkSuppressionRequest $request)
     {
         $type = 'eid';
         $records = $request->input('emails');
