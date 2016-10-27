@@ -21,18 +21,20 @@ class CommitAttributionJob extends Job implements ShouldQueue
     private $modelId;
     private $remainder;
     private $userEmail;
+    private $argObj;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($modelId, $remainder, $tracking, $userEmail) {
+    public function __construct($argObj, $remainder, $tracking) {
+        $this->argObj = $argObj;
         $this->tracking = $tracking;
-        $this->modelId = $modelId;
+        $this->modelId = $argObj['modelId'];
         $this->remainder = $remainder;
         $this->jobName = $this->jobName . '::mod-' . $remainder . '-';
-        $this->userEmail = $userEmail;
+        $this->userEmail = $argObj['userEmail'];
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
@@ -51,7 +53,7 @@ class CommitAttributionJob extends Job implements ShouldQueue
 
                 $service = ServiceFactory::createAttributionService($this->modelId);
 
-                $records = $service->getTransientRecords($this->remainder, $this->modelId);
+                $records = $service->getTransientRecords($this->argObj, $this->remainder);
                 $service->run($records, $this->modelId, $this->userEmail);
 
                 JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
