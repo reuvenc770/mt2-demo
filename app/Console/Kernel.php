@@ -164,7 +164,7 @@ class Kernel extends ConsoleKernel
          * Constantly firing.
          *
          */
-        $schedule->command('ftp:admin -H 52.205.67.250 -U root -k ~/.ssh/mt2ftp.pub -K ~/.ssh/mt2ftp -u -s Client')->everyFiveMinutes();
+        #$schedule->command('ftp:admin -H 52.205.67.250 -U root -k ~/.ssh/mt2ftp.pub -K ~/.ssh/mt2ftp -u -s Client')->everyFiveMinutes();
 
         /**
          *  MT1 data sync jobs
@@ -195,7 +195,7 @@ class Kernel extends ConsoleKernel
          */
         $schedule->command('runFilter activity')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('runFilter expiration')->dailyAt(self::EXPIRATION_RUNS);
-        $schedule->command('attribution:commit')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
+        $schedule->command('attribution:commit daily')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
         $schedule->command( 'attribution:conversion -P realtime' )->dailyAt( self::ATTRIBUTION_REPORT_EARLY_UPDATE_TIME ); #early conversion grab & report updating
         $schedule->command( 'attribution:conversion -P rerun' )->dailyAt( self::ATTRIBUTION_REPORT_UPDATE_TIME ); #daily rerun
         $schedule->command( 'attribution:conversion -P rerun -d 7' )->weekly(); #weekly rerun
