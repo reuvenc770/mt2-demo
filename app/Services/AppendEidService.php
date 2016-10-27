@@ -37,7 +37,6 @@ class AppendEidService
         $feedName = null;
         $fieldData = array();
         $stats = null;
-        $i = 1;
         try {
             foreach ($rows as $row) {
 
@@ -59,8 +58,6 @@ class AppendEidService
                         $value = $rowIsActive ? "A" : "U";
                         $rowResult = array_merge($rowResult, ['status'=> "$value"]);
                     }
-                    $i++;
-
                     $csvData[] = $rowResult;
                 }
             }
@@ -82,7 +79,7 @@ class AppendEidService
         foreach ($data as $row) {
             $writer->insertOne($row);
         }
-         dd($writer->__toString());
+         return $writer->__toString();
     }
 
 
@@ -98,7 +95,7 @@ class AppendEidService
                 "updated_at"]);
         }
         if($includeSuppression){
-            array_merge($header,['status']);  //keeping style
+            $header = array_merge($header,['status']);  //keeping style
         }
 
         return $header;
