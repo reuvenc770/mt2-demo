@@ -33,14 +33,12 @@ class AttributionRecordTruthRepo {
      *  getFullTransients():
      *      Pulls any possible changes. Has to be used when attribution levels for feeds have changed.
      *      Takes significantly longer to process everything because it pulls millions of records.
-     *      The query itself is faster than the optimized query, but must be run hundreds of times.
-     *      Order of magnitude: hours
+     *      The query itself is faster than the optimized query, but must be run many more times.
      */
 
     public function getFullTransients($remainder) {
         $attrDb = config('database.connections.slave_attribution.database');
 
-        
         $union = DB::connection('slave_attribution')->table('attribution_record_truths AS art')
                       ->select('art.email_id', DB::raw('IFNULL(efa.feed_id, 0) as feed_id'), 'efa.capture_date', 'art.has_action', 'art.action_expired', DB::raw('IFNULL(al.level, 0) as level'))
                       ->leftJoin($attrDb . '.email_feed_assignments as efa', 'art.email_id', '=', 'efa.email_id')
@@ -122,7 +120,6 @@ class AttributionRecordTruthRepo {
      *      Pulls a tiny subset of the above. Processes all records just coming out of 10-day and 90-day windows 
      *      and any that have had any imports since the last time attribution ran. 
      *      Should be fairly quick as the query itself is slower but likely only needs to be run once.
-     *      Order of magnitude: minutes 
      */
 
     public function getOptimizedTransients($startDateTime, $remainder) {
@@ -200,6 +197,21 @@ class AttributionRecordTruthRepo {
                     ->unionAll($union2)
                     ->unionAll($union3)
                     ->orderBy('email_id');
+    }
+
+    public function getFeedAttributions($feedId, $remainder) {
+        $attrDb = config('database.connections.slave_attribution.database');
+        $dataDb = config('database.connections.slave_data.database');
+        // Need to pick up any imports ever, I think, and not just the one prior to the attribution.
+        // It's a bit more difficult to get when an action happened ... 
+
+        return DB::connection('slave_attribution')
+                ->table('attribution_record_truths as art')
+                ->join("$dataDb.email_feed_instances as efa", 'art.email_id', '=', 'efa.email_id')
+                ->join("$attrDb.attribution_levels as al", 'efa.feed_id', '=', 'al.feed_id')
+                ->where('efa.feed_id', $feedId)
+                ->whereRaw("art.email_id % 5 = $remainder")
+                ->select('art.email_id', 'efa.feed_id', DB::raw('"2000-01-01" as capture_date'), DB::raw('0 as has_action'), DB::raw('0 as action_expired'), 'al.level');
     }
 
     public function resetRecord () {

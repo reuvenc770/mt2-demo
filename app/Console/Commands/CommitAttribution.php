@@ -15,9 +15,10 @@ class CommitAttribution extends Command
      *
      * @var string
      */
-    protected $signature = 'attribution:commit {modelId?} {userEmail?}';
+    protected $signature = 'attribution:commit {type} {--modelId=none} {--userEmail=none} {--feedId=none}';
     private $keyName = 'AttributionJob';
 
+    const VALID_TYPES = ['daily', 'model', 'feedInvalidation'];
     const MOD_BASE = 5;
 
     /**
@@ -42,13 +43,35 @@ class CommitAttribution extends Command
      * @return mixed
      */
     public function handle() {
-        $model = $this->argument('modelId') ?: 'none';
-        $userEmail = $this->argument('userEmail') ?: 'none';
+        $type = $this->argument('type');
+        $modelId = $this->option('modelId');
+        $userEmail = $this->option('userEmail');
+        $feedId = $this->option('feedId');
+
+        if (!in_array($type, self::VALID_TYPES)) {
+            throw new \Exception("Attribution run type $type invalid.");
+        }
+
+        if ('feedInvalidation' === $type && 'none' === $feedId) {
+            throw new \Exception("Feed invalidation job requires feed id");
+        }
+
+        if ('model' === $type && 'none' === $modelId) {
+            throw new \Exception("Model attribution job requires model id");
+        }
+
+        $argObj = [
+            'type' => $type,
+            'modelId' => $modelId,
+            'userEmail' => $userEmail,
+            'feedId' => $feedId
+        ];
+
         Cache::forget($this->keyName); // Forget any current instance
         Cache::forever($this->keyName, 0); // Reset to 0
 
         for ($remainder = 0; $remainder < self::MOD_BASE; $remainder++) {
-            $job = new CommitAttributionJob($model, $remainder, str_random(16), $userEmail );
+            $job = new CommitAttributionJob($argObj, $remainder, str_random(16));
             $this->dispatch($job);
         }
         
