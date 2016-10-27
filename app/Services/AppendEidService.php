@@ -47,7 +47,7 @@ class AppendEidService
                     $emailId = $emailReturn[0]->id;
                     if ($includeFeed) {
                         $feedId = $this->emailRepo->getCurrentAttributedFeedId($emailId);
-                        $feedName = $this->feedRepo->getFeed($feedId)->name;
+                        $feedName = $this->feedRepo->fetch($feedId)->name;
                     }
                     if ($includeFields) {
                         $fieldData = $this->recordData->getRecordDataFromEid($emailId);
@@ -85,7 +85,7 @@ class AppendEidService
 
     private function returnCsvHeader($includeFeed,$includeFields, $includeSuppression)
     {
-        $header = array("email_adddress","eid");
+        $header = array("email_address","eid");
         if($includeFeed){
             $header = array_merge($header, ['feed_name']);
         }
