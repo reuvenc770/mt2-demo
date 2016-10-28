@@ -7,7 +7,7 @@
 
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('mailingtemplate.add'))
-        <li> <a ng-click="mailing.viewAdd()" aria-label="Add Mailing Templates">Add Mailing Templates</a>
+        <li> <a ng-href="/mailingtemplate/create" target="_self" aria-label="Add Mailing Templates">Add Mailing Templates</a>
         </li>
     @endif
 @stop
@@ -18,7 +18,7 @@
                 <table md-table md-progress="mailing.queryPromise">
                     <thead md-head md-order="mailing.sort" md-on-reorder="mailing.loadAccounts">
                         <tr md-row>
-                            <th md-column ></th>
+                            <th md-column class="mt2-table-btn-column"></th>
                             <th md-column md-order-by="id" class="md-table-header-override-whitetext">ID</th>
                             <th md-column md-order-by="template_name" class="md-table-header-override-whitetext">Template Name</th>
                             <th md-column md-order-by="template_type" class="md-table-header-override-whitetext">Template Type</th>
@@ -27,12 +27,11 @@
 
                     <tbody md-body>
                         <tr md-row ng-repeat="record in mailing.templates track by $index">
-                            <td md-cell>
+                            <td md-cell class="mt2-table-btn-column">
                                 <div layout="row" layout-align="center center">
-                                    <md-button class="md-icon-button" ng-href="@{{ '/mailingtemplate/edit/' + record.id }}" target="_self" aria-label="Edit">
+                                    <a ng-href="@{{ '/mailingtemplate/edit/' + record.id }}" target="_self" aria-label="Edit" data-toggle="tooltip" data-placement="bottom" title="Edit">
                                         <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
-                                        <md-tooltip md-direction="bottom">Edit</md-tooltip>
-                                    </md-button>
+                                    </a>
                                 </div>
                             </td>
                             <td md-cell>@{{ record.id }}</td>

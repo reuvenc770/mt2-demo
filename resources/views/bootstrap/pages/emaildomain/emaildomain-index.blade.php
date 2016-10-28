@@ -6,7 +6,7 @@
 
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('isp.add'))
-        <li ng-click="emailDomain.viewAdd()" ><a href="">Add ISP Domain</a></li>
+        <li><a ng-href="/isp/create" target="_self">Add ISP Domain</a></li>
     @endif
 @stop
 
@@ -16,19 +16,18 @@
                     <table md-table md-progress="emailDomain.queryPromise">
                         <thead md-head md-order="emailDomain.sort" md-on-reorder="emailDomain.loadAccounts">
                         <tr md-row>
-                            <th md-column></th>
+                            <th md-column class="mt2-table-btn-column"></th>
                             <th md-column md-order-by="domain_name" class="md-table-header-override-whitetext">ISP Domain Name</th>
                             <th md-column md-order-by="domain_group" class="md-table-header-override-whitetext">ISP Group</th>
                         </tr>
                         </thead>
                         <tbody md-body>
                         <tr md-row ng-repeat="record in emailDomain.accounts track by $index">
-                            <td md-cell>
+                            <td md-cell class="mt2-table-btn-column">
                                 <div layout="row" layout-align="center center">
-                                    <md-button class="md-icon-button" ng-href="@{{ '/isp/edit/' + record.id }}" aria-label="Edit" target="_self" data-toggle="tooltip" data-placement="bottom" title="Edit">
-                                        <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon>
-                                        <md-tooltip md-direction="bottom">Edit</md-tooltip>
-                                    </md-button>
+                                    <a ng-href="@{{ '/isp/edit/' + record.id }}" aria-label="Edit" target="_self" data-toggle="tooltip" data-placement="bottom" title="Edit">
+                                        <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
+                                    </a>
                                 </div>
                             </td>
                             <td md-cell>

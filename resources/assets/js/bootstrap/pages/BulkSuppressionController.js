@@ -1,8 +1,6 @@
-mt2App.controller( 'BulkSuppressionController' , [ '$log' , 'BulkSuppressionApiService', 'formValidationService' , 'modalService' , function ( $log, BulkSuppressionApiService , formValidationService , modalService) {
+mt2App.controller( 'BulkSuppressionController' , [ '$scope' , '$log' , '$timeout' , 'BulkSuppressionApiService', 'formValidationService' , 'modalService' , function ( $scope , $log, $timeout, BulkSuppressionApiService , formValidationService , modalService) {
 
     var self = this;
-
-    $(function () { $('[data-toggle="tooltip"]').tooltip() });
 
     self.file = '';
     self.emailString = '';
@@ -26,7 +24,7 @@ mt2App.controller( 'BulkSuppressionController' , [ '$log' , 'BulkSuppressionApiS
             'emails': self.emails
         };
 
-        BulkSuppressionApiService.uploadEmails(data, 
+        BulkSuppressionApiService.uploadEmails(data,
                 self.uploadEmailsSuccessCallback,
                 self.uploadEmailsFailureCallback);
     };
@@ -65,7 +63,7 @@ mt2App.controller( 'BulkSuppressionController' , [ '$log' , 'BulkSuppressionApiS
 
     self.startTransfer = function(file) {
         formValidationService.resetFieldErrors(self);
-        
+
         // File uploaded to MT2, need to move to MT1bin
         // and notify when complete
         self.file = file.relativePath;
@@ -74,14 +72,16 @@ mt2App.controller( 'BulkSuppressionController' , [ '$log' , 'BulkSuppressionApiS
             self.fileTransferSuccessCallback,
             self.fileTransferFailureCallback
         );
-        
+
     }
 
     self.enableSubmission = function() {
         self.emailsLoaded = true;
     }
 
-
+    $scope.$on('flow::fileAdded', function (event, $flow, flowFile) {
+        $(function () { $('[data-toggle="tooltip"]').tooltip() } );
+    });
     /**
      *  Modals and callbacks
      */

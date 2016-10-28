@@ -7,7 +7,7 @@
 
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('domain.add'))
-        <li><a ng-click="domain.viewAdd()" aria-label="Add Domain">Add Domain</a>
+        <li><a ng-href="/domain/create" target="_self" aria-label="Add Domain">Add Domain</a>
         </li>
     @endif
 @stop
@@ -19,7 +19,7 @@
                     <table md-table md-progress="domain.queryPromise">
                         <thead md-head>
                         <tr md-row>
-                            <th md-column></th>
+                            <th md-column class="mt2-table-btn-column"></th>
                             <th md-column class="md-table-header-override-whitetext">ESP</th>
                             <th md-column class="md-table-header-override-whitetext">ESP Account</th>
                             <th md-column class="md-table-header-override-whitetext">Number of Domains</th>
@@ -28,13 +28,12 @@
 
                         <tbody md-body>
                         <tr md-row ng-repeat="record in domain.accounts track by $index">
-                            <td md-cell>
+                            <td md-cell class="mt2-table-btn-column">
                                 <div layout="row" layout-align="center center">
-                                    <md-button target="_self" class="md-raised md-accent"
-                                                ng-class="{'md-icon-button mt2-icon-button-xs' : app.isMobile() , 'mt2-button-xs' : !app.isMobile() }"
-                                                ng-href="@{{ '/domain/listview/?name=' + record.esp_name + '&espId=' + record.esp_account_id + '&espAccountName=' + record.account_name }}">
-                                     <md-icon md-svg-icon="img/icons/ic_view_list_white_24px.svg"></md-icon><span ng-hide="app.isMobile()"> Account View</span>
-                                    </md-button>
+                                    <a ng-href="@{{ '/domain/listview/?name=' + record.esp_name + '&espId=' + record.esp_account_id + '&espAccountName=' + record.account_name }}"
+                                    target="_self" aria-label="Account View" data-toggle="tooltip" data-placement="bottom" title="Account View">
+                                        <md-icon md-font-set="material-icons" class="mt2-icon-black">view_list</md-icon>
+                                    </a>
                                 </div>
                             </td>
                             <td md-cell>@{{ record.esp_name }}</td>

@@ -2,7 +2,7 @@
     <table md-table>
         <thead md-head>
         <tr md-row>
-            <th md-column></th>
+            <th md-column class="mt2-table-btn-column"></th>
             <th md-column class="md-table-header-override-whitetext mt2-table-header-center" ng-hide="domain.rowBeingEdited != 0" >Status</th>
             <th md-column class="md-table-header-override-whitetext mt2-cell-left-padding" >Domain</th>
             <th md-column class="md-table-header-override-whitetext" ng-if="domain.type ==2" >Proxy</th>
@@ -17,7 +17,7 @@
         <tbody md-body>
         <tr md-row ng-repeat="record in domain.domains track by $index">
             <!--Normal View -->
-            <td md-cell ng-hide="domain.beingEdited(record.dom_id)" >
+            <td md-cell ng-hide="domain.beingEdited(record.dom_id)" class="mt2-table-btn-column">
                 <div layout="row" layout-align="center center">
                     <md-icon ng-if="record.status == 1" ng-click="domain.editRow(record.dom_id)"
                              md-font-set="material-icons" class="mt2-icon-black" aria-label="Edit" target="_self" data-toggle="tooltip" data-placement="bottom" title="Edit">edit</md-icon>

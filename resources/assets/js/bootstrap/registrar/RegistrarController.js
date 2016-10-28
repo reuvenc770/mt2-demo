@@ -1,4 +1,4 @@
-mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 'RegistrarApiService' ,'$rootScope', '$mdToast', 'formValidationService', 'modalService', function ( $log , $window , $location , RegistrarApiService, $rootScope, $mdToast, formValidationService, modalService ) {
+mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , '$timeout' , 'RegistrarApiService' ,'$rootScope', '$mdToast', 'formValidationService', 'modalService', function ( $log , $window , $location , $timeout , RegistrarApiService, $rootScope, $mdToast, formValidationService, modalService ) {
     var self = this;
     self.$location = $location;
     self.accounts = [];
@@ -63,11 +63,6 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
     /**
      * Click Handlers
      */
-    self.viewAdd = function () {
-        $location.url( self.createUrl );
-        $window.location.href = self.createUrl;
-    };
-
     self.saveNewAccount = function () {
         self.formsubmitted = true;
         formValidationService.resetFieldErrors(self);
@@ -86,6 +81,8 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
      * Callbacks
      */
     self.loadAccountsSuccessCallback = function ( response ) {
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+
         self.accounts = response.data.data;
         self.pageCount = response.data.last_page;
         self.accountTotal = response.data.total;

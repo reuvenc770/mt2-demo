@@ -56,11 +56,6 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
     /**
      * Click Handlers
      */
-    self.viewAdd = function () {
-        $location.url( self.createUrl );
-        $window.location.href = self.createUrl;
-    };
-
 
     self.saveNewAccount = function () {
         formValidationService.resetFieldErrors(self);
@@ -136,6 +131,8 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
      * Callbacks
      */
     self.loadAccountsSuccessCallback = function ( response ) {
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+
         self.accounts = response.data.data;
         self.pageCount = response.data.last_page;
         self.accountTotal = response.data.total;

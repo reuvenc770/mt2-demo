@@ -23,11 +23,10 @@
                 <tbody md-body>
                     <tr md-row ng-repeat="record in feedGroup.feedGroups">
                         <td md-cell class="mt2-table-cell-center">
-                                <md-button class="md-icon-button" ng-href="@{{ '/feedgroup/edit/' + record.id }}" target="_self" aria-label="Edit">
-                                    <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
-                                    <md-tooltip md-direction="bottom">Edit</md-tooltip>
-                                </md-button>
-                        </td>
+                            <a ng-href="@{{ '/feedgroup/edit/' + record.id }}" target="_self" aria-label="Edit" data-toggle="tooltip" data-placement="bottom" title="Edit">
+                                <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
+                            </a>
+                    </td>
                         <td md-cell ng-bind="record.name">
                         </td>
                     </tr>

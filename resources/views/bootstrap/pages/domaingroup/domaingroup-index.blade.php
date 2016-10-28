@@ -7,7 +7,7 @@
 
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('ispgroup.add'))
-        <li ng-click="dg.viewAdd()" ><a href="">Add Domain Group</a></li>
+        <li><a ng-href="/ispgroup/create" target="_self">Add Domain Group</a></li>
     @endif
 @stop
 
@@ -17,7 +17,7 @@
                     <table md-table md-progress="dg.queryPromise">
                         <thead md-head md-order="dg.sort" md-on-reorder="dg.loadAccounts">
                         <tr md-row>
-                            <th md-column></th>
+                            <th md-column class="mt2-table-btn-column"></th>
                             <th md-column md-order-by="name" class="md-table-header-override-whitetext">ISP Group Name</th>
                             <th md-column class="md-table-header-override-whitetext">Number of Domains</th>
                             <th md-column md-order-by="country" class="md-table-header-override-whitetext">Country</th>
@@ -26,12 +26,11 @@
                         </thead>
                         <tbody md-body>
                         <tr md-row ng-repeat="record in dg.accounts track by $index">
-                            <td md-cell>
+                            <td md-cell class="mt2-table-btn-column">
                                 <div layout="row" layout-align="center center">
-                                    <md-button class="md-icon-button" ng-href="@{{ '/ispgroup/edit/' + record.id }}" aria-label="Edit" target="_self" data-toggle="tooltip" data-placement="bottom" title="Edit">
-                                        <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon>
-                                        <md-tooltip md-direction="bottom">Edit</md-tooltip>
-                                    </md-button>
+                                    <a ng-href="@{{ '/ispgroup/edit/' + record.id }}" aria-label="Edit" target="_self" data-toggle="tooltip" data-placement="bottom" title="Edit">
+                                        <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
+                                    </a>
                                 </div>
                             </td>
                             <td md-cell>

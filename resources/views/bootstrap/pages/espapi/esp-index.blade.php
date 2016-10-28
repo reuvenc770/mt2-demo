@@ -9,7 +9,7 @@
 
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('espapi.add'))
-        <li><a ng-click="esp.viewAdd()">Add ESP API Account</a></li>
+        <li><a ng-href="/espapi/create" target="_self">Add ESP API Account</a></li>
     @endif
 @stop
 
@@ -19,8 +19,7 @@
             <table md-table md-progress="esp.queryPromise">
                 <thead md-head md-order="esp.sort" md-on-reorder="esp.loadAccounts">
                     <tr md-row>
-                        <th md-column>
-                        </th>
+                        <th md-column class="mt2-table-btn-column"></th>
                         <th md-column md-order-by="id" class="md-table-header-override-whitetext">ID</th>
                         <th md-column md-order-by="account_name" class="md-table-header-override-whitetext">ESP</th>
                         <th md-column md-order-by="key_1" class="md-table-header-override-whitetext">Key 1</th>
@@ -32,12 +31,11 @@
 
                 <tbody md-body>
                     <tr md-row ng-repeat="record in esp.accounts track by $index">
-                        <td md-cell>
+                        <td md-cell class="mt2-table-btn-column">
                             <div layout="row" layout-align="center center">
-                                <md-button class="md-icon-button" ng-href="@{{ '/espapi/edit/' + record.id }}" aria-label="Edit" target="_self">
-                                    <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon>
-                                    <md-tooltip md-direction="bottom">Edit</md-tooltip>
-                                </md-button>
+                                <a ng-href="@{{ '/espapi/edit/' + record.id }}" aria-label="Edit" target="_self"data-toggle="tooltip" data-placement="bottom" title="Edit">
+                                    <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
+                                </a>
                             </div>
                         </td>
                         <td md-cell>@{{ record.id }}</td>

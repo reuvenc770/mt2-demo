@@ -141,7 +141,7 @@
             <table md-table md-progress="deploy.queryPromise">
                 <thead md-head>
                 <tr md-row>
-                    <th md-column></th>
+                    <th md-column class="mt2-table-btn-column"></th>
                     <th md-column class="md-table-header-override-whitetext"></th>
                     <th md-column class="md-table-header-override-whitetext">Send Date</th>
                     <th md-column class="md-table-header-override-whitetext">Deploy ID</th>
@@ -163,8 +163,8 @@
 
                 <tbody md-body>
                 <tr md-row ng-show="deploy.showRow">
-                    <td md-cell></td>
-                    <td md-cell>
+                    <td md-cell class="mt2-table-btn-column"></td>
+                    <td md-cell class="mt2-table-btn-column">
                         <div layout="row">
                             @if (Sentinel::hasAccess('api.deploy.update'))
                             <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-click="deploy.actionLink( $event , deployForm )" ng-disable="deploy.formSubmitting" data-toggle="tooltip" data-placement="bottom" title="@{{ deploy.actionText() }}">save</md-icon>
@@ -413,16 +413,16 @@
                     </td>
                     </tr>
 
-                    <tr md-row ng-repeat="record in deploy.deploys track by $index" ng-class="{ 'mt2-bg-info' : record.deployment_status == 0,
-                                     'mt2-bg-success' : record.deployment_status ==1,
-                                     'mt2-warning' : record.deployment_status == 2 }">
-                        <td md-cell>
+                    <tr md-row ng-repeat="record in deploy.deploys track by $index" ng-class="{ 'bg-info' : record.deployment_status == 0,
+                                     'bg-success' : record.deployment_status ==1,
+                                     'bg-warning' : record.deployment_status == 2 }">
+                        <td md-cell class="mt2-table-btn-column">
                             <md-checkbox ng-checked="deploy.checkChecked(record.deploy_id)" ng-show="@{{deploy.checkStatus(record.creative_approval,record.creative_status)
                             && deploy.checkStatus(record.from_approval,record.from_status)
                             && deploy.checkStatus(record.subject_approval,record.subject_status)}}" aria-label="Select" name="selectedRows"
                                          ng-click="deploy.toggleRow(record.deploy_id)"> </md-checkbox>
                         </td>
-                        <td md-cell>
+                        <td md-cell class="mt2-table-btn-column">
                             <div layout="row">
                                 <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-hide="record.deployment_status ==1" ng-click="deploy.editRow( record.deploy_id)" aria-label="Edit" data-toggle="tooltip" data-placement="bottom" title="Edit">edit</md-icon>
                                 &nbsp;&nbsp;
@@ -442,14 +442,14 @@
                                 @{{ record.creative.substring(0,20) }}...
                             </span>
                             <span ng-hide="deploy.checkStatus(record.creative_approval,record.creative_status)"
-                                  class="deploy-error mt2-bg-danger">!! Creative has been unapproved or deactivated !!</span>
+                                  class="deploy-error bg-danger">!! Creative has been unapproved or deactivated !!</span>
                         </td>
                         <td md-cell nowrap>
                             <span data-toggle="popover" data-content="@{{ record.from }}">
                                 @{{ record.from.substring(0,20) }}...
                             </span>
                             <span ng-hide="deploy.checkStatus(record.from_approval,record.from_status)"
-                                  class="deploy-error mt2-bg-danger">!! From has been unapproved or deactivated !!</span>
+                                  class="deploy-error bg-danger">!! From has been unapproved or deactivated !!</span>
                         </td>
                         <td md-cell nowrap>
                             <span data-toggle="popover" data-content="@{{ record.subject }}">
@@ -459,7 +459,7 @@
                                 <md-icon md-font-set="material-icons" class="mt2-icon-black">content_copy</md-icon>
                             </md-button>
                             <span ng-hide="deploy.checkStatus(record.subject_approval,record.subject_status)"
-                                  class="deploy-error mt2-bg-danger">!! Subject has been unapproved or deactivated !!</span>
+                                  class="deploy-error bg-danger">!! Subject has been unapproved or deactivated !!</span>
                         </td>
                         <td md-cell>@{{ record.template_name }}</td>
                         <td md-cell>@{{ record.mailing_domain }}</td>

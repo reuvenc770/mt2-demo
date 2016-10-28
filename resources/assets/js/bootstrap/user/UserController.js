@@ -37,11 +37,6 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
     /**
      * Click Handlers
      */
-    self.viewAdd = function () {
-        $location.url( self.createUrl );
-        $window.location.href = self.createUrl;
-    };
-
     self.saveNewAccount = function () {
         self.editForm = true;
         formValidationService.resetFieldErrors(self);
@@ -82,6 +77,8 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
      * Callbacks
      */
     self.loadAccountsSuccessCallback = function ( response ) {
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+
         self.accounts = response.data;
     };
 
