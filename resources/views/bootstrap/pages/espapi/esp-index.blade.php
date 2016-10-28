@@ -45,8 +45,8 @@
                         <td md-cell>@{{ record.account_name }}</td>
                         <td md-cell>@{{ record.key_1 }}</td>
                         <td md-cell>@{{ record.key_2 }}</td>
-                        <td md-cell nowrap>@{{ record.created_at }}</td>
-                        <td md-cell nowrap>@{{ record.updated_at }}</td>
+                        <td md-cell nowrap ng-bind="::app.formatDate( record.created_at )"></td>
+                        <td md-cell nowrap ng-bind="::app.formatDate( record.updated_at )"></td>
                     </tr>
                 </tbody>
             </table>

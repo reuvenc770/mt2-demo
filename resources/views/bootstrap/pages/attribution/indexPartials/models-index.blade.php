@@ -45,8 +45,8 @@
                     ng-repeat="model in attr.models track by $index">
                 <td md-cell ng-bind="model.name"></td>
                 <td md-cell ng-bind="model.processing ? 'Running' : 'Completed'"></td>
-                <td md-cell ng-bind="model.created_at"></td>
-                <td md-cell ng-bind="model.updated_at"></td>
+                <td md-cell ng-bind="::app.formatDate( model.created_at )"></td>
+                <td md-cell ng-bind="::app.formatDate( model.updated_at )"></td>
             </tr>
             </tbody>
         </table>

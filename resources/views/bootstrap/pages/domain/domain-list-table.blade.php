@@ -29,8 +29,8 @@
             <td ng-if="domain.type == 2" ng-hide="domain.beingEdited(record.dom_id)">@{{ record.proxy_name }}</td>
             <td ng-hide="domain.beingEdited(record.dom_id)">@{{ record.registrar_name }}</td>
             <td ng-if="domain.type == 1" ng-hide="domain.beingEdited(record.dom_id)" >@{{ record.main_site }}</td>
-            <td ng-hide="domain.rowBeingEdited != 0" >@{{ record.created_at }}</td>
-            <td ng-hide="domain.beingEdited(record.dom_id)" >@{{ record.expires_at }}</td>
+            <td ng-hide="domain.rowBeingEdited != 0" ng-bind="app.formatDate( record.created_at , 'MM-DD-YY' )"></td>
+            <td ng-hide="domain.beingEdited(record.dom_id)" ng-bind="::app.formatDate( record.expires_at , 'MM-DD-YY' )"></td>
             <td ng-hide="domain.rowBeingEdited != 0">@{{ record.dba_name }}</td>
             <td ng-hide="domain.beingEdited(record.dom_id)" class="text-center" >
                 <span ng-hide="record.live_a_record" class="glyphicon glyphicon-remove-sign"></span>
