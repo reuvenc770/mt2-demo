@@ -13,6 +13,7 @@ class SuppressionExportReport {
     private $espRepo;
     private $espAccountRepo;
     const SLACK_CHANNEL = "#mt2-daily-reports";
+    const EMAIL_UNSUB = "pcunningham@zetaglobal.com";
 
 
     public function __construct(SuppressionRepo $repo, EspRepo $espRepo, EspApiAccountRepo $accountRepo) {
@@ -71,7 +72,7 @@ class SuppressionExportReport {
          Slack::to(self::SLACK_CHANNEL)->send($output);
 
         Mail::send('emails.SupressionReport', ['esps' => $report], function ($m) use ($date) {
-            $m->to("pcunningham@zetaglobal.com")->subject("Daily ESP Suppression Report for {$date}");
+            $m->to(self::EMAIL_UNSUB)->subject("Daily ESP Suppression Report for {$date}");
         });
 
     }

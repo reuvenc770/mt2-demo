@@ -9,6 +9,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Facades\JobTracking;
 use App\Models\JobEntry;
+use Log;
 class GenerateEspUnsubReport extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
@@ -35,16 +36,15 @@ class GenerateEspUnsubReport extends Job implements ShouldQueue
      * @return void
      */
     public function handle(SuppressionExportReport $exportReport) {
-
-
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
-                $exportReport->run($this->date);
-                JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
-
-
-
+        try {
+            $exportReport->run($this->date);
+            JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
+        } catch (\Exception $e){
+            Log::info($e->getMessage());
+            $this->failed();
+        }
     }
-
 
     public function failed() {
         JobTracking::changeJobState(JobEntry::FAILED, $this->tracking);
