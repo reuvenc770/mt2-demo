@@ -19,7 +19,7 @@ class CreateAdvertiserSuppressionListsTable extends Migration
             $table->timestamps();
         });
 
-        Schema::create('suppression_list_types', function (Blueprint $table) {
+        Schema::connection('suppression')->create('suppression_list_types', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
         });
