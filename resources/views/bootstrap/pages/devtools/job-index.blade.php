@@ -22,8 +22,8 @@
                     <td md-cell ng-bind="record.job_name"></td>
                     <td md-cell ng-bind="record.account_name"></td>
                     <td md-cell ng-bind="record.account_number"></td>
-                    <td md-cell ng-bind="record.time_started" nowrap></td>
-                    <td md-cell ng-bind="record.time_finished" nowrap></td>
+                    <td md-cell ng-bind="::app.formatDate( record.time_started )" nowrap></td>
+                    <td md-cell ng-bind="::app.formatDate( record.time_finished )" nowrap></td>
                     <td md-cell ng-bind="record.attempts"></td>
                     <td md-cell class="mt2-table-cell-center" ng-class="[ job.rowStatusMap[ record.status ] ]" ng-bind="{{ json_encode($statusNames) }}[ record.status ]"></td>
                 </tr>

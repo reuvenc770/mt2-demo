@@ -46,7 +46,7 @@
                                     @{{ record.roles.join(', ') }}
                                 </td>
                                 <td md-cell ng-bind="record.activations.length > 0 ? 'Active' : 'Inactive'"></td>
-                                <td md-cell nowrap>@{{ record.last_login }}</td>
+                                <td md-cell nowrap>@{{ record.last_login ? app.formatDate( record.last_login ) : '' }}</td>
                             </tr>
                         </tbody>
                     </table>

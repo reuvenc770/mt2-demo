@@ -54,8 +54,8 @@
                     <td md-cell ng-bind="record.feedType" nowrap></td>
                     <td md-cell ng-bind="record.party"></td>
                     <td md-cell ng-bind="record.source_url"></td>
-                    <td md-cell nowrap ng-bind="record.created_at"></td>
-                    <td md-cell nowrap ng-bind="record.updated_at"></td>
+                    <td md-cell nowrap ng-bind="::app.formatDate( record.created_at )"></td>
+                    <td md-cell nowrap ng-bind="::app.formatDate( record.updated_at )"></td>
                 </tr>
             </tbody>
             <tfoot>

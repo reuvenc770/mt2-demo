@@ -36,8 +36,8 @@
             <td md-cell ng-if="domain.type == 2" ng-hide="domain.beingEdited(record.dom_id)">@{{ record.proxy_name }}</td>
             <td md-cell ng-hide="domain.beingEdited(record.dom_id)">@{{ record.registrar_name }}</td>
             <td md-cell ng-if="domain.type == 1" ng-hide="domain.beingEdited(record.dom_id)" >@{{ record.main_site }}</td>
-            <td md-cell ng-hide="domain.rowBeingEdited != 0" nowrap>@{{ record.created_at }}</td>
-            <td md-cell ng-hide="domain.beingEdited(record.dom_id)" nowrap>@{{ record.expires_at }}</td>
+            <td md-cell ng-hide="domain.rowBeingEdited != 0" ng-bind="app.formatDate( record.created_at , 'MM-DD-YY' )" nowrap></td>
+            <td ng-hide="domain.beingEdited(record.dom_id)" ng-bind="::app.formatDate( record.expires_at , 'MM-DD-YY' )" nowrap></td>
             <td md-cell ng-hide="domain.rowBeingEdited != 0">@{{ record.dba_name }}</td>
             <td md-cell ng-hide="domain.beingEdited(record.dom_id)" class="mt2-table-cell-center">
                 <md-icon ng-hide="record.in_use" aria-label="No" md-font-set="material-icons" class="mt2-icon-black">cancel</md-icon>

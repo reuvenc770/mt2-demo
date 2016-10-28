@@ -36,11 +36,11 @@
                             </a>
                         </div>
                     </td>
-                    <td md-cell ng-bind="::record.id"></td>
-                    <td md-cell ng-bind="::record.name"></td>
-                    <td md-cell ng-bind="::record.field_options.email_id_field"></td>
-                    <td md-cell ng-bind="::record.field_options.email_address_field"></td>
-                    <td md-cell ng-bind="::record.updated_at" nowrap></td>
+                    <td md-cell ng-bind="record.id"></td>
+                    <td md-cell ng-bind="record.name"></td>
+                    <td md-cell ng-bind="record.field_options.email_id_field"></td>
+                    <td md-cell ng-bind="record.field_options.email_address_field"></td>
+                    <td md-cell ng-bind="::app.formatDate( record.updated_at )" nowrap></td>
                 </tr>
             </tbody>
             <tfoot>
