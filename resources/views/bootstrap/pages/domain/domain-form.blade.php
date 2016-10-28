@@ -63,15 +63,15 @@
         </div>
     </div>
 </div>
-<div class="form-group" ng-class="{ 'has-error' : domain.formErrors.in_use }">
-    <select ng-required="true" name="in_use" class="form-control"  ng-model="domain.currentAccount.in_use">
-        <option value="">Is Domain in Use?</option>
+<div class="form-group" ng-class="{ 'has-error' : domain.formErrors.live_a_record }">
+    <select ng-required="true" name="live_a_record" class="form-control"  ng-model="domain.currentAccount.live_a_record">
+        <option value="">A-Record Live?</option>
         <option value="1">Yes</option>
         <option value="0">No</option>
 
     </select>
-    <div class="help-block"  ng-show="domain.formErrors.in_use">
-        <div ng-repeat="error in domain.formErrors.in_use">
+    <div class="help-block"  ng-show="domain.formErrors.live_a_record">
+        <div ng-repeat="error in domain.formErrors.live_a_record">
             <span ng-bind="error"></span>
         </div>
     </div>
