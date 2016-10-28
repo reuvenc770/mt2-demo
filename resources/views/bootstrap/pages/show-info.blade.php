@@ -64,10 +64,10 @@
                     <td md-cell ng-bind="record.gender"></td>
                     <td md-cell ng-bind="record.network"></td>
                     <td md-cell ng-bind="record.action"></td>
-                    <td md-cell ng-bind="record.action_date" nowrap></td>
-                    <td md-cell ng-bind="record.subscribe_datetime" nowrap></td>
+                    <td md-cell ng-bind="::app.formatDate( record.action_date )" nowrap></td>
+                    <td md-cell ng-bind="::app.formatDate( record.subscribe_datetime )" nowrap></td>
                     <td md-cell ng-bind="record.status"></td>
-                    <td md-cell ng-bind="record.removal_date" nowrap></td>
+                    <td md-cell nowrap>@{{ record.removal_date == '0000-00-00 00:00:00' ? '' : app.formatDate( record.removal_date ) }}</td>
                     <td md-cell ng-bind="record.suppressed ? 'Suppressed' : ''"></td>
                 </tr>
             </tbody>
