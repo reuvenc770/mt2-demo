@@ -14,7 +14,7 @@ use App\Builders\ListProfileQueryBuilder;
 use Cache;
 use App\Repositories\FeedRepo;
 use App\Services\MT1Services\ClientStatsGroupingService;
-use App\Services\ListProfileBaseTableService;
+use App\Services\ListProfileBaseTableCreationService;
 
 class ListProfileService
 {
@@ -27,7 +27,7 @@ class ListProfileService
     const ROW_STORAGE_TIME = 60;
     protected $baseTableService;
 
-    public function __construct(ListProfileRepo $profileRepo, ListProfileQueryBuilder $builder, ListProfileBaseTableService $baseTableService) {
+    public function __construct(ListProfileRepo $profileRepo, ListProfileQueryBuilder $builder, ListProfileBaseTableCreationService $baseTableService) {
         $this->profileRepo = $profileRepo;
         $this->builder = $builder;
         $this->baseTableService = $baseTableService;

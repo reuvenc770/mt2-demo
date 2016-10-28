@@ -19,11 +19,26 @@ class ListProfileBaseTableRepo {
     }
 
 
-    public function suppressWithOfferId($offerId) {
-        /**
-            Need to build out suppression tables.
-         */
+    public function suppressWithOfferId($listIds) {
 
-        return $this->model;
+        if (count($listIds) > 0) {
+            $suppDb = config('database.connections.suppression.database');
+            $table = $this->model->getTable();
+
+            $listIds = '(' . implode(',', $listIds) . ')';
+
+            $query = $this->model
+                    ->select("$table.*")
+                    ->leftJoin("$suppDb.suppression_list_suppressions as sls", function($join) use($table, $listIds) {
+                        $join->on("$table.email_address", '=', 'sls.email_address');
+                        $join->on('sls.suppression_list_id', 'in', DB::raw($listIds));
+                    })  
+                    ->whereNull('sls.email_address');
+            return $query;
+        }
+        else {
+            return $this->model;
+        }
+        
     }
 }
