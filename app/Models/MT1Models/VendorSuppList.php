@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class VendorSuppList extends Model {
     protected $connection = 'mt1supp';
-    protected $tableName = 'vendor_supp_list';
+    protected $table = 'vendor_supp_list';
 }
