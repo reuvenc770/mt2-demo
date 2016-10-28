@@ -56,9 +56,9 @@
 @section( 'content' )
 <div ng-init="deploy.loadAccounts()">
         <div style="width:800px">
-            <div class="panel panel-primary center-block"> 
-                <div class="panel-heading">   
-                    <h3 class="panel-title">Search Deploys</h3> 
+            <div class="panel panel-primary center-block">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Search Deploys</h3>
                 </div>
                 <div class="panel-body">
                     <div class="row">
@@ -165,14 +165,13 @@
                 <tr md-row ng-show="deploy.showRow">
                     <td md-cell></td>
                     <td md-cell>
-                        @if (Sentinel::hasAccess('api.deploy.update'))
-                        <md-button ng-click="deploy.actionLink( $event , deployForm )" class="md-icon-button" ng-disable="deploy.formSubmitting" data-toggle="tooltip" data-placement="bottom" title="@{{ deploy.actionText() }}">
-                            <md-icon md-font-set="material-icons" class="mt2-icon-black">save</md-icon>
-                        </md-button>
-                        @endif
-                        <md-button ng-click="deploy.showRow = false" class="md-icon-button" data-toggle="tooltip" data-placement="bottom" title="Cancel">
-                            <md-icon md-font-set="material-icons" class="mt2-icon-black">clear</md-icon>
-                        </md-button>
+                        <div layout="row">
+                            @if (Sentinel::hasAccess('api.deploy.update'))
+                            <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-click="deploy.actionLink( $event , deployForm )" ng-disable="deploy.formSubmitting" data-toggle="tooltip" data-placement="bottom" title="@{{ deploy.actionText() }}">save</md-icon>
+                            &nbsp;&nbsp;
+                            @endif
+                            <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-click="deploy.showRow = false" data-toggle="tooltip" data-placement="bottom" title="Cancel">clear</md-icon>
+                        </div>
                     </td>
                     <td md-cell>
                         <md-datepicker name="dateField" ng-model="deploy.currentDeploy.send_date"
@@ -189,7 +188,7 @@
                         </div>
                     </td>
                     <td md-cell>@{{ deploy.deployIdDisplay }}</td>
-                    <td md-cell>
+                    <td md-cell nowrap>
                         <div class="form-group">
                             <select name="esp_account" id="esp_account" class="form-control"
                                     ng-change="deploy.updateSelects()"
@@ -208,7 +207,7 @@
                             </div>
                         </div>
                     </td>
-                    <td md-cell>
+                    <td md-cell nowrap>
                         <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.offer_id }">
                             <div angucomplete-alt ng-required="true"
                                  id="offer"
@@ -231,7 +230,7 @@
                             </div>
                         </div>
                     </td>
-                    <td md-cell>
+                    <td md-cell nowrap>
                         <div class="form-group">
                             <select name="creative_id" id="creative_id" class="form-control" ng-required="true"
                                     ng-model="deploy.currentDeploy.creative_id"
@@ -251,7 +250,7 @@
 
                         <a ng-show="deploy.creatives.length > 0" target="_blank" href="creatives/preview/@{{ deploy.currentDeploy.offer_id }}">Preview All Creatives</a>
                     </td>
-                    <td md-cell>
+                    <td md-cell nowrap>
                         <div class="form-group">
                             <select name="from_id" id="from_id" class="form-control" ng-required="true"
                                     ng-model="deploy.currentDeploy.from_id"
@@ -269,7 +268,7 @@
                             </div>
                         </div>
                     </td>
-                    <td md-cell>
+                    <td md-cell nowrap>
                         <div class="form-group">
                             <select name="subject_id" id="subject_id" class="form-control" ng-required="true"
                                     ng-model="deploy.currentDeploy.subject_id"
@@ -287,7 +286,7 @@
                             </div>
                         </div>
                     </td>
-                    <td md-cell>
+                    <td md-cell nowrap>
                         <div class="form-group">
                             <select name="template" id="template" class="form-control" ng-required="true"
                                     ng-model="deploy.currentDeploy.template_id"
@@ -305,7 +304,7 @@
                             </div>
                         </div>
                     </td>
-                    <td md-cell>
+                    <td md-cell nowrap>
                         <div class="form-group">
                             <select name="mailing_domain" id="mailing_domain" class="form-control" ng-required="true"
                                     ng-model="deploy.currentDeploy.mailing_domain_id"
@@ -323,7 +322,7 @@
                             </div>
                         </div>
                     </td>
-                    <td md-cell>
+                    <td md-cell nowrap>
                         <div class="form-group">
                             <select name="content_domain" id="content_domain" class="form-control" ng-required="true"
                                     ng-model="deploy.currentDeploy.content_domain_id"
@@ -341,7 +340,7 @@
                             </div>
                         </div>
                     </td>
-                    <td md-cell>
+                    <td md-cell nowrap>
                         <div class="form-group">
                             <select name="cake_affiliate_id" id="cake_affiliate_id" class="form-control" ng-required="true"
                                     ng-model="deploy.currentDeploy.cake_affiliate_id">
@@ -358,7 +357,7 @@
                             </div>
                         </div>
                     </td>
-                    <td md-cell>
+                    <td md-cell nowrap>
                         <div class="form-group">
                             <select name="encrypt_cake" id="encrypt_cake" class="form-control" ng-required="true"
                                     ng-model="deploy.currentDeploy.encrypt_cake">
@@ -374,7 +373,7 @@
                             </div>
                         </div>
                     </td>
-                    <td md-cell>
+                    <td md-cell nowrap>
                         <div class="form-group">
                             <select name="fully_encrypt" id="fully_encrypt" class="form-control" ng-required="true"
                                     ng-model="deploy.currentDeploy.fully_encrypt">
@@ -390,7 +389,7 @@
                             </div>
                         </div>
                     </td>
-                    <td md-cell>
+                    <td md-cell nowrap>
                         <div class="form-group">
                             <select name="url_format" id="url_format" class="form-control" ng-required="true"
                                     ng-model="deploy.currentDeploy.url_format">
@@ -407,7 +406,7 @@
                             </div>
                         </div>
                     </td>
-                    <td md-cell>
+                    <td md-cell nowrap>
                         <div class="form-group">
                             <textarea ng-model="deploy.currentDeploy.notes" class="form-control" rows="2" id="html"></textarea>
                         </div>
@@ -424,30 +423,37 @@
                                          ng-click="deploy.toggleRow(record.deploy_id)"> </md-checkbox>
                         </td>
                         <td md-cell>
-                            <md-button class="md-icon-button" ng-hide="record.deployment_status ==1" ng-click="deploy.editRow( record.deploy_id)" aria-label="Edit" data-toggle="tooltip" data-placement="bottom" title="Edit">
-                                <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
-                            </md-button>
-                            <md-button class="md-icon-button" ng-click="deploy.copyRow( record.deploy_id)" aria-label="Copy" data-toggle="tooltip" data-placement="bottom" title="Copy">
-                                <md-icon md-font-set="material-icons" class="mt2-icon-black">content_copy</md-icon>
-                            </md-button>
+                            <div layout="row">
+                                <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-hide="record.deployment_status ==1" ng-click="deploy.editRow( record.deploy_id)" aria-label="Edit" data-toggle="tooltip" data-placement="bottom" title="Edit">edit</md-icon>
+                                &nbsp;&nbsp;
+                                <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-click="deploy.copyRow( record.deploy_id)" aria-label="Copy" data-toggle="tooltip" data-placement="bottom" title="Copy">content_copy</md-icon>
+                            </div>
                         </td>
-                        <td md-cell>@{{ record.send_date }}</td>
+                        <td md-cell nowrap>@{{ record.send_date }}</td>
                         <td md-cell>@{{ record.deploy_id }}</td>
                         <td md-cell>@{{ record.account_name }}</td>
-                        <td md-cell>@{{ record.offer_name }}</td>
-                        <td md-cell>
-                            @{{ record.creative }}
+                        <td md-cell nowrap>
+                            <span data-toggle="popover" data-content="@{{ record.offer_name }}">
+                            @{{ record.offer_name.substring(0,20) }}...
+                            </span>
+                        </td>
+                        <td md-cell nowrap>
+                            <span data-toggle="popover" data-content="@{{ record.creative }}">
+                                @{{ record.creative.substring(0,20) }}...
+                            </span>
                             <span ng-hide="deploy.checkStatus(record.creative_approval,record.creative_status)"
                                   class="deploy-error mt2-bg-danger">!! Creative has been unapproved or deactivated !!</span>
                         </td>
-                        <td md-cell>
-                            @{{ record.from }}
+                        <td md-cell nowrap>
+                            <span data-toggle="popover" data-content="@{{ record.from }}">
+                                @{{ record.from.substring(0,20) }}...
+                            </span>
                             <span ng-hide="deploy.checkStatus(record.from_approval,record.from_status)"
                                   class="deploy-error mt2-bg-danger">!! From has been unapproved or deactivated !!</span>
                         </td>
-                        <td md-cell>
-                            <span data-toggle="tooltip" data-placement="bottom" title="@{{ record.subject }}">
-                            @{{ record.subject.substring(0,10) }}...
+                        <td md-cell nowrap>
+                            <span data-toggle="popover" data-content="@{{ record.subject }}">
+                                @{{ record.subject.substring(0,10) }}...
                             </span>
                             <md-button class="md-icon-button" ngclipboard data-clipboard-text="@{{record.subject}}" data-toggle="tooltip" data-placement="bottom" title="Copy Subject">
                                 <md-icon md-font-set="material-icons" class="mt2-icon-black">content_copy</md-icon>
@@ -465,12 +471,19 @@
                         <td md-cell>@{{ record.notes }}</td>
                     </tr>
                 </tbody>
+
+                <tfoot>
+                    <tr>
+                        <td colspan="17">
+                            <md-content class="md-mt2-zeta-theme md-hue-2">
+                                <md-table-pagination md-limit="deploy.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="deploy.currentPage" md-total="@{{deploy.deployTotal}}" md-on-paginate="deploy.loadAccounts" md-page-select></md-table-pagination>
+                            </md-content>
+                        </td>
+                    </tr>
+                </tfoot>
             </table>
         </md-table-container>
     </form>
-    <md-content class="md-mt2-zeta-theme md-hue-2">
-        <md-table-pagination md-limit="deploy.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="deploy.currentPage" md-total="@{{deploy.deployTotal}}" md-on-paginate="deploy.loadAccounts" md-page-select></md-table-pagination>
-    </md-content>
 </div>
     <deploy-validate-modal upload-errors="deploy.uploadErrors" mass-upload="deploy.massUploadList()"
                            records="deploy.uploadedDeploys"></deploy-validate-modal>

@@ -6,13 +6,13 @@
 
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('dba.add'))
-       <li><a ng-click="dba.viewAdd()" >Add DBA Account</a></li>
+       <li><a ng-href="dba.viewAdd()" >Add DBA Account</a></li>
     @endif
 @stop
 
 @section( 'content' )
     <div ng-init="dba.loadAccounts()">
-            <md-card>
+
                 <md-table-container>
                     <table md-table md-progress="dba.queryPromise">
                         <thead md-head md-order="dba.sort" md-on-reorder="dba.loadAccounts">
@@ -64,13 +64,20 @@
                             <td md-cell>@{{ record.notes }}</td>
                         </tr>
                         </tbody>
+
+                        <tfoot>
+                            <tr>
+                                <td colspan="11">
+                                    <md-content class="md-mt2-zeta-theme md-hue-2">
+                                        <md-table-pagination md-limit="dba.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="dba.currentPage" md-total="@{{dba.accountTotal}}" md-on-paginate="dba.loadAccounts" md-page-select></md-table-pagination>
+                                    </md-content>
+                                </td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </md-table-container>
 
-                <md-content class="md-mt2-zeta-theme md-hue-2">
-                    <md-table-pagination md-limit="dba.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="dba.currentPage" md-total="@{{dba.accountTotal}}" md-on-paginate="dba.loadAccounts" md-page-select></md-table-pagination>
-                </md-content>
-            </md-card>
+
     </div>
 @stop
 

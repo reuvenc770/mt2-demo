@@ -14,7 +14,6 @@
 
 @section( 'content' )
 <div ng-init="mailing.loadAccounts()">
-        <md-card>
             <md-table-container>
                 <table md-table md-progress="mailing.queryPromise">
                     <thead md-head md-order="mailing.sort" md-on-reorder="mailing.loadAccounts">
@@ -41,13 +40,18 @@
                             <td md-cell>@{{ mailing.templateTypeMap[record.template_type] }}</td>
                         </tr>
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4">
+                                <md-content class="md-mt2-zeta-theme md-hue-2">
+                                    <md-table-pagination md-limit="mailing.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="mailing.currentPage" md-total="@{{mailing.templateTotal}}" md-on-paginate="mailing.loadAccounts" md-page-select></md-table-pagination>
+                                </md-content>
+                            </td>
+                        </tr>
+                    </tfoot>
                 </table>
             </md-table-container>
 
-            <md-content class="md-mt2-zeta-theme md-hue-2">
-                <md-table-pagination md-limit="mailing.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="mailing.currentPage" md-total="@{{mailing.templateTotal}}" md-on-paginate="mailing.loadAccounts" md-page-select></md-table-pagination>
-            </md-content>
-        </md-card>
 </div>
 @stop
 

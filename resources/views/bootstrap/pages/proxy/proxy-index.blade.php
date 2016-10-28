@@ -13,7 +13,6 @@
 
 @section( 'content' )
     <div ng-init="proxy.loadAccounts()">
-            <md-card>
                 <md-table-container>
                     <table md-table md-progress="proxy.queryPromise">
                         <thead md-head md-order="proxy.sort" md-on-reorder="proxy.loadAccounts">
@@ -30,7 +29,7 @@
                         </thead>
 
                         <tbody md-body>
-                        <tr md-row ng-repeat="record in proxy.accounts track by $index" ng-class="{ 'mt2-bg-success' : record.status == 1 , 'mt2-bg-danger' : record.status == 0 }">
+                        <tr md-row ng-repeat="record in proxy.accounts track by $index">
                             <td md-cell>
                                 <div layout="row" layout-align="center center">
                                     <md-button class="md-icon-button" aria-label="Edit" ng-href="@{{ '/proxy/edit/' + record.id }}" target="_self">
@@ -47,7 +46,7 @@
                                     </md-button>
                                 </div>
                             </td>
-                            <td md-cell class="mt2-table-cell-center">
+                            <td md-cell class="mt2-table-cell-center" ng-class="{ 'bg-success' : record.status == 1 , 'bg-danger' : record.status == 0 }">
                                 @{{ record.status == 1 ? 'Active' : 'Inactive' }}
                             </td>
                             <td md-cell class="mt2-cell-left-padding">@{{ record.name }}</td>
@@ -58,13 +57,18 @@
                             <td md-cell>@{{ record.notes }}</td>
                         </tr>
                         </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="8">
+                                    <md-content class="md-mt2-zeta-theme md-hue-2">
+                                        <md-table-pagination md-limit="proxy.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="proxy.currentPage" md-total="@{{proxy.accountTotal}}" md-on-paginate="proxy.loadAccounts" md-page-select></md-table-pagination>
+                                    </md-content>
+                                </td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </md-table-container>
 
-                <md-content class="md-mt2-zeta-theme md-hue-2">
-                    <md-table-pagination md-limit="proxy.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="proxy.currentPage" md-total="@{{proxy.accountTotal}}" md-on-paginate="proxy.loadAccounts" md-page-select></md-table-pagination>
-                </md-content>
-            </md-card>
     </div>
 @stop
 

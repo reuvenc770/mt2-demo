@@ -41,7 +41,10 @@ $table-bg-accent-2 : #eaeaea;
     }
 }
 
-.tooltip-inner { min-width: 100px; }
+.tooltip-inner,
+.popover {
+    max-width:none !important;
+}
 
 .fixed-sidenav-offset {
     margin-left: 300px;
@@ -244,14 +247,16 @@ th md-checkbox.md-mt2-zeta-theme:not(.md-checked) .md-icon {
 /*
  * Button Styling
  */
- md-icon.md-mt2-zeta-theme.mt2-icon-black{
+ md-icon.mt2-icon-black{
     color: #000000;
  }
 
- md-icon.md-mt2-zeta-theme.mt2-icon-white{
+ md-icon.mt2-icon-white{
     color: #ffffff;
  }
-
+.material-icons:focus {
+    outline: 0;
+}
 .md-button.mt2-button-xs{
     padding: 0 5px;
     margin: 5px;

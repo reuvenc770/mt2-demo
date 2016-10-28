@@ -20,7 +20,6 @@
         </ul>
     </div>
 </div>
-<md-card>
     <md-table-container>
         <table md-table md-progress="attr.modelQueryPromise" md-row-select ng-model="attr.selectedModel">
             <thead md-head md-order="" md-on-reorder="">
@@ -45,13 +44,16 @@
                     ng-repeat="model in attr.models track by $index">
                 <td md-cell ng-bind="model.name"></td>
                 <td md-cell ng-bind="model.processing ? 'Running' : 'Completed'"></td>
-                <td md-cell ng-bind="model.created_at"></td>
-                <td md-cell ng-bind="model.updated_at"></td>
+                <td md-cell ng-bind="model.created_at" nowrap></td>
+                <td md-cell ng-bind="model.updated_at" nowrap></td>
             </tr>
             </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="5">
+                        <md-table-pagination md-limit="" md-limit-options="[5,10,25,50]" md-page="" md-total="" md-on-paginate="" md-page-select></md-table-pagination>
+                    </td>
+                </tr>
+            </tfoot>
         </table>
     </md-table-container>
-
-    <md-table-pagination md-limit="" md-limit-options="[5,10,25,50]" md-page="" md-total="" md-on-paginate=""
-                         md-page-select></md-table-pagination>
-</md-card>

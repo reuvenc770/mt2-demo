@@ -13,7 +13,6 @@
 
 @section( 'content' )
     <div ng-init="registrar.loadAccounts()">
-            <md-card>
                 <md-table-container>
                     <table md-table md-progress="registrar.queryPromise">
                         <thead md-head md-order="registrar.sort" md-on-reorder="registrar.loadAccounts">
@@ -58,13 +57,18 @@
                             <td md-cell>@{{ record.entity_name }}</td>
                         </tr>
                         </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="8">
+                                <md-content class="md-mt2-zeta-theme md-hue-2">
+                                    <md-table-pagination md-limit="registrar.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="registrar.currentPage" md-total="@{{registrar.accountTotal}}" md-on-paginate="registrar.loadAccounts" md-page-select></md-table-pagination>
+                                </md-content>
+                                </td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </md-table-container>
 
-                <md-content class="md-mt2-zeta-theme md-hue-2">
-                    <md-table-pagination md-limit="registrar.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="registrar.currentPage" md-total="@{{registrar.accountTotal}}" md-on-paginate="registrar.loadAccounts" md-page-select></md-table-pagination>
-                </md-content>
-            </md-card>
     </div>
 @stop
 

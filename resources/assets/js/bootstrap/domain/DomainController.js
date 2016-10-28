@@ -68,8 +68,6 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     self.accountTotal = 0;
     self.queryPromise = null;
 
-
-
     self.loadAccounts = function () {
         self.queryPromise = DomainService.getAccounts(
             self.currentPage,
@@ -101,6 +99,8 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         self.updateProxies();
     };
     self.init = function (type) {
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+
         self.updatingAccounts = true;
         self.currentAccount.domain_type = type;
         self.updateProxies();

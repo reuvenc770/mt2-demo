@@ -82,16 +82,16 @@
                             <td md-cell>
                                 <div layout="row" layout-align="center center">
                                     <md-button class="md-icon-button" ng-click="file.pause()" ng-hide="file.paused" aria-label="Pause" data-toggle="tooltip" data-placement="bottom" title="Pause">
-                                        <md-icon md-svg-icon="img/icons/ic_pause_black_18px.svg"></md-icon>
+                                        <md-icon md-font-set="material-icons" class="mt2-icon-black">pause</md-icon>
                                     </md-button>
                                     <md-button class="md-icon-button" ng-click="file.resume()" ng-show="file.paused" aria-label="Resume" data-toggle="tooltip" data-placement="bottom" title="Resume">
-                                        <md-icon md-svg-icon="img/icons/ic_play_arrow_18px.svg"></md-icon>
+                                        <md-icon md-font-set="material-icons" class="mt2-icon-black">play_arrow</md-icon>
                                     </md-button>
                                     <md-button class="md-icon-button" ng-click="file.cancel()" aria-label="Cancel" data-toggle="tooltip" data-placement="bottom" title="Cancel">
-                                        <md-icon md-svg-icon="img/icons/ic_clear_black_24px.svg"></md-icon>
+                                        <md-icon md-font-set="material-icons" class="mt2-icon-black">clear</md-icon>
                                     </md-button>
                                     <md-button class="md-icon-button" ng-click="file.retry()" ng-show="file.error" aria-label="Retry" data-toggle="tooltip" data-placement="bottom" title="Retry">
-                                        <md-icon md-svg-icon="img/icons/ic_refresh_black_18px.svg"></md-icon>
+                                        <md-icon md-font-set="material-icons" class="mt2-icon-black">refresh</md-icon>
                                     </md-button>
                                 </div>
                             </td>

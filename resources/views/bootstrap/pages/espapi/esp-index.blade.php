@@ -15,7 +15,6 @@
 
 @section( 'content' )
 <div ng-init="esp.loadAccounts()">
-    <md-card>
         <md-table-container>
             <table md-table md-progress="esp.queryPromise">
                 <thead md-head md-order="esp.sort" md-on-reorder="esp.loadAccounts">
@@ -49,14 +48,19 @@
                         <td md-cell nowrap>@{{ record.updated_at }}</td>
                     </tr>
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="7">
+                            <md-content class="md-mt2-zeta-theme md-hue-2">
+                                <md-table-pagination md-limit="esp.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="esp.currentPage" md-total="@{{esp.accountTotal}}" md-on-paginate="esp.loadAccounts" md-page-select></md-table-pagination>
+                            </md-content>
+                        </td>
+                    </tr>
+                </tfoot>
             </table>
         </md-table-container>
 
-        <md-content class="md-mt2-zeta-theme md-hue-2">
-            <md-table-pagination md-limit="esp.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="esp.currentPage" md-total="@{{esp.accountTotal}}" md-on-paginate="esp.loadAccounts" md-page-select></md-table-pagination>
-        </md-content>
 
-    </md-card>
 </div>
 @stop
 

@@ -14,7 +14,6 @@
 
 @section( 'content' )
 <div ng-init="role.loadRoles()">
-    <md-card>
         <md-table-container>
             <table md-table>
                 <thead md-head>
@@ -42,7 +41,6 @@
                 </tbody>
             </table>
         </md-table-container>
-    </md-card>
 </div>
 @stop
 

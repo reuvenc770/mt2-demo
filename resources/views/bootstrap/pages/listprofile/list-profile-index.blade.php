@@ -40,7 +40,7 @@
                     <td md-cell>@{{ ::( profile.actionRanges.opener.min + ' to ' + profile.actionRanges.opener.max ) }} (@{{ ::( profile.actionRanges.opener.multiaction + 'x' ) }})</td>
                     <td md-cell>@{{ ::( profile.actionRanges.clicker.min + ' to ' + profile.actionRanges.clicker.max ) }} (@{{ ::( profile.actionRanges.clicker.multiaction + 'x' ) }})</td>
                     <td md-cell>@{{ ::( profile.actionRanges.converter.min + ' to ' + profile.actionRanges.converter.max ) }} (@{{ ::( profile.actionRanges.converter.multiaction + 'x' ) }})</td>
-                    <td md-cell ng-bind="::profile.lastPull"></td>
+                    <td md-cell ng-bind="::profile.lastPull" nowrap></td>
                     <td md-cell ng-bind="::profile.recordCount"></td>
                 </tr>
             </tbody>
