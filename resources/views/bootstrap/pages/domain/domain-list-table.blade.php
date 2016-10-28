@@ -11,7 +11,7 @@
             <th md-column class="md-table-header-override-whitetext" ng-hide="domain.rowBeingEdited != 0">Created</th>
             <th md-column class="md-table-header-override-whitetext">Expires</th>
             <th md-column class="md-table-header-override-whitetext" ng-hide="domain.rowBeingEdited != 0">DBA</th>
-            <th md-column class="md-table-header-override-whitetext">In Use</th>
+            <th md-column class="md-table-header-override-whitetext mt2-table-header-center">Live A-Record</th>
         </tr>
         </thead>
         <tbody md-body>
@@ -39,9 +39,10 @@
             <td md-cell ng-hide="domain.rowBeingEdited != 0" nowrap>@{{ record.created_at }}</td>
             <td md-cell ng-hide="domain.beingEdited(record.dom_id)" nowrap>@{{ record.expires_at }}</td>
             <td md-cell ng-hide="domain.rowBeingEdited != 0">@{{ record.dba_name }}</td>
-            <td md-cell ng-hide="domain.beingEdited(record.dom_id)" class="text-center" >
+            <td md-cell ng-hide="domain.beingEdited(record.dom_id)" class="mt2-table-cell-center">
                 <md-icon ng-hide="record.in_use" aria-label="No" md-font-set="material-icons" class="mt2-icon-black">cancel</md-icon>
                 <md-icon ng-if="record.in_use" aria-label="Yes" md-font-set="material-icons" class="mt2-icon-black">check_circle</md-icon>
+            </td>
             <!--End Normal View -->
 
             <!--Edit View  -->
@@ -103,14 +104,13 @@
                 </div>
             </td>
             <td md-cell ng-show="domain.beingEdited(record.dom_id)" >
-                <select ng-required="true" name="in_use" class="form-control"  ng-model="domain.currentDomain.in_use">
+                <select ng-required="true" name="live_a_record" class="form-control"  ng-model="domain.currentDomain.live_a_record">
                     <option value="">Is Domain in Use?</option>
                     <option value="1">Yes</option>
                     <option value="0">No</option>
-
                 </select>
-                <div class="help-block"  ng-show="domain.formErrors.in_use">
-                    <div ng-repeat="error in domain.formErrors.in_use">
+                <div class="help-block"  ng-show="domain.formErrors.live_a_record">
+                    <div ng-repeat="error in domain.formErrors.live_a_record">
                         <span ng-bind="error"></span>
                     </div>
                 </div>

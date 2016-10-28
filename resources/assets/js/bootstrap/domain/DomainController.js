@@ -29,7 +29,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         "proxy": "",
         "dba": "",
         "domains": "",
-        "in_use": "",
+        "live_a_record": "",
         "espAccountId": currentEspAccount
     };
 
@@ -41,7 +41,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         "registrar_id": "",
         "main_site" : "",
         "expires_at" : "",
-        "in_use": "",
+        "live_a_record": "",
         "esp_account_id": ""
     };
 
@@ -215,7 +215,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     self.loadAccountSuccessCallback = function (response){
         self.currentDomain = response.data;
         self.currentDomain.registrar_id = String(response.data.registrar_id);
-        self.currentDomain.in_use = String(response.data.in_use);
+        self.currentDomain.live_a_record = String(response.data.live_a_record);
     };
 
     self.editRowSuccess = function (){
