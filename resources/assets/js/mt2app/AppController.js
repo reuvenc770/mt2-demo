@@ -120,4 +120,12 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
 
         $mdToast.show( toast );
     };
+
+    self.formatDate = function ( dateString , dateFormat ) {
+        if ( typeof( dateFormat ) === 'undefined' ) {
+            dateFormat = 'MM-DD-YY h:mm A';
+        }
+
+        return moment( dateString , 'YYYYMMDDHHmmSS' ).format( dateFormat );
+    };
 } ] );
