@@ -6,10 +6,12 @@ use App\Events\ListProfileCompleted;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Repositories\DeployRepo;
-use Artisan;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Jobs\ExportListProfileJob;
 
 class RunDeploySuppression implements ShouldQueue
 {
+    use DispatchesJobs;
 
     private $repo;
 
@@ -32,7 +34,8 @@ class RunDeploySuppression implements ShouldQueue
         $deploys = $this->repo->getOffersForTodayWithListProfile($event->getId());
 
         foreach($deploys as $row) {
-            Artisan::call('listprofile:export', ['listProfileId' => $event->getId(), 'offerId' => $row->offer_id]);
+            $job = new ExportListProfileJob($event->getId(), $row->offer_id, str_random(16));
+            $this->dispatch($job);
         }
         
     }
