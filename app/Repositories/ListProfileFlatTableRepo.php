@@ -23,8 +23,6 @@ class ListProfileFlatTableRepo {
     public function massInsertActions($massData) {
         $pdo = DB::connection()->getPdo();
 
-        $pdo = DB::connection()->getPdo();
-
         echo "Preparing to insert at " . microtime(true) . PHP_EOL;
         $insertList = [];
 
