@@ -42,6 +42,7 @@ class ListProfileService
     public function buildProfileTable($id) {
         /**
             - Run against hygiene
+            Feed suppression
          */
         $listProfile = $this->profileRepo->getProfile($id);
         $queries = $this->returnQueriesData($listProfile);

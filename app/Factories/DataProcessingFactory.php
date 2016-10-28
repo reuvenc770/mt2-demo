@@ -151,6 +151,16 @@ class DataProcessingFactory {
                 $mt2Name = 'Client';
                 return self::createMt1ImportService($mt1Name, $mt2Name);
 
+            case('ImportMt1VendorSuppression'):
+                $mt1Name = 'VendorSuppList';
+                $mt2Name = 'SuppressionListSuppression';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case('ImportMt1VendorSuppressionInfo'):
+                $mt1Name = 'VendorSuppListInfo';
+                $mt2Name = 'SuppressionList';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
             default:
                 throw new \Exception("Data processing service {$name} does not exist");
         }
