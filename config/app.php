@@ -163,7 +163,6 @@ return [
         App\Providers\PermissionServiceProvider::class,
         App\Providers\UserEventLogProvider::class,
         DaveJamesMiller\Breadcrumbs\ServiceProvider::class,
-        Maknz\Slack\SlackServiceProvider::class,
         Jenssegers\Agent\AgentServiceProvider::class,
         App\Providers\SuppressionProvider::class,
         App\Providers\DeployActionProvider::class,
@@ -171,6 +170,7 @@ return [
         AdrianMejias\States\StatesServiceProvider::class,
         App\Providers\SftpServiceProvider::class,
         App\Providers\AssetsServiceProvider::class,
+        App\Providers\SlackProvider::class,
     ],
 
     /*

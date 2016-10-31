@@ -39,12 +39,7 @@ class Inspire extends Command
      */
     public function handle()
     {
-         $contactManager = new ContactManagement();
-        $auth = new Authentication('api@dailyhealthywoodhills.com','#caapi7#');
-
-        $filter = new ListAttributesFilter(true,true,true);
-        $t= new ListAttributes($auth,$filter);
-        $result = $contactManager->ListAttributes($t);
-        die($result->__getLastResponse());
+        Slack::to('@pcunningham')->send("sdfsdf");
+        SlackLevel::to('@pat')->send("sdfsdf");
     }
 }
