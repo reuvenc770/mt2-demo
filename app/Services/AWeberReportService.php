@@ -49,14 +49,16 @@ class AWeberReportService extends AbstractReportService implements IDataService
         Log::info( 'Retrieving API Campaign Stats.......' );
 
         $date = null; //unfortunately date does not matter here.
+        $numberToPull = 30; //lets get the last 20 campaigns sent
         $campaignData = array();
-        $campaigns = $this->api->getCampaigns(20);
+        $campaigns = $this->api->getCampaigns(1);
         $i=0;
         foreach ($campaigns as $campaign) {
+            Log::info($campaign);
             Log::info( 'Processing Aweber Campaign ' . $campaign->id );
 
-            $clickEmail =0;//$this->api->getStateValue($campaign->id, "unique_clicks");
-            $openEmail = 0;//$this->api->getStateValue($campaign->id, "unique_opens");
+            $clickEmail =$this->api->getStateValue($campaign->id, "unique_clicks");
+            $openEmail = $this->api->getStateValue($campaign->id, "unique_opens");
             $row = array(
                 "internal_id" => $campaign->id,
                 "subject" => $campaign->subject,
@@ -72,12 +74,17 @@ class AWeberReportService extends AbstractReportService implements IDataService
             );
             $campaignData[] = $row;
 
-        }
-        $i++;
-        if($i == 20){
-            return  $campaignData;
-        }
 
+            $i++;
+            if($i == 20){
+                $endTime = microtime( true );
+
+                Log::info( 'Executed in: ' );
+                Log::info(  $endTime - $startTime );
+                return  $campaignData;
+            }
+
+        }
         $endTime = microtime( true );
 
         Log::info( 'Executed in: ' );

@@ -63,7 +63,7 @@ class AWeberApi extends EspBaseAPI
      * @param int $limit
      * @return AWeberCollection|AWeberEntry
      */
-    public function getCampaigns($limit = 100)
+    public function getCampaigns($limit = 1)
     {
         $url = "campaigns";
         return $this->makeApiRequest($url, array("ws.size" => $limit));
