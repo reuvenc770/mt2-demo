@@ -460,12 +460,17 @@ class ListProfileQueryBuilder {
 
         foreach ($listProfile->clients as $client) {
             foreach ($client->feeds as $feed) {
-                $listIds[] = $feed->suppression_list_id;
+                if ($feed->suppression_list_id) {
+                    $listIds[] = $feed->suppression_list_id;
+                }
+               
             }
         }
 
         foreach ($listProfile->feeds as $feed) {
-            $listIds[] = $feed->suppression_list_id;
+            if ($feed->suppression_list_id) {
+                $listIds[] = $feed->suppression_list_id;
+            }
         }
 
         return $listIds;
