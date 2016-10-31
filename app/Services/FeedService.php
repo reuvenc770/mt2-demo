@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\CakeVertical;
 use App\Models\FeedType;
+use App\Models\RecordProcessingFileField;
 use App\Repositories\CountryRepo;
 use App\Repositories\FeedRepo;
 use App\Services\ServiceTraits\PaginateList;
@@ -16,6 +17,21 @@ class FeedService
     private $feedTypes;
     private $countryRepo;
     private $feedRepo;
+
+    private $optionalFields = [
+        'first_name_index' ,
+        'last_name_index' ,
+        'address_index' ,
+        'address2_index' ,
+        'city_index' ,
+        'state_index' ,
+        'zip_index' ,
+        'country_index' ,
+        'gender_index' ,
+        'phone_index' ,
+        'dob_index' ,
+        'other_field_index'
+    ];
 
     public function __construct( CakeVertical $cakeVerticals , CountryRepo $countryRepo , FeedRepo $feedRepo , FeedType $feedTypes ) {
         $this->verticals = $cakeVerticals;
@@ -54,5 +70,19 @@ class FeedService
 
     public function getType () {
         return 'Feed';
+    }
+
+    public function saveFieldOrder ( $feedId , $fieldConfig ) {
+        if ( isset( $fieldConfig[ 'other_field_index' ] ) ) {
+            $fieldConfig[ 'other_field_index' ] = json_encode( $fieldConfig[ 'other_field_index' ] );
+        }
+
+        foreach ( $this->optionalFields as $field ) {
+            if ( !isset( $fieldConfig[ $field ] ) ) {
+                $fieldConfig[ $field ] = null;
+            }
+        }
+
+        RecordProcessingFileField::updateOrCreate( [ 'feed_id' => $feedId ] , $fieldConfig );
     }
 }
