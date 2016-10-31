@@ -77,6 +77,7 @@ class AppendEidService
         $writer->insertOne($schema);
 
         foreach ($data as $row) {
+            unset($row['is_deliverable']);
             $writer->insertOne($row);
         }
          return $writer->__toString();
