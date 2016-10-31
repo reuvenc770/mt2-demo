@@ -227,6 +227,7 @@ return [
         'UserEventLog' => App\Facades\UserEventLog::class,
         'Breadcrumbs' => DaveJamesMiller\Breadcrumbs\Facade::class,
         'Slack' => Maknz\Slack\Facades\Slack::class,
+        'SlackLevel' => App\Facades\SlackLevel::class,
         'Agent' => Jenssegers\Agent\Facades\Agent::class,
         'Suppression' => App\Facades\Suppression::class,
         'CampaignActionsEntry' => App\Facades\DeployActionEntry::class,
