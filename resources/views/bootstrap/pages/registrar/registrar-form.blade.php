@@ -88,11 +88,11 @@
         </div>
     </div>
 </div>
-<div class="form-group" ng-class="{ 'has-error' : registrar.formErrors.contact_email }">
-    <input placeholder="Contact Email" type="email" class="form-control" ng-model="registrar.currentAccount.contact_email"
-           required="required" name="contact_email" type="text">
-    <div class="help-block" ng-show="registrar.formErrors.contact_email">
-        <div ng-repeat="error in registrar.formErrors.contact_email">
+<div class="form-group" ng-class="{ 'has-error' : registrar.formErrors.entity_name }">
+    <input placeholder="Entity Name" type="text" class="form-control" ng-model="registrar.currentAccount.entity_name"
+           required="required" name="entity_name" type="text">
+    <div class="help-block" ng-show="registrar.formErrors.entity_name">
+        <div ng-repeat="error in registrar.formErrors.entity_name">
             <span ng-bind="error"></span>
         </div>
     </div>
