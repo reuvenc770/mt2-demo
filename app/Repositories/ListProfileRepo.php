@@ -30,4 +30,12 @@ class ListProfileRepo
     public function getProfile($id) {
         return $this->listProfile->where('id', $id)->firstOrFail();
     }
+
+    public function updateTotalCount($id, $count) {
+        $this->listProfile->where('id', $id)->update(['total_count' => $count]);
+    }
+
+    public function shouldInsertHeader($id) {
+        return $this->listProfile->where('id', $id)->firstOrFail()->insert_header === 1;
+    }
 }

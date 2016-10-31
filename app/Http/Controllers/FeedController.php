@@ -41,7 +41,7 @@ class FeedController extends Controller
         return response()->view( 'bootstrap.pages.feed.feed-index' , [
             'countries' => ( !is_null( $countryList ) ? $countryList : [] ),
             'clients' => $this->clientService->get(),
-            'clientTypes' => $this->feedService->getClientTypes(),
+            'clientTypes' => $this->feedService->getVerticals(),
             'feedTypes' => $this->feedService->getFeedTypes()
         ] );
     }
@@ -59,7 +59,7 @@ class FeedController extends Controller
             'hideName' => 'show' ,
             'countries' => ( !is_null( $countryList ) ? $countryList : [] ),
             'clients' => $this->clientService->get(),
-            'clientTypes' => $this->feedService->getClientTypes(),
+            'clientTypes' => $this->feedService->getVerticals(),
             'feedTypes' => $this->feedService->getFeedTypes()
         ] );
     }
@@ -103,7 +103,7 @@ class FeedController extends Controller
             'hideName' => 'hide' ,
             'countries' =>  $countryList,
             'clients' => $this->clientService->get(),
-            'clientTypes' => $this->feedService->getClientTypes(),
+            'clientTypes' => $this->feedService->getVerticals(),
             'feedTypes' => $this->feedService->getFeedTypes()
         ] );
     }

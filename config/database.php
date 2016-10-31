@@ -175,6 +175,18 @@ return [
             'strict'    => false,
         ],
 
+        'list_profile_export_tables' => [
+            'driver'    => 'mysql',
+            'host'      => env('DB_HOST', 'localhost'),
+            'database'  => env('LIST_PROFILE_EXPORT_TABLE_SCHEMA', 'list_profile_export_tables' ),
+            'username'  => env('DB_USERNAME', 'forge'),
+            'password'  => env('DB_PASSWORD', ''),
+            'charset'   => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix'    => '',
+            'strict'    => false,
+        ]
+
     ],
 
     /*
