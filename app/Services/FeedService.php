@@ -8,6 +8,7 @@ use App\Models\FeedType;
 use App\Repositories\CountryRepo;
 use App\Services\ServiceTraits\PaginateList;
 use App\Services\Interfaces\IFtpAdmin;
+use DB;
 
 class FeedService implements IFtpAdmin
 {
