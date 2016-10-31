@@ -354,4 +354,10 @@ class DeployRepo
 
         return $errors;
     }
+
+    public function getOffersForTodayWithListProfile($listProfileId) {
+        $today = Carbon::today()->format('Y-m-d');
+
+        return $this->deploy->where('send_date', $today)->groupBy('offer_id')->get();
+    }
 }
