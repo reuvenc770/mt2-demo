@@ -4,7 +4,7 @@
 @section('content')
     <div class="panel panel-primary"  ng-controller="DBAController as dba" ng-init="dba.loadAccount()">
         <div class="panel-heading">
-            <div class="panel-title">Update DBA</div>
+            <div class="panel-title">Edit DBA</div>
         </div>
         <div class="panel-body">
             <fieldset>

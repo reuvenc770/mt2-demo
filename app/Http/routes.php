@@ -157,6 +157,11 @@ Route::group(
             'uses' => 'BulkSuppressionController@index'
         ] );
 
+        Route::get( '/appendeid' , [
+            'as' => 'tools.appendeid' ,
+            'uses' => 'AppendEidController@index'
+        ] );
+
         Route::get( '/navigation' , [
             'as' => 'tools.navigation' ,
             'uses' => 'NavigationController@index'
@@ -1206,6 +1211,11 @@ Route::group(
                 [ 'except' => [ 'create' , 'edit' ] ]
             );
         } );
+
+        Route::post( '/appendeid/upload/' , [
+            'as' => 'tools.appendeid.upload' ,
+            'uses' => 'AppendEidController@manageUpload'
+        ] );
 
         /**
          * Dev Level API Group

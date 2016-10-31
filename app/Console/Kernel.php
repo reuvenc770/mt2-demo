@@ -69,6 +69,8 @@ class Kernel extends ConsoleKernel
         Commands\SendDomainExpirationNotice::class,
         Commands\PullCakeRecordData::class,
         Commands\InflateEmailHistoriesUtil::class,
+        Commands\BuildScheduledProfileBaseTables::class,
+        Commands\ExportListProfile::class,
     ];
 
     /**
@@ -164,7 +166,7 @@ class Kernel extends ConsoleKernel
          * Constantly firing.
          *
          */
-        #$schedule->command('ftp:admin -H 52.205.67.250 -U root -k ~/.ssh/mt2ftp.pub -K ~/.ssh/mt2ftp -u -s Client')->everyFiveMinutes();
+        $schedule->command('ftp:admin -H 52.205.67.250 -U root -k ~/.ssh/mt2ftp.pub -K ~/.ssh/mt2ftp -u -s Feed')->everyFiveMinutes();
 
         /**
          *  MT1 data sync jobs
@@ -209,5 +211,6 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('listprofile:aggregateActions')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('listprofile:getRecordAgentData')->dailyAt(self::EXPIRATION_RUNS);
+        $schedule->command('listprofile:baseTables')->dailyAt(self::EXPIRATION_RUNS);
     }
 }

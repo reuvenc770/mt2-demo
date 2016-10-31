@@ -1,6 +1,6 @@
 @extends( 'bootstrap.layout.default' )
 
-@section( 'title' , 'MT2 Proxy List' )
+@section( 'title' , 'Proxy List' )
 
 @section ( 'angular-controller' , 'ng-controller="ProxyController as proxy"' )
 

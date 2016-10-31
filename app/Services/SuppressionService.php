@@ -166,4 +166,9 @@ class SuppressionService
     public function getByInternalEmailDate ( $internalEspId , $emailAddress , $date ) {
         return $this->repo->getByInternalEmailDate( $internalEspId , $emailAddress , $date );
     }
+
+    //Add more to here if we need to
+    public function checkGlobalSuppression ($emailAddress){
+        return $this->repo->getAllSuppressionsForEmail($emailAddress);
+    }
 }

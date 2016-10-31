@@ -34,13 +34,8 @@ class NewRecordResolver implements ShouldQueue
      */
     public function handle(NewRecords $event)
     {
-        Log::info("##### I AM BEING HANDLED #####");
         $this->scheduledFilterService =  ServiceFactory::createFilterService("expiration");
         $this->truthTableService->insertBulkRecords($event->getEmails());
-        Log::info("##### I HAVE FINISHED INSERTING INTO TRUTH TABLE  #####");
         $this->scheduledFilterService->insertScheduleFilterBulk($event->getEmails(), 10);
-        Log::info("##### I HAVE FINISHED INSERTING INTO scheduleFilter  #####");
-
-        Log::info("##### I HAVE FINISHED  #####");
     }
 }

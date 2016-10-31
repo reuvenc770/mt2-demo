@@ -7,11 +7,11 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
     self.activeMenuLink = {};
 
     angular.element( document.getElementById( 'mainSideNav' ) ).on( 'show.bs.offcanvas' , function () {
-            angular.element( document.getElementById( 'containerSizer' ) ).addClass( 'container-no-left' );
+            angular.element(document.getElementById( 'containerSizer' ) ).addClass( 'container-no-left' );
     } );
 
     angular.element( document.getElementById( 'mainSideNav' ) ).on( 'hide.bs.offcanvas' , function () {
-            angular.element( document.getElementById( 'containerSizer' ) ).removeClass( 'container-no-left' );
+            angular.element(document.getElementById( 'containerSizer' )).removeClass( 'container-no-left' );
     } );
 
     self.setCurrentActiveSection = function ( sectionName , linkName , path ) {

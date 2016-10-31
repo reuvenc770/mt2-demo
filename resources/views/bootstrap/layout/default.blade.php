@@ -12,7 +12,8 @@
 <script type="text/javascript">
     var _config = {
         userId: {{Sentinel::check() ? Sentinel::getUser()->id: 0}},
-        userName: "{{Sentinel::check() ? Sentinel::getUser()->username: 0}}"
+        userName: "{{Sentinel::check() ? Sentinel::getUser()->username: 0}}",
+        emailAddress: "{{Sentinel::check() ? Sentinel::getUser()->email: 0}}"
     };
 </script>
 <div @yield( 'angular-controller' ) id="containerSizer" class="@yield('container', 'container') pinned-container"  ng-cloak>
