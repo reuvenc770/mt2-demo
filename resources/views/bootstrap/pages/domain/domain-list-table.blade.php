@@ -11,7 +11,7 @@
             <th ng-hide="domain.rowBeingEdited != 0">Created</th>
             <th>Expires</th>
             <th ng-hide="domain.rowBeingEdited != 0">DBA</th>
-            <th>In Use</th>
+            <th>Live A-Record</th>
         </tr>
         </thead>
         <tbody>
@@ -29,19 +29,19 @@
             <td ng-if="domain.type == 2" ng-hide="domain.beingEdited(record.dom_id)">@{{ record.proxy_name }}</td>
             <td ng-hide="domain.beingEdited(record.dom_id)">@{{ record.registrar_name }}</td>
             <td ng-if="domain.type == 1" ng-hide="domain.beingEdited(record.dom_id)" >@{{ record.main_site }}</td>
-            <td ng-hide="domain.rowBeingEdited != 0" >@{{ record.created_at }}</td>
-            <td ng-hide="domain.beingEdited(record.dom_id)" >@{{ record.expires_at }}</td>
+            <td ng-hide="domain.rowBeingEdited != 0" ng-bind="app.formatDate( record.created_at , 'MM-DD-YY' )"></td>
+            <td ng-hide="domain.beingEdited(record.dom_id)" ng-bind="::app.formatDate( record.expires_at , 'MM-DD-YY' )"></td>
             <td ng-hide="domain.rowBeingEdited != 0">@{{ record.dba_name }}</td>
             <td ng-hide="domain.beingEdited(record.dom_id)" class="text-center" >
-                <span ng-hide="record.in_use" class="glyphicon glyphicon-remove-sign"></span>
-                <span ng-if="record.in_use" class="glyphicon glyphicon-ok-sign"></span>
+                <span ng-hide="record.live_a_record" class="glyphicon glyphicon-remove-sign"></span>
+                <span ng-if="record.live_a_record" class="glyphicon glyphicon-ok-sign"></span>
             <!--End Normal View -->
 
             <!--Edit View  -->
             <td ng-show="domain.beingEdited(record.dom_id)">
 
                     <button ng-if="record.status == 1" class="btn btn-sm btn-warning" ng-click="domain.editRow(0)">Reset</button>
-                    <button ng-if="record.status == 1" class="btn btn-sm btn-success" ng-click="domain.editDomain()">Save</button>
+                    <button ng-if="record.status == 1" class="btn btn-sm btn-success" ng-click="domain.editDomain()" ng-disabled="domain.formSubmitted">Save</button>
             </td>
             <td ng-show="domain.beingEdited(record.dom_id)">
                 <input class="form-control" type="text" placeholder="Domain Name" name="address" ng-required="true" ng-model="domain.currentDomain.domain_name" >
@@ -93,14 +93,14 @@
                 </div>
             </td>
             <td ng-show="domain.beingEdited(record.dom_id)" >
-                <select ng-required="true" name="in_use" class="form-control"  ng-model="domain.currentDomain.in_use">
+                <select ng-required="true" name="live_a_record" class="form-control"  ng-model="domain.currentDomain.live_a_record">
                     <option value="">Is Domain in Use?</option>
                     <option value="1">Yes</option>
                     <option value="0">No</option>
 
                 </select>
-                <div class="help-block"  ng-show="domain.formErrors.in_use">
-                    <div ng-repeat="error in domain.formErrors.in_use">
+                <div class="help-block"  ng-show="domain.formErrors.live_a_record">
+                    <div ng-repeat="error in domain.formErrors.live_a_record">
                         <span ng-bind="error"></span>
                     </div>
                 </div>

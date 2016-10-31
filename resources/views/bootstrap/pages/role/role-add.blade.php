@@ -17,13 +17,13 @@
         </div>
 
         <div class="form-group">
-            <input class="btn btn-primary btn-block" ng-click="role.saveNewRole()" ng-disabled="role.formSubmitted" type="submit" value="Create Security Role">
+            <input class="btn btn-primary btn-block" ng-click="role.saveNewRole()" ng-disabled="role.formSubmitted" type="submit" value="Add Security Role">
         </div>
 
         @include( 'bootstrap.pages.role.role-form' )
 
         <div class="form-group">
-            <input class="btn btn-primary btn-block" ng-click="role.saveNewRole()" ng-disabled="role.formSubmitted" type="submit" value="Create Security Role">
+            <input class="btn btn-primary btn-block" ng-click="role.saveNewRole()" ng-disabled="role.formSubmitted" type="submit" value="Add Security Role">
         </div>
     </div>
 </div>

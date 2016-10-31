@@ -2,38 +2,61 @@
 
 namespace App\Services;
 
+use App\Repositories\FeedRepo;
 use App\Models\CakeVertical;
 use App\Models\FeedType;
 use App\Repositories\CountryRepo;
-use App\Repositories\FeedRepo;
 use App\Services\ServiceTraits\PaginateList;
 use App\Services\Interfaces\IFtpAdmin;
 
 class FeedService implements IFtpAdmin
 {
     use PaginateList;
-
+    
+    private $feedRepo;
     private $verticals;
     private $feedTypes;
     private $countryRepo;
-    private $feedRepo;
 
-    public function __construct( CakeVertical $cakeVerticals , CountryRepo $countryRepo , FeedRepo $feedRepo , FeedType $feedTypes ) {
+    public function __construct(FeedRepo $feedRepo, CakeVertical $cakeVerticals , CountryRepo $countryRepo , FeedType $feedTypes) {
+        $this->feedRepo = $feedRepo;
         $this->verticals = $cakeVerticals;
         $this->feedTypes = $feedTypes;
         $this->countryRepo = $countryRepo;
-        $this->feedRepo = $feedRepo;
     }
 
+    public function getAllFeedsArray() {
+        return $this->feedRepo->getAllFeedsArray();
+    }
+
+    
     public function getFeeds () {
         return $this->feedRepo->getFeeds();
+    }
+
+
+    public function getClientFeedMap () {
+        $map = [];
+        $clients = $this->feedRepo->getAllClients();
+
+        foreach ($clients as $client) {
+            $feeds = [];
+
+            foreach ($client->feeds as $feed) {
+                $feeds[] = $feed->id;
+            }
+
+            $map[$client->id] = $feeds;
+        }
+
+        return $map;
     }
 
     public function getFeed($id) {
         return $this->feedRepo->fetch($id);
     }
 
-    public function getClientTypes() {
+    public function getVerticals() {
         return $this->verticals->get();
     }
 

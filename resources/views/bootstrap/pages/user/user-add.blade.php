@@ -13,7 +13,7 @@
     </div>
     <div class="panel-footer">
         <div class="form-group">
-            <input class="btn btn-lg btn-primary btn-block" ng-click="user.saveNewAccount()" ng-disabled="user.editForm" type="submit" value="Create Account">
+            <input class="btn btn-lg btn-primary btn-block" ng-click="user.saveNewAccount()" ng-disabled="user.editForm" type="submit" value="Add User">
         </div>
     </div>
 </div>

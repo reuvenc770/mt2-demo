@@ -9,9 +9,8 @@
     @include( 'bootstrap.pages.feedgroup.feedgroup-form' )
 
     <div class="panel-footer">
-        <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="feedGroup.saveFeedGroup()">
-            <span class="glyphicon glyphicon-repeat" ng-show="feedGroup.creatingClientGroup" ng-class="{ 'rotateMe' : feedGroup.creatingClientGroup }"></span>
-            Save
+        <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="feedGroup.saveFeedGroup()" ng-disabled="feedGroup.creatingFeedGroup">
+            Add Feed Group
         </button>
     </div>
 </div>

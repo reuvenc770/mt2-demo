@@ -1,5 +1,5 @@
 @extends( 'bootstrap.layout.default' )
-@section('title', 'Add Isp Group')
+@section('title', 'Add ISP Group')
 
 @section('content')
     <div class="panel panel-primary"  ng-controller="DomainGroupController as dg">
@@ -14,7 +14,7 @@
         </div>
         <div class="panel-footer">
             <div class="form-group">
-                <input class="btn btn-lg btn-primary btn-block" ng-click="dg.saveNewAccount()"  ng-disabled="dg.editForm" type="submit" value="Add Isp Group">
+                <input class="btn btn-lg btn-primary btn-block" ng-click="dg.saveNewAccount()"  ng-disabled="dg.editForm" type="submit" value="Add ISP Group">
             </div>
         </div>
     </div>

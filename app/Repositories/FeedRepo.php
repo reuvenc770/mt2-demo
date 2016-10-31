@@ -21,6 +21,10 @@ class FeedRepo {
         return $this->feed->all();
     }
 
+    public function getAllFeedsArray() {
+        return $this->feed->orderBy('id')->get()->toArray();
+    }
+
     public function fetch($id) {
         return $this->feed->find($id);
     }

@@ -1,5 +1,5 @@
 @extends( 'bootstrap.layout.default' )
-@section('title', 'Edit Isp Group')
+@section('title', 'Edit ISP Domain')
 
 @section('content')
 
@@ -15,7 +15,7 @@
         </div>
         <div class="panel-footer">
             <div class="form-group">
-                <input class="btn btn-lg btn-primary btn-block" ng-click="emailDomain.editAccount()" ng-disabled="emailDomain.editForm" type="submit" value="Update Isp Domain">
+                <input class="btn btn-lg btn-primary btn-block" ng-click="emailDomain.editAccount()" ng-disabled="emailDomain.editForm" type="submit" value="Update ISP Domain">
             </div>
         </div>
     </div>

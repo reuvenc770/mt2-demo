@@ -193,4 +193,16 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
 
         $mdToast.show( toast );
     };
+
+    self.formatDate = function ( dateString , outputDateFormat , inputDateFormat ) {
+        if ( typeof( outputDateFormat ) === 'undefined' ) {
+            outputDateFormat = 'MM-DD-YY h:mm A';
+        }
+
+        if ( typeof( inputDateFormat ) === 'undefined' ) {
+            inputDateFormat = 'YYYY-MM-DD HH:mm:SS';
+        }
+
+        return moment( dateString , inputDateFormat ).format( outputDateFormat );
+    };
 } ] );

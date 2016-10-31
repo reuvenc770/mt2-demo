@@ -1,6 +1,6 @@
 @extends( 'bootstrap.layout.default' )
 
-@section( 'title' , 'MT2 User List' )
+@section( 'title' , 'User List' )
 
 @section( 'angular-controller', 'ng-controller="userController as user"' )
 
@@ -48,7 +48,7 @@
                                     @{{ record.roles.join(', ') }}
                                 </td>
                                 <td md-cell ng-bind="record.activations.length > 0 ? 'Active' : 'Inactive'"></td>
-                                <td md-cell>@{{ record.last_login }}</td>
+                                <td md-cell>@{{ record.last_login ? app.formatDate( record.last_login ) : '' }}</td>
                             </tr>
                         </tbody>
                     </table>
