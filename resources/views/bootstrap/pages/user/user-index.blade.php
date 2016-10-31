@@ -1,6 +1,6 @@
 @extends( 'bootstrap.layout.default' )
 
-@section( 'title' , 'MT2 User List' )
+@section( 'title' , 'User List' )
 
 @section( 'angular-controller', 'ng-controller="userController as user"' )
 

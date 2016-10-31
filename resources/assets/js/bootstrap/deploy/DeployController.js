@@ -58,6 +58,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.sort = "-deployment_status";
     self.queryPromise = null;
     self.copyToFutureDate = '';
+    self.formSubmitting = false;
 
     self.loadAccounts = function () {
         self.loadEspAccounts();
@@ -296,13 +297,13 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         $mdDialog.show( {
             targetEvent : ev ,
             template :
-                '<md-dialog>' + 
+                '<md-dialog>' +
                     '<md-toolbar>' +
                         '<div class="md-toolbar-tools">' +
                             '<h2>Scedule Future Deploy</h2>' +
                         '</div>' +
                     '</md-toolbar>' +
-                    '<md-dialog-content>' + 
+                    '<md-dialog-content>' +
                         '<div class="md-dialog-content">' +
                             '<h4>Please choose a future date for selected deploys</h4>' +
                         '</div>' +
@@ -314,7 +315,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
                     '</md-dialog-actions>' +
                 '</md-dialog>' ,
             controller : function DeployFutureDateController ( $scope , $mdDialog ) {
-                $scope.deployDate = ( self.copyToFutureDate != '' ? new Date( self.copyToFutureDate ) : new Date() ); 
+                $scope.deployDate = ( self.copyToFutureDate != '' ? new Date( self.copyToFutureDate ) : new Date() );
                 $scope.minDate = new Date();
 
                 $scope.answer = function ( submit ) {
@@ -475,7 +476,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
 
         self.loadDeploys();
         self.showRow = false;
-        
+
         self.formSubmitting = false;
     };
 

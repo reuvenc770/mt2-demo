@@ -41,7 +41,7 @@
             <td ng-show="domain.beingEdited(record.dom_id)">
 
                     <button ng-if="record.status == 1" class="btn btn-sm btn-warning" ng-click="domain.editRow(0)">Reset</button>
-                    <button ng-if="record.status == 1" class="btn btn-sm btn-success" ng-click="domain.editDomain()">Save</button>
+                    <button ng-if="record.status == 1" class="btn btn-sm btn-success" ng-click="domain.editDomain()" ng-disabled="domain.formSubmitted">Save</button>
             </td>
             <td ng-show="domain.beingEdited(record.dom_id)">
                 <input class="form-control" type="text" placeholder="Domain Name" name="address" ng-required="true" ng-model="domain.currentDomain.domain_name" >

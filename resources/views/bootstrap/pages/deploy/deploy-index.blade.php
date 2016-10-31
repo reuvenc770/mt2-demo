@@ -56,9 +56,9 @@
 @section( 'content' )
 <div ng-init="deploy.loadAccounts()">
         <div style="width:800px">
-            <div class="panel panel-primary center-block"> 
-                <div class="panel-heading">   
-                    <h3 class="panel-title">Search Deploys</h3> 
+            <div class="panel panel-primary center-block">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Search Deploys</h3>
                 </div>
                 <div class="panel-body">
                     <div class="row">
@@ -166,7 +166,7 @@
                     <td md-cell></td>
                     <td md-cell>
                         @if (Sentinel::hasAccess('api.deploy.update'))
-                        <md-button ng-click="deploy.actionLink( $event , deployForm )" class="md-icon-button" ng-disable="deploy.formSubmitting" data-toggle="tooltip" data-placement="bottom" title="@{{ deploy.actionText() }}">
+                        <md-button ng-click="deploy.actionLink( $event , deployForm )" class="md-icon-button" ng-disabled="deploy.formSubmitting" data-toggle="tooltip" data-placement="bottom" title="@{{ deploy.actionText() }}">
                             <md-icon md-font-set="material-icons" class="mt2-icon-black">save</md-icon>
                         </md-button>
                         @endif
