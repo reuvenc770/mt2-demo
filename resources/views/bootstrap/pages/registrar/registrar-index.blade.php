@@ -1,6 +1,6 @@
 @extends( 'bootstrap.layout.default' )
 
-@section( 'title' , 'MT2 Registrar List' )
+@section( 'title' , 'Registrar List' )
 
 @section ( 'angular-controller' , 'ng-controller="RegistrarController as registrar"' )
 

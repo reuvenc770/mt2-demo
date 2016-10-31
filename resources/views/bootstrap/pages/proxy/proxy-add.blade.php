@@ -13,7 +13,7 @@
         </div>
         <div class="panel-footer">
             <input class="btn btn-lg btn-primary btn-block" ng-click="proxy.saveNewAccount()"
-                   ng-disabled="proxy.formSubmitted" type="submit" value="Create Proxy">
+                   ng-disabled="proxy.formSubmitted" type="submit" value="Add Proxy">
         </div>
     </div>
 @endsection

@@ -16,7 +16,7 @@
     </div>
     <div class="panel-footer">
         <div class="form-group">
-            <input class="btn btn-primary btn-block" ng-click="esp.saveNewAccount()" ng-disabled="esp.formSubmitted" type="submit" value="Create ESP API Account">
+            <input class="btn btn-primary btn-block" ng-click="esp.saveNewAccount()" ng-disabled="esp.formSubmitted" type="submit" value="Add ESP API Account">
         </div>
     </div>
 </div>
