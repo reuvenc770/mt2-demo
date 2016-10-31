@@ -19,7 +19,7 @@ class ListProfileBaseTableRepo {
     }
 
 
-    public function suppressWithOfferId($listIds) {
+    public function suppressWithListIds($listIds) {
 
         if (count($listIds) > 0) {
             $suppDb = config('database.connections.suppression.database');

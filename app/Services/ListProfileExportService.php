@@ -48,7 +48,7 @@ class ListProfileExportService {
         }
 
         $listIds = $this->offerRepo->getSuppressionListIds($offerId);
-        $result = $this->tableRepo->suppressWithOfferId($listIds);
+        $result = $this->tableRepo->suppressWithListIds($listIds);
 
         $resource = $result->cursor();
 
