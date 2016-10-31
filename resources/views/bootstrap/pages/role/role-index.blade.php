@@ -1,6 +1,6 @@
 @extends( 'bootstrap.layout.default' )
 
-@section( 'title' , 'MT2 Security Roles' )
+@section( 'title' , 'Security Roles' )
 
 @section( 'navRoleClasses' , 'active' )
 

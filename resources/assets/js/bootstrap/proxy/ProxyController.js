@@ -59,6 +59,7 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
 
     self.saveNewAccount = function () {
         formValidationService.resetFieldErrors(self);
+        self.formSubmitted = true;
 
         if ( self.ip_addresses.length < 1  ) {
             formValidationService.setFieldError(self, 'ip_addresses' , 'At least 1 IP Address is required.' );
@@ -74,6 +75,8 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
 
     self.editAccount = function () {
         formValidationService.resetFieldErrors(self);
+        self.formSubmitted = true;
+
         self.currentAccount.ip_addresses = self.ip_addresses.join(', ');
         self.currentAccount.esp_account_names = self.esp_account_names.join(', ');
         self.currentAccount.isp_names = self.isp_names.join(',');
@@ -162,10 +165,12 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
 
     self.saveNewAccountFailureCallback = function ( response ) {
         formValidationService.loadFieldErrors(self,response);
+        self.formSubmitted = false;
     };
 
     self.editAccountFailureCallback = function ( response ) {
         formValidationService.loadFieldErrors(self,response);
+        self.formSubmitted = false;
     };
 
 } ] );

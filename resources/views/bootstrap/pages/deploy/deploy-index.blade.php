@@ -167,7 +167,7 @@
                     <td md-cell class="mt2-table-btn-column">
                         <div layout="row">
                             @if (Sentinel::hasAccess('api.deploy.update'))
-                            <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-click="deploy.actionLink( $event , deployForm )" ng-disable="deploy.formSubmitting" data-toggle="tooltip" data-placement="bottom" title="@{{ deploy.actionText() }}">save</md-icon>
+                            <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-click="deploy.actionLink( $event , deployForm )" ng-disabled="deploy.formSubmitting" data-toggle="tooltip" data-placement="bottom" title="@{{ deploy.actionText() }}">save</md-icon>
                             &nbsp;&nbsp;
                             @endif
                             <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-click="deploy.showRow = false" data-toggle="tooltip" data-placement="bottom" title="Cancel">clear</md-icon>

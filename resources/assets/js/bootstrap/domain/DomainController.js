@@ -169,6 +169,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     };
 
     self.editDomain = function() {
+        self.formSubmitted = true;
         var domain = self.currentDomain;
         DomainService.editAccount(domain,self.editRowSuccess, self.editRowFailure)
     };

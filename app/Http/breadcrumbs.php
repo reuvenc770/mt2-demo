@@ -290,7 +290,7 @@ Breadcrumbs::register('deploy.list', function($breadcrumbs) {
 
 Breadcrumbs::register('ispgroup.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');
-    $breadcrumbs->push('Isp Groups', route('ispgroup.list'));
+    $breadcrumbs->push('ISP Groups', route('ispgroup.list'));
 });
 Breadcrumbs::register('ispgroup.add', function($breadcrumbs) {
     $breadcrumbs->parent('ispgroup.list');
@@ -300,4 +300,18 @@ Breadcrumbs::register('ispgroup.edit', function($breadcrumbs) {
     $breadcrumbs->parent('ispgroup.list');
     $breadcrumbs->push('Edit ISP Group');
 });
+
+Breadcrumbs::register('isp.list', function($breadcrumbs) {
+    $breadcrumbs->parent('home');
+    $breadcrumbs->push('ISP Domains', route('isp.list'));
+});
+Breadcrumbs::register('isp.add', function($breadcrumbs) {
+    $breadcrumbs->parent('isp.list');
+    $breadcrumbs->push('Add ISP Domain');
+});
+Breadcrumbs::register('isp.edit', function($breadcrumbs) {
+    $breadcrumbs->parent('isp.list');
+    $breadcrumbs->push('Edit ISP Domain');
+});
+
 

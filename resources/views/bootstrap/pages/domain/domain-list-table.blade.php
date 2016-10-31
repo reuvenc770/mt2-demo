@@ -50,7 +50,7 @@
                 <div layout="row" layout-align="center center">
                     <md-icon ng-if="record.status == 1" ng-click="domain.editRow(0)"
                              md-font-set="material-icons" class="mt2-icon-black" aria-label="Reset" data-toggle="tooltip" data-placement="bottom" title="Reset">undo</md-icon>
-                    <md-icon ng-if="record.status == 1" ng-click="domain.editDomain()"
+                    <md-icon ng-if="record.status == 1" ng-click="domain.editDomain()" ng-disabled="domain.formSubmitted"
                             aria-label="Save" data-toggle="tooltip" data-placement="bottom" title="Save" md-font-set="material-icons" class="mt2-icon-black">save</md-icon>
                 </div>
             </td>

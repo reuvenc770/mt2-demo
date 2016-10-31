@@ -9,9 +9,8 @@
     @include( 'bootstrap.pages.feedgroup.feedgroup-form' )
 
     <div class="panel-footer">
-        <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="feedGroup.updateFeedGroup()">
-            <span class="glyphicon glyphicon-repeat" ng-show="feedGroup.updatingClientGroup" ng-class="{ 'rotateMe' : feedGroup.updatingClientGroup }"></span>
-           Update 
+        <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="feedGroup.updateFeedGroup()" ng-disabled="feedGroup.updatingFeedGroup">
+           Update Feed Group
         </button>
     </div>
 </div>
