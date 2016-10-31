@@ -139,12 +139,14 @@ class FeedController extends Controller
     }
 
     public function viewFieldOrder ( $id ) {
-        return response()->view( 'bootstrap.pages.feed.feed-file-fields' , [ "id" => $id ] );
+        return response()->view( 'bootstrap.pages.feed.feed-file-fields' , [
+            "id" => $id ,
+            "fields" => $this->feedService->getFeedFields( $id )
+        ] );
     }
 
     public function storeFieldOrder ( FeedFieldUpdateRequest $request , $id ) {
-        \Log::info( $id );
-        \Log::info( $request );
+        Flash::success( 'File Drop Field Order was successfully updated.' );
 
         $this->feedService->saveFieldOrder( $id , $request->all() );
     }

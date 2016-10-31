@@ -53,6 +53,79 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
 
     self.formErrors = [];
 
+    /**
+     * Init Methods
+     */
+
+    self.loadFeed = function () {
+        var pathMatches = $location.path().match( /^\/feed\/edit\/(\d{1,})/ );
+
+        FeedApiService.getFeed( pathMatches[1] , self.loadFeedSuccessCallback , self.loadFeedFailureCallback );
+    };
+
+    self.loadFeeds = function () {
+        self.queryPromise = FeedApiService.getFeeds(
+            self.currentPage ,
+            self.paginationCount ,
+            self.sort,
+            self.loadFeedsSuccessCallback , self.loadFeedsFailureCallback );
+    };
+
+    self.setId = function ( id ) {
+        self.current.id = id;
+    };
+
+    self.setFields = function ( fields ) {
+        angular.forEach( fields , function ( currentField , feedIndex ) {
+            if ( typeof( currentField.isCustom ) !== 'undefined' && currentField.isCustom ) {
+                self.customField = currentField.label;
+
+                self.addCustomField();
+            } else {
+                angular.forEach( self.fieldList , function ( availField , index ) {
+                    if ( currentField === availField.field ) {
+                        var removedFields = self.fieldList.splice( index , 1 );
+
+                        self.selectedFields.push( removedFields.pop() );
+
+                        self.currentFieldConfig[ currentField ] = self.selectedFields.length - 1;
+                    }
+                } );
+            }
+        } );
+    };
+
+    /**
+     * Button Click Handlers
+     */
+    self.viewAdd = function () {
+        $location.url( self.createUrl );
+        $window.location.href = self.createUrl;
+    };
+
+    self.saveFeed = function () {
+        self.formSubmitted = true;
+        formValidationService.resetFieldErrors(self);
+
+        FeedApiService.saveFeed( self.current , self.SuccessCallBackRedirectList , self.saveFeedFailureCallback );
+    };
+
+    self.updateFeed = function () {
+        self.formSubmitted = true;
+        formValidationService.resetFieldErrors(self);
+
+        FeedApiService.updateFeed( self.current , self.SuccessCallBackRedirectList , self.updateFeedFailureCallback );
+    };
+
+    self.resetPassword = function() {
+        var feedData  = angular.copy( self.current );
+        FeedApiService.updatePassword( feedData , function(){ $mdToast.showSimple( 'Password Reset has been submitted' );} , self.updateFeedFailureCallback );
+
+    };
+
+    /**
+     * Feed File Field Ordering
+     */
     self.moveField = function ( droppedField , list , index ) {
         list.splice( index , 1 );
 
@@ -96,69 +169,9 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
         FeedApiService.updateFeedFields(
             self.current.id ,
             self.currentFieldConfig ,
-            function ( response ) {
-                self.formSubmitted = false;
-
-                $log.info( response );
-            } ,
-            function ( response ) {
-                self.formSubmitted = false;
-
-                $log.info( response )
-                formValidationService.loadFieldErrors( self , response );
-            }
+            self.SuccessCallBackRedirectList ,
+            self.saveFieldOrderFailureCallback
         );
-    };
-
-    /**
-     * Init Methods
-     */
-
-    self.loadFeed = function () {
-        var pathMatches = $location.path().match( /^\/feed\/edit\/(\d{1,})/ );
-
-        FeedApiService.getFeed( pathMatches[1] , self.loadFeedSuccessCallback , self.loadFeedFailureCallback );
-    };
-
-    self.loadFeeds = function () {
-        self.queryPromise = FeedApiService.getFeeds(
-            self.currentPage ,
-            self.paginationCount ,
-            self.sort,
-            self.loadFeedsSuccessCallback , self.loadFeedsFailureCallback );
-    };
-
-    self.setId = function ( id ) {
-        self.current.id = id;
-    };
-
-
-    /**
-     * Button Click Handlers
-     */
-    self.viewAdd = function () {
-        $location.url( self.createUrl );
-        $window.location.href = self.createUrl;
-    };
-
-    self.saveFeed = function () {
-        self.formSubmitted = true;
-        formValidationService.resetFieldErrors(self);
-
-        FeedApiService.saveFeed( self.current , self.SuccessCallBackRedirectList , self.saveFeedFailureCallback );
-    };
-
-    self.updateFeed = function () {
-        self.formSubmitted = true;
-        formValidationService.resetFieldErrors(self);
-
-        FeedApiService.updateFeed( self.current , self.SuccessCallBackRedirectList , self.updateFeedFailureCallback );
-    };
-
-    self.resetPassword = function() {
-        var feedData  = angular.copy( self.current );
-        FeedApiService.updatePassword( feedData , function(){ $mdToast.showSimple( 'Password Reset has been submitted' );} , self.updateFeedFailureCallback );
-
     };
 
     /**
@@ -218,4 +231,13 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
         formValidationService.loadFieldErrors( self , response );
     };
 
+    self.saveFieldOrderFailureCallback = function ( response ) {
+        self.formSubmitted = false;
+
+        formValidationService.loadFieldErrors( self , response );
+
+        modalService.setModalLabel( 'Error' );
+        modalService.setModalBody( 'Please include the missing required fields.' );
+        modalService.launchModal();
+    };
 } ] );

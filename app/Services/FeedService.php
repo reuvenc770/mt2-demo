@@ -85,4 +85,37 @@ class FeedService
 
         RecordProcessingFileField::updateOrCreate( [ 'feed_id' => $feedId ] , $fieldConfig );
     }
+
+    public function getFeedFields ( $feedId ) {
+        $row = RecordProcessingFileField::find( $feedId );
+
+        if ( is_null( $row ) ) {
+            return json_encode( [] );
+        }
+
+        $row = $row->toArray();
+
+        $fields = [];
+        foreach ( $row as $columnName => $index ) {
+            if ( is_null( $index ) || in_array( $columnName , [ 'feed_id' , 'created_at' , 'updated_at' ] ) ) {
+                continue;
+            }
+
+            if ( $columnName === 'other_field_index' ) {
+                $customFields = json_decode( $index );
+
+                foreach ( $customFields as $customName => $customIndex ) {
+                    $fields[ $customIndex ] = [ "label" => $customName , "isCustom" => true ];
+                }
+
+                continue;
+            }
+
+            $fields[ $index ] = $columnName;
+        }
+
+        ksort( $fields );
+
+        return json_encode( $fields );
+    }
 }
