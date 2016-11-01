@@ -43,10 +43,6 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     /**
      * Click Handlers
      */
-    self.viewAdd = function () {
-        $location.url( self.createUrl );
-        $window.location.href = self.createUrl;
-    };
 
     self.saveNewAccount = function () {
         self.editForm = true;
@@ -123,6 +119,8 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
      * Callbacks
      */
     self.loadAccountsSuccessCallback = function ( response ) {
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+
         self.accounts = response.data.data;
         for (var i = 0, len = response.data.data.length; i < len; i++){
             self.accounts[i].po_boxes = JSON.parse(self.accounts[i].po_boxes);

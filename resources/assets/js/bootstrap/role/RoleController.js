@@ -66,11 +66,6 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
     /**
      * Click Handlers
      */
-    self.viewAdd = function () {
-        $location.url( self.createUrl );
-        $window.location.href = self.createUrl;
-    };
-
     self.saveNewRole = function () {
         self.formSubmitted = true;
         formValidationService.resetFieldErrors(self);
@@ -105,6 +100,8 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
     };
 
     self.loadRolesSuccessCallback = function ( response ) {
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+
         self.roles = response.data;
     };
 

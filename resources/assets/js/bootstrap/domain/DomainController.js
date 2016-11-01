@@ -68,8 +68,6 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     self.accountTotal = 0;
     self.queryPromise = null;
 
-
-
     self.loadAccounts = function () {
         self.queryPromise = DomainService.getAccounts(
             self.currentPage,
@@ -99,8 +97,11 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         }
         self.rowBeingEdited = 0;
         self.updateProxies();
+
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
     };
     self.init = function (type) {
+
         self.updatingAccounts = true;
         self.currentAccount.domain_type = type;
         self.updateProxies();
@@ -149,11 +150,6 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     /**
      * Click Handlers
      */
-    self.viewAdd = function () {
-        $location.url(self.createUrl);
-        $window.location.href = self.createUrl;
-    };
-
     self.saveNewAccount = function () {
         self.formSubmitted = true;
         formValidationService.resetFieldErrors(self);
@@ -202,6 +198,8 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         self.formSubmitted = false;
     };
     self.loadAccountsSuccessCallback = function (response) {
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+
         self.accounts = response.data.data;
         self.pageCount = response.data.last_page;
         self.accountTotal = response.data.total;

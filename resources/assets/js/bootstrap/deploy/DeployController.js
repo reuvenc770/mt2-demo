@@ -369,6 +369,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.deployTotal = response.data.total;
 
         $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+        $timeout( function () { $(function () { $('[data-toggle="popover"]').popover({trigger:'hover', placement: 'bottom'}) } ); } , 1500 );
     };
 
     self.loadDeploySuccess = function (response) {

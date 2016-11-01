@@ -63,7 +63,7 @@
                             <th md-column class="md-table-header-override-whitetext">#Chunks</th>
                             <th md-column class="md-table-header-override-whitetext">Progress</th>
                             <th md-column class="md-table-header-override-whitetext mt2-table-header-center">Download Status</th>
-                            <th md-column class="md-table-header-override-whitetext mt2-table-header-center">Settings</th>
+                            <th md-column class="md-table-header-override-whitetext mt2-table-header-center mt2-table-btn-column">Settings</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -79,20 +79,12 @@
                                 ng-class="{ 'bg-info' : file.isUploading() , 'bg-warning' : file.paused , 'bg-danger' : file.error , 'bg-success' : !file.error }"
                                 ng-bind="file.isUploading() ? 'Downloading' : ( file.paused ? 'Paused': ( file.error ? 'Failed' : 'Successful' ) )">
                             </td>
-                            <td md-cell>
+                            <td md-cell class="mt2-table-btn-column">
                                 <div layout="row" layout-align="center center">
-                                    <md-button class="md-icon-button" ng-click="file.pause()" ng-hide="file.paused" aria-label="Pause" data-toggle="tooltip" data-placement="bottom" title="Pause">
-                                        <md-icon md-svg-icon="img/icons/ic_pause_black_18px.svg"></md-icon>
-                                    </md-button>
-                                    <md-button class="md-icon-button" ng-click="file.resume()" ng-show="file.paused" aria-label="Resume" data-toggle="tooltip" data-placement="bottom" title="Resume">
-                                        <md-icon md-svg-icon="img/icons/ic_play_arrow_18px.svg"></md-icon>
-                                    </md-button>
-                                    <md-button class="md-icon-button" ng-click="file.cancel()" aria-label="Cancel" data-toggle="tooltip" data-placement="bottom" title="Cancel">
-                                        <md-icon md-svg-icon="img/icons/ic_clear_black_24px.svg"></md-icon>
-                                    </md-button>
-                                    <md-button class="md-icon-button" ng-click="file.retry()" ng-show="file.error" aria-label="Retry" data-toggle="tooltip" data-placement="bottom" title="Retry">
-                                        <md-icon md-svg-icon="img/icons/ic_refresh_black_18px.svg"></md-icon>
-                                    </md-button>
+                                    <md-icon ng-click="file.pause()" ng-hide="file.paused" aria-label="Pause" data-toggle="tooltip" data-placement="bottom" title="Pause" md-font-set="material-icons" class="mt2-icon-black">pause</md-icon>
+                                    <md-icon ng-click="file.resume()" ng-show="file.paused" aria-label="Resume" data-toggle="tooltip" data-placement="bottom" title="Resume" md-font-set="material-icons" class="mt2-icon-black">play_arrow</md-icon>
+                                    <md-icon ng-click="file.cancel()" aria-label="Cancel" data-toggle="tooltip" data-placement="bottom" title="Cancel" md-font-set="material-icons" class="mt2-icon-black">clear</md-icon>
+                                    <md-icon ng-click="file.retry()" ng-show="file.error" aria-label="Retry" data-toggle="tooltip" data-placement="bottom" title="Retry" md-font-set="material-icons" class="mt2-icon-black">refresh</md-icon>
                                 </div>
                             </td>
                         </tr>
