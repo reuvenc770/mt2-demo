@@ -25,6 +25,7 @@ mt2App.controller( 'FeedGroupController' , [ '$rootScope' , '$log' , '$window' ,
     self.creatingFeedGroup = false;
     self.updatingFeedGroup = false;
     self.feedList = [];
+    self.feedListNameField = "feedListDisplayName";
     self.prepopFeeds = [];
 
     /**
@@ -100,7 +101,15 @@ mt2App.controller( 'FeedGroupController' , [ '$rootScope' , '$log' , '$window' ,
      * Success Callbacks
      */
     self.getAllFeedsSuccessCallback = function ( response ) {
-        self.feedList = response.data;
+
+        var sortFeedList = [];
+
+        angular.forEach( response.data , function ( value , key) {
+            value.feedListDisplayName = value.name + " ( " + value.id + " ) " ;
+            sortFeedList.push(value);
+        } );
+
+        self.feedList = orderBy( sortFeedList, 'name') ;
 
         if ( self.prepopFeeds.length > 0 ) {
             var feedsToRemove = [];
