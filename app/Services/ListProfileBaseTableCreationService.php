@@ -7,7 +7,7 @@ use App\Repositories\ListProfileBaseTableRepo;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 
-class ListProfileBaseTableService {
+class ListProfileBaseTableCreationService {
 
     const BASE_NAME = 'list_profile_export_';
     private $requiredFields = ['email_id', 'email_address', 'lower_case_md5', 'upper_case_md5'];

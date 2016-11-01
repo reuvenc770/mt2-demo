@@ -5,19 +5,22 @@ namespace App\Services;
 use App\Models\ListProfileBaseTable;
 use App\Repositories\ListProfileBaseTableRepo;
 use App\Repositories\ListProfileRepo;
+use App\Repositories\OfferRepo;
 use Storage;
 
 class ListProfileExportService {
 
     private $listProfileRepo;
+    private $offerRepo;
     private $tableRepo;
     const BASE_TABLE_NAME = 'list_profile_export_';
     const WRITE_THRESHOLD = 50000;
     private $rows = [];
     private $rowCount = 0;
     
-    public function __construct(ListProfileRepo $listProfileRepo) {
+    public function __construct(ListProfileRepo $listProfileRepo, OfferRepo $offerRepo) {
         $this->listProfileRepo = $listProfileRepo;
+        $this->offerRepo = $offerRepo;
     }
 
     /**
@@ -44,7 +47,8 @@ class ListProfileExportService {
             Storage::append($fileName, implode(',', $columns));
         }
 
-        $result = $this->tableRepo->suppressWithOfferId($offerId);
+        $listIds = $this->offerRepo->getSuppressionListIds($offerId);
+        $result = $this->tableRepo->suppressWithListIds($listIds);
 
         $resource = $result->cursor();
 
