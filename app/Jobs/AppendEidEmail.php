@@ -39,9 +39,9 @@ class AppendEidEmail extends Job implements ShouldQueue
     public function handle(AppendEidService $service)
     {
        $csv = $service->createFile($this->filePath, $this->includeFeed, $this->includeFields, $this->includeSuppression);
-        Mail::raw("Here is results of your Appending", function ($message) use ($csv) {
+        Mail::send("emails.append",array(), function ($message) use ($csv) {
             $message->attachData($csv, "results.csv");
-            $message->subject("Append EID Results");
+            $message->subject("Here are your results for your AppendEID Job");
             $message->priority(1);
             $message->to($this->email);
         });
