@@ -13,10 +13,56 @@ use Carbon\Carbon;;
  */
 class EmailActionsRepo {
   
-    private $actions;
+    protected $actions;
 
     public function __construct(EmailAction $actions) {
         $this->actions = $actions;
+    }
+
+    public function getByDateRange ( $dateRange = null ) {
+        if( is_null( $dateRange ) ) {
+            $startDate = Carbon::now()->startOfDay()->toDateTimeString();
+            $endDate = Carbon::now()->endOfDay()->toDateTimeString();
+        } else {
+            $startDate = $dateRange[ 'start' ];
+            $endDate = $dateRange[ 'end' ];
+        }
+
+        return $this->actions
+                    ->whereBetween( 'datetime' , [ $startDate , $endDate ] )
+                    ->get();
+
+    }
+
+    public function getAggregatedByDateRange ( $dateRange = null ) {
+        if( is_null( $dateRange ) ) {
+            $startDate = Carbon::now()->startOfDay()->toDateTimeString();
+            $endDate = Carbon::now()->endOfDay()->toDateTimeString();
+        } else {
+            $startDate = $dateRange[ 'start' ];
+            $endDate = $dateRange[ 'end' ];
+        }
+
+        return DB::connection( 'reporting_data' ) ->select(
+            "SELECT
+                DATE( datetime ) AS `date` ,
+                email_id ,
+                deploy_id ,
+                SUM( IF ( action_id = 4 , 1 , 0 ) ) AS `delivered`,
+                SUM( IF( action_id = 1 , 1 , 0 ) ) AS `opened` ,
+                SUM( IF( action_id = 2 , 1 , 0 ) ) AS `clicked`
+            FROM
+                email_actions
+            WHERE
+                datetime BETWEEN :start AND :end 
+            GROUP BY
+                email_id ,
+                deploy_id ,
+                `date`"
+            , [
+                ':start' => $startDate ,
+                ':end' => $endDate
+            ] );
     }
 
     public function maxId() {
@@ -43,7 +89,7 @@ class EmailActionsRepo {
             ->get();
     }
 
-    public function pullAggregatedActions($startPoint, $endPoint) {
+    public function pullAggregatedReportActions($startPoint, $endPoint) {
 
         return DB::connection('reporting_data')->select("SELECT
           email_id,
@@ -70,6 +116,64 @@ class EmailActionsRepo {
                 ':endPoint' => $endPoint
             )
         );
+    }
+
+    public function pullAggregatedActions($daysBack) {
+
+        return $this->actions
+                    ->select('email_actions.email_id', 'deploy_id', 
+                        DB::raw('DATE(datetime) AS date'), 
+                        DB::raw('SUM(IF(action_id = 4, 1, 0)) as deliveries'), 
+                        DB::raw('SUM(IF(action_id = 1, 1, 0)) as opens'), 
+                        DB::raw('SUM(IF(action_id = 2, 1, 0)) as clicks'))
+                    ->whereRaw("email_actions.datetime >= CURDATE() - INTERVAL $daysBack DAY")
+                    ->groupBy('email_actions.email_id', 'email_actions.deploy_id', 'date');
+    }
+
+    public function pullAggregatedListProfileActions($start, $end) {
+        return DB::select("SELECT
+            ea.email_id,
+            ea.deploy_id,
+            ea.date,
+            e.email_address,
+            ed.id as email_domain_id,
+            dg.id as email_domain_group_id,
+            IFNULL(d.offer_id, 0) as offer_id,
+            IFNULL(cv.id, 0) as cake_vertical_id,
+            ea.deliveries,
+            ea.opens,
+            ea.clicks,
+            ea.created_at,
+            ea.updated_at
+   
+        FROM (SELECT
+                email_id,
+                deploy_id,
+                DATE(datetime) as date,
+                
+                SUM(IF(action_id = 4, 1, 0)) as deliveries,
+                SUM(IF(action_id = 1, 1, 0)) as opens,
+                SUM(IF(action_id = 2, 1, 0)) as clicks,
+                NOW() as created_at,
+                NOW() as updated_at
+            FROM
+                mt2_reports.email_actions
+            WHERE
+                id between :start and :end
+            GROUP BY
+                 email_id, deploy_id, `date`) ea
+
+            INNER JOIN emails e on ea.email_id = e.id
+            INNER JOIN email_domains ed on e.email_domain_id = ed.id
+            LEFT JOIN domain_groups dg on ed.domain_group_id = dg.id
+            LEFT JOIN deploys d on ea.deploy_id = d.id
+            LEFT JOIN mt_offer_cake_offer_mappings cake_map ON d.offer_id = cake_map.offer_id
+            LEFT JOIN cake_offers co ON cake_map.cake_offer_id = co.id
+            LEFT JOIN cake_verticals cv ON co.vertical_id = cv.id", 
+            array(
+                ':start' => $start,
+                ':end' => $end
+            ));
     }
 
     public function pullIncompleteDeploys($lookback) {

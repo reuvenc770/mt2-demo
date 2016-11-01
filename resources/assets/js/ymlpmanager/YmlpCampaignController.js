@@ -1,17 +1,21 @@
-mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window' , '$location' , '$timeout' , 'YmlpCampaignApiService' , function ( $rootScope , $log , $window , $location , $timeout , YmlpCampaignApiService ) {
+mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window' , '$location' , '$timeout' , '$mdToast', 'YmlpCampaignApiService' , 'CustomValidationService' , function ( $rootScope , $log , $window , $location , $timeout , $mdToast , YmlpCampaignApiService,  CustomValidationService ) {
     var self = this;
     self.$location = $location;
 
     self.campaigns = [];
     self.currentCampaign = {"esp_account_id" : "" , "sub_id" : "" , "date" : ""};
-    self.createUrl = 'tools/ymlp-campaign/create/';
+    self.createUrl = 'ymlp/ymlp-campaign/create/';
     self.currentlyLoading = 0;
     self.pageCount = 0;
     self.paginationCount = '10';
     self.currentPage = 1;
+    self.campaignTotal = 0;
+    self.sort = '-id';
+    self.queryPromise = null;
+    self.formErrors = {};
 
     self.loadCampaign = function () {
-        var pathMatches = $location.path().match( /^\/tools\/ymlp-campaign\/edit\/(\d{1,})/ );
+        var pathMatches = $location.path().match( /^\/ymlp\/ymlp-campaign\/edit\/(\d{1,})/ );
 
         YmlpCampaignApiService.getCampaign( pathMatches[ 1 ] , function ( response ) {
             self.currentCampaign = response.data;
@@ -20,9 +24,10 @@ mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window
     }
 
     self.loadCampaigns = function () {
-        YmlpCampaignApiService.getCampaigns(
+        self.queryPromise = YmlpCampaignApiService.getCampaigns(
             self.currentPage ,
             self.paginationCount ,
+            self.sort ,
             self.loadCampaignSuccessCallback , self.loadCampaignsFailureCallback );
     };
 
@@ -45,10 +50,38 @@ mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window
         $window.location.href = self.createUrl;
     };
 
-    self.saveNewCampaign = function () {
+    self.change = function ( form , fieldName ) {
+        CustomValidationService.onChangeResetValidity( self , form , fieldName );
+    };
+
+    self.saveNewCampaign = function ( event , form ) {
         self.resetFieldErrors();
 
-        YmlpCampaignApiService.saveNewCampaign( self.currentCampaign , self.SuccessCallBackRedirect , self.saveNewCampaignFailureCallback );
+        var errorFound = false;
+
+        angular.forEach( form.$error.required , function( field ) {
+            field.$setDirty();
+            field.$setTouched();
+
+            errorFound = true;
+        });
+
+        if ( errorFound ) {
+            $mdToast.showSimple( 'Please fix errors and try again.' );
+
+            return false;
+        }
+
+        YmlpCampaignApiService.saveNewCampaign( self.currentCampaign , self.SuccessCallBackRedirect , function( response ) {
+            angular.forEach( response.data , function( error , fieldName ) {
+
+                form[fieldName].$setDirty();
+                form[fieldName].$setTouched();
+                form[fieldName].$setValidity('isValid' , false);
+            });
+
+            self.saveNewCampaignFailureCallback( response );
+        });
     };
 
     self.editCampaign = function () {
@@ -63,6 +96,7 @@ mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window
     self.loadCampaignSuccessCallback = function ( response ) {
         self.campaigns = response.data.data;
         self.pageCount = response.data.last_page;
+        self.campaignTotal = response.data.total;
     };
 
     self.loadCampaignsFailureCallback = function ( response ) {
@@ -77,8 +111,8 @@ mt2App.controller( 'ymlpCampaignController' , [ '$rootScope' , '$log' , '$window
     };
 
     self.SuccessCallBackRedirect = function ( response ) {
-        $location.url( '/tools/ymlp-campaign' );
-        $window.location.href = '/tools/ymlp-campaign';
+        $location.url( '/ymlp/ymlp-campaign' );
+        $window.location.href = '/ymlp/ymlp-campaign';
     };
 
     self.editCampaignFailureCallback = function ( response ) {

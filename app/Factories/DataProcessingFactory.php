@@ -26,6 +26,9 @@ class DataProcessingFactory {
 
     public static function create($name) {
         switch($name) {
+            case 'PopulateAttributionRecordReport':
+                return self::createAttributionRecordAggregationService();
+
             case 'PopulateEmailCampaignStats':
                 return self::createEmailCampaignAggregationService();
 
@@ -43,7 +46,126 @@ class DataProcessingFactory {
 
             case('PublicatorsActions'):
                 return self::createPublicatorsActionService();
+
+            case('ProcessCfsStats'):
+                return self::createProcessCfsStatsService();
+
+            case('ListProfileAggregation'):
+                return \App::make(\App\Services\ListProfileActionAggregationService::class);
+
+            case('CakeDeviceData'):
+                return \App::make(\App\Services\CakeDeviceService::class);
+
+            case ('ImportMt1Advertisers'):
+                $mt1Name = 'CompanyInfo';
+                $mt2Name = 'Advertiser';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case('ImportMt1Offers'):
+                $mt1Name = 'AdvertiserInfo';
+                $mt2Name = 'Offer';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case('ImportMt1Creatives'):
+                $mt1Name = 'Creative';
+                $mt2Name = 'Creative';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case('ImportMt1Froms'):
+                $mt1Name = 'AdvertiserFrom';
+                $mt2Name = 'From';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case('ImportMt1Subjects'):
+                $mt1Name = 'AdvertiserSubject';
+                $mt2Name = 'Subject';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
                 
+            case('ImportMT1ListProfiles'):
+                $mt1Name = "UniqueProfile";
+                $mt2Name = "ListProfile";
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case ('ImportMT1Deploys'):
+                $mt1Name = 'EspAdvertiserJoin';
+                $mt2Name = 'Deploy';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case('ImportMT1OfferCreativeMapping'):
+                $mt1Name = "Creative";
+                $mt2Name = "OfferCreativeMap";
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case('ImportMT1OfferFromMapping'):
+                $mt1Name = "AdvertiserFrom";
+                $mt2Name = "OfferFromMap";
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case('ImportMT1OfferSubjectMapping'):
+                $mt1Name = "AdvertiserSubject";
+                $mt2Name = "OfferSubjectMap";
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case('ImportMt1CakeEncryptionMapping'):
+                $mt1Name = "AffiliateCakeEncryption";
+                $mt2Name = "CakeEncryptedLink";
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case ("ImportMt1Links"):
+                $mt1Name = 'Link';
+                $mt2Name = 'Link';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+            
+            case ('ImportMt1Feeds'):
+                $mt1Name = "User";
+                $mt2Name = "Feed";
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case ('ImportMt1OfferTracking'):
+                $mt1Name = 'AdvertiserTracking';
+                $mt2Name = 'OfferTrackingLink';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case ('ImportMt1MailingTemplate'):
+                $mt1Name = 'BrandTemplate';
+                $mt2Name = 'MailingTemplate';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case ('ImportMt1CakeOffers'):
+                $mt1Name = 'CakeOffer';
+                $mt2Name = 'CakeOffer';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case('ImportMt1CakeVertical'):
+                $mt1Name = 'CakeVertical';
+                $mt2Name = 'CakeVertical';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case('ImportMt1CakeOfferMapping'):
+                $mt1Name = 'CakeOfferCreativeData';
+                $mt2Name = 'MtOfferCakeOfferMapping';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case('ImportMt1Client'):
+                $mt1Name = 'ClientStatsGrouping';
+                $mt2Name = 'Client';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case('ImportMt1VendorSuppression'):
+                $mt1Name = 'VendorSuppList';
+                $mt2Name = 'SuppressionListSuppression';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case('ImportMt1VendorSuppressionInfo'):
+                $mt1Name = 'VendorSuppListInfo';
+                $mt2Name = 'SuppressionList';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case ('ImportMt1OfferSuppressionListMap'):
+                $mt1Name = 'AdvertiserInfo';
+                $mt2Name = 'OfferSuppressionList';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
             default:
                 throw new \Exception("Data processing service {$name} does not exist");
         }
@@ -105,6 +227,41 @@ class DataProcessingFactory {
         $actions = new EmailAction();
         $actionsRepo = new EmailActionsRepo($actions);
         return new \App\Services\PublicatorsActionService($actionsRepo, $actionsRepo);
+    }
+
+    private static function createProcessCfsStatsService() {
+        $eaj = new \App\Models\MT1Models\EspAdvertiserJoin();
+        $eajRepo = new \App\Repositories\MT1Repositories\EspAdvertiserJoinRepo($eaj);
+
+        $stdModel = new \App\Models\StandardReport();
+        $stdRepo = new \App\Repositories\StandardApiReportRepo($stdModel);
+
+        $crModel = new \App\Models\CreativeClickthroughRate();
+        $crRepo = new \App\Repositories\CreativeClickthroughRateRepo($crModel);
+
+        $subjModel = new \App\Models\SubjectOpenRate();
+        $subjRepo = new \App\Repositories\SubjectOpenRateRepo($subjModel);
+
+        $fromModel = new \App\Models\FromOpenRate();
+        $fromRepo = new \App\Repositories\FromOpenRateRepo($fromModel);
+
+        return new \App\Services\PopulateCfsStatsService($eajRepo, $stdRepo, $crRepo, $fromRepo, $subjRepo);
+    }
+
+    private static function createMt1ImportService($mt1Name, $mt2Name) {
+
+        $mt1ModelName = "App\\Models\\MT1Models\\{$mt1Name}";
+        $mt1RepoName = "App\\Repositories\\MT1Repositories\\{$mt1Name}Repo";
+        $mt1Repo = new $mt1RepoName( new $mt1ModelName() );
+
+        $mt2ModelName = "App\\Models\\{$mt2Name}";
+        $mt2RepoName = "App\\Repositories\\{$mt2Name}Repo";
+        $mt2Repo = new $mt2RepoName( new $mt2ModelName() );
+
+        $mapStrategyName = "App\\Services\\MapStrategies\\{$mt1Name}{$mt2Name}MapStrategy";
+        $mapStrategy = \App::make($mapStrategyName);
+
+        return new \App\Services\ImportMt1DataService($mt1Repo, $mt2Repo, $mapStrategy);
     }
 
 }

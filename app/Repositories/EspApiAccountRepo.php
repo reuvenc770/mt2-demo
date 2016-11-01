@@ -11,6 +11,7 @@ namespace App\Repositories;
 use App\Models\EspAccount;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
+
 //TODO ADD CACHING ONCE ESP SECTION IS DONE
 
 /**
@@ -66,7 +67,7 @@ class EspApiAccountRepo
      */
     public function getAllAccounts(){
         $accountObject = $this->espAccount; //cannot use $this-> to invoke static method
-        return $accountObject::with( 'esp' )->get();
+        return $accountObject::with( 'esp' )->get()->sortBy("account_name");
     }
 
     /**
@@ -126,8 +127,25 @@ class EspApiAccountRepo
     }
 
     public function getAccountsbyEsp($esp){
-        $this->espAccount->where('esp_id', $esp)->get();
+        return $this->espAccount->where('esp_id', $esp)->get();
+    }
+
+    public function getPublicatorsSuppressionListId($accountId) {
+        return $this->espAccount
+             ->select('psl.suppression_list_id')
+             ->join('publicators_suppression_lists as psl', 'esp_accounts.account_name', '=', 'psl.account_name')
+             ->where('esp_accounts.id', $accountId)
+             ->first();
     }
 
 
+    public function getTemplatesByEspId($id){
+        $data = $this->espAccount->with('mailingTemplate')->find($id);
+       return $data->mailingTemplate;
+
+    }
+
+    public function getImageLinkFormat($id) {
+        return $this->espAccount->find($id)->imageLinkFormat;
+    }
 }

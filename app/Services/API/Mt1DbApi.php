@@ -24,14 +24,43 @@ class Mt1DbApi
         $count = (int)$count[0]->total;
         echo "Count:" . $count . PHP_EOL;
 
-        $pull = DB::connection('mt1_data')->select("SELECT * FROM client_record_log ORDER BY lastUpdated LIMIT 50000");
+        $pull = DB::connection('mt1_data')->select("SELECT 
+            email_user_id, 
+            client_id, 
+            email_addr,  
+            IF(unsubscribe_datetime = '0000-00-00 00:00:00', NULL, unsubscribe_datetime) as unsubscribe_datetime,
+            status,
+            first_name,
+            last_name,
+            address,
+            address2,
+            city,
+            state,
+            zip,
+            country,
+            if(dob = '0000-00-00 00:00:00', NULL, dob) as dob,
+            gender,
+            phone,
+            mobile_phone,
+            work_phone,
+            if(capture_date = '0000-00-00 00:00:00' OR capture_date > CURDATE(), CURDATE(), DATE(capture_date)) as capture_date,
+            source_url,
+            ip,
+            lastUpdated
+            FROM 
+                client_record_log 
+            ORDER BY 
+                lastUpdated, email_user_id 
+            LIMIT 
+                50000");
         $len = sizeof($pull);
         
         if ($len > 0) {
             end($pull);
             $last = key($pull);
             $this->finalLastUpdated = $pull[$last]->lastUpdated;
-            echo $this->finalLastUpdated . PHP_EOL;
+            $this->lastEmailId = $pull[$last]->email_user_id;
+            echo $this->finalLastUpdated . ' and ' . $this->lastEmailId . PHP_EOL;
             
             return $pull;
         }
@@ -47,12 +76,15 @@ class Mt1DbApi
         
         DB::connection('mt1_table_sync')
             ->table('client_record_log')
-            ->where('lastUpdated', '<=', $this->finalLastUpdated)
+            ->where('lastUpdated', '<', $this->finalLastUpdated)
+            ->orWhere(function($query) {
+                $query->where('lastUpdated', '=', $this->finalLastUpdated)
+                      ->where('email_user_id', '<=', $this->lastEmailId);
+            })
             ->delete();
-        
     }
 
-    public function getMaxClientId() {
+    public function getMaxFeedId() {
         $result = DB::connection('mt1_data')
             ->table('user')
             ->orderBy('user_id', 'desc')
@@ -62,10 +94,10 @@ class Mt1DbApi
         return (int)$result;
     }
 
-    public function getNewClients($clientId) {
+    public function getNewFeeds($feedId) {
         return DB::connection('mt1_data')
             ->table('user')
-            ->where('user_id', '>', $clientId)
+            ->where('user_id', '>', $feedId)
             ->get();
     }
 

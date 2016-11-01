@@ -2,17 +2,14 @@
 
 namespace App\Models;
 
-
 use Illuminate\Database\Eloquent\Model;
 
-class Client extends Model {
-    
-    public function emailClientInstances() {
-        return $this->hasMany('App\Models\EmailClientInstance');
-    }
+class Client extends Model
+{
+    protected $guarded = [];
 
-    public function emailAction() {
-        return $this->hasMany('App\Models\EmailAction');
+    public function feeds() {
+        return $this->hasMany('App\Models\Feed');
     }
 
     public function feeds() {

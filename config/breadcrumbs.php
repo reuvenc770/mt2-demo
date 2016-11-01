@@ -2,6 +2,6 @@
 
 return [
 
-	'view' => 'layout/breadcrumbs',
+	'view' =>  "layout/breadcrumbs"  #"layout/toolbar-breadcrumbs"
 
 ];

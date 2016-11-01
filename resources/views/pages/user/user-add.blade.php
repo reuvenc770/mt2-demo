@@ -2,63 +2,110 @@
 @section('title', 'Add User')
 
 @section('content')
-        <div class="row">
-            <div class="col-md-6 col-md-offset-3">
-                <div class="panel panel-default" ng-controller="userController as user">
-                    <div class="panel-heading">
-                        <h1 class="panel-title">Add User</h1>
+    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
+        <div flex-gt-sm="50" flex="100">
+            <md-card ng-controller="userController as user">
+                <md-toolbar>
+                    <div class="md-toolbar-tools">
+                        <span>Add User</span>
                     </div>
-                    <div class="panel-body">
-                            <input name="_token" type="hidden" value="{{ csrf_token() }}">
-                            <fieldset>
-                                <!-- Email field -->
-                                <div class="form-group" ng-class="{ 'has-error' : user.formErrors.email }">
-                                    <input placeholder="Email" value="{{old('email') }}" class="form-control" ng-model="user.currentAccount.email" required="required" name="email" type="text">
-                                    <span class="help-block" ng-bind="user.formErrors.email" ng-show="user.formErrors.email"></span>
+                </md-toolbar>
+                <md-card-content>
+                    <form name="userForm" layout="column" novalidate>
+                        <input name="_token" type="hidden" value="{{ csrf_token() }}">
+                        <!-- Email field -->
+                        <md-input-container>
+                            <label>Email</label>
+                            <input type="email" name="email" ng-required="true" ng-model="user.currentAccount.email"
+                                    ng-change="user.change( userForm , 'email' )">
+                            <div ng-messages="userForm.email.$error">
+                                <div ng-message="required">Email is required.</div>
+                                <div ng-message="email">Invalid email format.</div>
+                                <div ng-repeat="error in user.formErrors.email">
+                                    <div ng-bind="error"></div>
                                 </div>
-                                <div class="form-group" ng-class="{ 'has-error' : user.formErrors.username }">
-                                    <input placeholder="Username" ng-model="user.currentAccount.username" class="form-control" required="required" name="username" type="text">
-                                    <span class="help-block" ng-bind="user.formErrors.username" ng-show="user.formErrors.username"></span>
+                            </div>
+                        </md-input-container>
+                        <md-input-container>
+                            <label>Username</label>
+                            <input type="text" name="username" ng-required="true" ng-model="user.currentAccount.username"
+                                    ng-change="user.change( userForm , 'username' )">
+                            <div ng-messages="userForm.username.$error">
+                                <div ng-message="required">Username is required.</div>
+                                <div ng-repeat="error in user.formErrors.username">
+                                    <div ng-bind="error"></div>
                                 </div>
-                                <!-- Password field -->
-                                <div class="form-group" ng-class="{ 'has-error' : user.formErrors.password }">
-                                    <input placeholder="Password" class="form-control" required="required" name="password" type="password" ng-model="user.currentAccount.password" value="">
-                                    <span class="help-block" ng-bind="user.formErrors.password" ng-show="user.formErrors.password"></span>
+                            </div>
+                        </md-input-container>
+                        <!-- Password field -->
+                        <md-input-container>
+                            <label>Password</label>
+                            <input type="password" name="password" ng-required="true" ng-model="user.currentAccount.password"
+                                    ng-change="user.change( userForm , 'password' )">
+                            <div ng-messages="userForm.password.$error">
+                                <div ng-message="required">Password is required.</div>
+                                <div ng-repeat="error in user.formErrors.password">
+                                    <div ng-bind="error"></div>
                                 </div>
-                                <!-- Password Confirmation field -->
-                                <div class="form-group" ng-class="{ 'has-error' : user.formErrors.password_confirmation }">
-                                    <input placeholder="Password Confirm" class="form-control" required="required" name="password_confirmation" ng-model="user.currentAccount.password_confirmation" type="password" value="">
-                                    <span class="help-block" ng-bind="user.formErrors.password_confirmation" ng-show="user.formErrors.password_confirmation"></span>
+                            </div>
+                        </md-input-container>
+                        <!-- Password Confirmation field -->
+                        <md-input-container>
+                            <label>Password Confirm</label>
+                            <input type="password" name="password_confirmation"
+                                    ng-model="user.currentAccount.password_confirmation"
+                                    ng-change="user.change( userForm , 'password' )">
+                            <div ng-messages="userForm.password_confirmation.$error">
+                                <div ng-repeat="error in user.formErrors.password_confirmation">
+                                    <div ng-bind="error"></div>
                                 </div>
-                                <!-- First name field -->
-                                <div class="form-group" ng-class="{ 'has-error' : user.formErrors.first_name }">
-                                    <input placeholder="First Name" value="" class="form-control" required="required" name="first_name" ng-model="user.currentAccount.first_name" type="text">
-                                    <span class="help-block" ng-bind="user.formErrors.first_name" ng-show="user.formErrors.first_name"></span>
+                            </div>
+                        </md-input-container>
+                        <md-input-container>
+                            <label>First Name</label>
+                            <input type="text" name="first_name" ng-required="true" ng-model="user.currentAccount.first_name">
+                            <div ng-messages="userForm.first_name.$error">
+                                <div ng-message="required">First name is required.</div>
+                                <div ng-repeat="error in user.formErrors.first_name">
+                                    <div ng-bind="error"></div>
                                 </div>
-                                <!-- Last name field -->
-                                <div class="form-group" ng-class="{ 'has-error' : user.formErrors.last_name }">
-                                    <input placeholder="Last Name" value="" class="form-control" required="required" name="last_name" ng-model="user.currentAccount.last_name" type="text">
-                                    <span class="help-block" ng-bind="user.formErrors.last_name" ng-show="user.formErrors.last_name"></span>
+                            </div>
+                        </md-input-container>
+                        <md-input-container>
+                            <label>Last Name</label>
+                            <input type="text" name="last_name" ng-required="true" ng-model="user.currentAccount.last_name">
+                            <div ng-messages="userForm.last_name.$error">
+                                <div ng-message="required">Last name is required.</div>
+                                <div ng-repeat="error in user.formErrors.last_name">
+                                    <div ng-bind="error"></div>
                                 </div>
-                                <div class="form-group" ng-class="{ 'has-error' : user.formErrors.roles }">
-                                    <h4 >Roles (check all that apply)</h4>
-                                        @foreach ($roles as $role)
-                                        <label class="checkbox-inline">
-                                            <input type="checkbox" name="items[]" value="{{ $role->id }}" ng-checked="user.currentAccount.roles.indexOf({{$role->id}})> -1" ng-click="user.toggleSelection({{$role->id}})"
-                                            />{{ $role->name }}
-                                            </label>
-                                        @endforeach
-                                    <span class="help-block" ng-bind="user.formErrors.roles" ng-show="user.formErrors.roles"></span>
+                            </div>
+                        </md-input-container>
+                        <div>
+                            <h4>Roles (check all that apply)</h4>
+                            <div layout="row" layout-wrap>
+                                @foreach ($roles as $role)
+                                    <md-checkbox flex="40" flex-gt-md="30" name="roles" value="{{ $role->id }}" ng-checked="user.currentAccount.roles.indexOf({{$role->id}})> -1"
+                                                ng-click="user.toggleSelection({{$role->id}})">
+                                                {{ $role->name }}
+                                    </md-checkbox>
+                                @endforeach
+                            </div>
+                            <div ng-messages="userForm.roles.$error">
+                                <div ng-message="required">A role is required.</div>
+                                <div ng-repeat="error in user.formErrors.roles">
+                                    <div ng-bind="error" class="mt2-error-message"></div>
                                 </div>
-                                <!-- Submit field -->
-                                <div class="form-group">
-                                    <input class="btn btn-lg btn-primary btn-block" ng-click="user.saveNewAccount()" type="submit" value="Create Account">
-                                </div>
-                            </fieldset>
-                    </div>
-                </div>
-            </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit field -->
+                        <md-button class="md-raised md-accent" ng-click="user.saveNewAccount( $event , userForm )">Create Account</md-button>
+                    </form>
+                </md-card-content>
+            </md-card>
         </div>
+    </md-content>
 @endsection
 
 

@@ -3,6 +3,7 @@
 namespace App\Repositories;
 use App\Models\EmailCampaignStatistic;
 use DB;
+use Carbon\Carbon;
 
 class EmailCampaignStatisticRepo {
     protected $model;
@@ -175,6 +176,54 @@ class EmailCampaignStatisticRepo {
             ->where('email_id', '=', $emailId)
             ->where('deploy_id', '=', $deployId)
             ->update($data);
+    }
+
+    public function updateUnsubStatus($email, $espInternalId) {
+        $this->updateSuppressionStatus($email, $espInternalId, 'unsubscribed');
+    }
+
+    public function updateHardBounce($email, $espInternalId) {
+        $this->updateSuppressionStatus($email, $espInternalId, 'hard_bounce');
+    }
+
+    protected function updateSuppressionStatus($email, $espInternalId, $field) {
+        $dataSchema = config('database.connections.mysql.database');
+        $this->model
+             ->join("$dataSchema.emails as e", 'email_campaign_statistics.email_id', '=', 'e.id')
+             ->join('standard_reports as sr', 'email_campaign_statistics.deploy_id', '=', 'sr.external_deploy_id')
+             ->where('e.email_address', $email)
+             ->where('sr.esp_internal_id', $espInternalId)
+             ->update([
+                 "email_campaign_statistics.$field" => 1,
+                 "email_campaign_statistics.updated_at" => Carbon::now()->format('Y-m-d H:i:s')
+             ]);
+    }
+
+    public function updateWithTrackingInfo($data) {
+
+        $this->model
+            ->where('email_id', '=', $data['email_id'])
+            ->where('deploy_id', '=', $data['campaign_id'])
+            ->update([
+                'trk_first_click_datetime' => $data['first_click'],
+                'trk_last_click_datetime' => $data['last_click'],
+                'trk_total_clicks' => $data['clicks'],
+                'user_agent_id' => $data['uas_id']
+            ]);
+    }
+
+    public function updateWithContentServerInfo($data) {
+        $this->model
+            ->where('email_id', '=', $data['email_id'])
+            ->where('deploy_id', '=', $data['sub_id'])
+            ->update([
+                'mt_first_open_datetime' => $data['first_open'],
+                'mt_last_open_datetime' => $data['last_open'],
+                'mt_total_opens' => $data['clicks'],
+                'mt_first_click_datetime' => $data['first_click'],
+                'mt_last_click_datetime' => $data['last_click'],
+                'mt_total_clicks' => $data['clicks']
+            ]);
     }
 
 }

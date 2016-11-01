@@ -1,4 +1,4 @@
-mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$location' , '$timeout' , 'EspApiService' , function ( $rootScope , $log , $window , $location , $timeout , EspApiService ) {
+mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$location' , '$timeout' , '$mdToast' , 'EspApiService' , 'CustomValidationService' , function ( $rootScope , $log , $window , $location , $timeout , $mdToast , EspApiService , CustomValidationService ) {
     var self = this;
     self.$location = $location;
 
@@ -10,12 +10,15 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     self.createUrl = 'espapi/create/';
     self.editUrl = 'espapi/edit/';
 
-    self.formErrors = { "espId" : "" , "id" : "" , "accountName" : "" , "key1" : "" , "key2" : "" };
+    self.formErrors = { "espId" : [] , "id" : [] , "accountName" : [] , "key1" : [] , "key2" : [] };
 
     self.currentlyLoading = 0;
     self.pageCount = 0;
     self.paginationCount = '10';
     self.currentPage = 1;
+    self.accountTotal = 0;
+    self.sort = '-id';
+    self.queryPromise = null;
 
     self.loadAccount = function () {
         var pathMatches = $location.path().match( /^\/espapi\/edit\/(\d{1,})/ );
@@ -29,9 +32,10 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     }
 
     self.loadAccounts = function () {
-        EspApiService.getAccounts(
+        self.queryPromise = EspApiService.getAccounts(
             self.currentPage ,
             self.paginationCount ,
+            self.sort ,
             self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
     };
 
@@ -58,10 +62,39 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         $window.location.href = self.createUrl;
     };
 
-    self.saveNewAccount = function () {
+    self.change = function ( form , fieldName ) {
+        CustomValidationService.onChangeResetValidity( self , form , fieldName );
+    };
+
+    self.saveNewAccount = function ( event , form ) {
         self.resetFieldErrors();
 
-        EspApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback );
+        var errorFound = false;
+
+        angular.forEach( form.$error.required , function( field ) {
+            field.$setDirty();
+            field.$setTouched();
+
+            errorFound = true;
+        } );
+
+        if ( errorFound ) {
+            $mdToast.showSimple( 'Please fix errors and try again.' );
+
+            return false;
+        };
+
+        EspApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , function( response ) {
+            angular.forEach( response.data , function( error , fieldName ) {
+
+                form[ fieldName ].$setDirty();
+                form[ fieldName ].$setTouched();
+                form[ fieldName ].$setValidity('isValid' , false);
+
+            });
+
+            self.saveNewAccountFailureCallback( response );
+        } );
     };
 
     self.editAccount = function () {
@@ -76,6 +109,7 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     self.loadAccountsSuccessCallback = function ( response ) {
         self.accounts = response.data.data;
         self.pageCount = response.data.last_page;
+        self.accountTotal = response.data.total;
     };
 
     self.loadAccountsFailureCallback = function ( response ) {
@@ -135,7 +169,7 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
      */
     self.loadFieldErrors = function ( field , response ) {
         if ( typeof( response.data[ field ] ) != 'undefined' ) {
-            self.setFieldError( field , response.data[ field ].join( ' ' ) );
+            self.setFieldError( field , response.data[ field ] );
         }
     }
 
@@ -144,9 +178,9 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     }
 
     self.resetFieldErrors = function () {
-        self.setFieldError( 'espId' , '' ); 
-        self.setFieldError( 'accountName' , '' ); 
-        self.setFieldError( 'key1' , '' );
-        self.setFieldError( 'key2' , '' );
+        self.setFieldError( 'espId' , [] );
+        self.setFieldError( 'accountName' , [] );
+        self.setFieldError( 'key1' , [] );
+        self.setFieldError( 'key2' , [] );
     };
 } ] );

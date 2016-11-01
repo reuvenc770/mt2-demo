@@ -1,16 +1,53 @@
 /**
  * MT2 App Module
  */
-var mt2App = angular.module( 'mt2App' , [ 'ngMaterial' , 'ngMessages' , 'ui.select' , 'flow' , 'ngclipboard' , 'ivh.treeview' ] );
+var mt2App = angular.module( 'mt2App' , [
+    'ngMaterial' ,
+    'ngMessages' ,
+    'ngCookies' ,
+    'angucomplete-alt',
+    'ui.select' ,
+    'flow' ,
+    'ngclipboard' ,
+    'ivh.treeview' ,
+    'md.data.table'
+] );
 
 mt2App.config( function ( $locationProvider , $mdThemingProvider , ivhTreeviewOptionsProvider ) {
     $locationProvider.html5Mode( true );
 
-    $mdThemingProvider.theme( 'mt2-zeta' , 'light' )
-        .primaryPalette( 'indigo' )
-        .accentPalette( 'deep-purple' )
-        .warnPalette( 'deep-orange' )
-        .backgroundPalette( 'grey' );
+    var mt2Primary = $mdThemingProvider.extendPalette('indigo' , {
+        '500' : '16416c'
+    });
+
+    var mt2Warn = $mdThemingProvider.extendPalette('deep-orange', {
+        "500" : '#FFA726',
+        "contrastDefaultColor" : 'light'
+    });
+
+    var mt2Background = $mdThemingProvider.extendPalette('grey' , {
+        '800' : '383F47'
+    });
+
+    $mdThemingProvider.definePalette('mt2-primary', mt2Primary );
+    $mdThemingProvider.definePalette('mt2-warn', mt2Warn);
+    $mdThemingProvider.definePalette('mt2-background', mt2Background );
+
+    $mdThemingProvider.theme( 'mt2-zeta' , 'dark' )
+        .primaryPalette( 'mt2-primary' , {
+            'hue-1' : '200'
+        } )
+        .accentPalette( 'blue' )
+        .warnPalette( 'mt2-warn')
+        .backgroundPalette( 'mt2-background' , {
+            "default" : '50' ,
+            "hue-1" : '100' ,
+            "hue-2" : '400' ,
+            "hue-3" : '800'
+        } );
+
+
+    $mdThemingProvider.setDefaultTheme( 'mt2-zeta' );
 
     ivhTreeviewOptionsProvider.set( {
         "expandToDepth" : 1 ,
@@ -31,3 +68,5 @@ mt2App.filter( 'bytes' , function() {
         return ( bytes / Math.pow( 1024 , Math.floor( number ) ) ).toFixed( precision ) +  ' ' + units[ number ];
     }
 } );
+
+

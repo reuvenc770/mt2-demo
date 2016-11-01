@@ -1,919 +1,677 @@
-mt2App.controller( 'ListProfileController' , [ '$rootScope' , '$log' , '$http' , '$location' , '$timeout' , '$window' , '$mdDialog' , '$mdToast' , '$anchorScroll' , 'ListProfileApiService' , 'ClientGroupApiService' , 'IspApiService' , function ( $rootScope , $log , $http , $location , $timeout , $window , $mdDialog , $mdToast , $anchorScroll , ListProfileApiService , ClientGroupApiService , IspApiService ) {
+mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToast' , '$mdDialog' , '$log' , function ( ListProfileApiService , $mdToast , $mdDialog , $log ) {
     var self = this;
 
-    /**
-     * This needs to be switched out with the actual user.
-     */
-    self.testUser = 217;
-    self.showVersionField = true;
+    $(function () { $('[data-toggle="tooltip"]').tooltip() });
 
-    self.createUrl = '/listprofile/create';
+    self.nameDisabled = true;
+    self.customName = false;
 
-    /**
-     * Status Flags
-     */
-    self.currentlyLoading = false;
-    self.creatingListProfile = false;
-    self.updatingListProfile = false;
-    self.clientGroupLoading = false;
+    self.enableAdmiral = false;
+    self.showAttrFilters = false;
 
-    /**
-     * Entity Containers
-     */
-    self.profileList = [];
-    self.clientGroupList = [];
-    self.ispList = [];
-    
-    /**
-     * Pagination Properties
-     */
-    self.pageCount = 0;
-    self.paginationCount = '10';
-    self.currentPage = 1;
+    self.enabledSuppression = { "list" : false , "offer" : false };
 
-    /**
-     * Client Group Autocomplete
-     */
-    self.selectedClientGroup = {};
-    self.currentClientGroupPage = 1;
-
-    /**
-     * ISP AutoComplete
-     */
-
-    self.ispSearchText = '';
-    self.selectedIsps = [];
-    self.currentSelectedIsp = '';
-    self.ispChipList = [];
-    self.availableWidgetTitle = "Available ISPs";
-    self.chosenWidgetTitle = "Chosen ISPs";
-
-    /**
-     * Targeting Chip Containers
-     */
-    self.sourceList = [];
-    self.seedList = [];
-    self.zipList = [];
-
-    /**
-     * Range Widget Properties
-     */
-    self.rangeList = [];
-    self.rangeData = {
-        "count" : {
-            "age" : { "label" : 'Age Range' , "min" : null , "max" : null , "filled" : false } ,
-            "deliverable" : [
-                { "label" : "Deliverable Range" ,  "min" : 0 , "max" : 0 , "filled" : false } ,
-                { "label" : "Deliverable Range" , "min" : 0 , "max" : 0 , "filled" : false } ,
-                { "label" : "Deliverable Range" , "min" : 0 , "max" : 0 , "filled" : false }
-            ] ,
-            "openers" : [
-                { "label" : "Openers Range" , "min" : 0 , "max" : 0 , "filled" : false } ,
-                { "label" : "Openers Range" , "min" : 0 , "max" : 0 , "filled" : false } ,
-                { "label" : "Openers Range" , "min" : 0 , "max" : 0 , "filled" : false }
-            ] ,
-            "clickers" : [
-                { "label" : "Clickers Range" , "min" : 0 , "max" : 0 , "filled" : false } ,
-                { "label" : "Clickers Range" , "min" : 0 , "max" : 0 , "filled" : false } ,
-                { "label" : "Clickers Range" , "min" : 0 , "max" : 0 , "filled" : false }
-            ] ,
-            "converters" : [
-                { "label" : "Converters Range" , "min" : 0 , "max" : 0 , "filled" : false } ,
-                { "label" : "Converters Range" , "min" : 0 , "max" : 0 , "filled" : false } ,
-                { "label" : "Converters Range" , "min" : 0 , "max" : 0 , "filled" : false }
-            ] ,
+    self.current = {
+        'name' : '' ,
+        'countries' : {} ,
+        'feeds' : {} ,
+        'isps' : {} ,
+        'categories' : {} ,
+        'offers' : {} ,
+        'suppression' : {
+            'global' : { 1 : "Orange Global" } ,
+            'list' : {} ,
+            'offer' : {} ,
+            'attribute' : { 'cities': [] , 'zips' : [] , 'states' : {} }
+        },
+        'actionRanges' : {
+            'deliverable' : { 'min' : 0 , 'max' : 0 },
+            'opener' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 },
+            'clicker' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 },
+            'converter' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 }
+        },
+        'attributeFilters' : {
+            'age' : { 'min' : 0 , 'max' : 0 , 'unknown' : false },
+            'genders' : {},
+            'zips' : [],
+            'cities' : [],
+            'states' : {},
+            'deviceTypes' : {},
+            'mobileCarriers' : {}
+        },
+        'impressionwise' : false ,
+        'tower' : {
+            'run' : false ,
+            'cleanseMonth' : null ,
+            'cleanseYear' : null
         } ,
-        "date" : {
-            "deliverable" : { "label" : "Deliverable Date Range" , "min" : 0 , "max" : 0, "filled" : false } ,
-            "openers" : { "label" : "Opener Date Range" , "min" : 0 , "max" : 0 , "filled" : false } ,
-            "clickers" : { "label" : "Clickers Date Range" , "min" : 0 , "max" : 0 , "filled" : false } ,
-            "converters" : { "label" : "Converters Date Range" , "min" : 0 , "max" : 0 ,"filled" : false }
-        }
+        'selectedColumns' : [] ,
+        'includeCsvHeader' : false ,
+        'admiralsOnly' : false
     };
 
-    self.rangeDialogs = {
-        "count" : {
-            "age" : {
-                "templateUrl" : "js/templates/listprofile-range-count-dialog.html" ,
-                "clickOutsideToClose" : true ,
-                "controller" : function () {
-                    var ctrl = this;
+    self.countryCodeMap = { 1 : 'US' , 235 : 'UK' };
+    self.countryNameMap = { 'United States' : 1 , 'United Kingdom' : 235 };
+    self.genderNameMap = { 'Male' : 'M' , 'Female' : 'F' , 'Unknown' : 'U' };
 
-                    ctrl.addThisRange = function () {
-                        self.rangeData.count.age.min = ctrl.min;
-                        self.rangeData.count.age.max = ctrl.max;
-                        self.rangeData.count.age.filled = true;
-                        self.rangeList.push( {
-                            "type" : "count" ,
-                            "subtype" : "age" ,
-                            "min" : ctrl.min ,
-                            "max" : ctrl.max
-                        } );
+    self.highlightedFeeds = [];
+    self.highlightedFeedsForRemoval = [];
+    self.feedClientFilters = [];
+    self.clientFeedMap = {};
+    self.feedNameMap = {};
+    self.feedVisibility = {};
 
-                        $mdDialog.hide();
-                    }
-                } ,
-                "controllerAs" : 'ctrl' ,
-                "bindToController" : true ,
-                "locals" : { "label" : self.rangeData.count.age.label , "type" : "count" , "subtype" : "age" , "min" : null , "max" : null }
+    self.highlightedIsps = [];
+    self.highlightedIspsForRemoval = [];
+    self.ispVisibility = {};
+    self.ispNameMap = {};
+
+    self.highlightedCategories = [];
+    self.highlightedCategoriesForRemoval = [];
+    self.categoryVisibility = [];
+    self.categoryNameMap = {};
+
+    self.highlightedOffers = [];
+    self.highlightedOffersForRemoval = [];
+    self.offerVisibility = {};
+    self.offerNameMap = {};
+
+    self.highlightedStateFilters = [];
+    self.highlightedStateFiltersForRemoval = [];
+    self.stateFilterVisibility = {};
+    self.stateFilterNameMap = {};
+
+    self.highlightedDeviceTypeFilters = [];
+    self.highlightedDeviceTypeFiltersForRemoval = [];
+    self.deviceTypeFilterVisibility = { 'mobile' : true , 'desktop' : true , 'unknown' : true };
+    self.deviceTypeFilterNameMap = { 'mobile' : 'Mobile' , 'desktop' : 'Desktop' , 'unknown' : "Unknown" };
+
+    self.highlightedCarrierFilters = [];
+    self.highlightedCarrierFiltersForRemoval = [];
+    self.carrierFilterVisibility = { 'att' : true , 'sprint' : true , 'tmobile' : true , 'verizon' : true };
+    self.carrierFilterNameMap = { 'att' : 'AT&T' , 'sprint' : 'Sprint' , 'tmobile' : 'T-Mobile' , 'verizon' : 'Verizon' };
+
+    self.highlightedGlobalSupp = [];
+    self.highlightedGlobalSuppForRemoval = [];
+    self.globalSuppVisibility = { 1 : false , 2 : true , 3 : true , 4 : true };
+    self.globalSuppNameMap = { 1 : 'Orange Global' , 2 : 'Blue Global' , 3 : 'Green Global' , 4 : 'Gold Global' };
+
+    self.highlightedListSupp = [];
+    self.highlightedListSuppForRemoval = [];
+    self.listSuppVisibility = { 1 : true , 2 : true , 3 : true , 4 : true };
+    self.listSuppNameMap = { 1 : 'Sprint Yahoo' , 2 : 'Verizon Gmail' , 3 : 'Trendr Hotmail' , 4 : 'RMP Hotmail' };
+
+    self.highlightedOfferSupp = [];
+    self.highlightedOfferSuppForRemoval = [];
+    self.offerSuppVisibility = {};
+    self.offerSuppNameMap = {};
+
+    self.highlightedStateSupp = [];
+    self.highlightedStateSuppForRemoval = [];
+    self.stateSuppVisibility = {};
+    self.stateSuppNameMap = {};
+
+    self.columnList = [
+        { 'header' : 'email_id' , 'label' : 'Email ID' },
+        { 'header' : 'first_name' , 'label' : 'First Name' },
+        { 'header' : 'last_name' , 'label' : 'Last Name' },
+        { 'header' : 'address' , 'label' : 'Address' },
+        { 'header' : 'address2' , 'label' : 'Address 2'},
+        { 'header' : 'city' , 'label' : 'City' },
+        { 'header' : 'state' , 'label' : 'State' },
+        { 'header' : 'zip' , 'label' : 'Zip' },
+        { 'header' : 'country' , 'label' : 'Country' },
+        { 'header' : 'gender' , 'label' : 'Gender' },
+        { 'header' : 'ip' , 'label' : 'IP Address' },
+        { 'header' : 'phone' , 'label' : 'Phone Number' },
+        { 'header' : 'source_url' , 'label' : 'Source URL' },
+        { 'header' : 'age' , 'label' : 'Age' },
+        { 'header' : 'device_type' , 'label' : 'Device Type' },
+        { 'header' : 'device_name' , 'label' : 'Device Name' },
+        { 'header' : 'carrier' , 'label' : 'Carrier' },
+        { 'header' : 'capture_date' , 'label' : 'Capture Date' },
+        { 'header' : 'esp_account' , 'label' : 'ESP Account' },
+        { 'header' : 'email_address' , 'label' : 'Email Address' } ,
+        { 'header' : 'lower_md5' , 'label' : 'Lowercase MD5' },
+        { 'header' : 'upper_md5' , 'label' : 'Uppercase MD5' } ,
+        { 'header' : 'domain_group_id' , 'label' : "ISP" } ,
+        { 'header' : 'dob' , 'label' : "Date of Birth" } ,
+        { 'header' : 'feed_id' , 'label' : "Feed ID" } ,
+        { 'header' : 'feed_name' , 'label' : "Feed Name" } ,
+        { 'header' : 'client_name' , 'label' : "Client" } ,
+        { 'header' : 'subscribe_date' , 'label' : 'Subscribe Date' } ,
+        { 'header' : 'status' , 'label' : 'Status' }
+    ];
+    self.selectedColumns = [];
+    self.availableWidgetTitle = "Available Columns";
+    self.chosenWidgetTitle = "Selected Columns";
+    self.columnLabelField = 'label';
+    self.columnHeaderField = 'header';
+
+    self.rangesForName = [];
+    self.rangeCodeMap = {
+        'deliverable' : 'D' ,
+        'opener' : 'O' ,
+        'clicker' : 'C' ,
+        'converter' : 'CV'
+    };
+
+    self.towerDateOptions = [];
+
+    self.demoProfiles = [
+        {
+            'name' : 'ADK3_Yahoo_US_7to30D' ,
+            'countries' : [ "1" ] ,
+            'feeds' : { 2984 : "ADK3" } ,
+            'isps' : { 4 : "Yahoo" } ,
+            'categories' : {} ,
+            'offers' : {} ,
+            'suppression' : {
+                'global' : [ "1" ] ,
+                'list' : [] ,
+                'offer' : [] ,
+                'attribute' : { 'cities': [] , 'zips' : [] , 'states' : [] }
+            },
+            'actionRanges' : {
+                'deliverable' : { 'min' : 7 , 'max' : 30 },
+                'opener' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 },
+                'clicker' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 },
+                'converter' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 }
+            },
+            'attributeFilters' : {
+                'age' : { 'min' : 0 , 'max' : 0 , 'unknown' : false },
+                'genders' : [],
+                'zips' : [],
+                'cities' : [],
+                'states' : [],
+                'deviceTypes' : [],
+                'mobileCarriers' : []
+            },
+            'impressionwise' : false ,
+            'tower' : {
+                'run' : false ,
+                'cleanseMonth' : null ,
+                'cleanseYear' : null
             } ,
-            "deliverable" : {
-                "templateUrl" : "js/templates/listprofile-range-count-dialog.html" ,
-                "clickOutsideToClose" : true ,
-                "controller" : function () {
-                    var ctrl = this;
-
-                    ctrl.addThisRange = function () {
-                        self.rangeData.count.deliverable[ ctrl.number ].min = ctrl.min;
-                        self.rangeData.count.deliverable[ ctrl.number ].max = ctrl.max;
-                        self.rangeData.count.deliverable[ ctrl.number ].filled = true;
-                        self.rangeList.push( { "type" : "count" , "subtype" : "deliverable" , "number" : ctrl.number , "min" : ctrl.min , "max" : ctrl.max } );
-
-                        $mdDialog.hide();
-                    }
-                } ,
-                "bindToController" : true ,
-                "controllerAs" : 'ctrl' ,
-                "locals" : {
-                    "label" : null , "type" : "count" , "subtype" : "deliverables" , "number" : null , "min" : null , "max" : null }
-            } ,
-            "openers" : {
-                "templateUrl" : "js/templates/listprofile-range-count-dialog.html" ,
-                "clickOutsideToClose" : true ,
-                "controller" : function () {
-                    var ctrl = this;
-
-                    ctrl.addThisRange = function () {
-                        self.rangeData.count.openers[ ctrl.number ].min = ctrl.min;
-                        self.rangeData.count.openers[ ctrl.number ].max = ctrl.max;
-                        self.rangeData.count.openers[ ctrl.number ].filled = true;
-                        self.rangeList.push( { "type" : "count" , "subtype" : "openers" , "number" : ctrl.number , "min" : ctrl.min , "max" : ctrl.max } );
-
-                        $mdDialog.hide();
-                    }
-                } ,
-                "controllerAs" : 'ctrl' ,
-                "bindToController" : true ,
-                "locals" : { "label" : null , "type" : "count" , "subtype" : "openers" , "number" : null , "min" : null , "max" : null }
-            } ,
-            "clickers" : {
-                "templateUrl" : "js/templates/listprofile-range-count-dialog.html" ,
-                "clickOutsideToClose" : true ,
-                "controller" : function () {
-                    var ctrl = this;
-
-                    ctrl.addThisRange = function () {
-                        self.rangeData.count.clickers[ ctrl.number ].min = ctrl.min;
-                        self.rangeData.count.clickers[ ctrl.number ].max = ctrl.max;
-                        self.rangeData.count.clickers[ ctrl.number ].filled = true;
-                        self.rangeList.push( { "type" : "count" , "subtype" : "clickers" , "number" : ctrl.number , "min" : ctrl.min , "max" : ctrl.max } );
-
-                        $mdDialog.hide();
-                    }
-                } ,
-                "controllerAs" : 'ctrl' ,
-                "bindToController" : true ,
-                "locals" : { "label" : null , "type" : "count" , "subtype" : "clickers" , "number" : null , "min" : null , "max" : null }
-            } ,
-            "converters" : {
-                "templateUrl" : "js/templates/listprofile-range-count-dialog.html" ,
-                "clickOutsideToClose" : true ,
-                "controller" : function () {
-                    var ctrl = this;
-
-                    ctrl.addThisRange = function () {
-                        self.rangeData.count.converters[ ctrl.number ].min = ctrl.min;
-                        self.rangeData.count.converters[ ctrl.number ].max = ctrl.max;
-                        self.rangeData.count.converters[ ctrl.number ].filled = true;
-                        self.rangeList.push( { "type" : "count" , "subtype" : "converters" , "number" : ctrl.number , "min" : ctrl.min , "max" : ctrl.max } );
-
-                        $mdDialog.hide();
-                    }
-                } ,
-                "controllerAs" : 'ctrl' ,
-                "bindToController" : true ,
-                "locals" : { "label" : null , "type" : "count" , "subtype" : "converters" , "number" : null , "min" : null , "max" : null }
-            }
+            'selectedColumns' : [] ,
+            'includeCsvHeader' : false ,
+            'admiralsOnly' : false ,
+            'lastPull' : moment().subtract( 30 , 'minutes' ).format( 'LLL' ) ,
+            'recordCount' : Math.floor( Math.random() * ( Math.floor( 20000 ) - Math.ceil( 10000 ) + 1 ) ) + Math.ceil( 10000 )
         } ,
-        "date" : {
-            "deliverable" : {
-                "templateUrl" : "js/templates/listprofile-range-date-dialog.html" ,
-                "clickOutsideToClose" : true ,
-                "controller" : function () {
-                    var ctrl = this;
-
-                    ctrl.addThisRange = function () {
-                        self.rangeData.date.deliverable.min = ctrl.min;
-                        self.rangeData.date.deliverable.max = ctrl.max;
-                        self.rangeData.date.deliverable.filled = true;
-                        self.rangeList.push( { "type" : "date" , "subtype" : "deliverable" , "min" : moment( ctrl.min ).format( 'YYYY-MM-DD' ) , "max" : moment( ctrl.max ).format( 'YYYY-MM-DD' ) } );
-
-                        $mdDialog.hide();
-                    }
-                } ,
-                "bindToController" : true ,
-                "controllerAs" : 'ctrl' ,
-                "locals" : { "label" : self.rangeData.date.deliverable.label , "type" : "date" , "subtype" : "deliverables" , "min" : null , "max" : null }
+        {
+            'name' : 'JTST_Gmail_GB_30OCCV' ,
+            'countries' : [ '235' ] ,
+            'feeds' : { 2962 : "JTST" } ,
+            'isps' : { 8 : "Gmail" } ,
+            'categories' : {} ,
+            'offers' : {} ,
+            'suppression' : {
+                'global' : [ "1" ] ,
+                'list' : [] ,
+                'offer' : [] ,
+                'attribute' : { 'cities': [] , 'zips' : [] , 'states' : [] }
+            },
+            'actionRanges' : {
+                'deliverable' : { 'min' : 0 , 'max' : 0 },
+                'opener' : { 'min' : 0 , 'max' : 30 , 'multiaction' : 1 },
+                'clicker' : { 'min' : 0 , 'max' : 30 , 'multiaction' : 1 },
+                'converter' : { 'min' : 0 , 'max' : 30 , 'multiaction' : 1 }
+            },
+            'attributeFilters' : {
+                'age' : { 'min' : 0 , 'max' : 0 , 'unknown' : false },
+                'genders' : [],
+                'zips' : [],
+                'cities' : [],
+                'states' : [],
+                'deviceTypes' : [],
+                'mobileCarriers' : []
+            },
+            'impressionwise' : false ,
+            'tower' : {
+                'run' : false ,
+                'cleanseMonth' : null ,
+                'cleanseYear' : null
             } ,
-            "openers" : {
-                "templateUrl" : "js/templates/listprofile-range-date-dialog.html" ,
-                "clickOutsideToClose" : true ,
-                "controller" : function () {
-                    var ctrl = this;
-
-                    ctrl.addThisRange = function () {
-                        self.rangeData.date.openers.min = ctrl.min;
-                        self.rangeData.date.openers.max = ctrl.max;
-                        self.rangeData.date.openers.filled = true;
-                        self.rangeList.push( { "type" : "date" , "subtype" : "openers" , "min" : moment( ctrl.min ).format( 'YYYY-MM-DD' ) , "max" : moment( ctrl.max ).format( 'YYYY-MM-DD' ) } );
-
-                        $mdDialog.hide();
-                    }
-                } ,
-                "bindToController" : true ,
-                "controllerAs" : 'ctrl' ,
-                "locals" : { "label" : self.rangeData.date.openers.label , "type" : "date" , "subtype" : "openers" , "min" : null , "max" : null }
+            'selectedColumns' : [] ,
+            'includeCsvHeader' : false ,
+            'admiralsOnly' : false ,
+            'lastPull' : moment().subtract( 2 , 'days' ).add( 5 , 'hours' ).add( 40 , 'minutes' ).format( 'LLL' ) ,
+            'recordCount' : Math.floor( Math.random() * ( Math.floor( 10000 ) - Math.ceil( 3000 ) + 1 ) ) + Math.ceil( 3000 )
+        } ,
+        {
+            'name' : 'NPR_AOL_GB_7OCCV' ,
+            'countries' : [ '235' ] ,
+            'feeds' : { 2956 : "NPR" } ,
+            'isps' : { 2 : "AOL" } ,
+            'categories' : {} ,
+            'offers' : {} ,
+            'suppression' : {
+                'global' : [ "1" ] ,
+                'list' : [] ,
+                'offer' : [] ,
+                'attribute' : { 'cities': [] , 'zips' : [] , 'states' : [] }
+            },
+            'actionRanges' : {
+                'deliverable' : { 'min' : 0 , 'max' : 0 },
+                'opener' : { 'min' : 0 , 'max' : 7 , 'multiaction' : 2 },
+                'clicker' : { 'min' : 0 , 'max' : 7 , 'multiaction' : 1 },
+                'converter' : { 'min' : 0 , 'max' : 7 , 'multiaction' : 1 }
+            },
+            'attributeFilters' : {
+                'age' : { 'min' : 0 , 'max' : 0 , 'unknown' : false },
+                'genders' : [],
+                'zips' : [],
+                'cities' : [],
+                'states' : [],
+                'deviceTypes' : [],
+                'mobileCarriers' : []
+            },
+            'impressionwise' : false ,
+            'tower' : {
+                'run' : false ,
+                'cleanseMonth' : null ,
+                'cleanseYear' : null
             } ,
-            "clickers" : {
-                "templateUrl" : "js/templates/listprofile-range-date-dialog.html" ,
-                "clickOutsideToClose" : true ,
-                "controller" : function () {
-                    var ctrl = this;
+            'selectedColumns' : [] ,
+            'includeCsvHeader' : false ,
+            'admiralsOnly' : false ,
+            'lastPull' : moment().subtract( 1 , 'days' ).subtract( 2 , 'hours' ).add( 20 , 'minutes' ).format( 'LLL' ) ,
+            'recordCount' : Math.floor( Math.random() * ( Math.floor( 60000 ) - Math.ceil( 40000 ) + 1 ) ) + Math.ceil( 40000 )
+        } ,
+    ];
 
-                    ctrl.addThisRange = function () {
-                        self.rangeData.date.clickers.min = ctrl.min;
-                        self.rangeData.date.clickers.max = ctrl.max;
-                        self.rangeData.date.clickers.filled = true;
-                        self.rangeList.push( { "type" : "date" , "subtype" : "clickers" , "min" : moment( ctrl.min ).format( 'YYYY-MM-DD' ) , "max" : moment( ctrl.max ).format( 'YYYY-MM-DD' ) } );
-
-                        $mdDialog.hide();
-                    }
-                } ,
-                "bindToController" : true ,
-                "controllerAs" : 'ctrl' ,
-                "locals" : { "label" : self.rangeData.date.clickers.label , "type" : "date" , "subtype" : "clickers" , "min" : null , "max" : null }
-            } ,
-            "converters" : {
-                "templateUrl" : "js/templates/listprofile-range-date-dialog.html" ,
-                "clickOutsideToClose" : true ,
-                "controller" : function () {
-                    var ctrl = this;
-
-                    ctrl.addThisRange = function () {
-                        self.rangeData.date.converters.min = ctrl.min;
-                        self.rangeData.date.converters.max = ctrl.max;
-                        self.rangeData.date.converters.filled = true;
-                        self.rangeList.push( { "type" : "date" , "subtype" : "converters" , "min" : moment( ctrl.min ).format( 'YYYY-MM-DD' ) , "max" : moment( ctrl.max ).format( 'YYYY-MM-DD' ) } );
-
-                        $mdDialog.hide();
-                    }
-                } ,
-                "bindToController" : true ,
-                "controllerAs" : 'ctrl' ,
-                "locals" : { "label" : self.rangeData.date.converters.label , "type" : "date" , "subtype" : "converters" , "min" : null , "max" : null }
-            }
-        }
+    self.prepop = function ( id ) {
+        self.current = self.demoProfiles[ id - 1 ];
+        self.generateName();
     };
 
-    /**
-     * Form Fields
-     */
-    self.profileType = 'v1';
-    self.genderType = 'any';
+    self.generateTowerDateOptions = function () {
+        var lastYear = moment().subtract( 1 , 'years' ).year();
+        self.towerDateOptions.push( { "value" : lastYear , "name" : lastYear } );
 
-    self.current = { 'profile_name' : '' , 'volume_desired' : null , 'cgroupid' : [] , 'deliveryDays' : 0 , 'isps' : [] , 'gender' : 'F' };
-
-    /**
-     * Need to swithc the user_id here to the real user when we have that ready
-     */
-    self.v1Form = { 'user_id' : self.testUser , 'form_version' : 1 , 'profile_name' : '' , 'DeliveryDays' : 0 , 'isps' : '' , 'cgroupid' : 0 , 'gender' : '' , 'surl' : '' , 'zips' : '' , 'seeds' : '' , 'min_age' : 0 , 'max_age' : 0 , 'ostart' : 0 , 'oend' : 0 , 'cstart' : 0 , 'cend' : 0 , 'dstart' : 0 , 'dend' : 0 , 'convert_start' : 0 , 'convert_end' : 0 , 'ostart1' : 0 , 'oend1' : 0 , 'cstart1' : 0 , 'cend1' : 0 , 'dstart1' : 0 , 'dend1' : 0 , 'convert_start1' : 0 , 'convert_end1' : 0 , 'ostart2' : 0 , 'oend2' : 0 , 'cstart2' : 0 , 'cend2' : 0 , 'dstart2' : 0 , 'dend2' : 0 , 'convert_start2' : 0 , 'convert_end2' : 0 , 'ostart_date' : '' , 'oend_date' : '' , 'cstart_date' : '' , 'cend_date' : '' , 'dstart_date' : '' , 'dend_date' : '' , 'convert_start_date' : '' , 'convert_end_date' : '' , 'export' : 0 , 'clientid' : 0 , 'dupCnt' : 0 , 'randomize_flag' : 'Y' , 'dfactor' : 0 , 'send_international' : 'Y' };
-
-    self.v2Form = { 'form_version' : 2 , 'profile_name' : '' , 'volumne_desired' : 0 , 'isps' : '' , 'cgroupid' : 0 , 'gender' : '' , 'surl' : '' , 'zips' : '' , 'min_age' : 0 , 'max_age' : 0 , 'ostart' : 0 , 'oend' : 0 , 'cstart' : 0 , 'cend' : 0 , 'dstart' : 0 , 'dend' : 0 , 'convert_start' : 0 , 'convert_end' : 0 , 'ostart_date' : '' , 'oend_date' : '' , 'cstart_date' : '' , 'cend_date' : '' , 'dstart_date' : '' , 'dend_date' : '' , 'convert_start_date' : '' , 'convert_end_date' : '' , 'dfactor' : 0 , 'send_international' : 'Y' };
-
-    self.v3Form = { 'form_version' : 3 , 'profile_name' : '' , 'volume_desired' : 0 , 'isps' : '' , 'cgroupid' : 0 , 'gender' : '' , 'surl' : '' , 'zips' : '' , 'min_age' : 0 , 'max_age' : 0 , 'dfactor' : 0 , 'send_international' : 'Y' };
-
-    /**
-     * Init & Loading Methods
-     */
-    self.loadListProfiles = function () {
-        self.currentlyLoading = true;
-
-        ListProfileApiService.getListProfiles(
-            self.currentPage ,
-            self.paginationCount ,
-            self.loadListProfilesSuccessCallback ,
-            self.loadListProfilesFailureCallback
-        );
+        var thisYear = moment().year();
+        self.towerDateOptions.push( { "value" : thisYear , "name" : thisYear } );
     };
 
-    self.loadListProfilesSuccessCallback = function ( response ) {
-        self.currentlyLoading = 0;
-
-        self.profileList = response.data.data; 
-
-        self.pageCount = response.data.last_page;
-    };
-
-    self.loadListProfilesFailureCallback = function ( response ) {
-        self.showToast( 'Error Loading List Profiles. Please Contact Support.' );
-    };
-
-    self.loadListProfile = function () {
-        var currentPath = $location.path();
-        var pathParts = currentPath.match( new RegExp( /(\d+)/ ) );
-        var prepopPage = (
-            pathParts !== null
-            && angular.isNumber( parseInt( pathParts[ 0 ] ) )
-        );
-        self.showVersionField = false;
-
-        if ( prepopPage ) {
-            self.current.pid = pathParts[ 0 ];
-
-            ListProfileApiService.getListProfile( self.current.pid , self.loadListProfileSuccessCallback , self.loadListProfileFailureCallback );
-            ListProfileApiService.getIspsByProfileId( self.current.pid , self.loadIspsSuccessCallback , self.loadIspsFailureCallback );
-            ListProfileApiService.getSourcesByProfileId( self.current.pid , self.loadSourcesSuccessCallback , self.loadSourcesFailureCallback );
-            ListProfileApiService.getSeedsByProfileId( self.current.pid , self.loadSeedsSuccessCallback , self.loadSeedsFailureCallback );
-            ListProfileApiService.getZipsByProfileId( self.current.pid , self.loadZipsSuccessCallback , self.loadZipsFailureCallback );
-        }
-    };
-
-    self.loadIsps = function () {
-        IspApiService.getAll( function ( response ) {
-            self.ispList = response.data;
-        } , function ( response ) {
-            self.showToast( 'Error retrieving ISPs. Please contact support.' );        
-        } );
-    }
-
-    /**
-     * Field Prepopulation Methods
-     */
-    self.prepopNormalFields = function ( response ) {
-        self.current.profile_name = response.data.profile_name;
-        self.deliveryDays = response.data.DeliveryDays; 
-    };
-
-    self.prepopGender = function ( response ) {
-        if ( response.data.gender == 'F' || response.data.gender == 'M' ) {
-            self.genderType = 'specific';
-            self.current.gender = response.data.gender;
-        } else if ( response.data.gender == 'Empty' ) {
-            self.genderType = 'empty';
-        }
-    }
-
-    self.prepopAgeRange = function ( response ) {
-        if ( response.data.min_age > 0 && response.data.max_age > 0 ) {
-            self.rangeData.count.age.min = response.data.min_age;
-            self.rangeData.count.age.max = response.data.max_age;
-            self.rangeData.count.age.filled = true;
-
-            self.rangeList.push( { "type" : "count" , "subtype" : "age" , "min" : response.data.min_age , "max" : response.data.max_age } );
-        }
-    };
-
-    self.prepopCountRanges = function ( response ) {
-        var rangeTypes = [ 'deliverable' , 'opener' , 'clicker' , 'convert' ];
-        var typeMap = { 'deliverable' : 'deliverable' , 'opener' : 'openers' , 'clicker' : 'clickers' , 'convert' : 'converters' };
-
-        angular.forEach( rangeTypes , function ( type , index ) {
-            var typeNumber = null;
-
-            for ( var rangeNumber = 0 ; rangeNumber < 3 ; rangeNumber++ ) {
-                typeNumber = ( rangeNumber > 0 ? rangeNumber : '' );
-
-                if (
-                    response.data[ type + '_end' + typeNumber ] > 0    
-                ) {
-                    self.rangeData.count[ typeMap[ type ] ][ rangeNumber ].min =
-                        response.data[ type + '_start' + typeNumber ];
-                    self.rangeData.count[ typeMap[ type ] ][ rangeNumber ].max =
-                        response.data[ type + '_end' + typeNumber ];
-                    self.rangeData.count[ typeMap[ type ] ][ rangeNumber ].filled = true;
-
-                    self.rangeList.push( {
-                        "type" : "count" ,
-                        "subtype" : typeMap[ type ] ,
-                        "min" : response.data[ type + '_start' + typeNumber ] ,
-                        "max" : response.data[ type + '_end' + typeNumber ]
-                    } );
-                }
-            }
-        } );
-    };
-
-    self.prepopDateRanges = function ( response ) {
-        var rangeTypes = [ 'deliverable' , 'opener' , 'clicker' , 'convert' ];
-        var typeMap = { 'deliverable' : 'deliverable' , 'opener' : 'openers' , 'clicker' : 'clickers' , 'convert' : 'converters' };
-
-        angular.forEach( rangeTypes , function ( type , index ) {
-            if (
-                response.data[ type + '_start_date' ] != '0000-00-00'
-                && response.data[ type + '_end_date' ] != '0000-00-00'
-            ) {
-                self.rangeData.date[ typeMap[ type ] ].min = response.data[ type + '_start_date' ];
-                self.rangeData.date[ typeMap[ type ] ].max = response.data[ type + '_end_date' ];
-                self.rangeData.date[ typeMap[ type ] ].filled = true;
-
-                self.rangeList.push( {
-                    "type" : "date" ,
-                    "subtype" : typeMap[ type ] ,
-                    "min" : response.data[ type + '_start_date' ] ,
-                    "max" : response.data[ type + '_end_date'  ]
-                } );
-            }
-        } );
-    };
-
-    /**
-     * Watchers
-     */
-    $rootScope.$on( 'updatePage' , function () {
-        $( '.collapse' ).collapse( 'hide' );
-        self.loadListProfiles();
-    } );
-
-    $rootScope.$watchCollection( 'selectedIsps' , function ( newIsps , oldIsps ) {
-        angular.forEach( newIsps , function ( value , key ) {
-            var currentChip = { "id" : parseInt( key ) , "name" : value };
-
-            var chipIndex = self.ispChipList.map(
-                function ( chip ) { return parseInt( chip.id ) }        
-            ).indexOf( parseInt( key ) ); 
-
-            var chipExists = ( chipIndex !== -1 );
-
-            if ( value !== false && !chipExists ) {
-                self.ispChipList.push( currentChip );
-            } else if ( value === false && chipExists ) {
-                self.ispChipList.splice( chipIndex , 1 );
-            }
-        });
-    } );
-
-
-    /**
-     * Button Click Handlers
-     */
-    self.viewAdd = function () {
-        $location.url( self.createUrl );
-        $window.location.href = self.createUrl;
-    };
-
-    self.calculateListProfile = function ( $event , addForm ) {
-        var currentFormFields = {};
-
-        if ( self.rangeList.length <= 0 ) {
-            $mdToast.showSimple( 'Please choose a range.' );
-
-            $anchorScroll( 'range' );
-
-            return false;
+    self.generateName = function () {
+        if ( self.customName ) {
+            return true;
         }
 
-        if ( self.selectedIsps.length <= 0 ) {
-            $mdToast.showSimple( 'Please select ISPs.' );
+        var nameParts = [];
 
-            $anchorScroll( 'isp' );
+        nameParts.push( self.getFormattedName( self.current.feeds ) );
+        nameParts.push( self.getFormattedName( self.current.isps ) );
+        nameParts.push( self.getFormattedName( self.current.countries , self.countryCodeMap ) );
+        nameParts.push( self.getFormattedRangeName() );
 
-            return false;
-        }
-
-        switch ( self.profileType ) {
-            case 'v1' :
-                self.prepV1Fields();
-                currentFormFields = self.v1Form;
-
-                if ( addForm.profileName.$error.required ) {
-                    $mdToast.showSimple( 'Please fix form errors and try again.' );
-
-                    return false;
-                }
-            break;
-
-            case 'v2' :
-                self.prepV2Fields();
-                currentFormFields = self.v2Form;
-
-                if ( addForm.volumeDesired.$error.required ) {
-                    $mdToast.showSimple( 'Please fix form errors and try again.' );
-
-                    return false;
-                }
-            break;
-
-            case 'v3' :
-                self.prepV3Fields();
-                currentFormFields = self.v3Form;
-
-                if ( addForm.volumeDesired.$error.required ) {
-                    $mdToast.showSimple( 'Please fix form errors and try again.' );
-
-                    return false;
-                }
-            break;
-        }
-
-        currentFormFields[ 'pid' ] = 0;
-
-        ListProfileApiService.calculateListProfile( currentFormFields , self.calculateListProfileSuccessCallback , self.calculateListProfileFailureCallback );
+        self.current.name = nameParts.join( '_' );
     };
 
-    self.calculateListProfileSuccessCallback = function ( response ) {
-        //This needs to show the calculation and ask the user to save a new profile.
-        //Below is an example of a dialog to show and save the profile. Once we know
-        //the format of the response, we can setup the dialog.
+    self.getFormattedName = function ( list , map ) {
+        var names = [];
 
-        /*
-        var parentEl = angular.element( document.body );
-        
-        $mdDialog.show( {
-            "parent" : parentEl ,
-            "targetEvent" : event ,
-            "templateUrl" : "js/templates/listprofile-copy-dialog.html" ,
-            "clickOutsideToClose" : true ,
-            "controller" : function () {
-                var ctrl = this;
-
-                ctrl.saveThisProfile = function () {
-                    ListProfileApiService.saveListProfile( ctrl.id , ctrl.name , self.saveListProfileSuccessCallback , self.saveListProfileFailureCallback );
-                }
-            } ,
-            "controllerAs" : "ctrl" ,
-            "bindToController" : true ,
-            "locals" : {  "id" : response.data }
-        } );
-        */
-    };
-
-    self.calculateListProfileFailureCallback = function ( response ) {
-        self.showToast( 'Error Calculating List Profile. Please contact support.' );
-    };
-
-    //Need to call this once we have calculations in place.
-    self.saveListProfile = function () {
-
-    };
-
-    self.saveListProfileSuccessCallback = function ( response ) {
-        $log.log( response ); 
-
-        //Need to run calculations. This is the placeholder success callback to implement that.
-        //redirect to list page
-    };
-
-    self.saveListProfileFailureCallback = function ( response ) {
-        self.showToast( 'Error Saving List Profile. Please contact support.' );
-    };
-
-    self.updateListProfile = function ( $event , editForm ) {
-        self.updatingListProfile = true;
-
-        self.prepV1Fields();
-        var currentFormFields = self.v1Form;
-        currentFormFields[ 'action' ] = 'save';
-        currentFormFields[ 'volume_desired' ] = self.current.volume_desired;
-        currentFormFields[ 'pid' ] = self.current.pid;
-
-        ListProfileApiService.updateListProfile( currentFormFields , function ( response ) { $log.log( response ) } , function ( response ) { response } );
-    };
-
-    self.updateListProfileSuccessCallback = function ( response ) {
-        $log.log( response );
-
-        //redirect to list page
-    }
-
-    self.updateListProfileFailureCallback = function ( response ) {
-        self.showToast( 'Error Updating List Profile. Please contact support.' );
-    }
-
-    self.copyListProfile = function ( event , id ) {
-        var parentEl = angular.element( document.body );
-        
-        $mdDialog.show( {
-            "parent" : parentEl ,
-            "targetEvent" : event ,
-            "templateUrl" : "js/templates/listprofile-copy-dialog.html" ,
-            "clickOutsideToClose" : true ,
-            "controller" : function () {
-                var ctrl = this;
-
-                ctrl.copyThisProfile = function () {
-                    ListProfileApiService.copyListProfile( ctrl.id , ctrl.name , self.copyListProfileSuccessCallback , self.copyListProfileFailureCallback );
-                }
-            } ,
-            "controllerAs" : "ctrl" ,
-            "bindToController" : true ,
-            "locals" : { "name" : null , "id" : id }
-        } );
-    };
-
-    self.deleteListProfile = function ( id ) {
-        ListProfileApiService.deleteListProfile( id , self.deleteListProfileSuccessCallback , self.deleteListProfileFailureCallback );
-    };
-
-    /**
-     * Form Methods
-     */
-    self.prepV1Fields = function () {
-        self.setDefaultFields( self.v1Form );
-        self.setDateFields( self.v1Form );
-        self.setCountRangeFields( self.v1Form , true ); 
-
-        self.v1Form.DeliveryDays = self.current.deliveryDays;
-        self.v1Form.seeds = self.seedList.map( function ( seed ) { return seed; } ).join( "\n" );
-    };
-
-    self.prepV2Fields = function () {
-        self.v2Form.volume_desired = self.current.volume_desired;    
-        self.setDefaultFields( self.v2Form );
-        self.setDateFields( self.v2Form );
-        self.setCountRangeFields( self.v2Form ); 
-    };
-
-    self.prepV3Fields = function () {
-        self.v3Form.volume_desired = self.current.volume_desired;    
-        self.setDefaultFields( self.v3Form );
-    };
-
-    self.setDefaultFields = function ( formObject ) {
-        formObject.profile_name = self.current.profile_name;
-        formObject.isps = self.ispChipList.map( function ( chip ) { return chip.id; } );
-        formObject.cgroupid = self.current.cgroupid.id;
-        formObject.surl = self.sourceList.map( function ( url ) { return url } ).join( "\n" );
-        formObject.zips = self.zipList;
-        formObject.min_age = self.rangeData.count.age.min;
-        formObject.max_age = self.rangeData.count.age.max;
-        self.setGenderField( formObject );
-    };
-    
-    self.setGenderField = function ( formObject ) {
-        if ( self.genderType === 'empty' ) {
-            formObject.gender = 'Empty';
-        } else if ( self.genderType === 'specific' ) {
-            formObject.gender = self.current.gender;
-        } else {
-            formObject.gender = '';
-        }
-    };
-
-    self.setDateFields = function ( formObject ) {
-        if ( self.rangeData.date.openers.min ) formObject.ostart_date = moment( self.rangeData.date.openers.min ).format( 'YYYY-MM-DD' );
-        if ( self.rangeData.date.openers.max ) formObject.oend_date = moment( self.rangeData.date.openers.max ).format( 'YYYY-MM-DD' );
-        if ( self.rangeData.date.clickers.min ) formObject.cstart_date = moment( self.rangeData.date.clickers.min ).format( 'YYYY-MM-DD' );
-        if ( self.rangeData.date.clickers.max ) formObject.cend_date = moment( self.rangeData.date.clickers.max ).format( 'YYYY-MM-DD' );
-        if ( self.rangeData.date.deliverable.min ) formObject.dstart_date = moment( self.rangeData.date.deliverable.min ).format( 'YYYY-MM-DD' );
-        if ( self.rangeData.date.deliverable.max ) formObject.dend_date = moment( self.rangeData.date.deliverable.max ).format( 'YYYY-MM-DD' );
-        if ( self.rangeData.date.converters.min ) formObject.convert_start_date = moment( self.rangeData.date.converters.min ).format( 'YYYY-MM-DD' );
-        if ( self.rangeData.date.converters.max ) formObject.convert_end_date = moment( self.rangeData.date.converters.max ).format( 'YYYY-MM-DD' );
-    };
-
-    self.setCountRangeFields = function ( formObject , setAll ) {
-        angular.forEach( [ 1 , 2 , 3 ] , function ( value , key ) {
-            if ( key > 0 && setAll !== true ) return;
-
-            formObject[ 'ostart' + ( key > 0 ? key : '' ) ] = self.rangeData.count.openers[ key ].min;
-            formObject[ 'oend' + ( key > 0 ? key : '' ) ] = self.rangeData.count.openers[ key ].max;
-            formObject[ 'cstart' + ( key > 0 ? key : '' ) ] = self.rangeData.count.clickers[ key ].min;
-            formObject[ 'cend' + ( key > 0 ? key : '' ) ]= self.rangeData.count.clickers[ key ].max;
-            formObject[ 'dstart' + ( key > 0 ? key : '' ) ]= self.rangeData.count.deliverable[ key ].min;
-            formObject[ 'dend' + ( key > 0 ? key : '' ) ] = self.rangeData.count.deliverable[ key ].max;
-            formObject[ 'convert_start' + ( key > 0 ? key : '' ) ] = self.rangeData.count.converters[ key ].min;
-            formObject[ 'convert_end' + ( key > 0 ? key : '' ) ] = self.rangeData.count.converters[ key ].max;
-        } );
-    }
-
-    self.showToast = function ( message ) {
-        var toast = $mdToast.simple().textContent( message ).action( 'OK' ).highlightAction( false );
-
-        $mdDialog.hide();
-        $mdToast.show( toast );
-    };
-
-    /**
-     * Autocomplete Methods
-     */
-    self.fetchClientGroups = function ( $select , $event ) {
-        // no event means first load!
-        if (!$event) {
-            self.currentClientGroupPage = 1;
-            self.clientGroupList = [];
-        } else {
-            $event.stopPropagation();
-            $event.preventDefault();
-            self.currentClientGroupPage++;
-        }
-
-        self.clientGroupLoading = true;
-
-        $http( {
-            "method" : "GET" ,
-            "url" : '/api/clientgroup/search' ,
-            "params" : { 'page' : self.currentClientGroupPage , 'query' : $select.search } 
-        } ).then( function ( response ) {
-                angular.forEach( response.data , function ( value , key ) {
-                    self.clientGroupList.push( value );
-                } );
-
-                self.clientGroupLoading = false;
-            }
-        );
-    };
-
-    self.updateIspCheckboxList = function ( item ) {
-        if ( typeof( item ) !== 'undefined' ) {
-            $rootScope.selectedIsps[ parseInt( item.id ) ] = item.name;
-        }
-    }
-
-    self.removeIspChip = function ( $chip ) {
-        $rootScope.selectedIsps[ parseInt( $chip.id ) ] = false;
-    };
-
-    self.selectAllIsps = function ( checked ) {
-        angular.forEach( self.ispList , function ( value , key ) {
-            if ( checked === true ) {
-                $rootScope.selectedIsps[ parseInt( value.id ) ] = value.name;
+        angular.forEach( list , function ( current ) {
+            if ( typeof( map ) !== 'undefined' && Object.keys( map ).length > 0 ) {
+                names.push( map[ current ] );
             } else {
-                $rootScope.selectedIsps[ parseInt( value.id ) ] = false;
+                names.push( current );
             }
         } );
+
+        return names.join( '|' );
     };
 
-    self.getIsps = function ( ispSearchText ) {
-        return ispSearchText ? self.ispList.filter( function ( isp ) {
-            return isp.name.toLowerCase().indexOf( ispSearchText.toLowerCase() ) === 0;
-        } ) : self.ispList;
-    }
+    self.getFormattedRangeName = function () {
+        var rangeNames = {};
+        angular.forEach( self.current.actionRanges , function ( currentRange , rangeType ) {
+            if ( currentRange.max > 0 ) {
+                var currentRangeValue = currentRange.max;
 
-    /**
-     * Target Chip Methods
-     */
-    self.preventDelimitedChips = function ( listName , chip ) {
-        if ( chip.search( /[;,|]/g ) > -1 ) {
-            self.addChips( listName , chip );   
-            return null;
-        } else return;
-    };
-
-    self.addChips = function ( listName , chip ) {
-        if ( chip.search( /[;,|]/g ) > -1 ) {
-            var chipList = [];
-            
-            if ( chip.search( /[;]/g ) > -1 ) {
-                chipList = chip.split( ';' );
-            } else if ( chip.search( /[,]/g ) > -1 ) {
-                chipList = chip.split( ',' );
-            } else if ( chip.search( /[|]/g ) > -1 ) {
-                chipList = chip.split( '|' );
-            }
-
-            angular.forEach( chipList , function ( value , key ) {
-                if ( self[ listName ].indexOf( value ) === -1 ) {
-                    self[ listName ].push( value );
+                if ( currentRange.min > 0 ) {
+                    currentRangeValue = currentRange.min + 'to' + currentRangeValue;
                 }
+
+                if ( typeof( rangeNames[ currentRangeValue ] ) == 'undefined' ) {
+                    rangeNames[ currentRangeValue ] = [];
+                }
+
+                rangeNames[ currentRangeValue ].push( self.rangeCodeMap[ rangeType ] );
+            }
+        } );
+
+        var fullRangeName = '';
+        angular.forEach( rangeNames , function ( rangeTypes , rangeValue ) {
+            fullRangeName = fullRangeName + rangeValue + rangeTypes.join( '' );
+        } )
+
+        return fullRangeName;
+    };
+
+    self.toggleEditName = function ( ev , setDefaultName ) {
+        if ( setDefaultName ) {
+            self.nameDisabled = true;
+            self.customName = false;
+            self.generateName();
+        } else {
+            var confirm = $mdDialog.confirm()
+                .title( 'Are you sure you want to edit this field?' )
+                .ariaLabel( 'Are you sure you want to edit this field?' )
+                .targetEvent( ev )
+                .ok( 'Yes I Am Sure' )
+                .cancel( 'No, Leave Default Name' );
+
+            $mdDialog.show( confirm ).then( function() {
+                self.nameDisabled = false;
+                self.customName = true;
             } );
         }
     };
 
-    /**
-     * Range Widget
-     */
-    self.addCountRange = function ( $event , type , subtype ) {
-        var currentDialog = self.rangeDialogs[ type ][ subtype ];
-        var parentEl = angular.element(document.body);
-        var dialogOptions = {};
+    self.confirmMaxDateRange = function ( ev , maxRangeValue ) {
+        if ( maxRangeValue.max > 90 && maxRangeValue.allowLargeValue !== true ) {
+            var confirm = $mdDialog.confirm()
+                            .title( 'Are you sure you want to set this to more than 90 days?' )
+                            .ariaLabel( 'Max Date Range Warning' )
+                            .targetEvent( ev )
+                            .ok( 'Yes I am Sure' )
+                            .cancel( 'No, Set to Max Value' );
 
-        if ( type === 'count' && subtype !== 'age' ) {
-            var rangeList = self.rangeData[ type ][ subtype ];
-            dialogOptions = self.rangeDialogs[ type ][ subtype ];
-            dialogOptions.locals.label = null;
-            dialogOptions.locals.number = null;
-
-            angular.forEach( rangeList , function ( value , key ) {
-                if ( 
-                    value.filled === false
-                    && dialogOptions.locals.label === null 
-                ) {
-                    dialogOptions.locals.label = value.label;
-                    dialogOptions.locals.number = key;
-                };
-            } );
-        } else {
-            dialogOptions = self.rangeDialogs[ type ][ subtype ];
+            $mdDialog.show( confirm ).then(
+                function () {
+                    maxRangeValue.allowLargeValue = true;
+                } ,
+                function () {
+                    maxRangeValue.max = 90;
+                }
+            );
         }
+    };
 
-        dialogOptions.parent = parentEl;
-        dialogOptions.targetEvent = $event;
+    self.sanitizeMultiAction = function ( range ) {
+        if ( typeof( range.multiaction ) ==='undefined'  ) {
+            range.multiaction = 1;
+        }
+    };
 
-        $mdDialog.show( dialogOptions );
+    self.sanitizeGlobalSupp = function () {
+        if ( typeof( self.current.suppression.global ) == 'undefined' ) {
+            self.current.suppression.global = [ "1" ];
+        }
+    };
+
+    self.confirmSuppressionConfig = function ( ev , type ) {
+        if ( !self.enabledSuppression[ type ] ) {
+            var confirm = $mdDialog.confirm()
+                            .title( 'Are you sure you?' )
+                            .ariaLabel( 'Suppression Warning' )
+                            .targetEvent( ev )
+                            .ok( 'Yes' )
+                            .cancel( 'Cancel' );
+
+            $mdDialog.show( confirm ).then(
+                function () {
+                    self.enabledSuppression[ type ] = true;
+                } ,
+                function () {
+                    self.current.suppression[ type ] = [];
+                }
+            );
+        }
+    };
+
+    self.addMembershipItems = function ( container , context , callback ) {
+        angular.forEach( container.highlighted , function ( id ) {
+            container.visibility[ id ] = false;
+
+            context[ id ] = container.map[ id ];
+        } );
+
+        container.highlighted = [];
+
+        if ( typeof( callback ) !== 'undefined' ) {
+            callback();
+        }
     }
 
-    self.addDateRange = function ( $event , type ) {
-        var parentEl = angular.element(document.body);
-        var dialogOptions = self.rangeDialogs.date[ type ];
+    self.removeMembershipItems = function ( container , context , callback ) {
+        angular.forEach( container.highlightedForRemoval , function ( id ) {
+            container.visibility[ id ] = true;
 
-        dialogOptions.parent = parentEl;
-        dialogOptions.targetEvent = $event;
+            delete( context[ id ] );
+        } );
 
-        $mdDialog.show( dialogOptions );
+        container.highlightedForRemoval = [];
+
+        if ( typeof( callback ) !== 'undefined' ) {
+            callback();
+        }
     }
 
-    self.filterRangeChips = function ( chip ) {
-        if ( typeof( chip.type ) === 'undefined' ) return null;
-        
-        return;
+    self.addFeeds = function () {
+        self.addMembershipItems(
+            { "highlighted" : self.highlightedFeeds , "visibility" : self.feedVisibility , "map" : self.feedNameMap } ,
+            self.current.feeds ,
+            self.generateName
+        );
     };
 
-    self.removeRangeChip = function ( chip ) {
-        var currentData = {};
+    self.removeFeeds = function () {
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedFeedsForRemoval , "visibility" : self.feedVisibility } ,
+            self.current.feeds ,
+            function () {
+                self.updateFeedVisibility();
+                self.generateName();
+            }
+        );
+    };
 
-        if ( typeof( chip.number ) != 'undefined' ) {
-            currentData = self.rangeData[ chip.type ][ chip.subtype ][ chip.number ]; 
-        } else {
-            currentData = self.rangeData[ chip.type ][ chip.subtype ]; 
+    self.updateFeedVisibility = function () {
+        var showAll = false;
+        var noClientFiltersSelected = self.feedClientFilters.length <= 0;
+
+        if ( noClientFiltersSelected ) {
+            showAll = true;
         }
 
-        currentData.min = 0;
-        currentData.max = 0;
-        currentData.filled = false;
-    };
+        angular.forEach( self.feedVisibility , function ( visibility , feedId ) {
+            var feedNotSelected = typeof( self.current.feeds[ parseInt( feedId ) ] ) == 'undefined';
 
-    /**
-     * Callbacks
-     */
-    self.loadZipsSuccessCallback = function ( response ) {
-        angular.forEach( response.data , function ( zip , key ) {
-            self.zipList.push( zip.zip );
+            if ( showAll && feedNotSelected ) {
+                self.feedVisibility[ feedId ] = true;
+            } else {
+                self.feedVisibility[ feedId ] = false;
+
+                angular.forEach( self.feedClientFilters , function ( clientId ) {
+                    var feedListExistsAndBelongsToClient = ( typeof( self.clientFeedMap[ parseInt( clientId ) ] ) != 'undefined' && self.clientFeedMap[ parseInt( clientId ) ].indexOf( parseInt( feedId ) ) !== -1 );
+
+                    if( feedListExistsAndBelongsToClient && feedNotSelected ) {
+                        self.feedVisibility[ feedId ] = true;
+                    }
+                } );
+            }
         } );
     };
 
-    self.loadZipsFailureCallback = function ( response ) {
-        self.showToast( 'Error Loading Zip Codes. Please Contact Support.' );
+    self.clearClientFeedFilter = function () {
+        self.feedClientFilters = [];
+
+        self.updateFeedVisibility();
     };
 
-    self.loadSeedsSuccessCallback = function ( response ) {
-        angular.forEach( response.data , function ( seed , key ) {
-            self.seedList.push( seed.sid );
+    self.addIsps = function () {
+        self.addMembershipItems(
+            { "highlighted" : self.highlightedIsps , "visibility" : self.ispVisibility , "map" : self.ispNameMap } ,
+            self.current.isps ,
+            self.generateName
+        );
+    };
+
+    self.removeIsps = function () {
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedIspsForRemoval , "visibility" : self.ispVisibility } ,        
+            self.current.isps ,
+            self.generateName
+        );
+    };
+
+    self.addCategories = function () {
+        self.addMembershipItems(
+            { "highlighted" : self.highlightedCategories , "visibility" : self.categoryVisibility , "map" : self.categoryNameMap } ,
+            self.current.categories
+        );  
+    };
+
+    self.removeCategories = function () {
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedCategoriesForRemoval , "visibility" : self.categoryVisibility } ,
+            self.current.categories
+        );  
+    };
+
+    self.addOffers = function () {
+        self.addMembershipItems(
+            { "highlighted" : self.highlightedOffers , "visibility" : self.offerVisibility , "map" : self.offerNameMap } ,
+            self.current.offers
+        );
+    };
+
+    self.removeOffers = function () {
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedOffersForRemoval , "visibility" : self.offerVisibility } ,
+            self.current.offers
+        );
+    };
+
+    self.addStateFilters = function () {
+        self.addMembershipItems(
+            { "highlighted" : self.highlightedStateFilters , "visibility" : self.stateFilterVisibility , "map" : self.stateFilterNameMap } ,
+            self.current.attributeFilters.states
+        );
+    };
+
+    self.removeStateFilters = function () {
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedStateFiltersForRemoval , "visibility" : self.stateFilterVisibility } ,
+            self.current.attributeFilters.states
+        );
+    };
+
+    self.addDeviceTypeFilters = function () {
+        self.addMembershipItems(
+            { "highlighted" : self.highlightedDeviceTypeFilters , "visibility" : self.deviceTypeFilterVisibility , "map" : self.deviceTypeFilterNameMap } ,
+            self.current.attributeFilters.deviceTypes
+        );
+    };
+
+    self.removeDeviceTypeFilters = function () {
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedDeviceTypeFiltersForRemoval , "visibility" : self.deviceTypeFilterVisibility } ,
+            self.current.attributeFilters.deviceTypes
+        );
+    };
+
+    self.addCarrierFilters = function () {
+        self.addMembershipItems(
+            { "highlighted" : self.highlightedCarrierFilters , "visibility" : self.carrierFilterVisibility , "map" : self.carrierFilterNameMap } ,
+            self.current.attributeFilters.mobileCarriers
+        );
+    };
+
+    self.removeCarrierFilters = function () {
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedCarrierFiltersForRemoval , "visibility" : self.carrierFilterVisibility } ,
+            self.current.attributeFilters.mobileCarriers
+        );
+    };
+
+    self.addGlobalSupp = function () {
+        self.addMembershipItems(
+            { "highlighted" : self.highlightedGlobalSupp , "visibility" : self.globalSuppVisibility , "map" : self.globalSuppNameMap } ,
+            self.current.suppression.global
+        );
+    };
+
+    self.removeGlobalSupp = function () {
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedGlobalSuppForRemoval , "visibility" : self.globalSuppVisibility } ,
+            self.current.suppression.global
+        );
+    };
+
+    self.addListSupp = function ( $event ) {
+        if ( self.enabledSuppression[ 'list' ] ) {
+            self.addMembershipItems(
+                { "highlighted" : self.highlightedListSupp , "visibility" : self.listSuppVisibility , "map" : self.listSuppNameMap } ,
+                self.current.suppression.list
+            );
+
+            return true;
+        }
+
+        self.confirmSuppressionConfig( $event , 'list' );
+    };
+
+    self.removeListSupp = function () {
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedListSuppForRemoval , "visibility" : self.listSuppVisibility } ,
+            self.current.suppression.list
+        );
+    };
+
+    self.addOfferSupp = function ( $event ) {
+        if ( self.enabledSuppression[ 'offer' ] ) {
+            self.addMembershipItems(
+                { "highlighted" : self.highlightedOfferSupp , "visibility" : self.offerSuppVisibility , "map" : self.offerSuppNameMap } ,
+                self.current.suppression.offer
+            );
+
+            return true;
+        }
+
+        self.confirmSuppressionConfig( $event , 'offer' );
+    };
+
+    self.removeOfferSupp = function () {
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedOfferSuppForRemoval , "visibility" : self.offerSuppVisibility } ,
+            self.current.suppression.offer
+        );
+    };
+
+    self.addStateSupp = function ( $event ) {
+        self.addMembershipItems(
+            { "highlighted" : self.highlightedStateSupp , "visibility" : self.stateSuppVisibility , "map" : self.stateSuppNameMap } ,
+            self.current.suppression.attribute.states
+        );
+    };
+
+    self.removeStateSupp = function () {
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedStateSuppForRemoval , "visibility" : self.stateSuppVisibility } ,
+            self.current.suppression.attribute.states
+        );
+    };
+
+    self.toggleSelection = function ( list , nameMap , name , callback ) {
+        if ( typeof( list[ name ] ) !== 'undefined' ) {
+            delete( list[ name ] );
+        } else {
+            list[ name ] = nameMap[ name ];
+        }
+
+        if ( typeof( callback ) != 'undefined' ) {
+            callback();
+        }
+    };
+
+    self.columnMembershipCallback = function (){
+        var columnList = [];
+        angular.forEach( self.selectedColumns , function ( column , columnIndex ) {
+            columnList.push( column[ self.columnHeaderField ] );
         } );
-    };
-
-    self.loadSeedsFailureCallback = function ( response ) {
-        self.showToast( 'Error Loading Seeds. Please Contact Support.' );
-    };
-
-    self.loadIspsSuccessCallback = function ( response ) {
-        angular.forEach( response.data , function ( isp , key ) {
-            $rootScope.selectedIsps[ isp.id ] = isp.name;
-        });
-    };
-
-    self.loadIspsFailureCallback = function  ( response ) {
-        self.showToast( 'Error Loading ISPs. Please Contact Support.' );
-    };
-
-    self.loadSourcesSuccessCallback = function ( response ) {
-        angular.forEach( response.data , function ( source , key ) {
-            self.sourceList.push( source.source_url );
-        } );
-    };
-
-    self.loadSourcesFailureCallback = function ( response ) {
-        self.showToast( 'Error Loading Sources. Please Contact Support.' );
-    };
-
-    self.loadListProfileSuccessCallback = function ( response ) {
-        self.prepopNormalFields( response );
-        self.prepopGender( response );
-        self.prepopAgeRange( response );
-        self.prepopCountRanges( response );
-        self.prepopDateRanges( response );
-    };
-
-    self.loadListProfileFailureCallback = function ( response ) {
-        self.showToast( 'Error Loading List Profile Edit Page. Please Contact Support.' );
-    };
-
-    self.deleteListProfileSuccessCallback = function ( response ) {
-        self.showToast( 'List Profile was Successfully Deleted.' );
-    };
-
-    self.deleteListProfileFailureCallback = function ( response ) {
-        self.showToast( 'Error Deleting List Profile. Please contact support.' );
-    };
-
-    self.copyListProfileSuccessCallback = function ( response ) {
-        redirectUrl = '/listprofile/edit/' + response.data;
-
-        $location.url( redirectUrl );
-        $window.location.href = redirectUrl;
-
-        $mdDialog.hide();
-    };
-
-    self.copyListProfileFailureCallback = function ( response ) {
-        self.showToast( 'Error Copying List Profile. Please contact support.' );
+        self.current.selectedColumns = columnList;
     };
 } ] );

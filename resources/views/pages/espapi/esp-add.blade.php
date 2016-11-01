@@ -5,76 +5,62 @@
 @section( 'navEspClasses' , 'active' )
 
 @section( 'content' )
-    <div class="row">
-        <div class="col-md-6 col-md-offset-3">
-    <div class="panel panel-default" ng-controller="espController as esp">
-        <div class="panel-heading">
-            <h1 class="panel-title">Add ESP API Account</h1>
-        </div>
-        <div class="panel-body">
-                <form class="form-horizontal">
-                    <div class="form-group" ng-class="{ 'has-error' : esp.formErrors.espId }">
-                        <label for="espId" class="col-sm-2 control-label">ESP Name</label>
-
-                        <div class="col-sm-10">
-                            <select id="espId" class="form-control" required="required"
-                                    ng-model="esp.currentAccount.espId">
-                                <option value="">Choose ESP</option>
+    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
+        <div flex-gt-sm="50" flex="100">
+            <md-card ng-controller="espController as esp">
+                <md-toolbar>
+                    <div class="md-toolbar-tools">
+                        <span>Add ESP API Account</span>
+                    </div>
+                </md-toolbar>
+                <md-card-content>
+                    <form name="addEspForm" layout="column" novalidate>
+                        <md-input-container>
+                            <label>ESP Name</label>
+                            <md-select id="espId" name="espId" ng-required="true" ng-model="esp.currentAccount.espId">
                                 @foreach( $espList as $espId => $esp )
-                                    <option value="{{ $espId }}">{{ $esp }}</option>
+                                    <md-option value="{{ $espId }}">{{ $esp }}</md-option>
                                 @endforeach
-                            </select>
+                            </md-select>
+                            <div ng-messages="addEspForm.espId.$error">
+                                <div ng-message="required">Please choose an ESP.</div>
+                            </div>
+                        </md-input-container>
 
-                            <span class="help-block" ng-bind="esp.formErrors.espId"
-                                  ng-show="esp.formErrors.espId"></span>
-                        </div>
-                    </div>
+                        <md-input-container>
+                            <label>Account Name</label>
+                            <input type="text" id="accountName" name="accountName" ng-required="true" ng-model="esp.currentAccount.accountName" ng-change="esp.change( addEspForm , 'accountName' )" />
+                            <div ng-messages="addEspForm.accountName.$error">
+                                <div ng-message="required">ESP account name is required.</div>
+                                <div ng-repeat="error in esp.formErrors.accountName">
+                                    <div ng-bind="error"></div>
+                                </div>
+                            </div>
+                        </md-input-container>
 
-                    <div class="form-group" ng-class="{ 'has-error' : esp.formErrors.accountName }">
-                        <label for="accountName" class="col-sm-2 control-label">Account Name</label>
+                        <md-input-container>
+                            <label>Key 1</label>
+                            <input type="text" id="key1" name="key1" ng-required="true" ng-model="esp.currentAccount.key1" ng-change="esp.change( addEspForm , 'key1' )" />
+                            <div ng-messages="addEspForm.key1.$error">
+                                <div ng-message="required">ESP key 1 is required.</div>
+                                <div ng-repeat="error in esp.formErrors.key1">
+                                    <div ng-bind="error"></div>
+                                </div>
+                            </div>
+                        </md-input-container>
 
-                        <div class="col-sm-10">
-                            <input type="text" id="accountName" class="form-control" required="required"
-                                   ng-model="esp.currentAccount.accountName" value=""/>
+                        <md-input-container>
+                            <label>Key 2</label>
+                            <input type="text" id="key2" name="key2" ng-model="esp.currentAccount.key2" />
+                        </md-input-container>
 
-                            <span class="help-block" ng-bind="esp.formErrors.accountName"
-                                  ng-show="esp.formErrors.accountName"></span>
-                        </div>
-                    </div>
+                        <md-button class="md-raised md-accent" ng-click="esp.saveNewAccount( $event , addEspForm )">Save</md-button>
 
-                    <div class="form-group" ng-class="{ 'has-error' : esp.formErrors.key1 }">
-                        <label for="" class="col-sm-2 control-label">Key 1</label>
-
-                        <div class="col-sm-10">
-                            <input type="text" id="key1" class="form-control" required="required"
-                                   ng-model="esp.currentAccount.key1" value=""/>
-
-                            <span class="help-block" ng-bind="esp.formErrors.key1" ng-show="esp.formErrors.key1"></span>
-                        </div>
-                    </div>
-
-                    <div class="form-group" ng-class="{ 'has-error' : esp.formErrors.key2 }">
-                        <label for="" class="col-sm-2 control-label">Key 2</label>
-
-                        <div class="col-sm-10">
-                            <input type="text" id="key2" class="form-control" ng-model="esp.currentAccount.key2"
-                                   value=""/>
-
-                            <span class="help-block" ng-bind="esp.formErrors.key2" ng-show="esp.formErrors.key2"></span>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="col-sm-offset-2 col-sm-10">
-                            <button type="button" class="btn btn-lg btn-primary btn-block" ng-click="esp.saveNewAccount()">Save
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-
-    </div>
-            </div></div>
+                    </form>
+                </md-card-content>
+            </md-card>
+        </div>
+    </md-content>
 @stop
 
 @section( 'pageIncludes' )

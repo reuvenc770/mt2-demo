@@ -1,202 +1,760 @@
-<div class="panel panel-primary">
-    <div class="panel-heading">
-        <h3 class="panel-title">List Profile Details</h3>
+<h3>General</h3>
+
+<div class="form-group">
+    <label for="name">Profile Name</label>
+
+    <div class="input-group">
+        <input type="text" name="name" id="name" class="form-control" ng-model="listProfile.current.name" ng-disabled="listProfile.nameDisabled" />
+
+        <span class="input-group-btn">
+            <button class="btn btn-default" ng-show="!listProfile.customName" ng-click="listProfile.toggleEditName( $event )">Edit</button>
+            <button class="btn btn-danger" ng-show="listProfile.customName" ng-click="listProfile.toggleEditName( $event , true )">Reset To Default</button>
+        </span>
     </div>
+</div>
 
-    <div class="panel-body">
-        <div flex layout="column" style="margin-bottom: 1em;" ng-if="listProfile.showVersionField">
-            <md-content style="margin-bottom: 1em;" ng-cloak>
-                <h4 layout flex layout-align="center center"><span>List Profile Type</span></h4>
+<div class="form-group">
+    <label>Country</label>
 
-                <md-divider></md-divider>
+    <div layout="row" layout-align="start center">
+        <md-checkbox name="countryUS" value="1" ng-checked="listProfile.current.countries[ 'United States' ]" ng-click="listProfile.toggleSelection( listProfile.current.countries , listProfile.countryNameMap ,'United States' , listProfile.generateName )">
+            United States
+        </md-checkbox>
 
-                <md-radio-group layout layout-padding layout-align="space-around center" ng-model="listProfile.profileType">
-                    <md-radio-button value="v1" aria-label="V1"><span>V1</span></md-radio-button>
-                    <md-radio-button value="v2" aria-label="V2"><span>V2</span></md-radio-button>
-                    <md-radio-button value="v3" aria-label="V3"><span>V3</span></md-radio-button>
-                </md-radio-group>
-            </md-content>
-        </div>
+        <span flex="5"></span>
 
-        <div class="form-group" ng-class="{ 'has-error' : ( profileForm.profileName.$touched && profileForm.profileName.$error.required ) }">
-            <input name="profileName" type="text" class="form-control" id="groupName" value="" ng-model="listProfile.current.profile_name" placeholder="List Profile Name" required />
+        <md-checkbox name="countryGB" value="235" ng-checked="listProfile.current.countries[ 'United Kingdom' ]" ng-click="listProfile.toggleSelection( listProfile.current.countries , listProfile.countryNameMap , 'United Kingdom' , listProfile.generateName )">
+            United Kingdom
+        </md-checkbox>
+    </div>
+</div>
 
-            <div ng-show="profileForm.profileName.$touched">
-                <span class="help-block" ng-show="profileForm.profileName.$error.required">Profile Name is Required</span>
-            </div>
-        </div>
+<div layout="row" layout-align="space-around stretch" ng-init="listProfile.clientFeedMap = {{json_encode( $clientFeedMap )}}">
+    <md-card flex>
+        <md-card-title>
+            <h4>Available Feeds</h4>
 
-        <div class="form-group" ng-if="listProfile.profileType !== 'v1'" ng-class="{ 'has-error' : ( profileForm.volumeDesired.$touched && profileForm.volumeDesired.$error.required ) }">
-            <input name="volumeDesired" type="text" class="form-control" id="volumeDesired" value="" ng-model="listProfile.current.volume_desired" placeholder="Volume Desired" required />
+            <span flex></span>
 
-            <div ng-show="profileForm.volumeDesired.$touched">
-                <span class="help-block" ng-show="profileForm.volumeDesired.$error.required">Volume Desired is Required</span>
-            </div>
-        </div>
+            <md-button class="md-icon-button" ng-click="listProfile.addFeeds()">
+                <md-icon md-font-set="material-icons" style="color: #000;">add_circle_outline</md-icon>
+            </md-button>
+        </md-card-title>
 
-        <div flex layout="column" style="margin-bottom: 1em;">
-            <div flex layout-padding style="margin-bottom: 1em;">
-                <h4 layout flex layout-align="center center"><span>Client Group</span></h4>
+        <md-card-content>
+            <select ng-model="listProfile.highlightedFeeds" multiple style="width: 100%; height: 150px;">
+                @foreach ( $feeds as $feed )
+                <option value="{{$feed[ 'id' ]}}" ng-init="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ] = true;listProfile.feedNameMap[ {{$feed[ 'id' ]}} ] = '{{$feed[ 'short_name' ]}}';" ng-show="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ]">{{ $feed[ 'short_name' ] . ' (' . $feed[ 'name' ] . ')' }}</option>
+                @endforeach
+            </select>
+        </md-card-content>
 
-                <md-divider></md-divider>
+        <md-card-footer layout="row">
+            <md-input-container flex>
+                <label>Filter by Client</label>
 
-                <select ng-model="listProfile.selectedClientGroup" placeholder="Select Client Group" class="form-control">
-                    @foreach ( $clientGroups as $current )
-                    <option ng-value="{{ $current->id }}">{{ $current->name }}</option>
+                <md-select name="clients" id="clients" ng-model="listProfile.feedClientFilters" md-on-close="listProfile.updateFeedVisibility()" multiple>
+                    @foreach ( $clients as $client )
+                    <md-option ng-value="::'{{ $client[ 'value' ] }}'">{{ $client[ 'name' ] }}</md-option>
                     @endforeach
-                </select>
+                </md-select>
+            </md-input-container>
+
+            <md-button class="md-icon-button" ng-click="listProfile.clearClientFeedFilter()">
+                <md-icon md-font-set="material-icons" style="color: #000">cancel</md-icon>
+
+                <md-tooltip>Clear Client Filters</md-tooltip>
+            </md-button>
+        </md-card-footer>
+    </md-card>
+
+    <md-card flex>
+        <md-card-title flex="nogrow">
+            <h4>Selected Feeds</h4>
+
+            <span flex></span>
+
+            <md-button class="md-icon-button" ng-click="listProfile.removeFeeds()">
+                <md-icon md-font-set="material-icons" style="color: #000;">remove_circle_outline</md-icon>
+            </md-button>
+        </md-card-title>
+
+        <md-card-content>
+            <select ng-model="listProfile.highlightedFeedsForRemoval" multiple="" style="width: 100%; height: 150px;">
+                <option ng-repeat="( feedId , feedName ) in listProfile.current.feeds" ng-value="::feedId">@{{::feedName}}</option>
+            </select>
+        </md-card-content>
+
+        <md-card-footer layout="column"></md-card-footer>
+    </md-card>
+</div>
+
+<div class="form-group">
+    <label><h4>Deliverables Range</h4></label>
+
+    <div class="row">
+        <div class="col-lg-5">
+            <div class="input-group">
+                <span class="input-group-addon">Min</span>
+
+                <input type="number" name="deliverableMin" class="form-control" ng-model="listProfile.current.actionRanges.deliverable.min" ng-change="listProfile.generateName()" min="0" aria-label="Deliverable Min" />
             </div>
+        </div>
 
-            <md-content id="range" layout-padding style="margin-bottom: 1em;">
-                <h4 layout flex layout-align="center center"><span>Ranges</span></h4>
+        <div class="col-lg-5">
+            <div class="input-group">
+                <span class="input-group-addon">Max</span>
 
-                <md-divider></md-divider>
+                <input type="number" name="deliverableMax" class="form-control" ng-model="listProfile.current.actionRanges.deliverable.max" ng-change="listProfile.generateName()" ng-blur="listProfile.confirmMaxDateRange( $event , listProfile.current.actionRanges.deliverable )" min="0" aria-label="Deliverable Max" />
+            </div>
+        </div>
 
-                <md-chips ng-model="listProfile.rangeList" md-transform-chip="listProfile.filterRangeChips( $chip )" md-on-remove="listProfile.removeRangeChip( $chip )" placeholder="Choose a Type Below" secondary-placeholder="Choose Another Range">
-                    <md-chip-template>
-                        <span>@{{ ( $chip.subtype ? $chip.subtype + " " : "" ) + $chip.type }}: @{{ $chip.min }} - @{{ $chip.max }}</span> 
-                    </md-chip-template>
-                </md-chips>
+        <div class="col-lg-2"></div>
+    </div>
+</div>
 
-                <md-content layout="row" flex ng-cloak>
-                    <md-tabs md-dynamic-height md-no-pagination md-stretch-tabs='always' flex>
-                        <md-tab>
-                            <md-tab-label>Count Range</md-tab-label>
+<div class="form-group">
+    <label><h4>Openers Range</h4></label>
 
-                            <md-tab-body>
-                                <md-list>
-                                    <md-list-item>
-                                        <md-button class="md-raised" flex ng-click="listProfile.addCountRange( $event , 'count' , 'age' )" ng-attr-disabled="@{{ listProfile.rangeData.count.age.filled === true || undefined }}"><span class="glyphicon glyphicon-plus"></span> Age</md-button>
-                                    </md-list-item>
+    <div class="row">
+        <div class="col-lg-5">
+            <div class="input-group">
+                <span class="input-group-addon">Min</span>
 
-                                    <md-list-item ng-if="listProfile.profileType !== 'v3'">
-                                        <md-button class="md-raised" flex ng-click="listProfile.addCountRange( $event , 'count' , 'deliverable' )" ng-attr-disabled="@{{ ( listProfile.rangeData.count.deliverable[ 0 ].filled === true && listProfile.rangeData.count.deliverable[ 1 ].filled === true && listProfile.rangeData.count.deliverable[ 2 ].filled === true ) || ( listProfile.profileType === 'v2' && listProfile.rangeData.count.deliverable[ 0 ].filled === true ) || undefined }}"><span class="glyphicon glyphicon-plus"></span> Deliverables</md-button>
-                                    </md-list-item>
+                <input type="number" name="openerMin" class="form-control" ng-model="listProfile.current.actionRanges.opener.min" ng-change="listProfile.generateName()" min="0" aria-label="Opener Min" />
+            </div>
+        </div>
 
-                                    <md-list-item ng-if="listProfile.profileType !== 'v3'">
-                                        <md-button class="md-raised" flex ng-click="listProfile.addCountRange( $event , 'count' , 'openers' )" ng-attr-disabled="@{{ ( listProfile.rangeData.count.openers[ 0 ].filled === true && listProfile.rangeData.count.openers[ 1 ].filled === true && listProfile.rangeData.count.openers[ 2 ].filled === true ) || ( listProfile.profileType === 'v2' && listProfile.rangeData.count.openers[ 0 ].filled === true ) || undefined }}"><span class="glyphicon glyphicon-plus"></span> Openers</md-button>
-                                    </md-list-item>
+        <div class="col-lg-5">
+            <div class="input-group">
+                <span class="input-group-addon">Max</span>
 
-                                    <md-list-item ng-if="listProfile.profileType !== 'v3'">
-                                        <md-button class="md-raised" flex ng-click="listProfile.addCountRange( $event , 'count' , 'clickers' )" ng-attr-disabled="@{{ ( listProfile.rangeData.count.clickers[ 0 ].filled === true && listProfile.rangeData.count.clickers[ 1 ].filled === true && listProfile.rangeData.count.clickers[ 2 ].filled === true ) || ( listProfile.profileType === 'v2' && listProfile.rangeData.count.clickers[ 0 ].filled === true ) || undefined }}"><span class="glyphicon glyphicon-plus"></span> Clickers</md-button>
-                                    </md-list-item>
+                <input type="number" name="openerMax" class="form-control" ng-model="listProfile.current.actionRanges.opener.max" ng-change="listProfile.generateName()" ng-blur="listProfile.confirmMaxDateRange( $event , listProfile.current.actionRanges.opener )" min="0" aria-label="Opener Max" />
+            </div>
+        </div>
 
-                                    <md-list-item ng-if="listProfile.profileType !== 'v3'">
-                                        <md-button class="md-raised" flex ng-click="listProfile.addCountRange( $event , 'count' , 'converters' )" ng-attr-disabled="@{{ ( listProfile.rangeData.count.converters[ 0 ].filled === true && listProfile.rangeData.count.converters[ 1 ].filled === true && listProfile.rangeData.count.converters[ 2 ].filled === true ) || ( listProfile.profileType === 'v2' && listProfile.rangeData.count.converters[ 0 ].filled === true ) || undefined }}"><span class="glyphicon glyphicon-plus"></span> Converters</md-button>
-                                    </md-list-item>
-                                </md-list>
-                            </md-tab-body>
-                        </md-tab>
+        <div class="col-lg-2">
+            <div class="input-group" data-toggle="tooltip" data-placement="top" title="The user opened # or more times">
+                <span class="input-group-addon">MultiAction</span>
 
-                        <md-tab ng-if="listProfile.profileType !== 'v3'">
-                            <md-tab-label>Date Range</md-tab-label>
-
-                            <md-tab-body>
-                                <md-list>
-                                    <md-list-item>
-                                        <md-button class="md-raised" flex ng-click="listProfile.addDateRange( $event , 'deliverable' )" ng-attr-disabled="@{{ ( listProfile.rangeData.date.deliverable.filled === true || undefined ) }}"><span class="glyphicon glyphicon-plus"></span> Deliverables</md-button>
-                                    </md-list-item>
-
-                                    <md-list-item>
-                                        <md-button class="md-raised" flex ng-click="listProfile.addDateRange( $event , 'openers' )" ng-attr-disabled="@{{ ( listProfile.rangeData.date.openers.filled === true || undefined ) }}"><span class="glyphicon glyphicon-plus"></span> Openers</md-button>
-                                    </md-list-item>
-
-                                    <md-list-item flex>
-                                        <md-button class="md-raised" flex ng-click="listProfile.addDateRange( $event , 'clickers' )" ng-attr-disabled="@{{ ( listProfile.rangeData.date.clickers.filled === true || undefined ) }}"><span class="glyphicon glyphicon-plus"></span> Clickers</md-button>
-                                    </md-list-item>
-
-                                    <md-list-item flex>
-                                        <md-button class="md-raised" flex ng-click="listProfile.addDateRange( $event , 'converters' )" ng-attr-disabled="@{{ ( listProfile.rangeData.date.converters.filled === true || undefined ) }}"><span class="glyphicon glyphicon-plus"></span> Converters</md-button>
-                                    </md-list-item>
-                                </md-list>
-                            </md-tab-body>
-                        </md-tab>
-                    </md-tabs>
-                </md-content>
-            </md-content>
-
-            <md-content id="isp" layout-padding style="margin-bottom: 1em;" ng-cloak>
-                <h4 layout flex layout-align="center center"><span>ISPs</span></h4>
-
-                <md-divider></md-divider>
-
-                <membership-widget recordlist="listProfile.ispList" chosenrecordlist="listProfile.selectedIsps" availablecardtitle="listProfile.availableWidgetTitle" chosenrecordtitle="listProfile.chosenWidgetTitle" ng-init="listProfile.loadIsps()"></membership-widget>
-
-            </md-content>
-
-            <md-content layout-padding style="margin-bottom: 1em;" ng-if="listProfile.profileType === 'v1'" ng-cloak>
-                <h4 layout flex layout-align="center center"><span>Delivery Days</span></h4>
-
-                <md-divider></md-divider>
-
-                <md-content flex layout layout-align="space-around center">
-                    <div layout flex>
-                        <md-slider id="delivery-days-slider" flex ng-model="listProfile.current.deliveryDays" min="0" max="365" aria-label="Delivery Days"></md-slider>
-                    </div>
-
-                    <div layout flex="10">
-                        <input flex type="number" ng-model="listProfile.current.deliveryDays" aria-label="Delivery Days" aria-controls="delivery-days-slider" ng-value="listProfile.current.deliveryDays"  />
-                    </div>
-                </md-content>
-            </md-content>
-
-            <md-content layout-padding style="margin-bottom: 1em;" ng-cloak>
-                <h4 layout flex layout-align="center center"><span>Gender</span></h4>
-
-                <md-divider></md-divider>
-
-                <div layout>
-                    <md-radio-group ng-model="listProfile.genderType" layout layout-padding layout-align="space-around center" ng-model="listProfile.current.profileType">
-                        <md-radio-button value="any" aria-label="Any Gender"><span>Any Gender</span></md-radio-button>
-
-                        <md-radio-button value="empty" aria-label="Empty"><span>Empty</span></md-radio-button>
-
-                        <md-radio-button value="specific" aria-label="Specific"><span>Specific</span></md-radio-button>
-
-                        <md-switch ng-model="listProfile.current.gender" aria-label="Gender" ng-disabled="listProfile.genderType != 'specific'" ng-true-value="'F'" ng-false-value="'M'">
-                            <span ng-if="listProfile.genderType == 'specific'">Target: @{{ listProfile.current.gender === 'F' ? 'Female' : 'Male' }}</span>
-                        </md-switch>
-                    </md-radio-group>
-                </div>
-            </md-content>
-
-            <md-content layout-padding style="margin-bottom: 1em;" ng-cloak>
-                <h4 layout flex layout-align="center center"><span>Source URL</span></h4>
-
-                <md-divider></md-divider>
-
-                <md-chips ng-model="listProfile.sourceList" placeholder="Enter a Source URL" readonly="false" flex md-transform-chip="listProfile.preventDelimitedChips( 'sourceList' , $chip )">
-                    <md-chip-template>
-                        <span>
-                            <strong>@{{ $chip }}</strong>
-                        </span>
-                    </md-chip-template>
-                </md-chips>
-            </md-content>
-
-            <md-content layout-padding style="margin-bottom: 1em;" ng-if="listProfile.profileType === 'v1'" ng-cloak>
-                <h4 layout flex layout-align="center center"><span>Seeds</span></h4>
-
-                <md-divider></md-divider>
-
-                <md-chips ng-model="listProfile.seedList" placeholder="Enter a Seed" readonly="false" flex flex md-transform-chip="listProfile.preventDelimitedChips( 'seedList' , $chip )">
-                    <md-chip-template>
-                        <span>
-                            <strong>@{{ $chip }}</strong>
-                        </span>
-                    </md-chip-template>
-                </md-chips>
-            </md-content>
-
-            <md-content layout-padding style="margin-bottom: 1em;" ng-cloak>
-                <h4 layout flex layout-align="center center"><span>Zip Codes</span></h4>
-
-                <md-divider></md-divider>
-
-                <md-input-container class="md-block">
-                    <textarea ng-model="listProfile.zipList" md-select-on-focus placeholder="Enter Zip Codes"></textarea>
-                </md-input-container>
-            </md-content>
+                <input type="number" name="openerMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.opener.multiaction" ng-blur="listProfile.sanitizeMultiAction( listProfile.current.actionRanges.opener )" min="1" aria-label="Number of Times Opened" />
+            </div>
         </div>
     </div>
 </div>
+
+<div class="form-group">
+    <label><h4>Clickers Range</h4></label>
+
+    <div class="row">
+        <div class="col-lg-5">
+            <div class="input-group">
+                <span class="input-group-addon">Min</span>
+
+                <input type="number" name="clickerMin" class="form-control" ng-model="listProfile.current.actionRanges.clicker.min" ng-change="listProfile.generateName()" min="0" aria-label="Clicker Min" />
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="input-group">
+                <span class="input-group-addon">Max</span>
+
+                <input type="number" name="clickerMax" class="form-control" ng-model="listProfile.current.actionRanges.clicker.max" ng-change="listProfile.generateName()" ng-blur="listProfile.confirmMaxDateRange( $event , listProfile.current.actionRanges.clicker )" min="0" aria-label="Clicker Max" />
+            </div>
+        </div>
+
+        <div class="col-lg-2">
+            <div class="input-group" data-toggle="tooltip" data-placement="top" title="The user clicked # or more times">
+                <span class="input-group-addon">Multiaction</span>
+
+                <input type="number" name="clickerMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.clicker.multiaction" ng-blur="listProfile.sanitizeMultiAction( listProfile.current.actionRanges.clicker )" min="1" aria-label="Number of Times Clicked" >
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="form-group">
+    <label><h4>Converters Range</h4></label>
+
+    <div class="row">
+        <div class="col-lg-5">
+            <div class="input-group">
+                <span class="input-group-addon">Min</span>
+
+                <input type="number" name="converterMin" class="form-control" ng-model="listProfile.current.actionRanges.converter.min" ng-change="listProfile.generateName()" min="0" aria-label="Converter Min" />
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="input-group">
+                <span class="input-group-addon">Max</span>
+
+                <input type="number" name="converterMax" class="form-control" ng-model="listProfile.current.actionRanges.converter.max" ng-change="listProfile.generateName()" ng-blur="listProfile.confirmMaxDateRange( $event , listProfile.current.actionRanges.converter )" min="0" aria-label="Converter Max" />
+            </div>
+        </div>
+
+        <div class="col-lg-2">
+            <div class="input-group" data-toggle="tooltip" data-placement="top" title="The user converted # or more times">
+                <span class="input-group-addon">Multiaction</span>
+
+                <input type="number" name="converterMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.converter.multiaction" ng-blur="listProfile.sanitizeMultiAction( listProfile.current.actionRanges.converter )" min="1" aria-label="Number of Times Converted">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div layout="row" layout-align="space-around stretch">
+    <md-card flex>
+        <md-card-title>
+            <h4>Available ISP Groups</h4>
+
+            <span flex></span>
+
+            <md-button class="md-icon-button" ng-click="listProfile.addIsps()">
+                <md-icon md-font-set="material-icons" style="color: #000;">add_circle_outline</md-icon>
+            </md-button>
+        </md-card-title>
+
+        <md-card-content>
+            <select ng-model="listProfile.highlightedIsps" multiple style="width: 100%; height: 150px;">
+                @foreach ( $isps as $isp )
+                <option value="{{$isp[ 'id' ]}}" ng-init="listProfile.ispVisibility[ {{$isp[ 'id' ]}} ] = true;listProfile.ispNameMap[ {{$isp[ 'id' ]}} ] = '{{$isp[ 'name' ]}}';" ng-show="listProfile.ispVisibility[ {{$isp[ 'id' ]}} ]">{{$isp[ 'name' ]}}</option>
+                @endforeach
+            </select>
+        </md-card-content>
+    </md-card>
+
+    <md-card flex>
+        <md-card-title flex="nogrow">
+            <h4>Selected ISP Groups</h4>
+
+            <span flex></span>
+
+            <md-button class="md-icon-button" ng-click="listProfile.removeIsps()">
+                <md-icon md-font-set="material-icons" style="color: #000;">remove_circle_outline</md-icon>
+            </md-button>
+        </md-card-title>
+
+        <md-card-content>
+            <select ng-model="listProfile.highlightedIspsForRemoval" multiple="" style="width: 100%; height: 150px;">
+                <option ng-repeat="( ispId , ispName ) in listProfile.current.isps" ng-value="::ispId">@{{::ispName}}</option>
+            </select>
+        </md-card-content>
+    </md-card>
+</div>
+
+<div layout="row" layout-align="space-around stretch">
+    <md-card flex>
+        <md-card-title>
+            <h4>Available Category Actions</h4>
+
+            <span flex></span>
+
+            <md-button class="md-icon-button" ng-click="listProfile.addCategories()">
+                <md-icon md-font-set="material-icons" style="color: #000;">add_circle_outline</md-icon>
+            </md-button>
+        </md-card-title>
+
+        <md-card-content>
+            <select ng-model="listProfile.highlightedCategories" multiple style="width: 100%; height: 150px;">
+                @foreach ( $categories as $category )
+                <option value="{{$category[ 'id' ]}}" ng-init="listProfile.categoryVisibility[ {{$category[ 'id' ]}} ] = true;listProfile.categoryNameMap[ {{$category[ 'id' ]}} ] = '{{$category[ 'name' ]}}';" ng-show="listProfile.categoryVisibility[ {{$category[ 'id' ]}} ]">{{$category[ 'name' ]}}</option>
+                @endforeach
+            </select>
+        </md-card-content>
+    </md-card>
+
+    <md-card flex>
+        <md-card-title flex="nogrow">
+            <h4>Selected Category Actions</h4>
+
+            <span flex></span>
+
+            <md-button class="md-icon-button" ng-click="listProfile.removeCategories()">
+                <md-icon md-font-set="material-icons" style="color: #000;">remove_circle_outline</md-icon>
+            </md-button>
+        </md-card-title>
+
+        <md-card-content>
+            <select ng-model="listProfile.highlightedCategoriesForRemoval" multiple style="width: 100%; height: 150px;">
+                <option ng-repeat="( categoryId , categoryName ) in listProfile.current.categories" ng-value="::categoryId">@{{::categoryName}}</option>
+            </select>
+        </md-card-content>
+    </md-card>
+</div>
+
+<div layout="row" layout-align="space-around stretch">
+    <md-card flex>
+        <md-card-title>
+            <h4>Available Offers</h4>
+
+            <span flex></span>
+
+            <md-button class="md-icon-button" ng-click="listProfile.addOffers()">
+                <md-icon md-font-set="material-icons" style="color: #000;">add_circle_outline</md-icon>
+            </md-button>
+        </md-card-title>
+
+        <md-card-content>
+            <select ng-model="listProfile.highlightedOffers" multiple style="width: 100%; height: 150px;">
+                @foreach ( $offers as $offer )
+                <option value="{{$offer[ 'id' ]}}" ng-init="listProfile.offerVisibility[ {{$offer[ 'id' ]}} ] = true;listProfile.offerNameMap[ {{$offer[ 'id' ]}} ] = '{{$offer[ 'name' ]}}';" ng-show="listProfile.offerVisibility[ {{$offer[ 'id' ]}} ]">{{$offer[ 'name' ]}}</option>
+                @endforeach
+            </select>
+        </md-card-content>
+    </md-card>
+
+    <md-card flex>
+        <md-card-title flex="nogrow">
+            <h4>Selected Offers</h4>
+
+            <span flex></span>
+
+            <md-button class="md-icon-button" ng-click="listProfile.removeOffers()">
+                <md-icon md-font-set="material-icons" style="color: #000;">remove_circle_outline</md-icon>
+            </md-button>
+        </md-card-title>
+
+        <md-card-content>
+            <select ng-model="listProfile.highlightedOffersForRemoval" multiple style="width: 100%; height: 150px;">
+                <option ng-repeat="( offerId , offerName ) in listProfile.current.offers" ng-value="::offerId">@{{::offerName}}</option>
+            </select>
+        </md-card-content>
+    </md-card>
+</div>
+
+<h3 ng-click="listProfile.showAttrFilters = !listProfile.showAttrFilters">Attribute Filtering
+    <md-icon md-font-set="material-icons" ng-show="!listProfile.showAttrFilters">chevron_right</md-icon>
+    <md-icon md-font-set="material-icons" ng-show="listProfile.showAttrFilters">expand_more</md-icon>
+</h3>
+
+<div ng-show="listProfile.showAttrFilters">
+    <div class="form-group">
+        <label>Age</label>
+
+        <div class="row">
+            <div class="col-lg-5">
+                <div class="input-group">
+                    <span class="input-group-addon">Min</span>
+
+                    <input type="number" name="filterAgeMin" class="form-control" ng-model="listProfile.current.attributeFilters.age.min" min="0" aria-label="Minimum Age"/>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="input-group">
+                    <span class="input-group-addon">Max</span>
+
+                    <input type="number" name="filterAgeMax" class="form-control" ng-model="listProfile.current.attributeFilters.age.max" min="0" aria-label="Maximum Age" />
+                </div>
+            </div>
+
+            <div class="col-lg-2">
+                <md-checkbox name="filterAgeUnknown" ng-model="listProfile.current.attributeFilters.age.unknown" ng-true-value="true" ng-false-value="false" style="margin-top: 7px">Unknown</md-checkbox>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Gender</label>
+
+        <div layout="row" layout-align="start center">
+            <md-checkbox name="filterGenderMale" value="Male" ng-checked="listProfile.current.attributeFilters.genders.Male" ng-click="listProfile.toggleSelection( listProfile.current.attributeFilters.genders , listProfile.genderNameMap ,'Male' )">
+                Male
+            </md-checkbox>
+
+            <span flex="5"></span>
+
+            <md-checkbox name="filterGenderFemale" value="Female" ng-checked="listProfile.current.attributeFilters.genders.Female" ng-click="listProfile.toggleSelection( listProfile.current.attributeFilters.genders , listProfile.genderNameMap , 'Female' )">
+                Female
+            </md-checkbox>
+
+            <span flex="5"></span>
+
+            <md-checkbox name="filterGenderUnknown" value="Unknown" ng-checked="listProfile.current.attributeFilters.genders.Unknown" ng-click="listProfile.toggleSelection( listProfile.current.attributeFilters.genders , listProfile.genderNameMap , 'Unknown' )">
+                Unknown
+            </md-checkbox>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Zip Codes(s)</label>
+
+        <textarea name="zip" class="form-control" placeholder="Zip Code(s)" ng-model="listProfile.current.attributeFilters.zips" rows="5"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>City/Cities</label>
+
+        <textarea name="city" class="form-control" placeholder="City/Cities" ng-model="listProfile.current.attributeFilters.cities" rows="5"></textarea>
+    </div>
+
+    <div layout="row" layout-align="space-around stretch">
+        <md-card flex>
+            <md-card-title>
+                <h4>Available States</h4>
+
+                <span flex></span>
+
+                <md-button class="md-icon-button" ng-click="listProfile.addStateFilters()">
+                    <md-icon md-font-set="material-icons" style="color: #000;">add_circle_outline</md-icon>
+                </md-button>
+            </md-card-title>
+
+            <md-card-content>
+                <select ng-model="listProfile.highlightedStateFilters" multiple style="width: 100%; height: 150px;">
+                    @foreach ( $states as $state )
+                        <option value="{{ $state[ 'iso_3166_2' ] }}" ng-init="listProfile.stateFilterVisibility[ '{{$state[ 'iso_3166_2' ]}}' ] = true;listProfile.stateFilterNameMap[ '{{$state[ 'iso_3166_2' ]}}' ] = '{{$state[ 'name' ]}}';" ng-show="listProfile.stateFilterVisibility[ '{{$state[ 'iso_3166_2' ]}}' ]">{{ $state[ 'name' ] }}</option>
+                    @endforeach
+                </select>
+            </md-card-content>
+        </md-card>
+
+        <md-card flex>
+            <md-card-title flex="nogrow">
+                <h4>Selected States</h4>
+
+                <span flex></span>
+
+                <md-button class="md-icon-button" ng-click="listProfile.removeStateFilters()">
+                    <md-icon md-font-set="material-icons" style="color: #000;">remove_circle_outline</md-icon>
+                </md-button>
+            </md-card-title>
+
+            <md-card-content>
+                <select ng-model="listProfile.highlightedStateFiltersForRemoval" multiple style="width: 100%; height: 150px;">
+                    <option ng-repeat="( stateId , stateName ) in listProfile.current.attributeFilters.states" ng-value="stateId">@{{stateName}}</option>
+                </select>
+            </md-card-content>
+        </md-card>
+    </div>
+
+    <div layout="row" layout-align="space-around stretch">
+        <md-card flex>
+            <md-card-title>
+                <h4>Available Device Types</h4>
+
+                <span flex></span>
+
+                <md-button class="md-icon-button" ng-click="listProfile.addDeviceTypeFilters()">
+                    <md-icon md-font-set="material-icons" style="color: #000;">add_circle_outline</md-icon>
+                </md-button>
+            </md-card-title>
+
+            <md-card-content>
+                <select ng-model="listProfile.highlightedDeviceTypeFilters" multiple style="width: 100%; height: 75px;">
+                    <option value="mobile" ng-show="listProfile.deviceTypeFilterVisibility[ 'mobile' ]">Mobile</option>
+                    <option value="desktop" ng-show="listProfile.deviceTypeFilterVisibility[ 'desktop' ]">Dekstop</option>
+                    <option value="unknown" ng-show="listProfile.deviceTypeFilterVisibility[ 'unknown' ]">Unknown</option>
+                </select>
+            </md-card-content>
+        </md-card>
+
+        <md-card flex>
+            <md-card-title flex="nogrow">
+                <h4>Selected Device Types</h4>
+
+                <span flex></span>
+
+                <md-button class="md-icon-button" ng-click="listProfile.removeDeviceTypeFilters()">
+                    <md-icon md-font-set="material-icons" style="color: #000;">remove_circle_outline</md-icon>
+                </md-button>
+            </md-card-title>
+
+            <md-card-content>
+                <select ng-model="listProfile.highlightedDeviceTypeFiltersForRemoval" multiple style="width: 100%; height: 75px;">
+                    <option ng-repeat="( typeId , typeName ) in listProfile.current.attributeFilters.deviceTypes" ng-value="typeId">@{{typeName}}</option>
+                </select>
+            </md-card-content>
+        </md-card>
+    </div>
+
+    <div layout="row" layout-align="space-around stretch">
+        <md-card flex>
+            <md-card-title>
+                <h4>Available Mobile Carriers</h4>
+
+                <span flex></span>
+
+                <md-button class="md-icon-button" ng-click="listProfile.addCarrierFilters()">
+                    <md-icon md-font-set="material-icons" style="color: #000;">add_circle_outline</md-icon>
+                </md-button>
+            </md-card-title>
+
+            <md-card-content>
+                <select ng-model="listProfile.highlightedCarrierFilters" multiple style="width: 100%; height: 75px;">
+                    <option value="att" ng-show="listProfile.carrierFilterVisibility[ 'att' ]">AT&amp;T</option>
+                    <option value="sprint" ng-show="listProfile.carrierFilterVisibility[ 'sprint' ]">Sprint</option>
+                    <option value="tmobile" ng-show="listProfile.carrierFilterVisibility[ 'tmobile' ]">T-Mobile</option>
+                    <option value="verizon" ng-show="listProfile.carrierFilterVisibility[ 'verizon' ]">Verizon</option>
+                </select>
+            </md-card-content>
+        </md-card>
+
+        <md-card flex>
+            <md-card-title flex="nogrow">
+                <h4>Selected Mobile Carriers</h4>
+
+                <span flex></span>
+
+                <md-button class="md-icon-button" ng-click="listProfile.removeCarrierFilters()">
+                    <md-icon md-font-set="material-icons" style="color: #000;">remove_circle_outline</md-icon>
+                </md-button>
+            </md-card-title>
+
+            <md-card-content>
+                <select ng-model="listProfile.highlightedCarrierFiltersForRemoval" multiple style="width: 100%; height: 75px;">
+                    <option ng-repeat="( carrierId , carrierName ) in listProfile.current.attributeFilters.mobileCarriers" ng-value="carrierId">@{{carrierName}}</option>
+                </select>
+            </md-card-content>
+        </md-card>
+    </div>
+</div>
+
+<h3>Suppression</h3>
+
+@if ( Sentinel::inRole( 'admiral' ) )
+<div layout="row" layout-align="space-around stretch" ng-show="listProfile.enableAdmiral">
+    <md-card flex>
+        <md-card-title>
+            <h4>Available Global Suppression</h4>
+
+            <span flex></span>
+
+            <md-button class="md-icon-button" ng-click="listProfile.addGlobalSupp()">
+                <md-icon md-font-set="material-icons" style="color: #000;">add_circle_outline</md-icon>
+            </md-button>
+        </md-card-title>
+
+        <md-card-content>
+            <select ng-model="listProfile.highlightedGlobalSupp" multiple style="width: 100%; height: 75px;">
+                <option value="1" ng-show="listProfile.globalSuppVisibility[ 1 ]">Orange Global</option>
+                <option value="2" ng-show="listProfile.globalSuppVisibility[ 2 ]">Blue Global</option>
+                <option value="3" ng-show="listProfile.globalSuppVisibility[ 3 ]">Green Global</option>
+                <option value="4" ng-show="listProfile.globalSuppVisibility[ 4 ]">Gold Global</option>
+            </select>
+        </md-card-content>
+    </md-card>
+
+    <md-card flex>
+        <md-card-title flex="nogrow">
+            <h4>Selected Global Suppression</h4>
+
+            <span flex></span>
+
+            <md-button class="md-icon-button" ng-click="listProfile.removeGlobalSupp()">
+                <md-icon md-font-set="material-icons" style="color: #000;">remove_circle_outline</md-icon>
+            </md-button>
+        </md-card-title>
+
+        <md-card-content>
+            <select ng-model="listProfile.highlightedGlobalSuppForRemoval" multiple style="width: 100%; height: 75px;">
+                <option ng-repeat="( globalSuppId , globalSuppName ) in listProfile.current.suppression.global" ng-value="globalSuppId">@{{globalSuppName}}</option>
+            </select>
+        </md-card-content>
+    </md-card>
+</div>
+@endif
+
+@if ( Sentinel::inRole( 'admiral' ) )
+<div layout="row" layout-align="space-around stretch" ng-show="listProfile.enableAdmiral">
+    <md-card flex>
+        <md-card-title>
+            <h4>Available List Suppression</h4>
+
+            <span flex></span>
+
+            <md-button class="md-icon-button" ng-click="listProfile.addListSupp( $event )">
+                <md-icon md-font-set="material-icons" style="color: #000;">add_circle_outline</md-icon>
+            </md-button>
+        </md-card-title>
+
+        <md-card-content>
+            <select ng-model="listProfile.highlightedListSupp" multiple style="width: 100%; height: 75px;">
+                <option value="1" ng-show="listProfile.listSuppVisibility[ 1 ]">Sprint Yahoo</option>
+                <option value="2" ng-show="listProfile.listSuppVisibility[ 2 ]">Verizon Gmail</option>
+                <option value="3" ng-show="listProfile.listSuppVisibility[ 3 ]">Trendr Hotmail</option>
+                <option value="4" ng-show="listProfile.listSuppVisibility[ 4 ]">RMP Hotmail</option>
+            </select>
+        </md-card-content>
+    </md-card>
+
+    <md-card flex>
+        <md-card-title flex="nogrow">
+            <h4>Selected List Suppression</h4>
+
+            <span flex></span>
+
+            <md-button class="md-icon-button" ng-click="listProfile.removeListSupp()">
+                <md-icon md-font-set="material-icons" style="color: #000;">remove_circle_outline</md-icon>
+            </md-button>
+        </md-card-title>
+
+        <md-card-content>
+            <select ng-model="listProfile.highlightedListSuppForRemoval" multiple style="width: 100%; height: 75px;">
+                <option ng-repeat="( listSuppId , listSuppName ) in listProfile.current.suppression.list" ng-value="listSuppId">@{{listSuppName}}</option>
+            </select>
+        </md-card-content>
+    </md-card>
+</div>
+@endif
+
+<div layout="row" layout-align="space-around stretch">
+    <md-card flex>
+        <md-card-title>
+            <h4>Available Offer Suppression</h4>
+
+            <span flex></span>
+
+            <md-button class="md-icon-button" ng-click="listProfile.addOfferSupp( $event )">
+                <md-icon md-font-set="material-icons" style="color: #000;">add_circle_outline</md-icon>
+            </md-button>
+        </md-card-title>
+
+        <md-card-content>
+            <select ng-model="listProfile.highlightedOfferSupp" multiple style="width: 100%; height: 75px;">
+                @foreach ( $offers as $offer )
+                <option value="{{$offer[ 'id' ]}}" ng-init="listProfile.offerSuppVisibility[ {{$offer[ 'id' ]}} ] = true;listProfile.offerSuppNameMap[ {{$offer[ 'id' ]}} ] = '{{$offer[ 'name' ]}}';" ng-show="listProfile.offerSuppVisibility[ {{$offer[ 'id' ]}} ]">{{$offer[ 'name' ]}}</option>
+                @endforeach
+            </select>
+        </md-card-content>
+    </md-card>
+
+    <md-card flex>
+        <md-card-title flex="nogrow">
+            <h4>Selected Offer Suppression</h4>
+
+            <span flex></span>
+
+            <md-button class="md-icon-button" ng-click="listProfile.removeOfferSupp()">
+                <md-icon md-font-set="material-icons" style="color: #000;">remove_circle_outline</md-icon>
+            </md-button>
+        </md-card-title>
+
+        <md-card-content>
+            <select ng-model="listProfile.highlightedOfferSuppForRemoval" multiple style="width: 100%; height: 75px;">
+                <option ng-repeat="( offerSuppId , offerSuppName ) in listProfile.current.suppression.offer" ng-value="offerSuppId">@{{offerSuppName}}</option>
+            </select>
+        </md-card-content>
+    </md-card>
+</div>
+
+<h3>Attribute Suppression</h3>
+
+<div class="form-group">
+    <label>City/Cities</label>
+
+    <textarea name="city" class="form-control" placeholder="City/Cities" ng-model="listProfile.current.suppression.attribute.cities"></textarea>
+</div>
+
+
+<div class="form-group">
+    <label>Zip Code(s)</label>
+
+    <textarea name="zip" class="form-control" placeholder="Zip Code(s)" ng-model="listProfile.current.suppression.attribute.zips"></textarea>
+</div>
+
+<div layout="row" layout-align="space-around stretch">
+    <md-card flex>
+        <md-card-title>
+            <h4>Available States</h4>
+
+            <span flex></span>
+
+            <md-button class="md-icon-button" ng-click="listProfile.addStateSupp()">
+                <md-icon md-font-set="material-icons" style="color: #000;">add_circle_outline</md-icon>
+            </md-button>
+        </md-card-title>
+
+        <md-card-content>
+            <select ng-model="listProfile.highlightedStateSupp" multiple style="width: 100%; height: 150px;">
+                @foreach ( $states as $state )
+                    <option value="{{ $state[ 'iso_3166_2' ] }}" ng-init="listProfile.stateSuppVisibility[ '{{$state[ 'iso_3166_2' ]}}' ] = true;listProfile.stateSuppNameMap[ '{{$state[ 'iso_3166_2' ]}}' ] = '{{$state[ 'name' ]}}';" ng-show="listProfile.stateSuppVisibility[ '{{$state[ 'iso_3166_2' ]}}' ]">{{ $state[ 'name' ] }}</option>
+                @endforeach
+            </select>
+        </md-card-content>
+    </md-card>
+
+    <md-card flex>
+        <md-card-title flex="nogrow">
+            <h4>Selected States</h4>
+
+            <span flex></span>
+
+            <md-button class="md-icon-button" ng-click="listProfile.removeStateSupp()">
+                <md-icon md-font-set="material-icons" style="color: #000;">remove_circle_outline</md-icon>
+            </md-button>
+        </md-card-title>
+
+        <md-card-content>
+            <select ng-model="listProfile.highlightedStateSuppForRemoval" multiple style="width: 100%; height: 150px;">
+                <option ng-repeat="( stateId , stateName ) in listProfile.current.suppression.attribute.states" ng-value="stateId">@{{stateName}}</option>
+            </select>
+        </md-card-content>
+    </md-card>
+</div>
+
+<h3>Hygiene</h3>
+
+<md-checkbox ng-model="listProfile.current.impressionwise" ng-true-value="true" ng-false-value="false">Impressionwise</md-checkbox>
+
+<br />
+
+<md-checkbox ng-model="listProfile.current.tower.run" ng-true-value="true" ng-false-value="false">Tower</md-checkbox>
+
+<div class="form-group" ng-show="listProfile.current.tower.run">
+    <label>Cleansed After The Following Date</label>
+    
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="input-group">
+                <span class="input-group-addon">Year</span>
+
+                <select class="form-control" ng-model="listProfile.current.tower.cleanseYear" ng-init="listProfile.generateTowerDateOptions()">
+                    <option value="">Year</option>
+                    <option ng-value="::listProfile.towerDateOptions[ 0 ].value">@{{ ::listProfile.towerDateOptions[ 0 ].value }}</option>
+                    <option ng-value="::listProfile.towerDateOptions[ 1 ].value">@{{ ::listProfile.towerDateOptions[ 1 ].value }}</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="input-group">
+                <span class="input-group-addon">Month</span>
+
+                <select class="form-control" ng-model="listProfile.current.tower.cleanseMonth">
+                    <option value="">Month</option>
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3>Select and Order Columns</h3>
+
+<div>
+    <lite-membership-widget recordlist="listProfile.columnList" chosenrecordlist="listProfile.selectedColumns" availablerecordtitle="listProfile.availableWidgetTitle" chosenrecordtitle="listProfile.chosenWidgetTitle" namefield="listProfile.columnLabelField" updatecallback="listProfile.columnMembershipCallback()"></lite-membership-widget>
+</div>
+
+<br />
+
+<md-checkbox ng-model="listProfile.current.includeCsvHeader" ng-true-value="true" ng-false-value="false">
+    Include header line
+</md-checkbox>
+
+@if ( Sentinel::inRole( 'admiral' ) )
+<md-switch ng-model="listProfile.enableAdmiral" aria-label="Enable Admiral Features" ng-true-value="true" ng-false-value="false">Enable Admiral Features</md-switch>
+<md-checkbox ng-model="listProfile.current.admiralsOnly" ng-show="listProfile.enableAdmiral" aria-label="Admirals Only" ng-true-value="true" ng-false-value="false">Admirals Only</md-checkbox>
+@endif

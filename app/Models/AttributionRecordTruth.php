@@ -13,4 +13,9 @@ class AttributionRecordTruth extends Model
     const ACTIVE_COL = "has_action";
     protected $connection = 'attribution';
     protected $guarded = [''];
+
+    public function email() {
+        return $this->belongsTo( 'App\Models\Email' );
+    }
+
 }

@@ -10,6 +10,8 @@ namespace App\Repositories;
 
 use App\Models\Suppression;
 use App\Models\SuppressionReason;
+use DB;
+use Carbon\Carbon;
 
 class SuppressionRepo
 {
@@ -82,6 +84,15 @@ class SuppressionRepo
         return $this->suppressionModel->select('email_address')->where('date','>=',$date)->get();
     }
 
+    public function espSuppressionsForDateRange($espId, $lookback) {
+        return $this->suppressionModel
+                    ->select('email_address')
+                    ->join('esp_accounts as eac', 'suppressions.esp_account_id', '=', 'eac.id')
+                    ->where('eac.esp_id', $espId)
+                    ->where('suppressions.created_at', '>=', DB::raw("CURDATE() - INTERVAL $lookback DAY"))
+                    ->get();
+    }
+
     public function getUnsubId() {
         return Suppression::TYPE_UNSUB;
     }
@@ -94,4 +105,35 @@ class SuppressionRepo
         return Suppression::TYPE_COMPLAINT;
     }
 
+    public function getSuppressedForDeploys($deploys, $date, $typeId) {
+        $schema = config('database.connections.reporting_data.database');
+        return $this->suppressionModel
+                    ->select('email_address', 'date')
+                    ->join($schema . ".standard_reports as sr", 'suppressions.esp_internal_id', '=', 'sr.esp_internal_id')
+                    ->whereIn('external_deploy_id', $deploys)
+                    ->where('suppressions.date', '>=', $date)
+                    ->where('type_id', $typeId)
+                    ->get();
+    }
+
+    public function getAllSuppressionsDateRange ( array $dateRange ) {
+        return $this->suppressionModel
+            ->whereBetween( 'date' , [ $dateRange[ 'start' ] , $dateRange[ 'end' ] ] )
+            ->get();
+    }
+
+    public function getByInternalEmailDate ( $internalEspId , $emailAddress , $date ) {
+        $dateRange = [
+            "start" => Carbon::parse( $date )->startOfDay()->toDateTimeString() ,
+            "end" => Carbon::parse( $date )->endOfDay()->toDateTimeString()
+        ];
+
+        return $this->suppressionModel
+            ->where( [
+                [ 'esp_internal_id' , $internalEspId ] ,
+                [ 'email_address' , $emailAddress ]   
+            ] )
+            ->whereBetween( 'date' , [ $dateRange[ 'start' ] , $dateRange[ 'end' ] ] )
+            ->get();
+    }
 }

@@ -28,7 +28,7 @@ class FtpAdmin extends Command
      *
      * @var string
      */
-    protected $signature = 'ftp:admin {--H|host= : The host to create users on. } {--P|port=22 : The port for ssh connections. } {--U|sshUser= : User to login as.} {--k|sshPublicKey= : Path to public ssh keyfile.} {--K|sshPrivateKey= : Path to private ssh keyfile} {--u|user= : Username to use. } {--p|password= : Password to set.} {--s|service= : The service to use when saving the username and password. The service must implement IFtpAdmin.}';
+    protected $signature = 'ftp:admin {--H|host= : The host to create users on. } {--P|port=22 : The port for ssh connections. } {--U|sshUser= : User to login as.} {--k|sshPublicKey= : Path to public ssh keyfile.} {--K|sshPrivateKey= : Path to private ssh keyfile} {--u|user= : Username to use. } {--p|password= : Password to set.} {--s|service= : The service to use when saving the username and password. The service must implement IFtpAdmin.} {--r|reset= : If True Reset Given Users Password}';
 
     /**
      * The console command description.
@@ -47,6 +47,7 @@ class FtpAdmin extends Command
     protected $username = null;
     protected $password = null;
     protected $ftpUrl = null;
+    protected $reset = false;
     protected $directory = null;
 
     protected $ftpUserService = null;
@@ -81,8 +82,10 @@ class FtpAdmin extends Command
 
             $this->loadService();
 
-            if ( $this->shouldCreateUser() ) {
+            if ( $this->shouldCreateUser() && !$this->shouldResetPassword() ) {
                 $this->setupFtpUser();
+            } else if ($this->shouldResetPassword() && $this->shouldCreateUser()) {
+                $this->resetPassword();
             } else {
                 $this->generateNewUsersFromDb();
             }
@@ -99,7 +102,7 @@ class FtpAdmin extends Command
         $this->sshUser = $this->option( 'sshUser' );
         $this->sshPublicKey = $this->option( 'sshPublicKey' );
         $this->sshPrivateKey = $this->option( 'sshPrivateKey' );
-
+        $this->reset = (bool) $this->option('reset');
         $this->username = $this->option( 'user' );
         $this->password = $this->option( 'password' );
         $this->directory = '/home/' . $this->username;
@@ -149,6 +152,10 @@ class FtpAdmin extends Command
         return !empty( $this->username );
     }
 
+    protected function shouldResetPassword () {
+        return $this->reset;
+    }
+
     protected function setupFtpUser () {
         $this->createUser();
 
@@ -163,6 +170,21 @@ class FtpAdmin extends Command
         Log::info( json_encode( $this->commandOutput ) );
 
         Log::info( 'Finished Creating user...' );
+    }
+
+    protected function resetPassword () {
+        $this->setPasswordCommand();
+        $this->ftpUrl = "ftp://52.205.67.250";
+        $this->saveUserAndPassword();
+        Slack::to( self::SLACK_TARGET_SUBJECT )->send(
+            $this->option( 'service' ) . " FTP User Password Reset."
+            . "\n\tUsername: " . $this->username
+            . "\n\tPassword: " . $this->password
+        );
+
+        Log::info( json_encode( $this->commandOutput ) );
+
+        Log::info( 'Finished Reseting password' );
     }
 
     protected function createUser () {
@@ -220,7 +242,7 @@ class FtpAdmin extends Command
     protected function saveUserAndPassword () {
         $this->ftpUserService->save( [ 'username' => $this->username , 'password' => $this->password ] , $this->directory , 'localhost' , get_class( $this->service ) );
 
-        $this->service->saveFtpUser( [ "username" => $this->username , "password" => $this->password, "ftp+url" => $this->ftpUrl ] );
+        $this->service->saveFtpUser( [ "username" => $this->username , "password" => $this->password, "ftp_url" => $this->ftpUrl ] );
     }
 
     protected function generateNewUsersFromDb () {

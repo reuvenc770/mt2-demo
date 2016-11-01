@@ -15,10 +15,13 @@ use Log;
 class ScheduledFilterService
 {
     private $scheduleRepo;
-
-    public function __construct(AttributionScheduleRepo $attributionScheduleRepo)
+    protected $fields;
+    public $boolValue;
+    public function __construct(AttributionScheduleRepo $attributionScheduleRepo, $filterName)
     {
         $this->scheduleRepo = $attributionScheduleRepo;
+        $this->fields = config( 'scheduledfilters.' . $filterName . '.column' );
+        $this->boolValue = config( 'scheduledfilters.' . $filterName . '.value' );
     }
 
     public function getRecordsByDate($date){
@@ -38,5 +41,52 @@ class ScheduledFilterService
             $class = get_class($this->scheduleRepo);
             Log::error("Scheduled Filter Service failed to insert records for {$class}: {$e->getMessage()} ");
         }
+    }
+
+    public function insertScheduleFilterBulk($emails,$days){
+        $preppedData = array();
+        foreach($emails as $email){
+            $date = isset($email['datetime']) ?
+                Carbon::parse($email['datetime'])->addDays($days)->toDateString() : Carbon::today()->addDays($days)->toDateString();
+
+
+            if(Carbon::parse($email['datetime'])->toDateString() > Carbon::today()->toDateString() ){
+                $date = Carbon::today()->addDays($days)->toDateString();
+            }
+            $emailId = isset($email['email_id']) ? $email['email_id'] : $email;
+            $preppedData[] = "(".join(",",[$emailId,"'".$date."'","NOW()","NOW()"]).")";
+
+            if(count($preppedData) == 5000) {
+                try {
+                    $this->scheduleRepo->insertScheduleBulk($preppedData);
+                } catch (\Exception $e) {
+                    $class = get_class($this->scheduleRepo);
+                    Log::error("Scheduled Filter Service failed to insert records Bulk for {$class}: {$e->getMessage()} ");
+                }
+                $preppedData = [];
+            }
+
+        }
+        
+        if(count($preppedData) > 0){
+            $this->scheduleRepo->insertScheduleBulk($preppedData);
+        }
+
+    }
+
+    public function getFields() {
+        return array_keys($this->fields);
+    }
+
+    public function returnFullFields(){
+        return $this->fields;
+    }
+
+    public function getDefaultFieldValue($field) {
+        return $this->fields[$field];
+    }
+
+    public function deleteSchedules($emails){
+        return $this->scheduleRepo->bulkDelete($emails);
     }
 }

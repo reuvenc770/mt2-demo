@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ClientStatsGrouping extends Model
 {
-    protected $connection = 'mt1mail';
+    protected $connection = 'mt1_data';
     protected $table = 'ClientStatsGrouping';
+    protected $primaryKey = 'clientStatsGroupingID';
 }

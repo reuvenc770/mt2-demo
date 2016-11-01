@@ -28,7 +28,7 @@ class EmailDirectSubscriberService
 
     public function insertUnsubs($data, $espAccountId){
         foreach ($data as $entry){
-            Suppression::recordRawUnsub($espAccountId,$entry['EmailAddress'],0,"", Carbon::today()->toDateString());
+            Suppression::recordRawUnsub($espAccountId,$entry['EmailAddress'],0, Carbon::today()->toDateString());
         }
     }
 }

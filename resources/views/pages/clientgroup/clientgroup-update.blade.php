@@ -1,26 +1,29 @@
 @extends( 'layout.default' )
 
-@section( 'title' , 'Update Client Group' )
+@section( 'title' , 'Update Feed Group' )
 
 @section( 'content' )
-<div class="row">
-    <div class="page-header col-xs-12"><h1 class="text-center">Update Client Group</h1></div>
-</div>
-
 <div ng-controller="ClientGroupController as clientGroup" ng-init="clientGroup.loadClientList()">
-    <div class="row">
-        <div class="hidden-xs hidden-sm col-md-3"></div>
+    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
 
-        <div class="col-xs-12 col-md-6">
-            <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disabled' : clientGroup.updatingClientGroup }" ng-click="clientGroup.updateClientGroup( $event )"><span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : clientGroup.updatingClientGroup }"></span> Save</button>
-
-            <div class="clearfix"></div>
+        <div flex-gt-md="50" flex="100">
+            <div layout="column" layout-align="end end">
+               <md-button class="md-raised md-accent" ng-disabled="clientGroup.updatingClientGroup" ng-click="clientGroup.updateClientGroup( $event )" layout="row">
+                  <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-hide="clientGroup.updatingClientGroup">save</md-icon>
+                  <md-progress-circular ng-show="clientGroup.updatingClientGroup" md-mode="indeterminate" md-diameter="16"></md-progress-circular><span flex>Save</span>
+               </md-button>
+            </div>
 
             @include( 'pages.clientgroup.clientgroup-form' )
 
-            <button type="button" class="btn btn-success btn-md pull-right" ng-class="{ 'disabled' : clientGroup.updatingClientGroup }" ng-click="clientGroup.updateClientGroup( $event )"><span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : clientGroup.updatingClientGroup }"></span> Save</button>
+            <div layout="column" layout-align="end end">
+               <md-button class="md-raised md-accent" ng-disabled="clientGroup.updatingClientGroup" ng-click="clientGroup.updateClientGroup( $event )" layout="row">
+                  <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-hide="clientGroup.updatingClientGroup">save</md-icon>
+                  <md-progress-circular ng-show="clientGroup.updatingClientGroup" md-mode="indeterminate" md-diameter="16"></md-progress-circular><span flex>Save</span>
+               </md-button>
+            </div>
         </div>
-    </div>
+    </md-content>
 </div>
 @stop
 

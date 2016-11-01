@@ -28,4 +28,15 @@ class RoleAddRequest extends Request
             'permissions'      => 'required',
         ];
     }
+    /**
+     *
+     */
+    public function messages ()
+    {
+        return [
+            'name.required' => 'Role name is required.' ,
+            'name.unique' => 'This role name already exists.',
+            'permissions.required' => 'At least 1 permission is required.'
+        ];
+    }
 }

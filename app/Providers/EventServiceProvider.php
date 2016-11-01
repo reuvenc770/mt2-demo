@@ -25,8 +25,17 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\DeploysMissingDataFound' => [
             'App\Listeners\RerunDeployStats',
         ],
-        'App\Events\NewRecord' => [
+        'App\Events\NewRecords' => [
             'App\Listeners\NewRecordResolver'
+        ],
+        'App\Events\NewActions' => [
+            'App\Listeners\NewActionResolver'
+        ],
+        'App\Events\AttributionCompleted' => [
+            'App\Listeners\RerunAttributionAggregator'
+        ],
+        'App\Events\ListProfileCompleted' => [
+            'App\Listeners\RunDeploySuppression'
         ],
     ];
 

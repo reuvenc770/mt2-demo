@@ -163,10 +163,14 @@ return [
         App\Providers\PermissionServiceProvider::class,
         App\Providers\UserEventLogProvider::class,
         DaveJamesMiller\Breadcrumbs\ServiceProvider::class,
-        Maknz\Slack\SlackServiceProvider::class,
         Jenssegers\Agent\AgentServiceProvider::class,
         App\Providers\SuppressionProvider::class,
         App\Providers\DeployActionProvider::class,
+        App\Providers\Mt1CompanyProvider::class,
+        AdrianMejias\States\StatesServiceProvider::class,
+        App\Providers\SftpServiceProvider::class,
+        App\Providers\AssetsServiceProvider::class,
+        App\Providers\SlackProvider::class,
     ],
 
     /*
@@ -223,9 +227,12 @@ return [
         'UserEventLog' => App\Facades\UserEventLog::class,
         'Breadcrumbs' => DaveJamesMiller\Breadcrumbs\Facade::class,
         'Slack' => Maknz\Slack\Facades\Slack::class,
+        'SlackLevel' => App\Facades\SlackLevel::class,
         'Agent' => Jenssegers\Agent\Facades\Agent::class,
         'Suppression' => App\Facades\Suppression::class,
         'CampaignActionsEntry' => App\Facades\DeployActionEntry::class,
+        'States' => AdrianMejias\States\StatesFacade::class,
+        'Assets' => Fisharebest\LaravelAssets\AssetsFacade::class,
     ],
 
 ];

@@ -27,10 +27,10 @@ class AddClientAndUaToEcs extends Migration
      */
     public function down() {
         Schema::connection('reporting_data')->table('email_campaign_statistics', function($table) {
-            $table->dropColumn('client_id');
-            $table->dropColumn('user_agent_id');
             $table->dropIndex('client_id');
             $table->dropIndex('user_agent_id');
+            $table->dropColumn('client_id');
+            $table->dropColumn('user_agent_id');
         }); 
     }
 }

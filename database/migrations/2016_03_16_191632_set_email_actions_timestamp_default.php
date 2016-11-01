@@ -22,7 +22,9 @@ class SetEmailActionsTimestampDefault extends Migration
      */
     public function down() {
         Schema::connection('reporting_data')->table('email_actions', function(Blueprint $table) {
-            $table->dropTimestamps();
+            DB::connection('reporting_data')->statement('ALTER TABLE email_actions DROP COLUMN `created_at`');
+            DB::connection('reporting_data')->statement('ALTER TABLE email_actions DROP COLUMN `updated_at`');
+
             $table->timestamps();
         });
     }

@@ -25,7 +25,7 @@ class UserApiController extends Controller
     public function listAll()
     {
         return response()
-            ->view('pages.user.user-index');
+            ->view('bootstrap.pages.user.user-index');
     }
 
     /**
@@ -35,22 +35,7 @@ class UserApiController extends Controller
      */
     public function index()
     {
-        $users = $this->userService->getAllUsersWithRolesNames();
-        $return = array();
-        foreach ($users as $user) {
-            $return[] = array(
-                $user->id,
-                $user->email,
-                $user->username,
-                $user->first_name,
-                $user->last_name,
-                implode(',', $user->roles->toArray()),
-                $user->activations ? "active" : 'deactivated',
-                $user->last_login
-            );
-        }
-        return $return;
-
+        return response()->json($this->userService->getAllUsersWithRolesNames());
     }
 
     /**
@@ -61,7 +46,7 @@ class UserApiController extends Controller
     public function create()
     {
         $roles = $this->userService->getAvailableRoles();
-        return view('pages.user.user-add', array("roles" => $roles));
+        return view('bootstrap.pages.user.user-add', array("roles" => $roles), ["formType"=> 'add']);
     }
 
     /**
@@ -103,7 +88,7 @@ class UserApiController extends Controller
             return redirect("/user");
         }
         $roles = $this->userService->getAvailableRoles();
-        return view('pages.user.user-edit', array("roles" => $roles));
+        return view('bootstrap.pages.user.user-edit', array("roles" => $roles), ["formType"=> 'edit']);
     }
 
     /**
@@ -125,7 +110,7 @@ class UserApiController extends Controller
     {
         $user = \Sentinel::getUser();
         return response()
-            ->view('pages.user.user-profile', array( "id" => $user->getUserId()));
+            ->view('bootstrap.pages.user.user-profile', array( "id" => $user->getUserId()));
     }
 
     public function updateProfile(ProfileUpdate $request, $id)

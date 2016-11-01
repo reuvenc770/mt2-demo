@@ -3,131 +3,141 @@
 @section( 'title' , 'Bulk Suppression' )
 
 @section( 'content' )
-<div class="row">
-    <div class="page-header col-xs-12"><h1 class="text-center">Bulk Suppression</h1></div>
-</div>
 
 <div ng-controller="BulkSuppressionController as supp">
-    <div class="row">
-        <div class="hidden-xs hidden-sm col-md-3"></div>
+    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
 
-        <div class="col-xs-12 col-md-6">
-            <button type="button" class="btn btn-success btn-md pull-right" 
-                ng-disabled="!supp.emailsLoaded"
-                ng-click="supp.uploadSuppressions()">
-                    <span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : supp.emailsLoaded }"></span>
-                    Suppress
-            </button>
+        <div flex-gt-md="60" flex="100">
+            <div layout="column" layout-align="end end">
+                <md-button class="md-raised md-accent"
+                    ng-disabled="!supp.emailsLoaded"
+                    ng-click="supp.uploadSuppressions()">
+                        <md-icon md-svg-icon="img/icons/ic_block_white_18px.svg"></md-icon> Suppress
+                </md-button>
+            </div>
 
-            <div class="clearfix"></div>
+            <md-card>
+                <md-toolbar>
+                    <div class="md-toolbar-tools">
+                        <span>Bulk Suppression Options</span>
+                    </div>
+                </md-toolbar>
 
-            <div class="panel panel-primary">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Bulk Suppression Options</h3>
-                </div>
+                    <md-card-content>
+                        <form name="suppressionForm" layout="column" novalidate>
+                            <md-input-container class="md-block" ng-cloak>
+                                <label>Emails</label>
+                                <textarea ng-model="supp.emailString" rows="5" md-select-on-focus ng-change="supp.enableSubmission()"></textarea>
+                            </md-input-container>
 
-                <div class="panel-body">
-                    <md-content flex>
-                        <md-input-container class="md-block" ng-cloak>
-                            <label>Emails</label>
-                            <textarea ng-model="supp.emailString" rows="5" md-select-on-focus ng-change="supp.enableSubmission()"></textarea>
-                        </md-input-container>
+                            <md-input-container>
+                                <label>Suppression Reason</label>
+                                <md-select name="reason" ng-model="supp.selectedReason" ng-init="supp.loadReasons()" ng-required="true">
+                                    <md-option ng-repeat="reason in supp.suppressionReasons" ng-value="reason.value">@{{ reason.name }}</md-option>
+                                </md-select>
+                                <div ng-messages="suppressionForm.reason.$error">
+                                    <div ng-message="required">Suppression Reason is required.</div>
+                                </div>
+                            </md-input-container>
+                        </form>
 
-
-                        <select name="reason" class="form-control" ng-model="supp.selectedReason" ng-init="supp.loadReasons()" required>
-                            <option value="">Please Choose a Suppression Reason</option>
-                            <option ng-repeat="reason in supp.suppressionReasons" ng-value="reason.value">@{{ reason.name }}</option>
-                        </select>
-
-                        <div flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'bulksuppression' , '_token' : '{{ csrf_token() }}' } }" 
-                             flow-files-submitted="$flow.upload()" 
+                        <div flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'bulksuppression' , '_token' : '{{ csrf_token() }}' } }"
+                             flow-files-submitted="$flow.upload()"
                              flow-file-success="supp.startTransfer($file)">
-                            <div flow-drop class="dropFile" flow-drag-enter="style={border:'4px solid green'}" flow-drag-leave="style={}" ng-style="style">
-                                <span class="btn btn-default" flow-btn>
+                            <div flow-drop class="dropFile" flow-drag-enter="style={border:'2px solid green'}" flow-drag-leave="style={}" ng-style="style" layout="row" layout-xs="column" layout-align-xs="center center" layout-align-gt-xs="start center">
+                                <md-button class="md-raised" flow-btn>
                                     Upload Suppression Files
                                     <input type="file" style="visibility: hidden; position: absolute;" />
-                                </span>
-
+                                </md-button>
+                                <span>
                                 &nbsp;&nbsp;
                                 <em>OR</em>
                                 &nbsp;&nbsp;
+                                </span>
 
-                                <strong>Drag & Drop Suppression Files Here</strong>
+                                <span><strong>Drag & Drop Suppression Files Here</strong></span>
                             </div>
 
                             <br />
                             <br />
 
-                            <div class="well">
-                                <a class="btn btn-small btn-success" ng-click="$flow.resume()">Resume</a>
-                                <a class="btn btn-small btn-warning" ng-click="$flow.pause()">Pause</a>
-                                <a class="btn btn-small btn-danger" ng-click="$flow.cancel()">Cancel</a>
+                            <md-card>
+                                <md-card-content layout="row" layout-align="center center">
+                                    <md-button class="md-raised mt2-button-xs mt2-button-success" ng-click="$flow.resume()">Resume</md-button>
+                                    <md-button class="md-raised mt2-button-xs md-warn" ng-click="$flow.pause()">Pause</md-button>
+                                    <md-button class="md-raised mt2-button-xs md-warn md-hue-2" ng-click="$flow.cancel()">Cancel</md-button>
+                                    <div flex="auto"></div>
+                                    <div flex="initial">
+                                        <div class="mt2-label mt2-label-info">Total File Size: @{{$flow.getSize() | bytes }}</div>
+                                        <div class="mt2-label" ng-class="{ 'mt2-label-default' : !$flow.isUploading() , 'mt2-label-success' : $flow.isUploading() }">Is Uploading: @{{$flow.isUploading() ? 'Yes' : 'No' }}</div>
+                                    </div>
+                                </md-card-content>
+                            </md-card>
 
-                                <h4 class="pull-right">
-                                    <span class="label label-md label-info">Total File Size: @{{$flow.getSize() | bytes }}</span>
-                                    <span class="label label-md" ng-class="{ 'label-default' : !$flow.isUploading() , 'label-success' : $flow.isUploading() }">Is Uploading: @{{$flow.isUploading() ? 'Yes' : 'No' }}</span>
-                                </h4>
-                            </div>
+                            <md-table-container>
+                                <table md-table>
+                                    <thead md-head>
+                                        <tr md-row>
+                                            <th md-column class="md-table-header-override-whitetext">#</th>
+                                            <th md-column class="md-table-header-override-whitetext">Name</th>
+                                            <th md-column class="md-table-header-override-whitetext" md-numeric>File Size</th>
+                                            <th md-column class="md-table-header-override-whitetext">#Chunks</th>
+                                            <th md-column class="md-table-header-override-whitetext">Progress</th>
+                                            <th md-column class="md-table-header-override-whitetext mt2-table-header-center">Download Status</th>
+                                            <th md-column class="md-table-header-override-whitetext mt2-table-header-center">Settings</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr md-row ng-repeat="file in transfers">
+                                            <td md-cell>@{{ $index + 1 }}</td>
+                                            <td md-cell>@{{ file.name }}</td>
+                                            <td md-cell>@{{ file.size | bytes }}</td>
+                                            <td md-cell>@{{ file.chunks.length }}</td>
+                                            <td md-cell>
+                                                <md-progress-linear class="md-warn" md-mode="determinate" ng-value="file.progress() * 100"></md-progress-linear>
+                                            </td>
+                                            <td md-cell class="mt2-table-cell-center" ng-class="{ 'mt2-bg-info' : file.isUploading() , 'mt2-bg-warning' : file.paused , 'mt2-bg-danger' : file.error , 'mt2-bg-success' : !file.error }">
+                                                @{{ file.isUploading() ? 'Downloading' : ( file.paused ? 'Paused': ( file.error ? 'Failed' : 'Successful' ) ) }}
+                                            </td>
+                                            <td md-cell>
+                                                <div layout="row" layout-align="center center">
+                                                    <md-button class="md-icon-button" ng-click="file.pause()" ng-hide="file.paused" aria-label="Pause">
+                                                        <md-icon md-svg-icon="img/icons/ic_pause_black_18px.svg"></md-icon>
+                                                        <md-tooltip md-direction="bottom">Pause</md-tooltip>
+                                                    </md-button>
+                                                    <md-button class="md-icon-button" ng-click="file.resume()" ng-show="file.paused" aria-label="Resume">
+                                                        <md-icon md-svg-icon="img/icons/ic_play_arrow_18px.svg"></md-icon>
+                                                        <md-tooltip md-direction="bottom">Resume</md-tooltip>
+                                                    </md-button>
+                                                    <md-button class="md-icon-button" ng-click="file.cancel()" aria-label="Cancel">
+                                                        <md-icon md-svg-icon="img/icons/ic_clear_black_24px.svg"></md-icon>
+                                                        <md-tooltip md-direction="bottom">Cancel</md-tooltip>
+                                                    </md-button>
+                                                    <md-button class="md-icon-button" ng-click="file.retry()" ng-show="file.error" aria-label="Retry">
+                                                        <md-icon md-svg-icon="img/icons/ic_refresh_black_18px.svg"></md-icon>
+                                                        <md-tooltip md-direction="bottom">Retry</md-tooltip>
+                                                    </md-button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </md-table-container>
 
-                            <table class="table table-hover table-bordered table-striped" flow-transfers ng-cloak>
-                                <thead>
-                                    <tr>
-                                        <th class="text-center">#</th>
-                                        <th class="text-center">Name</th>
-                                        <th class="text-center">File Size</th>
-                                        <th class="text-center">#Chunks</th>
-                                        <th class="text-center">Progress</th>
-                                        <th class="text-center">Download Status</th>
-                                        <th class="text-center">Settings</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat="file in transfers">
-                                        <td>@{{ $index + 1 }}</td>
-                                        <td>@{{ file.name }}</td>
-                                        <td class="text-center">@{{ file.size | bytes }}</td>
-                                        <td class="text-center">@{{ file.chunks.length }}</td>
-                                        <td>
-                                            <md-progress-linear class="md-warn" md-mode="determinate" ng-value="file.progress() * 100"></md-progress-linear>
-                                        </td>
-                                        <td class="text-center" ng-class="{ 'bg-info' : file.isUploading() , 'bg-warning' : file.paused , 'bg-danger' : file.error , 'bg-success' : !file.error }">
-                                            <strong>@{{ file.isUploading() ? 'Downloading' : ( file.paused ? 'Paused': ( file.error ? 'Failed' : 'Successful' ) ) }}</strong>
-                                        </td>
-                                        <td>
-                                            <div class="btn-group">
-                                                <a class="btn btn-mini btn-warning" ng-click="file.pause()" ng-hide="file.paused">
-                                                Pause
-                                                </a>
-
-                                                <a class="btn btn-mini btn-warning" ng-click="file.resume()" ng-show="file.paused">
-                                                Resume
-                                                </a>
-
-                                                <a class="btn btn-mini btn-danger" ng-click="file.cancel()">
-                                                Cancel
-                                                </a>
-
-                                                <a class="btn btn-mini btn-info" ng-click="file.retry()" ng-show="file.error">
-                                                Retry
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
                         </div>
-                    </md-content>
-                </div>
+                    </md-card-content>
+            </md-card>
+
+            <div layout="column" layout-align="end end">
+                <md-button class="md-raised md-accent"
+                    ng-disabled="!supp.emailsLoaded"
+                    ng-click="supp.uploadSuppressions()">
+                        <md-icon md-svg-icon="img/icons/ic_block_white_18px.svg"></md-icon> Suppress
+                </md-button>
             </div>
 
-            <button type="button" class="btn btn-success btn-md pull-right" 
-            ng-disabled="!supp.emailsLoaded"
-            ng-click="supp.uploadSuppressions()">
-                <span class="glyphicon glyphicon-save" ng-class="{ 'rotateMe' : supp.emailsLoaded }"></span>
-                Suppress
-            </button>
         </div>
-    </div>
+    </md-content>
 </div>
 @stop
 

@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\ModelTraits\ModelCacheControl;
 use Illuminate\Database\Eloquent\Model;
 
 class Esp extends Model
 {
+    use ModelCacheControl;
+    protected $guarded = ['id'];
 
     public function espAccounts()
     {
@@ -23,5 +26,9 @@ class Esp extends Model
 
     public function suppressionReasons(){
         return $this->hasMany('App\Models\SuppressionReason');
+    }
+
+    public function fieldOptions() {
+        return $this->hasOne('App\Models\EspFieldOption');
     }
 }

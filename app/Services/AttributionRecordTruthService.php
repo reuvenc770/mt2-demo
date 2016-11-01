@@ -46,6 +46,14 @@ class AttributionRecordTruthService
         try {
             $this->recordTruthRepo->setField($emailId, $column, $value);
         } catch (\Exception $e) {
+            Log::error("Could not Expire Record because {$e->getMessage()} {$e->getLine()}");
+        }
+    }
+    public function bulkToggleFieldRecord($emails, $column, $value)
+    {
+        try {
+            $this->recordTruthRepo->bulkSetField($emails, $column, $value);
+        } catch (\Exception $e) {
             Log::error("Could not Expire Record because {$e->getMessage()}");
         }
     }
@@ -56,5 +64,27 @@ class AttributionRecordTruthService
         } catch (\Exception $e) {
             Log::error("Could not Insert Record because {$e->getMessage()}");
         }
+    }
+
+    public function insertBulkRecords($emails){
+        $preppedData= array();
+        foreach($emails as $email){
+            $preppedData[] = "(".join(",",[$email['email_id'],true,"NOW()","NOW()"]).")";
+            if(count($preppedData) == 5000) {
+                try {
+                    $this->recordTruthRepo->bulkInsert($preppedData);
+                } catch (\Exception $e) {
+                    Log::error("Could not Bulk Insert Record because {$e->getMessage()}");
+                }
+                $preppedData = [];
+            }
+        }
+        if(count($preppedData) > 0){
+            $this->recordTruthRepo->bulkInsert($preppedData);
+        }
+    }
+
+    public function getAssignedRecords () {
+        return $this->recordTruthRepo->getAssignedRecords();
     }
 }

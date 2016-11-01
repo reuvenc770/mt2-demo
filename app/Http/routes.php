@@ -14,9 +14,10 @@
 /**
  * Default Routes
  */
-Route::get('/', [ 'as' => 'root' , 'uses' => function () {
-    return redirect("/login");
-} ] );
+Route::get( '/' , [
+    'as' => 'root' ,
+    'uses' => 'HomeController@redirect'
+] );
 
 /**
  *  Feed Routes
@@ -99,17 +100,42 @@ Route::group(
     function () {
         Route::get( '/' , [
             'as' => 'espapi.list' ,
-            'uses' => 'EspApiController@listAll'
+            'uses' => 'EspApiAccountController@listAll'
         ] );
 
         Route::get( '/create' , [
             'as' => 'espapi.add' ,
-            'uses' => 'EspApiController@create'
+            'uses' => 'EspApiAccountController@create'
         ] );
 
         Route::get( '/edit/{id}' , [
             'as' => 'espapi.edit' ,
-            'uses' => 'EspApiController@edit'
+            'uses' => 'EspApiAccountController@edit'
+        ] );
+    }
+);
+/**
+ *
+ */
+Route::group(
+    [
+        'prefix' => 'esp',
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' , [
+            'as' => 'esp.list' ,
+            'uses' => 'EspController@listAll'
+        ] );
+
+        Route::get( '/edit/{id}' , [
+            'as' => 'esp.edit' ,
+            'uses' => 'EspController@edit'
+        ] );
+
+        Route::get( '/create' , [
+            'as' => 'esp.add' ,
+            'uses' => 'EspController@create'
         ] );
     }
 );
@@ -121,10 +147,14 @@ Route::group(
 Route::group(
     [
         'prefix' => 'tools' ,
-        'middleware' => [ 'auth' , 'pageLevel' ]
+        'middleware' => [ 'auth','pageLevel' ]
     ] ,
     function () {
-        Route::get( '/tools' , [ 'as' => 'tools.list' , 'uses' => function () { return redirect()->route( 'tools.recordlookup' ); } ] );
+
+        Route::get( '/tools' , [
+            'as' => 'tools.list' ,
+            'uses' => 'HomeController@redirectTools'
+        ] );
 
         Route::get( '/show-info' , [
             'as' => 'tools.recordlookup' ,
@@ -133,6 +163,16 @@ Route::group(
         Route::get( '/bulk-suppression' , [
             'as' => 'tools.bulksuppression' ,
             'uses' => 'BulkSuppressionController@index'
+        ] );
+
+        Route::get( '/appendeid' , [
+            'as' => 'tools.appendeid' ,
+            'uses' => 'AppendEidController@index'
+        ] );
+
+        Route::get( '/navigation' , [
+            'as' => 'tools.navigation' ,
+            'uses' => 'NavigationController@index'
         ] );
 
     }
@@ -182,6 +222,129 @@ Route::group(
     }
 );
 
+/** DBA Routes */
+Route::group(
+    [
+        'prefix' => 'dba' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' , [
+            'as' => 'dba.list' ,
+            'uses' => 'DoingBusinessAsController@listAll'
+        ] );
+
+        Route::get( '/create' , [
+            'as' => 'dba.add' ,
+            'uses' => 'DoingBusinessAsController@create'
+        ] );
+
+        Route::get( '/edit/{id}' , [
+            'as' => 'dba.edit' ,
+            'uses' => 'DoingBusinessAsController@edit'
+        ] );
+    }
+);
+/** Proxy Routes */
+Route::group(
+    [
+        'prefix' => 'proxy' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' , [
+            'as' => 'proxy.list' ,
+            'uses' => 'ProxyController@listAll'
+        ] );
+
+        Route::get( '/create' , [
+            'as' => 'proxy.add' ,
+            'uses' => 'ProxyController@create'
+        ] );
+
+        Route::get( '/edit/{id}' , [
+            'as' => 'proxy.edit' ,
+            'uses' => 'ProxyController@edit'
+        ] );
+    }
+);
+/** Registrar */
+Route::group(
+    [
+        'prefix' => 'registrar' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' , [
+            'as' => 'registrar.list' ,
+            'uses' => 'RegistrarController@listAll'
+        ] );
+
+        Route::get( '/create' , [
+            'as' => 'registrar.add' ,
+            'uses' => 'RegistrarController@create'
+        ] );
+
+        Route::get( '/edit/{id}' , [
+            'as' => 'registrar.edit' ,
+            'uses' => 'RegistrarController@edit'
+        ] );
+    }
+);
+
+/** Mailing Template */
+Route::group(
+    [
+        'prefix' => 'mailingtemplate' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get('/', [
+            'as' => 'mailingtemplate.list',
+            'uses' => 'MailingTemplateController@listAll'
+        ]);
+
+        Route::get('/create', [
+            'as' => 'mailingtemplate.add',
+            'uses' => 'MailingTemplateController@create'
+        ]);
+
+        Route::get('/edit/{id}', [
+            'as' => 'mailingtemplate.edit',
+            'uses' => 'MailingTemplateController@edit'
+        ]);
+
+        Route::get('/preview/{id?}', [
+            'as' => 'mailingtemplate.preview',
+            'uses' => 'MailingTemplateController@preview'
+        ]);
+    });
+
+
+/** Mailing Template */
+Route::group(
+    [
+        'prefix' => 'deploy' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get('/', [
+            'as' => 'deploy.list',
+            'uses' => 'DeployController@listAll'
+        ]);
+
+        Route::get( '/preview/{deployId}' , [
+            'as' => 'deploy.preview' ,
+            'uses' => 'DeployController@previewDeploy'
+        ] );
+
+
+        Route::get( '/downloadhtml/{deployId}' , [
+            'as' => 'deploy.downloadhtml' ,
+            'uses' => 'DeployController@downloadHtml'
+        ] );
+
+    });
 
 /**
  * User Routes
@@ -189,7 +352,7 @@ Route::group(
 Route::group(
     [
         'prefix' => 'user' ,
-        'middleware' => [ 'auth' , 'admin' , 'pageLevel' ]
+        'middleware' => [ 'auth' , 'pageLevel' ]
     ] ,
     function () {
         Route::get( '/' , [
@@ -210,59 +373,54 @@ Route::group(
 );
 
 /**
- * Client Routes
+ * Feed Routes
  */
 Route::group(
     [
-        'prefix' => 'client' ,
+        'prefix' => 'feed' ,
         'middleware' => [ 'auth' , 'pageLevel' ]
     ] ,
     function () {
         Route::get( '/' , [
-            'as' => 'client.list' ,
-            'uses' => 'ClientController@listAll'
+            'as' => 'feed.list' ,
+            'uses' => 'FeedController@listAll'
         ] );
 
         Route::get( '/create' , [
-            'as' => 'client.add' ,
-            'uses' => 'ClientController@create'
+            'as' => 'feed.add' ,
+            'uses' => 'FeedController@create'
         ] );
 
         Route::get( '/edit/{id}' , [
-            'as' => 'client.edit' ,
-            'uses' => 'ClientController@edit'
-        ] );
-
-        Route::get( '/attribution' , [
-            'as' => 'client.attribution' ,
-            'uses' => 'AttributionController@listAll'
+            'as' => 'feed.edit' ,
+            'uses' => 'FeedController@edit'
         ] );
     }
 );
 
 
 /**
- * Client Group Routes
+ * Feed Group Routes
  */
 Route::group(
     [
-        'prefix' => 'clientgroup' ,
+        'prefix' => 'feedgroup' ,
         'middleware' => [ 'auth' , 'pageLevel' ]
     ] ,
     function () {
         Route::get( '/' , [
-            'as' => 'clientgroup.list' ,
-            'uses' => 'ClientGroupController@listAll'
+            'as' => 'feedgroup.list' ,
+            'uses' => 'FeedGroupController@listAll'
         ] );
 
         Route::get( '/create' , [
-            'as' => 'clientgroup.add' ,
-            'uses' => 'ClientGroupController@create'
+            'as' => 'feedgroup.add' ,
+            'uses' => 'FeedGroupController@create'
         ] );
 
         Route::get( '/edit/{id}' , [
-            'as' => 'clientgroup.edit' ,
-            'uses' => 'ClientGroupController@edit'
+            'as' => 'feedgroup.edit' ,
+            'uses' => 'FeedGroupController@edit'
         ] );
     }
 );
@@ -329,7 +487,7 @@ Route::group(
 Route::group(
     [
         'prefix' => 'role' ,
-        'middleware' => [ 'auth' , 'admin' , 'pageLevel' ]
+        'middleware' => [ 'auth' , 'pageLevel' ]
     ] ,
     function () {
         Route::get( '/' , [
@@ -350,39 +508,214 @@ Route::group(
 );
 
 /**
+ * Domain Routes
+ */
+Route::group(
+    [
+        'prefix' => 'domain' ,
+        'middleware' => [ 'auth' , ]
+    ] ,
+    function () {
+        Route::get( '/' , [
+            'as' => 'domain.list' ,
+            'uses' => 'DomainController@listAll'
+        ] );
+        Route::get( '/listview' , [
+            'as' => 'domain.listview' ,
+            'uses' => 'DomainController@listView'
+        ] );
+
+        Route::get( '/search' , [
+            'as' => 'domain.search' ,
+            'uses' => 'DomainController@searchDomains'
+        ] );
+
+
+
+        Route::get( '/create' , [
+            'as' => 'domain.add' ,
+            'uses' => 'DomainController@create'
+        ] );
+
+        Route::get( '/edit/{id}' , [
+            'as' => 'domain.edit' ,
+            'uses' => 'DomainController@edit'
+        ] );
+
+    }
+);
+
+Route::group(
+    [
+        'prefix' => 'creatives' ,
+        'middleware' => [ 'auth'  ]
+    ] ,
+    function () {
+        Route::get( '/preview/{offerId}' , [
+            'as' => 'creatives.preview' ,
+            'uses' => 'CreativeFromSubjectController@previewCreative'
+        ] );
+    }
+);
+
+/**
  *  Data Export Routes
  */
 
-Route::group( 
-    [ 
-        'prefix' => 'dataexport', 
-        'middleware' => ['auth', 'pageLevel'] 
+Route::group(
+    [
+        'prefix' => 'dataexport',
+        'middleware' => ['auth', 'pageLevel']
     ],
     function () {
-        Route::get( '/' , 
+        Route::get( '/' ,
             array(
-                'as' => 'dataexport.list' , 
-                'uses' => 'DataExportController@listActive' 
-            ) 
+                'as' => 'dataexport.list' ,
+                'uses' => 'DataExportController@listActive'
+            )
         );
 
-        Route::get( 
-            '/create', 
-            array( 
-                'as' => 'dataexport.add', 
-                'uses' => 'DataExportController@create' 
+        Route::get(
+            '/create',
+            array(
+                'as' => 'dataexport.add',
+                'uses' => 'DataExportController@create'
             )
         );
 
         Route::get(
             '/edit/{id}',
-            array( 
+            array(
                 'as' => 'dataexport.edit',
                 'uses' => 'DataExportController@edit'
             )
         );
     }
 );
+
+/**
+ * Attribution Routes
+ */
+
+Route::group(
+    [
+        'prefix' => 'attribution' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' ,
+            [
+                'as' => 'attribution.list' ,
+                'uses' => 'AttributionController@listAll'
+            ]
+        );
+
+        Route::get( 
+            '/create', 
+            array( 
+                'as' => 'attributionModel.add', 
+                'uses' => 'AttributionController@create' 
+            )
+        );
+
+        Route::get( 
+            '/edit/{modelId}', 
+            array( 
+                'as' => 'attributionModel.edit', 
+                'uses' => 'AttributionController@edit' 
+            )
+        );
+
+        Route::get( 
+            '/projection/{id}', 
+            array( 
+                'as' => 'attributionProjection.show', 
+                'uses' => 'AttributionController@showProjection' 
+            )
+        );
+    }
+);
+
+/**
+ * Report Routes
+ */
+Route::group(
+    [
+        'prefix' => 'report' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( 
+            '/', 
+            array( 
+                'as' => 'report.list', 
+                'uses' => 'ReportController@view' 
+            )
+        );
+
+        Route::get( 
+            '/export', 
+            array( 
+                'as' => 'report.export', 
+                'uses' => 'ReportController@export' 
+            )
+        );
+    }
+);
+
+
+/**
+ * ISP Group
+ */
+Route::group(
+    [
+        'prefix' => 'ispgroup' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' , [
+            'as' => 'ispgroup.list' ,
+            'uses' => 'DomainGroupController@listAll'
+        ] );
+
+        Route::get( '/create' , [
+            'as' => 'ispgroup.add' ,
+            'uses' => 'DomainGroupController@create'
+        ] );
+
+        Route::get( '/edit/{id}' , [
+            'as' => 'ispgroup.edit' ,
+            'uses' => 'DomainGroupController@edit'
+        ] );
+
+    }
+);
+
+Route::group(
+    [
+        'prefix' => 'isp' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' , [
+            'as' => 'isp.list' ,
+            'uses' => 'EmailDomainController@listAll'
+        ] );
+
+        Route::get( '/create' , [
+            'as' => 'isp.add' ,
+            'uses' => 'EmailDomainController@create'
+        ] );
+
+        Route::get( '/edit/{id}' , [
+            'as' => 'isp.edit' ,
+            'uses' => 'EmailDomainController@edit'
+        ] );
+
+    }
+);
+
+
 
 /**
  * API Routes
@@ -408,37 +741,76 @@ Route::group(
             'uses' => 'AttachmentApiController@flow'
         ] );
 
-        Route::get( '/client/attribution/list' , [
-            'as' => 'api.client.attribution.list' ,
-            'uses' => 'AttributionController@index'
-        ] );
-
-        Route::put('/dataexport/update', [ 
-            'as' => 'dataexport.update', 
-            'middleware' => ['auth'], 
+        Route::put('/dataexport/update', [
+            'as' => 'dataexport.update',
+            'middleware' => ['auth'],
             'uses' => 'DataExportController@message'
         ]);
 
-        /**
-         * Client Group API Routes
-         */
+        Route::get('/client/updatepassword/{username}', [
+            'as' => 'api.client.updatepassword' ,
+            'uses' => 'FeedController@resetClientPassword'
+        ] );
+        Route::get('/navigation/gettree', [
+            'as' => 'api.tools.navigation.getTree' ,
+            'uses' => 'NavigationController@returnCurrentNavigation'
+        ] );
+        Route::get('/navigation/orphans', [
+            'as' => 'api.tools.navigation.getOrphans' ,
+            'uses' => 'NavigationController@returnValidOrphanNavigation'
+        ] );
+
+        Route::post('/navigation', [
+            'as' => 'api.tools.navigation.update' ,
+            'uses' => 'NavigationController@update'
+        ] );
+
         Route::group(
-            [ 'prefix' => 'clientgroup' ] ,
+            [ 'prefix' => 'deploy' ] ,
             function () {
-                Route::get( '/search' , [
-                    'as' => 'api.clientgroup.search' ,
-                    'uses' => 'ClientGroupController@paginateSearch'
+                Route::post( '/copytofuture' , [
+                    'as' => 'api.deploy.copytofuture' ,
+                    'uses' => 'DeployController@copyToFuture'
                 ] );
 
-                Route::get( '/all' , [
-                    'as' => 'api.clientgroup.all' ,
-                    'uses' => 'ClientGroupController@index'
+                Route::get( '/cakeaffiliates' , [
+                    'as' => 'api.deploy.cakeaffiliates' ,
+                    'uses' => 'DeployController@returnCakeAffiliates'
                 ] );
 
-                Route::get( '/copy/{id}' , [
-                    'as' => 'api.clientgroup.copy' ,
-                    'uses' => 'ClientGroupController@copy'
+                Route::post( '/validatedeploys' , [
+                    'as' => 'api.deploy.validateDeploys' ,
+                    'uses' => 'DeployController@validateMassUpload'
                 ] );
+
+                Route::post( '/massupload' , [
+                    'as' => 'api.deploy.massupload' ,
+                    'uses' => 'DeployController@massupload'
+                ] );
+
+                Route::get( '/check' , [
+                    'as' => 'api.deploy.checkProgress' ,
+                    'uses' => 'DeployController@checkProgress'
+                ] );
+
+                Route::post( '/package/create' , [
+                    'as' => 'api.deploy.deploypackages' ,
+                    'uses' => 'DeployController@deployPackages'
+                ] );
+
+                Route::get( '/exportcsv' , [
+                    'as' => 'api.deploy.exportcsv' ,
+                    'uses' => 'DeployController@exportCsv'
+                ] );
+            }
+        );
+        Route::group(
+            [ 'prefix' => 'proxy' ] ,
+            function () {
+                Route::get('/active', [
+                    'as' => 'api.proxy.list',
+                    'uses' => 'ProxyController@listAllActive'
+                ]);
             }
         );
 
@@ -472,6 +844,45 @@ Route::group(
                     'as' => 'api.listprofile.zips' ,
                     'uses' => 'ListProfileController@zips'
                 ] );
+
+                Route::get( '/active' , [
+                    'as' => 'api.listprofile.active' ,
+                    'uses' => 'ListProfileController@listActive'
+                ] );
+            }
+        );
+
+        /**
+         * Proxies additional routes
+         */
+
+        /**Domain Routes**/
+        Route::group(
+            [ 'prefix' => 'domain' ] ,
+            function () {
+                Route::get( '/listDomains/{type}/{espAccountId}' , [
+                    'as' => 'api.domain.listDomains' ,
+                    'uses' => 'DomainController@getDomainsByTypeAndESP'
+                ] );
+
+                Route::get( '/listActiveDomains/{type}/{espAccountId}' , [
+                    'as' => 'api.domain.listDomains' ,
+                    'uses' => 'DomainController@getActiveDomainsByTypeAndESP'
+                ] );
+            }
+        );
+
+
+        /**
+         * Offer Routes
+         */
+        Route::group(
+            [ 'prefix' => 'offer' ] ,
+            function () {
+                Route::get( '/search' , [
+                    'as' => 'api.offer.search' ,
+                    'uses' => 'OfferController@typeAheadSearch'
+                ] );
             }
         );
 
@@ -479,7 +890,6 @@ Route::group(
         /**
          *  Bulk Suppression API Routes
          */
-
         Route::group(
             ['prefix' => 'bulksuppression'],
             function() {
@@ -499,11 +909,153 @@ Route::group(
         );
 
         /**
+         *  CFS API Routes
+         */
+        Route::group(
+            ['prefix' => 'cfs'],
+            function() {
+
+                Route::get('/creatives/{id}', [
+                    'as' => 'api.cfs.creatives',
+                    'uses' => 'CreativeFromSubjectController@getCreatives'
+                ]);
+
+                Route::get('/froms/{id}', [
+                    'as' => 'api.cfs.froms',
+                    'uses' => 'CreativeFromSubjectController@getFroms'
+                ]);
+
+                Route::get('/subjects/{id}', [
+                    'as' => 'api.cfs.subjects',
+                    'uses' => 'CreativeFromSubjectController@getSubjects'
+                ]);
+            }
+        );
+
+        /**
+         * Report API Routes
+         */
+        Route::group(
+            ['prefix' => 'report'],
+            function() {
+                Route::get( '/' , [
+                    'as' => 'api.report.getRecords' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'ReportController@getRecords'
+                ] );
+            }
+        );
+
+
+        /**
+         *  Attribution API Routes
+         */
+        Route::group(
+            [] ,
+            function () {
+                Route::get( '/attribution/model' , [
+                    'as' => 'api.attribution.model.index' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionController@index'
+                ] ); 
+
+                Route::post( '/attribution/model' , [
+                    'as' => 'api.attribution.model.store' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionController@store'
+                ] ); 
+
+                Route::put( '/attribution/model/{modelId}' , [
+                    'as' => 'api.attribution.model.update' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionController@update'
+                ] ); 
+
+                Route::delete( '/attribution/model/{modelId}/{feedId}' , [
+                    'as' => 'api.attribution.model.destroy' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionController@destroy'
+                ] ); 
+
+                Route::get( '/attribution/model/{modelId}' , [
+                    'as' => 'api.attribution.model.show' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionController@show'
+                ] ); 
+
+                Route::get( '/attribution/model/{modelId}/levels' , [
+                    'as' => 'api.attribution.model.levels' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionController@levels'
+                ] );
+
+                Route::get( '/attribution/model/{modelId}/feeds' , [
+                    'as' => 'api.attribution.model.clients' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionController@getModelFeeds'
+                ] );
+
+                Route::post( '/attribution/model/copyLevels' , [
+                    'as' => 'api.attribution.model.copyLevels' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionController@copyLevels'
+                ] );
+
+                Route::get( '/attribution/model/setlive/{modelId}' , [
+                    'as' => 'api.attribution.model.setlive' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionController@setModelLive'
+                ] );
+
+                Route::post( '/attribution/model/run' , [
+                    'as' => 'api.attribution.run' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionController@runAttribution'
+                ] );
+
+                Route::get( '/attribution/projection/report/{modelId}' , [
+                    'as' => 'api.attribution.projection.report' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionController@getReportData'
+                ] );
+
+                Route::get( '/attribution/projection/chart/{modelId}' , [
+                    'as' => 'api.attribution.projection.chart' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionController@getChartData'
+                ] );
+
+                Route::get( '/attribution/syncLevels' , [
+                    'as' => 'api.attribution.model.syncLevels' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'AttributionController@syncLevelsWithMT1'
+                ] );
+            }
+        );
+
+        Route::get( '/espapi/espAccounts/{name}' , [
+            'as' => 'api.espapi.GetAll' ,
+            'uses' => 'EspApiAccountController@displayEspAccounts'
+        ] );
+        /**
          * API Resources
          */
+        Route::get(
+            'espapi/all' ,
+            [
+                'as' => 'api.espapi.returnAll' ,
+                'uses' => 'EspApiAccountController@returnAll'
+            ]
+        );
+        Route::resource(
+            'esp' ,
+            'EspController' ,
+            [ 'except' => [ 'create' , 'edit' ] ]
+        );
+
         Route::resource(
             'espapi' ,
-            'EspApiController' ,
+            'EspApiAccountController' ,
             [ 'except' => [ 'create' , 'edit' ] ]
         );
 
@@ -514,15 +1066,15 @@ Route::group(
         );
 
         Route::resource(
-            'client' ,
-            'ClientController' ,
+            'feed' ,
+            'FeedController' ,
             [ 'except' => [ 'create' , 'edit' , 'pager' ] ]
         );
 
         Route::resource(
-            'clientgroup' ,
-            'ClientGroupController' ,
-            [ 'except' => [ 'index' , 'create' , 'edit' , 'copy' ] ]
+            'feedgroup' ,
+            'FeedGroupController' ,
+            [ 'except' => [ 'create' , 'edit' ] ]
         );
 
         Route::resource(
@@ -530,7 +1082,32 @@ Route::group(
             'UserApiController',
             [ 'except' => [ 'create' , 'edit' ] ]
         );
-        
+
+        Route::resource(
+            'deploy',
+            'DeployController',
+            [ 'except' => [ 'create' , 'edit' ] ]
+        );
+
+        Route::resource(
+            'ispgroup',
+            'DomainGroupController',
+            [ 'except' => [ 'create' , 'edit' ] ]
+        );
+
+        Route::resource(
+            'isp',
+            'EmailDomainController',
+            [ 'except' => [ 'create' , 'edit' ] ]
+        );
+
+
+        Route::resource(
+            'domain',
+            'DomainController',
+            [ 'except' => [ 'create' , 'edit' ] ]
+        );
+
         Route::resource(
             'datacleanse' ,
             'DataCleanseController' ,
@@ -548,18 +1125,6 @@ Route::group(
             'ShowInfoController' ,
             [ 'only' => [ 'show' , 'store' ] ]
         );
-        
-        Route::resource(
-            'attribution' ,
-            'AttributionController' ,
-            [ 'only' => [ 'store' ] ]
-        );
-
-        Route::resource(
-            'attribution' ,
-            'AttributionController' ,
-            [ 'only' => [ 'store'] ]
-        );
 
         Route::resource(
             'bulksuppression' ,
@@ -573,21 +1138,14 @@ Route::group(
             [ 'only' => [ 'index' ] ]
         );
 
-        Route::post(
-            'attribution/bulk' ,
+	    Route::resource(
+            'dataexport',
+            'DataExportController',
             [
-                'as' => 'api.attribution.bulk' ,
-                'uses' => 'AttributionController@bulk'
-            ]
-	);
-	Route::resource(
-            'dataexport', 
-            'DataExportController', 
-            [
-                'except' => ['create', 'edit'], 
+                'except' => ['create', 'edit'],
                 'middleware' =>['auth']
             ]
-        );
+            );
 
         Route::resource(
             'isp' ,
@@ -595,10 +1153,38 @@ Route::group(
             [ 'only' => [ 'index' ] ]
         );
 
+        Route::resource(
+            'proxy',
+            'ProxyController' ,
+            [ 'except' => [ 'create' , 'edit' ] ]
+        );
+
+        Route::resource(
+            'registrar',
+            'RegistrarController',
+            [ 'except' => ['create', 'edit']]
+        );
+
+        Route::resource(
+            'dba',
+            'DoingBusinessAsController',
+            [ 'except' => ['create', 'edit']]
+        );
+
+        Route::get('/mailingtemplate/templates/{id}', [
+            'as' => 'api.mailingtemplate.listbyesp',
+            'uses' => 'EspApiAccountController@grabTemplatesByESP'
+        ]);
+        Route::resource(
+            'mailingtemplate',
+            'MailingTemplateController',
+            [ 'except' => ['create', 'edit']]
+        );
+
         /**
          * Admin Level API Group
          */
-        Route::group( [ 'middleware' => 'admin' ] , function () {
+        Route::group( [ 'middleware' => 'pageLevel' ] , function () {
             Route::get( '/role/permissions/' , [
                 'as' => 'api.role.permissions' ,
                 'uses' => 'RoleApiController@permissions'
@@ -615,6 +1201,11 @@ Route::group(
                 [ 'except' => [ 'create' , 'edit' ] ]
             );
         } );
+
+        Route::post( '/appendeid/upload/' , [
+            'as' => 'tools.appendeid.upload' ,
+            'uses' => 'AppendEidController@manageUpload'
+        ] );
 
         /**
          * Dev Level API Group
@@ -653,7 +1244,7 @@ Route::group(
             'client/generatelinks/{id}' ,
             [
                 'as' => 'api.mt1.client.generatelinks' ,
-                'uses' => 'ClientController@generatelinks'
+                'uses' => 'FeedController@generatelinks'
             ]
         );
 
@@ -713,8 +1304,8 @@ Route::group(
         );
 
         Route::resource(
-            'esps', 
-            'MT1API\EspApiController', 
+            'esps',
+            'MT1API\EspApiController',
             ['only' => ['index', 'show']]
         );
     }

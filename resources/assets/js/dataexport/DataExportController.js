@@ -1,4 +1,4 @@
-mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' , '$location' , 'DataExportApiService' , function ( $rootScope , $log , $window , $location , DataExportApiService ) { 
+mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' , '$location' , 'DataExportApiService' , function ( $rootScope , $log , $window , $location , DataExportApiService ) {
   var self = this;
   self.createUrl = '/dataexport/create';
   self.testUser = 217;
@@ -53,10 +53,11 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     "repull": '',
     "esp": '',
     "otherField": "",
-    "otherValue": "" 
+    "otherValue": ""
   };
   self.formErrors = [];
   self.selectedExports = {};
+  self.mdSelectedExports = [];
 
   // Day-specific properties
   self.days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -74,6 +75,8 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   self.currentlyLoading = 0;
   self.pageCount = 0;
   self.currentPage = 1;
+  self.dataExportTotal = 0;
+  self.queryPromise = null;
 
 
   // Index page setup
@@ -110,7 +113,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     self.viewed.exportId = 0;
     var currentPath = $location.path();
     var pathParts = currentPath.match(new RegExp(/(\d+)/));
-    var fillPage = (pathParts !== null) 
+    var fillPage = (pathParts !== null)
       && pathParts.length > 0
       && angular.isNumber(parseInt(pathParts[0]));
 
@@ -127,16 +130,21 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
     self.loadProfiles();
     self.loadClientGroups();
-    
+
   };
 
   /**
    * Main CRUD methods
    */
 
+   self.mdLoadActiveDataExports = function() {
+    self.selectedExports = {};
+    self.mdSelectedExports = [];
+    self.loadActiveDataExports();
+   };
+
   self.loadActiveDataExports = function() {
-    self.currentlyLoading = 1;
-    DataExportApiService.getActiveDataExports(
+    self.queryPromise = DataExportApiService.getActiveDataExports(
       self.currentPage,
       self.paginationCount,
       self.loadDataExportsSuccessCallback,
@@ -145,8 +153,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   };
 
   self.loadPausedDataExports = function() {
-    self.currentlyLoading = 1;
-    DataExportApiService.getPausedDataExports(
+    self.queryPromise = DataExportApiService.getPausedDataExports(
       self.currentPage,
       self.paginationCount,
       self.loadDataExportsSuccessCallback,
@@ -220,7 +227,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     );
   };
 
-  self.deleteDataExport = function(id) {    
+  self.deleteDataExport = function(id) {
     DataExportApiService.deleteDataExport(
       id,
       self.deleteDataExportSuccessCallback,
@@ -283,7 +290,11 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
       // does; remove
       delete self.selectedExports[id];
     }
-  }
+  };
+
+  self.mdToggleInclusion = function ( dataExport ) {
+    self.toggleInclusion( dataExport.exportID );
+  };
 
   self.pauseSelected = function() {
     if ('active' === self.displayedStatus) {
@@ -300,7 +311,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
         self.massStatusChangeFailureCallback
       );
     }
-    
+
   };
 
   self.rePullSelected = function() {
@@ -318,13 +329,13 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
   self.loadProfiles = function () {
     DataExportApiService.getProfiles(
-      self.loadProfileApiSuccessCallback, 
+      self.loadProfileApiSuccessCallback,
       self.loadProfileApiFailureCallback
     );
-  }; 
+  };
 
   self.getProfile = function(searchText) {
-    return searchText ? self.profiles.filter( function ( obj ) { 
+    return searchText ? self.profiles.filter( function ( obj ) {
       return obj.name !== null && obj.name.toLowerCase().indexOf( searchText.toLowerCase() ) === 0;
     }) : self.profiles;
   };
@@ -352,7 +363,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   };
 
   self.getEspForText = function(searchText) {
-    return searchText ? self.espList.filter( function ( obj ) { 
+    return searchText ? self.espList.filter( function ( obj ) {
       return obj.name !== null && obj.name.toLowerCase().indexOf( searchText.toLowerCase() ) === 0;
     } ) : self.espList;
   }
@@ -363,13 +374,13 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
   self.loadClientGroups = function () {
     DataExportApiService.getClientGroups(
-      self.loadCGApiSuccessCallback, 
+      self.loadCGApiSuccessCallback,
       self.loadCGApiFailureCallback
     );
   };
 
   self.findClientGroup = function(searchText) {
-    return searchText ? self.clientGroups.filter( function ( obj ) { 
+    return searchText ? self.clientGroups.filter( function ( obj ) {
       return obj.name !== null && obj.name.toLowerCase().indexOf( searchText.toLowerCase() ) === 0;
     } ) : self.clientGroups;
   };
@@ -481,7 +492,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
   /* Callback procedures */
 
   self.prepopPageSuccessCallback = function(response) {
-    
+
     var data = response.data[0];
 
     self.viewed = {
@@ -549,10 +560,10 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     for (var i = 0; i < espArrLen; i++) {
       // blank name for now - will be updated when esps are loaded
         currentEspId = parseInt( espsArr[i] , 10 );
-      
+
       if ( currentEspId > 0 ) $rootScope[ self.widgetName ].push( currentEspId );
     }
-    
+
     var fields = data.fieldsToExport.split(',');
 
     var l = fields.length;
@@ -571,9 +582,9 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
 
 
   self.loadDataExportsSuccessCallback = function(response) {
-    self.currentlyLoading = 0;
     self.dataExports = response.data.data;
     self.pageCount = response.data.last_page;
+    self.dataExportTotal = response.data.total;
   };
 
   self.loadActiveDataExportsFailureCallback = function(response) {
@@ -711,7 +722,7 @@ mt2App.controller( 'DataExportController' , [ '$rootScope' , '$log' , '$window' 
     self.setModalBody( 'Failed to load esps.' );
     self.launchModal();
   }
-  
+
   self.espMembershipCallback = function () {
     self.formEsps = [];
 

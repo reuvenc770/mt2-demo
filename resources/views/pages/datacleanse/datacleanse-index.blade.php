@@ -2,43 +2,46 @@
 
 @section( 'title' , 'Data Cleanse' )
 
-@section( 'content' )
-<div class="row">
-    <div class="page-header col-xs-12"><h1 class="text-center">Data Cleanse</h1></div>
-</div>
+@section( 'angular-controller' , 'ng-controller="DataCleanseController as cleanse"')
 
-<div ng-controller="DataCleanseController as cleanse" ng-init="cleanse.load()">
+@section( 'page-menu' )
     @if ( Sentinel::hasAccess( 'datacleanse.add' ) )
-    <div class="row">
-        <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="cleanse.viewAdd()"><span class="glyphicon glyphicon-plus"></span> Add Data Cleanse</button>
-    </div>
+        <md-button ng-click="cleanse.viewAdd()" aria-label="Add Data Cleanse">
+            <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-show="app.isMobile()">add_circle_outline</md-icon>
+            <span ng-hide="app.isMobile()">Add Data Cleanse</span>
+        </md-button>
     @endif
+@stop
 
-    <div class="row">
-        <div class="col-xs-12">
-            <div class="row">
-                <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                    <pagination-count recordcount="cleanse.paginationCount" currentpage="cleanse.currentPage"></pagination-count>
-                </div>
+@section( 'content' )
+<div ng-init="cleanse.load()">
+    <md-content layout="row" layout-align="center" class="md-mt2-zeta-theme md-hue-1">
+        <md-card flex-gt-md="70" flex="100">
+            <md-table-container>
+                <table md-table md-progress="cleanse.queryPromise">
+                    <thead md-head >
+                        <tr md-row>
+                            <th md-column class="md-table-header-override-whitetext">File Name</th>
+                            <th md-column class="md-table-header-override-whitetext">Updated</th>
+                            <th md-column class="md-table-header-override-whitetext">Records</th>
+                        </tr>
+                    </thead>
 
-                <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                    <pagination currentpage="cleanse.currentPage" maxpage="cleanse.pageCount" disableceiling="cleanse.reachedMaxPage" disablefloor="cleanse.reachedFirstPage"></pagination>
-                </div>
-            </div>
+                    <tbody md-body>
+                        <tr md-row ng-repeat="record in cleanse.cleanses track by $index">
+                            <td md-cell>@{{ record.name }}</td>
+                            <td md-cell>@{{ record.lastUpdated }}</td>
+                            <td md-cell>@{{ record.count }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </md-table-container>
 
-            <datacleanse-table records="cleanse.cleanses" loadingflag="cleanse.currentlyLoading"></datacleanse-table>
-
-            <div class="row">
-                <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                    <pagination-count recordcount="cleanse.paginationCount" currentpage="cleanse.currentPage"></pagination-count>
-                </div>
-
-                <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                    <pagination currentpage="cleanse.currentPage" maxpage="cleanse.pageCount" disableceiling="cleanse.reachedMaxPage" disablefloor="cleanse.reachedFirstPage"></pagination>
-                </div>
-            </div>
-        </div>
-    </div>
+            <md-content class="md-mt2-zeta-theme md-hue-2">
+                <md-table-pagination md-limit="cleanse.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="cleanse.currentPage" md-total="@{{cleanse.cleanseTotal}}" md-on-paginate="cleanse.load" md-page-select></md-table-pagination>
+            </md-content>
+        </md-card>
+    </md-content>
 </div>
 @stop
 

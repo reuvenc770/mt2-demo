@@ -61,10 +61,10 @@ class InsertChunksJob extends Job implements ShouldQueue
                 echo "Would start at $currentId and end at $segmentEnd" . PHP_EOL;
 
                 DB::statement("INSERT INTO {$this->to}
-                    (email_id, client_id, deploy_id, esp_account_id, esp_internal_id, action_id, datetime, created_at, updated_at)
+                    (email_id, deploy_id, esp_account_id, esp_internal_id, action_id, datetime, created_at, updated_at)
 
                     SELECT
-                        email_id, client_id, deploy_id, esp_account_id, esp_internal_id, action_id, datetime, created_at, updated_at
+                        email_id, deploy_id, esp_account_id, esp_internal_id, action_id, datetime, created_at, updated_at
                     FROM
                         {$this->from}
                     WHERE

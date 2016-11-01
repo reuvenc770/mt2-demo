@@ -234,15 +234,21 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
                     each of these actions (they would overwrite each other) so we
                     must artificially create a second for each action, hoping that 
                     we don't exceed 60 actions a minute (which I haven't seen yet).
+
+                    edit: we've now seen >60 actions per minute, so we're capping it at that
+                    with Levelocity's approval
                 */
+
                 $trimmedTimestamp = date('Y-m-d H:i', strtotime($record->TimeStamp));
                 $key = md5($record->Email . $recordType . $trimmedTimestamp);
-                #echo $key . PHP_EOL;
 
                 // If the tag already exists, get the (already-incremented) second, and increment again
                 if (Cache::tags([$recordType, $deployId])->has($key)) {
                     $timeCount = Cache::tags([$recordType, $deployId])->get($key);
-                    Cache::tags([$recordType, $deployId])->increment($key);
+                    if ((int)$timeCount < 59) { // only up to 60x (0-59)
+                        Cache::tags([$recordType, $deployId])->increment($key);
+                    }
+                    
                 }
                 else {
                     // Tag does not exist. Create it for 30 min.
@@ -299,7 +305,6 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
                 $processState[ "espId" ] ,
                 $record->Email ,
                 $processState[ "campaign" ]->esp_internal_id ,
-                '' ,
                 $record->TimeStamp
             );
         }
@@ -313,7 +318,6 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
                 $processState[ "espId" ] ,
                 $record->Email ,
                 $processState[ "campaign" ]->esp_internal_id ,
-                '' ,
                 $record->TimeStamp
             );
         }

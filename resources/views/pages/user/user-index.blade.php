@@ -4,25 +4,65 @@
 
 @section( 'navEspClasses' , 'active' )
 
+@section( 'angular-controller', 'ng-controller="userController as user"' )
+
+@section( 'page-menu' )
+    @if (Sentinel::hasAccess('user.add'))
+        <md-button ng-click="user.viewAdd()" aria-label="Add User Account">
+            <md-icon ng-show="app.isMobile()" md-svg-src="img/icons/ic_add_circle_outline_black_24px.svg"></md-icon>
+            <span ng-hide="app.isMobile()">Add User Account</span>
+        </md-button>
+    @endif
+@stop
+
 @section( 'content' )
-    <div class="row">
-        <div class="page-header col-xs-12"><h1 class="text-center">User Accounts</h1></div>
+    <div ng-init="user.loadAccounts()">
+        <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
+            <md-card>
+                <md-table-container>
+                    <table md-table>
+                        <thead md-head>
+                            <tr md-row>
+                                <th md-column></th>
+                                <th md-column class="md-table-header-override-whitetext" md-numeric>ID</th>
+                                <th md-column class="md-table-header-override-whitetext">Email</th>
+                                <th md-column class="md-table-header-override-whitetext">Username</th>
+                                <th md-column class="md-table-header-override-whitetext">First Name</th>
+                                <th md-column class="md-table-header-override-whitetext">Last Name</th>
+                                <th md-column class="md-table-header-override-whitetext">Roles</th>
+                                <th md-column class="md-table-header-override-whitetext">Status</th>
+                                <th md-column class="md-table-header-override-whitetext">Last Login</th>
+                            </tr>
+                        </thead>
+
+                        <tbody md-body>
+                            <tr md-row ng-repeat="record in user.accounts track by $index">
+                                <td md-cell>
+                                    <div layout="row" layout-align="center center">
+                                        <md-button class="md-icon-button" ng-href="@{{ user.editUrl + record.id }}" target="_self" aria-label="Edit">
+                                            <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon>
+                                            <md-tooltip md-direction="bottom">Edit</md-tooltip>
+                                        </md-button>
+                                    </div>
+                                </td>
+                                <td md-cell>@{{ record.id }}</td>
+                                <td md-cell>@{{ record.email }}</td>
+                                <td md-cell>@{{ record.username }}</td>
+                                <td md-cell>@{{ record.first_name }}</td>
+                                <td md-cell>@{{ record.last_name }}</td>
+                                <td md-cell>
+                                    @{{ record.roles.join(', ') }}
+                                </td>
+                                <td md-cell ng-bind="record.activations.length > 0 ? 'Active' : 'Inactive'"></td>
+                                <td md-cell>@{{ record.last_login }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </md-table-container>
+            </md-card>
+        </md-content>
     </div>
 
-    <div ng-controller="userController as user" ng-init="user.loadAccounts()">
-        @if (Sentinel::hasAccess('user.add'))
-        <div class="row">
-            <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="user.viewAdd()"><span class="glyphicon glyphicon-plus"></span> Add User Account</button>
-        </div>
-        @endif
-        <div class="row">
-            <div class="col-xs-12">
-                <div id="mtTableContainer" class="table-responsive">
-                    <generic-table headers="user.headers" records="user.accounts" editurl="user.editUrl"></generic-table>
-                </div>
-            </div>
-        </div>
-    </div>
 @stop
 
 @section( 'pageIncludes' )

@@ -45,8 +45,6 @@ class BlueHornetSubscriberService
     public function pullUnsubsEmailsByLookback($lookback)
     {
         $start = Carbon::now()->startOfDay()->subDay($lookback)->toDateString();
-        print_r($start);
-        print_r($this->endDate);
         $this->request = self::UNSUB_REQUEST;
         $this->methodData = ["date_deleted1" => $start, "date_deleted2" => $this->endDate];
         $return = $this->_handleRequest();
@@ -82,12 +80,11 @@ class BlueHornetSubscriberService
                     $espAccountId,
                     $entry->email,
                     $campaign_id,
-                    $entry->method_unsubscribed,
                     $entry->date_deleted
                 );
                 continue;
             }
-            Suppression::recordRawUnsub($espAccountId, $entry->email, $campaign_id, $entry->method_unsubscribed, $entry->date_deleted);
+            Suppression::recordRawUnsub($espAccountId, $entry->email, $campaign_id, $entry->date_deleted);
         }
 
     }

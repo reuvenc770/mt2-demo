@@ -48,7 +48,7 @@ trait PaginateMT1
 
     public function paginateRecords ( $pageNumber , $perPage , $params ) {
             $records = collect( json_decode( $this->getJson( $this->pageName , $params ) , true ) );
-            
+
             $totalRecordCount = count( $records );
             $chunkedList = $records->chunk( $perPage );
             $pageCount = count( $chunkedList );

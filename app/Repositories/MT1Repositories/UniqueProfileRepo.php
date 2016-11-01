@@ -78,4 +78,17 @@ class UniqueProfileRepo
         }
 
     }
+
+    public function getAll () {
+        try {
+            return $this->profile->get();
+        } catch ( \Exception $e ) {
+            Log::error( "UniqueProfileRepo Error:: " . $e->getMessage() );
+        }
+    }
+
+    public function pullForSync($lookback) {
+        return $this->profile
+                    ->where('last_updated', '>=', DB::raw("CURDATE() - INTERVAL $lookback DAY"));
+    }
 }

@@ -24,7 +24,8 @@ use App\Models\EmailAction;
 use App\Models\ActionType;
 use App\Models\EmailDomain;
 use App\Models\DomainGroup;
-use App\Models\EmailClientInstance;
+use App\Models\EmailFeedInstance;
+use App\Models\RecordData;
 use App\Repositories\EmailRecordRepo;
 use App\Services\EmailRecordService;
 
@@ -52,11 +53,7 @@ class APIFactory
         $emailRecord = new EmailRecordService(
             new EmailRecordRepo(
                 new Email() ,
-                new EmailAction() ,
-                new ActionType() ,
-                new EmailDomain() ,
-                new DomainGroup() ,
-                new EmailClientInstance()
+                new RecordData()
             )
         );
 
@@ -72,7 +69,7 @@ class APIFactory
         if( in_array( $apiName , [
             "BlueHornet" ,
             "EmailDirect" ,
-            "Campaigner" ,
+            "Campaigner",
             "Publicators"
         ] ) ) {
             $api = "App\\Services\\API\\{$apiName}Api";
@@ -132,32 +129,6 @@ class APIFactory
     public static function createMt1DataImportService($name) {
 
         switch ($name) {
-
-            case 'ImportMt1Emails':
-                $model = new \App\Models\TempStoredEmail();
-                $repo = new \App\Repositories\TempStoredEmailRepo($model);
-                $api = new \App\Services\API\Mt1DbApi();
-
-                // need emails, email_client_instances
-
-                $emailModel = new \App\Models\Email();
-                $emailRepo = new \App\Repositories\EmailRepo($emailModel);
-                $emailClientModel = new \App\Models\EmailClientInstance();
-                $emailClientRepo = new \App\Repositories\EmailClientInstanceRepo($emailClientModel);
-
-                $clientModel = new \App\Models\Client();
-                $clientRepo = new \App\Repositories\ClientRepo($clientModel);
-
-                $domainModel = new \App\Models\EmailDomain();
-                $domainRepo = new \App\Repositories\EmailDomainRepo($domainModel);
-
-                return new \App\Services\ImportMt1EmailsService(
-                    $api, 
-                    $repo, 
-                    $emailRepo, 
-                    $emailClientRepo,
-                    $clientRepo,
-                    $domainRepo);
 
             case 'DownloadContentServerStats':
                 $model = new \App\Models\ContentServerAction();

@@ -14,4 +14,11 @@ class StandardReportService {
         $this->repo->insertStats($data);
     }
 
+    public function getDeployId ( $internalEspId ) {
+        return $this->repo->getDeployId( $internalEspId );
+    }
+
+    public function getInternalEspId ( $deployId ) {
+        return $this->repo->getInternalEspId( $deployId );
+    }
 }

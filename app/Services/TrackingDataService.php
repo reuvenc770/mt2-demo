@@ -11,6 +11,7 @@ use App\Repositories\Interfaces\CakeTargetRepo;
 use League\Flysystem\Exception;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
+use Carbon\Carbon;
 
 class TrackingDataService implements IDataService
 {
@@ -26,17 +27,25 @@ class TrackingDataService implements IDataService
   }
 
   public function retrieveApiStats($data = null) {
-    $reportStats = $this->api->sendApiRequest();
+    $reportStats = $this->api->sendApiRequest( $data );
     
     $out = $this->processGuzzleResult($reportStats);
+
     return $out;
   }
 
-  public function insertApiRawStats($data) {
+  public function insertApiRawStats( $data , $recordLevel = false) {
+      if ( $recordLevel ) {
+            $this->insertApiRawRecordStats( $data , \App::make( \App\Repositories\Attribution\RecordReportRepo::class ) );
+      } else {
+            $this->insertApiRawAggregateStats( $data );
+      }
+  }
 
+  protected function insertApiRawAggregateStats ( $data ) {
     foreach ($data as $row) {
       $convertedRow = $this->mapToRawReport($row);
-      $this->repo->insertStats($convertedRow);
+      $this->repo->insertAggregateStats($convertedRow);
     }
 
     // need to get data at a different level of aggregation for std report
@@ -44,13 +53,54 @@ class TrackingDataService implements IDataService
     Event::fire(new RawReportDataWasInserted($this, $convertedRows));
   }
 
-  public function insertSegmentedApiRawStats($data, $length) {
+  protected function insertApiRawRecordStats ( $data , $reportRepo ) {
+    foreach ( $data as $row ) {
+        $row[ 'email_id' ] = $this->extractEidFromS2( $row[ 's2' ] );
+
+        $this->repo->insertRecordStats( $row );
+
+        if ( $row[ 'price_received' ] > 0 ) {
+            $date = $row[ 'conversion_date' ];
+
+            if ( $date === '0000-00-00 00:00:00' ) {
+                $date = $row[ 'click_date' ];
+            }
+
+            $reportRepo->insertAction( [
+                "email_id" => $row[ 'email_id' ] ,
+                "deploy_id" => $row[ 's1' ] ,
+                "offer_id" => 0 ,
+                "delivered" => 0 ,
+                "opened" => 0 ,
+                "clicked" => 0 ,
+                "converted" => 1 , 
+                "bounced" => 0 ,
+                "unsubbed" => 0 ,
+                "revenue" => $row[ 'price_received' ] ,
+                "date" => Carbon::parse( $date )->toDateString()
+            ] );
+        }
+    }
+  }
+
+  public function insertSegmentedApiRawStats($data, $length , $recordLevel = false ) {
     $start = 0;
     $end = 5000;
+    $recordRepo = null;
 
-    while ($end < $length) {
+    while ( $end < $length ) {
       $slice = array_slice($data, $start, $end);
-      $this->insertApiRawStats($slice);
+
+      if ( $recordLevel ) {
+          if ( is_null( $recordRepo ) ) {
+            $recordRepo = \App::make( \App\Repositories\Attribution\RecordReportRepo::class );
+          }
+
+          $this->insertApiRawRecordStats( $slice , $recordRepo );
+      } else {
+          $this->insertApiRawAggregateStats( $slice );
+      }
+
       $start = $end;
       $end = $end + 5000;
     } 

@@ -25,6 +25,11 @@ class PermissionRepo
         return $this->permission->all()->sortBy('name');
     }
 
+    public function getAllPermissionsWithParent($id)
+    {
+        return $this->permission->where("parent",$id)->orderBy("rank")->get();
+    }
+
     public function addPermission ( $routeName , $crudType ) {
         $permission = new Permission();
         $permission->name = $routeName;
@@ -44,5 +49,17 @@ class PermissionRepo
         $permission = $this->permission->where( 'name' , $permissionName )->get();
 
         return $permission[0]->id;
+    }
+
+    public function getAllOrphanPermissions(){
+        return $this->permission->where("parent", 0)->get();
+    }
+
+    public function updateParentAndRank($id, $parentId, $rank){
+        return $this->permission->find($id)->update(['parent'=>$parentId, 'rank' =>$rank]);
+    }
+
+    public function removeParents($childrenToOrphan){
+        return $this->permission->whereNotIn('id',$childrenToOrphan)->update(['parent'=>0,'rank'=>0]);
     }
 }

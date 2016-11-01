@@ -1,4 +1,4 @@
-mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window' , '$location' , 'ClientGroupApiService' , 'ClientApiService' , function ( $rootScope , $log , $window , $location , ClientGroupApiService , ClientApiService ) {
+mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window' , '$location' , 'ClientGroupApiService' , 'FeedApiService' , '$mdToast' , function ( $rootScope , $log , $window , $location , ClientGroupApiService , FeedApiService , $mdToast ) {
     /**
      * Contants
      */
@@ -14,6 +14,9 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
     self.pageCount = 0;
     self.paginationCount = '10';
     self.currentPage = 1;
+    self.clientGroupTotal = 0;
+    self.sort = '-id';
+    self.queryPromise = null;
 
 
     /**
@@ -21,6 +24,7 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
      */
     self.clientGroups = [];
     self.clientMap = {};
+    self.clientFeedMap = {};
     self.current = {
         "gid" : 0 ,
         "user_id" : 0 ,
@@ -29,7 +33,7 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
         "excludeFromSuper" : false
     };
     self.formErrors = [];
-    
+
 
     /**
      * Loading Flags
@@ -79,11 +83,11 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
     };
 
     self.loadClientGroups = function () {
-        self.currentlyLoading = 1;
 
-        ClientGroupApiService.getClientGroups(
+        self.queryPromise = ClientGroupApiService.getClientGroups(
             self.currentPage ,
             self.paginationCount ,
+            self.sort ,
             self.loadClientGroupsSuccessCallback ,
             self.loadClientGroupsFailureCallback
         );
@@ -98,11 +102,11 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
     }
 
     self.loadClientList = function () {
-        ClientApiService.getAllClients( function ( response ) {
+        FeedApiService.getAllFeeds( function ( response ) {
             self.clientList = response.data;
         } , function ( response ) {
             self.setModalLabel( 'Error' );
-            self.setModalBody( 'Failed to load Client Group\'s list of clients.' );
+            self.setModalBody( 'Failed to load Client Group\'s list of feeds.' );
 
             self.launchModal();
         } );
@@ -117,8 +121,29 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
         $window.location.href = self.createUrl;
     };
 
-    self.saveClientGroup = function ( event ) {
+    self.saveClientGroup = function ( event , form ) {
         self.resetFieldErrors();
+
+        var errorFound = false;
+
+        angular.forEach( form.$error.required , function( field ) {
+            field.$setDirty();
+            field.$setTouched();
+
+            errorFound = true;
+        } );
+
+        if (self.selectedClients.length < 1) {
+            self.setFieldError( 'clients' , 'At least 1 client is required.' );
+            errorFound = true;
+        }
+
+        if ( errorFound ) {
+            $mdToast.showSimple( 'Please fix errors and try again.' );
+
+            return false;
+        };
+
         self.creatingClientGroup = true;
 
         var requestData = self.current;
@@ -126,7 +151,7 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
         if ( requestData[ 'user_id' ] == 0 ) requestData[ 'user_id' ] = self.testUser;
 
         ClientGroupApiService.createClientGroup(
-            requestData , 
+            requestData ,
             self.SuccessCallBackRedirect ,
             self.saveClientGroupFailureCallback
         );
@@ -140,7 +165,7 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
         requestData[ 'action' ] = 'update';
 
         ClientGroupApiService.updateClientGroup(
-            requestData , 
+            requestData ,
             self.SuccessCallBackRedirect ,
             self.updateClientGroupFailureCallback
         );
@@ -165,7 +190,7 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
             self.deleteClientGroupFailureCallback
         );
     };
-    
+
     /**
      * Watchers
      */
@@ -228,6 +253,10 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
             clientIdList.push( client[ self.clientIdField ] );
         } );
 
+        if (clientIdList.length > 0) {
+            self.formErrors.clients = "";
+        }
+
         self.current.clients = clientIdList.join( "\n" );
     };
 
@@ -260,8 +289,14 @@ mt2App.controller( 'ClientGroupController' , [ '$rootScope' , '$log' , '$window'
     self.loadClientGroupsSuccessCallback = function ( response ) {
         self.currentlyLoading = 0;
 
-        self.clientGroups = response.data.data;
+        self.clientGroups = response.data.data.map(function(item) {
+            return {
+                'id': item['client_group_id'],
+                "name": item["group_name"]
+            };
+        });
         self.pageCount = response.data.last_page;
+        self.clientGroupTotal = response.data.total;
     };
 
     self.loadClientsSuccessCallback = function ( response ) {

@@ -29,11 +29,6 @@ class AWeberReportTable extends Migration
             $table->timestamps();
 
         });
-
-        Schema::connection("reporting_data")->table('a_weber_reports', function($table) {
-            $tableName = env('DB_DATABASE','homestead');
-            $table->foreign('esp_account_id')->references('id')->on("{$tableName}.esp_accounts");
-        });
     }
 
     /**
@@ -43,6 +38,6 @@ class AWeberReportTable extends Migration
      */
     public function down()
     {
-        Schema::connection('reporting_data')->drop('get_response_reports');
+        Schema::connection('reporting_data')->drop('a_weber_reports');
     }
 }

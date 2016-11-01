@@ -5,43 +5,63 @@
 
 @section( 'navEspClasses' , 'active' )
 
-@section( 'content' )
-<div class="row">
-    <div class="page-header col-xs-12"><h1 class="text-center">ESP Accounts</h1></div>
-</div>
+@section( 'angular-controller' , 'ng-controller="espController as esp"' )
 
-<div ng-controller="espController as esp" ng-init="esp.loadAccounts()">
+@section( 'page-menu' )
     @if (Sentinel::hasAccess('espapi.add'))
-    <div class="row">
-        <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="esp.viewAdd()"><span class="glyphicon glyphicon-plus"></span> Add ESP Account</button>
-    </div>
+        <md-button ng-click="esp.viewAdd()" aria-label="Add ESP Account">
+            <md-icon ng-show="app.isMobile()" md-svg-src="img/icons/ic_add_circle_outline_black_24px.svg"></md-icon>
+            <span ng-hide="app.isMobile()">Add ESP Account</span>
+        </md-button>
     @endif
+@stop
 
-    <div class="row">
-        <div class="col-xs-12">
-            <div class="row">
-                <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                    <pagination-count recordcount="esp.paginationCount" currentpage="esp.currentPage"></pagination-count>
-                </div>
+@section( 'content' )
+<div ng-init="esp.loadAccounts()">
+    <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
+        <md-card>
+            <md-table-container>
+                <table md-table md-progress="esp.queryPromise">
+                    <thead md-head md-order="esp.sort" md-on-reorder="esp.loadAccounts">
+                        <tr md-row>
+                            <th md-column>
+                            </th>
+                            <th md-column md-order-by="id" class="md-table-header-override-whitetext">ID</th>
+                            <th md-column md-order-by="account_name" class="md-table-header-override-whitetext">ESP</th>
+                            <th md-column md-order-by="key_1" class="md-table-header-override-whitetext">Key 1</th>
+                            <th md-column md-order-by="key_2" class="md-table-header-override-whitetext">Key 2</th>
+                            <th md-column md-order-by="created_at" class="md-table-header-override-whitetext">Created</th>
+                            <th md-column md-order-by="updated_at" class="md-table-header-override-whitetext">Updated</th>
+                        </tr>
+                    </thead>
 
-                <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                    <pagination currentpage="esp.currentPage" maxpage="esp.pageCount"></pagination>
-                </div>
-            </div>
+                    <tbody md-body>
+                        <tr md-row ng-repeat="record in esp.accounts track by $index">
+                            <td md-cell>
+                                <div layout="row" layout-align="center center">
+                                    <md-button class="md-icon-button" ng-href="@{{ '/espapi/edit/' + record.id }}" aria-label="Edit" target="_self">
+                                        <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon>
+                                        <md-tooltip md-direction="bottom">Edit</md-tooltip>
+                                    </md-button>
+                                </div>
+                            </td>
+                            <td md-cell>@{{ record.id }}</td>
+                            <td md-cell>@{{ record.account_name }}</td>
+                            <td md-cell>@{{ record.key_1 }}</td>
+                            <td md-cell>@{{ record.key_2 }}</td>
+                            <td md-cell nowrap>@{{ record.created_at }}</td>
+                            <td md-cell nowrap>@{{ record.updated_at }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </md-table-container>
 
-            <espapi-table records="esp.accounts"></espapi-table>
+            <md-content class="md-mt2-zeta-theme md-hue-2">
+                <md-table-pagination md-limit="esp.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="esp.currentPage" md-total="@{{esp.accountTotal}}" md-on-paginate="esp.loadAccounts" md-page-select></md-table-pagination>
+            </md-content>
 
-            <div class="row">
-                <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                    <pagination-count recordcount="esp.paginationCount" currentpage="esp.currentPage"></pagination-count>
-                </div>
-
-                <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                    <pagination currentpage="esp.currentPage" maxpage="esp.pageCount"></pagination>
-                </div>
-            </div>
-        </div>
-    </div>
+        </md-card>
+    </md-content>
 </div>
 @stop
 

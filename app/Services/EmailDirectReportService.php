@@ -204,7 +204,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                     $unsubs = $this->getUnsubscribeReport( $processState[ 'campaign' ]->esp_internal_id );
                     $count = count($unsubs);
                     foreach ( $unsubs as $key => $unsubRecord ) {
-                        Suppression::recordRawUnsub($processState[ 'espId' ] , $unsubRecord[ 'EmailAddress' ],  $processState[ 'campaign' ]->esp_internal_id, "", $unsubRecord[ 'ActionDate' ]);
+                        Suppression::recordRawUnsub($processState[ 'espId' ] , $unsubRecord[ 'EmailAddress' ],  $processState[ 'campaign' ]->esp_internal_id, $unsubRecord[ 'ActionDate' ]);
                     }
                     $type = 'optout';
                 break;
@@ -213,7 +213,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                    $unsubs = $this->getUnsubscribeReport( $processState[ 'campaign' ]->esp_internal_id );
                     $count = count($unsubs);
                     foreach ( $unsubs as $key => $hardbounce ) {
-                        Suppression::recordRawUnsub($processState[ 'espId' ] , $hardbounce[ 'EmailAddress' ],  $processState[ 'campaign' ]->esp_internal_id,  "", $hardbounce[ 'ActionDate' ]);
+                        Suppression::recordRawUnsub($processState[ 'espId' ] , $hardbounce[ 'EmailAddress' ],  $processState[ 'campaign' ]->esp_internal_id, $hardbounce[ 'ActionDate' ]);
                     }
                     $type = 'bounce';
                     break;
@@ -222,7 +222,7 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
                     $complainers = $this->getComplaintReport( $processState[ 'campaign' ]->esp_internal_id );
                     $count = count($complainers);
                     foreach ( $complainers as $key => $complainerRecord ) {
-                        Suppression::recordRawComplaint($processState[ 'espId' ] , $complainerRecord[ 'EmailAddress' ],  $processState[ 'campaign' ]->esp_internal_id,  "", $complainerRecord[ 'ActionDate' ]);
+                        Suppression::recordRawComplaint($processState[ 'espId' ] , $complainerRecord[ 'EmailAddress' ],  $processState[ 'campaign' ]->esp_internal_id, $complainerRecord[ 'ActionDate' ]);
                     }
                     $type = 'complaint';
                 break;

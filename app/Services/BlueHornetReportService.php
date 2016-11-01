@@ -366,7 +366,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                     $date = $detail->nodeValue;
                 }
             }
-            if ($reason == "5-Timeout"){
+            if ($reason == "5-Timeout" || $reason == "5-Spam Block" || "5-Mail Block" === $reason){
                 continue;
             }
             Log::info("BH REASON IS {$reason}");
@@ -374,7 +374,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                 $processState[ 'ticket' ][ 'espId' ] ,
                 $email , 
                 $processState[ 'campaign' ]->esp_internal_id , 
-                $reason ,
                 $date
             );
             $count++;
@@ -441,7 +440,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             $optoutDate = $current->nodeValue;
 
             $email = $this->findEmail( $current );
-            $reason = null;
             $date = null;
 
             if ( is_null( $email ) ) { continue; }
@@ -450,7 +448,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
                 $processState[ 'ticket' ][ 'espId' ] ,
                 $email ,
                 $processState[ 'campaign' ]->esp_internal_id ,
-                "" ,
                 $optoutDate
             );
             $count++;

@@ -39,7 +39,7 @@ class ModifyCakeAggregatedData extends Migration
     public function down()
     {
         Schema::table('cake_aggregated_data', function($table) {
-            $table->dropUnique('adv_aff_off_cre_s1_s4_s5');
+            $table->dropUnique('s1_s4');
             $table->string('subid_2', 100)->default('');
             $table->string('subid_3', 100)->default('');
             $table->date('date')->default('0000-00-00');

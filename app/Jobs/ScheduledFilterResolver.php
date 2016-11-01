@@ -5,7 +5,7 @@ namespace App\Jobs;
 use App\Factories\ServiceFactory;
 use App\Jobs\Job;
 use App\Models\JobEntry;
-use JobTracking;
+use App\Facades\JobTracking;
 use App\Services\AttributionRecordTruthService;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -16,8 +16,7 @@ class ScheduledFilterResolver extends Job implements ShouldQueue
     use InteractsWithQueue, SerializesModels;
     public $filterName;
     public $date;
-    public $fieldName;
-    public $boolValue;
+
     public $tracking;
 
     /**
@@ -29,8 +28,6 @@ class ScheduledFilterResolver extends Job implements ShouldQueue
     {
         $this->filterName = $filterName;
         $this->date = $date;
-        $this->fieldName = config( 'scheduledfilters.' . $filterName . '.column' );
-        $this->boolValue = config( 'scheduledfilters.' . $filterName . '.value' );
         $this->tracking = $tracking;
         JobTracking::startEspJob("Scheduled Filter {$filterName}","","",$this->tracking);
     }
@@ -45,11 +42,18 @@ class ScheduledFilterResolver extends Job implements ShouldQueue
         JobTracking::changeJobState( JobEntry::RUNNING , $this->tracking);
         $scheduledFilterService = ServiceFactory::createFilterService($this->filterName);
         $records = $scheduledFilterService->getRecordsByDate($this->date);
-        $total = count($records);
-        foreach ($records as $record){
-            $truthService->toggleFieldRecord($record->email_id,$this->fieldName, $this->boolValue);
-            $record->delete();
-        }
+        $total = 0;
+        $columns = $scheduledFilterService->returnFullFields();
+
+        $records->chunk(10000, function($results) use (&$total, $columns, $truthService) {
+            $total += count($results);
+            $emailIds = $results->pluck("email_id")->all();
+
+            foreach($columns as $key => $value){
+                $truthService->bulkToggleFieldRecord($emailIds,$key,$value);
+            }
+        });
+
         JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking, $total);
     }
 

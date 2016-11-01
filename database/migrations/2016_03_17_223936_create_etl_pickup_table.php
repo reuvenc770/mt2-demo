@@ -25,6 +25,6 @@ class CreateEtlPickupTable extends Migration
      * @return void
      */
     public function down() {
-        Schema::drop('etl_pickup');
+        Schema::drop('etl_pickups');
     }
 }

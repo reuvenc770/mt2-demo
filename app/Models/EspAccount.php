@@ -61,5 +61,17 @@ class EspAccount extends Model
         return $this->hasMany('App\Models\DeployRecordRerun');
     }
 
+    public function mailingTemplate()
+    {
+        return $this->belongsToMany('App\Models\MailingTemplate');
+    }
+
+    public function domains(){
+        return $this->hasMany('App\Models\Domains');
+    }
+
+    public function imageLinkFormat() {
+        return $this->hasOne('App\Models\EspAccountImageLinkFormat');
+    }
 
 }

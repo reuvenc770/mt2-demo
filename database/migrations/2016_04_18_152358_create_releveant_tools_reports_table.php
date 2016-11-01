@@ -31,6 +31,6 @@ class CreateReleveantToolsReportsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('releveant_tools_reports');
+        Schema::connection("reporting_data")->drop('relevant_tools_reports');
     }
 }

@@ -5,17 +5,19 @@ namespace App\Repositories;
 use App\Models\Email;
 use App\Models\EmailAction;
 use App\Models\ActionType;
-use App\Models\EmailClientInstance;
+use App\Models\EmailFeedInstance;
 use App\Models\OrphanEmail;
+use App\Models\RecordData;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
-
+use App\Services\AbstractReportService;
 use Log;
-
+use App\Events\NewActions;
 class EmailRecordRepo {
     protected $email;
+    protected $recordData;
     protected $emailAddress = '';
     protected $recordType = '';
     protected $espId = 0;
@@ -24,14 +26,15 @@ class EmailRecordRepo {
 
     protected $errorReason = '';
 
-    public function __construct ( Email $email ) {
+    public function __construct ( Email $email, RecordData $recordData ) {
         $this->email = $email;
+        $this->recordData = $recordData;
     }
 
     public function massRecordDeliverables ( $records = [] ) {
         $validRecords = [];
         $invalidRecords = [];
-        
+        $preppedData = array();
         foreach ( $records as $currentIndex => $currentRecord ) {
             
             $this->setLocalData( [
@@ -46,10 +49,14 @@ class EmailRecordRepo {
             $this->errorReason = '';
 
             if ( $this->isValidRecord( false ) ) {
+                $currentId = $this->getEmailId();
+
+                #$this->recordData->find($currentId)->is_deliverable = 0;
+                #$this->recordData->save();
+
                 $validRecord = "( "
                     . join( " , " , [
-                        $this->getEmailId() , 
-                        $this->getClientId() ,
+                        $currentId ,
                         $currentRecord[ 'espId' ] ,
                         $currentRecord['deployId'],
                         $currentRecord[ 'espInternalId' ] ,
@@ -61,6 +68,11 @@ class EmailRecordRepo {
                     . " )";
 
                 $validRecords []= $validRecord;
+
+                if($currentRecord['recordType'] == AbstractReportService::RECORD_TYPE_OPENER
+                    || $currentRecord['recordType'] == AbstractReportService::RECORD_TYPE_CLICKER){
+                    $preppedData[] = ["email_id" => $currentId, "datetime" => $currentRecord[ 'date' ]];
+                }
             } else {
                 $invalidRecord = "( " 
                     .join( " , " , [
@@ -87,14 +99,13 @@ class EmailRecordRepo {
             foreach ( $chunkedRecords as $chunkIndex => $chunk ) {
                 DB::connection( 'reporting_data' )->statement("
                     INSERT INTO email_actions
-                        ( email_id , client_id , esp_account_id , deploy_id, 
+                        ( email_id , esp_account_id , deploy_id, 
                         esp_internal_id , action_id , datetime , created_at , 
                         updated_at )    
                     VALUES
                         " . join( ' , ' , $chunk ) . "
                     ON DUPLICATE KEY UPDATE
                         email_id = email_id ,
-                        client_id = client_id ,
                         esp_account_id = esp_account_id ,
                         deploy_id = deploy_id,
                         esp_internal_id = esp_internal_id ,
@@ -104,6 +115,11 @@ class EmailRecordRepo {
                         updated_at = NOW()"
                     );
             }
+        }
+
+        if(count($preppedData) > 0) {
+            Log::info("##### I AM FIRING NEW ACTIONS #####");
+            \Event::fire(new NewActions($preppedData));
         }
 
         if ( !empty( $invalidRecords ) ) {
@@ -139,12 +155,11 @@ class EmailRecordRepo {
         if ( $this->isValidRecord() ) {
             DB::connection( 'reporting_data' )->statement("
                 INSERT INTO email_actions
-                    ( email_id , client_id , deploy_id, esp_account_id , esp_internal_id , action_id , datetime , created_at , updated_at )    
+                    ( email_id , deploy_id, esp_account_id , esp_internal_id , action_id , datetime , created_at , updated_at )    
                 VALUES
                     ( ? , ? , ? , ? , ? , ? , ? , NOW() , NOW() )
                 ON DUPLICATE KEY UPDATE
                     email_id = email_id ,
-                    client_id = client_id ,
                     deploy_id = deploy_id,
                     esp_account_id = esp_account_id ,
                     esp_internal_id = esp_internal_id ,
@@ -154,7 +169,6 @@ class EmailRecordRepo {
                     updated_at = NOW()" ,
                 [
                     $this->getEmailId() ,
-                    $this->getClientId() ,
                     $deployId,
                     $espId ,
                     $espInternalId ,
@@ -177,19 +191,12 @@ class EmailRecordRepo {
         return $this->email->where( 'email_address' , $this->emailAddress )->count() > 0;
     }
 
-    public function hasClient () {
-        // TODO
-        //return Email::find( $this->getEmailId() )->emailClientInstances()->count() > 0;
-        // temporary workaround so we don't fail here
-        return true;
-    }
-
     public function hasDeployId() {
         return $this->deployId !== 0;
     }
 
-    public function getEmailId () {
-        return $this->email->select( 'id' )->where( 'email_address' , $this->emailAddress )->first()->id;
+    public function getEmailId ( $emailAddress = null ) {
+        return $this->email->select( 'id' )->where( 'email_address' , ( is_null( $emailAddress ) ? $this->emailAddress : $emailAddress ) )->first()->id;
     }
     public function getEmailAddress($eid){
         try {
@@ -219,15 +226,7 @@ class EmailRecordRepo {
             //Log::error( "Email '{$this->emailAddress}' does not exist." );
 
             $errorFound = true;
-        } elseif ( !$this->hasClient() ) {
-            $orphan->missing_email_client_instance = 1;
-            $this->errorReason = 'missing_email_client_instance';
-
-            Log::error( "Client ID for email '{$this->emailAddress}' does not exist." );
-
-            $errorFound = true;
-        }
-        elseif (!$this->hasDeployId()) {
+        } elseif (!$this->hasDeployId()) {
             $this->errorReason = 'missing_deploy_id';
             Log::error("Deploy id for esp internal id '{$this->espInternalId}' does not exist.");
             $errorFound = true;
@@ -246,22 +245,6 @@ class EmailRecordRepo {
         return $errorFound === false;
     }
 
-    protected function getClientId () {
-        // TODO
-        //return Email::find( $this->getEmailId() )->emailClientInstances()->first()->client_id;
-
-        // temporary workaround while missing email client instances and attribution
-
-        $emailClientInstances = Email::find( $this->getEmailId() )->emailClientInstances;
-
-        if ($emailClientInstances->isEmpty()) {
-            return 0;
-        }
-        else {
-            return $emailClientInstances->first()->client_id;
-        }
-
-    }
 
     protected function getActionId ( $actionName ) {
         return ActionType::where( 'name' , $actionName )->first()->id;
@@ -269,15 +252,15 @@ class EmailRecordRepo {
 
 
     public function withinTwoDays($espId,$espInternalId){
-        $delivevered = false;
+        $delivered = false;
         $date = Carbon::today()->subDay(2)->toDateTimeString();
         $actionCount = DB::connection( 'reporting_data' )->table('standard_reports')
             ->where('esp_account_id', $espId)
             ->where('esp_internal_id',$espInternalId)
             ->where('datetime','>=', $date)->count();
         if ($actionCount == 1) {
-            $delivevered = true;
+            $delivered = true;
         }
-        return $delivevered;
+        return $delivered;
     }
 }

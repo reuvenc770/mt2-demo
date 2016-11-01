@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class AttributionLevel extends Model
 {
+    const LIVE_TABLE_NAME = 'attribution_levels';
+    const BASE_TABLE_NAME = 'attribution_levels_model_';
+
     protected $connection = "attribution";
 
     public function __construct ( $tableName = null , array $attributes = [] ) {
@@ -19,7 +22,7 @@ class AttributionLevel extends Model
         }
     }
 
-    public function client () {
-        return $this->belongsTo( 'App\Models\Client' );
+    public function feed () {
+        return $this->belongsTo( 'App\Models\Feed' );
     }
 }

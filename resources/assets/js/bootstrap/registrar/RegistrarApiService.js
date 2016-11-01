@@ -1,0 +1,52 @@
+mt2App.service( 'RegistrarApiService' , function ( $http , $log ) {
+    var self = this;
+
+    self.baseApiUrl = '/api/registrar';
+    self.pagerApiUrl = '/api/pager/Registrar';
+    self.getAccount = function ( id , successCallback ) {
+        $http( { "method" : "GET" , "url" : this.baseApiUrl + '/' + id } )
+            .then( successCallback );
+    };
+
+    self.getAccounts = function ( page , count , sortField , successCallback , failureCallback ) {
+        var sort = { 'field' : sortField , 'desc' : false };
+
+        if (/^\-/.test( sortField ) ) {
+            sort.field = sort.field.substring( 1 );
+            sort.desc = true;
+        }
+
+        return $http( {
+            "method" : "GET" ,
+            "url" : self.pagerApiUrl ,
+            "params" : { "page" : page , "count" : count , 'sort' : sort }
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.saveNewAccount = function ( newAccount , successCallback , failureCallback ) {
+        $http( {
+            "method" : "POST" ,
+            "url" : this.baseApiUrl ,
+            "data" : newAccount
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.editAccount = function ( account , successCallback , failureCallback  ) {
+        var request = account;
+        $http( {
+            "method" : "PUT" ,
+            "url" : this.baseApiUrl + '/' + account.id ,
+            "data" : request
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.toggleRow = function ( recordId, direction, successCallback, failureCallback ) {
+        $http( {
+            "method" : "DELETE" ,
+            "url" : this.baseApiUrl + '/' + recordId,
+            "params" : { "direction" : direction }
+        } ).then( successCallback , failureCallback );
+    };
+
+
+} );

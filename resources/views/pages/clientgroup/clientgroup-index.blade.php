@@ -1,43 +1,99 @@
 @extends( 'layout.default' )
 
-@section( 'title' , 'Client Group' )
+@section( 'title' , 'Feed Group' )
+
+@section( 'angular-controller' , 'ng-controller="ClientGroupController as clientGroup"' )
+
+@section( 'page-menu' )
+    @if (Sentinel::hasAccess('clientgroup.add'))
+        <md-button ng-click="clientGroup.viewAdd()" aria-label="Add Feed Group">
+            <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-show="app.isMobile()">add_circle_outline</md-icon>
+            <span ng-hide="app.isMobile()">Add Feed Group</span>
+        </md-button>
+    @endif
+@stop
 
 @section( 'content' )
-<div class="row">
-    <div class="page-header col-xs-12"><h1 class="text-center">Client Groups</h1></div>
-</div>
+<div ng-init="clientGroup.loadClientGroups()">
+    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
+        <md-card flex-gt-md="70" flex="100">
+            <md-table-container>
+                <table md-table md-progress="clientGroup.queryPromise">
+                    <thead md-head>
+                        <tr md-row>
+                            <th md-column></th>
+                            <th md-column class="md-table-header-override-whitetext">ID</th>
+                            <th md-column class="md-table-header-override-whitetext">Name</th>
+                        </tr>
+                    </thead>
 
-<div ng-controller="ClientGroupController as clientGroup" ng-init="clientGroup.loadClientGroups()">
-    @if (Sentinel::hasAccess('clientgroup.add'))
-    <div class="row">
-        <button type="button" class="btn btn-info btn-lg pull-right mt2-header-btn" ng-click="clientGroup.viewAdd()"><span class="glyphicon glyphicon-plus"></span> Add Client Group</button>
-    </div>
-    @endif
-    <div class="row">
-        <div class="col-xs-12">
-            <div class="row">
-                <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                    <pagination-count recordcount="clientGroup.paginationCount" currentpage="clientGroup.currentPage"></pagination-count>
-                </div>
+                    <tbody md-body>
+                        <tr md-row ng-repeat-start="record in clientGroup.clientGroups track by $index">
+                            <td md-cell>
+                                <div layout="row" layout-align="center center">
+                                    <md-button class="md-icon-button" aria-label="View Feeds"
+                                                ng-click="clientGroup.clientFeedMap[record.id]=!clientGroup.clientFeedMap[record.id]">
+                                        <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-hide="clientGroup.clientFeedMap[record.id]">expand_more</md-icon>
+                                        <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-show="clientGroup.clientFeedMap[record.id]">expand_less</md-icon>
+                                    </md-button>
+                                    <md-button class="md-icon-button" ng-href="@{{ '/clientgroup/edit/' + record.id }}" target="_self" aria-label="Edit">
+                                        <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
+                                        <md-tooltip md-direction="bottom">Edit</md-tooltip>
+                                    </md-button>
 
-                <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                    <pagination currentpage="clientGroup.currentPage" maxpage="clientGroup.pageCount"></pagination>
-                </div>
-            </div>
+                                    <md-button class="md-icon-button" ng-click="clientGroup.copyClientGroup( record.id )" aria-label="Copy">
+                                        <md-icon md-font-set="material-icons" class="mt2-icon-black">content_copy</md-icon>
+                                        <md-tooltip md-direction="bottom">Copy</md-tooltip>
+                                    </md-button>
 
-            <clientgroup-table records="clientGroup.clientGroups" children="clientGroup.clientMap" loadingflag="clientGroup.currentlyLoading" loadchildren="clientGroup.loadClients( groupID )" copygroup="clientGroup.copyClientGroup( groupID )" deletegroup="clientGroup.deleteClientGroup( groupID )" copyingflag="clientGroup.copyingClientGroup" deletingflag="clientGroup.deletingClientGroup"></clientgroup-table>
+                                    <md-button class="md-icon-button" ng-click="ctrl.deletegroup( { groupID : record.id } )" aria-label="Delete">
+                                        <md-icon md-font-set="material-icons" class="mt2-icon-black">clear</md-icon>
+                                        <md-tooltip md-direction="bottom">Delete</md-tooltip>
+                                    </md-button>
+                                </div>
+                            </td>
+                            <td md-cell>@{{ record.id }}</td>
 
-            <div class="row">
-                <div class="col-xs-3 col-sm-2 col-md-2 col-lg-1">
-                    <pagination-count recordcount="clientGroup.paginationCount" currentpage="clientGroup.currentPage"></pagination-count>
-                </div>
+                            <td md-cell>
+                                <a ng-click="clientGroup.loadClients(record.id)">
+                                    @{{ record.name }}
+                                </a>
+                            </td>
 
-                <div class="col-xs-9 col-sm-10 col-md-10 col-lg-11">
-                    <pagination currentpage="clientGroup.currentPage" maxpage="clientGroup.pageCount"></pagination>
-                </div>
-            </div>
-        </div>
-    </div>
+                        </tr>
+                        <tr md-row ng-repeat-end ng-show="clientGroup.clientFeedMap[record.id]">
+                            <td md-cell colspan="4" class="mt2-table-cell-center">
+                                <md-card>
+                                    <md-table-container>
+                                        <table md-table class="mt2-table-cell-center">
+                                            <thead md-head>
+                                                <tr md-row>
+                                                    <td md-column>Feed</td>
+                                                    <td md-column>Status</td>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody md-body>
+                                                <tr md-row ng-repeat="feed in clientGroup.clientMap[record.id] track by $index">
+                                                    <td md-cell>@{{ feed.name }}</td>
+                                                    <td md-cell ng-class="{ 'mt2-bg-success' : feed.status == 'A' , 'mt2-bg-warn' : feed.status == 'P' , 'mt2-bg-danger' : feed.status == 'D' }"><strong>@{{ feed.status == 'A' ? 'Active' : feed.status == 'P' ? 'Paused' : 'Inactive'  }}</strong></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </md-table-container>
+
+                                </md-card>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </md-table-container>
+
+            <md-content class="md-mt2-zeta-theme md-hue-2">
+                <md-table-pagination md-limit="clientGroup.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="clientGroup.currentPage" md-total="@{{clientGroup.clientGroupTotal}}" md-on-paginate="clientGroup.loadClientGroups" md-page-select></md-table-pagination>
+            </md-content>
+        </md-card>
+    </md-content>
 </div>
 @stop
 

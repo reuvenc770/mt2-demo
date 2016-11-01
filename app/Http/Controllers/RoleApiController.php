@@ -26,16 +26,18 @@ class RoleApiController extends Controller
 
     public function index()
     {
-        $roleDisplay = array();
-        $roles = $this->roleService->getAllRoles();
-        foreach($roles as $role){
-            $roleDisplay[] = array(
-                $role->id,
-                $role->slug,
-                $role->name,
-            );
+        $rawRolesList = $this->roleService->getAllRoles();
+
+        $roles = [];
+        foreach ( $rawRolesList as $currentRole ) {
+            $roles []= [
+                "id" => $currentRole[ 'id' ] ,
+                "slug" => $currentRole[ 'slug' ],
+                "name" => $currentRole[ 'name' ]
+            ];
         }
-        return $roleDisplay;
+
+        return response()->json( $roles );
     }
 
     /**
@@ -46,7 +48,7 @@ class RoleApiController extends Controller
     public function listAll()
     {
         return response()
-            ->view( 'pages.role.role-index' );
+            ->view( 'bootstrap.pages.role.role-index' );
     }
 
     /**
@@ -56,7 +58,7 @@ class RoleApiController extends Controller
      */
     public function create()
     {
-        return view( 'pages.role.role-add' );
+        return view( 'bootstrap.pages.role.role-add' );
 
     }
 
@@ -151,7 +153,7 @@ class RoleApiController extends Controller
      */
     public function edit()
     {
-        return view('pages.role.role-edit');
+        return view('bootstrap.pages.role.role-edit');
     }
 
     /**

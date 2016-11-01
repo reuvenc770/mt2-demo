@@ -1,0 +1,14 @@
+<div class="row">
+    <div class="col-sm-6">
+        <label>{{ ctrl.availablerecordtitle }}</label>
+        <div class="pull-right"><label ng-click="ctrl.addSelectedRecords()">Add Selected <span class="glyphicon glyphicon-plus"></span></label></div>
+        <select  style="height: {{ctrl.height}}px" multiple class="form-control" ng-model="ctrl.highlightedSelectedRecords" ng-options="record[ ctrl.namefield ] for record in ctrl.recordlist">
+        </select>
+    </div>
+    <div class="col-sm-6">
+        <label>{{ ctrl.chosenrecordtitle }}</label>
+        <div class="pull-right"><label ng-click="ctrl.removeChosenRecords()">Remove Selected <span class="glyphicon glyphicon-minus"></span> </label></div>
+        <select style="height: {{ctrl.height}}px" multiple class="form-control" ng-model="ctrl.highlightedChosenRecords" ng-options="chosenRecord[ ctrl.namefield ] for chosenRecord in ctrl.chosenrecordlist">
+        </select>
+    </div>
+</div>
