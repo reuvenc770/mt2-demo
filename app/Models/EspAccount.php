@@ -8,7 +8,7 @@ use Storage;
 class EspAccount extends Model
 {
     use ModelCacheControl;
-    
+    protected $guarded = ['id'];
     public function esp()
     {
         return $this->belongsTo('App\Models\Esp');
