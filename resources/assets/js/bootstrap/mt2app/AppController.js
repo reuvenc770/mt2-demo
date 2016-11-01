@@ -31,8 +31,9 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
         } else if ( Object.keys( self.activeMenuLink ).length == 0  ) {
             var periodIndex = path.indexOf( '/' );
             var pathPrefix = periodIndex >= 0 ? path.slice( 0 , periodIndex ) : path;
+            pathPrefix = '/' + pathPrefix + '/';
 
-            if ( $location.path().indexOf( pathPrefix ) >= 0 ) {
+            if ( $location.path().indexOf( pathPrefix ) === 0 ) {
                 self.activeSection = {};
                 self.activeSection[ sectionName ] = true;
 
