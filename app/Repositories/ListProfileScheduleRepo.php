@@ -32,14 +32,25 @@ class ListProfileScheduleRepo {
                     ->where(function ($q) {
                         $q->where('run_daily', 1)
                           ->whereRaw("last_run < CURDATE()");
+                    })->orWhere(funciton ($q) {
+                        $q->where('run_daily', 1)
+                          ->whereRaw("last_run IS NULL");
                     })->orWhere(function($q) use ($currentWeekDay) {
                         $q->where('run_weekly', 1)
                           ->where('day_of_week', $currentWeekDay)
                           ->whereRaw("last_run < CURDATE()");
+                    })->orWhere(function($q) use ($currentWeekDay) {
+                        $q->where('run_weekly', 1)
+                          ->where('day_of_week', $currentWeekDay)
+                          ->whereRaw("last_run IS NULL");
                     })->orWhere(function($q) use ($currentDayNumber) {
                         $q->where('run_monthly', 1)
                           ->where('day_of_month', $currentDayNumber)
                           ->whereRaw("last_run < CURDATE()");
+                    })->orWhere(function($q) use ($currentDayNumber) {
+                        $q->where('run_monthly', 1)
+                          ->where('day_of_month', $currentDayNumber)
+                          ->whereRaw("last_run IS NULL");
                     });
 
         return $this->model
