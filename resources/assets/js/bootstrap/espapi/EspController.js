@@ -110,5 +110,12 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         $mdToast.show( toast );
         self.loadAccounts();
     };
+    self.toggleRowFailure = function (){
+        var toast = $mdToast.simple()
+            .textContent( "Something went wrong please try again" )
+            .position( 'top right' );
+        $mdToast.show( toast );
+        self.loadAccounts();
+    };
 
 } ] );
