@@ -58,16 +58,15 @@ class EspApiAccountRepo
     }
 
     public function getEspInfoByAccountName($accountName){
-        $accountObject = $this->espAccount; //cannot use $this-> to invoke static method
-        return $accountObject::with( 'esp' )->where("account_name", $accountName)->first();
+
+        return $this->espAccount->where("status",1)->with( 'esp' )->where("account_name", $accountName)->first();
     }
 
     /**
      * @return mixed
      */
     public function getAllAccounts(){
-        $accountObject = $this->espAccount; //cannot use $this-> to invoke static method
-        return $accountObject::with( 'esp' )->get()->sortBy("account_name");
+        return $this->espAccount->where("status",1)->with( 'esp' )->get()->sortBy("account_name");
     }
 
     /**
@@ -81,19 +80,10 @@ class EspApiAccountRepo
             ->select('esp_accounts.*')
             ->addSelect('esps.name')
             ->where('esps.name',$espName)
+            ->where('status',1)
             ->get();
     }
 
-    public function getAccountIdsForEsp($espName) {
-        $output = [];
-        $accounts = $this->getAccountsByESPName($espName);
-
-        foreach ($accounts as $account) {
-            $output[]= $account->id;
-        }
-
-        return $output;
-    }
 
     /**
      * @param array $newAccount The collection of account details to save.
@@ -127,7 +117,7 @@ class EspApiAccountRepo
     }
 
     public function getAccountsbyEsp($esp){
-        return $this->espAccount->where('esp_id', $esp)->get();
+        return $this->espAccount->where('esp_id', $esp)->where('status',1)->get();
     }
 
     public function getPublicatorsSuppressionListId($accountId) {
@@ -147,5 +137,9 @@ class EspApiAccountRepo
 
     public function getImageLinkFormat($id) {
         return $this->espAccount->find($id)->imageLinkFormat;
+    }
+
+    public function toggleRow($id, $direction){
+        return $this->espAccount->find($id)->update(['status'=> $direction]);
     }
 }
