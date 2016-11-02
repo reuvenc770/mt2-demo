@@ -11,7 +11,7 @@ class RemoteLinuxSystemService {
     const CREATE_DIR_COMMAND = "mkdir %s";
     const CHANGE_DIR_OWNER_COMMAND = "chown -R %s:sftp %s";
     const CHANGE_DIR_PERMS_COMMAND = "chmod 755 %s";
-    const FIND_RECENT_FILES_COMMAND = "find %s -mtime -1 -print";
+    const FIND_RECENT_FILES_COMMAND = "find %s -type f -mtime -1 -print";
     const LIST_DIRECTORIES_COMMAND = "find %s -type d -print ";
     const DIRECTORY_EXISTS_COMMAND = "[ -d %s ] && echo 1";
 
@@ -36,37 +36,37 @@ class RemoteLinuxSystemService {
         return $this->sshConnection;
     }
 
-    public function createDirectoryCommand ( $directory ) {
+    public function createDirectory ( $directory ) {
         $command = sprintf( self::CREATE_DIR_COMMAND , $directory );
     
         ssh2_exec( $this->sshConnection , $command );
     }   
         
-    public function createUserCommand ( $username , $directory ) {
+    public function createUser ( $username , $directory ) {
         $command = sprintf( self::CREATE_USER_COMMAND , $directory , $username );
     
         ssh2_exec( $this->sshConnection , $command );
     }   
         
-    public function setPasswordCommand ( $username , $password ) {
+    public function setPassword ( $username , $password ) {
         $command = sprintf( self::SET_PASSWORD_COMMAND , $username , $password );
             
         ssh2_exec( $this->sshConnection , $command );
     }       
         
-    public function setDirectoryOwnerCommand ( $username , $directory ) {
+    public function setDirectoryOwner ( $username , $directory ) {
         $command = sprintf( self::CHANGE_DIR_OWNER_COMMAND , $username , $directory );
     
         ssh2_exec( $this->sshConnection , $command );
     }   
         
-    public function setDirectoryPermissionsCommand ( $directory ) {
+    public function setDirectoryPermissions ( $directory ) {
         $command = sprintf( self::CHANGE_DIR_PERMS_COMMAND , $directory );
     
         ssh2_exec( $this->sshConnection , $command );
     }   
 
-    public function listDirectoriesCommand ( $directory ) {
+    public function listDirectories ( $directory ) {
         $command = sprintf( self::LIST_DIRECTORIES_COMMAND , $directory  );
 
         $stream = ssh2_exec( $this->sshConnection , $command );
@@ -89,6 +89,17 @@ class RemoteLinuxSystemService {
         $stream_out = ssh2_fetch_stream( $stream , SSH2_STREAM_STDIO );
 
         return ( stream_get_contents($stream_out) == 1 );
+    }
+
+    public function getRecentFiles ( $directory ) {
+        $command = sprintf( self::FIND_RECENT_FILES_COMMAND , $directory );
+
+        $stream = ssh2_exec( $this->sshConnection , $command );
+
+        stream_set_blocking( $stream , true );
+        $stream_out = ssh2_fetch_stream( $stream , SSH2_STREAM_STDIO );
+
+        return stream_get_contents($stream_out);
     }
 
     protected function initSshConnection () {

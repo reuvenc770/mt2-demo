@@ -57,6 +57,10 @@ class FeedService implements IFtpAdmin
         return $this->feedRepo->fetch($id);
     }
 
+    public function getFeedIdByName ( $name ) {
+        return $this->feedRepo->getFeedIdByName( $name );
+    }
+
     public function getVerticals() {
         return $this->verticals->get();
     }
@@ -114,5 +118,9 @@ class FeedService implements IFtpAdmin
 
     public function getActiveFeedNames () {
         return $this->feedRepo->getActiveFeedNames();
+    }
+
+    public function getFileColumnOrder ( $feedId ) {
+        return $this->feedRepo->getFileColumnOrder( $feedId );
     }
 }

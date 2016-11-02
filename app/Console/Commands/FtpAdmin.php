@@ -4,8 +4,7 @@ namespace App\Console\Commands;
 
 use App\Services\FtpUserService;
 use App\Services\RemoteLinuxSystemService;
-use App\Services\FeedService;
-use App\Services\DomainGroupService;
+use App\Services\RemoteFeedFileService;
 use App;
 use Illuminate\Console\Command;
 use Storage;
@@ -41,8 +40,7 @@ class FtpAdmin extends Command
 
     protected $ftpUserService = null;
     protected $systemService = null;
-    protected $feedService = null;
-    protected $domainGroupService = null;
+    protected $remoteFeedFileService = null;
     protected $service = null;
 
     protected $errorFound = false;
@@ -52,14 +50,13 @@ class FtpAdmin extends Command
      *
      * @return void
      */
-    public function __construct( FtpUserService $ftpUserService , RemoteLinuxSystemService $systemService , FeedService $feedService , DomainGroupService $domainGroupService )
+    public function __construct( FtpUserService $ftpUserService , RemoteLinuxSystemService $systemService , RemoteFeedFileService $remoteFeedFileService )
     {
         parent::__construct();
 
         $this->ftpUserService = $ftpUserService;
         $this->systemService = $systemService;
-        $this->feedService = $feedService;
-        $this->domainGroupService = $domainGroupService;
+        $this->remoteFeedFileService = $remoteFeedFileService;
     }
 
     /**
@@ -93,13 +90,6 @@ class FtpAdmin extends Command
     }
 
     protected function processOptions () {
-        $this->sshConnection = $this->systemService->init(
-            $this->option( 'host' ) ,
-            $this->option( 'port' ) ,
-            $this->option( 'sshUser' ) , 
-            $this->option( 'sshPublicKey' ) ,
-            $this->option( 'sshPrivateKey' )
-        );
 
         $this->reset = (bool) $this->option('reset');
         $this->username = $this->option( 'user' );
@@ -158,7 +148,15 @@ class FtpAdmin extends Command
             $this->generatePassword();
         }
 
-        $this->systemService->setPasswordCommand( $this->username , $this->password );
+        $this->sshConnection = $this->systemService->init(
+            $this->option( 'host' ) ,
+            $this->option( 'port' ) ,
+            $this->option( 'sshUser' ) , 
+            $this->option( 'sshPublicKey' ) ,
+            $this->option( 'sshPrivateKey' )
+        );
+
+        $this->systemService->setPassword( $this->username , $this->password );
 
         $this->saveUserAndPassword();
 
@@ -176,10 +174,18 @@ class FtpAdmin extends Command
             $this->generatePassword();
         }
 
-        $this->systemService->createUserCommand( $this->username , $this->directory );
-        $this->systemService->setPasswordCommand( $this->username , $this->password );
-        $this->systemService->setDirectoryPermissionsCommand( $this->directory );
-        $this->systemService->setDirectoryOwnerCommand( $this->username , $this->directory );
+        $this->sshConnection = $this->systemService->init(
+            $this->option( 'host' ) ,
+            $this->option( 'port' ) ,
+            $this->option( 'sshUser' ) , 
+            $this->option( 'sshPublicKey' ) ,
+            $this->option( 'sshPrivateKey' )
+        );
+
+        $this->systemService->createUser( $this->username , $this->directory );
+        $this->systemService->setPassword( $this->username , $this->password );
+        $this->systemService->setDirectoryPermissions( $this->directory );
+        $this->systemService->setDirectoryOwner( $this->username , $this->directory );
     }
 
     protected function generatePassword () {
@@ -217,55 +223,7 @@ class FtpAdmin extends Command
     }
 
     protected function updateFeedDirectories () {
-        $countries = [ 'US' , 'UK' ];
-        $isps = $this->domainGroupService->getAllActiveNames();
-        $directoryList = $this->getValidDirectories();
-
-        foreach ( $directoryList as $feedDir ) {
-            foreach ( $countries as $country ) {
-                $country = escapeshellarg( $country );
-                $countryDir = "{$feedDir}/{$country}";
-
-                if ( !$this->systemService->directoryExists( $countryDir ) ) {
-                    $this->info( 'Creating directory: ' . $countryDir );
-
-                    $this->systemService->createDirectoryCommand( $countryDir );
-                }
-
-                foreach ( $isps as $isp ) {
-                    $isp = escapeshellarg( $isp );
-                    $ispDir = "{$countryDir}/{$isp}";
-
-                    if( !$this->systemService->directoryExists( $ispDir ) ) {
-                        $this->info( 'Creating directory: ' . $ispDir );
-
-                        $this->systemService->createDirectoryCommand( $ispDir );
-                    }
-                }
-            }
-        }
-    }
-
-    protected function getValidDirectories () {
-        $rawDirectoryList = $this->systemService->listDirectoriesCommand( '/home' );        
-
-        array_pop( $rawDirectoryList );
-        array_shift( $rawDirectoryList );
-
-        $validFeedList = $this->feedService->getActiveFeedNames();
-
-        $directoryList = array_filter( $rawDirectoryList , function ( $dir ) use ( $validFeedList ) {
-            $matches = [];
-            preg_match( '/^(?:.+\/)(?:\.{0,})([\w\s]+)$/' , $dir , $matches );
-
-            $notSystemUser = ( strpos( $dir , 'centos' ) === false );
-            $notCustomUser = ( strpos( $dir , 'mt2PullUser' ) === false );
-            $isValidFeed = in_array( $matches[ 1 ] , $validFeedList );
-            if ( $notSystemUser && $notCustomUser && $isValidFeed ) {
-                return $dir;
-            } 
-        } );
-
-        return $directoryList;
+        $this->remoteFeedFileService->init();
+        $this->remoteFeedFileService->updateFeedDirectories();
     }
 }
