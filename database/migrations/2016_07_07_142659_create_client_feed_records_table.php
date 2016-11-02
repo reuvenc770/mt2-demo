@@ -11,10 +11,10 @@ class CreateClientFeedRecordsTable extends Migration
      * @return void
      */
     public function up() {
-        Schema::create('client_feed_records', function (Blueprint $table) {
-            $table->increments('id');
+        Schema::create('raw_feed_records', function (Blueprint $table) {
+            $table->bigIncrements('id');
             $table->string('email_address')->default('');
-            $table->integer('client_feed_id');
+            $table->integer('feed_id');
             $table->date('capture_date')->nullable();
             $table->string('source_url');
             // ideally this is stored as an integer using INET_ATON/INET_NTOA
@@ -34,12 +34,13 @@ class CreateClientFeedRecordsTable extends Migration
             $table->string('gender')->default('');
             $table->string('phone')->default(''); // this is a string elsewhere 
             $table->tinyInteger('valid')->default(1);
+            $table->json('extra_fields');
+
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
 
-            $table->index('email_address', 'email_address');
-            $table->index('client_feed_id', 'client_feed_id');
             $table->index('capture_date', 'capture_date');
+            $table->index('created_at', 'created_at');
         });
     }
 
@@ -49,6 +50,6 @@ class CreateClientFeedRecordsTable extends Migration
      * @return void
      */
     public function down() {
-        Schema::drop('client_feed_records');
+        Schema::drop('raw_feed_records');
     }
 }
