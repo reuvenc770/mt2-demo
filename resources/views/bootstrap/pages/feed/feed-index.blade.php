@@ -8,7 +8,7 @@
 
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('feed.add'))
-        <li><a ng-click="feed.viewAdd()">Add Feed</a></li>
+        <li><a ng-href="/feed/create" target="_self">Add Feed</a></li>
     @endif
 @stop
 
@@ -18,11 +18,11 @@
         <table md-table class="mt2-table-large" md-progress="feed.queryPromise">
             <thead md-head md-order="feed.sort" md-on-reorder="feed.loadFeeds">
                 <tr md-row>
-                    <th md-column></th>
+                    <th md-column class="mt2-table-btn-column"></th>
                     <th md-column md-order-by="id" class="md-table-header-override-whitetext">ID</th>
                     <th md-column md-order-by="clientName" class="md-table-header-override-whitetext">Client</th>
                     <th md-column md-order-by="short_name" class="md-table-header-override-whitetext">Short Name</th>
-                    <th md-column md-order-by="status" class="md-table-header-override-whitetext mt2-table-header-center mt2-table-header-wrap">Status</th>
+                    <th md-column md-order-by="status" class="md-table-header-override-whitetext mt2-table-header-center">Status</th>
                     <th md-column md-order-by="feedVertical" class="md-table-header-override-whitetext mt2-cell-left-padding">Feed Vertical</th>
                     <th md-column md-order-by="frequency" class="md-table-header-override-whitetext">Frequency</th>
                     <th md-column md-order-by="country" class="md-table-header-override-whitetext">Country</th>
@@ -36,11 +36,11 @@
 
             <tbody md-body>
                 <tr md-row ng-repeat="record in feed.feeds track by $index">
-                    <td md-cell>
+                    <td md-cell class="mt2-table-btn-column">
                         <div layout="row" layout-align="center center">
-                            <md-button class="md-icon-button" ng-href="@{{'/feed/edit/' + record.id}}" target="_self" aria-label="Edit" data-toggle="tooltip" data-placement="bottom" title="Edit">
-                                <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon>
-                            </md-button>
+                            <a ng-href="@{{'/feed/edit/' + record.id}}" target="_self" aria-label="Edit" data-toggle="tooltip" data-placement="bottom" title="Edit">
+                                <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
+                            </a>
 
                             <a ng-href="/feed/file/fieldorder/@{{record.id}}" target="_self">
                                 <md-icon aria-label="Edit Field Order" data-toggle="tooltip" data-placement="bottom" title="Edit Field Order" md-font-set="material-icons" class="mt2-icon-black">reorder</md-icon>
@@ -48,14 +48,14 @@
                         </div>
                     </td>
                     <td md-cell ng-bind="record.id"></td>
-                    <td md-cell ng-bind="record.clientName"></td>
+                    <td md-cell ng-bind="record.clientName" nowrap></td>
                     <td md-cell ng-bind="record.short_name"></td>
                     <td md-cell class="mt2-table-cell-center" ng-class="{ 'bg-success' : record.status == 'Active' , 'bg-warning' : record.status == 'Paused' , 'bg-danger' : record.status == 'Inactive' }" ng-bind="record.status">
                     </td>
-                    <td md-cell class="mt2-cell-left-padding" ng-bind="record.feedVertical"></td>
+                    <td md-cell class="mt2-cell-left-padding" ng-bind="record.feedVertical" nowrap></td>
                     <td md-cell ng-bind="record.frequency"></td>
                     <td md-cell ng-bind="record.country"></td>
-                    <td md-cell ng-bind="record.feedType"></td>
+                    <td md-cell ng-bind="record.feedType" nowrap></td>
                     <td md-cell ng-bind="record.party"></td>
                     <td md-cell ng-bind="record.source_url"></td>
                     <td md-cell nowrap ng-bind="::app.formatDate( record.created_at )"></td>

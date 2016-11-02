@@ -26,4 +26,8 @@ class Feed extends Model {
     public function feedGroups () {
         return $this->belongsToMany( 'App\Models\FeedGroup' , 'feedgroup_feed' );
     }
+
+    public function suppressionList() {
+        return $this->belongsTo('App\Models\SuppressionList');
+    }
 }

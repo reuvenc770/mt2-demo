@@ -19,10 +19,10 @@
                         Include Current Feed Name?
                     </md-switch>
                     <md-switch ng-model="append.fields" aria-label=" Include Email Information">
-                        Include Email Information
+                        Append all fields
                     </md-switch>
                     <md-switch ng-model="append.suppress" aria-label=" Include Suppressed Records">
-                        Include Suppressed Records
+                        Include inactive/suppressed records
                     </md-switch>
                 </div>
                 <div class="btn-group" flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'appendEID' , '_token' : '{{ csrf_token() }}' } }"

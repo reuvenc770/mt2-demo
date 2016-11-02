@@ -13,7 +13,7 @@
     </div>
 
     <div class="form-group">
-        <lite-membership-widget height="200" recordlist="feedGroup.feedList" chosenrecordlist="feedGroup.current.feeds" availablerecordtitle="'Available Feeds'" chosenrecordtitle="'Selected Feeds'"></lite-membership-widget>
+        <lite-membership-widget height="200" recordlist="feedGroup.feedList" namefield="feedGroup.feedListNameField" chosenrecordlist="feedGroup.current.feeds" availablerecordtitle="'Available Feeds'" chosenrecordtitle="'Selected Feeds'"></lite-membership-widget>
         <div class="has-error">
             <div class="help-block" ng-show="feedGroup.formErrors.feeds">
                 <div ng-repeat="error in feedGroup.formErrors.feeds">

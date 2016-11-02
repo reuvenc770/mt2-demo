@@ -4,6 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Predis\Command\Command;
 
 class Kernel extends ConsoleKernel
 {
@@ -71,6 +72,7 @@ class Kernel extends ConsoleKernel
         Commands\InflateEmailHistoriesUtil::class,
         Commands\BuildScheduledProfileBaseTables::class,
         Commands\ExportListProfile::class,
+        Commands\ESPUnsubsReport::class,
     ];
 
     /**
@@ -106,9 +108,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('suppression:downloadESP EmailDirect 1')->dailyAt(self::UNSUB_TIME);
         $schedule->command('suppression:downloadESP Publicators 1')->dailyAt(self::UNSUB_TIME);
         $schedule->command('suppression:downloadESP Bronto 1')->dailyAt(self::UNSUB_TIME);
-        
-        $schedule->command('exportUnsubs BhSuppressionReport --lookback=1')->dailyAt(self::REPORT_TIME);
-        $schedule->command('exportUnsubs CampaignerSuppressionReport --lookback=1')->dailyAt(self::REPORT_TIME_2);
+
+        $schedule->command('reports:generateEspUnsubReport --lookback=1')->dailyAt(self::REPORT_TIME);
         $schedule->command('exportUnsubs emailsForOpensClicks --lookback=15')->dailyAt(self::REPORT_TIME);
         $schedule->command('exportUnsubs ZxSprintUnsubExport --lookback=1')->dailyAt(self::REPORT_TIME);
         $schedule->command('exportUnsubs ZxEsuranceUnsubExport --lookback=1')->dailyAt(self::REPORT_TIME);
@@ -191,6 +192,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('mt1Import cakeVertical')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import cakeOfferMap')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import client')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import vendorSuppressionInfo')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import vendorSuppression')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import offerSuppressionListMap')->dailyAt(self::MT1_SYNC_TIME);
 
         /**
          * Attribution Jobs

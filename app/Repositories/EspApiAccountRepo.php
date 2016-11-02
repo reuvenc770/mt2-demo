@@ -111,11 +111,11 @@ class EspApiAccountRepo
      * @param array $accountData The account information to update.
      */
     public function updateAccount ( $id , $accountData ) {
-        $this->espAccount->where( 'id' , $id )->update( [
-            'account_name' => $accountData[ 'accountName' ] ,
-            'key_1' => $accountData[ 'key1' ] ,
-            'key_2' => $accountData[ 'key2' ]
-        ] );
+        $account = $this->espAccount->find( $id );
+        $account->account_name = $accountData[ 'accountName' ];
+        $account->key_1 = $accountData[ 'key1' ];
+        $account->key_2 = $accountData[ 'key2' ];
+        $account->save();
     }
 
     public function getAccountESPMapping($espName){

@@ -95,14 +95,6 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
         } );
     };
 
-    /**
-     * Button Click Handlers
-     */
-    self.viewAdd = function () {
-        $location.url( self.createUrl );
-        $window.location.href = self.createUrl;
-    };
-
     self.saveFeed = function () {
         self.formSubmitted = true;
         formValidationService.resetFieldErrors(self);
