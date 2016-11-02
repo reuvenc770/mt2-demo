@@ -104,7 +104,7 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         formValidationService.loadFieldErrors( self , response );
     };
     self.toggleRowSuccess = function ( response ) {
-        $mdToast.showSimple("Registrar Updated");
+        $mdToast.showSimple("Esp Account set for Deactivation in 30 days");
         self.loadAccounts();
     };
 
