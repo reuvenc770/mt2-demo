@@ -28,6 +28,27 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
     self.queryPromise = null;
     self.sort= "-id";
 
+    self.currentFieldConfig = {};
+    self.fieldList = [
+        { "label" : "Email" , "field" : "email_index" , "required" : true } , 
+        { "label" : "Source URL" , "field" : "source_url_index" , "required" : true } , 
+        { "label" : "Capture Date" , "field" : "capture_date_index" , "required" : true } , 
+        { "label" : "IP" , "field" : "ip_index" , "required" : true } , 
+        { "label" : "First Name" , "field" : "first_name_index" } , 
+        { "label" : "Last Name" , "field" : "last_name_index" } , 
+        { "label" : "Address" , "field" : "address_index" } , 
+        { "label" : "Address 2" , "field" : "address2_index" } , 
+        { "label" : "City" , "field" : "city_index" } , 
+        { "label" : "State" , "field" : "state_index" } , 
+        { "label" : "Zip" , "field" : "zip_index" } , 
+        { "label" : "Country" , "field" : "country_index" } , 
+        { "label" : "Gender" , "field" : "gender_index" } , 
+        { "label" : "Phone" , "field" : "phone_index" } , 
+        { "label" : "Date Of Birth" , "field" : "dob_index" } , 
+    ];
+    self.selectedFields = [];
+    self.customField = '';
+
     self.formSubmitted = false;
 
     self.formErrors = [];
@@ -50,6 +71,30 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
             self.loadFeedsSuccessCallback , self.loadFeedsFailureCallback );
     };
 
+    self.setId = function ( id ) {
+        self.current.id = id;
+    };
+
+    self.setFields = function ( fields ) {
+        angular.forEach( fields , function ( currentField , feedIndex ) {
+            if ( typeof( currentField.isCustom ) !== 'undefined' && currentField.isCustom ) {
+                self.customField = currentField.label;
+
+                self.addCustomField();
+            } else {
+                angular.forEach( self.fieldList , function ( availField , index ) {
+                    if ( currentField === availField.field ) {
+                        var removedFields = self.fieldList.splice( index , 1 );
+
+                        self.selectedFields.push( removedFields.pop() );
+
+                        self.currentFieldConfig[ currentField ] = self.selectedFields.length - 1;
+                    }
+                } );
+            }
+        } );
+    };
+
     self.saveFeed = function () {
         self.formSubmitted = true;
         formValidationService.resetFieldErrors(self);
@@ -68,6 +113,57 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
         var feedData  = angular.copy( self.current );
         FeedApiService.updatePassword( feedData , function(){ $mdToast.showSimple( 'Password Reset has been submitted' );} , self.updateFeedFailureCallback );
 
+    };
+
+    /**
+     * Feed File Field Ordering
+     */
+    self.moveField = function ( droppedField , list , index ) {
+        list.splice( index , 1 );
+
+        self.currentFieldConfig = {};
+
+        if ( list === self.fieldList && typeof( self.formErrors[ droppedField.field ] ) !== 'undefined' && self.formErrors[ droppedField.field ].length > 0 ) {
+            delete( self.formErrors[ droppedField.field ] );
+        }
+
+        angular.forEach( self.selectedFields , function ( value , index ) {
+            if ( typeof( value.isCustom ) === 'undefined' ) {
+                self.currentFieldConfig[ value.field ] = index;
+            } else {
+                self.addCustomFieldToConfig( value.label , index );
+            }
+        } );
+    };
+
+    self.addCustomFieldToConfig = function ( name , index ) {
+        if ( typeof( self.currentFieldConfig[ 'other_field_index' ] ) === 'undefined' ) {
+            self.currentFieldConfig[ 'other_field_index' ] = {};
+        }
+
+        self.currentFieldConfig[ 'other_field_index' ][ name ] = index;
+    };
+
+    self.addCustomField = function () {
+        if ( self.customField ) {
+            self.selectedFields.push( { "label" : self.customField , "isCustom" : true } );
+
+            self.addCustomFieldToConfig( self.customField , self.selectedFields.length - 1 );
+
+            self.customField = '';
+        }
+    };
+
+    self.saveFieldOrder = function () {
+        self.formSubmitted = true;
+        formValidationService.resetFieldErrors( self );
+
+        FeedApiService.updateFeedFields(
+            self.current.id ,
+            self.currentFieldConfig ,
+            self.SuccessCallBackRedirectList ,
+            self.saveFieldOrderFailureCallback
+        );
     };
 
     /**
@@ -127,4 +223,13 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
         formValidationService.loadFieldErrors( self , response );
     };
 
+    self.saveFieldOrderFailureCallback = function ( response ) {
+        self.formSubmitted = false;
+
+        formValidationService.loadFieldErrors( self , response );
+
+        modalService.setModalLabel( 'Error' );
+        modalService.setModalBody( 'Please include the missing required fields.' );
+        modalService.launchModal();
+    };
 } ] );

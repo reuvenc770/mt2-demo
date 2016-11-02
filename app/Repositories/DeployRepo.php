@@ -220,9 +220,9 @@ class DeployRepo
     public function validateDeploy($deploy){
         $errors = array();
         if (isset($deploy['esp_account_id'])) {
-            $count = DB::select("Select count(*) as count from esp_accounts where id = :id", ['id' => $deploy['esp_account_id']])[0];
+            $count = DB::select("Select count(*) as count from esp_accounts where id = :id and status = 1", ['id' => $deploy['esp_account_id']])[0];
             if ($count->count == 0) {
-                $errors[] = "Esp Account ID is not Valid.";
+                $errors[] = "Esp Account ID is not Valid or Deactivated";
             }
         } else {
             $errors[] = "Esp Account ID is missing";
@@ -358,6 +358,6 @@ class DeployRepo
     public function getOffersForTodayWithListProfile($listProfileId) {
         $today = Carbon::today()->format('Y-m-d');
 
-        return $this->deploy->where('send_date', $today)->groupBy('offer_id')->get();
+        return $this->deploy->where('send_date', $today)->where('list_profile_id', $listProfileId)->groupBy('offer_id')->get();
     }
 }
