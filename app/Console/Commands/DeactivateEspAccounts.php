@@ -39,7 +39,7 @@ class DeactivateEspAccounts extends Command
      */
     public function handle(EspAccount $espAccount)
     {
-        $date = Carbon::today()->toDateString();
+        $date = Carbon::today()->addDays(30)->toDateString();
         $espAccount->where("updated_at", '>=',$date)->where("status",2)->update(["status"=>0]);
         \Cache::tags("EspAccount")->flush();
     }

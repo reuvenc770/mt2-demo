@@ -13,7 +13,7 @@ class AddStatusToEspApiAccounts extends Migration
     public function up()
     {
         Schema::table('esp_accounts', function(Blueprint $table) {
-            $table->boolean('status');
+            $table->boolean('status')->default(1);
         });
     }
 

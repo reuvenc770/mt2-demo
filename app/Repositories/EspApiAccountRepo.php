@@ -93,7 +93,6 @@ class EspApiAccountRepo
         $this->espAccount->key_1 = $newAccount[ 'key1' ];
         $this->espAccount->key_2 = $newAccount[ 'key2' ];
         $this->espAccount->esp_id = $newAccount[ 'espId' ];
-        $this->espAccount->status = $newAccount[ 'status' ];
         $this->espAccount->save();
     }
 
