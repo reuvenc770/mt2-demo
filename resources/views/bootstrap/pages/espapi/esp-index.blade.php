@@ -36,7 +36,7 @@
                                 <a ng-href="@{{ '/espapi/edit/' + record.id }}" target="_self" aria-label="Edit" data-toggle="tooltip" data-placement="bottom" title="Edit">
                                     <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
                                 </a>
-                                <md-icon ng-if="record.status == 1" ng-click="esp.toggle( record.id , 3 )" aria-label="Deactivate 30 Days from now"
+                                <md-icon ng-if="record.status == 1" ng-click="esp.toggle( record.id , 2 )" aria-label="Deactivate 30 Days from now"
                                          md-font-set="material-icons" class="mt2-icon-black"
                                          data-toggle="tooltip" data-placement="bottom" title="Deactivate">pause</md-icon>
                                 <md-icon ng-if="record.status == 0" ng-click="esp.toggle(record.id, 1 )" aria-label="Activate"
@@ -48,7 +48,7 @@
 
                                 <span ng-switch-when="1">Active</span>
                                 <ANY ng-switch-when="0">Inactive</ANY>
-                                <ANY ng-switch-default>Pending Inactivation</ANY>
+                                <ANY ng-switch-default>Pending Deactivation</ANY>
 
                         </td>
                         <td class="mt2-cell-left-padding" md-cell>@{{ record.account_name }}</td>
