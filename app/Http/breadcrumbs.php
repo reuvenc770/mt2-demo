@@ -87,6 +87,11 @@ Breadcrumbs::register('feed.edit', function($breadcrumbs) {
     $breadcrumbs->push('Edit Feed');
 });
 
+Breadcrumbs::register('feed.file.fieldorder', function($breadcrumbs) {
+    $breadcrumbs->parent('feed.list');
+    $breadcrumbs->push('Edit File Drop Field Order');
+});
+
 //Client Feeds
 Breadcrumbs::register('feedgroup.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');

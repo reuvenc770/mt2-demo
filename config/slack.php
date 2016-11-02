@@ -14,6 +14,7 @@ return [
   */
 
   'endpoint' => env('SLACK_URL', ''),
+    'endpointLevel' => env('SLACK_URL_LEVEL', ''),
 
   /*
   |-------------------------------------------------------------

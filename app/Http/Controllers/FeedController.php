@@ -7,6 +7,7 @@ use Laracasts\Flash\Flash;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FeedEditRequest;
+use App\Http\Requests\FeedFieldUpdateRequest;
 use App\Services\ClientService;
 use App\Services\FeedService;
 use Cache;
@@ -135,5 +136,18 @@ class FeedController extends Controller
 
     public function resetClientPassword($username) {
 
+    }
+
+    public function viewFieldOrder ( $id ) {
+        return response()->view( 'bootstrap.pages.feed.feed-file-fields' , [
+            "id" => $id ,
+            "fields" => $this->feedService->getFeedFields( $id )
+        ] );
+    }
+
+    public function storeFieldOrder ( FeedFieldUpdateRequest $request , $id ) {
+        Flash::success( 'File Drop Field Order was successfully updated.' );
+
+        $this->feedService->saveFieldOrder( $id , $request->all() );
     }
 }

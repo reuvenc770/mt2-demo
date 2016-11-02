@@ -2,34 +2,6 @@
 
 return [
 
-    'BhSuppressionReport' => [
-        'type' => 'esp',
-        'data' => [
-            'esp' => 'BlueHornet',
-            'accounts' => []
-        ],
-        'destination' => 'hornet7',
-        'service' => 'SuppressionExportReport',
-        'model' => 'Suppression',
-        'repo' => 'SuppressionRepo',
-        'model2' => 'SuppressionReason',
-        'setRange' => false,
-    ],
-
-    'CampaignerSuppressionReport' => [
-        'type' => 'esp',
-        'data' => [
-            'esp' => 'Campaigner',
-            'accounts' => [] # empty would mean all
-        ],
-        'destination' => 'hornet7',
-        'service' => 'SuppressionExportReport',
-        'model' => 'Suppression',
-        'repo' => 'SuppressionRepo',
-        'model2' => 'SuppressionReason',
-        'setRange' => false,
-    ],
-
     'emailsForOpensClicks' => [
         'type' => 'esp',
         'data' => [

@@ -14,6 +14,7 @@ class ListProfileQueryBuilder {
 
     private $attributionSchema;
     private $dataSchema;
+    private $suppressionSchema;
 
     private $feedIds;
     private $emailDomainIds;
@@ -41,6 +42,7 @@ class ListProfileQueryBuilder {
     public function __construct() {
         $this->attributionSchema = config('database.connections.attribution.database');
         $this->dataSchema = config('database.connections.mysql.database');
+        $this->suppressionSchema = config('database.connections.suppression.database');
 
         $this->columnMapping = [
             'email_id' => DB::raw('e.id as email_id'),
@@ -212,14 +214,25 @@ class ListProfileQueryBuilder {
 
 
     private function buildSuppression($listProfile, $query) {
-        if ($listProfile->use_global_suppression) {
-            $query = $query->join("{$this->dataSchema}.emails as e", "{$this->mainTableAlias}.email_id", '=', 'e.id');
-            $query = $query->leftJoin("{$this->dataSchema}.suppressions as s", 'e.email_address', '=', 's.email_address')->where('s.email_address', null);
-        }
 
-        /**
-            To do: advertiser suppression 
-        */
+        $listIds = $this->getFeedSuppressionListIds($listProfile);
+
+        if ($listProfile->use_global_suppression || count($listIds) > 0) {
+            $query = $query->join("{$this->dataSchema}.emails as e", "{$this->mainTableAlias}.email_id", '=', 'e.id');
+
+            if ($listProfile->use_global_suppression) {
+                $query = $query->leftJoin("{$this->dataSchema}.suppressions as s", 'e.email_address', '=', 's.email_address')->where('s.email_address', null);
+            }
+
+            if (count($listIds) > 0) {
+                $listIds = '(' . implode(',', $listIds) . ')';
+                $query = $query->leftJoin("{$this->suppressionSchema}.suppression_list_suppressions as sls", function($join) use ($listIds) {
+                    $join->on("e.email_address", '=', 'sls.email_address');
+                    $join->on('sls.suppression_list_id', 'in', DB::raw($listIds));
+                })  
+                ->whereNull('sls.email_address');
+            }
+        }
 
         return $query;
     }
@@ -440,6 +453,27 @@ class ListProfileQueryBuilder {
 
         return $query;
 
+    }
+
+    private function getFeedSuppressionListIds($listProfile) {
+        $listIds = [];
+
+        foreach ($listProfile->clients as $client) {
+            foreach ($client->feeds as $feed) {
+                if ($feed->suppression_list_id) {
+                    $listIds[] = $feed->suppression_list_id;
+                }
+               
+            }
+        }
+
+        foreach ($listProfile->feeds as $feed) {
+            if ($feed->suppression_list_id) {
+                $listIds[] = $feed->suppression_list_id;
+            }
+        }
+
+        return $listIds;
     }
 
 

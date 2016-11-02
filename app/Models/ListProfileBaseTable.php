@@ -15,4 +15,8 @@ class ListProfileBaseTable extends Model {
         parent::__construct([]);
         $this->table = $tableName;
     }
+
+    public function getTable() {
+        return $this->table;
+    }
 }

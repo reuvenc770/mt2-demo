@@ -105,6 +105,15 @@ class ImportMt1Entity extends Command
             case "client":
                 return "ImportMt1Client";
 
+            case "vendorSuppressionInfo":
+                return "ImportMt1VendorSuppressionInfo";
+
+            case "vendorSuppression":
+                return "ImportMt1VendorSuppression";
+
+            case "offerSuppressionListMap":
+                return "ImportMt1OfferSuppressionListMap";
+
             default:
                 throw new \Exception('Unsupported entity type: ' . $type);
         }
