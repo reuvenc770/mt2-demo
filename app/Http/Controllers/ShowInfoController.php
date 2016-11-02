@@ -59,13 +59,13 @@ class ShowInfoController extends Controller
 
         if($type == "email"){
             foreach(explode(',',$records) as $record) {
-                Suppression::recordSuppressionByReason($record, Carbon::today()->toDateTimeString(), $request->input('reason'));
+                Suppression::recordSuppressionByReason($record, Carbon::today()->toDateTimeString(), $request->input('selectedReason'));
                 }
         }
         else {
             foreach(explode(',',$records) as $record) {
                 $email = $this->emailService->getEmailAddress($record);
-                Suppression::recordSuppressionByReason($email, Carbon::today()->toDateTimeString(), $request->input('reason'));
+                Suppression::recordSuppressionByReason($email, Carbon::today()->toDateTimeString(), $request->input('selectedReason'));
             }
         }
         $payload = array(
