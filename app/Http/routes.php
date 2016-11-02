@@ -167,6 +167,11 @@ Route::group(
             'uses' => 'NavigationController@index'
         ] );
 
+        Route::get( '/source-url-stat' , [
+            'as' => 'tools.sourceurlstat' ,
+            'uses' => 'SourceUrlStatController@index'
+        ] );
+
     }
 );
 
@@ -603,27 +608,27 @@ Route::group(
             ]
         );
 
-        Route::get( 
-            '/create', 
-            array( 
-                'as' => 'attributionModel.add', 
-                'uses' => 'AttributionController@create' 
+        Route::get(
+            '/create',
+            array(
+                'as' => 'attributionModel.add',
+                'uses' => 'AttributionController@create'
             )
         );
 
-        Route::get( 
-            '/edit/{modelId}', 
-            array( 
-                'as' => 'attributionModel.edit', 
-                'uses' => 'AttributionController@edit' 
+        Route::get(
+            '/edit/{modelId}',
+            array(
+                'as' => 'attributionModel.edit',
+                'uses' => 'AttributionController@edit'
             )
         );
 
-        Route::get( 
-            '/projection/{id}', 
-            array( 
-                'as' => 'attributionProjection.show', 
-                'uses' => 'AttributionController@showProjection' 
+        Route::get(
+            '/projection/{id}',
+            array(
+                'as' => 'attributionProjection.show',
+                'uses' => 'AttributionController@showProjection'
             )
         );
     }
@@ -638,19 +643,19 @@ Route::group(
         'middleware' => [ 'auth' , 'pageLevel' ]
     ] ,
     function () {
-        Route::get( 
-            '/', 
-            array( 
-                'as' => 'report.list', 
-                'uses' => 'ReportController@view' 
+        Route::get(
+            '/',
+            array(
+                'as' => 'report.list',
+                'uses' => 'ReportController@view'
             )
         );
 
-        Route::get( 
-            '/export', 
-            array( 
-                'as' => 'report.export', 
-                'uses' => 'ReportController@export' 
+        Route::get(
+            '/export',
+            array(
+                'as' => 'report.export',
+                'uses' => 'ReportController@export'
             )
         );
     }
@@ -950,31 +955,31 @@ Route::group(
                     'as' => 'api.attribution.model.index' ,
                     'middleware' => 'auth' ,
                     'uses' => 'AttributionController@index'
-                ] ); 
+                ] );
 
                 Route::post( '/attribution/model' , [
                     'as' => 'api.attribution.model.store' ,
                     'middleware' => 'auth' ,
                     'uses' => 'AttributionController@store'
-                ] ); 
+                ] );
 
                 Route::put( '/attribution/model/{modelId}' , [
                     'as' => 'api.attribution.model.update' ,
                     'middleware' => 'auth' ,
                     'uses' => 'AttributionController@update'
-                ] ); 
+                ] );
 
                 Route::delete( '/attribution/model/{modelId}/{feedId}' , [
                     'as' => 'api.attribution.model.destroy' ,
                     'middleware' => 'auth' ,
                     'uses' => 'AttributionController@destroy'
-                ] ); 
+                ] );
 
                 Route::get( '/attribution/model/{modelId}' , [
                     'as' => 'api.attribution.model.show' ,
                     'middleware' => 'auth' ,
                     'uses' => 'AttributionController@show'
-                ] ); 
+                ] );
 
                 Route::get( '/attribution/model/{modelId}/levels' , [
                     'as' => 'api.attribution.model.levels' ,
@@ -1123,6 +1128,12 @@ Route::group(
             'bulksuppression' ,
             'BulkSuppressionController' ,
             [ 'only' => [ 'store' ] ]
+        );
+
+        Route::resource(
+            'source-url-stat' ,
+            'SourceUrlStatController' ,
+            [ 'only' => [ 'show' ] , 'names' => [ 'show' => 'api.sourceurlstat.show' ] ]
         );
 
         Route::resource(

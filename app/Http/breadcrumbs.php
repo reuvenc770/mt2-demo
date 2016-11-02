@@ -151,6 +151,11 @@ Breadcrumbs::register( 'client.attribution' , function ( $breadcrumbs ) {
     $breadcrumbs->push( 'Attribution' );
 } );
 
+Breadcrumbs::register( 'tools.sourceurlstat' , function ( $breadcrumbs ) {
+    $breadcrumbs->parent( 'home' );
+    $breadcrumbs->push( 'Source URL Stats' , route( 'tools.sourceurlstat' ) );
+} );
+
 // Data Export Pages
 Breadcrumbs::register('dataexport.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');
