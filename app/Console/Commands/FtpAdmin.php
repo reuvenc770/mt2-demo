@@ -3,6 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Services\FtpUserService;
+use App\Services\RemoteLinuxSystemService;
+use App\Services\FeedService;
+use App\Services\DomainGroupService;
 use App;
 use Illuminate\Console\Command;
 use Storage;
@@ -14,13 +17,6 @@ class FtpAdmin extends Command
 {
     const FTP_ADMIN_INTERFACE_NAME = "App\\Services\\Interfaces\\IFtpAdmin";
     const PASSWORD_LENGTH = 8;
-
-    const CREATE_USER_COMMAND = "useradd -g sftp -d %s %s";
-    const SET_PASSWORD_COMMAND = "echo %s:%s | chpasswd";
-    const CREATE_DIR_COMMAND = "mkdir %s";
-    const CHANGE_DIR_OWNER_COMMAND = "chown -R %s:sftp %s";
-    const CHANGE_DIR_PERMS_COMMAND = "chmod 755 %s";
-
     CONST SLACK_TARGET_SUBJECT = "#mt2-new-ftp-users";
 
     /**
@@ -28,7 +24,7 @@ class FtpAdmin extends Command
      *
      * @var string
      */
-    protected $signature = 'ftp:admin {--H|host= : The host to create users on. } {--P|port=22 : The port for ssh connections. } {--U|sshUser= : User to login as.} {--k|sshPublicKey= : Path to public ssh keyfile.} {--K|sshPrivateKey= : Path to private ssh keyfile} {--u|user= : Username to use. } {--p|password= : Password to set.} {--s|service= : The service to use when saving the username and password. The service must implement IFtpAdmin.} {--r|reset= : If True Reset Given Users Password}';
+    protected $signature = 'ftp:admin {--H|host= : The host to create users on. } {--P|port=22 : The port for ssh connections. } {--U|sshUser= : User to login as.} {--k|sshPublicKey= : Path to public ssh keyfile.} {--K|sshPrivateKey= : Path to private ssh keyfile} {--u|user= : Username to use. } {--p|password= : Password to set.} {--s|service= : The service to use when saving the username and password. The service must implement IFtpAdmin.} {--r|reset= : If True Reset Given Users Password} {--D|updateFeedDirectories : Update directory structure for feeds. }';
 
     /**
      * The console command description.
@@ -37,23 +33,18 @@ class FtpAdmin extends Command
      */
     protected $description = 'Admin command for generating ftp users. Credentials are automatically stored via Services. The service must implement IFtpAdmin.';
 
-    protected $host = null;
-    protected $port = null;
-    protected $sshConnection = null;
-    protected $sshUser = null;
-    protected $sshPublicKey = null;
-    protected $sshPrivateKey = null;
-
     protected $username = null;
     protected $password = null;
-    protected $ftpUrl = null;
     protected $reset = false;
     protected $directory = null;
+    protected $shouldUpdateFeedDirectories = false;
 
     protected $ftpUserService = null;
+    protected $systemService = null;
+    protected $feedService = null;
+    protected $domainGroupService = null;
     protected $service = null;
 
-    protected $commandOutput = [];
     protected $errorFound = false;
 
     /**
@@ -61,11 +52,14 @@ class FtpAdmin extends Command
      *
      * @return void
      */
-    public function __construct( FtpUserService $ftpUserService )
+    public function __construct( FtpUserService $ftpUserService , RemoteLinuxSystemService $systemService , FeedService $feedService , DomainGroupService $domainGroupService )
     {
         parent::__construct();
 
         $this->ftpUserService = $ftpUserService;
+        $this->systemService = $systemService;
+        $this->feedService = $feedService;
+        $this->domainGroupService = $domainGroupService;
     }
 
     /**
@@ -78,15 +72,17 @@ class FtpAdmin extends Command
         try {
             $this->processOptions();
 
-            $this->initSshConnection();
+            if ( $this->shouldUpdateFeedDirectories ) {
+                $this->updateFeedDirectories();
+            } else if ( $this->shouldCreateUser() && !$this->shouldResetPassword() ) {
+                $this->loadService();
 
-            $this->loadService();
-
-            if ( $this->shouldCreateUser() && !$this->shouldResetPassword() ) {
                 $this->setupFtpUser();
             } else if ($this->shouldResetPassword() && $this->shouldCreateUser()) {
                 $this->resetPassword();
             } else {
+                $this->loadService();
+
                 $this->generateNewUsersFromDb();
             }
         } catch ( \Exception $e ) {
@@ -97,32 +93,19 @@ class FtpAdmin extends Command
     }
 
     protected function processOptions () {
-        $this->host = $this->option( 'host' );
-        $this->port = $this->option( 'port' );
-        $this->sshUser = $this->option( 'sshUser' );
-        $this->sshPublicKey = $this->option( 'sshPublicKey' );
-        $this->sshPrivateKey = $this->option( 'sshPrivateKey' );
+        $this->sshConnection = $this->systemService->init(
+            $this->option( 'host' ) ,
+            $this->option( 'port' ) ,
+            $this->option( 'sshUser' ) , 
+            $this->option( 'sshPublicKey' ) ,
+            $this->option( 'sshPrivateKey' )
+        );
+
         $this->reset = (bool) $this->option('reset');
         $this->username = $this->option( 'user' );
         $this->password = $this->option( 'password' );
         $this->directory = '/home/' . $this->username;
-    }
-
-    protected function initSshConnection () {
-        if ( is_null( $this->host ) ) { throw new \Exception( "FTP Server Host is required." ); }
-        if ( is_null( $this->port ) ) { throw new \Exception( "FTP Server Port is required." ); }
-        if ( is_null( $this->sshUser ) ) { throw new \Exception( "SSH user is required." ); }
-        if ( is_null( $this->sshPublicKey ) ) { throw new \Exception( "SSH public key is required." ); }
-        if ( is_null( $this->sshPrivateKey ) ) { throw new \Exception( "SSH private key is required." ); }
-
-        $this->sshConnection = ssh2_connect( $this->host , $this->port , [ 'hostkey' => 'ssh-rsa' ] );
-
-        ssh2_auth_pubkey_file(
-            $this->sshConnection ,
-            $this->sshUser ,
-            $this->sshPublicKey ,
-            $this->sshPrivateKey
-        );
+        $this->shouldUpdateFeedDirectories = $this->option( 'updateFeedDirectories' );
     }
 
     protected function loadService () {
@@ -167,82 +150,46 @@ class FtpAdmin extends Command
             . "\n\tPassword: " . $this->password
         );
 
-        Log::info( json_encode( $this->commandOutput ) );
-
         Log::info( 'Finished Creating user...' );
     }
 
     protected function resetPassword () {
-        $this->setPasswordCommand();
-        $this->ftpUrl = "ftp://52.205.67.250";
+        if ( is_null( $this->password ) ) {
+            $this->generatePassword();
+        }
+
+        $this->systemService->setPasswordCommand( $this->username , $this->password );
+
         $this->saveUserAndPassword();
+
         Slack::to( self::SLACK_TARGET_SUBJECT )->send(
             $this->option( 'service' ) . " FTP User Password Reset."
             . "\n\tUsername: " . $this->username
             . "\n\tPassword: " . $this->password
         );
 
-        Log::info( json_encode( $this->commandOutput ) );
-
         Log::info( 'Finished Reseting password' );
     }
 
     protected function createUser () {
-        $this->createUserCommand();
-        $this->setPasswordCommand();
-        $this->setDirectoryPermissionsCommand();
-        $this->setDirectoryOwnerCommand();
+        if ( is_null( $this->password ) ) {
+            $this->generatePassword();
+        }
+
+        $this->systemService->createUserCommand( $this->username , $this->directory );
+        $this->systemService->setPasswordCommand( $this->username , $this->password );
+        $this->systemService->setDirectoryPermissionsCommand( $this->directory );
+        $this->systemService->setDirectoryOwnerCommand( $this->username , $this->directory );
     }
 
     protected function generatePassword () {
         $this->password = str_random( self::PASSWORD_LENGTH );
     }
 
-    protected function createUserDirectoryCommand () {
-        $command = sprintf( self::CREATE_DIR_COMMAND , $this->directory );
-
-        ssh2_exec( $this->sshConnection , $command );
-    }
-
-    protected function createUserCommand () {
-        $command = sprintf( self::CREATE_USER_COMMAND , $this->directory , $this->username );
-
-        ssh2_exec( $this->sshConnection , $command );
-    }
-
-    protected function setPasswordCommand () {
-        if ( is_null( $this->password ) ) {
-            $this->generatePassword();
-        }
-
-        $command = sprintf( self::SET_PASSWORD_COMMAND , $this->username , $this->password );
-
-        ssh2_exec( $this->sshConnection , $command );
-    }
-
-    protected function setDirectoryOwnerCommand () {
-        $command = sprintf( self::CHANGE_DIR_OWNER_COMMAND , $this->username , $this->directory );
-
-        $this->commandOutput []= $command;
-
-        ssh2_exec( $this->sshConnection , $command );
-    }
-
-    protected function setDirectoryPermissionsCommand () {
-        $command = sprintf( self::CHANGE_DIR_PERMS_COMMAND , $this->directory );
-
-        ssh2_exec( $this->sshConnection , $command );
-    }
-
-    /**
-     *
-     * Uncomment when setting live!!!
-     *
-     */
     protected function saveUserAndPassword () {
         $this->ftpUserService->save( [ 'username' => $this->username , 'password' => $this->password ] , $this->directory , 'localhost' , get_class( $this->service ) );
 
-        $this->service->saveFtpUser( [ "username" => $this->username , "password" => $this->password, "ftp_url" => $this->ftpUrl ] );
+        $this->service->saveFtpUser( [ "username" => $this->username , "password" => $this->password, "ftp_url" => 'ftp://' . $this->option( 'host' ) ] );
     }
 
     protected function generateNewUsersFromDb () {
@@ -254,7 +201,7 @@ class FtpAdmin extends Command
 
             $this->username = $currentUser->username;
             $this->directory = '/home/' . $currentUser->username;
-            $this->ftpUrl = "ftp://52.205.67.250";
+
             if ( isset( $currentUser->password ) ) {
                 $this->password = $currentUser->password;
             }
@@ -267,5 +214,58 @@ class FtpAdmin extends Command
                 $this->error( $e->getMessage() );
             }
         }
+    }
+
+    protected function updateFeedDirectories () {
+        $countries = [ 'US' , 'UK' ];
+        $isps = $this->domainGroupService->getAllActiveNames();
+        $directoryList = $this->getValidDirectories();
+
+        foreach ( $directoryList as $feedDir ) {
+            foreach ( $countries as $country ) {
+                $country = escapeshellarg( $country );
+                $countryDir = "{$feedDir}/{$country}";
+
+                if ( !$this->systemService->directoryExists( $countryDir ) ) {
+                    $this->info( 'Creating directory: ' . $countryDir );
+
+                    $this->systemService->createDirectoryCommand( $countryDir );
+                }
+
+                foreach ( $isps as $isp ) {
+                    $isp = escapeshellarg( $isp );
+                    $ispDir = "{$countryDir}/{$isp}";
+
+                    if( !$this->systemService->directoryExists( $ispDir ) ) {
+                        $this->info( 'Creating directory: ' . $ispDir );
+
+                        $this->systemService->createDirectoryCommand( $ispDir );
+                    }
+                }
+            }
+        }
+    }
+
+    protected function getValidDirectories () {
+        $rawDirectoryList = $this->systemService->listDirectoriesCommand( '/home' );        
+
+        array_pop( $rawDirectoryList );
+        array_shift( $rawDirectoryList );
+
+        $validFeedList = $this->feedService->getActiveFeedNames();
+
+        $directoryList = array_filter( $rawDirectoryList , function ( $dir ) use ( $validFeedList ) {
+            $matches = [];
+            preg_match( '/^(?:.+\/)(?:\.{0,})([\w\s]+)$/' , $dir , $matches );
+
+            $notSystemUser = ( strpos( $dir , 'centos' ) === false );
+            $notCustomUser = ( strpos( $dir , 'mt2PullUser' ) === false );
+            $isValidFeed = in_array( $matches[ 1 ] , $validFeedList );
+            if ( $notSystemUser && $notCustomUser && $isValidFeed ) {
+                return $dir;
+            } 
+        } );
+
+        return $directoryList;
     }
 }

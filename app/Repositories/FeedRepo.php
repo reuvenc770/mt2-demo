@@ -76,4 +76,8 @@ class FeedRepo {
                 'feeds.updated_at'
             );
     }
+
+    public function getActiveFeedNames () {
+        return $this->feed->where( 'status' , 'Active'  )->pluck( 'name' )->toArray();
+    }
 }

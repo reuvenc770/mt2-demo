@@ -44,4 +44,7 @@ class DomainGroupRepo
         return $this->domainGroup->all();
     }
 
+    public function getAllActiveNames () {
+        return $this->domainGroup->where( 'status' , 'Active' )->pluck( 'name' )->toArray();
+    }
 }

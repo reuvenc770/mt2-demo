@@ -82,7 +82,7 @@ class FeedService implements IFtpAdmin
     }
 
     public function saveFtpUser ( $credentials ) {
-        Log::info( 'Saving user credentials to db. Creds: ' . json_encode( $credentials ) );
+        \Log::info( 'Saving user credentials to db. Creds: ' . json_encode( $credentials ) );
 
         DB::connection( 'mt1_data' )->table( 'user' )
             ->where( 'username' , $credentials[ 'username' ] )
@@ -110,5 +110,9 @@ class FeedService implements IFtpAdmin
             '-r' => true
         ]);
         return true;
+    }
+
+    public function getActiveFeedNames () {
+        return $this->feedRepo->getActiveFeedNames();
     }
 }
