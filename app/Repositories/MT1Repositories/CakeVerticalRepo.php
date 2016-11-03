@@ -13,6 +13,6 @@ class CakeVerticalRepo {
     }
 
     public function pullForSync($lookback) {
-        return $this->model->whereRaw('verticalID < 0');
+        return $this->model->whereRaw('verticalID > 0');
     }
 }
