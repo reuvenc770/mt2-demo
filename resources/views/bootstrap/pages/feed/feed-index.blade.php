@@ -41,6 +41,10 @@
                             <a ng-href="@{{'/feed/edit/' + record.id}}" target="_self" aria-label="Edit" data-toggle="tooltip" data-placement="bottom" title="Edit">
                                 <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
                             </a>
+
+                            <a ng-href="/feed/file/fieldorder/@{{record.id}}" target="_self">
+                                <md-icon aria-label="Edit Field Order" data-toggle="tooltip" data-placement="bottom" title="Edit Field Order" md-font-set="material-icons" class="mt2-icon-black">reorder</md-icon>
+                            </a>
                         </div>
                     </td>
                     <td md-cell ng-bind="record.id"></td>

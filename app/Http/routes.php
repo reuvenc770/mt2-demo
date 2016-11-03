@@ -395,6 +395,11 @@ Route::group(
             'as' => 'feed.edit' ,
             'uses' => 'FeedController@edit'
         ] );
+
+        Route::get( '/file/fieldorder/{id}' , [
+            'as' => 'feed.file.fieldorder' ,
+            'uses' => 'FeedController@viewFieldOrder'
+        ] );
     }
 );
 
@@ -1033,10 +1038,22 @@ Route::group(
             }
         );
 
+        /**
+         * ESP API Routes
+         */
         Route::get( '/espapi/espAccounts/{name}' , [
             'as' => 'api.espapi.GetAll' ,
             'uses' => 'EspApiAccountController@displayEspAccounts'
         ] );
+
+        /**
+         * Feed API Routes
+         */
+        Route::put( '/feed/file/{id}' , [
+            'as' => 'api.feed.file.savefieldorder' ,
+            'uses' => 'FeedController@storeFieldOrder'
+        ] );
+
         /**
          * API Resources
          */

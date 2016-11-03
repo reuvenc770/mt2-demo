@@ -4,7 +4,7 @@
 @section('content')
     <div class="panel panel-primary"  ng-controller="DomainGroupController as dg"  ng-init="dg.loadAccount()">
         <div class="panel-heading">
-            <div class="panel-title">Update ISP Group</div>
+            <div class="panel-title">Edit ISP Group</div>
         </div>
         <div class="panel-body">
             <input name="_token" type="hidden" value="{{ csrf_token() }}">

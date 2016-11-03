@@ -54,4 +54,12 @@ mt2App.service( 'FeedApiService' , function ( $http , $log ) {
         } ).then( successCallback , failureCallback );
     };
 
+    self.updateFeedFields = function ( id , fieldData , successCallback , failureCallback ) {
+        $http( {
+            "method" : "PUT" ,
+            "params" : { "_method" : "PUT" } ,
+            "url" : this.baseApiUrl + '/file/' + id ,
+            "data" : fieldData 
+        } ).then( successCallback , failureCallback );
+    };
 } );

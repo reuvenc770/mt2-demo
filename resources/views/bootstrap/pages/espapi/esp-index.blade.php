@@ -20,8 +20,8 @@
                 <thead md-head md-order="esp.sort" md-on-reorder="esp.loadAccounts">
                     <tr md-row>
                         <th md-column class="mt2-table-btn-column"></th>
-                        <th md-column md-order-by="id" class="md-table-header-override-whitetext">ID</th>
-                        <th md-column md-order-by="account_name" class="md-table-header-override-whitetext">ESP</th>
+                        <th md-column md-order-by="status" class="md-table-header-override-whitetext mt2-table-header-center">Status</th>
+                        <th md-column md-order-by="account_name" class="md-table-header-override-whitetext mt2-cell-left-padding">ESP</th>
                         <th md-column md-order-by="key_1" class="md-table-header-override-whitetext">Key 1</th>
                         <th md-column md-order-by="key_2" class="md-table-header-override-whitetext">Key 2</th>
                         <th md-column md-order-by="created_at" class="md-table-header-override-whitetext">Created</th>
@@ -33,13 +33,25 @@
                     <tr md-row ng-repeat="record in esp.accounts track by $index">
                         <td md-cell class="mt2-table-btn-column">
                             <div layout="row" layout-align="center center">
-                                <a ng-href="@{{ '/espapi/edit/' + record.id }}" aria-label="Edit" target="_self"data-toggle="tooltip" data-placement="bottom" title="Edit">
+                                <a ng-href="@{{ '/espapi/edit/' + record.id }}" target="_self" aria-label="Edit" data-toggle="tooltip" data-placement="bottom" title="Edit">
                                     <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
                                 </a>
+                                <md-icon ng-if="record.status == 1" ng-click="esp.toggle( record.id , 2 )" aria-label="Deactivate 30 Days from now"
+                                         md-font-set="material-icons" class="mt2-icon-black"
+                                         data-toggle="tooltip" data-placement="bottom" title="Deactivate">pause</md-icon>
+                                <md-icon ng-if="record.status == 0" ng-click="esp.toggle(record.id, 1 )" aria-label="Activate"
+                                         md-font-set="material-icons" class="mt2-icon-black"
+                                         data-toggle="tooltip" data-placement="bottom" title="Activate">play_arrow</md-icon>
                             </div>
                         </td>
-                        <td md-cell>@{{ record.id }}</td>
-                        <td md-cell>@{{ record.account_name }}</td>
+                        <td md-cell ng-switch="record.status" class="mt2-table-cell-center" ng-class="{ 'bg-success' : record.status == 1 , 'bg-danger' : record.status == 0 }">
+
+                                <span ng-switch-when="1">Active</span>
+                                <ANY ng-switch-when="0">Inactive</ANY>
+                                <ANY ng-switch-default>Pending Deactivation</ANY>
+
+                        </td>
+                        <td class="mt2-cell-left-padding" md-cell>@{{ record.account_name }}</td>
                         <td md-cell>@{{ record.key_1 }}</td>
                         <td md-cell>@{{ record.key_2 }}</td>
                         <td md-cell nowrap ng-bind="::app.formatDate( record.created_at )"></td>
