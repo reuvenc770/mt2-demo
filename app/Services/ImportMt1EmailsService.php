@@ -13,6 +13,7 @@ use App\Repositories\FeedDateEmailBreakdownRepo;
 use App\Repositories\RecordDataRepo;
 use App\Repositories\EmailIdHistoryRepo;
 use App\Repositories\EmailFeedStatusRepo;
+use App\Repositories\EmailFeedAssignmentRepo;
 use Carbon\Carbon;
 
 class ImportMt1EmailsService
@@ -31,6 +32,7 @@ class ImportMt1EmailsService
     private $processingDate;
     private $formattedDate;
     private $emailFeedStatusRepo;
+    private $assignmentRepo;
 
     private $emailIdCache = [];
     private $emailAddressCache = [];
@@ -47,7 +49,8 @@ class ImportMt1EmailsService
         FeedDateEmailBreakdownRepo $breakdownRepo,
         RecordDataRepo $recordDataRepo,
         EmailIdHistoryRepo $historyRepo,
-        EmailFeedStatusRepo $emailFeedStatusRepo) {
+        EmailFeedStatusRepo $emailFeedStatusRepo,
+        EmailFeedAssignmentRepo $assignmentRepo) {
 
         $this->api = $api;
         $this->tempEmailRepo = $tempEmailRepo;
@@ -60,6 +63,7 @@ class ImportMt1EmailsService
         $this->recordDataRepo = $recordDataRepo;
         $this->historyRepo = $historyRepo;
         $this->emailFeedStatusRepo = $emailFeedStatusRepo;
+        $this->assignmentRepo = $assignmentRepo;
 
         $this->processingDate = Carbon::today();
         $this->formattedDate = $this->processingDate->format('Y-m-d');
@@ -80,7 +84,7 @@ class ImportMt1EmailsService
 
         foreach ($records as $id => $record) {
             $record = $this->mapToTempTable($record);
-            $this->tempEmailRepo->insert($record);
+            $this->tempEmailRepo->batchInsert($record);
 
             // insert into emails
             // insert into email_feed_instances
@@ -138,6 +142,7 @@ class ImportMt1EmailsService
                         $record['is_deliverable'] = 1;
 
                         $this->recordDataRepo->insert($record);
+                        $this->assignmentRepo->insertBatch($record); # ONLY FOR NON-EXISTING EMAILS
                     }
                     elseif (null === $existsCheck && !isset($this->emailIdCache[$importingEmailId]) && isset($this->emailAddressCache[$emailAddress])) {
                         // this particular email address appears in this batch, but not under this email id
@@ -205,13 +210,16 @@ class ImportMt1EmailsService
         $this->recordDataRepo->insertStored();
         $this->emailFeedRepo->insertStored();
         $this->emailFeedStatusRepo->insertStored();
+        $this->tempEmailRepo->insertStored();
+        $this->assignmentRepo->insertStored();
 
         // Need to handle in-batch switching between email ids
         $this->emailRepo->updateInBatchIdSwitches($this->inBatchSwitches);
 
         // Delete records
         if (sizeof($records) > 0) {
-            $this->api->cleanTable();
+            $deletions = $this->api->cleanTable();
+            echo "Read in " . sizeof($records) . " records, deleted " . $deletions . PHP_EOL; 
         }
 
         \Event::fire(new NewRecords($recordsToFlag));

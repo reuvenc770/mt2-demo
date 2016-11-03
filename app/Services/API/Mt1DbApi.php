@@ -74,7 +74,7 @@ class Mt1DbApi
 
     public function cleanTable() {
         
-        DB::connection('mt1_table_sync')
+        return DB::connection('mt1_table_sync')
             ->table('client_record_log')
             ->where('lastUpdated', '<', $this->finalLastUpdated)
             ->orWhere(function($query) {
