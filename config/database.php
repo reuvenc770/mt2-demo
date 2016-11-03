@@ -129,7 +129,8 @@ return [
 
         'slave_data' => [
             'driver'    => 'mysql',
-            'host'      => env('DB_SLAVE_HOST', 'localhost'),
+            #'host'      => env('DB_SLAVE_HOST', 'localhost'),
+            'host'      => env('DB_HOST', 'localhost'),
             'database'  => env('DB_DATABASE', '' ), #Not using a default since we have multiple envs
             'username'  => env('DB_SLAVE_USERNAME', 'forge'),
             'password'  => env('DB_SLAVE_PASSWORD', ''),
@@ -141,7 +142,8 @@ return [
 
         'slave_reports' => [
             'driver'    => 'mysql',
-            'host'      => env('DB_SLAVE_HOST', 'localhost'),
+            #'host'      => env('DB_SLAVE_HOST', 'localhost'),
+            'host'      => env('DB_HOST', 'localhost'),
             'database'  => env('REPORTS_DB_DATABASE', 'attribution' ), #Not using a default since we have multiple envs
             'username'  => env('DB_SLAVE_USERNAME', 'forge'),
             'password'  => env('DB_SLAVE_PASSWORD', ''),
@@ -153,7 +155,8 @@ return [
 
         'slave_attribution' => [
             'driver'    => 'mysql',
-            'host'      => env('DB_SLAVE_HOST', 'localhost'),
+            #'host'      => env('DB_SLAVE_HOST', 'localhost'),
+            'host'      => env('DB_HOST', 'localhost'),
             'database'  => env('ATTR_DB_DATABASE', 'attribution' ), #Not using a default since we have multiple envs
             'username'  => env('DB_SLAVE_USERNAME', 'forge'),
             'password'  => env('DB_SLAVE_PASSWORD', ''),
