@@ -24,7 +24,7 @@ class ClientRepo {
     }
 
     public function get() {
-        return $this->client->get();
+        return $this->client->orderBy('name')->get();
     }
 
 }
