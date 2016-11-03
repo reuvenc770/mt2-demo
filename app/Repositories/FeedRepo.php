@@ -18,11 +18,11 @@ class FeedRepo {
     }
 
     public function getFeeds () {
-        return $this->feed->orderBy('name')->get();
+        return $this->feed->orderBy('short_name')->get();
     }
 
     public function getAllFeedsArray() {
-        return $this->feed->orderBy('id')->get()->toArray();
+        return $this->feed->orderBy('short_name')->get()->toArray();
     }
 
     public function fetch($id) {

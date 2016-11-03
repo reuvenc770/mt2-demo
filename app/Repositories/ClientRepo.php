@@ -20,7 +20,7 @@ class ClientRepo {
     }
 
     public function getAllClientsArray() {
-        return $this->client->orderBy('id')->get()->toArray();
+        return $this->client->orderBy('name')->get()->toArray();
     }
 
     public function get() {
