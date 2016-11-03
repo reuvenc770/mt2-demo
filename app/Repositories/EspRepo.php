@@ -37,7 +37,7 @@ class EspRepo
     }
 
     public function getAllEsps () {
-        return $this->esp->all()->sortBy("name");
+        return $this->esp->orderBy('name')->get();
     }
 
     public function getEspByName($name){

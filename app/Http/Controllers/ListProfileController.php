@@ -135,7 +135,7 @@ class ListProfileController extends Controller
             'countries' => $this->mt1CountryService->getAll() ,
             'states' => $this->states->all() ,
             'isps' => $this->ispService->getAll() ,
-            'categories' => CakeVertical::all() ,
+            'categories' => CakeVertical::orderBy('name')->get() ,
         ] , $addOptions );
     }
 }

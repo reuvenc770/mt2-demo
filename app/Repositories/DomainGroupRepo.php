@@ -41,7 +41,7 @@ class DomainGroupRepo
     }
 
     public function getAll(){
-        return $this->domainGroup->all();
+        return $this->domainGroup->orderBy('name')->get();
     }
 
 }

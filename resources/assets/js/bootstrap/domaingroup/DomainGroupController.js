@@ -13,7 +13,7 @@ mt2App.controller( 'DomainGroupController' , [ '$log' , '$window' , '$location' 
     self.paginationCount = '10';
     self.currentPage = 1;
     self.accountTotal = 0;
-    self.sort = '-status';
+    self.sort = 'name';
     self.editForm = false;
     self.queryPromise = null;
 
