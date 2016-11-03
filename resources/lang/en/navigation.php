@@ -47,5 +47,5 @@ return[
     'esp.list'            => 'ESP Accounts',
     'tools.appendeid' => 'Append EID' ,
     'tools.navigation' => 'Manage Navigation' ,
-    'tools.sourceurlstat' => 'Source URL Stats'
+    'tools.sourceurlsearch' => 'Source URL Search'
 ];

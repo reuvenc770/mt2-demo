@@ -109,7 +109,7 @@ mt2App.controller( 'FeedGroupController' , [ '$rootScope' , '$log' , '$window' ,
             sortFeedList.push(value);
         } );
 
-        self.feedList = orderBy( sortFeedList, 'name') ;
+        self.feedList = sortFeedList;
 
         if ( self.prepopFeeds.length > 0 ) {
             var feedsToRemove = [];

@@ -1,13 +1,23 @@
-mt2App.controller('SourceUrlStatController' , [ '$rootScope' , '$window' , '$location' , '$timeout', '$log' , 'SourceUrlStatApiService' , 'FeedApiService' , 'formValidationService', 'modalService' , 'orderByFilter' , function ( $rootScope , $window , $location , $timeout , $log , SourceUrlStatApiService , FeedApiService , formValidationService, modalService , orderBy ) {
+mt2App.controller('SourceUrlSearchController' , [ '$rootScope' , '$window' , '$location' , '$timeout', '$log' , 'SourceUrlSearchApiService' , 'FeedApiService' , 'formValidationService', 'modalService' , 'orderByFilter' , function ( $rootScope , $window , $location , $timeout , $log , SourceUrlSearchApiService , FeedApiService , formValidationService, modalService , orderBy ) {
     var self = this;
 
     self.formSubmitted = false;
     self.formErrors = [];
-    self.search = { "feedIds" : [] , "verticalIds" : [] , 'startDate' : '' , 'endDate' : '' , 'exportFile' : false };
+    self.search = {
+        "source_url" : '' ,
+        "clientIds" : [] ,
+        "feedIds" : [] ,
+        "verticalIds" : [] ,
+        'startDate' : '' ,
+        'endDate' : '' ,
+        'exportFile' : false
+    };
     self.rawStartDate = null;
     self.rawEndDate = null;
     self.dateRange = "custom";
 
+    self.clientList = [];
+    self.selectedClients= [];
     self.feedList = [];
     self.selectedFeeds = [];
     self.verticalList = [];
@@ -17,8 +27,12 @@ mt2App.controller('SourceUrlStatController' , [ '$rootScope' , '$window' , '$loc
         FeedApiService.getAllFeeds( self.getAllFeedsSuccessCallback , self.getAllFeedsFailureCallback );
     };
 
+    self.setClientList = function ( list ) {
+        self.clientList = list;
+    }
+
     self.setVerticalList = function ( list ) {
-        self.verticalList = orderBy( list , 'name' );
+        self.verticalList = list;
     };
 
     self.updateSearchDate = function ( dateRange ) {
@@ -47,11 +61,7 @@ mt2App.controller('SourceUrlStatController' , [ '$rootScope' , '$window' , '$loc
      * Success Callbacks
      */
     self.getAllFeedsSuccessCallback = function ( response ) {
-        self.feedList = orderBy( response.data , 'name' );
-    };
-
-    self.getAllVerticalsSuccessCallback = function ( response ) {
-        self.verticalList = orderBy( response.data , 'name' );
+        self.feedList = response.data;
     };
 
     self.updateCurrentFeedList = function () {

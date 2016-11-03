@@ -156,9 +156,9 @@ Breadcrumbs::register( 'client.attribution' , function ( $breadcrumbs ) {
     $breadcrumbs->push( 'Attribution' );
 } );
 
-Breadcrumbs::register( 'tools.sourceurlstat' , function ( $breadcrumbs ) {
+Breadcrumbs::register( 'tools.sourceurlsearch' , function ( $breadcrumbs ) {
     $breadcrumbs->parent( 'home' );
-    $breadcrumbs->push( 'Source URL Stats' , route( 'tools.sourceurlstat' ) );
+    $breadcrumbs->push( 'Source URL Search' , route( 'tools.sourceurlsearch' ) );
 } );
 
 // Data Export Pages

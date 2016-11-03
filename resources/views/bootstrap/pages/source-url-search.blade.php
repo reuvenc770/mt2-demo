@@ -1,13 +1,29 @@
 @extends( 'bootstrap.layout.default' )
 
-@section( 'title' , 'Source URL Stats' )
+@section( 'title' , 'Source URL Search' )
 
 @section( 'content' )
-    <div class="panel panel-primary" ng-controller="SourceUrlStatController as source" ng-init="source.loadFeedList(); source.setVerticalList( {{ $feedVerticals }} )">
+    <div class="panel panel-primary" ng-controller="SourceUrlSearchController as source" ng-init="source.loadFeedList(); source.setClientList( {{ $clients }} ); source.setVerticalList( {{ $feedVerticals }} )">
         <div class="panel-heading">
-            <div class="panel-title">Source URL Stats</div>
+            <div class="panel-title">Source URL Search</div>
         </div>
         <div class="panel-body">
+
+            <div class="form-group">
+                <input placeholder="Source URL" value="" class="form-control" ng-model="source.search.source_url" name="source_url" type="text">
+            </div>
+
+            <div class="form-group">
+                <label><h4>Filter by Clients</h4></label>
+                <lite-membership-widget height="200" recordlist="source.clientList" chosenrecordlist="source.selectedClients" availablerecordtitle="'Available Clients'" chosenrecordtitle="'Selected Clients'" updatecallback="source.updateCurrentClientList()"></lite-membership-widget>
+                <div class="has-error">
+                    <div class="help-block" ng-show="source.formErrors.clientIds">
+                        <div ng-repeat="error in source.formErrors.clientIds">
+                            <div ng-bind="error"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <div class="form-group">
                 <label><h4>Filter by Feeds</h4></label>
@@ -101,6 +117,6 @@
 @stop
 
 <?php Assets::add(
-        ['resources/assets/js/bootstrap/pages/SourceUrlStatController.js',
-        'resources/assets/js/bootstrap/pages/SourceUrlStatApiService.js',
+        ['resources/assets/js/bootstrap/pages/SourceUrlSearchController.js',
+        'resources/assets/js/bootstrap/pages/SourceUrlSearchApiService.js',
         'resources/assets/js/bootstrap/feed/FeedApiService.js'],'js','pageLevel') ?>

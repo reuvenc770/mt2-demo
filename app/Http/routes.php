@@ -167,9 +167,9 @@ Route::group(
             'uses' => 'NavigationController@index'
         ] );
 
-        Route::get( '/source-url-stat' , [
-            'as' => 'tools.sourceurlstat' ,
-            'uses' => 'SourceUrlStatController@index'
+        Route::get( '/source-url-search' , [
+            'as' => 'tools.sourceurlsearch' ,
+            'uses' => 'SourceUrlSearchController@index'
         ] );
 
     }
@@ -1148,9 +1148,9 @@ Route::group(
         );
 
         Route::resource(
-            'source-url-stat' ,
-            'SourceUrlStatController' ,
-            [ 'only' => [ 'show' ] , 'names' => [ 'show' => 'api.sourceurlstat.show' ] ]
+            'source-url-search' ,
+            'SourceUrlSearchController' ,
+            [ 'only' => [ 'show' ] , 'names' => [ 'show' => 'api.sourceurlsearch.show' ] ]
         );
 
         Route::resource(

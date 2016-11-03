@@ -18,7 +18,7 @@ class FeedRepo {
     }
 
     public function getFeeds () {
-        return $this->feed->all();
+        return $this->feed->orderBy('name')->get();
     }
 
     public function getAllFeedsArray() {
