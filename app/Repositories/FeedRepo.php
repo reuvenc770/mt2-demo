@@ -84,7 +84,4 @@ class FeedRepo {
     public function getFeedIdByName ( $name ) {
         return ( $record = $this->feed->where( 'name' , $name )->pluck( 'id' ) ) ? $record->pop() : null;
     }
-
-    public function getFileColumnOrder ( $feedId ) {
-    }
 }

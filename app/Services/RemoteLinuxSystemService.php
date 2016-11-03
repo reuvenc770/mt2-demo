@@ -14,6 +14,9 @@ class RemoteLinuxSystemService {
     const FIND_RECENT_FILES_COMMAND = "find %s -type f -mtime -1 -print";
     const LIST_DIRECTORIES_COMMAND = "find %s -type d -print ";
     const DIRECTORY_EXISTS_COMMAND = "[ -d %s ] && echo 1";
+    const GET_CONTENT_SLICE_COMMAND = "sed -n %d,%dp %s";
+    const GET_FILE_LINE_COUNT_COMMAND = "wc -l < %s";
+    const APPEND_EOF_COMMAND = "sed -i -e '\$a\' %s";
 
     protected $sshConnection = null;
     protected $host = null;
@@ -71,13 +74,43 @@ class RemoteLinuxSystemService {
 
         $stream = ssh2_exec( $this->sshConnection , $command );
 
-        stream_set_blocking( $stream , true );
-        $stream_out = ssh2_fetch_stream( $stream , SSH2_STREAM_STDIO );
-        $directoryString = stream_get_contents($stream_out);
+        $directoryString = $this->getOutput( $stream );
 
         $directoryList = explode( "\n" , $directoryString );
 
         return $directoryList;
+    }
+
+    public function appendEofToFile ( $filePath ) {
+        $command = sprintf( self::APPEND_EOF_COMMAND , $filePath );
+    
+        ssh2_exec( $this->sshConnection , $command );
+    }
+
+    public function getFileContentSlice ( $filePath , $firstLine , $lastLine ) {
+        $command = sprintf( self::GET_CONTENT_SLICE_COMMAND , $firstLine , $lastLine , $filePath );
+
+        $stream = ssh2_exec( $this->sshConnection , $command );
+
+        $contentString = $this->getOutput( $stream );
+
+        $lineArray = explode( "\n" , $contentString );
+
+        if ( empty( $lineArray[ -1 ] ) ) {
+            array_pop( $lineArray );
+        }
+
+        return $lineArray;
+    }
+
+    public function getFileLineCount ( $filePath ) {
+        $command = sprintf( self::GET_FILE_LINE_COUNT_COMMAND , $filePath );
+
+        $stream = ssh2_exec( $this->sshConnection , $command );
+
+        $contentString = $this->getOutput( $stream );
+
+        return (int) trim( $contentString );
     }
 
     public function directoryExists ( $directory ) {
@@ -85,10 +118,7 @@ class RemoteLinuxSystemService {
 
         $stream = ssh2_exec( $this->sshConnection , $command );
 
-        stream_set_blocking( $stream , true );
-        $stream_out = ssh2_fetch_stream( $stream , SSH2_STREAM_STDIO );
-
-        return ( stream_get_contents($stream_out) == 1 );
+        return ( $this->getOutput( $stream ) == 1 );
     }
 
     public function getRecentFiles ( $directory ) {
@@ -96,10 +126,7 @@ class RemoteLinuxSystemService {
 
         $stream = ssh2_exec( $this->sshConnection , $command );
 
-        stream_set_blocking( $stream , true );
-        $stream_out = ssh2_fetch_stream( $stream , SSH2_STREAM_STDIO );
-
-        return stream_get_contents($stream_out);
+        return $this->getOutput( $stream );
     }
 
     protected function initSshConnection () {
@@ -121,5 +148,11 @@ class RemoteLinuxSystemService {
         );
 
         if ( $authSuccess === false ) { throw new \Exception( "Failed to authenticate with the server." ); }
+    }
+
+    protected function getOutput ( $stream ) {
+        stream_set_blocking( $stream , true );
+        $stream_out = ssh2_fetch_stream( $stream , SSH2_STREAM_STDIO );
+        return stream_get_contents( $stream_out );
     }
 }

@@ -115,7 +115,7 @@ class FeedService implements IFtpAdmin
         RecordProcessingFileField::updateOrCreate( [ 'feed_id' => $feedId ] , $fieldConfig );
     }
 
-    public function getFeedFields ( $feedId ) {
+    public function getFeedFields ( $feedId , $simpleArray = false ) {
         $row = RecordProcessingFileField::find( $feedId );
 
         if ( is_null( $row ) ) {
@@ -134,16 +134,28 @@ class FeedService implements IFtpAdmin
                 $customFields = json_decode( $index );
 
                 foreach ( $customFields as $customName => $customIndex ) {
-                    $fields[ $customIndex ] = [ "label" => $customName , "isCustom" => true ];
+                    if ( $simpleArray ) {
+                        $fields[ $customIndex ] = $customName;
+                    } else {
+                        $fields[ $customIndex ] = [ "label" => $customName , "isCustom" => true ];
+                    }
                 }
 
                 continue;
             }
 
-            $fields[ $index ] = $columnName;
+            if ( $simpleArray ) {
+                $fields[ $index ] = str_replace( '_index' , '' , $columnName);
+            } else {
+                $fields[ $index ] = $columnName;
+            } 
         }
 
         ksort( $fields );
+
+        if ( $simpleArray ) {
+            return $fields;
+        }
 
         return json_encode( $fields );
     }
@@ -183,7 +195,7 @@ class FeedService implements IFtpAdmin
         return $this->feedRepo->getActiveFeedNames();
     }
 
-    public function getFileColumnOrder ( $feedId ) {
-        return $this->feedRepo->getFileColumnOrder( $feedId );
+    public function getFileColumnMap ( $feedId ) {
+        return $this->getFeedFields( $feedId , true );
     }
 }
