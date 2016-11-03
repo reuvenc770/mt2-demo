@@ -14,7 +14,7 @@ class TempStoredEmailRepo {
     private $emailModel;
     private $batchData = [];
     private $batchDataCount = 0;
-    const INSERT_THRESHOLD = 10000;
+    const INSERT_THRESHOLD = 2500;
 
     public function __construct(TempStoredEmail $emailModel) {
         $this->emailModel = $emailModel;
