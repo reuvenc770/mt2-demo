@@ -73,6 +73,7 @@ class Kernel extends ConsoleKernel
         Commands\BuildScheduledProfileBaseTables::class,
         Commands\ExportListProfile::class,
         Commands\ESPUnsubsReport::class,
+        Commands\ProcessFeedRecords::class,
     ];
 
     /**
