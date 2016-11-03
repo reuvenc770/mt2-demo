@@ -1,13 +1,13 @@
 @extends( 'bootstrap.layout.default' )
 
-@section( 'title' , 'Domain Group List' )
+@section( 'title' , 'ISP Group List' )
 
 @section ( 'angular-controller' , 'ng-controller="DomainGroupController as dg"' )
 
 
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('ispgroup.add'))
-        <li><a ng-href="/ispgroup/create" target="_self">Add Domain Group</a></li>
+        <li><a ng-href="/ispgroup/create" target="_self">Add ISP Group</a></li>
     @endif
 @stop
 

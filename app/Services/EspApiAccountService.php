@@ -172,4 +172,8 @@ class EspApiAccountService
         return $this->espRepo->getTemplatesByEspId($id);
     }
 
+    public function toggleRow($id, $direction){
+        return $this->espRepo->toggleRow($id, $direction);
+    }
+
 }

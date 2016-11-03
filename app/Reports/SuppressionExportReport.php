@@ -46,7 +46,7 @@ class SuppressionExportReport {
 
     protected function getRecordsByDateEsp($espAccountId, $date, $typeId){
         try{
-            return $this->suppressionRepo->getRecordsByDateIntervalEspType($typeId, $espAccountId, $date, "<=");
+            return $this->suppressionRepo->getRecordsByDateIntervalEspType($typeId, $espAccountId, $date, "=");
         }
         catch (\Exception $e) {
             Log::error($e->getMessage(). ": while trying get Suppression Records for $typeId");
