@@ -15,7 +15,7 @@ class CreateContentServerStatsTable extends Migration
         Schema::create('content_server_stats', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('email_id')->unsigned()->default(0);
-            $table->integer('deploy_id')->unsigned()->default(0);
+            $table->bigInteger('deploy_id')->unsigned()->default(0);
             $table->integer('action_id')->unsigned()->default(0);
             $table->datetime('datetime');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
