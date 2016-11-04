@@ -24,6 +24,7 @@
                             <th md-column class="md-table-header-override-whitetext">IPs</th>
                             <th md-column class="md-table-header-override-whitetext">ESP Accounts</th>
                             <th md-column class="md-table-header-override-whitetext">ISPs</th>
+                            <th md-column class="md-table-header-override-whitetext">DBA</th>
                             <th md-column class="md-table-header-override-whitetext">Notes</th>
                         </tr>
                         </thead>
@@ -51,12 +52,13 @@
                             <td md-cell nowrap><p ng-repeat="value in record.ip_addresses.split(',')" nowrap>@{{ value }}</p></td>
                             <td md-cell nowrap>@{{ record.esp_account_names }}</td>
                             <td md-cell nowrap>@{{ record.isp_names }}</td>
+                            <td md-cell nowrap>@{{ record.dba_name }}</td>
                             <td md-cell nowrap>@{{ record.notes }}</td>
                         </tr>
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="8">
+                                <td colspan="9">
                                     <md-content class="md-mt2-zeta-theme md-hue-2">
                                         <md-table-pagination md-limit="proxy.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="proxy.currentPage" md-total="@{{proxy.accountTotal}}" md-on-paginate="proxy.loadAccounts" md-page-select></md-table-pagination>
                                     </md-content>

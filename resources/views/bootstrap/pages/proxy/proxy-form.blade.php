@@ -85,6 +85,17 @@
     <li ng-repeat="(key, value) in proxy.isp_names track by $index" class="list-group-item list-group-item-success">@{{value}} - <a
                 ng-click="proxy.removeIsp(key)">Remove</a></li>
 </ul>
+
+<div class="form-group" ng-class="{ 'has-error' : proxy.formErrors.dba_name }">
+    <input placeholder="DBA" value="" class="form-control" ng-model="proxy.currentAccount.dba_name"
+           name="dba_name" type="text">
+    <div class="help-block" ng-show="proxy.formErrors.dba_name">
+        <div ng-repeat="error in proxy.formErrors.dba_name">
+            <span ng-bind="error"></span>
+        </div>
+    </div>
+</div>
+
 <div class="form-group" ng-class="{ 'has-error' : proxy.formErrors.notes }">
         <textarea rows="4" placeholder="Notes" value="" class="form-control" ng-model="proxy.currentAccount.notes"
                   name="notes"></textarea>
