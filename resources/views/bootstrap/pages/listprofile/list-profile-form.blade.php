@@ -49,7 +49,7 @@
 
             <md-select name="clients" id="clients" ng-model="listProfile.feedClientFilters" md-on-close="listProfile.updateFeedVisibility()" multiple>
                 @foreach ( $clients as $client )
-                <md-option ng-value="::'{{ $client[ 'value' ] }}'">{{ $client[ 'name' ] }}</md-option>
+                <md-option ng-value="::'{{ $client[ 'id' ] }}'">{{ $client[ 'name' ] }}</md-option>
                 @endforeach
             </md-select>
         </md-input-container>
