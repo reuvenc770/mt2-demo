@@ -44,4 +44,8 @@ class DomainGroupRepo
         return $this->domainGroup->orderBy('name')->get();
     }
 
+    public function getAllActive(){
+        return $this->domainGroup->where('status', 'Active')->orderBy('name')->get();
+    }
+
 }

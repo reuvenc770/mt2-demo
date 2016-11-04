@@ -107,15 +107,6 @@
     </div>
     <div class="panel-body">
         <fieldset>
-            <div class="form-group" ng-class="{ 'has-error' : dba.formErrors.po_box.sub }">
-                <input placeholder="Sub #" value="" class="form-control" ng-model="dba.po_box.sub" required="required"
-                       name="po_box_sub" type="text">
-                <div class="help-block" ng-show="dba.formErrors.po_box.sub">
-                    <div ng-repeat="error in dba.formErrors.po_box.sub">
-                        <span ng-bind="error"></span>
-                    </div>
-                </div>
-            </div>
             <div class="form-group" ng-class="{ 'has-error' : dba.formErrors.po_box.address }">
                 <input placeholder="Address" value="" class="form-control" ng-model="dba.po_box.address"
                        required="required" name="po_box_address" type="text">
@@ -191,6 +182,53 @@
                     </div>
                 </div>
             </div>
+
+            <div class="form-group" ng-class="{ 'has-error' : dba.formErrors.po_box.esp_account_names }">
+                <div class="input-group">
+                    <select class="form-control" name="po_box_esp_account" ng-model="dba.esp_account_name">
+                        <option value="">ESP Use</option>
+                        @foreach ( $espAccounts as $espAccount )
+                            <option value="{{ $espAccount['account_name'] }}">{{ $espAccount['account_name'] }}</option>
+                        @endforeach
+                    </select>
+                <span class="input-group-btn">
+                    <button class="btn btn-primary" ng-click="dba.addEspAccount()" type="button">Add ESP</button>
+                  </span>
+                </div>
+                <div class="help-block" ng-show="dba.formErrors.po_box.esp_account_names">
+                    <div ng-repeat="error in dba.formErrors.po_box.esp_account_names">
+                        <span ng-bind="error"></span>
+                    </div>
+                </div>
+
+            </div>
+            <ul class="list-group" ng-show="dba.po_box.esp_account_names.length > 0">
+                <li ng-repeat="(key, value) in dba.po_box.esp_account_names track by $index" class="list-group-item list-group-item-success">@{{value}} - <a ng-click="dba.removeEspAccount(key)">Remove</a></li>
+            </ul>
+
+            <div class="form-group" ng-class="{ 'has-error' : dba.formErrors.po_box.isp_names }">
+                <div class="input-group">
+                    <select class="form-control" name="po_box_isp_name" ng-model="dba.isp_name">
+                        <option value="">ISP Use</option>
+                        @foreach ( $isps as $isp )
+                            <option value="{{ $isp['name'] }}">{{ $isp['name'] }}</option>
+                        @endforeach
+                    </select>
+                <span class="input-group-btn">
+                    <button class="btn btn-primary" ng-click="dba.addIsp()" type="button">Add ISP</button>
+                  </span>
+                </div>
+                <div class="help-block" ng-show="dba.formErrors.po_box.isp_names">
+                    <div ng-repeat="error in dba.formErrors.po_box.isp_names">
+                        <span ng-bind="error"></span>
+                    </div>
+                </div>
+
+            </div>
+            <ul class="list-group" ng-show="dba.po_box.isp_names.length > 0">
+                <li ng-repeat="(key, value) in dba.po_box.isp_names track by $index" class="list-group-item list-group-item-success">@{{value}} - <a ng-click="dba.removeIsp(key)">Remove</a></li>
+            </ul>
+
         </fieldset>
         <button class="btn btn-success btn-block" ng-click="dba.addPOBox()">
             <span ng-show="!dba.editingPOBox">Create </span>
@@ -200,10 +238,12 @@
     <div class="panel-footer" ng-show="dba.poBoxHolder.length > 0">
         <div class="thumbnail" ng-repeat="(key, value) in dba.poBoxHolder track by $index">
             <div class="caption clearfix">
-                <strong>PO Box:</strong> <span ng-if="value.sub">(Sub# @{{value.sub}})</span> @{{value.address}}
-                @{{value.address_2}} @{{value.city}} @{{value.state}} @{{value.zip}} <span
-                        ng-if="value.phone"><b>tel: </b>@{{value.phone}}</span>
+                <strong>PO Box:</strong>
+                @{{value.address}} @{{value.address_2}} @{{value.city}} @{{value.state}} @{{value.zip}}
+                <span ng-if="value.phone"><b>tel: </b>@{{value.phone}}</span>
                 <span ng-if="value.brands"><b>Brands: </b>@{{value.brands}}</span>
+                <span ng-if="value.esp_account_names"><b>ESPs: </b> @{{ value.esp_account_names.join(', ') }}</span>
+                <span ng-if="value.isp_names"><b>ISPs: </b> @{{ value.isp_names.join(', ') }} </span>
                 <div class="pull-right">
                     <a href="#" class="btn btn-success btn-small" ng-click="dba.editPOBox(key)" role="button">Edit</a>
                     <a href="#" class="btn btn-danger btn-small" ng-click="dba.removePOBox(key)"

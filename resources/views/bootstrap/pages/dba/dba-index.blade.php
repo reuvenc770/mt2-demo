@@ -26,6 +26,7 @@
                             <th md-column md-order-by="password" class="md-table-header-override-whitetext">Password</th>
                             <th md-column md-order-by="phone" class="md-table-header-override-whitetext">Phone</th>
                             <th md-column md-order-by="po_boxes" class="md-table-header-override-whitetext">PO Boxes</th>
+                            <th md-column class="md-table-header-override-whitetext">ESP/ISP Use</th>
                             <th md-column md-order-by="entity_name" class="md-table-header-override-whitetext">Entity Name</th>
                             <th md-column md-order-by="notes" class="md-table-header-override-whitetext"> Notes</th>
                         </tr>
@@ -55,7 +56,13 @@
                             <td md-cell>@{{ record.phone }}</td>
                             <td md-cell nowrap>
                                 <p ng-repeat="value in record.po_boxes">
-                                    @{{ value.sub  }} - @{{value.address}} @{{value.city }} @{{value.state}} @{{value.zip}} - @{{value.phone}} <span ng-if="value.brands.length > 0">- Brands:</span> @{{ value.brands.join(', ') }}
+                                    @{{value.address}} @{{value.city }} @{{value.state}} @{{value.zip}} - @{{value.phone}} <span ng-if="value.brands.length > 0">- Brands:</span> @{{ value.brands }}
+                                </p>
+                            </td>
+                            <td md-cell nowrap>
+                                <p ng-repeat="value in record.po_boxes">
+                                    <span ng-if="value.esp_account_names.length > 0">ESPs: @{{ value.esp_account_names.join(', ') }} </span>
+                                    <span ng-if="value.isp_names.length > 0"><br/>ISPs: @{{ value.isp_names.join(', ') }} </span>
                                 </p>
                             </td>
                             <td md-cell>@{{ record.entity_name }}</td>
@@ -65,7 +72,7 @@
 
                         <tfoot>
                             <tr>
-                                <td colspan="11">
+                                <td colspan="12">
                                     <md-content class="md-mt2-zeta-theme md-hue-2">
                                         <md-table-pagination md-limit="dba.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="dba.currentPage" md-total="@{{dba.accountTotal}}" md-on-paginate="dba.loadAccounts" md-page-select></md-table-pagination>
                                     </md-content>

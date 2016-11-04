@@ -50,4 +50,7 @@ class DomainGroupService
         return $this->domainGroupRepo->getAll();
     }
 
+    public function getAllActive(){
+        return $this->domainGroupRepo->getAllActive();
+    }
 }
