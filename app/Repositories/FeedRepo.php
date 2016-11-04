@@ -76,4 +76,8 @@ class FeedRepo {
                 'feeds.updated_at'
             );
     }
+
+    public function getSourceUrl($id) {
+        return $this->feed->where('id', $id)->source_url;
+    }
 }
