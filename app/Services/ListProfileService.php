@@ -33,6 +33,65 @@ class ListProfileService
         $this->baseTableService = $baseTableService;
     }
 
+    public function create ( $data ) {
+        $cleanData = [
+            'name' => $data[ 'name' ] ,
+            'deliverable_start' => $data[ 'actionRanges' ][ 'deliverable' ][ 'min' ] ,
+            'deliverable_end' => $data[ 'actionRanges' ][ 'deliverable' ][ 'max' ] ,
+            'openers_start' => $data[ 'actionRanges' ][ 'opener' ][ 'min' ] ,
+            'openers_end' => $data[ 'actionRanges' ][ 'opener' ][ 'max' ] ,
+            'open_count' => $data[ 'actionRanges' ][ 'opener' ][ 'multiaction' ] ,
+            'clickers_start' => $data[ 'actionRanges' ][ 'clicker' ][ 'min' ] ,
+            'clickers_end' => $data[ 'actionRanges' ][ 'clicker' ][ 'max' ] ,
+            'click_count' => $data[ 'actionRanges' ][ 'clicker' ][ 'multiaction' ] ,
+            'converters_start' => $data[ 'actionRanges' ][ 'converter' ][ 'min' ] ,
+            'converters_end' => $data[ 'actionRanges' ][ 'converter' ][ 'max' ] ,
+            'conversion_count' => $data[ 'actionRanges' ][ 'converter' ][ 'multiaction' ] ,
+            'use_global_suppression' => $data[ 'suppression' ][ 'global' ] ? 1 : 0 ,
+            'age_range' => json_encode( $data[ 'attributeFilters' ][ 'age' ] ) ,
+            'gender' => json_encode( array_values( $data[ 'attributeFilters' ][ 'genders' ] ) ) ,
+            'zip' => $data[ 'attributeFilters' ][ 'zips' ] ? json_encode( explode( ',' , $data[ 'attributeFilters' ][ 'zips' ] ) ) : '{}' ,
+            'city' => $data[ 'attributeFilters' ][ 'cities' ] ? json_encode( explode( ',' , $data[ 'attributeFilters' ][ 'cities' ] ) ) : '{}' ,
+            'state' => json_encode( array_keys( $data[ 'attributeFilters' ][ 'states' ] ) ) ,
+            'device_type' => json_encode( array_keys( $data[ 'attributeFilters' ][ 'deviceTypes' ] ) ) ,
+            'mobile_carrier' => json_encode( array_keys( $data[ 'attributeFilters' ][ 'mobileCarriers' ] ) ) ,
+            'insert_header' => $data[ 'includeCsvHeader' ],
+            'device_os' => json_encode( array_keys( $data[ 'attributeFilters' ][ 'os' ] ) ) ,
+            'columns' => json_encode( $data[ 'selectedColumns' ] ) ,
+            'run_frequency' => ( ( isset( $data[ 'exportOptions' ][ 'interval' ] ) && $choice = array_intersect( $data[ 'exportOptions' ][ 'interval' ] , [ 'Daily' , 'Weekly' , 'Monthly' , 'Never' ] ) ) ? array_pop( $choice ) : 'Never' ) ,
+            'admiral_only' => $data[ 'admiralsOnly' ] ,
+        ]; 
+
+        $id = $this->profileRepo->create( $cleanData );
+
+        if ( $data[ 'categories' ] ) {
+            $this->profileRepo->assignVerticals( $id , array_keys( $data[ 'categories' ] ) );
+        } 
+
+        if ( $data[ 'exportOptions' ][ 'interval' ] ) {
+            $this->profileRepo->assignSchedule( $id , $data[ 'exportOptions' ] );
+        }
+
+        if ( $data[ 'offers' ] ) {
+            $this->profileRepo->assignOffers( $id , $data[ 'offers' ] );
+        }
+
+        if ( $data[ 'feeds' ] ) {
+            $this->profileRepo->assignFeeds( $id , array_keys( $data[ 'feeds' ] ) );
+        }
+
+        if ( $data[ 'isps' ] ) {
+            $this->profileRepo->assignIsps( $id , array_keys( $data[ 'isps' ] ) );
+        }
+
+        if ( $data[ 'countries' ] ) {
+            $this->profileRepo->assignCountries( $id , $data[ 'countries' ] );
+        }
+    }
+
+    public function updateOrCreate ( $data ) {
+        $this->profileRepo->updateOrCreate( $data );
+    }
 
     public function getActiveListProfiles() {
         return $this->profileRepo->returnActiveProfiles();

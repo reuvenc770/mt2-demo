@@ -12,6 +12,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
     self.enabledSuppression = { "list" : false , "offer" : false };
 
     self.current = {
+        'profile_id' : null ,
         'name' : '' ,
         'countries' : {} ,
         'feeds' : {} ,
@@ -746,4 +747,8 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
     self.isSelectedExportOption = function ( option ) {
         return self.current.exportOptions.interval.indexOf( option ) >= 0;
     }
+
+    self.saveListProfile = function () {
+        ListProfileApiService.saveListProfile( self.current , function ( response ) { $log.info( response ); } , function ( response ) { $log.info( response ); } );
+    };
 } ] );

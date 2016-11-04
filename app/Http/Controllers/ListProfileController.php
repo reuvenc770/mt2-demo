@@ -75,6 +75,7 @@ class ListProfileController extends Controller
      */
     public function store(Request $request)
     {
+        $this->listProfile->create( $request->all() );
     }
 
     /**
@@ -107,6 +108,7 @@ class ListProfileController extends Controller
      */
     public function update(Request $request, $id)
     {
+        
     }
 
     /**
