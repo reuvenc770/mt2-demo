@@ -17,8 +17,8 @@
 
     <div class="form-group" ng-class="{ 'has-error' : feed.formErrors.name }" ng-hide="'{{$hideName}}' === 'hide'">
         <input type="text" class="form-control" id="name" value="" placeholder="Feed Name" required="required" ng-model="feed.current.name" />
-        <div class="help-block" ng-show="feed.formErrors.short_name">
-            <div ng-repeat="error in feed.formErrors.short_name">
+        <div class="help-block" ng-show="feed.formErrors.name">
+            <div ng-repeat="error in feed.formErrors.name">
                 <div ng-bind="error"></div>
             </div>
         </div>

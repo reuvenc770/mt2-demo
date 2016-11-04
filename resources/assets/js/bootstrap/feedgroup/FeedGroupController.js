@@ -105,7 +105,7 @@ mt2App.controller( 'FeedGroupController' , [ '$rootScope' , '$log' , '$window' ,
         var sortFeedList = [];
 
         angular.forEach( response.data , function ( value ) {
-            value.feedListDisplayName = value.name + " ( " + value.id + " ) " ;
+            value.feedListDisplayName = value.short_name + " ( " + value.id + " ) " ;
             sortFeedList.push(value);
         } );
 
