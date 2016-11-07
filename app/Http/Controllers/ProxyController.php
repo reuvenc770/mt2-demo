@@ -7,6 +7,7 @@ use App\Services\EspApiAccountService;
 
 use App\Services\EspService;
 use App\Services\ProxyService;
+use App\Services\DomainGroupService;
 
 use Illuminate\Http\Request;
 
@@ -18,11 +19,13 @@ class ProxyController extends Controller
     protected $proxyService;
     protected $espAccountService;
     protected $espService;
-    public function __construct(ProxyService $proxyService, EspApiAccountService $espAccountService, EspService $espService)
+    protected $domainGroupService;
+    public function __construct(ProxyService $proxyService, EspApiAccountService $espAccountService, EspService $espService , DomainGroupService $domainGroupService )
     {
         $this->proxyService = $proxyService;
         $this->espAccountService = $espAccountService;
         $this->espService = $espService;
+        $this->domainGroupService = $domainGroupService;
     }
 
     public function listAll()
@@ -56,7 +59,8 @@ class ProxyController extends Controller
     {
         $espAccounts = $this->espAccountService->getAllAccounts();
         $esps = $this->espService->getAllEsps();
-        return view('bootstrap.pages.proxy.proxy-add',['espAccounts' => $espAccounts, 'esps' => $esps]);
+        $isps = $this->domainGroupService->getAllActive();
+        return view('bootstrap.pages.proxy.proxy-add',[ 'espAccounts' => $espAccounts, 'esps' => $esps , 'isps' => $isps ] );
     }
 
     /**
@@ -94,8 +98,9 @@ class ProxyController extends Controller
     {
         $espAccounts = $this->espAccountService->getAllAccounts();
         $esps = $this->espService->getAllEsps();
+        $isps = $this->domainGroupService->getAllActive();
         return response()
-            ->view('bootstrap.pages.proxy.proxy-edit',['espAccounts' => $espAccounts, 'esps' => $esps]);
+            ->view('bootstrap.pages.proxy.proxy-edit',[ 'espAccounts' => $espAccounts, 'esps' => $esps , 'isps' => $isps ] );
     }
 
     /**
