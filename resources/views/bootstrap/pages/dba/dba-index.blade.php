@@ -56,7 +56,8 @@
                             <td md-cell>@{{ record.phone }}</td>
                             <td md-cell nowrap>
                                 <p ng-repeat="value in record.po_boxes">
-                                    @{{value.address}} @{{value.city }} @{{value.state}} @{{value.zip}} - @{{value.phone}} <span ng-if="value.brands.length > 0">- Brands:</span> @{{ value.brands }}
+                                    @{{ $index + 1 }} -
+                                    @{{value.address}} @{{value.city }} @{{value.state}} @{{value.zip}} <span ng-if="value.phone">- @{{value.phone}}</span> <span ng-if="value.brands.length > 0">- Brands:</span> @{{ value.brands }}
                                 </p>
                             </td>
                             <td md-cell nowrap>

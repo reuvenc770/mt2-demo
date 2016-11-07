@@ -242,8 +242,8 @@
                 @{{value.address}} @{{value.address_2}} @{{value.city}} @{{value.state}} @{{value.zip}}
                 <span ng-if="value.phone"><b>tel: </b>@{{value.phone}}</span>
                 <span ng-if="value.brands"><b>Brands: </b>@{{value.brands}}</span>
-                <span ng-if="value.esp_account_names"><b>ESPs: </b> @{{ value.esp_account_names.join(', ') }}</span>
-                <span ng-if="value.isp_names"><b>ISPs: </b> @{{ value.isp_names.join(', ') }} </span>
+                <span ng-if="value.esp_account_names.length > 0"><b>ESPs: </b> @{{ value.esp_account_names.join(', ') }}</span>
+                <span ng-if="value.isp_names.length > 0"><b>ISPs: </b> @{{ value.isp_names.join(', ') }} </span>
                 <div class="pull-right">
                     <a href="#" class="btn btn-success btn-small" ng-click="dba.editPOBox(key)" role="button">Edit</a>
                     <a href="#" class="btn btn-danger btn-small" ng-click="dba.removePOBox(key)"
