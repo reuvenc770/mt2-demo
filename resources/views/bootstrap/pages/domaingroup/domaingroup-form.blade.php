@@ -20,23 +20,3 @@
                 </div>
             </div>
         </div>
-
-        <div class="form-group" ng-class="{ 'has-error' : dg.formErrors.status }">
-            <label>Status</label>
-            <div class="btn-group btn-group-justified" role="group" aria-label="...">
-                <input type="hidden" ng-model="dg.currentAccount.status" />
-
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-default" ng-click="dg.currentAccount.status = 'Active'" ng-class="{ active : dg.currentAccount.status == 'Active' }">Active</button>
-                </div>
-
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-default" ng-click="dg.currentAccount.status = 'Paused'" ng-class="{ active : dg.currentAccount.status == 'Paused' }">Paused</button>
-                </div>
-            </div>
-            <div class="help-block" ng-show="dg.formErrors.status">
-                <div ng-repeat="error in dg.formErrors.status">
-                    <div ng-bind="error"></div>
-                </div>
-            </div>
-        </div>

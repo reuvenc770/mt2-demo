@@ -3,7 +3,7 @@ mt2App.controller( 'DomainGroupController' , [ '$log' , '$window' , '$location' 
     self.$location = $location;
 
     self.accounts = [];
-    self.currentAccount = {  "name" : "" ,"country":"", "status":"Active"};
+    self.currentAccount = {  "name" : "" ,"country":"", "status":""};
     self.createUrl = 'ispgroup/create/';
     self.editUrl = 'ispgroup/edit/';
 
@@ -52,6 +52,7 @@ mt2App.controller( 'DomainGroupController' , [ '$log' , '$window' , '$location' 
     self.saveNewAccount = function () {
         self.editForm = true;
         formValidationService.resetFieldErrors(self);
+        self.currentAccount.status = "Active";
         DomainGroupApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback );
     };
 
@@ -61,6 +62,9 @@ mt2App.controller( 'DomainGroupController' , [ '$log' , '$window' , '$location' 
         DomainGroupApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 
+    self.toggle = function( recordId , direction ) {
+        DomainGroupApiService.toggleRow( recordId , direction , self.toggleRowSuccess , self.toggleRowFailure );
+    }
     /**
      * Callbacks
      */

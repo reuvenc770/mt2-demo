@@ -18,10 +18,10 @@
                         <thead md-head md-order="dg.sort" md-on-reorder="dg.loadAccounts">
                         <tr md-row>
                             <th md-column class="mt2-table-btn-column"></th>
-                            <th md-column md-order-by="name" class="md-table-header-override-whitetext">ISP Group Name</th>
+                            <th md-column class="md-table-header-override-whitetext mt2-table-header-center">Status</th>
+                            <th md-column md-order-by="name" class="md-table-header-override-whitetext mt2-cell-left-padding">ISP Group Name</th>
                             <th md-column class="md-table-header-override-whitetext">Number of Domains</th>
                             <th md-column md-order-by="country" class="md-table-header-override-whitetext">Country</th>
-                            <th md-column class="md-table-header-override-whitetext mt2-table-header-center">Status</th>
                         </tr>
                         </thead>
                         <tbody md-body>
@@ -31,14 +31,18 @@
                                     <a ng-href="@{{ '/ispgroup/edit/' + record.id }}" aria-label="Edit" target="_self" data-toggle="tooltip" data-placement="bottom" title="Edit">
                                         <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
                                     </a>
+                                    <md-icon ng-if="record.status == 'Active'" ng-click="dg.toggle( record.id , 'Paused' )" md-font-set="material-icons"
+                                            class="mt2-icon-black no-margin" data-toggle="tooltip" data-placement="bottom" title="Deactivate" aria-label="Deactivate">pause</md-icon>
+                                    <md-icon ng-if="record.status == 'Paused' || record.status == '' " ng-click="dg.toggle( record.id , 'Active' )" md-font-set="material-icons"
+                                            class="mt2-icon-black no-margin" data-toggle="tooltip" data-placement="bottom" title="Activate" aria-label="Activate">play_arrow</md-icon>
                                 </div>
                             </td>
-                            <td md-cell>
+                            <td md-cell class="mt2-table-cell-center" ng-class="{ 'bg-success' : record.status == 'Active' , 'bg-danger' : record.status == 'Paused' || record.status == '' }" >@{{ record.status == 'Active' ? 'Active' : 'Inactive' }}</td>
+                            <td md-cell class="mt2-cell-left-padding">
                                 @{{ record.name }}
                             </td>
                             <td md-cell>@{{ record.domainCount }}</td>
                             <td md-cell>@{{ record.country }}</td>
-                            <td md-cell class="mt2-table-cell-center" ng-class="{ 'bg-success' : record.status == 'Active' , 'bg-warning' : record.status == 'Paused' || record.status == '' }" >@{{ record.status || 'Paused' }}</td>
                         </tr>
                         </tbody>
                         <tfoot>

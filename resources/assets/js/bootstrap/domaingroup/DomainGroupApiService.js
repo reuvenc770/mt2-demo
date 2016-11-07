@@ -42,5 +42,12 @@ mt2App.service( 'DomainGroupApiService' , function ( $http , $log ) {
         } ).then( successCallback , failureCallback );
     };
 
+    self.toggleRow = function ( recordId , direction , successCallback , failureCallback ) {
+        $http( {
+            "method" : "DELETE" ,
+            "url" : this.baseApiUrl + '/' + recordId,
+            "params" : { "direction" : direction }
+        } ).then( successCallback , failureCallback );
+    };
 
 } );
