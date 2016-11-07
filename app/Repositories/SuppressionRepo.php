@@ -136,4 +136,8 @@ class SuppressionRepo
             ->whereBetween( 'date' , [ $dateRange[ 'start' ] , $dateRange[ 'end' ] ] )
             ->get();
     }
+
+    public function returnSuppressedEmails(array $emails) {
+        return $this->model->whereIn('email_address', $emails)->select('email_address')->get();
+    }
 }
