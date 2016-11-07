@@ -21,7 +21,7 @@
                             <th md-column md-order-by="name" class="md-table-header-override-whitetext">ISP Group Name</th>
                             <th md-column class="md-table-header-override-whitetext">Number of Domains</th>
                             <th md-column md-order-by="country" class="md-table-header-override-whitetext">Country</th>
-                            <th md-column md-order-by="status" class="md-table-header-override-whitetext">Status</th>
+                            <th md-column class="md-table-header-override-whitetext mt2-table-header-center">Status</th>
                         </tr>
                         </thead>
                         <tbody md-body>
@@ -38,7 +38,7 @@
                             </td>
                             <td md-cell>@{{ record.domainCount }}</td>
                             <td md-cell>@{{ record.country }}</td>
-                            <td md-cell>@{{ record.status }}</td>
+                            <td md-cell class="mt2-table-cell-center" ng-class="{ 'bg-success' : record.status == 'Active' , 'bg-warning' : record.status == 'Paused' || record.status == '' }" >@{{ record.status || 'Paused' }}</td>
                         </tr>
                         </tbody>
                         <tfoot>
