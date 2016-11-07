@@ -46,6 +46,10 @@ class DomainGroupService
         return $this->domainGroupRepo->updateRow($id, $groupData);
     }
 
+    public function toggleRow($id, $direction){
+        return $this->domainGroupRepo->toggleRow($id, $direction);
+    }
+
     public function getAll(){
         return $this->domainGroupRepo->getAll();
     }
