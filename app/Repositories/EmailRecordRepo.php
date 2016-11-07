@@ -95,7 +95,7 @@ class EmailRecordRepo {
         }
 
         if (!empty($emailIdsToUpdateDeliverableStatus)) {
-            $chunkedRecords = array_chunk($emailIdsToUpdateDeliverableStatus);
+            $chunkedRecords = array_chunk($emailIdsToUpdateDeliverableStatus, 10000);
 
             foreach ($chunkedRecords as $i => $segment) {
                 $this->recordData
