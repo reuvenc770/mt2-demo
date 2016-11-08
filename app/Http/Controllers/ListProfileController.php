@@ -77,6 +77,8 @@ class ListProfileController extends Controller
      */
     public function store(SubmitListProfileRequest $request)
     {
+        #Need to fire a job to run the list profile at this point if the user chooses immediately
+
         $this->listProfile->create( $request->all() );
 
         Flash::success("List Profile was Successfully Created");
@@ -117,6 +119,8 @@ class ListProfileController extends Controller
      */
     public function update(SubmitListProfileRequest $request, $id)
     {
+        #Need to fire a job to run the list profile at this point if the user chooses immediately
+
         $this->listProfile->formUpdate( $id , $request->all() );
 
         Flash::success("List Profile was Successfully Updated");

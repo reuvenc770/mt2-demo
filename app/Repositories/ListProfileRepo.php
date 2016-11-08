@@ -78,9 +78,7 @@ class ListProfileRepo
     }
 
     public function assignVerticals ( $id , $verticals ) {
-        if ( $this->vertical->where( 'list_profile_id' , $id )->count() > 0 ) {
-            $this->vertical->where( 'list_profile_id' , $id )->delete();
-        }
+        $this->vertical->where( 'list_profile_id' , $id )->delete();
 
         foreach ( $verticals as $currentVertical ) {
             $this->vertical->insert( [ 'list_profile_id' => $id , 'cake_vertical_id' => $currentVertical ] );
@@ -97,7 +95,6 @@ class ListProfileRepo
 
         $this->schedule->updateOrCreate( [ 'id' => $currentScheduleId ] , [
             'list_profile_id' => $id ,
-            'run_immediately' => in_array( 'Immediately' , $options[ 'interval' ] ) ,
             'run_daily' => in_array( 'Daily' , $options[ 'interval' ] ) ,
             'run_weekly' => in_array( 'Weekly' , $options[ 'interval' ] ),
             'run_monthly' => in_array( 'Monthly' , $options[ 'interval' ] ) ,
@@ -107,9 +104,7 @@ class ListProfileRepo
     }
 
     public function assignOffers ( $id , $offers ) {
-        if ( $this->offer->where( 'list_profile_id' , $id )->count() > 0 ) {
-            $this->offer->where( 'list_profile_id' , $id )->delete();
-        }        
+        $this->offer->where( 'list_profile_id' , $id )->delete();
 
         foreach ( $offers as $currentOffer ) {
             $this->offer->insert( [ 'list_profile_id' => $id , 'offer_id' => $currentOffer[ 'id' ] ] );
@@ -117,9 +112,7 @@ class ListProfileRepo
     }
 
     public function assignFeeds ( $id , $feeds ) {
-        if ( $this->feed->where( 'list_profile_id' , $id )->count() > 0 ) {
-            $this->feed->where( 'list_profile_id' , $id )->delete();
-        }
+        $this->feed->where( 'list_profile_id' , $id )->delete();
 
         foreach ( $feeds as $currentFeed ) {
             $this->feed->insert( [ 'list_profile_id' => $id , 'feed_id' => $currentFeed ] );
@@ -127,9 +120,7 @@ class ListProfileRepo
     }
 
     public function assignIsps ( $id , $isps ) {
-        if ( $this->isp->where( 'list_profile_id' , $id )->count() > 0 ) {
-            $this->isp->where( 'list_profile_id' , $id )->delete();
-        }
+        $this->isp->where( 'list_profile_id' , $id )->delete();
 
         foreach ( $isps as $currentIsp ) {
             $this->isp->insert( [ 'list_profile_id' => $id , 'domain_group_id' => $currentIsp ] );
@@ -137,9 +128,7 @@ class ListProfileRepo
     }
 
     public function assignCountries ( $id , $countries ) {
-        if ( $this->country->where( 'list_profile_id' , $id )->count() > 0 ) {
-            $this->country->where( 'list_profile_id' , $id )->delete();
-        }
+        $this->country->where( 'list_profile_id' , $id )->delete();
 
         foreach ( $countries as $currentCountry ) {
             $this->country->insert( [ 'list_profile_id' => $id , 'country_id' => $currentCountry ] );

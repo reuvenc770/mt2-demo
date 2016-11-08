@@ -90,7 +90,7 @@ class ListProfileService
             'includeCsvHeader' => $listProfile->insert_header ,
             'selectedColumns' => json_decode( $listProfile->columns ) ,
             'exportOptions' => [
-                'interval' => $schedule->run_immediately ? [ 'Immediately' , $listProfile->run_frequency ] : [ $listProfile->run_frequency ] ,
+                'interval' =>  [ $listProfile->run_frequency ] ,
                 'dayOfWeek' => $schedule->day_of_week ? $schedule->day_of_week : null ,
                 'dayOfMonth' => $schedule->day_of_month ? $schedule->day_of_month : null
             ] ,

@@ -14,6 +14,7 @@ class AddAdmiralOnlyListProfiles extends Migration
     {
         Schema::connection( 'list_profile' )->table( 'list_profiles' , function ( Blueprint $table ) {
             $table->tinyInteger( 'admiral_only' )->after( 'name' );
+            $table->index( 'admiral_only' );
         } );
     }
 
