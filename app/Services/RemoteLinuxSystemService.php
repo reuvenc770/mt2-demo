@@ -96,7 +96,8 @@ class RemoteLinuxSystemService {
 
         $lineArray = explode( "\n" , $contentString );
 
-        if ( empty( $lineArray[ -1 ] ) ) {
+        $lastIndex = count( $lineArray ) - 1;
+        if ( isset( $lineArray[ $lastIndex ] ) && empty( $lineArray[ $lastIndex ] ) ) {
             array_pop( $lineArray );
         }
 
