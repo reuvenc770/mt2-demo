@@ -49,12 +49,12 @@
                                 @{{ record.status == 1 ? 'Active' : 'Inactive' }}
                             </td>
                             <td md-cell class="mt2-cell-left-padding">@{{ record.name }}</td>
-                            <td md-cell>@{{ record.dba_names }}</td>
+                            <td md-cell nowrap>@{{ record.dba_names }}</td>
                             <td md-cell>@{{ record.username }}</td>
                             <td md-cell>@{{ record.password }}</td>
-                            <td md-cell>@{{ record.contact_name }}</td>
+                            <td md-cell nowrap>@{{ record.contact_name }}</td>
                             <td md-cell>@{{ record.contact_email }}</td>
-                            <td md-cell>@{{ record.contact_credit_card }}</td>
+                            <td md-cell nowrap>@{{ record.contact_credit_card }}</td>
                             <td md-cell>@{{ record.last_cc }}</td>
                         </tr>
                         </tbody>
