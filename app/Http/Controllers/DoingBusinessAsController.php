@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 
 use AdrianMejias\States\States;
 use App\Services\DoingBusinessAsService;
+use App\Services\EspApiAccountService;
+use App\Services\DomainGroupService;
 use Illuminate\Http\Request;
 use Laracasts\Flash\Flash;
 use App\Http\Requests;
@@ -12,9 +14,13 @@ use App\Http\Requests;
 class DoingBusinessAsController extends Controller
 {
     protected $doingBusinessService;
+    protected $espAccountService;
+    protected $domainGroupService;
     protected $states;
-    public function __construct(DoingBusinessAsService $doingBusinessService, States $states){
+    public function __construct(DoingBusinessAsService $doingBusinessService, EspApiAccountService $espAccountService , DomainGroupService $domainGroupService , States $states){
         $this->doingBusinessService = $doingBusinessService;
+        $this->espAccountService = $espAccountService;
+        $this->domainGroupService = $domainGroupService;
         $this->states = $states;
     }
 
@@ -43,7 +49,13 @@ class DoingBusinessAsController extends Controller
     public function create()
     {
         $states = States::all();
-        return view("bootstrap.pages.dba.dba-add", array("states" => $states));
+        $espAccounts = $this->espAccountService->getAllAccounts();
+        $isps = $this->domainGroupService->getAllActive();
+        return view("bootstrap.pages.dba.dba-add", [
+            "states" => $states ,
+            "espAccounts" => $espAccounts,
+            "isps" => $isps
+        ] );
     }
 
     /**
@@ -80,8 +92,14 @@ class DoingBusinessAsController extends Controller
     public function edit( )
     {
         $states = States::all();
+        $espAccounts = $this->espAccountService->getAllAccounts();
+        $isps = $this->domainGroupService->getAllActive();
         return response()
-            ->view( "bootstrap.pages.dba.dba-edit", array("states" => $states));
+            ->view( "bootstrap.pages.dba.dba-edit", [
+            "states" => $states ,
+            "espAccounts" => $espAccounts,
+            "isps" => $isps
+        ] );
     }
 
     /**
