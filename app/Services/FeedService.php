@@ -14,7 +14,7 @@ use DB;
 class FeedService implements IFtpAdmin
 {
     use PaginateList;
-    
+
     private $feedRepo;
     private $verticals;
     private $feedTypes;
@@ -46,7 +46,7 @@ class FeedService implements IFtpAdmin
         return $this->feedRepo->getAllFeedsArray();
     }
 
-    
+
     public function getFeeds () {
         return $this->feedRepo->getFeeds();
     }
@@ -78,7 +78,7 @@ class FeedService implements IFtpAdmin
     }
 
     public function getVerticals() {
-        return $this->verticals->get();
+        return $this->verticals->orderBy('name')->get();
     }
 
     public function getFeedTypes() {

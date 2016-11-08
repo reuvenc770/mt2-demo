@@ -32,15 +32,14 @@ class ImportMt1EmailsJob extends Job implements ShouldQueue {
                 $service->run();
                 
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
-                $result = $this->unlock(self::JOB_NAME);
-                echo "Successfully removed lock: $result" . PHP_EOL;      
             }
             catch (\Exception $e) {
                 echo self::JOB_NAME . " failed with {$e->getMessage()}" . PHP_EOL;
                 $this->failed();
             }
             finally {
-                $this->unlock(self::JOB_NAME);
+                $result = $this->unlock(self::JOB_NAME);
+                echo "Successfully removed lock: $result" . PHP_EOL;  
             }
 
         }

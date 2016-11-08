@@ -13,7 +13,7 @@ mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' 
     self.paginationCount = '10';
     self.currentPage = 1;
     self.accountTotal = 0;
-    self.sort = '-id';
+    self.sort = 'domain_name';
     self.editForm = false;
     self.queryPromise = null;
 

@@ -28,7 +28,7 @@ class DomainGroupRequest extends Request
     {
         return [
             "name" => 'required',
-            "country" => 'required',
+            "country" => 'required'
         ];
     }
 }

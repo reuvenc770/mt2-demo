@@ -66,7 +66,7 @@ class EspApiAccountRepo
      * @return mixed
      */
     public function getAllAccounts(){
-        return $this->espAccount->where("status",1)->with( 'esp' )->get()->sortBy("account_name");
+        return $this->espAccount->where("status",1)->with( 'esp' )->orderBy('account_name')->get();
     }
 
     /**

@@ -9,7 +9,7 @@ use DB;
 
 class Mt1DbApi
 {
-    private $finalLastUpdated;
+    private $finalId;
 
     public function __construct() {}
 
@@ -24,7 +24,8 @@ class Mt1DbApi
         $count = (int)$count[0]->total;
         echo "Count:" . $count . PHP_EOL;
 
-        $pull = DB::connection('mt1_data')->select("SELECT 
+        $pull = DB::connection('mt1_data')->select("SELECT
+            ID,
             email_user_id, 
             client_id, 
             email_addr,  
@@ -50,17 +51,17 @@ class Mt1DbApi
             FROM 
                 client_record_log 
             ORDER BY 
-                lastUpdated, email_user_id 
+                ID 
             LIMIT 
                 50000");
+        
         $len = sizeof($pull);
         
         if ($len > 0) {
             end($pull);
             $last = key($pull);
-            $this->finalLastUpdated = $pull[$last]->lastUpdated;
-            $this->lastEmailId = $pull[$last]->email_user_id;
-            echo $this->finalLastUpdated . ' and ' . $this->lastEmailId . PHP_EOL;
+            $this->finalId = $pull[$last]->ID;
+            echo $this->finalId . PHP_EOL;
             
             return $pull;
         }
@@ -69,18 +70,14 @@ class Mt1DbApi
     }
 
     /**
-     *  cleanTable(): when signalled, delete all from the table prior to the set date
+     *  cleanTable(): when signalled, delete all from the table prior to the set id
      */
 
     public function cleanTable() {
         
-        DB::connection('mt1_table_sync')
+        return DB::connection('mt1_table_sync')
             ->table('client_record_log')
-            ->where('lastUpdated', '<', $this->finalLastUpdated)
-            ->orWhere(function($query) {
-                $query->where('lastUpdated', '=', $this->finalLastUpdated)
-                      ->where('email_user_id', '<=', $this->lastEmailId);
-            })
+            ->where('ID', '<=', $this->finalId)
             ->delete();
     }
 

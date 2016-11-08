@@ -121,7 +121,7 @@ class EmailRepo {
     public function getAttributionTruths($emailId) {
         $email = $this->emailModel->find($emailId);
 
-        if ($email) {
+        if ($email && $email->attributionTruths) {
             return $email->attributionTruths;
         }
         else {
