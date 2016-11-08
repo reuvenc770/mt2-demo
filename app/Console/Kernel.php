@@ -74,6 +74,7 @@ class Kernel extends ConsoleKernel
         Commands\ExportListProfile::class,
         Commands\ESPUnsubsReport::class,
         Commands\DeactivateEspAccounts::class,
+        Commands\BuildScheduledDeploysListProfileBaseTables::class,
     ];
 
     /**

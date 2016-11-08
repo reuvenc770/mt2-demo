@@ -59,6 +59,8 @@ class ListProfileExportService {
 
         $this->writeBatch($fileName);
 
+        return $fileName;
+
     }
 
 
