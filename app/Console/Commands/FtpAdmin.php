@@ -148,7 +148,7 @@ class FtpAdmin extends Command
             $this->generatePassword();
         }
 
-        $this->sshConnection = $this->systemService->init(
+        $this->systemService->initSshConnection(
             $this->option( 'host' ) ,
             $this->option( 'port' ) ,
             $this->option( 'sshUser' ) , 
@@ -174,7 +174,7 @@ class FtpAdmin extends Command
             $this->generatePassword();
         }
 
-        $this->sshConnection = $this->systemService->init(
+        $this->systemService->initSshConnection(
             $this->option( 'host' ) ,
             $this->option( 'port' ) ,
             $this->option( 'sshUser' ) , 

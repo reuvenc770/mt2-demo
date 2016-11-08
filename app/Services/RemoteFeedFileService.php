@@ -33,7 +33,6 @@ class RemoteFeedFileService {
     public function testFunction () {
         $start = microtime(true);
 
-        $this->init();
         $this->loadNewFilePaths();
 
         while ( $this->newFilesPresent() ) {
@@ -44,19 +43,9 @@ class RemoteFeedFileService {
         \Log::info( microtime(true) - $start );
     }
 
-    public function init ( $host = null , $port = null , $user = null , $pubKey = null , $privKey = null ) {
-        if ( !is_null( $host ) && !is_null( $port ) && !is_null( $user ) && !is_null( $pubKey ) && !is_null( $privKey ) ) {
-            $this->systemService->init( $host , $port , $user , $pubKey , $privKey );
-
-            return true;
-        }
-
-        $this->systemService->init( env( 'FEED_FILE_HOST' ) , env( 'FEED_FILE_PORT' ) , env( 'FEED_FILE_USER' ) , env( 'FEED_FILE_PUB_KEY' ) , env( 'FEED_FILE_PRIV_KEY' ) );
-
-        return true;
-    }
-
     public function updateFeedDirectories () {
+        $this->connectToServer();
+
         $countries = [ 'US' , 'UK' ];
         $isps = $this->domainGroupService->getAllActiveNames();
         $directoryList = $this->getValidDirectories();
@@ -83,6 +72,8 @@ class RemoteFeedFileService {
     }
 
     public function loadNewFilePaths () {
+        $this->connectToServer();
+
         $feedDirList = $this->getValidDirectories();
 
         foreach ( $feedDirList as $dirInfo ) {
@@ -217,5 +208,17 @@ class RemoteFeedFileService {
         }
 
         return $directoryList;
+    }
+
+    protected function connectToServer () {
+        if ( !$this->systemService->connectionExists() ) {
+            $this->systemService->initSshConnection(
+                env( 'FEED_FILE_HOST' ) ,
+                env( 'FEED_FILE_PORT' ) ,
+                env( 'FEED_FILE_USER' ) ,
+                env( 'FEED_FILE_PUB_KEY' ) ,
+                env( 'FEED_FILE_PRIV_KEY' )
+            );
+        }
     }
 }

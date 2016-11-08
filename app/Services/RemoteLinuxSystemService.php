@@ -27,16 +27,35 @@ class RemoteLinuxSystemService {
 
     public function __construct () {}
 
-    public function init ( $host , $port , $sshUser , $sshPublicKey , $sshPrivateKey ) {
+    public function initSshConnection ( $host , $port , $sshUser , $sshPublicKey , $sshPrivateKey ) {
         $this->host = $host;
         $this->port = $port;
         $this->sshUser = $sshUser;
         $this->sshPublicKey = $sshPublicKey;
         $this->sshPrivateKey = $sshPrivateKey;
 
-        $this->initSshConnection();
+        if ( is_null( $this->host ) ) { throw new \Exception( "Server Host is required." ); }
+        if ( is_null( $this->port ) ) { throw new \Exception( "Server Port is required." ); }
+        if ( is_null( $this->sshUser ) ) { throw new \Exception( "SSH user is required." ); }
+        if ( is_null( $this->sshPublicKey ) ) { throw new \Exception( "SSH public key is required." ); }
+        if ( is_null( $this->sshPrivateKey ) ) { throw new \Exception( "SSH private key is required." ); }
+        
+        $this->sshConnection = ssh2_connect( $this->host , $this->port , [ 'hostkey' => 'ssh-rsa' ] );
 
-        return $this->sshConnection;
+        if ( $this->sshConnection === false ) { throw new \Exception( "Failed to connect to server: {$this->sshUser}@{$this->host}:{$this->port}" ); }
+
+        $authSuccess = ssh2_auth_pubkey_file(
+            $this->sshConnection ,
+            $this->sshUser ,
+            $this->sshPublicKey ,
+            $this->sshPrivateKey
+        );
+
+        if ( $authSuccess === false ) { throw new \Exception( "Failed to authenticate with the server." ); }
+    }
+
+    public function connectionExists () {
+        return isset( $this->sshConnection );
     }
 
     public function createDirectory ( $directory ) {
@@ -128,27 +147,6 @@ class RemoteLinuxSystemService {
         $stream = ssh2_exec( $this->sshConnection , $command );
 
         return $this->getOutput( $stream );
-    }
-
-    protected function initSshConnection () {
-        if ( is_null( $this->host ) ) { throw new \Exception( "Server Host is required." ); }
-        if ( is_null( $this->port ) ) { throw new \Exception( "Server Port is required." ); }
-        if ( is_null( $this->sshUser ) ) { throw new \Exception( "SSH user is required." ); }
-        if ( is_null( $this->sshPublicKey ) ) { throw new \Exception( "SSH public key is required." ); }
-        if ( is_null( $this->sshPrivateKey ) ) { throw new \Exception( "SSH private key is required." ); }
-        
-        $this->sshConnection = ssh2_connect( $this->host , $this->port , [ 'hostkey' => 'ssh-rsa' ] );
-
-        if ( $this->sshConnection === false ) { throw new \Exception( "Failed to connect to server: {$this->sshUser}@{$this->host}:{$this->port}" ); }
-
-        $authSuccess = ssh2_auth_pubkey_file(
-            $this->sshConnection ,
-            $this->sshUser ,
-            $this->sshPublicKey ,
-            $this->sshPrivateKey
-        );
-
-        if ( $authSuccess === false ) { throw new \Exception( "Failed to authenticate with the server." ); }
     }
 
     protected function getOutput ( $stream ) {
