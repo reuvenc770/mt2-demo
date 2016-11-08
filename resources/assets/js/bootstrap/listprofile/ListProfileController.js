@@ -3,9 +3,13 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
 
     self.nameDisabled = true;
     self.customName = false;
-
+    self.combineError = null;
+    self.combineName = "";
     self.enableAdmiral = false;
     self.showAttrFilters = false;
+    self.selectedProfiles = [];
+    self.showCombine = false;
+    self.listCombines = [];
     self.search = {};
     self.enabledSuppression = { "list" : false , "offer" : false };
 
@@ -675,6 +679,44 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         
     self.isSelectedExportOption = function ( option ) {
         return self.current.exportOptions.interval.indexOf( option ) >= 0;
+    };
+
+
+    //listcombine logic
+    self.nameCombine = function (){
+        $('#createCombine').modal('show');
+    };
+
+    self.createCombine = function (){
+        if(self.combineName.length < 1){
+            self.combineError = "Combine Name is required";
+        } else {
+            self.combineError = null;
+        }
+
+        ListProfileApiService.createCombine(self.combineName,self.selectedProfiles, self.createCombineSuccess, self.createCombineFail);
+    };
+
+    self.toggleRow = function (selectedValue) {
+        var index = self.selectedProfiles.indexOf(selectedValue);
+        if (index >= 0) {
+            self.selectedProfiles.splice(index, 1);
+        } else {
+            self.selectedProfiles.push(selectedValue);
+        }
+        self.showCombine = self.selectedProfiles.length > 1;
+    };
+
+    self.tempLoad = function (){
+        self.loadListCombines();
+    };
+
+    self.loadListCombines = function (){
+        ListProfileApiService.getCombines(self.loadCombinesSuccess,self.loadCombineFail);
+    };
+
+    self.loadCombinesSuccess = function (response){
+        self.listCombines = response.data;
     }
 
     self.saveListProfile = function () {

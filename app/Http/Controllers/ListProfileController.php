@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ListProfileCombineService;
 use App\Services\ListProfileService;
 use Illuminate\Http\Request;
 
@@ -26,6 +27,7 @@ class ListProfileController extends Controller
     protected $offerService;
     protected $clientService;
     protected $feedService;
+    protected $listProfileCombineService;
 
     public function __construct (
         ListProfileService $listProfileService ,
@@ -34,7 +36,8 @@ class ListProfileController extends Controller
         DomainGroupService $ispService ,
         OfferService $offerService,
         ClientService $clientService,
-        FeedService $feedService
+        FeedService $feedService,
+        ListProfileCombineService $combineService
     ) {
         $this->listProfile = $listProfileService;
         $this->mt1CountryService = $mt1CountryService;
@@ -43,6 +46,7 @@ class ListProfileController extends Controller
         $this->offerService = $offerService;
         $this->clientService = $clientService;
         $this->feedService = $feedService;
+        $this->listProfileCombineService = $combineService;
     }
 
     /**
@@ -156,5 +160,17 @@ class ListProfileController extends Controller
             'isps' => $this->ispService->getAll() ,
             'categories' => CakeVertical::orderBy('name')->get() ,
         ] , $addOptions );
+    }
+
+    public function createListCombine(Request $request){
+
+        $insertData = [
+            "name" => $request->input("name"),
+        ];
+        $this->listProfileCombineService->insertCombine($insertData, $request->input("selectedProfiles"));
+    }
+
+    public function getCombines(){
+        return response()->json($this->listProfileCombineService->getAll());
     }
 }

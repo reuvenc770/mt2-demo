@@ -32,6 +32,10 @@ class ListProfile extends Model
     public function verticals() {
         return $this->belongsToMany('App\Models\CakeVertical', 'list_profile.list_profile_verticals');
     }
+    public function listProfileCombines()
+    {
+        return $this->belongsToMany('App\Models\ListProfileCombine');
+    }
 
     public function countries () {
         return $this->belongsToMany( 'App\Models\Country' , 'list_profile.list_profile_countries' );

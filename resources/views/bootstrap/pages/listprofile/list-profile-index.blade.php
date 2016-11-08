@@ -13,6 +13,17 @@
 @stop
 
 @section( 'content' )
+
+            <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#list_profile" aria-controls="list_profile" role="tab" data-toggle="tab">List Profiles</a></li>
+            <li role="presentation"><a href="#list_combines" aria-controls="list_combines" role="tab" data-toggle="tab">List Combines</a></li>
+            <li ng-show="listProfile.showCombine" class="pull-right"><button ng-click="listProfile.nameCombine()" class="btn btn-primary">Create List Combine</button></li>
+        </ul>
+        <!-- Tab panes -->
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="list_profile">
     <md-table-container ng-init="listProfile.loadListProfiles()">
         <table md-table md-progress="listProfile.queryPromise">
             <thead md-head>
@@ -55,11 +66,42 @@
                 </tfoot>
         </table>
     </md-table-container>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="list_combines">
+                <md-table-container>
+                    <table md-table>
+                        <thead md-head>
+                        <tr md-row>
+                            <th md-column class="mt2-table-btn-column"></th>
+                            <th md-column class="md-table-header-override-whitetext">Name</th>
+                            <th md-column class="md-table-header-override-whitetext">List Profiles Used</th>
+                        </tr>
+                        </thead>
+
+                        <tbody md-body>
+                        <tr md-row ng-repeat="profile in listProfile.listCombines track by $index">
+                            <td md-cell class="mt2-table-btn-column">
+
+                            </td>
+                            <td md-cell ng-bind="::profile.name"></td>
+                            <td md-cell>
+                                <p -ng-repeat="listCombine in profile.list_profiles">
+                                    @{{ listCombine.name }}
+                                </p>
+                            </td>
+
+                        </tr>
+                        </tbody>
+                    </table>
+                </md-table-container>
+            </div>
+        </div>
 @stop
 
 <?php
 Assets::add( [
     'resources/assets/js/bootstrap/listprofile/ListProfileController.js' ,
     'resources/assets/js/bootstrap/listprofile/ListProfileApiService.js' ,
+    'resources/assets/js/bootstrap/listprofile/ListProfileCombineCreationModalDirective.js'
 ] , 'js' , 'pageLevel' );
 ?>

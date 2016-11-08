@@ -8,6 +8,6 @@ mt2App.directive( 'deployValidateModal' , function () {
             "massUpload" : "&",
             "uploadErrors" : "="
         } ,
-        "templateUrl" : "js/templates/deploy-validate-modal.html"
+        "templateUrl" : "js/bootstrap/templates/deploy-validate-modal.html"
     };
 } );

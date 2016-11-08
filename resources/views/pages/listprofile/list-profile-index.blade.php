@@ -52,6 +52,9 @@
             </md-table-container>
         </md-card>
     </md-content>
+
+    <listprofile-combine-create upload-errors="listProfile.combineError" mass-upload="listProfile.createCombine()"
+                                name="listProfile.combineName"></listprofile-combine-create>
 @stop
 
 @section( 'pageIncludes' )

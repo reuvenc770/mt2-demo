@@ -1,0 +1,25 @@
+<div class="modal fade" id="createCombine" tabindex="-1" role="dialog" aria-labelledby="urlModalLabel">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="urlModalLabel">Create List Profile Combine</h4>
+            </div>
+
+            <div class="modal-body" id="urlModalBody">
+                <div class="form-group" ng-class="{ 'has-error' : ctrl.combineError }">
+                    <input placeholder="Provider's Name" value="" class="form-control" ng-model="ctrl.combineName"
+                           required="required" name="name" type="text">
+                    <div class="help-block" ng-show="ctrl.combineError">
+
+                            <span ng-bind="ctrl.combineError"></span>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" ng-click="ctrl.createCombine()" data-dismiss="modal">Upload</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

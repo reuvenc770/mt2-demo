@@ -847,6 +847,14 @@ Route::group(
                     'as' => 'api.listprofile.active' ,
                     'uses' => 'ListProfileController@listActive'
                 ] );
+                Route::get( '/listcombine' , [
+                    'as' => 'api.listprofile.active' ,
+                    'uses' => 'ListProfileController@getCombines'
+                ] );
+                Route::post( '/listcombine/create' , [
+                    'as' => 'api.listprofile.active' ,
+                    'uses' => 'ListProfileController@createListCombine',
+                ] );
             }
         );
 
