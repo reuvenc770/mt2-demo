@@ -4,18 +4,15 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
     self.accounts = [];
     self.currentAccount = { "id": "",
                             "username": "",
+                            "password" : "",
                             "contact_name":"",
                             "contact_email":"",
-                            "phone_number":"",
-                            "address": "",
-                            "address_2" : "",
-                            "city" : "",
-                            "state" : "",
-                            "zip" : "",
-                            "entity_name":""};
+                            "dba_names": "" };
     self.createUrl = 'registrar/create/';
     self.editUrl = 'registrar/edit/';
     self.pageType = 'add';
+    self.dba_name = '';
+    self.dba_names = [];
 
     self.formErrors = "";
     self.formSubmitted = false;
@@ -31,6 +28,7 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
 
         RegistrarApiService.getAccount( pathMatches[ 1 ] , function ( response ) {
             self.currentAccount = response.data;
+            self.dba_names = self.currentAccount.dba_names.split(',');
         } )
     };
     self.loadProfile = function ($id) {
@@ -67,16 +65,28 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
         self.formSubmitted = true;
         formValidationService.resetFieldErrors(self);
         self.currentAccount.status = 1;
+        self.currentAccount.dba_names = self.dba_names.join(', ');
         RegistrarApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback);
     };
 
     self.editAccount = function () {
         self.formSubmitted = true;
         formValidationService.resetFieldErrors(self);
+        self.currentAccount.dba_names = self.dba_names.join(', ');
         RegistrarApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 
+    self.addDba = function () {
+        if(self.dba_name.length > 0){
+            self.dba_names.push(self.dba_name);
+            self.dba_name = "";
+        }
+    };
 
+    self.removeDba = function (id) {
+        self.dba_names.splice( id , 1 );
+
+    };
     /**
      * Callbacks
      */
