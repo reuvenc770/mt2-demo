@@ -31,7 +31,7 @@ class EmailDomainController extends Controller
      */
     public function create(DomainGroupService $domainGroupService)
     {
-        $domainGroups = $domainGroupService->getAll();
+        $domainGroups = $domainGroupService->getAllActive();
         return view("bootstrap.pages.emaildomain.emaildomain-add" ,['domainGroups' => $domainGroups]);
     }
 
@@ -68,7 +68,7 @@ class EmailDomainController extends Controller
      */
     public function edit($id,DomainGroupService $domainGroupService)
     {
-        $domainGroups = $domainGroupService->getAll();
+        $domainGroups = $domainGroupService->getAllActive();
         return response()
             ->view("bootstrap.pages.emaildomain.emaildomain-edit", ['domainGroups' => $domainGroups]);
     }

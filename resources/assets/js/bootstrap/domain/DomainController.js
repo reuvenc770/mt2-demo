@@ -29,7 +29,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         "proxy": "",
         "dba": "",
         "domains": "",
-        "in_use": "",
+        "live_a_record": "",
         "espAccountId": currentEspAccount
     };
 
@@ -41,7 +41,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         "registrar_id": "",
         "main_site" : "",
         "expires_at" : "",
-        "in_use": "",
+        "live_a_record": "",
         "esp_account_id": ""
     };
 
@@ -67,8 +67,6 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     self.type = 1;
     self.accountTotal = 0;
     self.queryPromise = null;
-
-
 
     self.loadAccounts = function () {
         self.queryPromise = DomainService.getAccounts(
@@ -99,8 +97,11 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         }
         self.rowBeingEdited = 0;
         self.updateProxies();
+
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
     };
     self.init = function (type) {
+
         self.updatingAccounts = true;
         self.currentAccount.domain_type = type;
         self.updateProxies();
@@ -149,11 +150,6 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     /**
      * Click Handlers
      */
-    self.viewAdd = function () {
-        $location.url(self.createUrl);
-        $window.location.href = self.createUrl;
-    };
-
     self.saveNewAccount = function () {
         self.formSubmitted = true;
         formValidationService.resetFieldErrors(self);
@@ -173,6 +169,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     };
 
     self.editDomain = function() {
+        self.formSubmitted = true;
         var domain = self.currentDomain;
         DomainService.editAccount(domain,self.editRowSuccess, self.editRowFailure)
     };
@@ -201,6 +198,8 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         self.formSubmitted = false;
     };
     self.loadAccountsSuccessCallback = function (response) {
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+
         self.accounts = response.data.data;
         self.pageCount = response.data.last_page;
         self.accountTotal = response.data.total;
@@ -215,7 +214,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     self.loadAccountSuccessCallback = function (response){
         self.currentDomain = response.data;
         self.currentDomain.registrar_id = String(response.data.registrar_id);
-        self.currentDomain.in_use = String(response.data.in_use);
+        self.currentDomain.live_a_record = String(response.data.live_a_record);
     };
 
     self.editRowSuccess = function (){

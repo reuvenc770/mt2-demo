@@ -3,10 +3,13 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     self.$location = $location;
 
     self.accounts = [];
-    self.po_box = {sub : "",address : "", address_2 : "", city : "", state : "", zip: "", phone : "", brands: "", notes: ""};
+    self.po_box = {address : "", address_2 : "", city : "", state : "", zip: "", phone : "", brands: "", esp_account_names : [] , isp_names : [] , notes: ""};
     self.brand = "";
     self.currentAccount = { id:"",  dba_name : "" , phone: "", password: "",
     dba_email : "", po_boxes : [], address: "", address_2 : "", city : "", state : "", zip : "",entity_name: ""};
+
+    self.isp_name = "";
+    self.esp_account_name = "";
 
     self.createUrl = 'dba/create/';
     self.editUrl = 'dba/edit/';
@@ -43,10 +46,6 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     /**
      * Click Handlers
      */
-    self.viewAdd = function () {
-        $location.url( self.createUrl );
-        $window.location.href = self.createUrl;
-    };
 
     self.saveNewAccount = function () {
         self.editForm = true;
@@ -63,13 +62,38 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
         DBAApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 
+    self.addEspAccount = function () {
+        if(self.esp_account_name.length > 0){
+            if (typeof(self.po_box.esp_account_names) === 'undefined' ) {
+                self.po_box.esp_account_names = [];
+            }
+            self.po_box.esp_account_names.push(self.esp_account_name);
+            self.esp_account_name = "";
+        }
+    };
+
+    self.removeEspAccount = function (id) {
+        self.po_box.esp_account_names.splice( id , 1 );
+
+    };
+
+    self.addIsp = function () {
+        if(self.isp_name.length > 0){
+            if (typeof(self.po_box.isp_names) === 'undefined' ) {
+                self.po_box.isp_names = [];
+            }
+            self.po_box.isp_names.push(self.isp_name);
+            self.isp_name = "";
+        }
+    };
+
+    self.removeIsp = function (id) {
+        self.po_box.isp_names.splice( id , 1 );
+
+    };
 
     self.addPOBox = function () {
         var poBoxError = false;
-        if(self.po_box.sub == 0){
-            self.formErrors.po_box.sub = ["Sub # is required"];
-            poBoxError = true;
-        }
         if(self.po_box.address == 0){
             self.formErrors.po_box.address = ["P.O. Box Address is Required"];
             poBoxError = true;
@@ -107,7 +131,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     };
 
     self.clearPOBox = function () {
-        self.po_box = {address : "", address_2 : "", city : "", state : "", zip: "" , phone:"", brands:[], brand: ""};
+        self.po_box = {address : "", address_2 : "", city : "", state : "", zip: "" , phone:"", brands:[], brand: "", esp_account_names : [] , isp_names : [] };
     };
 
     self.toggle = function(recordId,direction) {
@@ -123,6 +147,8 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
      * Callbacks
      */
     self.loadAccountsSuccessCallback = function ( response ) {
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+
         self.accounts = response.data.data;
         for (var i = 0, len = response.data.data.length; i < len; i++){
             self.accounts[i].po_boxes = JSON.parse(self.accounts[i].po_boxes);

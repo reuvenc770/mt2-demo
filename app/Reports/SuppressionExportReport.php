@@ -1,82 +1,75 @@
 <?php
 
 namespace App\Reports;
-use Cache;
-use Maknz\Slack\Facades\Slack;
+use App\Repositories\EspApiAccountRepo;
+use App\Repositories\EspRepo;
 use App\Repositories\SuppressionRepo;
 use Log;
+use App\Facades\SlackLevel;
 class SuppressionExportReport {
-    private $repo;
-    private $range = false;
-    private $hardbounces;
-    private $unsubs;
+    private $suppressionRepo;
+    private $espRepo;
+    private $espAccountRepo;
     const SLACK_CHANNEL = "#mt2-daily-reports";
-    private $destination;
+    const EMAIL_UNSUB = "espken@zetainteractive.com";
 
-    public function __construct(SuppressionRepo $repo, $espName, $espAccounts, $destination) {
-        $this->repo = $repo;
-        $this->espName = $espName;
-        $this->espAccounts = $espAccounts;
-        $this->destination = $destination;
+
+    public function __construct(SuppressionRepo $repo, EspRepo $espRepo, EspApiAccountRepo $accountRepo) {
+        $this->suppressionRepo = $repo;
+        $this->espRepo = $espRepo;
+        $this->espAccountRepo = $accountRepo;
     }
 
-    public function execute($lookback) {
-        $this->lookback = $lookback;
+    public function run($lookback) {
+        $unsubCountArray = array();
+        $esps = $this->espRepo->getAllEsps();
+        foreach($esps as $esp){
+         $espAccounts = $this->espAccountRepo->getAccountsbyEsp($esp->id);
+            $unsubCountArray[$esp->name]["totalHardbounces"] = 0;
+            $unsubCountArray[$esp->name]["totalUnsubs"] = 0;
+            $unsubCount = 0;
+            foreach($espAccounts as $espAccount) {
+                $hardBounces = $this->getRecordsByDateEsp($espAccount->id, $lookback, $this->suppressionRepo->getHardBounceId());
+                $hardBounceCount = count($hardBounces);
+                $unsubCountArray[$esp->name][$espAccount->account_name]["hardbounces"] = $hardBounceCount;
+                $unsubCountArray[$esp->name]["totalHardbounces"] += $hardBounceCount;
 
-        foreach ($this->espAccounts as $espAccount) {
-            $name = $espAccount->account_name;
-            $id = $espAccount->id;
+                $unsubs = $this->getRecordsByDateEsp($espAccount->id, $lookback, $this->suppressionRepo->getUnsubId());
+                $unsubCount = count($unsubs);
+                $unsubCountArray[$esp->name][$espAccount->account_name]["unsubs"] = $unsubCount;
+                $unsubCountArray[$esp->name]["totalUnsubs"] += $unsubCount;
 
-            $this->hardbounces = $this->getRecordsByDateEsp($espAccount->id, $lookback, $this->repo->getHardBounceId());
-            $this->exportBounces($id, $name);
-            $this->unsubs = $this->getRecordsByDateEsp($espAccount->id, $lookback, $this->repo->getUnsubId());
-            $this->exportUnsubs($id, $name);
+            }
         }
-    }
-
-    public function notify() {
-
-        $output = "*##### {$this->espName} Hard Bounce - Unsub Report for {$this->lookback} ####*\n\n";
-
-         foreach ($this->espAccounts as $espAccount){
-             $localUnsub = Cache::tags(array($this->espName))->get("{$espAccount->id}_unsub_count");
-             $localHB = Cache::tags(array($this->espName))->get("{$espAccount->id}_hb_count");
-             $output.= "*{$espAccount->account_name}*  _Unsubs:_ {$localUnsub}  _HardBounces: {$localHB}_\n";
-         }
-
-         $unsubTotal = Cache::tags($this->espName)->get("{$this->espName}_unsub_total");
-         $output.= "\n\n*##Total Unsubs for {$this->espName}:* : {$unsubTotal}\n";
-         $hardBounceTotal = Cache::tags(array($this->espName))->get("{$this->espName}_hb_total");
-         $output.= "*##Total HardBounces for {$this->espName}:* : {$hardBounceTotal}\n";
-         Slack::to(self::SLACK_CHANNEL)->send($output);
-         Cache::tags($this->espName)->flush();
-    }
-
-    protected function exportBounces($id, $name) {
-            Cache::tags($this->espName)->increment("{$id}_hb_count",count($this->hardbounces));
-            Cache::tags($this->espName)->increment("{$this->espName}_hb_total",count($this->hardbounces));
-
-    }
-
-    protected function exportUnsubs($id, $name) {
-
-            Cache::tags($this->espName)->increment("{$id}_unsub_count",count($this->unsubs));
-            Cache::tags($this->espName)->increment("{$this->espName}_unsub_total",count($this->unsubs));
+        $this->notify($unsubCountArray,$lookback);
     }
 
     protected function getRecordsByDateEsp($espAccountId, $date, $typeId){
         try{
-            $operator = $this->range ? '>=' : '=';
-            return $this->repo->getRecordsByDateIntervalEspType($typeId, $espAccountId, $date, $operator);
-        } 
+            return $this->suppressionRepo->getRecordsByDateIntervalEspType($typeId, $espAccountId, $date, "=");
+        }
         catch (\Exception $e) {
             Log::error($e->getMessage(). ": while trying get Suppression Records for $typeId");
             throw new \Exception($e);
         }
     }
 
-    public function setRange() {
-        $this->range = true;
+    public function notify($report,$date) {
+        $output ="";
+        foreach($report as $espName => $esp) {
+            $output .= "*##### {$espName} Hard Bounce - Unsub Report for {$date} ####*\n";
+            foreach ($esp as $espAccountName => $espAccount){
+                if($espAccountName == "totalHardbounces"|| $espAccountName == "totalUnsubs"){
+                    continue;
+                }
+                $output.= "*{$espAccountName}*  _Unsubs:_ {$espAccount["unsubs"]}  _HardBounces: {$espAccount["hardbounces"]}_\n";
+            }
+            $output .= "*##### {$espName}:  Hardbounces {$esp["totalHardbounces"]} -  Unsubscribes: {$esp["totalUnsubs"]}  ####*\n";
+            $output.="\n\n";
+        }
+         SlackLevel::to(self::SLACK_CHANNEL)->send($output);
+
     }
+
     
 }

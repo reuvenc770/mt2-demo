@@ -1,4 +1,4 @@
-mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 'RegistrarApiService' ,'$rootScope', '$mdToast', 'formValidationService', 'modalService', function ( $log , $window , $location , RegistrarApiService, $rootScope, $mdToast, formValidationService, modalService ) {
+mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , '$timeout' , 'RegistrarApiService' ,'$rootScope', '$mdToast', 'formValidationService', 'modalService', function ( $log , $window , $location , $timeout , RegistrarApiService, $rootScope, $mdToast, formValidationService, modalService ) {
     var self = this;
     self.$location = $location;
     self.accounts = [];
@@ -18,7 +18,7 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
     self.pageType = 'add';
 
     self.formErrors = "";
-    self.formsubmitted = false;
+    self.formSubmitted = false;
     self.pageCount = 0;
     self.paginationCount = '10';
     self.currentPage = 1;
@@ -63,20 +63,15 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
     /**
      * Click Handlers
      */
-    self.viewAdd = function () {
-        $location.url( self.createUrl );
-        $window.location.href = self.createUrl;
-    };
-
     self.saveNewAccount = function () {
-        self.formsubmitted = true;
+        self.formSubmitted = true;
         formValidationService.resetFieldErrors(self);
         self.currentAccount.status = 1;
         RegistrarApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback);
     };
 
     self.editAccount = function () {
-        self.formsubmitted = true;
+        self.formSubmitted = true;
         formValidationService.resetFieldErrors(self);
         RegistrarApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
@@ -86,6 +81,8 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
      * Callbacks
      */
     self.loadAccountsSuccessCallback = function ( response ) {
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+
         self.accounts = response.data.data;
         self.pageCount = response.data.last_page;
         self.accountTotal = response.data.total;

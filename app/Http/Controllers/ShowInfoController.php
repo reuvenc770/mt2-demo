@@ -8,6 +8,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
+use App\Http\Requests\ShowInfoRecordRequest;
+use App\Http\Requests\ShowInfoSuppressRecordRequest;
 use App\Http\Controllers\Controller;
 use App\Services\MT1ApiService;
 
@@ -30,7 +32,7 @@ class ShowInfoController extends Controller
      */
     public function index()
     {
-        return view( 'pages.show-info' );
+        return view( 'bootstrap.pages.show-info' );
     }
 
     /**
@@ -49,7 +51,7 @@ class ShowInfoController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(ShowInfoSuppressRecordRequest $request)
     {
         $type = 'eid';
         $records = $request->input('id');
@@ -57,13 +59,13 @@ class ShowInfoController extends Controller
 
         if($type == "email"){
             foreach(explode(',',$records) as $record) {
-                Suppression::recordSuppressionByReason($record, Carbon::today()->toDateTimeString(), $request->input('reason'));
+                Suppression::recordSuppressionByReason($record, Carbon::today()->toDateTimeString(), $request->input('selectedReason'));
                 }
         }
         else {
             foreach(explode(',',$records) as $record) {
                 $email = $this->emailService->getEmailAddress($record);
-                Suppression::recordSuppressionByReason($email, Carbon::today()->toDateTimeString(), $request->input('reason'));
+                Suppression::recordSuppressionByReason($email, Carbon::today()->toDateTimeString(), $request->input('selectedReason'));
             }
         }
         $payload = array(
@@ -81,7 +83,7 @@ class ShowInfoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show( $id )
+    public function show(ShowInfoRecordRequest $request , $id )
     {
         $type = 'eid';
         if ( preg_match( "/@+/" , $id ) ) $type = 'email';

@@ -17,7 +17,7 @@
             </fieldset>
         <div class="panel-footer">
             <div class="form-group">
-                <input class="btn btn-primary btn-block" ng-click="feed.saveFeed()" ng-disabled="feed.formSubmitted" type="submit" value="Create Feed">
+                <input class="btn btn-primary btn-block" ng-click="feed.saveFeed()" ng-disabled="feed.formSubmitted" type="submit" value="Add Feed">
             </div>
         </div>
     </div>

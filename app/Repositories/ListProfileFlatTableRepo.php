@@ -21,7 +21,6 @@ class ListProfileFlatTableRepo {
     } 
 
     public function massInsertActions($massData) {
-
         $pdo = DB::connection()->getPdo();
 
         echo "Preparing to insert at " . microtime(true) . PHP_EOL;
@@ -69,7 +68,7 @@ class ListProfileFlatTableRepo {
                 updated_at = NOW()");
     }
 
-    public function insertBatch($data) {
+    public function insertBatchConversions($data) {
 
         if (self::MAX_INSERT_SIZE === $this->batchDataSize) {
             $this->insertBatchData();

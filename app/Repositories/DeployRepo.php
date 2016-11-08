@@ -220,9 +220,9 @@ class DeployRepo
     public function validateDeploy($deploy){
         $errors = array();
         if (isset($deploy['esp_account_id'])) {
-            $count = DB::select("Select count(*) as count from esp_accounts where id = :id", ['id' => $deploy['esp_account_id']])[0];
+            $count = DB::select("Select count(*) as count from esp_accounts where id = :id and status = 1", ['id' => $deploy['esp_account_id']])[0];
             if ($count->count == 0) {
-                $errors[] = "Esp Account ID is not Valid.";
+                $errors[] = "Esp Account ID is not Valid or Deactivated";
             }
         } else {
             $errors[] = "Esp Account ID is missing";
@@ -287,7 +287,7 @@ class DeployRepo
         }
         //mailing domain
         if (isset($deploy['mailing_domain_id'])) {
-            $count = DB::select("Select count(*) as count from domains where id = :id and domain_type = 1 and status = 1 and in_use = 1", ['id' => $deploy['mailing_domain_id']])[0];
+            $count = DB::select("Select count(*) as count from domains where id = :id and domain_type = 1 and status = 1 and live_a_record = 1", ['id' => $deploy['mailing_domain_id']])[0];
             if ($count->count == 0) {
                 $errors[] = "Mailing Domain ID is invalid or not Mailing Domain";
             }
@@ -297,7 +297,7 @@ class DeployRepo
 
         //content domain
         if (isset($deploy['content_domain_id'])) {
-            $count = DB::select("Select count(*) as count from domains where id = :id and domain_type = 2  and status = 1 and in_use = 1", ['id' => $deploy['content_domain_id']])[0];
+            $count = DB::select("Select count(*) as count from domains where id = :id and domain_type = 2  and status = 1 and live_a_record = 1", ['id' => $deploy['content_domain_id']])[0];
             if ($count->count == 0) {
                 $errors[] = "Content Domain is invalid or not content domain";
             } else {
@@ -353,5 +353,11 @@ class DeployRepo
         }
 
         return $errors;
+    }
+
+    public function getOffersForTodayWithListProfile($listProfileId) {
+        $today = Carbon::today()->format('Y-m-d');
+
+        return $this->deploy->where('send_date', $today)->where('list_profile_id', $listProfileId)->groupBy('offer_id')->get();
     }
 }

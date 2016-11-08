@@ -1,4 +1,4 @@
-mt2App.controller( 'FeedGroupController' , [ '$rootScope' , '$log' , '$window' , '$location' , 'FeedGroupApiService' , 'FeedApiService' , '$mdToast' , 'formValidationService' , 'modalService' , 'orderByFilter' , function ( $rootScope , $log , $window , $location , FeedGroupApiService , FeedApiService , $mdToast , formValidationService , modalService , orderBy ) {
+mt2App.controller( 'FeedGroupController' , [ '$rootScope' , '$log' , '$window' , '$location' , 'FeedGroupApiService' , 'FeedApiService' , '$mdToast' , 'formValidationService' , 'modalService' , '$timeout' , function ( $rootScope , $log , $window , $location , FeedGroupApiService , FeedApiService , $mdToast , formValidationService , modalService , $timeout ) {
     var self = this;
 
     /**
@@ -25,6 +25,7 @@ mt2App.controller( 'FeedGroupController' , [ '$rootScope' , '$log' , '$window' ,
     self.creatingFeedGroup = false;
     self.updatingFeedGroup = false;
     self.feedList = [];
+    self.feedListNameField = "feedListDisplayName";
     self.prepopFeeds = [];
 
     /**
@@ -100,7 +101,15 @@ mt2App.controller( 'FeedGroupController' , [ '$rootScope' , '$log' , '$window' ,
      * Success Callbacks
      */
     self.getAllFeedsSuccessCallback = function ( response ) {
-        self.feedList = response.data;
+
+        var sortFeedList = [];
+
+        angular.forEach( response.data , function ( value ) {
+            value.feedListDisplayName = value.short_name + " ( " + value.id + " ) " ;
+            sortFeedList.push(value);
+        } );
+
+        self.feedList = sortFeedList;
 
         if ( self.prepopFeeds.length > 0 ) {
             var feedsToRemove = [];
@@ -125,6 +134,7 @@ mt2App.controller( 'FeedGroupController' , [ '$rootScope' , '$log' , '$window' ,
 
     self.loadFeedGroupsSuccessCallback = function ( response ) {
         self.currentlyLoading = 0;
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
 
         self.feedGroups = response.data.data
         self.pageCount = response.data.last_page;

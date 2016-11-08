@@ -13,6 +13,8 @@ use AdrianMejias\States\States;
 use App\Services\DomainGroupService;
 use App\Models\CakeVertical;
 use App\Services\OfferService;
+use App\Services\ClientService;
+use App\Services\FeedService;
 
 class ListProfileController extends Controller
 {
@@ -20,19 +22,25 @@ class ListProfileController extends Controller
     protected $states;
     protected $ispService;
     protected $offerService;
+    protected $clientService;
+    protected $feedService;
 
     public function __construct (
         ListProfileService $listProfileService ,
         CountryService $mt1CountryService ,
         States $states ,
         DomainGroupService $ispService ,
-        OfferService $offerService
+        OfferService $offerService,
+        ClientService $clientService,
+        FeedService $feedService
     ) {
         $this->listProfile = $listProfileService;
         $this->mt1CountryService = $mt1CountryService;
         $this->states = $states;
         $this->ispService = $ispService;
         $this->offerService = $offerService;
+        $this->clientService = $clientService;
+        $this->feedService = $feedService;
     }
 
     /**
@@ -121,13 +129,13 @@ class ListProfileController extends Controller
     protected function getFormFieldOptions ( $addOptions = [] ) {
 
         return array_merge( [
-            'feeds' => $this->listProfile->getFeeds() ,
-            'clients' => $this->listProfile->getClients() ,
-            'clientFeedMap' => $this->listProfile->getClientFeedMap() ,
+            'feeds' => $this->feedService->getAllFeedsArray() ,
+            'clients' => $this->clientService->getAllClientsArray() ,
+            'clientFeedMap' => $this->clientService->getClientFeedMap() ,
             'countries' => $this->mt1CountryService->getAll() ,
             'states' => $this->states->all() ,
             'isps' => $this->ispService->getAll() ,
-            'categories' => CakeVertical::all() ,
+            'categories' => CakeVertical::orderBy('name')->get() ,
         ] , $addOptions );
     }
 }

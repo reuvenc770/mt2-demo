@@ -56,14 +56,10 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
     /**
      * Click Handlers
      */
-    self.viewAdd = function () {
-        $location.url( self.createUrl );
-        $window.location.href = self.createUrl;
-    };
-
 
     self.saveNewAccount = function () {
         formValidationService.resetFieldErrors(self);
+        self.formSubmitted = true;
 
         if ( self.ip_addresses.length < 1  ) {
             formValidationService.setFieldError(self, 'ip_addresses' , 'At least 1 IP Address is required.' );
@@ -79,6 +75,8 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
 
     self.editAccount = function () {
         formValidationService.resetFieldErrors(self);
+        self.formSubmitted = true;
+
         self.currentAccount.ip_addresses = self.ip_addresses.join(', ');
         self.currentAccount.esp_account_names = self.esp_account_names.join(', ');
         self.currentAccount.isp_names = self.isp_names.join(',');
@@ -136,6 +134,8 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
      * Callbacks
      */
     self.loadAccountsSuccessCallback = function ( response ) {
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+
         self.accounts = response.data.data;
         self.pageCount = response.data.last_page;
         self.accountTotal = response.data.total;
@@ -165,10 +165,12 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
 
     self.saveNewAccountFailureCallback = function ( response ) {
         formValidationService.loadFieldErrors(self,response);
+        self.formSubmitted = false;
     };
 
     self.editAccountFailureCallback = function ( response ) {
         formValidationService.loadFieldErrors(self,response);
+        self.formSubmitted = false;
     };
 
 } ] );

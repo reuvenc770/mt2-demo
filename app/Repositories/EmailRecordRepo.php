@@ -35,6 +35,8 @@ class EmailRecordRepo {
         $validRecords = [];
         $invalidRecords = [];
         $preppedData = array();
+        $emailIdsToUpdateDeliverableStatus = [];
+
         foreach ( $records as $currentIndex => $currentRecord ) {
             
             $this->setLocalData( [
@@ -51,8 +53,7 @@ class EmailRecordRepo {
             if ( $this->isValidRecord( false ) ) {
                 $currentId = $this->getEmailId();
 
-                #$this->recordData->find($currentId)->is_deliverable = 0;
-                #$this->recordData->save();
+                $emailIdsToUpdateDeliverableStatus[] = $currentId;
 
                 $validRecord = "( "
                     . join( " , " , [
@@ -93,6 +94,18 @@ class EmailRecordRepo {
             }
         }
 
+        if (!empty($emailIdsToUpdateDeliverableStatus)) {
+            $chunkedRecords = array_chunk($emailIdsToUpdateDeliverableStatus, 1000);
+
+            foreach ($chunkedRecords as $i => $segment) {
+                $this->recordData
+                    ->whereIn('email_id', $segment)
+                    ->update(['is_deliverable' => 0]);
+            }
+
+            $emailIdsToUpdateDeliverableStatus = [];
+        }
+
         if ( !empty( $validRecords ) ) {
             $chunkedRecords = array_chunk( $validRecords , 10000 );
 
@@ -118,7 +131,6 @@ class EmailRecordRepo {
         }
 
         if(count($preppedData) > 0) {
-            Log::info("##### I AM FIRING NEW ACTIONS #####");
             \Event::fire(new NewActions($preppedData));
         }
 

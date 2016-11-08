@@ -97,7 +97,7 @@ class DomainController extends Controller
                 "domain_name"  => $domainName,
                 "main_site"   => $mainSite,
                 "status"      => 1,
-                "in_use"  => $request->input("in_use"),
+                "live_a_record"  => $request->input("live_a_record"),
             ];
         }
         Flash::success("Domain was Successfully Added");

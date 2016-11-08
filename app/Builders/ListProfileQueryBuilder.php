@@ -14,6 +14,7 @@ class ListProfileQueryBuilder {
 
     private $attributionSchema;
     private $dataSchema;
+    private $suppressionSchema;
 
     private $feedIds;
     private $emailDomainIds;
@@ -34,13 +35,17 @@ class ListProfileQueryBuilder {
     private $carrierAttributes;
     private $feedsWithSuppression;
 
+    // Note already-prepared fields in ListProfileBaseTableService
+    const REQUIRED_PROFILE_FIELDS = ['email_id', 'email_address', 'lower_case_md5', 'upper_case_md5'];
+
 
     public function __construct() {
         $this->attributionSchema = config('database.connections.attribution.database');
         $this->dataSchema = config('database.connections.mysql.database');
+        $this->suppressionSchema = config('database.connections.suppression.database');
 
         $this->columnMapping = [
-            'email_id' => 'flat.email_id',
+            'email_id' => DB::raw('e.id as email_id'),
             'first_name' => 'rd.first_name',
             'last_name' => 'rd.last_name',
             'gender' => 'rd.gender',
@@ -66,7 +71,7 @@ class ListProfileQueryBuilder {
         ];
     }
     
-    public function buildQuery($listProfile, $queryData, $additionalOfferId) {
+    public function buildQuery($listProfile, $queryData) {
         $this->setValues($listProfile);
 
         if ('deliverable' === $queryData['type']) {
@@ -89,7 +94,10 @@ class ListProfileQueryBuilder {
         // In the name of efficiency ... 
 
         if (empty($this->columns)) {
-            $this->columns = json_decode($listProfile->columns, true);
+            // We can add to selected columns because the writer will only use the selected columns
+            $declaredColumns = json_decode($listProfile->columns, true);
+            $this->columns = array_unique(array_merge(self::REQUIRED_PROFILE_FIELDS, $declaredColumns));
+            
         }
 
         if (sizeof($this->columns) === 0) { 
@@ -130,7 +138,7 @@ class ListProfileQueryBuilder {
             $this->clientColumns = array_intersect(['client_name'], $this->columns);
         }
         if (empty($this->emailColumns)) {
-            $this->emailColumns = array_intersect(['email_address', 'lower_case_md5', 'upper_case_md5'], $this->columns);
+            $this->emailColumns = array_intersect(['email_id', 'email_address', 'lower_case_md5', 'upper_case_md5'], $this->columns);
         }
 
         // Attributes
@@ -206,14 +214,25 @@ class ListProfileQueryBuilder {
 
 
     private function buildSuppression($listProfile, $query) {
-        if ($listProfile->use_global_suppression) {
-            $query = $query->join("{$this->dataSchema}.emails as e", "{$this->mainTableAlias}.email_id", '=', 'e.id');
-            $query = $query->leftJoin("{$this->dataSchema}.suppressions as s", 'e.email_address', '=', 's.email_address')->where('s.email_address', null);
-        }
 
-        /**
-            To do: advertiser suppression 
-        */
+        $listIds = $this->getFeedSuppressionListIds($listProfile);
+
+        if ($listProfile->use_global_suppression || count($listIds) > 0) {
+            $query = $query->join("{$this->dataSchema}.emails as e", "{$this->mainTableAlias}.email_id", '=', 'e.id');
+
+            if ($listProfile->use_global_suppression) {
+                $query = $query->leftJoin("{$this->dataSchema}.suppressions as s", 'e.email_address', '=', 's.email_address')->where('s.email_address', null);
+            }
+
+            if (count($listIds) > 0) {
+                $listIds = '(' . implode(',', $listIds) . ')';
+                $query = $query->leftJoin("{$this->suppressionSchema}.suppression_list_suppressions as sls", function($join) use ($listIds) {
+                    $join->on("e.email_address", '=', 'sls.email_address');
+                    $join->on('sls.suppression_list_id', 'in', DB::raw($listIds));
+                })  
+                ->whereNull('sls.email_address');
+            }
+        }
 
         return $query;
     }
@@ -434,6 +453,27 @@ class ListProfileQueryBuilder {
 
         return $query;
 
+    }
+
+    private function getFeedSuppressionListIds($listProfile) {
+        $listIds = [];
+
+        foreach ($listProfile->clients as $client) {
+            foreach ($client->feeds as $feed) {
+                if ($feed->suppression_list_id) {
+                    $listIds[] = $feed->suppression_list_id;
+                }
+               
+            }
+        }
+
+        foreach ($listProfile->feeds as $feed) {
+            if ($feed->suppression_list_id) {
+                $listIds[] = $feed->suppression_list_id;
+            }
+        }
+
+        return $listIds;
     }
 
 

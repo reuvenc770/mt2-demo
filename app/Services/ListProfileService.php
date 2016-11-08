@@ -11,11 +11,10 @@ namespace App\Services;
 
 use App\Repositories\ListProfileRepo;
 use App\Builders\ListProfileQueryBuilder;
-use Storage;
 use Cache;
 use App\Repositories\FeedRepo;
 use App\Services\MT1Services\ClientStatsGroupingService;
-use App\Services\MT1Services\ClientService as MT1ClientService;
+use App\Services\ListProfileBaseTableCreationService;
 
 class ListProfileService
 {
@@ -23,20 +22,15 @@ class ListProfileService
     protected $builder;
     private $rows = [];
     private $rowCount = 0;
-    const INSERT_THRESHOLD = 50000;
+    const INSERT_THRESHOLD = 1000; // Low threshold due to MySQL / PHP placeholder limits (2^16 - 1)
     private $uniqueColumn;
     const ROW_STORAGE_TIME = 60;
-    protected $feedRepo;
-    protected $clientService;
-    protected $mt1ClientService;
+    protected $baseTableService;
 
-    public function __construct(ListProfileRepo $profileRepo, ListProfileQueryBuilder $builder, FeedRepo $feedRepo , ClientStatsGroupingService $clientService , MT1ClientService $mt1ClientService)
-    {
+    public function __construct(ListProfileRepo $profileRepo, ListProfileQueryBuilder $builder, ListProfileBaseTableCreationService $baseTableService) {
         $this->profileRepo = $profileRepo;
         $this->builder = $builder;
-        $this->feedRepo = $feedRepo;
-        $this->clientService = $clientService;
-        $this->mt1ClientService = $mt1ClientService;
+        $this->baseTableService = $baseTableService;
     }
 
 
@@ -45,36 +39,34 @@ class ListProfileService
     }
 
 
-    public function pullProfile($id, $additionalOfferId) {
+    public function buildProfileTable($id) {
         /**
             - Run against hygiene
+            Feed & offer suppression
          */
-
         $listProfile = $this->profileRepo->getProfile($id);
         $queries = $this->returnQueriesData($listProfile);
         $queryNumber = 1;
         $totalCount = 0;
 
-        $fileName = 'ListProfiles/' . $listProfile->name . '.csv';
         $listProfileTag = 'list_profile-' . $listProfile->id . '-' . $listProfile->name;
 
-        Storage::delete($fileName); // clear the file currently saved
-
         foreach ($queries as $queryData) {
-            $query = $this->builder->buildQuery($listProfile, $queryData, $additionalOfferId);
+            $query = $this->builder->buildQuery($listProfile, $queryData);
 
             // .. if we have hygiene, we write out both files. Write full one to a secret location. Send the other one (just email address/md5) out.
             // When the second returns. Find a way to subtract it from the first
             
-            $insertHeader = $listProfile->insert_header === 1;
             $columns = $this->builder->getColumns();
 
-            // set up unique column. Can be one of email_id, email_address, or ''
-            $this->uniqueColumn = $this->getUniqueColumn($columns);
-
-            if ($insertHeader && 1 === $queryNumber) {
-                Storage::append($fileName, implode(',', $columns));
+            if (1 === $queryNumber) {
+                $this->baseTableService->createTable($id, $columns);
             }
+
+            // set up unique column. Can be one of email_id, email_address, or ''
+            // Not entirely needed anymore given that we use email_id in all list profiles
+            // We could hardcode this instead
+            $this->uniqueColumn = $this->getUniqueColumn($columns);
 
             $resource = $query->cursor();
 
@@ -82,12 +74,12 @@ class ListProfileService
                 if ($this->isUnique($listProfileTag, $row)) {
                     $this->saveToCache($listProfileTag, $row->{$this->uniqueColumn});
                     $row = $this->mapDataToColumns($columns, $row);
-                    $this->append($fileName, $row);
+                    $this->batch($row);
                     $totalCount++;
                 }
             }
 
-            $this->write($fileName);
+            $this->batchInsert();
             $this->clear();
             
             $queryNumber++;
@@ -95,7 +87,7 @@ class ListProfileService
 
         Cache::tags($listProfileTag)->flush();
 
-        $listProfile->total_count = $totalCount;
+        $this->profileRepo->updateTotalCount($listProfile->id, $totalCount);
 
     }
 
@@ -123,17 +115,17 @@ class ListProfileService
     private function mapDataToColumns($columns, $row) {
         $output = [];
 
-        foreach ($columns as $column) {
-            $output[] = $row->$column;
+        foreach ($columns as $id=>$column) {
+            $output[$column] = $row->$column ?: '';
         }
 
-        return implode(',', $output);
+        return $output;
     }
 
 
-    private function append($fileName, $row) {
+    private function batch($row) {
         if ($this->rowCount >= self::INSERT_THRESHOLD) {
-            $this->write($fileName);
+            $this->batchInsert();
 
             $this->rows = [$row];
             $this->rowCount = 0;
@@ -145,9 +137,8 @@ class ListProfileService
     }
 
 
-    private function write($fileName) {
-        $string = implode(PHP_EOL, $this->rows);
-        Storage::append($fileName, $string);
+    private function batchInsert() {
+        $this->baseTableService->massInsert($this->rows);
     }
 
 
@@ -182,37 +173,5 @@ class ListProfileService
 
     private function saveToCache($tag, $value) {
         Cache::tags($tag)->put($value, 1, self::ROW_STORAGE_TIME);
-    }
-
-
-    public function getFeeds () {
-        return $this->feedRepo->getFeeds()->keyBy( 'id' )->toArray();
-    }
-
-
-    public function getClients () {
-        return $this->clientService->getListGroups()->keyBy( 'value' )->toArray();
-    }
-
-
-    public function getClientFeedMap () {
-        $feeds = $this->feedRepo->getFeeds()->keyBy( 'id' )->toArray();
-        $clients = $this->clientService->getListGroups()->keyBy( 'value' )->toArray();
-
-        $clientFeedMap = [];
-
-        foreach ( $clients as $currentClientId => $currentClient ) {
-            $clientFeedList = $this->mt1ClientService->getClientFeedsForListOwner( $currentClientId );
-
-            foreach ( $clientFeedList as $currentFeedId ) {
-                if ( !isset( $clientFeedMap[ $currentClientId ] ) ) {
-                    $clientFeedMap[ $currentClientId ] = [];
-                }
-
-                $clientFeedMap[ $currentClientId ] []= $currentFeedId;
-            }
-        }
-
-        return $clientFeedMap;
     }
 }

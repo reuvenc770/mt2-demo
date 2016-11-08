@@ -141,9 +141,9 @@ class EspApiAccountController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        //Will not be in use. We don't want to delete ESP Accounts.
+        $this->espAccountService->toggleRow($id,$request->get("direction"));
     }
 
     public function displayEspAccounts(Request $request, $name){

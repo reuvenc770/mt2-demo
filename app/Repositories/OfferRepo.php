@@ -52,4 +52,22 @@ class OfferRepo {
         return $days[$dayOfWeek] === 'N';
     }
 
+    public function getSuppressionListIds($id) {
+        $suppDb = config('database.connections.suppression.database');
+        $lists = $this->offer
+                    ->join("$suppDb.offer_suppression_lists as osl", 'offers.id', '=', 'osl.offer_id')
+                    ->where('offers.id', $id)
+                    ->select('suppression_list_id')
+                    ->get()
+                    ->toArray();
+
+        $output = [];
+
+        foreach ($lists as $list) {
+            $output[] = $list['suppression_list_id'];
+        }
+
+        return $output;
+    }
+
 }

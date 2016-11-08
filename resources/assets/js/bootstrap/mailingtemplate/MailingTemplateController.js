@@ -74,11 +74,6 @@ mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$win
     /**
      * Click Handlers
      */
-    self.viewAdd = function () {
-        $location.url( self.createUrl );
-        $window.location.href = self.createUrl;
-    };
-
 
     self.saveNewAccount = function () {
         formValidationService.resetFieldErrors(self);
@@ -110,6 +105,8 @@ mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$win
      * Callbacks
      */
     self.loadAccountsSuccessCallback = function ( response ) {
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+
         self.templates = response.data.data;
         self.pageCount = response.data.last_page;
         self.templateTotal = response.data.total;

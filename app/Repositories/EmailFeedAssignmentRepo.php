@@ -16,6 +16,9 @@ use DB;
 class EmailFeedAssignmentRepo {
     protected $assignment;
     protected $history;
+    private $batchData = [];
+    private $batchDataCount = 0;
+    const INSERT_THRESHOLD = 10000;
 
     public function __construct ( EmailFeedAssignment $assignment , EmailFeedAssignmentHistory $history ) {
         $this->assignment = $assignment;
@@ -83,5 +86,46 @@ class EmailFeedAssignmentRepo {
 
     static public function dropTempTable ( $modelId ) {
         Schema::connection( 'attribution' )->drop( EmailFeedAssignment::BASE_TABLE_NAME . $modelId );
+    }
+
+    public function insertBatch($row) {
+        if ($this->batchDataCount >= self::INSERT_THRESHOLD) {
+
+            $this->insertStored();
+            $this->batchData = [$this->transformRowToString($row)];
+            $this->batchDataCount = 1;
+        }
+        else {
+            $this->batchData[] = $this->transformRowToString($row);
+            $this->batchDataCount++;
+        }
+    }
+
+    private function transformRowToString($row) {
+        $pdo = DB::connection()->getPdo();
+
+        return '('
+            . $pdo->quote($row['email_id']) . ','
+            . $pdo->quote($row['feed_id']) . ','
+            . $pdo->quote($row['capture_date']) . ','
+            . 'NOW(), NOW())';
+    }
+
+    public function insertStored() {
+        $this->batchData = implode(', ', $this->batchData);
+
+        DB::connection('attribution')->statement("INSERT INTO email_feed_assignments 
+            (email_id, feed_id, capture_date, created_at, updated_at)
+            VALUES
+            {$this->batchData}
+            ON DUPLICATE KEY UPDATE
+                email_id = email_id,
+                feed_id = VALUES(feed_id),
+                capture_date = VALUES(capture_date),
+                created_at = created_at,
+                updated_at = VALUES(updated_at)");
+
+        $this->batchData = [];
+        $this->batchDataCount = 0;
     }
 }

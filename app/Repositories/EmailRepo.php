@@ -25,17 +25,11 @@ class EmailRepo {
         return $this->emailModel->select( 'id' )->where( 'email_address' , $emailAddress )->get();
     }
 
-    public function getAttributedFeed($identifier) {
-        if (is_numeric($identifier)) {
-            return $this->getAttributionForId($identifier);
-        }
-        elseif (filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
-            return $this->getAttributedFeedForAddress($identifier);
-        }
-        else {
-            throw new \Exception("Invalid identification type for email");
-        }
+    public function getEmaiAddress($eid) {
+        return $this->emailModel->select( 'email_address' )->find($eid);
     }
+
+
 
     public function insertDelayedBatch($row) {
         if ($this->batchEmailCount >= self::INSERT_THRESHOLD) {
@@ -60,10 +54,10 @@ class EmailRepo {
             "INSERT INTO emails (id, email_address, email_domain_id, lower_case_md5, upper_case_md5)
             VALUES(:id, :addr, :domain_id, :lower_md5, :upper_md5)
             ON DUPLICATE KEY UPDATE
-            id = id, 
-            email_address=email_address, 
-            email_domain_id=email_domain_id, 
-            lower_case_md5=lower_case_md5, 
+            id = id,
+            email_address=email_address,
+            email_domain_id=email_domain_id,
+            lower_case_md5=lower_case_md5,
             upper_case_md5 = upper_case_md5",
             array(
                 ':id' => $emailData['id'],
@@ -127,7 +121,7 @@ class EmailRepo {
     public function getAttributionTruths($emailId) {
         $email = $this->emailModel->find($emailId);
 
-        if ($email) {
+        if ($email && $email->attributionTruths) {
             return $email->attributionTruths;
         }
         else {

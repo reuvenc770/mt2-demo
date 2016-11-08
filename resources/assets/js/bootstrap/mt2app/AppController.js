@@ -7,11 +7,11 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
     self.activeMenuLink = {};
 
     angular.element( document.getElementById( 'mainSideNav' ) ).on( 'show.bs.offcanvas' , function () {
-            angular.element( document.getElementById( 'containerSizer' ) ).addClass( 'container-no-left' );
+            angular.element(document.getElementById( 'containerSizer' ) ).addClass( 'container-no-left' );
     } );
 
     angular.element( document.getElementById( 'mainSideNav' ) ).on( 'hide.bs.offcanvas' , function () {
-            angular.element( document.getElementById( 'containerSizer' ) ).removeClass( 'container-no-left' );
+            angular.element(document.getElementById( 'containerSizer' )).removeClass( 'container-no-left' );
     } );
 
     self.setCurrentActiveSection = function ( sectionName , linkName , path ) {
@@ -31,8 +31,9 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
         } else if ( Object.keys( self.activeMenuLink ).length == 0  ) {
             var periodIndex = path.indexOf( '/' );
             var pathPrefix = periodIndex >= 0 ? path.slice( 0 , periodIndex ) : path;
+            pathPrefix = '/' + pathPrefix + '/';
 
-            if ( $location.path().indexOf( pathPrefix ) >= 0 ) {
+            if ( $location.path().indexOf( pathPrefix ) === 0 ) {
                 self.activeSection = {};
                 self.activeSection[ sectionName ] = true;
 
@@ -192,5 +193,17 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
         }
 
         $mdToast.show( toast );
+    };
+
+    self.formatDate = function ( dateString , outputDateFormat , inputDateFormat ) {
+        if ( typeof( outputDateFormat ) === 'undefined' ) {
+            outputDateFormat = 'MM-DD-YY h:mm A';
+        }
+
+        if ( typeof( inputDateFormat ) === 'undefined' ) {
+            inputDateFormat = 'YYYY-MM-DD HH:mm:SS';
+        }
+
+        return moment( dateString , inputDateFormat ).format( outputDateFormat );
     };
 } ] );

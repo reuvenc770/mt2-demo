@@ -34,4 +34,12 @@ class ClientRepo {
     public function getFeeds ( $id ) {
         return $this->client->find( $id )->feeds()->get();
     }
+
+    public function getAllClientsArray() {
+        return $this->client->orderBy('name')->get()->toArray();
+    }
+
+    public function get() {
+        return $this->client->orderBy('name')->get();
+    }
 }

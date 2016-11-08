@@ -13,7 +13,7 @@ mt2App.controller( 'DomainGroupController' , [ '$log' , '$window' , '$location' 
     self.paginationCount = '10';
     self.currentPage = 1;
     self.accountTotal = 0;
-    self.sort = '-status';
+    self.sort = 'name';
     self.editForm = false;
     self.queryPromise = null;
 
@@ -62,10 +62,15 @@ mt2App.controller( 'DomainGroupController' , [ '$log' , '$window' , '$location' 
         DomainGroupApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 
+    self.toggle = function( recordId , direction ) {
+        DomainGroupApiService.toggleRow( recordId , direction , self.toggleRowSuccess , self.toggleRowFailure );
+    }
     /**
      * Callbacks
      */
     self.loadAccountsSuccessCallback = function ( response ) {
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+
         self.accounts = response.data.data;
         self.pageCount = response.data.last_page;
         self.accountTotal = response.data.total;

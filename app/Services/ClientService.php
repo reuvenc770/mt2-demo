@@ -29,6 +29,27 @@ class ClientService {
         return $this->clientRepo->getAll();
     }
 
+    public function getAllClientsArray() {
+        return $this->clientRepo->getAllClientsArray();
+    }
+
+    public function getClientFeedMap () {
+        $map = [];
+        $clients = $this->clientRepo->get();
+
+        foreach ($clients as $client) {
+            $feeds = [];
+
+            foreach ($client->feeds as $feed) {
+                $feeds[] = $feed->id;
+            }
+
+            $map[$client->id] = $feeds;
+        }
+
+        return $map;
+    }
+
     public function getAccount ( $id ) {
         return $this->clientRepo->getAccount( $id );
     }

@@ -52,7 +52,7 @@ class DomainRepo
             'domains.created_at',
             'domains.expires_at',
             'domains.status',
-            'domains.in_use')
+            'domains.live_a_record')
             ->where("domains.domain_type", $type)
             ->where("domains.esp_account_id", $espAccountId)
             ->join('registrars', 'domains.registrar_id', '=', 'registrars.id')
@@ -64,7 +64,7 @@ class DomainRepo
 
     public function getActiveDomainsByTypeAndEsp($type, $espAccountId)
     {
-        return $this->domain->where("status",1)->where("in_use",1)->where("domain_type", $type)->where("esp_account_id", $espAccountId)->get();
+        return $this->domain->where("status",1)->where("live_a_record",1)->where("domain_type", $type)->where("esp_account_id", $espAccountId)->get();
     }
 
     public function toggleRow($id, $direction){
@@ -104,7 +104,7 @@ class DomainRepo
                 'domains.created_at',
                 'domains.expires_at',
                 'domains.status',
-                'domains.in_use')
+                'domains.live_a_record')
                 ->join('registrars', 'domains.registrar_id', '=', 'registrars.id')
                 ->join('doing_business_as', 'domains.doing_business_as_id', '=', 'doing_business_as.id')
                 ->leftjoin('proxies', 'domains.proxy_id', '=', 'proxies.id')

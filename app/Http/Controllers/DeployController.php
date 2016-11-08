@@ -193,7 +193,7 @@ class DeployController extends Controller
             return response()
                 ->view( 'html', ["html" => $html] );
         }
-        catch (Exception $e){
+        catch (\Exception $e){
             return $e->getMessage();
         }   
         
@@ -207,7 +207,7 @@ class DeployController extends Controller
             return response()
                 ->view( 'bootstrap.pages.deploy.deploy-preview', ["html" => $html] ); 
         }
-        catch (Exception $e) {
+        catch (\Exception $e) {
             return $e->getMessage();
         }
         

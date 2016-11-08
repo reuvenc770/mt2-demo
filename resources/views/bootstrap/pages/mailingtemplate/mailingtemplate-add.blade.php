@@ -16,12 +16,12 @@
             <div class="row">
                 <div class="col-sm-6">
                     <input class="btn btn-lg btn-primary btn-block" ng-click="mailing.saveNewAccount()"
-                           ng-disabled="emailDomain.formSubmitted" type="submit" value="Create Mailing Template">
+                           ng-disabled="mailing.formSubmitted" type="submit" value="Add Mailing Template">
 
                 </div>
                 <div class="col-sm-6">
                     <input class="btn btn-lg btn-success btn-block" ng-click="mailing.previewIncomplete()"
-                           ng-disabled="emailDomain.formSubmitted" type="submit" value="Preview Template">
+                           ng-disabled="mailing.formSubmitted" type="submit" value="Preview Template">
 
                 </div>
             </div>
