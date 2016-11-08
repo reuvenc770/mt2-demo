@@ -15,6 +15,8 @@ use App\Models\CakeVertical;
 use App\Services\OfferService;
 use App\Services\ClientService;
 use App\Services\FeedService;
+use App\Http\Requests\SubmitListProfileRequest;
+use Laracasts\Flash\Flash;
 
 class ListProfileController extends Controller
 {
@@ -73,9 +75,13 @@ class ListProfileController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(SubmitListProfileRequest $request)
     {
         $this->listProfile->create( $request->all() );
+
+        Flash::success("List Profile was Successfully Created");
+
+        return response()->json( [ 'status' => true ] );
     }
 
     /**
@@ -96,7 +102,10 @@ class ListProfileController extends Controller
      */
     public function edit($id)
     {
-        return response()->view( 'bootstrap.pages.listprofile.list-profile-edit' , $this->getFormFieldOptions( [ 'id' => $id ] ) );
+        return response()->view(
+            'bootstrap.pages.listprofile.list-profile-edit' ,
+            $this->getFormFieldOptions( [ 'id' => $id , 'prepop' => $this->listProfile->getFullProfileJson( $id ) ] )
+        );
     }
 
     /**
@@ -106,9 +115,13 @@ class ListProfileController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(SubmitListProfileRequest $request, $id)
     {
-        
+        $this->listProfile->formUpdate( $id , $request->all() );
+
+        Flash::success("List Profile was Successfully Updated");
+
+        return response()->json( [ 'status' => true ] );
     }
 
     /**

@@ -45,12 +45,20 @@ class ListProfileRepo
         $this->country = $country;
     }
 
+    public function getModel () {
+        return $this->listProfile;
+    }
+
     public function create ( $data ) {
         return $this->listProfile->insertGetId( $data );
     }
 
     public function updateOrCreate($data) {
-        $this->listProfile->updateOrCreate(['profile_id' => $data['profile_id']], $data);
+        $listProfileId = $data['profile_id'];
+        
+        unset( $data[ 'profile_id' ] );
+
+        $this->listProfile->updateOrCreate(['id' => $listProfileId ], $data);
     }
 
     public function returnActiveProfiles(){
@@ -89,6 +97,7 @@ class ListProfileRepo
 
         $this->schedule->updateOrCreate( [ 'id' => $currentScheduleId ] , [
             'list_profile_id' => $id ,
+            'run_immediately' => in_array( 'Immediately' , $options[ 'interval' ] ) ,
             'run_daily' => in_array( 'Daily' , $options[ 'interval' ] ) ,
             'run_weekly' => in_array( 'Weekly' , $options[ 'interval' ] ),
             'run_monthly' => in_array( 'Monthly' , $options[ 'interval' ] ) ,
