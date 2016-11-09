@@ -42,9 +42,10 @@
             <tbody md-body>
                 <tr md-row ng-repeat="profile in listProfile.listProfiles track by $index">
                     <td md-cell class="mt2-table-btn-column">
+                        <md-checkbox  aria-label="Select" name="selectedRows" ng-click="listProfile.toggleRow(profile.id)"> </md-checkbox>
                         <a ng-href="@{{ ::( '/listprofile/edit/' + profile.id ) }}" aria-label="Edit" target="_self" data-toggle="tooltip" data-placement="bottom" title="Edit">
-                            <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
-                        </a>
+                            <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon></a>
+
                     </td>
                     <td md-cell ng-bind="::profile.name"></td>
                     <td md-cell>@{{ ::( profile.deliverable_start + ' to ' + profile.deliverable_end ) }}</td>
@@ -96,6 +97,8 @@
                 </md-table-container>
             </div>
         </div>
+        <listprofile-combine-create combine-name="listProfile.combineName" combine-error="listProfile.combineError"
+                                    create-combine="listProfile.createCombine()"></listprofile-combine-create>
 @stop
 
 <?php

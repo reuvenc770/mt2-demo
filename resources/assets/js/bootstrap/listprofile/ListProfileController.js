@@ -186,6 +186,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
             self.loadListProfilesSuccessCallback ,
             self.loadListProfilesFailureCallback
         );
+        self.loadListCombines();
     };
 
     self.loadListProfilesSuccessCallback = function ( response ) {
@@ -698,6 +699,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
     };
 
     self.toggleRow = function (selectedValue) {
+        console.log(selectedValue);
         var index = self.selectedProfiles.indexOf(selectedValue);
         if (index >= 0) {
             self.selectedProfiles.splice(index, 1);
@@ -707,17 +709,13 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         self.showCombine = self.selectedProfiles.length > 1;
     };
 
-    self.tempLoad = function (){
-        self.loadListCombines();
-    };
-
     self.loadListCombines = function (){
         ListProfileApiService.getCombines(self.loadCombinesSuccess,self.loadCombineFail);
     };
 
     self.loadCombinesSuccess = function (response){
         self.listCombines = response.data;
-    }
+    };
 
     self.saveListProfile = function () {
         ListProfileApiService.saveListProfile( self.current , self.SuccessCallBackRedirect , self.failureCallback );
