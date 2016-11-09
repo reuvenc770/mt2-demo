@@ -1,7 +1,7 @@
 mt2App.service( 'ListProfileApiService' , function ( $http ) {
     var self = this;
 
-    self.pagerApiUrl = '/api/pager/UniqueProfile';
+    self.pagerApiUrl = '/api/pager/ListProfile';
     self.baseApiUrl = '/api/listprofile';
     self.offerSearch = '/api/offer/search?searchTerm=';
 
@@ -20,7 +20,7 @@ mt2App.service( 'ListProfileApiService' , function ( $http ) {
     };
 
     self.getListProfiles = function ( page , count , successCallback , failureCallback ) {
-        $http({
+        return $http({
             "method" : "GET" ,
             "url" : self.pagerApiUrl ,
             "params" : { "page" : page , "count" : count }
@@ -64,6 +64,12 @@ mt2App.service( 'ListProfileApiService' , function ( $http ) {
     };
 
     self.saveListProfile = function ( formData , successCallback , failureCallback ) {
+        angular.forEach( [ 'deliverable' , 'opener' , 'clicker' , 'converter' ] , function ( value , key ) {
+            if ( typeof( formData.actionRanges[ value ] ) !== 'undefined' &&  formData.actionRanges[ value ].min == false && formData.actionRanges[ value ].max == false ) {
+                delete( formData.actionRanges[ value ] );
+            }
+        } );
+
         $http( {
             "method" : "POST" ,
             "url" : self.baseApiUrl ,
@@ -72,9 +78,15 @@ mt2App.service( 'ListProfileApiService' , function ( $http ) {
     };
 
     self.updateListProfile = function ( formData , successCallback , failureCallback ) {
+        angular.forEach( [ 'deliverable' , 'opener' , 'clicker' , 'converter' ] , function ( value , key ) {
+            if ( typeof( formData.actionRanges[ value ] ) !== 'undefined' &&  formData.actionRanges[ value ].min == false && formData.actionRanges[ value ].max == false ) {
+                delete( formData.actionRanges[ value ] );
+            }
+        } );
+
         $http( {
             "method" : "PUT" ,
-            "url" : self.baseApiUrl + '/' + formData[ 'pid' ],
+            "url" : self.baseApiUrl + '/' + formData[ 'profile_id' ],
             "param" : { '_method' : "PUT" } ,
             "data" : formData
         } ).then( successCallback , failureCallback );

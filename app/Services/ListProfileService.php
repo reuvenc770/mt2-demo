@@ -15,9 +15,12 @@ use Cache;
 use App\Repositories\FeedRepo;
 use App\Services\MT1Services\ClientStatsGroupingService;
 use App\Services\ListProfileBaseTableCreationService;
+use App\Services\ServiceTraits\PaginateList;
 
 class ListProfileService
 {
+    use PaginateList;
+
     protected $profileRepo;
     protected $builder;
     private $rows = [];
@@ -33,6 +36,86 @@ class ListProfileService
         $this->baseTableService = $baseTableService;
     }
 
+    public function getModel () {
+        return $this->profileRepo->getModel();
+    }
+
+    public function create ( $data ) {
+        $cleanData = $this->cleanseData( $data ); 
+
+        $id = $this->profileRepo->create( $cleanData );
+
+        $this->saveEntities( $id , $data );
+    }
+
+    public function getFullProfileJson ( $id ) {
+        $listProfile = $this->profileRepo->getProfile( $id );
+        $schedule = $listProfile->schedule()->first();
+
+        return json_encode( [
+            'profile_id' => $id ,
+            'name' => $listProfile->name , 
+            'actionRanges' => [
+                'deliverable' => [
+                    'min' => $listProfile->deliverable_start ,
+                    'max' => $listProfile->deliverable_end
+                ] ,
+                'opener' => [
+                    'min' => $listProfile->openers_start ,
+                    'max' => $listProfile->openers_end ,
+                    'multiaction' => $listProfile->open_count
+                ] ,
+                'clicker' => [
+                    'min' => $listProfile->clickers_start ,
+                    'max' => $listProfile->clickers_end ,
+                    'multiaction' => $listProfile->click_count
+                ] ,
+                'converter' => [
+                    'min' => $listProfile->converters_start ,
+                    'max' => $listProfile->converters_end ,
+                    'multiaction' => $listProfile->conversion_count
+                ]
+            ] ,
+            'suppression' => $listProfile->use_global_suppression ? [ 'global' => [ 1 => 'Orange Global' ] ] : [] ,
+            'attributeFilters' => [
+                'age' => json_decode( $listProfile->age_range ) ,
+                'genders' => array_intersect( [ 'Male' => 'M' , 'Female' => 'F' , 'Unknown' => 'U' ] , json_decode( $listProfile->gender ) ) ,
+                'zips' => implode( ',' , json_decode( $listProfile->zip ) ) ,
+                'cities' => implode( ',' , json_decode( $listProfile->city ) ) ,
+                'states' => json_decode( $listProfile->state ) ,
+                'deviceTypes' => json_decode( $listProfile->device_type ) ,
+                'mobileCarriers' => json_decode( $listProfile->mobile_carrier ) ,
+                'os' => json_decode( $listProfile->device_os )
+            ] ,
+            'includeCsvHeader' => $listProfile->insert_header ,
+            'selectedColumns' => json_decode( $listProfile->columns ) ,
+            'exportOptions' => [
+                'interval' =>  [ $listProfile->run_frequency ] ,
+                'dayOfWeek' => $schedule->day_of_week ? $schedule->day_of_week : null ,
+                'dayOfMonth' => $schedule->day_of_month ? $schedule->day_of_month : null
+            ] ,
+            'countries' => $listProfile->countries()->get()->pluck( 'id' ,'name' )->toArray() ,
+            'feeds' => $listProfile->feeds()->get()->pluck( 'short_name' , 'id' )->toArray() ,
+            'isps' => $listProfile->domainGroups()->get()->pluck( 'name' , 'id' )->toArray() ,
+            'categories' => $listProfile->verticals()->get()->pluck( 'name' , 'id' )->toArray() ,
+            'offers' => $listProfile->offers()->get()->toArray() ,
+            'includeCsvHeader' => $listProfile->insert_header ? true : false ,
+            'admiralsOnly' => $listProfile->admiral_only ? true : false
+        ] );
+    }
+
+    public function formUpdate ( $id , $data ) {
+        $cleanData = $this->cleanseData( $data );
+        $cleanData[ 'profile_id' ] = $id;
+
+        $this->profileRepo->updateOrCreate( $cleanData );
+
+        $this->saveEntities( $id , $data , true );
+    }
+
+    public function updateOrCreate ( $data ) {
+        $this->profileRepo->updateOrCreate( $data );
+    }
 
     public function getActiveListProfiles() {
         return $this->profileRepo->returnActiveProfiles();
@@ -89,6 +172,62 @@ class ListProfileService
 
         $this->profileRepo->updateTotalCount($listProfile->id, $totalCount);
 
+    }
+
+    private function cleanseData ( $data ) {
+        return [
+            'name' => $data[ 'name' ] ,
+            'deliverable_start' => isset( $data[ 'actionRanges' ][ 'deliverable' ][ 'min' ] ) ? $data[ 'actionRanges' ][ 'deliverable' ][ 'min' ] : 0 ,
+            'deliverable_end' => isset( $data[ 'actionRanges' ][ 'deliverable' ][ 'max' ] ) ? $data[ 'actionRanges' ][ 'deliverable' ][ 'max' ] : 0 ,
+            'openers_start' => isset( $data[ 'actionRanges' ][ 'opener' ][ 'min' ] ) ? $data[ 'actionRanges' ][ 'opener' ][ 'min' ] : 0 ,
+            'openers_end' => isset( $data[ 'actionRanges' ][ 'opener' ][ 'max' ] ) ? $data[ 'actionRanges' ][ 'opener' ][ 'max' ] : 0 ,
+            'open_count' => isset( $data[ 'actionRanges' ][ 'opener' ][ 'multiaction' ] ) ? $data[ 'actionRanges' ][ 'opener' ][ 'multiaction' ] : 1 ,
+            'clickers_start' => isset( $data[ 'actionRanges' ][ 'clicker' ][ 'min' ] ) ? $data[ 'actionRanges' ][ 'clicker' ][ 'min' ] : 0 ,
+            'clickers_end' => isset( $data[ 'actionRanges' ][ 'clicker' ][ 'max' ] ) ? $data[ 'actionRanges' ][ 'clicker' ][ 'max' ] : 0 ,
+            'click_count' => isset( $data[ 'actionRanges' ][ 'clicker' ][ 'multiaction' ] ) ? $data[ 'actionRanges' ][ 'clicker' ][ 'multiaction' ] : 1 ,
+            'converters_start' => isset( $data[ 'actionRanges' ][ 'converter' ][ 'min' ] ) ? $data[ 'actionRanges' ][ 'converter' ][ 'min' ] : 0 ,
+            'converters_end' => isset( $data[ 'actionRanges' ][ 'converter' ][ 'max' ] ) ? $data[ 'actionRanges' ][ 'converter' ][ 'max' ] : 0 ,
+            'conversion_count' => isset( $data[ 'actionRanges' ][ 'converter' ][ 'multiaction' ] ) ? $data[ 'actionRanges' ][ 'converter' ][ 'multiaction' ] : 1,
+            'use_global_suppression' => $data[ 'suppression' ][ 'global' ] ? 1 : 0 ,
+            'age_range' => json_encode( $data[ 'attributeFilters' ][ 'age' ] ) ,
+            'gender' => json_encode( array_values( $data[ 'attributeFilters' ][ 'genders' ] ) ) ,
+            'zip' => $data[ 'attributeFilters' ][ 'zips' ] ? json_encode( explode( ',' , $data[ 'attributeFilters' ][ 'zips' ] ) ) : '{}' ,
+            'city' => $data[ 'attributeFilters' ][ 'cities' ] ? json_encode( explode( ',' , $data[ 'attributeFilters' ][ 'cities' ] ) ) : '{}' ,
+            'state' => json_encode( $data[ 'attributeFilters' ][ 'states' ] ) ,
+            'device_type' => json_encode( $data[ 'attributeFilters' ][ 'deviceTypes' ] ) ,
+            'mobile_carrier' => json_encode( $data[ 'attributeFilters' ][ 'mobileCarriers' ] ) ,
+            'insert_header' => $data[ 'includeCsvHeader' ],
+            'device_os' => json_encode( $data[ 'attributeFilters' ][ 'os' ] ) ,
+            'columns' => json_encode( $data[ 'selectedColumns' ] ) ,
+            'run_frequency' => ( ( isset( $data[ 'exportOptions' ][ 'interval' ] ) && $choice = array_intersect( $data[ 'exportOptions' ][ 'interval' ] , [ 'Daily' , 'Weekly' , 'Monthly' , 'Never' ] ) ) ? array_pop( $choice ) : 'Never' ) ,
+            'admiral_only' => $data[ 'admiralsOnly' ] ,
+        ]; 
+    }
+
+    private function saveEntities ( $id , $data , $isUpdate = false ) {
+        if ( $data[ 'categories' ] || $isUpdate ) {
+            $this->profileRepo->assignVerticals( $id , array_keys( $data[ 'categories' ] ) );
+        } 
+
+        if ( $data[ 'exportOptions' ][ 'interval' ] || $isUpdate ) {
+            $this->profileRepo->assignSchedule( $id , $data[ 'exportOptions' ] );
+        }
+
+        if ( $data[ 'offers' ] || $isUpdate ) {
+            $this->profileRepo->assignOffers( $id , $data[ 'offers' ] );
+        }
+
+        if ( $data[ 'feeds' ] || $isUpdate ) {
+            $this->profileRepo->assignFeeds( $id , array_keys( $data[ 'feeds' ] ) );
+        }
+
+        if ( $data[ 'isps' ] || $isUpdate ) {
+            $this->profileRepo->assignIsps( $id , array_keys( $data[ 'isps' ] ) );
+        }
+
+        if ( $data[ 'countries' ] || $isUpdate ) {
+            $this->profileRepo->assignCountries( $id , $data[ 'countries' ] );
+        }
     }
 
 
