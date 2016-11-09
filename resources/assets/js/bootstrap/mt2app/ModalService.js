@@ -1,5 +1,4 @@
-
-mt2App.service( 'modalService' , [ function () {
+mt2App.service( 'modalService' , [ '$mdToast' , function ( $mdToast ) {
     var self = this;
     self.setModalLabel = function ( labelText ) {
         var modalLabel = angular.element( document.querySelector( '#pageModalLabel' ) );
@@ -27,5 +26,17 @@ mt2App.service( 'modalService' , [ function () {
         self.setModalBody( '' );
 
         $( '#pageModal' ).modal('hide');
+    };
+
+    self.simpleToast = function ( message , screenPosition ) {
+        var defaultPosition = 'top left';
+
+        if ( typeof( screenPosition ) == 'undefined' ) {
+            screenPosition = defaultPosition;
+        }
+
+        var toast = $mdToast.simple().textContent( message ).position( screenPosition );
+
+        $mdToast.show( toast );
     };
 } ] );
