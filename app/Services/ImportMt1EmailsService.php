@@ -118,12 +118,6 @@ class ImportMt1EmailsService
 
                     $statusRow = $this->buildStatusRow($record);
                     $this->emailFeedStatusRepo->batchInsert($statusRow);
-                    
-                    $recordsToFlag[] = [
-                        "email_id" => $importingEmailId, 
-                        "feed_id" => $feedId, 
-                        "datetime" => $record['capture_date']
-                    ];
 
                     if (isset($this->emailIdCache[$importingEmailId])) {
                         // email id is already a duplicate within this import
@@ -142,7 +136,12 @@ class ImportMt1EmailsService
                         $record['is_deliverable'] = 1;
 
                         $this->recordDataRepo->insert($record);
-                        $this->assignmentRepo->insertBatch($record); # ONLY FOR NON-EXISTING EMAILS
+
+                        $recordsToFlag[] = [
+                            "email_id" => $importingEmailId, 
+                            "feed_id" => $feedId, 
+                            "datetime" => $record['capture_date']
+                        ];
                     }
                     elseif (null === $existsCheck && !isset($this->emailIdCache[$importingEmailId]) && isset($this->emailAddressCache[$emailAddress])) {
                         // this particular email address appears in this batch, but not under this email id
@@ -211,7 +210,6 @@ class ImportMt1EmailsService
         $this->emailFeedRepo->insertStored();
         $this->emailFeedStatusRepo->insertStored();
         $this->tempEmailRepo->insertStored();
-        $this->assignmentRepo->insertStored();
 
         // Need to handle in-batch switching between email ids
         $this->emailRepo->updateInBatchIdSwitches($this->inBatchSwitches);
