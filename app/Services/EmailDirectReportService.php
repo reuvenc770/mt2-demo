@@ -261,4 +261,6 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
         return $this->api->getDeliveryReport($campaignId, "Complaints");
     }
 
+
+    public function pushRecords(array $records, $targetId) {}
 }

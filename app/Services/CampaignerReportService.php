@@ -413,4 +413,9 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         return $this->reportRepo->getRunId($espInternalId);
     }
 
+
+    public function pushRecords(array $records, $targetId) {
+        
+    }
+
 }

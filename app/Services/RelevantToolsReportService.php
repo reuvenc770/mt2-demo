@@ -57,4 +57,5 @@ class RelevantToolsReportService extends AbstractReportService implements IDataS
         );
     }
 
+    public function pushRecords(array $records, $targetId) {}
 }

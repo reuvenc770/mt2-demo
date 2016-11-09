@@ -426,4 +426,6 @@ class BrontoReportService extends AbstractReportService implements IDataService
     protected function getDeployIdFromCampaignName($campaignName) {
         return strstr($campaignName, '_', true);
     }
+
+    public function pushRecords(array $records, $targetId) {}
 }
