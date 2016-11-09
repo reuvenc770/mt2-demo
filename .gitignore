@@ -3,6 +3,7 @@
 /public/js/*.*
 /public/js/min/*.*
 /public/js/templates/*.*
+/public/js/bootstrap/*.*
 /public/app.js
 /node_modules
 Homestead.yaml

@@ -1,0 +1,13 @@
+<nav>
+    <ul class="pagination">
+        <pagination-control mode="prev" ng-click="ctrl.prevPage( $event )" ng-class="{ disabled : ctrl.disablefloor }"></pagination-control>
+
+        <pagination-button ng-class="{ active : ctrl.button1 == ctrl.currentpage }" ng-click="ctrl.updatePage( ctrl.button1 , $event )" pageNumber="ctrl.button1" maxpage="ctrl.maxpage"></pagination-button>
+        <pagination-button ng-class="{ active : ctrl.button2 == ctrl.currentpage }" ng-click="ctrl.updatePage( ctrl.button2 , $event )" pageNumber="ctrl.button2" maxpage="ctrl.maxpage"></pagination-button>
+        <pagination-button ng-class="{ active : ctrl.button3 == ctrl.currentpage }" ng-click="ctrl.updatePage( ctrl.button3 , $event )" pageNumber="ctrl.button3" maxpage="ctrl.maxpage"></pagination-button>
+        <pagination-button ng-class="{ active : ctrl.button4 == ctrl.currentpage }" ng-click="ctrl.updatePage( ctrl.button4 , $event )" pageNumber="ctrl.button4" maxpage="ctrl.maxpage"></pagination-button>
+        <pagination-button ng-class="{ active : ctrl.button5 == ctrl.currentpage }" ng-click="ctrl.updatePage( ctrl.button5 , $event )" pageNumber="ctrl.button5" maxpage="ctrl.maxpage"></pagination-button>
+
+        <pagination-control mode="next" ng-click="ctrl.nextPage( $event )" ng-class="{ disabled : ctrl.disableceiling }"></pagination-control>
+    </ul>
+</nav>
