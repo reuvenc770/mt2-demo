@@ -31,7 +31,7 @@
             <tbody md-body>
                 <tr md-row ng-repeat="profile in listProfile.listProfiles track by $index">
                     <td md-cell class="mt2-table-btn-column">
-                        <a ng-href="@{{ ::( '/listprofile/edit/' + ( $index + 1 ) ) }}" aria-label="Edit" target="_self" data-toggle="tooltip" data-placement="bottom" title="Edit">
+                        <a ng-href="@{{ ::( '/listprofile/edit/' + profile.id ) }}" aria-label="Edit" target="_self" data-toggle="tooltip" data-placement="bottom" title="Edit">
                             <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
                         </a>
                     </td>
@@ -44,6 +44,15 @@
                     <td md-cell ng-bind="::profile.total_count"></td>
                 </tr>
             </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="7">
+                            <md-content class="md-mt2-zeta-theme md-hue-2">
+                                <md-table-pagination md-limit="listProfile.paginationCount" md-limit-options="[ 10, 25, 50, 100]" md-page="listProfile.currentPage" md-total="@{{listProfile.profileTotal}}" md-on-paginate="listProfile.loadListProfiles" md-page-select></md-table-pagination>
+                            </md-content>
+                        </td>
+                    </tr>
+                </tfoot>
         </table>
     </md-table-container>
 @stop
