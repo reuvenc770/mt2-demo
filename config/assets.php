@@ -128,7 +128,8 @@ return [
             'resources/assets/js/bootstrap/mt2app/ValidationService.js',
             'resources/assets/js/bootstrap/mt2app/ModalService.js',
             'resources/assets/js/bootstrap/mt2app/CompileHtml.js',
-            'resources/assets/js/bootstrap/mt2app/CustomValidationService.js'
+            'resources/assets/js/bootstrap/mt2app/CustomValidationService.js',
+            'resources/assets/js/bootstrap/mt2app/StickyTableHeader.js'
         ]
     ]
 ];
