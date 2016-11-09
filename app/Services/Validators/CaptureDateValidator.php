@@ -34,8 +34,8 @@ class CaptureDateValidator implements IValidate {
         }
         catch (Exception $e) {
             // Carbon throws this is it can't parse the date.
-            // In that case, set captureDate to today.
-            $this->captureDate = $today->format('Y-m-d');
+            // In that case, throw validation error, as per Ken's request
+            throw new ValidationException("Capture date '{$this->captureDate}'' cannot be parsed");
         }
         
     }

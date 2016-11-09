@@ -24,8 +24,12 @@ class FeedIpValidator implements IValidate {
     }
 
     public function validate() {
-        if ($this->ipRepo->isFromCanada($this->feedId)) {
-            throw new ValidationException("Canadian Feed ip detected");
+        if (!filter_var($this->feedIp, FILTER_VALIDATE_IP)) {
+            throw new ValidationException("Invalid IP format detected {$this->feedIp}");
+        }
+
+        if ($this->ipRepo->isFromCanada($this->feedIp)) {
+            throw new ValidationException("Canadian feed IP detected {$this->feedIp}");
         }
     }
 
