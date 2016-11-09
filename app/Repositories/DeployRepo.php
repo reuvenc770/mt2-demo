@@ -306,16 +306,16 @@ class DeployRepo
         }
 
         //list profile for now commented out
-        /**
+
         if (isset($deploy['list_profile_id'])) {
-        $count = DB::select("Select count(*) as count from list_profiles where id = :id", ['id' => $deploy['list_profile_id']])[0];
+        $count = DB::select("Select count(*) as count from list_profile_combines where id = :id", ['id' => $deploy['list_profile_id']])[0];
         if ($count->count == 0) {
         $errors[] = "List Profile is not active or wrong";
         }
         } else {
         $errors[] = "List Profile ID is missing";
         }
-         **/
+
         //cake
 
         if (isset($deploy['cake_affiliate_id'])) {
@@ -363,5 +363,9 @@ class DeployRepo
 
     public function getListCombinesForDeploysByDate($date){
         return $this->deploy->select("list_profile_id")->where('send_date',$date)->get();
+    }
+
+    public function getDeployForToday($date){
+        return $this->deploy->where('send_date',$date)->get();
     }
 }

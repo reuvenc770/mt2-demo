@@ -12,7 +12,7 @@ use App\Models\JobEntry;
 use App\Jobs\Traits\PreventJobOverlapping;
 use App\Services\ListProfileExportService;
 use Storage;
-class ExportListCombineJob extends Job implements ShouldQueue
+class ExportListProfileCombineJob extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
     const BASE_NAME = 'ListCombineExport-';
@@ -46,7 +46,7 @@ class ExportListCombineJob extends Job implements ShouldQueue
                 $this->createLock($this->jobName);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
                 $combine = $combineService->getCombineById($this->listCombineId);
-                $combineFile = "ListProfileCombines/{$combine->name}.csv";
+                $combineFile = "ListProfiles/{$combine->name}.csv";
 
                 foreach($combine->listProfiles as $listProfile) {
                     $fileName = $service->export($listProfile->id, $this->offerId);
