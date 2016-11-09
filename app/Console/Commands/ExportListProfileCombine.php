@@ -54,12 +54,9 @@ class ExportListProfileCombine extends Command
             case "daily":
                 $deploys = $deployRepo->getDeploysForToday(Carbon::today()->toDateString());
                 foreach($deploys as $deploy){
-                    $combine = $listProfileCombinesRepo->getRowWithListProfiles($deploy->list_profile_id);
-
-                    foreach($combine->listProfiles as $listProfile){
-                        $job = new ExportListProfileCombineJob($listProfile->id, $deploy->offer_id, str_random(16));
-                        $this->dispatch($job);
-                    }
+                    $listProfileCombine = $listProfileCombinesRepo->getRowWithListProfiles($deploy->list_profile_id);
+                    $job = new ExportListProfileCombineJob($listProfileCombine->id, $deploy->offer_id, str_random(16));
+                    $this->dispatch($job);
                 }
                 break;
             default:

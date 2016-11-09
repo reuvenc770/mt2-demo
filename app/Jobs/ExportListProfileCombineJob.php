@@ -15,9 +15,9 @@ use Storage;
 class ExportListProfileCombineJob extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
-    const BASE_NAME = 'ListCombineExport-';
+    const BASE_NAME = 'ListProfileCombineExport-';
     private $jobName;
-    private $listCombineId;
+    private $listProfileCombineId;
     private $offerId;
     private $tracking;
 
@@ -26,12 +26,12 @@ class ExportListProfileCombineJob extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($listCombineId, $offerId, $tracking) {
-        $this->listProfileId = $listCombineId;
+    public function __construct($listProfileCombineId, $offerId, $tracking) {
+        $this->listProfileCombineId = $listProfileCombineId;
         $this->offerId = $offerId;
         $this->tracking = $tracking;
 
-        $this->jobName = self::BASE_NAME . $listCombineId . ':' . $offerId;
+        $this->jobName = self::BASE_NAME . $listProfileCombineId . ':' . $offerId;
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
@@ -45,10 +45,10 @@ class ExportListProfileCombineJob extends Job implements ShouldQueue
             try {
                 $this->createLock($this->jobName);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
-                $combine = $combineService->getCombineById($this->listCombineId);
-                $combineFile = "ListProfile/{$combine->name}.csv";
+                $listProfileCombine = $combineService->getCombineById($this->listProfileCombineId);
+                $combineFile = "ListProfile/{$listProfileCombine->name}.csv";
 
-                foreach($combine->listProfiles as $listProfile) {
+                foreach($listProfileCombine->listProfiles as $listProfile) {
                     $fileName = $service->export($listProfile->id, $this->offerId);
                     $contents = Storage::get($fileName);
                     Storage::append($combineFile, $contents);
