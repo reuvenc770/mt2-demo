@@ -173,4 +173,7 @@ class ListProfileController extends Controller
     public function getCombines(){
         return response()->json($this->listProfileCombineService->getAll());
     }
+    public function getListCombinesOnly(){
+        return response()->json($this->listProfileCombineService->getAllNoneProfiles());
+    }
 }

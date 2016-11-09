@@ -25,6 +25,9 @@ class ListProfileCombineService
     public function getAll(){
        return $this->listProfileCombinesRepo->getAll();
     }
+    public function getAllNoneProfiles(){
+        return $this->listProfileCombinesRepo->getAllNoneProfiles();
+    }
 
     //TODO: begs to be in a trait as well but it means being more generic with repo names.. but then getModel could be refactored as well
     //maybe an interface to make sure toggleRow is always around?
