@@ -15,6 +15,7 @@ class CreateListProfileCombinesTable extends Migration
         Schema::connection("list_profile")->create('list_profile_combines', function (Blueprint $table) {
             $table->increments('id');
             $table->string("name", 100);
+            $table->integer("list_profile_id")->nullable();
             $table->timestamps();
         });
 

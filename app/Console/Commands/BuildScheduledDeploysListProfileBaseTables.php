@@ -48,7 +48,6 @@ class BuildScheduledDeploysListProfileBaseTables extends Command
      * @return mixed
      */
     public function handle(DeployRepo $deployRepo, ListProfileCombinesRepo $listProfileCombinesRepo) {
-        $profiles = array();
         $listCombineIds = $deployRepo->getListCombinesForDeploysByDate(Carbon::today()->toDateString());
         foreach($listCombineIds as $listCombine){
             $combine = $listProfileCombinesRepo->getRowWithListProfiles($listCombine->list_profile_id);

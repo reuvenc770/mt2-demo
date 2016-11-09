@@ -37,6 +37,31 @@ class ListProfile extends Model
         return $this->belongsToMany('App\Models\ListProfileCombine');
     }
 
+    /**
+     * Because Deploys now can choose a single list profile or a list combine we have to know the difference
+     * and following a small pattern levelocity has instituted we are creating a list combine for every list profile
+     * this is so deploys can query one table and save a single value, removing extra logic from deploys
+     *
+     */
+    public static function boot()
+    {
+        parent::boot();
+
+        static::created(function($listProfile){
+            $listCombine = new ListProfileCombine();
+            $listCombine->name = $listProfile->name;
+            $listCombine->list_profile_id = $listProfile->id;
+            $listCombine->save();
+            $listCombine->listProfiles()->attach($listProfile->id);
+        });
+
+        static::updated(function($listProfile){
+            $listCombine = ListProfileCombine::where('list_profile_id', $listProfile->id)->first();
+            $listCombine->name = $listProfile->name;
+            $listCombine->save();
+        });
+    }
+
     public function countries () {
         return $this->belongsToMany( 'App\Models\Country' , 'list_profile.list_profile_countries' );
     }
