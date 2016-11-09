@@ -8,7 +8,7 @@ use App\Repositories\ListProfileCombinesRepo;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Carbon\Carbon;
-class ExportListProfile extends Command
+class ExportListProfileCombine extends Command
 {
 
     use DispatchesJobs;
@@ -45,9 +45,9 @@ class ExportListProfile extends Command
         $mode = $this->argument('mode');
         switch ($mode){
             case "single":
-                $listProfileId = $this->argument('listProfileId');
+                $listCombineId = $this->argument('listCombineId');
                 $offerId = $this->argument('offerId');
-                $job = new ExportListProfileCombineJob($listProfileId, $offerId, str_random(16));
+                $job = new ExportListProfileCombineJob($listCombineId, $offerId, str_random(16));
                 $this->dispatch($job);
                 break;
 

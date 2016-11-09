@@ -46,7 +46,7 @@ class ExportListProfileCombineJob extends Job implements ShouldQueue
                 $this->createLock($this->jobName);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
                 $combine = $combineService->getCombineById($this->listCombineId);
-                $combineFile = "ListProfiles/{$combine->name}.csv";
+                $combineFile = "ListProfile/{$combine->name}.csv";
 
                 foreach($combine->listProfiles as $listProfile) {
                     $fileName = $service->export($listProfile->id, $this->offerId);
