@@ -735,4 +735,28 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
     self.failureCallback = function ( response ) {
         formValidationService.loadFieldErrors( self , response );
     };
+
+    self.createCombineSuccess = function (response){
+        $mdToast.show($mdToast.simple()
+            .textContent( "List Combine was Created" )
+            .position( 'top right' ));
+        self.loadListCombines();
+        self.combineName = "";
+    };
+
+    self.loadCombineFail = function (response) {
+        $mdToast.show($mdToast.simple()
+            .textContent( "List Combine failed to load" )
+            .position( 'top right' ));
+    };
+
+    self.createCombineFail = function ( response) {
+        $mdToast.show($mdToast.simple()
+            .textContent( "List Combine failed to create" )
+            .position( 'top right' ));
+    };
+
+    self.exportCombine = function (){
+        //THIS IS WHERE EXPORTING WILL HAPPEN
+    };
 } ] );

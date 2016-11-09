@@ -80,14 +80,14 @@
 
                         <tbody md-body>
                         <tr md-row ng-repeat="profile in listProfile.listCombines track by $index">
-                            <td md-cell class="mt2-table-btn-column">
-
+                            <td md-cell class="mt2-table-btn-column" style="width:30px">
+                               <span ng-click="listProfile.exportListCombine()" data-toggle="tooltip" data-placement="bottom" title="Export List Combine" class="glyphicon glyphicon-export" style="font-size: 18px"></span>
                             </td>
                             <td md-cell ng-bind="::profile.name"></td>
                             <td md-cell>
-                                <p -ng-repeat="listCombine in profile.list_profiles">
-                                    @{{ listCombine.name }}
-                                </p>
+                                <span -ng-repeat="listCombine in profile.list_profiles">
+                                    @{{ listCombine.name }},
+                                </span>
                             </td>
 
                         </tr>

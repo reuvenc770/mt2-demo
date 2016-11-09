@@ -7,17 +7,17 @@
 
             <div class="modal-body" id="urlModalBody">
                 <div class="form-group" ng-class="{ 'has-error' : ctrl.combineError }">
-                    <input placeholder="Provider's Name" value="" class="form-control" ng-model="ctrl.combineName"
+                    <input placeholder="Combine Name" value="" class="form-control" ng-model="ctrl.combineName"
                            required="required" name="name" type="text">
                     <div class="help-block" ng-show="ctrl.combineError">
-
-                            <span ng-bind="ctrl.combineError"></span>
-
+                        <div ng-repeat="error in ctrl.combineError">
+                            <span ng-bind="error"></span>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" ng-click="ctrl.createCombine()" data-dismiss="modal">Upload</button>
+                <button type="button" ng-disabled="ctrl.combineError" class="btn btn-primary" ng-click="ctrl.createCombine()" data-dismiss="modal">Create Combine</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
