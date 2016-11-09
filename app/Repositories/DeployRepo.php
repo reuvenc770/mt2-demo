@@ -361,11 +361,8 @@ class DeployRepo
         return $this->deploy->where('send_date', $today)->where('list_profile_id', $listProfileId)->groupBy('offer_id')->get();
     }
 
-    public function getListCombinesForDeploysByDate($date){
-        return $this->deploy->select("list_profile_id")->where('send_date',$date)->get();
-    }
-
-    public function getDeployForToday($date){
+    public function getDeploysForToday($date){
         return $this->deploy->where('send_date',$date)->get();
     }
+
 }

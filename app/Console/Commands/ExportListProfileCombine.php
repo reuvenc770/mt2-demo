@@ -52,7 +52,7 @@ class ExportListProfileCombine extends Command
                 break;
 
             case "daily":
-                $deploys = $deployRepo->getDeployForToday(Carbon::today()->toDateString());
+                $deploys = $deployRepo->getDeploysForToday(Carbon::today()->toDateString());
                 foreach($deploys as $deploy){
                     $combine = $listProfileCombinesRepo->getRowWithListProfiles($deploy->list_profile_id);
 

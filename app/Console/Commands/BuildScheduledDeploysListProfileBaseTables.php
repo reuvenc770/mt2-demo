@@ -48,10 +48,10 @@ class BuildScheduledDeploysListProfileBaseTables extends Command
      * @return mixed
      */
     public function handle(DeployRepo $deployRepo, ListProfileCombinesRepo $listProfileCombinesRepo) {
-        $listCombineIds = $deployRepo->getListCombinesForDeploysByDate(Carbon::today()->toDateString());
-        foreach($listCombineIds as $listCombine){
-            $combine = $listProfileCombinesRepo->getRowWithListProfiles($listCombine->list_profile_id);
-            foreach($combine->listProfiles as $listProfile){
+        $deploys = $deployRepo->getDeploysForToday(Carbon::today()->toDateString());
+        foreach($deploys as $deploy){
+            $listProfileCombine = $listProfileCombinesRepo->getRowWithListProfiles($deploy->list_profile_id);
+            foreach($listProfileCombine->listProfiles as $listProfile){
                 $job = new ListProfileBaseExportJob($listProfile->id, str_random(16));
                 $this->dispatch($job);
             }
