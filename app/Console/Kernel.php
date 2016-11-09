@@ -71,7 +71,7 @@ class Kernel extends ConsoleKernel
         Commands\PullCakeRecordData::class,
         Commands\InflateEmailHistoriesUtil::class,
         Commands\BuildScheduledProfileBaseTables::class,
-        Commands\ExportListProfileCombine::class,
+        Commands\ExportListProfile::class,
         Commands\ESPUnsubsReport::class,
         Commands\DeactivateEspAccounts::class,
         Commands\BuildScheduledDeploysListProfileBaseTables::class,

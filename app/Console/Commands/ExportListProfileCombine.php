@@ -8,7 +8,7 @@ use App\Repositories\ListProfileCombinesRepo;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Carbon\Carbon;
-class ExportListProfileCombine extends Command
+class ExportListProfile extends Command
 {
 
     use DispatchesJobs;
