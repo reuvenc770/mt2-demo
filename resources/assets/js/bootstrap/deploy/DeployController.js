@@ -63,7 +63,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.loadAccounts = function () {
         self.loadEspAccounts();
         self.loadAffiliates();
-        //self.loadListProfiles();
+        self.loadListProfiles();
         self.loadDeploys();
         self.currentlyLoading = 0;
     };
@@ -381,7 +381,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
                 var pieces = deployData.send_date.split('-');
                 self.currentDeploy = deployData;
                 self.currentDeploy.creative_id = deployData.creative_id.toString();
-               // self.currentDeploy.list_profile_id = deployData.list_profile_id.toString();
+                self.currentDeploy.list_profile_id = deployData.list_profile_id.toString();
                 self.currentDeploy.from_id = deployData.from_id.toString();
                 self.currentDeploy.subject_id = deployData.subject_id.toString();
                 self.currentDeploy.template_id = deployData.template_id.toString();

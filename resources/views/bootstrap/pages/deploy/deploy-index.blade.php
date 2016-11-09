@@ -146,6 +146,7 @@
                     <th md-column class="md-table-header-override-whitetext">Send Date</th>
                     <th md-column class="md-table-header-override-whitetext">Deploy ID</th>
                     <th md-column class="md-table-header-override-whitetext">ESP Account</th>
+                    <th md-column class="md-table-header-override-whitetext">List Profile</th>
                     <th md-column class="md-table-header-override-whitetext">Offer</th>
                     <th md-column class="md-table-header-override-whitetext">Creative</th>
                     <th md-column class="md-table-header-override-whitetext">From</th>
@@ -197,6 +198,24 @@
                                 <option value="">ESP Account</option>
                                 <option ng-repeat="option in deploy.espAccounts" ng-value="option.id"
                                         ng-selected="option.id == deploy.currentDeploy.esp_account_id">@{{ option.account_name }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="help-block" ng-show="deploy.formErrors.esp_account_id">
+                            <div ng-repeat="error in deploy.formErrors.esp_account_id">
+                                <span ng-bind="error"></span>
+                            </div>
+                        </div>
+                    </td>
+                    <td md-cell nowrap>
+                        <div class="form-group">
+                            <select name="list_profile" id="list_profile" class="form-control"
+                                    ng-model="deploy.currentDeploy.list_profile_id"
+                                    ng-disabled="deploy.currentlyLoading">
+                                <option value="">List Profile</option>
+                                <option ng-repeat="option in deploy.listProfiles" ng-value="option.id"
+                                        ng-selected="option.id == deploy.currentDeploy.list_profile_id">@{{ option.name }}
                                 </option>
                             </select>
                         </div>
@@ -432,6 +451,7 @@
                         <td md-cell nowrap>@{{ record.send_date }}</td>
                         <td md-cell>@{{ record.deploy_id }}</td>
                         <td md-cell>@{{ record.account_name }}</td>
+                        <td md-cell>@{{ record.list_profile }}</td>
                         <td md-cell nowrap>
                             <span data-toggle="popover" data-content="@{{ record.offer_name }}">
                             @{{ record.offer_name.substring(0,20) }}...

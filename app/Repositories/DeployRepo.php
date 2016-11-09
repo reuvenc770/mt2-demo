@@ -34,7 +34,7 @@ class DeployRepo
             ->leftJoin('subjects', 'subjects.id', '=', 'deploys.subject_id')
             ->leftJoin('froms', 'froms.id', '=', 'deploys.from_id')
             ->leftJoin('creatives', 'creatives.id', '=', 'deploys.creative_id')
-            ->leftJoin("$listProfileSchema.list_profiles", 'list_profiles.id', '=', 'deploys.list_profile_id')
+            ->leftJoin("$listProfileSchema.list_profile_combines", 'list_profile_combines.id', '=', 'deploys.list_profile_id')
             ->select("send_date",
                 'deploys.id as deploy_id',
                 'esp_accounts.account_name',
@@ -45,7 +45,7 @@ class DeployRepo
                 'subjects.subject_line as subject',
                 'froms.from_line as from',
                 'creatives.file_name as creative',
-                'list_profiles.name as list_profile',
+                'list_profile_combines.name as list_profile',
                 'cake_affiliate_id',
                 'deployment_status',
                 'creatives.is_approved as creative_approval',
