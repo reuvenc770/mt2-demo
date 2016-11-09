@@ -2,7 +2,7 @@ mt2App.service( 'MailingTemplateApiService' , function ( $http , $log ) {
     var self = this;
 
     self.baseApiUrl = '/api/mailingtemplate';
-    self.baseEspApiUrl = '/api/espapi/allActive';
+    self.baseEspApiUrl = '/api/espapi/allactive';
     self.pagerApiUrl = '/api/pager/MailingTemplate';
     self.getAccount = function ( id , successCallback ) {
         $http( { "method" : "GET" , "url" : this.baseApiUrl + '/' + id } )

@@ -1058,9 +1058,9 @@ Route::group(
             ]
         );
         Route::get(
-            'espapi/allActive' ,
+            'espapi/allactive' ,
             [
-                'as' => 'api.espapi.returnAllActive' ,
+                'as' => 'api.espapi.returnallactive' ,
                 'uses' => 'EspApiAccountController@returnAllActive'
             ]
         );
