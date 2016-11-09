@@ -234,4 +234,5 @@ return [
     'api.esp.update' => "Update ESP",
     'api.esp.destroy' => "Deactivate ESP",
     'domain.listview' => "View Domains By ESP",
+    'api.espapi.returnAllActive' => "Retrieve List of All Active Esp Accounts"
 ];

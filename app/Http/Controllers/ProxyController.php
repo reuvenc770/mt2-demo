@@ -57,7 +57,7 @@ class ProxyController extends Controller
      */
     public function create()
     {
-        $espAccounts = $this->espAccountService->getAllAccounts();
+        $espAccounts = $this->espAccountService->getAllActiveAccounts();
         $esps = $this->espService->getAllEsps();
         $isps = $this->domainGroupService->getAllActive();
         return view('bootstrap.pages.proxy.proxy-add',[ 'espAccounts' => $espAccounts, 'esps' => $esps , 'isps' => $isps ] );
@@ -96,7 +96,7 @@ class ProxyController extends Controller
      */
     public function edit()
     {
-        $espAccounts = $this->espAccountService->getAllAccounts();
+        $espAccounts = $this->espAccountService->getAllActiveAccounts();
         $esps = $this->espService->getAllEsps();
         $isps = $this->domainGroupService->getAllActive();
         return response()

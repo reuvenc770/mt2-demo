@@ -2,7 +2,7 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
     var self = this;
 
     self.baseApiUrl = '/api/deploy/';
-    self.baseEspApiUrl = '/api/espapi/all';
+    self.baseEspApiUrl = '/api/espapi/allActive';
     self.offerSearchUrl = '/api/offer/search/';
     self.domainsApiUrl = '/api/domain/listActiveDomains/';
     self.templateUrl = '/api/mailingtemplate/templates/';

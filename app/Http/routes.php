@@ -1057,6 +1057,13 @@ Route::group(
                 'uses' => 'EspApiAccountController@returnAll'
             ]
         );
+        Route::get(
+            'espapi/allActive' ,
+            [
+                'as' => 'api.espapi.returnAllActive' ,
+                'uses' => 'EspApiAccountController@returnAllActive'
+            ]
+        );
         Route::resource(
             'esp' ,
             'EspController' ,
