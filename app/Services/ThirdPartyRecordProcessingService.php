@@ -6,9 +6,10 @@ use App\Repositories\EmailRepo;
 use App\Repositories\AttributionLevelRepo;
 use App\Repositories\RecordDataRepo;
 use App\Repositories\FeedDateEmailBreakdownRepo;
+use App\Services\Interfaces\IFeedPartyProcessing;
 use Carbon\Carbon;
 
-class ThirdPartyRecordProcessingService { // implements IFeedPartyProcessing
+class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
     private $emailCache = [];
     private $emailRepo;
     private $recordDataRepo;
@@ -37,7 +38,7 @@ class ThirdPartyRecordProcessingService { // implements IFeedPartyProcessing
      *      (4). If the email was imported > 10 days ago and no action exists, 
      */
 
-    public function process($records) {
+    public function processPartyData(array $records) {
 
         $recordsToFlag = [];
         $statuses = [];
