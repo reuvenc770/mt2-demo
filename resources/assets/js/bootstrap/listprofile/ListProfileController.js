@@ -1,8 +1,6 @@
 mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToast' , '$mdDialog' , '$timeout' , 'formValidationService' , 'modalService' , '$location' , '$window' , '$log' , function ( ListProfileApiService , $mdToast , $mdDialog , $timeout , formValidationService , modalService , $location , $window , $log ) {
     var self = this;
 
-    $(function () { $('[data-toggle="tooltip"]').tooltip() });
-
     self.nameDisabled = true;
     self.customName = false;
 
@@ -190,6 +188,8 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         self.listProfiles = response.data.data;
         self.pageCount = response.data.last_page;
         self.profileTotal = response.data.total;
+
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
     };
 
     self.loadListProfilesFailureCallback = function ( response ) {
@@ -204,6 +204,8 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         self.generateName();
 
         self.fixEmptyFields();
+
+        $(function () { $('[data-toggle="tooltip"]').tooltip() });
     };
 
     self.fixEmptyFields = function () {

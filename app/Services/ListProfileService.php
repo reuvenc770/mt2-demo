@@ -52,6 +52,9 @@ class ListProfileService
         $listProfile = $this->profileRepo->getProfile( $id );
         $schedule = $listProfile->schedule()->first();
 
+        $zips = json_decode( $listProfile->zip );
+        $cities = json_decode( $listProfile->city );
+
         return json_encode( [
             'profile_id' => $id ,
             'name' => $listProfile->name , 
@@ -80,8 +83,8 @@ class ListProfileService
             'attributeFilters' => [
                 'age' => json_decode( $listProfile->age_range ) ,
                 'genders' => array_intersect( [ 'Male' => 'M' , 'Female' => 'F' , 'Unknown' => 'U' ] , json_decode( $listProfile->gender ) ) ,
-                'zips' => implode( ',' , json_decode( $listProfile->zip ) ) ,
-                'cities' => implode( ',' , json_decode( $listProfile->city ) ) ,
+                'zips' => ( is_array( $zips ) && !empty( $zips ) ? implode( ',' , $zips ) : '' ) ,
+                'cities' => ( is_array( $cities ) && !empty( $cities ) ? implode( ',' , $cities ) : '' ) ,
                 'states' => json_decode( $listProfile->state ) ,
                 'deviceTypes' => json_decode( $listProfile->device_type ) ,
                 'mobileCarriers' => json_decode( $listProfile->mobile_carrier ) ,
