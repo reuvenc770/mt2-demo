@@ -27,7 +27,7 @@ class ListProfileScheduleRepo {
         $currentWeekDay = Carbon::today()->format('l'); // day of week, e.g. "Wednesday"
         $currentDayNumber = Carbon::today()->format('d'); // day number
 
-        $union = $this->model
+       return $this->model
                     ->select('list_profile_id')
                     ->where(function ($q) {
                         $q->where('run_daily', 1)
@@ -51,14 +51,7 @@ class ListProfileScheduleRepo {
                         $q->where('run_monthly', 1)
                           ->where('day_of_month', $currentDayNumber)
                           ->whereRaw("last_run IS NULL");
-                    });
-
-        return $this->model
-             ->select('d.list_profile_id')
-             ->join("$dataDb.deploys as d", "list_profile_schedules.id", '=', 'd.list_profile_id')
-             ->whereRaw("d.send_date = CURDATE()")
-             ->union($union)
-             ->get();
+                    })->get();
     }
 
     public function updateSuccess($id) {

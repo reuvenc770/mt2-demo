@@ -46,6 +46,7 @@ class ListProfileService
         $id = $this->profileRepo->create( $cleanData );
 
         $this->saveEntities( $id , $data );
+        return $id;
     }
 
     public function getFullProfileJson ( $id ) {

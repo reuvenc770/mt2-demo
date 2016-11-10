@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ListProfileBaseExportJob;
 use App\Services\ListProfileService;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -20,6 +22,7 @@ use Laracasts\Flash\Flash;
 
 class ListProfileController extends Controller
 {
+    use DispatchesJobs;
     protected $listProfile;
     protected $states;
     protected $ispService;
@@ -77,10 +80,13 @@ class ListProfileController extends Controller
      */
     public function store(SubmitListProfileRequest $request)
     {
-        #Need to fire a job to run the list profile at this point if the user chooses immediately
 
-        $this->listProfile->create( $request->all() );
 
+        $profileID = $this->listProfile->create( $request->all() );
+
+        if($request->get('exportOptions.interval') == "Immediately") {
+            $this->dispatch(new ListProfileBaseExportJob($profileID, str_random(16),true));
+        }
         Flash::success("List Profile was Successfully Created");
 
         return response()->json( [ 'status' => true ] );
