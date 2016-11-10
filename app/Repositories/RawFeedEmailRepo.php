@@ -10,7 +10,6 @@ use App\Models\RawFeedEmailFailed;
 
 class RawFeedEmailRepo {
     protected $rawEmail;
-    protected $failed;
 
     protected $standardFields = [
         'feed_id' => 0 ,
