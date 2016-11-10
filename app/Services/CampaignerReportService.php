@@ -14,6 +14,13 @@ use App\Library\Campaigner\CampaignManagement;
 use App\Library\Campaigner\ContactManagement;
 use App\Library\Campaigner\DownloadReport;
 use App\Library\Campaigner\RunReport;
+
+use App\Library\Campaigner\ContactKey;
+use App\Library\Campaigner\CustomAttribute;
+use App\Library\Campaigner\ArrayOfCustomAttribute;
+use App\Library\Campaigner\ContactData;
+use App\Library\Campaigner\ImmediateUpload;
+
 use App\Repositories\ReportRepo;
 use App\Services\API\Campaigner;
 use App\Services\API\CampaignerApi;
@@ -415,7 +422,36 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
 
 
     public function pushRecords(array $records, $targetId) {
-        
+        $auth = new Campaigner\Authentication($argv[1],$argv[2]); // need to pass in "CY001" "#cacy001#"
+        $contactManager = new Campaigner\ContactManagement();
+        $total = 0;
+
+        foreach ($records as $record) {
+
+            $fax = "";
+            if (($record->domainId == 9) or ($record->domainId == 342774)) {
+
+                $key = new ContactKey(0, $record->emailAddress);
+                $attribute = new CustomAttribute($record->emailId, 3932683, false);
+                $customAttributes = new ArrayOfCustomAttribute();
+                $customAttributes->setCustomAttribute([$attribute]);
+
+                $contactarray[] = new ContactData($key, $record->emailAddress, $record->firstName, $record->lastName, $record->phone, $fax, $customAttributes, null, null);
+                $contactData = new ArrayOfContactData();
+
+                $arrayOfData = $contactData->setContactData($contactarray);
+                $updateExistingContacts = "false";
+                $triggerWorkflow = "false";
+                $groupIds[] = $targetId;
+
+                $total++;
+            }
+        }
+
+        $contactList = new ImmediateUpload($auth, $updateExistingContacts, $triggerWorkflow, $arrayOfData, new ArrayOfInt($groupIds),null);
+        $result = $contactManager->ImmediateUpload($contactList);
+
+        return $total;
     }
 
 }
