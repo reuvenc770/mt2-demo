@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\ExportListProfileJob;
+use App\Jobs\ListProfileBaseExportJob;
 use App\Services\ListProfileService;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
@@ -85,7 +85,7 @@ class ListProfileController extends Controller
         $profileID = $this->listProfile->create( $request->all() );
 
         if($request->get('exportOptions.interval') == "Immediately") {
-            $this->dispatch(new ExportListProfileJob($profileID, array(), str_random(16)));
+            $this->dispatch(new ListProfileBaseExportJob($profileID, str_random(16),true));
         }
         Flash::success("List Profile was Successfully Created");
 
