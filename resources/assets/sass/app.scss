@@ -239,6 +239,16 @@ table.md-table td.md-cell.mt2-table-cell-center {
 th md-checkbox.md-mt2-zeta-theme:not(.md-checked) .md-icon {
     border-color: rgba(255, 255, 255, 0.87);
 }
+
+/*
+ * Sticky header
+*/
+.sticky-header {
+    top: 0;
+    position: fixed;
+    display: none;
+}
+
 /*
  * Button Styling
  */

@@ -10,7 +10,7 @@
 </md-toolbar>
 
 <md-table-container>
-    <table md-table md-progress="attr.reportQueryPromise" id="attrReportTable">
+    <table md-table md-progress="attr.reportQueryPromise" class="stickyTable">
         <thead md-head class="table-header">
             <tr md-row>
                 <th md-column colspan="2"></th>
