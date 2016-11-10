@@ -584,8 +584,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
                     var feedList = [];
 
                     angular.forEach( response.data , function ( client , key ) {
-                        console.log(client);
-                        feedList.push( { "id" : client.id , "name" : client.name , "selected" : false } );
+                        feedList.push( { "id" : client.id , "name" : client.name , "selected" : false , "newLevel" : key + 1 } );
                     } );
 
                     self.feeds = feedList;
