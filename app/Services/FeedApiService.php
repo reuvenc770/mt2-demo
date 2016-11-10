@@ -39,7 +39,12 @@ class FeedApiService {
             $this->repo->create( $cleanRecord );
         } catch ( \Exception $e ) {
             $this->repo->logFailure(
-                [ $e->getMessage() ] ,
+                [
+                    'message' => $e->getMessage() ,
+                    'file' => $e->getFile() ,
+                    'line' => $e->getLine() ,
+                    'trace' => $e->getTraceAsString()
+                ] ,
                 $this->currentUrl ,
                 $this->referrerIp ,
                 $this->feedId
