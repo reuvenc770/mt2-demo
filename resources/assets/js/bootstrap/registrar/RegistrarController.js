@@ -125,7 +125,6 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
 
         angular.forEach( response.data.data , function ( value , key ) {
             if ( value.dba_names != '' ) {
-                $log.info( value.dba_names );
                 response.data.data[ key ].dba_names = angular.fromJson( value.dba_names );
             }
         } );
