@@ -38,7 +38,13 @@ class ListProfileExportService {
 
         $this->tableRepo = new ListProfileBaseTableRepo(new ListProfileBaseTable($tableName));
 
-        $fileName = 'ListProfiles/' . $listProfile->name . '-' . $offerId . '.csv';
+        if(count($offerId) >= 1){
+            $fileName = 'ListProfiles/' . $listProfile->name . '-' . $offerId . '.csv';
+        }
+        else {
+            $fileName = 'ListProfiles/' . $listProfile->name .'.csv';
+        }
+
         Storage::delete($fileName); // clear the file currently saved
 
         $columns = json_decode($listProfile->columns, true);
