@@ -10,6 +10,14 @@ namespace App\Services\API;
 use App\Facades\EspApiAccount;
 use App\Library\Campaigner\CampaignManagement;
 use App\Library\Campaigner\Authentication;
+
+use App\Library\Campaigner\ContactKey;
+use App\Library\Campaigner\CustomAttribute;
+use App\Library\Campaigner\ArrayOfCustomAttribute;
+use App\Library\Campaigner\ContactData;
+use App\Library\Campaigner\ImmediateUpload;
+use App\Library\Campaigner\ContactManagement;
+
 use Log;
 
 class CampaignerApi extends EspBaseAPI
@@ -133,5 +141,37 @@ class CampaignerApi extends EspBaseAPI
       </filter>
    </group>
 </contactssearchcriteria>";
+    }
+
+    public function pushRecords($records, $targetId) {
+        $contactManager = new ContactManagement();
+        $total = 0;
+
+        foreach ($records as $record) {
+
+            $fax = "";
+            if (($record->domainId == 9) or ($record->domainId == 342774)) {
+
+                $key = new ContactKey(0, $record->emailAddress);
+                $attribute = new CustomAttribute($record->emailId, 3932683, false);
+                $customAttributes = new ArrayOfCustomAttribute();
+                $customAttributes->setCustomAttribute([$attribute]);
+
+                $contactarray[] = new ContactData($key, $record->emailAddress, $record->firstName, $record->lastName, $record->phone, $fax, $customAttributes, null, null);
+                $contactData = new ArrayOfContactData();
+
+                $arrayOfData = $contactData->setContactData($contactarray);
+                $updateExistingContacts = "false";
+                $triggerWorkflow = "false";
+                $groupIds[] = $targetId;
+
+                $total++;
+            }
+        }
+
+        $contactList = new ImmediateUpload($this->auth, $updateExistingContacts, $triggerWorkflow, $arrayOfData, new ArrayOfInt($groupIds),null);
+        $result = $contactManager->ImmediateUpload($contactList);
+
+        return $total;
     }
 }
