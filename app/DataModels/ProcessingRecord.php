@@ -29,6 +29,7 @@ class ProcessingRecord {
     // Metadata
     private $uniqueStatus = 'unique'; // unique, duplicate, non-unique
     private $newEmail = null;
+    private $domainId;
 
     public function __construct(array $data) {
 
