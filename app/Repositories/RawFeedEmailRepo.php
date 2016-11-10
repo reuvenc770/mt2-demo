@@ -10,6 +10,7 @@ use App\Models\RawFeedEmailFailed;
 
 class RawFeedEmailRepo {
     protected $rawEmail;
+    protected $failed;
 
     protected $standardFields = [
         'feed_id' => 0 ,
@@ -30,8 +31,9 @@ class RawFeedEmailRepo {
         'dob' => 0
     ];
 
-    public function __construct ( RawFeedEmail $rawEmail ) {
+    public function __construct ( RawFeedEmail $rawEmail , RawFeedEmailFailed $failed ) {
         $this->rawEmail = $rawEmail;
+        $this->failed = $failed;
     }
 
     public function create ( $data ) {
@@ -59,11 +61,12 @@ class RawFeedEmailRepo {
         return $cleanRecord;
     }
 
-    static public function logFailure ( $errors , $fullUrl , $referrerIp , $feedId = 0 ) {
-        RawFeedEmailFailed::create( [
+    public function logFailure ( $errors , $fullUrl , $referrerIp , $email = '' , $feedId = 0 ) {
+        $this->failed->create( [
             'errors' => json_encode( $errors ) ,
             'url' => $fullUrl ,
             'ip' => $referrerIp ,
+            'email' => $email ,
             'feed_id' => $feedId
         ] );
     }

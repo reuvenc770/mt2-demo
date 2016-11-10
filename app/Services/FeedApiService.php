@@ -30,10 +30,9 @@ class FeedApiService {
     } 
 
     public function ingest ( $record ) {
-        unset( $record[ 'pw' ] );
-        $record[ 'feed_id' ] = $this->feedId;
-
         try {
+            $record = $this->normalizeFields( $record );
+
             $cleanRecord = $this->repo->cleanseRecord( $record );
 
             $this->repo->create( $cleanRecord );
@@ -47,6 +46,7 @@ class FeedApiService {
                 ] ,
                 $this->currentUrl ,
                 $this->referrerIp ,
+                isset( $record[ 'email_address' ] ) ? $record[ 'email_address' ] : '' ,
                 $this->feedId
             );
 
@@ -54,5 +54,24 @@ class FeedApiService {
         }
 
         return [ 'status' => true , 'messages' => [ 'Record Accepted' ] ];
+    }
+
+    protected function normalizeFields ( $record ) {
+        unset( $record[ 'pw' ] );
+        $record[ 'feed_id' ] = $this->feedId;
+
+        $record[ 'email_address' ] = $record[ 'email' ];
+        unset( $record[ 'email' ] );
+
+        $record[ 'first_name' ] = $record[ 'firstname' ];
+        unset( $record[ 'firstname' ] );
+
+        $record[ 'last_name' ] = $record[ 'lastname' ];
+        unset( $record[ 'lastname' ] );
+
+        $record[ 'dob' ] = $record[ 'birth_date' ];
+        unset( $record[ 'birth_date' ] );
+
+        return $record;
     }
 }

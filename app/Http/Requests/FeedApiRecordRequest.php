@@ -10,6 +10,12 @@ use App\Repositories\FeedRepo;
 
 class FeedApiRecordRequest extends Request
 {
+    protected $repo;
+
+    public function __construct ( RawFeedEmailRepo $repo ) {
+        $this->repo = $repo;
+    }
+    
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -28,7 +34,7 @@ class FeedApiRecordRequest extends Request
     public function rules()
     {
         return [
-            'email_address' => 'required|email' ,
+            'email' => 'required|email' ,
             'ip' => 'required|ip' ,
             'capture_date' => 'required|date' ,
             'source_url' => 'required' ,
@@ -43,10 +49,11 @@ class FeedApiRecordRequest extends Request
     }
 
     public function response ( array $errors ) {
-        RawFeedEmailRepo::logFailure(
+        $this->repo->logFailure(
             $errors ,
             $this->fullUrl() ,
-            $this->ip() ,
+            json_encode( $this->ips() ) ,
+            $this->input( 'email' ) ,
             FeedRepo::getFeedIdFromPassword( $this->input( 'pw' ) )
         );
 

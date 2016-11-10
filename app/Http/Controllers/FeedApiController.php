@@ -21,7 +21,7 @@ class FeedApiController extends Controller
         $this->service->setRequestInfo(
             $this->service->getFeedIdFromPassword( $request->input( 'pw' ) ) ,
             $request->fullUrl() ,
-            $request->ip()
+            json_encode( $request->ips() )
         );
             
         $ingestionResponse = $this->service->ingest( $request->all() );

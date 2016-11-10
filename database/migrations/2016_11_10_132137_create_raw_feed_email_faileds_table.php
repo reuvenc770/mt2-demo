@@ -16,10 +16,12 @@ class CreateRawFeedEmailFailedsTable extends Migration
             $table->bigIncrements('id')->unsigned();
             $table->string( 'url' );
             $table->string( 'ip' );
+            $table->string( 'email' );
             $table->bigInteger( 'feed_id' )->unsigned();
             $table->json( 'errors' );
             $table->timestamps();
 
+            $table->index( 'email' , 'email_index' );
             $table->index( 'feed_id' , 'feed_index' );
         });
     }
