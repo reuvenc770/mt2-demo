@@ -12,8 +12,37 @@ class RawFeedEmailRepo {
     protected $rawEmail;
     protected $failed;
 
+    protected $standardFields = [
+        'feed_id' => 0 ,
+        'email_address' => 0 ,
+        'source_url' => 0 ,
+        'capture_date' => 0 ,
+        'ip' => 0 ,
+        'first_name' => 0 ,
+        'last_name' => 0 ,
+        'address' => 0 ,
+        'address2' => 0 ,
+        'city' => 0 ,
+        'state' => 0 ,
+        'zip' => 0 ,
+        'country' => 0 ,
+        'gender' => 0 ,
+        'phone' => 0 ,
+        'dob' => 0
+    ];
+
     public function __construct ( RawFeedEmail $rawEmail ) {
         $this->rawEmail = $rawEmail;
+    }
+
+    public function create ( $data ) {
+        $rawEmailRecord = array_intersect_key( $data , $this->standardFields );
+        
+        $customFields = array_diff_key( $data , $this->standardFields );
+
+        $rawEmailRecord[ 'other_fields' ] = json_encode( $customFields );
+
+        $this->rawEmail->create( $rawEmailRecord );
     }
 
     static public function logFailure ( $errors , $fullUrl , $referrerIp , $feedId = 0 ) {

@@ -18,6 +18,12 @@ class FeedApiController extends Controller
     }
 
     public function ingest ( FeedApiRecordRequest $request ) {
+        $this->service->setRequestInfo(
+            $this->service->getFeedIdFromPassword( $request->input( 'pw' ) ) ,
+            $request->fullUrl() ,
+            $request->ip()
+        );
+            
         $ingestionResponse = $this->service->ingest( $request->all() );
 
         return response()->json( $ingestionResponse );

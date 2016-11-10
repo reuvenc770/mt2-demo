@@ -31,7 +31,7 @@ class FeedApiRecordRequest extends Request
             'email_address' => 'required|email' ,
             'ip' => 'required|ip' ,
             'capture_date' => 'required|date' ,
-            'source_url' => 'required|url' ,
+            'source_url' => 'required' ,
             'pw' => 'required|exists:feeds,password'
         ];
     }
