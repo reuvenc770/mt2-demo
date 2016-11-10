@@ -45,6 +45,21 @@ class RawFeedEmailRepo {
         $this->rawEmail->create( $rawEmailRecord );
     }
 
+    public function cleanseRecord ( $record ) {
+        $cleanRecord = [];
+
+        foreach ( $record as $fieldName => $fieldValue ) {
+            $currentValue = preg_replace( '/[^\w\@\.\-\'\/\s]/' , '' , $fieldValue );
+            $currentValue = preg_replace( '/\s{2,}/' , '' , $currentValue );
+            $currentValue = trim( $currentValue );
+            $currentValue = addslashes( $currentValue );
+
+            $cleanRecord[ $fieldName ] = $currentValue; 
+        }
+
+        return $cleanRecord;
+    }
+
     static public function logFailure ( $errors , $fullUrl , $referrerIp , $feedId = 0 ) {
         RawFeedEmailFailed::create( [
             'errors' => json_encode( $errors ) ,

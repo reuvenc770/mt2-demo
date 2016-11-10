@@ -34,7 +34,7 @@ class FeedApiService {
         $record[ 'feed_id' ] = $this->feedId;
 
         try {
-            $cleanRecord = $this->cleanse( $record );
+            $cleanRecord = $this->repo->cleanseRecord( $record );
 
             $this->repo->create( $cleanRecord );
         } catch ( \Exception $e ) {
@@ -49,20 +49,5 @@ class FeedApiService {
         }
 
         return [ 'status' => true , 'messages' => [ 'Record Accepted' ] ];
-    }
-
-    protected function cleanse ( $record ) {
-        $cleanRecord = [];
-
-        foreach ( $record as $fieldName => $fieldValue ) {
-            $currentValue = preg_replace( '/[^\w\@\.\-\'\/\s]/' , '' , $fieldValue );
-            $currentValue = preg_replace( '/\s{2,}/' , '' , $currentValue );
-            $currentValue = trim( $currentValue );
-            $currentValue = addslashes( $currentValue );
-
-            $cleanRecord[ $fieldName ] = $currentValue; 
-        }
-
-        return $cleanRecord;
     }
 }
