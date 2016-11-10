@@ -7,10 +7,41 @@
         </div>
     </div>
 </div>
+<div class="form-group" ng-class="{ 'has-error' : registrar.formErrors.dba_names }">
+    <div class="input-group">
+        <select class="form-control" name="dba_name" ng-model="registrar.dba_name">
+            <option value="">Select DBA</option>
+            @foreach ( $dbas as $dba )
+                <option value="{{ $dba['dba_name'] }}">{{ $dba['dba_name'] }}</option>
+            @endforeach
+        </select>
+    <span class="input-group-btn">
+        <button class="btn btn-primary" ng-click="registrar.addDba()" type="button">Add DBA</button>
+      </span>
+    </div>
+    <div class="help-block" ng-show="registrar.formErrors.dba_names">
+        <div ng-repeat="error in registrar.formErrors.dba_names">
+            <span ng-bind="error"></span>
+        </div>
+    </div>
+</div>
+<ul class="list-group" ng-show="registrar.dba_names.length > 0">
+    <li ng-repeat="(key, value) in registrar.dba_names track by $index" class="list-group-item list-group-item-success">@{{value}} - <a
+                ng-click="registrar.removeDba(key)">Remove</a></li>
+</ul>
+
 <div class="form-group" ng-class="{ 'has-error' : registrar.formErrors.username }">
     <input placeholder="Username" value="" class="form-control" ng-model="registrar.currentAccount.username" required="required" name="username" type="text">
     <div class="help-block" ng-show="registrar.formErrors.username">
         <div ng-repeat="error in registrar.formErrors.username">
+            <span ng-bind="error"></span>
+        </div>
+    </div>
+</div>
+<div class="form-group" ng-class="{ 'has-error' : registrar.formErrors.password }">
+    <input placeholder="Password" value="" class="form-control" ng-model="registrar.currentAccount.password" required="required" name="password" type="text">
+    <div class="help-block" ng-show="registrar.formErrors.password">
+        <div ng-repeat="error in registrar.formErrors.password">
             <span ng-bind="error"></span>
         </div>
     </div>
@@ -27,81 +58,6 @@
     <input placeholder="Contact Email" value="" class="form-control" ng-model="registrar.currentAccount.contact_email" required="required" name="contact_email" type="text">
     <div class="help-block" ng-show="registrar.formErrors.contact_email">
         <div ng-repeat="error in registrar.formErrors.contact_email">
-            <span ng-bind="error"></span>
-        </div>
-    </div>
-</div>
-<div class="form-group" ng-class="{ 'has-error' : registrar.formErrors.address }">
-    <input placeholder="Address" value="" class="form-control" ng-model="registrar.currentAccount.address"
-           required="required" name="po_box_address" type="text">
-    <div class="help-block" ng-show="registrar.formErrors.address">
-        <div ng-repeat="error in registrar.formErrors.address">
-            <span ng-bind="error"></span>
-        </div>
-    </div>
-</div>
-<div class="form-group" ng-class="{ 'has-error' : registrar.formErrors.address_2 }">
-    <input placeholder="Address Line 2" value="" class="form-control" ng-model="registrar.currentAccount.address_2"
-           required="required" name="po_box_address_2" type="text">
-    <div class="help-block" ng-show="registrar.formErrors.address_2">
-        <div ng-repeat="error in registrar.formErrors.address_2">
-            <span ng-bind="error"></span>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-sm-6">
-        <div class="form-group" ng-class="{ 'has-error' : registrar.formErrors.city }">
-            <input placeholder="City" value="" class="form-control" ng-model="registrar.currentAccount.city"
-                   required="required" name="po_box_city" type="text">
-            <div class="help-block" ng-show="registrar.formErrors.city">
-                <div ng-repeat="error in registrar.formErrors.city">
-                    <span ng-bind="error"></span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-3">
-        <div class="form-group" ng-class="{ 'has-error' : registrar.formErrors.state }">
-            <select ng-model="registrar.currentAccount.state" name="po_box_state" class="form-control">
-                <option value="">Pick A State</option>
-                @foreach ( $states as $state )
-                    <option value="{{ $state->iso_3166_2 }}">{{ $state->name }}</option>
-                @endforeach
-            </select>
-            <div class="help-block" ng-show="registrar.formErrors.state">
-                <div ng-repeat="error in registrar.formErrors.state">
-                    <span ng-bind="error"></span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-3">
-        <div class="form-group" ng-class="{ 'has-error' : registrar.formErrors.zip }">
-            <input placeholder="Zip Code" value="" class="form-control" ng-model="registrar.currentAccount.zip"
-                   required="required" name="po_box_zip" type="text">
-            <div class="help-block" ng-show="registrar.formErrors.zip">
-                <div ng-repeat="error in registrar.formErrors.zip">
-                    <span ng-bind="error"></span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="form-group" ng-class="{ 'has-error' : registrar.formErrors.entity_name }">
-    <input placeholder="Entity Name" type="text" class="form-control" ng-model="registrar.currentAccount.entity_name"
-           required="required" name="entity_name" type="text">
-    <div class="help-block" ng-show="registrar.formErrors.entity_name">
-        <div ng-repeat="error in registrar.formErrors.entity_name">
-            <span ng-bind="error"></span>
-        </div>
-    </div>
-</div>
-<div class="form-group" ng-class="{ 'has-error' : registrar.formErrors.phone_number }">
-    <input placeholder="Phone Number" type="text" class="form-control" ng-model="registrar.currentAccount.phone_number"
-           required="required" name="phone_number" type="text">
-    <div class="help-block" ng-show="registrar.formErrors.phone_number">
-        <div ng-repeat="error in registrar.formErrors.phone_number">
             <span ng-bind="error"></span>
         </div>
     </div>

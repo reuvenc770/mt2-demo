@@ -20,11 +20,13 @@
                             <th md-column class="mt2-table-btn-column"></th>
                             <th md-column md-order-by="status" class="md-table-header-override-whitetext mt2-table-header-center">Status</th>
                             <th md-column md-order-by="name" class="md-table-header-override-whitetext mt2-cell-left-padding">Registrar Name</th>
-                            <th md-column md-order-by="username" class="md-table-header-override-whitetext">Username</th>
-                            <th md-column md-order-by="contact_name" class="md-table-header-override-whitetext">Contact Name</th>
-                            <th md-column md-order-by="contact_email" class="md-table-header-override-whitetext">Contact Email</th>
-                            <th md-column md-order-by="phone_number" class="md-table-header-override-whitetext">Phone</th>
-                            <th md-column md-order-by="entity_name" class="md-table-header-override-whitetext">Entity Name</th>
+                            <th md-column class="md-table-header-override-whitetext">DBAs</th>
+                            <th md-column class="md-table-header-override-whitetext">Username</th>
+                            <th md-column class="md-table-header-override-whitetext">Password</th>
+                            <th md-column class="md-table-header-override-whitetext">Contact Name</th>
+                            <th md-column class="md-table-header-override-whitetext">Contact Email</th>
+                            <th md-column class="md-table-header-override-whitetext">CC Contact</th>
+                            <th md-column class="md-table-header-override-whitetext">CC #</th>
                         </tr>
                         </thead>
 
@@ -47,16 +49,18 @@
                                 @{{ record.status == 1 ? 'Active' : 'Inactive' }}
                             </td>
                             <td md-cell class="mt2-cell-left-padding">@{{ record.name }}</td>
+                            <td md-cell nowrap>@{{ record.dba_names }}</td>
                             <td md-cell>@{{ record.username }}</td>
-                            <td md-cell>@{{ record.contact_name }}</td>
+                            <td md-cell>@{{ record.password }}</td>
+                            <td md-cell nowrap>@{{ record.contact_name }}</td>
                             <td md-cell>@{{ record.contact_email }}</td>
-                            <td md-cell>@{{ record.phone_number }}</td>
-                            <td md-cell>@{{ record.entity_name }}</td>
+                            <td md-cell nowrap>@{{ record.contact_credit_card }}</td>
+                            <td md-cell>@{{ record.last_cc }}</td>
                         </tr>
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="8">
+                                <td colspan="10">
                                 <md-content class="md-mt2-zeta-theme md-hue-2">
                                     <md-table-pagination md-limit="registrar.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="registrar.currentPage" md-total="@{{registrar.accountTotal}}" md-on-paginate="registrar.loadAccounts" md-page-select></md-table-pagination>
                                 </md-content>
