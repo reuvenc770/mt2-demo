@@ -5,16 +5,14 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
     self.currentAccount = { "id": "",
                             "username": "",
                             "password" : "",
-                            "contact_name":"",
-                            "contact_email":"",
-                            "dba_names": "" };
+                            "dba_names": [] };
     self.createUrl = 'registrar/create/';
     self.editUrl = 'registrar/edit/';
     self.pageType = 'add';
-    self.dba_name = '';
-    self.dba_names = [];
+    self.currentDba = { 'dba_name' : '' , 'dba_contact_name' : '' , 'dba_contact_email' : '' };
+    self.editingDba = false;
 
-    self.formErrors = "";
+    self.formErrors = {};
     self.formSubmitted = false;
     self.pageCount = 0;
     self.paginationCount = '10';
@@ -27,8 +25,8 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
         var pathMatches = $location.path().match( /^\/registrar\/edit\/(\d{1,})/ );
 
         RegistrarApiService.getAccount( pathMatches[ 1 ] , function ( response ) {
+            response.data.dba_names = angular.fromJson( response.data.dba_names );
             self.currentAccount = response.data;
-            self.dba_names = self.currentAccount.dba_names.split(',');
         } )
     };
     self.loadProfile = function ($id) {
@@ -64,35 +62,72 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
     self.saveNewAccount = function () {
         self.formSubmitted = true;
         formValidationService.resetFieldErrors(self);
+
         self.currentAccount.status = 1;
-        self.currentAccount.dba_names = self.dba_names.join(', ');
         RegistrarApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback);
     };
 
     self.editAccount = function () {
         self.formSubmitted = true;
         formValidationService.resetFieldErrors(self);
-        self.currentAccount.dba_names = self.dba_names.join(', ');
         RegistrarApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 
     self.addDba = function () {
-        if(self.dba_name.length > 0){
-            self.dba_names.push(self.dba_name);
-            self.dba_name = "";
+        self.editingDba = false;
+        var dbaError = false;
+
+        if(self.currentDba.dba_name == '') {
+            self.formErrors.dba_name = [ 'A DBA is required.' ];
+            dbaError = true;
         }
+        if(self.currentDba.dba_contact_name == '') {
+            self.formErrors.dba_contact_name = [ 'A contact name for the DBA is required.' ];
+            dbaError = true;
+        }
+        if(self.currentDba.dba_contact_email == '') {
+            self.formErrors.dba_contact_email = [ 'A contact email for the DBA is required.' ];
+            dbaError = true;
+        }
+        if (dbaError) {
+            return;
+        } else {
+            delete( self.formErrors.dba_name );
+            delete( self.formErrors.dba_contact_name );
+            delete( self.formErrors.dba_contact_email );
+        }
+
+        dbas = self.currentAccount.dba_names;
+        dbas.push( self.currentDba );
+        self.clearDbaFields();
     };
+
+    self.editDba = function (id) {
+        self.currentDba = self.currentAccount.dba_names[ id ];
+        self.currentAccount.dba_names.splice( id , 1);
+        self.editingDba = true;
+    }
 
     self.removeDba = function (id) {
-        self.dba_names.splice( id , 1 );
+        self.currentAccount.dba_names.splice( id , 1 );
 
     };
+
+    self.clearDbaFields = function () {
+        self.currentDba = { dba_name : '' , dba_contact_name : '' , dba_contact_email : '' };
+    }
+
     /**
      * Callbacks
      */
     self.loadAccountsSuccessCallback = function ( response ) {
         $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
 
+        angular.forEach( response.data.data , function ( value , key ) {
+            if ( value.dba_names != '' ) {
+                response.data.data[ key ].dba_names = angular.fromJson( value.dba_names );
+            }
+        } );
         self.accounts = response.data.data;
         self.pageCount = response.data.last_page;
         self.accountTotal = response.data.total;
