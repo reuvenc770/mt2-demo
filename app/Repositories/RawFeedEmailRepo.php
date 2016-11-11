@@ -53,7 +53,6 @@ class RawFeedEmailRepo {
             $currentValue = preg_replace( '/[^\w\@\.\-\'\/\s]/' , '' , $fieldValue );
             $currentValue = preg_replace( '/\s{2,}/' , '' , $currentValue );
             $currentValue = trim( $currentValue );
-            $currentValue = $currentValue;
 
             $cleanRecord[ $fieldName ] = $currentValue; 
         }
