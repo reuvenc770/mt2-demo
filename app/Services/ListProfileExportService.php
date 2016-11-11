@@ -8,7 +8,8 @@ use App\Repositories\ListProfileRepo;
 use App\Repositories\OfferRepo;
 use Storage;
 
-class ListProfileExportService {
+class ListProfileExportService
+{
 
     private $listProfileRepo;
     private $offerRepo;
@@ -17,8 +18,9 @@ class ListProfileExportService {
     const WRITE_THRESHOLD = 50000;
     private $rows = [];
     private $rowCount = 0;
-    
-    public function __construct(ListProfileRepo $listProfileRepo, OfferRepo $offerRepo) {
+
+    public function __construct(ListProfileRepo $listProfileRepo, OfferRepo $offerRepo)
+    {
         $this->listProfileRepo = $listProfileRepo;
         $this->offerRepo = $offerRepo;
     }
@@ -30,7 +32,8 @@ class ListProfileExportService {
      *  3. Output the surviving email addresses to a file determined by the name.
      */
 
-    public function exportListProfile($listProfileId, $offerId) {
+    public function exportListProfile($listProfileId, $offerId)
+    {
 
         $listProfile = $this->listProfileRepo->getProfile($listProfileId);
 
@@ -38,11 +41,10 @@ class ListProfileExportService {
 
         $this->tableRepo = new ListProfileBaseTableRepo(new ListProfileBaseTable($tableName));
 
-        if(count($offerId) >= 1){
+        if (count($offerId) >= 1) {
             $fileName = 'ListProfiles/' . $listProfile->name . '-' . $offerId . '.csv';
-        }
-        else {
-            $fileName = 'ListProfiles/' . $listProfile->name .'.csv';
+        } else {
+            $fileName = 'ListProfiles/' . $listProfile->name . '.csv';
         }
 
         Storage::delete($fileName); // clear the file currently saved
@@ -67,27 +69,27 @@ class ListProfileExportService {
 
     }
 
-    public function exportListProfileCombine($listProfileCombine, $offerId){
+    public function exportListProfileCombine($listProfileCombine, $offerId)
+    {
         $columns = array();
         //This needs to go the deploy FTP location/folders
-        if(count($offerId) >= 1){
+        if (count($offerId) >= 1) {
             $fileName = 'ListProfiles/' . $listProfileCombine->name . '-' . $offerId . '.csv';
-        }
-        else {
-            $fileName = 'ListProfiles/' . $listProfileCombine->name .'.csv';
+        } else {
+            $fileName = 'ListProfiles/' . $listProfileCombine->name . '.csv';
         }
 
         Storage::delete($fileName); // clear the file currently saved
 
         //Lets Build the Header
-        foreach($listProfileCombine->listProfiles as $listProfile) {
+        foreach ($listProfileCombine->listProfiles as $listProfile) {
             $listProfile = $this->listProfileRepo->getProfile($listProfile->id);
-            $columns = array_merge($columns,json_decode($listProfile->columns, true));
-                Storage::append($fileName, implode(',', $columns));
+            $columns = array_merge($columns, json_decode($listProfile->columns, true));
+            Storage::append($fileName, implode(',', $columns));
         }
 
 
-        foreach($listProfileCombine->listProfiles as $listProfile){
+        foreach ($listProfileCombine->listProfiles as $listProfile) {
             $tableName = self::BASE_TABLE_NAME . $listProfile->id;
             $this->tableRepo = new ListProfileBaseTableRepo(new ListProfileBaseTable($tableName));
 
@@ -106,29 +108,33 @@ class ListProfileExportService {
     }
 
 
-    private function batch($fileName, $row) {
+    private function batch($fileName, $row)
+    {
         if ($this->rowCount >= self::WRITE_THRESHOLD) {
             $this->writeBatch($fileName);
 
             $this->rows = [$row];
             $this->rowCount = 1;
-        }
-        else {
+        } else {
             $this->rows[] = $row;
             $this->rowCount++;
         }
     }
 
-    private function writeBatch($fileName) {
+    private function writeBatch($fileName)
+    {
         $string = implode(PHP_EOL, $this->rows);
         Storage::append($fileName, $string);
     }
 
-    private function mapRow($columns, $row) {
+    private function mapRow($columns, $row)
+    {
         $output = [];
 
         foreach ($columns as $column) {
-            $output[$column] = $row->$column;
+            if (isset($row->$column)) {
+                $output[$column] = $row->$column;
+            }
         }
 
         return implode(', ', $output);

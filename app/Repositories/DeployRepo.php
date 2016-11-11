@@ -360,4 +360,8 @@ class DeployRepo
 
         return $this->deploy->where('send_date', $today)->where('list_profile_id', $listProfileId)->groupBy('offer_id')->get();
     }
+
+    public function getDeploysForToday($date){
+        return $this->deploy->where('send_date',$date)->get();
+    }
 }

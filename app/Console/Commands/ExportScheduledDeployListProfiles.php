@@ -7,6 +7,9 @@
  */
 
 namespace App\Console\Commands;
+use App\Jobs\ExportListProfileCombineJob;
+use App\Repositories\DeployRepo;
+use Carbon\Carbon;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class ExportScheduledDeployListProfiles
@@ -41,10 +44,11 @@ class ExportScheduledDeployListProfiles
      *
      * @return mixed
      */
-    public function handle(ListProfileScheduleRepo $scheduleRepo) {
-        $listProfilesForToday = $scheduleRepo->getProfilesForToday();
-        foreach($listProfilesForToday as $listProfile) {
-            $job = new ExportListProfileJob($listProfile->list_profile_id, array(), str_random(16));//blank array to skip suppression
+    public function handle(DeployRepo $deployRepo) {
+        $deploys = $deployRepo->getDeploysForToday(Carbon::today()->toDateString());
+
+        foreach($deploys as $deploy) {
+            $job = new ExportListProfileCombineJob($deploy->list_combine_id, $deploy->offer_id, str_random(16));
             $this->dispatch($job);
         }
 
