@@ -78,6 +78,11 @@ Route::group( [] , function() {
         'as' => 'myprofile' ,
         'uses' => 'UserApiController@myProfile'
     ] );
+
+    Route::any( '/api/post_data' , [
+        'as' => 'api.feed.realtimerecords' ,
+        'uses' => 'FeedApiController@ingest'
+    ] );
 } );
 
 
@@ -748,6 +753,7 @@ Route::group(
         'middleware' => [ 'auth' , 'pageLevel' ]
     ] ,
     function () {
+
         Route::get( '/pager/{type}' , [
             'as' => 'api.pager',
             'uses' =>'PagingController@paginate'

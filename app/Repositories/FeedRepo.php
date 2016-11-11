@@ -71,6 +71,7 @@ class FeedRepo {
                 'clients.name as clientName' ,
                 'feeds.party' ,
                 'feeds.short_name' ,
+                'feeds.password' ,
                 'feeds.status' ,
                 'cake_verticals.name as feedVertical',
                 'feeds.frequency' ,
@@ -84,5 +85,19 @@ class FeedRepo {
 
     public function getSourceUrl($id) {
         return $this->feed->where('id', $id)->source_url;
+    }
+
+    public function passwordExists ( $password ) {
+        return $this->feed->where( 'password' , $password )->count() > 0;
+    }
+
+    static public function getFeedIdFromPassword ( $password ) {
+        $feed = Feed::where( 'password' , $password )->first();
+
+        if ( is_null( $feed ) ) {
+            return 0;
+        }
+
+        return $feed->id;
     }
 }
