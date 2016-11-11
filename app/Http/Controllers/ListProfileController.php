@@ -20,7 +20,7 @@ use App\Services\FeedService;
 use App\Http\Requests\SubmitListProfileRequest;
 use Laracasts\Flash\Flash;
 use App\Services\ListProfileCombineService;
-use App\Jobs\ListProfileCombineExportJob;
+use App\Jobs\ExportListProfileCombineJob;
 class ListProfileController extends Controller
 {
     use DispatchesJobs;
@@ -186,6 +186,6 @@ class ListProfileController extends Controller
 
     public function exportListCombine(Request $request){
         $id = $request->input("id");
-        $this->dispatch(new ListProfileCombineExportJob($id,array(), str_random(16)));
+        $this->dispatch(new ExportListProfileCombineJob($id,array(), str_random(16)));
     }
 }
