@@ -6,6 +6,7 @@ mt2App.service( 'ListProfileApiService' , function ( $http ) {
     self.offerSearch = '/api/offer/search?searchTerm=';
     self.getCombineUrl = '/api/listprofile/listcombine/combineonly';
     self.createCombineUrl = '/api/listprofile/listcombine/create';
+    self.exportCombineUrl = '/api/listprofile/listcombine/export';
 
     self.getListProfile = function ( id , successCallback , failureCallback ) {
         $http( {
@@ -114,6 +115,14 @@ mt2App.service( 'ListProfileApiService' , function ( $http ) {
             "method" : "POST" ,
             "url" : self.createCombineUrl ,
             "data" : {"name":name,"selectedProfiles": selectedListProfiles}
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.exportCombine = function ( id , successCallback , failureCallback ) {
+        $http( {
+            "method" : "POST" ,
+            "url" : self.exportCombineUrl ,
+            "data" : {"id":id}
         } ).then( successCallback , failureCallback );
     };
 

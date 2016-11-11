@@ -74,9 +74,10 @@ class ListProfileExportService
         $columns = array();
         //This needs to go the deploy FTP location/folders
         if (count($offerId) >= 1) {
+    //ESP NAME BREAKDOWN
             $fileName = 'ListProfiles/' . $listProfileCombine->name . '-' . $offerId . '.csv';
         } else {
-            $fileName = 'ListProfiles/' . $listProfileCombine->name . '.csv';
+            $fileName = 'SOMEOTHERDIRECTORY/' . $listProfileCombine->name . '.csv';  //where base exports go
         }
 
         Storage::delete($fileName); // clear the file currently saved

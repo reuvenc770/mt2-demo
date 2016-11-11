@@ -891,6 +891,10 @@ Route::group(
                     'as' => 'api.listprofile.combine.create' ,
                     'uses' => 'ListProfileController@createListCombine',
                 ] );
+                Route::post( '/listcombine/export' , [
+                    'as' => 'api.listprofile.combine.export' ,
+                    'uses' => 'ListProfileController@exportListCombine',
+                ] );
             }
         );
 

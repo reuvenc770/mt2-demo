@@ -1,4 +1,4 @@
-mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToast' , '$mdDialog' , '$timeout' , 'formValidationService' , 'modalService' , '$location' , '$window' , '$log' , function ( ListProfileApiService , $mdToast , $mdDialog , $timeout , formValidationService , modalService , $location , $window , $log ) {
+mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDialog' , '$timeout' , 'formValidationService' , 'modalService' , '$location' , '$window' , '$log' , function ( ListProfileApiService , $mdDialog , $timeout , formValidationService , modalService , $location , $window , $log ) {
     var self = this;
 
     self.nameDisabled = true;
@@ -735,26 +735,30 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
     };
 
     self.createCombineSuccess = function (response){
-        $mdToast.show($mdToast.simple()
-            .textContent( "List Combine was Created" )
-            .position( 'top right' ));
+        modalService.simpleToast("List Combine was Created",'top right');
         self.loadListCombines();
         self.combineName = "";
     };
 
     self.loadCombineFail = function (response) {
-        $mdToast.show($mdToast.simple()
-            .textContent( "List Combine failed to load" )
-            .position( 'top right' ));
+        modalService.simpleToast("List Combine failed to load",'top right');
+
     };
 
     self.createCombineFail = function ( response) {
-        $mdToast.show($mdToast.simple()
-            .textContent( "List Combine failed to create" )
-            .position( 'top right' ));
+        modalService.simpleToast("List Combine failed to create",'top right');
     };
 
-    self.exportCombine = function (){
-        //THIS IS WHERE EXPORTING WILL HAPPEN
+    self.exportCombine = function (id){
+        console.log(id);
+       ListProfileApiService.exportCombine(id,self.exportCombineSuccess, self.exportCombineFail)
+    };
+
+    self.exportCombineSuccess = function (response){
+        modalService.simpleToast("List Combine Export has started",'top right');
+    };
+
+    self.exportCombineFail = function (response){
+        modalService.simpleToast("List Combine failed to export",'top right');
     };
 } ] );

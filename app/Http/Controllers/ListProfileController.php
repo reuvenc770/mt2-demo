@@ -20,6 +20,7 @@ use App\Services\FeedService;
 use App\Http\Requests\SubmitListProfileRequest;
 use Laracasts\Flash\Flash;
 use App\Services\ListProfileCombineService;
+use App\Jobs\ListProfileCombineExportOnDemandJob;
 class ListProfileController extends Controller
 {
     use DispatchesJobs;
@@ -181,5 +182,10 @@ class ListProfileController extends Controller
     }
     public function getListCombinesOnly(){
         return response()->json($this->combineService->getAllNoneProfiles());
+    }
+
+    public function exportListCombine(Request $request){
+        $id = $request->input("id");
+        $this->dispatch(new ListProfileCombineExportOnDemandJob($id, str_random(16)));
     }
 }
