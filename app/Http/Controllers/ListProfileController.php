@@ -19,7 +19,7 @@ use App\Services\ClientService;
 use App\Services\FeedService;
 use App\Http\Requests\SubmitListProfileRequest;
 use Laracasts\Flash\Flash;
-
+use App\Services\ListProfileCombineService;
 class ListProfileController extends Controller
 {
     use DispatchesJobs;
@@ -29,6 +29,7 @@ class ListProfileController extends Controller
     protected $offerService;
     protected $clientService;
     protected $feedService;
+    protected $combineService;
 
     public function __construct (
         ListProfileService $listProfileService ,
@@ -37,7 +38,8 @@ class ListProfileController extends Controller
         DomainGroupService $ispService ,
         OfferService $offerService,
         ClientService $clientService,
-        FeedService $feedService
+        FeedService $feedService,
+        ListProfileCombineService $combineService
     ) {
         $this->listProfile = $listProfileService;
         $this->mt1CountryService = $mt1CountryService;
@@ -46,6 +48,7 @@ class ListProfileController extends Controller
         $this->offerService = $offerService;
         $this->clientService = $clientService;
         $this->feedService = $feedService;
+        $this->combineService = $combineService;
     }
 
     /**
@@ -162,5 +165,21 @@ class ListProfileController extends Controller
             'isps' => $this->ispService->getAll() ,
             'categories' => CakeVertical::orderBy('name')->get() ,
         ] , $addOptions );
+    }
+
+
+    public function createListCombine(Request $request){
+
+        $insertData = [
+            "name" => $request->input("name"),
+        ];
+        $this->combineService->insertCombine($insertData, $request->input("selectedProfiles"));
+    }
+
+    public function getCombines(){
+        return response()->json($this->combineService->getAll());
+    }
+    public function getListCombinesOnly(){
+        return response()->json($this->combineService->getAllNoneProfiles());
     }
 }

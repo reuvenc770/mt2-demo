@@ -9,15 +9,14 @@
 namespace App\Services;
 
 
-use App\Repositories\ListProfileCombinesRepo;
-use App\Services\ServiceTraits\PaginateList;
+use App\Repositories\ListProfileCombineRepo;
 
 class ListProfileCombineService
 {
 
     protected $listProfileCombinesRepo;
 
-    public function __construct(ListProfileCombinesRepo $combinesRepo)
+    public function __construct(ListProfileCombineRepo $combinesRepo)
     {
         $this->listProfileCombinesRepo = $combinesRepo;
     }

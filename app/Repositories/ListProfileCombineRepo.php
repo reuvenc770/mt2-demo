@@ -11,7 +11,7 @@ namespace App\Repositories;
 
 use App\Models\ListProfileCombine;
 
-class ListProfileCombinesRepo
+class ListProfileCombineRepo
 {
     private $model;
 
