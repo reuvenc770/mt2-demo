@@ -212,7 +212,7 @@ class EmailValidator implements IValidate {
         elseif ('Hotmail' === $domainClass) {
             return $this->isValidHotmailEmail($address);
         }
-        elseif ('GMail' === $domainClass) {
+        elseif ('Gmail' === $domainClass) {
             return $this->isValidGMailEmail($address);
         }
 
