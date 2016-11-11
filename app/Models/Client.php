@@ -13,8 +13,4 @@ class Client extends Model
     public function feeds() {
         return $this->hasMany('App\Models\Feed');
     }
-
-    public function feeds() {
-        return $this->hasMany('App\Models\ClientFeed');
-    }
 }

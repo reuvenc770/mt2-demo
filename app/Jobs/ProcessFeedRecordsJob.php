@@ -50,7 +50,6 @@ class ProcessFeedRecordsJob extends Job implements ShouldQueue {
                 $this->unlock($this->jobName);
             }
 
-            // We need to pass a message back that it's ok to delete certain email addresses
         }
         else {
             echo "Still running {$this->jobName} - job level" . PHP_EOL;

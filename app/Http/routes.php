@@ -19,14 +19,6 @@ Route::get( '/' , [
     'uses' => 'HomeController@redirect'
 ] );
 
-/**
- *  Feed Routes
- */
-
-Route::get('/feeds', [
-    'as'=> 'feeds', 
-    'uses' => 'ClientFeedController@store'
-]);
 
 /**
  * Guest Routes
