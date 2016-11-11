@@ -41,7 +41,6 @@ class ExportScheduledListProfile extends Command
      * @return mixed
      */
     public function handle(ListProfileScheduleRepo $scheduleRepo) {
-        echo "test";
         $listProfilesForToday = $scheduleRepo->getScheduledProfilesForToday();
         foreach($listProfilesForToday as $listProfile) {
             $job = new ExportListProfileJob($listProfile->list_profile_id, array(), str_random(16));//blank array to skip suppression

@@ -6,7 +6,6 @@ use App\Models\ListProfileSchedule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use Carbon\Carbon;
-use Log;
 /**
  *
  */
