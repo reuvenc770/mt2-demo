@@ -2,6 +2,7 @@
 
 namespace App\Factories;
 use App;
+use App\Repositories\EspApiAccountRepo;
 
 // Validators
 use App\Services\Validators\AgeValidator;
@@ -28,10 +29,6 @@ class FeedProcessingFactory
 
     public static function createService($party, $feedId = null) {
 
-        /**
-            Perhaps have a stricter control over these variables?
-        */
-
         $service = App::make(\App\Services\FeedProcessingService::class);
 
         // Add validation to the service
@@ -45,14 +42,15 @@ class FeedProcessingFactory
             ->registerValidator(App::make(PhoneValidator::class));
 
         // Set up the rest - suppression, processing
-
-        if (1 === $party) {
+        if (1 === $party && $feedId) {
+            // We need a feed id for 1st party
             return self::setUpFirstPartyService($service, $feedId);
         }
         elseif (2 === $party) {
-            return
+            return;
         }
-        elseif (3 === $party) {
+        elseif (3 === $party && !$feedId) {
+            // Third party should be feed-agnostic
             return self::setUpThirdPartyService($service);
         }
         else {
@@ -66,14 +64,12 @@ class FeedProcessingFactory
         $service->registerSuppression($suppression);
 
         $config = config("firstpartyprocessing.$feedId");
-        $espName = $config['espName'];
-        $espAccountId = $config['espAccountId'];
-        $targetid = $config['targetId'];
+        $espAccount = EspApiAccountRepo::getEspInfoByAccountName($config['espAccountName']);
 
-        $apiService = APIFactory::createApi($espName, $espAccountId);
+        $apiService = APIFactory::createApi($espAccount->esp->name, $espAccount->id);
         $processingService = new FirstPartyRecordProcessingService($apiService);
 
-        $processingService->setTargetId($targetId);
+        $processingService->setTargetId($config['targetId'];);
         $service->registerProcessing($processingService);
 
         return $service;

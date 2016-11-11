@@ -9,7 +9,7 @@ use App\Services\EmailFeedAssignmentService;
 use App\Services\ScheduledFilterService;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Log;
+
 class NewRecordResolver implements ShouldQueue
 {
     protected $truthTableService;

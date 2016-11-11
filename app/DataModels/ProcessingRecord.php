@@ -2,6 +2,7 @@
 
 namespace App\DataModels;
 
+use App\Models\FawFeedEmail;
 use Carbon\Carbon;
 
 class ProcessingRecord {
@@ -31,22 +32,49 @@ class ProcessingRecord {
     private $sourceUrl;    
     private $otherFields = [];
     private $otherFieldsJson = '';
-    private $isDeliverable;
+    private $isDeliverable = null;
 
     // Metadata
     private $uniqueStatus = 'unique'; // unique, duplicate, non-unique
-    private $newEmail = null;
+    private $newEmail;
     private $domainId;
     private $processDate;
     private $isValid;
     private $invalidReason;
 
-    public function __construct(array $data) {
+    public function __construct(RawFeedEmail $record) {
         $this->processDate = Carbon::today()->format('Y-m-d');
-/**
-    Need to determine $newEmail, $domainId after instantiation
 
-*/
+        $this->emailAddress = $record->emailAddress;
+
+        if ($record->email_id) {
+            $this->emailId = $record->email_id;
+            $this->newEmail = false;
+            $this->domainId = $record->domainId;
+        }
+        else {
+            $this->newEmail = true;
+            $this->emailId = null;
+            $this->domainId = null;
+        }
+
+        $this->feedId = $record->feed_id;
+        $this->firstName = $record->first_name;
+        $this->lastName = $record->lastName;
+        $this->address = $record->address;
+        $this->address2 = $record->address2;
+        $this->city = $record->city;
+        $this->state = $record->state;
+        $this->zip = $record->zip;
+        $this->country = $record->country;
+        $this->dob = $record->dob;
+        $this->gender = $record->gender;
+        $this->phone = $record->phone;
+        $this->captureDate = $record->capture_date;
+        $this->ip = $record->ip;
+        $this->sourceUrl = $record->sourceUrl;
+        $this->otherFieldsJson = $this->other_fields;
+        $this->otherFields = json_decode($this->other_fields, true);
     }
 
     public function __get($prop) {
@@ -66,6 +94,8 @@ class ProcessingRecord {
             'id' => $this->emailId,
             'email_address' => $this->emailAddress,
             'email_domain_id' => $this->domainId,
+            'lower_case_md5' => md5(strtolower($this->emailAddress)),
+            'upper_case_md5' => md5(strtoupper($this->emailAddress))
         ];
     }
 
@@ -118,6 +148,5 @@ class ProcessingRecord {
             'other_fields' => $this->otherFieldsJson
         ];
     }
-
 
 }

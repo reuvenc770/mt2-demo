@@ -16,12 +16,16 @@ class ProcessFeedRecordsJob extends Job implements ShouldQueue {
     private $party;
     private $tracking;
     private $records;
+    private $party;
+    private $feedId;
     const JOB_NAME_BASE = 'FeedProcessing';
 
-    public function __construct($party, $records, $tracking) {
+    public function __construct($party, $feedId, $records, $tracking) {
         $this->jobName = self::JOB_NAME_BASE . "-$party-$tracking";
         $this->tracking = $tracking;
         $this->records = $records;
+        $this->party = $party;
+        $this->feedId = $feedId;
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
@@ -33,7 +37,7 @@ class ProcessFeedRecordsJob extends Job implements ShouldQueue {
 
                 echo "{$this->jobName} running" . PHP_EOL;
 
-                $service = FeedProcessingFactory::create($this->party);
+                $service = FeedProcessingFactory::create($this->party, $this->feedId);
                 $service->process($this->records);
 
                 JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
