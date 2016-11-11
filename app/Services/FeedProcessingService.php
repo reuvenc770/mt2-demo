@@ -5,6 +5,7 @@ use App\Services\Interfaces\IValidate;
 use App\Services\Interfaces\IFeedPartyProcessing;
 use App\Services\Interfaces\IFeedSuppression;
 use App\Exceptions\ValidationException;
+use App\DataModels\ProcessingRecord;
 
 class FeedProcessingService {
     
@@ -12,53 +13,70 @@ class FeedProcessingService {
     private $suppressors = [];
     private $processor;
 
-    public function __construct() {}
+    private $emailRepo;
+    private $instanceRepo;
+
+
+    public function __construct(EmailRepo $emailRepo, EmailFeedInstanceRepo $instanceRepo) {
+        $this->emailRepo = $emailRepo;
+        $this->instanceRepo = $instanceRepo;
+    }
 
 
     public function process($records) {
-        // Insert all found records somewhere (?) - or is that handled by another job
-        // Then insert into email-feed-instances
+        // Step 1. Get suppression information
+        $records = $this->suppress($records);
 
-        // let's get nonsuppressed records first
-
+        // Step 2. Validate & store records
         $validatedRecords = [];
-        $invalidRecords = [];
-
-        $records = $this->returnUnsuppressedRecords($records);
-
-        /**
-            should we deal with suppressed records?
-            > Yes, we have to
-            Rename method above
-        */
 
         foreach ($records as $record) {
-            $record = $this->validate($record);
-            $this->reporting($record);
+            if (!$record->isSuppressed) {
+                $record = $this->validate($record);
+                
+                if ($record->valid) {
+                    $this->reporting($record);
+                    $validatedRecords[] = $record;
+
+                    if ($record->newEmail) {
+                        $record->emailId = $this->emailRepo->insertNew($record->mapToEmails());
+                    }
+
+                    $this->instanceRepo->insertDelayedBatch($record->mapToInstances());
+                }
+
+            }
         }
+/**
+    Still need to do reporting.
+    But some of that only makes sense for 3rd party feeds. Need to ask Ken.
+*/
 
-        /**
-            Somewhere in here we need to insert into the db:
-            emails
-            email feed instances
-        */
-
-        $this->postSuppressionProcessing($records);
+        // cleanup
+        $this->instanceRepo->insertStored();
+        $records = []; 
+        
+        // Step 3. Process records
+        $this->postProcessing($validatedRecords);
     }
+
 
     public function registerValidator(IValidate $validator) {
         $this->validators[] = $validator;
         return $this; // reurns $this to enable chaining
     }
 
+
     public function registerSuppression(IFeedSuppression $service) {
         $this->suppressors[] = $service;
         return $this;
     }
 
+
     public function registerProcessing(IFeedPartyProcessing $service) {
         $this->processor = $service;
     }
+
 
     private function validate($record) {
         try {
@@ -77,64 +95,56 @@ class FeedProcessingService {
                     $record->$key = $value;
                 }
             }
-
-            $record->valid = true; //?
-            
+            $record->valid = true;
         }
         catch (ValidationException $e) {
-            // Handle exception here
-
-            return;
+            $record->valid = false;
+            $record->invalidReason = $e->getMessage();
         }
 
-        $record->valid = false; //?
         return $record;
     }
 
+    /**
+     *  Set suppression status.
+     *  This is obviously a bit more complicated than the simple per-item lookup,
+     *  but hopefully this is significantly faster
+     */
+
     private function suppress($records) {
-/**
-This needs to be modified to keep suppressed records
-*/
+
         $emails = [];
-        $emailMatchHash = [];
-        $suppressedEmails = [];
-        $unsuppressedRecords = [];
+        $suppressed = [];
+        $finalRecords = [];
 
         // Build out list of email addresses to check
-        // Build out hash map to allow for efficiently pickup up which records should be passed forward
         foreach($records as $record) {
             $emails[] = $record['email_address'];
-            // Can't assume that email address is unique in this batch
-            $emailMatchHash[$record['email_address']][] = $record; 
         }
 
         // Run each suppression check
         foreach($this->suppressors as $suppressor) {
             foreach($suppressor->returnSuppressedEmails($emails) as $supp) {
-                $suppressedEmails[] = $supp->email_address;
+                $suppressed[$supp->email_address] = true;
             }
         }
 
-        // Remove emails that were suppressed
-        foreach($suppressedEmails as $supp) {
-            unset($emailMatchHash[$supp]);
-        }
-
-        // Re-hydrate the list of $records based off of the remaining $emails
-        // Each email can be held in multiple records
-        foreach($emailMatchHash as $key => $values) {
-            foreach ($values as $email) {
-                $unsuppressedRecords[] = $email;
+        // Update status
+        foreach ($records as $record) {
+            if ($suppressed[$record->emailAddress]) {
+                $record->isSuppressed = true;
             }
+            else {
+                $record->isSuppressed = false;
+            }
+            $finalRecords[] = $record;
         }
 
-        return $unsuppressedRecords;
+        return $finalRecords;
     }
 
 
-    private function postSuppressionProcessing(array $records) {
+    private function postProcessing(array $records) {
         $this->processor->processPartyData($records);
     }
-
-
 }
