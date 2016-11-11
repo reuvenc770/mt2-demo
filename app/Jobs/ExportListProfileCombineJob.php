@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Jobs\Job;
+use App\Services\ListProfileCombineService;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -10,13 +11,13 @@ use App\Facades\JobTracking;
 use App\Models\JobEntry;
 use App\Jobs\Traits\PreventJobOverlapping;
 use App\Services\ListProfileExportService;
-
-class ExportListProfileJob extends Job implements ShouldQueue
+use Storage;
+class ExportListProfileCombineJob extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
-    const BASE_NAME = 'ListProfileExport-';
+    const BASE_NAME = 'ListProfileCombineExport-';
     private $jobName;
-    private $listProfileId;
+    private $listProfileCombineId;
     private $offerId;
     private $tracking;
 
@@ -25,12 +26,12 @@ class ExportListProfileJob extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($listProfileId, $offerId, $tracking) {
-        $this->listProfileId = $listProfileId;
+    public function __construct($listProfileCombineId, $offerId, $tracking) {
+        $this->listProfileCombineId = $listProfileCombineId;
         $this->offerId = $offerId;
         $this->tracking = $tracking;
 
-        $this->jobName = self::BASE_NAME . $listProfileId . ':' . $offerId;
+        $this->jobName = self::BASE_NAME . $listProfileCombineId . ':' . $offerId;
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
@@ -39,14 +40,13 @@ class ExportListProfileJob extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle(ListProfileExportService $service) {
+    public function handle(ListProfileExportService $service, ListProfileCombineService $combineService) {
         if ($this->jobCanRun($this->jobName)) {
             try {
                 $this->createLock($this->jobName);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
-
-                $service->exportListProfile($this->listProfileId, $this->offerId);
-
+                $listProfileCombine = $combineService->getCombineById($this->listProfileCombineId);
+                $service->exportListProfileCombine($listProfileCombine, $this->offerId);
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
             }
             catch (\Exception $e) {
@@ -65,5 +65,6 @@ class ExportListProfileJob extends Job implements ShouldQueue
 
     public function failed() {
         JobTracking::changeJobState(JobEntry::FAILED, $this->tracking);
+        $this->unlock($this->jobName);
     }
 }

@@ -24,13 +24,13 @@ class ListProfileExportService {
     }
 
     /**
-     *  Create a file export for this particular deploy.
+     *  Create a file export for this particular ListProfile.
      *  1. Take the results of the list profile base table just prepared
      *  2. Run this table against the indicated offer suppression
      *  3. Output the surviving email addresses to a file determined by the name.
      */
 
-    public function export($listProfileId, $offerId) {
+    public function exportListProfile($listProfileId, $offerId) {
 
         $listProfile = $this->listProfileRepo->getProfile($listProfileId);
 
@@ -65,6 +65,44 @@ class ListProfileExportService {
 
         $this->writeBatch($fileName);
 
+    }
+
+    public function exportListProfileCombine($listProfileCombine, $offerId){
+        $columns = array();
+        //This needs to go the deploy FTP location/folders
+        if(count($offerId) >= 1){
+            $fileName = 'ListProfiles/' . $listProfileCombine->name . '-' . $offerId . '.csv';
+        }
+        else {
+            $fileName = 'ListProfiles/' . $listProfileCombine->name .'.csv';
+        }
+
+        Storage::delete($fileName); // clear the file currently saved
+
+        //Lets Build the Header
+        foreach($listProfileCombine->listProfiles as $listProfile) {
+            $listProfile = $this->listProfileRepo->getProfile($listProfile->id);
+            $columns = array_merge($columns,json_decode($listProfile->columns, true));
+                Storage::append($fileName, implode(',', $columns));
+        }
+
+
+        foreach($listProfileCombine->listProfiles as $listProfile){
+            $tableName = self::BASE_TABLE_NAME . $listProfile->id;
+            $this->tableRepo = new ListProfileBaseTableRepo(new ListProfileBaseTable($tableName));
+
+            $listIds = $this->offerRepo->getSuppressionListIds($offerId);
+            $result = $this->tableRepo->suppressWithListIds($listIds);
+
+            $resource = $result->cursor();
+
+            foreach ($resource as $row) {
+                $row = $this->mapRow($columns, $row);
+                $this->batch($fileName, $row);
+            }
+
+            $this->writeBatch($fileName);
+        }
     }
 
 

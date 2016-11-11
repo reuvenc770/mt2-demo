@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\ModelTraits\ModelCacheControl;
-
+use App\Models\ListProfileCombine;
 class ListProfile extends Model
 {
     use ModelCacheControl;
@@ -40,4 +40,31 @@ class ListProfile extends Model
     public function schedule () {
         return $this->hasOne( 'App\Models\ListProfileSchedule' );
     }
+
+
+    /**
+     * Because Deploys now can choose a single list profile or a list combine we have to know the difference
+     * and following a small pattern levelocity has instituted we are creating a list combine for every list profile
+     * this is so deploys can query one table and save a single value, removing extra logic from deploys
+     *
+     */
+    public static function boot()
+    {
+        parent::boot();
+
+        static::created(function($listProfile){
+            $listCombine = new ListProfileCombine();
+            $listCombine->name = $listProfile->name;
+            $listCombine->list_profile_id = $listProfile->id;
+            $listCombine->save();
+            $listCombine->listProfiles()->attach($listProfile->id);
+        });
+
+        static::updated(function($listProfile){
+            $listCombine = ListProfileCombine::where('list_profile_id', $listProfile->id)->first();
+            $listCombine->name = $listProfile->name;
+            $listCombine->save();
+        });
+    }
+
 }

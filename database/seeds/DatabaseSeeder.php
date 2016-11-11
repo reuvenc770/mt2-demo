@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
         $this->call(UserRoles::class);
         $this->call(YmlpSeeder::class);
         $this->call(EmailTablesSeeder::class);
-        #$this->call(InsertUsers::class);
+        $this->call(InsertUsers::class);
         $this->call(EspAdds::class);
         $this->call(CsvDeliverablesSeeder::class);
     }

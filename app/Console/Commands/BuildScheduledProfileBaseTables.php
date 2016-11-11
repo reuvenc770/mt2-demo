@@ -42,7 +42,7 @@ class BuildScheduledProfileBaseTables extends Command
      * @return mixed
      */
     public function handle(ListProfileScheduleRepo $repo) {
-        $profiles = $repo->getProfilesForToday();
+        $profiles = $repo->getAllProfilesForToday();
 
         foreach ($profiles as $profileSchedule) {
             $job = new ListProfileBaseExportJob($profileSchedule->list_profile_id, str_random(16));
