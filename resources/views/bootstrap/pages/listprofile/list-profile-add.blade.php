@@ -17,7 +17,7 @@
     </div>
     <div class="panel-footer">
         <div class="form-group">
-            <input class="btn btn-lg btn-block" ng-class="{ 'btn-primary' : !listProfile.enableAdmiral , 'btn-danger' : listProfile.enableAdmiral }" ng-click="app.redirect( '/listprofile' )" type="submit" value="Add List Profile">
+            <input class="btn btn-lg btn-block" ng-class="{ 'btn-primary' : !listProfile.enableAdmiral , 'btn-danger' : listProfile.enableAdmiral }" ng-click="listProfile.saveListProfile()" type="submit" value="Add List Profile">
         </div>
     </div>
 </div>

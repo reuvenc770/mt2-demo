@@ -23,6 +23,7 @@ class RegistrarService
     }
     public function insertRow($request){
         try {
+            $request['dba_names'] = json_encode( $request['dba_names'] );
             return $this->registrar->insertRow($request);
         } catch(\Exception $e){
             Log::error($e->getMessage());
@@ -42,6 +43,8 @@ class RegistrarService
     }
 
     public function updateAccount($id, $accountData){
+
+        $accountData['dba_names'] = json_encode( $accountData['dba_names'] );
         return $this->registrar->updateAccount( $id , $accountData );
     }
 

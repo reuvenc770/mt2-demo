@@ -19,6 +19,22 @@ class ClientRepo {
         $this->client->updateOrCreate(['id' => $data['id']], $data);
     }
 
+    public function getModel () {
+        return $this->client;
+    }
+
+    public function getAll () {
+        return $this->client->get();
+    }
+
+    public function getAccount ($id) {
+        return $this->client->find( $id );
+    }
+
+    public function getFeeds ( $id ) {
+        return $this->client->find( $id )->feeds()->get();
+    }
+
     public function getAllClientsArray() {
         return $this->client->orderBy('name')->get()->toArray();
     }
@@ -26,5 +42,4 @@ class ClientRepo {
     public function get() {
         return $this->client->orderBy('name')->get();
     }
-
 }

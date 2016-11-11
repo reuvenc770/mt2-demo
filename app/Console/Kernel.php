@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
     const REPORT_TIME_2 = '11:10';
     const EARLY_DELIVERABLE_SCHEDULE_TIME = '00:15';
     const EXPIRATION_RUNS = "01:15";
+    const DROP_OFF_LIST_PROFILES = "05:00";
     const DEPLOY_CHECK_TIME = '14:00';
     const CAKE_CONVERSION_UPDATE_TIME = '14:00';
     const ATTRIBUTION_UPDATE_TIME = '15:30';
@@ -72,6 +73,7 @@ class Kernel extends ConsoleKernel
         Commands\InflateEmailHistoriesUtil::class,
         Commands\BuildScheduledProfileBaseTables::class,
         Commands\ExportListProfile::class,
+        Commands\ExportScheduledListProfile::class,
         Commands\ESPUnsubsReport::class,
         Commands\ProcessFeedRecords::class,
         Commands\DeactivateEspAccounts::class,
@@ -224,5 +226,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('listprofile:aggregateActions')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('listprofile:getRecordAgentData')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('listprofile:baseTables')->dailyAt(self::EXPIRATION_RUNS);
+        //export jobs
+        $schedule->command('listprofile:exportScheduled')->dailyAt(self::DROP_OFF_LIST_PROFILES);
     }
 }

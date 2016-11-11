@@ -52,7 +52,12 @@ class FeedRepo {
     }
 
     public function updateOrCreate( $data , $id = null ) {
-        $this->feed->updateOrCreate(['id' => $id], $data);
+        if ($id) {
+            $this->feed->updateOrCreate(['id' => $id], $data);
+        }
+        else {
+            $this->feed->updateOrCreate(['id' => $data['id']], $data);
+        }
     }
 
     public function getModel() {

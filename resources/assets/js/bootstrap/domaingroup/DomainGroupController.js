@@ -62,6 +62,9 @@ mt2App.controller( 'DomainGroupController' , [ '$log' , '$window' , '$location' 
         DomainGroupApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 
+    self.toggle = function( recordId , direction ) {
+        DomainGroupApiService.toggleRow( recordId , direction , self.toggleRowSuccess , self.toggleRowFailure );
+    }
     /**
      * Callbacks
      */

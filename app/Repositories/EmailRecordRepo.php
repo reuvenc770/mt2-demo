@@ -53,7 +53,7 @@ class EmailRecordRepo {
             if ( $this->isValidRecord( false ) ) {
                 $currentId = $this->getEmailId();
 
-                $emailIdsToUpdateDeliverableStatus[] = $currentId;
+                #$emailIdsToUpdateDeliverableStatus[] = $currentId;
 
                 $validRecord = "( "
                     . join( " , " , [
@@ -93,7 +93,7 @@ class EmailRecordRepo {
                 $invalidRecords []= $invalidRecord;
             }
         }
-
+/*
         if (!empty($emailIdsToUpdateDeliverableStatus)) {
             $chunkedRecords = array_chunk($emailIdsToUpdateDeliverableStatus, 1000);
 
@@ -105,7 +105,7 @@ class EmailRecordRepo {
 
             $emailIdsToUpdateDeliverableStatus = [];
         }
-
+*/
         if ( !empty( $validRecords ) ) {
             $chunkedRecords = array_chunk( $validRecords , 10000 );
 
