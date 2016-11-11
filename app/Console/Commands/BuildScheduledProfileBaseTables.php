@@ -17,7 +17,7 @@ class BuildScheduledProfileBaseTables extends Command
      *
      * @var string
      */
-    protected $signature = 'listprofile:baseTables';
+    protected $signature = 'listprofile:ScheduledBaseTables';
 
     /**
      * The console command description.
@@ -42,7 +42,7 @@ class BuildScheduledProfileBaseTables extends Command
      * @return mixed
      */
     public function handle(ListProfileScheduleRepo $repo) {
-        $profiles = $repo->getAllProfilesForToday();
+        $profiles = $repo->getScheduledProfilesForToday();
 
         foreach ($profiles as $profileSchedule) {
             $job = new ListProfileBaseExportJob($profileSchedule->list_profile_id, str_random(16));

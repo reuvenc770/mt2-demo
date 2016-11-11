@@ -73,12 +73,12 @@ class Kernel extends ConsoleKernel
         Commands\PullCakeRecordData::class,
         Commands\InflateEmailHistoriesUtil::class,
         Commands\BuildScheduledProfileBaseTables::class,
+        Commands\BuildDeployProfileBaseTables::class,
         Commands\ExportListProfile::class,
-        Commands\ExportScheduledListProfile::class,
         Commands\ESPUnsubsReport::class,
         Commands\DeactivateEspAccounts::class,
         Commands\ProcessFeedRawFiles::class,
-        Commands\ExportScheduledDeployListProfiles::class,
+
     ];
 
     /**
@@ -227,6 +227,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('listprofile:aggregateActions')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('listprofile:getRecordAgentData')->dailyAt(self::EXPIRATION_RUNS);
+        $schedule->command('listprofile:ScheduledBaseTables')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('listprofile:baseTables')->dailyAt(self::EXPIRATION_RUNS);
 
         /**

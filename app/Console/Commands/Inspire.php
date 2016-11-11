@@ -7,6 +7,8 @@ use App\Library\Campaigner\Authentication;
 use App\Library\Campaigner\ContactManagement;
 use App\Library\Campaigner\ListAttributes;
 use App\Library\Campaigner\ListAttributesFilter;
+use App\Models\ListProfileSchedule;
+use App\Repositories\ListProfileScheduleRepo;
 use App\Services\API\BlueHornetApi;
 use App\Services\AWeberReportService;
 use App\Services\BlueHornetSubscriberService;
@@ -39,7 +41,9 @@ class Inspire extends Command
      */
     public function handle()
     {
-        Slack::to('@pcunningham')->send("sdfsdf");
-        SlackLevel::to('@pat')->send("sdfsdf");
+        $test = new ListProfileScheduleRepo(new ListProfileSchedule());
+
+        print_r($test->getAllProfilesForToday());
+        print_r($test->getScheduledProfilesForToday());
     }
 }

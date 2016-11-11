@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\JobEntry;
+use App\Services\ListProfileCombineService;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -13,32 +14,41 @@ use App\Services\ListProfileService;
 use App\Services\ListProfileScheduleService;
 use App\Events\ListProfileCompleted;
 
-class ListProfileCombineExportOnDemandJob extends Job implements ShouldQueue {
+class ListProfileCombineExportJob extends Job implements ShouldQueue {
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping, DispatchesJobs;
 
     private $tracking;
-    private $profileId;
+    private $listProfileCombineId;
     private $jobName;
-    private $immediate;
+    private $offerId;
+    private $alreadyRan;
 
-    public function __construct($profileId, $tracking, $immediate = false) {
-        $this->profileId = $profileId;
+    public function __construct($listProfileCombineId, $tracking, $offerId = array(), $alreadyBuiltProfiles = array()) {
+        $this->listProfileCombineId = $listProfileCombineId;
         $this->tracking = $tracking;
-        $this->jobName = 'ListProfileCombineOnDemand-' . $profileId;
+        $this->jobName = 'ListProfileCombineOnDemand-' . $listProfileCombineId;
+        $this->offerId = $offerId;
+        $this->alreadyRan = $alreadyBuiltProfiles;
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
-    public function handle(ListProfileService $service, ListProfileScheduleService $schedule) {
+    public function handle(ListProfileService $service, ListProfileScheduleService $schedule, ListProfileCombineService $combineService) {
         if ($this->jobCanRun($this->jobName)) {
             try {
                 $this->createLock($this->jobName);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
-                $service->buildProfileTable($this->profileId);
-                $schedule->updateSuccess($this->profileId);
-                JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
+                $listProfileCombine = $combineService->getCombineById($this->listProfileCombineId);
+                foreach($listProfileCombine->listProfiles as $listProfile) {
 
-                $this->dispatch(new ExportListProfileCombineJob($this->profileId,array(),str_random(16)));
-                \Event::fire(new ListProfileCompleted($this->profileId));
+                    if (!in_array($listProfile->id,$this->alreadyRan)) {
+                        $service->buildProfileTable($listProfile->id);
+                        $schedule->updateSuccess($listProfile->id);
+                        $this->alreadyRan[] = $listProfile->id;
+                    }
+
+                }
+                JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
+                $this->dispatch(new ExportListProfileCombineJob($this->listProfileCombineId,$this->offerId,str_random(16)));
             }
             catch (\Exception $e) {
                 echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;

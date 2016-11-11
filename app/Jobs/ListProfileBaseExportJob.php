@@ -36,11 +36,7 @@ class ListProfileBaseExportJob extends Job implements ShouldQueue {
                 $service->buildProfileTable($this->profileId);
                 $schedule->updateSuccess($this->profileId);
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
-
-                if($this->immediate){ //soon as job is done lets throw it on the FTP
-                    $this->dispatch(new ExportListProfileJob($this->profileId,array(),str_random(16)));
-                }
-                \Event::fire(new ListProfileCompleted($this->profileId));
+                $this->dispatch(new ExportListProfileJob($this->profileId,array(),str_random(16)));
             }
             catch (\Exception $e) {
                 echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;
