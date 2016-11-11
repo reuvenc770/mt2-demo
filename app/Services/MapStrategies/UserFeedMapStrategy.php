@@ -13,6 +13,7 @@ class UserFeedMapStrategy implements IMapStrategy {
             'client_id' => $row['clientStatsGroupingID'] ?: 1,
             'party' => $this->getPartyLevel($row),
             'short_name' => $row['company'],
+            'password' => $row['rt_pw'] ,
             'status' => $this->convertFeedStatus($row['status']),
             'source_url' => $row['clientRecordSourceURL'] ?: '',
             'frequency' => $row['upl_freq'],
