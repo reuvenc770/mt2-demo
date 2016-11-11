@@ -39,7 +39,7 @@ class ListProfileCombineExportJob extends Job implements ShouldQueue {
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
                 $listProfileCombine = $combineService->getCombineById($this->listProfileCombineId);
                 foreach($listProfileCombine->listProfiles as $listProfile) {
-
+                    //check to see if the list profile was already run, if not run it and add it to the list
                     if (!in_array($listProfile->id,$this->alreadyRan)) {
                         $service->buildProfileTable($listProfile->id);
                         $schedule->updateSuccess($listProfile->id);

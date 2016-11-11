@@ -29,7 +29,7 @@ class ListProfileCombineRepo
             $query->select('name');
         }])->get();
     }
-    public function getAllNoneProfiles(){
+    public function getListCombinesOnly(){
         return $this->model->with(['listProfiles' => function ($query) {
             $query->select('name');
         }])->whereNull("list_profile_id")->get();

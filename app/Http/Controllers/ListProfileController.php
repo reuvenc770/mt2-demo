@@ -181,7 +181,7 @@ class ListProfileController extends Controller
         return response()->json($this->combineService->getAll());
     }
     public function getListCombinesOnly(){
-        return response()->json($this->combineService->getAllNoneProfiles());
+        return response()->json($this->combineService->getListCombinesOnly());
     }
 
     public function exportListCombine(Request $request){
