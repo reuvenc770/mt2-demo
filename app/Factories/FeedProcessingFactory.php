@@ -69,6 +69,7 @@ class FeedProcessingFactory
         $apiService = APIFactory::createApi($espAccount->esp->name, $espAccount->id);
         $processingService = new FirstPartyRecordProcessingService($apiService);
 
+        $processingService->setFeedId($feedId);
         $processingService->setTargetId($config['targetId'];);
         $service->registerProcessing($processingService);
 
