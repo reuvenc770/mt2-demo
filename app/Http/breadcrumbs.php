@@ -107,6 +107,21 @@ Breadcrumbs::register('feedgroup.edit', function($breadcrumbs) {
     $breadcrumbs->push('Edit Feed Group');
 });
 
+//Clients
+Breadcrumbs::register('client.list', function($breadcrumbs) {
+    $breadcrumbs->parent('home');
+    $breadcrumbs->push("Clients", route('client.list'));
+});
+Breadcrumbs::register('client.add', function($breadcrumbs) {
+    $breadcrumbs->parent('client.list');
+    $breadcrumbs->push('Add Client');
+});
+
+Breadcrumbs::register('client.edit', function($breadcrumbs) {
+    $breadcrumbs->parent('client.list');
+    $breadcrumbs->push('Edit Client');
+});
+
 //List Profiles
 Breadcrumbs::register( 'listprofile.list' , function ( $breadcrumbs ) {
     $breadcrumbs->parent( 'home' );

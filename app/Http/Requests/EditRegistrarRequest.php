@@ -30,4 +30,12 @@ class EditRegistrarRequest extends Request
             'username'      => 'required',
         ];
     }
+
+    public function messages ()
+    {
+        return [
+            'name.required'         => 'Registrar name is required.',
+            'username.required'     => 'Username is required.'
+        ];
+    }
 }

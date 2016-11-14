@@ -44,7 +44,6 @@ class ExportListProfileJob extends Job implements ShouldQueue
             try {
                 $this->createLock($this->jobName);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
-                echo "List Profile Export {$this->jobName}" . PHP_EOL;
 
                 $service->export($this->listProfileId, $this->offerId);
 
@@ -66,6 +65,5 @@ class ExportListProfileJob extends Job implements ShouldQueue
 
     public function failed() {
         JobTracking::changeJobState(JobEntry::FAILED, $this->tracking);
-        $this->unlock($this->jobName);
     }
 }

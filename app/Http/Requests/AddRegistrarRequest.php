@@ -28,17 +28,22 @@ class AddRegistrarRequest extends Request
         return [
             'name'          => 'required',
             'username'      => 'required',
-            'contact_name'  => 'required',
-            'contact_email' => 'required|email',
-            'phone_number'  => 'required',
+            'password'      => 'required',
             'last_cc'       => 'required',
             'contact_credit_card' => 'required',
-            'address'       => 'required',
-            'city'          => 'required',
-            'state'         => 'required',
-            'zip'           => 'required|integer',
-            'entity_name'   => 'required',
+            'dba_names'     => 'required'
+        ];
+    }
 
+    public function messages ()
+    {
+        return [
+            'name.required'         => 'Registrar name is required.',
+            'username.required'     => 'Username is required.',
+            'password.required'     => 'Password is required.',
+            'last_cc.required'      => 'Last 4 digits of credit card is required.',
+            'contact_credit_card.required' => 'The contact of the credit card is required.',
+            'dba_names.required'    => 'At least 1 DBA is required.'
         ];
     }
 }

@@ -59,6 +59,10 @@ class EspApiAccountService
         return $this->espRepo->getAllAccounts();
     }
 
+    public function getAllActiveAccounts () {
+        return $this->espRepo->getAllActiveAccounts();
+    }
+
     /**
      *
      */
