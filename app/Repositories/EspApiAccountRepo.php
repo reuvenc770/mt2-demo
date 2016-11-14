@@ -59,7 +59,7 @@ class EspApiAccountRepo
 
     public function getEspInfoByAccountName($accountName){
 
-        return $this->espAccount->where("status",1)->with( 'esp' )->where("account_name", $accountName)->first();
+        return $this->espAccount->where("status",1)->orWhere('status',2)->with( 'esp' )->where("account_name", $accountName)->first();
     }
 
     /**
@@ -70,7 +70,7 @@ class EspApiAccountRepo
     }
 
     public function getAllActiveAccounts(){
-        return $this->espAccount->where("status",1)->with( 'esp' )->orderBy('account_name')->get();
+        return $this->espAccount->where("status",1)->orWhere('status',2)->with( 'esp' )->orderBy('account_name')->get();
     }
 
     /**
@@ -85,6 +85,7 @@ class EspApiAccountRepo
             ->addSelect('esps.name')
             ->where('esps.name',$espName)
             ->where('status',1)
+            ->orWhere('status',2)
             ->get();
     }
 
@@ -121,7 +122,7 @@ class EspApiAccountRepo
     }
 
     public function getAccountsbyEsp($esp){
-        return $this->espAccount->where('esp_id', $esp)->where('status',1)->get();
+        return $this->espAccount->where('esp_id', $esp)->where('status',1)->orWhere('status',2)->get();
     }
 
     public function getPublicatorsSuppressionListId($accountId) {
