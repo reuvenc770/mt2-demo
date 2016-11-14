@@ -73,6 +73,7 @@ class RawFeedEmailRepo {
     public function getFirstPartyRecordsFromFeed($startPoint, $feedId) {
         return $this->rawEmail
                     ->leftJoin('emails as e', 'raw_feed_emails.email_addres', '=', 'e.email_address')
+                    ->leftJoin('email_domains as ed', 'e.email_domain_id', '=', 'ed.id')
                     ->where('feed_id', $feedId)
                     ->where('id', '>', $startPoint)
                     ->limit(10000)
@@ -84,6 +85,7 @@ class RawFeedEmailRepo {
 
         return $this->rawEmail
                     ->leftJoin('emails as e', 'raw_feed_emails.email_addres', '=', 'e.email_address')
+                    ->leftJoin('email_domains as ed', 'e.email_domain_id', '=', 'ed.id')
                     ->whereRaw("raw_feed_emails.email_address RLIKE $charsRegex")
                     ->where('id', '>', $startPoint)
                     ->limit(10000)
