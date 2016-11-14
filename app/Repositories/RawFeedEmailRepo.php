@@ -69,4 +69,24 @@ class RawFeedEmailRepo {
             'feed_id' => $feedId
         ] );
     }
+
+    public function getFirstPartyRecordsFromFeed($startPoint, $feedId) {
+        return $this->rawEmail
+                    ->leftJoin('emails as e', 'raw_feed_emails.email_addres', '=', 'e.email_address')
+                    ->where('feed_id', $feedId)
+                    ->where('id', '>', $startPoint)
+                    ->limit(10000)
+                    ->get();
+    }
+
+    public function getThirdPartyRecordsWithChars($startPoint, $startChars) {
+        $charsRegex = '^[' . $startChars . ']';
+
+        return $this->rawEmail
+                    ->leftJoin('emails as e', 'raw_feed_emails.email_addres', '=', 'e.email_address')
+                    ->whereRaw("raw_feed_emails.email_address RLIKE $charsRegex")
+                    ->where('id', '>', $startPoint)
+                    ->limit(10000)
+                    ->get();
+    }
 }

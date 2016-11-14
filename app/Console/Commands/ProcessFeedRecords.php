@@ -74,7 +74,7 @@ class ProcessFeedRecords extends Command
             $records = $rawRepo->getFirstPartyRecordsFromFeed($startPoint, $feedId);
         }
         elseif (3 === $party) {
-            $records = $rawRepo->getThirdPartyRecordsWithRegex($startPoint, $startChars);
+            $records = $rawRepo->getThirdPartyRecordsWithChars($startPoint, $startChars);
         }
         
         // Create array of ProcessingRecords and get last id
