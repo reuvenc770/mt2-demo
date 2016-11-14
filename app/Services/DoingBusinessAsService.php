@@ -51,12 +51,38 @@ class DoingBusinessAsService
         return $this->doingBusinessAsRepo->toggleRow($id,$direction);
     }
 
-    public function getModel(){
-        return $this->doingBusinessAsRepo->getModel();
+    public function getModel($searchData = null){
+        return $this->doingBusinessAsRepo->getModel($searchData);
     }
 
     //override return model so its a builder and not Collection
     public function getType(){
         return "DoingBusinessAs";
    }
+
+    public function getPaginatedJson($page, $count, $params = null)
+    {
+        $searchData = null;
+        if ($this->hasCache($page, $count, $params)) {
+            return $this->getCachedJson($page, $count, $params);
+        } else {
+            try {
+
+                $searchData = isset($params['data']) ? $params['data'] : null;
+                $eloquentObj = $this->getModel($searchData);
+                $paginationJSON = $eloquentObj->paginate($count)->toJSON();
+
+                $this->cachePagination(
+                    $paginationJSON,
+                    $page,
+                    $count, $params
+                );
+
+                return $paginationJSON;
+            } catch (\Exception $e) {
+                Log::error($e->getMessage());
+                return false;
+            }
+        }
+    }
 }

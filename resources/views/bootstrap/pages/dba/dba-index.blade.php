@@ -12,7 +12,82 @@
 
 @section( 'content' )
     <div ng-init="dba.loadAccounts()">
+        <div style="width:800px">
+            <div class="panel panel-primary center-block">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Search DBA</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">ESP</span>
+                                <select name="esp_account_search" id="esp_account_search" class="form-control" ng-model="deploy.search.esp" ng-disabled="deploy.currentlyLoading">
+                                    <option value="">---</option>
 
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">ESP Account</span>
+                                <select name="esp_account_search" id="esp_account_search" class="form-control" ng-model="deploy.search.esp_account_id" ng-disabled="deploy.currentlyLoading">
+                                    <option value=""></option>
+                                    <option ng-repeat="option in deploy.espAccounts" ng-value="option.id"
+                                            ng-selected="option.id == deploy.search.esp_account_id">@{{ option.account_name }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">Offer Name* Wildcard</span>
+                                <input type="text" id="search_offer" class="form-control" value="" ng-model="deploy.search.offer"/>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">Deploy ID</span>
+                                <input id="deploy_id" value="" class="form-control" ng-model="deploy.search.deployId"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">Status</span>
+                                <select name="deploy_status" id="deploy_status" class="form-control" ng-model="deploy.search.status">
+                                    <option ng-selected="'' == deploy.search.status" value="">Clear Search</option>
+                                    <option ng-selected=" 0 == deploy.search.status" value="0">Not Deployed</option>
+                                    <option ng-selected=" 1 == deploy.search.status" value="1">Deployed</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <md-datepicker flex="50" name="dateField" ng-change="deploy.updateSearchDate()" ng-model="deploy.search.startDate"
+                                           md-placeholder="Start Date"></md-datepicker>
+                            <md-datepicker flex="50" name="dateField" ng-change="deploy.updateSearchDate()" ng-model="deploy.search.endDate"
+                                           md-placeholder="End date"></md-datepicker>
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <button class="btn btn-primary pull-right" ng-click="dba.searchDBA()">Search</button>
+                </div>
+            </div>
+        </div>
                 <md-table-container>
                     <table md-table md-progress="dba.queryPromise">
                         <thead md-head md-order="dba.sort" md-on-reorder="dba.loadAccounts">

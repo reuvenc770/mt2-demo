@@ -43,7 +43,37 @@ class DoingBusinessAsRepo
         return $this->doingBusinessAs->find($id)->update(["status" => $direction]);
     }
 
-    public function getModel(){
-        return $this->doingBusinessAs;
+    public function getModel($searchData){
+        $query = $this->doingBusinessAs;
+        if('' !== $searchData) {
+            $query = $this->mapQuery($searchData, $query);
+        }
+        return $query;
+    }
+
+    private function mapQuery($searchData, $query){
+        $searchData = json_decode($searchData, true);
+
+        if (isset($searchData['dba_name'])) {
+            $query->where('dba_name','LIKE', $searchData['dba_name'].'%');
+        }
+
+        if (isset($searchData['registrant_name'])) {
+            $query->where('deploys.esp_account_id','LIKE', $searchData['dba_name'].'%');
+        }
+
+        if (isset($searchData['dba_email'])) {
+            $query->where('deploys.id', (int)$searchData['deployId']);
+        }
+
+        if (isset($searchData['address'])) {
+            $query->where('deploys.deployment_status', (int)$searchData['status']);
+        }
+
+        if (isset($searchData['entity_name'])) {
+            $query->where('offers.name','LIKE', $searchData['offerNameWildcard'] . '%');
+        }
+
+        return $query;
     }
 }
