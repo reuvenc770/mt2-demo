@@ -9,11 +9,13 @@ use App\Services\FeedService;
 use App\Services\DomainGroupService;
 use App\Services\RemoteLinuxSystemService;
 use App\Models\ProcessedFeedFile;
+use App\Repositories\RawFeedEmailRepo;
 
 class RemoteFeedFileService {
     protected $feedService;
     protected $systemService;
     protected $domainGroupService;
+    protected $rawRepo;
 
     protected $newFileList = [];
     protected $lastLineNumber = 0;
@@ -24,23 +26,21 @@ class RemoteFeedFileService {
     protected $currentFileLineCount = null;
     protected $currentLines = null;
 
-    public function __construct ( FeedService $feedService , RemoteLinuxSystemService $systemService , DomainGroupService $domainGroupService ) {
+    public function __construct ( FeedService $feedService , RemoteLinuxSystemService $systemService , DomainGroupService $domainGroupService , RawFeedEmailRepo $rawRepo ) {
         $this->feedService = $feedService;
         $this->systemService = $systemService;
         $this->domainGroupService = $domainGroupService;
+        $this->rawRepo = $rawRepo;
     }
 
-    public function testFunction () {
-        $start = microtime(true);
-
+    public function processNewFiles () {
         $this->loadNewFilePaths();
 
         while ( $this->newFilesPresent() ) {
-            $this->getNewRecords();
-        }
+            $recordSqlList = $this->getNewRecords();
 
-        \Log::info( 'Runtime in seconds:' );
-        \Log::info( microtime(true) - $start );
+            $this->rawRepo->massInsert( $recordSqlList );
+        }
     }
 
     public function updateFeedDirectories () {
@@ -153,7 +153,10 @@ class RemoteFeedFileService {
                 throw new \Exception( "\n" . str_repeat( '=' , 150 )  . "\nRemoteFeedFileService:\n Column count does not match. Please fix the file '{$this->currentFile[ 'path' ]}' or update the column mapping\n" . str_repeat( '=' , 150 ) );
             } 
 
-            $this->addToBuffer( array_combine( $this->currentColumnMap , $lineColumns ) );
+            $record = array_combine( $this->currentColumnMap , $lineColumns );
+            $record[ 'feed_id' ] = $this->currentFile[ 'feedId' ];
+
+            $this->addToBuffer( $this->rawRepo->toSqlFormat( $record ) );
         }
     }
 

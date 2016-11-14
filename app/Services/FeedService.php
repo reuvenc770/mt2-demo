@@ -160,6 +160,10 @@ class FeedService implements IFtpAdmin
 
             if ( $simpleArray ) {
                 $fields[ $index ] = str_replace( '_index' , '' , $columnName);
+
+                if ( $fields[ $index ] === 'email' ) {
+                    $fields[ $index ] = 'email_address';
+                }
             } else {
                 $fields[ $index ] = $columnName;
             } 
