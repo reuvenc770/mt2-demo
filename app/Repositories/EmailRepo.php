@@ -170,8 +170,9 @@ class EmailRepo {
     }
 
     public function insertNew(array $row) {
-        $id = DB::table('emails')->insertGetId($row);
-        return $id;
+        // Due to the possibility of incomplete parallelization, we cannot be sure that this email is not already in the db.
+        $email = Email::firstOrCreate($row);
+        return $email;
     }
 
 }

@@ -6,6 +6,9 @@ use App\Services\Interfaces\IFeedPartyProcessing;
 use App\Services\Interfaces\IFeedSuppression;
 use App\Exceptions\ValidationException;
 use App\DataModels\ProcessingRecord;
+use App\Repositories\EmailRepo;
+use App\Repositories\EmailFeedInstanceRepo;
+use App\Repositories\EmailDomainRepo;
 
 class FeedProcessingService {
     
@@ -17,7 +20,7 @@ class FeedProcessingService {
     private $instanceRepo;
 
 
-    public function __construct(EmailRepo $emailRepo, EmailFeedInstanceRepo $instanceRepo) {
+    public function __construct(EmailRepo $emailRepo, EmailFeedInstanceRepo $instanceRepo, EmailDomainRepo $mailDomainRepo) {
         $this->emailRepo = $emailRepo;
         $this->instanceRepo = $instanceRepo;
     }
@@ -39,7 +42,9 @@ class FeedProcessingService {
                     $validatedRecords[] = $record;
 
                     if ($record->newEmail) {
-                        $record->emailId = $this->emailRepo->insertNew($record->mapToEmails());
+                        $record->domainId = $this->emailDomainRepo->getIdForName($record->emailAddress);
+                        $email = $this->emailRepo->insertNew($record->mapToEmails());
+                        $record->emailId = $email->id;
                     }
 
                     $this->instanceRepo->insertDelayedBatch($record->mapToInstances());
@@ -47,15 +52,15 @@ class FeedProcessingService {
 
             }
         }
-/**
-    Still need to do reporting.
-    But some of that only makes sense for 3rd party feeds. Need to ask Ken.
-*/
+
+        /**
+            What about stuff like domain invalid and all that?
+        */
 
         // cleanup
         $this->instanceRepo->insertStored();
         $records = []; 
-        
+
         // Step 3. Process records
         $this->postProcessing($validatedRecords);
     }
