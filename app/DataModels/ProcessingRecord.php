@@ -10,7 +10,7 @@ class ProcessingRecord {
     const FIELDS = ['emailId', 'feedId', 'emailAddress', 'isSuppressed', 'firstName', 'lastName', 
     'address', 'address2', 'city', 'state', 'zip', 'country', 'dob', 'gender', 'phone', 'captureDate',
     'ip', 'sourceUrl', 'otherFields', 'isDeliverable', 'uniqueStatus', 'newEmail', 'domainId', 'isValid',
-    'invalidReason'];
+    'invalidReason', 'domainGroupId'];
 
     private $emailId;
     private $feedId;
@@ -38,6 +38,7 @@ class ProcessingRecord {
     private $uniqueStatus = 'unique'; // unique, duplicate, non-unique
     private $newEmail;
     private $domainId;
+    private $domainGroupId;
     private $processDate;
     private $isValid;
     private $invalidReason;
@@ -51,11 +52,13 @@ class ProcessingRecord {
             $this->emailId = $record->email_id;
             $this->newEmail = false;
             $this->domainId = $record->domainId;
+            $this->domainGroupId = $record->domainGroupid;
         }
         else {
             $this->newEmail = true;
             $this->emailId = null;
             $this->domainId = null;
+            $this->domainGroupid = null;
         }
 
         $this->feedId = $record->feed_id;

@@ -45,12 +45,21 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
 
         foreach ($records as $record) {
 
+            $domainGroupId = $record->domainGroupId;
+
             // Note structure
             if (!isset($statuses[$record->feedId])) {
-                $statuses[$record->feedId] = [
+                $statuses[$record->feedId] = [];
+                $statuses[$record->feedId][$domainId] = [
                     'unique' => 0,
                     'non-unique' => 0,
-                    'suppressed' => 0,
+                    'duplicate' => 0
+                ];
+            }
+            elseif (!isset($statuses[$record->feedId][$domainId])) {
+                $statuses[$record->feedId][$domainId] = [
+                    'unique' => 0,
+                    'non-unique' => 0,
                     'duplicate' => 0
                 ];
             }
@@ -122,12 +131,12 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
                 }
             }
 
-            $statuses[$record->feedId][$record->uniqueStatus]++;
+            $statuses[$record->feedId][$domainId][$record->uniqueStatus]++;
             $this->recordDataRepo->batch($this->transformForRecordData($record));
         }
 
         $this->recordDataRepo->insertStored();
-        $this->statsRepo->massUpdateStatuses($statuses, $this->processingDate);
+        $this->statsRepo->massUpdateValidEmailStatus($statuses, $this->processingDate);
 
         // Handles all attribution changes
         \Event::fire(new NewRecords($recordsToFlag));

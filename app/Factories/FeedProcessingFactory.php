@@ -32,6 +32,11 @@ class FeedProcessingFactory
         $service = App::make(\App\Services\FeedProcessingService::class);
 
         // Add validation to the service
+
+/**
+    EmailValidator needs to have suppressed domains and domainMap passed in
+*/
+
         $service->registerValidator(App::make(EmailValidator::class))
             ->registerValidator(App::make(FeedIpValidator::class))
             ->registerValidator(App::make(AgeValidator::class))

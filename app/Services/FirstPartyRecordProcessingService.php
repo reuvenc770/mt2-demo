@@ -36,18 +36,40 @@ class FirstPartyRecordProcessingService implements IFeedPartyProcessing {
         // Then we need to ... (got interrupted)
         $uniqueCount = 0;
         $duplicateCount = 0;
+
+        $statuses = [];
+
         foreach($records as $record) {
+            $domainGroupId = $record->domainGroupId;
+
+            // Note structure
+            if (!isset($statuses[$record->feedId])) {
+                $statuses[$record->feedId] = [];
+                $statuses[$record->feedId][$domainId] = [
+                    'unique' => 0,
+                    'non-unique' => 0,
+                    'duplicate' => 0
+                ];
+            }
+            elseif (!isset($statuses[$record->feedId][$domainId])) {
+                $statuses[$record->feedId][$domainId] = [
+                    'unique' => 0,
+                    'non-unique' => 0,
+                    'duplicate' => 0
+                ];
+            }
+
             if ($this->recordDataRepo->isUnique($record->emailId, $this->feedId)) {
                 $this->recordDataRepo->insert($record->mapToRecordData());
-                $uniqueCount++;
+                 $statuses[$record->feedId][$domainId]['unique']++;
             }
             else {
-                $duplicateCount++;
+                $statuses[$record->feedId][$domainId]['duplicate']++;
             }
         }
 
         $this->recordDataRepo->insertStored();
-        $this->statsRepo->massUpdateStatuses([$this->feedId => ['unique' => $uniqueCount, 'duplicate' => $duplicateCount]]);
+        $this->statsRepo->massUpdateValidEmailStatus($statuses);
 
     }
 
