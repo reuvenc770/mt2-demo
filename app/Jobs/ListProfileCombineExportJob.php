@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\JobEntry;
+use App\Services\ListProfileCombineService;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -34,15 +35,16 @@ class ListProfileCombineExportJob extends Job implements ShouldQueue {
      * @param ListProfileService $service
      * @param ListProfileScheduleService $schedule
      */
-    public function handle(ListProfileService $service, ListProfileScheduleService $schedule) {
+    public function handle(ListProfileService $service, ListProfileScheduleService $schedule, ListProfileCombineService $combineService) {
         if ($this->jobCanRun($this->jobName)) {
             try {
                 $this->createLock($this->jobName);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
 
-                foreach() {
-                    $service->buildProfileTable($this->profileId);
-                    $schedule->updateSuccess($this->profileId);
+                $combine = $combineService->getCombineById($this->combineId);
+                foreach($combine->listProfiles as $listProfile) {
+                    $service->buildProfileTable($listProfile->id);
+                    $schedule->updateSuccess($listProfile->id);
                 }
 
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
