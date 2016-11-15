@@ -4,25 +4,28 @@ namespace App\Services;
 
 use App\Models\ListProfileBaseTable;
 use App\Repositories\ListProfileBaseTableRepo;
+use App\Repositories\ListProfileCombineRepo;
 use App\Repositories\ListProfileRepo;
 use App\Repositories\OfferRepo;
 use Storage;
-
+use Cache;
+use Log;
 class ListProfileExportService
 {
 
     private $listProfileRepo;
     private $offerRepo;
-    private $tableRepo;
+    private $combineRepo;
     const BASE_TABLE_NAME = 'list_profile_export_';
     const WRITE_THRESHOLD = 50000;
     private $rows = [];
     private $rowCount = 0;
 
-    public function __construct(ListProfileRepo $listProfileRepo, OfferRepo $offerRepo)
+    public function __construct(ListProfileRepo $listProfileRepo, OfferRepo $offerRepo, ListProfileCombineRepo $combineRepo)
     {
         $this->listProfileRepo = $listProfileRepo;
         $this->offerRepo = $offerRepo;
+        $this->combineRepo = $combineRepo;
     }
 
     /**
@@ -37,11 +40,18 @@ class ListProfileExportService
 
         $listProfile = $this->listProfileRepo->getProfile($listProfileId);
 
+        if (!empty($offerId)) {
+            $fileName = 'ListProfiles/' . $listProfile->name . '-' . $offerId . '.csv';
+        } else {
+            $fileName = 'ListProfiles/' . $listProfile->name . '.csv';
+        }
+        Log::info("WRITING TO {$fileName}");
+        return true;
         $tableName = self::BASE_TABLE_NAME . $listProfileId;
 
         $this->tableRepo = new ListProfileBaseTableRepo(new ListProfileBaseTable($tableName));
 
-        if (count($offerId) >= 1) {
+        if ($offerId >= 1) {
             $fileName = 'ListProfiles/' . $listProfile->name . '-' . $offerId . '.csv';
         } else {
             $fileName = 'ListProfiles/' . $listProfile->name . '.csv';
@@ -69,45 +79,61 @@ class ListProfileExportService
 
     }
 
-    public function exportListProfileCombine($listProfileCombine, $offerId)
+    public function exportListProfileToMany($listProfileId, $offerId, $deploys)
     {
-        $columns = array();
-        //This needs to go the deploy FTP location/folders
-        if (count($offerId) >= 1) {
-    //ESP NAME BREAKDOWN
-            $fileName = 'ListProfiles/' . $listProfileCombine->name . '-' . $offerId . '.csv';
-        } else {
-            $fileName = 'SOMEOTHERDIRECTORY/' . $listProfileCombine->name . '.csv';  //where base exports go
-        }
 
-        Storage::delete($fileName); // clear the file currently saved
+       $listProfile = $this->listProfileRepo->getProfile($listProfileId);
 
-        //Lets Build the Header
-        foreach ($listProfileCombine->listProfiles as $listProfile) {
-            $listProfile = $this->listProfileRepo->getProfile($listProfile->id);
-            $columns = array_merge($columns, json_decode($listProfile->columns, true));
-            Storage::append($fileName, implode(',', $columns));
-        }
+        //$tableName = self::BASE_TABLE_NAME . $listProfileId;
+        //$this->tableRepo = new ListProfileBaseTableRepo(new ListProfileBaseTable($tableName));
 
+        //$listIds = $this->offerRepo->getSuppressionListIds($offerId);
+        //$result = $this->tableRepo->suppressWithListIds($listIds);
 
-        foreach ($listProfileCombine->listProfiles as $listProfile) {
-            $tableName = self::BASE_TABLE_NAME . $listProfile->id;
-            $this->tableRepo = new ListProfileBaseTableRepo(new ListProfileBaseTable($tableName));
+        //$resource = $result->cursor();
 
-            $listIds = $this->offerRepo->getSuppressionListIds($offerId);
-            $result = $this->tableRepo->suppressWithListIds($listIds);
+        foreach($deploys as $deploy){
+            $key = "{$deploy->id}-{$deploy->list_profile_combine_id}";
+            $header = Cache::get("header-{$key}", function () {
+                return "lol";
+            });
+            $fileName = 'ListProfiles/' . $listProfile->name . '-' . $deploy->id.'-' . $offerId . '.csv';
+            Storage::delete($fileName); // clear the file currently saved
 
-            $resource = $result->cursor();
-
+            /**
             foreach ($resource as $row) {
-                $row = $this->mapRow($columns, $row);
+                $row = $this->mapRow($header, $row);
                 $this->batch($fileName, $row);
+            }**/
+
+            //$this->writeBatch($fileName);
+
+            $deployProgress = Cache::get("deploy-{$key}", function () use($key, $fileName, $deploy ) {
+                $listProfileCombine = $this->combineRepo->getRowWithListProfiles($deploy->list_profile_combine_id);
+                $num = count($listProfileCombine->listProfiles);
+                return array(
+                    "totalPieces" => $num,
+                    "files"=> array(),
+                );
+            });
+
+            $deployProgress['totalPieces']--;
+            if($deployProgress['totalPieces'] == 0){
+                $deployProgress['files'] = array_merge($deployProgress['files'], array($fileName));
+                Cache::forget("header-{$key}");
+                Cache::forget("deploy-{$key}");
+                Log::info("finished Combine {$key}");
+                Log::info($deployProgress['files']);
+            } else {
+                Cache::put("deploy-{$key}",
+                    array(
+                        "totalPieces" =>  $deployProgress['totalPieces'] ,
+                    "files"=> array_merge($deployProgress['files'], array($fileName)) ,
+                    ),60*12);
             }
 
-            $this->writeBatch($fileName);
         }
     }
-
 
     private function batch($fileName, $row)
     {

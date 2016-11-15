@@ -364,4 +364,13 @@ class DeployRepo
     public function getDeploysForToday($date){
         return $this->deploy->where('send_date',$date)->get();
     }
+
+    public function getDeploysFromProfileAndOffer($listProfileId, $offerId){
+        $lpDB = config('database.connections.list_profile.database');
+        return $this->deploy->
+        join("{$lpDB}.list_profile_list_profile_combine as lplpc","deploys.list_profile_combine_id", "=", "lplpc.list_profile_combine_id")
+            ->where("offer_id",$offerId)
+            ->where("list_profile_id", $listProfileId)
+            ->where("send_date", DB::raw("CURDATE()"))->get();
+    }
 }

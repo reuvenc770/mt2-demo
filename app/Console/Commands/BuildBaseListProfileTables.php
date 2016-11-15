@@ -7,7 +7,7 @@ use App\Jobs\ListProfileBaseExportJob;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Repositories\ListProfileScheduleRepo;
 
-class BuildScheduledProfileBaseTables extends Command
+class BuildBaseListProfileTables extends Command
 {
     use DispatchesJobs;
     protected $name = 'StartProfileExports';
@@ -17,7 +17,7 @@ class BuildScheduledProfileBaseTables extends Command
      *
      * @var string
      */
-    protected $signature = 'listprofile:ScheduledBaseTables';
+    protected $signature = 'listprofile:baseTables';
 
     /**
      * The console command description.
@@ -42,10 +42,10 @@ class BuildScheduledProfileBaseTables extends Command
      * @return mixed
      */
     public function handle(ListProfileScheduleRepo $repo) {
-        $profiles = $repo->getScheduledProfilesForToday();
+        $profiles = $repo->getListProfilesForToday();
 
         foreach ($profiles as $profileSchedule) {
-            $job = new ListProfileBaseExportJob($profileSchedule->list_profile_id, str_random(16));
+            $job = new ListProfileBaseExportJob($profileSchedule->list_profile_id, str_random(16), $profileSchedule->offers);
             $this->dispatch($job);
         }
     }

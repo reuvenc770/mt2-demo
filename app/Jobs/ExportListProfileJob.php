@@ -3,6 +3,8 @@
 namespace App\Jobs;
 
 use App\Jobs\Job;
+use App\Repositories\DeployRepo;
+use App\Repositories\ListProfileCombineRepo;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -10,7 +12,7 @@ use App\Facades\JobTracking;
 use App\Models\JobEntry;
 use App\Jobs\Traits\PreventJobOverlapping;
 use App\Services\ListProfileExportService;
-
+use Cache;
 class ExportListProfileJob extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
@@ -39,18 +41,24 @@ class ExportListProfileJob extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle(ListProfileExportService $service) {
+    public function handle(ListProfileExportService $service, DeployRepo $deployRepo) {
         if ($this->jobCanRun($this->jobName)) {
             try {
                 $this->createLock($this->jobName);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
+                $offer = $this->offerId ? $this->offerId : array();
 
-                $service->exportListProfile($this->listProfileId, $this->offerId);
-
+                //If its being used for a deploy lets build up some Deploy Cache
+                if($this->offerId >= 1){
+                    $deploys = $deployRepo->getDeploysFromProfileAndOffer($this->listProfileId,$this->offerId);
+                    $service->exportListProfileToMany($this->listProfileId, $offer,$deploys);
+                } else {
+                    $service->exportListProfile($this->listProfileId, $offer);
+                }
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
             }
             catch (\Exception $e) {
-                echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;
+                echo "{$this->jobName} failed with {$e->getMessage()}  {$e->getLine()}" . PHP_EOL;
                 $this->failed();
             }
             finally {

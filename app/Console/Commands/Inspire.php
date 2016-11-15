@@ -42,8 +42,10 @@ class Inspire extends Command
     public function handle()
     {
         $test = new ListProfileScheduleRepo(new ListProfileSchedule());
-
-        print_r($test->getAllProfilesForToday());
-        print_r($test->getScheduledProfilesForToday());
+        print_r($test->getListProfilesForToday());
+        dd("die");
+        foreach($test->getListProfilesForToday() as $item){
+            echo "List Profile ID:  $item->list_profile_id :: Offer ID : $item->offer_id\n";
+        }
     }
 }
