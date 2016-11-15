@@ -146,15 +146,14 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
 
     self.searchDBA = function() {
         var searchObj = {
-            "dates": self.search.dates || undefined,
-            "deployId": self.search.deployId || undefined,
-            "espAccountId": self.search.esp_account_id || undefined,
-            "status": self.search.status || undefined,
-            "esp": self.search.esp || undefined,
-            "offerNameWildcard": self.search.offer || undefined
+            "dba_name": self.search.dba_name || undefined,
+            "registrant_name" : self.search.registrant_name || undefined,
+            "dba_email" : self.search.dba_email || undefined,
+            "address":    self.search.address || undefined,
+            "entity_name": self.search.entity_name || undefined
         };
 
-        self.queryPromise = DBAApiService.searchDBA(self.paginationCount, searchObj, self.loadDeploysSuccess, self.loadDeploysFail);
+        self.queryPromise = DBAApiService.searchDBA(self.paginationCount, searchObj, self.loadAccountsSuccessCallback, self.loadAccountsFailureCallback);
         self.currentlyLoading = 0;
     };
     /**

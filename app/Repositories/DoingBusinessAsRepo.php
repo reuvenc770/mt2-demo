@@ -59,19 +59,19 @@ class DoingBusinessAsRepo
         }
 
         if (isset($searchData['registrant_name'])) {
-            $query->where('deploys.esp_account_id','LIKE', $searchData['dba_name'].'%');
+            $query->where('registrant_name','LIKE', $searchData['registrant_name'].'%');
         }
 
         if (isset($searchData['dba_email'])) {
-            $query->where('deploys.id', (int)$searchData['deployId']);
+            $query->where('dba_email','LIKE', $searchData['dba_email'].'%');
         }
 
         if (isset($searchData['address'])) {
-            $query->where('deploys.deployment_status', (int)$searchData['status']);
+            $query->where('address','LIKE', $searchData['address'].'%');
         }
 
         if (isset($searchData['entity_name'])) {
-            $query->where('offers.name','LIKE', $searchData['offerNameWildcard'] . '%');
+            $query->where('entity_name','LIKE', $searchData['entity_name'].'%');
         }
 
         return $query;
