@@ -81,6 +81,47 @@ class ListProfileExportService
 
     }
 
+    public function exportListProfileCombine($listProfileCombineId)
+    {
+
+        //export list profile combine
+       // $listProfile = $this->listProfileRepo->getProfile($listProfileCombineId);
+
+       // $fileName = 'ListProfiles/' . $listProfile->name . '.csv';
+        /**
+
+        $tableName = self::BASE_TABLE_NAME . $listProfileCombineId;
+
+        $this->tableRepo = new ListProfileBaseTableRepo(new ListProfileBaseTable($tableName));
+
+        if ($offerId >= 1) {
+            $fileName = 'ListProfiles/' . $listProfile->name . '-' . $offerId . '.csv';
+        } else {
+            $fileName = 'ListProfiles/' . $listProfile->name . '.csv';
+        }
+
+        Storage::delete($fileName); // clear the file currently saved
+
+        $columns = json_decode($listProfile->columns, true);
+
+        if ($this->listProfileRepo->shouldInsertHeader($listProfileId)) {
+            Storage::append($fileName, implode(',', $columns));
+        }
+
+        $listIds = $this->offerRepo->getSuppressionListIds($offerId);
+        $result = $this->tableRepo->suppressWithListIds($listIds);
+
+        $resource = $result->cursor();
+
+        foreach ($resource as $row) {
+            $row = $this->mapRow($columns, $row);
+            $this->batch($fileName, $row);
+        }
+
+        $this->writeBatch($fileName);
+        **/
+    }
+
     public function exportListProfileToMany($listProfileId, $offerId, $deploys)
     {
 
