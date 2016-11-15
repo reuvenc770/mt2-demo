@@ -78,6 +78,11 @@ Route::group( [] , function() {
         'as' => 'myprofile' ,
         'uses' => 'UserApiController@myProfile'
     ] );
+
+    Route::any( '/api/post_data' , [
+        'as' => 'api.feed.realtimerecords' ,
+        'uses' => 'FeedApiController@ingest'
+    ] );
 } );
 
 
@@ -396,6 +401,31 @@ Route::group(
     }
 );
 
+/**
+ * Client Routes
+ */
+Route::group(
+    [
+        'prefix' => 'client' ,
+        'middleware' => [ 'auth' , 'pageLevel' ]
+    ] ,
+    function () {
+        Route::get( '/' , [
+            'as' => 'client.list' , 
+            'uses' => 'ClientController@listAll'
+        ] );
+
+        Route::get( '/create' , [
+            'as' => 'client.add' ,
+            'uses' => 'ClientController@create'
+        ] );
+
+        Route::get( '/edit/{id}' , [
+            'as' => 'client.edit' ,
+            'uses' => 'ClientController@edit'
+        ] );
+    }
+);
 
 /**
  * Feed Group Routes
@@ -724,6 +754,7 @@ Route::group(
         'middleware' => [ 'auth' , 'pageLevel' ]
     ] ,
     function () {
+
         Route::get( '/pager/{type}' , [
             'as' => 'api.pager',
             'uses' =>'PagingController@paginate'
@@ -1057,6 +1088,13 @@ Route::group(
                 'uses' => 'EspApiAccountController@returnAll'
             ]
         );
+        Route::get(
+            'espapi/allactive' ,
+            [
+                'as' => 'api.espapi.returnallactive' ,
+                'uses' => 'EspApiAccountController@returnAllActive'
+            ]
+        );
         Route::resource(
             'esp' ,
             'EspController' ,
@@ -1079,6 +1117,12 @@ Route::group(
             'feed' ,
             'FeedController' ,
             [ 'except' => [ 'create' , 'edit' , 'pager' ] ]
+        );
+
+        Route::resource(
+            'client' ,
+            'ClientController' ,
+            [ 'only' => [ 'store' , 'update' , 'destroy' , 'show' ] ]
         );
 
         Route::resource(

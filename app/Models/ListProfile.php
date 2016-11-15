@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\ModelTraits\ModelCacheControl;
 
 class ListProfile extends Model
 {
+    use ModelCacheControl;
+
     protected $guarded = [''];
     public $timestamps = false;
     protected $connection = 'list_profile';
@@ -28,5 +31,13 @@ class ListProfile extends Model
 
     public function verticals() {
         return $this->belongsToMany('App\Models\CakeVertical', 'list_profile.list_profile_verticals');
+    }
+
+    public function countries () {
+        return $this->belongsToMany( 'App\Models\Country' , 'list_profile.list_profile_countries' );
+    }
+
+    public function schedule () {
+        return $this->hasOne( 'App\Models\ListProfileSchedule' );
     }
 }

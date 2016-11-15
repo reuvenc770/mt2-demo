@@ -3,19 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Services\RegistrarService;
+use App\Services\DoingBusinessAsService;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use Log;
 use Laracasts\Flash\Flash;
-use AdrianMejias\States\States;
 class RegistrarController extends Controller
 {
     protected $registrarService;
+    protected $dbaService;
 
-    public function __construct(RegistrarService $registrarService)
+    public function __construct(RegistrarService $registrarService , DoingBusinessAsService $doingBusinessAsService )
     {
         $this->registrarService = $registrarService;
+        $this->dbaService = $doingBusinessAsService;
     }
 
     public function listAll()
@@ -51,8 +53,8 @@ class RegistrarController extends Controller
      */
     public function create()
     {
-        $states = States::all();
-        return view("bootstrap.pages.registrar.registrar-add", ['states' => $states]);
+        $dbas = $this->dbaService->getAllActive();
+        return view("bootstrap.pages.registrar.registrar-add", ['dbas' => $dbas]);
     }
 
     /**
@@ -88,9 +90,9 @@ class RegistrarController extends Controller
      */
     public function edit( )
     {
-        $states = States::all();
+        $dbas = $this->dbaService->getAllActive();
         return response()
-            ->view( "bootstrap.pages.registrar.registrar-edit", ['states' => $states]);
+            ->view( "bootstrap.pages.registrar.registrar-edit", ['dbas' => $dbas]);
     }
 
     /**

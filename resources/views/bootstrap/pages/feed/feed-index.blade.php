@@ -22,6 +22,7 @@
                     <th md-column md-order-by="id" class="md-table-header-override-whitetext">ID</th>
                     <th md-column md-order-by="clientName" class="md-table-header-override-whitetext">Client</th>
                     <th md-column md-order-by="short_name" class="md-table-header-override-whitetext">Short Name</th>
+                    <th md-column class="md-table-header-override-whitetext">Password</th>
                     <th md-column md-order-by="status" class="md-table-header-override-whitetext mt2-table-header-center">Status</th>
                     <th md-column md-order-by="feedVertical" class="md-table-header-override-whitetext mt2-cell-left-padding">Feed Vertical</th>
                     <th md-column md-order-by="frequency" class="md-table-header-override-whitetext">Frequency</th>
@@ -50,6 +51,7 @@
                     <td md-cell ng-bind="record.id"></td>
                     <td md-cell ng-bind="record.clientName" nowrap></td>
                     <td md-cell ng-bind="record.short_name"></td>
+                    <td md-cell ng-bind="record.password"></td>
                     <td md-cell class="mt2-table-cell-center" ng-class="{ 'bg-success' : record.status == 'Active' , 'bg-warning' : record.status == 'Paused' , 'bg-danger' : record.status == 'Inactive' }" ng-bind="record.status">
                     </td>
                     <td md-cell class="mt2-cell-left-padding" ng-bind="record.feedVertical" nowrap></td>

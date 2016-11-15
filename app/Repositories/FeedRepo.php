@@ -52,7 +52,12 @@ class FeedRepo {
     }
 
     public function updateOrCreate( $data , $id = null ) {
-        $this->feed->updateOrCreate(['id' => $id], $data);
+        if ($id) {
+            $this->feed->updateOrCreate(['id' => $id], $data);
+        }
+        else {
+            $this->feed->updateOrCreate(['id' => $data['id']], $data);
+        }
     }
 
     public function getModel() {
@@ -66,6 +71,7 @@ class FeedRepo {
                 'clients.name as clientName' ,
                 'feeds.party' ,
                 'feeds.short_name' ,
+                'feeds.password' ,
                 'feeds.status' ,
                 'cake_verticals.name as feedVertical',
                 'feeds.frequency' ,
@@ -75,5 +81,19 @@ class FeedRepo {
                 'feeds.created_at' ,
                 'feeds.updated_at'
             );
+    }
+
+    public function passwordExists ( $password ) {
+        return $this->feed->where( 'password' , $password )->count() > 0;
+    }
+
+    static public function getFeedIdFromPassword ( $password ) {
+        $feed = Feed::where( 'password' , $password )->first();
+
+        if ( is_null( $feed ) ) {
+            return 0;
+        }
+
+        return $feed->id;
     }
 }
