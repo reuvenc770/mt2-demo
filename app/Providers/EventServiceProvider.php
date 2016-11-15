@@ -33,10 +33,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         'App\Events\AttributionCompleted' => [
             'App\Listeners\RerunAttributionAggregator'
-        ],
-        'App\Events\ListProfileCompleted' => [
-            'App\Listeners\RunDeploySuppression'
-        ],
+        ]
     ];
 
     /**
