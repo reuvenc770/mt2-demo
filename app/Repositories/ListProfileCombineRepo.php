@@ -57,9 +57,12 @@ class ListProfileCombineRepo
     }
 
     public function getCombineHeader($listProfileCombineId){
-
+        return $this->model
+            ->select('columns')
+            ->join('list_profile_list_profile_combine as lplpc',"lplpc.list_profile_combine_id", "=", "list_profile_combines.id" )
+            ->join('list_profiles as lp',"lplpc.list_profile_id", "=", "lp.id")
+            ->where('list_profile_combines.id',$listProfileCombineId)->get();
     }
-
 
 
 }

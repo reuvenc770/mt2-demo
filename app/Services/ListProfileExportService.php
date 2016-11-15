@@ -48,8 +48,7 @@ class ListProfileExportService
         } else {
             $fileName = 'ListProfiles/' . $listProfile->name . '.csv';
         }
-        Log::info("WRITING TO {$fileName}");
-        return true;
+
         $tableName = self::BASE_TABLE_NAME . $listProfileId;
 
         $this->tableRepo = new ListProfileBaseTableRepo(new ListProfileBaseTable($tableName));
@@ -87,30 +86,36 @@ class ListProfileExportService
 
         $listProfile = $this->listProfileRepo->getProfile($listProfileId);
 
-        //$tableName = self::BASE_TABLE_NAME . $listProfileId;
-        //$this->tableRepo = new ListProfileBaseTableRepo(new ListProfileBaseTable($tableName));
+        $tableName = self::BASE_TABLE_NAME . $listProfileId;
+        $this->tableRepo = new ListProfileBaseTableRepo(new ListProfileBaseTable($tableName));
 
-        //$listIds = $this->offerRepo->getSuppressionListIds($offerId);
-        //$result = $this->tableRepo->suppressWithListIds($listIds);
+        $listIds = $this->offerRepo->getSuppressionListIds($offerId);
+        $result = $this->tableRepo->suppressWithListIds($listIds);
 
-        //$resource = $result->cursor();
+        $resource = $result->cursor();
 
         foreach ($deploys as $deploy) {
+
+            $headers = array();
             $key = "{$deploy->id}-{$deploy->list_profile_combine_id}";
-            $header = Cache::get("header-{$key}", function () use ($deploy) {
-                return $this->combineRepo->getCombineHeader($deploy->list_profile_combine_id);
+
+            $header = Cache::get("header-{$key}", function () use ($deploy, $headers) {
+                $columns = $this->combineRepo->getCombineHeader($deploy->list_profile_combine_id);
+                foreach($columns as $item){
+                    $headers = array_merge($headers, json_decode($item->columns));
+                }
+                return array_unique($headers);
             });
 
             $fileName = 'ListProfiles/' . $listProfile->name . '-' . $deploy->id . '-' . $offerId . '.csv';
             Storage::delete($fileName); // clear the file currently saved
 
-            /**
-             * foreach ($resource as $row) {
-             * $row = $this->mapRow($header, $row);
-             * $this->batch($fileName, $row);
-             * }**/
 
-            //$this->writeBatch($fileName);
+             foreach ($resource as $row) {
+                 $row = $this->mapRow($header, $row);
+                 $this->batch($fileName, $row);
+             }
+            $this->writeBatch($fileName);
 
             //either get the deploy cache or build it
             $deployProgress = Cache::get("deploy-{$key}", function () use ($deploy) {
