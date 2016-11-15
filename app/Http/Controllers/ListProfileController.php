@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\ListProfileBaseExportJob;
+use App\Jobs\ListProfileCombineExportJob;
 use App\Services\ListProfileService;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
@@ -16,6 +16,7 @@ use App\Services\DomainGroupService;
 use App\Models\CakeVertical;
 use App\Services\OfferService;
 use App\Services\ClientService;
+use App\Jobs\ListProfileBaseExportJob;
 use App\Services\FeedService;
 use App\Http\Requests\SubmitListProfileRequest;
 use Laracasts\Flash\Flash;

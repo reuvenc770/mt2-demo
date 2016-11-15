@@ -18,6 +18,7 @@ class ListProfileExportService
 
     private $listProfileRepo;
     private $offerRepo;
+    private $tableRepo;
     private $combineRepo;
     const BASE_TABLE_NAME = 'list_profile_export_';
     const WRITE_THRESHOLD = 50000;
@@ -38,22 +39,16 @@ class ListProfileExportService
      *  3. Output the surviving email addresses to a file determined by the name.
      */
 
-    public function exportListProfile($listProfileId, $offerId)
+    public function exportListProfile($listProfileId, $offerId, $replacementHeader = array())
     {
 
         $listProfile = $this->listProfileRepo->getProfile($listProfileId);
-
-        if (!empty($offerId)) {
-            $fileName = 'ListProfiles/' . $listProfile->name . '-' . $offerId . '.csv';
-        } else {
-            $fileName = 'ListProfiles/' . $listProfile->name . '.csv';
-        }
 
         $tableName = self::BASE_TABLE_NAME . $listProfileId;
 
         $this->tableRepo = new ListProfileBaseTableRepo(new ListProfileBaseTable($tableName));
 
-        if ($offerId >= 1) {
+        if (!is_array($offerId)) {
             $fileName = 'ListProfiles/' . $listProfile->name . '-' . $offerId . '.csv';
         } else {
             $fileName = 'ListProfiles/' . $listProfile->name . '.csv';
@@ -63,7 +58,8 @@ class ListProfileExportService
 
         $columns = json_decode($listProfile->columns, true);
 
-        if ($this->listProfileRepo->shouldInsertHeader($listProfileId)) {
+        if ($this->listProfileRepo->shouldInsertHeader($listProfileId) || !empty($replacementHeader) ) {
+            $columns = $replacementHeader ? $replacementHeader : $columns;
             Storage::append($fileName, implode(',', $columns));
         }
 
@@ -78,48 +74,33 @@ class ListProfileExportService
         }
 
         $this->writeBatch($fileName);
+        return $fileName;
 
     }
 
     public function exportListProfileCombine($listProfileCombineId)
     {
-
-        //export list profile combine
-       // $listProfile = $this->listProfileRepo->getProfile($listProfileCombineId);
-
-       // $fileName = 'ListProfiles/' . $listProfile->name . '.csv';
-        /**
-
-        $tableName = self::BASE_TABLE_NAME . $listProfileCombineId;
-
-        $this->tableRepo = new ListProfileBaseTableRepo(new ListProfileBaseTable($tableName));
-
-        if ($offerId >= 1) {
-            $fileName = 'ListProfiles/' . $listProfile->name . '-' . $offerId . '.csv';
-        } else {
-            $fileName = 'ListProfiles/' . $listProfile->name . '.csv';
+        $listProfileCombine = $this->combineRepo->getRowWithListProfiles($listProfileCombineId);
+        $files = array();
+        $listProfileCombineHeader = array();
+        $columns = $this->combineRepo->getCombineHeader($listProfileCombineId);
+        foreach($columns as $item){
+            $listProfileCombineHeader = array_merge($listProfileCombineHeader, json_decode($item->columns));
         }
 
-        Storage::delete($fileName); // clear the file currently saved
+        foreach($listProfileCombine as $listProfile){
+            $files[] = $this->exportListProfile($listProfile->id,array(),array_unique($listProfileCombineHeader));
+        }
+        $fileName = 'ListProfiles/' . $listProfileCombine->name . '.csv';
 
-        $columns = json_decode($listProfile->columns, true);
+        Storage::delete($fileName);
+        Storage::append($fileName, implode(',', $listProfileCombineHeader));
 
-        if ($this->listProfileRepo->shouldInsertHeader($listProfileId)) {
-            Storage::append($fileName, implode(',', $columns));
+        foreach ($files as $file) {
+            $contents = Storage::get($file);
+            Storage::append($fileName, $contents);
         }
 
-        $listIds = $this->offerRepo->getSuppressionListIds($offerId);
-        $result = $this->tableRepo->suppressWithListIds($listIds);
-
-        $resource = $result->cursor();
-
-        foreach ($resource as $row) {
-            $row = $this->mapRow($columns, $row);
-            $this->batch($fileName, $row);
-        }
-
-        $this->writeBatch($fileName);
-        **/
     }
 
     public function exportListProfileToMany($listProfileId, $offerId, $deploys)

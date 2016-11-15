@@ -44,7 +44,7 @@ class ListProfileBaseExportJob extends Job implements ShouldQueue {
                 $schedule->updateSuccess($this->profileId);
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
                 if($this->offers == 0){
-                    $this->dispatch(new ExportListProfileJob($this->profileId, 0, str_random(16)));
+                    $this->dispatch(new ExportListProfileJob($this->profileId, array(), str_random(16)));
                 } else {
                     $offers = explode(',',$this->offers);
                     foreach ($offers as $offer) {
