@@ -15,9 +15,9 @@ class CreateSuppressionGlobalOrangesTable extends Migration
      */
     public function up()
     {
-        Schema::connetion( 'suppression' )->create('suppression_global_orange', function (Blueprint $table) {
+        Schema::connection( 'suppression' )->create('suppression_global_orange', function (Blueprint $table) {
             $table->bigIncrements('id')->unsigned();
-            $table->string( 'email_adress' );
+            $table->string( 'email_address' );
             $table->dateTime( 'suppress_datetime' );
             $table->integer( 'reason_id' )->unsigned();
             $table->integer( 'type_id' )->unsigned();
@@ -36,6 +36,6 @@ class CreateSuppressionGlobalOrangesTable extends Migration
      */
     public function down()
     {
-        Schema::connetion( 'suppression' )->drop('suppression_global_orange');
+        Schema::connection( 'suppression' )->drop('suppression_global_orange');
     }
 }
