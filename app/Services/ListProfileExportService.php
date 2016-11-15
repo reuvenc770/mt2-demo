@@ -7,11 +7,14 @@ use App\Repositories\ListProfileBaseTableRepo;
 use App\Repositories\ListProfileCombineRepo;
 use App\Repositories\ListProfileRepo;
 use App\Repositories\OfferRepo;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Storage;
 use Cache;
 use Log;
+
 class ListProfileExportService
 {
+    use DispatchesJobs;
 
     private $listProfileRepo;
     private $offerRepo;
@@ -82,7 +85,7 @@ class ListProfileExportService
     public function exportListProfileToMany($listProfileId, $offerId, $deploys)
     {
 
-       $listProfile = $this->listProfileRepo->getProfile($listProfileId);
+        $listProfile = $this->listProfileRepo->getProfile($listProfileId);
 
         //$tableName = self::BASE_TABLE_NAME . $listProfileId;
         //$this->tableRepo = new ListProfileBaseTableRepo(new ListProfileBaseTable($tableName));
@@ -92,44 +95,49 @@ class ListProfileExportService
 
         //$resource = $result->cursor();
 
-        foreach($deploys as $deploy){
+        foreach ($deploys as $deploy) {
             $key = "{$deploy->id}-{$deploy->list_profile_combine_id}";
-            $header = Cache::get("header-{$key}", function () {
-                return "lol";
+            $header = Cache::get("header-{$key}", function () use ($deploy) {
+                return $this->combineRepo->getCombineHeader($deploy->list_profile_combine_id);
             });
-            $fileName = 'ListProfiles/' . $listProfile->name . '-' . $deploy->id.'-' . $offerId . '.csv';
+
+            $fileName = 'ListProfiles/' . $listProfile->name . '-' . $deploy->id . '-' . $offerId . '.csv';
             Storage::delete($fileName); // clear the file currently saved
 
             /**
-            foreach ($resource as $row) {
-                $row = $this->mapRow($header, $row);
-                $this->batch($fileName, $row);
-            }**/
+             * foreach ($resource as $row) {
+             * $row = $this->mapRow($header, $row);
+             * $this->batch($fileName, $row);
+             * }**/
 
             //$this->writeBatch($fileName);
 
-            $deployProgress = Cache::get("deploy-{$key}", function () use($key, $fileName, $deploy ) {
+            //either get the deploy cache or build it
+            $deployProgress = Cache::get("deploy-{$key}", function () use ($deploy) {
                 $listProfileCombine = $this->combineRepo->getRowWithListProfiles($deploy->list_profile_combine_id);
                 $num = count($listProfileCombine->listProfiles);
                 return array(
+                    "name" => $listProfileCombine->name,
                     "totalPieces" => $num,
-                    "files"=> array(),
+                    "files" => array(),
                 );
             });
 
             $deployProgress['totalPieces']--;
-            if($deployProgress['totalPieces'] == 0){
+
+            if ($deployProgress['totalPieces'] == 0) {
                 $deployProgress['files'] = array_merge($deployProgress['files'], array($fileName));
                 Cache::forget("header-{$key}");
                 Cache::forget("deploy-{$key}");
-                Log::info("finished Combine {$key}");
-                Log::info($deployProgress['files']);
+                $this->buildCombineFile($header, $deployProgress['name'], $deployProgress['files'], $offerId);
             } else {
+                //Update the cache
                 Cache::put("deploy-{$key}",
                     array(
-                        "totalPieces" =>  $deployProgress['totalPieces'] ,
-                    "files"=> array_merge($deployProgress['files'], array($fileName)) ,
-                    ),60*12);
+                        "name" => $deployProgress['name'],
+                        "totalPieces" => $deployProgress['totalPieces'],
+                        "files" => array_merge($deployProgress['files'], array($fileName)),
+                    ), 60 * 12);
             }
 
         }
@@ -165,6 +173,18 @@ class ListProfileExportService
         }
 
         return implode(', ', $output);
+    }
+
+    private function buildCombineFile($header, $fileName, $files, $offerId)
+    {
+        $combineFileName = "{$fileName}-{$offerId}.csv";
+        Storage::delete($combineFileName);
+        Storage::append($combineFileName, implode(',', $header));
+
+        foreach ($files as $file) {
+            $contents = Storage::get($file);
+            Storage::append($combineFileName, $contents);
+        }
     }
 
 }

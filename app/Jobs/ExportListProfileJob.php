@@ -48,11 +48,10 @@ class ExportListProfileJob extends Job implements ShouldQueue
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
                 $offer = $this->offerId ? $this->offerId : array();
 
-                //If its being used for a deploy lets build up some Deploy Cache
-                if($this->offerId >= 1){
+                if($this->offerId >= 1){  //its a combine and meant for a deploy
                     $deploys = $deployRepo->getDeploysFromProfileAndOffer($this->listProfileId,$this->offerId);
                     $service->exportListProfileToMany($this->listProfileId, $offer,$deploys);
-                } else {
+                } else { // its a scheduled export
                     $service->exportListProfile($this->listProfileId, $offer);
                 }
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);

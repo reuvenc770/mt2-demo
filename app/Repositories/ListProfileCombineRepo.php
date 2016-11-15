@@ -52,9 +52,12 @@ class ListProfileCombineRepo
         return $this->model;
     }
 
-
     public function getRowWithListProfiles($id){
         return $this->model->with("listProfiles")->find($id);
+    }
+
+    public function getCombineHeader($listProfileCombineId){
+
     }
 
 
