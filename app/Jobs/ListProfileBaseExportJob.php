@@ -40,8 +40,8 @@ class ListProfileBaseExportJob extends Job implements ShouldQueue {
             try {
                 $this->createLock($this->jobName);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
-                //$service->buildProfileTable($this->profileId);
-                //$schedule->updateSuccess($this->profileId);
+                $service->buildProfileTable($this->profileId);
+                $schedule->updateSuccess($this->profileId);
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
                 $offers = explode(',',$this->offers);
                 foreach ($offers as $offer) {
