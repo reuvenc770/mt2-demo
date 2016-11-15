@@ -226,7 +226,6 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('listprofile:aggregateActions')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('listprofile:getRecordAgentData')->dailyAt(self::EXPIRATION_RUNS);
-        $schedule->command('listprofile:ScheduledBaseTables')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('listprofile:baseTables')->dailyAt(self::EXPIRATION_RUNS);
 
         /**
