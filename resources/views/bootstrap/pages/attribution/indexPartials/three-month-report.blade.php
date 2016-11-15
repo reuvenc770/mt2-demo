@@ -10,8 +10,8 @@
 </md-toolbar>
 
 <md-table-container>
-    <table md-table md-progress="attr.reportQueryPromise" class="stickyTable">
-        <thead md-head class="table-header">
+    <table md-table md-progress="attr.reportQueryPromise">
+        <thead fix-head md-head>
             <tr md-row>
                 <th md-column colspan="2"></th>
                 <th md-column colspan="6" class="mt2-two-months-ago-header mt2-month-header md-table-header-override-whitetext" ng-bind="attr.twoMonthsAgo"></th>

@@ -241,15 +241,6 @@ th md-checkbox.md-mt2-zeta-theme:not(.md-checked) .md-icon {
 }
 
 /*
- * Sticky header
-*/
-.sticky-header {
-    top: 0;
-    position: fixed;
-    display: none;
-}
-
-/*
  * Button Styling
  */
  md-icon.mt2-icon-black{
@@ -770,6 +761,7 @@ md-list-item.mt2-nav-sub-item .md-list-item-inner {
 
 #mainSideNav a {
     padding-bottom: 0.5em;
+    border-left: transparent 3px solid;
 }
 
 .nav-icon {

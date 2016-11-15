@@ -99,6 +99,7 @@ return [
             'node_modules/angular-cookies/angular-cookies.min.js',
             'node_modules/headroom.js/dist/headroom.js',
             'node_modules/headroom.js/dist/angular.headroom.js',
+
         ],
         'mt2AppBase' => [
             'resources/assets/js/app.js',
@@ -129,7 +130,7 @@ return [
             'resources/assets/js/bootstrap/mt2app/ModalService.js',
             'resources/assets/js/bootstrap/mt2app/CompileHtml.js',
             'resources/assets/js/bootstrap/mt2app/CustomValidationService.js',
-            'resources/assets/js/bootstrap/mt2app/StickyTableHeader.js'
+            'resources/assets/js/bootstrap/mt2app/FixedTableHeader.js',
         ]
     ]
 ];
