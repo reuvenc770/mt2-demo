@@ -64,5 +64,10 @@ class ListProfileCombineRepo
             ->where('list_profile_combines.id',$listProfileCombineId)->get();
     }
 
+    public function getIdFromName($name){
+        $combine = $this->model->where('name',$name)->first();
+        return $combine->id;
+    }
+
 
 }
