@@ -170,8 +170,15 @@ class EmailRepo {
     }
 
     public function insertNew(array $row) {
-        // Due to the possibility of incomplete parallelization, we cannot be sure that this email is not already in the db.
-        $email = Email::firstOrCreate($row);
+        // Due to the possibility of incomplete parallelization, 
+        // we cannot be sure that this email is not already in the db.
+        $email = $this->emailModel->where('email_address', $row['email_address'])->first();
+
+        if (!$email) {
+            // One final precaution
+            $email = Email::updateOrCreate(['email_address' => $row['email_address']], $row);
+        }
+
         return $email;
     }
 

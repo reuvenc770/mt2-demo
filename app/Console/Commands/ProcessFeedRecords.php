@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Console\Traits\PreventOverlapping;
 use App\Jobs\ProcessFeedRecordsJob;
-use App\Repositories\RawEmailFeedRepo;
+use App\Repositories\RawFeedEmailRepo;
 use App\Repositories\EtlPickupRepo;
 use App\DataModels\ProcessingRecord;
 use Exception;
@@ -45,7 +45,7 @@ class ProcessFeedRecords extends Command
      *
      * @return mixed
      */
-    public function handle(RawEmailFeedRepo $rawRepo, EtlPickupRepo $pickupRepo) {
+    public function handle(RawFeedEmailRepo $rawRepo, EtlPickupRepo $pickupRepo) {
         $party = (int)$this->argument('party');
         $feedId = $this->option('feed') ?: null;
         $startChars = $this->option('startChars') ?: null;

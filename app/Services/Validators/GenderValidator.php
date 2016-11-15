@@ -3,6 +3,7 @@
 namespace App\Services\Validators;
 
 use App\Services\Interfaces\IValidate;
+use App\Repositories\NameGenderRepo;
 
 class GenderValidator implements IValidate {
 
@@ -15,19 +16,19 @@ class GenderValidator implements IValidate {
     }
 
     public function getRequiredData() {
-        return ['gender', 'first_name'];
+        return ['gender', 'firstName'];
     }
 
     public function setData(array $data) {
         $this->gender = $data['gender'];
-        $this->firstName = $data['first_name'];
+        $this->firstName = $data['firstName'];
     }
 
     public function validate() {
         $this->gender = strtoupper($this->gender);
 
         if ('M' !== $this->gender && 'F' !== $this->gender && '' !== $this->gender) {
-            if (preg_match('/^MALE$|^HERR$|^SENIOR$|^SR$|^MR$/')) {
+            if (preg_match('/^MALE$|^HERR$|^SENIOR$|^SR$|^MR$/', $this->gender)) {
                 $this->gender = 'M';
             }
             elseif (preg_match('/^FEMALE$|^FRAU$|^SENIORITA$|^SENIORA$|^SRA$|^MRS$|^MS$/', $this->gender)) {
@@ -42,7 +43,7 @@ class GenderValidator implements IValidate {
     }
 
     public function returnData() {
-        return ['gender' => $this->gender, 'first_name' => $this->firstName];
+        return ['gender' => $this->gender, 'firstName' => $this->firstName];
     }
 
 }

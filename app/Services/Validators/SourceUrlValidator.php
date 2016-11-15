@@ -17,12 +17,12 @@ class SourceUrlValidator implements IValidate {
     }
 
     public function getRequiredData() {
-        return ['source_url', 'feed_id'];
+        return ['sourceUrl', 'feedId'];
     }
 
-    public function setData($data) {
-        $this->sourceUrl = $data['source_url'];
-        $this->feedId = $data['feed_id'];
+    public function setData(array $data) {
+        $this->sourceUrl = $data['sourceUrl'];
+        $this->feedId = $data['feedId'];
     }
 
 
@@ -56,8 +56,8 @@ class SourceUrlValidator implements IValidate {
 
     public function returnData() {
         return [
-            'source_url' => $this->sourceUrl,
-            'feed_id' => $this->feedId
+            'sourceUrl' => $this->sourceUrl,
+            'feedId' => $this->feedId
         ];
     }
 

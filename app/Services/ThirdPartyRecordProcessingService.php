@@ -8,6 +8,7 @@ use App\Repositories\RecordDataRepo;
 use App\Repositories\FeedDateEmailBreakdownRepo;
 use App\Services\Interfaces\IFeedPartyProcessing;
 use Carbon\Carbon;
+use App\Events\NewRecords;
 
 class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
     private $emailCache = [];
@@ -50,14 +51,14 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
             // Note structure
             if (!isset($statuses[$record->feedId])) {
                 $statuses[$record->feedId] = [];
-                $statuses[$record->feedId][$domainId] = [
+                $statuses[$record->feedId][$domainGroupId] = [
                     'unique' => 0,
                     'non-unique' => 0,
                     'duplicate' => 0
                 ];
             }
-            elseif (!isset($statuses[$record->feedId][$domainId])) {
-                $statuses[$record->feedId][$domainId] = [
+            elseif (!isset($statuses[$record->feedId][$domainGroupId])) {
+                $statuses[$record->feedId][$domainGroupId] = [
                     'unique' => 0,
                     'non-unique' => 0,
                     'duplicate' => 0
@@ -131,8 +132,8 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
                 }
             }
 
-            $statuses[$record->feedId][$domainId][$record->uniqueStatus]++;
-            $this->recordDataRepo->batch($this->transformForRecordData($record));
+            $statuses[$record->feedId][$domainGroupId][$record->uniqueStatus]++;
+            $this->recordDataRepo->insert($this->transformForRecordData($record));
         }
 
         $this->recordDataRepo->insertStored();

@@ -7,7 +7,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Facades\JobTracking;
-use App\Factories\DataProcessingFactory;
+use App\Factories\FeedProcessingFactory;
 use App\Jobs\Traits\PreventJobOverlapping;
 
 class ProcessFeedRecordsJob extends Job implements ShouldQueue {
@@ -16,9 +16,9 @@ class ProcessFeedRecordsJob extends Job implements ShouldQueue {
     private $party;
     private $tracking;
     private $records;
-    private $party;
     private $feedId;
     const JOB_NAME_BASE = 'FeedProcessing';
+    private $jobName;
 
     public function __construct($party, $feedId, $records, $tracking) {
         $this->jobName = self::JOB_NAME_BASE . "-$party-$tracking";
@@ -37,7 +37,7 @@ class ProcessFeedRecordsJob extends Job implements ShouldQueue {
 
                 echo "{$this->jobName} running" . PHP_EOL;
 
-                $service = FeedProcessingFactory::create($this->party, $this->feedId);
+                $service = FeedProcessingFactory::createService($this->party, $this->feedId);
                 $service->process($this->records);
 
                 JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);

@@ -25,7 +25,7 @@ class CountryAndStateValidator implements IValidate {
         return ['state', 'country'];
     }
 
-    public function setData($data) {
+    public function setData(array $data) {
         $this->state = $data['state'];
         $this->country = $data['country'];
     }

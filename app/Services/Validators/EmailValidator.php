@@ -4,12 +4,15 @@ namespace App\Services\Validators;
 
 use App\Services\Interfaces\IValidate;
 use App\Exceptions\ValidationException;
+use App\Repositories\EmailDomainRepo;
 
 class EmailValidator implements IValidate {
     
     private $emailAddress;
-    private $invalidTlds;
-    private $invalidSecondaryTlds;
+    private $newEmail;
+    private $domainId;
+    private $domainGroupId;
+    private $domainGroupName;
 
     const BAD_ALIASES = [
         'bulk','admin','editor','feedback','general','info','mail','marketing',
@@ -23,28 +26,44 @@ class EmailValidator implements IValidate {
 
     const INVALID_TLDS = [ 'ca', 'gov', 'org', 'edu', 'mil', 'us'];
 
-    private $domainMap = [];
-    private $invalidDomains = [];
+    private $domainRepo;
 
-
-    public function __construct(array $domainMap, array $invalidDomains) {
-        $this->domainMap = $domainMap;
-        $this->invalidDomains = $invalidDomains;
+    public function __construct(EmailDomainRepo $domainRepo) {
+        $this->domainRepo = $domainRepo;
     }
 
 
     public function getRequiredData() {
-        return ['email_address'];
+        return ['emailAddress', 'newEmail', 'domainId', 'domainGroupId'];
     }
 
 
     public function setData(array $data) {
-        $this->emailAddress = $data['email_address'];
+        $this->emailAddress = $data['emailAddress'];
+        $this->newEmail = $data['newEmail'];
+
+        $domain = $this->domainRepo->getDomainAndClassInfo($this->emailAddress);
+
+        if ($domain) {
+            $this->domainGroupName = $domain->domain_group_name;
+
+            if ($this->newEmail) {
+                $this->domainId = $domain->domain_id;
+                $this->domainGroupId = $domain->domain_group_id;
+            }
+
+        }
+        else {
+            $domain = $this->domainRepo->createNewDomain($this->emailAddress);
+
+            $this->domainId = $domain->id;
+            $this->domainGroupId = 0; // Default to 0
+        }
+        
     }
 
 
     public function validate() {
-
         $this->emailAddress = $this->normalize($this->emailAddress);
 
         if (strlen($this->emailAddress) > 50) {
@@ -59,10 +78,6 @@ class EmailValidator implements IValidate {
         $address = $this->getAddress($this->emailAddress);
         $domain = $this->getDomain($this->emailAddress);
 
-        if ($this->isDomainInvalid($domain)) {
-             throw new ValidationException("Email address invalid - invalid domain {$this->emailAddress}");
-        }
-
         if ($this->isTldInvalid($domain)) {
             throw new ValidationException("Email address invalid - suppressed TLD in domain {$this->emailAddress}");
         }
@@ -71,7 +86,7 @@ class EmailValidator implements IValidate {
             throw new ValidationException("Email address invalid - banned alias {$this->emailAddress}");
         }
 
-        if ($this->isSuppressedDomain($domain)) {
+        if ($this->isSuppressedDomain($this->domainId)) {
             throw new ValidationException("Email address invalid - suppressed domain {$this->emailAddress}");
         }
 
@@ -87,7 +102,11 @@ class EmailValidator implements IValidate {
     }
 
     public function returnData() {
-        return ['email_address' => $this->emailAddress];
+        return [
+            'emailAddress' => $this->emailAddress,
+            'domainId' => $this->domainId,
+            'domainGroupId' => $this->domainGroupId
+        ];
     }
 
 
@@ -201,18 +220,18 @@ class EmailValidator implements IValidate {
 
     private function isValidForEmailProviderRules($address, $domain) {
         // pick correct set of rules based off of domain:
-        $domainClass = $this->domainMap[$domain];
+        // domainGroupName already lowercase in repo
 
-        if ('AOL' === $domainClass) {
+        if ('aol' === $this->domainGroupName) {
             return $this->isValidAolEmail($address);
         }
-        elseif ('Yahoo' === $domainClass) {
+        elseif ('yahoo' === $this->domainGroupName) {
             return $this->isValidYahooEmail($address);
         }
-        elseif ('Hotmail' === $domainClass) {
+        elseif ('hotmail' === $this->domainGroupName) {
             return $this->isValidHotmailEmail($address);
         }
-        elseif ('Gmail' === $domainClass) {
+        elseif ('gmail' === $this->domainGroupName) {
             return $this->isValidGMailEmail($address);
         }
 
@@ -283,8 +302,8 @@ class EmailValidator implements IValidate {
     }
 
 
-    private function isSuppressedDomain($domain) {
-        return in_array($domain, $this->invalidDomains);
+    private function isSuppressedDomain($id) {
+        return $this->domainRepo->domainIsSuppressed($id);
     }
 
 }

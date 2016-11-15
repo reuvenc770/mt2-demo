@@ -138,6 +138,6 @@ class SuppressionRepo
     }
 
     public function returnSuppressedEmails(array $emails) {
-        return $this->model->whereIn('email_address', $emails)->select('email_address')->get();
+        return $this->suppressionModel->whereIn('email_address', $emails)->select('email_address')->get();
     }
 }

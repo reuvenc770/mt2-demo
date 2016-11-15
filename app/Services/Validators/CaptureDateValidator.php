@@ -14,11 +14,11 @@ class CaptureDateValidator implements IValidate {
     public function __construct() {}
 
     public function getRequiredData() {
-        return ['capture_date'];
+        return ['captureDate'];
     }
 
     public function setData(array $data) {
-        $this->captureDate = $data['capture_date'];
+        $this->captureDate = $data['captureDate'];
     }
 
     public function validate() {
@@ -41,7 +41,7 @@ class CaptureDateValidator implements IValidate {
     }
 
     public function returnData() {
-        return ['capture_date' => $this->captureDate];
+        return ['captureDate' => $this->captureDate];
     }
 
 }

@@ -84,7 +84,14 @@ class FeedRepo {
     }
 
     public function getSourceUrl($id) {
-        return $this->feed->where('id', $id)->source_url;
+        $urlSearch = $this->feed->where('id', $id)->first();
+        if ($urlSearch) {
+            return $urlSearch->source_url;
+        }
+        else {
+            return '';
+        }
+        
     }
 
     public function passwordExists ( $password ) {

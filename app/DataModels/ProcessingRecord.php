@@ -2,14 +2,14 @@
 
 namespace App\DataModels;
 
-use App\Models\FawFeedEmail;
+use App\Models\RawFeedEmail;
 use Carbon\Carbon;
 
 class ProcessingRecord {
 
     const FIELDS = ['emailId', 'feedId', 'emailAddress', 'isSuppressed', 'firstName', 'lastName', 
     'address', 'address2', 'city', 'state', 'zip', 'country', 'dob', 'gender', 'phone', 'captureDate',
-    'ip', 'sourceUrl', 'otherFields', 'isDeliverable', 'uniqueStatus', 'newEmail', 'domainId', 'isValid',
+    'ip', 'sourceUrl', 'otherFields', 'isDeliverable', 'uniqueStatus', 'newEmail', 'domainId', 'valid',
     'invalidReason', 'domainGroupId'];
 
     private $emailId;
@@ -46,13 +46,13 @@ class ProcessingRecord {
     public function __construct(RawFeedEmail $record) {
         $this->processDate = Carbon::today()->format('Y-m-d');
 
-        $this->emailAddress = $record->emailAddress;
+        $this->emailAddress = $record->email_address;
 
         if ($record->email_id) {
             $this->emailId = $record->email_id;
             $this->newEmail = false;
-            $this->domainId = $record->domainId;
-            $this->domainGroupId = $record->domainGroupid;
+            $this->domainId = $record->email_domain_id;
+            $this->domainGroupId = $record->domain_group_id;
         }
         else {
             $this->newEmail = true;
@@ -63,7 +63,7 @@ class ProcessingRecord {
 
         $this->feedId = $record->feed_id;
         $this->firstName = $record->first_name;
-        $this->lastName = $record->lastName;
+        $this->lastName = $record->last_name;
         $this->address = $record->address;
         $this->address2 = $record->address2;
         $this->city = $record->city;
@@ -75,7 +75,7 @@ class ProcessingRecord {
         $this->phone = $record->phone;
         $this->captureDate = $record->capture_date;
         $this->ip = $record->ip;
-        $this->sourceUrl = $record->sourceUrl;
+        $this->sourceUrl = $record->source_url;
         $this->otherFieldsJson = $this->other_fields;
         $this->otherFields = json_decode($this->other_fields, true);
     }

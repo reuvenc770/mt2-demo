@@ -47,7 +47,7 @@ class FeedProcessingService {
 
             if (!isset($updateArray[$record->feedId])) {
                 $updateArray[$record->feedId] = [];
-                $updateArray[$record->feedId][$domainId] = [
+                $updateArray[$record->feedId][$domainGroupId] = [
                     'totalRecords' => 0,
                     'badSourceUrls' => 0,
                     'badIpAddresses' => 0,
@@ -60,8 +60,8 @@ class FeedProcessingService {
                 ];
             }
 
-            elseif (!isset($updateArray[$record->feedId][$domainId])) {
-                $updateArray[$record->feedId][$domainId] = [
+            elseif (!isset($updateArray[$record->feedId][$domainGroupId])) {
+                $updateArray[$record->feedId][$domainGroupId] = [
                     'totalRecords' => 0,
                     'badSourceUrls' => 0,
                     'badIpAddresses' => 0,
@@ -79,43 +79,43 @@ class FeedProcessingService {
                 $record = $this->validate($record);
 
                 if ($record->valid) {
-                    $this->reporting($record);
-                    $validatedRecords[] = $record;
 
-                    $updateArray[$record->feedId][$domainId]['validRecords']++;
+                    $validatedRecords[] = $record;
+                    $updateArray[$record->feedId][$domainGroupId]['validRecords']++;
 
                     if ($record->newEmail) {
-                        $record->domainId = $this->emailDomainRepo->getIdForName($record->emailAddress);
+                        $record->domainGroupId = $this->emailDomainRepo->getIdForName($record->emailAddress);
                         $email = $this->emailRepo->insertNew($record->mapToEmails());
+
                         $record->emailId = $email->id;
                     }
 
                     if ($record->phone) {
-                        $updateArray[$record->feedId][$domainId]['phoneCount']++;
+                        $updateArray[$record->feedId][$domainGroupId]['phoneCount']++;
                     }
 
                     if ($record->address) {
-                        $updateArray[$record->feedId][$domainId]['fullPostalCount']++;
+                        $updateArray[$record->feedId][$domainGroupId]['fullPostalCount']++;
                     }
 
                     $this->instanceRepo->insertDelayedBatch($record->mapToInstances());
                 }
                 elseif(preg_match('/source\surl/', $record->invalidReason)) {
-                    $updateArray[$record->feedId][$domainId]['badSourceUrls']++;
+                    $updateArray[$record->feedId][$domainGroupId]['badSourceUrls']++;
                 }
                 elseif(preg_match('/IP/', $record->invalidReason)) {
-                    $updateArray[$record->feedId][$domainId]['badIpAddresses']++;
+                    $updateArray[$record->feedId][$domainGroupId]['badIpAddresses']++;
                 }
                 elseif(preg_match('/domain/', $record->invalidReason)) {
-                    $updateArray[$record->feedId][$domainId]['suppressedDomains']++;
+                    $updateArray[$record->feedId][$domainGroupId]['suppressedDomains']++;
                 }
                 else {
-                    $updateArray[$record->feedId][$domainId]['otherInvalid']++;
+                    $updateArray[$record->feedId][$domainGroupId]['otherInvalid']++;
                 }
 
             }
             else {
-                $updateArray[$record->feedId][$domainId]['suppressed']++;
+                $updateArray[$record->feedId][$domainGroupId]['suppressed']++;
             }
         }
 
@@ -190,7 +190,7 @@ class FeedProcessingService {
 
         // Build out list of email addresses to check
         foreach($records as $record) {
-            $emails[] = $record['email_address'];
+            $emails[] = $record->emailAddress;
         }
 
         // Run each suppression check
@@ -202,7 +202,7 @@ class FeedProcessingService {
 
         // Update status
         foreach ($records as $record) {
-            if ($suppressed[$record->emailAddress]) {
+            if (isset($suppressed[$record->emailAddress])) {
                 $record->isSuppressed = true;
             }
             else {

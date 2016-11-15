@@ -63,7 +63,7 @@ class FeedDateEmailBreakdownRepo {
                     . $pdo->quote($domainGroupId) . ','
                     . $pdo->quote($row['unique']) . ','
                     . $pdo->quote($row['duplicate']) . ','
-                    . $pdo->quote($row['non-unique']) . ','
+                    . $pdo->quote($row['non-unique'])
                     .')';
 
                 $updates[] = $insertString;
@@ -104,14 +104,14 @@ class FeedDateEmailBreakdownRepo {
                     . "CURDATE(), "
                     . $pdo->quote($domainGroupId) . ', '
                     . $pdo->quote($row['totalRecords']) . ', '
-                    . $pdo->quote($row['validEmails']) . ', '
+                    . $pdo->quote($row['validRecords']) . ', '
                     . $pdo->quote($row['suppressed']) . ', '
                     . $pdo->quote($row['badSourceUrls']) . ', '
                     . $pdo->quote($row['fullPostalCount']) . ', '
                     . $pdo->quote($row['badIpAddresses']) . ', '
                     . $pdo->quote($row['otherInvalid']) . ', '
                     . $pdo->quote($row['suppressedDomains']) . ', '
-                    . $pdo->quote($row['phoneCounts'])
+                    . $pdo->quote($row['phoneCount'])
                     . ')';
                 $updates[] = $insertString;
             }
@@ -131,7 +131,7 @@ class FeedDateEmailBreakdownRepo {
                 ON DUPLICATE KEY UPDATE
                 feed_id = feed_id,
                 date = date,
-                domain_group_id = domain_group_id
+                domain_group_id = domain_group_id,
                 total_emails = total_emails + VALUES(total_emails),
                 valid_emails = valid_emails + VALUES(valid_emails),
                 suppressed_emails = suppressed_emails + VALUES(suppressed_emails),
