@@ -122,7 +122,10 @@ class EspApiAccountRepo
     }
 
     public function getAccountsbyEsp($esp){
-        return $this->espAccount->where('esp_id', $esp)->where('status',1)->orWhere('status',2)->get();
+        return $this->espAccount->where('esp_id', $esp)->where(function ($query) {
+            $query->where('status',1)
+                ->orWhere('status',2);
+        })->toSql();
     }
 
     public function getPublicatorsSuppressionListId($accountId) {
