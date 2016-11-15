@@ -213,11 +213,8 @@ class ListProfileExportService
         $output = [];
 
         foreach ($columns as $column) {
-            if (isset($row->$column)) {
-                $output[$column] = $row->$column;
-            }
+                $output[$column] = isset($row->$column) ? $row->$column : "";
         }
-
         return implode(', ', $output);
     }
 
