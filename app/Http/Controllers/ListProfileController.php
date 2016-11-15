@@ -186,5 +186,6 @@ class ListProfileController extends Controller
 
     public function exportListCombine(Request $request){
         $id = $request->input("id");
+        //Need to export Combine
     }
 }
