@@ -17,6 +17,6 @@ class SuppressListOrangeRepo {
     public function pullForSync ( $lookback ) {
         return $this->model
                     ->join( 'SuppressionReason as sr' , 'suppress_list_orange.suppressionReasonID' , '=' , 'sr.suppressionReasonID' )
-                    ->where( 'dateTimeSuppressed' , '>=' , DB::raw("CURDATE() - INTERVAL $lookback DAY") );
+                    ->where( 'dateTimeSuppressed' , '>=' , \DB::raw("CURDATE() - INTERVAL $lookback DAY") );
     }
 }
