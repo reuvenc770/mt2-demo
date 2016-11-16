@@ -107,7 +107,6 @@ class ProcessingRecord {
             'email_id' => $this->emailId,
             'feed_id' => $this->feedId,
             'subscribe_datetime' => $this->processDate,
-            //'unsubscribe_datetime' => $this->,
             'status' => $this->isSuppressed ? 'U' : 'A',
             'first_name' => $this->firstName,
             'last_name' => $this->lastName,
@@ -132,7 +131,7 @@ class ProcessingRecord {
         return [
             'email_id' => $this->emailId,
             'feed_id' => $this->feedId,
-            'subscribe_date' => $this->processDate, // Pehaps we should drop this
+            'subscribe_date' => $this->processDate,
             'first_name' => $this->firstName,
             'last_name' => $this->lastName,
             'address' => $this->address,

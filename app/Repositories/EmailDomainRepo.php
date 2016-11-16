@@ -71,7 +71,7 @@ class EmailDomainRepo {
         if (isset($emailParts[1])) {
             // Precaution due to incompletely-parallelized feeds
             // Also default domain group id to 0
-            $domain = EmailDomain::updateOrCreate([
+            $domain = this->emailDomainModel->updateOrCreate([
                 'domain_name' => strtolower($emailParts[1])
             ], [
                 'domain_name' => strtolower($emailParts[1]),
