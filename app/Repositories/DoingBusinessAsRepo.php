@@ -43,7 +43,37 @@ class DoingBusinessAsRepo
         return $this->doingBusinessAs->find($id)->update(["status" => $direction]);
     }
 
-    public function getModel(){
-        return $this->doingBusinessAs;
+    public function getModel($searchData){
+        $query = $this->doingBusinessAs;
+        if('' !== $searchData) {
+            $query = $this->mapQuery($searchData, $query);
+        }
+        return $query;
+    }
+
+    private function mapQuery($searchData, $query){
+        $searchData = json_decode($searchData, true);
+
+        if (isset($searchData['dba_name'])) {
+            $query->where('dba_name','LIKE', $searchData['dba_name'].'%');
+        }
+
+        if (isset($searchData['registrant_name'])) {
+            $query->where('registrant_name','LIKE', $searchData['registrant_name'].'%');
+        }
+
+        if (isset($searchData['dba_email'])) {
+            $query->where('dba_email','LIKE', $searchData['dba_email'].'%');
+        }
+
+        if (isset($searchData['address'])) {
+            $query->where('address','LIKE', $searchData['address'].'%');
+        }
+
+        if (isset($searchData['entity_name'])) {
+            $query->where('entity_name','LIKE', $searchData['entity_name'].'%');
+        }
+
+        return $query;
     }
 }

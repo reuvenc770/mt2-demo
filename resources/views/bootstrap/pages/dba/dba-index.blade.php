@@ -12,7 +12,63 @@
 
 @section( 'content' )
     <div ng-init="dba.loadAccounts()">
+        <div style="width:800px">
+            <div class="panel panel-primary center-block">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Search DBA</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">DBA Name*</span>
+                                <input type="text" id="search_dba" class="form-control" value="" ng-model="dba.search.dba_name"/>
+                            </div>
+                        </div>
 
+                        <div class="col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">Registrant Name*</span>
+                                <input type="text" id="search_dba" class="form-control" value="" ng-model="dba.search.registrant_name"/>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">DBA Email*</span>
+                                <input type="text" id="search_dba" class="form-control" value="" ng-model="dba.search.dba_email"/>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">Address*</span>
+                                <input type="text" id="search_dba" class="form-control" value="" ng-model="dba.search.address"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">Entity Name*</span>
+                                <input type="text" id="search_dba" class="form-control" value="" ng-model="dba.search.entity_name"/>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <br />
+
+                    <button class="btn btn-primary pull-right" ng-click="dba.searchDBA()">Search</button>
+                </div>
+            </div>
+        </div>
                 <md-table-container>
                     <table md-table md-progress="dba.queryPromise">
                         <thead md-head md-order="dba.sort" md-on-reorder="dba.loadAccounts">

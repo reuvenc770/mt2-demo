@@ -15,7 +15,8 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     self.editUrl = 'dba/edit/';
 
     self.formErrors = {"po_box": {}};
-
+    self.search = {
+    };
     self.editingPOBox = false;
     self.pageCount = 0;
     self.paginationCount = '10';
@@ -143,6 +144,18 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
         return boxes;
     };
 
+    self.searchDBA = function() {
+        var searchObj = {
+            "dba_name": self.search.dba_name || undefined,
+            "registrant_name" : self.search.registrant_name || undefined,
+            "dba_email" : self.search.dba_email || undefined,
+            "address":    self.search.address || undefined,
+            "entity_name": self.search.entity_name || undefined
+        };
+
+        self.queryPromise = DBAApiService.searchDBA(self.paginationCount, searchObj, self.loadAccountsSuccessCallback, self.loadAccountsFailureCallback);
+        self.currentlyLoading = 0;
+    };
     /**
      * Callbacks
      */

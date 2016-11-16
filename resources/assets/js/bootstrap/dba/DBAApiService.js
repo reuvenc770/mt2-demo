@@ -43,6 +43,14 @@ mt2App.service( 'DBAApiService' , function ( $http , $log ) {
         } ).then( successCallback , failureCallback );
     };
 
+    self.searchDBA = function ( count , data, successCallback , failureCallback ) {
+        return $http( {
+            "method" : "GET" ,
+            "url" : self.pagerApiUrl ,
+            "params" : { "page" : 1 , "count" : count, "data" : data }
+        } ).then( successCallback , failureCallback );
+    };
+
     self.toggleRow = function ( recordId, direction, successCallback, failureCallback ) {
         $http( {
             "method" : "DELETE" ,
