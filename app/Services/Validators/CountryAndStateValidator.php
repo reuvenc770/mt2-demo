@@ -3,6 +3,7 @@
 namespace App\Services\Validators;
 
 use App\Services\Interfaces\IValidate;
+use App\Exceptions\ValidationException;
 
 class CountryAndStateValidator implements IValidate {
 
@@ -41,15 +42,10 @@ class CountryAndStateValidator implements IValidate {
             if (!in_array($this->state, self::US_STATES)) {
                 $this->state = '';
             }
-
         }
 
         elseif (in_array($this->country, self::CA_ALIASES)) {
-            $this->country = 'CA';
-
-            if (!in_array($this->state, self::CA_PROVINCES)) {
-                $this->state = '';
-            }
+            throw new ValidationException("Canada detected for country: {$this->country}");
         }
     }
 

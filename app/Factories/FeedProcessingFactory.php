@@ -3,7 +3,7 @@
 namespace App\Factories;
 
 use App;
-use App\Repositories\EspApiAccountRepo;
+use App\Facades\EspApiAccount;
 use App\Factories\APIFactory;
 
 // Validators
@@ -69,10 +69,17 @@ class FeedProcessingFactory
         $service->registerSuppression($suppression);
 
         $config = config("firstpartyprocessing.$feedId");
-        $espAccount = EspApiAccountRepo::getEspInfoByAccountName($config['espAccountName']);
 
-        $apiService = APIFactory::createApi($espAccount->esp->name, $espAccount->id);
-        $processingService = new FirstPartyRecordProcessingService($apiService);
+        if (null === $config) {
+            throw new \Exception("No configuration found for feed $feedId");
+        }
+
+        $espAccount = EspApiAccount::getEspAccountDetailsByName($config['espAccountName']);
+
+        $apiService = APIFactory::createApiReportService($espAccount->esp->name, $espAccount->id);
+        $reportRepo = App::make(\App\Repositories\FeedDateEmailBreakdownRepo::class);
+        $dataRepo = App::make(\App\Repositories\FirstPartyRecordDataRepo::class);
+        $processingService = new FirstPartyRecordProcessingService($apiService, $reportRepo, $dataRepo);
 
         $processingService->setFeedId($feedId);
         $processingService->setTargetId($config['targetId']);

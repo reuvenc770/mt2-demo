@@ -28,7 +28,7 @@ class CaptureDateValidator implements IValidate {
             $parsedDate = Carbon::parse($this->captureDate);
 
             // The system doesn't handle capture dates in the future too well.
-            if ($parsedDate->gt($today)) {
+            if ($parsedDate->gt($today) || '0000-00-00' === $parsedDate->format('Y-m-d')) {
                 $this->captureDate = $today->format('Y-m-d');
             }
         }

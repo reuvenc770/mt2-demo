@@ -85,7 +85,7 @@ class EmailDomainRepo {
     }
 
     public function domainIsSuppressed($domainId) {
-        $result = $this->emailDomainModel->where('id', $domainId);
+        $result = $this->emailDomainModel->where('id', $domainId)->first();
         if ($result) {
             return $result->is_suppressed === 1;
         }

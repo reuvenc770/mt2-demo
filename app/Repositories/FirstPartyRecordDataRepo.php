@@ -39,42 +39,43 @@ class FirstPartyRecordDataRepo {
     }
 
     public function insertStored() {
-        $this->batchData = implode(', ', $this->batchData);
 
-        DB::statement("
-            INSERT INTO first_party_record_data (email_id, feed_id, is_deliverable, 
-                first_name, last_name, address, address2, city, state, zip, country, 
-                gender, ip, phone, source_url, dob, capture_date, subscribe_date, 
-                last_action_date, other_fields)
+        if ($this->batchDataCount > 0) {
+            $this->batchData = implode(', ', $this->batchData);
 
-            VALUES 
+            DB::statement("INSERT INTO first_party_record_data (email_id, feed_id, is_deliverable, 
+                    first_name, last_name, address, address2, city, state, zip, country, 
+                    gender, ip, phone, source_url, dob, capture_date, subscribe_date, other_fields)
 
-            {$this->batchData}
+                VALUES 
 
-            ON DUPLICATE KEY UPDATE
-            email_id = email_id,
-            is_deliverable = VALUES(is_deliverable),
-            first_name = VALUES(first_name),
-            last_name = VALUES(last_name),
-            address = VALUES(address),
-            address2 = VALUES(address2),
-            city = VALUES(city),
-            state = VALUES(state),
-            zip = VALUES(zip),
-            country = VALUES(country),
-            gender = VALUES(gender),
-            ip = VALUES(ip),
-            phone = VALUES(phone),
-            source_url = VALUES(source_url),
-            dob = VALUES(dob),
-            capture_date = VALUES(capture_date),
-            last_action_date = IF(last_action_date > VALUES(last_action_date), last_action_date, VALUES(last_action_date)),
-            subscribe_date = VALUES(subscribe_date),
-            other_fields = VALUES(other_fields)
-        ");
+                {$this->batchData}
 
-        $this->batchData = [];
-        $this->batchDataCount = 0;
+                ON DUPLICATE KEY UPDATE
+                email_id = email_id,
+                feed_id = feed_id,
+                is_deliverable = VALUES(is_deliverable),
+                first_name = VALUES(first_name),
+                last_name = VALUES(last_name),
+                address = VALUES(address),
+                address2 = VALUES(address2),
+                city = VALUES(city),
+                state = VALUES(state),
+                zip = VALUES(zip),
+                country = VALUES(country),
+                gender = VALUES(gender),
+                ip = VALUES(ip),
+                phone = VALUES(phone),
+                source_url = VALUES(source_url),
+                dob = VALUES(dob),
+                capture_date = VALUES(capture_date),
+                subscribe_date = VALUES(subscribe_date),
+                other_fields = VALUES(other_fields)
+            ");
+
+            $this->batchData = [];
+            $this->batchDataCount = 0;
+        }
     }
 
     private function transformRowToString($row) {
@@ -82,6 +83,7 @@ class FirstPartyRecordDataRepo {
 
         return '('
             . $pdo->quote($row['email_id']) . ','
+            . $pdo->quote($row['feed_id']) . ','
             . $pdo->quote($row['is_deliverable']) . ','
             . $pdo->quote($row['first_name']) . ','
             . $pdo->quote($row['last_name']) . ','
@@ -97,9 +99,8 @@ class FirstPartyRecordDataRepo {
             . $pdo->quote($row['source_url']) . ','
             . $pdo->quote($row['dob']) . ','
             . $pdo->quote( Carbon::parse($row['capture_date'])->format('Y-m-d') ) . ','
-            . $pdo->quote( Carbon::parse($row['last_updated'])->format('Y-m-d') ) . ','
-            . $pdo->quote($row['last_action_date']) . ','
-            . "'{}'" // other fields empty for now
+            . 'NOW(),'
+            . $pdo->quote($row['other_fields']) // other fields empty for now
             . ')';
     }
 
@@ -144,8 +145,8 @@ class FirstPartyRecordDataRepo {
 
     }
 
-    public function getDeliverableStatus($emailId) {
-        $data = $this->model->find($emailId);
+    public function getDeliverableStatus($emailId, $feedId) {
+        $data = $this->model->where('email_id', $emailId)->where('feed_id', $feedId)->get();
 
         if ($data) {
             return $data->is_deliverable;
@@ -156,6 +157,6 @@ class FirstPartyRecordDataRepo {
     }
 
     public function isUnique($emailId, $feedId) {
-        return $this->model->where('email_id', $emailid)->where('feed_id', $feedId)->count() === 0;
+        return $this->model->where('email_id', $emailId)->where('feed_id', $feedId)->count() === 0;
     }
 }

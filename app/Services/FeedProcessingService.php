@@ -42,7 +42,6 @@ class FeedProcessingService {
         $updateArray = [];
 
         foreach ($records as $record) {
-
             $domainGroupId = $record->domainGroupId;
 
             if (!isset($updateArray[$record->feedId])) {

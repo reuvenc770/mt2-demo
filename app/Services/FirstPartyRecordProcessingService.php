@@ -1,10 +1,7 @@
 <?php
 
 namespace App\Services;
-use App\DataModels\ProcessingRecord;
-use App\Repositories\EmailRepo;
-use App\Repositories\AttributionLevelRepo;
-use App\Repositories\RecordDataRepo;
+use App\Repositories\FirstPartyRecordDataRepo;
 use App\Repositories\FeedDateEmailBreakdownRepo;
 use App\Services\Interfaces\IFeedPartyProcessing;
 use App\Services\AbstractReportService;
@@ -32,8 +29,6 @@ class FirstPartyRecordProcessingService implements IFeedPartyProcessing {
         $count = $this->espApiService->pushRecords($records, $this->targetId);
 
         // We need to add them to first_party_record_data
-        // Then add functionality to pull from this table for list profiles if the feed selected is 1st party
-        // Then we need to ... (got interrupted)
         $uniqueCount = 0;
         $duplicateCount = 0;
 
@@ -41,18 +36,19 @@ class FirstPartyRecordProcessingService implements IFeedPartyProcessing {
 
         foreach($records as $record) {
             $domainGroupId = $record->domainGroupId;
+            $this->recordDataRepo->insert($record->mapToRecordData());
 
             // Note structure
             if (!isset($statuses[$record->feedId])) {
                 $statuses[$record->feedId] = [];
-                $statuses[$record->feedId][$domainId] = [
+                $statuses[$record->feedId][$domainGroupId] = [
                     'unique' => 0,
                     'non-unique' => 0,
                     'duplicate' => 0
                 ];
             }
-            elseif (!isset($statuses[$record->feedId][$domainId])) {
-                $statuses[$record->feedId][$domainId] = [
+            elseif (!isset($statuses[$record->feedId][$domainGroupId])) {
+                $statuses[$record->feedId][$domainGroupId] = [
                     'unique' => 0,
                     'non-unique' => 0,
                     'duplicate' => 0
@@ -60,11 +56,10 @@ class FirstPartyRecordProcessingService implements IFeedPartyProcessing {
             }
 
             if ($this->recordDataRepo->isUnique($record->emailId, $this->feedId)) {
-                $this->recordDataRepo->insert($record->mapToRecordData());
-                 $statuses[$record->feedId][$domainId]['unique']++;
+                $statuses[$record->feedId][$domainGroupId]['unique']++;
             }
             else {
-                $statuses[$record->feedId][$domainId]['duplicate']++;
+                $statuses[$record->feedId][$domainGroupId]['duplicate']++;
             }
         }
 

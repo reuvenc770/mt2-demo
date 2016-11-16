@@ -30,6 +30,7 @@ class ProcessFeedRecordsJob extends Job implements ShouldQueue {
     }
 
     public function handle() {
+        echo "Job handle attempt" . PHP_EOL;
         if ($this->jobCanRun($this->jobName)) {
             try {
                 $this->createLock($this->jobName);
@@ -41,6 +42,8 @@ class ProcessFeedRecordsJob extends Job implements ShouldQueue {
                 $service->process($this->records);
 
                 JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
+
+                // update stop point here?
             }
             catch (\Exception $e) {
                 echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;

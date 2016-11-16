@@ -56,7 +56,7 @@ class ProcessFeedRecords extends Command
         if (3 === $party && !$startChars) {
             throw new Exception("Third party feeds require email start characters.");
         }
-        if (!preg_match('/^\w+$/', $startChars)) {
+        if (3 === $party && !preg_match('/^\w+$/', $startChars)) {
             throw new Exception("Start chars '$startChars' is not valid");
         }
 

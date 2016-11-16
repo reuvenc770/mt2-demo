@@ -19,7 +19,7 @@ class NameGenderRepo {
 
     public function getGender($firstName) {
         $firstName = strtolower($firstName);
-        $result = $this->model->where('first_name', $firstName)->first();
+        $result = $this->model->where('name', $firstName)->first();
 
         if ($result) {
             return $result->gender;

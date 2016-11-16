@@ -39,8 +39,7 @@ class RecordDataRepo {
         if ($this->batchDataCount > 0) {
             $this->batchData = implode(', ', $this->batchData);
 
-            DB::statement("
-                INSERT INTO record_data (email_id, is_deliverable, first_name, last_name, 
+            DB::statement("INSERT INTO record_data (email_id, is_deliverable, first_name, last_name, 
                     address, address2, city, state, zip, country, gender, 
                     ip, phone, source_url, dob, capture_date, subscribe_date, other_fields)
 
@@ -95,7 +94,7 @@ class RecordDataRepo {
             . $pdo->quote($row['dob']) . ','
             . $pdo->quote( Carbon::parse($row['capture_date'])->format('Y-m-d') ) . ','
             . 'NOW(),'
-            . "'{}'" // other fields empty for now
+            . $pdo->quote($row['other_fields']) 
             . ')';
     }
 

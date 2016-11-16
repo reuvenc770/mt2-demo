@@ -27,7 +27,7 @@ class GenderValidator implements IValidate {
     public function validate() {
         $this->gender = strtoupper($this->gender);
 
-        if ('M' !== $this->gender && 'F' !== $this->gender && '' !== $this->gender) {
+        if ('M' !== $this->gender && 'F' !== $this->gender) {
             if (preg_match('/^MALE$|^HERR$|^SENIOR$|^SR$|^MR$/', $this->gender)) {
                 $this->gender = 'M';
             }
@@ -37,7 +37,7 @@ class GenderValidator implements IValidate {
             else {
                 // Try to guess based off of first name
                 // maybe make this a cached list
-                $this->gender = $this->nameGenderRepo->getGender($firstName);
+                $this->gender = $this->nameGenderRepo->getGender($this->firstName);
             }
         }
     }
