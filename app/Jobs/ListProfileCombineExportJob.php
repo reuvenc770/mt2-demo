@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\JobEntry;
+use App\Services\ListProfileCombineService;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -13,19 +14,18 @@ use App\Services\ListProfileService;
 use App\Services\ListProfileScheduleService;
 use App\Events\ListProfileCompleted;
 
-class ListProfileBaseExportJob extends Job implements ShouldQueue {
+class ListProfileCombineExportJob extends Job implements ShouldQueue {
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping, DispatchesJobs;
 
     private $tracking;
-    private $profileId;
+    private $combineId;
     private $jobName;
-    private $offers;
 
-    public function __construct($profileId, $tracking, $offers = 0) {
-        $this->profileId = $profileId;
+
+    public function __construct($combineId, $tracking) {
+        $this->combineId = $combineId;
         $this->tracking = $tracking;
-        $this->jobName = 'ListProfileExport-' . $profileId;
-        $this->offers = $offers;
+        $this->jobName = 'ListProfileCombineExport-' . $combineId;
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
@@ -35,22 +35,21 @@ class ListProfileBaseExportJob extends Job implements ShouldQueue {
      * @param ListProfileService $service
      * @param ListProfileScheduleService $schedule
      */
-    public function handle(ListProfileService $service, ListProfileScheduleService $schedule) {
+    public function handle(ListProfileService $service, ListProfileScheduleService $schedule, ListProfileCombineService $combineService) {
         if ($this->jobCanRun($this->jobName)) {
             try {
                 $this->createLock($this->jobName);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
-                $service->buildProfileTable($this->profileId);
-                $schedule->updateSuccess($this->profileId);
-                JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
-                if($this->offers == 0){
-                    $this->dispatch(new ExportListProfileJob($this->profileId, array(), str_random(16)));
-                } else {
-                    $offers = explode(',',$this->offers);
-                    foreach ($offers as $offer) {
-                        $this->dispatch(new ExportListProfileJob($this->profileId, $offer, str_random(16)));
-                    }
+
+                $combine = $combineService->getCombineById($this->combineId);
+                foreach($combine->listProfiles as $listProfile) {
+                    $service->buildProfileTable($listProfile->id);
+                    $schedule->updateSuccess($listProfile->id);
                 }
+
+                JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
+
+                $this->dispatch(new ExportListProfileCombineJob($this->combineId, str_random(16)));
 
             }
             catch (\Exception $e) {

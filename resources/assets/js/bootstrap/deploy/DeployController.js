@@ -6,7 +6,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         deploy_id: '',
         esp_account_id: '',
         offer_id: "",
-        list_profile_id: "0",
+        list_profile_combine_id: "0",
         mailing_domain_id: "",
         content_domain_id: "",
         template_id: "",
@@ -63,7 +63,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.loadAccounts = function () {
         self.loadEspAccounts();
         self.loadAffiliates();
-        //self.loadListProfiles();
+        self.loadListProfiles();
         self.loadDeploys();
         self.currentlyLoading = 0;
     };
@@ -381,7 +381,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
                 var pieces = deployData.send_date.split('-');
                 self.currentDeploy = deployData;
                 self.currentDeploy.creative_id = deployData.creative_id.toString();
-               // self.currentDeploy.list_profile_id = deployData.list_profile_id.toString();
+                self.currentDeploy.list_profile_combine_id = deployData.list_profile_combine_id.toString();
                 self.currentDeploy.from_id = deployData.from_id.toString();
                 self.currentDeploy.subject_id = deployData.subject_id.toString();
                 self.currentDeploy.template_id = deployData.template_id.toString();
@@ -408,7 +408,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
                 var pieces = deployData.send_date.split('-');
                 self.currentDeploy.send_date = new Date(pieces[0], pieces[1] - 1, pieces[2]);
                 self.currentDeploy.notes = deployData.notes;
-               // self.currentDeploy.list_profile_id = deployData.list_profile_id;
+                self.currentDeploy.list_profile_combine_id = deployData.list_profile_combine_id;
                 self.currentDeploy.template_id = deployData.template_id.toString();
                 self.currentDeploy.mailing_domain_id = deployData.mailing_domain_id.toString();
                 self.currentDeploy.content_domain_id = deployData.content_domain_id.toString();
@@ -637,7 +637,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
             deploy_id: '',
             esp_account_id: '',
             offer_id: "",
-            list_profile_id: "",
+            list_profile_combine_id: "",
             mailing_domain_id: "",
             content_domain_id: "",
             template_id: "",

@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use App\Jobs\Job;
 use App\Repositories\DeployRepo;
-use App\Repositories\ListProfileCombineRepo;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -13,13 +12,12 @@ use App\Models\JobEntry;
 use App\Jobs\Traits\PreventJobOverlapping;
 use App\Services\ListProfileExportService;
 
-class ExportListProfileJob extends Job implements ShouldQueue
+class ExportListProfileCombineJob extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
-    const BASE_NAME = 'ListProfileExport-';
+    const BASE_NAME = 'ListProfileCombineExport-';
     private $jobName;
-    private $listProfileId;
-    private $offerId;
+    private $combineId;
     private $tracking;
 
     /**
@@ -27,12 +25,11 @@ class ExportListProfileJob extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($listProfileId, $offerId, $tracking) {
-        $this->listProfileId = $listProfileId;
-        $this->offerId = $offerId;
+    public function __construct($listProfileCombineId, $tracking) {
+        $this->combineId = $listProfileCombineId;
         $this->tracking = $tracking;
 
-        $this->jobName = self::BASE_NAME . $listProfileId . ':' . $offerId;
+        $this->jobName = self::BASE_NAME . $listProfileCombineId;
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
@@ -46,14 +43,7 @@ class ExportListProfileJob extends Job implements ShouldQueue
             try {
                 $this->createLock($this->jobName);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
-                $offer = $this->offerId ? $this->offerId : array();
-
-                if($this->offerId >= 1){  //its a combine and meant for a deploy
-                    $deploys = $deployRepo->getDeploysFromProfileAndOffer($this->listProfileId,$this->offerId);
-                    $service->exportListProfileToMany($this->listProfileId, $offer,$deploys);
-                } else { // its a scheduled export
-                    $service->exportListProfile($this->listProfileId, $offer);
-                }
+                $service->exportListProfileCombine($this->combineId);
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
             }
             catch (\Exception $e) {
@@ -73,4 +63,5 @@ class ExportListProfileJob extends Job implements ShouldQueue
     public function failed() {
         JobTracking::changeJobState(JobEntry::FAILED, $this->tracking);
     }
+
 }

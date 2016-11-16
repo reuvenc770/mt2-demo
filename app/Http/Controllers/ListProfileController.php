@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\ListProfileBaseExportJob;
+use App\Jobs\ListProfileCombineExportJob;
 use App\Services\ListProfileService;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
@@ -16,9 +16,11 @@ use App\Services\DomainGroupService;
 use App\Models\CakeVertical;
 use App\Services\OfferService;
 use App\Services\ClientService;
+use App\Jobs\ListProfileBaseExportJob;
 use App\Services\FeedService;
 use App\Http\Requests\SubmitListProfileRequest;
 use Laracasts\Flash\Flash;
+use App\Services\ListProfileCombineService;
 
 class ListProfileController extends Controller
 {
@@ -29,6 +31,7 @@ class ListProfileController extends Controller
     protected $offerService;
     protected $clientService;
     protected $feedService;
+    protected $combineService;
 
     public function __construct (
         ListProfileService $listProfileService ,
@@ -37,7 +40,8 @@ class ListProfileController extends Controller
         DomainGroupService $ispService ,
         OfferService $offerService,
         ClientService $clientService,
-        FeedService $feedService
+        FeedService $feedService,
+        ListProfileCombineService $combineService
     ) {
         $this->listProfile = $listProfileService;
         $this->mt1CountryService = $mt1CountryService;
@@ -46,6 +50,7 @@ class ListProfileController extends Controller
         $this->offerService = $offerService;
         $this->clientService = $clientService;
         $this->feedService = $feedService;
+        $this->combineService = $combineService;
     }
 
     /**
@@ -85,7 +90,7 @@ class ListProfileController extends Controller
         $profileID = $this->listProfile->create( $request->all() );
 
         if($request->get('exportOptions.interval') == "Immediately") {
-            $this->dispatch(new ListProfileBaseExportJob($profileID, str_random(16),true));
+            $this->dispatch(new ListProfileBaseExportJob($profileID, str_random(16)));
         }
         Flash::success("List Profile was Successfully Created");
 
@@ -162,5 +167,26 @@ class ListProfileController extends Controller
             'isps' => $this->ispService->getAll() ,
             'categories' => CakeVertical::orderBy('name')->get() ,
         ] , $addOptions );
+    }
+
+
+    public function createListCombine(Request $request){
+
+        $insertData = [
+            "name" => $request->input("name"),
+        ];
+        $this->combineService->insertCombine($insertData, $request->input("selectedProfiles"));
+    }
+
+    public function getCombines(){
+        return response()->json($this->combineService->getAll());
+    }
+    public function getListCombinesOnly(){
+        return response()->json($this->combineService->getListCombinesOnly());
+    }
+
+    public function exportListCombine(Request $request){
+        $id = $request->input("id");
+        $this->dispatch(new ListProfileCombineExportJob($id, str_random(16)));
     }
 }

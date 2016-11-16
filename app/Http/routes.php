@@ -878,6 +878,23 @@ Route::group(
                     'as' => 'api.listprofile.active' ,
                     'uses' => 'ListProfileController@listActive'
                 ] );
+
+                Route::get( '/listcombine' , [
+                    'as' => 'api.listprofile.combine' ,
+                    'uses' => 'ListProfileController@getCombines'
+                ] );
+                Route::get( '/listcombine/combineonly' , [
+                    'as' => 'api.listprofile.combinelist' ,
+                    'uses' => 'ListProfileController@getListCombinesOnly'
+                ] );
+                Route::post( '/listcombine/create' , [
+                    'as' => 'api.listprofile.combine.create' ,
+                    'uses' => 'ListProfileController@createListCombine',
+                ] );
+                Route::post( '/listcombine/export' , [
+                    'as' => 'api.listprofile.combine.export' ,
+                    'uses' => 'ListProfileController@exportListCombine',
+                ] );
             }
         );
 

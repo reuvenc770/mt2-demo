@@ -7,54 +7,54 @@
 @section( 'angular-controller' , 'ng-controller="DeployController as deploy"' )
 
 @section( 'page-menu' )
-@if (Sentinel::hasAccess('api.deploy.store'))
-<li ng-click="deploy.displayForm()">
-    <a href="#">New Deploy</a>
-</li>
-@endif
+    @if (Sentinel::hasAccess('api.deploy.store'))
+        <li ng-click="deploy.displayForm()">
+            <a href="#">New Deploy</a>
+        </li>
+    @endif
 
-@if (Sentinel::hasAccess('api.attachment.upload'))
-<li flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'deploys' , '_token' : '{{ csrf_token() }}' } }"
-    flow-files-submitted="$flow.upload()"
-    flow-file-success="deploy.fileUploaded($file); $flow.cancel()" flow-btn>
-        <a href="#">Upload Deploy List</a>
-        <input type="file" style="visibility: hidden; position: absolute;"/>
-</li>
-@endif
+    @if (Sentinel::hasAccess('api.attachment.upload'))
+        <li flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'deploys' , '_token' : '{{ csrf_token() }}' } }"
+            flow-files-submitted="$flow.upload()"
+            flow-file-success="deploy.fileUploaded($file); $flow.cancel()" flow-btn>
+            <a href="#">Upload Deploy List</a>
+            <input type="file" style="visibility: hidden; position: absolute;"/>
+        </li>
+    @endif
 
-@if (Sentinel::hasAccess('api.deploy.exportcsv'))
-<li ng-click="deploy.exportCsv()" ng-disabled="deploy.disableExport">
-    <a href="#">Export to CSV</a>
-</li>
-@endif
+    @if (Sentinel::hasAccess('api.deploy.exportcsv'))
+        <li ng-click="deploy.exportCsv()" ng-disabled="deploy.disableExport">
+            <a href="#">Export to CSV</a>
+        </li>
+    @endif
 
-@if (Sentinel::hasAccess('api.deploy.copytofuture'))
-<li ng-click="deploy.copyToFuture( $event )" ng-disabled="deploy.disableExport">
-    <a href="#">Copy to Future</a>
-</li>
-@endif
+    @if (Sentinel::hasAccess('api.deploy.copytofuture'))
+        <li ng-click="deploy.copyToFuture( $event )" ng-disabled="deploy.disableExport">
+            <a href="#">Copy to Future</a>
+        </li>
+    @endif
 
-@if (Sentinel::hasAccess('api.deploy.deploypackages'))
-<li ng-click="deploy.createPackages()" ng-disabled="deploy.disableExport" >
-    <a href="#">Send zips to FTP</a>
-</li>
-@endif
+    @if (Sentinel::hasAccess('api.deploy.deploypackages'))
+        <li ng-click="deploy.createPackages()" ng-disabled="deploy.disableExport" >
+            <a href="#">Send zips to FTP</a>
+        </li>
+    @endif
 
-@if (Sentinel::hasAccess('deploy.preview'))
-<li ng-click="deploy.previewDeploys()" ng-disabled="deploy.disableExport">
-    <a href="#">Preview Deploy(s)</a>
-</li>
-@endif
+    @if (Sentinel::hasAccess('deploy.preview'))
+        <li ng-click="deploy.previewDeploys()" ng-disabled="deploy.disableExport">
+            <a href="#">Preview Deploy(s)</a>
+        </li>
+    @endif
 
-@if (Sentinel::hasAccess('deploy.downloadhtml'))
-<li ng-click="deploy.downloadHtml()" ng-disabled="deploy.disableExport">
-    <a href="#">Get Html</a>
-</li>
-@endif
+    @if (Sentinel::hasAccess('deploy.downloadhtml'))
+        <li ng-click="deploy.downloadHtml()" ng-disabled="deploy.disableExport">
+            <a href="#">Get Html</a>
+        </li>
+    @endif
 @stop
 
 @section( 'content' )
-<div ng-init="deploy.loadAccounts()">
+    <div ng-init="deploy.loadAccounts()">
         <div style="width:800px">
             <div class="panel panel-primary center-block">
                 <div class="panel-heading">
@@ -146,6 +146,7 @@
                     <th md-column class="md-table-header-override-whitetext">Send Date</th>
                     <th md-column class="md-table-header-override-whitetext">Deploy ID</th>
                     <th md-column class="md-table-header-override-whitetext">ESP Account</th>
+                    <th md-column class="md-table-header-override-whitetext">List Profile</th>
                     <th md-column class="md-table-header-override-whitetext">Offer</th>
                     <th md-column class="md-table-header-override-whitetext">Creative</th>
                     <th md-column class="md-table-header-override-whitetext">From</th>
@@ -167,15 +168,15 @@
                     <td md-cell class="mt2-table-btn-column">
                         <div layout="row">
                             @if (Sentinel::hasAccess('api.deploy.update'))
-                            <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-click="deploy.actionLink( $event , deployForm )" ng-disabled="deploy.formSubmitting" data-toggle="tooltip" data-placement="bottom" title="@{{ deploy.actionText() }}">save</md-icon>
-                            &nbsp;&nbsp;
+                                <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-click="deploy.actionLink( $event , deployForm )" ng-disabled="deploy.formSubmitting" data-toggle="tooltip" data-placement="bottom" title="@{{ deploy.actionText() }}">save</md-icon>
+                                &nbsp;&nbsp;
                             @endif
                             <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-click="deploy.showRow = false" data-toggle="tooltip" data-placement="bottom" title="Cancel">clear</md-icon>
                         </div>
                     </td>
                     <td md-cell>
                         <md-datepicker name="dateField" ng-model="deploy.currentDeploy.send_date"
-                             required md-placeholder="Enter date"
+                                       required md-placeholder="Enter date"
                                        ng-disabled="deploy.offerLoading"
                                        md-date-filter="deploy.canOfferBeMailed"
                                        md-min-date="deploy.minDate">
@@ -197,6 +198,24 @@
                                 <option value="">ESP Account</option>
                                 <option ng-repeat="option in deploy.espAccounts" ng-value="option.id"
                                         ng-selected="option.id == deploy.currentDeploy.esp_account_id">@{{ option.account_name }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="help-block" ng-show="deploy.formErrors.esp_account_id">
+                            <div ng-repeat="error in deploy.formErrors.esp_account_id">
+                                <span ng-bind="error"></span>
+                            </div>
+                        </div>
+                    </td>
+                    <td md-cell nowrap>
+                        <div class="form-group">
+                            <select name="list_profile" id="list_profile" class="form-control"
+                                    ng-model="deploy.currentDeploy.list_profile_combine_id"
+                                    ng-disabled="deploy.currentlyLoading">
+                                <option value="">List Profile</option>
+                                <option ng-repeat="option in deploy.listProfiles" ng-value="option.id"
+                                        ng-selected="option.id == deploy.currentDeploy.list_profile_combine_id">@{{ option.name }}
                                 </option>
                             </select>
                         </div>
@@ -411,88 +430,89 @@
                             <textarea ng-model="deploy.currentDeploy.notes" class="form-control" rows="2" id="html"></textarea>
                         </div>
                     </td>
-                    </tr>
+                </tr>
 
-                    <tr md-row ng-repeat="record in deploy.deploys track by $index" ng-class="{ 'bg-info' : record.deployment_status == 0,
+                <tr md-row ng-repeat="record in deploy.deploys track by $index" ng-class="{ 'bg-info' : record.deployment_status == 0,
                                      'bg-success' : record.deployment_status ==1,
                                      'bg-warning' : record.deployment_status == 2 }">
-                        <td md-cell class="mt2-table-btn-column">
-                            <md-checkbox ng-checked="deploy.checkChecked(record.deploy_id)" ng-show="@{{deploy.checkStatus(record.creative_approval,record.creative_status)
+                    <td md-cell class="mt2-table-btn-column">
+                        <md-checkbox ng-checked="deploy.checkChecked(record.deploy_id)" ng-show="@{{deploy.checkStatus(record.creative_approval,record.creative_status)
                             && deploy.checkStatus(record.from_approval,record.from_status)
                             && deploy.checkStatus(record.subject_approval,record.subject_status)}}" aria-label="Select" name="selectedRows"
-                                         ng-click="deploy.toggleRow(record.deploy_id)"> </md-checkbox>
-                        </td>
-                        <td md-cell class="mt2-table-btn-column">
-                            <div layout="row">
-                                <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-hide="record.deployment_status ==1" ng-click="deploy.editRow( record.deploy_id)" aria-label="Edit" data-toggle="tooltip" data-placement="bottom" title="Edit">edit</md-icon>
-                                &nbsp;&nbsp;
-                                <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-click="deploy.copyRow( record.deploy_id)" aria-label="Copy" data-toggle="tooltip" data-placement="bottom" title="Copy">content_copy</md-icon>
-                            </div>
-                        </td>
-                        <td md-cell nowrap>@{{ record.send_date }}</td>
-                        <td md-cell>@{{ record.deploy_id }}</td>
-                        <td md-cell>@{{ record.account_name }}</td>
-                        <td md-cell nowrap>
+                                     ng-click="deploy.toggleRow(record.deploy_id)"> </md-checkbox>
+                    </td>
+                    <td md-cell class="mt2-table-btn-column">
+                        <div layout="row">
+                            <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-hide="record.deployment_status ==1" ng-click="deploy.editRow( record.deploy_id)" aria-label="Edit" data-toggle="tooltip" data-placement="bottom" title="Edit">edit</md-icon>
+                            &nbsp;&nbsp;
+                            <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-click="deploy.copyRow( record.deploy_id)" aria-label="Copy" data-toggle="tooltip" data-placement="bottom" title="Copy">content_copy</md-icon>
+                        </div>
+                    </td>
+                    <td md-cell nowrap>@{{ record.send_date }}</td>
+                    <td md-cell>@{{ record.deploy_id }}</td>
+                    <td md-cell>@{{ record.account_name }}</td>
+                    <td md-cell>@{{ record.list_profile }}</td>
+                    <td md-cell nowrap>
                             <span data-toggle="popover" data-content="@{{ record.offer_name }}">
                             @{{ record.offer_name.substring(0,20) }}...
                             </span>
-                        </td>
-                        <td md-cell nowrap>
+                    </td>
+                    <td md-cell nowrap>
                             <span data-toggle="popover" data-content="@{{ record.creative }}">
                                 @{{ record.creative.substring(0,20) }}...
                             </span>
                             <span ng-hide="deploy.checkStatus(record.creative_approval,record.creative_status)"
                                   class="deploy-error bg-danger">!! Creative has been unapproved or deactivated !!</span>
-                        </td>
-                        <td md-cell nowrap>
+                    </td>
+                    <td md-cell nowrap>
                             <span data-toggle="popover" data-content="@{{ record.from }}">
                                 @{{ record.from.substring(0,20) }}...
                             </span>
                             <span ng-hide="deploy.checkStatus(record.from_approval,record.from_status)"
                                   class="deploy-error bg-danger">!! From has been unapproved or deactivated !!</span>
-                        </td>
-                        <td md-cell nowrap>
+                    </td>
+                    <td md-cell nowrap>
                             <span data-toggle="popover" data-content="@{{ record.subject }}">
                                 @{{ record.subject.substring(0,10) }}...
                             </span>
-                            <md-button class="md-icon-button" ngclipboard data-clipboard-text="@{{record.subject}}" data-toggle="tooltip" data-placement="bottom" title="Copy Subject">
-                                <md-icon md-font-set="material-icons" class="mt2-icon-black">content_copy</md-icon>
-                            </md-button>
+                        <md-button class="md-icon-button" ngclipboard data-clipboard-text="@{{record.subject}}" data-toggle="tooltip" data-placement="bottom" title="Copy Subject">
+                            <md-icon md-font-set="material-icons" class="mt2-icon-black">content_copy</md-icon>
+                        </md-button>
                             <span ng-hide="deploy.checkStatus(record.subject_approval,record.subject_status)"
                                   class="deploy-error bg-danger">!! Subject has been unapproved or deactivated !!</span>
-                        </td>
-                        <td md-cell>@{{ record.template_name }}</td>
-                        <td md-cell>@{{ record.mailing_domain }}</td>
-                        <td md-cell>@{{ record.content_domain }}</td>
-                        <td md-cell>@{{ record.cake_affiliate_id }}</td>
-                        <td ng-show="deploy.showRow" md-cell></td>
-                        <td ng-show="deploy.showRow" md-cell></td>
-                        <td ng-show="deploy.showRow" md-cell></td>
-                        <td md-cell>@{{ record.notes }}</td>
-                    </tr>
+                    </td>
+                    <td md-cell>@{{ record.template_name }}</td>
+                    <td md-cell>@{{ record.mailing_domain }}</td>
+                    <td md-cell>@{{ record.content_domain }}</td>
+                    <td md-cell>@{{ record.cake_affiliate_id }}</td>
+                    <td ng-show="deploy.showRow" md-cell></td>
+                    <td ng-show="deploy.showRow" md-cell></td>
+                    <td ng-show="deploy.showRow" md-cell></td>
+                    <td md-cell>@{{ record.notes }}</td>
+                </tr>
                 </tbody>
 
                 <tfoot>
-                    <tr>
-                        <td colspan="17">
-                            <md-content class="md-mt2-zeta-theme md-hue-2">
-                                <md-table-pagination md-limit="deploy.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="deploy.currentPage" md-total="@{{deploy.deployTotal}}" md-on-paginate="deploy.loadAccounts" md-page-select></md-table-pagination>
-                            </md-content>
-                        </td>
-                    </tr>
+                <tr>
+                    <td colspan="17">
+                        <md-content class="md-mt2-zeta-theme md-hue-2">
+                            <md-table-pagination md-limit="deploy.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="deploy.currentPage" md-total="@{{deploy.deployTotal}}" md-on-paginate="deploy.loadAccounts" md-page-select></md-table-pagination>
+                        </md-content>
+                    </td>
+                </tr>
                 </tfoot>
             </table>
         </md-table-container>
     </form>
-</div>
+    </div>
     <deploy-validate-modal upload-errors="deploy.uploadErrors" mass-upload="deploy.massUploadList()"
                            records="deploy.uploadedDeploys"></deploy-validate-modal>
 @stop
 
 <?php
 Assets::add( [
-    'resources/assets/js/bootstrap/deploy/DeployController.js' ,
-    'resources/assets/js/bootstrap/deploy/DeployApiService.js' ,
-    'resources/assets/js/bootstrap/deploy/DeployValidateModalDirective.js'
+        'resources/assets/js/bootstrap/deploy/DeployController.js' ,
+        'resources/assets/js/bootstrap/deploy/DeployApiService.js' ,
+        'resources/assets/js/bootstrap/deploy/DeployValidateModalDirective.js'
 ] , 'js' , 'pageLevel' );
 ?>

@@ -8,7 +8,7 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
     self.templateUrl = '/api/mailingtemplate/templates/';
     self.cakeUrl = '/api/deploy/cakeaffiliates/';
     self.pagerApiUrl = '/api/pager/Deploy';
-    self.listProfileUrl = '/api/listprofile/active/';
+    self.listProfileUrl = '/api/listprofile/listcombine';
     self.cfsUrl = '/api/cfs/';
 
 

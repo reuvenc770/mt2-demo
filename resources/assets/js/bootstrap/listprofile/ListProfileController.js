@@ -1,4 +1,4 @@
-mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToast' , '$mdDialog' , '$timeout' , 'formValidationService' , 'modalService' , '$location' , '$window' , '$log' , function ( ListProfileApiService , $mdToast , $mdDialog , $timeout , formValidationService , modalService , $location , $window , $log ) {
+mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDialog' , '$timeout' , 'formValidationService' , 'modalService' , '$location' , '$window' , '$log' , function ( ListProfileApiService , $mdDialog , $timeout , formValidationService , modalService , $location , $window , $log ) {
     var self = this;
 
     self.nameDisabled = true;
@@ -8,6 +8,12 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
     self.showAttrFilters = false;
     self.search = {};
     self.enabledSuppression = { "list" : false , "offer" : false };
+
+    self.selectedProfiles = [];
+    self.showCombine = false;
+    self.listCombines = [];
+    self.combineError = null;
+    self.combineName = "";
 
     self.current = {
         'profile_id' : null ,
@@ -182,6 +188,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
             self.loadListProfilesSuccessCallback ,
             self.loadListProfilesFailureCallback
         );
+        self.loadListCombines();
     };
 
     self.loadListProfilesSuccessCallback = function ( response ) {
@@ -692,5 +699,66 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
 
     self.failureCallback = function ( response ) {
         formValidationService.loadFieldErrors( self , response );
+    };
+
+    self.nameCombine = function (){
+        $('#createCombine').modal('show');
+    };
+
+    self.createCombine = function (){
+        if(self.combineName.length < 1){
+            self.combineError = "Combine Name is required";
+        } else {
+            self.combineError = null;
+        }
+
+        ListProfileApiService.createCombine(self.combineName,self.selectedProfiles, self.createCombineSuccess, self.createCombineFail);
+    };
+
+    self.toggleRow = function (selectedValue) {
+        console.log(selectedValue);
+        var index = self.selectedProfiles.indexOf(selectedValue);
+        if (index >= 0) {
+            self.selectedProfiles.splice(index, 1);
+        } else {
+            self.selectedProfiles.push(selectedValue);
+        }
+        self.showCombine = self.selectedProfiles.length > 1;
+    };
+
+    self.loadListCombines = function (){
+        ListProfileApiService.getCombines(self.loadCombinesSuccess,self.loadCombineFail);
+    };
+
+    self.loadCombinesSuccess = function (response){
+        self.listCombines = response.data;
+    };
+
+    self.createCombineSuccess = function (response){
+        modalService.simpleToast("List Combine was Created",'top right');
+        self.loadListCombines();
+        self.combineName = "";
+    };
+
+    self.loadCombineFail = function (response) {
+        modalService.simpleToast("List Combine failed to load",'top right');
+
+    };
+
+    self.createCombineFail = function ( response) {
+        modalService.simpleToast("List Combine failed to create",'top right');
+    };
+
+    self.exportCombine = function (id){
+        console.log(id);
+       ListProfileApiService.exportCombine(id,self.exportCombineSuccess, self.exportCombineFail)
+    };
+
+    self.exportCombineSuccess = function (response){
+        modalService.simpleToast("List Combine Export has started",'top right');
+    };
+
+    self.exportCombineFail = function (response){
+        modalService.simpleToast("List Combine failed to export",'top right');
     };
 } ] );
