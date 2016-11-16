@@ -150,6 +150,7 @@ class CampaignerApi extends EspBaseAPI
         foreach ($records as $record) {
 
             $fax = "";
+            // These domains are yahoo.com and ymail.com
             if (($record->domainId == 9) or ($record->domainId == 342774)) {
 
                 $key = new ContactKey(0, $record->emailAddress);

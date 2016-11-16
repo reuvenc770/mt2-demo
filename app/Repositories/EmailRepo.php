@@ -176,7 +176,7 @@ class EmailRepo {
 
         if (!$email) {
             // One final precaution
-            $email = Email::updateOrCreate(['email_address' => $row['email_address']], $row);
+            $email = $this->emailModel->updateOrCreate(['email_address' => $row['email_address']], $row);
         }
 
         return $email;
