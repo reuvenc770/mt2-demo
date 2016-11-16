@@ -625,6 +625,13 @@ md-list-item.mt2-nav-sub-item .md-list-item-inner {
         margin-right: 10px;
     }
 }
+
+@media (max-width: 767px){
+    .navbar-right {
+        margin-left: 2em;
+    }
+}
+
 .mt2-sidenav-dark , .mt2-nav-toggle {
     background-color: #191c21 !important;
 }
@@ -933,7 +940,7 @@ md-list-item.mt2-nav-sub-item .md-list-item-inner {
 
 //** Should break this out into partials soon**/
 
-.pinned-container{
+.pinned-container > div{
     margin-top: 70px;
 }
 
