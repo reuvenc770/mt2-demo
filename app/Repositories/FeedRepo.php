@@ -91,7 +91,14 @@ class FeedRepo {
         else {
             return '';
         }
+    }
         
+    public function getActiveFeedNames () {
+        return $this->feed->where( 'status' , 'Active'  )->pluck( 'name' )->toArray();
+    }
+
+    public function getFeedIdByName ( $name ) {
+        return ( $record = $this->feed->where( 'name' , $name )->pluck( 'id' ) ) ? $record->pop() : null;
     }
 
     public function passwordExists ( $password ) {

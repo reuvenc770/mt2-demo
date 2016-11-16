@@ -21,6 +21,7 @@ class Kernel extends ConsoleKernel
     const ATTRIBUTION_UPDATE_TIME = '15:30';
     const ATTRIBUTION_REPORT_EARLY_UPDATE_TIME = '0:30';
     const ATTRIBUTION_REPORT_UPDATE_TIME = '17:00';
+    const FEED_FILE_PROCESS_TIME = '22:00';
     const MT1_SYNC_TIME = '23:00';
 
     /**
@@ -77,6 +78,7 @@ class Kernel extends ConsoleKernel
         Commands\ESPUnsubsReport::class,
         Commands\ProcessFeedRecords::class,
         Commands\DeactivateEspAccounts::class,
+        Commands\ProcessFeedRawFiles::class,
     ];
 
     /**
@@ -228,5 +230,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('listprofile:baseTables')->dailyAt(self::EXPIRATION_RUNS);
         //export jobs
         $schedule->command('listprofile:exportScheduled')->dailyAt(self::DROP_OFF_LIST_PROFILES);
+
+        /**
+         * Feed File Processing
+         */
+        $schedule->command( 'feedRecords:processRawFiles' )->dailyAt( self::FEED_FILE_PROCESS_TIME );
     }
 }
