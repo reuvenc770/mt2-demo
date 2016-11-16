@@ -76,7 +76,7 @@ class ProcessingRecord {
         $this->captureDate = $record->capture_date;
         $this->ip = $record->ip;
         $this->sourceUrl = $record->source_url;
-        $this->otherFieldsJson = $record->other_fields ?: '[]';
+        $this->otherFieldsJson = $record->other_fields ?: '{}';
         $this->otherFields = json_decode($record->other_fields, true);
     }
 

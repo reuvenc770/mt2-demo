@@ -79,16 +79,14 @@ class ProcessFeedRecords extends Command
         
         // Create array of ProcessingRecords and get last id
         $users = [];
-        $id = 0;
+        $maxId = 0;
 
         foreach($records as $record) {
             $users[] = new ProcessingRecord($record);
-            $id = $record->id;
+            $maxId = $record->id;
         }
 
-        $pickupRepo->updatePosition($name, $id);
-
-        $job = new ProcessFeedRecordsJob($party, $feedId, $users, str_random(16));
+        $job = new ProcessFeedRecordsJob($party, $feedId, $users, $name, $maxId, str_random(16));
         $this->dispatch($job);
     }
 }

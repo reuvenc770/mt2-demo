@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Facades\JobTracking;
 use App\Factories\FeedProcessingFactory;
 use App\Jobs\Traits\PreventJobOverlapping;
+use App\Repositories\EtlPickupRepo;
 
 class ProcessFeedRecordsJob extends Job implements ShouldQueue {
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
@@ -17,19 +18,22 @@ class ProcessFeedRecordsJob extends Job implements ShouldQueue {
     private $tracking;
     private $records;
     private $feedId;
-    const JOB_NAME_BASE = 'FeedProcessing';
     private $jobName;
+    private $maxId;
 
-    public function __construct($party, $feedId, $records, $tracking) {
-        $this->jobName = self::JOB_NAME_BASE . "-$party-$tracking";
+    public function __construct($party, $feedId, $records, $tableName, $maxId, $tracking) {
+        $this->tableName = $tableName,
+        $this->jobName = $tableName . "-$tracking";
         $this->tracking = $tracking;
         $this->records = $records;
         $this->party = $party;
         $this->feedId = $feedId;
+        $this->maxId = $maxId;
+
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
-    public function handle() {
+    public function handle(EtlPickupRepo $pickupRepo) {
         echo "Job handle attempt" . PHP_EOL;
         if ($this->jobCanRun($this->jobName)) {
             try {
@@ -41,9 +45,8 @@ class ProcessFeedRecordsJob extends Job implements ShouldQueue {
                 $service = FeedProcessingFactory::createService($this->party, $this->feedId);
                 $service->process($this->records);
 
+                $pickupRepo->updateOrCreate($this->tableName, $this->maxId);
                 JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
-
-                // update stop point here?
             }
             catch (\Exception $e) {
                 echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;

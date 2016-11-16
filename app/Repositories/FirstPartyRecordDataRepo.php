@@ -31,13 +31,6 @@ class FirstPartyRecordDataRepo {
         }
     }
 
-    /**
-        Not sure if needed
-    */
-    public function getRecordDataFromEid($eid){
-        return $this->model->find($eid);
-    }
-
     public function insertStored() {
 
         if ($this->batchDataCount > 0) {
