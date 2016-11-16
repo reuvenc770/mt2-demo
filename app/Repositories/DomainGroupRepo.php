@@ -52,4 +52,7 @@ class DomainGroupRepo
         return $this->domainGroup->where('status', 'Active')->orderBy('name')->get();
     }
 
+    public function getAllActiveNames () {
+        return $this->domainGroup->where( 'status' , 'Active' )->pluck( 'name' )->toArray();
+    }
 }

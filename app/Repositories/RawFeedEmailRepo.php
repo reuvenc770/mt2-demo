@@ -37,13 +37,46 @@ class RawFeedEmailRepo {
     }
 
     public function create ( $data ) {
-        $rawEmailRecord = array_intersect_key( $data , $this->standardFields );
-        
-        $customFields = array_diff_key( $data , $this->standardFields );
+        $this->rawEmail->create( $this->fixRecordStructure( $data ) );
+    }
 
-        $rawEmailRecord[ 'other_fields' ] = json_encode( $customFields );
+    public function massInsert ( $recordStringList ) {
+        $recordSqlString = implode( ' , ' , $recordStringList );
 
-        $this->rawEmail->create( $rawEmailRecord );
+        \DB::insert( "
+            INSERT INTO
+                raw_feed_emails (
+                    feed_id ,
+                    email_address ,
+                    source_url ,
+                    capture_date ,
+                    ip ,
+                    first_name ,
+                    last_name ,
+                    address ,
+                    address2 ,
+                    city ,
+                    state ,
+                    zip ,
+                    country ,
+                    gender ,
+                    phone ,
+                    dob ,
+                    other_fields ,
+                    created_at ,
+                    updated_at
+                )
+            VALUES
+                {$recordSqlString}    
+        " );
+    }
+
+    public function toSqlFormat ( $record ) {
+        $cleanRecord = $this->cleanseRecord( $record );
+
+        $finalRecord = $this->fixRecordStructure( $cleanRecord );
+
+        return $this->formatRecord( $finalRecord );
     }
 
     public function cleanseRecord ( $record ) {
@@ -68,5 +101,41 @@ class RawFeedEmailRepo {
             'email' => $email ,
             'feed_id' => $feedId
         ] );
+    }
+
+    protected function formatRecord ( $record ) {
+        $pdo = \DB::connection()->getPdo();
+
+        return "("
+            . $pdo->quote( $record[ 'feed_id' ] ) . ","
+            . $pdo->quote( $record[ 'email_address' ] ) . ","
+            . $pdo->quote( $record[ 'source_url' ] ) . ","
+            . $pdo->quote( $record[ 'capture_date' ] ) . ","
+            . $pdo->quote( $record[ 'ip' ] ) . ","
+            . ( isset( $record[ 'first_name' ] ) ? $pdo->quote( $record[ 'first_name' ] ) : 'NULL' ) . ","
+            . ( isset( $record[ 'last_name' ] ) ? $pdo->quote( $record[ 'last_name' ] ) : 'NULL' ) . ","
+            . ( isset( $record[ 'address' ] ) ? $pdo->quote( $record[ 'address' ] ) : 'NULL' ) . ","
+            . ( isset( $record[ 'address2' ] ) ? $pdo->quote( $record[ 'address2' ] ) : 'NULL' ) . ","
+            . ( isset( $record[ 'city' ] ) ? $pdo->quote( $record[ 'city' ] ) : 'NULL' ) . ","
+            . ( isset( $record[ 'state' ] ) ? $pdo->quote( $record[ 'state' ] ) : 'NULL' ) . ","
+            . ( isset( $record[ 'zip' ] ) ? $pdo->quote( $record[ 'zip' ] ) : 'NULL' ) . ","
+            . ( isset( $record[ 'country' ] ) ? $pdo->quote( $record[ 'country' ] ) : 'NULL' ) . ","
+            . ( isset( $record[ 'gender' ] ) ? $pdo->quote( $record[ 'gender' ] ) : 'NULL' ) . ","
+            . ( isset( $record[ 'phone' ] ) ? $pdo->quote( $record[ 'phone' ] ) : 'NULL' ) . ","
+            . ( isset( $record[ 'dob' ] ) ? $pdo->quote( $record[ 'dob' ] ) : 'NULL' ) . ","
+            . ( isset( $record[ 'other_fields' ] ) ? $pdo->quote( $record[ 'other_fields' ] ) : '{}' ) . ","
+            . "NOW() ,"
+            . "NOW()"
+        . ")";
+    }
+
+    protected function fixRecordStructure ( $record ) {
+        $rawEmailRecord = array_intersect_key( $record , $this->standardFields );
+        
+        $customFields = array_diff_key( $record , $this->standardFields );
+
+        $rawEmailRecord[ 'other_fields' ] = json_encode( $customFields );
+
+        return $rawEmailRecord;
     }
 }
