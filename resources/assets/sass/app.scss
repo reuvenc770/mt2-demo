@@ -249,6 +249,27 @@ th md-checkbox.md-mt2-zeta-theme:not(.md-checked) .md-icon {
  md-icon.mt2-icon-white{
     color: #ffffff;
  }
+
+md-icon.mt2-status-icon{
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+    min-width: 18px;
+    min-height: 18px;
+}
+
+md-icon.mt2-status-icon-info{
+    color: #d9edf7;
+}
+
+md-icon.mt2-status-icon-success{
+    color: #dff0d8;
+}
+
+md-icon.mt2-status-icon-warning{
+    color: #fcf8e3;
+}
+
 .material-icons:focus {
     outline: 0;
 }

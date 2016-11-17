@@ -432,9 +432,7 @@
                     </td>
                 </tr>
 
-                <tr md-row ng-repeat="record in deploy.deploys track by $index" ng-class="{ 'bg-info' : record.deployment_status == 0,
-                                     'bg-success' : record.deployment_status ==1,
-                                     'bg-warning' : record.deployment_status == 2 }">
+                <tr md-row ng-repeat="record in deploy.deploys track by $index">
                     <td md-cell class="mt2-table-btn-column">
                         <md-checkbox ng-checked="deploy.checkChecked(record.deploy_id)" ng-show="@{{deploy.checkStatus(record.creative_approval,record.creative_status)
                             && deploy.checkStatus(record.from_approval,record.from_status)
@@ -453,6 +451,10 @@
                     <td md-cell>@{{ record.account_name }}</td>
                     <td md-cell>@{{ record.list_profile }}</td>
                     <td md-cell nowrap>
+                        <md-icon md-font-set="material-icons" class="mt2-status-icon"
+                                    ng-class="{ 'mt2-status-icon-success' : record.deployment_status == 1 ,
+                                        'mt2-status-icon-warning' : record.deployment_status == 0 || record.deployment_status == 2 ,
+                                        'mt2-status-icon-info' : record.deployment_status == 3 }">lens</md-icon>
                             <span data-toggle="popover" data-content="@{{ record.offer_name }}">
                             @{{ record.offer_name.substring(0,20) }}...
                             </span>
@@ -472,12 +474,14 @@
                                   class="deploy-error bg-danger">!! From has been unapproved or deactivated !!</span>
                     </td>
                     <td md-cell nowrap>
+                        <div layout="row" layout-align="space-between center">
                             <span data-toggle="popover" data-content="@{{ record.subject }}">
                                 @{{ record.subject.substring(0,10) }}...
                             </span>
-                        <md-button class="md-icon-button" ngclipboard data-clipboard-text="@{{record.subject}}" data-toggle="tooltip" data-placement="bottom" title="Copy Subject">
-                            <md-icon md-font-set="material-icons" class="mt2-icon-black">content_copy</md-icon>
-                        </md-button>
+                            <md-button class="md-icon-button" ngclipboard data-clipboard-text="@{{record.subject}}" data-toggle="tooltip" data-placement="bottom" title="Copy Subject">
+                                <md-icon md-font-set="material-icons" class="mt2-icon-black">content_copy</md-icon>
+                            </md-button>
+                        </div>
                             <span ng-hide="deploy.checkStatus(record.subject_approval,record.subject_status)"
                                   class="deploy-error bg-danger">!! Subject has been unapproved or deactivated !!</span>
                     </td>
