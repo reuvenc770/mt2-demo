@@ -96,7 +96,7 @@ class DeployRepo
                 "template_id",
                 "mailing_domain_id",
                 "content_domain_id",
-                "list_profile_id",
+                "list_profile_combine_id",
                 "cake_affiliate_id",
                 "encrypt_cake",
                 "fully_encrypt",
