@@ -15,6 +15,6 @@ class SuppressionGlobalOrangeRepo {
     }
 
     public function updateOrCreate ( $data ) {
-        $this->model->updateOrCreate( [ 'id' => $data[ 'id' ] ] , $data );
+        $this->model->updateOrCreate( [ 'email_address' => $data[ 'email_address' ] ] , $data );
     }
 }
