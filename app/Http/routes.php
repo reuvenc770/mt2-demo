@@ -134,6 +134,10 @@ Route::group(
             'as' => 'esp.add' ,
             'uses' => 'EspController@create'
         ] );
+        Route::get( '/mapping/{id}' , [
+            'as' => 'esp.mapping' ,
+            'uses' => 'EspController@mappings'
+        ] );
     }
 );
 

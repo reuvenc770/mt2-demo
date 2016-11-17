@@ -14,7 +14,28 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     self.currentPage = 1;
     self.accountTotal = 0;
     self.formSubmitted = false;
+    self.fieldList = [
+        { "label" : "Campaign Name" , "field" : "campaign_name" , "required" : true } ,
+        { "label" : "Deploy ID" , "field" : "deploy_id" , "required" : true } ,
+        { "label" : "Send Date" , "field" : "datetime" , "required" : true } ,
+        { "label" : "Name" , "field" : "name" , "required" : true } ,
+        { "label" : "Subject" , "field" : "subject" } ,
+        { "label" : "From" , "field" : "from" } ,
+        { "label" : "From Email" , "field" : "from_email" } ,
+        { "label" : "Number Sent" , "field" : "e_sent" } ,
+        { "label" : "Number Delivered" , "field" : "delivered" } ,
+        { "label" : "Number Bounced" , "field" : "bounced" } ,
+        { "label" : "Number Optouts" , "field" : "optouts" } ,
+        { "label" : "Number Opens" , "field" : "e_opens" } ,
+        { "label" : "Number of Unique Opens" , "field" : "e_opens_unique" } ,
+        { "label" : "Number of Clicks" , "field" : "e_clicks" } ,
+        { "label" : "Number of Unique Clicks" , "field" : "e_clicks_unique" } ,
+        { "label" : "Conversions" , "field" : "conversions" } ,
+        { "label" : "Cost" , "field" : "cost" } ,
+        { "label" : "Revenue" , "field" : "revenue" }
+    ];
 
+    self.selectedFields = [];
 
     self.loadAccount = function () {
         var pathMatches = $location.path().match( /^\/esp\/edit\/(\d{1,})/ );

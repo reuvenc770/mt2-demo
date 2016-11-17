@@ -113,25 +113,6 @@ class EspApiAccountService
     }
 
     /**
-     *
-     */
-    public function mapCsvToRawStatsArray($espName,$filePath) {
-        $returnArray = array();
-        $mapping = $this->grabCsvMapping($espName);
-        $reader = Reader::createFromPath(storage_path().'/app/'.$filePath);
-
-        $data = $reader->fetchAssoc($mapping);
-        foreach ($data as $row) {
-            $espAccountName = explode('_',$row['campaign_name'])[1];
-            $espAccountId = $this->espRepo->getIdFromName($espAccountName);
-            $row['esp_account_id'] = $espAccountId->id;
-            $returnArray[] = $row;
-        }
-        return $returnArray;
-    }
-
-
-    /**
      * @param array $newAccount The collection of account details to save.
      */
     public function saveAccount ( $accountData ) {
@@ -180,4 +161,9 @@ class EspApiAccountService
         return $this->espRepo->toggleRow($id, $direction);
     }
 
+    protected function getEspAccountIdFromName($name){
+        $espAccountName = explode('_',$name)[1];
+        $espAccountId = $this->espRepo->getIdFromName($espAccountName);
+        return  $espAccountId->id;
+    }
 }

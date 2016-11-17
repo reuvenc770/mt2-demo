@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ImportCsvStats;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -13,6 +15,7 @@ use Laracasts\Flash\Flash;
 
 class EspController extends Controller
 {
+    use DispatchesJobs;
     protected $espService;
 
 
@@ -115,6 +118,20 @@ class EspController extends Controller
     public function destroy($id)
     {
         //Will not be in use. We don't want to delete ESP Accounts.
+    }
+
+
+    public function mappings($id){
+        return response()
+            ->view( 'bootstrap.pages.esp.esp-mapping');
+    }
+
+    public function processCSV(Request $request){
+        $fileName = $request->get("filename");
+        $espName = $request->get("esp");
+        $dateFolder = date('Ymd');
+        $path = storage_path() . "/app/files/uploads/deploys/$dateFolder/$fileName";
+        $this->dispatch(new ImportCsvStats($espName, $path));
     }
 
 }

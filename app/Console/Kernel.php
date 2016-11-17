@@ -32,10 +32,8 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         Commands\Inspire::class,
         Commands\GrabApiEspReports::class,
-        Commands\GrabCsvEspReports::class,
         Commands\GrabTrackingApiData::class,
         Commands\UpdatePermissionsFromRoutes::class,
-        Commands\GrabCsvDeliverables::class,
         Commands\GrabDeliverableReports::class,
         Commands\PopulateEmailCampaignsTable::class,
         Commands\GenOauth::class,

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\EspRepo;
 use App\Services\ServiceTraits\PaginateList;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use League\Csv\Reader;
 /**
  * Class EspApiService
@@ -69,4 +70,5 @@ class EspService
     public function getType(){
         return "Esp";
     }
+
 }

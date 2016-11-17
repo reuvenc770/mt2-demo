@@ -2,12 +2,13 @@
 
 namespace App\Services;
 use App\Events\RawReportDataWasInserted;
+use App\Facades\EspApiAccount;
 use App\Repositories\ReportRepo;
 use Illuminate\Support\Facades\Event;
 use App\Services\API\EspBaseApi;
 use App\Services\Interfaces\IDataService;
 use App\Services\EmailRecordService;
-
+use League\Csv\Reader;
 abstract class AbstractReportService implements IDataService  {
     const RECORD_TYPE_OPENER = 'opener';
     const RECORD_TYPE_CLICKER = 'clicker';
@@ -82,7 +83,7 @@ abstract class AbstractReportService implements IDataService  {
             $this->insertApiRawStats($slice);
             $start = $end;
             $end = $end + 5000;
-        } 
+        }
     }
 
     public function parseSubID($deploy_id){
@@ -97,5 +98,5 @@ abstract class AbstractReportService implements IDataService  {
     protected function getDeployIDFromName($name){
         return explode('_',$name)[0];
     }
- 
+
 }
