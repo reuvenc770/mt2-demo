@@ -75,6 +75,7 @@ class Kernel extends ConsoleKernel
         Commands\BuildBaseListProfileTables::class,
         Commands\ExportListProfile::class,
         Commands\ESPUnsubsReport::class,
+        Commands\ProcessFeedRecords::class,
         Commands\DeactivateEspAccounts::class,
         Commands\ProcessFeedRawFiles::class,
 

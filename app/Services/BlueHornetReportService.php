@@ -552,4 +552,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
         }
         return $xmlBody;
     }
+
+    public function pushRecords(array $records, $targetId) {}
 }

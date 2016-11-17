@@ -13,8 +13,9 @@ use App\Models\Suppression;
 use App\Repositories\SuppressionRepo;
 use Log;
 use App\Repositories\EmailCampaignStatisticRepo;
+use App\Services\Interfaces\IFeedSuppression;
 
-class SuppressionService
+class SuppressionService implements IFeedSuppression
 {
     protected $repo;
     protected $statRepo;
@@ -170,5 +171,9 @@ class SuppressionService
     //Add more to here if we need to
     public function checkGlobalSuppression ($emailAddress){
         return $this->repo->getAllSuppressionsForEmail($emailAddress);
+    }
+
+    public function returnSuppressedEmails(array $emails) {
+        return $this->repo->returnSuppressedEmails($emails);
     }
 }

@@ -369,7 +369,6 @@ Route::group(
     }
 );
 
-
 /**
  * Feed Routes
  */

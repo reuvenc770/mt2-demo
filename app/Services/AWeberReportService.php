@@ -192,4 +192,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
 
     public function shouldRetry () { return $this->dataRetrievalFailed; }
 
+
+    public function pushRecords(array $records, $targetId) {}
+
 }

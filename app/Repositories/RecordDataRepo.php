@@ -36,40 +36,41 @@ class RecordDataRepo {
     }
 
     public function insertStored() {
-        $this->batchData = implode(', ', $this->batchData);
+        if ($this->batchDataCount > 0) {
+            $this->batchData = implode(', ', $this->batchData);
 
-        DB::statement("
-            INSERT INTO record_data (email_id, is_deliverable, first_name, last_name, 
-                address, address2, city, state, zip, country, gender, 
-                ip, phone, source_url, dob, capture_date, subscribe_date, other_fields)
+            DB::statement("INSERT INTO record_data (email_id, is_deliverable, first_name, last_name, 
+                    address, address2, city, state, zip, country, gender, 
+                    ip, phone, source_url, dob, capture_date, subscribe_date, other_fields)
 
-            VALUES 
+                VALUES 
 
-            {$this->batchData}
+                {$this->batchData}
 
-            ON DUPLICATE KEY UPDATE
-            email_id = email_id,
-            is_deliverable = VALUES(is_deliverable),
-            first_name = VALUES(first_name),
-            last_name = VALUES(last_name),
-            address = VALUES(address),
-            address2 = VALUES(address2),
-            city = VALUES(city),
-            state = VALUES(state),
-            zip = VALUES(zip),
-            country = VALUES(country),
-            gender = VALUES(gender),
-            ip = VALUES(ip),
-            phone = VALUES(phone),
-            source_url = VALUES(source_url),
-            dob = VALUES(dob),
-            capture_date = VALUES(capture_date),
-            subscribe_date = VALUES(subscribe_date),
-            other_fields = VALUES(other_fields)
-        ");
+                ON DUPLICATE KEY UPDATE
+                email_id = email_id,
+                is_deliverable = VALUES(is_deliverable),
+                first_name = VALUES(first_name),
+                last_name = VALUES(last_name),
+                address = VALUES(address),
+                address2 = VALUES(address2),
+                city = VALUES(city),
+                state = VALUES(state),
+                zip = VALUES(zip),
+                country = VALUES(country),
+                gender = VALUES(gender),
+                ip = VALUES(ip),
+                phone = VALUES(phone),
+                source_url = VALUES(source_url),
+                dob = VALUES(dob),
+                capture_date = VALUES(capture_date),
+                subscribe_date = VALUES(subscribe_date),
+                other_fields = VALUES(other_fields)
+            ");
 
-        $this->batchData = [];
-        $this->batchDataCount = 0;
+            $this->batchData = [];
+            $this->batchDataCount = 0;
+        }
     }
 
     private function transformRowToString($row) {
@@ -92,8 +93,8 @@ class RecordDataRepo {
             . $pdo->quote($row['source_url']) . ','
             . $pdo->quote($row['dob']) . ','
             . $pdo->quote( Carbon::parse($row['capture_date'])->format('Y-m-d') ) . ','
-            . $pdo->quote( Carbon::parse($row['last_updated'])->format('Y-m-d') ) . ','
-            . "'{}'" // other fields empty for now
+            . 'NOW(),'
+            . $pdo->quote($row['other_fields']) 
             . ')';
     }
 

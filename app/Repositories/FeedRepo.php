@@ -83,6 +83,16 @@ class FeedRepo {
             );
     }
 
+    public function getSourceUrl($id) {
+        $urlSearch = $this->feed->where('id', $id)->first();
+        if ($urlSearch) {
+            return $urlSearch->source_url;
+        }
+        else {
+            return '';
+        }
+    }
+        
     public function getActiveFeedNames () {
         return $this->feed->where( 'status' , 'Active'  )->pluck( 'name' )->toArray();
     }
