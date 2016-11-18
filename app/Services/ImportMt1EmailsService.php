@@ -134,6 +134,7 @@ class ImportMt1EmailsService
                         $this->emailIdCache[$importingEmailId] = 1;
                         $this->emailAddressCache[$emailAddress] = $importingEmailId;
                         $record['is_deliverable'] = 1;
+                        $record['other_fields'] = '{}';
 
                         $this->recordDataRepo->insert($record);
 
