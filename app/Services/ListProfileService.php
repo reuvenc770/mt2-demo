@@ -129,7 +129,6 @@ class ListProfileService
     public function buildProfileTable($id) {
         /**
             - Run against hygiene
-            Feed & offer suppression
          */
         $listProfile = $this->profileRepo->getProfile($id);
         $queries = $this->returnQueriesData($listProfile);
@@ -238,17 +237,30 @@ class ListProfileService
     private function returnQueriesData($listProfile) {
         $queries = [];
 
+        $partyCheck = [1 => 0, 2 => 0, 3 => 0];
+        foreach($listProfile->feeds as $feed) {
+            $partyCheck[$feed->party]++;
+        }
+
+        $max = 0;
+        foreach ($partyCheck as $partyId => $count) {
+            if ($count > $max) {
+                $party = $partyId;
+                $max = $count;
+            }
+        }
+
         if ($listProfile->deliverable_end !== $listProfile->deliverable_start && $listProfile->deliverable_end !== 0) {
-            $queries[] = ['type' => 'deliverable', 'start' => $listProfile->deliverable_start, 'end' => $listProfile->deliverable_end, 'count' => 1];
+            $queries[] = ['type' => 'deliverable', 'start' => $listProfile->deliverable_start, 'end' => $listProfile->deliverable_end, 'count' => 1, 'party' => $party];
         }
         if ($listProfile->openers_start !== $listProfile->openers_end && $listProfile->openers_end !== 0) {
-            $queries[] = ['type' => 'opens', 'start' => $listProfile->openers_start, 'end' => $listProfile->openers_end, 'count' => $listProfile->open_count];
+            $queries[] = ['type' => 'opens', 'start' => $listProfile->openers_start, 'end' => $listProfile->openers_end, 'count' => $listProfile->open_count, 'party' => $party];
         }
         if ($listProfile->clickers_start !== $listProfile->clickers_end && $listProfile->clickers_end !== 0) {
-            $queries[] = ['type' => 'clicks', 'start' => $listProfile->clickers_start, 'end' => $listProfile->clickers_end, 'count' => $listProfile->click_count];
+            $queries[] = ['type' => 'clicks', 'start' => $listProfile->clickers_start, 'end' => $listProfile->clickers_end, 'count' => $listProfile->click_count, 'party' => $party];
         }
         if ($listProfile->converters_start !== $listProfile->converters_end && $listProfile->converters_end !== 0) {
-            $queries[] = ['type' => 'conversions', 'start' => $listProfile->converters_start, 'end' => $listProfile->converters_end, 'count' => $listProfile->conversion_count];
+            $queries[] = ['type' => 'conversions', 'start' => $listProfile->converters_start, 'end' => $listProfile->converters_end, 'count' => $listProfile->conversion_count, 'party' => $party];
         }
 
         return $queries;
