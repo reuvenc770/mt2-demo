@@ -9,6 +9,15 @@
     @if (Sentinel::hasAccess('esp.add'))
         <li><a ng-href="/esp/create" target="_self">Add ESP Account</a></li>
     @endif
+
+    @if (Sentinel::hasAccess('api.esp.mappings.process'))
+        <li flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'csvuploads' , '_token' : '{{ csrf_token() }}' } }"
+            flow-files-submitted="$flow.upload()"
+            flow-file-success="deploy.fileUploaded($file); $flow.cancel()" flow-btn>
+            <a href="#">Upload Csv List</a>
+            <input type="file" style="visibility: hidden; position: absolute;"/>
+        </li>
+    @endif
 @stop
 
 @section( 'content' )

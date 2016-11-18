@@ -109,7 +109,7 @@ class EspApiAccountService
     public function grabCsvMapping($espName)
     {
         $espDetails = $this->espRepo->getAccountESPMapping($espName);
-        return  explode(',',$espDetails->mappings);
+        return  $espDetails->mappings;
     }
 
     /**
@@ -161,7 +161,7 @@ class EspApiAccountService
         return $this->espRepo->toggleRow($id, $direction);
     }
 
-    protected function getEspAccountIdFromName($name){
+    public function getEspAccountIdFromName($name){
         $espAccountName = explode('_',$name)[1];
         $espAccountId = $this->espRepo->getIdFromName($espAccountName);
         return  $espAccountId->id;

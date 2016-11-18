@@ -45,9 +45,10 @@ class ImportCsvStats extends Job implements ShouldQueue
     $returnArray = array();
     $mapping = EspApiAccount::grabCsvMapping($espName);
     $reader = Reader::createFromPath($filePath);
-    $data = $reader->fetchAssoc($mapping);
+    $data = $reader->fetchAssoc(explode(',',$mapping));
     foreach ($data as $row) {
         $row['m_deploy_id'] = $this->getDeployIDFromName($row['campaign_name']);
+        $row['esp_internal_id'] = 0;
         $row['external_deploy_id'] = $this->getDeployIDFromName($row['campaign_name']);
         $row['esp_account_id'] = EspApiAccount::getEspAccountIdFromName($row['campaign_name']);
         $returnArray[] = $row;

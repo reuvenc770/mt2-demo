@@ -18,7 +18,6 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     self.formSubmitted = false;
     self.fieldList = [
         { "label" : "Campaign Name" , "field" : "campaign_name" , "required" : true } ,
-        { "label" : "Deploy ID" , "field" : "deploy_id" , "required" : true } ,
         { "label" : "Send Date" , "field" : "datetime" , "required" : true } ,
         { "label" : "Name" , "field" : "name" , "required" : true } ,
         { "label" : "Subject" , "field" : "subject" } ,
@@ -99,8 +98,8 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         EspService.updateMapping(
             self.espId,
             self.currentFieldConfig ,
-            self.SuccessCallBackRedirectList ,
-            self.saveFieldOrderFailureCallback
+            self.SuccessCallBackRedirect ,
+            self.saveNewAccountFailureCallback
         );
     };
 

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\ImportCsvStats;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
-
+use App\Http\Requests\EspCsvMappingRequest;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Services\EspService;
@@ -133,9 +133,9 @@ class EspController extends Controller
 
     public function processCSV(Request $request){
         $fileName = $request->get("filename");
-        $espName = $request->get("esp");
+        $espName = "Campaigner";
         $dateFolder = date('Ymd');
-        $path = storage_path() . "/app/files/uploads/deploys/$dateFolder/$fileName";
+        $path = storage_path() . "/app/files/uploads/csvuploads/20161118/upload.csv";
         $this->dispatch(new ImportCsvStats($espName, $path));
     }
 
