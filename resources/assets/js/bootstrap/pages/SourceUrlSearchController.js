@@ -1,4 +1,4 @@
-mt2App.controller('SourceUrlSearchController' , [ '$rootScope' , '$window' , '$location' , '$timeout', '$log' , 'SourceUrlSearchApiService' , 'FeedApiService' , 'formValidationService', 'modalService' , 'orderByFilter' , function ( $rootScope , $window , $location , $timeout , $log , SourceUrlSearchApiService , FeedApiService , formValidationService, modalService , orderBy ) {
+mt2App.controller('SourceUrlSearchController' , [ '$rootScope' , '$window' , '$location' , '$timeout', '$log' , 'FeedApiService' , 'formValidationService', 'modalService' , 'orderByFilter' , '$anchorScroll' , function ( $rootScope , $window , $location , $timeout , $log , FeedApiService , formValidationService, modalService , orderBy , $anchorScroll ) {
     var self = this;
 
     self.formSubmitted = false;
@@ -23,6 +23,9 @@ mt2App.controller('SourceUrlSearchController' , [ '$rootScope' , '$window' , '$l
     self.verticalList = [];
     self.selectedVerticals = [];
 
+    self.queryPromise = null;
+    self.recordCounts = [];
+
     self.loadFeedList = function () {
         FeedApiService.getAllFeeds( self.getAllFeedsSuccessCallback , self.getAllFeedsFailureCallback );
     };
@@ -36,7 +39,6 @@ mt2App.controller('SourceUrlSearchController' , [ '$rootScope' , '$window' , '$l
     };
 
     self.updateSearchDate = function ( dateRange ) {
-
         var startDate = '';
         var endDate = '';
 
@@ -57,11 +59,59 @@ mt2App.controller('SourceUrlSearchController' , [ '$rootScope' , '$window' , '$l
         }
     };
 
+    self.searchSourceUrl = function () {
+        self.queryPromise = FeedApiService.searchSourceUrl(
+            self.search ,
+            self.searchSourceUrlSuccessCallback ,
+            self.searchSourceUrlFailureCallback
+        );
+    };
+
+    self.downloadCsv = function ( csv ) {
+        var blob = new Blob( [ csv ] , { "type" : "text/csv;charset=utf-8" } );
+        var filename = "source_url_record_count_" + self.search.source_url + "_" + self.search.startDate + "_" + self.search.endDate +  ".csv";
+
+        if ( navigator.msSaveBlob ) { // IE 10+
+            navigator.msSaveBlob( blob , filename );
+        } else {
+            var link = document.createElement( 'a' );
+
+            if ( typeof( link.download ) !== 'undefined' ) {
+                var windowUrl = (window.URL || window.webkitURL);
+                var url = windowUrl.createObjectURL( blob );
+
+                link.setAttribute( "href" , url );
+                link.setAttribute( "download" , filename );
+                document.body.appendChild( link );
+                link.click();
+
+                document.body.removeChild( link );
+                windowUrl.revokeObjectURL( blob );
+            } else {
+                modalService.simpleToast( 'Can not download csv file. Please use a modern browser.' );
+
+                return false
+            }
+        }
+
+        return true;
+    };
+
     /**
      * Success Callbacks
      */
     self.getAllFeedsSuccessCallback = function ( response ) {
         self.feedList = response.data;
+    };
+
+    self.updateCurrentClientList = function () {
+        var clientIdList = [];
+
+        angular.forEach( self.selectedClients , function ( client ) {
+            clientIdList.push( client.id );
+        } );  
+
+        self.search.clientIds = clientIdList;
     };
 
     self.updateCurrentFeedList = function () {
@@ -84,6 +134,27 @@ mt2App.controller('SourceUrlSearchController' , [ '$rootScope' , '$window' , '$l
         self.search.verticalIds = verticalIdList;
     };
 
+    self.searchSourceUrlSuccessCallback = function ( response ) {
+        self.recordCounts = response.data.records;
+        var downloadError = false;
+
+        if ( typeof( response.data.csv ) !== 'undefined' ) {
+            var status = self.downloadCsv( response.data.csv );
+
+            if ( !status ) {
+                downloadError = true;
+            }
+        }
+
+        $timeout( function () {
+            if ( !downloadError ) {
+                $location.hash( 'tableLoaded' );
+
+                $anchorScroll();
+            }
+        } , 200 );
+    }
+
     /**
      * Failure Callbacks
      */
@@ -94,4 +165,7 @@ mt2App.controller('SourceUrlSearchController' , [ '$rootScope' , '$window' , '$l
         modalService.launchModal();
     };
 
+    self.searchSourceUrlFailureCallback = function ( response ) {
+        modalService.simpleToast( 'Could not load record counts. Please contact tech team.' );
+    };
 }] );

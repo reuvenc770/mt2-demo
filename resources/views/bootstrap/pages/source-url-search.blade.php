@@ -2,8 +2,10 @@
 
 @section( 'title' , 'Source URL Search' )
 
+@section( 'angular-controller' , 'ng-controller="SourceUrlSearchController as source"' )
+
 @section( 'content' )
-    <div class="panel panel-primary" ng-controller="SourceUrlSearchController as source" ng-init="source.loadFeedList(); source.setClientList( {{ $clients }} ); source.setVerticalList( {{ $feedVerticals }} )">
+    <div class="panel panel-primary" ng-init="source.loadFeedList(); source.setClientList( {{ $clients }} ); source.setVerticalList( {{ $feedVerticals }} )">
         <div class="panel-heading">
             <div class="panel-title">Source URL Search</div>
         </div>
@@ -85,38 +87,37 @@
         </div>
         <div class="panel-footer">
             <div class="form-group">
-                <input class="btn btn-primary btn-block" ng-click="" ng-disabled="source.isSearching" type="submit" value="Search">
+                <input class="btn btn-primary btn-block" ng-click="source.searchSourceUrl()" ng-disabled="source.isSearching" type="submit" value="Search">
             </div>
         </div>
     </div>
 
 
     <md-table-container>
-        <table md-table>
+        <table md-table md-progress="source.queryPromise">
             <thead md-head>
                 <tr md-row>
                     <th md-column class="md-table-header-override-whitetext">Client</th>
                     <th md-column class="md-table-header-override-whitetext">Feed Name</th>
                     <th md-column class="md-table-header-override-whitetext">Source URL</th>
                     <th md-column class="md-table-header-override-whitetext">Count</th>
-                    <th md-column class="md-table-header-override-whitetext">Vertical</th>
                 </tr>
             </thead>
             <tbody md-body>
-                <tr md-row>
-                    <td md-cell></td>
-                    <td md-cell></td>
-                    <td md-cell></td>
-                    <td md-cell></td>
-                    <td md-cell></td>
+                <tr md-row ng-repeat="record in source.recordCounts track by $index">
+                    <td md-cell ng-bind="::record.clientName"></td>
+                    <td md-cell ng-bind="::record.feedName"></td>
+                    <td md-cell ng-bind="::record.sourceUrl"></td>
+                    <td md-cell ng-bind="::record.count"></td>
                 </tr>
             </tbody>
         </table>
     </md-table-container>
 
+    <span id="tableLoaded"></span>
+
 @stop
 
 <?php Assets::add(
         ['resources/assets/js/bootstrap/pages/SourceUrlSearchController.js',
-        'resources/assets/js/bootstrap/pages/SourceUrlSearchApiService.js',
         'resources/assets/js/bootstrap/feed/FeedApiService.js'],'js','pageLevel') ?>

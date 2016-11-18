@@ -1052,6 +1052,11 @@ Route::group(
             'uses' => 'FeedController@storeFieldOrder'
         ] );
 
+        Route::post( '/feed/searchsource' , [
+            'as' => 'api.feed.searchsource' ,
+            'uses' => 'FeedController@searchSource'
+        ] );
+
         /**
          * API Resources
          */
@@ -1145,12 +1150,6 @@ Route::group(
             'bulksuppression' ,
             'BulkSuppressionController' ,
             [ 'only' => [ 'store' ] ]
-        );
-
-        Route::resource(
-            'source-url-search' ,
-            'SourceUrlSearchController' ,
-            [ 'only' => [ 'show' ] , 'names' => [ 'show' => 'api.sourceurlsearch.show' ] ]
         );
 
         Route::resource(

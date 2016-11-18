@@ -150,4 +150,8 @@ class FeedController extends Controller
 
         $this->feedService->saveFieldOrder( $id , $request->all() );
     }
+
+    public function searchSource ( Request $request ) {
+        return response()->json( $this->feedService->getRecordCountForSource( $request->all() ) );
+    }
 }
