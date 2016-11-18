@@ -7,10 +7,12 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     self.currentAccount = { "_token" : "" , "id" : "" , "name" : "" , "email_id_field" : "" , "email_address_field" : "" };
 
     self.editUrl = 'esp/edit/';
-
+    self.formErrors = [];
+    self.espId = "";
     self.currentlyLoading = 0;
     self.pageCount = 0;
     self.paginationCount = '10';
+    self.currentFieldConfig = [];
     self.currentPage = 1;
     self.accountTotal = 0;
     self.formSubmitted = false;
@@ -37,17 +39,17 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
 
     self.selectedFields = [];
 
-    self.loadAccount = function () {
-        var pathMatches = $location.path().match( /^\/esp\/edit\/(\d{1,})/ );
-
-        EspService.getAccount( pathMatches[ 1 ] , self.loadAccountSuccesCallback )
-    };
-
     self.loadAccounts = function () {
         EspService.getAccounts(
             self.currentPage ,
             self.paginationCount ,
             self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
+    };
+
+    self.loadMapping = function () {
+        var pathMatches = $location.path().match( /^\/esp\/mapping\/(\d{1,})/ );
+        self.espId = pathMatches[1];
+        EspService.getMapping( pathMatches[1] , self.loadMappingSuccessCallback , self.loadMappingFailureCallback );
     };
 
     /**
@@ -56,7 +58,6 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
      self.saveNewAccount = function () {
         self.formSubmitted = true;
         formValidationService.resetFieldErrors(self);
-
         EspService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self. saveNewAccountFailureCallback );
      };
 
@@ -66,21 +67,51 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         EspService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 
+    self.moveField = function ( droppedField , list , index ) {
+        list.splice( index , 1 );
+
+        self.currentFieldConfig = [];
+
+        if ( list === self.fieldList && typeof( self.formErrors[ droppedField.field ] ) !== 'undefined' && self.formErrors[ droppedField.field ].length > 0 ) {
+            delete( self.formErrors[ droppedField.field ] );
+        }
+        angular.forEach( self.selectedFields , function ( value , index ) {
+            self.currentFieldConfig.push(value.field);
+        } );
+    };
+
+    self.setFields = function (mapping) {
+        angular.forEach(self.fieldList, function (currentField, feedIndex) {
+            angular.forEach(mapping, function (currentMapping, index) {
+                if (currentMapping == currentField.field) {
+                    var removedFields = self.fieldList.splice(index, 1);
+                    itemRemoved = removedFields.pop();
+                    self.selectedFields.push(itemRemoved);
+                    self.currentFieldConfig.push(itemRemoved.field);
+                }
+            });
+        });
+    };
+
+    self.saveFieldOrder = function(){
+        self.formSubmitted = true;
+        formValidationService.resetFieldErrors( self );
+        EspService.updateMapping(
+            self.espId,
+            self.currentFieldConfig ,
+            self.SuccessCallBackRedirectList ,
+            self.saveFieldOrderFailureCallback
+        );
+    };
+
     /**
      * Callbacks
      */
-    self.loadAccountSuccesCallback = function ( response ) {
-        var currentToken = self.currentAccount._token;
+    self.loadMappingSuccessCallback = function ( response ) {
+        loadingfields = response.data[0].mappings.split(',');
+        self.setFields(loadingfields);
 
-        self.currentAccount = response.data;
-        self.currentAccount._token = currentToken;
-
-        if ( response.data.field_options != null ) {
-            self.currentAccount.email_id_field = response.data.field_options.email_id_field;
-            self.currentAccount.email_address_field = response.data.field_options.email_address_field;
-        }
-
-    }
+    };
     self.loadAccountsSuccessCallback = function ( response ) {
         self.accounts = response.data.data;
         self.pageCount = response.data.last_page;
@@ -89,7 +120,7 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
     };
 
-    self.loadAccountsFailureCallback = function ( response ) {
+    self.loadMappingFailureCallback = function ( response ) {
         modalService.setModalLabel( 'Error' );
         modalService.setModalBody( 'Failed to load ESP Accounts.' );
         modalService.launchModal();

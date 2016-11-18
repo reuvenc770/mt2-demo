@@ -121,9 +121,14 @@ class EspController extends Controller
     }
 
 
-    public function mappings($id){
+    public function mappings(){
         return response()
             ->view( 'bootstrap.pages.esp.esp-mapping');
+    }
+
+    public function updateMappings(Request $request, $id){
+        $mappings = implode(',',$request->input('mappings'));
+        $this->espService->updateMappings(array("mappings" => $mappings, "esp_id" => $id),$id);
     }
 
     public function processCSV(Request $request){
@@ -132,6 +137,11 @@ class EspController extends Controller
         $dateFolder = date('Ymd');
         $path = storage_path() . "/app/files/uploads/deploys/$dateFolder/$fileName";
         $this->dispatch(new ImportCsvStats($espName, $path));
+    }
+
+    public function getMapping(Request $request, $id){
+        return response()->json($this->espService->getMappings($id) );
+
     }
 
 }

@@ -797,6 +797,21 @@ Route::group(
             'uses' => 'NavigationController@update'
         ] );
 
+        Route::get(
+            'esp/mappings/{id}' ,
+            [
+                'as' => 'api.esp.mappings.get' ,
+                'uses' => 'EspController@getMapping'
+            ]
+        );
+        Route::put(
+            'esp/mappings/{id}' ,
+            [
+                'as' => 'api.esp.mappings.update' ,
+                'uses' => 'EspController@updateMappings'
+            ]
+        );
+
         Route::group(
             [ 'prefix' => 'deploy' ] ,
             function () {
@@ -1384,6 +1399,8 @@ Route::group(
         );
     }
 );
+
+
 
 
 /**

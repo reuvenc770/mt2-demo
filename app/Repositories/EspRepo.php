@@ -44,8 +44,8 @@ class EspRepo
         return $this->esp->where('name', $name)->first();
     }
 
-    public function updateEspMappings($mappings){
-      return '';  //$this->esp->otherModel->insert($mapping)
+    public function updateEspMappings($mappings,$espId){
+      return $this->esp->accountMapping()->getRelated()->updateOrCreate(["esp_id" =>$espId],$mappings);
     }
 
     public function updateEspName($name){
@@ -60,6 +60,10 @@ class EspRepo
     public function getAccountWithFields($id){
         $esp = $this->esp;//cannot use $this-> to invoke static method
         return $esp::with('fieldOptions')->find($id);
+    }
+
+    public function getMappings($id){
+        return $this->esp->find($id)->accountMapping()->get();
     }
 
     public function updateFieldOptions($id, $fieldOptions){

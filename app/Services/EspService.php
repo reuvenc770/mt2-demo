@@ -52,9 +52,12 @@ class EspService
         $esp = $this->espRepo->getEspByName($name);
         return $esp->id;
     }
+    public function getMappings($id){
+        return $this->espRepo->getMappings($id);
+    }
 
-    public function updateMappings($mapping){
-        return $this->updateEspMappings($mapping);
+    public function updateMappings($mapping,$espId){
+        return $this->espRepo->updateEspMappings($mapping,$espId);
     }
 
     public function getModel(){
