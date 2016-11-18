@@ -279,7 +279,8 @@ class ImportMt1EmailsService
             'work_phone' => $row['work_phone'],
             'capture_date' => $row['capture_date'],
             'source_url' => $row['source_url'],
-            'ip' => $row['ip']
+            'ip' => $row['ip'],
+            'other_fields' => '{}'
         ];
 
     }
