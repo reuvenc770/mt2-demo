@@ -76,6 +76,15 @@
                     <label>End Date</label>
                     <md-datepicker ng-disabled="source.dateRange != 'custom'" flex="50" name="dateField" ng-change="source.updateSearchDate('custom')" ng-model="source.rawEndDate" md-placeholder="MM/DD/YYYY"></md-datepicker>
                 </md-input-container>
+
+                <div class="help-block" ng-show="source.formErrors.startDate || source.formErrors.endDate">
+                    <div ng-repeat="error in source.formErrors.startDate">
+                        <span class="text-danger" ng-bind="error"></span>
+                    </div>
+                    <div ng-repeat="error in source.formErrors.endDate">
+                        <span class="text-danger" ng-bind="error"></span>
+                    </div>
+                </div>
             </div>
 
             <div class="checkbox text-center">

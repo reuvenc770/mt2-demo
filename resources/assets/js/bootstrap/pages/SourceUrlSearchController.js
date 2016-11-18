@@ -60,6 +60,8 @@ mt2App.controller('SourceUrlSearchController' , [ '$rootScope' , '$window' , '$l
     };
 
     self.searchSourceUrl = function () {
+        formValidationService.resetFieldErrors( self );
+
         self.queryPromise = FeedApiService.searchSourceUrl(
             self.search ,
             self.searchSourceUrlSuccessCallback ,
@@ -88,13 +90,9 @@ mt2App.controller('SourceUrlSearchController' , [ '$rootScope' , '$window' , '$l
                 document.body.removeChild( link );
                 windowUrl.revokeObjectURL( blob );
             } else {
-                modalService.simpleToast( 'Can not download csv file. Please use a modern browser.' );
-
-                return false
+                modalService.simpleToast( 'Can not download csv file. Please use a modern browser.' , 'bottom left' );
             }
         }
-
-        return true;
     };
 
     /**
@@ -136,22 +134,19 @@ mt2App.controller('SourceUrlSearchController' , [ '$rootScope' , '$window' , '$l
 
     self.searchSourceUrlSuccessCallback = function ( response ) {
         self.recordCounts = response.data.records;
-        var downloadError = false;
+
+        if ( response.data.records.length <= 0 ) {
+            modalService.simpleToast( 'No Records' , 'bottom left' );
+        }
 
         if ( typeof( response.data.csv ) !== 'undefined' ) {
-            var status = self.downloadCsv( response.data.csv );
-
-            if ( !status ) {
-                downloadError = true;
-            }
+            self.downloadCsv( response.data.csv );
         }
 
         $timeout( function () {
-            if ( !downloadError ) {
-                $location.hash( 'tableLoaded' );
+            $location.hash( 'tableLoaded' );
 
-                $anchorScroll();
-            }
+            $anchorScroll();
         } , 200 );
     }
 
@@ -166,6 +161,6 @@ mt2App.controller('SourceUrlSearchController' , [ '$rootScope' , '$window' , '$l
     };
 
     self.searchSourceUrlFailureCallback = function ( response ) {
-        modalService.simpleToast( 'Could not load record counts. Please contact tech team.' );
+        formValidationService.loadFieldErrors( self , response );
     };
 }] );

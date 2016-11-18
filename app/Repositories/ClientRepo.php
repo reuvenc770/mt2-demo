@@ -23,10 +23,6 @@ class ClientRepo {
         return $this->client;
     }
 
-    public function get() {
-        return $this->client->orderBy('name')->get();
-    }
-
     public function getAll () {
         return $this->client->get();
     }
