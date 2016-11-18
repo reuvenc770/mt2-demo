@@ -56,6 +56,9 @@ class DataProcessingFactory {
             case('CakeDeviceData'):
                 return \App::make(\App\Services\CakeDeviceService::class);
 
+            case('UpdateUserActions'):
+                return \App::make(\App\Services\UserActionStatusService::class);
+
             case ('ImportMt1Advertisers'):
                 $mt1Name = 'CompanyInfo';
                 $mt2Name = 'Advertiser';
