@@ -91,7 +91,7 @@ class ListProfileFlatTableRepo {
     }
 
     private function prepareConversionData($row) {
-        return "'{$row->email_id}', '{$row->deploy_id}', '{$row->date}', '{$row->conversions}', NOW(), NOW())";
+        return "('{$row->email_id}', '{$row->deploy_id}', '{$row->date}', '{$row->conversions}', NOW(), NOW())";
     }
 
 
@@ -101,7 +101,7 @@ class ListProfileFlatTableRepo {
 
             $inserts = implode(',', $this->batchData);
 
-            DB::statement("INSERT INTO $schema.email_action_aggregations 
+            DB::statement("INSERT INTO $schema.list_profile_flat_table 
                 (email_id, deploy_id, date, conversions, created_at, updated_at)
 
                 VALUES $inserts

@@ -15,11 +15,13 @@ class Kernel extends ConsoleKernel
     const REPORT_TIME_2 = '11:10';
     const EARLY_DELIVERABLE_SCHEDULE_TIME = '00:15';
     const EXPIRATION_RUNS = "01:15";
+    const DROP_OFF_LIST_PROFILES = "05:00";
     const DEPLOY_CHECK_TIME = '14:00';
     const CAKE_CONVERSION_UPDATE_TIME = '14:00';
     const ATTRIBUTION_UPDATE_TIME = '15:30';
     const ATTRIBUTION_REPORT_EARLY_UPDATE_TIME = '0:30';
     const ATTRIBUTION_REPORT_UPDATE_TIME = '17:00';
+    const FEED_FILE_PROCESS_TIME = '22:00';
     const MT1_SYNC_TIME = '23:00';
 
     /**
@@ -70,10 +72,13 @@ class Kernel extends ConsoleKernel
         Commands\SendDomainExpirationNotice::class,
         Commands\PullCakeRecordData::class,
         Commands\InflateEmailHistoriesUtil::class,
-        Commands\BuildScheduledProfileBaseTables::class,
+        Commands\BuildBaseListProfileTables::class,
         Commands\ExportListProfile::class,
         Commands\ESPUnsubsReport::class,
+        Commands\ProcessFeedRecords::class,
         Commands\DeactivateEspAccounts::class,
+        Commands\ProcessFeedRawFiles::class,
+
     ];
 
     /**
@@ -223,5 +228,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('listprofile:aggregateActions')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('listprofile:getRecordAgentData')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('listprofile:baseTables')->dailyAt(self::EXPIRATION_RUNS);
+
+        /**
+         * Feed File Processing
+         */
+        $schedule->command( 'feedRecords:processRawFiles' )->dailyAt( self::FEED_FILE_PROCESS_TIME );
+
     }
 }

@@ -1,4 +1,4 @@
-mt2App.controller( 'FeedGroupController' , [ '$rootScope' , '$log' , '$window' , '$location' , 'FeedGroupApiService' , 'FeedApiService' , '$mdToast' , 'formValidationService' , 'modalService' , 'orderByFilter' , '$timeout' , function ( $rootScope , $log , $window , $location , FeedGroupApiService , FeedApiService , $mdToast , formValidationService , modalService , orderBy , $timeout ) {
+mt2App.controller( 'FeedGroupController' , [ '$rootScope' , '$log' , '$window' , '$location' , 'FeedGroupApiService' , 'FeedApiService' , '$mdToast' , 'formValidationService' , 'modalService' , '$timeout' , function ( $rootScope , $log , $window , $location , FeedGroupApiService , FeedApiService , $mdToast , formValidationService , modalService , $timeout ) {
     var self = this;
 
     /**
@@ -104,8 +104,8 @@ mt2App.controller( 'FeedGroupController' , [ '$rootScope' , '$log' , '$window' ,
 
         var sortFeedList = [];
 
-        angular.forEach( response.data , function ( value , key) {
-            value.feedListDisplayName = value.name + " ( " + value.id + " ) " ;
+        angular.forEach( response.data , function ( value ) {
+            value.feedListDisplayName = value.short_name + " ( " + value.id + " ) " ;
             sortFeedList.push(value);
         } );
 

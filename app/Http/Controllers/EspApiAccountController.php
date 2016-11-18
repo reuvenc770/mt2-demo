@@ -30,7 +30,7 @@ class EspApiAccountController extends Controller
      */
     public function index()
     {
-        $accounts = $this->espAccountService->getAllAccounts();
+        $accounts = $this->espAccountService->getAllActiveAccounts();
 
         $accountList = [];
 
@@ -49,6 +49,10 @@ class EspApiAccountController extends Controller
 
     public function returnAll(){
         return  response()->json( array_values( $this->espAccountService->getAllAccounts()->toArray() ));
+    }
+
+    public function returnAllActive(){
+        return  response()->json( array_values( $this->espAccountService->getAllActiveAccounts()->toArray() ));
     }
 
     /**

@@ -3,19 +3,13 @@
 namespace App\Console\Commands;
 
 
-use App\Library\Campaigner\Authentication;
-use App\Library\Campaigner\ContactManagement;
-use App\Library\Campaigner\ListAttributes;
-use App\Library\Campaigner\ListAttributesFilter;
-use App\Services\API\BlueHornetApi;
-use App\Services\AWeberReportService;
-use App\Services\BlueHornetSubscriberService;
-use App\Services\EmailRecordService;
+
+use App\Models\ListProfileCombine;
+
+use App\Repositories\ListProfileCombineRepo;
+
 use Illuminate\Console\Command;
-use Illuminate\Foundation\Inspiring;
-use Storage;
-use Maknz\Slack\Facades\Slack;
-use App\Facades\SlackLevel;
+
 class Inspire extends Command
 {
     /**
@@ -39,7 +33,6 @@ class Inspire extends Command
      */
     public function handle()
     {
-        Slack::to('@pcunningham')->send("sdfsdf");
-        SlackLevel::to('@pat')->send("sdfsdf");
-    }
+        }
+
 }

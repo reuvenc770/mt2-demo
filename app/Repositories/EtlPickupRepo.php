@@ -30,4 +30,11 @@ class EtlPickupRepo {
     public function updatePosition($etlName, $pos) {
         $this->etlPickup->where('name', $etlName)->update(['stop_point' => $pos]);
     }
+
+    public function updateOrCreate($tableName, $value) {
+        $this->etlPickup->updateOrCreate(['name' => $tableName], [
+            'name' => $tableName,
+            'stop_point' => $value
+        ]);
+    }
 }

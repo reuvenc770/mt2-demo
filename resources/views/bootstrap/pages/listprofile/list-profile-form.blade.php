@@ -49,7 +49,7 @@
 
             <md-select name="clients" id="clients" ng-model="listProfile.feedClientFilters" md-on-close="listProfile.updateFeedVisibility()" multiple>
                 @foreach ( $clients as $client )
-                <md-option ng-value="::'{{ $client[ 'value' ] }}'">{{ $client[ 'name' ] }}</md-option>
+                <md-option ng-value="::'{{ $client[ 'id' ] }}'">{{ $client[ 'name' ] }}</md-option>
                 @endforeach
             </md-select>
         </md-input-container>
@@ -73,8 +73,16 @@
     </div>
 </div>
 
-<div class="form-group">
+<div class="form-group" id="actionRanges">
     <label><h4>Deliverables Day Range</h4> <h5><i>All day ranges are inclusive</i></h5></label>
+
+    <div class="has-error">
+        <div class="help-block" ng-show="listProfile.formErrors.actionRanges">
+            <div ng-repeat="error in listProfile.formErrors.actionRanges">
+                <div ng-bind="error"></div>
+            </div>
+        </div>
+    </div>
 
     <div class="row">
         <div class="col-xs-12 col-md-7 form-inline field-top-margin">
@@ -95,6 +103,14 @@
 
 <div class="form-group">
     <label><h4>Openers Day Range</h4> <h5><i>All day ranges are inclusive</i></h5></label>
+
+    <div class="has-error">
+        <div class="help-block" ng-show="listProfile.formErrors.actionRanges">
+            <div ng-repeat="error in listProfile.formErrors.actionRanges">
+                <div ng-bind="error"></div>
+            </div>
+        </div>
+    </div>
 
     <div class="row">
         <div class="col-xs-12 col-md-7 form-inline field-top-margin">
@@ -122,6 +138,14 @@
 <div class="form-group">
     <label><h4>Clickers Day Range</h4> <h5><i>All day ranges are inclusive</i></h5></label>
 
+    <div class="has-error">
+        <div class="help-block" ng-show="listProfile.formErrors.actionRanges">
+            <div ng-repeat="error in listProfile.formErrors.actionRanges">
+                <div ng-bind="error"></div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-xs-12 col-md-7 form-inline field-top-margin">
             <div class="form-group">
@@ -147,6 +171,14 @@
 
 <div class="form-group">
     <label><h4>Converters Day Range</h4> <h5><i>All day ranges are inclusive</i></h5></label>
+
+    <div class="has-error">
+        <div class="help-block" ng-show="listProfile.formErrors.actionRanges">
+            <div ng-repeat="error in listProfile.formErrors.actionRanges">
+                <div ng-bind="error"></div>
+            </div>
+        </div>
+    </div>
 
     <div class="row">
         <div class="col-xs-12 col-md-7 form-inline field-top-margin">
@@ -626,6 +658,14 @@
 
 <h3>Select and Order Columns</h3>
 
+<div class="has-error">
+    <div class="help-block" ng-show="listProfile.formErrors.selectedColumns">
+        <div ng-repeat="error in listProfile.formErrors.selectedColumns">
+            <div ng-bind="error"></div>
+        </div>
+    </div>
+</div>
+
 <div class="row draggable-membership-widget">
     <div class="col-md-6">
         <div class="panel panel-default">
@@ -671,56 +711,60 @@
 <h3>Export Options</h3>
 
 <div class="row">
-    <div class="col-md-3">
-        <md-checkbox ng-click="listProfile.toggleExportOption( 'immediately' )" ng-checked="listProfile.isSelectedExportOption( 'immediately' )">IMMEDIATELY</md-checkbox>
+    <div class="col-md-2">
+        <md-checkbox ng-click="listProfile.toggleExportOption( 'Immediately' )" ng-checked="listProfile.isSelectedExportOption( 'Immediately' )">Immediately</md-checkbox>
     </div>
 
-    <div class="col-md-3">
-        <md-checkbox ng-click="listProfile.toggleExportOption( 'daily' )" ng-checked="listProfile.isSelectedExportOption( 'daily' )">Daily</md-checkbox>
+    <div class="col-md-2">
+        <md-checkbox ng-click="listProfile.toggleExportOption( 'Daily' )" ng-checked="listProfile.isSelectedExportOption( 'Daily' )">Daily</md-checkbox>
     </div>
 
-    <div class="col-md-3">
-        <md-checkbox ng-click="listProfile.toggleExportOption( 'weekly' )" ng-checked="listProfile.isSelectedExportOption( 'weekly' )">Weekly</md-checkbox>
+    <div class="col-md-2">
+        <md-checkbox ng-click="listProfile.toggleExportOption( 'Weekly' )" ng-checked="listProfile.isSelectedExportOption( 'Weekly' )">Weekly</md-checkbox>
     </div>
 
-    <div class="col-md-3">
-        <md-checkbox ng-click="listProfile.toggleExportOption( 'monthly' )" ng-checked="listProfile.isSelectedExportOption( 'monthly' )">Monthly</md-checkbox>
+    <div class="col-md-2">
+        <md-checkbox ng-click="listProfile.toggleExportOption( 'Monthly' )" ng-checked="listProfile.isSelectedExportOption( 'Monthly' )">Monthly</md-checkbox>
+    </div>
+
+    <div class="col-md-2">
+        <md-checkbox ng-click="listProfile.toggleExportOption( 'Never' )" ng-checked="listProfile.isSelectedExportOption( 'Never' )">Never</md-checkbox>
     </div>
 </div>
 
 <div class="form-group">
     <div class="row">
-        <div class="col-xs-12" ng-show="listProfile.isSelectedExportOption( 'weekly' )">
+        <div class="col-xs-12" ng-show="listProfile.isSelectedExportOption( 'Weekly' )">
             <label class="radio-inline">
-                <input type="radio" name="dailyExportRadio" ng-model="listProfile.current.exportOptions.dayOfWeek" value="7"> Sunday
+                <input type="radio" name="dailyExportRadio" ng-model="listProfile.current.exportOptions.dayOfWeek" value="Sunday"> Sunday
             </label>
 
             <label class="radio-inline">
-                <input type="radio" name="dailyExportRadio" ng-model="listProfile.current.exportOptions.dayOfWeek" value="1"> Monday
+                <input type="radio" name="dailyExportRadio" ng-model="listProfile.current.exportOptions.dayOfWeek" value="Monday"> Monday
             </label>
 
             <label class="radio-inline">
-                <input type="radio" name="dailyExportRadio" ng-model="listProfile.current.exportOptions.dayOfWeek" value="2"> Tuesday 
+                <input type="radio" name="dailyExportRadio" ng-model="listProfile.current.exportOptions.dayOfWeek" value="Tuesday"> Tuesday 
             </label>
 
             <label class="radio-inline">
-                <input type="radio" name="dailyExportRadio" ng-model="listProfile.current.exportOptions.dayOfWeek" value="3"> Wednesday
+                <input type="radio" name="dailyExportRadio" ng-model="listProfile.current.exportOptions.dayOfWeek" value="Wednesday"> Wednesday
             </label>
 
             <label class="radio-inline">
-                <input type="radio" name="dailyExportRadio" ng-model="listProfile.current.exportOptions.dayOfWeek" value="4"> Thursday
+                <input type="radio" name="dailyExportRadio" ng-model="listProfile.current.exportOptions.dayOfWeek" value="Thursday"> Thursday
             </label>
 
             <label class="radio-inline">
-                <input type="radio" name="dailyExportRadio" ng-model="listProfile.current.exportOptions.dayOfWeek" value="5"> Friday 
+                <input type="radio" name="dailyExportRadio" ng-model="listProfile.current.exportOptions.dayOfWeek" value="Friday"> Friday 
             </label>
 
             <label class="radio-inline">
-                <input type="radio" name="dailyExportRadio" ng-model="listProfile.current.exportOptions.dayOfWeek" value="6"> Saturday
+                <input type="radio" name="dailyExportRadio" ng-model="listProfile.current.exportOptions.dayOfWeek" value="Saturday"> Saturday
             </label>
         </div>
 
-        <div class="col-xs-12 form-inline field-top-margin" ng-show="listProfile.isSelectedExportOption( 'monthly' )">
+        <div class="col-xs-12 form-inline field-top-margin" ng-show="listProfile.isSelectedExportOption( 'Monthly' )">
             <div class="form-group">
                 <label>Day of Month</label>
 

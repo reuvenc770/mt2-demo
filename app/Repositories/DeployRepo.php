@@ -34,7 +34,7 @@ class DeployRepo
             ->leftJoin('subjects', 'subjects.id', '=', 'deploys.subject_id')
             ->leftJoin('froms', 'froms.id', '=', 'deploys.from_id')
             ->leftJoin('creatives', 'creatives.id', '=', 'deploys.creative_id')
-            ->leftJoin("$listProfileSchema.list_profiles", 'list_profiles.id', '=', 'deploys.list_profile_id')
+            ->leftJoin("$listProfileSchema.list_profile_combines", 'list_profile_combines.id', '=', 'deploys.list_profile_combine_id')
             ->select("send_date",
                 'deploys.id as deploy_id',
                 'esp_accounts.account_name',
@@ -45,7 +45,7 @@ class DeployRepo
                 'subjects.subject_line as subject',
                 'froms.from_line as from',
                 'creatives.file_name as creative',
-                'list_profiles.name as list_profile',
+                'list_profile_combines.name as list_profile',
                 'cake_affiliate_id',
                 'deployment_status',
                 'creatives.is_approved as creative_approval',
@@ -96,7 +96,7 @@ class DeployRepo
                 "template_id",
                 "mailing_domain_id",
                 "content_domain_id",
-                "list_profile_id",
+                "list_profile_combine_id",
                 "cake_affiliate_id",
                 "encrypt_cake",
                 "fully_encrypt",
@@ -146,7 +146,7 @@ class DeployRepo
     public function returnCsvHeader()
     {
         return ['deploy_id', "send_date", "esp_account_id", "offer_id", "creative_id", "from_id", "subject_id", "template_id",
-            "mailing_domain_id", "content_domain_id", "list_profile_id", "cake_affiliate_id","encrypt_cake", "fully_encrypt", "url_format", "notes"];
+            "mailing_domain_id", "content_domain_id", "list_profile_combine_id", "cake_affiliate_id","encrypt_cake", "fully_encrypt", "url_format", "notes"];
     }
 
 
@@ -197,7 +197,7 @@ class DeployRepo
             ->leftJoin('subjects', 'subjects.id', '=', 'deploys.subject_id')
             ->leftJoin('froms', 'froms.id', '=', 'deploys.from_id')
             ->leftJoin('creatives', 'creatives.id', '=', 'deploys.creative_id')
-            ->leftJoin('list_profiles', 'list_profiles.id', '=', 'deploys.list_profile_id')
+            ->leftJoin('list_profile_combines', 'list_profile_combines.id', '=', 'deploys.list_profile_combine_id')
             ->wherein("deploys.id",explode(",",$deployIds))
             ->where("deployment_status",1)
             ->selectRaw('send_date, deploys.id as deploy_id,
@@ -306,16 +306,16 @@ class DeployRepo
         }
 
         //list profile for now commented out
-        /**
-        if (isset($deploy['list_profile_id'])) {
-        $count = DB::select("Select count(*) as count from list_profiles where id = :id", ['id' => $deploy['list_profile_id']])[0];
+
+        if (isset($deploy['list_profile_combine_id'])) {
+        $count = DB::select("Select count(*) as count from list_profile_combines where id = :id", ['id' => $deploy['list_profile_combine_id']])[0];
         if ($count->count == 0) {
         $errors[] = "List Profile is not active or wrong";
         }
         } else {
         $errors[] = "List Profile ID is missing";
         }
-         **/
+
         //cake
 
         if (isset($deploy['cake_affiliate_id'])) {
@@ -359,5 +359,18 @@ class DeployRepo
         $today = Carbon::today()->format('Y-m-d');
 
         return $this->deploy->where('send_date', $today)->where('list_profile_id', $listProfileId)->groupBy('offer_id')->get();
+    }
+
+    public function getDeploysForToday($date){
+        return $this->deploy->where('send_date',$date)->get();
+    }
+
+    public function getDeploysFromProfileAndOffer($listProfileId, $offerId){
+        $lpDB = config('database.connections.list_profile.database');
+        return $this->deploy->
+        join("{$lpDB}.list_profile_list_profile_combine as lplpc","deploys.list_profile_combine_id", "=", "lplpc.list_profile_combine_id")
+            ->where("offer_id",$offerId)
+            ->where("list_profile_id", $listProfileId)
+            ->where("send_date", DB::raw("CURDATE()"))->get();
     }
 }

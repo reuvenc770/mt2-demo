@@ -34,7 +34,7 @@ class DeployService
         return $this->espAdvertiser->getCakeAffiliates();
     }
 
-    public function getModel($searchData)
+    public function getModel($searchData = null)
     {
 
         return $this->deployRepo->getModel($searchData);

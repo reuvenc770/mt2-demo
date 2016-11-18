@@ -24,7 +24,7 @@
             <option value="">Select ESP Account/s</option>
             <option value="All ESP Accounts">All Esp Accounts</option>
             @foreach ( $esps as $esp )
-                <ption value="All {{ $esp['name'] }} Accounts">{{ $esp['name'] }} Accounts</ption>
+                <option value="All {{ $esp['name'] }} Accounts">{{ $esp['name'] }} Accounts</option>
             @endforeach
             @foreach ( $espAccounts as $espAccount )
                 <option value="{{ $espAccount['account_name'] }}">{{ $espAccount['account_name'] }}</option>
@@ -69,7 +69,9 @@
     <div class="input-group">
         <select name="isp_name" id="isp_name" class="form-control" ng-model="proxy.isp_name">
             <option value="">Select ISP</option>
-            <option ng-repeat="option in proxy.isps" ng-value="option">@{{ option }}</option>
+            @foreach ( $isps as $isp )
+                <option value="{{ $isp['name'] }}">{{ $isp['name'] }}</option>
+            @endforeach
         </select>
      <span class="input-group-btn">
         <button class="btn btn-primary" ng-click="proxy.addIsp()"  type="button">Add ISP</button>
@@ -85,6 +87,17 @@
     <li ng-repeat="(key, value) in proxy.isp_names track by $index" class="list-group-item list-group-item-success">@{{value}} - <a
                 ng-click="proxy.removeIsp(key)">Remove</a></li>
 </ul>
+
+<div class="form-group" ng-class="{ 'has-error' : proxy.formErrors.dba_name }">
+    <input placeholder="DBA" value="" class="form-control" ng-model="proxy.currentAccount.dba_name"
+           name="dba_name" type="text">
+    <div class="help-block" ng-show="proxy.formErrors.dba_name">
+        <div ng-repeat="error in proxy.formErrors.dba_name">
+            <span ng-bind="error"></span>
+        </div>
+    </div>
+</div>
+
 <div class="form-group" ng-class="{ 'has-error' : proxy.formErrors.notes }">
         <textarea rows="4" placeholder="Notes" value="" class="form-control" ng-model="proxy.currentAccount.notes"
                   name="notes"></textarea>

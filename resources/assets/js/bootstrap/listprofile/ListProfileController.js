@@ -1,7 +1,5 @@
-mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToast' , '$mdDialog' , '$timeout' , '$log' , function ( ListProfileApiService , $mdToast , $mdDialog , $timeout , $log ) {
+mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDialog' , '$timeout' , 'formValidationService' , 'modalService' , '$location' , '$window' , '$log' , function ( ListProfileApiService , $mdDialog , $timeout , formValidationService , modalService , $location , $window , $log ) {
     var self = this;
-
-    $(function () { $('[data-toggle="tooltip"]').tooltip() });
 
     self.nameDisabled = true;
     self.customName = false;
@@ -11,7 +9,14 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
     self.search = {};
     self.enabledSuppression = { "list" : false , "offer" : false };
 
+    self.selectedProfiles = [];
+    self.showCombine = false;
+    self.listCombines = [];
+    self.combineError = null;
+    self.combineName = "";
+
     self.current = {
+        'profile_id' : null ,
         'name' : '' ,
         'countries' : {} ,
         'feeds' : {} ,
@@ -51,6 +56,14 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         'exportOptions' : { 'interval' : [] , 'dayOfWeek' : '' , 'dayOfMonth' : '' } ,
         'admiralsOnly' : false
     };
+
+    self.listProfiles = [];
+    self.pageCount = 0;
+    self.paginationCount = '10';
+    self.currentPage = 1;
+    self.profileTotal = 0;
+    self.queryPromise = null;
+    self.sort = "name";
 
     self.countryCodeMap = { 1 : 'US' , 235 : 'UK' };
     self.countryNameMap = { 'United States' : 1 , 'United Kingdom' : 235 };
@@ -166,132 +179,54 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
 
     self.towerDateOptions = [];
 
-    self.demoProfiles = [
-        {
-            'name' : 'ADK3_Yahoo_US_7to30D' ,
-            'countries' : [ "1" ] ,
-            'feeds' : { 2984 : "ADK3" } ,
-            'isps' : { 4 : "Yahoo" } ,
-            'categories' : {} ,
-            'offers' : {} ,
-            'suppression' : {
-                'global' : [ "1" ] ,
-                'list' : [] ,
-                'offer' : [] ,
-                'attribute' : { 'cities': [] , 'zips' : [] , 'states' : [] }
-            },
-            'actionRanges' : {
-                'deliverable' : { 'min' : 7 , 'max' : 30 },
-                'opener' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 },
-                'clicker' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 },
-                'converter' : { 'min' : 0 , 'max' : 0 , 'multiaction' : 1 }
-            },
-            'attributeFilters' : {
-                'age' : { 'min' : 0 , 'max' : 0 , 'unknown' : false },
-                'genders' : [],
-                'zips' : [],
-                'cities' : [],
-                'states' : [],
-                'deviceTypes' : [],
-                'mobileCarriers' : []
-            },
-            'impressionwise' : false ,
-            'tower' : {
-                'run' : false ,
-                'cleanseMonth' : null ,
-                'cleanseYear' : null
-            } ,
-            'selectedColumns' : [] ,
-            'includeCsvHeader' : false ,
-            'admiralsOnly' : false ,
-            'lastPull' : moment().subtract( 30 , 'minutes' ).format( 'LLL' ) ,
-            'recordCount' : Math.floor( Math.random() * ( Math.floor( 20000 ) - Math.ceil( 10000 ) + 1 ) ) + Math.ceil( 10000 )
-        } ,
-        {
-            'name' : 'JTST_Gmail_GB_30OCCV' ,
-            'countries' : [ '235' ] ,
-            'feeds' : { 2962 : "JTST" } ,
-            'isps' : { 8 : "Gmail" } ,
-            'categories' : {} ,
-            'offers' : {} ,
-            'suppression' : {
-                'global' : [ "1" ] ,
-                'list' : [] ,
-                'offer' : [] ,
-                'attribute' : { 'cities': [] , 'zips' : [] , 'states' : [] }
-            },
-            'actionRanges' : {
-                'deliverable' : { 'min' : 0 , 'max' : 0 },
-                'opener' : { 'min' : 0 , 'max' : 30 , 'multiaction' : 1 },
-                'clicker' : { 'min' : 0 , 'max' : 30 , 'multiaction' : 1 },
-                'converter' : { 'min' : 0 , 'max' : 30 , 'multiaction' : 1 }
-            },
-            'attributeFilters' : {
-                'age' : { 'min' : 0 , 'max' : 0 , 'unknown' : false },
-                'genders' : [],
-                'zips' : [],
-                'cities' : [],
-                'states' : [],
-                'deviceTypes' : [],
-                'mobileCarriers' : []
-            },
-            'impressionwise' : false ,
-            'tower' : {
-                'run' : false ,
-                'cleanseMonth' : null ,
-                'cleanseYear' : null
-            } ,
-            'selectedColumns' : [] ,
-            'includeCsvHeader' : false ,
-            'admiralsOnly' : false ,
-            'lastPull' : moment().subtract( 2 , 'days' ).add( 5 , 'hours' ).add( 40 , 'minutes' ).format( 'LLL' ) ,
-            'recordCount' : Math.floor( Math.random() * ( Math.floor( 10000 ) - Math.ceil( 3000 ) + 1 ) ) + Math.ceil( 3000 )
-        } ,
-        {
-            'name' : 'NPR_AOL_GB_7OCCV' ,
-            'countries' : [ '235' ] ,
-            'feeds' : { 2956 : "NPR" } ,
-            'isps' : { 2 : "AOL" } ,
-            'categories' : {} ,
-            'offers' : {} ,
-            'suppression' : {
-                'global' : [ "1" ] ,
-                'list' : [] ,
-                'offer' : [] ,
-                'attribute' : { 'cities': [] , 'zips' : [] , 'states' : [] }
-            },
-            'actionRanges' : {
-                'deliverable' : { 'min' : 0 , 'max' : 0 },
-                'opener' : { 'min' : 0 , 'max' : 7 , 'multiaction' : 2 },
-                'clicker' : { 'min' : 0 , 'max' : 7 , 'multiaction' : 1 },
-                'converter' : { 'min' : 0 , 'max' : 7 , 'multiaction' : 1 }
-            },
-            'attributeFilters' : {
-                'age' : { 'min' : 0 , 'max' : 0 , 'unknown' : false },
-                'genders' : [],
-                'zips' : [],
-                'cities' : [],
-                'states' : [],
-                'deviceTypes' : [],
-                'mobileCarriers' : []
-            },
-            'impressionwise' : false ,
-            'tower' : {
-                'run' : false ,
-                'cleanseMonth' : null ,
-                'cleanseYear' : null
-            } ,
-            'selectedColumns' : [] ,
-            'includeCsvHeader' : false ,
-            'admiralsOnly' : false ,
-            'lastPull' : moment().subtract( 1 , 'days' ).subtract( 2 , 'hours' ).add( 20 , 'minutes' ).format( 'LLL' ) ,
-            'recordCount' : Math.floor( Math.random() * ( Math.floor( 60000 ) - Math.ceil( 40000 ) + 1 ) ) + Math.ceil( 40000 )
-        } ,
-    ];
+    self.formErrors = [];
 
-    self.prepop = function ( id ) {
-        self.current = self.demoProfiles[ id - 1 ];
+    self.loadListProfiles = function () {
+        self.queryPromise = ListProfileApiService.getListProfiles(
+            self.currentPage ,
+            self.paginationCount ,
+            self.loadListProfilesSuccessCallback ,
+            self.loadListProfilesFailureCallback
+        );
+        self.loadListCombines();
+    };
+
+    self.loadListProfilesSuccessCallback = function ( response ) {
+        self.listProfiles = response.data.data;
+        self.pageCount = response.data.last_page;
+        self.profileTotal = response.data.total;
+
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+    };
+
+    self.loadListProfilesFailureCallback = function ( response ) {
+        modalService.setModalLabel( 'Error' );
+        modalService.setModalBody( 'Failed to load list profiles.' );
+
+        modalService.launchModal();
+    };
+
+    self.prepop = function ( listProfile ) {
+        self.current = listProfile;
         self.generateName();
+
+        self.fixEmptyFields();
+
+        $(function () { $('[data-toggle="tooltip"]').tooltip() });
+    };
+
+    self.fixEmptyFields = function () {
+        angular.forEach( [ 'countries' , 'feeds' , 'isps' , 'categories' ] , function ( value , index ) {
+            if ( self.current[ value ].length == 0 ) {
+                self.current[ value ] = {};
+            }
+        } );
+
+        angular.forEach( [ 'genders' , 'states' , 'deviceTypes' , 'os' , 'mobileCarriers' ] , function ( value , index ) {
+            if ( self.current.attributeFilters[ value ].length == 0 ) {
+                self.current.attributeFilters[ value ] = {};
+            }
+        } );
     };
 
     self.generateTowerDateOptions = function () {
@@ -321,7 +256,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         var names = [];
 
         angular.forEach( list , function ( current ) {
-            if ( typeof( map ) !== 'undefined' && Object.keys( map ).length > 0 ) {
+            if ( typeof( map ) !== 'undefined' && Object.keys( map ).length > 0 && typeof( map[ current ] ) !== 'undefined' ) {
                 names.push( map[ current ].trim() );
             } else {
                 names.push( current.trim() );
@@ -562,7 +497,10 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
 
     self.removeOffers = function () {
         angular.forEach( self.highlightedOffersForRemoval , function ( selectedValue , selectedKey ) {
-            self.search.offerResults.push( selectedValue );
+            if ( typeof( self.search.offerResults ) !== 'undefined' && self.search.offerResults.length > 0 ) {
+                self.search.offerResults.push( selectedValue );
+            }
+
             var index = self.current.offers.indexOf( selectedValue );
 
             if ( index >= 0 ) {
@@ -571,8 +509,6 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         } );
 
     };
-
-
 
     self.addStateFilters = function () {
         self.addMembershipItems(
@@ -720,7 +656,6 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
 
     self.admiralToggleFix = function () {
         if ( !self.enableAdmiral ) { //value is not true till after this is called
-            $log.info( 'go to bottom:' + document.body.scrollHeight  );
             $timeout( function () { window.scrollTo( 0 , ( document.body.scrollHeight + 300 ) ); } , 1 );
         }
     };
@@ -729,21 +664,101 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService' , '$mdToa
         var optionIndex = self.current.exportOptions.interval.indexOf( option );
 
         if ( optionIndex < 0 ) {
-            var immediatelyExists = ( self.current.exportOptions.interval.indexOf( 'immediately' ) >= 0 );
+            var immediatelyExists = ( self.current.exportOptions.interval.indexOf( 'Immediately' ) >= 0 );
             var itemsChosen = self.current.exportOptions.interval.length;
 
             if (
                 ( immediatelyExists && itemsChosen === 1 )
-                || ( !immediatelyExists && option == 'immediately' && itemsChosen === 1 )
+                || ( !immediatelyExists && option == 'Immediately' && itemsChosen === 1 )
                 || ( itemsChosen === 0 ) ) {
                 self.current.exportOptions.interval.push( option ); 
             }
         } else {
             self.current.exportOptions.interval.splice( optionIndex , 1 ); 
+            self.current.exportOptions.dayOfWeek = null;
+            self.current.exportOptions.dayOfMonth = null;
         }
     };
         
     self.isSelectedExportOption = function ( option ) {
         return self.current.exportOptions.interval.indexOf( option ) >= 0;
     }
+
+    self.saveListProfile = function () {
+        ListProfileApiService.saveListProfile( self.current , self.SuccessCallBackRedirect , self.failureCallback );
+    };
+
+    self.updateListProfile = function () {
+        ListProfileApiService.updateListProfile( self.current , self.SuccessCallBackRedirect , self.failureCallback );
+    };
+
+    self.SuccessCallBackRedirect = function ( response ) {
+        $location.url( '/listprofile' );
+        $window.location.href = '/listprofile';
+    };
+
+    self.failureCallback = function ( response ) {
+        formValidationService.loadFieldErrors( self , response );
+    };
+
+    self.nameCombine = function (){
+        $('#createCombine').modal('show');
+    };
+
+    self.createCombine = function (){
+        if(self.combineName.length < 1){
+            self.combineError = "Combine Name is required";
+        } else {
+            self.combineError = null;
+        }
+
+        ListProfileApiService.createCombine(self.combineName,self.selectedProfiles, self.createCombineSuccess, self.createCombineFail);
+    };
+
+    self.toggleRow = function (selectedValue) {
+        console.log(selectedValue);
+        var index = self.selectedProfiles.indexOf(selectedValue);
+        if (index >= 0) {
+            self.selectedProfiles.splice(index, 1);
+        } else {
+            self.selectedProfiles.push(selectedValue);
+        }
+        self.showCombine = self.selectedProfiles.length > 1;
+    };
+
+    self.loadListCombines = function (){
+        ListProfileApiService.getCombines(self.loadCombinesSuccess,self.loadCombineFail);
+    };
+
+    self.loadCombinesSuccess = function (response){
+        self.listCombines = response.data;
+    };
+
+    self.createCombineSuccess = function (response){
+        modalService.simpleToast("List Combine was Created",'top right');
+        self.loadListCombines();
+        self.combineName = "";
+    };
+
+    self.loadCombineFail = function (response) {
+        modalService.simpleToast("List Combine failed to load",'top right');
+
+    };
+
+    self.createCombineFail = function ( response) {
+        modalService.simpleToast("List Combine failed to create",'top right');
+    };
+
+    self.exportCombine = function (id){
+        console.log(id);
+       ListProfileApiService.exportCombine(id,self.exportCombineSuccess, self.exportCombineFail)
+    };
+
+    self.exportCombineSuccess = function (response){
+        modalService.simpleToast("List Combine Export has started",'top right');
+    };
+
+    self.exportCombineFail = function (response){
+        modalService.simpleToast("List Combine failed to export",'top right');
+    };
 } ] );

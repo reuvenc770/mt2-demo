@@ -54,5 +54,45 @@ class EmailDomainRepo {
         return $this->emailDomainModel->create($data);
     }
 
+    public function getDomainAndClassInfo($email) {
+        $emailParts = explode('@', $email);
+        if (isset($emailParts[1])) {
+            return $this->emailDomainModel
+                        ->selectRaw('email_domains.id as domain_id, domain_group_id, lower(dg.name) as domain_group_name')
+                        ->join('domain_groups as dg', 'email_domains.domain_group_id', '=', 'dg.id')
+                        ->where('domain_name', $emailParts[1])
+                        ->first();
+
+        }
+    }
+
+    public function createNewDomain($email) {
+        $emailParts = explode('@', $email);
+        if (isset($emailParts[1])) {
+            // Precaution due to incompletely-parallelized feeds
+            // Also default domain group id to 0
+            $domain = $this->emailDomainModel->updateOrCreate([
+                'domain_name' => strtolower($emailParts[1])
+            ], [
+                'domain_name' => strtolower($emailParts[1]),
+                'domain_group_id' => 0
+            ]);
+
+            return $domain;
+        }
+
+        // Perhaps throw an exception here
+    }
+
+    public function domainIsSuppressed($domainId) {
+        $result = $this->emailDomainModel->where('id', $domainId)->first();
+        if ($result) {
+            return $result->is_suppressed === 1;
+        }
+        else {
+            return false;
+        }
+    }
+
 
 }

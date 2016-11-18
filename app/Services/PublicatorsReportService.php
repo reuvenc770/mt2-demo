@@ -338,4 +338,6 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
     protected function unlock () {
         Cache::forget( self::LOCK_NAME . '_' . $this->api->getEspAccountId() );
     }
+
+    public function pushRecords(array $records, $targetId) {}
 }

@@ -3,6 +3,8 @@
 namespace App\Jobs;
 
 use App\Jobs\Job;
+use App\Repositories\DeployRepo;
+use App\Repositories\ListProfileCombineRepo;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -39,19 +41,23 @@ class ExportListProfileJob extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle(ListProfileExportService $service) {
+    public function handle(ListProfileExportService $service, DeployRepo $deployRepo) {
         if ($this->jobCanRun($this->jobName)) {
             try {
                 $this->createLock($this->jobName);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
-                echo "List Profile Export {$this->jobName}" . PHP_EOL;
+                $offer = $this->offerId ? $this->offerId : array();
 
-                $service->export($this->listProfileId, $this->offerId);
-
+                if($this->offerId >= 1){  //its a combine and meant for a deploy
+                    $deploys = $deployRepo->getDeploysFromProfileAndOffer($this->listProfileId,$this->offerId);
+                    $service->exportListProfileToMany($this->listProfileId, $offer,$deploys);
+                } else { // its a scheduled export
+                    $service->exportListProfile($this->listProfileId, $offer);
+                }
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
             }
             catch (\Exception $e) {
-                echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;
+                echo "{$this->jobName} failed with {$e->getMessage()}  {$e->getLine()}" . PHP_EOL;
                 $this->failed();
             }
             finally {
@@ -66,6 +72,5 @@ class ExportListProfileJob extends Job implements ShouldQueue
 
     public function failed() {
         JobTracking::changeJobState(JobEntry::FAILED, $this->tracking);
-        $this->unlock($this->jobName);
     }
 }

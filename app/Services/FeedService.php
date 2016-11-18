@@ -83,6 +83,10 @@ class FeedService implements IFtpAdmin
         return $this->feedRepo->fetch($id);
     }
 
+    public function getFeedIdByName ( $name ) {
+        return $this->feedRepo->getFeedIdByName( $name );
+    }
+
     public function getVerticals() {
         return $this->verticals->orderBy('name')->get();
     }
@@ -100,7 +104,21 @@ class FeedService implements IFtpAdmin
     }
 
     public function updateOrCreate ( $data , $id = null ) {
+        if ( empty( $data[ 'password' ] ) ) {
+            $data[ 'password' ] = $this->generatePassword();
+        }
+
         $this->feedRepo->updateOrCreate( $data , $id );
+    }
+
+    protected function generatePassword () {
+        $password = str_random( 15 );
+
+        while ( $this->feedRepo->passwordExists( $password ) ) {
+            $password = str_random( 15 );
+        }
+
+        return $password;
     }
 
     public function getType () {
@@ -121,7 +139,7 @@ class FeedService implements IFtpAdmin
         RecordProcessingFileField::updateOrCreate( [ 'feed_id' => $feedId ] , $fieldConfig );
     }
 
-    public function getFeedFields ( $feedId ) {
+    public function getFeedFields ( $feedId , $simpleArray = false ) {
         $row = RecordProcessingFileField::find( $feedId );
 
         if ( is_null( $row ) ) {
@@ -140,22 +158,38 @@ class FeedService implements IFtpAdmin
                 $customFields = json_decode( $index );
 
                 foreach ( $customFields as $customName => $customIndex ) {
-                    $fields[ $customIndex ] = [ "label" => $customName , "isCustom" => true ];
+                    if ( $simpleArray ) {
+                        $fields[ $customIndex ] = $customName;
+                    } else {
+                        $fields[ $customIndex ] = [ "label" => $customName , "isCustom" => true ];
+                    }
                 }
 
                 continue;
             }
 
-            $fields[ $index ] = $columnName;
+            if ( $simpleArray ) {
+                $fields[ $index ] = str_replace( '_index' , '' , $columnName);
+
+                if ( $fields[ $index ] === 'email' ) {
+                    $fields[ $index ] = 'email_address';
+                }
+            } else {
+                $fields[ $index ] = $columnName;
+            } 
         }
 
         ksort( $fields );
+
+        if ( $simpleArray ) {
+            return $fields;
+        }
 
         return json_encode( $fields );
     }
 
     public function saveFtpUser ( $credentials ) {
-        Log::info( 'Saving user credentials to db. Creds: ' . json_encode( $credentials ) );
+        \Log::info( 'Saving user credentials to db. Creds: ' . json_encode( $credentials ) );
 
         DB::connection( 'mt1_data' )->table( 'user' )
             ->where( 'username' , $credentials[ 'username' ] )
@@ -205,5 +239,13 @@ class FeedService implements IFtpAdmin
         }
 
         return $response;
+    }
+
+    public function getActiveFeedNames () {
+        return $this->feedRepo->getActiveFeedNames();
+    }
+
+    public function getFileColumnMap ( $feedId ) {
+        return $this->getFeedFields( $feedId , true );
     }
 }

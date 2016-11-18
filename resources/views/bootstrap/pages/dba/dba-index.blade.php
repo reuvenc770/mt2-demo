@@ -12,7 +12,63 @@
 
 @section( 'content' )
     <div ng-init="dba.loadAccounts()">
+        <div style="width:800px">
+            <div class="panel panel-primary center-block">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Search DBA</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">DBA Name*</span>
+                                <input type="text" id="search_dba" class="form-control" value="" ng-model="dba.search.dba_name"/>
+                            </div>
+                        </div>
 
+                        <div class="col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">Registrant Name*</span>
+                                <input type="text" id="search_dba" class="form-control" value="" ng-model="dba.search.registrant_name"/>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">DBA Email*</span>
+                                <input type="text" id="search_dba" class="form-control" value="" ng-model="dba.search.dba_email"/>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">Address*</span>
+                                <input type="text" id="search_dba" class="form-control" value="" ng-model="dba.search.address"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-addon">Entity Name*</span>
+                                <input type="text" id="search_dba" class="form-control" value="" ng-model="dba.search.entity_name"/>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <br />
+
+                    <button class="btn btn-primary pull-right" ng-click="dba.searchDBA()">Search</button>
+                </div>
+            </div>
+        </div>
                 <md-table-container>
                     <table md-table md-progress="dba.queryPromise">
                         <thead md-head md-order="dba.sort" md-on-reorder="dba.loadAccounts">
@@ -26,6 +82,7 @@
                             <th md-column md-order-by="password" class="md-table-header-override-whitetext">Password</th>
                             <th md-column md-order-by="phone" class="md-table-header-override-whitetext">Phone</th>
                             <th md-column md-order-by="po_boxes" class="md-table-header-override-whitetext">PO Boxes</th>
+                            <th md-column class="md-table-header-override-whitetext">ESP/ISP Use</th>
                             <th md-column md-order-by="entity_name" class="md-table-header-override-whitetext">Entity Name</th>
                             <th md-column md-order-by="notes" class="md-table-header-override-whitetext"> Notes</th>
                         </tr>
@@ -55,7 +112,14 @@
                             <td md-cell>@{{ record.phone }}</td>
                             <td md-cell nowrap>
                                 <p ng-repeat="value in record.po_boxes">
-                                    @{{ value.sub  }} - @{{value.address}} @{{value.city }} @{{value.state}} @{{value.zip}} - @{{value.phone}} <span ng-if="value.brands.length > 0">- Brands:</span> @{{ value.brands.join(', ') }}
+                                    @{{ $index + 1 }} -
+                                    @{{value.address}} @{{value.city }} @{{value.state}} @{{value.zip}} <span ng-if="value.phone">- @{{value.phone}}</span> <span ng-if="value.brands.length > 0">- Brands:</span> @{{ value.brands }}
+                                </p>
+                            </td>
+                            <td md-cell nowrap>
+                                <p ng-repeat="value in record.po_boxes">
+                                    <span ng-if="value.esp_account_names.length > 0">ESPs: @{{ value.esp_account_names.join(', ') }} </span>
+                                    <span ng-if="value.isp_names.length > 0"><br/>ISPs: @{{ value.isp_names.join(', ') }} </span>
                                 </p>
                             </td>
                             <td md-cell>@{{ record.entity_name }}</td>
@@ -65,7 +129,7 @@
 
                         <tfoot>
                             <tr>
-                                <td colspan="11">
+                                <td colspan="12">
                                     <md-content class="md-mt2-zeta-theme md-hue-2">
                                         <md-table-pagination md-limit="dba.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="dba.currentPage" md-total="@{{dba.accountTotal}}" md-on-paginate="dba.loadAccounts" md-page-select></md-table-pagination>
                                     </md-content>

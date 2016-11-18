@@ -9,6 +9,6 @@ mt2App.directive( 'listprofileTable' , function () {
             "copy" : "&" ,
             "delete" : "&"
         } ,
-        "templateUrl" : "js/templates/list-profile-table.html"
+        "templateUrl" : "js/bootstrap/templates/list-profile-table.html"
     };
 } );

@@ -1,9 +1,12 @@
 mt2App.service( 'ListProfileApiService' , function ( $http ) {
     var self = this;
 
-    self.pagerApiUrl = '/api/pager/UniqueProfile';
+    self.pagerApiUrl = '/api/pager/ListProfile';
     self.baseApiUrl = '/api/listprofile';
     self.offerSearch = '/api/offer/search?searchTerm=';
+    self.getCombineUrl = '/api/listprofile/listcombine/combineonly';
+    self.createCombineUrl = '/api/listprofile/listcombine/create';
+    self.exportCombineUrl = '/api/listprofile/listcombine/export';
 
     self.getListProfile = function ( id , successCallback , failureCallback ) {
         $http( {
@@ -20,7 +23,7 @@ mt2App.service( 'ListProfileApiService' , function ( $http ) {
     };
 
     self.getListProfiles = function ( page , count , successCallback , failureCallback ) {
-        $http({
+        return $http({
             "method" : "GET" ,
             "url" : self.pagerApiUrl ,
             "params" : { "page" : page , "count" : count }
@@ -64,6 +67,12 @@ mt2App.service( 'ListProfileApiService' , function ( $http ) {
     };
 
     self.saveListProfile = function ( formData , successCallback , failureCallback ) {
+        angular.forEach( [ 'deliverable' , 'opener' , 'clicker' , 'converter' ] , function ( value , key ) {
+            if ( typeof( formData.actionRanges[ value ] ) !== 'undefined' &&  formData.actionRanges[ value ].min == false && formData.actionRanges[ value ].max == false ) {
+                delete( formData.actionRanges[ value ] );
+            }
+        } );
+
         $http( {
             "method" : "POST" ,
             "url" : self.baseApiUrl ,
@@ -72,9 +81,15 @@ mt2App.service( 'ListProfileApiService' , function ( $http ) {
     };
 
     self.updateListProfile = function ( formData , successCallback , failureCallback ) {
+        angular.forEach( [ 'deliverable' , 'opener' , 'clicker' , 'converter' ] , function ( value , key ) {
+            if ( typeof( formData.actionRanges[ value ] ) !== 'undefined' &&  formData.actionRanges[ value ].min == false && formData.actionRanges[ value ].max == false ) {
+                delete( formData.actionRanges[ value ] );
+            }
+        } );
+
         $http( {
             "method" : "PUT" ,
-            "url" : self.baseApiUrl + '/' + formData[ 'pid' ],
+            "url" : self.baseApiUrl + '/' + formData[ 'profile_id' ],
             "param" : { '_method' : "PUT" } ,
             "data" : formData
         } ).then( successCallback , failureCallback );
@@ -86,12 +101,36 @@ mt2App.service( 'ListProfileApiService' , function ( $http ) {
             "url" : self.baseApiUrl + "/copy" ,
             "params" : { 'action' : 'copy' , 'pid' : id , 'pname' : name }
         } ).then( successCallback , failureCallback );
-    }
+    };
 
     self.deleteListProfile = function ( id , successCallback , failureCallback ) {
         $http( {
             "method" : "DELETE" ,
             "url" : self.baseApiUrl + '/' + id
         } ).then( successCallback , failureCallback );
-    }
+    };
+
+    self.createCombine = function ( name, selectedListProfiles , successCallback , failureCallback ) {
+        $http( {
+            "method" : "POST" ,
+            "url" : self.createCombineUrl ,
+            "data" : {"name":name,"selectedProfiles": selectedListProfiles}
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.exportCombine = function ( id , successCallback , failureCallback ) {
+        $http( {
+            "method" : "POST" ,
+            "url" : self.exportCombineUrl ,
+            "data" : {"id":id}
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.getCombines = function (successCallback , failureCallback ) {
+        $http( {
+            "method" : "GET" ,
+            "url" : self.getCombineUrl
+        } ).then( successCallback , failureCallback );
+    };
+
 } );

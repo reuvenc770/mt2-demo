@@ -46,6 +46,7 @@ return[
     'ispgroup.list'       => 'ISP Groups',
     'esp.list'            => 'ESP Accounts',
     'tools.appendeid' => 'Append EID' ,
+    'client.list' => 'Clients' ,
     'tools.navigation' => 'Manage Navigation' ,
     'tools.sourceurlsearch' => 'Source URL Search'
 ];
