@@ -103,6 +103,11 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         );
     };
 
+    self.processCsv = function ($file){
+        self.file = $file.relativePath;
+        $('#validateModal').modal('show');
+    }
+
     /**
      * Callbacks
      */

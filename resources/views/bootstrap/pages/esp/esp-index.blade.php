@@ -13,8 +13,8 @@
     @if (Sentinel::hasAccess('api.esp.mappings.process'))
         <li flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'csvuploads' , '_token' : '{{ csrf_token() }}' } }"
             flow-files-submitted="$flow.upload()"
-            flow-file-success="deploy.fileUploaded($file); $flow.cancel()" flow-btn>
-            <a href="#">Upload Csv List</a>
+            flow-file-success="esp.fileUploaded($file); $flow.cancel()" flow-btn>
+            <a href="#">Upload Csv Campaign Stats</a>
             <input type="file" style="visibility: hidden; position: absolute;"/>
         </li>
     @endif
