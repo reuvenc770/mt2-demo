@@ -14,6 +14,9 @@ class FirstPartyRecordDataRepo {
     private $batchDataCount = 0;
     const INSERT_THRESHOLD = 10000;
 
+    private $batchActionUpdateData = [];
+    private $batchActionUpdateCount = 0;
+
     public function __construct(FirstPartyRecordData $model) {
         $this->model = $model;
     }
@@ -151,5 +154,70 @@ class FirstPartyRecordDataRepo {
 
     public function isUnique($emailId, $feedId) {
         return $this->model->where('email_id', $emailId)->where('feed_id', $feedId)->count() === 0;
+    }
+
+
+    public function updateActionData($emailId, $feed_id, $actionDate) {
+        $pdo = DB::connection()->getPdo();
+
+        if ($this->batchActionUpdateCount >= self::INSERT_THRESHOLD) {
+
+            $this->cleanUpActions();
+
+            $this->batchActionUpdateData = ['(' 
+                . $pdo->quote($emailId) . ','
+                . $pdo->quote($feedId) . ','
+                . $pdo->quote($actionDate) . ')'];
+            $this->batchActionUpdateCount = 1;
+        }
+        else {
+            $this->batchActionUpdateData[] = '(' 
+                . $pdo->quote($emailId) . ','
+                . $pdo->quote($actionDate) . ')';
+
+            $this->batchActionUpdateCount++;
+        }
+    }
+
+    public function cleanUpActions() {
+        if ($this->batchActionUpdateCount > 0) {
+
+            $inserts = implode(',', $this->batchActionUpdateData);
+
+            DB::statement("INSERT INTO first_party_record_data 
+                (email_id, feed_id, is_deliverable, last_action_date)
+                VALUES
+
+                $inserts
+
+                ON DUPLICATE KEY UPDATE
+                email_id = email_id,
+                feed_id = feed_id,
+                is_deliverable = VALUES(is_deliverable),
+                first_name = first_name,
+                last_name = last_name,
+                address = address,
+                address2 = address2,
+                city = city,
+                state = state,
+                zip = zip,
+                country = country,
+                gender = gender,
+                ip = ip,
+                phone = phone,
+                source_url = source_url,
+                dob = dob,
+                device_type = device_type,
+                device_name = device_name,
+                carrier = carrier,
+                capture_date = capture_date,
+                subscribe_date = subscribe_date,
+                last_action_date = VALUES(last_action_date),
+                other_fields = other_fields");
+
+            $this->batchActionUpdateData = [];
+            $this->batchActionUpdateCount = 0;
+
+        }
     }
 }

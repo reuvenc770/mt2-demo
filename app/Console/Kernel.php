@@ -78,6 +78,7 @@ class Kernel extends ConsoleKernel
         Commands\ProcessFeedRecords::class,
         Commands\DeactivateEspAccounts::class,
         Commands\ProcessFeedRawFiles::class,
+        Commands\UpdateActionStatus::class,
 
     ];
 
@@ -169,8 +170,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:findIncompleteDeploys')->dailyAt(self::DEPLOY_CHECK_TIME);
 
 
-        /**Deactivation jobs
-         *
+        /**
+         *  Deactivation jobs
          */
         $schedule->command('deactivate:espAccounts')->daily(self::REPORT_TIME);
 
@@ -228,6 +229,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('listprofile:aggregateActions')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('listprofile:getRecordAgentData')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('listprofile:baseTables')->dailyAt(self::EXPIRATION_RUNS);
+        $schedule->command('updateUserActions 1')->dailyAt(self::REPORT_TIME_2);
 
         /**
          * Feed File Processing
