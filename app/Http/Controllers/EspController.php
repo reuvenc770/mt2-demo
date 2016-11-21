@@ -133,9 +133,9 @@ class EspController extends Controller
 
     public function processCSV(Request $request){
         $fileName = $request->get("filename");
-        $espName = "Campaigner";
+        $espName =  $request->get("espName");
         $dateFolder = date('Ymd');
-        $path = storage_path() . "/app/files/uploads/csvuploads/20161118/upload.csv";
+        $path = storage_path() . "/app/files/uploads/csvuploads/{$dateFolder}/{$fileName}";
         $this->dispatch(new ImportCsvStats($espName, $path));
     }
 

@@ -14,12 +14,13 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     self.paginationCount = '10';
     self.currentFieldConfig = [];
     self.currentPage = 1;
+    self.campaignTriggered = false;
     self.accountTotal = 0;
     self.formSubmitted = false;
     self.fieldList = [
         { "label" : "Campaign Name" , "field" : "campaign_name" , "required" : true } ,
-        { "label" : "Send Date" , "field" : "datetime" , "required" : true } ,
-        { "label" : "Name" , "field" : "name" , "required" : true } ,
+        { "label" : "Send Date" , "field" : "datetime" } ,
+        { "label" : "Name" , "field" : "name"  } ,
         { "label" : "Subject" , "field" : "subject" } ,
         { "label" : "From" , "field" : "from" } ,
         { "label" : "From Email" , "field" : "from_email" } ,
@@ -67,33 +68,37 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     };
 
     self.moveField = function ( droppedField , list , index ) {
+        self.campaignTriggered = false;
         list.splice( index , 1 );
-
         self.currentFieldConfig = [];
-
         if ( list === self.fieldList && typeof( self.formErrors[ droppedField.field ] ) !== 'undefined' && self.formErrors[ droppedField.field ].length > 0 ) {
             delete( self.formErrors[ droppedField.field ] );
         }
         angular.forEach( self.selectedFields , function ( value , index ) {
+            if(value.field == "campaign_name"){
+                self.campaignTriggered = true;
+            }
             self.currentFieldConfig.push(value.field);
         } );
     };
 
     self.setFields = function (mapping) {
-        angular.forEach(self.fieldList, function (currentField, feedIndex) {
-            angular.forEach(mapping, function (currentMapping, index) {
-                if (currentMapping == currentField.field) {
+        angular.forEach(mapping, function (currentField, feedIndex) {
+            angular.forEach(self.fieldList, function (currentMapping, index) {
+                if (currentMapping.field == currentField) {
                     var removedFields = self.fieldList.splice(index, 1);
                     itemRemoved = removedFields.pop();
                     self.selectedFields.push(itemRemoved);
                     self.currentFieldConfig.push(itemRemoved.field);
+                    if(itemRemoved.field == "campaign_name"){
+                        self.campaignTriggered = true;
+                    }
                 }
             });
         });
     };
 
     self.saveFieldOrder = function(){
-        self.formSubmitted = true;
         formValidationService.resetFieldErrors( self );
         EspService.updateMapping(
             self.espId,
@@ -103,10 +108,11 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         );
     };
 
-    self.processCsv = function ($file){
+    self.fileUploaded = function ($file, espAccount){
         self.file = $file.relativePath;
-        $('#validateModal').modal('show');
-    }
+        self.espAccount = espAccount;
+        EspService.processFile({"filename":self.file,"espName":self.espAccount}, self.fileUploadSuccess,self.fileUploadFail);
+    };
 
     /**
      * Callbacks
@@ -130,6 +136,15 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         modalService.launchModal();
     };
 
+    self.fileUploadSuccess = function (response){
+        modalService.simpleToast("File was successfully uploaded for processing");
+    };
+
+    self.fileUploadFail = function (response){
+        modalService.setModalLabel( 'Error' );
+        modalService.setModalBody( "Something went wrong uploading file" );
+        modalService.launchModal();
+    };
 
     self.SuccessCallBackRedirect = function ( response ) {
         $location.url( '/esp' );

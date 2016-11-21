@@ -2,20 +2,24 @@
 
 namespace App\Jobs;
 
+use App\Exceptions\CampaignNameException;
+use App\Facades\SlackLevel;
 use App\Jobs\Job;
-use App\Services\StandardReportService;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Factories\APIFactory;
 use App\Facades\EspApiAccount;
 use League\Csv\Reader;
-use Storage;
+
+use App\Exceptions\EspAccountDoesNotExistException;
+
 class ImportCsvStats extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
     protected $espName;
     protected $filePath;
+    CONST SLACK_TARGET ="#mt2team";
     /**
      * Create a new job instance.
      *
@@ -43,20 +47,40 @@ class ImportCsvStats extends Job implements ShouldQueue
 
     private function mapCsvToRawStatsArray($espName,$filePath) {
     $returnArray = array();
-    $mapping = EspApiAccount::grabCsvMapping($espName);
+        try {
+            $mapping = EspApiAccount::grabCsvMapping($espName);
+        } catch (\Exception $e){
+            SlackLevel::to(self::SLACK_TARGET)->send('ESP does not have ESP Field Maps');
+        }
     $reader = Reader::createFromPath($filePath);
     $data = $reader->fetchAssoc(explode(',',$mapping));
-    foreach ($data as $row) {
-        $row['m_deploy_id'] = $this->getDeployIDFromName($row['campaign_name']);
-        $row['esp_internal_id'] = 0;
-        $row['external_deploy_id'] = $this->getDeployIDFromName($row['campaign_name']);
-        $row['esp_account_id'] = EspApiAccount::getEspAccountIdFromName($row['campaign_name']);
-        $returnArray[] = $row;
+    foreach ($data as $key => $row) {
+        try {
+            $row['m_deploy_id'] = $this->getDeployIDFromName($row['campaign_name']);
+            $row['esp_internal_id'] = 0;
+            $row['external_deploy_id'] = $this->getDeployIDFromName($row['campaign_name']);
+            $row['esp_account_id'] = EspApiAccount::getEspAccountIdFromName($row['campaign_name']);
+            $returnArray[] = $row;
+
+        } catch (CampaignNameException $e){
+            SlackLevel::to(self::SLACK_TARGET)->send("Campaign Name cannot be parsed for row {$key} in file {$filePath}");
+            continue;
+        } catch(EspAccountDoesNotExistException $e){
+            SlackLevel::to(self::SLACK_TARGET)->send("Esp Listed for row {$key} does not exist in file {$filePath}");
+        }
+        catch (\Exception $e){
+            SlackLevel::to(self::SLACK_TARGET)->send("Something else went wrong with row {$key} - {$e->getMessage()}");
+            continue;
+        }
     }
     return $returnArray;
     }
 
     protected function getDeployIDFromName($name){
-        return explode('_',$name)[0];
+        try {
+            return explode('_', $name)[0];
+        } catch (\Exception $e){
+            throw new CampaignNameException();
+        }
     }
 }

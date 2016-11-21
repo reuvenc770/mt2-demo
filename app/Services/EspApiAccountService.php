@@ -11,7 +11,7 @@ namespace App\Services;
 use App\Services\ServiceTraits\PaginateList;
 
 use App\Repositories\EspApiAccountRepo;
-use League\Csv\Reader;
+use App\Exceptions\EspAccountDoesNotExistException;
 /**
  * Class EspApiAccountService
  * @package App\Services
@@ -161,9 +161,14 @@ class EspApiAccountService
         return $this->espRepo->toggleRow($id, $direction);
     }
 
-    public function getEspAccountIdFromName($name){
-        $espAccountName = explode('_',$name)[1];
-        $espAccountId = $this->espRepo->getIdFromName($espAccountName);
-        return  $espAccountId->id;
+    public function getEspAccountIdFromName($name)
+    {
+        try {
+            $espAccountName = explode('_', $name)[1];
+            $espAccountId = $this->espRepo->getIdFromName($espAccountName);
+            return $espAccountId->id;
+        } catch (\Exception $e) {
+            throw new EspAccountDoesNotExistException();
+        }
     }
 }

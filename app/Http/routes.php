@@ -812,6 +812,14 @@ Route::group(
             ]
         );
 
+        Route::post(
+            'esp/mappings/process' ,
+            [
+                'as' => 'api.esp.mappings.process' ,
+                'uses' => 'EspController@processCSV'
+            ]
+        );
+
         Route::group(
             [ 'prefix' => 'deploy' ] ,
             function () {

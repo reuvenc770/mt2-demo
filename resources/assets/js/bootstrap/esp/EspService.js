@@ -48,8 +48,16 @@ mt2App.service( 'EspService' , function ( $http , $log ) {
     self.updateMapping = function (id, mappings, successCallback , failureCallback  ) {
         $http( {
             "method" : "PUT" ,
-            "url" : this.mappingUrl + + id ,
+            "url" : this.mappingUrl +  id ,
             "data" : {mappings:mappings}
         } ).then( successCallback , failureCallback );
     }
+
+    self.processFile = function ( fileData , successCallback , failureCallback ) {
+        $http( {
+            "method" : "POST" ,
+            "url" : this.mappingUrl + 'process' ,
+            "data" : fileData
+        } ).then( successCallback , failureCallback );
+    };
 } );

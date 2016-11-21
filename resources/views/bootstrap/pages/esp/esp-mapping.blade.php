@@ -2,7 +2,7 @@
 
 @section( 'container' , 'container-fluid' )
 
-@section( 'title' , 'Esp Mappings' )
+@section( 'title' , 'Configure ESP Fields Mappings' )
 
 @section( 'angular-controller' , 'ng-controller="espController as esp"' )
 
@@ -58,7 +58,7 @@
 
         <div class="panel-footer">
             <div class="form-group">
-                <input class="btn btn-primary btn-block" ng-click="esp.saveFieldOrder()" ng-disabled="feed.formSubmitted" type="submit" value="Save Field Order" />
+                <input class="btn btn-primary btn-block" ng-click="esp.saveFieldOrder()" ng-disabled="!esp.campaignTriggered" type="submit" value="Save Field Order" />
             </div>
         </div>
     </div>
