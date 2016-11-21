@@ -30,7 +30,6 @@ class EmailRepo {
     }
 
 
-
     public function insertDelayedBatch($row) {
         if ($this->batchEmailCount >= self::INSERT_THRESHOLD) {
             $this->emailModel->insert($this->batchEmails);
@@ -168,6 +167,19 @@ class EmailRepo {
 
             $this->emailModel->where('id', $old)->update(['id' => $new]);
         }
+    }
+
+    public function insertNew(array $row) {
+        // Due to the possibility of incomplete parallelization, 
+        // we cannot be sure that this email is not already in the db.
+        $email = $this->emailModel->where('email_address', $row['email_address'])->first();
+
+        if (!$email) {
+            // One final precaution
+            $email = $this->emailModel->updateOrCreate(['email_address' => $row['email_address']], $row);
+        }
+
+        return $email;
     }
 
 }

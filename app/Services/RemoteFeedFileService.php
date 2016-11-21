@@ -10,8 +10,11 @@ use App\Services\DomainGroupService;
 use App\Services\RemoteLinuxSystemService;
 use App\Models\ProcessedFeedFile;
 use App\Repositories\RawFeedEmailRepo;
+use App\Facades\SlackLevel;
 
 class RemoteFeedFileService {
+    const SLACK_CHANNEL = "#mt2team";
+
     protected $feedService;
     protected $systemService;
     protected $domainGroupService;
@@ -150,6 +153,8 @@ class RemoteFeedFileService {
             $lineColumns = explode( ',' , $currentLine );
 
             if ( count( $this->currentColumnMap ) !== count( $lineColumns ) ) {
+                SlackLevel::to(self::SLACK_CHANNEL)->send( "Feed File Processing Error: Column count does not match for the file '{$this->currentFile[ 'path' ]}'." );
+
                 throw new \Exception( "\n" . str_repeat( '=' , 150 )  . "\nRemoteFeedFileService:\n Column count does not match. Please fix the file '{$this->currentFile[ 'path' ]}' or update the column mapping\n" . str_repeat( '=' , 150 ) );
             } 
 

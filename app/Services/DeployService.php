@@ -11,6 +11,7 @@ namespace App\Services;
 
 use App\Events\NewDeployWasCreated;
 use App\Repositories\DeployRepo;
+use App\Repositories\ListProfileCombineRepo;
 use App\Repositories\MT1Repositories\EspAdvertiserJoinRepo;
 use App\Services\ServiceTraits\PaginateList;
 use League\Csv\Writer;
@@ -20,13 +21,15 @@ use Illuminate\Support\Facades\Artisan;
 class DeployService
 {
     protected $deployRepo;
+    protected $combineRepo;
     protected $espAdvertiser;
     use PaginateList;
 
-    public function __construct(DeployRepo $deployRepo, EspAdvertiserJoinRepo $repo)
+    public function __construct(DeployRepo $deployRepo, EspAdvertiserJoinRepo $repo, ListProfileCombineRepo $combineRepo)
     {
         $this->deployRepo = $deployRepo;
         $this->espAdvertiser = $repo;
+        $this->combineRepo = $combineRepo;
     }
 
     public function getCakeAffiliates()
@@ -79,9 +82,18 @@ class DeployService
         return $this->deployRepo->validateOldDeploy($deploy);
     }
 
-    public function massUpload($data)
+    public function massUpload($deploys)
     {
-        return $this->deployRepo->massInsert($data);
+        $deploysWithProfile = array();
+        foreach($deploys as $row){
+            $row['id'] = $row['deploy_id'];
+            $row['list_profile_combine_id'] = $this->combineRepo->getIdFromName($row['list_profile_name']);
+            unset($row['deploy_id']);
+            unset($row['valid']);
+            unset($row['list_profile_name']);
+            $deploysWithProfile[] = $row;
+        }
+        return $this->deployRepo->massInsert($deploysWithProfile);
     }
 
     public function deployPackages($data)
@@ -132,7 +144,7 @@ class DeployService
 
     public function getHeaderRow()
     {
-        return ['Send Date', 'Deploy ID', 'ESP Account', "Mailing Template", "Mailing Domain",
+        return ['Send Date', 'Deploy ID', 'List Profile', 'ESP Account', "Mailing Template", "Mailing Domain",
             "Content Domain", "Subject", "From", "Creative"];
     }
 

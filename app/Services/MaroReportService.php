@@ -458,4 +458,5 @@ class MaroReportService extends AbstractReportService implements IDataService
         }
     }
 
+    public function pushRecords(array $records, $targetId) {}
 }

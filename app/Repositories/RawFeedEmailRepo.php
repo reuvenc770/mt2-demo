@@ -103,6 +103,32 @@ class RawFeedEmailRepo {
         ] );
     }
 
+    public function getFirstPartyRecordsFromFeed($startPoint, $feedId) {
+        return $this->rawEmail
+                    ->selectRaw("raw_feed_emails.*, email_domain_id, domain_group_id, e.id as email_id")
+                    ->leftJoin('emails as e', 'raw_feed_emails.email_address', '=', 'e.email_address')
+                    ->leftJoin('email_domains as ed', 'e.email_domain_id', '=', 'ed.id')
+                    ->where('feed_id', $feedId)
+                    ->where('raw_feed_emails.id', '>', $startPoint)
+                    ->orderBy('raw_feed_emails.id')
+                    ->limit(1000)
+                    ->get();
+    }
+
+    public function getThirdPartyRecordsWithChars($startPoint, $startChars) {
+        $charsRegex = '^[' . $startChars . ']';
+
+        return $this->rawEmail
+                    ->selectRaw("raw_feed_emails.*, email_domain_id, domain_group_id, e.id as email_id")
+                    ->leftJoin('emails as e', 'raw_feed_emails.email_address', '=', 'e.email_address')
+                    ->leftJoin('email_domains as ed', 'e.email_domain_id', '=', 'ed.id')
+                    ->whereRaw("raw_feed_emails.email_address RLIKE '$charsRegex'")
+                    ->where('raw_feed_emails.id', '>', $startPoint)
+                    ->orderBy('raw_feed_emails.id')
+                    ->limit(1000)
+                    ->get();
+    }
+
     protected function formatRecord ( $record ) {
         $pdo = \DB::connection()->getPdo();
 

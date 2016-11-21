@@ -114,6 +114,9 @@ class ImportMt1Entity extends Command
             case "offerSuppressionListMap":
                 return "ImportMt1OfferSuppressionListMap";
 
+            case "globalSuppression":
+                return "ImportMt1GlobalSuppression";
+
             default:
                 throw new \Exception('Unsupported entity type: ' . $type);
         }

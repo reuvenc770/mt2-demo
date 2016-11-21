@@ -21,4 +21,12 @@ class EmailFeedAssignmentService {
     public function setLevelModel ( $modelId ) {
         $this->repo->setLevelModel( $modelId );
     }
+
+    public function insertBulkRecords($records) {
+        foreach($records as $record) {
+            $this->repo->insertBatch($record);
+        }
+
+        $this->repo->insertStored();
+    }
 }

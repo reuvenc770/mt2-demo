@@ -85,8 +85,9 @@ class DeployRepo
 
     public function retrieveRowsForCsv($rows)
     {
-        return $this->deploy->whereIn('id', $rows)
-            ->select("id as deploy_id",
+        $listProfileSchema = config('database.connections.list_profile.database');
+        return $this->deploy->whereIn('deploys.id', $rows)
+            ->select("deploys.id as deploy_id",
                 "send_date",
                 "esp_account_id",
                 "offer_id",
@@ -96,13 +97,13 @@ class DeployRepo
                 "template_id",
                 "mailing_domain_id",
                 "content_domain_id",
-                "list_profile_id",
+                "lpc.name as list_profile_name",
                 "cake_affiliate_id",
                 "encrypt_cake",
                 "fully_encrypt",
                 "url_format",
                 "notes"
-            )->get();
+            )->join("{$listProfileSchema}.list_profile_combines as lpc", 'deploys.list_profile_combine_id', '=', 'lpc.id')->get();
     }
 
     //Rob will probably say oh we can just do this, but I am not rob and I suck at sql
@@ -129,9 +130,6 @@ class DeployRepo
 
     public function massInsert($data){
         foreach($data as $row){
-            $row['id'] = $row['deploy_id'];
-            unset($row['deploy_id']);
-            unset($row['valid']);
             $this->deploy->updateOrCreate(['id'=> $row['id']],$row);
         }
         return true;
@@ -146,7 +144,7 @@ class DeployRepo
     public function returnCsvHeader()
     {
         return ['deploy_id', "send_date", "esp_account_id", "offer_id", "creative_id", "from_id", "subject_id", "template_id",
-            "mailing_domain_id", "content_domain_id", "list_profile_combine_id", "cake_affiliate_id","encrypt_cake", "fully_encrypt", "url_format", "notes"];
+            "mailing_domain_id", "content_domain_id", "list_profile_name", "cake_affiliate_id","encrypt_cake", "fully_encrypt", "url_format", "notes"];
     }
 
 
@@ -307,15 +305,14 @@ class DeployRepo
 
         //list profile for now commented out
 
-        if (isset($deploy['list_profile_combine_id'])) {
-        $count = DB::select("Select count(*) as count from list_profile_combines where id = :id", ['id' => $deploy['list_profile_combine_id']])[0];
+        if (isset($deploy['list_profile_name'])) {
+        $count = DB::select("Select count(*) as count from list_profile_combines where name = :name", ['name' => $deploy['list_profile_name']])[0];
         if ($count->count == 0) {
         $errors[] = "List Profile is not active or wrong";
         }
         } else {
-        $errors[] = "List Profile ID is missing";
+        $errors[] = "List Profile Name is missing";
         }
-
         //cake
 
         if (isset($deploy['cake_affiliate_id'])) {

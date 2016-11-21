@@ -64,6 +64,11 @@ class ListProfileCombineRepo
             ->where('list_profile_combines.id',$listProfileCombineId)->get();
     }
 
+    public function getIdFromName($name){
+        $combine = $this->model->where('name',$name)->first();
+        return $combine->id;
+    }
+
     public function isEditable($id) {
         return $this->model->where('id' , $id)->whereNull("list_profile_id")->count() > 0;
     }
