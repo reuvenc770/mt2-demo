@@ -70,4 +70,8 @@ class OfferRepo {
         return $output;
     }
 
+    public function getOfferName($id){
+        return $this->offer->find($id)->name;
+    }
+
 }
