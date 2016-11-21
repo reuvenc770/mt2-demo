@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use App\Http\Requests\Request;
 use Sentinel;
 
-class SubmitListProfileRequest extends Request
+class SubmitListCombineRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -29,15 +29,16 @@ class SubmitListProfileRequest extends Request
     public function rules()
     {
         return [
-            'actionRanges' => 'required_without_all:actionRanges.deliverable,actionRanges.opener,actionRanges.clicker,actionRanges.converter' ,
-            'selectedColumns' => 'required'
+            'combineName' => 'required' ,
+            'selectedProfiles' => 'required|min:2'
         ];
     }
 
     public function messages () {
         return [
-            'actionRanges.required_without_all' => 'You must include at least one action range.' ,
-            'selectedColumns.required' => 'You must select some columns for export.'
+            'combineName.required' => 'A combine name is required.' ,
+            'selectedProfiles.required' => 'A list profile is required.',
+            'selectedProfiles.min' => 'A combine must include at least 2 list profiles.'
         ];
     }
 }

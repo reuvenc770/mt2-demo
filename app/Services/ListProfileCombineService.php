@@ -45,4 +45,11 @@ class ListProfileCombineService
         return $this->listProfileCombinesRepo->getRowWithListProfiles($id);
     }
 
+    public function isEditable($id) {
+        return $this->listProfileCombinesRepo->isEditable($id);
+    }
+
+    public function updateCombine ( $id , $name, $profiles ) {
+        $this->listProfileCombinesRepo->updateCombine( $id , $name , $profiles );
+    }
 }

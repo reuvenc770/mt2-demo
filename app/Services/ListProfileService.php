@@ -41,7 +41,7 @@ class ListProfileService
     }
 
     public function create ( $data ) {
-        $cleanData = $this->cleanseData( $data ); 
+        $cleanData = $this->cleanseData( $data );
 
         $id = $this->profileRepo->create( $cleanData );
 
@@ -58,7 +58,7 @@ class ListProfileService
 
         return json_encode( [
             'profile_id' => $id ,
-            'name' => $listProfile->name , 
+            'name' => $listProfile->name ,
             'actionRanges' => [
                 'deliverable' => [
                     'min' => $listProfile->deliverable_start ,
@@ -95,8 +95,8 @@ class ListProfileService
             'selectedColumns' => json_decode( $listProfile->columns ) ,
             'exportOptions' => [
                 'interval' =>  [ $listProfile->run_frequency ] ,
-                'dayOfWeek' => $schedule->day_of_week ? $schedule->day_of_week : null ,
-                'dayOfMonth' => $schedule->day_of_month ? $schedule->day_of_month : null
+                'dayOfWeek' => isset($schedule) && $schedule->day_of_week ? $schedule->day_of_week : null ,
+                'dayOfMonth' => isset($schedule) && $schedule->day_of_month ? $schedule->day_of_month : null
             ] ,
             'countries' => $listProfile->countries()->get()->pluck( 'id' ,'name' )->toArray() ,
             'feeds' => $listProfile->feeds()->get()->pluck( 'short_name' , 'id' )->toArray() ,
@@ -125,6 +125,10 @@ class ListProfileService
         return $this->profileRepo->returnActiveProfiles();
     }
 
+    public function getAllListProfiles() {
+        return $this->profileRepo->getAllListProfiles();
+    }
+
 
     public function buildProfileTable($id) {
         /**
@@ -143,7 +147,7 @@ class ListProfileService
 
             // .. if we have hygiene, we write out both files. Write full one to a secret location. Send the other one (just email address/md5) out.
             // When the second returns. Find a way to subtract it from the first
-            
+
             $columns = $this->builder->getColumns();
 
             if (1 === $queryNumber) {
@@ -168,7 +172,7 @@ class ListProfileService
 
             $this->batchInsert();
             $this->clear();
-            
+
             $queryNumber++;
         }
 
@@ -205,13 +209,13 @@ class ListProfileService
             'columns' => json_encode( $data[ 'selectedColumns' ] ) ,
             'run_frequency' => ( ( isset( $data[ 'exportOptions' ][ 'interval' ] ) && $choice = array_intersect( $data[ 'exportOptions' ][ 'interval' ] , [ 'Daily' , 'Weekly' , 'Monthly' , 'Never' ] ) ) ? array_pop( $choice ) : 'Never' ) ,
             'admiral_only' => $data[ 'admiralsOnly' ] ,
-        ]; 
+        ];
     }
 
     private function saveEntities ( $id , $data , $isUpdate = false ) {
         if ( $data[ 'categories' ] || $isUpdate ) {
             $this->profileRepo->assignVerticals( $id , array_keys( $data[ 'categories' ] ) );
-        } 
+        }
 
         if ( $data[ 'exportOptions' ][ 'interval' ] || $isUpdate ) {
             $this->profileRepo->assignSchedule( $id , $data[ 'exportOptions' ] );

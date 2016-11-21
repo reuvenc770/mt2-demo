@@ -64,5 +64,22 @@ class ListProfileCombineRepo
             ->where('list_profile_combines.id',$listProfileCombineId)->get();
     }
 
+    public function isEditable($id) {
+        return $this->model->where('id' , $id)->whereNull("list_profile_id")->count() > 0;
+    }
 
+    public function updateCombine( $id , $name , $profiles ) {
+        $currentCombine = $this->model->find( $id );
+
+        $currentCombine->name = $name;
+
+        $currentCombine->save();
+
+        $currentCombine->listProfiles()->detach();
+
+        foreach( $profiles as $profile ){
+            $this->attachPivot( $currentCombine , $profile['id'] );
+        }
+
+    }
 }

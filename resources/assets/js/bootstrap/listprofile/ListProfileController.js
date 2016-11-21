@@ -57,6 +57,11 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         'admiralsOnly' : false
     };
 
+    self.currentCombine = { 'combineName' : '' , 'selectedProfiles' : [] };
+    self.prepopListProfiles = [];
+    self.listProfilesList = [];
+    self.lpListNameField = 'name';
+
     self.listProfiles = [];
     self.pageCount = 0;
     self.paginationCount = '10';
@@ -464,7 +469,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
     self.removeIsps = function () {
         self.removeMembershipItems(
-            { "highlightedForRemoval" : self.highlightedIspsForRemoval , "visibility" : self.ispVisibility } ,        
+            { "highlightedForRemoval" : self.highlightedIspsForRemoval , "visibility" : self.ispVisibility } ,
             self.current.isps ,
             self.generateName
         );
@@ -474,14 +479,14 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         self.addMembershipItems(
             { "highlighted" : self.highlightedCategories , "visibility" : self.categoryVisibility , "map" : self.categoryNameMap } ,
             self.current.categories
-        );  
+        );
     };
 
     self.removeCategories = function () {
         self.removeMembershipItems(
             { "highlightedForRemoval" : self.highlightedCategoriesForRemoval , "visibility" : self.categoryVisibility } ,
             self.current.categories
-        );  
+        );
     };
 
     self.addOffers = function () {
@@ -671,15 +676,15 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
                 ( immediatelyExists && itemsChosen === 1 )
                 || ( !immediatelyExists && option == 'Immediately' && itemsChosen === 1 )
                 || ( itemsChosen === 0 ) ) {
-                self.current.exportOptions.interval.push( option ); 
+                self.current.exportOptions.interval.push( option );
             }
         } else {
-            self.current.exportOptions.interval.splice( optionIndex , 1 ); 
+            self.current.exportOptions.interval.splice( optionIndex , 1 );
             self.current.exportOptions.dayOfWeek = null;
             self.current.exportOptions.dayOfMonth = null;
         }
     };
-        
+
     self.isSelectedExportOption = function ( option ) {
         return self.current.exportOptions.interval.indexOf( option ) >= 0;
     }
@@ -706,17 +711,14 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     };
 
     self.createCombine = function (){
-        if(self.combineName.length < 1){
-            self.combineError = "Combine Name is required";
-        } else {
-            self.combineError = null;
-        }
-
         ListProfileApiService.createCombine(self.combineName,self.selectedProfiles, self.createCombineSuccess, self.createCombineFail);
     };
 
+    self.updateCombine = function () {
+        ListProfileApiService.updateCombine( self.currentCombine , self.SuccessCallBackRedirect , self.updateCombineFail );
+    };
+
     self.toggleRow = function (selectedValue) {
-        console.log(selectedValue);
         var index = self.selectedProfiles.indexOf(selectedValue);
         if (index >= 0) {
             self.selectedProfiles.splice(index, 1);
@@ -724,6 +726,46 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
             self.selectedProfiles.push(selectedValue);
         }
         self.showCombine = self.selectedProfiles.length > 1;
+    };
+
+    self.isCreatingCombine = function( profile ) {
+        return self.selectedProfiles.indexOf( profile ) > -1;
+    };
+
+    self.loadListProfileList = function () {
+        ListProfileApiService.getAllListProfiles( self.getAllListProfilesSuccess, self.getAllListProfilesFail )
+    };
+
+    self.getAllListProfilesSuccess = function ( response ) {
+
+        self.listProfilesList = response.data;
+
+        if ( self.prepopListProfiles.length > 0 ) {
+            var profilesToRemove = [];
+
+            angular.forEach( self.listProfilesList , function ( value , index ) {
+
+                if (self.prepopListProfiles.indexOf( value.id) >= 0 ) {
+                    profilesToRemove.push( value );
+                    self.currentCombine.selectedProfiles.push( value );
+                }
+            });
+
+            angular.forEach( profilesToRemove , function ( value , index ) {
+                self.listProfilesList.splice( self.listProfilesList.indexOf( value ) , 1 );
+            });
+        }
+
+    };
+
+    self.getAllListProfilesFail = function ( response ) {
+        modalService.simpleToast("List of list profiles failed to load.",'top right');
+    };
+
+    self.setCombine = function ( combineId , combineName , listProfiles ) {
+        self.currentCombine.id = combineId;
+        self.currentCombine.combineName = combineName;
+        self.prepopListProfiles = listProfiles;
     };
 
     self.loadListCombines = function (){
@@ -735,7 +777,13 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     };
 
     self.createCombineSuccess = function (response){
+        $('#createCombine').modal('hide');
         modalService.simpleToast("List Combine was Created",'top right');
+
+        self.selectedProfiles = [];
+        self.showCombine = false;
+        formValidationService.resetFieldErrors( self );
+
         self.loadListCombines();
         self.combineName = "";
     };
@@ -746,11 +794,14 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     };
 
     self.createCombineFail = function ( response) {
-        modalService.simpleToast("List Combine failed to create",'top right');
+        formValidationService.loadFieldErrors( self, response );
+    };
+
+    self.updateCombineFail = function ( response ) {
+        formValidationService.loadFieldErrors( self, response );
     };
 
     self.exportCombine = function (id){
-        console.log(id);
        ListProfileApiService.exportCombine(id,self.exportCombineSuccess, self.exportCombineFail)
     };
 
