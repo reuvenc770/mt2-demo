@@ -141,7 +141,8 @@ class ImportMt1EmailsService
                         $recordsToFlag[] = [
                             "email_id" => $importingEmailId, 
                             "feed_id" => $feedId, 
-                            "datetime" => $record['capture_date']
+                            "datetime" => $record['capture_date'],
+                            "capture_date" => $record['capture_date']
                         ];
                     }
                     elseif (null === $existsCheck && !isset($this->emailIdCache[$importingEmailId]) && isset($this->emailAddressCache[$emailAddress])) {
