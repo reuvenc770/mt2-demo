@@ -31,8 +31,6 @@ class UserActionStatusService implements IEtl {
 
         // Large data set, so lazy loading required here
         foreach($this->resource->cursor() as $row) {
-            $actionType = $this->actionTypeMap[$row->action_id];
-
             if (3 === $row->party) {
                 $this->thirdPartyUserRepo->updateActionData($row->email_id, $row->date);
             }
