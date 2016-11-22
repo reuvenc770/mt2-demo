@@ -186,7 +186,6 @@ class Kernel extends ConsoleKernel
          *  MT1 data sync jobs
          */
         $schedule->command('mt1Import offer')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import listProfile')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import advertiser')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('emails:download')->cron('*/2 * * * * *')->withoutOverlapping();
         $schedule->command('mt1Import creative')->dailyAt(self::MT1_SYNC_TIME);
@@ -206,7 +205,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('mt1Import cakeOfferMap')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import client')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import vendorSuppressionInfo')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import vendorSuppression')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerSuppressionListMap')->dailyAt(self::MT1_SYNC_TIME);
 
         /**
