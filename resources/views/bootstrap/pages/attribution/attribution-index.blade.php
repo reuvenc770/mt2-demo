@@ -17,14 +17,14 @@
 
 <div  ng-init="attr.initIndexPage()">
     <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" class="active"><a href="#model" aria-controls="models" role="tab" data-toggle="tab">Models</a></li>
-        <li role="presentation"><a href="#reporttab" aria-controls="reporttab" role="tab" data-toggle="tab">Report</a></li>
+        <li role="presentation"><a href="#model" aria-controls="models" role="tab" data-toggle="tab">Models</a></li>
+        <li role="presentation" class="active"><a href="#reporttab" aria-controls="reporttab" role="tab" data-toggle="tab">Report</a></li>
     </ul>
     <div class="tab-content">
-        <div role="tabpanel" class="tab-pane active" id="model">
+        <div role="tabpanel" class="tab-pane" id="model">
             @include( 'bootstrap.pages.attribution.indexPartials.models-index' )
         </div>
-        <div role="tabpanel" class="tab-pane" id="reporttab">
+        <div role="tabpanel" class="tab-pane active" id="reporttab">
             @include( 'bootstrap.pages.attribution.indexPartials.three-month-report' )
         </div>
     </div>
