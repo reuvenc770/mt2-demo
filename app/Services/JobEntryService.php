@@ -14,7 +14,7 @@ use App\Repositories\JobEntryRepo;
 use Carbon\Carbon;
 use Maknz\Slack\Facades\Slack;
 use App\Exceptions\JobCompletedException;
-
+use Log;
 class JobEntryService
 {
     protected $repo;
@@ -65,10 +65,12 @@ class JobEntryService
         else if($state == JobEntry::RUNNING){
             $job->time_started = Carbon::now();
             $job->attempts = $job->attempts + 1;
+            $job->save();
         }
-        $job->save();
-        if($job->status == 3 && env("SLACK_ON",false)){
-            Slack::to('#mt2-dev-failed-jobs')->send("{$job->job_name} for {$job->account_name} - {$job->account_number} has failed after running {$job->attempts} attempts");
+
+        if($state == JobEntry::FAILED){
+            Log::alert("** I Failed But I did not hit slack");
+            Slack::to(self::ROOM)->send("{$job->job_name} for {$job->account_name} - {$job->account_number} has failed after running {$job->attempts} attempts");
         }
     }
 
