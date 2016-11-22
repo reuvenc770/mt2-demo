@@ -1,68 +1,95 @@
-mt2App.controller( 'ReportController' , [ 'ReportApiService' , '$mdToast' , '$log' , '$window' , '$httpParamSerializer' , function ( ReportApiService , $mdToast , $log , $window , $httpParamSerializer ) {
+mt2App.controller( 'ReportController' , [ 'ReportApiService' , 'formValidationService' , 'modalService' , '$mdToast' , '$log' , '$window' , '$httpParamSerializer' , function ( ReportApiService ,formValidationService , modalService , $mdToast , $log , $window , $httpParamSerializer ) {
     var self = this;
 
-    self.startDate = new Date();
-    self.endDate = new Date();
-
-    self.records = [];
-    self.meta = { "recordCount" : 0 , "recordTotals" : {} };
     self.queryPromise = null;
-    self.query = {
-        "type" : "Deploy" ,
-        "filters" : { "date" : { "start" : self.startDate , "end" : self.endDate } } ,
-        "order" : 'date' ,
-        "limit" : 50 ,
-        "page" : 1
-    };
+    self.pageCount = 0;
+    self.paginationCount = '10';
+    self.currentPage = 1;
+    self.reportTotal = 0;
+    self.sort = 'name';
 
-    self.exportUrl = '/report/export';
+    self.reportList = [];
 
-    self.loadRecords = function () {
-        self.getRecords();
-    }; 
+    self.formErrors = [];
 
-    self.getRecords = function () { 
-        self.queryPromise = ReportApiService.getRecords(
-            self.query ,
-            function ( response ) {
-                self.records = response.data.records;
-                self.meta.recordCount = parseInt( response.data.totalRecords );
-                self.meta.recordTotals = response.data.totals;
-            } , function ( response ) {
-                $mdToast.show(
-                    $mdToast.simple()
-                        .textContent( 'Failed to load Attribution Records. Please contact support.' )
-                        .hideDelay( 1500 )
-                );
-            }
+    self.newReportName = null;
+    self.newReportId = null;
+    self.reportSaving = false;
+    self.formType = 'Add';
+    self.editReportId = 0;
+
+    self.loadReports = function () {
+        self.queryPromise = ReportApiService.getReports(
+            self.currentPage , 
+            self.paginationCount ,
+            self.sort ,
+            self.loadReportsSuccessCallback ,
+            self.loadReportsFailureCallback
         );
     };
 
-    self.exportReport = function () {
-        var fullUrl = self.exportUrl + '?' + $httpParamSerializer( self.query );
-
-        $window.open( fullUrl , '_blank' );        
+    self.showReportModal = function () {
+        $('#createReport').modal( 'show' );
     };
 
-    self.switchReportType = function ( type ) {
-        self.query.type = type;
+    self.changeReportModal = function ( systemId , name , reportId ) {
+        self.newReportName = name;
+        self.newReportId = reportId;
+        self.editReportId = systemId;
+        self.formType = 'Update';
 
-        self.updateQueryForReport( type );
-
-        self.records = [];
-        self.meta.recordCount = 0;
-        self.meta.recordTotals = {};
-
-        self.getRecords();
+        self.showReportModal();
     };
 
-    self.updateQueryForReport = function ( type ) {
-        if  ( type === 'Deploy' ) {
-            self.query.order = 'datetime';
-        } else if ( type === 'EmailCampaignStatistics' ) {
-            self.query.order = '-updated_at';
-        } else {
-            self.query.order = 'date';
+    self.createReport = function () {
+        self.reportSaving = true;
+        formValidationService.resetFieldErrors(self);
+
+        if ( self.formType === 'Add' ) {
+            ReportApiService.saveReport(
+                self.newReportName ,
+                self.newReportId ,
+                self.createReportSuccessCallback ,
+                self.createReportFailureCallback
+            );
+        } else if ( self.formType === 'Update' ) {
+            ReportApiService.updateReport(
+                self.editReportId ,
+                self.newReportName ,
+                self.newReportId ,
+                self.createReportSuccessCallback ,
+                self.createReportFailureCallback
+            );
         }
+    };
+    
+    self.loadReportsSuccessCallback = function ( response ) {
+        self.reportList = response.data.data;
+        self.pageCount = response.data.last_page;
+        self.reportTotal = response.data.total;
+    };
+
+    self.loadReportsFailureCallback = function ( response ) {
+        modalService.simpleToast( 'Failed to load reports. Please contact support.' , 'top left' );
     }
+
+    self.createReportSuccessCallback = function ( response ) {
+        self.reportSaving = false;
+
+        self.loadReports();
+
+        $('#createReport').modal( 'hide' );
+
+        modalService.simpleToast( 'Successfully Saved Report.' , 'top left' );
+
+        self.formType = 'Add';
+    };
+
+    self.createReportFailureCallback = function ( response ) {
+        self.reportSaving = false;
+        
+        formValidationService.loadFieldErrors( self , response );
+
+        modalService.simpleToast( 'Failed to save report. Please fix errors.' , 'top left' );
+    };
 } ] );

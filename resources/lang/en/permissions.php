@@ -170,8 +170,6 @@ return [
     'api.mailingtemplate.show'  =>   "Retrieve single record of Mailing Template",
     'api.mailingtemplate.update'  => "Update Mailing Template",
     'report.list' => "View Reporting Page" ,
-    'api.report.getRecords' => "Retrieve Reporting Records" ,
-    'report.export' => 'Export Report' ,
     'attribution.list' => 'View Attribution Page' ,
     'api.attribution.model.index' => 'Retrieve Model List' ,
     'api.attribution.model.show' => 'Retrieve Single Model Record' ,
