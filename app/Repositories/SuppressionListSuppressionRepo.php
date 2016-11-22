@@ -25,7 +25,8 @@ class SuppressionListSuppressionRepo {
         return $this->model
                     ->whereIn('suppression_list_id', $listIds)
                     ->whereIn('email_address', $emails)
-                    ->select(DB::raw('DISTINCT email_address'))
+                    ->selectRaw('email_address, GROUP_CONCAT(DISTINCT suppression_list_id SEPARATOR ",") as suppression_lists')
+                    ->groupBy('email_address')
                     ->get();
     }
 
