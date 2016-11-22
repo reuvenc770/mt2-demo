@@ -20,7 +20,8 @@ class AWeberApi extends EspBaseAPI
     private $accessToken;
     private $sharedSecret;
     private $api;
-    private $url;
+    private $baseUrl;
+    private $account;
     const COUNTER = 0;
     const ESP_NAME = "AWeber";
 
@@ -37,15 +38,17 @@ class AWeberApi extends EspBaseAPI
         $weber->adapter->debug = env("AWEBER_DEBUG", false);
         try {
             $this->api = $weber;
-            $accountId = Cache::remember('aweber_account_'.$espAccountId, $time, function() {
-            return $this->api->getAccount($this->accessToken, $this->sharedSecret)->id;
+            $this->account = Cache::remember('aweber_account_'.$espAccountId, $time, function() {
+            return $this->api->getAccount($this->accessToken, $this->sharedSecret);
             });
+
+            /* we were told lies
             $listId = Cache::remember('aweber_list_id_'.$espAccountId, $time, function() use ($accountId) {
                 return $this->api->adapter->request('GET', "/accounts/{$accountId}/lists/", array())['entries'][0]['id'];
             });
+            **/
 
-
-            $this->url = "/accounts/{$accountId}/lists/{$listId}/";
+            $this->baseUrl = "/accounts/{$this->account->id}/";
 
         } catch (AWeberAPIException $exc) {
             Log::error("AWeber  Failed {$exc->type} due to {$exc->message} help:: {$exc->documentation_url}");
@@ -67,6 +70,13 @@ class AWeberApi extends EspBaseAPI
     {
         $url = "campaigns";
         return $this->makeApiRequest($url, array("ws.size" => $limit));
+
+    }
+
+    public function getAllUnsubs(){
+
+            $params = array('status' => 'unsubscribed');
+            return $found_subscribers = $this->account->findSubscribers($params);
 
     }
 
@@ -94,7 +104,7 @@ class AWeberApi extends EspBaseAPI
         $user->accessToken = $this->accessToken;
         $user->tokenSecret = $this->sharedSecret;
         $this->api->adapter->user = $user;
-        $url = $this->url . $incomingUrl;
+        $url = $this->baseUrl . $incomingUrl;
         if ($fullUrl) {
             $url = $incomingUrl;
         }
@@ -102,7 +112,6 @@ class AWeberApi extends EspBaseAPI
         if (!empty($response['id'])) {
             return new AWeberEntry($response, $url, $this->api->adapter);
         } else if (array_key_exists('entries', $response)) {
-
             return new AWeberCollection($response, $url, $this->api->adapter);
         } else {
             return $response;
