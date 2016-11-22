@@ -130,4 +130,11 @@ class BrontoApi extends EspBaseAPI
     {
         return $this->espAccountId;
     }
+
+    public function addContact($contactInfo)
+    {
+        $this->setupBronto();
+        $this->brontoObject->addContacts([$contactInfo]);
+    }
+
 }
