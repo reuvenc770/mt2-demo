@@ -985,3 +985,56 @@ md-table-container{
         margin-right: 5px;
     }
 }
+
+/** custom color theme **/
+
+.mt2-theme-navbar {
+    background-color: #039be5;
+    border-color: #5bc0de;
+}
+
+.mt2-theme-thead {
+    background-color: #039be5;
+}
+
+.mt2-theme-panel {
+    border-color: #039be5;
+}
+
+.mt2-theme-panel > .panel-heading {
+    color: #ffffff;
+    background-color: #039be5;
+    border-color: #039be5;
+}
+
+.mt2-theme-btn-primary {
+    color: #ffffff;
+    background-color: #039be5;
+    border-color: #039be5;
+    &:hover {
+        color: #ffffff;
+        background-color: #5bc0de;
+        border-color: #5bc0de;
+    }
+    &:focus {
+        color: #ffffff;
+        background-color: #204c73;
+        border-color: #204c73;
+    }
+}
+
+.mt2-theme-btn-secondary {
+    color: #5bc0de;
+    background-color: #ffffff;
+    border-color: #5bc0de;
+    &:hover {
+        color: #ffffff;
+        background-color: #5bc0de;
+        border-color: #5bc0de;
+    }
+    &:focus {
+        color: #ffffff;
+        background-color: #204c73;
+        border-color: #204c73;
+    }
+}

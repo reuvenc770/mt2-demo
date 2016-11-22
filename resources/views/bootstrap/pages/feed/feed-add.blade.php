@@ -6,7 +6,7 @@
 
 @section( 'content' )
 <div>
-    <div class="panel panel-primary">
+    <div class="panel mt2-theme-panel">
         <div class="panel-heading">
             <div class="panel-title">Add Feed</div>
         </div>
@@ -17,7 +17,7 @@
             </fieldset>
         <div class="panel-footer">
             <div class="form-group">
-                <input class="btn btn-primary btn-block" ng-click="feed.saveFeed()" ng-disabled="feed.formSubmitted" type="submit" value="Add Feed">
+                <input class="btn mt2-theme-btn-primary btn-block" ng-click="feed.saveFeed()" ng-disabled="feed.formSubmitted" type="submit" value="Add Feed">
             </div>
         </div>
     </div>
