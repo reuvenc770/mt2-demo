@@ -98,7 +98,7 @@ class ListProfileService
                 'dayOfWeek' => isset($schedule) && $schedule->day_of_week ? $schedule->day_of_week : null ,
                 'dayOfMonth' => isset($schedule) && $schedule->day_of_month ? $schedule->day_of_month : null
             ] ,
-            'countries' => $listProfile->countries()->get()->pluck( 'id' ,'name' )->toArray() ,
+            'country_id' => $listProfile->country_id,
             'feeds' => $listProfile->feeds()->get()->pluck( 'short_name' , 'id' )->toArray() ,
             'isps' => $listProfile->domainGroups()->get()->pluck( 'name' , 'id' )->toArray() ,
             'categories' => $listProfile->verticals()->get()->pluck( 'name' , 'id' )->toArray() ,
@@ -208,6 +208,7 @@ class ListProfileService
             'columns' => json_encode( $data[ 'selectedColumns' ] ) ,
             'run_frequency' => ( ( isset( $data[ 'exportOptions' ][ 'interval' ] ) && $choice = array_intersect( $data[ 'exportOptions' ][ 'interval' ] , [ 'Daily' , 'Weekly' , 'Monthly' , 'Never' ] ) ) ? array_pop( $choice ) : 'Never' ) ,
             'admiral_only' => $data[ 'admiralsOnly' ] ,
+            'country_id' => $data[ 'country_id' ] ,
         ];
     }
 
@@ -232,9 +233,6 @@ class ListProfileService
             $this->profileRepo->assignIsps( $id , array_keys( $data[ 'isps' ] ) );
         }
 
-        if ( $data[ 'countries' ] || $isUpdate ) {
-            $this->profileRepo->assignCountries( $id , $data[ 'countries' ] );
-        }
     }
 
 

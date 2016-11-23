@@ -163,9 +163,10 @@ class ListProfileController extends Controller
             'feeds' => $this->feedService->getAllFeedsArray() ,
             'clients' => $this->clientService->getAllClientsArray() ,
             'clientFeedMap' => $this->clientService->getClientFeedMap() ,
+            'countryFeedMap' => $this->feedService->getCountryFeedMap(),
             'countries' => $this->mt1CountryService->getAll() ,
             'states' => $this->states->all() ,
-            'isps' => $this->ispService->getAll() ,
+            'isps' => $this->ispService->getAllActive() ,
             'categories' => CakeVertical::orderBy('name')->get() ,
         ] , $addOptions );
     }

@@ -15,7 +15,7 @@ use App\Models\ListProfileSchedule;
 use App\Models\ListProfileOffer;
 use App\Models\ListProfileFeed;
 use App\Models\ListProfileDomainGroup;
-use App\Models\ListProfileCountry;
+
 
 class ListProfileRepo
 {
@@ -25,7 +25,6 @@ class ListProfileRepo
     private $offer;
     private $feed;
     private $isp;
-    private $country;
 
     public function __construct(
         ListProfile $listProfile ,
@@ -33,8 +32,7 @@ class ListProfileRepo
         ListProfileSchedule $schedule ,
         ListProfileOffer $offer ,
         ListProfileFeed $feed ,
-        ListProfileDomainGroup $isp ,
-        ListProfileCountry $country
+        ListProfileDomainGroup $isp
     ) {
         $this->listProfile = $listProfile;
         $this->vertical = $vertical;
@@ -42,7 +40,6 @@ class ListProfileRepo
         $this->offer = $offer;
         $this->feed = $feed;
         $this->isp = $isp;
-        $this->country = $country;
     }
 
     public function getModel () {
@@ -133,11 +130,4 @@ class ListProfileRepo
         }
     }
 
-    public function assignCountries ( $id , $countries ) {
-        $this->country->where( 'list_profile_id' , $id )->delete();
-
-        foreach ( $countries as $currentCountry ) {
-            $this->country->insert( [ 'list_profile_id' => $id , 'country_id' => $currentCountry ] );
-        }
-    }
 }

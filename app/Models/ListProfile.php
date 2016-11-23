@@ -33,10 +33,6 @@ class ListProfile extends Model
         return $this->belongsToMany('App\Models\CakeVertical', 'list_profile.list_profile_verticals');
     }
 
-    public function countries () {
-        return $this->belongsToMany( 'App\Models\Country' , 'list_profile.list_profile_countries' );
-    }
-
     public function schedule () {
         return $this->hasOne( 'App\Models\ListProfileSchedule' );
     }
