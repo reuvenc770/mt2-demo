@@ -40,7 +40,7 @@
                             <tr>
                                 <td colspan="3">
                                     <md-content class="md-mt2-zeta-theme md-hue-2">
-                                        <md-table-pagination md-limit="emailDomain.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="emailDomain.currentPage" md-total="@{{emailDomain.accountTotal}}" md-on-paginate="emailDomain.loadAccounts" md-page-select></md-table-pagination>
+                                        <md-table-pagination md-limit="emailDomain.paginationCount" md-limit-options="emailDomain.paginationOptions" md-page="emailDomain.currentPage" md-total="@{{emailDomain.accountTotal}}" md-on-paginate="emailDomain.loadAccounts" md-page-select></md-table-pagination>
                                     </md-content>
                                 </td>
                             </tr>

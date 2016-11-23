@@ -70,6 +70,19 @@ class DoingBusinessAsService
 
                 $searchData = isset($params['data']) ? $params['data'] : null;
                 $eloquentObj = $this->getModel($searchData);
+
+                if ( isset( $params['sort'] ) ){
+                    $sort = json_decode( $params['sort'] , true );
+
+                    $order = 'asc';
+
+                    if ( isset( $sort[ 'desc' ] ) && $sort[ 'desc' ] === true ) {
+                        $order = 'desc';
+                    }
+
+                    $eloquentObj = $eloquentObj->orderBy($sort['field'], $order );
+                }
+
                 $paginationJSON = $eloquentObj->paginate($count)->toJSON();
 
                 $this->cachePagination(

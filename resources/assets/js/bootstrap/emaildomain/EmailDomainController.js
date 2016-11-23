@@ -1,4 +1,4 @@
-mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' , '$timeout' , 'EmailDomainApiService', '$rootScope','$mdToast','formValidationService','modalService', function ( $log , $window , $location , $timeout , EmailDomainApiService, $rootScope, $mdToast, formValidationService, modalService ) {
+mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' , '$timeout' , 'EmailDomainApiService', '$rootScope','$mdToast','formValidationService','modalService', 'paginationService' , function ( $log , $window , $location , $timeout , EmailDomainApiService, $rootScope, $mdToast, formValidationService, modalService , paginationService ) {
     var self = this;
     self.$location = $location;
 
@@ -10,7 +10,8 @@ mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' 
     self.formErrors = "";
 
     self.pageCount = 0;
-    self.paginationCount = '10';
+    self.paginationCount = paginationService.getDefaultPaginationCount();
+    self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
     self.accountTotal = 0;
     self.sort = 'domain_name';

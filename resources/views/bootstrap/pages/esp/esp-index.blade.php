@@ -47,7 +47,7 @@
                 <tr>
                     <td colspan="6">
                         <md-content class="md-mt2-zeta-theme md-hue-2">
-                            <md-table-pagination md-limit="esp.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="esp.currentPage" md-total="@{{esp.accountTotal}}" md-on-paginate="esp.loadAccounts" md-page-select></md-table-pagination>
+                            <md-table-pagination md-limit="esp.paginationCount" md-limit-options="esp.paginationOptions" md-page="esp.currentPage" md-total="@{{esp.accountTotal}}" md-on-paginate="esp.loadAccounts" md-page-select></md-table-pagination>
                         </md-content>
                     </td>
                 </tr>
