@@ -171,4 +171,9 @@ class EspApiAccountService
             throw new EspAccountDoesNotExistException();
         }
     }
+
+    public function getEspAccountName($id){
+        return $this->espRepo->getAccount( $id )->account_name;
+    }
+
 }
