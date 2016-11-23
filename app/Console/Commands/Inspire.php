@@ -8,6 +8,7 @@ use App\Models\ListProfileCombine;
 
 use App\Repositories\ListProfileCombineRepo;
 
+use App\Services\DeployService;
 use Illuminate\Console\Command;
 
 class Inspire extends Command

@@ -19,6 +19,7 @@ use App\Services\ClientService;
 use App\Jobs\ListProfileBaseExportJob;
 use App\Services\FeedService;
 use App\Http\Requests\SubmitListProfileRequest;
+use App\Http\Requests\SubmitListCombineRequest;
 use Laracasts\Flash\Flash;
 use App\Services\ListProfileCombineService;
 
@@ -60,7 +61,7 @@ class ListProfileController extends Controller
      */
     public function index()
     {
-        //
+        return response()->json( $this->listProfile->getAllListProfiles() );
     }
 
     public function listAll () {
@@ -170,10 +171,10 @@ class ListProfileController extends Controller
     }
 
 
-    public function createListCombine(Request $request){
+    public function createListCombine( SubmitListCombineRequest $request){
 
         $insertData = [
-            "name" => $request->input("name"),
+            "name" => $request->input("combineName"),
         ];
         $this->combineService->insertCombine($insertData, $request->input("selectedProfiles"));
     }
@@ -189,4 +190,29 @@ class ListProfileController extends Controller
         $id = $request->input("id");
         $this->dispatch(new ListProfileCombineExportJob($id, str_random(16)));
     }
+
+    public function editListCombine( $id ) {
+
+        if ( !$this->combineService->isEditable($id) ) {
+            abort(404);
+        }
+
+        $combineData = $this->combineService->getCombineById($id);
+        $listProfileIds = $combineData->listProfiles()->pluck('id');
+
+        return response()->view( 'bootstrap.pages.listprofile.list-combine-edit' , [
+            'combineId' => $id ,
+            'combineName' => $combineData->name ,
+            'listProfileIds' => $listProfileIds
+            ]);
+    }
+
+    public function updateListCombine( SubmitListCombineRequest $request ) {
+
+        $this->combineService->updateCombine( $request->input('id') , $request->input('combineName') , $request->input('selectedProfiles') );
+
+        Flash::success( 'List combine was successfully updated.' );
+
+    }
+
 }

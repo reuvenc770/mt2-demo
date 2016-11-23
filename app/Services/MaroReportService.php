@@ -44,9 +44,12 @@ class MaroReportService extends AbstractReportService implements IDataService
         $this->api->constructApiUrl();
         $firstData = $this->api->sendApiRequest();
         $firstData = $this->processGuzzleResult($firstData);
-
-        $outputData = array_merge($outputData, $firstData);
-
+        try {
+            $outputData = array_merge($outputData, $firstData);
+        } catch (\Exception $e){
+            $jobException = new JobException('Failed to merge array' . $e->getMessage(), JobException::NOTICE);
+            throw $jobException;
+        }
         if (sizeof($firstData) > 0) {
             $pages = (int)$firstData[0]['total_pages'];
 
@@ -458,4 +461,5 @@ class MaroReportService extends AbstractReportService implements IDataService
         }
     }
 
+    public function pushRecords(array $records, $targetId) {}
 }

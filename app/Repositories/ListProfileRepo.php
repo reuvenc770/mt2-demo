@@ -50,12 +50,14 @@ class ListProfileRepo
     }
 
     public function create ( $data ) {
-        return $this->listProfile->insertGetId( $data );
+        $listProfile = $this->listProfile->create( $data );
+
+        return $listProfile->id;
     }
 
     public function updateOrCreate($data) {
         $listProfileId = $data['profile_id'];
-        
+
         unset( $data[ 'profile_id' ] );
 
         $this->listProfile->updateOrCreate(['id' => $listProfileId ], $data);
@@ -63,6 +65,10 @@ class ListProfileRepo
 
     public function returnActiveProfiles(){
        return $this->listProfile->where("status", "A")->select('id','profile_name')->get();
+    }
+
+    public function getAllListProfiles(){
+        return $this->listProfile->select('id','name')->orderBy('name')->get();
     }
 
     public function getProfile($id) {

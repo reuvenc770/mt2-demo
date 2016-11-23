@@ -56,6 +56,9 @@ class DataProcessingFactory {
             case('CakeDeviceData'):
                 return \App::make(\App\Services\CakeDeviceService::class);
 
+            case('UpdateUserActions'):
+                return \App::make(\App\Services\UserActionStatusService::class);
+
             case ('ImportMt1Advertisers'):
                 $mt1Name = 'CompanyInfo';
                 $mt2Name = 'Advertiser';
@@ -164,6 +167,11 @@ class DataProcessingFactory {
             case ('ImportMt1OfferSuppressionListMap'):
                 $mt1Name = 'AdvertiserInfo';
                 $mt2Name = 'OfferSuppressionList';
+                return self::createMt1ImportService($mt1Name, $mt2Name);
+
+            case ('ImportMt1GlobalSuppression'):
+                $mt1Name = 'SuppressListOrange';
+                $mt2Name = 'SuppressionGlobalOrange';
                 return self::createMt1ImportService($mt1Name, $mt2Name);
 
             default:

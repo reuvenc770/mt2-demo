@@ -14,6 +14,9 @@ class RecordDataRepo {
     private $batchDataCount = 0;
     const INSERT_THRESHOLD = 10000;
 
+    private $batchActionUpdateData = [];
+    private $batchActionUpdateCount = 0;
+
     public function __construct(RecordData $model) {
         $this->model = $model;
     }
@@ -36,40 +39,41 @@ class RecordDataRepo {
     }
 
     public function insertStored() {
-        $this->batchData = implode(', ', $this->batchData);
+        if ($this->batchDataCount > 0) {
+            $this->batchData = implode(', ', $this->batchData);
 
-        DB::statement("
-            INSERT INTO record_data (email_id, is_deliverable, first_name, last_name, 
-                address, address2, city, state, zip, country, gender, 
-                ip, phone, source_url, dob, capture_date, subscribe_date, other_fields)
+            DB::statement("INSERT INTO record_data (email_id, is_deliverable, first_name, last_name, 
+                    address, address2, city, state, zip, country, gender, 
+                    ip, phone, source_url, dob, capture_date, subscribe_date, other_fields)
 
-            VALUES 
+                VALUES 
 
-            {$this->batchData}
+                {$this->batchData}
 
-            ON DUPLICATE KEY UPDATE
-            email_id = email_id,
-            is_deliverable = VALUES(is_deliverable),
-            first_name = VALUES(first_name),
-            last_name = VALUES(last_name),
-            address = VALUES(address),
-            address2 = VALUES(address2),
-            city = VALUES(city),
-            state = VALUES(state),
-            zip = VALUES(zip),
-            country = VALUES(country),
-            gender = VALUES(gender),
-            ip = VALUES(ip),
-            phone = VALUES(phone),
-            source_url = VALUES(source_url),
-            dob = VALUES(dob),
-            capture_date = VALUES(capture_date),
-            subscribe_date = VALUES(subscribe_date),
-            other_fields = VALUES(other_fields)
-        ");
+                ON DUPLICATE KEY UPDATE
+                email_id = email_id,
+                is_deliverable = VALUES(is_deliverable),
+                first_name = VALUES(first_name),
+                last_name = VALUES(last_name),
+                address = VALUES(address),
+                address2 = VALUES(address2),
+                city = VALUES(city),
+                state = VALUES(state),
+                zip = VALUES(zip),
+                country = VALUES(country),
+                gender = VALUES(gender),
+                ip = VALUES(ip),
+                phone = VALUES(phone),
+                source_url = VALUES(source_url),
+                dob = VALUES(dob),
+                capture_date = VALUES(capture_date),
+                subscribe_date = VALUES(subscribe_date),
+                other_fields = VALUES(other_fields)
+            ");
 
-        $this->batchData = [];
-        $this->batchDataCount = 0;
+            $this->batchData = [];
+            $this->batchDataCount = 0;
+        }
     }
 
     private function transformRowToString($row) {
@@ -92,8 +96,8 @@ class RecordDataRepo {
             . $pdo->quote($row['source_url']) . ','
             . $pdo->quote($row['dob']) . ','
             . $pdo->quote( Carbon::parse($row['capture_date'])->format('Y-m-d') ) . ','
-            . $pdo->quote( Carbon::parse($row['last_updated'])->format('Y-m-d') ) . ','
-            . "'{}'" // other fields empty for now
+            . 'NOW(),'
+            . $pdo->quote($row['other_fields']) 
             . ')';
     }
 
@@ -144,4 +148,66 @@ class RecordDataRepo {
             return 1; // default set to deliverable ... 
         }
     }
+
+    public function updateActionData($emailId, $actionDate) {
+        $pdo = DB::connection()->getPdo();
+
+        if ($this->batchActionUpdateCount >= self::INSERT_THRESHOLD) {
+
+            $this->cleanUpActions();
+
+            $this->batchActionUpdateData = ['(' 
+                . $pdo->quote($emailId) . ','
+                . $pdo->quote($actionDate) . ')'];
+            $this->batchActionUpdateCount = 1;
+        }
+        else {
+            $this->batchActionUpdateData[] = '(' 
+                . $pdo->quote($emailId) . ','
+                . $pdo->quote($actionDate) . ')';
+
+            $this->batchActionUpdateCount++;
+        }
+    }
+
+    public function cleanUpActions() {
+        if ($this->batchActionUpdateCount > 0) {
+
+            $inserts = implode(',', $this->batchActionUpdateData);
+
+            DB::statement("INSERT INTO record_data (email_id, is_deliverable, last_action_date)
+                VALUES
+
+                $inserts
+
+                ON DUPLICATE KEY UPDATE
+                email_id = email_id,
+                is_deliverable = VALUES(is_deliverable),
+                first_name = first_name,
+                last_name = last_name,
+                address = address,
+                address2 = address2,
+                city = city,
+                state = state,
+                zip = zip,
+                country = country,
+                gender = gender,
+                ip = ip,
+                phone = phone,
+                source_url = source_url,
+                dob = dob,
+                device_type = device_type,
+                device_name = device_name,
+                carrier = carrier,
+                capture_date = capture_date,
+                subscribe_date = subscribe_date,
+                last_action_date = VALUES(last_action_date),
+                other_fields = other_fields");
+
+            $this->batchActionUpdateData = [];
+            $this->batchActionUpdateCount = 0;
+
+        }
+    }
+
 }

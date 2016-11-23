@@ -1,4 +1,4 @@
-@extends( 'layout.default' )
+@extends( 'bootstrap.layout.default' )
 
 @section( 'title' , "404'd" )
 

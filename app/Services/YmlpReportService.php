@@ -242,4 +242,6 @@ class YmlpReportService extends AbstractReportService implements IDataService {
             Suppression::recordRawUnsub($espAccountId,$entry["EMAIL"],0, Carbon::today()->toDateString());
         }
     }
+
+    public function pushRecords(array $records, $targetId) {}
 }

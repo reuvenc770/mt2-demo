@@ -128,4 +128,13 @@ class EmailFeedAssignmentRepo {
         $this->batchData = [];
         $this->batchDataCount = 0;
     }
+
+    public function getCaptureDate($emailId) {
+        $obj = $this->where('email_id', $emailId)->first();
+
+        if ($obj) {
+            return $obj->capture_date;
+        }
+        return null;
+    }
 }

@@ -14,6 +14,7 @@ use App\Library\Campaigner\CampaignManagement;
 use App\Library\Campaigner\ContactManagement;
 use App\Library\Campaigner\DownloadReport;
 use App\Library\Campaigner\RunReport;
+
 use App\Repositories\ReportRepo;
 use App\Services\API\Campaigner;
 use App\Services\API\CampaignerApi;
@@ -411,6 +412,11 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
 
     private function getRunId($espInternalId) {
         return $this->reportRepo->getRunId($espInternalId);
+    }
+
+
+    public function pushRecords(array $records, $targetId) {
+        return $this->api->pushRecords($records, $targetId);
     }
 
 }

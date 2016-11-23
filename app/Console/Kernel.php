@@ -75,8 +75,10 @@ class Kernel extends ConsoleKernel
         Commands\BuildBaseListProfileTables::class,
         Commands\ExportListProfile::class,
         Commands\ESPUnsubsReport::class,
+        Commands\ProcessFeedRecords::class,
         Commands\DeactivateEspAccounts::class,
         Commands\ProcessFeedRawFiles::class,
+        Commands\UpdateActionStatus::class,
 
     ];
 
@@ -168,8 +170,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:findIncompleteDeploys')->dailyAt(self::DEPLOY_CHECK_TIME);
 
 
-        /**Deactivation jobs
-         *
+        /**
+         *  Deactivation jobs
          */
         $schedule->command('deactivate:espAccounts')->daily(self::REPORT_TIME);
 
@@ -184,7 +186,6 @@ class Kernel extends ConsoleKernel
          *  MT1 data sync jobs
          */
         $schedule->command('mt1Import offer')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import listProfile')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import advertiser')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('emails:download')->cron('*/2 * * * * *')->withoutOverlapping();
         $schedule->command('mt1Import creative')->dailyAt(self::MT1_SYNC_TIME);
@@ -204,8 +205,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('mt1Import cakeOfferMap')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import client')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import vendorSuppressionInfo')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import vendorSuppression')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerSuppressionListMap')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import globalSuppression')->dailyAt(self::MT1_SYNC_TIME);
 
         /**
          * Attribution Jobs
@@ -227,6 +228,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('listprofile:aggregateActions')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('listprofile:getRecordAgentData')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('listprofile:baseTables')->dailyAt(self::EXPIRATION_RUNS);
+        $schedule->command('updateUserActions 1')->dailyAt(self::REPORT_TIME_2);
 
         /**
          * Feed File Processing
