@@ -134,6 +134,10 @@ Route::group(
             'as' => 'esp.add' ,
             'uses' => 'EspController@create'
         ] );
+        Route::get( '/mapping/{id}' , [
+            'as' => 'esp.mapping' ,
+            'uses' => 'EspController@mappings'
+        ] );
     }
 );
 
@@ -798,6 +802,29 @@ Route::group(
             'uses' => 'NavigationController@update'
         ] );
 
+        Route::get(
+            'esp/mappings/{id}' ,
+            [
+                'as' => 'api.esp.mappings.get' ,
+                'uses' => 'EspController@getMapping'
+            ]
+        );
+        Route::put(
+            'esp/mappings/{id}' ,
+            [
+                'as' => 'api.esp.mappings.update' ,
+                'uses' => 'EspController@updateMappings'
+            ]
+        );
+
+        Route::post(
+            'esp/mappings/process' ,
+            [
+                'as' => 'api.esp.mappings.process' ,
+                'uses' => 'EspController@processCSV'
+            ]
+        );
+
         Route::group(
             [ 'prefix' => 'deploy' ] ,
             function () {
@@ -1389,6 +1416,8 @@ Route::group(
         );
     }
 );
+
+
 
 
 /**
