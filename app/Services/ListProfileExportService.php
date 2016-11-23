@@ -208,12 +208,12 @@ class ListProfileExportService
         $offerName = $this->offerRepo->getOfferName($offerId);
         $date = Carbon::today()->toDateString();
         $combineFileName = "{$date}_{$deployId}_{$espAccountName}_{$fileName}_{$offerName}.csv";
-        Storage::delete($combineFileName);
-        Storage::append($combineFileName, implode(',', $header));
+        Storage::disk('SystemFtp')->delete($combineFileName);
+        Storage::disk('SystemFtp')->append($combineFileName, implode(',', $header));
 
         foreach ($files as $file) {
             $contents = Storage::get($file);
-            Storage::append($combineFileName, $contents);
+            Storage::disk('SystemFtp')->append($combineFileName, $contents);
         }
     }
 
