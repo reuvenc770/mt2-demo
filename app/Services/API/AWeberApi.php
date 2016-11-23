@@ -10,11 +10,11 @@ namespace App\Services\API;
 use App\Facades\EspApiAccount;
 use App\Library\AWeber\AWeberAPI as AWeberLibraryApi;
 use App\Library\AWeber\AWeberAPIException;
-use Illuminate\Support\Facades\Cache;
 use App\Library\AWeber\AWeberEntry;
 use App\Library\AWeber\AWeberCollection;
 use Log;
 use App\Library\AWeber\OAuthUser;
+use Cache;
 class AWeberApi extends EspBaseAPI
 {
     private $accessToken;
