@@ -459,4 +459,8 @@ class MaroReportService extends AbstractReportService implements IDataService
     }
 
     public function pushRecords(array $records, $targetId) {}
+
+    public function addContact($record, $listId) {
+        $this->api->addContact($record, $listId);
+    }
 }

@@ -79,6 +79,7 @@ class Kernel extends ConsoleKernel
         Commands\DeactivateEspAccounts::class,
         Commands\ProcessFeedRawFiles::class,
         Commands\UpdateActionStatus::class,
+        Commands\ExportThirdPartyData::class,
 
     ];
 
@@ -235,6 +236,12 @@ class Kernel extends ConsoleKernel
          * Feed File Processing
          */
         $schedule->command( 'feedRecords:processRawFiles' )->dailyAt( self::FEED_FILE_PROCESS_TIME );
+
+        // Currently commented-out. Waiting for everything going live
+        #$schedule->command('feedRecords:exportThirdParty')->cron('*/2 * * * * *');
+        #$schedule->command('feedRecords:exportThirdParty')->cron('*/2 * * * * *');
+        #$schedule->command('feedRecords:exportThirdParty')->cron('*/2 * * * * *');
+        #$schedule->command('feedRecords:exportThirdParty')->cron('*/2 * * * * *');
 
     }
 }
