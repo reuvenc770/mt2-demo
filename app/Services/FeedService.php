@@ -248,4 +248,16 @@ class FeedService implements IFtpAdmin
     public function getFileColumnMap ( $feedId ) {
         return $this->getFeedFields( $feedId , true );
     }
+
+    public function getCountryFeedMap(){
+        $map = [];
+        $feeds = $this->feedRepo->getFeeds();
+
+        foreach ($feeds as $feed) {
+
+            $map[$feed->country_id][] = $feed->id;
+        }
+
+        return $map;
+    }
 }
