@@ -45,7 +45,10 @@
                                 <md-checkbox  aria-label="Select" name="selectedRows" ng-checked="listProfile.isCreatingCombine(profile.id)" ng-click="listProfile.toggleRow(profile.id)"> </md-checkbox>
                                 <a ng-href="@{{ ( '/listprofile/edit/' + profile.id ) }}" aria-label="Edit" target="_self" data-toggle="tooltip" data-placement="bottom" title="Edit">
                                     <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon></a>
-
+                                @if (Sentinel::hasAccess('api.listprofile.copy'))
+                                <a ng-click="listProfile.copyListProfile($event, profile.id, profile.name)" aria-label="Copy" data-toggle="tooltip" data-placement="bottom" title="Copy">
+                                    <md-icon md-font-set="material-icons" class="mt2-icon-black">content_copy</md-icon></a>
+                                @endif
                             </td>
                             <td md-cell ng-bind="profile.name"></td>
                             <td md-cell>@{{ ( profile.deliverable_start + ' to ' + profile.deliverable_end ) }}</td>

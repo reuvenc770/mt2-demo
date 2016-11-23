@@ -155,4 +155,12 @@ mt2App.service( 'ListProfileApiService' , function ( $http ) {
             "data" : combineData
         } ).then( successCallback , failureCallback );
     };
+
+    self.copyListProfile = function ( id , successCallback , failureCallback ) {
+        $http( {
+            "method" : "POST" ,
+            "url" : self.baseApiUrl + "/copy" ,
+            "data" : {"id":id}
+        } ).then( successCallback , failureCallback );
+    };
 } );

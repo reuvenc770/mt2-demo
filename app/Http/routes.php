@@ -885,7 +885,7 @@ Route::group(
         Route::group(
             [ 'prefix' => 'listprofile' ] ,
             function () {
-                Route::get( '/copy' , [
+                Route::post( '/copy' , [
                     'as' => 'api.listprofile.copy' ,
                     'uses' => 'ListProfileController@copy'
                 ] );
