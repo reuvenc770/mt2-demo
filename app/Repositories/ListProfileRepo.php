@@ -26,8 +26,8 @@ class ListProfileRepo
     private $feed;
     private $isp;
 
-    private $country;
     private $feedGroup;
+
     public function __construct(
         ListProfile $listProfile ,
         ListProfileVertical $vertical ,
