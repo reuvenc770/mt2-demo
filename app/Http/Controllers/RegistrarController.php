@@ -53,8 +53,7 @@ class RegistrarController extends Controller
      */
     public function create()
     {
-        $dbas = $this->dbaService->getAllActive();
-        return view("bootstrap.pages.registrar.registrar-add", ['dbas' => $dbas]);
+        return view("bootstrap.pages.registrar.registrar-add");
     }
 
     /**
@@ -90,9 +89,8 @@ class RegistrarController extends Controller
      */
     public function edit( )
     {
-        $dbas = $this->dbaService->getAllActive();
         return response()
-            ->view( "bootstrap.pages.registrar.registrar-edit", ['dbas' => $dbas]);
+            ->view( "bootstrap.pages.registrar.registrar-edit");
     }
 
     /**
