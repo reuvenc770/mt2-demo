@@ -3,7 +3,7 @@
 @section( 'title' , 'Bulk Suppression' )
 
 @section( 'content' )
-<div class="panel panel-primary" ng-controller="BulkSuppressionController as supp">
+<div class="panel mt2-theme-panel" ng-controller="BulkSuppressionController as supp">
     <div class="panel-heading">
         <div class="panel-title">Bulk Suppression Options</div>
     </div>
@@ -55,7 +55,7 @@
             </div>
             <md-table-container>
                 <table md-table ng-cloak>
-                    <thead md-head>
+                    <thead md-head class="mt2-theme-thead">
                         <tr md-row>
                             <th md-column class="md-table-header-override-whitetext">#</th>
                             <th md-column class="md-table-header-override-whitetext">Name</th>
@@ -95,7 +95,7 @@
     </div>
     <div class="panel-footer">
         <div class="form-group">
-            <input class="btn btn-primary btn-block" ng-disabled="!supp.emailsLoaded" type="button" ng-click="supp.uploadSuppressions()" value="Suppress">
+            <input class="btn mt2-theme-btn-primary btn-block" ng-disabled="!supp.emailsLoaded" type="button" ng-click="supp.uploadSuppressions()" value="Suppress">
         </div>
     </div>
 </div>

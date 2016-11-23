@@ -31,7 +31,7 @@
             @endforeach
         </select>
     <span class="input-group-btn">
-        <button class="btn btn-primary" ng-click="proxy.addEspAccount()" type="button">Add ESP</button>
+        <button class="btn mt2-theme-btn-primary" ng-click="proxy.addEspAccount()" type="button">Add ESP</button>
       </span>
     </div>
     <div class="help-block" ng-show="proxy.formErrors.esp_account_name">
@@ -42,7 +42,7 @@
 
 </div>
 <ul class="list-group" ng-show="proxy.esp_account_names.length > 0">
-    <li ng-repeat="(key, value) in proxy.esp_account_names track by $index" class="list-group-item list-group-item-success">@{{value}} - <a
+    <li ng-repeat="(key, value) in proxy.esp_account_names track by $index" class="list-group-item mt2-list-group-item-grey">@{{value}} - <a
                 ng-click="proxy.removeEspAccount(key)">Remove</a></li>
 </ul>
 
@@ -51,7 +51,7 @@
         <input placeholder="IP Address" value="" class="form-control" ng-model="proxy.ip_address" required="required"
                name="name" type="text">
      <span class="input-group-btn">
-        <button class="btn btn-primary" ng-click="proxy.addIpAddress()" type="button">Add IP</button>
+        <button class="btn mt2-theme-btn-primary" ng-click="proxy.addIpAddress()" type="button">Add IP</button>
       </span>
     </div>
     <div class="help-block" ng-show="proxy.formErrors.ip_addresses">
@@ -61,7 +61,7 @@
     </div>
 </div>
 <ul class="list-group" ng-show="proxy.ip_addresses.length > 0">
-    <li ng-repeat="(key, value) in proxy.ip_addresses track by $index" class="list-group-item list-group-item-success">@{{value}} - <a
+    <li ng-repeat="(key, value) in proxy.ip_addresses track by $index" class="list-group-item mt2-list-group-item-grey">@{{value}} - <a
                 ng-click="proxy.removeIpAddress(key)">Remove</a></li>
 </ul>
 
@@ -74,7 +74,7 @@
             @endforeach
         </select>
      <span class="input-group-btn">
-        <button class="btn btn-primary" ng-click="proxy.addIsp()"  type="button">Add ISP</button>
+        <button class="btn mt2-theme-btn-primary" ng-click="proxy.addIsp()"  type="button">Add ISP</button>
       </span>
     </div>
     <div class="help-block" ng-show="proxy.formErrors.isp_name">
@@ -84,7 +84,7 @@
     </div>
 </div>
 <ul class="list-group" ng-show="proxy.isp_names.length > 0">
-    <li ng-repeat="(key, value) in proxy.isp_names track by $index" class="list-group-item list-group-item-success">@{{value}} - <a
+    <li ng-repeat="(key, value) in proxy.isp_names track by $index" class="list-group-item mt2-list-group-item-grey">@{{value}} - <a
                 ng-click="proxy.removeIsp(key)">Remove</a></li>
 </ul>
 

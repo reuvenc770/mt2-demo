@@ -17,7 +17,7 @@
 <div ng-init="esp.loadAccounts()">
         <md-table-container>
             <table md-table md-progress="esp.queryPromise">
-                <thead md-head md-order="esp.sort" md-on-reorder="esp.loadAccounts">
+                <thead md-head md-order="esp.sort" md-on-reorder="esp.loadAccounts" class="mt2-theme-thead">
                     <tr md-row>
                         <th md-column class="mt2-table-btn-column"></th>
                         <th md-column md-order-by="status" class="md-table-header-override-whitetext mt2-table-header-center">Status</th>

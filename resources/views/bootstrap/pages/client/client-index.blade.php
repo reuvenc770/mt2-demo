@@ -15,7 +15,7 @@
 <div ng-init="client.loadAccounts()">
     <md-table-container>
         <table md-table md-progress="client.queryPromise">
-            <thead md-head md-order="client.sort" md-on-reorder="client.loadAccounts">
+            <thead md-head md-order="client.sort" md-on-reorder="client.loadAccounts" class="mt2-theme-thead">
                 <tr md-row>
                     <th md-column class="md-table-header-override-whitetext"></th>
                     <th md-column class="md-table-header-override-whitetext" md-order-by="id">ID</th>
@@ -31,7 +31,7 @@
 
             <tbody md-body>
                 <tr md-row ng-repeat="record in client.accounts track by $index">
-                    <td md-cell>
+                    <td md-cell class="mt2-table-btn-column">
                         <div layout="row" layout-align="center center">
                             <md-button class="md-icon-button" ng-href="@{{ '/client/edit/' + record.id }}" aria-label="Edit" target="_self" data-toggle="tooltip" data-placement="bottom" title="Edit">
                                 <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon>
@@ -40,7 +40,7 @@
                     </td>
                     <td md-cell ng-bind="record.id"></td>
                     <td md-cell ng-bind="record.name"></td>
-                    <td md-cell>@{{ record.address }} @{{ record.address2 }}, @{{ record.city }} @{{ record.state }} @{{ record.zip }}</td>
+                    <td md-cell nowrap>@{{ record.address }} @{{ record.address2 }}, @{{ record.city }} @{{ record.state }} @{{ record.zip }}</td>
                     <td md-cell ng-bind="record.email_address"></td>
                     <td md-cell ng-bind="record.phone"></td>
                     <td md-cell ng-bind="record.status" class="mt2-table-cell-center" ng-class="{ 'bg-success' : record.status == 'Active' , 'bg-warning' : record.status == 'Paused' , 'bg-danger' : record.status == 'Inactive' }"></td>

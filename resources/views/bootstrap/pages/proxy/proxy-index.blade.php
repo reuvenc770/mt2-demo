@@ -15,7 +15,7 @@
     <div ng-init="proxy.loadAccounts()">
                 <md-table-container>
                     <table md-table md-progress="proxy.queryPromise">
-                        <thead md-head md-order="proxy.sort" md-on-reorder="proxy.loadAccounts">
+                        <thead md-head md-order="proxy.sort" md-on-reorder="proxy.loadAccounts" class="mt2-theme-thead">
                         <tr md-row>
                             <th md-column class="mt2-table-btn-column"></th>
                             <th md-column md-order-by="status" class="md-table-header-override-whitetext mt2-table-header-center">Status</th>

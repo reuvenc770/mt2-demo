@@ -15,7 +15,7 @@
     <div ng-init="registrar.loadAccounts()">
                 <md-table-container>
                     <table md-table md-progress="registrar.queryPromise">
-                        <thead md-head md-order="registrar.sort" md-on-reorder="registrar.loadAccounts">
+                        <thead md-head md-order="registrar.sort" md-on-reorder="registrar.loadAccounts" class="mt2-theme-thead">
                         <tr md-row>
                             <th md-column class="mt2-table-btn-column"></th>
                             <th md-column md-order-by="status" class="md-table-header-override-whitetext mt2-table-header-center">Status</th>

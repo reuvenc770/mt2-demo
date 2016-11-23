@@ -1,4 +1,4 @@
-<md-toolbar class="md-table-toolbar md-mt2-zeta-theme md-hue-2">
+<md-toolbar class="md-table-toolbar mt2-theme-toolbar">
     <div class="md-toolbar-tools">
         <span>3 Month Report</span>
 

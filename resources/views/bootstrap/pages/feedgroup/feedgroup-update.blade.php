@@ -5,11 +5,11 @@
 @section( 'angular-controller' , 'ng-controller="FeedGroupController as feedGroup"' )
 
 @section( 'content' )
-<div class="panel panel-primary" ng-init="feedGroup.loadFeedList();feedGroup.setId( {{$id}} );feedGroup.setName( '{{$name}}' );feedGroup.setFeeds( {{$feeds}} )">
+<div class="panel mt2-theme-panel" ng-init="feedGroup.loadFeedList();feedGroup.setId( {{$id}} );feedGroup.setName( '{{$name}}' );feedGroup.setFeeds( {{$feeds}} )">
     @include( 'bootstrap.pages.feedgroup.feedgroup-form' )
 
     <div class="panel-footer">
-        <button type="button" class="btn btn-primary btn-lg btn-block" ng-click="feedGroup.updateFeedGroup()" ng-disabled="feedGroup.updatingFeedGroup">
+        <button type="button" class="btn mt2-theme-btn-primary btn-block" ng-click="feedGroup.updateFeedGroup()" ng-disabled="feedGroup.updatingFeedGroup">
            Update Feed Group
         </button>
     </div>

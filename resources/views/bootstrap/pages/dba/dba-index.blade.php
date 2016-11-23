@@ -13,7 +13,7 @@
 @section( 'content' )
     <div ng-init="dba.loadAccounts()">
         <div style="width:800px">
-            <div class="panel panel-primary center-block">
+            <div class="panel mt2-theme-panel center-block">
                 <div class="panel-heading">
                     <h3 class="panel-title">Search DBA</h3>
                 </div>
@@ -70,13 +70,13 @@
 
                     </div>
 
-                    <button class="btn btn-primary pull-right" ng-click="dba.searchDBA()">Search</button>
+                    <button class="btn mt2-theme-btn-primary pull-right" ng-click="dba.searchDBA()">Search</button>
                 </div>
             </div>
         </div>
                 <md-table-container>
                     <table md-table md-progress="dba.queryPromise">
-                        <thead md-head md-order="dba.sort" md-on-reorder="dba.loadAccounts">
+                        <thead md-head md-order="dba.sort" md-on-reorder="dba.loadAccounts" class="mt2-theme-thead">
                         <tr md-row>
                             <th md-column class="mt2-table-btn-column"></th>
                             <th md-column md-order-by="status" class="md-table-header-override-whitetext mt2-table-header-center">Status</th>

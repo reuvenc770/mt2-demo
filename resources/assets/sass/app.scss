@@ -948,10 +948,13 @@ md-list-item.mt2-nav-sub-item .md-list-item-inner {
     margin-top: 70px;
 }
 
+md-toast.md-top {
+    top: 70px !important;
+}
 .navbar-topper{
     margin: 0;
     border-radius: 0;
-    background-color: rgb(40,53,147);
+    background-color: #204c73;
     + md-card{
         margin:0;
     }
@@ -993,6 +996,10 @@ md-table-container{
 .mt2-theme-navbar {
     background-color: #039be5;
     border-color: #5bc0de;
+}
+
+.mt2-theme-toolbar {
+    background-color: #204c73 !important;
 }
 
 .mt2-theme-thead {
@@ -1039,4 +1046,8 @@ md-table-container{
         background-color: #204c73;
         border-color: #204c73;
     }
+}
+
+.mt2-list-group-item-grey {
+    background-color: #efefef;
 }

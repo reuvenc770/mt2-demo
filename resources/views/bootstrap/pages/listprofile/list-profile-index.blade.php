@@ -26,7 +26,7 @@
             <div role="tabpanel" class="tab-pane active" id="list_profile">
                 <md-table-container ng-init="listProfile.loadListProfiles()">
                     <table md-table md-progress="listProfile.queryPromise">
-                        <thead md-head>
+                        <thead md-head class="mt2-theme-thead">
                         <tr md-row>
                             <th md-column class="mt2-table-btn-column"></th>
                             <th md-column class="md-table-header-override-whitetext">Name</th>
@@ -42,9 +42,11 @@
                         <tbody md-body>
                         <tr md-row ng-repeat="profile in listProfile.listProfiles track by $index">
                             <td md-cell class="mt2-table-btn-column">
-                                <md-checkbox  aria-label="Select" name="selectedRows" ng-checked="listProfile.isCreatingCombine(profile.id)" ng-click="listProfile.toggleRow(profile.id)"> </md-checkbox>
+                                <div layout="row" layout-align="center center">
+                                <md-checkbox  aria-label="Select" name="selectedRows" ng-checked="listProfile.isCreatingCombine(profile.id)" ng-click="listProfile.toggleRow(profile.id)"> </md-checkbox> &nbsp;
                                 <a ng-href="@{{ ::( '/listprofile/edit/' + profile.id ) }}" aria-label="Edit" target="_self" data-toggle="tooltip" data-placement="bottom" title="Edit">
                                     <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon></a>
+                                </div>
 
                             </td>
                             <td md-cell ng-bind="::profile.name"></td>
@@ -71,7 +73,7 @@
             <div role="tabpanel" class="tab-pane" id="list_combines">
                 <md-table-container>
                     <table md-table>
-                        <thead md-head>
+                        <thead md-head class="mt2-theme-thead">
                         <tr md-row>
                             <th md-column class="mt2-table-btn-column"></th>
                             <th md-column class="md-table-header-override-whitetext">Name</th>

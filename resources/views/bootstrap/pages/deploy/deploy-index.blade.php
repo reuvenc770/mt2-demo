@@ -56,13 +56,14 @@
 @section( 'content' )
     <div ng-init="deploy.loadAccounts()">
         <div style="width:800px">
-            <div class="panel panel-primary center-block">
+            <div class="panel mt2-theme-panel center-block">
                 <div class="panel-heading">
                     <h3 class="panel-title">Search Deploys</h3>
                 </div>
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-lg-6">
+                            <div class="form-group">
                             <div class="input-group">
                                 <span class="input-group-addon">ESP</span>
                                 <select name="esp_account_search" id="esp_account_search" class="form-control" ng-model="deploy.search.esp" ng-disabled="deploy.currentlyLoading">
@@ -72,9 +73,11 @@
                                     @endforeach
                                 </select>
                             </div>
+                            </div>
                         </div>
 
                         <div class="col-lg-6">
+                            <div class="form-group">
                             <div class="input-group">
                                 <span class="input-group-addon">ESP Account</span>
                                 <select name="esp_account_search" id="esp_account_search" class="form-control" ng-model="deploy.search.esp_account_id" ng-disabled="deploy.currentlyLoading">
@@ -84,31 +87,33 @@
                                     </option>
                                 </select>
                             </div>
+                            </div>
                         </div>
                     </div>
 
-                    <br />
-
                     <div class="row">
                         <div class="col-lg-6">
+                            <div class="form-group">
                             <div class="input-group">
                                 <span class="input-group-addon">Offer Name* Wildcard</span>
                                 <input type="text" id="search_offer" class="form-control" value="" ng-model="deploy.search.offer"/>
                             </div>
+                            </div>
                         </div>
 
                         <div class="col-lg-6">
+                            <div class="form-group">
                             <div class="input-group">
                                 <span class="input-group-addon">Deploy ID</span>
                                 <input id="deploy_id" value="" class="form-control" ng-model="deploy.search.deployId"/>
                             </div>
+                            </div>
                         </div>
                     </div>
 
-                    <br />
-
                     <div class="row">
                         <div class="col-lg-6">
+                            <div class="form-group">
                             <div class="input-group">
                                 <span class="input-group-addon">Status</span>
                                 <select name="deploy_status" id="deploy_status" class="form-control" ng-model="deploy.search.status">
@@ -116,6 +121,7 @@
                                     <option ng-selected=" 0 == deploy.search.status" value="0">Not Deployed</option>
                                     <option ng-selected=" 1 == deploy.search.status" value="1">Deployed</option>
                                 </select>
+                            </div>
                             </div>
                         </div>
 
@@ -129,7 +135,7 @@
 
                     <br />
 
-                    <button class="btn btn-primary pull-right" ng-click="deploy.searchDeploys()">Search</button>
+                    <button class="btn mt2-theme-btn-primary pull-right" ng-click="deploy.searchDeploys()">Search</button>
                 </div>
             </div>
         </div>
@@ -139,7 +145,7 @@
         <input name="_token" type="hidden" value="{{ csrf_token() }}">
         <md-table-container>
             <table md-table md-progress="deploy.queryPromise">
-                <thead md-head>
+                <thead md-head class="mt2-theme-thead">
                 <tr md-row>
                     <th md-column class="mt2-table-btn-column"></th>
                     <th md-column class="md-table-header-override-whitetext"></th>

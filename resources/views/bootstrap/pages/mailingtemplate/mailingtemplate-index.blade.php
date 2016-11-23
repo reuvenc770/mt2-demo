@@ -16,7 +16,7 @@
 <div ng-init="mailing.loadAccounts()">
             <md-table-container>
                 <table md-table md-progress="mailing.queryPromise">
-                    <thead md-head md-order="mailing.sort" md-on-reorder="mailing.loadAccounts">
+                    <thead md-head md-order="mailing.sort" md-on-reorder="mailing.loadAccounts" class="mt2-theme-thead">
                         <tr md-row>
                             <th md-column class="mt2-table-btn-column"></th>
                             <th md-column md-order-by="id" class="md-table-header-override-whitetext">ID</th>

@@ -24,7 +24,7 @@
     </div>
 </div>
 
-<div class="panel panel-success">
+<div class="panel panel-info">
     <div class="panel-heading">
         <div class="panel-title">DBAs</div>
     </div>
@@ -55,7 +55,7 @@
                 </div>
             </div>
         </fieldset>
-        <button class="btn btn-success btn-block" ng-click="registrar.addDba()">
+        <button class="btn mt2-theme-btn-primary btn-block" ng-click="registrar.addDba()">
             <span ng-show="!registrar.editingDba">Add </span>
             <span ng-show="registrar.editingDba">Update </span> DBA
         </button>
@@ -72,8 +72,8 @@
             <div class="caption clearfix">
                 @{{ value.dba_name }} - Contact: @{{ value.dba_contact_name }} (@{{ value.dba_contact_email }})
                 <div class="pull-right">
-                    <a href="#" class="btn btn-success btn-xs" ng-click="registrar.editDba(key)" role="button">Edit</a>
-                    <a href="#" class="btn btn-danger btn-xs" ng-click="registrar.removeDba(key)"
+                    <a href="#" class="btn mt2-theme-btn-primary btn-xs" ng-click="registrar.editDba(key)" role="button">Edit</a>
+                    <a href="#" class="btn mt2-theme-btn-secondary btn-xs" ng-click="registrar.removeDba(key)"
                        role="button">Delete</a>
                 </div>
             </div>
