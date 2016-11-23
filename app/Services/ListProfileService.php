@@ -331,4 +331,11 @@ class ListProfileService
     private function saveToCache($tag, $value) {
         Cache::tags($tag)->put($value, 1, self::ROW_STORAGE_TIME);
     }
+
+    public function cloneProfile($id){
+        $currentProfile = $this->profileRepo->getProfile($id);
+        $copyProfile = $currentProfile->replicate();
+        $copyProfile->name = "COPY_{$currentProfile->name}";
+        $copyProfile->save();
+    }
 }

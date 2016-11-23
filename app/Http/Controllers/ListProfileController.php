@@ -22,7 +22,7 @@ use App\Http\Requests\SubmitListProfileRequest;
 use App\Http\Requests\SubmitListCombineRequest;
 use Laracasts\Flash\Flash;
 use App\Services\ListProfileCombineService;
-
+use Cache;
 class ListProfileController extends Controller
 {
     use DispatchesJobs;
@@ -214,6 +214,13 @@ class ListProfileController extends Controller
 
         Flash::success( 'List combine was successfully updated.' );
 
+    }
+
+    public function copy(Request $request){
+        $id = $request->input('id');
+        $this->listProfile->cloneProfile($id);
+        Cache::tags("ListProfile")->flush();
+        return response()->json(["success"=>true]);
     }
 
 }
