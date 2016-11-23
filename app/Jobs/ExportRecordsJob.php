@@ -25,7 +25,7 @@ class ExportRecordsJob extends Job implements ShouldQueue {
         $this->feedId = $feedId;
         $this->tracking = $tracking;
         $this->startPoint = $startPoint;
-        $this->jobName = self::BASE_NAME "-{$this->feedId}";
+        $this->jobName = self::BASE_NAME . "-{$this->feedId}";
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 

@@ -8,7 +8,7 @@ class AddEspDataExports extends Seeder {
 
     public function run() {
 
-        $espAccount = EspApiAccount::getAllAccountsByESPName('MAR2');
+        $espAccount = EspApiAccount::getEspAccountDetailsByName('MAR2');
 
         $export = new EspDataExport();
         $export->feed_id = 2720;
@@ -35,7 +35,7 @@ class AddEspDataExports extends Seeder {
         $export->save();
 
         $export = new EspDataExport();
-        $export->feed_id = 2723;
+        $export->feed_id = 2724;
         $export->esp_account_id = $espAccount->id;
         $export->target_list = 64409;
         $export->save();
