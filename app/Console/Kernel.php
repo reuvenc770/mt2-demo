@@ -206,6 +206,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('mt1Import client')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import vendorSuppressionInfo')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerSuppressionListMap')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import globalSuppression')->dailyAt(self::MT1_SYNC_TIME);
 
         /**
          * Attribution Jobs
