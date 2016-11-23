@@ -11,7 +11,7 @@ namespace App\Services;
 use App\Services\ServiceTraits\PaginateList;
 
 use App\Repositories\EspApiAccountRepo;
-use League\Csv\Reader;
+use App\Exceptions\EspAccountDoesNotExistException;
 /**
  * Class EspApiAccountService
  * @package App\Services
@@ -109,27 +109,8 @@ class EspApiAccountService
     public function grabCsvMapping($espName)
     {
         $espDetails = $this->espRepo->getAccountESPMapping($espName);
-        return  explode(',',$espDetails->mappings);
+        return  $espDetails->mappings;
     }
-
-    /**
-     *
-     */
-    public function mapCsvToRawStatsArray($espName,$filePath) {
-        $returnArray = array();
-        $mapping = $this->grabCsvMapping($espName);
-        $reader = Reader::createFromPath(storage_path().'/app/'.$filePath);
-
-        $data = $reader->fetchAssoc($mapping);
-        foreach ($data as $row) {
-            $espAccountName = explode('_',$row['campaign_name'])[1];
-            $espAccountId = $this->espRepo->getIdFromName($espAccountName);
-            $row['esp_account_id'] = $espAccountId->id;
-            $returnArray[] = $row;
-        }
-        return $returnArray;
-    }
-
 
     /**
      * @param array $newAccount The collection of account details to save.
@@ -180,4 +161,14 @@ class EspApiAccountService
         return $this->espRepo->toggleRow($id, $direction);
     }
 
+    public function getEspAccountIdFromName($name)
+    {
+        try {
+            $espAccountName = explode('_', $name)[1];
+            $espAccountId = $this->espRepo->getIdFromName($espAccountName);
+            return $espAccountId->id;
+        } catch (\Exception $e) {
+            throw new EspAccountDoesNotExistException();
+        }
+    }
 }
