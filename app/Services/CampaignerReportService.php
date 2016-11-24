@@ -419,8 +419,8 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         return $this->api->pushRecords($records, $targetId);
     }
 
-    public function addToSuppression($emailAddress, $lists) {
-        $this->api->addToSuppression($emailAddress, $lists);
+    public function addContactToLists($emailAddress, $lists) {
+        $this->api->addContactToLists($emailAddress, $lists);
     }
 
 

@@ -69,7 +69,6 @@ class ListProfileBaseExportJob extends Job implements ShouldQueue {
 
     public function failed() {
         JobTracking::changeJobState(JobEntry::FAILED, $this->tracking);
-        $this->unlock($this->jobName);
     }
 
 }

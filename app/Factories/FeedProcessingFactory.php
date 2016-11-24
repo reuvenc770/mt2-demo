@@ -74,14 +74,28 @@ class FeedProcessingFactory
             throw new \Exception("No configuration found for feed $feedId");
         }
 
+        if (in_array($feedId, [2759, 2798, 2757])) {
+            $postingStrategy = App::make(\App\Services\PostingStrategies\AffiliateRoiPostingStrategy::class);
+        }
+        elseif (in_array($feedId, [2971, 2972, 2987])) {
+            $postingStrategy = App::make(\App\Services\PostingStrategies\RmpPostingStrategy::class);
+        }
+        elseif (2983 === (int)$feedId) {
+            $postingStrategy = App::make(\App\Services\PostingStrategies\SimplyJobsPostingStrategy::class);
+        }
+        else {
+            throw new \Exception("$feedId does not have a posting strategy");
+        }
+
+
         $espAccount = EspApiAccount::getEspAccountDetailsByName($config['espAccountName']);
         $apiService = APIFactory::createApiReportService($espAccount->esp->name, $espAccount->id);
 
         $reportRepo = App::make(\App\Repositories\FeedDateEmailBreakdownRepo::class);
         $dataRepo = App::make(\App\Repositories\FirstPartyRecordDataRepo::class);
-        $processingService = new FirstPartyRecordProcessingService($apiService, $reportRepo, $dataRepo);
+        $processingService = new FirstPartyRecordProcessingService($apiService, $reportRepo, $dataRepo, $postingStrategy);
 
-        $suppStrategyName = new 'App\\Services\\SuppressionProcessingStrategies\\' . $config['strategyName'];
+        $suppStrategyName = 'App\\Services\\SuppressionProcessingStrategies\\FirstPartySuppressionProcessingStrategy';
         $suppStrategy = $suppStrategyName(App::make(\App\Repositories\FirstPartyOnlineSuppressionListRepo::class), $apiService);
         $suppStrategy->setFeedId($feedId);
         $service->setSuppressionProcessingStrategy($suppStrategy);

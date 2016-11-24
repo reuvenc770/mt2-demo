@@ -145,6 +145,7 @@ class CampaignerApi extends EspBaseAPI
     }
 
     public function pushRecords($records, $targetId) {
+
         $contactManager = new ContactManagement();
         $total = 0;
 
@@ -177,7 +178,7 @@ class CampaignerApi extends EspBaseAPI
         return $total;
     }
 
-    public function addToSuppression($emailAddress, $suppressionLists) {
+    public function addContactToLists($emailAddress, $suppressionLists) {
         $key = new ContactKey(0, $emailAddress);
         $emailId = 0;
         $attribute = new CustomAttribute($emailId, 3932683, false); // Not sure what these are
