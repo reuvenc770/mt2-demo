@@ -135,7 +135,7 @@ class BrontoApi extends EspBaseAPI
     public function addContact($contactInfo)
     {
         $this->setupBronto();
-        $this->brontoObject->addContacts(new addContacts($contactInfo));
+        $result = $this->brontoObject->addContacts(new addContacts($contactInfo));
     }
 
 }

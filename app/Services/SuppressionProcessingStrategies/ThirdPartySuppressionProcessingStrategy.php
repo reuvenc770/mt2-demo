@@ -1,6 +1,8 @@
 <?php
 
-namspace App\Services\SuppressionProcessingStrategies;
+namespace App\Services\SuppressionProcessingStrategies;
+
+use App\Services\Interfaces\ISuppressionProcessingStrategy;
 
 class ThirdPartySuppressionProcessingStrategy implements ISuppressionProcessingStrategy {
 
