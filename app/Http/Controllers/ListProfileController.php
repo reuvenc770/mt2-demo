@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\ListProfileCombineExportJob;
+use App\Services\FeedGroupService;
 use App\Services\ListProfileService;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
@@ -33,6 +34,7 @@ class ListProfileController extends Controller
     protected $clientService;
     protected $feedService;
     protected $combineService;
+    protected $feedGroupService;
 
     public function __construct (
         ListProfileService $listProfileService ,
@@ -42,6 +44,7 @@ class ListProfileController extends Controller
         OfferService $offerService,
         ClientService $clientService,
         FeedService $feedService,
+        FeedGroupService $feedGroupService,
         ListProfileCombineService $combineService
     ) {
         $this->listProfile = $listProfileService;
@@ -52,6 +55,7 @@ class ListProfileController extends Controller
         $this->clientService = $clientService;
         $this->feedService = $feedService;
         $this->combineService = $combineService;
+        $this->feedGroupService = $feedGroupService;
     }
 
     /**
@@ -161,6 +165,7 @@ class ListProfileController extends Controller
 
         return array_merge( [
             'feeds' => $this->feedService->getAllFeedsArray() ,
+            'feedGroups' => $this->feedGroupService->getAllFeedGroupsArray(),
             'clients' => $this->clientService->getAllClientsArray() ,
             'clientFeedMap' => $this->clientService->getClientFeedMap() ,
             'countries' => $this->mt1CountryService->getAll() ,

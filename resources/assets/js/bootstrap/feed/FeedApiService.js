@@ -57,4 +57,12 @@ mt2App.service( 'FeedApiService' , [ 'paginationService' , '$http' , '$log' , fu
             "data" : fieldData
         } ).then( successCallback , failureCallback );
     };
-} ] );
+
+    self.searchSourceUrl = function ( queryData , successCallback , failureCallback ) {
+        return $http( {
+            "method" : "POST" ,
+            "url" : self.baseApiUrl + '/' + 'searchsource' ,
+            "data" : queryData 
+        } ).then( successCallback , failureCallback );
+    };
+} );

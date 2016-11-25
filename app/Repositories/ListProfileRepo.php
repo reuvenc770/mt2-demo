@@ -16,6 +16,7 @@ use App\Models\ListProfileOffer;
 use App\Models\ListProfileFeed;
 use App\Models\ListProfileDomainGroup;
 use App\Models\ListProfileCountry;
+use App\Models\ListProfileFeedGroup;
 
 class ListProfileRepo
 {
@@ -26,7 +27,7 @@ class ListProfileRepo
     private $feed;
     private $isp;
     private $country;
-
+    private $feedGroup;
     public function __construct(
         ListProfile $listProfile ,
         ListProfileVertical $vertical ,
@@ -34,8 +35,8 @@ class ListProfileRepo
         ListProfileOffer $offer ,
         ListProfileFeed $feed ,
         ListProfileDomainGroup $isp ,
-        ListProfileCountry $country
-    ) {
+        ListProfileCountry $country,
+        ListProfileFeedGroup $feedGroup){
         $this->listProfile = $listProfile;
         $this->vertical = $vertical;
         $this->schedule = $schedule;
@@ -43,6 +44,7 @@ class ListProfileRepo
         $this->feed = $feed;
         $this->isp = $isp;
         $this->country = $country;
+        $this->feedGroup = $feedGroup;
     }
 
     public function getModel () {
@@ -122,6 +124,14 @@ class ListProfileRepo
 
         foreach ( $feeds as $currentFeed ) {
             $this->feed->insert( [ 'list_profile_id' => $id , 'feed_id' => $currentFeed ] );
+        }
+    }
+
+    public function assignFeedGroups ( $id , $feedGroups ) {
+        $this->feedGroup->where( 'list_profile_id' , $id )->delete();
+
+        foreach ( $feedGroups as $currentFeed ) {
+            $this->feedGroup->insert( [ 'list_profile_id' => $id , 'feed_group_id' => $currentFeed ] );
         }
     }
 

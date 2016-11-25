@@ -20,6 +20,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         'name' : '' ,
         'countries' : {} ,
         'feeds' : {} ,
+        'feedGroups' :{} ,
         'isps' : {} ,
         'categories' : {} ,
         'offers' : [] ,
@@ -81,6 +82,12 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     self.clientFeedMap = {};
     self.feedNameMap = {};
     self.feedVisibility = {};
+
+    self.highlightedFeedGroup = [];
+    self.highlightedFeedGroupForRemoval = [];
+    self.feedGroupVisibility = {};
+    self.feedGroupNameMap = {};
+
 
     self.highlightedIsps = [];
     self.highlightedIspsForRemoval = [];
@@ -249,7 +256,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         }
 
         var nameParts = [];
-
+        nameParts.push( self.getFormattedName( self.current.feedGroups ) );
         nameParts.push( self.getFormattedName( self.current.feeds ) );
         nameParts.push( self.getFormattedName( self.current.isps ) );
         nameParts.push( self.getFormattedName( self.current.countries , self.countryCodeMap ) );
@@ -412,6 +419,24 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
             self.current.feeds ,
             function () {
                 self.updateFeedVisibility();
+                self.generateName();
+            }
+        );
+    };
+
+    self.addFeedGroups = function () {
+        self.addMembershipItems(
+            { "highlighted" : self.highlightedFeedGroup , "visibility" : self.feedGroupVisibility , "map" : self.feedGroupNameMap } ,
+            self.current.feedGroups ,
+            self.generateName
+        );
+    };
+
+    self.removeFeedGroups = function () {
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedFeedGroupForRemoval , "visibility" : self.feedGroupVisibility } ,
+            self.current.feedGroups ,
+            function () {
                 self.generateName();
             }
         );

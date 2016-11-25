@@ -9,6 +9,7 @@ return [
         'show' ,
         'listview' ,
         'search',
-        'export'
+        'export',
+        'update'
     ]
 ];

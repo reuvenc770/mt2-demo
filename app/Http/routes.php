@@ -134,6 +134,10 @@ Route::group(
             'as' => 'esp.add' ,
             'uses' => 'EspController@create'
         ] );
+        Route::get( '/mapping/{id}' , [
+            'as' => 'esp.mapping' ,
+            'uses' => 'EspController@mappings'
+        ] );
     }
 );
 
@@ -170,6 +174,11 @@ Route::group(
         Route::get( '/navigation' , [
             'as' => 'tools.navigation' ,
             'uses' => 'NavigationController@index'
+        ] );
+
+        Route::get( '/source-url-search' , [
+            'as' => 'tools.sourceurlsearch' ,
+            'uses' => 'SourceUrlSearchController@index'
         ] );
 
     }
@@ -798,6 +807,29 @@ Route::group(
             'uses' => 'NavigationController@update'
         ] );
 
+        Route::get(
+            'esp/mappings/{id}' ,
+            [
+                'as' => 'api.esp.mappings.get' ,
+                'uses' => 'EspController@getMapping'
+            ]
+        );
+        Route::put(
+            'esp/mappings/{id}' ,
+            [
+                'as' => 'api.esp.mappings.update' ,
+                'uses' => 'EspController@updateMappings'
+            ]
+        );
+
+        Route::post(
+            'esp/mappings/process' ,
+            [
+                'as' => 'api.esp.mappings.process' ,
+                'uses' => 'EspController@processCSV'
+            ]
+        );
+
         Route::group(
             [ 'prefix' => 'deploy' ] ,
             function () {
@@ -1103,6 +1135,11 @@ Route::group(
             'uses' => 'FeedController@storeFieldOrder'
         ] );
 
+        Route::post( '/feed/searchsource' , [
+            'as' => 'api.feed.searchsource' ,
+            'uses' => 'FeedController@searchSource'
+        ] );
+
         /**
          * API Resources
          */
@@ -1389,6 +1426,8 @@ Route::group(
         );
     }
 );
+
+
 
 
 /**

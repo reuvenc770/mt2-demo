@@ -9,6 +9,8 @@
     @if (Sentinel::hasAccess('esp.add'))
         <li><a ng-href="/esp/create" target="_self">Add ESP Account</a></li>
     @endif
+
+
 @stop
 
 @section( 'content' )
@@ -34,6 +36,18 @@
                                         data-toggle="tooltip" data-placement="bottom" title="Edit">
                                 <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
                             </a>
+                            <a ng-href="@{{ '/esp/mapping/' + record.id }}" aria-label="Edit" target="_self"
+                               data-toggle="tooltip" data-placement="bottom" title="Field Mapping">
+                                <md-icon md-font-set="material-icons" class="mt2-icon-black">assignment</md-icon>
+                            </a>
+                            @if (Sentinel::hasAccess('api.esp.mappings.process'))
+                                <span flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'csvuploads' , '_token' : '{{ csrf_token() }}' } }"
+                                    flow-files-submitted="$flow.upload()"
+                                    flow-file-success="esp.fileUploaded($file, record.name); $flow.cancel()" flow-btn>
+                                    <md-icon md-font-set="material-icons" class="mt2-icon-black">file_upload</md-icon>
+                                    <input type="file" style="visibility: hidden; position: absolute;"/>
+                                </span>
+                            @endif
                         </div>
                     </td>
                     <td md-cell ng-bind="record.id"></td>
