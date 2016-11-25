@@ -24,6 +24,8 @@ use App\Services\SuppressionListSuppressionService;
 use App\Services\FirstPartyRecordProcessingService;
 use App\Services\ThirdPartyRecordProcessingService;
 
+use App\Models\EspDataExport;
+
 
 class FeedProcessingFactory
 {
@@ -68,12 +70,6 @@ class FeedProcessingFactory
         $suppression->setFeedId($feedId);
         $service->registerSuppression($suppression);
 
-        $config = config("firstpartyprocessing.$feedId");
-
-        if (null === $config) {
-            throw new \Exception("No configuration found for feed $feedId");
-        }
-
         if (in_array($feedId, [2759, 2798, 2757])) {
             $postingStrategy = App::make(\App\Services\PostingStrategies\AffiliateRoiPostingStrategy::class);
         }
@@ -87,8 +83,9 @@ class FeedProcessingFactory
             throw new \Exception("$feedId does not have a posting strategy");
         }
 
+        $exportInfo = EspDataExport::where('feed_id', $feedId)->first();
 
-        $espAccount = EspApiAccount::getEspAccountDetailsByName($config['espAccountName']);
+        $espAccount = EspApiAccount::getAccount($exportInfo->esp_account_id);
         $apiService = APIFactory::createApiReportService($espAccount->esp->name, $espAccount->id);
 
         $reportRepo = App::make(\App\Repositories\FeedDateEmailBreakdownRepo::class);
@@ -96,12 +93,12 @@ class FeedProcessingFactory
         $processingService = new FirstPartyRecordProcessingService($apiService, $reportRepo, $dataRepo, $postingStrategy);
 
         $suppStrategyName = 'App\\Services\\SuppressionProcessingStrategies\\FirstPartySuppressionProcessingStrategy';
-        $suppStrategy = $suppStrategyName(App::make(\App\Repositories\FirstPartyOnlineSuppressionListRepo::class), $apiService);
+        $suppStrategy = new $suppStrategyName(App::make(\App\Repositories\FirstPartyOnlineSuppressionListRepo::class), $apiService);
         $suppStrategy->setFeedId($feedId);
         $service->setSuppressionProcessingStrategy($suppStrategy);
 
         $processingService->setFeedId($feedId);
-        $processingService->setTargetId($config['targetId']);
+        $processingService->setTargetId($exportInfo->target_list);
         $service->registerProcessing($processingService);
 
         return $service;

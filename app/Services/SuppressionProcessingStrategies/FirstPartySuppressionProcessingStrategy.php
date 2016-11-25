@@ -2,6 +2,7 @@
 
 namespace App\Services\SuppressionProcessingStrategies;
 
+use App\Services\Interfaces\ISuppressionProcessingStrategy;
 use App\Repositories\FirstPartyOnlineSuppressionListRepo;
 use App\Services\AbstractReportService;
 

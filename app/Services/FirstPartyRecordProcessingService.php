@@ -32,8 +32,8 @@ class FirstPartyRecordProcessingService implements IFeedPartyProcessing {
     }
 
     public function processPartyData(array $records) {
-        $postingRecords = $this->postingStrategy->prepareForPosting($records);
-        $count = $this->espApiService->pushRecords($postingStrategy, $this->targetId);
+        $postingRecords = $this->postingStrategy->prepareForPosting($records, $this->targetId);
+        $count = $this->espApiService->pushRecords($postingRecords, $this->targetId);
         $this->updateStats($records);
     }
 

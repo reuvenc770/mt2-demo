@@ -10,7 +10,7 @@ use App\Repositories\EmailRepo;
 use App\Repositories\EmailFeedInstanceRepo;
 use App\Repositories\EmailDomainRepo;
 use App\Repositories\FeedDateEmailBreakdownRepo;
-use App\Interfaces\ISuppressionProcessingStrategy;
+use App\Services\Interfaces\ISuppressionProcessingStrategy;
 
 class FeedProcessingService {
     
