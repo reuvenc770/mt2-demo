@@ -48,4 +48,8 @@ class FeedGroupRepo {
     public function getFeeds ( $id ) {
         return $this->feedGroups->find( $id )->feeds()->pluck( 'id' );
     }
+
+    public function getAllFeedGroups(){
+        return $this->feedGroups->all();
+    }
 }

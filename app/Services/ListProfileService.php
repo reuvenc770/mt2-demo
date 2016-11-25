@@ -101,6 +101,7 @@ class ListProfileService
             'countries' => $listProfile->countries()->get()->pluck( 'id' ,'name' )->toArray() ,
             'feeds' => $listProfile->feeds()->get()->pluck( 'short_name' , 'id' )->toArray() ,
             'isps' => $listProfile->domainGroups()->get()->pluck( 'name' , 'id' )->toArray() ,
+            'feedGroups' => $listProfile->feedGroups()->get()->pluck( 'name' , 'id' )->toArray() ,
             'categories' => $listProfile->verticals()->get()->pluck( 'name' , 'id' )->toArray() ,
             'offers' => $listProfile->offers()->get()->toArray() ,
             'includeCsvHeader' => $listProfile->insert_header ? true : false ,
@@ -226,6 +227,10 @@ class ListProfileService
 
         if ( $data[ 'feeds' ] || $isUpdate ) {
             $this->profileRepo->assignFeeds( $id , array_keys( $data[ 'feeds' ] ) );
+        }
+
+        if ( $data[ 'feedGroups' ] || $isUpdate ) {
+            $this->profileRepo->assignFeedGroups( $id , array_keys( $data[ 'feedGroups' ] ) );
         }
 
         if ( $data[ 'isps' ] || $isUpdate ) {

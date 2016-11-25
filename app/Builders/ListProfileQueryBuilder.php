@@ -353,6 +353,12 @@ class ListProfileQueryBuilder {
             }
         }
 
+        foreach ($listProfile->feedGroups as $feedGroup) {
+            foreach ($feedGroup->feeds as $feed) {
+                $feedIds[] = $feed->id;
+            }
+        }
+
         foreach ($listProfile->feeds as $feed) {
             $feedIds[] = $feed->id;
         }
