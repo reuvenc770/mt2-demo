@@ -1,4 +1,4 @@
-mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' , '$timeout', 'FeedApiService', '$mdToast', '$mdDialog', '$log' , 'formValidationService' , 'modalService' , function ( $rootScope , $window , $location , $timeout , FeedApiService, $mdToast , $mdDialog , $log , formValidationService , modalService) {
+mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' , '$timeout', 'FeedApiService', '$mdToast', '$mdDialog', '$log' , 'formValidationService' , 'modalService' , 'paginationService' , function ( $rootScope , $window , $location , $timeout , FeedApiService, $mdToast , $mdDialog , $log , formValidationService , modalService , paginationService ) {
     var self = this;
     self.$location = $location;
 
@@ -23,7 +23,8 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
     self.createUrl = '/feed/create';
 
     self.pageCount = 0;
-    self.paginationCount = '10';
+    self.paginationCount = paginationService.getDefaultPaginationCount();
+    self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
     self.feedTotal = 0;
     self.queryPromise = null;
@@ -31,21 +32,21 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
 
     self.currentFieldConfig = {};
     self.fieldList = [
-        { "label" : "Email" , "field" : "email_index" , "required" : true } , 
-        { "label" : "Source URL" , "field" : "source_url_index" , "required" : true } , 
-        { "label" : "Capture Date" , "field" : "capture_date_index" , "required" : true } , 
-        { "label" : "IP" , "field" : "ip_index" , "required" : true } , 
-        { "label" : "First Name" , "field" : "first_name_index" } , 
-        { "label" : "Last Name" , "field" : "last_name_index" } , 
-        { "label" : "Address" , "field" : "address_index" } , 
-        { "label" : "Address 2" , "field" : "address2_index" } , 
-        { "label" : "City" , "field" : "city_index" } , 
-        { "label" : "State" , "field" : "state_index" } , 
-        { "label" : "Zip" , "field" : "zip_index" } , 
-        { "label" : "Country" , "field" : "country_index" } , 
-        { "label" : "Gender" , "field" : "gender_index" } , 
-        { "label" : "Phone" , "field" : "phone_index" } , 
-        { "label" : "Date Of Birth" , "field" : "dob_index" } , 
+        { "label" : "Email" , "field" : "email_index" , "required" : true } ,
+        { "label" : "Source URL" , "field" : "source_url_index" , "required" : true } ,
+        { "label" : "Capture Date" , "field" : "capture_date_index" , "required" : true } ,
+        { "label" : "IP" , "field" : "ip_index" , "required" : true } ,
+        { "label" : "First Name" , "field" : "first_name_index" } ,
+        { "label" : "Last Name" , "field" : "last_name_index" } ,
+        { "label" : "Address" , "field" : "address_index" } ,
+        { "label" : "Address 2" , "field" : "address2_index" } ,
+        { "label" : "City" , "field" : "city_index" } ,
+        { "label" : "State" , "field" : "state_index" } ,
+        { "label" : "Zip" , "field" : "zip_index" } ,
+        { "label" : "Country" , "field" : "country_index" } ,
+        { "label" : "Gender" , "field" : "gender_index" } ,
+        { "label" : "Phone" , "field" : "phone_index" } ,
+        { "label" : "Date Of Birth" , "field" : "dob_index" } ,
     ];
     self.selectedFields = [];
     self.customField = '';

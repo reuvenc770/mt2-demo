@@ -1,4 +1,4 @@
-mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDialog' , '$timeout' , 'formValidationService' , 'modalService' , '$location' , '$window' , '$log' , function ( ListProfileApiService , $mdDialog , $timeout , formValidationService , modalService , $location , $window , $log ) {
+mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDialog' , '$timeout' , 'formValidationService' , 'modalService' , 'paginationService' , '$location' , '$window' , '$log' , function ( ListProfileApiService , $mdDialog , $timeout , formValidationService , modalService , paginationService , $location , $window , $log ) {
     var self = this;
 
     self.nameDisabled = true;
@@ -65,7 +65,8 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
     self.listProfiles = [];
     self.pageCount = 0;
-    self.paginationCount = '10';
+    self.paginationCount = paginationService.getDefaultPaginationCount();
+    self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
     self.profileTotal = 0;
     self.queryPromise = null;

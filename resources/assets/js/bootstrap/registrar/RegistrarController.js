@@ -1,4 +1,4 @@
-mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , '$timeout' , 'RegistrarApiService' ,'$rootScope', '$mdToast', 'formValidationService', 'modalService', function ( $log , $window , $location , $timeout , RegistrarApiService, $rootScope, $mdToast, formValidationService, modalService ) {
+mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , '$timeout' , 'RegistrarApiService' ,'$rootScope', '$mdToast', 'formValidationService', 'modalService', 'paginationService' , function ( $log , $window , $location , $timeout , RegistrarApiService, $rootScope, $mdToast, formValidationService, modalService , paginationService ) {
     var self = this;
     self.$location = $location;
     self.accounts = [];
@@ -15,7 +15,9 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
     self.formErrors = {};
     self.formSubmitted = false;
     self.pageCount = 0;
-    self.paginationCount = '10';
+    self.paginationCount = paginationService.getDefaultPaginationCount();
+    self.paginationOptions = paginationService.getDefaultPaginationOptions();
+
     self.currentPage = 1;
     self.accountTotal = 0;
     self.sort = '-status';

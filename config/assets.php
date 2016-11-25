@@ -131,6 +131,7 @@ return [
             'resources/assets/js/bootstrap/mt2app/CompileHtml.js',
             'resources/assets/js/bootstrap/mt2app/CustomValidationService.js',
             'resources/assets/js/bootstrap/mt2app/FixedTableHeader.js',
+            'resources/assets/js/bootstrap/mt2app/PaginationService.js'
         ]
     ]
 ];

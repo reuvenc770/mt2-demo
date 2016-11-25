@@ -60,7 +60,7 @@
                         <tr>
                             <td colspan="8">
                                 <md-content class="md-mt2-zeta-theme md-hue-2">
-                                    <md-table-pagination md-limit="listProfile.paginationCount" md-limit-options="[ 10, 25, 50, 100]" md-page="listProfile.currentPage" md-total="@{{listProfile.profileTotal}}" md-on-paginate="listProfile.loadListProfiles" md-page-select></md-table-pagination>
+                                    <md-table-pagination md-limit="listProfile.paginationCount" md-limit-options="listProfile.paginationOptions" md-page="listProfile.currentPage" md-total="@{{listProfile.profileTotal}}" md-on-paginate="listProfile.loadListProfiles" md-page-select></md-table-pagination>
                                 </md-content>
                             </td>
                         </tr>

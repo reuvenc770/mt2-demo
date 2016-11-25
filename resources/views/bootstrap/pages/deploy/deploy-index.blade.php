@@ -496,7 +496,7 @@
                 <tr>
                     <td colspan="17">
                         <md-content class="md-mt2-zeta-theme md-hue-2">
-                            <md-table-pagination md-limit="deploy.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="deploy.currentPage" md-total="@{{deploy.deployTotal}}" md-on-paginate="deploy.loadAccounts" md-page-select></md-table-pagination>
+                            <md-table-pagination md-limit="deploy.paginationCount" md-limit-options="deploy.paginationOptions" md-page="deploy.currentPage" md-total="@{{deploy.deployTotal}}" md-on-paginate="deploy.loadAccounts" md-page-select></md-table-pagination>
                         </md-content>
                     </td>
                 </tr>

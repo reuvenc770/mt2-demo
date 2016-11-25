@@ -1,4 +1,4 @@
-mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$timeout' , 'ProxyApiService', '$rootScope','$mdToast', '$mdConstant' , 'formValidationService', 'modalService' , function ( $log , $window , $location , $timeout , ProxyApiService, $rootScope, $mdToast , $mdConstant , formValidationService, modalService ) {
+mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$timeout' , 'ProxyApiService', '$rootScope','$mdToast', '$mdConstant' , 'formValidationService', 'modalService' , 'paginationService' , function ( $log , $window , $location , $timeout , ProxyApiService, $rootScope, $mdToast , $mdConstant , formValidationService, modalService , paginationService ) {
     var self = this;
     self.$location = $location;
 
@@ -18,7 +18,8 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
     self.formErrors = "";
     self.formSubmitted = false;
     self.pageCount = 0;
-    self.paginationCount = '10';
+    self.paginationCount = paginationService.getDefaultPaginationCount();
+    self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
     self.accountTotal = 0;
     self.sort = '-status';
