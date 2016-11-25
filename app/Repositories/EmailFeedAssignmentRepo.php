@@ -130,11 +130,20 @@ class EmailFeedAssignmentRepo {
     }
 
     public function getCaptureDate($emailId) {
-        $obj = $this->where('email_id', $emailId)->first();
+        $obj = $this->assignment->where('email_id', $emailId)->first();
 
         if ($obj) {
             return $obj->capture_date;
         }
         return null;
+    }
+
+    public function getFeedUniques($feedId) {
+        $mt2DataSchema = config('database.connections.mysql.database');
+        return $this->assignment
+                    ->join("$mt2DataSchema.email_feed_instances as efi", 'email_feed_assignments.email_id', '=', 'efi.email_id')
+                    ->selectRaw("efi.email_id, COUNT(*) as count")
+                    ->groupBy('efi.email_id')
+                    ->havingRaw("COUNT(*) = 0");
     }
 }
