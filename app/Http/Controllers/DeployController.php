@@ -141,6 +141,7 @@ class DeployController extends Controller
     public function massupload(Request $request)
     {
         $data = $request->all();
+
         return response()->json(['success' => $this->deployService->massUpload($data)]);
     }
 

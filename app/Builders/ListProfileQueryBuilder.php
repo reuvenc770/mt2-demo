@@ -11,6 +11,7 @@ class ListProfileQueryBuilder {
     private $columnMapping; 
 
     private $mainTableAlias = 'flat';
+    private $dataTable = 'record_data';
 
     private $attributionSchema;
     private $dataSchema;
@@ -176,7 +177,15 @@ class ListProfileQueryBuilder {
 
         $this->mainTableAlias = 'rd';
 
-        $query = DB::table("{$this->dataSchema}.record_data as rd")->where('is_deliverable', 1)->whereBetween('subscribe_date', [
+        if (1 === $queryData['party']) {
+            $this->dataTable = 'first_party_record_data';
+        }
+        else {
+            // Currently 3
+            $this->dataTable = 'record_data';
+        }
+
+        $query = DB::table("{$this->dataSchema}.{$this->dataTable} as rd")->where('is_deliverable', 1)->whereBetween('subscribe_date', [
             DB::raw("CURDATE() - INTERVAL $end DAY"), 
             DB::raw("CURDATE() - INTERVAL $start DAY")
         ]);
@@ -272,7 +281,7 @@ class ListProfileQueryBuilder {
                 // Get everything from the selected feeds - no ignores required
                 $query = $query->whereIn('efa.feed_id', $feedsWithoutIgnores);
             }
-            elseif ($sizeof($this->feedsWithSuppression) > 0) {
+            elseif (sizeof($this->feedsWithSuppression) > 0) {
                 // Get data from all feeds, except those emails ignored for these
                 $query = $query->join("{$this->dataSchema}.email_feed_status as efs", function($join) {
                     $join->on('efa.feed_id', '=', 'efs.feed_id');
@@ -305,7 +314,7 @@ class ListProfileQueryBuilder {
             
             if ('rd' !== $this->mainTableAlias) {
                 // make sure we don't join on itself
-                $query = $query->join("{$this->dataSchema}.record_data as rd", "{$this->mainTableAlias}.email_id", '=', 'rd.email_id');
+                $query = $query->join("{$this->dataSchema}.{$this->dataTable} as rd", "{$this->mainTableAlias}.email_id", '=', 'rd.email_id');
             }
             
             $query = $this->buildAgeAttributes($query, $this->ageAttributes);

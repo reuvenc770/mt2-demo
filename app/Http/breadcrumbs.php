@@ -138,6 +138,11 @@ Breadcrumbs::register( 'listprofile.edit' , function ( $breadcrumbs ) {
     $breadcrumbs->push( 'Edit List Profile' );
 } );
 
+Breadcrumbs::register( 'listprofile.combine.edit' , function ( $breadcrumbs ) {
+    $breadcrumbs->parent( 'listprofile.list' );
+    $breadcrumbs->push( 'Edit List Combine' );
+} );
+
 //YMLP Mapping
 
 Breadcrumbs::register( 'ymlpcampaign.list' , function ( $breadcrumbs ) {

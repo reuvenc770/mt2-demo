@@ -31,12 +31,7 @@
     <div class="panel-body">
         <fieldset>
             <div class="form-group" ng-class="{ 'has-error' : registrar.formErrors.dba_name }">
-                <select class="form-control" name="dba_name" ng-model="registrar.currentDba.dba_name">
-                    <option value="">Select DBA</option>
-                    @foreach ( $dbas as $dba )
-                        <option value="{{ $dba['dba_name'] }}">{{ $dba['dba_name'] }}</option>
-                    @endforeach
-                </select>
+                <input placeholder="DBA Name" value="" class="form-control" ng-model="registrar.currentDba.dba_name" required="required" name="dba_name" type="text">
                 <div class="help-block" ng-show="registrar.formErrors.dba_name">
                     <div ng-repeat="error in registrar.formErrors.dba_name">
                         <span ng-bind="error"></span>

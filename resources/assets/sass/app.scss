@@ -242,6 +242,7 @@ table.md-table td.md-cell.mt2-table-cell-center {
 th md-checkbox.md-mt2-zeta-theme:not(.md-checked) .md-icon {
     border-color: rgba(255, 255, 255, 0.87);
 }
+
 /*
  * Button Styling
  */
@@ -767,6 +768,7 @@ md-list-item.mt2-nav-sub-item .md-list-item-inner {
 
 #mainSideNav a {
     padding-bottom: 0.5em;
+    border-left: transparent 3px solid;
 }
 
 .nav-icon {

@@ -134,6 +134,10 @@ Route::group(
             'as' => 'esp.add' ,
             'uses' => 'EspController@create'
         ] );
+        Route::get( '/mapping/{id}' , [
+            'as' => 'esp.mapping' ,
+            'uses' => 'EspController@mappings'
+        ] );
     }
 );
 
@@ -415,7 +419,7 @@ Route::group(
     ] ,
     function () {
         Route::get( '/' , [
-            'as' => 'client.list' , 
+            'as' => 'client.list' ,
             'uses' => 'ClientController@listAll'
         ] );
 
@@ -507,6 +511,11 @@ Route::group(
         Route::get( '/edit/{id}' , [
             'as' => 'listprofile.edit' ,
             'uses' => 'ListProfileController@edit'
+        ] );
+
+        Route::get( '/combine/edit/{id}' , [
+            'as' => 'listprofile.combine.edit' ,
+            'uses' => 'ListProfileController@editListCombine'
         ] );
 
     }
@@ -798,6 +807,29 @@ Route::group(
             'uses' => 'NavigationController@update'
         ] );
 
+        Route::get(
+            'esp/mappings/{id}' ,
+            [
+                'as' => 'api.esp.mappings.get' ,
+                'uses' => 'EspController@getMapping'
+            ]
+        );
+        Route::put(
+            'esp/mappings/{id}' ,
+            [
+                'as' => 'api.esp.mappings.update' ,
+                'uses' => 'EspController@updateMappings'
+            ]
+        );
+
+        Route::post(
+            'esp/mappings/process' ,
+            [
+                'as' => 'api.esp.mappings.process' ,
+                'uses' => 'EspController@processCSV'
+            ]
+        );
+
         Route::group(
             [ 'prefix' => 'deploy' ] ,
             function () {
@@ -898,6 +930,10 @@ Route::group(
                 Route::post( '/listcombine/export' , [
                     'as' => 'api.listprofile.combine.export' ,
                     'uses' => 'ListProfileController@exportListCombine',
+                ] );
+                Route::put( '/listcombine' , [
+                    'as' => 'api.listprofile.combine.update' ,
+                    'uses' => 'ListProfileController@updateListCombine'
                 ] );
             }
         );
@@ -1390,6 +1426,8 @@ Route::group(
         );
     }
 );
+
+
 
 
 /**

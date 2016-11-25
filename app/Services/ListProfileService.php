@@ -41,7 +41,7 @@ class ListProfileService
     }
 
     public function create ( $data ) {
-        $cleanData = $this->cleanseData( $data ); 
+        $cleanData = $this->cleanseData( $data );
 
         $id = $this->profileRepo->create( $cleanData );
 
@@ -58,7 +58,7 @@ class ListProfileService
 
         return json_encode( [
             'profile_id' => $id ,
-            'name' => $listProfile->name , 
+            'name' => $listProfile->name ,
             'actionRanges' => [
                 'deliverable' => [
                     'min' => $listProfile->deliverable_start ,
@@ -95,8 +95,8 @@ class ListProfileService
             'selectedColumns' => json_decode( $listProfile->columns ) ,
             'exportOptions' => [
                 'interval' =>  [ $listProfile->run_frequency ] ,
-                'dayOfWeek' => $schedule->day_of_week ? $schedule->day_of_week : null ,
-                'dayOfMonth' => $schedule->day_of_month ? $schedule->day_of_month : null
+                'dayOfWeek' => isset($schedule) && $schedule->day_of_week ? $schedule->day_of_week : null ,
+                'dayOfMonth' => isset($schedule) && $schedule->day_of_month ? $schedule->day_of_month : null
             ] ,
             'countries' => $listProfile->countries()->get()->pluck( 'id' ,'name' )->toArray() ,
             'feeds' => $listProfile->feeds()->get()->pluck( 'short_name' , 'id' )->toArray() ,
@@ -125,11 +125,14 @@ class ListProfileService
         return $this->profileRepo->returnActiveProfiles();
     }
 
+    public function getAllListProfiles() {
+        return $this->profileRepo->getAllListProfiles();
+    }
+
 
     public function buildProfileTable($id) {
         /**
             - Run against hygiene
-            Feed & offer suppression
          */
         $listProfile = $this->profileRepo->getProfile($id);
         $queries = $this->returnQueriesData($listProfile);
@@ -143,7 +146,7 @@ class ListProfileService
 
             // .. if we have hygiene, we write out both files. Write full one to a secret location. Send the other one (just email address/md5) out.
             // When the second returns. Find a way to subtract it from the first
-            
+
             $columns = $this->builder->getColumns();
 
             if (1 === $queryNumber) {
@@ -168,7 +171,7 @@ class ListProfileService
 
             $this->batchInsert();
             $this->clear();
-            
+
             $queryNumber++;
         }
 
@@ -205,13 +208,13 @@ class ListProfileService
             'columns' => json_encode( $data[ 'selectedColumns' ] ) ,
             'run_frequency' => ( ( isset( $data[ 'exportOptions' ][ 'interval' ] ) && $choice = array_intersect( $data[ 'exportOptions' ][ 'interval' ] , [ 'Daily' , 'Weekly' , 'Monthly' , 'Never' ] ) ) ? array_pop( $choice ) : 'Never' ) ,
             'admiral_only' => $data[ 'admiralsOnly' ] ,
-        ]; 
+        ];
     }
 
     private function saveEntities ( $id , $data , $isUpdate = false ) {
         if ( $data[ 'categories' ] || $isUpdate ) {
             $this->profileRepo->assignVerticals( $id , array_keys( $data[ 'categories' ] ) );
-        } 
+        }
 
         if ( $data[ 'exportOptions' ][ 'interval' ] || $isUpdate ) {
             $this->profileRepo->assignSchedule( $id , $data[ 'exportOptions' ] );
@@ -238,17 +241,30 @@ class ListProfileService
     private function returnQueriesData($listProfile) {
         $queries = [];
 
+        $partyCheck = [1 => 0, 2 => 0, 3 => 0];
+        foreach($listProfile->feeds as $feed) {
+            $partyCheck[$feed->party]++;
+        }
+
+        $max = 0;
+        foreach ($partyCheck as $partyId => $count) {
+            if ($count > $max) {
+                $party = $partyId;
+                $max = $count;
+            }
+        }
+
         if ($listProfile->deliverable_end !== $listProfile->deliverable_start && $listProfile->deliverable_end !== 0) {
-            $queries[] = ['type' => 'deliverable', 'start' => $listProfile->deliverable_start, 'end' => $listProfile->deliverable_end, 'count' => 1];
+            $queries[] = ['type' => 'deliverable', 'start' => $listProfile->deliverable_start, 'end' => $listProfile->deliverable_end, 'count' => 1, 'party' => $party];
         }
         if ($listProfile->openers_start !== $listProfile->openers_end && $listProfile->openers_end !== 0) {
-            $queries[] = ['type' => 'opens', 'start' => $listProfile->openers_start, 'end' => $listProfile->openers_end, 'count' => $listProfile->open_count];
+            $queries[] = ['type' => 'opens', 'start' => $listProfile->openers_start, 'end' => $listProfile->openers_end, 'count' => $listProfile->open_count, 'party' => $party];
         }
         if ($listProfile->clickers_start !== $listProfile->clickers_end && $listProfile->clickers_end !== 0) {
-            $queries[] = ['type' => 'clicks', 'start' => $listProfile->clickers_start, 'end' => $listProfile->clickers_end, 'count' => $listProfile->click_count];
+            $queries[] = ['type' => 'clicks', 'start' => $listProfile->clickers_start, 'end' => $listProfile->clickers_end, 'count' => $listProfile->click_count, 'party' => $party];
         }
         if ($listProfile->converters_start !== $listProfile->converters_end && $listProfile->converters_end !== 0) {
-            $queries[] = ['type' => 'conversions', 'start' => $listProfile->converters_start, 'end' => $listProfile->converters_end, 'count' => $listProfile->conversion_count];
+            $queries[] = ['type' => 'conversions', 'start' => $listProfile->converters_start, 'end' => $listProfile->converters_end, 'count' => $listProfile->conversion_count, 'party' => $party];
         }
 
         return $queries;
