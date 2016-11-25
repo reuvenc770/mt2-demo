@@ -29,7 +29,7 @@ class AddFirstPartyOnlineLists extends Seeder {
 
         $list = new FirstPartyOnlineSuppressionList();
         $list->feed_id = 2983;
-        $list->suppression_list_id = ;
+        $list->suppression_list_id = 9791;
         $list->esp_account_id = $br001;
         $list->target_list = '0bce03ec00000000000000000000000ed8bf';
         $list->save();
@@ -589,6 +589,101 @@ class AddFirstPartyOnlineLists extends Seeder {
         $list->suppression_list_id = 10390;
         $list->esp_account_id = $cy001;
         $list->target_list = '10178012';
+        $list->save();
+
+
+        /* Autopilot */
+        $mar2 = EspApiAccount::getEspAccountDetailsByName('MAR2')->id;
+
+        $list = new FirstPartyOnlineSuppressionList();
+        $list->feed_id = 2979;
+        $list->suppression_list_id = 12402;
+        $list->esp_account_id = $mar2;
+        $list->target_list = '51348';
+        $list->save();
+
+        $list = new FirstPartyOnlineSuppressionList();
+        $list->feed_id = 2979;
+        $list->suppression_list_id = 10390;
+        $list->esp_account_id = $mar2;
+        $list->target_list = '61336';
+        $list->save();
+
+        $list = new FirstPartyOnlineSuppressionList();
+        $list->feed_id = 2979;
+        $list->suppression_list_id = 12490;
+        $list->esp_account_id = $mar2;
+        $list->target_list = '61333';
+        $list->save();
+
+        $list = new FirstPartyOnlineSuppressionList();
+        $list->feed_id = 2979;
+        $list->suppression_list_id = 12633;
+        $list->esp_account_id = $mar2;
+        $list->target_list = '61333';
+        $list->save();
+
+        $list = new FirstPartyOnlineSuppressionList();
+        $list->feed_id = 2979;
+        $list->suppression_list_id = 12451;
+        $list->esp_account_id = $mar2;
+        $list->target_list = '61335';
+        $list->save();
+
+        $list = new FirstPartyOnlineSuppressionList();
+        $list->feed_id = 2979;
+        $list->suppression_list_id = 14310;
+        $list->esp_account_id = $mar2;
+        $list->target_list = '61333';
+        $list->save();
+
+        $list = new FirstPartyOnlineSuppressionList();
+        $list->feed_id = 2979;
+        $list->suppression_list_id = 9208;
+        $list->esp_account_id = $mar2;
+        $list->target_list = '51346';
+        $list->save();
+
+        $list = new FirstPartyOnlineSuppressionList();
+        $list->feed_id = 2979;
+        $list->suppression_list_id = 16457;
+        $list->esp_account_id = $mar2;
+        $list->target_list = '51341';
+        $list->save();
+
+        $list = new FirstPartyOnlineSuppressionList();
+        $list->feed_id = 2979;
+        $list->suppression_list_id = 12930;
+        $list->esp_account_id = $mar2;
+        $list->target_list = '51345';
+        $list->save();
+
+        $list = new FirstPartyOnlineSuppressionList();
+        $list->feed_id = 2979;
+        $list->suppression_list_id = 13723;
+        $list->esp_account_id = $mar2;
+        $list->target_list = '51342';
+        $list->save();
+
+        $list = new FirstPartyOnlineSuppressionList();
+        $list->feed_id = 2979;
+        $list->suppression_list_id = 10513;
+        $list->esp_account_id = $mar2;
+        $list->target_list = '61337';
+        $list->save();
+
+        $list = new FirstPartyOnlineSuppressionList();
+        $list->feed_id = 2979;
+        $list->suppression_list_id = 16814;
+        $list->esp_account_id = $mar2;
+        $list->target_list = '61331';
+        $list->save();
+
+        $list = new FirstPartyOnlineSuppressionList();
+        $list->feed_id = 2979;
+        $list->suppression_list_id = 14427;
+        $list->esp_account_id = $mar2;
+        $list->target_list = '61334';
         $list->save();
     }
 }
