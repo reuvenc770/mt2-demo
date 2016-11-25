@@ -21,4 +21,8 @@ class EmailFeedInstanceService {
     public function getMt2UniqueCountForFeedAndDate ( $feedId , $date ) {
         return $this->repo->getMt2UniqueCountForFeedAndDate( $feedId , $date );
     }
+
+    public function getRecordCountForSource ( $search ) {
+        return $this->repo->getRecordCountForSource( $search );
+    } 
 }

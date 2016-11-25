@@ -176,6 +176,11 @@ Route::group(
             'uses' => 'NavigationController@index'
         ] );
 
+        Route::get( '/source-url-search' , [
+            'as' => 'tools.sourceurlsearch' ,
+            'uses' => 'SourceUrlSearchController@index'
+        ] );
+
     }
 );
 
@@ -1128,6 +1133,11 @@ Route::group(
         Route::put( '/feed/file/{id}' , [
             'as' => 'api.feed.file.savefieldorder' ,
             'uses' => 'FeedController@storeFieldOrder'
+        ] );
+
+        Route::post( '/feed/searchsource' , [
+            'as' => 'api.feed.searchsource' ,
+            'uses' => 'FeedController@searchSource'
         ] );
 
         /**

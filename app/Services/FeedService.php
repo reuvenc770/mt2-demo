@@ -9,6 +9,8 @@ use App\Models\RecordProcessingFileField;
 use App\Repositories\CountryRepo;
 use App\Services\ServiceTraits\PaginateList;
 use App\Services\Interfaces\IFtpAdmin;
+use App\Services\EmailFeedInstanceService;
+use League\Csv\Writer;
 use DB;
 
 class FeedService implements IFtpAdmin
@@ -19,6 +21,7 @@ class FeedService implements IFtpAdmin
     private $verticals;
     private $feedTypes;
     private $countryRepo;
+    private $instanceService;
 
     private $optionalFields = [
         'first_name_index' ,
@@ -35,11 +38,18 @@ class FeedService implements IFtpAdmin
         'other_field_index'
     ];
 
-    public function __construct(FeedRepo $feedRepo, CakeVertical $cakeVerticals , CountryRepo $countryRepo , FeedType $feedTypes) {
+    public function __construct(
+        FeedRepo $feedRepo,
+        CakeVertical $cakeVerticals ,
+        CountryRepo $countryRepo ,
+        FeedType $feedTypes ,
+        EmailFeedInstanceService $instanceService
+    ) {
         $this->feedRepo = $feedRepo;
         $this->verticals = $cakeVerticals;
         $this->feedTypes = $feedTypes;
         $this->countryRepo = $countryRepo;
+        $this->instanceService = $instanceService;
     }
 
     public function getAllFeedsArray() {
@@ -207,6 +217,28 @@ class FeedService implements IFtpAdmin
             '-r' => true
         ]);
         return true;
+    }
+
+    public function getRecordCountForSource ( $search ) {
+        $response = [ 'records' => $this->instanceService->getRecordCountForSource( $search ) ];
+
+        if ( $search[ 'exportFile' ] === true && count( $response[ 'records' ] ) > 0 ) {
+            $writer = Writer::createFromFileObject( new \SplTempFileObject() );
+            $writer->insertOne( [ 'Client Name' , 'Feed Name' , 'Source URL' , 'Record Count' ] );
+
+            foreach ( $response[ 'records' ] as $row ) {
+                $writer->insertOne( [
+                    $row[ 'clientName' ] ,
+                    $row[ 'feedName' ] ,
+                    $row[ 'sourceUrl' ] ,
+                    $row[ 'count' ]
+                ] );
+            }
+
+            $response[ 'csv' ] = $writer->__toString();
+        }
+
+        return $response;
     }
 
     public function getActiveFeedNames () {

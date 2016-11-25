@@ -137,6 +137,9 @@ ul.ivh-treeview ul.ivh-treeview {
 .mt2-label-success{
     background-color: #5cb85c;
 }
+label:focus {
+    outline: 0;
+}
 /**
  * Materials Overrides
  */
@@ -417,6 +420,10 @@ body {
     .btn{
         margin:0;
     }
+}
+input[type="radio"],
+input[type="checkbox"] {
+    margin-top: 2px;
 }
 .btn:focus,
 .btn-group > .btn:focus {

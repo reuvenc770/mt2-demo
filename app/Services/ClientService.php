@@ -25,6 +25,10 @@ class ClientService {
         $this->clientRepo->updateOrCreate( $data );
     }
 
+    public function get () {
+        return $this->clientRepo->get();
+    }
+
     public function getAll () {
         return $this->clientRepo->getAll();
     }
