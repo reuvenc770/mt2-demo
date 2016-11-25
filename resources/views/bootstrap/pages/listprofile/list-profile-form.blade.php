@@ -72,6 +72,33 @@
         </select>
     </div>
 </div>
+<div class="row form-group">
+    <div class="col-sm-6">
+        <label>Available Feed Groups</label>
+
+        <div class="pull-right">
+            <label ng-click="listProfile.addFeedGroups()" role="button" tabindex="0">Add Selected <span class="glyphicon glyphicon-plus"></span></label>
+        </div>
+
+        <select ng-model="listProfile.highlightedFeedGroup" multiple style="width: 100%; height: 150px;">
+            @foreach ( $feedGroups as $feedGroup )
+                <option value="{{$feedGroup[ 'id' ]}}" ng-init="listProfile.feedGroupVisibility[ {{$feedGroup[ 'id' ]}} ] = true;listProfile.feedGroupNameMap[ {{$feedGroup[ 'id' ]}} ] = '{{{$feedGroup[ 'name' ]}}}';" ng-show="listProfile.feedGroupVisibility[ {{$feedGroup[ 'id' ]}} ]">{{ $feedGroup[ 'name' ] }}</option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="col-sm-6">
+        <label>Selected Feed Groups</label>
+
+        <div class="pull-right">
+            <label ng-click="listProfile.removeFeedGroups()" role="button" tabindex="0">Remove Selected <span class="glyphicon glyphicon-minus"></span></label>
+        </div>
+
+        <select ng-model="listProfile.highlightedFeedGroupForRemoval" multiple="" style="width: 100%; height: 150px;">
+            <option ng-repeat="( feedId , feedName ) in listProfile.current.feedGroups" ng-value="::feedId">@{{::feedName}}</option>
+        </select>
+    </div>
+</div>
 
 <div class="form-group" id="actionRanges">
     <label><h4>Deliverables Day Range</h4> <h5><i>All day ranges are inclusive</i></h5></label>

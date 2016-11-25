@@ -20,6 +20,9 @@ class ListProfile extends Model
     public function feeds() {
         return $this->belongsToMany('App\Models\Feed', 'list_profile.list_profile_feeds');
     }
+    public function feedGroups() {
+        return $this->belongsToMany('App\Models\FeedGroup', 'list_profile.list_profile_feed_groups');
+    }
 
     public function domainGroups() {
         return $this->belongsToMany('App\Models\DomainGroup', 'list_profile.list_profile_domain_groups');
