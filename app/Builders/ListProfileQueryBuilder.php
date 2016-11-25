@@ -281,7 +281,7 @@ class ListProfileQueryBuilder {
                 // Get everything from the selected feeds - no ignores required
                 $query = $query->whereIn('efa.feed_id', $feedsWithoutIgnores);
             }
-            elseif ($sizeof($this->feedsWithSuppression) > 0) {
+            elseif (sizeof($this->feedsWithSuppression) > 0) {
                 // Get data from all feeds, except those emails ignored for these
                 $query = $query->join("{$this->dataSchema}.email_feed_status as efs", function($join) {
                     $join->on('efa.feed_id', '=', 'efs.feed_id');
