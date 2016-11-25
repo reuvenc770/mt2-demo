@@ -65,4 +65,4 @@ mt2App.service( 'FeedApiService' , [ 'paginationService' , '$http' , '$log' , fu
             "data" : queryData 
         } ).then( successCallback , failureCallback );
     };
-} );
+} ] );
