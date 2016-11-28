@@ -70,7 +70,8 @@ class APIFactory
             "BlueHornet" ,
             "EmailDirect" ,
             "Campaigner",
-            "Publicators"
+            "Publicators",
+            "AWeber",
         ] ) ) {
             $api = "App\\Services\\API\\{$apiName}Api";
             $service = "App\\Services\\{$apiName}SubscriberService";

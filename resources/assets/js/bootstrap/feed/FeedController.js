@@ -1,4 +1,4 @@
-mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' , '$timeout', 'FeedApiService', '$mdToast', '$mdDialog', '$log' , 'formValidationService' , 'modalService' , function ( $rootScope , $window , $location , $timeout , FeedApiService, $mdToast , $mdDialog , $log , formValidationService , modalService) {
+mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' , '$timeout', 'FeedApiService', '$mdToast', '$mdDialog', '$log' , 'formValidationService' , 'modalService' , 'paginationService' , function ( $rootScope , $window , $location , $timeout , FeedApiService, $mdToast , $mdDialog , $log , formValidationService , modalService , paginationService ) {
     var self = this;
     self.$location = $location;
 
@@ -23,7 +23,8 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
     self.createUrl = '/feed/create';
 
     self.pageCount = 0;
-    self.paginationCount = '10';
+    self.paginationCount = paginationService.getDefaultPaginationCount();
+    self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
     self.feedTotal = 0;
     self.queryPromise = null;

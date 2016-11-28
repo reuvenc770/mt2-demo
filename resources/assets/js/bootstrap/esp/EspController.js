@@ -1,4 +1,4 @@
-mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$location' , '$timeout' , 'EspService' , 'formValidationService' , 'modalService' , function ( $rootScope , $log , $window , $location , $timeout , EspService , formValidationService , modalService ) {
+mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$location' , '$timeout' , 'EspService' , 'formValidationService' , 'modalService' , 'paginationService' , function ( $rootScope , $log , $window , $location , $timeout , EspService , formValidationService , modalService , paginationService ) {
     var self = this;
     self.$location = $location;
 
@@ -11,8 +11,8 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     self.espId = "";
     self.currentlyLoading = 0;
     self.pageCount = 0;
-    self.paginationCount = '10';
-    self.currentFieldConfig = [];
+    self.paginationCount = paginationService.getDefaultPaginationCount();
+    self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
     self.campaignTriggered = false;
     self.accountTotal = 0;

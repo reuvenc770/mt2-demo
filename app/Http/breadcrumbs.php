@@ -176,6 +176,11 @@ Breadcrumbs::register( 'client.attribution' , function ( $breadcrumbs ) {
     $breadcrumbs->push( 'Attribution' );
 } );
 
+Breadcrumbs::register( 'tools.sourceurlsearch' , function ( $breadcrumbs ) {
+    $breadcrumbs->parent( 'home' );
+    $breadcrumbs->push( 'Source URL Search' , route( 'tools.sourceurlsearch' ) );
+} );
+
 // Data Export Pages
 Breadcrumbs::register('dataexport.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');

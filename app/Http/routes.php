@@ -176,6 +176,11 @@ Route::group(
             'uses' => 'NavigationController@index'
         ] );
 
+        Route::get( '/source-url-search' , [
+            'as' => 'tools.sourceurlsearch' ,
+            'uses' => 'SourceUrlSearchController@index'
+        ] );
+
     }
 );
 
@@ -880,7 +885,7 @@ Route::group(
         Route::group(
             [ 'prefix' => 'listprofile' ] ,
             function () {
-                Route::get( '/copy' , [
+                Route::post( '/copy' , [
                     'as' => 'api.listprofile.copy' ,
                     'uses' => 'ListProfileController@copy'
                 ] );
@@ -1138,6 +1143,11 @@ Route::group(
         Route::post( '/feed/createsuppression/{id}' , [
             'as' => 'api.feed.suppression.create' ,
             'uses' => 'FeedController@createSuppression'
+        ] );
+
+        Route::post( '/feed/searchsource' , [
+            'as' => 'api.feed.searchsource' ,
+            'uses' => 'FeedController@searchSource'
         ] );
 
         /**

@@ -1,4 +1,4 @@
-mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$location', '$timeout', 'DomainService', '$mdToast', '$httpParamSerializer','formValidationService', 'modalService', function ($rootScope, $log, $window, $location, $timeout, DomainService, $mdToast, $httpParamSerializer, formValidationService, modalService) {
+mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$location', '$timeout', 'DomainService', '$mdToast', '$httpParamSerializer','formValidationService', 'modalService', 'paginationService' , function ($rootScope, $log, $window, $location, $timeout, DomainService, $mdToast, $httpParamSerializer, formValidationService, modalService , paginationService ) {
     var self = this;
     self.$location = $location;
 
@@ -52,7 +52,8 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     self.currentlyLoading = 0;
     self.pageCount = 0;
     self.rowBeingEdited = "0";
-    self.paginationCount = '10';
+    self.paginationCount = paginationService.getDefaultPaginationCount();
+    self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
     self.search = {"esp": espName,
         "eps_account_id" : undefined,

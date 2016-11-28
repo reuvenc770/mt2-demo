@@ -86,7 +86,7 @@ class ListProfileExportService
         }
 
         foreach($listProfileCombine as $listProfile){
-            $files[] = $this->exportListProfile($listProfile->id,array(),array_unique($listProfileCombineHeader));
+            $files[] = $this->exportListProfile($listProfile->id, null, array_unique($listProfileCombineHeader));
         }
         $date = Carbon::today()->toDateString();
         $fileName = "{$date}_{$listProfileCombine->name}.csv";

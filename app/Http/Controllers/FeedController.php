@@ -8,6 +8,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FeedEditRequest;
 use App\Http\Requests\FeedFieldUpdateRequest;
+use App\Http\Requests\SourceUrlSearchRequest;
 use App\Services\ClientService;
 use App\Services\FeedService;
 use Cache;
@@ -167,4 +168,7 @@ class FeedController extends Controller
         ]);
     }
 
+    public function searchSource ( SourceUrlSearchRequest $request ) {
+        return response()->json( $this->feedService->getRecordCountForSource( $request->all() ) );
+    }
 }

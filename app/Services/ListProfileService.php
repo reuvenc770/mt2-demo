@@ -98,9 +98,10 @@ class ListProfileService
                 'dayOfWeek' => isset($schedule) && $schedule->day_of_week ? $schedule->day_of_week : null ,
                 'dayOfMonth' => isset($schedule) && $schedule->day_of_month ? $schedule->day_of_month : null
             ] ,
-            'countries' => $listProfile->countries()->get()->pluck( 'id' ,'name' )->toArray() ,
+            'country_id' => $listProfile->country_id,
             'feeds' => $listProfile->feeds()->get()->pluck( 'short_name' , 'id' )->toArray() ,
             'isps' => $listProfile->domainGroups()->get()->pluck( 'name' , 'id' )->toArray() ,
+            'feedGroups' => $listProfile->feedGroups()->get()->pluck( 'name' , 'id' )->toArray() ,
             'categories' => $listProfile->verticals()->get()->pluck( 'name' , 'id' )->toArray() ,
             'offers' => $listProfile->offers()->get()->toArray() ,
             'includeCsvHeader' => $listProfile->insert_header ? true : false ,
@@ -208,6 +209,7 @@ class ListProfileService
             'columns' => json_encode( $data[ 'selectedColumns' ] ) ,
             'run_frequency' => ( ( isset( $data[ 'exportOptions' ][ 'interval' ] ) && $choice = array_intersect( $data[ 'exportOptions' ][ 'interval' ] , [ 'Daily' , 'Weekly' , 'Monthly' , 'Never' ] ) ) ? array_pop( $choice ) : 'Never' ) ,
             'admiral_only' => $data[ 'admiralsOnly' ] ,
+            'country_id' => $data[ 'country_id' ] ,
         ];
     }
 
@@ -228,13 +230,14 @@ class ListProfileService
             $this->profileRepo->assignFeeds( $id , array_keys( $data[ 'feeds' ] ) );
         }
 
+        if ( $data[ 'feedGroups' ] || $isUpdate ) {
+            $this->profileRepo->assignFeedGroups( $id , array_keys( $data[ 'feedGroups' ] ) );
+        }
+
         if ( $data[ 'isps' ] || $isUpdate ) {
             $this->profileRepo->assignIsps( $id , array_keys( $data[ 'isps' ] ) );
         }
 
-        if ( $data[ 'countries' ] || $isUpdate ) {
-            $this->profileRepo->assignCountries( $id , $data[ 'countries' ] );
-        }
     }
 
 
@@ -332,5 +335,12 @@ class ListProfileService
 
     private function saveToCache($tag, $value) {
         Cache::tags($tag)->put($value, 1, self::ROW_STORAGE_TIME);
+    }
+
+    public function cloneProfile($id){
+        $currentProfile = $this->profileRepo->getProfile($id);
+        $copyProfile = $currentProfile->replicate();
+        $copyProfile->name = "COPY_{$currentProfile->name}";
+        $copyProfile->save();
     }
 }

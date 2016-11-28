@@ -157,13 +157,13 @@ class RecordDataRepo {
             $this->cleanUpActions();
 
             $this->batchActionUpdateData = ['(' 
-                . $pdo->quote($emailId) . ','
+                . $pdo->quote($emailId) . ', 1,'
                 . $pdo->quote($actionDate) . ')'];
             $this->batchActionUpdateCount = 1;
         }
         else {
             $this->batchActionUpdateData[] = '(' 
-                . $pdo->quote($emailId) . ','
+                . $pdo->quote($emailId) . ', 1,'
                 . $pdo->quote($actionDate) . ')';
 
             $this->batchActionUpdateCount++;
