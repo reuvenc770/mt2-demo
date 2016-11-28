@@ -10,13 +10,14 @@ namespace App\Repositories;
 
 
 use App\Models\ListProfile;
+use App\Models\ListProfileClient;
 use App\Models\ListProfileVertical;
 use App\Models\ListProfileSchedule;
 use App\Models\ListProfileOffer;
 use App\Models\ListProfileFeed;
 use App\Models\ListProfileDomainGroup;
 use App\Models\ListProfileFeedGroup;
-
+use Log;
 class ListProfileRepo
 {
     private $listProfile;
@@ -26,6 +27,7 @@ class ListProfileRepo
     private $feed;
     private $isp;
     private $feedGroup;
+    private $client;
 
     public function __construct(
         ListProfile $listProfile ,
@@ -34,7 +36,8 @@ class ListProfileRepo
         ListProfileOffer $offer ,
         ListProfileFeed $feed ,
         ListProfileDomainGroup $isp,
-        ListProfileFeedGroup $feedGroup
+        ListProfileFeedGroup $feedGroup,
+        ListProfileClient $client
     ) {
         $this->listProfile = $listProfile;
         $this->vertical = $vertical;
@@ -43,6 +46,7 @@ class ListProfileRepo
         $this->feed = $feed;
         $this->isp = $isp;
         $this->feedGroup = $feedGroup;
+        $this->client = $client;
     }
 
     public function getModel () {
@@ -121,6 +125,7 @@ class ListProfileRepo
         $this->feed->where( 'list_profile_id' , $id )->delete();
 
         foreach ( $feeds as $currentFeed ) {
+            Log::info($currentFeed);
             $this->feed->insert( [ 'list_profile_id' => $id , 'feed_id' => $currentFeed ] );
         }
     }
@@ -129,7 +134,17 @@ class ListProfileRepo
         $this->feedGroup->where( 'list_profile_id' , $id )->delete();
 
         foreach ( $feedGroups as $currentFeed ) {
+            Log::info($currentFeed);
             $this->feedGroup->insert( [ 'list_profile_id' => $id , 'feed_group_id' => $currentFeed ] );
+        }
+    }
+
+    public function assignClients ( $id , $clients ) {
+        $this->client->where( 'list_profile_id' , $id )->delete();
+
+        foreach ( $clients as $client ) {
+            Log::info($client);
+            $this->client->insert( [ 'list_profile_id' => $id , 'client_id' => $client ] );
         }
     }
 

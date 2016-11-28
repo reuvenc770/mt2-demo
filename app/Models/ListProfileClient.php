@@ -8,7 +8,7 @@ class ListProfileClient extends Model
 {
     protected $guarded = [''];
     public $timestamps = false;
-    protected $connection = '';
+    protected $connection = 'list_profile';
 
     public function client() {
         return $this->belongsTo('App\Models\Client');
