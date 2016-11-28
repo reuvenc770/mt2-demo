@@ -471,7 +471,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
     self.updateFeedVisibilityFromCountry = function () {
         angular.forEach( self.feedVisibility , function ( visibility , feedId ) {
-                    var feedListExistsAndBelongsInCountry = self.countryFeedMap[ parseInt( self.current.country_id ) ].indexOf( parseInt( feedId ) ) !== -1;
+                    var feedListExistsAndBelongsInCountry = ( typeof( self.countryFeedMap[ parseInt( self.current.country_id ) ] ) != 'undefined' && self.countryFeedMap[ parseInt( self.current.country_id ) ].indexOf( parseInt( feedId ) ) !== -1);
                     if( feedListExistsAndBelongsInCountry ) {
                         self.feedVisibility[ feedId ] = true;
                     } else{
