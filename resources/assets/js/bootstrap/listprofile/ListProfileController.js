@@ -255,11 +255,31 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         }
 
         var nameParts = [];
-        nameParts.push( self.getFormattedName( self.current.feedGroups ) );
-        nameParts.push( self.getFormattedName( self.current.feeds ) );
-        nameParts.push( self.getFormattedName( self.current.isps ) );
-        nameParts.push( self.getFormattedName( self.current.country_id , self.countryCodeMap ) );
-        nameParts.push( self.getFormattedRangeName() );
+
+        var namePartFeedGroups = self.getFormattedName( self.current.feedGroups );
+        if ( namePartFeedGroups != '' ) {
+            nameParts.push( namePartFeedGroups );
+        }
+
+        var namePartFeeds = self.getFormattedName( self.current.feeds );
+        if ( namePartFeeds != '' ) {
+            nameParts.push( namePartFeeds );
+        }
+
+        var namePartIsps = self.getFormattedName( self.current.isps );
+        if ( namePartIsps != '' ) {
+            nameParts.push( namePartIsps );
+        }
+
+        var namePartCountry = self.getFormattedName( self.current.country_id , self.countryCodeMap );
+        if ( namePartCountry != '' ) {
+            nameParts.push( namePartCountry );
+        }
+
+        var namePartRangeName = self.getFormattedRangeName();
+        if ( namePartRangeName != '' ) {
+            nameParts.push( namePartRangeName );
+        }
 
         self.current.name = nameParts.join( '_' );
     };
