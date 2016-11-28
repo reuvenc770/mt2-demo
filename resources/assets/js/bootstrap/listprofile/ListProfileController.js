@@ -18,7 +18,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     self.current = {
         'profile_id' : null ,
         'name' : '' ,
-        'countries' : {} ,
+        'country_id' : '' ,
         'feeds' : {} ,
         'feedGroups' :{} ,
         'isps' : {} ,
@@ -72,14 +72,15 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     self.queryPromise = null;
     self.sort = "name";
 
-    self.countryCodeMap = { 1 : 'US' , 235 : 'UK' };
-    self.countryNameMap = { 'United States' : 1 , 'United Kingdom' : 235 };
+    self.countryCodeMap = { 1 : 'US' , 2 : 'UK' };
+    self.countryNameMap = { 'United States' : 1 , 'United Kingdom' : 2 };
     self.genderNameMap = { 'Male' : 'M' , 'Female' : 'F' , 'Unknown' : 'U' };
 
     self.highlightedFeeds = [];
     self.highlightedFeedsForRemoval = [];
     self.feedClientFilters = [];
     self.clientFeedMap = {};
+    self.countryFeedMap = {};
     self.feedNameMap = {};
     self.feedVisibility = {};
 
@@ -222,14 +223,12 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     self.prepop = function ( listProfile ) {
         self.current = listProfile;
         self.generateName();
-
         self.fixEmptyFields();
-
         $(function () { $('[data-toggle="tooltip"]').tooltip() });
     };
 
     self.fixEmptyFields = function () {
-        angular.forEach( [ 'countries' , 'feeds' , 'isps' , 'categories' ] , function ( value , index ) {
+        angular.forEach( [ 'feeds' , 'isps' , 'categories' ] , function ( value , index ) {
             if ( self.current[ value ].length == 0 ) {
                 self.current[ value ] = {};
             }
@@ -259,7 +258,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         nameParts.push( self.getFormattedName( self.current.feedGroups ) );
         nameParts.push( self.getFormattedName( self.current.feeds ) );
         nameParts.push( self.getFormattedName( self.current.isps ) );
-        nameParts.push( self.getFormattedName( self.current.countries , self.countryCodeMap ) );
+        nameParts.push( self.getFormattedName( self.current.country_id , self.countryCodeMap ) );
         nameParts.push( self.getFormattedRangeName() );
 
         self.current.name = nameParts.join( '_' );
@@ -452,21 +451,33 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
         angular.forEach( self.feedVisibility , function ( visibility , feedId ) {
             var feedNotSelected = typeof( self.current.feeds[ parseInt( feedId ) ] ) == 'undefined';
-
+            var feedListExistsAndBelongsInCountry = self.countryFeedMap[ parseInt( self.current.country_id ) ].indexOf( parseInt( feedId ) ) !== -1;
             if ( showAll && feedNotSelected ) {
-                self.feedVisibility[ feedId ] = true;
+                if(feedListExistsAndBelongsInCountry) {
+                    self.feedVisibility[feedId] = true;
+                }
             } else {
                 self.feedVisibility[ feedId ] = false;
 
                 angular.forEach( self.feedClientFilters , function ( clientId ) {
                     var feedListExistsAndBelongsToClient = ( typeof( self.clientFeedMap[ parseInt( clientId ) ] ) != 'undefined' && self.clientFeedMap[ parseInt( clientId ) ].indexOf( parseInt( feedId ) ) !== -1 );
-
-                    if( feedListExistsAndBelongsToClient && feedNotSelected ) {
+                    if( feedListExistsAndBelongsToClient && feedNotSelected && feedListExistsAndBelongsInCountry ) {
                         self.feedVisibility[ feedId ] = true;
                     }
                 } );
             }
         } );
+    };
+
+    self.updateFeedVisibilityFromCountry = function () {
+        angular.forEach( self.feedVisibility , function ( visibility , feedId ) {
+                    var feedListExistsAndBelongsInCountry = self.countryFeedMap[ parseInt( self.current.country_id ) ].indexOf( parseInt( feedId ) ) !== -1;
+                    if( feedListExistsAndBelongsInCountry ) {
+                        self.feedVisibility[ feedId ] = true;
+                    } else{
+                        self.feedVisibility[ feedId ] = false;
+                    }
+                } );
     };
 
     self.clearClientFeedFilter = function () {
@@ -675,6 +686,11 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         if ( typeof( callback ) != 'undefined' ) {
             callback();
         }
+    };
+
+    self.updateCountry = function (){
+        self.generateName();
+        self.updateFeedVisibilityFromCountry();
     };
 
     self.columnMembershipCallback = function (){
