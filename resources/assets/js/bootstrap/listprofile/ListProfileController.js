@@ -84,8 +84,8 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     self.feedNameMap = {};
     self.feedVisibility = {};
 
-    self.highlightedFeedGroup = [];
-    self.highlightedFeedGroupForRemoval = [];
+    self.highlightedFeedGroups = [];
+    self.highlightedFeedGroupsForRemoval = [];
     self.feedGroupVisibility = {};
     self.feedGroupNameMap = {};
 
@@ -228,7 +228,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     };
 
     self.fixEmptyFields = function () {
-        angular.forEach( [ 'feeds' , 'isps' , 'categories' ] , function ( value , index ) {
+        angular.forEach( [ 'feeds', 'feedGroups' , 'isps' , 'categories' ] , function ( value , index ) {
             if ( self.current[ value ].length == 0 ) {
                 self.current[ value ] = {};
             }
@@ -425,7 +425,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
     self.addFeedGroups = function () {
         self.addMembershipItems(
-            { "highlighted" : self.highlightedFeedGroup , "visibility" : self.feedGroupVisibility , "map" : self.feedGroupNameMap } ,
+            { "highlighted" : self.highlightedFeedGroups , "visibility" : self.feedGroupVisibility , "map" : self.feedGroupNameMap } ,
             self.current.feedGroups ,
             self.generateName
         );
@@ -433,7 +433,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
     self.removeFeedGroups = function () {
         self.removeMembershipItems(
-            { "highlightedForRemoval" : self.highlightedFeedGroupForRemoval , "visibility" : self.feedGroupVisibility } ,
+            { "highlightedForRemoval" : self.highlightedFeedGroupsForRemoval , "visibility" : self.feedGroupVisibility } ,
             self.current.feedGroups ,
             function () {
                 self.generateName();
