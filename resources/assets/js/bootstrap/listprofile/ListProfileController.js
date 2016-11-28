@@ -854,4 +854,29 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     self.exportCombineFail = function (response){
         modalService.simpleToast("List Combine failed to export",'top right');
     };
+
+    self.copyListProfile = function ( ev , id, name) {
+            var confirm = $mdDialog.confirm()
+                .title( 'Are you sure you want to copy '+ name + '?' )
+                .ariaLabel( 'Copy Warning' )
+                .targetEvent( ev )
+                .ok( 'Yes' )
+                .cancel( 'Cancel' );
+
+            $mdDialog.show( confirm ).then(
+                function () {
+                    ListProfileApiService.copyListProfile(id,self.copyProfileSuccess, self.copyProfileFail);
+                }
+            );
+    };
+
+    self.copyProfileSuccess = function (response){
+        modalService.simpleToast("List Profile Copied",'top right');
+        self.loadListProfiles();
+    };
+
+    self.copyProfileFail = function (response){
+        modalService.simpleToast("List Copy was successful",'top right');
+
+    };
 } ] );
