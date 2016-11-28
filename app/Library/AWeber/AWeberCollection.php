@@ -15,7 +15,6 @@ class AWeberCollection extends AWeberResponse implements \ArrayAccess, \Iterator
         } elseif (array_key_exists('prev_collection_link', $this->data)) {
             $url = $this->data['prev_collection_link'];
         }
-
         # scan querystring for ws_size
         $url_parts = parse_url($url);
 
@@ -171,7 +170,6 @@ class AWeberCollection extends AWeberResponse implements \ArrayAccess, \Iterator
         return false;
     }
     protected function _fetchCollectionData($offset) {
-
         # we dont have a next page, we're done
         if (!array_key_exists('next_collection_link', $this->data)) {
             return null;
@@ -212,7 +210,6 @@ class AWeberCollection extends AWeberResponse implements \ArrayAccess, \Iterator
     }
 
     public function offsetGet($offset) {
-
         if (!$this->offsetExists($offset)) {
             return null;
         }
