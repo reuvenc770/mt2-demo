@@ -25,7 +25,6 @@ class ListProfileRepo
     private $offer;
     private $feed;
     private $isp;
-
     private $feedGroup;
 
     public function __construct(
