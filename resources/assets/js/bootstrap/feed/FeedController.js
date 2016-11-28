@@ -122,23 +122,33 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
     self.runReattribution = function() {
 
         var confirm = $mdDialog.confirm()
-            .title( 'Confirm Reattribution Run' )
-            .ariaLabel( 'Confirm Reattribution Run' )
-            .textContent( 'Are you sure you want to run reattribution for this feed?' )
+            .title( 'Confirm Reattribute Records' )
+            .ariaLabel( 'Confirm Reattribute Records' )
+            .textContent( 'Are you sure you want to reattribute this feed\'s non-unique records?' )
             .ok( 'Yes, I am sure.' )
             .cancel( 'No' );
 
         $mdDialog.show( confirm ).then( function () {
             self.isReattributing = true;
+
             FeedApiService.runReattribution( self.current.id , self.runReattributionSuccessCallback , self.runReattributionFailureCallback );
         });
 
     };
 
     self.createSuppression = function() {
-        self.isSuppressing = true;
+        var confirmSupp = $mdDialog.confirm()
+            .title( 'Confirm Feed Suppression' )
+            .ariaLabel( 'Confirm Feed Suppression' )
+            .textContent( 'Are you sure you want to suppress this feed\'s unique records?' )
+            .ok( 'Yes, I am sure.' )
+            .cancel( 'No' );
 
-        FeedApiService.createSuppression( self.current.id , self.createSuppressionSuccessCallback , self.createSuppressionFailureCallback );
+        $mdDialog.show( confirmSupp ).then( function () {
+            self.isSuppressing = true;
+
+            FeedApiService.createSuppression( self.current.id , self.createSuppressionSuccessCallback , self.createSuppressionFailureCallback );
+        });
     };
     /**
      * Feed File Field Ordering
@@ -260,7 +270,7 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
 
     self.runReattributionSuccessCallback = function ( response ) {
         modalService.setModalLabel( 'Success' );
-        modalService.setModalBody( 'Running reattribution of records.' );
+        modalService.setModalBody( 'Reattributing non-unique records.' );
 
         modalService.launchModal();
     };

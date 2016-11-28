@@ -20,10 +20,10 @@
 
             <div class="row">
                 <div class="form-group col-sm-6">
-                    <input class="btn btn-primary btn-block" ng-click="feed.runReattribution()" ng-disabled="feed.isReattributing" type="submit" value="Run Reattribution (Not Unique)">
+                    <input class="btn btn-primary btn-block" ng-click="feed.runReattribution()" ng-disabled="feed.isReattributing" type="submit" value="Reattribute Records (Non-Unique)">
                 </div>
                 <div class="form-group col-sm-6">
-                    <input class="btn btn-primary btn-block" ng-click="feed.createSuppression()" ng-disabled="feed.isSuppressing" type="submit" value="Create Feed Suppression">
+                    <input class="btn btn-primary btn-block" ng-click="feed.createSuppression()" ng-disabled="feed.isSuppressing" type="submit" value="Create Feed Suppression (Unique)">
                 </div>
             </div>
 
