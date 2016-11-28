@@ -77,6 +77,7 @@ class Kernel extends ConsoleKernel
         Commands\DeactivateEspAccounts::class,
         Commands\ProcessFeedRawFiles::class,
         Commands\UpdateActionStatus::class,
+        Commands\SuppressFeed::class,
 
     ];
 

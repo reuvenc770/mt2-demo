@@ -13,7 +13,7 @@ class SuppressionListRepo {
     }
 
     public function insert($row) {
-        return $this->model->insert($row);
+        return $this->model->insertGetId($row);
     }
 
     public function updateOrCreate($data) {
