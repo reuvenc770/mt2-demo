@@ -21,7 +21,7 @@ class ListProfileBaseExportJob extends Job implements ShouldQueue {
     private $jobName;
     private $offers;
 
-    public function __construct($profileId, $tracking, $offers = 0) {
+    public function __construct($profileId, $tracking, $offers = null) {
         $this->profileId = $profileId;
         $this->tracking = $tracking;
         $this->jobName = 'ListProfileExport-' . $profileId;
@@ -43,10 +43,11 @@ class ListProfileBaseExportJob extends Job implements ShouldQueue {
                 $service->buildProfileTable($this->profileId);
                 $schedule->updateSuccess($this->profileId);
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
-                if($this->offers == 0){
-                    $this->dispatch(new ExportListProfileJob($this->profileId, array(), str_random(16)));
+
+                if($this->offers === null){
+                    $this->dispatch(new ExportListProfileJob($this->profileId, $this->offers, str_random(16)));
                 } else {
-                    $offers = explode(',',$this->offers);
+                    $offers = explode(',', $this->offers);
                     foreach ($offers as $offer) {
                         $this->dispatch(new ExportListProfileJob($this->profileId, $offer, str_random(16)));
                     }
