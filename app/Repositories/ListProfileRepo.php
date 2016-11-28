@@ -17,7 +17,7 @@ use App\Models\ListProfileOffer;
 use App\Models\ListProfileFeed;
 use App\Models\ListProfileDomainGroup;
 use App\Models\ListProfileFeedGroup;
-use Log;
+
 class ListProfileRepo
 {
     private $listProfile;
@@ -125,7 +125,6 @@ class ListProfileRepo
         $this->feed->where( 'list_profile_id' , $id )->delete();
 
         foreach ( $feeds as $currentFeed ) {
-            Log::info($currentFeed);
             $this->feed->insert( [ 'list_profile_id' => $id , 'feed_id' => $currentFeed ] );
         }
     }
@@ -134,7 +133,6 @@ class ListProfileRepo
         $this->feedGroup->where( 'list_profile_id' , $id )->delete();
 
         foreach ( $feedGroups as $currentFeed ) {
-            Log::info($currentFeed);
             $this->feedGroup->insert( [ 'list_profile_id' => $id , 'feed_group_id' => $currentFeed ] );
         }
     }
@@ -143,7 +141,6 @@ class ListProfileRepo
         $this->client->where( 'list_profile_id' , $id )->delete();
 
         foreach ( $clients as $client ) {
-            Log::info($client);
             $this->client->insert( [ 'list_profile_id' => $id , 'client_id' => $client ] );
         }
     }
