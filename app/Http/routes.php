@@ -1130,6 +1130,16 @@ Route::group(
             'uses' => 'FeedController@storeFieldOrder'
         ] );
 
+        Route::put( '/feed/runreattribution/{id}' , [
+            'as' => 'api.feed.reattribution.run' ,
+            'uses' => 'FeedController@runReattribution'
+        ] );
+
+        Route::post( '/feed/createsuppression/{id}' , [
+            'as' => 'api.feed.suppression.create' ,
+            'uses' => 'FeedController@createSuppression'
+        ] );
+
         /**
          * API Resources
          */

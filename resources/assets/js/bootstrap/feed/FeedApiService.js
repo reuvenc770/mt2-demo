@@ -59,7 +59,25 @@ mt2App.service( 'FeedApiService' , function ( $http , $log ) {
             "method" : "PUT" ,
             "params" : { "_method" : "PUT" } ,
             "url" : this.baseApiUrl + '/file/' + id ,
-            "data" : fieldData 
+            "data" : fieldData
         } ).then( successCallback , failureCallback );
     };
+
+    self.runReattribution = function ( id , successCallback , failureCallback ) {
+        $http( {
+            "method" : "PUT" ,
+            "params" : { "_method" : "PUT" } ,
+            "url" : this.baseApiUrl  + '/runreattribution/' + id,
+            "data" : { "id" : id }
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.createSuppression = function ( id, successCallback , failureCallback ) {
+        $http( {
+            "method" : "POST" ,
+            "url" : this.baseApiUrl  + '/createsuppression/' + id,
+            "data" : { "id" : id }
+        } ).then( successCallback , failureCallback );
+    };
+
 } );

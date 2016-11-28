@@ -17,6 +17,16 @@
 
         </fieldset>
         <div class="panel-footer">
+
+            <div class="row">
+                <div class="form-group col-sm-6">
+                    <input class="btn btn-primary btn-block" ng-click="feed.runReattribution()" ng-disabled="feed.isReattributing" type="submit" value="Run Reattribution (Not Unique)">
+                </div>
+                <div class="form-group col-sm-6">
+                    <input class="btn btn-primary btn-block" ng-click="feed.createSuppression()" ng-disabled="feed.isSuppressing" type="submit" value="Create Feed Suppression">
+                </div>
+            </div>
+
             <div class="row">
                 <div class="form-group col-sm-6">
                     <input class="btn btn-primary btn-block" ng-click="feed.updateFeed()" ng-disabled="feed.formSubmitted" type="submit" value="Update Feed">

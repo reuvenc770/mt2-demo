@@ -11,6 +11,7 @@ use App\Http\Requests\FeedFieldUpdateRequest;
 use App\Services\ClientService;
 use App\Services\FeedService;
 use Cache;
+use Artisan;
 
 class FeedController extends Controller
 {
@@ -150,4 +151,20 @@ class FeedController extends Controller
 
         $this->feedService->saveFieldOrder( $id , $request->all() );
     }
+
+    public function runReattribution ( $id )
+    {
+        Artisan::call( 'attribution:commit' , [
+            'type' => 'feedInvalidation',
+            '--feedId' => $id
+        ]);
+    }
+
+    public function createSuppression ( $id )
+    {
+        Artisan::call( 'feeds:suppress' , [
+            'feedId' => $id
+        ]);
+    }
+
 }
