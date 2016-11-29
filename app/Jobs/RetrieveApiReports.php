@@ -61,6 +61,7 @@ class RetrieveApiReports extends Job implements ShouldQueue
                 $reportService->insertApiRawStats( $data );
                 $count = count($data);
             }
+            JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking , $count);
         } catch ( JobException $e ) {
             $this->logJobException( $e );
 
@@ -76,8 +77,6 @@ class RetrieveApiReports extends Job implements ShouldQueue
 
             throw $e;
         }
-
-        JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking , $count);
     }
 
     protected function logJobException ( JobException $e ) {
