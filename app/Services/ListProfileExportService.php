@@ -26,6 +26,8 @@ class ListProfileExportService
     const WRITE_THRESHOLD = 50000;
     private $rows = [];
     private $rowCount = 0;
+    private $suppressedRows = [];
+    private $suppressedRowCount = 0;
 
     public function __construct(ListProfileRepo $listProfileRepo, OfferRepo $offerRepo, ListProfileCombineRepo $combineRepo)
     {
@@ -133,10 +135,15 @@ class ListProfileExportService
 
 
              foreach ($resource as $row) {
-                 $row = $this->mapRow($header, $row);
-                 $this->batch($fileName, $row, "local");
+                 if($row->suppression_status){
+                     $this->batchSuppression($fileName, $row);
+                 } else {
+                     $row = $this->mapRow($header, $row);
+                     $this->batch($fileName, $row, "local");
+                 };
              }
             $this->writeBatch($fileName, "local");
+            $this->writeBatchSuppression($fileName);
 
             //either get the deploy cache or build it
             $deployProgress = Cache::get("deploy-{$key}", function () use ($deploy) {
@@ -186,10 +193,29 @@ class ListProfileExportService
         }
     }
 
+    private function batchSuppression($fileName, $row)
+    {
+        if ($this->suppressedRowCount >= self::WRITE_THRESHOLD) {
+            $this->writeBatchSuppression($fileName);
+
+            $this->suppressedRows = [$row->email_address];
+            $this->suppressedRowCount = 1;
+        } else {
+            $this->suppressedRows[] = $row->email_address;
+            $this->suppressedRowCount++;
+        }
+    }
+
     private function writeBatch($fileName, $disk = 'espdata' )
     {
         $string = implode(PHP_EOL, $this->rows);
         Storage::disk($disk)->append($fileName, $string);
+    }
+
+    private function writeBatchSuppression($fileName)
+    {
+        $string = implode(PHP_EOL, $this->suppressedRows);
+        Storage::append($fileName.'-dnm', $string);
     }
 
     private function mapRow($columns, $row)
@@ -208,12 +234,21 @@ class ListProfileExportService
         $offerName = $this->offerRepo->getOfferName($offerId);
         $date = Carbon::today()->toDateString();
         $combineFileName = "{$date}_{$deployId}_{$espAccountName}_{$fileName}_{$offerName}.csv";
+        $combineFileNameDNM = "{$date}_DONOTMAIL_{$deployId}_{$espAccountName}_{$fileName}_{$offerName}.csv";
         Storage::disk('SystemFtp')->delete($combineFileName);
+        Storage::disk('SystemFtp')->delete($combineFileNameDNM);
         Storage::disk('SystemFtp')->append($combineFileName, implode(',', $header));
 
         foreach ($files as $file) {
             $contents = Storage::get($file);
             Storage::disk('SystemFtp')->append($combineFileName, $contents);
+            Storage::disk('SystemFtp')->delete($file);
+        }
+
+        foreach ($files as $file) {
+            $contents = Storage::get($file.'-dnm');
+            Storage::disk('SystemFtp')->append($combineFileNameDNM, $contents);
+            Storage::disk('SystemFtp')->delete($file.'-dnm');
         }
     }
 
