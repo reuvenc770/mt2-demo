@@ -10,6 +10,7 @@ namespace App\Repositories;
 
 
 use App\Models\ListProfile;
+use App\Models\ListProfileClient;
 use App\Models\ListProfileVertical;
 use App\Models\ListProfileSchedule;
 use App\Models\ListProfileOffer;
@@ -26,6 +27,7 @@ class ListProfileRepo
     private $feed;
     private $isp;
     private $feedGroup;
+    private $client;
 
     public function __construct(
         ListProfile $listProfile ,
@@ -34,7 +36,8 @@ class ListProfileRepo
         ListProfileOffer $offer ,
         ListProfileFeed $feed ,
         ListProfileDomainGroup $isp,
-        ListProfileFeedGroup $feedGroup
+        ListProfileFeedGroup $feedGroup,
+        ListProfileClient $client
     ) {
         $this->listProfile = $listProfile;
         $this->vertical = $vertical;
@@ -43,6 +46,7 @@ class ListProfileRepo
         $this->feed = $feed;
         $this->isp = $isp;
         $this->feedGroup = $feedGroup;
+        $this->client = $client;
     }
 
     public function getModel () {
@@ -130,6 +134,14 @@ class ListProfileRepo
 
         foreach ( $feedGroups as $currentFeed ) {
             $this->feedGroup->insert( [ 'list_profile_id' => $id , 'feed_group_id' => $currentFeed ] );
+        }
+    }
+
+    public function assignClients ( $id , $clients ) {
+        $this->client->where( 'list_profile_id' , $id )->delete();
+
+        foreach ( $clients as $client ) {
+            $this->client->insert( [ 'list_profile_id' => $id , 'client_id' => $client ] );
         }
     }
 

@@ -21,6 +21,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         'country_id' : '' ,
         'feeds' : {} ,
         'feedGroups' :{} ,
+        'feedClients' :{} ,
         'isps' : {} ,
         'categories' : {} ,
         'offers' : [] ,
@@ -88,6 +89,10 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     self.highlightedFeedGroupsForRemoval = [];
     self.feedGroupVisibility = {};
     self.feedGroupNameMap = {};
+    self.highlightedFeedClients = [];
+    self.highlightedFeedClientsForRemoval = [];
+    self.feedClientVisibility = {};
+    self.feedClientNameMap = {};
 
 
     self.highlightedIsps = [];
@@ -229,7 +234,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     };
 
     self.fixEmptyFields = function () {
-        angular.forEach( [ 'feeds', 'feedGroups' , 'isps' , 'categories' ] , function ( value , index ) {
+        angular.forEach( [ 'feedClients', 'feeds', 'feedGroups' , 'isps' , 'categories' ] , function ( value , index ) {
             if ( self.current[ value ].length == 0 ) {
                 self.current[ value ] = {};
             }
@@ -256,6 +261,11 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         }
 
         var nameParts = [];
+
+        var namePartFeedClients = self.getFormattedName( self.current.feedClients );
+        if ( namePartFeedClients != '' ) {
+            nameParts.push( namePartFeedClients );
+        }
 
         var namePartFeedGroups = self.getFormattedName( self.current.feedGroups );
         if ( namePartFeedGroups != '' ) {
@@ -456,6 +466,24 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         self.removeMembershipItems(
             { "highlightedForRemoval" : self.highlightedFeedGroupsForRemoval , "visibility" : self.feedGroupVisibility } ,
             self.current.feedGroups ,
+            function () {
+                self.generateName();
+            }
+        );
+    };
+
+    self.addFeedClients = function () {
+        self.addMembershipItems(
+            { "highlighted" : self.highlightedFeedClients , "visibility" : self.feedClientVisibility , "map" : self.feedClientNameMap } ,
+            self.current.feedClients ,
+            self.generateName
+        );
+    };
+
+    self.removeFeedClients = function () {
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedFeedClientsForRemoval , "visibility" : self.feedClientVisibility } ,
+            self.current.feedClients ,
             function () {
                 self.generateName();
             }

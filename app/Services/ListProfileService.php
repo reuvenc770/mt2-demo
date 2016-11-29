@@ -134,6 +134,7 @@ class ListProfileService
             'feeds' => $listProfile->feeds()->get()->pluck( 'short_name' , 'id' )->toArray() ,
             'isps' => $listProfile->domainGroups()->get()->pluck( 'name' , 'id' )->toArray() ,
             'feedGroups' => $listProfile->feedGroups()->get()->pluck( 'name' , 'id' )->toArray() ,
+            'feedClients' => $listProfile->clients()->get()->pluck( 'name' , 'id' )->toArray() ,
             'categories' => $listProfile->verticals()->get()->pluck( 'name' , 'id' )->toArray() ,
             'offers' => $listProfile->offers()->get()->toArray() ,
             'includeCsvHeader' => $listProfile->insert_header ? true : false ,
@@ -252,6 +253,10 @@ class ListProfileService
 
         if ( $data[ 'exportOptions' ][ 'interval' ] || $isUpdate ) {
             $this->profileRepo->assignSchedule( $id , $data[ 'exportOptions' ] );
+        }
+
+        if ( $data[ 'feedClients' ] || $isUpdate ) {
+            $this->profileRepo->assignClients( $id , array_keys($data[ 'feedClients' ]) );
         }
 
         if ( $data[ 'offers' ] || $isUpdate ) {

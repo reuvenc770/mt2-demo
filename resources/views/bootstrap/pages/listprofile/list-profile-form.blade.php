@@ -89,7 +89,7 @@
     </div>
 
     <div class="col-sm-6">
-        <label>Selected Feed Groups</label>
+        <label>Select all Feeds for these Feed Group</label>
 
         <div class="pull-right">
             <label ng-click="listProfile.removeFeedGroups()" role="button" tabindex="0">Remove Selected <span class="glyphicon glyphicon-minus"></span></label>
@@ -97,6 +97,34 @@
 
         <select ng-model="listProfile.highlightedFeedGroupsForRemoval" multiple="" style="width: 100%; height: 150px;">
             <option ng-repeat="( feedGroupId , feedGroupName ) in listProfile.current.feedGroups" ng-value="::feedGroupId">@{{::feedGroupName}}</option>
+        </select>
+    </div>
+</div>
+
+<div class="row form-group">
+    <div class="col-sm-6">
+        <label>Select all Feeds for these Clients</label>
+
+        <div class="pull-right">
+            <label ng-click="listProfile.addFeedClients()" role="button" tabindex="0">Add Selected <span class="glyphicon glyphicon-plus"></span></label>
+        </div>
+
+        <select ng-model="listProfile.highlightedFeedClients" multiple style="width: 100%; height: 150px;">
+            @foreach ( $clients as $client )
+                <option value="{{$client[ 'id' ]}}" ng-init="listProfile.feedClientVisibility[ {{$client[ 'id' ]}} ] = true;listProfile.feedClientNameMap[ {{$client[ 'id' ]}} ] = '{{{$client[ 'name' ]}}}';" ng-show="listProfile.feedClientVisibility[ {{$client[ 'id' ]}} ]">{{ $client[ 'name' ] }}</option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="col-sm-6">
+        <label>Selected Clients</label>
+
+        <div class="pull-right">
+            <label ng-click="listProfile.removeFeedClients()" role="button" tabindex="0">Remove Selected <span class="glyphicon glyphicon-minus"></span></label>
+        </div>
+
+        <select ng-model="listProfile.highlightedFeedClientsForRemoval" multiple="" style="width: 100%; height: 150px;">
+            <option ng-repeat="( feedClientId , feedClientName ) in listProfile.current.feedClients" ng-value="::feedClientId">@{{::feedClientName}}</option>
         </select>
     </div>
 </div>
