@@ -39,7 +39,7 @@
                         </div>
                     </td>
                     <td md-cell ng-bind="record.id"></td>
-                    <td md-cell ng-bind="record.name"></td>
+                    <td md-cell ng-bind="record.name" nowrap></td>
                     <td md-cell nowrap>@{{ record.address }} @{{ record.address2 }}, @{{ record.city }} @{{ record.state }} @{{ record.zip }}</td>
                     <td md-cell ng-bind="record.email_address"></td>
                     <td md-cell ng-bind="record.phone"></td>
