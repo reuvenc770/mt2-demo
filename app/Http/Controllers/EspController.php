@@ -73,6 +73,7 @@ class EspController extends Controller
         $data['email_address_field'] = $data['email_address_field'] == -1 ? "": $data['email_address_field'];
         unset($data['email_address_field_toggle']);
         unset($data['email_id_field_toggle']);
+        unset($data['canEdit']);
         $request = $this->espService->insertRow( $data  );
         return response()->json( [ 'status' => $request ] );
     }
@@ -85,7 +86,7 @@ class EspController extends Controller
      */
     public function show($id)
     {
-        return $this->espService->getAccount( $id );
+        return $this->espService->getAccountWithEditCheck( $id );
 
     }
 
@@ -115,6 +116,7 @@ class EspController extends Controller
         $data['email_address_field'] = $data['email_address_field'] == -1 ? "": $data['email_address_field'];
         unset($data['email_address_field_toggle']);
         unset($data['email_id_field_toggle']);
+        unset($data['canEdit']);
         $this->espService->updateAccount( $id , $data );
         Flash::success("ESP Account was Successfully Updated");
     }

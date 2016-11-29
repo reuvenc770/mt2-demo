@@ -4,7 +4,7 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
 
     self.accounts = [];
 
-    self.currentAccount = { "_token" : "" , "id" : "" , "name" : "" , "email_id_field" : "","email_id_field_toggle" : false , "email_address_field" : "", "email_address_field_toggle" : false };
+    self.currentAccount = { "_token" : "" , "id" : "" , "name" : "" , "email_id_field" : "","email_id_field_toggle" : false , "email_address_field" : "", "email_address_field_toggle" : false, "hasAccounts":true };
 
     self.editUrl = 'esp/edit/';
     self.formErrors = [];
@@ -68,7 +68,6 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
          var account = jQuery.extend({}, self.currentAccount)
          account.email_id_field = self.currentAccount.email_id_field_toggle ?  '-1' : self.currentAccount.email_id_field;
          account.email_address_field = self.currentAccount.email_address_field ? '-1' : self.currentAccount.email_address_field;
-
         EspService.saveNewAccount( account, self.SuccessCallBackRedirect , self. saveNewAccountFailureCallback );
      };
 
@@ -76,7 +75,7 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         self.formSubmitted = true;
         formValidationService.resetFieldErrors(self);
         //If not used is selected fill in -1 as the value so we can skip validation
-        var account = jQuery.extend({}, self.currentAccount)
+        var account = jQuery.extend({}, self.currentAccount);//CLONE
         account.email_id_field = self.currentAccount.email_id_field_toggle ?  '-1' : self.currentAccount.email_id_field;
         account.email_address_field = self.currentAccount.email_address_field_toggle ? '-1' : self.currentAccount.email_address_field;
 
@@ -185,15 +184,11 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
 
     self.saveNewAccountFailureCallback = function ( response ) {
         self.formSubmitted = false;
-        self.currentAccount.email_id_field = "";
-        self.currentAccount.email_address_field = "";
         formValidationService.loadFieldErrors( self , response );
     };
 
     self.editAccountFailureCallback = function ( response ) {
         self.formSubmitted = false;
-        self.currentAccount.email_id_field = "";
-        self.currentAccount.email_address_field = "";
         formValidationService.loadFieldErrors( self , response );
     };
 

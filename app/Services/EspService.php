@@ -41,6 +41,12 @@ class EspService
         return $this->espRepo->getAccountWithFields($id);
     }
 
+    public function getAccountWithEditCheck($id){
+        $data = $this->espRepo->getAccountWithFields($id);
+        $data->hasAccounts = $data->espAccounts()->count() != 0;
+        return $data;
+    }
+
     /**
      * @return Illuminate\Database\Eloquent\Collection
      */
@@ -65,7 +71,7 @@ class EspService
     }
 
     public function updateAccount($id, $fieldOptions){
-        //only field options for now
+                $this->espRepo->updateEspName($id, $fieldOptions['name']);
        return  $this->espRepo->updateFieldOptions($id, $fieldOptions);
     }
 
