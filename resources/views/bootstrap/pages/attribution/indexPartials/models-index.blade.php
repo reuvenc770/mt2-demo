@@ -22,7 +22,7 @@
 </div>
     <md-table-container>
         <table md-table md-progress="attr.modelQueryPromise" md-row-select ng-model="attr.selectedModel">
-            <thead md-head md-order="" md-on-reorder="">
+            <thead md-head md-order="" md-on-reorder="" class="mt2-theme-thead">
             <tr md-row>
                 <th md-column md-order-by="" class="md-table-header-override-whitetext">Name</th>
                 <th md-column md-order-by="" class="md-table-header-override-whitetext">Processing</th>

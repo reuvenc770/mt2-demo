@@ -90,9 +90,16 @@ class ListProfileController extends Controller
      */
     public function store(SubmitListProfileRequest $request)
     {
+        $data = $request->all();
 
+        $columns = [];
+        foreach($data['selectedColumns'] as $tile) {
+            $columns[] = $tile['header'];
+        }
 
-        $profileID = $this->listProfile->create( $request->all() );
+        $data['selectedColumns'] = $columns;
+
+        $profileID = $this->listProfile->create( $data );
 
         if($request->get('exportOptions.interval') == "Immediately") {
             $this->dispatch(new ListProfileBaseExportJob($profileID, str_random(16)));
@@ -137,7 +144,16 @@ class ListProfileController extends Controller
     {
         #Need to fire a job to run the list profile at this point if the user chooses immediately
 
-        $this->listProfile->formUpdate( $id , $request->all() );
+        $data = $request->all();
+
+        $columns = [];
+        foreach($data['selectedColumns'] as $tile) {
+            $columns[] = $tile['header'];
+        }
+
+        $data['selectedColumns'] = $columns;
+
+        $this->listProfile->formUpdate( $id , $data );
 
         Flash::success("List Profile was Successfully Updated");
 

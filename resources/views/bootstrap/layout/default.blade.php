@@ -17,9 +17,11 @@
     };
 </script>
 <div @yield( 'angular-controller' ) id="containerSizer" class="@yield('container', 'container') pinned-container"  ng-cloak>
+    <div>
     @include( 'bootstrap.layout.internal-navigation' )
     {!! Breadcrumbs::renderIfExists() !!}
     @yield( 'content' )
+    </div>
 </div>
 
 @if (Session::has('flash_notification.message'))

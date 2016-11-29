@@ -29,6 +29,38 @@ class ListProfileService
     private $uniqueColumn;
     const ROW_STORAGE_TIME = 60;
     protected $baseTableService;
+    private $columnLabelMap = [
+        'email_id'  =>  'Email ID',
+        'first_name'  =>  'First Name',
+        'last_name'  =>  'Last Name',
+        'address'  =>  'Address',
+        'address2'  =>  'Address 2',
+        'city'  =>  'City',
+        'state'  =>  'State',
+        'zip'  =>  'Zip',
+        'country'  =>  'Country',
+        'gender'  =>  'Gender',
+        'ip'  =>  'IP Address',
+        'phone'  =>  'Phone Number',
+        'source_url'  =>  'Source URL',
+        'age'  =>  'Age',
+        'device_type'  =>  'Device Type',
+        'device_name'  =>  'Device Name',
+        'carrier'  =>  'Carrier',
+        'capture_date'  =>  'Capture Date',
+        'esp_account'  =>  'ESP Account',
+        'email_address'  =>  'Email Address',
+        'lower_md5'  =>  'Lowercase MD5',
+        'upper_md5'  =>  'Uppercase MD5',
+        'domain_group_id'  =>  "ISP",
+        'dob'  =>  "Date of Birth",
+        'feed_id'  =>  "Feed ID",
+        'feed_name'  =>  "Feed Name",
+        'client_name'  =>  "Client",
+        'subscribe_date'  =>  'Subscribe Date',
+        'status'  =>  'Status',
+        'tower_date'  =>  'Tower Date'
+    ];
 
     public function __construct(ListProfileRepo $profileRepo, ListProfileQueryBuilder $builder, ListProfileBaseTableCreationService $baseTableService) {
         $this->profileRepo = $profileRepo;
@@ -92,7 +124,7 @@ class ListProfileService
                 'os' => json_decode( $listProfile->device_os )
             ] ,
             'includeCsvHeader' => $listProfile->insert_header ,
-            'selectedColumns' => json_decode( $listProfile->columns ) ,
+            'selectedColumns' => $this->buildDisplayColumns(json_decode( $listProfile->columns )) ,
             'exportOptions' => [
                 'interval' =>  [ $listProfile->run_frequency ] ,
                 'dayOfWeek' => isset($schedule) && $schedule->day_of_week ? $schedule->day_of_week : null ,
@@ -330,6 +362,19 @@ class ListProfileService
         else {
             return is_null(Cache::tags($tag)->get($row->{$this->uniqueColumn}));
         }
+    }
+
+    private function buildDisplayColumns(array $columns) {
+        $output = [];
+
+        foreach ($columns as $column) {
+            $output[] = [
+                'header' => $column,
+                'label' => $this->columnLabelMap[$column]
+            ];
+        }
+
+        return $output;
     }
 
 

@@ -6,7 +6,7 @@
 
 @section( 'content' )
 <div ng-init="feed.loadFeed()">
-    <div class="panel panel-primary">
+    <div class="panel mt2-theme-panel">
         <div class="panel-heading">
             <div class="panel-title">Edit Feed</div>
         </div>
@@ -17,12 +17,22 @@
 
         </fieldset>
         <div class="panel-footer">
+
             <div class="row">
                 <div class="form-group col-sm-6">
-                    <input class="btn btn-primary btn-block" ng-click="feed.updateFeed()" ng-disabled="feed.formSubmitted" type="submit" value="Update Feed">
+                    <input class="btn btn-primary btn-block" ng-click="feed.runReattribution()" ng-disabled="feed.isReattributing" type="submit" value="Reattribute Records (Non-Unique)">
                 </div>
                 <div class="form-group col-sm-6">
-                    <input class="btn btn-success btn-block" ng-click="feed.resetPassword()" ng-disabled="feed.formSubmitted" type="submit" value="Reset Password">
+                    <input class="btn btn-primary btn-block" ng-click="feed.createSuppression()" ng-disabled="feed.isSuppressing" type="submit" value="Create Feed Suppression (Unique)">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group col-sm-6">
+                    <input class="btn mt2-theme-btn-primary btn-block" ng-click="feed.updateFeed()" ng-disabled="feed.formSubmitted" type="submit" value="Update Feed">
+                </div>
+                <div class="form-group col-sm-6">
+                    <input class="btn mt2-theme-btn-secondary btn-block" ng-click="feed.resetPassword()" ng-disabled="feed.formSubmitted" type="submit" value="Reset Password">
                 </div>
             </div>
         </div>

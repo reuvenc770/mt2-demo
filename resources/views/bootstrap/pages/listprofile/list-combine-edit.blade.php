@@ -5,7 +5,7 @@
 @section( 'angular-controller' , 'ng-controller="ListProfileController as listProfile"')
 
 @section( 'content' )
-<div class="panel panel-primary" ng-init="listProfile.loadListProfileList(); listProfile.setCombine( {{ $combineId}} , '{{ $combineName }}' , {{ $listProfileIds }} );">
+<div class="panel mt2-theme-panel" ng-init="listProfile.loadListProfileList(); listProfile.setCombine( {{ $combineId}} , '{{ $combineName }}' , {{ $listProfileIds }} );">
     <div class="panel-heading">
         <div class="panel-title">Edit List Profile Combine</div>
     </div>
@@ -38,7 +38,7 @@
     </div>
     <div class="panel-footer">
         <div class="form-group">
-            <input class="btn btn-lg btn-block btn-primary" ng-click="listProfile.updateCombine()" type="submit" value="Update">
+            <input class="btn btn-block mt2-theme-btn-primary" ng-click="listProfile.updateCombine()" type="submit" value="Update">
         </div>
     </div>
 </div>

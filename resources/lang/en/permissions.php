@@ -241,5 +241,9 @@ return [
     'api.esp.update' => "Update ESP",
     'api.esp.destroy' => "Deactivate ESP",
     'domain.listview' => "View Domains By ESP",
-    'api.espapi.returnallactive' => "Retrieve List of All Active Esp Accounts"
+    'api.espapi.returnallactive' => "Retrieve List of All Active Esp Accounts" ,
+    'esp.mapping' => 'Upload ESP Stats' ,
+    'api.esp.mappings.get' => 'Get ESP Stats Mapping' ,
+    'api.esp.mappings.update' => 'Update ESP Stats Mapping' ,
+    'api.esp.mappings.process' => 'Process ESP Stats Mapping' ,
 ];

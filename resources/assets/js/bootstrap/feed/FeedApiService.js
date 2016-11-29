@@ -58,11 +58,29 @@ mt2App.service( 'FeedApiService' , [ 'paginationService' , '$http' , '$log' , fu
         } ).then( successCallback , failureCallback );
     };
 
+    self.runReattribution = function ( id , successCallback , failureCallback ) {
+        $http( {
+            "method" : "PUT" ,
+            "params" : { "_method" : "PUT" } ,
+            "url" : this.baseApiUrl  + '/runreattribution/' + id,
+            "data" : { "id" : id }
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.createSuppression = function ( id, successCallback , failureCallback ) {
+        $http( {
+            "method" : "POST" ,
+            "url" : this.baseApiUrl  + '/createsuppression/' + id,
+            "data" : { "id" : id }
+        } ).then( successCallback , failureCallback );
+    };
+
     self.searchSourceUrl = function ( queryData , successCallback , failureCallback ) {
         return $http( {
             "method" : "POST" ,
             "url" : self.baseApiUrl + '/' + 'searchsource' ,
-            "data" : queryData 
+            "data" : queryData
         } ).then( successCallback , failureCallback );
     };
+
 } ] );
