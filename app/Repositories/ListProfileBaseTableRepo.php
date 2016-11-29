@@ -32,7 +32,7 @@ class ListProfileBaseTableRepo {
                     ->leftJoin("$suppDb.suppression_list_suppressions as sls", function($join) use($table, $listIds) {
                         $join->on("$table.email_address", '=', 'sls.email_address');
                         $join->on('sls.suppression_list_id', 'in', DB::raw($listIds));
-                    })  
+                    });
             return $query;
         }
         else {
