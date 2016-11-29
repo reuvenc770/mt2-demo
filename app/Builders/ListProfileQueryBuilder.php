@@ -371,7 +371,7 @@ class ListProfileQueryBuilder {
         $emailDomainIds = [];
 
         foreach ($listProfile->domainGroups as $domainGroup) {
-            foreach ($domainGroup->emailDomains as $domain) {
+            foreach ($domainGroup->domains as $domain) {
                 $emailDomainIds[] = $domain->id;
             }
         }
