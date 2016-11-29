@@ -1,16 +1,11 @@
-mt2App.service( 'FeedGroupApiService' , function ( $http ) {
+mt2App.service( 'FeedGroupApiService' , [ 'paginationService' , '$http' , function ( paginationService , $http ) {
     var self = this;
 
     self.pagerApiUrl = '/api/pager/FeedGroup';
     self.baseApiUrl = '/api/feedgroup';
 
     self.getFeedGroups = function ( page , count , sortField , successCallback , failureCallback ) {
-        var sort = { 'field' : sortField , 'desc' : false };
-
-        if (/^\-/.test( sortField ) ) {
-            sort.field = sort.field.substring( 1 );
-            sort.desc = true;
-        }
+        var sort = paginationService.sortPage( sortField );
 
         return $http( {
             "method" : "GET" ,
@@ -35,4 +30,4 @@ mt2App.service( 'FeedGroupApiService' , function ( $http ) {
             "data" : groupData
         } ).then( successCallback , failureCallback );
     };
-} );
+} ] );

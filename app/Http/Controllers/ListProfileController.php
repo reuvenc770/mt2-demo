@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\ListProfileCombineExportJob;
+use App\Services\FeedGroupService;
 use App\Services\ListProfileService;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
@@ -22,7 +23,7 @@ use App\Http\Requests\SubmitListProfileRequest;
 use App\Http\Requests\SubmitListCombineRequest;
 use Laracasts\Flash\Flash;
 use App\Services\ListProfileCombineService;
-
+use Cache;
 class ListProfileController extends Controller
 {
     use DispatchesJobs;
@@ -33,6 +34,7 @@ class ListProfileController extends Controller
     protected $clientService;
     protected $feedService;
     protected $combineService;
+    protected $feedGroupService;
 
     public function __construct (
         ListProfileService $listProfileService ,
@@ -42,6 +44,7 @@ class ListProfileController extends Controller
         OfferService $offerService,
         ClientService $clientService,
         FeedService $feedService,
+        FeedGroupService $feedGroupService,
         ListProfileCombineService $combineService
     ) {
         $this->listProfile = $listProfileService;
@@ -52,6 +55,7 @@ class ListProfileController extends Controller
         $this->clientService = $clientService;
         $this->feedService = $feedService;
         $this->combineService = $combineService;
+        $this->feedGroupService = $feedGroupService;
     }
 
     /**
@@ -161,11 +165,13 @@ class ListProfileController extends Controller
 
         return array_merge( [
             'feeds' => $this->feedService->getAllFeedsArray() ,
+            'feedGroups' => $this->feedGroupService->getAllFeedGroupsArray(),
             'clients' => $this->clientService->getAllClientsArray() ,
             'clientFeedMap' => $this->clientService->getClientFeedMap() ,
+            'countryFeedMap' => $this->feedService->getCountryFeedMap(),
             'countries' => $this->mt1CountryService->getAll() ,
             'states' => $this->states->all() ,
-            'isps' => $this->ispService->getAll() ,
+            'isps' => $this->ispService->getAllActive() ,
             'categories' => CakeVertical::orderBy('name')->get() ,
         ] , $addOptions );
     }
@@ -213,6 +219,13 @@ class ListProfileController extends Controller
 
         Flash::success( 'List combine was successfully updated.' );
 
+    }
+
+    public function copy(Request $request){
+        $id = $request->input('id');
+        $this->listProfile->cloneProfile($id);
+        Cache::tags("ListProfile")->flush();
+        return response()->json(["success"=>true]);
     }
 
 }

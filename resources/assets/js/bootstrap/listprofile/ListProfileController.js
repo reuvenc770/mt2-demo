@@ -1,4 +1,4 @@
-mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDialog' , '$timeout' , 'formValidationService' , 'modalService' , '$location' , '$window' , '$log' , function ( ListProfileApiService , $mdDialog , $timeout , formValidationService , modalService , $location , $window , $log ) {
+mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDialog' , '$timeout' , 'formValidationService' , 'modalService' , 'paginationService' , '$location' , '$window' , '$log' , function ( ListProfileApiService , $mdDialog , $timeout , formValidationService , modalService , paginationService , $location , $window , $log ) {
     var self = this;
 
     self.nameDisabled = true;
@@ -18,8 +18,9 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     self.current = {
         'profile_id' : null ,
         'name' : '' ,
-        'countries' : {} ,
+        'country_id' : '' ,
         'feeds' : {} ,
+        'feedGroups' :{} ,
         'isps' : {} ,
         'categories' : {} ,
         'offers' : [] ,
@@ -64,22 +65,30 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
     self.listProfiles = [];
     self.pageCount = 0;
-    self.paginationCount = '10';
+    self.paginationCount = paginationService.getDefaultPaginationCount();
+    self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
     self.profileTotal = 0;
     self.queryPromise = null;
     self.sort = "name";
 
-    self.countryCodeMap = { 1 : 'US' , 235 : 'UK' };
-    self.countryNameMap = { 'United States' : 1 , 'United Kingdom' : 235 };
+    self.countryCodeMap = { 1 : 'US' , 2 : 'UK' };
+    self.countryNameMap = { 'United States' : 1 , 'United Kingdom' : 2 };
     self.genderNameMap = { 'Male' : 'M' , 'Female' : 'F' , 'Unknown' : 'U' };
 
     self.highlightedFeeds = [];
     self.highlightedFeedsForRemoval = [];
     self.feedClientFilters = [];
     self.clientFeedMap = {};
+    self.countryFeedMap = {};
     self.feedNameMap = {};
     self.feedVisibility = {};
+
+    self.highlightedFeedGroups = [];
+    self.highlightedFeedGroupsForRemoval = [];
+    self.feedGroupVisibility = {};
+    self.feedGroupNameMap = {};
+
 
     self.highlightedIsps = [];
     self.highlightedIspsForRemoval = [];
@@ -214,14 +223,12 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     self.prepop = function ( listProfile ) {
         self.current = listProfile;
         self.generateName();
-
         self.fixEmptyFields();
-
         $(function () { $('[data-toggle="tooltip"]').tooltip() });
     };
 
     self.fixEmptyFields = function () {
-        angular.forEach( [ 'countries' , 'feeds' , 'isps' , 'categories' ] , function ( value , index ) {
+        angular.forEach( [ 'feeds', 'feedGroups' , 'isps' , 'categories' ] , function ( value , index ) {
             if ( self.current[ value ].length == 0 ) {
                 self.current[ value ] = {};
             }
@@ -249,10 +256,30 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
         var nameParts = [];
 
-        nameParts.push( self.getFormattedName( self.current.feeds ) );
-        nameParts.push( self.getFormattedName( self.current.isps ) );
-        nameParts.push( self.getFormattedName( self.current.countries , self.countryCodeMap ) );
-        nameParts.push( self.getFormattedRangeName() );
+        var namePartFeedGroups = self.getFormattedName( self.current.feedGroups );
+        if ( namePartFeedGroups != '' ) {
+            nameParts.push( namePartFeedGroups );
+        }
+
+        var namePartFeeds = self.getFormattedName( self.current.feeds );
+        if ( namePartFeeds != '' ) {
+            nameParts.push( namePartFeeds );
+        }
+
+        var namePartIsps = self.getFormattedName( self.current.isps );
+        if ( namePartIsps != '' ) {
+            nameParts.push( namePartIsps );
+        }
+
+        var namePartCountry = self.getFormattedName( self.current.country_id , self.countryCodeMap );
+        if ( namePartCountry != '' ) {
+            nameParts.push( namePartCountry );
+        }
+
+        var namePartRangeName = self.getFormattedRangeName();
+        if ( namePartRangeName != '' ) {
+            nameParts.push( namePartRangeName );
+        }
 
         self.current.name = nameParts.join( '_' );
     };
@@ -416,6 +443,24 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         );
     };
 
+    self.addFeedGroups = function () {
+        self.addMembershipItems(
+            { "highlighted" : self.highlightedFeedGroups , "visibility" : self.feedGroupVisibility , "map" : self.feedGroupNameMap } ,
+            self.current.feedGroups ,
+            self.generateName
+        );
+    };
+
+    self.removeFeedGroups = function () {
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedFeedGroupsForRemoval , "visibility" : self.feedGroupVisibility } ,
+            self.current.feedGroups ,
+            function () {
+                self.generateName();
+            }
+        );
+    };
+
     self.updateFeedVisibility = function () {
         var showAll = false;
         var noClientFiltersSelected = self.feedClientFilters.length <= 0;
@@ -426,21 +471,33 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
         angular.forEach( self.feedVisibility , function ( visibility , feedId ) {
             var feedNotSelected = typeof( self.current.feeds[ parseInt( feedId ) ] ) == 'undefined';
-
+            var feedListExistsAndBelongsInCountry = self.countryFeedMap[ parseInt( self.current.country_id ) ].indexOf( parseInt( feedId ) ) !== -1;
             if ( showAll && feedNotSelected ) {
-                self.feedVisibility[ feedId ] = true;
+                if(feedListExistsAndBelongsInCountry) {
+                    self.feedVisibility[feedId] = true;
+                }
             } else {
                 self.feedVisibility[ feedId ] = false;
 
                 angular.forEach( self.feedClientFilters , function ( clientId ) {
                     var feedListExistsAndBelongsToClient = ( typeof( self.clientFeedMap[ parseInt( clientId ) ] ) != 'undefined' && self.clientFeedMap[ parseInt( clientId ) ].indexOf( parseInt( feedId ) ) !== -1 );
-
-                    if( feedListExistsAndBelongsToClient && feedNotSelected ) {
+                    if( feedListExistsAndBelongsToClient && feedNotSelected && feedListExistsAndBelongsInCountry ) {
                         self.feedVisibility[ feedId ] = true;
                     }
                 } );
             }
         } );
+    };
+
+    self.updateFeedVisibilityFromCountry = function () {
+        angular.forEach( self.feedVisibility , function ( visibility , feedId ) {
+                    var feedListExistsAndBelongsInCountry = ( typeof( self.countryFeedMap[ parseInt( self.current.country_id ) ] ) != 'undefined' && self.countryFeedMap[ parseInt( self.current.country_id ) ].indexOf( parseInt( feedId ) ) !== -1);
+                    if( feedListExistsAndBelongsInCountry ) {
+                        self.feedVisibility[ feedId ] = true;
+                    } else{
+                        self.feedVisibility[ feedId ] = false;
+                    }
+                } );
     };
 
     self.clearClientFeedFilter = function () {
@@ -651,6 +708,11 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         }
     };
 
+    self.updateCountry = function (){
+        self.generateName();
+        self.updateFeedVisibilityFromCountry();
+    };
+
     self.columnMembershipCallback = function (){
         var columnList = [];
         angular.forEach( self.selectedColumns , function ( column , columnIndex ) {
@@ -811,5 +873,30 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
     self.exportCombineFail = function (response){
         modalService.simpleToast("List Combine failed to export",'top right');
+    };
+
+    self.copyListProfile = function ( ev , id, name) {
+            var confirm = $mdDialog.confirm()
+                .title( 'Are you sure you want to copy '+ name + '?' )
+                .ariaLabel( 'Copy Warning' )
+                .targetEvent( ev )
+                .ok( 'Yes' )
+                .cancel( 'Cancel' );
+
+            $mdDialog.show( confirm ).then(
+                function () {
+                    ListProfileApiService.copyListProfile(id,self.copyProfileSuccess, self.copyProfileFail);
+                }
+            );
+    };
+
+    self.copyProfileSuccess = function (response){
+        modalService.simpleToast("List Profile Copied",'top right');
+        self.loadListProfiles();
+    };
+
+    self.copyProfileFail = function (response){
+        modalService.simpleToast("List Copy was successful",'top right');
+
     };
 } ] );

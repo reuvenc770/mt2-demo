@@ -1,4 +1,4 @@
-mt2App.service( 'FeedApiService' , function ( $http , $log ) {
+mt2App.service( 'FeedApiService' , [ 'paginationService' , '$http' , '$log' , function ( paginationService , $http , $log ) {
     var self = this;
 
     self.pagerApiUrl = '/api/pager/Feed';
@@ -12,12 +12,7 @@ mt2App.service( 'FeedApiService' , function ( $http , $log ) {
     };
 
     self.getFeeds = function ( page , count , sortField , successCallback , failureCallback ) {
-        var sort = { 'field' : sortField , 'desc' : false };
-
-        if (/^\-/.test( sortField ) ) {
-            sort.field = sort.field.substring( 1 );
-            sort.desc = true;
-        }
+        var sort = paginationService.sortPage( sortField );
 
         return $http( {
             "method" : "GET" ,
@@ -59,7 +54,33 @@ mt2App.service( 'FeedApiService' , function ( $http , $log ) {
             "method" : "PUT" ,
             "params" : { "_method" : "PUT" } ,
             "url" : this.baseApiUrl + '/file/' + id ,
-            "data" : fieldData 
+            "data" : fieldData
         } ).then( successCallback , failureCallback );
     };
-} );
+
+    self.runReattribution = function ( id , successCallback , failureCallback ) {
+        $http( {
+            "method" : "PUT" ,
+            "params" : { "_method" : "PUT" } ,
+            "url" : this.baseApiUrl  + '/runreattribution/' + id,
+            "data" : { "id" : id }
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.createSuppression = function ( id, successCallback , failureCallback ) {
+        $http( {
+            "method" : "POST" ,
+            "url" : this.baseApiUrl  + '/createsuppression/' + id,
+            "data" : { "id" : id }
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.searchSourceUrl = function ( queryData , successCallback , failureCallback ) {
+        return $http( {
+            "method" : "POST" ,
+            "url" : self.baseApiUrl + '/' + 'searchsource' ,
+            "data" : queryData
+        } ).then( successCallback , failureCallback );
+    };
+
+} ] );

@@ -17,19 +17,17 @@
     <label>Country</label>
 
     <div layout="row" layout-align="start center">
-        <md-checkbox name="countryUS" value="1" ng-checked="listProfile.current.countries[ 'United States' ]" ng-click="listProfile.toggleSelection( listProfile.current.countries , listProfile.countryNameMap ,'United States' , listProfile.generateName )">
-            United States
-        </md-checkbox>
+        <label class="radio-inline">
+            <input type="radio" name="country" ng-model="listProfile.current.country_id"  ng-click="listProfile.updateCountry()" value="1">United States
+        </label>
 
-        <span flex="5"></span>
-
-        <md-checkbox name="countryGB" value="235" ng-checked="listProfile.current.countries[ 'United Kingdom' ]" ng-click="listProfile.toggleSelection( listProfile.current.countries , listProfile.countryNameMap , 'United Kingdom' , listProfile.generateName )">
-            United Kingdom
-        </md-checkbox>
+        <label class="radio-inline">
+            <input type="radio" name="country" ng-model="listProfile.current.country_id" ng-click="listProfile.updateCountry()" value="2">United Kingdom
+        </label>
     </div>
 </div>
 
-<div class="row" ng-init="listProfile.clientFeedMap = {{json_encode( $clientFeedMap )}}">
+<div class="row" ng-init="listProfile.clientFeedMap = {{json_encode( $clientFeedMap )}}; listProfile.countryFeedMap = {{json_encode( $countryFeedMap )}}">
     <div class="col-sm-6">
         <label>Available Feeds</label>
 
@@ -39,10 +37,13 @@
 
         <select ng-model="listProfile.highlightedFeeds" multiple style="width: 100%; height: 150px;">
             @foreach ( $feeds as $feed )
-            <option value="{{$feed[ 'id' ]}}" ng-init="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ] = true;listProfile.feedNameMap[ {{$feed[ 'id' ]}} ] = '{{{ addslashes( $feed[ 'short_name' ] )}}}';" ng-show="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ]">{{ $feed[ 'short_name' ] }}</option>
+                @if (($feed == end($feed)))
+                    <option value="{{$feed[ 'id' ]}}" ng-init="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ] = true;listProfile.feedNameMap[ {{$feed[ 'id' ]}} ] = '{{{ addslashes( $feed[ 'short_name' ] )}}}';" ng-show="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ]">{{ $feed[ 'short_name' ] }}</option>
+                @else
+                    <option value="{{$feed[ 'id' ]}}" ng-init="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ] = true;listProfile.feedNameMap[ {{$feed[ 'id' ]}} ] = '{{{ addslashes( $feed[ 'short_name' ] )}}}';listProfile.updateFeedVisibilityFromCountry()" ng-show="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ]">{{ $feed[ 'short_name' ] }}</option>
+                @endif
             @endforeach
         </select>
-
         @if ( Sentinel::inRole( 'admiral' ) )
         <md-input-container flex>
             <label>Filter by Client</label>
@@ -69,6 +70,33 @@
 
         <select ng-model="listProfile.highlightedFeedsForRemoval" multiple="" style="width: 100%; height: 150px;">
             <option ng-repeat="( feedId , feedName ) in listProfile.current.feeds" ng-value="::feedId">@{{::feedName}}</option>
+        </select>
+    </div>
+</div>
+<div class="row form-group">
+    <div class="col-sm-6">
+        <label>Available Feed Groups</label>
+
+        <div class="pull-right">
+            <label ng-click="listProfile.addFeedGroups()" role="button" tabindex="0">Add Selected <span class="glyphicon glyphicon-plus"></span></label>
+        </div>
+
+        <select ng-model="listProfile.highlightedFeedGroups" multiple style="width: 100%; height: 150px;">
+            @foreach ( $feedGroups as $feedGroup )
+                <option value="{{$feedGroup[ 'id' ]}}" ng-init="listProfile.feedGroupVisibility[ {{$feedGroup[ 'id' ]}} ] = true;listProfile.feedGroupNameMap[ {{$feedGroup[ 'id' ]}} ] = '{{{$feedGroup[ 'name' ]}}}';" ng-show="listProfile.feedGroupVisibility[ {{$feedGroup[ 'id' ]}} ]">{{ $feedGroup[ 'name' ] }}</option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="col-sm-6">
+        <label>Selected Feed Groups</label>
+
+        <div class="pull-right">
+            <label ng-click="listProfile.removeFeedGroups()" role="button" tabindex="0">Remove Selected <span class="glyphicon glyphicon-minus"></span></label>
+        </div>
+
+        <select ng-model="listProfile.highlightedFeedGroupsForRemoval" multiple="" style="width: 100%; height: 150px;">
+            <option ng-repeat="( feedGroupId , feedGroupName ) in listProfile.current.feedGroups" ng-value="::feedGroupId">@{{::feedGroupName}}</option>
         </select>
     </div>
 </div>
@@ -220,7 +248,7 @@
     </div>
 
     <div class="col-sm-6">
-        <label>Selected Category Actions</label>
+        <label>Selected ISP Groups</label>
 
         <div class="pull-right">
             <label ng-click="listProfile.removeIsps()" role="button" tabindex="0">Remove Selected <span class="glyphicon glyphicon-minus"></span></label>
@@ -656,7 +684,7 @@
     </div>
 </div>
 
-<h3>Select and Order Columns</h3>
+<h3>Select and Order Fields</h3>
 
 <div class="has-error">
     <div class="help-block" ng-show="listProfile.formErrors.selectedColumns">
@@ -669,7 +697,7 @@
 <div class="row draggable-membership-widget">
     <div class="col-md-6">
         <div class="panel panel-default">
-            <div class="panel-heading">Available Columns</div>
+            <div class="panel-heading">Available Fields</div>
 
             <div class="panel-body">
                 <ul dnd-list="listProfile.columnList">
@@ -686,7 +714,7 @@
 
     <div class="col-md-6">
         <div class="panel panel-default">
-            <div class="panel-heading">Selected Columns</div>
+            <div class="panel-heading">Selected Fields</div>
 
             <div class="panel-body">
                 <ul dnd-list="listProfile.current.selectedColumns">

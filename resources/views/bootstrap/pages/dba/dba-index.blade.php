@@ -82,14 +82,14 @@
                             <th md-column md-order-by="status" class="md-table-header-override-whitetext mt2-table-header-center">Status</th>
                             <th md-column md-order-by="dba_name" class="md-table-header-override-whitetext mt2-cell-left-padding">DBA Name</th>
                             <th md-column md-order-by="registrant_name" class="md-table-header-override-whitetext">Registrant Name</th>
-                            <th md-column md-order-by="address" class="md-table-header-override-whitetext">Address</th>
-                            <th md-column md-order-by="dba_email" class="md-table-header-override-whitetext">Email</th>
-                            <th md-column md-order-by="password" class="md-table-header-override-whitetext">Password</th>
-                            <th md-column md-order-by="phone" class="md-table-header-override-whitetext">Phone</th>
-                            <th md-column md-order-by="po_boxes" class="md-table-header-override-whitetext">PO Boxes</th>
+                            <th md-column class="md-table-header-override-whitetext">Address</th>
+                            <th md-column class="md-table-header-override-whitetext">Email</th>
+                            <th md-column class="md-table-header-override-whitetext">Password</th>
+                            <th md-column class="md-table-header-override-whitetext">Phone</th>
+                            <th md-column class="md-table-header-override-whitetext">PO Boxes</th>
                             <th md-column class="md-table-header-override-whitetext">ESP/ISP Use</th>
-                            <th md-column md-order-by="entity_name" class="md-table-header-override-whitetext">Entity Name</th>
-                            <th md-column md-order-by="notes" class="md-table-header-override-whitetext"> Notes</th>
+                            <th md-column class="md-table-header-override-whitetext">Entity Name</th>
+                            <th md-column class="md-table-header-override-whitetext"> Notes</th>
                         </tr>
                         </thead>
 
@@ -138,7 +138,7 @@
                             <tr>
                                 <td colspan="12">
                                     <md-content class="md-mt2-zeta-theme md-hue-2">
-                                        <md-table-pagination md-limit="dba.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="dba.currentPage" md-total="@{{dba.accountTotal}}" md-on-paginate="dba.loadAccounts" md-page-select></md-table-pagination>
+                                        <md-table-pagination md-limit="dba.paginationCount" md-limit-options="dba.paginationOptions" md-page="dba.currentPage" md-total="@{{dba.accountTotal}}" md-on-paginate="dba.loadAccounts" md-page-select></md-table-pagination>
                                     </md-content>
                                 </td>
                             </tr>

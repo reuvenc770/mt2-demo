@@ -15,7 +15,7 @@ use App\Models\ListProfileSchedule;
 use App\Models\ListProfileOffer;
 use App\Models\ListProfileFeed;
 use App\Models\ListProfileDomainGroup;
-use App\Models\ListProfileCountry;
+use App\Models\ListProfileFeedGroup;
 
 class ListProfileRepo
 {
@@ -25,7 +25,7 @@ class ListProfileRepo
     private $offer;
     private $feed;
     private $isp;
-    private $country;
+    private $feedGroup;
 
     public function __construct(
         ListProfile $listProfile ,
@@ -33,8 +33,8 @@ class ListProfileRepo
         ListProfileSchedule $schedule ,
         ListProfileOffer $offer ,
         ListProfileFeed $feed ,
-        ListProfileDomainGroup $isp ,
-        ListProfileCountry $country
+        ListProfileDomainGroup $isp,
+        ListProfileFeedGroup $feedGroup
     ) {
         $this->listProfile = $listProfile;
         $this->vertical = $vertical;
@@ -42,7 +42,7 @@ class ListProfileRepo
         $this->offer = $offer;
         $this->feed = $feed;
         $this->isp = $isp;
-        $this->country = $country;
+        $this->feedGroup = $feedGroup;
     }
 
     public function getModel () {
@@ -125,6 +125,14 @@ class ListProfileRepo
         }
     }
 
+    public function assignFeedGroups ( $id , $feedGroups ) {
+        $this->feedGroup->where( 'list_profile_id' , $id )->delete();
+
+        foreach ( $feedGroups as $currentFeed ) {
+            $this->feedGroup->insert( [ 'list_profile_id' => $id , 'feed_group_id' => $currentFeed ] );
+        }
+    }
+
     public function assignIsps ( $id , $isps ) {
         $this->isp->where( 'list_profile_id' , $id )->delete();
 
@@ -133,11 +141,4 @@ class ListProfileRepo
         }
     }
 
-    public function assignCountries ( $id , $countries ) {
-        $this->country->where( 'list_profile_id' , $id )->delete();
-
-        foreach ( $countries as $currentCountry ) {
-            $this->country->insert( [ 'list_profile_id' => $id , 'country_id' => $currentCountry ] );
-        }
-    }
 }

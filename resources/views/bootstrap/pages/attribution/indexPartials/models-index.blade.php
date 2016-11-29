@@ -51,7 +51,7 @@
             <tfoot>
                 <tr>
                     <td colspan="5">
-                        <md-table-pagination md-limit="" md-limit-options="[5,10,25,50]" md-page="" md-total="" md-on-paginate="" md-page-select></md-table-pagination>
+                        <md-table-pagination md-limit="attr.paginationCount" md-limit-options="attr.paginationOptions" md-page="attr.currentPage" md-total="@{{attr.modelTotal}}" md-on-paginate="attr.loadModels" md-page-select></md-table-pagination>
                     </td>
                 </tr>
             </tfoot>

@@ -166,13 +166,14 @@ class FirstPartyRecordDataRepo {
 
             $this->batchActionUpdateData = ['(' 
                 . $pdo->quote($emailId) . ','
-                . $pdo->quote($feedId) . ','
+                . $pdo->quote($feedId) . ', 1, '
                 . $pdo->quote($actionDate) . ')'];
             $this->batchActionUpdateCount = 1;
         }
         else {
             $this->batchActionUpdateData[] = '(' 
                 . $pdo->quote($emailId) . ','
+                . $pdo->quote($feedId) . ', 1, '
                 . $pdo->quote($actionDate) . ')';
 
             $this->batchActionUpdateCount++;

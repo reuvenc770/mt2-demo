@@ -14,6 +14,7 @@
 @stop
 
 @section( 'content' )
+    <div class="alert alert-info" role="alert"> <strong>Heads up!</strong> Any information uploaded here will likely be replaced by a later API call,  please do not re-upload, previously collected campaigns.</div>
 <div ng-init="esp.loadAccounts()">
     <md-table-container>
         <table md-table>
@@ -61,7 +62,7 @@
                 <tr>
                     <td colspan="6">
                         <md-content class="md-mt2-zeta-theme md-hue-2">
-                            <md-table-pagination md-limit="esp.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="esp.currentPage" md-total="@{{esp.accountTotal}}" md-on-paginate="esp.loadAccounts" md-page-select></md-table-pagination>
+                            <md-table-pagination md-limit="esp.paginationCount" md-limit-options="esp.paginationOptions" md-page="esp.currentPage" md-total="@{{esp.accountTotal}}" md-on-paginate="esp.loadAccounts" md-page-select></md-table-pagination>
                         </md-content>
                     </td>
                 </tr>

@@ -1,4 +1,4 @@
-mt2App.controller( 'FeedGroupController' , [ '$rootScope' , '$log' , '$window' , '$location' , 'FeedGroupApiService' , 'FeedApiService' , '$mdToast' , 'formValidationService' , 'modalService' , '$timeout' , function ( $rootScope , $log , $window , $location , FeedGroupApiService , FeedApiService , $mdToast , formValidationService , modalService , $timeout ) {
+mt2App.controller( 'FeedGroupController' , [ '$rootScope' , '$log' , '$window' , '$location' , 'FeedGroupApiService' , 'FeedApiService' , '$mdToast' , 'formValidationService' , 'modalService' , '$timeout' , 'paginationService', function ( $rootScope , $log , $window , $location , FeedGroupApiService , FeedApiService , $mdToast , formValidationService , modalService , $timeout , paginationService ) {
     var self = this;
 
     /**
@@ -6,7 +6,8 @@ mt2App.controller( 'FeedGroupController' , [ '$rootScope' , '$log' , '$window' ,
      */
     self.currentlyLoading = 0;
     self.pageCount = 0;
-    self.paginationCount = '10';
+    self.paginationCount = paginationService.getDefaultPaginationCount();
+    self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
     self.feedGroupTotal = 0;
     self.sort = '-id';

@@ -52,7 +52,7 @@
                 <tr>
                     <td colspan="9">
                         <md-content class="md-mt2-zeta-theme md-hue-2">
-                            <md-table-pagination md-limit="client.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="client.currentPage" md-total="@{{client.accountTotal}}" md-on-paginate="client.loadAccounts" md-page-select></md-table-pagination>
+                            <md-table-pagination md-limit="client.paginationCount" md-limit-options="client.paginationOptions" md-page="client.currentPage" md-total="@{{client.accountTotal}}" md-on-paginate="client.loadAccounts" md-page-select></md-table-pagination>
                         </md-content>
                     </td>
                 </tr>
