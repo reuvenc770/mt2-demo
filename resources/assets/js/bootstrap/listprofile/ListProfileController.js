@@ -177,6 +177,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         { 'header' : 'status' , 'label' : 'Status' } ,
         { 'header' : 'tower_date' , 'label' : 'Tower Date' }
     ];
+
     self.selectedColumns = [];
     self.availableWidgetTitle = "Available Columns";
     self.chosenWidgetTitle = "Selected Columns";
