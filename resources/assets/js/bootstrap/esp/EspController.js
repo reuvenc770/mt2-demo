@@ -137,9 +137,10 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
      * Callbacks
      */
     self.loadMappingSuccessCallback = function ( response ) {
-        loadingfields = response.data[0].mappings.split(',');
-        self.setFields(loadingfields);
-
+        if ( typeof( response.data[0] ) !== 'undefined' ) {
+            loadingfields = response.data[0].mappings.split(',');
+            self.setFields(loadingfields);
+        }
     };
     self.loadAccountsSuccessCallback = function ( response ) {
         self.accounts = response.data.data;
