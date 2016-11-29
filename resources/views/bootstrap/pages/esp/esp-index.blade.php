@@ -14,6 +14,7 @@
 @stop
 
 @section( 'content' )
+    <div class="alert alert-info" role="alert"> <strong>Heads up!</strong> Any information uploaded here will likely be replaced by a later API call,  please do not re-upload, previously collected campaigns.</div>
 <div ng-init="esp.loadAccounts()">
     <md-table-container>
         <table md-table>

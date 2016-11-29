@@ -56,6 +56,7 @@ class JobEntryService
         if($state == JobEntry::SUCCESS) {
             $job->rows_impacted = $total;
             $job->time_finished = Carbon::now();
+            $job->save();
         }
         else if (null !== $job->time_finished && '0000-00-00 00:00:00' !== $job->time_finished) {
             $job->status = JobEntry::SUCCESS;
@@ -69,6 +70,7 @@ class JobEntryService
         }
 
         if($state == JobEntry::FAILED){
+            $job->save();
             Log::alert("** I Failed But I did not hit slack");
             Slack::to(self::ROOM)->send("{$job->job_name} for {$job->account_name} - {$job->account_number} has failed after running {$job->attempts} attempts");
         }

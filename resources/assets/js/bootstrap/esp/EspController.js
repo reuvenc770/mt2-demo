@@ -46,6 +46,12 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
             self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
     };
 
+    self.loadAccount = function () {
+        var pathMatches = $location.path().match( /^\/esp\/edit\/(\d{1,})/ );
+
+        EspService.getAccount( pathMatches[ 1 ] , self.loadAccountSuccesCallback )
+    };
+
     self.loadMapping = function () {
         var pathMatches = $location.path().match( /^\/esp\/mapping\/(\d{1,})/ );
         self.espId = pathMatches[1];
@@ -66,6 +72,19 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         formValidationService.resetFieldErrors(self);
         EspService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
+
+    self.loadAccountSuccesCallback = function ( response ) {
+        var currentToken = self.currentAccount._token;
+
+        self.currentAccount = response.data;
+        self.currentAccount._token = currentToken;
+
+        if ( response.data.field_options != null ) {
+            self.currentAccount.email_id_field = response.data.field_options.email_id_field;
+            self.currentAccount.email_address_field = response.data.field_options.email_address_field;
+        }
+
+    }
 
     self.moveField = function ( droppedField , list , index ) {
         self.campaignTriggered = false;
