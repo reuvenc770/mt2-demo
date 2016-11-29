@@ -101,7 +101,7 @@
         </div>
     </div>
 </div>
-<div class="panel panel-success">
+<div class="panel panel-info">
     <div class="panel-heading">
         <div class="panel-title">P.O. Boxes</div>
     </div>
@@ -192,7 +192,7 @@
                         @endforeach
                     </select>
                 <span class="input-group-btn">
-                    <button class="btn btn-primary" ng-click="dba.addEspAccount()" type="button">Add ESP</button>
+                    <button class="btn mt2-theme-btn-primary" ng-click="dba.addEspAccount()" type="button">Add ESP</button>
                   </span>
                 </div>
                 <div class="help-block" ng-show="dba.formErrors.po_box.esp_account_names">
@@ -215,7 +215,7 @@
                         @endforeach
                     </select>
                 <span class="input-group-btn">
-                    <button class="btn btn-primary" ng-click="dba.addIsp()" type="button">Add ISP</button>
+                    <button class="btn mt2-theme-btn-primary" ng-click="dba.addIsp()" type="button">Add ISP</button>
                   </span>
                 </div>
                 <div class="help-block" ng-show="dba.formErrors.po_box.isp_names">
@@ -230,7 +230,7 @@
             </ul>
 
         </fieldset>
-        <button class="btn btn-success btn-block" ng-click="dba.addPOBox()">
+        <button class="btn mt2-theme-btn-primary btn-block" ng-click="dba.addPOBox()">
             <span ng-show="!dba.editingPOBox">Create </span>
             <span ng-show="dba.editingPOBox">Update </span>P.O. Box
         </button>
@@ -245,8 +245,8 @@
                 <span ng-if="value.esp_account_names.length > 0"><b>ESPs: </b> @{{ value.esp_account_names.join(', ') }}</span>
                 <span ng-if="value.isp_names.length > 0"><b>ISPs: </b> @{{ value.isp_names.join(', ') }} </span>
                 <div class="pull-right">
-                    <a href="#" class="btn btn-success btn-xs" ng-click="dba.editPOBox(key)" role="button">Edit</a>
-                    <a href="#" class="btn btn-danger btn-xs" ng-click="dba.removePOBox(key)"
+                    <a href="#" class="btn mt2-theme-btn-primary btn-xs" ng-click="dba.editPOBox(key)" role="button">Edit</a>
+                    <a href="#" class="btn mt2-theme-btn-secondary btn-xs" ng-click="dba.removePOBox(key)"
                        role="button">Delete</a>
                 </div>
             </div>

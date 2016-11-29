@@ -14,7 +14,7 @@
     <div ng-init="emailDomain.loadAccounts()">
                 <md-table-container>
                     <table md-table md-progress="emailDomain.queryPromise">
-                        <thead md-head md-order="emailDomain.sort" md-on-reorder="emailDomain.loadAccounts">
+                        <thead md-head md-order="emailDomain.sort" md-on-reorder="emailDomain.loadAccounts" class="mt2-theme-thead">
                         <tr md-row>
                             <th md-column class="mt2-table-btn-column"></th>
                             <th md-column md-order-by="domain_name" class="md-table-header-override-whitetext">ISP Domain Name</th>

@@ -1,6 +1,6 @@
 <md-table-container>
     <table md-table>
-        <thead md-head>
+        <thead md-head class="mt2-theme-thead">
         <tr md-row>
             <th md-column class="mt2-table-btn-column"></th>
             <th md-column class="md-table-header-override-whitetext mt2-table-header-center" ng-hide="domain.rowBeingEdited != 0" >Status</th>

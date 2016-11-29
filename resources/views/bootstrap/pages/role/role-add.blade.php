@@ -2,7 +2,7 @@
 @section('title', 'Add Role')
 
 @section('content')
-<div class="panel panel-primary" ng-controller="roleController as role">
+<div class="panel mt2-theme-panel" ng-controller="roleController as role">
     <div class="panel-heading">
         <div class="panel-title">Add Security Role</div>
     </div>
@@ -17,13 +17,13 @@
         </div>
 
         <div class="form-group">
-            <input class="btn btn-primary btn-block" ng-click="role.saveNewRole()" ng-disabled="role.formSubmitted" type="submit" value="Add Security Role">
+            <input class="btn mt2-theme-btn-primary btn-block" ng-click="role.saveNewRole()" ng-disabled="role.formSubmitted" type="submit" value="Add Security Role">
         </div>
 
         @include( 'bootstrap.pages.role.role-form' )
 
         <div class="form-group">
-            <input class="btn btn-primary btn-block" ng-click="role.saveNewRole()" ng-disabled="role.formSubmitted" type="submit" value="Add Security Role">
+            <input class="btn mt2-theme-btn-primary btn-block" ng-click="role.saveNewRole()" ng-disabled="role.formSubmitted" type="submit" value="Add Security Role">
         </div>
     </div>
 </div>

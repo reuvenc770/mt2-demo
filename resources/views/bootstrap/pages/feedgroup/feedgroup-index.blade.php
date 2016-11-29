@@ -14,7 +14,7 @@
 <div ng-init="feedGroup.loadFeedGroups()">
         <md-table-container>
             <table md-table md-progress="feedGroup.queryPromise">
-                <thead md-head>
+                <thead md-head class="mt2-theme-thead">
                     <tr md-row>
                         <th md-column></th>
                         <th md-column class="md-table-header-override-whitetext">Name</th>

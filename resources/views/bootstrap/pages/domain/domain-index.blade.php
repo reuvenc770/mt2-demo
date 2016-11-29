@@ -17,7 +17,7 @@
     <div ng-init="domain.loadAccounts()">
                 <md-table-container>
                     <table md-table md-progress="domain.queryPromise">
-                        <thead md-head>
+                        <thead md-head class="mt2-theme-thead">
                         <tr md-row>
                             <th md-column class="mt2-table-btn-column"></th>
                             <th md-column class="md-table-header-override-whitetext">ESP</th>

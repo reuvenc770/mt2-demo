@@ -26,7 +26,7 @@
             <div role="tabpanel" class="tab-pane active" id="list_profile">
                 <md-table-container ng-init="listProfile.loadListProfiles()">
                     <table md-table md-progress="listProfile.queryPromise">
-                        <thead md-head>
+                        <thead md-head class="mt2-theme-thead">
                         <tr md-row>
                             <th md-column class="mt2-table-btn-column"></th>
                             <th md-column class="md-table-header-override-whitetext">Name</th>
@@ -73,7 +73,7 @@
             <div role="tabpanel" class="tab-pane" id="list_combines">
                 <md-table-container>
                     <table md-table>
-                        <thead md-head>
+                        <thead md-head class="mt2-theme-thead">
                         <tr md-row>
                             <th md-column class="mt2-table-btn-column"></th>
                             <th md-column class="md-table-header-override-whitetext">Name</th>

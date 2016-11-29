@@ -4,7 +4,7 @@
 
 @section('content')
 
-    <div class="panel panel-primary" ng-controller="AppendEidController as append">
+    <div class="panel mt2-theme-panel" ng-controller="AppendEidController as append">
         <div class="panel-heading">
             <div class="panel-title">Append EID</div>
         </div>
@@ -28,7 +28,7 @@
                 <div class="btn-group" flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'appendEID' , '_token' : '{{ csrf_token() }}' } }"
                     flow-files-submitted="$flow.upload()"
                     flow-file-success="append.unlockButtonLoadFile($file); $flow.cancel()" flow-btn>
-                    <a  class="btn btn-primary" href="#">Upload EID List</a>
+                    <a  class="btn mt2-theme-btn-primary" href="#">Upload EID List</a>
                     <input type="file" style="visibility: hidden; position: absolute;"/>
                 </div>
                 <div class="btn-group">

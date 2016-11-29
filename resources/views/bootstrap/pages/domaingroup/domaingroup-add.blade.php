@@ -2,7 +2,7 @@
 @section('title', 'Add ISP Group')
 
 @section('content')
-    <div class="panel panel-primary"  ng-controller="DomainGroupController as dg">
+    <div class="panel mt2-theme-panel"  ng-controller="DomainGroupController as dg">
         <div class="panel-heading">
             <div class="panel-title">Add ISP Group</div>
         </div>
@@ -14,7 +14,7 @@
         </div>
         <div class="panel-footer">
             <div class="form-group">
-                <input class="btn btn-lg btn-primary btn-block" ng-click="dg.saveNewAccount()"  ng-disabled="dg.editForm" type="submit" value="Add ISP Group">
+                <input class="btn mt2-theme-btn-primary btn-block" ng-click="dg.saveNewAccount()"  ng-disabled="dg.editForm" type="submit" value="Add ISP Group">
             </div>
         </div>
     </div>
