@@ -50,7 +50,8 @@ class ImportCsvStats extends Job implements ShouldQueue
         try {
             $mapping = EspApiAccount::grabCsvMapping($espName);
         } catch (\Exception $e){
-            SlackLevel::to(self::SLACK_TARGET)->send('ESP does not have ESP Field Maps');
+            SlackLevel::to(self::SLACK_TARGET)->send("{$espName} does not have ESP Field Maps");
+            return $returnArray;
         }
     $reader = Reader::createFromPath($filePath);
     $data = $reader->fetchAssoc(explode(',',$mapping));
@@ -66,7 +67,7 @@ class ImportCsvStats extends Job implements ShouldQueue
             SlackLevel::to(self::SLACK_TARGET)->send("Campaign Name cannot be parsed for row {$key} in file {$filePath}");
             continue;
         } catch(EspAccountDoesNotExistException $e){
-            SlackLevel::to(self::SLACK_TARGET)->send("Esp Listed for row {$key} does not exist in file {$filePath}");
+            SlackLevel::to(self::SLACK_TARGET)->send("Esp Account Listed for row {$key} does not exist in file {$filePath}");
         }
         catch (\Exception $e){
             SlackLevel::to(self::SLACK_TARGET)->send("Something else went wrong with row {$key} - {$e->getMessage()}");
