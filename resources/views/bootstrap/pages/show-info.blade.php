@@ -40,7 +40,7 @@
                     <th md-column class="md-table-header-override-whitetext">Date</th>
                     <th md-column class="md-table-header-override-whitetext">Birth Date</th>
                     <th md-column class="md-table-header-override-whitetext">Gender</th>
-                    <th md-column class="md-table-header-override-whitetext">Client</th>
+                    <th md-column class="md-table-header-override-whitetext">Feed</th>
                     <th md-column class="md-table-header-override-whitetext">Action</th>
                     <th md-column class="md-table-header-override-whitetext">Action Date</th>
                     <th md-column class="md-table-header-override-whitetext">Subscribe Date</th>
@@ -53,7 +53,7 @@
             <tbody md-body>
                 <tr md-row ng-repeat="record in info.records">
                     <td md-cell ng-bind="record.eid"></td>
-                    <td md-cell ng-bind="record.email_addr"></td>
+                    <td md-cell ng-bind="record.email_address"></td>
                     <td md-cell ng-bind="record.first_name"></td>
                     <td md-cell ng-bind="record.last_name"></td>
                     <td md-cell ng-bind="record.address" nowrap></td>
@@ -62,7 +62,7 @@
                     <td md-cell ng-bind="record.date" nowrap></td>
                     <td md-cell nowrap>@{{ record.birthdate == '0000-00-00' ? '' : record.birthdate }}</td>
                     <td md-cell ng-bind="record.gender"></td>
-                    <td md-cell ng-bind="record.client"></td>
+                    <td md-cell ng-bind="record.feed_name"></td>
                     <td md-cell ng-bind="record.action"></td>
                     <td md-cell ng-bind="record.action_date" nowrap></td>
                     <td md-cell ng-bind="record.subscribe_datetime" nowrap></td>

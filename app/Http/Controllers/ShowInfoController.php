@@ -93,7 +93,6 @@ class ShowInfoController extends Controller
             $ids = [$ids];
         }
         
-
         $records = [];
         $suppressions = [];
 
@@ -104,29 +103,29 @@ class ShowInfoController extends Controller
             foreach($data as $record) {
 
                 $records[] = [
-                    'action' => $record['action'],
-                    'action_date' => $record['action_date'],
-                    'address' => $record['address'],
-                    'birthdate' => $record['birthdate'],
-                    'date' => $record['date'],
-                    'eid' => $record['eid'],
-                    'email_addr' => $record['email_address'],
-                    'first_name' => $record['first_name'],
-                    'gender' => $record['gender'],
-                    'ip' => $record['ip'],
-                    'last_name' => $record['last_name'],
-                    'client' => $record['client_name'],
-                    'removal_date' => $record['removal_date'],
-                    'source_url' => $record['source_url'],
-                    'status' => $record['status'],
-                    'subscribe_datetime' => $record['subscribe_date'],
-                    'suppressed' => $record['suppressed']
+                    'action' => $record->action,
+                    'action_date' => $record->action_date,
+                    'address' => $record->address,
+                    'birthdate' => $record->birthdate,
+                    'date' => $record->date,
+                    'eid' => $record->eid,
+                    'email_address' => $record->email_address,
+                    'first_name' => $record->first_name,
+                    'gender' => $record->gender,
+                    'ip' => $record->ip,
+                    'last_name' => $record->last_name,
+                    'feed_name' => $record->short_name,
+                    'removal_date' => $record->removal_date,
+                    'source_url' => $record->source_url,
+                    'status' => $record->status,
+                    'subscribe_datetime' => $record->subscribe_date,
+                    'suppressed' => $record->suppressed
 
                 ];
-                if (1 === (int)$record['suppressed']) {
+                if (1 === (int)$record->suppressed) {
                     $suppressions[] = [
-                        'email_addr' => $record['email_address'],
-                        'suppressionReasonDetails' => $record['suppression_reason'],
+                        'email_addr' => $record->email_address,
+                        'suppressionReasonDetails' => $record->suppression_reason,
                         'espAccountName' => '',
                         'campaignName' => ''
                     ];

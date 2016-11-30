@@ -183,122 +183,161 @@ class EmailRepo {
     }
 
     public function getRecordInfoAddress($address) {
-        $attr = config('database.connections.attribution.database');
         $supp = config('database.connections.suppression.database');
 
-        // First party - no global suppression
-        $union = $this->emailModel
-                      ->join("first_party_record_data as rd", "emails.id", '=', 'rd.email_id')
-                      ->join('feeds as f', 'rd.feed_id', '=', 'f.id')
-                      ->join('clients as c', 'c.id', '=', 'f.client_id')
-                      ->selectRaw("emails.id as eid, 
-                        emails.email_address, 
-                        first_name, 
-                        last_name, 
-                        CONCAT(rd.address, ' ', rd.city, ', ', rd.state, ' ', rd.zip) as address, 
-                        rd.source_url, 
-                        rd.capture_date as date, 
-                        ip, 
-                        '' as removal_date, 
-                        dob as birthdate,
-                        gender,
-                        subscribe_date,
-                        c.name as client_name,
-                        '' as action,
-                        IFNULL(last_action_date, '') as action_date,
-                        0 as suppressed,
-                        '' as suppression_reason,
-                        'A' as status")
-                    ->where('emails.email_address', $address);
+        return DB::select("SELECT
+            e.email_id as eid, 
+            e.email_address, 
+            first_name, 
+            last_name, 
+            CONCAT(rd.address, ' ', rd.city, ', ', rd.state, ' ', rd.zip) as address, 
+            e.source_url, 
+            e.capture_date as date, 
+            e.ip, 
+            IFNULL(sgo.suppress_datetime, '') as removal_date, 
+            dob as birthdate,
+            gender,
+            e.subscribe_date,
+            f.short_name,
+            '' as action,
+            IFNULL(last_action_date, '') as action_date,
+            IF(sgo.email_address IS NULL, 0, 1) as suppressed,
+            IFNULL(sr.display_status, '') as suppression_reason,
+            IF(sgo.email_address IS NULL, 'A', 'U') as status
 
-        return $this->emailModel
-                    ->leftJoin("record_data as rd", "emails.id", '=', 'rd.email_id')
-                    ->leftJoin("$attr.email_feed_assignments as efa", "emails.id", '=', 'efa.email_id')
-                    ->leftJoin('feeds as f', 'efa.feed_id', '=', 'f.id')
-                    ->leftJoin('clients as c', 'c.id', '=', 'f.client_id')
-                    ->leftJoin("$supp.suppression_global_orange as sgo", 'emails.email_address', '=', 'sgo.email_address')
-                    ->leftJoin('suppression_reasons as sr', 'sgo.reason_id', '=', 'sr.id')
-                    ->selectRaw("emails.id as eid, 
-                        emails.email_address, 
-                        first_name, 
-                        last_name, 
-                        CONCAT(rd.address, ' ', rd.city, ', ', rd.state, ' ', rd.zip) as address, 
-                        rd.source_url, 
-                        rd.capture_date as date, 
-                        ip, 
-                        IFNULL(sgo.suppress_datetime, '') as removal_date, 
-                        dob as birthdate,
-                        gender,
-                        subscribe_date,
-                        c.name as client_name,
-                        '' as action,
-                        IFNULL(last_action_date, '') as action_date,
-                        IF(sgo.email_address IS NULL, 0, 1) as suppressed,
-                        IFNULL(sr.display_status, '') as suppression_reason,
-                        IF(sgo.email_address IS NULL, 'A', 'U') as status")
-                    ->where('emails.email_address', $address)
-                    ->union($union)
-                    ->get()
-                    ->toArray();
+        FROM
+            (SELECT
+                email_id, 
+                email_address, 
+                feed_id, 
+                MIN(capture_date) as capture_date, 
+                MIN(subscribe_datetime) as subscribe_date, 
+                source_url, 
+                MIN(ip) as ip # false, but we need to pick a value
+            FROM
+                email_feed_instances e1
+                INNER JOIN emails e2 ON e1.email_id = e2.id
+            WHERE
+                email_address = :address
+            GROUP BY
+                email_id, email_address, feed_id, source_url) e
+            INNER JOIN feeds f ON e.feed_id = f.id
+            LEFT JOIN record_data rd ON e.email_id = rd.email_id
+            LEFT JOIN $supp.suppression_global_orange sgo ON e.email_address = sgo.email_address
+            LEFT JOIN suppression_reasons sr ON sgo.reason_id = sr.id
+
+        UNION
+
+        #First Party
+        SELECT
+            e.id as eid, 
+            e.email_address, 
+            rd.first_name, 
+            rd.last_name, 
+            CONCAT(rd.address, ' ', rd.city, ', ', rd.state, ' ', rd.zip) as address, 
+            rd.source_url, 
+            rd.capture_date as date, 
+            rd.ip, 
+            '' as removal_date, 
+            dob as birthdate,
+            gender,
+            rd.subscribe_date,
+            f.short_name,
+            '' as action,
+            IFNULL(last_action_date, '') as action_date,
+            0 as suppressed,
+            '' as suppression_reason,
+            'A' as status
+
+        FROM
+            emails e
+            LEFT JOIN first_party_record_data rd ON e.id = rd.email_id
+            INNER JOIN feeds f ON rd.feed_id = f.id
+        WHERE
+            e.email_address = :address2", [
+
+            'address' => $address,
+            'address2' => $address
+        ]);
+
     }
 
     public function getRecordInfoId($id) {
-        $attr = config('database.connections.attribution.database');
         $supp = config('database.connections.suppression.database');
 
-        // First party - no global suppression
-        $union = $this->emailModel
-                      ->join("first_party_record_data as rd", "emails.id", '=', 'rd.email_id')
-                      ->join('feeds as f', 'rd.feed_id', '=', 'f.id')
-                      ->join('clients as c', 'c.id', '=', 'f.client_id')
-                      ->selectRaw("emails.id as eid, 
-                        emails.email_address, 
-                        first_name, 
-                        last_name, 
-                        CONCAT(rd.address, ' ', rd.city, ', ', rd.state, ' ', rd.zip) as address, 
-                        rd.source_url, 
-                        rd.capture_date as date, 
-                        ip, 
-                        '' as removal_date, 
-                        dob as birthdate,
-                        gender,
-                        subscribe_date,
-                        c.name as client_name,
-                        '' as action,
-                        IFNULL(last_action_date, '') as action_date,
-                        0 as suppressed,
-                        '' as suppression_reason,
-                        'A' as status")
-                    ->where('emails.id', $id);
+        return DB::select("SELECT
+            e.email_id as eid, 
+            e.email_address, 
+            first_name, 
+            last_name, 
+            CONCAT(rd.address, ' ', rd.city, ', ', rd.state, ' ', rd.zip) as address, 
+            e.source_url, 
+            e.capture_date as date, 
+            e.ip, 
+            IFNULL(sgo.suppress_datetime, '') as removal_date, 
+            dob as birthdate,
+            gender,
+            e.subscribe_date,
+            f.short_name,
+            '' as action,
+            IFNULL(last_action_date, '') as action_date,
+            IF(sgo.email_address IS NULL, 0, 1) as suppressed,
+            IFNULL(sr.display_status, '') as suppression_reason,
+            IF(sgo.email_address IS NULL, 'A', 'U') as status
 
-        return $this->emailModel
-                    ->leftJoin("record_data as rd", "emails.id", '=', 'rd.email_id')
-                    ->leftJoin("$attr.email_feed_assignments as efa", "emails.id", '=', 'efa.email_id')
-                    ->leftJoin('feeds as f', 'efa.feed_id', '=', 'f.id')
-                    ->leftJoin('clients as c', 'c.id', '=', 'f.client_id')
-                    ->leftJoin("$supp.suppression_global_orange as sgo", 'emails.email_address', '=', 'sgo.email_address')
-                    ->leftJoin('suppression_reasons as sr', 'sgo.reason_id', '=', 'sr.id')
-                    ->selectRaw("emails.id as eid, 
-                        emails.email_address, 
-                        first_name, 
-                        last_name, 
-                        CONCAT(rd.address, ' ', rd.city, ', ', rd.state, ' ', rd.zip) as address, 
-                        rd.source_url, 
-                        rd.capture_date as date, 
-                        ip, 
-                        IFNULL(sgo.suppress_datetime, '') as removal_date, 
-                        dob as birthdate,
-                        gender,
-                        subscribe_date,
-                        c.name as client_name,
-                        '' as action,
-                        IFNULL(last_action_date, '') as action_date,
-                        0 as suppressed,
-                        IFNULL(sr.display_status, '') as suppression_reason,
-                        IF(sgo.email_address IS NULL, 'A', 'U') as status")
-                    ->where('emails.id', $id)
-                    ->union($union)
-                    ->get()
-                    ->toArray();
+        FROM
+            (SELECT
+                email_id, 
+                email_address, 
+                feed_id, 
+                MIN(capture_date) as capture_date, 
+                MIN(subscribe_datetime) as subscribe_date, 
+                source_url, 
+                MIN(ip) as ip # false, but we need to pick a value
+            FROM
+                email_feed_instances e1
+                INNER JOIN emails e2 ON e1.email_id = e2.id
+            WHERE
+                e2.id = :id
+            GROUP BY
+                email_id, email_address, feed_id, source_url) e
+            INNER JOIN feeds f ON e.feed_id = f.id
+            LEFT JOIN record_data rd ON e.email_id = rd.email_id
+            LEFT JOIN $supp.suppression_global_orange sgo ON e.email_address = sgo.email_address
+            LEFT JOIN suppression_reasons sr ON sgo.reason_id = sr.id
+
+        UNION
+
+        #First Party
+        SELECT
+            e.id as eid, 
+            e.email_address, 
+            rd.first_name, 
+            rd.last_name, 
+            CONCAT(rd.address, ' ', rd.city, ', ', rd.state, ' ', rd.zip) as address, 
+            rd.source_url, 
+            rd.capture_date as date, 
+            rd.ip, 
+            '' as removal_date, 
+            dob as birthdate,
+            gender,
+            rd.subscribe_date,
+            f.short_name,
+            '' as action,
+            IFNULL(last_action_date, '') as action_date,
+            0 as suppressed,
+            '' as suppression_reason,
+            'A' as status
+
+        FROM
+            emails e
+            LEFT JOIN first_party_record_data rd ON e.id = rd.email_id
+            INNER JOIN feeds f ON rd.feed_id = f.id
+        WHERE
+            e.id = :id2", [
+
+            'id' => $id,
+            'id2' => $id
+        ]);
     }
 }
