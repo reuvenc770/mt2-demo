@@ -182,4 +182,69 @@ class EmailRepo {
         return $email;
     }
 
+    public function getRecordInfoAddress($address) {
+        $attr = config('database.connections.attribution.database');
+        $supp = config('database.connections.suppression.database');
+        return $this->emailModel
+                    ->leftJoin("record_data as rd", "emails.id", '=', 'rd.email_id')
+                    ->leftJoin("$attr.email_feed_assignments as efa", "emails.id", '=', 'efa.email_id')
+                    ->leftJoin('feeds as f', 'efa.feed_id', '=', 'f.id')
+                    ->leftJoin('clients as c', 'c.id', '=', 'f.client_id')
+                    ->leftJoin("$supp.suppression_global_orange as sgo", 'emails.email_address', '=', 'sgo.email_address')
+                    ->leftJoin('suppression_reasons as sr', 'sgo.reason_id', '=', 'sr.id')
+                    ->selectRaw("emails.id as eid, 
+                        emails.email_address, 
+                        first_name, 
+                        last_name, 
+                        CONCAT(rd.address, ' ', rd.city, ', ', rd.state, ' ', rd.zip) as address, 
+                        rd.source_url, 
+                        rd.capture_date as date, 
+                        ip, 
+                        IFNULL(sgo.suppress_datetime, '') as removal_date, 
+                        dob as birthdate,
+                        gender,
+                        subscribe_date,
+                        c.name as client_name,
+                        '' as action,
+                        IFNULL(last_action_date, '') as action_date,
+                        IF(sgo.email_address IS NULL, 0, 1) as suppressed,
+                        IFNULL(sr.display_status, '') as suppression_reason,
+                        IF(sgo.email_address IS NULL, 'A', 'U') as status")
+                    ->where('email_address', $address)
+                    ->get()
+                    ->toArray();
+    }
+
+    public function getRecordInfoId($id) {
+        $attr = config('database.connections.attribution.database');
+        $supp = config('database.connections.suppression.database');
+        return $this->emailModel
+                    ->leftJoin("record_data as rd", "emails.id", '=', 'rd.email_id')
+                    ->leftJoin("$attr.email_feed_assignments as efa", "emails.id", '=', 'efa.email_id')
+                    ->leftJoin('feeds as f', 'efa.feed_id', '=', 'f.id')
+                    ->leftJoin('clients as c', 'c.id', '=', 'f.client_id')
+                    ->leftJoin("$supp.suppression_global_orange as sgo", 'emails.email_address', '=', 'sgo.email_address')
+                    ->leftJoin('suppression_reasons as sr', 'sgo.reason_id', '=', 'sr.id')
+                    ->selectRaw("emails.id as eid, 
+                        emails.email_address, 
+                        first_name, 
+                        last_name, 
+                        CONCAT(rd.address, ' ', rd.city, ', ', rd.state, ' ', rd.zip) as address, 
+                        rd.source_url, 
+                        rd.capture_date as date, 
+                        ip, 
+                        IFNULL(sgo.suppress_datetime, '') as removal_date, 
+                        dob as birthdate,
+                        gender,
+                        subscribe_date,
+                        c.name as client_name,
+                        '' as action,
+                        IFNULL(last_action_date, '') as action_date,
+                        0 as suppressed,
+                        IFNULL(sr.display_status, '') as suppression_reason,
+                        IF(sgo.email_address IS NULL, 'A', 'U') as status")
+                    ->where('emails.id', $id)
+                    ->get()
+                    ->toArray();
+    }
 }

@@ -61,7 +61,7 @@
                     <td md-cell nowrap>@{{ record.date }}</td>
                     <td md-cell nowrap>@{{ record.birthdate }}</td>
                     <td md-cell>@{{ record.gender }}</td>
-                    <td md-cell>@{{ record.network }}</td>
+                    <td md-cell>@{{ record.client }}</td>
                     <td md-cell>@{{ record.action }}</td>
                     <td md-cell nowrap>@{{ record.action_date }}</td>
                     <td md-cell nowrap>@{{ record.subscribe_datetime }}</td>

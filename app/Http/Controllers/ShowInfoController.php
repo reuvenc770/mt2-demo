@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Facades\Suppression;
-use App\Services\EmailRecordService;
+use App\Services\EmailService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -11,18 +11,18 @@ use App\Http\Requests;
 use App\Http\Requests\ShowInfoRecordRequest;
 use App\Http\Requests\ShowInfoSuppressRecordRequest;
 use App\Http\Controllers\Controller;
-use App\Services\MT1ApiService;
+use App\Services\Mt1ApiService;
 
 class ShowInfoController extends Controller
 {
     const SHOW_INFO_ENDPOINT = 'show_info_2';
     const BULK_SUPPRESSION_API_ENDPOINT = 'bulk_suppressions';
-    protected $api;
     protected $emailService;
+    protected $api;
 
-    public function __construct ( MT1ApiService $api, EmailRecordService $emailRecordService ) {
+    public function __construct ( EmailService $emailService, Mt1ApiService $api) {
+        $this->emailService = $emailService;
         $this->api = $api;
-        $this->emailService = $emailRecordService;
     }
 
     /**
@@ -60,7 +60,7 @@ class ShowInfoController extends Controller
         if($type == "email"){
             foreach(explode(',',$records) as $record) {
                 Suppression::recordSuppressionByReason($record, Carbon::today()->toDateTimeString(), $request->input('selectedReason'));
-                }
+            }
         }
         else {
             foreach(explode(',',$records) as $record) {
@@ -83,20 +83,57 @@ class ShowInfoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(ShowInfoRecordRequest $request , $id )
+    public function show(ShowInfoRecordRequest $request , $ids)
     {
-        $type = 'eid';
-        if ( preg_match( "/@+/" , $id ) ) $type = 'email';
+        $ids = explode(',', $ids);
 
-        $apiResponse = $this->api->getJson(
-            self::SHOW_INFO_ENDPOINT ,
-            [ 'type' => $type , 'id' => str_replace(' ', '', $id) ]
-        );
+        $records = [];
+        $suppressions = [];
 
-        if ( $apiResponse === false ) $apiResponse = json_encode( [] );
-        $apiResponse = Suppression::convertSuppressionReason(json_decode($apiResponse));
+        foreach ($ids as $id) {
+            $type = preg_match( "/@+/" , $id ) ? 'email' : 'eid';
+            $data = $this->emailService->getRecordInfo($id, $type) ?: [];
 
-        return response( $apiResponse );
+            foreach($data as $record) {
+
+                $records[] = [
+                    'action' => $record['action'],
+                    'action_date' => $record['action_date'],
+                    'address' => $record['address'],
+                    'birthdate' => $record['birthdate'],
+                    'date' => $record['date'],
+                    'eid' => $record['eid'],
+                    'email_addr' => $record['email_address'],
+                    'first_name' => $record['first_name'],
+                    'gender' => $record['gender'],
+                    'ip' => $record['ip'],
+                    'last_name' => $record['last_name'],
+                    'client' => $record['client_name'],
+                    'removal_date' => $record['removal_date'],
+                    'source_url' => $record['source_url'],
+                    'status' => $record['status'],
+                    'subscribe_datetime' => $record['subscribe_date'],
+                    'suppressed' => $record['suppressed']
+
+                ];
+                if (1 === (int)$record['suppressed']) {
+                    $suppressions[] = [
+                        'email_addr' => $record['email_address'],
+                        'suppressionReasonDetails' => $record['suppression_reason'],
+                        'espAccountName' => '',
+                        'campaignName' => ''
+                    ];
+                }
+                
+            }     
+        }
+
+        $output = [
+            'data' => $records,
+            'suppression' => $suppressions
+        ];
+
+        return response(json_encode($output));
     }
 
     /**
