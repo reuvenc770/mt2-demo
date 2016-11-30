@@ -209,8 +209,8 @@ class ListProfileQueryBuilder {
                     ->groupBy('email_id')
                     ->whereRaw("date BETWEEN CURDATE() - INTERVAL $end DAY AND CURDATE() - INTERVAL $start DAY");
 
-        $query = sizeof($this->emailDomainIds) > 0 ? $query->whereIn('email_domain_id', $this->emailDomainIds) : $query;
-        $query = sizeof($this->offerIds) > 0 ? $query->whereIn('offer_id', $this->offerIds) : $query; 
+        $query = sizeof($this->emailDomainIds) > 0 ? $query->whereRaw('email_domain_id IN (' . implode(',', $this->emailDomainIds) . ')') : $query;
+        $query = sizeof($this->offerIds) > 0 ? $query->whereRaw('offer_id IN (' . implode(',', $this->offerIds) . ')') : $query; 
 
         $query = $query->havingRaw("SUM($type) >= $count")->toSql();
 
