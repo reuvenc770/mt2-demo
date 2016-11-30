@@ -41,6 +41,7 @@
                     <th md-column class="md-table-header-override-whitetext">Birth Date</th>
                     <th md-column class="md-table-header-override-whitetext">Gender</th>
                     <th md-column class="md-table-header-override-whitetext">Feed</th>
+                    <th md-column class="md-table-header-override-whitetext">Current Attribution?</th>
                     <th md-column class="md-table-header-override-whitetext">Action</th>
                     <th md-column class="md-table-header-override-whitetext">Action Date</th>
                     <th md-column class="md-table-header-override-whitetext">Subscribe Date</th>
@@ -63,6 +64,7 @@
                     <td md-cell nowrap>@{{ record.birthdate == '0000-00-00' ? '' : record.birthdate }}</td>
                     <td md-cell ng-bind="record.gender"></td>
                     <td md-cell ng-bind="record.feed_name"></td>
+                    <td md-cell ng-bind="record.attributed_feed"></td>
                     <td md-cell ng-bind="record.action"></td>
                     <td md-cell ng-bind="record.action_date" nowrap></td>
                     <td md-cell ng-bind="record.subscribe_datetime" nowrap></td>

@@ -203,7 +203,8 @@ class EmailRepo {
             IFNULL(last_action_date, '') as action_date,
             IF(sgo.email_address IS NULL, 0, 1) as suppressed,
             IFNULL(sr.display_status, '') as suppression_reason,
-            IF(sgo.email_address IS NULL, 'A', 'U') as status
+            IF(sgo.email_address IS NULL, 'A', 'U') as status,
+            IF(efa.feed_id = e.feed_id, 'Y', '') as attributed_feed
 
         FROM
             (SELECT
@@ -222,6 +223,7 @@ class EmailRepo {
             GROUP BY
                 email_id, email_address, feed_id, source_url) e
             INNER JOIN feeds f ON e.feed_id = f.id
+            LEFT JOIN $attr.email_feed_assignments efa ON e.email_id = efa.email_id
             LEFT JOIN record_data rd ON e.email_id = rd.email_id
             LEFT JOIN $supp.suppression_global_orange sgo ON e.email_address = sgo.email_address
             LEFT JOIN suppression_reasons sr ON sgo.reason_id = sr.id
@@ -247,7 +249,8 @@ class EmailRepo {
             IFNULL(last_action_date, '') as action_date,
             0 as suppressed,
             '' as suppression_reason,
-            'A' as status
+            'A' as status,
+            '1st party' as attributed_feed
 
         FROM
             emails e
@@ -263,6 +266,7 @@ class EmailRepo {
     }
 
     public function getRecordInfoId($id) {
+        $attr = config('database.connections.attribution.database');
         $supp = config('database.connections.suppression.database');
 
         return DB::select("SELECT
@@ -283,7 +287,8 @@ class EmailRepo {
             IFNULL(last_action_date, '') as action_date,
             IF(sgo.email_address IS NULL, 0, 1) as suppressed,
             IFNULL(sr.display_status, '') as suppression_reason,
-            IF(sgo.email_address IS NULL, 'A', 'U') as status
+            IF(sgo.email_address IS NULL, 'A', 'U') as status,
+            IF(efa.feed_id = e.feed_id, 'Y', '') as attributed_feed
 
         FROM
             (SELECT
@@ -302,6 +307,7 @@ class EmailRepo {
             GROUP BY
                 email_id, email_address, feed_id, source_url) e
             INNER JOIN feeds f ON e.feed_id = f.id
+            LEFT JOIN $attr.email_feed_assignments efa ON e.email_id = efa.email_id
             LEFT JOIN record_data rd ON e.email_id = rd.email_id
             LEFT JOIN $supp.suppression_global_orange sgo ON e.email_address = sgo.email_address
             LEFT JOIN suppression_reasons sr ON sgo.reason_id = sr.id
@@ -327,7 +333,8 @@ class EmailRepo {
             IFNULL(last_action_date, '') as action_date,
             0 as suppressed,
             '' as suppression_reason,
-            'A' as status
+            'A' as status,
+            '1st party' as attributed_feed
 
         FROM
             emails e

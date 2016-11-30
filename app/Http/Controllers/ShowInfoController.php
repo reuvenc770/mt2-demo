@@ -119,7 +119,8 @@ class ShowInfoController extends Controller
                     'source_url' => $record->source_url,
                     'status' => $record->status,
                     'subscribe_datetime' => $record->subscribe_date,
-                    'suppressed' => $record->suppressed
+                    'suppressed' => $record->suppressed,
+                    'attributed_feed' => $record->attributed_feed
 
                 ];
                 if (1 === (int)$record->suppressed) {
