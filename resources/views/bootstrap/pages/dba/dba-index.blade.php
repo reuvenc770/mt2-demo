@@ -81,15 +81,15 @@
                             <th md-column class="mt2-table-btn-column"></th>
                             <th md-column md-order-by="status" class="md-table-header-override-whitetext mt2-table-header-center">Status</th>
                             <th md-column md-order-by="dba_name" class="md-table-header-override-whitetext mt2-cell-left-padding">DBA Name</th>
-                            <th md-column md-order-by="registrant_name" class="md-table-header-override-whitetext">Registrant Name</th>
                             <th md-column class="md-table-header-override-whitetext">Address</th>
                             <th md-column class="md-table-header-override-whitetext">Email</th>
-                            <th md-column class="md-table-header-override-whitetext">Password</th>
                             <th md-column class="md-table-header-override-whitetext">Phone</th>
                             <th md-column class="md-table-header-override-whitetext">PO Boxes</th>
+                            <th md-column class="md-table-header-override-whitetext">Brands</th>
                             <th md-column class="md-table-header-override-whitetext">ESP/ISP Use</th>
                             <th md-column class="md-table-header-override-whitetext">Entity Name</th>
                             <th md-column class="md-table-header-override-whitetext"> Notes</th>
+                            <th md-column md-order-by="registrant_name" class="md-table-header-override-whitetext">Registrant Name</th>
                         </tr>
                         </thead>
 
@@ -110,27 +110,32 @@
                                 @{{ record.status == 1 ? 'Active' : 'Inactive' }}
                             </td>
                             <td md-cell nowrap class="mt2-cell-left-padding">@{{ record.dba_name }}</td>
-                            <td md-cell nowrap>@{{ record.registrant_name }}</td>
                             <td md-cell nowrap>@{{ record.address }} @{{ record.city }} @{{ record.state }} @{{ record.zip }}</td>
                             <td md-cell>@{{ record.dba_email }}</td>
-                            <td md-cell>@{{ record.password }}</td>
                             <td md-cell nowrap>@{{ record.phone }}</td>
                             <td md-cell nowrap>
                                 <span ng-repeat="value in record.po_boxes">
                                     @{{ $index + 1 }} -
-                                    @{{value.address}} @{{value.city }} @{{value.state}} @{{value.zip}} <span ng-if="value.phone">- @{{value.phone}}</span> <span ng-if="value.brands.length > 0">- Brands:</span> @{{ value.brands }}
+                                    @{{value.address}} @{{value.city }} @{{value.state}} @{{value.zip}} <span ng-if="value.phone">- @{{value.phone}}</span>
+                                    <span ng-show="record.po_boxes.length > 0 "><br/></span>
+                                </span>
+                            </td>
+                            <td md-cell nowrap>
+                                <span ng-repeat="value in record.po_boxes">
+                                    @{{ value.brands }}
                                     <span ng-show="record.po_boxes.length > 0 "><br/></span>
                                 </span>
                             </td>
                             <td md-cell nowrap>
                                 <span ng-repeat="value in record.po_boxes">
                                     <span ng-if="value.esp_account_names.length > 0"><u>ESPs</u>: @{{ value.esp_account_names.join(', ') }}</span>
-                                    <span ng-if="value.isp_names.length > 0">, <u>ISPs</u>: @{{ value.isp_names.join(', ') }} </span>
+                                    <span ng-if="value.isp_names.length > 0 && value.esp_account_names.length > 0">, </span> <span ng-if="value.isp_names.length > 0"><u>ISPs</u>: @{{ value.isp_names.join(', ') }} </span>
                                     <span ng-show="record.po_boxes.length > 0 "><br/></span>
                                 </span>
                             </td>
                             <td md-cell nowrap>@{{ record.entity_name }}</td>
                             <td md-cell nowrap>@{{ record.notes }}</td>
+                            <td md-cell nowrap>@{{ record.registrant_name }}</td>
                         </tr>
                         </tbody>
 
