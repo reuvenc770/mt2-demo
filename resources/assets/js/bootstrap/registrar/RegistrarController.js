@@ -5,7 +5,8 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
     self.currentAccount = { "id": "",
                             "username": "",
                             "password" : "",
-                            "dba_names": [] };
+                            "dba_names": [],
+                            "notes":""};
     self.createUrl = 'registrar/create/';
     self.editUrl = 'registrar/edit/';
     self.pageType = 'add';

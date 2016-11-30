@@ -99,3 +99,12 @@
         </div>
     </div>
 </div>
+<div class="form-group" ng-class="{ 'has-error' : registrar.formErrors.notes }">
+        <textarea rows="4" placeholder="Notes" value="" class="form-control" ng-model="registrar.currentAccount.notes"
+                  name="notes"></textarea>
+    <div class="help-block" ng-show="registrar.formErrors.notes">
+        <div ng-repeat="error in registrar.formErrors.notes">
+            <span ng-bind="error"></span>
+        </div>
+    </div>
+</div>
