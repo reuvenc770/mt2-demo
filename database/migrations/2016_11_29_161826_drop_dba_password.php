@@ -29,4 +29,3 @@ class DropDbaPassword extends Migration
         } );
     }
 }
-
