@@ -356,7 +356,7 @@ class DeployRepo
     public function getDeploysForToday($date){
         return $this->deploy->where('send_date',$date)->get();
     }
-
+    //TODO: maybe move..  Seems
     public function getDeploysFromProfileAndOffer($listProfileId, $offerId){
         $lpDB = config('database.connections.list_profile.database');
         return $this->deploy->
@@ -369,7 +369,7 @@ class DeployRepo
 
     public function getUpdatedFrom($date) {
         return $this->deploy
-            ->select('deploy_id', 'creative_id', 'subject_id', 'from_id', 'list_profile_combine_id')
+            ->select('id', 'creative_id', 'subject_id', 'from_id', 'list_profile_combine_id')
             ->where('updated_at', '>=', $date)
             ->get();
     }
