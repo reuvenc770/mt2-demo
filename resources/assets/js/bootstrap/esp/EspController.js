@@ -4,7 +4,7 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
 
     self.accounts = [];
 
-    self.currentAccount = { "_token" : "" , "id" : "" , "name" : "" , "email_id_field" : "" , "email_address_field" : "" };
+    self.currentAccount = { "_token" : "" , "id" : "" , "name" : "" , "email_id_field" : "","email_id_field_toggle" : false , "email_address_field" : "", "email_address_field_toggle" : false, "hasAccounts":true };
 
     self.editUrl = 'esp/edit/';
     self.formErrors = [];
@@ -64,13 +64,22 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
      self.saveNewAccount = function () {
         self.formSubmitted = true;
         formValidationService.resetFieldErrors(self);
-        EspService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self. saveNewAccountFailureCallback );
+         //If not used is selected fill in -1 as the value so we can skip validation
+         var account = jQuery.extend({}, self.currentAccount)
+         account.email_id_field = self.currentAccount.email_id_field_toggle ?  '-1' : self.currentAccount.email_id_field;
+         account.email_address_field = self.currentAccount.email_address_field ? '-1' : self.currentAccount.email_address_field;
+        EspService.saveNewAccount( account, self.SuccessCallBackRedirect , self. saveNewAccountFailureCallback );
      };
 
     self.editAccount = function () {
         self.formSubmitted = true;
         formValidationService.resetFieldErrors(self);
-        EspService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
+        //If not used is selected fill in -1 as the value so we can skip validation
+        var account = jQuery.extend({}, self.currentAccount);//CLONE
+        account.email_id_field = self.currentAccount.email_id_field_toggle ?  '-1' : self.currentAccount.email_id_field;
+        account.email_address_field = self.currentAccount.email_address_field_toggle ? '-1' : self.currentAccount.email_address_field;
+
+        EspService.editAccount( account , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 
     self.loadAccountSuccesCallback = function ( response ) {
@@ -84,7 +93,9 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
             self.currentAccount.email_address_field = response.data.field_options.email_address_field;
         }
 
-    }
+        self.currentAccount.email_id_field_toggle = self.currentAccount.email_id_field.length === 0;
+        self.currentAccount.email_address_field_toggle = self.currentAccount.email_address_field.length === 0;
+    };
 
     self.moveField = function ( droppedField , list , index ) {
         self.campaignTriggered = false;
