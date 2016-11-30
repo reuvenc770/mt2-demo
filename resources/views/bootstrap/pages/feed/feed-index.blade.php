@@ -16,7 +16,7 @@
 <div ng-init="feed.loadFeeds()">
     <md-table-container>
         <table md-table class="mt2-table-large" md-progress="feed.queryPromise">
-            <thead md-head md-order="feed.sort" md-on-reorder="feed.loadFeeds">
+            <thead md-head md-order="feed.sort" md-on-reorder="feed.loadFeeds" class="mt2-theme-thead">
                 <tr md-row>
                     <th md-column class="mt2-table-btn-column"></th>
                     <th md-column md-order-by="id" class="md-table-header-override-whitetext">ID</th>
@@ -66,9 +66,9 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="13">
+                    <td colspan="14">
                         <md-content class="md-mt2-zeta-theme md-hue-2">
-                            <md-table-pagination md-limit="feed.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="feed.currentPage" md-total="@{{feed.feedTotal}}" md-on-paginate="feed.loadFeeds" md-page-select></md-table-pagination>
+                            <md-table-pagination md-limit="feed.paginationCount" md-limit-options="feed.paginationOptions" md-page="feed.currentPage" md-total="@{{feed.feedTotal}}" md-on-paginate="feed.loadFeeds" md-page-select></md-table-pagination>
                         </md-content>
                     </td>
                 </tr>

@@ -24,7 +24,7 @@ class EspAddRequest extends Request
     public function rules()
     {
         return [
-            'name' => 'required' ,
+            'name'      => 'required|unique:esps',
             'email_id_field' => 'required'
         ];
     }

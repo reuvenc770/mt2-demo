@@ -2,7 +2,7 @@
 @section('title', 'Edit Proxy')
 
 @section('content')
-    <div class="panel panel-primary" ng-controller="ProxyController as proxy" ng-init="proxy.loadAccount()">
+    <div class="panel mt2-theme-panel" ng-controller="ProxyController as proxy" ng-init="proxy.loadAccount()">
         <div class="panel-heading">
             <div class="panel-title">Edit Proxy</div>
         </div>
@@ -12,7 +12,7 @@
             </fieldset>
         </div>
         <div class="panel-footer">
-            <input class="btn btn-lg btn-primary btn-block" ng-click="proxy.editAccount()"
+            <input class="btn mt2-theme-btn-primary btn-block" ng-click="proxy.editAccount()"
                    ng-disabled="proxy.formSubmitted" type="submit" value="Update Proxy">
         </div>
     </div>

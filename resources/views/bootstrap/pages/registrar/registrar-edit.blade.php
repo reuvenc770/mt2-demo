@@ -2,7 +2,7 @@
 @section('title', 'Edit Registrar')
 
 @section('content')
-    <div class="panel panel-primary"  ng-controller="RegistrarController as registrar" ng-init="registrar.loadAccount()">
+    <div class="panel mt2-theme-panel"  ng-controller="RegistrarController as registrar" ng-init="registrar.loadAccount()">
         <div class="panel-heading">
             <div class="panel-title">Update Registrar</div>
         </div>
@@ -14,7 +14,7 @@
         </div>
         <div class="panel-footer">
             <div class="form-group">
-                <input class="btn btn-primary btn-block" ng-click="registrar.editAccount()" ng-disabled="registrar.formSubmitted" type="submit" value="Update Registrar">
+                <input class="btn mt2-theme-btn-primary btn-block" ng-click="registrar.editAccount()" ng-disabled="registrar.formSubmitted" type="submit" value="Update Registrar">
             </div>
         </div>
     </div>

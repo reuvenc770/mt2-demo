@@ -3,7 +3,7 @@
 @section( 'title' , 'Edit ESP Account' )
 
 @section( 'content' )
-<div class="panel panel-primary" ng-controller="espController as esp" ng-init="esp.loadAccount()">
+<div class="panel mt2-theme-panel" ng-controller="espController as esp" ng-init="esp.loadAccount()">
     <div class="panel-heading">
         <div class="panel-title">Edit ESP Account :: @{{esp.currentAccount.name}}</div>
     </div>
@@ -14,7 +14,7 @@
     </div>
     <div class="panel-footer">
         <div class="form-group">
-            <button type="button" class="btn btn-primary btn-block" ng-disabled="esp.formSubmitted" ng-click="esp.editAccount()">Update ESP Account</button>
+            <button type="button" class="btn mt2-theme-btn-primary btn-block" ng-disabled="esp.formSubmitted" ng-click="esp.editAccount()">Update ESP Account</button>
         </div>
     </div>
 </div>

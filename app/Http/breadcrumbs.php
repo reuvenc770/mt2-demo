@@ -138,6 +138,11 @@ Breadcrumbs::register( 'listprofile.edit' , function ( $breadcrumbs ) {
     $breadcrumbs->push( 'Edit List Profile' );
 } );
 
+Breadcrumbs::register( 'listprofile.combine.edit' , function ( $breadcrumbs ) {
+    $breadcrumbs->parent( 'listprofile.list' );
+    $breadcrumbs->push( 'Edit List Combine' );
+} );
+
 //YMLP Mapping
 
 Breadcrumbs::register( 'ymlpcampaign.list' , function ( $breadcrumbs ) {
@@ -169,6 +174,11 @@ Breadcrumbs::register('tools.recordlookup', function($breadcrumbs) {
 Breadcrumbs::register( 'client.attribution' , function ( $breadcrumbs ) {
     $breadcrumbs->parent( 'feed.list' );
     $breadcrumbs->push( 'Attribution' );
+} );
+
+Breadcrumbs::register( 'tools.sourceurlsearch' , function ( $breadcrumbs ) {
+    $breadcrumbs->parent( 'home' );
+    $breadcrumbs->push( 'Source URL Search' , route( 'tools.sourceurlsearch' ) );
 } );
 
 // Data Export Pages

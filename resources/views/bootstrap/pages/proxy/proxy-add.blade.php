@@ -2,7 +2,7 @@
 @section('title', 'Add Proxy')
 
 @section('content')
-    <div class="panel panel-primary" ng-controller="ProxyController as proxy">
+    <div class="panel mt2-theme-panel" ng-controller="ProxyController as proxy">
         <div class="panel-heading">
             <div class="panel-title">Add Proxy</div>
         </div>
@@ -12,7 +12,7 @@
             </fieldset>
         </div>
         <div class="panel-footer">
-            <input class="btn btn-lg btn-primary btn-block" ng-click="proxy.saveNewAccount()"
+            <input class="btn mt2-theme-btn-primary btn-block" ng-click="proxy.saveNewAccount()"
                    ng-disabled="proxy.formSubmitted" type="submit" value="Add Proxy">
         </div>
     </div>

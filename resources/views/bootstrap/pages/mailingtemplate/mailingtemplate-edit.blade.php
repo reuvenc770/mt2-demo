@@ -3,7 +3,7 @@
 
 @section('content')
 
-    <div class="panel panel-primary" ng-controller="MailingTemplateController as mailing" ng-init="mailing.loadAccount()">
+    <div class="panel mt2-theme-panel" ng-controller="MailingTemplateController as mailing" ng-init="mailing.loadAccount()">
         <div class="panel-heading">
             <div class="panel-title">Edit Mailing Template</div>
         </div>
@@ -15,12 +15,12 @@
         <div class="panel-footer">
             <div class="row">
                 <div class="col-sm-6">
-                    <input class="btn btn-lg btn-primary btn-block" ng-click="mailing.editAccount()"
+                    <input class="btn mt2-theme-btn-primary btn-block" ng-click="mailing.editAccount()"
                            ng-disabled="mailing.formSubmitted" type="submit" value="Update Mailing Template">
 
                 </div>
                 <div class="col-sm-6">
-                    <input class="btn btn-lg btn-success btn-block" ng-click="mailing.previewIncomplete()"
+                    <input class="btn mt2-theme-btn-secondary btn-block" ng-click="mailing.previewIncomplete()"
                            ng-disabled="mailing.formSubmitted" type="submit" value="Preview Template">
 
                 </div>

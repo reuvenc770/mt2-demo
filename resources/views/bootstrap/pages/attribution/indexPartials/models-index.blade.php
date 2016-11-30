@@ -22,7 +22,7 @@
 </div>
     <md-table-container>
         <table md-table md-progress="attr.modelQueryPromise" md-row-select ng-model="attr.selectedModel">
-            <thead md-head md-order="" md-on-reorder="">
+            <thead md-head md-order="" md-on-reorder="" class="mt2-theme-thead">
             <tr md-row>
                 <th md-column md-order-by="" class="md-table-header-override-whitetext">Name</th>
                 <th md-column md-order-by="" class="md-table-header-override-whitetext">Processing</th>
@@ -51,7 +51,7 @@
             <tfoot>
                 <tr>
                     <td colspan="5">
-                        <md-table-pagination md-limit="" md-limit-options="[5,10,25,50]" md-page="" md-total="" md-on-paginate="" md-page-select></md-table-pagination>
+                        <md-table-pagination md-limit="attr.paginationCount" md-limit-options="attr.paginationOptions" md-page="attr.currentPage" md-total="@{{attr.modelTotal}}" md-on-paginate="attr.loadModels" md-page-select></md-table-pagination>
                     </td>
                 </tr>
             </tfoot>

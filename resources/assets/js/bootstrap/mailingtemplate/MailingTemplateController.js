@@ -1,4 +1,4 @@
-mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$window' , '$location' , '$timeout' , 'MailingTemplateApiService' , '$mdToast' , 'formValidationService', 'modalService' , function ( $rootScope, $log , $window , $location , $timeout , MailingTemplateApiService , $mdToast , formValidationService, modalService ) {
+mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$window' , '$location' , '$timeout' , 'MailingTemplateApiService' , '$mdToast' , 'formValidationService', 'modalService' , 'paginationService' , function ( $rootScope, $log , $window , $location , $timeout , MailingTemplateApiService , $mdToast , formValidationService, modalService , paginationService ) {
     var self = this;
     self.$location = $location;
 
@@ -22,7 +22,8 @@ mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$win
     self.templates = [];
     self.currentlyLoading = 0;
     self.pageCount = 0;
-    self.paginationCount = '10';
+    self.paginationCount = paginationService.getDefaultPaginationCount();
+    self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
     self.templateTotal = 0;
     self.sort = "-id";

@@ -1,4 +1,4 @@
-mt2App.service( 'RegistrarApiService' , function ( $http , $log ) {
+mt2App.service( 'RegistrarApiService' , [ 'paginationService' , '$http' , '$log' , function ( paginationService , $http , $log ) {
     var self = this;
 
     self.baseApiUrl = '/api/registrar';
@@ -9,12 +9,7 @@ mt2App.service( 'RegistrarApiService' , function ( $http , $log ) {
     };
 
     self.getAccounts = function ( page , count , sortField , successCallback , failureCallback ) {
-        var sort = { 'field' : sortField , 'desc' : false };
-
-        if (/^\-/.test( sortField ) ) {
-            sort.field = sort.field.substring( 1 );
-            sort.desc = true;
-        }
+        var sort = paginationService.sortPage( sortField );
 
         return $http( {
             "method" : "GET" ,
@@ -49,4 +44,4 @@ mt2App.service( 'RegistrarApiService' , function ( $http , $log ) {
     };
 
 
-} );
+} ] );

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\ListProfileCombineExportJob;
+use App\Services\FeedGroupService;
 use App\Services\ListProfileService;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
@@ -19,9 +20,10 @@ use App\Services\ClientService;
 use App\Jobs\ListProfileBaseExportJob;
 use App\Services\FeedService;
 use App\Http\Requests\SubmitListProfileRequest;
+use App\Http\Requests\SubmitListCombineRequest;
 use Laracasts\Flash\Flash;
 use App\Services\ListProfileCombineService;
-
+use Cache;
 class ListProfileController extends Controller
 {
     use DispatchesJobs;
@@ -32,6 +34,7 @@ class ListProfileController extends Controller
     protected $clientService;
     protected $feedService;
     protected $combineService;
+    protected $feedGroupService;
 
     public function __construct (
         ListProfileService $listProfileService ,
@@ -41,6 +44,7 @@ class ListProfileController extends Controller
         OfferService $offerService,
         ClientService $clientService,
         FeedService $feedService,
+        FeedGroupService $feedGroupService,
         ListProfileCombineService $combineService
     ) {
         $this->listProfile = $listProfileService;
@@ -51,6 +55,7 @@ class ListProfileController extends Controller
         $this->clientService = $clientService;
         $this->feedService = $feedService;
         $this->combineService = $combineService;
+        $this->feedGroupService = $feedGroupService;
     }
 
     /**
@@ -60,7 +65,7 @@ class ListProfileController extends Controller
      */
     public function index()
     {
-        //
+        return response()->json( $this->listProfile->getAllListProfiles() );
     }
 
     public function listAll () {
@@ -85,9 +90,16 @@ class ListProfileController extends Controller
      */
     public function store(SubmitListProfileRequest $request)
     {
+        $data = $request->all();
 
+        $columns = [];
+        foreach($data['selectedColumns'] as $tile) {
+            $columns[] = $tile['header'];
+        }
 
-        $profileID = $this->listProfile->create( $request->all() );
+        $data['selectedColumns'] = $columns;
+
+        $profileID = $this->listProfile->create( $data );
 
         if($request->get('exportOptions.interval') == "Immediately") {
             $this->dispatch(new ListProfileBaseExportJob($profileID, str_random(16)));
@@ -132,7 +144,16 @@ class ListProfileController extends Controller
     {
         #Need to fire a job to run the list profile at this point if the user chooses immediately
 
-        $this->listProfile->formUpdate( $id , $request->all() );
+        $data = $request->all();
+
+        $columns = [];
+        foreach($data['selectedColumns'] as $tile) {
+            $columns[] = $tile['header'];
+        }
+
+        $data['selectedColumns'] = $columns;
+
+        $this->listProfile->formUpdate( $id , $data );
 
         Flash::success("List Profile was Successfully Updated");
 
@@ -160,20 +181,22 @@ class ListProfileController extends Controller
 
         return array_merge( [
             'feeds' => $this->feedService->getAllFeedsArray() ,
+            'feedGroups' => $this->feedGroupService->getAllFeedGroupsArray(),
             'clients' => $this->clientService->getAllClientsArray() ,
             'clientFeedMap' => $this->clientService->getClientFeedMap() ,
+            'countryFeedMap' => $this->feedService->getCountryFeedMap(),
             'countries' => $this->mt1CountryService->getAll() ,
             'states' => $this->states->all() ,
-            'isps' => $this->ispService->getAll() ,
+            'isps' => $this->ispService->getAllActive() ,
             'categories' => CakeVertical::orderBy('name')->get() ,
         ] , $addOptions );
     }
 
 
-    public function createListCombine(Request $request){
+    public function createListCombine( SubmitListCombineRequest $request){
 
         $insertData = [
-            "name" => $request->input("name"),
+            "name" => $request->input("combineName"),
         ];
         $this->combineService->insertCombine($insertData, $request->input("selectedProfiles"));
     }
@@ -189,4 +212,36 @@ class ListProfileController extends Controller
         $id = $request->input("id");
         $this->dispatch(new ListProfileCombineExportJob($id, str_random(16)));
     }
+
+    public function editListCombine( $id ) {
+
+        if ( !$this->combineService->isEditable($id) ) {
+            abort(404);
+        }
+
+        $combineData = $this->combineService->getCombineById($id);
+        $listProfileIds = $combineData->listProfiles()->pluck('id');
+
+        return response()->view( 'bootstrap.pages.listprofile.list-combine-edit' , [
+            'combineId' => $id ,
+            'combineName' => $combineData->name ,
+            'listProfileIds' => $listProfileIds
+            ]);
+    }
+
+    public function updateListCombine( SubmitListCombineRequest $request ) {
+
+        $this->combineService->updateCombine( $request->input('id') , $request->input('combineName') , $request->input('selectedProfiles') );
+
+        Flash::success( 'List combine was successfully updated.' );
+
+    }
+
+    public function copy(Request $request){
+        $id = $request->input('id');
+        $this->listProfile->cloneProfile($id);
+        Cache::tags("ListProfile")->flush();
+        return response()->json(["success"=>true]);
+    }
+
 }

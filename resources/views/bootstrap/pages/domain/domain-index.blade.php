@@ -17,7 +17,7 @@
     <div ng-init="domain.loadAccounts()">
                 <md-table-container>
                     <table md-table md-progress="domain.queryPromise">
-                        <thead md-head>
+                        <thead md-head class="mt2-theme-thead">
                         <tr md-row>
                             <th md-column class="mt2-table-btn-column"></th>
                             <th md-column class="md-table-header-override-whitetext">ESP</th>
@@ -45,7 +45,7 @@
                             <tr>
                                 <td colspan="4">
                                     <md-content class="md-mt2-zeta-theme md-hue-2">
-                                        <md-table-pagination md-limit="domain.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="domain.currentPage" md-total="@{{domain.accountTotal}}" md-on-paginate="domain.loadAccounts" md-page-select></md-table-pagination>
+                                        <md-table-pagination md-limit="domain.paginationCount" md-limit-options="domain.paginationOptions" md-page="domain.currentPage" md-total="@{{domain.accountTotal}}" md-on-paginate="domain.loadAccounts" md-page-select></md-table-pagination>
                                     </md-content>
                                 </td>
                             </tr>

@@ -70,7 +70,8 @@ class APIFactory
             "BlueHornet" ,
             "EmailDirect" ,
             "Campaigner",
-            "Publicators"
+            "Publicators",
+            "AWeber",
         ] ) ) {
             $api = "App\\Services\\API\\{$apiName}Api";
             $service = "App\\Services\\{$apiName}SubscriberService";
@@ -80,23 +81,7 @@ class APIFactory
         }
     }
 
-    public static function createCsvDeliverableService($espId, $espName) {
 
-        $emailModel = new \App\Models\Email();
-        $actionsModel = new \App\Models\EmailAction();
-
-        $actionTableRepo = new ActionRepo(new ActionType());
-        $emailActionRepo = new EmailActionsRepo($actionsModel);
-        $emailRepo = new EmailRepo($emailModel);
-
-        $map = new \App\Models\DeliverableCsvMapping();
-        $mappingRepo = new \App\Repositories\DeliverableMappingRepo($map);
-        $mapping = $mappingRepo->getMapping($espId);
-
-        $standardReportRepo = new StandardApiReportRepo( new StandardReport());
-
-        return new \App\Services\CsvDeliverableService($emailActionRepo, $emailRepo, $actionTableRepo, $standardReportRepo, $mapping);
-    }
 
     public static function createTrackingApiService($source, $startDate, $endDate) 
     {
@@ -141,6 +126,12 @@ class APIFactory
                 break;
         }
 
+    }
+
+    public static function createSimpleStandardReportService() {
+        $standardModel = new \App\Models\StandardReport();
+        $standardReportRepo = new StandardApiReportRepo($standardModel);
+        return new StandardReportService($standardReportRepo);
     }
 
 }

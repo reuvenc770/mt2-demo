@@ -9,13 +9,16 @@
     @if (Sentinel::hasAccess('esp.add'))
         <li><a ng-href="/esp/create" target="_self">Add ESP Account</a></li>
     @endif
+
+
 @stop
 
 @section( 'content' )
+    <div class="alert alert-info" role="alert"> <strong>Heads up!</strong> Any information uploaded here will likely be replaced by a later API call,  please do not re-upload, previously collected campaigns.</div>
 <div ng-init="esp.loadAccounts()">
     <md-table-container>
         <table md-table>
-            <thead md-head>
+            <thead md-head class="mt2-theme-thead">
                 <tr md-row>
                     <th md-column class="mt2-table-btn-column"></th>
                     <th md-column class="md-table-header-override-whitetext">ID</th>
@@ -34,6 +37,18 @@
                                         data-toggle="tooltip" data-placement="bottom" title="Edit">
                                 <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
                             </a>
+                            <a ng-href="@{{ '/esp/mapping/' + record.id }}" aria-label="Edit" target="_self"
+                               data-toggle="tooltip" data-placement="bottom" title="Field Mapping">
+                                <md-icon md-font-set="material-icons" class="mt2-icon-black">assignment</md-icon>
+                            </a>
+                            @if (Sentinel::hasAccess('api.esp.mappings.process'))
+                                <span flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'csvuploads' , '_token' : '{{ csrf_token() }}' } }"
+                                    flow-files-submitted="$flow.upload()"
+                                    flow-file-success="esp.fileUploaded($file, record.name); $flow.cancel()" flow-btn>
+                                    <md-icon md-font-set="material-icons" class="mt2-icon-black">file_upload</md-icon>
+                                    <input type="file" style="visibility: hidden; position: absolute;"/>
+                                </span>
+                            @endif
                         </div>
                     </td>
                     <td md-cell ng-bind="record.id"></td>
@@ -47,7 +62,7 @@
                 <tr>
                     <td colspan="6">
                         <md-content class="md-mt2-zeta-theme md-hue-2">
-                            <md-table-pagination md-limit="esp.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="esp.currentPage" md-total="@{{esp.accountTotal}}" md-on-paginate="esp.loadAccounts" md-page-select></md-table-pagination>
+                            <md-table-pagination md-limit="esp.paginationCount" md-limit-options="esp.paginationOptions" md-page="esp.currentPage" md-total="@{{esp.accountTotal}}" md-on-paginate="esp.loadAccounts" md-page-select></md-table-pagination>
                         </md-content>
                     </td>
                 </tr>

@@ -1,4 +1,4 @@
-mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedApiService' , 'AttributionProjectionService' , 'ThreeMonthReportService' , '$mdToast'  , '$log' , '$location' , 'formValidationService', 'modalService', '$mdDialog' , function ( AttributionApiService , FeedApiService , AttributionProjectionService , ThreeMonthReportService , $mdToast , $log , $location, formValidationService, modalService , $mdDialog ) {
+mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedApiService' , 'AttributionProjectionService' , 'ThreeMonthReportService' , '$mdToast'  , '$log' , '$location' , 'formValidationService', 'modalService', '$mdDialog' , 'paginationService' , function ( AttributionApiService , FeedApiService , AttributionProjectionService , ThreeMonthReportService , $mdToast , $log , $location, formValidationService, modalService , $mdDialog , paginationService ) {
     var self = this;
 
     self.current = { "id" : 0 , "name" : '' };
@@ -16,9 +16,11 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     self.draggingLevels = false;
 
     self.currentlyLoading = false;
-    self.paginationCount = '10';
+    self.paginationCount = paginationService.getDefaultPaginationCount();
+    self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
     self.pageCount = 0;
+    self.modelTotal = 0;
     self.reachedFirstPage = true;
     self.reachedMaxPage = false;
     self.formErrors = {};
@@ -88,7 +90,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         );
     };
 
-    self.loadProjectionRecords = function () { 
+    self.loadProjectionRecords = function () {
         self.projectionReportQueryPromise = AttributionProjectionService.loadRecords(
             function ( response ) {
                 self.projectionRecords = response.data;
@@ -106,7 +108,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     self.initLevelCopyPanel = function () {  ///THIS NEEDS TO BE FIXED CALLING PAGER TO JUST FILL IN ID AND NAME
         self.loadModels();
     };
- 
+
     self.loadLevelPreview = function () {
         self.loadClients( self.levelCopyModelId , function ( response ) {
             self.levelCopyClients = response.data;
@@ -126,7 +128,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         var idExists = (
             pathParts !== null
             && angular.isNumber( modelId )
-        ); 
+        );
 
         if ( idExists ) { return modelId; }
         else { return null; }
@@ -185,12 +187,12 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
             self.paginationCount ,
             function ( response ) {
                 self.models = response.data.data;
-
+                self.modelTotal = response.data.total;
                 self.pageCount = response.data.last_page;
 
                 self.currentlyLoading = 0;
             } ,
-            function ( response ) { 
+            function ( response ) {
                 self.displayToast( 'Failed to load Models. Please contact support.' );
             }
         );
@@ -305,10 +307,10 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
                 $mdSidenav( self.levelCopySideNavId ).close();
 
                 self.displayToast( 'Successfully copied feed levels.' );
-            } , 
+            } ,
             function ( response ) {
                 self.displayToast( 'Failed to copy client levels. Please contact support.' );
-            } 
+            }
         );
     };
 
@@ -318,7 +320,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
             currentFeed.selected = false;
         } );
         selectFeedCount = 0;
-    }; 
+    };
 
     self.changeLevel = function ( feed , index ) {
         var newLevel = feed.newLevel - 1;
@@ -363,7 +365,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
                     function ( response ) {
                         self.prepopModel();
 
-                        self.displayToast( 'Successfully Removed Feed from Attribution' ); 
+                        self.displayToast( 'Successfully Removed Feed from Attribution' );
                     } ,
                     function ( response ) {
                         self.displayToast( "Failed to remove feed. Please contact support." );
@@ -386,7 +388,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
             var selectedFeeds = [];
             var otherFeeds = [];
             var firstIndex = null;
-                
+
             angular.forEach( self.feeds , function ( currentFeed , currentIndex ) {
                 if ( currentFeed.selected ) {
                     if ( firstIndex === null ) {
@@ -429,7 +431,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
             var selectedFeeds = [];
             var otherFeeds = [];
             var lastIndex = -1;
-                
+
             angular.forEach( self.feeds , function ( currentFeed , currentIndex ) {
                 if ( currentFeed.selected ) {
                     lastIndex = currentIndex + 2;
@@ -459,7 +461,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         if ( feed.selected ) {
             var selectedFeeds = [];
             var otherFeeds = [];
-                
+
             angular.forEach( self.feeds , function ( currentFeed , index ) {
                 if ( currentFeed.selected ) {
                     selectedFeeds.push( currentFeed );
@@ -483,7 +485,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         if ( feed.selected ) {
             var selectedFeeds = [];
             var otherFeeds = [];
-                
+
             angular.forEach( self.feeds , function ( currentFeed , index ) {
                 if ( currentFeed.selected ) {
                     selectedFeeds.push( currentFeed );
@@ -518,7 +520,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         if ( feed.selected ) {
             var selectedFeeds = [];
             var otherFeeds = [];
-                
+
             angular.forEach( self.feeds , function ( currentFeed , index ) {
                 if ( currentFeed.selected ) {
                     selectedFeeds.push( currentFeed );
@@ -550,15 +552,15 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
             function ( response ) {
                 self.loadLevels( self.getModelId() );
                 self.displayToast( 'Successfully synced MT1 feed levels.' );
-            } , 
+            } ,
             function ( response ) {
                 self.displayToast( 'Failed to sync MT1 feed levels. Please contact support.' );
-            } 
+            }
         );
     };
 
     self.loadClients = function ( altModelId , altSuccessCallback ) {
-        var successCallback = function ( response ) { 
+        var successCallback = function ( response ) {
             self.feeds = response.data;
 
             angular.forEach( self.feeds , function ( value , key ) {

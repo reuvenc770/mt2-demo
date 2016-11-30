@@ -1,4 +1,4 @@
-mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' , '$timeout', 'FeedApiService', '$mdToast', '$mdDialog', '$log' , 'formValidationService' , 'modalService' , function ( $rootScope , $window , $location , $timeout , FeedApiService, $mdToast , $mdDialog , $log , formValidationService , modalService) {
+mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' , '$timeout', 'FeedApiService', '$mdToast', '$mdDialog', '$log' , 'formValidationService' , 'modalService' , 'paginationService' , function ( $rootScope , $window , $location , $timeout , FeedApiService, $mdToast , $mdDialog , $log , formValidationService , modalService , paginationService ) {
     var self = this;
     self.$location = $location;
 
@@ -23,7 +23,8 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
     self.createUrl = '/feed/create';
 
     self.pageCount = 0;
-    self.paginationCount = '10';
+    self.paginationCount = paginationService.getDefaultPaginationCount();
+    self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
     self.feedTotal = 0;
     self.queryPromise = null;
@@ -31,26 +32,28 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
 
     self.currentFieldConfig = {};
     self.fieldList = [
-        { "label" : "Email" , "field" : "email_index" , "required" : true } , 
-        { "label" : "Source URL" , "field" : "source_url_index" , "required" : true } , 
-        { "label" : "Capture Date" , "field" : "capture_date_index" , "required" : true } , 
-        { "label" : "IP" , "field" : "ip_index" , "required" : true } , 
-        { "label" : "First Name" , "field" : "first_name_index" } , 
-        { "label" : "Last Name" , "field" : "last_name_index" } , 
-        { "label" : "Address" , "field" : "address_index" } , 
-        { "label" : "Address 2" , "field" : "address2_index" } , 
-        { "label" : "City" , "field" : "city_index" } , 
-        { "label" : "State" , "field" : "state_index" } , 
-        { "label" : "Zip" , "field" : "zip_index" } , 
-        { "label" : "Country" , "field" : "country_index" } , 
-        { "label" : "Gender" , "field" : "gender_index" } , 
-        { "label" : "Phone" , "field" : "phone_index" } , 
-        { "label" : "Date Of Birth" , "field" : "dob_index" } , 
+        { "label" : "Email" , "field" : "email_index" , "required" : true } ,
+        { "label" : "Source URL" , "field" : "source_url_index" , "required" : true } ,
+        { "label" : "Capture Date" , "field" : "capture_date_index" , "required" : true } ,
+        { "label" : "IP" , "field" : "ip_index" , "required" : true } ,
+        { "label" : "First Name" , "field" : "first_name_index" } ,
+        { "label" : "Last Name" , "field" : "last_name_index" } ,
+        { "label" : "Address" , "field" : "address_index" } ,
+        { "label" : "Address 2" , "field" : "address2_index" } ,
+        { "label" : "City" , "field" : "city_index" } ,
+        { "label" : "State" , "field" : "state_index" } ,
+        { "label" : "Zip" , "field" : "zip_index" } ,
+        { "label" : "Country" , "field" : "country_index" } ,
+        { "label" : "Gender" , "field" : "gender_index" } ,
+        { "label" : "Phone" , "field" : "phone_index" } ,
+        { "label" : "Date Of Birth" , "field" : "dob_index" } ,
     ];
     self.selectedFields = [];
     self.customField = '';
 
     self.formSubmitted = false;
+    self.isReattributing = false;
+    self.isSuppressing = false;
 
     self.formErrors = [];
 
@@ -116,6 +119,37 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
 
     };
 
+    self.runReattribution = function() {
+
+        var confirm = $mdDialog.confirm()
+            .title( 'Confirm Reattribute Records' )
+            .ariaLabel( 'Confirm Reattribute Records' )
+            .textContent( 'Are you sure you want to reattribute this feed\'s non-unique records?' )
+            .ok( 'Yes, I am sure.' )
+            .cancel( 'No' );
+
+        $mdDialog.show( confirm ).then( function () {
+            self.isReattributing = true;
+
+            FeedApiService.runReattribution( self.current.id , self.runReattributionSuccessCallback , self.runReattributionFailureCallback );
+        });
+
+    };
+
+    self.createSuppression = function() {
+        var confirmSupp = $mdDialog.confirm()
+            .title( 'Confirm Feed Suppression' )
+            .ariaLabel( 'Confirm Feed Suppression' )
+            .textContent( 'Are you sure you want to suppress this feed\'s unique records?' )
+            .ok( 'Yes, I am sure.' )
+            .cancel( 'No' );
+
+        $mdDialog.show( confirmSupp ).then( function () {
+            self.isSuppressing = true;
+
+            FeedApiService.createSuppression( self.current.id , self.createSuppressionSuccessCallback , self.createSuppressionFailureCallback );
+        });
+    };
     /**
      * Feed File Field Ordering
      */
@@ -233,4 +267,35 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
         modalService.setModalBody( 'Please include the missing required fields.' );
         modalService.launchModal();
     };
+
+    self.runReattributionSuccessCallback = function ( response ) {
+        modalService.setModalLabel( 'Success' );
+        modalService.setModalBody( 'Reattributing non-unique records.' );
+
+        modalService.launchModal();
+    };
+
+    self.runReattributionFailureCallback = function ( response ) {
+        self.isReattributing = false;
+
+        modalService.setModalLabel( 'Error' );
+        modalService.setModalBody( 'Failed to reattribute records. Please contact support.' );
+        modalService.launchModal();
+    };
+
+    self.createSuppressionSuccessCallback = function ( response ) {
+        modalService.setModalLabel( 'Success' );
+        modalService.setModalBody( 'Creating feed suppression.' );
+
+        modalService.launchModal();
+    };
+
+    self.createSuppressionFailureCallback = function ( response ) {
+        self.isSuppressing = false;
+
+        modalService.setModalLabel( 'Error' );
+        modalService.setModalBody( 'Failed to create feed suppression. Please contact support.' );
+        modalService.launchModal();
+    };
+
 } ] );

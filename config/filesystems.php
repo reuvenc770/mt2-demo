@@ -88,6 +88,13 @@ return [
             'username' => env('ZX_FTP_USER'),
             'password' => env('ZX_FTP_PASSWORD')
         ],
+        
+        'SystemFtp' => [
+            'driver' => 'ftp',
+            'host' => env('MAIN_SYSTEM_FTP_HOST'),
+            'username' => env('MAIN_SYSTEM_FTP_USER'),
+            'password' => env('MAIN_SYSTEM_FTP_PASS')
+        ],
 
         'espdata' => [
             'driver' => 'ftp',

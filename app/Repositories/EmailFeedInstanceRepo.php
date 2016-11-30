@@ -180,7 +180,6 @@ class EmailFeedInstanceRepo {
             capture_date= capture_date,
             source_url= source_url,
             ip= ip",
-
             array(
                 ':email_id' => $row['email_id'],
                 ':feed_id' => $row['feed_id'],
@@ -337,4 +336,33 @@ class EmailFeedInstanceRepo {
         }
     }
 
+    public function getRecordCountForSource ( $search ) {
+        $builder = $this->emailFeedModel
+                            ->join( 'feeds' , 'feeds.id' , '=' , 'email_feed_instances.feed_id' )
+                            ->join( 'clients' , 'clients.id' , '=' , 'feeds.client_id' )
+                            ->select(
+                                'clients.name as clientName' ,
+                                'feeds.name as feedName' ,
+                                DB::raw('count(*) as count' ) ,
+                                'email_feed_instances.source_url as sourceUrl'
+                            )
+                            ->where( 'email_feed_instances.source_url' , 'LIKE' , "%{$search[ 'source_url' ]}%" )
+                            ->whereBetween( 'email_feed_instances.capture_date' , [ $search[ 'startDate' ] , $search[ 'endDate' ] ] );
+
+        if ( !empty( $search[ 'feedIds' ] ) ) {
+            $builder = $builder->whereIn( 'email_feed_instances.feed_id' , $search[ 'feedIds' ] );
+        }
+
+        if ( !empty( $search[ 'clientIds' ] ) ) {
+            $builder = $builder->whereIn( 'feeds.client_id' , $search[ 'clientIds' ] );
+        }
+
+        if ( !empty( $search[ 'verticalIds' ] ) ) {
+            $builder = $builder->whereIn( 'feeds.vertical_id' , $search[ 'verticalIds' ] );
+        }
+
+        $builder = $builder->groupBy( [ 'feeds.client_id' , 'email_feed_instances.feed_id' , 'email_feed_instances.source_url' ] );
+
+        return $builder->get();
+    }
 }

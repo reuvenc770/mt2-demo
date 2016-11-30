@@ -10,12 +10,13 @@ namespace App\Repositories;
 
 
 use App\Models\ListProfile;
+use App\Models\ListProfileClient;
 use App\Models\ListProfileVertical;
 use App\Models\ListProfileSchedule;
 use App\Models\ListProfileOffer;
 use App\Models\ListProfileFeed;
 use App\Models\ListProfileDomainGroup;
-use App\Models\ListProfileCountry;
+use App\Models\ListProfileFeedGroup;
 
 class ListProfileRepo
 {
@@ -25,7 +26,8 @@ class ListProfileRepo
     private $offer;
     private $feed;
     private $isp;
-    private $country;
+    private $feedGroup;
+    private $client;
 
     public function __construct(
         ListProfile $listProfile ,
@@ -33,8 +35,9 @@ class ListProfileRepo
         ListProfileSchedule $schedule ,
         ListProfileOffer $offer ,
         ListProfileFeed $feed ,
-        ListProfileDomainGroup $isp ,
-        ListProfileCountry $country
+        ListProfileDomainGroup $isp,
+        ListProfileFeedGroup $feedGroup,
+        ListProfileClient $client
     ) {
         $this->listProfile = $listProfile;
         $this->vertical = $vertical;
@@ -42,7 +45,8 @@ class ListProfileRepo
         $this->offer = $offer;
         $this->feed = $feed;
         $this->isp = $isp;
-        $this->country = $country;
+        $this->feedGroup = $feedGroup;
+        $this->client = $client;
     }
 
     public function getModel () {
@@ -50,12 +54,14 @@ class ListProfileRepo
     }
 
     public function create ( $data ) {
-        return $this->listProfile->insertGetId( $data );
+        $listProfile = $this->listProfile->create( $data );
+
+        return $listProfile->id;
     }
 
     public function updateOrCreate($data) {
         $listProfileId = $data['profile_id'];
-        
+
         unset( $data[ 'profile_id' ] );
 
         $this->listProfile->updateOrCreate(['id' => $listProfileId ], $data);
@@ -63,6 +69,10 @@ class ListProfileRepo
 
     public function returnActiveProfiles(){
        return $this->listProfile->where("status", "A")->select('id','profile_name')->get();
+    }
+
+    public function getAllListProfiles(){
+        return $this->listProfile->select('id','name')->orderBy('name')->get();
     }
 
     public function getProfile($id) {
@@ -119,6 +129,22 @@ class ListProfileRepo
         }
     }
 
+    public function assignFeedGroups ( $id , $feedGroups ) {
+        $this->feedGroup->where( 'list_profile_id' , $id )->delete();
+
+        foreach ( $feedGroups as $currentFeed ) {
+            $this->feedGroup->insert( [ 'list_profile_id' => $id , 'feed_group_id' => $currentFeed ] );
+        }
+    }
+
+    public function assignClients ( $id , $clients ) {
+        $this->client->where( 'list_profile_id' , $id )->delete();
+
+        foreach ( $clients as $client ) {
+            $this->client->insert( [ 'list_profile_id' => $id , 'client_id' => $client ] );
+        }
+    }
+
     public function assignIsps ( $id , $isps ) {
         $this->isp->where( 'list_profile_id' , $id )->delete();
 
@@ -127,11 +153,4 @@ class ListProfileRepo
         }
     }
 
-    public function assignCountries ( $id , $countries ) {
-        $this->country->where( 'list_profile_id' , $id )->delete();
-
-        foreach ( $countries as $currentCountry ) {
-            $this->country->insert( [ 'list_profile_id' => $id , 'country_id' => $currentCountry ] );
-        }
-    }
 }

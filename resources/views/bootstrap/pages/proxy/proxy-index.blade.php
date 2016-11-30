@@ -15,7 +15,7 @@
     <div ng-init="proxy.loadAccounts()">
                 <md-table-container>
                     <table md-table md-progress="proxy.queryPromise">
-                        <thead md-head md-order="proxy.sort" md-on-reorder="proxy.loadAccounts">
+                        <thead md-head md-order="proxy.sort" md-on-reorder="proxy.loadAccounts" class="mt2-theme-thead">
                         <tr md-row>
                             <th md-column class="mt2-table-btn-column"></th>
                             <th md-column md-order-by="status" class="md-table-header-override-whitetext mt2-table-header-center">Status</th>
@@ -60,7 +60,7 @@
                             <tr>
                                 <td colspan="9">
                                     <md-content class="md-mt2-zeta-theme md-hue-2">
-                                        <md-table-pagination md-limit="proxy.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="proxy.currentPage" md-total="@{{proxy.accountTotal}}" md-on-paginate="proxy.loadAccounts" md-page-select></md-table-pagination>
+                                        <md-table-pagination md-limit="proxy.paginationCount" md-limit-options="proxy.paginationOptions" md-page="proxy.currentPage" md-total="@{{proxy.accountTotal}}" md-on-paginate="proxy.loadAccounts" md-page-select></md-table-pagination>
                                     </md-content>
                                 </td>
                             </tr>

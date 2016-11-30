@@ -29,6 +29,38 @@ class ListProfileService
     private $uniqueColumn;
     const ROW_STORAGE_TIME = 60;
     protected $baseTableService;
+    private $columnLabelMap = [
+        'email_id'  =>  'Email ID',
+        'first_name'  =>  'First Name',
+        'last_name'  =>  'Last Name',
+        'address'  =>  'Address',
+        'address2'  =>  'Address 2',
+        'city'  =>  'City',
+        'state'  =>  'State',
+        'zip'  =>  'Zip',
+        'country'  =>  'Country',
+        'gender'  =>  'Gender',
+        'ip'  =>  'IP Address',
+        'phone'  =>  'Phone Number',
+        'source_url'  =>  'Source URL',
+        'age'  =>  'Age',
+        'device_type'  =>  'Device Type',
+        'device_name'  =>  'Device Name',
+        'carrier'  =>  'Carrier',
+        'capture_date'  =>  'Capture Date',
+        'esp_account'  =>  'ESP Account',
+        'email_address'  =>  'Email Address',
+        'lower_md5'  =>  'Lowercase MD5',
+        'upper_md5'  =>  'Uppercase MD5',
+        'domain_group_id'  =>  "ISP",
+        'dob'  =>  "Date of Birth",
+        'feed_id'  =>  "Feed ID",
+        'feed_name'  =>  "Feed Name",
+        'client_name'  =>  "Client",
+        'subscribe_date'  =>  'Subscribe Date',
+        'status'  =>  'Status',
+        'tower_date'  =>  'Tower Date'
+    ];
 
     public function __construct(ListProfileRepo $profileRepo, ListProfileQueryBuilder $builder, ListProfileBaseTableCreationService $baseTableService) {
         $this->profileRepo = $profileRepo;
@@ -41,7 +73,7 @@ class ListProfileService
     }
 
     public function create ( $data ) {
-        $cleanData = $this->cleanseData( $data ); 
+        $cleanData = $this->cleanseData( $data );
 
         $id = $this->profileRepo->create( $cleanData );
 
@@ -58,7 +90,7 @@ class ListProfileService
 
         return json_encode( [
             'profile_id' => $id ,
-            'name' => $listProfile->name , 
+            'name' => $listProfile->name ,
             'actionRanges' => [
                 'deliverable' => [
                     'min' => $listProfile->deliverable_start ,
@@ -92,15 +124,17 @@ class ListProfileService
                 'os' => json_decode( $listProfile->device_os )
             ] ,
             'includeCsvHeader' => $listProfile->insert_header ,
-            'selectedColumns' => json_decode( $listProfile->columns ) ,
+            'selectedColumns' => $this->buildDisplayColumns(json_decode( $listProfile->columns )) ,
             'exportOptions' => [
                 'interval' =>  [ $listProfile->run_frequency ] ,
-                'dayOfWeek' => $schedule->day_of_week ? $schedule->day_of_week : null ,
-                'dayOfMonth' => $schedule->day_of_month ? $schedule->day_of_month : null
+                'dayOfWeek' => isset($schedule) && $schedule->day_of_week ? $schedule->day_of_week : null ,
+                'dayOfMonth' => isset($schedule) && $schedule->day_of_month ? $schedule->day_of_month : null
             ] ,
-            'countries' => $listProfile->countries()->get()->pluck( 'id' ,'name' )->toArray() ,
+            'country_id' => $listProfile->country_id,
             'feeds' => $listProfile->feeds()->get()->pluck( 'short_name' , 'id' )->toArray() ,
             'isps' => $listProfile->domainGroups()->get()->pluck( 'name' , 'id' )->toArray() ,
+            'feedGroups' => $listProfile->feedGroups()->get()->pluck( 'name' , 'id' )->toArray() ,
+            'feedClients' => $listProfile->clients()->get()->pluck( 'name' , 'id' )->toArray() ,
             'categories' => $listProfile->verticals()->get()->pluck( 'name' , 'id' )->toArray() ,
             'offers' => $listProfile->offers()->get()->toArray() ,
             'includeCsvHeader' => $listProfile->insert_header ? true : false ,
@@ -125,6 +159,10 @@ class ListProfileService
         return $this->profileRepo->returnActiveProfiles();
     }
 
+    public function getAllListProfiles() {
+        return $this->profileRepo->getAllListProfiles();
+    }
+
 
     public function buildProfileTable($id) {
         /**
@@ -142,7 +180,7 @@ class ListProfileService
 
             // .. if we have hygiene, we write out both files. Write full one to a secret location. Send the other one (just email address/md5) out.
             // When the second returns. Find a way to subtract it from the first
-            
+
             $columns = $this->builder->getColumns();
 
             if (1 === $queryNumber) {
@@ -167,7 +205,7 @@ class ListProfileService
 
             $this->batchInsert();
             $this->clear();
-            
+
             $queryNumber++;
         }
 
@@ -204,16 +242,21 @@ class ListProfileService
             'columns' => json_encode( $data[ 'selectedColumns' ] ) ,
             'run_frequency' => ( ( isset( $data[ 'exportOptions' ][ 'interval' ] ) && $choice = array_intersect( $data[ 'exportOptions' ][ 'interval' ] , [ 'Daily' , 'Weekly' , 'Monthly' , 'Never' ] ) ) ? array_pop( $choice ) : 'Never' ) ,
             'admiral_only' => $data[ 'admiralsOnly' ] ,
-        ]; 
+            'country_id' => $data[ 'country_id' ] ,
+        ];
     }
 
     private function saveEntities ( $id , $data , $isUpdate = false ) {
         if ( $data[ 'categories' ] || $isUpdate ) {
             $this->profileRepo->assignVerticals( $id , array_keys( $data[ 'categories' ] ) );
-        } 
+        }
 
         if ( $data[ 'exportOptions' ][ 'interval' ] || $isUpdate ) {
             $this->profileRepo->assignSchedule( $id , $data[ 'exportOptions' ] );
+        }
+
+        if ( $data[ 'feedClients' ] || $isUpdate ) {
+            $this->profileRepo->assignClients( $id , array_keys($data[ 'feedClients' ]) );
         }
 
         if ( $data[ 'offers' ] || $isUpdate ) {
@@ -224,13 +267,14 @@ class ListProfileService
             $this->profileRepo->assignFeeds( $id , array_keys( $data[ 'feeds' ] ) );
         }
 
+        if ( $data[ 'feedGroups' ] || $isUpdate ) {
+            $this->profileRepo->assignFeedGroups( $id , array_keys( $data[ 'feedGroups' ] ) );
+        }
+
         if ( $data[ 'isps' ] || $isUpdate ) {
             $this->profileRepo->assignIsps( $id , array_keys( $data[ 'isps' ] ) );
         }
 
-        if ( $data[ 'countries' ] || $isUpdate ) {
-            $this->profileRepo->assignCountries( $id , $data[ 'countries' ] );
-        }
     }
 
 
@@ -325,8 +369,28 @@ class ListProfileService
         }
     }
 
+    private function buildDisplayColumns(array $columns) {
+        $output = [];
+
+        foreach ($columns as $column) {
+            $output[] = [
+                'header' => $column,
+                'label' => $this->columnLabelMap[$column]
+            ];
+        }
+
+        return $output;
+    }
+
 
     private function saveToCache($tag, $value) {
         Cache::tags($tag)->put($value, 1, self::ROW_STORAGE_TIME);
+    }
+
+    public function cloneProfile($id){
+        $currentProfile = $this->profileRepo->getProfile($id);
+        $copyProfile = $currentProfile->replicate();
+        $copyProfile->name = "COPY_{$currentProfile->name}";
+        $copyProfile->save();
     }
 }

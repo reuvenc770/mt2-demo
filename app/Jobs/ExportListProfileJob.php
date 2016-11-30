@@ -46,13 +46,12 @@ class ExportListProfileJob extends Job implements ShouldQueue
             try {
                 $this->createLock($this->jobName);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
-                $offer = $this->offerId ? $this->offerId : array();
 
-                if($this->offerId >= 1){  //its a combine and meant for a deploy
+                if((int)$this->offerId >= 1){  //it's a combine and meant for a deploy
                     $deploys = $deployRepo->getDeploysFromProfileAndOffer($this->listProfileId,$this->offerId);
-                    $service->exportListProfileToMany($this->listProfileId, $offer,$deploys);
-                } else { // its a scheduled export
-                    $service->exportListProfile($this->listProfileId, $offer);
+                    $service->exportListProfileToMany($this->listProfileId, $this->offerId, $deploys);
+                } else { // it's a scheduled export
+                    $service->exportListProfile($this->listProfileId, $this->offerId);
                 }
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
             }

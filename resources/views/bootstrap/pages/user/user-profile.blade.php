@@ -2,7 +2,7 @@
 @section('title', 'My Profile')
 
 @section('content')
-<div class="panel panel-primary" ng-controller="userController as user" ng-init="user.loadProfile({{$id}})">
+<div class="panel mt2-theme-panel" ng-controller="userController as user" ng-init="user.loadProfile({{$id}})">
     <div class="panel-heading">
         <div class="panel-title">Edit User</div>
     </div>
@@ -70,7 +70,7 @@
     </div>
     <div class="panel-footer">
         <div class="form-group">
-            <input class="btn btn-lg btn-primary btn-block" ng-click="user.updateProfile()" ng-disabled="user.editForm" type="submit" value="Update Profile">
+            <input class="btn mt2-theme-btn-primary btn-block" ng-click="user.updateProfile()" ng-disabled="user.editForm" type="submit" value="Update Profile">
         </div>
     </div>
 </div>

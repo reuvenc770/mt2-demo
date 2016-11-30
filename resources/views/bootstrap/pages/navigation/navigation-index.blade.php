@@ -7,7 +7,7 @@
 
 
 @section( 'content' )
-    <div class="panel panel-primary" ng-init="navController.loadNavigation()">
+    <div class="panel mt2-theme-panel" ng-init="navController.loadNavigation()">
         <div class="panel-heading">
             <div class="panel-title">Modify Navigation</div>
         </div>
@@ -32,7 +32,7 @@
                     dnd-type="'containerType'"
                     dnd-effect-allowed="move"
                     dnd-moved="navController.navigation.splice($index, 1)">
-                    <div class="panel panel-success">
+                    <div class="panel panel-info">
                         <div class="panel-heading">
                             <div class="panel-title">@{{ items.name }}</div>
                         </div>
@@ -56,7 +56,7 @@
         </div>
         <div class="panel-footer">
             <div class="form-group">
-                <input class="btn btn-lg btn-block btn-primary"   ng-disabled="navController.formSubmitted" ng-click="navController.updateNavigation()" type="submit" value="Update Navigation">
+                <input class="btn btn-block mt2-theme-btn-primary" ng-disabled="navController.formSubmitted" ng-click="navController.updateNavigation()" type="submit" value="Update Navigation">
             </div>
         </div>
     </div>

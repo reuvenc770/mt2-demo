@@ -3,7 +3,7 @@
 
 @section('content')
 
-    <div class="panel panel-primary"  ng-controller="EmailDomainController as emailDomain">
+    <div class="panel mt2-theme-panel"  ng-controller="EmailDomainController as emailDomain">
         <div class="panel-heading">
             <div class="panel-title">Add ISP Domain</div>
         </div>
@@ -15,7 +15,7 @@
         </div>
         <div class="panel-footer">
             <div class="form-group">
-                <input class="btn btn-lg btn-primary btn-block" ng-click="emailDomain.saveNewAccount()" ng-disabled="emailDomain.editForm" type="submit" value="Add ISP Domain">
+                <input class="btn mt2-theme-btn-primary btn-block" ng-click="emailDomain.saveNewAccount()" ng-disabled="emailDomain.editForm" type="submit" value="Add ISP Domain">
             </div>
         </div>
     </div>

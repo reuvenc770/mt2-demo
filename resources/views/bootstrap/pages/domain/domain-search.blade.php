@@ -1,4 +1,4 @@
-<div class="panel panel-primary">
+<div class="panel mt2-theme-panel">
     <div class="panel-heading">
         <div class="panel-title">Search Domains</div>
     </div>
@@ -88,7 +88,7 @@
     </div>
     <div class="panel-footer">
         <div class="form-group">
-            <input class="btn btn-lg btn-primary btn-block"ng-click="domain.searchDomains()" type="submit" value="Search for Domains">
+            <input class="btn mt2-theme-btn-primary btn-block"ng-click="domain.searchDomains()" type="submit" value="Search for Domains">
         </div>
     </div>
 </div>
