@@ -29,7 +29,7 @@ class DomainGroupRepo
     }
 
     public function getRow($id){
-        return $this->domainGroup->find($id);
+        return $this->domainGroup->with( 'domains' )->find($id);
     }
 
     public function updateRow($id, $groupData){
