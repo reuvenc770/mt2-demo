@@ -185,6 +185,32 @@ class EmailRepo {
     public function getRecordInfoAddress($address) {
         $attr = config('database.connections.attribution.database');
         $supp = config('database.connections.suppression.database');
+
+        // First party - no global suppression
+        $union = $this->emailModel
+                      ->join("first_party_record_data as rd", "emails.id", '=', 'rd.email_id')
+                      ->join('feeds as f', 'rd.feed_id', '=', 'f.id')
+                      ->join('clients as c', 'c.id', '=', 'f.client_id')
+                      ->selectRaw("emails.id as eid, 
+                        emails.email_address, 
+                        first_name, 
+                        last_name, 
+                        CONCAT(rd.address, ' ', rd.city, ', ', rd.state, ' ', rd.zip) as address, 
+                        rd.source_url, 
+                        rd.capture_date as date, 
+                        ip, 
+                        '' as removal_date, 
+                        dob as birthdate,
+                        gender,
+                        subscribe_date,
+                        c.name as client_name,
+                        '' as action,
+                        IFNULL(last_action_date, '') as action_date,
+                        0 as suppressed,
+                        '' as suppression_reason,
+                        'A' as status")
+                    ->where('email_address', $address);
+
         return $this->emailModel
                     ->leftJoin("record_data as rd", "emails.id", '=', 'rd.email_id')
                     ->leftJoin("$attr.email_feed_assignments as efa", "emails.id", '=', 'efa.email_id')
@@ -211,6 +237,7 @@ class EmailRepo {
                         IFNULL(sr.display_status, '') as suppression_reason,
                         IF(sgo.email_address IS NULL, 'A', 'U') as status")
                     ->where('email_address', $address)
+                    ->union($union)
                     ->get()
                     ->toArray();
     }
@@ -218,6 +245,32 @@ class EmailRepo {
     public function getRecordInfoId($id) {
         $attr = config('database.connections.attribution.database');
         $supp = config('database.connections.suppression.database');
+
+        // First party - no global suppression
+        $union = $this->emailModel
+                      ->join("first_party_record_data as rd", "emails.id", '=', 'rd.email_id')
+                      ->join('feeds as f', 'rd.feed_id', '=', 'f.id')
+                      ->join('clients as c', 'c.id', '=', 'f.client_id')
+                      ->selectRaw("emails.id as eid, 
+                        emails.email_address, 
+                        first_name, 
+                        last_name, 
+                        CONCAT(rd.address, ' ', rd.city, ', ', rd.state, ' ', rd.zip) as address, 
+                        rd.source_url, 
+                        rd.capture_date as date, 
+                        ip, 
+                        '' as removal_date, 
+                        dob as birthdate,
+                        gender,
+                        subscribe_date,
+                        c.name as client_name,
+                        '' as action,
+                        IFNULL(last_action_date, '') as action_date,
+                        0 as suppressed,
+                        '' as suppression_reason,
+                        'A' as status")
+                    ->where('emails.id', $id);
+
         return $this->emailModel
                     ->leftJoin("record_data as rd", "emails.id", '=', 'rd.email_id')
                     ->leftJoin("$attr.email_feed_assignments as efa", "emails.id", '=', 'efa.email_id')
@@ -244,6 +297,7 @@ class EmailRepo {
                         IFNULL(sr.display_status, '') as suppression_reason,
                         IF(sgo.email_address IS NULL, 'A', 'U') as status")
                     ->where('emails.id', $id)
+                    ->union($union)
                     ->get()
                     ->toArray();
     }
