@@ -44,7 +44,6 @@ class EmailDomainRepo {
         if ('' !== $searchData ) {
             $query = $this->mapQuery( $searchData , $query );
         }
-        $query->orderBy('domain_name', 'asc');
         return $query;
     }
 
@@ -104,7 +103,7 @@ class EmailDomainRepo {
         $searchData = json_decode($searchData, true);
 
         if ( isset($searchData['domainGroupId']) ) {
-            $query->where( 'email_domains.domain_group_id' , (int)$searchData['domainGroupId'] );
+            $query = $query->where( 'email_domains.domain_group_id' , (int)$searchData['domainGroupId'] )->orderBy('domain_name', 'asc');
         }
 
         return $query;
