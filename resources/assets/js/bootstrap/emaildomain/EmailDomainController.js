@@ -58,7 +58,7 @@ mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' 
 
     self.searchDomain = function () {
         var searchObj = {
-            "domain_group_id" : self.search.domain_group_id || undefined
+            "domainGroupId" : self.search.domain_group_id || undefined
         };
 
         self.queryPromise = EmailDomainApiService.searchDomain( self.paginationCount , searchObj , self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );

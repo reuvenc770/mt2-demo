@@ -36,10 +36,16 @@ class EmailDomainRepo {
     }
 
 
-    public function getModel(){
-        return $this->emailDomainModel
+    public function getModel($searchData){
+        $query = $this->emailDomainModel
             ->join("domain_groups","email_domains.domain_group_id", "=", "domain_groups.id")
             ->select("email_domains.id","email_domains.domain_name","domain_groups.name as domain_group");
+
+        if ('' !== $searchData ) {
+            $query = $this->mapQuery( $searchData , $query );
+        }
+        $query->orderBy('domain_name', 'asc');
+        return $query;
     }
 
     public function getRow($id){
@@ -94,5 +100,14 @@ class EmailDomainRepo {
         }
     }
 
+    public function mapQuery( $searchData , $query ) {
+        $searchData = json_decode($searchData, true);
+
+        if ( isset($searchData['domainGroupId']) ) {
+            $query->where( 'email_domains.domain_group_id' , (int)$searchData['domainGroupId'] );
+        }
+
+        return $query;
+    }
 
 }
