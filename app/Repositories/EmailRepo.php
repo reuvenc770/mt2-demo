@@ -209,7 +209,7 @@ class EmailRepo {
                         0 as suppressed,
                         '' as suppression_reason,
                         'A' as status")
-                    ->where('email_address', $address);
+                    ->where('emails.email_address', $address);
 
         return $this->emailModel
                     ->leftJoin("record_data as rd", "emails.id", '=', 'rd.email_id')
@@ -236,7 +236,7 @@ class EmailRepo {
                         IF(sgo.email_address IS NULL, 0, 1) as suppressed,
                         IFNULL(sr.display_status, '') as suppression_reason,
                         IF(sgo.email_address IS NULL, 'A', 'U') as status")
-                    ->where('email_address', $address)
+                    ->where('emails.email_address', $address)
                     ->union($union)
                     ->get()
                     ->toArray();

@@ -11,7 +11,7 @@ use App\Http\Requests;
 use App\Http\Requests\ShowInfoRecordRequest;
 use App\Http\Requests\ShowInfoSuppressRecordRequest;
 use App\Http\Controllers\Controller;
-use App\Services\Mt1ApiService;
+use App\Services\MT1ApiService;
 
 class ShowInfoController extends Controller
 {
@@ -20,7 +20,7 @@ class ShowInfoController extends Controller
     protected $emailService;
     protected $api;
 
-    public function __construct ( EmailService $emailService, Mt1ApiService $api) {
+    public function __construct ( EmailService $emailService, MT1ApiService $api) {
         $this->emailService = $emailService;
         $this->api = $api;
     }
@@ -85,7 +85,14 @@ class ShowInfoController extends Controller
      */
     public function show(ShowInfoRecordRequest $request , $ids)
     {
-        $ids = explode(',', $ids);
+        if (preg_match('/\,+/', $ids)) {
+            $ids = explode(',', $ids);
+        }
+        else {
+            // no delimiter - one single id
+            $ids = [$ids];
+        }
+        
 
         $records = [];
         $suppressions = [];
