@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Repositories\MT1Repositories\EspAdvertiserJoinRepo;
+use App\Repositories\DeployRepo;
 use App\Repositories\StandardApiReportRepo;
 use App\Repositories\CreativeClickthroughRateRepo;
 use App\Repositories\FromOpenRateRepo;
@@ -12,20 +12,20 @@ use Carbon\Carbon;
 class PopulateCfsStatsService
 {
 
-    private $mt1Repo;
+    private $deployRepo;
     private $subjRepo;
     private $fromRepo;
     private $creativeRepo;
     private $reportRepo;
     private $mt1DeployData;
 
-    public function __construct(EspAdvertiserJoinRepo $mt1Repo,
+    public function __construct(DeployRepo $deployRepo,
                                 StandardApiReportRepo $reportRepo,
                                 CreativeClickthroughRateRepo $creativeRepo,
                                 FromOpenRateRepo $fromRepo,
                                 SubjectOpenRateRepo $subjRepo) {
 
-        $this->mt1Repo = $mt1Repo;
+        $this->deployRepo = $deployRepo;
         $this->subjRepo = $subjRepo;
         $this->fromRepo = $fromRepo;
         $this->creativeRepo = $creativeRepo;
@@ -34,7 +34,7 @@ class PopulateCfsStatsService
 
     public function extract($lookback) {
         $date = Carbon::today()->subDays($lookback)->format('Y-m-d');
-        $this->mt1DeployData = $this->mt1Repo->getUpdatedFrom($date);
+        $this->mt1DeployData = $this->deployRepo->getUpdatedFrom($date);
     }
 
     public function load() {
@@ -43,18 +43,16 @@ class PopulateCfsStatsService
             $creativeId = $deploy->creative_id;
             $subjectId = $deploy->subject_id;
             $fromId = $deploy->from_id;
-
+            $listProfileCombineId = $deploy->list_profile_combine_id;
             $stats = $this->reportRepo->getStatsForDeploy($deployId);
             if ($stats) {
                 $delivers = (int)$stats->delivers;
                 $opens = (int)$stats->opens;
                 $clicks = (int)$stats->clicks;
 
-                // Currently list profile id is 0 because MT1 does not save that information
-                $listProfileId = 0;
-                $this->creativeRepo->saveStats($creativeId, $listProfileId, $deployId, $delivers, $opens, $clicks);
-                $this->subjRepo->saveStats($subjectId, $listProfileId, $deployId, $delivers, $opens);
-                $this->fromRepo->saveStats($fromId, $listProfileId, $deployId, $delivers, $opens);
+                $this->creativeRepo->saveStats($creativeId, $listProfileCombineId, $deployId, $delivers, $opens, $clicks);
+                $this->subjRepo->saveStats($subjectId, $listProfileCombineId, $deployId, $delivers, $opens);
+                $this->fromRepo->saveStats($fromId, $listProfileCombineId, $deployId, $delivers, $opens);
             }
             
         }

@@ -370,4 +370,12 @@ class DeployRepo
             ->where("list_profile_id", $listProfileId)
             ->where("send_date", DB::raw("CURDATE()"))->get();
     }
+
+
+    public function getUpdatedFrom($date) {
+        return $this->deploy
+            ->select('deploy_id', 'creative_id', 'subject_id', 'from_id', 'list_profile_combine_id')
+            ->where('updated_at', '>=', $date)
+            ->get();
+    }
 }
