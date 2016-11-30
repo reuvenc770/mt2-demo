@@ -28,12 +28,11 @@ class ListProfileBaseTableRepo {
             $listIds = '(' . implode(',', $listIds) . ')';
 
             $query = $this->model
-                    ->select("$table.*")
+                    ->selectRaw("$table.*, IF(sls.email_address IS NULL, 0, 1) as suppression_status")
                     ->leftJoin("$suppDb.suppression_list_suppressions as sls", function($join) use($table, $listIds) {
                         $join->on("$table.email_address", '=', 'sls.email_address');
                         $join->on('sls.suppression_list_id', 'in', DB::raw($listIds));
-                    })  
-                    ->whereNull('sls.email_address');
+                    });
             return $query;
         }
         else {

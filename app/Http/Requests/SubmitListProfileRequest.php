@@ -23,7 +23,7 @@ class SubmitListProfileRequest extends Request
 
     /**
      * Get the validation rules that apply to the request.
-     
+
      * @return array
      */
     public function rules()
@@ -37,7 +37,7 @@ class SubmitListProfileRequest extends Request
     public function messages () {
         return [
             'actionRanges.required_without_all' => 'You must include at least one action range.' ,
-            'selectedColumns.required' => 'You must select some columsn for export.'
+            'selectedColumns.required' => 'You must select some columns for export.'
         ];
     }
 }

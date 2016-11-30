@@ -8,12 +8,17 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FeedEditRequest;
 use App\Http\Requests\FeedFieldUpdateRequest;
+use App\Http\Requests\SourceUrlSearchRequest;
 use App\Services\ClientService;
 use App\Services\FeedService;
 use Cache;
+use Artisan;
+use Maknz\Slack\Facades\Slack;
+use Log;
 
 class FeedController extends Controller
 {
+    CONST ROOM = "#mt2-dev-failed-jobs";
 
     protected $clientService;
     protected $feedService;
@@ -149,5 +154,44 @@ class FeedController extends Controller
         Flash::success( 'File Drop Field Order was successfully updated.' );
 
         $this->feedService->saveFieldOrder( $id , $request->all() );
+    }
+
+    public function runReattribution ( $id )
+    {
+        try {
+            Artisan::call( 'attribution:commit' , [
+                'type' => 'feedInvalidation',
+                '--feedId' => $id
+            ]);
+        } catch ( \Exception $e ) {
+            \Log::info( "Failed to rerun attribution for feed ID '{$id}'" );
+            \Log::info( $e->getMessage() );
+            \Log::info( $e->getTraceAsString() );
+
+            Slack::to(self::ROOM)->send( "Failed to rerun attribution for feed ID '{$id}'" );
+
+            return response( 'Failed to rerun attribution.' , 500 );    
+        }
+    }
+
+    public function createSuppression ( $id )
+    {
+        try {
+            Artisan::call( 'feeds:suppress' , [
+                'feedId' => $id
+            ]);
+        } catch ( \Exception $e ) {
+            \Log::info( "Failed to create feed suppression for feed ID '{$id}'" );
+            \Log::info( $e->getMessage() );
+            \Log::info( $e->getTraceAsString() );
+
+            Slack::to(self::ROOM)->send( "Failed to create feed suppression for feed ID '{$id}'" );
+            
+            return response( 'Failed to create feed suppresssion.' , 500 );    
+        }
+    }
+
+    public function searchSource ( SourceUrlSearchRequest $request ) {
+        return response()->json( $this->feedService->getRecordCountForSource( $request->all() ) );
     }
 }

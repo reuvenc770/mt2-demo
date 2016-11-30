@@ -15,7 +15,7 @@
     <div ng-init="dg.loadAccounts()">
                 <md-table-container>
                     <table md-table md-progress="dg.queryPromise">
-                        <thead md-head md-order="dg.sort" md-on-reorder="dg.loadAccounts">
+                        <thead md-head md-order="dg.sort" md-on-reorder="dg.loadAccounts" class="mt2-theme-thead">
                         <tr md-row>
                             <th md-column class="mt2-table-btn-column"></th>
                             <th md-column class="md-table-header-override-whitetext mt2-table-header-center">Status</th>
@@ -49,7 +49,7 @@
                             <tr>
                                 <td colspan="5">
                                     <md-content class="md-mt2-zeta-theme md-hue-2">
-                                        <md-table-pagination md-limit="dg.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="dg.currentPage" md-total="@{{dg.accountTotal}}" md-on-paginate="dg.loadAccounts" md-page-select></md-table-pagination>
+                                        <md-table-pagination md-limit="dg.paginationCount" md-limit-options="dg.paginationOptions" md-page="dg.currentPage" md-total="@{{dg.accountTotal}}" md-on-paginate="dg.loadAccounts" md-page-select></md-table-pagination>
                                     </md-content>
                                 </td>
                             </tr>

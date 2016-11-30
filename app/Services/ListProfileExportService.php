@@ -2,11 +2,13 @@
 
 namespace App\Services;
 
+use App\Facades\EspApiAccount;
 use App\Models\ListProfileBaseTable;
 use App\Repositories\ListProfileBaseTableRepo;
 use App\Repositories\ListProfileCombineRepo;
 use App\Repositories\ListProfileRepo;
 use App\Repositories\OfferRepo;
+use Carbon\Carbon;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Storage;
 use Cache;
@@ -45,22 +47,17 @@ class ListProfileExportService
         $listProfile = $this->listProfileRepo->getProfile($listProfileId);
 
         $tableName = self::BASE_TABLE_NAME . $listProfileId;
-
+        $date = Carbon::today()->toDateString();
         $this->tableRepo = new ListProfileBaseTableRepo(new ListProfileBaseTable($tableName));
+        $fileName = "{$date}_{$listProfile->name}.csv";
 
-        if (!is_array($offerId)) {
-            $fileName = 'ListProfiles/' . $listProfile->name . '-' . $offerId . '.csv';
-        } else {
-            $fileName = 'ListProfiles/' . $listProfile->name . '.csv';
-        }
-
-        Storage::delete($fileName); // clear the file currently saved
+        Storage::disk('espdata')->delete($fileName); // clear the file currently saved
 
         $columns = json_decode($listProfile->columns, true);
 
         if ($this->listProfileRepo->shouldInsertHeader($listProfileId) || !empty($replacementHeader) ) {
             $columns = $replacementHeader ? $replacementHeader : $columns;
-            Storage::append($fileName, implode(',', $columns));
+            Storage::disk('espdata')->append($fileName, implode(',', $columns));
         }
 
         $listIds = $this->offerRepo->getSuppressionListIds($offerId);
@@ -89,16 +86,17 @@ class ListProfileExportService
         }
 
         foreach($listProfileCombine as $listProfile){
-            $files[] = $this->exportListProfile($listProfile->id,array(),array_unique($listProfileCombineHeader));
+            $files[] = $this->exportListProfile($listProfile->id, null, array_unique($listProfileCombineHeader));
         }
-        $fileName = 'ListProfiles/' . $listProfileCombine->name . '.csv';
+        $date = Carbon::today()->toDateString();
+        $fileName = "{$date}_{$listProfileCombine->name}.csv";
 
-        Storage::delete($fileName);
-        Storage::append($fileName, implode(',', $listProfileCombineHeader));
+        Storage::disk('espdata')->delete($fileName);
+        Storage::disk('espdata')->append($fileName, implode(',', $listProfileCombineHeader));
 
         foreach ($files as $file) {
-            $contents = Storage::get($file);
-            Storage::append($fileName, $contents);
+            $contents = Storage::disk('espdata')->get($file);
+            Storage::disk('espdata')->append($fileName, $contents);
         }
 
     }
@@ -129,21 +127,24 @@ class ListProfileExportService
                 return array_unique($headers);
             });
 
-            $fileName = 'ListProfiles/' . $listProfile->name . '-' . $deploy->id . '-' . $offerId . '.csv';
+            //these files are for us to build combines.
+            $fileName = 'DeployTemp/' . $listProfile->name . '-' . $deploy->id . '-' . $offerId . '.csv';
             Storage::delete($fileName); // clear the file currently saved
 
 
              foreach ($resource as $row) {
                  $row = $this->mapRow($header, $row);
-                 $this->batch($fileName, $row);
+                 $this->batch($fileName, $row, "local");
              }
-            $this->writeBatch($fileName);
+            $this->writeBatch($fileName, "local");
 
             //either get the deploy cache or build it
             $deployProgress = Cache::get("deploy-{$key}", function () use ($deploy) {
                 $listProfileCombine = $this->combineRepo->getRowWithListProfiles($deploy->list_profile_combine_id);
                 $num = count($listProfileCombine->listProfiles);
                 return array(
+                    "id" => $deploy->id,
+                    "espAccount" => $deploy->esp_account_id,
                     "name" => $listProfileCombine->name,
                     "totalPieces" => $num,
                     "files" => array(),
@@ -156,11 +157,13 @@ class ListProfileExportService
                 $deployProgress['files'] = array_merge($deployProgress['files'], array($fileName));
                 Cache::forget("header-{$key}");
                 Cache::forget("deploy-{$key}");
-                $this->buildCombineFile($header, $deployProgress['name'], $deployProgress['files'], $offerId);
+                $this->buildCombineFile($header, $deployProgress['name'], $deployProgress['files'], $offerId, $deployProgress['id'],  $deployProgress['espAccount']);
             } else {
                 //Update the cache
                 Cache::put("deploy-{$key}",
                     array(
+                        "id" => $deployProgress['id'],
+                        "espAccount" => $deployProgress['espAccount'],
                         "name" => $deployProgress['name'],
                         "totalPieces" => $deployProgress['totalPieces'],
                         "files" => array_merge($deployProgress['files'], array($fileName)),
@@ -170,10 +173,10 @@ class ListProfileExportService
         }
     }
 
-    private function batch($fileName, $row)
+    private function batch($fileName, $row, $disk = 'espdata')
     {
         if ($this->rowCount >= self::WRITE_THRESHOLD) {
-            $this->writeBatch($fileName);
+            $this->writeBatch($fileName,$disk);
 
             $this->rows = [$row];
             $this->rowCount = 1;
@@ -183,10 +186,10 @@ class ListProfileExportService
         }
     }
 
-    private function writeBatch($fileName)
+    private function writeBatch($fileName, $disk = 'espdata' )
     {
         $string = implode(PHP_EOL, $this->rows);
-        Storage::append($fileName, $string);
+        Storage::disk($disk)->append($fileName, $string);
     }
 
     private function mapRow($columns, $row)
@@ -199,15 +202,18 @@ class ListProfileExportService
         return implode(', ', $output);
     }
 
-    private function buildCombineFile($header, $fileName, $files, $offerId)
+    private function buildCombineFile($header, $fileName, $files, $offerId,$deployId, $espAccount)
     {
-        $combineFileName = "{$fileName}-{$offerId}.csv";
-        Storage::delete($combineFileName);
-        Storage::append($combineFileName, implode(',', $header));
+        $espAccountName = EspApiAccount::getEspAccountName($espAccount);
+        $offerName = $this->offerRepo->getOfferName($offerId);
+        $date = Carbon::today()->toDateString();
+        $combineFileName = "{$date}_{$deployId}_{$espAccountName}_{$fileName}_{$offerName}.csv";
+        Storage::disk('SystemFtp')->delete($combineFileName);
+        Storage::disk('SystemFtp')->append($combineFileName, implode(',', $header));
 
         foreach ($files as $file) {
             $contents = Storage::get($file);
-            Storage::append($combineFileName, $contents);
+            Storage::disk('SystemFtp')->append($combineFileName, $contents);
         }
     }
 

@@ -11,26 +11,26 @@
         </ul>
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane active" id="model">
-                <div class="panel panel-primary">
+                <div class="panel mt2-theme-panel">
                     <div class="panel-heading">
                         <div class="panel-title">Add Mailing Domain</div>
                     </div>
                     <div class="panel-body">
                         @include( 'bootstrap.pages.domain.domain-form' , ['type' => 1])
-                        <button class="btn btn-primary btn-block" ng-click="domain.saveNewAccount()" ng-disabled="domain.formSubmitted">Add Mailing Domain</button>
+                        <button class="btn mt2-theme-btn-primary btn-block" ng-click="domain.saveNewAccount()" ng-disabled="domain.formSubmitted">Add Mailing Domain</button>
 
                     </div>
                 </div>
                 @include( 'bootstrap.pages.domain.domain-list-table' )
             </div>
             <div role="tabpanel" class="tab-pane" id="reporttab">
-                <div class="panel panel-primary">
+                <div class="panel mt2-theme-panel">
                     <div class="panel-heading">
                         <div class="panel-title">Add Content Domain</div>
                     </div>
                     <div class="panel-body">
                         @include( 'bootstrap.pages.domain.domain-form' , ['type' => 2])
-                        <button class="btn btn-primary btn-block" ng-click="domain.saveNewAccount()" ng-disabled="domain.formSubmitted">Add Content Domain</button>
+                        <button class="btn mt2-theme-btn-primary btn-block" ng-click="domain.saveNewAccount()" ng-disabled="domain.formSubmitted">Add Content Domain</button>
                     </div>
                 </div>
                 @include( 'bootstrap.pages.domain.domain-list-table' )

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ImportCsvStats;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\Request;
-
+use App\Http\Requests\EspCsvMappingRequest;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Services\EspService;
@@ -13,6 +15,7 @@ use Laracasts\Flash\Flash;
 
 class EspController extends Controller
 {
+    use DispatchesJobs;
     protected $espService;
 
 
@@ -65,7 +68,13 @@ class EspController extends Controller
     public function store(EspAddRequest $request)
     {
         Flash::success("ESP Account was Successfully Added");
-        $request = $this->espService->insertRow( $request->all() );
+        $data = $request->all();
+        $data['email_id_field'] = $data['email_id_field'] == -1 ? "": $data['email_id_field'];
+        $data['email_address_field'] = $data['email_address_field'] == -1 ? "": $data['email_address_field'];
+        unset($data['email_address_field_toggle']);
+        unset($data['email_id_field_toggle']);
+        unset($data['canEdit']);
+        $request = $this->espService->insertRow( $data  );
         return response()->json( [ 'status' => $request ] );
     }
 
@@ -77,7 +86,7 @@ class EspController extends Controller
      */
     public function show($id)
     {
-        return $this->espService->getAccount( $id );
+        return $this->espService->getAccountWithEditCheck( $id );
 
     }
 
@@ -102,7 +111,13 @@ class EspController extends Controller
      */
     public function update(EspEditRequest $request, $id)
     {
-        $this->espService->updateAccount( $id , $request->toArray() );
+        $data = $request->all();
+        $data['email_id_field'] = $data['email_id_field'] == -1 ? "": $data['email_id_field'];
+        $data['email_address_field'] = $data['email_address_field'] == -1 ? "": $data['email_address_field'];
+        unset($data['email_address_field_toggle']);
+        unset($data['email_id_field_toggle']);
+        unset($data['canEdit']);
+        $this->espService->updateAccount( $id , $data );
         Flash::success("ESP Account was Successfully Updated");
     }
 
@@ -115,6 +130,30 @@ class EspController extends Controller
     public function destroy($id)
     {
         //Will not be in use. We don't want to delete ESP Accounts.
+    }
+
+
+    public function mappings(){
+        return response()
+            ->view( 'bootstrap.pages.esp.esp-mapping');
+    }
+
+    public function updateMappings(Request $request, $id){
+        $mappings = implode(',',$request->input('mappings'));
+        $this->espService->updateMappings(array("mappings" => $mappings, "esp_id" => $id),$id);
+    }
+
+    public function processCSV(Request $request){
+        $fileName = $request->get("filename");
+        $espName =  $request->get("espName");
+        $dateFolder = date('Ymd');
+        $path = storage_path() . "/app/files/uploads/csvuploads/{$dateFolder}/{$fileName}";
+        $this->dispatch(new ImportCsvStats($espName, $path));
+    }
+
+    public function getMapping(Request $request, $id){
+        return response()->json($this->espService->getMappings($id) );
+
     }
 
 }

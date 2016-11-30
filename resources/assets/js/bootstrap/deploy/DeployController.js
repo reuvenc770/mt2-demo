@@ -1,4 +1,4 @@
-mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout', 'DeployApiService', '$rootScope', '$q', '$interval' , '$mdDialog' , 'modalService' , 'formValidationService' , function ($log, $window, $location, $timeout, DeployApiService, $rootScope, $q, $interval , $mdDialog , modalService , formValidationService ) {
+mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout', 'DeployApiService', '$rootScope', '$q', '$interval' , '$mdDialog' , 'modalService' , 'formValidationService' , 'paginationService' , function ($log, $window, $location, $timeout, DeployApiService, $rootScope, $q, $interval , $mdDialog , modalService , formValidationService , paginationService ) {
     var self = this;
     self.$location = $location;
     self.currentDeploy = {
@@ -52,7 +52,8 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.file = "";
     self.polling = "";
     self.pageCount = 0;
-    self.paginationCount = '10';
+    self.paginationCount = paginationService.getDefaultPaginationCount();
+    self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = '1';
     self.deployTotal = 0;
     self.sort = "-deployment_status";

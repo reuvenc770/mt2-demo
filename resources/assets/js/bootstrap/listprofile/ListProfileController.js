@@ -1,4 +1,4 @@
-mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDialog' , '$timeout' , 'formValidationService' , 'modalService' , '$location' , '$window' , '$log' , function ( ListProfileApiService , $mdDialog , $timeout , formValidationService , modalService , $location , $window , $log ) {
+mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDialog' , '$timeout' , 'formValidationService' , 'modalService' , 'paginationService' , '$location' , '$window' , '$log' , function ( ListProfileApiService , $mdDialog , $timeout , formValidationService , modalService , paginationService , $location , $window , $log ) {
     var self = this;
 
     self.nameDisabled = true;
@@ -18,8 +18,10 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     self.current = {
         'profile_id' : null ,
         'name' : '' ,
-        'countries' : {} ,
+        'country_id' : '' ,
         'feeds' : {} ,
+        'feedGroups' :{} ,
+        'feedClients' :{} ,
         'isps' : {} ,
         'categories' : {} ,
         'offers' : [] ,
@@ -57,24 +59,41 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         'admiralsOnly' : false
     };
 
+    self.currentCombine = { 'combineName' : '' , 'selectedProfiles' : [] };
+    self.prepopListProfiles = [];
+    self.listProfilesList = [];
+    self.lpListNameField = 'name';
+
     self.listProfiles = [];
     self.pageCount = 0;
-    self.paginationCount = '10';
+    self.paginationCount = paginationService.getDefaultPaginationCount();
+    self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
     self.profileTotal = 0;
     self.queryPromise = null;
     self.sort = "name";
 
-    self.countryCodeMap = { 1 : 'US' , 235 : 'UK' };
-    self.countryNameMap = { 'United States' : 1 , 'United Kingdom' : 235 };
+    self.countryCodeMap = { 1 : 'US' , 2 : 'UK' };
+    self.countryNameMap = { 'United States' : 1 , 'United Kingdom' : 2 };
     self.genderNameMap = { 'Male' : 'M' , 'Female' : 'F' , 'Unknown' : 'U' };
 
     self.highlightedFeeds = [];
     self.highlightedFeedsForRemoval = [];
     self.feedClientFilters = [];
     self.clientFeedMap = {};
+    self.countryFeedMap = {};
     self.feedNameMap = {};
     self.feedVisibility = {};
+
+    self.highlightedFeedGroups = [];
+    self.highlightedFeedGroupsForRemoval = [];
+    self.feedGroupVisibility = {};
+    self.feedGroupNameMap = {};
+    self.highlightedFeedClients = [];
+    self.highlightedFeedClientsForRemoval = [];
+    self.feedClientVisibility = {};
+    self.feedClientNameMap = {};
+
 
     self.highlightedIsps = [];
     self.highlightedIspsForRemoval = [];
@@ -163,6 +182,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         { 'header' : 'status' , 'label' : 'Status' } ,
         { 'header' : 'tower_date' , 'label' : 'Tower Date' }
     ];
+
     self.selectedColumns = [];
     self.availableWidgetTitle = "Available Columns";
     self.chosenWidgetTitle = "Selected Columns";
@@ -209,14 +229,12 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     self.prepop = function ( listProfile ) {
         self.current = listProfile;
         self.generateName();
-
         self.fixEmptyFields();
-
         $(function () { $('[data-toggle="tooltip"]').tooltip() });
     };
 
     self.fixEmptyFields = function () {
-        angular.forEach( [ 'countries' , 'feeds' , 'isps' , 'categories' ] , function ( value , index ) {
+        angular.forEach( [ 'feedClients', 'feeds', 'feedGroups' , 'isps' , 'categories' ] , function ( value , index ) {
             if ( self.current[ value ].length == 0 ) {
                 self.current[ value ] = {};
             }
@@ -244,10 +262,35 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
         var nameParts = [];
 
-        nameParts.push( self.getFormattedName( self.current.feeds ) );
-        nameParts.push( self.getFormattedName( self.current.isps ) );
-        nameParts.push( self.getFormattedName( self.current.countries , self.countryCodeMap ) );
-        nameParts.push( self.getFormattedRangeName() );
+        var namePartFeedClients = self.getFormattedName( self.current.feedClients );
+        if ( namePartFeedClients != '' ) {
+            nameParts.push( namePartFeedClients );
+        }
+
+        var namePartFeedGroups = self.getFormattedName( self.current.feedGroups );
+        if ( namePartFeedGroups != '' ) {
+            nameParts.push( namePartFeedGroups );
+        }
+
+        var namePartFeeds = self.getFormattedName( self.current.feeds );
+        if ( namePartFeeds != '' ) {
+            nameParts.push( namePartFeeds );
+        }
+
+        var namePartIsps = self.getFormattedName( self.current.isps );
+        if ( namePartIsps != '' ) {
+            nameParts.push( namePartIsps );
+        }
+
+        var namePartCountry = self.getFormattedName( self.current.country_id , self.countryCodeMap );
+        if ( namePartCountry != '' ) {
+            nameParts.push( namePartCountry );
+        }
+
+        var namePartRangeName = self.getFormattedRangeName();
+        if ( namePartRangeName != '' ) {
+            nameParts.push( namePartRangeName );
+        }
 
         self.current.name = nameParts.join( '_' );
     };
@@ -411,6 +454,42 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         );
     };
 
+    self.addFeedGroups = function () {
+        self.addMembershipItems(
+            { "highlighted" : self.highlightedFeedGroups , "visibility" : self.feedGroupVisibility , "map" : self.feedGroupNameMap } ,
+            self.current.feedGroups ,
+            self.generateName
+        );
+    };
+
+    self.removeFeedGroups = function () {
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedFeedGroupsForRemoval , "visibility" : self.feedGroupVisibility } ,
+            self.current.feedGroups ,
+            function () {
+                self.generateName();
+            }
+        );
+    };
+
+    self.addFeedClients = function () {
+        self.addMembershipItems(
+            { "highlighted" : self.highlightedFeedClients , "visibility" : self.feedClientVisibility , "map" : self.feedClientNameMap } ,
+            self.current.feedClients ,
+            self.generateName
+        );
+    };
+
+    self.removeFeedClients = function () {
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : self.highlightedFeedClientsForRemoval , "visibility" : self.feedClientVisibility } ,
+            self.current.feedClients ,
+            function () {
+                self.generateName();
+            }
+        );
+    };
+
     self.updateFeedVisibility = function () {
         var showAll = false;
         var noClientFiltersSelected = self.feedClientFilters.length <= 0;
@@ -421,21 +500,33 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
         angular.forEach( self.feedVisibility , function ( visibility , feedId ) {
             var feedNotSelected = typeof( self.current.feeds[ parseInt( feedId ) ] ) == 'undefined';
-
+            var feedListExistsAndBelongsInCountry = self.countryFeedMap[ parseInt( self.current.country_id ) ].indexOf( parseInt( feedId ) ) !== -1;
             if ( showAll && feedNotSelected ) {
-                self.feedVisibility[ feedId ] = true;
+                if(feedListExistsAndBelongsInCountry) {
+                    self.feedVisibility[feedId] = true;
+                }
             } else {
                 self.feedVisibility[ feedId ] = false;
 
                 angular.forEach( self.feedClientFilters , function ( clientId ) {
                     var feedListExistsAndBelongsToClient = ( typeof( self.clientFeedMap[ parseInt( clientId ) ] ) != 'undefined' && self.clientFeedMap[ parseInt( clientId ) ].indexOf( parseInt( feedId ) ) !== -1 );
-
-                    if( feedListExistsAndBelongsToClient && feedNotSelected ) {
+                    if( feedListExistsAndBelongsToClient && feedNotSelected && feedListExistsAndBelongsInCountry ) {
                         self.feedVisibility[ feedId ] = true;
                     }
                 } );
             }
         } );
+    };
+
+    self.updateFeedVisibilityFromCountry = function () {
+        angular.forEach( self.feedVisibility , function ( visibility , feedId ) {
+                    var feedListExistsAndBelongsInCountry = ( typeof( self.countryFeedMap[ parseInt( self.current.country_id ) ] ) != 'undefined' && self.countryFeedMap[ parseInt( self.current.country_id ) ].indexOf( parseInt( feedId ) ) !== -1);
+                    if( feedListExistsAndBelongsInCountry ) {
+                        self.feedVisibility[ feedId ] = true;
+                    } else{
+                        self.feedVisibility[ feedId ] = false;
+                    }
+                } );
     };
 
     self.clearClientFeedFilter = function () {
@@ -464,7 +555,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
     self.removeIsps = function () {
         self.removeMembershipItems(
-            { "highlightedForRemoval" : self.highlightedIspsForRemoval , "visibility" : self.ispVisibility } ,        
+            { "highlightedForRemoval" : self.highlightedIspsForRemoval , "visibility" : self.ispVisibility } ,
             self.current.isps ,
             self.generateName
         );
@@ -474,14 +565,14 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         self.addMembershipItems(
             { "highlighted" : self.highlightedCategories , "visibility" : self.categoryVisibility , "map" : self.categoryNameMap } ,
             self.current.categories
-        );  
+        );
     };
 
     self.removeCategories = function () {
         self.removeMembershipItems(
             { "highlightedForRemoval" : self.highlightedCategoriesForRemoval , "visibility" : self.categoryVisibility } ,
             self.current.categories
-        );  
+        );
     };
 
     self.addOffers = function () {
@@ -646,6 +737,11 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         }
     };
 
+    self.updateCountry = function (){
+        self.generateName();
+        self.updateFeedVisibilityFromCountry();
+    };
+
     self.columnMembershipCallback = function (){
         var columnList = [];
         angular.forEach( self.selectedColumns , function ( column , columnIndex ) {
@@ -671,15 +767,15 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
                 ( immediatelyExists && itemsChosen === 1 )
                 || ( !immediatelyExists && option == 'Immediately' && itemsChosen === 1 )
                 || ( itemsChosen === 0 ) ) {
-                self.current.exportOptions.interval.push( option ); 
+                self.current.exportOptions.interval.push( option );
             }
         } else {
-            self.current.exportOptions.interval.splice( optionIndex , 1 ); 
+            self.current.exportOptions.interval.splice( optionIndex , 1 );
             self.current.exportOptions.dayOfWeek = null;
             self.current.exportOptions.dayOfMonth = null;
         }
     };
-        
+
     self.isSelectedExportOption = function ( option ) {
         return self.current.exportOptions.interval.indexOf( option ) >= 0;
     }
@@ -706,17 +802,14 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     };
 
     self.createCombine = function (){
-        if(self.combineName.length < 1){
-            self.combineError = "Combine Name is required";
-        } else {
-            self.combineError = null;
-        }
-
         ListProfileApiService.createCombine(self.combineName,self.selectedProfiles, self.createCombineSuccess, self.createCombineFail);
     };
 
+    self.updateCombine = function () {
+        ListProfileApiService.updateCombine( self.currentCombine , self.SuccessCallBackRedirect , self.updateCombineFail );
+    };
+
     self.toggleRow = function (selectedValue) {
-        console.log(selectedValue);
         var index = self.selectedProfiles.indexOf(selectedValue);
         if (index >= 0) {
             self.selectedProfiles.splice(index, 1);
@@ -724,6 +817,46 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
             self.selectedProfiles.push(selectedValue);
         }
         self.showCombine = self.selectedProfiles.length > 1;
+    };
+
+    self.isCreatingCombine = function( profile ) {
+        return self.selectedProfiles.indexOf( profile ) > -1;
+    };
+
+    self.loadListProfileList = function () {
+        ListProfileApiService.getAllListProfiles( self.getAllListProfilesSuccess, self.getAllListProfilesFail )
+    };
+
+    self.getAllListProfilesSuccess = function ( response ) {
+
+        self.listProfilesList = response.data;
+
+        if ( self.prepopListProfiles.length > 0 ) {
+            var profilesToRemove = [];
+
+            angular.forEach( self.listProfilesList , function ( value , index ) {
+
+                if (self.prepopListProfiles.indexOf( value.id) >= 0 ) {
+                    profilesToRemove.push( value );
+                    self.currentCombine.selectedProfiles.push( value );
+                }
+            });
+
+            angular.forEach( profilesToRemove , function ( value , index ) {
+                self.listProfilesList.splice( self.listProfilesList.indexOf( value ) , 1 );
+            });
+        }
+
+    };
+
+    self.getAllListProfilesFail = function ( response ) {
+        modalService.simpleToast("List of list profiles failed to load.",'top right');
+    };
+
+    self.setCombine = function ( combineId , combineName , listProfiles ) {
+        self.currentCombine.id = combineId;
+        self.currentCombine.combineName = combineName;
+        self.prepopListProfiles = listProfiles;
     };
 
     self.loadListCombines = function (){
@@ -735,7 +868,13 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     };
 
     self.createCombineSuccess = function (response){
+        $('#createCombine').modal('hide');
         modalService.simpleToast("List Combine was Created",'top right');
+
+        self.selectedProfiles = [];
+        self.showCombine = false;
+        formValidationService.resetFieldErrors( self );
+
         self.loadListCombines();
         self.combineName = "";
     };
@@ -746,11 +885,14 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     };
 
     self.createCombineFail = function ( response) {
-        modalService.simpleToast("List Combine failed to create",'top right');
+        formValidationService.loadFieldErrors( self, response );
+    };
+
+    self.updateCombineFail = function ( response ) {
+        formValidationService.loadFieldErrors( self, response );
     };
 
     self.exportCombine = function (id){
-        console.log(id);
        ListProfileApiService.exportCombine(id,self.exportCombineSuccess, self.exportCombineFail)
     };
 
@@ -760,5 +902,30 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
     self.exportCombineFail = function (response){
         modalService.simpleToast("List Combine failed to export",'top right');
+    };
+
+    self.copyListProfile = function ( ev , id, name) {
+            var confirm = $mdDialog.confirm()
+                .title( 'Are you sure you want to copy '+ name + '?' )
+                .ariaLabel( 'Copy Warning' )
+                .targetEvent( ev )
+                .ok( 'Yes' )
+                .cancel( 'Cancel' );
+
+            $mdDialog.show( confirm ).then(
+                function () {
+                    ListProfileApiService.copyListProfile(id,self.copyProfileSuccess, self.copyProfileFail);
+                }
+            );
+    };
+
+    self.copyProfileSuccess = function (response){
+        modalService.simpleToast("List Profile Copied",'top right');
+        self.loadListProfiles();
+    };
+
+    self.copyProfileFail = function (response){
+        modalService.simpleToast("List Copy was successful",'top right');
+
     };
 } ] );

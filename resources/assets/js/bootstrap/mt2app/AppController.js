@@ -18,9 +18,9 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
         if ( typeof( path ) === 'undefined' ) {
             self.activeSection = {};
             self.activeSection[ sectionName ] = true;
-            
+
             return true;
-        }        
+        }
 
         if ( path == self.currentPath ) {
             self.activeSection = {};
@@ -140,7 +140,7 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
         self.closeSideNavAccordians();
         self.closeHoverMenu();
 
-        self.sideNavMinimized = !self.sideNavMinimized; 
+        self.sideNavMinimized = !self.sideNavMinimized;
 
         self.setSidenavCookie( $event );
     };
@@ -206,4 +206,6 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
 
         return moment( dateString , inputDateFormat ).format( outputDateFormat );
     };
+
+
 } ] );

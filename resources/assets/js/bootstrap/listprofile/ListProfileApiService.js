@@ -33,28 +33,28 @@ mt2App.service( 'ListProfileApiService' , function ( $http ) {
     self.getIspsByProfileId = function ( groupId , successCallback , failureCallback ) {
         $http( {
             "method" : "GET" ,
-            "url" : self.baseApiUrl + '/isps/' + groupId 
+            "url" : self.baseApiUrl + '/isps/' + groupId
         } ).then( successCallback , failureCallback );
     };
 
     self.getSourcesByProfileId = function ( groupId , successCallback , failureCallback ) {
         $http( {
             "method" : "GET" ,
-            "url" : self.baseApiUrl + '/sources/' + groupId 
+            "url" : self.baseApiUrl + '/sources/' + groupId
         } ).then( successCallback , failureCallback );
     };
 
     self.getSeedsByProfileId = function ( groupId , successCallback , failureCallback ) {
         $http( {
             "method" : "GET" ,
-            "url" : self.baseApiUrl + '/seeds/' + groupId 
+            "url" : self.baseApiUrl + '/seeds/' + groupId
         } ).then( successCallback , failureCallback );
     };
 
     self.getZipsByProfileId = function ( groupId , successCallback , failureCallback ) {
         $http( {
             "method" : "GET" ,
-            "url" : self.baseApiUrl + '/zips/' + groupId 
+            "url" : self.baseApiUrl + '/zips/' + groupId
         } ).then( successCallback , failureCallback );
     };
 
@@ -114,7 +114,7 @@ mt2App.service( 'ListProfileApiService' , function ( $http ) {
         $http( {
             "method" : "POST" ,
             "url" : self.createCombineUrl ,
-            "data" : {"name":name,"selectedProfiles": selectedListProfiles}
+            "data" : {"combineName":name,"selectedProfiles": selectedListProfiles}
         } ).then( successCallback , failureCallback );
     };
 
@@ -133,4 +133,34 @@ mt2App.service( 'ListProfileApiService' , function ( $http ) {
         } ).then( successCallback , failureCallback );
     };
 
+    self.getListCombine = function (id , successCallback , failureCallback ) {
+        $http( {
+            "method" : "GET" ,
+            "url" : self.baseApiUrl + '/listcombine/' + id
+        } ).then( successCallback );
+    };
+
+    self.getAllListProfiles = function ( successCallback , failureCallback ) {
+        $http( {
+            "method" : "GET" ,
+            "url" : self.baseApiUrl
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.updateCombine = function ( combineData , successCallback , failureCallback ) {
+        $http( {
+            "method" : "PUT" ,
+            "url" : self.baseApiUrl + '/listcombine/' ,
+            "params" : { "_method" : "PUT" } ,
+            "data" : combineData
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.copyListProfile = function ( id , successCallback , failureCallback ) {
+        $http( {
+            "method" : "POST" ,
+            "url" : self.baseApiUrl + "/copy" ,
+            "data" : {"id":id}
+        } ).then( successCallback , failureCallback );
+    };
 } );

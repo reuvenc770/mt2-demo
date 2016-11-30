@@ -5,7 +5,7 @@
 @section( 'navEspClasses' , 'active' )
 
 @section( 'content' )
-<div class="panel panel-primary" ng-controller="espController as esp" ng-init="esp.loadAccount()">
+<div class="panel mt2-theme-panel" ng-controller="espController as esp" ng-init="esp.loadAccount()">
     <div class="panel-heading">
         <div class="panel-title">Edit ESP API Account :: @{{esp.currentAccount.accountName}}</div>
     </div>
@@ -17,7 +17,7 @@
     </div>
     <div class="panel-footer">
         <div class="form-group">
-            <input class="btn btn-primary btn-block" ng-click="esp.editAccount()" ng-disabled="esp.formSubmitted" type="submit" value="Update ESP API Account">
+            <input class="btn mt2-theme-btn-primary btn-block" ng-click="esp.editAccount()" ng-disabled="esp.formSubmitted" type="submit" value="Update ESP API Account">
         </div>
     </div>
 </div>

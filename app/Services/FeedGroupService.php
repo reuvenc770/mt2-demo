@@ -36,4 +36,8 @@ class FeedGroupService {
     public function getFeeds ( $id ) {
         return $this->repo->getFeeds( $id );
     }
+
+    public function getAllFeedGroupsArray(){
+        return $this->repo->getAllFeedGroups()->toArray();
+    }
 }

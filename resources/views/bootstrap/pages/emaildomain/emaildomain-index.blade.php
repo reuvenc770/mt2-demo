@@ -14,7 +14,7 @@
     <div ng-init="emailDomain.loadAccounts()">
                 <md-table-container>
                     <table md-table md-progress="emailDomain.queryPromise">
-                        <thead md-head md-order="emailDomain.sort" md-on-reorder="emailDomain.loadAccounts">
+                        <thead md-head md-order="emailDomain.sort" md-on-reorder="emailDomain.loadAccounts" class="mt2-theme-thead">
                         <tr md-row>
                             <th md-column class="mt2-table-btn-column"></th>
                             <th md-column md-order-by="domain_name" class="md-table-header-override-whitetext">ISP Domain Name</th>
@@ -40,7 +40,7 @@
                             <tr>
                                 <td colspan="3">
                                     <md-content class="md-mt2-zeta-theme md-hue-2">
-                                        <md-table-pagination md-limit="emailDomain.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="emailDomain.currentPage" md-total="@{{emailDomain.accountTotal}}" md-on-paginate="emailDomain.loadAccounts" md-page-select></md-table-pagination>
+                                        <md-table-pagination md-limit="emailDomain.paginationCount" md-limit-options="emailDomain.paginationOptions" md-page="emailDomain.currentPage" md-total="@{{emailDomain.accountTotal}}" md-on-paginate="emailDomain.loadAccounts" md-page-select></md-table-pagination>
                                     </md-content>
                                 </td>
                             </tr>

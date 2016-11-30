@@ -24,19 +24,14 @@
     </div>
 </div>
 
-<div class="panel panel-success">
+<div class="panel panel-info">
     <div class="panel-heading">
         <div class="panel-title">DBAs</div>
     </div>
     <div class="panel-body">
         <fieldset>
             <div class="form-group" ng-class="{ 'has-error' : registrar.formErrors.dba_name }">
-                <select class="form-control" name="dba_name" ng-model="registrar.currentDba.dba_name">
-                    <option value="">Select DBA</option>
-                    @foreach ( $dbas as $dba )
-                        <option value="{{ $dba['dba_name'] }}">{{ $dba['dba_name'] }}</option>
-                    @endforeach
-                </select>
+                <input placeholder="DBA Name" value="" class="form-control" ng-model="registrar.currentDba.dba_name" required="required" name="dba_name" type="text">
                 <div class="help-block" ng-show="registrar.formErrors.dba_name">
                     <div ng-repeat="error in registrar.formErrors.dba_name">
                         <span ng-bind="error"></span>
@@ -60,7 +55,7 @@
                 </div>
             </div>
         </fieldset>
-        <button class="btn btn-success btn-block" ng-click="registrar.addDba()">
+        <button class="btn mt2-theme-btn-primary btn-block" ng-click="registrar.addDba()">
             <span ng-show="!registrar.editingDba">Add </span>
             <span ng-show="registrar.editingDba">Update </span> DBA
         </button>
@@ -77,8 +72,8 @@
             <div class="caption clearfix">
                 @{{ value.dba_name }} - Contact: @{{ value.dba_contact_name }} (@{{ value.dba_contact_email }})
                 <div class="pull-right">
-                    <a href="#" class="btn btn-success btn-xs" ng-click="registrar.editDba(key)" role="button">Edit</a>
-                    <a href="#" class="btn btn-danger btn-xs" ng-click="registrar.removeDba(key)"
+                    <a href="#" class="btn mt2-theme-btn-primary btn-xs" ng-click="registrar.editDba(key)" role="button">Edit</a>
+                    <a href="#" class="btn mt2-theme-btn-secondary btn-xs" ng-click="registrar.removeDba(key)"
                        role="button">Delete</a>
                 </div>
             </div>

@@ -134,6 +134,10 @@ Route::group(
             'as' => 'esp.add' ,
             'uses' => 'EspController@create'
         ] );
+        Route::get( '/mapping/{id}' , [
+            'as' => 'esp.mapping' ,
+            'uses' => 'EspController@mappings'
+        ] );
     }
 );
 
@@ -170,6 +174,11 @@ Route::group(
         Route::get( '/navigation' , [
             'as' => 'tools.navigation' ,
             'uses' => 'NavigationController@index'
+        ] );
+
+        Route::get( '/source-url-search' , [
+            'as' => 'tools.sourceurlsearch' ,
+            'uses' => 'SourceUrlSearchController@index'
         ] );
 
     }
@@ -410,7 +419,7 @@ Route::group(
     ] ,
     function () {
         Route::get( '/' , [
-            'as' => 'client.list' , 
+            'as' => 'client.list' ,
             'uses' => 'ClientController@listAll'
         ] );
 
@@ -502,6 +511,11 @@ Route::group(
         Route::get( '/edit/{id}' , [
             'as' => 'listprofile.edit' ,
             'uses' => 'ListProfileController@edit'
+        ] );
+
+        Route::get( '/combine/edit/{id}' , [
+            'as' => 'listprofile.combine.edit' ,
+            'uses' => 'ListProfileController@editListCombine'
         ] );
 
     }
@@ -637,27 +651,27 @@ Route::group(
             ]
         );
 
-        Route::get( 
-            '/create', 
-            array( 
-                'as' => 'attributionModel.add', 
-                'uses' => 'AttributionController@create' 
+        Route::get(
+            '/create',
+            array(
+                'as' => 'attributionModel.add',
+                'uses' => 'AttributionController@create'
             )
         );
 
-        Route::get( 
-            '/edit/{modelId}', 
-            array( 
-                'as' => 'attributionModel.edit', 
-                'uses' => 'AttributionController@edit' 
+        Route::get(
+            '/edit/{modelId}',
+            array(
+                'as' => 'attributionModel.edit',
+                'uses' => 'AttributionController@edit'
             )
         );
 
-        Route::get( 
-            '/projection/{id}', 
-            array( 
-                'as' => 'attributionProjection.show', 
-                'uses' => 'AttributionController@showProjection' 
+        Route::get(
+            '/projection/{id}',
+            array(
+                'as' => 'attributionProjection.show',
+                'uses' => 'AttributionController@showProjection'
             )
         );
     }
@@ -672,19 +686,19 @@ Route::group(
         'middleware' => [ 'auth' , 'pageLevel' ]
     ] ,
     function () {
-        Route::get( 
-            '/', 
-            array( 
-                'as' => 'report.list', 
-                'uses' => 'ReportController@view' 
+        Route::get(
+            '/',
+            array(
+                'as' => 'report.list',
+                'uses' => 'ReportController@view'
             )
         );
 
-        Route::get( 
-            '/export', 
-            array( 
-                'as' => 'report.export', 
-                'uses' => 'ReportController@export' 
+        Route::get(
+            '/export',
+            array(
+                'as' => 'report.export',
+                'uses' => 'ReportController@export'
             )
         );
     }
@@ -793,6 +807,29 @@ Route::group(
             'uses' => 'NavigationController@update'
         ] );
 
+        Route::get(
+            'esp/mappings/{id}' ,
+            [
+                'as' => 'api.esp.mappings.get' ,
+                'uses' => 'EspController@getMapping'
+            ]
+        );
+        Route::put(
+            'esp/mappings/{id}' ,
+            [
+                'as' => 'api.esp.mappings.update' ,
+                'uses' => 'EspController@updateMappings'
+            ]
+        );
+
+        Route::post(
+            'esp/mappings/process' ,
+            [
+                'as' => 'api.esp.mappings.process' ,
+                'uses' => 'EspController@processCSV'
+            ]
+        );
+
         Route::group(
             [ 'prefix' => 'deploy' ] ,
             function () {
@@ -848,7 +885,7 @@ Route::group(
         Route::group(
             [ 'prefix' => 'listprofile' ] ,
             function () {
-                Route::get( '/copy' , [
+                Route::post( '/copy' , [
                     'as' => 'api.listprofile.copy' ,
                     'uses' => 'ListProfileController@copy'
                 ] );
@@ -893,6 +930,10 @@ Route::group(
                 Route::post( '/listcombine/export' , [
                     'as' => 'api.listprofile.combine.export' ,
                     'uses' => 'ListProfileController@exportListCombine',
+                ] );
+                Route::put( '/listcombine' , [
+                    'as' => 'api.listprofile.combine.update' ,
+                    'uses' => 'ListProfileController@updateListCombine'
                 ] );
             }
         );
@@ -1002,31 +1043,31 @@ Route::group(
                     'as' => 'api.attribution.model.index' ,
                     'middleware' => 'auth' ,
                     'uses' => 'AttributionController@index'
-                ] ); 
+                ] );
 
                 Route::post( '/attribution/model' , [
                     'as' => 'api.attribution.model.store' ,
                     'middleware' => 'auth' ,
                     'uses' => 'AttributionController@store'
-                ] ); 
+                ] );
 
                 Route::put( '/attribution/model/{modelId}' , [
                     'as' => 'api.attribution.model.update' ,
                     'middleware' => 'auth' ,
                     'uses' => 'AttributionController@update'
-                ] ); 
+                ] );
 
                 Route::delete( '/attribution/model/{modelId}/{feedId}' , [
                     'as' => 'api.attribution.model.destroy' ,
                     'middleware' => 'auth' ,
                     'uses' => 'AttributionController@destroy'
-                ] ); 
+                ] );
 
                 Route::get( '/attribution/model/{modelId}' , [
                     'as' => 'api.attribution.model.show' ,
                     'middleware' => 'auth' ,
                     'uses' => 'AttributionController@show'
-                ] ); 
+                ] );
 
                 Route::get( '/attribution/model/{modelId}/levels' , [
                     'as' => 'api.attribution.model.levels' ,
@@ -1092,6 +1133,21 @@ Route::group(
         Route::put( '/feed/file/{id}' , [
             'as' => 'api.feed.file.savefieldorder' ,
             'uses' => 'FeedController@storeFieldOrder'
+        ] );
+
+        Route::put( '/feed/runreattribution/{id}' , [
+            'as' => 'api.feed.reattribution.run' ,
+            'uses' => 'FeedController@runReattribution'
+        ] );
+
+        Route::post( '/feed/createsuppression/{id}' , [
+            'as' => 'api.feed.suppression.create' ,
+            'uses' => 'FeedController@createSuppression'
+        ] );
+
+        Route::post( '/feed/searchsource' , [
+            'as' => 'api.feed.searchsource' ,
+            'uses' => 'FeedController@searchSource'
         ] );
 
         /**
@@ -1380,6 +1436,8 @@ Route::group(
         );
     }
 );
+
+
 
 
 /**

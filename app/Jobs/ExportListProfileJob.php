@@ -43,26 +43,25 @@ class ExportListProfileJob extends Job implements ShouldQueue
      */
     public function handle(ListProfileExportService $service, DeployRepo $deployRepo) {
         if ($this->jobCanRun($this->jobName)) {
-            try {
+            #try {
                 $this->createLock($this->jobName);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
-                $offer = $this->offerId ? $this->offerId : array();
 
-                if($this->offerId >= 1){  //its a combine and meant for a deploy
+                if((int)$this->offerId >= 1){  //it's a combine and meant for a deploy
                     $deploys = $deployRepo->getDeploysFromProfileAndOffer($this->listProfileId,$this->offerId);
-                    $service->exportListProfileToMany($this->listProfileId, $offer,$deploys);
-                } else { // its a scheduled export
-                    $service->exportListProfile($this->listProfileId, $offer);
+                    $service->exportListProfileToMany($this->listProfileId, $this->offerId, $deploys);
+                } else { // it's a scheduled export
+                    $service->exportListProfile($this->listProfileId, $this->offerId);
                 }
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
-            }
-            catch (\Exception $e) {
-                echo "{$this->jobName} failed with {$e->getMessage()}  {$e->getLine()}" . PHP_EOL;
-                $this->failed();
-            }
-            finally {
+            #}
+            #catch (\Exception $e) {
+            #    echo "{$this->jobName} failed with {$e->getMessage()}  {$e->getLine()}" . PHP_EOL;
+            #    $this->failed();
+            #}
+            #finally {
                 $this->unlock($this->jobName);
-            }
+            #}
         }
         else {
             echo "Still running {$this->jobName} - job level" . PHP_EOL;

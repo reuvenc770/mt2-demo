@@ -29,12 +29,10 @@ class AddDBARequest extends Request
             'dba_name'      => 'required|unique:doing_business_as',
             'phone'         => 'required',
             'zip'           => 'required',
-            'dba_email'     => 'required|email',
+            'dba_email'     => 'email',
             'address'       => 'required',
             'city'          => 'required',
-            'state'         => 'required',
-            'entity_name'   => 'required',
-            'registrant_name' => 'required',
+            'state'         => 'required'
         ];
     }
 

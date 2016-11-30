@@ -209,8 +209,8 @@ class ListProfileQueryBuilder {
                     ->groupBy('email_id')
                     ->whereRaw("date BETWEEN CURDATE() - INTERVAL $end DAY AND CURDATE() - INTERVAL $start DAY");
 
-        $query = sizeof($this->emailDomainIds) > 0 ? $query->whereIn('email_domain_id', $this->emailDomainIds) : $query;
-        $query = sizeof($this->offerIds) > 0 ? $query->whereIn('offer_id', $this->offerIds) : $query; 
+        $query = sizeof($this->emailDomainIds) > 0 ? $query->whereRaw('email_domain_id IN (' . implode(',', $this->emailDomainIds) . ')') : $query;
+        $query = sizeof($this->offerIds) > 0 ? $query->whereRaw('offer_id IN (' . implode(',', $this->offerIds) . ')') : $query; 
 
         $query = $query->havingRaw("SUM($type) >= $count")->toSql();
 
@@ -281,7 +281,7 @@ class ListProfileQueryBuilder {
                 // Get everything from the selected feeds - no ignores required
                 $query = $query->whereIn('efa.feed_id', $feedsWithoutIgnores);
             }
-            elseif ($sizeof($this->feedsWithSuppression) > 0) {
+            elseif (sizeof($this->feedsWithSuppression) > 0) {
                 // Get data from all feeds, except those emails ignored for these
                 $query = $query->join("{$this->dataSchema}.email_feed_status as efs", function($join) {
                     $join->on('efa.feed_id', '=', 'efs.feed_id');
@@ -353,6 +353,12 @@ class ListProfileQueryBuilder {
             }
         }
 
+        foreach ($listProfile->feedGroups as $feedGroup) {
+            foreach ($feedGroup->feeds as $feed) {
+                $feedIds[] = $feed->id;
+            }
+        }
+
         foreach ($listProfile->feeds as $feed) {
             $feedIds[] = $feed->id;
         }
@@ -365,7 +371,7 @@ class ListProfileQueryBuilder {
         $emailDomainIds = [];
 
         foreach ($listProfile->domainGroups as $domainGroup) {
-            foreach ($domainGroup->emailDomains as $domain) {
+            foreach ($domainGroup->domains as $domain) {
                 $emailDomainIds[] = $domain->id;
             }
         }

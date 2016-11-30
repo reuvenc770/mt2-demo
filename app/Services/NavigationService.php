@@ -221,7 +221,7 @@ class NavigationService
             $exceptionString = implode('|', trans('navigationSkip.list'));
             if ($route) {
                 if (preg_match('/^\/(?!api)/', $route->getPrefix())  &&
-                    !preg_match('/(?:' . $exceptionString . ')/', $route->getName())) {
+                    !preg_match('/\.(?:' . $exceptionString . ').{0,}$/', $route->getName())) {
                     $permissionsArray[] = ["id" => $permission->id, "name" => trans('navigation.' . $route->getName())];
                 }
             }

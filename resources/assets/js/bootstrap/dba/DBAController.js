@@ -1,4 +1,4 @@
-mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$timeout' , 'DBAApiService', '$rootScope', '$mdToast' , 'CustomValidationService', 'formValidationService', 'modalService' , function ( $log , $window , $location , $timeout , DBAApiService, $rootScope, $mdToast , CustomValidationService, formValidationService, modalService ) {
+mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$timeout' , 'DBAApiService', '$rootScope', '$mdToast' , 'CustomValidationService', 'formValidationService', 'modalService' , 'paginationService' , function ( $log , $window , $location , $timeout , DBAApiService, $rootScope, $mdToast , CustomValidationService, formValidationService, modalService , paginationService ) {
     var self = this;
     self.$location = $location;
 
@@ -19,7 +19,8 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     };
     self.editingPOBox = false;
     self.pageCount = 0;
-    self.paginationCount = '10';
+    self.paginationCount = paginationService.getDefaultPaginationCount();
+    self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
     self.poBoxHolder = [];
     self.accountTotal = 0;

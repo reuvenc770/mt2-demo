@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\EspRepo;
 use App\Services\ServiceTraits\PaginateList;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use League\Csv\Reader;
 /**
  * Class EspApiService
@@ -40,6 +41,12 @@ class EspService
         return $this->espRepo->getAccountWithFields($id);
     }
 
+    public function getAccountWithEditCheck($id){
+        $data = $this->espRepo->getAccountWithFields($id);
+        $data->hasAccounts = $data->espAccounts()->count() != 0;
+        return $data;
+    }
+
     /**
      * @return Illuminate\Database\Eloquent\Collection
      */
@@ -51,9 +58,12 @@ class EspService
         $esp = $this->espRepo->getEspByName($name);
         return $esp->id;
     }
+    public function getMappings($id){
+        return $this->espRepo->getMappings($id);
+    }
 
-    public function updateMappings($mapping){
-        return $this->updateEspMappings($mapping);
+    public function updateMappings($mapping,$espId){
+        return $this->espRepo->updateEspMappings($mapping,$espId);
     }
 
     public function getModel(){
@@ -61,7 +71,7 @@ class EspService
     }
 
     public function updateAccount($id, $fieldOptions){
-        //only field options for now
+                $this->espRepo->updateEspName($id, $fieldOptions['name']);
        return  $this->espRepo->updateFieldOptions($id, $fieldOptions);
     }
 
@@ -69,4 +79,5 @@ class EspService
     public function getType(){
         return "Esp";
     }
+
 }

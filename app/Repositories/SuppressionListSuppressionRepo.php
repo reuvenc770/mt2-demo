@@ -30,4 +30,17 @@ class SuppressionListSuppressionRepo {
                     ->get();
     }
 
+    public function addToSuppressionList($emailAddress, $listId) {
+        $emailAddress = strtolower($emailAddress);
+        $lowerMd5 = md5($emailAddress);
+        $upperMd5 = md5(strtoupper($emailAddress));
+
+        $this->model->insert([
+            'suppression_list_id' => $listId,
+            'email_address' => $emailAddress,
+            'lower_case_md5' => $lowerMd5,
+            'upper_case_md5' => $upperMd5
+        ]);
+    }
+
 }
