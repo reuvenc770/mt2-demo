@@ -21,7 +21,8 @@ mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$mdToast' , 
         self.isLoading = true;
         formValidationService.resetFieldErrors(self);
 
-        self.api.getRecords( self.getType() , self.recordId , self.loadDataSuccessCallback , self.loadDataFailureCallback );
+        var records = self.recordId.replace(/(\r\n|\r|\n)/g, ',');
+        self.api.getRecords( self.getType() , records , self.loadDataSuccessCallback , self.loadDataFailureCallback );
     };
 
     self.suppressRecord = function () {
@@ -36,9 +37,9 @@ mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$mdToast' , 
      */
 
     self.getType = function () {
-        var re = /^\d{1,}$/;
+        var re = /\@/;
 
-        return ( re.exec( self.recordId ) ? 'eid' : 'email' );
+        return ( re.exec( self.recordId ) ? 'email' : 'eid' );
     }
 
     self.loadReasons = function () {
@@ -54,7 +55,7 @@ mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$mdToast' , 
 
         self.records = response.data.data;
         self.suppression = response.data.suppression;
-        if(response.data.data[0].message == "Error: no results found"){
+        if(0 === self.records.length){
             modalService.setModalLabel('Error');
             modalService.setModalBody('Record had no information.');
             modalService.launchModal();
