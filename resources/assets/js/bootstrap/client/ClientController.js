@@ -68,9 +68,7 @@ mt2App.controller( 'ClientController' , [ '$log' , '$window' , '$location', '$ti
     };
 
     self.loadAccountsFailureCallback = function( response ) {
-        modalService.setModalLabel( 'Error' );
-        modalService.setModalBody( 'Failed to load clients.' );
-        modalService.launchModal();
+        modalService.simpleToast( 'Failed to load clients.' );
     };
 
     self.successRedirectCallback = function () {
@@ -82,7 +80,7 @@ mt2App.controller( 'ClientController' , [ '$log' , '$window' , '$location', '$ti
         self.formSubmitted = false;
 
         modalService.setModalLabel( 'Error' );
-        modalService.setModalBody( 'Failed to save clients.' );
+        modalService.setModalBody( 'Failed to save new client.' );
         modalService.launchModal();
     };
 
@@ -90,7 +88,7 @@ mt2App.controller( 'ClientController' , [ '$log' , '$window' , '$location', '$ti
         self.formSubmitted = false;
 
         modalService.setModalLabel( 'Error' );
-        modalService.setModalBody( 'Failed to update clients.' );
+        modalService.setModalBody( 'Failed to update client.' );
         modalService.launchModal();
     };
 } ] );

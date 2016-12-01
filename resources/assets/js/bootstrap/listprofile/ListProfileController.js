@@ -220,10 +220,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     };
 
     self.loadListProfilesFailureCallback = function ( response ) {
-        modalService.setModalLabel( 'Error' );
-        modalService.setModalBody( 'Failed to load list profiles.' );
-
-        modalService.launchModal();
+        modalService.simpleToast( 'Failed to load list profiles.' );
     };
 
     self.prepop = function ( listProfile ) {
@@ -850,7 +847,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     };
 
     self.getAllListProfilesFail = function ( response ) {
-        modalService.simpleToast("List of list profiles failed to load.",'top right');
+        modalService.simpleToast("Failed to load list of list profiles.");
     };
 
     self.setCombine = function ( combineId , combineName , listProfiles ) {
@@ -869,7 +866,9 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
     self.createCombineSuccess = function (response){
         $('#createCombine').modal('hide');
-        modalService.simpleToast("List Combine was Created",'top right');
+        modalService.setModalLabel('Success');
+        modalService.setModalBody("List combine was created.");
+        modalService.launchModal();
 
         self.selectedProfiles = [];
         self.showCombine = false;
@@ -880,7 +879,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     };
 
     self.loadCombineFail = function (response) {
-        modalService.simpleToast("List Combine failed to load",'top right');
+        modalService.simpleToast("List combine failed to load.");
 
     };
 
@@ -897,11 +896,15 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     };
 
     self.exportCombineSuccess = function (response){
-        modalService.simpleToast("List Combine Export has started",'top right');
+        modalService.setModalLabel('Success');
+        modalService.setModalBody("List combine export has started.");
+        modalService.launchModal();
     };
 
     self.exportCombineFail = function (response){
-        modalService.simpleToast("List Combine failed to export",'top right');
+        modalService.setModalLabel('Error');
+        modalService.setModalBody("List combine failed to export.");
+        modalService.launchModal();
     };
 
     self.copyListProfile = function ( ev , id, name) {
@@ -920,12 +923,16 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     };
 
     self.copyProfileSuccess = function (response){
-        modalService.simpleToast("List Profile Copied",'top right');
+        modalService.setModalLabel('Success');
+        modalService.setModalBody("List profile copied.");
+        modalService.launchModal();
         self.loadListProfiles();
     };
 
     self.copyProfileFail = function (response){
-        modalService.simpleToast("List Copy was successful",'top right');
+        modalService.setModalLabel('Error');
+        modalService.setModalBody("Failed to copy list profile.");
+        modalService.launchModal();
 
     };
 } ] );

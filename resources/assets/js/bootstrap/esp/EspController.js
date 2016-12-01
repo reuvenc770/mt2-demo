@@ -162,18 +162,18 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     };
 
     self.loadMappingFailureCallback = function ( response ) {
-        modalService.setModalLabel( 'Error' );
-        modalService.setModalBody( 'Failed to load ESP Accounts.' );
-        modalService.launchModal();
+        modalService.simpleToast( 'Failed to load ESP accounts.' );
     };
 
     self.fileUploadSuccess = function (response){
-        modalService.simpleToast("File was successfully uploaded for processing");
+        modalService.setModalLabel('Success');
+        modalService.setModalBody("File successfully uploaded for processing.");
+        modalService.launchModal();
     };
 
     self.fileUploadFail = function (response){
         modalService.setModalLabel( 'Error' );
-        modalService.setModalBody( "Something went wrong uploading file" );
+        modalService.setModalBody( "Something went wrong uploading file." );
         modalService.launchModal();
     };
 

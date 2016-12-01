@@ -1,4 +1,4 @@
-mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$timeout' , 'RoleApiService', '$rootScope' , 'ivhTreeviewMgr' , 'ivhTreeviewBfs' , '$mdToast' , 'formValidationService' , 'modalService' , function ( $log , $window , $location , $timeout , RoleApiService, $rootScope , ivhTreeviewMgr , ivhTreeviewBfs , $mdToast , formValidationService , modalService ) {
+mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$timeout' , 'RoleApiService', '$rootScope' , 'ivhTreeviewMgr' , 'ivhTreeviewBfs' , 'formValidationService' , 'modalService' , function ( $log , $window , $location , $timeout , RoleApiService, $rootScope , ivhTreeviewMgr , ivhTreeviewBfs , formValidationService , modalService ) {
     var self = this;
     self.$location = $location;
 
@@ -106,9 +106,7 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
     };
 
     self.loadRolesFailureCallback = function ( response ) {
-        modalService.setModalLabel( 'Error' );
-        modalService.setModalBody( 'Failed to load roles.' );
-        modalService.launchModal();
+        modalService.simpleToast( 'Failed to load roles.' );
     };
 
     self.SuccessCallBackRedirect = function ( response ) {

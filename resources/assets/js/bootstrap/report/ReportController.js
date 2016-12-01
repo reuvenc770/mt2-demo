@@ -1,4 +1,4 @@
-mt2App.controller( 'ReportController' , [ 'ReportApiService' , 'formValidationService' , 'modalService' , '$mdToast' , '$log' , '$window' , '$httpParamSerializer' , function ( ReportApiService ,formValidationService , modalService , $mdToast , $log , $window , $httpParamSerializer ) {
+mt2App.controller( 'ReportController' , [ 'ReportApiService' , 'formValidationService' , 'modalService' , '$log' , '$window' , '$httpParamSerializer' , function ( ReportApiService ,formValidationService , modalService , $log , $window , $httpParamSerializer ) {
     var self = this;
 
     self.queryPromise = null;
@@ -20,7 +20,7 @@ mt2App.controller( 'ReportController' , [ 'ReportApiService' , 'formValidationSe
 
     self.loadReports = function () {
         self.queryPromise = ReportApiService.getReports(
-            self.currentPage , 
+            self.currentPage ,
             self.paginationCount ,
             self.sort ,
             self.loadReportsSuccessCallback ,
@@ -62,7 +62,7 @@ mt2App.controller( 'ReportController' , [ 'ReportApiService' , 'formValidationSe
             );
         }
     };
-    
+
     self.loadReportsSuccessCallback = function ( response ) {
         self.reportList = response.data.data;
         self.pageCount = response.data.last_page;
@@ -70,7 +70,7 @@ mt2App.controller( 'ReportController' , [ 'ReportApiService' , 'formValidationSe
     };
 
     self.loadReportsFailureCallback = function ( response ) {
-        modalService.simpleToast( 'Failed to load reports. Please contact support.' , 'top left' );
+        modalService.simpleToast( 'Failed to load reports. Please contact support.' );
     }
 
     self.createReportSuccessCallback = function ( response ) {
@@ -80,16 +80,20 @@ mt2App.controller( 'ReportController' , [ 'ReportApiService' , 'formValidationSe
 
         $('#createReport').modal( 'hide' );
 
-        modalService.simpleToast( 'Successfully Saved Report.' , 'top left' );
+        modalService.setModalLabel( 'Success' );
+        modalService.setModalBody( 'Successfully Saved Report.' );
+        modalService.launchModal();
 
         self.formType = 'Add';
     };
 
     self.createReportFailureCallback = function ( response ) {
         self.reportSaving = false;
-        
+
         formValidationService.loadFieldErrors( self , response );
 
-        modalService.simpleToast( 'Failed to save report. Please fix errors.' , 'top left' );
+        modalService.setModalLabel( 'Error' );
+        modalService.setModalBody( 'Failed to save report. Please fix errors.' );
+        modalService.launchModal();
     };
 } ] );
