@@ -25,6 +25,7 @@
                             <th md-column class="md-table-header-override-whitetext">DBAs</th>
                             <th md-column class="md-table-header-override-whitetext">CC Contact</th>
                             <th md-column class="md-table-header-override-whitetext">CC #</th>
+                            <th md-column class="md-table-header-override-whitetext">Notes</th>
                         </tr>
                         </thead>
 
@@ -56,6 +57,7 @@
                             </td>
                             <td md-cell nowrap>@{{ record.contact_credit_card }}</td>
                             <td md-cell>@{{ record.last_cc }}</td>
+                            <td md-cell nowrap>@{{ record.notes }}</td>
                         </tr>
                         </tbody>
                         <tfoot>
