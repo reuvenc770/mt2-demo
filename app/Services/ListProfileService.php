@@ -26,7 +26,6 @@ class ListProfileService
     private $rows = [];
     private $rowCount = 0;
     const INSERT_THRESHOLD = 1000; // Low threshold due to MySQL / PHP placeholder limits (2^16 - 1)
-    private $uniqueColumn;
     const ROW_STORAGE_TIME = 60;
     protected $baseTableService;
     private $columnLabelMap = [
