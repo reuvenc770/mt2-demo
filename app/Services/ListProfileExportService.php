@@ -135,7 +135,7 @@ class ListProfileExportService
 
 
              foreach ($resource as $row) {
-                 if($row->suppression_status){
+                 if(!$row->suppression_status){
                      $this->batchSuppression($fileName, $row);
                  } else {
                      $row = $this->mapRow($header, $row);
