@@ -104,7 +104,7 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     };
     self.toggleRowSuccess = function ( response ) {
         modalService.setModalLabel('Success');
-        modalService.setModalBody( "ESP API account set to deactivate in 30 days." );
+        modalService.setModalBody( response.data );
         modalService.launchModal();
         self.loadAccounts();
     };
