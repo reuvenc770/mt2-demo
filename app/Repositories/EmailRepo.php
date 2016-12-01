@@ -105,15 +105,30 @@ class EmailRepo {
      */
 
     public function getCurrentAttributionLevel($emailId) {
-        $attributionLevel = $this->emailModel->find($emailId)->feedAssignment->feed->attributionLevel;
+        $attributionSearchBase = $this->emailModel->find($emailId)->feedAssignment;
 
-        if ($attributionLevel) {
-            return $attributionLevel->level;
+        if ($attributionSearchBase) {
+            $feedSearch = $attributionSearchBase->feed;
+
+            if ($feedSearch) {
+                $attributionLevel = $feedSearch->attributionLevel;
+
+                if ($attributionLevel) {
+                    return $attributionLevel->level;
+                }
+                else {
+                    return null;
+                }
+            }
+            else {
+                return null;
+            }
         }
         else {
-            return 1000;
+            return null;
         }
-        
+
+                
     }
 
 

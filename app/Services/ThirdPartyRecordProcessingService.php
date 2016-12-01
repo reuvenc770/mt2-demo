@@ -83,7 +83,7 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
 
                 $record->isDeliverable = $this->recordDataRepo->getDeliverableStatus($record->emailId);
                 $attributionTruths = $this->emailRepo->getAttributionTruths($record->emailId);
-                $currentAttributedFeedId = $this->emailRepo->getCurrentAttributedFeedId($emailId);
+                $currentAttributedFeedId = $this->emailRepo->getCurrentAttributedFeedId($record->emailId);
 
                 if (0 === $attributionTruths) {
                     // Guard checking whether we have attribution info or not.
@@ -115,12 +115,12 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
                 }
                 else {
                     // Not a new record, not attributed import was not recent, has no action
-
-                    // Also perhaps some of these could be passed into the object via a join while reading.
                     $importingAttrLevel = $this->attributionLevelRepo->getLevel($record->feedId);
+
+                    echo "importing attribution level for {$record->emailAddress} is $importingAttrLevel" . PHP_EOL;
                     $currentAttributionLevel = $this->emailRepo->getCurrentAttributionLevel($record->emailId);
 
-                    if ($importingAttrLevel < $currentAttributionLevel) {
+                    if (null === $currentAttributionLevel || $importingAttrLevel < $currentAttributionLevel) {
                         // Importing attribution is lower (meaning greater attribution power), so switch to import
                         $record->uniqueStatus = 'unique';
                         $recordsToFlag[] = $this->mapToNewRecords($record);
@@ -147,7 +147,8 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
         return [
             'email_id' => $record->emailId,
             'feed_id' => $record->feedId,
-            'datetime' => $record->captureDate
+            'datetime' => $record->captureDate,
+            'capture_date' => $record->captureDate
         ];
     }
 

@@ -33,9 +33,14 @@ class FeedApiService {
         try {
             $record = $this->normalizeFields( $record );
 
+            if (2430 === (int)$record['feed_id'] || 2618 === (int)$record['feed_id']) {
+                $record['feed_id'] = 2979;
+            }
+
             $cleanRecord = $this->repo->cleanseRecord( $record );
 
             $this->repo->create( $cleanRecord );
+
         } catch ( \Exception $e ) {
             $this->repo->logFailure(
                 [

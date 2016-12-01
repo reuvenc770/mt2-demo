@@ -336,6 +336,13 @@ class EmailFeedInstanceRepo {
         }
     }
 
+    public function getRecordsFromFeedStartingAt($feedId, $startingId) {
+        return $this->emailFeedModel
+                    ->where('feed_id', $feedId)
+                    ->where('id', '>', $startingId)
+                    ->orderBy('id');
+    }
+
     public function getRecordCountForSource ( $search ) {
         $builder = $this->emailFeedModel
                             ->join( 'feeds' , 'feeds.id' , '=' , 'email_feed_instances.feed_id' )

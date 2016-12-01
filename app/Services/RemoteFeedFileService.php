@@ -211,7 +211,10 @@ class RemoteFeedFileService {
             $notCustomUser = ( strpos( $dir , 'mt2PullUser' ) === false );
             $isValidFeed = in_array( $matches[ 1 ] , $validFeedList );
             if ( $notSystemUser && $notCustomUser && $isValidFeed ) { 
-                $directoryList[] = [ 'directory' => $dir , 'feedId' => $this->feedService->getFeedIdByName( $matches[ 1 ] ) ];
+                // Need to switch 2430 and 2618 to 2979
+                $feedIdResult = $this->feedService->getFeedIdByName( $matches[ 1 ] );
+                $feedId = in_array($feedIdResult, [2430, 2618]) ? 2979 : (int)$feedIdResult;
+                $directoryList[] = [ 'directory' => $dir , 'feedId' =>  $feedId];
             }   
         }
 

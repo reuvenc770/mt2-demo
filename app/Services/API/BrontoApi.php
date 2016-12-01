@@ -19,6 +19,7 @@ use App\Facades\EspApiAccount;
 use App\Library\Bronto\readDeliveries;
 use App\Library\Bronto\readRecentInboundActivities;
 use App\Library\Bronto\BrontoSoapApiImplService as BrontoSoapApi;
+use App\Library\Bronto\addContacts;
 
 
 class BrontoApi extends EspBaseAPI
@@ -130,4 +131,11 @@ class BrontoApi extends EspBaseAPI
     {
         return $this->espAccountId;
     }
+
+    public function addContact($contactInfo)
+    {
+        $this->setupBronto();
+        $result = $this->brontoObject->addContacts(new addContacts($contactInfo));
+    }
+
 }
