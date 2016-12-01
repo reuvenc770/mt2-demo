@@ -183,6 +183,7 @@ class EmailRepo {
     }
 
     public function getRecordInfoAddress($address) {
+        $attr = config('database.connections.attribution.database');
         $supp = config('database.connections.suppression.database');
 
         return DB::select("SELECT
