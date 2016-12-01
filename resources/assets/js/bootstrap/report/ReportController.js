@@ -55,11 +55,7 @@ mt2App.controller( 'ReportController' , [ 'ReportApiService' , 'formValidationSe
                 self.meta.recordCount = parseInt( response.data.totalRecords );
                 self.meta.recordTotals = response.data.totals;
             } , function ( response ) {
-                $mdToast.show(
-                    $mdToast.simple()
-                        .textContent( 'Failed to load Attribution Records. Please contact support.' )
-                        .hideDelay( 1500 )
-                );
+                modalService.simpleToast( 'Failed to load Attribution Records. Please contact support.' );
             }
         );
     };
