@@ -8,6 +8,7 @@ mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' 
     self.editUrl = 'isp/edit/';
 
     self.formErrors = "";
+    self.search = {};
 
     self.pageCount = 0;
     self.paginationCount = paginationService.getDefaultPaginationCount();
@@ -53,6 +54,14 @@ mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' 
         formValidationService.resetFieldErrors(self);
         self.editForm = true;
         EmailDomainApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
+    };
+
+    self.searchDomain = function () {
+        var searchObj = {
+            "domainGroupId" : self.search.domain_group_id || undefined
+        };
+
+        self.queryPromise = EmailDomainApiService.searchDomain( self.paginationCount , searchObj , self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
     };
 
     /**

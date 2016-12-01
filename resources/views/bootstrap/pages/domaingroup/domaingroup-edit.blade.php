@@ -10,6 +10,13 @@
             <input name="_token" type="hidden" value="{{ csrf_token() }}">
             <fieldset>
                 @include( 'bootstrap.pages.domaingroup.domaingroup-form' )
+
+                <div class="panel panel-info" ng-if="dg.currentAccount.domains.length > 0">
+                    <div class="panel-heading">Domains</div>
+                    <ul class="list-group">
+                        <li class="list-group-item" ng-repeat="domain in dg.currentAccount.domains track by $index"> @{{ domain.domain_name }}</li>
+                    </ul>
+                </div>
             </fieldset>
         </div>
         <div class="panel-footer">
