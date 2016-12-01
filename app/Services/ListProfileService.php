@@ -62,6 +62,9 @@ class ListProfileService
         'tower_date'  =>  'Tower Date'
     ];
 
+    // set up unique column. 'email_id' will always be in place so we can hardcode this
+    private $uniqueColumn = 'email_id';
+
     public function __construct(ListProfileRepo $profileRepo, ListProfileQueryBuilder $builder, ListProfileBaseTableCreationService $baseTableService) {
         $this->profileRepo = $profileRepo;
         $this->builder = $builder;
@@ -187,15 +190,11 @@ class ListProfileService
                 $this->baseTableService->createTable($id, $columns);
             }
 
-            // set up unique column. Can be one of email_id, email_address, or ''
-            // Not entirely needed anymore given that we use email_id in all list profiles
-            // We could hardcode this instead
-            $this->uniqueColumn = $this->getUniqueColumn($columns);
-
             $resource = $query->cursor();
 
             foreach ($resource as $row) {
                 if ($this->isUnique($listProfileTag, $row)) {
+                    echo "For id: $id, " . $row->{$this->uniqueColumn} . ' is unique' . PHP_EOL;
                     $this->saveToCache($listProfileTag, $row->{$this->uniqueColumn});
                     $row = $this->mapDataToColumns($columns, $row);
                     $this->batch($row);
@@ -347,26 +346,8 @@ class ListProfileService
     }
 
 
-    private function getUniqueColumn(array $columns) {
-        // In order to de-dupe rows, we need a field that is guaranteed to be unique, so either email id or email address.
-        // If neither of those columns returns data, we will not dedupe data.
-        if (in_array('email_id', $columns)) {
-            return 'email_id';
-        }
-        elseif (in_array('email_address', $columns)) {
-            return 'email_address';
-        }
-        return '';
-    }
-
-
     private function isUnique($tag, $row) {
-        if ('' === $this->uniqueColumn) {
-            return true;
-        }
-        else {
-            return is_null(Cache::tags($tag)->get($row->{$this->uniqueColumn}));
-        }
+        return is_null(Cache::tags($tag)->get($row->{$this->uniqueColumn}));
     }
 
     private function buildDisplayColumns(array $columns) {
