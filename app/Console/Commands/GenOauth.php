@@ -38,8 +38,10 @@ class GenOauth extends Command
     public function handle()
     {
         # replace XXX with your real keys and secrets
-        $consumerKey = env("AWEBER_KEY");
-        $consumerSecret = env("AWEBER_SECRET");
+        $consumerKey = config('aweberkeys.consumerKey');
+        $consumerSecret = config('aweberkeys.consumerSecret');
+        $this->info("Consumer Key is {$consumerKey}");
+        $this->info("Consumer Secret is {$consumerSecret}");
 
 # create new instance of AWeberAPI
         $application = new AWeberAPI($consumerKey, $consumerSecret);

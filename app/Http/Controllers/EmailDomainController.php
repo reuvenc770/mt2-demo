@@ -18,10 +18,11 @@ class EmailDomainController extends Controller
         $this->emailDomainService = $emailDomainService;
     }
 
-    public function listAll()
+    public function listAll(DomainGroupService $domainGroupService)
     {
+        $domainGroups = $domainGroupService->getAll();
         return response()
-            ->view("bootstrap.pages.emaildomain.emaildomain-index");
+            ->view("bootstrap.pages.emaildomain.emaildomain-index" , ['domainGroups' => $domainGroups] );
     }
 
     /**

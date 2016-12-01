@@ -16,11 +16,11 @@ class CreativeClickthroughRateRepo {
         $this->model = $model;
     } 
 
-    public function saveStats($creativeId, $listProfileId, $deployId, $delivers, $opens, $clicks) {
+    public function saveStats($creativeId, $listProfileCombineId, $deployId, $delivers, $opens, $clicks) {
 
         DB::connection('reporting_data')->statement(
             "INSERT INTO creative_clickthrough_rates
-            (creative_id, list_profile_id, deploy_id, delivers, opens, clicks, created_at, updated_at)
+            (creative_id, list_profile_combine_id, deploy_id, delivers, opens, clicks, created_at, updated_at)
 
             VALUES (:creative_id, :list_profile_id, :deploy_id, :delivers, :opens, :clicks, NOW(), NOW())
 
@@ -35,7 +35,7 @@ class CreativeClickthroughRateRepo {
                 updated_at = updated_at", [
 
                     ':creative_id' => $creativeId,
-                    ':list_profile_id' => $listProfileId,
+                    ':list_profile_combine_id' => $listProfileCombineId,
                     ':deploy_id' => $deployId,
                     ':opens' => $opens,
                     ':opens2' => $opens,

@@ -12,6 +12,32 @@
 
 @section( 'content' )
     <div ng-init="emailDomain.loadAccounts()">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="panel mt2-theme-panel center-block">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Search Domains</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="form-group col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon">ISP Group</span>
+                                <select ng-model="emailDomain.search.domain_group_id" placeholder="" name="search_domain_group_id"  class="form-control">
+                                    <option  value="">Select ISP Group</option>
+                                    @foreach ($domainGroups as $domainGroup)
+                                    <option ng-selected="emailDomain.search.domain_group_id == {{ $domainGroup->id }}" value="{{$domainGroup->id}}">{{$domainGroup->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pull-right">
+                    <button class="btn mt2-theme-btn-secondary" ng-click="emailDomain.loadAccounts()">Reset</button>
+                    <button class="btn mt2-theme-btn-primary" ng-click="emailDomain.searchDomain()">Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
                 <md-table-container>
                     <table md-table md-progress="emailDomain.queryPromise">
                         <thead md-head md-order="emailDomain.sort" md-on-reorder="emailDomain.loadAccounts" class="mt2-theme-thead">

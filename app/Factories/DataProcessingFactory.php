@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Factories;
+use App\Models\Deploy;
+use App\Repositories\DeployRepo;
 use App\Repositories\EmailCampaignStatisticRepo;
 use App\Repositories\EmailActionsRepo;
 use App\Repositories\ActionRepo;
@@ -238,9 +240,8 @@ class DataProcessingFactory {
     }
 
     private static function createProcessCfsStatsService() {
-        $eaj = new \App\Models\MT1Models\EspAdvertiserJoin();
-        $eajRepo = new \App\Repositories\MT1Repositories\EspAdvertiserJoinRepo($eaj);
-
+        $deploy = new Deploy();
+        $deployRepo = new DeployRepo($deploy);
         $stdModel = new \App\Models\StandardReport();
         $stdRepo = new \App\Repositories\StandardApiReportRepo($stdModel);
 
@@ -253,7 +254,7 @@ class DataProcessingFactory {
         $fromModel = new \App\Models\FromOpenRate();
         $fromRepo = new \App\Repositories\FromOpenRateRepo($fromModel);
 
-        return new \App\Services\PopulateCfsStatsService($eajRepo, $stdRepo, $crRepo, $fromRepo, $subjRepo);
+        return new \App\Services\PopulateCfsStatsService($deployRepo, $stdRepo, $crRepo, $fromRepo, $subjRepo);
     }
 
     private static function createMt1ImportService($mt1Name, $mt2Name) {

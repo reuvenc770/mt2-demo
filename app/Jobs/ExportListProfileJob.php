@@ -43,7 +43,7 @@ class ExportListProfileJob extends Job implements ShouldQueue
      */
     public function handle(ListProfileExportService $service, DeployRepo $deployRepo) {
         if ($this->jobCanRun($this->jobName)) {
-            try {
+            #try {
                 $this->createLock($this->jobName);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
 
@@ -54,14 +54,14 @@ class ExportListProfileJob extends Job implements ShouldQueue
                     $service->exportListProfile($this->listProfileId, $this->offerId);
                 }
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
-            }
-            catch (\Exception $e) {
-                echo "{$this->jobName} failed with {$e->getMessage()}  {$e->getLine()}" . PHP_EOL;
-                $this->failed();
-            }
-            finally {
+            #}
+            #catch (\Exception $e) {
+            #    echo "{$this->jobName} failed with {$e->getMessage()}  {$e->getLine()}" . PHP_EOL;
+            #    $this->failed();
+            #}
+            #finally {
                 $this->unlock($this->jobName);
-            }
+            #}
         }
         else {
             echo "Still running {$this->jobName} - job level" . PHP_EOL;

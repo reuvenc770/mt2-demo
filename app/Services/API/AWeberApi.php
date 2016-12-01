@@ -29,8 +29,8 @@ class AWeberApi extends EspBaseAPI
     {
         parent::__construct(self::ESP_NAME, $espAccountId);
         $creds = EspApiAccount::grabAccessTokenAndSecret($espAccountId);
-        $key = env("AWEBER_KEY", "");
-        $secret = env("AWEBER_SECRET", "");
+        $key = config("aweberkeys.consumerKey", "");
+        $secret = config("aweberkeys.consumerSecret", "");
         $time = 60 * 4;
         $weber = new AWeberLibraryApi($key, $secret);
         $this->accessToken = $creds['accessToken'];

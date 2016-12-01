@@ -694,16 +694,15 @@ Route::group(
             )
         );
 
-        Route::get(
-            '/export',
-            array(
-                'as' => 'report.export',
-                'uses' => 'ReportController@export'
+        Route::get( 
+            '/view/{id}', 
+            array( 
+                'as' => 'report.show', 
+                'uses' => 'ReportController@iframeReport' 
             )
         );
     }
 );
-
 
 /**
  * ISP Group
@@ -1024,10 +1023,16 @@ Route::group(
         Route::group(
             ['prefix' => 'report'],
             function() {
-                Route::get( '/' , [
-                    'as' => 'api.report.getRecords' ,
+                Route::post( '/' , [
+                    'as' => 'api.report.store' ,
                     'middleware' => 'auth' ,
-                    'uses' => 'ReportController@getRecords'
+                    'uses' => 'ReportController@store'
+                ] );
+
+                Route::put( '/' , [
+                    'as' => 'api.report.update' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'ReportController@update'
                 ] );
             }
         );

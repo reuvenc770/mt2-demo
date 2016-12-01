@@ -61,11 +61,11 @@ class ListProfileQueryBuilder {
             'ip' => 'rd.ip',
             'subscribe_date' => 'rd.subscribe_date',
             'feed_id' => 'efa.feed_id',
-            'domain_group_name' => 'dg.name', 
+            'domain_group_name' => DB::raw('dg.name as domain_group_name'), 
             'country' => 'dg.country',
-            'feed_name' => 'f.name', 
+            'feed_name' => DB::raw('f.short_name as feed_name'), 
             'source_url' => 'f.source_url',
-            'client_name' => 'c.name',
+            'client_name' => DB::raw('c.name as client_name'),
             'email_address' => 'e.email_address', 
             'lower_case_md5' => 'e.lower_case_md5', 
             'upper_case_md5' => 'e.upper_case_md5'
@@ -209,8 +209,8 @@ class ListProfileQueryBuilder {
                     ->groupBy('email_id')
                     ->whereRaw("date BETWEEN CURDATE() - INTERVAL $end DAY AND CURDATE() - INTERVAL $start DAY");
 
-        $query = sizeof($this->emailDomainIds) > 0 ? $query->whereIn('email_domain_id', $this->emailDomainIds) : $query;
-        $query = sizeof($this->offerIds) > 0 ? $query->whereIn('offer_id', $this->offerIds) : $query; 
+        $query = sizeof($this->emailDomainIds) > 0 ? $query->whereRaw('email_domain_id IN (' . implode(',', $this->emailDomainIds) . ')') : $query;
+        $query = sizeof($this->offerIds) > 0 ? $query->whereRaw('offer_id IN (' . implode(',', $this->offerIds) . ')') : $query; 
 
         $query = $query->havingRaw("SUM($type) >= $count")->toSql();
 
