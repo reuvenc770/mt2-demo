@@ -44,7 +44,7 @@ class DoingBusinessAsRepo
     }
 
     public function getModel($searchData){
-        $query = $this->doingBusinessAs;
+        $query = $this->doingBusinessAs->query();
         if('' !== $searchData) {
             $query = $this->mapQuery($searchData, $query);
         }

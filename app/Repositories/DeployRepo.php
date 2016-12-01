@@ -352,16 +352,11 @@ class DeployRepo
         return $errors;
     }
 
-    public function getOffersForTodayWithListProfile($listProfileId) {
-        $today = Carbon::today()->format('Y-m-d');
-
-        return $this->deploy->where('send_date', $today)->where('list_profile_id', $listProfileId)->groupBy('offer_id')->get();
-    }
 
     public function getDeploysForToday($date){
         return $this->deploy->where('send_date',$date)->get();
     }
-
+    //TODO: maybe move..  Seems
     public function getDeploysFromProfileAndOffer($listProfileId, $offerId){
         $lpDB = config('database.connections.list_profile.database');
         return $this->deploy->
@@ -369,5 +364,13 @@ class DeployRepo
             ->where("offer_id",$offerId)
             ->where("list_profile_id", $listProfileId)
             ->where("send_date", DB::raw("CURDATE()"))->get();
+    }
+
+
+    public function getUpdatedFrom($date) {
+        return $this->deploy
+            ->select('id', 'creative_id', 'subject_id', 'from_id', 'list_profile_combine_id')
+            ->where('updated_at', '>=', $date)
+            ->get();
     }
 }

@@ -39,7 +39,7 @@
                     <th md-column class="md-table-header-override-whitetext">Date</th>
                     <th md-column class="md-table-header-override-whitetext">Birth Date</th>
                     <th md-column class="md-table-header-override-whitetext">Gender</th>
-                    <th md-column class="md-table-header-override-whitetext">Network</th>
+                    <th md-column class="md-table-header-override-whitetext">Client</th>
                     <th md-column class="md-table-header-override-whitetext">Action</th>
                     <th md-column class="md-table-header-override-whitetext">Action Date</th>
                     <th md-column class="md-table-header-override-whitetext">Subscribe Date</th>
@@ -61,7 +61,7 @@
                     <td md-cell nowrap>@{{ record.date }}</td>
                     <td md-cell nowrap>@{{ record.birthdate }}</td>
                     <td md-cell>@{{ record.gender }}</td>
-                    <td md-cell>@{{ record.network }}</td>
+                    <td md-cell>@{{ record.client }}</td>
                     <td md-cell>@{{ record.action }}</td>
                     <td md-cell nowrap>@{{ record.action_date }}</td>
                     <td md-cell nowrap>@{{ record.subscribe_datetime }}</td>
