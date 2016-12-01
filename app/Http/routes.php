@@ -701,6 +701,14 @@ Route::group(
                 'uses' => 'ReportController@iframeReport' 
             )
         );
+
+        Route::get(
+            '/export',
+            array(
+                'as' => 'report.export',
+                'uses' => 'ReportController@export'
+            )
+        );
     }
 );
 
@@ -1033,6 +1041,12 @@ Route::group(
                     'as' => 'api.report.update' ,
                     'middleware' => 'auth' ,
                     'uses' => 'ReportController@update'
+                ] );
+
+                Route::get( '/' , [
+                    'as' => 'api.report.getRecords' ,
+                    'middleware' => 'auth' ,
+                    'uses' => 'ReportController@getRecords'
                 ] );
             }
         );
