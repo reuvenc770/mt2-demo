@@ -39,7 +39,7 @@ class PopulateCfsStatsService
 
     public function load() {
         foreach ($this->mt1DeployData as $deploy) {
-            $deployId = $deploy->deploy_id;
+            $deployId = $deploy->id;
             $creativeId = $deploy->creative_id;
             $subjectId = $deploy->subject_id;
             $fromId = $deploy->from_id;
