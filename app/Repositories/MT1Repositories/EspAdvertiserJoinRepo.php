@@ -4,7 +4,7 @@ namespace App\Repositories\MT1Repositories;
 
 use App\Models\MT1Models\EspAdvertiserJoin;
 use DB;
-
+//TODO Kill after launch.
 class EspAdvertiserJoinRepo {
     protected $model;
 
