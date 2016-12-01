@@ -57,7 +57,7 @@
                             </td>
                             <td md-cell nowrap>@{{ record.contact_credit_card }}</td>
                             <td md-cell>@{{ record.last_cc }}</td>
-                            <td md-cell>@{{ record.notes }}</td>
+                            <td md-cell nowrap>@{{ record.notes }}</td>
                         </tr>
                         </tbody>
                         <tfoot>
