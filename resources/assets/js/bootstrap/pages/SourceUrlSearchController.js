@@ -90,7 +90,9 @@ mt2App.controller('SourceUrlSearchController' , [ '$rootScope' , '$window' , '$l
                 document.body.removeChild( link );
                 windowUrl.revokeObjectURL( blob );
             } else {
-                modalService.simpleToast( 'Can not download csv file. Please use a modern browser.' , 'bottom left' );
+                modalService.setModalLabel('Error');
+                modalService.setModalBody( 'Cannot download csv file. Please use a modern browser.' );
+                modalService.launchModal();
             }
         }
     };
@@ -107,7 +109,7 @@ mt2App.controller('SourceUrlSearchController' , [ '$rootScope' , '$window' , '$l
 
         angular.forEach( self.selectedClients , function ( client ) {
             clientIdList.push( client.id );
-        } );  
+        } );
 
         self.search.clientIds = clientIdList;
     };
@@ -136,7 +138,9 @@ mt2App.controller('SourceUrlSearchController' , [ '$rootScope' , '$window' , '$l
         self.recordCounts = response.data.records;
 
         if ( response.data.records.length <= 0 ) {
-            modalService.simpleToast( 'No Records' , 'bottom left' );
+            modalService.setModalLabel('Error');
+            modalService.setModalBody( 'No Records' );
+            modalService.launchModal();
         }
 
         if ( typeof( response.data.csv ) !== 'undefined' ) {
@@ -154,10 +158,7 @@ mt2App.controller('SourceUrlSearchController' , [ '$rootScope' , '$window' , '$l
      * Failure Callbacks
      */
     self.getAllFeedsFailureCallback = function ( response ) {
-        modalService.setModalLabel( 'Error' );
-        modalService.setModalBody( 'Failed to load list of feeds.' );
-
-        modalService.launchModal();
+        modalService.simpleToast( 'Failed to load list of feeds.' );
     };
 
     self.searchSourceUrlFailureCallback = function ( response ) {

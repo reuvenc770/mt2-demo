@@ -1,4 +1,4 @@
-mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$timeout' , 'UserApiService' , '$mdToast' , 'formValidationService' , 'modalService' , function ( $log , $window , $location , $timeout , UserApiService , $mdToast , formValidationService , modalService ) {
+mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$timeout' , 'UserApiService' , 'formValidationService' , 'modalService' , function ( $log , $window , $location , $timeout , UserApiService , formValidationService , modalService ) {
     var self = this;
     self.$location = $location;
 
@@ -83,10 +83,7 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
     };
 
     self.loadAccountsFailureCallback = function ( response ) {
-        modalService.setModalLabel( 'Error' );
-        modalService.setModalBody( 'Failed to load Users.' );
-
-        modalService.launchModal();
+        modalService.simpleToast( 'Failed to load users.' );
     };
 
     self.SuccessCallBackRedirect = function ( response ) {

@@ -1,4 +1,4 @@
-mt2App.controller( 'NavigationController' , [ 'NavigationApiService' , '$mdToast' , 'modalService' , function ( NavigationApiService , $mdToast , modalService ) {
+mt2App.controller( 'NavigationController' , [ 'NavigationApiService' , 'modalService' , function ( NavigationApiService , modalService ) {
     var self = this;
     self.navigation = [];
     self.orphans = [];
@@ -25,24 +25,22 @@ mt2App.controller( 'NavigationController' , [ 'NavigationApiService' , '$mdToast
 
     self.successUpdateCallback = function (){
         self.formSubmitted = false;
-        $mdToast.showSimple( 'Navigation has been updated, please refresh page to see new navigation' );
+        modalService.setModalLabel( 'Success' );
+        modalService.setModalBody( 'Navigation has been updated. Please refresh page to see new navigation.' );
+        modalService.launchModal();
     };
 
     self.failNavCallback = function() {
-        modalService.setModalLabel( 'Error' );
-        modalService.setModalBody( 'Failed to get Nav Tree' );
-        modalService.launchModal();
+        modalService.simpleToast( 'Failed to get nav tree.' );
     };
 
     self.failOrphanCallback = function () {
-        modalService.setModalLabel( 'Error' );
-        modalService.setModalBody( 'Failed to load unused routes' );
-        modalService.launchModal();
+        modalService.simpleToast( 'Failed to load unused routes.' );
     };
 
     self.failUpdateCallback = function (){
         modalService.setModalLabel( 'Error' );
-        modalService.setModalBody( 'Failed to Update Navigation' );
+        modalService.setModalBody( 'Failed to update navigation.' );
         modalService.launchModal();
     };
 

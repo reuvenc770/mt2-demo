@@ -1,4 +1,4 @@
-mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$timeout' , 'ProxyApiService', '$rootScope','$mdToast', '$mdConstant' , 'formValidationService', 'modalService' , 'paginationService' , function ( $log , $window , $location , $timeout , ProxyApiService, $rootScope, $mdToast , $mdConstant , formValidationService, modalService , paginationService ) {
+mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$timeout' , 'ProxyApiService', '$rootScope', '$mdConstant' , 'formValidationService', 'modalService' , 'paginationService' , function ( $log , $window , $location , $timeout , ProxyApiService, $rootScope , $mdConstant , formValidationService, modalService , paginationService ) {
     var self = this;
     self.$location = $location;
 
@@ -64,7 +64,7 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
 
         if ( self.ip_addresses.length < 1  ) {
             formValidationService.setFieldError(self, 'ip_addresses' , 'At least 1 IP Address is required.' );
-            $mdToast.showSimple( 'Please fix errors and try again.' );
+            modalService.simpleToast( 'Please fix errors and try again.' );
         }
 
         self.currentAccount.ip_addresses = self.ip_addresses.join(', ');
@@ -143,9 +143,7 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
     };
 
     self.loadAccountsFailureCallback = function ( response ) {
-        modalService.setModalLabel( 'Error' );
-        modalService.setModalBody( 'Failed to load accounts.' );
-        modalService.launchModal();
+        modalService.simpleToast( 'Failed to load accounts.' );
     };
 
     self.SuccessCallBackRedirect = function ( response ) {
@@ -160,7 +158,16 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
 
 
     self.toggleRowSuccess = function ( response ) {
-        $mdToast.showSimple("Proxy Updated");
+        modalService.setModalLabel('Success');
+        modalService.setModalBody("Proxy status updated.");
+        modalService.launchModal();
+        self.loadAccounts();
+    };
+
+    self.toggleRowFailure = function ( response ) {
+        modalService.setModalLabel('Error');
+        modalService.setModalBody('Failed to update proxy status. Please try again.');
+        modalService.launchModal();
         self.loadAccounts();
     };
 

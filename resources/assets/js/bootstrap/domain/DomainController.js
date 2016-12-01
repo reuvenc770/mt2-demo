@@ -1,4 +1,4 @@
-mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$location', '$timeout', 'DomainService', '$mdToast', '$httpParamSerializer','formValidationService', 'modalService', 'paginationService' , function ($rootScope, $log, $window, $location, $timeout, DomainService, $mdToast, $httpParamSerializer, formValidationService, modalService , paginationService ) {
+mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$location', '$timeout', 'DomainService', '$httpParamSerializer','formValidationService', 'modalService', 'paginationService' , function ($rootScope, $log, $window, $location, $timeout, DomainService, $httpParamSerializer, formValidationService, modalService , paginationService ) {
     var self = this;
     self.$location = $location;
 
@@ -208,7 +208,9 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     };
 
     self.toggleRowSuccess = function ( response ) {
-        $mdToast.showSimple("Domain Updated");
+        modalService.setModalLabel('Success');
+        modalService.setModalBody('Domain status updated.')
+        modalService.launchModal();
         self.updateDomains();
     };
 
@@ -219,23 +221,22 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     };
 
     self.editRowSuccess = function (){
-        $mdToast.showSimple("Domain Updated");
+        modalService.setModalLabel('Success');
+        modalService.setModalBody('Domain updated.')
+        modalService.launchModal();
         self.rowBeingEdited = 0;
         self.currendDomain = {};
         self.formSubmitted = false;
         self.updateDomains();
     };
     self.loadAccountFailureCallback = function (response){
-        $mdToast.showSimple("Domain did not load");
+        modalService.simpleToast("Failed to load domain.");
         self.rowBeingEdited = 0;
     };
 
 
     self.loadAccountsFailureCallback = function (response) {
-        modalService.setModalLabel('Error');
-        modalService.setModalBody('Failed to load Domains.');
-
-        modalService.launchModal();
+        modalService.simpleToast('Failed to load domains.');
     };
 
     self.SuccessCallBackRedirect = function (response) {
@@ -251,6 +252,13 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     self.editAccountFailureCallback = function (response) {
         self.formSubmitted = false;
         formValidationService.loadFieldErrors(self,response);
+    };
+
+    self.toggleRowFailure = function (){
+        modalService.setModalLabel('Error');
+        modalService.setModalBody( "Failed to update domain status. Please try again." );
+        modalService.launchModal();
+        self.loadAccounts();
     };
 
 }]);

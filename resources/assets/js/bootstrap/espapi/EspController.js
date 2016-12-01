@@ -1,4 +1,4 @@
-mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$location' , '$timeout' , '$mdToast' , 'EspApiService' , 'formValidationService' , 'modalService' , 'paginationService' , function ( $rootScope , $log , $window , $location , $timeout , $mdToast , EspApiService , formValidationService , modalService , paginationService ) {
+mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$location' , '$timeout' , 'EspApiService' , 'formValidationService' , 'modalService' , 'paginationService' , function ( $rootScope , $log , $window , $location , $timeout , EspApiService , formValidationService , modalService , paginationService ) {
     var self = this;
     self.$location = $location;
 
@@ -85,9 +85,7 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     };
 
     self.loadAccountsFailureCallback = function ( response ) {
-        modalService.setModalLabel( 'Error' );
-        modalService.setModalBody( 'Failed to load ESP Accounts.' );
-        modalService.launchModal();
+        modalService.simpleToast( 'Failed to load ESP API accounts.' );
     };
 
     self.saveNewAccountFailureCallback = function ( response ) {
@@ -105,17 +103,15 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         formValidationService.loadFieldErrors( self , response );
     };
     self.toggleRowSuccess = function ( response ) {
-        var toast = $mdToast.simple()
-            .textContent( "Esp Account set to deactivate in 30 days" )
-            .position( 'top right' );
-        $mdToast.show( toast );
+        modalService.setModalLabel('Success');
+        modalService.setModalBody( "ESP API account set to deactivate in 30 days." );
+        modalService.launchModal();
         self.loadAccounts();
     };
     self.toggleRowFailure = function (){
-        var toast = $mdToast.simple()
-            .textContent( "Something went wrong please try again" )
-            .position( 'top right' );
-        $mdToast.show( toast );
+        modalService.setModalLabel('Error');
+        modalService.setModalBody( "Failed to update ESP API account status. Please try again." );
+        modalService.launchModal();
         self.loadAccounts();
     };
 

@@ -1,4 +1,4 @@
-mt2App.controller( 'FeedGroupController' , [ '$rootScope' , '$log' , '$window' , '$location' , 'FeedGroupApiService' , 'FeedApiService' , '$mdToast' , 'formValidationService' , 'modalService' , '$timeout' , 'paginationService', function ( $rootScope , $log , $window , $location , FeedGroupApiService , FeedApiService , $mdToast , formValidationService , modalService , $timeout , paginationService ) {
+mt2App.controller( 'FeedGroupController' , [ '$rootScope' , '$log' , '$window' , '$location' , 'FeedGroupApiService' , 'FeedApiService' , 'formValidationService' , 'modalService' , '$timeout' , 'paginationService', function ( $rootScope , $log , $window , $location , FeedGroupApiService , FeedApiService , formValidationService , modalService , $timeout , paginationService ) {
     var self = this;
 
     /**
@@ -146,10 +146,7 @@ mt2App.controller( 'FeedGroupController' , [ '$rootScope' , '$log' , '$window' ,
      * Failure Callbacks
      */
     self.getAllFeedsFailureCallback = function ( response ) {
-        modalService.setModalLabel( 'Error' );
-        modalService.setModalBody( 'Failed to load Feed Group\'s list of feeds.' );
-
-        modalService.launchModal();
+        modalService.simpleToast( 'Failed to load feed group\'s list of feeds.' );
     };
 
     self.saveFeedGroupFailureCallback = function ( response ) {
@@ -165,9 +162,6 @@ mt2App.controller( 'FeedGroupController' , [ '$rootScope' , '$log' , '$window' ,
     };
 
     self.loadFeedGroupsFailureCallback = function ( response ) {
-        modalService.setModalLabel( 'Error' );
-        modalService.setModalBody( 'Failed to load feed groups.' );
-
-        modalService.launchModal();
+        modalService.simpleToast( 'Failed to load feed groups.' );
     };
 } ] );

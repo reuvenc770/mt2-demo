@@ -1,4 +1,4 @@
-mt2App.controller( 'ReportController' , [ 'ReportApiService' , '$mdToast' , '$log' , '$window' , '$httpParamSerializer' , function ( ReportApiService , $mdToast , $log , $window , $httpParamSerializer ) {
+mt2App.controller( 'ReportController' , [ 'ReportApiService' , 'modalService' , '$log' , '$window' , '$httpParamSerializer' , function ( ReportApiService , modalService , $log , $window , $httpParamSerializer ) {
     var self = this;
 
     self.startDate = new Date();
@@ -19,9 +19,9 @@ mt2App.controller( 'ReportController' , [ 'ReportApiService' , '$mdToast' , '$lo
 
     self.loadRecords = function () {
         self.getRecords();
-    }; 
+    };
 
-    self.getRecords = function () { 
+    self.getRecords = function () {
         self.queryPromise = ReportApiService.getRecords(
             self.query ,
             function ( response ) {
@@ -29,11 +29,7 @@ mt2App.controller( 'ReportController' , [ 'ReportApiService' , '$mdToast' , '$lo
                 self.meta.recordCount = parseInt( response.data.totalRecords );
                 self.meta.recordTotals = response.data.totals;
             } , function ( response ) {
-                $mdToast.show(
-                    $mdToast.simple()
-                        .textContent( 'Failed to load Attribution Records. Please contact support.' )
-                        .hideDelay( 1500 )
-                );
+                modalService.simpleToast('Failed to load attribution records. Please contact support.');
             }
         );
     };
@@ -41,7 +37,7 @@ mt2App.controller( 'ReportController' , [ 'ReportApiService' , '$mdToast' , '$lo
     self.exportReport = function () {
         var fullUrl = self.exportUrl + '?' + $httpParamSerializer( self.query );
 
-        $window.open( fullUrl , '_blank' );        
+        $window.open( fullUrl , '_blank' );
     };
 
     self.switchReportType = function ( type ) {

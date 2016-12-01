@@ -1,4 +1,4 @@
-mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$window' , '$location' , '$timeout' , 'MailingTemplateApiService' , '$mdToast' , 'formValidationService', 'modalService' , 'paginationService' , function ( $rootScope, $log , $window , $location , $timeout , MailingTemplateApiService , $mdToast , formValidationService, modalService , paginationService ) {
+mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$window' , '$location' , '$timeout' , 'MailingTemplateApiService' , 'formValidationService', 'modalService' , 'paginationService' , function ( $rootScope, $log , $window , $location , $timeout , MailingTemplateApiService , formValidationService, modalService , paginationService ) {
     var self = this;
     self.$location = $location;
 
@@ -81,7 +81,7 @@ mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$win
         self.formSubmitted = true;
         if (self.selectedEsps.length < 1) {
             formValidationService.setFieldError(self, 'selectedEsps' , 'At least 1 ESP is required.' );
-            $mdToast.showSimple( 'Please fix errors and try again.' );
+            modalService.simpleToast( 'Please fix errors and try again.' );
             return false;
         }
         MailingTemplateApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback);
@@ -118,9 +118,7 @@ mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$win
     };
 
     self.loadAccountsFailureCallback = function ( response ) {
-        modalService.setModalLabel( 'Error' );
-        modalService.setModalBody( 'Failed to load Templates.' );
-        modalService.launchModal();
+        modalService.simpleToast( 'Failed to load templates.' );
     };
 
     self.SuccessCallBackRedirect = function ( response ) {
