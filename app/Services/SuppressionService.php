@@ -112,34 +112,6 @@ class SuppressionService implements IFeedSuppression
         return true;
     }
 
-
-    public function convertSuppressionReason($response){
-        $mt2Reasons = array();
-        foreach($response->suppression as $suppression){
-            if(!isset($suppression->suppressionReasonDetails)){
-                continue;
-            }
-            if($suppression->suppressionReasonDetails !== "Suppression via MT2 Import"){
-                $suppression->suppressionReasonDetails = $this->repo->convertReasonFromLegacy($suppression->suppressionReasonDetails);
-            } else {
-                // its a MT2 import lets clear the list
-                $response->suppression = array();
-            }
-            $reasons = $this->repo->getAllSuppressionsForEmail($suppression->email_addr);
-            foreach ($reasons as $reason){
-                $mt2Reasons[] = array(
-                    "email_addr" => $suppression->email_addr,
-                    "suppressionReasonDetails" => $reason->suppressionReason->display_status,
-                    "espAccountName" => isset($reason->espAccount->account_name) ? $reason->espAccount->account_name : '',
-                    "campaignName" => isset($reason->standardReport->campaign_name) ? $reason->standardReport->campaign_name: ''
-                );
-            }
-
-
-        }
-        $response->suppression = array_merge($response->suppression, $mt2Reasons);
-        return json_encode($response);
-    }
     public function getAllSuppressionsSinceDate($date){
         return $this->repo->getAllSinceDate($date);
     }

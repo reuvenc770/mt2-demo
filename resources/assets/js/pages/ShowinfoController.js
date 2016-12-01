@@ -43,7 +43,7 @@ mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$mdToast' , 
      */
 
     self.getType = function () {
-        var re = /\d{1,}/;
+        var re = /^\d{1,}$/;
 
         return ( re.exec( self.recordId ) ? 'eid' : 'email' );
     }
