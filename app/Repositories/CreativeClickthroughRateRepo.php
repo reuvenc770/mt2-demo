@@ -22,11 +22,11 @@ class CreativeClickthroughRateRepo {
             "INSERT INTO creative_clickthrough_rates
             (creative_id, list_profile_combine_id, deploy_id, delivers, opens, clicks, created_at, updated_at)
 
-            VALUES (:creative_id, :list_profile_id, :deploy_id, :delivers, :opens, :clicks, NOW(), NOW())
+            VALUES (:creative_id, :list_profile_combine_id, :deploy_id, :delivers, :opens, :clicks, NOW(), NOW())
 
             ON DUPLICATE KEY UPDATE
                 creative_id = creative_id,
-                list_profile_id = list_profile_id,
+                list_profile_combine_id = list_profile_combine_id,
                 deploy_id = deploy_id,
                 delivers = :delivers2,
                 opens = :opens2,
