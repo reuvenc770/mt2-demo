@@ -184,6 +184,7 @@ class ListProfileController extends Controller
             'feedGroups' => $this->feedGroupService->getAllFeedGroupsArray(),
             'clients' => $this->clientService->getAllClientsArray() ,
             'clientFeedMap' => $this->clientService->getClientFeedMap() ,
+            'partyFeedMap' => $this->feedService->getPartyFeedMap(),
             'countryFeedMap' => $this->feedService->getCountryFeedMap(),
             'countries' => $this->mt1CountryService->getAll() ,
             'states' => $this->states->all() ,

@@ -19,6 +19,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         'profile_id' : null ,
         'name' : '' ,
         'country_id' : '' ,
+        'party' : '3',
         'feeds' : {} ,
         'feedGroups' :{} ,
         'feedClients' :{} ,
@@ -64,7 +65,9 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     self.listProfilesList = [];
     self.lpListNameField = 'name';
 
-    self.listProfiles = [];
+    self.firstPartyListProfiles = [];
+    self.secondPartyListProfiles = [];
+    self.thirdPartyListProfiles = [];
     self.pageCount = 0;
     self.paginationCount = paginationService.getDefaultPaginationCount();
     self.paginationOptions = paginationService.getDefaultPaginationOptions();
@@ -82,6 +85,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     self.feedClientFilters = [];
     self.clientFeedMap = {};
     self.countryFeedMap = {};
+    self.partyFeedMap = {};
     self.feedNameMap = {};
     self.feedVisibility = {};
 
@@ -212,7 +216,19 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     };
 
     self.loadListProfilesSuccessCallback = function ( response ) {
-        self.listProfiles = response.data.data;
+        angular.forEach(response.data.data, function (value, index){
+            switch (value.party){
+                case 1:
+                    self.firstPartyListProfiles.push(value);
+                    break;
+                case 2:
+                    self.secondPartyListProfiles.push(value);
+                    break;
+                case 3:
+                    self.thirdPartyListProfiles.push(value);
+                    break;
+            }
+        });
         self.pageCount = response.data.last_page;
         self.profileTotal = response.data.total;
 
@@ -327,7 +343,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         var fullRangeName = '';
         angular.forEach( rangeNames , function ( rangeTypes , rangeValue ) {
             fullRangeName = fullRangeName + rangeValue + rangeTypes.join( '' );
-        } )
+        } );
 
         return fullRangeName;
     };
@@ -524,6 +540,17 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
                         self.feedVisibility[ feedId ] = false;
                     }
                 } );
+    };
+
+    self.updateFeedVisibilityFromParty = function () {
+        angular.forEach( self.feedVisibility , function ( visibility , feedId ) {
+            var feedListExistsAndBelongsInParty = ( typeof( self.partyFeedMap[ parseInt( self.current.party ) ] ) != 'undefined' && self.partyFeedMap[ parseInt( self.current.party ) ].indexOf( parseInt( feedId ) ) !== -1);
+            if( feedListExistsAndBelongsInParty ) {
+                self.feedVisibility[ feedId ] = true;
+            } else{
+                self.feedVisibility[ feedId ] = false;
+            }
+        } );
     };
 
     self.clearClientFeedFilter = function () {
@@ -739,6 +766,10 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         self.updateFeedVisibilityFromCountry();
     };
 
+    self.updateParty = function (){
+        self.updateFeedVisibilityFromParty();
+    };
+
     self.columnMembershipCallback = function (){
         var columnList = [];
         angular.forEach( self.selectedColumns , function ( column , columnIndex ) {
@@ -854,6 +885,11 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         self.currentCombine.id = combineId;
         self.currentCombine.combineName = combineName;
         self.prepopListProfiles = listProfiles;
+    };
+
+    self.clearSelection = function (){
+        self.selectedProfiles = [];
+        self.showCombine = false;
     };
 
     self.loadListCombines = function (){
