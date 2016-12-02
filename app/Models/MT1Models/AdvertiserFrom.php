@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AdvertiserFrom extends Model
 {
-    protected $connection = 'mt1_data';
+    protected $connection = 'mt1supp';
     protected $table = 'advertiser_from';
     protected $primaryKey = 'from_id';
 

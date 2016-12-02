@@ -13,7 +13,7 @@ class LazyMT1SuppressionCheckIterator implements \Iterator {
 
     private $emailList;
     private $emailListCursor;
-    private $cursorPositiionValid = true;
+    private $cursorPositionValid = true;
 
     protected $validEmail = '';
     protected $lastValidEmail = '';
@@ -31,14 +31,14 @@ class LazyMT1SuppressionCheckIterator implements \Iterator {
     public function next () {
         $this->lastValidEmail = $this->validEmail;
         $this->validEmail = '';
-        $this->cursorPositiionValid = false;
+        $this->cursorPositionValid = false;
         
         while ( $this->validEmail == '' && $this->emailListCursor->valid() ) {
             $currentEmail = $this->emailListCursor->current();
 
             if ( !$this->suppService->isSuppressed( $currentEmail ) ) {
                 $this->validEmail = $currentEmail;
-                $this->cursorPositiionValid = true;
+                $this->cursorPositionValid = true;
 
                 break;
             }
@@ -48,7 +48,7 @@ class LazyMT1SuppressionCheckIterator implements \Iterator {
     }
 
     public function valid () {
-        return $this->cursorPositiionValid;
+        return $this->cursorPositionValid;
     }
 
     /**
