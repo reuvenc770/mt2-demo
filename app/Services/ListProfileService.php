@@ -179,6 +179,7 @@ class ListProfileService
 
         foreach ($queries as $queryData) {
             $query = $this->builder->buildQuery($listProfile, $queryData);
+            echo "Query generated for $id - $queryNumber" . PHP_EOL;
 
             // .. if we have hygiene, we write out both files. Write full one to a secret location. Send the other one (just email address/md5) out.
             // When the second returns. Find a way to subtract it from the first
@@ -188,17 +189,20 @@ class ListProfileService
             if (1 === $queryNumber) {
                 $this->baseTableService->createTable($id, $columns);
             }
-
+            echo "About to get cursor for $id - $queryNumber" . PHP_EOL;
             $resource = $query->cursor();
+            echo "Cursor obtained for $id - $queryNumber" . PHP_EOL;
 
             foreach ($resource as $row) {
+                echo "$id - $queryNumber checking " . $row->{$this->uniqueColumn};
                 if ($this->isUnique($listProfileTag, $row)) {
-                    echo "For id: $id, " . $row->{$this->uniqueColumn} . ' is unique' . PHP_EOL;
+                    echo ' is new';
                     $this->saveToCache($listProfileTag, $row->{$this->uniqueColumn});
                     $row = $this->mapDataToColumns($columns, $row);
                     $this->batch($row);
                     $totalCount++;
                 }
+                echo PHP_EOL;
             }
 
             $this->batchInsert();
