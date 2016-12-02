@@ -63,7 +63,15 @@ class ListProfileExportService
             Storage::disk('espdata')->append($fileName, implode(',', $columns));
         }
 
-        $resource = $this->mt1SuppServ->getValidRecordGenerator( $offerId , $this->tableRepo->getModel() );
+        $listIds = $this->offerRepo->getSuppressionListIds($offerId);
+        $result = $this->tableRepo->suppressWithListIds($listIds);
+
+        $resource = $result->cursor();
+
+        /**
+         * Uncomment out after successfull testing
+         */
+        #$resource = $this->mt1SuppServ->getValidRecordGenerator( $offerId , $this->tableRepo->getModel() );
 
         foreach ($resource as $row) {
             $row = $this->mapRow($columns, $row);
@@ -109,7 +117,15 @@ class ListProfileExportService
         $tableName = self::BASE_TABLE_NAME . $listProfileId;
         $this->tableRepo = new ListProfileBaseTableRepo(new ListProfileBaseTable($tableName));
 
-        $resource = $this->mt1SuppServ->getValidRecordGenerator( $offerId , $this->tableRepo->getModel() );
+        $listIds = $this->offerRepo->getSuppressionListIds($offerId);
+        $result = $this->tableRepo->suppressWithListIds($listIds);
+
+        $resource = $result->cursor();
+
+        /**
+         * Uncomment out after successfull testing
+         */
+        #$resource = $this->mt1SuppServ->getValidRecordGenerator( $offerId , $this->tableRepo->getModel() );
 
         foreach ($deploys as $deploy) {
 
