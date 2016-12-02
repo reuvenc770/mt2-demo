@@ -34,4 +34,16 @@ class AddDomainForm extends Request
             'live_a_record'  => 'required',
         ];
     }
+
+    public function messages ()
+    {
+        return [
+            'espName.required'      => 'An ESP is required.',
+            'espAccountId.required' => 'An ESP account is required.',
+            'registrar.required'    => 'A registrar is required.',
+            'dba.required'          => 'A DBA is required.',
+            'domains.required'      => 'Domain information is required and must be in the correct format.',
+            'live_a_record.required'=> 'Is the A-Record live?'
+        ];
+    }
 }

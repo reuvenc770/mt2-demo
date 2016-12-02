@@ -3,7 +3,7 @@
        ng-model="esp.currentAccount._token">
 <div class="form-group" ng-class="{ 'has-error' : esp.formErrors.name }">
     <input type="text" placeholder="ESP Name" id="name" class="form-control" required="required"
-           ng-disabled="esp.currentAccount.hasAccounts" ng-model="esp.currentAccount.name"/>
+           ng-disabled="esp.currentAccount.hasAccounts && esp.currentAccount.id != '' " ng-model="esp.currentAccount.name"/>
     <div class="help-block" ng-show="esp.formErrors.name">
         <div ng-repeat="error in esp.formErrors.name">
             <span ng-bind="error"></span>

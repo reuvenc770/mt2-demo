@@ -32,4 +32,13 @@ class AddMailingTemplateForm extends Request
             'selectedEsps'      => 'required',
         ];
     }
+
+    public function messages ()
+    {
+        return [
+            'name.required'         => 'Template name is required.',
+            'templateType.required' => 'Template type is required.',
+            'html.required'         => 'HTML is required.'
+        ];
+    }
 }

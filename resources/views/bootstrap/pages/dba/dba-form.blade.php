@@ -55,8 +55,8 @@
                     <option value="{{ $state->iso_3166_2 }}">{{ $state->name }}</option>
                 @endforeach
             </select>
-            <div class="help-block" ng-show="dba.formErrors.address">
-                <div ng-repeat="error in dba.formErrors.address">
+            <div class="help-block" ng-show="dba.formErrors.state">
+                <div ng-repeat="error in dba.formErrors.state">
                     <span ng-bind="error"></span>
                 </div>
             </div>

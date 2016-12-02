@@ -46,7 +46,12 @@ class ProfileUpdate extends Request
     {
         return [
             'password.hash' => 'Current password is incorrect.',
-            'newpass.confirmed' => 'Password confirmation does not match.'
+            'newpass.confirmed' => 'Password confirmation does not match.',
+            'email.required'    => 'Email address is required.',
+            'username.required' => 'A username is required.',
+            'password.required' => 'Password is required.',
+            'first_name.required'   => 'User\'s first name is required.',
+            'last_name.required'    => 'User\'s last name is required.'
         ];
     }
 }

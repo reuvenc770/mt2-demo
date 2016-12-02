@@ -80,6 +80,7 @@ mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$win
         formValidationService.resetFieldErrors(self);
         self.formSubmitted = true;
         if (self.selectedEsps.length < 1) {
+            self.formSubmitted = false;
             formValidationService.setFieldError(self, 'selectedEsps' , 'At least 1 ESP is required.' );
             modalService.simpleToast( 'Please fix errors and try again.' );
             return false;

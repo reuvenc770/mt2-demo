@@ -27,4 +27,11 @@ class EspEditRequest extends Request
             'email_id_field' => 'required'
         ];
     }
+
+    public function messages ()
+    {
+        return [
+            'email_id_field.required' => 'Email ID field is required.'
+        ];
+    }
 }

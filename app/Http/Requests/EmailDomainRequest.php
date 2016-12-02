@@ -31,4 +31,12 @@ class EmailDomainRequest extends Request
             'domain_group_id' => 'required',
         ];
     }
+
+    public function messages ()
+    {
+        return [
+            'domain_name.required'         => 'Domain name is required.',
+            'domain_group_id.required'     => 'A domain group is required.'
+        ];
+    }
 }
