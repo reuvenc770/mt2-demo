@@ -241,6 +241,9 @@ class Kernel extends ConsoleKernel
         #$schedule->command('feedRecords:exportThirdParty')->cron('*/2 * * * * *');
         #$schedule->command('feedRecords:exportThirdParty')->cron('*/2 * * * * *');
         #$schedule->command('feedRecords:exportThirdParty')->cron('*/2 * * * * *');
+        #$schedule->command('feedRecords:exportThirdParty 2430')->cron('*/2 * * * * *');
+        #$schedule->command('feedRecords:exportThirdParty 2433')->cron('*/2 * * * * *');
+        #$schedule->command('feedRecords:exportThirdParty 2957')->cron('*/2 * * * * *');
 
     }
 }

@@ -338,8 +338,10 @@ class EmailFeedInstanceRepo {
 
     public function getRecordsFromFeedStartingAt($feedId, $startingId) {
         return $this->emailFeedModel
+                    ->selectRaw("email_feed_instances.*, e.email_address")
+                    ->join('emails as e', 'email_feed_instances.email_id', '=', 'e.id')
                     ->where('feed_id', $feedId)
-                    ->where('id', '>', $startingId)
+                    ->where('email_feed_instances.id', '>', $startingId)
                     ->orderBy('id');
     }
 
