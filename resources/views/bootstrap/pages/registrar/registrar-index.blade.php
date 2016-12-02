@@ -62,7 +62,7 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="8">
+                                <td colspan="9">
                                 <md-content class="md-mt2-zeta-theme md-hue-2">
                                     <md-table-pagination md-limit="registrar.paginationCount" md-limit-options="registrar.paginationOptions" md-page="registrar.currentPage" md-total="@{{registrar.accountTotal}}" md-on-paginate="registrar.loadAccounts" md-page-select></md-table-pagination>
                                 </md-content>

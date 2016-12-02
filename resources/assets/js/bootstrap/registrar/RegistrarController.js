@@ -6,7 +6,12 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
                             "username": "",
                             "password" : "",
                             "dba_names": [],
-                            "notes":""};
+                            "notes":"",
+                            "last_cc":"",
+                            "other_last_cc": "",
+                            "contact_credit_card": "",
+                            "other_contact_credit_card": "",
+    };
     self.createUrl = 'registrar/create/';
     self.editUrl = 'registrar/edit/';
     self.pageType = 'add';
