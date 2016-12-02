@@ -19,4 +19,11 @@ class VendorSuppListRepo {
         $id = $etlPickup->where('name', self::LAST_ID_FIELD)->first()->stop_point;
         return $this->model->where('vendorSuppressionListID', '>=', $id);
     }
+
+    public function isSuppressed ( $record , $listId) {
+        return $this->model->where( [
+            [ 'list_id' , $listId ] ,
+            [ 'email_addr' , $record ]
+        ] )->count() > 0;
+    }
 }

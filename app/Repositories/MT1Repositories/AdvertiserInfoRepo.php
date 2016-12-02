@@ -34,5 +34,10 @@ class AdvertiserInfoRepo {
         return $this->model;
     }
     
-
+    public function getSuppressionListId ( $advertiserId ) {
+        return $this->model->select(
+            \DB::raw( "IF( md5_suppression = 'Y' && vendor_supp_list_id = 0 , advertiser_id , vendor_supp_list_id ) AS listID" ) ,
+            \DB::raw( "IF( md5_suppression = 'Y' , 1 , 0 ) AS md5" )
+        )->where( 'advertiser_id' , $advertiserId );
+    }
 }

@@ -13,6 +13,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Storage;
 use Cache;
 use Log;
+use App\Services\MT1SuppressionService;
 
 class ListProfileExportService
 {
@@ -22,16 +23,18 @@ class ListProfileExportService
     private $offerRepo;
     private $tableRepo;
     private $combineRepo;
+    private $mt1SuppServ;
     const BASE_TABLE_NAME = 'list_profile_export_';
     const WRITE_THRESHOLD = 50000;
     private $rows = [];
     private $rowCount = 0;
 
-    public function __construct(ListProfileRepo $listProfileRepo, OfferRepo $offerRepo, ListProfileCombineRepo $combineRepo)
+    public function __construct(ListProfileRepo $listProfileRepo, OfferRepo $offerRepo, ListProfileCombineRepo $combineRepo, MT1SuppressionService $mt1SuppServ )
     {
         $this->listProfileRepo = $listProfileRepo;
         $this->offerRepo = $offerRepo;
         $this->combineRepo = $combineRepo;
+        $this->mt1SuppServ = $mt1SuppServ;
     }
 
     /**
@@ -60,10 +63,7 @@ class ListProfileExportService
             Storage::disk('espdata')->append($fileName, implode(',', $columns));
         }
 
-        $listIds = $this->offerRepo->getSuppressionListIds($offerId);
-        $result = $this->tableRepo->suppressWithListIds($listIds);
-
-        $resource = $result->cursor();
+        $resource = $this->mt1SuppServ->getValidRecordGenerator( $offerId , $this->tableRepo->getModel() );
 
         foreach ($resource as $row) {
             $row = $this->mapRow($columns, $row);
@@ -109,10 +109,7 @@ class ListProfileExportService
         $tableName = self::BASE_TABLE_NAME . $listProfileId;
         $this->tableRepo = new ListProfileBaseTableRepo(new ListProfileBaseTable($tableName));
 
-        $listIds = $this->offerRepo->getSuppressionListIds($offerId);
-        $result = $this->tableRepo->suppressWithListIds($listIds);
-
-        $resource = $result->cursor();
+        $resource = $this->mt1SuppServ->getValidRecordGenerator( $offerId , $this->tableRepo->getModel() );
 
         foreach ($deploys as $deploy) {
 

@@ -13,6 +13,9 @@ class ListProfileBaseTableRepo {
         $this->model = $model;
     }
 
+    public function getModel () {
+        return $this->model;
+    }
 
     public function insert($row) {
         $this->model->insert($row);
