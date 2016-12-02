@@ -6,7 +6,7 @@
 namespace App\DataModels;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Service\MT1SuppressionService;
+use App\Services\MT1SuppressionService;
 
 class LazyMT1SuppressionCheckIterator implements \Iterator {
     private $suppService;
@@ -18,7 +18,7 @@ class LazyMT1SuppressionCheckIterator implements \Iterator {
     protected $validEmail = '';
     protected $lastValidEmail = '';
 
-    public function __construct ( MT1SuppressionSevice $suppService , Model $emailList ) {
+    public function __construct ( MT1SuppressionService $suppService , Model $emailList ) {
         $this->suppService = $suppService;
         $this->emailList = $emailList;
         $this->emailListCursor = $this->emailList->cursor();
