@@ -43,7 +43,7 @@
                         <tbody md-body>
                         <tr md-row ng-repeat="profile in listProfile.thirdPartyListProfiles track by $index">
                             <td md-cell class="mt2-table-btn-column" nowrap>
-                                <md-checkbox  aria-label="Select" name="selectedRows" ng-checked="listProfile.isCreatingCombine(profile.id)" ng-click="listProfile.toggleRow(profile.id)"> </md-checkbox>
+                                <md-checkbox  aria-label="Select" name="selectedRows" ng-checked="listProfile.isCreatingCombine(profile.id)" ng-click="listProfile.toggleRow(profile.id, profile.party)"> </md-checkbox>
                                 <a ng-href="@{{ ( '/listprofile/edit/' + profile.id ) }}" aria-label="Edit" target="_self" data-toggle="tooltip" data-placement="bottom" title="Edit">
                                     <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon></a>
                                 @if (Sentinel::hasAccess('api.listprofile.copy'))
@@ -125,6 +125,7 @@
                         <tr md-row>
                             <th md-column class="mt2-table-btn-column"></th>
                             <th md-column class="md-table-header-override-whitetext">Name</th>
+                            <th md-column class="md-table-header-override-whitetext">Party</th>
                             <th md-column class="md-table-header-override-whitetext">List Profiles Used</th>
                         </tr>
                         </thead>
@@ -136,6 +137,7 @@
                                 <a ng-href="@{{ ( '/listprofile/combine/edit/' + profile.id ) }}" target="_self"><md-icon md-font-set="material-icons" class="mt2-icon-black" data-toggle="tooltip" data-placement="bottom" title="Edit List Combine">edit</md-icon></a>
                             </td>
                             <td md-cell ng-bind="profile.name" nowrap></td>
+                            <td md-cell ng-bind="profile.party" ></td>
                             <td md-cell nowrap>
                                 <span ng-repeat="listCombine in profile.list_profiles">
                                     @{{ listCombine.name }} @{{ !$last ? ',' : '' }}

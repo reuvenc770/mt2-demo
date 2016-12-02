@@ -15,6 +15,9 @@ class ListProfileAddParty extends Migration
         Schema::connection('list_profile')->table('list_profiles', function(Blueprint $table) {
             $table->tinyInteger('party')->default(3);
         });
+        Schema::connection('list_profile')->table('list_profile_combines', function(Blueprint $table) {
+            $table->tinyInteger('party')->default(3);
+        });
     }
 
     /**
@@ -25,6 +28,9 @@ class ListProfileAddParty extends Migration
     public function down()
     {
         Schema::connection('list_profile')->table('list_profiles', function(Blueprint $table) {
+            $table->dropColumn('party');
+        });
+        Schema::connection('list_profile')->table('list_profile_combines', function(Blueprint $table) {
             $table->dropColumn('party');
         });
     }

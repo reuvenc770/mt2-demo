@@ -5,7 +5,7 @@
 @section( 'angular-controller' , 'ng-controller="ListProfileController as listProfile"')
 
 @section( 'content' )
-<div class="panel mt2-theme-panel" ng-init="listProfile.loadListProfileList(); listProfile.setCombine( {{ $combineId}} , '{{ $combineName }}' , {{ $listProfileIds }} );">
+<div class="panel mt2-theme-panel" ng-init="listProfile.loadListProfileList(); listProfile.setCombine( {{ $combineId}} , '{{ $combineName }}' ,'{{ $combineParty }}', {{ $listProfileIds }} );">
     <div class="panel-heading">
         <div class="panel-title">Edit List Profile Combine</div>
     </div>

@@ -14,6 +14,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     self.listCombines = [];
     self.combineError = null;
     self.combineName = "";
+    self.combineParty = '';
 
     self.current = {
         'profile_id' : null ,
@@ -830,14 +831,14 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     };
 
     self.createCombine = function (){
-        ListProfileApiService.createCombine(self.combineName,self.selectedProfiles, self.createCombineSuccess, self.createCombineFail);
+        ListProfileApiService.createCombine(self.combineName,self.selectedProfiles, self.combineParty, self.createCombineSuccess, self.createCombineFail);
     };
 
     self.updateCombine = function () {
         ListProfileApiService.updateCombine( self.currentCombine , self.SuccessCallBackRedirect , self.updateCombineFail );
     };
 
-    self.toggleRow = function (selectedValue) {
+    self.toggleRow = function (selectedValue, selectedParty) {
         var index = self.selectedProfiles.indexOf(selectedValue);
         if (index >= 0) {
             self.selectedProfiles.splice(index, 1);
@@ -845,6 +846,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
             self.selectedProfiles.push(selectedValue);
         }
         self.showCombine = self.selectedProfiles.length > 1;
+        self.combineParty = selectedParty;
     };
 
     self.isCreatingCombine = function( profile ) {
@@ -857,7 +859,12 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
     self.getAllListProfilesSuccess = function ( response ) {
 
-        self.listProfilesList = response.data;
+
+        angular.forEach(response.data, function (value, index){
+            if(value.party == self.currentCombine.party) {
+                self.listProfilesList.push(value);
+            }
+        });
 
         if ( self.prepopListProfiles.length > 0 ) {
             var profilesToRemove = [];
@@ -868,6 +875,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
                     profilesToRemove.push( value );
                     self.currentCombine.selectedProfiles.push( value );
                 }
+
             });
 
             angular.forEach( profilesToRemove , function ( value , index ) {
@@ -881,15 +889,17 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         modalService.simpleToast("Failed to load list of list profiles.");
     };
 
-    self.setCombine = function ( combineId , combineName , listProfiles ) {
+    self.setCombine = function ( combineId , combineName , combineParty, listProfiles ) {
         self.currentCombine.id = combineId;
         self.currentCombine.combineName = combineName;
+        self.currentCombine.party = combineParty;
         self.prepopListProfiles = listProfiles;
     };
 
     self.clearSelection = function (){
         self.selectedProfiles = [];
         self.showCombine = false;
+        self.combineParty = false;
     };
 
     self.loadListCombines = function (){

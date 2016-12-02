@@ -198,6 +198,7 @@ class ListProfileController extends Controller
 
         $insertData = [
             "name" => $request->input("combineName"),
+            'party' => $request->input("combineParty"),
         ];
         $this->combineService->insertCombine($insertData, $request->input("selectedProfiles"));
     }
@@ -221,11 +222,11 @@ class ListProfileController extends Controller
         }
 
         $combineData = $this->combineService->getCombineById($id);
-        $listProfileIds = $combineData->listProfiles()->pluck('id');
-
+        $listProfileIds = $combineData->listProfiles->pluck('id');
         return response()->view( 'bootstrap.pages.listprofile.list-combine-edit' , [
             'combineId' => $id ,
             'combineName' => $combineData->name ,
+            'combineParty' => $combineData->party,
             'listProfileIds' => $listProfileIds
             ]);
     }
