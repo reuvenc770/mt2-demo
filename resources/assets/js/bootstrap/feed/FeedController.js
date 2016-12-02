@@ -1,4 +1,4 @@
-mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' , '$timeout', 'FeedApiService', '$mdToast', '$mdDialog', '$log' , 'formValidationService' , 'modalService' , 'paginationService' , function ( $rootScope , $window , $location , $timeout , FeedApiService, $mdToast , $mdDialog , $log , formValidationService , modalService , paginationService ) {
+mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' , '$timeout', 'FeedApiService', '$mdDialog', '$log' , 'formValidationService' , 'modalService' , 'paginationService' , function ( $rootScope , $window , $location , $timeout , FeedApiService , $mdDialog , $log , formValidationService , modalService , paginationService ) {
     var self = this;
     self.$location = $location;
 
@@ -115,7 +115,7 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
 
     self.resetPassword = function() {
         var feedData  = angular.copy( self.current );
-        FeedApiService.updatePassword( feedData , function(){ $mdToast.showSimple( 'Password Reset has been submitted' );} , self.updateFeedFailureCallback );
+        FeedApiService.updatePassword( feedData , self.resetPasswordSuccessCallback, self.updateFeedFailureCallback );
 
     };
 
@@ -218,10 +218,7 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
 
 
     self.loadFeedFailureCallback = function ( response ) {
-        modalService.setModalLabel( 'Error' );
-        modalService.setModalBody( 'Failed to load feed.' );
-
-        modalService.launchModal();
+        modalService.simpleToast( 'Failed to load feed.' );
     };
 
     self.loadFeedsSuccessCallback = function ( response ) {
@@ -235,17 +232,7 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
     };
 
     self.loadFeedsFailureCallback = function ( response ) {
-        modalService.setModalLabel( 'Error' );
-        modalService.setModalBody( 'Failed to load feeds.' );
-
-        modalService.launchModal();
-    };
-
-    self.updateFeedSuccessCallback = function () {
-        modalService.setModalLabel( 'Update Feed' );
-        modalService.setModalBody( 'Successfully updated feed.' );
-
-        modalService.launchModal();
+        modalService.simpleToast( 'Failed to load feeds.' );
     };
 
     self.updateFeedFailureCallback = function (response) {
@@ -263,15 +250,17 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
 
         formValidationService.loadFieldErrors( self , response );
 
-        modalService.setModalLabel( 'Error' );
-        modalService.setModalBody( 'Please include the missing required fields.' );
-        modalService.launchModal();
+        modalService.simpleToast( 'Please include the missing required fields.' );
     };
 
+    self.resetPasswordSuccessCallback = function () {
+        modalService.setModalLabel( 'Success' );
+        modalService.setModalBody( 'Password reset has been submitted.' );
+        modalService.launchModal();
+    }
     self.runReattributionSuccessCallback = function ( response ) {
         modalService.setModalLabel( 'Success' );
         modalService.setModalBody( 'Reattributing non-unique records.' );
-
         modalService.launchModal();
     };
 
@@ -286,7 +275,6 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
     self.createSuppressionSuccessCallback = function ( response ) {
         modalService.setModalLabel( 'Success' );
         modalService.setModalBody( 'Creating feed suppression.' );
-
         modalService.launchModal();
     };
 

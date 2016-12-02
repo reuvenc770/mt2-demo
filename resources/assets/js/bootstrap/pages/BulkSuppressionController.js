@@ -86,7 +86,7 @@ mt2App.controller( 'BulkSuppressionController' , [ '$scope' , '$log' , '$timeout
      *  Modals and callbacks
      */
     self.uploadEmailsSuccessCallback = function() {
-        modalService.setModalLabel('Success!');
+        modalService.setModalLabel('Success');
         modalService.setModalBody('Emails suppressed.');
         modalService.launchModal();
     }
@@ -97,7 +97,7 @@ mt2App.controller( 'BulkSuppressionController' , [ '$scope' , '$log' , '$timeout
 
     self.fileTransferSuccessCallback = function() {
         self.emailsLoaded = true;
-        modalService.setModalLabel('Success!');
+        modalService.setModalLabel('Success');
         modalService.setModalBody('File uploaded.');
         modalService.launchModal();
     }
@@ -114,9 +114,7 @@ mt2App.controller( 'BulkSuppressionController' , [ '$scope' , '$log' , '$timeout
     };
 
     self.loadReasonsFailureCallback = function ( response ) {
-            modalService.setModalLabel('Error');
-            modalService.setModalBody('Failed to load suppression reasons.');
-            modalService.launchModal();
+            modalService.simpleToast('Failed to load suppression reasons.');
     };
 
 } ] );

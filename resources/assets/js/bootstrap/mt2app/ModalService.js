@@ -29,7 +29,7 @@ mt2App.service( 'modalService' , [ '$mdToast' , function ( $mdToast ) {
     };
 
     self.simpleToast = function ( message , screenPosition ) {
-        var defaultPosition = 'top left';
+        var defaultPosition = 'top right';
 
         if ( typeof( screenPosition ) == 'undefined' ) {
             screenPosition = defaultPosition;

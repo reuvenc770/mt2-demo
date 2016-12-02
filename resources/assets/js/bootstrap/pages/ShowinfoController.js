@@ -1,4 +1,4 @@
-mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$mdToast' , '$log' , '$window' , 'formValidationService' , 'modalService' , function ( ShowinfoApiService , $mdToast , $log , $window , formValidationService , modalService ) {
+mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$log' , '$window' , 'formValidationService' , 'modalService' , function ( ShowinfoApiService , $log , $window , formValidationService , modalService ) {
     var self = this;
     self.api = ShowinfoApiService;
 

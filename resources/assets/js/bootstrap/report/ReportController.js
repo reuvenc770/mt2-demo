@@ -1,4 +1,4 @@
-mt2App.controller( 'ReportController' , [ 'ReportApiService' , 'formValidationService' , 'modalService' , '$mdToast' , '$log' , '$window' , '$httpParamSerializer' , function ( ReportApiService ,formValidationService , modalService , $mdToast , $log , $window , $httpParamSerializer ) {
+mt2App.controller( 'ReportController' , [ 'ReportApiService' , 'formValidationService' , 'modalService' , '$log' , '$window' , '$httpParamSerializer' , function ( ReportApiService ,formValidationService , modalService , $log , $window , $httpParamSerializer ) {
     var self = this;
 
     self.queryPromise = null;
@@ -18,14 +18,52 @@ mt2App.controller( 'ReportController' , [ 'ReportApiService' , 'formValidationSe
     self.formType = 'Add';
     self.editReportId = 0;
 
+    self.startDate = new Date();
+    self.endDate = new Date();
+
+    self.records = [];
+    self.meta = { "recordCount" : 0 , "recordTotals" : {} };
+    self.query = {
+        "type" : "Deploy" ,
+        "filters" : { "date" : { "start" : self.startDate , "end" : self.endDate } } ,
+        "order" : 'date' ,
+        "limit" : 50 ,
+        "page" : 1
+    };
+
     self.loadReports = function () {
         self.queryPromise = ReportApiService.getReports(
-            self.currentPage , 
+            self.currentPage ,
             self.paginationCount ,
             self.sort ,
             self.loadReportsSuccessCallback ,
             self.loadReportsFailureCallback
         );
+    };
+
+    self.exportUrl = '/report/export';
+
+    self.loadRecords = function () {
+        self.getRecords();
+    }; 
+
+    self.getRecords = function () { 
+        self.queryPromise = ReportApiService.getRecords(
+            self.query ,
+            function ( response ) {
+                self.records = response.data.records;
+                self.meta.recordCount = parseInt( response.data.totalRecords );
+                self.meta.recordTotals = response.data.totals;
+            } , function ( response ) {
+                modalService.simpleToast( 'Failed to load Attribution Records. Please contact support.' );
+            }
+        );
+    };
+
+    self.exportReport = function () {
+        var fullUrl = self.exportUrl + '?' + $httpParamSerializer( self.query );
+
+        $window.open( fullUrl , '_blank' );        
     };
 
     self.showReportModal = function () {
@@ -62,7 +100,7 @@ mt2App.controller( 'ReportController' , [ 'ReportApiService' , 'formValidationSe
             );
         }
     };
-    
+
     self.loadReportsSuccessCallback = function ( response ) {
         self.reportList = response.data.data;
         self.pageCount = response.data.last_page;
@@ -70,7 +108,7 @@ mt2App.controller( 'ReportController' , [ 'ReportApiService' , 'formValidationSe
     };
 
     self.loadReportsFailureCallback = function ( response ) {
-        modalService.simpleToast( 'Failed to load reports. Please contact support.' , 'top left' );
+        modalService.simpleToast( 'Failed to load reports. Please contact support.' );
     }
 
     self.createReportSuccessCallback = function ( response ) {
@@ -80,16 +118,20 @@ mt2App.controller( 'ReportController' , [ 'ReportApiService' , 'formValidationSe
 
         $('#createReport').modal( 'hide' );
 
-        modalService.simpleToast( 'Successfully Saved Report.' , 'top left' );
+        modalService.setModalLabel( 'Success' );
+        modalService.setModalBody( 'Successfully Saved Report.' );
+        modalService.launchModal();
 
         self.formType = 'Add';
     };
 
     self.createReportFailureCallback = function ( response ) {
         self.reportSaving = false;
-        
+
         formValidationService.loadFieldErrors( self , response );
 
-        modalService.simpleToast( 'Failed to save report. Please fix errors.' , 'top left' );
+        modalService.setModalLabel( 'Error' );
+        modalService.setModalBody( 'Failed to save report. Please fix errors.' );
+        modalService.launchModal();
     };
 } ] );

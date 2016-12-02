@@ -172,9 +172,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     };
 
     self.loadAccountsFailureCallback = function ( response ) {
-        modalService.setModalLabel( 'Error' );
-        modalService.setModalBody( 'Failed to load Users.' );
-        modalService.launchModal();
+        modalService.simpleToast( 'Failed to load accounts.' );
     };
 
     self.SuccessCallBackRedirect = function ( response ) {
@@ -198,7 +196,16 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     };
 
     self.toggleRowSuccess = function ( response ) {
-        $mdToast.showSimple("DBA Updated");
+        modalService.setModalLabel('Success');
+        modalService.setModalBody("DBA status updated.");
+        modalService.launchModal();
+        self.loadAccounts();
+    };
+
+    self.toggleRowFailure = function ( response ) {
+        modalService.setModalLabel('Error');
+        modalService.setModalBody('Failed to update DBA status. Please try again.');
+        modalService.launchModal();
         self.loadAccounts();
     };
 

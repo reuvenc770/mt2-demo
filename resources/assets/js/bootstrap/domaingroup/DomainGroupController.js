@@ -1,4 +1,4 @@
-mt2App.controller( 'DomainGroupController' , [ '$log' , '$window' , '$location' , '$timeout' , 'DomainGroupApiService', '$rootScope','$mdToast', 'formValidationService','modalService', 'paginationService' , function ( $log , $window , $location , $timeout , DomainGroupApiService, $rootScope, $mdToast, formValidationService, modalService , paginationService ) {
+mt2App.controller( 'DomainGroupController' , [ '$log' , '$window' , '$location' , '$timeout' , 'DomainGroupApiService', '$rootScope', 'formValidationService','modalService', 'paginationService' , function ( $log , $window , $location , $timeout , DomainGroupApiService, $rootScope, formValidationService, modalService , paginationService ) {
     var self = this;
     self.$location = $location;
 
@@ -78,9 +78,7 @@ mt2App.controller( 'DomainGroupController' , [ '$log' , '$window' , '$location' 
     };
 
     self.loadAccountsFailureCallback = function ( response ) {
-        modalService.setModalLabel( 'Error' );
-        modalService.setModalBody( 'Failed to load accounts.' );
-        modalService.launchModal();
+        modalService.simpleToast( 'Failed to load accounts.' );
     };
 
     self.SuccessCallBackRedirect = function ( response ) {
@@ -95,7 +93,9 @@ mt2App.controller( 'DomainGroupController' , [ '$log' , '$window' , '$location' 
 
 
     self.toggleRowSuccess = function ( response ) {
-        $mdToast.showSimple("ISP Group Updated");
+        modalService.setModalLabel('Success');
+        modalService.setModalBody("ISP group status updated.");
+        modalService.launchModal();
         self.loadAccounts();
     };
 
@@ -107,6 +107,13 @@ mt2App.controller( 'DomainGroupController' , [ '$log' , '$window' , '$location' 
     self.editAccountFailureCallback = function ( response ) {
         self.editForm = false;
         formValidationService.loadFieldErrors(self,response);
+    };
+
+    self.toggleRowFailure = function (){
+        modalService.setModalLabel('Error');
+        modalService.setModalBody( "Failed to update ISP group status. Please try again." );
+        modalService.launchModal();
+        self.loadAccounts();
     };
 
 } ] );

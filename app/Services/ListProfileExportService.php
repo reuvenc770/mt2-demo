@@ -13,6 +13,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Storage;
 use Cache;
 use Log;
+use App\Services\MT1SuppressionService;
 
 class ListProfileExportService
 {
@@ -22,16 +23,20 @@ class ListProfileExportService
     private $offerRepo;
     private $tableRepo;
     private $combineRepo;
+    private $mt1SuppServ;
     const BASE_TABLE_NAME = 'list_profile_export_';
     const WRITE_THRESHOLD = 50000;
     private $rows = [];
     private $rowCount = 0;
+    private $suppressedRows = [];
+    private $suppressedRowCount = 0;
 
-    public function __construct(ListProfileRepo $listProfileRepo, OfferRepo $offerRepo, ListProfileCombineRepo $combineRepo)
+    public function __construct(ListProfileRepo $listProfileRepo, OfferRepo $offerRepo, ListProfileCombineRepo $combineRepo, MT1SuppressionService $mt1SuppServ )
     {
         $this->listProfileRepo = $listProfileRepo;
         $this->offerRepo = $offerRepo;
         $this->combineRepo = $combineRepo;
+        $this->mt1SuppServ = $mt1SuppServ;
     }
 
     /**
@@ -64,6 +69,11 @@ class ListProfileExportService
         $result = $this->tableRepo->suppressWithListIds($listIds);
 
         $resource = $result->cursor();
+
+        /**
+         * Uncomment out after successfull testing
+         */
+        #$resource = $this->mt1SuppServ->getValidRecordGenerator( $offerId , $this->tableRepo->getModel() );
 
         foreach ($resource as $row) {
             $row = $this->mapRow($columns, $row);
@@ -114,6 +124,11 @@ class ListProfileExportService
 
         $resource = $result->cursor();
 
+        /**
+         * Uncomment out after successfull testing
+         */
+        #$resource = $this->mt1SuppServ->getValidRecordGenerator( $offerId , $this->tableRepo->getModel() );
+
         foreach ($deploys as $deploy) {
 
             $headers = array();
@@ -133,10 +148,15 @@ class ListProfileExportService
 
 
              foreach ($resource as $row) {
-                 $row = $this->mapRow($header, $row);
-                 $this->batch($fileName, $row, "local");
+                 if(!$row->suppression_status){
+                     $this->batchSuppression($fileName, $row);
+                 } else {
+                     $row = $this->mapRow($header, $row);
+                     $this->batch($fileName, $row, "local");
+                 };
              }
             $this->writeBatch($fileName, "local");
+            $this->writeBatchSuppression($fileName);
 
             //either get the deploy cache or build it
             $deployProgress = Cache::get("deploy-{$key}", function () use ($deploy) {
@@ -186,10 +206,29 @@ class ListProfileExportService
         }
     }
 
+    private function batchSuppression($fileName, $row)
+    {
+        if ($this->suppressedRowCount >= self::WRITE_THRESHOLD) {
+            $this->writeBatchSuppression($fileName);
+
+            $this->suppressedRows = [$row->email_address];
+            $this->suppressedRowCount = 1;
+        } else {
+            $this->suppressedRows[] = $row->email_address;
+            $this->suppressedRowCount++;
+        }
+    }
+
     private function writeBatch($fileName, $disk = 'espdata' )
     {
         $string = implode(PHP_EOL, $this->rows);
         Storage::disk($disk)->append($fileName, $string);
+    }
+
+    private function writeBatchSuppression($fileName)
+    {
+        $string = implode(PHP_EOL, $this->suppressedRows);
+        Storage::append($fileName.'-dnm', $string);
     }
 
     private function mapRow($columns, $row)
@@ -208,12 +247,21 @@ class ListProfileExportService
         $offerName = $this->offerRepo->getOfferName($offerId);
         $date = Carbon::today()->toDateString();
         $combineFileName = "{$date}_{$deployId}_{$espAccountName}_{$fileName}_{$offerName}.csv";
+        $combineFileNameDNM = "{$date}_DONOTMAIL_{$deployId}_{$espAccountName}_{$fileName}_{$offerName}.csv";
         Storage::disk('SystemFtp')->delete($combineFileName);
+        Storage::disk('SystemFtp')->delete($combineFileNameDNM);
         Storage::disk('SystemFtp')->append($combineFileName, implode(',', $header));
 
         foreach ($files as $file) {
             $contents = Storage::get($file);
             Storage::disk('SystemFtp')->append($combineFileName, $contents);
+            Storage::disk('SystemFtp')->delete($file);
+        }
+
+        foreach ($files as $file) {
+            $contents = Storage::get($file.'-dnm');
+            Storage::disk('SystemFtp')->append($combineFileNameDNM, $contents);
+            Storage::disk('SystemFtp')->delete($file.'-dnm');
         }
     }
 

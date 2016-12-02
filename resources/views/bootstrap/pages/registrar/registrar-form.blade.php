@@ -99,6 +99,24 @@
         </div>
     </div>
 </div>
+<div class="form-group" ng-class="{ 'has-error' : registrar.formErrors.other_last_cc }">
+    <input placeholder="Last 4 CC Digits - Secondary Card" type="text" class="form-control" ng-model="registrar.currentAccount.other_last_cc"
+           required="required" name="other_last_cc" type="text">
+    <div class="help-block" ng-show="registrar.formErrors.other_last_cc">
+        <div ng-repeat="error in registrar.formErrors.other_last_cc">
+            <span ng-bind="error"></span>
+        </div>
+    </div>
+</div>
+<div class="form-group" ng-class="{ 'has-error' : registrar.formErrors.other_contact_credit_card }">
+    <input placeholder="Contact for Credit Card - Secondary Card" type="text" class="form-control" ng-model="registrar.currentAccount.other_contact_credit_card"
+           required="required" name="other_contact_credit_card" type="text">
+    <div class="help-block" ng-show="registrar.formErrors.other_contact_credit_card">
+        <div ng-repeat="error in registrar.formErrors.other_contact_credit_card">
+            <span ng-bind="error"></span>
+        </div>
+    </div>
+</div>
 <div class="form-group" ng-class="{ 'has-error' : registrar.formErrors.notes }">
         <textarea rows="4" placeholder="Notes" value="" class="form-control" ng-model="registrar.currentAccount.notes"
                   name="notes"></textarea>

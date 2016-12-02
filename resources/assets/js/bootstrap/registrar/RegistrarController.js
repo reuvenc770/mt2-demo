@@ -1,4 +1,4 @@
-mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , '$timeout' , 'RegistrarApiService' ,'$rootScope', '$mdToast', 'formValidationService', 'modalService', 'paginationService' , function ( $log , $window , $location , $timeout , RegistrarApiService, $rootScope, $mdToast, formValidationService, modalService , paginationService ) {
+mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , '$timeout' , 'RegistrarApiService' ,'$rootScope', 'formValidationService', 'modalService', 'paginationService' , function ( $log , $window , $location , $timeout , RegistrarApiService, $rootScope, formValidationService, modalService , paginationService ) {
     var self = this;
     self.$location = $location;
     self.accounts = [];
@@ -6,7 +6,12 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
                             "username": "",
                             "password" : "",
                             "dba_names": [],
-                            "notes":""};
+                            "notes":"",
+                            "last_cc":"",
+                            "other_last_cc": "",
+                            "contact_credit_card": "",
+                            "other_contact_credit_card": "",
+    };
     self.createUrl = 'registrar/create/';
     self.editUrl = 'registrar/edit/';
     self.pageType = 'add';
@@ -137,9 +142,7 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
     };
 
     self.loadAccountsFailureCallback = function ( response ) {
-        modalService.setModalLabel( 'Error' );
-        modalService.setModalBody( 'Failed to load Users.' );
-        modalService.launchModal();
+        modalService.simpleToast( 'Failed to load users.' );
     };
 
     self.SuccessCallBackRedirect = function ( response ) {
@@ -163,7 +166,16 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
     };
 
     self.toggleRowSuccess = function ( response ) {
-        $mdToast.showSimple("Registrar Updated");
+        modalService.setModalLabel('Success');
+        modalService.setModalBody("Registrar status updated.");
+        modalService.launchModal();
+        self.loadAccounts();
+    };
+
+    self.toggleRowFailure = function ( response ) {
+        modalService.setModalLabel('Error');
+        modalService.setModalBody('Failed to update registrar status. Please try again.');
+        modalService.launchModal();
         self.loadAccounts();
     };
 
