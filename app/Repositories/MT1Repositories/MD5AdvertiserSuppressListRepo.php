@@ -15,9 +15,9 @@ class MD5AdvertiserSuppressListRepo {
     }
 
     public function isSuppressed ( $record , $advertiserId) {
-        return $this->model->where(
+        return $this->model->where( [
             [ 'advertiser_id' , $advertiserId ] ,
             [ 'md5sum' , $record ]
-        )->count() > 0;
+        ] )->count() > 0;
     }
 }
