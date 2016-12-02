@@ -37,4 +37,12 @@ mt2App.service( 'ReportApiService' , function ( $http ) {
         } ).then( successCallback , failureCallback );
     
     };
+
+    self.getRecords = function ( query , successCallback , failureCallback ) {
+        return $http( {
+            "method" : "GET" ,
+            "url" : self.reportApiUrl ,
+            "params" : query
+        } ).then( successCallback , failureCallback );
+    };
 } );

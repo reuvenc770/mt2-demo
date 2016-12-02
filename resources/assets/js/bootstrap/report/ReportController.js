@@ -18,6 +18,19 @@ mt2App.controller( 'ReportController' , [ 'ReportApiService' , 'formValidationSe
     self.formType = 'Add';
     self.editReportId = 0;
 
+    self.startDate = new Date();
+    self.endDate = new Date();
+
+    self.records = [];
+    self.meta = { "recordCount" : 0 , "recordTotals" : {} };
+    self.query = {
+        "type" : "Deploy" ,
+        "filters" : { "date" : { "start" : self.startDate , "end" : self.endDate } } ,
+        "order" : 'date' ,
+        "limit" : 50 ,
+        "page" : 1
+    };
+
     self.loadReports = function () {
         self.queryPromise = ReportApiService.getReports(
             self.currentPage ,
@@ -26,6 +39,31 @@ mt2App.controller( 'ReportController' , [ 'ReportApiService' , 'formValidationSe
             self.loadReportsSuccessCallback ,
             self.loadReportsFailureCallback
         );
+    };
+
+    self.exportUrl = '/report/export';
+
+    self.loadRecords = function () {
+        self.getRecords();
+    }; 
+
+    self.getRecords = function () { 
+        self.queryPromise = ReportApiService.getRecords(
+            self.query ,
+            function ( response ) {
+                self.records = response.data.records;
+                self.meta.recordCount = parseInt( response.data.totalRecords );
+                self.meta.recordTotals = response.data.totals;
+            } , function ( response ) {
+                modalService.simpleToast( 'Failed to load Attribution Records. Please contact support.' );
+            }
+        );
+    };
+
+    self.exportReport = function () {
+        var fullUrl = self.exportUrl + '?' + $httpParamSerializer( self.query );
+
+        $window.open( fullUrl , '_blank' );        
     };
 
     self.showReportModal = function () {
