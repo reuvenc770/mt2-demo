@@ -8,6 +8,7 @@ namespace App\Services;
 use App\DataModels\LazyMT1SuppressionCheckIterator;
 use App\Services\MT1Services\AdvertiserService;
 use App\Repositories\MT1Repositories\MD5AdvertiserSuppressListRepo; 
+use App\Repositories\MT1Repositories\VendorSuppListRepo;
 
 class MT1SuppressionService {
     protected $advertiser;
