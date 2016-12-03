@@ -27,6 +27,20 @@ class StandardApiReportRepo {
             ->get();
     }
 
+    public function getActionsCampaigns($espAccountId, $date) {
+        // Much like the above, that it pulls recent campaigns,
+        // but also pulls those that are part of workflows 
+        // (and thus might be "old" but are still run regularly)
+        $db = config('database.connections.mysql.database');
+
+        return $this->report
+                    ->select('external_deploy_id', 'campaign_name', 'esp_account_id', 'esp_internal_id', 'datetime')
+                    ->leftJoin("$db.esp_workflow_steps as ews", 'standard_reports.external_deploy_id', '=', 'ews.deploy_id')
+                    ->whereRaw("esp_account_id = $espAccountId AND (standard_reports.created_at >= '$date' OR ews.deploy_id IS NOT NULL)")
+                    ->orderBy('datetime', 'desc')
+                    ->get();
+    }
+
     public function getEspToInternalMap($espAccountId) {
         // need an appropriate limit
         // According to Danny, residuals after a month don't matter
