@@ -7,7 +7,7 @@
 @section( 'angular-controller' , 'ng-controller="FeedController as feed"' )
 
 @section( 'content' )
-<div class="panel panel-primary" ng-init="feed.setId( {{$id}} );feed.setFields( {{$fields}} );">
+<div class="panel mt2-theme-panel" ng-init="feed.setId( {{$id}} );feed.setFields( {{$fields}} );">
     <div class="panel-heading">
         <div class="panel-title">File Drop Field Order</div>
     </div>
@@ -41,7 +41,7 @@
                             <input class="form-control" ng-model="feed.customField" placeholder="Type Custom Field Name" />
 
                             <span class="input-group-btn">
-                                <button class="btn btn-success" type="button" ng-click="feed.addCustomField()">Add</button>
+                                <button class="btn mt2-theme-btn-primary" type="button" ng-click="feed.addCustomField()">Add</button>
                             </span>
                         </div>
                     </div>
@@ -63,7 +63,7 @@
 
     <div class="panel-footer">
         <div class="form-group">
-            <input class="btn btn-primary btn-block" ng-click="feed.saveFieldOrder()" ng-disabled="feed.formSubmitted" type="submit" value="Save Field Order" />
+            <input class="btn mt2-theme-btn-primary btn-block" ng-click="feed.saveFieldOrder()" ng-disabled="feed.formSubmitted" type="submit" value="Save Field Order" />
         </div>
     </div>
 </div>

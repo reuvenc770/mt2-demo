@@ -8,7 +8,7 @@
 
 @section( 'content' )
     <div class="alert alert-info" role="alert"> <strong>Heads up!</strong> Any information uploaded here will likely be replaced by a later API call,  please do not re-upload, previously collected campaigns.</div>
-    <div class="panel panel-primary" ng-init="esp.loadMapping()">
+    <div class="panel mt2-theme-panel" ng-init="esp.loadMapping()">
         <div class="panel-heading">
             <div class="panel-title">File Drop Field Order</div>
         </div>
@@ -58,7 +58,7 @@
 
         <div class="panel-footer">
             <div class="form-group">
-                <input class="btn btn-primary btn-block" ng-click="esp.saveFieldOrder()" ng-disabled="!esp.campaignTriggered" type="submit" value="Save Field Order" />
+                <input class="btn mt2-theme-btn-primary btn-block" ng-click="esp.saveFieldOrder()" ng-disabled="!esp.campaignTriggered" type="submit" value="Save Field Order" />
             </div>
         </div>
     </div>

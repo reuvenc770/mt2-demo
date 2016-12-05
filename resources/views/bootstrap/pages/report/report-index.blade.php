@@ -14,7 +14,7 @@
 <div ng-init="report.loadReports()">
     <md-table-container>
         <table md-table md-progress="report.queryPromise">
-            <thead md-head>
+            <thead md-head class="mt2-theme-thead">
                 <tr md-row>
                     <th md-column></th>
                     <th md-column class="md-table-header-override-whitetext">Name</th>
@@ -59,7 +59,7 @@
         'resources/assets/js/bootstrap/report/ReportController.js' ,
         'resources/assets/js/bootstrap/report/ReportApiService.js' ,
         'resources/assets/js/bootstrap/report/ReportCreateModalDirective.js' ,
-    ] , 
+    ] ,
     'js' ,
-    'pageLevel' 
+    'pageLevel'
 ) ?>

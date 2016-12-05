@@ -1,4 +1,4 @@
-mt2App.controller( 'ReportController' , [ 'ReportApiService' , 'formValidationService' , 'modalService' , '$log' , '$window' , '$httpParamSerializer' , function ( ReportApiService ,formValidationService , modalService , $log , $window , $httpParamSerializer ) {
+mt2App.controller( 'ReportController' , [ 'ReportApiService' , 'formValidationService' , 'modalService' , '$log' , '$window' , '$httpParamSerializer' , '$timeout' , function ( ReportApiService ,formValidationService , modalService , $log , $window , $httpParamSerializer , $timeout ) {
     var self = this;
 
     self.queryPromise = null;
@@ -45,9 +45,9 @@ mt2App.controller( 'ReportController' , [ 'ReportApiService' , 'formValidationSe
 
     self.loadRecords = function () {
         self.getRecords();
-    }; 
+    };
 
-    self.getRecords = function () { 
+    self.getRecords = function () {
         self.queryPromise = ReportApiService.getRecords(
             self.query ,
             function ( response ) {
@@ -63,7 +63,7 @@ mt2App.controller( 'ReportController' , [ 'ReportApiService' , 'formValidationSe
     self.exportReport = function () {
         var fullUrl = self.exportUrl + '?' + $httpParamSerializer( self.query );
 
-        $window.open( fullUrl , '_blank' );        
+        $window.open( fullUrl , '_blank' );
     };
 
     self.showReportModal = function () {
@@ -102,6 +102,8 @@ mt2App.controller( 'ReportController' , [ 'ReportApiService' , 'formValidationSe
     };
 
     self.loadReportsSuccessCallback = function ( response ) {
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+
         self.reportList = response.data.data;
         self.pageCount = response.data.last_page;
         self.reportTotal = response.data.total;

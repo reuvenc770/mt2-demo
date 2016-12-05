@@ -428,7 +428,9 @@ input[type="checkbox"] {
     margin-top: 2px;
 }
 .btn:focus,
-.btn-group > .btn:focus {
+.btn-group > .btn:focus,
+select:focus,
+[role="button"]:focus {
     outline: 0 !important;
 }
 .chipList {

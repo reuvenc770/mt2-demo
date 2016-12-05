@@ -5,7 +5,7 @@
 @section( 'angular-controller' , 'ng-controller="SourceUrlSearchController as source"' )
 
 @section( 'content' )
-    <div class="panel panel-primary" ng-init="source.loadFeedList(); source.setClientList( {{ $clients }} ); source.setVerticalList( {{ $feedVerticals }} )">
+    <div class="panel mt2-theme-panel" ng-init="source.loadFeedList(); source.setClientList( {{ $clients }} ); source.setVerticalList( {{ $feedVerticals }} )">
         <div class="panel-heading">
             <div class="panel-title">Source URL Search</div>
         </div>
@@ -96,7 +96,7 @@
         </div>
         <div class="panel-footer">
             <div class="form-group">
-                <input class="btn btn-primary btn-block" ng-click="source.searchSourceUrl()" ng-disabled="source.isSearching" type="submit" value="Search">
+                <input class="btn mt2-theme-btn-primary btn-block" ng-click="source.searchSourceUrl()" ng-disabled="source.isSearching" type="submit" value="Search">
             </div>
         </div>
     </div>
@@ -104,7 +104,7 @@
 
     <md-table-container>
         <table md-table md-progress="source.queryPromise">
-            <thead md-head>
+            <thead md-head class="mt2-theme-thead">
                 <tr md-row>
                     <th md-column class="md-table-header-override-whitetext">Client</th>
                     <th md-column class="md-table-header-override-whitetext">Feed Name</th>

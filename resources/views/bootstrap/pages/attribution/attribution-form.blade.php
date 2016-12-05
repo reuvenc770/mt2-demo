@@ -7,7 +7,7 @@
         </div>
     </div>
 </div>
-<div class="panel panel-success">
+<div class="panel panel-info">
     <div class="panel-heading">
         <!--//I wanted to move controls up here ,but its out of the scope of the loop, could push feeds on array and loop -->
         <div class="panel-title">Attribution Levels <span ng-if="attr.selectFeedCount > 1"><b> - Buttons Controlling Selected Group - </b> </span>
@@ -17,25 +17,29 @@
         <ul class="list-group" ng-cloak>
             <li ng-repeat="feed in attr.feeds | limitObjects:attr.rowLimit track by $index"
                 class="list-group-item clearfix" ng-class="{ 'list-group-item-success' : attr.clientLevels[ feed.id ] > ( $index + 1 ) , 'list-group-item-danger' : attr.clientLevels[ feed.id ] < ( $index + 1 )}">
-                <div class="col-sm-1">
-                    <input ng-change="attr.toggleGroupController(feed , $index)" ng-model="feed.selected" type="checkbox">
+                <div class="col-sm-4 col-md-6 no-padding">
+                    <div class="checkbox no-margin">
+                        <label>
+                            <h4>
+                                <input ng-change="attr.toggleGroupController(feed , $index)" ng-model="feed.selected" type="checkbox">
+                                &nbsp;&nbsp; @{{ feed.name }}
+                            </h4>
+                        </label>
+                    </div>
                 </div>
-                <div class="col-sm-5">
-                    <h4>@{{ feed.name }}</h4>
-                </div>
-                <div class="col-sm-3">
+                <div class="col-sm-4 col-md-3">
                     <div class="row">
                         <div class="col-sm-4">
-                            <input class="form-control input-small" ng-model="feed.newLevel" type="text">
+                            <input class="form-control input-sm" ng-model="feed.newLevel" type="text">
                         </div>
                         <div class="col-sm-8">
-                            <button class="btn btn-sm btn-block btn-primary" ng-if="feed.newLevel != $index + 1"
+                            <button class="btn btn-sm btn-block mt2-theme-btn-primary" ng-if="feed.newLevel != $index + 1"
                                     ng-click="attr.changeLevel( feed , $index )">Change Level
                             </button>
                         </div>
                     </div>
                 </div>
-                <div  class="col-sm-3 attribution-actions">
+                <div class="col-sm-4 col-md-3 attribution-actions">
                     <span ng-click="attr.onLevelRise( feed , $index )" class="glyphicon glyphicon-arrow-up"></span>
                     <span ng-click="attr.onLevelDrop( feed , $index )" class="glyphicon glyphicon-arrow-down"></span>
                     <span ng-click="attr.moveToTop( feed , $index )" class="glyphicon glyphicon-open"></span>
@@ -46,12 +50,11 @@
         </ul>
     </div>
     <div class="panel-footer clearfix">
-        <div class="col-sm-6">
-
-            <input class="btn  btn-success btn-block" ng-click="attr.loadMore()" type="submit" value="Load More Rows">
+        <div class="col-sm-6" ng-class="{ 'form-group' : app.isMobile() }">
+            <input class="btn mt2-theme-btn-primary btn-block" ng-click="attr.loadMore()" type="submit" value="Load More Rows">
         </div>
         <div class="col-sm-6">
-            <input class="btn  btn-danger btn-block" ng-click="attr.loadLess()" type="submit" value="Load Less Rows">
+            <input class="btn mt2-theme-btn-primary btn-block" ng-click="attr.loadLess()" type="submit" value="Load Less Rows">
         </div>
     </div>
 </div>
