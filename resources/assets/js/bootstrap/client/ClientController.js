@@ -41,12 +41,14 @@ mt2App.controller( 'ClientController' , [ '$log' , '$window' , '$location', '$ti
 
     self.saveClient = function () {
         self.formSubmitted = true;
+        formValidationService.resetFieldErrors(self);
 
         ClientApiService.saveClient( self.current , self.successRedirectCallback , self.saveClientFailureCallback );
     };
 
     self.updateClient = function () {
         self.formSubmitted = true;
+        formValidationService.resetFieldErrors(self);
 
         ClientApiService.updateClient( self.current , self.successRedirectCallback , self.updateClientFailureCallback );
     };
@@ -62,6 +64,8 @@ mt2App.controller( 'ClientController' , [ '$log' , '$window' , '$location', '$ti
     };
 
     self.loadAccountsSuccessCallback = function( response ) {
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+
         self.accounts = response.data.data;
         self.pageCount = response.data.last_page;
         self.accountTotal = response.data.total;
@@ -78,17 +82,12 @@ mt2App.controller( 'ClientController' , [ '$log' , '$window' , '$location', '$ti
 
     self.saveClientFailureCallback = function( response ) {
         self.formSubmitted = false;
-
-        modalService.setModalLabel( 'Error' );
-        modalService.setModalBody( 'Failed to save new client.' );
-        modalService.launchModal();
+        formValidationService.loadFieldErrors( self , response );
     };
 
     self.updateClientFailureCallback = function( response ) {
         self.formSubmitted = false;
-
-        modalService.setModalLabel( 'Error' );
-        modalService.setModalBody( 'Failed to update client.' );
-        modalService.launchModal();
+        formValidationService.loadFieldErrors( self , response );
     };
+
 } ] );

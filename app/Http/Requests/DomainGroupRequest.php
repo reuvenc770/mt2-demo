@@ -31,4 +31,12 @@ class DomainGroupRequest extends Request
             "country" => 'required'
         ];
     }
+
+    public function messages ()
+    {
+        return [
+            'name.required'         => 'An ISP group name is required.',
+            'country.required'     => 'The ISP group must be assigned a country.'
+        ];
+    }
 }

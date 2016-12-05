@@ -34,4 +34,15 @@ class RegistrationEditFormRequest extends Request
             'roles'      => 'required',
       );
     }
+
+    public function messages ()
+    {
+        return [
+            'roles.required' => 'At least 1 role is required.',
+            'email.required'    => 'Email address is required.',
+            'username.required' => 'A username is required.',
+            'first_name.required'   => 'User\'s first name is required.',
+            'last_name.required'    => 'User\'s last name is required.'
+        ];
+    }
 }

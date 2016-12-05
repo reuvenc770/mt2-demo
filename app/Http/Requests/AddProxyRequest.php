@@ -36,7 +36,9 @@ class AddProxyRequest extends Request
     {
         return [
             'ip_addresses.required' => 'At least 1 IP address is required.',
-            'name.unique' => 'This proxy name already exists.'
+            'name.required' => 'Proxy name is required.',
+            'name.unique' => 'This proxy name already exists.',
+            'provider_name.required' => 'The provider\'s name is required.'
         ];
     }
 }

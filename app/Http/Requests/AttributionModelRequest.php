@@ -28,4 +28,11 @@ class AttributionModelRequest extends Request
             'levels' => 'required'
         ];
     }
+
+    public function messages ()
+    {
+        return [
+            'name.required' => 'An attribution name is required.'
+        ];
+    }
 }

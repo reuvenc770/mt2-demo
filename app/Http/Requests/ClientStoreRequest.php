@@ -34,4 +34,13 @@ class ClientStoreRequest extends Request
             'status' => 'required'
         ];
     }
+
+    public function messages ()
+    {
+        return [
+            'name.required'         => 'Client name is required.',
+            'email_address.required'     => 'An email address is required.',
+            'status.required'     => 'A status is required.'
+        ];
+    }
 }

@@ -39,7 +39,13 @@ class EditDBARequest extends Request
     public function messages ()
     {
         return [
-            'dba_email.email' => 'Email is not in a valid format.'
+            'dba_name.required' => 'DBA name is required.' ,
+            'phone.required'    => 'Phone number is required.' ,
+            'zip.required'      => 'Zip code is required.' ,
+            'dba_email.email'   => 'Email is not in a valid format.' ,
+            'address.required'  => 'An address is required.' ,
+            'city.required'     => 'City is required.' ,
+            'state.required'    => 'State is required.'
         ];
     }
 }

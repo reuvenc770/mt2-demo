@@ -148,6 +148,14 @@ class EspApiAccountController extends Controller
     public function destroy(Request $request, $id)
     {
         $this->espAccountService->toggleRow($id,$request->get("direction"));
+
+        $message = "ESP API account is now active.";
+
+        if( $request->get("direction") === '2' ) {
+            $message = "ESP API account set to deactivate in 30 days.";
+        }
+
+        return response($message);
     }
 
     public function displayEspAccounts(Request $request, $name){

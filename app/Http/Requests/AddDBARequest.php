@@ -39,8 +39,14 @@ class AddDBARequest extends Request
     public function messages ()
     {
         return [
-            'dba_name.unique' => 'This DBA name already exists.' ,
-            'dba_email.email' => 'Email is not in a valid format.'
+            'dba_name.required' => 'DBA name is required.' ,
+            'dba_name.unique'   => 'This DBA name already exists.' ,
+            'phone.required'    => 'Phone number is required.' ,
+            'zip.required'      => 'Zip code is required.' ,
+            'dba_email.email'   => 'Email is not in a valid format.' ,
+            'address.required'  => 'An address is required.' ,
+            'city.required'     => 'City is required.' ,
+            'state.required'    => 'State is required.'
         ];
     }
 }

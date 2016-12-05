@@ -31,4 +31,13 @@ class EditProxyRequest extends Request
             'provider_name'      => 'required',
         ];
     }
+
+    public function messages ()
+    {
+        return [
+            'ip_addresses.required' => 'At least 1 IP address is required.',
+            'name.required' => 'Proxy name is required.',
+            'provider_name.required' => 'The provider\'s name is required.'
+        ];
+    }
 }

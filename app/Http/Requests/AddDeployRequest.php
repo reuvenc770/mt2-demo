@@ -42,4 +42,22 @@ class AddDeployRequest extends Request
             'url_format'            => 'required'
         ];
     }
+
+    public function messages ()
+    {
+        return [
+            'esp_account_id.required'   => 'An ESP account is required.',
+            'template_id.required'      => 'A template is required.',
+            'offer_id.required'         => 'An offer name is required.',
+            'creative_id.required'      => 'A creative is required.',
+            'from_id.required'          => 'The from field is required.',
+            'subject_id.required'       => 'The subject field is required.',
+            'content_domain_id.required'=> 'Content domain is required.',
+            'mailing_domain_id.required'=> 'Mailing domain is required.',
+            'cake_affiliate_id.required'=> 'Cake ID is required.',
+            'encrypt_cake.required'     => 'Encrypt cake?',
+            'fully_encrypt.required'    => 'Fully encrypt?',
+            'url_format.required'       => 'What is the URL format?'
+        ];
+    }
 }

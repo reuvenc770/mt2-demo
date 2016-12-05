@@ -1,7 +1,7 @@
 <input name="_token" type="hidden" value="{{ csrf_token() }}">
 <!-- Email field -->
 <div class="form-group" ng-class="{ 'has-error' : mailing.formErrors.name }">
-    <input placeholder="Domain Name" value="" class="form-control" ng-model="mailing.currentAccount.name" required="required" name="name" type="text">
+    <input placeholder="Template Name" value="" class="form-control" ng-model="mailing.currentAccount.name" required="required" name="name" type="text">
     <div class="help-block" ng-show="mailing.formErrors.name">
         <div ng-repeat="error in mailing.formErrors.name">
             <span ng-bind="error"></span>
@@ -10,7 +10,7 @@
 </div>
 <div class="form-group" ng-class="{ 'has-error' : mailing.formErrors.templateType }">
     <select ng-model="mailing.currentAccount.templateType"  name="templateType"  class="form-control">
-        <option value="">Select Domain Group</option>
+        <option value="">Select Template Type</option>
         <option value="1">Normal HTML</option>
         <option value="2">HTML Lite (no images)</option>
         <option value="3">Images Only</option>

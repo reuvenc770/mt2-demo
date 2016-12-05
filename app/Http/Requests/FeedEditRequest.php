@@ -41,7 +41,7 @@ class FeedEditRequest extends Request
         ];
     }
 
-    public function message() {
+    public function messages() {
         return [
             'client_id.required' => 'Client is required.' ,
             'party.required' => 'Party is required.' ,
