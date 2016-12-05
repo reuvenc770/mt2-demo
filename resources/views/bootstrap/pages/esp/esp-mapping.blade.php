@@ -7,10 +7,10 @@
 @section( 'angular-controller' , 'ng-controller="espController as esp"' )
 
 @section( 'content' )
-    <div class="alert alert-info" role="alert"> <strong>Heads up!</strong> Any information uploaded here will likely be replaced by a later API call,  please do not re-upload, previously collected campaigns.</div>
+    <div class="alert alert-info" role="alert"> <strong>Heads up!</strong> Leave fields blank if you do not have the information.  Campaign Name is the only required field</div>
     <div class="panel mt2-theme-panel" ng-init="esp.loadMapping()">
         <div class="panel-heading">
-            <div class="panel-title">File Drop Field Order</div>
+            <div class="panel-title">Field Order Customization</div>
         </div>
         <div class="panel-body">
         <div ng-repeat="mapping in esp.fieldList" >
