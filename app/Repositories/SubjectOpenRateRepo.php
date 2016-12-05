@@ -27,7 +27,7 @@ class SubjectOpenRateRepo {
 
             ON DUPLICATE KEY UPDATE
                 subject_id = subject_id,
-                list_profile_id = list_profile_id,
+                list_profile_combine_id = list_profile_combine_id,
                 deploy_id = deploy_id,
                 opens = :opens2,
                 delivers = :delivers2,

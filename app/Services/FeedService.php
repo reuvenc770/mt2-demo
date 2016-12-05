@@ -260,4 +260,18 @@ class FeedService implements IFtpAdmin
 
         return $map;
     }
+
+    public function getPartyFeedMap(){
+
+        $map = [];
+        $feeds = $this->feedRepo->getFeeds();
+
+        foreach ($feeds as $feed) {
+
+            $map[$feed->party][] = $feed->id;
+        }
+
+        return $map;
+    }
+
 }

@@ -26,7 +26,7 @@ class FromOpenRateRepo {
 
             ON DUPLICATE KEY UPDATE
                 from_id = from_id,
-                list_profile_id = list_profile_id,
+                list_profile_combine_id = list_profile_combine_id,
                 deploy_id = deploy_id,
                 opens = :opens2,
                 delivers = :delivers2,

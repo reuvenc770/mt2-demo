@@ -264,7 +264,7 @@ class ImportMt1EmailsService
         return [
             'email_id' => $row['email_id'],
             'feed_id' => $row['feed_id'],
-            'subscribe_datetime' => 'NOW()', 
+            'subscribe_datetime' => $row['last_updated'], 
             'unsubscribe_datetime' => null, // null for now, at least
             'status' => $this->convertStatus($row['status']),
             'first_name' => $row['first_name'],

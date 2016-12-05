@@ -93,6 +93,7 @@ class ListProfileService
         return json_encode( [
             'profile_id' => $id ,
             'name' => $listProfile->name ,
+            'party' => $listProfile->party,
             'actionRanges' => [
                 'deliverable' => [
                     'min' => $listProfile->deliverable_start ,
@@ -204,17 +205,17 @@ class ListProfileService
                 }
                 echo PHP_EOL;
             }
-
+            echo "Query $id-$queryNumber is complete. About to batch insert and clear" . PHP_EOL;
             $this->batchInsert();
             $this->clear();
-
+echo "Batch insert and clear completed for $id-$queryNumber." . PHP_EOL;
             $queryNumber++;
         }
-
+echo "All queries done for $id. About to clear tag $listProfileTag" . PHP_EOL;
         Cache::tags($listProfileTag)->flush();
-
+echo "Cache cleared for $id. About to update total count" . PHP_EOL;
         $this->profileRepo->updateTotalCount($listProfile->id, $totalCount);
-
+echo "Total count updated for $id. Returning." . PHP_EOL;
     }
 
     private function cleanseData ( $data ) {

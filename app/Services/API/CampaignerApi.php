@@ -11,6 +11,7 @@ use App\Facades\EspApiAccount;
 use App\Library\Campaigner\CampaignManagement;
 use App\Library\Campaigner\Authentication;
 
+use App\Library\Campaigner\ArrayOfInt;
 use App\Library\Campaigner\ContactKey;
 use App\Library\Campaigner\CustomAttribute;
 use App\Library\Campaigner\ArrayOfCustomAttribute;
@@ -144,6 +145,7 @@ class CampaignerApi extends EspBaseAPI
     }
 
     public function pushRecords($records, $targetId) {
+
         $contactManager = new ContactManagement();
         $total = 0;
 
@@ -158,10 +160,10 @@ class CampaignerApi extends EspBaseAPI
                 $customAttributes = new ArrayOfCustomAttribute();
                 $customAttributes->setCustomAttribute([$attribute]);
 
-                $contactarray[] = new ContactData($key, $record->emailAddress, $record->firstName, $record->lastName, $record->phone, $fax, $customAttributes, null, null);
+                $contactArray[] = new ContactData($key, $record->emailAddress, $record->firstName, $record->lastName, $record->phone, $fax, $customAttributes, null, null);
                 $contactData = new ArrayOfContactData();
 
-                $arrayOfData = $contactData->setContactData($contactarray);
+                $arrayOfData = $contactData->setContactData($contactArray);
                 $updateExistingContacts = "false";
                 $triggerWorkflow = "false";
                 $groupIds[] = $targetId;
@@ -170,9 +172,28 @@ class CampaignerApi extends EspBaseAPI
             }
         }
 
-        $contactList = new ImmediateUpload($this->auth, $updateExistingContacts, $triggerWorkflow, $arrayOfData, new ArrayOfInt($groupIds),null);
+        $contactList = new ImmediateUpload($this->auth, $updateExistingContacts, $triggerWorkflow, $arrayOfData, new ArrayOfInt($groupIds), null);
         $result = $contactManager->ImmediateUpload($contactList);
 
         return $total;
+    }
+
+    public function addContactToLists($emailAddress, $suppressionLists) {
+        $key = new ContactKey(0, $emailAddress);
+        $emailId = 0;
+        $attribute = new CustomAttribute($emailId, 3932683, false); // Not sure what these are
+
+        $attributesArray = new ArrayOfCustomAttribute();
+        $attributesArray->setCustomAttribute(array($attribute));
+        
+        $contactArray[] = new ContactData($key, $emailAddress, '', '', '', '', $attributesArray, null, null); // see method above for fields
+        $contactData = new ArrayOfContactData();
+
+        $arrayOfData = $contactData->setContactData($contactArray);
+        $updateExistingContacts = "false";
+        $triggerWorkflow = "false";
+
+        $contactList = new ImmediateUpload($this->auth, $updateExistingContacts, $triggerWorkflow, $arrayOfData, new ArrayOfInt($suppressionLists), null);
+        $result = $contactManager->ImmediateUpload($contactList);
     }
 }

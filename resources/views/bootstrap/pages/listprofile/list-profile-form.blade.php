@@ -18,6 +18,20 @@
 
     <div layout="row" layout-align="start center">
         <label class="radio-inline">
+            <input type="radio" name="party" ng-model="listProfile.current.party"  ng-click="listProfile.updateParty()" value="1">1st Party List Profile
+        </label>
+
+        <label class="radio-inline">
+            <input type="radio" name="party" ng-model="listProfile.current.party" ng-click="listProfile.updateParty()" value="3">3rd Party List Profile
+        </label>
+    </div>
+</div>
+
+<div class="form-group">
+    <label>Country</label>
+
+    <div layout="row" layout-align="start center">
+        <label class="radio-inline">
             <input type="radio" name="country" ng-model="listProfile.current.country_id"  ng-click="listProfile.updateCountry()" value="1">United States
         </label>
 
@@ -27,7 +41,7 @@
     </div>
 </div>
 
-<div class="row" ng-init="listProfile.clientFeedMap = {{json_encode( $clientFeedMap )}}; listProfile.countryFeedMap = {{json_encode( $countryFeedMap )}}">
+<div class="row" ng-init="listProfile.clientFeedMap = {{json_encode( $clientFeedMap )}}; listProfile.countryFeedMap = {{json_encode( $countryFeedMap )}}; listProfile.partyFeedMap = {{json_encode( $partyFeedMap )}}">
     <div class="col-sm-6">
         <label>Available Feeds</label>
 
@@ -40,7 +54,7 @@
                 @if (($feed == end($feed)))
                     <option value="{{$feed[ 'id' ]}}" ng-init="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ] = true;listProfile.feedNameMap[ {{$feed[ 'id' ]}} ] = '{{{ addslashes( $feed[ 'short_name' ] )}}}';" ng-show="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ]">{{ $feed[ 'short_name' ] }}</option>
                 @else
-                    <option value="{{$feed[ 'id' ]}}" ng-init="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ] = true;listProfile.feedNameMap[ {{$feed[ 'id' ]}} ] = '{{{ addslashes( $feed[ 'short_name' ] )}}}';listProfile.updateFeedVisibilityFromCountry()" ng-show="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ]">{{ $feed[ 'short_name' ] }}</option>
+                    <option value="{{$feed[ 'id' ]}}" ng-init="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ] = true;listProfile.feedNameMap[ {{$feed[ 'id' ]}} ] = '{{{ addslashes( $feed[ 'short_name' ] )}}}';listProfile.updateFeedVisibilityFromCountry();listProfile.updateFeedVisibilityFromParty()" ng-show="listProfile.feedVisibility[ {{$feed[ 'id' ]}} ]">{{ $feed[ 'short_name' ] }}</option>
                 @endif
             @endforeach
         </select>

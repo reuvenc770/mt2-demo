@@ -58,8 +58,7 @@ class EspApiAccountRepo
     }
 
     public function getEspInfoByAccountName($accountName){
-
-        return $this->espAccount->where("status",1)->orWhere('status',2)->with( 'esp' )->where("account_name", $accountName)->first();
+        return $this->espAccount->where("account_name", $accountName)->whereIn('status', [1,2])->with('esp')->first();
     }
 
     /**

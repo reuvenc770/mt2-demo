@@ -20,10 +20,11 @@ class ProcessFeedRecordsJob extends Job implements ShouldQueue {
     private $feedId;
     private $jobName;
     private $maxId;
+    private $etlName;
 
-    public function __construct($party, $feedId, $records, $tableName, $maxId, $tracking) {
-        $this->tableName = $tableName,
-        $this->jobName = $tableName . "-$tracking";
+    public function __construct($party, $feedId, $records, $etlName, $maxId, $tracking) {
+        $this->etlName = $etlName;
+        $this->jobName = $etlName . "-$tracking";
         $this->tracking = $tracking;
         $this->records = $records;
         $this->party = $party;
@@ -45,7 +46,7 @@ class ProcessFeedRecordsJob extends Job implements ShouldQueue {
                 $service = FeedProcessingFactory::createService($this->party, $this->feedId);
                 $service->process($this->records);
 
-                $pickupRepo->updateOrCreate($this->tableName, $this->maxId);
+                $pickupRepo->updateOrCreate($this->etlName, $this->maxId);
                 JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
             }
             catch (\Exception $e) {

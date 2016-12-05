@@ -14,4 +14,8 @@ class AdvertiserService {
     public function getAll () {
         return $this->repo->getAll();
     }
+
+    public function getSuppressionListId ( $advertiserId ) {
+        return $this->repo->getSuppressionListId( $advertiserId );
+    }
 }

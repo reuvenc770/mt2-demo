@@ -554,4 +554,20 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
     }
 
     public function pushRecords(array $records, $targetId) {}
+
+    public function addContact($record, $listId) {
+        try {
+            $this->api->buildRequest('transactional.sendtransaction', [
+                'email' => $record->email_address,
+                'external_id' => $record->email_id,
+                'template_id' => $targetId,
+                'name' => ($record->first_name . ' ' . $record->last_name)
+            ]);
+
+            $this->api->sendApiRequest();
+        }
+        catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
 }
