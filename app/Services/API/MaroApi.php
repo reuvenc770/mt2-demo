@@ -21,6 +21,7 @@ class MaroApi extends EspBaseAPI {
     const COMPLAINTS_URL = "http://api.maropost.com/accounts/%d/reports/complaints.json?";
     const UNSUBS_URL = "http://api.maropost.com/accounts/%d/reports/unsubscribes.json?";
     const ADDL_INFO_URL = "http://api.maropost.com/accounts/%d/campaigns/";
+    const ADD_CONTACT_URL = "http://api.maropost.com/accounts/%d/lists/%d/contacts.json?auth_token=";
     const ESP_NAME = "Maro";
     const RECORDS_PER_PAGE = 1000;
     const LOOKBACK_DAYS = 3;
@@ -138,5 +139,23 @@ class MaroApi extends EspBaseAPI {
                     . 'page=' . $pageNumber 
                     . '&auth_token=' . $this->apiKey;
 
+    }
+
+    public function addContact($record, $listId) {
+
+        $url = sprintf(self::ADD_CONTACT_URL, $this->account, $listId);
+        $url .= $this->apiKey;
+
+        Guzzle::request('POST', $url, [
+            'contents' => [
+                'contact' => [
+                    'first_name' => $record->first_name,
+                    'last_name' => $record->last_name,
+                    'email' => $record->email_address,
+                    'subscribe' => true,
+                    'remove_from_dnm' => true
+                ]
+            ]
+        ]);
     }
 }

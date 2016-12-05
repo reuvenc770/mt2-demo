@@ -10,12 +10,14 @@ use App\Repositories\EmailRepo;
 use App\Repositories\EmailFeedInstanceRepo;
 use App\Repositories\EmailDomainRepo;
 use App\Repositories\FeedDateEmailBreakdownRepo;
+use App\Services\Interfaces\ISuppressionProcessingStrategy;
 
 class FeedProcessingService {
     
     private $validators = [];
     private $suppressors = [];
     private $processor;
+    private $suppStrategy;
 
     private $emailRepo;
     private $instanceRepo;
@@ -147,6 +149,10 @@ class FeedProcessingService {
         $this->processor = $service;
     }
 
+    public function setSuppressionProcessingStrategy(ISuppressionProcessingStrategy $suppStrategy) {
+        $this->suppStrategy = $suppStrategy;
+    }
+
 
     private function validate($record) {
         try {
@@ -196,6 +202,7 @@ class FeedProcessingService {
         foreach($this->suppressors as $suppressor) {
             foreach($suppressor->returnSuppressedEmails($emails) as $supp) {
                 $suppressed[$supp->email_address] = true;
+                $this->suppStrategy->processSuppression($supp);
             }
         }
 

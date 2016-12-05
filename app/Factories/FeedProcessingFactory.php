@@ -24,6 +24,8 @@ use App\Services\SuppressionListSuppressionService;
 use App\Services\FirstPartyRecordProcessingService;
 use App\Services\ThirdPartyRecordProcessingService;
 
+use App\Models\EspDataExport;
+
 
 class FeedProcessingFactory
 {
@@ -68,21 +70,35 @@ class FeedProcessingFactory
         $suppression->setFeedId($feedId);
         $service->registerSuppression($suppression);
 
-        $config = config("firstpartyprocessing.$feedId");
-
-        if (null === $config) {
-            throw new \Exception("No configuration found for feed $feedId");
+        if (in_array($feedId, [2759, 2798, 2757])) {
+            $postingStrategy = App::make(\App\Services\PostingStrategies\AffiliateRoiPostingStrategy::class);
+        }
+        elseif (in_array($feedId, [2971, 2972, 2987])) {
+            $postingStrategy = App::make(\App\Services\PostingStrategies\RmpPostingStrategy::class);
+        }
+        elseif (2983 === (int)$feedId) {
+            $postingStrategy = App::make(\App\Services\PostingStrategies\SimplyJobsPostingStrategy::class);
+        }
+        else {
+            throw new \Exception("$feedId does not have a posting strategy");
         }
 
-        $espAccount = EspApiAccount::getEspAccountDetailsByName($config['espAccountName']);
+        $exportInfo = EspDataExport::where('feed_id', $feedId)->first();
 
+        $espAccount = EspApiAccount::getAccount($exportInfo->esp_account_id);
         $apiService = APIFactory::createApiReportService($espAccount->esp->name, $espAccount->id);
+
         $reportRepo = App::make(\App\Repositories\FeedDateEmailBreakdownRepo::class);
         $dataRepo = App::make(\App\Repositories\FirstPartyRecordDataRepo::class);
-        $processingService = new FirstPartyRecordProcessingService($apiService, $reportRepo, $dataRepo);
+        $processingService = new FirstPartyRecordProcessingService($apiService, $reportRepo, $dataRepo, $postingStrategy);
+
+        $suppStrategyName = 'App\\Services\\SuppressionProcessingStrategies\\FirstPartySuppressionProcessingStrategy';
+        $suppStrategy = new $suppStrategyName(App::make(\App\Repositories\FirstPartyOnlineSuppressionListRepo::class), $apiService);
+        $suppStrategy->setFeedId($feedId);
+        $service->setSuppressionProcessingStrategy($suppStrategy);
 
         $processingService->setFeedId($feedId);
-        $processingService->setTargetId($config['targetId']);
+        $processingService->setTargetId($exportInfo->target_list);
         $service->registerProcessing($processingService);
 
         return $service;
@@ -92,6 +108,8 @@ class FeedProcessingFactory
     private static function setUpThirdPartyService(&$service) {
         // Add suppression
         $service->registerSuppression(App::make(SuppressionService::class));
+        $suppStrategy = App::make(\App\Services\SuppressionProcessingStrategies\ThirdPartySuppressionProcessingStrategy::class);
+        $service->setSuppressionProcessingStrategy($suppStrategy);
 
         // Add Attribution to Processing
         $service->registerProcessing(App::make(ThirdPartyRecordProcessingService::class));

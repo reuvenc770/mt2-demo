@@ -429,16 +429,15 @@ class BrontoReportService extends AbstractReportService implements IDataService
 
     public function pushRecords(array $records, $targetId) {
         foreach ($records as $record) {
-            $field1 = array('fieldId' => '0bce03e9000000000000000000000002a6fb', 'content' => $record->emailId);
-            $field2 = array('fieldId' => '0bce03e9000000000000000000000002a70d', 'content' => $record->firstName);
-
-            $contactInfo = [
-                'email' => $record->emailAddress,
-                'listIds' => $targetId,
-                'fields' => [$field1, $field2]
-            ];
-
-            $result = $this->api->addContact($contactInfo);
+            $result = $this->api->addContact($record);
         }
+    }
+
+    public function addContactToLists($emailAddress, $lists) {
+        $contactInfo = [
+            'email' => $emailAddress,
+            'listIds' => $lists
+        ];
+        $this->api->addContact($contactInfo);
     }
 }
