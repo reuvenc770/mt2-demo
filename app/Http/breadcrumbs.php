@@ -57,6 +57,11 @@ Breadcrumbs::register('esp.edit', function($breadcrumbs) {
     $breadcrumbs->push('Edit ESP Account');
 });
 
+Breadcrumbs::register('esp.mapping', function($breadcrumbs) {
+    $breadcrumbs->parent('esp.list');
+    $breadcrumbs->push('Configure ESP Fields Mapping');
+});
+
 //Roles
 Breadcrumbs::register('role.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');

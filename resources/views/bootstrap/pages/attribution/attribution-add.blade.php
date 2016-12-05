@@ -9,9 +9,9 @@
 
 @section( 'content' )
 <div ng-init="attr.loadClients()">
-    <div class="panel panel-primary" >
+    <div class="panel mt2-theme-panel" >
         <div class="panel-heading">
-            <div class="panel-title">Add Attribution<input class="btn btn-sm btn-success pull-right" ng-click="attr.saveModel()"  ng-disabled="attr.formSubmitted" type="submit" value="Add Attribution Model">
+            <div class="panel-title">Add Attribution<input class="bold-text btn btn-sm mt2-theme-btn-secondary pull-right" ng-click="attr.saveModel()"  ng-disabled="attr.formSubmitted" type="submit" value="Add Attribution Model">
             </div>
         </div>
         <div class="panel-body">
@@ -21,7 +21,7 @@
         </div>
         <div class="panel-footer">
             <div class="form-group">
-                <input class="btn btn-lg btn-primary btn-block" ng-click="attr.saveModel()"  ng-disabled="attr.formSubmitted" type="submit" value="Add Attribution Model">
+                <input class="btn mt2-theme-btn-primary btn-block" ng-click="attr.saveModel()"  ng-disabled="attr.formSubmitted" type="submit" value="Add Attribution Model">
             </div>
         </div>
     </div>

@@ -203,7 +203,7 @@
 
             </div>
             <ul class="list-group" ng-show="dba.po_box.esp_account_names.length > 0">
-                <li ng-repeat="(key, value) in dba.po_box.esp_account_names track by $index" class="list-group-item list-group-item-success">@{{value}} - <a ng-click="dba.removeEspAccount(key)">Remove</a></li>
+                <li ng-repeat="(key, value) in dba.po_box.esp_account_names track by $index" class="list-group-item mt2-list-group-item-grey">@{{value}} - <a ng-click="dba.removeEspAccount(key)">Remove</a></li>
             </ul>
 
             <div class="form-group" ng-class="{ 'has-error' : dba.formErrors.po_box.isp_names }">
@@ -226,7 +226,7 @@
 
             </div>
             <ul class="list-group" ng-show="dba.po_box.isp_names.length > 0">
-                <li ng-repeat="(key, value) in dba.po_box.isp_names track by $index" class="list-group-item list-group-item-success">@{{value}} - <a ng-click="dba.removeIsp(key)">Remove</a></li>
+                <li ng-repeat="(key, value) in dba.po_box.isp_names track by $index" class="list-group-item mt2-list-group-item-grey">@{{value}} - <a ng-click="dba.removeIsp(key)">Remove</a></li>
             </ul>
 
         </fieldset>
