@@ -47,6 +47,7 @@ class ImportCsvStats extends Job implements ShouldQueue
 
     private function mapCsvToRawStatsArray($espName,$filePath) {
     $returnArray = array();
+        $paddedArray = array();
         try {
             $mapping = EspApiAccount::grabCsvMapping($espName);
         } catch (\Exception $e){
@@ -54,13 +55,31 @@ class ImportCsvStats extends Job implements ShouldQueue
             return $returnArray;
         }
     $reader = Reader::createFromPath($filePath);
-    $data = $reader->fetchAssoc(explode(',',$mapping));
+        //padding array with fake keys so we can still use Readers helper methods
+        foreach ($mapping as $key => $map) {
+            for ($i = 0; $i <= 16; $i++) {
+                if (isset($paddedArray[$i]) && $paddedArray[$i] != '') {
+                    continue;
+                }
+                else if($i == $map - 1 ){ //UI base is 1
+                    $paddedArray[$i] = $key;
+                }
+                else {
+                    $paddedArray[$i] = 'fake'.$i;
+                }
+            }
+        }
+    $data = $reader->fetchAssoc($paddedArray);
     foreach ($data as $key => $row) {
         try {
             $row['m_deploy_id'] = $this->getDeployIDFromName($row['campaign_name']);
             $row['esp_internal_id'] = 0;
             $row['external_deploy_id'] = $this->getDeployIDFromName($row['campaign_name']);
             $row['esp_account_id'] = EspApiAccount::getEspAccountIdFromName($row['campaign_name']);
+            //undo the fake keys
+            for ($i = 0; $i <= 16; $i++) {
+                unset($row['fake'.$i]);
+            }
             $returnArray[] = $row;
 
         } catch (CampaignNameException $e){
