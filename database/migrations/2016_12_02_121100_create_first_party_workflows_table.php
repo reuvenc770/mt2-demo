@@ -30,8 +30,8 @@ class CreateFirstPartyWorkflowsTable extends Migration
 
             $table->primary(['esp_workflow_id', 'step'], 'workflow_step');
             $table->index(['esp_workflow_id', 'deploy_id'], 'workflow_deploy');
-            $this->index('offer_id', 'offer_id');
-            $this->index('deploy_id', 'deploy_id');
+            $table->index('offer_id', 'offer_id');
+            $table->index('deploy_id', 'deploy_id');
         });
 
         Schema::create('esp_workflow_feeds', function (Blueprint $table) {
