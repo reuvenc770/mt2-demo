@@ -67,6 +67,8 @@ class JobEntryService
             $job->time_started = Carbon::now();
             $job->attempts = $job->attempts + 1;
             $job->save();
+        } else if ($state == JobEntry::SKIPPED){
+                $job->save();
         }
 
         if($state == JobEntry::FAILED){
