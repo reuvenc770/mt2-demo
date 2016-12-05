@@ -15,7 +15,8 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         user_id: "",
         encrypt_cake: "",
         fully_encrypt:"",
-        url_format:""
+        url_format:"",
+        party:"3"
 
     };
     self.search = {
@@ -34,6 +35,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.espAccounts = [];
     self.currentlyLoading = 0;
     self.templates = [];
+    self.firstParty = false;
     self.deployLinkText = "Download Package";
     self.tempDeploy = false;
     self.cakeAffiliates = [];
@@ -135,6 +137,8 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.showRow = true;
         self.editView = false;
     };
+
+
 
     self.saveNewDeploy = function ( event , form ) {
         var errorFound = false;
