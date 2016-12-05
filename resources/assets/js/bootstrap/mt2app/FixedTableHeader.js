@@ -81,7 +81,7 @@
           function getFixedTableHeight( table ) {
             var tableHeight = 0 ;
 
-            tableHeight = angular.element( $window ).height() - getOffsetTop( table ) - 80;
+            tableHeight = angular.element( $window ).height() - getOffsetTop( table ) - 10;
 
             return tableHeight;
           }
