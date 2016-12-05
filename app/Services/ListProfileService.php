@@ -26,7 +26,7 @@ class ListProfileService
     private $rows = [];
     private $rowCount = 0;
     const INSERT_THRESHOLD = 1000; // Low threshold due to MySQL / PHP placeholder limits (2^16 - 1)
-    const ROW_STORAGE_TIME = 60;
+    const ROW_STORAGE_TIME = 720;
     protected $baseTableService;
     private $columnLabelMap = [
         'email_id'  =>  'Email ID',
