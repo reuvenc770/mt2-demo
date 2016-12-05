@@ -16,15 +16,16 @@
 
                 <!-- Nav tabs -->
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active"><a href="#list_profile" aria-controls="list_profile" role="tab" data-toggle="tab">List Profiles</a></li>
-            <li role="presentation"><a href="#list_combines" aria-controls="list_combines" role="tab" data-toggle="tab">List Combines</a></li>
+            <li role="presentation" class="active"><a href="#list_profile" aria-controls="list_profile" ng-click="listProfile.clearSelection()" role="tab" data-toggle="tab">3rd Party List Profiles</a></li>
+            <li role="presentation" ><a href="#list_profile_first" aria-controls="list_profile" ng-click="listProfile.clearSelection()" role="tab" data-toggle="tab">1st Party List Profiles</a></li>
+            <li role="presentation"><a href="#list_combines" aria-controls="list_combines" ng-click="listProfile.clearSelection()" role="tab" data-toggle="tab">List Combines</a></li>
             <li ng-show="listProfile.showCombine" class="pull-right"><button ng-click="listProfile.nameCombine()" class="btn btn-primary">Create List Combine</button></li>
         </ul>
         <!-- Tab panes -->
         <!-- Tab panes -->
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane active" id="list_profile">
-                <md-table-container ng-init="listProfile.loadListProfiles()">
+                <md-table-container ng-init="listProfile.loadListProfiles(3)">
                     <table md-table md-progress="listProfile.queryPromise">
                         <thead md-head class="mt2-theme-thead">
                         <tr md-row>
@@ -40,7 +41,54 @@
                         </thead>
 
                         <tbody md-body>
-                        <tr md-row ng-repeat="profile in listProfile.listProfiles track by $index">
+                        <tr md-row ng-repeat="profile in listProfile.thirdPartyListProfiles track by $index">
+                            <td md-cell class="mt2-table-btn-column" nowrap>
+                                <md-checkbox  aria-label="Select" name="selectedRows" ng-checked="listProfile.isCreatingCombine(profile.id)" ng-click="listProfile.toggleRow(profile.id, profile.party)"> </md-checkbox>
+                                <a ng-href="@{{ ( '/listprofile/edit/' + profile.id ) }}" aria-label="Edit" target="_self" data-toggle="tooltip" data-placement="bottom" title="Edit">
+                                    <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon></a>
+                                @if (Sentinel::hasAccess('api.listprofile.copy'))
+                                    <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-click="listProfile.copyListProfile($event, profile.id, profile.name)" aria-label="Copy" data-toggle="tooltip" data-placement="bottom" title="Copy">content_copy</md-icon>
+                                @endif
+                            </td>
+                            <td md-cell ng-bind="profile.name" nowrap></td>
+                            <td md-cell nowrap>@{{ ( profile.deliverable_start + ' to ' + profile.deliverable_end ) }}</td>
+                            <td md-cell nowrap>@{{ ( profile.openers_start + ' to ' + profile.openers_end ) }} (@{{ ::( profile.open_count + 'x' ) }})</td>
+                            <td md-cell nowrap>@{{ ( profile.clickers_start + ' to ' + profile.clickers_end ) }} (@{{ ::( profile.click_count + 'x' ) }})</td>
+                            <td md-cell nowrap>@{{ ( profile.converters_start + ' to ' + profile.converters_end ) }} (@{{ ::( profile.conversion_count + 'x' ) }})</td>
+                            <td md-cell ng-bind="profile.run_frequency" nowrap></td>
+                            <td md-cell ng-bind="profile.total_count" nowrap></td>
+                        </tr>
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <td colspan="8">
+                                <md-content class="md-mt2-zeta-theme md-hue-2">
+                                    <md-table-pagination md-limit="listProfile.paginationCount" md-limit-options="listProfile.paginationOptions" md-page="listProfile.currentPage" md-total="@{{listProfile.profileTotal}}" md-on-paginate="listProfile.loadListProfiles" md-page-select></md-table-pagination>
+                                </md-content>
+                            </td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </md-table-container>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="list_profile_first">
+                <md-table-container>
+                    <table md-table md-progress="listProfile.queryPromise">
+                        <thead md-head class="mt2-theme-thead">
+                        <tr md-row>
+                            <th md-column class="mt2-table-btn-column"></th>
+                            <th md-column class="md-table-header-override-whitetext">Name</th>
+                            <th md-column class="md-table-header-override-whitetext">Deliverable Range</th>
+                            <th md-column class="md-table-header-override-whitetext">Opener Range</th>
+                            <th md-column class="md-table-header-override-whitetext">Clicker Range</th>
+                            <th md-column class="md-table-header-override-whitetext">Converter Range</th>
+                            <th md-column class="md-table-header-override-whitetext">Pull Frequency</th>
+                            <th md-column class="md-table-header-override-whitetext">Record Count</th>
+                        </tr>
+                        </thead>
+
+                        <tbody md-body>
+                        <tr md-row ng-repeat="profile in listProfile.firstPartyListProfiles track by $index">
                             <td md-cell class="mt2-table-btn-column" nowrap>
                                 <md-checkbox  aria-label="Select" name="selectedRows" ng-checked="listProfile.isCreatingCombine(profile.id)" ng-click="listProfile.toggleRow(profile.id)"> </md-checkbox>
                                 <a ng-href="@{{ ( '/listprofile/edit/' + profile.id ) }}" aria-label="Edit" target="_self" data-toggle="tooltip" data-placement="bottom" title="Edit">
@@ -77,6 +125,7 @@
                         <tr md-row>
                             <th md-column class="mt2-table-btn-column"></th>
                             <th md-column class="md-table-header-override-whitetext">Name</th>
+                            <th md-column class="md-table-header-override-whitetext">Party</th>
                             <th md-column class="md-table-header-override-whitetext">List Profiles Used</th>
                         </tr>
                         </thead>
@@ -88,6 +137,7 @@
                                 <a ng-href="@{{ ( '/listprofile/combine/edit/' + profile.id ) }}" target="_self"><md-icon md-font-set="material-icons" class="mt2-icon-black" data-toggle="tooltip" data-placement="bottom" title="Edit List Combine">edit</md-icon></a>
                             </td>
                             <td md-cell ng-bind="profile.name" nowrap></td>
+                            <td md-cell ng-bind="profile.party" ></td>
                             <td md-cell nowrap>
                                 <span ng-repeat="listCombine in profile.list_profiles">
                                     @{{ listCombine.name }} @{{ !$last ? ',' : '' }}

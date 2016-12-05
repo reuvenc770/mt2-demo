@@ -72,7 +72,7 @@ class ListProfileRepo
     }
 
     public function getAllListProfiles(){
-        return $this->listProfile->select('id','name')->orderBy('name')->get();
+        return $this->listProfile->select('id','name','party')->orderBy('name')->get();
     }
 
     public function getProfile($id) {

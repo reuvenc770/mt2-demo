@@ -93,6 +93,7 @@ class ListProfileService
         return json_encode( [
             'profile_id' => $id ,
             'name' => $listProfile->name ,
+            'party' => $listProfile->party,
             'actionRanges' => [
                 'deliverable' => [
                     'min' => $listProfile->deliverable_start ,
