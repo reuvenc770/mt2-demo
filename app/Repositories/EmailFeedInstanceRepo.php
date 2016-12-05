@@ -31,7 +31,7 @@ class EmailFeedInstanceRepo {
                 (email_id, feed_id, subscribe_datetime, unsubscribe_datetime,
                 status, first_name, last_name, address, address2, city, state, 
                 zip, country, dob, gender, phone, mobile_phone, work_phone, 
-                capture_date, source_url, ip )
+                capture_date, source_url, ip, created_at, updated_at)
 
                 VALUES
 
@@ -58,7 +58,9 @@ class EmailFeedInstanceRepo {
                 work_phone = work_phone,
                 capture_date = capture_date,
                 source_url = source_url,
-                ip = ip"
+                ip = ip,
+                created_at = created_at,
+                updated_at = updated_at"
             );
 
 
@@ -80,7 +82,7 @@ class EmailFeedInstanceRepo {
                 (email_id, feed_id, subscribe_datetime, unsubscribe_datetime,
                 status, first_name, last_name, address, address2, city, state, 
                 zip, country, dob, gender, phone, mobile_phone, work_phone, 
-                capture_date, source_url, ip )
+                capture_date, source_url, ip, created_at, updated_at)
 
                 VALUES
 
@@ -107,7 +109,9 @@ class EmailFeedInstanceRepo {
                 work_phone = work_phone,
                 capture_date = capture_date,
                 source_url = source_url,
-                ip = ip"
+                ip = ip,
+                created_at = created_at,
+                updated_at = updated_at"
             );
 
             $this->batchInstances = [];
@@ -140,7 +144,7 @@ class EmailFeedInstanceRepo {
             . $pdo->quote($row['capture_date']) . ','
             . $pdo->quote($row['source_url']) . ','
             . $pdo->quote($row['ip'])
-            . ')';
+            . ', NOW(), NOW())';
     }
 
     public function insert($row) {
@@ -149,14 +153,14 @@ class EmailFeedInstanceRepo {
             (email_id, feed_id, subscribe_datetime, unsubscribe_datetime,
             status, first_name, last_name, address, address2, city, state, 
             zip, country, dob, gender, phone, mobile_phone, work_phone, 
-            capture_date, source_url, ip )
+            capture_date, source_url, ip, created_at, updated_at )
 
             VALUES
 
             (:email_id, :feed_id, :subscribe_datetime, :unsubscribe_datetime,
             :status, :first_name, :last_name, :address, :address2, :city, :state, 
             :zip, :country, :dob, :gender, :phone, :mobile_phone, :work_phone, 
-            :capture_date, :source_url, :ip )
+            :capture_date, :source_url, :ip, NOW(), NOW() )
 
             ON DUPLICATE KEY UPDATE
             email_id= email_id,
@@ -179,7 +183,9 @@ class EmailFeedInstanceRepo {
             work_phone= work_phone,
             capture_date= capture_date,
             source_url= source_url,
-            ip= ip",
+            ip= ip,
+            created_at = created_at,
+            updated_at = updated_at",
             array(
                 ':email_id' => $row['email_id'],
                 ':feed_id' => $row['feed_id'],
