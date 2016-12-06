@@ -26,6 +26,10 @@
         </div>
         <div role="tabpanel" class="tab-pane active" id="reporttab">
             @include( 'bootstrap.pages.attribution.indexPartials.three-month-report' )
+            <br/>
+            <br/>
+            <div class="alert alert-info" role="alert">
+            This report may take a moment to load. Please be patient. </div>
         </div>
     </div>
 </div>

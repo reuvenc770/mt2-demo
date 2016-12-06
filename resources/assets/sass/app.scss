@@ -163,6 +163,11 @@ table.md-table {
 table.md-table:not(.md-row-select) td.md-cell:nth-child(n+2):nth-last-child(n+2), table.md-table:not(.md-row-select) th.md-column:nth-child(n+2):nth-last-child(n+2){
     padding: 0 15px 0 0;
 }
+
+table.md-table tbody.md-body > tr.md-row:not([disabled]):hover {
+    background-color: #eee !important;
+}
+
 .md-table-header-override-whitetext , .md-table-header-override-whitetext .md-sort-icon {
     color: rgba(255, 255, 255, 0.87) !important;
 }
