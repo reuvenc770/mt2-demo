@@ -20,7 +20,7 @@ class LazyMT1SuppressionCheckIterator implements \Iterator {
 
     protected $suppressionStatusWanted = false;
 
-    public function __construct ( MT1SuppressionService $suppService , Model $emailList , $returnedSuppressed = false ) {
+    public function __construct ( MT1SuppressionService $suppService , Model $emailList , $returnSuppressed = false ) {
         $this->suppService = $suppService;
         $this->emailList = $emailList;
         $this->emailListCursor = $this->emailList->cursor();
