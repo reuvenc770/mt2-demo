@@ -152,7 +152,8 @@ class DeployService
         $errorCollection = array();
         foreach($data['deploy_ids'] as $deployId){
           $newDeploy = $this->deployRepo->duplicateDomainToDate($deployId, $data['future_date']);
-            $errors = $this->deployRepo->validateDeploy($newDeploy->toArray());
+            $copyToFutureBool = true; //this lets the validator know I am passing a list profile id vs name
+            $errors = $this->deployRepo->validateDeploy($newDeploy->toArray(),$copyToFutureBool);
             if(count($errors) == 0){
                 $newDeploy->save();
             }
