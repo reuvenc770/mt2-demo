@@ -23,7 +23,7 @@ class VendorSuppListRepo {
     public function isSuppressed ( $record , $listId) {
         return $this->model->where( [
             [ 'list_id' , $listId ] ,
-            [ 'email_addr' , $record ]
+            [ 'email_addr' , $record->email_address ]
         ] )->count() > 0;
     }
 }
