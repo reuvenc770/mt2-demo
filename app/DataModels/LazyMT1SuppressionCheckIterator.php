@@ -18,17 +18,32 @@ class LazyMT1SuppressionCheckIterator implements \Iterator {
     protected $validEmail = '';
     protected $lastValidEmail = '';
 
-    public function __construct ( MT1SuppressionService $suppService , Model $emailList ) {
+    protected $suppressionStatusWanted = false;
+
+    public function __construct ( MT1SuppressionService $suppService , Model $emailList , $returnSuppressed = false ) {
         $this->suppService = $suppService;
         $this->emailList = $emailList;
         $this->emailListCursor = $this->emailList->cursor();
+
+        $this->suppressionStatusWanted = $returnSuppressed;
+
+        $this->findNextRecord();
     }
 
     public function current () {
-        return $this->validEmail;
+        return $this->emailListCursor->current();
     }
 
     public function next () {
+        $this->emailListCursor->next();
+        $this->findNextRecord();
+    }
+
+    public function valid () {
+        return $this->cursorPositionValid;
+    }
+
+    protected function findNextRecord () {
         $this->lastValidEmail = $this->validEmail;
         $this->validEmail = '';
         $this->cursorPositionValid = false;
@@ -36,7 +51,7 @@ class LazyMT1SuppressionCheckIterator implements \Iterator {
         while ( $this->validEmail == '' && $this->emailListCursor->valid() ) {
             $currentEmail = $this->emailListCursor->current();
 
-            if ( !$this->suppService->isSuppressed( $currentEmail ) ) {
+            if ( $this->suppService->isSuppressed( $currentEmail ) === $this->suppressionStatusWanted ) {
                 $this->validEmail = $currentEmail;
                 $this->cursorPositionValid = true;
 
@@ -45,10 +60,6 @@ class LazyMT1SuppressionCheckIterator implements \Iterator {
 
             $this->emailListCursor->next();
         }
-    }
-
-    public function valid () {
-        return $this->cursorPositionValid;
     }
 
     /**

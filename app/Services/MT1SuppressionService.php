@@ -30,6 +30,12 @@ class MT1SuppressionService {
         return new LazyMT1SuppressionCheckIterator( $this , $recordModel );
     }
 
+    public function getSuppressedRecordGenerator ( $advertiserId , $recordModel ) {
+        $this->setAdvertiser( $advertiserId );
+
+        return new LazyMT1SuppressionCheckIterator( $this , $recordModel , true );
+    }
+
     public function setAdvertiser ( $advertiserId ) {
         $this->advertiserId = $advertiserId;
 
@@ -48,9 +54,9 @@ class MT1SuppressionService {
         }
 
         if ( $this->list->isMD5 ) {
-            return $this->md5Repo->isSuppressed( $record , $this->advertiserId );
+            return $this->md5Repo->isSuppressed( $record , $this->list->id );
         } else {
-            return $this->plaintextRepo->isSuppressed( $record , $this->advertiserId );
+            return $this->plaintextRepo->isSuppressed( $record , $this->list->id );
         }
     }
 }

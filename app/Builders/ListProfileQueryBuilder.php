@@ -64,7 +64,7 @@ class ListProfileQueryBuilder {
             'domain_group_name' => DB::raw('dg.name as domain_group_name'), 
             'country' => 'dg.country',
             'feed_name' => DB::raw('f.short_name as feed_name'), 
-            'source_url' => 'f.source_url',
+            'source_url' => 'rd.source_url',
             'client_name' => DB::raw('c.name as client_name'),
             'email_address' => 'e.email_address', 
             'lower_case_md5' => 'e.lower_case_md5', 
@@ -124,7 +124,7 @@ class ListProfileQueryBuilder {
         // Setting up columns for selects
 
         if (empty($this->recordDataColumns)) {
-            $this->recordDataColumns = array_intersect(['first_name', 'last_name', 'gender', 'address', 'address2', 'city', 'state', 'zip', 'dob', 'age', 'phone', 'ip', 'subscribe_date'], $this->columns);
+            $this->recordDataColumns = array_intersect(['first_name', 'last_name', 'gender', 'address', 'address2', 'city', 'state', 'zip', 'dob', 'age', 'phone', 'ip', 'subscribe_date', 'source_url'], $this->columns);
         }
         if (empty($this->attributionColumns)) {
             $this->attributionColumns = array_intersect(['feed_id'], $this->columns);
@@ -133,7 +133,7 @@ class ListProfileQueryBuilder {
             $this->domainGroupColumns = array_intersect(['domain_group_name', 'country'], $this->columns);
         }
         if (empty($this->feedColumns)) {
-            $this->feedColumns = array_intersect(['feed_name', 'source_url'], $this->columns);
+            $this->feedColumns = array_intersect(['feed_name'], $this->columns);
         }
         if (empty($this->clientColumns)) {
             $this->clientColumns = array_intersect(['client_name'], $this->columns);
@@ -189,6 +189,11 @@ class ListProfileQueryBuilder {
             DB::raw("CURDATE() - INTERVAL $end DAY"), 
             DB::raw("CURDATE() - INTERVAL $start DAY")
         ]);
+
+        if (sizeof($this->emailDomainIds) > 0) {
+            $query = $query->join("{$this->dataSchema}.emails as e", 'rd.email_id', '=', 'e.id')
+                        ->whereRaw('e.email_domain_id in (' . implode(',', $this->emailDomainIds) . ')');
+        }
 
         return $query;
     }
