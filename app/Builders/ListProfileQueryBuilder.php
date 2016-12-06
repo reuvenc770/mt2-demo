@@ -278,7 +278,7 @@ class ListProfileQueryBuilder {
             }
             elseif (sizeof($feedsWithoutIgnores) > 0) {
                 // Get everything from the selected feeds - no ignores required
-                $query = $query->whereRaw('efa.feed_id IN (' implode(',', $feedsWithoutIgnores) . ')');
+                $query = $query->whereRaw('efa.feed_id IN (' . implode(',', $feedsWithoutIgnores) . ')');
             }
             elseif (sizeof($this->feedsWithSuppression) > 0) {
                 // Get data from all feeds, except those emails ignored for these
