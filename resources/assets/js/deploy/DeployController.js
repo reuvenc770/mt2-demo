@@ -15,8 +15,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         user_id: "",
         encrypt_cake: "",
         fully_encrypt:"",
-        url_format:"",
-        party:"3"
+        url_format:""
 
     };
     self.search = {
@@ -35,7 +34,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.espAccounts = [];
     self.currentlyLoading = 0;
     self.templates = [];
-    self.firstParty = false;
     self.deployLinkText = "Download Package";
     self.tempDeploy = false;
     self.cakeAffiliates = [];
@@ -107,13 +105,13 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.startPolling = function () {
         //Set the Timer start message.
         self.polling = $interval(function () {
-           DeployApiService.checkForPackages(self.successCheckPackageStatus,self.failCheckPacakgeStatus);
+            DeployApiService.checkForPackages(self.successCheckPackageStatus,self.failCheckPacakgeStatus);
         }, 3000);
     };
 
     //Timer stop function.
     self.stopPolling = function () {
-             $interval.cancel(self.polling);
+        $interval.cancel(self.polling);
     };
 
     self.updateSearchDate = function () {
@@ -137,8 +135,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.showRow = true;
         self.editView = false;
     };
-
-
 
     self.saveNewDeploy = function ( event , form ) {
         var errorFound = false;
@@ -166,7 +162,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.createPackages = function () {
-       var packageIds = self.selectedRows;
+        var packageIds = self.selectedRows;
         DeployApiService.deployPackages(packageIds, _config.userName, self.createPackageSuccess, self.createPackagesFailed)
     };
 
@@ -309,25 +305,25 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         $mdDialog.show( {
             targetEvent : ev ,
             template :
-                '<md-dialog>' + 
-                    '<md-toolbar>' +
-                        '<div class="md-toolbar-tools">' +
-                            '<h2>Scedule Future Deploy</h2>' +
-                        '</div>' +
-                    '</md-toolbar>' +
-                    '<md-dialog-content>' + 
-                        '<div class="md-dialog-content">' +
-                            '<h4>Please choose a future date for selected deploys</h4>' +
-                        '</div>' +
-                        '<md-datepicker ng-model="deployDate" md-min-date="minDate" md-placeholder="Pick a Date"></md-datepicker>'  +
-                    '</md-dialog-content>' +
-                    '<md-dialog-actions>' +
-                        '<md-button ng-click="answer( false )">Cancel</md-button>' +
-                        '<md-button ng-click="answer( true )">Submit Date</md-button>' +
-                    '</md-dialog-actions>' +
-                '</md-dialog>' ,
+            '<md-dialog>' +
+            '<md-toolbar>' +
+            '<div class="md-toolbar-tools">' +
+            '<h2>Scedule Future Deploy</h2>' +
+            '</div>' +
+            '</md-toolbar>' +
+            '<md-dialog-content>' +
+            '<div class="md-dialog-content">' +
+            '<h4>Please choose a future date for selected deploys</h4>' +
+            '</div>' +
+            '<md-datepicker ng-model="deployDate" md-min-date="minDate" md-placeholder="Pick a Date"></md-datepicker>'  +
+            '</md-dialog-content>' +
+            '<md-dialog-actions>' +
+            '<md-button ng-click="answer( false )">Cancel</md-button>' +
+            '<md-button ng-click="answer( true )">Submit Date</md-button>' +
+            '</md-dialog-actions>' +
+            '</md-dialog>' ,
             controller : function DeployFutureDateController ( $scope , $mdDialog ) {
-                $scope.deployDate = ( self.copyToFutureDate != '' ? new Date( self.copyToFutureDate ) : new Date() ); 
+                $scope.deployDate = ( self.copyToFutureDate != '' ? new Date( self.copyToFutureDate ) : new Date() );
                 $scope.minDate = new Date();
 
                 $scope.answer = function ( submit ) {
@@ -386,7 +382,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
                 var pieces = deployData.send_date.split('-');
                 self.currentDeploy = deployData;
                 self.currentDeploy.creative_id = deployData.creative_id.toString();
-               // self.currentDeploy.list_profile_id = deployData.list_profile_id.toString();
+                // self.currentDeploy.list_profile_id = deployData.list_profile_id.toString();
                 self.currentDeploy.from_id = deployData.from_id.toString();
                 self.currentDeploy.subject_id = deployData.subject_id.toString();
                 self.currentDeploy.template_id = deployData.template_id.toString();
@@ -413,7 +409,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
                 var pieces = deployData.send_date.split('-');
                 self.currentDeploy.send_date = new Date(pieces[0], pieces[1] - 1, pieces[2]);
                 self.currentDeploy.notes = deployData.notes;
-               // self.currentDeploy.list_profile_id = deployData.list_profile_id;
+                // self.currentDeploy.list_profile_id = deployData.list_profile_id;
                 self.currentDeploy.template_id = deployData.template_id.toString();
                 self.currentDeploy.mailing_domain_id = deployData.mailing_domain_id.toString();
                 self.currentDeploy.content_domain_id = deployData.content_domain_id.toString();
