@@ -14,6 +14,8 @@ mt2App.service( 'FeedApiService' , [ 'paginationService' , '$http' , '$log' , fu
     self.getFeeds = function ( page , count , sortField , successCallback , failureCallback ) {
         var sort = paginationService.sortPage( sortField );
 
+        sort.field = 'feeds.' + sort.field;
+
         return $http( {
             "method" : "GET" ,
             "url" : self.pagerApiUrl ,
