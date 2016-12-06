@@ -190,6 +190,11 @@ class ListProfileQueryBuilder {
             DB::raw("CURDATE() - INTERVAL $start DAY")
         ]);
 
+        if (sizeof($this->emailDomainIds) > 0) {
+            $query = $query->join("{$this->dataSchema}.emails as e", 'rd.email_id', '=', 'e.id')
+                        ->whereRaw('e.email_domain_id in (' . implode(',', $this->emailDomainIds) . ')');
+        }
+
         return $query;
     }
 
