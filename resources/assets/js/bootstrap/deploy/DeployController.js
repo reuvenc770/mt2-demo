@@ -570,7 +570,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
 
     self.copyToFutureFailure = function (response){
         modalService.setModalLabel('Error');
-        modalService.setModalBody('FAIL');
+        modalService.setModalBody(response.data.errors.join("<br>"));
         modalService.launchModal();
     };
 

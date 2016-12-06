@@ -217,7 +217,9 @@ class DeployController extends Controller
 
     public function copyToFuture(Request $request){
         $data = $request->all();
-        return response()->json(['errors' => $this->deployService->copyToFutureDate($data)]);
+        $errors = $this->deployService->copyToFutureDate($data);
+        $statusCode = count($errors) > 0 ? 500:200;
+        return response()->json(['errors' => $errors],$statusCode);
     }
 
 }
