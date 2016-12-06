@@ -32,6 +32,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.searchData = "";
     self.uploadErrors = false;
     self.espAccounts = [];
+    self.firstParty = false;
     self.currentlyLoading = 0;
     self.templates = [];
     self.deployLinkText = "Download Package";
@@ -217,6 +218,10 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         } else {
             return "Save Row"
         }
+    };
+
+    self.toggleListProfile = function (){
+        self.firstParty =  self.firstParty ?  false: true;
     };
 
     self.toggleRow = function (selectedValue) {

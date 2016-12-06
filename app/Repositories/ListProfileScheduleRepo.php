@@ -36,7 +36,8 @@ FROM   (
                   ON         `list_profile_schedules`.`list_profile_id` = `lplpc`.`list_profile_id`
                   INNER JOIN {$dataDb}.`deploys` AS `d`
                   ON         `lplpc`.`list_profile_combine_id` = `d`.`list_profile_combine_id`
-                  AND        d.send_date = curdate() )
+                  AND        d.send_date = curdate()
+                  AND        d.party = 3)
 UNION
          (
                 SELECT `list_profile_id`,

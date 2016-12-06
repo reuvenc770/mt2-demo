@@ -216,9 +216,10 @@
                     </td>
                     <td md-cell nowrap>
                         <div class="form-group">
-                            <select name="list_profile" id="list_profile" class="form-control"
+                            <div style="font-size:8px; margin-bottom:3px"><input ng-model="deploy.currentDeploy.party" ng-change="deploy.toggleListProfile()" ng-true-value="1" ng-false-value="3" type="checkbox"> First Party Deploy? </div>
+                            <select name="list_profile" id="list_profile" class="form-control" ng-class="{ 'has-error' : deploy.formErrors.list_profile_combine_id }"
                                     ng-model="deploy.currentDeploy.list_profile_combine_id"
-                                    ng-disabled="deploy.currentlyLoading">
+                                    ng-disabled="deploy.currentlyLoading || deploy.firstParty">
                                 <option value="">List Profile</option>
                                 <option ng-repeat="option in deploy.listProfiles" ng-value="option.id"
                                         ng-selected="option.id == deploy.currentDeploy.list_profile_combine_id">@{{ option.name }}
@@ -226,8 +227,8 @@
                             </select>
                         </div>
 
-                        <div class="help-block" ng-show="deploy.formErrors.esp_account_id">
-                            <div ng-repeat="error in deploy.formErrors.esp_account_id">
+                        <div class="help-block" ng-show="deploy.formErrors.list_profile_combine_id">
+                            <div ng-repeat="error in deploy.formErrors.list_profile_combine_id">
                                 <span ng-bind="error"></span>
                             </div>
                         </div>
