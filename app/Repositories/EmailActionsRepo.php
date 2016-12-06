@@ -264,4 +264,13 @@ class EmailActionsRepo {
                     ->whereIn('action_id', [1,2])
                     ->groupBy('email_id');
     }
+
+    public function getEmailsForDeploys(array $deployIds, $daysBack) {
+        return $this->actions
+                    ->select('email_address')
+                    ->whereIn('deploy_id', $deployIds)
+                    ->whereRaw("created_at >= CURDATE() - INTERVAL $daysBack DAY")
+                    ->whereIn('action_id', [1,2])
+                    ->groupBy('email_id');
+    }
 }
