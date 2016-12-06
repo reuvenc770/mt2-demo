@@ -239,11 +239,6 @@ Breadcrumbs::register('attributionProjection.show', function($breadcrumbs) {
 
 Breadcrumbs::register('report.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');
-    $breadcrumbs->push('Reporting');
-});
-
-Breadcrumbs::register('report.list', function($breadcrumbs) {
-    $breadcrumbs->parent('home');
     $breadcrumbs->push('Reporting' , route( 'report.list' ));
 });
 
