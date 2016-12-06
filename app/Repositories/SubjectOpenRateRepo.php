@@ -35,7 +35,7 @@ class SubjectOpenRateRepo {
                 updated_at = updated_at", [
 
                     ':subject_id' => $subjectId,
-                    ':list_profile_id' => $listProfileCombineId,
+                    ':list_profile_combine_id' => $listProfileCombineId,
                     ':deploy_id' => $deployId,
                     ':delivers' => $delivers,
                     ':delivers2' => $delivers,
