@@ -7,4 +7,5 @@ use Illuminate\Database\Eloquent\Model;
 class FirstPartyOnlineSuppressionList extends Model
 {
     protected $connection = 'suppression';
+    public $timestamps = false;
 }
