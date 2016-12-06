@@ -65,7 +65,7 @@ class CreateWorkflows extends Seeder
 
         $w2 = new EspWorkflow();
         $w2->name = 'ARI';
-        $w2->esp_account_id = $cy001;$cy001
+        $w2->esp_account_id = $cy001;
         $w2->status = 0;
         $w2->save();
 
