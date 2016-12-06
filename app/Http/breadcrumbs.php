@@ -242,9 +242,14 @@ Breadcrumbs::register('report.list', function($breadcrumbs) {
     $breadcrumbs->push('Reporting');
 });
 
-Breadcrumbs::register('report.show', function($breadcrumbs) {
+Breadcrumbs::register('report.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');
     $breadcrumbs->push('Reporting' , route( 'report.list' ));
+});
+
+Breadcrumbs::register('report.show', function($breadcrumbs) {
+    $breadcrumbs->parent('report.list');
+    $breadcrumbs->push('View Report');
 });
 
 Breadcrumbs::register('proxy.list', function($breadcrumbs) {
