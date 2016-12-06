@@ -72,7 +72,9 @@
           }
 
           function marginTop(height) {
-            table.original.css('marginTop', '-' + height + 'px');
+            var heightExcludingProgressBar = height - 3;
+
+            table.original.css('marginTop', '-' + heightExcludingProgressBar + 'px');
           }
 
           /*
