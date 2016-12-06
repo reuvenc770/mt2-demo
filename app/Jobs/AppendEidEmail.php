@@ -8,6 +8,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Mail;
+use Storage;
 class AppendEidEmail extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
@@ -21,14 +22,14 @@ class AppendEidEmail extends Job implements ShouldQueue
     private $includeFeed;
     private $includeFields;
     private $includeSuppression;
-    private $email;
-    public function __construct($filePath,$email,$feed,$fields,$suppression)
+    private $fileName;
+    public function __construct($filePath,$fileName,$feed,$fields,$suppression)
     {
         $this->filePath = $filePath;
         $this->includeFeed = $feed;
         $this->includeFields = $fields;
         $this->includeSuppression = $suppression;
-        $this->email = $email;
+        $this->fileName = $fileName;
     }
 
     /**
@@ -38,12 +39,9 @@ class AppendEidEmail extends Job implements ShouldQueue
      */
     public function handle(AppendEidService $service)
     {
-       $csv = $service->createFile($this->filePath, $this->includeFeed, $this->includeFields, $this->includeSuppression);
-        Mail::send("emails.append",array(), function ($message) use ($csv) {
-            $message->attachData($csv, "results.csv");
-            $message->subject("Here are your results for your AppendEID Job");
-            $message->priority(1);
-            $message->to($this->email);
-        });
+        $ftpPath = "/APPENDEID/{$this->fileName}";
+        $csv = $service->createFile($this->filePath, $this->includeFeed, $this->includeFields, $this->includeSuppression);
+        Storage::disk('SystemFtp')->put($ftpPath,$csv);
+
     }
 }
