@@ -28,7 +28,7 @@ class WorkflowProcessingService {
         $deployIds = $this->stepsRepo->getDeployIds($workflow->id);
         $offerIds = $this->stepsRepo->getOfferIds($workflow->id);
 
-        $resource = $this->actionsRepo->getEmailsAddressesForDeploys($deployIds, $daysBack);
+        $resource = $this->actionsRepo->getEmailsForDeploys($deployIds, $daysBack);
 
         foreach($resource->cursor() as $emailAddress) {
             // Run these against all suppression lists
