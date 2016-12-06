@@ -678,17 +678,17 @@
     </div>
 </div>
 
-<h3>Hygiene</h3>
+<h3>Hygiene <span class="label label-default" style="font-size:12px; vertical-align:middle;"> Coming Soon </span></h3>
 
-<md-checkbox ng-model="listProfile.current.impressionwise" ng-true-value="true" ng-false-value="false">Impressionwise</md-checkbox>
+<md-checkbox ng-model="listProfile.current.impressionwise" ng-true-value="true" ng-false-value="false" ng-disabled="true">Impressionwise</md-checkbox>
 
 <br />
 
-<md-checkbox ng-model="listProfile.current.tower.run" ng-true-value="true" ng-false-value="false">Tower</md-checkbox>
+<md-checkbox ng-model="listProfile.current.tower.run" ng-true-value="true" ng-false-value="false" ng-disabled="true">Tower</md-checkbox>
 
 <div class="form-group" ng-show="listProfile.current.tower.run">
     <label>Cleansed Since</label>
-    
+
     <div class="row">
         <div class="col-lg-6">
             <div class="input-group">
@@ -814,7 +814,7 @@
             </label>
 
             <label class="radio-inline">
-                <input type="radio" name="dailyExportRadio" ng-model="listProfile.current.exportOptions.dayOfWeek" value="Tuesday"> Tuesday 
+                <input type="radio" name="dailyExportRadio" ng-model="listProfile.current.exportOptions.dayOfWeek" value="Tuesday"> Tuesday
             </label>
 
             <label class="radio-inline">
@@ -826,7 +826,7 @@
             </label>
 
             <label class="radio-inline">
-                <input type="radio" name="dailyExportRadio" ng-model="listProfile.current.exportOptions.dayOfWeek" value="Friday"> Friday 
+                <input type="radio" name="dailyExportRadio" ng-model="listProfile.current.exportOptions.dayOfWeek" value="Friday"> Friday
             </label>
 
             <label class="radio-inline">

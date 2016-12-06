@@ -55,7 +55,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
             'cleanseMonth' : null ,
             'cleanseYear' : null
         } ,
-        'selectedColumns' : [] ,
+        'selectedColumns' : [ { 'header' : 'email_id' , 'label' : 'Email ID' }, { 'header' : 'email_address' , 'label' : 'Email Address' } ] ,
         'includeCsvHeader' : false ,
         'exportOptions' : { 'interval' : [] , 'dayOfWeek' : '' , 'dayOfMonth' : '' } ,
         'admiralsOnly' : false
@@ -156,7 +156,6 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     self.stateSuppNameMap = {};
 
     self.columnList = [
-        { 'header' : 'email_id' , 'label' : 'Email ID' },
         { 'header' : 'first_name' , 'label' : 'First Name' },
         { 'header' : 'last_name' , 'label' : 'Last Name' },
         { 'header' : 'address' , 'label' : 'Address' },
@@ -175,7 +174,6 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         { 'header' : 'carrier' , 'label' : 'Carrier' },
         { 'header' : 'capture_date' , 'label' : 'Capture Date' },
         { 'header' : 'esp_account' , 'label' : 'ESP Account' },
-        { 'header' : 'email_address' , 'label' : 'Email Address' } ,
         { 'header' : 'lower_md5' , 'label' : 'Lowercase MD5' },
         { 'header' : 'upper_md5' , 'label' : 'Uppercase MD5' } ,
         { 'header' : 'domain_group_id' , 'label' : "ISP" } ,
