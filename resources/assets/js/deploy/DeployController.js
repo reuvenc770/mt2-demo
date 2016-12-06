@@ -640,9 +640,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
             notes: ""
         }
     };
-
-
-
+    
     /**
      * Page Modal
      */
