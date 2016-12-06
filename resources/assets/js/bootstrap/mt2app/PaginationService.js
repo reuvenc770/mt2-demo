@@ -6,7 +6,7 @@ mt2App.service( 'paginationService' , [ function () {
     };
 
     self.getDefaultPaginationOptions = function () {
-        return [10, 25, 50, 100];
+        return [10, 25, 50, 100 , { "label" : "All" , "value" : function () { return 0; } } ];
     };
 
     self.sortPage = function ( sortField ) {

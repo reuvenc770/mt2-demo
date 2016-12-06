@@ -1169,6 +1169,11 @@ Route::group(
             'uses' => 'FeedController@searchSource'
         ] );
 
+        Route::get( '/feed/exportList' , [
+            'as' => 'api.feed.exportlist' ,
+            'uses' => 'FeedController@exportList'
+        ] );
+
         /**
          * API Resources
          */

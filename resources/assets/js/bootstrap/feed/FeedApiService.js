@@ -28,6 +28,13 @@ mt2App.service( 'FeedApiService' , [ 'paginationService' , '$http' , '$log' , fu
         } ).then( successCallback , failureCallback );
     };
 
+    self.getFeedCsv = function ( successCallback , failureCallback ) {
+        $http( {
+            "method" : "GET" ,
+            "url" : self.baseApiUrl + '/exportList'
+        } ).then( successCallback , failureCallback );
+    };
+
     self.saveFeed = function ( feedData , successCallback , failureCallback ) {
         $http( { "method" : "POST" , "url" : this.baseApiUrl , "data" : feedData } )
             .then( successCallback , failureCallback );

@@ -103,6 +103,20 @@ class FeedService implements IFtpAdmin
         return $this->feedRepo->getModel();
     }
 
+    public function getFeedCsv () {
+        $model = $this->feedRepo->getModel();
+        $results = $model->get();
+
+        $writer = Writer::createFromFileObject( new \SplTempFileObject() );
+        $writer->insertOne( [ "Feed ID" , "Client Name" , "Party" , "Feed Name" , "Feed Shotname" , "Password" , "Status" , "Vertical" , "Type" , "Country" , "Source" , "Created" , "Updated" ] );
+
+        foreach ( $results as $row ) {
+            $writer->insertOne( $row->toArray() );
+        }
+
+        return $writer->__toString();
+    }
+
     public function updateOrCreate ( $data , $id = null ) {
         if ( empty( $data[ 'password' ] ) ) {
             $data[ 'password' ] = $this->generatePassword();
