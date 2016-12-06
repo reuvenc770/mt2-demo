@@ -190,11 +190,6 @@ class ListProfileQueryBuilder {
             DB::raw("CURDATE() - INTERVAL $start DAY")
         ]);
 
-        if (sizeof($this->emailDomainIds) > 0) {
-            $query = $query->join("{$this->dataSchema}.emails as e", 'rd.email_id', '=', 'e.id')
-                        ->whereRaw('e.email_domain_id in (' . implode(',', $this->emailDomainIds) . ')');
-        }
-
         return $query;
     }
 
@@ -332,11 +327,17 @@ class ListProfileQueryBuilder {
             $query = $this->buildAttributes($query, 'carrier', $this->carrierAttributes);
         }
 
-        if ($this->emailColumns || $this->domainGroupColumns) {
+        if ($this->emailColumns || $this->domainGroupColumns || ('rd' === $this->mainTableAlias && count($this->emailDomainIds) > 0) ) {
 
             if (0 === $listProfile->use_global_suppression) {
-                // Don't want to join on this table twice
+                // Don't want to join on this table twice.
                 $query = $query->join("{$this->dataSchema}.emails as e", "{$this->mainTableAlias}.email_id", '=', 'e.id');
+            }
+
+            if ('rd' === $this->mainTableAlias && count($this->emailDomainIds) > 0) {
+                // Adding condition for deliverable queries. Non-deliverable queries already have this.
+                // The join has already been handled as well either above or with suppression
+                $query = $query->whereRaw('e.email_domain_id in (' . implode(',', $this->emailDomainIds) . ')');
             }
             
             if ($this->domainGroupColumns) {
