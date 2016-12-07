@@ -33,9 +33,9 @@
                 <tr md-row ng-repeat="record in client.accounts track by $index">
                     <td md-cell class="mt2-table-btn-column">
                         <div layout="row" layout-align="center center">
-                            <md-button class="md-icon-button" ng-href="@{{ '/client/edit/' + record.id }}" aria-label="Edit" target="_self" data-toggle="tooltip" data-placement="bottom" title="Edit">
-                                <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon>
-                            </md-button>
+                            <a ng-href="@{{ '/client/edit/' + record.id }}" aria-label="Edit" target="_self" data-toggle="tooltip" data-placement="bottom" title="Edit">
+                                <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
+                            </a>
                         </div>
                     </td>
                     <td md-cell ng-bind="record.id"></td>
