@@ -168,6 +168,14 @@ table.md-table tbody.md-body > tr.md-row:not([disabled]):hover {
     background-color: #eee !important;
 }
 
+table.md-table thead.md-head > tr.md-row {
+    height: 46px;
+}
+
+table.md-table tbody.md-body > tr.md-row {
+    height: 32px;
+}
+
 .md-table-header-override-whitetext , .md-table-header-override-whitetext .md-sort-icon {
     color: rgba(255, 255, 255, 0.87) !important;
 }
@@ -231,7 +239,6 @@ table.mt2-table-large th.mt2-table-header-wrap {
 }
 
 table.md-table th.md-column.mt2-table-header-center {
-    height: 56px;
     text-align: center;
     padding: 0 10px !important;
 }
@@ -239,6 +246,10 @@ table.md-table th.md-column.mt2-table-header-center {
 table.md-table td.md-cell.mt2-table-cell-center {
     text-align: center;
     padding: 0 10px !important;
+}
+
+table.md-table tbody.md-body > tr.md-row.table-row-condensed {
+    height: 26px;
 }
 
 .mt2-nested-table thead {
@@ -263,27 +274,21 @@ th md-checkbox.md-mt2-zeta-theme:not(.md-checked) .md-icon {
 .material-icons:focus {
     outline: 0;
 }
-.md-button.mt2-button-xs{
-    padding: 0 5px;
-    margin: 5px;
-    min-width: 80px;
-    min-height: 23px;
-    line-height: 28px;
-    font-size: 12px;
-    font-weight: 600;
+
+md-icon.material-icons.icon-xs {
+    font-size: 20px;
+    height: 20px;
+    width: 20px;
+    min-height: 20px;
+    min-width: 20px;
 }
-.md-button.mt2-icon-button-xs{
-    width: 34px;
-    height: 34px;
-    min-height: 34px;
+
+.md-button.md-icon-button.icon-button-xs{
+    min-height: auto;
+    height: auto;
+    padding: 0;
 }
-.md-button.mt2-button-xs md-icon,
-.md-button.mt2-icon-button-xs md-icon{
-    width: 16px;
-    height: 16px;
-    min-width: 16px;
-    min-height: 16px;
-}
+
 .md-button.md-mt2-zeta-theme.md-raised.mt2-button-success,
 .md-button.mt2-button-success {
     color: rgb(255,255,255);
