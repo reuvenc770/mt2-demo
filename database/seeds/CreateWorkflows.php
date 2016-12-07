@@ -29,7 +29,7 @@ class CreateWorkflows extends Seeder
 
         // Steps
 
-        DB::statement("INSERT INTO esp_workflow_steps (first_party_workflow_id, step, deploy_id, offer_id) 
+        DB::statement("INSERT INTO esp_workflow_steps (esp_workflow_id, step, deploy_id, offer_id) 
         VALUES
         (1, 1, 1334859, 9208),
         (1, 2, 1343477, 17227),
@@ -69,7 +69,7 @@ class CreateWorkflows extends Seeder
         $w2->status = 0;
         $w2->save();
 
-        DB::statement("INSERT INTO esp_workflow_steps (first_party_workflow_id, step, deploy_id, offer_id) 
+        DB::statement("INSERT INTO esp_workflow_steps (esp_workflow_id, step, deploy_id, offer_id) 
         VALUES
         (2, 1, 1344715, 16226),
         (2, 2, 1346429, 12402),
@@ -91,7 +91,7 @@ class CreateWorkflows extends Seeder
         $w3->status = 0;
         $w3->save();
 
-        DB::statement("INSERT INTO esp_workflow_steps (first_party_workflow_id, step, deploy_id, offer_id) 
+        DB::statement("INSERT INTO esp_workflow_steps (esp_workflow_id, step, deploy_id, offer_id) 
         VALUES
         (3, 1, 1344712, 12402),
         (3, 2, 1344714, 16226),
@@ -113,7 +113,7 @@ class CreateWorkflows extends Seeder
         $w4->status = 0;
         $w4->save();
 
-        DB::statement("INSERT INTO esp_workflow_steps (first_party_workflow_id, step, deploy_id, offer_id) 
+        DB::statement("INSERT INTO esp_workflow_steps (esp_workflow_id, step, deploy_id, offer_id) 
         VALUES
         (4, 1, 1347715, 16005),
         (4, 2, 1347716, 15999),
@@ -135,7 +135,7 @@ class CreateWorkflows extends Seeder
         $w5->status = 0;
         $w5->save();
 
-        DB::statement("INSERT INTO esp_workflow_steps (first_party_workflow_id, step, deploy_id, offer_id) 
+        DB::statement("INSERT INTO esp_workflow_steps (esp_workflow_id, step, deploy_id, offer_id) 
         VALUES
         (5, 1, 1338621, 9208),
         (5, 2, 1343546, 17226),
@@ -157,7 +157,7 @@ class CreateWorkflows extends Seeder
         $w6->status = 0;
         $w6->save();
 
-        DB::statement("INSERT INTO esp_workflow_steps (first_party_workflow_id, step, deploy_id, offer_id) 
+        DB::statement("INSERT INTO esp_workflow_steps (esp_workflow_id, step, deploy_id, offer_id) 
         VALUES
         (6, 1, 1338621, 9208)");
 
@@ -172,7 +172,7 @@ class CreateWorkflows extends Seeder
         $w7->status = 0;
         $w7->save();
 
-        DB::statement("INSERT INTO esp_workflow_steps (first_party_workflow_id, step, deploy_id, offer_id) 
+        DB::statement("INSERT INTO esp_workflow_steps (esp_workflow_id, step, deploy_id, offer_id) 
         VALUES
         (7, 1, 1338639, 17150),
         (7, 2, 1338640, 16838),
@@ -189,7 +189,7 @@ class CreateWorkflows extends Seeder
         $w8->status = 0;
         $w8->save();
 
-        DB::statement("INSERT INTO esp_workflow_steps (first_party_workflow_id, step, deploy_id, offer_id) 
+        DB::statement("INSERT INTO esp_workflow_steps (esp_workflow_id, step, deploy_id, offer_id) 
         VALUES
         (8, 1,1338674, 9208),
         (8, 2,1338637, 16838),
