@@ -123,7 +123,7 @@ class CreateWorkflows extends Seeder
         (4, 6, 1347751, 13842),
         (4, 7, 1347756, 15230),
         (4, 8, 1347759, 14427)");
-    }
+    
 
     /**
         Workflow 5: RMP Completes
@@ -202,4 +202,5 @@ class CreateWorkflows extends Seeder
         (8, 9,1338679, 15929),
         (8, 10,1338681, 10963),
         (8, 11,1338773, 15832)");
+    }
 }
