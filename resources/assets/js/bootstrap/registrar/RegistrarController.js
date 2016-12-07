@@ -61,6 +61,14 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
         RegistrarApiService.toggleRow(recordId, direction, self.toggleRowSuccess, self.toggleRowFailure)
     };
 
+    self.delete = function(recordId) {
+        var r = confirm("Are you sure you want to delete this");
+        if (r == true) {
+            RegistrarApiService.deleteRow(recordId, self.deleteRowSuccess, self.deleteRowFailure)
+        }
+
+    };
+
     self.setPageType = function(pageType){
         self.pageType = pageType;
     };
@@ -114,16 +122,17 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
         self.currentDba = self.currentAccount.dba_names[ id ];
         self.currentAccount.dba_names.splice( id , 1);
         self.editingDba = true;
-    }
+    };
 
     self.removeDba = function (id) {
+
         self.currentAccount.dba_names.splice( id , 1 );
 
     };
 
     self.clearDbaFields = function () {
         self.currentDba = { dba_name : '' , dba_contact_name : '' , dba_contact_email : '' };
-    }
+    };
 
     /**
      * Callbacks
@@ -172,11 +181,19 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
         self.loadAccounts();
     };
 
-    self.toggleRowFailure = function ( response ) {
-        modalService.setModalLabel('Error');
-        modalService.setModalBody('Failed to update registrar status. Please try again.');
+    self.deleteRowFailure = function ( response ) {
+        console.log(response.data.delete);
+        modalService.setModalLabel('Failed To Delete Row');
+        modalService.setModalBodyRawHtml(response.data.delete);
         modalService.launchModal();
         self.loadAccounts();
     };
+
+    self.deleteRowSuccess = function ( response ) {
+       modalService.simpleToast("Successfully Deleted Row");
+        self.loadAccounts();
+    };
+
+
 
 } ] );

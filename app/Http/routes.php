@@ -1309,6 +1309,10 @@ Route::group(
             'RegistrarController',
             [ 'except' => ['create', 'edit']]
         );
+        Route::get('/registrar/toggle/{id}', [
+            'as' => 'api.registar.toggle',
+            'uses' => 'RegistrarController@toggle'
+        ]);
 
         Route::resource(
             'dba',
