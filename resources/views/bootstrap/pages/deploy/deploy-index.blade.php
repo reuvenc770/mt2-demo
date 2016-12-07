@@ -148,7 +148,6 @@
                 <thead md-head class="mt2-theme-thead">
                 <tr md-row>
                     <th md-column class="mt2-table-btn-column"></th>
-                    <th md-column class="md-table-header-override-whitetext"></th>
                     <th md-column class="md-table-header-override-whitetext">Send Date</th>
                     <th md-column class="md-table-header-override-whitetext">Deploy ID</th>
                     <th md-column class="md-table-header-override-whitetext">ESP Account</th>
@@ -170,15 +169,12 @@
 
                 <tbody md-body>
                 <tr md-row ng-show="deploy.showRow">
-                    <td md-cell class="mt2-table-btn-column"></td>
-                    <td md-cell class="mt2-table-btn-column">
-                        <div layout="row">
+                    <td md-cell class="mt2-table-btn-column" nowrap>
                             @if (Sentinel::hasAccess('api.deploy.update'))
                                 <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-click="deploy.actionLink( $event , deployForm )" ng-disabled="deploy.formSubmitting" data-toggle="tooltip" data-placement="bottom" title="@{{ deploy.actionText() }}">save</md-icon>
-                                &nbsp;&nbsp;
+                                &nbsp;
                             @endif
                             <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-click="deploy.showRow = false" data-toggle="tooltip" data-placement="bottom" title="Cancel">clear</md-icon>
-                        </div>
                     </td>
                     <td md-cell>
                         <md-datepicker name="dateField" ng-model="deploy.currentDeploy.send_date"
@@ -439,22 +435,19 @@
                     </td>
                 </tr>
 
-                <tr md-row ng-repeat="record in deploy.deploys track by $index"
+                <tr md-row ng-repeat="record in deploy.deploys track by $index" class="table-row-condensed"
                     ng-class="{ 'bg-success' : record.deployment_status == 1 ,
                         'bg-warning' : record.deployment_status == 0 || record.deployment_status == 2 ,
                         'bg-info' : record.deployment_status == 3 }">
-                    <td md-cell class="mt2-table-btn-column">
+                    <td md-cell class="mt2-table-btn-column" nowrap>
                         <md-checkbox ng-checked="deploy.checkChecked(record.deploy_id)" ng-show="@{{deploy.checkStatus(record.creative_approval,record.creative_status)
                             && deploy.checkStatus(record.from_approval,record.from_status)
                             && deploy.checkStatus(record.subject_approval,record.subject_status)}}" aria-label="Select" name="selectedRows"
                                      ng-click="deploy.toggleRow(record.deploy_id)"> </md-checkbox>
-                    </td>
-                    <td md-cell class="mt2-table-btn-column">
-                        <div layout="row">
-                            <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-hide="record.deployment_status ==1" ng-click="deploy.editRow( record.deploy_id)" aria-label="Edit" data-toggle="tooltip" data-placement="bottom" title="Edit">edit</md-icon>
                             &nbsp;&nbsp;
-                            <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-click="deploy.copyRow( record.deploy_id)" aria-label="Copy" data-toggle="tooltip" data-placement="bottom" title="Copy">content_copy</md-icon>
-                        </div>
+                            <md-icon md-font-set="material-icons" class="mt2-icon-black icon-xs" ng-hide="record.deployment_status ==1" ng-click="deploy.editRow( record.deploy_id)" aria-label="Edit" data-toggle="tooltip" data-placement="bottom" title="Edit">edit</md-icon>
+                            <md-icon md-font-set="material-icons" class="mt2-icon-black icon-xs" ng-click="deploy.copyRow( record.deploy_id)" aria-label="Copy" data-toggle="tooltip" data-placement="bottom" title="Copy">content_copy</md-icon>
+
                     </td>
                     <td md-cell nowrap>@{{ record.send_date }}</td>
                     <td md-cell>@{{ record.deploy_id }}</td>
@@ -484,8 +477,8 @@
                             <span data-toggle="popover" data-content="@{{ record.subject }}">
                                 @{{ record.subject.substring(0,10) }}...
                             </span>
-                            <md-button class="md-icon-button" ngclipboard data-clipboard-text="@{{record.subject}}" data-toggle="tooltip" data-placement="bottom" title="Copy Subject">
-                                <md-icon md-font-set="material-icons" class="mt2-icon-black">content_copy</md-icon>
+                            <md-button class="md-icon-button icon-button-xs" ngclipboard data-clipboard-text="@{{record.subject}}" data-toggle="tooltip" data-placement="bottom" title="Copy Subject">
+                                <md-icon md-font-set="material-icons" class="mt2-icon-black icon-xs">content_copy</md-icon>
                             </md-button>
                         </div>
                             <span ng-hide="deploy.checkStatus(record.subject_approval,record.subject_status)"
@@ -504,7 +497,7 @@
 
                 <tfoot>
                 <tr>
-                    <td colspan="17">
+                    <td colspan="16">
                         <md-content class="md-mt2-zeta-theme md-hue-2">
                             <md-table-pagination md-limit="deploy.paginationCount" md-limit-options="deploy.paginationOptions" md-page="deploy.currentPage" md-total="@{{deploy.deployTotal}}" md-on-paginate="deploy.loadAccounts" md-page-select></md-table-pagination>
                         </md-content>
