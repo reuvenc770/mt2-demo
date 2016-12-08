@@ -92,7 +92,7 @@ class ShowInfoController extends Controller
             // no delimiter - one single id
             $ids = [$ids];
         }
-        
+
         $records = [];
         $suppressions = [];
 
@@ -114,6 +114,7 @@ class ShowInfoController extends Controller
                     'gender' => $record->gender,
                     'ip' => $record->ip,
                     'last_name' => $record->last_name,
+                    'feed_full_name' => $record->name,
                     'feed_name' => $record->short_name,
                     'removal_date' => $record->removal_date,
                     'source_url' => $record->source_url,
@@ -131,8 +132,8 @@ class ShowInfoController extends Controller
                         'campaignName' => ''
                     ];
                 }
-                
-            }     
+
+            }
         }
 
         $output = [

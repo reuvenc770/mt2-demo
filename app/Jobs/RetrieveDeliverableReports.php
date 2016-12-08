@@ -163,7 +163,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     }
 
     protected function getCampaigns () {
-        $campaigns = $this->standardReportRepo->getCampaigns( $this->espAccountId , $this->date );
+        $campaigns = $this->standardReportRepo->getActionsCampaigns( $this->espAccountId , $this->date );
 
         $this->processState[ 'currentFilterIndex' ]++;
 
@@ -178,7 +178,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     }
 
     protected function getDeliverableCampaigns() {
-        $campaigns = $this->standardReportRepo->getCampaigns( $this->espAccountId , $this->date );
+        $campaigns = $this->standardReportRepo->getActionsCampaigns( $this->espAccountId , $this->date );
         $this->processState['recordType'] = 'delivered';
         $this->processState[ 'currentFilterIndex' ]++;
 

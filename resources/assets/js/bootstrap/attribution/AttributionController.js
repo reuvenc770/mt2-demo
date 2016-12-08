@@ -49,8 +49,6 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
 
     self.initIndexPage = function () {
         self.loadModels();
-        self.loadReportRecords();
-        ThreeMonthReportService.loadClientAndFeedNames();
     };
 
     self.initProjectionPage = function () {
@@ -72,18 +70,6 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
             self.selectedModelId = 0;
             self.showModelActions = false;
         }
-    };
-
-    self.loadReportRecords = function () {
-        self.reportQueryPromise = ThreeMonthReportService.getRecords(
-            function ( response ) {
-                self.reportRecords = response.data.records;
-                self.reportRecordTotals = response.data.totals;
-            } ,
-            function ( response ) {
-                modalService.simpleToast( 'Failed to load attribution report records. Please contact support.' );
-            }
-        );
     };
 
     self.loadProjectionRecords = function () {

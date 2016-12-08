@@ -185,10 +185,9 @@ class ListProfileQueryBuilder {
             $this->dataTable = 'record_data';
         }
 
-        $query = DB::table("{$this->dataSchema}.{$this->dataTable} as rd")->where('is_deliverable', 1)->whereBetween('subscribe_date', [
-            DB::raw("CURDATE() - INTERVAL $end DAY"), 
-            DB::raw("CURDATE() - INTERVAL $start DAY")
-        ]);
+        $query = DB::table("{$this->dataSchema}.{$this->dataTable} as rd")
+                    ->whereRaw('is_deliverable = 1')
+                    ->whereRaw("subscribe_date BETWEEN CURDATE() - INTERVAL $end DAY AND CURDATE() - INTERVAL $start DAY");
 
         return $query;
     }
@@ -230,7 +229,7 @@ class ListProfileQueryBuilder {
             $query = $query->join("{$this->dataSchema}.emails as e", "{$this->mainTableAlias}.email_id", '=', 'e.id');
 
             if ($listProfile->use_global_suppression) {
-                $query = $query->leftJoin("{$this->dataSchema}.suppressions as s", 'e.email_address', '=', 's.email_address')->where('s.email_address', null);
+                $query = $query->leftJoin("{$this->suppressionSchema}.suppression_global_orange as s", 'e.email_address', '=', 's.email_address')->where('s.email_address', null);
             }
 
             if (count($listIds) > 0) {
@@ -279,7 +278,7 @@ class ListProfileQueryBuilder {
             }
             elseif (sizeof($feedsWithoutIgnores) > 0) {
                 // Get everything from the selected feeds - no ignores required
-                $query = $query->whereIn('efa.feed_id', $feedsWithoutIgnores);
+                $query = $query->whereRaw('efa.feed_id IN (' . implode(',', $feedsWithoutIgnores) . ')');
             }
             elseif (sizeof($this->feedsWithSuppression) > 0) {
                 // Get data from all feeds, except those emails ignored for these

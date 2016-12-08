@@ -1,7 +1,9 @@
 <input name="_token" type="hidden" ng-init="feed.current._token = '{{ csrf_token() }}'" ng-model="feed.current._token" />
 
-<div class="panel-body">
+<div class="panel-body form-horizontal">
     <div class="form-group" ng-class="{ 'has-error' : feed.formErrors.client_id }">
+        <label class="col-sm-2 control-label">Client</label>
+        <div class="col-sm-10">
         <select class="form-control" name="client_id" ng-model="feed.current.client_id">
             <option value="">Select Client</option>
             @foreach ( $clients as $client )
@@ -13,27 +15,36 @@
                 <span ng-bind="error"></span>
             </div>
         </div>
+        </div>
     </div>
 
     <div class="form-group" ng-class="{ 'has-error' : feed.formErrors.name }" ng-hide="'{{$hideName}}' === 'hide'">
+        <label class="col-sm-2 control-label">Feed Name</label>
+        <div class="col-sm-10">
         <input type="text" class="form-control" id="name" value="" placeholder="Feed Name" required="required" ng-model="feed.current.name" />
         <div class="help-block" ng-show="feed.formErrors.name">
             <div ng-repeat="error in feed.formErrors.name">
                 <div ng-bind="error"></div>
             </div>
         </div>
+        </div>
     </div>
 
     <div class="form-group" ng-class="{ 'has-error' : feed.formErrors.short_name }">
+        <label class="col-sm-2 control-label">Feed Short Name</label>
+        <div class="col-sm-10">
         <input type="text" class="form-control" id="short_name" value="" placeholder="Feed Short Name" required="required" ng-model="feed.current.short_name" />
         <div class="help-block" ng-show="feed.formErrors.short_name">
             <div ng-repeat="error in feed.formErrors.short_name">
                 <div ng-bind="error"></div>
             </div>
         </div>
+        </div>
     </div>
 
     <div class="form-group" ng-class="{ 'has-error' : feed.formErrors.vertical_id }">
+        <label class="col-sm-2 control-label">Feed Vertical</label>
+        <div class="col-sm-10">
         <select class="form-control" name="vertical_id" ng-model="feed.current.vertical_id">
             <option value="">Feed Vertical</option>
             @foreach ( $clientTypes as $clientType )
@@ -45,9 +56,12 @@
                 <span ng-bind="error"></span>
             </div>
         </div>
+        </div>
     </div>
 
     <div class="form-group" ng-class="{ 'has-error' : feed.formErrors.frequency }">
+        <label class="col-sm-2 control-label">Frequency</label>
+        <div class="col-sm-10">
         <select class="form-control" name="frequency" ng-model="feed.current.frequency">
             <option value="">Frequency</option>
                 <option ng-repeat="option in feed.frequency">@{{ option }}</option>
@@ -57,9 +71,12 @@
                 <span ng-bind="error"></span>
             </div>
         </div>
+        </div>
     </div>
 
     <div class="form-group" ng-class="{ 'has-error' : feed.formErrors.type_id }">
+        <label class="col-sm-2 control-label">Feed Type</label>
+        <div class="col-sm-10">
         <select class="form-control" name="type_id" ng-model="feed.current.type_id">
             <option value="">Feed Type</option>
             @foreach ( $feedTypes as $feedType )
@@ -71,10 +88,12 @@
                 <span ng-bind="error"></span>
             </div>
         </div>
+        </div>
     </div>
 
     <div class="form-group" ng-class="{ 'has-error' : feed.formErrors.country_id }">
-        <label>Country</label>
+        <label class="col-sm-2 control-label">Country</label>
+        <div class="col-sm-10">
         <div class="btn-group btn-group-justified" role="group" aria-label="...">
             <input type="hidden" ng-model="feed.current.country_id" />
 
@@ -91,10 +110,12 @@
                 <div ng-bind="error"></div>
             </div>
         </div>
+        </div>
     </div>
 
     <div class="form-group" ng-class="{ 'has-error' : feed.formErrors.party }">
-        <label>Party</label>
+        <label class="col-sm-2 control-label">Party</label>
+        <div class="col-sm-10">
         <div class="btn-group btn-group-justified" role="group" aria-label="...">
             <input type="hidden" ng-model="feed.current.party" />
 
@@ -115,10 +136,12 @@
                 <div ng-bind="error"></div>
             </div>
         </div>
+        </div>
     </div>
 
     <div class="form-group" ng-class="{ 'has-error' : feed.formErrors.status }">
-        <label>Status</label>
+        <label class="col-sm-2 control-label">Status</label>
+        <div class="col-sm-10">
         <div class="btn-group btn-group-justified" role="group" aria-label="...">
             <input type="hidden" ng-model="feed.current.status" />
 
@@ -134,6 +157,7 @@
                 <button type="button" class="btn btn-default" ng-click="feed.current.status = 'Inactive'" ng-class="{ active : feed.current.status == 'Inactive' }">Inactive</button>
             </div>
         </div>
+        </div>
         <div class="help-block" ng-show="feed.formErrors.status">
             <div ng-repeat="error in feed.formErrors.status">
                 <div ng-bind="error"></div>
@@ -142,11 +166,14 @@
     </div>
 
     <div class="form-group" ng-class="{ 'has-error' : feed.formErrors.source_url }">
+        <label class="col-sm-2 control-label">Source URL</label>
+        <div class="col-sm-10">
         <input type="text" class="form-control" id="source_url" value="" placeholder="Source URL" required="required" ng-model="feed.current.source_url" />
         <div class="help-block" ng-show="feed.formErrors.source_url">
             <div ng-repeat="error in feed.formErrors.source_url">
                 <div ng-bind="error"></div>
             </div>
+        </div>
         </div>
     </div>
 

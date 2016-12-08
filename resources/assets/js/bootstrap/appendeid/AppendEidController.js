@@ -22,7 +22,7 @@ mt2App.controller('AppendEidController', ['$log', '$window', '$location', '$time
 
     self.uploadSuccessCallback = function(response){
         modalService.setModalLabel('Success');
-        modalService.setModalBody('Job has been submitted to be run, please check your email later ');
+        modalService.setModalBody('Job has been submitted to be run, please check the FTP shortly ');
         modalService.launchModal();
         self.text = "File not ready";
         self.file ="";

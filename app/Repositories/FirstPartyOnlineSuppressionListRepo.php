@@ -18,4 +18,18 @@ class FirstPartyOnlineSuppressionListRepo {
         return $this->model->where('feed_id', $feedId)->get();
     }
 
+    public function getListsForFeed($feedId) {
+        $output = [];
+        $lists = $this->model
+                    ->where('feed_id', $feedId)
+                    ->select('suppression_list_id')
+                    ->get();
+
+        foreach($lists as $list) {
+            $output[] = $list->suppression_list_id;
+        }
+
+        return $output;
+    }
+
 }
