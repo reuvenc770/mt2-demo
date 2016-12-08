@@ -1320,6 +1320,11 @@ Route::group(
             [ 'except' => ['create', 'edit']]
         );
 
+        Route::get('/dba/toggle/{id}', [
+            'as' => 'api.dba.toggle',
+            'uses' => 'DoingBusinessAsController@toggle'
+        ]);
+
         Route::get('/mailingtemplate/templates/{id}', [
             'as' => 'api.mailingtemplate.listbyesp',
             'uses' => 'EspApiAccountController@grabTemplatesByESP'

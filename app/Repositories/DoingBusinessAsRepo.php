@@ -76,4 +76,12 @@ class DoingBusinessAsRepo
 
         return $query;
     }
+
+    public function canBeDeleted($id){
+        return $this->doingBusinessAs->find($id)->canModelBeDeleted();
+    }
+
+    public function delete($id){
+        return $this->doingBusinessAs->destroy($id);
+    }
 }

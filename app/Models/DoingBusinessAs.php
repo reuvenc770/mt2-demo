@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\ModelTraits\Deletable;
 use App\Models\ModelTraits\ModelCacheControl;
 use Illuminate\Database\Eloquent\Model;
 
 class DoingBusinessAs extends Model
 {
     use ModelCacheControl;
+    use Deletable;
     protected $guarded = ['id'];
     public $timestamps = false;
 
