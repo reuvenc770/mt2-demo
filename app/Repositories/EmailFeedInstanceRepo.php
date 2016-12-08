@@ -397,7 +397,7 @@ class EmailFeedInstanceRepo {
 
     public function saveSourceCounts ( $countList ) {
         foreach ( $countList as $current ) {
-            $this->countModel->create( $current );
+            $this->countModel->updateOrCreate( $current );
         }
     }
 }
