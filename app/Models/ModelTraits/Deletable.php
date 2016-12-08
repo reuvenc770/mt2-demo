@@ -54,7 +54,6 @@ trait Deletable
                         if ($pos = stripos($code, $search)) {
                             //Resolve the relation's model to a Relation object.
                             $relationObj = $this->$method();
-                            //print_r($search);
                             if ($relationObj instanceof Relation) {
                                 $relatedModel = '\\' . get_class($relationObj->getRelated());
                                 $relations = ['hasManyThrough', 'belongsToMany', 'hasMany'];

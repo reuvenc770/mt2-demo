@@ -182,7 +182,6 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
     };
 
     self.deleteRowFailure = function ( response ) {
-        console.log(response.data.delete);
         modalService.setModalLabel('Failed To Delete Row');
         modalService.setModalBodyRawHtml(response.data.delete);
         modalService.launchModal();
