@@ -182,7 +182,6 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         { 'header' : 'feed_name' , 'label' : "Feed Name" } ,
         { 'header' : 'client_name' , 'label' : "Client" } ,
         { 'header' : 'subscribe_date' , 'label' : 'Subscribe Date' } ,
-        { 'header' : 'status' , 'label' : 'Status' } ,
         { 'header' : 'tower_date' , 'label' : 'Tower Date' }
     ];
 
