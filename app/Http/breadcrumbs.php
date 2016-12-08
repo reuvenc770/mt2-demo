@@ -239,12 +239,12 @@ Breadcrumbs::register('attributionProjection.show', function($breadcrumbs) {
 
 Breadcrumbs::register('report.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');
-    $breadcrumbs->push('Reporting');
+    $breadcrumbs->push('Reporting' , route( 'report.list' ));
 });
 
 Breadcrumbs::register('report.show', function($breadcrumbs) {
-    $breadcrumbs->parent('home');
-    $breadcrumbs->push('Reporting' , route( 'report.list' ));
+    $breadcrumbs->parent('report.list');
+    $breadcrumbs->push('View Report');
 });
 
 Breadcrumbs::register('proxy.list', function($breadcrumbs) {

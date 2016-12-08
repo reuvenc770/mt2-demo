@@ -26,7 +26,7 @@ class ListProfileService
     private $rows = [];
     private $rowCount = 0;
     const INSERT_THRESHOLD = 1000; // Low threshold due to MySQL / PHP placeholder limits (2^16 - 1)
-    const ROW_STORAGE_TIME = 60;
+    const ROW_STORAGE_TIME = 720;
     protected $baseTableService;
     private $columnLabelMap = [
         'email_id'  =>  'Email ID',
@@ -180,7 +180,6 @@ class ListProfileService
 
         foreach ($queries as $queryData) {
             $query = $this->builder->buildQuery($listProfile, $queryData);
-            echo "Query generated for $id - $queryNumber" . PHP_EOL;
 
             // .. if we have hygiene, we write out both files. Write full one to a secret location. Send the other one (just email address/md5) out.
             // When the second returns. Find a way to subtract it from the first
@@ -190,14 +189,11 @@ class ListProfileService
             if (1 === $queryNumber) {
                 $this->baseTableService->createTable($id, $columns);
             }
-            echo "About to get cursor for $id - $queryNumber" . PHP_EOL;
+
             $resource = $query->cursor();
-            echo "Cursor obtained for $id - $queryNumber" . PHP_EOL;
 
             foreach ($resource as $row) {
-                echo "$id - $queryNumber checking " . $row->{$this->uniqueColumn};
                 if ($this->isUnique($listProfileTag, $row)) {
-                    echo ' is new';
                     $this->saveToCache($listProfileTag, $row->{$this->uniqueColumn});
                     $row = $this->mapDataToColumns($columns, $row);
                     $this->batch($row);
@@ -205,17 +201,14 @@ class ListProfileService
                 }
                 echo PHP_EOL;
             }
-            echo "Query $id-$queryNumber is complete. About to batch insert and clear" . PHP_EOL;
+
             $this->batchInsert();
             $this->clear();
-echo "Batch insert and clear completed for $id-$queryNumber." . PHP_EOL;
             $queryNumber++;
         }
-echo "All queries done for $id. About to clear tag $listProfileTag" . PHP_EOL;
+
         Cache::tags($listProfileTag)->flush();
-echo "Cache cleared for $id. About to update total count" . PHP_EOL;
         $this->profileRepo->updateTotalCount($listProfile->id, $totalCount);
-echo "Total count updated for $id. Returning." . PHP_EOL;
     }
 
     private function cleanseData ( $data ) {

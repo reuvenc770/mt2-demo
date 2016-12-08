@@ -21,7 +21,7 @@ class SubjectOpenRateRepo {
 
         DB::connection('reporting_data')->statement(
             "INSERT INTO subject_open_rates
-            (subject_id, list_profile_id, deploy_id, delivers, opens, created_at, updated_at)
+            (subject_id, list_profile_combine_id, deploy_id, delivers, opens, created_at, updated_at)
 
             VALUES (:subject_id, :list_profile_combine_id, :deploy_id, :delivers, :opens, NOW(), NOW())
 
@@ -35,7 +35,7 @@ class SubjectOpenRateRepo {
                 updated_at = updated_at", [
 
                     ':subject_id' => $subjectId,
-                    ':list_profile_id' => $listProfileCombineId,
+                    ':list_profile_combine_id' => $listProfileCombineId,
                     ':deploy_id' => $deployId,
                     ':delivers' => $delivers,
                     ':delivers2' => $delivers,

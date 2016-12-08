@@ -64,7 +64,7 @@ class ListProfileQueryBuilder {
             'domain_group_name' => DB::raw('dg.name as domain_group_name'), 
             'country' => 'dg.country',
             'feed_name' => DB::raw('f.short_name as feed_name'), 
-            'source_url' => 'f.source_url',
+            'source_url' => 'rd.source_url',
             'client_name' => DB::raw('c.name as client_name'),
             'email_address' => 'e.email_address', 
             'lower_case_md5' => 'e.lower_case_md5', 
@@ -124,7 +124,7 @@ class ListProfileQueryBuilder {
         // Setting up columns for selects
 
         if (empty($this->recordDataColumns)) {
-            $this->recordDataColumns = array_intersect(['first_name', 'last_name', 'gender', 'address', 'address2', 'city', 'state', 'zip', 'dob', 'age', 'phone', 'ip', 'subscribe_date'], $this->columns);
+            $this->recordDataColumns = array_intersect(['first_name', 'last_name', 'gender', 'address', 'address2', 'city', 'state', 'zip', 'dob', 'age', 'phone', 'ip', 'subscribe_date', 'source_url'], $this->columns);
         }
         if (empty($this->attributionColumns)) {
             $this->attributionColumns = array_intersect(['feed_id'], $this->columns);
@@ -133,7 +133,7 @@ class ListProfileQueryBuilder {
             $this->domainGroupColumns = array_intersect(['domain_group_name', 'country'], $this->columns);
         }
         if (empty($this->feedColumns)) {
-            $this->feedColumns = array_intersect(['feed_name', 'source_url'], $this->columns);
+            $this->feedColumns = array_intersect(['feed_name'], $this->columns);
         }
         if (empty($this->clientColumns)) {
             $this->clientColumns = array_intersect(['client_name'], $this->columns);
@@ -185,10 +185,9 @@ class ListProfileQueryBuilder {
             $this->dataTable = 'record_data';
         }
 
-        $query = DB::table("{$this->dataSchema}.{$this->dataTable} as rd")->where('is_deliverable', 1)->whereBetween('subscribe_date', [
-            DB::raw("CURDATE() - INTERVAL $end DAY"), 
-            DB::raw("CURDATE() - INTERVAL $start DAY")
-        ]);
+        $query = DB::table("{$this->dataSchema}.{$this->dataTable} as rd")
+                    ->whereRaw('is_deliverable = 1')
+                    ->whereRaw("subscribe_date BETWEEN CURDATE() - INTERVAL $end DAY AND CURDATE() - INTERVAL $start DAY");
 
         return $query;
     }
@@ -230,7 +229,7 @@ class ListProfileQueryBuilder {
             $query = $query->join("{$this->dataSchema}.emails as e", "{$this->mainTableAlias}.email_id", '=', 'e.id');
 
             if ($listProfile->use_global_suppression) {
-                $query = $query->leftJoin("{$this->dataSchema}.suppressions as s", 'e.email_address', '=', 's.email_address')->where('s.email_address', null);
+                $query = $query->leftJoin("{$this->suppressionSchema}.suppression_global_orange as s", 'e.email_address', '=', 's.email_address')->where('s.email_address', null);
             }
 
             if (count($listIds) > 0) {
@@ -279,7 +278,7 @@ class ListProfileQueryBuilder {
             }
             elseif (sizeof($feedsWithoutIgnores) > 0) {
                 // Get everything from the selected feeds - no ignores required
-                $query = $query->whereIn('efa.feed_id', $feedsWithoutIgnores);
+                $query = $query->whereRaw('efa.feed_id IN (' . implode(',', $feedsWithoutIgnores) . ')');
             }
             elseif (sizeof($this->feedsWithSuppression) > 0) {
                 // Get data from all feeds, except those emails ignored for these
@@ -327,11 +326,17 @@ class ListProfileQueryBuilder {
             $query = $this->buildAttributes($query, 'carrier', $this->carrierAttributes);
         }
 
-        if ($this->emailColumns || $this->domainGroupColumns) {
+        if ($this->emailColumns || $this->domainGroupColumns || ('rd' === $this->mainTableAlias && count($this->emailDomainIds) > 0) ) {
 
             if (0 === $listProfile->use_global_suppression) {
-                // Don't want to join on this table twice
+                // Don't want to join on this table twice.
                 $query = $query->join("{$this->dataSchema}.emails as e", "{$this->mainTableAlias}.email_id", '=', 'e.id');
+            }
+
+            if ('rd' === $this->mainTableAlias && count($this->emailDomainIds) > 0) {
+                // Adding condition for deliverable queries. Non-deliverable queries already have this.
+                // The join has already been handled as well either above or with suppression
+                $query = $query->whereRaw('e.email_domain_id in (' . implode(',', $this->emailDomainIds) . ')');
             }
             
             if ($this->domainGroupColumns) {

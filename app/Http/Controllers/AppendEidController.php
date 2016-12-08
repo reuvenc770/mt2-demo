@@ -31,7 +31,7 @@ class AppendEidController extends Controller
         $includeSuppression = (bool)$request->input('suppress');
         $dateFolder = date('Ymd');
         $path = storage_path() . "/app/files/uploads/appendEID/$dateFolder/$fileName";
-        $this->dispatch(new AppendEidEmail($path,$email,$includeFeed,$includeFields,$includeSuppression));
+        $this->dispatch(new AppendEidEmail($path,$fileName,$includeFeed,$includeFields,$includeSuppression));
 
 
         return response()->json(["success" => true]);

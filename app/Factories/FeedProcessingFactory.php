@@ -117,4 +117,23 @@ class FeedProcessingFactory
         return $service;
     }
 
+    public static function createWorkflowProcessingService($workflow) {
+
+        $actionsRepo = App::make(\App\Repositories\EmailActionsRepo::class);
+        $stepsRepo = App::make(\App\Repositories\EspWorkflowStepRepo::class);
+        $suppService = App::make(\App\Services\MT1SuppressionService::class);
+
+        // get a feed id
+        // currently a hack - should redo how these are stored
+        // This would be a good place to update actions ... but we don't know how
+        $feedId = $workflow->feeds->first()->id;
+
+        $espAccount = EspApiAccount::getAccount($workflow->esp_account_id);
+        $apiService = APIFactory::createApiReportService($espAccount->esp->name, $espAccount->id);
+        $suppStrategy = new $suppStrategyName(App::make(\App\Repositories\FirstPartyOnlineSuppressionListRepo::class), $apiService);
+        $suppStrategy->setFeedId($feedId);
+
+        return new \App\Services\WorkflowProcessingService($actionsRepo, $stepsRepo, $suppService, $suppStrategy);
+    }
+
 }

@@ -26,9 +26,10 @@ class AddDeployRequest extends Request
      */
     public function rules()
     {
+
         return [
             'esp_account_id'        => 'required',
-            #'list_profile_id'   => 'required',
+            'list_profile_combine_id'   => 'required_if:party,3',
             'template_id'      => 'required',
             'offer_id'            => 'required',
             'creative_id'            => 'required',

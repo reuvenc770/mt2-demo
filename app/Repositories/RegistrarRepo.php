@@ -47,4 +47,12 @@ class RegistrarRepo
         return $this->registrars;
     }
 
+    public function canBeDeleted($id){
+        return $this->registrars->find($id)->canModelBeDeleted();
+    }
+
+    public function delete($id){
+        return $this->registrars->destroy($id);
+    }
+
 }

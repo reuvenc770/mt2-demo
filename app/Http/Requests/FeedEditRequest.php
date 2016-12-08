@@ -36,8 +36,7 @@ class FeedEditRequest extends Request
             'vertical_id' => 'required' ,
             'frequency' => 'required' ,
             'type_id' => 'required' ,
-            'country_id' => 'required|integer' ,
-            'source_url' => 'required'
+            'country_id' => 'required|integer'
         ];
     }
 
@@ -51,8 +50,7 @@ class FeedEditRequest extends Request
             'vertical_id.required' => 'Feed vertical is required.' ,
             'frequency.required' => 'Frequency is required.' ,
             'type_id.required' => 'Feed type is required.' ,
-            'country_id.required' => 'Country is required.' ,
-            'source_url.required' => 'Source URL is required.'
+            'country_id.required' => 'Country is required.'
         ];
     }
 }

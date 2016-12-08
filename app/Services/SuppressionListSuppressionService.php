@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\SuppressionListSuppressionRepo;
-use App\Repositories\NonThirdPartyImportSuppressionListRepo;
+use App\Repositories\FirstPartyOnlineSuppressionListRepo;
 use App\Services\Interfaces\IFeedSuppression;
 
 class SuppressionListSuppressionService implements IFeedSuppression {
@@ -12,7 +12,7 @@ class SuppressionListSuppressionService implements IFeedSuppression {
     private $listRepo;
     private $feedId;
 
-    public function __construct(SuppressionListSuppressionRepo $repo, NonThirdPartyImportSuppressionListRepo $listRepo) {
+    public function __construct(SuppressionListSuppressionRepo $repo, FirstPartyOnlineSuppressionListRepo $listRepo) {
         $this->repo = $repo;
         $this->listRepo = $listRepo;
     }
