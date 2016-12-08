@@ -57,7 +57,7 @@ class ImportCsvStats extends Job implements ShouldQueue
     $reader = Reader::createFromPath($filePath);
         //padding array with fake keys so we can still use Readers helper methods
         foreach ($mapping as $key => $map) {
-            for ($i = 0; $i <= 16; $i++) {
+            for ($i = 0; $i <= 60; $i++) {//arbitrary high number to account  for big csvs
                 if (isset($paddedArray[$i]) && $paddedArray[$i] != '') {
                     continue;
                 }
