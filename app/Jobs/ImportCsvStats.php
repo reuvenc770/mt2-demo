@@ -49,7 +49,7 @@ class ImportCsvStats extends Job implements ShouldQueue
     $returnArray = array();
         $paddedArray = array();
         try {
-            $mapping = EspApiAccount::grabCsvMapping($espName);
+            $mapping = json_decode(EspApiAccount::grabCsvMapping($espName),true);
         } catch (\Exception $e){
             SlackLevel::to(self::SLACK_TARGET)->send("{$espName} does not have ESP Field Maps");
             return $returnArray;
