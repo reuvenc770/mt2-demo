@@ -48,5 +48,13 @@ class ProxyRepo
         return $this->proxy->find($id)->update(["status" => $direction]);
     }
 
+    public function canBeDeleted($id){
+        return $this->proxy->find($id)->canModelBeDeleted();
+    }
+
+    public function delete($id){
+        return $this->proxy->destroy($id);
+    }
+
 
 }

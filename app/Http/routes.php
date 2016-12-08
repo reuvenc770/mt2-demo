@@ -1303,6 +1303,10 @@ Route::group(
             'ProxyController' ,
             [ 'except' => [ 'create' , 'edit' ] ]
         );
+        Route::get('/proxy/toggle/{id}', [
+            'as' => 'api.proxy.toggle',
+            'uses' => 'ProxyController@toggle'
+        ]);
 
         Route::resource(
             'registrar',

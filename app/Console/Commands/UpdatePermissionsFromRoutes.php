@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Route;
 use Log;
-
+use Sentinel;
 use App\Services\PageService;
 use App\Services\PermissionService;
 use App\Services\PagePermissionService;
@@ -20,6 +20,7 @@ class UpdatePermissionsFromRoutes extends Command
      *
      * @var string
      */
+    CONST DEFAULT_ROLES = ['gtdev','admin'];
     protected $signature = 'permissions:update {--C|confirm : Enable confirmation while processing permissions. } {--P|permissionName= : Permission to adjust. } {--G|grant : Grant Access} {--R|revoke : Revoke Access} {--O|crudOperation= : CRUD operation to grant access to.} {--p|page= : Page to assign CRUD access to.} {--r|role= : Role to grant/revoke permissions for.} ';
 
     /**
@@ -204,10 +205,19 @@ class UpdatePermissionsFromRoutes extends Command
                 if ( $this->confirmUser === true ) {
                     $this->assignPermissionToPage( $permissionId );
                 }
+
+                if ($this->confirm( "Would you like to add this permission to the default roles")){
+                    foreach (self::DEFAULT_ROLES as $roleName) {
+                        $role = Sentinel::findRoleBySlug($roleName);
+                        $role->addPermission($newRoute);
+                        $role->save();
+                    }
+                }
             }
 
             $bar->advance();
             $this->info( '' );
+
         }
 
         $bar->finish();
@@ -216,9 +226,7 @@ class UpdatePermissionsFromRoutes extends Command
     protected function assignPermissionToPage ( $permissionId ) {
         $pageList = $this->pageService->getAllPageNames();
 
-        $finishedMapping = false;
-        
-        while ( !$finishedMapping ) {
+
             $chosenPage = $this->choice(
                 'Which page does this permission belong to?' ,
                 array_flatten( $pageList->toArray() ) , 
@@ -229,8 +237,6 @@ class UpdatePermissionsFromRoutes extends Command
 
             $this->pagePermissionService->addPagePermission( $pageId , $permissionId );
 
-            $finishedMapping = !$this->confirm( 'Would you like to add this permission to another page?' );
-        }
     }
 
     protected function isNewRoute ( $routeName ) {
