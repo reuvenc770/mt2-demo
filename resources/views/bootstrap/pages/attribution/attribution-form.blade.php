@@ -40,11 +40,11 @@
                     </div>
                 </div>
                 <div class="col-sm-4 col-md-3 attribution-actions">
-                    <span ng-click="attr.onLevelRise( feed , $index )" class="glyphicon glyphicon-arrow-up"></span>
-                    <span ng-click="attr.onLevelDrop( feed , $index )" class="glyphicon glyphicon-arrow-down"></span>
-                    <span ng-click="attr.moveToTop( feed , $index )" class="glyphicon glyphicon-open"></span>
-                    <span ng-click="attr.moveToBottom( feed , $index )" class="glyphicon glyphicon-save"></span>
-                    <span ng-click="attr.confirmDeletion( feed , $index )" class="glyphicon glyphicon-trash"></span>
+                    <span ng-click="attr.onLevelRise( feed , $index )" class="glyphicon glyphicon-arrow-up" aria-label="Up" title="Up"></span>
+                    <span ng-click="attr.onLevelDrop( feed , $index )" class="glyphicon glyphicon-arrow-down" aria-label="Down" title="Down"></span>
+                    <span ng-click="attr.moveToTop( feed , $index )" class="glyphicon glyphicon-open" aria-label="All the Way Up" title="All the Way Up"></span>
+                    <span ng-click="attr.moveToBottom( feed , $index )" class="glyphicon glyphicon-save" aria-label="All the Way Down" title="All the Way Down"></span>
+                    <span ng-click="attr.confirmDeletion( feed , $index )" class="glyphicon glyphicon-trash" aria-label="Delete" title="Delete"></span>
                 </div>
             </li>
         </ul>
