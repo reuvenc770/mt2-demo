@@ -77,7 +77,7 @@ class ImportCsvStats extends Job implements ShouldQueue
             $row['external_deploy_id'] = $this->getDeployIDFromName($row['campaign_name']);
             $row['esp_account_id'] = EspApiAccount::getEspAccountIdFromName($row['campaign_name']);
             //undo the fake keys
-            for ($i = 0; $i <= 16; $i++) {
+            for ($i = 0; $i <= 60; $i++) {
                 unset($row['fake'.$i]);
             }
             $returnArray[] = $row;
