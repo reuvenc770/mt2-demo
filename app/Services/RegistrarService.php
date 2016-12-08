@@ -60,4 +60,14 @@ class RegistrarService
     public function getType(){
         return "Registrar";
     }
+
+    public function tryToDelete($id){
+        $canBeDeleted =  $this->registrar->canBeDeleted($id);
+        if($canBeDeleted === true){
+            $this->registrar->delete($id);
+            return true;
+        } else{
+            return $canBeDeleted;
+        }
+    }
 }
