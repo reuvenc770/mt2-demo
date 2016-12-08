@@ -108,7 +108,7 @@ class FeedService implements IFtpAdmin
         $results = $model->get();
 
         $writer = Writer::createFromFileObject( new \SplTempFileObject() );
-        $writer->insertOne( [ "Feed ID" , "Client Name" , "Party" , "Feed Name" , "Feed Shotname" , "Password" , "Status" , "Vertical" , "Type" , "Country" , "Source" , "Created" , "Updated" ] );
+        $writer->insertOne( [ "Feed ID" , "Client Name" , "Party" , "Feed Name" , "Feed Shortname" , "Password" , "Status" , "Vertical" , "Type" , "Country" , "Source" , "Created" , "Updated" ] );
 
         foreach ( $results as $row ) {
             $writer->insertOne( $row->toArray() );

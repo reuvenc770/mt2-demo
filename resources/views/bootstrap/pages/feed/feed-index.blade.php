@@ -10,7 +10,7 @@
     @if (Sentinel::hasAccess('feed.add'))
         <li><a ng-href="/feed/create" target="_self">Add Feed</a></li>
     @endif
-    @if (Sentinel::hasAccess('api.feed.exportlist'))
+    @if ( Sentinel::hasAccess('api.feed.exportlist') && Sentinel::inRole( 'fleet-admiral' ) )
         <li><a ng-click="feed.exportList()" target="_self">Export Feeds</a></li>
     @endif
 @stop
