@@ -265,7 +265,7 @@
         </button>
     </div>
     <div class="panel-footer" ng-show="dba.poBoxHolder.length > 0">
-        <div class="thumbnail" ng-repeat="(key, value) in dba.poBoxHolder track by $index">
+        <div class="thumbnail no-margin" ng-repeat="(key, value) in dba.poBoxHolder track by $index">
             <div class="caption clearfix">
                 <strong>PO Box:</strong>
                 @{{value.address}} @{{value.address_2}} @{{value.city}} @{{value.state}} @{{value.zip}}
