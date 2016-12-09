@@ -13,9 +13,7 @@
         </fieldset>
     </div>
     <div class="panel-footer">
-        <div class="form-group">
             <button type="button" class="btn mt2-theme-btn-primary btn-block" ng-disabled="esp.formSubmitted" ng-click="esp.editAccount()">Update ESP Account</button>
-        </div>
     </div>
 </div>
 @stop

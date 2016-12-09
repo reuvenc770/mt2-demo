@@ -57,9 +57,7 @@
         </div>
 
         <div class="panel-footer">
-            <div class="form-group">
                 <input class="btn mt2-theme-btn-primary btn-block" ng-click="esp.saveFieldOrder()" ng-disabled="!esp.campaignTriggered" type="submit" value="Save Field Order" />
-            </div>
         </div>
     </div>
 @stop
