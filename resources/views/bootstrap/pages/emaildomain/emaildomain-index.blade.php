@@ -32,8 +32,8 @@
                         </div>
                     </div>
                     <div class="pull-right">
-                    <button class="btn mt2-theme-btn-secondary" ng-click="emailDomain.loadAccounts()">Reset</button>
-                    <button class="btn mt2-theme-btn-primary" ng-click="emailDomain.searchDomain()">Search</button>
+                    <button class="btn btn-sm mt2-theme-btn-secondary" ng-click="emailDomain.loadAccounts()">Reset</button>
+                    <button class="btn btn-sm mt2-theme-btn-primary" ng-click="emailDomain.searchDomain()">Search</button>
                     </div>
                 </div>
             </div>
