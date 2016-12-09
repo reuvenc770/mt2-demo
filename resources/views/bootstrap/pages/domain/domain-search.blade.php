@@ -87,8 +87,6 @@
         </div>
     </div>
     <div class="panel-footer">
-        <div class="form-group">
             <input class="btn mt2-theme-btn-primary btn-block"ng-click="domain.searchDomains()" type="submit" value="Search for Domains">
-        </div>
     </div>
 </div>

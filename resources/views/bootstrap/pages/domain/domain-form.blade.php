@@ -1,5 +1,8 @@
+<div class="form-horizontal">
 <input name="_token" type="hidden" value="{{ csrf_token() }}">
 <div class="form-group" ng-class="{ 'has-error' : domain.formErrors.espName }">
+    <label class="col-sm-2 control-label">ESP</label>
+    <div class="col-sm-10">
     <select ng-model="domain.currentAccount.espName"   class="form-control" name="espName"
                ng-change="domain.updateEspAccounts()" ng-disabled="domain.updatingAccounts">
         <option value="">Please Select an ESP</option>
@@ -12,8 +15,11 @@
             <span ng-bind="error"></span>
         </div>
     </div>
+    </div>
 </div>
 <div class="form-group" ng-class="{ 'has-error' : domain.formErrors.espAccountId }">
+    <label class="col-sm-2 control-label">ESP Account</label>
+    <div class="col-sm-10">
     <select ng-model="domain.currentAccount.espAccountId" class="form-control" name="espAccountId" id="esp_account"
                ng-change="domain.updateDomains()" ng-disabled="domain.espNotChosen">
         <option value="">Please Select an ESP Account</option>
@@ -24,8 +30,11 @@
             <span ng-bind="error"></span>
         </div>
     </div>
+    </div>
 </div>
 <div class="form-group" ng-class="{ 'has-error' : domain.formErrors.registrar }">
+    <label class="col-sm-2 control-label">Registrar</label>
+    <div class="col-sm-10">
     <select ng-model="domain.currentAccount.registrar" class="form-control" name="registrar" id="registrar">
         <option value="">Please Select an Registrar</option>
         @foreach ( $regs as $reg )
@@ -37,8 +46,11 @@
             <span ng-bind="error"></span>
         </div>
     </div>
+    </div>
 </div>
 <div class="form-group" ng-class="{ 'has-error' : domain.formErrors.proxy_id }" ng-if="domain.type ==2">
+    <label class="col-sm-2 control-label">Proxy</label>
+    <div class="col-sm-10">
     <select name="proxy" id="proxy" class="form-control"
             ng-model="domain.proxy_id" ng-disabled="domain.updatingAccounts">
         <option value="">Please Select a Proxy</option>
@@ -49,8 +61,11 @@
             <span ng-bind="error"></span>
         </div>
     </div>
+    </div>
 </div>
 <div class="form-group" ng-class="{ 'has-error' : domain.formErrors.dba }">
+    <label class="col-sm-2 control-label">DBA</label>
+    <div class="col-sm-10">
     <select ng-required="true" name="dba" class="form-control"  ng-model="domain.currentAccount.dba">
         <option value="">Please Select a DBA</option>
         @foreach ( $dbas as $dba )
@@ -62,8 +77,11 @@
             <span ng-bind="error"></span>
         </div>
     </div>
+    </div>
 </div>
 <div class="form-group" ng-class="{ 'has-error' : domain.formErrors.live_a_record }">
+    <label class="col-sm-2 control-label">A-Record</label>
+    <div class="col-sm-10">
     <select ng-required="true" name="live_a_record" class="form-control"  ng-model="domain.currentAccount.live_a_record">
         <option value="">A-Record Live?</option>
         <option value="1">Yes</option>
@@ -75,6 +93,9 @@
             <span ng-bind="error"></span>
         </div>
     </div>
+    </div>
+</div>
+
 </div>
 <div class="form-group" ng-class="{ 'has-error' : domain.formErrors.domains }">
     <label>@{{ domain.currentInfo }}</label>
@@ -85,4 +106,3 @@
         </div>
     </div>
 </div>
-
