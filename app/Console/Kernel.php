@@ -79,6 +79,7 @@ class Kernel extends ConsoleKernel
         Commands\UpdateActionStatus::class,
         Commands\ExportThirdPartyData::class,
         Commands\SuppressFeed::class,
+        Commands\PassToMt1::class
 
     ];
 
