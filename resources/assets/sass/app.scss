@@ -46,6 +46,16 @@ $table-bg-accent-2 : #eaeaea;
     max-width:none !important;
 }
 
+.cmp-tooltip-marker {
+    padding: 0;
+    cursor: pointer;
+}
+
+.cmp-fixed-popover.popover-content {
+    max-width: 200px;
+    width: 200px;
+}
+
 .fixed-sidenav-offset {
     margin-left: 300px;
 }
@@ -428,6 +438,12 @@ body {
     font-weight: bolder;
 }
 
+.cmp-input-xs {
+    height: auto;
+    padding: 2px 8px;
+    font-size: 12px;
+}
+
 .input-group-btn{
     .btn{
         margin:0;
@@ -504,6 +520,9 @@ md-chips.md-mt2-zeta-theme.ng-invalid .md-chips {
     background-color: #A5D6A7 !important;
 }
 
+.cmp-list-item-condensed {
+    padding: 2px 15px;
+}
 
 /**
  * Tables
@@ -994,7 +1013,7 @@ md-table-container{
 }
 .attribution-actions{
     .glyphicon{
-        font-size: 20px;
+        font-size: 18px;
         padding: 0 10px;
     }
 }
