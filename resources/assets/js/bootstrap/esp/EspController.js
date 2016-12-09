@@ -11,6 +11,7 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     self.espId = "";
     self.currentlyLoading = 0;
     self.pageCount = 0;
+    self.colList = {};
     self.paginationCount = paginationService.getDefaultPaginationCount();
     self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
@@ -18,23 +19,23 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     self.accountTotal = 0;
     self.formSubmitted = false;
     self.fieldList = [
-        { "label" : "Campaign Name" , "field" : "campaign_name" , "required" : true } ,
-        { "label" : "Send Date" , "field" : "datetime" } ,
-        { "label" : "Name" , "field" : "name"  } ,
-        { "label" : "Subject" , "field" : "subject" } ,
-        { "label" : "From" , "field" : "from" } ,
-        { "label" : "From Email" , "field" : "from_email" } ,
-        { "label" : "Number Sent" , "field" : "e_sent" } ,
-        { "label" : "Number Delivered" , "field" : "delivered" } ,
-        { "label" : "Number Bounced" , "field" : "bounced" } ,
-        { "label" : "Number Optouts" , "field" : "optouts" } ,
-        { "label" : "Number Opens" , "field" : "e_opens" } ,
-        { "label" : "Number of Unique Opens" , "field" : "e_opens_unique" } ,
-        { "label" : "Number of Clicks" , "field" : "e_clicks" } ,
-        { "label" : "Number of Unique Clicks" , "field" : "e_clicks_unique" } ,
-        { "label" : "Conversions" , "field" : "conversions" } ,
-        { "label" : "Cost" , "field" : "cost" } ,
-        { "label" : "Revenue" , "field" : "revenue" }
+        { "label" : "Campaign Name" , "field" : "campaign_name" , "required" : true, "position":0 } ,
+        { "label" : "Send Date" , "field" : "datetime", "position":0 } ,
+        { "label" : "Name" , "field" : "name", "position":0  } ,
+        { "label" : "Subject" , "field" : "subject", "position":0  } ,
+        { "label" : "From" , "field" : "from", "position":0  } ,
+        { "label" : "From Email" , "field" : "from_email", "position":0  } ,
+        { "label" : "Number Sent" , "field" : "e_sent", "position":0  } ,
+        { "label" : "Number Delivered" , "field" : "delivered", "position":0  } ,
+        { "label" : "Number Bounced" , "field" : "bounced", "position":0  } ,
+        { "label" : "Number Optouts" , "field" : "optouts" , "position":0 } ,
+        { "label" : "Number Opens" , "field" : "e_opens", "position":0  } ,
+        { "label" : "Number of Unique Opens" , "field" : "e_opens_unique", "position":0  } ,
+        { "label" : "Number of Clicks" , "field" : "e_clicks", "position":0  } ,
+        { "label" : "Number of Unique Clicks" , "field" : "e_clicks_unique", "position":0  } ,
+        { "label" : "Conversions" , "field" : "conversions",  "position":0  } ,
+        { "label" : "Cost" , "field" : "cost", "position":0  } ,
+        { "label" : "Revenue" , "field" : "revenue", "position":0  }
     ];
 
     self.selectedFields = [];
@@ -112,27 +113,13 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         } );
     };
 
-    self.setFields = function (mapping) {
-        angular.forEach(mapping, function (currentField, feedIndex) {
-            angular.forEach(self.fieldList, function (currentMapping, index) {
-                if (currentMapping.field == currentField) {
-                    var removedFields = self.fieldList.splice(index, 1);
-                    itemRemoved = removedFields.pop();
-                    self.selectedFields.push(itemRemoved);
-                    self.currentFieldConfig.push(itemRemoved.field);
-                    if(itemRemoved.field == "campaign_name"){
-                        self.campaignTriggered = true;
-                    }
-                }
-            });
-        });
-    };
+
 
     self.saveFieldOrder = function(){
         formValidationService.resetFieldErrors( self );
         EspService.updateMapping(
             self.espId,
-            self.currentFieldConfig ,
+            self.colList ,
             self.SuccessCallBackRedirect ,
             self.saveNewAccountFailureCallback
         );
@@ -149,8 +136,7 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
      */
     self.loadMappingSuccessCallback = function ( response ) {
         if ( typeof( response.data[0] ) !== 'undefined' ) {
-            loadingfields = response.data[0].mappings.split(',');
-            self.setFields(loadingfields);
+            self.colList = JSON.parse(response.data[0].mappings);
         }
     };
     self.loadAccountsSuccessCallback = function ( response ) {

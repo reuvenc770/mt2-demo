@@ -23,6 +23,9 @@ class Domain extends Model
     public function proxy(){
         return $this->hasOne('App\Models\Proxy');
     }
+    public function registrar(){
+        return $this->hasOne('App\Models\Registrar');
+    }
 
     public function contentDomainValidForEspAccount($espAccountId) {
         if ($this->esp_account_id === $espAccountId

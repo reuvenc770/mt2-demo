@@ -68,7 +68,9 @@ class ListProfileQueryBuilder {
             'client_name' => DB::raw('c.name as client_name'),
             'email_address' => 'e.email_address', 
             'lower_case_md5' => 'e.lower_case_md5', 
-            'upper_case_md5' => 'e.upper_case_md5'
+            'upper_case_md5' => 'e.upper_case_md5',
+            'party' => 'f.party',
+            'capture_date' => 'rd.capture_date'
         ];
     }
     
@@ -124,7 +126,7 @@ class ListProfileQueryBuilder {
         // Setting up columns for selects
 
         if (empty($this->recordDataColumns)) {
-            $this->recordDataColumns = array_intersect(['first_name', 'last_name', 'gender', 'address', 'address2', 'city', 'state', 'zip', 'dob', 'age', 'phone', 'ip', 'subscribe_date', 'source_url'], $this->columns);
+            $this->recordDataColumns = array_intersect(['first_name', 'last_name', 'gender', 'address', 'address2', 'city', 'state', 'zip', 'dob', 'age', 'phone', 'ip', 'subscribe_date', 'source_url', 'capture_date'], $this->columns);
         }
         if (empty($this->attributionColumns)) {
             $this->attributionColumns = array_intersect(['feed_id'], $this->columns);
@@ -133,7 +135,7 @@ class ListProfileQueryBuilder {
             $this->domainGroupColumns = array_intersect(['domain_group_name', 'country'], $this->columns);
         }
         if (empty($this->feedColumns)) {
-            $this->feedColumns = array_intersect(['feed_name'], $this->columns);
+            $this->feedColumns = array_intersect(['feed_name', 'party'], $this->columns);
         }
         if (empty($this->clientColumns)) {
             $this->clientColumns = array_intersect(['client_name'], $this->columns);

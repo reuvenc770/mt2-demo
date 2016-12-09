@@ -20,9 +20,7 @@
             </fieldset>
         </div>
         <div class="panel-footer">
-            <div class="form-group">
                 <input class="btn mt2-theme-btn-primary btn-block" ng-click="attr.saveModel()"  ng-disabled="attr.formSubmitted" type="submit" value="Add Attribution Model">
-            </div>
         </div>
     </div>
 </div>

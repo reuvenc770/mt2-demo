@@ -31,7 +31,7 @@ class DownloadUnsubTicket extends Job implements ShouldQueue
     public function handle()
     {
         JobTracking::startEspJob(self::JOB_NAME,$this->apiName, $this->espAccountId, $this->tracking);
-
+        JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
         $subscriptionService = APIFactory::createApiSubscriptionService($this->apiName,$this->espAccountId);
         $data = $subscriptionService->getUnsubReport($this->data['ticketId'], $this->data['count']);
 
