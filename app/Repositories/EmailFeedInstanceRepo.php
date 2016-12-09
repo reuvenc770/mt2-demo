@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\EmailFeedInstance;
+use App\Models\SourceUrlCount;
 use DB;
 use Illuminate\Database\Query\Builder;
 
@@ -12,12 +13,14 @@ use Illuminate\Database\Query\Builder;
 class EmailFeedInstanceRepo {
 
     private $emailFeedModel;
+    private $countModel;
     private $batchInstances = [];
     private $batchInstanceCount = 0;
     const INSERT_THRESHOLD = 10000;
 
-    public function __construct(EmailFeedInstance $emailFeedModel) {
+    public function __construct(EmailFeedInstance $emailFeedModel, SourceUrlCount $countModel) {
         $this->emailFeedModel = $emailFeedModel;
+        $this->countModel = $countModel;
     }
 
     public function insertDelayedBatch($row) {
@@ -246,6 +249,10 @@ class EmailFeedInstanceRepo {
         return $reps;
     }
 
+    public function getInstancesForDateRange($startDate , $endDate) {
+        return $this->emailFeedModel->whereBetween( 'capture_date' , [ $startDate , $endDate ] );
+    }
+
     public function getMt1UniqueCountForFeedAndDate( $feedId , $date ) {
         $results =  DB::connection( 'mt1_data' )->table( 'ClientRecordTotalsByIsp' )
             ->select( DB::raw( "sum( uniqueRecords ) as 'uniques'" ) )
@@ -352,32 +359,45 @@ class EmailFeedInstanceRepo {
     }
 
     public function getRecordCountForSource ( $search ) {
-        $builder = $this->emailFeedModel
-                            ->join( 'feeds' , 'feeds.id' , '=' , 'email_feed_instances.feed_id' )
-                            ->join( 'clients' , 'clients.id' , '=' , 'feeds.client_id' )
+        $db = config('database.connections.mysql.database');
+        $reportDb = config( 'database.connections.reporting_data.database' );
+
+        $builder = $this->countModel
+                            ->join( "$db.feeds" , "$db.feeds.id" , '=' , "$reportDb.source_url_counts.feed_id" )
+                            ->join( "$db.clients" , "$db.clients.id" , '=' , "$db.feeds.client_id" )
                             ->select(
-                                'clients.name as clientName' ,
-                                'feeds.name as feedName' ,
-                                DB::raw('count(*) as count' ) ,
-                                'email_feed_instances.source_url as sourceUrl'
+                                "$db.clients.name as clientName" ,
+                                "$db.feeds.name as feedName" ,
+                                "$reportDb.source_url_counts.source_url as sourceUrl" ,
+                                "$reportDb.source_url_counts.count"
                             )
-                            ->where( 'email_feed_instances.source_url' , 'LIKE' , "%{$search[ 'source_url' ]}%" )
-                            ->whereBetween( 'email_feed_instances.capture_date' , [ $search[ 'startDate' ] , $search[ 'endDate' ] ] );
+                            ->where( "$reportDb.source_url_counts.source_url" , 'LIKE' , "%{$search[ 'source_url' ]}%" )
+                            ->whereBetween( "$reportDb.source_url_counts.capture_date" , [ $search[ 'startDate' ] , $search[ 'endDate' ] ] );
 
         if ( !empty( $search[ 'feedIds' ] ) ) {
-            $builder = $builder->whereIn( 'email_feed_instances.feed_id' , $search[ 'feedIds' ] );
+            $builder = $builder->whereIn( "$reportDb.source_url_counts.feed_id" , $search[ 'feedIds' ] );
         }
 
         if ( !empty( $search[ 'clientIds' ] ) ) {
-            $builder = $builder->whereIn( 'feeds.client_id' , $search[ 'clientIds' ] );
+            $builder = $builder->whereIn( "$db.feeds.client_id" , $search[ 'clientIds' ] );
         }
 
         if ( !empty( $search[ 'verticalIds' ] ) ) {
-            $builder = $builder->whereIn( 'feeds.vertical_id' , $search[ 'verticalIds' ] );
+            $builder = $builder->whereIn( "$db.feeds.vertical_id" , $search[ 'verticalIds' ] );
         }
 
-        $builder = $builder->groupBy( [ 'feeds.client_id' , 'email_feed_instances.feed_id' , 'email_feed_instances.source_url' ] );
+        $builder = $builder->groupBy( [ "$db.feeds.client_id" , "$reportDb.source_url_counts.feed_id" , "$reportDb.source_url_counts.source_url" ] );
 
         return $builder->get();
+    }
+
+    public function clearCountForDateRange ( $startDate , $endDate ) {
+        $this->countModel->whereBetween( 'capture_date' , [ $startDate , $endDate ] )->delete();
+    }
+
+    public function saveSourceCounts ( $countList ) {
+        foreach ( $countList as $current ) {
+            $this->countModel->updateOrCreate( $current );
+        }
     }
 }
