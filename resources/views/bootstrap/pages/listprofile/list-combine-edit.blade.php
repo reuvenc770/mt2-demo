@@ -13,6 +13,7 @@
         <input name="_token" type="hidden" value="{{ csrf_token() }}">
         <fieldset>
             <div class="form-group" ng-class="{ 'has-error' : listProfile.formErrors.combineName }">
+                <label>Combine Name</label>
                 <input placeholder="Combine Name" value="" class="form-control" ng-model="listProfile.currentCombine.combineName"
                        required="required" name="name" type="text">
                 <div class="help-block" ng-show="listProfile.formErrors.combineName">
@@ -37,9 +38,7 @@
 
     </div>
     <div class="panel-footer">
-        <div class="form-group">
             <input class="btn btn-block mt2-theme-btn-primary" ng-click="listProfile.updateCombine()" type="submit" value="Update">
-        </div>
     </div>
 </div>
 @stop
