@@ -16,6 +16,12 @@ mt2App.service( 'modalService' , [ '$mdToast' , function ( $mdToast ) {
         modalBody.html( angular.element(document.querySelector( selector)).html() );
     };
 
+    self.setModalBodyRawHtml = function ( html ) {
+        var modalBody = angular.element( document.querySelector( '#pageModalBody' ) );
+        modalBody.html( html);
+    };
+
+
     self.launchModal = function (modal) {
         var modal = (typeof modal !== 'undefined') ?  modal : '#pageModal';
         $( modal ).modal('show');

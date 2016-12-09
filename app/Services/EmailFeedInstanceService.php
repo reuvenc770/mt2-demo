@@ -25,4 +25,31 @@ class EmailFeedInstanceService {
     public function getRecordCountForSource ( $search ) {
         return $this->repo->getRecordCountForSource( $search );
     } 
+
+    public function updateSourceUrlCounts ( $startDate , $endDate ) {
+        $this->repo->clearCountForDateRange( $startDate , $endDate );
+
+        $records = $this->repo->getInstancesForDateRange( $startDate , $endDate );
+
+        $totalCount = $records->count();
+
+        $countList = [];
+        foreach ( $records->cursor() as $currentRecord ) {
+            $index = "{$currentRecord[ 'feed_id' ]}_{$currentRecord[ 'source_url' ]}_{$currentRecord[ 'capture_date' ]}";
+            if ( !array_key_exists( $index , $countList ) ) {
+                $countList[ $index ] = [
+                    'feed_id' => $currentRecord[ 'feed_id' ] ,
+                    'source_url' => $currentRecord[ 'source_url' ] ,
+                    'capture_date' => $currentRecord[ 'capture_date' ] ,
+                    'count' => 0
+                ];
+            }
+
+            $countList[ $index ][ 'count' ]++;
+        }
+
+        $this->repo->saveSourceCounts( $countList );
+
+        return $totalCount;
+    }  
 }

@@ -23,5 +23,9 @@ trait ModelCacheControl
         static::updated(function($item){
             Cache::tags($item->getClassName())->flush();
         });
+
+        static::deleted(function($item){
+            Cache::tags($item->getClassName())->flush();
+        });
     }
 }

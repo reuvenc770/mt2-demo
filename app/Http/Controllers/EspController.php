@@ -139,7 +139,7 @@ class EspController extends Controller
     }
 
     public function updateMappings(Request $request, $id){
-        $mappings = implode(',',$request->input('mappings'));
+        $mappings = json_encode($request->input('mappings'));
         $this->espService->updateMappings(array("mappings" => $mappings, "esp_id" => $id),$id);
     }
 

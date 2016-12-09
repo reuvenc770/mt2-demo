@@ -33,6 +33,11 @@
                         <tr md-row ng-repeat="record in registrar.accounts track by $index">
                             <td md-cell class="mt2-table-btn-column">
                                 <div layout="row" layout-align="center center">
+                                    @if (Sentinel::hasAccess('api.registrar.destroy'))
+                                    <md-icon  ng-click="registrar.delete( record.id )" aria-label="Delete Record"
+                                             md-font-set="material-icons" class="mt2-icon-black"
+                                             data-toggle="tooltip" data-placement="bottom" title="Delete Record">delete</md-icon>
+                                    @endif
                                     <a ng-href="@{{ '/registrar/edit/' + record.id }}" target="_self" aria-label="Edit" data-toggle="tooltip" data-placement="bottom" title="Edit">
                                         <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
                                     </a>
