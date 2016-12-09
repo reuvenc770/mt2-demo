@@ -12,9 +12,7 @@
         </fieldset>
     </div>
     <div class="panel-footer">
-        <div class="form-group">
             <input class="btn mt2-theme-btn-primary btn-block" ng-click="user.editAccount()" ng-disabled="user.editForm" type="submit" value="Update User">
-        </div>
     </div>
 </div>
 @endsection
