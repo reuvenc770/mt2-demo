@@ -13,7 +13,9 @@ use DB;
 use App\Facades\EspApiAccount;
 use Cache;
 use Carbon\Carbon;
-class DeployRepo
+use App\Repositories\RepoInterfaces\Mt2Export;
+
+class DeployRepo implements Mt2Export
 {
     protected $deploy;
 
@@ -383,5 +385,11 @@ class DeployRepo
             ->select('id', 'creative_id', 'subject_id', 'from_id', 'list_profile_combine_id')
             ->where('updated_at', '>=', $date)
             ->get();
+    }
+
+    public function transformForMt1($startingId) {
+        return $this->deploy
+            ->selectRaw("id as tracking_id, id as subAffiliateID, offer_id as advertiserID, 0 as espID, creative_id as creativeID, subject_id as subjectID, send_date as sendDate, cake_affiliate_id as affiliateID, updated_at as lastUpdated")
+            ->where('id', '>=', $startingId);
     }
 }

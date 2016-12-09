@@ -4,8 +4,9 @@ namespace App\Repositories\MT1Repositories;
 
 use App\Models\MT1Models\EspAdvertiserJoin;
 use DB;
-//TODO Kill after launch.
-class EspAdvertiserJoinRepo {
+use App\Repositories\RepoInterfaces\Mt1Import;
+
+class EspAdvertiserJoinRepo implements Mt1Import {
     protected $model;
 
     public function __construct (EspAdvertiserJoin $model) {
@@ -41,5 +42,9 @@ class EspAdvertiserJoinRepo {
     public function getCakeAffiliates(){
         return $this->model->distinct()->get(['affiliateID']);
 
+    }
+
+    public function insertToMt1($data) {
+        $this->model->updateOrCreate(['subAffiliateID' => $data['subAffiliateID']], $data);
     }
 }
