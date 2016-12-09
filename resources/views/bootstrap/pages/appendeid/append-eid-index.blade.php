@@ -10,10 +10,6 @@
         </div>
         <div class="panel-body">
             <fieldset>
-                <div class="form-group" >
-                    <input placeholder="Email Address" value="" class="form-control" ng-model="append.email" required="required"
-                           name="email" type="email">
-                </div>
                 <div class="form-group">
                     <md-switch ng-model="append.feed" aria-label="Include Current Feed Name?">
                         Include Current Feed Name?
