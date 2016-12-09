@@ -13,9 +13,7 @@
             </fieldset>
         </div>
         <div class="panel-footer">
-            <div class="form-group">
                 <input class="btn mt2-theme-btn-primary btn-block" ng-click="dg.saveNewAccount()"  ng-disabled="dg.editForm" type="submit" value="Add ISP Group">
-            </div>
         </div>
     </div>
 @endsection
