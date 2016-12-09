@@ -12,9 +12,7 @@
             </fieldset>
         </div>
         <div class="panel-footer">
-            <div class="form-group">
                 <input class="btn mt2-theme-btn-primary btn-block" ng-click="client.saveClient()" ng-disabled="client.formSubmitted" type="submit" value="Add Client">
-            </div>
         </div>
     </div>
 @endsection
