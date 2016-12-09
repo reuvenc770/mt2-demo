@@ -176,7 +176,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         { 'header' : 'esp_account' , 'label' : 'ESP Account' },
         { 'header' : 'lower_md5' , 'label' : 'Lowercase MD5' },
         { 'header' : 'upper_md5' , 'label' : 'Uppercase MD5' } ,
-        { 'header' : 'domain_group_id' , 'label' : "ISP" } ,
+        { 'header' : 'domain_group_name' , 'label' : "ISP" } ,
         { 'header' : 'dob' , 'label' : "Date of Birth" } ,
         { 'header' : 'feed_id' , 'label' : "Feed ID" } ,
         { 'header' : 'feed_name' , 'label' : "Feed Name" } ,
