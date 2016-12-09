@@ -57,7 +57,6 @@ class ListProfileService
         'feed_name'  =>  "Feed Name",
         'client_name'  =>  "Client",
         'subscribe_date'  =>  'Subscribe Date',
-        'status'  =>  'Status',
         'tower_date'  =>  'Tower Date'
     ];
 
