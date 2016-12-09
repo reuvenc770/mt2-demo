@@ -32,7 +32,20 @@ trait PaginateList {
                     $eloquentObj = $eloquentObj->orderBy($sort['field'], $order );
                 }
 
-                $paginationJSON = $eloquentObj->paginate( $count )->toJSON();
+                if ( $count > 0 ) {
+                    $paginationJSON = $eloquentObj->paginate( $count )->toJSON();
+                } else {
+                    $recordCount = $eloquentObj->count();
+
+                    $paginationJSON = json_encode( [
+                        "current_page" => 1 ,
+                        "last_page" => 1 ,
+                        "from" => 1 ,
+                        "to" => $recordCount ,
+                        "total" => $recordCount ,
+                        "data" => $eloquentObj->get()->toArray()
+                    ] );
+                }
 
                 $this->cachePagination(
                     $paginationJSON ,
