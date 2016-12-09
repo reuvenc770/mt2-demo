@@ -23,7 +23,9 @@
                 <tr md-row>
                     <th md-column class="mt2-table-btn-column"></th>
                     <th md-column md-order-by="id" class="md-table-header-override-whitetext">ID</th>
+                    @if ( Sentinel::inRole( 'fleet-admiral' ) )
                     <th md-column md-order-by="clientName" class="md-table-header-override-whitetext">Client</th>
+                    @endif
                     <th md-column md-order-by="name" class="md-table-header-override-whitetext">Name</th>
                     <th md-column md-order-by="short_name" class="md-table-header-override-whitetext">Short Name</th>
                     @if ( Sentinel::inRole( 'fleet-admiral' ) )
@@ -54,7 +56,9 @@
                         </div>
                     </td>
                     <td md-cell ng-bind="record.id"></td>
+                    @if ( Sentinel::inRole( 'fleet-admiral' ) )
                     <td md-cell ng-bind="record.clientName" nowrap></td>
+                    @endif
                     <td md-cell ng-bind="record.name" nowrap></td>
                     <td md-cell ng-bind="record.short_name"></td>
                     @if ( Sentinel::inRole( 'fleet-admiral' ) )
