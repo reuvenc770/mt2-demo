@@ -547,6 +547,10 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         self.rowLimit = self.rowLimit - 10;
     };
 
+    self.loadAll = function () {
+        self.rowLimit = self.feeds.length;
+    };
+
     //DO WE NEED ANYMORE
     self.syncMt1Levels = function () {
         AttributionApiService.syncMt1Levels(

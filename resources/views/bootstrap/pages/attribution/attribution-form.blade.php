@@ -61,10 +61,13 @@
         </ul>
     </div>
     <div class="panel-footer clearfix">
-        <div class="col-sm-6" ng-class="{ 'form-group' : app.isMobile() }">
+        <div class="col-sm-4">
+            <input class="btn mt2-theme-btn-primary btn-block" ng-click="attr.loadAll()" type="submit" value="Load All">
+        </div>
+        <div class="col-sm-4" ng-class="{ 'form-group' : app.isMobile() }">
             <input class="btn mt2-theme-btn-primary btn-block" ng-click="attr.loadMore()" type="submit" value="Load More Rows">
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-4">
             <input class="btn mt2-theme-btn-primary btn-block" ng-click="attr.loadLess()" type="submit" value="Load Less Rows">
         </div>
     </div>
