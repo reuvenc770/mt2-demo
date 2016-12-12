@@ -16,9 +16,7 @@
         </fieldset>
     </div>
     <div class="panel-footer">
-        <div class="form-group">
             <input class="btn btn-block" ng-class="{ 'mt2-theme-btn-primary' : !listProfile.enableAdmiral , 'btn-danger' : listProfile.enableAdmiral }" ng-click="listProfile.updateListProfile()" type="submit" value="Update">
-        </div>
     </div>
 </div>
 @stop

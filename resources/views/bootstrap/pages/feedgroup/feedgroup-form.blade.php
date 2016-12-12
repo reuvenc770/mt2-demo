@@ -4,6 +4,7 @@
 
 <div class="panel-body">
     <div class="form-group" ng-class="{ 'has-error' : feedGroup.formErrors.name }">
+        <label>Feed Group Name</label>
         <input placeholder="Feed Group Name" value="" class="form-control" name="name" ng-model="feedGroup.current.name" type="text">
         <div class="help-block" ng-show="feedGroup.formErrors.name">
             <div ng-repeat="error in feedGroup.formErrors.name">

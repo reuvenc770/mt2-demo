@@ -12,9 +12,7 @@
             </fieldset>
         </div>
         <div class="panel-footer">
-            <div class="form-group">
                 <input class="btn mt2-theme-btn-primary btn-block" ng-click="dba.saveNewAccount()"  ng-disabled="dba.editForm" type="submit" value="Add DBA">
-            </div>
         </div>
     </div>
 @endsection

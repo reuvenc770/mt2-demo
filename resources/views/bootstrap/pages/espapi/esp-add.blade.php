@@ -15,9 +15,7 @@
         </fieldset>
     </div>
     <div class="panel-footer">
-        <div class="form-group">
             <input class="btn mt2-theme-btn-primary btn-block" ng-click="esp.saveNewAccount()" ng-disabled="esp.formSubmitted" type="submit" value="Add ESP API Account">
-        </div>
     </div>
 </div>
 @stop

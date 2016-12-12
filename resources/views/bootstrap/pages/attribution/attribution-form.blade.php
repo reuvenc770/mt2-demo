@@ -1,9 +1,14 @@
-<div class="form-group" ng-class="{ 'has-error' : attr.formErrors.name }">
-    <input placeholder="Name" value="" class="form-control" ng-model="attr.current.name" required="required" name="name"
-           type="text">
-    <div class="help-block" ng-show="attr.formErrors.name">
-        <div ng-repeat="error in attr.formErrors.name">
-            <span ng-bind="error"></span>
+<div class="form-horizontal">
+    <div class="form-group" ng-class="{ 'has-error' : attr.formErrors.name }">
+        <label class="col-sm-1 control-label">Name</label>
+        <div class="col-sm-11">
+            <input placeholder="Name" value="" class="form-control" ng-model="attr.current.name" required="required" name="name"
+                   type="text">
+            <div class="help-block" ng-show="attr.formErrors.name">
+                <div ng-repeat="error in attr.formErrors.name">
+                    <span ng-bind="error"></span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -16,30 +21,36 @@
     <div class="panel-body">
         <ul class="list-group" ng-cloak>
             <li ng-repeat="feed in attr.feeds | limitObjects:attr.rowLimit track by $index"
-                class="list-group-item clearfix" ng-class="{ 'list-group-item-success' : attr.clientLevels[ feed.id ] > ( $index + 1 ) , 'list-group-item-danger' : attr.clientLevels[ feed.id ] < ( $index + 1 )}">
-                <div class="col-sm-4 col-md-6 no-padding">
+                class="list-group-item clearfix cmp-list-item-condensed" ng-class="{ 'list-group-item-success' : attr.clientLevels[ feed.id ] > ( $index + 1 ) , 'list-group-item-danger' : attr.clientLevels[ feed.id ] < ( $index + 1 )}">
+                <div class="col-sm-3 col-md-5 no-padding">
                     <div class="checkbox no-margin">
                         <label>
-                            <h4>
+                            <h5>
                                 <input ng-change="attr.toggleGroupController(feed , $index)" ng-model="feed.selected" type="checkbox">
                                 &nbsp;&nbsp; @{{ feed.name }}
-                            </h4>
+                            </h5>
                         </label>
                     </div>
                 </div>
-                <div class="col-sm-4 col-md-3">
+                <div class="col-sm-4" style="margin-top: 5px;">
                     <div class="row">
-                        <div class="col-sm-4">
-                            <input class="form-control input-sm" ng-model="feed.newLevel" type="text">
+                        <div class="col-sm-5">
+                            <div ng-class="{ 'input-group' : $first }">
+                                <input class="form-control cmp-input-xs" ng-model="feed.newLevel" type="text">
+                                <div class="input-group-addon cmp-tooltip-marker" ng-if="$first">
+                                    <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs no-padding" aria-label="Change level" data-toggle="popover" data-content="To move the feed to a specific level, type in the new position and click 'Change Level' button.">help</md-icon>
+                                </div>
+
+                            </div>
                         </div>
-                        <div class="col-sm-8">
+                        <div class="col-sm-7">
                             <button class="btn btn-sm btn-block mt2-theme-btn-primary" ng-if="feed.newLevel != $index + 1"
                                     ng-click="attr.changeLevel( feed , $index )">Change Level
                             </button>
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-4 col-md-3 attribution-actions">
+                <div class="col-sm-4 col-md-3 attribution-actions no-padding" style="margin-top: 5px;">
                     <span ng-click="attr.onLevelRise( feed , $index )" class="glyphicon glyphicon-arrow-up" aria-label="Up" title="Up"></span>
                     <span ng-click="attr.onLevelDrop( feed , $index )" class="glyphicon glyphicon-arrow-down" aria-label="Down" title="Down"></span>
                     <span ng-click="attr.moveToTop( feed , $index )" class="glyphicon glyphicon-open" aria-label="All the Way Up" title="All the Way Up"></span>

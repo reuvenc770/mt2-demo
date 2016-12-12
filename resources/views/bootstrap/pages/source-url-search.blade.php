@@ -12,6 +12,7 @@
         <div class="panel-body">
 
             <div class="form-group">
+                <label>Source URL</label>
                 <input placeholder="Source URL" value="" class="form-control" ng-model="source.search.source_url" name="source_url" type="text">
             </div>
 
@@ -95,9 +96,7 @@
             </div>
         </div>
         <div class="panel-footer">
-            <div class="form-group">
                 <input class="btn mt2-theme-btn-primary btn-block" ng-click="source.searchSourceUrl()" ng-disabled="source.isSearching" type="submit" value="Search">
-            </div>
         </div>
     </div>
 

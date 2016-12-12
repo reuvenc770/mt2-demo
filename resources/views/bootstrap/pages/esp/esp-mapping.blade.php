@@ -1,7 +1,5 @@
 @extends( 'bootstrap.layout.default' )
 
-@section( 'container' , 'container-fluid' )
-
 @section( 'title' , 'Configure ESP Fields Mappings' )
 
 @section( 'angular-controller' , 'ng-controller="espController as esp"' )
@@ -27,9 +25,7 @@
         </div></div>
         </div>
         <div class="panel-footer">
-            <div class="form-group">
                 <input class="btn mt2-theme-btn-primary btn-block" ng-click="esp.saveFieldOrder()" type="submit" value="Save Field Order" />
-            </div>
         </div>
     </div>
 @stop

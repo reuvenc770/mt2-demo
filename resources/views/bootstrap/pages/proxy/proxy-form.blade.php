@@ -1,6 +1,9 @@
+<div class="form-horizontal">
 <input name="_token" type="hidden" value="{{ csrf_token() }}">
 
 <div class="form-group" ng-class="{ 'has-error' : proxy.formErrors.name }">
+    <label class="col-sm-2 control-label">Proxy Name</label>
+    <div class="col-sm-10">
     <input placeholder="Name" value="" class="form-control" ng-model="proxy.currentAccount.name" required="required"
            name="name" type="text">
     <div class="help-block" ng-show="proxy.formErrors.name">
@@ -8,8 +11,11 @@
             <span ng-bind="error"></span>
         </div>
     </div>
+    </div>
 </div>
 <div class="form-group" ng-class="{ 'has-error' : proxy.formErrors.provider_name }">
+    <label class="col-sm-2 control-label">Provider's Name</label>
+    <div class="col-sm-10">
     <input placeholder="Provider's Name" value="" class="form-control" ng-model="proxy.currentAccount.provider_name"
            required="required" name="name" type="text">
     <div class="help-block" ng-show="proxy.formErrors.provider_name">
@@ -17,8 +23,11 @@
             <span ng-bind="error"></span>
         </div>
     </div>
+    </div>
 </div>
 <div class="form-group" ng-class="{ 'has-error' : proxy.formErrors.esp_account_name }">
+    <label class="col-sm-2 control-label">ESP Account</label>
+    <div class="col-sm-10">
     <div class="input-group">
         <select class="form-control" name="esp_account_name" ng-model="proxy.esp_account_name">
             <option value="">Select ESP Account/s</option>
@@ -39,14 +48,16 @@
             <span ng-bind="error"></span>
         </div>
     </div>
-
+        <ul class="list-group" ng-show="proxy.esp_account_names.length > 0">
+            <li ng-repeat="(key, value) in proxy.esp_account_names track by $index" class="list-group-item mt2-list-group-item-grey cmp-list-item-condensed">
+                @{{value}} - <a ng-click="proxy.removeEspAccount(key)">Remove</a></li>
+        </ul>
+    </div>
 </div>
-<ul class="list-group" ng-show="proxy.esp_account_names.length > 0">
-    <li ng-repeat="(key, value) in proxy.esp_account_names track by $index" class="list-group-item mt2-list-group-item-grey">@{{value}} - <a
-                ng-click="proxy.removeEspAccount(key)">Remove</a></li>
-</ul>
 
 <div class="form-group" ng-class="{ 'has-error' : proxy.formErrors.ip_addresses }">
+    <label class="col-sm-2 control-label">IP Address</label>
+    <div class="col-sm-10">
     <div class="input-group">
         <input placeholder="IP Address" value="" class="form-control" ng-model="proxy.ip_address" required="required"
                name="name" type="text">
@@ -59,13 +70,16 @@
             <span ng-bind="error"></span>
         </div>
     </div>
+        <ul class="list-group" ng-show="proxy.ip_addresses.length > 0">
+            <li ng-repeat="(key, value) in proxy.ip_addresses track by $index" class="list-group-item mt2-list-group-item-grey cmp-list-item-condensed">
+                @{{value}} - <a ng-click="proxy.removeIpAddress(key)">Remove</a></li>
+        </ul>
+    </div>
 </div>
-<ul class="list-group" ng-show="proxy.ip_addresses.length > 0">
-    <li ng-repeat="(key, value) in proxy.ip_addresses track by $index" class="list-group-item mt2-list-group-item-grey">@{{value}} - <a
-                ng-click="proxy.removeIpAddress(key)">Remove</a></li>
-</ul>
 
 <div class="form-group" ng-class="{ 'has-error' : proxy.formErrors.isp_name }">
+    <label class="col-sm-2 control-label">ISP</label>
+    <div class="col-sm-10">
     <div class="input-group">
         <select name="isp_name" id="isp_name" class="form-control" ng-model="proxy.isp_name">
             <option value="">Select ISP</option>
@@ -82,13 +96,16 @@
             <span ng-bind="error"></span>
         </div>
     </div>
+        <ul class="list-group" ng-show="proxy.isp_names.length > 0">
+            <li ng-repeat="(key, value) in proxy.isp_names track by $index" class="list-group-item mt2-list-group-item-grey cmp-list-item-condensed">
+                @{{value}} - <a ng-click="proxy.removeIsp(key)">Remove</a></li>
+        </ul>
+    </div>
 </div>
-<ul class="list-group" ng-show="proxy.isp_names.length > 0">
-    <li ng-repeat="(key, value) in proxy.isp_names track by $index" class="list-group-item mt2-list-group-item-grey">@{{value}} - <a
-                ng-click="proxy.removeIsp(key)">Remove</a></li>
-</ul>
 
 <div class="form-group" ng-class="{ 'has-error' : proxy.formErrors.dba_name }">
+    <label class="col-sm-2 control-label">DBA</label>
+    <div class="col-sm-10">
     <input placeholder="DBA" value="" class="form-control" ng-model="proxy.currentAccount.dba_name"
            name="dba_name" type="text">
     <div class="help-block" ng-show="proxy.formErrors.dba_name">
@@ -96,9 +113,12 @@
             <span ng-bind="error"></span>
         </div>
     </div>
+    </div>
 </div>
 
 <div class="form-group" ng-class="{ 'has-error' : proxy.formErrors.notes }">
+    <label class="col-sm-2 control-label">Notes</label>
+    <div class="col-sm-10">
         <textarea rows="4" placeholder="Notes" value="" class="form-control" ng-model="proxy.currentAccount.notes"
                   name="notes"></textarea>
     <div class="help-block" ng-show="proxy.formErrors.notes">
@@ -106,4 +126,6 @@
             <span ng-bind="error"></span>
         </div>
     </div>
+    </div>
+</div>
 </div>
