@@ -16,6 +16,7 @@
 @section( 'content' )
 
 <div  ng-init="attr.initIndexPage()">
+    <div class="alert alert-info" role="alert"> <strong>Heads up!</strong> Highlighted row is currently live. Attribution is automated to run once a day. To manually update record attribution for <em>live model</em> click 'Run Live Attribution'. To manually update record attribution for <em>inactive model</em> select the inactive model and click 'Run Attribution'. After manually running live attribution, reports will update but you will need to go to the <a ng-href="{{ route( 'report.list' ) }}" target="_self">reports page</a> to view the reports.</div>
             @include( 'bootstrap.pages.attribution.indexPartials.models-index' )
 </div>
 @stop

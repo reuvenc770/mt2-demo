@@ -1,5 +1,8 @@
 <div class="navbar navbar-topper navbar-primary" role="navigation">
     <div class="container-fluid">
+        <a class="navbar-brand pull-right">
+            <md-icon md-font-set="material-icons" class="mt2-icon-white material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="left" data-content="After editing a model, attribution does not run again. You will need to wait until the next automated run or manually click 'Run Attribution'.">help</md-icon>
+        </a>
 
         <ul class="nav navbar-nav navbar-right" ng-show="attr.showModelActions">
                 @if (Sentinel::hasAccess('attributionProjection.show'))
@@ -17,6 +20,7 @@
                 @if (Sentinel::hasAccess('api.attribution.model.setlive'))
                     <li><a ng-hide="attr.disableProjection || attr.selectedModel[ 0 ].processing" ng-click="attr.setModelLive()">Set Live</a></li>
                 @endif
+
         </ul>
     </div>
 </div>
@@ -42,7 +46,7 @@
                     multiple="false"
                     ng-class="{ 'mt2-live-row' : model.live == 1 }"
                     ng-repeat="model in attr.models track by $index">
-                <td md-cell ng-bind="model.name"></td>
+                <td md-cell ng-bind="model.name" nowrap></td>
                 <td md-cell ng-bind="model.processing ? 'Running' : 'Completed'"></td>
                 <td md-cell ng-bind="::app.formatDate( model.created_at )" nowrap></td>
                 <td md-cell ng-bind="::app.formatDate( model.updated_at )" nowrap></td>

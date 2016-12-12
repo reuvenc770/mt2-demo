@@ -47,7 +47,9 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     self.initProjectionChart = AttributionProjectionService.initChart;
     self.refreshProjectionPage = AttributionProjectionService.refreshPage;
 
+
     self.initIndexPage = function () {
+        modalService.setPopover();
         self.loadModels();
     };
 
@@ -610,15 +612,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
             );
         }
 
-        $timeout( function () {
-            $(function () {
-                $('[data-toggle="popover"]').popover({
-                    trigger:'hover',
-                    placement: 'right',
-                    template: '<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content cmp-fixed-popover"></div></div>'
-                });
-            } );
-        } , 1000 );
+        modalService.setPopover(4000);
     };
 
 } ] );
