@@ -30,7 +30,6 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     self.modelQueryPromise = null;
     self.disableProjection = false;
     self.formSubmitted = false;
-    self.rowLimit = 30;
     self.reportRecords = [];
     self.reportRecordTotals = {};
     self.reportQueryPromise = null;
@@ -539,16 +538,6 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         }
 
         self.resetLevelFields();
-    };
-    self.loadMore = function () {
-        self.rowLimit = self.rowLimit + 10;
-    };
-    self.loadLess = function () {
-        self.rowLimit = self.rowLimit - 10;
-    };
-
-    self.loadAll = function () {
-        self.rowLimit = self.feeds.length;
     };
 
     //DO WE NEED ANYMORE

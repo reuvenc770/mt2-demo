@@ -20,7 +20,7 @@
     </div>
     <div class="panel-body">
         <ul class="list-group" ng-cloak>
-            <li ng-repeat="feed in attr.feeds | limitObjects:attr.rowLimit track by $index"
+            <li ng-repeat="feed in attr.feeds track by $index"
                 class="list-group-item clearfix cmp-list-item-condensed" ng-class="{ 'list-group-item-success' : attr.clientLevels[ feed.id ] > ( $index + 1 ) , 'list-group-item-danger' : attr.clientLevels[ feed.id ] < ( $index + 1 )}">
                 <div class="col-sm-3 col-md-5 no-padding">
                     <div class="checkbox no-margin">
@@ -59,16 +59,5 @@
                 </div>
             </li>
         </ul>
-    </div>
-    <div class="panel-footer clearfix">
-        <div class="col-sm-4">
-            <input class="btn mt2-theme-btn-primary btn-block" ng-click="attr.loadAll()" type="submit" value="Load All">
-        </div>
-        <div class="col-sm-4" ng-class="{ 'form-group' : app.isMobile() }">
-            <input class="btn mt2-theme-btn-primary btn-block" ng-click="attr.loadMore()" type="submit" value="Load More Rows">
-        </div>
-        <div class="col-sm-4">
-            <input class="btn mt2-theme-btn-primary btn-block" ng-click="attr.loadLess()" type="submit" value="Load Less Rows">
-        </div>
     </div>
 </div>
