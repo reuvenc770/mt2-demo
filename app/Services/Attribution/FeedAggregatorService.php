@@ -11,16 +11,25 @@ use App\Repositories\Attribution\FeedReportRepo;
 use App\Services\EmailFeedAssignmentService;
 use App\Services\EmailFeedInstanceService;
 use App\Exceptions\AggregatorServiceException;
+use App\Repositories\FeedDateEmailBreakdownRepo;
 
 class FeedAggregatorService extends AbstractReportAggregatorService {
     protected $recordReport;
     protected $emailFeedAssignmentService;
     protected $emailFeedInstanceService;
     protected $feedRepo;
+    protected $feedStatsRepo;
 
     protected $modelId;
 
-    public function __construct ( RecordReportService $recordReport , EmailFeedAssignmentService $emailFeedAssignmentService , EmailFeedInstanceService $emailFeedInstanceService , FeedReportRepo $feedRepo ) {
+    public function __construct ( RecordReportService $recordReport , 
+        EmailFeedAssignmentService $emailFeedAssignmentService , 
+        EmailFeedInstanceService $emailFeedInstanceService , 
+        FeedDateEmailBreakdownRepo $feedStatsRepo,
+        FeedReportRepo $feedRepo ) {
+        
+
+        $this->feedStatsRepo = $feedStatsRepo;
         $this->recordReport = $recordReport;
         $this->emailFeedAssignmentService = $emailFeedAssignmentService;
         $this->emailFeedInstanceService = $emailFeedInstanceService;
@@ -78,7 +87,7 @@ class FeedAggregatorService extends AbstractReportAggregatorService {
             }
 
             if ( is_null( $currentRow[ 'mt2_uniques' ] ) ) {
-                $currentRow[ 'mt2_uniques' ] = (int)$this->emailFeedInstanceService->getMt2UniqueCountForFeedAndDate( $feedId , $date );
+                $currentRow[ 'mt2_uniques' ] = (int)$this->feedStatsRepo->getFeedDateUniqueCount( $feedId , $date );
             }
         }
 
