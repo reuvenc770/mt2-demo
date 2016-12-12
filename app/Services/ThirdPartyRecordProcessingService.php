@@ -43,10 +43,12 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
 
         $recordsToFlag = [];
         $statuses = [];
+        $lastEmail = '';
 
         foreach ($records as $record) {
 
             $domainGroupId = $record->domainGroupId;
+            $lastEmail = $record->emailAddress;
 
             // Note structure
             if (!isset($statuses[$record->feedId])) {
@@ -140,7 +142,8 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
         $this->statsRepo->massUpdateValidEmailStatus($statuses, $this->processingDate);
 
         // Handles all attribution changes
-        \Event::fire(new NewRecords($recordsToFlag));
+        $jobIdentifier = '3Party-' . substr($lastEmail, 0, 1); // starting letter - so we can identify the batch
+        \Event::fire(new NewRecords($recordsToFlag, $jobIdentifier));
     }
 
     private function mapToNewRecords(ProcessingRecord $record) {

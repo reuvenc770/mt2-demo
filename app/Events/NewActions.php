@@ -10,15 +10,17 @@ class NewActions extends Event
 {
     use SerializesModels;
     protected $emails;
+    private $id;
+
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($emails)
+    public function __construct($emails, $id)
     {
         $this->emails = $emails;
-
+        $this->id = $id;
     }
 
     /**
@@ -37,5 +39,10 @@ class NewActions extends Event
     public function broadcastOn()
     {
         return [];
+    }
+
+    public function getId()
+    {
+        return $this->id;
     }
 }

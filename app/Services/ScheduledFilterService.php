@@ -57,12 +57,7 @@ class ScheduledFilterService
             $preppedData[] = "(".join(",",[$emailId,"'".$date."'","NOW()","NOW()"]).")";
 
             if(count($preppedData) == 5000) {
-                try {
-                    $this->scheduleRepo->insertScheduleBulk($preppedData);
-                } catch (\Exception $e) {
-                    $class = get_class($this->scheduleRepo);
-                    Log::error("Scheduled Filter Service failed to insert records Bulk for {$class}: {$e->getMessage()} ");
-                }
+                $this->scheduleRepo->insertScheduleBulk($preppedData);
                 $preppedData = [];
             }
 
