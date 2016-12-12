@@ -366,8 +366,21 @@ class ListProfileService
 
     public function cloneProfile($id){
         $currentProfile = $this->profileRepo->getProfile($id);
+
         $copyProfile = $currentProfile->replicate();
         $copyProfile->name = "COPY_{$currentProfile->name}";
         $copyProfile->save();
+
+        $feeds = $currentProfile->feeds()->pluck( 'id' );
+        if ( $feeds->count() > 0 ) {
+            $this->profileRepo->assignFeeds( $copyProfile->id , $feeds->toArray() );
+        }
+
+        $isps = $currentProfile->domainGroups()->pluck( 'id' );
+        if ( $isps->count() > 0 ) {
+            $this->profileRepo->assignIsps( $copyProfile->id , $isps->toArray() );
+        }
+
+        return $copyProfile->id;
     }
 }

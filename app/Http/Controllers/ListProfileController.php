@@ -241,9 +241,13 @@ class ListProfileController extends Controller
 
     public function copy(Request $request){
         $id = $request->input('id');
-        $this->listProfile->cloneProfile($id);
+        $newId = $this->listProfile->cloneProfile($id);
+
         Cache::tags("ListProfile")->flush();
-        return response()->json(["success"=>true]);
+
+        Flash::success( 'List profile was successfully copied.' );
+
+        return response()->json( [ 'status' => true , 'id' => $newId ] );
     }
 
 }
