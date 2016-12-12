@@ -35,7 +35,6 @@ class EmailRecordRepo {
         $validRecords = [];
         $invalidRecords = [];
         $preppedData = array();
-        $emailIdsToUpdateDeliverableStatus = [];
 
         foreach ( $records as $currentIndex => $currentRecord ) {
             
@@ -52,8 +51,6 @@ class EmailRecordRepo {
 
             if ( $this->isValidRecord( false ) ) {
                 $currentId = $this->getEmailId();
-
-                #$emailIdsToUpdateDeliverableStatus[] = $currentId;
 
                 $validRecord = "( "
                     . join( " , " , [
@@ -93,19 +90,7 @@ class EmailRecordRepo {
                 $invalidRecords []= $invalidRecord;
             }
         }
-/*
-        if (!empty($emailIdsToUpdateDeliverableStatus)) {
-            $chunkedRecords = array_chunk($emailIdsToUpdateDeliverableStatus, 1000);
 
-            foreach ($chunkedRecords as $i => $segment) {
-                $this->recordData
-                    ->whereIn('email_id', $segment)
-                    ->update(['is_deliverable' => 0]);
-            }
-
-            $emailIdsToUpdateDeliverableStatus = [];
-        }
-*/
         if ( !empty( $validRecords ) ) {
             $chunkedRecords = array_chunk( $validRecords , 10000 );
 

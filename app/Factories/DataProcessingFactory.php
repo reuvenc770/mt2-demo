@@ -61,6 +61,25 @@ class DataProcessingFactory {
             case('UpdateUserActions'):
                 return \App::make(\App\Services\UserActionStatusService::class);
 
+            # Export from MT2 to MT1
+
+            case('Mt1Export-email_list'):
+                $mt2Name = 'Email';
+                $mt1Name = 'EmailList';
+                return self::createMt2ExportService($mt2Name, $mt1Name);
+
+            case('Mt1Export-user'):
+                $mt2Name = 'Feed';
+                $mt1Name = 'User';
+                return self::createMt2ExportService($mt2Name, $mt1Name); 
+
+            case('Mt1Export-EspAdvertiserJoin'):
+                $mt2Name = 'Deploy';
+                $mt1Name = 'EspAdvertiserJoin';
+                return self::createMt2ExportService($mt2Name, $mt1Name);
+
+            # Import from MT1
+
             case ('ImportMt1Advertisers'):
                 $mt1Name = 'CompanyInfo';
                 $mt2Name = 'Advertiser';
@@ -176,6 +195,8 @@ class DataProcessingFactory {
                 $mt2Name = 'SuppressionGlobalOrange';
                 return self::createMt1ImportService($mt1Name, $mt2Name);
 
+
+
             default:
                 throw new \Exception("Data processing service {$name} does not exist");
         }
@@ -271,6 +292,19 @@ class DataProcessingFactory {
         $mapStrategy = \App::make($mapStrategyName);
 
         return new \App\Services\ImportMt1DataService($mt1Repo, $mt2Repo, $mapStrategy);
+    }
+
+    private static function createMt2ExportService($mt2Name, $mt1Name) {
+        $mt2RepoName = $mt2Name . 'Repo';
+        $mt1RepoName = $mt1Name . 'Repo';
+
+        $mt2Repo = \App::make("App\\Repositories\\$mt2RepoName");
+        $mt1Repo = \App::make("App\\Repositories\\MT1Repositories\\$mt1RepoName");
+
+        $pickupRepo = \App::make(\App\Repositories\EtlPickupRepo::class);
+        $processName = $mt2Name . $mt1Name;
+
+        return new \App\Services\Mt2ToMt1ExportService($mt2Repo, $mt1Repo, $pickupRepo, $processName);
     }
 
 }
