@@ -4,7 +4,9 @@
 
 @section( 'angular-controller' , 'ng-controller="AttributionController as attr"' )
 
-
+@section( 'page-menu' )
+    <li ng-hide="attr.lastFeedOrder.length <= 0"><a ng-click="attr.undoLevelChange()" area-label="Undo Last Level Change">Undo Last Level Change</a></li>
+@stop
 
 
 @section( 'content' )
