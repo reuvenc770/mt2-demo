@@ -618,7 +618,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
                     template: '<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content cmp-fixed-popover"></div></div>'
                 });
             } );
-        } , 2500 );
+        } , 4000 );
     };
 
 } ] );
