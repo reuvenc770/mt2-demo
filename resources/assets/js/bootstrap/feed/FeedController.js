@@ -201,6 +201,38 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
         );
     };
 
+    self.exportList = function () {
+        FeedApiService.getFeedCsv( self.exportListSuccessCallback , self.exportListFailureCallback );
+    };
+
+    self.downloadCsv = function ( csv ) {
+        var blob = new Blob( [ csv ] , { "type" : "text/csv;charset=utf-8" } );
+        var filename = "feeds.csv";
+
+        if ( navigator.msSaveBlob ) { // IE 10+
+            navigator.msSaveBlob( blob , filename );
+        } else {
+            var link = document.createElement( 'a' );
+
+            if ( typeof( link.download ) !== 'undefined' ) {
+                var windowUrl = (window.URL || window.webkitURL);
+                var url = windowUrl.createObjectURL( blob );
+
+                link.setAttribute( "href" , url );
+                link.setAttribute( "download" , filename );
+                document.body.appendChild( link );
+                link.click();
+
+                document.body.removeChild( link );
+                windowUrl.revokeObjectURL( blob );
+            } else {
+                modalService.setModalLabel('Error');
+                modalService.setModalBody( 'Cannot download csv file. Please use a modern browser.' );
+                modalService.launchModal();
+            }
+        }
+    };
+
     /**
      * Callbacks
      */
@@ -233,6 +265,14 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
 
     self.loadFeedsFailureCallback = function ( response ) {
         modalService.simpleToast( 'Failed to load feeds.' );
+    };
+
+    self.exportListSuccessCallback = function ( response ) {
+        self.downloadCsv( response.data );
+    };
+
+    self.exportListFailureCallback = function ( response ) {
+        modalService.simpleToast( 'Failed to download feed list. Please contact support.' );
     };
 
     self.updateFeedFailureCallback = function (response) {

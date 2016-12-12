@@ -17,6 +17,7 @@ class Kernel extends ConsoleKernel
     const EXPIRATION_RUNS = "01:15";
     const DROP_OFF_LIST_PROFILES = "05:00";
     const DEPLOY_CHECK_TIME = '14:00';
+    const UPDATE_SOURCE_COUNTS = '14:00';
     const CAKE_CONVERSION_UPDATE_TIME = '14:00';
     const ATTRIBUTION_UPDATE_TIME = '15:30';
     const ATTRIBUTION_REPORT_EARLY_UPDATE_TIME = '0:30';
@@ -80,7 +81,7 @@ class Kernel extends ConsoleKernel
         Commands\ExportThirdPartyData::class,
         Commands\SuppressFeed::class,
         Commands\PassToMt1::class
-
+        Commands\UpdateFeedCounts::class,
     ];
 
     /**
@@ -168,7 +169,7 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'reports:populateStats')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
         //$schedule->command( 'reports:populateAttrBaseRecords')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
         $schedule->command('process:useragents')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME);
-        $schedule->command('download:mtstats')->dailyAt(self::DELIVERABLE_SCHEDULE_TIME);
+        #$schedule->command('download:mtstats')->dailyAt(self::DELIVERABLE_SCHEDULE_TIME);
         $schedule->command('reports:findIncompleteDeploys')->dailyAt(self::DEPLOY_CHECK_TIME);
 
 
@@ -236,6 +237,8 @@ class Kernel extends ConsoleKernel
          * Feed File Processing
          */
         $schedule->command( 'feedRecords:processRawFiles' )->dailyAt( self::FEED_FILE_PROCESS_TIME );
+        $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME );
+        $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::UPDATE_SOURCE_COUNTS );
 
         // Currently commented-out. Waiting for everything going live
         // Process first party feeds, by feed id

@@ -17,8 +17,10 @@
                     </div>
                     <div class="panel-body">
                         @include( 'bootstrap.pages.domain.domain-form' , ['type' => 1])
-                        <button class="btn mt2-theme-btn-primary btn-block" ng-click="domain.saveNewAccount()" ng-disabled="domain.formSubmitted">Add Mailing Domain</button>
 
+                    </div>
+                    <div class="panel-footer">
+                        <button class="btn mt2-theme-btn-primary btn-block" ng-click="domain.saveNewAccount()" ng-disabled="domain.formSubmitted">Add Mailing Domain</button>
                     </div>
                 </div>
                 @include( 'bootstrap.pages.domain.domain-list-table' )
@@ -30,6 +32,8 @@
                     </div>
                     <div class="panel-body">
                         @include( 'bootstrap.pages.domain.domain-form' , ['type' => 2])
+                    </div>
+                    <div class="panel-footer">
                         <button class="btn mt2-theme-btn-primary btn-block" ng-click="domain.saveNewAccount()" ng-disabled="domain.formSubmitted">Add Content Domain</button>
                     </div>
                 </div>

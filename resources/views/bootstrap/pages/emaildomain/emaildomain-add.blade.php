@@ -14,9 +14,7 @@
             </fieldset>
         </div>
         <div class="panel-footer">
-            <div class="form-group">
                 <input class="btn mt2-theme-btn-primary btn-block" ng-click="emailDomain.saveNewAccount()" ng-disabled="emailDomain.editForm" type="submit" value="Add ISP Domain">
-            </div>
         </div>
     </div>
 

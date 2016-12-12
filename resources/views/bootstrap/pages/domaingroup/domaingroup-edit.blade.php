@@ -14,15 +14,13 @@
                 <div class="panel panel-info" ng-if="dg.currentAccount.domains.length > 0">
                     <div class="panel-heading">Domains</div>
                     <ul class="list-group">
-                        <li class="list-group-item" ng-repeat="domain in dg.currentAccount.domains track by $index"> @{{ domain.domain_name }}</li>
+                        <li class="list-group-item cmp-list-item-condensed" ng-repeat="domain in dg.currentAccount.domains track by $index"> @{{ domain.domain_name }}</li>
                     </ul>
                 </div>
             </fieldset>
         </div>
         <div class="panel-footer">
-            <div class="form-group">
                 <input class="btn mt2-theme-btn-primary btn-block" ng-click="dg.editAccount()"  ng-disabled="dg.editForm" type="submit" value="Update ISP Group">
-            </div>
         </div>
     </div>
 @endsection

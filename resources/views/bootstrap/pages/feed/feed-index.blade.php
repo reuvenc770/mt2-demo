@@ -10,6 +10,9 @@
     @if (Sentinel::hasAccess('feed.add'))
         <li><a ng-href="/feed/create" target="_self">Add Feed</a></li>
     @endif
+    @if ( Sentinel::hasAccess('api.feed.exportlist') && Sentinel::inRole( 'fleet-admiral' ) )
+        <li><a ng-click="feed.exportList()" target="_self">Export Feeds</a></li>
+    @endif
 @stop
 
 @section( 'content' )
@@ -20,12 +23,16 @@
                 <tr md-row>
                     <th md-column class="mt2-table-btn-column"></th>
                     <th md-column md-order-by="id" class="md-table-header-override-whitetext">ID</th>
+                    @if ( Sentinel::inRole( 'fleet-admiral' ) )
                     <th md-column md-order-by="clientName" class="md-table-header-override-whitetext">Client</th>
+                    @endif
+                    <th md-column md-order-by="name" class="md-table-header-override-whitetext">Name</th>
                     <th md-column md-order-by="short_name" class="md-table-header-override-whitetext">Short Name</th>
+                    @if ( Sentinel::inRole( 'fleet-admiral' ) )
                     <th md-column class="md-table-header-override-whitetext">Password</th>
+                    @endif
                     <th md-column md-order-by="status" class="md-table-header-override-whitetext mt2-table-header-center">Status</th>
                     <th md-column md-order-by="feedVertical" class="md-table-header-override-whitetext mt2-cell-left-padding">Feed Vertical</th>
-                    <th md-column md-order-by="frequency" class="md-table-header-override-whitetext">Frequency</th>
                     <th md-column md-order-by="country" class="md-table-header-override-whitetext">Country</th>
                     <th md-column md-order-by="feedType" class="md-table-header-override-whitetext">Feed Type</th>
                     <th md-column md-order-by="party" class="md-table-header-override-whitetext">Party</th>
@@ -49,13 +56,17 @@
                         </div>
                     </td>
                     <td md-cell ng-bind="record.id"></td>
+                    @if ( Sentinel::inRole( 'fleet-admiral' ) )
                     <td md-cell ng-bind="record.clientName" nowrap></td>
+                    @endif
+                    <td md-cell ng-bind="record.name" nowrap></td>
                     <td md-cell ng-bind="record.short_name"></td>
+                    @if ( Sentinel::inRole( 'fleet-admiral' ) )
                     <td md-cell ng-bind="record.password"></td>
+                    @endif
                     <td md-cell class="mt2-table-cell-center" ng-class="{ 'bg-success' : record.status == 'Active' , 'bg-warning' : record.status == 'Paused' , 'bg-danger' : record.status == 'Inactive' }" ng-bind="record.status">
                     </td>
                     <td md-cell class="mt2-cell-left-padding" ng-bind="record.feedVertical" nowrap></td>
-                    <td md-cell ng-bind="record.frequency"></td>
                     <td md-cell ng-bind="record.country"></td>
                     <td md-cell ng-bind="record.feedType" nowrap></td>
                     <td md-cell ng-bind="record.party"></td>

@@ -1169,6 +1169,11 @@ Route::group(
             'uses' => 'FeedController@searchSource'
         ] );
 
+        Route::get( '/feed/exportList' , [
+            'as' => 'api.feed.exportlist' ,
+            'uses' => 'FeedController@exportList'
+        ] );
+
         /**
          * API Resources
          */
@@ -1309,6 +1314,10 @@ Route::group(
             'RegistrarController',
             [ 'except' => ['create', 'edit']]
         );
+        Route::get('/registrar/toggle/{id}', [
+            'as' => 'api.registar.toggle',
+            'uses' => 'RegistrarController@toggle'
+        ]);
 
         Route::resource(
             'dba',

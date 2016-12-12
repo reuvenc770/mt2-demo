@@ -1,4 +1,4 @@
-mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedApiService' , 'AttributionProjectionService' , 'ThreeMonthReportService'  , '$log' , '$location' , 'formValidationService', 'modalService', '$mdDialog' , 'paginationService' , function ( AttributionApiService , FeedApiService , AttributionProjectionService , ThreeMonthReportService , $log , $location, formValidationService, modalService , $mdDialog , paginationService ) {
+mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedApiService' , 'AttributionProjectionService' , 'ThreeMonthReportService'  , '$log' , '$location' , 'formValidationService', 'modalService', '$mdDialog' , 'paginationService' , '$timeout' , function ( AttributionApiService , FeedApiService , AttributionProjectionService , ThreeMonthReportService , $log , $location, formValidationService, modalService , $mdDialog , paginationService , $timeout ) {
     var self = this;
 
     self.current = { "id" : 0 , "name" : '' };
@@ -609,6 +609,16 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
                 }
             );
         }
+
+        $timeout( function () {
+            $(function () {
+                $('[data-toggle="popover"]').popover({
+                    trigger:'hover',
+                    placement: 'right',
+                    template: '<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content cmp-fixed-popover"></div></div>'
+                });
+            } );
+        } , 4000 );
     };
 
 } ] );

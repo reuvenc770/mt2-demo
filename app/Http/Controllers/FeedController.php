@@ -194,4 +194,8 @@ class FeedController extends Controller
     public function searchSource ( SourceUrlSearchRequest $request ) {
         return response()->json( $this->feedService->getRecordCountForSource( $request->all() ) );
     }
+
+    public function exportList () {
+        return response( $this->feedService->getFeedCsv() );
+    }
 }

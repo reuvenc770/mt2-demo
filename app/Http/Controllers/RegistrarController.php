@@ -115,6 +115,13 @@ class RegistrarController extends Controller
      */
     public function destroy(Request $request, $id)
     {
+        $response = $this->registrarService->tryToDelete($id);
+        $code = $response !== true ? 500 : 200;
+        return response()->json( [ 'delete' => $response ],$code );
+
+    }
+
+    public function toggle(Request $request, $id){
         $this->registrarService->toggleRow($id,$request->get("direction"));
     }
 }

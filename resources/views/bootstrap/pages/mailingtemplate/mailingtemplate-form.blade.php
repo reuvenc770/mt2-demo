@@ -1,14 +1,20 @@
+<div class="form-horizontal">
 <input name="_token" type="hidden" value="{{ csrf_token() }}">
 <!-- Email field -->
 <div class="form-group" ng-class="{ 'has-error' : mailing.formErrors.name }">
+    <label class="col-sm-2 control-label">Template Name</label>
+    <div class="col-sm-10">
     <input placeholder="Template Name" value="" class="form-control" ng-model="mailing.currentAccount.name" required="required" name="name" type="text">
     <div class="help-block" ng-show="mailing.formErrors.name">
         <div ng-repeat="error in mailing.formErrors.name">
             <span ng-bind="error"></span>
         </div>
     </div>
+    </div>
 </div>
 <div class="form-group" ng-class="{ 'has-error' : mailing.formErrors.templateType }">
+    <label class="col-sm-2 control-label">Template Type</label>
+    <div class="col-sm-10">
     <select ng-model="mailing.currentAccount.templateType"  name="templateType"  class="form-control">
         <option value="">Select Template Type</option>
         <option value="1">Normal HTML</option>
@@ -23,6 +29,8 @@
             <span ng-bind="error"></span>
         </div>
     </div>
+    </div>
+</div>
 </div>
 
 <div class="form-group" ng-class="{ 'has-error' : mailing.formErrors.selectedEsps }">
