@@ -98,4 +98,14 @@ class DoingBusinessAsService
             }
         }
     }
+
+    public function tryToDelete($id){
+        $canBeDeleted =  $this->doingBusinessAsRepo->canBeDeleted($id);
+        if($canBeDeleted === true){
+            $this->doingBusinessAsRepo->delete($id);
+            return true;
+        } else{
+            return $canBeDeleted;
+        }
+    }
 }

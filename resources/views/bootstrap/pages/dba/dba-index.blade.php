@@ -97,6 +97,11 @@
                         <tr md-row ng-repeat="record in dba.accounts track by $index">
                             <td md-cell class="mt2-table-btn-column">
                                 <div layout="row" layout-align="center center">
+                                    @if (Sentinel::hasAccess('api.dba.destroy'))
+                                        <md-icon  ng-click="dba.delete( record.id )" aria-label="Delete Record"
+                                                  md-font-set="material-icons" class="mt2-icon-black"
+                                                  data-toggle="tooltip" data-placement="bottom" title="Delete Record">delete</md-icon>
+                                    @endif
                                     <a ng-href="@{{ '/dba/edit/' + record.id }}" target="_self" data-toggle="tooltip" data-placement="bottom" title="Edit">
                                         <md-icon md-font-set="material-icons" class="mt2-icon-black" aria-label="Edit">edit</md-icon>
                                     </a>
