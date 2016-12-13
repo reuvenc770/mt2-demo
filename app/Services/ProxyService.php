@@ -64,4 +64,14 @@ class ProxyService
         return "Proxy";
     }
 
+    public function tryToDelete($id){
+        $canBeDeleted =  $this->proxyRepo->canBeDeleted($id);
+        if($canBeDeleted === true){
+            $this->proxyRepo->delete($id);
+            return true;
+        } else{
+            return $canBeDeleted;
+        }
+    }
+
 }

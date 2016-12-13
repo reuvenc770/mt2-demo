@@ -53,6 +53,13 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
     self.toggle = function(recordId,direction) {
         ProxyApiService.toggleRow(recordId, direction, self.toggleRowSuccess, self.toggleRowFailure)
     };
+    self.delete = function(recordId) {
+        var r = confirm("Are you sure you want to delete this");
+        if (r == true) {
+            ProxyApiService.deleteRow(recordId, self.deleteRowSuccess, self.deleteRowFailure)
+        }
+
+    };
 
     /**
      * Click Handlers
@@ -180,5 +187,19 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
         formValidationService.loadFieldErrors(self,response);
         self.formSubmitted = false;
     };
+
+
+    self.deleteRowFailure = function ( response ) {
+        modalService.setModalLabel('Failed To Delete Row');
+        modalService.setModalBodyRawHtml(response.data.delete);
+        modalService.launchModal();
+        self.loadAccounts();
+    };
+
+    self.deleteRowSuccess = function ( response ) {
+        modalService.simpleToast("Successfully Deleted Row");
+        self.loadAccounts();
+    };
+
 
 } ] );
