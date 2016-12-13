@@ -73,6 +73,10 @@ class ListProfileService
         return $this->profileRepo->getModel();
     }
 
+    public function getType(){
+        return "ListProfile";
+    }
+
     public function create ( $data ) {
         $cleanData = $this->cleanseData( $data );
 
