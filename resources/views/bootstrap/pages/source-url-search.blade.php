@@ -52,7 +52,7 @@
                 </div>
             </div>
 
-            <label><h4>Filter by Date Range</h4></label>
+            <label><h4>Filter by Date Range <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="When using the custom date range, be sure to enter oldest date as 'Start Date' and most recent date as 'End Date'.">help</md-icon></h4></label>
             <div class="form-group text-center">
                 <label class="radio-inline">
                     <input type="radio" name="dateRange" ng-model="source.dateRange" value="15" ng-click="source.updateSearchDate(15)"> 15 Days
