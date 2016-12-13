@@ -25,6 +25,14 @@ class ReportController extends Controller
 
     public function __construct () {}
 
+    public function viewAmpReports () {
+        return response()->view( 'bootstrap.pages.report.amp-reports' );
+    }
+
+    public function users () {
+        return response()->view( 'bootstrap.pages.report.amp-users' );
+    }
+
     public function getRecords ( Request $request ) {
         $this->currentRequest = $request;
 

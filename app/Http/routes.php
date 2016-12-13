@@ -687,10 +687,26 @@ Route::group(
     ] ,
     function () {
         Route::get(
+            '/' ,
+            array(
+                'as' => 'report.list' ,
+                'uses' => 'ReportController@viewAmpReports'
+            )
+        );
+
+        Route::get(
             '/export',
             array(
                 'as' => 'report.export',
                 'uses' => 'ReportController@export'
+            )
+        );
+
+        Route::get(
+            '/users' ,
+            array(
+                'as' => 'report.users' ,
+                'uses' => 'ReportController@users'
             )
         );
     }
