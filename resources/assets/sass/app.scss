@@ -54,6 +54,7 @@ $table-bg-accent-2 : #eaeaea;
 .cmp-large-popover.popover-content {
     max-width: 250px;
     width: 250px;
+    color: rgba(0, 0, 0, 0.87);
 }
 
 .fixed-sidenav-offset {
@@ -291,6 +292,7 @@ md-icon.material-icons.icon-xs {
     width: 20px;
     min-height: 20px;
     min-width: 20px;
+    line-height: 0.9em;
 }
 
 .md-button.md-icon-button.icon-button-xs{

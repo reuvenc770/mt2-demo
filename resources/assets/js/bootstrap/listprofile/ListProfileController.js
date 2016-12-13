@@ -203,6 +203,8 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
     self.formErrors = [];
 
+    modalService.setPopover();
+
     self.loadListProfiles = function () {
         self.queryPromise = ListProfileApiService.getListProfiles(
             self.currentPage ,
