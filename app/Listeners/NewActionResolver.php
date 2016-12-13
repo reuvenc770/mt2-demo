@@ -17,7 +17,7 @@ class NewActionResolver implements ShouldQueue
     protected $truthTableService;
     protected $scheduledFilterService;
     const QUEUE = 'filters';
-    const JOB_NAME_BASE = 'NewActionss';
+    const JOB_NAME_BASE = 'NewActions';
 
     /**
      * Create the event listener.
