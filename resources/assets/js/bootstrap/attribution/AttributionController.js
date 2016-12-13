@@ -5,6 +5,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
 
     self.models = [];
     self.feeds = [];
+    self.lastFeedOrder = [];
     self.clientLevels = {};
 
     self.levelCopySideNavId = 'levelCopy';
@@ -287,6 +288,8 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     };
 
     self.copyLevels = function () {
+        self.saveLevelState();
+
         AttributionApiService.copyLevels(
             self.getModelId() ,
             self.levelCopyModelId ,
@@ -329,6 +332,8 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         }
 
         if ( newLevel != index ) {
+            self.saveLevelState();
+
             var startingFeeds = self.feeds.slice( 0 , index );
             var endingFeeds = self.feeds.slice( index + 1 );
 
@@ -381,7 +386,20 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         feed.selected ? self.selectFeedCount++:  self.selectFeedCount--;
     };
 
+    self.saveLevelState = function () {
+        self.lastFeedOrder = angular.copy( self.feeds );
+    };
+
+    self.undoLevelChange = function () {
+        if ( self.lastFeedOrder.length > 0 ) {
+            self.feeds = self.lastFeedOrder;
+            self.lastFeedOrder = [];
+        }
+    };
+
     self.onLevelRise = function ( feed , index ) {
+        self.saveLevelState();
+
         if ( feed.selected ) {
             var selectedFeeds = [];
             var otherFeeds = [];
@@ -427,6 +445,8 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     };
 
     self.onLevelDrop = function ( feed , index ) {
+        self.saveLevelState();
+
         if ( feed.selected ) {
             var selectedFeeds = [];
             var otherFeeds = [];
@@ -458,6 +478,8 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     };
 
     self.moveToTop = function ( feed , index ) {
+        self.saveLevelState();
+
         if ( feed.selected ) {
             var selectedFeeds = [];
             var otherFeeds = [];
@@ -482,6 +504,8 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     };
 
     self.moveToMiddle = function ( feed , index ) {
+        self.saveLevelState();
+
         if ( feed.selected ) {
             var selectedFeeds = [];
             var otherFeeds = [];
@@ -517,6 +541,8 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     };
 
     self.moveToBottom = function ( feed , index ) {
+        self.saveLevelState();
+
         if ( feed.selected ) {
             var selectedFeeds = [];
             var otherFeeds = [];
