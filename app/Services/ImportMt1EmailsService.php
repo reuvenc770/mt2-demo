@@ -220,10 +220,13 @@ class ImportMt1EmailsService
         // Delete records
         if (sizeof($records) > 0) {
             $deletions = $this->api->cleanTable();
-            echo "Read in " . sizeof($records) . " records, deleted " . $deletions . PHP_EOL; 
+            echo "Read in " . sizeof($records) . " records, deleted " . $deletions . ', processing ' . count($recordsToFlag) . PHP_EOL; 
         }
-
-        \Event::fire(new NewRecords($recordsToFlag));
+        
+        if (sizeof($recordsToFlag > 0)) {
+            $time = Carbon::now()->toDateTimeString();
+            \Event::fire(new NewRecords($recordsToFlag, $time));
+        }
     }
 
     private function mapToTempTable($row) {

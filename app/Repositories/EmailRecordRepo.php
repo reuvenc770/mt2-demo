@@ -116,7 +116,10 @@ class EmailRecordRepo {
         }
 
         if(count($preppedData) > 0) {
-            \Event::fire(new NewActions($preppedData));
+            // Not a perfect identifier, but enough to tell us what to rerun in case of failure
+            $id = (isset($currentRecord['espId']) ? $currentRecord['espId'] : '0') 
+                . '-' . (isset($currentRecord['espInternalId']) ? $currentRecord['espInternalId'] : '0');
+            \Event::fire(new NewActions($preppedData, $id));
         }
 
         if ( !empty( $invalidRecords ) ) {

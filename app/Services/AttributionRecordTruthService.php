@@ -71,11 +71,7 @@ class AttributionRecordTruthService
         foreach($emails as $email){
             $preppedData[] = "(".join(",",[$email['email_id'],true,"NOW()","NOW()"]).")";
             if(count($preppedData) == 5000) {
-                try {
-                    $this->recordTruthRepo->bulkInsert($preppedData);
-                } catch (\Exception $e) {
-                    Log::error("Could not Bulk Insert Record because {$e->getMessage()}");
-                }
+                $this->recordTruthRepo->bulkInsert($preppedData);
                 $preppedData = [];
             }
         }

@@ -9,22 +9,24 @@ use App\Services\EmailFeedAssignmentService;
 use App\Services\ScheduledFilterService;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Jobs\SetSchedulesJob;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class NewRecordResolver implements ShouldQueue
 {
+    use DispatchesJobs;
+
     protected $truthTableService;
     protected $scheduledFilterService;
     protected $assignmentService;
+    const QUEUE = 'filters';
+    const JOB_NAME_BASE = 'NewRecords';
     /**
      * Create the event listener.
      *
      * @return void
      */
-    public function __construct(AttributionRecordTruthService $truthService, EmailFeedAssignmentService $assignmentService)
-    {
-        $this->truthTableService = $truthService;
-        $this->assignmentService = $assignmentService;
-    }
+    public function __construct() {}
 
     /**
      * Handle the event.
@@ -34,10 +36,8 @@ class NewRecordResolver implements ShouldQueue
      */
     public function handle(NewRecords $event)
     {
-        $this->scheduledFilterService = ServiceFactory::createFilterService("expiration");
-        $this->truthTableService->insertBulkRecords($event->getEmails());
-        $this->assignmentService->insertBulkRecords($event->getEmails());
-        $this->scheduledFilterService->insertScheduleFilterBulk($event->getEmails(), 10);
-
+        $jobName = self::JOB_NAME_BASE . '-' . $event->getId();
+        $job = (new SetSchedulesJob($jobName, $event->getEmails(), 'expiration', str_random(16)))->onQueue(self::QUEUE);
+        $this->dispatch($job);
     }
 }
