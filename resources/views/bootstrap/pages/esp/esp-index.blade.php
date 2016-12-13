@@ -14,13 +14,15 @@
 @stop
 
 @section( 'content' )
-    <div class="alert alert-info" role="alert"> <strong>Heads up!</strong> Any information uploaded here will likely be replaced by a later API call,  please do not re-upload, previously collected campaigns.</div>
+    <div class="alert alert-info" role="alert"> <strong>Heads up!</strong> Any information uploaded here will likely be replaced by a later API call,  please do not re-upload previously collected campaigns.</div>
 <div ng-init="esp.loadAccounts()">
     <md-table-container>
         <table md-table>
             <thead md-head class="mt2-theme-thead">
                 <tr md-row>
-                    <th md-column class="mt2-table-btn-column"></th>
+                    <th md-column class="mt2-table-btn-column  mt2-table-header-center">
+                        <md-icon style="margin-right: 8px;" md-font-set="material-icons" class="mt2-icon-white material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Before uploading a CSV file, make sure the ESP account's field mapping matches the column order in the CSV file.">help</md-icon>
+                    </th>
                     <th md-column class="md-table-header-override-whitetext">ID</th>
                     <th md-column class="md-table-header-override-whitetext">Name</th>
                     <th md-column class="md-table-header-override-whitetext">Email ID Field</th>
