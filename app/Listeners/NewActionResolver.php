@@ -7,21 +7,24 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Services\AttributionRecordTruthService;
 use App\Factories\ServiceFactory;
-//TODO If we get more filters like these we 
+use App\Jobs\SetSchedulesJob;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+
 class NewActionResolver implements ShouldQueue
 {
+    use DispatchesJobs;
+
     protected $truthTableService;
     protected $scheduledFilterService;
+    const QUEUE = 'filters';
+    const JOB_NAME_BASE = 'NewActions';
 
     /**
      * Create the event listener.
      *
      * @return void
      */
-    public function __construct(AttributionRecordTruthService $truthService)
-    {
-        $this->truthTableService = $truthService;
-    }
+    public function __construct() {}
 
     /**
      * Handle the event.
@@ -31,11 +34,8 @@ class NewActionResolver implements ShouldQueue
      */
     public function handle(NewActions $event)
     {
-        $this->scheduledFilterService = ServiceFactory::createFilterService("activity");
-        foreach ($this->scheduledFilterService->getFields() as $field) {
-            $this->truthTableService->bulkToggleFieldRecord($event->getEmails(), $field, $this->scheduledFilterService->getDefaultFieldValue($field));
-        }
-        
-        $this->scheduledFilterService->insertScheduleFilterBulk($event->getEmails(), 90);
+        $jobName = self::JOB_NAME_BASE . '-' . $event->getId();
+        $job = (new SetSchedulesJob($jobName, $event->getEmails(), 'activity', str_random(16)))->onQueue(self::QUEUE);
+        $this->dispatch($job);
     }
 }

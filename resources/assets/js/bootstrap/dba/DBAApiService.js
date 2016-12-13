@@ -46,9 +46,15 @@ mt2App.service( 'DBAApiService' , [ 'paginationService' , '$http' , '$log' , fun
         } ).then( successCallback , failureCallback );
     };
 
-    self.toggleRow = function ( recordId, direction, successCallback, failureCallback ) {
+    self.deleteRow = function ( recordId, successCallback, failureCallback ) {
         $http( {
             "method" : "DELETE" ,
+            "url" : this.baseApiUrl + '/' + recordId,
+        } ).then( successCallback , failureCallback );
+    };
+    self.toggleRow = function ( recordId, direction, successCallback, failureCallback ) {
+        $http( {
+            "method" : "GET" ,
             "url" : this.baseApiUrl + '/' + recordId,
             "params" : { "direction" : direction }
         } ).then( successCallback , failureCallback );

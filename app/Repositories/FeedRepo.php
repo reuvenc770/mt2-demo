@@ -5,11 +5,12 @@ namespace App\Repositories;
 use App\Models\Feed;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
+use App\Repositories\RepoInterfaces\Mt2Export;
 
 /**
  *
  */
-class FeedRepo {
+class FeedRepo implements Mt2Export {
 
     private $feed;
 
@@ -113,5 +114,40 @@ class FeedRepo {
         }
 
         return $feed->id;
+    }
+
+    public function transformForMt1($startingId) {
+        $attr = config('database.connections.attribution.database');
+        $supp = config('database.connections.suppression.database');
+
+        return $this->feed
+            ->join('clients as c', 'feeds.client_id', '=', 'c.id')
+            ->join("$attr.attribution_levels as al", 'feeds.id', '=', 'al.feed_id')
+            ->selectRaw("feeds.id as tracking_id,
+                feeds.id as user_id,
+                c.id as clientStatsGroupingID,
+                c.name as first_name,
+                c.address,
+                c.address2,
+                c.city,
+                c.state,
+                c.zip,
+                c.email_address as email_addr,
+                c.phone,
+                feeds.updated_at as overall_updated,
+                feeds.name as password,
+                feeds.name as username,
+                feeds.name as ftp_user,
+                feeds.password as rt_pw,
+                feeds.password as ftp_pw,
+                IF(feeds.party = 3, 'Y', 'N') as OrangeClient,
+                al.level as AttributeLevel,
+                IF(feeds.party = 3, 'Y', 'N') as CheckGlobalSuppression,
+                feeds.source_url as clientRecordSourceURL,
+                feeds.country_id as countryID,
+                'TBD' as upload_freq,
+                IF(feeds.status = 'Active', 'A', 'D') as status,
+                13 as cakeAffiliateID")
+            ->where('feeds.id', '>=', $startingId);
     }
 }

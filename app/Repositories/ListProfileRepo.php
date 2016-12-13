@@ -50,7 +50,7 @@ class ListProfileRepo
     }
 
     public function getModel () {
-        return $this->listProfile;
+        return $this->listProfile->with( 'schedule' );
     }
 
     public function create ( $data ) {

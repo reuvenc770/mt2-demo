@@ -119,14 +119,28 @@ class ProxyController extends Controller
 
 
     /**
-     * Remove the specified resource from storage.
+     * toggle the specified resource from storage.
      *
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, $id)
+    public function toggle(Request $request, $id)
     {
         $this->proxyService->toggleRow($id,$request->get("direction"));
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Request $request, $id)
+    {
+        $response = $this->proxyService->tryToDelete($id);
+        $code = $response !== true ? 500 : 200;
+        return response()->json( [ 'delete' => $response ],$code );
+
     }
 
 }

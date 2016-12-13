@@ -24,7 +24,7 @@ class ClientRepo {
     }
 
     public function getAll () {
-        return $this->client->get();
+        return $this->client->get()->sortBy( 'name' );
     }
 
     public function getAccount ($id) {

@@ -243,7 +243,18 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         self.current = listProfile;
         self.generateName();
         self.fixEmptyFields();
+
         $(function () { $('[data-toggle="tooltip"]').tooltip() });
+
+        $timeout( function () {
+            angular.forEach( self.current.feeds , function ( value , index ) {
+                self.feedVisibility[ index ] = false;
+            } );
+
+            angular.forEach( self.current.isps , function ( value , index ) {
+                self.ispVisibility[ index ] = false;
+            } );
+        } , 1500 );
     };
 
     self.fixEmptyFields = function () {
@@ -968,10 +979,11 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     };
 
     self.copyProfileSuccess = function (response){
-        modalService.setModalLabel('Success');
-        modalService.setModalBody("List profile copied.");
-        modalService.launchModal();
-        self.loadListProfiles();
+        var newId = response.data.id;
+
+        $location.url( '/listprofile/edit/' + newId );
+        $window.location.href = '/listprofile/edit/' + newId;
+
     };
 
     self.copyProfileFail = function (response){

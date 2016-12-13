@@ -37,6 +37,8 @@
                             <th md-column class="md-table-header-override-whitetext">Converter Range</th>
                             <th md-column class="md-table-header-override-whitetext">Pull Frequency</th>
                             <th md-column class="md-table-header-override-whitetext">Record Count</th>
+                            <th md-column class="md-table-header-override-whitetext">Updated</th>
+                            <th md-column class="md-table-header-override-whitetext">Generated</th>
                         </tr>
                         </thead>
 
@@ -57,11 +59,13 @@
                             <td md-cell nowrap>@{{ ( profile.converters_start + ' to ' + profile.converters_end ) }} (@{{ ::( profile.conversion_count + 'x' ) }})</td>
                             <td md-cell ng-bind="profile.run_frequency" nowrap></td>
                             <td md-cell ng-bind="profile.total_count" nowrap></td>
+                            <td md-cell ng-bind="app.formatDate( profile.updated_at )" nowrap></td>
+                            <td md-cell ng-bind="profile.schedule.last_run" nowrap></td>
                         </tr>
                         </tbody>
                         <tfoot>
                         <tr>
-                            <td colspan="8">
+                            <td colspan="10">
                                 <md-content class="md-mt2-zeta-theme md-hue-2">
                                     <md-table-pagination md-limit="listProfile.paginationCount" md-limit-options="listProfile.paginationOptions" md-page="listProfile.currentPage" md-total="@{{listProfile.profileTotal}}" md-on-paginate="listProfile.loadListProfiles" md-page-select></md-table-pagination>
                                 </md-content>
@@ -84,6 +88,8 @@
                             <th md-column class="md-table-header-override-whitetext">Converter Range</th>
                             <th md-column class="md-table-header-override-whitetext">Pull Frequency</th>
                             <th md-column class="md-table-header-override-whitetext">Record Count</th>
+                            <th md-column class="md-table-header-override-whitetext">Updated</th>
+                            <th md-column class="md-table-header-override-whitetext">Generated</th>
                         </tr>
                         </thead>
 
@@ -104,11 +110,13 @@
                             <td md-cell nowrap>@{{ ( profile.converters_start + ' to ' + profile.converters_end ) }} (@{{ ::( profile.conversion_count + 'x' ) }})</td>
                             <td md-cell ng-bind="profile.run_frequency" nowrap></td>
                             <td md-cell ng-bind="profile.total_count" nowrap></td>
+                            <td md-cell ng-bind="app.formatDate( profile.updated_at )" nowrap></td>
+                            <td md-cell ng-bind="profile.schedule.last_run" nowrap></td>
                         </tr>
                         </tbody>
                         <tfoot>
                         <tr>
-                            <td colspan="8">
+                            <td colspan="10">
                                 <md-content class="md-mt2-zeta-theme md-hue-2">
                                     <md-table-pagination md-limit="listProfile.paginationCount" md-limit-options="listProfile.paginationOptions" md-page="listProfile.currentPage" md-total="@{{listProfile.profileTotal}}" md-on-paginate="listProfile.loadListProfiles" md-page-select></md-table-pagination>
                                 </md-content>

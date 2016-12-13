@@ -124,4 +124,14 @@ class RegistrarController extends Controller
     public function toggle(Request $request, $id){
         $this->registrarService->toggleRow($id,$request->get("direction"));
     }
+
+    public function tryToDelete($id){
+        $canBeDeleted =  $this->registrar->canBeDeleted($id);
+        if($canBeDeleted === true){
+            $this->registrar->delete($id);
+            return true;
+        } else{
+            return $canBeDeleted;
+        }
+    }
 }

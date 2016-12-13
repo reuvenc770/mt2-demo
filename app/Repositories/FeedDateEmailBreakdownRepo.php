@@ -146,4 +146,13 @@ class FeedDateEmailBreakdownRepo {
         
     }
 
+    public function getFeedDateUniqueCount($feedId, $date) {
+        return $this->model
+                    ->selectRaw("SUM(IFNULL(unique_emails, 0)) as uniques")
+                    ->where('feed_id', $feedId)
+                    ->where('date', $date)
+                    ->first()
+                    ->uniques;
+    }
+
 }

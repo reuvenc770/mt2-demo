@@ -6,11 +6,12 @@ use App\Models\Email;
 #use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use DB;
+use App\Repositories\RepoInterfaces\Mt2Export;
 
 /**
  *
  */
-class EmailRepo {
+class EmailRepo implements Mt2Export {
 
     private $emailModel;
     private $batchEmails = [];
@@ -366,5 +367,46 @@ class EmailRepo {
             'id' => $id,
             'id2' => $id
         ]);
+    }
+
+    public function transformForMt1($startId) {
+        $attr = config('database.connections.attribution.database');
+        $supp = config('database.connections.suppression.database');
+        $startId = (int)$startId;
+
+        return $this->emailModel
+                    ->selectRaw("emails.id as tracking_id,
+                        emails.id as email_user_id,
+                        efa.feed_id as client_id,
+                        emails.email_address as email_addr,
+                        email_domain_id as domain_id,
+                        DATE(subscribe_date) as subscribe_date,
+                        TIME(subscribe_date) as subscribe_time,
+                        DATE(sgo.created_at) as unsubscribe_date, 
+                        TIME(sgo.created_at) as unsubscribe_time,
+                        IF(sgo.id is NULL, 'A', 'U') as status,
+                        first_name,
+                        last_name,
+                        address,
+                        address2,
+                        city,
+                        state,
+                        zip,
+                        country,
+                        dob,
+                        IF(gender = 'UNK', '', gender),
+                        phone,
+                        '' as mobile_phone,
+                        '' as work_phone,
+                        rd.capture_date,
+                        ip as member_source,
+                        source_url,
+                        last_action_date as emailUserActionDate,
+                        null as emailUserActionTypeID,
+                        rd.updated_at as lastUpdated")
+                    ->leftJoin("$attr.email_feed_assignments as efa", 'emails.id', '=', 'efa.email_id')
+                    ->leftJoin("record_data as rd", 'rd.email_id', '=', 'emails.id')
+                    ->leftJoin("$supp.suppression_global_orange as sgo", "emails.email_address", '=', 'sgo.email_address')
+                    ->whereRaw("emails.id > $startId");
     }
 }

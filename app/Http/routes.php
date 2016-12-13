@@ -1308,6 +1308,10 @@ Route::group(
             'ProxyController' ,
             [ 'except' => [ 'create' , 'edit' ] ]
         );
+        Route::get('/proxy/toggle/{id}', [
+            'as' => 'api.proxy.toggle',
+            'uses' => 'ProxyController@toggle'
+        ]);
 
         Route::resource(
             'registrar',
@@ -1324,6 +1328,11 @@ Route::group(
             'DoingBusinessAsController',
             [ 'except' => ['create', 'edit']]
         );
+
+        Route::get('/dba/toggle/{id}', [
+            'as' => 'api.dba.toggle',
+            'uses' => 'DoingBusinessAsController@toggle'
+        ]);
 
         Route::get('/mailingtemplate/templates/{id}', [
             'as' => 'api.mailingtemplate.listbyesp',

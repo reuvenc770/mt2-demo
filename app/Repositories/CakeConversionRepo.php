@@ -91,7 +91,7 @@ class CakeConversionRepo {
 
     public function getConversionsByEmailId($dateRange = null) {
         if ( is_null( $dateRange ) ) {
-            $dateRange = [ "start" => Carbon::yesterday()->startOfDay()->toDateTimeString() , "end" => Carbon::today()->endOfDay()->ToDateTimeString() ];
+            $dateRange = [ "start" => Carbon::today()->subDays(5)->toDateTimeString() , "end" => Carbon::today()->endOfDay()->ToDateTimeString() ];
         }
 
         return $this->model

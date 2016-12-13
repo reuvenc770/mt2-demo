@@ -157,6 +157,14 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
         self.queryPromise = DBAApiService.searchDBA(self.paginationCount, searchObj, self.loadAccountsSuccessCallback, self.loadAccountsFailureCallback);
         self.currentlyLoading = 0;
     };
+
+    self.delete = function(recordId) {
+        var r = confirm("Are you sure you want to delete this");
+        if (r == true) {
+            DBAApiService.deleteRow(recordId, self.deleteRowSuccess, self.deleteRowFailure)
+        }
+
+    };
     /**
      * Callbacks
      */
@@ -208,6 +216,19 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
         modalService.launchModal();
         self.loadAccounts();
     };
+
+    self.deleteRowFailure = function ( response ) {
+        modalService.setModalLabel('Failed To Delete Row');
+        modalService.setModalBodyRawHtml(response.data.delete);
+        modalService.launchModal();
+        self.loadAccounts();
+    };
+
+    self.deleteRowSuccess = function ( response ) {
+        modalService.simpleToast("Successfully Deleted Row");
+        self.loadAccounts();
+    };
+
 
 
 } ] );
