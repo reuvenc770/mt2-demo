@@ -25,6 +25,7 @@
                             <th md-column class="md-table-header-override-whitetext">ESP Accounts</th>
                             <th md-column class="md-table-header-override-whitetext">ISPs</th>
                             <th md-column class="md-table-header-override-whitetext">DBA</th>
+                            <th md-column class="md-table-header-override-whitetext">Cake Affiliate ID</th>
                             <th md-column class="md-table-header-override-whitetext">Notes</th>
                         </tr>
                         </thead>
@@ -58,12 +59,13 @@
                             <td md-cell nowrap>@{{ record.esp_account_names }}</td>
                             <td md-cell nowrap>@{{ record.isp_names }}</td>
                             <td md-cell nowrap>@{{ record.dba_name }}</td>
+                            <td md-cell nowrap>@{{ record.cake_affiliate_id }}</td>
                             <td md-cell nowrap>@{{ record.notes }}</td>
                         </tr>
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="9">
+                                <td colspan="10">
                                     <md-content class="md-mt2-zeta-theme md-hue-2">
                                         <md-table-pagination md-limit="proxy.paginationCount" md-limit-options="proxy.paginationOptions" md-page="proxy.currentPage" md-total="@{{proxy.accountTotal}}" md-on-paginate="proxy.loadAccounts" md-page-select></md-table-pagination>
                                     </md-content>

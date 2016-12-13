@@ -4,7 +4,7 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
 
     self.headers = [ '' , 'ID', 'name', "IP Address", "Provider Name"];
     self.accounts = [];
-    self.currentAccount = {  id: "", "name" : "" , "ip_addresses": [], "provider_name" : "", "esp_account_names" :[], "isp_names": [] };
+    self.currentAccount = {  id: "", "name" : "" , "ip_addresses": [], "provider_name" : "", "esp_account_names" :[], "isp_names": [] , "cake_affiliate_id" : "" };
     self.ip_address = "";
     self.isp_names = [];
     self.isps =  ["AOL","GMAIL","YAHOO","HOTMAIL"];

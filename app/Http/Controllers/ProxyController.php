@@ -8,6 +8,7 @@ use App\Services\EspApiAccountService;
 use App\Services\EspService;
 use App\Services\ProxyService;
 use App\Services\DomainGroupService;
+use App\Services\CakeAffiliateService;
 
 use Illuminate\Http\Request;
 
@@ -20,12 +21,15 @@ class ProxyController extends Controller
     protected $espAccountService;
     protected $espService;
     protected $domainGroupService;
-    public function __construct(ProxyService $proxyService, EspApiAccountService $espAccountService, EspService $espService , DomainGroupService $domainGroupService )
+    protected $cakeAffiliateService;
+
+    public function __construct(ProxyService $proxyService, EspApiAccountService $espAccountService, EspService $espService , DomainGroupService $domainGroupService , CakeAffiliateService $cakeAffiliateService )
     {
         $this->proxyService = $proxyService;
         $this->espAccountService = $espAccountService;
         $this->espService = $espService;
         $this->domainGroupService = $domainGroupService;
+        $this->cakeAffiliateService = $cakeAffiliateService;
     }
 
     public function listAll()
@@ -60,7 +64,9 @@ class ProxyController extends Controller
         $espAccounts = $this->espAccountService->getAllAccounts();
         $esps = $this->espService->getAllEsps();
         $isps = $this->domainGroupService->getAllActive();
-        return view('bootstrap.pages.proxy.proxy-add',[ 'espAccounts' => $espAccounts, 'esps' => $esps , 'isps' => $isps ] );
+        $affs = $this->cakeAffiliateService->getAll();
+
+        return view('bootstrap.pages.proxy.proxy-add',[ 'espAccounts' => $espAccounts, 'esps' => $esps , 'isps' => $isps , 'affiliates' => $affs ] );
     }
 
     /**
@@ -99,8 +105,10 @@ class ProxyController extends Controller
         $espAccounts = $this->espAccountService->getAllAccounts();
         $esps = $this->espService->getAllEsps();
         $isps = $this->domainGroupService->getAllActive();
+        $affs = $this->cakeAffiliateService->getAll();
+
         return response()
-            ->view('bootstrap.pages.proxy.proxy-edit',[ 'espAccounts' => $espAccounts, 'esps' => $esps , 'isps' => $isps ] );
+            ->view('bootstrap.pages.proxy.proxy-edit',[ 'espAccounts' => $espAccounts, 'esps' => $esps , 'isps' => $isps , 'affiliates' => $affs ] );
     }
 
     /**
