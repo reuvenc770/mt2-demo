@@ -214,6 +214,10 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     };
 
     self.loadListProfilesSuccessCallback = function ( response ) {
+        self.firstPartyListProfiles = [];
+        self.secondPartyListProfiles = [];
+        self.thirdPartyListProfiles = [];
+
         angular.forEach(response.data.data, function (value, index){
             switch (value.party){
                 case 1:

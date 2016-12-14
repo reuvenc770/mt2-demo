@@ -16,9 +16,9 @@
 
                 <!-- Nav tabs -->
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active"><a href="#list_profile" aria-controls="list_profile" ng-click="listProfile.clearSelection()" role="tab" data-toggle="tab">3rd Party List Profiles</a></li>
-            <li role="presentation" ><a href="#list_profile_first" aria-controls="list_profile" ng-click="listProfile.clearSelection()" role="tab" data-toggle="tab">1st Party List Profiles</a></li>
-            <li role="presentation"><a href="#list_combines" aria-controls="list_combines" ng-click="listProfile.clearSelection()" role="tab" data-toggle="tab">List Combines</a></li>
+            <li role="presentation" class="active"><a href="#list_profile" aria-controls="list_profile" ng-click="listProfile.clearSelection();listProfile.loadListProfiles( 3 )" role="tab" data-toggle="tab">3rd Party List Profiles</a></li>
+            <li role="presentation" ><a href="#list_profile_first" aria-controls="list_profile" ng-click="listProfile.clearSelection();listProfile.loadListProfiles( 1 )" role="tab" data-toggle="tab">1st Party List Profiles</a></li>
+            <li role="presentation"><a href="#list_combines" aria-controls="list_combines" ng-click="listProfile.clearSelection();listProfile.loadListCombines()" role="tab" data-toggle="tab">List Combines</a></li>
             <li ng-show="listProfile.showCombine" class="pull-right"><button ng-click="listProfile.nameCombine()" class="btn btn-primary">Create List Combine</button></li>
         </ul>
         <!-- Tab panes -->
