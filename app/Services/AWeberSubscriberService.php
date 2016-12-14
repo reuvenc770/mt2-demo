@@ -38,7 +38,7 @@ class AWeberSubscriberService
             switch($record->unsubscribe_method){
 
                 case "unsubscribe link":
-                    Suppression::recordRawHardBounce($espAccountId,$record->email,0, $record->unsubscribed_at);
+                    Suppression::recordRawUnsub($espAccountId,$record->email,0, $record->unsubscribed_at);
                     break;
                 case "customer cp":
                     Suppression::recordRawComplaint($espAccountId,$record->email,0, $record->unsubscribed_at);
