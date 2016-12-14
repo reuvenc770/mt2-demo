@@ -67,27 +67,7 @@ class ServiceFactory
 
 
     public static function createAttributionBatchService($modelId) {
-        $truthModel = "App\\Models\\AttributionRecordTruth";
-        $truthRepo = "App\\Repositories\\AttributionRecordTruthRepo";
-
-        $scheduleModel = "App\\Models\\AttributionExpirationSchedule";
-        $scheduleRepo = "App\\Repositories\\AttributionScheduleRepo";
-
-        $assignmentModel = "App\\Models\\EmailFeedAssignment";
-        $historyModel = "App\\Models\\EmailFeedAssignmentHistory";
-        $assignmentRepo = "App\\Repositories\\EmailFeedAssignmentRepo";
-
-        $emailFeedInstanceModel = "App\\Models\\EmailFeedInstance";
-        $emailFeedInstanceRepo = "App\\Repositories\\EmailFeedInstanceRepo";
-
-        $truth = new $truthRepo(new $truthModel());
-        $schedule = new $scheduleRepo(new $scheduleModel());
-        $assignment = new $assignmentRepo(new $assignmentModel(), new $historyModel());
-        $instance = new $emailFeedInstanceRepo(new $emailFeedInstanceModel());
-
-        $service = "App\\Services\\AttributionBatchService";
-
-        return new $service($truth, $schedule, $assignment, $instance);
+        return App::make(\App\Services\AttributionBatchService::class);
     }
 
     public static function createStandardReportService () {
