@@ -117,8 +117,10 @@ class EmailRecordRepo {
 
         if(count($preppedData) > 0) {
             // Not a perfect identifier, but enough to tell us what to rerun in case of failure
+            $time = Carbon::now()->toDateTimeString();
             $id = (isset($currentRecord['espId']) ? $currentRecord['espId'] : '0') 
-                . '-' . (isset($currentRecord['espInternalId']) ? $currentRecord['espInternalId'] : '0');
+                . '-' . (isset($currentRecord['espInternalId']) ? $currentRecord['espInternalId'] : '0')
+                . '-' . $time . '-' str_rand(8);
             \Event::fire(new NewActions($preppedData, $id));
         }
 
