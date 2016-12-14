@@ -202,7 +202,6 @@ class ListProfileService
                     $this->batch($row);
                     $totalCount++;
                 }
-                echo PHP_EOL;
             }
 
             $this->batchInsert();

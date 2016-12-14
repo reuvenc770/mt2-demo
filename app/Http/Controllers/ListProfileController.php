@@ -100,10 +100,11 @@ class ListProfileController extends Controller
         $data['selectedColumns'] = $columns;
 
         $profileID = $this->listProfile->create( $data );
-
-        if($request->get('exportOptions.interval') == "Immediately") {
+        
+        if(isset($data['exportOptions']['interval']) && in_array("Immediately", $data['exportOptions']['interval'])) {
             $this->dispatch(new ListProfileBaseExportJob($profileID, str_random(16)));
         }
+        
         Flash::success("List Profile was Successfully Created");
 
         return response()->json( [ 'status' => true ] );
@@ -142,8 +143,6 @@ class ListProfileController extends Controller
      */
     public function update(SubmitListProfileRequest $request, $id)
     {
-        #Need to fire a job to run the list profile at this point if the user chooses immediately
-
         $data = $request->all();
 
         $columns = [];
@@ -154,6 +153,10 @@ class ListProfileController extends Controller
         $data['selectedColumns'] = $columns;
 
         $this->listProfile->formUpdate( $id , $data );
+
+        if(isset($data['exportOptions']['interval']) && in_array("Immediately", $data['exportOptions']['interval'])) {
+            $this->dispatch(new ListProfileBaseExportJob($id, str_random(16)));
+        }
 
         Flash::success("List Profile was Successfully Updated");
 

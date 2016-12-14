@@ -31,7 +31,7 @@ class EmailFeedInstanceService {
 
         $records = $this->repo->getInstancesForDateRange( $startDate , $endDate );
 
-        $totalCount = $records->count();
+        $totalCount = 0;
 
         $countList = [];
         foreach ( $records->cursor() as $currentRecord ) {
@@ -44,7 +44,8 @@ class EmailFeedInstanceService {
                     'count' => 0
                 ];
             }
-
+            
+            $totalCount++;
             $countList[ $index ][ 'count' ]++;
         }
 
