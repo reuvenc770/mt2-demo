@@ -687,18 +687,10 @@ Route::group(
     ] ,
     function () {
         Route::get(
-            '/',
+            '/' ,
             array(
-                'as' => 'report.list',
-                'uses' => 'ReportController@view'
-            )
-        );
-
-        Route::get( 
-            '/view/{id}', 
-            array( 
-                'as' => 'report.show', 
-                'uses' => 'ReportController@iframeReport' 
+                'as' => 'report.list' ,
+                'uses' => 'ReportController@viewAmpReports'
             )
         );
 
@@ -707,6 +699,14 @@ Route::group(
             array(
                 'as' => 'report.export',
                 'uses' => 'ReportController@export'
+            )
+        );
+
+        Route::get(
+            '/users' ,
+            array(
+                'as' => 'report.users' ,
+                'uses' => 'ReportController@users'
             )
         );
     }
@@ -1031,18 +1031,6 @@ Route::group(
         Route::group(
             ['prefix' => 'report'],
             function() {
-                Route::post( '/' , [
-                    'as' => 'api.report.store' ,
-                    'middleware' => 'auth' ,
-                    'uses' => 'ReportController@store'
-                ] );
-
-                Route::put( '/' , [
-                    'as' => 'api.report.update' ,
-                    'middleware' => 'auth' ,
-                    'uses' => 'ReportController@update'
-                ] );
-
                 Route::get( '/' , [
                     'as' => 'api.report.getRecords' ,
                     'middleware' => 'auth' ,
