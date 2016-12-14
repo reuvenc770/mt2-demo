@@ -19,4 +19,8 @@ class Proxy extends Model
     {
         return $query->orderBy('status','DESC');
     }
+
+    public function cakeAffiliate () {
+        return $this->hasOne( 'App\Models\CakeAffiliate' , 'id' , 'cake_affiliate_id' );
+    }
 }
