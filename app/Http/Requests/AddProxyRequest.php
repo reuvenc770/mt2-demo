@@ -29,6 +29,7 @@ class AddProxyRequest extends Request
             'name' => 'required|unique:proxies',
             'ip_addresses'      => 'required',
             'provider_name'      => 'required',
+            'cake_affiliate_id'      => 'required',
         ];
     }
 
@@ -38,7 +39,8 @@ class AddProxyRequest extends Request
             'ip_addresses.required' => 'At least 1 IP address is required.',
             'name.required' => 'Proxy name is required.',
             'name.unique' => 'This proxy name already exists.',
-            'provider_name.required' => 'The provider\'s name is required.'
+            'provider_name.required' => 'The provider\'s name is required.' ,
+            'cake_affiliate_id.required' => 'CAKE Affiliate is required.'
         ];
     }
 }

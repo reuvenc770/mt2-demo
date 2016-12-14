@@ -29,6 +29,7 @@ class EditProxyRequest extends Request
             'name' => 'required',
             'ip_addresses'      => 'required',
             'provider_name'      => 'required',
+            'cake_affiliate_id'      => 'required',
         ];
     }
 
@@ -37,7 +38,8 @@ class EditProxyRequest extends Request
         return [
             'ip_addresses.required' => 'At least 1 IP address is required.',
             'name.required' => 'Proxy name is required.',
-            'provider_name.required' => 'The provider\'s name is required.'
+            'provider_name.required' => 'The provider\'s name is required.' ,
+            'cake_affiliate_id.required' => 'CAKE Affiliate is required.'
         ];
     }
 }

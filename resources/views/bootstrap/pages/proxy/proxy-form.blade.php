@@ -116,6 +116,23 @@
     </div>
 </div>
 
+<div class="form-group" ng-class="{ 'has-error' : proxy.formErrors.cake_affiliate_id }">
+    <label class="col-sm-2 control-label">Cake Affiliate</label>
+    <div class="col-sm-10">
+        <select name="cake_affiliate_id" id="cake_affiliate_id" class="form-control" ng-model="proxy.currentAccount.cake_affiliate_id">
+            <option value="">Select Cake Affiliate</option>
+            @foreach ( $affiliates as $aff )
+                <option value="{{ $aff['id'] }}">{{ $aff['name'] . ' (' . $aff['id'] . ')' }}</option>
+            @endforeach
+        </select>
+        <div class="help-block" ng-show="proxy.formErrors.cake_affiliate_id">
+            <div ng-repeat="error in proxy.formErrors.cake_affiliate_id">
+                <span ng-bind="error"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="form-group" ng-class="{ 'has-error' : proxy.formErrors.notes }">
     <label class="col-sm-2 control-label">Notes</label>
     <div class="col-sm-10">
