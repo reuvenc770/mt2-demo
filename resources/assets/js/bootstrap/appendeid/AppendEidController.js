@@ -9,6 +9,8 @@ mt2App.controller('AppendEidController', ['$log', '$window', '$location', '$time
     self.suppress = false;
     self.feed = false;
 
+    modalService.setPopover();
+
     self.createFile = function () {
         var data = {
             'fileName' : self.file,

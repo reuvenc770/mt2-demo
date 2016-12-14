@@ -26,6 +26,8 @@ mt2App.controller('SourceUrlSearchController' , [ '$rootScope' , '$window' , '$l
     self.queryPromise = null;
     self.recordCounts = [];
 
+    modalService.setPopover();
+
     self.loadFeedList = function () {
         FeedApiService.getAllFeeds( self.getAllFeedsSuccessCallback , self.getAllFeedsFailureCallback );
     };

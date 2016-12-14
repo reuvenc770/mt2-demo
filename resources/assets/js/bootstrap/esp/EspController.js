@@ -40,6 +40,8 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
 
     self.selectedFields = [];
 
+    modalService.setPopover();
+
     self.loadAccounts = function () {
         EspService.getAccounts(
             self.currentPage ,

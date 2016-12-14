@@ -1,5 +1,4 @@
-<h3>General</h3>
-
+<h3 class="bold-text">General</h3>
 <div class="form-group">
     <label for="name">Profile Name</label>
 
@@ -14,7 +13,7 @@
 </div>
 
 <div class="form-group">
-    <label>Country</label>
+    <label>Party</label>
 
     <div layout="row" layout-align="start center">
         <label class="radio-inline">
@@ -103,7 +102,7 @@
     </div>
 
     <div class="col-sm-6">
-        <label>Select all Feeds for these Feed Group</label>
+        <label>Selected Feed Groups</label>
 
         <div class="pull-right">
             <label ng-click="listProfile.removeFeedGroups()" role="button" tabindex="0">Remove Selected <span class="glyphicon glyphicon-minus"></span></label>
@@ -117,7 +116,7 @@
 
 <div class="row form-group">
     <div class="col-sm-6">
-        <label>Select all Feeds for these Clients</label>
+        <label>Available Clients</label>
 
         <div class="pull-right">
             <label ng-click="listProfile.addFeedClients()" role="button" tabindex="0">Add Selected <span class="glyphicon glyphicon-plus"></span></label>
@@ -144,7 +143,10 @@
 </div>
 
 <div class="form-group" id="actionRanges">
-    <label><h4>Deliverables Day Range</h4> <h5><i>All day ranges are inclusive</i></h5></label>
+    <label>
+        <h4>Deliverables Day Range</h4>
+        <h5><i>All day ranges are inclusive</i></h5>
+    </label>
 
     <div class="has-error">
         <div class="help-block" ng-show="listProfile.formErrors.actionRanges">
@@ -172,7 +174,10 @@
 </div>
 
 <div class="form-group">
-    <label><h4>Openers Day Range</h4> <h5><i>All day ranges are inclusive</i></h5></label>
+    <label>
+        <h4>Openers Day Range</h4>
+        <h5><i>All day ranges are inclusive</i></h5>
+    </label>
 
     <div class="has-error">
         <div class="help-block" ng-show="listProfile.formErrors.actionRanges">
@@ -200,13 +205,17 @@
                 <input type="number" name="openerMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.opener.multiaction" ng-blur="listProfile.sanitizeMultiAction( listProfile.current.actionRanges.opener )" min="1" aria-label="Number of Times Opened" >
 
                 <label>&nbsp;Multiaction</label>
+                <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="bottom" data-content="Minimum number of times a record opened email.">help</md-icon>
             </div>
         </div>
     </div>
 </div>
 
 <div class="form-group">
-    <label><h4>Clickers Day Range</h4> <h5><i>All day ranges are inclusive</i></h5></label>
+    <label>
+        <h4>Clickers Day Range</h4>
+        <h5><i>All day ranges are inclusive</i></h5>
+    </label>
 
     <div class="has-error">
         <div class="help-block" ng-show="listProfile.formErrors.actionRanges">
@@ -234,13 +243,17 @@
                 <input type="number" name="clickerMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.clicker.multiaction" ng-blur="listProfile.sanitizeMultiAction( listProfile.current.actionRanges.clicker )" min="1" aria-label="Number of Times Clicked" >
 
                 <label>&nbsp;Multiaction</label>
+                <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="bottom" data-content="Minimum number of times a record clicked on a call-to-action.">help</md-icon>
             </div>
         </div>
     </div>
 </div>
 
 <div class="form-group">
-    <label><h4>Converters Day Range</h4> <h5><i>All day ranges are inclusive</i></h5></label>
+    <label>
+        <h4>Converters Day Range</h4>
+        <h5><i>All day ranges are inclusive</i></h5>
+    </label>
 
     <div class="has-error">
         <div class="help-block" ng-show="listProfile.formErrors.actionRanges">
@@ -268,6 +281,7 @@
                 <input type="number" name="converterMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.converter.multiaction" ng-blur="listProfile.sanitizeMultiAction( listProfile.current.actionRanges.converter )" min="1" aria-label="Number of Times Converted" >
 
                 <label>&nbsp;Multiaction</label>
+                <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="bottom" data-content="Minimum number of times a record converted an offer.">help</md-icon>
             </div>
         </div>
     </div>
@@ -339,7 +353,7 @@
         <div class="pull-right">
             <label ng-click="listProfile.addOffers()" role="button" tabindex="0">Add Selected <span class="glyphicon glyphicon-plus"></span></label>
         </div>
-            <input type="text" style="margin-bottom:5px" placeholder="First 3 Letters of Offer Name" name="searchBy" id="searchBy" class="form-control" ng-change="listProfile.search.populateOffers()" ng-model="listProfile.search.offer"  />
+            <input type="text" style="margin-bottom:5px" placeholder="To search, type first 3 letters of offer name." name="searchBy" id="searchBy" class="form-control" ng-change="listProfile.search.populateOffers()" ng-model="listProfile.search.offer"  />
         <select ng-model="listProfile.highlightedOffers" multiple style="width: 100%; height: 150px;" ng-options="offer.name for offer in listProfile.search.offerResults" >
             </select>
     </div>
@@ -356,9 +370,10 @@
     </div>
 </div>
 
-<h3 ng-click="listProfile.showAttrFilters = !listProfile.showAttrFilters">Attribute Filtering
+<h3 ng-click="listProfile.showAttrFilters = !listProfile.showAttrFilters" class="bold-text">Attribute Filtering
     <md-icon md-font-set="material-icons" ng-show="!listProfile.showAttrFilters">chevron_right</md-icon>
     <md-icon md-font-set="material-icons" ng-show="listProfile.showAttrFilters">expand_more</md-icon>
+    <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Optional: Additional filtering to only return records that meet the selected attributes.">help</md-icon>
 </h3>
 
 <div ng-show="listProfile.showAttrFilters">
@@ -366,24 +381,29 @@
         <label>Age</label>
 
         <div class="row">
-            <div class="col-lg-5">
+            <div class="col-sm-5">
+                <div class="form-group">
                 <div class="input-group">
                     <span class="input-group-addon">Min</span>
 
                     <input type="number" name="filterAgeMin" class="form-control" ng-model="listProfile.current.attributeFilters.age.min" min="0" aria-label="Minimum Age"/>
                 </div>
+                </div>
             </div>
 
-            <div class="col-lg-5">
+            <div class="col-sm-5">
+                <div class="form-group">
                 <div class="input-group">
                     <span class="input-group-addon">Max</span>
 
                     <input type="number" name="filterAgeMax" class="form-control" ng-model="listProfile.current.attributeFilters.age.max" min="0" aria-label="Maximum Age" />
                 </div>
+                </div>
             </div>
 
-            <div class="col-lg-2">
+            <div class="col-sm-2">
                 <md-checkbox name="filterAgeUnknown" ng-model="listProfile.current.attributeFilters.age.unknown" ng-true-value="true" ng-false-value="false" style="margin-top: 7px">Unknown</md-checkbox>
+                <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="bottom" data-content="Some records may not have data for this attribute. Check 'Unknown' to include those records.">help</md-icon>
             </div>
         </div>
     </div>
@@ -406,6 +426,7 @@
 
             <md-checkbox name="filterGenderUnknown" value="Unknown" ng-checked="listProfile.current.attributeFilters.genders.Unknown" ng-click="listProfile.toggleSelection( listProfile.current.attributeFilters.genders , listProfile.genderNameMap , 'Unknown' )">
                 Unknown
+            <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="bottom" data-content="Some records may not have data for this attribute. Check 'Unknown' to include those records.">help</md-icon>
             </md-checkbox>
         </div>
     </div>
@@ -543,7 +564,7 @@
     </div>
 </div>
 
-<h3>Suppression</h3>
+<h3 class="bold-text">Suppression</h3>
 
 @if ( Sentinel::inRole( 'admiral' ) )
 <div class="row" ng-show="listProfile.enableAdmiral">
@@ -573,8 +594,8 @@
             <option ng-repeat="( globalSuppId , globalSuppName ) in listProfile.current.suppression.global" ng-value="globalSuppId">@{{globalSuppName}}</option>
         </select>
     </div>
-</div>
 <br />
+</div>
 @endif
 
 @if ( Sentinel::inRole( 'admiral' ) )
@@ -605,8 +626,8 @@
             <option ng-repeat="( listSuppId , listSuppName ) in listProfile.current.suppression.list" ng-value="listSuppId">@{{listSuppName}}</option>
         </select>
     </div>
-</div>
 <br />
+</div>
 @endif
 
 <div class="row">
@@ -635,7 +656,9 @@
     </div>
 </div>
 
-<h3>Attribute Suppression</h3>
+<h3 class="bold-text">Attribute Suppression
+    <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Optional: Additional suppression to exclude records that meet the selected attributes.">help</md-icon>
+</h3>
 
 <div class="form-group">
     <label>City/Cities</label>
@@ -678,7 +701,7 @@
     </div>
 </div>
 
-<h3>Hygiene <span class="label label-default" style="font-size:12px; vertical-align:middle;"> Coming Soon </span></h3>
+<h3 class="bold-text">Hygiene <span class="label label-default" style="font-size:12px; vertical-align:middle;"> Coming Soon </span></h3>
 
 <md-checkbox ng-model="listProfile.current.impressionwise" ng-true-value="true" ng-false-value="false" ng-disabled="true">Impressionwise</md-checkbox>
 
@@ -726,7 +749,9 @@
     </div>
 </div>
 
-<h3>Select and Order Fields</h3>
+<h3 class="bold-text">Select and Order Fields
+    <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Select the data fields to be included for each record in the exported CSV file.">help</md-icon>
+</h3>
 
 <div class="has-error">
     <div class="help-block" ng-show="listProfile.formErrors.selectedColumns">
@@ -778,11 +803,15 @@
     Include header line
 </md-checkbox>
 
-<h3>Export Options</h3>
+<h3 class="bold-text">Export Options
+    <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Schedule how often a data pull should run for this list profile. The CSV file in FTP will update accordingly. If nothing is selected, schedule will default to 'Never'.">help</md-icon>
+</h3>
 
 <div class="row">
     <div class="col-md-2">
-        <md-checkbox ng-click="listProfile.toggleExportOption( 'Immediately' )" ng-checked="listProfile.isSelectedExportOption( 'Immediately' )">Immediately</md-checkbox>
+        <md-checkbox ng-click="listProfile.toggleExportOption( 'Immediately' )" ng-checked="listProfile.isSelectedExportOption( 'Immediately' )">Immediately
+            <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="bottom" data-content="Selecting this will pull data and drop the CSV file in FTP immediately. This is a one-time event. After saving, this box will become unchecked. To manually pull again, check 'Immediately' and save again.">help</md-icon>
+        </md-checkbox>
     </div>
 
     <div class="col-md-2">
@@ -844,7 +873,7 @@
     </div>
 </div>
 
-<h3>Admiral Settings</h3>
+<h3 class="bold-text">Admiral Settings</h3>
 
 @if ( Sentinel::inRole( 'admiral' ) )
 <br />

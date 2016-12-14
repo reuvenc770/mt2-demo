@@ -6,9 +6,7 @@
 
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('listprofile.add'))
-        <li ng-click="app.redirect( '/listprofile/create' )" aria-label="Add List Profile">
-            <a href="#">Add List Profile</a>
-        </li>
+        <li><a href="/listprofile/create" target="_self">Add List Profile</a></li>
         @endif
         @stop
 
@@ -29,7 +27,9 @@
                     <table md-table md-progress="listProfile.queryPromise">
                         <thead md-head class="mt2-theme-thead">
                         <tr md-row>
-                            <th md-column class="mt2-table-btn-column"></th>
+                            <th md-column class="mt2-table-btn-column  mt2-table-header-center">
+                                <md-icon style="margin-right: 8px;" md-font-set="material-icons" class="mt2-icon-white material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Select 2 or more list profiles to create a list profile combine.">help</md-icon>
+                            </th>
                             <th md-column class="md-table-header-override-whitetext">Name</th>
                             <th md-column class="md-table-header-override-whitetext">Deliverable Range</th>
                             <th md-column class="md-table-header-override-whitetext">Opener Range</th>

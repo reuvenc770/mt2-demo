@@ -14,6 +14,8 @@
 
     <div class="panel-body">
 
+        <p>Drag and drop the field names in the order that they appear in the CSV file. If a field is not listed as available, you can create a custom one.</p>
+
         <div class="row draggable-membership-widget">
             <div class="col-md-6">
                 <div class="panel panel-info">
@@ -62,9 +64,7 @@
     </div>
 
     <div class="panel-footer">
-        <div class="form-group">
             <input class="btn mt2-theme-btn-primary btn-block" ng-click="feed.saveFieldOrder()" ng-disabled="feed.formSubmitted" type="submit" value="Save Field Order" />
-        </div>
     </div>
 </div>
 @stop

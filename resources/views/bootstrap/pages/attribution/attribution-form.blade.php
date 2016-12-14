@@ -38,7 +38,7 @@
                             <div ng-class="{ 'input-group' : $first }">
                                 <input class="form-control cmp-input-xs" ng-model="feed.newLevel" type="text">
                                 <div class="input-group-addon cmp-tooltip-marker" ng-if="$first">
-                                    <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs no-padding" aria-label="Change level" data-toggle="popover" data-content="To move the feed to a specific level, type in the new position and click 'Change Level' button.">help</md-icon>
+                                    <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs no-padding" aria-label="Change level" data-toggle="popover" data-placement="right" data-content="To move the feed to a specific level, type in the new position and click 'Change Level' button.">help</md-icon>
                                 </div>
 
                             </div>
