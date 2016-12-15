@@ -6,7 +6,7 @@ use App\Exceptions\ValidationException;
 use App\Exceptions\UrlValidationException;
 use App\Services\CakeEncryptedLinkService;
 use App\Services\UrlFormatService;
-use App\Services\LinkService;
+use App\Services\MT1Services\LinkService;
 use App\Repositories\CakeRedirectDomainRepo;
 use App\Repositories\OfferRepo;
 use App\Repositories\OfferTrackingLinkRepo;
@@ -203,7 +203,7 @@ class PackageZipCreationService {
                 $creativeHtml = $this->parseCCIDLinks($creativeHtml);
             }
 
-            // Format offer unsub link (merged with 10)
+            // Format offer unsub link
             $offerRealUnsubLink = $offer->unsub_link;
 
             if ('' !== $offerRealUnsubLink) {
@@ -216,7 +216,6 @@ class PackageZipCreationService {
             }
             
             // Replacing tokens in the full html
-
             $fullHtml = $deploy->mailingTemplate->template_html;
 
             // remove doctype, html, & body from creative

@@ -78,6 +78,11 @@ class DataProcessingFactory {
                 $mt1Name = 'EspAdvertiserJoin';
                 return self::createMt2ExportService($mt2Name, $mt1Name);
 
+            case('Mt1Export-link'):
+                $mt2Name = 'Link';
+                $mt1Name = 'Link';
+                return self::createMt2ExportService($mt2Name, $mt1Name);
+
             # Import from MT1
 
             case ('ImportMt1Advertisers'):
