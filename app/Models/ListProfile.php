@@ -53,7 +53,7 @@ class ListProfile extends Model
     }
 
     public function deploys () {
-        $combines = $this->baseCombine();
+        $combines = $this->combines();
         $deploys = [];
 
         if( $combines->count() <= 0 ) {
