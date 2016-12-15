@@ -15,4 +15,8 @@ class ListProfileCombine extends Model
     {
         return $this->belongsToMany('App\Models\ListProfile');
     }
+
+    public function deploy () {
+        return $this->hasOne( 'App\Models\Deploy' );
+    }
 }

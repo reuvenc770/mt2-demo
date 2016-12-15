@@ -4,10 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\ModelTraits\ModelCacheControl;
+use App\Models\ModelTraits\Deletable;
 use App\Models\ListProfileCombine;
+use App\Models\ListProfileCombinePivot;
+
 class ListProfile extends Model
 {
     use ModelCacheControl;
+    use Deletable;
 
     protected $guarded = [''];
     public $timestamps = false;
@@ -40,6 +44,35 @@ class ListProfile extends Model
         return $this->hasOne( 'App\Models\ListProfileSchedule' );
     }
 
+    public function baseCombine () {
+        return $this->hasOne( 'App\Models\ListProfileCombine' , 'list_profile_id' , 'id' );
+    }
+
+    public function combines () {
+        return $this->belongsToMany( 'App\Models\ListProfileCombine' , 'list_profile.list_profile_list_profile_combine' );
+    }
+
+    public function deploys () {
+        $combines = $this->baseCombine();
+        $deploys = [];
+
+        if( $combines->count() <= 0 ) {
+            return collect( [] );
+        }
+
+        $combines->get()->each( function ( $item , $key ) use ( &$deploys ) {
+            if ( $item->deploy()->count() > 0 ) {
+                array_push( $deploys , $item->deploy()->first() );
+            }
+        } );
+
+        return collect( $deploys );
+    }
+
+    public function canModelBeDeleted () {
+        return $this->deploys()->isEmpty();
+    }
+
 
     /**
      * Because Deploys now can choose a single list profile or a list combine we have to know the difference
@@ -63,6 +96,24 @@ class ListProfile extends Model
             $listCombine = ListProfileCombine::where('list_profile_id', $listProfile->id)->first();
             $listCombine->name = $listProfile->name;
             $listCombine->save();
+        });
+
+        static::deleted(function($listProfile){
+            $combineIDs = $listProfile->baseCombine()->pluck( 'id' )->toArray();
+            $listProfileId = $listProfile->id;
+
+            if ( $listProfile->clients()->count() ) { $listProfile->clients()->detach(); }
+            if ( $listProfile->feeds()->count() ) { $listProfile->feeds()->detach(); }
+            if ( $listProfile->feedGroups()->count() ) { $listProfile->feedGroups()->detach(); }
+            if ( $listProfile->domainGroups()->count() ) { $listProfile->domainGroups()->detach(); }
+            if ( $listProfile->offers()->count() ) { $listProfile->offers()->detach(); }
+            if ( $listProfile->verticals()->count() ) { $listProfile->verticals()->detach(); }
+            
+            $listProfile->baseCombine()->delete();
+            $listProfile->schedule()->delete();
+
+            ListProfileCombinePivot::where( 'list_profile_id' , $listProfileId )->delete();
+            ListProfileCombinePivot::whereIn( 'list_profile_combine_id' , $combineIDs )->delete();
         });
     }
 

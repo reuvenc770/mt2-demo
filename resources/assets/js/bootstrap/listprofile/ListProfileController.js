@@ -831,6 +831,22 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         ListProfileApiService.updateListProfile( self.current , self.SuccessCallBackRedirect , self.failureCallback );
     };
 
+    self.deleteListProfile = function ( ev , id ) {
+        var confirm = $mdDialog.confirm()
+                        .title( 'Are you sure you want to delete this List Profile?' )
+                        .ariaLabel( 'Delete List Profile' )
+                        .targetEvent( ev )
+                        .ok( 'Yes I am Sure' )
+                        .cancel( 'No' );
+
+        $mdDialog.show( confirm ).then(
+            function () {
+                ListProfileApiService.deleteListProfile( id , self.deleteListProfileSuccess ,  self.deleteListProfileFailure );
+            } ,
+            function () {}
+        );
+    }
+
     self.SuccessCallBackRedirect = function ( response ) {
         $location.url( '/listprofile' );
         $window.location.href = '/listprofile';
@@ -838,6 +854,19 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
     self.failureCallback = function ( response ) {
         formValidationService.loadFieldErrors( self , response );
+    };
+
+
+    self.deleteListProfileFailure = function ( response ) {
+        modalService.setModalLabel('Failed To Delete List Profile');
+        modalService.setModalBodyRawHtml( 'The List Profile is currently used in a Deploy.' );
+        modalService.launchModal();
+        self.loadListProfiles();
+    };
+
+    self.deleteListProfileSuccess = function ( response ) {
+        modalService.simpleToast("Successfully Deleted List Profile");
+        self.loadListProfiles();
     };
 
     self.nameCombine = function (){

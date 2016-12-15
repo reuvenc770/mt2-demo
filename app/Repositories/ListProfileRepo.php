@@ -67,6 +67,14 @@ class ListProfileRepo
         $this->listProfile->updateOrCreate(['id' => $listProfileId ], $data);
     }
 
+    public function canBeDeleted ( $id ) {
+        return $this->listProfile->find( $id )->canModelBeDeleted();
+    }
+
+    public function delete ( $id ) {
+        return $this->listProfile->destroy( $id );
+    }
+
     public function returnActiveProfiles(){
        return $this->listProfile->where("status", "A")->select('id','profile_name')->get();
     }
@@ -152,5 +160,4 @@ class ListProfileRepo
             $this->isp->insert( [ 'list_profile_id' => $id , 'domain_group_id' => $currentIsp ] );
         }
     }
-
 }

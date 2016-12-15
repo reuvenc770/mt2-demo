@@ -46,10 +46,17 @@
                         <tr md-row ng-repeat="profile in listProfile.thirdPartyListProfiles track by $index">
                             <td md-cell class="mt2-table-btn-column" nowrap>
                                 <md-checkbox  aria-label="Select" name="selectedRows" ng-checked="listProfile.isCreatingCombine(profile.id)" ng-click="listProfile.toggleRow(profile.id, profile.party)"> </md-checkbox>
+
                                 <a ng-href="@{{ ( '/listprofile/edit/' + profile.id ) }}" aria-label="Edit" target="_self" data-toggle="tooltip" data-placement="bottom" title="Edit">
                                     <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon></a>
                                 @if (Sentinel::hasAccess('api.listprofile.copy'))
                                     <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-click="listProfile.copyListProfile($event, profile.id, profile.name)" aria-label="Copy" data-toggle="tooltip" data-placement="bottom" title="Copy">content_copy</md-icon>
+                                @endif
+
+                                @if (Sentinel::hasAccess('api.listprofile.destroy'))
+                                    <md-icon  ng-click="listProfile.deleteListProfile( $event , profile.id )" aria-label="Delete List Profile"
+                                         md-font-set="material-icons" class="mt2-icon-black"
+                                         data-toggle="tooltip" data-placement="bottom" title="Delete List Profile">delete</md-icon>
                                 @endif
                             </td>
                             <td md-cell ng-bind="profile.name" nowrap></td>

@@ -86,6 +86,18 @@ class ListProfileService
         return $id;
     }
 
+    public function tryToDelete ( $id ) {
+        $canBeDeleted = $this->profileRepo->canBeDeleted( $id );
+
+        if ( $canBeDeleted === true ) {
+            $this->profileRepo->delete( $id );
+
+            return true;
+        } else {
+            return $canBeDeleted;
+        }
+    }
+
     public function getFullProfileJson ( $id ) {
         $listProfile = $this->profileRepo->getProfile( $id );
         $schedule = $listProfile->schedule()->first();
