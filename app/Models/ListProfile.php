@@ -61,8 +61,10 @@ class ListProfile extends Model
         }
 
         $combines->get()->each( function ( $item , $key ) use ( &$deploys ) {
-            if ( $item->deploy()->count() > 0 ) {
-                array_push( $deploys , $item->deploy()->first() );
+            if ( $item->deploys()->count() > 0 ) {
+                $item->deploys()->each( function ( $current , $currentKey ) use ( &$deploys ) {
+                    array_push( $deploys , $current );
+                } );
             }
         } );
 
