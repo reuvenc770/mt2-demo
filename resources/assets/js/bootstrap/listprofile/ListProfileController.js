@@ -272,8 +272,6 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
             });
 
             var len = self.current.selectedColumns.length;
-            console.log("length is " + len);
-
             var columnsTemp = self.columnList.filter(function (item) {
                 for (var i = 0; i < len; i++) {
                     if (item['header'] === self.current.selectedColumns[i]['header']) {
