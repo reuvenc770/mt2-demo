@@ -202,6 +202,18 @@ return [
             'strict'    => false,
         ],
 
+        'legacy_data_sync' => [
+            'driver'    => 'mysql',
+            'host'      => env('MT1_MASTER_LEGACY_SYNC_HOST', ''),
+            'database'  => env('MT1_MASTER_LEGACY_SYNC_DB', ''),
+            'username'  => env('MT1_MASTER_LEGACY_SYNC_USER', ''),
+            'password'  => env('MT1_MASTER_LEGACY_SYNC_PW', ''),
+            'charset'   => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix'    => '',
+            'strict'    => false,
+        ],
+
 
     ],
 

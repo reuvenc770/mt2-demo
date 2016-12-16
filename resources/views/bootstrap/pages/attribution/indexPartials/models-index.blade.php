@@ -3,26 +3,10 @@
         <a class="navbar-brand pull-right">
             <md-icon md-font-set="material-icons" class="mt2-icon-white material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="left" data-content="After editing a model, attribution does not run again. You will need to wait until the next automated run or manually click 'Run Attribution'.">help</md-icon>
         </a>
+        <a class="navbar-brand pull-left md-table-header-override-whitetext">Models</a>
 
         <ul class="nav navbar-nav navbar-right" ng-show="attr.showModelActions">
-                @if (Sentinel::hasAccess('attributionProjection.show'))
-                    <li><a ng-hide="attr.disableProjection || attr.selectedModel[ 0 ].processing" ng-href="@{{ 'attribution/projection/' + attr.selectedModelId }}" target="_self">
-                        <md-icon md-font-set="material-icons" class="mt2-icon-white">assessment</md-icon> Projection
-                    </a></li>
-                @endif
-
-                @if (Sentinel::hasAccess('api.attribution.run'))
-                    <li><a ng-hide="attr.disableProjection || attr.selectedModel[ 0 ].processing" ng-click="attr.runAttribution( true )" href="#">
-                        <md-icon md-font-set="material-icons" class="mt2-icon-white">monetization_on</md-icon> Run Attribution
-                    </a></li>
-                @endif
-
-                @if (Sentinel::hasAccess('api.attribution.model.setlive'))
-                    <li><a ng-hide="attr.disableProjection || attr.selectedModel[ 0 ].processing" ng-click="attr.setModelLive()" href="#">
-                        <md-icon md-font-set="material-icons" class="mt2-icon-white">play_circle_outline</md-icon> Set Live
-                    </a></li>
-                @endif
-                    <li><h2 class="md-toolbar-tools" ng-show="attr.selectedModel[ 0 ].processing"><a>This model is running. Please check back later for projections.</a></h2></li>
+                <li><h2 class="md-toolbar-tools" ng-show="attr.selectedModel[ 0 ].processing"><a>This model is running. Please check back later for projections.</a></h2></li>
         </ul>
     </div>
 </div>
@@ -41,17 +25,28 @@
             <tbody md-body>
             <tr
                     md-row
-                    md-auto-select
-                    md-select="model"
-                    md-select-id="id"
-                    md-on-select="attr.toggleModelActionButtons"
-                    md-on-deselect="attr.toggleModelActionButtons"
-                    multiple="false"
                     ng-class="{ 'mt2-live-row' : model.live == 1 }"
                     ng-repeat="model in attr.models track by $index">
                 <td md-cell class="mt2-table-btn-column" nowrap>
                     <a ng-hide="model.processing" ng-href="@{{ 'attribution/edit/' + model.id }}" aria-label="Edit" target="_self" data-toggle="tooltip" data-placement="bottom" title="Edit">
                         <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon></a>
+
+                    @if (Sentinel::hasAccess('attributionProjection.show'))
+                    <a ng-hide="model.live === 1 || model.processing" ng-href="@{{ 'attribution/projection/' + model.id }}" aria-label="Projection" target="_self" data-toggle="tooltip" data-placement="bottom" title="Projection">
+                        <md-icon md-font-set="material-icons" class="mt2-icon-black">assessment</md-icon></a>
+                    @endif
+
+                    @if (Sentinel::hasAccess('api.attribution.run'))
+                    <a ng-hide="model.processing" ng-click="attr.runAttribution( model.live === 1 ? '' : model.id )" aria-label="Run Attribution" data-toggle="tooltip" data-placement="bottom" title="Run Attribution">
+                        <md-icon md-font-set="material-icons" class="mt2-icon-black">monetization_on</md-icon>
+                    </a>
+                    @endif
+
+                    @if (Sentinel::hasAccess('api.attribution.model.setlive'))
+                    <a ng-hide="model.live === 1 || model.processing" ng-click="attr.setModelLive( model.id )" aria-label="Set Live" data-toggle="tooltip" data-placement="bottom" title="Set Live">
+                        <md-icon md-font-set="material-icons" class="mt2-icon-black">play_circle_outline</md-icon>
+                    </a>
+                    @endif
                 </td>
                 <td md-cell ng-bind="model.name" nowrap></td>
                 <td md-cell ng-bind="model.processing ? 'Running' : 'Completed'"></td>
@@ -61,7 +56,7 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="5">
+                    <td colspan="7">
                         <md-table-pagination md-limit="attr.paginationCount" md-limit-options="attr.paginationOptions" md-page="attr.currentPage" md-total="@{{attr.modelTotal}}" md-on-paginate="attr.loadModels" md-page-select></md-table-pagination>
                     </td>
                 </tr>

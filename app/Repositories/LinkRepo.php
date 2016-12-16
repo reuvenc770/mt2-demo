@@ -3,8 +3,9 @@
 namespace App\Repositories;
 
 use App\Models\Link;
+use App\Repositories\RepoInterfaces\Mt2Export;
 
-class LinkRepo {
+class LinkRepo implements Mt2Export {
     
     private $model;
 
@@ -18,5 +19,11 @@ class LinkRepo {
 
     public function getLinkId($url) {
         return $this->model->firstOrCreate(['url' => $url], ['url' => $url])->id;
+    }
+
+    public function transformForMt1($startId) {
+        return $this->model
+                    ->selectRaw('id as link_id, url as refurl, created_at as date_added')
+                    ->whereRaw("id > $startId");
     }
 }

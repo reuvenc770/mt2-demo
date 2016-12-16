@@ -278,19 +278,7 @@ class ListProfileService
 
     private function returnQueriesData($listProfile) {
         $queries = [];
-
-        $partyCheck = [1 => 0, 2 => 0, 3 => 0];
-        foreach($listProfile->feeds as $feed) {
-            $partyCheck[$feed->party]++;
-        }
-
-        $max = 0;
-        foreach ($partyCheck as $partyId => $count) {
-            if ($count > $max) {
-                $party = $partyId;
-                $max = $count;
-            }
-        }
+        $party = (int)$listProfile->party;
 
         if ($listProfile->deliverable_end !== $listProfile->deliverable_start && $listProfile->deliverable_end !== 0) {
             $queries[] = ['type' => 'deliverable', 'start' => $listProfile->deliverable_start, 'end' => $listProfile->deliverable_end, 'count' => 1, 'party' => $party];

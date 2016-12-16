@@ -28,6 +28,6 @@ class CakeRedirectDomainRepo {
     }
 
     public function getDefaultRedirectDomain() {
-        return env('DEFAULT_CAKE_REDIRECT_DOMAIN');
+        return env('CAKE_OLD_REDIR_DOMAIN');
     }
 }

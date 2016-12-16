@@ -3,14 +3,17 @@
 namespace App\Repositories\MT1Repositories;
 
 use App\Models\MT1Models\User;
+use App\Models\MT1Models\LiveUser;
 use DB;
 use App\Repositories\RepoInterfaces\Mt1Import;
 
 class UserRepo implements Mt1Import {
     protected $model;
+    private $liveModel;
 
-    public function __construct (User $model) {
+    public function __construct (User $model, LiveUser $liveModel) {
         $this->model = $model;
+        $this->liveModel = $liveModel;
     }
 
     public function pullForSync($lookback) {
@@ -30,6 +33,6 @@ class UserRepo implements Mt1Import {
     }
 
     public function insertToMt1($data) {
-        $this->model->updateOrCreate(['user_id' => $data['user_id']], $data);
+        $this->liveModel->updateOrCreate(['user_id' => $data['user_id']], $data);
     }
 }

@@ -67,8 +67,8 @@ class ListProfileQueryBuilder {
             'source_url' => 'rd.source_url',
             'client_name' => DB::raw('c.name as client_name'),
             'email_address' => 'e.email_address', 
-            'lower_case_md5' => 'e.lower_case_md5', 
-            'upper_case_md5' => 'e.upper_case_md5',
+            'lower_md5' => 'e.lower_case_md5', 
+            'upper_md5' => 'e.upper_case_md5',
             'party' => 'f.party',
             'capture_date' => 'rd.capture_date'
         ];

@@ -78,6 +78,11 @@ class DataProcessingFactory {
                 $mt1Name = 'EspAdvertiserJoin';
                 return self::createMt2ExportService($mt2Name, $mt1Name);
 
+            case('Mt1Export-link'):
+                $mt2Name = 'Link';
+                $mt1Name = 'Link';
+                return self::createMt2ExportService($mt2Name, $mt1Name);
+
             # Import from MT1
 
             case ('ImportMt1Advertisers'):
@@ -279,14 +284,11 @@ class DataProcessingFactory {
     }
 
     private static function createMt1ImportService($mt1Name, $mt2Name) {
-
-        $mt1ModelName = "App\\Models\\MT1Models\\{$mt1Name}";
         $mt1RepoName = "App\\Repositories\\MT1Repositories\\{$mt1Name}Repo";
-        $mt1Repo = new $mt1RepoName( new $mt1ModelName() );
+        $mt1Repo = App::make($mt1RepoName);
 
-        $mt2ModelName = "App\\Models\\{$mt2Name}";
         $mt2RepoName = "App\\Repositories\\{$mt2Name}Repo";
-        $mt2Repo = new $mt2RepoName( new $mt2ModelName() );
+        $mt2Repo = App::make($mt2RepoName);
 
         $mapStrategyName = "App\\Services\\MapStrategies\\{$mt1Name}{$mt2Name}MapStrategy";
         $mapStrategy = \App::make($mapStrategyName);

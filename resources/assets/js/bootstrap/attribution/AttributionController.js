@@ -229,9 +229,9 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         } );
     };
 
-    self.setModelLive = function () {
+    self.setModelLive = function ( modelId ) {
         AttributionApiService.setModelLive(
-            self.selectedModelId ,
+            modelId ,
             function ( response ) {
                 modalService.setModalLabel('Success');
                 modalService.setModalBody( 'Feed levels are updated. Please run attribution.' );
@@ -247,13 +247,12 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         );
     };
 
-    self.runAttribution = function ( modelRun ) {
-        var modelId = '';
+    self.runAttribution = function ( modelId ) {
         var modelText = "";
-        if ( modelRun ) {
-            modelId = self.selectedModelId;
-
+        if ( modelId > 0 ) {
             modelText = " for model " + modelId;
+        } else {
+            modelId = '';
         }
 
         var confirm = $mdDialog.confirm()

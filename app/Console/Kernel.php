@@ -214,6 +214,8 @@ class Kernel extends ConsoleKernel
         /**
          * Attribution Jobs
          */
+         
+        // Attribution jobs disabled temporarily until launch
         #$schedule->command('runFilter activity')->dailyAt(self::EXPIRATION_RUNS);
         #$schedule->command('runFilter expiration')->dailyAt(self::EXPIRATION_RUNS);
         #$schedule->command('attribution:commit daily')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);

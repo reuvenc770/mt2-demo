@@ -3,14 +3,17 @@
 namespace App\Repositories\MT1Repositories;
 
 use App\Models\MT1Models\EspAdvertiserJoin;
+use App\Models\MT1Models\LiveEspAdvertiserJoin;
 use DB;
 use App\Repositories\RepoInterfaces\Mt1Import;
 
 class EspAdvertiserJoinRepo implements Mt1Import {
     protected $model;
+    private $liveModel;
 
-    public function __construct (EspAdvertiserJoin $model) {
+    public function __construct (EspAdvertiserJoin $model, LiveEspAdvertiserJoin $liveModel) {
         $this->model = $model;
+        $this->liveModel = $liveModel;
     }
 
     public function getByDeployId($deployId) {
@@ -45,6 +48,6 @@ class EspAdvertiserJoinRepo implements Mt1Import {
     }
 
     public function insertToMt1($data) {
-        $this->model->updateOrCreate(['subAffiliateID' => $data['subAffiliateID']], $data);
+        $this->liveModel->updateOrCreate(['subAffiliateID' => $data['subAffiliateID']], $data);
     }
 }

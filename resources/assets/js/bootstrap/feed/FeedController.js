@@ -23,7 +23,7 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
     self.createUrl = '/feed/create';
 
     self.pageCount = 0;
-    self.paginationCount = paginationService.getDefaultPaginationCount();
+    self.paginationCount = 100;
     self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
     self.feedTotal = 0;

@@ -10,7 +10,7 @@ class PassToMt1 extends Command
 {
     use DispatchesJobs;
 
-    private $entities = ['email_list', 'user', 'EspAdvertiserJoin'];
+    private $entities = ['email_list', 'user', 'EspAdvertiserJoin', 'link'];
 
     /**
      * The name and signature of the console command.
