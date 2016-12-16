@@ -345,3 +345,8 @@ Breadcrumbs::register('isp.edit', function($breadcrumbs) {
 });
 
 
+Breadcrumbs::register('report.list', function($breadcrumbs) {
+    $breadcrumbs->parent('home');
+    $breadcrumbs->push('Reports', route('report.list'));
+});
+
