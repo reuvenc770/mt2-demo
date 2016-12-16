@@ -189,7 +189,7 @@ class ImportMt1EmailsService
 
                         // maybe there's a way to remove this?
                         $isDeliverable = $this->recordDataRepo->getDeliverableStatus($record['email_id']);
-                        $record['is_deliverable'] = $isDeliverable;
+                        $record['is_deliverable'] = $emailStatus === 'fresh' ? 1 : $isDeliverable;
                         $record['other_fields'] = '{}';
 
                         $this->recordDataRepo->insert($record);
