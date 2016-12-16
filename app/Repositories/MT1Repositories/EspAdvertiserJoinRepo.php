@@ -11,7 +11,7 @@ class EspAdvertiserJoinRepo implements Mt1Import {
     protected $model;
     private $liveModel;
 
-    public function __construct (EspAdvertiserJoin $model, LiveEspAdvertiserJoinModel $liveModel) {
+    public function __construct (EspAdvertiserJoin $model, LiveEspAdvertiserJoin $liveModel) {
         $this->model = $model;
         $this->liveModel = $liveModel;
     }
