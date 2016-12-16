@@ -51,7 +51,7 @@ class ListProfileService
         'email_address'  =>  'Email Address',
         'lower_md5'  =>  'Lowercase MD5',
         'upper_md5'  =>  'Uppercase MD5',
-        'domain_group_id'  =>  "ISP",
+        'domain_group_name'  =>  "ISP",
         'dob'  =>  "Date of Birth",
         'feed_id'  =>  "Feed ID",
         'feed_name'  =>  "Feed Name",
