@@ -384,7 +384,7 @@ class ListProfileService
 
         $offers = $currentProfile->offers()->pluck('id');
         if ($offers->count() > 0) {
-            $this->profileRepo->assignOffers($copyProfile->id, $offers->toArray());
+            $this->profileRepo->assignCopiedOffers($copyProfile->id, $offers->toArray());
         }
 
         $verticals = $currentProfile->verticals()->pluck('id');
