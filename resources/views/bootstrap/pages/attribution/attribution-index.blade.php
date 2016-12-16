@@ -8,15 +8,12 @@
         @if (Sentinel::hasAccess('attributionModel.add'))
         <li><a ng-href="{{ route( 'attributionModel.add' ) }}" target="_self" >Add Model</a></li>
         @endif
-        @if (Sentinel::hasAccess('api.attribution.run'))
-                <li><a ng-click="attr.runAttribution( false )" >Run Live Attribution</a></li>
-        @endif
 @stop
 
 @section( 'content' )
 
 <div  ng-init="attr.initIndexPage()">
-    <div class="alert alert-info" role="alert"> <strong>Heads up!</strong> Highlighted row is currently live. Attribution is automated to run once a day. To manually update record attribution for <em>live model</em> click 'Run Live Attribution'. To manually update record attribution for <em>inactive model</em> select the inactive model and click 'Run Attribution'. After manually running live attribution, reports will update but you will need to go to the <a ng-href="{{ route( 'report.list' ) }}" target="_self">reports page</a> to view the reports.</div>
+    <div class="alert alert-info" role="alert"> <strong>Heads up!</strong> Highlighted row is currently live. Attribution is automated to run once a day. To manually update record attribution for <em>live model</em> click 'Run Attribution' button <md-icon md-font-set="material-icons" class="mt2-icon-black" style="font-size:20px;">monetization_on</md-icon> on the live model row. To manually update record attribution for <em>inactive model</em> select the inactive model and click 'Run Attribution' button <md-icon md-font-set="material-icons" class="mt2-icon-black" style="font-size:20px;">monetization_on</md-icon> for the inactive model you want to run. After manually running live attribution, reports will update but you will need to go to the <a ng-href="{{ route( 'report.list' ) }}" target="_self">reports page</a> to view the reports. If attribution is running for a model you will not be able to edit that model until the run is complete.</div>
             @include( 'bootstrap.pages.attribution.indexPartials.models-index' )
 </div>
 @stop
