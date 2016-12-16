@@ -10,7 +10,7 @@ class EmailListRepo implements Mt1Import {
     protected $model;
     private $liveModel;
 
-    public function __construct ( EmailList $model, LiveEmailListModel $liveModel ) {
+    public function __construct ( EmailList $model, LiveEmailList $liveModel ) {
         $this->model = $model;
         $this->liveModel = $liveModel;
     }
