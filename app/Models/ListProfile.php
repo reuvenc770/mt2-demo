@@ -53,22 +53,7 @@ class ListProfile extends Model
     }
 
     public function deploys () {
-        $combines = $this->combines();
-        $deploys = [];
-
-        if( $combines->count() <= 0 ) {
-            return collect( [] );
-        }
-
-        $combines->get()->each( function ( $item , $key ) use ( &$deploys ) {
-            if ( $item->deploys()->count() > 0 ) {
-                $item->deploys()->each( function ( $current , $currentKey ) use ( &$deploys ) {
-                    array_push( $deploys , $current );
-                } );
-            }
-        } );
-
-        return collect( $deploys );
+        return $this->hasManyThrough('App\Models\Deploy', 'App\Models\ListProfileCombinePivot', 'list_profile_id', 'list_profile_combine_id' );
     }
 
     public function canModelBeDeleted () {
@@ -104,12 +89,12 @@ class ListProfile extends Model
             $combineIDs = $listProfile->baseCombine()->pluck( 'id' )->toArray();
             $listProfileId = $listProfile->id;
 
-            if ( $listProfile->clients()->count() ) { $listProfile->clients()->detach(); }
-            if ( $listProfile->feeds()->count() ) { $listProfile->feeds()->detach(); }
-            if ( $listProfile->feedGroups()->count() ) { $listProfile->feedGroups()->detach(); }
-            if ( $listProfile->domainGroups()->count() ) { $listProfile->domainGroups()->detach(); }
-            if ( $listProfile->offers()->count() ) { $listProfile->offers()->detach(); }
-            if ( $listProfile->verticals()->count() ) { $listProfile->verticals()->detach(); }
+            $listProfile->clients()->detach();
+            $listProfile->feeds()->detach();
+            $listProfile->feedGroups()->detach();
+            $listProfile->domainGroups()->detach();
+            $listProfile->offers()->detach();
+            $listProfile->verticals()->detach();
             
             $listProfile->baseCombine()->delete();
             $listProfile->schedule()->delete();
