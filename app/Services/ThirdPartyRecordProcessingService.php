@@ -92,6 +92,7 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
                     // If not set, we need to pretend that this was attribution all along
                     $record->uniqueStatus = 'unique';
                     $recordsToFlag[] = $this->mapToNewRecords($record);
+                    $record->isDeliverable = 1;
                 }
                 elseif ($currentAttributedFeedId == $record->feedId) {
                     // Duplicate within the feed
@@ -108,6 +109,7 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
                         // Change attribution to importer
                         $recordsToFlag[] = $this->mapToNewRecords($record);
                         $record->uniqueStatus = 'unique';
+                        $record->isDeliverable = 1;
                     }
                     else {
                         // Action did not expire. Keep attribution the same
@@ -126,6 +128,7 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
                         // Importing attribution is lower (meaning greater attribution power), so switch to import
                         $record->uniqueStatus = 'unique';
                         $recordsToFlag[] = $this->mapToNewRecords($record);
+                        $record->isDeliverable = 1;
                     }
                     else {
                         $record->uniqueStatus = 'non-unique';
