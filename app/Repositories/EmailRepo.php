@@ -52,7 +52,7 @@ class EmailRepo implements Mt2Export {
     public function insertCopy($emailData) {
         DB::statement(
             "INSERT INTO emails (id, email_address, email_domain_id, lower_case_md5, upper_case_md5)
-            VALUES(:id, :addr, :domain_id, :lower_md5, :upper_md5)
+            VALUES(:id, :addr, :domain_id, :lower_case_md5, :upper_case_md5)
             ON DUPLICATE KEY UPDATE
             id = id,
             email_address=email_address,
@@ -63,8 +63,8 @@ class EmailRepo implements Mt2Export {
                 ':id' => $emailData['id'],
                 ':addr' => $emailData['email_address'],
                 ':domain_id' => $emailData['email_domain_id'],
-                ':lower_md5' => md5(strtolower($emailData['email_address'])),
-                ':upper_md5' => md5(strtoupper($emailData['email_address']))
+                ':lower_case_md5' => md5(strtolower($emailData['email_address'])),
+                ':upper_case_md5' => md5(strtoupper($emailData['email_address']))
             )
         );
     }
