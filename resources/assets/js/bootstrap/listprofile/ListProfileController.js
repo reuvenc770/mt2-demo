@@ -258,6 +258,32 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
             angular.forEach( self.current.isps , function ( value , index ) {
                 self.ispVisibility[ index ] = false;
             } );
+
+            angular.forEach(self.current.feedClients, function (value, index) {
+                self.feedClientVisibility[ index ] = false;
+            });
+
+            angular.forEach(self.current.feedGroups, function (value, index) {
+                self.feedGroupVisibility[ index ] = false;
+            });
+
+            angular.forEach(self.current.categories, function (value, index) {
+                self.categoryVisibility[ index ] = false;
+            });
+
+            var len = self.current.selectedColumns.length;
+            var columnsTemp = self.columnList.filter(function (item) {
+                for (var i = 0; i < len; i++) {
+                    if (item['header'] === self.current.selectedColumns[i]['header']) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+
+            self.columnList = columnsTemp;
+
         } , 1500 );
     };
 

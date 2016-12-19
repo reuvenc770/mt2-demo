@@ -121,6 +121,14 @@ class ListProfileRepo
         }
     }
 
+    public function assignCopiedOffers($id, $offers) {
+        $this->offer->where('list_profile_id', $id)->delete();
+
+        foreach ( $offers as $currentOffer ) {
+            $this->offer->insert(['list_profile_id' => $id, 'offer_id' => $currentOffer ]);
+        }
+    }
+
     public function assignFeeds ( $id , $feeds ) {
         $this->feed->where( 'list_profile_id' , $id )->delete();
 

@@ -372,6 +372,26 @@ class ListProfileService
             $this->profileRepo->assignIsps( $copyProfile->id , $isps->toArray() );
         }
 
+        $clients = $currentProfile->clients()->pluck('id');
+        if ($clients->count() > 0) {
+            $this->profileRepo->assignClients($copyProfile->id, $clients->toArray());
+        }
+
+        $feedGroups = $currentProfile->feedGroups()->pluck('id');
+        if ($feedGroups->count() > 0) {
+            $this->profileRepo->assignFeedGroups($copyProfile->id, $feedGroups->toArray());
+        }
+
+        $offers = $currentProfile->offers()->pluck('id');
+        if ($offers->count() > 0) {
+            $this->profileRepo->assignCopiedOffers($copyProfile->id, $offers->toArray());
+        }
+
+        $verticals = $currentProfile->verticals()->pluck('id');
+        if ($verticals->count() > 0) {
+            $this->profileRepo->assignVerticals($copyProfile->id, $verticals->toArray());
+        }
+        
         return $copyProfile->id;
     }
 }
