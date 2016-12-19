@@ -33,7 +33,7 @@ class LinkRepo implements Mt1Import {
     }
 
     public function getLinkId($url) {
-        return $this->liveModel->firstOrCreate(['refurl' => $url], ['refurl' => $url])->id;
+        return $this->liveModel->firstOrCreate(['refurl' => $url], ['refurl' => $url])->link_id;
     }
 
     public function insertToMt1($data) {
