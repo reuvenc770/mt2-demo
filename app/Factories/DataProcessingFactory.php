@@ -285,10 +285,10 @@ class DataProcessingFactory {
 
     private static function createMt1ImportService($mt1Name, $mt2Name) {
         $mt1RepoName = "App\\Repositories\\MT1Repositories\\{$mt1Name}Repo";
-        $mt1Repo = App::make($mt1RepoName);
+        $mt1Repo = \App::make($mt1RepoName);
 
         $mt2RepoName = "App\\Repositories\\{$mt2Name}Repo";
-        $mt2Repo = App::make($mt2RepoName);
+        $mt2Repo = \App::make($mt2RepoName);
 
         $mapStrategyName = "App\\Services\\MapStrategies\\{$mt1Name}{$mt2Name}MapStrategy";
         $mapStrategy = \App::make($mapStrategyName);
