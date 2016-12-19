@@ -55,7 +55,7 @@ class SetSchedulesJob extends Job implements ShouldQueue {
             }
             catch (\Exception $e) {
                 echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;
-                $this->failed();
+                $this->release(5);
             }
             finally {
                 $this->unlock($this->jobName);
