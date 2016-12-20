@@ -38,18 +38,16 @@ class AWeberApi extends EspBaseAPI
         $weber->adapter->debug = env("AWEBER_DEBUG", false);
         try {
             $this->api = $weber;
-            $this->account = Cache::remember('aweber_account_'.$espAccountId, $time, function() {
-            return $this->api->getAccount($this->accessToken, $this->sharedSecret);
-            });
-
+            $this->account = Cache::remember('aweber_account_'.$espAccountId, $time,
+                function() {
+                    return $this->api->getAccount($this->accessToken, $this->sharedSecret);
+                });
             /* we were told lies
             $listId = Cache::remember('aweber_list_id_'.$espAccountId, $time, function() use ($accountId) {
                 return $this->api->adapter->request('GET', "/accounts/{$accountId}/lists/", array())['entries'][0]['id'];
             });
             **/
-
             $this->baseUrl = "/accounts/{$this->account->id}/";
-
         } catch (AWeberAPIException $exc) {
             Log::error("AWeber  Failed {$exc->type} due to {$exc->message} help:: {$exc->documentation_url}");
             throw new \Exception("AWeber  Failed {$exc->type} due to {$exc->message} help:: {$exc->documentation_url}");
@@ -58,7 +56,7 @@ class AWeberApi extends EspBaseAPI
 
     public function sendApiRequest()
     {
-
+        //not used
     }
 
 
@@ -66,11 +64,11 @@ class AWeberApi extends EspBaseAPI
      * @param int $limit
      * @return AWeberCollection|AWeberEntry
      */
-    public function getCampaigns($limit = 1)
+    public function getCampaigns($limit = 20)
     {
         $campaignData = [];
         $lists = $this->makeApiRequest("lists", array("ws.size" => 100));
-        $numberToPull = 10; //lets get the last 20 campaigns sent
+        $numberToPull = $limit; //lets get the last 20 campaigns sent
         $i = 0;
         foreach($lists as $list){
             $url = "/lists/{$list->id}/campaigns";
@@ -80,7 +78,7 @@ class AWeberApi extends EspBaseAPI
                 echo "{$i} -- {$campaign->self_link}\n";
                 $row = array(
                     "list_id" =>$list->id,
-                "internal_id" => $campaign->id,
+                    "internal_id" => $campaign->id,
                     "subject" => $campaign->subject,
                     "sent_at" => $campaign->sent_at,
                     "info_url" => $campaign->self_link,

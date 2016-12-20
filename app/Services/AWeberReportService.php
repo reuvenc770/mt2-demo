@@ -44,41 +44,15 @@ class AWeberReportService extends AbstractReportService implements IDataService
      */
     public function retrieveApiStats($date)
     {
-        $startTime = microtime( true );
-
-        Log::info( 'Retrieving API Campaign Stats.......' );
-
         $date = null; //unfortunately date does not matter here.
-        $numberToPull = 30; //lets get the last 20 campaigns sent
         $campaignData = array();
-        $campaigns = $this->api->getCampaigns(1);
-        $i=0;
-        foreach ($campaigns as $campaign) {
+        $campaigns = $this->api->getCampaigns(20);
+        foreach ($campaigns as $campaign) {$i++;
             $clickEmail =$this->api->getStateValue($campaign['list_id'], $campaign['internal_id'], "unique_clicks");
             $openEmail = $this->api->getStateValue($campaign['list_id'], $campaign['internal_id'], "unique_opens");
-            $row = array_merge($campaign,
-            [
-                "unique_clicks" => $clickEmail,
-                "unique_opens" => $openEmail,
-            ]);
+            $row = array_merge($campaign, ["unique_clicks" => $clickEmail, "unique_opens" => $openEmail]);
             $campaignData[] = $row;
-
-
-            $i++;
-            if($i == 20){
-                $endTime = microtime( true );
-
-                Log::info( 'Executed in: ' );
-                Log::info(  $endTime - $startTime );
-                return  $campaignData;
-            }
-
         }
-        $endTime = microtime( true );
-
-        Log::info( 'Executed in: ' );
-        Log::info(  $endTime - $startTime );
-
         return $campaignData;
     }
 
