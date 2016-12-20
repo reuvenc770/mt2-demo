@@ -38,8 +38,8 @@ class GenOauth extends Command
     public function handle()
     {
         # replace XXX with your real keys and secrets
-        $consumerKey = config('aweberkeys.consumerKey');
-        $consumerSecret = config('aweberkeys.consumerSecret');
+        $consumerKey = "AkqWbnvXWfW05IYF2A39dCaU";
+        $consumerSecret = "uS7ll5zvj6DdIXDFqZunkmOLeIT4kkIBULw0gDRB";
         $this->info("Consumer Key is {$consumerKey}");
         $this->info("Consumer Secret is {$consumerSecret}");
 

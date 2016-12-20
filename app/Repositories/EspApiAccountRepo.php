@@ -148,4 +148,8 @@ class EspApiAccountRepo
     public function toggleRow($id, $direction){
         return $this->espAccount->find($id)->update(['status'=> $direction]);
     }
+
+    public function getAccountWithOAuth($id) {
+     return $this->espAccount->with('OAuthTokens')->find($id);
+    }
 }

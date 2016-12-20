@@ -54,24 +54,13 @@ class AWeberReportService extends AbstractReportService implements IDataService
         $campaigns = $this->api->getCampaigns(1);
         $i=0;
         foreach ($campaigns as $campaign) {
-            Log::info($campaign);
-            Log::info( 'Processing Aweber Campaign ' . $campaign->id );
-
-            $clickEmail =$this->api->getStateValue($campaign->id, "unique_clicks");
-            $openEmail = $this->api->getStateValue($campaign->id, "unique_opens");
-            $row = array(
-                "internal_id" => $campaign->id,
-                "subject" => $campaign->subject,
-                "sent_at" => $campaign->sent_at,
-                "info_url" => $campaign->self_link,
-                "total_sent" => $campaign->total_sent,
-                "total_opens" => $campaign->total_opens,
-                "total_unsubscribes" => $campaign->total_unsubscribes,
-                "total_clicks" => $campaign->total_clicks,
-                "total_undelivered" => $campaign->total_undelivered,
+            $clickEmail =$this->api->getStateValue($campaign['list_id'], $campaign['internal_id'], "unique_clicks");
+            $openEmail = $this->api->getStateValue($campaign['list_id'], $campaign['internal_id'], "unique_opens");
+            $row = array_merge($campaign,
+            [
                 "unique_clicks" => $clickEmail,
                 "unique_opens" => $openEmail,
-            );
+            ]);
             $campaignData[] = $row;
 
 
@@ -130,9 +119,9 @@ class AWeberReportService extends AbstractReportService implements IDataService
     public function mapToStandardReport($data)
     {
         return array(
-            'campaign_name' => $data['campaign_name'],
-            'external_deploy_id' => $this->getDeployIDFromName($data['campaign_name']),
-            'm_deploy_id' => $this->getDeployIDFromName($data['campaign_name']),
+            'campaign_name' => "",
+            'external_deploy_id' => 0,
+            'm_deploy_id' => 0,
             'esp_account_id' => $data['esp_account_id'],
             'esp_internal_id' => "",
             'datetime' => $data['datetime'],

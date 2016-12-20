@@ -42,6 +42,10 @@ class EspAccount extends Model
         return $this->hasMany('App\Models\YmlpReport');
     }
 
+    public function OAuthTokens(){
+        return $this->hasOne('App\Models\OAuthTokens');
+    }
+
     public function getFirstKey()
     {
         return $this->attributes['key_1'];
