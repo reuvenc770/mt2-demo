@@ -171,6 +171,10 @@ class ListProfileController extends Controller
      */
     public function destroy($id)
     {
+        $response = $this->listProfile->tryToDelete( $id );
+        $code = $response !== true ? 500 : 200;
+
+        return response()->json( [ 'delete' => $response ] , $code );
     }
 
     //USES LIST PROFILE DB NOT MT1 UNIQUE PROFILE
