@@ -61,13 +61,15 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         "registrar_id": undefined,
         "proxy_id": undefined};
     self.proxies = [];
-    self.info = ["", "Enter Domain Info (Domain, Main Site, Expiration Date (2016-11-22)", "Enter Domain Info (Domain, Expiration Date (2016-11-22))"];
+    self.info = ["", "Enter Domain Info (Domain, Main Site, Expiration Date (2016-11-22))", "Enter Domain Info (Domain, Expiration Date (2016-11-22))"];
     self.currentInfo = self.info[1];
     self.GlythMap  = { 1:"glyphicon-ok-circle", 0:"glyphicon glyphicon-ban-circle"};
     self.updatingAccounts = true;
     self.type = 1;
     self.accountTotal = 0;
     self.queryPromise = null;
+
+    modalService.setPopover();
 
     self.loadAccounts = function () {
         self.queryPromise = DomainService.getAccounts(
@@ -99,7 +101,6 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         self.rowBeingEdited = 0;
         self.updateProxies();
 
-        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
     };
     self.init = function (type) {
 
@@ -194,9 +195,11 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     };
 
     self.updateDomainsSuccessCallback = function (response) {
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
         self.domains = response.data;
         self.updatingAccounts = false;
         self.formSubmitted = false;
+
     };
     self.loadAccountsSuccessCallback = function (response) {
         $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
