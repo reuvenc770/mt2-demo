@@ -9,8 +9,6 @@ mt2App.service( 'AttributionProjectionService' , [ 'AttributionApiService' , 'mo
     };
 
     self.refreshPage = function () {
-        self.getChartData();
-
         self.loadRecords();
     };
 
