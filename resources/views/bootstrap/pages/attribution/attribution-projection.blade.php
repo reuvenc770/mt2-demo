@@ -54,17 +54,8 @@
                 </md-table>
                 </md-card>
             </div>
-            <div role="tabpanel" class="tab-pane" id="chart" ng-init="attr.initProjectionChart()">
-                <md-toolbar layout="row" class="md-mt2-zeta-theme md-hue-2" layout-fill>
-                    <div class="md-toolbar-tools">
-                        Projection Chart
-                    </div>
-                </md-toolbar>
-                    <div id="projectionChart" style="width:100%"></div>
-            </div>
         </div>
     </div>
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 @stop
 
 
