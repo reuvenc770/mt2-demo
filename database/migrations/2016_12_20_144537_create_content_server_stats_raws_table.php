@@ -17,8 +17,7 @@ class CreateContentServerStatsRawsTable extends Migration
             $table->bigInteger( 'eid' )->unsigned();
             $table->bigInteger( 'link_id' )->unsigned();
             $table->integer( 'sub_aff_id' )->unsigned();
-            $table->tinyInteger( 'is_open' )->unsigned()->default( 0 );
-            $table->tinyInteger( 'is_click' )->unsigned()->default( 0 );
+            $table->tinyInteger( 'action_id' )->unsigned()->default( 0 );
             $table->text( 'user_agent' );
             $table->text( 'referrer' );
             $table->text( 'query_string' );
@@ -27,8 +26,7 @@ class CreateContentServerStatsRawsTable extends Migration
             $table->index( 'eid' );
             $table->index( 'link_id' );
             $table->index( 'sub_aff_id' );
-            $table->index( 'is_open' );
-            $table->index( 'is_click' );
+            $table->index( 'action_id' );
             $table->index( 'action_datetime' );
         });
     }
