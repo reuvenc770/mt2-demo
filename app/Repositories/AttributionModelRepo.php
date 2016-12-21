@@ -187,9 +187,9 @@ class AttributionModelRepo {
     }
 
     public function setProcessingFlag ( $modelId , $running ) {
-        DB::connection( 'attribution' )->table( 'attribution_models' )
-            ->where( 'id' , $modelId )
-            ->update( [ 'processing' => ( $running ? 1 : 0 ) ] );
+        $currentModel = $this->models->find( $modelId );
+        $currentModel->processing = ( $running ? 1 : 0 );
+        $currentModel->update();
     }
 
     public function transientRecords ( $modelId ) {
