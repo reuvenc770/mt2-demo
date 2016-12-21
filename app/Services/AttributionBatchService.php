@@ -5,7 +5,7 @@ namespace App\Services;
 use Carbon\Carbon;
 use App\Repositories\EmailFeedAssignmentRepo;
 use App\Repositories\AttributionRecordTruthRepo;
-use App\Repositories\AttributionScheduleRepo;
+use App\Repositories\AttributionExpirationScheduleRepo;
 use App\Repositories\EmailFeedInstanceRepo;
 use App\Events\AttributionCompleted;
 use Cache;
@@ -21,7 +21,7 @@ class AttributionBatchService {
     const EXPIRATION_DAY_RANGE = 10;
 
     public function __construct(AttributionRecordTruthRepo $truthRepo, 
-                                AttributionScheduleRepo $scheduleRepo, 
+                                AttributionExpirationScheduleRepo $scheduleRepo, 
                                 EmailFeedAssignmentRepo $assignmentRepo,
                                 EmailFeedInstanceRepo $feedInstanceRepo) {
 
