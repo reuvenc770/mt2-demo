@@ -36,7 +36,7 @@
     <label class="col-sm-2 control-label">Registrar</label>
     <div class="col-sm-10">
     <select ng-model="domain.currentAccount.registrar" class="form-control" name="registrar" id="registrar">
-        <option value="">Please Select an Registrar</option>
+        <option value="">Please Select a Registrar</option>
         @foreach ( $regs as $reg )
             <option value="{{ $reg['id'] }}">{{ $reg['name'] }}</option>
         @endforeach
@@ -98,7 +98,7 @@
 
 </div>
 <div class="form-group" ng-class="{ 'has-error' : domain.formErrors.domains }">
-    <label>@{{ domain.currentInfo }}</label>
+    <label>@{{ domain.currentInfo }} <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="All domain info is required to be in the exact order indicated and separated by commas. Date must also be in the correct format (YYYY-MM-DD).">help</md-icon></label>
     <textarea ng-model="domain.currentAccount.domains"  class="form-control" name="domains" rows="5" id="domains"></textarea>
     <div class="help-block"  ng-show="domain.formErrors.domains">
         <div ng-repeat="error in domain.formErrors.domains">
