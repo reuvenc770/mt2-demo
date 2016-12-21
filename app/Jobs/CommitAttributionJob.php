@@ -33,7 +33,7 @@ class CommitAttributionJob extends Job implements ShouldQueue
         $this->tracking = $tracking;
         $this->modelId = $argObj['modelId'];
         $this->remainder = $remainder;
-        $this->jobName = $this->jobName . '::mod-' . $remainder . '-';
+        $this->jobName = $this->jobName . ( $this->modelId > 0 ? "::model{$this->modelId}" : '' ) . '::mod-' . $remainder . '-';
         $this->userEmail = $argObj['userEmail'];
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
