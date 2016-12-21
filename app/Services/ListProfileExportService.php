@@ -238,7 +238,7 @@ class ListProfileExportService
         foreach ($columns as $column) {
                 $output[$column] = isset($row->$column) ? $row->$column : "";
         }
-        return implode(', ', $output);
+        return implode(',', $output);
     }
 
     private function buildCombineFile($header, $fileName, $files, $offerId,$deployId, $espAccount)
