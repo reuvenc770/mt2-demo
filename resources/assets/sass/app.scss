@@ -286,12 +286,17 @@ th md-checkbox.md-mt2-zeta-theme:not(.md-checked) .md-icon {
     outline: 0;
 }
 
+.navbar-default .navbar-nav > li > a:hover .mt2-icon-white,
+.navbar-default .navbar-nav > li > a:focus .mt2-icon-white{
+    color: #333;
+}
+
 md-icon.material-icons.icon-xs {
-    font-size: 20px;
-    height: 20px;
-    width: 20px;
-    min-height: 20px;
-    min-width: 20px;
+    font-size: 16px;
+    height: 16px;
+    width: 16px;
+    min-height: 16px;
+    min-width: 16px;
     line-height: 0.9em;
 }
 

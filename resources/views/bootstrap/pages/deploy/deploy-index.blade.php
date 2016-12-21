@@ -30,25 +30,33 @@
 
     @if (Sentinel::hasAccess('api.deploy.copytofuture'))
         <li ng-click="deploy.copyToFuture( $event )" ng-disabled="deploy.disableExport">
-            <a href="#">Copy to Future</a>
+            <a href="#">Copy to Future
+                <md-icon md-font-set="material-icons" class="mt2-icon-white material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="bottom" data-content="Copy selected deploy(s), including original deploy information, and schedule for a different send date. Different from an individual copy of a deploy row where all fields can be modified.">help</md-icon>
+            </a>
         </li>
     @endif
 
     @if (Sentinel::hasAccess('api.deploy.deploypackages'))
         <li ng-click="deploy.createPackages()" ng-disabled="deploy.disableExport" >
-            <a href="#">Send zips to FTP</a>
+            <a href="#">Send Zips to FTP
+                <md-icon md-font-set="material-icons" class="mt2-icon-white material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="bottom" data-content="Each selected deploy will be saved as an individual zip file and saved to FTP.">help</md-icon>
+            </a>
         </li>
     @endif
 
     @if (Sentinel::hasAccess('deploy.preview'))
         <li ng-click="deploy.previewDeploys()" ng-disabled="deploy.disableExport">
-            <a href="#">Preview Deploy(s)</a>
+            <a href="#">Preview Deploy(s)
+                <md-icon md-font-set="material-icons" class="mt2-icon-white material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="bottom" data-content="Preview creatives of selected deploys in new browser window.">help</md-icon>
+            </a>
         </li>
     @endif
 
     @if (Sentinel::hasAccess('deploy.downloadhtml'))
         <li ng-click="deploy.downloadHtml()" ng-disabled="deploy.disableExport">
-            <a href="#">Get Html</a>
+            <a href="#">Get Html
+                <md-icon md-font-set="material-icons" class="mt2-icon-white material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="bottom" data-content="View raw HTML of selected deploys in new browser window.">help</md-icon>
+            </a>
         </li>
     @endif
 @stop

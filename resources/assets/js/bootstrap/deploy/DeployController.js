@@ -62,6 +62,8 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.copyToFutureDate = '';
     self.formSubmitting = false;
 
+    modalService.setPopover();
+
     self.loadAccounts = function () {
         self.loadEspAccounts();
         self.loadAffiliates();
