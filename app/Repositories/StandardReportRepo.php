@@ -14,6 +14,9 @@ class StandardReportRepo {
         $this->reportModel = $reportModel;
     }
 
+    public function getRow($id){
+        return $this->reportModel->find($id);
+    }
     public function getDeployId ( $internalEspId ) {
         return $this->reportModel->where( "esp_internal_id" , $internalEspId )
             ->first()
@@ -26,5 +29,13 @@ class StandardReportRepo {
             ->first()
             ->pluck( 'esp_internal_id' )
             ->pop();
+    }
+
+    public function getOrphanReports(){
+        return $this->reportModel
+            ->where("external_deploy_id",0)
+            ->where("campaign_name","")->get();
+
+
     }
 }

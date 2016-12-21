@@ -181,6 +181,11 @@ Route::group(
             'uses' => 'SourceUrlSearchController@index'
         ] );
 
+        Route::get( '/awebermapping' , [
+            'as' => 'tools.awebermapping' ,
+            'uses' => 'AWeberDeployMappingController@mapDeploys'
+        ] );
+
     }
 );
 
@@ -807,6 +812,11 @@ Route::group(
         Route::get('/navigation/orphans', [
             'as' => 'api.tools.navigation.getOrphans' ,
             'uses' => 'NavigationController@returnValidOrphanNavigation'
+        ] );
+
+        Route::get('/tools/getunmappedreports', [
+            'as' => 'api.tools.awebermapping.unmapped' ,
+            'uses' => 'AWeberDeployMappingController@getOrphanReports'
         ] );
 
         Route::post('/navigation', [

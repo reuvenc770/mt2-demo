@@ -392,4 +392,15 @@ class DeployRepo implements Mt2Export
             ->selectRaw("id as tracking_id, id as subAffiliateID, offer_id as advertiserID, 0 as espID, creative_id as creativeID, subject_id as subjectID, send_date as sendDate, cake_affiliate_id as affiliateID, updated_at as lastUpdated")
             ->where('id', '>=', $startingId);
     }
+
+    public function findReportOrphansForEspAccounts($ids){
+        $reportSchema = config('database.connections.reporting_data.database');
+        return $this->deploy
+            ->select("deploys.*", 'subjects.subject_line')
+            ->leftJoin("{$reportSchema}.standard_reports", 'deploys.id', '=', 'standard_reports.m_deploy_id')
+            ->leftJoin("subjects", 'deploys.subject_id', '=', 'subjects.id')
+            ->whereIn('deploys.esp_account_id',$ids)
+            ->where('standard_reports.m_deploy_id',null)->get();
+    }
+    
 }

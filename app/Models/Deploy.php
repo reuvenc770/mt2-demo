@@ -40,6 +40,10 @@ class Deploy extends Model
         return $this->belongsTo('App\Models\MailingTemplate', 'template_id', 'id');
     }
 
+    public function standardReport(){
+        return $this->hasOne('App\Models\StandardReport', 'm_deploy_id');
+    }
+
     public function creative() {
         return $this->belongsTo('App\Models\Creative');
     }

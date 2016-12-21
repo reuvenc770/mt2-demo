@@ -41,7 +41,7 @@ class GenOauth extends Command
 
         $consumerKey = $this->ask('What is The Consumer Key');
         $consumerSecret = $this->ask('What is The Consumer Secret');
-        
+
         # create new instance of AWeberAPI
         $application = new AWeberAPI($consumerKey, $consumerSecret);
 
