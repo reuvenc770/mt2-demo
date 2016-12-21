@@ -58,7 +58,7 @@ class ListProfileQueryBuilder {
             'dob' => 'rd.dob',
             'age' => DB::raw("ROUND(DATEDIFF(CURDATE(), rd.dob) / 365) as age"),
             'phone' => 'rd.phone',
-            'ip' => 'rd.ip',
+            'ip' => DB::raw('inet_ntoa(rd.ip) as ip'),
             'subscribe_date' => 'rd.subscribe_date',
             'feed_id' => 'efa.feed_id',
             'domain_group_name' => DB::raw('dg.name as domain_group_name'), 
