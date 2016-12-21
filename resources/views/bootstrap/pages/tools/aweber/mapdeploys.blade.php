@@ -20,12 +20,17 @@
                 <div class="form-group clearfix">
                     <label class="col-sm-12 control-label">{{$deploy->id}} - {{$deploy->deploy_name}} -  {{$deploy->send_date}} - {{$deploy->subject_line}}</label>
                     <div class="col-sm-12">
-                        <select ng-model="weber.currentMappings" class="form-control" name="deploy_id">
+                        <div class="input-group">
+                        <select ng-model="weber.currentMappings[{{$deploy->id}}]" class="form-control" name="deploy_id">
                             <option value="">Please Select a Possible match</option>
-                            <option ng-repeat="record in weber.reports |  filter:{esp_account_id:{{$deploy->esp_account_id}}}">
-                                @{{ record.subject }} - @{{ app.formatDate(record.datetime,"MM-DD-YYYY") }}
+                            <option ng-value="@{{ record.id }}" ng-repeat="record in weber.reports |  filter:{esp_account_id:{{$deploy->esp_account_id}}}">
+                                @{{ record.id }} @{{ record.subject }} - @{{ app.formatDate(record.datetime,"MM-DD-YYYY") }}
                                 </option>
                         </select>
+                             <div class="input-group-btn">
+                            <span class=" btn btn-primary" ng-click="weber.convertReport(weber.currentMappings[{{$deploy->id}}] ,{{$deploy->id}})" id="basic-addon2">Assign Deploy</span>
+                                 </div>
+                            </div>
                     </div>
                 </div>
                 @endforeach

@@ -3,12 +3,11 @@
 namespace App\Http\Controllers;
 
 
-use App\Http\Requests;
+use Illuminate\Http\Request;
 use App\Services\DeployService;
 use App\Services\StandardReportService;
-use App\Http\Requests\Request;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-
+use  Laracasts\Flash\Flash;
 class AWeberDeployMappingController extends Controller
 {
         use DispatchesJobs;
@@ -33,8 +32,9 @@ class AWeberDeployMappingController extends Controller
     }
 
     public function convertReport(Request $request){
-        $deploy = $this->deployService->getDeploy($request->input('deploy_id'));
-        $return = $this->standardReportService->convertStandardReport($request->input('report_id'),$deploy);
+        $deploy = $this->deployService->getDeploy($request->get('deploy_id'));
+        $return = $this->standardReportService->convertStandardReport($request->get('report_id'),$deploy);
+        Flash::success( 'Deploy was successfully mapped.' );
         return response()->json(['success' => $return]);
     }
 }

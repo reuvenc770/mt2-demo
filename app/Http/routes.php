@@ -819,6 +819,11 @@ Route::group(
             'uses' => 'AWeberDeployMappingController@getOrphanReports'
         ] );
 
+        Route::post('/tools/convertreport', [
+            'as' => 'api.tools.awebermapping.convertreport' ,
+            'uses' => 'AWeberDeployMappingController@convertReport'
+        ] );
+
         Route::post('/navigation', [
             'as' => 'api.tools.navigation.update' ,
             'uses' => 'NavigationController@update'
