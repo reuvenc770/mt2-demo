@@ -155,7 +155,7 @@ class AttributionController extends Controller
             }
 
             Artisan::queue( 'attribution:commit' , [
-                '--type' => "model",
+                'type' => "model",
                 '--modelId' => $request->input( 'modelId' ) ,
                 '--userEmail' => $userEmail
             ] );
