@@ -54,8 +54,8 @@
                                 @{{ record.status == 1 ? 'Active' : 'Inactive' }}
                             </td>
                             <td md-cell class="mt2-cell-left-padding" nowrap>@{{ record.name }}</td>
-                            <td md-cell>@{{ record.provider_name }}</td>
-                            <td md-cell nowrap><p ng-repeat="value in record.ip_addresses.split(',')" nowrap>@{{ value }}</p></td>
+                            <td md-cell nowrap>@{{ record.provider_name }}</td>
+                            <td md-cell nowrap><p class="no-margin" ng-repeat="value in record.ip_addresses.split(',')" nowrap>@{{ value }}</p></td>
                             <td md-cell nowrap>@{{ record.esp_account_names }}</td>
                             <td md-cell nowrap>@{{ record.isp_names }}</td>
                             <td md-cell nowrap>@{{ record.dba_name }}</td>

@@ -18,7 +18,7 @@ class GenOauth extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Create a oauth user';
 
     /**
      * Create a new command instance.
@@ -38,34 +38,33 @@ class GenOauth extends Command
     public function handle()
     {
         # replace XXX with your real keys and secrets
-        $consumerKey = config('aweberkeys.consumerKey');
-        $consumerSecret = config('aweberkeys.consumerSecret');
-        $this->info("Consumer Key is {$consumerKey}");
-        $this->info("Consumer Secret is {$consumerSecret}");
 
-# create new instance of AWeberAPI
+        $consumerKey = $this->ask('What is The Consumer Key');
+        $consumerSecret = $this->ask('What is The Consumer Secret');
+        
+        # create new instance of AWeberAPI
         $application = new AWeberAPI($consumerKey, $consumerSecret);
 
-# get a request token using oob as the callback URL
+        # get a request token using oob as the callback URL
         list($requestToken, $tokenSecret) = $application->getRequestToken('oob');
 
-# prompt user to go to authorization URL
+        # prompt user to go to authorization URL
         echo "Go to this url in your browser: {$application->getAuthorizeUrl()}\n";
 
-# get the verifier code
+        # get the verifier code
         echo 'Type code here: ';
         $code = trim(fgets(STDIN));
 
-# turn on debug mode for more information
+        # turn on debug mode for more information
         $application->adapter->debug = true;
 
-# exchange request token + verifier code for an access token
+        # exchange request token + verifier code for an access token
         $application->user->requestToken = $requestToken;
         $application->user->tokenSecret = $tokenSecret;
         $application->user->verifier = $code;
         list($accessToken, $accessSecret) = $application->getAccessToken();
 
-# show your access token
+        # show your access token
         $this->info("access token:: {$accessToken}");
         $this->info("access secret:: {$accessSecret}");
     }

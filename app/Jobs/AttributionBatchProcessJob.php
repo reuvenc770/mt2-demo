@@ -31,7 +31,7 @@ class AttributionBatchProcessJob extends Job implements ShouldQueue
         $this->data = $data;
         $this->modelId = $modelId;
         $this->tracking = $tracking;
-        $this->jobName = 'AttributionBatchJob' . $modelId . $tracking;
+        $this->jobName = 'AttributionBatchJob-' . $modelId . '-' . $tracking;
         $this->userEmail = $userEmail;
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
