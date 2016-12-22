@@ -60,7 +60,7 @@ class RerunAttributionAggregator
 
         $userEmail = $event->getUserEmail();
         if ( !is_null( $userEmail ) && $userEmail != 'none' ) {
-            Mail::raw( 'Projection processing for Model' . $event->getModelId() . ' completed.' , function ($message) {
+            Mail::raw( 'Projection processing for Model' . $event->getModelId() . ' completed.' , function ($message) use ( $userEmail ) {
                 $message->to( $userEmail );
                 $message->to('achin@zetainteractive.com');
                 $message->subject('"Projection Processing Completed"');
