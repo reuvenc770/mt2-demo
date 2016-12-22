@@ -16,6 +16,7 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
         country_id: 1 ,
         source_url: ""
     };
+    self.search = {};
 
     self.feeds = [];
     self.frequency = [ "TBD", "RT" , "Daily" , "Weekly" , "Monthly"];
@@ -57,6 +58,7 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
 
     self.formErrors = [];
 
+    modalService.setPopover();
     /**
      * Init Methods
      */
@@ -232,6 +234,27 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
             }
         }
     };
+
+    self.searchFeeds = function() {
+        var searchObj = {
+            "client_name" : self.search.client_name || undefined,
+            "feed_name" : self.search.feed_name || undefined,
+            "feed_short_name" : self.search.feed_short_name || undefined,
+            "status" : self.search.status || undefined,
+            "feed_vertical_id" : self.search.feed_vertical_id || undefined,
+            "country" : self.search.country || undefined,
+            "feed_type_id" : self.search.feed_type_id || undefined,
+            "party" : self.search.party || undefined,
+            "source_url" : self.search.source_url || undefined
+        };
+
+        self.queryPromise = FeedApiService.searchFeeds( self.paginationCount , searchObj , self.sort , self.loadFeedsSuccessCallback , self.loadFeedsFailureCallback );
+    };
+
+    self.resetSearch = function(){
+        self.loadFeeds();
+        self.search = {};
+    }
 
     /**
      * Callbacks

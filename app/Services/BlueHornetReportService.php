@@ -560,7 +560,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             $this->api->buildRequest('transactional.sendtransaction', [
                 'email' => $record->email_address,
                 'external_id' => $record->email_id,
-                'template_id' => $targetId,
+                'template_id' => $listId,
                 'name' => ($record->first_name . ' ' . $record->last_name)
             ]);
 
