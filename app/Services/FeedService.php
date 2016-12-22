@@ -99,8 +99,8 @@ class FeedService implements IFtpAdmin
         return $this->countryRepo->get();
     }
 
-    public function getModel() {
-        return $this->feedRepo->getModel();
+    public function getModel( $searchData = null ) {
+        return $this->feedRepo->getModel( $searchData );
     }
 
     public function getFeedCsv () {
@@ -190,7 +190,7 @@ class FeedService implements IFtpAdmin
                 }
             } else {
                 $fields[ $index ] = $columnName;
-            } 
+            }
         }
 
         ksort( $fields );
@@ -286,6 +286,45 @@ class FeedService implements IFtpAdmin
         }
 
         return $map;
+    }
+
+    public function getPaginatedJson($page, $count, $params = null)
+    {
+        $searchData = null;
+        if ($this->hasCache($page, $count, $params)) {
+            return $this->getCachedJson($page, $count, $params);
+        } else {
+            try {
+
+                $searchData = isset($params['data']) ? $params['data'] : null;
+                $eloquentObj = $this->getModel($searchData);
+
+                if ( isset( $params['sort'] ) ){
+                    $sort = json_decode( $params['sort'] , true );
+
+                    $order = 'asc';
+
+                    if ( isset( $sort[ 'desc' ] ) && $sort[ 'desc' ] === true ) {
+                        $order = 'desc';
+                    }
+
+                    $eloquentObj = $eloquentObj->orderBy($sort['field'], $order );
+                }
+
+                $paginationJSON = $eloquentObj->paginate($count)->toJSON();
+
+                $this->cachePagination(
+                    $paginationJSON,
+                    $page,
+                    $count, $params
+                );
+
+                return $paginationJSON;
+            } catch (\Exception $e) {
+                \Log::error($e->getMessage());
+                return false;
+            }
+        }
     }
 
 }

@@ -17,6 +17,140 @@
 
 @section( 'content' )
 <div ng-init="feed.loadFeeds()">
+    <div style="width:800px">
+        <div class="panel mt2-theme-panel center-block">
+            <div class="panel-heading">
+                <h3 class="panel-title">Search Feeds
+                    <md-icon md-font-set="material-icons" class="mt2-icon-white material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Search fields with an asterisk [*] indicate that it will be a fuzzy search. The search phrase must match the beginning of the actual result or no results will be returned.">help</md-icon>
+                </h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    @if ( Sentinel::inRole( 'fleet-admiral' ) )
+                    <div class="col-md-6">
+                        <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-group-addon">Client Name*</span>
+                            <input type="text" id="search-client-name" class="form-control" value="" ng-model="feed.search.client_name"/>
+                        </div>
+                        </div>
+                    </div>
+                    @endif
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-group-addon">Feed Name*</span>
+                            <input type="text" id="search-feed-name" class="form-control" value="" ng-model="feed.search.feed_name"/>
+                        </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-group-addon">Feed Short Name*</span>
+                            <input type="text" id="search-feed-short-name" class="form-control" value="" ng-model="feed.search.feed_short_name"/>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <span class="input-group-addon">Status</span>
+                                <select name="search-status" id="search-status" class="form-control" ng-model="feed.search.status">
+                                    <option value="">---</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Paused">Paused</option>
+                                    <option value="Inactive">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <span class="input-group-addon">Feed Vertical</span>
+                                <select name="search-feed-vertical" id="search-feed-vertical" class="form-control" ng-model="feed.search.feed_vertical_id">
+                                    <option value="">---</option>
+                                    @foreach ( $clientTypes as $clientType )
+                                        <option value="{{ $clientType['id'] }}">{{ $clientType['name'] }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <span class="input-group-addon">Country</span>
+                                <select name="search-country" id="search-country" class="form-control" ng-model="feed.search.country">
+                                    <option value="">---</option>
+                                    <option value="1">United States</option>
+                                    <option value="2">United Kingdom</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <span class="input-group-addon">Feed Type</span>
+                                <select name="search-feed-type" id="search-feed-type" class="form-control" ng-model="feed.search.feed_type_id">
+                                    <option value="">---</option>
+                                    @foreach ( $feedTypes as $feedType )
+                                        <option value="{{ $feedType['id'] }}">{{ $feedType['name'] }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <span class="input-group-addon">Party</span>
+                                <select name="search-party" id="search-party" class="form-control" ng-model="feed.search.party">
+                                    <option value="">---</option>
+                                    <option value="1">1st Party</option>
+                                    <option value="2">2nd Party</option>
+                                    <option value="3">3rd Party</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <span class="input-group-addon">Source URL</span>
+                                <input type="text" id="search-source-url" class="form-control" value="" ng-model="feed.search.source_url"/>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="pull-right">
+                    <button class="btn btn-sm mt2-theme-btn-secondary" ng-click="feed.resetSearch()">Reset</button>
+                    <button class="btn btn-sm mt2-theme-btn-primary" ng-click="feed.searchFeeds()">Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <md-table-container>
         <table md-table class="mt2-table-large" md-progress="feed.queryPromise">
             <thead md-head md-order="feed.sort" md-on-reorder="feed.loadFeeds" class="mt2-theme-thead">

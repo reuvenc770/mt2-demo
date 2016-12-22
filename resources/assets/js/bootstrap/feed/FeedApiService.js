@@ -92,4 +92,16 @@ mt2App.service( 'FeedApiService' , [ 'paginationService' , '$http' , '$log' , fu
         } ).then( successCallback , failureCallback );
     };
 
+    self.searchFeeds = function ( count , data , sortField , successCallback , failureCallback ) {
+        var sort = paginationService.sortPage( sortField );
+
+        sort.field = 'feeds.' + sort.field;
+
+        return $http( {
+            "method" : "GET" ,
+            "url" : self.pagerApiUrl ,
+            "params" : { "page" : 1 , "count" : count , "sort" : sort , "data" : data }
+        } ).then( successCallback , failureCallback );
+    };
+
 } ] );
