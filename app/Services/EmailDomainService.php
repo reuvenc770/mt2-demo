@@ -78,7 +78,7 @@ class EmailDomainService
 
                 return $paginationJSON;
             } catch (\Exception $e) {
-                Log::error($e->getMessage());
+                \Log::error($e->getMessage());
                 return false;
             }
         }

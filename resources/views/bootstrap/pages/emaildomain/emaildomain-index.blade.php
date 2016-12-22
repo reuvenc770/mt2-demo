@@ -32,7 +32,7 @@
                         </div>
                     </div>
                     <div class="pull-right">
-                    <button class="btn btn-sm mt2-theme-btn-secondary" ng-click="emailDomain.loadAccounts()">Reset</button>
+                    <button class="btn btn-sm mt2-theme-btn-secondary" ng-click="emailDomain.resetSearch()">Reset</button>
                     <button class="btn btn-sm mt2-theme-btn-primary" ng-click="emailDomain.searchDomain()">Search</button>
                     </div>
                 </div>
@@ -40,7 +40,7 @@
         </div>
                 <md-table-container>
                     <table md-table md-progress="emailDomain.queryPromise">
-                        <thead md-head md-order="emailDomain.sort" md-on-reorder="emailDomain.loadAccounts" class="mt2-theme-thead">
+                        <thead md-head md-order="emailDomain.sort" md-on-reorder="emailDomain.sortCurrentRecords" class="mt2-theme-thead">
                         <tr md-row>
                             <th md-column class="mt2-table-btn-column"></th>
                             <th md-column md-order-by="domain_name" class="md-table-header-override-whitetext">ISP Domain Name</th>
