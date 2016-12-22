@@ -15,7 +15,9 @@
         <div style="width:800px">
             <div class="panel mt2-theme-panel center-block">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Search DBA</h3>
+                    <h3 class="panel-title">Search DBA
+                        <md-icon md-font-set="material-icons" class="mt2-icon-white material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Search fields with an asterisk [*] indicate that it will be a fuzzy search. The search phrase must match the beginning of the actual result or no results will be returned.">help</md-icon>
+                    </h3>
                 </div>
                 <div class="panel-body">
                     <div class="row">

@@ -29,6 +29,8 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     self.queryPromise = null;
     self.recordListStatus = 'index';
 
+    modalService.setPopover();
+
     self.loadAccount = function () {
         var pathMatches = $location.path().match( /^\/dba\/edit\/(\d{1,})/ );
 
