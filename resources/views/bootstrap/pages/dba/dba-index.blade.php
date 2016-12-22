@@ -70,13 +70,16 @@
 
                     </div>
 
-                    <button class="btn mt2-theme-btn-primary pull-right" ng-click="dba.searchDBA()">Search</button>
+                    <div class="pull-right">
+                        <button class="btn btn-sm mt2-theme-btn-secondary" ng-click="dba.resetSearch()">Reset</button>
+                        <button class="btn btn-sm mt2-theme-btn-primary" ng-click="dba.searchDBA()">Search</button>
+                    </div>
                 </div>
             </div>
         </div>
                 <md-table-container>
                     <table md-table md-progress="dba.queryPromise">
-                        <thead md-head md-order="dba.sort" md-on-reorder="dba.loadAccounts" class="mt2-theme-thead">
+                        <thead md-head md-order="dba.sort" md-on-reorder="dba.sortCurrentRecords" class="mt2-theme-thead">
                         <tr md-row>
                             <th md-column class="mt2-table-btn-column"></th>
                             <th md-column md-order-by="status" class="md-table-header-override-whitetext mt2-table-header-center">Status</th>
@@ -97,11 +100,6 @@
                         <tr md-row ng-repeat="record in dba.accounts track by $index">
                             <td md-cell class="mt2-table-btn-column">
                                 <div layout="row" layout-align="center center">
-                                    @if (Sentinel::hasAccess('api.dba.destroy'))
-                                        <md-icon  ng-click="dba.delete( record.id )" aria-label="Delete Record"
-                                                  md-font-set="material-icons" class="mt2-icon-black"
-                                                  data-toggle="tooltip" data-placement="bottom" title="Delete Record">delete</md-icon>
-                                    @endif
                                     <a ng-href="@{{ '/dba/edit/' + record.id }}" target="_self" data-toggle="tooltip" data-placement="bottom" title="Edit">
                                         <md-icon md-font-set="material-icons" class="mt2-icon-black" aria-label="Edit">edit</md-icon>
                                     </a>
@@ -109,6 +107,11 @@
                                             class="mt2-icon-black" data-toggle="tooltip" data-placement="bottom" title="Deactivate" aria-label="Deactivate">pause</md-icon>
                                     <md-icon ng-if="record.status == 0" ng-click="dba.toggle( record.id , 1 )" md-font-set="material-icons"
                                             class="mt2-icon-black" data-toggle="tooltip" data-placement="bottom" title="Activate" aria-label="Activate">play_arrow</md-icon>
+                                    @if (Sentinel::hasAccess('api.dba.destroy'))
+                                        <md-icon  ng-click="dba.delete( record.id )" aria-label="Delete Record"
+                                                  md-font-set="material-icons" class="mt2-icon-black"
+                                                  data-toggle="tooltip" data-placement="bottom" title="Delete Record">delete</md-icon>
+                                    @endif
                                 </div>
                             </td>
                             <td md-cell class="mt2-table-cell-center" ng-class="{ 'bg-success' : record.status == 1 , 'bg-danger' : record.status == 0 }">
