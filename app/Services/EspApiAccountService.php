@@ -176,4 +176,14 @@ class EspApiAccountService
         return $this->espRepo->getAccount( $id )->account_name;
     }
 
+    public function getKeysWithOAuth($espAccountId){
+        $espDetails = $this->espRepo->getAccountWithOAuth($espAccountId);
+        return array(
+            'accessToken' => $espDetails['key_1'],
+            'accessSecret' => $espDetails['key_2'],
+            'consumerToken' => $espDetails->OAuthTokens['access_token'],
+            'consumerSecret' => $espDetails->OAuthTokens['access_secret'],
+        );
+    }
+
 }

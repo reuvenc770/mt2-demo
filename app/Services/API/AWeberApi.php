@@ -28,28 +28,26 @@ class AWeberApi extends EspBaseAPI
     public function __construct($espAccountId)
     {
         parent::__construct(self::ESP_NAME, $espAccountId);
-        $creds = EspApiAccount::grabAccessTokenAndSecret($espAccountId);
-        $key = config("aweberkeys.consumerKey", "");
-        $secret = config("aweberkeys.consumerSecret", "");
+        $creds = EspApiAccount::getKeysWithOAuth($espAccountId);
+        $key = $creds['accessToken'];
+        $secret = $creds['accessSecret'];
         $time = 60 * 4;
         $weber = new AWeberLibraryApi($key, $secret);
-        $this->accessToken = $creds['accessToken'];
-        $this->sharedSecret = $creds['accessSecret'];
+        $this->accessToken = $creds['consumerToken'];
+        $this->sharedSecret = $creds['consumerSecret'];
         $weber->adapter->debug = env("AWEBER_DEBUG", false);
         try {
             $this->api = $weber;
-            $this->account = Cache::remember('aweber_account_'.$espAccountId, $time, function() {
-            return $this->api->getAccount($this->accessToken, $this->sharedSecret);
-            });
-
+            $this->account = Cache::remember('aweber_account_'.$espAccountId, $time,
+                function() {
+                    return $this->api->getAccount($this->accessToken, $this->sharedSecret);
+                });
             /* we were told lies
             $listId = Cache::remember('aweber_list_id_'.$espAccountId, $time, function() use ($accountId) {
                 return $this->api->adapter->request('GET', "/accounts/{$accountId}/lists/", array())['entries'][0]['id'];
             });
             **/
-
             $this->baseUrl = "/accounts/{$this->account->id}/";
-
         } catch (AWeberAPIException $exc) {
             Log::error("AWeber  Failed {$exc->type} due to {$exc->message} help:: {$exc->documentation_url}");
             throw new \Exception("AWeber  Failed {$exc->type} due to {$exc->message} help:: {$exc->documentation_url}");
@@ -58,7 +56,7 @@ class AWeberApi extends EspBaseAPI
 
     public function sendApiRequest()
     {
-
+        //not used
     }
 
 
@@ -66,11 +64,39 @@ class AWeberApi extends EspBaseAPI
      * @param int $limit
      * @return AWeberCollection|AWeberEntry
      */
-    public function getCampaigns($limit = 1)
+    public function getCampaigns($limit = 20)
     {
-        $url = "campaigns";
-        return $this->makeApiRequest($url, array("ws.size" => $limit));
+        $campaignData = [];
+        $lists = $this->makeApiRequest("lists", array("ws.size" => 100));
+        $numberToPull = $limit; //lets get the last 20 campaigns sent
+        $i = 0;
+        foreach($lists as $list){
+            $url = "/lists/{$list->id}/campaigns";
+            $campaigns = $this->makeApiRequest($url, array("ws.size" => 10));
+            foreach($campaigns as $campaign){
+                $i++;
+                echo "{$i} -- {$campaign->self_link}\n";
+                $row = array(
+                    "list_id" =>$list->id,
+                    "internal_id" => $campaign->id,
+                    "subject" => $campaign->subject,
+                    "sent_at" => $campaign->sent_at,
+                    "info_url" => $campaign->self_link,
+                    "total_sent" => $campaign->total_sent,
+                    "total_opens" => $campaign->total_opens,
+                    "total_unsubscribes" => $campaign->total_unsubscribes,
+                    "total_clicks" => $campaign->total_clicks,
+                    "total_undelivered" => $campaign->total_undelivered,
 
+                );
+              $campaignData[] = $row;
+                if($i == $numberToPull){
+                    $i = 0;
+                    break;
+                }
+            }
+        }
+       return $campaignData;
     }
 
     public function getAllUnsubs(){
@@ -85,9 +111,9 @@ class AWeberApi extends EspBaseAPI
      * @param $type
      * @return mixed
      */
-    public function getStateValue($campaignId, $type)
+    public function getStateValue($listId, $campaignId, $type)
     {
-        $url = "campaigns/b{$campaignId}/stats/{$type}";
+        $url = "/lists/{$listId}/campaigns/b{$campaignId}/stats/{$type}";
         $response = $this->makeApiRequest($url);
         return $response->value;
     }
