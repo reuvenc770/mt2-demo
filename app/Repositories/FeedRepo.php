@@ -61,8 +61,8 @@ class FeedRepo implements Mt2Export {
         }
     }
 
-    public function getModel() {
-        return $this->feed
+    public function getModel( $searchData ) {
+        $query = $this->feed
             ->join( 'clients' , 'feeds.client_id' , '=' , 'clients.id' )
             ->leftJoin( 'cake_verticals' , 'feeds.vertical_id' , '=' , 'cake_verticals.id' )
             ->leftJoin( 'feed_types' , 'feeds.type_id' , '=' , 'feed_types.id' )
@@ -82,6 +82,11 @@ class FeedRepo implements Mt2Export {
                 'feeds.created_at' ,
                 'feeds.updated_at'
             );
+
+        if ( '' !== $searchData ) {
+            $query = $this->mapQuery( $searchData , $query );
+        }
+        return $query;
     }
 
     public function getSourceUrl($id) {
@@ -93,7 +98,7 @@ class FeedRepo implements Mt2Export {
             return '';
         }
     }
-        
+
     public function getActiveFeedNames () {
         return $this->feed->where( 'status' , 'Active'  )->pluck( 'name' )->toArray();
     }
@@ -149,5 +154,46 @@ class FeedRepo implements Mt2Export {
                 IF(feeds.status = 'Active', 'A', 'D') as status,
                 13 as cakeAffiliateID")
             ->where('feeds.id', '>=', $startingId);
+    }
+
+    private function mapQuery( $searchData , $query ) {
+        $searchData = json_decode($searchData, true);
+
+        if ( isset( $searchData['client_name'] ) ) {
+            $query->where('clients.name' , 'LIKE' , $searchData['client_name'].'%' );
+        }
+
+        if ( isset( $searchData['feed_name'] ) ) {
+            $query->where('feeds.name' , 'LIKE' , $searchData['feed_name'].'%' );
+        }
+
+        if ( isset( $searchData['feed_short_name'] ) ) {
+            $query->where('feeds.short_name' , 'LIKE' , $searchData['feed_short_name'].'%' );
+        }
+
+        if ( isset($searchData['status']) ) {
+            $query = $query->where( 'feeds.status' , $searchData['status'] );
+        }
+
+        if ( isset($searchData['feed_vertical_id']) ) {
+            $query = $query->where( 'cake_verticals.id' , (int)$searchData['feed_vertical_id'] );
+        }
+
+        if ( isset($searchData['country']) ) {
+            $query = $query->where( 'countries.id' , (int)$searchData['country'] );
+        }
+
+        if ( isset($searchData['feed_type_id']) ) {
+            $query = $query->where( 'feed_types.id' , (int)$searchData['feed_type_id'] );
+        }
+
+        if ( isset($searchData['party']) ) {
+            $query = $query->where( 'feeds.party' , (int)$searchData['party'] );
+        }
+
+        if ( isset( $searchData['source_url'] ) ) {
+            $query->where('feeds.source_url' , 'LIKE' , '%'.$searchData['source_url'].'%' );
+        }
+         return $query;
     }
 }
