@@ -168,7 +168,7 @@ class PackageZipCreationService {
 
             $offer = $deploy->offer;
             $offerTypeId = $offer->offer_payout_type_id;
-            $this->contentDomain = $deploy->contentDomain->main_site;
+            $this->contentDomain = $deploy->contentDomain->domain_name;
 
             $this->espAccountName = $deploy->espAccount->account_name;
 
@@ -745,7 +745,7 @@ TXT;
         elseif (!$deploy->contentDomain || !$deploy->contentDomain->contentDomainValidForEspAccount($deploy->esp_account_id)) {
             throw new ValidationException('Content domain not permitted. Check status, type, and esp account.');
         }
-        elseif ('' === $deploy->contentDomain->main_site) {
+        elseif ('' === $deploy->contentDomain->domain_name) {
             throw new ValidationException('Content domain url is empty.');
         }
         elseif (!$deploy->espAccount) {
