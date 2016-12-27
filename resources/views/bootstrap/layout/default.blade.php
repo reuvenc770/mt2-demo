@@ -20,6 +20,13 @@
     <div>
     @include( 'bootstrap.layout.internal-navigation' )
     {!! Breadcrumbs::renderIfExists() !!}
+        @if(Sentinel::check() && View::hasSection('cacheTag') )
+        @if(Sentinel::hasAccess("tools.cache"))
+        <div style="position:relative">
+            <a ng-href="/tools/cacheclear?cacheTag=@yield('cacheTag', 'Entity')"  style="position: absolute; right: 0px; top:-52px; padding:6px 10px;" target="_self" class="btn btn-danger btn-sm">Clear Cache for @yield('cacheTag', 'Entity')</a>
+        </div>
+        @endif
+        @endif
     @yield( 'content' )
     </div>
 </div>

@@ -2,7 +2,7 @@
 @extends( 'bootstrap.layout.default' )
 
 @section( 'title' , 'ESP Accounts' )
-
+@section( 'cacheTag' , 'Esp' )
 @section( 'angular-controller' , 'ng-controller="espController as esp"' )
 
 @section( 'page-menu' )

@@ -6,7 +6,7 @@
 @section( 'navEspClasses' , 'active' )
 
 @section( 'angular-controller' , 'ng-controller="espController as esp"' )
-
+@section( 'cacheTag' , 'EspAccount' )
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('espapi.add'))
         <li><a ng-href="/espapi/create" target="_self">Add ESP API Account</a></li>
