@@ -10,7 +10,6 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use  Laracasts\Flash\Flash;
 class AWeberDeployMappingController extends Controller
 {
-        use DispatchesJobs;
         protected $deployService;
         protected $standardReportService;
 
