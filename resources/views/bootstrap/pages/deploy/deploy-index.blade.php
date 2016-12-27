@@ -5,7 +5,7 @@
 @section( 'container' , 'container-fluid' )
 
 @section( 'angular-controller' , 'ng-controller="DeployController as deploy"' )
-
+@section( 'cacheTag' , 'Deploy' )
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('api.deploy.store'))
         <li ng-click="deploy.displayForm()">

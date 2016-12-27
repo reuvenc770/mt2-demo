@@ -4,7 +4,7 @@
 @section( 'title' , 'Domain List' )
 
 @section( 'angular-controller' , 'ng-controller="domainController as domain"' )
-
+@section( 'cacheTag' , 'Domain' )
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('domain.add'))
         <li><a ng-href="/domain/create" target="_self" aria-label="Add Domain">Add Domain</a>

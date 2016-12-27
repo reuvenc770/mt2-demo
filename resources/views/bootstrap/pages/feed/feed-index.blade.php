@@ -5,7 +5,7 @@
 @section( 'title' , 'Feeds' )
 
 @section( 'angular-controller' , 'ng-controller="FeedController as feed"' )
-
+@section( 'cacheTag' , 'Feed' )
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('feed.add'))
         <li><a ng-href="/feed/create" target="_self">Add Feed</a></li>

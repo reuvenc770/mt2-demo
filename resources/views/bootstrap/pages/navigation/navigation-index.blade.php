@@ -3,7 +3,7 @@
 @section( 'title' , 'Manage Navigation' )
 
 @section( 'angular-controller' , 'ng-controller="NavigationController as navController"')
-
+@section( 'cacheTag' , 'navigation-bootstrap' )
 
 
 @section( 'content' )

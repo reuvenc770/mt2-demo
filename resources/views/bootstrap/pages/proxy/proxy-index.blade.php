@@ -3,7 +3,7 @@
 @section( 'title' , 'Proxy List' )
 
 @section ( 'angular-controller' , 'ng-controller="ProxyController as proxy"' )
-
+@section( 'cacheTag' , 'Proxy' )
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('proxy.add'))
         <li> <a ng-href="/proxy/create" target="_self" aria-label="Add Proxy">Add Proxy</a>
