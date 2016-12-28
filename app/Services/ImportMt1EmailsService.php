@@ -338,7 +338,7 @@ class ImportMt1EmailsService
             return 'fresh'; // We don't have attribution info for this one yet
         }
 
-        $isRecentImport = $attributionTruths->is_recent_import;
+        $isRecentImport = $attributionTruths->recent_import;
 
         if (0 === $isRecentImport) {
             return 'fresh';
