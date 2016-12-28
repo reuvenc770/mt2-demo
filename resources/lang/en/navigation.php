@@ -50,4 +50,5 @@ return[
     'tools.navigation' => 'Manage Navigation' ,
     'tools.sourceurlsearch' => 'Source URL Search' ,
     'report.users' => 'Report Users' ,
+    'tools.awebermapping' => 'Map AWeber Campaigns',
 ];
