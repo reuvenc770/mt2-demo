@@ -72,7 +72,7 @@ class AWeberApi extends EspBaseAPI
         $i = 0;
         foreach($lists as $list){
             $url = "/lists/{$list->id}/campaigns";
-            $campaigns = $this->makeApiRequest($url, array("ws.size" => 10));
+            $campaigns = $this->makeApiRequest($url, array("ws.size" => 10, "ws.op" =>'find', "campaign_type"=> "b"));
             foreach($campaigns as $campaign){
                 $i++;
                 echo "{$i} -- {$campaign->self_link}\n";
