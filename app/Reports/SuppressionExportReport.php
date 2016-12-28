@@ -28,6 +28,10 @@ class SuppressionExportReport {
             $unsubCountArray[$esp->name]["totalHardbounces"] = 0;
             $unsubCountArray[$esp->name]["totalUnsubs"] = 0;
             $unsubCount = 0;
+            if($espAccounts->count() == 0){
+                unset($unsubCountArray[$esp->name]);
+                continue;
+            }
             foreach($espAccounts as $espAccount) {
                 $hardBounces = $this->getRecordsByDateEsp($espAccount->id, $lookback, $this->suppressionRepo->getHardBounceId());
                 $hardBounceCount = count($hardBounces);
