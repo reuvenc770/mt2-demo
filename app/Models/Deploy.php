@@ -41,7 +41,7 @@ class Deploy extends Model
     }
 
     public function standardReport(){
-        return $this->hasOne('App\Models\StandardReport', 'm_deploy_id');
+        return $this->hasOne('App\Models\StandardReport', 'external_deploy_id');
     }
 
     public function creative() {
