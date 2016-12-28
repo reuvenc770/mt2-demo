@@ -400,7 +400,7 @@ class DeployRepo implements Mt2Export
             ->leftJoin("{$reportSchema}.standard_reports", 'deploys.id', '=', 'standard_reports.external_deploy_id')
             ->leftJoin("subjects", 'deploys.subject_id', '=', 'subjects.id')
             ->whereIn('deploys.esp_account_id',$ids)
-            ->where('standard_reports.m_deploy_id',null)->get();
+            ->where('standard_reports.external_deploy_id',null)->get();
     }
     
 }
