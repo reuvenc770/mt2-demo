@@ -36,7 +36,7 @@ class DeployRepo implements Mt2Export
             ->leftJoin('subjects', 'subjects.id', '=', 'deploys.subject_id')
             ->leftJoin('froms', 'froms.id', '=', 'deploys.from_id')
             ->leftJoin('creatives', 'creatives.id', '=', 'deploys.creative_id')
-            ->leftJoin("$listProfileSchema.list_profile_combines", 'list_profile_combines.id', '=', 'deploys.list_profile_combine_id')
+            ->leftJoin("$listProfileSchema.list_profile_combines", 'list_profile_combines.id', '=', 'deploys.external_deploy_id')
             ->select("send_date",
                 'deploys.id as deploy_id',
                 'esp_accounts.account_name',
