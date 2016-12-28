@@ -4,7 +4,7 @@
 @section( 'title' , 'Mailing Templates' )
 
 @section( 'angular-controller' , 'ng-controller="MailingTemplateController as mailing"' )
-
+@section( 'cacheTag' , 'MailingTemplate' )
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('mailingtemplate.add'))
         <li> <a ng-href="/mailingtemplate/create" target="_self" aria-label="Add Mailing Templates">Add Mailing Templates</a>

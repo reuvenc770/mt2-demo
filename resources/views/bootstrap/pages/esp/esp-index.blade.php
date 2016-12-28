@@ -2,8 +2,8 @@
 @extends( 'bootstrap.layout.default' )
 
 @section( 'title' , 'ESP Accounts' )
-
 @section( 'angular-controller' , 'ng-controller="espController as esp"' )
+@section( 'cacheTag' , 'Esp' )
 
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('esp.add'))

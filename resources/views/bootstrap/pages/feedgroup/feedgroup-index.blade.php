@@ -3,7 +3,7 @@
 @section( 'title' , 'Feed Groups' )
 
 @section( 'angular-controller' , 'ng-controller="FeedGroupController as feedGroup"' )
-
+@section( 'cacheTag' , 'FeedGroup' )
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('feedgroup.add'))
         <li><a ng-href="/feedgroup/create" target="_self">Add Feed Group</a></li>

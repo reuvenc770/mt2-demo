@@ -3,6 +3,7 @@
 @section( 'title' , 'ISP Domain List' )
 
 @section ( 'angular-controller' , 'ng-controller="EmailDomainController as emailDomain"' )
+@section( 'cacheTag' , 'EmailDomain' )
 
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('isp.add'))

@@ -3,7 +3,7 @@
 @section( 'title' , 'ISP Group List' )
 
 @section ( 'angular-controller' , 'ng-controller="DomainGroupController as dg"' )
-
+@section( 'cacheTag' , 'DomainGroup' )
 
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('ispgroup.add'))

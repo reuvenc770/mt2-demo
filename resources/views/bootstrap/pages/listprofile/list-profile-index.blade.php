@@ -3,7 +3,7 @@
 @section( 'title' , 'List Profile' )
 
 @section( 'angular-controller' , 'ng-controller="ListProfileController as listProfile"')
-
+@section( 'cacheTag' , 'ListProfile' )
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('listprofile.add'))
         <li><a href="/listprofile/create" target="_self">Add List Profile</a></li>

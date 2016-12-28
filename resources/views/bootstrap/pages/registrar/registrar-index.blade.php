@@ -3,7 +3,7 @@
 @section( 'title' , 'Registrar List' )
 
 @section ( 'angular-controller' , 'ng-controller="RegistrarController as registrar"' )
-
+@section( 'cacheTag' , 'Registrar' )
 @section ( 'page-menu' )
     @if (Sentinel::hasAccess('registrar.add'))
         <li><a ng-href="/registrar/create" target="_self">Add Registrar</a></li>

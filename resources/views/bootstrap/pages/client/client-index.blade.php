@@ -4,7 +4,7 @@
 @section( 'title' , 'Clients' )
 
 @section( 'angular-controller' , 'ng-controller="ClientController as client"' )
-
+@section( 'cacheTag' , 'Client' )
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('client.add'))
         <li><a ng-href="/client/create" target="_self">Add Client</a></li>

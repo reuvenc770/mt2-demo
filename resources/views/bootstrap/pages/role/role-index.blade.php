@@ -5,7 +5,6 @@
 @section( 'navRoleClasses' , 'active' )
 
 @section( 'angular-controller' , 'ng-controller="roleController as role"')
-
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('role.add'))
         <li><a ng-href="/role/create" target="_self">Add New Role</a></li>

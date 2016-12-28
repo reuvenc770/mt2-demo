@@ -3,7 +3,7 @@
 @section( 'title' , 'DBA List' )
 @section( 'container' , 'container-fluid' )
 @section ( 'angular-controller' , 'ng-controller="DBAController as dba"' )
-
+@section( 'cacheTag' , 'DoingBusinessAs' )
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('dba.add'))
        <li><a ng-href="/dba/create" target="_self">Add DBA Account</a></li>

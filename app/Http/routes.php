@@ -176,6 +176,11 @@ Route::group(
             'uses' => 'NavigationController@index'
         ] );
 
+        Route::get( '/cacheclear' , [
+            'as' => 'tools.cache' ,
+            'uses' => 'CacheController@clearCacheTag'
+        ] );
+
         Route::get( '/source-url-search' , [
             'as' => 'tools.sourceurlsearch' ,
             'uses' => 'SourceUrlSearchController@index'
