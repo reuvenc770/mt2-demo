@@ -36,7 +36,7 @@ class DeployRepo implements Mt2Export
             ->leftJoin('subjects', 'subjects.id', '=', 'deploys.subject_id')
             ->leftJoin('froms', 'froms.id', '=', 'deploys.from_id')
             ->leftJoin('creatives', 'creatives.id', '=', 'deploys.creative_id')
-            ->leftJoin("$listProfileSchema.list_profile_combines", 'list_profile_combines.id', '=', 'deploys.external_deploy_id')
+            ->leftJoin("$listProfileSchema.list_profile_combines", 'list_profile_combines.id', '=', 'deploys.list_profile_combine_id')
             ->select("send_date",
                 'deploys.id as deploy_id',
                 'esp_accounts.account_name',
@@ -397,7 +397,7 @@ class DeployRepo implements Mt2Export
         $reportSchema = config('database.connections.reporting_data.database');
         return $this->deploy
             ->select("deploys.*", 'subjects.subject_line')
-            ->leftJoin("{$reportSchema}.standard_reports", 'deploys.id', '=', 'standard_reports.m_deploy_id')
+            ->leftJoin("{$reportSchema}.standard_reports", 'deploys.id', '=', 'standard_reports.external_deploy_id')
             ->leftJoin("subjects", 'deploys.subject_id', '=', 'subjects.id')
             ->whereIn('deploys.esp_account_id',$ids)
             ->where('standard_reports.m_deploy_id',null)->get();
