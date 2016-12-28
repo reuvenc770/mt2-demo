@@ -10,6 +10,7 @@ namespace App\Services;
 
 
 use App\Events\NewDeployWasCreated;
+use App\Facades\EspApiAccount;
 use App\Repositories\DeployRepo;
 use App\Repositories\ListProfileCombineRepo;
 use App\Repositories\MT1Repositories\EspAdvertiserJoinRepo;
@@ -163,5 +164,11 @@ class DeployService
             }
         }
         return $errorCollection;
+    }
+
+    public function getOrphanDeploysForEsp($espName){
+
+        $ids = collect(EspApiAccount::getAllAccountsByESPName($espName))->pluck('id');
+        return $this->deployRepo->findReportOrphansForEspAccounts($ids);
     }
 }

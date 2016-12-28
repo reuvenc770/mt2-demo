@@ -21,4 +21,19 @@ class StandardReportService {
     public function getInternalEspId ( $deployId ) {
         return $this->repo->getInternalEspId( $deployId );
     }
+
+    public function getOrphanReportsByEsp(){
+        return $this->repo->getOrphanReports();
+    }
+
+    public function convertStandardReport($reportId, $deploy){
+        //kinda should be in the repo, but then again i dont want to pass in a full deploy into a repo
+        $currentReport = $this->repo->getRow($reportId);
+        $currentReport->external_deploy_id = $deploy->id;
+        $currentReport->campaign_name = $deploy->deploy_name;
+        $currentReport->name = $deploy->deploy_name;
+        $currentReport->m_deploy_id = $deploy->id;
+
+       return $currentReport->save();
+    }
 }
