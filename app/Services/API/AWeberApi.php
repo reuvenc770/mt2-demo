@@ -76,6 +76,7 @@ class AWeberApi extends EspBaseAPI
             Log::emergency("I went through a list called {$list->id}");
             $url = "/lists/{$list->id}/campaigns";
             $campaigns = $this->makeApiRequest($url, array("ws.size" => 10, "ws.op" =>'find', "campaign_type"=> "b"));
+            Log::emergency(print_r($campaigns));
             foreach($campaigns as $campaign){
                 $i++;
                 Log::emergency("I went through a campaign called {$i}");
