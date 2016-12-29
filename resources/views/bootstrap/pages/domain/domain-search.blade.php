@@ -85,8 +85,10 @@
                 </select>
             </div>
         </div>
-    </div>
-    <div class="panel-footer">
-            <input class="btn mt2-theme-btn-primary btn-block"ng-click="domain.searchDomains()" type="submit" value="Search for Domains">
+
+        <div class="pull-right">
+            <input class="btn mt2-theme-btn-secondary btn-sm" ng-click="domain.resetSearch()" type="submit" value="Reset">
+            <input class="btn mt2-theme-btn-primary btn-sm" ng-click="domain.searchDomains()" type="submit" value="Search">
+        </div>
     </div>
 </div>
