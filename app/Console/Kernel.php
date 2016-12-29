@@ -133,7 +133,7 @@ class Kernel extends ConsoleKernel
         $filePath = storage_path('logs')."/downloadAPI.log";
         $schedule->command('reports:downloadApi BlueHornet 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Campaigner 5')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi AWeber 5')->cron("* */6 * * *")->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi AWeber 5')->cron("0 0,6,12,18 * * *")->sendOutputTo($filePath);
         #$schedule->command('reports:downloadApi EmailDirect 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Maro 5')->hourly()->sendOutputTo($filePath);
         //$schedule->command('reports:downloadApi Ymlp 5')->hourly()->sendOutputTo($filePath);
