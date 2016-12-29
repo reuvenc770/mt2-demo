@@ -7,6 +7,21 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
 
     self.currentAccount = { "espId" : "" , "id" : "" , "accountName" : "" , "key1" : "" , "key2" : "" };
 
+    self.espApiKeyNameMapping = {
+     '2' : { 'key1' : 'Username' , 'key2' : 'Password' },
+     '4' : { 'key1' : 'Account' , 'key2' : 'API Key' },
+     '9' : { 'key1' : 'Access Token' , 'key2' : false },
+     '15' : { 'key1' : 'Access Token' , 'key2' : false },
+     '3' : { 'key1' : 'API Key' , 'key2' : false },
+     '8' : { 'key1' : 'Username' , 'key2' : 'Password' },
+     '5' : { 'key1' : 'Username' , 'key2' : 'Password' },
+     '1' : { 'key1' : 'API Key' , 'key2' : 'Shared Secret' },
+     '6' : { 'key1' : 'Access Token' , 'key2' : 'Access Secret' },
+     '14' : { 'key1' : 'Access Token' , 'key2' : 'Access Secret' }
+    };
+    self.key1Name = 'Key 1';
+    self.key2Name = 'Key 2';
+
     self.createUrl = 'espapi/create/';
     self.editUrl = 'espapi/edit/';
 
@@ -25,7 +40,7 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     self.loadAccount = function () {
         var pathMatches = $location.path().match( /^\/espapi\/edit\/(\d{1,})/ );
 
-        EspApiService.getAccount( pathMatches[ 1 ] , self.loadAccountSuccessCallback )
+        EspApiService.getAccount( pathMatches[ 1 ] , self.loadAccountSuccessCallback );
     };
 
     self.loadAccounts = function () {
@@ -42,6 +57,16 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         self.currentAccount.accountName = '';
         self.currentAccount.key1 = '';
         self.currentAccount.key2 = '';
+    };
+
+    self.updateKeyNames = function ( espId ) {
+        if ( self.espApiKeyNameMapping.hasOwnProperty(espId) ) {
+            self.key1Name = self.espApiKeyNameMapping[espId].key1 || 'Key 1';
+            self.key2Name = self.espApiKeyNameMapping[espId].key2 || 'Key 2';
+        } else {
+            self.key1Name = 'Key 1';
+            self.key2Name = 'Key 2';
+        }
     };
 
     /**
@@ -74,6 +99,8 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         self.currentAccount.accountName = response.data.account_name;
         self.currentAccount.key1 = response.data.key_1;
         self.currentAccount.key2 = response.data.key_2;
+
+        self.updateKeyNames( self.currentAccount.espId );
     };
 
     self.loadAccountsSuccessCallback = function ( response ) {
