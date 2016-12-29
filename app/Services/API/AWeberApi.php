@@ -12,6 +12,7 @@ use App\Library\AWeber\AWeberAPI as AWeberLibraryApi;
 use App\Library\AWeber\AWeberAPIException;
 use App\Library\AWeber\AWeberEntry;
 use App\Library\AWeber\AWeberCollection;
+use App\Library\AWeber\AWeberResourceNotImplemented;
 use Log;
 use App\Library\AWeber\OAuthUser;
 use Cache;
@@ -66,26 +67,29 @@ class AWeberApi extends EspBaseAPI
      */
     public function getCampaigns($limit = 20)
     {
-        Log::emergency("I am getting campaigns");
         $campaignData = [];
         $lists = $this->makeApiRequest("lists", array("ws.size" => 100));
-        Log::emergency("I am getting lists");
         $numberToPull = $limit; //lets get the last 20 campaigns sent
-        $i = 0;
         foreach($lists as $list){
-            Log::emergency("I went through a list called {$list->id}");
+            $i = 0;
             $url = "/lists/{$list->id}/campaigns";
-            $campaigns = $this->makeApiRequest($url, array("ws.size" => 10, "ws.op" =>'find', "campaign_type"=> "b"));
-            Log::emergency(print_r($campaigns));
+            $campaigns = $this->makeApiRequest($url, array("ws.size" => 10));
             foreach($campaigns as $campaign){
+
+                try{
+                    $sentAt = $campaign->sent_at;
+                } catch (AWeberResourceNotImplemented $e){
+                    //Follow Up Email
+                    continue;
+                }
+
                 $i++;
-                Log::emergency("I went through a campaign called {$i}");
                 echo "{$i} -- {$campaign->self_link}\n";
                 $row = array(
                     "list_id" =>$list->id,
                     "internal_id" => $campaign->id,
                     "subject" => $campaign->subject,
-                    "sent_at" => $campaign->sent_at,
+                    "sent_at" => $sentAt,
                     "info_url" => $campaign->self_link,
                     "total_sent" => $campaign->total_sent,
                     "total_opens" => $campaign->total_opens,
