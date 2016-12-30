@@ -83,7 +83,7 @@ return [
         ] ,
 
         'ZxUnsubFtp' => [
-            'driver' => 'sftp',
+            'driver' => 'ftp',
             'host' => env('ZX_FTP_HOST'),
             'username' => env('ZX_FTP_USER'),
             'password' => env('ZX_FTP_PASSWORD')
