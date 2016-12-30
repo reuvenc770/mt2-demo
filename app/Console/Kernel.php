@@ -93,14 +93,6 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         /**
-         * Unsub Jobs
-         */
-        $unsubFilePath = storage_path( 'logs' ) . "/unsubJobs.log";
-        $schedule->command( 'ftp:sendSprintUnsubs --ftpCleanup=1' )->dailyAt( '10:00' )->sendOutputTo( $unsubFilePath );
-        $schedule->command( 'ftp:sendSprintUnsubs' )->dailyAt( '13:00' )->sendOutputTo( $unsubFilePath );
-        $schedule->command( 'ftp:sendSprintUnsubs' )->dailyAt( '17:00' )->sendOutputTo( $unsubFilePath );
-
-        /**
          * Orphan Adoption
          */
         $orphanFilePath = storage_path('logs')."/adoptOrphans.log";
@@ -124,6 +116,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('exportUnsubs ZxSprintUnsubExport --lookback=1')->dailyAt(self::REPORT_TIME);
         $schedule->command('exportUnsubs ZxEsuranceUnsubExport --lookback=1')->dailyAt(self::REPORT_TIME);
 
+        $unsubFilePath = storage_path( 'logs' ) . "/unsubJobs.log";
         $schedule->command( 'suppression:sendToMT1 3' )->dailyAt( self::REPORT_TIME )->sendOutputTo( $unsubFilePath );
         $schedule->command('suppression:exportPublicators 1')->cron('10 */4 * * *');
         
