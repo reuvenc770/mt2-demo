@@ -43,7 +43,7 @@ class ZxSuppressionExportReport {
                 $writer->insertOne( $this->formatStrategy->formatFile($row) );
             }
 
-            $location = "eSurance/listoptouts/$advertiser/unsub/" . $this->formatStrategy->formatFileName($date);
+            $location = "$advertiser/listoptouts/" . $this->formatStrategy->formatFileName($date);
 
             $this->destination->put($location, $writer->__toString());
         }
