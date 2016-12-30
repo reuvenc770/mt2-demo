@@ -47,7 +47,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
         $date = null; //unfortunately date does not matter here.
         $campaignData = array();
         $campaigns = $this->api->getCampaigns(20);
-        foreach ($campaigns as $campaign) {$i++;
+        foreach ($campaigns as $campaign) {
             $clickEmail =$this->api->getStateValue($campaign['list_id'], $campaign['internal_id'], "unique_clicks");
             $openEmail = $this->api->getStateValue($campaign['list_id'], $campaign['internal_id'], "unique_opens");
             $row = array_merge($campaign, ["unique_clicks" => $clickEmail, "unique_opens" => $openEmail]);

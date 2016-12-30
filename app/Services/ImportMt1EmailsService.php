@@ -185,15 +185,13 @@ class ImportMt1EmailsService
                             $this->emailIdCache[$importingEmailId] = 1;
                             $record['email_id'] = $importingEmailId;
 
+                        }                   
+
+                        if ('fresh' === $emailStatus) {
+                            $record['is_deliverable'] = 1;
+                            $record['other_fields'] = '{}';
+                            $this->recordDataRepo->insert($record);
                         }
-
-                        // maybe there's a way to remove this?
-                        $isDeliverable = $this->recordDataRepo->getDeliverableStatus($record['email_id']);
-                        $record['is_deliverable'] = $emailStatus === 'fresh' ? 1 : $isDeliverable;
-                        $record['other_fields'] = '{}';
-
-                        $this->recordDataRepo->insert($record);
-
                     }
 
                 }
@@ -338,7 +336,7 @@ class ImportMt1EmailsService
             return 'fresh'; // We don't have attribution info for this one yet
         }
 
-        $isRecentImport = $attributionTruths->is_recent_import;
+        $isRecentImport = $attributionTruths->recent_import;
 
         if (0 === $isRecentImport) {
             return 'fresh';

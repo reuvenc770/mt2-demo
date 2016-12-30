@@ -36,11 +36,13 @@ mt2App.service( 'EmailDomainApiService' , [ 'paginationService' , '$http' , '$lo
         } ).then( successCallback , failureCallback );
     };
 
-    self.searchDomain = function ( count , data , successCallback , failureCallback ) {
+    self.searchDomain = function ( count , data , sortField , successCallback , failureCallback ) {
+        var sort = paginationService.sortPage( sortField );
+
         return $http( {
             "method" : "GET" ,
             "url" : self.pagerApiUrl ,
-            "params" : { "page" : 1 , "count" : count , "data" : data }
+            "params" : { "page" : 1 , "count" : count , "sort" : sort , "data" : data }
         } ).then( successCallback , failureCallback );
     };
 

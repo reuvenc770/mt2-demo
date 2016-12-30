@@ -172,7 +172,15 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
 
         self.queryPromise = DeployApiService.searchDeploys(self.paginationCount, searchObj, self.loadDeploysSuccess, self.loadDeploysFail);
         self.currentlyLoading = 0;
-    }
+    };
+
+    self.resetSearch = function() {
+        self.search = {
+            esp_account_id: ''
+        };
+
+        self.loadAccounts();
+    };
 
     self.offerWasSelected = function (item) {
         if (typeof item != 'undefined') {

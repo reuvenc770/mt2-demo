@@ -30,6 +30,7 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
     self.feedTotal = 0;
     self.queryPromise = null;
     self.sort= "-id";
+    self.recordListStatus = 'index';
 
     self.currentFieldConfig = {};
     self.fieldList = [
@@ -152,6 +153,42 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
             FeedApiService.createSuppression( self.current.id , self.createSuppressionSuccessCallback , self.createSuppressionFailureCallback );
         });
     };
+
+    self.sortCurrentRecords = function() {
+        if (self.recordListStatus === 'index' ) {
+            self.loadFeeds();
+        }
+
+        if ( self.recordListStatus === 'search' ) {
+            self.searchFeeds();
+        }
+    }
+
+    self.searchFeeds = function() {
+        self.recordListStatus = 'search';
+
+        var searchObj = {
+            "client_name" : self.search.client_name || undefined,
+            "feed_name" : self.search.feed_name || undefined,
+            "feed_short_name" : self.search.feed_short_name || undefined,
+            "status" : self.search.status || undefined,
+            "feed_vertical_id" : self.search.feed_vertical_id || undefined,
+            "country" : self.search.country || undefined,
+            "feed_type_id" : self.search.feed_type_id || undefined,
+            "party" : self.search.party || undefined,
+            "source_url" : self.search.source_url || undefined
+        };
+
+        self.queryPromise = FeedApiService.searchFeeds( self.paginationCount , searchObj , self.sort , self.loadFeedsSuccessCallback , self.loadFeedsFailureCallback );
+    };
+
+    self.resetSearch = function(){
+        self.recordListStatus = 'index';
+        self.loadFeeds();
+        self.search = {};
+    }
+
+
     /**
      * Feed File Field Ordering
      */
@@ -234,27 +271,6 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
             }
         }
     };
-
-    self.searchFeeds = function() {
-        var searchObj = {
-            "client_name" : self.search.client_name || undefined,
-            "feed_name" : self.search.feed_name || undefined,
-            "feed_short_name" : self.search.feed_short_name || undefined,
-            "status" : self.search.status || undefined,
-            "feed_vertical_id" : self.search.feed_vertical_id || undefined,
-            "country" : self.search.country || undefined,
-            "feed_type_id" : self.search.feed_type_id || undefined,
-            "party" : self.search.party || undefined,
-            "source_url" : self.search.source_url || undefined
-        };
-
-        self.queryPromise = FeedApiService.searchFeeds( self.paginationCount , searchObj , self.sort , self.loadFeedsSuccessCallback , self.loadFeedsFailureCallback );
-    };
-
-    self.resetSearch = function(){
-        self.loadFeeds();
-        self.search = {};
-    }
 
     /**
      * Callbacks

@@ -27,6 +27,9 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     self.sort = "-status";
     self.editForm = false;
     self.queryPromise = null;
+    self.recordListStatus = 'index';
+
+    modalService.setPopover();
 
     self.loadAccount = function () {
         var pathMatches = $location.path().match( /^\/dba\/edit\/(\d{1,})/ );
@@ -43,6 +46,16 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
 
     self.resetForm = function () {
         self.currentAccount = {};
+    };
+
+    self.sortCurrentRecords = function() {
+        if (self.recordListStatus === 'index' ) {
+            self.loadAccounts();
+        }
+
+        if ( self.recordListStatus === 'search' ) {
+            self.searchDBA();
+        }
     };
 
     /**
@@ -146,6 +159,8 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     };
 
     self.searchDBA = function() {
+        self.recordListStatus = 'search';
+
         var searchObj = {
             "dba_name": self.search.dba_name || undefined,
             "registrant_name" : self.search.registrant_name || undefined,
@@ -157,6 +172,12 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
         self.queryPromise = DBAApiService.searchDBA(self.paginationCount, searchObj, self.loadAccountsSuccessCallback, self.loadAccountsFailureCallback);
         self.currentlyLoading = 0;
     };
+
+    self.resetSearch = function() {
+        self.loadAccounts();
+        self.search = {};
+        self.recordListStatus = 'index';
+    }
 
     self.delete = function(recordId) {
         var r = confirm("Are you sure you want to delete this");

@@ -4,7 +4,7 @@
 
 
 @section( 'content' )
-    <div class="md-mt2-zeta-theme md-padding" ng-controller="domainController as domain" ng-init="domain.init(1)">
+    <div ng-controller="domainController as domain" ng-init="domain.init(1)">
         <h1>Search Results</h1>
         @include( 'bootstrap.pages.domain.domain-search' )
         <script>
@@ -12,7 +12,7 @@
         </script>
         @include( 'bootstrap.pages.domain.domain-list-table' )
         @stop
-
+    </div>
 
 <?php Assets::add(
         ['resources/assets/js/bootstrap/domain/DomainController.js',
