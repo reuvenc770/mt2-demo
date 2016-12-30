@@ -44,21 +44,24 @@ class AppendEidService
                 $rowIsActive = count($suppressionInfo) == 0;
                 if($rowIsActive || $includeSuppression) {
                     $emailReturn = $this->emailRepo->getEmailId($row['email']);
-                    $emailId = $emailReturn[0]->id;
-                    if ($includeFeed) {
-                        $feedId = $this->emailRepo->getCurrentAttributedFeedId($emailId);
-                        $feedName = $this->feedRepo->fetch($feedId)->name;
+                    $emailExists = count($emailReturn);
+                    if ($emailExists) {
+                        $emailId = $emailReturn[0]->id;
+                        if ($includeFeed) {
+                            $feedId = $this->emailRepo->getCurrentAttributedFeedId($emailId);
+                            $feedName = $this->feedRepo->fetch($feedId)->name;
+                        }
+                        if ($includeFields) {
+                            $fieldData = $this->recordData->getRecordDataFromEid($emailId);
+                            $fieldData = $fieldData ? $fieldData->toArray() : array_fill(0, 19, '');
+                        }
+                        $rowResult = array_merge(["email" => $row['email'], "email_id" => $emailId, "feedname" => $feedName,], $fieldData);
+                        if ($includeSuppression) {
+                            $value = $rowIsActive ? "A" : "U";
+                            $rowResult = array_merge($rowResult, ['status' => "$value"]);
+                        }
+                        $csvData[] = $rowResult;
                     }
-                    if ($includeFields) {
-                        $fieldData = $this->recordData->getRecordDataFromEid($emailId);
-                        $fieldData = $fieldData ? $fieldData->toArray() :array_fill(0, 19, '');
-                    }
-                    $rowResult = array_merge(["email" => $row['email'], "email_id" => $emailId, "feedname" => $feedName,], $fieldData);
-                    if($includeSuppression){
-                        $value = $rowIsActive ? "A" : "U";
-                        $rowResult = array_merge($rowResult, ['status'=> "$value"]);
-                    }
-                    $csvData[] = $rowResult;
                 }
             }
         } catch (\Exception $e) {

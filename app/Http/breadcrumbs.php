@@ -298,6 +298,11 @@ Breadcrumbs::register('domain.listview', function($breadcrumbs) {
     $breadcrumbs->push('View Domains');
 });
 
+Breadcrumbs::register('domain.search', function($breadcrumbs) {
+    $breadcrumbs->parent('domain.list');
+    $breadcrumbs->push('Search Domains');
+});
+
 Breadcrumbs::register('mailingtemplate.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');
     $breadcrumbs->push('Mailing Templates', route('mailingtemplate.list'));

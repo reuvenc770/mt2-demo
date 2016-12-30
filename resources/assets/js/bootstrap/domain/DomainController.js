@@ -146,9 +146,6 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         self.loadAccount(domId);
     };
 
-
-
-
     /**
      * Click Handlers
      */
@@ -177,12 +174,14 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     };
 
     self.searchDomains = function (){
+
        var params = $httpParamSerializer(self.search);
-        $location.url('/domain/search?'+ params);
         $window.location.href = '/domain/search?'+ params;
     };
 
-
+    self.resetSearch = function() {
+        $window.history.back();
+    }
 
     /**
      * Callbacks
@@ -243,7 +242,6 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     };
 
     self.SuccessCallBackRedirect = function (response) {
-        $location.url('/domain');
         $window.location.href = '/domain';
     };
 

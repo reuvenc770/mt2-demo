@@ -206,8 +206,12 @@ class EmailRepo implements Mt2Export {
             e.email_id as eid, 
             e.email_address, 
             first_name, 
-            last_name, 
-            CONCAT(rd.address, ' ', rd.city, ', ', rd.state, ' ', rd.zip) as address, 
+            last_name,
+            IF (
+                (rd.address <> '' OR rd.city <> '') AND (rd.state <> '' OR rd.zip <> ''), 
+                CONCAT(rd.address, ' ', rd.city, ', ', rd.state, ' ', rd.zip), 
+                CONCAT(rd.address, ' ', rd.city, ' ', rd.state, ' ', rd.zip)
+            ) as address, 
             e.source_url, 
             e.capture_date as date, 
             e.ip, 
@@ -234,8 +238,8 @@ class EmailRepo implements Mt2Export {
                 source_url, 
                 MIN(ip) as ip # false, but we need to pick a value
             FROM
-                email_feed_instances e1
-                INNER JOIN emails e2 ON e1.email_id = e2.id
+                emails e2
+                LEFT JOIN email_feed_instances e1 ON e1.email_id = e2.id
             WHERE
                 email_address = :address
             GROUP BY
@@ -254,7 +258,11 @@ class EmailRepo implements Mt2Export {
             e.email_address, 
             rd.first_name, 
             rd.last_name, 
-            CONCAT(rd.address, ' ', rd.city, ', ', rd.state, ' ', rd.zip) as address, 
+            IF (
+                (rd.address <> '' OR rd.city <> '') AND (rd.state <> '' OR rd.zip <> ''), 
+                CONCAT(rd.address, ' ', rd.city, ', ', rd.state, ' ', rd.zip), 
+                CONCAT(rd.address, ' ', rd.city, ' ', rd.state, ' ', rd.zip)
+            ) as address, 
             rd.source_url, 
             rd.capture_date as date, 
             rd.ip, 
@@ -293,7 +301,11 @@ class EmailRepo implements Mt2Export {
             e.email_address, 
             first_name, 
             last_name, 
-            CONCAT(rd.address, ' ', rd.city, ', ', rd.state, ' ', rd.zip) as address, 
+            IF (
+                (rd.address <> '' OR rd.city <> '') AND (rd.state <> '' OR rd.zip <> ''), 
+                CONCAT(rd.address, ' ', rd.city, ', ', rd.state, ' ', rd.zip), 
+                CONCAT(rd.address, ' ', rd.city, ' ', rd.state, ' ', rd.zip)
+            ) as address, 
             e.source_url, 
             e.capture_date as date, 
             e.ip, 
@@ -320,8 +332,8 @@ class EmailRepo implements Mt2Export {
                 source_url, 
                 MIN(ip) as ip # false, but we need to pick a value
             FROM
-                email_feed_instances e1
-                INNER JOIN emails e2 ON e1.email_id = e2.id
+                emails e2
+                LEFT JOIN email_feed_instances e1 ON e1.email_id = e2.id
             WHERE
                 e2.id = :id
             GROUP BY
@@ -340,7 +352,11 @@ class EmailRepo implements Mt2Export {
             e.email_address, 
             rd.first_name, 
             rd.last_name, 
-            CONCAT(rd.address, ' ', rd.city, ', ', rd.state, ' ', rd.zip) as address, 
+            IF (
+                (rd.address <> '' OR rd.city <> '') AND (rd.state <> '' OR rd.zip <> ''), 
+                CONCAT(rd.address, ' ', rd.city, ', ', rd.state, ' ', rd.zip), 
+                CONCAT(rd.address, ' ', rd.city, ' ', rd.state, ' ', rd.zip)
+            ) as address, 
             rd.source_url, 
             rd.capture_date as date, 
             rd.ip, 

@@ -142,8 +142,10 @@
                     </div>
 
                     <br />
-
-                    <button class="btn mt2-theme-btn-primary pull-right" ng-click="deploy.searchDeploys()">Search</button>
+                    <div class="pull-right">
+                        <button class="btn mt2-theme-btn-secondary btn-sm" ng-click="deploy.resetSearch()">Reset</button>
+                        <button class="btn mt2-theme-btn-primary btn-sm" ng-click="deploy.searchDeploys()">Search</button>
+                    </div>
                 </div>
             </div>
         </div>

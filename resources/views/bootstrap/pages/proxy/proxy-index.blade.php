@@ -34,11 +34,6 @@
                         <tr md-row ng-repeat="record in proxy.accounts track by $index">
                             <td md-cell class="mt2-table-btn-column">
                                 <div layout="row" layout-align="center center">
-                                    @if (Sentinel::hasAccess('api.proxy.destroy'))
-                                        <md-icon  ng-click="proxy.delete( record.id )" aria-label="Delete Record"
-                                                  md-font-set="material-icons" class="mt2-icon-black"
-                                                  data-toggle="tooltip" data-placement="bottom" title="Delete Record">delete</md-icon>
-                                    @endif
                                     <a aria-label="Edit" ng-href="@{{ '/proxy/edit/' + record.id }}" target="_self" data-toggle="tooltip" data-placement="bottom" title="Edit">
                                         <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
                                     </a>
@@ -48,6 +43,11 @@
                                     <md-icon ng-if="record.status == 0" ng-click="proxy.toggle( record.id , 1 )"
                                             aria-label="Activate" data-toggle="tooltip" data-placement="bottom" title="Activate"
                                             md-font-set="material-icons" class="mt2-icon-black">play_arrow</md-icon>
+                                    @if (Sentinel::hasAccess('api.proxy.destroy'))
+                                        <md-icon  ng-click="proxy.delete( record.id )" aria-label="Delete Record"
+                                                  md-font-set="material-icons" class="mt2-icon-black"
+                                                  data-toggle="tooltip" data-placement="bottom" title="Delete Record">delete</md-icon>
+                                    @endif
                                 </div>
                             </td>
                             <td md-cell class="mt2-table-cell-center" ng-class="{ 'bg-success' : record.status == 1 , 'bg-danger' : record.status == 0 }">

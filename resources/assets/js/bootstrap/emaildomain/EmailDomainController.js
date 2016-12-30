@@ -18,6 +18,7 @@ mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' 
     self.sort = 'domain_name';
     self.editForm = false;
     self.queryPromise = null;
+    self.recordListStatus = 'index';
 
     self.loadAccount = function () {
         var pathMatches = $location.path().match( /^\/isp\/edit\/(\d{1,})/ );
@@ -40,6 +41,16 @@ mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' 
         self.currentAccount = {};
     };
 
+    self.sortCurrentRecords = function () {
+        if (self.recordListStatus === 'index' ) {
+            self.loadAccounts();
+        }
+
+        if ( self.recordListStatus === 'search' ) {
+            self.searchDomain();
+        }
+    };
+
     /**
      * Click Handlers
      */
@@ -57,12 +68,20 @@ mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' 
     };
 
     self.searchDomain = function () {
+        self.recordListStatus = 'search';
+
         var searchObj = {
             "domainGroupId" : self.search.domain_group_id || undefined
         };
 
-        self.queryPromise = EmailDomainApiService.searchDomain( self.paginationCount , searchObj , self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
+        self.queryPromise = EmailDomainApiService.searchDomain( self.paginationCount , searchObj , self.sort , self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
     };
+
+    self.resetSearch = function() {
+        self.loadAccounts();
+        self.search = {};
+        self.recordListStatus = 'index';
+    }
 
     /**
      * Callbacks

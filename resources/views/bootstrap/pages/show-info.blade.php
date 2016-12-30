@@ -37,7 +37,7 @@
                     <th md-column class="md-table-header-override-whitetext">Address</th>
                     <th md-column class="md-table-header-override-whitetext">Source</th>
                     <th md-column class="md-table-header-override-whitetext">IP</th>
-                    <th md-column class="md-table-header-override-whitetext">Date</th>
+                    <th md-column class="md-table-header-override-whitetext">Reg Date</th>
                     <th md-column class="md-table-header-override-whitetext">Birth Date</th>
                     <th md-column class="md-table-header-override-whitetext">Gender</th>
                     <th md-column class="md-table-header-override-whitetext">Feed</th>

@@ -103,7 +103,7 @@ class EmailDomainRepo {
         $searchData = json_decode($searchData, true);
 
         if ( isset($searchData['domainGroupId']) ) {
-            $query = $query->where( 'email_domains.domain_group_id' , (int)$searchData['domainGroupId'] )->orderBy('domain_name', 'asc');
+            $query = $query->where( 'email_domains.domain_group_id' , (int)$searchData['domainGroupId'] );
         }
 
         return $query;
