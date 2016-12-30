@@ -47,8 +47,10 @@ return[
     'esp.list'            => 'ESP Accounts',
     'tools.appendeid' => 'Append EID' ,
     'client.list' => 'Clients' ,
+    'clientgroup.list' => 'Client Groups' ,
     'tools.navigation' => 'Manage Navigation' ,
     'tools.sourceurlsearch' => 'Source URL Search' ,
     'report.users' => 'Report Users' ,
     'tools.awebermapping' => 'Map AWeber Campaigns',
+    'tools' => 'Miscellaneous Tools'
 ];
