@@ -27,29 +27,33 @@ class EmailFeedInstanceService {
     } 
 
     public function updateSourceUrlCounts ( $startDate , $endDate ) {
-        $this->repo->clearCountForDateRange( $startDate , $endDate );
+        try {
+            $this->repo->clearCountForDateRange( $startDate , $endDate );
 
-        $records = $this->repo->getInstancesForDateRange( $startDate , $endDate );
+            $records = $this->repo->getInstancesForDateRange( $startDate , $endDate );
 
-        $totalCount = 0;
+            $totalCount = 0;
 
-        $countList = [];
-        foreach ( $records->cursor() as $currentRecord ) {
-            $index = "{$currentRecord[ 'feed_id' ]}_{$currentRecord[ 'source_url' ]}_{$currentRecord[ 'capture_date' ]}";
-            if ( !array_key_exists( $index , $countList ) ) {
-                $countList[ $index ] = [
-                    'feed_id' => $currentRecord[ 'feed_id' ] ,
-                    'source_url' => $currentRecord[ 'source_url' ] ,
-                    'capture_date' => $currentRecord[ 'capture_date' ] ,
-                    'count' => 0
-                ];
+            $countList = [];
+            foreach ($records->cursor() as $currentRecord) {
+                $index = "{$currentRecord[ 'feed_id' ]}_{$currentRecord[ 'source_url' ]}_{$currentRecord[ 'capture_date' ]}";
+                if (!array_key_exists($index, $countList)) {
+                    $countList[$index] = [
+                        'feed_id' => $currentRecord['feed_id'],
+                        'source_url' => $currentRecord['source_url'],
+                        'capture_date' => $currentRecord['capture_date'],
+                        'count' => 0
+                    ];
+                }
+
+                $totalCount++;
+                $countList[$index]['count']++;
             }
-            
-            $totalCount++;
-            $countList[ $index ][ 'count' ]++;
-        }
 
-        $this->repo->saveSourceCounts( $countList );
+            $this->repo->saveSourceCounts($countList);
+        } catch (\Exception $e){
+            throw $e;//lets get it up to the job so it can be properly tracked
+        }
 
         return $totalCount;
     }  
