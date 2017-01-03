@@ -16,7 +16,7 @@ class GrabApiEspReports extends Command
      *
      * @var string
      */
-    protected $signature = 'reports:downloadApi {espName} {lookBack?} {queueName?}';
+    protected $signature = 'reports:downloadApi {espName} {lookBack?} {queueName?} {espAccountId?}';
     protected $espRepo;
     protected $lookBack;
 
@@ -43,16 +43,23 @@ class GrabApiEspReports extends Command
     {
         $this->lookBack = $this->argument('lookBack') ? $this->argument('lookBack') : env('LOOKBACK',5);
         $queue = (string) $this->argument('queueName') ? $this->argument('queueName') : "default";
+        $espAccountId = $this->argument('espAccountId');
         $date = Carbon::now()->subDay($this->lookBack)->startOfDay()->toDateString();
         $espName = $this->argument('espName');
 
         $espAccounts = $this->espRepo->getAccountsByESPName($espName);
-
-        foreach ($espAccounts as $account){
-            $espLogLine = "{$account->name}::{$account->account_name}";
+        if($espAccountId) {
+            $espLogLine = "{$espName}::{$espAccountId}";
             $this->info($espLogLine);
-            $job = (new RetrieveApiReports($account->name, $account->id, $date, str_random(16)))->onQueue($queue);
+            $job = (new RetrieveApiReports($espName, $espAccountId, $date, str_random(16)))->onQueue($queue);
             $this->dispatch($job);
+        } else{
+            foreach ($espAccounts as $account) {
+                $espLogLine = "{$account->name}::{$account->account_name}";
+                $this->info($espLogLine);
+                $job = (new RetrieveApiReports($account->name, $account->id, $date, str_random(16)))->onQueue($queue);
+                $this->dispatch($job);
+            }
         }
     }
 }
