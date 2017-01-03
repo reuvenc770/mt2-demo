@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Jobs\Job;
+use App\Jobs\Traits\PreventJobOverlapping;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -13,7 +14,7 @@ use App\Services\EmailFeedInstanceService;
 
 class UpdateFeedCountJob extends Job implements ShouldQueue
 {
-    use InteractsWithQueue, SerializesModels;
+    use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
 
     protected $jobName = 'UpdateFeedCountJob';
     protected $startDate;
