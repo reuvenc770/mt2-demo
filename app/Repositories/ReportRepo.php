@@ -8,7 +8,6 @@
 
 namespace App\Repositories;
 use App\Models\Interfaces\IReport;
-use Log;
 class ReportRepo
 {
     /**
@@ -43,8 +42,7 @@ class ReportRepo
             throw new \Exception('Run id accessed by esp without run id.');
         }
     }
-
-    //currently only used by aweber but could be made a bit more generic and work for everyone
+    
     public function updateStatCount($id, $columnName, $value) {
         return $this->report->find($id)->update([$columnName => $value]);
     }
