@@ -147,7 +147,13 @@ class ListProfileQueryBuilder {
         // Attributes
 
         if (empty($this->ageAttributes)) {
-            $this->ageAttributes = json_decode($listProfile->age_range, true);
+            $tmpAgeData = json_decode($listProfile->age_range, true);
+            if ((int)$tmpAgeData['max'] > 0 ) { # required for a changed age range
+                $this->ageAttributes = $tmpAgeData;
+            }
+            else {
+                $this->ageAttributes = null;
+            }     
         }
         if (empty($this->genderAttributes)) {
             $this->genderAttributes = json_decode($listProfile->gender, true);
@@ -452,24 +458,19 @@ class ListProfileQueryBuilder {
     }
 
 
-    // Assuming an original json structure of {"include": {"low":'', "high":''}, "exclude": {"low": '', "high":''}}
+    // Assuming an original json structure of {"min": #, "max": #, "unknown": BOOL}
     private function buildAgeAttributes($query, $attributes) {
         $field = 'dob';
 
         if ($attributes) {
-            $include = $this->extractIncludes($attributes);
-            $exclude = $this->extractExcludes($attributes);
-
-            if(!empty($include)) {
-                $low = Carbon::now()->subYears($include['low'])->format('Y-m-d');
-                $high = Carbon::now()->subYears($include['high'])->format('Y-m-d');
-                $query = $query->whereBetween($field, [$high, $low]);
-
+            $youngest = Carbon::now()->subYears($attributes['min'])->format('Y-m-d');
+            $oldest = Carbon::now()->subYears($attributes['max'])->format('Y-m-d');
+            
+            if ($attributes['unknown']) {
+                $query = $query->whereRaw("(($field BETWEEN '$oldest' and '$youngest') OR $field IS NULL)");
             }
-            if (!empty($exclude)) {
-                $low = Carbon::now()->subYears($exclude['low'])->format('Y-m-d');
-                $high = Carbon::now()->subYears($exclude['high'])->format('Y-m-d');
-                $query = $query->whereNotBetween($field, [$high, $low]);
+            else {
+                $query = $query->whereRaw("$field BETWEEN '$oldest' and '$youngest'");
             }
         }
 
