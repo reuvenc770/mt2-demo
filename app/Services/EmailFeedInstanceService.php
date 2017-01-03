@@ -34,22 +34,26 @@ class EmailFeedInstanceService {
         $totalCount = 0;
 
         $countList = [];
-        foreach ( $records->cursor() as $currentRecord ) {
-            $index = "{$currentRecord[ 'feed_id' ]}_{$currentRecord[ 'source_url' ]}_{$currentRecord[ 'capture_date' ]}";
-            if ( !array_key_exists( $index , $countList ) ) {
-                $countList[ $index ] = [
-                    'feed_id' => $currentRecord[ 'feed_id' ] ,
-                    'source_url' => $currentRecord[ 'source_url' ] ,
-                    'capture_date' => $currentRecord[ 'capture_date' ] ,
-                    'count' => 0
-                ];
-            }
-            
-            $totalCount++;
-            $countList[ $index ][ 'count' ]++;
-        }
+        try {
+            foreach ($records->cursor() as $currentRecord) {
+                $index = "{$currentRecord[ 'feed_id' ]}_{$currentRecord[ 'source_url' ]}_{$currentRecord[ 'capture_date' ]}";
+                if (!array_key_exists($index, $countList)) {
+                    $countList[$index] = [
+                        'feed_id' => $currentRecord['feed_id'],
+                        'source_url' => $currentRecord['source_url'],
+                        'capture_date' => $currentRecord['capture_date'],
+                        'count' => 0
+                    ];
+                }
 
-        $this->repo->saveSourceCounts( $countList );
+                $totalCount++;
+                $countList[$index]['count']++;
+            }
+
+            $this->repo->saveSourceCounts($countList);
+        } catch (\Exception $e){
+            throw $e;//lets get it up to the job so it can be properly tracked
+        }
 
         return $totalCount;
     }  

@@ -40,11 +40,24 @@ class UpdateFeedCountJob extends Job implements ShouldQueue
      */
     public function handle( EmailFeedInstanceService $service )
     {
-        JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
-
-        $totalCount = $service->updateSourceUrlCounts( $this->startDate , $this->endDate );
-
-        JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking,$totalCount);
+        if ($this->jobCanRun($this->jobName)) {
+            try {
+                $this->createLock($this->jobName);
+                JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
+                $totalCount = $service->updateSourceUrlCounts( $this->startDate , $this->endDate );
+                JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking,$totalCount);
+            }
+            catch (\Exception $e) {
+                echo "{$this->jobName} failed with {$e->getMessage()}  {$e->getLine()}" . PHP_EOL;
+                $this->failed();
+            }
+            finally {
+                $this->unlock($this->jobName);
+            }
+        } else {
+            echo "Still running {$this->jobName} - job level" . PHP_EOL;
+            JobTracking::changeJobState(JobEntry::SKIPPED, $this->tracking);
+        }
     }
 
     public function failed() {
