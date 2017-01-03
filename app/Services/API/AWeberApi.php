@@ -69,7 +69,7 @@ class AWeberApi extends EspBaseAPI
     {
         $campaignData = [];
         $lists = $this->makeApiRequest("lists", array("ws.size" => 100));
-        $numberToPull = $limit; //lets get the last 20 campaigns sent
+        $numberToPull = $limit; //lets get the last X campaigns sent
         foreach($lists as $list){
             $i = 0;
             $url = "/lists/{$list->id}/campaigns";
