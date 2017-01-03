@@ -36,7 +36,7 @@ class AWeberApi extends EspBaseAPI
         $weber = new AWeberLibraryApi($key, $secret);
         $this->accessToken = $creds['consumerToken'];
         $this->sharedSecret = $creds['consumerSecret'];
-        $weber->adapter->debug = env("AWEBER_DEBUG", false);
+        $weber->adapter->debug = config('misc.a_weber_debug');
         try {
             $this->api = $weber;
             $this->account = Cache::remember('aweber_account_'.$espAccountId, $time,
