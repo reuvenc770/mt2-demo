@@ -127,13 +127,19 @@ class AWeberApi extends EspBaseAPI
         return $response->value;
     }
 
+    public function getStateValueFromUrl($url)
+    {
+        $response = $this->makeApiRequest($url,array(),true);
+        return $response->value;
+    }
+
     /**
      * @param $incomingUrl
      * @param array $params
      * @param bool $fullUrl
      * @return AWeberCollection|AWeberEntry
      */
-    private function makeApiRequest($incomingUrl, $params = array(), $fullUrl = false)
+    public function makeApiRequest($incomingUrl, $params = array(), $fullUrl = false)
     {
         $user = new OAuthUser();
         $user->accessToken = $this->accessToken;
@@ -143,6 +149,7 @@ class AWeberApi extends EspBaseAPI
         if ($fullUrl) {
             $url = $incomingUrl;
         }
+        
         $response = $this->api->adapter->request('GET', $url, $params);
         if (!empty($response['id'])) {
             return new AWeberEntry($response, $url, $this->api->adapter);
