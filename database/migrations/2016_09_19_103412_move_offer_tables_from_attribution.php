@@ -11,8 +11,9 @@ class MoveOfferTablesFromAttribution extends Migration
      * @return void
      */
     public function up() {
-        $from = env('ATTR_DB_DATABASE', '');
-        $to = env('DB_DATABASE', 'forge');
+        $from = config('database.connections.attribution.database');
+        $to = config('database.connections.mysql.database');
+
         DB::statement("ALTER TABLE {$from}.offer_payout_types RENAME {$to}.offer_payout_types");
         DB::statement("ALTER TABLE {$from}.offer_payouts RENAME {$to}.offer_payouts");
     }
@@ -23,8 +24,9 @@ class MoveOfferTablesFromAttribution extends Migration
      * @return void
      */
     public function down() {
-        $to = env('ATTR_DB_DATABASE', '');
-        $from = env('DB_DATABASE', 'forge');
+        $to = config('database.connections.attribution.database');
+        $from = config('database.connections.mysql.database');
+
         DB::statement("ALTER TABLE {$from}.offer_payout_types RENAME {$to}.offer_payout_types");
         DB::statement("ALTER TABLE {$from}.offer_payouts RENAME {$to}.offer_payouts");
     }
