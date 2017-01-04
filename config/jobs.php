@@ -6,5 +6,7 @@ return [
     ],
     'uas' => [
         'lookback' => 2
-    ]
+    ],
+    'defaultLookback' => 5,
+    'maxAttempts' => 10,
 ];

@@ -12,8 +12,8 @@ class MoveAllReports extends Migration
      */
     public function up()
     {
-        $from = env('DB_DATABASE', 'forge');
-        $to = env('REPORTS_DB_DATABASE', 'mt2_reports');
+        $from = config('database.connections.mysql.database');
+        $to = config('database.connections.reporting_data.database');
 
         DB::statement("alter table {$from}.blue_hornet_reports rename {$to}.blue_hornet_reports");
         DB::statement("alter table {$from}.standard_reports rename {$to}.standard_reports");
@@ -33,8 +33,8 @@ class MoveAllReports extends Migration
      */
     public function down()
     {
-        $to = env('DB_DATABASE', 'forge');
-        $from = env('REPORTS_DB_DATABASE', 'mt2_reports');
+        $to = config('database.connections.mysql.database');
+        $from = config('database.connections.reporting_data.database');
 
         DB::statement("alter table {$from}.blue_hornet_reports rename {$to}.blue_hornet_reports");
         DB::statement("alter table {$from}.standard_reports rename {$to}.standard_reports");

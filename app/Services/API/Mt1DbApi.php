@@ -123,11 +123,11 @@ class Mt1DbApi
     }
 
     public function moveFile($filename) {
-        
-        $handle = env('MT1_SLAVE_DB3_USER', '');
-        $host = env('MT1_SLAVE_DB3_HOST', '');
-        $pass = env('MT1_SLAVE_DB3_PASS', '');
-        $port = env('MT1_SLAVE_DB3_PORT', '');
+
+        $handle = config('ssh.servers.mt1_slave_db_server.username');
+        $host = config('ssh.servers.mt1_slave_db_server.host');
+        $pass = config('ssh.servers.mt1_slave_db_server.password');
+        $port = config('ssh.servers.mt1_slave_db_server.port');
         $conn = ssh2_connect($host, $port);
         ssh2_auth_password($conn, $handle, $pass);
 

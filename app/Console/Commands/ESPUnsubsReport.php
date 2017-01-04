@@ -39,7 +39,7 @@ class ESPUnsubsReport extends Command
      */
     public function handle()
     {
-        $lookback = $this->option('lookback') ? $this->option('lookback') : env('LOOKBACK',1);
+        $lookback = $this->option('lookback') ? $this->option('lookback') : 1;
         $date = Carbon::now()->subDay($lookback)->startOfDay()->toDateString();
         $job = (new GenerateEspUnsubReport($date, str_random(16)));
         $this->dispatch($job);

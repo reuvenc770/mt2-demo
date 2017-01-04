@@ -60,7 +60,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->apiName = $apiName;
         $this->espAccountId = $espAccountId;
         $this->date = $date;
-        $this->maxAttempts = env('MAX_ATTEMPTS',10);
+        $this->maxAttempts = config('jobs.maxAttempts');
         $this->tracking = $tracking;
         $this->defaultQueue = $defaultQueue;
         $this->reportService = APIFactory::createAPIReportService( $this->apiName,$this->espAccountId );

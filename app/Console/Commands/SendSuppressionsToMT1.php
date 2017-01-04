@@ -40,7 +40,7 @@ class SendSuppressionsToMT1 extends Command
      */
     public function handle()
     {
-        $this->lookBack = $this->argument('lookBack') ? $this->argument('lookBack') : env('LOOKBACK',5);
+        $this->lookBack = $this->argument('lookBack') ? $this->argument('lookBack') : config('jobs.defaultLookback');
         $date = Carbon::now()->subDay($this->lookBack)->startOfDay()->toDateString();
         $job = (new SendSuppressionJob($date, str_random(16)));
         $this->dispatch($job);

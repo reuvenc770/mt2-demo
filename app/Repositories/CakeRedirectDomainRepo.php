@@ -23,11 +23,11 @@ class CakeRedirectDomainRepo {
             return $result->redirect_domain;
         }
         else {
-            return env('ESP_CAKE_REDIR_DOMAIN', ''); // default value
+            return config('misc.esp_cake_redir_domain'); // default value
         }
     }
 
     public function getDefaultRedirectDomain() {
-        return env('CAKE_OLD_REDIR_DOMAIN');
+        return config('misc.cake_old_redir_domain');
     }
 }

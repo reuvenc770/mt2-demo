@@ -41,7 +41,7 @@ class ExportActionsElsewhere extends Command
     public function handle() {
         $reportName = $this->argument('reportName');
 
-        $lookback = $this->option('lookback') ? $this->option('lookback') : env('LOOKBACK',1);
+        $lookback = $this->option('lookback') ? $this->option('lookback') : 1;
         $date = Carbon::now()->subDay($lookback)->startOfDay()->toDateString();
 
         $queue = $this->option('queue') ? $this->option('queue') : 'default';
