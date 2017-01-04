@@ -93,6 +93,12 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
                     }
                 } 
                 else {
+                    Log::info("Orphan failed to be adopted ", array(
+                                                                    "email" => $orphan->email_address,
+                                                                    "esp_account_id" => $orphan->esp_account_id,
+                                                                    "deploy_id" => $orphan->deploy_id,
+                                                            )
+                    );
                     $failedToProcess = true;
                     $attempts++;
                 }
