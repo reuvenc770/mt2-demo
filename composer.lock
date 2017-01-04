@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "5508bbb95e7cdcdcb5f33e2dc56b1488",
-    "content-hash": "8f0f8d619b2ae520db82de07bc175094",
+    "hash": "b7040707a1c5531f21c2d2feace60f3e",
+    "content-hash": "fd2a13914a9153b84d363ab7d9659674",
     "packages": [
         {
             "name": "adrianmejias/laravel-states",
@@ -58,16 +58,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.20.3",
+            "version": "3.20.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "da0d8955770c3c84007bfe7c652351af2c031068"
+                "reference": "343c6c96468de5087ae5e7df4ccee2668857a5aa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/da0d8955770c3c84007bfe7c652351af2c031068",
-                "reference": "da0d8955770c3c84007bfe7c652351af2c031068",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/343c6c96468de5087ae5e7df4ccee2668857a5aa",
+                "reference": "343c6c96468de5087ae5e7df4ccee2668857a5aa",
                 "shasum": ""
             },
             "require": {
@@ -134,7 +134,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2016-12-07 22:50:22"
+            "time": "2017-01-04 18:20:17"
         },
         {
             "name": "cartalyst/sentinel",
