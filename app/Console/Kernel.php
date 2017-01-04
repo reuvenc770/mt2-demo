@@ -82,6 +82,7 @@ class Kernel extends ConsoleKernel
         Commands\SuppressFeed::class,
         Commands\PassToMt1::class,
         Commands\UpdateFeedCounts::class,
+        Commands\FindMissingStatsForAWeber::class,
     ];
 
     /**

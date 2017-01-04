@@ -8,7 +8,6 @@
 
 namespace App\Repositories;
 use App\Models\Interfaces\IReport;
-
 class ReportRepo
 {
     /**
@@ -43,4 +42,9 @@ class ReportRepo
             throw new \Exception('Run id accessed by esp without run id.');
         }
     }
+    
+    public function updateStatCount($id, $columnName, $value) {
+        return $this->report->find($id)->update([$columnName => $value]);
+    }
+
 }
