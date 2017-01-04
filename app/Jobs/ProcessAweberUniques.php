@@ -15,9 +15,9 @@ use App\Facades\JobTracking;
 use Log;
 class ProcessAweberUniques extends Job implements ShouldQueue
 {
-    use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
+    use InteractsWithQueue, SerializesModels;
     
-    protected $jobName = 'ProcessAweberUniques';
+    protected $jobName = 'ProcessAweberUniques-';
     protected $tracking;
     protected $id;
     protected $espAccountId;
@@ -38,7 +38,7 @@ class ProcessAweberUniques extends Job implements ShouldQueue
         $this->id = $id;
         $this->espAccountId = $espAccoiuntId;
         $this->type = $type;
-        JobTracking::startAggregationJob($this->jobName, $this->tracking);
+        JobTracking::startAggregationJob($this->jobName.$type, $this->tracking);
     }
 
     /**
@@ -48,35 +48,25 @@ class ProcessAweberUniques extends Job implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->jobCanRun($this->jobName)) {
-            $reportService = APIFactory::createAPIReportService("AWeber" , $this->espAccountId);
-            try {
-                $this->createLock($this->jobName);
-                JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
-                switch ($this->type){
-                    case AWeberReport::UNIQUE_OPENS:
-                        $value = $reportService->getUniqueStatForCampaignUrl($this->infoUrl,AWeberReport::UNIQUE_OPENS);
-                        $reportService->updateUniqueStatForCampaignUrl($this->id, $this->type, $value);
-                        break;
-                    case AWeberReport::UNIQUE_CLICKS:
-                        $value = $reportService->getUniqueStatForCampaignUrl($this->infoUrl,AWeberReport::UNIQUE_CLICKS);
-                        $reportService->updateUniqueStatForCampaignUrl($this->id, $this->type, $value);
-                        break;
-                    default:
-                        throw new JobException("Not a valid action type");
-                }
-                JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
+        $reportService = APIFactory::createAPIReportService("AWeber", $this->espAccountId);
+        try {
+            JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
+            switch ($this->type) {
+                case AWeberReport::UNIQUE_OPENS:
+                    $value = $reportService->getUniqueStatForCampaignUrl($this->infoUrl, AWeberReport::UNIQUE_OPENS);
+                    $reportService->updateUniqueStatForCampaignUrl($this->id, $this->type, $value);
+                    break;
+                case AWeberReport::UNIQUE_CLICKS:
+                    $value = $reportService->getUniqueStatForCampaignUrl($this->infoUrl, AWeberReport::UNIQUE_CLICKS);
+                    $reportService->updateUniqueStatForCampaignUrl($this->id, $this->type, $value);
+                    break;
+                default:
+                    throw new JobException("Not a valid action type");
             }
-            catch (\Exception $e) {
-                echo "{$this->jobName} failed with {$e->getMessage()}  {$e->getLine()}" . PHP_EOL;
-                $this->failed();
-            }
-            finally {
-                $this->unlock($this->jobName);
-            }
-        } else {
-            echo "Still running {$this->jobName} - job level" . PHP_EOL;
-            JobTracking::changeJobState(JobEntry::SKIPPED, $this->tracking);
+            JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
+        } catch (\Exception $e) {
+            echo "{$this->jobName} failed with {$e->getMessage()}  {$e->getLine()}" . PHP_EOL;
+            $this->failed();
         }
     }
 

@@ -45,7 +45,7 @@ class FindMissingStatsForAWeber extends Command
      */
     public function handle()
     {
-        $date = Carbon::today()->subDay(10)->toDateString();
+        $date = Carbon::today()->subDay(15)->toDateString();
         $rows = $this->report->where("datetime", '>=', $date)->get();
         foreach($rows as $row){
             $job = new ProcessAweberUniques($row->id,$row->esp_account_id,$row->info_url,AWeberReport::UNIQUE_OPENS, str_random(16));
