@@ -228,7 +228,7 @@ class RemoteFeedFileService {
                 config('ssh.servers.mt1_feed_file_server.port'),
                 config('ssh.servers.mt1_feed_file_server.username'),
                 config('ssh.servers.mt1_feed_file_server.public_key'),
-                config('ssh.servers.mt1_feed_file_server.private_key'),
+                config('ssh.servers.mt1_feed_file_server.private_key')
             );
         }
     }
