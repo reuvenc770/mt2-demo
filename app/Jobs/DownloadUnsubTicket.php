@@ -24,7 +24,7 @@ class DownloadUnsubTicket extends Job implements ShouldQueue
         $this->apiName = $apiName;
         $this->espAccountId = $espAccountId;
         $this->data = $data;
-        $this->maxAttempts = env('MAX_ATTEMPTS',10);
+        $this->maxAttempts = config('jobs.maxAttempts');
         $this->tracking = $tracking;
     }
 

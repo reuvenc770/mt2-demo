@@ -24,7 +24,7 @@ trait PaginationCache {
     }
 
     public function cachePagination ( $json , $page , $count , $params = null ) {
-        $timeout = env("CACHETIMEOUT",60);
+        $timeout = config("cache.defaultTimeout",60);
 
         Cache::tags( $this->getType() )->put(
             $this->getCacheKey( $page , $count , $params ) ,

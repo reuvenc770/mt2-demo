@@ -39,7 +39,7 @@ class GetRepsonceRawReportTable extends Migration
         });
 
         Schema::connection("reporting_data")->table('get_response_reports', function($table) {
-            $dbName = env('DB_DATABASE','homestead');
+            $dbName = config('database.connections.mysql.database');
             $table->foreign('esp_account_id')->references('id')->on("{$dbName}.esp_accounts");
         });
     }

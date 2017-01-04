@@ -40,7 +40,7 @@ class MT1ApiService
     public function getPaginatedJson($pageName, $pageNumber, $perPage, $params = null){
         $recordsCacheKey = "{$pageName}.{$pageNumber}.{$perPage}";
         $pageCountCacheKey = "{$pageName}.pageCount.{$perPage}";
-        $timeout = env("CACHETIMEOUT",60);
+        $timeout = config("cache.defaultTimeout",60);
 
         if(Cache::tags( $pageName )->has($recordsCacheKey)){
             return [

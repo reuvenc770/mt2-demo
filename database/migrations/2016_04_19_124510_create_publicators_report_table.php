@@ -43,7 +43,7 @@ class CreatePublicatorsReportTable extends Migration
         } );
 
         Schema::connection( "reporting_data" )->table( "publicators_reports" , function( $table ) {
-            $dbName = env( "DB_DATABASE" );
+            $dbName = config("database.connections.mysql.database");
             $table->foreign( "esp_account_id" )->references( "id" )->on( "{$dbName}.esp_accounts" );
         });
     }

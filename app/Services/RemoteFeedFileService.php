@@ -224,11 +224,11 @@ class RemoteFeedFileService {
     protected function connectToServer () {
         if ( !$this->systemService->connectionExists() ) {
             $this->systemService->initSshConnection(
-                env( 'FEED_FILE_HOST' ) ,
-                env( 'FEED_FILE_PORT' ) ,
-                env( 'FEED_FILE_USER' ) ,
-                env( 'FEED_FILE_PUB_KEY' ) ,
-                env( 'FEED_FILE_PRIV_KEY' )
+                config('ssh.servers.mt1_feed_file_server.host'),
+                config('ssh.servers.mt1_feed_file_server.port'),
+                config('ssh.servers.mt1_feed_file_server.username'),
+                config('ssh.servers.mt1_feed_file_server.public_key'),
+                config('ssh.servers.mt1_feed_file_server.private_key')
             );
         }
     }

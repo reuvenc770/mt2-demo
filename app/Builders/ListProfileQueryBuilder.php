@@ -148,7 +148,7 @@ class ListProfileQueryBuilder {
 
         if (empty($this->ageAttributes)) {
             $tmpAgeData = json_decode($listProfile->age_range, true);
-            if ((int)$tmpAgeData['max'] > 0 ) { # required for a changed age range
+            if (isset($tmpAgeData['max']) && (int)$tmpAgeData['max'] > 0 ) { # required for a changed age range
                 $this->ageAttributes = $tmpAgeData;
             }
             else {

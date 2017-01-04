@@ -35,7 +35,7 @@ class CreateYmlpReportsTable extends Migration
             $table->string('forwards')->default('');
             $table->string('permalink')->default('');
             $table->timestamps();
-            $tableName = env('DB_DATABASE','homestead');
+            $tableName = config('database.connections.mysql.database');
             $table->index('internal_id');
             $table->index(array('esp_account_id', 'internal_id'));
             $table->foreign('esp_account_id')->references('id')->on("{$tableName}.esp_accounts");
