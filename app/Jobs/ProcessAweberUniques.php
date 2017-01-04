@@ -38,7 +38,8 @@ class ProcessAweberUniques extends Job implements ShouldQueue
         $this->id = $id;
         $this->espAccountId = $espAccoiuntId;
         $this->type = $type;
-        JobTracking::startAggregationJob($this->jobName.$type, $this->tracking);
+        $name = "{$this->jobName}-{$type}-{$id}";
+        JobTracking::startAggregationJob($name, $this->tracking);
     }
 
     /**
@@ -65,8 +66,7 @@ class ProcessAweberUniques extends Job implements ShouldQueue
             }
             JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
         } catch (\Exception $e) {
-            echo "{$this->jobName} failed with {$e->getMessage()}  {$e->getLine()}" . PHP_EOL;
-            $this->failed();
+            throw new JobException("{$this->jobName} failed with {$e->getMessage()}  {$e->getLine()}" . PHP_EOL);
         }
     }
 
