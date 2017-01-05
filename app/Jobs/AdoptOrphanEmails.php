@@ -97,6 +97,7 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
                                                                     "email" => $orphan->email_address,
                                                                     "esp_account_id" => $orphan->esp_account_id,
                                                                     "deploy_id" => $orphan->deploy_id,
+                                                                    "esp_internal_id" => $orphan->esp_internal_id,
                                                             )
                     );
                     $failedToProcess = true;
