@@ -1,5 +1,5 @@
 
-@extends( 'bootstrap.layout.default' )
+@extends( 'layout.default' )
 @section('title', 'Append EID')
 
 @section('content')

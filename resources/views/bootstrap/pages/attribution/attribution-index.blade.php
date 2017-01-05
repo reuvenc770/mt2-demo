@@ -1,4 +1,4 @@
-@extends( 'bootstrap.layout.default' )
+@extends( 'layout.default' )
 
 @section( 'title' , 'Attribution Model' )
 @section( 'container' , 'container-fluid' )

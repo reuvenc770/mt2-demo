@@ -1,4 +1,4 @@
-@extends( 'bootstrap.layout.default' )
+@extends( 'layout.default' )
 @section('title', 'Edit Mailing Template')
 
 @section('content')

@@ -1,4 +1,4 @@
-@extends( 'bootstrap.layout.default' )
+@extends( 'layout.default' )
 @section('title', 'Edit Proxy')
 
 @section('content')

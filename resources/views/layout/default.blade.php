@@ -3,7 +3,7 @@
         <!DOCTYPE html>
 <html lang="en">
 <head>
-    @include( 'bootstrap.layout.html-head' )
+    @include( 'layout.html-head' )
     {!! Assets::js() !!}
 </head>
 <body ng-app="mt2App" ng-controller="AppController as app" ng-init="app.currentPath = '{{ Request::path() }}'" ng-cloak>
@@ -18,7 +18,7 @@
 </script>
 <div @yield( 'angular-controller' ) id="containerSizer" class="@yield('container', 'container') pinned-container"  ng-cloak>
     <div>
-    @include( 'bootstrap.layout.internal-navigation' )
+    @include( 'layout.internal-navigation' )
     {!! Breadcrumbs::renderIfExists() !!}
         @if(Sentinel::check() && View::hasSection('cacheTag') )
         @if(Sentinel::hasAccess("tools.cache"))
@@ -36,7 +36,7 @@
          ng-init="app.showToastMessage( '{{ Session::get('flash_notification.message') }}' , '{{ Session::get('flash_notification.level') }}' )"></div>
 @endif
 
-@include( 'bootstrap.layout.modal' )
+@include( 'layout.modal' )
 
 {!! Assets::js('pageLevel') !!}
 </body>

@@ -1,4 +1,4 @@
-@extends( 'bootstrap.layout.default' )
+@extends( 'layout.default' )
 @section('content')
     <div class="container">
         <div class="row">

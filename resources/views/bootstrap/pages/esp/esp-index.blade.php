@@ -1,5 +1,5 @@
 
-@extends( 'bootstrap.layout.default' )
+@extends( 'layout.default' )
 
 @section( 'title' , 'ESP Accounts' )
 @section( 'angular-controller' , 'ng-controller="espController as esp"' )

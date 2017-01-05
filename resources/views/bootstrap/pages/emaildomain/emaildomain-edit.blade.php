@@ -1,4 +1,4 @@
-@extends( 'bootstrap.layout.default' )
+@extends( 'layout.default' )
 @section('title', 'Edit ISP Domain')
 
 @section('content')

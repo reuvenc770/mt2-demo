@@ -1,4 +1,4 @@
-@extends( 'bootstrap.layout.default' )
+@extends( 'layout.default' )
 
 @inject( 'projection' , 'App\Collections\Attribution\ProjectionReportCollection' )
 
