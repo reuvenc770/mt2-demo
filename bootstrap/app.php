@@ -41,6 +41,46 @@ $app->singleton(
     App\Exceptions\Handler::class
 );
 
+$app->configureMonologUsing(function ($monolog) {
+
+    $formatter = new \Monolog\Formatter\LineFormatter(null, null, true, true);
+
+    $stream = new \Monolog\Handler\RotatingFileHandler(storage_path('logs/warning_notice_debug.log'),5,\Monolog\Logger::DEBUG,false);
+    $stream->setFormatter($formatter);
+    $monolog->pushHandler($stream);
+    
+    $stream = new \Monolog\Handler\RotatingFileHandler(storage_path('logs/information_log.log'),5,\Monolog\Logger::INFO, false);
+    $stream->setFormatter($formatter);
+    $monolog->pushHandler($stream);
+
+    $stream = new \Monolog\Handler\RotatingFileHandler(storage_path('logs/warning_notice_debug.log'),5,\Monolog\Logger::NOTICE,false);
+    $stream->setFormatter($formatter);
+    $monolog->pushHandler($stream);
+
+    $stream = new \Monolog\Handler\RotatingFileHandler(storage_path('logs/warning_notice_debug.log'),5,\Monolog\Logger::WARNING,false);
+    $stream->setFormatter($formatter);
+    $monolog->pushHandler($stream);
+
+    $stream = new \Monolog\Handler\RotatingFileHandler(storage_path('logs/errors.log'),5,\Monolog\Logger::ERROR,false);
+    $stream->setFormatter($formatter);
+    $monolog->pushHandler($stream);
+
+    $stream = new \Monolog\Handler\StreamHandler(storage_path('logs/critical_notices.log'),\Monolog\Logger::CRITICAL,false);
+    $stream->setFormatter($formatter);
+    $monolog->pushHandler($stream);
+
+    $stream = new \Monolog\Handler\StreamHandler(storage_path('logs/alert_notices.log'),\Monolog\Logger::ALERT,false);
+    $stream->setFormatter($formatter);
+    $monolog->pushHandler($stream);
+
+    $stream = new \Monolog\Handler\StreamHandler(storage_path('logs/emergency_notices.log'),\Monolog\Logger::EMERGENCY,false);
+    $stream->setFormatter($formatter);
+    $monolog->pushHandler($stream);
+
+
+});
+
+
 /*
 |--------------------------------------------------------------------------
 | Return The Application
