@@ -3,7 +3,7 @@
         <!DOCTYPE html>
 <html lang="en">
 <head>
-    @include( 'layout.html-head' )
+    @include( 'bootstrap.layout.html-head' )
     {!! Assets::js() !!}
 </head>
 <body ng-app="mt2App" ng-controller="AppController as app" ng-init="app.currentPath = '{{ Request::path() }}'" ng-cloak>
@@ -36,7 +36,7 @@
          ng-init="app.showToastMessage( '{{ Session::get('flash_notification.message') }}' , '{{ Session::get('flash_notification.level') }}' )"></div>
 @endif
 
-@include( 'layout.modal' )
+@include( 'bootstrap.layout.modal' )
 
 {!! Assets::js('pageLevel') !!}
 </body>
