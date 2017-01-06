@@ -213,6 +213,15 @@ return [
             'prefix'    => '',
             'strict'    => false,
         ],
+
+        'redshift' => [
+            'driver' => 'pgsql',
+            'host'      => env('REDSHIFT_HOST', ''),
+            'database'  => env('REDSHIFT_DB', ''),
+            'username'  => env('REDSHIFT_USER', ''),
+            'password'  => env('REDSHIFT_PW', ''),
+            'port' => env('REDSHIFT_PORT', '')
+        ]
         
     ],
 
