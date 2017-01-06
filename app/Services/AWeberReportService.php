@@ -141,7 +141,67 @@ class AWeberReportService extends AbstractReportService implements IDataService
         }
     }
 
+    public function splitTypes($processState){
+        return ['delivers'];
+    }
+
 
     public function pushRecords(array $records, $targetId) {}
+
+    public function getUniqueJobId ( &$processState ) {
+        $jobId = ( isset( $processState[ 'jobId' ] ) ? $processState[ 'jobId' ] : '' );
+
+        if (
+            !isset( $processState[ 'jobIdIndex' ] )
+            || ( isset( $processState[ 'jobIdIndex' ] ) && $processState[ 'jobIdIndex' ] != $processState[ 'currentFilterIndex' ] )
+        ) {
+            switch ($processState['currentFilterIndex']) {
+                case 1 :
+                    $jobId .= "::{$processState['espAccountId']}";
+                    break;
+            }
+
+            $processState['jobIdIndex'] = $processState['currentFilterIndex'];
+            $processState['jobId'] = $jobId;
+        }
+        return $jobId;
+    }
+
+
+
+    public function saveRecords(&$processState) {
+        $type = "";
+        $count = 0;
+        $espInternalId = $processState['campaign']->esp_internal_id;
+        // sometimes this doesn't work - if we don't have the campaign saved
+        $deployId = $processState['campaign']->external_deploy_id;
+
+        try {
+            switch ( $processState[ 'recordType' ] ) {
+                case 'delivers' :
+                    $report = $this->getRawReportByInternalId($espInternalId);
+
+                    $statUrl = "{$report->info_url}/messages";
+                    $messages = $this->api->makeApiRequest($statUrl,array( "ws.size" => 5),true);
+                   
+                   // $statUrl = "{$report->info_url}/clicks";
+                    //$messages = $this->api->makeApiRequest($statUrl,array( "ws.size" => 1),true);
+                    foreach($messages as $message)
+                        print_r($message);
+                    break;
+            }
+           // DeployActionEntry::recordSuccessRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, $type );
+        } catch ( \Exception $e ) {
+            //DeployActionEntry::recordFailedRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, $type);
+            $jobException = new JobException( 'Failed to save records. ' . $e->getMessage() , JobException::NOTICE , $e );
+            //$jobException->setDelay( 180 );
+            throw $jobException;
+        }
+        return $count;
+    }
+
+    public function getRawReportByInternalId($internalId){
+        return $this->reportRepo->getRowByExternalId($internalId);
+    }
 
 }
