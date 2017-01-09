@@ -3,15 +3,16 @@ namespace App\Services;
 
 use App\Events\RawReportDataWasInserted;
 use App\Exceptions\JobException;
+use App\Facades\AWeberEmailAction;
 use App\Facades\DeployActionEntry;
-use App\Repositories\ReportRepo;
-use App\Services\AbstractReportService;
-use App\Services\API\AWeberApi;
-use App\Services\EmailRecordService;
-use App\Services\Interfaces\IDataService;
-use Illuminate\Support\Facades\Event;
-use Log;
+use App\Jobs\RetrieveDeliverableReports;
 use App\Models\AWeberReport;
+use App\Repositories\ReportRepo;
+use App\Services\API\AWeberApi;
+use App\Services\Interfaces\IDataService;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Support\Facades\Event;
+
 /**
  * Class AWeberReportService
  * @package App\Services
@@ -23,6 +24,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
      * @param ReportRepo $reportRepo
      * @param $accountNumber
      */
+    use DispatchesJobs;
 
     const DELIVERABLE_LOOKBACK = 2;
 
@@ -46,7 +48,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
     {
         $date = null; //unfortunately date does not matter here.
         $campaignData = array();
-        $campaigns = $this->api->getCampaigns(15);
+        $campaigns = $this->api->getCampaigns(20);
         foreach ($campaigns as $campaign) {
             $clickEmail = -1;
             $openEmail = -1;
@@ -142,7 +144,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
     }
 
     public function splitTypes($processState){
-        return ['delivers'];
+        return ['delivers','links'];
     }
 
 
@@ -178,23 +180,70 @@ class AWeberReportService extends AbstractReportService implements IDataService
 
         try {
             switch ( $processState[ 'recordType' ] ) {
+
                 case 'delivers' :
                     $report = $this->getRawReportByInternalId($espInternalId);
-
                     $statUrl = "{$report->info_url}/messages";
-                    $messages = $this->api->makeApiRequest($statUrl,array( "ws.size" => 5),true);
-                   
-                   // $statUrl = "{$report->info_url}/clicks";
-                    //$messages = $this->api->makeApiRequest($statUrl,array( "ws.size" => 1),true);
-                    foreach($messages as $message)
-                        print_r($message);
+                    $messages = $this->api->makeApiRequest($statUrl,array( "ws.size" => 100),true);
+
+                    foreach($messages as $message) {
+                        AWeberEmailAction::queueDeliverable(self::RECORD_TYPE_DELIVERABLE, $message->subscriber_link, $this->api->getEspAccountId(), $deployId, $espInternalId, $message->event_time);
+
+                        if($message->total_opens > 0){
+                            $processState[ 'openCollection' ] = $message->opens_collection_link;
+                            $processState[ 'recordType' ] =  'opens';
+                            $job = new RetrieveDeliverableReports("AWeber", $this->api->getEspAccountId(), $processState[ 'recordType' ], str_random(16), $processState);
+                            $this->dispatch($job);
+                        }
+
+                        $processState[ 'recordType' ] =  'deliverable';
+                    }
+
+                    AWeberEmailAction::massRecordDeliverables();
+                    $type = "deliverable";
+                    break;
+
+                case 'opens' :
+                    $messages = $this->api->makeApiRequest($processState[ 'openCollection' ],array(),true);
+                    foreach($messages as $message) {
+                        AWeberEmailAction::queueDeliverable(self::RECORD_TYPE_OPENER, $message->subscriber_link, $this->api->getEspAccountId(), $deployId, $espInternalId, $message->event_time);
+                    }
+                    AWeberEmailAction::massRecordDeliverables();
+                    $type = "open";
+                    break;
+
+                case 'links' :
+                    $report = $this->getRawReportByInternalId($espInternalId);
+                    $linkUrl = "{$report->info_url}/links";
+                    $urls = $this->api->makeApiRequest($linkUrl,array(),true);
+
+                    foreach($urls as $message) {
+                        if($message->total_clicks > 0) {
+                            $processState['clickCollection'] = $message->clicks_collection_link;
+                            $processState['recordType'] = 'clicks';
+                            $job = new RetrieveDeliverableReports("AWeber", $this->api->getEspAccountId(), $processState['recordType'], str_random(16), $processState);
+                            $this->dispatch($job);
+                        }
+                            $processState[ 'recordType' ] =  'links';
+                    }
+                    $type = "click";
+                    break;
+
+                case 'clicks' :
+                    $messages = $this->api->makeApiRequest($processState[ 'clickCollection' ],array( "ws.size" => 100),true);
+                    foreach($messages as $message) {
+                        AWeberEmailAction::queueDeliverable(self::RECORD_TYPE_CLICKER, $message->subscriber_link, $this->api->getEspAccountId(), $deployId, $espInternalId, $message->event_time);
+                    }
+                    AWeberEmailAction::massRecordDeliverables();
+                    $type = "click";
                     break;
             }
-           // DeployActionEntry::recordSuccessRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, $type );
+            
+            DeployActionEntry::recordSuccessRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, $type );
         } catch ( \Exception $e ) {
-            //DeployActionEntry::recordFailedRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, $type);
+            DeployActionEntry::recordFailedRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, $type);
             $jobException = new JobException( 'Failed to save records. ' . $e->getMessage() , JobException::NOTICE , $e );
-            //$jobException->setDelay( 180 );
+            $jobException->setDelay( 180 );
             throw $jobException;
         }
         return $count;
