@@ -10,6 +10,7 @@ use App\Models\ListProfileCombine;
 use App\Repositories\ListProfileCombineRepo;
 
 use App\Services\DeployService;
+use DaveJamesMiller\Breadcrumbs\Exception;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
@@ -37,9 +38,15 @@ class Inspire extends Command
      */
     public function handle()
     {
-        $path = storage_path() . "/app/files/uploads/csvuploads/20161118/upload.csv";
-       $job = new ImportCsvStats("Campaigner",$path);
-        $this->dispatch($job);
+        \Log::emergency("I am an emergency");
+        \Log::alert("I am an alert");
+        \Log::critical("I am a crital alert");
+        \Log::debug("I am a debug message");
+        \Log::error("I am a error");
+        \Log::info("I am information");
+        \Log::warning("I am a warning");
+        \Log::notice("I am a notice");
+        trigger_error("Fatal error", E_USER_ERROR);
         }
 
 }

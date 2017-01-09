@@ -70,6 +70,8 @@ class EspRepo
        $return =  $this->esp->find($id)->fieldOptions()->updateOrCreate(["esp_id" => $id],
                 ["email_address_field" => $fieldOptions['email_address_field'],
                     "email_id_field" => $fieldOptions['email_id_field'],
+                    "open_email_id_field" => $fieldOptions['open_email_id_field'],
+                    "open_email_address_field" => $fieldOptions['open_email_address_field']
                 ]
             );
         /**

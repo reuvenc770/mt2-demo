@@ -179,6 +179,9 @@ class PackageZipCreationService {
             $this->emailIdField = $fieldOptions->email_id_field;
             $emailAddressField = $fieldOptions->email_address_field;
 
+            $openEmailIdField = $fieldOptions->open_email_id_field;
+            $openEmailAddressField = $fieldOptions->open_email_address_field;
+
             $templateId = $deploy->template_id;
             $fromId = $deploy->from_id;
             $subjectId = $deploy->subject_id;
@@ -229,7 +232,7 @@ class PackageZipCreationService {
             libxml_use_internal_errors($errors);
 
             // n used to be clientId - removed, should be safe
-            $openPixel = "<IMG SRC='http://{$this->contentDomain}/cgi-bin/open.cgi?eid={$this->emailIdField}&cid=1&em=$emailAddressField&n=0&f=$fromId&s=$subjectId&c=$creativeId&did=&binding=&tid=$templateId&openflag=1&nod=1&espID=$espId&subaff={$deploy->id}' border=0 height=1 width=1>";
+            $openPixel = "<IMG SRC='http://{$this->contentDomain}/resources/img/spacer.png?eid={$openEmailIdField}&cid=1&em={$openEmailAddressField}&n=0&f={$fromId}&s={$subjectId}&c={$creativeId}&did=&binding=&tid={$templateId}&openflag=1&nod=1&espID={$espId}&subaff={$deploy->id}' border=0 height=1 width=1>";
 
             $fullHtml = str_replace("{{CREATIVE}}", $creativeHtml, $fullHtml);
             $fullHtml = str_replace("{{TRACKING}}", $openPixel, $fullHtml);

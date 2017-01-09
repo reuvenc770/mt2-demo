@@ -11,7 +11,7 @@ use App\Services\EmailRecordService;
 use App\Services\Interfaces\IDataService;
 use Illuminate\Support\Facades\Event;
 use Log;
-
+use App\Models\AWeberReport;
 /**
  * Class AWeberReportService
  * @package App\Services
@@ -110,6 +110,35 @@ class AWeberReportService extends AbstractReportService implements IDataService
             'e_clicks' => $data[ 'total_clicks' ],
             'e_clicks_unique' => "",
         );
+    }
+
+    public function getUniqueStatForCampaignUrl($url, $type){
+        switch ($type){
+            case AWeberReport::UNIQUE_OPENS:
+                $fullUrl = "{$url}/stats/unique_opens";
+                $return = $this->api->getStateValueFromUrl($fullUrl);
+                break;
+            case AWeberReport::UNIQUE_CLICKS:
+                $fullUrl = "{$url}/stats/unique_clicks";
+                $return = $this->api->getStateValueFromUrl($fullUrl);
+                break;
+            default:
+                throw new JobException("Not a valid action type");
+        }
+        return $return;
+    }
+    
+    public function updateUniqueStatForCampaignUrl($id, $type, $value){
+        switch ($type){
+            case AWeberReport::UNIQUE_OPENS:
+                $this->reportRepo->updateStatCount($id, "unique_opens", $value);
+                break;
+            case AWeberReport::UNIQUE_CLICKS:
+                $this->reportRepo->updateStatCount($id,"unique_clicks", $value);
+                break;
+            default:
+                throw new JobException("Not a valid action type");
+        }
     }
 
 
