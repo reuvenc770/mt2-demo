@@ -2,33 +2,29 @@
 
 @section( 'title' , 'Add Feed' )
 
-@section( 'navClientClasses' , 'active' )
-
 @section( 'angular-controller' , 'ng-controller="FeedController as feed"' )
 
 @section( 'content' )
-<md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
-
-    <div flex-gt-md="50" flex="100">
-        <div layout="row" layout-align="end end">
-            <md-button layout="row" class="md-raised md-accent" ng-disabled="feed.creatingFeed" ng-click="feed.saveFeed( $event , feedForm )">
-                <md-icon class="material-icons" md-font-set="material-icons" ng-hide="feed.creatingFeed">save</md-icon>
-                <md-progress-circular ng-show="feed.creatingFeed" md-mode="indeterminate" md-diameter="16"></md-progress-circular> <span flex>Save</span>
-            </md-button>
+<div>
+    <div class="panel mt2-theme-panel">
+        <div class="panel-heading">
+            <div class="panel-title">Add Feed</div>
         </div>
+            <fieldset>
 
-        @include( 'pages.feed.feed-form' )
+            @include( 'pages.feed.feed-form' )
 
-        <div layout="row" layout-align="end end">
-            <md-button layout="row" class="md-raised md-accent" ng-disabled="feed.creatingFeed" ng-click="feed.saveFeed( $event , feedForm )">
-                <md-icon class="material-icons" md-font-set="material-icons" ng-hide="feed.creatingFeed">save</md-icon>
-                <md-progress-circular ng-show="feed.creatingFeed" md-mode="indeterminate" md-diameter="16"></md-progress-circular> <span flex>Save</span>
-            </md-button>
+            </fieldset>
+        <div class="panel-footer">
+            <div class="form-group">
+                <input class="btn mt2-theme-btn-primary btn-block" ng-click="feed.saveFeed()" ng-disabled="feed.formSubmitted" type="submit" value="Add Feed">
+            </div>
         </div>
     </div>
-</md-content>
+</div>
 @stop
 
-@section( 'pageIncludes' )
-<script src="js/feed.js"></script>
-@stop
+<?php Assets::add(
+        ['resources/assets/js/feed/FeedController.js',
+        'resources/assets/js/feed/FeedApiService.js',
+        'resources/assets/js/feed/FeedUrlModalDirective.js'],'js','pageLevel') ?>
