@@ -46,6 +46,6 @@
 @stop
 
 <?php Assets::add(
-        ['resources/assets/js/bootstrap/feedgroup/FeedGroupController.js',
-        'resources/assets/js/bootstrap/feedgroup/FeedGroupApiService.js',
-        'resources/assets/js/bootstrap/feed/FeedApiService.js'],'js','pageLevel') ?>
+        ['resources/assets/js/feedgroup/FeedGroupController.js',
+        'resources/assets/js/feedgroup/FeedGroupApiService.js',
+        'resources/assets/js/feed/FeedApiService.js'],'js','pageLevel') ?>
