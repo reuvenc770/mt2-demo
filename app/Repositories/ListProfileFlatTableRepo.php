@@ -5,11 +5,13 @@ namespace App\Repositories;
 use App\Models\ListProfileFlatTable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
+use App\Repositories\RepoInterfaces\IAwsRepo;
+use App\Repositories\EtlPickupRepo;
 
 /**
  *
  */
-class ListProfileFlatTableRepo {
+class ListProfileFlatTableRepo implements IAwsRepo {
   
     private $flatTable;
     private $batchData = [];
@@ -124,5 +126,29 @@ class ListProfileFlatTableRepo {
 
 
         }    
+    }
+
+    public function extractForS3Upload(EtlPickupRepo $pickupRepo) {
+        $startPoint = $pickupRepo->getLastInsertedForName('ListProfileFlatTable-s3');
+        return $this->model;
+    }
+
+    public function mapForS3Upload($row) {
+        return [
+            'email_id' => $row->email_id,
+            'deploy_id' => $row->deploy_id,
+            'date' => $row->date,
+            'email_address' => $row->email_address,
+            'email_domain_id' => $row->email_domain_id,
+            'email_domain_group_id' => $row->email_domain_group_id,
+            'offer_id' => $row->offer_id,
+            'cake_vertical_id' => $row->cake_vertical_id,
+            'deliveries' => $row->deliveries,
+            'opens' => $row->opens,
+            'clicks' => $row->clicks,
+            'conversions' => $row->conversions,
+            'created_at' => $row->created_at,
+            'updated_at' => $row->updated_at
+        ];
     }
 }
