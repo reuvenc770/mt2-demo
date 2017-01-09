@@ -1,69 +1,63 @@
-<div class="md-whiteframe-4dp" style="background-color:#FFF;">
-    <form name="attrModelForm" novalidate>
-        <md-toolbar layout="row" class="md-mt2-zeta-theme md-hue-2">
-          <div class="md-toolbar-tools">
-            <span>Attribution Model Details</span>
-          </div>
-        </md-toolbar>
-
-        <md-content layout-padding>
-            <div flex>
-                <md-input-container class="md-block">
-                    <label>Model Name</label>
-
-                    <input type="text" name="modelName" ng-model="attr.current.name" ng-required="true" />
-
-                    <div class="bg-danger" ng-show="attrModelForm.modelName.$dirty" ng-messages="attrModelForm.modelName.$error">
-                    <div ng-message="required">Model Name is required.</div>
-                    </div>
-                </md-input-container>
+<div class="form-horizontal">
+    <div class="form-group" ng-class="{ 'has-error' : attr.formErrors.name }">
+        <label class="col-sm-1 control-label">Name</label>
+        <div class="col-sm-11">
+            <input placeholder="Name" value="" class="form-control" ng-model="attr.current.name" required="required" name="name"
+                   type="text">
+            <div class="help-block" ng-show="attr.formErrors.name">
+                <div ng-repeat="error in attr.formErrors.name">
+                    <span ng-bind="error"></span>
+                </div>
             </div>
-        </md-content>
-
-        <md-toolbar layout="row" class="md-mt2-zeta-theme md-hue-2">
-          <div class="md-toolbar-tools">
-            <span flex="2"></span>
-
-            <md-button class="md-icon-button md-primary" aria-label="Clear Checkboxes" ng-click="attr.resetLevelFields()" flex="4" flex-offset="6">
-                <md-tooltip md-direction="bottom">Clear Selected</md-tooltip>
-
-                <md-icon md-font-set="material-icons" style="color: #FFF;">clear</md-icon>
-            </md-button>
-
-            <span>Feed Attribution Levels</span>
-
-            <span flex></span>
-
-            <span ng-bind="attr.feeds.length + ' Feeds'"></span>
-          </div>
-        </md-toolbar>
-
-        <md-content>
-            <md-list class="md-dense" flex ng-cloak>
-                <md-list-item ng-repeat="feed in attr.feeds track by $index" class="md-no-proxy" ng-class="{ 'mt2-proj-increase-bg' : attr.clientLevels[ feed.id ] > ( $index + 1 ) , 'mt2-proj-decrease-bg' : attr.clientLevels[ feed.id ] < ( $index + 1 ) }">
-                    <md-checkbox ng-model="feed.selected" aria-label="Feed Checkbox"></md-checkbox>
-
-                    <div class="md-list-item-text" flex="noshrink" flex-gt-md="100">
-                        <h4 ng-bind="feed.name"></h4>
+        </div>
+    </div>
+</div>
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <!--//I wanted to move controls up here ,but its out of the scope of the loop, could push feeds on array and loop -->
+        <div class="panel-title">Attribution Levels <span ng-if="attr.selectFeedCount > 1"><b> - Buttons Controlling Selected Group - </b> </span>
+            <span class="pull-right"><b>Displaying @{{ attr.rowLimit }} of @{{ attr.feeds.length }} Feeds</b> </span></div>
+    </div>
+    <div class="panel-body">
+        <ul class="list-group" ng-cloak>
+            <li ng-repeat="feed in attr.feeds track by $index"
+                class="list-group-item clearfix cmp-list-item-condensed" ng-class="{ 'list-group-item-success' : attr.clientLevels[ feed.id ] > ( $index + 1 ) , 'list-group-item-danger' : attr.clientLevels[ feed.id ] < ( $index + 1 )}">
+                <div class="col-sm-3 col-md-5 no-padding">
+                    <div class="checkbox no-margin">
+                        <label>
+                            <h5>
+                                <input ng-change="attr.toggleGroupController(feed , $index)" ng-model="feed.selected" type="checkbox">
+                                &nbsp;&nbsp; @{{ feed.name }}
+                            </h5>
+                        </label>
                     </div>
+                </div>
+                <div class="col-sm-4" style="margin-top: 5px;">
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <div ng-class="{ 'input-group' : $first }">
+                                <input class="form-control cmp-input-xs" ng-model="feed.newLevel" type="text">
+                                <div class="input-group-addon cmp-tooltip-marker" ng-if="$first">
+                                    <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs no-padding" aria-label="Change level" data-toggle="popover" data-placement="right" data-content="To move the feed to a specific level, type in the new position and click 'Change Level' button.">help</md-icon>
+                                </div>
 
-                    <div layout="row" class="md-secondary">
-                        <input ng-model="feed.newLevel" style="width:50px;" />
-
-                        <md-button ng-click="attr.changeLevel( feed , $index )">Change</md-button>
+                            </div>
+                        </div>
+                        <div class="col-sm-7">
+                            <button class="btn btn-sm btn-block mt2-theme-btn-primary" ng-if="feed.newLevel != $index + 1"
+                                    ng-click="attr.changeLevel( feed , $index )">Change Level
+                            </button>
+                        </div>
                     </div>
-
-                    <md-icon class="md-secondary" ng-click="attr.onLevelRise( feed , $index )" aria-label="Move Feed Up" md-font-set="material-icons" style="color: #000;">arrow_upward</md-icon>
-
-                    <md-icon class="md-secondary" ng-click="attr.onLevelDrop( feed , $index )" aria-label="Move Feed Down" md-font-set="material-icons" style="color: #000;">arrow_downward</md-icon>
-
-                    <md-icon class="md-secondary" ng-click="attr.moveToTop( feed , $index )" aria-label="Move To Top" md-font-set="material-icons" style="color: #000;">vertical_align_top</md-icon>
-
-                    <md-icon class="md-secondary" ng-click="attr.moveToBottom( feed , $index )" aria-label="Move to Bottom" md-font-set="material-icons" style="color: #000;">vertical_align_bottom</md-icon>
-
-                    <md-icon class="md-secondary" ng-click="attr.confirmDeletion( feed.id )" aria-label="Move to Bottom" md-font-set="material-icons" style="color: #000;">delete</md-icon>
-                </md-list-item>
-            </md-list>
-        </md-content>
-    </form>
+                </div>
+                <div class="col-sm-4 col-md-3 attribution-actions no-padding" style="margin-top: 5px;">
+                    <span ng-click="attr.onLevelRise( feed , $index )" class="glyphicon glyphicon-arrow-up" aria-label="Up" title="Up"></span>
+                    <span ng-click="attr.onLevelDrop( feed , $index )" class="glyphicon glyphicon-arrow-down" aria-label="Down" title="Down"></span>
+                    <span ng-click="attr.moveToTop( feed , $index )" class="glyphicon glyphicon-open" aria-label="All the Way Up" title="All the Way Up"></span>
+                    <span ng-click="attr.moveToBottom( feed , $index )" class="glyphicon glyphicon-save" aria-label="All the Way Down" title="All the Way Down"></span>
+                    <span ng-click="attr.confirmDeletion( feed , $index )" class="glyphicon glyphicon-trash" aria-label="Delete" title="Delete"></span>
+                </div>
+            </li>
+        </ul>
+    </div>
 </div>
