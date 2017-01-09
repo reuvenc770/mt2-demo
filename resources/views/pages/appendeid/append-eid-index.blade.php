@@ -43,6 +43,6 @@
 @endsection
 
 <?php Assets::add(
-        ['resources/assets/js/bootstrap/appendeid/AppendEidController.js',
-                'resources/assets/js/bootstrap/appendeid/AppendEidApiService.js'
+        ['resources/assets/js/appendeid/AppendEidController.js',
+                'resources/assets/js/appendeid/AppendEidApiService.js'
         ], 'js', 'pageLevel') ?>

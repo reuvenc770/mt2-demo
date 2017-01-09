@@ -19,7 +19,7 @@ class AppendEidController extends Controller
     }
 
     public function index(){
-       return view('bootstrap.pages.appendeid.append-eid-index');
+       return view('pages.appendeid.append-eid-index');
    }
 
     public function manageUpload(Request $request){
