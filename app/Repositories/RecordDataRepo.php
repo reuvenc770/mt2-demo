@@ -6,8 +6,10 @@ use App\Models\RecordData;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use Carbon\Carbon;
+use App\Repositories\RepoInterfaces\IAwsRepo;
+use App\Repositories\EtlPickupRepo;
 
-class RecordDataRepo {
+class RecordDataRepo implements IAwsRepo {
 
     private $model;
     private $batchData = [];
@@ -208,6 +210,39 @@ class RecordDataRepo {
             $this->batchActionUpdateCount = 0;
 
         }
+    }
+
+    public function extractForS3Upload(EtlPickupRepo $pickupRepo) {
+        return $this->model;
+    }
+
+    public function mapForS3Upload($row) {
+        return [
+            'email_id' => $row->email_id,
+            'is_deliverable' => $row->is_deliverable,
+            'first_name' => $row->first_name,
+            'last_name' => $row->last_name,
+            'address' => $row->address,
+            'address2' => $row->address2,
+            'city' => $row->city,
+            'state' => $row->state,
+            'zip' => $row->zip,
+            'country' => $row->country,
+            'gender' => $row->gender,
+            'ip' => $row->ip,
+            'phone' => $row->phone,
+            'source_url' => $row->source_url,
+            'dob' => $row->dob,
+            'device_type' => $row->device_type,
+            'device_name' => $row->device_name,
+            'carrier' => $row->carrier,
+            'capture_date' => $row->capture_date,
+            'subscribe_date' => $row->subscribe_date,
+            'last_action_date' => $row->last_action_date,
+            'other_fields' => $row->other_fields,
+            'last_action_offer_id' => $row->last_action_offer_id,
+            'last_action_date' => $row->last_action_date
+        ];
     }
 
 }
