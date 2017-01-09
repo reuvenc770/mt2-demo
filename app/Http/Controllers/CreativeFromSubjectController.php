@@ -37,7 +37,7 @@ class CreativeFromSubjectController extends Controller
         $creatives  = $this->cfsService->getCreativeByOfferId($offerId);
 
          return response()
-            ->view( 'bootstrap.pages.cfs.creative-preview', ["creatives" => $creatives] );
+            ->view( 'pages.cfs.creative-preview', ["creatives" => $creatives] );
     }
 }
 
