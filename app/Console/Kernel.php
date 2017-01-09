@@ -24,6 +24,7 @@ class Kernel extends ConsoleKernel
     const ATTRIBUTION_REPORT_UPDATE_TIME = '17:00';
     const FEED_FILE_PROCESS_TIME = '22:00';
     const MT1_SYNC_TIME = '23:00';
+    const REDSHIFT_UPLOAD_TIME = '09:00';
 
     /**
      * The Artisan commands provided by your application.
@@ -82,6 +83,7 @@ class Kernel extends ConsoleKernel
         Commands\SuppressFeed::class,
         Commands\PassToMt1::class,
         Commands\UpdateFeedCounts::class,
+        Commands\S3RedshiftExport::class,
     ];
 
     /**
@@ -224,6 +226,7 @@ class Kernel extends ConsoleKernel
          *  List profile jobs
          */
 
+        $schedule->command('listprofile:dataEtl')->dailyAt(self::REDSHIFT_UPLOAD_TIME);
         $schedule->command('listprofile:aggregateActions')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('listprofile:getRecordAgentData')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('listprofile:baseTables')->dailyAt(self::EXPIRATION_RUNS);
