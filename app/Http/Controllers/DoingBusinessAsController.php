@@ -27,7 +27,7 @@ class DoingBusinessAsController extends Controller
     public function listAll()
     {
         return response()
-            ->view("bootstrap.pages.dba.dba-index");
+            ->view("pages.dba.dba-index");
     }
 
     /**
@@ -51,7 +51,7 @@ class DoingBusinessAsController extends Controller
         $states = States::all();
         $espAccounts = $this->espAccountService->getAllAccounts();
         $isps = $this->domainGroupService->getAllActive();
-        return view("bootstrap.pages.dba.dba-add", [
+        return view("pages.dba.dba-add", [
             "states" => $states ,
             "espAccounts" => $espAccounts,
             "isps" => $isps
@@ -95,7 +95,7 @@ class DoingBusinessAsController extends Controller
         $espAccounts = $this->espAccountService->getAllAccounts();
         $isps = $this->domainGroupService->getAllActive();
         return response()
-            ->view( "bootstrap.pages.dba.dba-edit", [
+            ->view( "pages.dba.dba-edit", [
             "states" => $states ,
             "espAccounts" => $espAccounts,
             "isps" => $isps
