@@ -127,5 +127,5 @@
 @stop
 
 <?php Assets::add(
-        ['resources/assets/js/bootstrap/pages/SourceUrlSearchController.js',
-        'resources/assets/js/bootstrap/feed/FeedApiService.js'],'js','pageLevel') ?>
+        ['resources/assets/js/pages/SourceUrlSearchController.js',
+        'resources/assets/js/feed/FeedApiService.js'],'js','pageLevel') ?>
