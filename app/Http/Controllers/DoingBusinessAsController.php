@@ -103,6 +103,19 @@ class DoingBusinessAsController extends Controller
     }
 
     /**
+     * Update the specified resource in storage.
+     *
+     * @param  \App\Http\Requests\EspApiEditRequest  $request
+     * @param  int  $id The ESP Account ID being updated.
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Requests\EditDBARequest $request, $id)
+    {
+        $this->doingBusinessService->updateAccount( $id , $request->toArray() );
+        Flash::success("DBA Account was Successfully Updated");
+    }
+
+    /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
