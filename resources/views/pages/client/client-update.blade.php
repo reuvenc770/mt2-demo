@@ -8,7 +8,7 @@
         </div>
         <div class="panel-body">
             <fieldset>
-                @include( 'bootstrap.pages.client.client-form' )
+                @include( 'pages.client.client-form' )
 
             <div class="panel panel-info">
                 <div class="panel-heading">Feeds</div>
@@ -28,5 +28,5 @@
 @endsection
 
 <?php Assets::add(
-        ['resources/assets/js/bootstrap/client/ClientController.js',
-                'resources/assets/js/bootstrap/client/ClientApiService.js'],'js','pageLevel') ?>
+        ['resources/assets/js/client/ClientController.js',
+                'resources/assets/js/client/ClientApiService.js'],'js','pageLevel') ?>

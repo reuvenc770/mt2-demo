@@ -63,5 +63,5 @@
 @stop
 
 <?php Assets::add(
-        ['resources/assets/js/bootstrap/client/ClientController.js',
-                'resources/assets/js/bootstrap/client/ClientApiService.js'],'js','pageLevel') ?>
+        ['resources/assets/js/client/ClientController.js',
+                'resources/assets/js/client/ClientApiService.js'],'js','pageLevel') ?>
