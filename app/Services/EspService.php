@@ -71,8 +71,8 @@ class EspService
     }
 
     public function updateAccount($id, $fieldOptions){
-                $this->espRepo->updateEspName($id, $fieldOptions['name']);
-       return  $this->espRepo->updateFieldOptions($id, $fieldOptions);
+        $this->espRepo->updateEspName($id, $fieldOptions['name']);
+        return $this->espRepo->updateFieldOptions($id, $fieldOptions);
     }
 
     //override return model so its a builder and not Collection
