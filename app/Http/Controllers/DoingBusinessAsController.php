@@ -66,7 +66,7 @@ class DoingBusinessAsController extends Controller
      */
     public function store(Requests\AddDBARequest $request)
     {
-        Flash::success("DBA was Successfully Created");
+        Flash::success("DBA was successfully created.");
         $request = $this->doingBusinessService->insertRow($request->all());
         return response()->json( [ 'status' => $request ] );
     }
@@ -100,6 +100,19 @@ class DoingBusinessAsController extends Controller
             "espAccounts" => $espAccounts,
             "isps" => $isps
         ] );
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \App\Http\Requests\EspApiEditRequest  $request
+     * @param  int  $id The ESP Account ID being updated.
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Requests\EditDBARequest $request, $id)
+    {
+        $this->doingBusinessService->updateAccount( $id , $request->toArray() );
+        Flash::success("DBA was successfully updated.");
     }
 
     /**

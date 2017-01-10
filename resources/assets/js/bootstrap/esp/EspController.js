@@ -4,7 +4,20 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
 
     self.accounts = [];
 
-    self.currentAccount = { "_token" : "" , "id" : "" , "name" : "" , "email_id_field" : "","email_id_field_toggle" : false , "email_address_field" : "", "email_address_field_toggle" : false, "hasAccounts":true };
+    self.currentAccount = { 
+        "_token" : "" , 
+        "id" : "" , 
+        "name" : "" , 
+        "open_email_id_field" : "",
+        "open_email_id_field_toggle" : false , 
+        "open_email_address_field" : "", 
+        "open_email_address_field_toggle" : false, 
+        "email_id_field" : "",
+        "email_id_field_toggle" : false , 
+        "email_address_field" : "", 
+        "email_address_field_toggle" : false, 
+        "hasAccounts":true 
+    };
 
     self.editUrl = 'esp/edit/';
     self.formErrors = [];
@@ -67,10 +80,12 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
      self.saveNewAccount = function () {
         self.formSubmitted = true;
         formValidationService.resetFieldErrors(self);
-         //If not used is selected fill in -1 as the value so we can skip validation
-         var account = jQuery.extend({}, self.currentAccount)
-         account.email_id_field = self.currentAccount.email_id_field_toggle ?  '-1' : self.currentAccount.email_id_field;
-         account.email_address_field = self.currentAccount.email_address_field ? '-1' : self.currentAccount.email_address_field;
+        //If not used is selected fill in -1 as the value so we can skip validation
+        var account = jQuery.extend({}, self.currentAccount)
+        account.email_id_field = self.currentAccount.email_id_field_toggle ?  '-1' : self.currentAccount.email_id_field;
+        account.email_address_field = self.currentAccount.email_address_field ? '-1' : self.currentAccount.email_address_field;
+        account.open_email_id_field = self.currentAccount.open_email_id_field_toggle ?  '-1' : self.currentAccount.open_email_id_field;
+        account.open_email_address_field = self.currentAccount.open_email_address_field_toggle ? '-1' : self.currentAccount.open_email_address_field;
         EspService.saveNewAccount( account, self.SuccessCallBackRedirect , self. saveNewAccountFailureCallback );
      };
 
@@ -81,7 +96,8 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         var account = jQuery.extend({}, self.currentAccount);//CLONE
         account.email_id_field = self.currentAccount.email_id_field_toggle ?  '-1' : self.currentAccount.email_id_field;
         account.email_address_field = self.currentAccount.email_address_field_toggle ? '-1' : self.currentAccount.email_address_field;
-
+        account.open_email_id_field = self.currentAccount.open_email_id_field_toggle ?  '-1' : self.currentAccount.open_email_id_field;
+        account.open_email_address_field = self.currentAccount.open_email_address_field_toggle ? '-1' : self.currentAccount.open_email_address_field;
         EspService.editAccount( account , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 
@@ -94,10 +110,14 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         if ( response.data.field_options != null ) {
             self.currentAccount.email_id_field = response.data.field_options.email_id_field;
             self.currentAccount.email_address_field = response.data.field_options.email_address_field;
+            self.currentAccount.open_email_id_field = response.data.field_options.open_email_id_field;
+            self.currentAccount.open_email_address_field = response.data.field_options.open_email_address_field;
         }
 
         self.currentAccount.email_id_field_toggle = self.currentAccount.email_id_field.length === 0;
         self.currentAccount.email_address_field_toggle = self.currentAccount.email_address_field.length === 0;
+        self.currentAccount.open_email_id_field_toggle = self.currentAccount.open_email_id_field.length === 0;
+        self.currentAccount.open_email_address_field_toggle = self.currentAccount.open_email_address_field.length === 0;
     };
 
     self.moveField = function ( droppedField , list , index ) {

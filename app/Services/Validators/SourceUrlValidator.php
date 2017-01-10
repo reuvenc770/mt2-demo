@@ -31,7 +31,8 @@ class SourceUrlValidator implements IValidate {
             $feedDefaultSourceUrl = $this->feedRepo->getSourceUrl($this->feedId);
 
             if ('' === $feedDefaultSourceUrl || null == $feedDefaultSourceUrl) {
-                throw new ValidationException("No valid source url found in import or in feed");
+                $feedName = $this->feedRepo->fetch($this->feedId)->name;
+                $this->sourceUrl = 'na.' . $feedName . '.com';
             }
             else {
                 $this->sourceUrl = $feedDefaultSourceUrl;

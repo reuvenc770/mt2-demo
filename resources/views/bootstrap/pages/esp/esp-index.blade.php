@@ -25,8 +25,10 @@
                     </th>
                     <th md-column class="md-table-header-override-whitetext">ID</th>
                     <th md-column class="md-table-header-override-whitetext">Name</th>
-                    <th md-column class="md-table-header-override-whitetext">Email ID Field</th>
-                    <th md-column class="md-table-header-override-whitetext">Email Address Field</th>
+                    <th md-column class="md-table-header-override-whitetext">Open Email ID Field</th>
+                    <th md-column class="md-table-header-override-whitetext">Open Email Address Field</th>
+                    <th md-column class="md-table-header-override-whitetext">Link Email ID Field</th>
+                    <th md-column class="md-table-header-override-whitetext">Link Email Address Field</th>
                     <th md-column class="md-table-header-override-whitetext">Updated</th>
                 </tr>
             </thead>
@@ -55,6 +57,8 @@
                     </td>
                     <td md-cell ng-bind="record.id"></td>
                     <td md-cell ng-bind="record.name"></td>
+                    <td md-cell ng-bind="record.field_options.open_email_id_field"></td>
+                    <td md-cell ng-bind="record.field_options.open_email_address_field"></td>
                     <td md-cell ng-bind="record.field_options.email_id_field"></td>
                     <td md-cell ng-bind="record.field_options.email_address_field"></td>
                     <td md-cell ng-bind="::app.formatDate( record.updated_at )" nowrap></td>
