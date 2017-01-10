@@ -24,7 +24,7 @@ class CreateAweberEmailActionsStoragesTable extends Migration
             // Almost certainly included in the list of keys,
             // But not sure about the rest of them
             $table->index('email_id');
-            $table->index(['email_id', 'deploy_id','action_id','datetime'], 'email_deploy_action_time');
+            $table->unique(['email_id', 'deploy_id','action_id','datetime'], 'email_deploy_action_time');
         });
     }
 
