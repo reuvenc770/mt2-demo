@@ -19,6 +19,11 @@ class AWeberListService
     {
         $this->repository = $listRepo;
     }
+    
+
+    public function getAllListsByAccount($espAccountId){
+        return $this->repository->getListsByAccount($espAccountId);
+    }
 
 
     public function getActiveLists(){
@@ -35,6 +40,10 @@ class AWeberListService
             "campaigns_collection_link"   => $list->campaigns_collection_link,
         );
         return $this->repository->upsertList($formatted);
+    }
+    
+    public function updateListStatuses($ids){
+       return $this->repository->massUpdateStatus($ids);
     }
 
 }

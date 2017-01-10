@@ -20,6 +20,10 @@ class AWeberListRepo
     {
         $this->model = $lists;
     }
+
+    public function getListsByAccount($espAccountId){
+        return $this->model->where("esp_account_id",$espAccountId)->get();
+    }
     
     public function getActiveLists(){
         return $this->model->where("is_active",1)->get();
@@ -27,5 +31,11 @@ class AWeberListRepo
 
     public function upsertList($list){
         return $this->model->updateOrCreate(["internal_id" => $list['internal_id']],$list);
+    }
+    //there is probably a better way to do this, but its such a 1 off piece of code
+    public function massUpdateStatus($ids){
+        $this->model->query()->update(["is_active"=>1]); //set them all active;
+        $this->model->whereIn('id',$ids)->update(['is_active' => 0]);
+        return true;
     }
 }
