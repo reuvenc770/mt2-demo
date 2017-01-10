@@ -10,7 +10,7 @@
     <div class="panel-body">
         <p><strong>Note:</strong> After an ESP is added on this page you must reach out to tech so that they can complete the setup. You will not be able to use this ESP in MT2 until tech confirms it is ready.</p>
         <fieldset>
-            @include ( 'bootstrap.pages.esp.esp-form' )
+            @include ( 'pages.esp.esp-form' )
         </fieldset>
     </div>
     <div class="panel-footer">
@@ -20,5 +20,5 @@
 @stop
 
 <?php Assets::add(
-        ['resources/assets/js/bootstrap/esp/EspController.js',
-                'resources/assets/js/bootstrap/esp/EspService.js'],'js','pageLevel') ?>
+        ['resources/assets/js/esp/EspController.js',
+                'resources/assets/js/esp/EspService.js'],'js','pageLevel') ?>

@@ -31,5 +31,5 @@
 @stop
 
 <?php Assets::add(
-        ['resources/assets/js/bootstrap/esp/EspController.js',
-                'resources/assets/js/bootstrap/esp/EspService.js'], 'js','pageLevel') ?>
+        ['resources/assets/js/esp/EspController.js',
+                'resources/assets/js/esp/EspService.js'], 'js','pageLevel') ?>

@@ -45,7 +45,7 @@ class EspController extends Controller
     public function listAll ()
     {
         return response()
-            ->view( 'bootstrap.pages.esp.esp-index' );
+            ->view( 'pages.esp.esp-index' );
     }
 
     /**
@@ -56,7 +56,7 @@ class EspController extends Controller
     public function create()
     {
         return response()
-            ->view( 'bootstrap.pages.esp.esp-add' , ['formType' => 'add' ] );
+            ->view( 'pages.esp.esp-add' , ['formType' => 'add' ] );
     }
 
     /**
@@ -103,7 +103,7 @@ class EspController extends Controller
     public function edit( $id )
     {
         return response()
-            ->view( 'bootstrap.pages.esp.esp-edit' , ['formType' => 'edit' ] );
+            ->view( 'pages.esp.esp-edit' , ['formType' => 'edit' ] );
     }
 
     /**
@@ -143,7 +143,7 @@ class EspController extends Controller
 
     public function mappings(){
         return response()
-            ->view( 'bootstrap.pages.esp.esp-mapping');
+            ->view( 'pages.esp.esp-mapping');
     }
 
     public function updateMappings(Request $request, $id){
