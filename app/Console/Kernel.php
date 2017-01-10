@@ -83,6 +83,7 @@ class Kernel extends ConsoleKernel
         Commands\PassToMt1::class,
         Commands\UpdateFeedCounts::class,
         Commands\FindMissingStatsForAWeber::class,
+        Commands\UpdateAWeberLists::class,
     ];
 
     /**

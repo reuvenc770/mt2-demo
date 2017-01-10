@@ -6,10 +6,10 @@
  * Time: 11:03 AM
  */
 
-namespace app\Services;
+namespace App\Services;
 
 
-use app\Repositories\AWeberListRepo;
+use App\Repositories\AWeberListRepo;
 
 class AWeberListService
 {
@@ -23,6 +23,18 @@ class AWeberListService
 
     public function getActiveLists(){
         return $this->repository->getActiveLists();
+    }
+    
+    public function updateOrAddList($list,$espAccountId){
+        $formatted = array(
+            "internal_id"                 => $list->id,
+            "esp_account_id"              => $espAccountId,
+            "name"                        => $list->name,
+            "total_subscribers"           => $list->total_subscribers,
+            "subscribers_collection_link" => $list->subscribers_collection_link,
+            "campaigns_collection_link"   => $list->campaigns_collection_link,
+        );
+        return $this->repository->upsertList($formatted);
     }
 
 }

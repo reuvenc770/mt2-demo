@@ -22,6 +22,10 @@ class AWeberListRepo
     }
     
     public function getActiveLists(){
-        return $this->model->where("active",1)->get();
+        return $this->model->where("is_active",1)->get();
+    }
+
+    public function upsertList($list){
+        return $this->model->updateOrCreate(["internal_id" => $list['internal_id']],$list);
     }
 }

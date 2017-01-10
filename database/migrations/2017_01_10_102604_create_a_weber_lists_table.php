@@ -16,10 +16,11 @@ class CreateAWeberListsTable extends Migration
             $table->increments('id');
             $table->integer('internal_id');
             $table->string("name");
+            $table->integer("esp_account_id");
             $table->integer('total_subscribers');
             $table->string("subscribers_collection_link");
             $table->string("campaigns_collection_link");
-            $table->boolean("is_active");
+            $table->boolean("is_active")->default('1');
             $table->timestamps();
         });
     }

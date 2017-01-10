@@ -7,7 +7,6 @@ use App\Facades\AWeberEmailAction;
 use App\Facades\DeployActionEntry;
 use App\Jobs\RetrieveDeliverableReports;
 use App\Models\AWeberList;
-use App\Models\AWeberLists;
 use App\Models\AWeberReport;
 use app\Repositories\AWeberListRepo;
 use App\Repositories\ReportRepo;
@@ -54,8 +53,8 @@ class AWeberReportService extends AbstractReportService implements IDataService
     {
         $date = null; //unfortunately date does not matter here.
         $campaignData = array();
-        $lists = $this->listService->getActiveLists();
-        $campaigns = $this->api->getCampaigns($lists);
+        $activeLists = $this->listService->getActiveLists();
+        $campaigns = $this->api->getCampaigns($activeLists);
         
         foreach ($campaigns as $campaign) {
             $clickEmail = -1;
@@ -63,12 +62,13 @@ class AWeberReportService extends AbstractReportService implements IDataService
             $row = array_merge($campaign, ["unique_clicks" => $clickEmail, "unique_opens" => $openEmail]);
             $campaignData[] = $row;
         }
+
         return $campaignData;
     }
 
-    public function blah(){
-        $lists = $this->api->makeApiRequest("lists", array("ws.size" => 100));
-        dd($lists);
+    
+    public function getMailingLists(){
+        return $this->api->makeApiRequest("lists", array("ws.size" => 100));
     }
 
     /**
