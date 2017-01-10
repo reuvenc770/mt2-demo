@@ -9,15 +9,7 @@ mt2App.service('BulkSuppressionApiService', function ($http) {
             "method": "POST",
             "url": self.baseApiUrl + '/send',
             "params": data
-        }).then(function (result) {
-            var errorRe = /Error/;
-            if (errorRe.exec(result['data'])) {
-                failureCallback(result['data']);
-            }
-            else {
-                successCallback();
-            }
-        });
+        }).then( successCallback , failureCallback );
     }
 
     self.getSuppressionReasons = function ( successCallback , failureCallback ) {
