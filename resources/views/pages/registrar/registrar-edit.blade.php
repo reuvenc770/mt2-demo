@@ -2,26 +2,22 @@
 @section('title', 'Edit Registrar')
 
 @section('content')
-    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
-        <div flex-gt-sm="50" flex="100">
-            <md-card ng-controller="RegistrarController as registrar" ng-init="registrar.loadAccount(); registrar.setPageType('edit')">
-                <md-toolbar>
-                    <div class="md-toolbar-tools">
-                        <span>Edit Registrar</span>
-                    </div>
-                </md-toolbar>
-                <md-card-content>
-                    <form name="registrarForm" layout="column" novalidate>
-                    @include( 'pages.registrar.registrar-form' )
-                    </form>
-                </md-card-content>
-            </md-card>
+    <div class="panel mt2-theme-panel"  ng-controller="RegistrarController as registrar" ng-init="registrar.loadAccount()">
+        <div class="panel-heading">
+            <div class="panel-title">Update Registrar</div>
         </div>
-    </md-content>
+        <div class="panel-body">
+            <input name="_token" type="hidden" value="{{ csrf_token() }}">
+            <fieldset>
+                @include( 'pages.registrar.registrar-form' )
+            </fieldset>
+        </div>
+        <div class="panel-footer">
+                <input class="btn mt2-theme-btn-primary btn-block" ng-click="registrar.editAccount()" ng-disabled="registrar.formSubmitted" type="submit" value="Update Registrar">
+        </div>
+    </div>
 @endsection
 
-
-@section( 'pageIncludes' )
-    <script src="js/registrar.js"></script>
-@stop
-
+<?php Assets::add(
+        ['resources/assets/js/registrar/RegistrarController.js',
+                'resources/assets/js/registrar/RegistrarApiService.js'],'js','pageLevel') ?>
