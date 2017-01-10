@@ -2,29 +2,34 @@
 @section('title', 'Add Mailing Template')
 
 @section('content')
-    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
-        <div flex-gt-sm="80" flex="100">
-            <md-card ng-controller="MailingTemplateController as mailing" ng-init="mailing.init()">
-                <md-toolbar>
-                    <div class="md-toolbar-tools">
-                        <span>Add Mailing Template</span>
-                    </div>
-                </md-toolbar>
-                <md-card-content>
 
-                        @include( 'pages.mailingtemplate.mailingtemplate-form' )
-                        <!-- Submit field -->
-                        <div layout="column">
-                            <md-button class="md-raised md-accent" ng-click="mailing.saveNewAccount( $event, mailingForm )">Create Mailing Template</md-button>
-                            <md-button class="md-raised md-accent" ng-click="mailing.previewIncomplete()">Preview Template</md-button>
-                        </div>
-                </md-card-content>
-            </md-card>
+    <div class="panel mt2-theme-panel" ng-controller="MailingTemplateController as mailing" ng-init="mailing.init()">
+        <div class="panel-heading">
+            <div class="panel-title">Add Mailing Template</div>
         </div>
-    </md-content>
+        <div class="panel-body">
+            <fieldset>
+                @include( 'pages.mailingtemplate.mailingtemplate-form' )
+            </fieldset>
+        </div>
+        <div class="panel-footer">
+            <div class="row">
+                <div class="col-sm-6">
+                    <input class="btn mt2-theme-btn-primary btn-block" ng-click="mailing.saveNewAccount()"
+                           ng-disabled="mailing.formSubmitted" type="submit" value="Add Mailing Template">
+
+                </div>
+                <div class="col-sm-6">
+                    <input class="btn mt2-theme-btn-secondary btn-block" ng-click="mailing.previewIncomplete()"
+                           ng-disabled="mailing.formSubmitted" type="submit" value="Preview Template">
+
+                </div>
+            </div>
+
+        </div>
+    </div>
 @endsection
 
-
-@section( 'pageIncludes' )
-    <script src="js/mailingtemplate.js"></script>
-@stop
+<?php Assets::add(
+        ['resources/assets/js/mailingtemplate/MailingTemplateController.js',
+                'resources/assets/js/mailingtemplate/MailingTemplateApiService.js'], 'js', 'pageLevel') ?>

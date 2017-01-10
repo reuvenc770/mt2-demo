@@ -1,58 +1,71 @@
-<form name="mailingForm" layout="column" novalidate>
-        <input name="_token" type="hidden" value="{{ csrf_token() }}">
-        <!-- Email field -->
-        <md-input-container>
-            <label>Name</label>
-            <input type="text" name="name" ng-required="true" ng-model="mailing.currentAccount.name" value="{{old('name') }}" ng-change="mailing.change( mailingForm , 'name' )" />
-            <div ng-messages="mailingForm.name.$error">
-                <div ng-message="required">Mailing template name is required.</div>
-                <div ng-repeat="error in mailing.formErrors.name">
-                    <div ng-bind="error"></div>
+<div class="form-horizontal">
+<input name="_token" type="hidden" value="{{ csrf_token() }}">
+<!-- Email field -->
+<div class="form-group" ng-class="{ 'has-error' : mailing.formErrors.name }">
+    <label class="col-sm-2 control-label">Template Name</label>
+    <div class="col-sm-10">
+    <input placeholder="Template Name" value="" class="form-control" ng-model="mailing.currentAccount.name" required="required" name="name" type="text">
+    <div class="help-block" ng-show="mailing.formErrors.name">
+        <div ng-repeat="error in mailing.formErrors.name">
+            <span ng-bind="error"></span>
+        </div>
+    </div>
+    </div>
+</div>
+<div class="form-group" ng-class="{ 'has-error' : mailing.formErrors.templateType }">
+    <label class="col-sm-2 control-label">Template Type</label>
+    <div class="col-sm-10">
+    <select ng-model="mailing.currentAccount.templateType"  name="templateType"  class="form-control">
+        <option value="">Select Template Type</option>
+        <option value="1">Normal HTML</option>
+        <option value="2">HTML Lite (no images)</option>
+        <option value="3">Images Only</option>
+        <option value="4">Image Map</option>
+        <option value="5">Newsletter</option>
+        <option value="6">Clickable Button</option>
+    </select>
+    <div class="help-block"  ng-show="mailing.formErrors.templateType">
+        <div ng-repeat="error in mailing.formErrors.templateType">
+            <span ng-bind="error"></span>
+        </div>
+    </div>
+    </div>
+</div>
+</div>
+
+<div class="form-group" ng-class="{ 'has-error' : mailing.formErrors.selectedEsps }">
+    <lite-membership-widget recordlist="mailing.espList" chosenrecordlist="mailing.selectedEsps"
+                            availablerecordtitle="mailing.availableWidgetTitle"
+                            chosenrecordtitle="mailing.chosenWidgetTitle" idfield="mailing.espIdField"
+                            namefield="mailing.espNameField"
+                            height="200"
+                            updatecallback="mailing.espMembershipCallback()"></lite-membership-widget>
+
+            <span class="mt2-error-message" ng-bind="mailing.formErrors.selectedEsps"
+                  ng-show="mailing.formErrors.selectedEsps">
+            </span>
+</div>
+<div class="row">
+    <div class="col-sm-6">
+        <div class="form-group" ng-class="{ 'has-error' : mailing.formErrors.html }">
+        <textarea rows="20"  placeholder="HTML VERSION" value="" class="form-control" ng-model="mailing.currentAccount.html"
+                  name="notes"></textarea>
+            <div class="help-block" ng-show="mailing.formErrors.html">
+                <div ng-repeat="error in mailing.formErrors.html">
+                    <span ng-bind="error"></span>
                 </div>
             </div>
-        </md-input-container>
-
-        <md-input-container>
-            <label>Mailing Type</label>
-            <md-select name="templateType" ng-required="true" ng-model="mailing.currentAccount.templateType">
-                <md-option ng-selected="mailing.currentAccount.templateType == 1" value="1">Normal HTML</md-option>
-                <md-option ng-selected="mailing.currentAccount.templateType == 2" value="2">HTML Lite (no images)</md-option>
-                <md-option ng-selected="mailing.currentAccount.templateType == 3" value="3">Images Only</md-option>
-                <md-option ng-selected="mailing.currentAccount.templateType == 4" value="4">Image Map</md-option>
-                <md-option ng-selected="mailing.currentAccount.templateType == 5" value="5">Newsletter</md-option>
-                <md-option ng-selected="mailing.currentAccount.templateType == 6" value="6">Clickable Button</md-option>
-            </md-select>
-            <div ng-messages="mailingForm.templateType.$error">
-                <div ng-message="required">Template type is required.</div>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="form-group" ng-class="{ 'has-error' : mailing.formErrors.text }">
+        <textarea rows="20" placeholder="TEXT VERSION" value="" class="form-control" ng-model="mailing.currentAccount.text"
+                  name="notes"></textarea>
+            <div class="help-block" ng-show="mailing.formErrors.text">
+                <div ng-repeat="error in mailing.formErrors.text">
+                    <span ng-bind="error"></span>
+                </div>
             </div>
-        </md-input-container>
-
-        <div>
-            <lite-membership-widget recordlist="mailing.espList" chosenrecordlist="mailing.selectedEsps" availablerecordtitle="mailing.availableWidgetTitle" chosenrecordtitle="mailing.chosenWidgetTitle" idfield="mailing.espIdField" namefield="mailing.espNameField" updatecallback="mailing.espMembershipCallback()" ></lite-membership-widget>
-
-            <span class="mt2-error-message" ng-bind="mailing.formErrors.selectedEsps" ng-show="mailing.formErrors.selectedEsps">
-            </span>
         </div>
-
-        <div layout="column" layout-gt-sm="row">
-            <md-card flex="auto">
-                <md-card-content layout="column">
-                <md-input-container>
-                    <label>HTML Version</label>
-                    <textarea ng-model="mailing.currentAccount.html" ng-required="true" name="html" rows="15" id="html"></textarea>
-                    <div ng-messages="mailingForm.html.$error">
-                        <div ng-message="required">HTML version is required.</div>
-                    </div>
-                </md-input-container>
-                </md-card-content>
-            </md-card>
-            <md-card flex="auto">
-                <md-card-content layout="column">
-                <md-input-container>
-                    <label>Text Version</label>
-                    <textarea ng-model="mailing.currentAccount.text" name="text" rows="15" id="text"></textarea>
-                </md-input-container>
-                </md-card-content>
-            </md-card>
-        </div>
-</form>
+    </div>
+</div>
