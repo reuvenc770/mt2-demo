@@ -63,7 +63,7 @@ class EspApiAccountController extends Controller
     public function listAll ()
     {
         return response()
-            ->view( 'bootstrap.pages.espapi.esp-index' );
+            ->view( 'pages.espapi.esp-index' );
     }
 
     /**
@@ -74,7 +74,7 @@ class EspApiAccountController extends Controller
     public function create()
     {
         return response()
-            ->view( 'bootstrap.pages.espapi.esp-add' , [ 'espList' => $this->getEspList() , 'formType' => 'add' ] );
+            ->view( 'pages.espapi.esp-add' , [ 'espList' => $this->getEspList() , 'formType' => 'add' ] );
     }
 
     /**
@@ -115,7 +115,7 @@ class EspApiAccountController extends Controller
             return redirect("/espapi");
         }
         return response()
-            ->view( 'bootstrap.pages.espapi.esp-edit' , [
+            ->view( 'pages.espapi.esp-edit' , [
                 'accountId' => $account->id ,
                 'espName' => $account->esp->name ,
                 'accountName' => $account->account_name ,
