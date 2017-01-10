@@ -67,7 +67,7 @@
 @endsection
 <?php
 Assets::add([
-        'resources/assets/js/bootstrap/navigation/NavigationController.js',
-        'resources/assets/js/bootstrap/navigation/NavigationApiService.js',
+        'resources/assets/js/navigation/NavigationController.js',
+        'resources/assets/js/navigation/NavigationApiService.js',
 ], 'js', 'pageLevel');
 ?>
