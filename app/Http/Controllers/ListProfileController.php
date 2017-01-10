@@ -69,7 +69,7 @@ class ListProfileController extends Controller
     }
 
     public function listAll () {
-        return response()->view( 'bootstrap.pages.listprofile.list-profile-index' );
+        return response()->view( 'pages.listprofile.list-profile-index' );
     }
 
     /**
@@ -79,7 +79,7 @@ class ListProfileController extends Controller
      */
     public function create()
     {
-        return response()->view( 'bootstrap.pages.listprofile.list-profile-add' , $this->getFormFieldOptions() );
+        return response()->view( 'pages.listprofile.list-profile-add' , $this->getFormFieldOptions() );
     }
 
     /**
@@ -100,11 +100,11 @@ class ListProfileController extends Controller
         $data['selectedColumns'] = $columns;
 
         $profileID = $this->listProfile->create( $data );
-        
+
         if(isset($data['exportOptions']['interval']) && in_array("Immediately", $data['exportOptions']['interval'])) {
             $this->dispatch(new ListProfileBaseExportJob($profileID, str_random(16)));
         }
-        
+
         Flash::success("List Profile was Successfully Created");
 
         return response()->json( [ 'status' => true ] );
@@ -129,7 +129,7 @@ class ListProfileController extends Controller
     public function edit($id)
     {
         return response()->view(
-            'bootstrap.pages.listprofile.list-profile-edit' ,
+            'pages.listprofile.list-profile-edit' ,
             $this->getFormFieldOptions( [ 'id' => $id , 'prepop' => $this->listProfile->getFullProfileJson( $id ) ] )
         );
     }
@@ -230,7 +230,7 @@ class ListProfileController extends Controller
 
         $combineData = $this->combineService->getCombineById($id);
         $listProfileIds = $combineData->listProfiles->pluck('id');
-        return response()->view( 'bootstrap.pages.listprofile.list-combine-edit' , [
+        return response()->view( 'pages.listprofile.list-combine-edit' , [
             'combineId' => $id ,
             'combineName' => $combineData->name ,
             'combineParty' => $combineData->party,

@@ -45,7 +45,7 @@
 
 <?php
 Assets::add( [
-    'resources/assets/js/bootstrap/listprofile/ListProfileController.js' ,
-    'resources/assets/js/bootstrap/listprofile/ListProfileApiService.js' ,
+    'resources/assets/js/listprofile/ListProfileController.js' ,
+    'resources/assets/js/listprofile/ListProfileApiService.js' ,
 ] , 'js' , 'pageLevel' );
 ?>
