@@ -1,4 +1,4 @@
-mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' , '$timeout' , 'EmailDomainApiService', '$rootScope','$mdToast', function ( $log , $window , $location , $timeout , EmailDomainApiService, $rootScope, $mdToast ) {
+mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' , '$timeout' , 'EmailDomainApiService', '$rootScope','formValidationService','modalService', 'paginationService' , function ( $log , $window , $location , $timeout , EmailDomainApiService, $rootScope, formValidationService, modalService , paginationService ) {
     var self = this;
     self.$location = $location;
 
@@ -8,13 +8,17 @@ mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' 
     self.editUrl = 'isp/edit/';
 
     self.formErrors = "";
+    self.search = {};
 
     self.pageCount = 0;
-    self.paginationCount = '10';
+    self.paginationCount = paginationService.getDefaultPaginationCount();
+    self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
     self.accountTotal = 0;
-    self.sort = '-id';
+    self.sort = 'domain_name';
+    self.editForm = false;
     self.queryPromise = null;
+    self.recordListStatus = 'index';
 
     self.loadAccount = function () {
         var pathMatches = $location.path().match( /^\/isp\/edit\/(\d{1,})/ );
@@ -25,12 +29,10 @@ mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' 
     };
 
     self.loadProfile = function ($id) {
-
         EmailDomainApiService.getAccount($id , function ( response ) {
             self.currentAccount = response.data;
         } )
     };
-
     self.loadAccounts = function () {
         self.queryPromise = EmailDomainApiService.getAccounts(self.currentPage , self.paginationCount , self.sort , self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
     };
@@ -39,53 +41,61 @@ mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' 
         self.currentAccount = {};
     };
 
+    self.sortCurrentRecords = function () {
+        if (self.recordListStatus === 'index' ) {
+            self.loadAccounts();
+        }
+
+        if ( self.recordListStatus === 'search' ) {
+            self.searchDomain();
+        }
+    };
 
     /**
      * Click Handlers
      */
-    self.viewAdd = function () {
-        $location.url( self.createUrl );
-        $window.location.href = self.createUrl;
-    };
 
     self.saveNewAccount = function () {
-        self.resetFieldErrors();
+        formValidationService.resetFieldErrors(self);
+        self.editForm = true;
         EmailDomainApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback );
     };
 
     self.editAccount = function () {
-        self.resetFieldErrors();
+        formValidationService.resetFieldErrors(self);
+        self.editForm = true;
         EmailDomainApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 
+    self.searchDomain = function () {
+        self.recordListStatus = 'search';
 
+        var searchObj = {
+            "domainGroupId" : self.search.domain_group_id || undefined
+        };
 
+        self.queryPromise = EmailDomainApiService.searchDomain( self.paginationCount , searchObj , self.sort , self.loadAccountsSuccessCallback , self.loadAccountsFailureCallback );
+    };
 
-    /**
-     * Watchers
-     */
-    $rootScope.$on( 'updatePage' , function () {
+    self.resetSearch = function() {
         self.loadAccounts();
-    } );
-
-
-
-
+        self.search = {};
+        self.recordListStatus = 'index';
+    }
 
     /**
      * Callbacks
      */
     self.loadAccountsSuccessCallback = function ( response ) {
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+
         self.accounts = response.data.data;
         self.pageCount = response.data.last_page;
         self.accountTotal = response.data.total;
     };
 
     self.loadAccountsFailureCallback = function ( response ) {
-        self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to load accounts.' );
-
-        self.launchModal();
+        modalService.simpleToast( 'Failed to load accounts.' );
     };
 
     self.SuccessCallBackRedirect = function ( response ) {
@@ -100,59 +110,20 @@ mt2App.controller( 'EmailDomainController' , [ '$log' , '$window' , '$location' 
 
 
     self.toggleRowSuccess = function ( response ) {
-        $mdToast.showSimple("ISP Updated");
+        modalService.setModalLabel('Success');
+        modalService.setModalBody("ISP status updated.");
+        modalService.launchModal();
         self.loadAccounts();
     };
 
     self.saveNewAccountFailureCallback = function ( response ) {
-        self.loadFieldErrors(response);
+        self.editForm = false;
+        formValidationService.loadFieldErrors(self,response);
     };
 
-    self.editAccountFailureCallback = function ( response ) {
-        self.loadFieldErrors(response);
+    self.editAccountFailureCallback = function (response ) {
+        self.editForm = false;
+        formValidationService.loadFieldErrors(self,response);
     };
 
-    /**
-     * Errors
-     */
-    self.loadFieldErrors = function (response ) {
-        angular.forEach(response.data, function(value, key) {
-            self.setFieldError( key , value );
-        });
-    };
-
-    self.setFieldError = function ( field , errorMessage ) {
-        self.formErrors[ field ] = errorMessage;
-    };
-
-    self.resetFieldErrors = function () {
-        self.formErrors = {};
-    };
-
-    /**
-     * Page Modal
-     */
-
-    self.setModalLabel = function ( labelText ) {
-        var modalLabel = angular.element( document.querySelector( '#pageModalLabel' ) );
-
-        modalLabel.text( labelText );
-    };
-
-    self.setModalBody = function ( bodyText ) {
-        var modalBody = angular.element( document.querySelector( '#pageModalBody' ) );
-
-        modalBody.text( bodyText );
-    };
-
-    self.launchModal = function () {
-        $( '#pageModal' ).modal('show');
-    };
-
-    self.resetModal = function () {
-        self.setModalLabel( '' );
-        self.setModalBody( '' );
-
-        $( '#pageModal' ).modal('hide');
-    };
 } ] );

@@ -22,7 +22,7 @@ class EmailDomainController extends Controller
     {
         $domainGroups = $domainGroupService->getAll();
         return response()
-            ->view("bootstrap.pages.emaildomain.emaildomain-index" , ['domainGroups' => $domainGroups] );
+            ->view("pages.emaildomain.emaildomain-index" , ['domainGroups' => $domainGroups] );
     }
 
     /**
@@ -33,7 +33,7 @@ class EmailDomainController extends Controller
     public function create(DomainGroupService $domainGroupService)
     {
         $domainGroups = $domainGroupService->getAllActive();
-        return view("bootstrap.pages.emaildomain.emaildomain-add" ,['domainGroups' => $domainGroups]);
+        return view("pages.emaildomain.emaildomain-add" ,['domainGroups' => $domainGroups]);
     }
 
     /**
@@ -71,7 +71,7 @@ class EmailDomainController extends Controller
     {
         $domainGroups = $domainGroupService->getAllActive();
         return response()
-            ->view("bootstrap.pages.emaildomain.emaildomain-edit", ['domainGroups' => $domainGroups]);
+            ->view("pages.emaildomain.emaildomain-edit", ['domainGroups' => $domainGroups]);
     }
 
     /**
