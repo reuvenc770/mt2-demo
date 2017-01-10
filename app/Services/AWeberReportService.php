@@ -6,7 +6,10 @@ use App\Exceptions\JobException;
 use App\Facades\AWeberEmailAction;
 use App\Facades\DeployActionEntry;
 use App\Jobs\RetrieveDeliverableReports;
+use App\Models\AWeberList;
+use App\Models\AWeberLists;
 use App\Models\AWeberReport;
+use app\Repositories\AWeberListRepo;
 use App\Repositories\ReportRepo;
 use App\Services\API\AWeberApi;
 use App\Services\Interfaces\IDataService;
@@ -27,6 +30,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
     use DispatchesJobs;
 
     const DELIVERABLE_LOOKBACK = 2;
+    protected $listService;
 
     /**
      * AWeberReportService constructor.
@@ -37,6 +41,8 @@ class AWeberReportService extends AbstractReportService implements IDataService
     public function __construct(ReportRepo $reportRepo, AWeberApi $api, EmailRecordService $emailRecord)
     {
         parent::__construct($reportRepo, $api, $emailRecord);
+        //tightly coupled but OK since it will never really be replaced or used outside of context
+        $this->listService = new AWeberListService(new AWeberListRepo(new AWeberList()));
     }
 
     /**
@@ -48,7 +54,9 @@ class AWeberReportService extends AbstractReportService implements IDataService
     {
         $date = null; //unfortunately date does not matter here.
         $campaignData = array();
-        $campaigns = $this->api->getCampaigns(20);
+        $lists = $this->listService->getActiveLists();
+        $campaigns = $this->api->getCampaigns($lists);
+        
         foreach ($campaigns as $campaign) {
             $clickEmail = -1;
             $openEmail = -1;
@@ -56,6 +64,11 @@ class AWeberReportService extends AbstractReportService implements IDataService
             $campaignData[] = $row;
         }
         return $campaignData;
+    }
+
+    public function blah(){
+        $lists = $this->api->makeApiRequest("lists", array("ws.size" => 100));
+        dd($lists);
     }
 
     /**
