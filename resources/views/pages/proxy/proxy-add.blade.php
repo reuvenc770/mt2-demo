@@ -2,26 +2,23 @@
 @section('title', 'Add Proxy')
 
 @section('content')
-    <md-content layout="row" layout-align="center center" class="md-mt2-zeta-theme md-hue-1">
-        <div flex-gt-sm="50" flex="100">
-            <md-card ng-controller="ProxyController as proxy">
-                <md-toolbar>
-                    <div class="md-toolbar-tools">
-                        <span>Add Proxy</span>
-                    </div>
-                </md-toolbar>
-                <md-card-content>
-                    <form name="proxyForm" layout="column" novalidate>
-                        @include( 'pages.proxy.proxy-form' )
-                        <md-button class="md-raised md-accent" ng-click="proxy.saveNewAccount( $event , proxyForm )">Create Proxy</md-button>
-                    </form>
-                </md-card-content>
-            </md-card>
+    <div class="panel mt2-theme-panel" ng-controller="ProxyController as proxy">
+        <div class="panel-heading">
+            <div class="panel-title">Add Proxy</div>
         </div>
-    </md-content>
+        <div class="panel-body">
+            <fieldset>
+                @include( 'pages.proxy.proxy-form' )
+            </fieldset>
+        </div>
+        <div class="panel-footer">
+            <input class="btn mt2-theme-btn-primary btn-block" ng-click="proxy.saveNewAccount()"
+                   ng-disabled="proxy.formSubmitted" type="submit" value="Add Proxy">
+        </div>
+    </div>
 @endsection
 
+<?php Assets::add(
+        ['resources/assets/js/proxy/ProxyController.js',
+                'resources/assets/js/proxy/ProxyApiService.js'],'js','pageLevel') ?>
 
-@section( 'pageIncludes' )
-    <script src="js/proxy.js"></script>
-@stop
