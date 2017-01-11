@@ -83,6 +83,7 @@ return [
     "AWeber" => [
         "pipes" => [
             "default" => [
+                'jobSetup' ,
                 'getCampaigns' ,
                 'splitTypes' ,
                 'saveRecords'

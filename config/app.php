@@ -171,6 +171,7 @@ return [
         App\Providers\SftpServiceProvider::class,
         App\Providers\AssetsServiceProvider::class,
         App\Providers\SlackProvider::class,
+        App\Providers\AWeberEmailActionProvider::class,
     ],
 
     /*
@@ -233,6 +234,6 @@ return [
         'CampaignActionsEntry' => App\Facades\DeployActionEntry::class,
         'States' => AdrianMejias\States\StatesFacade::class,
         'Assets' => Fisharebest\LaravelAssets\AssetsFacade::class,
+        'AWeberEmailAction'=> App\Facades\AWeberEmailAction::class,
     ],
-
 ];
