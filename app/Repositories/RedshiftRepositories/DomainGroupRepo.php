@@ -2,7 +2,7 @@
 
 namespace App\Repositories\RedshiftRepositories;
 
-use App\Models\RedshiftModels\EmailFeedAssignment;
+use App\Models\RedshiftModels\DomainGroup;
 use App\Repositories\RepoInterfaces\IRedshiftRepo;
 use DB;
 
@@ -10,7 +10,7 @@ class DomainGroupRepo implements IRedshiftRepo {
     
     private $model;
 
-    public function __construct(EmailFeedAssignment $model) {
+    public function __construct(DomainGroup $model) {
         $this->model = $model;
     }
 
