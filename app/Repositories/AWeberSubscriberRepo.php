@@ -34,4 +34,24 @@ class AWeberSubscriberRepo
                         internal_id = internal_id"
         );
     }
+
+    public function getByInternalId($id){
+        return $this->subscriber->where("internal_id",$id)->first();
+    }
+
+    public function insertSubscriber($subscriber){
+       return
+           DB::statement("
+                    INSERT INTO a_weber_subscribers
+                        ( email_address , internal_id )    
+                    VALUES
+                        ({$subscriber->email}, {$subscriber->id})
+                    ON DUPLICATE KEY UPDATE
+                        email_address = email_address ,
+                        internal_id = internal_id"
+           );
+    }
+    
+    
+    
 }

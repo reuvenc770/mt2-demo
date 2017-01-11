@@ -32,7 +32,12 @@ class AWeberEmailActionProvider extends ServiceProvider
     {
         $this->app->singleton('AWeberEmailAction', function()
         {
-            return new AWeberEmailActionsService(new AWeberEmailActionsRepo(new AweberEmailActionsStorage()));
+            return new AWeberEmailActionsService(
+                new AWeberEmailActionsRepo(
+                    new AweberEmailActionsStorage()),
+                new App\Repositories\AWeberSubscriberRepo(
+                    new App\Models\AWeberSubscriber()
+                ));
         });
 
     }

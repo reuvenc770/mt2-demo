@@ -54,11 +54,14 @@ class AWeberSubscriberService
             }
 
         }
-
     }
 
     public function getSubscribers($url){
         return $this->api->makeApiRequest($url,array("ws.size" => 100),true);
+    }
+
+    public function getSubscriber($url){
+        return $this->api->makeApiRequest($url,array(),true);
     }
 
     public function queueSubscriber($subscriber){
@@ -78,4 +81,9 @@ class AWeberSubscriberService
     public function insertSubscribers(){
         $this->subscriberRepo->massUpsert($this->subscribers);
     }
+    public function insertSubscriber($subscriber){
+        $this->subscriberRepo->insertSubscriber($subscriber);
+    }
+    
+    
 }
