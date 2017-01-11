@@ -3,7 +3,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-6 col-md-offset-3">
-                <div class="panel panel-default">
+                <div class="panel mt2-theme-panel">
                     <div class="panel-heading">
                         <h3 class="panel-title">Login</h3>
                     </div>
@@ -36,7 +36,7 @@
 
                                 <!-- Submit field -->
                                 <div class="form-group">
-                                    <input class="btn btn btn-lg btn-success btn-block" type="submit" value="Login">
+                                    <input class="btn mt2-theme-btn-primary btn-block" type="submit" value="Login">
                                 </div>
 
 
