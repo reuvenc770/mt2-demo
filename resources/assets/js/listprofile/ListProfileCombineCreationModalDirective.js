@@ -8,6 +8,6 @@ mt2App.directive( 'listprofileCombineCreate' , function () {
             "createCombine" : "&",
             "combineError" : "="
         } ,
-        "templateUrl" : "js/bootstrap/templates/listprofile-combine-create-modal.html"
+        "templateUrl" : "js/templates/listprofile-combine-create-modal.html"
     };
 } );

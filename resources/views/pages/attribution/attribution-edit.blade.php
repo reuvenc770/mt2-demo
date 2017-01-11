@@ -51,7 +51,6 @@
                 'resources/assets/js/attribution/AttributionController.js',
                 'resources/assets/js/attribution/AttributionApiService.js',
                 'resources/assets/js/attribution/AttributionProjectionService.js',
-                'resources/assets/js/attribution/AttributionModelTableDirective.js',
                 'resources/assets/js/report/ThreeMonthReportService.js',
                 'resources/assets/js/report/ReportApiService.js',
                 'resources/assets/js/feed/FeedApiService.js', //REFACTOR WHEN FEEDS ARE REFACTORED

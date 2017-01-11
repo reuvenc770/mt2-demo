@@ -1,6 +1,6 @@
 mt2App.directive( 'liteMembershipWidget' , [ "$rootScope" , "$log" , function ( $rootScope , $log ) {
     return {
-        "replace" : true , 
+        "replace" : true ,
         "scope" : {} ,
         "controllerAs" : 'ctrl' ,
         "bindToController" : {
@@ -13,10 +13,10 @@ mt2App.directive( 'liteMembershipWidget' , [ "$rootScope" , "$log" , function ( 
             'updatecallback' : '&',
             'height' : '=?'
         } ,
-        "templateUrl" : 'js/bootstrap/templates/lite-membership-widget.html' ,
+        "templateUrl" : 'js/templates/lite-membership-widget.html' ,
         "controller" : function () {
             var self = this;
-            
+
             self.highlightedSelectedRecords = [];
             self.highlightedChosenRecords = [];
 

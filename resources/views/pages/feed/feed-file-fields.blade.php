@@ -71,5 +71,4 @@
 
 <?php Assets::add(
         ['resources/assets/js/feed/FeedController.js',
-        'resources/assets/js/feed/FeedApiService.js',
-        'resources/assets/js/feed/FeedUrlModalDirective.js'],'js','pageLevel') ?>
+        'resources/assets/js/feed/FeedApiService.js'],'js','pageLevel') ?>
