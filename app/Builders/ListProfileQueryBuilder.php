@@ -55,7 +55,7 @@ class ListProfileQueryBuilder {
             'dob' => 'rd.dob',
             'age' => DB::connection('redshift')->raw("(current_date - rd.dob) / 365 as age"),
             'phone' => 'rd.phone',
-            'ip' => DB::connection('redshift')->raw('inet_ntoa(rd.ip) as ip'),
+            'ip' => 'rd.ip',
             'subscribe_date' => 'rd.subscribe_date',
             'feed_id' => 'efa.feed_id',
             'domain_group_name' => DB::connection('redshift')->raw('dg.name as domain_group_name'), 
