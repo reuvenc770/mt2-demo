@@ -345,9 +345,6 @@ class ListProfileQueryBuilder {
             }
             
             if ($this->domainGroupColumns) {
-                /**
-                    Get rid of intermediate join - we have that value already
-                */
                 $query = $query->join("email_domains as ed", 'e.email_domain_id', '=', 'ed.id')
                                ->join("domain_groups as dg", 'ed.domain_group_id', '=', 'dg.id');
             }
