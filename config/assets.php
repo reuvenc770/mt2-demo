@@ -106,14 +106,6 @@ return [
             'resources/assets/js/mt2app/AppController.js',
             'resources/assets/js/mt2app/MembershipWidgetDirective.js',
             'resources/assets/js/mt2app/LiteMembershipWidgetDirective.js',
-            'resources/assets/js/mt2app/CompileHtml.js',
-            'resources/assets/js/mt2app/CustomValidationService.js'
-        ],
-        'mt2BootstrapBase' => [
-            'resources/assets/js/app.js',
-            'resources/assets/js/mt2app/AppController.js',
-            'resources/assets/js/mt2app/MembershipWidgetDirective.js',
-            'resources/assets/js/mt2app/LiteMembershipWidgetDirective.js',
             'resources/assets/js/mt2app/ValidationService.js',
             'resources/assets/js/mt2app/ModalService.js',
             'resources/assets/js/mt2app/CompileHtml.js',

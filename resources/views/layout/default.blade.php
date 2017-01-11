@@ -1,5 +1,5 @@
 @inject( 'menu' , 'App\Services\NavigationService' )
-<?php Assets::add(['base', 'mt2BootstrapBase']) ?>
+<?php Assets::add(['base', 'mt2AppBase']) ?>
         <!DOCTYPE html>
 <html lang="en">
 <head>
