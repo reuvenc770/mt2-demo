@@ -6,7 +6,6 @@ use App\Models\ListProfileFlatTable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use App\Repositories\RepoInterfaces\IAwsRepo;
-use App\Repositories\EtlPickupRepo;
 
 /**
  *
@@ -128,9 +127,8 @@ class ListProfileFlatTableRepo implements IAwsRepo {
         }    
     }
 
-    public function extractForS3Upload(EtlPickupRepo $pickupRepo) {
-        $startPoint = $pickupRepo->getLastInsertedForName('ListProfileFlatTable-s3');
-        return $this->model;
+    public function extractForS3Upload($startPoint) {
+        return $this->model->whereRaw("updated_at > $startPoint");
     }
 
     public function mapForS3Upload($row) {

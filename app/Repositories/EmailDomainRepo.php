@@ -6,7 +6,6 @@ use App\Models\EmailDomain;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use App\Repositories\RepoInterfaces\IAwsRepo;
-use App\Repositories\EtlPickupRepo;
 
 /**
  *
@@ -111,8 +110,7 @@ class EmailDomainRepo implements IAwsRepo {
         return $query;
     }
 
-    public function extractForS3Upload(EtlPickupRepo $pickupRepo) {
-        $startPoint = $pickupRepo->getLastInsertedForName('EmailDomain-s3');
+    public function extractForS3Upload($startPoint) {
         return $this->emailModel->whereRaw("id > $startPoint");
     }
 

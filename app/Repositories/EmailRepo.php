@@ -8,7 +8,6 @@ use Illuminate\Database\Query\Builder;
 use DB;
 use App\Repositories\RepoInterfaces\Mt2Export;
 use App\Repositories\RepoInterfaces\IAwsRepo;
-use App\Repositories\EtlPickupRepo;
 
 /**
  *
@@ -428,8 +427,7 @@ class EmailRepo implements Mt2Export, IAwsRepo {
                     ->whereRaw("emails.id > $startId");
     }
 
-    public function extractForS3Upload(EtlPickupRepo $pickupRepo) {
-        $startPoint = $pickupRepo->getLastInsertedForName('Email-s3');
+    public function extractForS3Upload($startPoint) {
         return $this->emailModel->whereRaw("id > $startPoint");
     }
 

@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use Carbon\Carbon;
 use App\Repositories\RepoInterfaces\IAwsRepo;
-use App\Repositories\EtlPickupRepo;
 
 class RecordDataRepo implements IAwsRepo {
 
@@ -212,7 +211,7 @@ class RecordDataRepo implements IAwsRepo {
         }
     }
 
-    public function extractForS3Upload(EtlPickupRepo $pickupRepo) {
+    public function extractForS3Upload($startPoint) {
         return $this->model;
     }
 
@@ -234,8 +233,8 @@ class RecordDataRepo implements IAwsRepo {
             'source_url' => $row->source_url,
             'dob' => $row->dob,
             'device_type' => $row->device_type,
-            'device_name' => $row->device_name,
-            'carrier' => $row->carrier,
+            'device_name' => str_replace('"', '', $row->device_name),
+            'carrier' => str_replace('"', '', $row->carrier),
             'capture_date' => $row->capture_date,
             'subscribe_date' => $row->subscribe_date,
             'last_action_date' => $row->last_action_date,

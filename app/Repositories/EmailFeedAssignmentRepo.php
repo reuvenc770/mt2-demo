@@ -8,14 +8,13 @@ namespace App\Repositories;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use App\Repositories\RepoInterfaces\IAwsRepo;
-use App\Repositories\EtlPickupRepo;
 
 use App\Models\EmailFeedAssignment;
 use App\Models\EmailFeedAssignmentHistory;
 
 use DB;
 
-class EmailFeedAssignmentRepo implements IAwsRepo{
+class EmailFeedAssignmentRepo implements IAwsRepo {
     protected $assignment;
     protected $history;
     private $batchData = [];
@@ -149,8 +148,7 @@ class EmailFeedAssignmentRepo implements IAwsRepo{
                     ->havingRaw("COUNT(*) = 0");
     }
 
-    public function extractForS3Upload(EtlPickupRepo $pickupRepo) {
-        $startPoint = $pickupRepo->getLastInsertedForName('EmailDomain-s3');
+    public function extractForS3Upload($startPoint) {
         return $this->assignment->whereRaw("updated_at > $startPoint");
     }
 

@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use App\Repositories\RepoInterfaces\Mt2Export;
 use App\Repositories\RepoInterfaces\IAwsRepo;
-use App\Repositories\EtlPickupRepo;
 
 /**
  *
@@ -199,11 +198,11 @@ class FeedRepo implements Mt2Export, IAwsRepo {
          return $query;
     }
 
-    public function extractForS3Upload(EtlPickupRepo $pickupRepo) {
-        return $this->feed;
+    public function extractForS3Upload($stopPoint) {
+        return $this->feed->where('id', '>', $stopPoint);
     }
 
-    public function mapForS3Upload$row) {
+    public function mapForS3Upload($row) {
         return [
             'id' => $row->id,
             'client_id' => $row->client_id,
