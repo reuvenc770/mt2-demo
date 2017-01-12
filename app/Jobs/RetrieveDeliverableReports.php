@@ -176,7 +176,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $rowCount = count($campaigns);
         $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
     }
-
+    
     protected function getDeliverableCampaigns() {
         $campaigns = $this->standardReportRepo->getActionsCampaigns( $this->espAccountId , $this->date );
         $this->processState['recordType'] = 'delivered';
