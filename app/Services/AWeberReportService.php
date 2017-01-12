@@ -57,6 +57,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
         $campaigns = $this->api->getCampaigns($activeLists);
         
         foreach ($campaigns as $campaign) {
+            //using -1 because we need a way to know when a report has not been picked up yet for click/unique pull
             $clickEmail = -1;
             $openEmail = -1;
             $row = array_merge($campaign, ["unique_clicks" => $clickEmail, "unique_opens" => $openEmail]);
