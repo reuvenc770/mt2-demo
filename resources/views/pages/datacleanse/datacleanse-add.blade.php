@@ -1,3 +1,5 @@
+<!-- Archived Page -->
+
 @extends( 'layout.default' )
 
 @section( 'title' , 'Add Data Cleanse' )

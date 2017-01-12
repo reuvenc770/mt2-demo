@@ -27,7 +27,7 @@ class JobApiController extends Controller
      */
     public function listAll() {
         return response()
-            ->view( 'bootstrap.pages.devtools.job-index' , ['statusNames'=>JobEntry::getPrettyStatusNames()] );
+            ->view( 'pages.devtools.job-index' , ['statusNames'=>JobEntry::getPrettyStatusNames()] );
     }
 
 
