@@ -13,7 +13,7 @@ use App\Models\RecordData;
 use App\Services\AWeberReportService;use DaveJamesMiller\Breadcrumbs\Exception;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-
+use App\Models\ActionType;
 class Inspire extends Command
 {
     use DispatchesJobs;
@@ -38,7 +38,6 @@ class Inspire extends Command
      */
     public function handle()
     {
-        $service = new AWeberReportService(new ReportRepo(new AWeberReport()), new AWeberApi(31), new EmailRecordService(new EmailRecordRepo(new Email(), new RecordData())));
-        $service->blah();
+        
     }
 }

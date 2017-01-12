@@ -6,7 +6,6 @@ use App\Exceptions\JobException;
 use App\Facades\AWeberEmailAction;
 use App\Facades\DeployActionEntry;
 use App\Jobs\RetrieveDeliverableReports;
-use App\Jobs\UpdateSingleAWeberSubcriber;
 use App\Jobs\UpdateSingleAWeberSubscriber;
 use App\Models\AWeberList;
 use App\Models\AWeberReport;
@@ -202,6 +201,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
         $deployId = $processState['campaign']->external_deploy_id;
 
         try {
+            //TODO:: This screams for a refactor, a lot of code that could be brought out.
             switch ($processState['recordType']) {
 
                 case 'delivers' :
@@ -222,7 +222,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
                                 $message->event_time);
                         } else {
                             AWeberEmailAction::queueDeliverable(
-                                self::RECORD_TYPE_DELIVERABLE,
+                                AbstractReportService::RECORD_TYPE_DELIVERABLE,
                                 $message->subscriber_link,
                                 $this->api->getEspAccountId(),
                                 $deployId,
@@ -256,7 +256,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
 
                         if ($emailAddress) {
                             $this->emailRecord->queueDeliverable(
-                                self::RECORD_TYPE_OPENER,
+                                AbstractReportService::RECORD_TYPE_OPENER,
                                 $emailAddress->email_address,
                                 $this->api->getEspAccountId(),
                                 $deployId,
@@ -264,7 +264,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
                                 $message->event_time);
                         } else {
                             AWeberEmailAction::queueDeliverable(
-                                self::RECORD_TYPE_OPENER,
+                                AbstractReportService::RECORD_TYPE_OPENER,
                                 $message->subscriber_link,
                                 $this->api->getEspAccountId(),
                                 $deployId,
@@ -301,7 +301,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
                         $emailAddress = AWeberEmailAction::getEmailAddressFromUrl($message->subscriber_link);
                         if ($emailAddress) {
                             $this->emailRecord->queueDeliverable(
-                                self::RECORD_TYPE_CLICKER,
+                                AbstractReportService::RECORD_TYPE_CLICKER,
                                 $emailAddress->email_address,
                                 $this->api->getEspAccountId(),
                                 $deployId,
@@ -309,7 +309,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
                                 $message->event_time);
                         } else {
                             AWeberEmailAction::queueDeliverable(
-                                self::RECORD_TYPE_CLICKER,
+                                AbstractReportService::RECORD_TYPE_CLICKER,
                                 $message->subscriber_link,
                                 $this->api->getEspAccountId(),
                                 $deployId,

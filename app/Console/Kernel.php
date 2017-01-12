@@ -87,6 +87,7 @@ class Kernel extends ConsoleKernel
         Commands\FindMissingStatsForAWeber::class,
         Commands\UpdateAWeberLists::class,
         Commands\GrabAWeberSubscribers::class,
+        Commands\ProcessAWeberActions::class,
 
     ];
 
