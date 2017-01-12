@@ -15,7 +15,7 @@ class ProcessAWeberActions extends Command
      *
      * @var string
      */
-    protected $signature = 'command:name';
+    protected $signature = 'processAWeberActions';
 
     /**
      * The console command description.
