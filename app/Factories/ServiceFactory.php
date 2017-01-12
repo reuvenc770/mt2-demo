@@ -8,6 +8,7 @@
 
 namespace App\Factories;
 use App;
+use Aws;
 
 class ServiceFactory
 {
@@ -82,5 +83,40 @@ class ServiceFactory
         }
 
         return App::make( $className ); 
+    }
+
+
+    public static function createAwsExportService($entity) {
+        $jobRepo =  App::make("App\\Repositories\\{$entity}Repo");
+
+        $config = [
+            'region' => config('aws.region'),
+            'version' => config('aws.version'),
+            'credentials' => [
+                'key' => config('aws.s3.key'),
+                'secret' => config('aws.s3.secret')
+            ]
+        ];
+
+        $sdk = new Aws\Sdk($config);
+        $s3Client = $sdk->createS3();
+
+        $redshiftRepo = App::make("App\\Repositories\\RedshiftRepositories\\{$entity}Repo");
+        $pickupRepo = App::make(\App\Repositories\EtlPickupRepo::class);
+
+        if (in_array($entity, ['Feed', 'Email', 'EmailDomain', 'DomainGroup', 'SuppressionGlobalOrange'])) {
+            $func = function($row) { return $row['id']; };
+        }
+        elseif ('ListProfileFlatTable' === $entity) {
+            $func = function($row) {
+                $updatedAt = preg_replace('/\s|\-|:/', '', $row['updated_at']);
+                return (int)$updatedAt; 
+            };
+        }
+        else {
+            $func = function($row) { return 0; };
+        }
+
+        return new \App\Services\S3RedshiftExportService($jobRepo, $s3Client, $redshiftRepo, $pickupRepo, $entity, $func);
     }
 }

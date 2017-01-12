@@ -5,11 +5,12 @@ namespace App\Repositories;
 use App\Models\EmailDomain;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
+use App\Repositories\RepoInterfaces\IAwsRepo;
 
 /**
  *
  */
-class EmailDomainRepo {
+class EmailDomainRepo implements IAwsRepo {
 
     private $emailDomainModel;
 
@@ -107,6 +108,19 @@ class EmailDomainRepo {
         }
 
         return $query;
+    }
+
+    public function extractForS3Upload($startPoint) {
+        return $this->emailModel->whereRaw("id > $startPoint");
+    }
+
+    public function mapForS3Upload($row) {
+        return [
+            'id' => $row->id,
+            'domain_group_id' => $row->domain_group_id,
+            'domain_name' => $row->domain_name,
+            'is_suppressed' => $row->is_suppressed
+        ];
     }
 
 }

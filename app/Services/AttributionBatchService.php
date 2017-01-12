@@ -40,7 +40,7 @@ class AttributionBatchService {
 
         foreach ($records as $key => $record) {
 
-            $beginDate = $record->capture_date;
+            $captureDate = $record->capture_date;
             $feedId = (int)$record->feed_id;
             $oldFeedId = (int)$record->feed_id;
             $currentAttrLevel = (int)$record->level;
@@ -49,12 +49,12 @@ class AttributionBatchService {
             $actionExpired = $record->action_expired;
             $subsequentImports = 0;
 
-            $potentialReplacements = $this->getPotentialReplacements($record->email_id, $beginDate, $feedId);
+            $potentialReplacements = $this->getPotentialReplacements($record->email_id, $captureDate, $feedId);
             
             foreach ($potentialReplacements as $repl) {
 
-                if ($this->shouldChangeAttribution($hasAction, $actionExpired, $currentAttrLevel, $repl->level)) {
-                    $beginDate = $repl->capture_date;
+                if ($this->shouldChangeAttribution($captureDate, $hasAction, $actionExpired, $currentAttrLevel, $repl->level)) {
+                    $captureDate = $repl->capture_date;
                     $currentAttrLevel = (int)$repl->level;
                     $hasAction = 0; // by default must be false - can't switch if an action existed
                     $feedId = (int)$repl->feed_id;
@@ -68,12 +68,12 @@ class AttributionBatchService {
 
             // Only run this once we've found the winner
             if ($oldFeedId !== $feedId) {
-                $this->changeAttribution($record->email_id, $feedId, $beginDate, $modelId);
+                $this->changeAttribution($record->email_id, $feedId, $captureDate, $modelId);
                 
                 if (!$isModelRun) {
                     $this->recordHistory($record->email_id, $oldFeedId, $feedId);
-                    $this->updateScheduleTable($record->email_id, $beginDate);
-                    $this->updateTruthTable($record->email_id, $beginDate, $hasAction, $actionExpired, $subsequentImports);
+                    $this->updateScheduleTable($record->email_id, $captureDate);
+                    $this->updateTruthTable($record->email_id, $captureDate, $hasAction, $actionExpired, $subsequentImports);
                 }
             }
 
@@ -105,7 +105,7 @@ class AttributionBatchService {
     }
 
 
-    protected function shouldChangeAttribution($hasAction, $actionExpired, $currentAttrLevel, $testAttrLevel) {
+    protected function shouldChangeAttribution($beginDate, $hasAction, $actionExpired, $currentAttrLevel, $testAttrLevel) {
     
         if ($hasAction && $actionExpired) {
             return true;
@@ -114,7 +114,9 @@ class AttributionBatchService {
             // no attribution at all, so we need to set it
             return true;
         }
-        elseif (!$hasAction && $testAttrLevel < $currentAttrLevel) {
+        elseif (!$hasAction 
+            && Carbon::parse($beginDate)->addDays(self::EXPIRATION_DAY_RANGE)->lte(Carbon::today()) // Unnecessary for the first import, but needed to check subsequent imports
+            && $testAttrLevel < $currentAttrLevel) {
             // "less than" here means "has a higher attribution level"
             return true;
         }

@@ -6,11 +6,12 @@ use App\Models\Feed;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use App\Repositories\RepoInterfaces\Mt2Export;
+use App\Repositories\RepoInterfaces\IAwsRepo;
 
 /**
  *
  */
-class FeedRepo implements Mt2Export {
+class FeedRepo implements Mt2Export, IAwsRepo {
 
     private $feed;
 
@@ -195,5 +196,29 @@ class FeedRepo implements Mt2Export {
             $query->where('feeds.source_url' , 'LIKE' , '%'.$searchData['source_url'].'%' );
         }
          return $query;
+    }
+
+    public function extractForS3Upload($stopPoint) {
+        return $this->feed->where('id', '>', $stopPoint);
+    }
+
+    public function mapForS3Upload($row) {
+        return [
+            'id' => $row->id,
+            'client_id' => $row->client_id,
+            'name' => $row->name,
+            'party' => $row->party,
+            'short_name' => $row->short_name,
+            'password' => $row->password,
+            'status' => $row->status,
+            'vertical_id' => $row->vertical_id,
+            'frequency' => $row->frequency,
+            'type_id' => $row->type_id,
+            'country_id' => $row->country_id,
+            'source_url' => $row->source_url,
+            'suppression_list_id' => $row->suppression_list_id,
+            'created_at' => $row->created_at,
+            'updated_at' => $row->updated_at
+        ];
     }
 }
