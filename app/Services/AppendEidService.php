@@ -49,7 +49,7 @@ class AppendEidService
                         $emailId = $emailReturn[0]->id;
                         if ($includeFeed) {
                             $feedId = $this->emailRepo->getCurrentAttributedFeedId($emailId);
-                            $feedName = $this->feedRepo->fetch($feedId)->name;
+                            $feedName = $feedId ? $this->feedRepo->fetch($feedId)->name : "##NOFEEDID##";
                         }
                         if ($includeFields) {
                             $fieldData = $this->recordData->getRecordDataFromEid($emailId);
