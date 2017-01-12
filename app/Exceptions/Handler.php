@@ -34,6 +34,10 @@ class Handler extends ExceptionHandler
      */
     public function report(Exception $e)
     {
+        if ( $e instanceof \App\Exceptions\JobCompletedException ) {
+            return \Log::notice( $e );
+        }
+
         return parent::report($e);
     }
 
