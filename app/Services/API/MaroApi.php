@@ -22,6 +22,7 @@ class MaroApi extends EspBaseAPI {
     const UNSUBS_URL = "http://api.maropost.com/accounts/%d/reports/unsubscribes.json?";
     const ADDL_INFO_URL = "http://api.maropost.com/accounts/%d/campaigns/";
     const ADD_CONTACT_URL = "http://api.maropost.com/accounts/%d/lists/%d/contacts.json?auth_token=";
+    const CAMPAIGN_LIST_URL = "http://api.maropost.com/accounts/%d/campaigns.json";
     const ESP_NAME = "Maro";
     const RECORDS_PER_PAGE = 1000;
     const LOOKBACK_DAYS = 3;
@@ -120,6 +121,16 @@ class MaroApi extends EspBaseAPI {
             . $campaignId 
             . '.json?auth_token='
             . $this->apiKey;
+    }
+
+    public function constructCampaignListUrl( $page = null ) {
+        $this->url = sprintf(self::CAMPAIGN_LIST_URL, $this->account) 
+            . '?auth_token='
+            . $this->apiKey;
+
+        if ($page) {
+            $this->url .= '&page=' . $page;
+        }
     }
 
     public function setActionUrl ( $campaignId, $actionType, $pageNumber = 0 ) {

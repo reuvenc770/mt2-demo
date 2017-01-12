@@ -17,6 +17,7 @@ use App\Facades\Suppression;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Exceptions\JobException;
 use Carbon\Carbon;
+use App\Facades\EspApiAccount;
 
 /**
  * Class BlueHornetReportService
@@ -67,11 +68,7 @@ class MaroReportService extends AbstractReportService implements IDataService
 
         $completeData = array();
         foreach ($outputData as $id => $campaign) {
-            $campaignId = $campaign['campaign_id'];
-
-            $this->api->constructAdditionalInfoUrl($campaignId);
-            $return = $this->api->sendApiRequest();
-            $metadata = $this->processGuzzleResult($return);
+            $metadata = $this->retrieveSingleCampaignStats( $campaign['campaign_id'] );
 
             $campaign['from_name'] = $metadata['from_name'];
             $campaign['from_email'] = $metadata['from_email'];
@@ -84,6 +81,12 @@ class MaroReportService extends AbstractReportService implements IDataService
         }
 
         return $completeData;
+    }
+
+    public function retrieveSingleCampaignStats ( $campaignId ) {
+        $this->api->constructAdditionalInfoUrl( $campaignId );
+        $return = $this->api->sendApiRequest();
+        return $this->processGuzzleResult( $return );
     }
 
     public function splitTypes($processState)
@@ -465,5 +468,65 @@ class MaroReportService extends AbstractReportService implements IDataService
 
     public function addContact($record, $listId) {
         $this->api->addContact($record, $listId);
+    }
+
+    public function getMissingCampaigns ( $espAccountId ) {
+        $fullCampaignList = [];
+
+        try {
+            \Log::info( 'Pinging ESP API...' );
+
+            $this->api->constructCampaignListUrl();
+            $response = $this->api->sendApiRequest();
+            $campaignData = $this->processGuzzleResult( $response );
+
+            if ( count( $campaignData ) > 0 ) {
+                \Log::info( 'Campaign Data found....' );
+
+                $firstCampaignList = array_column( $campaignData , 'id' );
+                $fullCampaignList = array_merge( $fullCampaignList , $firstCampaignList );
+                $pageCount = $campaignData[ 0 ][ 'total_pages' ];
+
+                if ( $pageCount > 0 ) {
+                    \Log::info( "Need to paginate reesults...{$pageCount} pages to grab...." );
+
+                    $currentPage = 0;
+
+                    while ( $currentPage <= $pageCount ) {
+                        \Log::info( 'retrieving page ' . $currentPage . '.....' );
+                        $this->api->constructCampaignListUrl( $currentPage );
+                        $nextResponse = $this->api->sendApiRequest();
+                        $nextCampaignData = $this->processGuzzleResult( $nextResponse );
+
+                        $nextCampaignList = array_column( $nextCampaignData , 'id' );
+                        $fullCampaignList = array_merge( $fullCampaignList , $nextCampaignList );
+
+                        $currentPage++;
+                    }
+
+                    \Log::info( 'deduping campaign list....' );
+
+                    $fullCampaignList = array_unique( $fullCampaignList );
+                }
+
+                \Log::info( 'Campaign Count: ' . count( $fullCampaignList ) );
+
+                $localCampaignList = $this->reportRepo->getAllCampaigns( $espAccountId )->pluck( 'internal_id' )->toArray();
+
+                $missingCampaigns = array_diff( $fullCampaignList , $localCampaignList );
+
+                #\Log::info( 'Missing Campaigns: ' );
+                #\Log::info( $missingCampaigns );
+
+                \Log::info( 'Missing Campaign Count: ' . count( $missingCampaigns ) );
+
+                return $missingCampaigns;
+            }
+        } catch ( \Exception $e ) {
+            $jobException = new JobException('Failed to merge array' . $e->getMessage(), JobException::NOTICE);
+            throw $jobException;
+        }
+
+        return [];
     }
 }

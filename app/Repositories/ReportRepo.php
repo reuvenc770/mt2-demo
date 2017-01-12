@@ -34,6 +34,12 @@ class ReportRepo
             ->get();
     }
 
+    public function getAllCampaigns( $espAccountId ) {
+        return $this->report
+            ->where( 'esp_account_id' , $espAccountId )
+            ->get();
+    }
+
     public function getRunId($espInternalId) {
         if (is_a($this->report, 'App\Models\CampaignerReport')) {
             return $this->report->select('run_id')->where('internal_id', $espInternalId)->first()->run_id;
