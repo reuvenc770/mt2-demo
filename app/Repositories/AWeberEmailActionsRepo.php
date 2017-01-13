@@ -54,7 +54,7 @@ class AWeberEmailActionsRepo
                         esp_account_id = esp_account_id ,
                         deploy_id = deploy_id,
                         esp_internal_id = esp_internal_id ,
-                        action_id = action_id ,
+                        action = action ,
                         datetime = datetime ,
                         created_at = created_at ,
                         updated_at = NOW()"
@@ -66,5 +66,9 @@ class AWeberEmailActionsRepo
     
     protected function getActionId ( $actionName ) {
         return ActionType::where( 'name' , $actionName )->first()->id;
+    }
+
+    public function massDelete($ids){
+        return $this->model->destroy($ids); // \m/_(>_<)_\m/
     }
 }

@@ -55,6 +55,10 @@ class AWeberEmailActionsService
 
         return $count;
     }
+    
+    public function clearActionsByID($ids){
+        return $this->repo->massDelete($ids);
+    }
 
     public function getEmailId($fullUrl){
         return substr($fullUrl, strrpos($fullUrl, '/') + 1);
