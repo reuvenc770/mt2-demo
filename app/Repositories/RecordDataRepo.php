@@ -7,8 +7,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use Carbon\Carbon;
 use App\Repositories\RepoInterfaces\IAwsRepo;
+use App\Repositories\RepoTraits\Batchable;
 
 class RecordDataRepo implements IAwsRepo {
+    use Batchable;
 
     private $model;
     private $batchData = [];
@@ -39,17 +41,14 @@ class RecordDataRepo implements IAwsRepo {
         return $this->model->find($eid);
     }
 
-    public function insertStored() {
-        if ($this->batchDataCount > 0) {
-            $this->batchData = implode(', ', $this->batchData);
-
-            DB::statement("INSERT INTO record_data (email_id, is_deliverable, first_name, last_name, 
+    private function buildBatchedQuery($batchData) {
+        return "INSERT INTO record_data (email_id, is_deliverable, first_name, last_name, 
                     address, address2, city, state, zip, country, gender, 
                     ip, phone, source_url, dob, capture_date, subscribe_date, other_fields)
 
                 VALUES 
 
-                {$this->batchData}
+                {$batchData}
 
                 ON DUPLICATE KEY UPDATE
                 email_id = email_id,
@@ -69,12 +68,7 @@ class RecordDataRepo implements IAwsRepo {
                 dob = VALUES(dob),
                 capture_date = VALUES(capture_date),
                 subscribe_date = VALUES(subscribe_date),
-                other_fields = VALUES(other_fields)
-            ");
-
-            $this->batchData = [];
-            $this->batchDataCount = 0;
-        }
+                other_fields = VALUES(other_fields)";
     }
 
     private function transformRowToString($row) {

@@ -31,7 +31,7 @@ class ImportMt1EmailsService
     private $historyRepo;
     private $processingDate;
     private $formattedDate;
-    private $emailFeedStatusRepo;
+    private $emailFeedActionRepo;
     private $assignmentRepo;
 
     private $emailIdCache = [];
@@ -49,7 +49,7 @@ class ImportMt1EmailsService
         FeedDateEmailBreakdownRepo $breakdownRepo,
         RecordDataRepo $recordDataRepo,
         EmailIdHistoryRepo $historyRepo,
-        EmailFeedStatusRepo $emailFeedStatusRepo,
+        EmailFeedActionRepo $emailFeedActionRepo,
         EmailFeedAssignmentRepo $assignmentRepo) {
 
         $this->api = $api;
@@ -62,7 +62,7 @@ class ImportMt1EmailsService
         $this->breakdownRepo = $breakdownRepo;
         $this->recordDataRepo = $recordDataRepo;
         $this->historyRepo = $historyRepo;
-        $this->emailFeedStatusRepo = $emailFeedStatusRepo;
+        $this->emailFeedActionRepo = $emailFeedActionRepo;
         $this->assignmentRepo = $assignmentRepo;
 
         $this->processingDate = Carbon::today();
@@ -117,7 +117,7 @@ class ImportMt1EmailsService
                     $existsCheck = $this->emailRepo->getEmailId($emailAddress)->first();
 
                     $statusRow = $this->buildStatusRow($record);
-                    $this->emailFeedStatusRepo->batchInsert($statusRow);
+                    $this->emailFeedActionRepo->batchInsert($statusRow);
 
                     if (isset($this->emailIdCache[$importingEmailId])) {
                         // email id is already a duplicate within this import
@@ -136,7 +136,7 @@ class ImportMt1EmailsService
                         $record['is_deliverable'] = 1;
                         $record['other_fields'] = '{}';
 
-                        $this->recordDataRepo->insert($record);
+                        $this->recordDataRepo->batchInsert($record);
 
                         $recordsToFlag[] = [
                             "email_id" => $importingEmailId, 
@@ -190,7 +190,7 @@ class ImportMt1EmailsService
                         if ('fresh' === $emailStatus) {
                             $record['is_deliverable'] = 1;
                             $record['other_fields'] = '{}';
-                            $this->recordDataRepo->insert($record);
+                            $this->recordDataRepo->batchInsert($record);
                         }
                     }
 
@@ -198,7 +198,7 @@ class ImportMt1EmailsService
 
                 //We do an upsert so there are no model actions and we can't do this via batch.
                 $emailFeedRow = $this->mapToEmailFeedTable($record);
-                $this->emailFeedRepo->insertDelayedBatch($emailFeedRow);
+                $this->emailFeedRepo->batchInsert($emailFeedRow);
 
                 $statuses[$feedId][$emailStatus]++;
             }
@@ -209,7 +209,8 @@ class ImportMt1EmailsService
         $this->emailRepo->insertStored(); // Clear out remaining inserts
         $this->recordDataRepo->insertStored();
         $this->emailFeedRepo->insertStored();
-        $this->emailFeedStatusRepo->insertStored();
+        $this->emailFeedActionRepo->insertStored();
+        //$this->emailFeedActionRepo->insertStored();
         $this->tempEmailRepo->insertStored();
 
         // Need to handle in-batch switching between email ids

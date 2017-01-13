@@ -99,7 +99,7 @@ class FeedProcessingService {
                         $updateArray[$record->feedId][$domainGroupId]['fullPostalCount']++;
                     }
 
-                    $this->instanceRepo->insertDelayedBatch($record->mapToInstances());
+                    $this->instanceRepo->batchInsert($record->mapToInstances());
                 }
                 elseif(preg_match('/source\surl/', $record->invalidReason)) {
                     $updateArray[$record->feedId][$domainGroupId]['badSourceUrls']++;

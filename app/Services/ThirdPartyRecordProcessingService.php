@@ -140,7 +140,7 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
             $statuses[$record->feedId][$domainGroupId][$record->uniqueStatus]++;
 
             if ('unique' === $record->uniqueStatus) {
-                $this->recordDataRepo->insert($this->transformForRecordData($record));
+                $this->recordDataRepo->batchInsert($this->transformForRecordData($record));
             }
             
         }

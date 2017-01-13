@@ -6,31 +6,24 @@ use App\Models\EmailFeedInstance;
 use App\Models\SourceUrlCount;
 use DB;
 use Illuminate\Database\Query\Builder;
+use App\Repositories\RepoTraits\Batchable;
 
 /**
  *
  */
 class EmailFeedInstanceRepo {
+    use Batchable;
 
-    private $emailFeedModel;
+    private $model;
     private $countModel;
-    private $batchInstances = [];
-    private $batchInstanceCount = 0;
-    const INSERT_THRESHOLD = 10000;
 
-    public function __construct(EmailFeedInstance $emailFeedModel, SourceUrlCount $countModel) {
-        $this->emailFeedModel = $emailFeedModel;
+    public function __construct(EmailFeedInstance $model, SourceUrlCount $countModel) {
+        $this->model = $model;
         $this->countModel = $countModel;
     }
 
-    public function insertDelayedBatch($row) {
-        if ($this->batchInstanceCount >= self::INSERT_THRESHOLD) {
-
-            // Doing this (switching type signature) to save on some memory, given that these lists can be rather large
-            $this->batchInstances = implode(', ', $this->batchInstances);
-
-            DB::statement(
-                "INSERT INTO email_feed_instances
+    private function buildBatchedQuery($batchInstances) {
+        return "INSERT INTO email_feed_instances
                 (email_id, feed_id, subscribe_datetime, unsubscribe_datetime,
                 status, first_name, last_name, address, address2, city, state, 
                 zip, country, dob, gender, phone, mobile_phone, work_phone, 
@@ -38,7 +31,7 @@ class EmailFeedInstanceRepo {
 
                 VALUES
 
-                {$this->batchInstances}
+                {$batchInstances}
 
                 ON DUPLICATE KEY UPDATE
                 email_id = email_id,
@@ -63,63 +56,7 @@ class EmailFeedInstanceRepo {
                 source_url = source_url,
                 ip = ip,
                 created_at = created_at,
-                updated_at = updated_at"
-            );
-
-
-            $this->batchInstances = [$this->transformRowToString($row)];
-            $this->batchInstanceCount = 1;
-        }
-        else {
-            $this->batchInstances[] = $this->transformRowToString($row);
-            $this->batchInstanceCount++;
-        }
-    }
-
-    public function insertStored() {
-        if ($this->batchInstanceCount > 0) {
-            $this->batchInstances = implode(', ', $this->batchInstances);
-
-            DB::statement(
-                "INSERT INTO email_feed_instances
-                (email_id, feed_id, subscribe_datetime, unsubscribe_datetime,
-                status, first_name, last_name, address, address2, city, state, 
-                zip, country, dob, gender, phone, mobile_phone, work_phone, 
-                capture_date, source_url, ip, created_at, updated_at)
-
-                VALUES
-
-                {$this->batchInstances}
-
-                ON DUPLICATE KEY UPDATE
-                email_id = email_id,
-                feed_id = feed_id,
-                subscribe_datetime = subscribe_datetime,
-                unsubscribe_datetime = unsubscribe_datetime,
-                status = status,
-                first_name = first_name,
-                last_name = last_name,
-                address = address,
-                address2 = address2,
-                city = city,
-                state = state,
-                zip = zip,
-                country = country,
-                dob = dob,
-                gender = gender,
-                phone = phone,
-                mobile_phone = mobile_phone,
-                work_phone = work_phone,
-                capture_date = capture_date,
-                source_url = source_url,
-                ip = ip,
-                created_at = created_at,
-                updated_at = updated_at"
-            );
-
-            $this->batchInstances = [];
-            $this->batchInstanceCount = 0;
-        }
+                updated_at = updated_at";
     }
 
     private function transformRowToString($row) {
@@ -250,7 +187,7 @@ class EmailFeedInstanceRepo {
     }
 
     public function getInstancesForDateRange($startDate , $endDate) {
-        return $this->emailFeedModel->whereBetween( 'capture_date' , [ $startDate , $endDate ] );
+        return $this->model->whereBetween( 'capture_date' , [ $startDate , $endDate ] );
     }
 
     public function getMt1UniqueCountForFeedAndDate( $feedId , $date ) {
@@ -350,7 +287,7 @@ class EmailFeedInstanceRepo {
     }
 
     public function getRecordsFromFeedStartingAt($feedId, $startingId) {
-        return $this->emailFeedModel
+        return $this->model
                     ->selectRaw("email_feed_instances.*, e.email_address")
                     ->join('emails as e', 'email_feed_instances.email_id', '=', 'e.id')
                     ->where('feed_id', $feedId)
