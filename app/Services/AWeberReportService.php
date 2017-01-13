@@ -53,7 +53,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
     {
         $date = null; //unfortunately date does not matter here.
         $campaignData = array();
-        $activeLists = $this->listService->getActiveLists();
+        $activeLists = $this->listService->getActiveLists($this->api->getEspAccountId());
         $campaigns = $this->api->getCampaigns($activeLists);
         
         foreach ($campaigns as $campaign) {
@@ -84,7 +84,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
             $this->insertStats($espAccountId, $convertedReport);
             $convertedDataArray[]= $convertedReport;
         }
-        Event::fire(new RawReportDataWasInserted($this, $convertedDataArray));
+        //Event::fire(new RawReportDataWasInserted($this, $convertedDataArray));
     }
 
     public function mapToRawReport($data)

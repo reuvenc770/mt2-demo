@@ -25,8 +25,9 @@ class AWeberListRepo
         return $this->model->where("esp_account_id",$espAccountId)->get();
     }
     
-    public function getActiveLists(){
-        return $this->model->where("is_active",1)->get();
+    public function getActiveLists($espAccountId){
+        return $this->model->where("is_active",1)
+                            ->where("esp_account_id",$espAccountId)->get();
     }
 
     public function upsertList($list){
