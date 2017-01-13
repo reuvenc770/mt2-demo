@@ -6,10 +6,12 @@ use App\Jobs\AggregateAWeberSubscribers;
 use App\Models\AWeberList;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Queue\InteractsWithQueue;
 
 class GrabAWeberSubscribers extends Command
 {
     use DispatchesJobs;
+    use InteractsWithQueue;
     /**
      * The name and signature of the console command.
      *
@@ -43,7 +45,7 @@ class GrabAWeberSubscribers extends Command
     {
        $lists = AWeberList::where("is_active",1)->get();
         foreach($lists as $list) {
-            $job = new AggregateAWeberSubscribers($list, str_random(16));
+            $job = (new AggregateAWeberSubscribers($list, str_random(16)))->onQueue("AWeber");
             $this->dispatch($job);
         }
     }
