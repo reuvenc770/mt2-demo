@@ -105,23 +105,11 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
                 }
                 elseif (0 === $attributionTruths->is_recent_import && 1 === $attributionTruths->has_action) {
                     // Not a recent import but there is an action
-                    if (1 === $attributionTruths->action_expired) {
-                        // Change attribution to importer
-                        $recordsToFlag[] = $this->mapToNewRecords($record);
-                        $record->uniqueStatus = 'unique';
-                        $record->isDeliverable = 1;
-                    }
-                    else {
-                        // Action did not expire. Keep attribution the same
-                        $record->uniqueStatus = 'non-unique';
-                    }
-                    
+                    $record->uniqueStatus = 'non-unique';                    
                 }
                 else {
                     // Not a new record, not attributed import was not recent, has no action
                     $importingAttrLevel = $this->attributionLevelRepo->getLevel($record->feedId);
-
-                    echo "importing attribution level for {$record->emailAddress} is $importingAttrLevel" . PHP_EOL;
                     $currentAttributionLevel = $this->emailRepo->getCurrentAttributionLevel($record->emailId);
 
                     if (null === $currentAttributionLevel || $importingAttrLevel < $currentAttributionLevel) {
