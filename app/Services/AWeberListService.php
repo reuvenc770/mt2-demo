@@ -26,8 +26,8 @@ class AWeberListService
     }
 
 
-    public function getActiveLists(){
-        return $this->repository->getActiveLists();
+    public function getActiveLists($espAccountId){
+        return $this->repository->getActiveLists($espAccountId);
     }
     
     public function updateOrAddList($list,$espAccountId){
