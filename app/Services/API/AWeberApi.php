@@ -63,15 +63,13 @@ class AWeberApi extends EspBaseAPI
      * @param int $limit
      * @return AWeberCollection|AWeberEntry
      */
-    public function getCampaigns($limit = 20)
+    public function getCampaigns($lists, $limit = 20)
     {
         $campaignData = [];
-        $lists = $this->makeApiRequest("lists", array("ws.size" => 100));
         $numberToPull = $limit; //lets get the last X campaigns sent
         foreach($lists as $list){
             $i = 0;
-            $url = "/lists/{$list->id}/campaigns";
-            $campaigns = $this->makeApiRequest($url, array("ws.size" => 10));
+            $campaigns = $this->makeApiRequest($list->campaigns_collection_link, array("ws.size" => 10),true);
             foreach($campaigns as $campaign){
 
                 try{

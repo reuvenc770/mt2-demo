@@ -191,6 +191,11 @@ Route::group(
             'uses' => 'AWeberDeployMappingController@mapDeploys'
         ] );
 
+        Route::get( '/aweberlists' , [
+            'as' => 'tools.aweberlists' ,
+            'uses' => 'AWeberListController@edit'
+        ] );
+
     }
 );
 
@@ -827,6 +832,15 @@ Route::group(
         Route::post('/tools/convertreport', [
             'as' => 'api.tools.awebermapping.convertreport' ,
             'uses' => 'AWeberDeployMappingController@convertReport'
+        ] );
+
+        Route::post('/tools/aweberlists/update', [
+            'as' => 'api.tools.aweberlists.update' ,
+            'uses' => 'AWeberListController@store'
+        ] );
+        Route::get('/tools/getaweberlists/{id}', [
+            'as' => 'api.tools.aweberlists.getLists' ,
+            'uses' => 'AWeberListController@getList'
         ] );
 
         Route::post('/navigation', [

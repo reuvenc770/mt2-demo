@@ -207,6 +207,11 @@ Breadcrumbs::register( 'tools.bulksuppression' , function ( $breadcrumbs ) {
     $breadcrumbs->push( 'Bulk Suppression' , route( 'tools.bulksuppression' ) );
 } );
 
+Breadcrumbs::register( 'tools.aweberlists' , function ( $breadcrumbs ) {
+    $breadcrumbs->parent( 'home' );
+    $breadcrumbs->push( 'AWeber List Status' , route( 'tools.aweberlists' ) );
+} );
+
 Breadcrumbs::register('datacleanse.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');
     $breadcrumbs->push('Data Cleanse' , route( 'datacleanse.list' ));

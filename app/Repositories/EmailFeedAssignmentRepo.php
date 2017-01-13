@@ -7,13 +7,14 @@ namespace App\Repositories;
 
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
+use App\Repositories\RepoInterfaces\IAwsRepo;
 
 use App\Models\EmailFeedAssignment;
 use App\Models\EmailFeedAssignmentHistory;
 
 use DB;
 
-class EmailFeedAssignmentRepo {
+class EmailFeedAssignmentRepo implements IAwsRepo {
     protected $assignment;
     protected $history;
     private $batchData = [];
@@ -145,5 +146,19 @@ class EmailFeedAssignmentRepo {
                     ->selectRaw("efi.email_id, COUNT(*) as count")
                     ->groupBy('efi.email_id')
                     ->havingRaw("COUNT(*) = 0");
+    }
+
+    public function extractForS3Upload($startPoint) {
+        return $this->assignment->whereRaw("updated_at > $startPoint");
+    }
+
+    public function mapForS3Upload($row) {
+        return [
+            'email_id' => $row->email_id,
+            'feed_id' => $row->feed_id,
+            'created_at' => $row->created_at,
+            'updated_at' => $row->updated_at,
+            'capture_date' => $row->capture_date
+        ];
     }
 }

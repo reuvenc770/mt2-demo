@@ -337,29 +337,11 @@ class ImportMt1EmailsService
         }
 
         $isRecentImport = $attributionTruths->recent_import;
-
-        if (0 === $isRecentImport) {
-            return 'fresh';
-        }
-
         $hasActions = $attributionTruths->has_action;
-
-        // Catching an edge case where email id does exist, attribution is set up
-        // but somehow the feed itself is missing
-        // this could backfire and lead to incorrect numbers if the feed simply hasn't been imported
-        // but should not occur if we've passed the prior test
         $currentAttributionLevel = $this->emailRepo->getCurrentAttributionLevel($emailId);
         $importingAttrLevel = $this->attributionLevelRepo->getLevel($importingFeedId);
-        $captureDate = Carbon::parse($this->emailRepo->getCaptureDate($emailId));
 
-        // Was the old record > 90 days old at the processing date (following MT1's lead here)
-        if ( $this->processingDate->subDays(90)->gte($captureDate) ) {
-            return ($importingFeedId !== $currentFeedId) ? 'fresh' : 'duplicate';
-        }
-        elseif ( !$isRecentImport
-            && !$hasActions
-            && $importingAttrLevel < $currentAttributionLevel) {
-
+        if (0 === $isRecentImport && 0 === $hasActions && $importingAttrLevel < $currentAttributionLevel) {
             return 'fresh';
         }
         else {
