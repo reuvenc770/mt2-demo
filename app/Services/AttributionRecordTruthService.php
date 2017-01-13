@@ -46,7 +46,7 @@ class AttributionRecordTruthService
         try {
             $this->recordTruthRepo->setField($emailId, $column, $value);
         } catch (\Exception $e) {
-            Log::error("Could not Expire Record because {$e->getMessage()} {$e->getLine()}");
+            Log::error("Could not set record $column to value '$value' because {$e->getMessage()} {$e->getLine()}");
         }
     }
     public function bulkToggleFieldRecord($emails, $column, $value)
@@ -54,7 +54,7 @@ class AttributionRecordTruthService
         try {
             $this->recordTruthRepo->bulkSetField($emails, $column, $value);
         } catch (\Exception $e) {
-            Log::error("Could not Expire Record because {$e->getMessage()}");
+            Log::error("Could not set record $column to value '$value' because {$e->getMessage()}");
         }
     }
 
