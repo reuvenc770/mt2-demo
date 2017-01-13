@@ -6,23 +6,25 @@ use App\Jobs\AWeberActionImmigration;
 use App\Models\AweberEmailActionsStorage;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Queue\InteractsWithQueue;
 
 class ProcessAWeberActions extends Command
 {
     use DispatchesJobs;
+    use InteractsWithQueue;
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'processAWeberActions';
+    protected $signature = 'aweber:processAWeberActions';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Try to bring AWeber back into the email_action process';
 
     /**
      * Create a new command instance.
@@ -45,7 +47,7 @@ class ProcessAWeberActions extends Command
         while (count($actions) > 0) {
             foreach ($actions as $chunk) {
                 $this->info("Processing another chunk");
-                $job = new AWeberActionImmigration($chunk, str_random(16));
+                $job = (new AWeberActionImmigration($chunk, str_random(16)))->onQueue("AWeber");
                 $this->dispatch($job);
             }
 

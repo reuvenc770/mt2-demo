@@ -54,7 +54,7 @@ class AWeberEmailActionsRepo
                         esp_account_id = esp_account_id ,
                         deploy_id = deploy_id,
                         esp_internal_id = esp_internal_id ,
-                        action = action ,
+                        action_id = action_id ,
                         datetime = datetime ,
                         created_at = created_at ,
                         updated_at = NOW()"
