@@ -474,26 +474,19 @@ class MaroReportService extends AbstractReportService implements IDataService
         $fullCampaignList = [];
 
         try {
-            \Log::info( 'Pinging ESP API...' );
-
             $this->api->constructCampaignListUrl();
             $response = $this->api->sendApiRequest();
             $campaignData = $this->processGuzzleResult( $response );
 
             if ( count( $campaignData ) > 0 ) {
-                \Log::info( 'Campaign Data found....' );
-
                 $firstCampaignList = array_column( $campaignData , 'id' );
                 $fullCampaignList = array_merge( $fullCampaignList , $firstCampaignList );
                 $pageCount = $campaignData[ 0 ][ 'total_pages' ];
 
                 if ( $pageCount > 0 ) {
-                    \Log::info( "Need to paginate reesults...{$pageCount} pages to grab...." );
-
                     $currentPage = 0;
 
                     while ( $currentPage <= $pageCount ) {
-                        \Log::info( 'retrieving page ' . $currentPage . '.....' );
                         $this->api->constructCampaignListUrl( $currentPage );
                         $nextResponse = $this->api->sendApiRequest();
                         $nextCampaignData = $this->processGuzzleResult( $nextResponse );
@@ -504,21 +497,12 @@ class MaroReportService extends AbstractReportService implements IDataService
                         $currentPage++;
                     }
 
-                    \Log::info( 'deduping campaign list....' );
-
                     $fullCampaignList = array_unique( $fullCampaignList );
                 }
-
-                \Log::info( 'Campaign Count: ' . count( $fullCampaignList ) );
 
                 $localCampaignList = $this->reportRepo->getAllCampaigns( $espAccountId )->pluck( 'internal_id' )->toArray();
 
                 $missingCampaigns = array_diff( $fullCampaignList , $localCampaignList );
-
-                #\Log::info( 'Missing Campaigns: ' );
-                #\Log::info( $missingCampaigns );
-
-                \Log::info( 'Missing Campaign Count: ' . count( $missingCampaigns ) );
 
                 return $missingCampaigns;
             }

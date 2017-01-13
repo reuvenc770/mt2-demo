@@ -47,13 +47,9 @@ class UpdateMissingMaroCampaigns extends Command
      */
     public function handle()
     {
-        \Log::info( 'UpdateMissingMaroCampaigns initiated..' );
-
         $accounts = EspApiAccount::getAllAccountsByESPName( self::ESP_NAME );
 
         foreach ( $accounts as $current ) {
-            \Log::info( "Generating job for Maro account ID {$current->id}" );
-
             $job = new UpdateMissingMaroCampaignsJob( $current->id , str_random( 16 ) );
             $this->dispatch( $job );
         }

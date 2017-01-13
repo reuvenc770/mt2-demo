@@ -43,8 +43,6 @@ class UpdateMissingMaroCampaignsJob extends Job implements ShouldQueue
      */
     public function handle()
     {
-        \Log::info( "Running UpdateMissingMaroCampaignsJob for $this->espAccountId...." );
-
         JobTracking::changeJobState( JobEntry::RUNNING , $this->tracking);
 
         try {
@@ -53,33 +51,26 @@ class UpdateMissingMaroCampaignsJob extends Job implements ShouldQueue
             $missingCampaigns = $reportService->getMissingCampaigns( $this->espAccountId );
 
             $newCampaignData = [];
-            $count = 0;
+            $runCount = 0;
             foreach ( $missingCampaigns as $campaignId ) {
                 $newData = $reportService->retrieveSingleCampaignStats( $campaignId ); 
 
                 if ( count( $newData ) > 0 ) {
-                    \Log::info( 'Have data for campaign ' . $campaignId );
-                    \Log::info( $newData );
-
                     $newCampaignData []= $this->cleanseData( $newData );
                     
-                    $count++;
+                    $runCount++;
 
-                    if ( count( $newCampaignData ) >= self::CHUNK_AMOUNT ) {
+                    $bufferCount = count( $newCampaignData );
+                    $missingCount = count( $missingCampaigns );
+
+                    if ( $bufferCount >= self::CHUNK_AMOUNT || $runCount === $missingCount ) {
                         $reportService->insertApiRawStats( $newCampaignData );
                         $newCampaignData = [];
-
-                        \Log::info( 'Saved campaign stats.' );
-                        \Log::info( 'Have ' . ( count( $missingCampaigns ) - $count ) . ' left...' );
-                        \Log::info( '' );
                     }
                 }
             }
 
-            \Log::info( "Successfully ran UpdateMissingMaroCampaignsJob for $this->espAccountId...." );
-            \Log::info( '' );
-
-            JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking , $count ); #count( $newCampaignData ) );
+            JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking , $runCount );
         } catch ( \Exception $e ) {
             throw new JobException(self::JOB_NAME . "::{$this->espAccountId} failed with {$e->getMessage()}  {$e->getLine()}" . PHP_EOL);
         }
