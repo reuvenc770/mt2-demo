@@ -43,7 +43,7 @@ class ScheduledFilterResolver extends Job implements ShouldQueue
         $scheduledFilterService = ServiceFactory::createFilterService($this->filterName);
         $records = $scheduledFilterService->getRecordsByDate($this->date);
         $total = 0;
-        $columns = $scheduledFilterService->returnFullFields();
+        $columns = $scheduledFilterService->returnFieldsForExpiration();
 
         $records->chunk(10000, function($results) use (&$total, $columns, $truthService) {
             $total += count($results);
