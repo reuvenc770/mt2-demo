@@ -83,7 +83,7 @@ class UpdateMissingMaroCampaignsJob extends Job implements ShouldQueue
         $newData[ 'click' ] = $newData[ 'clicked' ];
         $newData[ 'bounce' ] = $newData[ 'bounced' ];
         $newData[ 'unsubscribes' ] = $newData[ 'unsubscribed' ];
-        $newData[ 'complaints' ] = $newData[ 'unsubscribes' ];
+        $newData[ 'complaints' ] = $newData[ 'complaint' ];
 
         return $newData;
     }
