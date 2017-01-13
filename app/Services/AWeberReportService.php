@@ -84,7 +84,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
             $this->insertStats($espAccountId, $convertedReport);
             $convertedDataArray[]= $convertedReport;
         }
-        Event::fire(new RawReportDataWasInserted($this, $convertedDataArray));
+        //Event::fire(new RawReportDataWasInserted($this, $convertedDataArray));
     }
 
     public function mapToRawReport($data)
