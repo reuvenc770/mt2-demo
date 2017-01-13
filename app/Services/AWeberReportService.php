@@ -8,7 +8,7 @@ use App\Facades\DeployActionEntry;
 use App\Jobs\RetrieveDeliverableReports;
 use App\Models\AWeberList;
 use App\Models\AWeberReport;
-use app\Repositories\AWeberListRepo;
+use App\Repositories\AWeberListRepo;
 use App\Repositories\ReportRepo;
 use App\Services\API\AWeberApi;
 use App\Services\Interfaces\IDataService;

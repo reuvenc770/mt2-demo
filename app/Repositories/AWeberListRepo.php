@@ -6,7 +6,7 @@
  * Time: 11:00 AM
  */
 
-namespace app\Repositories;
+namespace App\Repositories;
 
 
 use App\Models\AWeberList;
