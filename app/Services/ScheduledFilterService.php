@@ -21,7 +21,6 @@ class ScheduledFilterService
     public function __construct(AttributionScheduleRepo $attributionScheduleRepo, $filterName)
     {
         $this->scheduleRepo = $attributionScheduleRepo;
-        $this->fields = config( 'scheduledfilters.' . $filterName . '.column' );
         $this->setFields = config('scheduledfilters' . $filterName . '.set');
         $this->expireFields = config('scheduledfilters' . $filterName . '.expire');
     }
