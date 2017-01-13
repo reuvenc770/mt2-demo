@@ -85,6 +85,7 @@ class Kernel extends ConsoleKernel
         Commands\UpdateFeedCounts::class,
         Commands\S3RedshiftExport::class,
         Commands\FindMissingStatsForAWeber::class,
+        Commands\UpdateAWeberLists::class,
     ];
 
     /**
@@ -213,7 +214,6 @@ class Kernel extends ConsoleKernel
          */
          
         // Attribution jobs disabled temporarily until launch
-        #$schedule->command('runFilter activity')->dailyAt(self::EXPIRATION_RUNS);
         #$schedule->command('runFilter expiration')->dailyAt(self::EXPIRATION_RUNS);
         #$schedule->command('attribution:commit daily')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
         $schedule->command( 'attribution:conversion -P realtime' )->dailyAt( self::ATTRIBUTION_REPORT_EARLY_UPDATE_TIME ); #early conversion grab & report updating

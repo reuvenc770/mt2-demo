@@ -39,6 +39,6 @@ class Inspire extends Command
     public function handle()
     {
         $service = new AWeberReportService(new ReportRepo(new AWeberReport()), new AWeberApi(31), new EmailRecordService(new EmailRecordRepo(new Email(), new RecordData())));
-        dd($service->retrieveApiStats(23));
+        $service->blah();
     }
 }
