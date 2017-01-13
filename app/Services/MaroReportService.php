@@ -387,7 +387,10 @@ class MaroReportService extends AbstractReportService implements IDataService
             $row['esp_account_id'] = $espAccountId;
             $convertedReport = $this->mapToRawReport($row);
             $this->insertStats($espAccountId, $convertedReport);
-            $convertedDataArray[] = $convertedReport;
+
+            if ( !is_null( $convertedReport[ 'sent_at' ] ) ) {
+                $convertedDataArray[] = $convertedReport;
+            }
         }
 
         Event::fire(new RawReportDataWasInserted($this, $convertedDataArray));
