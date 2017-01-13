@@ -1,18 +1,12 @@
 <?php
 namespace App\Services;
 
-use App\Events\RawReportDataWasInserted;
-use App\Exceptions\JobException;
-use App\Facades\DeployActionEntry;
+
 use App\Facades\Suppression;
-use App\Library\AWeber\AWeberAPIException;
-use App\Repositories\ReportRepo;
-use App\Services\AbstractReportService;
+use App\Models\AWeberSubscriber;
+use App\Repositories\AWeberSubscriberRepo;
 use App\Services\API\AWeberApi;
-use App\Services\EmailRecordService;
-use App\Services\Interfaces\IDataService;
-use Illuminate\Support\Facades\Event;
-use Log;
+
 
 /**
  * Class AWeberReportService
@@ -20,11 +14,19 @@ use Log;
  */
 class AWeberSubscriberService
 {
+    CONST INSERT_COUNT = 20;
     protected $api;
+    protected $subscribers = [];
+    protected $subscriberRepo;
+    protected $count;
+
 
     public function __construct(AWeberApi $weberApi)
     {
         $this->api = $weberApi;
+        $this->count = 0;
+        //way to much code to refactor this in and once again very unique case.
+        $this->subscriberRepo = new AWeberSubscriberRepo(new AWeberSubscriber());
     }
 
     public function pullUnsubsEmailsByLookback($lookback)
@@ -52,6 +54,36 @@ class AWeberSubscriberService
             }
 
         }
-
     }
+
+    public function getSubscribers($url){
+        return $this->api->makeApiRequest($url,array("ws.size" => 100),true);
+    }
+
+    public function getSubscriber($url){
+        return $this->api->makeApiRequest($url,array(),true);
+    }
+
+    public function queueSubscriber($subscriber){
+        print_r($subscriber);
+        $this->subscribers[] =  "( "
+            . join( " , " , [
+                '"'.$subscriber->email.'"' ,
+                $subscriber->id] )
+            . " )";
+        $this->count++;
+        if($this->count >= self::INSERT_COUNT){
+            $this->insertSubscribers();
+            $this->count = 0;
+        }
+    }
+    
+    public function insertSubscribers(){
+        $this->subscriberRepo->massUpsert($this->subscribers);
+    }
+    public function insertSubscriber($subscriber){
+        $this->subscriberRepo->insertSubscriber($subscriber);
+    }
+    
+    
 }
