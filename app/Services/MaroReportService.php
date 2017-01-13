@@ -17,7 +17,6 @@ use App\Facades\Suppression;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Exceptions\JobException;
 use Carbon\Carbon;
-use App\Facades\EspApiAccount;
 
 /**
  * Class BlueHornetReportService
