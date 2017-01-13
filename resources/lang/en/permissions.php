@@ -292,6 +292,9 @@ return [
     'tools.appendeid.upload' => 'Upload Append EID File' ,
     'tools.cache' => 'Clear Cache',
     'tools.awebermapping' => 'View Map AWeber Deploy Page',
+    'tools.aweberlists' => 'View AWeber List Mananagement Page',
     'api.tools.awebermapping.unmapped' => 'Retrieve Unmapped AWeber Deploys',
-    'api.tools.awebermapping.convertreport' => 'Map AWeber Deploy and Convert Report'
+    'api.tools.awebermapping.convertreport' => 'Map AWeber Deploy and Convert Report',
+    'api.tools.aweberlists.getLists' => 'Retrieve AWeber Lists by Account',
+    'api.tools.aweberlists.update' => 'Update AWeber List Status'
 ];

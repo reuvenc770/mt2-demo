@@ -1,4 +1,4 @@
-@extends( 'bootstrap.layout.default' )
+@extends( 'layout.default' )
 
 
 @section( 'title' , 'AWeber List Management' )
@@ -33,5 +33,5 @@
 @stop
 
 <?php Assets::add(
-        ['resources/assets/js/bootstrap/aweber/AWeberController.js',
-                'resources/assets/js/bootstrap/aweber/AWeberService.js'],'js','pageLevel') ?>
+        ['resources/assets/js/aweber/AWeberController.js',
+                'resources/assets/js/aweber/AWeberService.js'],'js','pageLevel') ?>
