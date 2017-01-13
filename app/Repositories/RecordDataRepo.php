@@ -24,19 +24,6 @@ class RecordDataRepo implements IAwsRepo {
         $this->model = $model;
     }
 
-    public function insert($row) {
-        if ($this->batchDataCount >= self::INSERT_THRESHOLD) {
-
-            $this->insertStored();
-            $this->batchData = [$this->transformRowToString($row)];
-            $this->batchDataCount = 1;
-        }
-        else {
-            $this->batchData[] = $this->transformRowToString($row);
-            $this->batchDataCount++;
-        }
-    }
-
     public function getRecordDataFromEid($eid){
         return $this->model->find($eid);
     }
