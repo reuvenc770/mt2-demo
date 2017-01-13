@@ -15,7 +15,7 @@ class UpdateAWeberLists extends Command
      * @var string
      */
     use DispatchesJobs;
-    protected $signature = 'updateAWeberLists';
+    protected $signature = 'aweber:updateAWeberLists';
     protected $espRepo;
 
     /**
