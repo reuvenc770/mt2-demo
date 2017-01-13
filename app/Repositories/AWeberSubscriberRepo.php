@@ -24,7 +24,8 @@ class AWeberSubscriberRepo
 
     public function massUpsert($data)
     {
-        DB::statement("
+        if(count($data) > 0) {
+            DB::statement("
                     INSERT INTO a_weber_subscribers
                         ( email_address , internal_id )    
                     VALUES
@@ -32,7 +33,9 @@ class AWeberSubscriberRepo
                     ON DUPLICATE KEY UPDATE
                         email_address = email_address ,
                         internal_id = internal_id"
-        );
+            );
+        }
+        return false;
     }
 
     public function getByInternalId($id){
