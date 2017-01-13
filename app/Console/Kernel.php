@@ -85,6 +85,7 @@ class Kernel extends ConsoleKernel
         Commands\UpdateFeedCounts::class,
         Commands\S3RedshiftExport::class,
         Commands\FindMissingStatsForAWeber::class,
+        Commands\UpdateAWeberLists::class,
     ];
 
     /**

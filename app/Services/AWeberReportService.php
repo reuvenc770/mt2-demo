@@ -6,7 +6,9 @@ use App\Exceptions\JobException;
 use App\Facades\AWeberEmailAction;
 use App\Facades\DeployActionEntry;
 use App\Jobs\RetrieveDeliverableReports;
+use App\Models\AWeberList;
 use App\Models\AWeberReport;
+use app\Repositories\AWeberListRepo;
 use App\Repositories\ReportRepo;
 use App\Services\API\AWeberApi;
 use App\Services\Interfaces\IDataService;
@@ -27,6 +29,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
     use DispatchesJobs;
 
     const DELIVERABLE_LOOKBACK = 2;
+    protected $listService;
 
     /**
      * AWeberReportService constructor.
@@ -37,6 +40,8 @@ class AWeberReportService extends AbstractReportService implements IDataService
     public function __construct(ReportRepo $reportRepo, AWeberApi $api, EmailRecordService $emailRecord)
     {
         parent::__construct($reportRepo, $api, $emailRecord);
+        //tightly coupled but OK since it will never really be replaced or used outside of context
+        $this->listService = new AWeberListService(new AWeberListRepo(new AWeberList()));
     }
 
     /**
@@ -48,14 +53,23 @@ class AWeberReportService extends AbstractReportService implements IDataService
     {
         $date = null; //unfortunately date does not matter here.
         $campaignData = array();
-        $campaigns = $this->api->getCampaigns(20);
+        $activeLists = $this->listService->getActiveLists();
+        $campaigns = $this->api->getCampaigns($activeLists);
+        
         foreach ($campaigns as $campaign) {
+            //using -1 because we need a way to know when a report has not been picked up yet for click/unique pull
             $clickEmail = -1;
             $openEmail = -1;
             $row = array_merge($campaign, ["unique_clicks" => $clickEmail, "unique_opens" => $openEmail]);
             $campaignData[] = $row;
         }
+
         return $campaignData;
+    }
+
+    
+    public function getMailingLists(){
+        return $this->api->makeApiRequest("lists", array("ws.size" => 100));
     }
 
     /**
