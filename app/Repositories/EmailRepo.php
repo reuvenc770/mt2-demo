@@ -7,11 +7,12 @@ use App\Models\Email;
 use Illuminate\Database\Query\Builder;
 use DB;
 use App\Repositories\RepoInterfaces\Mt2Export;
+use App\Repositories\RepoInterfaces\IAwsRepo;
 
 /**
  *
  */
-class EmailRepo implements Mt2Export {
+class EmailRepo implements Mt2Export, IAwsRepo {
 
     private $emailModel;
     private $batchEmails = [];
@@ -424,5 +425,19 @@ class EmailRepo implements Mt2Export {
                     ->leftJoin("record_data as rd", 'rd.email_id', '=', 'emails.id')
                     ->leftJoin("$supp.suppression_global_orange as sgo", "emails.email_address", '=', 'sgo.email_address')
                     ->whereRaw("emails.id > $startId");
+    }
+
+    public function extractForS3Upload($startPoint) {
+        return $this->emailModel->whereRaw("id > $startPoint");
+    }
+
+    public function mapForS3Upload($row) {
+        return [
+            'id' => $row->id,
+            'email_address' => $row->email_address,
+            'domain_id' => $row->domain_id,
+            'lower_case_md5' => $row->lower_case_md5,
+            'upper_case_md5' => $row->upper_case_md5
+        ];
     }
 }

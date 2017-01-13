@@ -15,13 +15,14 @@ use Log;
 class ScheduledFilterService
 {
     private $scheduleRepo;
-    protected $fields;
-    public $boolValue;
+    protected $setFields;
+    protected $expireFields;
+
     public function __construct(AttributionScheduleRepo $attributionScheduleRepo, $filterName)
     {
         $this->scheduleRepo = $attributionScheduleRepo;
-        $this->fields = config( 'scheduledfilters.' . $filterName . '.column' );
-        $this->boolValue = config( 'scheduledfilters.' . $filterName . '.value' );
+        $this->setFields = config('scheduledfilters' . $filterName . '.set');
+        $this->expireFields = config('scheduledfilters' . $filterName . '.expire');
     }
 
     public function getRecordsByDate($date){
@@ -69,16 +70,16 @@ class ScheduledFilterService
 
     }
 
-    public function getFields() {
-        return array_keys($this->fields);
+    public function getSetFields() {
+        return array_keys($this->setFields);
     }
 
-    public function returnFullFields(){
-        return $this->fields;
+    public function returnFieldsForExpiration(){
+        return $this->expireFields;
     }
 
-    public function getDefaultFieldValue($field) {
-        return $this->fields[$field];
+    public function getSetFieldValue($field) {
+        return $this->setFields[$field];
     }
 
     public function deleteSchedules($emails){

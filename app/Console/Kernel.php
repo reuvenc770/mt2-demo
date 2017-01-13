@@ -24,6 +24,7 @@ class Kernel extends ConsoleKernel
     const ATTRIBUTION_REPORT_UPDATE_TIME = '17:00';
     const FEED_FILE_PROCESS_TIME = '22:00';
     const MT1_SYNC_TIME = '23:00';
+    const REDSHIFT_UPLOAD_TIME = '09:00';
 
     /**
      * The Artisan commands provided by your application.
@@ -82,8 +83,12 @@ class Kernel extends ConsoleKernel
         Commands\SuppressFeed::class,
         Commands\PassToMt1::class,
         Commands\UpdateFeedCounts::class,
+        Commands\S3RedshiftExport::class,
         Commands\FindMissingStatsForAWeber::class,
         Commands\UpdateMissingMaroCampaigns::class,
+        Commands\UpdateAWeberLists::class,
+        Commands\GrabAWeberSubscribers::class,
+        Commands\ProcessAWeberActions::class,
     ];
 
     /**
@@ -131,6 +136,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:downloadApi AWeber 5')->cron("0 0,6,12,18 * * *")->sendOutputTo($filePath);
         #$schedule->command('reports:downloadApi EmailDirect 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Maro 5')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:updateMissingMaroCampaigns')->daily()->sendOutputTo($filePath);
         //$schedule->command('reports:downloadApi Ymlp 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Publicators 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Bronto 5')->hourly()->sendOutputTo($filePath);
@@ -212,7 +218,6 @@ class Kernel extends ConsoleKernel
          */
          
         // Attribution jobs disabled temporarily until launch
-        #$schedule->command('runFilter activity')->dailyAt(self::EXPIRATION_RUNS);
         #$schedule->command('runFilter expiration')->dailyAt(self::EXPIRATION_RUNS);
         #$schedule->command('attribution:commit daily')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
         $schedule->command( 'attribution:conversion -P realtime' )->dailyAt( self::ATTRIBUTION_REPORT_EARLY_UPDATE_TIME ); #early conversion grab & report updating
@@ -226,6 +231,7 @@ class Kernel extends ConsoleKernel
          *  List profile jobs
          */
 
+        $schedule->command('listprofile:dataEtl')->dailyAt(self::REDSHIFT_UPLOAD_TIME);
         $schedule->command('listprofile:aggregateActions')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('listprofile:getRecordAgentData')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('listprofile:baseTables')->dailyAt(self::EXPIRATION_RUNS);

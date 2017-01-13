@@ -41,12 +41,9 @@ class ListProfileQueryBuilder {
 
 
     public function __construct() {
-        $this->attributionSchema = config('database.connections.attribution.database');
-        $this->dataSchema = config('database.connections.mysql.database');
-        $this->suppressionSchema = config('database.connections.suppression.database');
 
         $this->columnMapping = [
-            'email_id' => DB::raw('e.id as email_id'),
+            'email_id' => DB::connection('redshift')->raw('e.id as email_id'),
             'first_name' => 'rd.first_name',
             'last_name' => 'rd.last_name',
             'gender' => 'rd.gender',
@@ -56,16 +53,16 @@ class ListProfileQueryBuilder {
             'state' => 'rd.state',
             'zip' => 'rd.zip',
             'dob' => 'rd.dob',
-            'age' => DB::raw("ROUND(DATEDIFF(CURDATE(), rd.dob) / 365) as age"),
+            'age' => DB::connection('redshift')->raw("(current_date - rd.dob) / 365 as age"),
             'phone' => 'rd.phone',
-            'ip' => DB::raw('inet_ntoa(rd.ip) as ip'),
+            'ip' => 'rd.ip',
             'subscribe_date' => 'rd.subscribe_date',
             'feed_id' => 'efa.feed_id',
-            'domain_group_name' => DB::raw('dg.name as domain_group_name'), 
+            'domain_group_name' => DB::connection('redshift')->raw('dg.name as domain_group_name'), 
             'country' => 'dg.country',
-            'feed_name' => DB::raw('f.short_name as feed_name'), 
+            'feed_name' => DB::connection('redshift')->raw('f.short_name as feed_name'), 
             'source_url' => 'rd.source_url',
-            'client_name' => DB::raw('c.name as client_name'),
+            'client_name' => DB::connection('redshift')->raw('c.name as client_name'),
             'email_address' => 'e.email_address', 
             'lower_case_md5' => 'e.lower_case_md5', 
             'upper_case_md5' => 'e.upper_case_md5',
@@ -193,9 +190,9 @@ class ListProfileQueryBuilder {
             $this->dataTable = 'record_data';
         }
 
-        $query = DB::table("{$this->dataSchema}.{$this->dataTable} as rd")
+        $query = DB::connection('redshift')->table("{$this->dataTable} as rd")
                     ->whereRaw('is_deliverable = 1')
-                    ->whereRaw("subscribe_date BETWEEN CURDATE() - INTERVAL $end DAY AND CURDATE() - INTERVAL $start DAY");
+                    ->whereRaw("subscribe_date BETWEEN current_date - INTERVAL '$end DAY' AND current_date - INTERVAL '$start DAY'");
 
         return $query;
     }
@@ -212,16 +209,16 @@ class ListProfileQueryBuilder {
         $end = $queryData['end'];
         $start = $queryData['start'];
 
-        $query = DB::table("list_profile.list_profile_flat_table")->select('email_id')
+        $query = DB::connection('redshift')->table("list_profile_flat_table")->select('email_id')
                     ->groupBy('email_id')
-                    ->whereRaw("date BETWEEN CURDATE() - INTERVAL $end DAY AND CURDATE() - INTERVAL $start DAY");
+                    ->whereRaw("date BETWEEN current_date - INTERVAL '$end DAY' AND current_date - INTERVAL '$start DAY'");
 
         $query = sizeof($this->emailDomainIds) > 0 ? $query->whereRaw('email_domain_id IN (' . implode(',', $this->emailDomainIds) . ')') : $query;
         $query = sizeof($this->offerIds) > 0 ? $query->whereRaw('offer_id IN (' . implode(',', $this->offerIds) . ')') : $query; 
 
         $query = $query->havingRaw("SUM($type) >= $count")->toSql();
 
-        $query = DB::table(DB::raw('(' . $query . ') as flat'));
+        $query = DB::connection('redshift')->table(DB::connection('redshift')->raw('(' . $query . ') as flat'));
 
         $this->mainTableAlias = 'flat';
 
@@ -234,17 +231,17 @@ class ListProfileQueryBuilder {
         $listIds = $this->getFeedSuppressionListIds($listProfile);
 
         if ($listProfile->use_global_suppression || count($listIds) > 0) {
-            $query = $query->join("{$this->dataSchema}.emails as e", "{$this->mainTableAlias}.email_id", '=', 'e.id');
+            $query = $query->join("emails as e", "{$this->mainTableAlias}.email_id", '=', 'e.id');
 
             if ($listProfile->use_global_suppression) {
-                $query = $query->leftJoin("{$this->suppressionSchema}.suppression_global_orange as s", 'e.email_address', '=', 's.email_address')->where('s.email_address', null);
+                $query = $query->leftJoin("suppression_global_orange as s", 'e.email_address', '=', 's.email_address')->where('s.email_address', null);
             }
 
             if (count($listIds) > 0) {
                 $listIds = '(' . implode(',', $listIds) . ')';
-                $query = $query->leftJoin("{$this->suppressionSchema}.suppression_list_suppressions as sls", function($join) use ($listIds) {
+                $query = $query->leftJoin("suppression_list_suppressions as sls", function($join) use ($listIds) {
                     $join->on("e.email_address", '=', 'sls.email_address');
-                    $join->on('sls.suppression_list_id', 'in', DB::raw($listIds));
+                    $join->on('sls.suppression_list_id', 'in', DB::connection('redshift')->raw($listIds));
                 })  
                 ->whereNull('sls.email_address');
             }
@@ -259,13 +256,13 @@ class ListProfileQueryBuilder {
             || $this->feedColumns 
             || $this->clientColumns) {
 
-            $query = $query->join("{$this->attributionSchema}.email_feed_assignments as efa", "{$this->mainTableAlias}.email_id", '=', 'efa.email_id');
+            $query = $query->join("email_feed_assignments as efa", "{$this->mainTableAlias}.email_id", '=', 'efa.email_id');
 
             if ($this->feedColumns || $this->clientColumns) {
-                $query = $query->join("{$this->dataSchema}.feeds as f", 'efa.feed_id', '=', 'f.id');
+                $query = $query->join("feeds as f", 'efa.feed_id', '=', 'f.id');
 
                 if ($this->clientColumns) {
-                    $query = $query->join("{$this->dataSchema}.clients as c", 'f.client_id', '=', 'c.id');
+                    $query = $query->join("clients as c", 'f.client_id', '=', 'c.id');
                 }
             }
 
@@ -275,7 +272,7 @@ class ListProfileQueryBuilder {
             if (sizeof($feedsWithoutIgnores) > 0 && sizeof($this->feedsWithSuppression) > 0) {
                 // Get everything from the selected feeds, less those deliberately ignored
 
-                $query = $query->join("{$this->dataSchema}.email_feed_status as efs", function($join) {
+                $query = $query->join("email_feed_status as efs", function($join) {
                     $join->on('efa.feed_id', '=', 'efs.feed_id');
                     $join->on("{$this->mainTableAlias}.email_id", '=', 'efs.email_id');
                 })->where(function ($q) use ($feedsWithIgnores) {
@@ -290,7 +287,7 @@ class ListProfileQueryBuilder {
             }
             elseif (sizeof($this->feedsWithSuppression) > 0) {
                 // Get data from all feeds, except those emails ignored for these
-                $query = $query->join("{$this->dataSchema}.email_feed_status as efs", function($join) {
+                $query = $query->join("email_feed_status as efs", function($join) {
                     $join->on('efa.feed_id', '=', 'efs.feed_id');
                     $join->on("{$this->mainTableAlias}.email_id", '=', 'efs.email_id');
                 })->whereNotIn('efs.feed_id', $feedsWithIgnores)
@@ -321,7 +318,7 @@ class ListProfileQueryBuilder {
             
             if ('rd' !== $this->mainTableAlias) {
                 // make sure we don't join on itself
-                $query = $query->join("{$this->dataSchema}.{$this->dataTable} as rd", "{$this->mainTableAlias}.email_id", '=', 'rd.email_id');
+                $query = $query->join("{$this->dataTable} as rd", "{$this->mainTableAlias}.email_id", '=', 'rd.email_id');
             }
             
             $query = $this->buildAgeAttributes($query, $this->ageAttributes);
@@ -338,7 +335,7 @@ class ListProfileQueryBuilder {
 
             if (0 === $listProfile->use_global_suppression) {
                 // Don't want to join on this table twice.
-                $query = $query->join("{$this->dataSchema}.emails as e", "{$this->mainTableAlias}.email_id", '=', 'e.id');
+                $query = $query->join("emails as e", "{$this->mainTableAlias}.email_id", '=', 'e.id');
             }
 
             if ('rd' === $this->mainTableAlias && count($this->emailDomainIds) > 0) {
@@ -348,8 +345,8 @@ class ListProfileQueryBuilder {
             }
             
             if ($this->domainGroupColumns) {
-                $query = $query->join("{$this->dataSchema}.email_domains as ed", 'e.email_domain_id', '=', 'ed.id')
-                               ->join("{$this->dataSchema}.domain_groups as dg", 'ed.domain_group_id', '=', 'dg.id');
+                $query = $query->join("email_domains as ed", 'e.email_domain_id', '=', 'ed.id')
+                               ->join("domain_groups as dg", 'ed.domain_group_id', '=', 'dg.id');
             }
         }
 

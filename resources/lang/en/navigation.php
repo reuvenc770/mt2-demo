@@ -52,5 +52,6 @@ return[
     'tools.sourceurlsearch' => 'Source URL Search' ,
     'report.users' => 'Report Users' ,
     'tools.awebermapping' => 'Map AWeber Campaigns',
-    'tools' => 'Miscellaneous Tools'
+    'tools' => 'Miscellaneous Tools',
+    'tools.aweberlists' => "AWeber List Management",
 ];

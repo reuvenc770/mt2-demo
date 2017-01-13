@@ -53,4 +53,8 @@ class ReportRepo
         return $this->report->find($id)->update([$columnName => $value]);
     }
 
+    public function getRowByExternalId($id){
+        return $this->report->where('internal_id',$id)->get()[0];
+    }
+
 }

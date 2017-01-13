@@ -22,6 +22,7 @@ class AWeberApi extends EspBaseAPI
     private $sharedSecret;
     private $api;
     private $baseUrl;
+    private $id; 
     private $account;
     const COUNTER = 0;
     const ESP_NAME = "AWeber";
@@ -33,6 +34,7 @@ class AWeberApi extends EspBaseAPI
         $key = $creds['accessToken'];
         $secret = $creds['accessSecret'];
         $time = 60 * 4;
+        $this->id = $espAccountId;
         $weber = new AWeberLibraryApi($key, $secret);
         $this->accessToken = $creds['consumerToken'];
         $this->sharedSecret = $creds['consumerSecret'];
@@ -43,11 +45,6 @@ class AWeberApi extends EspBaseAPI
                 function() {
                     return $this->api->getAccount($this->accessToken, $this->sharedSecret);
                 });
-            /* we were told lies
-            $listId = Cache::remember('aweber_list_id_'.$espAccountId, $time, function() use ($accountId) {
-                return $this->api->adapter->request('GET', "/accounts/{$accountId}/lists/", array())['entries'][0]['id'];
-            });
-            **/
             $this->baseUrl = "/accounts/{$this->account->id}/";
         } catch (AWeberAPIException $exc) {
             Log::error("AWeber  Failed {$exc->type} due to {$exc->message} help:: {$exc->documentation_url}");
@@ -59,21 +56,20 @@ class AWeberApi extends EspBaseAPI
     {
         //not used
     }
-
+    
+    
 
     /**
      * @param int $limit
      * @return AWeberCollection|AWeberEntry
      */
-    public function getCampaigns($limit = 20)
+    public function getCampaigns($lists, $limit = 20)
     {
         $campaignData = [];
-        $lists = $this->makeApiRequest("lists", array("ws.size" => 100));
         $numberToPull = $limit; //lets get the last X campaigns sent
         foreach($lists as $list){
             $i = 0;
-            $url = "/lists/{$list->id}/campaigns";
-            $campaigns = $this->makeApiRequest($url, array("ws.size" => 10));
+            $campaigns = $this->makeApiRequest($list->campaigns_collection_link, array("ws.size" => 10),true);
             foreach($campaigns as $campaign){
 
                 try{
@@ -109,10 +105,8 @@ class AWeberApi extends EspBaseAPI
     }
 
     public function getAllUnsubs(){
-
             $params = array('status' => 'unsubscribed');
             return $found_subscribers = $this->account->findSubscribers($params);
-
     }
 
     /**

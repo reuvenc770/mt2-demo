@@ -39,85 +39,22 @@ class AttributionRecordTruthRepo {
     public function getFullTransients($remainder) {
         $attrDb = config('database.connections.slave_attribution.database');
 
-        $union = DB::connection('slave_attribution')->table('attribution_record_truths AS art')
-                      ->select('art.email_id', DB::raw('IFNULL(efa.feed_id, 0) as feed_id'), 'efa.capture_date', 'art.has_action', 'art.action_expired', DB::raw('IFNULL(al.level, 0) as level'))
-                      ->leftJoin($attrDb . '.email_feed_assignments as efa', 'art.email_id', '=', 'efa.email_id')
-                      ->leftJoin($attrDb . '.attribution_levels as al', 'efa.feed_id', '=', 'al.feed_id')
-                      ->where('recent_import', 0)
-                      ->where('has_action', 1)
-                      ->where('action_expired', 1)
-                      ->where('additional_imports', 1)
-                      ->whereRaw("art.email_id % 5 = $remainder");
-
         return DB::connection('slave_attribution')->table('attribution_record_truths AS art')
                     ->select('art.email_id', DB::raw('IFNULL(efa.feed_id, 0) as feed_id'), 'efa.capture_date', 'art.has_action', 'art.action_expired', DB::raw('IFNULL(al.level, 0) as level'))
                     ->leftJoin($attrDb . '.email_feed_assignments as efa', 'art.email_id', '=', 'efa.email_id')
                     ->leftJoin($attrDb . '.attribution_levels as al', 'efa.feed_id', '=', 'al.feed_id')
                     ->where('recent_import', 0)
                     ->where('has_action', 0)
-                    ->whereRaw('action_expired IN (0,1)')
+                    ->whereRaw('action_expired = 0')
                     ->where('additional_imports', 1)
                     ->whereRaw("art.email_id % 5 = $remainder")
-                    ->unionAll($union)
                     ->orderBy('email_id');
-
-        /*
-        return DB::connection('slave_attribution')->select("
-            SELECT
-                art.email_id,
-                IFNULL(efa.feed_id, 0) AS feed_id, 
-                efa.capture_date,
-                art.has_action,
-                art.action_expired,
-                IFNULL(al.level, 0) AS level
-
-            FROM
-                $attrDb.attribution_record_truths as art
-                left join $attrDb.email_feed_assignments as efa ON art.email_id = efa.email_id
-                left join $attrDb.attribution_levels as al on efa.feed_id = al.feed_id
-            WHERE
-                recent_import = 0
-                AND
-                has_action = 1
-                AND
-                action_expired = 1
-                AND
-                additional_imports = 1
-                AND
-                art.email_id % 5 = $remainder
-                
-            UNION ALL
-                
-            SELECT
-                art.email_id,
-                IFNULL(efa.feed_id, 0) AS feed_id, 
-                efa.capture_date,
-                art.has_action,
-                art.action_expired,
-                IFNULL(al.level, 0) AS level
-
-            FROM
-                $attrDb.attribution_record_truths as art
-                left join $attrDb.email_feed_assignments as efa ON art.email_id = efa.email_id
-                left join $attrDb.attribution_levels as al on efa.feed_id = al.feed_id
-            WHERE
-                recent_import = 0
-                AND
-                has_action = 0
-                AND
-                action_expired IN (0,1)
-                AND
-                additional_imports = 1
-                AND
-                art.email_id % 5 = $remainder
-        ");
-        */
     }
 
 
     /**
      *  getOptimizedTransients($startDateTime):
-     *      Pulls a tiny subset of the above. Processes all records just coming out of 10-day and 90-day windows 
+     *      Pulls a tiny subset of the above. Processes all records just coming out of 15-day window without actions 
      *      and any that have had any imports since the last time attribution ran. 
      *      Should be fairly quick as the query itself is slower but likely only needs to be run once.
      */
@@ -132,7 +69,7 @@ class AttributionRecordTruthRepo {
         // previous imports are unlikely to change things (they've failed before), but the new one might
         // We can set the starting "capture_date" to the startDateTime because we only want instances after that time
         // (and we start our search for candidates starting on the capture date)
-        $union1 = DB::connection('slave_attribution')->table('attribution_record_truths AS art')
+        $union = DB::connection('slave_attribution')->table('attribution_record_truths AS art')
                       ->select('art.email_id', 'efa.feed_id', DB::raw("'$startDateTime' as capture_date"), 'art.has_action', 'art.action_expired', 'al.level')
                       ->join($attrDb . '.email_feed_assignments as efa', 'art.email_id', '=', 'efa.email_id')
                       ->join("$dataDb.email_feed_instances as efi", 'art.email_id', '=', 'efi.email_id')
@@ -141,44 +78,11 @@ class AttributionRecordTruthRepo {
                       ->where('recent_import', 0)
                       ->where('has_action', 0)
                       ->where('additional_imports', 1)
-                      ->whereRaw('action_expired IN (0,1)')
+                      ->whereRaw('action_expired = 0')
                       ->where('aes.trigger_date', '<', $startDateTime)
                       ->whereRaw("art.email_id % 5 = $remainder")
                       ->groupBy('efa.email_id', 'efa.feed_id', 'efa.capture_date', 'art.has_action', 'art.action_expired')
                       ->havingRaw("MAX(efi.capture_date) >= '$startDateTime'");
-
-        // These are records that are not protected by the 10-day recent shield, DID have an action but have lost the 90-day shield, 
-        // and have subsequent imports, whose action trigger date passed before the prior run, and have a recent import in the past day.
-        // Previous imports won't change things (they've failed before), but the new one(s) might
-        // See above for reasoning about using $startDateTime as capture_date
-        $union2 = DB::connection('slave_attribution')->table('attribution_record_truths AS art')
-                      ->select('art.email_id', 'efa.feed_id', DB::raw("'{$startDateTime}' as capture_date"), 'art.has_action', 'art.action_expired', 'al.level')
-                      ->join("$attrDb.email_feed_assignments as efa", 'art.email_id', '=', 'efa.email_id')
-                      ->join("$dataDb.email_feed_instances as efi", 'art.email_id', '=', 'efi.email_id')
-                      ->join($attrDb . '.attribution_levels as al', 'efa.feed_id', '=', 'al.feed_id')
-                      ->join("$attrDb.attribution_activity_schedules as aas", 'art.email_id', '=', 'aas.email_id')
-                      ->where('recent_import', 0)
-                      ->where('has_action', 1)
-                      ->where('action_expired', 1)
-                      ->where('additional_imports', 1)
-                      ->where('aas.trigger_date', '<', $startDateTime)
-                      ->whereRaw("art.email_id % 5 = $remainder")
-                      ->groupBy('efa.email_id', 'efa.feed_id', 'efa.capture_date', 'art.has_action', 'art.action_expired')
-                      ->havingRaw("MAX(efi.capture_date) >= '$startDateTime'");
-
-        // These are records that have just lost the 90-day shield today and have subsequent imports
-        // we need to investigate whether records received during the shielded period can now grab this email
-        $union3 = DB::connection('slave_attribution')->table('attribution_record_truths AS art')
-                      ->select('art.email_id', 'efa.feed_id', 'efa.capture_date', 'art.has_action', 'art.action_expired', 'al.level')
-                      ->join("$attrDb.email_feed_assignments as efa", 'art.email_id', '=', 'efa.email_id')
-                      ->join("$attrDb.attribution_activity_schedules as aas", 'art.email_id', '=', 'aas.email_id')
-                      ->join($attrDb . '.attribution_levels as al', 'efa.feed_id', '=', 'al.feed_id')
-                      ->where('recent_import', 0)
-                      ->where('has_action', 1)
-                      ->where('action_expired', 1)
-                      ->where('additional_imports', 1)
-                      ->whereRaw("art.email_id % 5 = $remainder")
-                      ->whereBetween('aas.trigger_date', [$startDateTime, DB::raw("CURDATE() + INTERVAL 1 HOUR")]);
 
         // records that have just come out of the 10-day window, have no actions, and have subsequent imports
         // can subsequent imports during the shielded time now get this email?
@@ -193,9 +97,7 @@ class AttributionRecordTruthRepo {
                     ->whereBetween('aes.trigger_date', [$startDateTime, DB::raw("CURDATE() + INTERVAL 1 HOUR")])
                     ->whereRaw('action_expired IN (0,1)')
                     ->whereRaw("art.email_id % 5 = $remainder")
-                    ->unionAll($union1)
-                    ->unionAll($union2)
-                    ->unionAll($union3)
+                    ->unionAll($union)
                     ->orderBy('email_id');
     }
 

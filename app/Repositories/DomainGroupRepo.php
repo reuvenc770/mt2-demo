@@ -8,10 +8,11 @@
 
 namespace App\Repositories;
 
-
 use App\Models\DomainGroup;
 use DB;
-class DomainGroupRepo
+use App\Repositories\RepoInterfaces\IAwsRepo;
+
+class DomainGroupRepo implements IAwsRepo
 {
     protected $domainGroup;
 
@@ -54,5 +55,19 @@ class DomainGroupRepo
 
     public function getAllActiveNames () {
         return $this->domainGroup->where( 'status' , 'Active' )->pluck( 'name' )->toArray();
+    }
+
+    public function extractForS3Upload($stopPoint) {
+        return $this->domainGroup->where('id', '>', $stopPoint);
+    }
+
+    public function mapForS3Upload($row) {
+        return [
+            'id' => $row->id,
+            'name' => $row->name,
+            'priority' => $row->priority,
+            'status' => $row->status,
+            'country' => $row->country,
+        ];
     }
 }
