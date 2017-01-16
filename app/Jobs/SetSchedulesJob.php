@@ -10,6 +10,7 @@ use App\Facades\JobTracking;
 use App\Factories\ServiceFactory;
 use App\Services\AttributionRecordTruthService;
 use App\Services\EmailFeedAssignmentService;
+use App\Services\EmailFeedActionService;
 use App\Jobs\Traits\PreventJobOverlapping;
 
 class SetSchedulesJob extends Job implements ShouldQueue {
@@ -28,7 +29,9 @@ class SetSchedulesJob extends Job implements ShouldQueue {
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
-    public function handle(AttributionRecordTruthService $truthService, EmailFeedAssignmentService $assignmentService) {
+    public function handle(AttributionRecordTruthService $truthService, 
+        EmailFeedAssignmentService $assignmentService,
+        EmailFeedActionService $emailFeedActionService) {
         if ($this->jobCanRun($this->jobName)) {
             try {
                 $this->createLock($this->jobName);
@@ -44,7 +47,7 @@ class SetSchedulesJob extends Job implements ShouldQueue {
                         break;
 
                     case ("activity"):
-                        $this->handleNewActions($scheduledFilterService, $truthService, $this->emails);
+                        $this->handleNewActions($scheduledFilterService, $truthService, $emailFeedActionService, $this->emails);
                         break;
 
                     default:
@@ -80,9 +83,11 @@ class SetSchedulesJob extends Job implements ShouldQueue {
     }
 
 
-    private function handleNewActions($scheduledFilterService, $truthService, $emails) {
+    private function handleNewActions($scheduledFilterService, $truthService, $emailFeedActionService, $emails) {
         foreach ($scheduledFilterService->getSetFields() as $field) {
             $truthService->bulkToggleFieldRecord($emails, $field, $scheduledFilterService->getSetFieldValue($field));
         }
+
+        $emailFeedActionService->bulkUpdate($emails);
     }
 }

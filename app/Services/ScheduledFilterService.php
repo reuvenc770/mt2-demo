@@ -50,10 +50,10 @@ class ScheduledFilterService
             $date = isset($email['datetime']) ?
                 Carbon::parse($email['datetime'])->addDays($days)->toDateString() : Carbon::today()->addDays($days)->toDateString();
 
-
             if(Carbon::parse($email['datetime'])->toDateString() > Carbon::today()->toDateString() ){
                 $date = Carbon::today()->addDays($days)->toDateString();
             }
+            
             $emailId = isset($email['email_id']) ? $email['email_id'] : $email;
             $preppedData[] = "(".join(",",[$emailId,"'".$date."'","NOW()","NOW()"]).")";
 

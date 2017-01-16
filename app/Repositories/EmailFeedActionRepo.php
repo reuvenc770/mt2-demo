@@ -39,7 +39,6 @@ class EmailFeedActionRepo {
     }
 
     public function getActionStatus($emailId, $feedId) {
-
         // either returns Model with properties or null
         return $this->model
                     ->where('email_id', $emailId)
@@ -48,7 +47,13 @@ class EmailFeedActionRepo {
                     ->first();
     }
 
-    public function updateAttributedFeedWithAction($emailId, $deployId, $actionDateTime, $actionType) {
-        
+    public function getCurrentAttributedStatus($emailId) {
+        $attrDb = config('database.attribution.database');
+
+        return $this->model
+                    ->join("$attrDb.email_feed_assignments as efa", "email_feed_action.email_id", '=', 'efa.email_id')
+                    ->where('email_id', $emailId)
+                    ->select('efa.feed_id', 'email_feed_action.status')
+                    ->first();
     }
 }
