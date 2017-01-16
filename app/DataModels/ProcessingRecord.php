@@ -151,4 +151,12 @@ class ProcessingRecord {
         ];
     }
 
+    public function mapToEmailFeedAction($status) {
+        return [
+            'email_id' => $this->emailId,
+            'feed_id' => $this->feedId,
+            'status' => $status
+        ];
+    }
+
 }

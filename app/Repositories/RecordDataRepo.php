@@ -13,10 +13,7 @@ class RecordDataRepo implements IAwsRepo {
     use Batchable;
 
     private $model;
-    private $batchData = [];
-    private $batchDataCount = 0;
     const INSERT_THRESHOLD = 10000;
-
     private $batchActionUpdateData = [];
     private $batchActionUpdateCount = 0;
 
