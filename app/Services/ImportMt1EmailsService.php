@@ -185,8 +185,8 @@ class ImportMt1EmailsService
                         }
                         else {
                             // An email is being re-imported, but its email id differs due to MT1 ... logic
-                            $this->historyRepo->insertIntoHistory($currentEmailId, $importingEmailId, $attributionTruths);
-                            $emailStatus = $this->getStatusForExistingEmail($currentEmailId, $feedId);
+                            $this->historyRepo->insertIntoHistory($currentEmailId, $importingEmailId);
+                            $emailStatus = $this->getStatusForExistingEmail($currentEmailId, $feedId, $attributionTruths);
 
                             // update emails table
                             $this->emailRepo->updateEmailId($currentEmailId, $importingEmailId);
