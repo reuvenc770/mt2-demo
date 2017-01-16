@@ -10,23 +10,26 @@ namespace App\Services;
 
 
 use App\Repositories\AWeberEmailActionsRepo;
+use App\Repositories\AWeberSubscriberRepo;
 
 class AWeberEmailActionsService
 {
 
     private $repo;
+    protected $subRepo;
     const MAX_RECORD_COUNT = 500;
     private $records = [];
     
-    public function __construct(AWeberEmailActionsRepo $repo)
+    public function __construct(AWeberEmailActionsRepo $repo, AWeberSubscriberRepo $subscriberRepo)
     {
         $this->repo = $repo;
+        $this->subRepo = $subscriberRepo;
     }
 
     public function queueDeliverable ( $recordType , $email , $espId , $deployId, $espInternalId , $date ) {
             $this->records []= [
                 'recordType' => $recordType ,
-                'email' => $email ,
+                'email' => $this->getEmailId($email) ,
                 'deployId' => $deployId,
                 'espId' => $espId ,
                 'espInternalId' => $espInternalId ,
@@ -52,4 +55,19 @@ class AWeberEmailActionsService
 
         return $count;
     }
+    
+    public function clearActionsByID($ids){
+        return $this->repo->massDelete($ids);
+    }
+
+    public function getEmailId($fullUrl){
+        return substr($fullUrl, strrpos($fullUrl, '/') + 1);
+    }
+    
+    public function getEmailAddressFromUrl($url){
+        $internalId = $this->getEmailId($url);
+      return $this->subRepo->getByInternalId($internalId);
+    }
+
+    
 }

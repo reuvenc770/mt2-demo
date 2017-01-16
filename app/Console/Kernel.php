@@ -25,6 +25,7 @@ class Kernel extends ConsoleKernel
     const FEED_FILE_PROCESS_TIME = '22:00';
     const MT1_SYNC_TIME = '23:00';
     const REDSHIFT_UPLOAD_TIME = '09:00';
+    const AWEBER_TIME = '19:00';
 
     /**
      * The Artisan commands provided by your application.
@@ -85,7 +86,10 @@ class Kernel extends ConsoleKernel
         Commands\UpdateFeedCounts::class,
         Commands\S3RedshiftExport::class,
         Commands\FindMissingStatsForAWeber::class,
+        Commands\UpdateMissingMaroCampaigns::class,
         Commands\UpdateAWeberLists::class,
+        Commands\GrabAWeberSubscribers::class,
+        Commands\ProcessAWeberActions::class,
     ];
 
     /**
@@ -130,14 +134,17 @@ class Kernel extends ConsoleKernel
         $filePath = storage_path('logs')."/downloadAPI.log";
         $schedule->command('reports:downloadApi BlueHornet 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Campaigner 5')->hourly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadApi AWeber 5')->cron("0 0,6,12,18 * * *")->sendOutputTo($filePath);
+        //$schedule->command('reports:downloadApi AWeber 5')->cron("0 0,6,12,18 * * *")->sendOutputTo($filePath);
         #$schedule->command('reports:downloadApi EmailDirect 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Maro 5')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:updateMissingMaroCampaigns')->daily()->sendOutputTo($filePath);
         //$schedule->command('reports:downloadApi Ymlp 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Publicators 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Bronto 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadTrackingData Cake 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('process:cfsStats')->cron('0 */4 * * *');
+        
+        
 
         /**
          * Campaign Data Monthly
@@ -150,6 +157,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:downloadApi Publicators 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Bronto 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadTrackingData Cake 31')->monthly()->sendOutputTo($filePath);
+        $schedule->command('aweber:processUniques 31')->monthly()->sendOutputTo($filePath);
 
         /**
          * Deliverable Data
@@ -163,6 +171,9 @@ class Kernel extends ConsoleKernel
         //$schedule->command( 'reports:downloadDeliverables Ymlp 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Publicators 5 Publicators' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Bronto 2' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+
+       // $schedule->command( 'reports:downloadDeliverables AWeber 5 AWeber' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+
         //$schedule->command( 'reports:downloadDeliverables Bronto:delivered 2' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:populateStats')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
         //$schedule->command( 'reports:populateAttrBaseRecords')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
@@ -268,6 +279,14 @@ class Kernel extends ConsoleKernel
         
         // Re-run first party actives against suppression
         #$schedule->command('feedRecords:feedRecords:reprocessFirstParty 1')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME);
+
+        
+        /**
+         * AWeber Jobs
+         */
+        //$schedule->command('aweber:processUniques 15')->cron("10 0,6,12,18 * * *")->sendOutputTo($filePath);
+        //$schedule->command('aweber:updateAWeberLists' )->dailyAt( self::AWEBER_TIME);
+        //$schedule->command('aweber:processAWeberActions')->cron("30 0,6,12,18 * * *")->sendOutputTo($filePath);
 
     }
 }

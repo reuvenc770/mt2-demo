@@ -63,12 +63,12 @@ class AWeberEmailActionsRepo
         }
         $validRecords = null;
     }
-
-    public function getEmailId($fullUrl){
-        return substr($fullUrl, strrpos($fullUrl, '/') + 1);
-    }
-
+    
     protected function getActionId ( $actionName ) {
         return ActionType::where( 'name' , $actionName )->first()->id;
+    }
+
+    public function massDelete($ids){
+        return $this->model->destroy($ids); // \m/_(>_<)_\m/
     }
 }

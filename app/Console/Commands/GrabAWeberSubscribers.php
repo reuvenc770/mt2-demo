@@ -2,38 +2,38 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\AWeberUpdateLists;
+use App\Jobs\AggregateAWeberSubscribers;
+use App\Models\AWeberList;
 use Illuminate\Console\Command;
-use App\Repositories\EspApiAccountRepo;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Queue\InteractsWithQueue;
 
-class UpdateAWeberLists extends Command
+class GrabAWeberSubscribers extends Command
 {
+    use DispatchesJobs;
+    use InteractsWithQueue;
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    use DispatchesJobs;
-    protected $signature = 'aweber:updateAWeberLists';
-    protected $espRepo;
+    protected $signature = 'grabAWeberSubscribers';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'look for new aweber lists for each account';
+    protected $description = 'Grab Subscriber Data from AWeber Data from All Active Lists';
 
     /**
      * Create a new command instance.
      *
      * @return void
      */
-    public function __construct(EspApiAccountRepo $espRepo)
+    public function __construct()
     {
         parent::__construct();
-        $this->espRepo = $espRepo;
     }
 
     /**
@@ -43,9 +43,9 @@ class UpdateAWeberLists extends Command
      */
     public function handle()
     {
-        $espAccounts = $this->espRepo->getAccountsByESPName("AWeber");
-        foreach($espAccounts as $espAccount){
-            $job = new AWeberUpdateLists($espAccount->id,str_random(16));
+       $lists = AWeberList::where("is_active",1)->get();
+        foreach($lists as $list) {
+            $job = (new AggregateAWeberSubscribers($list, str_random(16)))->onQueue("AWeber");
             $this->dispatch($job);
         }
     }

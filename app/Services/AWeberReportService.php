@@ -6,6 +6,7 @@ use App\Exceptions\JobException;
 use App\Facades\AWeberEmailAction;
 use App\Facades\DeployActionEntry;
 use App\Jobs\RetrieveDeliverableReports;
+use App\Jobs\UpdateSingleAWeberSubscriber;
 use App\Models\AWeberList;
 use App\Models\AWeberReport;
 use App\Repositories\AWeberListRepo;
@@ -13,6 +14,7 @@ use App\Repositories\ReportRepo;
 use App\Services\API\AWeberApi;
 use App\Services\Interfaces\IDataService;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Event;
 
 /**
@@ -27,6 +29,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
      * @param $accountNumber
      */
     use DispatchesJobs;
+    use InteractsWithQueue;
 
     const DELIVERABLE_LOOKBACK = 2;
     protected $listService;
@@ -55,7 +58,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
         $campaignData = array();
         $activeLists = $this->listService->getActiveLists($this->api->getEspAccountId());
         $campaigns = $this->api->getCampaigns($activeLists);
-        
+
         foreach ($campaigns as $campaign) {
             //using -1 because we need a way to know when a report has not been picked up yet for click/unique pull
             $clickEmail = -1;
@@ -67,8 +70,9 @@ class AWeberReportService extends AbstractReportService implements IDataService
         return $campaignData;
     }
 
-    
-    public function getMailingLists(){
+
+    public function getMailingLists()
+    {
         return $this->api->makeApiRequest("lists", array("ws.size" => 100));
     }
 
@@ -79,10 +83,10 @@ class AWeberReportService extends AbstractReportService implements IDataService
     {
         $convertedDataArray = [];
         $espAccountId = $this->api->getEspAccountId();
-        foreach($data as $row) {
+        foreach ($data as $row) {
             $convertedReport = $this->mapToRawReport($row);
             $this->insertStats($espAccountId, $convertedReport);
-            $convertedDataArray[]= $convertedReport;
+            $convertedDataArray[] = $convertedReport;
         }
         //Event::fire(new RawReportDataWasInserted($this, $convertedDataArray));
     }
@@ -92,7 +96,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
         return array(
             "internal_id" => $data['internal_id'],
             "esp_account_id" => $this->api->getEspAccountId(),
-            "info_url"  => $data['info_url'],
+            "info_url" => $data['info_url'],
             "subject" => $data['subject'],
             "datetime" => $data['sent_at'],
             "total_sent" => $data['total_sent'],
@@ -119,17 +123,18 @@ class AWeberReportService extends AbstractReportService implements IDataService
             'subject' => $data['subject'],
             'from' => "",
             'from_email' => "",
-            'delivered' => $data[ 'total_sent' ],
+            'delivered' => $data['total_sent'],
             'bounced' => "",
-            'e_opens' => $data[ 'total_opens' ],
+            'e_opens' => $data['total_opens'],
             'e_opens_unique' => "",
-            'e_clicks' => $data[ 'total_clicks' ],
+            'e_clicks' => $data['total_clicks'],
             'e_clicks_unique' => "",
         );
     }
 
-    public function getUniqueStatForCampaignUrl($url, $type){
-        switch ($type){
+    public function getUniqueStatForCampaignUrl($url, $type)
+    {
+        switch ($type) {
             case AWeberReport::UNIQUE_OPENS:
                 $fullUrl = "{$url}/stats/unique_opens";
                 $return = $this->api->getStateValueFromUrl($fullUrl);
@@ -143,33 +148,38 @@ class AWeberReportService extends AbstractReportService implements IDataService
         }
         return $return;
     }
-    
-    public function updateUniqueStatForCampaignUrl($id, $type, $value){
-        switch ($type){
+
+    public function updateUniqueStatForCampaignUrl($id, $type, $value)
+    {
+        switch ($type) {
             case AWeberReport::UNIQUE_OPENS:
                 $this->reportRepo->updateStatCount($id, "unique_opens", $value);
                 break;
             case AWeberReport::UNIQUE_CLICKS:
-                $this->reportRepo->updateStatCount($id,"unique_clicks", $value);
+                $this->reportRepo->updateStatCount($id, "unique_clicks", $value);
                 break;
             default:
                 throw new JobException("Not a valid action type");
         }
     }
 
-    public function splitTypes($processState){
-        return ['delivers','links'];
+    public function splitTypes($processState)
+    {
+        return ['delivers', 'links'];
     }
 
 
-    public function pushRecords(array $records, $targetId) {}
+    public function pushRecords(array $records, $targetId)
+    {
+    }
 
-    public function getUniqueJobId ( &$processState ) {
-        $jobId = ( isset( $processState[ 'jobId' ] ) ? $processState[ 'jobId' ] : '' );
+    public function getUniqueJobId(&$processState)
+    {
+        $jobId = (isset($processState['jobId']) ? $processState['jobId'] : '');
 
         if (
-            !isset( $processState[ 'jobIdIndex' ] )
-            || ( isset( $processState[ 'jobIdIndex' ] ) && $processState[ 'jobIdIndex' ] != $processState[ 'currentFilterIndex' ] )
+            !isset($processState['jobIdIndex'])
+            || (isset($processState['jobIdIndex']) && $processState['jobIdIndex'] != $processState['currentFilterIndex'])
         ) {
             switch ($processState['currentFilterIndex']) {
                 case 1 :
@@ -184,8 +194,8 @@ class AWeberReportService extends AbstractReportService implements IDataService
     }
 
 
-
-    public function saveRecords(&$processState) {
+    public function saveRecords(&$processState)
+    {
         $type = "";
         $count = 0;
         $espInternalId = $processState['campaign']->esp_internal_id;
@@ -193,78 +203,143 @@ class AWeberReportService extends AbstractReportService implements IDataService
         $deployId = $processState['campaign']->external_deploy_id;
 
         try {
-            switch ( $processState[ 'recordType' ] ) {
+            //TODO:: This screams for a refactor, a lot of code that could be brought out.
+            switch ($processState['recordType']) {
 
                 case 'delivers' :
                     $report = $this->getRawReportByInternalId($espInternalId);
                     $statUrl = "{$report->info_url}/messages";
-                    $messages = $this->api->makeApiRequest($statUrl,array( "ws.size" => 100),true);
 
-                    foreach($messages as $message) {
-                        AWeberEmailAction::queueDeliverable(self::RECORD_TYPE_DELIVERABLE, $message->subscriber_link, $this->api->getEspAccountId(), $deployId, $espInternalId, $message->event_time);
+                    $messages = $this->api->makeApiRequest($statUrl, array("ws.size" => 100), true);
 
-                        if($message->total_opens > 0){
-                            $processState[ 'openCollection' ] = $message->opens_collection_link;
-                            $processState[ 'recordType' ] =  'opens';
-                            $job = new RetrieveDeliverableReports("AWeber", $this->api->getEspAccountId(), $processState[ 'recordType' ], str_random(16), $processState);
+                    foreach ($messages as $message) {
+                        $emailAddress = AWeberEmailAction::getEmailAddressFromUrl($message->subscriber_link);
+                        if ($emailAddress) {
+                            $this->emailRecord->queueDeliverable(
+                                self::RECORD_TYPE_DELIVERABLE,
+                                $emailAddress->email_address,
+                                $this->api->getEspAccountId(),
+                                $deployId,
+                                $espInternalId,
+                                $message->event_time);
+                        } else {
+                            AWeberEmailAction::queueDeliverable(
+                                AbstractReportService::RECORD_TYPE_DELIVERABLE,
+                                $message->subscriber_link,
+                                $this->api->getEspAccountId(),
+                                $deployId,
+                                $espInternalId,
+                                $message->event_time);
+                            //
+                            //Everything that is missing passes through here, so maybe the email
+                            //will be picked up before the other jobs occur.
+                            $this->dispatch((new UpdateSingleAWeberSubscriber($message->subscriber_link, $this->api->getEspAccountId(), str_random(16)))->onQueue("AWeber"));
+                        }
+                        if ($message->total_opens > 0) {
+                            $processState['openCollection'] = $message->opens_collection_link;
+                            $processState['recordType'] = 'opens';
+                            $job = new RetrieveDeliverableReports("AWeber", $this->api->getEspAccountId(), $processState['recordType'], str_random(16), $processState);
                             $this->dispatch($job);
                         }
 
-                        $processState[ 'recordType' ] =  'deliverable';
+                        $processState['recordType'] = 'deliverable';
                     }
 
                     AWeberEmailAction::massRecordDeliverables();
+                    $this->emailRecord->massRecordDeliverables();
                     $type = "deliverable";
                     break;
 
                 case 'opens' :
-                    $messages = $this->api->makeApiRequest($processState[ 'openCollection' ],array(),true);
-                    foreach($messages as $message) {
-                        AWeberEmailAction::queueDeliverable(self::RECORD_TYPE_OPENER, $message->subscriber_link, $this->api->getEspAccountId(), $deployId, $espInternalId, $message->event_time);
+                    $messages = $this->api->makeApiRequest($processState['openCollection'], array(), true);
+                    foreach ($messages as $message) {
+
+                        $emailAddress = AWeberEmailAction::getEmailAddressFromUrl($message->subscriber_link);
+
+                        if ($emailAddress) {
+                            $this->emailRecord->queueDeliverable(
+                                AbstractReportService::RECORD_TYPE_OPENER,
+                                $emailAddress->email_address,
+                                $this->api->getEspAccountId(),
+                                $deployId,
+                                $espInternalId,
+                                $message->event_time);
+                        } else {
+                            AWeberEmailAction::queueDeliverable(
+                                AbstractReportService::RECORD_TYPE_OPENER,
+                                $message->subscriber_link,
+                                $this->api->getEspAccountId(),
+                                $deployId,
+                                $espInternalId,
+                                $message->event_time);
+                        }
                     }
                     AWeberEmailAction::massRecordDeliverables();
+                    $this->emailRecord->massRecordDeliverables();
                     $type = "open";
                     break;
 
                 case 'links' :
                     $report = $this->getRawReportByInternalId($espInternalId);
                     $linkUrl = "{$report->info_url}/links";
-                    $urls = $this->api->makeApiRequest($linkUrl,array(),true);
+                    $urls = $this->api->makeApiRequest($linkUrl, array(), true);
 
-                    foreach($urls as $message) {
-                        if($message->total_clicks > 0) {
+                    foreach ($urls as $message) {
+                        if ($message->total_clicks > 0) {
                             $processState['clickCollection'] = $message->clicks_collection_link;
                             $processState['recordType'] = 'clicks';
-                            $job = new RetrieveDeliverableReports("AWeber", $this->api->getEspAccountId(), $processState['recordType'], str_random(16), $processState);
+                            $job = (new RetrieveDeliverableReports("AWeber", $this->api->getEspAccountId(), $processState['recordType'], str_random(16), $processState))->onQueue("AWeber");
                             $this->dispatch($job);
                         }
-                            $processState[ 'recordType' ] =  'links';
+                        $processState['recordType'] = 'links';
                     }
                     $type = "click";
                     break;
 
                 case 'clicks' :
-                    $messages = $this->api->makeApiRequest($processState[ 'clickCollection' ],array( "ws.size" => 100),true);
-                    foreach($messages as $message) {
-                        AWeberEmailAction::queueDeliverable(self::RECORD_TYPE_CLICKER, $message->subscriber_link, $this->api->getEspAccountId(), $deployId, $espInternalId, $message->event_time);
+                    $messages = $this->api->makeApiRequest($processState['clickCollection'], array("ws.size" => 100), true);
+
+                    foreach ($messages as $message) {
+                        $emailAddress = AWeberEmailAction::getEmailAddressFromUrl($message->subscriber_link);
+                        if ($emailAddress) {
+                            $this->emailRecord->queueDeliverable(
+                                AbstractReportService::RECORD_TYPE_CLICKER,
+                                $emailAddress->email_address,
+                                $this->api->getEspAccountId(),
+                                $deployId,
+                                $espInternalId,
+                                $message->event_time);
+                        } else {
+                            AWeberEmailAction::queueDeliverable(
+                                AbstractReportService::RECORD_TYPE_CLICKER,
+                                $message->subscriber_link,
+                                $this->api->getEspAccountId(),
+                                $deployId,
+                                $espInternalId,
+                                $message->event_time);
+                        }
                     }
+
                     AWeberEmailAction::massRecordDeliverables();
+                    $this->emailRecord->massRecordDeliverables();
                     $type = "click";
                     break;
             }
-            
-            DeployActionEntry::recordSuccessRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, $type );
-        } catch ( \Exception $e ) {
-            DeployActionEntry::recordFailedRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, $type);
-            $jobException = new JobException( 'Failed to save records. ' . $e->getMessage() , JobException::NOTICE , $e );
-            $jobException->setDelay( 180 );
+
+            DeployActionEntry::recordSuccessRun($this->api->getEspAccountId(), $processState['campaign']->esp_internal_id, $type);
+        } catch (\Exception $e) {
+            DeployActionEntry::recordFailedRun($this->api->getEspAccountId(), $processState['campaign']->esp_internal_id, $type);
+            $jobException = new JobException('Failed to save records. ' . $e->getMessage(), JobException::NOTICE, $e);
+            $jobException->setDelay(180);
             throw $jobException;
         }
         return $count;
     }
 
-    public function getRawReportByInternalId($internalId){
+    public function getRawReportByInternalId($internalId)
+    {
         return $this->reportRepo->getRowByExternalId($internalId);
     }
+
 
 }
