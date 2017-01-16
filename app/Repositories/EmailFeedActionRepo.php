@@ -17,7 +17,7 @@ class EmailFeedActionRepo {
     } 
 
     public function buildBatchableQuery($data) {
-        return "INSERT INTO email_feed_actions (email_id, feed_id, action_date, status)
+        return "INSERT INTO email_feed_actions (email_id, feed_id, status)
         VALUES
 
         $data
@@ -25,7 +25,6 @@ class EmailFeedActionRepo {
         ON DUPLICATE KEY UPDATE
         email_id = email_id,
         feed_id = feed_id,
-        action_date = VALUES(action_date),
         status = VALUES(status),
         created_at = created_at,
         updated_at = NOW()";
@@ -36,7 +35,20 @@ class EmailFeedActionRepo {
         return '(' 
             . $row['email_id'] . ', ' 
             . $row['feed_id'] . ', ' 
-            . $pdo->quote($row['action_date']) . ', ' 
             . $pdo->quote($row['status']) . ')';
+    }
+
+    public function getActionStatus($emailId, $feedId) {
+
+        // either returns Model with properties or null
+        return $this->model
+                    ->where('email_id', $emailId)
+                    ->where('feed_id', $feedId)
+                    ->select('status')
+                    ->first();
+    }
+
+    public function updateAttributedFeedWithAction($emailId, $deployId, $actionDateTime, $actionType) {
+        
     }
 }
