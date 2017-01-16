@@ -86,10 +86,10 @@ class Kernel extends ConsoleKernel
         Commands\UpdateFeedCounts::class,
         Commands\S3RedshiftExport::class,
         Commands\FindMissingStatsForAWeber::class,
+        Commands\UpdateMissingMaroCampaigns::class,
         Commands\UpdateAWeberLists::class,
         Commands\GrabAWeberSubscribers::class,
         Commands\ProcessAWeberActions::class,
-
     ];
 
     /**
@@ -137,6 +137,7 @@ class Kernel extends ConsoleKernel
         //$schedule->command('reports:downloadApi AWeber 5')->cron("0 0,6,12,18 * * *")->sendOutputTo($filePath);
         #$schedule->command('reports:downloadApi EmailDirect 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Maro 5')->hourly()->sendOutputTo($filePath);
+        $schedule->command('reports:updateMissingMaroCampaigns')->daily()->sendOutputTo($filePath);
         //$schedule->command('reports:downloadApi Ymlp 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Publicators 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Bronto 5')->hourly()->sendOutputTo($filePath);
