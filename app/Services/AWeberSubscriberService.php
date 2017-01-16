@@ -14,7 +14,7 @@ use App\Services\API\AWeberApi;
  */
 class AWeberSubscriberService
 {
-    CONST INSERT_COUNT = 20;
+    CONST INSERT_COUNT = 300;
     protected $api;
     protected $subscribers = [];
     protected $subscriberRepo;
@@ -65,21 +65,19 @@ class AWeberSubscriberService
     }
 
     public function queueSubscriber($subscriber){
-        print_r($subscriber);
         $this->subscribers[] =  "( "
             . join( " , " , [
                 '"'.$subscriber->email.'"' ,
                 $subscriber->id] )
             . " )";
-        $this->count++;
-        if($this->count >= self::INSERT_COUNT){
+        if (self::INSERT_COUNT <= sizeof($this->subscribers)) {
             $this->insertSubscribers();
-            $this->count = 0;
         }
     }
     
     public function insertSubscribers(){
         $this->subscriberRepo->massUpsert($this->subscribers);
+        $this->subscribers[] = [];
     }
     public function insertSubscriber($subscriber){
         $this->subscriberRepo->insertSubscriber($subscriber);
