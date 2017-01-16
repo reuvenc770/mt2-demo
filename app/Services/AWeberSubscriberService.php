@@ -77,6 +77,7 @@ class AWeberSubscriberService
     
     public function insertSubscribers(){
         $this->subscriberRepo->massUpsert($this->subscribers);
+        $this->subscribers[] = [];
     }
     public function insertSubscriber($subscriber){
         $this->subscriberRepo->insertSubscriber($subscriber);
