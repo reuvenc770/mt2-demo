@@ -9,7 +9,6 @@ trait Batchable {
     private $batchDataCount = 0;
     private $insertThreshold = 10000;
     private $batchInsertQuery = '';
-    private $model;
     
     public function batchInsert($row) {
         if ($this->batchDataCount >= $this->insertThreshold) {
@@ -28,7 +27,7 @@ trait Batchable {
         if ($this->batchDataCount > 0) {
             $this->batchData = implode(', ', $this->batchData);
             $query = $this->buildBatchedQuery($this->batchData);    
-            DB::connection($model->getConnectionName())->statement($query);
+            DB::connection($this->model->getConnectionName())->statement($query);
 
             $this->batchData = [];
             $this->batchDataCount = 0;
