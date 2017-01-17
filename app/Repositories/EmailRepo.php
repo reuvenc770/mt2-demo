@@ -142,7 +142,7 @@ class EmailRepo implements Mt2Export, IAwsRepo {
             return $email->attributionTruths;
         }
         else {
-            return AttributionRecordTruth::create(['email_id' => $emailId]);
+            return AttributionRecordTruth::create(['email_id' => $emailId, 'recent_import' => 1]);
         }
     }
 
