@@ -56,19 +56,19 @@ class AWeberSubscriberService
         }
     }
 
-    public function getSubscribers($url){
-        return $this->api->makeApiRequest($url,array("ws.size" => 100),true);
-    }
-
     public function getSubscriber($url){
         return $this->api->makeApiRequest($url,array(),true);
+    }
+
+    public function getSinglePageSubscribers($url){
+        return $this->api->makeRawApiRequest($url,array("ws.size" => 100),true);
     }
 
     public function queueSubscriber($subscriber){
         $this->subscribers[] =  "( "
             . join( " , " , [
-                '"'.$subscriber->email.'"' ,
-                $subscriber->id] )
+                '"'.$subscriber['email'].'"' ,
+                $subscriber['id']] )
             . " )";
         if (self::INSERT_COUNT <= sizeof($this->subscribers)) {
             $this->insertSubscribers();

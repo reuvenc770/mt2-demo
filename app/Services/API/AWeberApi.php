@@ -154,4 +154,24 @@ class AWeberApi extends EspBaseAPI
         }
     }
 
+    //We return everything raw and do not return an object. 
+    public function makeRawApiRequest($incomingUrl, $params = array(), $fullUrl = false)
+    {
+        $user = new OAuthUser();
+        $user->accessToken = $this->accessToken;
+        $user->tokenSecret = $this->sharedSecret;
+        $this->api->adapter->user = $user;
+        $url = $this->baseUrl . $incomingUrl;
+        if ($fullUrl) {
+            $url = $incomingUrl;
+        }
+
+        $response = $this->api->adapter->request('GET', $url, $params);
+            return array (
+                "response" => $response,
+                "url"      => $url,
+                "adapter"  => $this->api->adapter
+            );
+    }
+    
 }
