@@ -1,0 +1,150 @@
+<?php
+
+namespace App\Library\NetAtlantic;
+
+class ArrayOfTinyMemberStruct implements \ArrayAccess, \Iterator, \Countable
+{
+
+    /**
+     * @var TinyMemberStruct[] $ArrayOfTinyMemberStruct
+     */
+    protected $ArrayOfTinyMemberStruct = null;
+
+    /**
+     * @param TinyMemberStruct[] $ArrayOfTinyMemberStruct
+     */
+    public function __construct(array $ArrayOfTinyMemberStruct)
+    {
+      $this->ArrayOfTinyMemberStruct = $ArrayOfTinyMemberStruct;
+    }
+
+    /**
+     * @return TinyMemberStruct[]
+     */
+    public function getArrayOfTinyMemberStruct()
+    {
+      return $this->ArrayOfTinyMemberStruct;
+    }
+
+    /**
+     * @param TinyMemberStruct[] $ArrayOfTinyMemberStruct
+     * @return \App\Library\NetAtlantic\ArrayOfTinyMemberStruct
+     */
+    public function setArrayOfTinyMemberStruct(array $ArrayOfTinyMemberStruct)
+    {
+      $this->ArrayOfTinyMemberStruct = $ArrayOfTinyMemberStruct;
+      return $this;
+    }
+
+    /**
+     * ArrayAccess implementation
+     *
+     * @param mixed $offset An offset to check for
+     * @return boolean true on success or false on failure
+     */
+    public function offsetExists($offset)
+    {
+      return isset($this->ArrayOfTinyMemberStruct[$offset]);
+    }
+
+    /**
+     * ArrayAccess implementation
+     *
+     * @param mixed $offset The offset to retrieve
+     * @return TinyMemberStruct
+     */
+    public function offsetGet($offset)
+    {
+      return $this->ArrayOfTinyMemberStruct[$offset];
+    }
+
+    /**
+     * ArrayAccess implementation
+     *
+     * @param mixed $offset The offset to assign the value to
+     * @param TinyMemberStruct $value The value to set
+     * @return void
+     */
+    public function offsetSet($offset, $value)
+    {
+      if (!isset($offset)) {
+        $this->ArrayOfTinyMemberStruct[] = $value;
+      } else {
+        $this->ArrayOfTinyMemberStruct[$offset] = $value;
+      }
+    }
+
+    /**
+     * ArrayAccess implementation
+     *
+     * @param mixed $offset The offset to unset
+     * @return void
+     */
+    public function offsetUnset($offset)
+    {
+      unset($this->ArrayOfTinyMemberStruct[$offset]);
+    }
+
+    /**
+     * Iterator implementation
+     *
+     * @return TinyMemberStruct Return the current element
+     */
+    public function current()
+    {
+      return current($this->ArrayOfTinyMemberStruct);
+    }
+
+    /**
+     * Iterator implementation
+     * Move forward to next element
+     *
+     * @return void
+     */
+    public function next()
+    {
+      next($this->ArrayOfTinyMemberStruct);
+    }
+
+    /**
+     * Iterator implementation
+     *
+     * @return string|null Return the key of the current element or null
+     */
+    public function key()
+    {
+      return key($this->ArrayOfTinyMemberStruct);
+    }
+
+    /**
+     * Iterator implementation
+     *
+     * @return boolean Return the validity of the current position
+     */
+    public function valid()
+    {
+      return $this->key() !== null;
+    }
+
+    /**
+     * Iterator implementation
+     * Rewind the Iterator to the first element
+     *
+     * @return void
+     */
+    public function rewind()
+    {
+      reset($this->ArrayOfTinyMemberStruct);
+    }
+
+    /**
+     * Countable implementation
+     *
+     * @return TinyMemberStruct Return count of elements
+     */
+    public function count()
+    {
+      return count($this->ArrayOfTinyMemberStruct);
+    }
+
+}
