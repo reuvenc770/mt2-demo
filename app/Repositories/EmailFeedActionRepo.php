@@ -16,7 +16,7 @@ class EmailFeedActionRepo {
         $this->model = $model;
     } 
 
-    public function buildBatchableQuery($data) {
+    public function buildBatchedQuery($data) {
         return "INSERT INTO email_feed_actions (email_id, feed_id, status)
         VALUES
 
