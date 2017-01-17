@@ -42,4 +42,9 @@ SQL;
 
         DB::connection('reshift')->table('list_profile_flat_table_staging')->truncate();
     }
+
+    public function optimizeDb() {
+        // Re-sort the tables based off of their 
+        DB::connection('redshift')->statement('VACUUM SORT ONLY');
+    }
 }

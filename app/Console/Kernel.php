@@ -90,6 +90,7 @@ class Kernel extends ConsoleKernel
         Commands\UpdateAWeberLists::class,
         Commands\GrabAWeberSubscribers::class,
         Commands\ProcessAWeberActions::class,
+        Commands\VacuumRedshift::class,
     ];
 
     /**
@@ -239,6 +240,7 @@ class Kernel extends ConsoleKernel
          */
 
         $schedule->command('listprofile:dataEtl')->dailyAt(self::REDSHIFT_UPLOAD_TIME);
+        $schedule->command('listprofile:optimize')->weekly();
         $schedule->command('listprofile:aggregateActions')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('listprofile:getRecordAgentData')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('listprofile:baseTables')->dailyAt(self::EXPIRATION_RUNS);
