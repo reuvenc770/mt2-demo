@@ -104,7 +104,7 @@ class ServiceFactory
         $redshiftRepo = App::make("App\\Repositories\\RedshiftRepositories\\{$entity}Repo");
         $pickupRepo = App::make(\App\Repositories\EtlPickupRepo::class);
 
-        if (in_array($entity, ['Feed', 'Email', 'EmailDomain', 'DomainGroup', 'SuppressionGlobalOrange'])) {
+        if (in_array($entity, ['Feed', 'Email', 'EmailDomain', 'DomainGroup', 'SuppressionGlobalOrange', 'Client'])) {
             $func = function($row) { return $row['id']; };
         }
         elseif ('ListProfileFlatTable' === $entity) {
