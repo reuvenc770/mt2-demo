@@ -14,6 +14,9 @@ use App\Library\Campaigner\CampaignManagement;
 use App\Library\Campaigner\ContactManagement;
 use App\Library\Campaigner\DownloadReport;
 use App\Library\Campaigner\RunReport;
+use App\Library\Campaigner\ListCampaigns;
+use App\Library\Campaigner\CampaignStatus;
+use App\Library\Campaigner\CampaignType;
 
 use App\Repositories\ReportRepo;
 use App\Services\API\Campaigner;
@@ -424,5 +427,25 @@ echo $lastResponse . PHP_EOL . PHP_EOL; # Temporary debug to check up on XML res
     }
 
 
+    public function getMissingCampaigns ( $date ) {
+
+        try {
+            $dateObject = Carbon::createFromTimestamp(strtotime($date));
+            $endDate = Carbon::now()->endOfDay();
+            $manager = new CampaignManagement();
+            $dateFilter = new DateTimeFilter();
+            $dateFilter->setFromDate($dateObject->startOfDay());
+            $dateFilter->setToDate($endDate);
+            $params = new ListCampaigns($this->api->getAuth(), null, $dateFilter , CampaignStatus::Sent , CampaignType::OneOff );
+            $results = $manager->ListCampaigns($params);
+            if($this->api->checkforHeaderFail($manager,"retrieveApiStats"))
+            {
+                return null;
+            }
+            return $results->getListCampaignsResult();
+        } catch ( \Exception $e ) {
+            throw new JobException( 'Failed to retrieve API stats. ' . $e->getMessage() , JobException::ERROR , $e );
+        }
+    }
 
 }
