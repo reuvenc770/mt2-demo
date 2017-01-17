@@ -7,14 +7,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use Carbon\Carbon;
 use App\Repositories\RepoInterfaces\IAwsRepo;
+use App\Repositories\RepoTraits\Batchable;
 
 class RecordDataRepo implements IAwsRepo {
+    use Batchable;
 
     private $model;
-    private $batchData = [];
-    private $batchDataCount = 0;
     const INSERT_THRESHOLD = 10000;
-
     private $batchActionUpdateData = [];
     private $batchActionUpdateCount = 0;
 
@@ -22,34 +21,18 @@ class RecordDataRepo implements IAwsRepo {
         $this->model = $model;
     }
 
-    public function insert($row) {
-        if ($this->batchDataCount >= self::INSERT_THRESHOLD) {
-
-            $this->insertStored();
-            $this->batchData = [$this->transformRowToString($row)];
-            $this->batchDataCount = 1;
-        }
-        else {
-            $this->batchData[] = $this->transformRowToString($row);
-            $this->batchDataCount++;
-        }
-    }
-
     public function getRecordDataFromEid($eid){
         return $this->model->find($eid);
     }
 
-    public function insertStored() {
-        if ($this->batchDataCount > 0) {
-            $this->batchData = implode(', ', $this->batchData);
-
-            DB::statement("INSERT INTO record_data (email_id, is_deliverable, first_name, last_name, 
+    private function buildBatchedQuery($batchData) {
+        return "INSERT INTO record_data (email_id, is_deliverable, first_name, last_name, 
                     address, address2, city, state, zip, country, gender, 
                     ip, phone, source_url, dob, capture_date, subscribe_date, other_fields)
 
                 VALUES 
 
-                {$this->batchData}
+                {$batchData}
 
                 ON DUPLICATE KEY UPDATE
                 email_id = email_id,
@@ -69,12 +52,7 @@ class RecordDataRepo implements IAwsRepo {
                 dob = VALUES(dob),
                 capture_date = VALUES(capture_date),
                 subscribe_date = VALUES(subscribe_date),
-                other_fields = VALUES(other_fields)
-            ");
-
-            $this->batchData = [];
-            $this->batchDataCount = 0;
-        }
+                other_fields = VALUES(other_fields)";
     }
 
     private function transformRowToString($row) {
