@@ -20,7 +20,7 @@ class SuppressionGlobalOrangeRepo implements IAwsRepo {
     }
 
     public function extractForS3Upload($startPoint) {
-        return $this->emailModel->whereRaw("id > $startPoint");
+        return $this->model->whereRaw("id > $startPoint");
     }
 
     public function mapForS3Upload($row) {

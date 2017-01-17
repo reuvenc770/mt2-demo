@@ -111,7 +111,7 @@ class EmailDomainRepo implements IAwsRepo {
     }
 
     public function extractForS3Upload($startPoint) {
-        return $this->emailModel->whereRaw("id > $startPoint");
+        return $this->emailDomainModel->whereRaw("id > $startPoint");
     }
 
     public function mapForS3Upload($row) {
