@@ -131,6 +131,12 @@ class ListProfileFlatTableRepo implements IAwsRepo {
         return $this->flatTable->whereRaw("updated_at > $startPoint");
     }
 
+    public function extractAllForS3() {
+        // This will be the current default
+        return $this->flatTable->whereRaw("date > CURDATE() - INTERVAL 120 DAY");
+    }
+
+
     public function mapForS3Upload($row) {
         return [
             'email_id' => $row->email_id,

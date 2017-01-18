@@ -14,13 +14,13 @@ class ListProfileFlatTableRepo implements IRedshiftRepo {
         $this->model = $model;
     }
 
-    public function loadEntity($fileName) {
+    public function loadEntity($entity) {
         $clear = "TRUNCATE list_profile_flat_table_staging";
         DB::connection('redshift')->statement($sql);
 
         $sql = <<<SQL
 copy list_profile_flat_table_staging
-from 's3://mt2-listprofile-export/{$fileName}.csv'
+from 's3://mt2-listprofile-export/{$entity}.csv'
 credentials 'aws_iam_role=arn:aws:iam::286457008090:role/redshift-s3-stg'
 format as csv quote as '"' delimiter as ',';
 SQL;
@@ -41,6 +41,18 @@ SQL;
         });
 
         DB::connection('reshift')->table('list_profile_flat_table_staging')->truncate();
+    }
+
+    public function clearAndReloadEntity($entity) {
+        DB::connection('redshift')->table('list_profile_flat_table')->truncate();
+
+        $sql = <<<SQL
+copy list_profile_flat_table
+from 's3://mt2-listprofile-export/{$entity}.csv'
+credentials 'aws_iam_role=arn:aws:iam::286457008090:role/redshift-s3-stg'
+format as csv quote as '"' delimiter as ',';
+SQL;
+        DB::connection('redshift')->statement($sql);
     }
 
     public function optimizeDb() {

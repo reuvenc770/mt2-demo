@@ -48,6 +48,11 @@ class ClientRepo implements IAwsRepo {
         return $this->client->where('id', '>', $stopPoint);
     }
 
+    public function extractAllForS3() {
+        return $this->client;
+    }
+
+
     public function mapForS3Upload($row) {
         return [
             'id' => $row->id,

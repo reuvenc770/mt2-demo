@@ -34,4 +34,9 @@ class SuppressionGlobalOrangeRepo implements IAwsRepo {
             'updated_at' => $row->updated_at
         ];
     }
+
+    public function extractAllForS3() {
+        return $this->model;
+    }
+
 }

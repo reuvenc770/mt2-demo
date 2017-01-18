@@ -239,7 +239,8 @@ class Kernel extends ConsoleKernel
          *  List profile jobs
          */
 
-        $schedule->command('listprofile:dataEtl')->dailyAt(self::REDSHIFT_UPLOAD_TIME);
+        $schedule->command('listprofile:dataEtl')->cron('0 1 * * 1-6 *');
+        $schedule->command('listprofile:dataEtl --all')->cron('0 1 * * 7 *');
         $schedule->command('listprofile:optimize')->weekly();
         $schedule->command('listprofile:aggregateActions')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('listprofile:getRecordAgentData')->dailyAt(self::EXPIRATION_RUNS);

@@ -134,6 +134,11 @@ class EmailFeedAssignmentRepo implements IAwsRepo {
         return $this->assignment->whereRaw("updated_at > $startPoint");
     }
 
+    public function extractAllForS3() {
+        return $this->assignment;
+    }
+
+
     public function mapForS3Upload($row) {
         return [
             'email_id' => $row->email_id,

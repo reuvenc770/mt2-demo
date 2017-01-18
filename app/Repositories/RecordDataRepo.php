@@ -193,6 +193,10 @@ class RecordDataRepo implements IAwsRepo {
         return $this->model;
     }
 
+    public function extractAllForS3() {
+        return $this->model;
+    }
+
     public function mapForS3Upload($row) {
         return [
             'email_id' => $row->email_id,

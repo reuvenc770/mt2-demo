@@ -26,4 +26,16 @@ format as csv quote as '"' delimiter as ',';
 SQL;
         DB::connection('redshift')->statement($sql);
     }
+
+    public function clearAndReloadEntity($entity) {
+        DB::connection('redshift')->table('record_data')->truncate();
+
+        $sql = <<<SQL
+copy record_data
+from 's3://mt2-listprofile-export/{$entity}.csv'
+credentials 'aws_iam_role=arn:aws:iam::286457008090:role/redshift-s3-stg'
+format as csv quote as '"' delimiter as ',';
+SQL;
+        DB::connection('redshift')->statement($sql);
+    }
 }
