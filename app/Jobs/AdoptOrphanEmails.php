@@ -139,6 +139,8 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
                 );
 
                 if(count($actionsRecords) > 0) {
+                    $emails = collect($actionsRecords)->pluck("email_id")->all();
+                    $truthService->bulkToggleFieldRecord($emails, "has_action", true);
                     $actionService->bulkUpdate($actionsRecords);
                 }
 
