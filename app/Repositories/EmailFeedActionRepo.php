@@ -52,7 +52,7 @@ class EmailFeedActionRepo {
 
         return $this->model
                     ->join("$attrDb.email_feed_assignments as efa", "email_feed_actions.email_id", '=', 'efa.email_id')
-                    ->where('email_id', $emailId)
+                    ->where('email_feed_actions.email_id', $emailId)
                     ->select('efa.feed_id', 'email_feed_actions.status')
                     ->first();
     }
