@@ -401,7 +401,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             var_dump($errors);
             throw new \Exception( 'Failed to retrieve SOAP response.' );
         }
-echo $lastResponse . PHP_EOL . PHP_EOL; # Temporary debug to check up on XML response
+
         $response = $body->children("http://schemas.xmlsoap.org/soap/envelope/")->Body->children();
         $entries = $response->DownloadReportResponse->DownloadReportResult->ReportResult;
         $return = array();
