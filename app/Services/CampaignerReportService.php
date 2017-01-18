@@ -17,6 +17,7 @@ use App\Library\Campaigner\RunReport;
 use App\Library\Campaigner\ListCampaigns;
 use App\Library\Campaigner\CampaignStatus;
 use App\Library\Campaigner\CampaignType;
+use App\Library\Campaigner\CampaignFilter;
 
 use App\Repositories\ReportRepo;
 use App\Services\API\Campaigner;
@@ -67,19 +68,24 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
             $arrayReportList = array();
             $espAccountId = $this->api->getEspAccountId();
 
+            $savedCount = 0;
             if (count($data->getCampaign()) > 1) {  //another dumb check
                 foreach ($data->getCampaign() as $report) {
                     $convertedReport = $this->mapToRawReport($report);
                     $this->insertStats($espAccountId, $convertedReport);
+                    $savedCount++;
                     $arrayReportList[] = $convertedReport;
                 }
             } else {
                 $convertedReport = $this->mapToRawReport($data->getCampaign());
                 $this->insertStats($espAccountId, $convertedReport);
+                $savedCount++;
                 $arrayReportList[] = $convertedReport;
             }
 
             Event::fire(new RawReportDataWasInserted($this, $arrayReportList));
+
+            return $savedCount++;
         } catch ( \Exception $e ) {
             throw new JobException( 'Failed to insert API stats. ' . $e->getMessage() , JobException::ERROR , $e );
         }
@@ -427,8 +433,7 @@ echo $lastResponse . PHP_EOL . PHP_EOL; # Temporary debug to check up on XML res
     }
 
 
-    public function getMissingCampaigns ( $date ) {
-
+    public function getMissingCampaigns ( $espAccountId , $date ) {
         try {
             $dateObject = Carbon::createFromTimestamp(strtotime($date));
             $endDate = Carbon::now()->endOfDay();
@@ -442,7 +447,46 @@ echo $lastResponse . PHP_EOL . PHP_EOL; # Temporary debug to check up on XML res
             {
                 return null;
             }
-            return $results->getListCampaignsResult();
+           
+            $apiResponse = $results->getListCampaignsResult();
+
+            $fullCampaignList = [];
+            foreach ( $apiResponse->getCampaignDescription() as $current ) {
+                $fullCampaignList []= $current->getId();
+            }
+
+            $localCampaignList = $this->reportRepo->getAllCampaigns( $espAccountId )->pluck( 'internal_id' )->toArray();
+            $missingCampaigns = array_diff( $fullCampaignList , $localCampaignList );
+
+            return $missingCampaigns;
+        } catch ( \Exception $e ) {
+            throw new JobException( 'Failed to retrieve API stats. ' . $e->getMessage() , JobException::ERROR , $e );
+        }
+    }
+
+    public function retrieveApiStatsFromCampaigns ( $campaigns , $date ) {
+        try {
+            $dateObject = Carbon::createFromTimestamp(strtotime($date));
+            $endDate = Carbon::now()->endOfDay();
+
+            $manager = new CampaignManagement();
+            $dateFilter = new DateTimeFilter();
+
+            $dateFilter->setFromDate($dateObject->startOfDay());
+            $dateFilter->setToDate($endDate);
+
+            $campaignFilter = new CampaignFilter( $campaigns , null , null );
+
+            $params = new GetCampaignRunsSummaryReport($this->api->getAuth(), $campaignFilter, false, $dateFilter);
+
+            $results = $manager->GetCampaignRunsSummaryReport($params);
+
+            if($this->api->checkforHeaderFail($manager,"retrieveApiStats"))
+            {
+                return null;
+            }
+
+            return $results->getGetCampaignRunsSummaryReportResult();
         } catch ( \Exception $e ) {
             throw new JobException( 'Failed to retrieve API stats. ' . $e->getMessage() , JobException::ERROR , $e );
         }
