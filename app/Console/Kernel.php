@@ -134,7 +134,7 @@ class Kernel extends ConsoleKernel
         $filePath = storage_path('logs')."/downloadAPI.log";
         $schedule->command('reports:downloadApi BlueHornet 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Campaigner 5')->hourly()->sendOutputTo($filePath);
-        //$schedule->command('reports:downloadApi AWeber 5')->cron("0 0,6,12,18 * * *")->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi AWeber 5')->cron("0 0,6,12,18 * * *")->sendOutputTo($filePath);
         #$schedule->command('reports:downloadApi EmailDirect 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Maro 5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:updateMissingMaroCampaigns')->daily()->sendOutputTo($filePath);
@@ -284,8 +284,8 @@ class Kernel extends ConsoleKernel
         /**
          * AWeber Jobs
          */
-        //$schedule->command('aweber:processUniques 15')->cron("10 0,6,12,18 * * *")->sendOutputTo($filePath);
-        //$schedule->command('aweber:updateAWeberLists' )->dailyAt( self::AWEBER_TIME);
+        $schedule->command('aweber:processUniques 15')->cron("10 0,6,12,18 * * *")->sendOutputTo($filePath);
+        $schedule->command('aweber:updateAWeberLists' )->dailyAt( self::AWEBER_TIME);
         //$schedule->command('aweber:processAWeberActions')->cron("30 0,6,12,18 * * *")->sendOutputTo($filePath);
 
     }
