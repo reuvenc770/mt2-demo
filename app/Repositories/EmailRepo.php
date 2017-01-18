@@ -8,6 +8,7 @@ use Illuminate\Database\Query\Builder;
 use DB;
 use App\Repositories\RepoInterfaces\Mt2Export;
 use App\Repositories\RepoInterfaces\IAwsRepo;
+use App\Models\AttributionRecordTruth;
 
 /**
  *
@@ -141,7 +142,7 @@ class EmailRepo implements Mt2Export, IAwsRepo {
             return $email->attributionTruths;
         }
         else {
-            return 0;
+            return AttributionRecordTruth::create(['email_id' => $emailId, 'recent_import' => 1]);
         }
     }
 

@@ -16,7 +16,7 @@ class EmailFeedActionRepo {
         $this->model = $model;
     } 
 
-    public function buildBatchableQuery($data) {
+    public function buildBatchedQuery($data) {
         return "INSERT INTO email_feed_actions (email_id, feed_id, status)
         VALUES
 
@@ -48,12 +48,12 @@ class EmailFeedActionRepo {
     }
 
     public function getCurrentAttributedStatus($emailId) {
-        $attrDb = config('database.attribution.database');
+        $attrDb = config('database.connections.attribution.database');
 
         return $this->model
-                    ->join("$attrDb.email_feed_assignments as efa", "email_feed_action.email_id", '=', 'efa.email_id')
-                    ->where('email_id', $emailId)
-                    ->select('efa.feed_id', 'email_feed_action.status')
+                    ->join("$attrDb.email_feed_assignments as efa", "email_feed_actions.email_id", '=', 'efa.email_id')
+                    ->where('email_feed_actions.email_id', $emailId)
+                    ->select('efa.feed_id', 'email_feed_actions.status')
                     ->first();
     }
 }

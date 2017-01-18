@@ -24,7 +24,7 @@ class EmailFeedAssignmentService {
 
     public function insertBulkRecords($records) {
         foreach($records as $record) {
-            $this->repo->insertBatch($record);
+            $this->repo->batchInsert($record);
         }
 
         $this->repo->insertStored();
