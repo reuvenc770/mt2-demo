@@ -48,7 +48,7 @@ class EmailFeedActionRepo {
     }
 
     public function getCurrentAttributedStatus($emailId) {
-        $attrDb = config('database.attribution.database');
+        $attrDb = config('database.connections.attribution.database');
 
         return $this->model
                     ->join("$attrDb.email_feed_assignments as efa", "email_feed_action.email_id", '=', 'efa.email_id')
