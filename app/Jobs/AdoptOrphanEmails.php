@@ -18,7 +18,7 @@ use App\Models\EmailFeedInstance;
 use App\Models\OrphanEmail;
 use App\Facades\JobTracking;
 use App\Models\StandardReport;
-
+use App\Services\EmailFeedActionService;
 class AdoptOrphanEmails extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
@@ -49,7 +49,7 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle(AttributionRecordTruthService $truthService) {
+    public function handle(AttributionRecordTruthService $truthService, EmailFeedActionService $actionService) {
 
         JobTracking::startEspJob( 'Orphan Adoption: ' . $this->firstId . '-' . $this->lastId , null , null , $this->tracking );
         $attempts = 0;
@@ -108,7 +108,7 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
                 if($currentEmailId > 0 && $emailRecordCount > 0){
                     if ($orphan->action_id == AbstractReportService::RECORD_TYPE_CLICKER ||
                         $orphan->action_id == AbstractReportService::RECORD_TYPE_OPENER) {
-                        $actionsRecords[] = ["email_id" =>$currentEmailId, "datetime" => $orphan->datetime];
+                        $actionsRecords[] = ["email_id" =>$currentEmailId, "type" => $orphan->action_id];
                     }
                 }
             }
@@ -139,12 +139,7 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
                 );
 
                 if(count($actionsRecords) > 0) {
-                    $scheduledFilterService = ServiceFactory::createFilterService("activity");
-
-                        $emails = collect($actionsRecords)->pluck("email_id")->all();
-                        $truthService->bulkToggleFieldRecord($emails, "has_action", true);
-
-                    $scheduledFilterService->insertScheduleFilterBulk($actionsRecords, 90);
+                    $actionService->bulkUpdate($actionsRecords);
                 }
 
                 DB::table('orphan_emails')
