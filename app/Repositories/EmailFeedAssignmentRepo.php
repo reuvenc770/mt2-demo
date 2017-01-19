@@ -141,11 +141,11 @@ class EmailFeedAssignmentRepo implements IAwsRepo {
 
     public function mapForS3Upload($row) {
         return [
-            'email_id' => $row->email_id,
-            'feed_id' => $row->feed_id,
-            'created_at' => $row->created_at,
-            'updated_at' => $row->updated_at,
-            'capture_date' => $row->capture_date
+            $row->email_id,
+            $row->feed_id,
+            $row->created_at,
+            $row->updated_at,
+            $row->capture_date
         ];
     }
 }

@@ -25,13 +25,13 @@ class SuppressionGlobalOrangeRepo implements IAwsRepo {
 
     public function mapForS3Upload($row) {
         return [
-            'id' => $row->id,
-            'email_address' => $row->email_address,
-            'suppress_datetime' => $row->suppress_datetime,
-            'reason_id' => $row->reason_id,
-            'type_id' => $row->type_id,
-            'created_at' => $row->created_at,
-            'updated_at' => $row->updated_at
+            $row->id,
+            $row->email_address,
+            $row->suppress_datetime,
+            $row->reason_id,
+            $row->type_id,
+            $row->created_at,
+            $row->updated_at
         ];
     }
 

@@ -139,20 +139,20 @@ class ListProfileFlatTableRepo implements IAwsRepo {
 
     public function mapForS3Upload($row) {
         return [
-            'email_id' => $row->email_id,
-            'deploy_id' => $row->deploy_id,
-            'date' => $row->date,
-            'email_address' => $row->email_address,
-            'email_domain_id' => $row->email_domain_id,
-            'email_domain_group_id' => $row->email_domain_group_id,
-            'offer_id' => $row->offer_id,
-            'cake_vertical_id' => $row->cake_vertical_id,
-            'deliveries' => $row->deliveries,
-            'opens' => $row->opens,
-            'clicks' => $row->clicks,
-            'conversions' => $row->conversions,
-            'created_at' => $row->created_at,
-            'updated_at' => $row->updated_at
+            $row->email_id,
+            $row->deploy_id,
+            $row->date,
+            $row->email_address,
+            $row->email_domain_id,
+            $row->email_domain_group_id,
+            $row->offer_id,
+            $row->cake_vertical_id,
+            $row->deliveries,
+            $row->opens,
+            $row->clicks,
+            $row->conversions,
+            $row->created_at,
+            $row->updated_at
         ];
     }
 }

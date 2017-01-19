@@ -55,18 +55,18 @@ class ClientRepo implements IAwsRepo {
 
     public function mapForS3Upload($row) {
         return [
-            'id' => $row->id,
-            'name' => $row->name,
-            'address' => $row->address,
-            'address2' => $row->address2,
-            'city' => $row->city,
-            'state' => $row->state,
-            'zip' => $row->zip,
-            'email_address' => $row->email_address,
-            'phone' => $row->phone,
-            'status' => $row->status,
-            'created_at' => $row->created_at,
-            'updated_at' => $row->updated_at
+            $row->id,
+            $row->name,
+            $row->address,
+            $row->address2,
+            $row->city,
+            $row->state,
+            $row->zip,
+            $row->email_address,
+            $row->phone,
+            $row->status,
+            $row->created_at,
+            $row->updated_at
         ];
     }
 }

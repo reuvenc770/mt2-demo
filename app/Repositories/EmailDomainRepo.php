@@ -120,10 +120,10 @@ class EmailDomainRepo implements IAwsRepo {
 
     public function mapForS3Upload($row) {
         return [
-            'id' => $row->id,
-            'domain_group_id' => $row->domain_group_id,
-            'domain_name' => $row->domain_name,
-            'is_suppressed' => $row->is_suppressed
+            $row->id,
+            $row->domain_group_id,
+            $row->domain_name,
+            $row->is_suppressed
         ];
     }
 

@@ -68,11 +68,11 @@ class DomainGroupRepo implements IAwsRepo
 
     public function mapForS3Upload($row) {
         return [
-            'id' => $row->id,
-            'name' => $row->name,
-            'priority' => $row->priority,
-            'status' => $row->status,
-            'country' => $row->country,
+            $row->id,
+            $row->name,
+            $row->priority,
+            $row->status,
+            $row->country,
         ];
     }
 }

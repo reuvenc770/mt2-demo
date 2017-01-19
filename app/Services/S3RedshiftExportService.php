@@ -14,7 +14,7 @@ class S3RedshiftExportService {
     private $pickupRepo;
     private $filePath;
     const WRITE_THRESHOLD = 10000;
-    private $rows;
+    private $rows = [];
     private $rowCount;
 
     private $strat;
@@ -35,15 +35,15 @@ class S3RedshiftExportService {
         $stopPoint = $this->pickupRepo->getLastInsertedForName($this->entity . '-s3');
 
         $resource = $this->repo->extractForS3Upload($stopPoint);
-        $this->write($resource);
+        $this->write($resource, $stopPoint);
     }
 
     public function extractAll() {
         $resource = $this->repo->extractAllForS3();
-        $this->write($resource);   
+        $this->write($resource, 0);   
     }
 
-    private function write($resource) {
+    private function write($resource, $stopPoint) {
         Storage::disk('local')->delete($this->filePath);
 
         $this->rowCount = 0;
@@ -72,9 +72,11 @@ class S3RedshiftExportService {
 
         // And then delete the file
         Storage::disk('local')->delete($this->filePath);
+        
     }
 
     public function loadAll() {
+        
         $result = $this->s3Client->putObject([
             'Bucket' => config('aws.s3.fileUploadBucket'),
             'Key' => "{$this->entity}.csv",
@@ -85,12 +87,13 @@ class S3RedshiftExportService {
 
         // And then delete the file
         Storage::disk('local')->delete($this->filePath);
+        
     }
 
 
     private function batch($fileName, $row) {
         if ($this->rowCount >= self::WRITE_THRESHOLD) {
-            $this->writeBatch($fileName,$disk);
+            $this->writeBatch($fileName);
             $this->rows = ['"' . implode('","', $row) . '"'];
             $this->rowCount = 1;
         } else {
