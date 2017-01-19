@@ -32,7 +32,7 @@ class SuppressionGlobalOrangeRepo implements IAwsRepo {
             . $pdo->quote($row->reason_id) . ','
             . $pdo->quote($row->type_id) . ','
             . $pdo->quote($row->created_at) . ','
-            . $pdo->quote( $row->updated_a) . ')';
+            . $pdo->quote($row->updated_at) . ')';
     }
 
     public function extractAllForS3() {
