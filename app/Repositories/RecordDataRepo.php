@@ -224,7 +224,7 @@ class RecordDataRepo implements IAwsRepo {
             . $pdo->quote($row->last_action_date) . ','
             . $pdo->quote($row->other_fields) . ','
             . $pdo->quote($row->last_action_offer_id) . ','
-            . $pdo->quote($row->last_action_date) . ')'
+            . $pdo->quote($row->last_action_date) . ')';
     }
 
 }

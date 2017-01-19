@@ -62,7 +62,7 @@ class S3RedshiftExportService {
     }
 
     public function load() {
-        $result = $this->s3Client->putObject([
+	$result = $this->s3Client->putObject([
             'Bucket' => config('aws.s3.fileUploadBucket'),
             'Key' => "{$this->entity}.csv",
             'SourceFile' => storage_path('app') . $this->filePath,
