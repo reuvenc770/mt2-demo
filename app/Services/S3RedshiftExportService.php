@@ -72,11 +72,9 @@ class S3RedshiftExportService {
 
         // And then delete the file
         Storage::disk('local')->delete($this->filePath);
-        
     }
 
     public function loadAll() {
-        
         $result = $this->s3Client->putObject([
             'Bucket' => config('aws.s3.fileUploadBucket'),
             'Key' => "{$this->entity}.csv",
@@ -87,7 +85,6 @@ class S3RedshiftExportService {
 
         // And then delete the file
         Storage::disk('local')->delete($this->filePath);
-        
     }
 
 
