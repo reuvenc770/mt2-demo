@@ -14,7 +14,7 @@ class CreateEmailFeedActionsTable extends Migration
         Schema::create('email_feed_actions', function (Blueprint $table) {
             $table->bigInteger('email_id')->unsigned()->default(0);
             $table->integer('feed_id')->unsigned()->default(0);
-            $table->enum('status', ['POR', 'POA', 'POL', 'Deliverable', 'Opener', 'Clicker', 'Converter'])->default('POR');
+            $table->enum('status', ['POR', 'POA', 'MOA', 'Deliverable', 'Opener', 'Clicker', 'Converter'])->default('POR');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
 
