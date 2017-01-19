@@ -3,10 +3,12 @@
 namespace App\Services;
 
 use Carbon\Carbon;
+use App\Models\EmailFeedAction;
 use App\Repositories\EmailFeedAssignmentRepo;
 use App\Repositories\AttributionRecordTruthRepo;
 use App\Repositories\AttributionExpirationScheduleRepo;
 use App\Repositories\EmailFeedInstanceRepo;
+use App\Repositories\EmailFeedActionRepo;
 use App\Events\AttributionCompleted;
 use Cache;
 
@@ -17,18 +19,21 @@ class AttributionBatchService {
     private $scheduleRepo;
     private $assignmentRepo;
     private $feedInstanceRepo;
+    private $emailFeedActionRepo;
     private $keyName = 'AttributionJob';
-    const EXPIRATION_DAY_RANGE = 10;
+    const EXPIRATION_DAY_RANGE = 15;
 
     public function __construct(AttributionRecordTruthRepo $truthRepo, 
                                 AttributionExpirationScheduleRepo $scheduleRepo, 
                                 EmailFeedAssignmentRepo $assignmentRepo,
-                                EmailFeedInstanceRepo $feedInstanceRepo) {
+                                EmailFeedInstanceRepo $feedInstanceRepo,
+                                EmailFeedActionRepo $emailFeedActionRepo) {
 
         $this->truthRepo = $truthRepo;
         $this->scheduleRepo = $scheduleRepo;
         $this->assignmentRepo = $assignmentRepo;
         $this->feedInstanceRepo = $feedInstanceRepo;
+        $this->emailFeedActionRepo = $emailFeedActionRepo;
 
         $this->today = Carbon::today();
     }
@@ -74,11 +79,13 @@ class AttributionBatchService {
                     $this->recordHistory($record->email_id, $oldFeedId, $feedId);
                     $this->updateScheduleTable($record->email_id, $captureDate);
                     $this->updateTruthTable($record->email_id, $captureDate, $hasAction, $actionExpired, $subsequentImports);
+                    $this->updateActionStatus($record->email_id, $oldFeedId, $feedId);
                 }
             }
 
         }
-        
+
+        $this->emailFeedActionRepo->insertStored();
         Cache::decrement($this->keyName);
 
         if (0 === (int)Cache::get($this->keyName)) {
@@ -151,5 +158,19 @@ class AttributionBatchService {
                           ->format('Y-m-d');
 
         $this->scheduleRepo->insertSchedule($emailId, $nextDate);
+    }
+
+    private function updateActionStatus($emailId, $oldFeedId, $newFeedId) {
+        $this->emailFeedActionRepo->batchInsert([
+            'email_id' => $emailId,
+            'feed_id' => $newFeedId,
+            'status' => EmailFeedAction::DELIVERABLE
+        ]);
+
+        $this->emailFeedActionRepo->batchInsert([
+            'email_id' => $emailId,
+            'feed_id' => $oldFeedId,
+            'status' => EmailFeedAction::LOST_ATTRIBUTION
+        ]);
     }
 }
