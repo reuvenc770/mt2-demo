@@ -31,6 +31,7 @@ class CreateListProfileFlatTablesTable extends Migration
             $table->index(['email_id', 'date'], 'email_date');
             $table->index(['deploy_id', 'date'], 'deploy_date');
             $table->index('date', 'date');
+            $table->index('updated_at', 'updated_at');
         });
     }
 

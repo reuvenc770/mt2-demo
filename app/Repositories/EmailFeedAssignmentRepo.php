@@ -140,12 +140,12 @@ class EmailFeedAssignmentRepo implements IAwsRepo {
 
 
     public function mapForS3Upload($row) {
-        return [
-            'email_id' => $row->email_id,
-            'feed_id' => $row->feed_id,
-            'created_at' => $row->created_at,
-            'updated_at' => $row->updated_at,
-            'capture_date' => $row->capture_date
-        ];
+        $pdo = DB::connection()->getPdo();
+        return '('
+             . $pdo->quote($row->email_id) . ','
+             . $pdo->quote($row->feed_id) . ','
+             . $pdo->quote($row->created_at) . ','
+             . $pdo->quote($row->updated_at) . ','
+             . $pdo->quote($row->capture_date) . ')';
     }
 }

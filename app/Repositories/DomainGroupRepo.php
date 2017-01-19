@@ -67,12 +67,12 @@ class DomainGroupRepo implements IAwsRepo
 
 
     public function mapForS3Upload($row) {
-        return [
-            'id' => $row->id,
-            'name' => $row->name,
-            'priority' => $row->priority,
-            'status' => $row->status,
-            'country' => $row->country,
-        ];
+        $pdo = DB::connection()->getPdo();
+        return '('
+            . $pdo->quote($row->id) . ','
+            . $pdo->quote($row->name) . ','
+            . $pdo->quote($row->priority) . ','
+            . $pdo->quote($row->status) . ','
+            . $pdo->quote($row->country) . ')';
     }
 }

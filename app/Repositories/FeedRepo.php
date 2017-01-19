@@ -208,22 +208,21 @@ class FeedRepo implements Mt2Export, IAwsRepo {
 
 
     public function mapForS3Upload($row) {
-        return [
-            'id' => $row->id,
-            'client_id' => $row->client_id,
-            'name' => $row->name,
-            'party' => $row->party,
-            'short_name' => $row->short_name,
-            'password' => $row->password,
-            'status' => $row->status,
-            'vertical_id' => $row->vertical_id,
-            'frequency' => $row->frequency,
-            'type_id' => $row->type_id,
-            'country_id' => $row->country_id,
-            'source_url' => $row->source_url,
-            'suppression_list_id' => $row->suppression_list_id,
-            'created_at' => $row->created_at,
-            'updated_at' => $row->updated_at
-        ];
+        $pdo = DB::connection()->getPdo();
+        return '('
+            . $pdo->quote($row->id) . ','
+            . $pdo->quote($row->client_id) . ','
+            . $pdo->quote($row->name) . ','
+            . $pdo->quote($row->party) . ','
+            . $pdo->quote($row->short_name) . ','
+            . $pdo->quote($row->status) . ','
+            . $pdo->quote($row->vertical_id) . ','
+            . $pdo->quote($row->frequency) . ','
+            . $pdo->quote($row->type_id) . ','
+            . $pdo->quote($row->country_id) . ','
+            . $pdo->quote($row->source_url) . ','
+            . $pdo->quote($row->suppression_list_id) . ','
+            . $pdo->quote($row->created_at) . ','
+            . $pdo->quote($row->updated_at) . ')';
     }
 }

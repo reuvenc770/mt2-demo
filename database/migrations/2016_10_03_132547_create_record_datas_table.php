@@ -44,6 +44,7 @@ class CreateRecordDatasTable extends Migration
             $table->index('device_type');
             $table->index('device_name');
             $table->index('carrier');
+            $table->index('updated_at', 'updated_at');
         });
     }
 
