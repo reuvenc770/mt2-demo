@@ -190,7 +190,8 @@ class RecordDataRepo implements IAwsRepo {
     }
 
     public function extractForS3Upload($startPoint) {
-        return $this->model;
+        // this start point is a date
+        return $this->model->whereRaw("updated_at > $startPoint");
     }
 
     public function extractAllForS3() {
