@@ -94,10 +94,10 @@ class S3RedshiftExportService {
     private function batch($fileName, $row) {
         if ($this->rowCount >= self::WRITE_THRESHOLD) {
             $this->writeBatch($fileName);
-            $this->rows = ['"' . implode('","', $row) . '"'];
+            $this->rows = [$row];
             $this->rowCount = 1;
         } else {
-            $this->rows[] = ('"' . implode('","', $row) . '"');
+            $this->rows[] = $row;
             $this->rowCount++;
         }
     }

@@ -119,12 +119,12 @@ class EmailDomainRepo implements IAwsRepo {
     }
 
     public function mapForS3Upload($row) {
-        return [
-            $row->id,
-            $row->domain_group_id,
-            $row->domain_name,
-            $row->is_suppressed
-        ];
+        $pdo = DB::connection()->getPdo();
+        return '('
+            . $pdo->quote($row->id) . ','
+            . $pdo->quote($row->domain_group_id) . ','
+            . $pdo->quote($row->domain_name) . ','
+            . $pdo->quote($row->is_suppressed) . ')';
     }
 
 }

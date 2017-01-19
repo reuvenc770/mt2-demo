@@ -438,12 +438,12 @@ class EmailRepo implements Mt2Export, IAwsRepo {
 
 
     public function mapForS3Upload($row) {
-        return [
-            $row->id,
-            $row->email_address,
-            $row->domain_id,
-            $row->lower_case_md5,
-            $row->upper_case_md5
-        ];
+        $pdo = DB::connection()->getPdo();
+        return '('
+            . $pdo->quote($row->id) . ','
+            . $pdo->quote($row->email_address) . ','
+            . $pdo->quote($row->domain_id) . ','
+            . $pdo->quote($row->lower_case_md5) . ','
+            . $pdo->quote($row->upper_case_md5) . ')';
     }
 }

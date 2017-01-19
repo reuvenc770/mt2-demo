@@ -208,22 +208,14 @@ class FeedRepo implements Mt2Export, IAwsRepo {
 
 
     public function mapForS3Upload($row) {
-        return [
-            $row->id,
-            $row->client_id,
-            $row->name,
-            $row->party,
-            $row->short_name,
-            $row->password,
-            $row->status,
-            $row->vertical_id,
-            $row->frequency,
-            $row->type_id,
-            $row->country_id,
-            $row->source_url,
-            $row->suppression_list_id,
-            $row->created_at,
-            $row->updated_at
-        ];
+        $pdo = DB::connection()->getPdo();
+        return '('
+            . $pdo->quote($row->id) . ','
+            . $pdo->quote($row->client_id) . ','
+            . $pdo->quote($row->name) . ','
+            . $pdo->quote($row->party) . ','
+            . $pdo->quote($row->short_name) . ','
+            . $pdo->quote($row->created_at) . ','
+            . $pdo->quote($row->updated_at) . ')';
     }
 }
