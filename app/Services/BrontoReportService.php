@@ -351,13 +351,15 @@ class BrontoReportService extends AbstractReportService implements IDataService
         );
     }
 
+    //I am not sure how to make this generic could use regex maybe. 
     public function parseInternalId($id)
     {
-        $pos = strrpos($id, '0001');
-        $hexId = substr($id, $pos + 3);
-        $id = base_convert($hexId, 16, 10);
-        if ($id > 10) {  //not a mailer
-           $id = 0;
+        if(strrpos($id, '0001')){
+            $hexId = substr($id, strrpos($id, '0001') + 3);
+            $id = base_convert($hexId, 16, 10);
+        } elseif(strrpos($id, '0002')){
+            $hexId = substr($id, strrpos($id, '0002') + 3);
+            $id = base_convert($hexId, 16, 10);
         }
         return $id;
     }
