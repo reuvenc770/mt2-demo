@@ -432,6 +432,11 @@ class EmailRepo implements Mt2Export, IAwsRepo {
         return $this->emailModel->whereRaw("id > $startPoint");
     }
 
+    public function extractAllForS3() {
+        return $this->emailModel;
+    }
+
+
     public function mapForS3Upload($row) {
         return [
             'id' => $row->id,

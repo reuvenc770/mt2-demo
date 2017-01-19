@@ -35,6 +35,15 @@ class S3RedshiftExportService {
         $stopPoint = $this->pickupRepo->getLastInsertedForName($this->entity . '-s3');
 
         $resource = $this->repo->extractForS3Upload($stopPoint);
+        $this->write($resource);
+    }
+
+    public function extractAll() {
+        $resource = $this->repo->extractAllForS3();
+        $this->write($resource);   
+    }
+
+    private function write($resource) {
         Storage::disk('local')->delete($this->filePath);
 
         $this->rowCount = 0;
@@ -60,6 +69,19 @@ class S3RedshiftExportService {
         ]);
 
         $this->redshiftRepo->loadEntity($this->entity);
+
+        // And then delete the file
+        Storage::disk('local')->delete($this->filePath);
+    }
+
+    public function loadAll() {
+        $result = $this->s3Client->putObject([
+            'Bucket' => config('aws.s3.fileUploadBucket'),
+            'Key' => "{$this->entity}.csv",
+            'SourceFile' => storage_path('app') . $this->filePath,
+        ]);
+
+        $this->redshiftRepo->clearAndReloadEntity($this->entity);
 
         // And then delete the file
         Storage::disk('local')->delete($this->filePath);

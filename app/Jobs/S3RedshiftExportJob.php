@@ -16,11 +16,13 @@ class S3RedshiftExportJob extends Job implements ShouldQueue {
     private $tracking;
     private $entity;
     private $jobName;
+    private $getAll;
 
-    public function __construct($entity, $tracking) {
+    public function __construct($entity, $getAll, $tracking) {
         $this->entity = $entity;
         $this->jobName = $entity . '-s3';
         $this->tracking = $tracking;
+        $this->getAll = $getAll;
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
@@ -32,8 +34,15 @@ class S3RedshiftExportJob extends Job implements ShouldQueue {
                 echo "{$this->jobName} running" . PHP_EOL;
 
                 $service = ServiceFactory::createAwsExportService($this->entity);
-                $service->extract();
-                $service->load();
+
+                if ($this->getAll) {
+                    $service->extractAll();
+                    $service->loadAll();
+                }
+                else {
+                    $service->extract();
+                    $service->load();
+                }
 
                 JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
             }

@@ -16,7 +16,7 @@ class S3RedshiftExport extends Command
      *
      * @var string
      */
-    protected $signature = 'listprofile:dataEtl';
+    protected $signature = 'listprofile:dataEtl {--all}';
 
     /**
      * The console command description.
@@ -25,7 +25,7 @@ class S3RedshiftExport extends Command
      */
     protected $description = "Export tables to s3 and redshift";
 
-    private $entities = ['EmailDomain', 'EmailFeedAssignment', 'Email', 'Feed', 'ListProfileFlatTable', 'RecordData', 'SuppressionGlobalOrange', 'DomainGroup'];
+    private $entities = ['EmailDomain', 'EmailFeedAssignment', 'Email', 'Feed', 'ListProfileFlatTable', 'RecordData', 'SuppressionGlobalOrange', 'DomainGroup', 'Client'];
 
     /**
      * Create a new command instance.
@@ -43,8 +43,9 @@ class S3RedshiftExport extends Command
      * @return mixed
      */
     public function handle() {
+        $all = $this->option('all');
         foreach ($this->entities as $entity) {
-            $job = new S3RedshiftExportJob($entity, str_random(16));
+            $job = new S3RedshiftExportJob($entity, $all, str_random(16));
             $this->dispatch($job);
         }
     }

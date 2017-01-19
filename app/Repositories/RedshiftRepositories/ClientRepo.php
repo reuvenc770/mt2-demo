@@ -2,21 +2,21 @@
 
 namespace App\Repositories\RedshiftRepositories;
 
-use App\Models\RedshiftModels\Feed;
+use App\Models\RedshiftModels\Client;
 use App\Repositories\RepoInterfaces\IRedshiftRepo;
 use DB;
 
-class FeedRepo implements IRedshiftRepo {
+class ClientRepo implements IRedshiftRepo {
     
     private $model;
 
-    public function __construct(Feed $model) {
+    public function __construct(Client $model) {
         $this->model = $model;
     }
 
     public function loadEntity($entity) {
         $sql = <<<SQL
-copy feeds
+copy clients
 from 's3://mt2-listprofile-export/{$entity}.csv'
 credentials 'aws_iam_role=arn:aws:iam::286457008090:role/redshift-s3-stg'
 format as csv quote as '"' delimiter as ',';
@@ -25,11 +25,11 @@ SQL;
     }
 
     public function clearAndReloadEntity($entity) {
-        DB::connection('redshift')->table('feeds')->truncate();
+        DB::connection('redshift')->table('clients')->truncate();
         
         $sql = <<<SQL
-copy feeds
-from 's3://mt2-listprofile-export/{$fileName}.csv'
+copy clients
+from 's3://mt2-listprofile-export/{$entity}.csv'
 credentials 'aws_iam_role=arn:aws:iam::286457008090:role/redshift-s3-stg'
 format as csv quote as '"' delimiter as ',';
 SQL;
