@@ -215,6 +215,13 @@ class FeedRepo implements Mt2Export, IAwsRepo {
             . $pdo->quote($row->name) . ','
             . $pdo->quote($row->party) . ','
             . $pdo->quote($row->short_name) . ','
+            . $pdo->quote($row->status) . ','
+            . $pdo->quote($row->vertical_id) . ','
+            . $pdo->quote($row->frequency) . ','
+            . $pdo->quote($row->type_id) . ','
+            . $pdo->quote($row->country_id) . ','
+            . $pdo->quote($row->source_url) . ','
+            . $pdo->quote($row->suppression_list_id) . ','
             . $pdo->quote($row->created_at) . ','
             . $pdo->quote($row->updated_at) . ')';
     }
