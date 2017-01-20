@@ -24,15 +24,14 @@ class SuppressionGlobalOrangeRepo implements IAwsRepo {
     }
 
     public function mapForS3Upload($row) {
-        $pdo = DB::connection()->getPdo();
-        return '('
-            . $pdo->quote($row->id) . ','
+        $pdo = DB::connection('redshift')->getPdo();
+        return $pdo->quote($row->id) . ','
             . $pdo->quote($row->email_address) . ','
             . $pdo->quote($row->suppress_datetime) . ','
             . $pdo->quote($row->reason_id) . ','
             . $pdo->quote($row->type_id) . ','
             . $pdo->quote($row->created_at) . ','
-            . $pdo->quote($row->updated_at) . ')';
+            . $pdo->quote($row->updated_at) ;
     }
 
     public function extractAllForS3() {

@@ -54,9 +54,8 @@ class ClientRepo implements IAwsRepo {
 
 
     public function mapForS3Upload($row) {
-        $pdo = DB::connection()->getPdo();
-        return '('
-            . $pdo->quote($row->id) . ','
+        $pdo = DB::connection('redshift')->getPdo();
+        return $pdo->quote($row->id) . ','
             . $pdo->quote($row->name) . ','
             . $pdo->quote($row->address) . ','
             . $pdo->quote($row->address2) . ','
@@ -67,6 +66,6 @@ class ClientRepo implements IAwsRepo {
             . $pdo->quote($row->phone) . ','
             . $pdo->quote($row->status) . ','
             . $pdo->quote($row->created_at) . ','
-            . $pdo->quote($row->updated_at) . ')';
+            . $pdo->quote($row->updated_at);
     }
 }

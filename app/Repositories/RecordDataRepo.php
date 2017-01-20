@@ -226,9 +226,9 @@ class RecordDataRepo implements IAwsRepo {
     }
 
     public function mapForS3Upload($row) {
-        $pdo = DB::connection()->getPdo();
-        return '('
-            . $pdo->quote($row->email_id) . ','
+        $pdo = DB::connection('redshift')->getPdo();
+        
+        return $pdo->quote($row->email_id) . ','
             . $pdo->quote($row->is_deliverable) . ','
             . $pdo->quote($row->first_name) . ','
             . $pdo->quote($row->last_name) . ','
@@ -243,15 +243,16 @@ class RecordDataRepo implements IAwsRepo {
             . $pdo->quote($row->phone) . ','
             . $pdo->quote($row->source_url) . ','
             . $pdo->quote($row->dob) . ','
-            . $pdo->quote($row->device_type) . ','
+            . $pdo->quote(str_replace('"', '', $row->device_type)) . ','
             . $pdo->quote(str_replace('"', '', $row->device_name)) . ','
             . $pdo->quote(str_replace('"', '', $row->carrier)) . ','
             . $pdo->quote($row->capture_date) . ','
             . $pdo->quote($row->subscribe_date) . ','
+            . $pdo->quote($row->last_action_offer_id) . ','
             . $pdo->quote($row->last_action_date) . ','
             . $pdo->quote($row->other_fields) . ','
-            . $pdo->quote($row->last_action_offer_id) . ','
-            . $pdo->quote($row->last_action_date) . ')';
+            . $pdo->quote($row->created_at) . ','
+            . $pdo->quote($row->updated_at);
     }
 
 }

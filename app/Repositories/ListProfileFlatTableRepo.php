@@ -138,9 +138,8 @@ class ListProfileFlatTableRepo implements IAwsRepo {
 
 
     public function mapForS3Upload($row) {
-        $pdo = DB::connection()->getPdo();
-        return '('
-            . $pdo->quote($row->email_id) . ','
+        $pdo = DB::connection('redshift')->getPdo();
+        return $pdo->quote($row->email_id) . ','
             . $pdo->quote($row->deploy_id) . ','
             . $pdo->quote($row->date) . ','
             . $pdo->quote($row->email_address) . ','
@@ -153,6 +152,6 @@ class ListProfileFlatTableRepo implements IAwsRepo {
             . $pdo->quote($row->clicks) . ','
             . $pdo->quote($row->conversions) . ','
             . $pdo->quote($row->created_at) . ','
-            . $pdo->quote($row->updated_at) . ')';
+            . $pdo->quote($row->updated_at);
     }
 }
