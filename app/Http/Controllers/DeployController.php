@@ -26,7 +26,7 @@ class DeployController extends Controller
     public function listAll(EspService $espService)
     {
         $esps = $espService->getAllEsps();
-        return response()->view('bootstrap.pages.deploy.deploy-index', ['esps' => $esps]);
+        return response()->view('pages.deploy.deploy-index', ['esps' => $esps]);
     }
 
     public function returnCakeAffiliates()
@@ -196,8 +196,8 @@ class DeployController extends Controller
         }
         catch (\Exception $e){
             return $e->getMessage();
-        }   
-        
+        }
+
     }
 
     public function downloadHtml(Request $request ,$deployId){
@@ -206,12 +206,12 @@ class DeployController extends Controller
             $html  = $this->packageService->createHtml($deployId);
 
             return response()
-                ->view( 'bootstrap.pages.deploy.deploy-preview', ["html" => $html] ); 
+                ->view( 'pages.deploy.deploy-preview', ["html" => $html] );
         }
         catch (\Exception $e) {
             return $e->getMessage();
         }
-        
+
     }
 
 

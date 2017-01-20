@@ -1,4 +1,4 @@
-mt2App.controller( 'DataCleanseController' , [ '$rootScope' , '$window' , '$location', '$mdToast' , '$anchorScroll' , '$log' , 'DataCleanseApiService' , function ( $rootScope , $window , $location , $mdToast , $anchorScroll , $log , DataCleanseApiService ) {
+mt2App.controller( 'DataCleanseController' , [ '$rootScope' , '$window' , '$location' , '$log' , 'DataCleanseApiService' , 'formValidationService' , 'modalService' , function ( $rootScope , $window , $location , $log , DataCleanseApiService , formValidationService , modalService ) {
     var self = this;
 
     self.createUrl = '/datacleanse/create';
@@ -9,8 +9,9 @@ mt2App.controller( 'DataCleanseController' , [ '$rootScope' , '$window' , '$loca
     self.cleanseTotal = 0;
     self.sort = 'name';
     self.queryPromise = null;
+    self.creatingCleanse = false;
 
-    self.current = { "exportType" : "Cleanse" , "ConfirmEmail" : "alphateam@zetainteractive.com" };
+    self.current = { "exportType" : "Cleanse" , "ConfirmEmail" : "alphateam@zetainteractive.com" , "includeHeaders" : "Y" };
     self.cleanses = [];
 
     self.advertisers = [];
@@ -32,37 +33,19 @@ mt2App.controller( 'DataCleanseController' , [ '$rootScope' , '$window' , '$loca
      * Loading Methods
      */
     self.load = function () {
-        self.queryPromise = DataCleanseApiService.getAll( self.currentPage , self.paginationCount , self.sort , function ( response ) {
-            self.cleanses = response.data.data;
-            self.pageCount = response.data.last_page;
-            self.cleanseTotal = response.data.total;
-        } , function ( response ) {
-            $mdToast.showSimple( 'Failed to load Data Cleanses. Please contact support.' );
-        } );
+        self.queryPromise = DataCleanseApiService.getAll( self.currentPage , self.paginationCount , self.sort , self.loadCleanseSuccessCallback, self.loadCleanseFailureCallback );
     };
 
     self.loadAdvertisers = function () {
-        DataCleanseApiService.getAdvertisers( function ( response ) {
-            self.advertisers = response.data;
-        } , function ( response ) {
-            $mdToast.showSimple( 'Failed to load Advertiser Suppression. Please contact support.' );
-        } );
+        DataCleanseApiService.getAdvertisers( self.loadAdvertisersSuccessCallback , self.loadAdvertisersFailureCallback );
     };
 
     self.loadCountries = function () {
-        DataCleanseApiService.getCountries( function ( response ) {
-            self.countries = response.data;
-        } , function ( response ) {
-            $mdToast.showSimple( 'Failed to load Suppression Countries. Please contact support.' );
-        } );
+        DataCleanseApiService.getCountries( self.loadCountriesSuccessCallback , self.loadCountriesFailureCallback );
     };
 
     self.loadOfferCategories = function () {
-        DataCleanseApiService.getOfferCategories( function ( response ) {
-            self.offerCategories = response.data;
-        } , function ( response ) {
-            $mdToast.showSimple( 'Failed to load Suppression Offer Categories. Please contact support.' );
-        } );
+        DataCleanseApiService.getOfferCategories( self.loadOfferCategoriesSuccessCallback , self.loadOfferCategoriesFailureCallback );
     };
 
     /**
@@ -79,44 +62,11 @@ mt2App.controller( 'DataCleanseController' , [ '$rootScope' , '$window' , '$loca
     }
 
     self.saveCleanse = function ( $event , form ) {
-        if ( self.selectedAdvertisers.length <= 0 ) {
-            $anchorScroll( 'suppressionAdvertisers' );
+        self.creatingCleanse = true;
+        formValidationService.resetFieldErrors(self);
 
-            $mdToast.showSimple( 'At least 1 Advertiser is required.' );
+        DataCleanseApiService.save( self.current , self.saveCleanseSuccessCallback , self.saveCleanseFailureCallback );
 
-            return false;
-        }
-
-        var errorFound = false;
-
-        angular.forEach( form.$error.required , function ( field ) {
-            field.$setDirty();
-            field.$setTouched();
-
-            errorFound = true;
-        } );
-
-        if ( errorFound ) {
-            $mdToast.showSimple( 'Please fix errors and try again.' );
-
-            return false;
-        }
-
-        DataCleanseApiService.save( self.current , function ( response ) {
-            $mdToast.showSimple( 'Successfully saved Data Cleanse.' );
-        } , function ( response ) {
-            if ( typeof( response.data.pname ) !== 'undefined' ) {
-                $mdToast.showSimple( 'Data Export Filename is required. Please choose one and try again.' );
-            } else if ( typeof( response.data.aid ) !== 'undefined' ) {
-                $anchorScroll( 'suppressionAdvertisers' );
-
-                $mdToast.showSimple( 'At least 1 Advertiser is required. Please choose one and try again.' );
-            } else if ( typeof( response.data.ConfirmEmail ) !== 'undefined' ) {
-                $mdToast.showSimple( 'A confirmation email is required.' );
-            } else {
-                $mdToast.showSimple( 'Failed to save Data Cleanse. Please try again.' );
-            }
-        } );
     };
 
     /**
@@ -150,6 +100,63 @@ mt2App.controller( 'DataCleanseController' , [ '$rootScope' , '$window' , '$loca
         } );
 
         self.current.scatid = offerCategoryIdList;
+    };
+
+    /**
+     * Callbacks
+     */
+    self.loadCleanseSuccessCallback = function ( response ) {
+        self.cleanses = response.data.data;
+        self.pageCount = response.data.last_page;
+        self.cleanseTotal = response.data.total;
+    };
+
+    self.loadCleanseFailureCallback = function ( response ) {
+        modalService.setModalLabel( 'Error' );
+        modalService.setModalBody( 'Failed to load Data Cleanses. Please contact support.' );
+        modalService.launchModal();
+    };
+
+    self.loadAdvertisersSuccessCallback = function ( response ) {
+        self.advertisers = response.data;
+    };
+
+    self.loadAdvertisersFailureCallback = function ( response ) {
+        modalService.setModalLabel( 'Error' );
+        modalService.setModalBody( 'Failed to load Advertiser Suppression. Please contact support.' );
+        modalService.launchModal();
+    };
+
+    self.loadCountriesSuccessCallback = function ( response ) {
+        self.countries = response.data;
+    };
+
+    self.loadCountriesFailureCallback = function ( response ) {
+        modalService.setModalLabel( 'Error' );
+        modalService.setModalBody( 'Failed to load Suppression Countries. Please contact support.' );
+        modalService.launchModal();
+    };
+
+    self.loadOfferCategoriesSuccessCallback = function ( response ) {
+        self.offerCategories = response.data;
+    };
+
+    self.loadOfferCategoriesFailureCallback = function ( response ) {
+        modalService.setModalLabel( 'Error' );
+        modalService.setModalBody( 'Failed to load Suppression Offer Countries. Please contact support.' );
+        modalService.launchModal();
+    };
+
+    self.saveCleanseSuccessCallback = function ( response ) {
+        self.creatingCleanse = false;
+        modalService.setModalLabel( 'Success' );
+        modalService.setModalBody( 'Successfully saved Data Cleanse.' );
+        modalService.launchModal();
+    };
+
+    self.saveCleanseFailureCallback = function ( response ) {
+        self.creatingCleanse = false;
+        formValidationService.loadFieldErrors( self , response );
     };
 
 } ] );

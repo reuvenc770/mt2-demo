@@ -35,7 +35,7 @@ class ProxyController extends Controller
     public function listAll()
     {
         return response()
-            ->view('bootstrap.pages.proxy.proxy-index');
+            ->view('pages.proxy.proxy-index');
     }
 
 
@@ -66,7 +66,7 @@ class ProxyController extends Controller
         $isps = $this->domainGroupService->getAllActive();
         $affs = $this->cakeAffiliateService->getAll();
 
-        return view('bootstrap.pages.proxy.proxy-add',[ 'espAccounts' => $espAccounts, 'esps' => $esps , 'isps' => $isps , 'affiliates' => $affs ] );
+        return view('pages.proxy.proxy-add',[ 'espAccounts' => $espAccounts, 'esps' => $esps , 'isps' => $isps , 'affiliates' => $affs ] );
     }
 
     /**
@@ -108,7 +108,7 @@ class ProxyController extends Controller
         $affs = $this->cakeAffiliateService->getAll();
 
         return response()
-            ->view('bootstrap.pages.proxy.proxy-edit',[ 'espAccounts' => $espAccounts, 'esps' => $esps , 'isps' => $isps , 'affiliates' => $affs ] );
+            ->view('pages.proxy.proxy-edit',[ 'espAccounts' => $espAccounts, 'esps' => $esps , 'isps' => $isps , 'affiliates' => $affs ] );
     }
 
     /**

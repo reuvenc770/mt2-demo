@@ -1,21 +1,21 @@
-mt2App.controller( 'DomainGroupController' , [ '$log' , '$window' , '$location' , '$timeout' , 'DomainGroupApiService', '$rootScope','$mdToast', function ( $log , $window , $location , $timeout , DomainGroupApiService, $rootScope, $mdToast ) {
+mt2App.controller( 'DomainGroupController' , [ '$log' , '$window' , '$location' , '$timeout' , 'DomainGroupApiService', '$rootScope', 'formValidationService','modalService', 'paginationService' , function ( $log , $window , $location , $timeout , DomainGroupApiService, $rootScope, formValidationService, modalService , paginationService ) {
     var self = this;
     self.$location = $location;
 
     self.accounts = [];
-    self.currentAccount = {  "name" : "" ,"country":""};
-    self.domainGroupNameField = "domain_name";
-    self.domainGroupIdField = "id";
+    self.currentAccount = {  "name" : "" ,"country":"", "status":""};
     self.createUrl = 'ispgroup/create/';
     self.editUrl = 'ispgroup/edit/';
 
     self.formErrors = "";
 
     self.pageCount = 0;
-    self.paginationCount = '10';
+    self.paginationCount = paginationService.getDefaultPaginationCount();
+    self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
     self.accountTotal = 0;
-    self.sort = '-status';
+    self.sort = 'name';
+    self.editForm = false;
     self.queryPromise = null;
 
     self.loadAccount = function () {
@@ -51,30 +51,41 @@ mt2App.controller( 'DomainGroupController' , [ '$log' , '$window' , '$location' 
     };
 
     self.saveNewAccount = function () {
-        self.resetFieldErrors();
+        self.editForm = true;
+        formValidationService.resetFieldErrors(self);
         self.currentAccount.status = "Active";
         DomainGroupApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback );
     };
 
     self.editAccount = function () {
-        self.resetFieldErrors();
-        DomainGroupApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
+        self.editForm = true;
+
+        var requestData = {};
+
+        angular.copy( self.currentAccount , requestData );
+
+        delete( requestData.domains );
+
+        formValidationService.resetFieldErrors(self);
+        DomainGroupApiService.editAccount( requestData , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 
+    self.toggle = function( recordId , direction ) {
+        DomainGroupApiService.toggleRow( recordId , direction , self.toggleRowSuccess , self.toggleRowFailure );
+    }
     /**
      * Callbacks
      */
     self.loadAccountsSuccessCallback = function ( response ) {
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+
         self.accounts = response.data.data;
         self.pageCount = response.data.last_page;
         self.accountTotal = response.data.total;
     };
 
     self.loadAccountsFailureCallback = function ( response ) {
-        self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to load accounts.' );
-
-        self.launchModal();
+        modalService.simpleToast( 'Failed to load accounts.' );
     };
 
     self.SuccessCallBackRedirect = function ( response ) {
@@ -89,59 +100,27 @@ mt2App.controller( 'DomainGroupController' , [ '$log' , '$window' , '$location' 
 
 
     self.toggleRowSuccess = function ( response ) {
-        $mdToast.showSimple("ISP Group Updated");
+        modalService.setModalLabel('Success');
+        modalService.setModalBody("ISP group status updated.");
+        modalService.launchModal();
         self.loadAccounts();
     };
 
     self.saveNewAccountFailureCallback = function ( response ) {
-        self.loadFieldErrors(response);
+        self.editForm = false;
+        formValidationService.loadFieldErrors(self,response);
     };
 
     self.editAccountFailureCallback = function ( response ) {
-        self.loadFieldErrors(response);
+        self.editForm = false;
+        formValidationService.loadFieldErrors(self,response);
     };
 
-    /**
-     * Errors
-     */
-    self.loadFieldErrors = function (response ) {
-        angular.forEach(response.data, function(value, key) {
-            self.setFieldError( key , value );
-        });
+    self.toggleRowFailure = function (){
+        modalService.setModalLabel('Error');
+        modalService.setModalBody( "Failed to update ISP group status. Please try again." );
+        modalService.launchModal();
+        self.loadAccounts();
     };
 
-    self.setFieldError = function ( field , errorMessage ) {
-        self.formErrors[ field ] = errorMessage;
-    };
-
-    self.resetFieldErrors = function () {
-        self.formErrors = {};
-    };
-
-    /**
-     * Page Modal
-     */
-
-    self.setModalLabel = function ( labelText ) {
-        var modalLabel = angular.element( document.querySelector( '#pageModalLabel' ) );
-
-        modalLabel.text( labelText );
-    };
-
-    self.setModalBody = function ( bodyText ) {
-        var modalBody = angular.element( document.querySelector( '#pageModalBody' ) );
-
-        modalBody.text( bodyText );
-    };
-
-    self.launchModal = function () {
-        $( '#pageModal' ).modal('show');
-    };
-
-    self.resetModal = function () {
-        self.setModalLabel( '' );
-        self.setModalBody( '' );
-
-        $( '#pageModal' ).modal('hide');
-    };
 } ] );

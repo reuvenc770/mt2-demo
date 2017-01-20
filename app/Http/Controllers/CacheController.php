@@ -13,11 +13,11 @@ class CacheController extends Controller
 
         if(Sentinel::hasAccess("tools.cache")){
             Cache::tags($request->get('cacheTag'))->flush();
-            Flash::success( "{$request->get('cacheTag')} is cleared" );
+            Flash::success( "{$request->get('cacheTag')} is cleared." );
             return back();
         } else {
-            Flash::success( 'You do not have permission to clear the cache.. How did you get here' );
-            return response()->view( "bootstrap.pages.attribution.attribution-index" );
+            Flash::success( 'You do not have permission to clear the cache.' );
+            return redirect()->back();
         }
     }
 }

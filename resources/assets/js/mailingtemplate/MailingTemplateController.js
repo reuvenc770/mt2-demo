@@ -1,4 +1,4 @@
-mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$window' , '$location' , '$timeout' , 'MailingTemplateApiService' , '$mdToast' , 'CustomValidationService' , function ( $rootScope, $log , $window , $location , $timeout , MailingTemplateApiService , $mdToast , CustomValidationService ) {
+mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$window' , '$location' , '$timeout' , 'MailingTemplateApiService' , 'formValidationService', 'modalService' , 'paginationService' , function ( $rootScope, $log , $window , $location , $timeout , MailingTemplateApiService , formValidationService, modalService , paginationService ) {
     var self = this;
     self.$location = $location;
 
@@ -18,14 +18,16 @@ mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$win
     self.espIdField = "id";
     self.widgetName = 'esps';
     self.templateTypeMap = [ 'N/A', 'Normal HTML' , 'HTML Lite (no images)' , 'Image Only' , 'Image Map' , 'Newsletter' , 'Clickable Button' ];
-
+    self.formErrors = [];
     self.templates = [];
     self.currentlyLoading = 0;
     self.pageCount = 0;
-    self.paginationCount = '10';
+    self.paginationCount = paginationService.getDefaultPaginationCount();
+    self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
     self.templateTotal = 0;
     self.sort = "-id";
+    self.formSubmitted = false;
     self.queryPromise = null;
 
     self.loadAccount = function () {
@@ -36,7 +38,7 @@ mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$win
             self.currentAccount = {
                 id : response.data.id,
                 name : response.data.template_name,
-                templateType : response.data.template_type,
+                templateType : String(response.data.template_type),
                 selectedEsps : response.data.esp_accounts,
                 html :response.data.template_html,
                 text : response.data.template_text };
@@ -73,52 +75,22 @@ mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$win
     /**
      * Click Handlers
      */
-    self.viewAdd = function () {
-        $location.url( self.createUrl );
-        $window.location.href = self.createUrl;
-    };
 
-    self.change = function ( form , fieldName ) {
-        CustomValidationService.onChangeResetValidity( self , form , fieldName );
-    };
-
-    self.saveNewAccount = function ( event , form ) {
-        self.resetFieldErrors();
-
-        var errorFound = false;
-
-        angular.forEach( form.$error.required , function( field ) {
-            field.$setDirty();
-            field.$setTouched();
-
-            errorFound = true;
-        } );
-
+    self.saveNewAccount = function () {
+        formValidationService.resetFieldErrors(self);
+        self.formSubmitted = true;
         if (self.selectedEsps.length < 1) {
-            self.setFieldError( 'selectedEsps' , 'At least 1 ESP is required.' );
-            errorFound = true;
-        }
-
-        if ( errorFound ) {
-            $mdToast.showSimple( 'Please fix errors and try again.' );
-
+            self.formSubmitted = false;
+            formValidationService.setFieldError(self, 'selectedEsps' , 'At least 1 ESP is required.' );
+            modalService.simpleToast( 'Please fix errors and try again.' );
             return false;
-        };
-
-        MailingTemplateApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , function(response) {
-            angular.forEach( response.data , function( error , fieldName ) {
-
-                form[ fieldName ].$setDirty();
-                form[ fieldName ].$setTouched();
-                form[ fieldName ].$setValidity('isValid' , false);
-            });
-
-            self.saveNewAccountFailureCallback(response);
-            } );
+        }
+        MailingTemplateApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback);
     };
 
     self.editAccount = function () {
-        self.resetFieldErrors();
+        formValidationService.resetFieldErrors(self);
+        self.formSubmitted = true;
         self.espMembershipCallback();
         MailingTemplateApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
@@ -131,14 +103,12 @@ mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$win
         $window.open('mailingtemplate/preview/?html=' + self.currentAccount.html);
     };
 
-    $rootScope.$on( 'updatePage' , function () {
-        self.loadAccounts();
-    } );
-
     /**
      * Callbacks
      */
     self.loadAccountsSuccessCallback = function ( response ) {
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+
         self.templates = response.data.data;
         self.pageCount = response.data.last_page;
         self.templateTotal = response.data.total;
@@ -149,10 +119,7 @@ mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$win
     };
 
     self.loadAccountsFailureCallback = function ( response ) {
-        self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to load Templates.' );
-
-        self.launchModal();
+        modalService.simpleToast( 'Failed to load templates.' );
     };
 
     self.SuccessCallBackRedirect = function ( response ) {
@@ -166,51 +133,13 @@ mt2App.controller( 'MailingTemplateController' , [  '$rootScope' ,'$log' , '$win
     };
 
     self.saveNewAccountFailureCallback = function ( response ) {
-        self.loadFieldErrors(response);
+        self.formSubmitted = false;
+        formValidationService.loadFieldErrors(self,response);
     };
 
     self.editAccountFailureCallback = function ( response ) {
-        self.loadFieldErrors(response);
+        self.formSubmitted = false;
+        formValidationService.loadFieldErrors(self,response);
     };
 
-
-    /**
-     * Errors
-     */
-    self.loadFieldErrors = function (response ) {
-        angular.forEach(response.data, function(value, key) {
-            self.setFieldError( key , value );
-        });
-    };
-
-    self.setFieldError = function ( field , errorMessage ) {
-        self.formErrors[ field ] = errorMessage;
-    };
-
-    self.resetFieldErrors = function () {
-        self.formErrors = {};
-    };
-
-    /**
-     * Page Modal
-     */
-    self.setModalLabel = function ( labelText ) {
-        var modalLabel = angular.element( document.querySelector( '#pageModalLabel' ) );
-        modalLabel.text( labelText );
-    };
-
-    self.setModalBody = function ( bodyText ) {
-        var modalBody = angular.element( document.querySelector( '#pageModalBody' ) );
-        modalBody.text( bodyText );
-    };
-
-    self.launchModal = function () {
-        $( '#pageModal' ).modal('show');
-    };
-
-    self.resetModal = function () {
-        self.setModalLabel( '' );
-        self.setModalBody( '' );
-        $( '#pageModal' ).modal('hide');
-    };
 } ] );

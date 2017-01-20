@@ -23,7 +23,7 @@ class RegistrarController extends Controller
     public function listAll()
     {
         return response()
-            ->view("bootstrap.pages.registrar.registrar-index");
+            ->view("pages.registrar.registrar-index");
     }
 
     /**
@@ -53,7 +53,7 @@ class RegistrarController extends Controller
      */
     public function create()
     {
-        return view("bootstrap.pages.registrar.registrar-add");
+        return view("pages.registrar.registrar-add");
     }
 
     /**
@@ -90,7 +90,7 @@ class RegistrarController extends Controller
     public function edit( )
     {
         return response()
-            ->view( "bootstrap.pages.registrar.registrar-edit");
+            ->view( "pages.registrar.registrar-edit");
     }
 
     /**

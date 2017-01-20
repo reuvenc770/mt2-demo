@@ -1,10 +1,10 @@
-mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$timeout' , 'ProxyApiService', '$rootScope','$mdToast', '$mdConstant' , 'CustomValidationService' , function ( $log , $window , $location , $timeout , ProxyApiService, $rootScope, $mdToast , $mdConstant , CustomValidationService ) {
+mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$timeout' , 'ProxyApiService', '$rootScope', '$mdConstant' , 'formValidationService', 'modalService' , 'paginationService' , function ( $log , $window , $location , $timeout , ProxyApiService, $rootScope , $mdConstant , formValidationService, modalService , paginationService ) {
     var self = this;
     self.$location = $location;
 
     self.headers = [ '' , 'ID', 'name', "IP Address", "Provider Name"];
     self.accounts = [];
-    self.currentAccount = {  id: "", "name" : "" , "ip_addresses": [], "provider_name" : "", "esp_account_names" :[], "isp_names": [] };
+    self.currentAccount = {  id: "", "name" : "" , "ip_addresses": [], "provider_name" : "", "esp_account_names" :[], "isp_names": [] , "cake_affiliate_id" : "" };
     self.ip_address = "";
     self.isp_names = [];
     self.isps =  ["AOL","GMAIL","YAHOO","HOTMAIL"];
@@ -16,9 +16,10 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
     self.editUrl = 'proxy/edit/';
     self.mdChipSeparatorKeys = [$mdConstant.KEY_CODE.ENTER , $mdConstant.KEY_CODE.COMMA , 9];
     self.formErrors = "";
-
+    self.formSubmitted = false;
     self.pageCount = 0;
-    self.paginationCount = '10';
+    self.paginationCount = paginationService.getDefaultPaginationCount();
+    self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
     self.accountTotal = 0;
     self.sort = '-status';
@@ -29,9 +30,14 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
 
         ProxyApiService.getAccount( pathMatches[ 1 ] , function ( response ) {
             self.currentAccount = response.data;
-            self.ip_addresses = self.currentAccount.ip_addresses.split(',');
-            self.esp_account_names = self.currentAccount.esp_account_names.split(',');
-            self.isp_names = self.currentAccount.isp_names.split(',');
+
+            trim_ip_addresses = self.currentAccount.ip_addresses.replace(/\s+/g, '');
+            trim_esp_account_names = self.currentAccount.esp_account_names.replace(/\s+/g, '');
+            trim_isp_names = self.currentAccount.isp_names.replace(/\s+/g, '');
+
+            self.ip_addresses = trim_ip_addresses.split(',');
+            self.esp_account_names = trim_esp_account_names.split(',');
+            self.isp_names = trim_isp_names.split(',');
         } )
     };
     self.loadProfile = function ($id) {
@@ -52,73 +58,41 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
     self.toggle = function(recordId,direction) {
         ProxyApiService.toggleRow(recordId, direction, self.toggleRowSuccess, self.toggleRowFailure)
     };
+    self.delete = function(recordId) {
+        var r = confirm("Are you sure you want to delete this");
+        if (r == true) {
+            ProxyApiService.deleteRow(recordId, self.deleteRowSuccess, self.deleteRowFailure)
+        }
+
+    };
 
     /**
      * Click Handlers
      */
-    self.viewAdd = function () {
-        $location.url( self.createUrl );
-        $window.location.href = self.createUrl;
-    };
 
-    self.change = function ( form , fieldName ) {
-        if ( fieldName == 'ip_addresses' ) {
-            delete( form['ip_addresses'].$error.required );
-        }
-
-        CustomValidationService.onChangeResetValidity( self , form , fieldName );
-    };
-
-    self.saveNewAccount = function ( event , form) {
-        self.resetFieldErrors();
-
-        var errorFound = false;
-
-        angular.forEach( form.$error.required , function( field ) {
-
-            field.$setDirty();
-            field.$setTouched();
-
-            errorFound = true;
-        } );
+    self.saveNewAccount = function () {
+        formValidationService.resetFieldErrors(self);
+        self.formSubmitted = true;
 
         if ( self.ip_addresses.length < 1  ) {
-
-            form['ip_addresses'].$setDirty();
-            form['ip_addresses'].$setTouched();
-            form['ip_addresses'].$setValidity('isValid', false);
-            form['ip_addresses'].$error.required = true;
-
-            errorFound = true;
+            formValidationService.setFieldError(self, 'ip_addresses' , 'At least 1 IP Address is required.' );
+            modalService.simpleToast( 'Please fix errors and try again.' );
         }
-
-        if ( errorFound ) {
-            $mdToast.showSimple( 'Please fix errors and try again.' );
-
-            return false;
-        };
 
         self.currentAccount.ip_addresses = self.ip_addresses.join(', ');
         self.currentAccount.esp_account_names = self.esp_account_names.join(', ');
         self.currentAccount.isp_names = self.isp_names.join(', ');
         self.currentAccount.status =1;
-        ProxyApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , function( response ) {
-            angular.forEach( response.data , function( error , fieldName ) {
-
-                form[ fieldName ].$setDirty();
-                form[ fieldName ].$setTouched();
-                form[ fieldName ].$setValidity('isValid' , false);
-            });
-
-            self.saveNewAccountFailureCallback( response);
-        } );
+        ProxyApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback);
     };
 
     self.editAccount = function () {
-        self.resetFieldErrors();
+        formValidationService.resetFieldErrors(self);
+        self.formSubmitted = true;
+
         self.currentAccount.ip_addresses = self.ip_addresses.join(', ');
         self.currentAccount.esp_account_names = self.esp_account_names.join(', ');
-        self.currentAccount.isp_names = self.isp_names.join(',');
+        self.currentAccount.isp_names = self.isp_names.join(', ');
         ProxyApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 
@@ -169,32 +143,19 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
     };
 
 
-
-    /**
-     * Watchers
-     */
-    $rootScope.$on( 'updatePage' , function () {
-        self.loadAccounts();
-    } );
-
-
-
-
-
     /**
      * Callbacks
      */
     self.loadAccountsSuccessCallback = function ( response ) {
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+
         self.accounts = response.data.data;
         self.pageCount = response.data.last_page;
         self.accountTotal = response.data.total;
     };
 
     self.loadAccountsFailureCallback = function ( response ) {
-        self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to load accounts.' );
-
-        self.launchModal();
+        modalService.simpleToast( 'Failed to load accounts.' );
     };
 
     self.SuccessCallBackRedirect = function ( response ) {
@@ -209,59 +170,41 @@ mt2App.controller( 'ProxyController' , [ '$log' , '$window' , '$location' , '$ti
 
 
     self.toggleRowSuccess = function ( response ) {
-        $mdToast.showSimple("Proxy Updated");
+        modalService.setModalLabel('Success');
+        modalService.setModalBody("Proxy status updated.");
+        modalService.launchModal();
+        self.loadAccounts();
+    };
+
+    self.toggleRowFailure = function ( response ) {
+        modalService.setModalLabel('Error');
+        modalService.setModalBody('Failed to update proxy status. Please try again.');
+        modalService.launchModal();
         self.loadAccounts();
     };
 
     self.saveNewAccountFailureCallback = function ( response ) {
-        self.loadFieldErrors(response);
+        formValidationService.loadFieldErrors(self,response);
+        self.formSubmitted = false;
     };
 
     self.editAccountFailureCallback = function ( response ) {
-        self.loadFieldErrors(response);
+        formValidationService.loadFieldErrors(self,response);
+        self.formSubmitted = false;
     };
 
-    /**
-     * Errors
-     */
-    self.loadFieldErrors = function (response ) {
-        angular.forEach(response.data, function(value, key) {
-            self.setFieldError( key , value );
-        });
+
+    self.deleteRowFailure = function ( response ) {
+        modalService.setModalLabel('Failed To Delete Row');
+        modalService.setModalBodyRawHtml(response.data.delete);
+        modalService.launchModal();
+        self.loadAccounts();
     };
 
-    self.setFieldError = function ( field , errorMessage ) {
-        self.formErrors[ field ] = errorMessage;
+    self.deleteRowSuccess = function ( response ) {
+        modalService.simpleToast("Successfully Deleted Row");
+        self.loadAccounts();
     };
 
-    self.resetFieldErrors = function () {
-        self.formErrors = {};
-    };
 
-    /**
-     * Page Modal
-     */
-
-    self.setModalLabel = function ( labelText ) {
-        var modalLabel = angular.element( document.querySelector( '#pageModalLabel' ) );
-
-        modalLabel.text( labelText );
-    };
-
-    self.setModalBody = function ( bodyText ) {
-        var modalBody = angular.element( document.querySelector( '#pageModalBody' ) );
-
-        modalBody.text( bodyText );
-    };
-
-    self.launchModal = function () {
-        $( '#pageModal' ).modal('show');
-    };
-
-    self.resetModal = function () {
-        self.setModalLabel( '' );
-        self.setModalBody( '' );
-
-        $( '#pageModal' ).modal('hide');
-    };
 } ] );

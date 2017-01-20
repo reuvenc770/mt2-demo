@@ -12,7 +12,7 @@ use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
 class HomeController extends Controller
 {
     public function home() {
-        return view('bootstrap.layout.app');
+        return view('layout.app');
     }
 
     public function redirect(){

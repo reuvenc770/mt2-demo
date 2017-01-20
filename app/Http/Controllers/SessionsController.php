@@ -17,7 +17,7 @@ class SessionsController extends Controller
      */
     public function create()
     {
-        return view('bootstrap.sessions.create');
+        return view('sessions.create');
     }
 
     /**

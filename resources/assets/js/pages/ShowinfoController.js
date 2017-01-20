@@ -1,12 +1,14 @@
-mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$mdToast' , '$log' , '$window' , function ( ShowinfoApiService , $mdToast , $log , $window ) {
+mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$log' , '$window' , 'formValidationService' , 'modalService' , function ( ShowinfoApiService , $log , $window , formValidationService , modalService ) {
     var self = this;
     self.api = ShowinfoApiService;
 
     self.isLoading = false;
+    self.isSuppressing = false;
 
     self.recordId = null;
     self.records = {};
     self.suppression = {};
+    self.formErrors = {};
 
     self.suppressionReasons = [];
     self.selectedReason = '';
@@ -15,27 +17,19 @@ mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$mdToast' , 
      * Event Handlers
      */
 
-    self.loadData = function ( $event , recordForm ) {
-        $event.preventDefault();
+    self.loadData = function () {
+        self.isLoading = true;
+        formValidationService.resetFieldErrors(self);
 
-        if ( recordForm.recordId.$valid ) {
-            self.isLoading = true;
-
-            self.api.getRecords( self.getType() , self.recordId , self.loadDataSuccessCallback , self.loadDataFailureCallback );
-        } else {
-            $mdToast.showSimple( 'Please correct form errors and try again.' );
-        }
+        var records = self.recordId.replace(/(\r\n|\r|\n)/g, ',');
+        self.api.getRecords( self.getType() , records , self.loadDataSuccessCallback , self.loadDataFailureCallback );
     };
 
-    self.suppressRecord = function ( $event , suppressionForm ) {
-        $event.preventDefault();
+    self.suppressRecord = function () {
+        self.isSuppressing = true;
+        formValidationService.resetFieldErrors(self);
 
-        if ( suppressionForm.suppressionReason.$valid ) {
-            self.api.suppressRecord( self.recordId , self.selectedReason , self.suppressRecordSuccessCallback , self.suppressRecordFailureCallback );
-        } else {
-            $mdToast.showSimple( 'Please correct form errors and try again.' );
-        }
-
+        self.api.suppressRecord( self.recordId , self.selectedReason , self.suppressRecordSuccessCallback , self.suppressRecordFailureCallback );
     }
 
     /**
@@ -43,9 +37,9 @@ mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$mdToast' , 
      */
 
     self.getType = function () {
-        var re = /^\d{1,}$/;
+        var re = /\@/;
 
-        return ( re.exec( self.recordId ) ? 'eid' : 'email' );
+        return ( re.exec( self.recordId ) ? 'email' : 'eid' );
     }
 
     self.loadReasons = function () {
@@ -57,22 +51,22 @@ mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$mdToast' , 
      */
 
     self.loadDataSuccessCallback = function ( response ) {
-
-            self.records = response.data.data;
-            self.suppression = response.data.suppression;
-            if(response.data.data[0].message !== "Error: no results found"){
-                $mdToast.showSimple( 'Record information loaded' );
-            } else {
-                $mdToast.showSimple( 'Record had no information' );
-            }
-
         self.isLoading = false;
+
+        self.records = response.data.data;
+        self.suppression = response.data.suppression;
+        if(0 === self.records.length){
+            modalService.setModalLabel('Error');
+            modalService.setModalBody('Record had no information.');
+            modalService.launchModal();
+        }
+
     };
 
     self.loadDataFailureCallback = function ( response ) {
-        $mdToast.showSimple( 'Failed to Load Record' );
-
         self.isLoading = false;
+
+        formValidationService.loadFieldErrors( self , response);
     };
 
     self.loadReasonsSuccessCallback = function ( response ) {
@@ -80,13 +74,21 @@ mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$mdToast' , 
     };
 
     self.loadReasonsFailureCallback = function ( response ) {
-        $mdToast.showSimple( 'Failed to Load Suppression Reasons' );
+            modalService.setModalLabel('Error');
+            modalService.setModalBody('Failed to load suppression reasons.');
+            modalService.launchModal();
     };
 
     self.suppressRecordSuccessCallback = function ( response ) {
-        $mdToast.showSimple( response.data.message);
+        self.isSuppressing = false;
+
+        modalService.setModalLabel('Success');
+        modalService.setModalBody( response.data.message );
+        modalService.launchModal();
     };
     self.suppressRecordFailureCallback = function ( response ) {
-        $mdToast.showSimple( response.data.message);
+        self.isSuppressing = false;
+
+        formValidationService.loadFieldErrors( self , response);
     };
 } ] );

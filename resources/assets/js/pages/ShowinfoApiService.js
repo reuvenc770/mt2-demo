@@ -8,7 +8,7 @@ mt2App.service( 'ShowinfoApiService' , function ( $http , $log ) {
         $http( {
             "method" : "GET" ,
             "url" : self.apiUrl + '/' + id ,
-            "data" : { "id" : id , "type" : type }
+            "params" : { "recordId" : id , "type" : type }
         } ).then( successCallback , failureCallback );
     };
 
@@ -23,7 +23,7 @@ mt2App.service( 'ShowinfoApiService' , function ( $http , $log ) {
         $http( {
             "method" : "POST" ,
             "url" : self.apiUrl ,
-            "data" : { "id" : id , "reason" : reason }
+            "data" : { "id" : id , "selectedReason" : reason }
         } ).then( successCallback , failureCallback );
     };
 } );

@@ -217,7 +217,8 @@ class RecordDataRepo implements IAwsRepo {
     }
 
     public function extractForS3Upload($startPoint) {
-        return $this->model;
+        // this start point is a date
+        return $this->model->whereRaw("updated_at > $startPoint");
     }
 
     public function extractAllForS3() {
@@ -225,32 +226,32 @@ class RecordDataRepo implements IAwsRepo {
     }
 
     public function mapForS3Upload($row) {
-        return [
-            'email_id' => $row->email_id,
-            'is_deliverable' => $row->is_deliverable,
-            'first_name' => $row->first_name,
-            'last_name' => $row->last_name,
-            'address' => $row->address,
-            'address2' => $row->address2,
-            'city' => $row->city,
-            'state' => $row->state,
-            'zip' => $row->zip,
-            'country' => $row->country,
-            'gender' => $row->gender,
-            'ip' => $row->ip,
-            'phone' => $row->phone,
-            'source_url' => $row->source_url,
-            'dob' => $row->dob,
-            'device_type' => $row->device_type,
-            'device_name' => str_replace('"', '', $row->device_name),
-            'carrier' => str_replace('"', '', $row->carrier),
-            'capture_date' => $row->capture_date,
-            'subscribe_date' => $row->subscribe_date,
-            'last_action_date' => $row->last_action_date,
-            'other_fields' => $row->other_fields,
-            'last_action_offer_id' => $row->last_action_offer_id,
-            'last_action_date' => $row->last_action_date
-        ];
+        $pdo = DB::connection()->getPdo();
+        return '('
+            . $pdo->quote($row->email_id) . ','
+            . $pdo->quote($row->is_deliverable) . ','
+            . $pdo->quote($row->first_name) . ','
+            . $pdo->quote($row->last_name) . ','
+            . $pdo->quote($row->address) . ','
+            . $pdo->quote($row->address2) . ','
+            . $pdo->quote($row->city) . ','
+            . $pdo->quote($row->state) . ','
+            . $pdo->quote($row->zip) . ','
+            . $pdo->quote($row->country) . ','
+            . $pdo->quote($row->gender) . ','
+            . $pdo->quote($row->ip) . ','
+            . $pdo->quote($row->phone) . ','
+            . $pdo->quote($row->source_url) . ','
+            . $pdo->quote($row->dob) . ','
+            . $pdo->quote($row->device_type) . ','
+            . $pdo->quote(str_replace('"', '', $row->device_name)) . ','
+            . $pdo->quote(str_replace('"', '', $row->carrier)) . ','
+            . $pdo->quote($row->capture_date) . ','
+            . $pdo->quote($row->subscribe_date) . ','
+            . $pdo->quote($row->last_action_date) . ','
+            . $pdo->quote($row->other_fields) . ','
+            . $pdo->quote($row->last_action_offer_id) . ','
+            . $pdo->quote($row->last_action_date) . ')';
     }
 
 }
