@@ -1,4 +1,4 @@
-mt2App.service( 'AttributionProjectionService' , [ 'AttributionApiService' , '$mdToast' , '$location' , function ( AttributionApiService , $mdToast , $location ) {
+mt2App.service( 'AttributionProjectionService' , [ 'AttributionApiService' , 'modalService' , '$location' , function ( AttributionApiService , modalService , $location ) {
     var self = this;
 
     self.modelId = 0;
@@ -9,8 +9,6 @@ mt2App.service( 'AttributionProjectionService' , [ 'AttributionApiService' , '$m
     };
 
     self.refreshPage = function () {
-        self.getChartData();
-
         self.loadRecords();
     };
 
@@ -36,11 +34,7 @@ mt2App.service( 'AttributionProjectionService' , [ 'AttributionApiService' , '$m
                 self.drawChart();
             } ,
             function ( response ) {
-                $mdToast.show(
-                    $mdToast.simple()
-                        .textContent( 'Failed to load chart data. Please contact support.' )
-                        .hideDelay( 1500 )
-                );
+                modalService.simpleToast( 'Failed to load chart data. Please contact support.' );
             }
         );
     };
@@ -52,10 +46,12 @@ mt2App.service( 'AttributionProjectionService' , [ 'AttributionApiService' , '$m
                     widthFactor: 0.3 ,
                     opacity: 1 ,
                     color: '#4285F4'
-                } 
+
+                }
             } ,
             legend: { position: 'top' } ,
             height: 3000 ,
+            width: 1200,
             chartArea : { left : "10%" , top : "5%" , width : "90%" , height : "90%" }
         };
 
@@ -63,7 +59,7 @@ mt2App.service( 'AttributionProjectionService' , [ 'AttributionApiService' , '$m
 
         var diffData = barChartDiff.computeDiff(
             google.visualization.arrayToDataTable( self.chartData.live ) ,
-            google.visualization.arrayToDataTable( self.chartData.model ) 
+            google.visualization.arrayToDataTable( self.chartData.model )
         );
 
         barChartDiff.draw( diffData , options );

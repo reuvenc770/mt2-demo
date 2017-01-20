@@ -1,26 +1,35 @@
-mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$timeout' , 'DBAApiService', '$rootScope', '$mdToast' , 'CustomValidationService' , function ( $log , $window , $location , $timeout , DBAApiService, $rootScope, $mdToast , CustomValidationService ) {
+mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$timeout' , 'DBAApiService', '$rootScope', '$mdToast' , 'CustomValidationService', 'formValidationService', 'modalService' , 'paginationService' , function ( $log , $window , $location , $timeout , DBAApiService, $rootScope, $mdToast , CustomValidationService, formValidationService, modalService , paginationService ) {
     var self = this;
     self.$location = $location;
 
     self.accounts = [];
-    self.po_box = {sub : "",address : "", address_2 : "", city : "", state : "", zip: "", phone : "", brands: [], notes: ""};
+    self.po_box = {address : "", address_2 : "", city : "", state : "", zip: "", phone : "", brands: "", esp_account_names : [] , isp_names : [] , notes: ""};
     self.brand = "";
     self.currentAccount = { id:"",  dba_name : "" , phone: "", password: "",
     dba_email : "", po_boxes : [], address: "", address_2 : "", city : "", state : "", zip : "",entity_name: ""};
 
+    self.isp_name = "";
+    self.esp_account_name = "";
+
     self.createUrl = 'dba/create/';
     self.editUrl = 'dba/edit/';
 
-    self.formErrors = "";
-
+    self.formErrors = {"po_box": {}};
+    self.search = {
+    };
     self.editingPOBox = false;
     self.pageCount = 0;
-    self.paginationCount = '10';
+    self.paginationCount = paginationService.getDefaultPaginationCount();
+    self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
     self.poBoxHolder = [];
     self.accountTotal = 0;
     self.sort = "-status";
+    self.editForm = false;
     self.queryPromise = null;
+    self.recordListStatus = 'index';
+
+    modalService.setPopover();
 
     self.loadAccount = function () {
         var pathMatches = $location.path().match( /^\/dba\/edit\/(\d{1,})/ );
@@ -39,84 +48,89 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
         self.currentAccount = {};
     };
 
+    self.sortCurrentRecords = function() {
+        if (self.recordListStatus === 'index' ) {
+            self.loadAccounts();
+        }
+
+        if ( self.recordListStatus === 'search' ) {
+            self.searchDBA();
+        }
+    };
+
     /**
      * Click Handlers
      */
-    self.viewAdd = function () {
-        $location.url( self.createUrl );
-        $window.location.href = self.createUrl;
-    };
 
-    self.change = function ( form , fieldName ) {
-        CustomValidationService.onChangeResetValidity( self , form , fieldName );
-    };
-
-    self.saveNewAccount = function ( event , form ) {
-        self.resetFieldErrors();
-
-        var errorFound = false;
-
-        angular.forEach( form.$error.required , function( field ) {
-            if (field.$name.match(/^po_box+/i) == null ) {
-                field.$setDirty();
-                field.$setTouched();
-
-                if ( field.$name == 'state' ) {
-                    form.state.$error.required = true;
-                }
-
-                errorFound = true;
-            }
-        } );
-
-        if ( errorFound ) {
-            $mdToast.showSimple( 'Please fix errors and try again.' );
-
-            return false;
-        };
-
+    self.saveNewAccount = function () {
+        self.editForm = true;
+        formValidationService.resetFieldErrors(self);
         self.currentAccount.po_boxes = JSON.stringify(self.poBoxHolder);
         self.currentAccount.status = 1;
-        DBAApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , function( response ) {
-            angular.forEach( response.data , function( error , fieldName ) {
-
-                form[ fieldName ].$setDirty();
-                form[ fieldName ].$setTouched();
-                form[ fieldName ].$setValidity('isValid' , false);
-            });
-
-            self.saveNewAccountFailureCallback( response );
-        } );
+        DBAApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect, self.saveNewAccountFailureCallback );
     };
 
     self.editAccount = function () {
-        self.resetFieldErrors();
+        self.editForm = true;
+        formValidationService.resetFieldErrors(self);
         self.currentAccount.po_boxes = JSON.stringify(self.poBoxHolder);
         DBAApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 
-    self.addBrand = function () {
-            self.po_box.brands.push(self.brand);
-            self.brand = "";
-    };
-
-
-    self.removeBrand = function (id) {
-        self.po_box.brands.splice( id , 1 );
-
-    };
-
-    self.editBrand = function (id) {
-        self.brand = self.po_box.brands[id];
-        self.po_box.brands.splice( id , 1 );
-    };
-
-    self.addPOBox = function ( event , form ) {
-        if(self.po_box.address.length >= 1 || self.po_box.state.length >= 1) {
-            self.poBoxHolder.push(self.po_box);
-            self.clearPOBox();
+    self.addEspAccount = function () {
+        if(self.esp_account_name.length > 0){
+            if (typeof(self.po_box.esp_account_names) === 'undefined' ) {
+                self.po_box.esp_account_names = [];
+            }
+            self.po_box.esp_account_names.push(self.esp_account_name);
+            self.esp_account_name = "";
         }
-        self.editingPOBox = false;
+    };
+
+    self.removeEspAccount = function (id) {
+        self.po_box.esp_account_names.splice( id , 1 );
+
+    };
+
+    self.addIsp = function () {
+        if(self.isp_name.length > 0){
+            if (typeof(self.po_box.isp_names) === 'undefined' ) {
+                self.po_box.isp_names = [];
+            }
+            self.po_box.isp_names.push(self.isp_name);
+            self.isp_name = "";
+        }
+    };
+
+    self.removeIsp = function (id) {
+        self.po_box.isp_names.splice( id , 1 );
+
+    };
+
+    self.addPOBox = function () {
+        var poBoxError = false;
+        if(self.po_box.address == 0){
+            self.formErrors.po_box.address = ["P.O. Box Address is Required"];
+            poBoxError = true;
+        }
+        if(self.po_box.city == 0){
+            self.formErrors.po_box.city = ["P.O. Box City is Required"];
+            poBoxError = true;
+        }
+        if(self.po_box.state == 0){
+            self.formErrors.po_box.state = ["P.O. Box State is Required"];
+            poBoxError = true;
+        }
+        if(self.po_box.zip == 0){
+            self.formErrors.po_box.zip = ["P.O Box Zipcode is Required"];
+            poBoxError = true;
+        }
+        if(poBoxError) {
+          return;
+        }
+
+        self.poBoxHolder.push(self.po_box);
+        self.clearPOBox();
     };
 
     self.removePOBox = function (id) {
@@ -132,7 +146,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     };
 
     self.clearPOBox = function () {
-        self.po_box = {address : "", address_2 : "", city : "", state : "", zip: "" , phone:"", brands:[], brand: ""};
+        self.po_box = {address : "", address_2 : "", city : "", state : "", zip: "" , phone:"", brands:[], brand: "", esp_account_names : [] , isp_names : [] };
     };
 
     self.toggle = function(recordId,direction) {
@@ -144,21 +158,40 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
         return boxes;
     };
 
-    /**
-     * Watchers
-     */
-    $rootScope.$on( 'updatePage' , function () {
+    self.searchDBA = function() {
+        self.recordListStatus = 'search';
+
+        var searchObj = {
+            "dba_name": self.search.dba_name || undefined,
+            "registrant_name" : self.search.registrant_name || undefined,
+            "dba_email" : self.search.dba_email || undefined,
+            "address":    self.search.address || undefined,
+            "entity_name": self.search.entity_name || undefined
+        };
+
+        self.queryPromise = DBAApiService.searchDBA(self.paginationCount, searchObj, self.loadAccountsSuccessCallback, self.loadAccountsFailureCallback);
+        self.currentlyLoading = 0;
+    };
+
+    self.resetSearch = function() {
         self.loadAccounts();
-    } );
+        self.search = {};
+        self.recordListStatus = 'index';
+    }
 
+    self.delete = function(recordId) {
+        var r = confirm("Are you sure you want to delete this");
+        if (r == true) {
+            DBAApiService.deleteRow(recordId, self.deleteRowSuccess, self.deleteRowFailure)
+        }
 
-
-
-
+    };
     /**
      * Callbacks
      */
     self.loadAccountsSuccessCallback = function ( response ) {
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+
         self.accounts = response.data.data;
         for (var i = 0, len = response.data.data.length; i < len; i++){
             self.accounts[i].po_boxes = JSON.parse(self.accounts[i].po_boxes);
@@ -168,10 +201,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     };
 
     self.loadAccountsFailureCallback = function ( response ) {
-        self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to load Users.' );
-
-        self.launchModal();
+        modalService.simpleToast( 'Failed to load accounts.' );
     };
 
     self.SuccessCallBackRedirect = function ( response ) {
@@ -185,60 +215,41 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
     };
 
     self.saveNewAccountFailureCallback = function ( response ) {
-        self.currentAccount.po_boxes = JSON.parse(self.poBoxHolder);
-        self.loadFieldErrors(response);
+        self.editForm = false;
+        formValidationService.loadFieldErrors(self,response);
     };
 
     self.editAccountFailureCallback = function ( response ) {
-        self.loadFieldErrors(response);
+        self.editForm = false;
+        formValidationService.loadFieldErrors(self,response);
     };
 
     self.toggleRowSuccess = function ( response ) {
-        $mdToast.showSimple("DBA Updated");
+        modalService.setModalLabel('Success');
+        modalService.setModalBody("DBA status updated.");
+        modalService.launchModal();
         self.loadAccounts();
     };
 
-    /**
-     * Errors
-     */
-    self.loadFieldErrors = function (response ) {
-        angular.forEach(response.data, function(value, key) {
-            self.setFieldError( key , value );
-        });
+    self.toggleRowFailure = function ( response ) {
+        modalService.setModalLabel('Error');
+        modalService.setModalBody('Failed to update DBA status. Please try again.');
+        modalService.launchModal();
+        self.loadAccounts();
     };
 
-    self.setFieldError = function ( field , errorMessage ) {
-        self.formErrors[ field ] = errorMessage;
+    self.deleteRowFailure = function ( response ) {
+        modalService.setModalLabel('Failed To Delete Row');
+        modalService.setModalBodyRawHtml(response.data.delete);
+        modalService.launchModal();
+        self.loadAccounts();
     };
 
-    self.resetFieldErrors = function () {
-        self.formErrors = {};
+    self.deleteRowSuccess = function ( response ) {
+        modalService.simpleToast("Successfully Deleted Row");
+        self.loadAccounts();
     };
 
-    /**
-     * Page Modal
-     */
 
-    self.setModalLabel = function ( labelText ) {
-        var modalLabel = angular.element( document.querySelector( '#pageModalLabel' ) );
 
-        modalLabel.text( labelText );
-    };
-
-    self.setModalBody = function ( bodyText ) {
-        var modalBody = angular.element( document.querySelector( '#pageModalBody' ) );
-
-        modalBody.text( bodyText );
-    };
-
-    self.launchModal = function () {
-        $( '#pageModal' ).modal('show');
-    };
-
-    self.resetModal = function () {
-        self.setModalLabel( '' );
-        self.setModalBody( '' );
-
-        $( '#pageModal' ).modal('hide');
-    };
 } ] );

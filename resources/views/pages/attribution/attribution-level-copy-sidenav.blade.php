@@ -1,50 +1,47 @@
-<md-sidenav md-component-id="levelCopy" class="md-sidenav-right">
-        <md-toolbar>
-            <div class="md-toolbar-tools" layout-align="center center">
-                <h2><span>Copy Model Levels</span></h2>
+<div class="modal fade" id="loadModels" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Import Attribution Levels</h4>
             </div>
-        </md-toolbar>
-
-        <md-toolbar class="md-accent">
-            <div class="md-toolbar-tools" layout-align="center center">
-                <h2><span>Selected Model</span></h2>
-            </div>
-        </md-toolbar>
-
-        <md-content layout-padding>
-            <md-input-container>
-                <md-select ng-init="attr.initLevelCopyPanel()" ng-model="attr.levelCopyModelId" placeholder="Please Choose a Model">
-                    <md-option ng-repeat="model in attr.models" ng-value="model.id">@{{ model.name }}</md-option>
-                </md-select>
-            </md-input-container>
-
-            <md-button class="md-primary md-raised md-hue-2" ng-click="attr.loadLevelPreview()">Load Levels</md-button>
-        </md-content>
-
-        <md-toolbar class="md-accent">
-            <div class="md-toolbar-tools" layout-align="center center">
-                <h2><span>Model Level Preview</span></h2>
-            </div>
-        </md-toolbar>
-
-        <md-content layout-padding>
-            <md-button class="md-primary md-raised md-hue-2" ng-disabled="attr.disableCopyButton" ng-click="attr.copyLevels()">Copy Levels</md-button>
-
-            <md-list class="md-dense">
-                <md-list-item ng-repeat="client in attr.levelCopyClients">
-                    <div layout="row" flex>
-                        <div>
-                           @{{ attr.clientLevels[ client.id ] }}
-                                <md-icon ng-show="attr.clientLevels[ client.id ] == ( $index + 1 )" md-svg-src="img/icons/ic_chevron_right_black_18px.svg"></md-icon>
-                                <md-icon ng-show="attr.clientLevels[ client.id ] < ( $index + 1 )" md-svg-src="img/icons/ic_chevron_right_red_18px.svg"></md-icon>
-                                <md-icon ng-show="attr.clientLevels[ client.id ] > ( $index + 1 )" md-svg-src="img/icons/ic_chevron_right_green_18px.svg"></md-icon> @{{ $index + 1 }}
-                        </div>
-
-                        <div layout="row" layout-align="center center" flex>
-                            <div ng-bind="client.name"></div>
-                        </div>
+            <div class="modal-body">
+                <div class="form-group ">
+                    <label>Please Select Model to Copy</label>
+                    <select ng-model="attr.levelCopyModelId" class="form-control">
+                        <option ng-repeat="model in attr.models" ng-value="model.id">@{{ model.name }}</option>
+                    </select>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <button ng-click="attr.loadLevelPreview()" class="btn btn-primary btn-block">Load Levels
+                        </button>
                     </div>
-                </md-list-item>
-            </md-list>
-        </md-content>
-</md-sidenav>
+                    <div class="col-sm-6">
+                        <button ng-disabled="attr.disableCopyButton" ng-click="attr.copyLevels()"
+                                class="btn btn-block btn-primary">Copy Levels
+                        </button>
+                    </div>
+                </div>
+                <div ng-if="attr.levelCopyClients.length > 0">
+                    <h3>Levels Preview</h3>
+                    <ul class="list-group" ng-cloak>
+                        <li ng-repeat="client in attr.levelCopyClients"
+                            class="list-group-item clearfix"
+                            ng-class="{ 'list-group-item-success' : attr.clientLevels[ client.id ] > ( $index + 1 ) , 'list-group-item-danger' : attr.clientLevels[ client.id ] < ( $index + 1 )}">
+                            <div class="col-sm-8">
+                                @{{ client.name }}
+                            </div>
+                            <div class="col-sm-4">
+                                @{{ attr.clientLevels[ client.id ] }}
+                                <span class="glyphicon glyphicon-chevron-right"></span>
+                                @{{ $index + 1 }}
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

@@ -1,106 +1,94 @@
-<md-content layout="row" layout-align="left left" class="md-mt2-zeta-theme md-hue-1">
-    <div flex>
-        <md-card>
-            <md-toolbar class="md-hue-2">
-                <div class="md-toolbar-tools">
-                    <span>Search Domains</span>
-                </div>
-            </md-toolbar>
-            <md-card-content>
-                <div layout="column" layout-gt-sm="row">
-                    <div layout="row" layout-gt-sm="column" flex-gt-sm="25" flex="100">
-                        <md-input-container flex>
-                            <label>Choose an ESP</label>
-                            <md-select name="esp_search" id="esp_search"
-                                       ng-model="domain.search.esp"
-                                       ng-change="domain.updateSearchEspAccounts()"
-                                       ng-disabled="domain.updatingAccounts">
-                                <md-option value="">--</md-option>
-                                @foreach ( $esps as $esp )
-                                    <md-option value="{{ $esp['name'] }}">{{ $esp['name'] }}</md-option>
-                                @endforeach
-                            </md-select>
-                        </md-input-container>
-                    </div>
-                    <div layout="row" layout-gt-sm="column" flex-gt-sm="25" flex="100">
-                        <md-input-container flex>
-                            <label>Choose an ESP Account</label>
-                            <md-select name="esp_account_search" id="esp_account_search"
-                                       ng-model="domain.search.esp_account_id"
-                                       ng-disabled="domain.espNotChosen">
-                                <md-option value="">--</md-option>
-                                <md-option ng-repeat="option in domain.espAccounts" ng-value="option.id">@{{ option.account_name }}
-                                </md-option>
-                            </md-select>
-                        </md-input-container>
-
-                    </div>
-                    <div layout="row" layout-gt-sm="column" flex-gt-sm="25" flex="100">
-                        <md-input-container flex>
-                            <label>Choose an DBA Account</label>
-                            <md-select name="dba_search" id="dba_search"
-                                       ng-model="domain.search.doing_business_as_id"
-                                       ng-disabled="domain.updatingAccounts">
-                                <md-option value="">--</md-option>
-                                @foreach ( $dbas as $dba )
-                                    <md-option value="{{ $dba['id'] }}">{{ $dba['dba_name'] }}</md-option>
-                                @endforeach
-                            </md-select>
-                        </md-input-container>
-
-                    </div>
-                    <div layout="row" layout-gt-sm="column" flex-gt-sm="25" flex="100">
-                        <md-input-container flex>
-                            <label>Choose an Registrar</label>
-                            <md-select name="registrar_search" id="registrar_search"
-                                       ng-model="domain.search.registrar_id"
-                                       ng-disabled="domain.updatingAccounts">
-                                <md-option value="">--</md-option>
-                                @foreach ( $regs as $reg )
-                                    <md-option value="{{ $reg['id'] }}">{{ $reg['name'] }}</md-option>
-                                @endforeach
-                            </md-select>
-                        </md-input-container>
-
-                    </div>
-                </div>
-                <div layout="column" layout-gt-sm="row">
-                    <div layout="row" layout-gt-sm="column" flex-gt-sm="25" flex="100">
-                        <md-input-container flex>
-                            <label>Domain Name* wildcard</label>
-                            <input type="text" id="search_domain" value="" ng-model="domain.search.domain"/>
-                        </md-input-container>
-                    </div>
-                    <div layout="row" layout-gt-sm="column" flex-gt-sm="25" flex="100">
-                        <md-input-container flex>
-                            <label>Choose a Proxy</label>
-                            <md-select name="proxy_search" id="proxy_search"
-                                       ng-model="domain.search.proxy_id"
-                                       ng-disabled="domain.updatingAccounts">
-                                <md-option value="">--</md-option>
-                                <md-option ng-repeat="option in domain.proxies" ng-value="option.id">@{{ option.name  }}
-                                </md-option>
-                            </md-select>
-                        </md-input-container>
-                    </div>
-                    <div layout="row" layout-gt-sm="column" flex-gt-sm="25" flex="100">
-                        <md-input-container flex>
-                            <label>Choose a Domain Type</label>
-                            <md-select name="domain_type" id="domain_type"
-                                       ng-model="domain.search.domain_type"
-                                       ng-disabled="domain.updatingAccounts">
-                                <md-option value="">--</md-option>
-                                <md-option value="1">Mailing Domains</md-option>
-                                <md-option value="2">Content Domains</md-option>
-                                </md-option>
-                            </md-select>
-                        </md-input-container>
-                    </div>
-                </div>
-                <div layout="row">
-                    <md-button class="md-raised md-accent" ng-click="domain.searchDomains()">Search</md-button>
-                </div>
-            </md-card-content>
-        </md-card>
+<div class="panel mt2-theme-panel">
+    <div class="panel-heading">
+        <div class="panel-title">Search Domains</div>
     </div>
-</md-content>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label>Choose an ESP</label>
+                    <select name="esp_search" class="form-control" id="esp_search"
+                            ng-model="domain.search.esp"
+                            ng-change="domain.updateSearchEspAccounts()"
+                            ng-disabled="domain.updatingAccounts">
+                        <option value="">--</option>
+                        @foreach ( $esps as $esp )
+                            <option value="{{ $esp['name'] }}">{{ $esp['name'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label>Choose an ESP Account</label>
+                    <select name="esp_account_search" class="form-control" id="esp_account_search"
+                               ng-model="domain.search.esp_account_id"
+                               ng-disabled="domain.espNotChosen">
+                        <option value="">--</option>
+                        <option ng-repeat="option in domain.espAccounts" ng-value="option.id">@{{ option.account_name }}
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label>Choose an DBA Account</label>
+                    <select name="dba_search" class="form-control" id="dba_search"
+                               ng-model="domain.search.doing_business_as_id"
+                               ng-disabled="domain.updatingAccounts">
+                        <option value="">--</option>
+                        @foreach ( $dbas as $dba )
+                            <option value="{{ $dba['id'] }}">{{ $dba['dba_name'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label>Choose an Registrar</label>
+                    <select name="registrar_search" class="form-control" id="registrar_search"
+                               ng-model="domain.search.registrar_id"
+                               ng-disabled="domain.updatingAccounts">
+                        <option value="">--</option>
+                        @foreach ( $regs as $reg )
+                            <option value="{{ $reg['id'] }}">{{ $reg['name'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4">
+            <div class="form-group">
+                <label>Domain Name* wildcard</label>
+                <input class="form-control" type="text" id="search_domain" value="" ng-model="domain.search.domain"/>
+            </div>
+        </div>
+            <div class="col-sm-4">
+                <label>Choose a Proxy</label>
+                <select class="form-control" name="proxy_search" id="proxy_search"
+                           ng-model="domain.search.proxy_id"
+                           ng-disabled="domain.updatingAccounts">
+                    <option value="">--</option>
+                    <option ng-repeat="option in domain.proxies" ng-value="option.id">@{{ option.name  }}
+                    </option>
+                </select>
+            </div>
+            <div class="col-sm-4">
+                <label>Choose a Domain Type</label>
+                <select name="domain_type" class="form-control" id="domain_type"
+                           ng-model="domain.search.domain_type"
+                           ng-disabled="domain.updatingAccounts">
+                    <option value="">--</option>
+                    <option value="1">Mailing Domains</option>
+                    <option value="2">Content Domains</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="pull-right">
+            <input class="btn mt2-theme-btn-secondary btn-sm" ng-click="domain.resetSearch()" type="submit" value="Reset">
+            <input class="btn mt2-theme-btn-primary btn-sm" ng-click="domain.searchDomains()" type="submit" value="Search">
+        </div>
+    </div>
+</div>

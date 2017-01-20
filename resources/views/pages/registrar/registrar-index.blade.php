@@ -1,78 +1,85 @@
 @extends( 'layout.default' )
 
-@section( 'title' , 'MT2 Registrar List' )
+@section( 'title' , 'Registrar List' )
 
 @section ( 'angular-controller' , 'ng-controller="RegistrarController as registrar"' )
-
+@section( 'cacheTag' , 'Registrar' )
 @section ( 'page-menu' )
     @if (Sentinel::hasAccess('registrar.add'))
-        <md-button ng-click="registrar.viewAdd()" aria-label="Add Registrar">
-            <md-icon ng-show="app.isMobile()" md-svg-src="img/icons/ic_add_circle_outline_black_24px.svg"></md-icon>
-            <span ng-hide="app.isMobile()">Add Registrar</span>
-        </md-button>
+        <li><a ng-href="/registrar/create" target="_self">Add Registrar</a></li>
     @endif
 @stop
 
 
 @section( 'content' )
     <div ng-init="registrar.loadAccounts()">
-        <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
-            <md-card>
                 <md-table-container>
                     <table md-table md-progress="registrar.queryPromise">
-                        <thead md-head md-order="registrar.sort" md-on-reorder="registrar.loadAccounts">
+                        <thead md-head md-order="registrar.sort" md-on-reorder="registrar.loadAccounts" class="mt2-theme-thead">
                         <tr md-row>
-                            <th md-column></th>
+                            <th md-column class="mt2-table-btn-column"></th>
                             <th md-column md-order-by="status" class="md-table-header-override-whitetext mt2-table-header-center">Status</th>
                             <th md-column md-order-by="name" class="md-table-header-override-whitetext mt2-cell-left-padding">Registrar Name</th>
-                            <th md-column md-order-by="username" class="md-table-header-override-whitetext">Username</th>
-                            <th md-column md-order-by="contact_name" class="md-table-header-override-whitetext">Contact Name</th>
-                            <th md-column md-order-by="contact_email" class="md-table-header-override-whitetext">Contact Email</th>
-                            <th md-column md-order-by="phone_number" class="md-table-header-override-whitetext">Phone</th>
-                            <th md-column md-order-by="entity_name" class="md-table-header-override-whitetext">Entity Name</th>
+                            <th md-column class="md-table-header-override-whitetext">Username</th>
+                            <th md-column class="md-table-header-override-whitetext">Password</th>
+                            <th md-column class="md-table-header-override-whitetext">DBAs</th>
+                            <th md-column class="md-table-header-override-whitetext">CC Contact</th>
+                            <th md-column class="md-table-header-override-whitetext">CC #</th>
+                            <th md-column class="md-table-header-override-whitetext">Notes</th>
                         </tr>
                         </thead>
 
                         <tbody md-body>
                         <tr md-row ng-repeat="record in registrar.accounts track by $index">
-                            <td md-cell>
+                            <td md-cell class="mt2-table-btn-column">
                                 <div layout="row" layout-align="center center">
-                                    <md-button class="md-icon-button" ng-href="@{{ '/registrar/edit/' + record.id }}" target="_self" aria-label="Edit">
+                                    <a ng-href="@{{ '/registrar/edit/' + record.id }}" target="_self" aria-label="Edit" data-toggle="tooltip" data-placement="bottom" title="Edit">
                                         <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
-                                        <md-tooltip md-direction="bottom">Edit</md-tooltip>
-                                    </md-button>
-                                    <md-button ng-if="record.status == 1" class="md-icon-button" ng-click="registrar.toggle( record.id , 0 )" aria-label="Deactivate">
-                                        <md-icon md-font-set="material-icons" class="mt2-icon-black">pause</md-icon>
-                                        <md-tooltip md-direction="bottom">Deactivate</md-tooltip>
-                                    </md-button>
-                                    <md-button ng-if="record.status == 0" class="md-icon-button" ng-click="registrar.toggle(record.id, 1 )" aria-label="Activate">
-                                        <md-icon md-font-set="material-icons" class="mt2-icon-black">play_arrow</md-icon>
-                                        <md-tooltip md-direction="bottom">Activate</md-tooltip>
-                                    </span>
-                                </md-button>
+                                    </a>
+                                    <md-icon ng-if="record.status == 1" ng-click="registrar.toggle( record.id , 0 )" aria-label="Deactivate"
+                                            md-font-set="material-icons" class="mt2-icon-black"
+                                            data-toggle="tooltip" data-placement="bottom" title="Deactivate">pause</md-icon>
+                                    <md-icon ng-if="record.status == 0" ng-click="registrar.toggle(record.id, 1 )" aria-label="Activate"
+                                            md-font-set="material-icons" class="mt2-icon-black"
+                                            data-toggle="tooltip" data-placement="bottom" title="Activate">play_arrow</md-icon>
+                                    @if (Sentinel::hasAccess('api.registrar.destroy'))
+                                    <md-icon  ng-click="registrar.delete( record.id )" aria-label="Delete Record"
+                                             md-font-set="material-icons" class="mt2-icon-black"
+                                             data-toggle="tooltip" data-placement="bottom" title="Delete Record">delete</md-icon>
+                                    @endif
+                                </div>
                             </td>
-                            <td md-cell class="mt2-table-cell-center" ng-class="{ 'mt2-bg-success' : record.status == 1 , 'mt2-bg-danger' : record.status == 0 }">
+                            <td md-cell class="mt2-table-cell-center" ng-class="{ 'bg-success' : record.status == 1 , 'bg-danger' : record.status == 0 }">
                                 @{{ record.status == 1 ? 'Active' : 'Inactive' }}
                             </td>
                             <td md-cell class="mt2-cell-left-padding">@{{ record.name }}</td>
                             <td md-cell>@{{ record.username }}</td>
-                            <td md-cell>@{{ record.contact_name }}</td>
-                            <td md-cell>@{{ record.contact_email }}</td>
-                            <td md-cell>@{{ record.phone_number }}</td>
-                            <td md-cell>@{{ record.entity_name }}</td>
+                            <td md-cell>@{{ record.password }}</td>
+                            <td md-cell nowrap>
+                                <p class="no-margin" ng-repeat="value in record.dba_names">
+                                    @{{ value.dba_name }} - Contact: @{{ value.dba_contact_name}} (@{{ value.dba_contact_email }})
+                                </p>
+                            </td>
+                            <td md-cell nowrap>@{{ record.contact_credit_card }}</td>
+                            <td md-cell>@{{ record.last_cc }}</td>
+                            <td md-cell nowrap>@{{ record.notes }}</td>
                         </tr>
                         </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="9">
+                                <md-content class="md-mt2-zeta-theme md-hue-2">
+                                    <md-table-pagination md-limit="registrar.paginationCount" md-limit-options="registrar.paginationOptions" md-page="registrar.currentPage" md-total="@{{registrar.accountTotal}}" md-on-paginate="registrar.loadAccounts" md-page-select></md-table-pagination>
+                                </md-content>
+                                </td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </md-table-container>
 
-                <md-content class="md-mt2-zeta-theme md-hue-2">
-                    <md-table-pagination md-limit="registrar.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="registrar.currentPage" md-total="@{{registrar.accountTotal}}" md-on-paginate="registrar.loadAccounts" md-page-select></md-table-pagination>
-                </md-content>
-            </md-card>
-        </md-content>
     </div>
 @stop
 
-@section( 'pageIncludes' )
-    <script src="js/registrar.js"></script>
-@stop
+<?php Assets::add(
+        ['resources/assets/js/registrar/RegistrarController.js',
+                'resources/assets/js/registrar/RegistrarApiService.js'],'js','pageLevel') ?>

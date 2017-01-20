@@ -4,40 +4,34 @@
 
 
 @section( 'content' )
-    <md-content class="md-mt2-zeta-theme md-padding" ng-controller="domainController as domain" ng-init="domain.init(1)">
-    <h1>ESP Account View</h1>
-    @include( 'pages.domain.domain-search' )
-    <md-content class="md-mt2-zeta-theme">
-        <md-card>
-
-            <md-tabs md-dynamic-height md-border-bottom>
-
-                <md-tab label="Mailing Domains" md-on-select="domain.updateType(1)">
-                    <md-content class="md-padding">
-                        <div flex>
-                            <h2>&nbsp;Current Mailing Domains @{{ domain.extraText }}</h2>
-                            <md-card>
-                                @include( 'pages.domain.domain-list-table' )
-                            </md-card>
-                        </div>
-                    </md-content>
-                </md-tab>
-
-                <md-tab label="Content Domains" md-on-select="domain.updateType(2)">
-                    <md-content class="md-padding">
-                        <div flex>
-                            <h2>&nbsp;Current Content Domains @{{ domain.extraText }}</h2>
-                            <md-card>
-                                @include( 'pages.domain.domain-list-table' )
-                            </md-card>
-                        </div>
-                    </md-content>
-                </md-tab>
-            </md-tabs>
-            </md-card>
-    </md-content>
+    <div ng-controller="domainController as domain" ng-init="domain.init(1)">
+        <h1>ESP Account View</h1>
+        @include( 'pages.domain.domain-search' )
+        <div ng-init="attr.initIndexPage()">
+            <ul class="nav nav-tabs" role="tablist">
+                <li ng-click="domain.updateType(1)" role="presentation" class="active"><a href="#mailing" aria-controls="mailing" role="tab" data-toggle="tab">Mailing Domains</a></li>
+                <li ng-click="domain.updateType(2)" role="presentation"><a href="#content" aria-controls="content" role="tab" data-toggle="tab">Content Domains</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="mailing">
+                    <h2>Current Mailing Domains @{{ domain.extraText }}</h2>
+                    <md-card>
+                        @include( 'pages.domain.domain-list-table' )
+                    </md-card>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="content">
+                    <h2>&nbsp;Current Content Domains @{{ domain.extraText }}</h2>
+                    <md-card>
+                        @include( 'pages.domain.domain-list-table' )
+                    </md-card>
+                </div>
+            </div>
+        </div>
+    </div>
 @stop
 
-@section( 'pageIncludes' )
-    <script src="js/domain.js"></script>
-@stop
+
+<?php Assets::add(
+        ['resources/assets/js/domain/DomainController.js',
+                'resources/assets/js/domain/DomainApiService.js'],'js','pageLevel') ?>

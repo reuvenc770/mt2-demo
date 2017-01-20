@@ -1,27 +1,29 @@
-mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , '$timeout' , 'RegistrarApiService' ,'$rootScope', '$mdToast', function ( $log , $window , $location , $timeout , RegistrarApiService, $rootScope, $mdToast ) {
+mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , '$timeout' , 'RegistrarApiService' ,'$rootScope', 'formValidationService', 'modalService', 'paginationService' , function ( $log , $window , $location , $timeout , RegistrarApiService, $rootScope, formValidationService, modalService , paginationService ) {
     var self = this;
     self.$location = $location;
-    self.headers = [ '' , 'ID', 'name', "Username" ];
     self.accounts = [];
     self.currentAccount = { "id": "",
                             "username": "",
-                            "contact_name":"",
-                            "contact_email":"",
-                            "phone_number":"",
-                            "address": "",
-                            "address_2" : "",
-                            "city" : "",
-                            "state" : "",
-                            "zip" : "",
-                            "entity_name":"",};
+                            "password" : "",
+                            "dba_names": [],
+                            "notes":"",
+                            "last_cc":"",
+                            "other_last_cc": "",
+                            "contact_credit_card": "",
+                            "other_contact_credit_card": "",
+    };
     self.createUrl = 'registrar/create/';
     self.editUrl = 'registrar/edit/';
     self.pageType = 'add';
+    self.currentDba = { 'dba_name' : '' , 'dba_contact_name' : '' , 'dba_contact_email' : '' };
+    self.editingDba = false;
 
-    self.formErrors = "";
-    self.formsubmitted = false;
+    self.formErrors = {};
+    self.formSubmitted = false;
     self.pageCount = 0;
-    self.paginationCount = '10';
+    self.paginationCount = paginationService.getDefaultPaginationCount();
+    self.paginationOptions = paginationService.getDefaultPaginationOptions();
+
     self.currentPage = 1;
     self.accountTotal = 0;
     self.sort = '-status';
@@ -31,6 +33,7 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
         var pathMatches = $location.path().match( /^\/registrar\/edit\/(\d{1,})/ );
 
         RegistrarApiService.getAccount( pathMatches[ 1 ] , function ( response ) {
+            response.data.dba_names = angular.fromJson( response.data.dba_names );
             self.currentAccount = response.data;
         } )
     };
@@ -58,84 +61,97 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
         RegistrarApiService.toggleRow(recordId, direction, self.toggleRowSuccess, self.toggleRowFailure)
     };
 
+    self.delete = function(recordId) {
+        var r = confirm("Are you sure you want to delete this");
+        if (r == true) {
+            RegistrarApiService.deleteRow(recordId, self.deleteRowSuccess, self.deleteRowFailure)
+        }
+
+    };
+
     self.setPageType = function(pageType){
         self.pageType = pageType;
     };
     /**
      * Click Handlers
      */
-    self.viewAdd = function () {
-        $location.url( self.createUrl );
-        $window.location.href = self.createUrl;
-    };
-
-    self.saveNewAccount = function ( event , form ) {
-        self.formsubmitted = true;
-        self.resetFieldErrors();
-
-        var errorFound = false;
-
-        angular.forEach( form.$error.required , function( field ) {
-            field.$setDirty();
-            field.$setTouched();
-
-            if ( field.$name == 'state' ) {
-                form.state.$error.required = true;
-            }
-
-            errorFound = true;
-        } );
-
-        if ( errorFound ) {
-            $mdToast.showSimple( 'Please fix errors and try again.' );
-
-            return false;
-        };
+    self.saveNewAccount = function () {
+        self.formSubmitted = true;
+        formValidationService.resetFieldErrors(self);
 
         self.currentAccount.status = 1;
-        RegistrarApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , function (response) {
-            angular.forEach( response.data , function( error , fieldName ) {
-
-                form[ fieldName ].$setDirty();
-                form[ fieldName ].$setTouched();
-                form[ fieldName ].$setValidity('isValid' , false);
-            });
-
-            self.saveNewAccountFailureCallback(response);
-        });
+        RegistrarApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback);
     };
 
     self.editAccount = function () {
-        self.resetFieldErrors();
-
+        self.formSubmitted = true;
+        formValidationService.resetFieldErrors(self);
         RegistrarApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 
+    self.addDba = function () {
+        self.editingDba = false;
+        var dbaError = false;
 
-    /**
-     * Watchers
-     */
-    $rootScope.$on( 'updatePage' , function () {
-        self.loadAccounts();
-    } );
+        if(self.currentDba.dba_name == '') {
+            self.formErrors.dba_name = [ 'A DBA is required.' ];
+            dbaError = true;
+        }
+        if(self.currentDba.dba_contact_name == '') {
+            self.formErrors.dba_contact_name = [ 'A contact name for the DBA is required.' ];
+            dbaError = true;
+        }
+        if(self.currentDba.dba_contact_email == '') {
+            self.formErrors.dba_contact_email = [ 'A contact email for the DBA is required.' ];
+            dbaError = true;
+        }
+        if (dbaError) {
+            return;
+        } else {
+            delete( self.formErrors.dba_name );
+            delete( self.formErrors.dba_contact_name );
+            delete( self.formErrors.dba_contact_email );
+        }
 
+        dbas = self.currentAccount.dba_names;
+        dbas.push( self.currentDba );
+        self.clearDbaFields();
+    };
 
+    self.editDba = function (id) {
+        self.currentDba = self.currentAccount.dba_names[ id ];
+        self.currentAccount.dba_names.splice( id , 1);
+        self.editingDba = true;
+    };
 
+    self.removeDba = function (id) {
+
+        self.currentAccount.dba_names.splice( id , 1 );
+
+    };
+
+    self.clearDbaFields = function () {
+        self.currentDba = { dba_name : '' , dba_contact_name : '' , dba_contact_email : '' };
+    };
 
     /**
      * Callbacks
      */
     self.loadAccountsSuccessCallback = function ( response ) {
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+
+        angular.forEach( response.data.data , function ( value , key ) {
+            if ( value.dba_names != '' ) {
+                response.data.data[ key ].dba_names = angular.fromJson( value.dba_names );
+            }
+        } );
         self.accounts = response.data.data;
         self.pageCount = response.data.last_page;
         self.accountTotal = response.data.total;
     };
 
     self.loadAccountsFailureCallback = function ( response ) {
-        self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to load Users.' );
-
-        self.launchModal();
+        modalService.simpleToast( 'Failed to load users.' );
     };
 
     self.SuccessCallBackRedirect = function ( response ) {
@@ -149,61 +165,34 @@ mt2App.controller( 'RegistrarController' , [ '$log' , '$window' , '$location' , 
     };
 
     self.saveNewAccountFailureCallback = function ( response ) {
-        self.loadFieldErrors(response);
-        self.formsubmitted = false;
+        formValidationService.loadFieldErrors(self,response);
+        self.formSubmitted = false;
     };
 
     self.editAccountFailureCallback = function ( response ) {
-        self.loadFieldErrors(response);
+        self.formSubmitted = false;
+        formValidationService.loadFieldErrors(self,response);
     };
 
     self.toggleRowSuccess = function ( response ) {
-        $mdToast.showSimple("Registrar Updated");
+        modalService.setModalLabel('Success');
+        modalService.setModalBody("Registrar status updated.");
+        modalService.launchModal();
+        self.loadAccounts();
+    };
+
+    self.deleteRowFailure = function ( response ) {
+        modalService.setModalLabel('Failed To Delete Row');
+        modalService.setModalBodyRawHtml(response.data.delete);
+        modalService.launchModal();
+        self.loadAccounts();
+    };
+
+    self.deleteRowSuccess = function ( response ) {
+       modalService.simpleToast("Successfully Deleted Row");
         self.loadAccounts();
     };
 
 
-    /**
-     * Errors
-     */
-    self.loadFieldErrors = function (response ) {
-        angular.forEach(response.data, function(value, key) {
-            self.setFieldError( key , value );
-        });
-    };
 
-    self.setFieldError = function ( field , errorMessage ) {
-        self.formErrors[ field ] = errorMessage;
-    };
-
-    self.resetFieldErrors = function () {
-        self.formErrors = {};
-    };
-
-    /**
-     * Page Modal
-     */
-
-    self.setModalLabel = function ( labelText ) {
-        var modalLabel = angular.element( document.querySelector( '#pageModalLabel' ) );
-
-        modalLabel.text( labelText );
-    };
-
-    self.setModalBody = function ( bodyText ) {
-        var modalBody = angular.element( document.querySelector( '#pageModalBody' ) );
-
-        modalBody.text( bodyText );
-    };
-
-    self.launchModal = function () {
-        $( '#pageModal' ).modal('show');
-    };
-
-    self.resetModal = function () {
-        self.setModalLabel( '' );
-        self.setModalBody( '' );
-
-        $( '#pageModal' ).modal('hide');
-    };
 } ] );

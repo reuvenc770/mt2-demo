@@ -32,7 +32,7 @@ class ShowInfoController extends Controller
      */
     public function index()
     {
-        return view( 'bootstrap.pages.show-info' );
+        return view( 'pages.show-info' );
     }
 
     /**

@@ -31,7 +31,7 @@ class AttributionController extends Controller
         ProjectionChartCollection $chartCollection ,
         ProjectionReportCollection $reportCollection
     ) {
-        $this->service = $service; 
+        $this->service = $service;
         $this->chartCollection = $chartCollection;
         $this->reportCollection = $reportCollection;
     }
@@ -47,7 +47,7 @@ class AttributionController extends Controller
     }
 
     public function listAll () {
-        return response()->view( "bootstrap.pages.attribution.attribution-index" );
+        return response()->view( "pages.attribution.attribution-index" );
     }
 
     /**
@@ -57,7 +57,7 @@ class AttributionController extends Controller
      */
     public function create()
     {
-        return response()->view( "bootstrap.pages.attribution.attribution-add" );
+        return response()->view( "pages.attribution.attribution-add" );
     }
 
     /**
@@ -90,7 +90,7 @@ class AttributionController extends Controller
      */
     public function edit($id)
     {
-        return response()->view( "bootstrap.pages.attribution.attribution-edit" );
+        return response()->view( "pages.attribution.attribution-edit" );
     }
 
     /**
@@ -123,9 +123,9 @@ class AttributionController extends Controller
     public function levels ( $modelId ) {
         return response()->json( $this->service->levels( $modelId ) );
     }
-    
+
     public function copyLevels ( Request $request ) {
-        return response()->json( [ "status" => 
+        return response()->json( [ "status" =>
             $this->service->copyLevels(
                 $request->input( 'currentModelId' ) ,
                 $request->input( 'templateModelId' )
@@ -175,7 +175,7 @@ class AttributionController extends Controller
     }
 
     public function showProjection ( $modelId ) {
-        return response()->view( "bootstrap.pages.attribution.attribution-projection" , [ 'modelId' => $modelId ] );
+        return response()->view( "pages.attribution.attribution-projection" , [ 'modelId' => $modelId ] );
     }
 
     public function getChartData ( $modelId ) {

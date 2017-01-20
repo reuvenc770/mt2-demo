@@ -61,7 +61,7 @@ class NavigationService
             $cachedMenu = Cache::tags("navigation-bootstrap")->get( $this->cacheId );
             if (is_null($cachedMenu)) {
                 $this->loadMenu();
-                $template = 'bootstrap.layout.side-nav';
+                $template = 'layout.side-nav';
 
                 $sideNav = view($template, ['menuItems' => $this->menuList])->render();
 

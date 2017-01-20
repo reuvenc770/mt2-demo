@@ -26,7 +26,7 @@ class SourceUrlSearchController extends Controller
     public function index()
     {
 
-        return response()->view( "bootstrap.pages.source-url-search" , [
+        return response()->view( "pages.source-url-search" , [
             'feedVerticals' => $this->feedService->getVerticals()->toJson(),
             'clients' => $this->clientService->get()->toJson()
         ] );

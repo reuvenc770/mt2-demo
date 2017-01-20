@@ -1,69 +1,31 @@
 @extends( 'layout.default' )
 
 @section( 'title' , 'Attribution Model' )
-
-@section( 'navClientClasses' , 'active' )
-
+@section( 'container' , 'container-fluid' )
 @section( 'angular-controller' , 'ng-controller="AttributionController as attr"' )
 
 @section( 'page-menu' )
-    <div ng-hide="app.isMobile()">
         @if (Sentinel::hasAccess('attributionModel.add'))
-        <md-button ng-href="{{ route( 'attributionModel.add' ) }}" target="_self" aria-label="Add Attribution Model">
-            <span>Add Model</span>
-        </md-button>
+        <li><a ng-href="{{ route( 'attributionModel.add' ) }}" target="_self" >Add Model</a></li>
         @endif
-
-        @if (Sentinel::hasAccess('api.attribution.run'))
-        <md-button ng-click="attr.runAttribution( false )" aria-label="Run Live Attribution">
-            <span>Run Live Attribution</span>
-        </md-button>
-        @endif
-    </div>
-
-    <md-menu ng-show="app.isMobile()" md-position-mode="target-right target">
-        <md-button aria-label="Open Menu" class="md-icon-button" ng-click="$mdOpenMenu( $event )">
-            <md-icon md-svg-src="img/icons/ic_more_horiz_black_24px.svg"></md-icon>
-        </md-button>
-    
-        <md-menu-content width="3">
-            @if (Sentinel::hasAccess('attributionModel.add'))
-            <md-menu-item>
-                <md-button ng-href="{{ route( 'attributionModel.add' ) }}" target="_self" aria-label="Add Attribution Model">
-                    <span>Add Model</span>
-                </md-button>
-            </md-menu-item>
-            @endif
-
-            @if (Sentinel::hasAccess('api.attribution.run'))
-            <md-menu-item>
-                <md-button ng-click="attr.runAttribution( false )" aria-label="Run Live Attribution">
-                    <span>Run Live Attribution</span>
-                </md-button>
-            </md-menu-item>
-            @endif
-        </md-menu-content>
-    </md-menu>
 @stop
 
 @section( 'content' )
-<md-content layout="column" class="md-mt2-zeta-theme" ng-init="attr.initIndexPage()">
-    <md-tabs md-dynamic-height md-border-bottom>
-        <md-tab label="Models">
+
+<div  ng-init="attr.initIndexPage()">
+    <div class="alert alert-info" role="alert"> <strong>Heads up!</strong> Highlighted row is currently live. Attribution is automated to run once a day. To manually update record attribution for <em>live model</em> click 'Run Attribution' button <md-icon md-font-set="material-icons" class="mt2-icon-black icon-xs">monetization_on</md-icon> on the live model row. To manually update record attribution for <em>inactive model</em> select the inactive model and click 'Run Attribution' button <md-icon md-font-set="material-icons" class="mt2-icon-black icon-xs">monetization_on</md-icon> for the inactive model you want to run. After manually running live attribution, reports will update but you will need to go to the <a ng-href="{{ route( 'report.list' ) }}" target="_self">reports page</a> to view the reports. If attribution is running for a model you will not be able to edit that model until the run is complete.</div>
             @include( 'pages.attribution.indexPartials.models-index' )
-        </md-tab>
-
-        <md-tab label="Report">
-            <md-card class="md-mt2-zeta-theme" flex> 
-            @include( 'pages.attribution.indexPartials.three-month-report' )
-            </md-card>
-        </md-tab>
-    <md-tabs>
-
-    @include( 'pages.attribution.attribution-level-copy-sidenav' )
-</md-content>
+</div>
 @stop
 
-@section( 'pageIncludes' )
-<script src="js/attribution.js"></script>
-@stop
+<?php Assets::add(
+        [
+                'resources/assets/js/attribution/AttributionController.js',
+                'resources/assets/js/attribution/AttributionApiService.js',
+                'resources/assets/js/attribution/AttributionProjectionService.js',
+                'resources/assets/js/report/ThreeMonthReportService.js',
+                'resources/assets/js/report/ReportApiService.js',
+                'resources/assets/js/feed/FeedApiService.js', //REFACTOR WHEN FEEDS ARE REFACTORED
+        ],
+        'js','pageLevel')
+?>

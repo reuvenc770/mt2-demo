@@ -19,7 +19,7 @@ class DomainGroupController extends Controller
     public function listAll()
     {
         return response()
-            ->view("bootstrap.pages.domaingroup.domaingroup-index");
+            ->view("pages.domaingroup.domaingroup-index");
     }
 
     /**
@@ -39,7 +39,7 @@ class DomainGroupController extends Controller
      */
     public function create()
     {
-        return view("bootstrap.pages.domaingroup.domaingroup-add");
+        return view("pages.domaingroup.domaingroup-add");
     }
 
     /**
@@ -75,7 +75,7 @@ class DomainGroupController extends Controller
     public function edit($id)
     {
         return response()
-            ->view("bootstrap.pages.domaingroup.domaingroup-edit");
+            ->view("pages.domaingroup.domaingroup-edit");
     }
 
     /**

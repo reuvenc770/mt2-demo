@@ -23,7 +23,7 @@ class NavigationController extends Controller
      */
     public function index()
     {
-        return view('bootstrap.pages.navigation.navigation-index');
+        return view('pages.navigation.navigation-index');
     }
 
 

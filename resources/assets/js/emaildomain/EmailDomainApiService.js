@@ -1,4 +1,4 @@
-mt2App.service( 'EmailDomainApiService' , function ( $http , $log ) {
+mt2App.service( 'EmailDomainApiService' , [ 'paginationService' , '$http' , '$log' , function ( paginationService , $http , $log ) {
     var self = this;
 
     self.baseApiUrl = '/api/isp';
@@ -9,12 +9,7 @@ mt2App.service( 'EmailDomainApiService' , function ( $http , $log ) {
     };
 
     self.getAccounts = function ( page , count , sortField , successCallback , failureCallback ) {
-        var sort = { 'field' : sortField , 'desc' : false };
-
-        if (/^\-/.test( sortField ) ) {
-            sort.field = sort.field.substring( 1 );
-            sort.desc = true;
-        }
+        var sort = paginationService.sortPage( sortField );
 
         return $http( {
             "method" : "GET" ,
@@ -41,5 +36,15 @@ mt2App.service( 'EmailDomainApiService' , function ( $http , $log ) {
         } ).then( successCallback , failureCallback );
     };
 
+    self.searchDomain = function ( count , data , sortField , successCallback , failureCallback ) {
+        var sort = paginationService.sortPage( sortField );
 
-} );
+        return $http( {
+            "method" : "GET" ,
+            "url" : self.pagerApiUrl ,
+            "params" : { "page" : 1 , "count" : count , "sort" : sort , "data" : data }
+        } ).then( successCallback , failureCallback );
+    };
+
+
+} ] );

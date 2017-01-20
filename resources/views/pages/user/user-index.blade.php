@@ -1,29 +1,22 @@
 @extends( 'layout.default' )
 
-@section( 'title' , 'MT2 User List' )
-
-@section( 'navEspClasses' , 'active' )
+@section( 'title' , 'User List' )
 
 @section( 'angular-controller', 'ng-controller="userController as user"' )
 
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('user.add'))
-        <md-button ng-click="user.viewAdd()" aria-label="Add User Account">
-            <md-icon ng-show="app.isMobile()" md-svg-src="img/icons/ic_add_circle_outline_black_24px.svg"></md-icon>
-            <span ng-hide="app.isMobile()">Add User Account</span>
-        </md-button>
+        <li><a ng-href="/user/create" target="_self">Add User Account</a></li>
     @endif
 @stop
 
 @section( 'content' )
     <div ng-init="user.loadAccounts()">
-        <md-content layout="column" class="md-mt2-zeta-theme md-hue-1">
-            <md-card>
                 <md-table-container>
                     <table md-table>
-                        <thead md-head>
+                        <thead md-head class="mt2-theme-thead">
                             <tr md-row>
-                                <th md-column></th>
+                                <th md-column class="mt2-table-btn-column"></th>
                                 <th md-column class="md-table-header-override-whitetext" md-numeric>ID</th>
                                 <th md-column class="md-table-header-override-whitetext">Email</th>
                                 <th md-column class="md-table-header-override-whitetext">Username</th>
@@ -37,12 +30,11 @@
 
                         <tbody md-body>
                             <tr md-row ng-repeat="record in user.accounts track by $index">
-                                <td md-cell>
+                                <td md-cell class="mt2-table-btn-column">
                                     <div layout="row" layout-align="center center">
-                                        <md-button class="md-icon-button" ng-href="@{{ user.editUrl + record.id }}" target="_self" aria-label="Edit">
-                                            <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon>
-                                            <md-tooltip md-direction="bottom">Edit</md-tooltip>
-                                        </md-button>
+                                        <a ng-href="@{{ user.editUrl + record.id }}" target="_self" aria-label="Edit" data-toggle="tooltip" data-placement="bottom" title="Edit">
+                                            <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
+                                        </a>
                                     </div>
                                 </td>
                                 <td md-cell>@{{ record.id }}</td>
@@ -50,21 +42,19 @@
                                 <td md-cell>@{{ record.username }}</td>
                                 <td md-cell>@{{ record.first_name }}</td>
                                 <td md-cell>@{{ record.last_name }}</td>
-                                <td md-cell>
+                                <td md-cell nowrap>
                                     @{{ record.roles.join(', ') }}
                                 </td>
                                 <td md-cell ng-bind="record.activations.length > 0 ? 'Active' : 'Inactive'"></td>
-                                <td md-cell>@{{ record.last_login }}</td>
+                                <td md-cell nowrap>@{{ record.last_login ? app.formatDate( record.last_login ) : '' }}</td>
                             </tr>
                         </tbody>
                     </table>
                 </md-table-container>
-            </md-card>
-        </md-content>
     </div>
 
 @stop
 
-@section( 'pageIncludes' )
-    <script src="js/user.js"></script>
-@stop
+<?php Assets::add(
+        ['resources/assets/js/user/UserController.js',
+                'resources/assets/js/user/UserApiService.js'],'js','pageLevel') ?>

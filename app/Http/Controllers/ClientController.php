@@ -22,13 +22,13 @@ class ClientController extends Controller
     }
 
     public function listAll () {
-        return response()->view( 'bootstrap.pages.client.client-index' );
+        return response()->view( 'pages.client.client-index' );
     }
 
     public function create () {
         $states = States::all();
 
-        return response()->view( 'bootstrap.pages.client.client-add' , [ "states" => $states ] );
+        return response()->view( 'pages.client.client-add' , [ "states" => $states ] );
     }
 
     public function show ( $clientId ) {
@@ -38,7 +38,7 @@ class ClientController extends Controller
     public function edit ( $clientId ) {
         $states = States::all();
 
-        return response()->view( 'bootstrap.pages.client.client-update' , [
+        return response()->view( 'pages.client.client-update' , [
             "clientData" => $this->clientService->getAccount( $clientId )->toJSON() ,
             "states" => $states,
             'clientId' => $clientId ,

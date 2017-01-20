@@ -22,7 +22,7 @@ class AWeberDeployMappingController extends Controller
 
     public function mapDeploys(){
         $deploys = $this->deployService->getOrphanDeploysForEsp("AWeber");
-        return view('bootstrap.pages.tools.aweber.mapdeploys', ["deploys" => $deploys]);
+        return view('pages.tools.aweber.mapdeploys', ["deploys" => $deploys]);
     }
 
 

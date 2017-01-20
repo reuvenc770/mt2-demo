@@ -26,11 +26,11 @@ class ReportController extends Controller
     public function __construct () {}
 
     public function viewAmpReports () {
-        return response()->view( 'bootstrap.pages.report.amp-reports' );
+        return response()->view( 'pages.report.amp-reports' );
     }
 
     public function users () {
-        return response()->view( 'bootstrap.pages.report.amp-users' );
+        return response()->view( 'pages.report.amp-users' );
     }
 
     public function getRecords ( Request $request ) {
@@ -63,7 +63,7 @@ class ReportController extends Controller
 
         $className = "\App\Collections\\" . $this->reportType . "ReportCollection";
 
-        $this->collection = \App::make( $className ); 
+        $this->collection = \App::make( $className );
 
         $this->collection->config( $this->getQueryFromRequest( $this->currentRequest ) );
     }
@@ -74,7 +74,7 @@ class ReportController extends Controller
         $descSort = ( preg_match( '/^\-/' , $this->currentRequest->input( 'order' ) ) === 1 );
 
         $query = [
-            "date" => [ 
+            "date" => [
                 "start" => Carbon::parse( $filters->date->start )->toDateString() ,
                 "end" => Carbon::parse( $filters->date->end )->toDateString()
             ] ,
@@ -108,7 +108,7 @@ class ReportController extends Controller
         $this->collection->load();
 
         $data = $this->collection->getRecordsAndTotals( [ 'page' => $page , 'chunkSize' => $chunkSize ] );
-        
+
         $this->records = $data[ 'records' ];
         $this->totals = $data[ 'totals' ];
     }

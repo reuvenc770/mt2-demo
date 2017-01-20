@@ -1,4 +1,4 @@
-mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$timeout' , 'RoleApiService', '$rootScope' , 'ivhTreeviewMgr' , 'ivhTreeviewBfs' , '$mdToast' , 'CustomValidationService' , function ( $log , $window , $location , $timeout , RoleApiService, $rootScope , ivhTreeviewMgr , ivhTreeviewBfs , $mdToast , CustomValidationService ) {
+mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$timeout' , 'RoleApiService', '$rootScope' , 'ivhTreeviewMgr' , 'ivhTreeviewBfs' , 'formValidationService' , 'modalService' , function ( $log , $window , $location , $timeout , RoleApiService, $rootScope , ivhTreeviewMgr , ivhTreeviewBfs , formValidationService , modalService ) {
     var self = this;
     self.$location = $location;
 
@@ -10,6 +10,7 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
     self.permissionTree = [];
 
     self.formErrors = "";
+    self.formSubmitted = false;
 
     self.loadPermissionTree = function () {
         var currentPath = $location.path();
@@ -20,13 +21,7 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
         );
         var roleId = ( prepopPage ? pathParts[ 0 ] : 0 );
 
-        RoleApiService.getPermissionTree( roleId , function ( response ) {
-            self.permissionTree = response.data;
-
-            ivhTreeviewMgr.validate(self.permissionTree, false);
-
-            self.updateCurrentRolePermissions();
-        } , function ( response ) { $log.log( response ); } );
+        RoleApiService.getPermissionTree( roleId , self.loadPermissionTreeSuccessCallback , self.loadPermissionTreeFailureCallback );
     };
 
     self.updateSelectedPermissions = function () {
@@ -56,9 +51,7 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
         );
 
         if ( prepopPage ) {
-            RoleApiService.getRole( pathParts[ 0 ] , function ( response ) {
-                self.currentRole = response.data;
-            } );
+            RoleApiService.getRole( pathParts[ 0 ] , self.getRoleSuccessCallback );
         }
     };
 
@@ -73,38 +66,16 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
     /**
      * Click Handlers
      */
-    self.viewAdd = function () {
-        $location.url( self.createUrl );
-        $window.location.href = self.createUrl;
-    };
-
-    self.change = function ( form , fieldName ) {
-        CustomValidationService.onChangeResetValidity( self , form , fieldName );
-    };
-
-    self.saveNewRole = function ( event , form ) {
-        self.resetFieldErrors();
-
-        var errorFound = false;
-
-        angular.forEach( form.$error.required , function( field ) {
-            field.$setDirty();
-            field.$setTouched();
-
-            errorFound = true;
-        } );
-
-        if ( errorFound ) {
-            $mdToast.showSimple( 'Please fix errors and try again.' );
-
-            return false;
-        };
+    self.saveNewRole = function () {
+        self.formSubmitted = true;
+        formValidationService.resetFieldErrors(self);
 
         RoleApiService.saveNewRole( self.currentRole , self.SuccessCallBackRedirect , self.saveNewRoleFailureCallback );
     };
 
     self.editRole = function () {
-        self.resetFieldErrors();
+        self.formSubmitted = true;
+        formValidationService.resetFieldErrors(self);
 
         RoleApiService.editRole( self.currentRole , self.SuccessCallBackRedirect , self.editRoleFailureCallback );
     };
@@ -112,16 +83,31 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
     /**
      * Callbacks
      */
+    self.loadPermissionTreeSuccessCallback = function ( response ) {
+        self.permissionTree = response.data;
+
+        ivhTreeviewMgr.validate(self.permissionTree, false);
+
+        self.updateCurrentRolePermissions();
+    };
+
+    self.loadPermissionTreeFailureCallback = function ( response ) {
+        $log.log( response );
+    };
+
+    self.getRoleSuccessCallback = function ( response ) {
+        self.currentRole = response.data;
+    };
+
     self.loadRolesSuccessCallback = function ( response ) {
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+
         self.roles = response.data;
     };
 
     self.loadRolesFailureCallback = function ( response ) {
-        self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to load Users.' );
-
-        self.launchModal();
-    }
+        modalService.simpleToast( 'Failed to load roles.' );
+    };
 
     self.SuccessCallBackRedirect = function ( response ) {
         if($rootScope.wizard !== undefined){
@@ -133,57 +119,13 @@ mt2App.controller( 'roleController' , [ '$log' , '$window' , '$location' , '$tim
     };
 
     self.saveNewRoleFailureCallback = function ( response ) {
-        self.loadFieldErrors( 'name' , response );
-        self.loadFieldErrors( 'permissions' , response );
+        formValidationService.loadFieldErrors( self , response );
+        self.formSubmitted = false;
     };
 
     self.editRoleFailureCallback = function ( response ) {
-        self.loadFieldErrors( 'name' , response );
-        self.loadFieldErrors( 'permissions' , response );
+        formValidationService.loadFieldErrors( self , response );
+        self.formSubmitted = false;
     };
 
-    /**
-     * Errors
-     */
-    self.loadFieldErrors = function ( field , response ) {
-        if ( typeof( response.data[ field ] ) != 'undefined' ) {
-            self.setFieldError( field , response.data[ field ] );
-        }
-    };
-
-    self.setFieldError = function ( field , errorMessage ) {
-        self.formErrors[ field ] = errorMessage;
-    };
-
-    self.resetFieldErrors = function () {
-        self.formErrors = {};
-    };
-
-
-    /**
-     * Page Modal
-     */
-
-    self.setModalLabel = function ( labelText ) {
-        var modalLabel = angular.element( document.querySelector( '#pageModalLabel' ) );
-
-        modalLabel.text( labelText );
-    };
-
-    self.setModalBody = function ( bodyText ) {
-        var modalBody = angular.element( document.querySelector( '#pageModalBody' ) );
-
-        modalBody.text( bodyText );
-    };
-
-    self.launchModal = function () {
-        $( '#pageModal' ).modal('show');
-    };
-
-    self.resetModal = function () {
-        self.setModalLabel( '' );
-        self.setModalBody( '' );
-
-        $( '#pageModal' ).modal('hide');
-    };
 } ] );
