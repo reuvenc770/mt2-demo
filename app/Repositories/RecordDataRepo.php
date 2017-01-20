@@ -22,7 +22,34 @@ class RecordDataRepo implements IAwsRepo {
     }
 
     public function getRecordDataFromEid($eid){
-        return $this->model->find($eid);
+        return $this->model
+                    ->where('email_id', $eid)
+                    ->selectRaw("email_id,
+                        is_deliverable,
+                        first_name,
+                        last_name,
+                        address,
+                        address2,
+                        city,
+                        state,
+                        zip,
+                        country,
+                        gender,
+                        inet_ntoa(ip) as ip,
+                        phone,
+                        source_url,
+                        dob,
+                        device_type,
+                        device_name,
+                        carrier,
+                        capture_date,
+                        subscribe_date,
+                        last_action_offer_id,
+                        last_action_date,
+                        other_fields,
+                        created_at,
+                        updated_at")
+                    ->first();
     }
 
     private function buildBatchedQuery($batchData) {

@@ -67,7 +67,7 @@ class ServiceFactory
     }
 
 
-    public static function createAttributionBatchService($modelId) {
+    public static function createAttributionBatchService() {
         return App::make(\App\Services\AttributionBatchService::class);
     }
 

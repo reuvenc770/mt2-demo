@@ -116,7 +116,7 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
                 elseif (1 === $attributionTruths->is_recent_import) {
                     // Stays with importer
                     $record->uniqueStatus = 'non-unique';
-                    $actionStatus = EmailFeedAction::PASSED_DUE_TO_ATTRIBUTION_SHIELD;
+                    $actionStatus = EmailFeedAction::PASSED_DUE_TO_ATTRIBUTION;
                 }
                 elseif (0 === $attributionTruths->is_recent_import && 1 === $attributionTruths->has_action) {
                     // Not a recent import but there is an action
@@ -137,7 +137,7 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
                     }
                     else {
                         $record->uniqueStatus = 'non-unique';
-                        $actionStatus = EmailFeedAction::PASSED_DUE_TO_LOWER_ATTRIBUTION;
+                        $actionStatus = EmailFeedAction::PASSED_DUE_TO_ATTRIBUTION;
                     }
 
                 }

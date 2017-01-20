@@ -213,15 +213,10 @@ class ImportMt1EmailsService
                                 $emailFeedActionRow = $this->mapToEmailFeedActions($record, EmailFeedAction::DELIVERABLE);
                                 $this->emailFeedActionRepo->batchInsert($emailFeedActionRow);
                             }
-                            elseif ('fresh' !== $emailStatus && $attributionTruths->recent_import) {
-                                // Passed because latest attribution was recent. Set status to POA
-                                $emailFeedActionRow = $this->mapToEmailFeedActions($record, EmailFeedAction::PASSED_DUE_TO_ATTRIBUTION_SHIELD);
-                                $this->emailFeedActionRepo->batchInsert($emailFeedActionRow);
-                            }
                             else {
-                                // remaining condition is !$attributionTruths->has_action && 'fresh' !== $emailStatus && !$attributionTruths->recent_import
-                                // passed because of lower attribution
-                                $emailFeedActionRow = $this->mapToEmailFeedActions($record, EmailFeedAction::PASSED_DUE_TO_LOWER_ATTRIBUTION);
+                                // remaining condition is 'fresh' !== $emailStatus && !$attributionTruths->recent_import
+                                // passed because of lower attribution or the attribution shield
+                                $emailFeedActionRow = $this->mapToEmailFeedActions($record, EmailFeedAction::PASSED_DUE_TO_ATTRIBUTION);
                                 $this->emailFeedActionRepo->batchInsert($emailFeedActionRow);
                             }
                         }
@@ -241,12 +236,12 @@ class ImportMt1EmailsService
                             }
                             elseif (!$attributionTruths->has_action && $attributionTruths->recent_import) {
                                 // set status to POA
-                                $emailFeedActionRow = $this->mapToEmailFeedActions($record, EmailFeedAction::PASSED_DUE_TO_ATTRIBUTION_SHIELD);
+                                $emailFeedActionRow = $this->mapToEmailFeedActions($record, EmailFeedAction::PASSED_DUE_TO_ATTRIBUTION);
                                 $this->emailFeedActionRepo->batchInsert($emailFeedActionRow);
                             }
                             elseif (!$attributionTruths->has_action && !$attributionTruths->recent_import) {
-                                // set status to POL
-                                $emailFeedActionRow = $this->mapToEmailFeedActions($record, EmailFeedAction::PASSED_DUE_TO_LOWER_ATTRIBUTION);
+                                // set status to POA
+                                $emailFeedActionRow = $this->mapToEmailFeedActions($record, EmailFeedAction::PASSED_DUE_TO_ATTRIBUTION);
                                 $this->emailFeedActionRepo->batchInsert($emailFeedActionRow);
                             }
                         }
