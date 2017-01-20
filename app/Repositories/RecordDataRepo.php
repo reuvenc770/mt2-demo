@@ -227,8 +227,7 @@ class RecordDataRepo implements IAwsRepo {
 
     public function mapForS3Upload($row) {
         $pdo = DB::connection()->getPdo();
-        return '('
-            . $pdo->quote($row->email_id) . ','
+        return $pdo->quote($row->email_id) . ','
             . $pdo->quote($row->is_deliverable) . ','
             . $pdo->quote($row->first_name) . ','
             . $pdo->quote($row->last_name) . ','
@@ -251,7 +250,7 @@ class RecordDataRepo implements IAwsRepo {
             . $pdo->quote($row->last_action_date) . ','
             . $pdo->quote($row->other_fields) . ','
             . $pdo->quote($row->last_action_offer_id) . ','
-            . $pdo->quote($row->last_action_date) . ')';
+            . $pdo->quote($row->last_action_date);
     }
 
 }

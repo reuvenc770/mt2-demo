@@ -120,11 +120,10 @@ class EmailDomainRepo implements IAwsRepo {
 
     public function mapForS3Upload($row) {
         $pdo = DB::connection()->getPdo();
-        return '('
-            . $pdo->quote($row->id) . ','
+        return $pdo->quote($row->id) . ','
             . $pdo->quote($row->domain_group_id) . ','
             . $pdo->quote($row->domain_name) . ','
-            . $pdo->quote($row->is_suppressed) . ')';
+            . $pdo->quote($row->is_suppressed);
     }
 
 }
