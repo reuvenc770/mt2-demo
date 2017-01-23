@@ -9,14 +9,14 @@
 namespace App\Repositories;
 
 
-use App\Models\AweberEmailActionsStorage;
+use App\Models\AWeberEmailActionsStorage;
 use App\Models\ActionType;
 use DB;
 class AWeberEmailActionsRepo
 {
     private $model;
 
-    public function __construct(AweberEmailActionsStorage $storage)
+    public function __construct(AWeberEmailActionsStorage $storage)
     {
         $this->model = $storage;
     }

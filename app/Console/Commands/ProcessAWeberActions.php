@@ -43,7 +43,7 @@ class ProcessAWeberActions extends Command
      */
     public function handle()
     {
-        $actions = AweberEmailActionsStorage::take(10000)->get();
+        $actions = AWeberEmailActionsStorage::take(10000)->get();
         while (count($actions) > 0) {
             foreach ($actions as $chunk) {
                 $this->info("Processing another chunk");
@@ -51,7 +51,7 @@ class ProcessAWeberActions extends Command
                 $this->dispatch($job);
             }
 
-            $actions = AweberEmailActionsStorage::take(10000)->get();
+            $actions = AWeberEmailActionsStorage::take(10000)->get();
         }
     }
 }
