@@ -139,6 +139,27 @@ class ListProfileFlatTableRepo implements IAwsRepo {
         }    
     }
 
+    public function massInsertContentServerActions($data) {
+        if (sizeof($data) > 0) {
+            $schema = config('database.connections.list_profile.database');
+            $inserts = implode(',', $data);
+
+            DB::statement("INSERT INTO $schema.list_profile_flat_table
+            (email_id, deploy_id, date, has_cs_open, has_open, has_cs_click, has_click, updated_at)
+            VALUES $inserts
+
+            ON DUPLICATE KEY UPDATE
+            email_id = email_id,
+            deploy_id = deploy_id,
+            date = date,
+
+            has_cs_open = IF(VALUES(has_cs_open) > 0, 1, 0),
+            has_open = IF(VALUES(has_open) > 0, 1, 0),
+            has_cs_click = IF(VALUES(has_cs_click) > 0, 1, 0),
+            has_click = IF(VALUES(has_click) > 0, 1, 0)");
+        }
+    }
+
     public function extractForS3Upload($startPoint) {
         return $this->flatTable->whereRaw("updated_at > $startPoint");
     }
