@@ -17,6 +17,10 @@ class ContentServerStatsRawRepo {
         $this->model = $model;
     }
 
+    public function maxId() {
+        return $this->model->orderBy('id', 'desc')->first()['id'];
+    }
+
     public function nextNRows($start, $offset) {
         return $this->model
             ->where('id', '>=', $start)

@@ -19,7 +19,7 @@ class ProcessRawContentServerStats {
 
     public function __construct(ContentServerStatsRawRepo $csRepo, ListProfileFlatTableRepo $lpRepo, LinkRepo $linkRepo, EtlPickupRepo $pickupRepo) {
         $this->csRepo = $csRepo;
-        $this->lpRepo = $lsRepo;
+        $this->lpRepo = $lpRepo;
         $this->pickupRepo = $pickupRepo;
     }
 
@@ -55,7 +55,7 @@ class ProcessRawContentServerStats {
                     }
                 }
 
-                $this->flatTableRepo->massInsertContentServerActions($insertData);
+                $this->lpRepo->massInsertContentServerActions($insertData);
                 $startPoint = $segmentEnd;
             }
             else {
@@ -66,7 +66,7 @@ class ProcessRawContentServerStats {
             }
         }
 
-        $this->etlPickupRepo->updatePosition($this->jobName, $endPoint);
+        $this->pickupRepo->updatePosition($this->jobName, $endPoint);
     }
 
     // Empty becaues all logic is contained within
@@ -82,7 +82,7 @@ class ProcessRawContentServerStats {
         return '('
             . $row->email_id . ','
             . $deployId . ','
-            . $pdo->quote($row->date) . ',';
+            . $pdo->quote($row->date) . ','
             . $row->has_cs_open . ','
             . $row->has_cs_open . ',' # has_open
             . $row->has_cs_click . ','
