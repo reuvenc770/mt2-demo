@@ -7,6 +7,7 @@ namespace App\Repositories;
 
 use App\Models\SuppressionGlobalOrange;
 use App\Repositories\RepoInterfaces\IAwsRepo;
+use DB;
 
 class SuppressionGlobalOrangeRepo implements IAwsRepo {
     protected $model;
