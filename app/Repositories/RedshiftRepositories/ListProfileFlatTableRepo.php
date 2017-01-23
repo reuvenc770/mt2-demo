@@ -44,7 +44,7 @@ SQL;
     }
 
     public function clearAndReloadEntity($entity) {
-        DB::connection('redshift')->table('list_profile_flat_table')->truncate();
+        DB::connection('redshift')->statement("TRUNCATE list_profile_flat_table");
 
         $sql = <<<SQL
 copy list_profile_flat_table

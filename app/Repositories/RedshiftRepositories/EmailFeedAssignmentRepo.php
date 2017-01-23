@@ -16,7 +16,7 @@ class EmailFeedAssignmentRepo implements IRedshiftRepo {
 
     public function loadEntity($entity) {
         // this one needs a truncate first -- if updated_at is keyed we could use that as well
-        DB::connection('redshift')->table('email_feed_assignments_staging')->truncate();
+        DB::connection('redshift')->statement("TRUNCATE email_feed_assignments_staging");
         
         $sql = <<<SQL
 copy email_feed_assignments
@@ -37,10 +37,12 @@ SQL;
             DB::connection('redshift')->statement("INSERT INTO email_feed_assignments 
                 SELECT * FROM email_feed_assignments_staging");
         });
+
+        DB::connection('redshift')->statement("TRUNCATE email_feed_assignments_staging");
     }
 
     public function clearAndReloadEntity($entity) {
-        DB::connection('redshift')->table('email_feed_assignments')->truncate();
+        DB::connection('redshift')->statement("TRUNCATE email_feed_assignments");
         
         $sql = <<<SQL
 copy email_feed_assignments

@@ -25,7 +25,7 @@ SQL;
     }
 
     public function clearAndReloadEntity($entity) {
-        DB::connection('redshift')->table('clients')->truncate();
+        DB::connection('redshift')->statement("TRUNCATE clients");
         
         $sql = <<<SQL
 copy clients
