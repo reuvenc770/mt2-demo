@@ -90,6 +90,7 @@ class Kernel extends ConsoleKernel
         Commands\UpdateAWeberLists::class,
         Commands\GrabAWeberSubscribers::class,
         Commands\ProcessAWeberActions::class,
+        Commands\UpdateMissingCampaignerCampaigns::class,
         Commands\VacuumRedshift::class,
     ];
 
