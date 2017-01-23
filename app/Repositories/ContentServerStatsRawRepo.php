@@ -31,7 +31,7 @@ class ContentServerStatsRawRepo {
 
     public function pullAggregatedActions($start, $end) {
         return DB::select("SELECT
-                email_id,
+                eid as email_id,
                 link_id,
                 sub_aff_id as deploy_id,
                 DATE(action_datetime) as date,
@@ -44,7 +44,7 @@ class ContentServerStatsRawRepo {
                 AND
                 id <= :end
             GROUP BY
-                email_id, link_id, deploy_id, date)", [
+                email_id, link_id, deploy_id, date", [
             ':start' => $start,
             ':end' => $end
         ]);

@@ -7,6 +7,7 @@ use App\Repositories\ListProfileFlatTableRepo;
 use App\Repositories\LinkRepo;
 use App\Repositories\EtlPickupRepo;
 use Log;
+use DB;
 
 class ProcessRawContentServerStats {
     
@@ -48,7 +49,7 @@ class ProcessRawContentServerStats {
                     }
 
                     if ($deployId) {
-                        $insertData[] = $this->mapToTable($row);
+                        $insertData[] = $this->mapToTable($row, $deployId);
                     }
                     else {
                         // Deploy id could not be found from link
@@ -77,7 +78,7 @@ class ProcessRawContentServerStats {
         $this->jobName = $jobName;
     }
 
-    private function mapToTable($row) {
+    private function mapToTable($row, $deployId) {
         $pdo = DB::connection()->getPdo();
 
         return '('
