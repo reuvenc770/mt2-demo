@@ -20,6 +20,7 @@ class ProcessRawContentServerStats {
     public function __construct(ContentServerStatsRawRepo $csRepo, ListProfileFlatTableRepo $lpRepo, LinkRepo $linkRepo, EtlPickupRepo $pickupRepo) {
         $this->csRepo = $csRepo;
         $this->lpRepo = $lpRepo;
+        $this->linkRepo = $linkRepo;
         $this->pickupRepo = $pickupRepo;
     }
 
