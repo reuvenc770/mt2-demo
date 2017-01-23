@@ -34,7 +34,7 @@ class AWeberEmailActionProvider extends ServiceProvider
         {
             return new AWeberEmailActionsService(
                 new AWeberEmailActionsRepo(
-                    new AweberEmailActionsStorage()),
+                    new AWeberEmailActionsStorage()),
                 new App\Repositories\AWeberSubscriberRepo(
                     new App\Models\AWeberSubscriber()
                 ));
