@@ -25,7 +25,7 @@ SQL;
     }
 
     public function clearAndReloadEntity($entity) {
-        DB::connection('redshift')->table('suppression_global_orange')->truncate();
+        DB::connection('redshift')->statement("TRUNCATE suppression_global_orange");
 
         $sql = <<<SQL
 copy suppression_global_orange

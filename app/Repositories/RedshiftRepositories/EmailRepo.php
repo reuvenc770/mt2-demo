@@ -4,6 +4,7 @@ namespace App\Repositories\RedshiftRepositories;
 
 use App\Models\RedshiftModels\Email;
 use App\Repositories\RepoInterfaces\IRedshiftRepo;
+use DB;
 
 class EmailRepo implements IRedshiftRepo {
     
@@ -24,7 +25,7 @@ SQL;
     }
 
     public function clearAndReloadEntity($entity) {
-        DB::connection('redshift')->table('emails')->truncate();
+        DB::connection('redshift')->statement("TRUNCATE emails");
         
         $sql = <<<SQL
 copy emails

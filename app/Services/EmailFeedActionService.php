@@ -23,7 +23,8 @@ class EmailFeedActionService {
                 $this->repo->batchInsert($row);
             }
             else {
-                Log::warning("No attributed status found for " . $action['email_id'] . '. Would have been: ' . $action['type']);
+                $row = $this->mapToRow($action['email_id'], $currentStatus->feed_id, $action['type']);
+                $this->repo->batchInsert($row);
             }
             
         }
