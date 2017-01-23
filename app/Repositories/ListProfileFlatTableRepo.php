@@ -37,6 +37,12 @@ class ListProfileFlatTableRepo implements IAwsRepo {
                 . $pdo->quote($row['email_domain_group_id']) . ',' 
                 . $pdo->quote($row['offer_id']) . ',' 
                 . $pdo->quote($row['cake_vertical_id']) . ',' 
+
+                . $pdo->quote($row['has_esp_open']) . ','
+                . $pdo->quote($row['has_open']) . ','
+                . $pdo->quote($row['has_esp_click']) . ','
+                . $pdo->quote($row['has_click']) . ','
+
                 . $pdo->quote($row['deliveries']) . ',' 
                 . $pdo->quote($row['opens']) . ',' 
                 . $pdo->quote($row['clicks']) . ', NOW(), NOW())';
@@ -50,7 +56,7 @@ class ListProfileFlatTableRepo implements IAwsRepo {
             "INSERT INTO list_profile_flat_table 
             (email_id, deploy_id, date, email_address,
             email_domain_id, email_domain_group_id, offer_id,
-            cake_vertical_id, deliveries, opens,
+            cake_vertical_id, has_esp_open, has_open, has_esp_click, has_click, deliveries, opens,
             clicks, created_at, updated_at) VALUES $insertString
 
             ON DUPLICATE KEY UPDATE
@@ -61,6 +67,10 @@ class ListProfileFlatTableRepo implements IAwsRepo {
                 email_domain_group_id = email_domain_group_id,
                 offer_id = offer_id,
                 cake_vertical_id = cake_vertical_id,
+                has_esp_open = IF(VALUES(has_esp_open) > 0, VALUES(has_esp_open), has_esp_open),
+                has_open = IF(VALUES(has_open) > 0, VALUES(has_open), has_open),
+                has_esp_click = IF(VALUES(has_esp_click) > 0, VALUES(has_esp_click), has_esp_click),
+                has_click = IF(VALUES(has_click) > 0, VALUES(has_click), has_click),
                 deliveries = deliveries + VALUES(deliveries),
                 opens = opens + VALUES(opens),
                 clicks = clicks + VALUES(clicks),
@@ -103,7 +113,7 @@ class ListProfileFlatTableRepo implements IAwsRepo {
             $inserts = implode(',', $this->batchData);
 
             DB::statement("INSERT INTO $schema.list_profile_flat_table 
-                (email_id, deploy_id, date, conversions, created_at, updated_at)
+                (email_id, deploy_id, date, has_tracking_conversion, has_conversion, conversions, created_at, updated_at)
 
                 VALUES $inserts
 
@@ -116,9 +126,11 @@ class ListProfileFlatTableRepo implements IAwsRepo {
                 email_domain_group_id = email_domain_group_id,
                 offer_id = offer_id,
                 cake_vertical_id = cake_vertical_id,
+                has_tracking_conversion = IF(VALUES(has_tracking_conversion) > 0, VALUES(has_tracking_conversion), has_tracking_conversion),
+                has_conversion = IF(VALUES(has_conversion) > 0, VALUES(has_conversion), has_conversion),
                 deliveries = deliveries,
                 opens = opens,
-                clicks = clicks,
+                clicks = clicks, # Clicks we should have as well ... 
                 conversions = VALUES(conversions),
                 created_at = created_at,
                 updated_at = NOW()");
