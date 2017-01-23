@@ -1,4 +1,4 @@
-mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$timeout' , 'UserApiService' , '$mdToast' , 'CustomValidationService' , function ( $log , $window , $location , $timeout , UserApiService , $mdToast , CustomValidationService ) {
+mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$timeout' , 'UserApiService' , 'formValidationService' , 'modalService' , function ( $log , $window , $location , $timeout , UserApiService , formValidationService , modalService ) {
     var self = this;
     self.$location = $location;
 
@@ -8,6 +8,7 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
     self.currentAccount.roles = [];
     self.createUrl = 'user/create/';
     self.editUrl = 'user/edit/';
+    self.editForm = false;
 
     self.formErrors = "";
 
@@ -36,83 +37,25 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
     /**
      * Click Handlers
      */
-    self.viewAdd = function () {
-        $location.url( self.createUrl );
-        $window.location.href = self.createUrl;
-    };
+    self.saveNewAccount = function () {
+        self.editForm = true;
+        formValidationService.resetFieldErrors(self);
 
-    self.change = function ( form , fieldName ) {
-        CustomValidationService.onChangeResetValidity( self , form , fieldName );
-    };
-
-    self.saveNewAccount = function ( event , form ) {
-        self.resetFieldErrors();
-
-        var errorFound = false;
-
-        angular.forEach( form.$error.required , function( field ) {
-
-            field.$setDirty();
-            field.$setTouched();
-
-            errorFound = true;
-        } );
-
-        if ( errorFound ) {
-            $mdToast.showSimple( 'Please fix errors and try again.' );
-
-            return false;
-        };
-
-        UserApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , function(response){
-           angular.forEach( response.data , function( error , fieldName ) {
-
-                if (fieldName != 'roles'){
-                    form[ fieldName ].$setDirty();
-                    form[ fieldName ].$setTouched();
-                    form[ fieldName ].$setValidity('isValid' , false);
-                }
-            });
-
-            self.saveNewAccountFailureCallback(response);
-        } );
+        UserApiService.saveNewAccount( self.currentAccount , self.SuccessCallBackRedirect , self.saveNewAccountFailureCallback );
     };
 
     self.editAccount = function () {
-        self.resetFieldErrors();
+        self.editForm = true;
+        formValidationService.resetFieldErrors(self);
 
         UserApiService.editAccount( self.currentAccount , self.SuccessCallBackRedirect , self.editAccountFailureCallback );
     };
 
-    self.updateProfile = function ( event , form ) {
-        self.resetFieldErrors();
+    self.updateProfile = function () {
+        self.editForm = true;
+        formValidationService.resetFieldErrors(self);
 
-        var errorFound = false;
-
-        angular.forEach( form.$error.required , function( field ) {
-
-            field.$setDirty();
-            field.$setTouched();
-
-            errorFound = true;
-        } );
-
-        if ( errorFound ) {
-            $mdToast.showSimple( 'Please fix errors and try again.' );
-
-            return false;
-        };
-
-        UserApiService.updateProfile( self.currentAccount , self.SuccessProfileCallBackRedirect , function(response) {
-            angular.forEach( response.data , function( error , fieldName ) {
-
-                form[ fieldName ].$setDirty();
-                form[ fieldName ].$setTouched();
-                form[ fieldName ].$setValidity('isValid' , false);
-            });
-
-            self.editAccountFailureCallback(response);
-        });
+        UserApiService.updateProfile( self.currentAccount , self.SuccessProfileCallBackRedirect , self.editAccountFailureCallback);
     };
 
     self.toggleSelection = function (role) {
@@ -134,14 +77,13 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
      * Callbacks
      */
     self.loadAccountsSuccessCallback = function ( response ) {
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+
         self.accounts = response.data;
     };
 
     self.loadAccountsFailureCallback = function ( response ) {
-        self.setModalLabel( 'Error' );
-        self.setModalBody( 'Failed to load Users.' );
-
-        self.launchModal();
+        modalService.simpleToast( 'Failed to load users.' );
     };
 
     self.SuccessCallBackRedirect = function ( response ) {
@@ -155,54 +97,13 @@ mt2App.controller( 'userController' , [ '$log' , '$window' , '$location' , '$tim
     };
 
     self.saveNewAccountFailureCallback = function ( response ) {
-        self.loadFieldErrors(response);
+        self.editForm = false;
+        formValidationService.loadFieldErrors(self, response);
     };
 
     self.editAccountFailureCallback = function ( response ) {
-        self.loadFieldErrors(response);
+        self.editForm = false;
+        formValidationService.loadFieldErrors(self, response);
     };
 
-    /**
-     * Errors
-     */
-    self.loadFieldErrors = function (response ) {
-        angular.forEach(response.data, function(value, key) {
-            self.setFieldError( key , value );
-        });
-    };
-
-    self.setFieldError = function ( field , errorMessage ) {
-        self.formErrors[ field ] = errorMessage;
-    };
-
-    self.resetFieldErrors = function () {
-        self.formErrors = {};
-    };
-
-    /**
-     * Page Modal
-     */
-
-    self.setModalLabel = function ( labelText ) {
-        var modalLabel = angular.element( document.querySelector( '#pageModalLabel' ) );
-
-        modalLabel.text( labelText );
-    };
-
-    self.setModalBody = function ( bodyText ) {
-        var modalBody = angular.element( document.querySelector( '#pageModalBody' ) );
-
-        modalBody.text( bodyText );
-    };
-
-    self.launchModal = function () {
-        $( '#pageModal' ).modal('show');
-    };
-
-    self.resetModal = function () {
-        self.setModalLabel( '' );
-        self.setModalBody( '' );
-
-        $( '#pageModal' ).modal('hide');
-    };
 } ] );

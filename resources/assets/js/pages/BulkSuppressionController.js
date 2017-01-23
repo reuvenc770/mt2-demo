@@ -1,16 +1,18 @@
-mt2App.controller( 'BulkSuppressionController' , [ '$log' , 'BulkSuppressionApiService', function ( $log, BulkSuppressionApiService ) {
+mt2App.controller( 'BulkSuppressionController' , [ '$scope' , '$log' , '$timeout' , 'BulkSuppressionApiService', 'formValidationService' , 'modalService' , function ( $scope , $log, $timeout, BulkSuppressionApiService , formValidationService , modalService) {
 
     var self = this;
 
     self.file = '';
     self.emailString = '';
     self.emails = [];
+    self.formErrors = {};
 
     self.emailsLoaded = false;
     self.testUserId = 217;
-    self.reason = '';
+    self.suppressionReasonCode = '';
 
     self.uploadSuppressions = function () {
+        formValidationService.resetFieldErrors(self);
 
         self.emails = self.splitString(self.emailString);
         self.emails = self.createUniqueList(self.emails);
@@ -18,11 +20,11 @@ mt2App.controller( 'BulkSuppressionController' , [ '$log' , 'BulkSuppressionApiS
         var data = {
             'user_id': self.testUserId,
             'suppfile': self.file,
-            'suppressionReasonCode': self.selectedReason,
+            'suppressionReasonCode': self.suppressionReasonCode,
             'emails': self.emails
         };
 
-        BulkSuppressionApiService.uploadEmails(data, 
+        BulkSuppressionApiService.uploadEmails(data,
                 self.uploadEmailsSuccessCallback,
                 self.uploadEmailsFailureCallback);
     };
@@ -60,6 +62,8 @@ mt2App.controller( 'BulkSuppressionController' , [ '$log' , 'BulkSuppressionApiS
     }
 
     self.startTransfer = function(file) {
+        formValidationService.resetFieldErrors(self);
+
         // File uploaded to MT2, need to move to MT1bin
         // and notify when complete
         self.file = file.relativePath;
@@ -68,42 +72,41 @@ mt2App.controller( 'BulkSuppressionController' , [ '$log' , 'BulkSuppressionApiS
             self.fileTransferSuccessCallback,
             self.fileTransferFailureCallback
         );
-        
+
     }
 
     self.enableSubmission = function() {
         self.emailsLoaded = true;
     }
 
-
+    $scope.$on('flow::fileAdded', function (event, $flow, flowFile) {
+        $(function () { $('[data-toggle="tooltip"]').tooltip() } );
+    });
     /**
      *  Modals and callbacks
      */
-
     self.uploadEmailsSuccessCallback = function() {
-        self.setModalLabel('Success!');
-        self.setModalBody('Emails suppressed.');
-        self.launchModal();
+        modalService.setModalLabel('Success');
+        modalService.setModalBody('Emails suppressed.');
+        modalService.launchModal();
     }
 
-    self.uploadEmailsFailureCallback = function(message) {
-        self.setModalLabel('Error');
-        self.setModalBody('Suppression failed to upload: ' + message);
-        self.launchModal();
+    self.uploadEmailsFailureCallback = function( response ) {
+        formValidationService.loadFieldErrors( self , response );
     }
 
     self.fileTransferSuccessCallback = function() {
         self.emailsLoaded = true;
-        self.setModalLabel('Success!');
-        self.setModalBody('File uploaded.');
-        self.launchModal();
+        modalService.setModalLabel('Success');
+        modalService.setModalBody('File uploaded.');
+        modalService.launchModal();
     }
 
     self.fileTransferFailureCallback = function(files) {
         var fileString = files['data'].join(', ');
-        self.setModalLabel('Error');
-        self.setModalBody('Suppression of files ' + fileString + ' failed to transfer to server.');
-        self.launchModal();
+        modalService.setModalLabel('Error');
+        modalService.setModalBody('Suppression of files ' + fileString + ' failed to transfer to server.');
+        modalService.launchModal();
     }
 
     self.loadReasonsSuccessCallback = function ( response ) {
@@ -111,29 +114,7 @@ mt2App.controller( 'BulkSuppressionController' , [ '$log' , 'BulkSuppressionApiS
     };
 
     self.loadReasonsFailureCallback = function ( response ) {
-        $mdToast.showSimple( 'Failed to Load Suppression Reasons' );
-    };
-
-
-    self.setModalLabel = function ( labelText ) {
-        var modalLabel = angular.element( document.querySelector( '#pageModalLabel' ) );
-        modalLabel.text( labelText );
-    };
-
-    self.setModalBody = function ( bodyText ) {
-        var modalBody = angular.element( document.querySelector( '#pageModalBody' ) );
-        modalBody.text( bodyText );
-    }
-
-    self.launchModal = function () {
-        $( '#pageModal' ).modal('show');
-    };
-
-    self.resetModal = function () {
-        self.setModalLabel( '' );
-        self.setModalBody( '' );
-
-        $( '#pageModal' ).modal('hide');
+            modalService.simpleToast('Failed to load suppression reasons.');
     };
 
 } ] );

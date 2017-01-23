@@ -12,9 +12,10 @@ use App\Repositories\AttributionLevelRepo;
 use App\Repositories\FeedDateEmailBreakdownRepo;
 use App\Repositories\RecordDataRepo;
 use App\Repositories\EmailIdHistoryRepo;
-use App\Repositories\EmailFeedStatusRepo;
+use App\Repositories\EmailFeedActionRepo;
 use App\Repositories\EmailFeedAssignmentRepo;
 use Carbon\Carbon;
+use App\Models\EmailFeedAction;
 
 class ImportMt1EmailsService
 {
@@ -31,12 +32,18 @@ class ImportMt1EmailsService
     private $historyRepo;
     private $processingDate;
     private $formattedDate;
-    private $emailFeedStatusRepo;
+    private $emailFeedActionRepo;
     private $assignmentRepo;
 
     private $emailIdCache = [];
     private $emailAddressCache = [];
     private $inBatchSwitches = [];
+
+    private $actions = [
+        EmailFeedAction::OPENER,
+        EmailFeedAction::CLICKER,
+        EmailFeedAction::CONVERTER
+    ];
 
     public function __construct(
         Mt1DbApi $api, 
@@ -49,7 +56,7 @@ class ImportMt1EmailsService
         FeedDateEmailBreakdownRepo $breakdownRepo,
         RecordDataRepo $recordDataRepo,
         EmailIdHistoryRepo $historyRepo,
-        EmailFeedStatusRepo $emailFeedStatusRepo,
+        EmailFeedActionRepo $emailFeedActionRepo,
         EmailFeedAssignmentRepo $assignmentRepo) {
 
         $this->api = $api;
@@ -62,7 +69,7 @@ class ImportMt1EmailsService
         $this->breakdownRepo = $breakdownRepo;
         $this->recordDataRepo = $recordDataRepo;
         $this->historyRepo = $historyRepo;
-        $this->emailFeedStatusRepo = $emailFeedStatusRepo;
+        $this->emailFeedActionRepo = $emailFeedActionRepo;
         $this->assignmentRepo = $assignmentRepo;
 
         $this->processingDate = Carbon::today();
@@ -116,9 +123,6 @@ class ImportMt1EmailsService
                     // one of fresh, non-fresh, duplicate
                     $existsCheck = $this->emailRepo->getEmailId($emailAddress)->first();
 
-                    $statusRow = $this->buildStatusRow($record);
-                    $this->emailFeedStatusRepo->batchInsert($statusRow);
-
                     if (isset($this->emailIdCache[$importingEmailId])) {
                         // email id is already a duplicate within this import
                     }
@@ -136,7 +140,10 @@ class ImportMt1EmailsService
                         $record['is_deliverable'] = 1;
                         $record['other_fields'] = '{}';
 
-                        $this->recordDataRepo->insert($record);
+                        $this->recordDataRepo->batchInsert($record);
+
+                        $emailFeedActionRow = $this->mapToEmailFeedActions($record, EmailFeedAction::DELIVERABLE);
+                        $this->emailFeedActionRepo->batchInsert($emailFeedActionRow);
 
                         $recordsToFlag[] = [
                             "email_id" => $importingEmailId, 
@@ -154,6 +161,8 @@ class ImportMt1EmailsService
                         // (would have to tell the email repo to forget that, which would be a mess)
                         $this->emailIdCache[$importingEmailId] = 1;
                         $emailStatus = 'duplicate'; // hard-coded because the check will fail otherwise
+                        $emailFeedActionRow = $this->mapToEmailFeedActions($record, EmailFeedAction::PASSED_DUE_TO_ATTRIBUTION_SHIELD);
+                        $this->emailFeedActionRepo->batchInsert($emailFeedActionRow);
 
                         // but how do we deal with this? It won't exist in the db ... 
                         // and they can be in any order
@@ -168,29 +177,79 @@ class ImportMt1EmailsService
                     }
                     elseif ($existsCheck) {
                         $currentEmailId = (int)$existsCheck->id;
-
+                        $attributionTruths = $this->emailRepo->getAttributionTruths($currentEmailId);
+                        
                         if ($currentEmailId === $importingEmailId) {
                             // Everything is normal. Just importing another instance of this
-                            $emailStatus = $this->getStatusForExistingEmail($importingEmailId, $feedId);
-                            
+                            $emailStatus = $this->getStatusForExistingEmail($importingEmailId, $feedId, $attributionTruths);
                         }
                         else {
                             // An email is being re-imported, but its email id differs due to MT1 ... logic
                             $this->historyRepo->insertIntoHistory($currentEmailId, $importingEmailId);
-
-                            $emailStatus = $this->getStatusForExistingEmail($currentEmailId, $feedId);
+                            $emailStatus = $this->getStatusForExistingEmail($currentEmailId, $feedId, $attributionTruths);
 
                             // update emails table
                             $this->emailRepo->updateEmailId($currentEmailId, $importingEmailId);
                             $this->emailIdCache[$importingEmailId] = 1;
                             $record['email_id'] = $importingEmailId;
 
-                        }                   
+                        }
+
+
+                        $actionStatus = $this->emailFeedActionRepo->getActionStatus($record['email_id'], $record['feed_id']);
+                        $attributedFeedId = (int)$this->emailRepo->getCurrentAttributedFeedId($record['email_id']);
+
+                        if (!$actionStatus) {
+                            // This is a first-time import from this feed
+
+                            if ($attributionTruths->has_action) {
+                                // Just came in for this feed, already permanently attributed. Set to POR
+                                $emailFeedActionRow = $this->mapToEmailFeedActions($record, EmailFeedAction::PASSED_DUE_TO_RESPONDER);
+                                $this->emailFeedActionRepo->batchInsert($emailFeedActionRow);
+
+                            }
+                            elseif ('fresh' === $emailStatus) {
+                                // Need to change attribution and some types will change
+                                $emailFeedActionRow = $this->mapToEmailFeedActions($record, EmailFeedAction::DELIVERABLE);
+                                $this->emailFeedActionRepo->batchInsert($emailFeedActionRow);
+                            }
+                            else {
+                                // remaining condition is 'fresh' !== $emailStatus && !$attributionTruths->recent_import
+                                // passed because of lower attribution or the attribution shield
+                                $emailFeedActionRow = $this->mapToEmailFeedActions($record, EmailFeedAction::PASSED_DUE_TO_ATTRIBUTION);
+                                $this->emailFeedActionRepo->batchInsert($emailFeedActionRow);
+                            }
+                        }
+                        else {
+                            if ($attributionTruths->has_action && ($attributedFeedId === (int)$record['feed_id'])) {
+                                // pass conditional
+                            }
+                            elseif ($attributionTruths->has_action && ($attributedFeedId !== (int)$record['feed_id'])) {
+                                // set status to POR
+                                $emailFeedActionRow = $this->mapToEmailFeedActions($record, EmailFeedAction::PASSED_DUE_TO_RESPONDER);
+                                $this->emailFeedActionRepo->batchInsert($emailFeedActionRow);
+                            }
+                            elseif (!$attributionTruths->has_action && 'fresh' === $emailStatus) {
+                                // Need to change attribution and some types will change
+                                $emailFeedActionRow = $this->mapToEmailFeedActions($record, EmailFeedAction::DELIVERABLE);
+                                $this->emailFeedActionRepo->batchInsert($emailFeedActionRow);
+                            }
+                            elseif (!$attributionTruths->has_action && $attributionTruths->recent_import) {
+                                // set status to POA
+                                $emailFeedActionRow = $this->mapToEmailFeedActions($record, EmailFeedAction::PASSED_DUE_TO_ATTRIBUTION);
+                                $this->emailFeedActionRepo->batchInsert($emailFeedActionRow);
+                            }
+                            elseif (!$attributionTruths->has_action && !$attributionTruths->recent_import) {
+                                // set status to POA
+                                $emailFeedActionRow = $this->mapToEmailFeedActions($record, EmailFeedAction::PASSED_DUE_TO_ATTRIBUTION);
+                                $this->emailFeedActionRepo->batchInsert($emailFeedActionRow);
+                            }
+                        }
 
                         if ('fresh' === $emailStatus) {
                             $record['is_deliverable'] = 1;
                             $record['other_fields'] = '{}';
-                            $this->recordDataRepo->insert($record);
+                            $this->recordDataRepo->batchInsert($record);
                         }
                     }
 
@@ -198,7 +257,7 @@ class ImportMt1EmailsService
 
                 //We do an upsert so there are no model actions and we can't do this via batch.
                 $emailFeedRow = $this->mapToEmailFeedTable($record);
-                $this->emailFeedRepo->insertDelayedBatch($emailFeedRow);
+                $this->emailFeedRepo->batchInsert($emailFeedRow);
 
                 $statuses[$feedId][$emailStatus]++;
             }
@@ -209,7 +268,7 @@ class ImportMt1EmailsService
         $this->emailRepo->insertStored(); // Clear out remaining inserts
         $this->recordDataRepo->insertStored();
         $this->emailFeedRepo->insertStored();
-        $this->emailFeedStatusRepo->insertStored();
+        $this->emailFeedActionRepo->insertStored();
         $this->tempEmailRepo->insertStored();
 
         // Need to handle in-batch switching between email ids
@@ -293,11 +352,11 @@ class ImportMt1EmailsService
         return $status === 'Active' ? 'A' : 'U';
     }
 
-    private function buildStatusRow($record) {
+    private function mapToEmailFeedActions($record, $status) {
         return [
             'email_id' => $record['email_id'],
             'feed_id' => $record['feed_id'],
-            'status' => 'Active'
+            'status' => $status
         ];
     }
 
@@ -317,7 +376,7 @@ class ImportMt1EmailsService
      *      Returns one of 'fresh', 'non-fresh', 'duplicate'
      */
 
-    private function getStatusForExistingEmail($emailId, $importingFeedId) {
+    private function getStatusForExistingEmail($emailId, $importingFeedId, $attributionTruths) {
         $currentFeedId = $this->emailRepo->getCurrentAttributedFeedId($emailId);
 
         // Catching an edge case where the email id does exist
@@ -329,8 +388,6 @@ class ImportMt1EmailsService
         if (0 === $currentFeedId) {
             return 'fresh';
         }
-
-        $attributionTruths = $this->emailRepo->getAttributionTruths($emailId);
 
         if (0 === $attributionTruths) {
             return 'fresh'; // We don't have attribution info for this one yet

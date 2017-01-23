@@ -44,7 +44,7 @@ class FeedController extends Controller
     public function listAll () {
         $countryList = $this->feedService->getCountries();
 
-        return response()->view( 'bootstrap.pages.feed.feed-index' , [
+        return response()->view( 'pages.feed.feed-index' , [
             'countries' => ( !is_null( $countryList ) ? $countryList : [] ),
             'clients' => $this->clientService->getAll(),
             'clientTypes' => $this->feedService->getVerticals(),
@@ -61,7 +61,7 @@ class FeedController extends Controller
     {
         $countryList = $this->feedService->getCountries();
 
-        return response()->view( 'bootstrap.pages.feed.feed-add' , [
+        return response()->view( 'pages.feed.feed-add' , [
             'hideName' => 'show' ,
             'countries' => ( !is_null( $countryList ) ? $countryList : [] ),
             'clients' => $this->clientService->getAll(),
@@ -105,7 +105,7 @@ class FeedController extends Controller
 
         $countryList = $this->feedService->getCountries() ?: [];
 
-        return response()->view( 'bootstrap.pages.feed.feed-edit' , [
+        return response()->view( 'pages.feed.feed-edit' , [
             'hideName' => 'hide' ,
             'countries' =>  $countryList,
             'clients' => $this->clientService->getAll(),
@@ -144,7 +144,7 @@ class FeedController extends Controller
     }
 
     public function viewFieldOrder ( $id ) {
-        return response()->view( 'bootstrap.pages.feed.feed-file-fields' , [
+        return response()->view( 'pages.feed.feed-file-fields' , [
             "id" => $id ,
             "fields" => $this->feedService->getFeedFields( $id )
         ] );
@@ -170,7 +170,7 @@ class FeedController extends Controller
 
             Slack::to(self::ROOM)->send( "Failed to rerun attribution for feed ID '{$id}'" );
 
-            return response( 'Failed to rerun attribution.' , 500 );    
+            return response( 'Failed to rerun attribution.' , 500 );
         }
     }
 
@@ -186,8 +186,8 @@ class FeedController extends Controller
             \Log::info( $e->getTraceAsString() );
 
             Slack::to(self::ROOM)->send( "Failed to create feed suppression for feed ID '{$id}'" );
-            
-            return response( 'Failed to create feed suppresssion.' , 500 );    
+
+            return response( 'Failed to create feed suppresssion.' , 500 );
         }
     }
 

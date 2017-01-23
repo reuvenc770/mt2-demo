@@ -1,83 +1,123 @@
-<md-card>
-    <md-toolbar>
-        <div class="md-toolbar-tools">
-            <span>Data Cleanse Conditions</span>
+<!-- Archived Page -->
+
+<br/>
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <div class="panel-title">Data Cleanse Conditions</div>
+  </div>
+  <div class="panel-body">
+    <fieldset>
+        <div class="form-group" ng-class="{ 'has-error' : cleanse.formErrors.pname }">
+            <select name="pname" ng-model="cleanse.current.pname" class="form-control" required ng-required="true">
+                <option value="">Choose a Data Export File</option>
+                @foreach ( $dataExportFiles as $file )
+                <option value="{{ str_replace( 'Incoming/' , '' , $file ) }}">{{ str_replace( 'Incoming/' , '' , $file ) }}</option>
+                @endforeach
+            </select>
+            <div class="help-block" ng-show="cleanse.formErrors.pname">
+                <div ng-repeat="error in cleanse.formErrors.pname">
+                    <div ng-bind="error"></div>
+                </div>
+            </div>
         </div>
-    </md-toolbar>
-    <md-card-content ng-cloak>
-        <form name="cleanseForm" layout="column" novalidate>
-            <md-input-container>
-                <label>Data Export Filename</label>
-                <md-select name="pname" ng-model="cleanse.current.pname" ng-required="true">
-                    @foreach ( $dataExportFiles as $file )
-                    <md-option value="{{ str_replace( 'Incoming/' , '' , $file ) }}">{{ str_replace( 'Incoming/' , '' , $file ) }}</md-option>
-                    @endforeach
-                </md-select>
-                <div ng-messages="cleanseForm.pname.$error">
-                    <div ng-message="required">Data export filename is required.</div>
+        <div class="form-group" ng-class="{ 'has-error' : cleanse.formErrors.outname }">
+            <div class="input-group">
+                <div class="input-group-addon no-padding">
+                    <md-icon md-font-set="material-icons" class="mt2-icon-black">insert_drive_file</md-icon>
                 </div>
-            </md-input-container>
-
-            <md-input-container class="md-icon-float md-block">
-                <label>Output Filename</label>
-                <md-icon md-font-set="material-icons" class="mt2-icon-black">insert_drive_file</md-icon>
-                <input name="outname" ng-model="cleanse.current.outname" type="text">
-            </md-input-container>
-
-            <md-input-container class="md-icon-float md-block">
-                <label>Suppression Filename</label>
-                <md-icon md-font-set="material-icons" class="mt2-icon-black">clear</md-icon>
-                <input name="suppname" ng-model="cleanse.current.suppname" type="text">
-            </md-input-container>
-
-            <md-input-container>
-                <div layout="row">
-                    <div flex="5"><md-icon md-font-set="material-icons" class="mt2-icon-black no-margin">feedback</md-icon></div>
-                    <div>
-                        <md-radio-group name="ConfirmEmail" ng-model="cleanse.current.ConfirmEmail" ng-required="true">
-                            <md-radio-button value="alphateam@zetainteractive.com">alphateam@zetainteractive.com</md-radio-button>
-                            <md-radio-button value="betateam@zetainteractive.com">betateam@zetainteractive.com</md-radio-button>
-                        </md-radio-group>
-
-                        <div ng-messages="cleanseForm.ConfirmEmail.$error">
-                            <div ng-message="required">Confirmation email is required.</div>
-                        </div>
-                    </div>
+                <input placeholder="Output Filename" value="" class="form-control" name="outname" ng-model="cleanse.current.outname" type="text">
+            </div>
+            <div class="help-block" ng-show="cleanse.formErrors.outname">
+                <div ng-repeat="error in cleanse.formErrors.outname">
+                    <div ng-bind="error"></div>
                 </div>
-            </md-input-container>
+            </div>
+        </div>
+        <div class="form-group" ng-class="{ 'has-error' : cleanse.formErrors.suppname }">
+            <div class="input-group">
+                <div class="input-group-addon no-padding">
+                    <md-icon md-font-set="material-icons" class="mt2-icon-black">clear</md-icon>
+                </div>
+                <input placeholder="Suppression Filename" value="" class="form-control" name="suppname" ng-model="cleanse.current.suppname" type="text">
+            </div>
+            <div class="help-block" ng-show="cleanse.formErrors.outname">
+                <div ng-repeat="error in cleanse.formErrors.outname">
+                    <div ng-bind="error"></div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" ng-class="{ 'has-error' : cleanse.formErrors.ConfirmEmail }">
+            <label>Confirmation Email</label>
+            <div class="radio">
+                <label>
+                    <input type="radio" value="alphateam@zetainteractive.com" ng-model="cleanse.current.ConfirmEmail">
+                    alphateam@zetainteractive.com
+                </label>
+            </div>
+            <div class="radio">
+                <label>
+                    <input type="radio" value="betateam@zetainteractive.com" ng-model="cleanse.current.ConfirmEmail">
+                    betateam@zetainteractive.com
+                </label>
+            </div>
+            <div class="help-block" ng-show="cleanse.formErrors.ConfirmEmail">
+                <div ng-repeat="error in cleanse.formErrors.ConfirmEmail">
+                    <div ng-bind="error"></div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" ng-class="{ 'has-error' : cleanse.formErrors.includeHeaders }">
+            <label>Include Headers</label>
+            <div class="radio">
+            <label class="radio-inline">
+                <input type="radio" value="Y" ng-model="cleanse.current.includeHeaders">
+                Yes
+            </label>
+            <label class="radio-inline">
+                <input type="radio" value="N" ng-model="cleanse.current.includeHeaders">
+                No
+            </label>
+            </div>
+            <div class="help-block" ng-show="cleanse.formErrors.includeHeaders">
+                <div ng-repeat="error in cleanse.formErrors.includeHeaders">
+                    <div ng-bind="error"></div>
+                </div>
+            </div>
+        </div>
+        <div id="suppressionOffers" ng-cloak>
+            <h4 class="text-center">Suppression Offer Categories</h4>
 
-            <md-input-container layout="row">
-                <div flex="5"><md-icon md-font-set="material-icons" class="mt2-icon-black no-margin">border_top</md-icon></div>
-                <md-switch ng-model="cleanse.current.includeHeaders" ng-true-value="'Y'" ng-false-value="'N'" class="no-top-margin">Include Headers: @{{ cleanse.current.includeHeaders ? 'Yes' : 'No' }}</md-switch>
-            </md-input-container>
+            <md-divider></md-divider>
 
-            <md-card-content id="suppressionOffers" layout-padding style="margin-bottom: 1em;" ng-cloak>
-                <h4 layout flex layout-align="center center"><span>Suppression Offer Categories</span></h4>
+            <lite-membership-widget recordlist="cleanse.offerCategories" chosenrecordlist="cleanse.selectedOfferCategories" availablerecordtitle="cleanse.availableCategoryWidgetTitle" chosenrecordtitle="cleanse.chosenCategoryWidgetTitle" updatecallback="cleanse.offerCategoryMembershipCallback()" ng-init="cleanse.loadOfferCategories()"></lite-membership-widget>
+        </div>
 
-                <md-divider></md-divider>
+        <br/>
 
-                <lite-membership-widget recordlist="cleanse.offerCategories" chosenrecordlist="cleanse.selectedOfferCategories" availablerecordtitle="cleanse.availableCategoryWidgetTitle" chosenrecordtitle="cleanse.chosenCategoryWidgetTitle" updatecallback="cleanse.offerCategoryMembershipCallback()" ng-init="cleanse.loadOfferCategories()"></lite-membership-widget>
-            </md-card-content>
+        <div id="suppressionCountries" ng-cloak>
+            <h4 class="text-center">Suppression Countries</h4>
 
-            <md-card-content id="suppressionCountries" layout-padding style="margin-bottom: 1em;" ng-cloak>
-                <h4 layout flex layout-align="center center"><span>Suppression Countries</span></h4>
+            <md-divider></md-divider>
 
-                <md-divider></md-divider>
+            <lite-membership-widget recordlist="cleanse.countries" chosenrecordlist="cleanse.selectedCountries" availablerecordtitle="cleanse.availableCountryWidgetTitle" chosenrecordtitle="cleanse.chosenCountryWidgetTitle" updatecallback="cleanse.countryMembershipCallback()" ng-init="cleanse.loadCountries()"></lite-membership-widget>
+        </div>
 
-                <lite-membership-widget recordlist="cleanse.countries" chosenrecordlist="cleanse.selectedCountries" availablerecordtitle="cleanse.availableCountryWidgetTitle" chosenrecordtitle="cleanse.chosenCountryWidgetTitle" updatecallback="cleanse.countryMembershipCallback()" ng-init="cleanse.loadCountries()"></lite-membership-widget>
+        <br/>
 
-            </md-card-content>
+        <div id="suppressionAdvertisers" ng-class="{ 'has-error' : cleanse.formErrors.aid }" ng-cloak>
+            <h4 class="text-center">Advertiser Suppression</h4>
 
-            <md-card-content id="suppressionAdvertisers" layout-padding style="margin-bottom: 1em;" ng-cloak>
-                <h4 layout flex layout-align="center center"><span>Advertiser Suppression</span></h4>
+            <md-divider></md-divider>
 
-                <md-divider></md-divider>
+            <lite-membership-widget recordlist="cleanse.advertisers" chosenrecordlist="cleanse.selectedAdvertisers" availablerecordtitle="cleanse.availableAdvertiserWidgetTitle" chosenrecordtitle="cleanse.chosenAdvertiserWidgetTitle" updatecallback="cleanse.advertiserMembershipCallback()" ng-init="cleanse.loadAdvertisers()"></lite-membership-widget>
+            <div class="help-block" ng-show="cleanse.formErrors.aid">
+                <div ng-repeat="error in cleanse.formErrors.aid">
+                    <div ng-bind="error"></div>
+                </div>
+            </div>
+        </div>
 
-                <lite-membership-widget recordlist="cleanse.advertisers" chosenrecordlist="cleanse.selectedAdvertisers" availablerecordtitle="cleanse.availableAdvertiserWidgetTitle" chosenrecordtitle="cleanse.chosenAdvertiserWidgetTitle" updatecallback="cleanse.advertiserMembershipCallback()" ng-init="cleanse.loadAdvertisers()"></lite-membership-widget>
-
-            </md-card-content>
-
-        </form>
-    </md-card-content>
-</md-card>
+    </fieldset>
+  </div>
+</div>
 

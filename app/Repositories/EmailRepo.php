@@ -8,6 +8,7 @@ use Illuminate\Database\Query\Builder;
 use DB;
 use App\Repositories\RepoInterfaces\Mt2Export;
 use App\Repositories\RepoInterfaces\IAwsRepo;
+use App\Models\AttributionRecordTruth;
 
 /**
  *
@@ -141,7 +142,7 @@ class EmailRepo implements Mt2Export, IAwsRepo {
             return $email->attributionTruths;
         }
         else {
-            return 0;
+            return AttributionRecordTruth::create(['email_id' => $emailId, 'recent_import' => 1]);
         }
     }
 
@@ -431,13 +432,17 @@ class EmailRepo implements Mt2Export, IAwsRepo {
         return $this->emailModel->whereRaw("id > $startPoint");
     }
 
+    public function extractAllForS3() {
+        return $this->emailModel;
+    }
+
+
     public function mapForS3Upload($row) {
-        return [
-            'id' => $row->id,
-            'email_address' => $row->email_address,
-            'domain_id' => $row->domain_id,
-            'lower_case_md5' => $row->lower_case_md5,
-            'upper_case_md5' => $row->upper_case_md5
-        ];
+        $pdo = DB::connection('redshift')->getPdo();
+        return $pdo->quote($row->id) . ','
+            . $pdo->quote($row->email_address) . ','
+            . $pdo->quote($row->domain_id) . ','
+            . $pdo->quote($row->lower_case_md5) . ','
+            . $pdo->quote($row->upper_case_md5);
     }
 }

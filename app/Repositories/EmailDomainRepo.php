@@ -111,16 +111,19 @@ class EmailDomainRepo implements IAwsRepo {
     }
 
     public function extractForS3Upload($startPoint) {
-        return $this->emailModel->whereRaw("id > $startPoint");
+        return $this->emailDomainModel->whereRaw("id > $startPoint");
+    }
+
+    public function extractAllForS3() {
+        return $this->emailDomainModel;
     }
 
     public function mapForS3Upload($row) {
-        return [
-            'id' => $row->id,
-            'domain_group_id' => $row->domain_group_id,
-            'domain_name' => $row->domain_name,
-            'is_suppressed' => $row->is_suppressed
-        ];
+        $pdo = DB::connection('redshift')->getPdo();
+        return $pdo->quote($row->id) . ','
+            . $pdo->quote($row->domain_group_id) . ','
+            . $pdo->quote($row->domain_name) . ','
+            . $pdo->quote($row->is_suppressed);
     }
 
 }

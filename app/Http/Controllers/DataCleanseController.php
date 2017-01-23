@@ -39,7 +39,7 @@ class DataCleanseController extends Controller
     }
 
     public function listAll () {
-        return response()->view( 'bootstrap.pages.datacleanse.datacleanse-index' );
+        return response()->view( 'pages.datacleanse.datacleanse-index' );
     }
 
     /**
@@ -49,7 +49,7 @@ class DataCleanseController extends Controller
      */
     public function create()
     {
-        return response()->view( 'bootstrap.pages.datacleanse.datacleanse-add' , [ 'dataExportFiles' => Storage::disk( 'dataExportFTP' )->files( 'Incoming' ) ] );
+        return response()->view( 'pages.datacleanse.datacleanse-add' , [ 'dataExportFiles' => Storage::disk( 'dataExportFTP' )->files( 'Incoming' ) ] );
     }
 
     /**

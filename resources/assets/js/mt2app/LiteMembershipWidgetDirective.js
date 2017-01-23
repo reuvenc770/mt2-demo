@@ -1,6 +1,6 @@
 mt2App.directive( 'liteMembershipWidget' , [ "$rootScope" , "$log" , function ( $rootScope , $log ) {
     return {
-        "replace" : true , 
+        "replace" : true ,
         "scope" : {} ,
         "controllerAs" : 'ctrl' ,
         "bindToController" : {
@@ -10,18 +10,19 @@ mt2App.directive( 'liteMembershipWidget' , [ "$rootScope" , "$log" , function ( 
             'chosenrecordtitle' : '=' ,
             'idfield' : '=?' ,
             'namefield' : '=?' ,
-            'updatecallback' : '&'
+            'updatecallback' : '&',
+            'height' : '=?'
         } ,
         "templateUrl" : 'js/templates/lite-membership-widget.html' ,
         "controller" : function () {
             var self = this;
-            
+
             self.highlightedSelectedRecords = [];
             self.highlightedChosenRecords = [];
 
             self.namefield = ( typeof( self.namefield ) !== 'undefined' ? self.namefield : 'name' );
             self.idfield = ( typeof( self.idfield ) !== 'undefined' ? self.idfield : 'id' );
-
+            self.height = ( typeof( self.height ) !== 'undefined' ? self.height : '100' );
             self.addSelectedRecords = function () {
                 angular.forEach( self.highlightedSelectedRecords , function ( value , key ) {
                     self.chosenrecordlist.push( value );

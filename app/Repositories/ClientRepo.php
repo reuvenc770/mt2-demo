@@ -6,8 +6,9 @@ use App\Models\Client;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use Carbon\Carbon;
+use App\Repositories\RepoInterfaces\IAwsRepo;
 
-class ClientRepo {
+class ClientRepo implements IAwsRepo {
 
     private $client;
 
@@ -41,5 +42,30 @@ class ClientRepo {
 
     public function get() {
         return $this->client->orderBy('name')->get();
+    }
+
+    public function extractForS3Upload($stopPoint) {
+        return $this->client->where('id', '>', $stopPoint);
+    }
+
+    public function extractAllForS3() {
+        return $this->client;
+    }
+
+
+    public function mapForS3Upload($row) {
+        $pdo = DB::connection('redshift')->getPdo();
+        return $pdo->quote($row->id) . ','
+            . $pdo->quote($row->name) . ','
+            . $pdo->quote($row->address) . ','
+            . $pdo->quote($row->address2) . ','
+            . $pdo->quote($row->city) . ','
+            . $pdo->quote($row->state) . ','
+            . $pdo->quote($row->zip) . ','
+            . $pdo->quote($row->email_address) . ','
+            . $pdo->quote($row->phone) . ','
+            . $pdo->quote($row->status) . ','
+            . $pdo->quote($row->created_at) . ','
+            . $pdo->quote($row->updated_at);
     }
 }

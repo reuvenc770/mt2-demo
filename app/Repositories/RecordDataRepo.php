@@ -7,14 +7,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use Carbon\Carbon;
 use App\Repositories\RepoInterfaces\IAwsRepo;
+use App\Repositories\RepoTraits\Batchable;
 
 class RecordDataRepo implements IAwsRepo {
+    use Batchable;
 
     private $model;
-    private $batchData = [];
-    private $batchDataCount = 0;
     const INSERT_THRESHOLD = 10000;
-
     private $batchActionUpdateData = [];
     private $batchActionUpdateCount = 0;
 
@@ -22,34 +21,45 @@ class RecordDataRepo implements IAwsRepo {
         $this->model = $model;
     }
 
-    public function insert($row) {
-        if ($this->batchDataCount >= self::INSERT_THRESHOLD) {
-
-            $this->insertStored();
-            $this->batchData = [$this->transformRowToString($row)];
-            $this->batchDataCount = 1;
-        }
-        else {
-            $this->batchData[] = $this->transformRowToString($row);
-            $this->batchDataCount++;
-        }
-    }
-
     public function getRecordDataFromEid($eid){
-        return $this->model->find($eid);
+        return $this->model
+                    ->where('email_id', $eid)
+                    ->selectRaw("email_id,
+                        is_deliverable,
+                        first_name,
+                        last_name,
+                        address,
+                        address2,
+                        city,
+                        state,
+                        zip,
+                        country,
+                        gender,
+                        inet_ntoa(ip) as ip,
+                        phone,
+                        source_url,
+                        dob,
+                        device_type,
+                        device_name,
+                        carrier,
+                        capture_date,
+                        subscribe_date,
+                        last_action_offer_id,
+                        last_action_date,
+                        other_fields,
+                        created_at,
+                        updated_at")
+                    ->first();
     }
 
-    public function insertStored() {
-        if ($this->batchDataCount > 0) {
-            $this->batchData = implode(', ', $this->batchData);
-
-            DB::statement("INSERT INTO record_data (email_id, is_deliverable, first_name, last_name, 
+    private function buildBatchedQuery($batchData) {
+        return "INSERT INTO record_data (email_id, is_deliverable, first_name, last_name, 
                     address, address2, city, state, zip, country, gender, 
                     ip, phone, source_url, dob, capture_date, subscribe_date, other_fields)
 
                 VALUES 
 
-                {$this->batchData}
+                {$batchData}
 
                 ON DUPLICATE KEY UPDATE
                 email_id = email_id,
@@ -69,12 +79,7 @@ class RecordDataRepo implements IAwsRepo {
                 dob = VALUES(dob),
                 capture_date = VALUES(capture_date),
                 subscribe_date = VALUES(subscribe_date),
-                other_fields = VALUES(other_fields)
-            ");
-
-            $this->batchData = [];
-            $this->batchDataCount = 0;
-        }
+                other_fields = VALUES(other_fields)";
     }
 
     private function transformRowToString($row) {
@@ -212,36 +217,42 @@ class RecordDataRepo implements IAwsRepo {
     }
 
     public function extractForS3Upload($startPoint) {
+        // this start point is a date
+        return $this->model->whereRaw("updated_at > $startPoint");
+    }
+
+    public function extractAllForS3() {
         return $this->model;
     }
 
     public function mapForS3Upload($row) {
-        return [
-            'email_id' => $row->email_id,
-            'is_deliverable' => $row->is_deliverable,
-            'first_name' => $row->first_name,
-            'last_name' => $row->last_name,
-            'address' => $row->address,
-            'address2' => $row->address2,
-            'city' => $row->city,
-            'state' => $row->state,
-            'zip' => $row->zip,
-            'country' => $row->country,
-            'gender' => $row->gender,
-            'ip' => $row->ip,
-            'phone' => $row->phone,
-            'source_url' => $row->source_url,
-            'dob' => $row->dob,
-            'device_type' => $row->device_type,
-            'device_name' => str_replace('"', '', $row->device_name),
-            'carrier' => str_replace('"', '', $row->carrier),
-            'capture_date' => $row->capture_date,
-            'subscribe_date' => $row->subscribe_date,
-            'last_action_date' => $row->last_action_date,
-            'other_fields' => $row->other_fields,
-            'last_action_offer_id' => $row->last_action_offer_id,
-            'last_action_date' => $row->last_action_date
-        ];
+        $pdo = DB::connection('redshift')->getPdo();
+        
+        return $pdo->quote($row->email_id) . ','
+            . $pdo->quote($row->is_deliverable) . ','
+            . $pdo->quote($row->first_name) . ','
+            . $pdo->quote($row->last_name) . ','
+            . $pdo->quote($row->address) . ','
+            . $pdo->quote($row->address2) . ','
+            . $pdo->quote($row->city) . ','
+            . $pdo->quote($row->state) . ','
+            . $pdo->quote($row->zip) . ','
+            . $pdo->quote($row->country) . ','
+            . $pdo->quote($row->gender) . ','
+            . $pdo->quote($row->ip) . ','
+            . $pdo->quote($row->phone) . ','
+            . $pdo->quote($row->source_url) . ','
+            . $pdo->quote($row->dob) . ','
+            . $pdo->quote(str_replace('"', '', $row->device_type)) . ','
+            . $pdo->quote(str_replace('"', '', $row->device_name)) . ','
+            . $pdo->quote(str_replace('"', '', $row->carrier)) . ','
+            . $pdo->quote($row->capture_date) . ','
+            . $pdo->quote($row->subscribe_date) . ','
+            . $pdo->quote($row->last_action_offer_id) . ','
+            . $pdo->quote($row->last_action_date) . ','
+            . $pdo->quote($row->other_fields) . ','
+            . $pdo->quote($row->created_at) . ','
+            . $pdo->quote($row->updated_at);
     }
 
 }

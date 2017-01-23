@@ -1,32 +1,36 @@
-mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedApiService' , 'AttributionProjectionService' , 'ThreeMonthReportService' , '$mdToast' , '$mdDialog' , '$mdSidenav' , '$log' , '$location' , function ( AttributionApiService , FeedApiService , AttributionProjectionService , ThreeMonthReportService , $mdToast , $mdDialog , $mdSidenav , $log , $location ) {
+mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedApiService' , 'AttributionProjectionService' , 'ThreeMonthReportService'  , '$log' , '$location' , 'formValidationService', 'modalService', '$mdDialog' , 'paginationService' , '$timeout' , function ( AttributionApiService , FeedApiService , AttributionProjectionService , ThreeMonthReportService , $log , $location, formValidationService, modalService , $mdDialog , paginationService , $timeout ) {
     var self = this;
 
     self.current = { "id" : 0 , "name" : '' };
 
     self.models = [];
     self.feeds = [];
+    self.lastFeedOrder = [];
     self.clientLevels = {};
 
     self.levelCopySideNavId = 'levelCopy';
     self.levelCopyModelId = 0;
     self.levelCopyClients = [];
+    self.selectFeedCount = 0;
     self.levelCopyClientIndex = {};
     self.disableCopyButton = true;
     self.draggingLevels = false;
 
     self.currentlyLoading = false;
-    self.paginationCount = '10';
+    self.paginationCount = paginationService.getDefaultPaginationCount();
+    self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
     self.pageCount = 0;
+    self.modelTotal = 0;
     self.reachedFirstPage = true;
     self.reachedMaxPage = false;
-
+    self.formErrors = {};
     self.showModelActions = false;
     self.selectedModelId = 0;
     self.selectedModel = [];
     self.modelQueryPromise = null;
     self.disableProjection = false;
-
+    self.formSubmitted = false;
     self.reportRecords = [];
     self.reportRecordTotals = {};
     self.reportQueryPromise = null;
@@ -43,16 +47,16 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     self.initProjectionChart = AttributionProjectionService.initChart;
     self.refreshProjectionPage = AttributionProjectionService.refreshPage;
 
+
     self.initIndexPage = function () {
+        modalService.setPopover();
         self.loadModels();
-        self.loadReportRecords();
-        ThreeMonthReportService.loadClientAndFeedNames();
     };
 
     self.initProjectionPage = function () {
         ThreeMonthReportService.loadClientAndFeedNames();
         AttributionProjectionService.initPage();
-    }
+    };
 
     self.toggleModelActionButtons = function () {
         if ( self.selectedModel.length > 0 ) {
@@ -70,41 +74,21 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         }
     };
 
-    self.loadReportRecords = function () {
-        self.reportQueryPromise = ThreeMonthReportService.getRecords(
-            function ( response ) {
-                self.reportRecords = response.data.records;
-                self.reportRecordTotals = response.data.totals;
-            } ,
-            function ( response ) {
-                $mdToast.show(
-                    $mdToast.simple()
-                        .textContent( 'Failed to load Attribution Report Records. Please contact support.' )
-                        .hideDelay( 1500 )
-                );
-            }
-        );
-    }
-
-    self.loadProjectionRecords = function () { 
+    self.loadProjectionRecords = function () {
         self.projectionReportQueryPromise = AttributionProjectionService.loadRecords(
             function ( response ) {
                 self.projectionRecords = response.data;
             } ,
             function ( response ) {
-                $mdToast.show(
-                    $mdToast.simple()
-                        .textContent( 'Failed to load projection table data. Please contact support.' )
-                        .hideDelay( 1500 )
-                );
+                modalService.simpleToast( 'Failed to load projection table data. Please contact support.' );
             }
         );
     };
 
-    self.initLevelCopyPanel = function () {
+    self.initLevelCopyPanel = function () {  ///THIS NEEDS TO BE FIXED CALLING PAGER TO JUST FILL IN ID AND NAME
         self.loadModels();
     };
- 
+
     self.loadLevelPreview = function () {
         self.loadClients( self.levelCopyModelId , function ( response ) {
             self.levelCopyClients = response.data;
@@ -124,7 +108,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         var idExists = (
             pathParts !== null
             && angular.isNumber( modelId )
-        ); 
+        );
 
         if ( idExists ) { return modelId; }
         else { return null; }
@@ -149,7 +133,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
                 self.current.live = response.data[ 0 ].live;
             } ,
             function ( response ) {
-                self.displayToast( 'Failed to load Model Information. Please contact support.' );
+                modalService.simpleToast( 'Failed to load model information. Please contact support.' );
             }
         );
     };
@@ -166,11 +150,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
             modelId ,
             ( typeof( customSuccessCallback ) != 'undefined' ? customSuccessCallback : defaultSuccessCallback ) ,
             function ( response ) {
-                $mdToast.show(
-                    $mdToast.simple()
-                        .textContent( 'Failed to load Attribution Levels. Please contact support.' )
-                        .hideDelay( 1500 )
-                );
+                modalService.simpleToast( 'Failed to load attribution levels. Please contact support.' );
             }
         );
     };
@@ -183,35 +163,22 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
             self.paginationCount ,
             function ( response ) {
                 self.models = response.data.data;
-
+                self.modelTotal = response.data.total;
                 self.pageCount = response.data.last_page;
 
                 self.currentlyLoading = 0;
+                $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
             } ,
-            function ( response ) { 
-                self.displayToast( 'Failed to load Models. Please contact support.' );
+            function ( response ) {
+                modalService.simpleToast( 'Failed to load models. Please contact support.' );
             }
         );
     };
 
-    self.saveModel = function ( $event , form ) {
-        var errorFound = false;
-
-        angular.forEach( form.$error.required , function ( field ) {
-            field.$setDirty();
-            field.$setTouched();
-
-            errorFound = true;
-        } );
-
-        if ( errorFound ) {
-            self.displayToast( 'Please fix errors and try again.' );
-
-            return false;
-        }
-
+    self.saveModel = function () {
+        self.formSubmitted = true;
+        formValidationService.resetFieldErrors(self);
         var levels = [];
-
         angular.forEach( self.feeds , function ( value , key ) {
             levels.push( { "id" : value.id , "level" : key + 1 } );
         } );
@@ -220,29 +187,23 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
             self.current.name ,
             levels ,
             function ( response ) {
-                self.displayToast( 'Successfully saved Model.' );
+                self.formSubmitted = false;
+                modalService.setModalLabel('Success');
+                modalService.setModalBody( 'New model saved.' );
+                modalService.launchModal();
             } ,
             function ( response ) {
-                self.displayToast( 'Failed to save Model. Please contact support.' );
+                self.formSubmitted = false;
+                formValidationService.loadFieldErrors(self,response);
+                modalService.setModalLabel('Error');
+                modalService.setModalBody( 'Failed to save model. Please contact support.' );
+                modalService.launchModal();
         } );
     };
 
-    self.updateModel = function ( $event , form ) {
-        var errorFound = false;
-
-        angular.forEach( form.$error.required , function ( field ) {
-            field.$setDirty();
-            field.$setTouched();
-
-            errorFound = true;
-        } );
-
-        if ( errorFound ) {
-            self.displayToast( 'Please fix errors and try again.' );
-
-            return false;
-        }
-
+    self.updateModel = function () {
+        self.formSubmitted = true;
+        formValidationService.resetFieldErrors(self);
         var levels = [];
 
         angular.forEach( self.feeds , function ( value , key ) {
@@ -254,54 +215,83 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
             self.current.name ,
             levels ,
             function ( response ) {
-                self.displayToast( 'Successfully updated Model.' );
+                self.formSubmitted = false;
+                modalService.setModalLabel('Success');
+                modalService.setModalBody( 'Model updated.' );
+                modalService.launchModal();
             } ,
             function ( response ) {
-                self.displayToast( 'Failed to update Model. Please contact support.' );
+                self.formSubmitted = false;
+                formValidationService.loadFieldErrors(self,response);
+                modalService.setModalLabel('Error');
+                modalService.setModalBody( 'Failed to update model. Please contact support.' );
+                modalService.launchModal();
         } );
     };
 
-    self.setModelLive = function () {
+    self.setModelLive = function ( modelId ) {
         AttributionApiService.setModelLive(
-            self.selectedModelId ,
+            modelId ,
             function ( response ) {
-                self.displayToast( 'Feed Levels are updated. Please run attribution.' );
+                modalService.setModalLabel('Success');
+                modalService.setModalBody( 'Feed levels are updated. Please run attribution.' );
+                modalService.launchModal();
 
                 self.loadModels();
             },
             function ( response ) {
-                self.displayToast( 'Failed to update Feed Levels. Please contact support.' );
+                modalService.setModalLabel('Error');
+                modalService.setModalBody( 'Failed to update feed levels. Please contact support.' );
+                modalService.launchModal();
             }
         );
     };
 
-    self.runAttribution = function ( modelRun ) {
-        var modelId = '';
-        if ( modelRun ) {
-            modelId = self.selectedModelId;
+    self.runAttribution = function ( modelId ) {
+        var modelText = "";
+        if ( modelId > 0 ) {
+            modelText = " for model " + modelId;
+        } else {
+            modelId = '';
         }
 
-        AttributionApiService.runAttribution(
-            modelId ,
-            function ( response ) {
-                self.displayToast( 'Attribution is running.' );
-            } , function ( response ) {
-                self.displayToast( 'Failed to start Attribution Run. Please contact support.' );
-            }
-        );
+        var confirm = $mdDialog.confirm()
+            .title( 'Attribution Run Confirmation' )
+            .ariaLabel( 'Attribution Run Confirmation' )
+            .textContent( 'Are you sure you want to run attribution' + modelText + '?' )
+            .ok( 'Yes, I am sure.' )
+            .cancel( 'No' );
+
+        $mdDialog.show( confirm ).then( function () {
+            AttributionApiService.runAttribution(
+                modelId ,
+                function ( response ) {
+                    modalService.setModalLabel('Success');
+                    modalService.setModalBody( 'Attribution is running.' );
+                    modalService.launchModal();
+                    self.loadModels();
+                } , function ( response ) {
+                    modalService.setModalLabel('Error');
+                    modalService.setModalBody( 'Failed to start attribution run. Please contact support.' );
+                    modalService.launchModal();
+                }
+            );
+        } );
     };
 
     self.copyModelPreview = function ( $event , currentModelId ) {
         if ( typeof( currentModelId ) !== 'undefined' ) {
             self.current.id = currentModelId;
-
             self.loadClients( currentModelId );
         }
+        self.initLevelCopyPanel();
+        modalService.launchModal("#loadModels");
 
-        $mdSidenav( self.levelCopySideNavId ).open();
     };
 
     self.copyLevels = function () {
+        self.saveLevelState();
+
         AttributionApiService.copyLevels(
             self.getModelId() ,
             self.levelCopyModelId ,
@@ -310,11 +300,15 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
 
                 $mdSidenav( self.levelCopySideNavId ).close();
 
-                self.displayToast( 'Successfully copied feed levels.' );
-            } , 
+                modalService.setModalLabel('Success');
+                modalService.setModalBody( 'Feed levels copied.' );
+                modalService.launchModal();
+            } ,
             function ( response ) {
-                self.displayToast( 'Failed to copy client levels. Please contact support.' );
-            } 
+                modalService.setModalLabel('Error');
+                modalService.setModalBody( 'Failed to copy feed levels. Please contact support.' );
+                modalService.launchModal();
+            }
         );
     };
 
@@ -323,13 +317,16 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
             currentFeed.newLevel = currentIndex + 1;
             currentFeed.selected = false;
         } );
-    }; 
+        selectFeedCount = 0;
+    };
 
     self.changeLevel = function ( feed , index ) {
         var newLevel = feed.newLevel - 1;
 
         if ( newLevel < 0 || newLevel >= self.feeds.length ) {
-            self.displayToast( 'You must choose a level between 1 and ' + self.feeds.length );
+            modalService.setModalLabel('Error');
+            modalService.setModalBody( 'You must choose a level between 1 and ' + self.feeds.length );
+            modalService.launchModal();
 
             self.resetLevelFields();
 
@@ -337,6 +334,8 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         }
 
         if ( newLevel != index ) {
+            self.saveLevelState();
+
             var startingFeeds = self.feeds.slice( 0 , index );
             var endingFeeds = self.feeds.slice( index + 1 );
 
@@ -354,7 +353,7 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         var confirm = $mdDialog.confirm()
             .title( 'Feed Removal' )
             .textContent( 'Would you like to remove this feed from attribution?' )
-            .ariaLabel( 'Remove from Attribution' )
+            .ariaLabel( 'Remove from attribution' )
             .targetEvent( ev )
             .ok( 'Remove Feed' )
             .cancel( 'Cancel' );
@@ -367,27 +366,47 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
                     feedId ,
                     function ( response ) {
                         self.prepopModel();
-
-                        self.displayToast( 'Successfully Removed Feed from Attribution' ); 
+                        modalS.setModalLabel('Success');
+                        modalService.simpleToast( 'Removed feed from attribution.' );
+                        modalService.launchModal();
                     } ,
                     function ( response ) {
-                        self.displayToast( "Failed to remove feed. Please contact support." );
+                        modalService.setModalLabel('Error');
+                        modalService.setModalBody( "Failed to remove feed. Please contact support." );
+                        modalService.launchModal();
                     }
                 );
             } ,
             function () {
                 //canceled
-                self.displayToast( 'Removal Canceled' );
+                modalService.simpleToast( 'Removal canceled.' );
             }
         );
     };
 
+    self.toggleGroupController = function ( feed , index ) {
+        feed.selected ? self.selectFeedCount++:  self.selectFeedCount--;
+    };
+
+    self.saveLevelState = function () {
+        self.lastFeedOrder = angular.copy( self.feeds );
+    };
+
+    self.undoLevelChange = function () {
+        if ( self.lastFeedOrder.length > 0 ) {
+            self.feeds = self.lastFeedOrder;
+            self.lastFeedOrder = [];
+        }
+    };
+
     self.onLevelRise = function ( feed , index ) {
+        self.saveLevelState();
+
         if ( feed.selected ) {
             var selectedFeeds = [];
             var otherFeeds = [];
             var firstIndex = null;
-                
+
             angular.forEach( self.feeds , function ( currentFeed , currentIndex ) {
                 if ( currentFeed.selected ) {
                     if ( firstIndex === null ) {
@@ -401,7 +420,9 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
             } );
 
             if ( firstIndex < 0 ) {
-                self.displayToast( 'No room for selected feeds. Please uncheck the first checkbox.' );
+                modalService.setModalLabel('Error');
+                modalService.setModalBody( 'No room for selected feeds. Please uncheck the first checkbox.' );
+                modalService.launchModal();
 
                 return false;
             }
@@ -423,14 +444,16 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         }
 
         self.resetLevelFields();
-    }
+    };
 
     self.onLevelDrop = function ( feed , index ) {
+        self.saveLevelState();
+
         if ( feed.selected ) {
             var selectedFeeds = [];
             var otherFeeds = [];
             var lastIndex = -1;
-                
+
             angular.forEach( self.feeds , function ( currentFeed , currentIndex ) {
                 if ( currentFeed.selected ) {
                     lastIndex = currentIndex + 2;
@@ -454,13 +477,15 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         }
 
         self.resetLevelFields();
-    }
+    };
 
     self.moveToTop = function ( feed , index ) {
+        self.saveLevelState();
+
         if ( feed.selected ) {
             var selectedFeeds = [];
             var otherFeeds = [];
-                
+
             angular.forEach( self.feeds , function ( currentFeed , index ) {
                 if ( currentFeed.selected ) {
                     selectedFeeds.push( currentFeed );
@@ -478,13 +503,15 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         }
 
         self.resetLevelFields();
-    }
+    };
 
     self.moveToMiddle = function ( feed , index ) {
+        self.saveLevelState();
+
         if ( feed.selected ) {
             var selectedFeeds = [];
             var otherFeeds = [];
-                
+
             angular.forEach( self.feeds , function ( currentFeed , index ) {
                 if ( currentFeed.selected ) {
                     selectedFeeds.push( currentFeed );
@@ -513,13 +540,15 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         }
 
         self.resetLevelFields();
-    }
+    };
 
     self.moveToBottom = function ( feed , index ) {
+        self.saveLevelState();
+
         if ( feed.selected ) {
             var selectedFeeds = [];
             var otherFeeds = [];
-                
+
             angular.forEach( self.feeds , function ( currentFeed , index ) {
                 if ( currentFeed.selected ) {
                     selectedFeeds.push( currentFeed );
@@ -537,22 +566,27 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
         }
 
         self.resetLevelFields();
-    }
+    };
 
+    //DO WE NEED ANYMORE
     self.syncMt1Levels = function () {
         AttributionApiService.syncMt1Levels(
             function ( response ) {
                 self.loadLevels( self.getModelId() );
-                self.displayToast( 'Successfully synced MT1 feed levels.' );
-            } , 
+                modalService.setModalLabel('Success');
+                modalService.setModalBody( 'MT1 feed levels synced.' );
+                modalService.launchModal();
+            } ,
             function ( response ) {
-                self.displayToast( 'Failed to sync MT1 feed levels. Please contact support.' );
-            } 
+                modalService.setModalLabel('Error');
+                modalService.setModalBody( 'Failed to sync MT1 feed levels. Please contact support.' );
+                modalService.launchModal();
+            }
         );
     };
 
     self.loadClients = function ( altModelId , altSuccessCallback ) {
-        var successCallback = function ( response ) { 
+        var successCallback = function ( response ) {
             self.feeds = response.data;
 
             angular.forEach( self.feeds , function ( value , key ) {
@@ -578,13 +612,13 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
                     var feedList = [];
 
                     angular.forEach( response.data , function ( client , key ) {
-                        feedList.push( { "id" : client.client_id , "name" : client.username , "selected" : false } );
+                        feedList.push( { "id" : client.id , "name" : client.name , "selected" : false , "newLevel" : key + 1 } );
                     } );
 
                     self.feeds = feedList;
                 } ,
                 function ( response ) {
-                    self.displayToast( 'Failed to load Feeds. Please contact support.' );
+                    modalService.simpleToast( 'Failed to load feeds. Please contact support.' );
                 }
             );
         } else {
@@ -592,17 +626,12 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
                 modelId ,
                 successCallback ,
                 function ( response ) {
-                    self.displayToast( 'Failed to load Feeds. Please contact support.' );
+                    modalService.simpleToast( 'Failed to load feeds. Please contact support.' );
                 }
             );
         }
+
+        modalService.setPopover(4000);
     };
 
-    self.displayToast = function ( message ) {
-        $mdToast.show(
-            $mdToast.simple()
-                .textContent( message )
-                .hideDelay( 1500 )
-        );
-    };
 } ] );

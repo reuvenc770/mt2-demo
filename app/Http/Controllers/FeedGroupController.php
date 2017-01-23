@@ -37,7 +37,7 @@ class FeedGroupController extends Controller
     }
 
     public function listAll () {
-        return response()->view( 'bootstrap.pages.feedgroup.feedgroup-index' );
+        return response()->view( 'pages.feedgroup.feedgroup-index' );
     }
 
     /**
@@ -47,7 +47,7 @@ class FeedGroupController extends Controller
      */
     public function create()
     {
-        return response()->view( 'bootstrap.pages.feedgroup.feedgroup-add' );
+        return response()->view( 'pages.feedgroup.feedgroup-add' );
     }
 
     /**
@@ -91,7 +91,7 @@ class FeedGroupController extends Controller
      */
     public function edit($id)
     {
-        return response()->view( 'bootstrap.pages.feedgroup.feedgroup-update' , [
+        return response()->view( 'pages.feedgroup.feedgroup-update' , [
             'id' => $id ,
             'name' => $this->feedGroupService->getName( $id ) ,
             'feeds' => $this->feedGroupService->getFeeds( $id )

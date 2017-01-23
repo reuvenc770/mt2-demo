@@ -1,5 +1,79 @@
-mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , '$mdSidenav' , '$mdToast' , '$mdMedia' , '$cookies' , '$timeout' , '$log' , function ( $rootScope , $location , $window , $mdSidenav , $mdToast , $mdMedia , $cookies , $timeout , $log ) {
+mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' ,  '$mdToast' , '$mdMedia' , '$cookies' , '$timeout' , '$log' , function ( $rootScope , $location , $window , $mdToast , $mdMedia , $cookies , $timeout , $log ) {
     var self = this;
+
+    self.fixedNav = false;
+    self.alwaysFluid = false;
+    self.activeSection = {};
+    self.activeMenuLink = {};
+
+    angular.element( document.getElementById( 'mainSideNav' ) ).on( 'show.bs.offcanvas' , function () {
+            angular.element(document.getElementById( 'containerSizer' ) ).addClass( 'container-no-left' );
+    } );
+
+    angular.element( document.getElementById( 'mainSideNav' ) ).on( 'hide.bs.offcanvas' , function () {
+            angular.element(document.getElementById( 'containerSizer' )).removeClass( 'container-no-left' );
+    } );
+
+    self.setCurrentActiveSection = function ( sectionName , linkName , path ) {
+        if ( typeof( path ) === 'undefined' ) {
+            self.activeSection = {};
+            self.activeSection[ sectionName ] = true;
+
+            return true;
+        }
+
+        if ( path == self.currentPath ) {
+            self.activeSection = {};
+            self.activeSection[ sectionName ] = true;
+
+            self.activeMenuLink = {};
+            self.activeMenuLink[ linkName ] = true;
+        } else if ( Object.keys( self.activeMenuLink ).length == 0  ) {
+            var periodIndex = path.indexOf( '/' );
+            var pathPrefix = periodIndex >= 0 ? path.slice( 0 , periodIndex ) : path;
+            pathPrefix = '/' + pathPrefix + '/';
+
+            if ( $location.path().indexOf( pathPrefix ) === 0 ) {
+                self.activeSection = {};
+                self.activeSection[ sectionName ] = true;
+
+                self.activeMenuLink = {};
+                self.activeMenuLink[ linkName ] = true;
+            }
+        }
+    };
+
+    self.setAlwaysFluid = function ( status ) {
+        if ( typeof( status ) !== 'undefined' ) {
+            self.alwaysFluid = status;
+        } else {
+            self.alwaysFluid = true;
+        }
+    };
+
+    self.setFixedNav = function ( status ) {
+        if ( typeof( status ) !== 'undefined' ) {
+            self.fixedNav = status;
+        } else {
+            self.fixedNav = true;
+        }
+    }
+
+    self.isFixedNav = function () {
+        return self.fixedNav;
+    };
+
+    self.toggleDropdown = function ( ev ) {
+        if ( angular.element( ev.target ).hasClass( 'dropdown-toggle' ) ) {
+            angular.element( ev.target ).parent().toggleClass( 'open' );
+        } else {
+            angular.element( ev.target ).parent().parent().toggleClass( 'open' );
+        }
+    };
+
+    self.menuIsOpen = function ( menuId ) {
+        return angular.element( document.getElementById( menuId ) ).hasClass( 'open' );
+    };
 
     /**
      * Main Side Nav
@@ -66,7 +140,7 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
         self.closeSideNavAccordians();
         self.closeHoverMenu();
 
-        self.sideNavMinimized = !self.sideNavMinimized; 
+        self.sideNavMinimized = !self.sideNavMinimized;
 
         self.setSidenavCookie( $event );
     };
@@ -120,4 +194,18 @@ mt2App.controller( 'AppController' , [ '$rootScope' , '$location' , '$window' , 
 
         $mdToast.show( toast );
     };
+
+    self.formatDate = function ( dateString , outputDateFormat , inputDateFormat ) {
+        if ( typeof( outputDateFormat ) === 'undefined' ) {
+            outputDateFormat = 'MM-DD-YY h:mm A';
+        }
+
+        if ( typeof( inputDateFormat ) === 'undefined' ) {
+            inputDateFormat = 'YYYY-MM-DD HH:mm:SS';
+        }
+
+        return moment( dateString , inputDateFormat ).format( outputDateFormat );
+    };
+
+
 } ] );

@@ -104,34 +104,14 @@ return [
         'mt2AppBase' => [
             'resources/assets/js/app.js',
             'resources/assets/js/mt2app/AppController.js',
-            'resources/assets/js/mt2app/GenericTableDirective.js',
-            'resources/assets/js/mt2app/EditButtonDirective.js',
-            'resources/assets/js/mt2app/PaginationDirective.js',
-            'resources/assets/js/mt2app/PaginationControlDirective.js',
-            'resources/assets/js/mt2app/PaginationButtonDirective.js',
-            'resources/assets/js/mt2app/PaginationCountDirective.js',
             'resources/assets/js/mt2app/MembershipWidgetDirective.js',
             'resources/assets/js/mt2app/LiteMembershipWidgetDirective.js',
+            'resources/assets/js/mt2app/ValidationService.js',
+            'resources/assets/js/mt2app/ModalService.js',
             'resources/assets/js/mt2app/CompileHtml.js',
-            'resources/assets/js/mt2app/CustomValidationService.js'
-        ],
-        'mt2BootstrapBase' => [
-            'resources/assets/js/bootstrap/app.js',
-            'resources/assets/js/bootstrap/mt2app/AppController.js',
-            'resources/assets/js/bootstrap/mt2app/GenericTableDirective.js',
-            'resources/assets/js/bootstrap/mt2app/EditButtonDirective.js',
-            'resources/assets/js/bootstrap/mt2app/PaginationDirective.js',
-            'resources/assets/js/bootstrap/mt2app/PaginationControlDirective.js',
-            'resources/assets/js/bootstrap/mt2app/PaginationButtonDirective.js',
-            'resources/assets/js/bootstrap/mt2app/PaginationCountDirective.js',
-            'resources/assets/js/bootstrap/mt2app/MembershipWidgetDirective.js',
-            'resources/assets/js/bootstrap/mt2app/LiteMembershipWidgetDirective.js',
-            'resources/assets/js/bootstrap/mt2app/ValidationService.js',
-            'resources/assets/js/bootstrap/mt2app/ModalService.js',
-            'resources/assets/js/bootstrap/mt2app/CompileHtml.js',
-            'resources/assets/js/bootstrap/mt2app/CustomValidationService.js',
-            'resources/assets/js/bootstrap/mt2app/FixedTableHeader.js',
-            'resources/assets/js/bootstrap/mt2app/PaginationService.js'
+            'resources/assets/js/mt2app/CustomValidationService.js',
+            'resources/assets/js/mt2app/FixedTableHeader.js',
+            'resources/assets/js/mt2app/PaginationService.js'
         ]
     ]
 ];

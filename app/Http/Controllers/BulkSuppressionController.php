@@ -36,7 +36,7 @@ class BulkSuppressionController extends Controller
      */
     public function index()
     {
-        return response()->view('bootstrap.pages.bulk-suppression');
+        return response()->view('pages.bulk-suppression');
     }
 
     /**

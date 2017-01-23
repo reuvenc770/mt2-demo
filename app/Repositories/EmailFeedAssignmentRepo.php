@@ -8,6 +8,7 @@ namespace App\Repositories;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use App\Repositories\RepoInterfaces\IAwsRepo;
+use App\Repositories\RepoTraits\Batchable;
 
 use App\Models\EmailFeedAssignment;
 use App\Models\EmailFeedAssignmentHistory;
@@ -15,19 +16,18 @@ use App\Models\EmailFeedAssignmentHistory;
 use DB;
 
 class EmailFeedAssignmentRepo implements IAwsRepo {
-    protected $assignment;
-    protected $history;
-    private $batchData = [];
-    private $batchDataCount = 0;
-    const INSERT_THRESHOLD = 10000;
+    use Batchable;
 
-    public function __construct ( EmailFeedAssignment $assignment , EmailFeedAssignmentHistory $history ) {
-        $this->assignment = $assignment;
+    protected $model;
+    protected $history;
+
+    public function __construct ( EmailFeedAssignment $model , EmailFeedAssignmentHistory $history ) {
+        $this->model = $model;
         $this->history = $history;
     }
 
     public function assignFeed ( $emailId , $feedId , $captureDate ) {
-        $tableName = $this->assignment->getTable();
+        $tableName = $this->model->getTable();
 
         DB::connection( 'attribution' )->insert( "
             INSERT INTO
@@ -43,14 +43,14 @@ class EmailFeedAssignmentRepo implements IAwsRepo {
     }
 
     public function getAssignedFeed ( $emailId , $modelId = null ) {
-        $feedId = $this->assignment->where( 'email_id' , $emailId )->pluck( 'feed_id' )->pop();
+        $feedId = $this->model->where( 'email_id' , $emailId )->pluck( 'feed_id' )->pop();
 
         if ( is_null( $feedId ) && !is_null( $modelId ) ) {
-            $this->assignment->setLiveTable();
+            $this->model->setLiveTable();
 
-            $feedId = $this->assignment->where( 'email_id' , $emailId )->pluck( 'feed_id' )->pop();
+            $feedId = $this->model->where( 'email_id' , $emailId )->pluck( 'feed_id' )->pop();
 
-            $this->assignment->setModelTable( $modelId );
+            $this->model->setModelTable( $modelId );
         }
        
         if ( is_null( $feedId ) ) {
@@ -69,7 +69,7 @@ class EmailFeedAssignmentRepo implements IAwsRepo {
     }
 
     public function setLevelModel ( $modelId ) {
-        $this->assignment->setModelTable( $modelId );
+        $this->model->setModelTable( $modelId );
     }
 
     static public function generateTempTable ( $modelId ) {
@@ -89,19 +89,6 @@ class EmailFeedAssignmentRepo implements IAwsRepo {
         Schema::connection( 'attribution' )->drop( EmailFeedAssignment::BASE_TABLE_NAME . $modelId );
     }
 
-    public function insertBatch($row) {
-        if ($this->batchDataCount >= self::INSERT_THRESHOLD) {
-
-            $this->insertStored();
-            $this->batchData = [$this->transformRowToString($row)];
-            $this->batchDataCount = 1;
-        }
-        else {
-            $this->batchData[] = $this->transformRowToString($row);
-            $this->batchDataCount++;
-        }
-    }
-
     private function transformRowToString($row) {
         $pdo = DB::connection()->getPdo();
 
@@ -112,26 +99,21 @@ class EmailFeedAssignmentRepo implements IAwsRepo {
             . 'NOW(), NOW())';
     }
 
-    public function insertStored() {
-        $this->batchData = implode(', ', $this->batchData);
-
-        DB::connection('attribution')->statement("INSERT INTO email_feed_assignments 
+    public function buildBatchedQuery($batchData) {
+        return "INSERT INTO email_feed_assignments 
             (email_id, feed_id, capture_date, created_at, updated_at)
             VALUES
-            {$this->batchData}
+            {$batchData}
             ON DUPLICATE KEY UPDATE
                 email_id = email_id,
                 feed_id = VALUES(feed_id),
                 capture_date = VALUES(capture_date),
                 created_at = created_at,
-                updated_at = VALUES(updated_at)");
-
-        $this->batchData = [];
-        $this->batchDataCount = 0;
+                updated_at = VALUES(updated_at)";
     }
 
     public function getCaptureDate($emailId) {
-        $obj = $this->assignment->where('email_id', $emailId)->first();
+        $obj = $this->model->where('email_id', $emailId)->first();
 
         if ($obj) {
             return $obj->capture_date;
@@ -141,7 +123,7 @@ class EmailFeedAssignmentRepo implements IAwsRepo {
 
     public function getFeedUniques($feedId) {
         $mt2DataSchema = config('database.connections.mysql.database');
-        return $this->assignment
+        return $this->model
                     ->join("$mt2DataSchema.email_feed_instances as efi", 'email_feed_assignments.email_id', '=', 'efi.email_id')
                     ->selectRaw("efi.email_id, COUNT(*) as count")
                     ->groupBy('efi.email_id')
@@ -149,16 +131,20 @@ class EmailFeedAssignmentRepo implements IAwsRepo {
     }
 
     public function extractForS3Upload($startPoint) {
-        return $this->assignment->whereRaw("updated_at > $startPoint");
+        return $this->model->whereRaw("updated_at > $startPoint");
     }
 
+    public function extractAllForS3() {
+        return $this->assignment;
+    }
+
+
     public function mapForS3Upload($row) {
-        return [
-            'email_id' => $row->email_id,
-            'feed_id' => $row->feed_id,
-            'created_at' => $row->created_at,
-            'updated_at' => $row->updated_at,
-            'capture_date' => $row->capture_date
-        ];
+        $pdo = DB::connection('redshift')->getPdo();
+        return $pdo->quote($row->email_id) . ','
+             . $pdo->quote($row->feed_id) . ','
+             . $pdo->quote($row->created_at) . ','
+             . $pdo->quote($row->updated_at) . ','
+             . $pdo->quote($row->capture_date);
     }
 }

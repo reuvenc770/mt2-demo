@@ -49,7 +49,7 @@ class AttributionBatchProcessJob extends Job implements ShouldQueue
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
                 echo "{$this->jobName} running" . PHP_EOL;
 
-                $service = ServiceFactory::createAttributionBatchService($this->modelId);       
+                $service = ServiceFactory::createAttributionBatchService();       
                 $service->process($this->data, $this->modelId, $this->userEmail);
 
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);

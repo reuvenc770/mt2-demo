@@ -36,7 +36,7 @@ class StandardApiReportRepo {
         return $this->report
                     ->select('external_deploy_id', 'campaign_name', 'esp_account_id', 'esp_internal_id', 'datetime')
                     ->leftJoin("$db.esp_workflow_steps as ews", 'standard_reports.external_deploy_id', '=', 'ews.deploy_id')
-                    ->whereRaw("esp_account_id = $espAccountId AND (standard_reports.created_at >= '$date' OR ews.deploy_id IS NOT NULL)")
+                    ->whereRaw("esp_account_id = $espAccountId AND ( ( standard_reports.created_at >= '$date' AND datetime >= '$date' - INTERVAL 31 DAY ) OR ews.deploy_id IS NOT NULL)")
                     ->orderBy('datetime', 'desc')
                     ->get();
     }

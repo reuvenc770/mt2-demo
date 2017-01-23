@@ -1,4 +1,4 @@
-mt2App.service( 'EspApiService' , function ( $http , $log ) {
+mt2App.service( 'EspApiService' , [ 'paginationService' , '$http' , '$log' , function ( paginationService , $http , $log ) {
     var self = this;
 
     self.pagerApiUrl = '/api/pager/EspApiAccount';
@@ -10,12 +10,7 @@ mt2App.service( 'EspApiService' , function ( $http , $log ) {
     }
 
     self.getAccounts = function ( page , count , sortField, successCallback , failureCallback ) {
-        var sort = { 'field' : sortField , 'desc' : false };
-
-        if (/^\-/.test( sortField ) ) {
-            sort.field = sort.field.substring( 1 );
-            sort.desc = true;
-        }
+        var sort = paginationService.sortPage( sortField );
 
         return $http( {
             "method" : "GET" ,
@@ -43,4 +38,11 @@ mt2App.service( 'EspApiService' , function ( $http , $log ) {
             "data" : request
         } ).then( successCallback , failureCallback );
     }
-} );
+    self.toggleRow = function ( recordId, direction, successCallback, failureCallback ) {
+        $http( {
+            "method" : "DELETE" ,
+            "url" : this.baseApiUrl + '/' + recordId,
+            "params" : { "direction" : direction }
+        } ).then( successCallback , failureCallback );
+    };
+} ] );

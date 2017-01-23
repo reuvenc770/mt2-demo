@@ -67,7 +67,7 @@ class ServiceFactory
     }
 
 
-    public static function createAttributionBatchService($modelId) {
+    public static function createAttributionBatchService() {
         return App::make(\App\Services\AttributionBatchService::class);
     }
 
@@ -104,17 +104,15 @@ class ServiceFactory
         $redshiftRepo = App::make("App\\Repositories\\RedshiftRepositories\\{$entity}Repo");
         $pickupRepo = App::make(\App\Repositories\EtlPickupRepo::class);
 
-        if (in_array($entity, ['Feed', 'Email', 'EmailDomain', 'DomainGroup', 'SuppressionGlobalOrange'])) {
+        if (in_array($entity, ['Feed', 'Email', 'EmailDomain', 'DomainGroup', 'SuppressionGlobalOrange', 'Client'])) {
             $func = function($row) { return $row['id']; };
         }
-        elseif ('ListProfileFlatTable' === $entity) {
+        else {
+            // ListProfileFlatTable, RecordData, EmailFeedAssignments
             $func = function($row) {
                 $updatedAt = preg_replace('/\s|\-|:/', '', $row['updated_at']);
                 return (int)$updatedAt; 
             };
-        }
-        else {
-            $func = function($row) { return 0; };
         }
 
         return new \App\Services\S3RedshiftExportService($jobRepo, $s3Client, $redshiftRepo, $pickupRepo, $entity, $func);

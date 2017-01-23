@@ -6,37 +6,47 @@ use App\Repositories\EmailRepo;
 use App\Repositories\AttributionLevelRepo;
 use App\Repositories\RecordDataRepo;
 use App\Repositories\FeedDateEmailBreakdownRepo;
+use App\Repositories\EmailFeedActionRepo;
 use App\Services\Interfaces\IFeedPartyProcessing;
 use Carbon\Carbon;
 use App\Events\NewRecords;
+use App\Models\EmailFeedAction;
 
 class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
     private $emailCache = [];
     private $emailRepo;
     private $recordDataRepo;
     private $statsRepo;
+    private $emailFeedActionRepo;
 
     private $processingDate;
 
-    public function __construct(EmailRepo $emailRepo, AttributionLevelRepo $attributionLevelRepo, RecordDataRepo $recordDataRepo, FeedDateEmailBreakdownRepo $statsRepo) {
+    public function __construct(EmailRepo $emailRepo, 
+        AttributionLevelRepo $attributionLevelRepo, 
+        RecordDataRepo $recordDataRepo, 
+        FeedDateEmailBreakdownRepo $statsRepo,
+        EmailFeedActionRepo $emailFeedActionRepo) {
+
         $this->emailRepo = $emailRepo;
         $this->attributionLevelRepo = $attributionLevelRepo;
         $this->recordDataRepo = $recordDataRepo;
         $this->statsRepo = $statsRepo;
         $this->processingDate = Carbon::today()->format('Y-m-d');
+        $this->emailFeedActionRepo = $emailFeedActionRepo;
     }
 
     /**
      *      RULES FOR EMAIL STATUS AND ATTRIBUTION:
-     *      All of these are for non-suppressed emails.
+     *      All of these are for non-suppressed emails. Not all of these rules (date ranges, for example) are 
+     *      handled here. This is merely an overview.
      *
      *      (1). If the email is brand new, set it to unique.
-     *      (2). If the email was imported < 10 days ago, keep everything as is. Note imports as "duplicate"
+     *      (2). If the email was imported < 15 days ago, keep everything as is. Note imports as "duplicate"
      *          if from the same feed and "non-unique" otherwise.
-     *      (3). If the email was imported > 10 days ago and an action exists, check time elapsed since the action. 
-     *          If it's been > 90 days since the action, switch to the importing feed and denote as "unique". 
-     *          If <= 90 days, keep with the importing feed as a "duplicate".
-     *      (4). If the email was imported > 10 days ago and no action exists, 
+     *      (3). If the email was imported > 15 days ago and an action exists, never change attribution. 
+     *          Mark as "duplicate" if coming from the currently-attributed feed, "non-unique" otherwise
+     *      (4). If the email was imported > 15 days ago and no action exists, switch if the importing feed
+     *          has better attribution.
      */
 
     public function processPartyData(array $records) {
@@ -79,6 +89,7 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
                 $record->uniqueStatus = 'unique';
                 $record->isDeliverable = 1;
                 $recordsToFlag[] = $this->mapToNewRecords($record);
+                $this->emailFeedActionRepo->batchInsert($record->mapToEmailFeedAction(EmailFeedAction::DELIVERABLE));
             }
             else { 
                 // This is not a new email
@@ -93,19 +104,24 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
                     $record->uniqueStatus = 'unique';
                     $recordsToFlag[] = $this->mapToNewRecords($record);
                     $record->isDeliverable = 1;
+                    $actionStatus = EmailFeedAction::DELIVERABLE;
                 }
                 elseif ($currentAttributedFeedId == $record->feedId) {
                     // Duplicate within the feed
                     $record->uniqueStatus = 'duplicate';
+                    $actionData = $this->emailFeedActionRepo->getActionDateAndStatus($record->emailId, $record->feedId);
+                    $actionStatus = $actionData ? $actionData->status : EmailFeedAction::DELIVERABLE;
                 }
                 // For the rest, the feeds differ, by definition
                 elseif (1 === $attributionTruths->is_recent_import) {
                     // Stays with importer
                     $record->uniqueStatus = 'non-unique';
+                    $actionStatus = EmailFeedAction::PASSED_DUE_TO_ATTRIBUTION;
                 }
                 elseif (0 === $attributionTruths->is_recent_import && 1 === $attributionTruths->has_action) {
                     // Not a recent import but there is an action
-                    $record->uniqueStatus = 'non-unique';                    
+                    $record->uniqueStatus = 'non-unique';
+                    $actionStatus = EmailFeedAction::PASSED_DUE_TO_RESPONDER;                
                 }
                 else {
                     // Not a new record, not attributed import was not recent, has no action
@@ -117,23 +133,28 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
                         $record->uniqueStatus = 'unique';
                         $recordsToFlag[] = $this->mapToNewRecords($record);
                         $record->isDeliverable = 1;
+                        $actionStatus = EmailFeedAction::DELIVERABLE;
                     }
                     else {
                         $record->uniqueStatus = 'non-unique';
+                        $actionStatus = EmailFeedAction::PASSED_DUE_TO_ATTRIBUTION;
                     }
 
                 }
+
+                $this->emailFeedActionRepo->batchInsert($record->mapToEmailFeedAction($actionStatus));
             }
 
             $statuses[$record->feedId][$domainGroupId][$record->uniqueStatus]++;
 
             if ('unique' === $record->uniqueStatus) {
-                $this->recordDataRepo->insert($this->transformForRecordData($record));
+                $this->recordDataRepo->batchInsert($record->mapToRecordData());
             }
             
         }
 
         $this->recordDataRepo->insertStored();
+        $this->emailFeedActionRepo->insertStored();
         $this->statsRepo->massUpdateValidEmailStatus($statuses, $this->processingDate);
 
         // Handles all attribution changes
@@ -147,29 +168,6 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
             'feed_id' => $record->feedId,
             'datetime' => $record->captureDate,
             'capture_date' => $record->captureDate
-        ];
-    }
-
-    private function transformForRecordData(ProcessingRecord $record) {
-        return [
-            'email_id' => $record->emailId,
-            'is_deliverable' => $record->isDeliverable,
-            'first_name' => $record->firstName,
-            'last_name' => $record->lastName,
-            'address' => $record->address,
-            'address2' => $record->address2,
-            'city' => $record->city,
-            'state' => $record->state,
-            'zip' => $record->zip,
-            'country' => $record->country,
-            'gender' => $record->gender,
-            'ip' => $record->ip,
-            'phone' => $record->phone,
-            'source_url' => $record->sourceUrl,
-            'dob' => $record->dob,
-            'capture_date' => $record->captureDate,
-            'subscribe_date' => $this->processingDate,
-            'other_fields' => $record->otherFieldsJson
         ];
     }
 }

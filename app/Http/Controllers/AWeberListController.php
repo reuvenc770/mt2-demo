@@ -30,7 +30,7 @@ class AWeberListController extends Controller
       $ids = $request->input('ids');
         if (empty($ids)){
             return response()->json(["success" => "failed"], 500);
-        } 
+        }
         return response()->json($this->listService->updateListStatuses($ids));
     }
 
@@ -43,7 +43,7 @@ class AWeberListController extends Controller
     public function edit()
     {
         $esps = EspApiAccount::getAllAccountsByESPName("AWeber");
-        return view('bootstrap.pages.tools.aweber.listmangagement', ['espAccounts' => $esps]);
+        return view('pages.tools.aweber.listmanagement', ['espAccounts' => $esps]);
     }
 
     public function getList(Request $request, $id){

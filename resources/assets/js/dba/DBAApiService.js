@@ -1,4 +1,4 @@
-mt2App.service( 'DBAApiService' , function ( $http , $log ) {
+mt2App.service( 'DBAApiService' , [ 'paginationService' , '$http' , '$log' , function ( paginationService , $http , $log ) {
     var self = this;
 
     self.baseApiUrl = '/api/dba';
@@ -9,12 +9,7 @@ mt2App.service( 'DBAApiService' , function ( $http , $log ) {
     };
 
     self.getAccounts = function ( page , count , sortField , successCallback , failureCallback ) {
-        var sort = { 'field' : sortField , 'desc' : false };
-
-        if (/^\-/.test( sortField ) ) {
-            sort.field = sort.field.substring( 1 );
-            sort.desc = true;
-        }
+        var sort = paginationService.sortPage( sortField );
 
         return $http( {
             "method" : "GET" ,
@@ -43,12 +38,26 @@ mt2App.service( 'DBAApiService' , function ( $http , $log ) {
         } ).then( successCallback , failureCallback );
     };
 
-    self.toggleRow = function ( recordId, direction, successCallback, failureCallback ) {
+    self.searchDBA = function ( count , data, successCallback , failureCallback ) {
+        return $http( {
+            "method" : "GET" ,
+            "url" : self.pagerApiUrl ,
+            "params" : { "page" : 1 , "count" : count, "data" : data }
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.deleteRow = function ( recordId, successCallback, failureCallback ) {
         $http( {
             "method" : "DELETE" ,
+            "url" : this.baseApiUrl + '/' + recordId,
+        } ).then( successCallback , failureCallback );
+    };
+    self.toggleRow = function ( recordId, direction, successCallback, failureCallback ) {
+        $http( {
+            "method" : "GET" ,
             "url" : this.baseApiUrl + '/' + recordId,
             "params" : { "direction" : direction }
         } ).then( successCallback , failureCallback );
     };
 
-} );
+} ] );
