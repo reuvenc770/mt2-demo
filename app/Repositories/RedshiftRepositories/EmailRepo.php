@@ -4,6 +4,7 @@ namespace App\Repositories\RedshiftRepositories;
 
 use App\Models\RedshiftModels\Email;
 use App\Repositories\RepoInterfaces\IRedshiftRepo;
+use DB;
 
 class EmailRepo implements IRedshiftRepo {
     
