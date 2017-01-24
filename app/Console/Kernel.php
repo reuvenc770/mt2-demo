@@ -93,6 +93,7 @@ class Kernel extends ConsoleKernel
         Commands\UpdateMissingCampaignerCampaigns::class,
         Commands\VacuumRedshift::class,
         Commands\CleanUpRawContentServerActions::class,
+        Commands\SumBrontoStandardReports::class,
     ];
 
     /**
@@ -177,7 +178,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command( 'reports:downloadDeliverables AWeber 5 AWeber' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
 
-        //$schedule->command( 'reports:downloadDeliverables Bronto:delivered 2' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command( 'reports:downloadDeliverables Bronto:delivered 2' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:populateStats')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
         //$schedule->command( 'reports:populateAttrBaseRecords')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
         $schedule->command('process:useragents')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME);
@@ -292,6 +293,13 @@ class Kernel extends ConsoleKernel
         $schedule->command('aweber:processUniques 15')->cron("10 0,6,12,18 * * *")->sendOutputTo($filePath);
         $schedule->command('aweber:updateAWeberLists' )->dailyAt( self::AWEBER_TIME);
         $schedule->command('aweber:processAWeberActions')->cron("30 0,6,12,18 * * *")->sendOutputTo($filePath);
+
+
+        /**
+         * Bronto Jobs
+         */
+
+        $schedule->command("reports:sumBronto")->cron("15 * * * *");
 
     }
 }
