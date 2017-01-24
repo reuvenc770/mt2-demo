@@ -17,7 +17,7 @@ class ImportMt1Emails extends Command
      *
      * @var string
      */
-    protected $signature = 'emails:download';
+    protected $signature = 'emails:download {mod}';
 
     protected $description = 'Pull all emails from the MT1 temp table';
 
@@ -28,9 +28,10 @@ class ImportMt1Emails extends Command
 
     public function handle() {
         // set up new job, only if another is not running
+        $mod = $this->argument('mod');
 
         if (!$this->isRunning(self::JOB_NAME)) {
-            $job = new ImportMt1EmailsJob(str_random(16));
+            $job = new ImportMt1EmailsJob($mod, str_random(16));
             $this->dispatch($job);
         }
         else {
