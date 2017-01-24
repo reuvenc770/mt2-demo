@@ -38,7 +38,7 @@ class SumBrontoRawStats extends Job implements ShouldQueue
         //This job is so specific that I felt i didnt want to add a bunch extra code to handle the sql
         JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
             try{
-              $reports = BrontoReport::where("type","triggered")
+              $reports = BrontoReport::where("type","triggered") // I am so triggered right now.
                   ->select('message_name',DB::raw('sum(num_sends) as e_sent ,sum(num_deliveries) as delivered,
                         sum(num_bounces) as bounced,
                         sum(num_opens) as e_opens,
