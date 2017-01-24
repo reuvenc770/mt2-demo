@@ -92,6 +92,7 @@ class Kernel extends ConsoleKernel
         Commands\ProcessAWeberActions::class,
         Commands\UpdateMissingCampaignerCampaigns::class,
         Commands\VacuumRedshift::class,
+        Commands\CleanUpRawContentServerActions::class,
     ];
 
     /**
@@ -162,7 +163,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('aweber:processUniques 31')->monthly()->sendOutputTo($filePath);
 
         /**
-         * Deliverable Data
+         * Record-level Data
          */
         $deliverableFilePath = storage_path( 'logs' ) . "/downloadDeliverables.log";
         $schedule->command( 'reports:downloadDeliverables BlueHornet 5 BlueHornet' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
@@ -180,7 +181,7 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'reports:populateStats')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
         //$schedule->command( 'reports:populateAttrBaseRecords')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
         $schedule->command('process:useragents')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME);
-        #$schedule->command('download:mtstats')->dailyAt(self::DELIVERABLE_SCHEDULE_TIME);
+        #$schedule->command('process:contentServerRawStats')->hourly();
         $schedule->command('reports:findIncompleteDeploys')->dailyAt(self::DEPLOY_CHECK_TIME);
 
 
@@ -210,7 +211,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('mt1Import offerFromMap')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import offerSubjectMap')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import cakeEncryptedLinkMap')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('mt1Import link')->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command('mt1Import link 2')->cron('0 */2 * * * *');
         $schedule->command('mt1Import feed')->cron('0 * * * * *');
         $schedule->command('mt1Import offerTrackingLink')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import mailingTemplate')->dailyAt(self::MT1_SYNC_TIME);

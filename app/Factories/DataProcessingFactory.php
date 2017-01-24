@@ -61,6 +61,11 @@ class DataProcessingFactory {
             case('UpdateUserActions'):
                 return \App::make(\App\Services\UserActionStatusService::class);
 
+            case ('ProcessContentServerRawStats'):
+                $service = \App::make(\App\Services\ProcessRawContentServerStats::class);
+                $service->setJobName('ProcessContentServerRawStats');
+                return $service;
+
             # Export from MT2 to MT1
 
             case('Mt1Export-email_list'):
