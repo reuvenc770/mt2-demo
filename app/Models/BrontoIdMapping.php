@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class BrontoIdMapping extends Model
 {
-    protected $guarded = ['id'];
+    protected $guarded = [''];
     protected $connection = "reporting_data";
     public $timestamps = false;
 }

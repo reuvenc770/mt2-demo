@@ -21,12 +21,15 @@ class BrontoIdMappingService
     }
 
     public function returnOrGenerateID($id,$espAccountId){
-       $row = $this->repo->rowOrNew($id,$espAccountId);
-        if($row->exists){
-            return $row->generated_id;
+        if(Cache::has("Bronto.{$espAccountId}.mapping.{$id}")) {
+            return Cache::get("Bronto.{$espAccountId}.mapping.{$id}");
         } else {
-            $row->generated_id = rand(100000,999999);
-            $row->save();
+            $row = $this->repo->rowOrNew($id, $espAccountId);
+            if (!$row->exists) {
+                $row->generated_id = rand(100000, 999999);
+                $row->save();
+            }
+            Cache::put("Bronto.{$espAccountId}.mapping.{$id}",$row->generated_id);
             return $row->generated_id;
         }
     }
