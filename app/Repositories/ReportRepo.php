@@ -48,13 +48,27 @@ class ReportRepo
             throw new \Exception('Run id accessed by esp without run id.');
         }
     }
-    
+
     public function updateStatCount($id, $columnName, $value) {
         return $this->report->find($id)->update([$columnName => $value]);
     }
 
     public function getRowByExternalId($id){
         return $this->report->where('internal_id',$id)->get()[0];
+    }
+
+    public function getByEspAccountDateSubject($espAccountIds, $dates, $subjects){
+        $interface = "\\App\\Models\\Interfaces\\IReportMapper";
+
+        if( !( $this->report instanceof $interface ) ){
+            throw new \Exception('Report must implement IReportMapper.');
+        }
+
+        return $this->report
+            ->whereIn( 'esp_account_id', $espAccountIds )
+            ->whereIn( $this->report->getDateFieldName() , $dates )
+            ->whereIn( $this->report->getSubjectFieldName() , $subjects )
+            ->get();
     }
 
 }

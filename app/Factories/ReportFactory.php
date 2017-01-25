@@ -5,6 +5,7 @@ use App\Services\CustomReportService;
 use Storage;
 use App\Models\EspAccount;
 use App\Repositories\EspApiAccountRepo;
+use App\Repositories\ReportRepo;
 use App;
 
 /**
@@ -39,8 +40,8 @@ class ReportFactory
         $espName = config("reports.$name.data.esp");
 
         $espAccountConfig = config("reports.$name.data.accounts") ?: 'all';
-        $espAccounts = $espAccountConfig === 'all' ? 
-            $espAccountRepo->getAccountsByESPName($espName) : 
+        $espAccounts = $espAccountConfig === 'all' ?
+            $espAccountRepo->getAccountsByESPName($espName) :
             self::getEspInfoForAccounts($espAccountRepo, $espAccountConfig);
 
         $service = "App\Reports\\" . config("reports.$name.service");
@@ -78,7 +79,7 @@ class ReportFactory
 
         $formatStrategy = "App\\Reports\\Strategies\\" . config("reports.$name.data.formatStrategy");
         $formatStrategy = new $formatStrategy();
-        
+
         try {
             $model = new $modelName();
 
@@ -107,8 +108,18 @@ class ReportFactory
         foreach ($accounts as $accountName) {
             $output[] = $espAccountRepo->getEspInfoByAccountName($accounts);
         }
-        
+
         return $output;
+    }
+
+    public static function createEspRawRepo($espName)
+    {
+        $reportName = "{$espName}Report";
+        $reportModelName = "App\\Models\\{$reportName}";
+        $reportModel = new $reportModelName();
+
+        return new ReportRepo($reportModel);
+
     }
 
 }

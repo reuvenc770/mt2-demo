@@ -1,7 +1,7 @@
 mt2App.controller( 'AWeberController' , [ '$rootScope' , '$log' , '$window' , '$location' , 'AWeberService' , 'modalService'  , function ( $rootScope , $log , $window , $location , AWeberService , modalService  ) {
     var self = this;
     self.$location = $location;
-    self.currentMappings = [];
+    self.currentMappings = {};
     self.reports = [];
     self.lists = [];
     self.availableWidgetTitle = "Active Lists";
@@ -71,7 +71,7 @@ mt2App.controller( 'AWeberController' , [ '$rootScope' , '$log' , '$window' , '$
     self.updateListSuccessCallback = function (){
         modalService.simpleToast("List Status has been updated","bottom left");
     };
-    
+
     self.somethingWentWrong = function (){
         modalService.simpleToast("Something went wrong updating List Status","bottom left");
     }
