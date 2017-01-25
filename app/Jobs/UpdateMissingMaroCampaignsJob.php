@@ -9,8 +9,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 
 use App\Facades\JobTracking;
 use App\Models\JobEntry;
+use App\Models\MaroReport;
 use App\Exceptions\JobException;
 use App\Factories\APIFactory;
+use App\Factories\ServiceFactory;
 
 class UpdateMissingMaroCampaignsJob extends Job implements ShouldQueue
 {
@@ -22,16 +24,18 @@ class UpdateMissingMaroCampaignsJob extends Job implements ShouldQueue
 
     protected $espAccountId;
     protected $tracking;
+    protected $findOrphanCampaigns;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct( $espAccountId , $tracking )
+    public function __construct( $espAccountId , $tracking , $findOrphanCampaigns = false )
     {
         $this->espAccountId = $espAccountId;
         $this->tracking = $tracking;
+        $this->findOrphanCampaigns = $findOrphanCampaigns;
 
         JobTracking::startEspJob( self::JOB_NAME , self::ESP_NAME , $this->espAccountId , $this->tracking );
     }
@@ -48,7 +52,12 @@ class UpdateMissingMaroCampaignsJob extends Job implements ShouldQueue
         try {
             $reportService = APIFactory::createAPIReportService( self::ESP_NAME , $this->espAccountId );
 
-            $missingCampaigns = $reportService->getMissingCampaigns( $this->espAccountId );
+            $missingCampaigns = [];
+            if ( $this->findOrphanCampaigns ) {
+                $missingCampaigns = $this->getOrphanCampaigns( $this->espAccountId );
+            } else {
+                $missingCampaigns = $reportService->getMissingCampaigns( $this->espAccountId );
+            }
 
             $newCampaignData = [];
             $runCount = 0;
@@ -56,6 +65,8 @@ class UpdateMissingMaroCampaignsJob extends Job implements ShouldQueue
                 $newData = $reportService->retrieveSingleCampaignStats( $campaignId ); 
 
                 if ( count( $newData ) > 0 ) {
+                    $this->deleteOldCampaign( $newData[ 'id' ] , $newData[ 'name' ] );
+
                     $newCampaignData []= $this->cleanseData( $newData );
                     
                     $runCount++;
@@ -91,5 +102,32 @@ class UpdateMissingMaroCampaignsJob extends Job implements ShouldQueue
     public function failed()
     {
         JobTracking::changeJobState(JobEntry::FAILED,$this->tracking);
+    }
+
+    protected function getOrphanCampaigns () {
+        return $this->orphans
+                    ->select( DB::raw( 'esp_internal_id , count( * ) as count' ) )
+                    ->where( [
+                        [ 'missing_email_record' , 0 ] ,
+                        [ 'esp_account_id' , $this->espAccountId ]
+                    ] )
+                    ->groupBy( 'esp_internal_id' )
+                    ->get();
+    }
+
+    protected function deleteOldCampaign ( $internalId , $campaignName) {
+        $rawRecord = $this->reportService->getRawByExternalId( $id );
+
+        if ( is_null( $rawRecord ) ) {
+            return;
+        }
+
+        if ( $rawRecord->esp_account_id != $this->espAccountId ) {
+            $rawRecord->delete();
+
+            $standardReport = ServiceFactory::createStandardReportService();
+
+            $standardReport->deleteCampaign( $campaignName );
+        }
     }
 }
