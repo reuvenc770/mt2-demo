@@ -112,6 +112,7 @@ class UpdateMissingMaroCampaignsJob extends Job implements ShouldQueue
                         [ 'esp_account_id' , $this->espAccountId ]
                     ] )
                     ->groupBy( 'esp_internal_id' )
+                    ->orderBy( 'count' , 'desc' )
                     ->get();
     }
 
