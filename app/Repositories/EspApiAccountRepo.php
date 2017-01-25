@@ -152,4 +152,8 @@ class EspApiAccountRepo
     public function getAccountWithOAuth($id) {
      return $this->espAccount->with('OAuthTokens')->find($id);
     }
+
+    public function backFuzzySearch($search){
+        return $this->espAccount->where("account_name",'like',"{$search}%");
+    }
 }

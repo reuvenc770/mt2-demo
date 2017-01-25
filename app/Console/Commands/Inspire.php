@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 
+use App\Jobs\ProcessThirdPartyMaroRecords;
 use App\Models\AWeberReport;
 use App\Repositories\ReportRepo;
 use App\Services\API\AWeberApi;
@@ -38,6 +39,7 @@ class Inspire extends Command
      */
     public function handle()
     {
-        
+        $job = new ProcessThirdPartyMaroRecords("Dima","4",str_random(16),336,'6815ac2425f6a58b648955006b40e5c2c7e3503d');
+        $this->dispatch($job);
     }
 }
