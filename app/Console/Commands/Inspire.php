@@ -39,7 +39,6 @@ class Inspire extends Command
      */
     public function handle()
     {
-        $job = new ProcessThirdPartyMaroRecords("Dima","4",str_random(16),336,'6815ac2425f6a58b648955006b40e5c2c7e3503d');
-        $this->dispatch($job);
+        echo "The woods are lovely, dark and deep. But I have promises to keep, and miles to go before I sleep.";
     }
 }
