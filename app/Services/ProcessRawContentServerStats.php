@@ -53,7 +53,7 @@ class ProcessRawContentServerStats {
                     }
                     else {
                         // Deploy id could not be found from link
-                        Log::warn("Deploy id could not be found for " . $row->link_id);
+                        Log::warning("Deploy id could not be found for " . $row->link_id);
                     }
                 }
 
