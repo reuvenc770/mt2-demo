@@ -13,6 +13,7 @@ use App\Repositories\AWeberListRepo;
 use App\Repositories\ReportRepo;
 use App\Services\API\AWeberApi;
 use App\Services\Interfaces\IDataService;
+use App\Services\StandardReportService;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Event;
@@ -33,6 +34,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
 
     const DELIVERABLE_LOOKBACK = 2;
     protected $listService;
+    protected $standardService;
 
     /**
      * AWeberReportService constructor.
@@ -40,11 +42,12 @@ class AWeberReportService extends AbstractReportService implements IDataService
      * @param AWeberApi $api
      * @param EmailRecordService $emailRecord
      */
-    public function __construct(ReportRepo $reportRepo, AWeberApi $api, EmailRecordService $emailRecord)
+    public function __construct(ReportRepo $reportRepo, AWeberApi $api, EmailRecordService $emailRecord , StandardReportService $standardService)
     {
         parent::__construct($reportRepo, $api, $emailRecord);
         //tightly coupled but OK since it will never really be replaced or used outside of context
         $this->listService = new AWeberListService(new AWeberListRepo(new AWeberList()));
+        $this->standardService = $standardService;
     }
 
     /**
@@ -126,10 +129,6 @@ class AWeberReportService extends AbstractReportService implements IDataService
 
     public function mapToStandardReport($data)
     {
-        return self::convertToStandardReport($data);
-    }
-
-    static function convertToStandardReport($data){
         return array(
             'campaign_name' => isset($data['campaign_name']) ? $data['campaign_name'] : "",
             'external_deploy_id' => isset($data['deploy_id']) ? $data['deploy_id'] : 0,
@@ -360,4 +359,20 @@ class AWeberReportService extends AbstractReportService implements IDataService
     }
 
 
+    public function getByEspAccountDateSubject($espAccountIds, $dates, $subjects) {
+        return $this->reportRepo->getByEspAccountDateSubject($espAccountIds, $dates, $subjects);
+    }
+
+    public function convertRawToStandard ( $request , $deploy ) {
+        $campaignName = $deploy->deploy_name;
+        $internalId = $request->get( 'internal_id' );
+
+        $rawRecord = $this->reportRepo->getRowByExternalId( $internalId );
+        $rawRecord['campaign_name'] = $campaignName;
+        $rawRecord->save();
+        $rawRecord['deploy_id'] = $deploy->id;
+
+        $standardRecord = $this->mapToStandardReport( $rawRecord );
+        $this->standardService->insertStandardStats( $standardRecord );
+    }
 }

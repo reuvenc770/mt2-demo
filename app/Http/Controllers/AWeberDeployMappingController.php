@@ -17,19 +17,20 @@ class AWeberDeployMappingController extends Controller
         const ESP_NAME = "AWeber";
         protected $deployService;
         protected $standardReportService;
+        protected $reportService;
 
-    public function __construct(DeployService $deployService, StandardReportService $reportService)
+    public function __construct(DeployService $deployService, StandardReportService $standardService, AWeberReportService $reportService )
     {
         $this->deployService = $deployService;
-        $this->standardReportService = $reportService;
-        $this->rawRepo = ReportFactory::createEspRawRepo(self::ESP_NAME);
+        $this->standardReportService = $standardService;
+        $this->reportService = $reportService;
     }
 
 
     public function mapDeploys(){
         $deploys = $this->deployService->getOrphanDeploysForEsp(self::ESP_NAME);
 
-        $rawReportCollection = $this->rawRepo->getByEspAccountDateSubject(
+        $rawReportCollection = $this->reportService->getByEspAccountDateSubject(
             array_unique( $deploys->pluck('esp_account_id')->toArray() ),
             array_unique( $deploys->pluck('send_date')->toArray() ),
             array_unique( $deploys->pluck('subject_line')->toArray() )
@@ -54,16 +55,7 @@ class AWeberDeployMappingController extends Controller
     public function convertReport(Request $request)
     {
         $deploy = $this->deployService->getDeploy( $request->get('deploy_id') );
-        $campaignName = $deploy->deploy_name;
-        $internalId = $request->get( 'internal_id' );
-
-        $rawRecord = $this->rawRepo->getRowByExternalId( $internalId );
-        $rawRecord['campaign_name'] = $campaignName;
-        $rawRecord->save();
-        $rawRecord['deploy_id'] = $deploy->id;
-
-        $standardRecord = AWeberReportService::convertToStandardReport( $rawRecord );
-        $this->standardReportService->insertStandardStats( $standardRecord );
+        $this->reportService->convertRawToStandard( $request , $deploy );
 
         Flash::success( 'Deploy was successfully mapped.' );
         return response()->json(['success' => true]);

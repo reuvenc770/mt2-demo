@@ -111,15 +111,4 @@ class ReportFactory
 
         return $output;
     }
-
-    public static function createEspRawRepo($espName)
-    {
-        $reportName = "{$espName}Report";
-        $reportModelName = "App\\Models\\{$reportName}";
-        $reportModel = new $reportModelName();
-
-        return new ReportRepo($reportModel);
-
-    }
-
 }
