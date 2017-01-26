@@ -81,7 +81,7 @@ class Mt1DbApi
         return DB::connection('mt1_table_sync')
             ->table('client_record_log')
             ->where('ID', '<=', $this->finalId)
-            ->whereRaw("email_id % " . $this->divisor . ' = ' . $modulus)
+            ->whereRaw("email_user_id % " . $this->divisor . ' = ' . $modulus)
             ->delete();
     }
 
