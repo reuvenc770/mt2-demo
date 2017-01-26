@@ -64,11 +64,17 @@ class ReportRepo
             throw new \Exception('Report must implement IReportMapper.');
         }
 
-        return $this->report
+        $eloquentObj = $this->report
             ->whereIn( 'esp_account_id', $espAccountIds )
-            ->whereIn( $this->report->getDateFieldName() , $dates )
-            ->whereIn( $this->report->getSubjectFieldName() , $subjects )
-            ->get();
+            ->whereIn( \DB::raw( 'DATE( ' . $this->report->getDateFieldName() . ' )' ) , $dates );
+
+        foreach ( $subjects as $currentSubject ) {
+            if ( !is_null( $currentSubject ) ) {
+                $eloquentObj = $eloquentObj->orWhere( $this->report->getSubjectFieldName() , 'like' , '%' . $currentSubject . '%' );
+            }
+        }
+
+        return $eloquentObj->get();
     }
 
     public function getRawCampaignsFromName($campaignName, $espAccountId){

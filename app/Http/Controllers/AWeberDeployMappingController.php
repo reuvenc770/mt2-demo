@@ -30,9 +30,9 @@ class AWeberDeployMappingController extends Controller
         $deploys = $this->deployService->getOrphanDeploysForEsp(self::ESP_NAME);
 
         $rawReportCollection = $this->rawRepo->getByEspAccountDateSubject(
-            $deploys->pluck('esp_account_id')->toArray(),
-            $deploys->pluck('send_date')->toArray(),
-            $deploys->pluck('subject_line')->toArray()
+            array_unique( $deploys->pluck('esp_account_id')->toArray() ),
+            array_unique( $deploys->pluck('send_date')->toArray() ),
+            array_unique( $deploys->pluck('subject_line')->toArray() )
         );
 
         $rawReports = [];
