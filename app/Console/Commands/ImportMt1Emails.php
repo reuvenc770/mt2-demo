@@ -30,7 +30,7 @@ class ImportMt1Emails extends Command
         // set up new job, only if another is not running
         $mod = $this->argument('mod');
 
-        if (!$this->isRunning(self::JOB_NAME)) {
+        if (!$this->isRunning(self::JOB_NAME . '-' . $mod)) {
             $job = new ImportMt1EmailsJob($mod, str_random(16));
             $this->dispatch($job);
         }
