@@ -55,7 +55,7 @@ class UpdateMissingMaroCampaignsJob extends Job implements ShouldQueue
 
             $missingCampaigns = [];
             if ( $this->findOrphanCampaigns ) {
-                $missingCampaigns = $this->getOrphanCampaigns( $this->espAccountId );
+                $missingCampaigns = $this->getOrphanCampaigns( $orphans );
             } else {
                 $missingCampaigns = $reportService->getMissingCampaigns( $this->espAccountId );
             }
@@ -105,8 +105,8 @@ class UpdateMissingMaroCampaignsJob extends Job implements ShouldQueue
         JobTracking::changeJobState(JobEntry::FAILED,$this->tracking);
     }
 
-    protected function getOrphanCampaigns () {
-        return $this->orphans
+    protected function getOrphanCampaigns ( $orphans ) {
+        return $orphans
                     ->select( DB::raw( 'esp_internal_id , count( * ) as count' ) )
                     ->where( [
                         [ 'missing_email_record' , 0 ] ,
