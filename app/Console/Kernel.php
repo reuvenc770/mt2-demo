@@ -244,7 +244,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('listprofile:dataEtl')->cron('0 1 * * 1-6 *');
         $schedule->command('listprofile:dataEtl --all')->cron('0 1 * * 7 *');
         $schedule->command('listprofile:optimize')->weekly();
-        #$schedule->command('listprofile:aggregateActions')->dailyAt(self::EXPIRATION_RUNS);
+        $schedule->command('listprofile:aggregateActions')->dailyAt(self::EXPIRATION_RUNS);
+        $schedule->command('listprofile:contentServerRawStats')->hourly();
         $schedule->command('listprofile:getRecordAgentData')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('listprofile:baseTables')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('updateUserActions 1')->dailyAt(self::REPORT_TIME_2);
