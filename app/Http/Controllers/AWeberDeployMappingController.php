@@ -9,7 +9,6 @@ use App\Services\StandardReportService;
 use App\Services\AWeberReportService;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Laracasts\Flash\Flash;
-use App\Factories\ReportFactory;
 use Carbon\Carbon;
 
 class AWeberDeployMappingController extends Controller
