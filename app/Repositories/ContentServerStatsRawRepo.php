@@ -32,17 +32,22 @@ class ContentServerStatsRawRepo {
     public function pullAggregatedActions($start, $end) {
         return DB::select("SELECT
                 eid as email_id,
+                email_address,
+                lower_case_md5,
+                upper_case_md5,
+                e.email_domain_id,
                 link_id,
                 sub_aff_id as deploy_id,
                 DATE(action_datetime) as date,
                 IF(SUM(IF(action_id = 1, 1, 0)) > 0, 1, 0) as has_cs_open,
                 IF(SUM(IF(action_id = 2, 1, 0)) > 0, 1, 0) as has_cs_click
             FROM
-                content_server_stats_raws
+                content_server_stats_raws r
+                INNER JOIN emails e ON r.eid = e.id
             WHERE
-                id > :start
+                r.id > :start
                 AND
-                id <= :end
+                r.id <= :end
             GROUP BY
                 email_id, link_id, deploy_id, date", [
             ':start' => $start,

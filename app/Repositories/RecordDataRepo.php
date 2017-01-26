@@ -255,4 +255,8 @@ class RecordDataRepo implements IAwsRepo {
             . $pdo->quote($row->updated_at);
     }
 
+    public function getConnection() {
+        return $this->model->getConnectionName();
+    }
+
 }

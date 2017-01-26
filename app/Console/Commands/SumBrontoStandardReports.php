@@ -2,12 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\SumBrontoRawStats;
 use Illuminate\Console\Command;
-use App\Jobs\DataProcessingJob;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use App\Repositories\EtlPickupRepo;
 
-class CleanUpRawContentServerActions extends Command
+class SumBrontoStandardReports extends Command
 {
     use DispatchesJobs;
     /**
@@ -15,22 +14,22 @@ class CleanUpRawContentServerActions extends Command
      *
      * @var string
      */
-    protected $signature = 'listprofile:contentServerRawStats';
+    protected $signature = 'reports:sumBronto';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Process content server raw stats';
-    private $jobName = 'ProcessContentServerRawStats';
+    protected $description = 'Updates Standard reports with the counts from all the raw reports.  This job is dumb and kinda a stop-gap till 1st party data becomes something else';
 
     /**
      * Create a new command instance.
      *
      * @return void
      */
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
     }
 
@@ -39,9 +38,9 @@ class CleanUpRawContentServerActions extends Command
      *
      * @return mixed
      */
-    public function handle(EtlPickupRepo $pickupRepo) {
-        $lookback = $pickupRepo->getLastInsertedForName($this->jobName);
-        $job = new DataProcessingJob($this->jobName, str_random(16), $lookback);
+    public function handle()
+    {
+        $job = new SumBrontoRawStats(str_random(16));
         $this->dispatch($job);
     }
 }
