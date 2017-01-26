@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Services\AbstractReportService;
 use App\Services\AttributionRecordTruthService;
+use App\Services\SeedEmailService;
 use Log;
 use App\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
@@ -49,7 +50,7 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle(AttributionRecordTruthService $truthService, EmailFeedActionService $actionService) {
+    public function handle(AttributionRecordTruthService $truthService, EmailFeedActionService $actionService, SeedEmailService $seedService) {
 
         JobTracking::startEspJob( 'Orphan Adoption: ' . $this->firstId . '-' . $this->lastId , null , null , $this->tracking );
         $attempts = 0;
@@ -59,6 +60,11 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
         $deleteIds = [];
         $actionsRecords = [];
         foreach ($this->orphans as $orphan) {
+            if($seedService->checkForSeed($orphan->email_address)){
+                $deleteIds[] = $orphan->id;
+                $processed++;
+                continue;
+            }
             $orphan = OrphanEmail::find( $orphan->id );
             $currentEmailId = 0;
             $failedToProcess = false;
