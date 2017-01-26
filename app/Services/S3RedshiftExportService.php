@@ -3,8 +3,10 @@ namespace App\Services;
 use Aws\S3\S3Client;
 use App\Repositories\RepoInterfaces\IAwsRepo;
 use App\Repositories\RepoInterfaces\IRedshiftRepo;
-use Storage;
 use App\Repositories\EtlPickupRepo;
+use DB;
+use PDO;
+use File;
 
 class S3RedshiftExportService {
     
@@ -24,14 +26,13 @@ class S3RedshiftExportService {
         $this->s3Client = $s3Client;
         $this->redshiftRepo = $redshiftRepo;
         $this->pickupRepo = $pickupRepo;
-        $this->filePath = "/export/{$entity}.csv";
+        $this->filePath = "/app/export/{$entity}.csv";
         $this->entity = $entity;
 
         $this->strat = $strat;
     }
 
     public function extract() {
-        // this data should be cursor() -able
         $stopPoint = $this->pickupRepo->getLastInsertedForName($this->entity . '-s3');
 
         $resource = $this->repo->extractForS3Upload($stopPoint);
@@ -44,12 +45,18 @@ class S3RedshiftExportService {
     }
 
     private function write($resource, $stopPoint) {
-        Storage::disk('local')->delete($this->filePath);
+        File::delete(storage_path() . $this->filePath);
 
         $this->rowCount = 0;
         $nextId = $stopPoint;
 
-        foreach($resource->cursor() as $row) {
+        $pdo = DB::connection($this->repo->getConnection())->getPdo();
+
+        $pdo->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
+        $statement = $pdo->prepare($resource->toSql());
+        $statement->execute();
+
+        while($row = $statement->fetch(PDO::FETCH_OBJ)) {
             $tmpNextId = $this->strat->__invoke($row);
             $nextId = max($tmpNextId, $nextId);
 
@@ -71,7 +78,7 @@ class S3RedshiftExportService {
         $this->redshiftRepo->loadEntity($this->entity);
 
         // And then delete the file
-        Storage::disk('local')->delete($this->filePath);
+        File::delete(storage_path() . $this->filePath);
     }
 
     public function loadAll() {
@@ -84,7 +91,7 @@ class S3RedshiftExportService {
         $this->redshiftRepo->clearAndReloadEntity($this->entity);
 
         // And then delete the file
-        Storage::disk('local')->delete($this->filePath);
+        File::delete(storage_path() . $this->filePath);
     }
 
 
@@ -101,6 +108,6 @@ class S3RedshiftExportService {
 
     private function writeBatch($fileName) {
         $string = implode(PHP_EOL, $this->rows);
-        Storage::disk('local')->append($fileName, $string);
+        File::append(storage_path() . $this->filePath, $string);
     }
 }

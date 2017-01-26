@@ -145,14 +145,19 @@ class ListProfileFlatTableRepo implements IAwsRepo {
             $inserts = implode(',', $data);
 
             DB::statement("INSERT INTO $schema.list_profile_flat_table
-            (email_id, deploy_id, date, has_cs_open, has_open, has_cs_click, has_click)
+            (email_id, deploy_id, date, email_address, lower_case_md5, upper_case_md5, 
+                email_domain_id, has_cs_open, has_open, has_cs_click, has_click)
+
             VALUES $inserts
 
             ON DUPLICATE KEY UPDATE
             email_id = email_id,
             deploy_id = deploy_id,
             date = date,
-
+            email_address = VALUES(email_address),
+            lower_case_md5 = VALUES(lower_case_md5),
+            upper_case_md5 = VALUES(upper_case_md5),
+            email_domain_id = email_domain_id,
             has_cs_open = IF(VALUES(has_cs_open) > 0, 1, 0),
             has_open = IF(VALUES(has_open) > 0, 1, 0),
             has_cs_click = IF(VALUES(has_cs_click) > 0, 1, 0),
@@ -175,17 +180,33 @@ class ListProfileFlatTableRepo implements IAwsRepo {
         $pdo = DB::connection('redshift')->getPdo();
         return $pdo->quote($row->email_id) . ','
             . $pdo->quote($row->deploy_id) . ','
+            . $pdo->quote($row->esp_account_id) . ','
             . $pdo->quote($row->date) . ','
             . $pdo->quote($row->email_address) . ','
+            . $pdo->quote($row->lower_case_md5) . ','
+            . $pdo->quote($row->upper_case_md5) . ','
             . $pdo->quote($row->email_domain_id) . ','
             . $pdo->quote($row->email_domain_group_id) . ','
             . $pdo->quote($row->offer_id) . ','
             . $pdo->quote($row->cake_vertical_id) . ','
+            . $pdo->quote($row->has_esp_open) . ','
+            . $pdo->quote($row->has_cs_open) . ','
+            . $pdo->quote($row->has_open) . ','
+            . $pdo->quote($row->has_esp_click) . ','
+            . $pdo->quote($row->has_cs_click) . ','
+            . $pdo->quote($row->has_tracking_click) . ','
+            . $pdo->quote($row->has_click) . ','
+            . $pdo->quote($row->has_tracking_conversion) . ','
+            . $pdo->quote($row->has_conversion) . ','
             . $pdo->quote($row->deliveries) . ','
             . $pdo->quote($row->opens) . ','
             . $pdo->quote($row->clicks) . ','
             . $pdo->quote($row->conversions) . ','
             . $pdo->quote($row->created_at) . ','
             . $pdo->quote($row->updated_at);
+    }
+
+    public function getConnection() {
+        return $this->flatTable->getConnectionName();
     }
 }

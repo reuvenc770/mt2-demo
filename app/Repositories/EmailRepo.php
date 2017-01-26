@@ -445,4 +445,8 @@ class EmailRepo implements Mt2Export, IAwsRepo {
             . $pdo->quote($row->lower_case_md5) . ','
             . $pdo->quote($row->upper_case_md5);
     }
+
+    public function getConnection() {
+        return $this->emailModel->getConnectionName();
+    }
 }
