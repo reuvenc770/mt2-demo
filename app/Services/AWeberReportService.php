@@ -113,6 +113,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
 
         );
 
+        //Adding campaign name so the record gets saved to standard report properly
         $existingRawRecord = $this->reportRepo->getRowByExternalId( $data['internal_id'] );
 
         if ( !is_null( $existingRawRecord ) ){
