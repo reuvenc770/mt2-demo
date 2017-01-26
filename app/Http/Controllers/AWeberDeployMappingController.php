@@ -54,10 +54,11 @@ class AWeberDeployMappingController extends Controller
     public function convertReport(Request $request)
     {
         $deploy = $this->deployService->getDeploy( $request->get('deploy_id') );
+        $campaignName = $deploy->deploy_name;
         $internalId = $request->get( 'internal_id' );
 
         $rawRecord = $this->rawRepo->getRowByExternalId( $internalId );
-        $rawRecord['campaign_name'] = $request->get('campaign_name');
+        $rawRecord['campaign_name'] = $campaignName;
         $rawRecord->save();
         $rawRecord['deploy_id'] = $deploy->id;
 
@@ -65,6 +66,6 @@ class AWeberDeployMappingController extends Controller
         $this->standardReportService->insertStandardStats( $standardRecord );
 
         Flash::success( 'Deploy was successfully mapped.' );
-        return response()->json(['success' => $return]);
+        return response()->json(['success' => true]);
     }
 }

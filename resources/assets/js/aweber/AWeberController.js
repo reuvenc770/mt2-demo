@@ -15,8 +15,8 @@ mt2App.controller( 'AWeberController' , [ '$rootScope' , '$log' , '$window' , '$
      self.loadReports = function () {
          AWeberService.getReports(self.getOrphanReportsSuccessCallback);
      };
-    self.convertReport = function ( internalId , deployId , campaignName ) {
-        AWeberService.convertReport(internalId, deployId, campaignName, self.getConvertReportSuccessCallback,self.getConvertReportFailCallback);
+    self.convertReport = function ( internalId , deployId ) {
+        AWeberService.convertReport(internalId, deployId, self.getConvertReportSuccessCallback,self.getConvertReportFailCallback);
     };
 
     self.getLists = function (id){

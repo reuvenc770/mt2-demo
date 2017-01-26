@@ -35,7 +35,7 @@
                             @endforeach
                         </select>
                              <div class="input-group-btn">
-                            <span class=" btn btn-primary" ng-click="weber.convertReport(weber.currentMappings[{{$deploy->id}}] , {{$deploy->id}} , '{{$deploy->id}}_{{ $deploy->espAccount->account_name }}' )" id="basic-addon2">Assign Deploy</span>
+                            <span class=" btn btn-primary" ng-click="weber.convertReport(weber.currentMappings[{{$deploy->id}}] , {{$deploy->id}} )" id="basic-addon2">Assign Deploy</span>
                                  </div>
                             </div>
                     </div>

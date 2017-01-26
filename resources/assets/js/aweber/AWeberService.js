@@ -10,11 +10,11 @@ mt2App.service( 'AWeberService' , function ( $http , $log ) {
             .then( successCallback );
     };
 
-    self.convertReport = function ( internalId, deployId , campaignName , successCallback , failureCallback ) {
+    self.convertReport = function ( internalId, deployId , successCallback , failureCallback ) {
         return $http( {
             "method" : "POST" ,
             "url" : self.convertReportUrl ,
-            "data" : {internal_id: internalId, deploy_id: deployId , campaign_name: campaignName }
+            "data" : {internal_id: internalId, deploy_id: deployId }
         } ).then( successCallback , failureCallback );
     };
 
