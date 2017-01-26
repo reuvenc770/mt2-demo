@@ -147,4 +147,8 @@ class EmailFeedAssignmentRepo implements IAwsRepo {
              . $pdo->quote($row->updated_at) . ','
              . $pdo->quote($row->capture_date);
     }
+
+    public function getConnection() {
+        return $this->model->getConnectionName();
+    }
 }

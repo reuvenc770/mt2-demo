@@ -126,4 +126,8 @@ class EmailDomainRepo implements IAwsRepo {
             . $pdo->quote($row->is_suppressed);
     }
 
+    public function getConnection() {
+        return $this->emailDomainModel->getConnectionName();
+    }
+
 }
