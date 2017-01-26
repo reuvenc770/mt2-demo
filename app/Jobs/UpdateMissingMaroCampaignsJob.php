@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Facades\JobTracking;
 use App\Models\JobEntry;
 use App\Models\MaroReport;
+use App\Models\OrphanEmail;
 use App\Exceptions\JobException;
 use App\Factories\APIFactory;
 use App\Factories\ServiceFactory;
@@ -45,7 +46,7 @@ class UpdateMissingMaroCampaignsJob extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle( OrphanEmail $orphans )
     {
         JobTracking::changeJobState( JobEntry::RUNNING , $this->tracking);
 

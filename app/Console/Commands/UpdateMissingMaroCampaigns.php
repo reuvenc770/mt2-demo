@@ -50,7 +50,7 @@ class UpdateMissingMaroCampaigns extends Command
         $accounts = EspApiAccount::getAllAccountsByESPName( self::ESP_NAME );
 
         foreach ( $accounts as $current ) {
-            $job = new UpdateMissingMaroCampaignsJob( $current->id , str_random( 16 ) , ( !is_null( $this->argument( 'useOrphans' ) ) ? true : false ) );
+            $job = new UpdateMissingMaroCampaignsJob( $current->id , str_random( 16 ) , !is_null( $this->argument( 'useOrphans' ) ) );
             $this->dispatch( $job );
         }
     }
