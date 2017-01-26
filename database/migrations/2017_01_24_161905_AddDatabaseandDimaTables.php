@@ -25,6 +25,7 @@ class AddDatabaseandDimaTables extends Migration
             $table->integer("esp_account_id");
             $table->integer("account_number");
             $table->timestamps();
+            $table->unique(['contact_id','action_type','recordable_at']);
 
         });
     }
