@@ -30,12 +30,4 @@ class StandardReportRepo {
             ->pluck( 'esp_internal_id' )
             ->pop();
     }
-
-    public function getOrphanReports(){
-        return $this->reportModel
-            ->where("external_deploy_id",0)
-            ->where("campaign_name","")->get();
-
-
-    }
 }

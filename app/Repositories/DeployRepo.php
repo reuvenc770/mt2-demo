@@ -25,7 +25,7 @@ class DeployRepo implements Mt2Export
     }
 
     public function getModel($searchData = null)
-    {        
+    {
         $listProfileSchema = config('database.connections.list_profile.database');
         $query = $this->deploy
             ->leftJoin('esp_accounts', 'deploys.esp_account_id', '=', 'esp_accounts.id')
@@ -152,7 +152,7 @@ class DeployRepo implements Mt2Export
 
     private function mapQuery($searchData, $query){
         $searchData = json_decode($searchData, true);
-        
+
         if (isset($searchData['esp'])) {
             $espAccounts = collect(EspApiAccount::getAllAccountsByESPName($searchData['esp']));
             $espAccountIds = $espAccounts->pluck('id');
@@ -397,10 +397,11 @@ class DeployRepo implements Mt2Export
         $reportSchema = config('database.connections.reporting_data.database');
         return $this->deploy
             ->select("deploys.*", 'subjects.subject_line')
+            ->with('espAccount')
             ->leftJoin("{$reportSchema}.standard_reports", 'deploys.id', '=', 'standard_reports.external_deploy_id')
             ->leftJoin("subjects", 'deploys.subject_id', '=', 'subjects.id')
             ->whereIn('deploys.esp_account_id',$ids)
             ->where('standard_reports.external_deploy_id',null)->get();
     }
-    
+
 }

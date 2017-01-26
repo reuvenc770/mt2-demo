@@ -88,12 +88,13 @@ class AWeberReportService extends AbstractReportService implements IDataService
             $this->insertStats($espAccountId, $convertedReport);
             $convertedDataArray[] = $convertedReport;
         }
-        //Event::fire(new RawReportDataWasInserted($this, $convertedDataArray));
+
+        Event::fire(new RawReportDataWasInserted($this, $convertedDataArray));
     }
 
     public function mapToRawReport($data)
     {
-        return array(
+        $newRawRecord = array(
             "internal_id" => $data['internal_id'],
             "esp_account_id" => $this->api->getEspAccountId(),
             "info_url" => $data['info_url'],
@@ -108,13 +109,30 @@ class AWeberReportService extends AbstractReportService implements IDataService
             "unique_opens" => $data['unique_opens'],
 
         );
+
+        $existingRawRecord = $this->reportRepo->getRowByExternalId( $data['internal_id'] );
+
+        if ( !is_null( $existingRawRecord ) ){
+            $newRawRecord["campaign_name"] = $existingRawRecord["campaign_name"];
+
+            if ( $existingRawRecord["campaign_name"] != "" ){
+                $campaignNameParts = explode("_", $existingRawRecord["campaign_name"] );
+                $newRawRecord["deploy_id"] = $campaignNameParts[0];
+            }
+        }
+
+        return $newRawRecord;
     }
 
     public function mapToStandardReport($data)
     {
+        return self::convertToStandardReport($data);
+    }
+
+    static function convertToStandardReport($data){
         return array(
-            'campaign_name' => "",
-            'external_deploy_id' => 0,
+            'campaign_name' => isset($data['campaign_name']) ? $data['campaign_name'] : "",
+            'external_deploy_id' => isset($data['deploy_id']) ? $data['deploy_id'] : 0,
             'm_deploy_id' => 0,
             'esp_account_id' => $data['esp_account_id'],
             'esp_internal_id' => $data['internal_id'],

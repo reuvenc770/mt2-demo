@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\DeployService;
 use App\Services\StandardReportService;
+use App\Services\AWeberReportService;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Laracasts\Flash\Flash;
 use App\Factories\ReportFactory;
@@ -50,9 +51,19 @@ class AWeberDeployMappingController extends Controller
        return response()->json($this->standardReportService->getOrphanReportsByEsp());
     }
 
-    public function convertReport(Request $request){
-        $deploy = $this->deployService->getDeploy($request->get('deploy_id'));
-        $return = $this->standardReportService->convertStandardReport($request->get('report_id'),$deploy);
+    public function convertReport(Request $request)
+    {
+        $deploy = $this->deployService->getDeploy( $request->get('deploy_id') );
+        $internalId = $request->get( 'internal_id' );
+
+        $rawRecord = $this->rawRepo->getRowByExternalId( $internalId );
+        $rawRecord['campaign_name'] = $request->get('campaign_name');
+        $rawRecord->save();
+        $rawRecord['deploy_id'] = $deploy->id;
+
+        $standardRecord = AWeberReportService::convertToStandardReport( $rawRecord );
+        $this->standardReportService->insertStandardStats( $standardRecord );
+
         Flash::success( 'Deploy was successfully mapped.' );
         return response()->json(['success' => $return]);
     }
