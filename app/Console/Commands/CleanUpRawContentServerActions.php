@@ -15,7 +15,7 @@ class CleanUpRawContentServerActions extends Command
      *
      * @var string
      */
-    protected $signature = 'process:contentServerRawStats';
+    protected $signature = 'listprofile:contentServerRawStats';
 
     /**
      * The console command description.
