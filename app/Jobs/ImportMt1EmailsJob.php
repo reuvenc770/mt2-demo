@@ -13,7 +13,7 @@ use App\Services\ImportMt1EmailsService;
 
 class ImportMt1EmailsJob extends Job implements ShouldQueue {
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
-    const JOB_NAME = "ImportMt1Emails";
+    const JOB_NAME_BASE = "ImportMt1Emails";
 
     private $tracking;
     private $modulus;
@@ -21,13 +21,14 @@ class ImportMt1EmailsJob extends Job implements ShouldQueue {
     public function __construct($modulus, $tracking) {
         $this->modulus = $modulus;
         $this->tracking = $tracking;
-        JobTracking::startAggregationJob(self::JOB_NAME, $this->tracking);
+        $this->jobName = self::JOB_NAME_BASE . '-' . $modulus;
+        JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
     public function handle(ImportMt1EmailsService $service) {
-        if ($this->jobCanRun(self::JOB_NAME)) {
+        if ($this->jobCanRun($this->jobName)) {
             try {
-                $this->createLock(self::JOB_NAME);
+                $this->createLock($this->jobName);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
 
                 $service->run($this->modulus);
@@ -35,18 +36,18 @@ class ImportMt1EmailsJob extends Job implements ShouldQueue {
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
             }
             catch (\Exception $e) {
-                echo self::JOB_NAME . " failed with {$e->getMessage()}" . PHP_EOL;
+                echo $this->jobName . " failed with {$e->getMessage()}" . PHP_EOL;
                 $this->failed();
             }
             finally {
-                $result = $this->unlock(self::JOB_NAME);
+                $result = $this->unlock($this->jobName);
                 echo "Successfully removed lock: $result" . PHP_EOL;  
             }
 
         }
         else {
             JobTracking::changeJobState(JobEntry::SKIPPED, $this->tracking);
-            echo "Still running " . self::JOB_NAME . " - job level" . PHP_EOL;
+            echo "Still running " . $this->jobName . " - job level" . PHP_EOL;
         }
 
     }
