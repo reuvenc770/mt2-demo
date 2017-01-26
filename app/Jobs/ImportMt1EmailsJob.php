@@ -17,6 +17,7 @@ class ImportMt1EmailsJob extends Job implements ShouldQueue {
 
     private $tracking;
     private $modulus;
+    private $jobName;
 
     public function __construct($modulus, $tracking) {
         $this->modulus = $modulus;
