@@ -146,6 +146,8 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
                     $actionService->bulkUpdate($actionsRecords);
                 }
 
+            }
+            if(sizeof($deleteIds) > 0) {
                 DB::table('orphan_emails')
                     ->whereIn('id', $deleteIds)
                     ->delete();

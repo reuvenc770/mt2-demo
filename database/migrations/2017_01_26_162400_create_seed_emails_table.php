@@ -15,6 +15,7 @@ class CreateSeedEmailsTable extends Migration
         Schema::create('seed_emails', function (Blueprint $table) {
             $table->increments('id');
             $table->string("email_address");
+            $table->unique('email_address');
         });
     }
 
