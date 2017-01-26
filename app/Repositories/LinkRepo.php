@@ -26,4 +26,22 @@ class LinkRepo implements Mt2Export {
                     ->selectRaw('id as link_id, url as refurl, created_at as date_added')
                     ->whereRaw("id > $startId");
     }
+
+    public function getDeployIdFromLink($id) {
+        $urlInfo = $this->model->find($id);
+        if (!$urlInfo) {
+            return null;
+        }
+
+        $url = $urlInfo->url;
+        $matches = [];
+        $result = preg_match('/s1=(\d+)\&/', $url, $matches);
+
+        if (1 === $result) {
+            return $matches[1];
+        }
+        else {
+            return null;
+        } 
+    }
 }

@@ -94,8 +94,8 @@ class BrontoApi extends EspBaseAPI
         $firstSet = array();
         $secondSet = array();
         try {
-            $firstSet = $this->brontoObject->readRecentOutboundActivities(new readRecentOutboundActivities($filter))->getReturn();
 
+            $firstSet = $this->brontoObject->readRecentOutboundActivities(new readRecentOutboundActivities($filter))->getReturn();
             while (1 != 2) {
                 $filter['readDirection'] = "NEXT";
                 $secondSet = $this->brontoObject->readRecentOutboundActivities(new readRecentOutboundActivities($filter))->getReturn();

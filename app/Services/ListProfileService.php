@@ -296,13 +296,13 @@ class ListProfileService
             $queries[] = ['type' => 'deliverable', 'start' => $listProfile->deliverable_start, 'end' => $listProfile->deliverable_end, 'count' => 1, 'party' => $party];
         }
         if ($listProfile->openers_start !== $listProfile->openers_end && $listProfile->openers_end !== 0) {
-            $queries[] = ['type' => 'opens', 'start' => $listProfile->openers_start, 'end' => $listProfile->openers_end, 'count' => $listProfile->open_count, 'party' => $party];
+            $queries[] = ['type' => 'has_open', 'start' => $listProfile->openers_start, 'end' => $listProfile->openers_end, 'count' => $listProfile->open_count, 'party' => $party];
         }
         if ($listProfile->clickers_start !== $listProfile->clickers_end && $listProfile->clickers_end !== 0) {
-            $queries[] = ['type' => 'clicks', 'start' => $listProfile->clickers_start, 'end' => $listProfile->clickers_end, 'count' => $listProfile->click_count, 'party' => $party];
+            $queries[] = ['type' => 'has_click', 'start' => $listProfile->clickers_start, 'end' => $listProfile->clickers_end, 'count' => $listProfile->click_count, 'party' => $party];
         }
         if ($listProfile->converters_start !== $listProfile->converters_end && $listProfile->converters_end !== 0) {
-            $queries[] = ['type' => 'conversions', 'start' => $listProfile->converters_start, 'end' => $listProfile->converters_end, 'count' => $listProfile->conversion_count, 'party' => $party];
+            $queries[] = ['type' => 'has_conversion', 'start' => $listProfile->converters_start, 'end' => $listProfile->converters_end, 'count' => $listProfile->conversion_count, 'party' => $party];
         }
 
         return $queries;

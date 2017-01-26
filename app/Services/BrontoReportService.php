@@ -8,6 +8,7 @@
 
 namespace App\Services;
 
+use App\Facades\BrontoMapping;
 use App\Services\AbstractReportService;
 use App\Repositories\ReportRepo;
 use App\Services\API\BrontoApi;
@@ -36,8 +37,7 @@ class BrontoReportService extends AbstractReportService implements IDataService
     {
         $filter = array('start' =>
             array('operator' => 'After', 'value' => $data),
-            'status' => 'sent',
-            'deliveryType' => "normal"
+            'status' => 'sent'
         );
 
         return $this->api->getCampaigns($filter);
@@ -124,7 +124,6 @@ class BrontoReportService extends AbstractReportService implements IDataService
 
         try {
             foreach ($processState['currentPageData'] as $key => $record) {
-
                 $deployId = $this->getDeployIdFromCampaignName($record->getMessageName());
                 $this->emailRecord->queueDeliverable(
                     $type,
@@ -327,15 +326,18 @@ class BrontoReportService extends AbstractReportService implements IDataService
         return $jobId;
     }
 
+    //
     public function mapToStandardReport($data)
     {
         $deployId = $this->parseSubID($data['message_name']);
+        $espInternalId = $this->parseInternalId($data['internal_id']);
+
         return array(
             'campaign_name' => $data['message_name'],
             'external_deploy_id' => $deployId,
             'm_deploy_id' => $deployId,
             'esp_account_id' => $data['esp_account_id'],
-            'esp_internal_id' => $this->parseInternalId($data['internal_id']),
+            'esp_internal_id' => $espInternalId,
             'datetime' => $data['start'],
             //'subject' => $data['subject'],
             'from' => $data['from_name'],
@@ -355,23 +357,34 @@ class BrontoReportService extends AbstractReportService implements IDataService
     public function parseInternalId($id)
     {
         $pos = 0;
-        if(strrpos($id, '0001')){
-           $pos = strrpos($id, '0001');
-        } elseif(strrpos($id, '0002')){
+        if (strrpos($id, '0001')) {
+            $pos = strrpos($id, '0001');
+            $hexId = substr($id, $pos + 3);
+            $id = base_convert($hexId, 16, 10);
+        } elseif (strrpos($id, '0002')) {
             $pos = strrpos($id, '0002');
+            $hexId = substr($id, $pos + 3);
+            $id = base_convert($hexId, 16, 10);
         } else {
+            $id = BrontoMapping::returnOrGenerateID($id, $this->api->getId());
+        }
+        if (empty($id)) {
             throw new JobException("ID cannot be parsed");
+        } else {
+            return $id;
         }
 
-        $hexId = substr($id, $pos + 3);
-        $id = base_convert($hexId, 16, 10);
-        return $id;
     }
 
     public function makeDumbInternalId($id){
-        $converted = base_convert($id,10,16);
-        $padded = str_pad($converted,28,'0',STR_PAD_LEFT);
-        return self::DUMB_ID.$padded;
+        $realId = BrontoMapping::returnOriginalId($id,$this->api->getEspAccountId());
+        if(isset($realId)){
+            return $realId;
+        } else {
+            $converted = base_convert($id, 10, 16);
+            $padded = str_pad($converted, 28, '0', STR_PAD_LEFT);
+            return self::DUMB_ID . $padded;
+        }
     }
 
     public function pageHasCampaignData($processState){
@@ -381,8 +394,6 @@ class BrontoReportService extends AbstractReportService implements IDataService
         $datetime = $processState['campaign']->datetime;
         $pipe = $processState['pipe'];
 
-
-        $realID = 'rerun' === $pipe ? $formattedInternalId : $this->makeDumbInternalId($formattedInternalId);
         if ($this->pageNumber != 1) {
             return false;
         }
@@ -391,7 +402,7 @@ class BrontoReportService extends AbstractReportService implements IDataService
             "start" => Carbon::parse($datetime)->toAtomString(),
             "size" => "5000",
             "types" => $type,
-            "deliveryId" => $realID,
+            "deliveryId" => $formattedInternalId,
             "readDirection" => $this->getPageNumber(),
         );
 
@@ -406,8 +417,6 @@ class BrontoReportService extends AbstractReportService implements IDataService
             $data = $this->api->getDeliverablesByType($filter);
         }
         $this->currentPageData = $data;
-
-
         return true;
     }
 
@@ -446,4 +455,10 @@ class BrontoReportService extends AbstractReportService implements IDataService
         ];
         $this->api->addContact($contactInfo);
     }
+    
+    
+    public function getRawReportsForSplit($campaignName, $epsAccountId){
+        return $this->reportRepo->getRawCampaignsFromName($campaignName, $epsAccountId);
+    }
+
 }

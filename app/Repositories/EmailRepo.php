@@ -232,7 +232,7 @@ class EmailRepo implements Mt2Export, IAwsRepo {
 
         FROM
             (SELECT
-                email_id, 
+                e.id as email_id, 
                 email_address, 
                 feed_id, 
                 MIN(capture_date) as capture_date, 
@@ -241,11 +241,11 @@ class EmailRepo implements Mt2Export, IAwsRepo {
                 MIN(ip) as ip # false, but we need to pick a value
             FROM
                 emails e2
-                LEFT JOIN email_feed_instances e1 ON e1.email_id = e2.id
+                LEFT JOIN email_feed_instances e1 ON e2.id = e1.email_id
             WHERE
                 email_address = :address
             GROUP BY
-                email_id, email_address, feed_id, source_url) e
+                e.id, email_address, feed_id, source_url) e
             INNER JOIN feeds f ON e.feed_id = f.id
             LEFT JOIN $attr.email_feed_assignments efa ON e.email_id = efa.email_id
             LEFT JOIN record_data rd ON e.email_id = rd.email_id
@@ -326,7 +326,7 @@ class EmailRepo implements Mt2Export, IAwsRepo {
 
         FROM
             (SELECT
-                email_id, 
+                e.id as email_id, 
                 email_address, 
                 feed_id, 
                 MIN(capture_date) as capture_date, 
@@ -335,11 +335,11 @@ class EmailRepo implements Mt2Export, IAwsRepo {
                 MIN(ip) as ip # false, but we need to pick a value
             FROM
                 emails e2
-                LEFT JOIN email_feed_instances e1 ON e1.email_id = e2.id
+                LEFT JOIN email_feed_instances e1 ON e2.id = e1.email_id
             WHERE
                 e2.id = :id
             GROUP BY
-                email_id, email_address, feed_id, source_url) e
+                e.id, email_address, feed_id, source_url) e
             INNER JOIN feeds f ON e.feed_id = f.id
             LEFT JOIN $attr.email_feed_assignments efa ON e.email_id = efa.email_id
             LEFT JOIN record_data rd ON e.email_id = rd.email_id
@@ -444,5 +444,9 @@ class EmailRepo implements Mt2Export, IAwsRepo {
             . $pdo->quote($row->domain_id) . ','
             . $pdo->quote($row->lower_case_md5) . ','
             . $pdo->quote($row->upper_case_md5);
+    }
+
+    public function getConnection() {
+        return $this->emailModel->getConnectionName();
     }
 }

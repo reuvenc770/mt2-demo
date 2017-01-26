@@ -71,4 +71,8 @@ class ReportRepo
             ->get();
     }
 
+    public function getRawCampaignsFromName($campaignName, $espAccountId){
+        return $this->report->where(["message_name" => $campaignName, "esp_account_id" => $espAccountId])->get();
+    }
+
 }
