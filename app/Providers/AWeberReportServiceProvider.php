@@ -26,7 +26,7 @@ class AWeberStandardReportProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->when('App\Http\Controllers\AWeberReportService')
+        $this->app->when('App\Http\Controllers\AWeberDeployMappingController')
             ->needs('App\Services\AWeberReportService')
             ->give(function () {
                 $espAccount = $this->espRepo->getAccountsByESPName( self::ESP_NAME )->first();
