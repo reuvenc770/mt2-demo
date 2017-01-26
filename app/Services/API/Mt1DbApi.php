@@ -10,6 +10,7 @@ use DB;
 class Mt1DbApi
 {
     private $finalId;
+    private $divisor = 5;
 
     public function __construct() {}
 
@@ -18,7 +19,7 @@ class Mt1DbApi
      *  Pulls data from remote source ordered by lastUpdated
      */
 
-    public function getMt1EmailLogs() {
+    public function getMt1EmailLogs($modulus) {
         
         $count = DB::connection('mt1_data')->select("SELECT COUNT(*) AS total FROM client_record_log");
         $count = (int)$count[0]->total;
@@ -49,7 +50,9 @@ class Mt1DbApi
             ip,
             lastUpdated
             FROM 
-                client_record_log 
+                client_record_log
+            WHERE
+                email_user_id % {$this->divisor} = {$modulus}
             ORDER BY 
                 ID 
             LIMIT 
@@ -73,11 +76,12 @@ class Mt1DbApi
      *  cleanTable(): when signalled, delete all from the table prior to the set id
      */
 
-    public function cleanTable() {
+    public function cleanTable($modulus) {
         
         return DB::connection('mt1_table_sync')
             ->table('client_record_log')
             ->where('ID', '<=', $this->finalId)
+            ->whereRaw("email_id % " . $this->divisor . ' = ' . $modulus)
             ->delete();
     }
 

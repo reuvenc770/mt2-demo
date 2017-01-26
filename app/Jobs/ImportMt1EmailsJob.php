@@ -16,9 +16,10 @@ class ImportMt1EmailsJob extends Job implements ShouldQueue {
     const JOB_NAME = "ImportMt1Emails";
 
     private $tracking;
+    private $modulus;
 
-
-    public function __construct($tracking) {
+    public function __construct($modulus, $tracking) {
+        $this->modulus = $modulus;
         $this->tracking = $tracking;
         JobTracking::startAggregationJob(self::JOB_NAME, $this->tracking);
     }
@@ -29,7 +30,7 @@ class ImportMt1EmailsJob extends Job implements ShouldQueue {
                 $this->createLock(self::JOB_NAME);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
 
-                $service->run();
+                $service->run($this->modulus);
                 
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
             }
