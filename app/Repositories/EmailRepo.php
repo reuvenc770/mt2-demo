@@ -326,7 +326,7 @@ class EmailRepo implements Mt2Export, IAwsRepo {
 
         FROM
             (SELECT
-                e.id as email_id, 
+                e2.id as email_id, 
                 email_address, 
                 feed_id, 
                 MIN(capture_date) as capture_date, 
@@ -339,7 +339,7 @@ class EmailRepo implements Mt2Export, IAwsRepo {
             WHERE
                 e2.id = :id
             GROUP BY
-                e.id, email_address, feed_id, source_url) e
+                e2.id, email_address, feed_id, source_url) e
             INNER JOIN feeds f ON e.feed_id = f.id
             LEFT JOIN $attr.email_feed_assignments efa ON e.email_id = efa.email_id
             LEFT JOIN record_data rd ON e.email_id = rd.email_id
