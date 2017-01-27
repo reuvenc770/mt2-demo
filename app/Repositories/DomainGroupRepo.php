@@ -74,4 +74,8 @@ class DomainGroupRepo implements IAwsRepo
             . $pdo->quote($row->status) . ','
             . $pdo->quote($row->country);
     }
+
+    public function getConnection() {
+        return $this->domainGroup->getConnectionName();
+    }
 }

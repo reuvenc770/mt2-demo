@@ -53,7 +53,7 @@ class ProcessRawContentServerStats {
                     }
                     else {
                         // Deploy id could not be found from link
-                        Log::warn("Deploy id could not be found for " . $row->link_id);
+                        Log::warning("Deploy id could not be found for " . $row->link_id);
                     }
                 }
 
@@ -85,6 +85,10 @@ class ProcessRawContentServerStats {
             . $row->email_id . ','
             . $deployId . ','
             . $pdo->quote($row->date) . ','
+            . $pdo->quote($row->email_address) . ','
+            . $pdo->quote($row->lower_case_md5) . ','
+            . $pdo->quote($row->upper_case_md5) . ','
+            . $pdo->quote($row->email_domain_id) . ','
             . $row->has_cs_open . ','
             . $row->has_cs_open . ',' # has_open
             . $row->has_cs_click . ','

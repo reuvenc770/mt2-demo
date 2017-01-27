@@ -117,7 +117,7 @@ return [
                 'savePaginatedRecords'
             ] ,
             "delivered" => [
-                'getDeliverableCampaigns',
+                'getSplitDeliverableCampaigns',
                 'savePaginatedCampaignRecords'
             ],
             "rerun" => [

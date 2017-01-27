@@ -224,4 +224,8 @@ class FeedRepo implements Mt2Export, IAwsRepo {
             . $pdo->quote($row->created_at) . ','
             . $pdo->quote($row->updated_at);
     }
+
+    public function getConnection() {
+        return $this->feed->getConnectionName();
+    }
 }

@@ -28,7 +28,7 @@ class LinkRepo implements Mt2Export {
     }
 
     public function getDeployIdFromLink($id) {
-        $urlInfo = $this->find($id);
+        $urlInfo = $this->model->find($id);
         if (!$urlInfo) {
             return null;
         }

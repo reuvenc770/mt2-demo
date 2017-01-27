@@ -76,12 +76,12 @@ class ImportMt1EmailsService
         $this->formattedDate = $this->processingDate->format('Y-m-d');
     }
 
-    public function run() {
+    public function run($modulus) {
         $recordsToFlag = array();
 
         $now = time();
         echo "Beginning data pull" . PHP_EOL;
-        $records = $this->api->getMt1EmailLogs();
+        $records = $this->api->getMt1EmailLogs($modulus);
         $finish = time();
         echo "Completed data pull. Beginning insert" . PHP_EOL;
         $total = $finish - $now;
@@ -276,7 +276,7 @@ class ImportMt1EmailsService
 
         // Delete records
         if (sizeof($records) > 0) {
-            $deletions = $this->api->cleanTable();
+            $deletions = $this->api->cleanTable($modulus);
             echo "Read in " . sizeof($records) . " records, deleted " . $deletions . ', processing ' . count($recordsToFlag) . PHP_EOL; 
         }
         
