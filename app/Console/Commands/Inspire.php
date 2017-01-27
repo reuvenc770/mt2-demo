@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 
+use App\Jobs\ProcessThirdPartyMaroRecords;
 use App\Models\AWeberReport;
 use App\Repositories\ReportRepo;
 use App\Services\API\AWeberApi;
@@ -38,6 +39,6 @@ class Inspire extends Command
      */
     public function handle()
     {
-        
+        echo "The woods are lovely, dark and deep. But I have promises to keep, and miles to go before I sleep.";
     }
 }

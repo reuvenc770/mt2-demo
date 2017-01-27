@@ -69,6 +69,17 @@ return [
             'prefix'    => '',
             'strict'    => false,
         ],
+        'dima_data' => [
+            'driver'    => 'mysql',
+            'host'      => env('DB_HOST', 'localhost'),
+            'database'  => 'dima_data',
+            'username'  => env('DB_USERNAME', 'forge'),
+            'password'  => env('DB_PASSWORD', ''),
+            'charset'   => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix'    => '',
+            'strict'    => false,
+        ],
         'mt1supp' => [
             'driver'    => 'mysql',
             'host'      => env('MT1_SUPP_DB_HOST', ''),
@@ -223,7 +234,7 @@ return [
             'port' => env('REDSHIFT_PORT', ''),
             'charset' => 'utf8'
         ]
-        
+
     ],
 
     /*
