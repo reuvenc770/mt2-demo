@@ -172,6 +172,7 @@ return [
         App\Providers\AssetsServiceProvider::class,
         App\Providers\SlackProvider::class,
         App\Providers\AWeberEmailActionProvider::class,
+        App\Providers\BrontoMappingProvider::class,
     ],
 
     /*
@@ -186,7 +187,6 @@ return [
     */
 
     'aliases' => [
-
         'App'       => Illuminate\Support\Facades\App::class,
         'Artisan'   => Illuminate\Support\Facades\Artisan::class,
         'Auth'      => Illuminate\Support\Facades\Auth::class,
@@ -235,5 +235,6 @@ return [
         'States' => AdrianMejias\States\StatesFacade::class,
         'Assets' => Fisharebest\LaravelAssets\AssetsFacade::class,
         'AWeberEmailAction'=> App\Facades\AWeberEmailAction::class,
+        'BrontoMapping' => App\Facades\BrontoMapping::class,
     ],
 ];

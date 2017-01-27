@@ -192,6 +192,25 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
     }
 
+    protected function getSplitDeliverableCampaigns() {
+        $campaigns = $this->standardReportRepo->getActionsCampaigns( $this->espAccountId , $this->date );
+        $this->processState['recordType'] = 'delivered';
+        $this->processState[ 'currentFilterIndex' ]++;
+
+        $campaigns->each( function( $campaign , $key ) {
+            $this->processState[ 'campaign' ] = $campaign;
+            $this->processState[ 'espId' ] = $this->espAccountId;
+            $realReports = $this->reportService->getRawReportsForSplit($campaign->campaign_name,$this->espAccountId);
+            //from the standard we grab all raw with same name. they will all be attributed to the standard report
+            foreach($realReports as $report){
+                $this->processState['campaign']->esp_internal_id = $report->internal_id;
+                $this->queueNextJob( $this->defaultQueue );
+            }
+        });
+        $rowCount = count($campaigns);
+        $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
+    }
+
     protected function getRerunCampaigns () {
         $deploys = DB::table('deploy_record_reruns AS drr')
             ->select('external_deploy_id', 'drr.esp_internal_id', 'drr.esp_account_id', 'datetime', 
@@ -227,6 +246,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $deploys->each( function( $deploy , $key ) {
             $this->processState[ 'campaign' ] = $deploy;
             $this->processState[ 'espId' ] = $this->espAccountId;
+
             $this->queueNextJob( $this->defaultQueue );
         });
         $rowCount = count($deploys);

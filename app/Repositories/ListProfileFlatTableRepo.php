@@ -159,9 +159,9 @@ class ListProfileFlatTableRepo implements IAwsRepo {
             upper_case_md5 = VALUES(upper_case_md5),
             email_domain_id = email_domain_id,
             has_cs_open = IF(VALUES(has_cs_open) > 0, 1, 0),
-            has_open = IF(VALUES(has_open) > 0, 1, 0),
+            has_open = IF(VALUES(has_cs_open) > 0 OR has_esp_open > 0, 1, 0),
             has_cs_click = IF(VALUES(has_cs_click) > 0, 1, 0),
-            has_click = IF(VALUES(has_click) > 0, 1, 0),
+            has_click = IF(VALUES(has_cs_click) > 0 OR has_esp_click > 0, 1, 0),
             updated_at = NOW()");
         }
     }

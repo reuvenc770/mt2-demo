@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Jobs\AWeberActionImmigration;
-use App\Models\AweberEmailActionsStorage;
+use App\Models\AWeberEmailActionsStorage;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Queue\InteractsWithQueue;

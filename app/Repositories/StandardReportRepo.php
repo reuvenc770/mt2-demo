@@ -38,4 +38,8 @@ class StandardReportRepo {
 
 
     }
+
+    public function deleteCampaign ( $campaignName ) {
+        $this->reportModel->where( 'campaign_name' , $campaignName )->delete();
+    }
 }
