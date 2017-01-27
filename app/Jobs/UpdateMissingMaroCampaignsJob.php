@@ -124,7 +124,7 @@ class UpdateMissingMaroCampaignsJob extends Job implements ShouldQueue
     }
 
     protected function deleteOldCampaign ( $internalId , $campaignName) {
-        $rawRecord = $this->reportService->getRawByExternalId( $id );
+        $rawRecord = $this->reportService->getRawByExternalId( $internalId );
 
         if ( is_null( $rawRecord ) ) {
             return;
