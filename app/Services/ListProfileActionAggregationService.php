@@ -81,8 +81,11 @@ class ListProfileActionAggregationService implements IEtl {
         return "("
             . $pdo->quote($row->email_id) . ',' 
             . $pdo->quote($row->deploy_id) . ',' 
+            . $pdo->quote($row->esp_account_id) . ','
             . $pdo->quote($row->date) . ',' 
             . $pdo->quote($row->email_address) . ',' 
+            . $pdo->quote($row->lower_case_md5) . ','
+            . $pdo->quote($row->upper_case_md5) . ','
             . $pdo->quote($row->email_domain_id) . ',' 
             . $pdo->quote($row->email_domain_group_id) . ',' 
             . $pdo->quote($row->offer_id) . ',' 

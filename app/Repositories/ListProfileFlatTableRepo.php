@@ -29,9 +29,10 @@ class ListProfileFlatTableRepo implements IAwsRepo {
 
         DB::connection('list_profile')->insert(
             "INSERT INTO list_profile_flat_table 
-            (email_id, deploy_id, date, email_address,
-            email_domain_id, email_domain_group_id, offer_id,
-            cake_vertical_id, has_esp_open, has_open, has_esp_click, has_click, deliveries, opens,
+            (email_id, deploy_id, esp_account_id, date, email_address,
+            lower_case_md5, upper_case_md5, email_domain_id, 
+            email_domain_group_id, offer_id, cake_vertical_id, has_esp_open, 
+            has_open, has_esp_click, has_click, deliveries, opens,
             clicks, created_at, updated_at) VALUES $insertString
 
             ON DUPLICATE KEY UPDATE
