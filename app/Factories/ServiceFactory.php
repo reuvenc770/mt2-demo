@@ -105,12 +105,12 @@ class ServiceFactory
         $pickupRepo = App::make(\App\Repositories\EtlPickupRepo::class);
 
         if (in_array($entity, ['Feed', 'Email', 'EmailDomain', 'DomainGroup', 'SuppressionGlobalOrange', 'Client'])) {
-            $func = function($row) { return $row['id']; };
+            $func = function($row) { return $row->id; };
         }
         else {
             // ListProfileFlatTable, RecordData, EmailFeedAssignments
             $func = function($row) {
-                $updatedAt = preg_replace('/\s|\-|:/', '', $row['updated_at']);
+                $updatedAt = preg_replace('/\s|\-|:/', '', $row->updated_at);
                 return (int)$updatedAt; 
             };
         }
