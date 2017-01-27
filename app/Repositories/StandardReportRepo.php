@@ -31,14 +31,6 @@ class StandardReportRepo {
             ->pop();
     }
 
-    public function getOrphanReports(){
-        return $this->reportModel
-            ->where("external_deploy_id",0)
-            ->where("campaign_name","")->get();
-
-
-    }
-
     public function deleteCampaign ( $campaignName ) {
         $this->reportModel->where( 'campaign_name' , $campaignName )->delete();
     }

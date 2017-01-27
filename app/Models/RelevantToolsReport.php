@@ -2,11 +2,19 @@
 
 namespace App\Models;
 
-use App\Models\Interfaces\IReport;
+use App\Models\Interfaces\IReportMapper;
 use Illuminate\Database\Eloquent\Model;
 
-class RelevantToolsReport extends Model implements IReport
+class RelevantToolsReport extends Model implements IReportMapper
 {
     protected $guarded = ['id'];
     protected $connection = "reporting_data";
+
+    public function getDateFieldName(){
+        return "datetime";
+    }
+
+    public function getSubjectFieldName(){
+        return null;
+    }
 }

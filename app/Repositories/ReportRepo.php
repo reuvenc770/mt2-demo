@@ -7,7 +7,7 @@
  */
 
 namespace App\Repositories;
-use App\Models\Interfaces\IReport;
+use App\Models\Interfaces\IReportMapper;
 class ReportRepo
 {
     /**
@@ -15,7 +15,7 @@ class ReportRepo
      */
     protected $report;
 
-    public function __construct(IReport $report){
+    public function __construct(IReportMapper $report){
         $this->report = $report;
     }
 
@@ -48,7 +48,7 @@ class ReportRepo
             throw new \Exception('Run id accessed by esp without run id.');
         }
     }
-    
+
     public function updateStatCount($id, $columnName, $value) {
         return $this->report->find($id)->update([$columnName => $value]);
     }
@@ -61,6 +61,22 @@ class ReportRepo
         }
 
         return null;
+    }
+
+    public function getByEspAccountDateSubject($espAccountIds, $dates, $subjects){
+        $eloquentObj = $this->report
+            ->whereIn( 'esp_account_id', $espAccountIds )
+            ->whereIn( \DB::raw( 'DATE( ' . $this->report->getDateFieldName() . ' )' ) , $dates );
+
+        if ( !is_null( $this->report->getSubjectFieldName() ) ) {
+            foreach ( $subjects as $currentSubject ) {
+                if ( !is_null( $currentSubject ) ) {
+                    $eloquentObj = $eloquentObj->orWhere( $this->report->getSubjectFieldName() , 'like' , '%' . $currentSubject . '%' );
+                }
+            }
+        }
+
+        return $eloquentObj->get();
     }
 
     public function getRawCampaignsFromName($campaignName, $espAccountId){

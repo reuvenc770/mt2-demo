@@ -29,7 +29,7 @@ class StandardApiReportRepo {
 
     public function getActionsCampaigns($espAccountId, $date) {
         // Much like the above, that it pulls recent campaigns,
-        // but also pulls those that are part of workflows 
+        // but also pulls those that are part of workflows
         // (and thus might be "old" but are still run regularly)
         $db = config('database.connections.mysql.database');
 
@@ -76,6 +76,12 @@ class StandardApiReportRepo {
                     ->select('delivered as delivers', 'e_opens as opens', 'e_clicks as clicks')
                     ->where('external_deploy_id', $deployId)
                     ->first();
+    }
+
+    public function getOrphanReports(){
+        return $this->report
+            ->where("external_deploy_id",0)
+            ->orWhere("campaign_name","")->get();
     }
 
 }

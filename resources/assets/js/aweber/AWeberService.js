@@ -1,6 +1,6 @@
 mt2App.service( 'AWeberService' , function ( $http , $log ) {
     var self = this;
-    
+
     self.baseApiUrl = '/api/tools/getunmappedreports/';
     self.convertReportUrl ='/api/tools/convertreport';
     self.aweberListsUrl = '/api/tools/getaweberlists/';
@@ -10,11 +10,11 @@ mt2App.service( 'AWeberService' , function ( $http , $log ) {
             .then( successCallback );
     };
 
-    self.convertReport = function ( reportId, deployId , successCallback , failureCallback ) {
+    self.convertReport = function ( internalId, deployId , successCallback , failureCallback ) {
         return $http( {
             "method" : "POST" ,
             "url" : self.convertReportUrl ,
-            "data" : {report_id: reportId, deploy_id: deployId}
+            "data" : {internal_id: internalId, deploy_id: deployId }
         } ).then( successCallback , failureCallback );
     };
 
@@ -32,5 +32,5 @@ mt2App.service( 'AWeberService' , function ( $http , $log ) {
             "data" : {ids: lists}
         } ).then( successCallback , failureCallback );
     };
-   
+
 } );

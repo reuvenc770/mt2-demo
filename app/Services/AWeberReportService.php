@@ -13,6 +13,7 @@ use App\Repositories\AWeberListRepo;
 use App\Repositories\ReportRepo;
 use App\Services\API\AWeberApi;
 use App\Services\Interfaces\IDataService;
+use App\Services\StandardReportService;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Event;
@@ -33,6 +34,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
 
     const DELIVERABLE_LOOKBACK = 2;
     protected $listService;
+    protected $standardService;
 
     /**
      * AWeberReportService constructor.
@@ -40,11 +42,12 @@ class AWeberReportService extends AbstractReportService implements IDataService
      * @param AWeberApi $api
      * @param EmailRecordService $emailRecord
      */
-    public function __construct(ReportRepo $reportRepo, AWeberApi $api, EmailRecordService $emailRecord)
+    public function __construct(ReportRepo $reportRepo, AWeberApi $api, EmailRecordService $emailRecord , StandardReportService $standardService)
     {
         parent::__construct($reportRepo, $api, $emailRecord);
         //tightly coupled but OK since it will never really be replaced or used outside of context
         $this->listService = new AWeberListService(new AWeberListRepo(new AWeberList()));
+        $this->standardService = $standardService;
     }
 
     /**
@@ -88,12 +91,13 @@ class AWeberReportService extends AbstractReportService implements IDataService
             $this->insertStats($espAccountId, $convertedReport);
             $convertedDataArray[] = $convertedReport;
         }
-        //Event::fire(new RawReportDataWasInserted($this, $convertedDataArray));
+
+        Event::fire(new RawReportDataWasInserted($this, $convertedDataArray));
     }
 
     public function mapToRawReport($data)
     {
-        return array(
+        $newRawRecord = array(
             "internal_id" => $data['internal_id'],
             "esp_account_id" => $this->api->getEspAccountId(),
             "info_url" => $data['info_url'],
@@ -108,13 +112,27 @@ class AWeberReportService extends AbstractReportService implements IDataService
             "unique_opens" => $data['unique_opens'],
 
         );
+
+        //Adding campaign name so the record gets saved to standard report properly
+        $existingRawRecord = $this->reportRepo->getRowByExternalId( $data['internal_id'] );
+
+        if ( !is_null( $existingRawRecord ) ){
+            $newRawRecord["campaign_name"] = $existingRawRecord["campaign_name"];
+
+            if ( $existingRawRecord["campaign_name"] != "" ){
+                $campaignNameParts = explode("_", $existingRawRecord["campaign_name"] );
+                $newRawRecord["deploy_id"] = $campaignNameParts[0];
+            }
+        }
+
+        return $newRawRecord;
     }
 
     public function mapToStandardReport($data)
     {
         return array(
-            'campaign_name' => "",
-            'external_deploy_id' => 0,
+            'campaign_name' => isset($data['campaign_name']) ? $data['campaign_name'] : "",
+            'external_deploy_id' => isset($data['deploy_id']) ? $data['deploy_id'] : 0,
             'm_deploy_id' => 0,
             'esp_account_id' => $data['esp_account_id'],
             'esp_internal_id' => $data['internal_id'],
@@ -342,4 +360,20 @@ class AWeberReportService extends AbstractReportService implements IDataService
     }
 
 
+    public function getByEspAccountDateSubject($espAccountIds, $dates, $subjects) {
+        return $this->reportRepo->getByEspAccountDateSubject($espAccountIds, $dates, $subjects);
+    }
+
+    public function convertRawToStandard ( $request , $deploy ) {
+        $campaignName = $deploy->deploy_name;
+        $internalId = $request->get( 'internal_id' );
+
+        $rawRecord = $this->reportRepo->getRowByExternalId( $internalId );
+        $rawRecord['campaign_name'] = $campaignName;
+        $rawRecord->save();
+        $rawRecord['deploy_id'] = $deploy->id;
+
+        $standardRecord = $this->mapToStandardReport( $rawRecord );
+        $this->standardService->insertStandardStats( $standardRecord );
+    }
 }

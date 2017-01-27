@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use App\Facades\DeployActionEntry;
-use App\Models\Interfaces\IReport;
+use App\Models\Interfaces\IReportMapper;
 use Illuminate\Database\Eloquent\Model;
 use Log;
-class StandardReport extends Model implements IReport
+class StandardReport extends Model implements IReportMapper
 {
     protected $guarded = ['id'];
     protected $connection = "reporting_data";
@@ -29,8 +29,11 @@ class StandardReport extends Model implements IReport
         $this->updated_at = date("Y-m-d H:i:s");
     }
 
+    public function getDateFieldName(){
+        return "datetime";
+    }
 
-
-
-
+    public function getSubjectFieldName(){
+        return "subject";
+    }
 }

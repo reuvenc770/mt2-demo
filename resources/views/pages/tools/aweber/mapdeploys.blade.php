@@ -18,17 +18,24 @@
         <div class="panel-body">
                 @foreach($deploys as $deploy)
                 <div class="form-group clearfix">
-                    <label class="col-sm-12 control-label">{{$deploy->id}} - {{$deploy->deploy_name}} -  {{$deploy->send_date}} - {{$deploy->subject_line}}</label>
+                    <label class="col-sm-12 control-label">{{$deploy->id}} - {{$deploy->deploy_name}} -  {{$deploy->send_date}}
+                    <br/>
+                    <span style="font-weight:normal">{{$deploy->subject_line}}</span>
+                    </label>
                     <div class="col-sm-12">
                         <div class="input-group">
                         <select ng-model="weber.currentMappings[{{$deploy->id}}]" class="form-control" name="deploy_id">
                             <option value="">Please Select a Possible match</option>
-                            <option ng-value="@{{ record.id }}" ng-repeat="record in weber.reports |  filter:{esp_account_id:{{$deploy->esp_account_id}}}">
-                                @{{ record.id }} @{{ record.subject }} - @{{ app.formatDate(record.datetime,"MM-DD-YYYY") }}
+                            @foreach($rawReports as $rawRecord)
+                                @if( $deploy->esp_account_id == $rawRecord['esp_account_id'] )
+                                <option ng-value="{{ $rawRecord['internal_id'] }}">
+                                {{ $rawRecord['internal_id'] }} {{ $rawRecord['subject'] }} - {{ $rawRecord['datetime'] }}
                                 </option>
+                                @endif
+                            @endforeach
                         </select>
                              <div class="input-group-btn">
-                            <span class=" btn btn-primary" ng-click="weber.convertReport(weber.currentMappings[{{$deploy->id}}] ,{{$deploy->id}})" id="basic-addon2">Assign Deploy</span>
+                            <span class=" btn btn-primary" ng-click="weber.convertReport(weber.currentMappings[{{$deploy->id}}] , {{$deploy->id}} )" id="basic-addon2">Assign Deploy</span>
                                  </div>
                             </div>
                     </div>
