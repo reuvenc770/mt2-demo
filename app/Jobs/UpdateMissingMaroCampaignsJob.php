@@ -27,6 +27,7 @@ class UpdateMissingMaroCampaignsJob extends Job implements ShouldQueue
     protected $espAccountId;
     protected $tracking;
     protected $findOrphanCampaigns;
+    protected $reportService;
 
     /**
      * Create a new job instance.
@@ -52,7 +53,7 @@ class UpdateMissingMaroCampaignsJob extends Job implements ShouldQueue
         JobTracking::changeJobState( JobEntry::RUNNING , $this->tracking);
 
         try {
-            $reportService = APIFactory::createAPIReportService( self::ESP_NAME , $this->espAccountId );
+            $this->reportService = APIFactory::createAPIReportService( self::ESP_NAME , $this->espAccountId );
 
             $missingCampaigns = [];
             if ( $this->findOrphanCampaigns ) {
@@ -62,13 +63,13 @@ class UpdateMissingMaroCampaignsJob extends Job implements ShouldQueue
                     $missingCampaigns = $orphanCollection->pluck( 'esp_internal_id' )->toArray();
                 }
             } else {
-                $missingCampaigns = $reportService->getMissingCampaigns( $this->espAccountId );
+                $missingCampaigns = $this->reportService->getMissingCampaigns( $this->espAccountId );
             }
 
             $newCampaignData = [];
             $runCount = 0;
             foreach ( $missingCampaigns as $campaignId ) {
-                $newData = $reportService->retrieveSingleCampaignStats( $campaignId ); 
+                $newData = $this->reportService->retrieveSingleCampaignStats( $campaignId ); 
 
                 if ( count( $newData ) > 0 ) {
                     $this->deleteOldCampaign( $newData[ 'id' ] , $newData[ 'name' ] );
@@ -81,7 +82,7 @@ class UpdateMissingMaroCampaignsJob extends Job implements ShouldQueue
                     $missingCount = count( $missingCampaigns );
 
                     if ( $bufferCount >= self::CHUNK_AMOUNT || $runCount === $missingCount ) {
-                        $reportService->insertApiRawStats( $newCampaignData );
+                        $this->reportService->insertApiRawStats( $newCampaignData );
                         $newCampaignData = [];
                     }
                 }
