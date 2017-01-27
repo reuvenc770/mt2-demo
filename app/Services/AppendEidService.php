@@ -83,7 +83,7 @@ class AppendEidService
             unset($row['is_deliverable']);
             $writer->insertOne($row);
         }
-         return $writer->__toString();
+        return $writer->__toString();
     }
 
 
@@ -95,8 +95,8 @@ class AppendEidService
         }
         if($includeFields){
             $header = array_merge($header, ["first_name", "last_name", "address", "address2", "city", "state", "zip", "country", "gender", "ip", "phone",
-                "source_url", "dob", "device_type", "device_name", "carrier", "capture_date", "other_fields", "created_at",
-                "updated_at"]);
+                "source_url", "dob", "device_type", "device_name", "carrier", "capture_date", "subscribe_date", "last_action_offer_id", "last_action_date", 
+                "other_fields", "created_at", "updated_at"]);
         }
         if($includeSuppression){
             $header = array_merge($header,['status']);  //keeping style
