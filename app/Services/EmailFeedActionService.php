@@ -32,7 +32,7 @@ class EmailFeedActionService {
                     $this->repo->batchInsert($row);
                 }
                 else {
-                    Log::warning("Email id " . $action['email_id'] . ' does not have any attribution currently');
+                    Log::emergency("Email id " . $action['email_id'] . ' does not have any attribution currently');
                 }
             }
             
@@ -69,7 +69,7 @@ class EmailFeedActionService {
         }
         else {
             // should have covered all cases
-            Log::warning("EmailFeedAction case missed. Latest action is: " . $latestAction . ', current status is: ' . $currentStatus);
+            Log::emergency("EmailFeedAction case missed. Latest action is: " . $latestAction . ', current status is: ' . $currentStatus);
         }
     }
 
