@@ -492,4 +492,5 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         }
     }
 
+    public function setRetrieveApiLimit ( $limit ) {}
 }

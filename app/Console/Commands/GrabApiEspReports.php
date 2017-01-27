@@ -16,9 +16,19 @@ class GrabApiEspReports extends Command
      *
      * @var string
      */
-    protected $signature = 'reports:downloadApi {espName} {lookBack?} {queueName?} {espAccountId?}';
+    protected $signature = 'reports:downloadApi {espName} {--D|daysBack=} {--Q|queueName=default} {--E|espAccountId=} {--L|apiLimit=}}'; #{--queueName=orphanage}
     protected $espRepo;
-    protected $lookBack;
+
+    protected $espName;
+    protected $daysBack;
+    protected $queueName;
+    protected $espAccountId;
+    protected $apiLimit;
+
+    protected $startDate;
+    protected $currentAccountId;
+
+    protected $accountsFired = [];
 
     /**
      * The console command description.
@@ -41,25 +51,75 @@ class GrabApiEspReports extends Command
      */
     public function handle()
     {
-        $this->lookBack = $this->argument('lookBack') ? $this->argument('lookBack') : config('jobs.defaultLookback');
-        $queue = (string) $this->argument('queueName') ? $this->argument('queueName') : "default";
-        $espAccountId = $this->argument('espAccountId');
-        $date = Carbon::now()->subDay($this->lookBack)->startOfDay()->toDateString();
-        $espName = $this->argument('espName');
+        $this->processOptions();
 
-        $espAccounts = $this->espRepo->getAccountsByESPName($espName);
-        if($espAccountId) {
-            $espLogLine = "{$espName}::{$espAccountId}";
-            $this->info($espLogLine);
-            $job = (new RetrieveApiReports($espName, $espAccountId, $date, str_random(16)))->onQueue($queue);
-            $this->dispatch($job);
+        if( $this->isSingleAccountGrab() ) {
+            $this->fireJob();
         } else{
+            $espAccounts = $this->espRepo->getAccountsByESPName( $this->espName );
+
             foreach ($espAccounts as $account) {
-                $espLogLine = "{$account->name}::{$account->account_name}";
-                $this->info($espLogLine);
-                $job = (new RetrieveApiReports($account->name, $account->id, $date, str_random(16)))->onQueue($queue);
-                $this->dispatch($job);
+                $this->setCurrentAccountId( $account->id );
+
+                $this->fireJob();
             }
         }
+
+        $this->displayTable();
+    }
+
+    public function processOptions () {
+        $this->espName = $this->argument( 'espName' );
+        $this->daysBack = $this->option( 'daysBack' );
+        $this->queueName = $this->option( 'queueName' );
+        $this->espAccountId = $this->option( 'espAccountId' );
+        $this->apiLimit = $this->option( 'apiLimit' );
+
+        if ( is_null( $this->daysBack ) ) {
+            $this->daysBack = config( 'jobs.defaultLookback' );
+        }
+
+        $this->startDate = Carbon::now()->subDay( $this->daysBack )->startOfDay()->toDateString();
+
+        if ( !is_null( $this->espAccountId ) ) {
+            $this->setCurrentAccountId( $this->espAccountId );
+        }
+    }
+
+    public function isSingleAccountGrab () {
+        return !is_null( $this->espAccountId );
+    }
+
+    public function fireJob () {
+
+        if ( $this->limitCallSize() ) {
+            $job = new RetrieveApiReports( $this->espName , $this->currentAccountId , $this->startDate , str_random( 16 ) , $this->apiLimit );
+        } else {
+            $job = new RetrieveApiReports( $this->espName , $this->currentAccountId , $this->startDate , str_random( 16 ) );
+        }
+
+        $job->onQueue( $this->queueName );
+
+        $this->dispatch($job);
+    }
+
+    public function limitCallSize () {
+        return !is_null( $this->apiLimit );
+    }
+
+    public function setCurrentAccountId ( $id ) {
+        $this->currentAccountId = $id;
+
+        $this->accountsFired []= $id;
+    }
+
+    public function displayTable () {
+        $this->table( [ 'Option' , 'Value' ] , [
+            [ 'option' => 'ESP Name' , 'value' => $this->espName ] ,
+            [ 'option' => 'ESP Account ID' , 'value' => implode( ',' , $this->accountsFired ) ] ,
+            [ 'option' => 'Start Date' , 'value' => $this->startDate ] ,
+            [ 'option' => 'Queue Name' , 'value' => $this->queueName ] ,
+            [ 'option' => 'API Limit' , 'value' => $this->apiLimit ?: 'None' ]
+        ] );
     }
 }

@@ -9,4 +9,5 @@ interface IDataService
   public function mapToStandardReport($data);
   public function insertSegmentedApiRawStats($data, $length);
   public function insertCsvRawStats($data,$date);
+  public function setRetrieveApiLimit($limit);
 }

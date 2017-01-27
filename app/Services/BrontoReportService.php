@@ -461,4 +461,5 @@ class BrontoReportService extends AbstractReportService implements IDataService
         return $this->reportRepo->getRawCampaignsFromName($campaignName, $epsAccountId);
     }
 
+    public function setRetrieveApiLimit ( $limit ) {}
 }

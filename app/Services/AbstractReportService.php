@@ -26,6 +26,8 @@ abstract class AbstractReportService implements IDataService  {
         $this->emailRecord = $emailRecord;
     }
 
+    abstract public function setRetrieveApiLimit($limit);
+
     abstract public function retrieveApiStats($data);
 
     abstract public function insertApiRawStats($data);

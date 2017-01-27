@@ -570,4 +570,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             throw new Exception($e->getMessage());
         }
     }
+
+    public function setRetrieveApiLimit ( $limit ) {}
 }

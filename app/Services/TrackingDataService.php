@@ -157,4 +157,5 @@ class TrackingDataService implements IDataService
     return 0;
   }
 
+  public function setRetrieveApiLimit ( $limit ) {}
 }
