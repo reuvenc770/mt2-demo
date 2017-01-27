@@ -5,7 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use App\Factories\APIFactory;
 
-class AWeberStandardReportProvider extends ServiceProvider
+class AWeberReportServiceProvider extends ServiceProvider
 {
     const ESP_NAME = 'AWeber'; 
 
