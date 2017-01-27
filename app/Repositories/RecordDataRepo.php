@@ -34,7 +34,7 @@ class RecordDataRepo implements IAwsRepo {
                         zip,
                         country,
                         gender,
-                        inet_ntoa(ip) as ip,
+                        ip,
                         phone,
                         source_url,
                         dob,
