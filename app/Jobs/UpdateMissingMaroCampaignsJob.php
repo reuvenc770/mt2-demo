@@ -56,7 +56,11 @@ class UpdateMissingMaroCampaignsJob extends Job implements ShouldQueue
 
             $missingCampaigns = [];
             if ( $this->findOrphanCampaigns ) {
-                $missingCampaigns = $this->getOrphanCampaigns( $orphans );
+                $orphanCollection = $this->getOrphanCampaigns( $orphans );
+                
+                if ( $orphanCollection->count() > 0 ) {
+                    $missingCampaigns = $orphanCollection->pluck( 'esp_internal_id' )->toArray();
+                }
             } else {
                 $missingCampaigns = $reportService->getMissingCampaigns( $this->espAccountId );
             }
