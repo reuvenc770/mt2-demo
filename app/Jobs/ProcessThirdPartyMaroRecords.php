@@ -208,7 +208,7 @@ class ProcessThirdPartyMaroRecords extends Job implements ShouldQueue
                     "'" .$this->state['recordType']."'" ,
                     (empty($currentRecord['browser']) ? "''" : "'" . $currentRecord['browser'] . "'"),
                     (empty($currentRecord['recorded_at']) ? "''" : "'" . $currentRecord['recorded_at'] . "'"),
-                    "'" .$currentRecord['contact']['email']."'",
+                    "'" .addslashes($currentRecord['contact']['email'])."'",
                     $this->espAccountId ,
                     $this->api->getAccountId() ,
                     'NOW()',
