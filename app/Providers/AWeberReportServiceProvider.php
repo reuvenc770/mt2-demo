@@ -29,8 +29,9 @@ class AWeberReportServiceProvider extends ServiceProvider
         $this->app->when('App\Http\Controllers\AWeberDeployMappingController')
             ->needs('App\Services\AWeberReportService')
             ->give(function () {
-                $espAccount = $this->espRepo->getAccountsByESPName( self::ESP_NAME )->first();
-
+                $espService = \App::make( \App\Services\EspApiAccountService::class );
+                $espAccount = $espService->getAllAccountsByESPName( self::ESP_NAME )[0];
+ 
                 return APIFactory::createApiReportService( self::ESP_NAME , $espAccount->id );
             });
 
