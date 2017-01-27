@@ -173,7 +173,7 @@ return [
         App\Providers\SlackProvider::class,
         App\Providers\AWeberEmailActionProvider::class,
         App\Providers\BrontoMappingProvider::class,
-        App\Providers\AWeberStandardReportProvider::class,
+        App\Providers\AWeberReportServiceProvider::class,
     ],
 
     /*
