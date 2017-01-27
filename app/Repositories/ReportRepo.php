@@ -54,7 +54,13 @@ class ReportRepo
     }
 
     public function getRowByExternalId($id){
-        return $this->report->where('internal_id',$id)->get()[0];
+        $result = $this->report->where('internal_id',$id);
+
+        if ( $result->count() > 0 ) {
+            return $result->get()[0];
+        }
+
+        return null;
     }
 
     public function getByEspAccountDateSubject($espAccountIds, $dates, $subjects){

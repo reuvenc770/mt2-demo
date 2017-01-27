@@ -515,4 +515,8 @@ class MaroReportService extends AbstractReportService implements IDataService
 
         return [];
     }
+
+    public function getRawByExternalId ( $id ) {
+        return $this->reportRepo->getRowByExternalId( $id );
+    }
 }

@@ -161,6 +161,12 @@ Route::group(
             'as' => 'tools.recordlookup' ,
             'uses' => 'ShowInfoController@index'
         ] );
+
+        Route::get( '/seed' , [
+            'as' => 'tools.seed' ,
+            'uses' => 'SeedEmailController@index'
+        ] );
+
         Route::get( '/bulk-suppression' , [
             'as' => 'tools.bulksuppression' ,
             'uses' => 'BulkSuppressionController@index'
@@ -833,6 +839,11 @@ Route::group(
             'as' => 'api.tools.awebermapping.convertreport' ,
             'uses' => 'AWeberDeployMappingController@convertReport'
         ] );
+        Route::resource(
+            'tools/seed' ,
+            'SeedEmailController' ,
+            [ 'only' => [ 'store' , 'destroy' ] ]
+        );
 
         Route::post('/tools/aweberlists/update', [
             'as' => 'api.tools.aweberlists.update' ,

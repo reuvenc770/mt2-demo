@@ -169,4 +169,8 @@ class MaroApi extends EspBaseAPI {
             ]
         ]);
     }
+
+    public function getAccountId(){
+        return $this->account;
+    }
 }
