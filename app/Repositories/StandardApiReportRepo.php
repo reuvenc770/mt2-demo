@@ -81,9 +81,7 @@ class StandardApiReportRepo {
     public function getOrphanReports(){
         return $this->report
             ->where("external_deploy_id",0)
-            ->where("campaign_name","")->get();
-
-
+            ->orWhere("campaign_name","")->get();
     }
 
 }

@@ -19,5 +19,4 @@ class AWeberReport extends Model implements IReportMapper
     public function getSubjectFieldName(){
         return "subject";
     }
-
 }

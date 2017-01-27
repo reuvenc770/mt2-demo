@@ -7,7 +7,7 @@
  */
 
 namespace App\Repositories;
-use App\Models\Interfaces\IReport;
+use App\Models\Interfaces\IReportMapper;
 class ReportRepo
 {
     /**
@@ -15,7 +15,7 @@ class ReportRepo
      */
     protected $report;
 
-    public function __construct(IReport $report){
+    public function __construct(IReportMapper $report){
         $this->report = $report;
     }
 
@@ -58,19 +58,15 @@ class ReportRepo
     }
 
     public function getByEspAccountDateSubject($espAccountIds, $dates, $subjects){
-        $interface = "\\App\\Models\\Interfaces\\IReportMapper";
-
-        if( !( $this->report instanceof $interface ) ){
-            throw new \Exception('Report must implement IReportMapper.');
-        }
-
         $eloquentObj = $this->report
             ->whereIn( 'esp_account_id', $espAccountIds )
             ->whereIn( \DB::raw( 'DATE( ' . $this->report->getDateFieldName() . ' )' ) , $dates );
 
-        foreach ( $subjects as $currentSubject ) {
-            if ( !is_null( $currentSubject ) ) {
-                $eloquentObj = $eloquentObj->orWhere( $this->report->getSubjectFieldName() , 'like' , '%' . $currentSubject . '%' );
+        if ( !is_null( $this->report->getSubjectFieldName() ) ) {
+            foreach ( $subjects as $currentSubject ) {
+                if ( !is_null( $currentSubject ) ) {
+                    $eloquentObj = $eloquentObj->orWhere( $this->report->getSubjectFieldName() , 'like' , '%' . $currentSubject . '%' );
+                }
             }
         }
 
