@@ -14,6 +14,7 @@ use App\Repositories\ReportRepo;
 use App\Services\API\AWeberApi;
 use App\Services\Interfaces\IDataService;
 use App\Services\StandardReportService;
+use App\Factories\APIFactory;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Event;
@@ -42,12 +43,12 @@ class AWeberReportService extends AbstractReportService implements IDataService
      * @param AWeberApi $api
      * @param EmailRecordService $emailRecord
      */
-    public function __construct(ReportRepo $reportRepo, AWeberApi $api, EmailRecordService $emailRecord , StandardReportService $standardService)
+    public function __construct(ReportRepo $reportRepo, AWeberApi $api, EmailRecordService $emailRecord )
     {
         parent::__construct($reportRepo, $api, $emailRecord);
         //tightly coupled but OK since it will never really be replaced or used outside of context
         $this->listService = new AWeberListService(new AWeberListRepo(new AWeberList()));
-        $this->standardService = $standardService;
+        $this->standardService = APIFactory::createSimpleStandardReportService();
     }
 
     /**
