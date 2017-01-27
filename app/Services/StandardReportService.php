@@ -36,4 +36,8 @@ class StandardReportService {
 
        return $currentReport->save();
     }
+
+    public function deleteCampaign ( $campaignName ) {
+        $this->repo->deleteCampaign( $campaignName );
+    }
 }

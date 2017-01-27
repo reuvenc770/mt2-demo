@@ -21,7 +21,7 @@ class UpdateMissingMaroCampaigns extends Command
      *
      * @var string
      */
-    protected $signature = 'reports:updateMissingMaroCampaigns';
+    protected $signature = 'reports:updateMissingMaroCampaigns {useOrphans?}';
 
     /**
      * The console command description.
@@ -50,7 +50,7 @@ class UpdateMissingMaroCampaigns extends Command
         $accounts = EspApiAccount::getAllAccountsByESPName( self::ESP_NAME );
 
         foreach ( $accounts as $current ) {
-            $job = new UpdateMissingMaroCampaignsJob( $current->id , str_random( 16 ) );
+            $job = new UpdateMissingMaroCampaignsJob( $current->id , str_random( 16 ) , !is_null( $this->argument( 'useOrphans' ) ) );
             $this->dispatch( $job );
         }
     }
