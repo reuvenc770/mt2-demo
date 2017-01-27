@@ -22,35 +22,10 @@ class ListProfileFlatTableRepo implements IAwsRepo {
     } 
 
     public function massInsertActions($massData) {
-        $pdo = DB::connection()->getPdo();
-
         echo "Preparing to insert at " . microtime(true) . PHP_EOL;
         $insertList = [];
 
-        foreach ($massData as $row) {
-            $rowString = "("
-                . $pdo->quote($row['email_id']) . ',' 
-                . $pdo->quote($row['deploy_id']) . ',' 
-                . $pdo->quote($row['date']) . ',' 
-                . $pdo->quote($row['email_address']) . ',' 
-                . $pdo->quote($row['email_domain_id']) . ',' 
-                . $pdo->quote($row['email_domain_group_id']) . ',' 
-                . $pdo->quote($row['offer_id']) . ',' 
-                . $pdo->quote($row['cake_vertical_id']) . ',' 
-
-                . $pdo->quote($row['has_esp_open']) . ','
-                . $pdo->quote($row['has_open']) . ','
-                . $pdo->quote($row['has_esp_click']) . ','
-                . $pdo->quote($row['has_click']) . ','
-
-                . $pdo->quote($row['deliveries']) . ',' 
-                . $pdo->quote($row['opens']) . ',' 
-                . $pdo->quote($row['clicks']) . ', NOW(), NOW())';
-
-            $insertList[]= $rowString;
-        }
-
-        $insertString = implode(',', $insertList);
+        $insertString = implode(',', $massData);
 
         DB::connection('list_profile')->insert(
             "INSERT INTO list_profile_flat_table 
@@ -68,15 +43,15 @@ class ListProfileFlatTableRepo implements IAwsRepo {
                 offer_id = offer_id,
                 cake_vertical_id = cake_vertical_id,
                 has_esp_open = IF(VALUES(has_esp_open) > 0, VALUES(has_esp_open), has_esp_open),
-                has_open = IF(VALUES(has_open) > 0, VALUES(has_open), has_open),
+                has_open = IF(VALUES(has_esp_open) > 0 OR has_cs_open > 0, 1, 0),
                 has_esp_click = IF(VALUES(has_esp_click) > 0, VALUES(has_esp_click), has_esp_click),
-                has_click = IF(VALUES(has_click) > 0, VALUES(has_click), has_click),
+                has_click = IF(VALUES(has_esp_click) > 0 OR has_cs_click > 0 OR has_tracking_click > 0, 1, 0),
                 deliveries = deliveries + VALUES(deliveries),
                 opens = opens + VALUES(opens),
                 clicks = clicks + VALUES(clicks),
                 conversions = conversions,
                 created_at = created_at,
-                updated_at = NOW()");
+                updated_at = VALUES(updated_at)");
     }
 
     public function insertBatchConversions($data) {
