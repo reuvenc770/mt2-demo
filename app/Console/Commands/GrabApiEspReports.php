@@ -16,7 +16,7 @@ class GrabApiEspReports extends Command
      *
      * @var string
      */
-    protected $signature = 'reports:downloadApi {espName} {--D|daysBack=} {--Q|queueName=default} {--E|espAccountId=} {--L|apiLimit=}}'; #{--queueName=orphanage}
+    protected $signature = 'reports:downloadApi {espName} {--D|daysBack=} {--Q|queueName=default} {--E|espAccountId=} {--L|apiLimit=}}';
     protected $espRepo;
 
     protected $espName;
