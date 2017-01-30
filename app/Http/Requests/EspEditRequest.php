@@ -24,14 +24,17 @@ class EspEditRequest extends Request
     public function rules()
     {
         return [
-            'email_id_field' => 'required'
+            'email_id_field' => 'required',
+            'nickname' => 'required|unique:esps'
         ];
     }
 
     public function messages ()
     {
         return [
-            'email_id_field.required' => 'Email ID field is required.'
+            'email_id_field.required' => 'Email ID field is required.',
+            'nickname.required' => 'A nickname for the ESP is required.',
+            'nickname.unique' => 'This nickname is used by another ESP account. Please enter a different nickname.'
         ];
     }
 }
