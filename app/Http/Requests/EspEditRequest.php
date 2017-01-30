@@ -25,7 +25,7 @@ class EspEditRequest extends Request
     {
         return [
             'email_id_field' => 'required',
-            'nickname' => 'required|unique:esps'
+            'nickname' => 'required|unique:esps,nickname,' . $this->input( 'id' )
         ];
     }
 
