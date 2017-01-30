@@ -361,8 +361,8 @@ class AWeberReportService extends AbstractReportService implements IDataService
     }
 
 
-    public function getByEspAccountDateSubject($espAccountIds, $dates, $subjects) {
-        return $this->reportRepo->getByEspAccountDateSubject($espAccountIds, $dates, $subjects);
+    public function getBySubject($subject) {
+        return $this->reportRepo->getBySubject($subject);
     }
 
     public function convertRawToStandard ( $request , $deploy ) {

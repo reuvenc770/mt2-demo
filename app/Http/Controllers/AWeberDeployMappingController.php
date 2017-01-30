@@ -27,23 +27,20 @@ class AWeberDeployMappingController extends Controller
 
 
     public function mapDeploys(){
+        $combinedDeploys = array();
         $deploys = $this->deployService->getOrphanDeploysForEsp(self::ESP_NAME);
-
-        $rawReportCollection = $this->reportService->getByEspAccountDateSubject(
-            array_unique( $deploys->pluck('esp_account_id')->toArray() ),
-            array_unique( $deploys->pluck('send_date')->toArray() ),
-            array_unique( $deploys->pluck('subject_line')->toArray() )
-        );
-
-        $rawReports = [];
-
-        foreach ($rawReportCollection as $record){
-            $currentReport = $record->toArray();
-            $currentReport['datetime'] = Carbon::parse( $currentReport['datetime'] )->toDateString();
-            $rawReports[] = $currentReport;
+        foreach($deploys as $key => $deploy){
+            $rawRepords = $this->reportService->getBySubject($deploy->subject_line);
+            $combinedDeploys[$key] = $deploy->toArray();
+            foreach ($rawRepords as $record){
+                $currentReport = $record->toArray();
+                $currentReport['datetime'] = Carbon::parse( $currentReport['datetime'] )->toDateString();
+                $combinedDeploys[$key]['raw_reports'][] = $currentReport;
+            }
         }
 
-        return view('pages.tools.aweber.mapdeploys', ["deploys" => $deploys , "rawReports" => $rawReports ]);
+
+        return view('pages.tools.aweber.mapdeploys', ["deploys" => $combinedDeploys]);
     }
 
 
