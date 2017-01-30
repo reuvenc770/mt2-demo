@@ -3,41 +3,38 @@ mt2App.controller( 'SeedController' , [ '$log' , '$window' , '$location' , '$tim
    self.email_address = '';
 
     self.delete = function(recordId) {
-        var r = confirm("Are you sure you want to delete this");
+        var r = confirm("Are you sure you want to delete this?");
         if (r == true) {
             SeedApiService.deleteRow(recordId, self.deleteRowSuccess, self.deleteRowFailure)
         }
     };
-    
+
     self.create = function () {
-        console.log(self.email_address);
+        self.formSubmitted = true;
+        formValidationService.resetFieldErrors(self);
+
         SeedApiService.saveRow({email_address: self.email_address}, self.addRowSuccess, self.addRowFailure);
     };
-    
-    
-    
+
     //callbacks
     self.addRowFailure = function ( response ) {
-        modalService.setModalLabel('Failed To Added Row');
-        modalService.setModalBodyRawHtml(response.data.delete);
-        modalService.launchModal();
-        self.loadAccounts();
+        self.formSubmitted = false;
+        formValidationService.loadFieldErrors( self , response );
     };
 
     self.addRowSuccess = function ( response ) {
-        modalService.simpleToast("Successfully Added Row");
-        self.loadAccounts();
+        $location.url( '/tools/seed' );
+        $window.location.href = '/tools/seed';
     };
 
     self.deleteRowFailure = function ( response ) {
-        modalService.setModalLabel('Failed To Delete Row');
-        modalService.setModalBodyRawHtml(response.data.delete);
+        modalService.setModalLabel('Error');
+        modalService.setModalBody('Failed to delete seed.');
         modalService.launchModal();
-        self.loadAccounts();
     };
 
     self.deleteRowSuccess = function ( response ) {
-        modalService.simpleToast("Successfully Deleted Row");
-        self.loadAccounts();
+        $location.url( '/tools/seed' );
+        $window.location.href = '/tools/seed';
     };
 } ] );

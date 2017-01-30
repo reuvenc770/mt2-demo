@@ -296,5 +296,8 @@ return [
     'api.tools.awebermapping.unmapped' => 'Retrieve Unmapped AWeber Deploys',
     'api.tools.awebermapping.convertreport' => 'Map AWeber Deploy and Convert Report',
     'api.tools.aweberlists.getLists' => 'Retrieve AWeber Lists by Account',
-    'api.tools.aweberlists.update' => 'Update AWeber List Status'
+    'api.tools.aweberlists.update' => 'Update AWeber List Status',
+    'tools.seed' => 'View Seed List',
+    'api.tools.seed.store' => 'Add Seed to Seed List',
+    'api.tools.seed.destroy' => 'Delete Seed from Seed List'
 ];
