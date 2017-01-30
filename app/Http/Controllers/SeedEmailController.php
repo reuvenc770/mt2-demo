@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Services\SeedEmailService;
 use Illuminate\Http\Request;
+use Laracasts\Flash\Flash;
 
 use App\Http\Requests;
+use App\Http\Requests\SeedEmailRequest;
 
 class SeedEmailController extends Controller
 {
@@ -36,8 +38,10 @@ class SeedEmailController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(SeedEmailRequest $request)
     {
+        Flash::success( 'Seed email was successfully added.' );
+
        $return = $this->seedService->addSeed($request->get("email_address"));
         $returnCode = 200;
         if(!$return){
@@ -57,6 +61,8 @@ class SeedEmailController extends Controller
      */
     public function destroy($id)
     {
+        Flash::success( 'Seed email was successfully deleted.' );
+
         return $this->seedService->deleteSeed($id);
     }
 }

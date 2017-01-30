@@ -287,6 +287,13 @@ class ImportMt1EmailsService
     }
 
     private function mapToTempTable($row) {
+        if (preg_match('/\./', $row->ip)) {
+            $ip = $row->ip;
+        }
+        else {
+            $ip = long2ip($row->ip);
+        }
+
         return [
             'email_id' => $row->email_user_id,
             'feed_id' => $row->client_id,  // these are stored under "client_id" in mt1
@@ -306,7 +313,7 @@ class ImportMt1EmailsService
             'mobile_phone' => $row->mobile_phone,
             'work_phone' => $row->work_phone,
             'capture_date' => $row->capture_date,
-            'ip' => $row->ip,
+            'ip' => $ip,
             'source_url' => $row->source_url,
             'last_updated' => $row->lastUpdated
         ];

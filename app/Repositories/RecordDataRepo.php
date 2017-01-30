@@ -25,7 +25,6 @@ class RecordDataRepo implements IAwsRepo {
         return $this->model
                     ->where('email_id', $eid)
                     ->selectRaw("email_id,
-                        is_deliverable,
                         first_name,
                         last_name,
                         address,
@@ -35,7 +34,7 @@ class RecordDataRepo implements IAwsRepo {
                         zip,
                         country,
                         gender,
-                        inet_ntoa(ip) as ip,
+                        ip,
                         phone,
                         source_url,
                         dob,

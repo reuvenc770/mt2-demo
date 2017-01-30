@@ -186,6 +186,11 @@ Breadcrumbs::register( 'tools.sourceurlsearch' , function ( $breadcrumbs ) {
     $breadcrumbs->push( 'Source URL Search' , route( 'tools.sourceurlsearch' ) );
 } );
 
+Breadcrumbs::register( 'tools.seed' , function ( $breadcrumbs ) {
+    $breadcrumbs->parent( 'home' );
+    $breadcrumbs->push( 'Seed List' , route( 'tools.seed' ) );
+} );
+
 // Data Export Pages
 Breadcrumbs::register('dataexport.list', function($breadcrumbs) {
     $breadcrumbs->parent('home');

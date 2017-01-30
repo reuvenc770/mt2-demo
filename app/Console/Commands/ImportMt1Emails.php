@@ -29,13 +29,14 @@ class ImportMt1Emails extends Command
     public function handle() {
         // set up new job, only if another is not running
         $mod = $this->argument('mod');
+        echo "Attempting to run the email import job for $mod" . PHP_EOL;
 
         if (!$this->isRunning(self::JOB_NAME . '-' . $mod)) {
             $job = new ImportMt1EmailsJob($mod, str_random(16));
             $this->dispatch($job);
         }
         else {
-            echo "job not running" . PHP_EOL;
+            echo "Email import $mod job already running." . PHP_EOL;
         }
 
     }
