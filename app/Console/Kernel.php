@@ -203,8 +203,8 @@ class Kernel extends ConsoleKernel
          */
         $schedule->command('mt1Import offer')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import advertiser')->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command('emails:download 0')->cron('*/2 * * * * *')->withoutOverlapping();
         $schedule->command('emails:download 1')->cron('*/2 * * * * *')->withoutOverlapping();
+        $schedule->command('emails:download 0')->cron('*/2 * * * * *')->withoutOverlapping();
         $schedule->command('emails:download 2')->cron('*/2 * * * * *')->withoutOverlapping();
         $schedule->command('emails:download 3')->cron('*/2 * * * * *')->withoutOverlapping();
         $schedule->command('emails:download 4')->cron('*/2 * * * * *')->withoutOverlapping();
