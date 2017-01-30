@@ -26,6 +26,19 @@
     </div>
     </div>
 </div>
+
+<div class="form-group" ng-class="{ 'has-error' : esp.formErrors.customId }">
+    <label class="col-sm-2 control-label">Custom ID</label>
+    <div class="col-sm-10">
+    <input placeholder="Custom ID" type="text" id="customId" name="customId" class="form-control" required="required" ng-model="esp.currentAccount.customId" value=""/>
+    <div class="help-block" ng-show="esp.formErrors.customId">
+        <div ng-repeat="error in esp.formErrors.customId">
+            <span ng-bind="error"></span>
+        </div>
+    </div>
+    </div>
+</div>
+
 <div class="form-group" ng-class="{ 'has-error' : esp.formErrors.key1 }">
     <label class="col-sm-2 control-label" ng-bind="esp.key1Name"></label>
     <div class="col-sm-10">
