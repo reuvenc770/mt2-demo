@@ -40,7 +40,6 @@ class SetSchedulesJob extends Job implements ShouldQueue {
 
                 $scheduledFilterService = ServiceFactory::createFilterService($this->eventType);
                 
-
                 switch ($this->eventType) {
                     case ("expiration"):
                         $this->handleNewRecords($scheduledFilterService, $truthService, $assignmentService, $this->emails);

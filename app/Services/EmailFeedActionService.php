@@ -4,13 +4,16 @@ namespace App\Services;
 
 use App\Models\EmailFeedAction;
 use App\Repositories\EmailFeedActionRepo;
+use App\Repositories\EmailRepo;
 use Log;
 
 class EmailFeedActionService {
     private $repo;
+    private $emailRepo;
 
-    public function __construct(EmailFeedActionRepo $repo) {
+    public function __construct(EmailFeedActionRepo $repo, EmailRepo $emailRepo) {
         $this->repo = $repo;
+        $this->emailRepo = $emailRepo;
     }
 
     public function bulkUpdate($data) {
@@ -23,8 +26,14 @@ class EmailFeedActionService {
                 $this->repo->batchInsert($row);
             }
             else {
-                $row = $this->mapToRow($action['email_id'], $currentStatus->feed_id, $action['type']);
-                $this->repo->batchInsert($row);
+                $feedId = $this->emailRepo->getCurrentAttributedFeedId($action['email_id']);
+                if ($feedId) {
+                    $row = $this->mapToRow($action['email_id'], $feedId, $action['type']);
+                    $this->repo->batchInsert($row);
+                }
+                else {
+                    Log::emergency("Email id " . $action['email_id'] . ' does not have any attribution currently');
+                }
             }
             
         }
@@ -60,7 +69,7 @@ class EmailFeedActionService {
         }
         else {
             // should have covered all cases
-            Log::warning("EmailFeedAction case missed. Latest action is: " . $latestAction . ', current status is: ' . $currentStatus);
+            Log::emergency("EmailFeedAction case missed. Latest action is: " . $latestAction . ', current status is: ' . $currentStatus);
         }
     }
 
