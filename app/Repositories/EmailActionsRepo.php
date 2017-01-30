@@ -134,8 +134,11 @@ class EmailActionsRepo {
         return DB::select("SELECT
             ea.email_id,
             ea.deploy_id,
+            d.esp_account_id,
             ea.date,
             e.email_address,
+            e.lower_case_md5,
+            e.upper_case_md5,
             ed.id as email_domain_id,
             dg.id as email_domain_group_id,
             IFNULL(d.offer_id, 0) as offer_id,

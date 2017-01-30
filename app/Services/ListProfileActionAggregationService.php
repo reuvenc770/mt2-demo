@@ -7,6 +7,7 @@ use App\Repositories\EmailActionsRepo;
 use App\Repositories\ListProfileFlatTableRepo;
 use App\Repositories\CakeConversionRepo;
 use App\Repositories\EtlPickupRepo;
+use DB;
 
 
 class ListProfileActionAggregationService implements IEtl {
@@ -76,21 +77,26 @@ class ListProfileActionAggregationService implements IEtl {
     public function load() {}
 
     private function mapToTable($row) {
-        return [
-            'email_id' => $row->email_id,
-            'deploy_id' => $row->deploy_id,
-            'date' => $row->date,
-            'email_address' => $row->email_address,
-            'email_domain_id' => $row->email_domain_id,
-            'email_domain_group_id' => $row->email_domain_group_id,
-            'offer_id' => $row->offer_id,
-            'cake_vertical_id' => $row->cake_vertical_id,
-            'deliveries' => $row->deliveries,
-            'opens' => $row->opens,
-            'clicks' => $row->clicks,
-            'created_at' => $row->created_at,
-            'updated_at' => $row->updated_at
-        ];
+        $pdo = DB::connection()->getPdo();
+        return "("
+            . $pdo->quote($row->email_id) . ',' 
+            . $pdo->quote($row->deploy_id) . ',' 
+            . $pdo->quote($row->esp_account_id) . ','
+            . $pdo->quote($row->date) . ',' 
+            . $pdo->quote($row->email_address) . ',' 
+            . $pdo->quote($row->lower_case_md5) . ','
+            . $pdo->quote($row->upper_case_md5) . ','
+            . $pdo->quote($row->email_domain_id) . ',' 
+            . $pdo->quote($row->email_domain_group_id) . ',' 
+            . $pdo->quote($row->offer_id) . ',' 
+            . $pdo->quote($row->cake_vertical_id) . ',' 
+            . $pdo->quote($row->has_esp_open) . ','
+            . $pdo->quote($row->has_open) . ','
+            . $pdo->quote($row->has_esp_click) . ','
+            . $pdo->quote($row->has_click) . ','
+            . $pdo->quote($row->deliveries) . ',' 
+            . $pdo->quote($row->opens) . ',' 
+            . $pdo->quote($row->clicks) . ', NOW(), NOW())';
     }
 }
 
