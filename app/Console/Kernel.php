@@ -155,6 +155,7 @@ class Kernel extends ConsoleKernel
          */
         $schedule->command('reports:downloadApi BlueHornet --daysBack=31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Campaigner --daysBack=31')->monthly()->sendOutputTo($filePath);
+        $schedule->command('reports:downloadApi AWeber --daysBack=31 --apiLimit=200')->monthly()->sendOutputTo($filePath);
         #$schedule->command('reports:downloadApi EmailDirect --daysBack=31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Maro --daysBack=31')->monthly()->sendOutputTo($filePath);
         //$schedule->command('reports:downloadApi Ymlp --daysBack=31')->monthly()->sendOutputTo($filePath);

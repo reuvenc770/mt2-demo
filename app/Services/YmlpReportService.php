@@ -244,6 +244,4 @@ class YmlpReportService extends AbstractReportService implements IDataService {
     }
 
     public function pushRecords(array $records, $targetId) {}
-
-    public function setRetrieveApiLimit ( $limit ) {}
 }

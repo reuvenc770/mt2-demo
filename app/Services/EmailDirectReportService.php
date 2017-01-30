@@ -263,6 +263,4 @@ class EmailDirectReportService extends AbstractReportService implements IDataSer
 
 
     public function pushRecords(array $records, $targetId) {}
-
-    public function setRetrieveApiLimit ( $limit ) {}
 }
