@@ -15,6 +15,19 @@
         </div>
     </div>
 
+    <div class="form-group" ng-class="{ 'has-error' : esp.formErrors.nickname }">
+        <label class="col-sm-2 control-label">ESP Nickname</label>
+        <div class="col-sm-10">
+        <input type="text" placeholder="ESP Nickname" id="nickname" class="form-control" required="required"
+               ng-model="esp.currentAccount.nickname"/>
+        <div class="help-block" ng-show="esp.formErrors.nickname">
+            <div ng-repeat="error in esp.formErrors.nickname">
+                <span ng-bind="error"></span>
+            </div>
+        </div>
+        </div>
+    </div>
+
     <div class="form-group" ng-class="{ 'has-error' : esp.formErrors.open_email_id_field }">
         <label class="col-sm-2 control-label">Open Pixel Email ID Field</label>
         <div class="col-sm-10">
@@ -23,7 +36,7 @@
                    ng-model="esp.currentAccount.open_email_id_field"/>
                 <span class="input-group-addon" id="basic-addon2">
                     <label class="no-margin" style="font-weight: normal;">
-                        <input ng-model="esp.currentAccount.open_email_id_field_toggle" type="checkbox"> 
+                        <input ng-model="esp.currentAccount.open_email_id_field_toggle" type="checkbox">
                         Not Used
                     </label>
                 </span>
@@ -44,7 +57,7 @@
                     ng-model="esp.currentAccount.open_email_address_field"/>
                 <span class="input-group-addon" id="basic-addon2">
                     <label class="no-margin" style="font-weight: normal;">
-                        <input ng-model="esp.currentAccount.open_email_address_field_toggle" type="checkbox"> 
+                        <input ng-model="esp.currentAccount.open_email_address_field_toggle" type="checkbox">
                         Not Used
                     </label>
                 </span>
@@ -65,7 +78,7 @@
                    ng-model="esp.currentAccount.email_id_field"/>
                 <span class="input-group-addon" id="basic-addon2">
                     <label class="no-margin" style="font-weight: normal;">
-                        <input ng-model="esp.currentAccount.email_id_field_toggle" type="checkbox"> 
+                        <input ng-model="esp.currentAccount.email_id_field_toggle" type="checkbox">
                         Not Used
                     </label>
                 </span>
@@ -86,7 +99,7 @@
                     ng-model="esp.currentAccount.email_address_field"/>
                 <span class="input-group-addon" id="basic-addon2">
                     <label class="no-margin" style="font-weight: normal;">
-                        <input ng-model="esp.currentAccount.email_address_field_toggle" type="checkbox"> 
+                        <input ng-model="esp.currentAccount.email_address_field_toggle" type="checkbox">
                         Not Used
                     </label>
                 </span>

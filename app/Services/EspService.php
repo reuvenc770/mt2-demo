@@ -29,7 +29,7 @@ class EspService
 
     public function insertRow ( $request ) {
         try {
-            $esp = $this->espRepo->insertRow( [ 'name' => $request[ 'name' ] ] );
+            $esp = $this->espRepo->insertRow( [ 'name' => $request[ 'name' ] , 'nickname' => strtolower($request['nickname']) ] );
 
             $this->espRepo->updateFieldOptions( $esp->id , $request );
         } catch(\Exception $e){
@@ -71,7 +71,7 @@ class EspService
     }
 
     public function updateAccount($id, $fieldOptions){
-        $this->espRepo->updateEspName($id, $fieldOptions['name']);
+        $this->espRepo->updateEspName($id, $fieldOptions['name'] , strtolower($fieldOptions['nickname']) );
         return $this->espRepo->updateFieldOptions($id, $fieldOptions);
     }
 
