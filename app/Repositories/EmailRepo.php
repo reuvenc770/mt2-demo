@@ -441,7 +441,7 @@ class EmailRepo implements Mt2Export, IAwsRepo {
         $pdo = DB::connection('redshift')->getPdo();
         return $pdo->quote($row->id) . ','
             . $pdo->quote($row->email_address) . ','
-            . $pdo->quote($row->domain_id) . ','
+            . $pdo->quote($row->email_domain_id) . ','
             . $pdo->quote($row->lower_case_md5) . ','
             . $pdo->quote($row->upper_case_md5);
     }

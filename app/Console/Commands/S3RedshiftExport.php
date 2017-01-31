@@ -26,7 +26,6 @@ class S3RedshiftExport extends Command
     protected $description = "Export tables to s3 and redshift";
 
     private $entities = ['EmailDomain', 'EmailFeedAssignment', 'Email', 'Feed', 'ListProfileFlatTable', 'RecordData', 'SuppressionGlobalOrange', 'DomainGroup', 'Client'];
-    
     /**
      * Create a new command instance.
      *

@@ -48,8 +48,8 @@ class EspRepo
       return $this->esp->accountMapping()->getRelated()->updateOrCreate(["esp_id" =>$espId],$mappings);
     }
 
-    public function updateEspName($id, $name){
-        return $this->esp->find($id)->update(['name' =>$name]);
+    public function updateEspName($id, $name, $nickname){
+        return $this->esp->find($id)->update(['name' =>$name , 'nickname' => $nickname ]);
     }
 
     public function returnModelwithFields(){

@@ -8,6 +8,8 @@
 
 namespace App\Repositories;
 use App\Models\Interfaces\IReportMapper;
+use Carbon\Carbon;
+
 class ReportRepo
 {
     /**
@@ -63,19 +65,11 @@ class ReportRepo
         return null;
     }
 
-    public function getByEspAccountDateSubject($espAccountIds, $dates, $subjects){
-        $eloquentObj = $this->report
-            ->whereIn( 'esp_account_id', $espAccountIds )
-            ->whereIn( \DB::raw( 'DATE( ' . $this->report->getDateFieldName() . ' )' ) , $dates );
-
+    public function getBySubject($subject){
+        $eloquentObj = $this->report;
         if ( !is_null( $this->report->getSubjectFieldName() ) ) {
-            foreach ( $subjects as $currentSubject ) {
-                if ( !is_null( $currentSubject ) ) {
-                    $eloquentObj = $eloquentObj->orWhere( $this->report->getSubjectFieldName() , 'like' , '%' . $currentSubject . '%' );
+                    $eloquentObj = $eloquentObj->where( $this->report->getSubjectFieldName() , 'like' , '%' . $subject . '%' );
                 }
-            }
-        }
-
         return $eloquentObj->get();
     }
 

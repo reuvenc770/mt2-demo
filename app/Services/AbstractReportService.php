@@ -19,6 +19,7 @@ abstract class AbstractReportService implements IDataService  {
     protected $reportRepo;
     protected $api;
     protected $emailRecord;
+    protected $limit;
 
     public function __construct(ReportRepo $reportRepo, EspBaseApi $api , EmailRecordService $emailRecord ) {
         $this->reportRepo = $reportRepo;
@@ -35,6 +36,10 @@ abstract class AbstractReportService implements IDataService  {
     abstract public function mapToStandardReport($data);
 
     abstract public function pushRecords(array $records, $targetId);
+
+    public function setRetrieveApiLimit ( $limit ) {
+        $this->limit = $limit;
+    }
 
     public function insertCsvRawStats($reports, $date){
         $arrayReportList = array();
