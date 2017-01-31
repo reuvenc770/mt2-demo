@@ -193,31 +193,44 @@ class FtpAdmin extends Command
     }
 
     protected function saveUserAndPassword () {
-        $this->ftpUserService->save( [ 'username' => $this->username , 'password' => $this->password ] , $this->directory , 'localhost' , get_class( $this->service ) );
-
-        $this->service->saveFtpUser( [ "username" => $this->username , "password" => $this->password, "ftp_url" => 'ftp://' . $this->option( 'host' ) ] );
+        $this->ftpUserService->save( [ 'username' => $this->username , 'password' => $this->password ] , $this->directory , $this->option( 'host' ) , get_class( $this->service ) );
     }
 
     protected function generateNewUsersFromDb () {
         $users = $this->service->findNewFtpUsers();
 
+        $this->systemService->initSshConnection(
+            $this->option( 'host' ) ,
+            $this->option( 'port' ) ,
+            $this->option( 'sshUser' ) , 
+            $this->option( 'sshPublicKey' ) ,
+            $this->option( 'sshPrivateKey' )
+        );
+
         foreach ( $users as $currentUser ) {
             $this->username = null;
             $this->password = null;
 
-            $this->username = $currentUser->username;
-            $this->directory = '/home/' . $currentUser->username;
+            $this->username = $currentUser->short_name;
+            $this->directory = '/home/' . $currentUser->short_name;
 
-            if ( isset( $currentUser->password ) ) {
-                $this->password = $currentUser->password;
-            }
+            $responseString = $this->systemService->userExists( $this->username );
+            $response = json_decode( $responseString );
 
-            try {
-                $this->setupFtpUser();
-            } catch ( \Exception $e ) {
-                Log::error( "FtpAdmin Command - " . $e->getMessage() );
+            if ( $response->status === 0 ) {
+                if ( isset( $currentUser->password ) ) {
+                    $this->password = $currentUser->password;
+                }
 
-                $this->error( $e->getMessage() );
+                try {
+                    $this->setupFtpUser();
+                } catch ( \Exception $e ) {
+                    Log::error( "FtpAdmin Command - " . $e->getMessage() );
+
+                    $this->error( $e );
+                }
+            } else {
+                \Log::info( $this->username . ' already exists.....' );
             }
         }
     }
