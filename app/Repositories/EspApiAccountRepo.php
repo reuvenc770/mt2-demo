@@ -96,6 +96,7 @@ class EspApiAccountRepo
         $this->espAccount->key_1 = $newAccount[ 'key1' ];
         $this->espAccount->key_2 = $newAccount[ 'key2' ];
         $this->espAccount->esp_id = $newAccount[ 'espId' ];
+        $this->espAccount->custom_id = $newAccount[ 'customId' ];
         $this->espAccount->save();
     }
 
@@ -106,6 +107,7 @@ class EspApiAccountRepo
     public function updateAccount ( $id , $accountData ) {
         $account = $this->espAccount->find( $id );
         $account->account_name = $accountData[ 'accountName' ];
+        $account->custom_id = $accountData[ 'customId' ];
         $account->key_1 = $accountData[ 'key1' ];
         $account->key_2 = $accountData[ 'key2' ];
         $account->save();

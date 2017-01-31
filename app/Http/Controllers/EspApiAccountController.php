@@ -119,6 +119,7 @@ class EspApiAccountController extends Controller
                 'accountId' => $account->id ,
                 'espName' => $account->esp->name ,
                 'accountName' => $account->account_name ,
+                'customId' => $account->custom_id,
                 'key1' => $account->key_1 ,
                 'key2' => $account->key_2 ,
                 'espList' => $this->getEspList() ,
@@ -166,6 +167,18 @@ class EspApiAccountController extends Controller
     public function grabTemplatesByESP($id){
         $data = $this->espAccountService->getTemplatesByEspId($id);
         return  response()->json($data);
+    }
+
+    public function generateCustomId(){
+        $existingCustomIds = $this->espAccountService->getAllCustomIds()->toArray();
+
+        do {
+            $newUniqueCustomId = mt_rand( 100000 , 100000 + rand() );
+        } while (
+            in_array($newUniqueCustomId, $existingCustomIds)
+        );
+
+        return $newUniqueCustomId;
     }
 
     protected function getEspList() {

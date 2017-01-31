@@ -5,7 +5,7 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     self.headers = [ '' , 'ID' , 'ESP' , 'Key 1' , 'Key 2' , 'Account' , 'Created' , 'Updated' ];
     self.accounts = [];
 
-    self.currentAccount = { "espId" : "" , "id" : "" , "accountName" : "" , "key1" : "" , "key2" : "" };
+    self.currentAccount = { "espId" : "" , "id" : "" , "accountName" : "" , "customId" : null , "key1" : "" , "key2" : "" };
 
     self.espApiKeyNameMapping = {
      '2' : { 'key1' : 'Username' , 'key2' : 'Password' },
@@ -90,6 +90,10 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         EspApiService.toggleRow(recordId, direction, self.toggleRowSuccess, self.toggleRowFailure)
     };
 
+    self.generateCustomId = function() {
+        EspApiService.generateCustomId( self.generateCustomIdSuccessCallback , self.generateCustomIdFailureCallback );
+    };
+
     /**
      * Callbacks
      */
@@ -97,6 +101,7 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         self.currentAccount.espId = String(response.data.esp_id);
         self.currentAccount.id = response.data.id;
         self.currentAccount.accountName = response.data.account_name;
+        self.currentAccount.customId = response.data.custom_id;
         self.currentAccount.key1 = response.data.key_1;
         self.currentAccount.key2 = response.data.key_2;
 
@@ -140,6 +145,16 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         modalService.setModalBody( "Failed to update ESP API account status. Please try again." );
         modalService.launchModal();
         self.loadAccounts();
+    };
+
+    self.generateCustomIdSuccessCallback = function ( response ) {
+        self.currentAccount.customId = response.data;
+    };
+
+    self.generateCustomIdFailureCallback = function () {
+        modalService.setModalLabel('Error');
+        modalService.setModalBody( "Failed to generate random custom ID. Please contact support." );
+        modalService.launchModal();
     };
 
 } ] );

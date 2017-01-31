@@ -185,9 +185,12 @@ class EspApiAccountService
             'consumerSecret' => $espDetails->OAuthTokens['access_secret'],
         );
     }
-    
+
     public function getAccountsBySearchName($search){
         return $this->espRepo->backFuzzySearch($search);
     }
 
+    public function getAllCustomIds() {
+        return $this->espRepo->getAllAccounts()->pluck('custom_id');
+    }
 }

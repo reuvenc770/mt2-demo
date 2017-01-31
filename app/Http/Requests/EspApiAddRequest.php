@@ -26,7 +26,8 @@ class EspApiAddRequest extends Request
         return [
             'espId' => 'required' ,
             'accountName' => 'required|unique:esp_accounts,account_name' ,
-            'key1' => 'required|unique:esp_accounts,key_1'
+            'key1' => 'required|unique:esp_accounts,key_1',
+            'customId' => 'integer|min:100000|unique:esp_accounts,custom_id'
         ];
     }
 
@@ -40,7 +41,10 @@ class EspApiAddRequest extends Request
             'accountName.required' => 'ESP Account Name is required.' ,
             'accountName.unique' => 'ESP Account already exists.' ,
             'key1.required' => 'ESP Key 1 is required.' ,
-            'key1.unique' => 'ESP Key 1 already exists.'
+            'key1.unique' => 'ESP Key 1 already exists.',
+            'customId.integer' => 'Custom ID must be digits only. Do not include letters or special characters.',
+            'customId.min' => 'Custom ID must be a minimum of 6 digits.',
+            'customId.unique' => 'This custom ID is used by another ESP API account. Please enter a different custom ID.'
         ];
     }
 }

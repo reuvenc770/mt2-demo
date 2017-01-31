@@ -45,4 +45,12 @@ mt2App.service( 'EspApiService' , [ 'paginationService' , '$http' , '$log' , fun
             "params" : { "direction" : direction }
         } ).then( successCallback , failureCallback );
     };
+
+    self.generateCustomId = function ( successCallback , failureCallback ) {
+        $http( {
+            "method" : "GET" ,
+            "url" : self.baseApiUrl + '/generatecustomid'
+        } ).then( successCallback , failureCallback );
+    };
+
 } ] );
