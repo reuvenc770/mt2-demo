@@ -43,6 +43,12 @@ class UrlFormatService {
         return "http://$contentDomain/$randString1/$randString2/$emailIdField|$randString3|$linkId|$endingString";
     }
 
+    public function formatOpenUrl ( $contentDomain , $espNickname , $espId , $deployId , $emailIdField , $emailAddressField ) {
+        $endingString = $this->randomDigits(0, 999999);
+
+        return "http://{$contentDomain}/{$espNickname}/{$espId}/{$deployId}/{$emailIdField}/spacer{$endingString}.png?em={$emailAddressField}";
+    }
+
     public function getDefinedRandomString() {
         return $this->randomString(6, 9, self::USE_NUMBERS_TRUE, self::USE_LOWERCASE_TRUE);
     }
