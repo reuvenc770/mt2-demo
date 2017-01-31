@@ -15,6 +15,10 @@ use Cache;
 use Carbon\Carbon;
 use App\Repositories\RepoInterfaces\Mt2Export;
 
+# Dependencies for testing
+use App;
+use App\Repositories\EtlPickupRepo;
+
 class DeployRepo implements Mt2Export
 {
     protected $deploy;
@@ -65,7 +69,17 @@ class DeployRepo implements Mt2Export
 
     public function insert($data)
     {
-        return $this->deploy->create($data);
+        # Small change for testing
+        $pickupRepo = App::make(EtlPickupRepo::class);
+        $testingId = $pickupRepo->getLastInsertedForName('TestDeploys');
+
+        $data['id'] = (int)$testingId + 1;
+
+        $insert = $this->deploy->create($data);
+
+        $pickupRepo->updatePosition('TestDeploys', (int)$testingId + 1);
+
+        return $insert;
     }
 
     public function getDeploy($id)
