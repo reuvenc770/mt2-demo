@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Jobs\Job;
 use App\Services\API\MaroApi;
+use Carbon\Carbon;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -34,7 +35,9 @@ class ProcessThirdPartyMaroRecords extends Job implements ShouldQueue
     ];
     protected $steps = [
         "splitTypes",
-        "savePagininatedRecords"
+        "savePagininatedRecords",
+        "pickCampaignsForSplit",
+        "savePaginatedDeliveredRecords",
     ];
 
     /**
@@ -61,6 +64,8 @@ class ProcessThirdPartyMaroRecords extends Job implements ShouldQueue
     public function handle()
     {
         $this->api = new MaroApi($this->espAccountId);
+
+
         try {
             JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
             $filterName = $this->getStep();
@@ -109,6 +114,11 @@ class ProcessThirdPartyMaroRecords extends Job implements ShouldQueue
             $this->state['recordType'] = $currentType;
             $this->queueNextJob();
         }
+        //Launch Deliverable Job
+        $this->state['step']++;
+        $this->state['recordType'] = null;
+        $this->queueNextJob();
+
         $this->changeJobEntry(JobEntry::SUCCESS);
     }
 
@@ -206,6 +216,7 @@ class ProcessThirdPartyMaroRecords extends Job implements ShouldQueue
                     $currentRecord['campaign_id'],
                     $currentRecord['contact_id'],
                     "'" .$this->state['recordType']."'" ,
+                    (empty($currentRecord['ip_address']) ? "''" : "'" . $currentRecord['ip_address'] . "'"),
                     (empty($currentRecord['browser']) ? "''" : "'" . $currentRecord['browser'] . "'"),
                     (empty($currentRecord['recorded_at']) ? "''" : "'" . $currentRecord['recorded_at'] . "'"),
                     "'" .addslashes($currentRecord['contact']['email'])."'",
@@ -219,7 +230,7 @@ class ProcessThirdPartyMaroRecords extends Job implements ShouldQueue
         if (count($insert) > 0) {
             DB::connection(snake_case($this->companyName.'Data'))->statement("
                     INSERT INTO maro_raw_actions
-                        ( account_id , campaign_id , contact_id, action_type,
+                        ( account_id , campaign_id , contact_id, action_type, ip_address,
                         browser , recorded_at , email_address , esp_account_id, account_number, created_at , 
                         updated_at )    
                     VALUES
@@ -229,6 +240,7 @@ class ProcessThirdPartyMaroRecords extends Job implements ShouldQueue
                         campaign_id = campaign_id ,
                         contact_id = contact_id,
                         action_type = action_type,
+                        ip_address = ip_address,
                         browser = browser ,
                         recorded_at = recorded_at ,
                         created_at = created_at ,
@@ -239,4 +251,96 @@ class ProcessThirdPartyMaroRecords extends Job implements ShouldQueue
             );
         }
     }
+
+    //will refactor if anything ever grows
+    private function saveDeliveredPage($data)
+    {
+        $insert = array();
+        foreach ($data as $currentRecord) {
+            $insert[] = "( "
+                . join(" , ", [
+                    $currentRecord['account_id'],
+                    $currentRecord['campaign_id'],
+                    $currentRecord['contact_id'],
+                    "'delivered'" ,
+                    (empty($currentRecord['ip_address']) ? "''" : "'" . $currentRecord['ip_address'] . "'"),
+                    (empty($currentRecord['browser']) ? "''" : "'" . $currentRecord['browser'] . "'"),
+                    (empty($currentRecord['created_at']) ? "''" : "'" . $currentRecord['created_at'] . "'"),
+                    "'" .addslashes($currentRecord['email'])."'",
+                    $this->espAccountId ,
+                    $this->api->getAccountId() ,
+                    'NOW()',
+                    'NOW()'
+                ])
+                . ")";
+        }
+        if (count($insert) > 0) {
+            DB::connection(snake_case($this->companyName.'Data'))->statement("
+                    INSERT INTO maro_raw_actions
+                        ( account_id , campaign_id , contact_id, action_type, ip_address,
+                        browser , recorded_at , email_address , esp_account_id, account_number, created_at , 
+                        updated_at )    
+                    VALUES
+                        " . join(' , ', $insert) . "
+                    ON DUPLICATE KEY UPDATE
+                        account_id = account_id ,
+                        campaign_id = campaign_id ,
+                        contact_id = contact_id,
+                        action_type = action_type,
+                        ip_address = ip_address,
+                        browser = browser ,
+                        recorded_at = recorded_at ,
+                        created_at = created_at ,
+                        email_address = email_address ,
+                        esp_account_id = esp_account_id ,
+                        account_number = account_number ,
+                        updated_at = NOW()"
+            );
+        }
+    }
+
+    public function pickCampaignsForSplit(){
+        //Not going to page unless we find out we have to first page should be fine.
+        $this->api->constructCampaignListUrl();
+        $data = $this->api->sendApiRequest();
+        $data = $this->processGuzzleResult($data);
+        foreach($data as $campaign){
+            if($campaign['status'] == "sent" && $campaign['send_at'] >= Carbon::today()->subDay(5)){
+                $this->state['step']++;
+                $this->state['campaign'] = $campaign['id'];
+                $this->queueNextJob();
+            }
+
+        }
+        $this->changeJobEntry(JobEntry::SUCCESS);
+    }
+
+    protected function savePaginatedDeliveredRecords()
+    {
+        $this->state['pageNumber'] = isset($this->state['pageNumber']) ? $this->state['pageNumber'] : 1;
+        if ($data = $this->pageHasCampaignData()) {
+            $this->saveDeliveredPage($data);
+            $this->state['pageNumber']++;
+            $this->queueNextJob();
+        }
+        $this->changeJobEntry(JobEntry::SUCCESS, 0);
+    }
+
+    private function pageHasCampaignData()
+    {
+        $campaignId = $this->state['campaign'];
+        $this->api->setDeliverableLookBack();
+        $this->api->setActionUrl($campaignId, "delivered", $this->state['pageNumber']);
+        $data = $this->api->sendApiRequest();
+        $data = $this->processGuzzleResult($data);
+
+        if (empty($data)) {
+            return false;
+        } else {
+            return $data;
+        }
+
+    }
+
+
 }

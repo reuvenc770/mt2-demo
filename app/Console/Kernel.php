@@ -94,6 +94,7 @@ class Kernel extends ConsoleKernel
         Commands\VacuumRedshift::class,
         Commands\CleanUpRawContentServerActions::class,
         Commands\SumBrontoStandardReports::class,
+        Commands\processThirdPartyEspRecords::class,
     ];
 
     /**

@@ -44,7 +44,7 @@ class processThirdPartyEspRecords extends Command
      */
     public function handle()
     {
-        $accounts = $this->espRepo->getAccountsBySearchName("Dima");
+        $accounts = $this->espRepo->backFuzzySearch("Dima");
         foreach($accounts as $account){
             $job = new ProcessThirdPartyMaroRecords("Dima",$account['id'],str_random(16));
             $this->dispatch($job);

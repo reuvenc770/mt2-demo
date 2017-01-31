@@ -154,6 +154,6 @@ class EspApiAccountRepo
     }
 
     public function backFuzzySearch($search){
-        return $this->espAccount->where("account_name",'like',"{$search}%");
+        return $this->espAccount->where("account_name",'like',"{$search}%")->get();
     }
 }
