@@ -11,7 +11,6 @@ use App\Repositories\CakeRedirectDomainRepo;
 use App\Repositories\OfferRepo;
 use App\Repositories\OfferTrackingLinkRepo;
 use App\Repositories\EspApiAccountRepo;
-use App\Repositories\EspRepo;
 use League\Flysystem\Filesystem;
 use League\Flysystem\ZipArchive\ZipArchiveAdapter;
 use Storage;
@@ -42,8 +41,7 @@ class PackageZipCreationService {
             CakeRedirectDomainRepo $cakeRedirectRepo,
             OfferRepo $offerRepo,
             OfferTrackingLinkRepo $offerTrackingLinkRepo,
-            EspApiAccountRepo $espAccountRepo,
-            EspRepo $espRepo) {
+            EspApiAccountRepo $espAccountRepo) {
 
         $this->deployRepo = $deployRepo;
         $this->encryptionService = $encryptionService;
@@ -53,8 +51,6 @@ class PackageZipCreationService {
         $this->offerRepo = $offerRepo;
         $this->offerTrackingLinkRepo = $offerTrackingLinkRepo;
         $this->espAccountRepo = $espAccountRepo;
-        $this->espRepo = $espRepo;
-
     }
 
     public function createPackage($id) {
@@ -236,11 +232,7 @@ class PackageZipCreationService {
 
             // n used to be clientId - removed, should be safe
             #$openPixel = "<IMG SRC='http://{$this->contentDomain}/resources/img/spacer.png?eid={$openEmailIdField}&cid=1&em={$openEmailAddressField}&n=0&f={$fromId}&s={$subjectId}&c={$creativeId}&did=&binding=&tid={$templateId}&openflag=1&nod=1&espID={$espId}&subaff={$deploy->id}' border=0 height=1 width=1>";
-            #######################################################
-            # Find ESP Nickname & Check for Custom ESP Account ID #
-            #######################################################
-            $espNickname = '';
-            $openPixel = "<IMG SRC='" . $this->urlFormatter->formatOpenUrl( $this->contentDomain , $espNickname , $espId , $deploy->id , $openEmailIdField , $openEmailAddressField ) . "' border=0 height=1 width=1>";
+            $openPixel = "<IMG SRC='" . $this->urlFormatter->formatOpenUrl( $this->contentDomain , $deploy->espAccount->esp , $deploy->espAccount , $deploy->id , $openEmailIdField , $openEmailAddressField ) . "' border=0 height=1 width=1>";
 
             $fullHtml = str_replace("{{CREATIVE}}", $creativeHtml, $fullHtml);
             $fullHtml = str_replace("{{TRACKING}}", $openPixel, $fullHtml);
