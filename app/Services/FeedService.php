@@ -308,7 +308,7 @@ class FeedService implements IFtpAdmin
                         $order = 'desc';
                     }
 
-                    $eloquentObj = $eloquentObj->orderBy($sort['field'], $order );
+                    $eloquentObj = $eloquentObj->orderByRaw(\DB::raw( $sort['field'] . ' ' .  $order ) );
                 }
 
                 $paginationJSON = $eloquentObj->paginate($count)->toJSON();
