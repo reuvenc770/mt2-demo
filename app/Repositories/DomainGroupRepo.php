@@ -58,7 +58,7 @@ class DomainGroupRepo implements IAwsRepo
     }
 
     public function extractForS3Upload($stopPoint) {
-        return $this->domainGroup->where('id', '>', $stopPoint);
+        return $this->domainGroup->whereRaw("id > $stopPoint");
     }
 
     public function extractAllForS3() {

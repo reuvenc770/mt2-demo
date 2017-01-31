@@ -26,7 +26,7 @@ class S3RedshiftExportService {
         $this->s3Client = $s3Client;
         $this->redshiftRepo = $redshiftRepo;
         $this->pickupRepo = $pickupRepo;
-        $this->filePath = "/app/export/{$entity}.csv";
+        $this->filePath = config('misc.real_storage_path') . "/app/export/{$entity}.csv";
         $this->entity = $entity;
 
         $this->strat = $strat;
@@ -45,7 +45,8 @@ class S3RedshiftExportService {
     }
 
     private function write($resource, $stopPoint) {
-        File::delete(storage_path() . $this->filePath);
+        File::delete($this->filePath);
+        File::put($this->filePath, '');
 
         $this->rowCount = 0;
         $nextId = $stopPoint;
@@ -69,29 +70,29 @@ class S3RedshiftExportService {
     }
 
     public function load() {
-	$result = $this->s3Client->putObject([
+	   $result = $this->s3Client->putObject([
             'Bucket' => config('aws.s3.fileUploadBucket'),
             'Key' => "{$this->entity}.csv",
-            'SourceFile' => storage_path('app') . $this->filePath,
+            'SourceFile' => $this->filePath,
         ]);
 
         $this->redshiftRepo->loadEntity($this->entity);
 
         // And then delete the file
-        File::delete(storage_path() . $this->filePath);
+        File::delete($this->filePath);
     }
 
     public function loadAll() {
         $result = $this->s3Client->putObject([
             'Bucket' => config('aws.s3.fileUploadBucket'),
             'Key' => "{$this->entity}.csv",
-            'SourceFile' => storage_path('app') . $this->filePath,
+            'SourceFile' => $this->filePath,
         ]);
 
         $this->redshiftRepo->clearAndReloadEntity($this->entity);
 
         // And then delete the file
-        File::delete(storage_path() . $this->filePath);
+        File::delete($this->filePath);
     }
 
 
@@ -108,6 +109,6 @@ class S3RedshiftExportService {
 
     private function writeBatch($fileName) {
         $string = implode(PHP_EOL, $this->rows);
-        File::append(storage_path() . $this->filePath, $string);
+        File::append($this->filePath, $string);
     }
 }
