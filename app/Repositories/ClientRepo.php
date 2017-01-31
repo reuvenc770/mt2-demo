@@ -45,7 +45,7 @@ class ClientRepo implements IAwsRepo {
     }
 
     public function extractForS3Upload($stopPoint) {
-        return $this->client->where('id', '>', $stopPoint);
+        return $this->client->whereRaw("id > $stopPoint");
     }
 
     public function extractAllForS3() {

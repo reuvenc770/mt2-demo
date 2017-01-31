@@ -24,6 +24,7 @@ class RetrieveApiReports extends Job implements ShouldQueue
     protected $date;
     protected $attempts;
     protected $tracking;
+    protected $apiLimit;
 
     protected $logTypeMap = [
         JobException::NOTICE => 'notice' ,
@@ -32,13 +33,14 @@ class RetrieveApiReports extends Job implements ShouldQueue
         JobException::CRITICAL => 'critical'
     ];
 
-    public function __construct($apiName, $espAccountId, $date, $tracking)
+    public function __construct($apiName, $espAccountId, $date, $tracking, $apiLimit = null)
     {
        $this->apiName = $apiName;
        $this->espAccountId = $espAccountId;
        $this->date = $date;
        $this->attempts = 0;
        $this->tracking = $tracking;
+       $this->apiLimit = $apiLimit;
        JobTracking::startEspJob( self::JOB_NAME , $this->apiName , $this->espAccountId , $this->tracking );
     }
 
@@ -54,6 +56,10 @@ class RetrieveApiReports extends Job implements ShouldQueue
         $count = 0;
         try {
             $reportService = APIFactory::createAPIReportService( $this->apiName , $this->espAccountId );
+
+            if ( !is_null( $this->apiLimit ) ) {
+                $reportService->setRetrieveApiLimit( $this->apiLimit );
+            }
 
             $data = $reportService->retrieveApiStats( $this->date );
 

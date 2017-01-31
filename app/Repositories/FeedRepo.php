@@ -199,7 +199,7 @@ class FeedRepo implements Mt2Export, IAwsRepo {
     }
 
     public function extractForS3Upload($stopPoint) {
-        return $this->feed->where('id', '>', $stopPoint);
+        return $this->feed->whereRaw("id > $stopPoint");
     }
 
     public function extractAllForS3() {

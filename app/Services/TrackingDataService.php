@@ -156,5 +156,4 @@ class TrackingDataService implements IDataService
 
     return 0;
   }
-
 }
