@@ -61,7 +61,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
         $date = null; //unfortunately date does not matter here.
         $campaignData = array();
         $activeLists = $this->listService->getActiveLists($this->api->getEspAccountId());
-        $campaigns = $this->api->getCampaigns($activeLists);
+        $campaigns = $this->api->getCampaigns($activeLists , $this->limit);
 
         foreach ($campaigns as $campaign) {
             //using -1 because we need a way to know when a report has not been picked up yet for click/unique pull

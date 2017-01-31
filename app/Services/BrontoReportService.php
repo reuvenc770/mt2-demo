@@ -460,5 +460,4 @@ class BrontoReportService extends AbstractReportService implements IDataService
     public function getRawReportsForSplit($campaignName, $epsAccountId){
         return $this->reportRepo->getRawCampaignsFromName($campaignName, $epsAccountId);
     }
-
 }
