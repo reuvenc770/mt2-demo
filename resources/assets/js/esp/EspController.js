@@ -4,19 +4,20 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
 
     self.accounts = [];
 
-    self.currentAccount = { 
-        "_token" : "" , 
-        "id" : "" , 
-        "name" : "" , 
+    self.currentAccount = {
+        "_token" : "" ,
+        "id" : "" ,
+        "name" : "" ,
+        "nickname" : "" ,
         "open_email_id_field" : "",
-        "open_email_id_field_toggle" : false , 
-        "open_email_address_field" : "", 
-        "open_email_address_field_toggle" : false, 
+        "open_email_id_field_toggle" : false ,
+        "open_email_address_field" : "",
+        "open_email_address_field_toggle" : false,
         "email_id_field" : "",
-        "email_id_field_toggle" : false , 
-        "email_address_field" : "", 
-        "email_address_field_toggle" : false, 
-        "hasAccounts":true 
+        "email_id_field_toggle" : false ,
+        "email_address_field" : "",
+        "email_address_field_toggle" : false,
+        "hasAccounts":true
     };
 
     self.editUrl = 'esp/edit/';

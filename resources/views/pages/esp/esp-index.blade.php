@@ -25,6 +25,7 @@
                     </th>
                     <th md-column class="md-table-header-override-whitetext">ID</th>
                     <th md-column class="md-table-header-override-whitetext">Name</th>
+                    <th md-column class="md-table-header-override-whitetext">Nickname</th>
                     <th md-column class="md-table-header-override-whitetext">Open Email ID Field</th>
                     <th md-column class="md-table-header-override-whitetext">Open Email Address Field</th>
                     <th md-column class="md-table-header-override-whitetext">Link Email ID Field</th>
@@ -57,6 +58,7 @@
                     </td>
                     <td md-cell ng-bind="record.id"></td>
                     <td md-cell ng-bind="record.name"></td>
+                    <td md-cell ng-bind="record.nickname"></td>
                     <td md-cell ng-bind="record.field_options.open_email_id_field"></td>
                     <td md-cell ng-bind="record.field_options.open_email_address_field"></td>
                     <td md-cell ng-bind="record.field_options.email_id_field"></td>
@@ -66,7 +68,7 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="8">
+                    <td colspan="9">
                         <md-content class="md-mt2-zeta-theme md-hue-2">
                             <md-table-pagination md-limit="esp.paginationCount" md-limit-options="esp.paginationOptions" md-page="esp.currentPage" md-total="@{{esp.accountTotal}}" md-on-paginate="esp.loadAccounts" md-page-select></md-table-pagination>
                         </md-content>
