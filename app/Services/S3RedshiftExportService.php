@@ -109,6 +109,7 @@ class S3RedshiftExportService {
 
     private function writeBatch($fileName) {
         $string = implode(PHP_EOL, $this->rows);
-        File::append($this->filePath, $string);
+        // File (i.e. file_put_contents) will not append to the next newline, so this must be done manually.
+        File::append($this->filePath, $string . PHP_EOL); 
     }
 }
