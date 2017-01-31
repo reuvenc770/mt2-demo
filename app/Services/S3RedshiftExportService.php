@@ -98,6 +98,8 @@ class S3RedshiftExportService {
 
     private function batch($fileName, $row) {
         if ($this->rowCount >= self::WRITE_THRESHOLD) {
+            // Workaround for File not appending to new line and pgsql COPY failing on empty line
+            $this->rows[] = '';
             $this->writeBatch($fileName);
             $this->rows = [$row];
             $this->rowCount = 1;
@@ -109,7 +111,6 @@ class S3RedshiftExportService {
 
     private function writeBatch($fileName) {
         $string = implode(PHP_EOL, $this->rows);
-        // File (i.e. file_put_contents) will not append to the next newline, so this must be done manually.
-        File::append($this->filePath, $string . PHP_EOL); 
+        File::append($this->filePath, $string); 
     }
 }
