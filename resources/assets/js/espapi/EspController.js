@@ -40,6 +40,8 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     self.loadAccount = function () {
         var pathMatches = $location.path().match( /^\/espapi\/edit\/(\d{1,})/ );
 
+        modalService.setPopover();
+
         EspApiService.getAccount( pathMatches[ 1 ] , self.loadAccountSuccessCallback );
     };
 
