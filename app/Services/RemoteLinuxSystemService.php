@@ -17,6 +17,7 @@ class RemoteLinuxSystemService {
     const GET_CONTENT_SLICE_COMMAND = "sed -n %d,%dp %s";
     const GET_FILE_LINE_COUNT_COMMAND = "wc -l < %s";
     const APPEND_EOF_COMMAND = "sed -i -e '\$a\' %s";
+    const USER_EXISTS_COMMAND = 'getent passwd %s > /dev/null 2&>1; [[ $? -eq 0 ]] && echo "{\"status\":1}" || echo "{\"status\":0}"';
 
     protected $sshConnection = null;
     protected $host = null;
@@ -143,6 +144,14 @@ class RemoteLinuxSystemService {
 
     public function getRecentFiles ( $directory ) {
         $command = sprintf( self::FIND_RECENT_FILES_COMMAND , $directory );
+
+        $stream = ssh2_exec( $this->sshConnection , $command );
+
+        return $this->getOutput( $stream );
+    }
+
+    public function userExists ( $username ) {
+        $command = sprintf( self::USER_EXISTS_COMMAND , $username );
 
         $stream = ssh2_exec( $this->sshConnection , $command );
 

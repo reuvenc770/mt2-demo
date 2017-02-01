@@ -228,4 +228,8 @@ class FeedRepo implements Mt2Export, IAwsRepo {
     public function getConnection() {
         return $this->feed->getConnectionName();
     }
+
+    public function getNewUsersForToday () {
+        return $this->feed->where( 'created_at' ,  '>=' ,  \Carbon\Carbon::now()->startOfDay()->toDatetimeString() )->get();
+    }   
 }
