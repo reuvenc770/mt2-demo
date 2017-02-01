@@ -32,7 +32,7 @@
             <td md-cell ng-hide="domain.rowBeingEdited != 0" class="mt2-table-cell-center" ng-class="{ 'bg-success' : record.status == 1 , 'bg-danger' : record.status == 0 }">
                 @{{ record.status == 1 ? 'Active' : 'Inactive' }}
             </td>
-            <td md-cell ng-hide="domain.beingEdited(record.dom_id)" class="mt2-cell-left-padding">@{{ record.domain_name }}</td>
+            <td md-cell ng-hide="domain.beingEdited(record.dom_id)" class="mt2-cell-left-padding">@{{ record.domain_name + ( typeof( record.type ) !== 'undefined' ? ( record.type == 1 ? ' - Mailing' : ' - Content' ) : '' ) }}</td>
             <td md-cell ng-if="domain.type == 2" ng-hide="domain.beingEdited(record.dom_id)">@{{ record.proxy_name }}</td>
             <td md-cell ng-hide="domain.beingEdited(record.dom_id)">@{{ record.registrar_name }}</td>
             <td md-cell ng-if="domain.type == 1" ng-hide="domain.beingEdited(record.dom_id)" >@{{ record.main_site }}</td>
