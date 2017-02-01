@@ -114,7 +114,7 @@ class SetSchedulesJob extends Job implements ShouldQueue {
 
         // For each email we have a deploy id. Check, if possible, what party that deploy id came from.
         foreach ($emails as $record) {
-            if (isset($record['deployId'] && 1 === $deployService->getDeployParty($record['deployId'])) {
+            if (isset($record['deployId']) && 1 === $deployService->getDeployParty($record['deployId'])) {
                 // array of stdClass with prop feed_id
                 $feeds = $deployService->getFeedIdsInDeploy($record['deployId']);
 
