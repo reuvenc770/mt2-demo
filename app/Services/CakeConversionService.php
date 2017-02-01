@@ -11,8 +11,11 @@ use App\Services\API\CakeConversionApi;
 use App\Repositories\Attribution\RecordReportRepo;
 use App\Jobs\AttributionConversionJob;
 use Carbon\Carbon;
+use Maknz\Slack\Facades\Slack;
 
 class CakeConversionService implements IConversion {
+    CONST ROOM = "#mt2-dev-failed-jobs";
+
     protected $repo;
     protected $recordRepo;
     protected $api;
@@ -50,12 +53,16 @@ class CakeConversionService implements IConversion {
 
         $statsResponse = json_decode( $statsGuzzle->getBody()->getContents() );
 
-        $sqlStringList = $this->formatSqlValueString( $processMode , $statsResponse->stats , $recordType );
+        if ( count( $statsResponse->stats ) > 0 ) {
+            $sqlStringList = $this->formatSqlValueString( $processMode , $statsResponse->stats , $recordType );
 
-        $this->repo->insertOrUpdate( $sqlStringList[ 'conversion' ] );
+            $this->repo->insertOrUpdate( $sqlStringList[ 'conversion' ] );
 
-        if ( $processMode === AttributionConversionJob::PROCESS_MODE_REALTIME ) {
-            $this->recordRepo->runAccumulativeQuery( $sqlStringList[ 'record' ] );
+            if ( $processMode === AttributionConversionJob::PROCESS_MODE_REALTIME ) {
+                $this->recordRepo->runAccumulativeQuery( $sqlStringList[ 'record' ] );
+            }
+        } else {
+            Slack::to(self::ROOM)->send( "Failed to grab conversions from CAKE. No data returned from service." );
         }
     }
 
