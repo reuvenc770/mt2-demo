@@ -40,7 +40,7 @@ SQL;
                 SELECT * FROM list_profile_flat_table_staging");
         });
 
-        DB::connection('reshift')->table('list_profile_flat_table_staging')->truncate();
+        DB::connection('redshift')->statement($clear);
     }
 
     public function clearAndReloadEntity($entity) {
