@@ -33,7 +33,6 @@ class ImportMt1EmailsService
     private $processingDate;
     private $formattedDate;
     private $emailFeedActionRepo;
-    private $assignmentRepo;
 
     private $emailIdCache = [];
     private $emailAddressCache = [];
@@ -56,8 +55,7 @@ class ImportMt1EmailsService
         FeedDateEmailBreakdownRepo $breakdownRepo,
         RecordDataRepo $recordDataRepo,
         EmailIdHistoryRepo $historyRepo,
-        EmailFeedActionRepo $emailFeedActionRepo,
-        EmailFeedAssignmentRepo $assignmentRepo) {
+        EmailFeedActionRepo $emailFeedActionRepo) {
 
         $this->api = $api;
         $this->tempEmailRepo = $tempEmailRepo;
@@ -70,7 +68,6 @@ class ImportMt1EmailsService
         $this->recordDataRepo = $recordDataRepo;
         $this->historyRepo = $historyRepo;
         $this->emailFeedActionRepo = $emailFeedActionRepo;
-        $this->assignmentRepo = $assignmentRepo;
 
         $this->processingDate = Carbon::today();
         $this->formattedDate = $this->processingDate->format('Y-m-d');

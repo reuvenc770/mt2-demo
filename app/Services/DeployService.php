@@ -171,4 +171,12 @@ class DeployService
         $ids = collect(EspApiAccount::getAllAccountsByESPName($espName))->pluck('id');
         return $this->deployRepo->findReportOrphansForEspAccounts($ids);
     }
+
+    public function getDeployParty($id) {
+        return $this->deployRepo->getDeployParty($id);
+    }
+
+    public function getFeedIdsInDeploy($deployId) {
+        return $this->deployRepo->getFeedIdsInDeploy($deployId);
+    }
 }

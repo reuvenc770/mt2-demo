@@ -221,4 +221,11 @@ class FirstPartyRecordDataRepo {
 
         }
     }
+
+    public function setDeliverableStatus($emailId, $feedId, $status) {
+        $emailId = (int)$emailId;
+        $feedId = (int)$feedId;
+        $isDeliverable = ($status === true) ? 1 : 0;
+        $this->model->whereRaw("email_id = $emailId AND feed_id = $feedId")->update(['is_deliverable' => $isDeliverable]);
+    }
 }

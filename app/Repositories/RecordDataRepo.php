@@ -258,4 +258,10 @@ class RecordDataRepo implements IAwsRepo {
         return $this->model->getConnectionName();
     }
 
+    public function setDeliverableStatus($emailId, $status) {
+        $emailId = (int)$emailId;
+        $isDeliverable = ($status === true) ? 1 : 0;
+        $this->model->whereRaw("email_id = $emailId")->update(['is_deliverable' => $isDeliverable]);
+    }
+
 }

@@ -404,4 +404,29 @@ class DeployRepo implements Mt2Export
             ->where('standard_reports.external_deploy_id',null)->get();
     }
 
+    public function getDeployParty($id) {
+        $deploy = $this->deploy->where('id', $id)->first();
+
+        if ($deploy) {
+            return $deploy->party;
+        }
+        else {
+            return null;
+        }
+    }
+
+    public function getFeedIdsInDeploy($deployId) {
+        // Returns an array of stdClass objects with the property feed_id
+        $lpSchema = config('database.connections.list_profile.database');
+
+        return DB::select("SELECT
+            DISTINCT feed_id
+        FROM
+            deploys d
+            INNER JOIN $lpSchema.list_profile_list_profile_combine lplpc ON d.list_profile_combine_id = lplpc.list_profile_combine_id 
+            INNER JOIN $lpSchema.list_profile_feeds lpf ON lplpc.list_profile_combine_id = lpf.list_profile_id
+        WHERE
+            d.id = ?", [$deployId]);
+    }
+
 }
