@@ -174,7 +174,7 @@ class EspApiAccountController extends Controller
     }
 
     public function generateCustomId(){
-        return $this->espAccountService->generateCustomId();
+        return response()->json( $this->espAccountService->generateCustomId() );
     }
 
     protected function getEspList() {
