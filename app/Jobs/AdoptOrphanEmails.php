@@ -77,7 +77,6 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
                 }
 
                 if ( $emailRecordCount > 0 && $deployId > 0) {
-                    echo "I GOT HERE";
                     $currentEmailId = Email::select('id')->where('email_address', $orphan->email_address)->pluck('id')->first();
 
                     $value = "('$currentEmailId', 
