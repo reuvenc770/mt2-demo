@@ -12,6 +12,10 @@ use App\Services\AttributionRecordTruthService;
 use App\Services\EmailFeedAssignmentService;
 use App\Services\EmailFeedActionService;
 use App\Jobs\Traits\PreventJobOverlapping;
+use App\Services\DeployService;
+use App\Repositories\RecordDataRepo;
+use App\Repositories\FirstPartyRecordDataRepo;
+use Log;
 
 class SetSchedulesJob extends Job implements ShouldQueue {
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
@@ -31,7 +35,11 @@ class SetSchedulesJob extends Job implements ShouldQueue {
 
     public function handle(AttributionRecordTruthService $truthService, 
         EmailFeedAssignmentService $assignmentService,
-        EmailFeedActionService $emailFeedActionService) {
+        EmailFeedActionService $emailFeedActionService,
+        DeployService $deployService,
+        RecordDataRepo $recordDataRepo,
+        FirstPartyRecordDataRepo $firstPartyRecordDataRepo) {
+
         if ($this->jobCanRun($this->jobName)) {
             try {
                 $this->createLock($this->jobName);
@@ -46,7 +54,14 @@ class SetSchedulesJob extends Job implements ShouldQueue {
                         break;
 
                     case ("activity"):
-                        $this->handleNewActions($scheduledFilterService, $truthService, $emailFeedActionService, $this->emails);
+                        $this->handleNewActions($scheduledFilterService, 
+                            $truthService, 
+                            $emailFeedActionService, 
+                            $deployService, 
+                            $recordDataRepo, 
+                            $firstPartyRecordDataRepo, 
+                            $this->emails);
+                        
                         break;
 
                     default:
@@ -82,11 +97,46 @@ class SetSchedulesJob extends Job implements ShouldQueue {
     }
 
 
-    private function handleNewActions($scheduledFilterService, $truthService, $emailFeedActionService, $emails) {
+    private function handleNewActions($scheduledFilterService, 
+        $truthService, 
+        $emailFeedActionService, 
+        $deployService, 
+        $recordDataRepo, 
+        $firstPartyRecordDataRepo, 
+        $emails) {
+
+
         foreach ($scheduledFilterService->getSetFields() as $field) {
             $truthService->bulkToggleFieldRecord($emails, $field, $scheduledFilterService->getSetFieldValue($field));
         }
 
         $emailFeedActionService->bulkUpdate($emails);
+
+        // For each email we have a deploy id. Check, if possible, what party that deploy id came from.
+        foreach ($emails as $record) {
+            if (1 === $deployService->getDeployParty($record['deployId'])) {
+                // array of stdClass with prop feed_id
+                $feeds = $deployService->getFeedIdsInDeploy($record['deployId']);
+
+                if (count($feeds) === 1) {
+                    // The good case
+                    $feedId = (int)$feeds[0]->feed_id;
+                    $firstPartyRecordDataRepo->setDeliverableStatus($emailId, $feedId, false);
+                } 
+                elseif (count($feeds) === 0) {
+                    // This should not happen - we need to note which deploys use which feeds via list profiles.
+                    Log::emergency('First party deploy ' . $record['deployId'] . ' does not have any feeds associated with it.');
+
+                }
+                else {
+                    // We have an assumption error. A 1st party deploy should only have one feed.
+                    Log::emergency('First party deploy ' . $record['deployId'] . ' has multiple feeds: ' . implode(', ', $feeds));
+                }
+            }
+            else {
+                // 3 or null (going to assume 3)
+                $recordDataRepo->setDeliverableStatus($record['email_id'], false);
+            }
+        }
     }
 }

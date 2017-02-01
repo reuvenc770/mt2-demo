@@ -15,8 +15,8 @@ class Deploy extends Model
     const CREATED_PACKAGE_STATUS = 1;
     use ModelCacheControl;
 
-    public function ListProfileCombines(){
-        return $this->belongsToMany('App\Models\ListProfileCombines');
+    public function listProfileCombine(){
+        return $this->belongsTo('App\Models\ListProfileCombine');
     }
 
     public function espAccount(){
