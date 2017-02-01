@@ -258,4 +258,33 @@ class RecordDataRepo implements IAwsRepo {
         return $this->model->getConnectionName();
     }
 
+    public function updateWithNewAttribution(stdClass $obj) {
+        // Unfortunately, the class has already been anonymized
+
+        // '' -> 'UNK'
+        $gender = $obj->gender === '' ? 'UNK' : $obj->gender;
+        // long2ip if necessary
+        $ip = preg_match('/\./', $obj->ip) ? $obj->ip : long2ip($obj->ip);
+
+        $this->model->updateOrCreate(['email_id' => $obj->email_id], [
+            'email_id' => $obj->email_id,
+            'is_deliverable' => 1,
+            'first_name' => $obj->first_name,
+            'last_name' => $obj->last_name,
+            'address' => $obj->address,
+            'address2' => $obj->address2,
+            'city' => $obj->city,
+            'state' => $obj->state,
+            'zip' => $obj->zip,
+            'country' => $obj->country,
+            'gender' => $gender,
+            'ip' => $ip,
+            'phone' => $obj->phone,
+            'source_url' => $obj->source_url,
+            'dob' => $obj->dob,
+            'capture_date' => $obj->capture_date,
+            'subscribe_date' => $obj->subscribe_date
+        ]);
+    }
+
 }
