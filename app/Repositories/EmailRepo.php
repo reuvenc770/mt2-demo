@@ -92,7 +92,13 @@ class EmailRepo implements Mt2Export, IAwsRepo {
      */
 
     public function getCurrentAttributedFeedId($emailId) {
-        $assignment = $this->emailModel->find($emailId)->feedAssignment;
+        $email = $this->emailModel->find($emailId);
+        if (!$email) {
+            // Due to shifting email ids, we can sometimes get this situation.
+            return 0;
+        }
+    
+        $assignment = $email->feedAssignment;
         if ($assignment) {
             return $assignment->feed_id;
         }
