@@ -313,4 +313,5 @@ class FeedService implements IFtpAdmin
         }
     }
 
+    public function saveFtpUser ( $credentials ) {}
 }
