@@ -104,7 +104,8 @@ class DomainRepo
                 'domains.created_at',
                 'domains.expires_at',
                 'domains.status',
-                'domains.live_a_record')
+                'domains.live_a_record' ,
+                'domains.domain_type as type')
                 ->join('registrars', 'domains.registrar_id', '=', 'registrars.id')
                 ->join('doing_business_as', 'domains.doing_business_as_id', '=', 'doing_business_as.id')
                 ->leftjoin('proxies', 'domains.proxy_id', '=', 'proxies.id')
