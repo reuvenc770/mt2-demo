@@ -139,8 +139,8 @@ class FeedController extends Controller
         return response( 'Unauthorized' , 401 );
     }
 
-    public function resetClientPassword($username) {
-
+    public function resetPassword($username) {
+        $this->feedService->resetPassword( $username );
     }
 
     public function viewFieldOrder ( $id ) {
