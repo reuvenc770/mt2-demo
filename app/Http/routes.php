@@ -1179,6 +1179,11 @@ Route::group(
             'uses' => 'EspApiAccountController@displayEspAccounts'
         ] );
 
+        Route::get( '/espapi/generatecustomid' , [
+            'as' => 'api.espapi.generatecustomid' ,
+            'uses' => 'EspApiAccountController@generateCustomId'
+        ] );
+
         /**
          * Feed API Routes
          */

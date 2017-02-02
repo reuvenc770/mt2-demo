@@ -13,6 +13,22 @@
         <fieldset>
             <input type="hidden" ng-model="esp.currentAccount.id" />
             @include( 'pages.espapi.esp-form' )
+                <table class="table panel panel-info" ng-if="{{ $customIdHistory }}">
+                    <thead class="panel-heading">
+                        <tr>
+                            <th style="border:none;">Custom ID History <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="A list of custom IDs used by @{{esp.currentAccount.accountName}}. In order by most recent on top and oldest on bottom.">help</md-icon></th>
+                            <th style="border:none;">Date Applied</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ( $customIdHistory as $customId => $date )
+                        <tr>
+                            <td>{{ $customId }}</td>
+                            <td>{{ $date }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
         </fieldset>
     </div>
     <div class="panel-footer">
