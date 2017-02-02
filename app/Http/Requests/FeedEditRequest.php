@@ -30,7 +30,7 @@ class FeedEditRequest extends Request
         return [
             'client_id' => 'required' ,
             'party' => 'required' ,
-            'name' => 'required' ,
+            'name' => 'required|unique:feeds,name,'.$this->input('id') ,
             'short_name' => 'required' ,
             'status' => 'required' ,
             'vertical_id' => 'required' ,
@@ -45,6 +45,7 @@ class FeedEditRequest extends Request
             'client_id.required' => 'Client is required.' ,
             'party.required' => 'Party is required.' ,
             'name.required' => 'Feed name is required.' ,
+            'name.unique' => 'This feed name already exists.',
             'short_name.required' => 'Short name is required.' ,
             'status.required' => 'Status is required.' ,
             'vertical_id.required' => 'Feed vertical is required.' ,

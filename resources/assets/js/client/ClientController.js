@@ -13,7 +13,7 @@ mt2App.controller( 'ClientController' , [ '$log' , '$window' , '$location', '$ti
         zip : "" ,
         email_address : "" ,
         phone : "" ,
-        status : ""
+        status : "Active"
     };
 
     self.createUrl = "client/create";

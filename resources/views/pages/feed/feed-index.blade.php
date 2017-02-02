@@ -160,7 +160,7 @@
                     @if ( Sentinel::inRole( 'fleet-admiral' ) )
                     <th md-column md-order-by="clientName" class="md-table-header-override-whitetext">Client</th>
                     @endif
-                    <th md-column md-order-by="name" class="md-table-header-override-whitetext">Name</th>
+                    <th md-column md-order-by="name" class="md-table-header-override-whitetext">Feed Name</th>
                     <th md-column md-order-by="short_name" class="md-table-header-override-whitetext">Short Name</th>
                     @if ( Sentinel::inRole( 'fleet-admiral' ) )
                     <th md-column class="md-table-header-override-whitetext">Password</th>
