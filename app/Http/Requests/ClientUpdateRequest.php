@@ -29,7 +29,7 @@ class ClientUpdateRequest extends Request
     public function rules()
     {
         return [
-            'name' => 'required' ,
+            'name' => 'required|unique:clients,name,'.$this->input('id') ,
             'email_address' => 'required' ,
             'status' => 'required'
         ];
@@ -39,6 +39,7 @@ class ClientUpdateRequest extends Request
     {
         return [
             'name.required'         => 'Client name is required.',
+            'name.unique'   => 'This client name already exists.',
             'email_address.required'     => 'An email address is required.',
             'status.required'     => 'A status is required.'
         ];
