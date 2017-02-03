@@ -321,13 +321,15 @@ class DeployRepo implements Mt2Export
 
         //list profile for now commented out
         if($copyToFutureBool){
+            $lpSchema = config('database.connections.list_profile.database');
+            
             if (isset($deploy['list_profile_combine_id'])) {
-                $count = DB::select("Select count(*) as count from list_profile_combines where name = :id", ['id' => $deploy['list_profile_combine_id']])[0];
+                $count = DB::select("Select count(*) as count from $lpSchema.list_profile_combines where id = :id", ['id' => $deploy['list_profile_combine_id']])[0];
                 if ($count->count == 0) {
-                    $errors[] = "List Profile is not active or wrong";
+                    $errors[] = "List Profile is wrong or not active";
                 }
             } else {
-                $errors[] = "List Profile Name is missing";
+                $errors[] = "List Profile is missing";
             }
         } else{
             if (isset($deploy['list_profile_name'])) {
