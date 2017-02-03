@@ -12,7 +12,7 @@ class CreateEmailFeedAttributableDatasTable extends Migration
      */
     public function up()
     {
-        Schema::create('email_feed_attributable_data', function (Blueprint $table) {
+        Schema::create('email_feed_record_data', function (Blueprint $table) {
             $table->bigInteger('email_id')->unsigned()->default(0);
             $table->integer('feed_id')->unsigned()->default(0);
             $table->date('subscribe_date');
@@ -52,6 +52,6 @@ class CreateEmailFeedAttributableDatasTable extends Migration
      */
     public function down()
     {
-        Schema::drop('email_feed_attributable_datas');
+        Schema::drop('email_feed_record_data');
     }
 }
