@@ -13,11 +13,11 @@ class UpdateFeedAndClientNameToUnique extends Migration
     public function up()
     {
         Schema::table('feeds' , function(Blueprint $table) {
-            $table->unique( 'name' );
+            $table->unique( 'name' , 'unique_name' );
         });
 
         Schema::table('clients' , function(Blueprint $table) {
-            $table->unique( 'name' );
+            $table->unique( 'name' , 'unique_name' );
         });
     }
 
@@ -29,11 +29,11 @@ class UpdateFeedAndClientNameToUnique extends Migration
     public function down()
     {
         Schema::table('feeds', function(Blueprint $table){
-            $table->dropUnique( 'name' );
+            $table->dropUnique( 'unique_name' );
         });
 
         Schema::table('clients', function(Blueprint $table){
-            $table->dropUnique( 'name' );
+            $table->dropUnique( 'unique_name' );
         });
     }
 }
