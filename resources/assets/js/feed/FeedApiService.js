@@ -59,7 +59,7 @@ mt2App.service( 'FeedApiService' , [ 'paginationService' , '$http' , '$log' , fu
     self.updatePassword = function ( feedData , successCallback , failureCallback ) {
         $http( {
             "method" : "GET" ,
-            "url" : this.resetPasswordUrl + '/' + feedData.ftp_user
+            "url" : this.resetPasswordUrl + '/' + feedData.short_name
         } ).then( successCallback , failureCallback );
     };
 

@@ -76,6 +76,8 @@ class FtpAdmin extends Command
 
                 $this->setupFtpUser();
             } else if ($this->shouldResetPassword() && $this->shouldCreateUser()) {
+                $this->loadService();
+
                 $this->resetPassword();
             } else {
                 $this->loadService();
@@ -139,8 +141,6 @@ class FtpAdmin extends Command
             . "\n\tUsername: " . $this->username
             . "\n\tPassword: " . $this->password
         );
-
-        Log::info( 'Finished Creating user...' );
     }
 
     protected function resetPassword () {
@@ -160,13 +160,16 @@ class FtpAdmin extends Command
 
         $this->saveUserAndPassword();
 
+        $feedServiceClass = "\\App\\Services\\FeedService";
+        if ( $this->service instanceof $feedServiceClass ) {
+            $this->service->updatePassword( $this->username , $this->password );
+        }
+
         Slack::to( self::SLACK_TARGET_SUBJECT )->send(
             $this->option( 'service' ) . " FTP User Password Reset."
             . "\n\tUsername: " . $this->username
             . "\n\tPassword: " . $this->password
         );
-
-        Log::info( 'Finished Reseting password' );
     }
 
     protected function createUser () {

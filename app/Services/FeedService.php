@@ -12,6 +12,7 @@ use App\Services\Interfaces\IFtpAdmin;
 use App\Services\EmailFeedInstanceService;
 use League\Csv\Writer;
 use DB;
+use Artisan;
 
 class FeedService implements IFtpAdmin
 {
@@ -207,13 +208,13 @@ class FeedService implements IFtpAdmin
     }
 
     public function resetPassword($username){
-        Artisan::queue('ftp:admin', [
-            '-H' => "52.205.67.250",
-            '-U' => 'root',
-            '-k' => '~/.ssh/mt2ftp.pub',
-            '-K' => '~/.ssh/mt2ftp',
+        Artisan::call('ftp:admin', [
+            '-H' => config('ssh.servers.mt1_feed_file_server.host'),
+            '-U' => config('ssh.servers.mt1_feed_file_server.username'),
+            '-k' => config('ssh.servers.mt1_feed_file_server.public_key'),
+            '-K' => config('ssh.servers.mt1_feed_file_server.private_key'),
             '-u' => $username,
-            '-s' => "Client",
+            '-s' => "Feed",
             '-r' => true
         ]);
         return true;
@@ -311,6 +312,10 @@ class FeedService implements IFtpAdmin
                 return false;
             }
         }
+    }
+
+    public function updatePassword ( $shortName , $password ) {
+        $this->feedRepo->updatePassword( $shortName , $password );
     }
 
     public function saveFtpUser ( $credentials ) {}
