@@ -46,6 +46,14 @@ mt2App.service( 'modalService' , [ '$mdToast' , '$timeout' , function ( $mdToast
         $mdToast.show( toast );
     };
 
+    self.alertToast = function ( message , parentId) {
+        var container = angular.element(document.querySelector( '#' + parentId ));
+
+        var toast = $mdToast.simple().textContent( message ).toastClass('cmp-alert-toast').position('bottom left').parent( container );
+
+        $mdToast.show( toast );
+    };
+
     self.setPopover = function ( time ) {
         var defaultTimeout = 1500;
 

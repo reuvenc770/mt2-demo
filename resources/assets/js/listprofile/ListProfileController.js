@@ -3,6 +3,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
     self.nameDisabled = true;
     self.customName = false;
+    self.enableAlert = true;
 
     self.enableAdmiral = false;
     self.showAttrFilters = false;
@@ -1052,4 +1053,12 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         modalService.launchModal();
 
     };
+
+    self.showAlert = function( message , parentId ) {
+        if (self.enableAlert){
+            modalService.alertToast(message, parentId );
+        }
+
+        self.enableAlert = false;
+    }
 } ] );

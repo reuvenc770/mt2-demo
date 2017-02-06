@@ -996,6 +996,10 @@ md-list-item.mt2-nav-sub-item .md-list-item-inner {
 md-toast.md-top {
     top: 70px !important;
 }
+md-toast.cmp-alert-toast .md-toast-content{
+    margin-left: 10px;
+    background-color: #d9534f;
+}
 .navbar-topper{
     margin: 0;
     border-radius: 0;
