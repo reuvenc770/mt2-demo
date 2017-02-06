@@ -68,6 +68,10 @@ class AWeberEmailActionsRepo
         return ActionType::where( 'name' , $actionName )->first()->id;
     }
 
+    public function getEmailId($fullUrl){
+        return substr($fullUrl, strrpos($fullUrl, '/') + 1);
+    }
+
     public function massDelete($ids){
         return $this->model->destroy($ids); // \m/_(>_<)_\m/
     }
