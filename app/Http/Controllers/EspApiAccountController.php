@@ -114,15 +114,20 @@ class EspApiAccountController extends Controller
             Flash::error("{$id} does not exist");
             return redirect("/espapi");
         }
+
+        $customIdHistory = $this->espAccountService->getCustomIdHistoryByEsp( $id );
+
         return response()
             ->view( 'pages.espapi.esp-edit' , [
                 'accountId' => $account->id ,
                 'espName' => $account->esp->name ,
                 'accountName' => $account->account_name ,
+                'customId' => $account->custom_id,
                 'key1' => $account->key_1 ,
                 'key2' => $account->key_2 ,
                 'espList' => $this->getEspList() ,
-                'formType' => 'edit'
+                'formType' => 'edit' ,
+                'customIdHistory' => $customIdHistory
             ] );
     }
 
@@ -166,6 +171,10 @@ class EspApiAccountController extends Controller
     public function grabTemplatesByESP($id){
         $data = $this->espAccountService->getTemplatesByEspId($id);
         return  response()->json($data);
+    }
+
+    public function generateCustomId(){
+        return response()->json( $this->espAccountService->generateCustomId() );
     }
 
     protected function getEspList() {

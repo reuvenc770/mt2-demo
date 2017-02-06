@@ -3,6 +3,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
     self.nameDisabled = true;
     self.customName = false;
+    self.enableAlert = true;
 
     self.enableAdmiral = false;
     self.showAttrFilters = false;
@@ -180,6 +181,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         { 'header' : 'dob' , 'label' : "Date of Birth" } ,
         { 'header' : 'feed_id' , 'label' : "Feed ID" } ,
         { 'header' : 'feed_name' , 'label' : "Feed Name" } ,
+        { 'header' : 'short_name' , 'label' : "Feed Short Name" } ,
         { 'header' : 'client_name' , 'label' : "Client" } ,
         { 'header' : 'subscribe_date' , 'label' : 'Subscribe Date' } ,
         { 'header' : 'tower_date' , 'label' : 'Tower Date' }
@@ -1051,4 +1053,12 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         modalService.launchModal();
 
     };
+
+    self.showAlert = function( message , parentId ) {
+        if (self.enableAlert){
+            modalService.alertToast(message, parentId );
+        }
+
+        self.enableAlert = false;
+    }
 } ] );

@@ -817,9 +817,9 @@ Route::group(
             'uses' => 'DataExportController@message'
         ]);
 
-        Route::get('/client/updatepassword/{username}', [
-            'as' => 'api.client.updatepassword' ,
-            'uses' => 'FeedController@resetClientPassword'
+        Route::get('/feed/updatepassword/{username}', [
+            'as' => 'api.feed.updatepassword' ,
+            'uses' => 'FeedController@resetPassword'
         ] );
         Route::get('/navigation/gettree', [
             'as' => 'api.tools.navigation.getTree' ,
@@ -1177,6 +1177,11 @@ Route::group(
         Route::get( '/espapi/espAccounts/{name}' , [
             'as' => 'api.espapi.GetAll' ,
             'uses' => 'EspApiAccountController@displayEspAccounts'
+        ] );
+
+        Route::get( '/espapi/generatecustomid' , [
+            'as' => 'api.espapi.generatecustomid' ,
+            'uses' => 'EspApiAccountController@generateCustomId'
         ] );
 
         /**

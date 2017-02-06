@@ -232,4 +232,10 @@ class FeedRepo implements Mt2Export, IAwsRepo {
     public function getNewUsersForToday () {
         return $this->feed->where( 'created_at' ,  '>=' ,  \Carbon\Carbon::now()->startOfDay()->toDatetimeString() )->get();
     }   
+
+    public function updatePassword ( $shortName , $password ) {
+        $currentFeed = $this->feed->where( 'short_name' , $shortName )->first();
+        $currentFeed->password = $password;
+        $currentFeed->save();
+    }
 }

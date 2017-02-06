@@ -175,12 +175,20 @@ class PackageZipCreationService {
             $espId = $deploy->espAccount->id;
 
             $fieldOptions = $deploy->espAccount->esp->fieldOptions;
-
-            $this->emailIdField = $fieldOptions->email_id_field;
-            $emailAddressField = $fieldOptions->email_address_field;
-
-            $openEmailIdField = $fieldOptions->open_email_id_field;
-            $openEmailAddressField = $fieldOptions->open_email_address_field;
+            
+            if (null !== $fieldOptions) {
+                $this->emailIdField = $fieldOptions->email_id_field;
+                $emailAddressField = $fieldOptions->email_address_field;
+                $openEmailIdField = $fieldOptions->open_email_id_field;
+                $openEmailAddressField = $fieldOptions->open_email_address_field;
+            }
+            else {
+                // Do this rather than create an error because some esps do not populate these values.
+                $this->emailIdField = '';
+                $emailAddressField = '';
+                $openEmailIdField = '';
+                $openEmailAddressField = '';
+            }
 
             $templateId = $deploy->template_id;
             $fromId = $deploy->from_id;

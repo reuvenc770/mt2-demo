@@ -10,7 +10,7 @@ use Carbon\Carbon;
  *
  */
 class ListProfileScheduleRepo {
-  
+
     private $model;
 
     public function __construct(ListProfileSchedule $model) {
@@ -77,7 +77,7 @@ GROUP BY `list_profile_id`
     }
 
     public function updateSuccess($id) {
-        $today = Carbon::today()->format('Y-m-d');
+        $today = Carbon::now();
         $this->model->where('list_profile_id', $id)->update(['last_run' => $today]);
     }
 }

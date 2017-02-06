@@ -17,6 +17,9 @@ class RecordDataRepo implements IAwsRepo {
     private $batchActionUpdateData = [];
     private $batchActionUpdateCount = 0;
 
+    private $batchDeviceUpdateData = [];
+    private $batchDeviceUpdateCount = 0;
+
     public function __construct(RecordData $model) {
         $this->model = $model;
     }
@@ -106,12 +109,36 @@ class RecordDataRepo implements IAwsRepo {
             . ')';
     }
 
-    public function updateDeviceData($data) {
-        if (sizeof($data) > 0) {
-            $data = implode(',', $data);
+    public function batchUpdateDeviceData($row) {
+        $pdo = DB::connection()->getPdo();
+
+        if ($this->batchDeviceUpdateCount >= self::INSERT_THRESHOLD) {
+
+            $this->cleanUpActions();
+
+            $this->batchDeviceUpdateData = ['('
+                . $pdo->quote($row['email_id']) . ','
+                . $pdo->quote($row['device_type']) . ','
+                . $pdo->quote($row['device_name']) . ')'
+            ];
+            $this->batchDeviceUpdateCount = 1;
+        }
+        else {
+            $this->batchDeviceUpdateData[] = ['('
+                . $pdo->quote($row['email_id']) . ','
+                . $pdo->quote($row['device_type']) . ','
+                . $pdo->quote($row['device_name']) . ')'
+            ];
+
+            $this->batchDeviceUpdateCount++;
+        }
+    }
+
+    public function cleanupDeviceData() {
+        if ($this->batchDeviceUpdateCount > 0) {
+            $data = implode(',', $this->batchDeviceUpdateData);
         
-            DB::statement("INSERT INTO record_data (email_id, device_type, device_name, carrier)
-            
+            DB::statement("INSERT INTO record_data (email_id, device_type, device_name)
                 VALUES
             
                 $data
@@ -134,11 +161,12 @@ class RecordDataRepo implements IAwsRepo {
                 dob = dob,
                 device_type = values(device_type),
                 device_name = values(device_name),
-                carrier = values(carrier),
+                carrier = carrier,
                 capture_date = capture_date,
                 subscribe_date = subscribe_date,
-                other_fields = other_fields
-            ");
+                other_fields = other_fields");
+
+            $this->batchDeviceUpdateData = [];
         }
 
     }
@@ -221,7 +249,7 @@ class RecordDataRepo implements IAwsRepo {
     }
 
     public function extractAllForS3() {
-        return $this->model;
+        return $this->model->whereRaw("updated_at > CURDATE() - INTERVAL 7 DAY");
     }
 
     public function mapForS3Upload($row) {
