@@ -1,3 +1,14 @@
+
+
+@if ( Sentinel::inRole( 'admiral' ) )
+<h3 class="bold-text">Admiral Settings</h3>
+<br />
+<md-checkbox ng-model="listProfile.enableAdmiral" aria-label="Turn Admiral Features On" ng-true-value="true" ng-false-value="false">Enable Admiral Features</md-checkbox>
+<br />
+<md-checkbox ng-model="listProfile.current.admiralsOnly" ng-show="listProfile.enableAdmiral" aria-label="Admirals Only" ng-true-value="true" ng-false-value="false">This list is for Admirals ONLY</md-checkbox>
+@endif
+
+
 <h3 class="bold-text">General</h3>
 <div class="form-group">
     <label for="name">Profile Name</label>
@@ -114,7 +125,7 @@
     </div>
 </div>
 
-<div class="row form-group">
+<div class="row form-group" id="feedClientWidget">
     <div class="col-sm-6">
         <label>Available Clients</label>
 
@@ -122,7 +133,7 @@
             <label ng-click="listProfile.addFeedClients()" role="button" tabindex="0">Add Selected <span class="glyphicon glyphicon-plus"></span></label>
         </div>
 
-        <select ng-model="listProfile.highlightedFeedClients" multiple style="width: 100%; height: 150px;">
+        <select ng-model="listProfile.highlightedFeedClients" multiple style="width: 100%; height: 150px;" ng-click="listProfile.showAlert('Note: Selecting a client will include all feeds within that client.' , 'feedClientWidget' )">
             @foreach ( $clients as $client )
                 <option value="{{$client[ 'id' ]}}" ng-init="listProfile.feedClientVisibility[ {{$client[ 'id' ]}} ] = true;listProfile.feedClientNameMap[ {{$client[ 'id' ]}} ] = '{{{$client[ 'name' ]}}}';" ng-show="listProfile.feedClientVisibility[ {{$client[ 'id' ]}} ]">{{ $client[ 'name' ] }}</option>
             @endforeach
@@ -201,7 +212,7 @@
         </div>
 
         <div class="col-xs-12 col-md-5 form-inline field-top-margin">
-            <div class="form-group" data-toggle="tooltip" data-placement="top" title="The user opened # or more times">
+            <div class="form-group">
                 <input type="number" name="openerMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.opener.multiaction" ng-blur="listProfile.sanitizeMultiAction( listProfile.current.actionRanges.opener )" min="1" aria-label="Number of Times Opened" >
 
                 <label>&nbsp;Multiaction</label>
@@ -239,7 +250,7 @@
         </div>
 
         <div class="col-xs-12 col-md-5 form-inline field-top-margin">
-            <div class="form-group" data-toggle="tooltip" data-placement="top" title="The user clicked # or more times">
+            <div class="form-group">
                 <input type="number" name="clickerMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.clicker.multiaction" ng-blur="listProfile.sanitizeMultiAction( listProfile.current.actionRanges.clicker )" min="1" aria-label="Number of Times Clicked" >
 
                 <label>&nbsp;Multiaction</label>
@@ -277,7 +288,7 @@
         </div>
 
         <div class="col-xs-12 col-md-5 form-inline field-top-margin">
-            <div class="form-group" data-toggle="tooltip" data-placement="top" title="The user converted # or more times">
+            <div class="form-group">
                 <input type="number" name="converterMultiaction" class="form-control" ng-model="listProfile.current.actionRanges.converter.multiaction" ng-blur="listProfile.sanitizeMultiAction( listProfile.current.actionRanges.converter )" min="1" aria-label="Number of Times Converted" >
 
                 <label>&nbsp;Multiaction</label>
@@ -287,10 +298,14 @@
     </div>
 </div>
 
+<h3 class="bold-text">Actionable Filters</h3>
+    <h5>To return records within specific ISP group(s), category(ies), and/or offer(s) select options below. Completed list profile will return records that meet selected option(s) and falls within the action day ranges listed above.</h5>
 
 <div class="row">
     <div class="col-sm-6">
-        <label>Available ISP Groups</label>
+        <label>ISP Groups
+            <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Return records that are within selected ISP groups and also meets selected action day ranges.">help</md-icon>
+        </label>
 
         <div class="pull-right">
             <label ng-click="listProfile.addIsps()" role="button" tabindex="0">Add Selected <span class="glyphicon glyphicon-plus"></span></label>
@@ -319,7 +334,9 @@
 
 <div class="row">
     <div class="col-sm-6">
-        <label>Available Category Actions</label>
+        <label>Category Actions
+            <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Return records that are within selected category(ies) and also meets selected action day ranges.">help</md-icon>
+        </label>
 
         <div class="pull-right">
             <label ng-click="listProfile.addCategories()" role="button" tabindex="0">Add Selected <span class="glyphicon glyphicon-plus"></span></label>
@@ -348,7 +365,9 @@
 
 <div class="row">
     <div class="col-sm-6">
-        <label>Available Offers</label>
+        <label>Offer Actions
+            <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Return records that are within selected offer(s) and also meets selected action day ranges.">help</md-icon>
+        </label>
 
         <div class="pull-right">
             <label ng-click="listProfile.addOffers()" role="button" tabindex="0">Add Selected <span class="glyphicon glyphicon-plus"></span></label>
@@ -359,7 +378,7 @@
     </div>
 
     <div class="col-sm-6">
-        <label>Selected Offers</label>
+        <label>Selected Offer Actions</label>
 
         <div class="pull-right">
             <label ng-click="listProfile.removeOffers()" role="button" tabindex="0">Remove Selected <span class="glyphicon glyphicon-minus"></span></label>
@@ -564,10 +583,12 @@
     </div>
 </div>
 
-<h3 class="bold-text">Suppression</h3>
+<h3 class="bold-text">Suppression
+    <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Global suppression should be run through the deploy page. Confirm with manager.">help</md-icon>
+</h3>
 
 @if ( Sentinel::inRole( 'admiral' ) )
-<div class="row" ng-show="listProfile.enableAdmiral">
+<div class="row cmp-admiral-feature" ng-show="listProfile.enableAdmiral">
     <div class="col-sm-6">
         <label>Available Global Suppression</label>
 
@@ -599,7 +620,7 @@
 @endif
 
 @if ( Sentinel::inRole( 'admiral' ) )
-<div class="row" ng-show="listProfile.enableAdmiral">
+<div class="row cmp-admiral-feature" ng-show="listProfile.enableAdmiral">
     <div class="col-sm-6">
         <label>Available List Suppression</label>
 
@@ -810,7 +831,7 @@
 <div class="row">
     <div class="col-md-2">
         <md-checkbox ng-click="listProfile.toggleExportOption( 'Immediately' )" ng-checked="listProfile.isSelectedExportOption( 'Immediately' )">Immediately
-            <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="bottom" data-content="Selecting this will pull data and drop the CSV file in FTP immediately. This is a one-time event. After saving, this box will become unchecked. To manually pull again, check 'Immediately' and save again.">help</md-icon>
+            <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Selecting this will pull data and drop the CSV file in FTP immediately. This is a one-time event. After saving, this box will become unchecked. To manually pull again, check 'Immediately' and save again.">help</md-icon>
         </md-checkbox>
     </div>
 
@@ -872,12 +893,3 @@
         </div>
     </div>
 </div>
-
-<h3 class="bold-text">Admiral Settings</h3>
-
-@if ( Sentinel::inRole( 'admiral' ) )
-<br />
-<md-checkbox ng-model="listProfile.enableAdmiral" ng-click="listProfile.admiralToggleFix()" aria-label="Turn Admiral Features On" ng-true-value="true" ng-false-value="false">Enable Admiral Features</md-checkbox>
-<br />
-<md-checkbox ng-model="listProfile.current.admiralsOnly" ng-show="listProfile.enableAdmiral" aria-label="Admirals Only" ng-true-value="true" ng-false-value="false">This list is for Admirals ONLY</md-checkbox>
-@endif

@@ -16,7 +16,9 @@
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active"><a href="#list_profile" aria-controls="list_profile" ng-click="listProfile.clearSelection();listProfile.loadListProfiles( 3 )" role="tab" data-toggle="tab">3rd Party List Profiles</a></li>
             <li role="presentation" ><a href="#list_profile_first" aria-controls="list_profile" ng-click="listProfile.clearSelection();listProfile.loadListProfiles( 1 )" role="tab" data-toggle="tab">1st Party List Profiles</a></li>
-            <li role="presentation"><a href="#list_combines" aria-controls="list_combines" ng-click="listProfile.clearSelection();listProfile.loadListCombines()" role="tab" data-toggle="tab">List Combines</a></li>
+            <li role="presentation"><a href="#list_combines" aria-controls="list_combines" ng-click="listProfile.clearSelection();listProfile.loadListCombines()" role="tab" data-toggle="tab">List Combines
+                <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Select 2 or more list profiles to create a list profile combine.">help</md-icon></a>
+            </li>
             <li ng-show="listProfile.showCombine" class="pull-right"><button ng-click="listProfile.nameCombine()" class="btn btn-primary">Create List Combine</button></li>
         </ul>
         <!-- Tab panes -->
@@ -27,9 +29,7 @@
                     <table md-table md-progress="listProfile.queryPromise">
                         <thead md-head class="mt2-theme-thead">
                         <tr md-row>
-                            <th md-column class="mt2-table-btn-column  mt2-table-header-center">
-                                <md-icon style="margin-right: 8px;" md-font-set="material-icons" class="mt2-icon-white material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Select 2 or more list profiles to create a list profile combine.">help</md-icon>
-                            </th>
+                            <th md-column class="mt2-table-btn-column mt2-table-header-center"></th>
                             <th md-column class="md-table-header-override-whitetext">Name</th>
                             <th md-column class="md-table-header-override-whitetext">Deliverable Range</th>
                             <th md-column class="md-table-header-override-whitetext">Opener Range</th>
