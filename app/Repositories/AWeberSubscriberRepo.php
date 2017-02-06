@@ -18,7 +18,7 @@ class AWeberSubscriberRepo
 
     public function __construct(AWeberSubscriber $subscriber)
     {
-        $this->subscriber;
+        $this->subscriber = $subscriber;
     }
 
 
