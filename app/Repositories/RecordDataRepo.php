@@ -249,7 +249,7 @@ class RecordDataRepo implements IAwsRepo {
     }
 
     public function extractAllForS3() {
-        return $this->model;
+        return $this->model->whereRaw("updated_at > CURDATE() - INTERVAL 7 DAY");
     }
 
     public function mapForS3Upload($row) {
