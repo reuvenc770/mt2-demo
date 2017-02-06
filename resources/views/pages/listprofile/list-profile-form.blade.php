@@ -1,3 +1,14 @@
+
+
+@if ( Sentinel::inRole( 'admiral' ) )
+<h3 class="bold-text">Admiral Settings</h3>
+<br />
+<md-checkbox ng-model="listProfile.enableAdmiral" aria-label="Turn Admiral Features On" ng-true-value="true" ng-false-value="false">Enable Admiral Features</md-checkbox>
+<br />
+<md-checkbox ng-model="listProfile.current.admiralsOnly" ng-show="listProfile.enableAdmiral" aria-label="Admirals Only" ng-true-value="true" ng-false-value="false">This list is for Admirals ONLY</md-checkbox>
+@endif
+
+
 <h3 class="bold-text">General</h3>
 <div class="form-group">
     <label for="name">Profile Name</label>
@@ -354,7 +365,7 @@
 
 <div class="row">
     <div class="col-sm-6">
-        <label>Offers
+        <label>Offer Actions
             <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Return records that are within selected offer(s) and also meets selected action day ranges.">help</md-icon>
         </label>
 
@@ -367,7 +378,7 @@
     </div>
 
     <div class="col-sm-6">
-        <label>Selected Offers</label>
+        <label>Selected Offer Actions</label>
 
         <div class="pull-right">
             <label ng-click="listProfile.removeOffers()" role="button" tabindex="0">Remove Selected <span class="glyphicon glyphicon-minus"></span></label>
@@ -577,7 +588,7 @@
 </h3>
 
 @if ( Sentinel::inRole( 'admiral' ) )
-<div class="row" ng-show="listProfile.enableAdmiral">
+<div class="row cmp-admiral-feature" ng-show="listProfile.enableAdmiral">
     <div class="col-sm-6">
         <label>Available Global Suppression</label>
 
@@ -609,7 +620,7 @@
 @endif
 
 @if ( Sentinel::inRole( 'admiral' ) )
-<div class="row" ng-show="listProfile.enableAdmiral">
+<div class="row cmp-admiral-feature" ng-show="listProfile.enableAdmiral">
     <div class="col-sm-6">
         <label>Available List Suppression</label>
 
@@ -820,7 +831,7 @@
 <div class="row">
     <div class="col-md-2">
         <md-checkbox ng-click="listProfile.toggleExportOption( 'Immediately' )" ng-checked="listProfile.isSelectedExportOption( 'Immediately' )">Immediately
-            <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="bottom" data-content="Selecting this will pull data and drop the CSV file in FTP immediately. This is a one-time event. After saving, this box will become unchecked. To manually pull again, check 'Immediately' and save again.">help</md-icon>
+            <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Selecting this will pull data and drop the CSV file in FTP immediately. This is a one-time event. After saving, this box will become unchecked. To manually pull again, check 'Immediately' and save again.">help</md-icon>
         </md-checkbox>
     </div>
 
@@ -882,12 +893,3 @@
         </div>
     </div>
 </div>
-
-<h3 class="bold-text">Admiral Settings</h3>
-
-@if ( Sentinel::inRole( 'admiral' ) )
-<br />
-<md-checkbox ng-model="listProfile.enableAdmiral" ng-click="listProfile.admiralToggleFix()" aria-label="Turn Admiral Features On" ng-true-value="true" ng-false-value="false">Enable Admiral Features</md-checkbox>
-<br />
-<md-checkbox ng-model="listProfile.current.admiralsOnly" ng-show="listProfile.enableAdmiral" aria-label="Admirals Only" ng-true-value="true" ng-false-value="false">This list is for Admirals ONLY</md-checkbox>
-@endif
