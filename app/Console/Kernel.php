@@ -71,7 +71,7 @@ class Kernel extends ConsoleKernel
         Commands\AttributionConversionCommand::class,
         Commands\PopulateListProfileAggregationTable::class,
         Commands\SendDomainExpirationNotice::class,
-        Commands\PullCakeRecordData::class,
+        Commands\PullContentServerRecordData::class,
         Commands\InflateEmailHistoriesUtil::class,
         Commands\BuildBaseListProfileTables::class,
         Commands\ExportListProfile::class,
@@ -252,7 +252,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('listprofile:optimize')->weekly();
         $schedule->command('listprofile:aggregateActions')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('listprofile:contentServerRawStats')->hourly();
-        $schedule->command('listprofile:getRecordAgentData')->dailyAt(self::EXPIRATION_RUNS);
+        $schedule->command('listprofile:getRecordAgentData 5')->hourly();
         $schedule->command('listprofile:baseTables')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('updateUserActions 1')->dailyAt(self::REPORT_TIME_2);
 

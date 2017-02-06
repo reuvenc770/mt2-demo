@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\DataProcessingJob;
 
-class PullCakeRecordData extends Command
+class PullContentServerRecordData extends Command
 {
     use DispatchesJobs;
     /**
@@ -14,15 +14,15 @@ class PullCakeRecordData extends Command
      *
      * @var string
      */
-    protected $signature = 'listprofile:getRecordAgentData';
-    private $jobName = 'CakeDeviceData';
+    protected $signature = 'listprofile:getRecordAgentData {lookback}';
+    private $jobName = 'ContentServerDeviceData';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Pull device, device type, and carrier information from Cake';
+    protected $description = 'Pull device, device type, and carrier information from content server';
 
     /**
      * Create a new command instance.
@@ -39,7 +39,8 @@ class PullCakeRecordData extends Command
      * @return mixed
      */
     public function handle() {
-        $job = new DataProcessingJob($this->jobName, str_random(16));
+        $lookback = (int)$this->argument('lookback');
+        $job = new DataProcessingJob($this->jobName, str_random(16), $lookback);
         $this->dispatch($job);
     }
 }

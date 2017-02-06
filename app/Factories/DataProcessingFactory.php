@@ -41,7 +41,7 @@ class DataProcessingFactory {
                 return self::createUpdateContentServerStatsService();
 
             case('ProcessUserAgents'):
-                return self::createUserAgentProcessingService();
+                return \App::make(\App\Services\UserAgentProcessingService::class);
 
             case('CheckDeployStats'):
                 return self::createCheckDeployStatsService();
@@ -55,8 +55,8 @@ class DataProcessingFactory {
             case('ListProfileAggregation'):
                 return \App::make(\App\Services\ListProfileActionAggregationService::class);
 
-            case('CakeDeviceData'):
-                return \App::make(\App\Services\CakeDeviceService::class);
+            case('ContentServerDeviceData'):
+                return \App::make(\App\Services\SetDeviceService::class);
 
             case('UpdateUserActions'):
                 return \App::make(\App\Services\UserActionStatusService::class);
@@ -245,14 +245,6 @@ class DataProcessingFactory {
         return new \App\Services\UpdateContentServerStatsService($contentActionsRepo, $statsRepo);      
     }
 
-    private static function createUserAgentProcessingService() {
-        // feed off a source of new user agents
-        $sourceModel = new CakeData();
-        $sourceRepo = new TrackingRepo($sourceModel);
-        $userAgent = new \App\Models\UserAgentString();
-        $userAgentRepo = new \App\Repositories\UserAgentStringRepo($userAgent);
-        return new \App\Services\UserAgentProcessingService($sourceRepo, $userAgentRepo);
-    }
 
     private static function createCheckDeployStatsService() {
         $actions = new EmailAction();
