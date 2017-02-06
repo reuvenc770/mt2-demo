@@ -48,7 +48,7 @@ class AWeberSubscriberRepo
                     INSERT INTO a_weber_subscribers
                         ( email_address , internal_id )    
                     VALUES
-                        ({$subscriber->email}, {$subscriber->id})
+                        ('{$subscriber->email}', {$subscriber->id})
                     ON DUPLICATE KEY UPDATE
                         email_address = email_address ,
                         internal_id = internal_id"
