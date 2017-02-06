@@ -83,6 +83,9 @@ class BrontoApi extends EspBaseAPI
                 throw new JobException($e->getMessage());
             }
         } finally {
+            if(!isset($firstSet)){
+                return $records;
+            }
             $records = array_merge($firstSet, $secondSet);
         }
         return $records;
