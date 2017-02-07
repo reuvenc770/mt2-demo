@@ -206,6 +206,10 @@ class AWeberReportService extends AbstractReportService implements IDataService
                     break;
             }
 
+            if(isset($processState['espInternalId'])){
+                $jobId .= "::{$processState['espInternalId']}";
+            }
+
             $processState['jobIdIndex'] = $processState['currentFilterIndex'];
             $processState['jobId'] = $jobId;
         }
@@ -226,6 +230,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
             switch ($processState['recordType']) {
 
                 case 'delivers' :
+                    $type = "deliverable";
                     $report = $this->getRawReportByInternalId($espInternalId);
                     $statUrl = "{$report->info_url}/messages";
 
@@ -256,8 +261,9 @@ class AWeberReportService extends AbstractReportService implements IDataService
                         }
                         if ($message->total_opens > 0) {
                             $processState['openCollection'] = $message->opens_collection_link;
+                            $processState['espInternalId'] = $espInternalId;
                             $processState['recordType'] = 'opens';
-                            $job = new RetrieveDeliverableReports("AWeber", $this->api->getEspAccountId(), $processState['recordType'], str_random(16), $processState);
+                            $job = new RetrieveDeliverableReports("AWeber", $this->api->getEspAccountId(), $processState['recordType'], substr(AWeberEmailAction::getEmailId($message->subscriber_link),0,16), $processState);
                             $this->dispatch($job);
                         }
 
@@ -266,10 +272,10 @@ class AWeberReportService extends AbstractReportService implements IDataService
 
                     AWeberEmailAction::massRecordDeliverables();
                     $this->emailRecord->massRecordDeliverables();
-                    $type = "deliverable";
                     break;
 
                 case 'opens' :
+                    $type = "open";
                     $messages = $this->api->makeApiRequest($processState['openCollection'], array(), true);
                     foreach ($messages as $message) {
 
@@ -295,10 +301,10 @@ class AWeberReportService extends AbstractReportService implements IDataService
                     }
                     AWeberEmailAction::massRecordDeliverables();
                     $this->emailRecord->massRecordDeliverables();
-                    $type = "open";
                     break;
 
                 case 'links' :
+                    $type = "click";
                     $report = $this->getRawReportByInternalId($espInternalId);
                     $linkUrl = "{$report->info_url}/links";
                     $urls = $this->api->makeApiRequest($linkUrl, array(), true);
@@ -312,10 +318,10 @@ class AWeberReportService extends AbstractReportService implements IDataService
                         }
                         $processState['recordType'] = 'links';
                     }
-                    $type = "click";
                     break;
 
                 case 'clicks' :
+                    $type = "click";
                     $messages = $this->api->makeApiRequest($processState['clickCollection'], array("ws.size" => 100), true);
 
                     foreach ($messages as $message) {
@@ -341,7 +347,6 @@ class AWeberReportService extends AbstractReportService implements IDataService
 
                     AWeberEmailAction::massRecordDeliverables();
                     $this->emailRecord->massRecordDeliverables();
-                    $type = "click";
                     break;
             }
 
