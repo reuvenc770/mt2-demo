@@ -269,6 +269,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
                         }
 
                         $processState['recordType'] = 'delivers';
+                        $count++;
                     }
 
                     if(isset($messages['response']['next_collection_link'])){
@@ -304,6 +305,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
                                 $espInternalId,
                                 $message->event_time);
                         }
+                        $count++;
                     }
                     AWeberEmailAction::massRecordDeliverables();
                     $this->emailRecord->massRecordDeliverables();
@@ -352,6 +354,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
                                 $espInternalId,
                                 $message['event_time']);
                         }
+                        $count++;
                     }
 
                     if(isset($messages['response']['next_collection_link'])){
