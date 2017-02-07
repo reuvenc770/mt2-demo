@@ -4,8 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class EmailFeedAttributableData extends Model
+class EmailFeedLatestData extends Model
 {
-    protected $table = 'email_feed_record_data';
+    protected $table = 'email_feed_latest_data';
     protected $guarded = [];
 }
