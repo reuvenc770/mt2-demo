@@ -60,7 +60,7 @@ class ListProfileQueryBuilder {
             'feed_id' => 'efa.feed_id',
             'domain_group_name' => DB::connection('redshift')->raw('dg.name as domain_group_name'),
             'country' => 'dg.country',
-            'feed_name' => DB::connection('redshift')->raw('f.short_name as feed_name'),
+            'feed_name' => DB::connection('redshift')->raw('f.name as feed_name'),
             'source_url' => 'rd.source_url',
             'client_name' => DB::connection('redshift')->raw('c.name as client_name'),
             'email_address' => 'e.email_address',
