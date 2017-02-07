@@ -65,7 +65,7 @@ class ContentServerStatsRawRepo {
     public function pullEmailUserAgents($lookback) {
         return $this->model
                     ->select('eid as email_id', 'user_agent')
-                    ->whereRaw('action_datetime >= CURDATE() - INTERVAL $lookback HOUR')
+                    ->whereRaw("action_datetime >= CURDATE() - INTERVAL $lookback HOUR")
                     ->orderBy('action_datetime', 'ASC');
     }
 }
