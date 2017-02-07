@@ -219,7 +219,6 @@ class AWeberReportService extends AbstractReportService implements IDataService
 
     public function saveRecords(&$processState)
     {
-        $theType = "";
         $count = 0;
         $espInternalId = $processState['campaign']->esp_internal_id;
         // sometimes this doesn't work - if we don't have the campaign saved
