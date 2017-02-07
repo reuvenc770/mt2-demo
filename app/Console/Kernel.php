@@ -141,7 +141,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:downloadApi AWeber --daysBack=5 --apiLimit=40')->cron("0 0,6,12,18 * * *")->sendOutputTo($filePath);
         #$schedule->command('reports:downloadApi EmailDirect --daysBack=5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Maro --daysBack=5')->hourly()->sendOutputTo($filePath);
-        //$schedule->command('reports:updateMissingMaroCampaigns')->daily()->sendOutputTo($filePath);
+        $schedule->command('reports:updateMissingMaroCampaigns')->daily()->sendOutputTo($filePath);
         //$schedule->command('reports:downloadApi Ymlp --daysBack=5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Publicators --daysBack=5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Bronto --daysBack=5')->hourly()->sendOutputTo($filePath);
