@@ -48,9 +48,9 @@ class ThirdPartyEmailStatusRepo {
 
         return '(' . 
             . $pdo->quote($row['email_id']) . ','
-            . $pdo->quote($row['last_action_type']) . ','
-            . $pdo->quote($row['last_action_offer_id']) . ','
-            . $pdo->quote($row['last_action_datetime']) . ','
-            . $pdo->quote($row['last_action_esp_account_id']) . 'NOW() , NOW())';
+            . $pdo->quote($row['action_type']) . ','
+            . $pdo->quote($row['offer_id']) . ','
+            . $pdo->quote($row['datetime']) . ','
+            . $pdo->quote($row['esp_account_id']) . 'NOW() , NOW())';
     }
 }
