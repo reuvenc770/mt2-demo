@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Services\API\ContentServerStatsRawRepo;
+use App\Repositories\ContentServerStatsRawRepo;
 use App\Repositories\RecordDataRepo;
 use App\Repositories\EmailAttributableFeedLatestDataRepo;
 use DB;
