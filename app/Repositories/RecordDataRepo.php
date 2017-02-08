@@ -113,8 +113,7 @@ class RecordDataRepo implements IAwsRepo {
         $pdo = DB::connection()->getPdo();
 
         if ($this->batchDeviceUpdateCount >= self::INSERT_THRESHOLD) {
-
-            $this->cleanUpActions();
+            $this->cleanupDeviceData();
 
             $this->batchDeviceUpdateData = ['('
                 . $pdo->quote($row['email_id']) . ','
