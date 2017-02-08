@@ -94,6 +94,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
             . $pdo->quote($row['feed_id']) . ','
             . 'NOW(),'
             . $pdo->quote( Carbon::parse($row['capture_date'])->format('Y-m-d') ) . ','
+            . $pdo->quote($row['attribution_status']) . ','
             . $pdo->quote($row['first_name']) . ','
             . $pdo->quote($row['last_name']) . ','
             . $pdo->quote($row['address']) . ','
