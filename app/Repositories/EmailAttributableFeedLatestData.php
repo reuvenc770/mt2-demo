@@ -2,14 +2,14 @@
 
 namespace App\Repositories;
 
-use App\Models\EmailFeedLatestData;
+use App\Models\EmailAttributableFeedLatestData;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use Carbon\Carbon;
 use App\Repositories\RepoInterfaces\IAwsRepo;
 use App\Repositories\RepoTraits\Batchable;
 
-class EmailFeedLatestDataRepo implements IAwsRepo {
+class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
     use Batchable;
 
     private $model;
@@ -20,14 +20,14 @@ class EmailFeedLatestDataRepo implements IAwsRepo {
     private $batchDeviceUpdateData = [];
     private $batchDeviceUpdateCount = 0;
 
-    public function __construct(EmailFeedLatestData $model) {
+    public function __construct(EmailAttributableFeedLatestData $model) {
         $this->model = $model;
     }
 
     public function getRecordDataFromEid($eid){
         $attrDb = config('databases.connections.attribution.database');
         return $this->model
-                    ->join("$attrDb.email_feed_assignments as efa", 'email_feed_latest_data.feed_id', '=', 'efa.feed_id')
+                    ->join("$attrDb.email_feed_assignments as efa", 'email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id')
                     ->where('email_id', $eid)
                     ->selectRaw("email_id,
                         first_name,
@@ -55,7 +55,7 @@ class EmailFeedLatestDataRepo implements IAwsRepo {
     }
 
     private function buildBatchedQuery($batchData) {
-        return "INSERT INTO email_feed_latest_data (email_id, feed_id, subscribe_date, capture_date, 
+        return "INSERT INTO email_attributable_feed_latest_data (email_id, feed_id, subscribe_date, capture_date, 
                     attribution_status, first_name, last_name, 
                     address, address2, city, state, zip, country, gender, 
                     ip, phone, source_url, dob, other_fields)
@@ -143,7 +143,7 @@ class EmailFeedLatestDataRepo implements IAwsRepo {
         if ($this->batchDeviceUpdateCount > 0) {
             $data = implode(',', $this->batchDeviceUpdateData);
         
-            DB::statement("INSERT INTO email_feed_latest_data (email_id, feed_id, device_type, device_name)
+            DB::statement("INSERT INTO email_attributable_feed_latest_data (email_id, feed_id, device_type, device_name)
                 VALUES
             
                 $data
@@ -184,10 +184,11 @@ class EmailFeedLatestDataRepo implements IAwsRepo {
         */
 
         return $this->model
-                    ->join("$attrDb.email_feed_assignments as efa", 'email_feed_latest_data.feed_id', '=', 'efa.feed_id')
-                    ->where('email_feed_latest_data.email_id', $eid)
-                    ->where("email_feed_latest_data.updated_at > $startpoint")
-                    ->select();
+                    ->join("$attrDb.email_feed_assignments as efa", 'email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id')
+                    ->join('')
+                    ->where('email_attributable_feed_latest_data.email_id', $eid)
+                    ->where("email_attributable_feed_latest_data.updated_at > $startpoint")
+                    ->select('efa.email_id', '');
     }
 
     public function extractAllForS3() {
