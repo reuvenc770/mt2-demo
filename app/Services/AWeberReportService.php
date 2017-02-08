@@ -4,22 +4,19 @@ namespace App\Services;
 use App\Events\RawReportDataWasInserted;
 use App\Exceptions\JobException;
 use App\Facades\AWeberEmailAction;
-use App\Facades\DeployActionEntry;
+use App\Factories\APIFactory;
 use App\Jobs\RetrieveDeliverableReports;
-use App\Jobs\UpdateSingleAWeberSubscriber;
 use App\Models\AWeberList;
 use App\Models\AWeberReport;
 use App\Repositories\AWeberListRepo;
 use App\Repositories\ReportRepo;
 use App\Services\API\AWeberApi;
 use App\Services\Interfaces\IDataService;
-use App\Services\StandardReportService;
-use App\Factories\APIFactory;
+use Cache;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Event;
-use Cache;
-
+use App\Jobs\UpdateSingleAWeberSubscriber;
 /**
  * Class AWeberReportService
  * @package App\Services
@@ -133,28 +130,6 @@ class AWeberReportService extends AbstractReportService implements IDataService
         return $newRawRecord;
     }
 
-    public function mapToStandardReport($data)
-    {
-        return array(
-            'campaign_name' => isset($data['campaign_name']) ? $data['campaign_name'] : "",
-            'external_deploy_id' => isset($data['deploy_id']) ? $data['deploy_id'] : 0,
-            'm_deploy_id' => 0,
-            'esp_account_id' => $data['esp_account_id'],
-            'esp_internal_id' => $data['internal_id'],
-            'datetime' => $data['datetime'],
-            'name' => "",
-            'subject' => $data['subject'],
-            'from' => "",
-            'from_email' => "",
-            'delivered' => $data['total_sent'],
-            'bounced' => "",
-            'e_opens' => $data['total_opens'],
-            'e_opens_unique' => "",
-            'e_clicks' => $data['total_clicks'],
-            'e_clicks_unique' => "",
-        );
-    }
-
     public function getUniqueStatForCampaignUrl($url, $type)
     {
         switch ($type) {
@@ -188,9 +163,8 @@ class AWeberReportService extends AbstractReportService implements IDataService
 
     public function splitTypes($processState)
     {
-        return ['delivers', 'links'];
+        return ['delivers','links'];
     }
-
 
     public function pushRecords(array $records, $targetId)
     {
@@ -200,70 +174,64 @@ class AWeberReportService extends AbstractReportService implements IDataService
     {
         $jobId = (isset($processState['jobId']) ? $processState['jobId'] : '');
 
-        if (
-            !isset($processState['jobIdIndex'])
-            || (isset($processState['jobIdIndex']) && $processState['jobIdIndex'] != $processState['currentFilterIndex'])
-        ) {
-            switch ($processState['currentFilterIndex']) {
-                case 1 :
-                    $jobId .= "::{$processState['espAccountId']}";
-                    break;
-            }
-
-            if (isset($processState['espInternalId'])) {
-                $jobId .= "::{$processState['espInternalId']}::{$this->pageNumber}::";
-            }
-
-
-            $processState['jobIdIndex'] = $processState['currentFilterIndex'];
-            $processState['jobId'] = $jobId;
+        if (isset($processState['campaign'])) {
+            $jobId .= "::{$processState['campaign']->esp_internal_id}";
         }
+        if (isset($processState['pageNumber'])) {
+            $jobId .= "::{$processState['pageNumber']}::";
+        }
+
         return $jobId;
     }
 
-
     public function savePage(&$processState, $forceWriteBool = false)
     {
-
         $count = 0;
         $shouldProcess = false;
         $espInternalId = $processState['campaign']->esp_internal_id;
         $deployId = $processState['campaign']->external_deploy_id;
-
+        $key = "AWEBER.{$espInternalId}.{$processState['recordType']}";
         /**
          * Aweber will only let us page at 100 per.  that is causing to many new action events, so we are storing data in the cache.
+         * Except opens which are done as a bulk group in a step.
          */
-        $key = "AWEBER.{$espInternalId}.{$processState['recordType']}";
-        if ($forceWriteBool) { //last page saved alone.
-            $messages = Cache::get($key);
-            $shouldProcess = true;
-            Cache::forget($key);
-        }
-        else if (Cache::has($key)) { //during paging.
-            $pastMessages = Cache::get($key);
-            $messages = array_merge($pastMessages, $processState['currentPageData']['response']['entries']);
-        } else //first run
-        {
-            $messages = $processState['currentPageData']['response']['entries'];
-        }
-
-        if (!$forceWriteBool) {
-            if (count($messages) >= 10000) {
+        if (!isset($processState['openCollection'])) { // opens are coming in as a collection so skip the cash.
+            if ($forceWriteBool) { //We have a boolean set to save the extra rows after the main job finishes.
+                $messages = Cache::get($key);
                 $shouldProcess = true;
                 Cache::forget($key);
-            } else {
-                sleep(1);//crap rate limiting
-                Cache::put($key, $messages, 300);
+            } else if (Cache::has($key)) { //while we are pagiging data
+                $pastMessages = Cache::get($key);
+                if (isset($processState['currentPageData']['response']['entries'])) {
+                    $messages = array_merge($pastMessages, $processState['currentPageData']['response']['entries']);
+                } else {
+                    $messages = $pastMessages;  //most likely the last page
+                }
+            } else {  //first run
+                $messages = $processState['currentPageData']['response']['entries'];
             }
+            if (!$forceWriteBool){  // normal runs if
+                if (count($messages) >= 10000) {
+                    $shouldProcess = true;
+                    Cache::forget($key);
+                } else {
+                    sleep(1);//crap rate limiting
+                    Cache::put($key, $messages, 300);
+                }
+            }
+        } else { //We have a open collection
+            $shouldProcess = true;
+            $messages = $processState['currentPageData'];
         }
-
         try {
-            if ($shouldProcess) {//this could be refactored
+            if ($shouldProcess) {
+
                 switch ($processState['recordType']) {
                     case 'delivers' :
                         foreach ($messages as $message) {
+                            $count++;
                             $emailAddress = AWeberEmailAction::getEmailAddressFromUrl($message['subscriber_link']);
-                            if ($emailAddress) {
+                            if ($emailAddress) {  //we have the email
                                 $this->emailRecord->queueDeliverable(
                                     self::RECORD_TYPE_DELIVERABLE,
                                     $emailAddress['email_address'],
@@ -281,31 +249,34 @@ class AWeberReportService extends AbstractReportService implements IDataService
                                     $message['event_time']);
                                 //
                                 //Everything that is missing passes through here, so maybe the email
-                                //will be picked up before the other jobs occur.
-                                // $this->dispatch((new UpdateSingleAWeberSubscriber($message['subscriber_link'], $this->api->getEspAccountId(), str_random(16)))->onQueue("AWeber"));
+                                // will be picked up before the other jobs occur.
+                                $this->dispatch((new UpdateSingleAWeberSubscriber($message['subscriber_link'], $this->api->getEspAccountId(), str_random(16)))->onQueue("AWeber"));
                             }
                             if ($message['total_opens'] > 0) {
-                                $processState['openCollection'] = $message['opens_collection_link'];
-                                $processState['espInternalId'] = $espInternalId;
-                                $processState['pageNumber'] = 1;
-                                $processState['recordType'] = 'opens';
-                                $job = (new RetrieveDeliverableReports("AWeber", $this->api->getEspAccountId(), $processState['recordType'], $message['id'], $processState))->onQueue("AWeber");
-                                $this->dispatch($job);
+                                $processState['openCollection'][] = $message['opens_collection_link'];
+                                //collect end point urls
                             }
-                            unset($processState['openCollection']);
-                            $processState['recordType'] = 'delivers';
-                            $count++;
+                        }
+                        //if we have any opens lets clone the process change some goodies and move along.
+                        if (count($processState['openCollection']) > 0) {
+                            $newProcess = $processState;
+                            $newProcess['espInternalId'] = $espInternalId;
+                            $newProcess['pageNumber'] = 1;
+                            $newProcess['recordType'] = 'opens';
+                            $newProcess['currentFilterIndex']++;
+                            $job = (new RetrieveDeliverableReports("AWeber", $this->api->getEspAccountId(), $newProcess['recordType'], str_random(16), $newProcess))->onQueue("AWeber");
+                            $this->dispatch($job);
                         }
 
+                        unset($processState['openCollection']);//get rid of that we can continue paging. 
                         AWeberEmailAction::massRecordDeliverables();
                         $this->emailRecord->massRecordDeliverables();
                         break;
 
                     case 'opens' :
-                        foreach ($messages as $message) {
-
-                            $emailAddress = AWeberEmailAction::getEmailAddressFromUrl($message->subscriber_link);
-
+                        $count++;
+                        foreach ($messages as $message) {  //magic is in the method to retrieve data
+                            $emailAddress = AWeberEmailAction::getEmailAddressFromUrl($message['subscriber_link']);
                             if ($emailAddress) {
                                 $this->emailRecord->queueDeliverable(
                                     AbstractReportService::RECORD_TYPE_OPENER,
@@ -313,26 +284,27 @@ class AWeberReportService extends AbstractReportService implements IDataService
                                     $this->api->getEspAccountId(),
                                     $deployId,
                                     $espInternalId,
-                                    $message->event_time);
+                                    $message['event_time']);
                             } else {
                                 AWeberEmailAction::queueDeliverable(
                                     AbstractReportService::RECORD_TYPE_OPENER,
-                                    $message->subscriber_link,
+                                    $message['subscriber_link'],
                                     $this->api->getEspAccountId(),
                                     $deployId,
                                     $espInternalId,
-                                    $message->event_time);
+                                    $message['event_time']);
                             }
-                            $count++;
+                            
                         }
                         AWeberEmailAction::massRecordDeliverables();
                         $this->emailRecord->massRecordDeliverables();
                         break;
 
-                    case 'links' :
+                    case 'links' :  //if a link has clicks lets start that process.
                         foreach ($messages as $message) {
                             if ($message['total_clicks'] > 0) {
                                 $processState['clickCollection'] = $message['clicks_collection_link'];
+                                $processState['pageNumber'] = 1;
                                 $processState['recordType'] = 'clicks';
                                 $job = (new RetrieveDeliverableReports("AWeber", $this->api->getEspAccountId(), $processState['recordType'], str_random(16), $processState))->onQueue("AWeber");
                                 $this->dispatch($job);
@@ -343,6 +315,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
 
                     case 'clicks' :
                         foreach ($messages as $message) {
+                            $count++;
                             $emailAddress = AWeberEmailAction::getEmailAddressFromUrl($message['subscriber_link']);
                             if ($emailAddress) {
                                 $this->emailRecord->queueDeliverable(
@@ -361,7 +334,6 @@ class AWeberReportService extends AbstractReportService implements IDataService
                                     $espInternalId,
                                     $message['event_time']);
                             }
-                            $count++;
                         }
                         AWeberEmailAction::massRecordDeliverables();
                         $this->emailRecord->massRecordDeliverables();
@@ -376,11 +348,29 @@ class AWeberReportService extends AbstractReportService implements IDataService
         return $count;
     }
 
-    public function getRawReportByInternalId($internalId)
+    public function generateOpenRecordData($processState)
     {
-        return $this->reportRepo->getRowByExternalId($internalId);
+        $openCollections = $processState['openCollection'];
+        $finalArray = array();
+        $failedArray = array();
+        foreach ($openCollections as $key => $openCollection) {
+            try {
+                echo $openCollection;
+                $messages = $this->api->makeRawApiRequest($openCollection, array("ws.size" => 100), true);
+                $finalArray = array_merge($finalArray, $messages['response']['entries']);
+            } catch (\Exception $e) {
+                $failedArray[] = $openCollection;
+            }
+        }
+        //if we have any failures lets start a job with all of them. 
+        if (count($failedArray) > 0) {
+            $newProcess = $processState;
+            $newProcess['openCollection'] = $failedArray;
+            $job = (new RetrieveDeliverableReports("AWeber", $this->api->getEspAccountId(), $processState['recordType'], str_random(16), $newProcess))->onQueue("AWeber");
+            $this->dispatch($job);
+        }
+        $this->currentPageData = $finalArray;
     }
-
 
     public function getBySubject($subject)
     {
@@ -401,6 +391,28 @@ class AWeberReportService extends AbstractReportService implements IDataService
         $this->standardService->insertStandardStats($standardRecord);
     }
 
+    public function mapToStandardReport($data)
+    {
+        return array(
+            'campaign_name' => isset($data['campaign_name']) ? $data['campaign_name'] : "",
+            'external_deploy_id' => isset($data['deploy_id']) ? $data['deploy_id'] : 0,
+            'm_deploy_id' => 0,
+            'esp_account_id' => $data['esp_account_id'],
+            'esp_internal_id' => $data['internal_id'],
+            'datetime' => $data['datetime'],
+            'name' => "",
+            'subject' => $data['subject'],
+            'from' => "",
+            'from_email' => "",
+            'delivered' => $data['total_sent'],
+            'bounced' => "",
+            'e_opens' => $data['total_opens'],
+            'e_opens_unique' => "",
+            'e_clicks' => $data['total_clicks'],
+            'e_clicks_unique' => "",
+        );
+    }
+
     public function getPageData()
     {
         return $this->currentPageData;
@@ -412,6 +424,8 @@ class AWeberReportService extends AbstractReportService implements IDataService
 
         if (isset($processState['openCollection'])) {
             $statUrl = $processState['openCollection'];
+        } else if (isset($processState['clickCollection'])) {
+            $statUrl = $processState['clickCollection'];
         } else if ($processState['recordType'] == 'links') {
             $statUrl = "{$report->info_url}/links";
         } else {
@@ -424,14 +438,18 @@ class AWeberReportService extends AbstractReportService implements IDataService
             $messages = $this->api->makeRawApiRequest($statUrl, array("ws.size" => 100, "ws.start" => $this->getStartNumber()), true);
         }
 
-
         $this->currentPageData = $messages;
         return !empty($messages['response']['entries']);
     }
 
-    public function setPageNumber($pageNumber)
+    public function getRawReportByInternalId($internalId)
     {
-        $this->pageNumber = $pageNumber;
+        return $this->reportRepo->getRowByExternalId($internalId);
+    }
+
+    public function getStartNumber()
+    {
+        return ($this->pageNumber - 1) * 100;
     }
 
     public function getPageNumber()
@@ -439,9 +457,9 @@ class AWeberReportService extends AbstractReportService implements IDataService
         return $this->pageNumber;
     }
 
-    public function getStartNumber()
+    public function setPageNumber($pageNumber)
     {
-        return ($this->pageNumber - 1) * 100;
+        $this->pageNumber = $pageNumber;
     }
 
     public function nextPage()

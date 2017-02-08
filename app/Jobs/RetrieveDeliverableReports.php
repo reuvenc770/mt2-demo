@@ -297,8 +297,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
         if ( $this->reportService->pageHasCampaignData($this->processState) ) {
             $this->processState[ 'currentPageData' ] = $this->reportService->getPageData();
-            $this->reportService->savePage( $this->processState);
-            $rowCount = count($this->processState[ 'currentPageData' ]);
+            $rowCount = $this->reportService->savePage( $this->processState);
             $this->processState[ 'currentPageData' ] = array();
 
             $this->reportService->nextPage();
@@ -313,6 +312,15 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         }
         $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
     }
+    
+    protected function saveOpenAWeberRecords(){
+        $rowCount = 0;
+        $this->reportService->generateOpenRecordData($this->processState);
+        $this->processState[ 'currentPageData' ] = $this->reportService->getPageData();
+        $rowCount = $this->reportService->savePage( $this->processState);
+        $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
+    }
+
 
 
     protected function savePaginatedCampaignRecords () {
@@ -326,7 +334,6 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
         while ($continue) {
             if ( $this->reportService->pageHasCampaignData($this->processState)) {
-
                 $this->processState[ 'currentPageData' ] = $this->reportService->getPageData();
                 $this->reportService->saveActionPage( $this->processState, $map );
                 $rowCount += count($this->processState[ 'currentPageData' ]);
@@ -496,7 +503,9 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         Log::$logMethod( str_repeat( '=' , 20 ) );
         Log::$logMethod( $e->getMessage() );
         Log::$logMethod( $this->getJobInfo() );
-
+        Log::$logMethod( $e->getFile() );
+        Log::$logMethod( $e->getLine() );
+        Log::$logMethod( $e->getTraceAsString() );
         if ( $e->getCode() > JobException::NOTICE ) {
             Log::$logMethod( $e->getFile() );
             Log::$logMethod( $e->getLine() );
