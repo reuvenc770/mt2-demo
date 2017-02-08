@@ -30,27 +30,18 @@
                     <tbody md-body>
                         <tr md-row ng-repeat-start="record in clientGroup.clientGroups track by $index">
                             <td md-cell>
-                                <div layout="row" layout-align="center center">
-                                    <md-button class="md-icon-button" aria-label="View Feeds"
-                                                ng-click="clientGroup.clientFeedMap[record.id]=!clientGroup.clientFeedMap[record.id]">
-                                        <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-hide="clientGroup.clientFeedMap[record.id]">expand_more</md-icon>
-                                        <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-show="clientGroup.clientFeedMap[record.id]">expand_less</md-icon>
-                                    </md-button>
-                                    <md-button class="md-icon-button" ng-href="@{{ '/clientgroup/edit/' + record.id }}" target="_self" aria-label="Edit">
-                                        <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon>
-                                        <md-tooltip md-direction="bottom">Edit</md-tooltip>
-                                    </md-button>
+                                <md-button class="md-icon-button" aria-label="View Feeds"
+                                            ng-click="clientGroup.clientFeedMap[record.id]=!clientGroup.clientFeedMap[record.id]">
+                                    <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-hide="clientGroup.clientFeedMap[record.id]">expand_more</md-icon>
+                                    <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-show="clientGroup.clientFeedMap[record.id]">expand_less</md-icon>
+                                </md-button>
+                                <a ng-href="@{{ '/clientgroup/edit/' + record.id }}" aria-label="Edit" target="_self" data-toggle="tooltip" data-placement="bottom" title="Edit">
+                                    <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon></a>
 
-                                    <md-button class="md-icon-button" ng-click="clientGroup.copyClientGroup( record.id )" aria-label="Copy">
-                                        <md-icon md-font-set="material-icons" class="mt2-icon-black">content_copy</md-icon>
-                                        <md-tooltip md-direction="bottom">Copy</md-tooltip>
-                                    </md-button>
+                                <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-click="clientGroup.copyClientGroup( record.id )" aria-label="Copy" data-toggle="tooltip" data-placement="bottom" title="Copy">content_copy</md-icon>
 
-                                    <md-button class="md-icon-button" ng-click="ctrl.deletegroup( { groupID : record.id } )" aria-label="Delete">
-                                        <md-icon md-font-set="material-icons" class="mt2-icon-black">clear</md-icon>
-                                        <md-tooltip md-direction="bottom">Delete</md-tooltip>
-                                    </md-button>
-                                </div>
+                                <md-icon ng-click="ctrl.deletegroup( { groupID : record.id } )" aria-label="Delete" md-font-set="material-icons" class="mt2-icon-black"
+                                     data-toggle="tooltip" data-placement="bottom" title="Delete">delete</md-icon>
                             </td>
                             <td md-cell>@{{ record.id }}</td>
 
