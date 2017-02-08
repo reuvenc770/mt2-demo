@@ -112,9 +112,6 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
     }
 
     public function batchUpdateDeviceData($row) {
-        /**
-            This has feed information now
-        */
         $pdo = DB::connection()->getPdo();
 
         if ($this->batchDeviceUpdateCount >= self::INSERT_THRESHOLD) {
@@ -186,10 +183,11 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
 
         return $this->model
                     ->join("$attrDb.email_feed_assignments as efa", 'email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id')
-                    ->join('')
+                    ->join('third_party_email_statuses as st', 'email_attributable_feed_latest_data.email_id', '=', 'st.email_id')
                     ->where('email_attributable_feed_latest_data.email_id', $eid)
                     ->where("email_attributable_feed_latest_data.updated_at > $startpoint")
-                    ->select('efa.email_id', '');
+                    ->select('efa.email_id', 
+                        DB::raw("IF(st.last_action_type = 'None', 1, 0) as deliverable"),);
     }
 
     public function extractAllForS3() {

@@ -41,7 +41,7 @@ class CreateEmailFeedAttributableDatasTable extends Migration
 
             $table->primary(['email_id', 'feed_id'], 'email_feed');
             $table->index(['feed_id', 'updated_at'], 'feed_updated');
-            $table->index('updated_at', 'updated_at')
+            $table->index('updated_at', 'updated_at');
         });
     }
 

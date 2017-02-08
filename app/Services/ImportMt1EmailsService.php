@@ -237,25 +237,25 @@ class ImportMt1EmailsService
                                 // set status to POR
                                 $emailFeedActionRow = $this->mapToEmailFeedActions($record, EmailFeedAction::PASSED_DUE_TO_RESPONDER);
                                 $this->emailFeedActionRepo->batchInsert($emailFeedActionRow);
-                                $newStatus = EmailFeedAction::PASSED_DUE_TO_RESPONDER
+                                $newStatus = EmailFeedAction::PASSED_DUE_TO_RESPONDER;
                             }
                             elseif (!$attributionTruths->has_action && 'fresh' === $emailStatus) {
                                 // Need to change attribution and some types will change
                                 $emailFeedActionRow = $this->mapToEmailFeedActions($record, EmailFeedAction::DELIVERABLE);
                                 $this->emailFeedActionRepo->batchInsert($emailFeedActionRow);
-                                $newStatus = EmailFeedAction::PASSED_DUE_TO_RESPONDER
+                                $newStatus = 'ATTR';
                             }
                             elseif (!$attributionTruths->has_action && $attributionTruths->recent_import) {
                                 // set status to POA
                                 $emailFeedActionRow = $this->mapToEmailFeedActions($record, EmailFeedAction::PASSED_DUE_TO_ATTRIBUTION);
                                 $this->emailFeedActionRepo->batchInsert($emailFeedActionRow);
-                                $newStatus = EmailFeedAction::PASSED_DUE_TO_RESPONDER
+                                $newStatus = EmailFeedAction::PASSED_DUE_TO_ATTRIBUTION;
                             }
                             elseif (!$attributionTruths->has_action && !$attributionTruths->recent_import) {
                                 // set status to POA
                                 $emailFeedActionRow = $this->mapToEmailFeedActions($record, EmailFeedAction::PASSED_DUE_TO_ATTRIBUTION);
                                 $this->emailFeedActionRepo->batchInsert($emailFeedActionRow);
-                                $newStatus = EmailFeedAction::PASSED_DUE_TO_RESPONDER
+                                $newStatus = EmailFeedAction::PASSED_DUE_TO_ATTRIBUTION;
                             }
                         }
 
