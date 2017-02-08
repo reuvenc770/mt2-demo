@@ -7,6 +7,8 @@ use App\Repositories\AttributionLevelRepo;
 use App\Repositories\RecordDataRepo;
 use App\Repositories\FeedDateEmailBreakdownRepo;
 use App\Repositories\EmailFeedActionRepo;
+use App\Repositories\ThirdPartyEmailStatusRepo;
+use App\Repositories\EmailAttributableFeedLatestDataRepo;
 use App\Services\Interfaces\IFeedPartyProcessing;
 use Carbon\Carbon;
 use App\Events\NewRecords;
@@ -18,6 +20,8 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
     private $recordDataRepo;
     private $statsRepo;
     private $emailFeedActionRepo;
+    private $emailStatusRepo;
+    private $latestDataRepo;
 
     private $processingDate;
 
@@ -25,7 +29,9 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
         AttributionLevelRepo $attributionLevelRepo, 
         RecordDataRepo $recordDataRepo, 
         FeedDateEmailBreakdownRepo $statsRepo,
-        EmailFeedActionRepo $emailFeedActionRepo) {
+        EmailFeedActionRepo $emailFeedActionRepo,
+        ThirdPartyEmailStatusRepo $emailStatusRepo,
+        EmailAttributableFeedLatestDataRepo $latestDataRepo) {
 
         $this->emailRepo = $emailRepo;
         $this->attributionLevelRepo = $attributionLevelRepo;
@@ -33,6 +39,7 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
         $this->statsRepo = $statsRepo;
         $this->processingDate = Carbon::today()->format('Y-m-d');
         $this->emailFeedActionRepo = $emailFeedActionRepo;
+        $this->latestDataRepo = $latestDataRepo;
     }
 
     /**
@@ -95,6 +102,8 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
                 // This is not a new email
 
                 $record->isDeliverable = $this->recordDataRepo->getDeliverableStatus($record->emailId);
+                #$record->isDeliverable = $this->emailStatusRepo->getActionStatus($record->emailId) === 'None'; # This will be the replacement
+
                 $attributionTruths = $this->emailRepo->getAttributionTruths($record->emailId);
                 $currentAttributedFeedId = $this->emailRepo->getCurrentAttributedFeedId($record->emailId);
 
@@ -143,12 +152,16 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
                 }
 
                 $this->emailFeedActionRepo->batchInsert($record->mapToEmailFeedAction($actionStatus));
+                #$this->emailStatusRepo->batchInsert($record->mapToEmailStatus($actionStatus)); #Going to replace the above
             }
 
             $statuses[$record->feedId][$domainGroupId][$record->uniqueStatus]++;
 
             if ('unique' === $record->uniqueStatus) {
-                $this->recordDataRepo->batchInsert($record->mapToRecordData());
+                $data = $record->mapToRecordData();
+                $this->recordDataRepo->batchInsert($data);
+                $data['attribution_status'] = $actionStatus === 'Deliverable' ? 'ATTR' : $actionStatus;
+                $this->latestDataRepo->batchInsert($data);
             }
             
         }

@@ -14,6 +14,7 @@ use App\Repositories\RecordDataRepo;
 use App\Repositories\EmailIdHistoryRepo;
 use App\Repositories\EmailFeedActionRepo;
 use App\Repositories\EmailFeedAssignmentRepo;
+use App\Repositories\EmailAttributableFeedLatestDataRepo;
 use Carbon\Carbon;
 use App\Models\EmailFeedAction;
 
