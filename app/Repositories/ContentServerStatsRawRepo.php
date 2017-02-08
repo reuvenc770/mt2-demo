@@ -63,8 +63,11 @@ class ContentServerStatsRawRepo {
     }
 
     public function pullEmailUserAgents($lookback) {
+        $attrDb = config('database.connections.attribution.database');
+
         return $this->model
-                    ->select('eid as email_id', 'user_agent')
+                    ->select('eid as email_id', 'feed_id', 'user_agent')
+                    ->join("$attrDb.email_feed_assignments as efa", 'eid', '=', 'efa.email_id')
                     ->whereRaw('action_datetime >= CURDATE() - INTERVAL $lookback HOUR')
                     ->orderBy('action_datetime', 'ASC');
     }
