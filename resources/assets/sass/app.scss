@@ -25,7 +25,7 @@ $card-padding: 6px;
  *Bootstrap Includes
  */
 @import "angular-material-internal.scss";
-@import "material-theme";
+
 @import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
 
 /**
@@ -130,30 +130,6 @@ ul.ivh-treeview ul.ivh-treeview {
 }
 
 /**
- * Label Styles
- */
-.mt2-label{
-    display: inline;
-    padding: .2em .6em .3em;
-    color: #fff;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: baseline;
-    border-radius: .25em;
-}
-.mt2-label-info{
-    background-color: #5bc0de;
-}
-.mt2-label-default{
-    background-color: #777777;
-}
-.mt2-label-success{
-    background-color: #5cb85c;
-}
-label:focus {
-    outline: 0;
-}
-/**
  * Materials Overrides
  */
 
@@ -212,14 +188,6 @@ table.md-table tbody.md-body > tr.md-row {
 
 table.md-table.md-row-select tbody.md-body > tr.md-row:not([disabled]):hover {
     cursor: pointer;
-}
-
-.no-padding {
-    padding:0px;
-}
-
-.no-margin {
-    margin: 0px;
 }
 
 td.mt2-table-btn-column.md-cell,
@@ -315,21 +283,6 @@ a.md-button.md-mt2-zeta-theme.md-raised.mt2-button-success:not([disabled]):hover
     background-color: #5cb85c;
 }
 
-.mt2-button-option{
-    margin: 6px 0;
-}
-.mt2-button-option[disabled]{
-    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-}
-.mt2-button-option-left{
-    border-bottom-right-radius: 0;
-    border-top-right-radius: 0;
-}
-.mt2-button-option-right{
-    border-bottom-left-radius: 0;
-    border-top-left-radius: 0;
-}
-
 /**
  * 3 Month Report Styling
  */
@@ -392,6 +345,14 @@ body {
 .no-padding { padding: 0; }
 
 .align-top { vertical-align: top; }
+
+label:focus {
+    outline: 0;
+}
+
+.no-margin {
+    margin: 0px;
+}
 
 .dropFile {
     padding: 15px;
@@ -531,6 +492,10 @@ table.md-table th.md-column md-icon {
     background-color: #468cce;
 }
 
+md-content.md-default-theme.md-hue-2, md-content.md-hue-2{
+    color: rgba(0, 0, 0, 0.87);
+    background-color: #fafafa;
+}
 /**
 Panel Custom - we should break up into componets.
 **/
@@ -964,6 +929,11 @@ md-list-item.mt2-nav-sub-item .md-list-item-inner {
 md-toast.md-top {
     top: 70px !important;
 }
+
+md-toast .md-toast-content, md-toast.md-default-theme .md-toast-content {
+  background-color: #323232;
+  color: #fafafa; }
+
 md-toast.cmp-alert-toast .md-toast-content{
     margin-left: 10px;
     background-color: #d9534f;
