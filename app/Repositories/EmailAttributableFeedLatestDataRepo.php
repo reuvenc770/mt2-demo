@@ -189,12 +189,11 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
     }
 
     public function extractAllForS3() {
-
         return $this->model
                     ->join("$attrDb.email_feed_assignments as efa", 'email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id')
                     ->leftJoin('third_party_email_statuses as st', 'email_attributable_feed_latest_data.email_id', '=', 'st.email_id')
                     ->where('email_attributable_feed_latest_data.email_id', $eid)
-                    ->whereRaw("updated_at > CURDATE() - INTERVAL 7 DAY");
+                    ->whereRaw("updated_at > CURDATE() - INTERVAL 7 DAY")
                     ->select('efa.email_id', DB::raw("IF(st.last_action_type = 'None', 1, 0) as is_deliverable"),
                         'first_name', 'last_name', 'address', 'address2', 'city', 'state', 'zip', 'country',
                         'gender', 'ip', 'phone', 'source_url', 'dob', 'device_type', 'device_name', 'carrier',
