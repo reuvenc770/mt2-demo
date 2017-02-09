@@ -93,7 +93,7 @@ $card-padding: 6px;
  *Bootstrap Includes
  */
 @import "angular-material-internal.scss";
-
+@import "material-theme";
 @import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
 
 /**
@@ -559,11 +559,6 @@ table.md-table th.md-column md-icon {
 .mtNestedTable thead {
     background-color: #468cce;
 }
-
-md-content.md-default-theme.md-hue-2, md-content.md-hue-2{
-    color: rgba(0, 0, 0, 0.87);
-    background-color: #fafafa;
-}
 /**
 Panel Custom - we should break up into componets.
 **/
@@ -608,7 +603,7 @@ Roles Pages custom
 Domain Add
 **/
 md-content{
-    background: rgb(176,190,197);
+    background: #fafafa;
 }
 
 
