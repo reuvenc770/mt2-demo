@@ -1,6 +1,8 @@
 var elixir = require('laravel-elixir');
 var argv = require( 'yargs' ).argv;
-
+var gulp = require( 'gulp' );
+var minify = require( 'gulp-clean-css' );
+var rename = require( 'gulp-rename' );
 /*
  |--------------------------------------------------------------------------
  | Elixir Asset Management
@@ -12,10 +14,20 @@ var argv = require( 'yargs' ).argv;
  |
  */
 
+gulp.task('minifyCss', function(){
+    return gulp.src('public/css/app.css')
+        .pipe( minify() )
+        .pipe( rename({
+            suffix: '.min'
+        }))
+        .pipe(gulp.dest('public/css'));
+});
+
 elixir.extend( 'deploySassAndFonts' , function ( mix ) {
     mix.copy( 'node_modules/bootstrap-sass/assets/fonts/' , 'public/fonts' );
     mix.copy( 'resources/assets/fonts/open-sans/' , 'public/fonts/open-sans' );
     mix.sass('app.scss');
+    mix.task('minifyCss');
 
 } );
 
