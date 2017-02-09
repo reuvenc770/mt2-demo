@@ -51,7 +51,7 @@
                                ng-disabled="domain.updatingAccounts">
                         <option value="">--</option>
                         @foreach ( $regs as $reg )
-                            <option value="{{ $reg['id'] }}">{{ $reg['name'] }}</option>
+                            <option value="{{ $reg['id'] }}">{{ $reg['name'] }} &nbsp;-&nbsp; {{ $reg['username'] }}</option>
                         @endforeach
                     </select>
                 </div>
