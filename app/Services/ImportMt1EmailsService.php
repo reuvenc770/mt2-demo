@@ -263,16 +263,16 @@ class ImportMt1EmailsService
                             $record['is_deliverable'] = 1;
                             $record['other_fields'] = '{}';
                             $this->recordDataRepo->batchInsert($record);
-
-                            $record['feed_id'] = $feedId;
-                            $record['attribution_status'] = $newStatus;
-                            $this->emailFeedDataRepo->batchInsert($record);
                         }
                     }
 
                 }
+                
+                $record['other_fields'] = '{}';
+                $record['feed_id'] = $feedId;
+                $record['attribution_status'] = $newStatus;
+                $this->emailFeedDataRepo->batchInsert($record);
 
-                //We do an upsert so there are no model actions and we can't do this via batch.
                 $emailFeedRow = $this->mapToEmailFeedTable($record);
                 $this->emailFeedRepo->batchInsert($emailFeedRow);
 
