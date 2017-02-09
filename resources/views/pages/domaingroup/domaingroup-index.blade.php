@@ -48,7 +48,7 @@
                         <tfoot>
                             <tr>
                                 <td colspan="5">
-                                    <md-content class="md-mt2-zeta-theme md-hue-2">
+                                    <md-content class="md-mt2-zeta-theme">
                                         <md-table-pagination md-limit="dg.paginationCount" md-limit-options="dg.paginationOptions" md-page="dg.currentPage" md-total="@{{dg.accountTotal}}" md-on-paginate="dg.loadAccounts" md-page-select></md-table-pagination>
                                     </md-content>
                                 </td>

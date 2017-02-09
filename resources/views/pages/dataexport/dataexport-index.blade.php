@@ -89,7 +89,7 @@
         </table>
     </md-table-container>
 
-<md-content class="md-mt2-zeta-theme md-hue-2">
+<md-content class="md-mt2-zeta-theme">
     <md-table-pagination md-limit="dataExport.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="dataExport.currentPage" md-total="@{{dataExport.dataExportTotal}}" md-on-paginate="dataExport.mdLoadActiveDataExports" md-page-select></md-table-pagination>
 </md-content>
     </md-card>

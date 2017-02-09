@@ -212,7 +212,7 @@
             <tfoot>
                 <tr>
                     <td colspan="14">
-                        <md-content class="md-mt2-zeta-theme md-hue-2">
+                        <md-content class="md-mt2-zeta-theme">
                             <md-table-pagination md-limit="feed.paginationCount" md-limit-options="feed.paginationOptions" md-page="feed.currentPage" md-total="@{{feed.feedTotal}}" md-on-paginate="feed.loadFeeds" md-page-select></md-table-pagination>
                         </md-content>
                     </td>
