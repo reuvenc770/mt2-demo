@@ -8,6 +8,7 @@ use App\Repositories\EmailAttributableFeedLatestDataRepo;
 use DB;
 use App\Services\ServiceTraits\IdentifyUserAgent;
 
+// TODO: switch third party repos with the commented-out repos below
 
 class SetDeviceService {
     use IdentifyUserAgent;

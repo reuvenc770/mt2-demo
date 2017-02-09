@@ -207,6 +207,8 @@ class EmailRepo implements Mt2Export, IAwsRepo {
     }
 
     public function getRecordInfoAddress($address) {
+        // TODO: Replace this and the id search with new query b/c of new schema
+
         $attr = config('database.connections.attribution.database');
         $supp = config('database.connections.suppression.database');
 

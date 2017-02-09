@@ -25,6 +25,8 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
 
     private $processingDate;
 
+    // TODO: switch third party repos with the commented-out repos below and clean up unneeded code
+
     public function __construct(EmailRepo $emailRepo, 
         AttributionLevelRepo $attributionLevelRepo, 
         RecordDataRepo $recordDataRepo, 
