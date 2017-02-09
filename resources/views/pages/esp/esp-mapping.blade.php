@@ -25,7 +25,7 @@
         </div></div>
         </div>
         <div class="col-sm-12">
-            <div class="alert alert-info" role="alert"> <strong>Heads up!</strong> Here is your CSVs current header.  Please do not include the header in your upload, this is for reference and help building the lisst</div>
+            <div class="alert alert-info" role="alert"> <strong>Heads up!</strong> Here is your CSVs current header.  Please do not include the header in your upload, this is for reference and help building the list</div>
             <h4 style="text-align: center">@{{ esp.buildHeader() }}</h4>
         </div>
         <div class="panel-footer">
