@@ -94,6 +94,7 @@ class Kernel extends ConsoleKernel
         Commands\VacuumRedshift::class,
         Commands\CleanUpRawContentServerActions::class,
         Commands\SumBrontoStandardReports::class,
+        Commands\DomainExpirationNotification::class,
     ];
 
     /**
@@ -104,6 +105,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        #$schedule->command('domains:expired')->dailyAt(self::REPORT_TIME);
+
         /**
          * Orphan Adoption
          */
