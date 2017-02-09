@@ -19,7 +19,7 @@ class EmailFeedAssignmentRepo implements IRedshiftRepo {
         DB::connection('redshift')->statement("TRUNCATE email_feed_assignments_staging");
         
         $sql = <<<SQL
-copy email_feed_assignments
+copy email_feed_assignments_staging
 from 's3://mt2-listprofile-export/{$entity}.csv'
 credentials 'aws_iam_role=arn:aws:iam::286457008090:role/redshift-s3-stg'
 format as csv quote as '\'' delimiter as ',';
