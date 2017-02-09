@@ -29,24 +29,24 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     self.paginationCount = paginationService.getDefaultPaginationCount();
     self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
+    self.currentheader = null;
     self.campaignTriggered = false;
     self.accountTotal = 0;
     self.formSubmitted = false;
     self.fieldList = [
         { "label" : "Campaign Name" , "field" : "campaign_name" , "required" : true, "position":0 } ,
         { "label" : "Send Date" , "field" : "datetime", "position":0 } ,
-        { "label" : "Name" , "field" : "name", "position":0  } ,
         { "label" : "Subject" , "field" : "subject", "position":0  } ,
         { "label" : "From" , "field" : "from", "position":0  } ,
         { "label" : "From Email" , "field" : "from_email", "position":0  } ,
-        { "label" : "Number Sent" , "field" : "e_sent", "position":0  } ,
-        { "label" : "Number Delivered" , "field" : "delivered", "position":0  } ,
-        { "label" : "Number Bounced" , "field" : "bounced", "position":0  } ,
-        { "label" : "Number Optouts" , "field" : "optouts" , "position":0 } ,
-        { "label" : "Number Opens" , "field" : "e_opens", "position":0  } ,
-        { "label" : "Number of Unique Opens" , "field" : "e_opens_unique", "position":0  } ,
-        { "label" : "Number of Clicks" , "field" : "e_clicks", "position":0  } ,
-        { "label" : "Number of Unique Clicks" , "field" : "e_clicks_unique", "position":0  } ,
+        { "label" : "Sent" , "field" : "e_sent", "position":0  } ,
+        { "label" : "Delivered" , "field" : "delivered", "position":0  } ,
+        { "label" : "Bounced" , "field" : "bounced", "position":0  } ,
+        { "label" : "Optouts" , "field" : "optouts" , "position":0 } ,
+        { "label" : "Opens" , "field" : "e_opens", "position":0  } ,
+        { "label" : "Unique Opens" , "field" : "e_opens_unique", "position":0  } ,
+        { "label" : "Clicks" , "field" : "e_clicks", "position":0  } ,
+        { "label" : "Unique Clicks" , "field" : "e_clicks_unique", "position":0  } ,
         { "label" : "Conversions" , "field" : "conversions",  "position":0  } ,
         { "label" : "Cost" , "field" : "cost", "position":0  } ,
         { "label" : "Revenue" , "field" : "revenue", "position":0  }
@@ -74,6 +74,30 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         self.espId = pathMatches[1];
         EspService.getMapping( pathMatches[1] , self.loadMappingSuccessCallback , self.loadMappingFailureCallback );
     };
+
+    self.buildHeader = function (){
+        var displayList = [];
+        var headerList = JSON.parse(JSON.stringify(self.colList));//suprisingly faster then other methods
+        for (var entry in headerList)
+            displayList.push([entry, headerList[entry]])
+        displayList.sort(function(a, b) {
+            return a[1] - b[1]
+        });
+        return displayList.map(function(elem){
+            if(self.currentheader != null){
+                gap = parseInt(elem[1] - self.currentheader);
+                padding = gap > 0 ? Array(gap).join(",") : '';
+                self.currentheader = elem[1];
+                return padding+elem[0];
+            } else {
+               self.currentheader = elem[1];
+                return elem[0];
+            }
+
+        }).join(",");
+    };
+
+
 
     /**
      * Click Handlers
