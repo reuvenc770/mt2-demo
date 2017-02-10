@@ -79,13 +79,13 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
         var displayList = [];
         var headerList = JSON.parse(JSON.stringify(self.colList));//suprisingly faster then other methods
         for (var entry in headerList)
-            displayList.push([entry, headerList[entry]])
-        displayList.sort(function(a, b) {
-            return a[1] - b[1]
-        });
+            displayList.push([entry, headerList[entry]]);
+            displayList.sort(function(a, b) {
+                return a[1] - b[1];
+            });
         return displayList.map(function(elem){
             if(self.currentheader != null){
-                gap = parseInt(elem[1] - self.currentheader);
+                gap = elem[1] - self.currentheader;
                 padding = gap > 0 ? Array(gap).join(",") : '';
                 self.currentheader = elem[1];
                 return padding+elem[0];
