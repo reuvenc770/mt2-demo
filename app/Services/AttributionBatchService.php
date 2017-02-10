@@ -3,12 +3,12 @@
 namespace App\Services;
 
 use Carbon\Carbon;
-use App\Models\EmailFeedAction;
+use App\Models\EmailAttributableFeedLatestData;
 use App\Repositories\EmailFeedAssignmentRepo;
 use App\Repositories\AttributionRecordTruthRepo;
 use App\Repositories\AttributionExpirationScheduleRepo;
 use App\Repositories\EmailFeedInstanceRepo;
-use App\Repositories\EmailFeedActionRepo;
+use App\Repositories\EmailAttributableFeedLatestDataRepo;
 use App\Events\AttributionCompleted;
 use Cache;
 
@@ -19,7 +19,7 @@ class AttributionBatchService {
     private $scheduleRepo;
     private $assignmentRepo;
     private $feedInstanceRepo;
-    private $emailFeedActionRepo;
+    private $latestDataRepo;
     private $keyName = 'AttributionJob';
     const EXPIRATION_DAY_RANGE = 15;
 
@@ -27,13 +27,13 @@ class AttributionBatchService {
                                 AttributionExpirationScheduleRepo $scheduleRepo, 
                                 EmailFeedAssignmentRepo $assignmentRepo,
                                 EmailFeedInstanceRepo $feedInstanceRepo,
-                                EmailFeedActionRepo $emailFeedActionRepo) {
+                                EmailAttributableFeedLatestDataRepo $latestDataRepo) {
 
         $this->truthRepo = $truthRepo;
         $this->scheduleRepo = $scheduleRepo;
         $this->assignmentRepo = $assignmentRepo;
         $this->feedInstanceRepo = $feedInstanceRepo;
-        $this->emailFeedActionRepo = $emailFeedActionRepo;
+        $this->latestDataRepo = $latestDataRepo;
 
         $this->today = Carbon::today();
     }
@@ -162,18 +162,9 @@ class AttributionBatchService {
         $this->scheduleRepo->insertSchedule($emailId, $nextDate);
     }
 
-    private function updateActionStatus($emailId, $oldFeedId, $newFeedId) {
-        $this->emailFeedActionRepo->batchInsert([
-            'email_id' => $emailId,
-            'feed_id' => $newFeedId,
-            'status' => EmailFeedAction::DELIVERABLE
-        ]);
-
-        $this->emailFeedActionRepo->batchInsert([
-            'email_id' => $emailId,
-            'feed_id' => $oldFeedId,
-            'status' => EmailFeedAction::LOST_ATTRIBUTION
-        ]);
+    private function updateRecordsAttributionStatus($emailId, $oldFeedId, $newFeedId) {
+        $this->latestDataRepo->setAttributionStatus($emailId, $oldFeedId, EmailAttributableFeedLatestData::LOST_ATTRIBUTION);
+        $this->latestDataRepo->setAttributionStatus($emailId, $newFeedId, EmailAttributableFeedLatestData::ATTRIBUTED);
     }
 
 }
