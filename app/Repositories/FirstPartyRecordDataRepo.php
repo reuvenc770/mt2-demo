@@ -154,7 +154,7 @@ class FirstPartyRecordDataRepo implements IAwsRepo {
     }
 
 
-    public function updateActionData($emailId, $feed_id, $actionDate) {
+    public function updateActionData($emailId, $feedId, $actionDate) {
         $pdo = DB::connection()->getPdo();
 
         if ($this->batchActionUpdateCount >= self::INSERT_THRESHOLD) {
