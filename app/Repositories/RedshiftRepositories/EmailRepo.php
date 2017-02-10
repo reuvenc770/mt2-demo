@@ -25,14 +25,6 @@ SQL;
     }
 
     public function clearAndReloadEntity($entity) {
-        DB::connection('redshift')->statement("TRUNCATE emails");
-        
-        $sql = <<<SQL
-copy emails
-from 's3://mt2-listprofile-export/{$fileName}.csv'
-credentials 'aws_iam_role=arn:aws:iam::286457008090:role/redshift-s3-stg'
-format as csv quote as '\'' delimiter as ',';
-SQL;
-        DB::connection('redshift')->statement($sql);
+        $this->loadEntity($entity);
     }
 }
