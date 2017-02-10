@@ -343,6 +343,23 @@ a.md-button.md-mt2-zeta-theme.md-raised.mt2-button-success:not([disabled]):hover
     border-bottom-left-radius: 0;
     border-top-left-radius: 0;
 }
+
+/*
+ * bootstrap button overrides
+ */
+.btn-success {
+    color: #4cae4c;
+    background-color: #ffffff;
+}
+.btn-warning {
+    color: #eea236;
+    background-color: #ffffff;
+}
+.btn-danger {
+    color: #d43f3a;
+    background-color: #ffffff;
+}
+
 /*
  * Materials Menu Styling
  */
