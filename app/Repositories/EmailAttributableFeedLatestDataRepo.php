@@ -264,4 +264,30 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
         ]);
     }
 
+    public function getAttributionStatus($emailId, $feedId) {
+        // either returns Model with properties or null
+        return $this->model
+                    ->where('email_id', $emailId)
+                    ->where('feed_id', $feedId)
+                    ->select('attribution_status')
+                    ->first();
+    }
+
+    public function setAttributionStatus($emailId, $feedId, $status) {
+        $this->model
+             ->where('email_id', $emailId)
+             ->where('feed_id', $feedId)
+             ->update(['attribution_status', $status]);
+    }
+
+    public function getCurrentAttributedStatus($emailId) {
+        $attrDb = config('database.connections.attribution.database');
+
+        return $this->model
+                    ->join("$attrDb.email_feed_assignments as efa", "email_attributable_feed_latest_data.email_id", '=', 'efa.email_id')
+                    ->where('email_feed_actions.email_id', $emailId)
+                    ->select('efa.feed_id', 'email_attributable_feed_latest_data.attribution_status')
+                    ->first();
+    }
+
 }

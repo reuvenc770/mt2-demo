@@ -12,7 +12,7 @@ use App\Repositories\EmailAttributableFeedLatestDataRepo;
 use App\Services\Interfaces\IFeedPartyProcessing;
 use Carbon\Carbon;
 use App\Events\NewRecords;
-use App\Models\EmailFeedAction;
+use App\Models\EmailAttributableFeedLatestData;
 
 class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
     private $emailCache = [];
@@ -68,6 +68,7 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
 
             $domainGroupId = $record->domainGroupId;
             $lastEmail = $record->emailAddress;
+            $currentAttributedFeedId = null;
 
             // Note structure
             if (!isset($statuses[$record->feedId])) {
@@ -96,16 +97,10 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
                 // Brand new email. Assigning attribution and inserting record data.
                 $this->emailCache[$record->emailAddress] = 1;
                 $record->uniqueStatus = 'unique';
-                $record->isDeliverable = 1;
-                $recordsToFlag[] = $this->mapToNewRecords($record);
-                $this->emailFeedActionRepo->batchInsert($record->mapToEmailFeedAction(EmailFeedAction::DELIVERABLE));
             }
             else { 
                 // This is not a new email
-
-                $record->isDeliverable = $this->recordDataRepo->getDeliverableStatus($record->emailId);
-                #$record->isDeliverable = $this->emailStatusRepo->getActionStatus($record->emailId) === 'None'; # This will be the replacement
-
+                $record->actionStatus = $this->emailStatusRepo->getActionStatus($record->emailId);
                 $attributionTruths = $this->emailRepo->getAttributionTruths($record->emailId);
                 $currentAttributedFeedId = $this->emailRepo->getCurrentAttributedFeedId($record->emailId);
 
@@ -113,26 +108,24 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
                     // Guard checking whether we have attribution info or not.
                     // If not set, we need to pretend that this was attribution all along
                     $record->uniqueStatus = 'unique';
-                    $recordsToFlag[] = $this->mapToNewRecords($record);
-                    $record->isDeliverable = 1;
-                    $actionStatus = EmailFeedAction::DELIVERABLE;
+                    $record->attrStatus = EmailAttributableFeedLatestData::ATTRIBUTED;
                 }
                 elseif ($currentAttributedFeedId == $record->feedId) {
                     // Duplicate within the feed
                     $record->uniqueStatus = 'duplicate';
                     $actionData = $this->emailFeedActionRepo->getActionDateAndStatus($record->emailId, $record->feedId);
-                    $actionStatus = $actionData ? $actionData->status : EmailFeedAction::DELIVERABLE;
+                    $record->attrStatus = $actionData ? $actionData->status : EmailAttributableFeedLatestData::ATTRIBUTED;
                 }
                 // For the rest, the feeds differ, by definition
                 elseif (1 === $attributionTruths->is_recent_import) {
                     // Stays with importer
                     $record->uniqueStatus = 'non-unique';
-                    $actionStatus = EmailFeedAction::PASSED_DUE_TO_ATTRIBUTION;
+                    $record->attrStatus = EmailAttributableFeedLatestData::PASSED_DUE_TO_ATTRIBUTION;
                 }
                 elseif (0 === $attributionTruths->is_recent_import && 1 === $attributionTruths->has_action) {
                     // Not a recent import but there is an action
                     $record->uniqueStatus = 'non-unique';
-                    $actionStatus = EmailFeedAction::PASSED_DUE_TO_RESPONDER;                
+                    $record->attrStatus = EmailAttributableFeedLatestData::PASSED_DUE_TO_RESPONDER;                
                 }
                 else {
                     // Not a new record, not attributed import was not recent, has no action
@@ -142,34 +135,35 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
                     if (null === $currentAttributionLevel || $importingAttrLevel < $currentAttributionLevel) {
                         // Importing attribution is lower (meaning greater attribution power), so switch to import
                         $record->uniqueStatus = 'unique';
-                        $recordsToFlag[] = $this->mapToNewRecords($record);
-                        $record->isDeliverable = 1;
-                        $actionStatus = EmailFeedAction::DELIVERABLE;
+                        $record->attrStatus = EmailAttributableFeedLatestData::ATTRIBUTED;
                     }
                     else {
                         $record->uniqueStatus = 'non-unique';
-                        $actionStatus = EmailFeedAction::PASSED_DUE_TO_ATTRIBUTION;
+                        $record->attrStatus = EmailAttributableFeedLatestData::PASSED_DUE_TO_ATTRIBUTION;
                     }
 
                 }
+            }
 
-                $this->emailFeedActionRepo->batchInsert($record->mapToEmailFeedAction($actionStatus));
-                #$this->emailStatusRepo->batchInsert($record->mapToEmailStatus($actionStatus)); #Going to replace the above
+            if ('unique' === $record->uniqueStatus) {
+                $this->emailStatusRepo->batchInsert($record->mapToEmailFeedAction(ThirdPartyEmailStatus::DELIVERABLE));
+                $recordsToFlag[] = $this->mapToNewRecords($record);
+
+                // Update the attribution status of the per-feed user info store 
+                if ($currentAttributedFeedId) {
+                    $this->latestDataRepo->updateAttributionStatus($record->emailId, $currentAttributedFeedId, EmailAttributableFeedLatestData::LOST_ATTRIBUTION);
+                }
             }
 
             $statuses[$record->feedId][$domainGroupId][$record->uniqueStatus]++;
+            $this->latestDataRepo->batchInsert($record->mapToRecordData());
 
-            if ('unique' === $record->uniqueStatus) {
-                $data = $record->mapToRecordData();
-                $this->recordDataRepo->batchInsert($data);
-                $data['attribution_status'] = $actionStatus === 'Deliverable' ? 'ATTR' : $actionStatus;
-                $this->latestDataRepo->batchInsert($data);
-            }
-            
+            // Also, do we want to update attribution here or leave it to the NewRecords job?
+            // How should we dividue up attribution?
         }
 
-        $this->recordDataRepo->insertStored();
-        $this->emailFeedActionRepo->insertStored();
+        $this->latestDataRepo->insertStored();
+        $this->emailStatusRepo->insertStored();
         $this->statsRepo->massUpdateValidEmailStatus($statuses, $this->processingDate);
 
         // Handles all attribution changes

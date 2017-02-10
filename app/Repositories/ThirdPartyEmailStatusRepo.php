@@ -26,7 +26,7 @@ class ThirdPartyEmailStatusRepo {
     }
 
     private function buildBatchedQuery($data) {
-        DB::statement("INSERT INTO email_feed_record_data (email_id, last_action_type,
+        DB::statement("INSERT INTO third_party_email_statuses (email_id, last_action_type,
             last_action_offer_id, last_action_datetime, last_action_esp_account_id,
             created_at, updated_at)
 
@@ -46,7 +46,7 @@ class ThirdPartyEmailStatusRepo {
     private function transformRowToString($row) {
         $pdo = DB::connection()->getPdo();
 
-        return '(' . 
+        return '('
             . $pdo->quote($row['email_id']) . ','
             . $pdo->quote($row['action_type']) . ','
             . $pdo->quote($row['offer_id']) . ','
