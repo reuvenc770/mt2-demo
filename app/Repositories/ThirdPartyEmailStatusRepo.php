@@ -53,4 +53,6 @@ class ThirdPartyEmailStatusRepo {
             . $pdo->quote($row['datetime']) . ','
             . $pdo->quote($row['esp_account_id']) . 'NOW() , NOW())';
     }
+
+    
 }
