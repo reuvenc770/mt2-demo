@@ -271,6 +271,15 @@ th md-checkbox.md-mt2-zeta-theme:not(.md-checked) .md-icon {
     border-color: rgba(255, 255, 255, 0.87);
 }
 
+md-progress-linear.md-default-theme.cmp-md-success .md-bar,
+md-progress-linear.cmp-md-success .md-bar {
+    background-color: #5cb85c;
+}
+
+md-progress-linear.md-default-theme.cmp-md-success .md-container,
+md-progress-linear.cmp-md-success .md-container {
+    background-color: #DFF0D8;
+}
 /*
  * Button Styling
  */
@@ -281,6 +290,10 @@ th md-checkbox.md-mt2-zeta-theme:not(.md-checked) .md-icon {
  md-icon.mt2-icon-white{
     color: #ffffff;
  }
+
+md-icon.mt2-icon-error{
+    color: #d9534f;
+}
 
 .material-icons:focus {
     outline: 0;
@@ -391,6 +404,8 @@ body {
 .bold-text { font-weight: bold; }
 
 .text-right { text-align: right; }
+
+.italic { font-style: italic; }
 
 .add-bottom-margin { margin-bottom: 24px; }
 
@@ -550,8 +565,11 @@ table.md-table th.md-column md-icon {
 Panel Custom - we should break up into componets.
 **/
 
-.panel-default {
-    margin-top:20px;
+.tabpanel-border {
+    border-bottom: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    padding: 15px;
 }
 
 /**

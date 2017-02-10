@@ -97,9 +97,7 @@ mt2App.controller( 'BulkSuppressionController' , [ '$scope' , '$log' , '$timeout
 
     self.fileTransferSuccessCallback = function() {
         self.emailsLoaded = true;
-        modalService.setModalLabel('Success');
-        modalService.setModalBody('File uploaded.');
-        modalService.launchModal();
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
     }
 
     self.fileTransferFailureCallback = function(files) {
@@ -108,6 +106,12 @@ mt2App.controller( 'BulkSuppressionController' , [ '$scope' , '$log' , '$timeout
         modalService.setModalBody('Suppression of files ' + fileString + ' failed to transfer to server.');
         modalService.launchModal();
     }
+
+    self.flowCompleteCallback = function() {
+        modalService.setModalLabel('Success');
+        modalService.setModalBody('File uploaded.');
+        modalService.launchModal();
+    };
 
     self.loadReasonsSuccessCallback = function ( response ) {
         self.suppressionReasons = response.data;
