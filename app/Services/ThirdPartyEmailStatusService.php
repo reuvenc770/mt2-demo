@@ -2,23 +2,24 @@
 
 namespace App\Services;
 
-use App\Models\EmailFeedAction;
-use App\Repositories\EmailFeedActionRepo;
+use App\Models\ThirdPartyEmailStatus;
+use App\Repositories\ThirdPartyEmailStatusRepo;
 use App\Repositories\EmailRepo;
 use Log;
 
-class EmailFeedActionService {
+class ThirdPartyEmailStatusService {
     private $repo;
     private $emailRepo;
 
-    public function __construct(EmailFeedActionRepo $repo, EmailRepo $emailRepo) {
+    public function __construct(ThirdPartyEmailStatusRepo $repo, EmailRepo $emailRepo) {
         $this->repo = $repo;
         $this->emailRepo = $emailRepo;
     }
 
     public function bulkUpdate($data) {
         foreach($data as $action) {
-            $currentStatus = $this->repo->getCurrentAttributedStatus($action['email_id']);
+            $currentStatus = $this->repo->getActionStatus($action['email_id']);
+            
             if ($currentStatus) {
                 $newStatus = $this->getNewStatus($action['type'], $currentStatus->status);
 
@@ -42,34 +43,34 @@ class EmailFeedActionService {
     }
 
     private function getNewStatus($latestAction, $currentStatus) {
-        if (EmailFeedAction::CONVERTER === $currentStatus) {
+        if (ThirdPartyEmailStatus::CONVERTER === $currentStatus) {
             return $currentStatus;
         }
-        elseif (EmailFeedAction::CLICKER === $currentStatus) {
+        elseif (ThirdPartyEmailStatus::CLICKER === $currentStatus) {
             return $currentStatus;
         }
         elseif ("converter" === $latestAction) {
-            return EmailFeedAction::CONVERTER;
+            return ThirdPartyEmailStatus::CONVERTER;
         }
         elseif ("clicker" === $latestAction) {
-            if (EmailFeedAction::CONVERTER === $currentStatus) {
-                return EmailFeedAction::CONVERTER;
+            if (ThirdPartyEmailStatus::CONVERTER === $currentStatus) {
+                return ThirdPartyEmailStatus::CONVERTER;
             }
             else {
-                return EmailFeedAction::CLICKER;
+                return ThirdPartyEmailStatus::CLICKER;
             }
         }
         elseif ("opener" === $latestAction) {
-            if (EmailFeedAction::CONVERTER === $currentStatus || EmailFeedAction::CLICKER === $currentStatus) {
+            if (ThirdPartyEmailStatus::CONVERTER === $currentStatus || ThirdPartyEmailStatus::CLICKER === $currentStatus) {
                 return $currentStatus;
             }
             else {
-                return EmailFeedAction::OPENER;
+                return ThirdPartyEmailStatus::OPENER;
             }
         }
         else {
             // should have covered all cases
-            Log::emergency("EmailFeedAction case missed. Latest action is: " . $latestAction . ', current status is: ' . $currentStatus);
+            Log::emergency("ThirdPartyEmailStatus case missed. Latest action is: " . $latestAction . ', current status is: ' . $currentStatus);
         }
     }
 
