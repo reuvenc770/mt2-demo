@@ -41,7 +41,14 @@
         </div>
         </div>
     </div>
-
+    @if ( Sentinel::inRole( 'fleet-admiral' ) )
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Feed FTP Password</label>
+        <div class="col-sm-10">
+            <input type="text" disabled class="form-control" id="pass" value=""  ng-model="feed.current.password" />
+        </div>
+    </div>
+    @endif
     <div class="form-group" ng-class="{ 'has-error' : feed.formErrors.vertical_id }">
         <label class="col-sm-2 control-label">Feed Vertical</label>
         <div class="col-sm-10">
