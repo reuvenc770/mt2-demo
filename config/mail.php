@@ -15,6 +15,7 @@ return [
     |
     */
 
+    'defaultMail' => 'espken@zetainteractive.com',
     'driver' => env('MAIL_DRIVER', 'smtp'),
 
     /*
