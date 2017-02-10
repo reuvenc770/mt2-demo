@@ -9,7 +9,6 @@ use App\Repositories\AttributionRecordTruthRepo;
 use App\Repositories\AttributionExpirationScheduleRepo;
 use App\Repositories\EmailFeedInstanceRepo;
 use App\Repositories\EmailFeedActionRepo;
-use App\Repositories\RecordDataRepo;
 use App\Events\AttributionCompleted;
 use Cache;
 
@@ -18,7 +17,6 @@ class AttributionBatchService {
     private $today;
     private $truthRepo;
     private $scheduleRepo;
-    private $recordDataRepo;
     private $assignmentRepo;
     private $feedInstanceRepo;
     private $emailFeedActionRepo;
@@ -29,12 +27,10 @@ class AttributionBatchService {
                                 AttributionExpirationScheduleRepo $scheduleRepo, 
                                 EmailFeedAssignmentRepo $assignmentRepo,
                                 EmailFeedInstanceRepo $feedInstanceRepo,
-                                EmailFeedActionRepo $emailFeedActionRepo,
-                                RecordDataRepo $recordDataRepo) {
+                                EmailFeedActionRepo $emailFeedActionRepo) {
 
         $this->truthRepo = $truthRepo;
         $this->scheduleRepo = $scheduleRepo;
-        $this->recordDataRepo = $recordDataRepo;
         $this->assignmentRepo = $assignmentRepo;
         $this->feedInstanceRepo = $feedInstanceRepo;
         $this->emailFeedActionRepo = $emailFeedActionRepo;
@@ -86,7 +82,6 @@ class AttributionBatchService {
                     $this->updateScheduleTable($record->email_id, $captureDate);
                     $this->updateTruthTable($record->email_id, $captureDate, $hasAction, $actionExpired, $subsequentImports);
                     $this->updateActionStatus($record->email_id, $oldFeedId, $feedId);
-                    $this->updateRecordData($savedReplacement);
                 }
             }
 
@@ -181,7 +176,4 @@ class AttributionBatchService {
         ]);
     }
 
-    private function updateRecordData(stdClass $obj) {
-        $this->recordDataRepo->updateWithNewAttribution($obj);
-    }
 }
