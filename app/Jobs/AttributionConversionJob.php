@@ -26,6 +26,7 @@ class AttributionConversionJob extends Job implements ShouldQueue
     const PROCESS_MODE_SAVE = 'save';
     const PROCESS_MODE_REALTIME = 'realtime';
     const PROCESS_MODE_RERUN = 'rerun';
+    const PROCESS_MODE_DATA_ONLY = 'dataOnly';
 
     protected $processMode;
     protected $dateRange;
@@ -47,7 +48,7 @@ class AttributionConversionJob extends Job implements ShouldQueue
         $this->dateRange = $dateRange;
         $this->currentDate = $currentDate;
 
-        $fullJobName = self::JOB_NAME . '-' . $this->processMode . '-' . $recordType . '-' . json_encode( $this->dateRange ) . '-' . $this->currentDate;
+        $fullJobName = self::JOB_NAME . '-' . $this->processMode . '-' . $recordType . 'Type-' . ( is_null( $this->currentDate ) ? 'initial' : 'current=' . Carbon::parse( $this->currentDate )->addDay()->toDateString() )  . '-range=';
 
         JobTracking::startTrackingJob( $fullJobName , $this->dateRange[ 'start' ] , $this->dateRange[ 'end' ] , $this->tracking );
     }
@@ -67,14 +68,14 @@ class AttributionConversionJob extends Job implements ShouldQueue
             } elseif ( $this->currentDate == $this->dateRange[ 'end' ] ) {
                 JobTracking::changeJobState( JobEntry::SKIPPED , $this->tracking );
                 
-                exit();
+                return;
             } else {
                 $this->currentDate = Carbon::parse( $this->currentDate )->addDay()->toDateString();
             }
 
             $cakeService->updateConversionsFromAPI( $this->processMode , $this->recordType , $this->currentDate );
 
-            if ( in_array( $this->processMode , [ 'rerun' , 'realtime' ] ) ) {
+            if ( in_array( $this->processMode , [ self::PROCESS_MODE_RERUN , self::PROCESS_MODE_REALTIME ] ) ) {
                 $job = new AttributionAggregatorJob(
                     'Record' ,
                     str_random( 16 ) ,
@@ -84,6 +85,16 @@ class AttributionConversionJob extends Job implements ShouldQueue
                 );
 
                 $this->dispatch( $job );
+            }
+
+            if ( $this->processMode == self::PROCESS_MODE_DATA_ONLY ) {
+                $this->dispatch( new AttributionConversionJob(
+                    $this->processMode ,
+                    'all' ,
+                    str_random( 16 ) , 
+                    $this->dateRange ,
+                    $this->currentDate
+                ) );
             }
         } while ( $this->processMode === 'save' && $this->currentDate !== $this->dateRange[ 'end' ] ); 
 

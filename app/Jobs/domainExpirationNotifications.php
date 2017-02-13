@@ -9,19 +9,25 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Mail;
-
-class domainExpirationNotifcations extends Job implements ShouldQueue
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Models\JobEntry;
+use App\Facades\JobTracking;
+class domainExpirationNotifications extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
+    use DispatchesJobs;
     private $days = [30,21,14,7,6,5,4,3,2,1];
+    CONST JOB_NAME = 'ExpiredDomains';
+    protected $tracking;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($tracking)
     {
-
+        $this->tracking = $tracking;
+        JobTracking::startAggregationJob( self::JOB_NAME, $this->tracking );
     }
 
     /**
@@ -29,8 +35,9 @@ class domainExpirationNotifcations extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle(DomainService $domainService, Mail $mailer)
+    public function handle(DomainService $domainService)
     {
+        JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
         $domains = array();
         foreach($this->days as $day){
             $domains = $domainService->getExpiringDomainsByDate($this->daysOut($day));
@@ -46,15 +53,19 @@ class domainExpirationNotifcations extends Job implements ShouldQueue
                 }
 
                 Mail::send('emails.expiration', ['domains' => $domains, 'day' => $day], function ($message) use ($domains, $subject) {
-                    $message->to(env("EXPIRE_EMAIL","espken@zetainteractive.com"));
+                    $message->to(config( 'mail.defaultMail' ));
                     $message->subject($subject);
                     $message->priority(1);
                 });
             }
         }
+        JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
     }
 
-
+    public function failed()
+    {
+        JobTracking::changeJobState(JobEntry::FAILED,$this->tracking);
+    }
 
 
     private function daysOut($days){

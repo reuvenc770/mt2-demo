@@ -2,14 +2,14 @@
 
 namespace App\Repositories;
 
-use App\Models\RecordData;
+use App\Models\EmailAttributableFeedLatestData;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use Carbon\Carbon;
 use App\Repositories\RepoInterfaces\IAwsRepo;
 use App\Repositories\RepoTraits\Batchable;
 
-class RecordDataRepo implements IAwsRepo {
+class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
     use Batchable;
 
     private $model;
@@ -20,12 +20,14 @@ class RecordDataRepo implements IAwsRepo {
     private $batchDeviceUpdateData = [];
     private $batchDeviceUpdateCount = 0;
 
-    public function __construct(RecordData $model) {
+    public function __construct(EmailAttributableFeedLatestData $model) {
         $this->model = $model;
     }
 
     public function getRecordDataFromEid($eid){
+        $attrDb = config('databases.connections.attribution.database');
         return $this->model
+                    ->join("$attrDb.email_feed_assignments as efa", 'email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id')
                     ->where('email_id', $eid)
                     ->selectRaw("email_id,
                         first_name,
@@ -46,8 +48,6 @@ class RecordDataRepo implements IAwsRepo {
                         carrier,
                         capture_date,
                         subscribe_date,
-                        last_action_offer_id,
-                        last_action_date,
                         other_fields,
                         created_at,
                         updated_at")
@@ -55,9 +55,10 @@ class RecordDataRepo implements IAwsRepo {
     }
 
     private function buildBatchedQuery($batchData) {
-        return "INSERT INTO record_data (email_id, is_deliverable, first_name, last_name, 
+        return "INSERT INTO email_attributable_feed_latest_data (email_id, feed_id, subscribe_date, capture_date, 
+                    attribution_status, first_name, last_name, 
                     address, address2, city, state, zip, country, gender, 
-                    ip, phone, source_url, dob, capture_date, subscribe_date, other_fields)
+                    ip, phone, source_url, dob, other_fields)
 
                 VALUES 
 
@@ -65,7 +66,10 @@ class RecordDataRepo implements IAwsRepo {
 
                 ON DUPLICATE KEY UPDATE
                 email_id = email_id,
-                is_deliverable = VALUES(is_deliverable),
+                feed_id = feed_id,
+                subscribe_date = subscribe_date,
+                capture_date = capture_date,
+                attribution_status = VALUES(attribution_status),
                 first_name = VALUES(first_name),
                 last_name = VALUES(last_name),
                 address = VALUES(address),
@@ -79,8 +83,6 @@ class RecordDataRepo implements IAwsRepo {
                 phone = VALUES(phone),
                 source_url = VALUES(source_url),
                 dob = VALUES(dob),
-                capture_date = VALUES(capture_date),
-                subscribe_date = VALUES(subscribe_date),
                 other_fields = VALUES(other_fields)";
     }
 
@@ -89,7 +91,10 @@ class RecordDataRepo implements IAwsRepo {
 
         return '('
             . $pdo->quote($row['email_id']) . ','
-            . $pdo->quote($row['is_deliverable']) . ','
+            . $pdo->quote($row['feed_id']) . ','
+            . 'NOW(),'
+            . $pdo->quote( Carbon::parse($row['capture_date'])->format('Y-m-d') ) . ','
+            . $pdo->quote($row['attribution_status']) . ','
             . $pdo->quote($row['first_name']) . ','
             . $pdo->quote($row['last_name']) . ','
             . $pdo->quote($row['address']) . ','
@@ -103,20 +108,18 @@ class RecordDataRepo implements IAwsRepo {
             . $pdo->quote($row['phone']) . ','
             . $pdo->quote($row['source_url']) . ','
             . $pdo->quote($row['dob']) . ','
-            . $pdo->quote( Carbon::parse($row['capture_date'])->format('Y-m-d') ) . ','
-            . 'NOW(),'
-            . $pdo->quote($row['other_fields']) 
-            . ')';
+            . $pdo->quote($row['other_fields']) . ')';
     }
 
     public function batchUpdateDeviceData($row) {
         $pdo = DB::connection()->getPdo();
 
         if ($this->batchDeviceUpdateCount >= self::INSERT_THRESHOLD) {
-            $this->cleanupDeviceData();
+            $this->cleanUpActions();
 
             $this->batchDeviceUpdateData = ['('
                 . $pdo->quote($row['email_id']) . ','
+                . $pdo->quote($row['feed_id']) . ','
                 . $pdo->quote($row['device_type']) . ','
                 . $pdo->quote($row['device_name']) . ')'
             ];
@@ -125,6 +128,7 @@ class RecordDataRepo implements IAwsRepo {
         else {
             $this->batchDeviceUpdateData[] = ['('
                 . $pdo->quote($row['email_id']) . ','
+                . $pdo->quote($row['feed_id']) . ','
                 . $pdo->quote($row['device_type']) . ','
                 . $pdo->quote($row['device_name']) . ')'
             ];
@@ -137,7 +141,7 @@ class RecordDataRepo implements IAwsRepo {
         if ($this->batchDeviceUpdateCount > 0) {
             $data = implode(',', $this->batchDeviceUpdateData);
         
-            DB::statement("INSERT INTO record_data (email_id, device_type, device_name)
+            DB::statement("INSERT INTO email_attributable_feed_latest_data (email_id, feed_id, device_type, device_name)
                 VALUES
             
                 $data
@@ -170,85 +174,31 @@ class RecordDataRepo implements IAwsRepo {
 
     }
 
-    public function getDeliverableStatus($emailId) {
-        $data = $this->model->find($emailId);
-
-        if ($data) {
-            return $data->is_deliverable;
-        }
-        else {
-            return 1; // default set to deliverable ... 
-        }
-    }
-
-    public function updateActionData($emailId, $actionDate) {
-        $pdo = DB::connection()->getPdo();
-
-        if ($this->batchActionUpdateCount >= self::INSERT_THRESHOLD) {
-
-            $this->cleanUpActions();
-
-            $this->batchActionUpdateData = ['(' 
-                . $pdo->quote($emailId) . ', 1,'
-                . $pdo->quote($actionDate) . ')'];
-            $this->batchActionUpdateCount = 1;
-        }
-        else {
-            $this->batchActionUpdateData[] = '(' 
-                . $pdo->quote($emailId) . ', 1,'
-                . $pdo->quote($actionDate) . ')';
-
-            $this->batchActionUpdateCount++;
-        }
-    }
-
-    public function cleanUpActions() {
-        if ($this->batchActionUpdateCount > 0) {
-
-            $inserts = implode(',', $this->batchActionUpdateData);
-
-            DB::statement("INSERT INTO record_data (email_id, is_deliverable, last_action_date)
-                VALUES
-
-                $inserts
-
-                ON DUPLICATE KEY UPDATE
-                email_id = email_id,
-                is_deliverable = VALUES(is_deliverable),
-                first_name = first_name,
-                last_name = last_name,
-                address = address,
-                address2 = address2,
-                city = city,
-                state = state,
-                zip = zip,
-                country = country,
-                gender = gender,
-                ip = ip,
-                phone = phone,
-                source_url = source_url,
-                dob = dob,
-                device_type = device_type,
-                device_name = device_name,
-                carrier = carrier,
-                capture_date = capture_date,
-                subscribe_date = subscribe_date,
-                last_action_date = VALUES(last_action_date),
-                other_fields = other_fields");
-
-            $this->batchActionUpdateData = [];
-            $this->batchActionUpdateCount = 0;
-
-        }
-    }
-
     public function extractForS3Upload($startPoint) {
         // this start point is a date
-        return $this->model->whereRaw("updated_at > $startPoint");
+        return $this->model
+                    ->join("$attrDb.email_feed_assignments as efa", 'email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id')
+                    ->leftJoin('third_party_email_statuses as st', 'email_attributable_feed_latest_data.email_id', '=', 'st.email_id')
+                    ->where('email_attributable_feed_latest_data.email_id', $eid)
+                    ->where("email_attributable_feed_latest_data.updated_at > $startpoint")
+                    ->select('efa.email_id', DB::raw("IF(st.last_action_type = 'None', 1, 0) as is_deliverable"),
+                        'first_name', 'last_name', 'address', 'address2', 'city', 'state', 'zip', 'country',
+                        'gender', 'ip', 'phone', 'source_url', 'dob', 'device_type', 'device_name', 'carrier',
+                        'capture_date', 'subscribe_date', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
+                        "other_fields", 'created_at', 'updated_at');
     }
 
     public function extractAllForS3() {
-        return $this->model->whereRaw("updated_at > CURDATE() - INTERVAL 7 DAY");
+        return $this->model
+                    ->join("$attrDb.email_feed_assignments as efa", 'email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id')
+                    ->leftJoin('third_party_email_statuses as st', 'email_attributable_feed_latest_data.email_id', '=', 'st.email_id')
+                    ->where('email_attributable_feed_latest_data.email_id', $eid)
+                    ->whereRaw("updated_at > CURDATE() - INTERVAL 7 DAY")
+                    ->select('efa.email_id', DB::raw("IF(st.last_action_type = 'None', 1, 0) as is_deliverable"),
+                        'first_name', 'last_name', 'address', 'address2', 'city', 'state', 'zip', 'country',
+                        'gender', 'ip', 'phone', 'source_url', 'dob', 'device_type', 'device_name', 'carrier',
+                        'capture_date', 'subscribe_date', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
+                        "other_fields", 'created_at', 'updated_at');
     }
 
     public function mapForS3Upload($row) {
@@ -285,12 +235,6 @@ class RecordDataRepo implements IAwsRepo {
         return $this->model->getConnectionName();
     }
 
-    public function setDeliverableStatus($emailId, $status) {
-        $emailId = (int)$emailId;
-        $isDeliverable = ($status === true) ? 1 : 0;
-        $this->model->whereRaw("email_id = $emailId")->update(['is_deliverable' => $isDeliverable]);
-    }
-
     public function updateWithNewAttribution(stdClass $obj) {
         // Unfortunately, the class has already been anonymized
 
@@ -301,7 +245,7 @@ class RecordDataRepo implements IAwsRepo {
 
         $this->model->updateOrCreate(['email_id' => $obj->email_id], [
             'email_id' => $obj->email_id,
-            'is_deliverable' => 1,
+            'feed_id' => $obj->feed_id,
             'first_name' => $obj->first_name,
             'last_name' => $obj->last_name,
             'address' => $obj->address,
