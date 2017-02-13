@@ -17,7 +17,7 @@
         </div>
         <div class="panel-body">
                 @foreach($deploys as $deploy)
-                <div class="form-group clearfix">
+                <div ng-hide="weber.shouldHide({{$deploy['id']}})" class="form-group clearfix">
                     <label class="col-sm-12 control-label">{{$deploy['id']}} - {{$deploy['deploy_name']}} -  {{$deploy['send_date']}}
                     <br/>
                     <span style="font-weight:normal">{{$deploy['subject_line']}}</span>
