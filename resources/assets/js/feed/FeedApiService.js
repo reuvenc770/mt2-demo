@@ -14,8 +14,6 @@ mt2App.service( 'FeedApiService' , [ 'paginationService' , '$http' , '$log' , fu
     self.getFeeds = function ( page , count , sortField , successCallback , failureCallback ) {
         var sort = paginationService.sortPage( sortField );
 
-        sort.field = 'feeds.' + sort.field;
-
         return $http( {
             "method" : "GET" ,
             "url" : self.pagerApiUrl ,
@@ -61,7 +59,7 @@ mt2App.service( 'FeedApiService' , [ 'paginationService' , '$http' , '$log' , fu
     self.updatePassword = function ( feedData , successCallback , failureCallback ) {
         $http( {
             "method" : "GET" ,
-            "url" : this.resetPasswordUrl + '/' + feedData.ftp_user
+            "url" : this.resetPasswordUrl + '/' + feedData.short_name
         } ).then( successCallback , failureCallback );
     };
 
@@ -101,8 +99,6 @@ mt2App.service( 'FeedApiService' , [ 'paginationService' , '$http' , '$log' , fu
 
     self.searchFeeds = function ( count , data , sortField , successCallback , failureCallback ) {
         var sort = paginationService.sortPage( sortField );
-
-        sort.field = 'feeds.' + sort.field;
 
         return $http( {
             "method" : "GET" ,

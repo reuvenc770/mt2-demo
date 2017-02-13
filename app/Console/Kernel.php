@@ -71,7 +71,7 @@ class Kernel extends ConsoleKernel
         Commands\AttributionConversionCommand::class,
         Commands\PopulateListProfileAggregationTable::class,
         Commands\SendDomainExpirationNotice::class,
-        Commands\PullCakeRecordData::class,
+        Commands\PullContentServerRecordData::class,
         Commands\InflateEmailHistoriesUtil::class,
         Commands\BuildBaseListProfileTables::class,
         Commands\ExportListProfile::class,
@@ -94,6 +94,7 @@ class Kernel extends ConsoleKernel
         Commands\VacuumRedshift::class,
         Commands\CleanUpRawContentServerActions::class,
         Commands\SumBrontoStandardReports::class,
+        Commands\DomainExpirationNotification::class,
     ];
 
     /**
@@ -104,6 +105,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        #$schedule->command('domains:expired')->dailyAt(self::REPORT_TIME);
+
         /**
          * Orphan Adoption
          */
@@ -141,7 +144,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:downloadApi AWeber --daysBack=5 --apiLimit=40')->cron("0 0,6,12,18 * * *")->sendOutputTo($filePath);
         #$schedule->command('reports:downloadApi EmailDirect --daysBack=5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Maro --daysBack=5')->hourly()->sendOutputTo($filePath);
-        //$schedule->command('reports:updateMissingMaroCampaigns')->daily()->sendOutputTo($filePath);
+        $schedule->command('reports:updateMissingMaroCampaigns')->daily()->sendOutputTo($filePath);
         //$schedule->command('reports:downloadApi Ymlp --daysBack=5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Publicators --daysBack=5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Bronto --daysBack=5')->hourly()->sendOutputTo($filePath);
@@ -177,7 +180,7 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'reports:downloadDeliverables Publicators 5 Publicators' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Bronto 2 Bronto' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
 
-        $schedule->command( 'reports:downloadDeliverables AWeber 5 AWeber' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        //$schedule->command( 'reports:downloadDeliverables AWeber 5 AWeber' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
 
         $schedule->command( 'reports:downloadDeliverables Bronto:delivered 2' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:populateStats')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
@@ -234,7 +237,7 @@ class Kernel extends ConsoleKernel
          */
          
         // Attribution jobs disabled temporarily until launch
-        #$schedule->command('runFilter expiration')->dailyAt(self::EXPIRATION_RUNS);
+        $schedule->command('runFilter expiration')->dailyAt(self::EXPIRATION_RUNS);
         #$schedule->command('attribution:commit daily')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
         $schedule->command( 'attribution:conversion -P realtime' )->dailyAt( self::ATTRIBUTION_REPORT_EARLY_UPDATE_TIME ); #early conversion grab & report updating
         $schedule->command( 'attribution:conversion -P rerun' )->dailyAt( self::ATTRIBUTION_REPORT_UPDATE_TIME ); #daily rerun
@@ -252,7 +255,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('listprofile:optimize')->weekly();
         $schedule->command('listprofile:aggregateActions')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('listprofile:contentServerRawStats')->hourly();
-        $schedule->command('listprofile:getRecordAgentData')->dailyAt(self::EXPIRATION_RUNS);
+        $schedule->command('listprofile:getRecordAgentData 5')->hourly();
         $schedule->command('listprofile:baseTables')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('updateUserActions 1')->dailyAt(self::REPORT_TIME_2);
 
@@ -298,7 +301,7 @@ class Kernel extends ConsoleKernel
          */
         $schedule->command('aweber:processUniques 15')->cron("10 0,6,12,18 * * *")->sendOutputTo($filePath);
         $schedule->command('aweber:updateAWeberLists' )->dailyAt( self::AWEBER_TIME);
-        $schedule->command('aweber:processAWeberActions')->cron("30 0,6,12,18 * * *")->sendOutputTo($filePath);
+        //$schedule->command('aweber:processAWeberActions')->cron("30 0,6,12,18 * * *")->sendOutputTo($filePath);
 
 
         /**

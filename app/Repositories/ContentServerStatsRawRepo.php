@@ -54,4 +54,21 @@ class ContentServerStatsRawRepo {
             ':end' => $end
         ]);
     }
+
+    public function pullUserAgents($lookback) {
+        return $this->model
+                    ->select('user_agent')
+                    ->where('action_datetime', '>=', DB::raw("CURDATE() - INTERVAL $lookback DAY"))
+                    ->get();
+    }
+
+    public function pullEmailUserAgents($lookback) {
+        $attrDb = config('database.connections.attribution.database');
+
+        return $this->model
+                    ->select('eid as email_id', 'feed_id', 'user_agent')
+                    ->join("$attrDb.email_feed_assignments as efa", 'eid', '=', 'efa.email_id')
+                    ->whereRaw("action_datetime >= CURDATE() - INTERVAL $lookback HOUR")
+                    ->orderBy('action_datetime', 'ASC');
+    }
 }

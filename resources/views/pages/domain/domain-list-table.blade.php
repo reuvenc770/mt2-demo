@@ -32,9 +32,9 @@
             <td md-cell ng-hide="domain.rowBeingEdited != 0" class="mt2-table-cell-center" ng-class="{ 'bg-success' : record.status == 1 , 'bg-danger' : record.status == 0 }">
                 @{{ record.status == 1 ? 'Active' : 'Inactive' }}
             </td>
-            <td md-cell ng-hide="domain.beingEdited(record.dom_id)" class="mt2-cell-left-padding">@{{ record.domain_name }}</td>
+            <td md-cell ng-hide="domain.beingEdited(record.dom_id)" class="mt2-cell-left-padding">@{{ record.domain_name + ( typeof( record.type ) !== 'undefined' ? ( record.type == 1 ? ' - Mailing' : ' - Content' ) : '' ) }}</td>
             <td md-cell ng-if="domain.type == 2" ng-hide="domain.beingEdited(record.dom_id)">@{{ record.proxy_name }}</td>
-            <td md-cell ng-hide="domain.beingEdited(record.dom_id)">@{{ record.registrar_name }}</td>
+            <td md-cell ng-hide="domain.beingEdited(record.dom_id)">@{{ record.registrar_name }} - @{{ record.registrar_username }}</td>
             <td md-cell ng-if="domain.type == 1" ng-hide="domain.beingEdited(record.dom_id)" >@{{ record.main_site }}</td>
             <td md-cell ng-hide="domain.rowBeingEdited != 0" ng-bind="app.formatDate( record.created_at , 'MM-DD-YY' )" nowrap></td>
             <td md-cell ng-hide="domain.beingEdited(record.dom_id)" ng-bind="::app.formatDate( record.expires_at , 'MM-DD-YY' )" nowrap></td>
@@ -76,7 +76,7 @@
             <td md-cell ng-show="domain.beingEdited(record.dom_id)" >
                     <select ng-required="true" class="form-control" name="registrar_id" ng-model="domain.currentDomain.registrar_id">
                         @foreach ( $regs as $reg )
-                            <option value="{{ $reg['id'] }}">{{ $reg['name'] }}</option>
+                            <option value="{{ $reg['id'] }}">{{ $reg['name'] }} &nbsp;-&nbsp; {{ $reg['username'] }}</option>
                         @endforeach
                     </select>
                     <div class="help-block"  ng-show="domain.formErrors.registrar_id">

@@ -6,6 +6,7 @@ use App\Services\EspApiAccountService;
 use Illuminate\Support\Facades\App;
 
 use App\Models\EspAccount;
+use App\Models\EspAccountCustomIdHistory;
 use Illuminate\Support\ServiceProvider;
 
 class EspApiAccountProvider extends ServiceProvider
@@ -28,7 +29,7 @@ class EspApiAccountProvider extends ServiceProvider
     {
         App::bind('EspApiAccount', function()
         {
-            return new EspApiAccountService(new EspApiAccountRepo(new EspAccount()));
+            return new EspApiAccountService(new EspApiAccountRepo(new EspAccount() , new EspAccountCustomIdHistory() ));
         });
 
     }

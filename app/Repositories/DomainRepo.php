@@ -47,6 +47,7 @@ class DomainRepo
             'domains.domain_name',
             'proxies.name as proxy_name',
             'registrars.name as registrar_name',
+            'registrars.username as registrar_username',
             'doing_business_as.dba_name',
             'domains.main_site',
             'domains.created_at',
@@ -99,12 +100,14 @@ class DomainRepo
                 'domains.domain_name',
                 'proxies.name as proxy_name',
                 'registrars.name as registrar_name',
+                'registrars.username as registrar_username',
                 'doing_business_as.dba_name',
                 'domains.main_site',
                 'domains.created_at',
                 'domains.expires_at',
                 'domains.status',
-                'domains.live_a_record')
+                'domains.live_a_record' ,
+                'domains.domain_type as type')
                 ->join('registrars', 'domains.registrar_id', '=', 'registrars.id')
                 ->join('doing_business_as', 'domains.doing_business_as_id', '=', 'doing_business_as.id')
                 ->leftjoin('proxies', 'domains.proxy_id', '=', 'proxies.id')

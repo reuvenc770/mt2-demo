@@ -20,6 +20,8 @@ use App\Models\OrphanEmail;
 use App\Facades\JobTracking;
 use App\Models\StandardReport;
 use App\Services\EmailFeedActionService;
+use Maknz\Slack\Facades\Slack;
+
 class AdoptOrphanEmails extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
@@ -34,14 +36,11 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct( $orphans = [] , $firstId = 0 , $lastId = 0 , $tracking)
+    public function __construct($orphans, $tracking)
     {
-        $this->orphans = is_array( $orphans ) ? collect( $orphans ) : $orphans;
+        $this->orphans = $orphans;
 
         $this->tracking = $tracking;
-
-        $this->firstId = $firstId;
-        $this->lastId = $lastId;
     }
 
 
@@ -52,27 +51,25 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
      */
     public function handle(AttributionRecordTruthService $truthService, EmailFeedActionService $actionService, SeedEmailService $seedService) {
 
-        JobTracking::startEspJob( 'Orphan Adoption: ' . $this->firstId . '-' . $this->lastId , null , null , $this->tracking );
-        $attempts = 0;
-        $processed = 0;
-
+        JobTracking::startEspJob( 'Orphan Adoption: ' . "Chunk" , null , null , $this->tracking );
         $inserts = [];
         $deleteIds = [];
         $actionsRecords = [];
+        $reports = array_fill_keys(["deploy_missing","email_missing"],[]);
         foreach ($this->orphans as $orphan) {
+
+            //If Email is a Seed delete it and move on.
             if($seedService->checkForSeed($orphan->email_address)){
                 $deleteIds[] = $orphan->id;
-                $processed++;
                 continue;
             }
-            $orphan = OrphanEmail::find( $orphan->id );
+
             $currentEmailId = 0;
-            $failedToProcess = false;
 
-            if ( is_object( $orphan ) ) {
+            $emailRecordCount = Email::where( 'email_address' , $orphan->email_address )->count();
 
-                $emailRecordCount = Email::where( 'email_address' , $orphan->email_address )->count();
                 $deployId = (int)$orphan->deploy_id;
+
                 $found = (int)StandardReport::where('esp_internal_id', $orphan->esp_internal_id)->pluck('external_deploy_id')->first();
 
                 if (0 === $deployId && 0 !== $found) {
@@ -91,19 +88,14 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
                     $inserts[] = $value;
 
                     $deleteIds[] = $orphan->id;
-                    $processed++;
-
-                } 
+                }
                 else {
-                    Log::emergency("Orphan failed to be adopted ", array(
-                                                                    "email" => $orphan->email_address,
-                                                                    "esp_account_id" => $orphan->esp_account_id,
-                                                                    "deploy_id" => $orphan->deploy_id,
-                                                                    "esp_internal_id" => $orphan->esp_internal_id,
-                                                            )
-                    );
-                    $failedToProcess = true;
-                    $attempts++;
+                    $date = Carbon::today()->subDay(5)->toDateString();
+                    if($deployId == 0 && $orphan->create_date <= $date){
+                        $reports['deploy_missing'][] = ["esp_account" => $orphan->esp_account_id, "esp_internal_id" => $orphan->esp_intenral_id];
+                    } elseif ($emailRecordCount  == 0  && $orphan->create_date <= $date){
+                        $reports['email_missing'][] = $orphan->email_address;
+                    }
                 }
 
 
@@ -113,13 +105,7 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
                         $actionsRecords[] = ["email_id" =>$currentEmailId, "type" => $orphan->action_id];
                     }
                 }
-            }
-
-            if ( $failedToProcess ) {
-                $orphan->increment( 'adopt_attempts' );
-            }
         }
-
 
         try {
             if (sizeof($inserts) > 0) {
@@ -137,7 +123,7 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
                         action_id = action_id ,
                         datetime = datetime ,
                         created_at = created_at ,
-                        updated_at = NOW()" 
+                        updated_at = NOW()"
                 );
 
                 if(count($actionsRecords) > 0) {
@@ -153,25 +139,25 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
                     ->delete();
             }
 
+            $deployCount = count($reports['deploy_missing']);
+            if($deployCount > 0 ){
+                Slack::to(self::SLACK_TARGET_SUBJECT)->send("{$deployCount} actions cannot be attached to a deploy for over 5 days");
+            }
+            $emailMissing = count($reports['email_missing']);
+            if($emailMissing > 0){
+                Slack::to(self::SLACK_TARGET_SUBJECT)->send("{$emailMissing} actions do not have an EID for over 5 days");
+            }
+
         }
-        catch ( Exception $e ) {
+        catch ( \Exception $e ) {
             Log::error( 'Query errors:' );
             Log::error( $e->getMessage() );
             Log::error( $e->getTraceAsString() );
 
-            $failedToProcess = true;
-            $attempts++;
         }
-
-        Log::info( 'Successfully Processed ' . $processed . ' Orphan Emails.' );
-        Log::info( 'Failed Processing ' . $attempts . ' Orphan Emails.' );
-
         $this->changeJobEntry( JobEntry::SUCCESS );
     }
 
-    protected function initJobEntry () {
-        JobTracking::startEspJob( 'Orphan Adoption: ' . $this->firstId . '-' . $this->lastId , null , null , $this->tracking );
-    }
 
     protected function changeJobEntry ( $status ) {
         JobTracking::changeJobState( $status , $this->tracking);

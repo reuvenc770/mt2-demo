@@ -22,6 +22,7 @@
                         <th md-column class="mt2-table-btn-column"></th>
                         <th md-column md-order-by="status" class="md-table-header-override-whitetext mt2-table-header-center">Status</th>
                         <th md-column md-order-by="account_name" class="md-table-header-override-whitetext mt2-cell-left-padding">ESP</th>
+                        <th md-column class="md-table-header-override-whitetext">Custom ID</th>
                         <th md-column md-order-by="key_1" class="md-table-header-override-whitetext">Key 1</th>
                         <th md-column md-order-by="key_2" class="md-table-header-override-whitetext">Key 2</th>
                         <th md-column md-order-by="created_at" class="md-table-header-override-whitetext">Created</th>
@@ -52,6 +53,7 @@
 
                         </td>
                         <td class="mt2-cell-left-padding" md-cell>@{{ record.account_name }}</td>
+                        <td md-cell>@{{ record.custom_id }}</td>
                         <td md-cell>@{{ record.key_1 }}</td>
                         <td md-cell>@{{ record.key_2 }}</td>
                         <td md-cell nowrap ng-bind="::app.formatDate( record.created_at )"></td>
@@ -60,7 +62,7 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="7">
+                        <td colspan="8">
                             <md-content class="md-mt2-zeta-theme md-hue-2">
                                 <md-table-pagination md-limit="esp.paginationCount" md-limit-options="esp.paginationOptions" md-page="esp.currentPage" md-total="@{{esp.accountTotal}}" md-on-paginate="esp.loadAccounts" md-page-select></md-table-pagination>
                             </md-content>

@@ -17,6 +17,9 @@ class RecordDataRepo implements IAwsRepo {
     private $batchActionUpdateData = [];
     private $batchActionUpdateCount = 0;
 
+    private $batchDeviceUpdateData = [];
+    private $batchDeviceUpdateCount = 0;
+
     public function __construct(RecordData $model) {
         $this->model = $model;
     }
@@ -106,12 +109,35 @@ class RecordDataRepo implements IAwsRepo {
             . ')';
     }
 
-    public function updateDeviceData($data) {
-        if (sizeof($data) > 0) {
-            $data = implode(',', $data);
+    public function batchUpdateDeviceData($row) {
+        $pdo = DB::connection()->getPdo();
+
+        if ($this->batchDeviceUpdateCount >= self::INSERT_THRESHOLD) {
+            $this->cleanupDeviceData();
+
+            $this->batchDeviceUpdateData = ['('
+                . $pdo->quote($row['email_id']) . ','
+                . $pdo->quote($row['device_type']) . ','
+                . $pdo->quote($row['device_name']) . ')'
+            ];
+            $this->batchDeviceUpdateCount = 1;
+        }
+        else {
+            $this->batchDeviceUpdateData[] = ['('
+                . $pdo->quote($row['email_id']) . ','
+                . $pdo->quote($row['device_type']) . ','
+                . $pdo->quote($row['device_name']) . ')'
+            ];
+
+            $this->batchDeviceUpdateCount++;
+        }
+    }
+
+    public function cleanupDeviceData() {
+        if ($this->batchDeviceUpdateCount > 0) {
+            $data = implode(',', $this->batchDeviceUpdateData);
         
-            DB::statement("INSERT INTO record_data (email_id, device_type, device_name, carrier)
-            
+            DB::statement("INSERT INTO record_data (email_id, device_type, device_name)
                 VALUES
             
                 $data
@@ -134,11 +160,12 @@ class RecordDataRepo implements IAwsRepo {
                 dob = dob,
                 device_type = values(device_type),
                 device_name = values(device_name),
-                carrier = values(carrier),
+                carrier = carrier,
                 capture_date = capture_date,
                 subscribe_date = subscribe_date,
-                other_fields = other_fields
-            ");
+                other_fields = other_fields");
+
+            $this->batchDeviceUpdateData = [];
         }
 
     }
@@ -221,7 +248,7 @@ class RecordDataRepo implements IAwsRepo {
     }
 
     public function extractAllForS3() {
-        return $this->model;
+        return $this->model->whereRaw("updated_at > CURDATE() - INTERVAL 7 DAY");
     }
 
     public function mapForS3Upload($row) {
@@ -256,6 +283,41 @@ class RecordDataRepo implements IAwsRepo {
 
     public function getConnection() {
         return $this->model->getConnectionName();
+    }
+
+    public function setDeliverableStatus($emailId, $status) {
+        $emailId = (int)$emailId;
+        $isDeliverable = ($status === true) ? 1 : 0;
+        $this->model->whereRaw("email_id = $emailId")->update(['is_deliverable' => $isDeliverable]);
+    }
+
+    public function updateWithNewAttribution(stdClass $obj) {
+        // Unfortunately, the class has already been anonymized
+
+        // '' -> 'UNK'
+        $gender = $obj->gender === '' ? 'UNK' : $obj->gender;
+        // long2ip if necessary
+        $ip = preg_match('/\./', $obj->ip) ? $obj->ip : long2ip($obj->ip);
+
+        $this->model->updateOrCreate(['email_id' => $obj->email_id], [
+            'email_id' => $obj->email_id,
+            'is_deliverable' => 1,
+            'first_name' => $obj->first_name,
+            'last_name' => $obj->last_name,
+            'address' => $obj->address,
+            'address2' => $obj->address2,
+            'city' => $obj->city,
+            'state' => $obj->state,
+            'zip' => $obj->zip,
+            'country' => $obj->country,
+            'gender' => $gender,
+            'ip' => $ip,
+            'phone' => $obj->phone,
+            'source_url' => $obj->source_url,
+            'dob' => $obj->dob,
+            'capture_date' => $obj->capture_date,
+            'subscribe_date' => $obj->subscribe_date
+        ]);
     }
 
 }

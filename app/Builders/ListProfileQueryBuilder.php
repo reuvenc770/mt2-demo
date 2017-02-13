@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 class ListProfileQueryBuilder {
 
-    private $columnMapping; 
+    private $columnMapping;
 
     private $mainTableAlias = 'flat';
     private $dataTable = 'record_data';
@@ -58,14 +58,15 @@ class ListProfileQueryBuilder {
             'ip' => 'rd.ip',
             'subscribe_date' => 'rd.subscribe_date',
             'feed_id' => 'efa.feed_id',
-            'domain_group_name' => DB::connection('redshift')->raw('dg.name as domain_group_name'), 
+            'domain_group_name' => DB::connection('redshift')->raw('dg.name as domain_group_name'),
             'country' => 'dg.country',
-            'feed_name' => DB::connection('redshift')->raw('f.short_name as feed_name'), 
+            'feed_name' => DB::connection('redshift')->raw('f.name as feed_name'),
             'source_url' => 'rd.source_url',
             'client_name' => DB::connection('redshift')->raw('c.name as client_name'),
-            'email_address' => 'e.email_address', 
-            'lower_case_md5' => 'e.lower_case_md5', 
+            'email_address' => 'e.email_address',
+            'lower_case_md5' => 'e.lower_case_md5',
             'upper_case_md5' => 'e.upper_case_md5',
+            'short_name' => 'f.short_name',
             'party' => 'f.party',
             'capture_date' => 'rd.capture_date',
             'device_type' => 'rd.device_type',
@@ -73,7 +74,7 @@ class ListProfileQueryBuilder {
             'carrier' => 'rd.carrier'
         ];
     }
-    
+
     public function buildQuery($listProfile, $queryData) {
         $this->setValues($listProfile);
 
@@ -94,17 +95,17 @@ class ListProfileQueryBuilder {
 
 
     private function setValues($listProfile) {
-        // In the name of efficiency ... 
+        // In the name of efficiency ...
 
         if (empty($this->columns)) {
             // We can add to selected columns because the writer will only use the selected columns
             $declaredColumns = json_decode($listProfile->columns, true);
             $this->columns = array_unique(array_merge(self::REQUIRED_PROFILE_FIELDS, $declaredColumns));
-            
+
         }
 
-        if (sizeof($this->columns) === 0) { 
-            throw new ValidationException("No columns selected"); 
+        if (sizeof($this->columns) === 0) {
+            throw new ValidationException("No columns selected");
         }
 
 
@@ -126,7 +127,7 @@ class ListProfileQueryBuilder {
         // Setting up columns for selects
 
         if (empty($this->recordDataColumns)) {
-            $this->recordDataColumns = array_intersect(['first_name', 'last_name', 'gender', 'address', 'address2', 
+            $this->recordDataColumns = array_intersect(['first_name', 'last_name', 'gender', 'address', 'address2',
                 'city', 'state', 'zip', 'dob', 'age', 'phone', 'ip', 'subscribe_date', 'source_url', 'capture_date',
                 'device_type', 'device_name', 'carrier'], $this->columns);
         }
@@ -137,7 +138,7 @@ class ListProfileQueryBuilder {
             $this->domainGroupColumns = array_intersect(['domain_group_name', 'country'], $this->columns);
         }
         if (empty($this->feedColumns)) {
-            $this->feedColumns = array_intersect(['feed_name', 'party'], $this->columns);
+            $this->feedColumns = array_intersect(['feed_name', 'short_name', 'party'], $this->columns);
         }
         if (empty($this->clientColumns)) {
             $this->clientColumns = array_intersect(['client_name'], $this->columns);
@@ -155,7 +156,7 @@ class ListProfileQueryBuilder {
             }
             else {
                 $this->ageAttributes = null;
-            }     
+            }
         }
         if (empty($this->genderAttributes)) {
             $this->genderAttributes = json_decode($listProfile->gender, true);
@@ -219,7 +220,7 @@ class ListProfileQueryBuilder {
                     ->whereRaw("date BETWEEN current_date - INTERVAL '$end DAY' AND current_date - INTERVAL '$start DAY'");
 
         $query = sizeof($this->emailDomainIds) > 0 ? $query->whereRaw('email_domain_id IN (' . implode(',', $this->emailDomainIds) . ')') : $query;
-        $query = sizeof($this->offerIds) > 0 ? $query->whereRaw('offer_id IN (' . implode(',', $this->offerIds) . ')') : $query; 
+        $query = sizeof($this->offerIds) > 0 ? $query->whereRaw('offer_id IN (' . implode(',', $this->offerIds) . ')') : $query;
 
         $query = $query->havingRaw("SUM($type) >= $count")->toSql();
 
@@ -247,7 +248,7 @@ class ListProfileQueryBuilder {
                 $query = $query->leftJoin("suppression_list_suppressions as sls", function($join) use ($listIds) {
                     $join->on("e.email_address", '=', 'sls.email_address');
                     $join->on('sls.suppression_list_id', 'in', DB::connection('redshift')->raw($listIds));
-                })  
+                })
                 ->whereNull('sls.email_address');
             }
         }
@@ -256,9 +257,9 @@ class ListProfileQueryBuilder {
     }
 
     private function buildFeedSearch($query) {
-        if (sizeof($this->feedIds) > 0 
-            || $this->attributionColumns 
-            || $this->feedColumns 
+        if (sizeof($this->feedIds) > 0
+            || $this->attributionColumns
+            || $this->feedColumns
             || $this->clientColumns) {
 
             $query = $query->join("email_feed_assignments as efa", "{$this->mainTableAlias}.email_id", '=', 'efa.email_id');
@@ -312,20 +313,20 @@ class ListProfileQueryBuilder {
     private function addConditionsAndJoins($listProfile, $query) {
         // Would have loved to make this neater, but it's all unique logic
 
-        if ($this->recordDataColumns 
-            || $this->ageAttributes 
-            || $this->genderAttributes 
-            || $this->zipAttributes 
-            || $this->cityAttributes 
-            || $this->stateAttributes 
-            || $this->deviceAttributes 
+        if ($this->recordDataColumns
+            || $this->ageAttributes
+            || $this->genderAttributes
+            || $this->zipAttributes
+            || $this->cityAttributes
+            || $this->stateAttributes
+            || $this->deviceAttributes
             || $this->carrierAttributes) {
-            
+
             if ('rd' !== $this->mainTableAlias) {
                 // make sure we don't join on itself
                 $query = $query->join("{$this->dataTable} as rd", "{$this->mainTableAlias}.email_id", '=', 'rd.email_id');
             }
-            
+
             $query = $this->buildAgeAttributes($query, $this->ageAttributes);
             $query = $this->buildAttributes($query, 'gender', $this->genderAttributes);
             $query = $this->buildAttributes($query, 'zip', $this->zipAttributes);
@@ -348,7 +349,7 @@ class ListProfileQueryBuilder {
                 // The join has already been handled as well either above or with suppression
                 $query = $query->whereRaw('e.email_domain_id in (' . implode(',', $this->emailDomainIds) . ')');
             }
-            
+
             if ($this->domainGroupColumns) {
                 $query = $query->join("email_domains as ed", 'e.email_domain_id', '=', 'ed.id')
                                ->join("domain_groups as dg", 'ed.domain_group_id', '=', 'dg.id');
@@ -467,7 +468,7 @@ class ListProfileQueryBuilder {
         if ($attributes) {
             $youngest = Carbon::now()->subYears($attributes['min'])->format('Y-m-d');
             $oldest = Carbon::now()->subYears($attributes['max'])->format('Y-m-d');
-            
+
             if ($attributes['unknown']) {
                 $query = $query->whereRaw("(($field BETWEEN '$oldest' and '$youngest') OR $field IS NULL)");
             }
@@ -488,7 +489,7 @@ class ListProfileQueryBuilder {
                 if ($feed->suppression_list_id) {
                     $listIds[] = $feed->suppression_list_id;
                 }
-               
+
             }
         }
 

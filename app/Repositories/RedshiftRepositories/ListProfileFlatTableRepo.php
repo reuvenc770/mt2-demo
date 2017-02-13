@@ -40,23 +40,15 @@ SQL;
                 SELECT * FROM list_profile_flat_table_staging");
         });
 
-        DB::connection('reshift')->table('list_profile_flat_table_staging')->truncate();
+        DB::connection('redshift')->statement($clear);
     }
 
     public function clearAndReloadEntity($entity) {
-        DB::connection('redshift')->statement("TRUNCATE list_profile_flat_table");
-
-        $sql = <<<SQL
-copy list_profile_flat_table
-from 's3://mt2-listprofile-export/{$entity}.csv'
-credentials 'aws_iam_role=arn:aws:iam::286457008090:role/redshift-s3-stg'
-format as csv quote as '\'' delimiter as ',';
-SQL;
-        DB::connection('redshift')->statement($sql);
+        $this->loadEntity($entity);
     }
 
     public function optimizeDb() {
-        // Re-sort the tables based off of their 
+        // Re-sort and partition the tables based off of their keys
         DB::connection('redshift')->statement('VACUUM SORT ONLY');
     }
 }

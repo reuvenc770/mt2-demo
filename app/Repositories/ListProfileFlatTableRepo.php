@@ -78,7 +78,8 @@ class ListProfileFlatTableRepo implements IAwsRepo {
     }
 
     private function prepareConversionData($row) {
-        return "('{$row->email_id}', '{$row->deploy_id}', '{$row->date}', '{$row->conversions}', NOW(), NOW())";
+        $conversionFlag = ((int)$row->conversions) > 0 ? 1 : 0;
+        return "('{$row->email_id}', '{$row->deploy_id}', '{$row->date}', '$conversionFlag', '$conversionFlag', '{$row->conversions}', NOW(), NOW())";
     }
 
 
@@ -148,7 +149,7 @@ class ListProfileFlatTableRepo implements IAwsRepo {
 
     public function extractAllForS3() {
         // This will be the current default
-        return $this->flatTable->whereRaw("date > CURDATE() - INTERVAL 120 DAY");
+        return $this->flatTable->whereRaw("date > CURDATE() - INTERVAL 10 DAY");
     }
 
 

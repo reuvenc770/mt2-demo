@@ -4,6 +4,7 @@ namespace App\Factories;
 use App\Services\CustomReportService;
 use Storage;
 use App\Models\EspAccount;
+use App\Models\EspAccountCustomIdHistory;
 use App\Repositories\EspApiAccountRepo;
 use App;
 
@@ -34,7 +35,7 @@ class ReportFactory
 
     protected static function createEspActionReport($name) {
 
-        $espAccountRepo = new EspApiAccountRepo(new EspAccount());
+        $espAccountRepo = new EspApiAccountRepo(new EspAccount() , new EspAccountCustomIdHistory());
 
         $espName = config("reports.$name.data.esp");
 

@@ -55,6 +55,7 @@ class ListProfileService
         'dob'  =>  "Date of Birth",
         'feed_id'  =>  "Feed ID",
         'feed_name'  =>  "Feed Name",
+        'short_name' => "Feed Short Name",
         'client_name'  =>  "Client",
         'subscribe_date'  =>  'Subscribe Date',
         'tower_date'  =>  'Tower Date'
@@ -403,7 +404,7 @@ class ListProfileService
         if ($verticals->count() > 0) {
             $this->profileRepo->assignVerticals($copyProfile->id, $verticals->toArray());
         }
-        
+
         return $copyProfile->id;
     }
 }

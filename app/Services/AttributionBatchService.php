@@ -9,6 +9,7 @@ use App\Repositories\AttributionRecordTruthRepo;
 use App\Repositories\AttributionExpirationScheduleRepo;
 use App\Repositories\EmailFeedInstanceRepo;
 use App\Repositories\EmailFeedActionRepo;
+use App\Repositories\RecordDataRepo;
 use App\Events\AttributionCompleted;
 use Cache;
 
@@ -17,6 +18,7 @@ class AttributionBatchService {
     private $today;
     private $truthRepo;
     private $scheduleRepo;
+    private $recordDataRepo;
     private $assignmentRepo;
     private $feedInstanceRepo;
     private $emailFeedActionRepo;
@@ -27,10 +29,12 @@ class AttributionBatchService {
                                 AttributionExpirationScheduleRepo $scheduleRepo, 
                                 EmailFeedAssignmentRepo $assignmentRepo,
                                 EmailFeedInstanceRepo $feedInstanceRepo,
-                                EmailFeedActionRepo $emailFeedActionRepo) {
+                                EmailFeedActionRepo $emailFeedActionRepo,
+                                RecordDataRepo $recordDataRepo) {
 
         $this->truthRepo = $truthRepo;
         $this->scheduleRepo = $scheduleRepo;
+        $this->recordDataRepo = $recordDataRepo;
         $this->assignmentRepo = $assignmentRepo;
         $this->feedInstanceRepo = $feedInstanceRepo;
         $this->emailFeedActionRepo = $emailFeedActionRepo;
@@ -55,6 +59,7 @@ class AttributionBatchService {
             $subsequentImports = 0;
 
             $potentialReplacements = $this->getPotentialReplacements($record->email_id, $captureDate, $feedId);
+            $savedReplacement = null;
             
             foreach ($potentialReplacements as $repl) {
 
@@ -65,6 +70,7 @@ class AttributionBatchService {
                     $feedId = (int)$repl->feed_id;
                     $subsequentImports = 0;
                     $actionExpired = 0; // again, can't have an action, so it can't be expired
+                    $savedReplacement = $repl;
                 }
                 else {
                     $subsequentImports++;
@@ -80,6 +86,7 @@ class AttributionBatchService {
                     $this->updateScheduleTable($record->email_id, $captureDate);
                     $this->updateTruthTable($record->email_id, $captureDate, $hasAction, $actionExpired, $subsequentImports);
                     $this->updateActionStatus($record->email_id, $oldFeedId, $feedId);
+                    $this->updateRecordData($savedReplacement);
                 }
             }
 
@@ -172,5 +179,9 @@ class AttributionBatchService {
             'feed_id' => $oldFeedId,
             'status' => EmailFeedAction::LOST_ATTRIBUTION
         ]);
+    }
+
+    private function updateRecordData(stdClass $obj) {
+        $this->recordDataRepo->updateWithNewAttribution($obj);
     }
 }

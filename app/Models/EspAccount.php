@@ -4,6 +4,9 @@ namespace App\Models;
 
 use App\Models\ModelTraits\ModelCacheControl;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\EspAccountCustomIdHistory;
+use Carbon\Carbon;
+
 use Storage;
 class EspAccount extends Model
 {
@@ -76,6 +79,29 @@ class EspAccount extends Model
 
     public function imageLinkFormat() {
         return $this->hasOne('App\Models\EspAccountImageLinkFormat');
+    }
+
+    public function customIds(){
+        return $this->hasMany('App\Models\EspAccountCustomIdHistory');
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        $callback = function( $espAccount ){
+            if ($espAccount['custom_id'] != null){
+                $customIdHistory = new EspAccountCustomIdHistory();
+                $customIdHistory->custom_id = $espAccount->custom_id;
+                $customIdHistory->esp_account_id = $espAccount->id;
+                $customIdHistory->created_at = Carbon::now()->toDateTimeString();
+                $customIdHistory->save();
+            }
+        };
+
+        static::created( $callback );
+
+        static::updated( $callback );
     }
 
 }

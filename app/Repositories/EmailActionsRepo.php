@@ -233,43 +233,19 @@ class EmailActionsRepo {
     }
 
     public function pullActionsForUserUpdate($lookback) {
-        // Keeping the version below until deploys and list profiles are live.
-
-        /*
-        #No limit for deploys is ideal, but 30 days is a usable and sanctioned cutoff
-        return DB::select("SELECT
-                ea.email_id, party, feed_to_update
-            FROM
-                mt2_reports.email_actions ea
-                INNER JOIN (SELECT
-                    d.id as deploy_id,
-                    IF(f.party = 3, 0, f.id) feed_to_update
-                FROM
-                    deploys d
-                    INNER JOIN list_profile.list_profile_combines lpc ON d.list_profile_combine_id = lpc.id
-                    INNER JOIN list_profile.list_profiles lp ON lpc.list_profile_id = lp.id
-                    INNER JOIN list_profile.list_profile_feeds lpf ON lp.id = lpf.list_profile_id
-                    INNER JOIN feeds f ON lpf.feed_id = f.id
-                WHERE
-                    d.send_date >= CURDATE() - INTERVAL 30 DAY
-                    AND
-                    f.party = 3
-                GROUP BY
-                    d.id, f.party, `feed_to_update`) deploy_data ON ea.deploy_id = deploy_data.deploy_id 
-            WHERE
-                created_at >= CURDATE()
-                AND
-                action_id IN (1,2)
-            GROUP BY
-                email_id");
-
-        */
+        $dataSchema = config('database.connections.mysql.database');
 
         return $this->actions
-                    ->select('email_id', DB::raw("3 as party"), DB::raw("DATE(MAX(datetime)) as date"))
+                    ->join("$dataSchema.deploys as d", 'email_actions.deploy_id', '=', 'd.id')
                     ->whereRaw("created_at >= CURDATE() - INTERVAL $lookback DAY")
                     ->whereIn('action_id', [1,2])
-                    ->groupBy('email_id');
+                    ->select('email_actions.email_id', 
+                        'party', 
+                        'd.offer_id', 
+                        'd.esp_account_id',
+                        'email_actions.datetime',
+                        DB::raw("IF(action_id = 1, 'Open', 'Click') as action_type"))
+                    ->orderBy('datetime', 'ASC');
     }
 
     public function getEmailsForDeploys(array $deployIds, $daysBack) {

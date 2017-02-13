@@ -90,6 +90,7 @@ class AttributionConversionCommand extends Command
         return !in_array( $this->option( 'processMode' ) , [
             AttributionConversionJob::PROCESS_MODE_SAVE ,
             AttributionConversionJob::PROCESS_MODE_REALTIME ,
+            AttributionConversionJob::PROCESS_MODE_DATA_ONLY ,
             AttributionConversionJob::PROCESS_MODE_RERUN
         ] );
     }

@@ -12,6 +12,7 @@ use App\Services\Interfaces\IFtpAdmin;
 use App\Services\EmailFeedInstanceService;
 use League\Csv\Writer;
 use DB;
+use Artisan;
 
 class FeedService implements IFtpAdmin
 {
@@ -202,32 +203,18 @@ class FeedService implements IFtpAdmin
         return json_encode( $fields );
     }
 
-    public function saveFtpUser ( $credentials ) {
-        \Log::info( 'Saving user credentials to db. Creds: ' . json_encode( $credentials ) );
-
-        DB::connection( 'mt1_data' )->table( 'user' )
-            ->where( 'username' , $credentials[ 'username' ] )
-            ->update( [ 'ftp_pw' => $credentials[ 'password' ],
-                'ftp_user' => $credentials[ 'username' ],
-                'ftp_url' => $credentials['ftp_url'],
-                'newClient' => 0 ] );
-    }
-
     public function findNewFtpUsers () {
-        return DB::connection( 'mt1_data' )->table( 'user' )
-            ->select( 'username' )
-            ->where( [ 'newClient' => 1 , 'ftp_user' => '' ] )
-            ->get();
+        return $this->feedRepo->getNewUsersForToday();
     }
 
     public function resetPassword($username){
-        Artisan::queue('ftp:admin', [
-            '-H' => "52.205.67.250",
-            '-U' => 'root',
-            '-k' => '~/.ssh/mt2ftp.pub',
-            '-K' => '~/.ssh/mt2ftp',
+        Artisan::call('ftp:admin', [
+            '-H' => config('ssh.servers.mt1_feed_file_server.host'),
+            '-U' => config('ssh.servers.mt1_feed_file_server.username'),
+            '-k' => config('ssh.servers.mt1_feed_file_server.public_key'),
+            '-K' => config('ssh.servers.mt1_feed_file_server.private_key'),
             '-u' => $username,
-            '-s' => "Client",
+            '-s' => "Feed",
             '-r' => true
         ]);
         return true;
@@ -308,7 +295,7 @@ class FeedService implements IFtpAdmin
                         $order = 'desc';
                     }
 
-                    $eloquentObj = $eloquentObj->orderBy($sort['field'], $order );
+                    $eloquentObj = $eloquentObj->orderByRaw(\DB::raw( $sort['field'] . ' ' .  $order ) );
                 }
 
                 $paginationJSON = $eloquentObj->paginate($count)->toJSON();
@@ -327,4 +314,9 @@ class FeedService implements IFtpAdmin
         }
     }
 
+    public function updatePassword ( $shortName , $password ) {
+        $this->feedRepo->updatePassword( $shortName , $password );
+    }
+
+    public function saveFtpUser ( $credentials ) {}
 }

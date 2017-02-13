@@ -6,8 +6,9 @@ use App\Models\FirstPartyRecordData;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use Carbon\Carbon;
+use App\Repositories\RepoInterfaces\IAwsRepo; 
 
-class FirstPartyRecordDataRepo {
+class FirstPartyRecordDataRepo implements IAwsRepo {
 
     private $model;
     private $batchData = [];
@@ -100,10 +101,6 @@ class FirstPartyRecordDataRepo {
             . ')';
     }
 
-/**
-    Somehow we need to know how to update this table or the other tables.
-    The updater job needs to handle this.
-*/
     public function updateDeviceData($data) {
         if (sizeof($data) > 0) {
             $data = implode(',', $data);
@@ -220,5 +217,56 @@ class FirstPartyRecordDataRepo {
             $this->batchActionUpdateCount = 0;
 
         }
+    }
+
+    public function setDeliverableStatus($emailId, $feedId, $status) {
+        $emailId = (int)$emailId;
+        $feedId = (int)$feedId;
+        $isDeliverable = ($status === true) ? 1 : 0;
+        $this->model->whereRaw("email_id = $emailId AND feed_id = $feedId")->update(['is_deliverable' => $isDeliverable]);
+    }
+
+    public function extractForS3Upload($startPoint) {
+        // this start point is a date
+        return $this->model->whereRaw("updated_at > $startPoint");
+    }
+
+    public function extractAllForS3() {
+        return $this->model;
+    }
+
+    public function mapForS3Upload($row) {
+        $pdo = DB::connection('redshift')->getPdo();
+        
+        return $pdo->quote($row->email_id) . ','
+            . $pdo->quote($row->feed_id) . ','
+            . $pdo->quote($row->is_deliverable) . ','
+            . $pdo->quote($row->first_name) . ','
+            . $pdo->quote($row->last_name) . ','
+            . $pdo->quote($row->address) . ','
+            . $pdo->quote($row->address2) . ','
+            . $pdo->quote($row->city) . ','
+            . $pdo->quote($row->state) . ','
+            . $pdo->quote($row->zip) . ','
+            . $pdo->quote($row->country) . ','
+            . $pdo->quote($row->gender) . ','
+            . $pdo->quote($row->ip) . ','
+            . $pdo->quote($row->phone) . ','
+            . $pdo->quote($row->source_url) . ','
+            . $pdo->quote($row->dob) . ','
+            . $pdo->quote(str_replace('"', '', $row->device_type)) . ','
+            . $pdo->quote(str_replace('"', '', $row->device_name)) . ','
+            . $pdo->quote(str_replace('"', '', $row->carrier)) . ','
+            . $pdo->quote($row->capture_date) . ','
+            . $pdo->quote($row->subscribe_date) . ','
+            . $pdo->quote($row->last_action_offer_id) . ','
+            . $pdo->quote($row->last_action_date) . ','
+            . $pdo->quote($row->other_fields) . ','
+            . $pdo->quote($row->created_at) . ','
+            . $pdo->quote($row->updated_at);
+    }
+
+    public function getConnection() {
+        return $this->model->getConnectionName();
     }
 }

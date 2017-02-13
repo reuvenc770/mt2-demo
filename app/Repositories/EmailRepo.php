@@ -92,7 +92,13 @@ class EmailRepo implements Mt2Export, IAwsRepo {
      */
 
     public function getCurrentAttributedFeedId($emailId) {
-        $assignment = $this->emailModel->find($emailId)->feedAssignment;
+        $email = $this->emailModel->find($emailId);
+        if (!$email) {
+            // Due to shifting email ids, we can sometimes get this situation.
+            return 0;
+        }
+    
+        $assignment = $email->feedAssignment;
         if ($assignment) {
             return $assignment->feed_id;
         }
@@ -201,6 +207,8 @@ class EmailRepo implements Mt2Export, IAwsRepo {
     }
 
     public function getRecordInfoAddress($address) {
+        // TODO: Replace this and the id search with new query b/c of new schema
+
         $attr = config('database.connections.attribution.database');
         $supp = config('database.connections.suppression.database');
 
@@ -433,7 +441,7 @@ class EmailRepo implements Mt2Export, IAwsRepo {
     }
 
     public function extractAllForS3() {
-        return $this->emailModel;
+        return $this->emailModel->whereRaw("id > $startPoint");
     }
 
 
@@ -441,7 +449,7 @@ class EmailRepo implements Mt2Export, IAwsRepo {
         $pdo = DB::connection('redshift')->getPdo();
         return $pdo->quote($row->id) . ','
             . $pdo->quote($row->email_address) . ','
-            . $pdo->quote($row->domain_id) . ','
+            . $pdo->quote($row->email_domain_id) . ','
             . $pdo->quote($row->lower_case_md5) . ','
             . $pdo->quote($row->upper_case_md5);
     }

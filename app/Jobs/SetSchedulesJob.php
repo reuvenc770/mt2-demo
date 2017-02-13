@@ -12,6 +12,7 @@ use App\Services\AttributionRecordTruthService;
 use App\Services\EmailFeedAssignmentService;
 use App\Services\EmailFeedActionService;
 use App\Jobs\Traits\PreventJobOverlapping;
+use Log;
 
 class SetSchedulesJob extends Job implements ShouldQueue {
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
@@ -32,6 +33,7 @@ class SetSchedulesJob extends Job implements ShouldQueue {
     public function handle(AttributionRecordTruthService $truthService, 
         EmailFeedAssignmentService $assignmentService,
         EmailFeedActionService $emailFeedActionService) {
+
         if ($this->jobCanRun($this->jobName)) {
             try {
                 $this->createLock($this->jobName);
@@ -47,6 +49,7 @@ class SetSchedulesJob extends Job implements ShouldQueue {
 
                     case ("activity"):
                         $this->handleNewActions($scheduledFilterService, $truthService, $emailFeedActionService, $this->emails);
+                        
                         break;
 
                     default:

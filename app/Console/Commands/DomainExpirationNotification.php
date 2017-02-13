@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\domainExpirationNotifications;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use App\Jobs\DataProcessingJob;
 
-class PullCakeRecordData extends Command
+class DomainExpirationNotification extends Command
 {
     use DispatchesJobs;
     /**
@@ -14,22 +14,22 @@ class PullCakeRecordData extends Command
      *
      * @var string
      */
-    protected $signature = 'listprofile:getRecordAgentData';
-    private $jobName = 'CakeDeviceData';
+    protected $signature = 'domains:expired';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Pull device, device type, and carrier information from Cake';
+    protected $description = 'Send Emails about Expired Domains';
 
     /**
      * Create a new command instance.
      *
      * @return void
      */
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
     }
 
@@ -38,8 +38,9 @@ class PullCakeRecordData extends Command
      *
      * @return mixed
      */
-    public function handle() {
-        $job = new DataProcessingJob($this->jobName, str_random(16));
+    public function handle()
+    {
+        $job = new domainExpirationNotifications(str_random(16));
         $this->dispatch($job);
     }
 }

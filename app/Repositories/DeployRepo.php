@@ -15,6 +15,10 @@ use Cache;
 use Carbon\Carbon;
 use App\Repositories\RepoInterfaces\Mt2Export;
 
+# Dependencies for testing
+use App;
+use App\Repositories\EtlPickupRepo;
+
 class DeployRepo implements Mt2Export
 {
     protected $deploy;
@@ -65,7 +69,17 @@ class DeployRepo implements Mt2Export
 
     public function insert($data)
     {
-        return $this->deploy->create($data);
+        # Small change for testing
+        $pickupRepo = App::make(EtlPickupRepo::class);
+        $testingId = $pickupRepo->getLastInsertedForName('TestDeploys');
+
+        $data['id'] = (int)$testingId + 1;
+
+        $insert = $this->deploy->create($data);
+
+        $pickupRepo->updatePosition('TestDeploys', (int)$testingId + 1);
+
+        return $insert;
     }
 
     public function getDeploy($id)
@@ -307,13 +321,15 @@ class DeployRepo implements Mt2Export
 
         //list profile for now commented out
         if($copyToFutureBool){
+            $lpSchema = config('database.connections.list_profile.database');
+            
             if (isset($deploy['list_profile_combine_id'])) {
-                $count = DB::select("Select count(*) as count from list_profile_combines where name = :id", ['id' => $deploy['list_profile_combine_id']])[0];
+                $count = DB::select("Select count(*) as count from $lpSchema.list_profile_combines where id = :id", ['id' => $deploy['list_profile_combine_id']])[0];
                 if ($count->count == 0) {
-                    $errors[] = "List Profile is not active or wrong";
+                    $errors[] = "List Profile is wrong or not active";
                 }
             } else {
-                $errors[] = "List Profile Name is missing";
+                $errors[] = "List Profile is missing";
             }
         } else{
             if (isset($deploy['list_profile_name'])) {
@@ -402,6 +418,31 @@ class DeployRepo implements Mt2Export
             ->leftJoin("subjects", 'deploys.subject_id', '=', 'subjects.id')
             ->whereIn('deploys.esp_account_id',$ids)
             ->where('standard_reports.external_deploy_id',null)->get();
+    }
+
+    public function getDeployParty($id) {
+        $deploy = $this->deploy->where('id', $id)->first();
+
+        if ($deploy) {
+            return $deploy->party;
+        }
+        else {
+            return null;
+        }
+    }
+
+    public function getFeedIdsInDeploy($deployId) {
+        // Returns an array of stdClass objects with the property feed_id
+        $lpSchema = config('database.connections.list_profile.database');
+
+        return DB::select("SELECT
+            DISTINCT feed_id
+        FROM
+            deploys d
+            INNER JOIN $lpSchema.list_profile_list_profile_combine lplpc ON d.list_profile_combine_id = lplpc.list_profile_combine_id 
+            INNER JOIN $lpSchema.list_profile_feeds lpf ON lplpc.list_profile_combine_id = lpf.list_profile_id
+        WHERE
+            d.id = ?", [$deployId]);
     }
 
 }

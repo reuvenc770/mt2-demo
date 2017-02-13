@@ -2,20 +2,20 @@
 
 namespace App\Services;
 use App\Repositories\EmailActionsRepo;
-use App\Repositories\RecordDataRepo;
-use App\Repositories\FirstPartyRecordDataRepo; 
+use App\Repositories\FirstPartyRecordDataRepo;
+use App\Repositories\ThirdPartyEmailStatusRepo;
 use App\Services\Interfaces\IEtl;
 
 class UserActionStatusService implements IEtl {
     
     private $actionsRepo;
-    private $thirdPartyUserRepo;
+    private $thirdPartyEmailStatusRepo;
     private $firstPartyUserRepo;
     private $resource;
 
-    public function __construct(EmailActionsRepo $actionsRepo, RecordDataRepo $thirdPartyUserRepo, FirstPartyRecordDataRepo $firstPartyUserRepo) {
+    public function __construct(EmailActionsRepo $actionsRepo, ThirdPartyEmailStatusRepo $thirdPartyEmailStatusRepo, FirstPartyRecordDataRepo $firstPartyUserRepo) {
         $this->actionsRepo = $actionsRepo;
-        $this->thirdPartyUserRepo = $thirdPartyUserRepo;
+        $this->thirdPartyEmailStatusRepo = $thirdPartyEmailStatusRepo;
         $this->firstPartyUserRepo = $firstPartyUserRepo;
     }
 
@@ -32,7 +32,7 @@ class UserActionStatusService implements IEtl {
         // Large data set, so lazy loading required here
         foreach($this->resource->cursor() as $row) {
             if (3 === $row->party) {
-                $this->thirdPartyUserRepo->updateActionData($row->email_id, $row->date);
+                $this->thirdPartyEmailStatusRepo->batchInsert($row);
             }
             elseif (1 === $row->party) {
                 $this->firstPartyUserRepo->updateActionData($row->email_id, $row->date);
@@ -42,7 +42,7 @@ class UserActionStatusService implements IEtl {
             }
         }
 
-        $this->thirdPartyUserRepo->cleanUpActions();
+        $this->thirdPartyEmailStatusRepo->insertStored();
         $this->firstPartyUserRepo->cleanUpActions();
     }
 }

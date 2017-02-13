@@ -19,6 +19,8 @@ use App\Exceptions\EspAccountDoesNotExistException;
 class EspApiAccountService
 {
     use PaginateList;
+    const CUSTOM_ID_MIN = 100000;
+    const CUSTOM_ID_MAX = 4294967295;
 
     /**
      * @var EspApiAccountRepo
@@ -185,9 +187,24 @@ class EspApiAccountService
             'consumerSecret' => $espDetails->OAuthTokens['access_secret'],
         );
     }
-    
+
     public function getAccountsBySearchName($search){
         return $this->espRepo->backFuzzySearch($search);
     }
 
+    public function generateCustomId() {
+        $existingCustomIds = $this->espRepo->getAllAccounts()->pluck('custom_id')->toArray();
+
+        do {
+            $newUniqueCustomId = mt_rand( self::CUSTOM_ID_MIN , self::CUSTOM_ID_MAX );
+        } while (
+            in_array($newUniqueCustomId, $existingCustomIds)
+        );
+
+        return $newUniqueCustomId;
+    }
+
+    public function getCustomIdHistoryByEsp( $espAccountId ){
+        return $this->espRepo->getCustomIdHistoryByEsp( $espAccountId );
+    }
 }

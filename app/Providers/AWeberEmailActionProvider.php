@@ -11,7 +11,7 @@ use App;
 use Illuminate\Support\ServiceProvider;
 use App\Services\AWeberEmailActionsService;
 use App\Repositories\AWeberEmailActionsRepo;
-use App\Models\AweberEmailActionsStorage;
+use App\Models\AWeberEmailActionsStorage;
 class AWeberEmailActionProvider extends ServiceProvider
 {
     /**

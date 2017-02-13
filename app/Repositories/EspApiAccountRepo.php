@@ -9,6 +9,7 @@
 namespace App\Repositories;
 
 use App\Models\EspAccount;
+use App\Models\EspAccountCustomIdHistory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 
@@ -29,9 +30,10 @@ class EspApiAccountRepo
      * EspApiAccountRepo constructor.
      * @param EspAccount $espAccount
      */
-    public function __construct( EspAccount $espAccount)
+    public function __construct( EspAccount $espAccount , EspAccountCustomIdHistory $espCustomIdHistory )
     {
         $this->espAccount = $espAccount;
+        $this->espCustomIdHistory = $espCustomIdHistory;
     }
 
     public function getModel () { return $this->espAccount; }
@@ -96,6 +98,7 @@ class EspApiAccountRepo
         $this->espAccount->key_1 = $newAccount[ 'key1' ];
         $this->espAccount->key_2 = $newAccount[ 'key2' ];
         $this->espAccount->esp_id = $newAccount[ 'espId' ];
+        $this->espAccount->custom_id = $newAccount[ 'customId' ];
         $this->espAccount->save();
     }
 
@@ -106,6 +109,7 @@ class EspApiAccountRepo
     public function updateAccount ( $id , $accountData ) {
         $account = $this->espAccount->find( $id );
         $account->account_name = $accountData[ 'accountName' ];
+        $account->custom_id = $accountData[ 'customId' ];
         $account->key_1 = $accountData[ 'key1' ];
         $account->key_2 = $accountData[ 'key2' ];
         $account->save();
@@ -155,5 +159,10 @@ class EspApiAccountRepo
 
     public function backFuzzySearch($search){
         return $this->espAccount->where("account_name",'like',"{$search}%");
+    }
+
+    public function getCustomIdHistoryByEsp( $espAccountId ){
+        $history = $this->espCustomIdHistory->where( 'esp_account_id' , $espAccountId )->orderBy('created_at','desc')->get();
+        return $history->pluck('created_at','custom_id');
     }
 }

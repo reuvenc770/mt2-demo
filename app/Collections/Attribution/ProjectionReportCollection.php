@@ -160,8 +160,8 @@ class ProjectionReportCollection extends Collection {
 
     protected function loadReportData ( $modelId ) {
         $clientList = $this->clientReport->getClientsForDateRange(
-            Carbon::today()->startOfMonth()->toDateString() ,
-            Carbon::today()->endOfMonth()->toDateString()
+            Carbon::today()->subDays( 30 )->toDateString() ,
+            Carbon::today()->endOfDay()->toDateString()
         );
 
         foreach ( $clientList as $client ) {
