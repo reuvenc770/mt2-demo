@@ -23,8 +23,8 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
     self.selectedRows = [];
     self.esps = [];
-    var text = "ID to Be Generated";
-    self.deployIdDisplay = text;
+    self.formButtonText = "Save Deploy";
+    self.formHeader = "New Deploy";
     self.editView = false;
     self.uploadedDeploys = [];
     self.offerData = [];
@@ -39,7 +39,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.tempDeploy = false;
     self.cakeAffiliates = [];
     self.espLoaded = true;
-    self.showRow = false;
     self.offerLoading = true;
     self.mailingDomains = []; //id is 1
     self.contentDomains = []; //id is 2
@@ -100,7 +99,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.copyRow = function (id) {
-        self.showRow = false;
         DeployApiService.getDeploy(id, self.loadDeployCopySuccess, self.loadDeployFail);
         self.espLoaded = false;
         self.editView = false;
@@ -134,17 +132,27 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         }
     };
 
-    self.displayForm = function () {
-        self.deployIdDisplay = text;
+    // self.displayForm = function () {
+    //     self.deployIdDisplay = text;
+    //     self.currentDeploy = self.resetAccount();
+    //     self.showRow = true;
+    //     self.editView = false;
+    // };
+
+    self.displayNewDeployForm = function ( event ) {
         self.currentDeploy = self.resetAccount();
-        self.showRow = true;
         self.editView = false;
+
+        self.launchFormModal( event , 'deployFormModal' );
     };
 
-    self.displayModalForm = function( event , modalId ) {
-        self.deployIdDisplay = text;
-        self.currentDeploy = self.resetAccount();
-        self.editView = false;
+    self.launchFormModal = function( event , modalId ) {
+        if (self.editView) {
+            self.formButtonText = "Update Deploy";
+        } else {
+            self.formHeader = "New Deploy";
+            self.formButtonText = "Save Deploy";
+        }
 
         $mdDialog.show({
             contentElement: '#' + modalId ,
@@ -153,7 +161,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         });
     };
 
-    self.closeModal = function(){
+    self.closeForm = function(){
         $mdDialog.cancel();
     };
 
@@ -222,8 +230,15 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         ]).then(callBack);
     };
 
-    self.editRow = function (deployId) {
-        self.showRow = false;
+    // self.editRow = function (deployId) {
+    //     self.showRow = false;
+    //     self.currentDeploy = self.resetAccount();
+    //     DeployApiService.getDeploy(deployId, self.loadDeploySuccess, self.loadDeployFail);
+    //     self.espLoaded = false;
+    //     self.editView = true;
+    // };
+
+    self.editDeploy = function (deployId) {
         self.currentDeploy = self.resetAccount();
         DeployApiService.getDeploy(deployId, self.loadDeploySuccess, self.loadDeployFail);
         self.espLoaded = false;
@@ -238,13 +253,13 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         }
     };
 
-    self.actionText = function () {
-        if (self.editView) {
-            return "Edit Row"
-        } else {
-            return "Save Row"
-        }
-    };
+    // self.actionText = function () {
+    //     if (self.editView) {
+    //         return "Edit Row"
+    //     } else {
+    //         return "Save Row"
+    //     }
+    // };
 
     self.toggleListProfile = function (){
         self.firstParty =  self.firstParty ?  false: true;
@@ -330,9 +345,9 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
             targetEvent : ev ,
             template :
                 '<md-dialog>' +
-                    '<md-toolbar>' +
-                        '<div class="md-toolbar-tools">' +
-                            '<h2>Scedule Future Deploy</h2>' +
+                    '<md-toolbar class="mt2-theme-toolbar">' +
+                        '<div class="md-toolbar-tools mt2-theme-toolbar-tools">' +
+                            '<h2>Schedule Future Deploy</h2>' +
                         '</div>' +
                     '</md-toolbar>' +
                     '<md-dialog-content>' +
@@ -406,7 +421,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
 
     self.loadDeploySuccess = function (response) {
         self.currentDeploy.esp_account_id = response.data.esp_account_id;
-        self.deployIdDisplay = response.data.id;
         self.updateSelects(function () {
             var deployData = response.data;
             self.reloadCFS(deployData.offer_id.id, function () {
@@ -428,7 +442,9 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
             });
             $rootScope.$broadcast('angucomplete-alt:changeInput', 'offer', deployData.offer_id);
         });
-        self.showRow = true;
+
+        self.launchFormModal( event , 'deployFormModal' );
+        self.formHeader = "Edit Deploy # " + response.data.id;
     };
 
     self.loadDeployCopySuccess = function (response) {
@@ -450,7 +466,8 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
             $rootScope.$broadcast('angucomplete-alt:changeInput', 'offer', deployData.offer_id);
 
         });
-        self.showRow = true;
+
+        self.launchFormModal( event , 'deployFormModal' );
     };
 
 
@@ -458,13 +475,14 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.currentDeploy = self.resetAccount();
         $rootScope.$broadcast('angucomplete-alt:clearInput');
 
+        self.closeForm();
+
         modalService.setModalLabel('Success');
         modalService.setModalBody('Deploy Edited!');
         modalService.launchModal();
 
         self.loadDeploys();
         self.editView = false;
-        self.showRow = false;
 
         self.formSubmitting = false;
     };
@@ -508,7 +526,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         modalService.launchModal();
 
         self.loadDeploys();
-        self.showRow = false;
 
         self.formSubmitting = false;
     };
@@ -596,7 +613,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.disableExport = true;
         self.loadDeploys();
         self.editView = false;
-        self.showRow = false;
     };
 
     self.copyToFutureFailure = function (response){

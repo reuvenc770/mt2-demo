@@ -8,7 +8,7 @@
 @section( 'cacheTag' , 'Deploy' )
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('api.deploy.store'))
-        <li ng-click="deploy.displayModalForm( $event , 'deployFormModal' )">
+        <li ng-click="deploy.displayNewDeployForm( $event )">
             <a href="#">New Deploy</a>
         </li>
     @endif
@@ -17,7 +17,8 @@
         <li flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'deploys' , '_token' : '{{ csrf_token() }}' } }"
             flow-files-submitted="$flow.upload()"
             flow-file-success="deploy.fileUploaded($file); $flow.cancel()" flow-btn>
-            <a href="#">Upload Deploy List</a>
+            <a href="#">Upload Deploy List
+                <md-icon md-font-set="material-icons" class="mt2-icon-white material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="bottom" data-content="File must include headers and be in CSV format.">help</md-icon></a>
             <input type="file" style="visibility: hidden; position: absolute;"/>
         </li>
     @endif
@@ -170,9 +171,6 @@
                     <th md-column class="md-table-header-override-whitetext">Mailing Domain</th>
                     <th md-column class="md-table-header-override-whitetext">Content Domain</th>
                     <th md-column class="md-table-header-override-whitetext">Cake ID</th>
-                    <th md-column ng-show="deploy.showRow" class="md-table-header-override-whitetext">Cake Encryption</th>
-                    <th md-column ng-show="deploy.showRow" class="md-table-header-override-whitetext">Full Encryption</th>
-                    <th md-column ng-show="deploy.showRow" class="md-table-header-override-whitetext">URL Format</th>
                     <th md-column class="md-table-header-override-whitetext">Notes</th>
                 </tr>
                 </thead>
@@ -188,7 +186,11 @@
                             && deploy.checkStatus(record.subject_approval,record.subject_status)}}" aria-label="Select" name="selectedRows"
                                      ng-click="deploy.toggleRow(record.deploy_id)"> </md-checkbox>
                             &nbsp;&nbsp;
-                            <md-icon md-font-set="material-icons" class="mt2-icon-black icon-xs" ng-hide="record.deployment_status ==1" ng-click="deploy.editRow( record.deploy_id)" aria-label="Edit" data-toggle="tooltip" data-placement="bottom" title="Edit">edit</md-icon>
+
+                            @if (Sentinel::hasAccess('api.deploy.update'))
+                            <md-icon md-font-set="material-icons" class="mt2-icon-black icon-xs" ng-hide="record.deployment_status ==1" ng-click="deploy.editDeploy( record.deploy_id)" aria-label="Edit" data-toggle="tooltip" data-placement="bottom" title="Edit">edit</md-icon>
+                            @endif
+
                             <md-icon md-font-set="material-icons" class="mt2-icon-black icon-xs" ng-click="deploy.copyRow( record.deploy_id)" aria-label="Copy" data-toggle="tooltip" data-placement="bottom" title="Copy">content_copy</md-icon>
 
                     </td>
@@ -231,16 +233,13 @@
                     <td md-cell>@{{ record.mailing_domain }}</td>
                     <td md-cell>@{{ record.content_domain }}</td>
                     <td md-cell>@{{ record.cake_affiliate_id }}</td>
-                    <td ng-show="deploy.showRow" md-cell></td>
-                    <td ng-show="deploy.showRow" md-cell></td>
-                    <td ng-show="deploy.showRow" md-cell></td>
                     <td md-cell>@{{ record.notes }}</td>
                 </tr>
                 </tbody>
 
                 <tfoot>
                 <tr>
-                    <td colspan="16">
+                    <td colspan="14">
                         <md-content class="md-mt2-zeta-theme md-hue-2">
                             <md-table-pagination md-limit="deploy.paginationCount" md-limit-options="deploy.paginationOptions" md-page="deploy.currentPage" md-total="@{{deploy.deployTotal}}" md-on-paginate="deploy.loadAccounts" md-page-select></md-table-pagination>
                         </md-content>
@@ -259,9 +258,9 @@
         <md-dialog>
             <md-toolbar class="mt2-theme-toolbar">
                 <div class="md-toolbar-tools mt2-theme-toolbar-tools">
-                    <h2>New Deploy</h2>
+                    <h2>@{{ deploy.formHeader }}</h2>
                     <span flex></span>
-                    <md-button class="md-icon-button" ng-click="deploy.closeModal()"><md-icon md-font-set="material-icons" class="mt2-icon-white" title="Close" aria-label="Close">clear</md-icon></md-button>
+                    <md-button class="md-icon-button" ng-click="deploy.closeForm()"><md-icon md-font-set="material-icons" class="mt2-icon-white" title="Close" aria-label="Close">clear</md-icon></md-button>
                 </div>
             </md-toolbar>
             <md-dialog-content>
@@ -624,7 +623,7 @@
             </md-dialog-content>
             <md-dialog-actions layout="row" layout-align="center center" class="mt2-theme-dialog-footer">
                 <div class="col-md-4">
-                    <input class="btn mt2-theme-btn-primary btn-block" ng-click="deploy.actionLink( $event , deployForm )" ng-disabled="deploy.formSubmitting" type="submit" value="Save Deploy">
+                    <input class="btn mt2-theme-btn-primary btn-block" ng-click="deploy.actionLink( $event , deployForm )" ng-disabled="deploy.formSubmitting" type="submit" value="@{{ deploy.formButtonText}}">
                 </div>
             </md-dialog-actions>
         </md-dialog>
