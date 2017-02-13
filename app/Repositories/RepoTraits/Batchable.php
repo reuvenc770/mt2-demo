@@ -12,7 +12,6 @@ trait Batchable {
     
     public function batchInsert($row) {
         if ($this->batchDataCount >= $this->insertThreshold) {
-
             $this->insertStored();
             $this->batchData = [$this->transformRowToString($row)];
             $this->batchDataCount = 1;

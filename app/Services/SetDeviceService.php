@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Repositories\ContentServerStatsRawRepo;
-use App\Repositories\RecordDataRepo;
 use App\Repositories\EmailAttributableFeedLatestDataRepo;
 use DB;
 use App\Services\ServiceTraits\IdentifyUserAgent;
@@ -19,9 +18,8 @@ class SetDeviceService {
     private $data;
     private $pdo;
 
-    public function __construct(ContentServerStatsRawRepo $statsRepo, RecordDataRepo $recordRepo, EmailAttributableFeedLatestDataRepo $emailFeedDataRepo) {
+    public function __construct(ContentServerStatsRawRepo $statsRepo, EmailAttributableFeedLatestDataRepo $emailFeedDataRepo) {
         $this->statsRepo = $statsRepo;
-        $this->recordRepo = $recordRepo;
         $this->emailFeedDataRepo = $emailFeedDataRepo;
         $this->pdo = DB::connection()->getPdo();
         $this->setAgent();
@@ -34,12 +32,10 @@ class SetDeviceService {
     public function load() {
         foreach($this->data->cursor() as $row) {
             $row = $this->mapToRow($row);
-            $this->recordRepo->batchUpdateDeviceData($row);
-            #$this->emailFeedDataRepo->batchUpdateDeviceData($row);
+            $this->emailFeedDataRepo->batchUpdateDeviceData($row);
         }
         
-        $this->recordRepo->cleanupDeviceData();
-        #$this->emailFeedDataRepo->cleanUpDeviceData();
+        $this->emailFeedDataRepo->cleanUpDeviceData();
     }
 
     private function mapToRow($row) {
