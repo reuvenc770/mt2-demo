@@ -48,7 +48,9 @@ class UrlFormatService {
 
         $espAccountId = ( isset( $espAccount->custom_id ) ? $espAccount->custom_id : $espAccount->id );
 
-        return "http://{$contentDomain}/{$esp->nickname}/{$espAccountId}/{$deployId}/{$emailIdField}/spacer{$endingString}.png?em={$emailAddressField}";
+        $extension = ( $esp->name == 'Publicators' ? '' : '.png' );
+
+        return "http://{$contentDomain}/{$esp->nickname}/{$espAccountId}/{$deployId}/{$emailIdField}/spacer{$endingString}{$extension}?em={$emailAddressField}";
     }
 
     public function getDefinedRandomString() {
