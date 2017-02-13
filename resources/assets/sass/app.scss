@@ -400,6 +400,8 @@ body {
 
 .align-top { vertical-align: top; }
 
+.italic { font-style: italic; }
+
 .dropFile {
     padding: 15px;
     border: 2px #f1f1f1 dashed;
@@ -431,6 +433,7 @@ body {
 /**
  * Fields
  */
+
  md-input-container{
     margin: 18px 0 10px;
  }
@@ -1048,7 +1051,18 @@ md-table-container{
 }
 
 .mt2-theme-toolbar {
-    background-color: #204c73 !important;
+    background-color: #039be5 !important;
+    font-size: inherit;
+    min-height: auto;
+}
+
+.mt2-theme-toolbar-tools {
+    font-size: 1.25em;
+}
+
+.mt2-theme-dialog-footer {
+    background-color: #f5f5f5;
+    border-top: 1px solid #ddd;
 }
 
 .mt2-theme-thead {

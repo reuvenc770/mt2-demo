@@ -141,6 +141,22 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.editView = false;
     };
 
+    self.displayModalForm = function( event , modalId ) {
+        self.deployIdDisplay = text;
+        self.currentDeploy = self.resetAccount();
+        self.editView = false;
+
+        $mdDialog.show({
+            contentElement: '#' + modalId ,
+            parent: angular.element(document.body),
+            targetEvent: event
+        });
+    };
+
+    self.closeModal = function(){
+        $mdDialog.cancel();
+    };
+
     self.saveNewDeploy = function ( event ) {
         self.formSubmitting = true;
 
