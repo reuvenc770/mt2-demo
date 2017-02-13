@@ -419,7 +419,9 @@ class EmailRepo implements Mt2Export, IAwsRepo {
     }
 
     public function extractAllForS3() {
-        return $this->emailModel->whereRaw("id > $startPoint");
+        // Going to try this hacky way to get the latest email ids. 
+        // Unfortunately we don't have a timestamp on this table
+        return $this->emailModel->whereRaw("id >= (SELECT MAX(id) - 1000000 from emails)");
     }
 
 
