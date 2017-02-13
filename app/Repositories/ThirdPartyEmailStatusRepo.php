@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\ThirdPartyEmailStatus;
 use App\Repositories\RepoTraits\Batchable;
+use DB;
 
 class ThirdPartyEmailStatusRepo {
     use Batchable;
@@ -15,7 +16,7 @@ class ThirdPartyEmailStatusRepo {
     }
 
     public function getActionStatus($emailId) {
-        $row = $this->model->where('email_id', $emailId);
+        $row = $this->model->where('email_id', $emailId)->first();
 
         if ($row) {
             return $row->last_action_type;
@@ -39,6 +40,7 @@ class ThirdPartyEmailStatusRepo {
             last_action_type = values(last_action_type),
             last_action_datetime = values(last_action_datetime),
             last_action_esp_account_id = values(last_action_esp_account_id),
+            last_action_offer_id = values(last_action_offer_id),
             created_at = created_at,
             updated_at = values(updated_at)");
     }
