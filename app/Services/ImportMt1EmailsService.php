@@ -113,8 +113,16 @@ class ImportMt1EmailsService
                 else {
                     $existsCheck = $this->emailRepo->getEmailId($emailAddress)->first();
 
+                    if (null === $existsCheck) {
+                        $this->emailActionStatusRepo->batchInsert($this->mapRecordToEmailStatus($record, 'None'));
+                    }
+
                     if (isset($this->emailIdCache[$importingEmailId])) {
-                        // email id is already a duplicate within this import
+                        // email id is already a duplicate within this import. 
+                        // Still want to update the email x feed info store 
+                        $record['other_fields'] = '{}';
+                        $record['attribution_status'] = EmailAttributableFeedLatestData::PASSED_DUE_TO_ATTRIBUTION;
+                        $this->emailFeedDataRepo->batchInsert($record);
                     }
                     elseif (null === $existsCheck && !isset($this->emailIdCache[$importingEmailId]) && !isset($this->emailAddressCache[$emailAddress])) {
 
@@ -151,7 +159,7 @@ class ImportMt1EmailsService
                         $emailStatus = 'duplicate'; // hard-coded because the check will fail otherwise
 
                         $record['other_fields'] = '{}';
-                        $record['attribution_status'] = $newStatus;
+                        $record['attribution_status'] = EmailAttributableFeedLatestData::PASSED_DUE_TO_ATTRIBUTION;
                         $this->emailFeedDataRepo->batchInsert($record);
 
                         // but how do we deal with this? It won't exist in the db ... 
@@ -163,7 +171,6 @@ class ImportMt1EmailsService
                             $this->emailAddressCache[$emailAddress] = $importingEmailId;
                             $this->historyRepo->insertIntoHistory($firstEmailId, $importingEmailId); 
                         }
-
                     }
                     elseif ($existsCheck) {
                         $currentEmailId = (int)$existsCheck->id;
@@ -224,6 +231,8 @@ class ImportMt1EmailsService
             }
 
         }
+
+        echo "done" . PHP_EOL;
 
         $this->breakdownRepo->massUpdateStatuses($statuses, $this->formattedDate);
         $this->emailRepo->insertStored(); // Clear out remaining inserts
