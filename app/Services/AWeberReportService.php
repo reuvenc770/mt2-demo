@@ -366,6 +366,7 @@ class AWeberReportService extends AbstractReportService implements IDataService
         if (count($failedArray) > 0) {
             $newProcess = $processState;
             $newProcess['openCollection'] = $failedArray;
+            $newProcess['retryFailures']  = isset($newProcess['retryFailures']) ? $newProcess['retryFailures']++ : 1;
             $job = (new RetrieveDeliverableReports("AWeber", $this->api->getEspAccountId(), $processState['recordType'], str_random(16), $newProcess))->onQueue("AWeber");
             $this->dispatch($job);
         }

@@ -19,7 +19,7 @@ use Carbon\Carbon;
 use App\Models\StandardReport;
 use App\Repositories\StandardApiReportRepo;
 use Storage;
-
+use App\Exceptions\JobCompletedException;
 class RetrieveDeliverableReports extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels, DispatchesJobs;
@@ -84,14 +84,17 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
      * @return void
      */
     public function handle () {
-        
+        if(isset($this->processState['retryFailures']) && $this->processState['retryFailures'] >= 5){
+            $this->failed();
+            exit;
+        }
         try {
             $this->startJobEntry();
             $filterName = $this->currentFilter();
             $this->$filterName();
         } catch (JobCompletedException $e) {
             // killing an attempt at a rerun
-            Log::notice($e->getMessage());
+            //Log::notice($e->getMessage());//I dont think we need to log this
             exit;
         } catch (JobAlreadyQueuedException $e) {
             Log::notice($e->getMessage());
