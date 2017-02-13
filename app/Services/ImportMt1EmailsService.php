@@ -264,18 +264,16 @@ class ImportMt1EmailsService
                             $record['other_fields'] = '{}';
                             $this->recordDataRepo->batchInsert($record);
                         }
+                        
+                        $record['other_fields'] = '{}';
+                        $record['feed_id'] = $feedId;
+                        $record['attribution_status'] = $newStatus;
+                        $this->emailFeedDataRepo->batchInsert($record);
                     }
-
                 }
-                
-                $record['other_fields'] = '{}';
-                $record['feed_id'] = $feedId;
-                $record['attribution_status'] = $newStatus;
-                $this->emailFeedDataRepo->batchInsert($record);
 
                 $emailFeedRow = $this->mapToEmailFeedTable($record);
                 $this->emailFeedRepo->batchInsert($emailFeedRow);
-
                 $statuses[$feedId][$emailStatus]++;
             }
 
