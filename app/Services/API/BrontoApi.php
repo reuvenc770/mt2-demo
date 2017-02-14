@@ -56,8 +56,10 @@ class BrontoApi extends EspBaseAPI
             $filter = new messageFilter();
             $filter->id = $delivery->getMessageId();
             $message = $this->brontoObject->readMessages(new readMessages($filter, 0, 1, 10, 0))->getReturn()[0];
-            $delivery->messageName = $message->getName();
-            $return[] = $delivery;
+            if(isset($message)) {
+                $delivery->messageName = $message->getName();
+                $return[] = $delivery;
+            }
         }
         return $return;
 
