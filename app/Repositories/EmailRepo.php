@@ -242,7 +242,7 @@ class EmailRepo implements Mt2Export, IAwsRepo {
             emails e
             INNER JOIN email_attributable_feed_latest_data data ON e.id = data.email_id
             INNER JOIN feeds f ON data.feed_id = f.id
-            LEFT JOIN $attr.email_feed_assignments efa ON e.email_id = efa.email_id
+            LEFT JOIN $attr.email_feed_assignments efa ON e.id = efa.email_id
             LEFT JOIN $supp.suppression_global_orange sgo ON e.email_address = sgo.email_address
             LEFT JOIN suppression_reasons sr ON sgo.reason_id = sr.id
             LEFT JOIN third_party_email_statuses stat ON e.id = stat.email_id
