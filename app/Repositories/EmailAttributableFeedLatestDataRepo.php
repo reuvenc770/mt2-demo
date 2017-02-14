@@ -115,23 +115,21 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
         $pdo = DB::connection()->getPdo();
 
         if ($this->batchDeviceUpdateCount >= self::INSERT_THRESHOLD) {
-            $this->cleanUpActions();
+            $this->cleanupDeviceData();
 
-            $this->batchDeviceUpdateData = ['('
+            $this->batchDeviceUpdateData = '('
                 . $pdo->quote($row['email_id']) . ','
                 . $pdo->quote($row['feed_id']) . ','
                 . $pdo->quote($row['device_type']) . ','
-                . $pdo->quote($row['device_name']) . ')'
-            ];
+                . $pdo->quote($row['device_name']) . ')';
             $this->batchDeviceUpdateCount = 1;
         }
         else {
-            $this->batchDeviceUpdateData[] = ['('
+            $this->batchDeviceUpdateData[] = '('
                 . $pdo->quote($row['email_id']) . ','
                 . $pdo->quote($row['feed_id']) . ','
                 . $pdo->quote($row['device_type']) . ','
-                . $pdo->quote($row['device_name']) . ')'
-            ];
+                . $pdo->quote($row['device_name']) . ')';
 
             $this->batchDeviceUpdateCount++;
         }
@@ -235,33 +233,30 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
         return $this->model->getConnectionName();
     }
 
-    public function updateWithNewAttribution(stdClass $obj) {
-        // Unfortunately, the class has already been anonymized
+    public function getAttributionStatus($emailId, $feedId) {
+        // either returns Model with properties or null
+        return $this->model
+                    ->where('email_id', $emailId)
+                    ->where('feed_id', $feedId)
+                    ->select('attribution_status')
+                    ->first();
+    }
 
-        // '' -> 'UNK'
-        $gender = $obj->gender === '' ? 'UNK' : $obj->gender;
-        // long2ip if necessary
-        $ip = preg_match('/\./', $obj->ip) ? $obj->ip : long2ip($obj->ip);
+    public function setAttributionStatus($emailId, $feedId, $status) {
+        $this->model
+             ->where('email_id', $emailId)
+             ->where('feed_id', $feedId)
+             ->update(['attribution_status', $status]);
+    }
 
-        $this->model->updateOrCreate(['email_id' => $obj->email_id], [
-            'email_id' => $obj->email_id,
-            'feed_id' => $obj->feed_id,
-            'first_name' => $obj->first_name,
-            'last_name' => $obj->last_name,
-            'address' => $obj->address,
-            'address2' => $obj->address2,
-            'city' => $obj->city,
-            'state' => $obj->state,
-            'zip' => $obj->zip,
-            'country' => $obj->country,
-            'gender' => $gender,
-            'ip' => $ip,
-            'phone' => $obj->phone,
-            'source_url' => $obj->source_url,
-            'dob' => $obj->dob,
-            'capture_date' => $obj->capture_date,
-            'subscribe_date' => $obj->subscribe_date
-        ]);
+    public function getCurrentAttributedStatus($emailId) {
+        $attrDb = config('database.connections.attribution.database');
+
+        return $this->model
+                    ->join("$attrDb.email_feed_assignments as efa", "email_attributable_feed_latest_data.email_id", '=', 'efa.email_id')
+                    ->where('email_feed_actions.email_id', $emailId)
+                    ->select('efa.feed_id', 'email_attributable_feed_latest_data.attribution_status')
+                    ->first();
     }
 
 }

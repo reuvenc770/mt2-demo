@@ -373,9 +373,9 @@ class AWeberReportService extends AbstractReportService implements IDataService
         $this->currentPageData = $finalArray;
     }
 
-    public function getBySubject($subject)
-    {
-        return $this->reportRepo->getBySubject($subject);
+
+    public function getBySubject($subject) {
+        return $this->reportRepo->getBySubjectForFullDeploy($subject);
     }
 
     public function convertRawToStandard($request, $deploy)
