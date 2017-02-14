@@ -25,7 +25,7 @@ SQL;
     }
 
     public function clearAndReloadEntity($entity) {
-        DB::connection('redshift')->table('email_domains')->truncate();
+        DB::connection('redshift')->statement("TRUNCATE TABLE email_domains");
         
         $sql = <<<SQL
 copy email_domains

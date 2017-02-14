@@ -32,7 +32,7 @@ class ProcessingRecord {
     private $sourceUrl;    
     private $otherFields = [];
     private $otherFieldsJson = '';
-    private $isDeliverable = null;
+    private $attrStatus = null;
 
     // Metadata
     private $uniqueStatus = 'unique'; // unique, duplicate, non-unique
@@ -146,7 +146,7 @@ class ProcessingRecord {
             'capture_date' => $this->captureDate,
             'source_url' => $this->sourceUrl,
             'ip' => $this->ip,
-            'is_deliverable' => $this->isDeliverable, 
+            'attribution_status' => $this->attrStatus, 
             'other_fields' => $this->otherFieldsJson
         ];
     }
@@ -155,7 +155,7 @@ class ProcessingRecord {
         return [
             'email_id' => $this->emailId,
             'feed_id' => $this->feedId,
-            'status' => $status
+            'last_action_type' => $status
         ];
     }
 

@@ -34,7 +34,7 @@
                 <tfoot>
                     <tr>
                         <td colspan="2">
-                            <md-content class="md-mt2-zeta-theme md-hue-2">
+                            <md-content class="md-mt2-zeta-theme">
                                 <md-table-pagination md-limit="feedGroup.paginationCount" md-limit-options="feedGroup.paginationOptions" md-page="feedGroup.currentPage" md-total="@{{feedGroup.feedGroupTotal}}" md-on-paginate="feedGroup.loadFeedGroups" md-page-select></md-table-pagination>
                             </md-content>
                         </td>

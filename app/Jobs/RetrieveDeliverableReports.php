@@ -19,7 +19,7 @@ use Carbon\Carbon;
 use App\Models\StandardReport;
 use App\Repositories\StandardApiReportRepo;
 use Storage;
-
+use App\Exceptions\JobCompletedException;
 class RetrieveDeliverableReports extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels, DispatchesJobs;
@@ -84,14 +84,17 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
      * @return void
      */
     public function handle () {
-        
+        if(isset($this->processState['retryFailures']) && $this->processState['retryFailures'] >= 5){
+            $this->failed();
+            exit;
+        }
         try {
             $this->startJobEntry();
             $filterName = $this->currentFilter();
             $this->$filterName();
         } catch (JobCompletedException $e) {
             // killing an attempt at a rerun
-            Log::notice($e->getMessage());
+            //Log::notice($e->getMessage());//I dont think we need to log this
             exit;
         } catch (JobAlreadyQueuedException $e) {
             Log::notice($e->getMessage());
@@ -267,6 +270,7 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     }
 
     protected function savePaginatedRecords () {
+
         $rowCount = 0;
         $map = $this->standardReportRepo->getEspToInternalMap($this->espAccountId);
         
@@ -289,6 +293,38 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
     }
 
+    protected function savePaginatedAWeberRecords () {
+        $rowCount = 0;
+        $this->reportService->setPageType( $this->processState[ 'recordType' ] );
+        $this->reportService->setPageNumber( isset( $this->processState[ 'pageNumber' ] ) ? $this->processState[ 'pageNumber' ] : 1 );
+
+        if ( $this->reportService->pageHasCampaignData($this->processState) ) {
+            $this->processState[ 'currentPageData' ] = $this->reportService->getPageData();
+            $rowCount = $this->reportService->savePage( $this->processState);
+            $this->processState[ 'currentPageData' ] = array();
+
+            $this->reportService->nextPage();
+
+            $this->processState[ 'pageNumber' ] = $this->reportService->getPageNumber();
+
+            $this->queueNextJob( $this->defaultQueue );
+        } else {
+            //going back in and flushing out anything old.
+            $forceSaveOfLeftOvers = true;
+            $this->reportService->savePage( $this->processState,$forceSaveOfLeftOvers);
+        }
+        $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
+    }
+    
+    protected function saveOpenAWeberRecords(){
+        $rowCount = 0;
+        $this->reportService->generateOpenRecordData($this->processState);
+        $this->processState[ 'currentPageData' ] = $this->reportService->getPageData();
+        $rowCount = $this->reportService->savePage( $this->processState);
+        $this->changeJobEntry( JobEntry::SUCCESS, $rowCount );
+    }
+
+
 
     protected function savePaginatedCampaignRecords () {
         $map = $this->standardReportRepo->getEspToInternalMap($this->espAccountId);
@@ -301,14 +337,13 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
 
         while ($continue) {
             if ( $this->reportService->pageHasCampaignData($this->processState)) {
-
                 $this->processState[ 'currentPageData' ] = $this->reportService->getPageData();
                 $this->reportService->saveActionPage( $this->processState, $map );
                 $rowCount += count($this->processState[ 'currentPageData' ]);
                 $this->processState[ 'currentPageData' ] = array();
-
                 $this->reportService->nextPage();
                 $this->processState[ 'pageNumber' ] = $this->reportService->getPageNumber();
+
 
             }
             else {
@@ -471,7 +506,6 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         Log::$logMethod( str_repeat( '=' , 20 ) );
         Log::$logMethod( $e->getMessage() );
         Log::$logMethod( $this->getJobInfo() );
-
         if ( $e->getCode() > JobException::NOTICE ) {
             Log::$logMethod( $e->getFile() );
             Log::$logMethod( $e->getLine() );

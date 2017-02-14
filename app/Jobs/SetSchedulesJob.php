@@ -10,7 +10,7 @@ use App\Facades\JobTracking;
 use App\Factories\ServiceFactory;
 use App\Services\AttributionRecordTruthService;
 use App\Services\EmailFeedAssignmentService;
-use App\Services\EmailFeedActionService;
+use App\Services\ThirdPartyEmailStatusService;
 use App\Jobs\Traits\PreventJobOverlapping;
 use Log;
 
@@ -32,7 +32,7 @@ class SetSchedulesJob extends Job implements ShouldQueue {
 
     public function handle(AttributionRecordTruthService $truthService, 
         EmailFeedAssignmentService $assignmentService,
-        EmailFeedActionService $emailFeedActionService) {
+        ThirdPartyEmailStatusService $emailFeedActionService) {
 
         if ($this->jobCanRun($this->jobName)) {
             try {

@@ -3,24 +3,18 @@
         <md-toolbar>
             <div class="md-toolbar-tools">
                 <h3>{{ ctrl.availablecardtitle }}</h3>
-                
+
                 <span flex></span>
 
-                <md-button class="md-icon-button md-primary" aria-label="Select All" ng-click="ctrl.selectAllAvailableRecords( ctrl.recordlist )">
-                    <md-tooltip md-direction="bottom">Select All</md-tooltip>
-
+                <md-button class="md-icon-button md-primary" aria-label="Select All" ng-click="ctrl.selectAllAvailableRecords( ctrl.recordlist )" data-toggle="tooltip" data-placement="bottom" title="Select All">
                     <md-icon md-svg-icon="img/icons/ic_select_all_white_36px.svg"></md-icon>
                 </md-button>
 
-                <md-button class="md-icon-button md-primary" aria-label="Clear" ng-click="ctrl.clearAllAvailableRecords( ctrl.recordlist )">
-                    <md-tooltip md-direction="bottom">Clear Selected</md-tooltip>
-
+                <md-button class="md-icon-button md-primary" aria-label="Clear" ng-click="ctrl.clearAllAvailableRecords( ctrl.recordlist )" data-toggle="tooltip" data-placement="bottom" title="Clear Selected">
                     <md-icon md-svg-icon="img/icons/ic_clear_white_36px.svg"></md-icon>
                 </md-button>
 
-                <md-button class="md-icon-button md-primary" aria-label="Add Selected" ng-click="ctrl.addSelectedRecords()">
-                    <md-tooltip md-direction="bottom">Add Selected</md-tooltip>
-
+                <md-button class="md-icon-button md-primary" aria-label="Add Selected" ng-click="ctrl.addSelectedRecords()" data-toggle="tooltip" data-placement="bottom" title="Add Selected">
                     <md-icon md-svg-icon="img/icons/ic_add_circle_outline_white_36px.svg"></md-icon>
                 </md-button>
             </div>
@@ -51,24 +45,18 @@
         <md-toolbar>
             <div class="md-toolbar-tools">
                 <h3>{{ ctrl.chosenrecordtitle }}</h3>
-                
+
                 <span flex></span>
 
-                <md-button class="md-icon-button md-primary" aria-label="Select All" ng-click="ctrl.selectAllAvailableRecords( ctrl.chosenrecordlist )">
-                    <md-tooltip md-direction="bottom">Select All</md-tooltip>
-
+                <md-button class="md-icon-button md-primary" aria-label="Select All" ng-click="ctrl.selectAllAvailableRecords( ctrl.chosenrecordlist )" data-toggle="tooltip" data-placement="bottom" title="Select All">
                     <md-icon md-svg-icon="img/icons/ic_select_all_white_36px.svg"></md-icon>
                 </md-button>
 
-                <md-button class="md-icon-button md-primary" aria-label="Clear Selected" ng-click="ctrl.clearAllAvailableRecords( ctrl.chosenrecordlist )">
-                    <md-tooltip md-direction="bottom">Clear Selected</md-tooltip>
-
+                <md-button class="md-icon-button md-primary" aria-label="Clear Selected" ng-click="ctrl.clearAllAvailableRecords( ctrl.chosenrecordlist )" data-toggle="tooltip" data-placement="bottom" title="Clear Selected">
                     <md-icon md-svg-icon="img/icons/ic_clear_white_36px.svg"></md-icon>
                 </md-button>
 
-                <md-button class="md-icon-button md-primary" aria-label="Remove Selected" ng-click="ctrl.removeAllSelectedChosenRecords()">
-                    <md-tooltip md-direction="bottom">Remove Selected</md-tooltip>
-
+                <md-button class="md-icon-button md-primary" aria-label="Remove Selected" ng-click="ctrl.removeAllSelectedChosenRecords()" data-toggle="tooltip" data-placement="bottom" title="Remove Selected">
                     <md-icon md-svg-icon="img/icons/ic_remove_circle_outline_white_36px.svg"></md-icon>
                 </md-button>
             </div>
