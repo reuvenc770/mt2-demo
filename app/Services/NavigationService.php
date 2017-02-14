@@ -49,8 +49,6 @@ class NavigationService
             } else {
                 return $cachedMenu;
             }
-        } else {
-            return view('layout.side-nav-guest');
         }
     }
 
@@ -71,8 +69,6 @@ class NavigationService
             } else {
                 return $cachedMenu;
             }
-        } else {
-            return view('layout.side-nav-guest');
         }
     }
 

@@ -35,7 +35,7 @@ class UserActionStatusService implements IEtl {
                 $this->thirdPartyEmailStatusRepo->batchInsert($row);
             }
             elseif (1 === $row->party) {
-                $this->firstPartyUserRepo->updateActionData($row->email_id, $row->date);
+                $this->firstPartyUserRepo->updateActionData($row->email_id, $row->feed_id, $row->date);
             }
             else {
                 throw new \Exception("Invalid party found for user update: {$row->party}");

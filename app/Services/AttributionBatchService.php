@@ -3,13 +3,12 @@
 namespace App\Services;
 
 use Carbon\Carbon;
-use App\Models\EmailFeedAction;
+use App\Models\EmailAttributableFeedLatestData;
 use App\Repositories\EmailFeedAssignmentRepo;
 use App\Repositories\AttributionRecordTruthRepo;
 use App\Repositories\AttributionExpirationScheduleRepo;
 use App\Repositories\EmailFeedInstanceRepo;
-use App\Repositories\EmailFeedActionRepo;
-use App\Repositories\RecordDataRepo;
+use App\Repositories\EmailAttributableFeedLatestDataRepo;
 use App\Events\AttributionCompleted;
 use Cache;
 
@@ -18,10 +17,9 @@ class AttributionBatchService {
     private $today;
     private $truthRepo;
     private $scheduleRepo;
-    private $recordDataRepo;
     private $assignmentRepo;
     private $feedInstanceRepo;
-    private $emailFeedActionRepo;
+    private $latestDataRepo;
     private $keyName = 'AttributionJob';
     const EXPIRATION_DAY_RANGE = 15;
 
@@ -29,15 +27,13 @@ class AttributionBatchService {
                                 AttributionExpirationScheduleRepo $scheduleRepo, 
                                 EmailFeedAssignmentRepo $assignmentRepo,
                                 EmailFeedInstanceRepo $feedInstanceRepo,
-                                EmailFeedActionRepo $emailFeedActionRepo,
-                                RecordDataRepo $recordDataRepo) {
+                                EmailAttributableFeedLatestDataRepo $latestDataRepo) {
 
         $this->truthRepo = $truthRepo;
         $this->scheduleRepo = $scheduleRepo;
-        $this->recordDataRepo = $recordDataRepo;
         $this->assignmentRepo = $assignmentRepo;
         $this->feedInstanceRepo = $feedInstanceRepo;
-        $this->emailFeedActionRepo = $emailFeedActionRepo;
+        $this->latestDataRepo = $latestDataRepo;
 
         $this->today = Carbon::today();
     }
@@ -86,7 +82,6 @@ class AttributionBatchService {
                     $this->updateScheduleTable($record->email_id, $captureDate);
                     $this->updateTruthTable($record->email_id, $captureDate, $hasAction, $actionExpired, $subsequentImports);
                     $this->updateActionStatus($record->email_id, $oldFeedId, $feedId);
-                    $this->updateRecordData($savedReplacement);
                 }
             }
 
@@ -167,21 +162,9 @@ class AttributionBatchService {
         $this->scheduleRepo->insertSchedule($emailId, $nextDate);
     }
 
-    private function updateActionStatus($emailId, $oldFeedId, $newFeedId) {
-        $this->emailFeedActionRepo->batchInsert([
-            'email_id' => $emailId,
-            'feed_id' => $newFeedId,
-            'status' => EmailFeedAction::DELIVERABLE
-        ]);
-
-        $this->emailFeedActionRepo->batchInsert([
-            'email_id' => $emailId,
-            'feed_id' => $oldFeedId,
-            'status' => EmailFeedAction::LOST_ATTRIBUTION
-        ]);
+    private function updateRecordsAttributionStatus($emailId, $oldFeedId, $newFeedId) {
+        $this->latestDataRepo->setAttributionStatus($emailId, $oldFeedId, EmailAttributableFeedLatestData::LOST_ATTRIBUTION);
+        $this->latestDataRepo->setAttributionStatus($emailId, $newFeedId, EmailAttributableFeedLatestData::ATTRIBUTED);
     }
 
-    private function updateRecordData(stdClass $obj) {
-        $this->recordDataRepo->updateWithNewAttribution($obj);
-    }
 }

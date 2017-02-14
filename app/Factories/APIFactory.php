@@ -50,12 +50,7 @@ class APIFactory
         $reportModel = new $reportModelName();
         $api = "App\\Services\\API\\{$apiName}Api";
 
-        $emailRecord = new EmailRecordService(
-            new EmailRecordRepo(
-                new Email() ,
-                new RecordData()
-            )
-        );
+        $emailRecord = new EmailRecordService(new EmailRecordRepo(new Email()));
 
         $reportServiceName = "App\\Services\\{$reportName}Service";
         if (class_exists($reportServiceName)) {

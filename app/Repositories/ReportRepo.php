@@ -65,11 +65,12 @@ class ReportRepo
         return null;
     }
 
-    public function getBySubject($subject){
+    public function getBySubjectForFullDeploy($subject){
         $eloquentObj = $this->report;
         if ( !is_null( $this->report->getSubjectFieldName() ) ) {
                     $eloquentObj = $eloquentObj->where( $this->report->getSubjectFieldName() , 'like' , '%' . $subject . '%' );
                 }
+        $eloquentObj->where("total_sent", '>',100);
         return $eloquentObj->get();
     }
 

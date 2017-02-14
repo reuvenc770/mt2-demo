@@ -63,7 +63,7 @@
                 <tfoot>
                     <tr>
                         <td colspan="8">
-                            <md-content class="md-mt2-zeta-theme md-hue-2">
+                            <md-content class="md-mt2-zeta-theme">
                                 <md-table-pagination md-limit="esp.paginationCount" md-limit-options="esp.paginationOptions" md-page="esp.currentPage" md-total="@{{esp.accountTotal}}" md-on-paginate="esp.loadAccounts" md-page-select></md-table-pagination>
                             </md-content>
                         </td>

@@ -87,7 +87,14 @@ class ServiceFactory
 
 
     public static function createAwsExportService($entity) {
-        $jobRepo =  App::make("App\\Repositories\\{$entity}Repo");
+        if ('RecordData' === $entity) {
+            // Keeping the redshift schema the same
+            // but there's been a big schema change on our side
+            $jobRepo =  App::make("App\\Repositories\\EmailAttributableFeedLatestDataRepo");
+        }
+        else {
+            $jobRepo =  App::make("App\\Repositories\\{$entity}Repo");
+        }
 
         $config = [
             'region' => config('aws.region'),

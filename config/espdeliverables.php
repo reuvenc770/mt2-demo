@@ -86,7 +86,8 @@ return [
                 'jobSetup' ,
                 'getCampaigns' ,
                 'splitTypes' ,
-                'saveRecords'
+                'savePaginatedAWeberRecords',
+                'saveOpenAWeberRecords'
             ]
         ]
     ] ,

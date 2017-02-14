@@ -42,7 +42,7 @@
                     <tfoot>
                         <tr>
                             <td colspan="4">
-                                <md-content class="md-mt2-zeta-theme md-hue-2">
+                                <md-content class="md-mt2-zeta-theme">
                                     <md-table-pagination md-limit="mailing.paginationCount" md-limit-options="mailing.paginationOptions" md-page="mailing.currentPage" md-total="@{{mailing.templateTotal}}" md-on-paginate="mailing.loadAccounts" md-page-select></md-table-pagination>
                                 </md-content>
                             </td>

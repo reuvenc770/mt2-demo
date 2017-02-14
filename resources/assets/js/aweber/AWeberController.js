@@ -9,6 +9,8 @@ mt2App.controller( 'AWeberController' , [ '$rootScope' , '$log' , '$window' , '$
     self.idField = 'id';
     self.nameField = 'name';
     self.deactiveLists = [];
+    self.currentSelection = "";
+    self.shouldHideList = [];
     /**
      * Click Handlers
      */
@@ -16,6 +18,7 @@ mt2App.controller( 'AWeberController' , [ '$rootScope' , '$log' , '$window' , '$
          AWeberService.getReports(self.getOrphanReportsSuccessCallback);
      };
     self.convertReport = function ( internalId , deployId ) {
+        self.currentSelection = deployId;
         AWeberService.convertReport(internalId, deployId, self.getConvertReportSuccessCallback,self.getConvertReportFailCallback);
     };
 
@@ -27,6 +30,10 @@ mt2App.controller( 'AWeberController' , [ '$rootScope' , '$log' , '$window' , '$
         AWeberService.updateLists(self.deactiveLists, self.updateListSuccessCallback, self.somethingWentWrong);
     };
 
+    self.shouldHide = function (deployId) {
+        return (-1 !== self.shouldHideList.indexOf(deployId));
+    };
+
     /**
      * Callbacks
      */
@@ -35,8 +42,8 @@ mt2App.controller( 'AWeberController' , [ '$rootScope' , '$log' , '$window' , '$
     };
 
     self.getConvertReportSuccessCallback = function ( response ) {
-        $location.url( '/tools/awebermapping' );
-        $window.location.href = '/tools/awebermapping';
+        self.shouldHideList.push(self.currentSelection);
+        self.currentSelection = '';
     };
 
     self.getConvertReportFailCallback = function ( response ) {

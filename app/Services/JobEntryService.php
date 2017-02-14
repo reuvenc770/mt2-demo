@@ -58,7 +58,7 @@ class JobEntryService
             $job->time_finished = Carbon::now();
             $job->save();
         }
-        else if (null !== $job->time_finished && '0000-00-00 00:00:00' !== $job->time_finished) {
+        else if ((null !== $job->time_finished) && ('0000-00-00 00:00:00' !== $job->time_finished) && ($job->time_finished >= Carbon::now()->subHour(12))) {
             $job->status = JobEntry::SUCCESS;
             $job->save();
             throw new JobCompletedException("Job {$job->job_name}, {$tracking} already completed at {$job->time_finished}. Attempted rerun at " . Carbon::now());

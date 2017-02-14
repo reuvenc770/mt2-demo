@@ -73,7 +73,7 @@
                         <tfoot>
                         <tr>
                             <td colspan="10">
-                                <md-content class="md-mt2-zeta-theme md-hue-2">
+                                <md-content class="md-mt2-zeta-theme">
                                     <md-table-pagination md-limit="listProfile.paginationCount" md-limit-options="listProfile.paginationOptions" md-page="listProfile.currentPage" md-total="@{{listProfile.profileTotal}}" md-on-paginate="listProfile.loadListProfiles" md-page-select></md-table-pagination>
                                 </md-content>
                             </td>
@@ -124,7 +124,7 @@
                         <tfoot>
                         <tr>
                             <td colspan="10">
-                                <md-content class="md-mt2-zeta-theme md-hue-2">
+                                <md-content class="md-mt2-zeta-theme">
                                     <md-table-pagination md-limit="listProfile.paginationCount" md-limit-options="listProfile.paginationOptions" md-page="listProfile.currentPage" md-total="@{{listProfile.profileTotal}}" md-on-paginate="listProfile.loadListProfiles" md-page-select></md-table-pagination>
                                 </md-content>
                             </td>

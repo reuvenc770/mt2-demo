@@ -135,7 +135,7 @@ class EmailFeedAssignmentRepo implements IAwsRepo {
     }
 
     public function extractAllForS3() {
-        return $this->assignment;
+        return $this->model->whereRaw("updated_at > CURDATE() - INTERVAL 10 DAY");
     }
 
 

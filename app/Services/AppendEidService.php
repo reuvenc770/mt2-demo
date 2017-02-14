@@ -11,7 +11,7 @@ namespace App\Services;
 use App\Facades\Suppression;
 use App\Repositories\EmailRepo;
 use App\Repositories\FeedRepo;
-use App\Repositories\RecordDataRepo;
+use App\Repositories\EmailAttributableFeedLatestDataRepo;
 use Log;
 use League\Csv\Writer;
 use League\Csv\Reader;
@@ -21,7 +21,7 @@ class AppendEidService
     private $feedRepo;
     private $recordData;
 
-    public function __construct(EmailRepo $emailRepo, FeedRepo $feedRepo, RecordDataRepo $recordDataRepo)
+    public function __construct(EmailRepo $emailRepo, FeedRepo $feedRepo, EmailAttributableFeedLatestDataRepo $recordDataRepo)
     {
         $this->emailRepo = $emailRepo;
         $this->feedRepo = $feedRepo;

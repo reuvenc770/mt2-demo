@@ -19,7 +19,7 @@ use App\Models\EmailFeedInstance;
 use App\Models\OrphanEmail;
 use App\Facades\JobTracking;
 use App\Models\StandardReport;
-use App\Services\EmailFeedActionService;
+use App\Services\ThirdPartyEmailStatusService;
 use Maknz\Slack\Facades\Slack;
 
 class AdoptOrphanEmails extends Job implements ShouldQueue
@@ -49,7 +49,7 @@ class AdoptOrphanEmails extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle(AttributionRecordTruthService $truthService, EmailFeedActionService $actionService, SeedEmailService $seedService) {
+    public function handle(AttributionRecordTruthService $truthService, ThirdPartyEmailStatusService $actionService, SeedEmailService $seedService) {
 
         JobTracking::startEspJob( 'Orphan Adoption: ' . "Chunk" , null , null , $this->tracking );
         $inserts = [];
