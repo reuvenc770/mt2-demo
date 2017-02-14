@@ -70,7 +70,7 @@ class Kernel extends ConsoleKernel
         Commands\SyncMT1FeedLevels::class,
         Commands\AttributionConversionCommand::class,
         Commands\PopulateListProfileAggregationTable::class,
-        Commands\SendDomainExpirationNotice::class,
+        Commands\NotifySomeoneAboutSomething::class,
         Commands\PullContentServerRecordData::class,
         Commands\InflateEmailHistoriesUtil::class,
         Commands\BuildBaseListProfileTables::class,
