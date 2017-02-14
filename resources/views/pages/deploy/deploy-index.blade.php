@@ -551,7 +551,6 @@
                     </div>
                 </div>
             </div>
-                    <!-- <br/> -->
 
             <div class="panel panel-info">
                 <div class="panel-heading">Link Format</div>

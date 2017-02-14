@@ -34,8 +34,27 @@
                                 </tr>
                             </thead>
                             <tbody md-body>
+                                <tr md-row class="bg-info">
+                                    <td md-cell nowrap class="mt2-table-cell-center"><md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Header in CSV file must include these exact field names. The order of field names is not required to be in this exact order. ">help</md-icon></td>
+                                    <td md-cell nowrap></td>
+                                    <td md-cell nowrap></td>
+                                    <td md-cell nowrap>esp_account_id</td>
+                                    <td md-cell nowrap>list_profile_combine_id</td>
+                                    <td md-cell nowrap>offer_id</td>
+                                    <td md-cell nowrap>creative_id</td>
+                                    <td md-cell nowrap>from_id</td>
+                                    <td md-cell nowrap>subject_id</td>
+                                    <td md-cell nowrap>template_id</td>
+                                    <td md-cell nowrap>mailing_domain_id</td>
+                                    <td md-cell nowrap>content_domain_id</td>
+                                    <td md-cell nowrap>cake_affiliate_id</td>
+                                    <td md-cell nowrap>encrypt_cake</td>
+                                    <td md-cell nowrap>fully_encrypt</td>
+                                    <td md-cell nowrap>url_format</td>
+                                    <td md-cell nowrap>notes</td>
+                                </tr>
                                 <tr md-row ng-repeat="record in ctrl.records track by $index" ng-class="{ 'bg-danger' : record.valid.length > 0 }">
-                                    <td md-cell nowrap>{{ $index + 1 }}</td>
+                                    <td md-cell nowrap class="mt2-table-cell-center">{{ $index + 1 }}</td>
                                     <td md-cell nowrap>{{ record.deploy_date }}</td>
                                     <td md-cell nowrap>{{ record.deploy_id }}</td>
                                     <td md-cell nowrap>{{ record.esp_account_id }}</td>
@@ -73,7 +92,6 @@
                 <div class="col-md-4">
                     <input class="btn mt2-theme-btn-primary btn-block" ng-click="ctrl.massUpload()" ng-disabled="ctrl.uploadErrors" type="submit" value="Upload">
                 </div>
-                <!-- <button type="button" ng-disabled="ctrl.uploadErrors" class="btn btn-primary" ng-click="ctrl.massUpload()" data-dismiss="modal">Upload</button> -->
             </md-dialog-actions>
         </md-dialog>
     </div>
