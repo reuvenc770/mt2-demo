@@ -174,7 +174,10 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
     public function extractForS3Upload($startPoint) {
         // this start point is a date
         return $this->model
-                    ->join("$attrDb.email_feed_assignments as efa", 'email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id')
+                    ->join("$attrDb.email_feed_assignments as efa", function($join) { 
+                        $join->on('email_attributable_feed_latest_data.email_id', '=', 'efa.email_id');
+                        $join->on('email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id');
+                    })
                     ->leftJoin('third_party_email_statuses as st', 'email_attributable_feed_latest_data.email_id', '=', 'st.email_id')
                     ->where("email_attributable_feed_latest_data.updated_at > $startpoint")
                     ->select('efa.email_id', DB::raw("IF(st.last_action_type = 'None', 1, 0) as is_deliverable"),
@@ -186,7 +189,10 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
 
     public function extractAllForS3() {
         return $this->model
-                    ->join("$attrDb.email_feed_assignments as efa", 'email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id')
+                    ->join("$attrDb.email_feed_assignments as efa", function($join) { 
+                        $join->on('email_attributable_feed_latest_data.email_id', '=', 'efa.email_id');
+                        $join->on('email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id');
+                    })
                     ->leftJoin('third_party_email_statuses as st', 'email_attributable_feed_latest_data.email_id', '=', 'st.email_id')
                     ->whereRaw("updated_at > CURDATE() - INTERVAL 7 DAY")
                     ->select('efa.email_id', DB::raw("IF(st.last_action_type = 'None', 1, 0) as is_deliverable"),
