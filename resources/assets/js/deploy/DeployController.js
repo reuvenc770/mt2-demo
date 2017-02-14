@@ -61,6 +61,11 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.copyToFutureDate = '';
     self.formSubmitting = false;
 
+    self.columnToggleMapping = {
+        'cfs' : { 'showColumns' : true, 'switchText' : 'Hide' },
+        'domains' : { 'showColumns' : true, 'switchText' : 'Hide' }
+    };
+
     modalService.setPopover();
 
     self.loadAccounts = function () {
@@ -260,6 +265,16 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
             self.deployLinkText = "Send Packages to FTP"
         } else {
             self.deployLinkText = "Download Package";
+        }
+    };
+
+    self.toggleTableView = function ( columnSection ) {
+        var isColumnShowing = self.columnToggleMapping[ columnSection ][ 'showColumns' ];
+
+        if ( isColumnShowing ){
+            self.columnToggleMapping[ columnSection ][ 'switchText' ] = "Hide";
+        } else {
+            self.columnToggleMapping[ columnSection ][ 'switchText' ] = "Show";
         }
     };
 

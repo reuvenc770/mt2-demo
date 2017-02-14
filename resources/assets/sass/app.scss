@@ -159,8 +159,16 @@ md-menu-content.md-mt2-zeta-theme md-menu-item {
 }
 
 md-dialog { background-color: #FFF; }
-md-switch.md-checked .md-thumb:before { background-color: #3F51B5; }
 
+md-switch.md-checked .md-bar{
+    background-color: #5bc0de;
+}
+md-switch.md-checked .md-ink-ripple {
+    background-color: #039be5;
+}
+md-switch.md-checked .md-thumb:before {
+    background-color: #204c73;
+}
 /**
  * MD Data Tables
  */
@@ -552,10 +560,6 @@ table.md-table th.md-column md-icon {
 /**
 Panel Custom - we should break up into componets.
 **/
-
-.panel-default {
-    margin-top:20px;
-}
 
 /**
 Roles Pages custom

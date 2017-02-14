@@ -64,7 +64,7 @@
 
 @section( 'content' )
     <div ng-init="deploy.loadAccounts()">
-        <div style="width:800px">
+        <div class="col-xs-12 col-md-9">
             <div class="panel mt2-theme-panel center-block">
                 <div class="panel-heading">
                     <h3 class="panel-title">Search Deploys</h3>
@@ -150,6 +150,19 @@
                 </div>
             </div>
         </div>
+        <div class="col-xs-12 col-md-3">
+            <div class="panel panel-default">
+                <div class="panel-heading"><h3 class="panel-title">Table Display Options</h3></div>
+                <div class="panel-body">
+                    <div class="col-xs-12 col-sm-4 col-md-12 no-padding">
+                        <md-switch class="no-margin" ng-model="deploy.columnToggleMapping['cfs']['showColumns']" aria-label="Show/Hide CFS Columns" title="@{{ deploy.columnToggleMapping['cfs']['switchText'] }} CFS" ng-change="deploy.toggleTableView( 'cfs' )"> @{{ deploy.columnToggleMapping['cfs']['switchText'] }} CFS Columns</md-switch>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-12 no-padding">
+                        <md-switch class="no-margin" ng-model="deploy.columnToggleMapping['domains']['showColumns']" aria-label="Show/Hide CFS Columns" title="@{{ deploy.columnToggleMapping['domains']['switchText'] }} }} CFS" ng-change="deploy.toggleTableView( 'domains' )"> @{{ deploy.columnToggleMapping['domains']['switchText'] }} Domain Columns</md-switch>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <form name="deployForm" novalidate>
@@ -164,12 +177,12 @@
                     <th md-column class="md-table-header-override-whitetext">ESP Account</th>
                     <th md-column class="md-table-header-override-whitetext">List Profile</th>
                     <th md-column class="md-table-header-override-whitetext">Offer</th>
-                    <th md-column class="md-table-header-override-whitetext">Creative</th>
-                    <th md-column class="md-table-header-override-whitetext">From</th>
-                    <th md-column class="md-table-header-override-whitetext">Subject</th>
+                    <th md-column class="md-table-header-override-whitetext" ng-show="deploy.columnToggleMapping['cfs']['showColumns']">Creative</th>
+                    <th md-column class="md-table-header-override-whitetext" ng-show="deploy.columnToggleMapping['cfs']['showColumns']">From</th>
+                    <th md-column class="md-table-header-override-whitetext" ng-show="deploy.columnToggleMapping['cfs']['showColumns']">Subject</th>
                     <th md-column class="md-table-header-override-whitetext">Template</th>
-                    <th md-column class="md-table-header-override-whitetext">Mailing Domain</th>
-                    <th md-column class="md-table-header-override-whitetext">Content Domain</th>
+                    <th md-column class="md-table-header-override-whitetext" ng-show="deploy.columnToggleMapping['domains']['showColumns']">Mailing Domain</th>
+                    <th md-column class="md-table-header-override-whitetext" ng-show="deploy.columnToggleMapping['domains']['showColumns']">Content Domain</th>
                     <th md-column class="md-table-header-override-whitetext">Cake ID</th>
                     <th md-column class="md-table-header-override-whitetext">Notes</th>
                 </tr>
@@ -203,21 +216,21 @@
                             @{{ record.offer_name.substring(0,20) }}...
                             </span>
                     </td>
-                    <td md-cell nowrap>
+                    <td md-cell nowrap ng-show="deploy.columnToggleMapping['cfs']['showColumns']">
                             <span data-toggle="popover" data-content="@{{ record.creative }}">
                                 @{{ record.creative.substring(0,20) }}...
                             </span>
                             <span ng-hide="deploy.checkStatus(record.creative_approval,record.creative_status)"
                                   class="deploy-error bg-danger">!! Creative has been unapproved or deactivated !!</span>
                     </td>
-                    <td md-cell nowrap>
+                    <td md-cell nowrap ng-show="deploy.columnToggleMapping['cfs']['showColumns']">
                             <span data-toggle="popover" data-content="@{{ record.from }}">
                                 @{{ record.from.substring(0,20) }}...
                             </span>
                             <span ng-hide="deploy.checkStatus(record.from_approval,record.from_status)"
                                   class="deploy-error bg-danger">!! From has been unapproved or deactivated !!</span>
                     </td>
-                    <td md-cell nowrap>
+                    <td md-cell nowrap ng-show="deploy.columnToggleMapping['cfs']['showColumns']">
                         <div layout="row" layout-align="space-between center">
                             <span data-toggle="popover" data-content="@{{ record.subject }}">
                                 @{{ record.subject.substring(0,10) }}...
@@ -230,8 +243,8 @@
                                   class="deploy-error bg-danger">!! Subject has been unapproved or deactivated !!</span>
                     </td>
                     <td md-cell>@{{ record.template_name }}</td>
-                    <td md-cell>@{{ record.mailing_domain }}</td>
-                    <td md-cell>@{{ record.content_domain }}</td>
+                    <td md-cell ng-show="deploy.columnToggleMapping['domains']['showColumns']">@{{ record.mailing_domain }}</td>
+                    <td md-cell ng-show="deploy.columnToggleMapping['domains']['showColumns']">@{{ record.content_domain }}</td>
                     <td md-cell>@{{ record.cake_affiliate_id }}</td>
                     <td md-cell>@{{ record.notes }}</td>
                 </tr>
