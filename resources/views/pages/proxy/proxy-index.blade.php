@@ -66,7 +66,7 @@
                         <tfoot>
                             <tr>
                                 <td colspan="10">
-                                    <md-content class="md-mt2-zeta-theme md-hue-2">
+                                    <md-content class="md-mt2-zeta-theme">
                                         <md-table-pagination md-limit="proxy.paginationCount" md-limit-options="proxy.paginationOptions" md-page="proxy.currentPage" md-total="@{{proxy.accountTotal}}" md-on-paginate="proxy.loadAccounts" md-page-select></md-table-pagination>
                                     </md-content>
                                 </td>

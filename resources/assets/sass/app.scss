@@ -1,12 +1,75 @@
 /**
  * Font Imports
  */
-@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700,600,300,800);
+@font-face {
+    font-family: 'Open Sans';
+    src: url("../fonts/open-sans/OpenSans-Light.ttf") format("truetype");
+    font-weight: 300;
+    font-style: normal;
+}
 
-/**
- * Package Imports
- */
-@import "select.min.css";
+@font-face {
+    font-family: 'Open Sans';
+    src: url("../fonts/open-sans/OpenSans-LightItalic.ttf") format("truetype");
+    font-weight: 300;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    src: url("../fonts/open-sans/OpenSans-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    src: url("../fonts/open-sans/OpenSans-Italic.ttf") format("truetype");
+    font-weight: 400;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    src: url("../fonts/open-sans/OpenSans-Semibold.ttf") format("truetype");
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    src: url("../fonts/open-sans/OpenSans-SemiboldItalic.ttf") format("truetype");
+    font-weight: 600;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    src: url("../fonts/open-sans/OpenSans-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    src: url("../fonts/open-sans/OpenSans-BoldItalic.ttf") format("truetype");
+    font-weight: 700;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    src: url("../fonts/open-sans/OpenSans-ExtraBold.ttf") format("truetype");
+    font-weight: 800;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Open Sans';
+    src: url("../fonts/open-sans/OpenSans-ExtraBold.ttf") format("truetype");
+    font-weight: 800;
+    font-style: italic;
+}
 
 /**
  * Custom Styling Override
@@ -29,10 +92,17 @@ $card-padding: 6px;
 /**
  *Bootstrap Includes
  */
-@import "node_modules/angular-material/angular-material.scss";
-@import "material.min";
+@import "angular-material-internal.scss";
+@import "material-theme";
 @import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
-@import "node_modules/jasny-bootstrap/scss/jasny-bootstrap.scss";
+
+/**
+ *From jasny-bootstrap.scss
+ */
+@import "node_modules/jasny-bootstrap/scss/_variables.scss";
+@import "node_modules/jasny-bootstrap/scss/_navmenu.scss";
+@import "node_modules/jasny-bootstrap/scss/_offcanvas.scss";
+
 $table-bg-accent-2 : #eaeaea;
 
 .table-striped {
@@ -128,35 +198,8 @@ ul.ivh-treeview ul.ivh-treeview {
 }
 
 /**
- * Label Styles
- */
-.mt2-label{
-    display: inline;
-    padding: .2em .6em .3em;
-    color: #fff;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: baseline;
-    border-radius: .25em;
-}
-.mt2-label-info{
-    background-color: #5bc0de;
-}
-.mt2-label-default{
-    background-color: #777777;
-}
-.mt2-label-success{
-    background-color: #5cb85c;
-}
-label:focus {
-    outline: 0;
-}
-/**
  * Materials Overrides
  */
-md-menu-content.md-mt2-zeta-theme md-menu-item {
-    color: rgba(0,0,0,0.87);
-}
 
 md-dialog { background-color: #FFF; }
 md-switch.md-checked .md-thumb:before { background-color: #3F51B5; }
@@ -213,14 +256,6 @@ table.md-table tbody.md-body > tr.md-row {
 
 table.md-table.md-row-select tbody.md-body > tr.md-row:not([disabled]):hover {
     cursor: pointer;
-}
-
-.no-padding {
-    padding:0px;
-}
-
-.no-margin {
-    margin: 0px;
 }
 
 td.mt2-table-btn-column.md-cell,
@@ -316,27 +351,6 @@ a.md-button.md-mt2-zeta-theme.md-raised.mt2-button-success:not([disabled]):hover
     background-color: #5cb85c;
 }
 
-.mt2-button-option{
-    margin: 6px 0;
-}
-.mt2-button-option[disabled]{
-    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-}
-.mt2-button-option-left{
-    border-bottom-right-radius: 0;
-    border-top-right-radius: 0;
-}
-.mt2-button-option-right{
-    border-bottom-left-radius: 0;
-    border-top-left-radius: 0;
-}
-/*
- * Materials Menu Styling
- */
-md-menu-content.md-mt2-zeta-theme md-menu-item {
-    color: rgba(0,0,0,0.87) !important;
-}
-
 /**
  * 3 Month Report Styling
  */
@@ -399,6 +413,14 @@ body {
 .no-padding { padding: 0; }
 
 .align-top { vertical-align: top; }
+
+label:focus {
+    outline: 0;
+}
+
+.no-margin {
+    margin: 0px;
+}
 
 .dropFile {
     padding: 15px;
@@ -496,14 +518,6 @@ select:focus,
     }
 }
 
-.md-chips {
-    font-size: inherit;
-}
-
-md-chips.md-mt2-zeta-theme.ng-invalid .md-chips {
-    box-shadow: 0 2px rgb(221,44,0);
-}
-
 .mt2-error-message {
     color: rgb(221,44,0);
 }
@@ -545,7 +559,6 @@ table.md-table th.md-column md-icon {
 .mtNestedTable thead {
     background-color: #468cce;
 }
-
 /**
 Panel Custom - we should break up into componets.
 **/
@@ -590,7 +603,7 @@ Roles Pages custom
 Domain Add
 **/
 md-content{
-    background: rgb(176,190,197);
+    background: #fafafa;
 }
 
 
@@ -639,11 +652,6 @@ md-content{
 /**
  * Menu Styling & Animation
  */
-md-sidenav {
-    width: 260px;
-}
-
-.md-sidenav-left { overflow: initial !important; }
 
 .mt2-nav-main-item,
 .mt2-nav-sub-item {
@@ -680,14 +688,6 @@ md-list-item.mt2-nav-sub-item .md-list-item-inner {
     }
 }
 
-.mt2-sidenav-dark , .mt2-nav-toggle {
-    background-color: #191c21 !important;
-}
-
-.mt2-sidenav-dark md-icon {
-    color: #adb0b2 !important;
-}
-
 .mt2-logo-container {
     margin-left: 15px;
 }
@@ -706,10 +706,6 @@ md-list-item.mt2-nav-sub-item .md-list-item-inner {
     margin-left: 10px;
     font-weight: bolder;
     font-size: 28px;
-}
-
-.mt2-sidenav-minimized {
-    width: 70px !important;
 }
 
 .mt2-nav-main-item {
@@ -861,7 +857,7 @@ md-list-item.mt2-nav-sub-item .md-list-item-inner {
     margin: 7px 7px 7px 0;
     border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;
-    background-color: #383F47;
+    background-color: #191c21;
 
     md-icon {
         color: #FFF;
@@ -996,6 +992,11 @@ md-list-item.mt2-nav-sub-item .md-list-item-inner {
 md-toast.md-top {
     top: 70px !important;
 }
+
+md-toast .md-toast-content, md-toast.md-default-theme .md-toast-content {
+  background-color: #323232;
+  color: #fafafa; }
+
 md-toast.cmp-alert-toast .md-toast-content{
     margin-left: 10px;
     background-color: #d9534f;

@@ -9,8 +9,7 @@
         <div flex-gt-md="50" flex="100">
             <div layout="column" layout-align="end end">
                <md-button class="md-raised md-accent" ng-disabled="clientGroup.updatingClientGroup" ng-click="clientGroup.updateClientGroup( $event )" layout="row">
-                  <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-hide="clientGroup.updatingClientGroup">save</md-icon>
-                  <md-progress-circular ng-show="clientGroup.updatingClientGroup" md-mode="indeterminate" md-diameter="16"></md-progress-circular><span flex>Save</span>
+                  <md-icon md-font-set="material-icons" class="mt2-icon-black">save</md-icon> <span flex>Save</span>
                </md-button>
             </div>
 
@@ -18,8 +17,7 @@
 
             <div layout="column" layout-align="end end">
                <md-button class="md-raised md-accent" ng-disabled="clientGroup.updatingClientGroup" ng-click="clientGroup.updateClientGroup( $event )" layout="row">
-                  <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-hide="clientGroup.updatingClientGroup">save</md-icon>
-                  <md-progress-circular ng-show="clientGroup.updatingClientGroup" md-mode="indeterminate" md-diameter="16"></md-progress-circular><span flex>Save</span>
+                  <md-icon md-font-set="material-icons" class="mt2-icon-black">save</md-icon> <span flex>Save</span>
                </md-button>
             </div>
         </div>

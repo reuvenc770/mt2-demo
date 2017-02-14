@@ -152,7 +152,7 @@
                         <tfoot>
                             <tr>
                                 <td colspan="12">
-                                    <md-content class="md-mt2-zeta-theme md-hue-2">
+                                    <md-content class="md-mt2-zeta-theme">
                                         <md-table-pagination md-limit="dba.paginationCount" md-limit-options="dba.paginationOptions" md-page="dba.currentPage" md-total="@{{dba.accountTotal}}" md-on-paginate="dba.loadAccounts" md-page-select></md-table-pagination>
                                     </md-content>
                                 </td>
