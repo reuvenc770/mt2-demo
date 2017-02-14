@@ -132,21 +132,14 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         }
     };
 
-    // self.displayForm = function () {
-    //     self.deployIdDisplay = text;
-    //     self.currentDeploy = self.resetAccount();
-    //     self.showRow = true;
-    //     self.editView = false;
-    // };
-
-    self.displayNewDeployForm = function ( event ) {
+    self.displayNewDeployForm = function () {
         self.currentDeploy = self.resetAccount();
         self.editView = false;
 
-        self.launchFormModal( event , 'deployFormModal' );
+        self.launchFormModal();
     };
 
-    self.launchFormModal = function( event , modalId ) {
+    self.launchFormModal = function() {
         if (self.editView) {
             self.formButtonText = "Update Deploy";
         } else {
@@ -155,13 +148,12 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         }
 
         $mdDialog.show({
-            contentElement: '#' + modalId ,
-            parent: angular.element(document.body),
-            targetEvent: event
+            contentElement: '#deployFormModal',
+            parent: angular.element(document.body)
         });
     };
 
-    self.closeForm = function(){
+    self.closeModal = function(){
         $mdDialog.cancel();
     };
 
@@ -230,14 +222,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         ]).then(callBack);
     };
 
-    // self.editRow = function (deployId) {
-    //     self.showRow = false;
-    //     self.currentDeploy = self.resetAccount();
-    //     DeployApiService.getDeploy(deployId, self.loadDeploySuccess, self.loadDeployFail);
-    //     self.espLoaded = false;
-    //     self.editView = true;
-    // };
-
     self.editDeploy = function (deployId) {
         self.currentDeploy = self.resetAccount();
         DeployApiService.getDeploy(deployId, self.loadDeploySuccess, self.loadDeployFail);
@@ -252,14 +236,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
             self.saveNewDeploy( event , form );
         }
     };
-
-    // self.actionText = function () {
-    //     if (self.editView) {
-    //         return "Edit Row"
-    //     } else {
-    //         return "Save Row"
-    //     }
-    // };
 
     self.toggleListProfile = function (){
         self.firstParty =  self.firstParty ?  false: true;
@@ -396,19 +372,25 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.currentDeploy = self.resetAccount();
         $rootScope.$broadcast('angucomplete-alt:clearInput');
 
+        self.closeModal();
+
         modalService.setModalLabel('Success');
         modalService.setModalBody('Deploys Uploaded!');
         modalService.launchModal();
 
         self.loadDeploys();
         self.editView = false;
-        self.showRow = false;
     };
 
     self.validateSuccess = function (response) {
         self.uploadedDeploys = response.data.rows;
         self.uploadErrors = response.data.errors;
-        $('#validateModal').modal('show');
+
+        $mdDialog.show({
+            contentElement: '#validateModal' ,
+            parent: angular.element(document.body),
+            clickOutsideToClose: true
+        });
     };
     self.loadDeploysSuccess = function (response) {
         self.deploys = response.data.data;
@@ -443,7 +425,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
             $rootScope.$broadcast('angucomplete-alt:changeInput', 'offer', deployData.offer_id);
         });
 
-        self.launchFormModal( event , 'deployFormModal' );
+        self.launchFormModal();
         self.formHeader = "Edit Deploy # " + response.data.id;
     };
 
@@ -467,7 +449,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
 
         });
 
-        self.launchFormModal( event , 'deployFormModal' );
+        self.launchFormModal();
     };
 
 
@@ -475,7 +457,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.currentDeploy = self.resetAccount();
         $rootScope.$broadcast('angucomplete-alt:clearInput');
 
-        self.closeForm();
+        self.closeModal();
 
         modalService.setModalLabel('Success');
         modalService.setModalBody('Deploy Edited!');

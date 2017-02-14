@@ -127,7 +127,7 @@ class DeployRepo implements Mt2Export
     {
         $errors = array();
         //deploy_id
-        if($deploy['deploy_id'] != 0) {
+        if(isset($deploy['deploy_id']) && $deploy['deploy_id'] != 0) {
             if (isset($deploy['deploy_id'])) {
                 $count = DB::select("Select count(*) as count from deploys where id = :id", ['id' => $deploy['deploy_id']])[0];
                 if ($count->count == 0) {
@@ -322,7 +322,7 @@ class DeployRepo implements Mt2Export
         //list profile for now commented out
         if($copyToFutureBool){
             $lpSchema = config('database.connections.list_profile.database');
-            
+
             if (isset($deploy['list_profile_combine_id'])) {
                 $count = DB::select("Select count(*) as count from $lpSchema.list_profile_combines where id = :id", ['id' => $deploy['list_profile_combine_id']])[0];
                 if ($count->count == 0) {
@@ -439,7 +439,7 @@ class DeployRepo implements Mt2Export
             DISTINCT feed_id
         FROM
             deploys d
-            INNER JOIN $lpSchema.list_profile_list_profile_combine lplpc ON d.list_profile_combine_id = lplpc.list_profile_combine_id 
+            INNER JOIN $lpSchema.list_profile_list_profile_combine lplpc ON d.list_profile_combine_id = lplpc.list_profile_combine_id
             INNER JOIN $lpSchema.list_profile_feeds lpf ON lplpc.list_profile_combine_id = lpf.list_profile_id
         WHERE
             d.id = ?", [$deployId]);

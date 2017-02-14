@@ -8,7 +8,7 @@
 @section( 'cacheTag' , 'Deploy' )
 @section( 'page-menu' )
     @if (Sentinel::hasAccess('api.deploy.store'))
-        <li ng-click="deploy.displayNewDeployForm( $event )">
+        <li ng-click="deploy.displayNewDeployForm()">
             <a href="#">New Deploy</a>
         </li>
     @endif
@@ -251,7 +251,7 @@
     </form>
     </div>
     <deploy-validate-modal upload-errors="deploy.uploadErrors" mass-upload="deploy.massUploadList()"
-                           records="deploy.uploadedDeploys"></deploy-validate-modal>
+                           records="deploy.uploadedDeploys" close-modal="deploy.closeModal()"></deploy-validate-modal>
 
 <div style="visibility: hidden">
     <div class="md-dialog-container" id="deployFormModal">
@@ -260,7 +260,7 @@
                 <div class="md-toolbar-tools mt2-theme-toolbar-tools">
                     <h2>@{{ deploy.formHeader }}</h2>
                     <span flex></span>
-                    <md-button class="md-icon-button" ng-click="deploy.closeForm()"><md-icon md-font-set="material-icons" class="mt2-icon-white" title="Close" aria-label="Close">clear</md-icon></md-button>
+                    <md-button class="md-icon-button" ng-click="deploy.closeModal()"><md-icon md-font-set="material-icons" class="mt2-icon-white" title="Close" aria-label="Close">clear</md-icon></md-button>
                 </div>
             </md-toolbar>
             <md-dialog-content>
