@@ -5,7 +5,7 @@
 <base href="/">
 <title>@yield( 'title' )</title>
 
-<link href="css/app.min.css" rel="stylesheet" />
+<link href="css/app.css" rel="stylesheet" />
 
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
