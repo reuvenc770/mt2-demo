@@ -1,4 +1,4 @@
-mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout', 'DeployApiService', '$rootScope', '$q', '$interval' , '$mdDialog' , 'modalService' , 'formValidationService' , 'paginationService' , function ($log, $window, $location, $timeout, DeployApiService, $rootScope, $q, $interval , $mdDialog , modalService , formValidationService , paginationService ) {
+mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout', 'DeployApiService', '$rootScope', '$q', '$interval' , '$mdDialog' , 'modalService' , 'formValidationService' , 'paginationService' , '$cookies' , function ($log, $window, $location, $timeout, DeployApiService, $rootScope, $q, $interval , $mdDialog , modalService , formValidationService , paginationService , $cookies ) {
     var self = this;
     self.$location = $location;
     self.currentDeploy = {
@@ -268,7 +268,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         }
     };
 
-    self.toggleTableView = function ( columnSection ) {
+    self.toggleColumns = function ( columnSection ) {
         var isColumnShowing = self.columnToggleMapping[ columnSection ][ 'showColumns' ];
 
         if ( isColumnShowing ){
@@ -276,6 +276,21 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         } else {
             self.columnToggleMapping[ columnSection ][ 'switchText' ] = "Show";
         }
+
+        self.setColumnViewCookie();
+    };
+
+    self.setColumnViewCookie = function () {
+        var columnCookieValues = angular.toJson( {"cfs" : self.columnToggleMapping.cfs.showColumns , "domains" : self.columnToggleMapping.domains.showColumns} );
+
+        $cookies.put( 'deployColumnView' , columnCookieValues );
+    };
+
+    self.loadLastColumnView = function () {
+        var columnCookieValues = angular.fromJson( $cookies.get( 'deployColumnView' ) );
+
+        self.columnToggleMapping.cfs.showColumns = columnCookieValues.cfs;
+        self.columnToggleMapping.domains.showColumns =  columnCookieValues.domains;
     };
 
     self.checkChecked = function(selectedValue){

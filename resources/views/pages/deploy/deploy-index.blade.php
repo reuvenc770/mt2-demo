@@ -155,17 +155,17 @@
                 <div class="panel-heading"><h3 class="panel-title">Table Display Options</h3></div>
                 <div class="panel-body">
                     <div class="col-xs-12 col-sm-4 col-md-12 no-padding">
-                        <md-switch class="no-margin" ng-model="deploy.columnToggleMapping['cfs']['showColumns']" aria-label="Show/Hide CFS Columns" title="@{{ deploy.columnToggleMapping['cfs']['switchText'] }} CFS" ng-change="deploy.toggleTableView( 'cfs' )"> @{{ deploy.columnToggleMapping['cfs']['switchText'] }} CFS Columns</md-switch>
+                        <md-switch class="no-margin" ng-model="deploy.columnToggleMapping['cfs']['showColumns']" aria-label="Show/Hide CFS Columns" title="@{{ deploy.columnToggleMapping['cfs']['switchText'] }} CFS" ng-change="deploy.toggleColumns( 'cfs' )"> @{{ deploy.columnToggleMapping['cfs']['switchText'] }} CFS Columns</md-switch>
                     </div>
                     <div class="col-xs-12 col-sm-4 col-md-12 no-padding">
-                        <md-switch class="no-margin" ng-model="deploy.columnToggleMapping['domains']['showColumns']" aria-label="Show/Hide CFS Columns" title="@{{ deploy.columnToggleMapping['domains']['switchText'] }} }} CFS" ng-change="deploy.toggleTableView( 'domains' )"> @{{ deploy.columnToggleMapping['domains']['switchText'] }} Domain Columns</md-switch>
+                        <md-switch class="no-margin" ng-model="deploy.columnToggleMapping['domains']['showColumns']" aria-label="Show/Hide CFS Columns" title="@{{ deploy.columnToggleMapping['domains']['switchText'] }} }} CFS" ng-change="deploy.toggleColumns( 'domains' )"> @{{ deploy.columnToggleMapping['domains']['switchText'] }} Domain Columns</md-switch>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <form name="deployForm" novalidate>
+    <form name="deployForm" novalidate ng-init="deploy.loadLastColumnView()">
         <input name="_token" type="hidden" value="{{ csrf_token() }}">
         <md-table-container>
             <table md-table md-progress="deploy.queryPromise">
@@ -224,11 +224,16 @@
                                   class="deploy-error bg-danger">!! Creative has been unapproved or deactivated !!</span>
                     </td>
                     <td md-cell nowrap ng-show="deploy.columnToggleMapping['cfs']['showColumns']">
+                        <div layout="row" layout-align="space-between center">
                             <span data-toggle="popover" data-content="@{{ record.from }}">
                                 @{{ record.from.substring(0,20) }}...
                             </span>
                             <span ng-hide="deploy.checkStatus(record.from_approval,record.from_status)"
                                   class="deploy-error bg-danger">!! From has been unapproved or deactivated !!</span>
+                            <md-button class="md-icon-button icon-button-xs" ngclipboard data-clipboard-text="@{{record.from}}" data-toggle="tooltip" data-placement="bottom" title="Copy From">
+                                <md-icon md-font-set="material-icons" class="mt2-icon-black icon-xs">content_copy</md-icon>
+                            </md-button>
+                        </div>
                     </td>
                     <td md-cell nowrap ng-show="deploy.columnToggleMapping['cfs']['showColumns']">
                         <div layout="row" layout-align="space-between center">
