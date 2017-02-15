@@ -64,11 +64,11 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
         } ).then( successCallback , failCallback );
     };
 
-    self.getOffersSearch = function ( searchText , successCallback , failCallback ) {
+    self.offerDaySearch = function ( day , successCallback , failCallback ) {
         $http( {
             "method" : "GET" ,
             "url" : this.offerSearchUrl ,
-            "params" : {searchTerm : searchText}
+            "params" : {day : day}
         } ).then( successCallback , failCallback );
     };
 

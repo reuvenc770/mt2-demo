@@ -28,6 +28,10 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.editView = false;
     self.uploadedDeploys = [];
     self.offerData = [];
+    self.allOffersData = [];
+    self.allOffers = false;
+    self.selectedDay = "0";
+    self.searchOffers = "/api/offer/search?date=" + self.selectedDay + "searchTerm=";
     self.searchType = "";
     self.searchData = "";
     self.uploadErrors = false;
@@ -40,6 +44,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.cakeAffiliates = [];
     self.espLoaded = true;
     self.offerLoading = true;
+    self.dateNotPicked = true;
     self.mailingDomains = []; //id is 1
     self.contentDomains = []; //id is 2
     self.offers = [];
@@ -203,6 +208,14 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.loadAccounts();
     };
 
+    self.showAllOffers = function(){
+        DeployApiService.offerDaySearch(self.selectedDay, self.showAllOfferSuccess, self.formFail);
+        self.allOffers = true;
+    };
+    self.hideAllOffers = function(){
+      self.allOffers = false;
+    };
+
     self.offerWasSelected = function (item) {
         if (typeof item != 'undefined') {
             if (item.title === undefined) {
@@ -216,6 +229,11 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
                     self.offerLoading = false;
                 });
             }
+        }
+        if(self.currentDeploy.offer_id != 0){
+            self.reloadCFS(self.currentDeploy.offer_id, function () {
+                self.offerLoading = false;
+            });
         }
     };
 
@@ -315,12 +333,11 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         }
     };
 
-    self.canOfferBeMailed = function (date){
-        var day = date.getDay();
-        var dayIndex = ( day == 0 ? 6 : day - 1 );
-        var dateChar = self.offerData.exclude_days.charAt( dayIndex );
-
-        return dateChar === 'N';
+    self.updateDate = function (){
+        $rootScope.$broadcast('angucomplete-alt:clearInput');
+        self.currentDeploy.offer_id = '';
+        self.dateNotPicked = false;
+        self.selectedDay = this.currentDeploy.send_date.getDay() + 1; //not base 0 in db
     };
 
     self.previewDeploys = function (){
@@ -421,6 +438,10 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
             parent: angular.element(document.body),
             clickOutsideToClose: true
         });
+    };
+
+    self.showAllOfferSuccess = function (response){
+        self.allOffersData = response.data;
     };
     self.loadDeploysSuccess = function (response) {
         self.deploys = response.data.data;

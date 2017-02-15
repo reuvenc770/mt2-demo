@@ -295,8 +295,7 @@
                                 <div class="col-sm-10 col-md-9">
                                     <md-datepicker name="dateField" ng-model="deploy.currentDeploy.send_date"
                                                    required md-placeholder="Enter date"
-                                                   ng-disabled="deploy.offerLoading"
-                                                   md-date-filter="deploy.canOfferBeMailed"
+                                                   ng-change="deploy.updateDate()"
                                                    md-min-date="deploy.minDate">
                                     </md-datepicker>
 
@@ -383,20 +382,32 @@
                             <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.offer_id }">
                                 <label class="col-sm-2 col-md-3 control-label">Offer <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="bottom" data-content="Begin search for offers by typing in the first 3 letters of offer name.">help</md-icon></label>
                                 <div class="col-sm-10 col-md-9">
+                                    <div ng-hide="deploy.allOffers">
                                     <div angucomplete-alt ng-required="true"
                                          id="offer"
                                          name="offer_id"
+                                         disable-input="deploy.dateNotPicked"
                                          placeholder="Search Offers"
                                          selected-object="deploy.offerWasSelected"
                                          selected-object-data="deploy.currentDeploy.offer_id"
-                                         remote-url="/api/offer/search?searchTerm="
+                                         remote-url="/api/offer/search?day=@{{deploy.selectedDay}}&searchTerm="
                                          title-field="name,id"
                                          text-searching="Looking for Offers..."
                                          selected-object-data="offer"
                                          minlength="3"
                                          input-class="form-control">
+                                        </div>
+                                        </div>
+                                    <div ng-show="deploy.allOffers">
+                                        <select name="offer_id"  id="offer_id" ng-disable="deploy.dateNotPicked" class="form-control" ng-required="true"
+                                                ng-model="deploy.currentDeploy.offer_id" ng-change="deploy.offerWasSelected()">
+                                            <option ng-repeat="option in deploy.allOffersData" value="@{{ option.id }}">
+                                                @{{ option.name }}
+                                            </option>
+                                        </select>
                                     </div>
-
+                                    <div ng-click="deploy.showAllOffers()" ng-hide="deploy.allOffers" style="font-size:11px; text-align: center; color: red; cursor: pointer; padding-top: 5px">All Offers</div>
+                                    <div ng-click="deploy.hideAllOffers()" ng-show="deploy.allOffers" style="font-size:11px; text-align: center; color: red; cursor: pointer; padding-top: 5px">Search Offers</div>
                                     <div class="help-block" ng-show="deploy.formErrors.offer_id">
                                         <div ng-repeat="error in deploy.formErrors.offer_id">
                                             <span ng-bind="error"></span>
