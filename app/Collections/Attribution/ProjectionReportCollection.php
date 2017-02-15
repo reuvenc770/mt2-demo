@@ -139,19 +139,21 @@ class ProjectionReportCollection extends Collection {
                 $cpmRevShareClass = 'class="mt2-proj-decrease-bg"';
             }
 
+            setlocale(LC_MONETARY, 'en_US');
+
             $tableRows []= "<tr {$rowClass} md-row>" .
                 "<td md-cell>{$rowClientName}</td>" .
                 "<td md-cell>{$rowFeedName}</td>" .
                 "<td md-cell>{$currentRow[ 'live' ][ 'level' ]}</td>" .
                 "<td {$levelClass} md-cell>{$currentRow[ 'model' ][ 'level' ]}</td>" .
-                "<td md-cell>\$" . round( $currentRow[ 'live' ][ 'standard_revenue' ] , 2 ) . "</td>" .
-                "<td {$standardRevClass} md-cell>\$" . round( $currentRow[ 'model' ][ 'standard_revenue' ] , 2 ) . "</td>" .
-                "<td md-cell>\$" . round( $currentRow[ 'live' ][ 'standard_revshare' ] , 2 ) . "</td>" .
-                "<td {$standardRevShareClass} md-cell>\$" . round( $currentRow[ 'model' ][ 'standard_revshare' ] , 2 ) . "</td>" .
-                "<td md-cell>\$" . round( $currentRow[ 'live' ][ 'cpm_revenue' ] , 2 ) . "</td>" .
-                "<td {$cpmRevClass} md-cell>\$" . round( $currentRow[ 'model' ][ 'cpm_revenue' ] , 2 ) . "</td>" .
-                "<td md-cell>\$" . round( $currentRow[ 'live' ][ 'cpm_revshare'] , 2 ) . "</td>" .
-                "<td {$cpmRevShareClass} md-cell>\$" . round( $currentRow[ 'model' ][ 'cpm_revshare' ] , 2 ) . "</td>" .
+                "<td md-cell>" . money_format('%n', round( $currentRow[ 'live' ][ 'standard_revenue' ] , 2 ) ) . "</td>" .
+                "<td {$standardRevClass} md-cell>" . money_format('%n', round( $currentRow[ 'model' ][ 'standard_revenue' ] , 2 ) ) . "</td>" .
+                "<td md-cell>" . money_format('%n', round( $currentRow[ 'live' ][ 'standard_revshare' ] , 2 ) ) . "</td>" .
+                "<td {$standardRevShareClass} md-cell>" . money_format('%n', round( $currentRow[ 'model' ][ 'standard_revshare' ] , 2 ) ) . "</td>" .
+                "<td md-cell>" . money_format('%n', round( $currentRow[ 'live' ][ 'cpm_revenue' ] , 2 ) ) . "</td>" .
+                "<td {$cpmRevClass} md-cell>" . money_format('%n', round( $currentRow[ 'model' ][ 'cpm_revenue' ] , 2 ) ) . "</td>" .
+                "<td md-cell>" . money_format('%n', round( $currentRow[ 'live' ][ 'cpm_revshare'] , 2 ) ) . "</td>" .
+                "<td {$cpmRevShareClass} md-cell>" . money_format('%n', round( $currentRow[ 'model' ][ 'cpm_revshare' ] , 2 ) ) . "</td>" .
                 "</tr>";
         }
 
