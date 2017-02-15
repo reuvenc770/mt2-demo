@@ -173,6 +173,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
 
     public function extractForS3Upload($startPoint) {
         // this start point is a date
+        $attrDb = config('database.connections.attribution.database');
         return $this->model
                     ->join("$attrDb.email_feed_assignments as efa", function($join) { 
                         $join->on('email_attributable_feed_latest_data.email_id', '=', 'efa.email_id');
@@ -188,6 +189,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
     }
 
     public function extractAllForS3() {
+        $attrDb = config('database.connections.attribution.database');
         return $this->model
                     ->join("$attrDb.email_feed_assignments as efa", function($join) { 
                         $join->on('email_attributable_feed_latest_data.email_id', '=', 'efa.email_id');
