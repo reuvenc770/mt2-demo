@@ -22,9 +22,9 @@
                     <textarea class="form-control" rows="5" ng-model="supp.emailString" ng-change="supp.enableSubmission()"></textarea>
                 </div>
                 <div class="form-group" ng-class="{ 'has-error' : supp.formErrors.suppressionReasonCode }">
-                    <select name="reason" class="form-control" ng-model="supp.suppressionReasonCode" ng-init="supp.loadReasons()" required>
+                    <select name="reason" class="form-control" ng-model="supp.suppressionReasonCode" ng-init="supp.loadReasons()" required ng-options="reason.value.toString() as reason.name for reason in supp.suppressionReasons">
                         <option value="">Suppression Reason</option>
-                        <option ng-repeat="reason in supp.suppressionReasons" ng-value="reason.value">@{{ reason.name }}</option>
+
                     </select>
                     <div class="help-block" ng-show="supp.formErrors.suppressionReasonCode">
                         <div ng-repeat="error in supp.formErrors.suppressionReasonCode">
@@ -41,7 +41,22 @@
             </div>
 
             <div role="tabpanel" class="tab-pane" id="upload-file-tab">
-                <p>Upload 1 or more CSV files of emails with suppression reasons. A file is completed once the progress bar is green and will go through process of suppression. If an individual file is canceled during the upload, progress will not be saved.</p>
+                <p>To suppress emails by uploading a file list of emails, select a suppression reason before uploading the file(s). A file is completed once the progress bar is green and will go through process of suppression. If an individual file is canceled during the upload, progress will not be saved.</p>
+                <p><span class="bold-text">Note:</span> 1 or more files can be uploaded at the same time but the suppression reason selected will be applied to all emails that are uploaded together.</p>
+                <br/>
+
+                <div class="row">
+                <div class="form-group col-md-6" ng-class="{ 'has-error' : supp.formErrors.suppressionReasonCode }">
+                    <select name="reason" class="form-control" ng-model="supp.suppressionReasonCode" ng-init="supp.loadReasons()" ng-options="reason.value.toString() as reason.name for reason in supp.suppressionReasons" required>
+                        <option value="">Suppression Reason</option>
+                    </select>
+                    <div class="help-block" ng-show="supp.formErrors.suppressionReasonCode">
+                        <div ng-repeat="error in supp.formErrors.suppressionReasonCode">
+                            <span ng-bind="error"></span>
+                        </div>
+                    </div>
+                </div>
+                </div>
 
         <div flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'bulksuppression' , '_token' : '{{ csrf_token() }}' } }"
              flow-files-submitted="$flow.upload()"
@@ -50,16 +65,21 @@
 
         <div class="row">
             <div class="col-md-6">
-                <div flow-drop class="dropFile text-center" flow-drag-enter="style={background:'#f1f1f1'}" flow-drag-leave="style={}" ng-style="style">
+                <div flow-drop flow-prevent-drop class="dropFile text-center" flow-drag-enter="style={background:'#f1f1f1'}" flow-drag-leave="style={}" ng-style="style" flow-drop-enabled="supp.suppressionReasonCode">
 
-                    <span class="bold-text">Drag & Drop Suppression Files Here</span>
-                    <br/>
-                    <span class="italic">OR</span>
-                    <br/>
-                    <span class="btn btn-default" flow-btn>
+                    <div ng-show="!supp.suppressionReasonCode">
+                        <span class="bold-text warning-text">*A suppression reason is required before uploading a file.</span>
+                        <br/><br/>
+                    </div>
+                    <div ng-show="supp.suppressionReasonCode">
+                        <span class="bold-text">Drag & Drop Suppression Files Here</span>
+                        <br/>
+                        <span class="italic">OR</span>
+                    </div>
+                    <button class="btn btn-default" flow-btn ng-disabled="!supp.suppressionReasonCode">
                         Upload Suppression Files
-                        <input type="file" style="visibility: hidden; position: absolute;" />
-                    </span>
+                        <input type="file" style="visibility: hidden; position: absolute;"/>
+                    </button>
                 </div>
             </div>
             <div class="col-md-6 text-center" ng-show="$flow.files.length > 0">
