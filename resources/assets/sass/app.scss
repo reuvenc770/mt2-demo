@@ -202,8 +202,16 @@ ul.ivh-treeview ul.ivh-treeview {
  */
 
 md-dialog { background-color: #FFF; }
-md-switch.md-checked .md-thumb:before { background-color: #3F51B5; }
 
+md-switch.md-checked .md-bar{
+    background-color: #5bc0de;
+}
+md-switch.md-checked .md-ink-ripple {
+    background-color: #039be5;
+}
+md-switch.md-checked .md-thumb:before {
+    background-color: #204c73;
+}
 /**
  * MD Data Tables
  */
@@ -471,6 +479,8 @@ body {
 
 .align-top { vertical-align: top; }
 
+.italic { font-style: italic; }
+
 label:focus {
     outline: 0;
 }
@@ -510,6 +520,7 @@ label:focus {
 /**
  * Fields
  */
+
  md-input-container{
     margin: 18px 0 10px;
  }
@@ -616,6 +627,7 @@ table.md-table th.md-column md-icon {
 .mtNestedTable thead {
     background-color: #468cce;
 }
+
 /**
 Panel Custom - we should break up into componets.
 **/
@@ -1109,7 +1121,20 @@ md-table-container{
 }
 
 .mt2-theme-toolbar {
-    background-color: #204c73 !important;
+    background-color: #039be5 !important;
+    font-size: inherit;
+    min-height: auto;
+}
+
+.mt2-theme-toolbar-tools {
+    font-size: 1.25em;
+    height: auto;
+    padding: 10px 15px;
+}
+
+.mt2-theme-dialog-footer {
+    background-color: #f5f5f5;
+    border-top: 1px solid #ddd;
 }
 
 .mt2-theme-thead {
