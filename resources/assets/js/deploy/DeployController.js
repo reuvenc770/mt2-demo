@@ -88,7 +88,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.sortCurrentRecords = function () {
-        console.log(self.recordListStatus);
         if (self.recordListStatus === 'index' ) {
             self.loadDeploys();
         }
