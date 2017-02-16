@@ -110,11 +110,11 @@ mt2App.service( 'ListProfileApiService' , function ( $http ) {
         } ).then( successCallback , failureCallback );
     };
 
-    self.createCombine = function ( name, selectedListProfiles , party, successCallback , failureCallback ) {
+    self.createCombine = function ( name, ftpFolder, selectedListProfiles , party, successCallback , failureCallback ) {
         $http( {
             "method" : "POST" ,
             "url" : self.createCombineUrl ,
-            "data" : {"combineName":name,"combineParty":party,"selectedProfiles": selectedListProfiles}
+            "data" : {"combineName":name, "ftpFolder":ftpFolder, "combineParty":party,"selectedProfiles": selectedListProfiles}
         } ).then( successCallback , failureCallback );
     };
 

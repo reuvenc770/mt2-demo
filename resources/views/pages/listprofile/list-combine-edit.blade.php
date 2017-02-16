@@ -5,7 +5,7 @@
 @section( 'angular-controller' , 'ng-controller="ListProfileController as listProfile"')
 
 @section( 'content' )
-<div class="panel mt2-theme-panel" ng-init="listProfile.loadListProfileList(); listProfile.setCombine( {{ $combineId}} , '{{ $combineName }}' ,'{{ $combineParty }}', {{ $listProfileIds }} );">
+<div class="panel mt2-theme-panel" ng-init="listProfile.loadListProfileList(); listProfile.setCombine( {{ $combineId}} , '{{ $ftpFolder }}', '{{ $combineName }}' ,'{{ $combineParty }}', {{ $listProfileIds }} );">
     <div class="panel-heading">
         <div class="panel-title">Edit List Profile Combine</div>
     </div>
@@ -18,6 +18,17 @@
                        required="required" name="name" type="text">
                 <div class="help-block" ng-show="listProfile.formErrors.combineName">
                     <div ng-repeat="error in listProfile.formErrors.combineName">
+                        <span ng-bind="error"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" ng-class="{ 'has-error' : listProfile.formErrors.ftpFolder }">
+                <label>FTP Folder</label>
+                <input placeholder="ftp_folder" value="" class="form-control" ng-model="listProfile.currentCombine.ftpFolder"
+                       required="required" name="name" type="text">
+                <div class="help-block" ng-show="listProfile.formErrors.ftpFolder">
+                    <div ng-repeat="error in listProfile.formErrors.ftpFolder">
                         <span ng-bind="error"></span>
                     </div>
                 </div>

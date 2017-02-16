@@ -165,7 +165,7 @@
                 </md-table-container>
             </div>
         </div>
-        <listprofile-combine-create combine-name="listProfile.combineName" combine-error="listProfile.formErrors.combineName"
+        <listprofile-combine-create ftp-folder="listProfile.ftpFolder" combine-name="listProfile.combineName" ftp-folder-error="listProfile.formErrors.ftpFolder" combine-error="listProfile.formErrors.combineName"
                                     create-combine="listProfile.createCombine()"></listprofile-combine-create>
 @stop
 
