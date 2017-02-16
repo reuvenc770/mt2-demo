@@ -246,25 +246,11 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.firstParty =  self.firstParty ?  false: true;
     };
 
-    self.toggleRow = function (selectedValue) {
-        var index = self.selectedRows.indexOf(selectedValue);
-
-        if (index >= 0) {
-            self.selectedRows.splice(index, 1);
-        } else {
-            self.selectedRows.push(selectedValue);
-        }
-
+    self.checkExportStatus = function () {
         if (self.selectedRows.length > 0) {
             self.disableExport = false;
         } else {
             self.disableExport = true;
-        }
-
-        if (self.selectedRows.length > 1) {
-            self.deployLinkText = "Send Packages to FTP"
-        } else {
-            self.deployLinkText = "Download Package";
         }
     };
 
@@ -289,18 +275,16 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.loadLastColumnView = function () {
         var columnCookieValues = angular.fromJson( $cookies.get( 'deployColumnView' ) );
 
-        self.columnToggleMapping.cfs.showColumns = columnCookieValues.cfs;
-        self.columnToggleMapping.domains.showColumns =  columnCookieValues.domains;
-    };
-
-    self.checkChecked = function(selectedValue){
-        var index = self.selectedRows.indexOf(selectedValue);
-        return index >= 0;
+        if ( typeof(columnCookieValues) != 'undefined') {
+            self.columnToggleMapping.cfs.showColumns = columnCookieValues.cfs;
+            self.columnToggleMapping.domains.showColumns =  columnCookieValues.domains;
+        }
     };
 
     self.exportCsv = function () {
         returnUrl = DeployApiService.exportCsv(self.selectedRows);
         $window.open(returnUrl);
+        self.selectedRows = [];
     };
 
 
@@ -329,6 +313,8 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         for (index = 0; index < packageIds.length; ++index) {
             $window.open(url + packageIds[index]);
         }
+
+        self.selectedRows = [];
     };
     self.downloadHtml = function (){
         var packageIds = self.selectedRows;
@@ -336,6 +322,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         for (index = 0; index < packageIds.length; ++index) {
             $window.open(url + packageIds[index]);
         }
+        self.selectedRows = [];
     };
 
     self.checkStatus = function(approval,status){
@@ -585,6 +572,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         modalService.setModalBody('Packages are being generated');
         modalService.launchModal();
 
+        self.selectedRows = [];
         self.loadDeploys();
         self.startPolling();
     };

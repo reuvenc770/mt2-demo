@@ -168,7 +168,7 @@
     <form name="deployForm" novalidate ng-init="deploy.loadLastColumnView()">
         <input name="_token" type="hidden" value="{{ csrf_token() }}">
         <md-table-container>
-            <table md-table md-progress="deploy.queryPromise">
+            <table md-table md-row-select="true" multiple md-progress="deploy.queryPromise" ng-model="deploy.selectedRows">
                 <thead md-head class="mt2-theme-thead">
                 <tr md-row>
                     <th md-column class="mt2-table-btn-column"></th>
@@ -192,14 +192,12 @@
                 <tr md-row ng-repeat="record in deploy.deploys track by $index" class="table-row-condensed"
                     ng-class="{ 'bg-success' : record.deployment_status == 1 ,
                         'bg-warning' : record.deployment_status == 0 || record.deployment_status == 2 ,
-                        'bg-info' : record.deployment_status == 3 }">
-                    <td md-cell class="mt2-table-btn-column" nowrap>
-                        <md-checkbox ng-checked="deploy.checkChecked(record.deploy_id)" ng-show="@{{deploy.checkStatus(record.creative_approval,record.creative_status)
+                        'bg-info' : record.deployment_status == 3 }"
+                    ng-show="@{{deploy.checkStatus(record.creative_approval,record.creative_status)
                             && deploy.checkStatus(record.from_approval,record.from_status)
-                            && deploy.checkStatus(record.subject_approval,record.subject_status)}}" aria-label="Select" name="selectedRows"
-                                     ng-click="deploy.toggleRow(record.deploy_id)"> </md-checkbox>
-                            &nbsp;&nbsp;
-
+                            && deploy.checkStatus(record.subject_approval,record.subject_status)}}"
+                    md-select="record.deploy_id" md-on-select="deploy.checkExportStatus()">
+                    <td md-cell class="mt2-table-btn-column" nowrap>
                             @if (Sentinel::hasAccess('api.deploy.update'))
                             <md-icon md-font-set="material-icons" class="mt2-icon-black icon-xs" ng-hide="record.deployment_status ==1" ng-click="deploy.editDeploy( record.deploy_id)" aria-label="Edit" data-toggle="tooltip" data-placement="bottom" title="Edit">edit</md-icon>
                             @endif
@@ -257,7 +255,7 @@
 
                 <tfoot>
                 <tr>
-                    <td colspan="14">
+                    <td colspan="15">
                         <md-content class="md-mt2-zeta-theme md-hue-2">
                             <md-table-pagination md-limit="deploy.paginationCount" md-limit-options="deploy.paginationOptions" md-page="deploy.currentPage" md-total="@{{deploy.deployTotal}}" md-on-paginate="deploy.loadAccounts" md-page-select></md-table-pagination>
                         </md-content>

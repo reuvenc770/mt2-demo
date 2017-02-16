@@ -222,7 +222,10 @@ table.md-table {
     background-color: #fff;
 }
 
-table.md-table:not(.md-row-select) td.md-cell:nth-child(n+2):nth-last-child(n+2), table.md-table:not(.md-row-select) th.md-column:nth-child(n+2):nth-last-child(n+2){
+table.md-table:not(.md-row-select) td.md-cell:nth-child(n+2):nth-last-child(n+2),
+table.md-table:not(.md-row-select) th.md-column:nth-child(n+2):nth-last-child(n+2),
+table.md-table.md-row-select td.md-cell:nth-child(n+3):nth-last-child(n+2),
+table.md-table.md-row-select th.md-column:nth-child(n+3):nth-last-child(n+2){
     padding: 0 15px 0 0;
 }
 
@@ -262,8 +265,9 @@ table.md-table tbody.md-body > tr.md-row {
     margin-top: 1em;
 }
 
-table.md-table.md-row-select tbody.md-body > tr.md-row:not([disabled]):hover {
-    cursor: pointer;
+table.md-table.md-row-select td.md-cell:first-child,
+table.md-table.md-row-select th.md-column:first-child {
+    padding-left: 14px;
 }
 
 td.mt2-table-btn-column.md-cell,
