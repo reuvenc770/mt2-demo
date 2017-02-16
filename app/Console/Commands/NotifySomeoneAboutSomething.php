@@ -49,7 +49,7 @@ class NotifySomeoneAboutSomething extends Command
                 $this->dispatch( $job );
                 break;
             default:
-                $this->info("Sorry that something cant be sent to someone");
+                $this->info("Sorry that something can't be sent to someone");
         }
 
     }
