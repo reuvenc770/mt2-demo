@@ -91,6 +91,10 @@ mt2App.controller( 'espController' , [ '$rootScope' , '$log' , '$window' , '$loc
     self.toggle = function(recordId,direction) {
         EspApiService.toggleRow(recordId, direction, self.toggleRowSuccess, self.toggleRowFailure)
     };
+    
+    self.toggleSuppression = function(recordId,toggleBoolean) {
+        EspApiService.toggleSuppression(recordId, toggleBoolean,  self.toggleRowSuccess, self.toggleRowFailure)
+    };
 
     self.generateCustomId = function() {
         EspApiService.generateCustomId( self.generateCustomIdSuccessCallback , self.generateCustomIdFailureCallback );

@@ -153,6 +153,10 @@ class EspApiAccountRepo
         return $this->espAccount->find($id)->update(['status'=> $direction]);
     }
 
+    public function toggleSuppression($id, $bool){
+        return $this->espAccount->find($id)->update(['enable_suppression' => $bool]);
+    }
+
     public function getAccountWithOAuth($id) {
      return $this->espAccount->with('OAuthTokens')->find($id);
     }
