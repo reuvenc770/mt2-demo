@@ -19,7 +19,7 @@ class NotifySomeoneAboutSomething extends Command
      *
      * @var string
      */
-    protected $description = 'We have a lot of notification jobs lets have one command launch them all';
+    protected $description = "We have a lot of notification jobs let's have one command launch them all";
 
     /**
      * Create a new command instance.
