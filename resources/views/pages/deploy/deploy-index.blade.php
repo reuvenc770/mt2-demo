@@ -169,11 +169,11 @@
         <input name="_token" type="hidden" value="{{ csrf_token() }}">
         <md-table-container>
             <table md-table md-row-select="true" multiple md-progress="deploy.queryPromise" ng-model="deploy.selectedRows">
-                <thead md-head class="mt2-theme-thead">
+                <thead md-head md-order="deploy.sort" md-on-reorder="deploy.sortCurrentRecords" class="mt2-theme-thead">
                 <tr md-row>
                     <th md-column class="mt2-table-btn-column"></th>
-                    <th md-column class="md-table-header-override-whitetext">Send Date</th>
-                    <th md-column class="md-table-header-override-whitetext">Deploy ID</th>
+                    <th md-column md-order-by="send_date" class="md-table-header-override-whitetext">Send Date</th>
+                    <th md-column md-order-by="deploy_id" class="md-table-header-override-whitetext">Deploy ID</th>
                     <th md-column class="md-table-header-override-whitetext">ESP Account</th>
                     <th md-column class="md-table-header-override-whitetext">List Profile</th>
                     <th md-column class="md-table-header-override-whitetext">Offer</th>

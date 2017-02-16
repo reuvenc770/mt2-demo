@@ -56,10 +56,11 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = '1';
     self.deployTotal = 0;
-    self.sort = "-deployment_status";
+    self.sort = "-deploy_id";
     self.queryPromise = null;
     self.copyToFutureDate = '';
     self.formSubmitting = false;
+    self.recordListStatus = 'index';
 
     self.columnToggleMapping = {
         'cfs' : { 'showColumns' : true, 'switchText' : 'Hide' },
@@ -83,7 +84,18 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.loadDeploys = function () {
-        self.queryPromise = DeployApiService.getDeploys(self.currentPage, self.paginationCount, self.searchType, self.searchData, self.loadDeploysSuccess, self.loadDeploysFail);
+        self.queryPromise = DeployApiService.getDeploys(self.currentPage, self.paginationCount, self.sort, self.searchType, self.searchData, self.loadDeploysSuccess, self.loadDeploysFail);
+    };
+
+    self.sortCurrentRecords = function () {
+        console.log(self.recordListStatus);
+        if (self.recordListStatus === 'index' ) {
+            self.loadDeploys();
+        }
+
+        if ( self.recordListStatus === 'search' ) {
+            self.searchDeploys();
+        }
     };
 
     self.loadListProfiles = function () {
@@ -182,6 +194,8 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.searchDeploys = function() {
+        self.recordListStatus = 'search';
+
         var searchObj = {
             "dates": self.search.dates || undefined,
             "deployId": self.search.deployId || undefined,
@@ -191,7 +205,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
             "offerNameWildcard": self.search.offer || undefined
         };
 
-        self.queryPromise = DeployApiService.searchDeploys(self.paginationCount, searchObj, self.loadDeploysSuccess, self.loadDeploysFail);
+        self.queryPromise = DeployApiService.searchDeploys(self.paginationCount, self.sort, searchObj, self.loadDeploysSuccess, self.loadDeploysFail);
         self.currentlyLoading = 0;
     };
 
@@ -201,6 +215,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         };
 
         self.loadAccounts();
+        self.recordListStatus = 'index';
     };
 
     self.offerWasSelected = function (item) {
