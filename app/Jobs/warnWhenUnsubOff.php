@@ -42,7 +42,7 @@ class warnWhenUnsubOff extends Job implements ShouldQueue
             });
 
         } catch(\Exception $e){
-            throw new JobException("Could not sum up Bronto Row Stats {$e->getMessage()}");
+            throw new JobException("Could warn about unsubs not being off{$e->getMessage()}");
         }
         JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
     }
