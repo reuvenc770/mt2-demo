@@ -17,7 +17,7 @@ class AddFoldersToListProfiles extends Migration
         });
 
         Schema::connection("list_profile")->table('list_profile_combines', function(Blueprint $table){
-            $table->string("ftp_folder")->default("lpc");
+            $table->string("ftp_folder")->default("lp_combines");
         });
     }
 
