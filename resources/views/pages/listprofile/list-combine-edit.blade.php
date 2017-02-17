@@ -38,7 +38,11 @@
 
     </div>
     <div class="panel-footer">
-            <input class="btn btn-block mt2-theme-btn-primary" ng-click="listProfile.updateCombine()" type="submit" value="Update">
+        <div class="row">
+        <div class="col-md-offset-4 col-md-4">
+            <input class="btn btn-block mt2-theme-btn-primary" ng-click="listProfile.updateCombine()" type="submit" value="Update List Profile Combine">
+        </div>
+        </div>
     </div>
 </div>
 @stop

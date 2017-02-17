@@ -38,11 +38,13 @@ mt2App.service( 'DBAApiService' , [ 'paginationService' , '$http' , '$log' , fun
         } ).then( successCallback , failureCallback );
     };
 
-    self.searchDBA = function ( count , data, successCallback , failureCallback ) {
+    self.searchDBA = function ( count , data, sortField, successCallback , failureCallback ) {
+        var sort = paginationService.sortPage( sortField );
+
         return $http( {
             "method" : "GET" ,
             "url" : self.pagerApiUrl ,
-            "params" : { "page" : 1 , "count" : count, "data" : data }
+            "params" : { "page" : 1 , "count" : count, "sort" : sort , "data" : data }
         } ).then( successCallback , failureCallback );
     };
 
@@ -55,7 +57,7 @@ mt2App.service( 'DBAApiService' , [ 'paginationService' , '$http' , '$log' , fun
     self.toggleRow = function ( recordId, direction, successCallback, failureCallback ) {
         $http( {
             "method" : "GET" ,
-            "url" : this.baseApiUrl + '/' + recordId,
+            "url" : this.baseApiUrl + '/toggle/' + recordId,
             "params" : { "direction" : direction }
         } ).then( successCallback , failureCallback );
     };

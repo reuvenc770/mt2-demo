@@ -35,7 +35,7 @@
                         </select>
 
                              <div class="input-group-btn">
-                            <span class=" btn btn-primary" ng-click="weber.convertReport(weber.currentMappings[{{$deploy['id']}}] , {{$deploy['id']}} )" id="basic-addon2">Assign Deploy</span>
+                            <span class="btn mt2-theme-btn-primary" ng-click="weber.convertReport(weber.currentMappings[{{$deploy['id']}}] , {{$deploy['id']}} )" id="basic-addon2">Assign Deploy</span>
                                  </div>
                             </div>
                         @endif

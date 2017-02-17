@@ -9,9 +9,13 @@
     @include( 'pages.feedgroup.feedgroup-form' )
 
     <div class="panel-footer">
+        <div class="row">
+        <div class="col-md-offset-4 col-md-4">
         <button type="button" class="btn mt2-theme-btn-primary btn-block" ng-click="feedGroup.updateFeedGroup()" ng-disabled="feedGroup.updatingFeedGroup">
            Update Feed Group
         </button>
+        </div>
+        </div>
     </div>
 </div>
 @stop

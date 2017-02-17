@@ -45,10 +45,10 @@
                                          data-toggle="tooltip" data-placement="bottom" title="Activate">play_arrow</md-icon>
                                 <md-icon ng-if="record.enable_suppression" ng-click="esp.toggleSuppression(record.id, 0 )" aria-label="Disable Suppression"
                                          md-font-set="material-icons" class="mt2-icon-black"
-                                         data-toggle="tooltip" data-placement="bottom" title="Activate">pause_circle_outline</md-icon>
+                                         data-toggle="tooltip" data-placement="bottom" title="Pause">pause_circle_outline</md-icon>
                                 <md-icon ng-if="!record.enable_suppression" ng-click="esp.toggleSuppression(record.id, 1 )" aria-label="Enable Suppression"
                                          md-font-set="material-icons" class="mt2-icon-black"
-                                         data-toggle="tooltip" data-placement="bottom" title="Activate">play_circle_outline</md-icon>
+                                         data-toggle="tooltip" data-placement="bottom" title="Unpause">play_circle_outline</md-icon>
                             </div>
                             </div>
                         </td>

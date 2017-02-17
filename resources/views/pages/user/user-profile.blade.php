@@ -93,7 +93,11 @@
         </fieldset>
     </div>
     <div class="panel-footer">
+        <div class="row">
+        <div class="col-md-offset-4 col-md-4">
             <input class="btn mt2-theme-btn-primary btn-block" ng-click="user.updateProfile()" ng-disabled="user.editForm" type="submit" value="Update Profile">
+        </div>
+        </div>
     </div>
 </div>
 @endsection

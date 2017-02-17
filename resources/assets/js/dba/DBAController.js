@@ -169,7 +169,7 @@ mt2App.controller( 'DBAController' , [ '$log' , '$window' , '$location' , '$time
             "entity_name": self.search.entity_name || undefined
         };
 
-        self.queryPromise = DBAApiService.searchDBA(self.paginationCount, searchObj, self.loadAccountsSuccessCallback, self.loadAccountsFailureCallback);
+        self.queryPromise = DBAApiService.searchDBA(self.paginationCount, searchObj, self.sort, self.loadAccountsSuccessCallback, self.loadAccountsFailureCallback);
         self.currentlyLoading = 0;
     };
 

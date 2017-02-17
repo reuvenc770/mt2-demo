@@ -16,7 +16,11 @@
         </fieldset>
     </div>
     <div class="panel-footer">
+        <div class="row">
+        <div class="col-md-offset-4 col-md-4">
             <input class="btn btn-block" ng-class="{ 'mt2-theme-btn-primary' : !listProfile.enableAdmiral , 'btn-danger' : listProfile.enableAdmiral }" ng-click="listProfile.saveListProfile()" type="submit" value="Add List Profile">
+        </div>
+        </div>
     </div>
 </div>
 @stop

@@ -20,7 +20,11 @@
             </fieldset>
         </div>
         <div class="panel-footer">
+            <div class="row">
+            <div class="col-md-offset-4 col-md-4">
                 <input class="btn mt2-theme-btn-primary btn-block" ng-click="dg.editAccount()"  ng-disabled="dg.editForm" type="submit" value="Update ISP Group">
+            </div>
+            </div>
         </div>
     </div>
 @endsection

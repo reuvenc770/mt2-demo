@@ -13,7 +13,11 @@
             </fieldset>
         </div>
         <div class="panel-footer">
+            <div class="row">
+            <div class="col-md-offset-4 col-md-4">
                 <input class="btn mt2-theme-btn-primary btn-block" ng-click="registrar.saveNewAccount()" ng-disabled="registrar.formSubmitted" type="submit" value="Add Registrar">
+            </div>
+            </div>
         </div>
     </div>
 @endsection
