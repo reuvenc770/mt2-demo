@@ -43,6 +43,11 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
             .then( successCallback , failCallBack );
     };
 
+    self.getFirstPartyListProfiles = function (successCallback, failCallBack){
+        $http( { "method" : "GET" , "url" : this.listProfileUrl + '/firstparty' } )
+            .then( successCallback , failCallBack );
+    };
+
     self.getMailingDomains = function (espAccountId, domainType, successCallback, failCallback){
         $http( {
             "method" : "GET" ,

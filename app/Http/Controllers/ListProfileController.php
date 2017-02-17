@@ -257,4 +257,7 @@ class ListProfileController extends Controller
         return response()->json( [ 'status' => true , 'id' => $newId ] );
     }
 
+    public function getFirstPartyListCombines(){
+        return response()->json( $this->combineService->getFirstPartyListCombines() );
+    }
 }

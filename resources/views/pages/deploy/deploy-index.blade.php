@@ -339,13 +339,15 @@
                                 <div class="col-sm-10 col-md-9">
                                     <select name="list_profile" id="list_profile" class="form-control" ng-class="{ 'has-error' : deploy.formErrors.list_profile_combine_id }"
                                             ng-model="deploy.currentDeploy.list_profile_combine_id"
-                                            ng-disabled="deploy.currentlyLoading || deploy.firstParty">
+                                            ng-disabled="deploy.currentlyLoading">
                                         <option value="">List Profile</option>
                                         <option ng-repeat="option in deploy.listProfiles" ng-value="option.id"
                                                 ng-selected="option.id == deploy.currentDeploy.list_profile_combine_id">@{{ option.name }}
                                         </option>
                                     </select>
-                                    <input ng-model="deploy.currentDeploy.party" ng-change="deploy.toggleListProfile()" ng-true-value="1" ng-false-value="3" type="checkbox"> First Party Deploy?
+                                    <label style="font-weight: normal;">
+                                        <input ng-model="deploy.currentDeploy.party" ng-change="deploy.toggleListProfile()" ng-true-value="1" ng-false-value="3" type="checkbox"> First Party Workflow Deploy
+                                    </label>
                                     <div class="help-block" ng-show="deploy.formErrors.list_profile_combine_id">
                                         <div ng-repeat="error in deploy.formErrors.list_profile_combine_id">
                                             <span ng-bind="error"></span>
@@ -380,7 +382,7 @@
 
                         <div class="col-md-6">
                             <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.offer_id }">
-                                <label class="col-sm-2 col-md-3 control-label">Offer <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="bottom" data-content="Begin search for offers by typing in the first 3 letters of offer name.">help</md-icon></label>
+                                <label class="col-sm-2 col-md-3 control-label">Offer</label>
                                 <div class="col-sm-10 col-md-9">
                                     <div ng-hide="deploy.allOffers">
                                     <div angucomplete-alt ng-required="true"
@@ -406,8 +408,14 @@
                                             </option>
                                         </select>
                                     </div>
-                                    <div ng-click="deploy.showAllOffers()" ng-hide="deploy.allOffers" style="font-size:11px; text-align: center; color: red; cursor: pointer; padding-top: 5px">All Offers</div>
-                                    <div ng-click="deploy.hideAllOffers()" ng-show="deploy.allOffers" style="font-size:11px; text-align: center; color: red; cursor: pointer; padding-top: 5px">Search Offers</div>
+                                    <div class="row">
+                                        <div class="col-xs-6">
+                                            <div ng-click="deploy.hideAllOffers()" ng-class="{ 'text-muted' : deploy.allOffers }" style="font-size:11px; text-align: center; cursor: pointer; padding-top: 5px">Search Offers <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="bottom" data-content="To search for offers first select a send date, then type in the first 3 letters of offer name.">help</md-icon></div>
+                                        </div>
+                                        <div class="col-xs-6">
+                                            <div ng-click="deploy.showAllOffers()" ng-class="{ 'text-muted' : !deploy.allOffers }" style="font-size:11px; text-align: center; cursor: pointer; padding-top: 5px">View All Offers</div>
+                                        </div>
+                                    </div>
                                     <div class="help-block" ng-show="deploy.formErrors.offer_id">
                                         <div ng-repeat="error in deploy.formErrors.offer_id">
                                             <span ng-bind="error"></span>
