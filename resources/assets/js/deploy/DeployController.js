@@ -61,10 +61,11 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = '1';
     self.deployTotal = 0;
-    self.sort = "-deployment_status";
+    self.sort = "-deploy_id";
     self.queryPromise = null;
     self.copyToFutureDate = '';
     self.formSubmitting = false;
+    self.recordListStatus = 'index';
 
     self.columnToggleMapping = {
         'cfs' : { 'showColumns' : true, 'switchText' : 'Hide' },
@@ -88,7 +89,17 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.loadDeploys = function () {
-        self.queryPromise = DeployApiService.getDeploys(self.currentPage, self.paginationCount, self.searchType, self.searchData, self.loadDeploysSuccess, self.loadDeploysFail);
+        self.queryPromise = DeployApiService.getDeploys(self.currentPage, self.paginationCount, self.sort, self.searchType, self.searchData, self.loadDeploysSuccess, self.loadDeploysFail);
+    };
+
+    self.sortCurrentRecords = function () {
+        if (self.recordListStatus === 'index' ) {
+            self.loadDeploys();
+        }
+
+        if ( self.recordListStatus === 'search' ) {
+            self.searchDeploys();
+        }
     };
 
     self.loadListProfiles = function () {
@@ -187,6 +198,8 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.searchDeploys = function() {
+        self.recordListStatus = 'search';
+
         var searchObj = {
             "dates": self.search.dates || undefined,
             "deployId": self.search.deployId || undefined,
@@ -196,7 +209,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
             "offerNameWildcard": self.search.offer || undefined
         };
 
-        self.queryPromise = DeployApiService.searchDeploys(self.paginationCount, searchObj, self.loadDeploysSuccess, self.loadDeploysFail);
+        self.queryPromise = DeployApiService.searchDeploys(self.paginationCount, self.sort, searchObj, self.loadDeploysSuccess, self.loadDeploysFail);
         self.currentlyLoading = 0;
     };
 
@@ -206,6 +219,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         };
 
         self.loadAccounts();
+        self.recordListStatus = 'index';
     };
 
     self.showAllOffers = function(){
@@ -264,25 +278,11 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.firstParty =  self.firstParty ?  false: true;
     };
 
-    self.toggleRow = function (selectedValue) {
-        var index = self.selectedRows.indexOf(selectedValue);
-
-        if (index >= 0) {
-            self.selectedRows.splice(index, 1);
-        } else {
-            self.selectedRows.push(selectedValue);
-        }
-
+    self.checkExportStatus = function () {
         if (self.selectedRows.length > 0) {
             self.disableExport = false;
         } else {
             self.disableExport = true;
-        }
-
-        if (self.selectedRows.length > 1) {
-            self.deployLinkText = "Send Packages to FTP"
-        } else {
-            self.deployLinkText = "Download Package";
         }
     };
 
@@ -307,18 +307,16 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.loadLastColumnView = function () {
         var columnCookieValues = angular.fromJson( $cookies.get( 'deployColumnView' ) );
 
-        self.columnToggleMapping.cfs.showColumns = columnCookieValues.cfs;
-        self.columnToggleMapping.domains.showColumns =  columnCookieValues.domains;
-    };
-
-    self.checkChecked = function(selectedValue){
-        var index = self.selectedRows.indexOf(selectedValue);
-        return index >= 0;
+        if ( typeof(columnCookieValues) != 'undefined') {
+            self.columnToggleMapping.cfs.showColumns = columnCookieValues.cfs;
+            self.columnToggleMapping.domains.showColumns =  columnCookieValues.domains;
+        }
     };
 
     self.exportCsv = function () {
         returnUrl = DeployApiService.exportCsv(self.selectedRows);
         $window.open(returnUrl);
+        self.selectedRows = [];
     };
 
 
@@ -346,6 +344,8 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         for (index = 0; index < packageIds.length; ++index) {
             $window.open(url + packageIds[index]);
         }
+
+        self.selectedRows = [];
     };
     self.downloadHtml = function (){
         var packageIds = self.selectedRows;
@@ -353,6 +353,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         for (index = 0; index < packageIds.length; ++index) {
             $window.open(url + packageIds[index]);
         }
+        self.selectedRows = [];
     };
 
     self.checkStatus = function(approval,status){
@@ -606,6 +607,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         modalService.setModalBody('Packages are being generated');
         modalService.launchModal();
 
+        self.selectedRows = [];
         self.loadDeploys();
         self.startPolling();
     };
