@@ -63,7 +63,6 @@ class DeployRepo implements Mt2Export
         if('' !== $searchData) {
             $query = $this->mapQuery($searchData, $query);
         }
-        $query->orderBy('deploy_id', 'desc');
         return $query;
     }
 
