@@ -60,7 +60,7 @@ class AWeberActionImmigration extends Job implements ShouldQueue
             AWeberEmailAction::clearActionsByID($recordsToRemove);
 
         } catch (\Exception $e) {
-            $jobException = new JobException('Failed to save records. ' . $e->getMessage(), JobException::NOTICE, $e);
+            $jobException = new JobException('Failed to save records. ' . $e->getMessage() .' + '. $e->getLine(), JobException::NOTICE, $e);
             $jobException->setDelay(180);
             throw $jobException;
         }
