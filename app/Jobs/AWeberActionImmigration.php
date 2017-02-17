@@ -16,7 +16,6 @@ class AWeberActionImmigration extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
     CONST JOB_NAME = "AWeberActionImmigration";
-    private $actionsTypes;
     private $actions;
     private $tracking;
     /**
@@ -26,7 +25,6 @@ class AWeberActionImmigration extends Job implements ShouldQueue
      */
     public function __construct($actions, $tracking)
     {
-       $this->actionsTypes = ActionType::all();
         $this->actions = $actions;
         $this->tracking = $tracking;
         JobTracking::startAggregationJob( self::JOB_NAME , $this->tracking );
@@ -47,7 +45,7 @@ class AWeberActionImmigration extends Job implements ShouldQueue
                 if ($emailAddress) {
                     $recordService->queueDeliverable(
                         $this->getActionName($action->action_id),  //so to fit withen the method of queDeliverable i need to store this the other way
-                        $emailAddress,
+                        $emailAddress->email_address,
                         $action->esp_account_id,
                         $action->deploy_id,
                         $action->esp_internal_id,
@@ -69,8 +67,9 @@ class AWeberActionImmigration extends Job implements ShouldQueue
 
     public function getActionName($actionNumber)
     {
+        $actionTypes = ActionType::all();
         $actionName = false;
-        foreach ($this->actionsTypes as $action) {
+        foreach ($actionTypes as $action) {
             if ($action->id == $actionNumber) {
                 $actionName = $action->name;
             }
