@@ -194,6 +194,10 @@ class DeployRepo implements Mt2Export
             $query->whereBetween('deploys.send_date',$dates);
         }
 
+        if (isset($searchData['listProfileParty'])) {
+            $query->where('deploys.party' , $searchData['listProfileParty'] );
+        }
+
         return $query;
     }
 

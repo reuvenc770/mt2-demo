@@ -133,7 +133,21 @@
                             </div>
                             </div>
                         </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <span class="input-group-addon">List Profile Party</span>
+                                    <select name="party_search" id="party_search" class="form-control" ng-model="deploy.search.list_profile_party">
+                                        <option ng-selected="'' == deploy.search.list_profile_party" value="">Select Party</option>
+                                        <option ng-selected=" 1 == deploy.search.list_profile_party" value="1">1st Party</option>
+                                        <option ng-selected=" 3 == deploy.search.list_profile_party" value="3">3rd Party</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="row">
                         <div class="col-lg-6">
                             <md-datepicker flex="50" name="dateField" ng-change="deploy.updateSearchDate()" ng-model="deploy.search.startDate"
                                            md-placeholder="Start Date"></md-datepicker>

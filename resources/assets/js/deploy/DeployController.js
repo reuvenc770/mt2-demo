@@ -198,7 +198,8 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
             "espAccountId": self.search.esp_account_id || undefined,
             "status": self.search.status || undefined,
             "esp": self.search.esp || undefined,
-            "offerNameWildcard": self.search.offer || undefined
+            "offerNameWildcard": self.search.offer || undefined,
+            "listProfileParty" : self.search.list_profile_party || undefined
         };
 
         self.queryPromise = DeployApiService.searchDeploys(self.paginationCount, searchObj, self.loadDeploysSuccess, self.loadDeploysFail);
