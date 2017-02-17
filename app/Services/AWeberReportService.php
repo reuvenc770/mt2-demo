@@ -250,7 +250,8 @@ class AWeberReportService extends AbstractReportService implements IDataService
                                 //
                                 //Everything that is missing passes through here, so maybe the email
                                 // will be picked up before the other jobs occur.
-                                $this->dispatch((new UpdateSingleAWeberSubscriber($message['subscriber_link'], $this->api->getEspAccountId(), str_random(16)))->onQueue("AWeber"));
+                                //TODO MAKE THIS MORE THEN 1 EMAIL
+                                //$this->dispatch((new UpdateSingleAWeberSubscriber($message['subscriber_link'], $this->api->getEspAccountId(), str_random(16)))->onQueue("AWeber"));
                             }
                             if ($message['total_opens'] > 0) {
                                 $processState['openCollection'][] = $message['opens_collection_link'];
