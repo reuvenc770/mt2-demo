@@ -27,7 +27,11 @@
             @endforeach
         </div>
         <div class="panel-footer">
-            <a href=""  class="btn btn-primary btn-block" ng-click="weber.updateLists()">Update Mailing List Status</a>
+            <div class="row">
+            <div class="col-md-offset-4 col-md-4">
+              <input class="btn btn-block mt2-theme-btn-primary" ng-click="weber.updateLists()" value="Update Mailing List Status">
+            </div>
+            </div>
         </div>
     </div>
 @stop

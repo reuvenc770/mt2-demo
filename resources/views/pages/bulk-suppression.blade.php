@@ -94,8 +94,10 @@
         </div>
     </div>
     <div class="panel-footer">
-        <div class="form-group">
+        <div class="row">
+        <div class="col-md-offset-4 col-md-4">
             <input class="btn mt2-theme-btn-primary btn-block" ng-disabled="!supp.emailsLoaded" type="button" ng-click="supp.uploadSuppressions()" value="Suppress">
+        </div>
         </div>
     </div>
 </div>

@@ -259,10 +259,14 @@
             </div>
 
         </fieldset>
+        <div class="row">
+        <div class="col-md-offset-4 col-md-4">
         <button class="btn mt2-theme-btn-primary btn-block" ng-click="dba.addPOBox()">
             <span ng-show="!dba.editingPOBox">Create </span>
             <span ng-show="dba.editingPOBox">Update </span>P.O. Box
         </button>
+        </div>
+        </div>
     </div>
     <div class="panel-footer" ng-show="dba.poBoxHolder.length > 0">
         <div class="thumbnail no-margin" ng-repeat="(key, value) in dba.poBoxHolder track by $index">
