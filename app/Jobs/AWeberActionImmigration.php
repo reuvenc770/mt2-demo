@@ -28,7 +28,7 @@ class AWeberActionImmigration extends Job implements ShouldQueue
     {
        $this->actionsTypes = ActionType::all();
         $this->actions = $actions;
-        $this->actions = $tracking;
+        $this->tracking = $tracking;
         JobTracking::startAggregationJob( self::JOB_NAME , $this->tracking );
     }
 
