@@ -55,7 +55,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     self.paginationCount = paginationService.getDefaultPaginationCount();
     self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
-    self.search = {"esp": espName,
+    self.search = {"esp": espName || undefined,
         "eps_account_id" : undefined,
         "doing_business_as_id": undefined ,
         "registrar_id": undefined,
@@ -82,13 +82,6 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         DomainService.getAccount(id,self.loadAccountSuccessCallback, self.loadAccountsFailureCallback);
     };
 
-    self.updateProxies = function () {
-        DomainService.getProxies(self.currentAccount.domain_type, function (response) {
-            self.proxies = response.data;
-        });
-        self.updatingAccounts = false;
-    };
-
     self.updateType = function (type) {
 
         self.updatingAccounts = true;
@@ -99,14 +92,13 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
             self.updateDomains();
         }
         self.rowBeingEdited = 0;
-        self.updateProxies();
 
+        self.updatingAccounts = false;
     };
     self.init = function (type) {
 
         self.updatingAccounts = true;
         self.currentAccount.domain_type = type;
-        self.updateProxies();
         if (typeof espNameQuery != 'undefined') { // we have to grab the esp's and then assign current
             self.updateEspAccounts();
             self.currentAccount.espAccountId = currentEspAccount;
@@ -114,6 +106,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         if(self.currentAccount.espAccountId.length > 0) {
             self.updateDomains();
         }
+        self.updatingAccounts = false;
     };
 
     self.updateDomains = function () {

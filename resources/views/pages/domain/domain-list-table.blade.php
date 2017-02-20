@@ -65,7 +65,9 @@
             <td md-cell ng-show="domain.beingEdited(record.dom_id)" ng-if="domain.type == 2">
                     <select name="proxy" id="proxy" class="form-control"
                                ng-model="domain.currentDomain.proxy_id">
-                        <option ng-repeat="option in domain.proxies" ng-value="option.id">@{{option.name }} - @{{option.ip_addresses}}</option>
+                        @foreach ( $proxies as $proxy )
+                            <option value="{{ $proxy['id'] }}">{{ $proxy['name'] }} &nbsp;-&nbsp; {{ $proxy['ip_addresses'] }}</option>
+                        @endforeach
                     </select>
                 <div class="help-block"  ng-show="domain.formErrors.proxy_id">
                     <div ng-repeat="error in domain.formErrors.proxy_id">

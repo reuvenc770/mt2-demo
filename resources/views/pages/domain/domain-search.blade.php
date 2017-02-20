@@ -70,8 +70,10 @@
                            ng-model="domain.search.proxy_id"
                            ng-disabled="domain.updatingAccounts">
                     <option value="">--</option>
-                    <option ng-repeat="option in domain.proxies" ng-value="option.id">@{{ option.name  }}
-                    </option>
+                    @foreach ( $proxies as $proxy )
+                        <option value="{{ $proxy['id'] }}">{{ $proxy['name'] }} &nbsp;-&nbsp; {{ $proxy['ip_addresses'] }}</option>
+                    @endforeach
+
                 </select>
             </div>
             <div class="col-sm-4">
