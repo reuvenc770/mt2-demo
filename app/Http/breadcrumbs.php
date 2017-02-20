@@ -310,7 +310,7 @@ Breadcrumbs::register('domain.listview', function($breadcrumbs) {
 
 Breadcrumbs::register('domain.search', function($breadcrumbs) {
     $breadcrumbs->parent('domain.list');
-    $breadcrumbs->push('Search Domains');
+    $breadcrumbs->push('Domain Search Results');
 });
 
 Breadcrumbs::register('mailingtemplate.list', function($breadcrumbs) {

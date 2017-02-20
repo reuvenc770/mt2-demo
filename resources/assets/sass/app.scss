@@ -578,6 +578,14 @@ table.md-table th.md-column md-icon {
 Panel Custom - we should break up into componets.
 **/
 
+.tabpanel-header {
+    background-color: #ffffff;
+    border-left: 1px solid #dddddd;
+    border-right: 1px solid #dddddd;
+    padding: 15px;
+    font-size: 1.5em;
+}
+
 /**
 Roles Pages custom
 **/
