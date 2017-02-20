@@ -25,7 +25,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
     }
 
     public function getRecordDataFromEid($eid){
-        $attrDb = config('databases.connections.attribution.database');
+        $attrDb = config('database.connections.attribution.database');
         return $this->model
                     ->join("$attrDb.email_feed_assignments as efa", 'email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id')
                     ->where('email_id', $eid)
