@@ -1,10 +1,12 @@
+
 <md-table-container>
     <table md-table>
         <thead md-head class="mt2-theme-thead">
         <tr md-row>
             <th md-column class="mt2-table-btn-column"></th>
             <th md-column class="md-table-header-override-whitetext mt2-table-header-center" ng-hide="domain.rowBeingEdited != 0" >Status</th>
-            <th md-column class="md-table-header-override-whitetext mt2-cell-left-padding" >Domain</th>
+            <th md-column class="md-table-header-override-whitetext mt2-cell-left-padding" >Type</th>
+            <th md-column class="md-table-header-override-whitetext" >Domain</th>
             <th md-column class="md-table-header-override-whitetext" ng-if="domain.type ==2" >Proxy</th>
             <th md-column class="md-table-header-override-whitetext" >Registrar</th>
             <th md-column class="md-table-header-override-whitetext" ng-if="domain.type == 1">Mainsite</th>
@@ -32,7 +34,8 @@
             <td md-cell ng-hide="domain.rowBeingEdited != 0" class="mt2-table-cell-center" ng-class="{ 'bg-success' : record.status == 1 , 'bg-danger' : record.status == 0 }">
                 @{{ record.status == 1 ? 'Active' : 'Inactive' }}
             </td>
-            <td md-cell ng-hide="domain.beingEdited(record.dom_id)" class="mt2-cell-left-padding">@{{ record.domain_name + ( typeof( record.type ) !== 'undefined' ? ( record.type == 1 ? ' - Mailing' : ' - Content' ) : '' ) }}</td>
+            <td md-cell ng-hide="domain.beingEdited(record.dom_id)" class="mt2-cell-left-padding">@{{ ( record.type ? ( record.type == 1 ? 'Mailing' : 'Content' )  : ( domain.type == 1 ? 'Mailing' : 'Content' )  ) }}</td>
+            <td md-cell ng-hide="domain.beingEdited(record.dom_id)">@{{ record.domain_name }}</td>
             <td md-cell ng-if="domain.type == 2" ng-hide="domain.beingEdited(record.dom_id)">@{{ record.proxy_name }}</td>
             <td md-cell ng-hide="domain.beingEdited(record.dom_id)">@{{ record.registrar_name }} - @{{ record.registrar_username }}</td>
             <td md-cell ng-if="domain.type == 1" ng-hide="domain.beingEdited(record.dom_id)" >@{{ record.main_site }}</td>
