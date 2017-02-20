@@ -12,8 +12,12 @@
             </fieldset>
         </div>
         <div class="panel-footer">
+            <div class="row">
+            <div class="col-md-offset-4 col-md-4">
             <input class="btn mt2-theme-btn-primary btn-block" ng-click="proxy.saveNewAccount()"
                    ng-disabled="proxy.formSubmitted" type="submit" value="Add Proxy">
+            </div>
+            </div>
         </div>
     </div>
 @endsection

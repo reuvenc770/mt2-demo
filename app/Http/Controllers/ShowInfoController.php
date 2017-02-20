@@ -95,7 +95,7 @@ class ShowInfoController extends Controller
 
         $records = [];
         $suppressions = [];
-
+        $espSuppressionInformation = [];
         foreach ($ids as $id) {
             $type = preg_match( "/@+/" , $id ) ? 'email' : 'eid';
             $data = $this->emailService->getRecordInfo($id, $type) ?: [];
@@ -132,13 +132,13 @@ class ShowInfoController extends Controller
                         'campaignName' => ''
                     ];
                 }
-
+                $espSuppressionInformation = array_merge($espSuppressionInformation, Suppression::checkGlobalSuppression($record->email_address)->toArray());
             }
         }
-
         $output = [
             'data' => $records,
-            'suppression' => $suppressions
+            'suppression' => $suppressions,
+            'espSuppression' => $espSuppressionInformation
         ];
 
         return response(json_encode($output));

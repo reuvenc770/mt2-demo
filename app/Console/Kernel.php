@@ -70,7 +70,7 @@ class Kernel extends ConsoleKernel
         Commands\SyncMT1FeedLevels::class,
         Commands\AttributionConversionCommand::class,
         Commands\PopulateListProfileAggregationTable::class,
-        Commands\SendDomainExpirationNotice::class,
+        Commands\NotifySomeoneAboutSomething::class,
         Commands\PullContentServerRecordData::class,
         Commands\InflateEmailHistoriesUtil::class,
         Commands\BuildBaseListProfileTables::class,
@@ -180,7 +180,7 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'reports:downloadDeliverables Publicators 5 Publicators' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Bronto 2 Bronto' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
 
-        //$schedule->command( 'reports:downloadDeliverables AWeber 5 AWeber' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command( 'reports:downloadDeliverables AWeber 5 AWeber' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
 
         $schedule->command( 'reports:downloadDeliverables Bronto:delivered 2' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:populateStats')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
@@ -301,7 +301,7 @@ class Kernel extends ConsoleKernel
          */
         $schedule->command('aweber:processUniques 15')->cron("10 0,6,12,18 * * *")->sendOutputTo($filePath);
         $schedule->command('aweber:updateAWeberLists' )->dailyAt( self::AWEBER_TIME);
-        //$schedule->command('aweber:processAWeberActions')->cron("30 0,6,12,18 * * *")->sendOutputTo($filePath);
+        $schedule->command('aweber:processAWeberActions')->cron("30 0,6,12,18 * * *")->sendOutputTo($filePath);
 
 
         /**

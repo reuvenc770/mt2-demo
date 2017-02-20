@@ -69,5 +69,9 @@ class AWeberEmailActionsService
       return $this->subRepo->getByInternalId($internalId);
     }
 
-    
+    public function getEmailAddressById($id)
+    {
+        return $this->subRepo->getByInternalId($id);
+    }
+
 }

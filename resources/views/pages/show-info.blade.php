@@ -105,6 +105,30 @@
         </table>
     </md-table-container>
     <br/>
+
+    <h2 class="text-center" ng-if="info.espSuppression.length > 0">ESP Suppression Info</h2>
+    <md-table-container ng-if="info.espSuppression.length > 0">
+        <table md-table>
+            <thead md-head class="mt2-theme-thead">
+            <tr md-row>
+                <th md-column class="md-table-header-override-whitetext">Email Address</th>
+                <th md-column class="md-table-header-override-whitetext">Esp Account</th>
+                <th md-column class="md-table-header-override-whitetext">Esp Internal ID</th>
+                <th md-column class="md-table-header-override-whitetext">Reason</th>
+            </tr>
+            </thead>
+
+            <tbody md-body>
+            <tr md-row ng-repeat="record in info.espSuppression">
+                <td md-cell ng-bind="record.email_address"></td>
+                <td md-cell ng-bind="record.esp_account.account_name"></td>
+                <td md-cell ng-bind="record.esp_internal_id"></td>
+                <td md-cell ng-bind="record.suppression_reason.display_status"></td>
+            </tr>
+            </tbody>
+        </table>
+    </md-table-container>
+    <br/>
     <div class="panel mt2-theme-panel" ng-if="info.records.length > 0">
         <div class="panel-body">
             <div class="form-group" ng-class="{ 'has-error' : info.formErrors.selectedReason }">

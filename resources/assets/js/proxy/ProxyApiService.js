@@ -44,7 +44,7 @@ mt2App.service( 'ProxyApiService' , [ 'paginationService' , '$http' , '$log' , f
     self.toggleRow = function ( recordId, direction, successCallback, failureCallback ) {
         $http( {
             "method" : "GET" ,
-            "url" : this.baseApiUrl + '/' + recordId,
+            "url" : this.baseApiUrl + '/toggle/' + recordId,
             "params" : { "direction" : direction }
         } ).then( successCallback , failureCallback );
     };

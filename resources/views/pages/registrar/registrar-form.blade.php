@@ -74,10 +74,14 @@
                 </div>
             </div>
         </fieldset>
+        <div class="row">
+        <div class="col-md-offset-4 col-md-4">
         <button class="btn mt2-theme-btn-primary btn-block" ng-click="registrar.addDba()">
             <span ng-show="!registrar.editingDba">Add </span>
             <span ng-show="registrar.editingDba">Update </span> DBA
         </button>
+        </div>
+        </div>
         <div class="has-error">
             <div class="help-block" ng-show="registrar.formErrors.dba_names">
                 <div ng-repeat="error in registrar.formErrors.dba_names">

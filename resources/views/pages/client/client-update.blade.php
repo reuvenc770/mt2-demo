@@ -22,7 +22,11 @@
             </fieldset>
         </div>
         <div class="panel-footer">
+            <div class="row">
+            <div class="col-md-offset-4 col-md-4">
                 <input class="btn mt2-theme-btn-primary btn-block" ng-click="client.updateClient()" ng-disabled="client.formSubmitted" type="submit" value="Update Client">
+            </div>
+            </div>
         </div>
     </div>
 @endsection

@@ -55,8 +55,10 @@
             </div>
         </div>
         <div class="panel-footer">
-            <div class="form-group">
+            <div class="row">
+            <div class="col-md-offset-4 col-md-4">
                 <input class="btn btn-block mt2-theme-btn-primary" ng-disabled="navController.formSubmitted" ng-click="navController.updateNavigation()" type="submit" value="Update Navigation">
+            </div>
             </div>
         </div>
     </div>
