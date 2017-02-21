@@ -40,7 +40,7 @@
             <td md-cell ng-hide="domain.rowBeingEdited != 0" ng-bind="app.formatDate( record.created_at , 'MM-DD-YY' )" nowrap></td>
             <td md-cell ng-hide="domain.beingEdited(record.dom_id)" nowrap>
                 <span ng-bind="::app.formatDate( record.expires_at , 'MM-DD-YY' )"></span>
-                <md-icon ng-show="@{{ record.is_expired }}" md-font-set="material-icons" class="mt2-icon-yellow" data-toggle="tooltip" data-placement="bottom" title="Expired or expiring soon.">warning</md-icon>
+                <md-icon ng-show="@{{ record.is_expired }}" md-font-set="material-icons" class="mt2-icon-warning" data-toggle="tooltip" data-placement="bottom" title="Expired or expiring soon.">warning</md-icon>
             </td>
             <td md-cell ng-hide="domain.rowBeingEdited != 0" nowrap>@{{ record.dba_name }}</td>
             <td md-cell ng-hide="domain.beingEdited(record.dom_id)" class="mt2-table-cell-center">

@@ -20,7 +20,11 @@
 
                     </div>
                     <div class="panel-footer">
+                    <div class="row">
+                    <div class="col-md-offset-4 col-md-4">
                         <button class="btn mt2-theme-btn-primary btn-block" ng-click="domain.saveNewAccount()" ng-disabled="domain.formSubmitted">Add Mailing Domain</button>
+                    </div>
+                    </div>
                     </div>
                 </div>
             </div>
@@ -33,7 +37,11 @@
                         @include( 'pages.domain.domain-form' , ['type' => 2])
                     </div>
                     <div class="panel-footer">
+                    <div class="row">
+                    <div class="col-md-offset-4 col-md-4">
                         <button class="btn mt2-theme-btn-primary btn-block" ng-click="domain.saveNewAccount()" ng-disabled="domain.formSubmitted">Add Content Domain</button>
+                    </div>
+                    </div>
                     </div>
                 </div>
             </div>

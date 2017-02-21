@@ -223,6 +223,10 @@ class AWeberReportService extends AbstractReportService implements IDataService
             $shouldProcess = true;
             $messages = $processState['currentPageData'];
         }
+
+        if(count($messages) == 0){
+            return 0;
+        }
         try {
             if ($shouldProcess) {
 

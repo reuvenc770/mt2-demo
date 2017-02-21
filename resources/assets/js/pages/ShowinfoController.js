@@ -55,7 +55,8 @@ mt2App.controller( 'ShowinfoController' , [ 'ShowinfoApiService' , '$log' , '$wi
 
         self.records = response.data.data;
         self.suppression = response.data.suppression;
-        if(0 === self.records.length){
+        self.espSuppression = response.data.espSuppression;
+        if(0 === self.records.length && 0 === self.espSuppression.length){
             modalService.setModalLabel('Error');
             modalService.setModalBody('Record had no information.');
             modalService.launchModal();

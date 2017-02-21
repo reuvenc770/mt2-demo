@@ -233,7 +233,6 @@ class EmailRecordRepo {
             $errorFound = true;
         } elseif (!$this->hasDeployId()) {
             $this->errorReason = 'missing_deploy_id';
-            Log::error("Deploy id for esp internal id '{$this->espInternalId}' does not exist.");
             $errorFound = true;
         }
 
