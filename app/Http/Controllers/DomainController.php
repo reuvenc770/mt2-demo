@@ -85,10 +85,26 @@ class DomainController extends Controller
 
             switch($type){
                 case Domain::MAILING_DOMAIN:
-                    list($domainName,$mainSite,$expires) = explode(",",$domain);
+                    $mailDomainValues = explode(",",$domain);
+
+                    if ( count( $mailDomainValues ) === 3 ){
+                        list($domainName,$mainSite,$expires) = array_map( 'trim' , $mailDomainValues );
+
+                        if ($domainName === $mainSite ){
+                            return response()->json( ['domains' => ["Domain Name and Main Site cannot be the same."] ] , 422 );
+                        }
+                    } else {
+                        return response()->json( ['domains' => ["Some domain info is missing."] ] , 422 );
+                    }
                     break;
                 case Domain::CONTENT_DOMAIN:
-                    list($domainName,$expires) = explode(",",$domain);
+                    $contentDomainValues = explode(",",$domain);
+
+                    if ( count( $contentDomainValues) === 2 ){
+                        list($domainName,$expires) = $contentDomainValues;
+                    } else {
+                        return response()->json( ['domains' => ["Some domain info is missing."] ] , 422 );
+                    }
             }
 
             $insertArray[] = [

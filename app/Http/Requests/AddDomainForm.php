@@ -42,7 +42,7 @@ class AddDomainForm extends Request
             'espAccountId.required' => 'An ESP account is required.',
             'registrar.required'    => 'A registrar is required.',
             'dba.required'          => 'A DBA is required.',
-            'domains.required'      => 'Domain information is required and must be in the correct format.',
+            'domains.required'      => 'All domain information is required and must be in the correct format.',
             'live_a_record.required'=> 'Is the A-Record live?'
         ];
     }
