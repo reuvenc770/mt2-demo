@@ -23,7 +23,6 @@
                         <button class="btn mt2-theme-btn-primary btn-block" ng-click="domain.saveNewAccount()" ng-disabled="domain.formSubmitted">Add Mailing Domain</button>
                     </div>
                 </div>
-                @include( 'pages.domain.domain-list-table' )
             </div>
             <div role="tabpanel" class="tab-pane" id="content">
                 <div class="panel mt2-theme-panel">
@@ -37,7 +36,6 @@
                         <button class="btn mt2-theme-btn-primary btn-block" ng-click="domain.saveNewAccount()" ng-disabled="domain.formSubmitted">Add Content Domain</button>
                     </div>
                 </div>
-                @include( 'pages.domain.domain-list-table' )
             </div>
         </div>
 </div>

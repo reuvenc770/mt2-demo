@@ -107,6 +107,8 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
             self.updateDomains();
         }
         self.updatingAccounts = false;
+
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
     };
 
     self.updateDomains = function () {
@@ -167,7 +169,6 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     };
 
     self.searchDomains = function (){
-
        var params = $httpParamSerializer(self.search);
         $window.location.href = '/domain/search?'+ params;
     };
@@ -188,6 +189,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
 
     self.updateDomainsSuccessCallback = function (response) {
         $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+
         self.domains = response.data;
         self.updatingAccounts = false;
         self.formSubmitted = false;
