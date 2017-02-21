@@ -89,7 +89,9 @@ class DomainController extends Controller
 
                     if ( count( $mailDomainValues ) === 3 ){
                         list($domainName,$mainSite,$expires) = array_map( 'trim' , $mailDomainValues );
-
+                        if ( $this->service->domainExistsAsDomainType( $domainName , 2 ) ) {
+                            return response()->json( ['domains' => ["This domain already exists as a content domain."] ] , 422 );
+                        }
                         if ($domainName === $mainSite ){
                             return response()->json( ['domains' => ["Domain Name and Main Site cannot be the same."] ] , 422 );
                         }
@@ -101,7 +103,11 @@ class DomainController extends Controller
                     $contentDomainValues = explode(",",$domain);
 
                     if ( count( $contentDomainValues) === 2 ){
-                        list($domainName,$expires) = $contentDomainValues;
+                        list($domainName,$expires) = array_map( 'trim' , $contentDomainValues );
+
+                        if ( $this->service->domainExistsAsDomainType( $domainName , 1 ) ) {
+                            return response()->json( ['domains' => ["This domain already exists as a mailing domain."] ] , 422 );
+                        }
                     } else {
                         return response()->json( ['domains' => ["Some domain info is missing."] ] , 422 );
                     }

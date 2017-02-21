@@ -70,7 +70,13 @@ class DomainService
 
     public function searchDomains($searchData){
         return $this->domainRepo->getDomainsBySearch($searchData);
+    }
 
+    public function domainExistsAsDomainType( $domainName , $domainType ){
+        $domainList = $this->domainRepo->getDomainsByDomainType( $domainType );
 
+        $domainExists = in_array($domainName, $domainList);
+
+        return $domainExists;
     }
 }

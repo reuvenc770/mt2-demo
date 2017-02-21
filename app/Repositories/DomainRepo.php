@@ -130,6 +130,9 @@ class DomainRepo
 
     }
 
+    public function getDomainsByDomainType( $domainType ){
+        return $this->domain->where('domains.domain_type', $domainType)->pluck('domain_name')->toArray();
+    }
 
     private function mapQuery($searchData, $query){
 
