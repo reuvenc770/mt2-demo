@@ -9,6 +9,7 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
         name : '' ,
         short_name: "" ,
         password : '' ,
+        host_ip: "",
         status: "Active" ,
         vertical_id: "" ,
         frequency: "" ,
@@ -280,6 +281,7 @@ mt2App.controller( 'FeedController' , [ '$rootScope' , '$window' , '$location' ,
         self.current.vertical_id = String(response.data.vertical_id);
         self.current.client_id = String(response.data.client_id);
         self.current.type_id = String(response.data.type_id);
+        delete self.current.created_at;
     };
 
     self.SuccessCallBackRedirectList = function ( response ) {
