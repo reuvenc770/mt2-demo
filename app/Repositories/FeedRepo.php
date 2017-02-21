@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use App\Repositories\RepoInterfaces\Mt2Export;
 use App\Repositories\RepoInterfaces\IAwsRepo;
-use Log;
 /**
  *
  */
