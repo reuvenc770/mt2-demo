@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\JobException;
 use App\Facades\EspApiAccount;
 use App\Models\ListProfileBaseTable;
 use App\Repositories\ListProfileBaseTableRepo;
@@ -29,6 +30,11 @@ class ListProfileExportService
     private $rowCount = 0;
     private $suppressedRows = [];
     private $suppressedRowCount = 0;
+    private $reportCard = [ "originalTotal" => 0,
+        "finalTotal" => 0,
+        "globallySuppressed" => 0 ,
+        "listOfferSuppressed" => 0,
+        "offersSuppressedAgainst" => []];
 
     public function __construct(ListProfileRepo $listProfileRepo, OfferRepo $offerRepo, ListProfileCombineRepo $combineRepo, MT1SuppressionService $mt1SuppServ )
     {
@@ -136,17 +142,44 @@ class ListProfileExportService
             $fileName = 'DeployTemp/' . $listProfile->name . '-' . $deploy->id . '-' . $offerId . '.csv';
             Storage::delete($fileName); // clear the file currently saved
 
+            //lets get the offer ids for offer suppression
+            $offers = [];
+            foreach($offers as $offerId){
+                $this->updateReportCard("offersSuppressedAgainst", $offerId);
+            }
 
              foreach ($resource as $row) {
+                 //Update count for globally suppressed
+               /**  if(!$row->global_suppression_status){
+                *  $this->batchSuppression($fileName, $row);
+                     $this->updateReportCard("globallySuppressed");
+                 }
+                * **/
+                 //If suppressed from list
                  if(!$row->suppression_status){
                      $this->batchSuppression($fileName, $row);
-                 } else {
+                     $this->updateReportCard("listOfferSuppressed");
+                 } else {//live record
                      $row = $this->mapRow($header, $row);
                      $this->batch($fileName, $row, "local");
+                     $this->updateReportCard("finalTotal");
                  };
+
+                 foreach($offers as $offerID) { //lets check the row against each offer suppression
+                     if ($this->mt1SuppServ->isSuppressed($row['email_id'], $offerID)) {
+                         $this->updateReportCard("listOfferSuppressed");
+                     }
+                 }
+                 //original count
+                 $this->updateReportCard("originalTotal");
              }
+
+
             $this->writeBatch($fileName, "local");
             $this->writeBatchSuppression($fileName);
+
+
+
 
             //either get the deploy cache or build it
             $deployProgress = Cache::get("deploy-{$key}", function () use ($deploy) {
@@ -158,6 +191,7 @@ class ListProfileExportService
                     "espAccount" => $deploy->esp_account_id,
                     "name" => $listProfileCombine->name,
                     "totalPieces" => $num,
+                    "reportCard" => $this->reportCard,
                     "files" => array(),
                 );
             });
@@ -169,14 +203,17 @@ class ListProfileExportService
                 Cache::forget("header-{$key}");
                 Cache::forget("deploy-{$key}");
                 $this->buildCombineFile($header,$deployProgress['ftp_folder'], $deployProgress['name'], $deployProgress['files'], $offerId, $deployProgress['id'],  $deployProgress['espAccount']);
+                //Fire Report Card processing
             } else {
                 //Update the cache
                 Cache::put("deploy-{$key}",
                     array(
                         "id" => $deployProgress['id'],
+                        "globalSuppressedCount" => $deployProgress['globalSuppressedCount'],
                         "ftp_folder" => $deployProgress['ftp_folder'],
                         "espAccount" => $deployProgress['espAccount'],
                         "name" => $deployProgress['name'],
+                        "reportCard" => $deployProgress['reportCard'],
                         "totalPieces" => $deployProgress['totalPieces'],
                         "files" => array_merge($deployProgress['files'], array($fileName)),
                     ), 60 * 12);
@@ -255,6 +292,18 @@ class ListProfileExportService
             Storage::disk('SystemFtp')->append($combineFileNameDNM, $contents);
             Storage::disk('SystemFtp')->delete($file.'-dnm');
         }
+    }
+
+    private function updateReportCard($topic, $object = null){
+        if($object){
+            $this->reportCard[$topic][] = $object;
+        }
+        try{
+            $this->reportCard[$topic]++;
+        } catch(\Exception $e){
+            throw new JobException("{$topic} is not apart of the deploy report cart");
+        }
+        return true;
     }
 
 }
