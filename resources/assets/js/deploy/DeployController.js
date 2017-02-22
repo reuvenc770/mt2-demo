@@ -107,6 +107,11 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         DeployApiService.getListProfiles(self.loadProfileSuccess, self.loadProfileFail)
     };
 
+    self.loadFirstPartyListProfiles = function () {
+        self.currentlyLoading = 1;
+        DeployApiService.getFirstPartyListProfiles(self.loadFirstPartyProfileSuccess , self.loadFirstPartyProfileFail);
+    };
+
     self.updateSelects = function (callBack) {
         $q.all([
             DeployApiService.getMailingDomains(self.currentDeploy.esp_account_id, 1, self.updateMailingSuccess, self.updateDomainsFail),
@@ -206,7 +211,8 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
             "espAccountId": self.search.esp_account_id || undefined,
             "status": self.search.status || undefined,
             "esp": self.search.esp || undefined,
-            "offerNameWildcard": self.search.offer || undefined
+            "offerNameWildcard": self.search.offer || undefined,
+            "listProfileParty" : self.search.list_profile_party || undefined
         };
 
         self.queryPromise = DeployApiService.searchDeploys(self.paginationCount, self.sort, searchObj, self.loadDeploysSuccess, self.loadDeploysFail);
@@ -276,6 +282,12 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
 
     self.toggleListProfile = function (){
         self.firstParty =  self.firstParty ?  false: true;
+
+        if ( self.firstParty === true ) {
+            self.loadFirstPartyListProfiles();
+        } else {
+            self.loadListProfiles();
+        }
     };
 
     self.checkExportStatus = function () {
@@ -549,6 +561,12 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
 
     self.loadProfileSuccess = function (response) {
         self.listProfiles = response.data;
+        self.currentlyLoading = 0;
+    };
+
+    self.loadFirstPartyProfileSuccess = function(response) {
+        self.listProfiles = response.data;
+        self.currentlyLoading = 0;
     };
 
     self.loadNewDeploySuccess = function (response) {
@@ -691,6 +709,12 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.loadProfileFail = function () {
         modalService.setModalLabel('Error');
         modalService.setModalBody('Something went wrong loading List Profiles');
+        modalService.launchModal();
+    };
+
+    self.loadFirstPartyProfileFail = function () {
+        modalService.setModalLabel('Error');
+        modalService.setModalBody('Something went wrong loading first party list profiles');
         modalService.launchModal();
     };
 

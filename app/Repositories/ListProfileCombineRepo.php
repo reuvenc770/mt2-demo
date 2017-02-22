@@ -87,4 +87,10 @@ class ListProfileCombineRepo
         }
 
     }
+
+    public function getFirstPartyListCombines(){
+        return $this->model->with(['listProfiles' =>function( $query ) {
+            $query->select('name');
+        }])->where('party', 1 )->get();
+    }
 }

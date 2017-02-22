@@ -52,4 +52,8 @@ class ListProfileCombineService
     public function updateCombine ($record) {
         $this->listProfileCombinesRepo->updateCombine($record );
     }
+
+    public function getFirstPartyListCombines(){
+        return $this->listProfileCombinesRepo->getFirstPartyListCombines();
+    }
 }
