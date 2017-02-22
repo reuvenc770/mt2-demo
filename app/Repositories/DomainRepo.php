@@ -53,19 +53,27 @@ class DomainRepo
             'domains.created_at',
             'domains.expires_at',
             'domains.status',
-            'domains.live_a_record')
+            'domains.live_a_record',
+            DB::raw('domains.expires_at < NOW() + INTERVAL 7 DAY as is_expired') )
             ->where("domains.domain_type", $type)
             ->where("domains.esp_account_id", $espAccountId)
             ->join('registrars', 'domains.registrar_id', '=', 'registrars.id')
             ->leftjoin('proxies', 'domains.proxy_id', '=', 'proxies.id')
             ->join('doing_business_as', 'domains.doing_business_as_id', '=', 'doing_business_as.id')
             ->orderBy('domains.status', "DESC")
+            ->orderBy('domains.expires_at',"DESC")
             ->get();
     }
 
     public function getActiveDomainsByTypeAndEsp($type, $espAccountId)
     {
-        return $this->domain->where("status",1)->where("live_a_record",1)->where("domain_type", $type)->where("esp_account_id", $espAccountId)->get();
+        return $this->domain
+            ->where("status",1)
+            ->where("live_a_record",1)
+            ->where("domain_type", $type)
+            ->where("esp_account_id", $espAccountId)
+            ->where('expires_at' , '>' , DB::raw('NOW() - INTERVAL 1 DAY') )
+            ->get();
     }
 
     public function toggleRow($id, $direction){
@@ -107,16 +115,24 @@ class DomainRepo
                 'domains.expires_at',
                 'domains.status',
                 'domains.live_a_record' ,
-                'domains.domain_type as type')
+                'domains.domain_type as type',
+                DB::raw('domains.expires_at < NOW() + INTERVAL 7 DAY as is_expired') )
                 ->join('registrars', 'domains.registrar_id', '=', 'registrars.id')
                 ->join('doing_business_as', 'domains.doing_business_as_id', '=', 'doing_business_as.id')
                 ->leftjoin('proxies', 'domains.proxy_id', '=', 'proxies.id')
                 ->join('esp_accounts', 'domains.esp_account_id', '=', 'esp_accounts.id')
                 ->join('esps','esp_accounts.esp_id', '=', 'esps.id' );
-        return $this->mapQuery($searchData, $query)->orderBy('domains.status', "DESC")->get();
+        return $this->mapQuery($searchData, $query)
+                ->orderBy('domains.status', "DESC")
+                ->orderBy('domains.domain_type',"DESC")
+                ->orderBy('domains.expires_at',"DESC")
+                ->get();
 
     }
 
+    public function getDomainsByDomainType( $domainType ){
+        return $this->domain->where('domains.domain_type', $domainType)->pluck('domain_name')->toArray();
+    }
 
     private function mapQuery($searchData, $query){
 

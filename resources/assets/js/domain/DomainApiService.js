@@ -25,13 +25,6 @@ mt2App.service( 'DomainService' , function ( $http , $log ) {
         } ).then( successCallback , failureCallback );
     };
 
-    self.getProxies  = function ( domainType  , successCallback , failureCallback ) {
-        $http( {
-            "method" : "GET" ,
-            "url" : self.baseProxyUrl
-        } ).then( successCallback , failureCallback );
-    };
-
     self.getAccounts = function ( page , count , successCallback , failureCallback ) {
         return $http( {
             "method" : "GET" ,

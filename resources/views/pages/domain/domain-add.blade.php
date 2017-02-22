@@ -27,7 +27,6 @@
                     </div>
                     </div>
                 </div>
-                @include( 'pages.domain.domain-list-table' )
             </div>
             <div role="tabpanel" class="tab-pane" id="content">
                 <div class="panel mt2-theme-panel">
@@ -45,7 +44,6 @@
                     </div>
                     </div>
                 </div>
-                @include( 'pages.domain.domain-list-table' )
             </div>
         </div>
 </div>

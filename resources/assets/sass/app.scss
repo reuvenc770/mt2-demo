@@ -338,6 +338,10 @@ md-progress-linear.cmp-md-success .md-container {
     color: #ffffff;
  }
 
+md-icon.mt2-icon-warning{
+    color: #FFC400;
+}
+
 md-icon.mt2-icon-error{
     color: #d9534f;
 }
@@ -635,6 +639,14 @@ table.md-table th.md-column md-icon {
 /**
 Panel Custom - we should break up into componets.
 **/
+
+.tabpanel-header {
+    background-color: #ffffff;
+    border-left: 1px solid #dddddd;
+    border-right: 1px solid #dddddd;
+    padding: 15px;
+    font-size: 1.5em;
+}
 
 .tabpanel-border {
     border-bottom: 1px solid #ddd;

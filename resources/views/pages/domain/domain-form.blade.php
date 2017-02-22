@@ -54,7 +54,9 @@
     <select name="proxy" id="proxy" class="form-control"
             ng-model="domain.proxy_id" ng-disabled="domain.updatingAccounts">
         <option value="">Please Select a Proxy</option>
-        <option ng-repeat="option in domain.proxies" ng-value="option">@{{option.name }} - @{{option.ip_addresses}}</option>
+        @foreach ( $proxies as $proxy )
+            <option value="{{ $proxy['id'] }}">{{ $proxy['name'] }} &nbsp;-&nbsp; {{ $proxy['ip_addresses'] }}</option>
+        @endforeach
     </select>
     <div class="help-block"  ng-show="domain.formErrors.proxy_id">
         <div ng-repeat="error in domain.formErrors.proxy_id">

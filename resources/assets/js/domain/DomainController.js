@@ -17,7 +17,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         currentEspAccount = espAccount;
         espName = espNameQuery;
         self.hideFormView = true;
-        self.extraText = "For " + espNameQuery + " - " + espAccountName;
+        self.extraText = espNameQuery + " - " + espAccountName;
     }
     if(typeof searchDomains != 'undefined'){
         self.domains = searchDomains;
@@ -55,7 +55,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     self.paginationCount = paginationService.getDefaultPaginationCount();
     self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
-    self.search = {"esp": espName,
+    self.search = {"esp": espName || undefined,
         "eps_account_id" : undefined,
         "doing_business_as_id": undefined ,
         "registrar_id": undefined,
@@ -82,13 +82,6 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         DomainService.getAccount(id,self.loadAccountSuccessCallback, self.loadAccountsFailureCallback);
     };
 
-    self.updateProxies = function () {
-        DomainService.getProxies(self.currentAccount.domain_type, function (response) {
-            self.proxies = response.data;
-        });
-        self.updatingAccounts = false;
-    };
-
     self.updateType = function (type) {
 
         self.updatingAccounts = true;
@@ -99,14 +92,13 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
             self.updateDomains();
         }
         self.rowBeingEdited = 0;
-        self.updateProxies();
 
+        self.updatingAccounts = false;
     };
     self.init = function (type) {
 
         self.updatingAccounts = true;
         self.currentAccount.domain_type = type;
-        self.updateProxies();
         if (typeof espNameQuery != 'undefined') { // we have to grab the esp's and then assign current
             self.updateEspAccounts();
             self.currentAccount.espAccountId = currentEspAccount;
@@ -114,6 +106,9 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
         if(self.currentAccount.espAccountId.length > 0) {
             self.updateDomains();
         }
+        self.updatingAccounts = false;
+
+        $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
     };
 
     self.updateDomains = function () {
@@ -174,7 +169,6 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
     };
 
     self.searchDomains = function (){
-
        var params = $httpParamSerializer(self.search);
         $window.location.href = '/domain/search?'+ params;
     };
@@ -195,6 +189,7 @@ mt2App.controller('domainController', ['$rootScope', '$log', '$window', '$locati
 
     self.updateDomainsSuccessCallback = function (response) {
         $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+
         self.domains = response.data;
         self.updatingAccounts = false;
         self.formSubmitted = false;
