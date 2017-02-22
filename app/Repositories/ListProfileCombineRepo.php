@@ -73,16 +73,16 @@ class ListProfileCombineRepo
         return $this->model->where('id' , $id)->whereNull("list_profile_id")->count() > 0;
     }
 
-    public function updateCombine( $id , $name , $profiles ) {
-        $currentCombine = $this->model->find( $id );
+    public function updateCombine( $record) {
+        $currentCombine = $this->model->find( $record['id']);
 
-        $currentCombine->name = $name;
-
+        $currentCombine->name =  $record['combineName'];
+        $currentCombine->ftp_folder =  $record['ftpFolder'];
         $currentCombine->save();
 
         $currentCombine->listProfiles()->detach();
 
-        foreach( $profiles as $profile ){
+        foreach( $record['selectedProfiles'] as $profile ){
             $this->attachPivot( $currentCombine , $profile['id'] );
         }
 

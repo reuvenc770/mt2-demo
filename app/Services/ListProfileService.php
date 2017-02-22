@@ -109,6 +109,7 @@ class ListProfileService
         return json_encode( [
             'profile_id' => $id ,
             'name' => $listProfile->name ,
+            'ftp_folder' =>  $listProfile->ftp_folder,
             'party' => $listProfile->party,
             'actionRanges' => [
                 'deliverable' => [
@@ -143,7 +144,7 @@ class ListProfileService
                 'os' => json_decode( $listProfile->device_os )
             ] ,
             'includeCsvHeader' => $listProfile->insert_header ,
-            'selectedColumns' => $this->buildDisplayColumns(json_decode( $listProfile->columns )) ,
+            'selectedColumns' => [],//$this->buildDisplayColumns(json_decode( $listProfile->columns )) ,
             'exportOptions' => [
                 'interval' =>  [ $listProfile->run_frequency ] ,
                 'dayOfWeek' => isset($schedule) && $schedule->day_of_week ? $schedule->day_of_week : null ,
@@ -229,6 +230,7 @@ class ListProfileService
     private function cleanseData ( $data ) {
         return [
             'name' => $data[ 'name' ] ,
+            'ftp_folder' => $data['ftp_folder'],
             'deliverable_start' => isset( $data[ 'actionRanges' ][ 'deliverable' ][ 'min' ] ) ? $data[ 'actionRanges' ][ 'deliverable' ][ 'min' ] : 0 ,
             'deliverable_end' => isset( $data[ 'actionRanges' ][ 'deliverable' ][ 'max' ] ) ? $data[ 'actionRanges' ][ 'deliverable' ][ 'max' ] : 0 ,
             'openers_start' => isset( $data[ 'actionRanges' ][ 'opener' ][ 'min' ] ) ? $data[ 'actionRanges' ][ 'opener' ][ 'min' ] : 0 ,

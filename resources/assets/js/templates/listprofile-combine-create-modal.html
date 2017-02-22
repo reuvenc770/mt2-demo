@@ -15,6 +15,16 @@
                         </div>
                     </div>
                 </div>
+                <div class="form-group" ng-class="{ 'has-error' : ctrl.ftpFolderError }">
+                    <label>FTP Folder</label>
+                    <input placeholder="ftp_folder" value="" class="form-control" ng-model="ctrl.ftpFolder"
+                           required="required" name="name" type="text">
+                    <div class="help-block" ng-show="ctrl.ftpFolderError">
+                        <div ng-repeat="error in ctrl.ftpFolderError">
+                            <span ng-bind="error"></span>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" ng-click="ctrl.createCombine()">Create Combine</button>
