@@ -170,7 +170,7 @@ class DeployController extends Controller
              */
             $filePath = $this->packageService->createPackage($data);
             
-            $this->dispatch(new ListProfileBaseExportJob($listProfileCombineId, str_random(16, $offer)));
+            $this->dispatch(new ListProfileBaseExportJob($listProfileCombineId, str_random(16), $offer));
         } else {
             //more then 1 package selection create the packages on the FTP and kick off the OPS file job
             /**
@@ -180,7 +180,7 @@ class DeployController extends Controller
                 $listProfileCombineId = '';
                 $offer = [];
                $this->packageService->uploadPackage($id);
-                $this->dispatch(new ListProfileBaseExportJob($listProfileCombineId, str_random(16, $offer)));
+                $this->dispatch(new ListProfileBaseExportJob($listProfileCombineId, str_random(16), $offer));
             }
             Artisan::call('deploys:sendtoops', ['deploysCommaList' => join(",",$data), 'username' => $username]);
         }
