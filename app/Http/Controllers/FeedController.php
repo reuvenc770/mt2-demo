@@ -124,7 +124,6 @@ class FeedController extends Controller
     public function update(FeedEditRequest $request, $id)
     {
         Flash::success( 'Feed was successfully updated.' );
-
         $this->feedService->updateOrCreate( $request->all() , $id );
     }
 
