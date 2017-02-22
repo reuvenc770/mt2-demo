@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ListProfileBaseExportJob;
 use App\Services\DeployService;
 use App\Services\EspService;
 use App\Services\PackageZipCreationService;
@@ -156,12 +157,30 @@ class DeployController extends Controller
         $data = $request->except("username");
         $filePath = false;
         //Only one package is selected return the filepath and make it a download response
+
+        //Create a Report card in cache for this deploy packageset 
+        /**
+         * new reportcard of some sort from cache;
+         */
         if (count($data) == 1) {
+            $listProfileCombineId = '';
+            $offer = [];
+            /**
+             * set report card size to 1
+             */
             $filePath = $this->packageService->createPackage($data);
+            
+            $this->dispatch(new ListProfileBaseExportJob($listProfileCombineId, str_random(16, $offer)));
         } else {
             //more then 1 package selection create the packages on the FTP and kick off the OPS file job
+            /**
+             * set report card size to amount of deploys
+             */
             foreach ($data as $id) {
+                $listProfileCombineId = '';
+                $offer = [];
                $this->packageService->uploadPackage($id);
+                $this->dispatch(new ListProfileBaseExportJob($listProfileCombineId, str_random(16, $offer)));
             }
             Artisan::call('deploys:sendtoops', ['deploysCommaList' => join(",",$data), 'username' => $username]);
         }

@@ -49,6 +49,7 @@ class ListProfileBaseExportJob extends Job implements ShouldQueue {
                 } else {
                     $offers = explode(',', $this->offers);
                     foreach ($offers as $offer) {
+                        //Might be using this job alone if we dont need to build out tables new
                         $this->dispatch(new ExportListProfileJob($this->profileId, $offer, str_random(16)));
                     }
                 }

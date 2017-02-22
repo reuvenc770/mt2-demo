@@ -203,7 +203,6 @@ class ListProfileExportService
                 Cache::forget("header-{$key}");
                 Cache::forget("deploy-{$key}");
                 $this->buildCombineFile($header,$deployProgress['ftp_folder'], $deployProgress['name'], $deployProgress['files'], $offerId, $deployProgress['id'],  $deployProgress['espAccount']);
-                //Fire Report Card processing
             } else {
                 //Update the cache
                 Cache::put("deploy-{$key}",
@@ -218,6 +217,12 @@ class ListProfileExportService
                         "files" => array_merge($deployProgress['files'], array($fileName)),
                     ), 60 * 12);
             }
+
+
+            /**
+             * Add deploy to report card
+             * IF REPORT CARD IS last one FIRE JOB
+             */
 
         }
     }
