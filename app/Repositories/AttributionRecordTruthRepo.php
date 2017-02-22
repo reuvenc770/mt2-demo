@@ -151,4 +151,18 @@ class AttributionRecordTruthRepo {
             email_id = email_id, recent_import = recent_import, created_at = created_at, updated_at = updated_at ");
     }
 
+    public function addNewRows(array $rows) {
+        $emails = [];
+
+        foreach($rows as $row) {
+            $emails[] = '(' . $row['email_id'] . ', 0, NOW(), NOW())';
+        }
+
+        $this->bulkInsert($emails);
+    }
+
+    public function getTableName() {
+        return config('database.connections.attribution.database') . '.' . $this->truth->getTable();
+    }
+
 }
