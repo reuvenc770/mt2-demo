@@ -297,7 +297,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             unset( $recordXML );
             unset( $xpath );
 
-           $this->emailRecord->massRecordDeliverables();
+           $this->emailRecord->massRecordDeliverables( true );
         } catch ( \Exception $e ) {
             $exceptionType  = get_class($e);
             DeployActionEntry::recordFailedRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id,$processState[ 'recordType' ] );

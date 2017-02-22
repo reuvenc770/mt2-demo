@@ -272,7 +272,7 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
                 $count++;
             }
 
-            $this->emailRecord->massRecordDeliverables();
+            $this->emailRecord->massRecordDeliverables( true );
             DeployActionEntry::recordSuccessRun($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id, $type );
             return $count;
         }

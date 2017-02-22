@@ -134,8 +134,17 @@ class AttributionRecordTruthRepo {
     }
 
     public function bulkSetField($emails, $field, $value){
+        $status = false;
+        $chunkIndex = -1;
+        $emailChunks = array_chunk( $emails , 10000 );
 
-        return $this->truth->whereIn("email_id", $emails)->update(array($field =>$value));
+        do {
+            $chunkIndex++;
+
+            $status = $this->truth->whereIn("email_id", $emailChunks[ $chunkIndex ] )->update(array($field =>$value));
+        } while ( ( $chunkIndex + 1 ) < count( $emailChunks ) );
+
+        return $status;
     }
 
     public function insert($emailId){

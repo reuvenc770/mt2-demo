@@ -141,7 +141,9 @@ class BrontoReportService extends AbstractReportService implements IDataService
             $jobException->setDelay(180);
             throw $jobException;
         }
-        $this->emailRecord->massRecordDeliverables();
+
+        $this->emailRecord->massRecordDeliverables( true );
+
         DeployActionEntry::recordSuccessRunArray($this->api->getEspAccountId(), array_unique($internalIds), $deployActionType);
     }
 
@@ -245,7 +247,9 @@ class BrontoReportService extends AbstractReportService implements IDataService
             $jobException->setDelay(180);
             throw $jobException;
         }
-        $this->emailRecord->massRecordDeliverables();
+
+        $this->emailRecord->massRecordDeliverables( true );
+
         DeployActionEntry::recordSuccessRunArray($this->api->getEspAccountId(), array_unique($internalIds), $type);
     }
 

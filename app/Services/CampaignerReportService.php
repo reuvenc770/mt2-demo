@@ -352,7 +352,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                 }
             }
 
-            $this->emailRecord->massRecordDeliverables();
+            $this->emailRecord->massRecordDeliverables( true );
             DeployActionEntry::recordAllSuccess($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id);
             return $count;
             
