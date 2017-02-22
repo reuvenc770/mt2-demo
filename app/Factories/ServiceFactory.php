@@ -124,4 +124,47 @@ class ServiceFactory
 
         return new \App\Services\S3RedshiftExportService($jobRepo, $s3Client, $redshiftRepo, $pickupRepo, $entity, $func);
     }
+
+    public static function createDataValidationService($source, $type) {
+        $checkRepos = [];
+        $checkClasses = [];
+
+        if ('emails' === $source) {
+            $canonicalDataRepo = App::make(\App\Repositories\EmailRepo::class);
+            $checkClasses = [
+                'AttributionRecordTruthRepo',
+                'ThirdPartyEmailStatusRepo'
+            ];
+
+            $model = App::make(\App\Models\AttributionExpirationSchedule::class);
+            $repo = new \App\Repositories\AttributionScheduleRepo($model);
+            $checkRepos[] = $repo;
+
+        }
+        elseif ('captureDate' === $source) {
+            throw new \Exception("not yet!");
+            $canonicalDataRepo = App::make(\App\Repositories\EmailFeedInstanceRepo::class);
+            $checkClasses = [
+                'EmailFeedAssignmentRepo',
+                'EmailAttributableFeedLatestDataRepo',
+                'FirstPartyRecordDataRepo'
+            ];
+
+        }
+        elseif ('actionStatus' === $source) {
+            throw new \Exception("not yet!");
+            $canonicalDataRepo = App::make(\App\Repositories\ListProfileFlatTableRepo::class);
+            $checkClasses = [
+                'AttributionRecordTruthRepo',
+                'ThirdPartyEmailStatusRepo'
+            ];
+
+        }
+
+        foreach($checkClasses as $class) {
+            $checkRepos[] = App::make("App\\Repositories\\$class");
+        }
+
+        return new \App\Services\DataValidationService($canonicalDataRepo, App::make(\App\Repositories\EtlPickupRepo::class), $checkRepos);
+    }
 }

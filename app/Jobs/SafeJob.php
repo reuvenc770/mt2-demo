@@ -12,8 +12,8 @@ use App\Jobs\Traits\PreventJobOverlapping;
 abstract class SafeJob extends Job implements ShouldQueue {
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
 
-    private $tracking;
-    private $jobName;
+    protected $tracking;
+    protected $jobName;
 
     public function __construct($jobName, $tracking) {
         $this->tracking = $tracking;
@@ -25,12 +25,12 @@ abstract class SafeJob extends Job implements ShouldQueue {
         if ($this->jobCanRun($this->jobName)) {
             try {
                 $this->createLock($this->jobName);
-                JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
+                JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
                 echo "{$this->jobName} running" . PHP_EOL;
 
                 $this->handleJob();
 
-                JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
+                JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
             }
             catch (\Exception $e) {
                 echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;
@@ -50,6 +50,6 @@ abstract class SafeJob extends Job implements ShouldQueue {
         JobTracking::changeJobState(JobEntry::FAILED, $this->tracking);
     }
 
-    private abstract function handleJob() {}
+    protected function handleJob() {}
 
 }

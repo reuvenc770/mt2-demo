@@ -16,7 +16,7 @@ class DataConsistencyValidation extends Command
      */
     protected $signature = 'dataValidation {source} {type} {--field=none}';
     const VALID_TYPES = ['exists', 'value'];
-    const VALID_SOURCE ['emails', 'captureDate', 'actionStatus'];
+    const VALID_SOURCES = ['emails', 'captureDate', 'actionStatus'];
 
     /**
      * The console command description.

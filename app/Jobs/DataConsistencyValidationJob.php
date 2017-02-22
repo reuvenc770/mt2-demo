@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Jobs\SafeJob;
 use App\Factories\ServiceFactory;
 
 class DataConsistencyValidationJob extends SafeJob {
@@ -18,9 +19,9 @@ class DataConsistencyValidationJob extends SafeJob {
         parent::__construct($jobName, $tracking);
     }
 
-    public function handleJob() {
-        $service = ServiceFactory::createDataValidationService($this->source, $this->type, $this->field);
-        $service->runComparison($this->type, $this->fieldName);
+    protected function handleJob() {
+        $service = ServiceFactory::createDataValidationService($this->source, $this->type);
+        $service->runComparison($this->type, $this->field);
     }
 
 }
