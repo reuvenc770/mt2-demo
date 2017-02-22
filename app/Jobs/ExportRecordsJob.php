@@ -24,7 +24,6 @@ class ExportRecordsJob extends Job implements ShouldQueue {
     public function __construct($feedId, $tracking) {
         $this->feedId = $feedId;
         $this->tracking = $tracking;
-        $this->startPoint = $startPoint;
         $this->jobName = self::BASE_NAME . "-{$this->feedId}";
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
@@ -53,7 +52,7 @@ class ExportRecordsJob extends Job implements ShouldQueue {
 
                     foreach ($records->cursor() as $record) {
                         // export here
-                        $id = $record->id
+                        $id = $record->id;
                         $apiService->addContact($record, $listId);
                     }
                 }
