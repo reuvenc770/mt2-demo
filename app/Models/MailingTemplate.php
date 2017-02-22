@@ -5,6 +5,22 @@ namespace App\Models;
 use App\Models\ModelTraits\ModelCacheControl;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * App\Models\MailingTemplate
+ *
+ * @property int $id
+ * @property string $template_name
+ * @property bool $template_type
+ * @property string $template_html
+ * @property string $template_text
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\EspAccount[] $espAccounts
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\MailingTemplate whereId($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\MailingTemplate whereTemplateHtml($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\MailingTemplate whereTemplateName($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\MailingTemplate whereTemplateText($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\MailingTemplate whereTemplateType($value)
+ * @mixin \Eloquent
+ */
 class MailingTemplate extends Model
 {
     use ModelCacheControl;
