@@ -287,4 +287,16 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
         return config('database.connections.mysql.database') . '.' . $this->model->getTable();
     }
 
+    public function updateRowValues(array $data) {
+        // capture_date (soon subscribe_date) doesn't exist
+        foreach ($data as $row) {
+            $this->model->update([
+                'email_id' => $row['email_id'],
+                'feed_id' => $row['feed_id']
+            ], [
+                'capture_date' => $row['capture_date']
+            ]);
+        }
+    }
+
 }

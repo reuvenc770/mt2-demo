@@ -14,14 +14,10 @@ class DataConsistencyValidation extends Command
      *
      * @var string
      */
-    protected $signature = 'dataValidation {source} {type} {--field=none}';
+    protected $signature = 'dataValidation {source} {type}';
 
-    /**
-        EmailFeedInstances has both exists and value(capture_date)
-        Maybe we want a mapping of acceptable combinations
-    */
     const VALID_TYPES = ['exists', 'value'];
-    const VALID_SOURCES = ['emails', 'emailFeedInstances', 'actionStatus'];
+    const VALID_SOURCES = ['emails', 'emailFeedInstances', 'emailFeedAssignments'];
 
     /**
      * The console command description.
@@ -47,7 +43,6 @@ class DataConsistencyValidation extends Command
     public function handle() {
         $source = $this->argument('source');
         $type = $this->argument('type');
-        $field = $this->option('field');
 
         if (!in_array($source, self::VALID_SOURCES)) {
             throw new \Exception("Data consistency check job run source invalid: $source");
@@ -57,11 +52,7 @@ class DataConsistencyValidation extends Command
             throw new \Exception("Data consistency check type invalid: $type");
         }
 
-        if ('value' === $type && 'none' === $field) {
-            throw new \Exception("Data consistency value checks must include --field");
-        }
-
-        $job = new DataConsistencyValidationJob($source, $type, $field, str_random(16));
+        $job = new DataConsistencyValidationJob($source, $type, str_random(16));
         $this->dispatch($job);
     }
 }

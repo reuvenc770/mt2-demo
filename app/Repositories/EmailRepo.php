@@ -434,7 +434,7 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
         return $this->emailModel->getConnectionName();
     }
 
-    public function compareSourcesWithField($tableName, $startPoint, $segmentEnd, $field) {
+    public function compareSourcesWithField($tableName, $startPoint, $segmentEnd) {
         // empty, but present for interface
     }
 

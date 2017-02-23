@@ -19,12 +19,12 @@ class DataValidationService {
         $this->etlPickupRepo = $etlPickupRepo;
     }
 
-    public function runComparison($type, $fieldName = null) {
+    public function runComparison($type) {
         echo "Running comparison" . PHP_EOL;
         if ('value' === $type) {
             // get_class returns something like "App\Repositories\EmailRepo"
             $this->pickupName = explode('\\', get_class($this->trustedSourceRepo))[2] . '-' . $type;
-            $this->runValueComparisonCheck($fieldName);
+            $this->runValueComparisonCheck();
         }
         elseif ('exists' === $type) {
             $this->pickupName = explode('\\', get_class($this->trustedSourceRepo))[2] . '-' . $type;
@@ -35,41 +35,35 @@ class DataValidationService {
         }
     }
 
-    private function runValueComparisonCheck($fieldName) {
-
-/**
-    Create seeder for the various pickup names
-*/
+    private function runValueComparisonCheck() {
         $startPoint = $this->etlPickupRepo->getLastInsertedForName($this->pickupName);
         // need to process this startPoint for compound values ..... but this is an int!
 
         $endPoint = $this->trustedSourceRepo->maxId();
+
+        echo "Starting at $startPoint and ending at $endPoint" . PHP_EOL;
 
         while ($this->trustedSourceRepo->lessThan($startPoint, $endPoint)) {
 
             $segmentEnd = $this->trustedSourceRepo->nextNRows($startPoint, self::ROW_COUNT_LIMIT); // a nullable result
             $segmentEnd = $segmentEnd ?: $endPoint;
 
+            echo "Running the curent segment between $startPoint and $segmentEnd" . PHP_EOL;
+
             foreach ($this->reposToCheck as $repo) {
-                $newRows = $this->trustedSourceRepo->compareSourcesWithField($repo->getTableName(), $startPoint, $segmentEnd, $fieldName);
+                $newRows = $this->trustedSourceRepo->compareSourcesWithField($repo->getTableName(), $startPoint, $segmentEnd);
 
                 if (count($newRows)) {
-                    $repo->addNewRowsWithField($newRows);
+                    $repo->updateRowValues($newRows);
                 }
             }
 
             $startPoint = $segmentEnd;
         }
 
-        $this->etlPickupRepo->updatePosition($this->pickupName, $endPoint);
-
-        /*
-        for each repo in the list of repos to check:
-            if the row doesn't exist, insert it with the proper (won't necessarily be default) values
-
-            if the row does exist, check that the selected values are the same. *If not,* set the checked repo's values to the trustedSourceRepo's values
-        */
+        $this->etlPickupRepo->updatePosition($this->pickupName, 0); // Need to keep values updated, so resetting to start
     }
+
 
     private function runDataExistenceCheck() {
 

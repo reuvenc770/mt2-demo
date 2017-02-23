@@ -339,7 +339,7 @@ class EmailFeedInstanceRepo implements ICanonicalDataSource {
         }
     }
 
-    public function compareSourcesWithField($tableName, $startPoint, $segmentEnd, $field) {}
+    public function compareSourcesWithField($tableName, $startPoint, $segmentEnd) {}
 
 
     public function compareSources($tableName, $startPoint, $segmentEnd) {
@@ -350,8 +350,7 @@ class EmailFeedInstanceRepo implements ICanonicalDataSource {
                         $join->on('email_feed_instances.email_id', '=', 'tbl.email_id');
                         $join->on('email_feed_instances.feed_id', '=', 'tbl.feed_id');
                     })
-                    ->whereRaw("email_feed_instances.id BETWEEN {$startPoint} AND {$segmentEnd}")
-                    ->whereRaw("tbl.email_id IS NULL")
+                    ->whereRaw("(email_feed_instances.id BETWEEN {$startPoint} AND {$segmentEnd}) AND (tbl.email_id IS NULL)")
                     ->select('email_feed_instances.*', 'f.party')
                     ->get()
                     ->toArray();

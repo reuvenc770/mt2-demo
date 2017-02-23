@@ -69,16 +69,6 @@ class ThirdPartyEmailStatusRepo {
         $this->insertStored();
     }
 
-    public function addNewRowsWithField(array $rows) {
-        // This is specifically updating action information
-
-        foreach($rows as $row) {
-            $this->batchInsert($row);
-        }
-
-        $this->insertStored();
-    }
-
     public function getTableName() {
         return config('database.connections.mysql.database') . '.' . $this->model->getTable();
     }

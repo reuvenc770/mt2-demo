@@ -128,6 +128,7 @@ class ServiceFactory
     public static function createDataValidationService($source, $type) {
         $checkRepos = [];
         $checkClasses = [];
+        $canonicalDataRepo = null;
 
         if ('emails' === $source) {
             $canonicalDataRepo = App::make(\App\Repositories\EmailRepo::class);
@@ -141,22 +142,19 @@ class ServiceFactory
             $checkRepos[] = $repo;
 
         }
-        elseif ('emailFeedInstances' === $source) {
+        elseif ('emailFeedInstances' === $source && 'exists' === $type) {
+            // Ensures that email-feed rows are set up
             $canonicalDataRepo = App::make(\App\Repositories\EmailFeedInstanceRepo::class);
             $checkClasses = [
                 'EmailAttributableFeedLatestDataRepo',
                 'FirstPartyRecordDataRepo'
             ];
         }
-        elseif ('actionStatus' === $source) {
-            throw new \Exception("not yet!");
-            $canonicalDataRepo = App::make(\App\Repositories\ListProfileFlatTableRepo::class);
-            $checkClasses = [
-                'AttributionRecordTruthRepo',
-                'ThirdPartyEmailStatusRepo'
-            ];
-
+        elseif('emailFeedAssignments' === $source && 'value' === $type) {
+            $canonicalDataRepo = App::make(\App\Repositories\EmailFeedAssignmentRepo::class);
+            $checkClasses = ['EmailAttributableFeedLatestDataRepo'];
         }
+
 
         foreach($checkClasses as $class) {
             $checkRepos[] = App::make("App\\Repositories\\$class");
