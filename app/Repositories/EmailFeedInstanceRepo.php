@@ -7,11 +7,12 @@ use App\Models\SourceUrlCount;
 use DB;
 use Illuminate\Database\Query\Builder;
 use App\Repositories\RepoTraits\Batchable;
+use App\Repositories\RepoInterfaces\ICanonicalDataSource;
 
 /**
  *
  */
-class EmailFeedInstanceRepo {
+class EmailFeedInstanceRepo implements ICanonicalDataSource {
     use Batchable;
 
     private $model;
@@ -337,4 +338,41 @@ class EmailFeedInstanceRepo {
             $this->countModel->updateOrCreate( $current );
         }
     }
+
+    public function compareSourcesWithField($tableName, $startPoint, $segmentEnd, $field) {}
+
+
+    public function compareSources($tableName, $startPoint, $segmentEnd) {
+
+        return $this->model
+                    ->leftJoin("feeds as f", 'email_feed_instances.feed_id', '=', 'f.id')
+                    ->leftJoin("$tableName as tbl", function($join) {
+                        $join->on('email_feed_instances.email_id', '=', 'tbl.email_id');
+                        $join->on('email_feed_instances.feed_id', '=', 'tbl.feed_id');
+                    })
+                    ->whereRaw("email_feed_instances.id BETWEEN {$startPoint} AND {$segmentEnd}")
+                    ->whereRaw("tbl.email_id IS NULL")
+                    ->select('email_feed_instances.*', 'f.party')
+                    ->get()
+                    ->toArray();
+    }
+
+
+    public function maxId() {
+        return $this->model->orderBy('id', 'desc')->first()['id'];
+    }
+
+
+    public function nextNRows($startPoint, $offset) {
+        return $this->model
+            ->whereRaw("id >= $startPoint")
+            ->orderBy('id')
+            ->skip($offset)
+            ->first()['id'];
+    }
+
+    public function lessThan($startPoint, $endPoint) {
+        return (int)$startPoint < (int)$endPoint;
+    }
+
 }

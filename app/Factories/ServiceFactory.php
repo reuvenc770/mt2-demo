@@ -141,15 +141,12 @@ class ServiceFactory
             $checkRepos[] = $repo;
 
         }
-        elseif ('captureDate' === $source) {
-            throw new \Exception("not yet!");
+        elseif ('emailFeedInstances' === $source) {
             $canonicalDataRepo = App::make(\App\Repositories\EmailFeedInstanceRepo::class);
             $checkClasses = [
-                'EmailFeedAssignmentRepo',
                 'EmailAttributableFeedLatestDataRepo',
                 'FirstPartyRecordDataRepo'
             ];
-
         }
         elseif ('actionStatus' === $source) {
             throw new \Exception("not yet!");

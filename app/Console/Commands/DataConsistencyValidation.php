@@ -15,8 +15,13 @@ class DataConsistencyValidation extends Command
      * @var string
      */
     protected $signature = 'dataValidation {source} {type} {--field=none}';
+
+    /**
+        EmailFeedInstances has both exists and value(capture_date)
+        Maybe we want a mapping of acceptable combinations
+    */
     const VALID_TYPES = ['exists', 'value'];
-    const VALID_SOURCES = ['emails', 'captureDate', 'actionStatus'];
+    const VALID_SOURCES = ['emails', 'emailFeedInstances', 'actionStatus'];
 
     /**
      * The console command description.
