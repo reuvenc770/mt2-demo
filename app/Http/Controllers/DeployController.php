@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\DataModels\CacheReportCard;
+use App\Jobs\ExportListProfileJob;
 use App\Services\DeployService;
 use App\Services\EspService;
 use App\Services\PackageZipCreationService;
@@ -155,13 +157,34 @@ class DeployController extends Controller
         $username = $request->get("username");
         $data = $request->except("username");
         $filePath = false;
+        $reportCard = CacheReportCard::makeNewReportCard("");
         //Only one package is selected return the filepath and make it a download response
         if (count($data) == 1) {
+            $reportCard->setNumberOfEntries(1);
             $filePath = $this->packageService->createPackage($data);
+            $deploy = $this->deployService->getDeploy($data);
+            $this->dispatch(
+                new ExportListProfileJob(
+                    $deploy->list_profile_combine_id,
+                    $deploy->offer_id,
+                    str_random(16),
+                    $reportCard->getName()
+                )
+            );
         } else {
             //more then 1 package selection create the packages on the FTP and kick off the OPS file job
-            foreach ($data as $id) {
-               $this->packageService->uploadPackage($id);
+            foreach ($data as $id) { 
+                $reportCard->setNumberOfEntries(count($data));
+                $this->packageService->uploadPackage($id);
+                $deploy = $this->deployService->getDeploy($id);
+                $this->dispatch(
+                    new ExportListProfileJob(
+                        $deploy->list_profile_combine_id,
+                        $deploy->offer_id,
+                        str_random(16),
+                        $reportCard->getName()
+                    )
+                );
             }
             Artisan::call('deploys:sendtoops', ['deploysCommaList' => join(",",$data), 'username' => $username]);
         }
