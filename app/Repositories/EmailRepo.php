@@ -72,11 +72,6 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
         );
     }
 
-    private function getAttributedFeedForAddress($emailAddr) {
-        # TODO: flesh out attribution. This will return a feed_id
-        return 1;
-    }
-
     private function createRow($row) {
         return [
             'id' => $row['id'],
