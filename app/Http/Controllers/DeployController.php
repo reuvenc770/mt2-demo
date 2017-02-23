@@ -157,7 +157,8 @@ class DeployController extends Controller
         $username = $request->get("username");
         $data = $request->except("username");
         $filePath = false;
-        $reportCard = CacheReportCard::makeNewReportCard("");
+        $ran = str_random(10);
+        $reportCard = CacheReportCard::makeNewReportCard("{$username}-{$ran}");
         //Only one package is selected return the filepath and make it a download response
         if (count($data) == 1) {
             $reportCard->setNumberOfEntries(1);
