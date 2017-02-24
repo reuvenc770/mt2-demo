@@ -47,7 +47,12 @@ class CacheReportCard
     }
 
     public function isReportCardFinished(){
-        return $this->numberOfEntries == 0;
+        if($this->numberOfEntries == 0){
+            Cache::forget($this->name);
+            return true;
+        } else {
+            return false;
+        }
     }
     
     private function updateCache(){

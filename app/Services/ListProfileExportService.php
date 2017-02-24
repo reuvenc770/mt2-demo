@@ -126,10 +126,7 @@ class ListProfileExportService
 
         $listIds = $this->offerRepo->getSuppressionListIds($offerId);
         $result = $this->tableRepo->suppressWithListIds($listIds);
-        //GrabOffersSuppressedAgainst and store for to place in record
-        $offerSupppressionLists = OfferSuppressionList::find($offerId)->all();
-        $offersPlucked = $offerSupppressionLists->pluck('id');
-        $reportCard->addOffersSuppressedAgainst($offersPlucked);
+
         $resource = $result->cursor();
 
         foreach ($deploys as $deploy) {
@@ -164,10 +161,15 @@ class ListProfileExportService
             $fileName = 'DeployTemp/' . $listProfile->name . '-' . $deploy->id . '-' . $offerId . '.csv';
             Storage::delete($fileName); // clear the file currently saved
 
-            $recordEntry = $deployProgress['reportEntry'];
-            
-            $recordEntry->addToOriginalTotal(count($resource));
-            $recordEntry->addOffersSuppressedAgainst($offersSuppressedAgainst);
+
+                $recordEntry = $deployProgress['reportEntry'];
+                $recordEntry->addToOriginalTotal(count($resource));
+            //GrabOffersSuppressedAgainst and store for to place in record
+                if($reportCardName) {
+                    $offerSuppressionLists = OfferSuppressionList::find($offerId)->all();
+                    $offersPlucked = $offerSuppressionLists->pluck('id');
+                    $reportCard->addOffersSuppressedAgainst($offersPlucked);
+                }
 
              foreach ($resource as $row) {
                 if($row->global_suppression_status){
@@ -200,7 +202,9 @@ class ListProfileExportService
                 $deployProgress['files'] = array_merge($deployProgress['files'], array($fileName));
                 Cache::forget("header-{$key}");
                 Cache::forget("deploy-{$key}");
-                $reportCard->addEntry($recordEntry);
+                if($reportCardName) {
+                    $reportCard->addEntry($recordEntry);
+                }
                 $this->buildCombineFile($header,$deployProgress['ftp_folder'], $deployProgress['name'], $deployProgress['files'], $offerId, $deployProgress['id'],  $deployProgress['espAccount']);
             } else {
                 //Update the cache
