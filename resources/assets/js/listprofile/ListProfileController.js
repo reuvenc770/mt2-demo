@@ -14,12 +14,15 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     self.showCombine = false;
     self.listCombines = [];
     self.combineError = null;
+    self.ftpFolderError = null;
     self.combineName = "";
+    self.ftpFolder = "lp_combine";
     self.combineParty = '';
 
     self.current = {
         'profile_id' : null ,
         'name' : '' ,
+        'ftp_folder': 'lp',
         'country_id' : '' ,
         'party' : '3',
         'feeds' : {} ,
@@ -62,7 +65,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         'admiralsOnly' : false
     };
 
-    self.currentCombine = { 'combineName' : '' , 'selectedProfiles' : [] };
+    self.currentCombine = { 'combineName' : '' , 'ftpFolder' : '' , 'selectedProfiles' : [] };
     self.prepopListProfiles = [];
     self.listProfilesList = [];
     self.lpListNameField = 'name';
@@ -75,6 +78,9 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
     self.profileTotal = 0;
+    self.firstPartyProfileTotal = 0;
+    self.secondPartyProfileTotal = 0;
+    self.thirdPartyProfileTotal = 0;
     self.queryPromise = null;
     self.sort = "name";
 
@@ -237,6 +243,9 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         });
         self.pageCount = response.data.last_page;
         self.profileTotal = response.data.total;
+        self.firstPartyProfileTotal = self.firstPartyListProfiles.length || 0;
+        self.secondPartyProfileTotal = self.secondPartyListProfiles.length || 0;
+        self.thirdPartyProfileTotal = self.thirdPartyListProfiles.length || 0;
 
         $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
     };
@@ -902,7 +911,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     };
 
     self.createCombine = function (){
-        ListProfileApiService.createCombine(self.combineName,self.selectedProfiles, self.combineParty, self.createCombineSuccess, self.createCombineFail);
+        ListProfileApiService.createCombine(self.combineName, self.ftpFolder ,self.selectedProfiles, self.combineParty, self.createCombineSuccess, self.createCombineFail);
     };
 
     self.updateCombine = function () {
@@ -960,8 +969,9 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         modalService.simpleToast("Failed to load list of list profiles.");
     };
 
-    self.setCombine = function ( combineId , combineName , combineParty, listProfiles ) {
+    self.setCombine = function ( combineId , combineFolder, combineName , combineParty, listProfiles ) {
         self.currentCombine.id = combineId;
+        self.currentCombine.ftpFolder = combineFolder;
         self.currentCombine.combineName = combineName;
         self.currentCombine.party = combineParty;
         self.prepopListProfiles = listProfiles;
@@ -993,6 +1003,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
         self.loadListCombines();
         self.combineName = "";
+        self.ftpFolder = "lp_combine";
     };
 
     self.loadCombineFail = function (response) {

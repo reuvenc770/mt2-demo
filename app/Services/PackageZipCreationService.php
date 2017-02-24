@@ -338,10 +338,10 @@ class PackageZipCreationService {
      */
 
     private function formatUrl($type, $urlFormat, $linkId, $emailIdFormat) {
-        if ('new' === $urlFormat) {
+        if ('short' === $urlFormat) {
             return $this->urlFormatter->formatNewUrl($type, $this->contentDomain, $emailIdFormat, $linkId);
         }
-        elseif ('gmail' === $urlFormat) {
+        elseif ('encrypt' === $urlFormat) {
             return $this->urlFormatter->formatGmailUrl($type, $this->contentDomain, $emailIdFormat, $linkId);
         }
         else {

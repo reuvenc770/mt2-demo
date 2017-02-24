@@ -7,6 +7,7 @@ use App\Services\DoingBusinessAsService;
 use App\Services\DomainService;
 use Laracasts\Flash\Flash;
 use App\Services\RegistrarService;
+use App\Services\ProxyService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -19,12 +20,13 @@ class DomainController extends Controller
     public $dbaService;
     public $registrarService;
         //Todo maybe DeployService wraps these smaller ones.
-    public function __construct(DomainService $domainService, EspService $espService, DoingBusinessAsService $doingBusinessAsService, RegistrarService $registrarService)
+    public function __construct(DomainService $domainService, EspService $espService, DoingBusinessAsService $doingBusinessAsService, RegistrarService $registrarService, ProxyService $proxyService)
     {
         $this->service = $domainService;
         $this->espService = $espService;
         $this->dbaService = $doingBusinessAsService;
         $this->registrarService = $registrarService;
+        $this->proxyService = $proxyService;
     }
 
     /**
@@ -41,7 +43,8 @@ class DomainController extends Controller
         $regs = $this->registrarService->getAllActive();
         $esps = $this->espService->getAllEsps();
         $dbas = $this->dbaService->getAllActive();
-        return response()->view( 'pages.domain.domain-index',  [ 'esps' => $esps , 'dbas' => $dbas, 'regs' => $regs] );
+        $proxies = $this->proxyService->getAllActive();
+        return response()->view( 'pages.domain.domain-index',  [ 'esps' => $esps , 'dbas' => $dbas, 'regs' => $regs , 'proxies' => $proxies] );
     }
     /**
      * Show the form for creating a new resource.
@@ -53,7 +56,8 @@ class DomainController extends Controller
         $esps = $this->espService->getAllEsps();
         $dbas = $this->dbaService->getAllActive();
         $regs = $this->registrarService->getAllActive();
-        return response()->view('pages.domain.domain-add', [ 'esps' => $esps , 'dbas' => $dbas, 'regs' => $regs]);
+        $proxies = $this->proxyService->getAllActive();
+        return response()->view('pages.domain.domain-add', [ 'esps' => $esps , 'dbas' => $dbas, 'regs' => $regs , 'proxies' => $proxies ]);
     }
 
 
@@ -62,7 +66,8 @@ class DomainController extends Controller
         $regs = $this->registrarService->getAllActive();
         $esps = $this->espService->getAllEsps();
         $dbas = $this->dbaService->getAllActive();
-      return response()->view('pages.domain.domain-listview', [ 'esps' => $esps , 'dbas' => $dbas, 'regs' => $regs]);
+        $proxies = $this->proxyService->getAllActive();
+      return response()->view('pages.domain.domain-listview', [ 'esps' => $esps , 'dbas' => $dbas, 'regs' => $regs , 'proxies' => $proxies ]);
 }
 
     /**
@@ -80,10 +85,32 @@ class DomainController extends Controller
 
             switch($type){
                 case Domain::MAILING_DOMAIN:
-                    list($domainName,$mainSite,$expires) = explode(",",$domain);
+                    $mailDomainValues = explode(",",$domain);
+
+                    if ( count( $mailDomainValues ) === 3 ){
+                        list($domainName,$mainSite,$expires) = array_map( 'trim' , $mailDomainValues );
+                        if ( $this->service->domainExistsAsDomainType( $domainName , 2 ) ) {
+                            return response()->json( ['domains' => ["This domain already exists as a content domain."] ] , 422 );
+                        }
+                        if ($domainName === $mainSite ){
+                            return response()->json( ['domains' => ["Domain Name and Main Site cannot be the same."] ] , 422 );
+                        }
+                    } else {
+                        return response()->json( ['domains' => ["Some domain info is missing."] ] , 422 );
+                    }
                     break;
                 case Domain::CONTENT_DOMAIN:
-                    list($domainName,$expires) = explode(",",$domain);
+                    $contentDomainValues = explode(",",$domain);
+
+                    if ( count( $contentDomainValues) === 2 ){
+                        list($domainName,$expires) = array_map( 'trim' , $contentDomainValues );
+
+                        if ( $this->service->domainExistsAsDomainType( $domainName , 1 ) ) {
+                            return response()->json( ['domains' => ["This domain already exists as a mailing domain."] ] , 422 );
+                        }
+                    } else {
+                        return response()->json( ['domains' => ["Some domain info is missing."] ] , 422 );
+                    }
             }
 
             $insertArray[] = [
@@ -146,7 +173,8 @@ class DomainController extends Controller
         $esps = $this->espService->getAllEsps();
         $dbas = $this->dbaService->getAllActive();
         $domains = $this->service->searchDomains($request->toArray());
-        return response()->view('pages.domain.domain-searchview', [ 'esps' => $esps , 'dbas' => $dbas, 'regs' => $regs, 'domains' => json_encode($domains)]);
+        $proxies = $this->proxyService->getAllActive();
+        return response()->view('pages.domain.domain-searchview', [ 'esps' => $esps , 'dbas' => $dbas, 'regs' => $regs, 'domains' => json_encode($domains) , 'proxies' => $proxies ]);
     }
 
     /**

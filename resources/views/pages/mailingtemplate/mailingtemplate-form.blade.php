@@ -45,6 +45,13 @@
                   ng-show="mailing.formErrors.selectedEsps">
             </span>
 </div>
+<br/>
+<div>
+    <label>Template</label>
+    <p>When creating a new template, include the <code>html</code> and <code>body</code> tags. If the <span ng-non-bindable>@{{CREATIVE}}</span> includes the <code>doctype</code>, <code>html</code>, and <code>body</code> tags, they will be removed during package creation. <br/>
+    Note: Any tokens that are no longer used will be removed or left blank.</p>
+</div>
+
 <div class="row">
     <div class="col-sm-6">
         <div class="form-group" ng-class="{ 'has-error' : mailing.formErrors.html }">

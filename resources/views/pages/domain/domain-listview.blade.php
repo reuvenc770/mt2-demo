@@ -2,10 +2,15 @@
 
 @section( 'title' , 'Domain List View' )
 
+@section( 'page-menu' )
+    @if (Sentinel::hasAccess('domain.add'))
+        <li><a ng-href="/domain/create" target="_self" aria-label="Add Domain">Add Domain</a>
+        </li>
+    @endif
+@stop
 
 @section( 'content' )
     <div ng-controller="domainController as domain" ng-init="domain.init(1)">
-        <h1>ESP Account View</h1>
         @include( 'pages.domain.domain-search' )
         <div ng-init="attr.initIndexPage()">
             <ul class="nav nav-tabs" role="tablist">
@@ -15,16 +20,16 @@
             </ul>
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane active" id="mailing">
-                    <h2>Current Mailing Domains @{{ domain.extraText }}</h2>
-                    <md-card>
-                        @include( 'pages.domain.domain-list-table' )
-                    </md-card>
+                    <div class="tabpanel-header">
+                        @{{ domain.extraText }}
+                    </div>
+                    @include( 'pages.domain.domain-list-table' )
                 </div>
                 <div role="tabpanel" class="tab-pane" id="content">
-                    <h2>&nbsp;Current Content Domains @{{ domain.extraText }}</h2>
-                    <md-card>
-                        @include( 'pages.domain.domain-list-table' )
-                    </md-card>
+                    <div class="tabpanel-header">
+                        @{{ domain.extraText }}
+                    </div>
+                    @include( 'pages.domain.domain-list-table' )
                 </div>
             </div>
         </div>

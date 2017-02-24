@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\FeedVertical;
 use App\Repositories\FeedRepo;
 use App\Models\CakeVertical;
 use App\Models\FeedType;
@@ -13,7 +14,7 @@ use App\Services\EmailFeedInstanceService;
 use League\Csv\Writer;
 use DB;
 use Artisan;
-
+//Todo not happy with lack of Repo's this has way to much repo logic in it.
 class FeedService implements IFtpAdmin
 {
     use PaginateList;
@@ -41,13 +42,13 @@ class FeedService implements IFtpAdmin
 
     public function __construct(
         FeedRepo $feedRepo,
-        CakeVertical $cakeVerticals ,
+        FeedVertical $feedVertical ,
         CountryRepo $countryRepo ,
         FeedType $feedTypes ,
         EmailFeedInstanceService $instanceService
     ) {
         $this->feedRepo = $feedRepo;
-        $this->verticals = $cakeVerticals;
+        $this->verticals = $feedVertical;
         $this->feedTypes = $feedTypes;
         $this->countryRepo = $countryRepo;
         $this->instanceService = $instanceService;
@@ -105,11 +106,11 @@ class FeedService implements IFtpAdmin
     }
 
     public function getFeedCsv () {
-        $model = $this->feedRepo->getModel();
+        $model = $this->feedRepo->getModel('');
         $results = $model->get();
 
         $writer = Writer::createFromFileObject( new \SplTempFileObject() );
-        $writer->insertOne( [ "Feed ID" , "Client Name" , "Party" , "Feed Name" , "Feed Shortname" , "Password" , "Status" , "Vertical" , "Type" , "Country" , "Source" , "Created" , "Updated" ] );
+        $writer->insertOne( [ "Feed ID" , "Client Name" , "Party" , "Feed Name" , "Feed Shortname" , "Password" , "Host", "Status" , "Vertical" , "Type" , "Country" , "Source" , "Created" , "Updated" ] );
 
         foreach ( $results as $row ) {
             $writer->insertOne( $row->toArray() );

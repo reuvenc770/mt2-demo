@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use App\Repositories\RepoInterfaces\Mt2Export;
 use App\Repositories\RepoInterfaces\IAwsRepo;
-
 /**
  *
  */
@@ -75,6 +74,7 @@ class FeedRepo implements Mt2Export, IAwsRepo {
                 'feeds.name' ,
                 'feeds.short_name' ,
                 'feeds.password' ,
+                'feeds.host_ip as hostIp' ,
                 'feeds.status' ,
                 'cake_verticals.name as feedVertical',
                 'feed_types.name as feedType' ,

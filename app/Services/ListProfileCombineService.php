@@ -49,7 +49,11 @@ class ListProfileCombineService
         return $this->listProfileCombinesRepo->isEditable($id);
     }
 
-    public function updateCombine ( $id , $name, $profiles ) {
-        $this->listProfileCombinesRepo->updateCombine( $id , $name , $profiles );
+    public function updateCombine ($record) {
+        $this->listProfileCombinesRepo->updateCombine($record );
+    }
+
+    public function getFirstPartyListCombines(){
+        return $this->listProfileCombinesRepo->getFirstPartyListCombines();
     }
 }

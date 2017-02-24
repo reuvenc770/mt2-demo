@@ -5,6 +5,8 @@ mt2App.directive( 'listprofileCombineCreate' , function () {
         "controllerAs" : "ctrl" ,
         "bindToController" : {
             "combineName" : "=",
+            "ftpFolder"   : "=",
+            "ftpFolderError": "=",
             "createCombine" : "&",
             "combineError" : "="
         } ,

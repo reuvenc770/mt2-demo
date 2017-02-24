@@ -193,6 +193,10 @@ class DeployRepo implements Mt2Export
             $query->whereBetween('deploys.send_date',$dates);
         }
 
+        if (isset($searchData['listProfileParty'])) {
+            $query->where('deploys.party' , $searchData['listProfileParty'] );
+        }
+
         return $query;
     }
 
@@ -369,7 +373,7 @@ class DeployRepo implements Mt2Export
         }
 
         if (isset($deploy['url_format'])) {
-            $options = ['new',"old","gmail"];
+            $options = ['long',"short","encrypt"];
             if(!in_array($deploy['url_format'],$options)){
                 $errors[] = "Url Format is wrong";
             }

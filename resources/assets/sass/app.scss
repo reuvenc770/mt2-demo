@@ -318,6 +318,15 @@ th md-checkbox.md-mt2-zeta-theme:not(.md-checked) .md-icon {
     border-color: rgba(255, 255, 255, 0.87);
 }
 
+md-progress-linear.md-default-theme.cmp-md-success .md-bar,
+md-progress-linear.cmp-md-success .md-bar {
+    background-color: #5cb85c;
+}
+
+md-progress-linear.md-default-theme.cmp-md-success .md-container,
+md-progress-linear.cmp-md-success .md-container {
+    background-color: #DFF0D8;
+}
 /*
  * Button Styling
  */
@@ -328,6 +337,14 @@ th md-checkbox.md-mt2-zeta-theme:not(.md-checked) .md-icon {
  md-icon.mt2-icon-white{
     color: #ffffff;
  }
+
+md-icon.mt2-icon-warning{
+    color: #FFC400;
+}
+
+md-icon.mt2-icon-error{
+    color: #d9534f;
+}
 
 .material-icons:focus {
     outline: 0;
@@ -361,6 +378,44 @@ md-icon.material-icons.icon-xs {
 a.md-button.md-mt2-zeta-theme.md-raised.mt2-button-success:not([disabled]):hover,
 .md-button.md-mt2-zeta-theme.md-raised.mt2-button-success:not([disabled]):hover {
     background-color: #5cb85c;
+}
+
+.mt2-button-option{
+    margin: 6px 0;
+}
+.mt2-button-option[disabled]{
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+}
+.mt2-button-option-left{
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+}
+.mt2-button-option-right{
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+}
+
+/*
+ * bootstrap button overrides
+ */
+.btn-success {
+    color: #4cae4c;
+    background-color: #ffffff;
+}
+.btn-warning {
+    color: #eea236;
+    background-color: #ffffff;
+}
+.btn-danger {
+    color: #d43f3a;
+    background-color: #ffffff;
+}
+
+/*
+ * Materials Menu Styling
+ */
+md-menu-content.md-mt2-zeta-theme md-menu-item {
+    color: rgba(0,0,0,0.87) !important;
 }
 
 /**
@@ -417,6 +472,12 @@ body {
 .bold-text { font-weight: bold; }
 
 .text-right { text-align: right; }
+
+.italic { font-style: italic; }
+
+.warning-text {
+    color: #a94442;
+}
 
 .add-bottom-margin { margin-bottom: 24px; }
 
@@ -574,9 +635,25 @@ table.md-table th.md-column md-icon {
 .mtNestedTable thead {
     background-color: #468cce;
 }
+
 /**
 Panel Custom - we should break up into componets.
 **/
+
+.tabpanel-header {
+    background-color: #ffffff;
+    border-left: 1px solid #dddddd;
+    border-right: 1px solid #dddddd;
+    padding: 15px;
+    font-size: 1.5em;
+}
+
+.tabpanel-border {
+    border-bottom: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    padding: 15px;
+}
 
 /**
 Roles Pages custom

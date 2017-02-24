@@ -106,6 +106,7 @@ return [
     'api.listprofile.active' => 'View Active List Profiles',
     'api.listprofile.combine' => 'View List Profiles and List Combines',
     'api.listprofile.combinelist' => 'View List Profile Combines Only',
+    'api.listprofile.firstpartylist' => 'Retrieve List of First Party List Profiles',
     'api.listprofile.combine.export' => 'Export List Profile Combine',
     'api.listprofile.combine.update' => 'Update List Profile Combine Information',
     'api.listprofile.copy' => 'Copy List Profile',

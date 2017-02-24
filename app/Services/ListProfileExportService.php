@@ -13,7 +13,6 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Storage;
 use Cache;
 use Log;
-use App\Services\MT1SuppressionService;
 
 class ListProfileExportService
 {
@@ -54,7 +53,7 @@ class ListProfileExportService
         $tableName = self::BASE_TABLE_NAME . $listProfileId;
         $date = Carbon::today()->toDateString();
         $this->tableRepo = new ListProfileBaseTableRepo(new ListProfileBaseTable($tableName));
-        $fileName = "{$date}_{$listProfile->name}.csv";
+        $fileName = "{$listProfile->ftp_folder}/{$date}_{$listProfile->name}.csv";
 
         Storage::disk('espdata')->delete($fileName); // clear the file currently saved
 
@@ -70,10 +69,6 @@ class ListProfileExportService
 
         $resource = $result->cursor();
 
-        /**
-         * Uncomment out after successfull testing
-         */
-        #$resource = $this->mt1SuppServ->getValidRecordGenerator( $offerId , $this->tableRepo->getModel() );
 
         foreach ($resource as $row) {
             $row = $this->mapRow($columns, $row);
@@ -99,7 +94,7 @@ class ListProfileExportService
             $files[] = $this->exportListProfile($listProfile->id, null, array_unique($listProfileCombineHeader));
         }
         $date = Carbon::today()->toDateString();
-        $fileName = "{$date}_{$listProfileCombine->name}.csv";
+        $fileName = "{$listProfileCombine->ftp_folder}/{$date}_{$listProfileCombine->name}.csv";
 
         Storage::disk('espdata')->delete($fileName);
         Storage::disk('espdata')->append($fileName, implode(',', $listProfileCombineHeader));
@@ -123,11 +118,6 @@ class ListProfileExportService
         $result = $this->tableRepo->suppressWithListIds($listIds);
 
         $resource = $result->cursor();
-
-        /**
-         * Uncomment out after successfull testing
-         */
-        #$resource = $this->mt1SuppServ->getValidRecordGenerator( $offerId , $this->tableRepo->getModel() );
 
         foreach ($deploys as $deploy) {
 
@@ -164,6 +154,7 @@ class ListProfileExportService
                 $num = count($listProfileCombine->listProfiles);
                 return array(
                     "id" => $deploy->id,
+                    "ftp_folder" => $listProfileCombine->ftp_folder,
                     "espAccount" => $deploy->esp_account_id,
                     "name" => $listProfileCombine->name,
                     "totalPieces" => $num,
@@ -177,12 +168,13 @@ class ListProfileExportService
                 $deployProgress['files'] = array_merge($deployProgress['files'], array($fileName));
                 Cache::forget("header-{$key}");
                 Cache::forget("deploy-{$key}");
-                $this->buildCombineFile($header, $deployProgress['name'], $deployProgress['files'], $offerId, $deployProgress['id'],  $deployProgress['espAccount']);
+                $this->buildCombineFile($header,$deployProgress['ftp_folder'], $deployProgress['name'], $deployProgress['files'], $offerId, $deployProgress['id'],  $deployProgress['espAccount']);
             } else {
                 //Update the cache
                 Cache::put("deploy-{$key}",
                     array(
                         "id" => $deployProgress['id'],
+                        "ftp_folder" => $deployProgress['ftp_folder'],
                         "espAccount" => $deployProgress['espAccount'],
                         "name" => $deployProgress['name'],
                         "totalPieces" => $deployProgress['totalPieces'],
@@ -241,13 +233,13 @@ class ListProfileExportService
         return implode(',', $output);
     }
 
-    private function buildCombineFile($header, $fileName, $files, $offerId,$deployId, $espAccount)
+    private function buildCombineFile($header, $ftpFolder, $fileName, $files, $offerId,$deployId, $espAccount)
     {
         $espAccountName = EspApiAccount::getEspAccountName($espAccount);
         $offerName = $this->offerRepo->getOfferName($offerId);
         $date = Carbon::today()->toDateString();
-        $combineFileName = "{$date}_{$deployId}_{$espAccountName}_{$fileName}_{$offerName}.csv";
-        $combineFileNameDNM = "{$date}_DONOTMAIL_{$deployId}_{$espAccountName}_{$fileName}_{$offerName}.csv";
+        $combineFileName = "{$ftpFolder}/{$date}_{$deployId}_{$espAccountName}_{$fileName}_{$offerName}.csv";
+        $combineFileNameDNM = "{$ftpFolder}/{$date}_DONOTMAIL_{$deployId}_{$espAccountName}_{$fileName}_{$offerName}.csv";
         Storage::disk('SystemFtp')->delete($combineFileName);
         Storage::disk('SystemFtp')->delete($combineFileNameDNM);
         Storage::disk('SystemFtp')->append($combineFileName, implode(',', $header));

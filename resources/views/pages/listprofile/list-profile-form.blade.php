@@ -22,6 +22,16 @@
         </span>
     </div>
 </div>
+<div class="form-group" ng-class="{ 'has-error' : listProfile.formErrors.ftp_folder }">
+    <label>FTP Folder</label>
+    <input placeholder="ftp_folder" value="" class="form-control" ng-model="listProfile.current.ftp_folder"
+           required="required" name="name" type="text">
+    <div class="help-block" ng-show="listProfile.formErrors.ftp_folder">
+        <div ng-repeat="error in listProfile.formErrors.ftp_folder">
+            <span ng-bind="error"></span>
+        </div>
+    </div>
+</div>
 
 <div class="form-group">
     <label>Party</label>
