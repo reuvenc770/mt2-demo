@@ -256,7 +256,6 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
     self.prepop = function ( listProfile ) {
         self.current = listProfile;
-        self.generateName();
         self.fixEmptyFields();
 
         $(function () { $('[data-toggle="tooltip"]').tooltip() });
