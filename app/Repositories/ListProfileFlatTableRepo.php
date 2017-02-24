@@ -190,7 +190,7 @@ class ListProfileFlatTableRepo implements IAwsRepo {
     public function getThirdPartyEmailStatusExtractQuery () {
         return "SELECT
             lpft.email_id ,
-            IF( lpft.has_conversion = 1 , 'Conversion' , IF( lpft.has_click = 1 , 'Click' , IF( lpft.has_open = 1 , 'Open' , 'None' ) ) ) AS `action_type`
+            IF( lpft.has_conversion = 1 , 'Conversion' , IF( lpft.has_click = 1 , 'Click' , IF( lpft.has_open = 1 , 'Open' , 'None' ) ) ) AS `action_type` ,
             lpft.offer_id ,
             lpft.esp_account_id ,
             CONCAT( lpft.date , ' 00:00:00' ) as `datetime`
