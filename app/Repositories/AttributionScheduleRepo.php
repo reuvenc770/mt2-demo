@@ -37,11 +37,25 @@ class AttributionScheduleRepo {
     }
 
     public function insertScheduleBulk($emails){
-            DB::connection("attribution")->statement(
-                "INSERT INTO {$this->schedule->getTable()} (email_id, trigger_date, created_at, updated_at)
-            VALUES
-                        " . join(' , ', $emails) . "
-            ON DUPLICATE KEY UPDATE
-            email_id = email_id, trigger_date = VALUES(trigger_date), updated_at = VALUES(updated_at)");
+        DB::connection("attribution")->statement(
+            "INSERT INTO {$this->schedule->getTable()} (email_id, trigger_date, created_at, updated_at)
+        VALUES
+                    " . join(' , ', $emails) . "
+        ON DUPLICATE KEY UPDATE
+        email_id = email_id, trigger_date = VALUES(trigger_date), updated_at = VALUES(updated_at)");
+    }
+
+    public function addNewRows(array $rows) {
+        $emails = [];
+
+        foreach($rows as $row) {
+            $emails[] = '(' . $row['email_id'] . ', CURDATE(), NOW(), NOW())';
         }
+
+        $this->insertScheduleBulk($emails);
+    }
+
+    public function getTableName() {
+        return config('database.connections.attribution.database') . '.' . $this->schedule->getTable();
+    }
 }

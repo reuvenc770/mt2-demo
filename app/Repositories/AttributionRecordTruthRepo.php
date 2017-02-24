@@ -45,7 +45,7 @@ class AttributionRecordTruthRepo {
                     ->leftJoin($attrDb . '.attribution_levels as al', 'efa.feed_id', '=', 'al.feed_id')
                     ->where('recent_import', 0)
                     ->where('has_action', 0)
-                    ->whereRaw('action_expired = 0')
+                    ->whereRaw('action_expired IN (1,0)')
                     ->where('additional_imports', 1)
                     ->whereRaw("art.email_id % 5 = $remainder")
                     ->orderBy('email_id');
@@ -78,7 +78,7 @@ class AttributionRecordTruthRepo {
                       ->where('recent_import', 0)
                       ->where('has_action', 0)
                       ->where('additional_imports', 1)
-                      ->whereRaw('action_expired = 0')
+                      ->whereRaw('action_expired IN (1,0)')
                       ->where('aes.trigger_date', '<', $startDateTime)
                       ->whereRaw("art.email_id % 5 = $remainder")
                       ->groupBy('efa.email_id', 'efa.feed_id', 'efa.capture_date', 'art.has_action', 'art.action_expired')
@@ -151,4 +151,17 @@ class AttributionRecordTruthRepo {
             email_id = email_id, recent_import = recent_import, created_at = created_at, updated_at = updated_at ");
     }
 
+    public function addNewRows(array $rows) {
+        $emails = [];
+
+        foreach($rows as $row) {
+            $emails[] = '(' . $row['email_id'] . ', 0, NOW(), NOW())';
+        }
+
+        $this->bulkInsert($emails);
+    }
+
+    public function getTableName() {
+        return config('database.connections.attribution.database') . '.' . $this->truth->getTable();
+    }
 }

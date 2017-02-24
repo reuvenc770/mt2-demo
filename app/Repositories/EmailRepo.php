@@ -8,12 +8,13 @@ use Illuminate\Database\Query\Builder;
 use DB;
 use App\Repositories\RepoInterfaces\Mt2Export;
 use App\Repositories\RepoInterfaces\IAwsRepo;
+use App\Repositories\RepoInterfaces\ICanonicalDataSource;
 use App\Models\AttributionRecordTruth;
 
 /**
  *
  */
-class EmailRepo implements Mt2Export, IAwsRepo {
+class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
 
     private $emailModel;
     private $batchEmails = [];
@@ -69,11 +70,6 @@ class EmailRepo implements Mt2Export, IAwsRepo {
                 ':upper_case_md5' => md5(strtoupper($emailData['email_address']))
             )
         );
-    }
-
-    private function getAttributedFeedForAddress($emailAddr) {
-        # TODO: flesh out attribution. This will return a feed_id
-        return 1;
     }
 
     private function createRow($row) {
@@ -436,5 +432,35 @@ class EmailRepo implements Mt2Export, IAwsRepo {
 
     public function getConnection() {
         return $this->emailModel->getConnectionName();
+    }
+
+    public function compareSourcesWithField($tableName, $startPoint, $segmentEnd) {
+        // empty, but present for interface
+    }
+
+    public function compareSources($tableName, $startPoint, $segmentEnd) {
+        return $this->emailModel
+                    ->leftJoin($tableName, 'emails.id', '=', "{$tableName}.email_id")
+                    ->whereRaw("emails.id BETWEEN {$startPoint} AND {$segmentEnd}")
+                    ->whereRaw("{$tableName}.email_id IS NULL")
+                    ->select('emails.id as email_id')
+                    ->get()
+                    ->toArray();
+    }
+
+    public function maxId() {
+        return $this->emailModel->orderBy('id', 'desc')->first()['id'];
+    }
+
+    public function nextNRows($startPoint, $offset) {
+        return $this->emailModel
+            ->where('id', '>=', $startPoint)
+            ->orderBy('id')
+            ->skip($offset)
+            ->first()['id'];
+    }
+
+    public function lessThan($startPoint, $endPoint) {
+        return (int)$startPoint < (int)$endPoint;
     }
 }

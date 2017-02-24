@@ -88,11 +88,14 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
 
     private function transformRowToString($row) {
         $pdo = DB::connection()->getPdo();
+        $subscribeDate = isset($row['subscribe_datetime']) 
+                            ? $pdo->quote(Carbon::parse($row['subscribe_datetime'])->format('Y-m-d'))
+                            : 'NOW()';
 
         return '('
             . $pdo->quote($row['email_id']) . ','
             . $pdo->quote($row['feed_id']) . ','
-            . 'NOW(),'
+            . $subscribeDate . ','
             . $pdo->quote( Carbon::parse($row['capture_date'])->format('Y-m-d') ) . ','
             . $pdo->quote($row['attribution_status']) . ','
             . $pdo->quote($row['first_name']) . ','
@@ -262,6 +265,38 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                     ->where('efa.email_id', $emailId)
                     ->select('efa.feed_id', 'email_attributable_feed_latest_data.attribution_status')
                     ->first();
+    }
+
+    public function addNewRows(array $data) {
+        // insert these into the table ... 
+
+        foreach ($data as $row) {
+            // need to see if this is third party
+            if (3 === (int)$row['party']) {
+                $row['other_fields'] = '{}';
+                // sensible default
+                $row['attribution_status'] = 'POA';
+                $this->batchInsert($row);
+            }
+        }
+
+        $this->insertStored();
+    }
+
+    public function getTableName() {
+        return config('database.connections.mysql.database') . '.' . $this->model->getTable();
+    }
+
+    public function updateRowValues(array $data) {
+        // capture_date (soon subscribe_date) doesn't exist
+        foreach ($data as $row) {
+            $this->model->update([
+                'email_id' => $row['email_id'],
+                'feed_id' => $row['feed_id']
+            ], [
+                'capture_date' => $row['capture_date']
+            ]);
+        }
     }
 
 }
