@@ -14,6 +14,13 @@
             <div class="form-group">
                 <label>Source URL</label>
                 <input placeholder="Source URL" value="" class="form-control" ng-model="source.search.source_url" name="source_url" type="text">
+                <div class="has-error">
+                    <div class="help-block" ng-show="source.formErrors.source_url">
+                        <div ng-repeat="error in source.formErrors.source_url">
+                            <div ng-bind="error"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="form-group">
