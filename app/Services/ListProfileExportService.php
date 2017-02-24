@@ -255,6 +255,16 @@ class ListProfileExportService
             Storage::disk('SystemFtp')->append($combineFileNameDNM, $contents);
             Storage::disk('SystemFtp')->delete($file.'-dnm');
         }
+        Storage::disk('SystemFtp')->put($combineFileName,$this->dedupeFile($combineFileName));
+        Storage::disk('SystemFtp')->put($combineFileNameDNM,$this->dedupeFile($combineFileNameDNM));
+
+    }
+    public function dedupeFile($file)
+    {
+        $inputHandle = fopen(Storage::get($file), "r");
+        $csv = trim(fgetcsv($inputHandle, 0, ","));
+        return array_flip(array_flip($csv));//faster then array_unique;
+
     }
 
 }
