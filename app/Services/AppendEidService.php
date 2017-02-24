@@ -37,10 +37,10 @@ class AppendEidService
         $feedName = null;
         $fieldData = array();
         $stats = null;
-        $rowResult = array();
+        
         try {
             foreach ($rows as $row) {
-
+                $rowResult = array();
                 $suppressionInfo = Suppression::checkGlobalSuppression($row['email']);
                 $rowIsActive = count($suppressionInfo) == 0;
                 if($rowIsActive || $includeSuppression) {
