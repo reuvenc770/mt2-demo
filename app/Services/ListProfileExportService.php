@@ -6,10 +6,13 @@ use App\DataModels\CacheReportCard;
 use App\DataModels\ReportEntry;
 use App\Facades\EspApiAccount;
 use App\Models\ListProfileBaseTable;
+use App\Models\OfferSuppressionList;
+use App\Models\SuppressionListSuppression;
 use App\Repositories\ListProfileBaseTableRepo;
 use App\Repositories\ListProfileCombineRepo;
 use App\Repositories\ListProfileRepo;
 use App\Repositories\OfferRepo;
+use App\Repositories\OfferSuppressionListRepo;
 use Carbon\Carbon;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Storage;
@@ -124,7 +127,9 @@ class ListProfileExportService
         $listIds = $this->offerRepo->getSuppressionListIds($offerId);
         $result = $this->tableRepo->suppressWithListIds($listIds);
         //GrabOffersSuppressedAgainst and store for to place in record
-        $offersSuppressedAgainst = [];
+        $offerSupppressionLists = OfferSuppressionList::find($offerId)->all();
+        $offersPlucked = $offerSupppressionLists->pluck('id');
+        $reportCard->addOffersSuppressedAgainst($offersPlucked);
         $resource = $result->cursor();
 
         foreach ($deploys as $deploy) {
