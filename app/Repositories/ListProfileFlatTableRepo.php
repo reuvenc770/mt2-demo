@@ -186,4 +186,24 @@ class ListProfileFlatTableRepo implements IAwsRepo {
     public function getConnection() {
         return $this->flatTable->getConnectionName();
     }
+
+    public function getThirdPartyEmailStatusExtractQuery () {
+        return "SELECT
+            lpft.email_id ,
+            IF( lpft.has_conversion = 1 , 'Conversion' , IF( lpft.has_click = 1 , 'Click' , IF( lpft.has_open = 1 , 'Open' , 'None' ) ) ) AS `action_type`
+            lpft.offer_id ,
+            lpft.esp_account_id ,
+            CONCAT( lpft.date , ' 00:00:00' ) as `datetime`
+        FROM
+            list_profile.list_profile_flat_table lpft
+        WHERE
+            (
+                lpft.has_open = 1
+                OR lpft.has_click = 1
+                OR lpft.has_conversion = 1
+            )
+            AND lpft.date between :startDate AND :endDate
+        ORDER BY
+            lpft.date;";
+    }
 }

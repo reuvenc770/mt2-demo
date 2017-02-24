@@ -6,9 +6,12 @@
 namespace App\Repositories;
 
 use App\Models\AttributionRecordTruth;
+use App\Repositories\RepoTraits\Batchable;
 use DB;
 
 class AttributionRecordTruthRepo {
+    #ToDo implement batchable methods
+    use Batchable;
 
     protected $truth;
 
