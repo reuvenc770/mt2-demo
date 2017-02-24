@@ -37,7 +37,7 @@ class ListProfileQueryBuilder {
     private $feedsWithSuppression;
 
     // Note already-prepared fields in ListProfileBaseTableService
-    const REQUIRED_PROFILE_FIELDS = ['email_id', 'email_address', 'lower_case_md5', 'upper_case_md5'];
+    const REQUIRED_PROFILE_FIELDS = ['email_id', 'email_address', 'lower_case_md5', 'upper_case_md5', 'globally_suppressed'];
 
 
     public function __construct() {
@@ -71,7 +71,8 @@ class ListProfileQueryBuilder {
             'capture_date' => 'rd.capture_date',
             'device_type' => 'rd.device_type',
             'device_name' => 'rd.device_name',
-            'carrier' => 'rd.carrier'
+            'carrier' => 'rd.carrier',
+            'globally_suppressed' => DB::connection('redshift')->raw("(s.emailAddress IS NOT NULL OR sls.email_address IS NOT NULL) AS globally_suppressed")
         ];
     }
 
@@ -240,7 +241,7 @@ class ListProfileQueryBuilder {
             $query = $query->join("emails as e", "{$this->mainTableAlias}.email_id", '=', 'e.id');
 
             if ($listProfile->use_global_suppression) {
-                $query = $query->leftJoin("suppression_global_orange as s", 'e.email_address', '=', 's.email_address')->where('s.email_address', null);
+                $query = $query->leftJoin("suppression_global_orange as s", 'e.email_address', '=', 's.email_address');
             }
 
             if (count($listIds) > 0) {
@@ -248,8 +249,7 @@ class ListProfileQueryBuilder {
                 $query = $query->leftJoin("suppression_list_suppressions as sls", function($join) use ($listIds) {
                     $join->on("e.email_address", '=', 'sls.email_address');
                     $join->on('sls.suppression_list_id', 'in', DB::connection('redshift')->raw($listIds));
-                })
-                ->whereNull('sls.email_address');
+                });
             }
         }
 

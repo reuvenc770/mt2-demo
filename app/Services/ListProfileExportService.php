@@ -165,13 +165,13 @@ class ListProfileExportService
             $recordEntry->addOffersSuppressedAgainst($offersSuppressedAgainst);
 
              foreach ($resource as $row) {
-                if(!$row->global_suppression_status){
+                if($row->global_suppression_status){
                      $this->batchSuppression($fileName, $row);
                     $recordEntry->increaseGlobalSuppressionCount();
                  }
                 elseif ($this->mt1SuppServ->isSuppressed($row->email_id)){
                     $this->batchSuppression($fileName, $row);
-                    $recordEntry->increaseGlobalSuppressionCount();
+                    $recordEntry->increaseListSuppressionCount();
                 }
                  elseif(!$row->suppression_status){
                      $this->batchSuppression($fileName, $row);
