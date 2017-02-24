@@ -6,22 +6,25 @@ use App\DataModels\CacheReportCard;
 use App\Jobs\ExportListProfileJob;
 use App\Services\DeployService;
 use App\Services\EspService;
+use App\Services\ListProfileCombineService;
 use App\Services\PackageZipCreationService;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use Illuminate\Support\Facades\Response;
 use League\Csv\Reader;
-
+use Artisan;
 class DeployController extends Controller
 {
     protected $deployService;
     protected $packageService;
+    protected $combineService;
 
-    public function __construct(DeployService $deployService, PackageZipCreationService $packageService)
+    public function __construct(DeployService $deployService, PackageZipCreationService $packageService, ListProfileCombineService $combineService)
     {
         $this->deployService = $deployService;
         $this->packageService = $packageService;
+        $this->combineService = $combineService;
 
     }
 
@@ -164,28 +167,34 @@ class DeployController extends Controller
             $reportCard->setNumberOfEntries(1);
             $filePath = $this->packageService->createPackage($data);
             $deploy = $this->deployService->getDeploy($data);
-            $this->dispatch(
-                new ExportListProfileJob(
-                    $deploy->list_profile_combine_id,
-                    $deploy->offer_id,
-                    str_random(16),
-                    $reportCard->getName()
-                )
-            );
+            $combines = $this->combineService->getCombineById($data);
+            foreach($combines as $listProfile) {
+                $this->dispatch(
+                    new ExportListProfileJob(
+                        $listProfile->id,
+                        $deploy->offer_id,
+                        str_random(16),
+                        $reportCard->getName()
+                    )
+                );
+            }
         } else {
             //more then 1 package selection create the packages on the FTP and kick off the OPS file job
             foreach ($data as $id) { 
                 $reportCard->setNumberOfEntries(count($data));
                 $this->packageService->uploadPackage($id);
                 $deploy = $this->deployService->getDeploy($id);
-                $this->dispatch(
-                    new ExportListProfileJob(
-                        $deploy->list_profile_combine_id,
-                        $deploy->offer_id,
-                        str_random(16),
-                        $reportCard->getName()
-                    )
-                );
+                $combines = $this->combineService->getCombineById($id);
+                foreach($combines as $listProfile) {
+                    $this->dispatch(
+                        new ExportListProfileJob(
+                            $listProfile->id,
+                            $deploy->offer_id,
+                            str_random(16),
+                            $reportCard->getName()
+                        )
+                    );
+                }
             }
             Artisan::call('deploys:sendtoops', ['deploysCommaList' => join(",",$data), 'username' => $username]);
         }
