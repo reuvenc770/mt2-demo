@@ -157,15 +157,15 @@ class EmailFeedInstanceRepo implements ICanonicalDataSource {
         $attrDb = config('database.connections.attribution.database');
 
         $reps = DB::table('email_feed_instances as efi')
-                ->select('efi.feed_id', 'level', 'efi.capture_date')
+                ->select('efi.feed_id', 'level', 'efi.subscribe_date')
                 ->join($attrDb . '.attribution_levels as al', 'efi.feed_id', '=', 'al.feed_id')
                 ->join('feeds as f', 'efi.feed_id', '=', 'f.id')
-                ->where('efi.capture_date', '>=', $date)
+                ->where('efi.subscribe_date', '>=', $date)
                 ->where('efi.feed_id', '<>', $feedId)
                 ->where('email_id', $emailId)
                 ->where('f.party', 3)
                 ->where('f.status', 'Active')
-                ->orderBy('capture_date', 'asc')
+                ->orderBy('subscribe_date', 'asc')
                 ->get();
 
         return $reps;
@@ -175,20 +175,20 @@ class EmailFeedInstanceRepo implements ICanonicalDataSource {
         $attrDb = config('database.connections.attribution.database');
 
         $reps = DB::table('email_feed_instances as efi')
-                ->select('efi.feed_id', 'level', 'efi.capture_date')
+                ->select('efi.feed_id', 'level', 'efi.subscribe_date')
                 ->join($attrDb . '.attribution_levels as al', 'efi.feed_id', '=', 'al.feed_id')
                 ->join('feeds as f', 'efi.feed_id', '=', 'f.id')
                 ->where('email_id', $emailId)
                 ->where('f.party', 3)
                 ->where('f.status', 'Active')
-                ->orderBy('capture_date', 'asc')
+                ->orderBy('subscribe_date', 'asc')
                 ->get();
 
         return $reps;
     }
 
     public function getInstancesForDateRange($startDate , $endDate) {
-        return $this->model->whereBetween( 'capture_date' , [ $startDate , $endDate ] );
+        return $this->model->whereBetween( 'subscribe_date' , [ $startDate , $endDate ] );
     }
 
     public function getMt1UniqueCountForFeedAndDate( $feedId , $date ) {
@@ -223,11 +223,11 @@ class EmailFeedInstanceRepo implements ICanonicalDataSource {
                    INNER JOIN $mt2Db.emails e ON efi1.email_id = e.id
                   
                WHERE
-                   efi1.capture_date = '{$date}'
+                   efi1.subscribe_date = '{$date}'
                    AND
                    efi1.id <> efi2.id
                    AND
-                   efi2.capture_date <= '{$date}'
+                   efi2.subscribe_date <= '{$date}'
                    AND
                    efi2.id IS NULL
                    AND
@@ -244,9 +244,9 @@ class EmailFeedInstanceRepo implements ICanonicalDataSource {
                WHERE
                    efi.feed_id = '{$feedId}'
                    AND
-                   efi.capture_date = '{$date}'
+                   efi.subscribe_date = '{$date}'
                    AND
-                   efa.capture_date < '{$date}' - INTERVAL 90 DAY
+                   efa.subscribe_date < '{$date}' - INTERVAL 90 DAY
                    AND
                    efi.feed_id <> efa.feed_id
                    AND
@@ -264,9 +264,9 @@ class EmailFeedInstanceRepo implements ICanonicalDataSource {
                    INNER JOIN $attrDb.attribution_levels alImport ON efi.feed_id = alImport.feed_id
                    INNER JOIN $attrDb.attribution_levels alOld ON efa.feed_id = alOld.feed_id
                WHERE
-                   efi.capture_date = '{$date}'
+                   efi.subscribe_date = '{$date}'
                    AND
-                   efa.capture_date BETWEEN '{$date}' - INTERVAL 90 DAY AND '{$date}' - INTERVAL 10 DAY
+                   efa.subscribe_date BETWEEN '{$date}' - INTERVAL 90 DAY AND '{$date}' - INTERVAL 10 DAY
                    AND
                    alImport.level < alOld.level
                    AND
@@ -279,6 +279,10 @@ class EmailFeedInstanceRepo implements ICanonicalDataSource {
                HAVING
                    SUM(IFNULL(ecs.esp_total_opens, 0)) = 0 ) x" )
         );
+
+/**
+    Uh oh. This is a problem.
+*/
 
         if ( count( $results ) > 0 ) {
             return $results[ 0 ]->uniques;
@@ -310,7 +314,7 @@ class EmailFeedInstanceRepo implements ICanonicalDataSource {
                                 "$reportDb.source_url_counts.count"
                             )
                             ->where( "$reportDb.source_url_counts.source_url" , 'LIKE' , "%{$search[ 'source_url' ]}%" )
-                            ->whereBetween( "$reportDb.source_url_counts.capture_date" , [ $search[ 'startDate' ] , $search[ 'endDate' ] ] );
+                            ->whereBetween( "$reportDb.source_url_counts.subscribe_date" , [ $search[ 'startDate' ] , $search[ 'endDate' ] ] );
 
         if ( !empty( $search[ 'feedIds' ] ) ) {
             $builder = $builder->whereIn( "$reportDb.source_url_counts.feed_id" , $search[ 'feedIds' ] );
@@ -330,7 +334,7 @@ class EmailFeedInstanceRepo implements ICanonicalDataSource {
     }
 
     public function clearCountForDateRange ( $startDate , $endDate ) {
-        $this->countModel->whereBetween( 'capture_date' , [ $startDate , $endDate ] )->delete();
+        $this->countModel->whereBetween( 'subscribe_date' , [ $startDate , $endDate ] )->delete();
     }
 
     public function saveSourceCounts ( $countList ) {

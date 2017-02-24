@@ -27,17 +27,17 @@ class EmailFeedAssignmentRepo implements IAwsRepo, ICanonicalDataSource {
         $this->history = $history;
     }
 
-    public function assignFeed ( $emailId , $feedId , $captureDate ) {
+    public function assignFeed ( $emailId , $feedId , $subscribeDate ) {
         $tableName = $this->model->getTable();
 
         DB::connection( 'attribution' )->insert( "
             INSERT INTO
-                {$tableName} ( email_id , feed_id , capture_date , created_at ,updated_at )
+                {$tableName} ( email_id , feed_id , subscribe_date , created_at ,updated_at )
             VALUES
-                ( '{$emailId}' , '{$feedId}' , '{$captureDate}' , NOW() , NOW() )
+                ( '{$emailId}' , '{$feedId}' , '{$subscribeDate}' , NOW() , NOW() )
             ON DUPLICATE KEY UPDATE
                 feed_id = VALUES( feed_id ) ,
-                capture_date = VALUES( capture_date ) ,
+                subscribe_date = VALUES( subscribe_date ) ,
                 created_at = created_at ,
                 updated_at = NOW()
         " );
@@ -77,7 +77,7 @@ class EmailFeedAssignmentRepo implements IAwsRepo, ICanonicalDataSource {
         Schema::connection( 'attribution' )->create( EmailFeedAssignment::BASE_TABLE_NAME . $modelId , function (Blueprint $table) {
             $table->bigInteger( 'email_id' )->unsigned();
             $table->integer( 'feed_id' )->unsigned();
-            $table->date('capture_date');
+            $table->date('subscribe_date');
             $table->timestamps();
 
             $table->primary( 'email_id' );
@@ -96,28 +96,28 @@ class EmailFeedAssignmentRepo implements IAwsRepo, ICanonicalDataSource {
         return '('
             . $pdo->quote($row['email_id']) . ','
             . $pdo->quote($row['feed_id']) . ','
-            . $pdo->quote($row['capture_date']) . ','
+            . $pdo->quote($row['subscribe_date']) . ','
             . 'NOW(), NOW())';
     }
 
     public function buildBatchedQuery($batchData) {
         return "INSERT INTO email_feed_assignments 
-            (email_id, feed_id, capture_date, created_at, updated_at)
+            (email_id, feed_id, subscribe_date, created_at, updated_at)
             VALUES
             {$batchData}
             ON DUPLICATE KEY UPDATE
                 email_id = email_id,
                 feed_id = VALUES(feed_id),
-                capture_date = VALUES(capture_date),
+                subscribe_date = VALUES(subscribe_date),
                 created_at = created_at,
                 updated_at = VALUES(updated_at)";
     }
 
-    public function getCaptureDate($emailId) {
+    public function getSubscribeDate($emailId) {
         $obj = $this->model->where('email_id', $emailId)->first();
 
         if ($obj) {
-            return $obj->capture_date;
+            return $obj->subscribe_date;
         }
         return null;
     }
@@ -144,9 +144,9 @@ class EmailFeedAssignmentRepo implements IAwsRepo, ICanonicalDataSource {
         $pdo = DB::connection('redshift')->getPdo();
         return $pdo->quote($row->email_id) . ','
              . $pdo->quote($row->feed_id) . ','
+             . $pdo->quote($row->subscribe_date) . ','
              . $pdo->quote($row->created_at) . ','
-             . $pdo->quote($row->updated_at) . ','
-             . $pdo->quote($row->capture_date);
+             . $pdo->quote($row->updated_at);
     }
 
     public function getConnection() {
@@ -162,8 +162,8 @@ class EmailFeedAssignmentRepo implements IAwsRepo, ICanonicalDataSource {
                     })
                     ->whereRaw("email_feed_assignments.email_id BETWEEN {$startPoint} AND {$segmentEnd}")
                     ->whereRaw('email_feed_assignments.updated_at >= CURDATE() - INTERVAL 1 DAY')
-                    ->whereRaw("tbl.email_id IS NULL OR email_feed_assignments.capture_date <> tbl.capture_date")
-                    ->selectRaw('email_feed_assignments.email_id, email_feed_assignments.feed_id, email_feed_assignments.capture_date')
+                    ->whereRaw("tbl.email_id IS NULL OR email_feed_assignments.subscribe_date <> tbl.subscribe_date")
+                    ->selectRaw('email_feed_assignments.email_id, email_feed_assignments.feed_id, email_feed_assignments.subscribe_date')
                     ->get()
                     ->toArray();
     }

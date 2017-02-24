@@ -45,7 +45,7 @@ class AttributionBatchService {
 
         foreach ($records as $key => $record) {
 
-            $captureDate = $record->capture_date;
+            $subscribeDate = $record->subscribe_date;
             $feedId = (int)$record->feed_id;
             $oldFeedId = (int)$record->feed_id;
             $currentAttrLevel = (int)$record->level;
@@ -54,13 +54,13 @@ class AttributionBatchService {
             $actionExpired = $record->action_expired;
             $subsequentImports = 0;
 
-            $potentialReplacements = $this->getPotentialReplacements($record->email_id, $captureDate, $feedId);
+            $potentialReplacements = $this->getPotentialReplacements($record->email_id, $subscribeDate, $feedId);
             $savedReplacement = null;
             
             foreach ($potentialReplacements as $repl) {
 
-                if ($this->shouldChangeAttribution($captureDate, $hasAction, $actionExpired, $currentAttrLevel, $repl->level)) {
-                    $captureDate = $repl->capture_date;
+                if ($this->shouldChangeAttribution($subscribeDate, $hasAction, $actionExpired, $currentAttrLevel, $repl->level)) {
+                    $subscribeDate = $repl->subscribe_date;
                     $currentAttrLevel = (int)$repl->level;
                     $hasAction = 0; // by default must be false - can't switch if an action existed
                     $feedId = (int)$repl->feed_id;
@@ -75,12 +75,12 @@ class AttributionBatchService {
 
             // Only run this once we've found the winner
             if ($oldFeedId !== $feedId) {
-                $this->changeAttribution($record->email_id, $feedId, $captureDate, $modelId);
+                $this->changeAttribution($record->email_id, $feedId, $subscribeDate, $modelId);
                 
                 if (!$isModelRun) {
                     $this->recordHistory($record->email_id, $oldFeedId, $feedId);
-                    $this->updateScheduleTable($record->email_id, $captureDate);
-                    $this->updateTruthTable($record->email_id, $captureDate, $hasAction, $actionExpired, $subsequentImports);
+                    $this->updateScheduleTable($record->email_id, $subscribeDate);
+                    $this->updateTruthTable($record->email_id, $subscribeDate, $hasAction, $actionExpired, $subsequentImports);
                     $this->updateActionStatus($record->email_id, $oldFeedId, $feedId);
                 }
             }
@@ -134,28 +134,28 @@ class AttributionBatchService {
         }
     }
 
-    protected function changeAttribution($emailId, $feedId, $captureDate, $modelId) {
+    protected function changeAttribution($emailId, $feedId, $subscribeDate, $modelId) {
         if ( 'none' !== $modelId ) {
             $this->assignmentRepo->setLevelModel( $modelId );
         }
 
-        $this->assignmentRepo->assignFeed($emailId, $feedId, $captureDate);
+        $this->assignmentRepo->assignFeed($emailId, $feedId, $subscribeDate);
     }
 
     protected function recordHistory($emailId, $oldFeedId, $newFeedId) {
         $this->assignmentRepo->recordSwap($emailId, $oldFeedId, $newFeedId);
     }
 
-    protected function updateTruthTable($emailId, $captureDate, $hasAction, $actionExpired, $subseqs) {
+    protected function updateTruthTable($emailId, $subscribeDate, $hasAction, $actionExpired, $subseqs) {
         $addlImports = $subseqs >= 1;
-        $recentImport = Carbon::parse($captureDate)->addDays(self::EXPIRATION_DAY_RANGE)->gte($this->today);
+        $recentImport = Carbon::parse($subscribeDate)->addDays(self::EXPIRATION_DAY_RANGE)->gte($this->today);
 
         $this->truthRepo->setRecord($emailId, $recentImport, $hasAction, $actionExpired, $addlImports);
     }
 
-    protected function updateScheduleTable($emailId, $captureDate) {
+    protected function updateScheduleTable($emailId, $subscribeDate) {
         // update schedule tables
-        $nextDate = Carbon::parse($captureDate)
+        $nextDate = Carbon::parse($subscribeDate)
                           ->addDays(self::EXPIRATION_DAY_RANGE)
                           ->format('Y-m-d');
 
