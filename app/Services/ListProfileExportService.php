@@ -225,7 +225,8 @@ class ListProfileExportService
         if($reportCard){
           $reportCard->nextEntry();
             if($reportCard->isReportCardFinished()){
-                //Fire report email
+                Log::emergency("I finished a report card");
+                Log::emergency($reportCard->toArray());
             }
         }
     }
