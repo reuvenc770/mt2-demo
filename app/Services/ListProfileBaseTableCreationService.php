@@ -29,6 +29,7 @@ class ListProfileBaseTableCreationService {
         Schema::connection('list_profile_export_tables')->create($tableName, function (Blueprint $table) use ($columns) {
             $table->bigInteger('email_id')->unsigned()->default(0);
             $table->string('email_address')->default('');
+            $table->boolean('globally_suppressed')->default(0);
             $table->string('lower_case_md5')->default('');
             $table->string('upper_case_md5')->default('');
 

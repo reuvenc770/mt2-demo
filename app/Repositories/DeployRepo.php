@@ -394,8 +394,7 @@ class DeployRepo implements Mt2Export
         return $this->deploy->
         join("{$lpDB}.list_profile_list_profile_combine as lplpc","deploys.list_profile_combine_id", "=", "lplpc.list_profile_combine_id")
             ->where("offer_id",$offerId)
-            ->where("list_profile_id", $listProfileId)
-            ->where("send_date", DB::raw("CURDATE()"))->get();
+            ->where("list_profile_id", $listProfileId)->get();
     }
 
 
