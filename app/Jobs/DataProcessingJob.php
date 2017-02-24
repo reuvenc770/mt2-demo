@@ -14,7 +14,7 @@ class DataProcessingJob extends SafeJob {
         JobTracking::startAggregationJob($jobName, $tracking);
     }
 
-    private function handleJob() {
+    protected function handleJob() {
         $service = DataProcessingFactory::create($this->jobName);
         $service->extract($this->lookback);
         $service->load();
