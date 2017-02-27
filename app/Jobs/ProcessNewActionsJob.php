@@ -34,7 +34,7 @@ class ProcessNewActionsJob extends Job implements ShouldQueue
         $this->dateRange = $dateRange;
         $this->tracking = $tracking;
 
-        $this->jobName = self::JOB_NAME . ":" . json_encode( $dateRange );
+        $this->jobName = self::BASE_JOB_NAME . ":" . json_encode( $dateRange );
 
         JobTracking::startAggregationJob( $this->jobName , $this->tracking );
     }
@@ -58,7 +58,7 @@ class ProcessNewActionsJob extends Job implements ShouldQueue
 
                 JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking );
             } catch ( \Exception $e ) {
-                echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;
+                echo "{$this->jobName} failed with {$e->getMessage()} in file {$e->getFile()} on line {$e->getLine()}" . PHP_EOL;
 
                 $this->failed();
             } finally {

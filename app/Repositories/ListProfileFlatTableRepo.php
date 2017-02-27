@@ -206,4 +206,22 @@ class ListProfileFlatTableRepo implements IAwsRepo {
         ORDER BY
             lpft.date;";
     }
+
+    public function getRecordTruthsExtractQuery () {
+        return "SELECT
+            lpft.email_id ,
+            1 AS `recent_import` ,
+            1 AS `has_action`
+        FROM
+            list_profile.list_profile_flat_table lpft
+        WHERE
+            (
+                lpft.has_open = 1
+                OR lpft.has_click = 1
+                OR lpft.has_conversion = 1
+            )
+            AND lpft.date between :startDate AND :endDate
+        GROUP BY
+            lpft.email_id;";
+    }
 }

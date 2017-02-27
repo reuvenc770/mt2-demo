@@ -21,17 +21,17 @@ class NewActionsService {
     }
 
     public function updateThirdPartyEmailStatuses ( $dateRange ) {
-        $this->runUpdateFromListProfileFlatTable( 'emailStatusRepo' , 'getThirdPartyEmailStatusExtractQuery' );
+        $this->runUpdateFromListProfileFlatTable( 'emailStatusRepo' , 'getThirdPartyEmailStatusExtractQuery' , $dateRange );
     }
 
     public function updateAttributionRecordTruths ( $dateRange ) {
-        $this->runUpdateFromListProfileFlatTable( 'recordTruthRepo' , 'getRecordTruthsExtractQuery' );
+        $this->runUpdateFromListProfileFlatTable( 'recordTruthRepo' , 'getRecordTruthsExtractQuery' , $dateRange );
     }
 
-    protected function runUpdateFromListProfileFlatTable ( $repoName , $extractMethod ) {
-        $pdo = DB::connection( $this->lpFlatRepo->getConnection() )->getPdo();
+    protected function runUpdateFromListProfileFlatTable ( $repoName , $extractMethod , $dateRange ) {
+        $pdo = \DB::connection( $this->lpFlatRepo->getConnection() )->getPdo();
 
-        $pdo->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
+        $pdo->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
 
         $query = $this->lpFlatRepo->$extractMethod();
 
@@ -39,7 +39,7 @@ class NewActionsService {
 
         $statement->execute( [ ':startDate' => $dateRange[ 'start' ] , ':endDate' => $dateRange[ 'end' ] ] );
 
-        while( $row = $statement->fetch( PDO::FETCH_OBJ ) ) {
+        while( $row = $statement->fetch( \PDO::FETCH_ASSOC ) ) {
             $mappedRow = $this->$repoName->batchInsert( $row );
         }
 
