@@ -10,8 +10,9 @@ namespace App\Repositories\RedshiftRepositories;
 
 
 use App\Models\SuppressionListSuppression;
+use App\Repositories\RepoInterfaces\IRedshiftRepo;
 
-class SuppressionListSuppressionRepo
+class SuppressionListSuppressionRepo implements IRedshiftRepo
 {
     private $model;
 
