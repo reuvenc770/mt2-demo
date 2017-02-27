@@ -72,7 +72,7 @@ class ListProfileQueryBuilder {
             'device_type' => 'rd.device_type',
             'device_name' => 'rd.device_name',
             'carrier' => 'rd.carrier',
-            'globally_suppressed' => DB::connection('redshift')->raw("(s.emailAddress IS NOT NULL OR sls.email_address IS NOT NULL) AS globally_suppressed")
+            'globally_suppressed' => DB::connection('redshift')->raw("(s.email_address IS NOT NULL OR sls.email_address IS NOT NULL) AS globally_suppressed")
         ];
     }
 
