@@ -40,12 +40,14 @@ class OfferRepo {
     public function fuzzySearchBack($day,$term){
         return $this->offer->where('name', 'like', $term . '%')
             ->where(DB::raw("SUBSTR(exclude_days, {$day},1)"),'Y')
+            ->where( [ [ 'is_approved' , '=' , 1 ] , [ 'status' , '=' , 'A' ] ] )
             ->select("id","name")->get();
     }
 
     public function searchByDay($day){
         return $this->offer
             ->where(DB::raw("SUBSTR(exclude_days, {$day},1)"),'Y')
+            ->where( [ [ 'is_approved' , '=' , 1 ] , [ 'status' , '=' , 'A' ] ] )
             ->select("id","name")->get();
     }
 
