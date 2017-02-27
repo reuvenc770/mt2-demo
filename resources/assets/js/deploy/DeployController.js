@@ -347,7 +347,8 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         $rootScope.$broadcast('angucomplete-alt:clearInput');
         self.currentDeploy.offer_id = '';
         self.dateNotPicked = false;
-        self.selectedDay = this.currentDeploy.send_date.getDay() + 1; //not base 0 in db
+        //die in a fire iso 8601
+        self.selectedDay = ((this.currentDeploy.send_date.getDay() + 6) % 7) + 1;
     };
 
     self.previewDeploys = function (){
