@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\JobEntry;
+use App\Facades\JobTracking;
 use App\Factories\DataProcessingFactory;
 
 class DataProcessingJob extends SafeJob {
