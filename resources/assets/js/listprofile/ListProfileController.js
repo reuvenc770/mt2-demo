@@ -1,4 +1,4 @@
-mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDialog' , '$timeout' , 'formValidationService' , 'modalService' , 'paginationService' , '$location' , '$window' , '$log' , function ( ListProfileApiService , $mdDialog , $timeout , formValidationService , modalService , paginationService , $location , $window , $log ) {
+mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedGroupApiService' , 'FeedApiService' , '$mdDialog' , '$timeout' , 'formValidationService' , 'modalService' , 'paginationService' , '$location' , '$window' , '$compile' , '$log' , function ( ListProfileApiService , FeedGroupApiService , FeedApiService , $mdDialog , $timeout , formValidationService , modalService , paginationService , $location , $window , $compile , $log ) {
     var self = this;
 
     self.nameDisabled = true;
@@ -208,6 +208,11 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     };
 
     self.towerDateOptions = [];
+
+    self.feedGroupName = '';
+    self.feedList = [];
+    self.feedForFeedGroup = [];
+    self.feedGroupFormSubmitting = false;
 
     self.formErrors = [];
 
@@ -500,12 +505,35 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         }
     }
 
-    self.addFeeds = function () {
-        self.addMembershipItems(
-            { "highlighted" : self.highlightedFeeds , "visibility" : self.feedVisibility , "map" : self.feedNameMap } ,
-            self.current.feeds ,
-            self.generateName
-        );
+    self.addFeeds = function ( ev ) {
+        var confirm = $mdDialog.confirm()
+                        .title( 'Are you sure you want to choose more than one feed?' )
+                        .ariaLabel( 'Mulitple Feed Warning' )
+                        .targetEvent( ev )
+                        .ok( 'Yes' )
+                        .cancel( 'Cancel' );
+
+        if ( ( self.highlightedFeeds.length + Object.keys( self.current.feeds ).length ) > 1 ) {
+            $mdDialog.show( confirm ).then(
+                function () {
+                    $mdDialog.show({
+                        contentElement: '#feedGroupFormModal',
+                        parent: angular.element(document.body)
+                    });
+                } ,
+                function () {}
+            );
+        } else {
+            self.addMembershipItems(
+                { "highlighted" : self.highlightedFeeds , "visibility" : self.feedVisibility , "map" : self.feedNameMap } ,
+                self.current.feeds ,
+                self.generateName
+            );
+        }
+    };
+    
+    self.closeFeedGroupModal = function () {
+        $mdDialog.cancel();
     };
 
     self.removeFeeds = function () {
@@ -519,7 +547,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         );
     };
 
-    self.addFeedGroups = function () {
+    self.addFeedGroups = function ( ev ) {
         self.addMembershipItems(
             { "highlighted" : self.highlightedFeedGroups , "visibility" : self.feedGroupVisibility , "map" : self.feedGroupNameMap } ,
             self.current.feedGroups ,
@@ -1072,4 +1100,80 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
         self.enableAlert = false;
     }
+
+    self.loadFeedList = function () {
+        FeedApiService.getAllFeeds( self.getAllFeedsSuccessCallback , self.getAllFeedsFailureCallback );
+    };
+
+    self.getAllFeedsSuccessCallback = function ( response ) {
+
+        var sortFeedList = [];
+
+        angular.forEach( response.data , function ( value ) {
+            value.feedListDisplayName = value.short_name + " ( " + value.id + " ) " ;
+            sortFeedList.push(value);
+        } );
+
+        self.feedList = sortFeedList;
+    };
+
+    self.getAllFeedsFailureCallback = function ( response ) {
+        modalService.simpleToast( 'Failed to load feed group\'s list of feeds.' );
+    };
+
+    self.createFeedGroup = function () {
+        self.feedGroupFormSubmitting = true;
+
+        var feeds = [];
+
+        angular.forEach( self.feedForFeedGroup , function ( value ) {
+            feeds.push( value.id );
+        } );
+
+        FeedGroupApiService.createFeedGroup(
+            { "name" : self.feedGroupName , "feeds" : feeds } ,
+            self.createFeedGroupSuccessCallback ,
+            self.createFeedGroupFailureCallback
+        );
+    };
+
+    self.createFeedGroupSuccessCallback = function ( response ) {
+        self.feedGroupVisibility[ response.data.id ] = false;
+        self.feedGroupNameMap[ response.data.id ] = self.feedGroupName;
+        self.current.feedGroups[ response.data.id ] = self.feedGroupName;
+
+        //Add new feed group to the widget
+        var list = angular.element(document).find( '#feedGroupList' );
+        var newOption = angular.element( "<option ng-show='listProfile.feedGroupVisibility[ " + response.data.id  + " ]' value='" + response.data.id  + "'>" + self.feedGroupName + "</option>" );
+        //This works for adding feeds to selected but couldn't get the left option to hide.
+        $compile( newOption );
+        list.append( newOption );
+
+        //Removing current feeds
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : Object.keys( self.current.feeds ) , "visibility" : self.feedVisibility } ,
+            self.current.feeds ,
+            function () {
+                self.updateFeedVisibility();
+                self.generateName();
+            }
+        );
+
+        self.feedGroupName = '';
+        self.feedForFeedGroup = [];
+
+        self.feedGroupFormSubmitting = false;
+
+        self.closeFeedGroupModal();
+    };
+
+    self.createFeedGroupFailureCallback = function ( response ) {
+        response.feedGroupName = response.name;
+
+        delete( response.name );
+
+        formValidationService.loadFieldErrors( self , response );
+
+        self.feedGroupFormSubmitting = false;
+    };
 } ] );
