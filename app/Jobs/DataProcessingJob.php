@@ -12,7 +12,7 @@ class DataProcessingJob extends SafeJob {
 
     public function __construct($jobName, $tracking, $lookback = null) {
         $this->lookback = $lookback;
-        JobTracking::startAggregationJob($jobName, $tracking);
+        parent::__construct($jobName, $tracking);
     }
 
     protected function handleJob() {
