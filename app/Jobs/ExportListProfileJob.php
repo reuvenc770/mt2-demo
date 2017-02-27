@@ -20,6 +20,7 @@ class ExportListProfileJob extends Job implements ShouldQueue
     private $jobName;
     private $listProfileId;
     private $offerId;
+    private $reportCardName;
     private $tracking;
 
     /**
@@ -27,10 +28,11 @@ class ExportListProfileJob extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($listProfileId, $offerId, $tracking) {
+    public function __construct($listProfileId, $offerId, $tracking, $reportCardName = null) {
         $this->listProfileId = $listProfileId;
         $this->offerId = $offerId;
         $this->tracking = $tracking;
+        $this->reportCardName = $reportCardName;
 
         $this->jobName = self::BASE_NAME . $listProfileId . ':' . $offerId;
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
@@ -49,7 +51,7 @@ class ExportListProfileJob extends Job implements ShouldQueue
 
                 if((int)$this->offerId >= 1){  //it's a combine and meant for a deploy
                     $deploys = $deployRepo->getDeploysFromProfileAndOffer($this->listProfileId,$this->offerId);
-                    $service->exportListProfileToMany($this->listProfileId, $this->offerId, $deploys);
+                    $service->exportListProfileToMany($this->listProfileId, $this->offerId, $deploys, $this->reportCardName );
                 } else { // it's a scheduled export
                     $service->exportListProfile($this->listProfileId, $this->offerId);
                 }

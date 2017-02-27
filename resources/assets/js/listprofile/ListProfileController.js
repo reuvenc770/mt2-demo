@@ -78,6 +78,9 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
     self.profileTotal = 0;
+    self.firstPartyProfileTotal = 0;
+    self.secondPartyProfileTotal = 0;
+    self.thirdPartyProfileTotal = 0;
     self.queryPromise = null;
     self.sort = "name";
 
@@ -240,6 +243,9 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         });
         self.pageCount = response.data.last_page;
         self.profileTotal = response.data.total;
+        self.firstPartyProfileTotal = self.firstPartyListProfiles.length || 0;
+        self.secondPartyProfileTotal = self.secondPartyListProfiles.length || 0;
+        self.thirdPartyProfileTotal = self.thirdPartyListProfiles.length || 0;
 
         $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
     };
@@ -250,7 +256,6 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
     self.prepop = function ( listProfile ) {
         self.current = listProfile;
-        self.generateName();
         self.fixEmptyFields();
 
         $(function () { $('[data-toggle="tooltip"]').tooltip() });

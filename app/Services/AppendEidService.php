@@ -37,9 +37,10 @@ class AppendEidService
         $feedName = null;
         $fieldData = array();
         $stats = null;
+        
         try {
             foreach ($rows as $row) {
-
+                $rowResult = array();
                 $suppressionInfo = Suppression::checkGlobalSuppression($row['email']);
                 $rowIsActive = count($suppressionInfo) == 0;
                 if($rowIsActive || $includeSuppression) {
@@ -47,19 +48,25 @@ class AppendEidService
                     $emailExists = count($emailReturn);
                     if ($emailExists) {
                         $emailId = $emailReturn[0]->id;
+                        $rowResult = ["email" => $row['email'], 'email_id' => $emailId];
+
                         if ($includeFeed) {
                             $feedId = $this->emailRepo->getCurrentAttributedFeedId($emailId);
                             $feedName = $feedId ? $this->feedRepo->fetch($feedId)->name : "##NOFEEDID##";
+                            $rowResult["feedname"] = $feedName;
                         }
+
                         if ($includeFields) {
                             $fieldData = $this->recordData->getRecordDataFromEid($emailId);
-                            $fieldData = $fieldData ? $fieldData->toArray() : array_fill(0, 19, '');
+                            $fieldData = $fieldData ? $fieldData->toArray() : array_fill(0, 20, '');
+                            $rowResult = array_merge($rowResult, $fieldData);
                         }
-                        $rowResult = array_merge(["email" => $row['email'], "email_id" => $emailId, "feedname" => $feedName,], $fieldData);
+
                         if ($includeSuppression) {
                             $value = $rowIsActive ? "A" : "U";
                             $rowResult = array_merge($rowResult, ['status' => "$value"]);
                         }
+
                         $csvData[] = $rowResult;
                     }
                 }
@@ -80,9 +87,9 @@ class AppendEidService
         $writer->insertOne($schema);
 
         foreach ($data as $row) {
-            unset($row['is_deliverable']);
             $writer->insertOne($row);
         }
+
         return $writer->__toString();
     }
 
@@ -96,7 +103,7 @@ class AppendEidService
         if($includeFields){
             $header = array_merge($header, ["first_name", "last_name", "address", "address2", "city", "state", "zip", "country", "gender", "ip", "phone",
                 "source_url", "dob", "device_type", "device_name", "carrier", "capture_date", "subscribe_date", "last_action_offer_id", "last_action_date", 
-                "other_fields", "created_at", "updated_at"]);
+                "other_fields"]);
         }
         if($includeSuppression){
             $header = array_merge($header,['status']);  //keeping style

@@ -56,5 +56,21 @@ class ThirdPartyEmailStatusRepo {
             . $pdo->quote($row['esp_account_id']) . ', NOW() , NOW())';
     }
 
+    public function addNewRows(array $rows) {
+        foreach($rows as $row) {
+            $row['action_type'] = 'None';
+            $row['offer_id'] = null;
+            $row['datetime'] = null;
+            $row['esp_account_id'] = null;
+
+            $this->batchInsert($row);
+        }
+
+        $this->insertStored();
+    }
+
+    public function getTableName() {
+        return config('database.connections.mysql.database') . '.' . $this->model->getTable();
+    }
     
 }

@@ -42,6 +42,5 @@ class AppendEidEmail extends Job implements ShouldQueue
         $ftpPath = "/APPENDEID/{$this->fileName}";
         $csv = $service->createFile($this->filePath, $this->includeFeed, $this->includeFields, $this->includeSuppression);
         Storage::disk('SystemFtp')->put($ftpPath,$csv);
-
     }
 }
