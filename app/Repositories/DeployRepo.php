@@ -58,7 +58,9 @@ class DeployRepo implements Mt2Export
                 'creatives.status as creative_status','subjects.is_approved as subject_approval',
                 'subjects.status as subject_status','froms.is_approved as from_approval',
                 'froms.status as from_status',
-                'notes');
+                'notes')
+            ->where('deploys.mailing_domain_id','<>',0)
+            ->where('deploys.content_domain_id','<>',0);
 
         if('' !== $searchData) {
             $query = $this->mapQuery($searchData, $query);
