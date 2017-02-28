@@ -202,9 +202,9 @@ class ListProfileFlatTableRepo implements IAwsRepo {
                 OR lpft.has_click = 1
                 OR lpft.has_conversion = 1
             )
-            AND lpft.date between :startDate AND :endDate
+            AND lpft.updated_at between :startDate AND :endDate
         ORDER BY
-            lpft.date;";
+            lpft.updated_at;";
     }
 
     public function getRecordTruthsExtractQuery () {
@@ -220,7 +220,7 @@ class ListProfileFlatTableRepo implements IAwsRepo {
                 OR lpft.has_click = 1
                 OR lpft.has_conversion = 1
             )
-            AND lpft.date between :startDate AND :endDate
+            AND lpft.updated_at between :startDate AND :endDate
         GROUP BY
             lpft.email_id;";
     }
