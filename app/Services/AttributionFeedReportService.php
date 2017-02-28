@@ -16,8 +16,6 @@ class AttributionFeedReportService {
     }
 
     public function getReportData ( Request $request ) {
-        if () {
-
-        }
+        return $this->repo->getReportData();
     }
 }

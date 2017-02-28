@@ -9,6 +9,7 @@ use App\Models\AttributionFeedReport;
 
 class AttributionAggregatorRepo {
     const ASSIGNMENTS_BASE_TABLE_NAME = 'email_feed_assignments_model_';
+    const ASSIGNMENTS_LIVE_TABLE_NAME = 'email_feed_assignments';
 
     protected $model;
 
@@ -30,10 +31,10 @@ class AttributionAggregatorRepo {
         $reportDb = config( 'database.connections.reporting_data.database' );
 
         $reportTable = ( !is_null( $modelId ) ? AttributionFeedReport::BASE_TABLE_NAME . $modelId : AttributionFeedReport::LIVE_TABLE_NAME);
-        $assignmentTable = ( !is_null( $modelId ) ? self::ASSIGNMENTS_BASE_TABLE_NAME . $modelId : self::ASSIGNMENTS_BASE_TABLE_NAME );
+        $assignmentTable = ( !is_null( $modelId ) ? self::ASSIGNMENTS_BASE_TABLE_NAME . $modelId : self::ASSIGNMENTS_LIVE_TABLE_NAME );
 
         return \DB::select( "INSERT INTO
-            {$attrDb}.{$reportTable} ( date , feed_id , cpc_revenue , cpc_revshare , cpa_revenue , cpa_revshare , uniques , updated_at )
+            {$attrDb}.{$reportTable} ( date , feed_id , cpa_revenue , cpa_revshare , cpc_revenue , cpc_revshare , uniques , updated_at )
             SELECT
                 rev.date ,
                 rev.feed_id ,
@@ -87,7 +88,7 @@ class AttributionAggregatorRepo {
         $reportDb = config( 'database.connections.reporting_data.database' );
 
         $reportTable = ( !is_null( $modelId ) ? AttributionFeedReport::BASE_TABLE_NAME . $modelId : AttributionFeedReport::LIVE_TABLE_NAME);
-        $assignmentTable = ( !is_null( $modelId ) ? self::ASSIGNMENTS_BASE_TABLE_NAME . $modelId : self::ASSIGNMENTS_BASE_TABLE_NAME );
+        $assignmentTable = ( !is_null( $modelId ) ? self::ASSIGNMENTS_BASE_TABLE_NAME . $modelId : self::ASSIGNMENTS_LIVE_TABLE_NAME );
 
         return \DB::select( "INSERT INTO
             {$attrDb}.{$reportTable} ( date , feed_id , cpm_revenue , cpm_revshare , updated_at )   

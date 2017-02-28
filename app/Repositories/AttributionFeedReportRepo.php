@@ -44,6 +44,10 @@ class AttributionFeedReportRepo {
             ->get();
     }
 
+    public function getReportData () {
+
+    }
+
     static public function generateTempTable ( $modelId ) {
         Schema::connection( 'attribution' )->create( AttributionFeedReport::BASE_TABLE_NAME . $modelId , function ( $table ) {
             $table->integer( 'feed_id' );
