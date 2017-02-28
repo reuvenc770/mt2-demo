@@ -169,6 +169,8 @@
 Assets::add( [
         'resources/assets/js/listprofile/ListProfileController.js' ,
         'resources/assets/js/listprofile/ListProfileApiService.js' ,
-        'resources/assets/js/listprofile/ListProfileCombineCreationModalDirective.js'
+        'resources/assets/js/listprofile/ListProfileCombineCreationModalDirective.js' ,
+        'resources/assets/js/feedgroup/FeedGroupApiService.js' ,
+        'resources/assets/js/feed/FeedApiService.js'
 ] , 'js' , 'pageLevel' );
 ?>
