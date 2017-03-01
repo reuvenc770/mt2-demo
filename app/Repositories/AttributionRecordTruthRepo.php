@@ -6,14 +6,16 @@
 namespace App\Repositories;
 
 use App\Models\AttributionRecordTruth;
+use App\Repositories\RepoTraits\Batchable;
 use DB;
 
 class AttributionRecordTruthRepo {
+    use Batchable;
 
-    protected $truth;
+    protected $model;
 
-    public function __construct ( AttributionRecordTruth $truth ) {
-        $this->truth = $truth;
+    public function __construct ( AttributionRecordTruth $model ) {
+        $this->model = $model;
     }
 
     public function getAssignedRecords () {
@@ -121,7 +123,7 @@ class AttributionRecordTruthRepo {
     }
 
     public function setRecord($emailId, $recentImport, $hasAction, $actionExpired, $additionalImports) {
-        return $this->truth->where("email_id", $emailId)->update([
+        return $this->model->where("email_id", $emailId)->update([
             'recent_import' => $recentImport,
             'has_action' => $hasAction,
             'action_expired' => $actionExpired,
@@ -130,16 +132,16 @@ class AttributionRecordTruthRepo {
     }
 
     public function setField($emailId, $field, $value){
-        return $this->truth->where("email_id", $emailId)->update(array($field =>$value));
+        return $this->model->where("email_id", $emailId)->update(array($field =>$value));
     }
 
     public function bulkSetField($emails, $field, $value){
 
-        return $this->truth->whereIn("email_id", $emails)->update(array($field =>$value));
+        return $this->model->whereIn("email_id", $emails)->update(array($field =>$value));
     }
 
     public function insert($emailId){
-        return $this->truth->create(["email_id" => $emailId, "recent_import" => true]);
+        return $this->model->create(["email_id" => $emailId, "recent_import" => true]);
     }
 
     public function bulkInsert($emails){
@@ -149,6 +151,29 @@ class AttributionRecordTruthRepo {
                         " . join(' , ', $emails) . "
             ON DUPLICATE KEY UPDATE
             email_id = email_id, recent_import = recent_import, created_at = created_at, updated_at = updated_at ");
+    }
+
+    private function buildBatchedQuery($data) {
+        return "INSERT INTO
+            attribution_record_truths ( email_id , recent_import , has_action , created_at , updated_at)
+        VALUES
+
+            $data
+
+        ON DUPLICATE KEY UPDATE
+            email_id = email_id ,
+            has_action = VALUES( has_action ) ,
+            updated_at = VALUES( updated_at )";
+    }
+
+    private function transformRowToString($row) {
+        $pdo = DB::connection()->getPdo();
+
+        return '('
+            . $pdo->quote($row['email_id']) . ','
+            . $pdo->quote($row['recent_import']) . ','
+            . $pdo->quote($row['has_action']) . ','
+            . 'NOW() , NOW())';
     }
 
     public function addNewRows(array $rows) {

@@ -95,6 +95,7 @@ class Kernel extends ConsoleKernel
         Commands\CleanUpRawContentServerActions::class,
         Commands\SumBrontoStandardReports::class,
         Commands\DomainExpirationNotification::class,
+        Commands\ProcessNewActionsCommand::class,
         Commands\DataConsistencyValidation::class,
     ];
 
