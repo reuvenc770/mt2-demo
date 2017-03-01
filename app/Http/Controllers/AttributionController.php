@@ -167,8 +167,8 @@ class AttributionController extends Controller
         return response()->json( $this->service->getModelFeeds( $modelId ) );
     }
 
-    public function showProjection ( $modelId ) {
-        return response()->view( "pages.attribution.attribution-projection" , [ 'modelId' => $modelId ] );
+    public function showProjection () {
+        return response()->view( "pages.attribution.attribution-projection" , [ 'models' => $this->service->getNonliveModels() ] );
     }
 
     public function getReportData ( Request $request ) {

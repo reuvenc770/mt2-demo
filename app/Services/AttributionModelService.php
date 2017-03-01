@@ -64,4 +64,8 @@ class AttributionModelService {
     public function setProcessingFlag ( $modelId , $running = false ) {
         $this->repo->setProcessingFlag( $modelId , $running );
     }
+
+    public function getNonliveModels () {
+        return $this->repo->getNonliveModels();
+    }
 }

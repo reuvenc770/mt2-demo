@@ -193,4 +193,8 @@ class AttributionModelRepo {
     public function transientRecords ( $modelId ) {
         #returns the current transient IDs
     }
+
+    public function getNonliveModels () {
+        return $this->models->select( 'id' , 'name' )->where( 'live' , '=' , 0 )->get();
+    }
 }

@@ -9,7 +9,9 @@ use DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use App\Models\AttributionFeedReport;
+use App\Models\AttributionLevel;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class AttributionFeedReportRepo {
     protected $feedReport;
@@ -44,8 +46,49 @@ class AttributionFeedReportRepo {
             ->get();
     }
 
-    public function getReportData () {
+    public function getReportData ( Request $request ) {
+        $modelId = $request->input( 'modelId' );
+        $startDate = $request->input( 'startDate' );
+        $endDate = $request->input( 'endDate' );
 
+        $db = config('database.connections.mysql.database');
+        $attrDb = config( 'database.connections.attribution.database' );
+        $tableName = AttributionFeedReport::LIVE_TABLE_NAME;
+        $modelTableName = AttributionFeedReport::BASE_TABLE_NAME . $modelId;
+        $levelTableName = AttributionLevel::LIVE_TABLE_NAME;
+        $modelLevelTableName = AttributionLevel::BASE_TABLE_NAME . $modelId;
+
+        return \DB::select( "
+        SELECT
+            c.name as `clientName` ,
+            f.name as `feedName` ,
+            afr.uniques ,
+            al.level as `liveLevel` ,
+            alm.level as `modelLevel` ,
+            SUM( afr.cpa_revenue ) as `liveCpaRevenue` ,
+            SUM( afrm.cpa_revenue ) as `modelCpaRevenue` ,
+            SUM( afr.cpa_revshare ) as `liveCpaRevshare` ,
+            SUM( afrm.cpa_revshare ) as `modelCpaRevshare` ,
+            SUM( afr.cpc_revenue ) as `liveCpcRevenue` ,
+            SUM( afrm.cpc_revenue ) as `modelCpcRevenue` ,
+            SUM( afr.cpc_revshare ) as `liveCpcRevshare` ,
+            SUM( afrm.cpc_revshare ) as `modelCpcRevshare` ,
+            SUM( afr.cpm_revenue ) as `liveCpmRevenue` ,
+            SUM( afrm.cpm_revenue ) as `modelCpmRevenue` ,
+            SUM( afr.cpm_revshare ) as `liveCpmRevshare` ,
+            SUM( afrm.cpm_revshare ) as `modelCpmRevshare`
+        FROM
+            {$attrDb}.{$tableName} afr
+            LEFT JOIN {$db}.feeds f ON( afr.feed_id = f.id )
+            LEFT JOIN {$db}.clients c ON( f.client_id = c.id )
+            LEFT JOIN {$attrDb}.{$levelTableName} al ON( afr.feed_id = al.feed_id )
+            LEFT JOIN {$attrDb}.{$modelLevelTableName} alm ON( afr.feed_id = alm.feed_id )
+            LEFT JOIN {$attrDb}.{$modelTableName} afrm ON( afr.feed_id = afrm.feed_id )
+        WHERE
+            afr.date BETWEEN '{$startDate}' AND '{$endDate}' 
+        GROUP BY
+            afr.feed_id
+        " );
     }
 
     static public function generateTempTable ( $modelId ) {

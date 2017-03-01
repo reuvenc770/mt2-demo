@@ -6,7 +6,7 @@
 namespace App\Services;
 
 use App\Repositories\AttributionFeedReportRepo;
-use App\Http\Requests;
+use Illuminate\Http\Request;
 
 class AttributionFeedReportService {
     protected $repo;
@@ -16,6 +16,6 @@ class AttributionFeedReportService {
     }
 
     public function getReportData ( Request $request ) {
-        return $this->repo->getReportData();
+        return $this->repo->getReportData( $request );
     }
 }
