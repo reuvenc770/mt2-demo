@@ -10,6 +10,8 @@ use App\Repositories\ListProfileRepo;
 use App\Repositories\OfferRepo;
 use Carbon\Carbon;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use League\Flysystem\Adapter\Ftp;
+use League\Flysystem\Filesystem;
 use Storage;
 use Cache;
 use Log;
@@ -235,6 +237,13 @@ class ListProfileExportService
 
     private function buildCombineFile($header, $ftpFolder, $fileName, $files, $offerId,$deployId, $espAccount)
     {
+        $adapter = new Ftp([
+                'host' => config("filesystems.disks.SystemFtp.host"),
+                'username' => config("filesystems.disks.SystemFtp.username"),
+                'password' => config("filesystems.disks.SystemFtp.password"),
+            ]
+        );
+        $fileSys = new Filesystem($adapter);
         $espAccountName = EspApiAccount::getEspAccountName($espAccount);
         $offerName = $this->offerRepo->getOfferName($offerId);
         $date = Carbon::today()->toDateString();
@@ -243,25 +252,25 @@ class ListProfileExportService
         Storage::disk('SystemFtp')->delete($combineFileName);
         Storage::disk('SystemFtp')->delete($combineFileNameDNM);
         Storage::disk('SystemFtp')->append($combineFileName, implode(',', $header));
-
+        $tempStream = tmpfile();
+        $tempDNMStream = tmpfile();
         foreach ($files as $file) {
-            $contents = Storage::get($file);
-            Storage::disk('SystemFtp')->append($combineFileName, $contents);
+            $contents = fopen(storage_path("app") . $file, 'r+');
+            fwrite($tempStream, $contents);
             Storage::disk('SystemFtp')->delete($file);
         }
-
         foreach ($files as $file) {
-            $contents = Storage::get($file.'-dnm');
-            Storage::disk('SystemFtp')->append($combineFileNameDNM, $contents);
+            $contents = fopen(storage_path("app") . $file.'-dnm', 'r+');
+            fwrite($tempDNMStream, $contents);
             Storage::disk('SystemFtp')->delete($file.'-dnm');
         }
-        Storage::disk('SystemFtp')->put($combineFileName,$this->dedupeFile($combineFileName));
-        Storage::disk('SystemFtp')->put($combineFileNameDNM,$this->dedupeFile($combineFileNameDNM));
+        $fileSys->putStream($combineFileName,$this->dedupeStream($tempStream));
+        $fileSys->putStream($combineFileNameDNM,$this->dedupeStream($tempDNMStream));
 
     }
-    public function dedupeFile($file)
+    public function dedupeStream($stream)
     {
-        $inputHandle = fopen(Storage::get($file), "r");
+        $inputHandle = fopen((storage_path("app") . $stream), "r");
         $csv = trim(fgetcsv($inputHandle, 0, ","));
         return array_flip(array_flip($csv));//faster then array_unique;
 
