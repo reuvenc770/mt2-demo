@@ -5,6 +5,7 @@ namespace App\Services;
 use App\DataModels\CacheReportCard;
 use App\DataModels\ReportEntry;
 use App\Facades\EspApiAccount;
+use App\Jobs\BuildAndSendReportCard;
 use App\Models\ListProfileBaseTable;
 use App\Models\OfferSuppressionList;
 use App\Models\SuppressionListSuppression;
@@ -202,10 +203,11 @@ class ListProfileExportService
                 $deployProgress['files'] = array_merge($deployProgress['files'], array($fileName));
                 Cache::forget("header-{$key}");
                 Cache::forget("deploy-{$key}");
+                $fileName = $this->buildCombineFile($header,$deployProgress['ftp_folder'], $deployProgress['name'], $deployProgress['files'], $offerId, $deployProgress['id'],  $deployProgress['espAccount']);
                 if($reportCardName) {
+                    $recordEntry->setFileName($fileName);
                     $reportCard->addEntry($recordEntry);
                 }
-                $this->buildCombineFile($header,$deployProgress['ftp_folder'], $deployProgress['name'], $deployProgress['files'], $offerId, $deployProgress['id'],  $deployProgress['espAccount']);
             } else {
                 //Update the cache
                 Cache::put("deploy-{$key}",
@@ -225,8 +227,7 @@ class ListProfileExportService
         if($reportCard){
           $reportCard->nextEntry();
             if($reportCard->isReportCardFinished()){
-                Log::emergency("I finished a report card");
-                Log::emergency($reportCard->toArray());
+               $this->dispatch(new BuildAndSendReportCard($reportCard));
             }
         }
     }
@@ -301,6 +302,7 @@ class ListProfileExportService
             Storage::disk('SystemFtp')->append($combineFileNameDNM, $contents);
             Storage::disk('SystemFtp')->delete($file.'-dnm');
         }
+        return $combineFileName;
     }
 
 }
