@@ -244,7 +244,7 @@ class ListProfileQueryBuilder {
                 $query = $query->leftJoin("suppression_global_orange as s", 'e.email_address', '=', 's.email_address');
             }
 
-            $insert = count($listIds) > 0 ? $listIds : array('""');
+            $insert = count($listIds) > 0 ? $listIds : array("0");
                 $listIds = '(' . implode(',', $insert) . ')';
                 $query = $query->leftJoin("suppression_list_suppressions as sls", function($join) use ($listIds) {
                     $join->on("e.email_address", '=', 'sls.email_address');
