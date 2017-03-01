@@ -9,13 +9,14 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use App\Repositories\RepoInterfaces\IAwsRepo;
 use App\Repositories\RepoTraits\Batchable;
+use App\Repositories\RepoInterfaces\ICanonicalDataSource;
 
 use App\Models\EmailFeedAssignment;
 use App\Models\EmailFeedAssignmentHistory;
 
 use DB;
 
-class EmailFeedAssignmentRepo implements IAwsRepo {
+class EmailFeedAssignmentRepo implements IAwsRepo, ICanonicalDataSource {
     use Batchable;
 
     protected $model;
@@ -135,7 +136,7 @@ class EmailFeedAssignmentRepo implements IAwsRepo {
     }
 
     public function extractAllForS3() {
-        return $this->assignment;
+        return $this->model->whereRaw("updated_at > CURDATE() - INTERVAL 10 DAY");
     }
 
 
@@ -151,4 +152,45 @@ class EmailFeedAssignmentRepo implements IAwsRepo {
     public function getConnection() {
         return $this->model->getConnectionName();
     }
+
+    public function compareSourcesWithField($tableName, $startPoint, $segmentEnd) {
+        // empty, but present for interface
+        return $this->model
+                    ->leftJoin("$tableName as tbl", function($join) {
+                        $join->on('email_feed_assignments.email_id', '=', "tbl.email_id");
+                        $join->on('email_feed_assignments.feed_id', '=', "tbl.feed_id");
+                    })
+                    ->whereRaw("email_feed_assignments.email_id BETWEEN {$startPoint} AND {$segmentEnd}")
+                    ->whereRaw('email_feed_assignments.updated_at >= CURDATE() - INTERVAL 1 DAY')
+                    ->whereRaw("tbl.email_id IS NULL OR email_feed_assignments.capture_date <> tbl.capture_date")
+                    ->selectRaw('email_feed_assignments.email_id, email_feed_assignments.feed_id, email_feed_assignments.capture_date')
+                    ->get()
+                    ->toArray();
+    }
+
+    public function compareSources($tableName, $startPoint, $segmentEnd) {
+        // empty but required
+    }
+
+    public function maxId() {
+        return $this->model
+                    ->whereRaw('updated_at >= CURDATE() - INTERVAL 1 DAY')
+                    ->orderBy('email_id', 'desc')
+                    ->first()['email_id'];
+    }
+
+    public function nextNRows($startPoint, $offset) {
+        return $this->model
+            ->where('email_id', '>=', $startPoint)
+            ->whereRaw('updated_at >= CURDATE() - INTERVAL 1 DAY')
+            ->orderBy('email_id')
+            ->skip($offset)
+            ->first()['email_id'];
+
+    }
+
+    public function lessThan($startPoint, $endPoint) {
+        return $startPoint < $endPoint;
+    }
+
 }

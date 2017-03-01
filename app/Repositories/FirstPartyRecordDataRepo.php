@@ -154,7 +154,7 @@ class FirstPartyRecordDataRepo implements IAwsRepo {
     }
 
 
-    public function updateActionData($emailId, $feed_id, $actionDate) {
+    public function updateActionData($emailId, $feedId, $actionDate) {
         $pdo = DB::connection()->getPdo();
 
         if ($this->batchActionUpdateCount >= self::INSERT_THRESHOLD) {
@@ -268,5 +268,26 @@ class FirstPartyRecordDataRepo implements IAwsRepo {
 
     public function getConnection() {
         return $this->model->getConnectionName();
+    }
+
+    public function getTableName() {
+        return config('database.connections.mysql.database') . '.' . $this->model->getTable();
+    }
+
+    public function addNewRows(array $data) {
+        // insert these into the table ... 
+
+        foreach ($data as $row) {
+            // we are sending in plenty of 3rd party as well so we need a check
+            if (1 === (int)$row['party']) {
+                $row['other_fields'] = '{}';
+
+                // a sensible default
+                $row['is_deliverable'] = 1;
+                $this->batchInsert($row);
+            }
+        }
+
+        $this->insertStored();
     }
 }

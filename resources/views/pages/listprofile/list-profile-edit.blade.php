@@ -16,14 +16,22 @@
         </fieldset>
     </div>
     <div class="panel-footer">
-            <input class="btn btn-block" ng-class="{ 'mt2-theme-btn-primary' : !listProfile.enableAdmiral , 'btn-danger' : listProfile.enableAdmiral }" ng-click="listProfile.updateListProfile()" type="submit" value="Update">
+        <div class="row">
+        <div class="col-md-offset-4 col-md-4">
+            <input class="btn btn-block" ng-class="{ 'mt2-theme-btn-primary' : !listProfile.enableAdmiral , 'btn-danger' : listProfile.enableAdmiral }" ng-click="listProfile.updateListProfile()" type="submit" value="Update List Profile">
+        </div>
+        </div>
     </div>
 </div>
+
+@include( 'pages.listprofile.list-profile-add-feedgroup' )
 @stop
 
 <?php
 Assets::add( [
     'resources/assets/js/listprofile/ListProfileController.js' ,
     'resources/assets/js/listprofile/ListProfileApiService.js' ,
+    'resources/assets/js/feedgroup/FeedGroupApiService.js' ,
+    'resources/assets/js/feed/FeedApiService.js'
 ] , 'js' , 'pageLevel' );
 ?>

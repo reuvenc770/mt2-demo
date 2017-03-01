@@ -22,6 +22,16 @@
         </span>
     </div>
 </div>
+<div class="form-group" ng-class="{ 'has-error' : listProfile.formErrors.ftp_folder }">
+    <label>FTP Folder</label>
+    <input placeholder="ftp_folder" value="" class="form-control" ng-model="listProfile.current.ftp_folder"
+           required="required" name="name" type="text">
+    <div class="help-block" ng-show="listProfile.formErrors.ftp_folder">
+        <div ng-repeat="error in listProfile.formErrors.ftp_folder">
+            <span ng-bind="error"></span>
+        </div>
+    </div>
+</div>
 
 <div class="form-group">
     <label>Party</label>
@@ -56,7 +66,7 @@
         <label>Available Feeds</label>
 
         <div class="pull-right">
-            <label ng-click="listProfile.addFeeds()" role="button" tabindex="0">Add Selected <span class="glyphicon glyphicon-plus"></span></label>
+            <label ng-click="listProfile.addFeeds( $event )" role="button" tabindex="0">Add Selected <span class="glyphicon glyphicon-plus"></span></label>
         </div>
 
         <select ng-model="listProfile.highlightedFeeds" multiple style="width: 100%; height: 150px;">
@@ -105,7 +115,7 @@
             <label ng-click="listProfile.addFeedGroups()" role="button" tabindex="0">Add Selected <span class="glyphicon glyphicon-plus"></span></label>
         </div>
 
-        <select ng-model="listProfile.highlightedFeedGroups" multiple style="width: 100%; height: 150px;">
+        <select id="feedGroupList" ng-model="listProfile.highlightedFeedGroups" multiple style="width: 100%; height: 150px;">
             @foreach ( $feedGroups as $feedGroup )
                 <option value="{{$feedGroup[ 'id' ]}}" ng-init="listProfile.feedGroupVisibility[ {{$feedGroup[ 'id' ]}} ] = true;listProfile.feedGroupNameMap[ {{$feedGroup[ 'id' ]}} ] = '{{{$feedGroup[ 'name' ]}}}';" ng-show="listProfile.feedGroupVisibility[ {{$feedGroup[ 'id' ]}} ]">{{ $feedGroup[ 'name' ] }}</option>
             @endforeach

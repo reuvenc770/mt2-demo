@@ -8,6 +8,45 @@ use App\Models\EspAccountCustomIdHistory;
 use Carbon\Carbon;
 
 use Storage;
+/**
+ * App\Models\EspAccount
+ *
+ * @property int $id
+ * @property string $account_name
+ * @property int $custom_id
+ * @property string $key_1
+ * @property string $key_2
+ * @property int $esp_id
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property bool $status
+ * @property bool $enable_suppression
+ * @property-read \App\Models\OAuthTokens $OAuthTokens
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\AWeberReport[] $aweberReport
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\BlueHornetReport[] $blueHornetReports
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\CampaignerReport[] $campaignerReports
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\EspAccountCustomIdHistory[] $customIds
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Domain[] $domains
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\EmailDirectReport[] $emailDirectReport
+ * @property-read \App\Models\Esp $esp
+ * @property-read \App\Models\EspAccountImageLinkFormat $imageLinkFormat
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\MailingTemplate[] $mailingTemplate
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\MaroReport[] $maroReport
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\DeployRecordRerun[] $rerunDeploys
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Suppression[] $suppressions
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\YmlpReport[] $ymlpReport
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\EspAccount whereAccountName($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\EspAccount whereCreatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\EspAccount whereCustomId($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\EspAccount whereEnableSuppression($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\EspAccount whereEspId($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\EspAccount whereId($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\EspAccount whereKey1($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\EspAccount whereKey2($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\EspAccount whereStatus($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\EspAccount whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class EspAccount extends Model
 {
     use ModelCacheControl;
@@ -74,7 +113,7 @@ class EspAccount extends Model
     }
 
     public function domains(){
-        return $this->hasMany('App\Models\Domains');
+        return $this->hasMany('App\Models\Domain');
     }
 
     public function imageLinkFormat() {

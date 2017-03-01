@@ -1,4 +1,4 @@
-mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDialog' , '$timeout' , 'formValidationService' , 'modalService' , 'paginationService' , '$location' , '$window' , '$log' , function ( ListProfileApiService , $mdDialog , $timeout , formValidationService , modalService , paginationService , $location , $window , $log ) {
+mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedGroupApiService' , 'FeedApiService' , '$mdDialog' , '$timeout' , 'formValidationService' , 'modalService' , 'paginationService' , '$location' , '$window' , '$compile' , '$log' , function ( ListProfileApiService , FeedGroupApiService , FeedApiService , $mdDialog , $timeout , formValidationService , modalService , paginationService , $location , $window , $compile , $log ) {
     var self = this;
 
     self.nameDisabled = true;
@@ -14,12 +14,15 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     self.showCombine = false;
     self.listCombines = [];
     self.combineError = null;
+    self.ftpFolderError = null;
     self.combineName = "";
+    self.ftpFolder = "lp_combine";
     self.combineParty = '';
 
     self.current = {
         'profile_id' : null ,
         'name' : '' ,
+        'ftp_folder': 'lp',
         'country_id' : '' ,
         'party' : '3',
         'feeds' : {} ,
@@ -62,7 +65,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         'admiralsOnly' : false
     };
 
-    self.currentCombine = { 'combineName' : '' , 'selectedProfiles' : [] };
+    self.currentCombine = { 'combineName' : '' , 'ftpFolder' : '' , 'selectedProfiles' : [] };
     self.prepopListProfiles = [];
     self.listProfilesList = [];
     self.lpListNameField = 'name';
@@ -75,6 +78,9 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
     self.profileTotal = 0;
+    self.firstPartyProfileTotal = 0;
+    self.secondPartyProfileTotal = 0;
+    self.thirdPartyProfileTotal = 0;
     self.queryPromise = null;
     self.sort = "name";
 
@@ -203,6 +209,11 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
     self.towerDateOptions = [];
 
+    self.feedGroupName = '';
+    self.feedList = [];
+    self.feedForFeedGroup = [];
+    self.feedGroupFormSubmitting = false;
+
     self.formErrors = [];
 
     modalService.setPopover();
@@ -237,6 +248,9 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         });
         self.pageCount = response.data.last_page;
         self.profileTotal = response.data.total;
+        self.firstPartyProfileTotal = self.firstPartyListProfiles.length || 0;
+        self.secondPartyProfileTotal = self.secondPartyListProfiles.length || 0;
+        self.thirdPartyProfileTotal = self.thirdPartyListProfiles.length || 0;
 
         $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
     };
@@ -247,7 +261,6 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
     self.prepop = function ( listProfile ) {
         self.current = listProfile;
-        self.generateName();
         self.fixEmptyFields();
 
         $(function () { $('[data-toggle="tooltip"]').tooltip() });
@@ -491,12 +504,35 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         }
     }
 
-    self.addFeeds = function () {
-        self.addMembershipItems(
-            { "highlighted" : self.highlightedFeeds , "visibility" : self.feedVisibility , "map" : self.feedNameMap } ,
-            self.current.feeds ,
-            self.generateName
-        );
+    self.addFeeds = function ( ev ) {
+        var confirm = $mdDialog.confirm()
+                        .title( 'Are you sure you want to choose more than one feed?' )
+                        .ariaLabel( 'Mulitple Feed Warning' )
+                        .targetEvent( ev )
+                        .ok( 'Yes' )
+                        .cancel( 'Cancel' );
+
+        if ( ( self.highlightedFeeds.length + Object.keys( self.current.feeds ).length ) > 1 ) {
+            $mdDialog.show( confirm ).then(
+                function () {
+                    $mdDialog.show({
+                        contentElement: '#feedGroupFormModal',
+                        parent: angular.element(document.body)
+                    });
+                } ,
+                function () {}
+            );
+        } else {
+            self.addMembershipItems(
+                { "highlighted" : self.highlightedFeeds , "visibility" : self.feedVisibility , "map" : self.feedNameMap } ,
+                self.current.feeds ,
+                self.generateName
+            );
+        }
+    };
+    
+    self.closeFeedGroupModal = function () {
+        $mdDialog.cancel();
     };
 
     self.removeFeeds = function () {
@@ -510,7 +546,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         );
     };
 
-    self.addFeedGroups = function () {
+    self.addFeedGroups = function ( ev ) {
         self.addMembershipItems(
             { "highlighted" : self.highlightedFeedGroups , "visibility" : self.feedGroupVisibility , "map" : self.feedGroupNameMap } ,
             self.current.feedGroups ,
@@ -902,7 +938,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
     };
 
     self.createCombine = function (){
-        ListProfileApiService.createCombine(self.combineName,self.selectedProfiles, self.combineParty, self.createCombineSuccess, self.createCombineFail);
+        ListProfileApiService.createCombine(self.combineName, self.ftpFolder ,self.selectedProfiles, self.combineParty, self.createCombineSuccess, self.createCombineFail);
     };
 
     self.updateCombine = function () {
@@ -960,8 +996,9 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
         modalService.simpleToast("Failed to load list of list profiles.");
     };
 
-    self.setCombine = function ( combineId , combineName , combineParty, listProfiles ) {
+    self.setCombine = function ( combineId , combineFolder, combineName , combineParty, listProfiles ) {
         self.currentCombine.id = combineId;
+        self.currentCombine.ftpFolder = combineFolder;
         self.currentCombine.combineName = combineName;
         self.currentCombine.party = combineParty;
         self.prepopListProfiles = listProfiles;
@@ -993,6 +1030,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
         self.loadListCombines();
         self.combineName = "";
+        self.ftpFolder = "lp_combine";
     };
 
     self.loadCombineFail = function (response) {
@@ -1061,4 +1099,80 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , '$mdDi
 
         self.enableAlert = false;
     }
+
+    self.loadFeedList = function () {
+        FeedApiService.getAllFeeds( self.getAllFeedsSuccessCallback , self.getAllFeedsFailureCallback );
+    };
+
+    self.getAllFeedsSuccessCallback = function ( response ) {
+
+        var sortFeedList = [];
+
+        angular.forEach( response.data , function ( value ) {
+            value.feedListDisplayName = value.short_name + " ( " + value.id + " ) " ;
+            sortFeedList.push(value);
+        } );
+
+        self.feedList = sortFeedList;
+    };
+
+    self.getAllFeedsFailureCallback = function ( response ) {
+        modalService.simpleToast( 'Failed to load feed group\'s list of feeds.' );
+    };
+
+    self.createFeedGroup = function () {
+        self.feedGroupFormSubmitting = true;
+
+        var feeds = [];
+
+        angular.forEach( self.feedForFeedGroup , function ( value ) {
+            feeds.push( value.id );
+        } );
+
+        FeedGroupApiService.createFeedGroup(
+            { "name" : self.feedGroupName , "feeds" : feeds } ,
+            self.createFeedGroupSuccessCallback ,
+            self.createFeedGroupFailureCallback
+        );
+    };
+
+    self.createFeedGroupSuccessCallback = function ( response ) {
+        self.feedGroupVisibility[ response.data.id ] = false;
+        self.feedGroupNameMap[ response.data.id ] = self.feedGroupName;
+        self.current.feedGroups[ response.data.id ] = self.feedGroupName;
+
+        //Add new feed group to the widget
+        var list = angular.element(document).find( '#feedGroupList' );
+        var newOption = angular.element( "<option ng-show='listProfile.feedGroupVisibility[ " + response.data.id  + " ]' value='" + response.data.id  + "'>" + self.feedGroupName + "</option>" );
+        //This works for adding feeds to selected but couldn't get the left option to hide.
+        $compile( newOption );
+        list.append( newOption );
+
+        //Removing current feeds
+        self.removeMembershipItems(
+            { "highlightedForRemoval" : Object.keys( self.current.feeds ) , "visibility" : self.feedVisibility } ,
+            self.current.feeds ,
+            function () {
+                self.updateFeedVisibility();
+                self.generateName();
+            }
+        );
+
+        self.feedGroupName = '';
+        self.feedForFeedGroup = [];
+
+        self.feedGroupFormSubmitting = false;
+
+        self.closeFeedGroupModal();
+    };
+
+    self.createFeedGroupFailureCallback = function ( response ) {
+        response.feedGroupName = response.name;
+
+        delete( response.name );
+
+        formValidationService.loadFieldErrors( self , response );
+
+        self.feedGroupFormSubmitting = false;
+    };
 } ] );

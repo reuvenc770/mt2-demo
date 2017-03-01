@@ -967,6 +967,10 @@ Route::group(
                     'as' => 'api.listprofile.combinelist' ,
                     'uses' => 'ListProfileController@getListCombinesOnly'
                 ] );
+                Route::get( '/listcombine/firstparty' , [
+                    'as' => 'api.listprofile.firstpartylist' ,
+                    'uses' => 'ListProfileController@getFirstPartyListCombines'
+                ] );
                 Route::post( '/listcombine/create' , [
                     'as' => 'api.listprofile.combine.create' ,
                     'uses' => 'ListProfileController@createListCombine',

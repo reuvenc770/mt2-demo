@@ -70,7 +70,7 @@ class Kernel extends ConsoleKernel
         Commands\SyncMT1FeedLevels::class,
         Commands\AttributionReportCommand::class,
         Commands\PopulateListProfileAggregationTable::class,
-        Commands\SendDomainExpirationNotice::class,
+        Commands\NotifySomeoneAboutSomething::class,
         Commands\PullContentServerRecordData::class,
         Commands\InflateEmailHistoriesUtil::class,
         Commands\BuildBaseListProfileTables::class,
@@ -94,6 +94,9 @@ class Kernel extends ConsoleKernel
         Commands\VacuumRedshift::class,
         Commands\CleanUpRawContentServerActions::class,
         Commands\SumBrontoStandardReports::class,
+        Commands\DomainExpirationNotification::class,
+        Commands\ProcessNewActionsCommand::class,
+        Commands\DataConsistencyValidation::class,
     ];
 
     /**
@@ -104,6 +107,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        #$schedule->command('domains:expired')->dailyAt(self::REPORT_TIME);
+
         /**
          * Orphan Adoption
          */
@@ -306,6 +311,13 @@ class Kernel extends ConsoleKernel
          */
 
         $schedule->command("reports:sumBronto")->cron("15 * * * *");
+
+        /**
+         *  Data consistency jobs
+         */
+        $schedule->command("dataValidation emails exists")->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command("dataValidation emailFeedInstances exists")->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command("dataValidation emailFeedAssignments value")->dailyAt(self::MT1_SYNC_TIME);
 
     }
 }

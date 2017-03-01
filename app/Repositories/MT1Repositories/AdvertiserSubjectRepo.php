@@ -13,6 +13,7 @@ class AdvertiserSubjectRepo {
     }
 
     public function pullForSync($lookback) {
+        DB::connection('mt1_data')->statement('SET SESSION CHARACTER_SET_RESULTS = latin1');
         return $this->model;
     }
 }

@@ -12,7 +12,7 @@
         </div>
         <div class="panel-body">
         <div ng-repeat="mapping in esp.fieldList" >
-            <div class="form-group">
+            <div class="form-group col-sm-3">
             <div class="input-group">
                 <span class="input-group-addon" id="basic-addon3">
                     @{{ mapping.label }}
@@ -23,9 +23,17 @@
                 <input type="text" ng-model="esp.colList[mapping.field]"  class="form-control input-sm" id="basic-url" aria-describedby="basic-addon3">
             </div>
         </div></div>
+        <div class="col-sm-12">
+            <div class="alert alert-info" role="alert"> <strong>Heads up!</strong> Here is your CSVs current header.  Please do not include the header in your upload - this is for reference and help building the list.</div>
+            <h4 style="text-align: center">@{{ esp.buildHeader() }}</h4>
+        </div>
         </div>
         <div class="panel-footer">
+            <div class="row">
+            <div class="col-md-offset-4 col-md-4">
                 <input class="btn mt2-theme-btn-primary btn-block" ng-click="esp.saveFieldOrder()" type="submit" value="Save Field Order" />
+            </div>
+            </div>
         </div>
     </div>
 @stop

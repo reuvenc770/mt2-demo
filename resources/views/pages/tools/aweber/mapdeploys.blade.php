@@ -17,7 +17,7 @@
         </div>
         <div class="panel-body">
                 @foreach($deploys as $deploy)
-                <div class="form-group clearfix">
+                <div ng-hide="weber.shouldHide({{$deploy['id']}})" class="form-group clearfix">
                     <label class="col-sm-12 control-label">{{$deploy['id']}} - {{$deploy['deploy_name']}} -  {{$deploy['send_date']}}
                     <br/>
                     <span style="font-weight:normal">{{$deploy['subject_line']}}</span>
@@ -35,7 +35,7 @@
                         </select>
 
                              <div class="input-group-btn">
-                            <span class=" btn btn-primary" ng-click="weber.convertReport(weber.currentMappings[{{$deploy['id']}}] , {{$deploy['id']}} )" id="basic-addon2">Assign Deploy</span>
+                            <span class="btn mt2-theme-btn-primary" ng-click="weber.convertReport(weber.currentMappings[{{$deploy['id']}}] , {{$deploy['id']}} )" id="basic-addon2">Assign Deploy</span>
                                  </div>
                             </div>
                         @endif

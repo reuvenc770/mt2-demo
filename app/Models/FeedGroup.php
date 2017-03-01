@@ -8,6 +8,21 @@ namespace App\Models;
 use App\Models\ModelTraits\ModelCacheControl;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * App\Models\FeedGroup
+ *
+ * @property int $id
+ * @property string $name
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\FeedGroupFeed[] $feedGroupFeeds
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Feed[] $feeds
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\FeedGroup whereCreatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\FeedGroup whereId($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\FeedGroup whereName($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\FeedGroup whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class FeedGroup extends Model
 {
     use ModelCacheControl;

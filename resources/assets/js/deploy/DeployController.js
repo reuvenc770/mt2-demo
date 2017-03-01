@@ -1,4 +1,4 @@
-mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout', 'DeployApiService', '$rootScope', '$q', '$interval' , '$mdDialog' , 'modalService' , 'formValidationService' , 'paginationService' , function ($log, $window, $location, $timeout, DeployApiService, $rootScope, $q, $interval , $mdDialog , modalService , formValidationService , paginationService ) {
+mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout', 'DeployApiService', '$rootScope', '$q', '$interval' , '$mdDialog' , 'modalService' , 'formValidationService' , 'paginationService' , '$cookies' , function ($log, $window, $location, $timeout, DeployApiService, $rootScope, $q, $interval , $mdDialog , modalService , formValidationService , paginationService , $cookies ) {
     var self = this;
     self.$location = $location;
     self.currentDeploy = {
@@ -23,11 +23,15 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
     self.selectedRows = [];
     self.esps = [];
-    var text = "ID to Be Generated";
-    self.deployIdDisplay = text;
+    self.formButtonText = "Save Deploy";
+    self.formHeader = "New Deploy";
     self.editView = false;
     self.uploadedDeploys = [];
     self.offerData = [];
+    self.allOffersData = [];
+    self.allOffers = false;
+    self.selectedDay = "0";
+    self.searchOffers = "/api/offer/search?date=" + self.selectedDay + "searchTerm=";
     self.searchType = "";
     self.searchData = "";
     self.uploadErrors = false;
@@ -39,8 +43,8 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.tempDeploy = false;
     self.cakeAffiliates = [];
     self.espLoaded = true;
-    self.showRow = false;
     self.offerLoading = true;
+    self.dateNotPicked = true;
     self.mailingDomains = []; //id is 1
     self.contentDomains = []; //id is 2
     self.offers = [];
@@ -57,10 +61,16 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = '1';
     self.deployTotal = 0;
-    self.sort = "-deployment_status";
+    self.sort = "-deploy_id";
     self.queryPromise = null;
     self.copyToFutureDate = '';
     self.formSubmitting = false;
+    self.recordListStatus = 'index';
+
+    self.columnToggleMapping = {
+        'cfs' : { 'showColumns' : true, 'switchText' : 'Hide' },
+        'domains' : { 'showColumns' : true, 'switchText' : 'Hide' }
+    };
 
     modalService.setPopover();
 
@@ -79,12 +89,27 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.loadDeploys = function () {
-        self.queryPromise = DeployApiService.getDeploys(self.currentPage, self.paginationCount, self.searchType, self.searchData, self.loadDeploysSuccess, self.loadDeploysFail);
+        self.queryPromise = DeployApiService.getDeploys(self.currentPage, self.paginationCount, self.sort, self.searchType, self.searchData, self.loadDeploysSuccess, self.loadDeploysFail);
+    };
+
+    self.sortCurrentRecords = function () {
+        if (self.recordListStatus === 'index' ) {
+            self.loadDeploys();
+        }
+
+        if ( self.recordListStatus === 'search' ) {
+            self.searchDeploys();
+        }
     };
 
     self.loadListProfiles = function () {
         self.currentlyLoading = 1;
         DeployApiService.getListProfiles(self.loadProfileSuccess, self.loadProfileFail)
+    };
+
+    self.loadFirstPartyListProfiles = function () {
+        self.currentlyLoading = 1;
+        DeployApiService.getFirstPartyListProfiles(self.loadFirstPartyProfileSuccess , self.loadFirstPartyProfileFail);
     };
 
     self.updateSelects = function (callBack) {
@@ -100,7 +125,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.copyRow = function (id) {
-        self.showRow = false;
         DeployApiService.getDeploy(id, self.loadDeployCopySuccess, self.loadDeployFail);
         self.espLoaded = false;
         self.editView = false;
@@ -134,11 +158,29 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         }
     };
 
-    self.displayForm = function () {
-        self.deployIdDisplay = text;
+    self.displayNewDeployForm = function () {
         self.currentDeploy = self.resetAccount();
-        self.showRow = true;
         self.editView = false;
+
+        self.launchFormModal();
+    };
+
+    self.launchFormModal = function() {
+        if (self.editView) {
+            self.formButtonText = "Update Deploy";
+        } else {
+            self.formHeader = "New Deploy";
+            self.formButtonText = "Save Deploy";
+        }
+
+        $mdDialog.show({
+            contentElement: '#deployFormModal',
+            parent: angular.element(document.body)
+        });
+    };
+
+    self.closeModal = function(){
+        $mdDialog.cancel();
     };
 
     self.saveNewDeploy = function ( event ) {
@@ -161,16 +203,19 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     };
 
     self.searchDeploys = function() {
+        self.recordListStatus = 'search';
+
         var searchObj = {
             "dates": self.search.dates || undefined,
             "deployId": self.search.deployId || undefined,
             "espAccountId": self.search.esp_account_id || undefined,
             "status": self.search.status || undefined,
             "esp": self.search.esp || undefined,
-            "offerNameWildcard": self.search.offer || undefined
+            "offerNameWildcard": self.search.offer || undefined,
+            "listProfileParty" : self.search.list_profile_party || undefined
         };
 
-        self.queryPromise = DeployApiService.searchDeploys(self.paginationCount, searchObj, self.loadDeploysSuccess, self.loadDeploysFail);
+        self.queryPromise = DeployApiService.searchDeploys(self.paginationCount, self.sort, searchObj, self.loadDeploysSuccess, self.loadDeploysFail);
         self.currentlyLoading = 0;
     };
 
@@ -180,6 +225,15 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         };
 
         self.loadAccounts();
+        self.recordListStatus = 'index';
+    };
+
+    self.showAllOffers = function(){
+        DeployApiService.offerDaySearch(self.selectedDay, self.showAllOfferSuccess, self.formFail);
+        self.allOffers = true;
+    };
+    self.hideAllOffers = function(){
+      self.allOffers = false;
     };
 
     self.offerWasSelected = function (item) {
@@ -196,6 +250,11 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
                 });
             }
         }
+        if(self.currentDeploy.offer_id != 0){
+            self.reloadCFS(self.currentDeploy.offer_id, function () {
+                self.offerLoading = false;
+            });
+        }
     };
 
     self.reloadCFS = function (offerId, callBack) {
@@ -206,8 +265,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         ]).then(callBack);
     };
 
-    self.editRow = function (deployId) {
-        self.showRow = false;
+    self.editDeploy = function (deployId) {
         self.currentDeploy = self.resetAccount();
         DeployApiService.getDeploy(deployId, self.loadDeploySuccess, self.loadDeployFail);
         self.espLoaded = false;
@@ -222,48 +280,55 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         }
     };
 
-    self.actionText = function () {
-        if (self.editView) {
-            return "Edit Row"
-        } else {
-            return "Save Row"
-        }
-    };
-
     self.toggleListProfile = function (){
         self.firstParty =  self.firstParty ?  false: true;
+
+        if ( self.firstParty === true ) {
+            self.loadFirstPartyListProfiles();
+        } else {
+            self.loadListProfiles();
+        }
     };
 
-    self.toggleRow = function (selectedValue) {
-        var index = self.selectedRows.indexOf(selectedValue);
-
-        if (index >= 0) {
-            self.selectedRows.splice(index, 1);
-        } else {
-            self.selectedRows.push(selectedValue);
-        }
-
+    self.checkExportStatus = function () {
         if (self.selectedRows.length > 0) {
             self.disableExport = false;
         } else {
             self.disableExport = true;
         }
-
-        if (self.selectedRows.length > 1) {
-            self.deployLinkText = "Send Packages to FTP"
-        } else {
-            self.deployLinkText = "Download Package";
-        }
     };
 
-    self.checkChecked = function(selectedValue){
-        var index = self.selectedRows.indexOf(selectedValue);
-        return index >= 0;
+    self.toggleColumns = function ( columnSection ) {
+        var isColumnShowing = self.columnToggleMapping[ columnSection ][ 'showColumns' ];
+
+        if ( isColumnShowing ){
+            self.columnToggleMapping[ columnSection ][ 'switchText' ] = "Hide";
+        } else {
+            self.columnToggleMapping[ columnSection ][ 'switchText' ] = "Show";
+        }
+
+        self.setColumnViewCookie();
+    };
+
+    self.setColumnViewCookie = function () {
+        var columnCookieValues = angular.toJson( {"cfs" : self.columnToggleMapping.cfs.showColumns , "domains" : self.columnToggleMapping.domains.showColumns} );
+
+        $cookies.put( 'deployColumnView' , columnCookieValues );
+    };
+
+    self.loadLastColumnView = function () {
+        var columnCookieValues = angular.fromJson( $cookies.get( 'deployColumnView' ) );
+
+        if ( typeof(columnCookieValues) != 'undefined') {
+            self.columnToggleMapping.cfs.showColumns = columnCookieValues.cfs;
+            self.columnToggleMapping.domains.showColumns =  columnCookieValues.domains;
+        }
     };
 
     self.exportCsv = function () {
         returnUrl = DeployApiService.exportCsv(self.selectedRows);
         $window.open(returnUrl);
+        self.selectedRows = [];
     };
 
 
@@ -278,12 +343,12 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         }
     };
 
-    self.canOfferBeMailed = function (date){
-        var day = date.getDay();
-        var dayIndex = ( day == 0 ? 6 : day - 1 );
-        var dateChar = self.offerData.exclude_days.charAt( dayIndex );
-
-        return dateChar === 'N';
+    self.updateDate = function (){
+        $rootScope.$broadcast('angucomplete-alt:clearInput');
+        self.currentDeploy.offer_id = '';
+        self.dateNotPicked = false;
+        //die in a fire iso 8601
+        self.selectedDay = ((this.currentDeploy.send_date.getDay() + 6) % 7) + 1;
     };
 
     self.previewDeploys = function (){
@@ -292,6 +357,8 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         for (index = 0; index < packageIds.length; ++index) {
             $window.open(url + packageIds[index]);
         }
+
+        self.selectedRows = [];
     };
     self.downloadHtml = function (){
         var packageIds = self.selectedRows;
@@ -299,6 +366,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         for (index = 0; index < packageIds.length; ++index) {
             $window.open(url + packageIds[index]);
         }
+        self.selectedRows = [];
     };
 
     self.checkStatus = function(approval,status){
@@ -314,9 +382,9 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
             targetEvent : ev ,
             template :
                 '<md-dialog>' +
-                    '<md-toolbar>' +
-                        '<div class="md-toolbar-tools">' +
-                            '<h2>Scedule Future Deploy</h2>' +
+                    '<md-toolbar class="mt2-theme-toolbar">' +
+                        '<div class="md-toolbar-tools mt2-theme-toolbar-tools">' +
+                            '<h2>Schedule Future Deploy</h2>' +
                         '</div>' +
                     '</md-toolbar>' +
                     '<md-dialog-content>' +
@@ -365,19 +433,29 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.currentDeploy = self.resetAccount();
         $rootScope.$broadcast('angucomplete-alt:clearInput');
 
+        self.closeModal();
+
         modalService.setModalLabel('Success');
         modalService.setModalBody('Deploys Uploaded!');
         modalService.launchModal();
 
         self.loadDeploys();
         self.editView = false;
-        self.showRow = false;
     };
 
     self.validateSuccess = function (response) {
         self.uploadedDeploys = response.data.rows;
         self.uploadErrors = response.data.errors;
-        $('#validateModal').modal('show');
+
+        $mdDialog.show({
+            contentElement: '#validateModal' ,
+            parent: angular.element(document.body),
+            clickOutsideToClose: true
+        });
+    };
+
+    self.showAllOfferSuccess = function (response){
+        self.allOffersData = response.data;
     };
     self.loadDeploysSuccess = function (response) {
         self.deploys = response.data.data;
@@ -390,7 +468,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
 
     self.loadDeploySuccess = function (response) {
         self.currentDeploy.esp_account_id = response.data.esp_account_id;
-        self.deployIdDisplay = response.data.id;
         self.updateSelects(function () {
             var deployData = response.data;
             self.reloadCFS(deployData.offer_id.id, function () {
@@ -412,7 +489,9 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
             });
             $rootScope.$broadcast('angucomplete-alt:changeInput', 'offer', deployData.offer_id);
         });
-        self.showRow = true;
+
+        self.launchFormModal();
+        self.formHeader = "Edit Deploy # " + response.data.id;
     };
 
     self.loadDeployCopySuccess = function (response) {
@@ -434,7 +513,8 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
             $rootScope.$broadcast('angucomplete-alt:changeInput', 'offer', deployData.offer_id);
 
         });
-        self.showRow = true;
+
+        self.launchFormModal();
     };
 
 
@@ -442,13 +522,14 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.currentDeploy = self.resetAccount();
         $rootScope.$broadcast('angucomplete-alt:clearInput');
 
+        self.closeModal();
+
         modalService.setModalLabel('Success');
         modalService.setModalBody('Deploy Edited!');
         modalService.launchModal();
 
         self.loadDeploys();
         self.editView = false;
-        self.showRow = false;
 
         self.formSubmitting = false;
     };
@@ -481,6 +562,12 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
 
     self.loadProfileSuccess = function (response) {
         self.listProfiles = response.data;
+        self.currentlyLoading = 0;
+    };
+
+    self.loadFirstPartyProfileSuccess = function(response) {
+        self.listProfiles = response.data;
+        self.currentlyLoading = 0;
     };
 
     self.loadNewDeploySuccess = function (response) {
@@ -492,7 +579,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         modalService.launchModal();
 
         self.loadDeploys();
-        self.showRow = false;
 
         self.formSubmitting = false;
     };
@@ -540,6 +626,7 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         modalService.setModalBody('Packages are being generated');
         modalService.launchModal();
 
+        self.selectedRows = [];
         self.loadDeploys();
         self.startPolling();
     };
@@ -580,7 +667,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         self.disableExport = true;
         self.loadDeploys();
         self.editView = false;
-        self.showRow = false;
     };
 
     self.copyToFutureFailure = function (response){
@@ -624,6 +710,12 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.loadProfileFail = function () {
         modalService.setModalLabel('Error');
         modalService.setModalBody('Something went wrong loading List Profiles');
+        modalService.launchModal();
+    };
+
+    self.loadFirstPartyProfileFail = function () {
+        modalService.setModalLabel('Error');
+        modalService.setModalBody('Something went wrong loading first party list profiles');
         modalService.launchModal();
     };
 

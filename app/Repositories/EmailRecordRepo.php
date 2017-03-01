@@ -124,7 +124,7 @@ class EmailRecordRepo {
             $id = (isset($currentRecord['espId']) ? $currentRecord['espId'] : '0') 
                 . '-' . (isset($currentRecord['espInternalId']) ? $currentRecord['espInternalId'] : '0')
                 . '-' . $time . '-' . str_random(8);
-            \Event::fire(new NewActions($preppedData, $id));
+            #\Event::fire(new NewActions($preppedData, $id));
         }
 
         if ( !empty( $invalidRecords ) ) {
@@ -233,7 +233,6 @@ class EmailRecordRepo {
             $errorFound = true;
         } elseif (!$this->hasDeployId()) {
             $this->errorReason = 'missing_deploy_id';
-            Log::error("Deploy id for esp internal id '{$this->espInternalId}' does not exist.");
             $errorFound = true;
         }
 

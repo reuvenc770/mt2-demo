@@ -16,8 +16,10 @@
 
             </fieldset>
         <div class="panel-footer">
-            <div class="form-group">
+            <div class="row">
+            <div class="col-md-offset-4 col-md-4">
                 <input class="btn mt2-theme-btn-primary btn-block" ng-click="feed.saveFeed()" ng-disabled="feed.formSubmitted" type="submit" value="Add Feed">
+            </div>
             </div>
         </div>
     </div>

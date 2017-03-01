@@ -66,27 +66,15 @@
                     md-on-deselect="dataExport.mdToggleInclusion"
                     ng-repeat="record in dataExport.dataExports track by $index">
                     <td md-cell>
-                      <div layout="row" layout-align="center center">
-                        <md-button class="md-icon-button" ng-href="@{{'/dataexport/edit/' + record.exportID}}" target="_self" aria-label="Edit">
-                            <md-icon md-svg-icon="img/icons/ic_mode_edit_black_18px.svg"></md-icon>
-                            <md-tooltip md-direction="bottom">Edit</md-tooltip>
-                        </md-button>
+                        <a ng-href="@{{'/dataexport/edit/' + record.exportID}}" aria-label="Edit" target="_self" data-toggle="tooltip" data-placement="bottom" title="Edit">
+                            <md-icon md-font-set="material-icons" class="mt2-icon-black">edit</md-icon></a>
 
-                        <md-button class="md-icon-button" ng-click="dataExport.changeDataExportStatus(record.exportID)" aria-label="Pause">
-                            <md-icon md-svg-icon="img/icons/ic_pause_black_18px.svg"></md-icon>
-                            <md-tooltip md-direction="bottom">Pause</md-tooltip>
-                        </md-button>
+                        <md-icon ng-click="dataExport.changeDataExportStatus(record.exportID)" md-font-set="material-icons"
+                                class="mt2-icon-black" data-toggle="tooltip" data-placement="bottom" title="Pause" aria-label="Pause">pause</md-icon>
 
-                        <md-button class="md-icon-button" ng-click="dataExport.copyDataExport(record.exportID)" aria-label="Copy">
-                            <md-icon md-svg-icon="img/icons/ic_content_copy_black_18px.svg"></md-icon>
-                            <md-tooltip md-direction="bottom">Copy</md-tooltip>
-                        </md-button>
+                        <md-icon md-font-set="material-icons" class="mt2-icon-black" ng-click="dataExport.copyDataExport(record.exportID)" aria-label="Copy" data-toggle="tooltip" data-placement="bottom" title="Copy">content_copy</md-icon>
 
-                        <md-button class="md-icon-button" ng-click="dataExport.deleteDataExport(record.exportID)" aria-label="Delete">
-                            <md-icon md-svg-icon="img/icons/ic_clear_black_24px.svg"></md-icon>
-                            <md-tooltip md-direction="bottom">Delete</md-tooltip>
-                        </md-button>
-                      </div>
+                        <md-icon ng-click="dataExport.deleteDataExport(record.exportID)" aria-label="Delete" md-font-set="material-icons" class="mt2-icon-black" data-toggle="tooltip" data-placement="bottom" title="Delete">delete</md-icon>
                     </td>
                     <td md-cell class="mt2-table-cell-center" ng-class="{ 'mt2-bg-success' : record.status == 'Active' , 'mt2-bg-warn' : record.status == 'Paused' , 'mt2-bg-danger' : record.status == 'Deleted' }">@{{ record.status == 'Active' ? 'Active' : record.status == 'Paused' ? 'Paused' : 'Deleted'  }}</td>
                     <td md-cell class="mt2-cell-left-padding">@{{ record.fileName }}</td>
@@ -101,7 +89,7 @@
         </table>
     </md-table-container>
 
-<md-content class="md-mt2-zeta-theme md-hue-2">
+<md-content class="md-mt2-zeta-theme">
     <md-table-pagination md-limit="dataExport.paginationCount" md-limit-options="[10, 25, 50, 100]" md-page="dataExport.currentPage" md-total="@{{dataExport.dataExportTotal}}" md-on-paginate="dataExport.mdLoadActiveDataExports" md-page-select></md-table-pagination>
 </md-content>
     </md-card>

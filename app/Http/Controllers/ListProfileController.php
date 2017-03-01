@@ -205,6 +205,7 @@ class ListProfileController extends Controller
 
         $insertData = [
             "name" => $request->input("combineName"),
+            "ftp_folder" => $request->input("ftpFolder"),
             'party' => $request->input("combineParty"),
         ];
         $this->combineService->insertCombine($insertData, $request->input("selectedProfiles"));
@@ -233,6 +234,7 @@ class ListProfileController extends Controller
         return response()->view( 'pages.listprofile.list-combine-edit' , [
             'combineId' => $id ,
             'combineName' => $combineData->name ,
+            'ftpFolder' => $combineData->ftp_folder ,
             'combineParty' => $combineData->party,
             'listProfileIds' => $listProfileIds
             ]);
@@ -240,7 +242,7 @@ class ListProfileController extends Controller
 
     public function updateListCombine( SubmitListCombineRequest $request ) {
 
-        $this->combineService->updateCombine( $request->input('id') , $request->input('combineName') , $request->input('selectedProfiles') );
+        $this->combineService->updateCombine( $request->all() );
 
         Flash::success( 'List combine was successfully updated.' );
 
@@ -257,4 +259,7 @@ class ListProfileController extends Controller
         return response()->json( [ 'status' => true , 'id' => $newId ] );
     }
 
+    public function getFirstPartyListCombines(){
+        return response()->json( $this->combineService->getFirstPartyListCombines() );
+    }
 }

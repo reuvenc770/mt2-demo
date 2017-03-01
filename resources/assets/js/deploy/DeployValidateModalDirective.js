@@ -6,7 +6,8 @@ mt2App.directive( 'deployValidateModal' , function () {
         "bindToController" : {
             "records" : "=",
             "massUpload" : "&",
-            "uploadErrors" : "="
+            "uploadErrors" : "=",
+            "closeModal" : "&"
         } ,
         "templateUrl" : "js/templates/deploy-validate-modal.html"
     };

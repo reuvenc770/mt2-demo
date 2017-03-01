@@ -14,6 +14,13 @@
             <div class="form-group">
                 <label>Source URL</label>
                 <input placeholder="Source URL" value="" class="form-control" ng-model="source.search.source_url" name="source_url" type="text">
+                <div class="has-error">
+                    <div class="help-block" ng-show="source.formErrors.source_url">
+                        <div ng-repeat="error in source.formErrors.source_url">
+                            <div ng-bind="error"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="form-group">
@@ -96,7 +103,11 @@
             </div>
         </div>
         <div class="panel-footer">
+            <div class="row">
+            <div class="col-md-offset-4 col-md-4">
                 <input class="btn mt2-theme-btn-primary btn-block" ng-click="source.searchSourceUrl()" ng-disabled="source.isSearching" type="submit" value="Search">
+            </div>
+            </div>
         </div>
     </div>
 

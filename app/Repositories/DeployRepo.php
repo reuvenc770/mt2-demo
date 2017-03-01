@@ -58,12 +58,13 @@ class DeployRepo implements Mt2Export
                 'creatives.status as creative_status','subjects.is_approved as subject_approval',
                 'subjects.status as subject_status','froms.is_approved as from_approval',
                 'froms.status as from_status',
-                'notes');
+                'notes')
+            ->where('deploys.mailing_domain_id','<>',0)
+            ->where('deploys.content_domain_id','<>',0);
 
         if('' !== $searchData) {
             $query = $this->mapQuery($searchData, $query);
         }
-        $query->orderBy('deploy_id', 'desc');
         return $query;
     }
 
@@ -127,7 +128,7 @@ class DeployRepo implements Mt2Export
     {
         $errors = array();
         //deploy_id
-        if($deploy['deploy_id'] != 0) {
+        if(isset($deploy['deploy_id']) && $deploy['deploy_id'] != 0) {
             if (isset($deploy['deploy_id'])) {
                 $count = DB::select("Select count(*) as count from deploys where id = :id", ['id' => $deploy['deploy_id']])[0];
                 if ($count->count == 0) {
@@ -194,6 +195,10 @@ class DeployRepo implements Mt2Export
             $query->whereBetween('deploys.send_date',$dates);
         }
 
+        if (isset($searchData['listProfileParty'])) {
+            $query->where('deploys.party' , $searchData['listProfileParty'] );
+        }
+
         return $query;
     }
 
@@ -245,8 +250,8 @@ class DeployRepo implements Mt2Export
         if (isset($deploy['send_date'])) {
             // exclude_days is a 7 char string of Y/N
             $days = DB::select("Select exclude_days from offers where id = :id", ['id' => $deploy['offer_id']])[0];
-            // value below is 0-indexed with Sun as 0 and Sat as 6
-            $dayOfWeek = Carbon::parse($deploy['send_date'])->dayOfWeek;
+            // value below is 0-indexed with Monday as 0 and Sunday as 6
+            $dayOfWeek = date('N',$deploy['send_date']) - 1;
             // 'N' means that the offer is not excluded and can be mailed
             if ($days->exclude_days[$dayOfWeek] !== 'N'){
                 $errors[] = "Offer cannot be deployed on this day";
@@ -322,7 +327,7 @@ class DeployRepo implements Mt2Export
         //list profile for now commented out
         if($copyToFutureBool){
             $lpSchema = config('database.connections.list_profile.database');
-            
+
             if (isset($deploy['list_profile_combine_id'])) {
                 $count = DB::select("Select count(*) as count from $lpSchema.list_profile_combines where id = :id", ['id' => $deploy['list_profile_combine_id']])[0];
                 if ($count->count == 0) {
@@ -370,7 +375,7 @@ class DeployRepo implements Mt2Export
         }
 
         if (isset($deploy['url_format'])) {
-            $options = ['new',"old","gmail"];
+            $options = ['long',"short","encrypt"];
             if(!in_array($deploy['url_format'],$options)){
                 $errors[] = "Url Format is wrong";
             }
@@ -391,8 +396,7 @@ class DeployRepo implements Mt2Export
         return $this->deploy->
         join("{$lpDB}.list_profile_list_profile_combine as lplpc","deploys.list_profile_combine_id", "=", "lplpc.list_profile_combine_id")
             ->where("offer_id",$offerId)
-            ->where("list_profile_id", $listProfileId)
-            ->where("send_date", DB::raw("CURDATE()"))->get();
+            ->where("list_profile_id", $listProfileId)->get();
     }
 
 
@@ -439,7 +443,7 @@ class DeployRepo implements Mt2Export
             DISTINCT feed_id
         FROM
             deploys d
-            INNER JOIN $lpSchema.list_profile_list_profile_combine lplpc ON d.list_profile_combine_id = lplpc.list_profile_combine_id 
+            INNER JOIN $lpSchema.list_profile_list_profile_combine lplpc ON d.list_profile_combine_id = lplpc.list_profile_combine_id
             INNER JOIN $lpSchema.list_profile_feeds lpf ON lplpc.list_profile_combine_id = lpf.list_profile_id
         WHERE
             d.id = ?", [$deployId]);

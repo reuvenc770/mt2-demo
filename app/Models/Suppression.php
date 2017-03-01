@@ -4,6 +4,33 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * App\Models\Suppression
+ *
+ * @property int $id
+ * @property string $email_address
+ * @property int $type_id
+ * @property int $esp_account_id
+ * @property int $esp_internal_id
+ * @property string $date
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property int $reason_id
+ * @property-read \App\Models\Email $email
+ * @property-read \App\Models\EspAccount $espAccount
+ * @property-read \App\Models\StandardReport $standardReport
+ * @property-read \App\Models\SuppressionReason $suppressionReason
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Suppression whereCreatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Suppression whereDate($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Suppression whereEmailAddress($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Suppression whereEspAccountId($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Suppression whereEspInternalId($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Suppression whereId($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Suppression whereReasonId($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Suppression whereTypeId($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Suppression whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Suppression extends Model
 {
     CONST TYPE_UNSUB = 1;

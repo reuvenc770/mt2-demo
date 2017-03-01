@@ -162,7 +162,10 @@ class EspApiAccountService
     public function toggleRow($id, $direction){
         return $this->espRepo->toggleRow($id, $direction);
     }
-
+    
+    public function toggleSuppression($id, $enableSuppression){
+        return $this->espRepo->toggleSuppression($id, $enableSuppression);
+    }
     public function getEspAccountIdFromName($name)
     {
         try {

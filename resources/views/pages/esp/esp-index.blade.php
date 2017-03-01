@@ -50,7 +50,7 @@
                                 <span flow-init="{ target : 'api/attachment/upload' , query : { 'fromPage' : 'csvuploads' , '_token' : '{{ csrf_token() }}' } }"
                                     flow-files-submitted="$flow.upload()"
                                     flow-file-success="esp.fileUploaded($file, record.name); $flow.cancel()" flow-btn>
-                                    <md-icon md-font-set="material-icons" class="mt2-icon-black" style="cursor:pointer;" data-toggle="tooltip" data-placement="bottom" title="Upload File">file_upload</md-icon>
+                                    <md-icon md-font-set="material-icons" class="mt2-icon-black" style="cursor:pointer;" data-toggle="tooltip" data-placement="bottom" title="Do not include the header line, and please only use CSV or TXT">file_upload</md-icon>
                                     <input type="file" style="visibility: hidden; position: absolute;"/>
                                 </span>
                             @endif
@@ -69,7 +69,7 @@
             <tfoot>
                 <tr>
                     <td colspan="9">
-                        <md-content class="md-mt2-zeta-theme md-hue-2">
+                        <md-content class="md-mt2-zeta-theme">
                             <md-table-pagination md-limit="esp.paginationCount" md-limit-options="esp.paginationOptions" md-page="esp.currentPage" md-total="@{{esp.accountTotal}}" md-on-paginate="esp.loadAccounts" md-page-select></md-table-pagination>
                         </md-content>
                     </td>

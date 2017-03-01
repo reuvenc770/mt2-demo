@@ -37,12 +37,20 @@ mt2App.service( 'EspApiService' , [ 'paginationService' , '$http' , '$log' , fun
             "url" : this.baseApiUrl + '/' + account.id ,
             "data" : request
         } ).then( successCallback , failureCallback );
-    }
+    };
     self.toggleRow = function ( recordId, direction, successCallback, failureCallback ) {
         $http( {
             "method" : "DELETE" ,
             "url" : this.baseApiUrl + '/' + recordId,
             "params" : { "direction" : direction }
+        } ).then( successCallback , failureCallback );
+    };
+
+    self.toggleSuppression = function ( recordId,toggle, successCallback, failureCallback ) {
+        $http( {
+            "method" : "DELETE" ,
+            "url" : this.baseApiUrl + '/' + recordId,
+            "params" : { "toggleSuppression" : toggle }
         } ).then( successCallback , failureCallback );
     };
 

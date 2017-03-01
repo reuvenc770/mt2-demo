@@ -27,15 +27,16 @@ class AWeberEmailActionsService
     }
 
     public function queueDeliverable ( $recordType , $email , $espId , $deployId, $espInternalId , $date ) {
-            $this->records []= [
-                'recordType' => $recordType ,
-                'email' => $this->getEmailId($email) ,
+        if($this->getEmailId($email) != "one") { //aweber sometimes will have an action that does not have a user
+            $this->records [] = [
+                'recordType' => $recordType,
+                'email' => $this->getEmailId($email),
                 'deployId' => $deployId,
-                'espId' => $espId ,
-                'espInternalId' => $espInternalId ,
+                'espId' => $espId,
+                'espInternalId' => $espInternalId,
                 'date' => $date
             ];
-
+        }
             if (self::MAX_RECORD_COUNT <= sizeof($this->records)) {
                 $this->massRecordDeliverables();
             }
@@ -44,7 +45,6 @@ class AWeberEmailActionsService
 
     public function massRecordDeliverables () {
         $count = count($this->records);
-
         try {
             $this->repo->massRecordDeliverables($this->records);
         } catch (\Exception $e) {
@@ -69,5 +69,9 @@ class AWeberEmailActionsService
       return $this->subRepo->getByInternalId($internalId);
     }
 
-    
+    public function getEmailAddressById($id)
+    {
+        return $this->subRepo->getByInternalId($id);
+    }
+
 }

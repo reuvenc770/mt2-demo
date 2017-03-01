@@ -15,6 +15,7 @@ use App\Services\AWeberReportService;use DaveJamesMiller\Breadcrumbs\Exception;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Models\ActionType;
+use Cache;
 class Inspire extends Command
 {
     use DispatchesJobs;

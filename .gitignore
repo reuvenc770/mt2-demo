@@ -4,6 +4,7 @@
 /public/js/min/*.*
 /public/js/templates/*.*
 /public/app.js
+/public/fonts
 /node_modules
 Homestead.yaml
 Homestead.json

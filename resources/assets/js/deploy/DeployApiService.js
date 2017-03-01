@@ -1,4 +1,4 @@
-mt2App.service( 'DeployApiService' , function ( $http , $log ) {
+mt2App.service( 'DeployApiService' , [ 'paginationService' , '$http' , function ( paginationService , $http , $log ) {
     var self = this;
 
     self.baseApiUrl = '/api/deploy/';
@@ -12,19 +12,23 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
     self.cfsUrl = '/api/cfs/';
 
 
-    self.getDeploys = function ( page , count , type, data, successCallback , failureCallback ) {
+    self.getDeploys = function ( page , count , sortField , type, data, successCallback , failureCallback ) {
+        var sort = paginationService.sortPage( sortField );
+
         return $http( {
             "method" : "GET" ,
             "url" : self.pagerApiUrl ,
-            "params" : { "page" : page , "count" : count, "type": type, "data" : data }
+            "params" : { "page" : page , "count" : count, "sort" : sort , "type": type, "data" : data }
         } ).then( successCallback , failureCallback );
     };
 
-    self.searchDeploys = function ( count , data, successCallback , failureCallback ) {
+    self.searchDeploys = function ( count , sortField , data, successCallback , failureCallback ) {
+        var sort = paginationService.sortPage( sortField );
+
         return $http( {
             "method" : "GET" ,
             "url" : self.pagerApiUrl ,
-            "params" : { "page" : 1 , "count" : count, "data" : data }
+            "params" : { "page" : 1 , "count" : count, "sort" : sort , "data" : data }
         } ).then( successCallback , failureCallback );
     };
 
@@ -40,6 +44,11 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
 
     self.getListProfiles = function (successCallback, failCallBack){
         $http( { "method" : "GET" , "url" : this.listProfileUrl } )
+            .then( successCallback , failCallBack );
+    };
+
+    self.getFirstPartyListProfiles = function (successCallback, failCallBack){
+        $http( { "method" : "GET" , "url" : this.listProfileUrl + '/firstparty' } )
             .then( successCallback , failCallBack );
     };
 
@@ -64,11 +73,11 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
         } ).then( successCallback , failCallback );
     };
 
-    self.getOffersSearch = function ( searchText , successCallback , failCallback ) {
+    self.offerDaySearch = function ( day , successCallback , failCallback ) {
         $http( {
             "method" : "GET" ,
             "url" : this.offerSearchUrl ,
-            "params" : {searchTerm : searchText}
+            "params" : {day : day}
         } ).then( successCallback , failCallback );
     };
 
@@ -152,5 +161,5 @@ mt2App.service( 'DeployApiService' , function ( $http , $log ) {
             "data" : {deploy_ids: deployIds, "future_date": date}
         } ).then( successCallback , failureCallback );
     };
-});
+} ] );
 

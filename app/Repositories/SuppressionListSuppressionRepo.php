@@ -3,9 +3,10 @@
 namespace App\Repositories;
 
 use App\Models\SuppressionListSuppression;
+use App\Repositories\RepoInterfaces\IAwsRepo;
 use DB;
 
-class SuppressionListSuppressionRepo {
+class SuppressionListSuppressionRepo implements IAwsRepo{
 
     private $model;
 
@@ -41,6 +42,33 @@ class SuppressionListSuppressionRepo {
             'lower_case_md5' => $lowerMd5,
             'upper_case_md5' => $upperMd5
         ]);
+    }
+
+    public function extractForS3Upload($stopPoint)
+    {
+        return $this->model->whereRaw("id > $stopPoint");
+    }
+
+    public function mapForS3Upload($row)
+    {
+        $pdo = DB::connection('redshift')->getPdo();
+        return $pdo->quote($row->id) . ','
+        . $pdo->quote($row->suppression_list_id) . ','
+        . $pdo->quote($row->email_address) . ','
+        . $pdo->quote($row->lower_case_md5) . ','
+        . $pdo->quote($row->upper_case_md5) . ','
+        . $pdo->quote($row->created_at) . ','
+        . $pdo->quote($row->updated_at);
+    }
+
+    public function extractAllForS3()
+    {
+        return $this->model;
+    }
+
+    public function getConnection()
+    {
+        return $this->model->getConnection();
     }
 
 }

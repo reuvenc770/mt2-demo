@@ -31,7 +31,7 @@
                 </thead>
 
                 <tbody md-body>
-                    <tr md-row ng-repeat="record in esp.accounts track by $index">
+                    <tr md-row ng-repeat="record in esp.accounts track by $index" ng-class="{  'bg-danger' : record.enable_suppression == 0 }">
                         <td md-cell class="mt2-table-btn-column">
                             <div layout="row" layout-align="center center">
                                 <a ng-href="@{{ '/espapi/edit/' + record.id }}" target="_self" aria-label="Edit" data-toggle="tooltip" data-placement="bottom" title="Edit">
@@ -39,10 +39,17 @@
                                 </a>
                                 <md-icon ng-if="record.status == 1" ng-click="esp.toggle( record.id , 2 )" aria-label="Deactivate 30 Days from now"
                                          md-font-set="material-icons" class="mt2-icon-black"
-                                         data-toggle="tooltip" data-placement="bottom" title="Deactivate">pause</md-icon>
+                                         data-toggle="tooltip" data-placement="bottom" title="Deactivate 30 Days from now">stop</md-icon>
                                 <md-icon ng-if="record.status == 0" ng-click="esp.toggle(record.id, 1 )" aria-label="Activate"
                                          md-font-set="material-icons" class="mt2-icon-black"
                                          data-toggle="tooltip" data-placement="bottom" title="Activate">play_arrow</md-icon>
+                                <md-icon ng-if="record.enable_suppression" ng-click="esp.toggleSuppression(record.id, 0 )" aria-label="Disable Suppression"
+                                         md-font-set="material-icons" class="mt2-icon-black"
+                                         data-toggle="tooltip" data-placement="bottom" title="Pause">pause_circle_outline</md-icon>
+                                <md-icon ng-if="!record.enable_suppression" ng-click="esp.toggleSuppression(record.id, 1 )" aria-label="Enable Suppression"
+                                         md-font-set="material-icons" class="mt2-icon-black"
+                                         data-toggle="tooltip" data-placement="bottom" title="Unpause">play_circle_outline</md-icon>
+                            </div>
                             </div>
                         </td>
                         <td md-cell ng-switch="record.status" class="mt2-table-cell-center" ng-class="{ 'bg-success' : record.status == 1 , 'bg-danger' : record.status == 0 }">
@@ -63,7 +70,7 @@
                 <tfoot>
                     <tr>
                         <td colspan="8">
-                            <md-content class="md-mt2-zeta-theme md-hue-2">
+                            <md-content class="md-mt2-zeta-theme">
                                 <md-table-pagination md-limit="esp.paginationCount" md-limit-options="esp.paginationOptions" md-page="esp.currentPage" md-total="@{{esp.accountTotal}}" md-on-paginate="esp.loadAccounts" md-page-select></md-table-pagination>
                             </md-content>
                         </td>
