@@ -54,9 +54,9 @@ class BuildAndSendReportCard extends Job implements ShouldQueue
         }
 
         Mail::send('emails.deploySuppression', $mailObject, function ($message) use ($mailObject) {
-            //$toEmail = $mailObject['warning'] ? self::EMERGENCY_MAIL : self::DEFAULT_MAIL;
-           // $message->to($toEmail);
-            $message->to("cunninghamx@gmail.com");
+            $toEmail = $mailObject['warning'] ? self::EMERGENCY_MAIL : self::DEFAULT_MAIL;
+            $message->to($toEmail);
+            $message->to("gtdev@zetaglobal.com");
             $subject = $mailObject['warning'] ? "ALERT " : "";
             $subject = "{$subject} Deploy Suppression Report for {$mailObject['owner']}";
             $message->subject($subject);
