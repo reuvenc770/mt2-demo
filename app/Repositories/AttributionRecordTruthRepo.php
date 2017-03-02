@@ -187,6 +187,6 @@ class AttributionRecordTruthRepo {
     }
 
     public function getTableName() {
-        return config('database.connections.attribution.database') . '.' . $this->truth->getTable();
+        return config('database.connections.attribution.database') . '.' . $this->model->getTable();
     }
 }
