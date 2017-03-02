@@ -69,6 +69,7 @@ mt2App.controller( 'BulkSuppressionController' , [ '$scope' , '$log' , '$timeout
         self.file = file.relativePath;
 
         BulkSuppressionApiService.transferFiles(
+            self.suppressionReasonCode ,
             self.fileTransferSuccessCallback,
             self.fileTransferFailureCallback
         );

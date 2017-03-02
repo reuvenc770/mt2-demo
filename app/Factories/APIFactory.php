@@ -29,6 +29,8 @@ use App\Models\RecordData;
 use App\Repositories\EmailRecordRepo;
 use App\Services\EmailRecordService;
 
+use GuzzleHttp\Client;
+
 /**
  * Create different Services for APIS
  * Class APIFactory
@@ -129,4 +131,7 @@ class APIFactory
         return new StandardReportService($standardReportRepo);
     }
 
+    public static function createSharedCookieGuzzleClient () {
+        return new Client( [ 'cookies' => true ] );
+    }
 }

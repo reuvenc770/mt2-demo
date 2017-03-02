@@ -12,6 +12,7 @@ use Laracasts\Flash\Flash;
 use App\Facades\Suppression;
 use App\Http\Controllers\Controller;
 use App\Services\MT1ApiService;
+use App\Services\SuppressionService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Event;
 
@@ -19,13 +20,15 @@ class BulkSuppressionController extends Controller
 {
 
     protected $api;
+    protected $suppServ;
     protected $emailService;
-    const BULK_SUPPRESSION_API_ENDPOINT = 'bulk_suppressions';
+    const BULK_SUPPRESSION_API_ENDPOINT = 'bulk_suppress_save';
 
 
-    public function __construct(MT1ApiService $api, EmailRecordService $recordService)
+    public function __construct(MT1ApiService $api, SuppressionService $suppServ , EmailRecordService $recordService)
     {
         $this->api = $api;
+        $this->suppServ = $suppServ;
         $this->emailService = $recordService;
     }
 
@@ -61,26 +64,24 @@ class BulkSuppressionController extends Controller
         $dateFolder = date('Ymd');
         $path = storage_path() . "/app/files/uploads/bulksuppression/$dateFolder/";
         $files = scandir($path);
+        $legacyReason = $this->suppServ->getLegacyReasonFormValueFromReasonId( $request->input( 'reason' ) );
 
-        $user = config('ssh.servers.mt1_file_upload.username');
-        $host = config('ssh.servers.mt1_file_upload.host');
-        $pass = config('ssh.servers.mt1_file_upload.password');
-        $port = config('ssh.servers.mt1_file_upload.port');
-        $remoteDir = config('ssh.servers.mt1_file_upload.remote_dir');
+        foreach ($files as $fileName) {
+            if (!preg_match('/^\./', $fileName)) {
+                $file = $path . $fileName;
 
-        $conn = ssh2_connect($host, $port);
-        \ssh2_auth_password($conn, $user, $pass);
+                $this->api->postFormWithFile( self::BULK_SUPPRESSION_API_ENDPOINT , [
+                    "name" => "suppfile" , 
+                    "filename" => $fileName , 
+                    "suppressionReasonCode" => $legacyReason ,
+                ] , $file );
 
-        foreach ($files as $file) {
-            if (!preg_match('/^\./', $file)) {
-                $filename = $path . $file;
-                $fs[] = $filename;
-                $result = \ssh2_scp_send($conn, $filename, $remoteDir . $file); // returns a bool
-                if (!$result) {
-                    $failed[]= $file;
-                }
+                Event::fire(new BulkSuppressionFileWasUploaded(
+                    $request->input( 'reason' ) ,
+                    $fileName ,
+                    date('Ymd')
+                ));
             }
-
         }
 
         return $failed;
@@ -120,24 +121,36 @@ class BulkSuppressionController extends Controller
         $type = 'eid';
         $records = $request->input('emails');
         $reason = $request->input('suppressionReasonCode');
+        $emails = [];
+
         if (preg_match("/@+/", $records)) $type = 'email';
         if(!empty($records)) {
             if ($type == "email") {
                 foreach (explode(',', $records) as $record) {
+                    $emails[] = $record;
+
                     Suppression::recordSuppressionByReason($record, Carbon::today()->toDateTimeString(), $reason);
                 }
             } else {
                 foreach (explode(',', $records) as $record) {
                     $email = $this->emailService->getEmailAddress($record);
+
+                    $emails[] = $email;
+
                     Suppression::recordSuppressionByReason($email, Carbon::today()->toDateTimeString(), $reason);
                 }
             }
         }
-        if (!empty($reason)) {
-            Event::fire(new BulkSuppressionFileWasUploaded($reason, $request->input('suppfile'), date('Ymd')));
-        }
-        return response($this->api->getJSON(self::BULK_SUPPRESSION_API_ENDPOINT,
-            $request->all()));
+
+        $legacyReason = $this->suppServ->getLegacyReasonFormValueFromReasonId( $reason );
+
+        $response = $this->api->postFormWithFile( self::BULK_SUPPRESSION_API_ENDPOINT , [
+            "name" => "suppfile" , 
+            "filename" => "mt1_manual_textarea.txt" , 
+            "suppressionReasonCode" => $legacyReason ,
+        ] , implode( '|' , $emails ) );
+
+        return response()->json( [ 'status' => true ] , 200 );
     }
 
     /**
