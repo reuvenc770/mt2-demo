@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\MT1ApiService;
 use App\Http\Requests;
-
+use Laracasts\Flash\Flash;
 class DataExportController extends Controller
 {
     protected $api;

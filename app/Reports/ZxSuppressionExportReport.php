@@ -37,6 +37,7 @@ class ZxSuppressionExportReport {
 
             $writer = Writer::createFromFileObject(new \SplTempFileObject());
 
+            //TODO getDelimiter() is not set;
             $writer->setDelimiter( $this->formatStrategy->getDelimiter() );
 
             foreach ($unsubs as $row) {

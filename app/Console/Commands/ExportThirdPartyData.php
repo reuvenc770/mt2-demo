@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Console\Traits\PreventOverlapping;
 use App\Repositories\EtlPickupRepo;
-
+use App\Jobs\ExportRecordsJob;
 class ExportThirdPartyData extends Command
 {
 

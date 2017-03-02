@@ -53,6 +53,8 @@ class InsertChunksUtil extends Command
             $this->dispatch($job);
         }
         else {
+            $from = $this->argument('from');
+            $to = $this->argument('to');
             echo "InsertChunks job for $from to $to already running" . PHP_EOL;
         }
 

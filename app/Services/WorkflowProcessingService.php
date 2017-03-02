@@ -4,7 +4,7 @@ namespace App\Services;
 use App\Repositories\EmailActionsRepo;
 use App\Repositories\EspWorkflowStepRepo;
 use App\Services\MT1SuppressionService;
-
+use App\Services\Interfaces\ISuppressionProcessingStrategy;
 class WorkflowProcessingService {
     
     private $actionsRepo;
@@ -34,6 +34,7 @@ class WorkflowProcessingService {
             // Run these against all suppression lists
             foreach ($offerIds as $offerId) {
                 if ($this->suppService->isSuppressed($emailAddress, $offerId)) {
+                    //TODO This is looking for an object of sorts.
                     $this->processingStrategy->processSuppression($record);
                 }
             }                    

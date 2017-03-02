@@ -126,6 +126,7 @@ class RegistrarController extends Controller
     }
 
     public function tryToDelete($id){
+        //TODO Registrar is not set. 
         $canBeDeleted =  $this->registrar->canBeDeleted($id);
         if($canBeDeleted === true){
             $this->registrar->delete($id);

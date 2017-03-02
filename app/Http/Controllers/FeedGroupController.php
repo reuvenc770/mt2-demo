@@ -25,10 +25,13 @@ class FeedGroupController extends Controller
      */
     public function index()
     {
+        //TODO SERVICE IS NO set and feedServiceGroup does not seem like the right one
         return response()->json( $this->service->getAll() );
     }
 
     public function paginateSearch ( Request $request ) {
+        //TODO SERVICE IS NO set and feedServiceGroup does not seem like the right one
+
         $groupCollection = collect( $this->service->search( $request->input( 'query' ) ) );
 
         $queryChunk = $groupCollection->forPage( $request->input( 'page' ) , 20 );
@@ -60,7 +63,7 @@ class FeedGroupController extends Controller
     {
         Flash::success( 'Feed Group was successfully created.' );
 
-        return response()->json( [ "id" => $this->saveFeedGroup( $request ) ] );;
+        return response()->json( [ "id" => $this->saveFeedGroup( $request ) ] );
     }
 
     protected function saveFeedGroup ( $request ) {

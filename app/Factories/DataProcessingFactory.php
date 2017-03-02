@@ -45,10 +45,7 @@ class DataProcessingFactory {
 
             case('CheckDeployStats'):
                 return self::createCheckDeployStatsService();
-
-            case('PublicatorsActions'):
-                return self::createPublicatorsActionService();
-
+            
             case('ProcessCfsStats'):
                 return self::createProcessCfsStatsService();
 
@@ -253,13 +250,7 @@ class DataProcessingFactory {
         $rerunRepo = new \App\Repositories\DeployRecordRerunRepo($rerun);
         return new CheckDeployService($actionsRepo, $rerunRepo);
     }
-
-    private static function createPublicatorsActionService() {
-        $actions = new EmailAction();
-        $actionsRepo = new EmailActionsRepo($actions);
-        return new \App\Services\PublicatorsActionService($actionsRepo, $actionsRepo);
-    }
-
+    
     private static function createProcessCfsStatsService() {
         $deploy = new Deploy();
         $deployRepo = new DeployRepo($deploy);

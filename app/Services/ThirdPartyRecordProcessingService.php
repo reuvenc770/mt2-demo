@@ -2,6 +2,7 @@
 
 namespace App\Services;
 use App\DataModels\ProcessingRecord;
+use App\Models\ThirdPartyEmailStatus;
 use App\Repositories\EmailRepo;
 use App\Repositories\AttributionLevelRepo;
 use App\Repositories\FeedDateEmailBreakdownRepo;
@@ -97,6 +98,7 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
 
         $this->latestDataRepo->insertStored();
         $this->emailStatusRepo->insertStored();
+        //TODO massUpdateValidEmailStatus only has 1 param
         $this->statsRepo->massUpdateValidEmailStatus($statuses, $this->processingDate);
 
         // Handles all attribution changes

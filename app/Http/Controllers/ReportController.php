@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 
 use App\Http\Requests;
-use App\Http\Requests\SaveAmpReportRequest;
 use Laracasts\Flash\Flash;
 use Carbon\Carbon;
 
@@ -61,11 +60,11 @@ class ReportController extends Controller
     protected function buildCollection () {
         $this->reportType = $this->currentRequest->input( 'type' );
 
-        $className = "\App\Collections\\" . $this->reportType . "ReportCollection";
+        $className = '\App\Collections\\' . $this->reportType . "ReportCollection";
 
         $this->collection = \App::make( $className );
 
-        $this->collection->config( $this->getQueryFromRequest( $this->currentRequest ) );
+        $this->collection->config( $this->getQueryFromRequest() );
     }
 
     protected function getQueryFromRequest () {

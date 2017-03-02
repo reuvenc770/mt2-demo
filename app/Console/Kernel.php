@@ -195,7 +195,7 @@ class Kernel extends ConsoleKernel
         /**
          *  Deactivation jobs
          */
-        $schedule->command('deactivate:espAccounts')->daily(self::REPORT_TIME);
+        $schedule->command('deactivate:espAccounts')->dailyAt(self::REPORT_TIME);
 
 
         /**

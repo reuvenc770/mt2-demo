@@ -8,8 +8,6 @@
 
 namespace App\Services;
 
-
-use App\Events\NewDeployWasCreated;
 use App\Facades\EspApiAccount;
 use App\Repositories\DeployRepo;
 use App\Repositories\ListProfileCombineRepo;

@@ -25,7 +25,6 @@ use App\Models\ActionType;
 use App\Models\EmailDomain;
 use App\Models\DomainGroup;
 use App\Models\EmailFeedInstance;
-use App\Models\RecordData;
 use App\Repositories\EmailRecordRepo;
 use App\Services\EmailRecordService;
 
