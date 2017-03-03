@@ -139,7 +139,10 @@ class EmailFeedAssignmentRepo implements IAwsRepo, ICanonicalDataSource {
         return $this->model->whereRaw("updated_at > CURDATE() - INTERVAL 10 DAY");
     }
 
-    public function specialExtract($data) {}
+    public function specialExtract(array $data) {
+        $feeds = implode(',', $data);
+        return $this->model->whereRaw("feed_id in ($feeds)");
+    }
 
 
     public function mapForS3Upload($row) {

@@ -211,6 +211,8 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                         "other_fields", 'email_attributable_feed_latest_data.created_at', 'efa.updated_at');
     }
 
+    public function specialExtract($data) {}
+
     public function mapForS3Upload($row) {
         $pdo = DB::connection('redshift')->getPdo();
         

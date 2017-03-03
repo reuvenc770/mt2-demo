@@ -152,6 +152,7 @@ class ListProfileFlatTableRepo implements IAwsRepo {
         return $this->flatTable->whereRaw("date > CURDATE() - INTERVAL 10 DAY");
     }
 
+    public function specialExtract($data) {}
 
     public function mapForS3Upload($row) {
         $pdo = DB::connection('redshift')->getPdo();
