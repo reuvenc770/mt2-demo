@@ -36,4 +36,14 @@ SQL;
         DB::connection('redshift')->statement($sql);
 
     }
+
+    public function getCount($maxLookback) {
+        return $this->model
+                    ->whereRaw("created_at <= current_date - interval '$maxLookback DAY'")
+                    ->count();
+    }
+
+    public function insertIfNotNew(array $row) {
+        $this->model->updateOrCreate(['email_address' => $row['email_address']], $row);
+    }
 }
