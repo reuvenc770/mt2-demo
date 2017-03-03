@@ -162,4 +162,36 @@ class ServiceFactory
 
         return new \App\Services\DataValidationService($canonicalDataRepo, App::make(\App\Repositories\EtlPickupRepo::class), $checkRepos);
     }
+
+
+    public static function createRedshiftValidator($entity) {
+        if ('RecordData' === $entity) {
+            // Keeping the redshift schema the same
+            // but there's been a big schema change on our side
+            $cmpRepo =  App::make("App\\Repositories\\EmailAttributableFeedLatestDataRepo");
+        }
+        else {
+            $cmpRepo =  App::make("App\\Repositories\\{$entity}Repo");
+        }
+
+        $redshiftRepo = App::make("App\\Repositories\\RedshiftRepositories\\{$entity}Repo");
+
+        $testingStrategy = '';
+
+        if ('SuppressionGlobalOrange' === $entity || 'SuppressionListSuppression') {
+            $testingStrategy = $entity;
+        }
+        elseif (in_array($entity, ['Client', 'DomainGroup', 'EmailDomain', 'Feed'])) {
+            // Small enough that we can be exact and check row-by-row
+            $testingStrategy = 'Exact';
+        }
+        else {
+            // More sophisticated and per-entity testing
+            $testingStrategy = $entity;
+        }
+
+        $testingStrategy = "App\\Services\\RedshiftDataValidationStrategies\\{$testingStrategy}RedshiftDataValidation";
+
+        return new $testingStrategy($cmpRepo, $redshiftRepo);
+    }
 }
