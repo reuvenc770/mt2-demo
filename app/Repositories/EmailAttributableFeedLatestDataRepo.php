@@ -300,4 +300,42 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
         }
     }
 
+    public function getMinAndMaxIds() {
+        $min = $this->model->min('email_id');
+        $max = $this->model->max('email_id');
+        return [$min, $max];
+    }
+
+    public function get($emailId) {
+        $attrSchema = config('database.connections.attribution.database');
+        return $this->model
+                    ->join("$attrSchema.email_feed_assignments as efa", function($join) {
+                        $join->on('email_attributable_feed_latest_data.email_id', '=', 'efa.email_id');
+                        $join->on('email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id');
+                    })
+                    ->join('third_party_email_statuses as tpe', 'email_attributable_feed_latest_data.email_id', '=', 'tpe.email_id')
+                    ->whereRaw("efa.email_id = $emailId")
+                    ->selectRaw("efa.email_id, IF(tpes.last_action_type = 'None', 1, 0) as is_deliverable")
+                    ->first();
+    }
+
+    public function getAttributionDist() {
+
+        /**
+            This will not be fun
+        */
+        $output = [];
+
+        $result = $this->model
+                    ->selectRaw('feed_id, COUNT(*) as total')
+                    ->groupBy('feed_id')
+                    ->get();
+
+        foreach($result as $row) {
+            $output[$row->feed_id] = $row->total;
+        }
+
+        return $output;
+    }
+
 }

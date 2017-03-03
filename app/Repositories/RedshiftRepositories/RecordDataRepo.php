@@ -43,4 +43,15 @@ SQL;
     public function clearAndReloadEntity($entity) {
         $this->loadEntity($entity);
     }
+
+    public function matches($obj) {
+        $result = $this->model->find($obj->email_id);
+
+        if ($result) {
+            return $result->feed_id === $obj->feed_id;
+        }
+        else {
+            return false;
+        }
+    }
 }
