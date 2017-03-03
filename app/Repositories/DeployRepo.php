@@ -14,6 +14,7 @@ use App\Facades\EspApiAccount;
 use Cache;
 use Carbon\Carbon;
 use App\Repositories\RepoInterfaces\Mt2Export;
+use App\Models\Offer;
 
 # Dependencies for testing
 use App;
@@ -22,10 +23,12 @@ use App\Repositories\EtlPickupRepo;
 class DeployRepo implements Mt2Export
 {
     protected $deploy;
+    protected $offer;
 
-    public function __construct(Deploy $deploy)
+    public function __construct(Deploy $deploy , Offer $offer)
     {
         $this->deploy = $deploy;
+        $this->offer = $offer;
     }
 
     public function getModel($searchData = null)
@@ -249,11 +252,22 @@ class DeployRepo implements Mt2Export
 
         if (isset($deploy['send_date'])) {
             // exclude_days is a 7 char string of Y/N
-            $days = DB::select("Select exclude_days from offers where id = :id", ['id' => $deploy['offer_id']])[0];
-            // value below is 0-indexed with Monday as 0 and Sunday as 6
-            $dayOfWeek = date('N',$deploy['send_date']) - 1;
+            $result = $this->offer->where('id', $deploy['offer_id'] );
+            $days = $result->count() > 0 ? $result->first() : null;
+
+            try {
+                // value below is 0-indexed with Monday as 0 and Sunday as 6
+                $dayOfWeek = Carbon::parse( $deploy['send_date'] )->dayOfWeek;
+                $dayOfWeek = ( $dayOfWeek == 0 ? 6 : $dayOfWeek - 1 );
+            } catch ( \Exception $e) {
+                $errors[] = "Send date is invalid.";
+            }
+
+            if ( is_null($days) ){
+                $errors[] = "No offer or exclude days specified.";
+            }
             // 'N' means that the offer is not excluded and can be mailed
-            if ($days->exclude_days[$dayOfWeek] !== 'N'){
+            elseif ($days->exclude_days[$dayOfWeek] !== 'N'){
                 $errors[] = "Offer cannot be deployed on this day";
             }
         } else {

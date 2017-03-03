@@ -8,6 +8,9 @@ use App\Services\DeployService;
 use App\Services\EspService;
 use App\Services\ListProfileCombineService;
 use App\Services\PackageZipCreationService;
+use App\Services\EspApiAccountService;
+use App\Services\MailingTemplateService;
+use App\Services\DomainService;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -19,12 +22,18 @@ class DeployController extends Controller
     protected $deployService;
     protected $packageService;
     protected $combineService;
+    protected $espApiService;
+    protected $mailingTemplateService;
+    protected $domainService;
 
-    public function __construct(DeployService $deployService, PackageZipCreationService $packageService, ListProfileCombineService $combineService)
+    public function __construct(DeployService $deployService, PackageZipCreationService $packageService, ListProfileCombineService $combineService, EspApiAccountService $espApiService, MailingTemplateService $mailingTemplateService, DomainService $domainService )
     {
         $this->deployService = $deployService;
         $this->packageService = $packageService;
         $this->combineService = $combineService;
+        $this->espApiService = $espApiService;
+        $this->mailingTemplateService = $mailingTemplateService;
+        $this->domainService = $domainService;
 
     }
 
@@ -136,9 +145,26 @@ class DeployController extends Controller
             if (count($row['valid']) > 0) {
                 $flag = true;
             }
-            $returnData['rows'][] = $row;
-            $returnData['errors'] = $flag;
 
+            $returnData['rows'][] = [
+                'send_date' => $row['send_date'] ,
+                'esp_account_id' => $this->espApiService->getEspAccountName( $row['esp_account_id'] ) ,
+                'list_profile_combine_id' => $row['list_profile_combine_id'] ,
+                'offer_id' => $row['offer_id'] ,
+                'creative_id' => $row['creative_id'] ,
+                'from_id' => $row['from_id'] ,
+                'subject_id' => $row['subject_id'] ,
+                'template_id' => $this->mailingTemplateService->retrieveTemplate( $row['template_id'] )['template_name'],
+                'mailing_domain_id' => $this->domainService->getDomain( $row['mailing_domain_id'] )['domain_name'],
+                'content_domain_id' => $this->domainService->getDomain( $row['content_domain_id'] )['domain_name'],
+                'cake_affiliate_id' => isset( $row['cake_affiliate_id'] ) ? $row['cake_affiliate_id'] : 'N/A',
+                'encrypt_cake' => $row['encrypt_cake'],
+                'fully_encrypt' => $row['fully_encrypt'] ,
+                'url_format' => $row['url_format'] ,
+                'notes' => isset( $row['notes'] ) ? $row['notes'] : 'N/A',
+                'valid' => $row['valid']
+            ];
+            $returnData['errors'] = $flag;
         }
         return response()->json($returnData);
     }
@@ -180,7 +206,7 @@ class DeployController extends Controller
             }
         } else {
             //more then 1 package selection create the packages on the FTP and kick off the OPS file job
-            foreach ($data as $id) { 
+            foreach ($data as $id) {
                 $reportCard->setNumberOfEntries(count($data));
                 $this->packageService->uploadPackage($id);
                 $deploy = $this->deployService->getDeploy($id);
