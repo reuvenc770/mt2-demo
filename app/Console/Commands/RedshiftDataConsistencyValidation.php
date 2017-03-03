@@ -17,7 +17,7 @@ class RedshiftDataConsistencyValidation extends Command
     protected $signature = 'listprofile:validateRedshift {lookback}';
 
     protected $entities = ['EmailDomain', 'EmailFeedAssignment', 'Email', 'Feed', 'ListProfileFlatTable', 
-    'RecordData', 'SuppressionGlobalOrange', 'DomainGroup', 'Client', 'FirstPartyRecordData', 'SuppressionListSuppression'];
+    'RecordData', 'SuppressionGlobalOrange', 'DomainGroup', 'Client', 'SuppressionListSuppression'];
 
     /**
      * The console command description.
