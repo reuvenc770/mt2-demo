@@ -61,8 +61,6 @@ class EmailRedshiftDataValidation extends AbstractLargeRedshiftDataValidation {
                 $this->badEmailSegments[$segment] = ['cmpCount' => $count, 'rsCount' => 0];
             }
         }
-
-        // What about extras in rs?
     }
 
     protected function isEqual($cmpCount, $redshiftCount) {
