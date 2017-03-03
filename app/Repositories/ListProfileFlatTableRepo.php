@@ -186,4 +186,20 @@ class ListProfileFlatTableRepo implements IAwsRepo {
     public function getConnection() {
         return $this->flatTable->getConnectionName();
     }
+
+    public function getDeploysOnDate($date) {
+        $output = [];
+
+        $deploys = $this->flatTable
+                    ->where('date', $date)
+                    ->selectRaw("DISTINCT(deploy_id) as deploy_id")
+                    ->get()->toArray();
+
+        foreach($deploys as $deployArr) {
+            $output[] = (int)$deployArr['deploy_id'];
+        }
+
+        return $output;
+    }
+
 }
