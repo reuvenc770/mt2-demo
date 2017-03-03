@@ -60,7 +60,7 @@ class FeedGroupController extends Controller
     {
         Flash::success( 'Feed Group was successfully created.' );
 
-        $this->saveFeedGroup( $request );
+        return response()->json( [ "id" => $this->saveFeedGroup( $request ) ] );;
     }
 
     protected function saveFeedGroup ( $request ) {
@@ -70,6 +70,8 @@ class FeedGroupController extends Controller
             'id' => $id ,
             'feeds' => $request->input( 'feeds' )
         ] );
+
+        return $id;
     }
 
     /**

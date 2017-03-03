@@ -35,4 +35,8 @@ format as csv quote as '\'' delimiter as ',';
 SQL;
         DB::connection('redshift')->statement($sql);
     }
+
+    public function getCount() {
+        return $this->model->count();
+    }
 }

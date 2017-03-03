@@ -5,6 +5,7 @@ namespace App\Repositories\RedshiftRepositories;
 use App\Models\RedshiftModels\Email;
 use App\Repositories\RepoInterfaces\IRedshiftRepo;
 use DB;
+use App\Models\Email as CmpEmail;
 
 class EmailRepo implements IRedshiftRepo {
     
@@ -25,6 +26,49 @@ SQL;
     }
 
     public function clearAndReloadEntity($entity) {
-        $this->loadEntity($entity);
+        DB::connection('redshift')->statement("TRUNCATE emails_staging");
+
+        $sql = <<<SQL
+copy emails_staging
+from 's3://mt2-listprofile-export/{$entity}.csv'
+credentials 'aws_iam_role=arn:aws:iam::286457008090:role/redshift-s3-stg'
+format as csv quote as '\'' delimiter as ',';
+SQL;
+        DB::connection('redshift')->statement($sql);
+
+        DB::connection('redshift')->transaction(function() {
+            DB::connection('redshift')->statement("DELETE FROM
+                emails
+            USING
+                emails_staging
+            WHERE
+                emails.id = emails_staging.id");
+
+            DB::connection('redshift')->statement("INSERT INTO emails 
+                SELECT * FROM emails_staging");
+        });
+
+        DB::connection('redshift')->statement("TRUNCATE emails_staging");
+
+    }
+
+    public function matches(CmpEmail $obj) {
+        $result = $this->model->find($obj->id);
+        return $result !== null;
+    }
+
+    public function getDistribution() {
+        $output = [];
+
+        $result = $this->model
+                    ->selectRaw("round(id / 1000000) as million, COUNT(*) as total")
+                    ->groupBy(DB::raw('round(id / 1000000)'))
+                    ->get();
+
+        foreach($result as $row) {
+            $output[$row->million] = $row->total;
+        }
+
+        return $output;
     }
 }

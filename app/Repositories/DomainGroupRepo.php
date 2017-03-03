@@ -65,6 +65,7 @@ class DomainGroupRepo implements IAwsRepo
         return $this->domainGroup;
     }
 
+    public function specialExtract($data) {}
 
     public function mapForS3Upload($row) {
         $pdo = DB::connection('redshift')->getPdo();
@@ -77,5 +78,9 @@ class DomainGroupRepo implements IAwsRepo
 
     public function getConnection() {
         return $this->domainGroup->getConnectionName();
+    }
+
+    public function getCount() {
+        return $this->domainGroup->count();
     }
 }

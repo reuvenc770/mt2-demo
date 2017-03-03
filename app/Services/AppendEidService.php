@@ -58,7 +58,7 @@ class AppendEidService
 
                         if ($includeFields) {
                             $fieldData = $this->recordData->getRecordDataFromEid($emailId);
-                            $fieldData = $fieldData ? $fieldData->toArray() : array_fill(0, 20, '');
+                            $fieldData = $fieldData ? $fieldData->toArray() : array_fill(0, 21, '');
                             $rowResult = array_merge($rowResult, $fieldData);
                         }
 

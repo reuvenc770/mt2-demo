@@ -5,6 +5,7 @@ namespace App\Repositories\RedshiftRepositories;
 use App\Models\RedshiftModels\EmailFeedAssignment;
 use App\Repositories\RepoInterfaces\IRedshiftRepo;
 use DB;
+use App\Models\EmailFeedAssignment as CmpEmailFeedAssignment;
 
 class EmailFeedAssignmentRepo implements IRedshiftRepo {
     
@@ -42,5 +43,31 @@ SQL;
 
     public function clearAndReloadEntity($entity) {
         $this->loadEntity($entity);
+    }
+
+    public function matches(CmpEmailFeedAssignment $obj) {
+        $result = $this->model->find($obj->email_id);
+
+        if ($result) {
+            return $result->feed_id === $obj->feed_id;
+        }
+        else {
+            return false;
+        }
+    }
+
+    public function getAttributionDist() {
+        $output = [];
+
+        $result = $this->model
+                    ->selectRaw('feed_id, COUNT(*) as total')
+                    ->groupBy('feed_id')
+                    ->get();
+
+        foreach($result as $row) {
+            $output[$row->feed_id] = $row->total;
+        }
+
+        return $output;
     }
 }

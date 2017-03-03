@@ -38,7 +38,7 @@
     <select ng-model="domain.currentAccount.registrar" class="form-control" name="registrar" id="registrar">
         <option value="">Please Select a Registrar</option>
         @foreach ( $regs as $reg )
-            <option value="{{ $reg['id'] }}">{{ $reg['name'] }}</option>
+            <option value="{{ $reg['id'] }}">{{ $reg['name'] }} - {{ $reg['username'] }}</option>
         @endforeach
     </select>
     <div class="help-block"  ng-show="domain.formErrors.registrar">
@@ -48,18 +48,18 @@
     </div>
     </div>
 </div>
-<div class="form-group" ng-class="{ 'has-error' : domain.formErrors.proxy_id }" ng-if="domain.type ==2">
+<div class="form-group" ng-class="{ 'has-error' : domain.formErrors.proxy }" ng-if="domain.type ==2">
     <label class="col-sm-2 control-label">Proxy</label>
     <div class="col-sm-10">
     <select name="proxy" id="proxy" class="form-control"
-            ng-model="domain.proxy_id" ng-disabled="domain.updatingAccounts">
+            ng-model="domain.currentAccount.proxy" ng-disabled="domain.updatingAccounts">
         <option value="">Please Select a Proxy</option>
         @foreach ( $proxies as $proxy )
             <option value="{{ $proxy['id'] }}">{{ $proxy['name'] }} &nbsp;-&nbsp; {{ $proxy['ip_addresses'] }}</option>
         @endforeach
     </select>
-    <div class="help-block"  ng-show="domain.formErrors.proxy_id">
-        <div ng-repeat="error in domain.formErrors.proxy_id">
+    <div class="help-block"  ng-show="domain.formErrors.proxy">
+        <div ng-repeat="error in domain.formErrors.proxy">
             <span ng-bind="error"></span>
         </div>
     </div>

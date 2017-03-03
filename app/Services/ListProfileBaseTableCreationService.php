@@ -10,7 +10,7 @@ use Illuminate\Database\Schema\Blueprint;
 class ListProfileBaseTableCreationService {
 
     const BASE_NAME = 'list_profile_export_';
-    private $requiredFields = ['email_id', 'email_address', 'lower_case_md5', 'upper_case_md5'];
+    private $requiredFields = ['email_id', 'email_address', 'lower_case_md5', 'upper_case_md5', 'globally_suppressed'];
     private $repo;
 
     public function __construct() {}

@@ -29,10 +29,14 @@ SQL;
         
         $sql = <<<SQL
 copy email_domains
-from 's3://mt2-listprofile-export/{entity}.csv'
+from 's3://mt2-listprofile-export/{$entity}.csv'
 credentials 'aws_iam_role=arn:aws:iam::286457008090:role/redshift-s3-stg'
 format as csv quote as '\'' delimiter as ',';
 SQL;
         DB::connection('redshift')->statement($sql);
+    }
+
+    public function getCount() {
+        return $this->model->count();
     }
 }

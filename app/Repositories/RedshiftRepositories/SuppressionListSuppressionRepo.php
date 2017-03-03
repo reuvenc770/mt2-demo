@@ -1,16 +1,22 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: codedestroyer
+ * Date: 2/27/17
+ * Time: 3:02 PM
+ */
 
 namespace App\Repositories\RedshiftRepositories;
 
-use App\Models\RedshiftModels\SuppressionGlobalOrange;
-use App\Repositories\RepoInterfaces\IRedshiftRepo;
-use DB;
 
-class SuppressionGlobalOrangeRepo implements IRedshiftRepo {
-    
+use App\Models\SuppressionListSuppression;
+use App\Repositories\RepoInterfaces\IRedshiftRepo;
+
+class SuppressionListSuppressionRepo implements IRedshiftRepo
+{
     private $model;
 
-    public function __construct(SuppressionGlobalOrange $model) {
+    public function __construct(SuppressionListSuppression $model) {
         $this->model = $model;
     }
 
@@ -25,7 +31,7 @@ SQL;
     }
 
     public function clearAndReloadEntity($entity) {
-        DB::connection('redshift')->statement("TRUNCATE suppression_global_orange");
+        DB::connection('redshift')->statement("TRUNCATE suppression_list_suppression");
 
         $sql = <<<SQL
 copy suppression_global_orange

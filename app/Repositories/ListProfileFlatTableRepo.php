@@ -152,6 +152,7 @@ class ListProfileFlatTableRepo implements IAwsRepo {
         return $this->flatTable->whereRaw("date > CURDATE() - INTERVAL 10 DAY");
     }
 
+    public function specialExtract($data) {}
 
     public function mapForS3Upload($row) {
         $pdo = DB::connection('redshift')->getPdo();
@@ -185,5 +186,59 @@ class ListProfileFlatTableRepo implements IAwsRepo {
 
     public function getConnection() {
         return $this->flatTable->getConnectionName();
+    }
+
+    public function getDeploysOnDate($date) {
+        $output = [];
+
+        $deploys = $this->flatTable
+                    ->where('date', $date)
+                    ->selectRaw("DISTINCT(deploy_id) as deploy_id")
+                    ->get()->toArray();
+
+        foreach($deploys as $deployArr) {
+            $output[] = (int)$deployArr['deploy_id'];
+        }
+
+        return $output;
+    }
+
+    
+    public function getThirdPartyEmailStatusExtractQuery () {
+        return "SELECT
+            lpft.email_id ,
+            IF( lpft.has_conversion = 1 , 'Conversion' , IF( lpft.has_click = 1 , 'Click' , IF( lpft.has_open = 1 , 'Open' , 'None' ) ) ) AS `action_type` ,
+            lpft.offer_id ,
+            lpft.esp_account_id ,
+            CONCAT( lpft.date , ' 00:00:00' ) as `datetime`
+        FROM
+            list_profile.list_profile_flat_table lpft
+        WHERE
+            (
+                lpft.has_open = 1
+                OR lpft.has_click = 1
+                OR lpft.has_conversion = 1
+            )
+            AND lpft.updated_at between :startDate AND :endDate
+        ORDER BY
+            lpft.updated_at;";
+    }
+
+    public function getRecordTruthsExtractQuery () {
+        return "SELECT
+            lpft.email_id ,
+            1 AS `recent_import` ,
+            1 AS `has_action`
+        FROM
+            list_profile.list_profile_flat_table lpft
+        WHERE
+            (
+                lpft.has_open = 1
+                OR lpft.has_click = 1
+                OR lpft.has_conversion = 1
+            )
+            AND lpft.updated_at between :startDate AND :endDate
+        GROUP BY
+            lpft.email_id;";
     }
 }

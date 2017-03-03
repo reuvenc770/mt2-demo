@@ -124,7 +124,7 @@ class EmailRecordRepo {
             $id = (isset($currentRecord['espId']) ? $currentRecord['espId'] : '0') 
                 . '-' . (isset($currentRecord['espInternalId']) ? $currentRecord['espInternalId'] : '0')
                 . '-' . $time . '-' . str_random(8);
-            \Event::fire(new NewActions($preppedData, $id));
+            #\Event::fire(new NewActions($preppedData, $id));
         }
 
         if ( !empty( $invalidRecords ) ) {

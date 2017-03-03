@@ -328,7 +328,7 @@ class PackageZipCreationService {
             return "{$e->getMessage()} is not a valid URL. Please check template {$templateId} and creative {$creativeId}";
         }
         catch (\Exception $e) {
-            return $e->getMessage();
+            dd($e);
         }
     }
 
@@ -494,6 +494,7 @@ TXT;
 
 
     private function createUnsubHtml($offer, $imageUrlPrefix, $offerUnsubLinkId) {
+        $unsubText = '';
         if ($offer) {
             if ('TEXT' === $offer->unsub_use) {
                 $unsubText = $offer->unsub_text;
@@ -523,6 +524,7 @@ TXT;
                 throw new ValidationException('Deploy has offer set but no unsub information');
             }
         }
+        return $unsubText;
     }
 
     /**

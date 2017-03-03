@@ -43,4 +43,31 @@ SQL;
     public function clearAndReloadEntity($entity) {
         $this->loadEntity($entity);
     }
+
+    public function matches($obj) {
+        $result = $this->model->find($obj->email_id);
+
+        if ($result) {
+            return $result->feed_id === $obj->feed_id;
+        }
+        else {
+            return false;
+        }
+    }
+
+    public function getActionDateDistribution() {
+        $output = [];
+
+        $data = $this->model
+                    ->selectRaw("date(updated_at) as day, sum(is_deliverable) as deliverable_count")
+                    ->whereRaw("updated_at >= current_date - interval '15 DAY'")
+                    ->groupBy(DB::raw('date(updated_at)'))
+                    ->get();
+
+        foreach($data as $row) {
+            $output[$row->day] = $row->deliverable_count;
+        }
+
+        return $output;
+    }
 }

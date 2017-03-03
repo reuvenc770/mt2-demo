@@ -39,13 +39,15 @@ class OfferRepo {
 
     public function fuzzySearchBack($day,$term){
         return $this->offer->where('name', 'like', $term . '%')
-            ->where(DB::raw("SUBSTR(exclude_days, {$day},1)"),'Y')
+            ->where(DB::raw("SUBSTR(exclude_days, {$day},1)"),'N')
+            ->where( [ [ 'is_approved' , '=' , 1 ] , [ 'status' , '=' , 'A' ] ] )
             ->select("id","name")->get();
     }
 
     public function searchByDay($day){
         return $this->offer
-            ->where(DB::raw("SUBSTR(exclude_days, {$day},1)"),'Y')
+            ->where(DB::raw("SUBSTR(exclude_days, {$day},1)"),'N')
+            ->where( [ [ 'is_approved' , '=' , 1 ] , [ 'status' , '=' , 'A' ] ] )
             ->select("id","name")->get();
     }
 
@@ -53,8 +55,9 @@ class OfferRepo {
         // exclude_days is a 7 char string of Y/N
         $days = $this->offer->find($offerId)->exclude_days;
 
-        // value below is 0-indexed with Sun as 0 and Sat as 6
-        $dayOfWeek = Carbon::parse($date)->dayOfWeek;
+        // value below is 0-indexed with Monday as 0 and Sun as 6
+
+        $dayOfWeek = date('N',strtotime($date)) - 1;
 
         // 'N' means that the offer is not excluded and can be mailed
         return $days[$dayOfWeek] === 'N';

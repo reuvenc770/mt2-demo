@@ -265,12 +265,31 @@ return [
 
         'cluster' => false,
 
-        'default' => [
-            'host'     => env('REDIS_HOST', 'localhost'),
-            'password' => env('REDIS_PASSWORD', null),
-            'port'     => env('REDIS_PORT', 6379),
+        'cache' => [
+            'host'     => env('REDIS_CACHE_HOST', 'localhost'),
+            'password' => env('REDIS_CACHE_PASSWORD', null),
+            'port'     => env('REDIS_CACHE_PORT', 6379),
             'database' => 0,
         ],
+        'queue' => [
+            'host'     => env('REDIS_QUEUE_HOST', 'localhost'),
+            'password' => env('REDIS_QUEUE_PASSWORD', null),
+            'port'     => env('REDIS_QUEUE_PORT', 6379),
+            'database' => 0,
+        ],
+        'sessions' => [
+            'host'     => env('REDIS_SESSIONS_HOST', 'localhost'),
+            'password' => env('REDIS_SESSIONS_PASSWORD', null),
+            'port'     => env('REDIS_SESSIONS_PORT', 6379),
+            'database' => 0,
+        ],
+        'thirdparty' => [
+            'host'     => env('REDIS_THIRD_HOST', 'localhost'),
+            'password' => env('REDIS_THIRD_PASSWORD', null),
+            'port'     => env('REDIS_THIRD_PORT', 6379),
+            'database' => 0,
+        ],
+
 
     ],
 

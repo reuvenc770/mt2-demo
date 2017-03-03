@@ -206,6 +206,8 @@ class FeedRepo implements Mt2Export, IAwsRepo {
         return $this->feed;
     }
 
+    public function specialExtract($data) {}
+
 
     public function mapForS3Upload($row) {
         $pdo = DB::connection('redshift')->getPdo();
@@ -230,12 +232,17 @@ class FeedRepo implements Mt2Export, IAwsRepo {
     }
 
     public function getNewUsersForToday () {
-        return $this->feed->where( 'created_at' ,  '>=' ,  \Carbon\Carbon::now()->startOfDay()->toDatetimeString() )->get();
+        //Import does not have created dates. Changing this to attempt to create ftp users for all feeds.
+        return $this->feed->get();
     }   
 
     public function updatePassword ( $shortName , $password ) {
         $currentFeed = $this->feed->where( 'short_name' , $shortName )->first();
         $currentFeed->password = $password;
         $currentFeed->save();
+    }
+
+    public function getCount() {
+        return $this->feed->count();
     }
 }
