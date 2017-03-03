@@ -71,4 +71,8 @@ class SuppressionListSuppressionRepo implements IAwsRepo{
         return $this->model->getConnection();
     }
 
+    public function getAllQuery($lookback) {
+        return $this->model->whereRaw("created_at <= CURDATE() - INTERVAL $lookback DAY")->toSql();
+    }
+
 }

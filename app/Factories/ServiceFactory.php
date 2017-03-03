@@ -178,7 +178,7 @@ class ServiceFactory
 
         $testingStrategy = '';
 
-        if ('SuppressionGlobalOrange' === $entity || 'SuppressionListSuppression') {
+        if ('SuppressionGlobalOrange' === $entity || 'SuppressionListSuppression' === $entity) {
             $testingStrategy = $entity;
         }
         elseif (in_array($entity, ['Client', 'DomainGroup', 'EmailDomain', 'Feed'])) {
