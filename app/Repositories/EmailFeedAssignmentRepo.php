@@ -139,6 +139,8 @@ class EmailFeedAssignmentRepo implements IAwsRepo, ICanonicalDataSource {
         return $this->model->whereRaw("updated_at > CURDATE() - INTERVAL 10 DAY");
     }
 
+    public function specialExtract($data) {}
+
 
     public function mapForS3Upload($row) {
         $pdo = DB::connection('redshift')->getPdo();
@@ -191,6 +193,31 @@ class EmailFeedAssignmentRepo implements IAwsRepo, ICanonicalDataSource {
 
     public function lessThan($startPoint, $endPoint) {
         return $startPoint < $endPoint;
+    }
+
+    public function getMinAndMaxIds() {
+        $min = $this->model->min('email_id');
+        $max = $this->model->max('email_id');
+        return [$min, $max];
+    }
+
+    public function get($emailId) {
+        return $this->model->find($emailId);
+    }
+
+    public function getAttributionDist() {
+        $output = [];
+
+        $result = $this->model
+                    ->selectRaw('feed_id, COUNT(*) as total')
+                    ->groupBy('feed_id')
+                    ->get();
+
+        foreach($result as $row) {
+            $output[$row->feed_id] = $row->total;
+        }
+
+        return $output;
     }
 
 }

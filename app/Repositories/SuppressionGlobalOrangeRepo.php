@@ -39,6 +39,8 @@ class SuppressionGlobalOrangeRepo implements IAwsRepo {
         return $this->model;
     }
 
+    public function specialExtract($data) {}
+
     public function getConnection() {
         return $this->model->getConnectionName();
     }

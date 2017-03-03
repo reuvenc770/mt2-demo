@@ -65,6 +65,7 @@ class DomainGroupRepo implements IAwsRepo
         return $this->domainGroup;
     }
 
+    public function specialExtract($data) {}
 
     public function mapForS3Upload($row) {
         $pdo = DB::connection('redshift')->getPdo();

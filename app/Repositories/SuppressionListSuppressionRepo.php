@@ -49,6 +49,8 @@ class SuppressionListSuppressionRepo implements IAwsRepo{
         return $this->model->whereRaw("id > $stopPoint");
     }
 
+    public function specialExtract($data) {}
+
     public function mapForS3Upload($row)
     {
         $pdo = DB::connection('redshift')->getPdo();

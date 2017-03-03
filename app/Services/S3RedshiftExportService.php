@@ -49,6 +49,11 @@ class S3RedshiftExportService {
         return $this->write($resource, 0);   
     }
 
+    public function specialExtract($data) {
+        $resource = $this->repo->specialExtract($data);
+        return $this->write($resource, 0);
+    }
+
     private function write($resource, $stopPoint) {
         File::delete($this->filePath);
         File::put($this->filePath, '');

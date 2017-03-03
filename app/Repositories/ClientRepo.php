@@ -52,6 +52,8 @@ class ClientRepo implements IAwsRepo {
         return $this->client;
     }
 
+    public function specialExtract($data) {}
+
 
     public function mapForS3Upload($row) {
         $pdo = DB::connection('redshift')->getPdo();

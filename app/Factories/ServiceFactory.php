@@ -179,7 +179,7 @@ class ServiceFactory
         $testingStrategy = '';
 
         if ('SuppressionGlobalOrange' === $entity || 'SuppressionListSuppression' === $entity) {
-            $testingStrategy = $entity;
+            $testingStrategy = 'Suppression';
         }
         elseif (in_array($entity, ['Client', 'DomainGroup', 'EmailDomain', 'Feed'])) {
             // Small enough that we can be exact and check row-by-row
