@@ -420,6 +420,11 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
         return $this->emailModel->whereRaw("id >= (SELECT MAX(id) - 1000000 from emails)");
     }
 
+    public function specialExtract($data) {
+        $data = (int)$data;
+        return $this->emailModel->whereRaw("id >= $data");
+    }
+
 
     public function mapForS3Upload($row) {
         $pdo = DB::connection('redshift')->getPdo();
@@ -462,5 +467,30 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
 
     public function lessThan($startPoint, $endPoint) {
         return (int)$startPoint < (int)$endPoint;
+    }
+
+    public function getMinAndMaxIds() {
+        $min = $this->model->min('id');
+        $max = $this->model->max('id');
+        return [$min, $max];
+    }
+
+    public function get($id) {
+        return $this->model->find($id);
+    }
+
+    public function getDistribution() {
+        $output = [];
+
+        $result = $this->model
+                    ->selectRaw("round(id / 1000000) as million, COUNT(*) as total")
+                    ->groupBy('million')
+                    ->get();
+
+        foreach($result as $row) {
+            $output[$row->million] = $row->total;
+        }
+
+        return $output;
     }
 }
