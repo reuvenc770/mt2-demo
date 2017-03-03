@@ -232,8 +232,6 @@ class FtpAdmin extends Command
 
                     $this->error( $e );
                 }
-            } else {
-                \Log::info( $this->username . ' already exists.....' );
             }
         }
     }

@@ -34,17 +34,18 @@ class S3RedshiftExportJob extends Job implements ShouldQueue {
                 echo "{$this->jobName} running" . PHP_EOL;
 
                 $service = ServiceFactory::createAwsExportService($this->entity);
+                $rows = 0;
 
                 if ($this->getAll) {
-                    $service->extractAll();
+                    $rows = $service->extractAll();
                     $service->loadAll();
                 }
                 else {
-                    $service->extract();
+                    $rows = $service->extract();
                     $service->load();
                 }
 
-                JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
+                JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking, $rows);
             }
             catch (\Exception $e) {
                 echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;
