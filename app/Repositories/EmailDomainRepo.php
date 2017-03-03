@@ -130,4 +130,8 @@ class EmailDomainRepo implements IAwsRepo {
         return $this->emailDomainModel->getConnectionName();
     }
 
+    public function getCount() {
+        return $this->emailDomainModel->count();
+    }
+
 }

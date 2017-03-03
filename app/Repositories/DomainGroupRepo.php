@@ -78,4 +78,8 @@ class DomainGroupRepo implements IAwsRepo
     public function getConnection() {
         return $this->domainGroup->getConnectionName();
     }
+
+    public function getCount() {
+        return $this->domainGroup->count();
+    }
 }

@@ -238,4 +238,8 @@ class FeedRepo implements Mt2Export, IAwsRepo {
         $currentFeed->password = $password;
         $currentFeed->save();
     }
+
+    public function getCount() {
+        return $this->feed->count();
+    }
 }

@@ -72,4 +72,8 @@ class ClientRepo implements IAwsRepo {
     public function getConnection() {
         return $this->client->getConnectionName();
     }
+
+    public function getCount() {
+        return $this->client->count();
+    }
 }
