@@ -51,7 +51,7 @@ class RecordDataRedshiftDataValidation extends AbstractLargeRedshiftDataValidati
         $cmpAttrDist = $this->cmpRepo->getActionDateDistribution();
         $rsAttrDist = $this->redshiftRepo->getActionDateDistribution();
 
-        // format: [feedId => [cmpCount => #, rsCount => #]]
+        // format: [day => [cmpCount => #, rsCount => #]]
         $this->badDays = [];
 
         foreach($cmpAttrDist as $day => $count) {
