@@ -25,12 +25,19 @@ class AddDomainForm extends Request
      */
     public function rules()
     {
+        if ( $this->input('domain_type') == 2 ) {
+            $isProxyRequired = 'required';
+        } else {
+            $isProxyRequired = '';
+        }
+
         return [
             'espName'        => 'required',
             'espAccountId'   => 'required',
             'registrar'      => 'required',
             'dba'            => 'required',
             'domains'        => 'required',
+            'proxy'          => $isProxyRequired,
             'live_a_record'  => 'required',
         ];
     }
@@ -42,6 +49,7 @@ class AddDomainForm extends Request
             'espAccountId.required' => 'An ESP account is required.',
             'registrar.required'    => 'A registrar is required.',
             'dba.required'          => 'A DBA is required.',
+            'proxy.required'        => 'A proxy is required for content domain.',
             'domains.required'      => 'All domain information is required and must be in the correct format.',
             'live_a_record.required'=> 'Is the A-Record live?'
         ];
