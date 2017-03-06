@@ -162,15 +162,20 @@ class EspApiAccountService
     public function toggleRow($id, $direction){
         return $this->espRepo->toggleRow($id, $direction);
     }
-    
+
     public function toggleSuppression($id, $enableSuppression){
         return $this->espRepo->toggleSuppression($id, $enableSuppression);
     }
+    public function getEspAccountIdFromCampaignName($name)
+    {
+        $espAccountName = explode('_', $name)[1];
+        return $this->getEspAccountIdFromName($espAccountName);
+    }
+
     public function getEspAccountIdFromName($name)
     {
         try {
-            $espAccountName = explode('_', $name)[1];
-            $espAccountId = $this->espRepo->getIdFromName($espAccountName);
+            $espAccountId = $this->espRepo->getIdFromName($name);
             return $espAccountId->id;
         } catch (\Exception $e) {
             throw new EspAccountDoesNotExistException();

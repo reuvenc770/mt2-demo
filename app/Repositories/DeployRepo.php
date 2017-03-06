@@ -241,16 +241,16 @@ class DeployRepo implements Mt2Export
 
     public function validateDeploy($deploy,$copyToFutureBool = true){
         $errors = array();
-        if (isset($deploy['esp_account_id'])) {
+        if (isset($deploy['esp_account_id']) && $deploy['esp_account_id'] !=='' ) {
             $count = DB::select("Select count(*) as count from esp_accounts where id = :id and status = 1", ['id' => $deploy['esp_account_id']])[0];
             if ($count->count == 0) {
-                $errors[] = "Esp Account ID is not Valid or Deactivated";
+                $errors[] = "ESP Account ID/Name is invalid or deactivated";
             }
         } else {
-            $errors[] = "Esp Account ID is missing";
+            $errors[] = "ESP Account ID is missing";
         }
 
-        if (isset($deploy['send_date'])) {
+        if (isset($deploy['send_date']) && $deploy['send_date'] !== '' ) {
             // exclude_days is a 7 char string of Y/N
             $result = $this->offer->where('id', $deploy['offer_id'] );
             $days = $result->count() > 0 ? $result->first() : null;
@@ -264,7 +264,7 @@ class DeployRepo implements Mt2Export
             }
 
             if ( is_null($days) ){
-                $errors[] = "No offer or exclude days specified.";
+                $errors[] = "No offer or exclude days specified";
             }
             // 'N' means that the offer is not excluded and can be mailed
             elseif ($days->exclude_days[$dayOfWeek] !== 'N'){
@@ -274,65 +274,65 @@ class DeployRepo implements Mt2Export
             $errors[] = "Deploy Date is missing";
         }
         //offer real?
-        if (isset($deploy['offer_id'])) {
+        if (isset($deploy['offer_id']) && $deploy['offer_id'] !== '' ) {
             $count = DB::select("Select count(*) as count from offers where id = :id", ['id' => $deploy['offer_id']])[0];
             if ($count->count == 0) {
-                $errors[] = "Offer ID is not Valid.";
+                $errors[] = "Offer ID is invalid";
             }
         } else {
             $errors[] = "Offer ID is missing";
         }
         //creative ok?
-        if (isset($deploy['creative_id'])) {
+        if (isset($deploy['creative_id']) && $deploy['creative_id'] !== '') {
             $count = DB::select("Select count(*) as count from creatives where id = :id and is_approved = '1' and status = 'A'", ['id' => $deploy['creative_id']])[0];
             if ($count->count == 0) {
-                $errors[] = "Creative is not active or wrong";
+                $errors[] = "Creative is not active or ID is incorrect";
             }
         } else {
             $errors[] = "Creative ID is missing";
         }
         //from ok?
-        if (isset($deploy['from_id'])) {
+        if (isset($deploy['from_id']) && $deploy['from_id'] !=='' ) {
             $count = DB::select("Select count(*) as count from froms where id = :id and is_approved = 1 and status = 'A'", ['id' => $deploy['from_id']])[0];
             if ($count->count == 0) {
-                $errors[] = "From is not active or wrong";
+                $errors[] = "From is not active or ID is incorrect";
             }
         } else {
-            $errors[] = "From  ID is missing";
+            $errors[] = "From ID is missing";
         }
         //subject ok?
-        if (isset($deploy['subject_id'])) {
+        if (isset($deploy['subject_id']) && $deploy['subject_id']!== '' ) {
             $count = DB::select("Select count(*) as count from subjects where id = :id and is_approved = 1 and status = 'A'", ['id' => $deploy['subject_id']])[0];
             if ($count->count == 0) {
-                $errors[] = "Subject is not active or wrong";
+                $errors[] = "Subject is not active or ID is incorrect";
             }
         } else {
-            $errors[] = "Subject Id is missing";
+            $errors[] = "Subject ID is missing";
         }
         //template_ok
-        if (isset($deploy['template_id'])) {
+        if (isset($deploy['template_id']) && $deploy['template_id'] !== '' ) {
             $count = DB::select("Select count(*) as count from mailing_templates where id = :id", ['id' => $deploy['template_id']])[0];
             if ($count->count == 0) {
-                $errors[] = "Template ID is not active or wrong";
+                $errors[] = "Template ID/Name is not active or incorrect";
             }
         } else {
             $errors[] = "Template ID is missing";
         }
         //mailing domain
-        if (isset($deploy['mailing_domain_id'])) {
+        if (isset($deploy['mailing_domain_id']) && $deploy['mailing_domain_id'] !=='' ) {
             $count = DB::select("Select count(*) as count from domains where id = :id and domain_type = 1 and status = 1 and live_a_record = 1", ['id' => $deploy['mailing_domain_id']])[0];
             if ($count->count == 0) {
-                $errors[] = "Mailing Domain ID is invalid or not Mailing Domain";
+                $errors[] = "Mailing Domain is invalid or not a mailing domain";
             }
         } else {
             $errors[] = "Mailing Domain is missing";
         }
 
         //content domain
-        if (isset($deploy['content_domain_id'])) {
+        if (isset($deploy['content_domain_id']) && $deploy['content_domain_id'] !== '' ) {
             $count = DB::select("Select count(*) as count from domains where id = :id and domain_type = 2  and status = 1 and live_a_record = 1", ['id' => $deploy['content_domain_id']])[0];
             if ($count->count == 0) {
-                $errors[] = "Content Domain is invalid or not content domain";
+                $errors[] = "Content Domain is invalid or not a content domain";
             }
         } else {
             $errors[] = "Content Domain is missing";
@@ -345,7 +345,7 @@ class DeployRepo implements Mt2Export
             if (isset($deploy['list_profile_combine_id'])) {
                 $count = DB::select("Select count(*) as count from $lpSchema.list_profile_combines where id = :id", ['id' => $deploy['list_profile_combine_id']])[0];
                 if ($count->count == 0) {
-                    $errors[] = "List Profile is wrong or not active";
+                    $errors[] = "List Profile is not active or ID is incorrect";
                 }
             } else {
                 $errors[] = "List Profile is missing";
@@ -363,35 +363,35 @@ class DeployRepo implements Mt2Export
 
         //cake
 
-        if (isset($deploy['cake_affiliate_id'])) {
+        if (isset($deploy['cake_affiliate_id']) && $deploy['cake_affiliate_id'] !=='' ) {
             $count = DB::connection('mt1_data')->select("Select count(*) as count from EspAdvertiserJoin where affiliateID = :id", ['id' => $deploy['cake_affiliate_id']])[0];
             if ($count->count == 0) {
-                $errors[] = "Cake Affiliate is wrong";
+                $errors[] = "Cake Affiliate is incorrect";
             }
         } else {
             $errors[] = "Cake Affiliate ID is missing";
         }
 
-        if (isset($deploy['encrypt_cake'])) {
+        if (isset($deploy['encrypt_cake']) && $deploy['encrypt_cake'] !== '' ) {
             if($deploy['encrypt_cake'] != '1' && $deploy['encrypt_cake'] != '0'){
-                $errors[] = "Encrypt Cake Value is wrong";
+                $errors[] = "Encrypt Cake value is incorrect";
             }
         } else {
             $errors[] = "Encrypt Cake Links options is missing";
         }
 
-        if (isset($deploy['fully_encrypt'])) {
+        if (isset($deploy['fully_encrypt']) && $deploy['fully_encrypt'] !== '') {
             if($deploy['fully_encrypt'] != '1' && $deploy['fully_encrypt'] != '0'){
-                $errors[] = "Full Encrypt Value is wrong";
+                $errors[] = "Full Encrypt value is incorrect";
             }
         } else {
             $errors[] = "Full Encrypt Links options is missing";
         }
 
-        if (isset($deploy['url_format'])) {
+        if (isset($deploy['url_format']) && $deploy['url_format'] !== '' ) {
             $options = ['long',"short","encrypt"];
             if(!in_array($deploy['url_format'],$options)){
-                $errors[] = "Url Format is wrong";
+                $errors[] = "Url Format is incorrect";
             }
         } else {
             $errors[] = "Url Format is missing";
