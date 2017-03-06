@@ -23,6 +23,6 @@ class AttributionAggregatorService {
     }
 
     public function cpmRun ( $offerId , $dateRange , $modelId = null ) {
-       \Log::info(  $this->repo->cpmRun( $offerId , $dateRange , $modelId ) );
+        $this->repo->cpmRun( $offerId , $dateRange , $modelId );
     }
 }

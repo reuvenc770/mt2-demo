@@ -79,10 +79,6 @@ class AttributionAggregatorJob extends Job implements ShouldQueue
                 do {
                     $this->chunkDateRange();
 
-                    \Log::info( 'aggr job running....' );
-                    \Log::info( 'model id:' );
-                    \Log::info( $this->modelId );
-
                     if ( $this->mode === AttributionAggregatorService::RUN_STANDARD ) {
                         $aggregator->standardRun( $this->currentDateRange , $this->modelId );
                     }
