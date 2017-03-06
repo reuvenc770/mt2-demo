@@ -34,7 +34,7 @@ class WorkflowProcessingService {
         $suppressionLists = [];
 
         foreach ($offerIds as $offerId) {
-            $suppressionLists = array_merge($this->offerRepo->getSuppressionListIds($offerId));
+            $suppressionLists = array_merge($suppressionLists, $this->offerRepo->getSuppressionListIds($offerId));
         }
         $suppressionLists = array_unique($suppressionLists);
 
