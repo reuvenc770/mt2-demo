@@ -61,7 +61,9 @@ class AttributionFeedReportRepo {
         return \DB::select( "
         SELECT
             c.name as `clientName` ,
+            c.id as `clientId` ,
             f.name as `feedName` ,
+            f.id as `feedId` ,
             afr.uniques ,
             al.level as `liveLevel` ,
             alm.level as `modelLevel` ,

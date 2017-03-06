@@ -12,7 +12,7 @@ class CleanupUnusedAttributionReportTables extends Migration
      */
     public function up()
     {
-        $clientReports = \DB::select( \DB::raw( "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME LIKE 'attribution_client_report%' OR TABLE_NAME LIKE 'attribution_feed_report%' OR TABLE_NAME = 'attribution_record_reports'" ) );
+        $clientReports = \DB::select( "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME LIKE 'attribution_client_report%' OR TABLE_NAME LIKE 'attribution_feed_report%' OR TABLE_NAME = 'attribution_record_reports'" );
         foreach ( $clientReports as $current ) {
             Schema::connection( 'attribution' )->dropIfExists( $current->TABLE_NAME );
         }

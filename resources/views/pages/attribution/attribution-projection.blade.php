@@ -76,8 +76,8 @@
                 </thead>
                 <tbody md-body>
                 <tr md-row ng-repeat="record in attr.projectionRecords track by $index" layout-align="center center">
-                    <td md-cell class="text-center" ng-bind="record.clientName"></td>
-                    <td md-cell class="text-center" ng-bind="record.feedName"></td>
+                    <td md-cell class="text-center">@{{ ( record.clientName || 'Unknown Client' ) + ( record.clientId > 0 ? ( ' (' + record.clientId + ')' ) : '' ) }}</td>
+                    <td md-cell class="text-center">@{{ ( record.feedName || 'Unknown Feed' ) + ( record.feedId > 0 ?  ( ' (' + record.feedId + ')' ) : '' ) }}</td>
                     <td md-cell class="text-center" ng-bind="record.uniques"></td>
                     <td md-cell class="text-center" ng-bind="record.liveLevel"></td>
                     <td md-cell class="text-center" ng-bind="record.modelLevel"></td>
