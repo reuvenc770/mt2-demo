@@ -17,8 +17,6 @@ class MT1Api
     protected $baseUrl;
     CONST PATH = 'http://mailingtool.mtroute.com:83/newcgi-bin/';
     CONST LOGIN_URL = 'http://mailingtool.mtroute.com:83/newcgi-bin/login.cgi';
-    CONST USERNAME = 'achin';
-    CONST PASSWORD = '@$pir3';
 
     public function __construct()
     {
@@ -63,7 +61,7 @@ class MT1Api
 
         $response = $this->guzzle->post(
             self::LOGIN_URL ,
-            [ 'form_params' => [ 'username' => self::USERNAME , 'password' => self::PASSWORD ] ]
+            [ 'form_params' => [ 'username' => config( 'misc.mt1_user' ) , 'password' => config( 'misc.mt1_password' ) ] ]
         );
 
         return $this->guzzle->post($url,$params);
