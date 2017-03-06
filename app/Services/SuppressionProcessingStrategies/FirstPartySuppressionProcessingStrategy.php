@@ -25,9 +25,9 @@ class FirstPartySuppressionProcessingStrategy implements ISuppressionProcessingS
         }
     }
 
-    public function processSuppression($supp) {
-        $lists = $this->formatLists($supp->suppression_lists);
-        $this->apiService->addContactToLists($supp->email_address, $lists);
+    public function processSuppression($emailAddress, $suppressionListIds) {
+        $onlineLists = $this->formatLists($suppressionListIds);
+        $this->apiService->addContactToLists($emailAddress, $onlineLists);
 
         /**
             Need to set email template stuff here for SimplyJobs
