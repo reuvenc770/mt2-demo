@@ -12,7 +12,8 @@ trait PreventJobOverlapping {
     }
 
     protected function getMutexPath($name) {
-        return storage_path('framework/schedule-' . md5($name));
+        // Limited job name because they can be very long and we need the full thing for uniqueness.
+        return storage_path('framework/schedule-' . substr($name, 0, 30) . '~' . md5($name));
     }
 
     public function jobCanRun($name) {

@@ -36,12 +36,12 @@ class S3RedshiftExportService {
         $stopPoint = $this->pickupRepo->getLastInsertedForName($this->entity . '-s3');
 
         $resource = $this->repo->extractForS3Upload($stopPoint);
-        $this->write($resource, $stopPoint);
+        return $this->write($resource, $stopPoint);
     }
 
     public function extractAll() {
         $resource = $this->repo->extractAllForS3();
-        $this->write($resource, 0);   
+        return $this->write($resource, 0);   
     }
 
     private function write($resource, $stopPoint) {
@@ -56,6 +56,8 @@ class S3RedshiftExportService {
         $pdo->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
         $statement = $pdo->prepare($resource->toSql());
         $statement->execute();
+        
+        $rowsProcessed = 0;
 
         while($row = $statement->fetch(PDO::FETCH_OBJ)) {
             $tmpNextId = $this->strat->__invoke($row);
@@ -63,10 +65,13 @@ class S3RedshiftExportService {
 
             $mappedRow = $this->repo->mapForS3Upload($row);
             $this->batch($this->filePath, $mappedRow);
+            $rowsProcessed++;
         }
 
         $this->pickupRepo->updatePosition($this->entity . '-s3', $nextId);
         $this->writeBatch($this->filePath);
+        
+        return $rowsProcessed;
     }
 
     public function load() {

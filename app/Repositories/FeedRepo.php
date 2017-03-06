@@ -230,7 +230,8 @@ class FeedRepo implements Mt2Export, IAwsRepo {
     }
 
     public function getNewUsersForToday () {
-        return $this->feed->where( 'created_at' ,  '>=' ,  \Carbon\Carbon::now()->startOfDay()->toDatetimeString() )->get();
+        //Import does not have created dates. Changing this to attempt to create ftp users for all feeds.
+        return $this->feed->get();
     }   
 
     public function updatePassword ( $shortName , $password ) {

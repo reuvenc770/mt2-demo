@@ -34,7 +34,7 @@ mt2App.controller('SourceUrlSearchController' , [ '$rootScope' , '$window' , '$l
 
     self.setClientList = function ( list ) {
         self.clientList = list;
-    }
+    };
 
     self.setVerticalList = function ( list ) {
         self.verticalList = list;
@@ -62,6 +62,10 @@ mt2App.controller('SourceUrlSearchController' , [ '$rootScope' , '$window' , '$l
     };
 
     self.searchSourceUrl = function () {
+        if(self.search.source_url == ""){
+            self.formErrors.source_url = {error : "Source URL cannot be empty"};
+            return;
+        }
         formValidationService.resetFieldErrors( self );
 
         self.queryPromise = FeedApiService.searchSourceUrl(

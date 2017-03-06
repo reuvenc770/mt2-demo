@@ -11,7 +11,7 @@ class DataValidationService {
     private $reposToCheck;
     private $etlPickupRepo;
     private $pickupName = '';
-    const ROW_COUNT_LIMIT = 50000;
+    const ROW_COUNT_LIMIT = 10000;
     
     public function __construct(ICanonicalDataSource $trustedSourceRepo, EtlPickupRepo $etlPickupRepo, array $reposToCheck) {
         $this->trustedSourceRepo = $trustedSourceRepo;

@@ -2,14 +2,21 @@
 
 namespace App\Services;
 
+use App\DataModels\CacheReportCard;
+use App\DataModels\ReportEntry;
 use App\Facades\EspApiAccount;
 use App\Models\ListProfileBaseTable;
+use App\Models\OfferSuppressionList;
+use App\Models\SuppressionListSuppression;
 use App\Repositories\ListProfileBaseTableRepo;
 use App\Repositories\ListProfileCombineRepo;
 use App\Repositories\ListProfileRepo;
 use App\Repositories\OfferRepo;
+use App\Repositories\OfferSuppressionListRepo;
 use Carbon\Carbon;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use League\Flysystem\Adapter\Ftp;
+use League\Flysystem\Filesystem;
 use Storage;
 use Cache;
 use Log;
@@ -106,8 +113,13 @@ class ListProfileExportService
 
     }
 
-    public function exportListProfileToMany($listProfileId, $offerId, $deploys)
+    public function exportListProfileToMany($listProfileId, $offerId, $deploys, $reportCardName = null)
     {
+        $reportCard = null;
+        
+        if($reportCardName){
+           $reportCard = CacheReportCard::getReportCard($reportCardName);
+        }
 
         $listProfile = $this->listProfileRepo->getProfile($listProfileId);
 
@@ -122,6 +134,7 @@ class ListProfileExportService
         foreach ($deploys as $deploy) {
 
             $headers = array();
+
             $key = "{$deploy->id}-{$deploy->list_profile_combine_id}";
 
             $header = Cache::get("header-{$key}", function () use ($deploy, $headers) {
@@ -132,29 +145,13 @@ class ListProfileExportService
                 return array_unique($headers);
             });
 
-            //these files are for us to build combines.
-            $fileName = 'DeployTemp/' . $listProfile->name . '-' . $deploy->id . '-' . $offerId . '.csv';
-            Storage::delete($fileName); // clear the file currently saved
-
-
-             foreach ($resource as $row) {
-                 if(!$row->suppression_status){
-                     $this->batchSuppression($fileName, $row);
-                 } else {
-                     $row = $this->mapRow($header, $row);
-                     $this->batch($fileName, $row, "local");
-                 };
-             }
-            $this->writeBatch($fileName, "local");
-            $this->writeBatchSuppression($fileName);
-
-            //either get the deploy cache or build it
             $deployProgress = Cache::get("deploy-{$key}", function () use ($deploy) {
                 $listProfileCombine = $this->combineRepo->getRowWithListProfiles($deploy->list_profile_combine_id);
                 $num = count($listProfileCombine->listProfiles);
                 return array(
                     "id" => $deploy->id,
                     "ftp_folder" => $listProfileCombine->ftp_folder,
+                    "reportEntry" => new ReportEntry($deploy->deploy_name),
                     "espAccount" => $deploy->esp_account_id,
                     "name" => $listProfileCombine->name,
                     "totalPieces" => $num,
@@ -162,12 +159,54 @@ class ListProfileExportService
                 );
             });
 
+            //these files are for us to build combines.
+            $fileName = 'DeployTemp/' . $listProfile->name . '-' . $deploy->id . '-' . $offerId . '.csv';
+            Storage::delete($fileName); // clear the file currently saved
+
+
+                $recordEntry = $deployProgress['reportEntry'];
+                $recordEntry->addToOriginalTotal(count($resource));
+            //GrabOffersSuppressedAgainst and store for to place in record
+                if($reportCardName) {
+                    $offerSuppressionLists = OfferSuppressionList::find($offerId)->all();
+                    $offersPlucked = $offerSuppressionLists->pluck('id');
+                    $reportCard->addOffersSuppressedAgainst($offersPlucked);
+                }
+
+             foreach ($resource as $row) {
+                if($row->global_suppression_status){
+                     $this->batchSuppression($fileName, $row);
+                    $recordEntry->increaseGlobalSuppressionCount();
+                 }
+                elseif ($this->mt1SuppServ->isSuppressed($row->email_id)){
+                    $this->batchSuppression($fileName, $row);
+                    $recordEntry->increaseListSuppressionCount();
+                }
+                 elseif(!$row->suppression_status){
+                     $this->batchSuppression($fileName, $row);
+                     $recordEntry->increaseListSuppressionCount();
+                 } else {
+                     $row = $this->mapRow($header, $row);
+                     $this->batch($fileName, $row, "local");
+                     $recordEntry->increaseFinalRecordCount();
+                 };
+             }
+
+            $this->writeBatch($fileName, "local");
+            $this->writeBatchSuppression($fileName);
+
+            //either get the deploy cache or build it
+
+
             $deployProgress['totalPieces']--;
 
             if ($deployProgress['totalPieces'] == 0) {
                 $deployProgress['files'] = array_merge($deployProgress['files'], array($fileName));
                 Cache::forget("header-{$key}");
                 Cache::forget("deploy-{$key}");
+                if($reportCardName) {
+                    $reportCard->addEntry($recordEntry);
+                }
                 $this->buildCombineFile($header,$deployProgress['ftp_folder'], $deployProgress['name'], $deployProgress['files'], $offerId, $deployProgress['id'],  $deployProgress['espAccount']);
             } else {
                 //Update the cache
@@ -176,12 +215,21 @@ class ListProfileExportService
                         "id" => $deployProgress['id'],
                         "ftp_folder" => $deployProgress['ftp_folder'],
                         "espAccount" => $deployProgress['espAccount'],
+                        "reportEntry" => $recordEntry,
                         "name" => $deployProgress['name'],
                         "totalPieces" => $deployProgress['totalPieces'],
                         "files" => array_merge($deployProgress['files'], array($fileName)),
                     ), 60 * 12);
             }
 
+        }
+
+        if($reportCard){
+          $reportCard->nextEntry();
+            if($reportCard->isReportCardFinished()){
+                Log::emergency("I finished a report card");
+                Log::emergency($reportCard->toArray());
+            }
         }
     }
 
@@ -235,6 +283,13 @@ class ListProfileExportService
 
     private function buildCombineFile($header, $ftpFolder, $fileName, $files, $offerId,$deployId, $espAccount)
     {
+        $adapter = new Ftp([
+                'host' => config("filesystems.disks.SystemFtp.host"),
+                'username' => config("filesystems.disks.SystemFtp.username"),
+                'password' => config("filesystems.disks.SystemFtp.password"),
+            ]
+        );
+        $fileSys = new Filesystem($adapter);
         $espAccountName = EspApiAccount::getEspAccountName($espAccount);
         $offerName = $this->offerRepo->getOfferName($offerId);
         $date = Carbon::today()->toDateString();
@@ -243,18 +298,28 @@ class ListProfileExportService
         Storage::disk('SystemFtp')->delete($combineFileName);
         Storage::disk('SystemFtp')->delete($combineFileNameDNM);
         Storage::disk('SystemFtp')->append($combineFileName, implode(',', $header));
-
+        $tempStream = tmpfile();
+        $tempDNMStream = tmpfile();
         foreach ($files as $file) {
-            $contents = Storage::get($file);
-            Storage::disk('SystemFtp')->append($combineFileName, $contents);
+            $contents = fopen(storage_path("app") . $file, 'r+');
+            fwrite($tempStream, $contents);
             Storage::disk('SystemFtp')->delete($file);
         }
-
         foreach ($files as $file) {
-            $contents = Storage::get($file.'-dnm');
-            Storage::disk('SystemFtp')->append($combineFileNameDNM, $contents);
+            $contents = fopen(storage_path("app") . $file.'-dnm', 'r+');
+            fwrite($tempDNMStream, $contents);
             Storage::disk('SystemFtp')->delete($file.'-dnm');
         }
+        $fileSys->putStream($combineFileName,$this->dedupeStream($tempStream));
+        $fileSys->putStream($combineFileNameDNM,$this->dedupeStream($tempDNMStream));
+
+    }
+    public function dedupeStream($stream)
+    {
+        $inputHandle = fopen((storage_path("app") . $stream), "r");
+        $csv = trim(fgetcsv($inputHandle, 0, ","));
+        return array_flip(array_flip($csv));//faster then array_unique;
+
     }
 
 }
