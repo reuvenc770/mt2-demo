@@ -66,6 +66,9 @@ class DataProcessingFactory {
                 $service->setJobName('ProcessContentServerRawStats');
                 return $service;
 
+            case ('AttributionValidation'):
+                return \App::make(\App\Services\AttributionValidationService::class);
+
             # Export from MT2 to MT1
 
             case('Mt1Export-email_list'):

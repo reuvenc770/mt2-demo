@@ -454,7 +454,7 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
     }
 
     public function maxId() {
-        return $this->emailModel->orderBy('id', 'desc')->first()['id'];
+        return $this->emailModel->max('id');
     }
 
     public function nextNRows($startPoint, $offset) {
