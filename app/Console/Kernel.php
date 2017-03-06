@@ -95,6 +95,7 @@ class Kernel extends ConsoleKernel
         Commands\CleanUpRawContentServerActions::class,
         Commands\SumBrontoStandardReports::class,
         Commands\DomainExpirationNotification::class,
+        Commands\ProcessNewActionsCommand::class,
         Commands\DataConsistencyValidation::class,
     ];
 
@@ -317,6 +318,6 @@ class Kernel extends ConsoleKernel
         $schedule->command("dataValidation emails exists")->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command("dataValidation emailFeedInstances exists")->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command("dataValidation emailFeedAssignments value")->dailyAt(self::MT1_SYNC_TIME);
-
+        $schedule->command("newActions:process -d 1")->dailyAt(self::MT1_SYNC_TIME);
     }
 }
