@@ -144,8 +144,7 @@ class ImportMt1EmailsService
                         $recordsToFlag[] = [
                             "email_id" => $importingEmailId, 
                             "feed_id" => $feedId, 
-                            "datetime" => Carbon::parse($record['last_updated'])->toDateString(),
-                            "capture_date" => $record['capture_date']
+                            "subscribe_date" => Carbon::parse($record['last_updated'])->toDateString()
                         ];
                     }
                     elseif (null === $existsCheck && !isset($this->emailIdCache[$importingEmailId]) && isset($this->emailAddressCache[$emailAddress])) {
@@ -191,6 +190,14 @@ class ImportMt1EmailsService
                             $record['email_id'] = $importingEmailId;
                         }
 
+                        if ('fresh' === $emailStatus) {
+                            $recordsToFlag[] = [
+                                "email_id" => $importingEmailId, 
+                                "feed_id" => $feedId, 
+                                "subscribe_date" => Carbon::parse($record['last_updated'])->toDateString()
+                            ];
+                        }
+
                         $emailActionStatus = $this->emailActionStatusRepo->getActionStatus($record['email_id']);
                         $attributedFeedId = (int)$this->emailRepo->getCurrentAttributedFeedId($record['email_id']);
                         $newStatus = EmailAttributableFeedLatestData::ATTRIBUTED;
@@ -199,29 +206,32 @@ class ImportMt1EmailsService
                             $this->emailActionStatusRepo->batchInsert($this->mapRecordToEmailStatus($record, 'None'));
                         }
 
-                        if ($attributionTruths->has_action && ($attributedFeedId === (int)$record['feed_id'])) {
-                            // pass conditional
+                        if ($attributedFeedId === (int)$record['feed_id']) {
+                            // pass conditional - we don't want to update attributed information
                         }
-                        elseif ($attributionTruths->has_action && ($attributedFeedId !== (int)$record['feed_id'])) {
-                            // set status to POR
-                            $newStatus = EmailAttributableFeedLatestData::PASSED_DUE_TO_RESPONDER;
-                        }
-                        elseif (!$attributionTruths->has_action && 'fresh' === $emailStatus) {
-                            // Need to change attribution and some types will change
-                            $newStatus = EmailAttributableFeedLatestData::ATTRIBUTED;
-                        }
-                        elseif (!$attributionTruths->has_action && $attributionTruths->recent_import) {
-                            // set status to POA
-                            $newStatus = EmailAttributableFeedLatestData::PASSED_DUE_TO_ATTRIBUTION;
-                        }
-                        elseif (!$attributionTruths->has_action && !$attributionTruths->recent_import) {
-                            // set status to POA
-                            $newStatus = EmailAttributableFeedLatestData::PASSED_DUE_TO_ATTRIBUTION;
+                        else {
+                            if ($attributionTruths->has_action && ($attributedFeedId !== (int)$record['feed_id'])) {
+                                // set status to POR
+                                $newStatus = EmailAttributableFeedLatestData::PASSED_DUE_TO_RESPONDER;
+                            }
+                            elseif (!$attributionTruths->has_action && 'fresh' === $emailStatus) {
+                                // Need to change attribution and some types will change
+                                $newStatus = EmailAttributableFeedLatestData::ATTRIBUTED;
+                            }
+                            elseif (!$attributionTruths->has_action && $attributionTruths->recent_import) {
+                                // set status to POA
+                                $newStatus = EmailAttributableFeedLatestData::PASSED_DUE_TO_ATTRIBUTION;
+                            }
+                            elseif (!$attributionTruths->has_action && !$attributionTruths->recent_import) {
+                                // set status to POA
+                                $newStatus = EmailAttributableFeedLatestData::PASSED_DUE_TO_ATTRIBUTION;
+                            }
+
+                            $record['other_fields'] = '{}';
+                            $record['attribution_status'] = $newStatus;
+                            $this->emailFeedDataRepo->batchInsert($record);
                         }
                         
-                        $record['other_fields'] = '{}';
-                        $record['attribution_status'] = $newStatus;
-                        $this->emailFeedDataRepo->batchInsert($record);
                     }
                 }
 
@@ -387,8 +397,18 @@ class ImportMt1EmailsService
         $hasActions = $attributionTruths->has_action;
         $currentAttributionLevel = $this->emailRepo->getCurrentAttributionLevel($emailId);
         $importingAttrLevel = $this->attributionLevelRepo->getLevel($importingFeedId);
+        $lastImportDate = $this->emailFeedDataRepo->getSubscribeDate($emailId);
 
         if (0 === $isRecentImport && 0 === $hasActions && $importingAttrLevel < $currentAttributionLevel) {
+            // If no longer protected by 15 day shield, no actions, and the importing feed has a better attribution level, change attribution
+            return 'fresh';
+        }
+        elseif (0 === $hasActions && is_null($lastImportDate)) {
+            // change attribution, just so that we get a fuller db
+            return 'fresh';
+        }
+        elseif (0 === $hasActions && Carbon::parse($lastImportDate)->lt(Carbon::today()->subDays(90))) {
+            // After 90 days, all attribution can be changed
             return 'fresh';
         }
         else {
