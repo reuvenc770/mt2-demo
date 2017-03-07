@@ -96,10 +96,11 @@ mt2App.service( 'AttributionApiService' , function ( $http , $log ) {
         } ).then( successCallback , failureCallback );
     }
 
-    self.getProjectionRecords = function ( modelId , successCallback , failureCallback ) {
+    self.getProjectionRecords = function ( data , successCallback , failureCallback ) {
         return $http( {
-            "method" : "GET" ,
-            "url" : self.projectionApiUrl + '/report/' + modelId 
+            "method" : "POST" ,
+            "url" : self.projectionApiUrl + '/report/' ,
+            "data" : data
         } ).then( successCallback , failureCallback );
     }
 } );
