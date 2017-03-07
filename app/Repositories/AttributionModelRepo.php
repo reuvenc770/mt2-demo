@@ -7,8 +7,7 @@ namespace App\Repositories;
 
 use DB;
 use App\Repositories\AttributionLevelRepo;
-use App\Repositories\Attribution\ClientReportRepo;
-use App\Repositories\Attribution\FeedReportRepo;
+use App\Repositories\AttributionFeedReportRepo;
 use App\Repositories\EmailFeedAssignmentRepo;
 use App\Models\AttributionLevel;
 use App\Models\AttributionModel;
@@ -39,8 +38,7 @@ class AttributionModelRepo {
             
         #generates temp level table
         AttributionLevelRepo::generateTempTable( $newModel->id );
-        FeedReportRepo::generateTempTable( $newModel->id );
-        ClientReportRepo::generateTempTable( $newModel->id );
+        AttributionFeedReportRepo::generateTempTable( $newModel->id );
         EmailFeedAssignmentRepo::generateTempTable( $newModel->id );
 
         if ( !is_null( $levels ) ) {
@@ -194,5 +192,9 @@ class AttributionModelRepo {
 
     public function transientRecords ( $modelId ) {
         #returns the current transient IDs
+    }
+
+    public function getNonliveModels () {
+        return $this->models->select( 'id' , 'name' )->where( 'live' , '=' , 0 )->get();
     }
 }

@@ -97,7 +97,7 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
 
         $this->latestDataRepo->insertStored();
         $this->emailStatusRepo->insertStored();
-        $this->statsRepo->massUpdateValidEmailStatus($statuses, $this->processingDate);
+        $this->statsRepo->massUpdateValidEmailStatus($statuses);
 
         // Handles all attribution changes
         $jobIdentifier = '3Party-' . substr($lastEmail, 0, 1); // starting letter - so we can identify the batch
@@ -160,7 +160,14 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
                 $importingAttrLevel = $this->attributionLevelRepo->getLevel($record->feedId);
                 $currentAttributionLevel = $this->emailRepo->getCurrentAttributionLevel($record->emailId);
 
-                if (null === $currentAttributionLevel || $importingAttrLevel < $currentAttributionLevel) {
+                $lastImportDate = $this->latestDataRepo->getSubscribeDate($record->emailId);
+
+                if (is_null($lastImportDate) || Carbon::parse($lastImportDate)->lt(Carbon::today()->subDays(90))) {
+                    // No action and it's been over 90 days, give it to the next feed that shows up
+                    $record->uniqueStatus = 'unique';
+                    $record->attrStatus = EmailAttributableFeedLatestData::ATTRIBUTED;
+                }
+                elseif (null === $currentAttributionLevel || $importingAttrLevel < $currentAttributionLevel) {
                     // Importing attribution is lower (meaning greater attribution power), so switch to import
                     $record->uniqueStatus = 'unique';
                     $record->attrStatus = EmailAttributableFeedLatestData::ATTRIBUTED;

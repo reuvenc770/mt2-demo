@@ -13,7 +13,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Facades\JobTracking;
 use App\Models\JobEntry;
 
-use App\Factories\ServiceFactory;
+use App\Services\AttributionAggregatorService;
 
 use Log;
 use Carbon\Carbon;
@@ -22,37 +22,43 @@ class AttributionAggregatorJob extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping, DispatchesJobs;
 
-    const DEFAULT_QUEUE_NAME = 'default'; #'modelAttribution';
+    const JOB_NAME = 'AttributionAggregatorJob';
 
-    private $jobName = 'AttributionAggregator';
+    private $jobName;
     private $tracking;
 
-    private $reportType;
-    private $aggregator;
+    private $mode;
     private $dateRange;
+    private $currentDateRange;
+    private $offerId;
     private $modelId;
-    private $chainOptions;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct( $reportType , $tracking , array $dateRange = null , $modelId = null , $chainOptions = [] )
+    public function __construct( $mode , array $dateRange , $tracking , $offerId = null , $modelId = null )
     {
-        $this->jobName .= ":{$reportType}:" . ( is_null( $dateRange ) ? Carbon::today()->toDateString() : $dateRange[ 'start' ] . "-" . $dateRange[ 'end' ] );
-
-        $this->reportType = $reportType;
-        $this->tracking = $tracking;
+        $this->mode = $mode;
         $this->dateRange = $dateRange;
-
+        $this->tracking = $tracking;
+        $this->offerId = $offerId;
         $this->modelId = $modelId;
+
+        if ( !in_array( $this->mode , [ AttributionAggregatorService::RUN_STANDARD , AttributionAggregatorService::RUN_CPM ] ) ) {
+            throw new JobException( "{$this->jobName}: {$this->mode} is not a valid mode." );
+        }
+
+        $this->jobName = self::JOB_NAME . ":Mode-" . $this->mode . ":Range-" . json_encode( $this->dateRange );
+
+        if ( !is_null( $this->offerId ) ) {
+            $this->jobName .= ":OfferID-" . $this->offerId;
+        }
 
         if ( !is_null( $this->modelId ) ) {
             $this->jobName .= ":Model-" . $this->modelId;
         }
-
-        $this->chainOptions = $chainOptions;
 
         JobTracking::startAggregationJob( $this->jobName , $this->tracking );
     }
@@ -62,7 +68,7 @@ class AttributionAggregatorJob extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle( AttributionAggregatorService $aggregator )
     {
         if ( $this->jobCanRun( $this->jobName ) ) {
             try {
@@ -70,16 +76,17 @@ class AttributionAggregatorJob extends Job implements ShouldQueue
 
                 JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
 
-                $this->aggregator = ServiceFactory::createAggregatorService( $this->reportType );
-                $this->aggregator->setChainOptions( $this->chainOptions );
+                do {
+                    $this->chunkDateRange();
 
-                if ( !is_null( $this->modelId ) ) {
-                    $this->aggregator->setModelId( $this->modelId );
-                }
+                    if ( $this->mode === AttributionAggregatorService::RUN_STANDARD ) {
+                        $aggregator->standardRun( $this->currentDateRange , $this->modelId );
+                    }
 
-                $this->aggregator->buildAndSaveReport( $this->dateRange );
-
-                $this->queueNextJob( $this->reportType , $this->dateRange );
+                    if ( $this->mode === AttributionAggregatorService::RUN_CPM ) {
+                        $aggregator->cpmRun( $this->offerId , $this->currentDateRange , $this->modelId );
+                    }
+                } while ( $this->currentDateRange[ 'end' ] !== $this->dateRange[ 'end' ] );
 
                 JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking );
             } catch ( JobException $e ) {
@@ -100,57 +107,32 @@ class AttributionAggregatorJob extends Job implements ShouldQueue
         }
     }
 
-    protected function queueNextJob ( $reportType , $dateRange ) {
-        $isSingleDayRun = ( Carbon::parse( $dateRange[ 'start' ] )->diffInDays( Carbon::parse( $dateRange[ 'end' ] ) ) === 0 );
+    protected function chunkDateRange () {
+        if ( is_null( $this->currentDateRange ) ) {
+            $dateCursor = $this->dateRange[ 'start' ];
+        } else {
+            $dateCursor = $this->currentDateRange[ 'end' ];
+        }
 
-        if ( $isSingleDayRun ) {
-            $nextReportType = "";
+        $daysLeft = Carbon::parse( $dateCursor )
+                        ->diffInDays( Carbon::parse( $this->dateRange[ 'end' ] ) , false );
 
-            switch ( $reportType ) {
-                case 'Record' :
-                    $nextReportType = 'Feed';
-                break;
+        if ( $daysLeft < 0 ) {
+            throw new JobException( "Invalid Date Range: {$dateCursor}::{$this->dateRange[ 'end' ]}" );
+        }
 
-                case 'Feed' :
-                    $nextReportType = 'Client';
-                break;
+        if ( $daysLeft <= 31 ) {
+            $this->currentDateRange = [
+                'start' => $dateCursor ,
+                'end' => $this->dateRange[ 'end' ]
+            ];
+        }
 
-                case 'Client' :
-                    if ( is_null( $this->modelId ) ) {
-                        $this->dispatch( new AttributionConversionJob(
-                            $this->chainOptions[ 'processMode' ] ,
-                            'all' ,
-                            str_random( 16 ) , 
-                            $this->chainOptions[ 'dateRange' ] ,
-                            $this->chainOptions[ 'currentDate' ]
-                        ) );
-                    }
-
-                    JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking );
- 
-                    $this->unlock( $this->jobName );
- 
-                    exit();
-                break;
-
-                default :
-                    JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking );
-                    
-                    $this->unlock( $this->jobName );
-                    
-                    exit();
-                break;
-            }
-
-            $job = ( new AttributionAggregatorJob(
-                $nextReportType ,
-                str_random( 16 ) ,
-                $dateRange ,
-                $this->modelId ,
-                $this->chainOptions
-            ) )->onQueue( self::DEFAULT_QUEUE_NAME );
-
-            $this->dispatch( $job );
+        if ( $daysLeft > 31 ) {
+            $this->currentDateRange = [
+                'start' => $dateCursor ,
+                'end' => Carbon::parse( $dateCursor )->addDays( 31 )->toDateTimeString()
+            ];
         }
     }
 

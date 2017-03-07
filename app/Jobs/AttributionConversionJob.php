@@ -14,6 +14,8 @@ use Carbon\Carbon;
 
 use App\Factories\ServiceFactory;
 use App\Services\CakeConversionService;
+use App\Jobs\AttributionAggregatorJob;
+use App\Services\AttributionAggregatorService;
 use App\Models\JobEntry;
 use App\Facades\JobTracking;
 
@@ -22,33 +24,25 @@ class AttributionConversionJob extends Job implements ShouldQueue
     use InteractsWithQueue, SerializesModels, DispatchesJobs;
 
     CONST JOB_NAME = "AttributionConversionJob";
+    CONST RECORD_TYPE = 'all';
 
-    const PROCESS_MODE_SAVE = 'save';
-    const PROCESS_MODE_REALTIME = 'realtime';
-    const PROCESS_MODE_RERUN = 'rerun';
-    const PROCESS_MODE_DATA_ONLY = 'dataOnly';
-
-    protected $processMode;
     protected $dateRange;
-    protected $recordType;
-
     protected $currentDate;
     protected $tracking;
+    protected $modelId;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct( $processMode , $recordType , $tracking , $dateRange , $currentDate = null )
+    public function __construct( $tracking , $dateRange , $modelId = null )
     {
-        $this->processMode = $processMode;
-        $this->recordType = $recordType;
         $this->tracking = $tracking;
         $this->dateRange = $dateRange;
-        $this->currentDate = $currentDate;
+        $this->modelId = $modelId;
 
-        $fullJobName = self::JOB_NAME . '-' . $this->processMode . '-' . $recordType . 'Type-' . ( is_null( $this->currentDate ) ? 'initial' : 'current=' . Carbon::parse( $this->currentDate )->addDay()->toDateString() )  . '-range=';
+        $fullJobName = self::JOB_NAME . '-range=';
 
         JobTracking::startTrackingJob( $fullJobName , $this->dateRange[ 'start' ] , $this->dateRange[ 'end' ] , $this->tracking );
     }
@@ -65,38 +59,20 @@ class AttributionConversionJob extends Job implements ShouldQueue
         do {
             if ( is_null( $this->currentDate ) ) {
                 $this->currentDate = $this->dateRange[ 'start' ];
-            } elseif ( $this->currentDate == $this->dateRange[ 'end' ] ) {
-                JobTracking::changeJobState( JobEntry::SKIPPED , $this->tracking );
-                
-                return;
             } else {
                 $this->currentDate = Carbon::parse( $this->currentDate )->addDay()->toDateString();
             }
 
-            $cakeService->updateConversionsFromAPI( $this->processMode , $this->recordType , $this->currentDate );
-
-            if ( in_array( $this->processMode , [ self::PROCESS_MODE_RERUN , self::PROCESS_MODE_REALTIME ] ) ) {
-                $job = new AttributionAggregatorJob(
-                    'Record' ,
-                    str_random( 16 ) ,
-                    [ 'start' => Carbon::parse( $this->currentDate )->startOfDay()->toDateTimeString() , 'end' => Carbon::parse( $this->currentDate )->endOfDay()->toDateTimeString() ] ,
-                    null ,
-                    [ 'processMode' => $this->processMode , 'dateRange' => $this->dateRange , 'currentDate' => $this->currentDate ]
-                );
-
-                $this->dispatch( $job );
-            }
-
-            if ( $this->processMode == self::PROCESS_MODE_DATA_ONLY ) {
-                $this->dispatch( new AttributionConversionJob(
-                    $this->processMode ,
-                    'all' ,
-                    str_random( 16 ) , 
-                    $this->dateRange ,
-                    $this->currentDate
-                ) );
-            }
-        } while ( $this->processMode === 'save' && $this->currentDate !== $this->dateRange[ 'end' ] ); 
+            $cakeService->updateConversionsFromAPI( $this->currentDate );
+        } while ( $this->currentDate !== $this->dateRange[ 'end' ] ); 
+        
+        $this->dispatch( new AttributionAggregatorJob(
+            AttributionAggregatorService::RUN_STANDARD ,
+            $this->dateRange ,
+            str_random( 16 ) , 
+            null ,
+            $this->modelId
+        ) );
 
         JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking );
     }
