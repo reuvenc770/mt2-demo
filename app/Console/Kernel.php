@@ -68,7 +68,7 @@ class Kernel extends ConsoleKernel
         Commands\AttributionBatchProcess::class,
         Commands\SendDeploysToOps::class,
         Commands\SyncMT1FeedLevels::class,
-        Commands\AttributionConversionCommand::class,
+        Commands\AttributionReportCommand::class,
         Commands\PopulateListProfileAggregationTable::class,
         Commands\NotifySomeoneAboutSomething::class,
         Commands\PullContentServerRecordData::class,

@@ -10,10 +10,8 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 
 use App\Services\AttributionModelService;
+use App\Services\AttributionFeedReportService;
 use App\Http\Requests\AttributionModelRequest;
-
-use App\Collections\Attribution\ProjectionChartCollection;
-use App\Collections\Attribution\ProjectionReportCollection;
 
 use Artisan;
 use Cache;
@@ -22,18 +20,13 @@ use Sentinel;
 class AttributionController extends Controller
 {
     protected $service;
+    protected $reportService;
 
-    protected $chartCollection;
     protected $reportCollection;
 
-    public function __construct (
-        AttributionModelService $service ,
-        ProjectionChartCollection $chartCollection ,
-        ProjectionReportCollection $reportCollection
-    ) {
+    public function __construct ( AttributionModelService $service , AttributionFeedReportService $reportService ) {
         $this->service = $service;
-        $this->chartCollection = $chartCollection;
-        $this->reportCollection = $reportCollection;
+        $this->reportService = $reportService;
     }
 
     /**
@@ -174,15 +167,11 @@ class AttributionController extends Controller
         return response()->json( $this->service->getModelFeeds( $modelId ) );
     }
 
-    public function showProjection ( $modelId ) {
-        return response()->view( "pages.attribution.attribution-projection" , [ 'modelId' => $modelId ] );
+    public function showProjection () {
+        return response()->view( "pages.attribution.attribution-projection" , [ 'models' => $this->service->getNonliveModels() ] );
     }
 
-    public function getChartData ( $modelId ) {
-        return $this->chartCollection->getChartData( $modelId );
-    }
-
-    public function getReportData ( $modelId ) {
-        return $this->reportCollection->getReportData( $modelId );
+    public function getReportData ( Request $request ) {
+        return response()->json( $this->reportService->getReportData( $request ) );
     }
 }
