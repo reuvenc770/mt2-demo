@@ -8,8 +8,6 @@ namespace App\Services;
 use App\Services\Interfaces\IConversion;
 use App\Repositories\CakeConversionRepo;
 use App\Services\API\CakeConversionApi;
-use App\Repositories\Attribution\RecordReportRepo;
-use App\Jobs\AttributionConversionJob;
 use Carbon\Carbon;
 use Maknz\Slack\Facades\Slack;
 
@@ -17,12 +15,10 @@ class CakeConversionService implements IConversion {
     CONST ROOM = "#mt2-dev-failed-jobs";
 
     protected $repo;
-    protected $recordRepo;
     protected $api;
 
-    public function __construct ( CakeConversionRepo $repo , CakeConversionApi $api , RecordReportRepo $recordRepo ) {
+    public function __construct ( CakeConversionRepo $repo , CakeConversionApi $api ) {
         $this->repo = $repo;
-        $this->recordRepo = $recordRepo;
         $this->api = $api;
     }
 
@@ -34,17 +30,13 @@ class CakeConversionService implements IConversion {
         return $this->repo->getByDeployEmailDate ( $deployId , $emailId , $date  );
     }
 
-    public function updateConversionsFromAPI ( $processMode , $recordType , $date ) {
-        if ( in_array( $recordType , [ 'cpc' , 'all' ] ) ) {
-            $this->retrieveAndSaveFromAPI( $processMode , 'cpc' , $date );
-        }
+    public function updateConversionsFromAPI ( $date ) {
+        $this->retrieveAndSaveFromAPI( 'cpc' , $date );
 
-        if ( in_array( $recordType , [ 'cpa' , 'all' ] ) ) {
-            $this->retrieveAndSaveFromAPI( $processMode , 'cpa' , $date );
-        }
+        $this->retrieveAndSaveFromAPI( 'cpa' , $date );
     }
 
-    public function retrieveAndSaveFromAPI ( $processMode , $recordType , $date ) {
+    public function retrieveAndSaveFromAPI ( $recordType , $date ) {
         $statsGuzzle = $this->api->sendApiRequest( [
             'recordType' => $recordType ,
             'start' => Carbon::parse( $date )->startOfDay()->toDateTimeString() ,
@@ -54,21 +46,16 @@ class CakeConversionService implements IConversion {
         $statsResponse = json_decode( $statsGuzzle->getBody()->getContents() );
 
         if ( count( $statsResponse->stats ) > 0 ) {
-            $sqlStringList = $this->formatSqlValueString( $processMode , $statsResponse->stats , $recordType );
+            $sqlStringList = $this->formatSqlValueString( $statsResponse->stats , $recordType );
 
             $this->repo->insertOrUpdate( $sqlStringList[ 'conversion' ] );
-
-            if ( $processMode === AttributionConversionJob::PROCESS_MODE_REALTIME ) {
-                $this->recordRepo->runAccumulativeQuery( $sqlStringList[ 'record' ] );
-            }
         } else {
             Slack::to(self::ROOM)->send( "Failed to grab conversions from CAKE. No data returned from service." );
         }
     }
 
-    protected function formatSqlValueString ( $processMode , $stats , $recordType ) {
+    protected function formatSqlValueString ( $stats , $recordType ) {
         $conversionRows = [];
-        $recordReportRows = [];
 
         foreach ( $stats as $currentRecord ) {
             $emailId = $this->parseEmailId( $currentRecord->s2 );
@@ -101,25 +88,9 @@ class CakeConversionService implements IConversion {
                 'NOW()' ,
                 'NOW()'
             ] ) . ")";
-
-            if ( $processMode === AttributionConversionJob::PROCESS_MODE_REALTIME ) {
-                $recordReportRows []= '(' . implode( ',' , [
-                    $emailId ,
-                    "'{$currentRecord->s1}'" ,
-                    $currentRecord->offer_id ,
-                    $currentRecord->received_usa ,
-                    "'{$currentRecord->conversion_datetime}'" ,
-                    'NOW()' ,
-                    'NOW()'
-                ] ) . ')';
-            }
         }
 
         $output = [ 'conversion' => implode( ',' , $conversionRows ) ];
-
-        if ( $processMode === AttributionConversionJob::PROCESS_MODE_REALTIME ) {
-            $output[ 'record' ] = implode( ',' , $recordReportRows );
-        }
 
         return $output;
     }
