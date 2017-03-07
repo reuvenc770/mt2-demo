@@ -191,6 +191,15 @@ class ImportMt1EmailsService
                             $record['email_id'] = $importingEmailId;
                         }
 
+                        if ('fresh' === $emailStatus) {
+                            $recordsToFlag[] = [
+                                "email_id" => $importingEmailId, 
+                                "feed_id" => $feedId, 
+                                "datetime" => Carbon::parse($record['last_updated'])->toDateString(),
+                                "capture_date" => $record['capture_date']
+                            ];
+                        }
+
                         $emailActionStatus = $this->emailActionStatusRepo->getActionStatus($record['email_id']);
                         $attributedFeedId = (int)$this->emailRepo->getCurrentAttributedFeedId($record['email_id']);
                         $newStatus = EmailAttributableFeedLatestData::ATTRIBUTED;
