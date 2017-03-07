@@ -257,8 +257,7 @@ class DeployRepo implements Mt2Export
 
             try {
                 // value below is 0-indexed with Monday as 0 and Sunday as 6
-                $dayOfWeek = Carbon::parse( $deploy['send_date'] )->dayOfWeek;
-                $dayOfWeek = ( $dayOfWeek == 0 ? 6 : $dayOfWeek - 1 );
+                $dayOfWeek = date('N', strtotime($deploy['send_date']) ) - 1;
             } catch ( \Exception $e) {
                 $errors[] = "Send date is invalid.";
             }
