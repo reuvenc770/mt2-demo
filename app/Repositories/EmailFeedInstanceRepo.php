@@ -25,10 +25,10 @@ class EmailFeedInstanceRepo implements ICanonicalDataSource {
 
     private function buildBatchedQuery($batchInstances) {
         return "INSERT INTO email_feed_instances
-                (email_id, feed_id, subscribe_datetime, unsubscribe_datetime,
-                status, first_name, last_name, address, address2, city, state, 
+                (email_id, feed_id, subscribe_date, subscribe_datetime, capture_date,
+                first_name, last_name, address, address2, city, state, 
                 zip, country, dob, gender, phone, mobile_phone, work_phone, 
-                capture_date, source_url, ip, created_at, updated_at)
+                source_url, ip, other_fields, created_at, updated_at)
 
                 VALUES
 
@@ -37,9 +37,9 @@ class EmailFeedInstanceRepo implements ICanonicalDataSource {
                 ON DUPLICATE KEY UPDATE
                 email_id = email_id,
                 feed_id = feed_id,
+                subscribe_date = subscribe_date,
                 subscribe_datetime = subscribe_datetime,
-                unsubscribe_datetime = unsubscribe_datetime,
-                status = status,
+                capture_date = capture_date,
                 first_name = first_name,
                 last_name = last_name,
                 address = address,
@@ -53,9 +53,9 @@ class EmailFeedInstanceRepo implements ICanonicalDataSource {
                 phone = phone,
                 mobile_phone = mobile_phone,
                 work_phone = work_phone,
-                capture_date = capture_date,
                 source_url = source_url,
                 ip = ip,
+                other_fields = other_fields,
                 created_at = created_at,
                 updated_at = updated_at";
     }
@@ -66,9 +66,9 @@ class EmailFeedInstanceRepo implements ICanonicalDataSource {
         return '('
             . $pdo->quote($row['email_id']) . ','
             . $pdo->quote($row['feed_id']) . ','
+            . $pdo->quote($row['subscribe_date']) . ','
             . $pdo->quote($row['subscribe_datetime']) . ','
-            . 'NULL,'
-            . $pdo->quote($row['status']) . ','
+            . $pdo->quote($row['capture_date']) . ','
             . $pdo->quote($row['first_name']) . ','
             . $pdo->quote($row['last_name']) . ','
             . $pdo->quote($row['address']) . ','
@@ -82,76 +82,12 @@ class EmailFeedInstanceRepo implements ICanonicalDataSource {
             . $pdo->quote($row['phone']) . ','
             . $pdo->quote($row['mobile_phone']) . ','
             . $pdo->quote($row['work_phone']) . ','
-            . $pdo->quote($row['capture_date']) . ','
             . $pdo->quote($row['source_url']) . ','
-            . $pdo->quote($row['ip'])
+            . $pdo->quote($row['ip']) . ','
+            . $pdo->quote($row['other_fields'])
             . ', NOW(), NOW())';
     }
 
-    public function insert($row) {
-        DB::statement(
-            "INSERT INTO email_feed_instances
-            (email_id, feed_id, subscribe_datetime, unsubscribe_datetime,
-            status, first_name, last_name, address, address2, city, state, 
-            zip, country, dob, gender, phone, mobile_phone, work_phone, 
-            capture_date, source_url, ip, created_at, updated_at )
-
-            VALUES
-
-            (:email_id, :feed_id, :subscribe_datetime, :unsubscribe_datetime,
-            :status, :first_name, :last_name, :address, :address2, :city, :state, 
-            :zip, :country, :dob, :gender, :phone, :mobile_phone, :work_phone, 
-            :capture_date, :source_url, :ip, NOW(), NOW() )
-
-            ON DUPLICATE KEY UPDATE
-            email_id= email_id,
-            feed_id= feed_id,
-            subscribe_datetime= subscribe_datetime,
-            unsubscribe_datetime= unsubscribe_datetime,
-            status= status,
-            first_name= first_name,
-            last_name= last_name,
-            address= address,
-            address2= address2,
-            city= city,
-            state= state,
-            zip= zip,
-            country= country,
-            dob= dob,
-            gender= gender,
-            phone= phone,
-            mobile_phone= mobile_phone,
-            work_phone= work_phone,
-            capture_date= capture_date,
-            source_url= source_url,
-            ip= ip,
-            created_at = created_at,
-            updated_at = updated_at",
-            array(
-                ':email_id' => $row['email_id'],
-                ':feed_id' => $row['feed_id'],
-                ':subscribe_datetime' => $row['subscribe_datetime'],
-                ':unsubscribe_datetime' => $row['unsubscribe_datetime'],
-                ':status' => $row['status'],
-                ':first_name' => $row['first_name'],
-                ':last_name' => $row['last_name'],
-                ':address' => $row['address'],
-                ':address2' => $row['address2'],
-                ':city' => $row['city'],
-                ':state' => $row['state'],
-                ':zip' => $row['zip'],
-                ':country' => $row['country'],
-                ':dob' => $row['dob'],
-                ':gender' => $row['gender'],
-                ':phone' => $row['phone'],
-                ':mobile_phone' => $row['mobile_phone'],
-                ':work_phone' => $row['work_phone'],
-                ':capture_date' => $row['capture_date'],
-                ':source_url' => $row['source_url'],
-                ':ip' => $row['ip']
-            )
-        );        
-    }
 
     public function getEmailInstancesAfterDate($emailId, $date, $feedId) {
         $attrDb = config('database.connections.attribution.database');
