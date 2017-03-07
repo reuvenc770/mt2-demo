@@ -14,7 +14,7 @@ class NewInstancesTable extends Migration
         Schema::drop('email_feed_instances');
 
         Schema::create('email_feed_instances', function(Blueprint $table) {
-            $table->bigIncrements();
+            $table->bigIncrements('id');
             $table->bigInteger('email_id')->unsigned()->default(0);
             $table->integer('feed_id')->unsigned()->default(0);
             $table->date('subscribe_date');

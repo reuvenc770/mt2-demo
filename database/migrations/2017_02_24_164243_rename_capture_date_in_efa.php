@@ -11,7 +11,7 @@ class RenameCaptureDateInEfa extends Migration
      * @return void
      */
     public function up() {
-        Schema::connection('attribution')->table('email_feed_assignments' function($table) {
+        Schema::connection('attribution')->table('email_feed_assignments', function($table) {
             $table->renameColumn('capture_date', 'subscribe_date');
         });
 
@@ -23,7 +23,7 @@ class RenameCaptureDateInEfa extends Migration
      * @return void
      */
     public function down() {
-        Schema::connection('attribution')->table('email_feed_assignments' function($table) {
+        Schema::connection('attribution')->table('email_feed_assignments', function($table) {
             $table->renameColumn('subscribe_date', 'capture_date');
         });
 

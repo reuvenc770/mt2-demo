@@ -28,7 +28,7 @@ class EmailFeedInstanceRepo implements ICanonicalDataSource {
                 (email_id, feed_id, subscribe_date, subscribe_datetime, capture_date,
                 first_name, last_name, address, address2, city, state, 
                 zip, country, dob, gender, phone, mobile_phone, work_phone, 
-                source_url, ip, other_fields created_at, updated_at)
+                source_url, ip, other_fields, created_at, updated_at)
 
                 VALUES
 
