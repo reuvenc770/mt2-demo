@@ -324,7 +324,6 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
         }
     }
 
-    
     public function getMinAndMaxIds() {
         $min = $this->model->min('email_id');
         $max = $this->model->max('email_id');
