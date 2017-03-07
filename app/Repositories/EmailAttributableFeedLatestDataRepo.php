@@ -314,7 +314,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                         $join->on('email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id');
                     })
                     ->where('email_attributable_feed_latest_data', $emailId)
-                    ->select('email_attributable_feed_latest_data.subscribe_date')
+                    ->select('efa.subscribe_date')
                     ->first();
 
         if ($result) {
