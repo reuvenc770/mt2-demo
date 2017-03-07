@@ -8,7 +8,7 @@ use Illuminate\Database\Query\Builder;
 use Carbon\Carbon;
 
 class OfferRepo {
-  
+
     private $offer;
 
     public function __construct(Offer $offer) {
@@ -41,14 +41,14 @@ class OfferRepo {
         return $this->offer->where('name', 'like', $term . '%')
             ->where(DB::raw("SUBSTR(exclude_days, {$day},1)"),'N')
             ->where( [ [ 'is_approved' , '=' , 1 ] , [ 'status' , '=' , 'A' ] ] )
-            ->select("id","name")->get();
+            ->select("id","name")->orderBy('name')->get();
     }
 
     public function searchByDay($day){
         return $this->offer
             ->where(DB::raw("SUBSTR(exclude_days, {$day},1)"),'N')
             ->where( [ [ 'is_approved' , '=' , 1 ] , [ 'status' , '=' , 'A' ] ] )
-            ->select("id","name")->get();
+            ->select("id","name")->orderBy('name')->get();
     }
 
     public function offerCanBeMailedOnDay($offerId, $date) {
@@ -57,7 +57,7 @@ class OfferRepo {
 
         // value below is 0-indexed with Monday as 0 and Sun as 6
 
-        $dayOfWeek = date('N',$date) - 1;
+        $dayOfWeek = date('N',strtotime($date)) - 1;
 
         // 'N' means that the offer is not excluded and can be mailed
         return $days[$dayOfWeek] === 'N';

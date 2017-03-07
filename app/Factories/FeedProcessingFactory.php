@@ -19,6 +19,8 @@ use App\Services\Validators\SourceUrlValidator;
 // Suppression
 use App\Services\SuppressionService;
 use App\Services\SuppressionListSuppressionService;
+use App\Services\SuppressionProcessingStrategies\FirstPartySuppressionProcessingService;
+
 
 // Processors
 use App\Services\FirstPartyRecordProcessingService;
@@ -130,7 +132,7 @@ class FeedProcessingFactory
 
         $espAccount = EspApiAccount::getAccount($workflow->esp_account_id);
         $apiService = APIFactory::createApiReportService($espAccount->esp->name, $espAccount->id);
-        $suppStrategy = new $suppStrategyName(App::make(\App\Repositories\FirstPartyOnlineSuppressionListRepo::class), $apiService);
+        $suppStrategy = new FirstPartySuppressionProcessingService(App::make(\App\Repositories\FirstPartyOnlineSuppressionListRepo::class), $apiService);
         $suppStrategy->setFeedId($feedId);
 
         return new \App\Services\WorkflowProcessingService($actionsRepo, $stepsRepo, $suppService, $suppStrategy);

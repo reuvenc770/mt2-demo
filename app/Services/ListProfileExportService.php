@@ -5,6 +5,7 @@ namespace App\Services;
 use App\DataModels\CacheReportCard;
 use App\DataModels\ReportEntry;
 use App\Facades\EspApiAccount;
+use App\Jobs\BuildAndSendReportCard;
 use App\Models\ListProfileBaseTable;
 use App\Models\OfferSuppressionList;
 use App\Models\SuppressionListSuppression;
@@ -15,6 +16,8 @@ use App\Repositories\OfferRepo;
 use App\Repositories\OfferSuppressionListRepo;
 use Carbon\Carbon;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use League\Flysystem\Adapter\Ftp;
+use League\Flysystem\Filesystem;
 use Storage;
 use Cache;
 use Log;
@@ -202,10 +205,11 @@ class ListProfileExportService
                 $deployProgress['files'] = array_merge($deployProgress['files'], array($fileName));
                 Cache::forget("header-{$key}");
                 Cache::forget("deploy-{$key}");
+                $fileName = $this->buildCombineFile($header,$deployProgress['ftp_folder'], $deployProgress['name'], $deployProgress['files'], $offerId, $deployProgress['id'],  $deployProgress['espAccount']);
                 if($reportCardName) {
+                    $recordEntry->setFileName($fileName);
                     $reportCard->addEntry($recordEntry);
                 }
-                $this->buildCombineFile($header,$deployProgress['ftp_folder'], $deployProgress['name'], $deployProgress['files'], $offerId, $deployProgress['id'],  $deployProgress['espAccount']);
             } else {
                 //Update the cache
                 Cache::put("deploy-{$key}",
@@ -225,8 +229,7 @@ class ListProfileExportService
         if($reportCard){
           $reportCard->nextEntry();
             if($reportCard->isReportCardFinished()){
-                Log::emergency("I finished a report card");
-                Log::emergency($reportCard->toArray());
+               $this->dispatch(new BuildAndSendReportCard($reportCard));
             }
         }
     }
@@ -281,6 +284,13 @@ class ListProfileExportService
 
     private function buildCombineFile($header, $ftpFolder, $fileName, $files, $offerId,$deployId, $espAccount)
     {
+        $adapter = new Ftp([
+                'host' => config("filesystems.disks.SystemFtp.host"),
+                'username' => config("filesystems.disks.SystemFtp.username"),
+                'password' => config("filesystems.disks.SystemFtp.password"),
+            ]
+        );
+        $fileSys = new Filesystem($adapter);
         $espAccountName = EspApiAccount::getEspAccountName($espAccount);
         $offerName = $this->offerRepo->getOfferName($offerId);
         $date = Carbon::today()->toDateString();
@@ -289,18 +299,29 @@ class ListProfileExportService
         Storage::disk('SystemFtp')->delete($combineFileName);
         Storage::disk('SystemFtp')->delete($combineFileNameDNM);
         Storage::disk('SystemFtp')->append($combineFileName, implode(',', $header));
-
+        $tempStream = tmpfile();
+        $tempDNMStream = tmpfile();
         foreach ($files as $file) {
-            $contents = Storage::get($file);
-            Storage::disk('SystemFtp')->append($combineFileName, $contents);
+            $contents = fopen(storage_path("app") . $file, 'r+');
+            fwrite($tempStream, $contents);
             Storage::disk('SystemFtp')->delete($file);
         }
-
         foreach ($files as $file) {
-            $contents = Storage::get($file.'-dnm');
-            Storage::disk('SystemFtp')->append($combineFileNameDNM, $contents);
+            $contents = fopen(storage_path("app") . $file.'-dnm', 'r+');
+            fwrite($tempDNMStream, $contents);
             Storage::disk('SystemFtp')->delete($file.'-dnm');
         }
+        $fileSys->putStream($combineFileName,$this->dedupeStream($tempStream));
+        $fileSys->putStream($combineFileNameDNM,$this->dedupeStream($tempDNMStream));
+        return $combineFileName;
+    }
+    
+    public function dedupeStream($stream)
+    {
+        $inputHandle = fopen((storage_path("app") . $stream), "r");
+        $csv = trim(fgetcsv($inputHandle, 0, ","));
+        return array_flip(array_flip($csv));//faster then array_unique;
+        
     }
 
 }
