@@ -13,6 +13,7 @@ class ReportEntry
 {
     protected $name;
     protected $originalTotal = 0;
+    protected $fileName;
     protected $finalTotal = 0;
     protected $globallySuppressed = 0;
     protected $listOfferSuppressed = 0;
@@ -22,11 +23,7 @@ class ReportEntry
     {
         $this->name = $name;
     }
-
-    public function addOffersSuppressions(array $offers){
-        $this->offersSuppressedAgainst = $offers;
-    }
-
+    
     public function increaseListSuppressionCount(){
         $this->listOfferSuppressed++;
     }
@@ -44,5 +41,48 @@ class ReportEntry
     }
     public function addOffersSuppressedAgainst(array $offers){
         $this->offersSuppressedAgainst = $offers;
+    }
+
+    public function setFileName($fileName){
+        $this->fileName = $fileName;
+    }
+
+    public function getFileName(){
+        return $this->fileName;
+    }
+    
+    public function getOriginalTotal(){
+        return $this->originalTotal;
+    }
+    /**
+     * @return int
+     */
+    public function getFinalTotal()
+    {
+        return $this->finalTotal;
+    }
+
+    /**
+     * @return int
+     */
+    public function getGloballySuppressed()
+    {
+        return $this->globallySuppressed;
+    }
+
+    /**
+     * @return int
+     */
+    public function getListOfferSuppressed()
+    {
+        return $this->listOfferSuppressed;
+    }
+
+    /**
+     * @return array
+     */
+    public function getOffersSuppressedAgainst()
+    {
+        return $this->offersSuppressedAgainst;
     }
 }

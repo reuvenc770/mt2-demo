@@ -98,8 +98,7 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
 
         $this->latestDataRepo->insertStored();
         $this->emailStatusRepo->insertStored();
-        //TODO massUpdateValidEmailStatus only has 1 param
-        $this->statsRepo->massUpdateValidEmailStatus($statuses, $this->processingDate);
+        $this->statsRepo->massUpdateValidEmailStatus($statuses);
 
         // Handles all attribution changes
         $jobIdentifier = '3Party-' . substr($lastEmail, 0, 1); // starting letter - so we can identify the batch
