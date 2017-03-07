@@ -283,7 +283,10 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
         $attrDb = config('database.connections.attribution.database');
 
         return $this->model
-                    ->join("$attrDb.email_feed_assignments as efa", "email_attributable_feed_latest_data.email_id", '=', 'efa.email_id')
+                    ->join("$attrDb.email_feed_assignments as efa", function($join) { 
+                        $join->on('email_attributable_feed_latest_data.email_id', '=', 'efa.email_id');
+                        $join->on('email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id');
+                    })
                     ->where('efa.email_id', $emailId)
                     ->select('efa.feed_id', 'email_attributable_feed_latest_data.attribution_status')
                     ->first();
@@ -321,6 +324,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
         }
     }
 
+    
     public function getMinAndMaxIds() {
         $min = $this->model->min('email_id');
         $max = $this->model->max('email_id');
@@ -360,6 +364,25 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
         }
 
         return $output;
+    }
+
+    public function getSubscribeDate($emailId) {
+        $attrSchema = config('database.connections.attribution.database');
+        $result = $this->model
+                    ->join("$attrSchema.email_feed_assignments as efa", function($join) { 
+                        $join->on('email_attributable_feed_latest_data.email_id', '=', 'efa.email_id');
+                        $join->on('email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id');
+                    })
+                    ->where('email_attributable_feed_latest_data', $emailId)
+                    ->select('email_attributable_feed_latest_data.subscribe_date')
+                    ->first();
+
+        if ($result) {
+            return $result->subscribe_date;
+        }
+        else {
+            return null;
+        }
     }
 
 }

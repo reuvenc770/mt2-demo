@@ -36,10 +36,10 @@
                             <tbody md-body>
                                 <tr md-row class="bg-info">
                                     <td md-cell nowrap class="mt2-table-cell-center"><md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Header in CSV file must include these exact field names. The order of field names is not required to be in this exact order. ">help</md-icon></td>
-                                    <td md-cell nowrap></td>
-                                    <td md-cell nowrap></td>
+                                    <td md-cell nowrap>send_date</td>
+                                    <td md-cell nowrap>deploy_id</td>
                                     <td md-cell nowrap>esp_account_id</td>
-                                    <td md-cell nowrap>list_profile_combine_id</td>
+                                    <td md-cell nowrap>list_profile_name</td>
                                     <td md-cell nowrap>offer_id</td>
                                     <td md-cell nowrap>creative_id</td>
                                     <td md-cell nowrap>from_id</td>
@@ -55,7 +55,7 @@
                                 </tr>
                                 <tr md-row ng-repeat="record in ctrl.records track by $index" ng-class="{ 'bg-danger' : record.valid.length > 0 }">
                                     <td md-cell nowrap class="mt2-table-cell-center">{{ $index + 1 }}</td>
-                                    <td md-cell nowrap>{{ record.deploy_date }}</td>
+                                    <td md-cell nowrap>{{ record.send_date }}</td>
                                     <td md-cell nowrap>{{ record.deploy_id }}</td>
                                     <td md-cell nowrap>{{ record.esp_account_id }}</td>
                                     <td md-cell nowrap>{{ record.list_profile_combine_id }}</td>
@@ -67,8 +67,8 @@
                                     <td md-cell nowrap>{{ record.mailing_domain_id }}</td>
                                     <td md-cell nowrap>{{ record.content_domain_id }}</td>
                                     <td md-cell nowrap>{{ record.cake_affiliate_id }}</td>
-                                    <td md-cell nowrap>{{ record.encrypt_cake }}</td>
-                                    <td md-cell nowrap>{{ record.fully_encrypt }}</td>
+                                    <td md-cell nowrap>{{ record.encrypt_cake ? (record.encrypt_cake == 1 ? 'Yes' : 'No') : '' }}</td>
+                                    <td md-cell nowrap>{{ record.fully_encrypt ? ( record.fully_encrypt == 1 ? 'Yes' : 'No') : '' }}</td>
                                     <td md-cell nowrap>{{ record.url_format }}</td>
                                     <td md-cell nowrap>{{ record.notes }}</td>
                                 </tr>
@@ -79,10 +79,14 @@
                     <div ng-show="ctrl.uploadErrors">
                         <h4>Errors<br/>
                         <small>Please fix the issues below and re-upload the file.</small></h4>
-                        <p ng-repeat="record in ctrl.records track by $index">
-                            <b ng-show="record.valid.length">Row {{$index + 1}}:</b>
-                            <span ng-repeat="item in record.valid">{{item}}. </span>
-                        </p>
+                        <div class="row">
+                            <div class="col-sm-6 col-md-4 col-lg-3" ng-repeat="record in ctrl.records track by $index">
+                                <p>
+                                    <b ng-show="record.valid.length">Row {{$index + 1}}:</b><br/>
+                                    <span ng-repeat="item in record.valid">{{item}}. <br/></span>
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
                 </div>

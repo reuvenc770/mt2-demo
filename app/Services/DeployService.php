@@ -24,6 +24,7 @@ class DeployService
     protected $deployRepo;
     protected $combineRepo;
     protected $espAdvertiser;
+    protected $requiredHeaders = ["send_date", "esp_account_id", "offer_id", "creative_id", "from_id", "subject_id", "template_id", "mailing_domain_id", "content_domain_id", "list_profile_name", "cake_affiliate_id","encrypt_cake", "fully_encrypt", "url_format"];
     use PaginateList;
 
     public function __construct(DeployRepo $deployRepo, EspAdvertiserJoinRepo $repo, ListProfileCombineRepo $combineRepo)
@@ -191,5 +192,13 @@ class DeployService
 
     public function getFeedIdsInDeploy($deployId) {
         return $this->deployRepo->getFeedIdsInDeploy($deployId);
+    }
+
+    public function getMissingHeaders($headers){
+        return array_diff($this->requiredHeaders, $headers);
+    }
+
+    public function returnCsvHeader(){
+        return $this->deployRepo->returnCsvHeader();
     }
 }

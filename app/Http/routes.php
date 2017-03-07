@@ -689,7 +689,7 @@ Route::group(
         );
 
         Route::get(
-            '/projection/{id}',
+            '/projection/',
             array(
                 'as' => 'attributionProjection.show',
                 'uses' => 'AttributionController@showProjection'
@@ -712,14 +712,6 @@ Route::group(
             array(
                 'as' => 'report.list' ,
                 'uses' => 'ReportController@viewAmpReports'
-            )
-        );
-
-        Route::get(
-            '/export',
-            array(
-                'as' => 'report.export',
-                'uses' => 'ReportController@export'
             )
         );
 
@@ -1075,21 +1067,6 @@ Route::group(
         );
 
         /**
-         * Report API Routes
-         */
-        Route::group(
-            ['prefix' => 'report'],
-            function() {
-                Route::get( '/' , [
-                    'as' => 'api.report.getRecords' ,
-                    'middleware' => 'auth' ,
-                    'uses' => 'ReportController@getRecords'
-                ] );
-            }
-        );
-
-
-        /**
          *  Attribution API Routes
          */
         Route::group(
@@ -1155,7 +1132,7 @@ Route::group(
                     'uses' => 'AttributionController@runAttribution'
                 ] );
 
-                Route::get( '/attribution/projection/report/{modelId}' , [
+                Route::post( '/attribution/projection/report' , [
                     'as' => 'api.attribution.projection.report' ,
                     'middleware' => 'auth' ,
                     'uses' => 'AttributionController@getReportData'

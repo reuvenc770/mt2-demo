@@ -1,4 +1,4 @@
-mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedApiService' , 'AttributionProjectionService' , 'ThreeMonthReportService'  , '$log' , '$location' , 'formValidationService', 'modalService', '$mdDialog' , 'paginationService' , '$timeout' , function ( AttributionApiService , FeedApiService , AttributionProjectionService , ThreeMonthReportService , $log , $location, formValidationService, modalService , $mdDialog , paginationService , $timeout ) {
+mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedApiService' , '$log' , '$location' , 'formValidationService', 'modalService', '$mdDialog' , 'paginationService' , '$timeout' , function ( AttributionApiService , FeedApiService , $log , $location, formValidationService, modalService , $mdDialog , paginationService , $timeout ) {
     var self = this;
 
     self.current = { "id" : 0 , "name" : '' };
@@ -35,27 +35,15 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     self.reportRecordTotals = {};
     self.reportQueryPromise = null;
 
-    self.currentMonth = ThreeMonthReportService.currentMonth;
-    self.lastMonth = ThreeMonthReportService.lastMonth;
-    self.twoMonthsAgo = ThreeMonthReportService.twoMonthsAgo;
-
-    self.feedNameMap = ThreeMonthReportService.feedNameMap;
-    self.clientNameMap = ThreeMonthReportService.clientNameMap;
-    self.exportReport = ThreeMonthReportService.exportReport;
-
     self.projectionRecords = [];
-    self.initProjectionChart = AttributionProjectionService.initChart;
-    self.refreshProjectionPage = AttributionProjectionService.refreshPage;
+    self.startDateState = undefined;
+    self.endDateState = undefined;
+    self.proj = {};
 
 
     self.initIndexPage = function () {
         modalService.setPopover();
         self.loadModels();
-    };
-
-    self.initProjectionPage = function () {
-        ThreeMonthReportService.loadClientAndFeedNames();
-        AttributionProjectionService.initPage();
     };
 
     self.toggleModelActionButtons = function () {
@@ -75,7 +63,15 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
     };
 
     self.loadProjectionRecords = function () {
-        self.projectionReportQueryPromise = AttributionProjectionService.loadRecords(
+        if ( !self.startDateState && !self.endDateState ) {
+            self.startDateState = moment().subtract( 1 , 'month' ).toDate();
+            self.endDateState = moment().toDate();
+        }
+
+        self.updateProjectionDateRange();
+
+        self.projectionReportQueryPromise = AttributionApiService.getProjectionRecords(
+            self.proj ,    
             function ( response ) {
                 self.projectionRecords = response.data;
             } ,
@@ -83,6 +79,16 @@ mt2App.controller( 'AttributionController' , [ 'AttributionApiService' , 'FeedAp
                 modalService.simpleToast( 'Failed to load projection table data. Please contact support.' );
             }
         );
+    };
+
+    self.updateProjectionDateRange = function () {
+        if ( self.startDateState ) {
+            self.proj.startDate = moment( self.startDateState ).format( 'YYYY-MM-DD' );
+        }
+
+        if ( self.endDateState ) {
+            self.proj.endDate = moment( self.endDateState ).format( 'YYYY-MM-DD' );
+        }
     };
 
     self.initLevelCopyPanel = function () {  ///THIS NEEDS TO BE FIXED CALLING PAGER TO JUST FILL IN ID AND NAME

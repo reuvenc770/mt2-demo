@@ -6,4 +6,6 @@ interface IFormatStrategy {
     public static function formatFile($row);
 
     public static function formatFileName($date);
+
+    public static function getDelimiter();
 }
