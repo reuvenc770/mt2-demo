@@ -1243,7 +1243,7 @@ Route::group(
         Route::resource(
             'feedgroup' ,
             'FeedGroupController' ,
-            [ 'except' => [ 'create' , 'edit' ] ]
+            [ 'except' => [ 'index' , 'create' , 'edit' ] ]
         );
 
         Route::resource(

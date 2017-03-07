@@ -21,9 +21,8 @@ class AttributionModelService {
         return $this->repo->getModel();
     }
 
-    public function create ( $name , $levels = null , $templateModelId = null ) {
-        //TODO THIS CREATE ONLY HAS 2 PARAMS NOT 3
-        return $this->repo->create( $name , $levels , $templateModelId );
+    public function create ( $name , $levels = null ) {
+        return $this->repo->create( $name , $levels );
     }
 
     public function getLevel ( $clientId , $modelId = null ) {

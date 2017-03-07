@@ -18,27 +18,6 @@ class FeedGroupController extends Controller
         $this->feedGroupService = $feedGroupService;
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //TODO SERVICE IS NO set and feedServiceGroup does not seem like the right one
-        return response()->json( $this->service->getAll() );
-    }
-
-    public function paginateSearch ( Request $request ) {
-        //TODO SERVICE IS NO set and feedServiceGroup does not seem like the right one
-
-        $groupCollection = collect( $this->service->search( $request->input( 'query' ) ) );
-
-        $queryChunk = $groupCollection->forPage( $request->input( 'page' ) , 20 );
-
-        return response()->json( $queryChunk );
-    }
-
     public function listAll () {
         return response()->view( 'pages.feedgroup.feedgroup-index' );
     }
