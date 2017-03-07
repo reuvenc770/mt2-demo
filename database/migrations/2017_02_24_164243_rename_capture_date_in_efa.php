@@ -15,9 +15,6 @@ class RenameCaptureDateInEfa extends Migration
             $table->renameColumn('capture_date', 'subscribe_date');
         });
 
-        Schema::table('email_feed_instances' function($table) {
-            $table->index('subscribe_date', 'subscribe_date');
-        });
     }
 
     /**
@@ -30,8 +27,5 @@ class RenameCaptureDateInEfa extends Migration
             $table->renameColumn('subscribe_date', 'capture_date');
         });
 
-        Schema::table('email_feed_instances' function($table) {
-            $table->dropIndex('subscribe_date', 'subscribe_date');
-        });
     }
 }
