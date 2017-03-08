@@ -4,21 +4,22 @@ namespace App\Jobs;
 
 use App\Models\JobEntry;
 use App\Factories\DataProcessingFactory;
+use App\Facades\JobTracking;
 
 class AttributionValidationJob extends SafeJob {
 
     private $lookback;
-    private $jobName = 'AttributionValidation';
+    protected $jobName = 'AttributionValidation';
     private $startPoint;
 
     public function __construct($startPoint, $tracking) {
         $this->startPoint = $startPoint;
-        JobTracking::startAggregationJob($this->jobName, $tracking);
+        parent::__construct($this->jobName, $tracking);
     }
 
     protected function handleJob() {
         $service = DataProcessingFactory::create($this->jobName);
-        $service->process($this->startPoint);
+        return $service->process($this->startPoint);
     }
 
 }
