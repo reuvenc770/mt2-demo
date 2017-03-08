@@ -378,8 +378,8 @@
                                     <select name="cake_affiliate_id" id="cake_affiliate_id" class="form-control" ng-required="true"
                                             ng-model="deploy.currentDeploy.cake_affiliate_id">
                                         <option value="">Cake ID</option>
-                                        <option ng-repeat="option in deploy.cakeAffiliates" value="@{{ option.affiliateID }}">
-                                            @{{ option.affiliateID }}
+                                        <option ng-repeat="option in deploy.cakeAffiliates" value="@{{ option.id }}">
+                                            @{{ option.name }}
                                         </option>
                                     </select>
 
