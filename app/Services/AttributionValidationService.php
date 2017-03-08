@@ -22,6 +22,7 @@ class AttributionValidationService {
     private $recordDataRepo;
     private $truthRepo;
     private $scheduleRepo;
+    private $emailActionStatusRepo;
     const QUERY_LIMIT = 30000;
     
     public function __construct(EmailRepo $emailRepo, 
@@ -37,36 +38,31 @@ class AttributionValidationService {
         $this->mt1EmailRepo = $mt1EmailRepo;
         $this->recordDataRepo = $recordDataRepo;
         $this->truthRepo = $truthRepo;
+        $this->emailActionStatusRepo = $emailActionStatusRepo;
         $this->scheduleRepo = $scheduleRepo;
     }
 
     public function process($currentId) {
+        $count = 0;
         $maxId = $this->emailRepo->maxId();
 
         while ($currentId < $maxId) {
             $resource = $this->emailRepo->getEmailBatch($currentId, self::QUERY_LIMIT);
 
             foreach($resource->cursor() as $row) {
-                if ($this->efaRepo->exists($row->id)) {
+                if ($this->efaRepo->get($row->id)) {
                     // Exists. Now we can check if attribution makes sense.
-                    
-                    /*
-                        At this point, we could either
-                        1. Run attribution for this record (going to be quite slow for all records ... )
-                        2. Check to see whether the email feed instance exists and leave it at that.
-
-                        - 1 is stricter, but even 2 might not indicate true attribution potential (until much later)
-                        And what, seriously, can we do about it?
-                    */
+                    // Currently going to do nothing - because there's nothing we can do otherwise
                 }
                 else {
                     // Doesn't exist. See if it's 3rd party and if we can get info from MT1
                     // We won't have this get-out-of-jail-free card later
                     $mt1Data = $this->mt1EmailRepo->getThirdPartyForAddress($row->email_address);
                     if ($mt1Data) {
+                        $count++;
 
                         // Insert into attribution table
-                        $data = $this->mapEmailListToAttribution($mt1Obj);
+                        $data = $this->mapEmailListToAttribution($mt1Data);
                         $this->efaRepo->batchInsert($data);
 
                         // Now we need to make sure that corresponding rows exist elsewhere, and that they're lined up, data-wise
@@ -100,13 +96,14 @@ class AttributionValidationService {
         $this->emailActionStatusRepo->insertStored();
         $this->scheduleRepo->insertStored();
 
+        return $count;
     }
 
     private function mapEmailListToAttribution(EmailList $obj) {
         return [
-            'email_id' =>  $mt1Data->email_id,
-            'feed_id' => $mt1Data->feed_id,
-            'subscribe_date' => $mt1Data->subscribe_date
+            'email_id' =>  $obj->email_id,
+            'feed_id' => $obj->feed_id,
+            'subscribe_date' => $obj->subscribe_date
         ];
     }
 
@@ -148,7 +145,7 @@ class AttributionValidationService {
     private function mapEmailListToActionStatus(EmailList $obj) {
         return [
             'email_id' => $obj->email_id,
-            'last_action_type' => $obj->last_action_type,
+            'action_type' => $obj->last_action_type,
             'offer_id' => null, // Not provided 
             'datetime' => $obj->last_action_date,
             'esp_account_id' => null // same as above

@@ -314,7 +314,7 @@ class DataProcessingFactory {
         $recordDataRepo = \App::make(\App\Repositories\EmailAttributableFeedLatestDataRepo::class);
         $truthRepo = \App::make(\App\Repositories\AttributionRecordTruthRepo::class);
         $actionStatusRepo = \App::make(\App\Repositories\ThirdPartyEmailStatusRepo::class);
-        $scheduleRepo = new \App\Repositories\AttributionScheduleRepo(new \App\Models\AttributionExpirationSchedule::class);
+        $scheduleRepo = new \App\Repositories\AttributionScheduleRepo(new \App\Models\AttributionExpirationSchedule());
         return new \App\Services\AttributionValidationService(
             $emailRepo, 
             $emailFeedAssignmentRepo,

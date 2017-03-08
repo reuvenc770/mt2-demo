@@ -72,7 +72,17 @@ class AttributionScheduleRepo {
             . ')';
     }
 
-    private buildBatchedQuery(&$batchedData) {
+    private function buildBatchedQuery(&$batchedData) {
+        return "INSERT INTO {$this->model->getTable()} (email_id, trigger_date, created_at, updated_at)
 
+        VALUES
+
+        $batchedData
+
+        ON DUPLICATE KEY UPDATE
+        email_id = email_id,
+        trigger_date = VALUES(trigger_date),
+        created_at = created_at,
+        updated_at = NOW()";
     }
 }
