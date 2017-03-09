@@ -28,7 +28,6 @@ class AttributionModelRepo {
         return $this->models;
     }
 
-    //TODO USE OF THIS USES 3 PARAMS
     public function create ( $name , $levels = null ) {
         $response = [ "status" => false ];
 
