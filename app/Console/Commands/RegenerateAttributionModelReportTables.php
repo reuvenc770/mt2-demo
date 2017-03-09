@@ -59,7 +59,7 @@ class RegenerateAttributionModelReportTables extends Command
      */
     public function handle()
     {
-        foreach ( $this->getModels() as $currentModel ) {
+        foreach ( AttributionModel::all() as $currentModel ) {
             if ( $this->levelTableMissing( $currentModel->id ) ) {
                 $this->info( 'Generating level table for model ' . $currentModel->id );
 
@@ -78,10 +78,6 @@ class RegenerateAttributionModelReportTables extends Command
                 AttributionFeedReportRepo::generateTempTable( $currentModel->id );
             }
         }
-    }
-
-    protected function getModels () {
-        return AttributionModel::all(); 
     }
 
     protected function levelTableMissing ( $modelId ) {
