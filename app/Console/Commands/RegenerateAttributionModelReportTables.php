@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 
+use App\Models\AttributionModel;
+
 use App\Models\AttributionLevel;
 use App\Repositories\AttributionLevelRepo;
 
@@ -79,9 +81,7 @@ class RegenerateAttributionModelReportTables extends Command
     }
 
     protected function getModels () {
-        $attrDb = config( 'database.connections.attribution.database' );
-
-        return DB::select( "SELECT id FROM {$attrDb}.attribution_models;" );
+        return AttributionModel::all(); 
     }
 
     protected function levelTableMissing ( $modelId ) {
