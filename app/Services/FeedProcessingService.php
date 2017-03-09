@@ -138,7 +138,7 @@ class FeedProcessingService {
                     }
                     elseif(preg_match('/domain/', $record->invalidReason)) {
                         $updateArray[$record->feedId][$domainGroupId]['suppressedDomains']++;
-                        $invalidReasonId = InvalidReason::BAD_DOMAIN
+                        $invalidReasonId = InvalidReason::BAD_DOMAIN;
                     }
                     else {
                         $updateArray[$record->feedId][$domainGroupId]['otherInvalid']++;
@@ -241,7 +241,7 @@ class FeedProcessingService {
         foreach($this->suppressors as $suppressor) {
             foreach($suppressor->returnSuppressedEmails($emails) as $supp) {
                 $suppressed[$supp->email_address] = true;
-                $this->suppStrategy->processSuppression($supp);
+                $this->suppStrategy->processSuppression($supp->email_address);
             }
         }
 
