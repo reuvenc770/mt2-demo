@@ -57,7 +57,7 @@ class ListProfileService
         'feed_name'  =>  "Feed Name",
         'short_name' => "Feed Short Name",
         'client_name'  =>  "Client",
-        'subscribe_date'  =>  'Subscribe Date',
+        'subscribe_date'  =>  'Registration Date',
         'tower_date'  =>  'Tower Date'
     ];
 

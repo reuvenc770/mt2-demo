@@ -79,4 +79,10 @@ class DomainService
 
         return $domainExists;
     }
+
+    public function getDomainIdByTypeAndName($type,$name){
+        $domainId = $this->domainRepo->getDomainIdByTypeAndName($type, $name);
+        return ( is_null($domainId) ? 0 : $domainId->id );
+    }
+
 }

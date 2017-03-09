@@ -47,7 +47,7 @@ class DataProcessingFactory {
                 return self::createCheckDeployStatsService();
             
             case('ProcessCfsStats'):
-                return self::createProcessCfsStatsService();
+                return \App::make(\App\Services\PopulateCfsStatsService::class);
 
             case('ListProfileAggregation'):
                 return \App::make(\App\Services\ListProfileActionAggregationService::class);
@@ -251,24 +251,6 @@ class DataProcessingFactory {
         return new CheckDeployService($actionsRepo, $rerunRepo);
     }
     
-    private static function createProcessCfsStatsService() {
-        $deploy = new Deploy();
-        $deployRepo = new DeployRepo($deploy);
-        $stdModel = new \App\Models\StandardReport();
-        $stdRepo = new \App\Repositories\StandardApiReportRepo($stdModel);
-
-        $crModel = new \App\Models\CreativeClickthroughRate();
-        $crRepo = new \App\Repositories\CreativeClickthroughRateRepo($crModel);
-
-        $subjModel = new \App\Models\SubjectOpenRate();
-        $subjRepo = new \App\Repositories\SubjectOpenRateRepo($subjModel);
-
-        $fromModel = new \App\Models\FromOpenRate();
-        $fromRepo = new \App\Repositories\FromOpenRateRepo($fromModel);
-
-        return new \App\Services\PopulateCfsStatsService($deployRepo, $stdRepo, $crRepo, $fromRepo, $subjRepo);
-    }
-
     private static function createMt1ImportService($mt1Name, $mt2Name) {
         $mt1RepoName = "App\\Repositories\\MT1Repositories\\{$mt1Name}Repo";
         $mt1Repo = \App::make($mt1RepoName);

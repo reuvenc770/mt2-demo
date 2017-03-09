@@ -36,7 +36,6 @@ class MailingTemplateRepo
     //adds news rows kills old rows.
     public function syncPivot($template, $id){
         return $template->espAccounts()->sync($id);
-
     }
 
     public function getRow($id){
@@ -54,4 +53,7 @@ class MailingTemplateRepo
         $this->mailingTemplate->updateOrCreate(['id' => $data['id']], $data);
     }
 
+    public function getTemplateIdFromName($templateName){
+        return $this->mailingTemplate->select('id')->where('template_name',$templateName)->first();
+    }
 }

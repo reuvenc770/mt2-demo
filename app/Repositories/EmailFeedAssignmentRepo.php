@@ -96,7 +96,7 @@ class EmailFeedAssignmentRepo implements IAwsRepo, ICanonicalDataSource {
         return '('
             . $pdo->quote($row['email_id']) . ','
             . $pdo->quote($row['feed_id']) . ','
-            . $pdo->quote($row['capture_date']) . ','
+            . $pdo->quote($row['datetime']) . ','
             . 'NOW(), NOW())';
     }
 
