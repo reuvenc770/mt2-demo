@@ -97,6 +97,7 @@ class Kernel extends ConsoleKernel
         Commands\DomainExpirationNotification::class,
         Commands\ProcessNewActionsCommand::class,
         Commands\DataConsistencyValidation::class,
+        Commands\RegenerateAttributionModelReportTables::class,
     ];
 
     /**
