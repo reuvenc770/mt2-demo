@@ -33,6 +33,15 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
         return $this->emailModel->select( 'email_address' )->find($eid);
     }
 
+    public function getAllInfoForAddress($emailAddress) {
+        // Returns Email or null
+        return $this->emailModel
+                    ->where('email_address', $emailAddress)
+                    ->join('email_domains as ed', 'emails.email_domain_id', '=', 'ed.id')
+                    ->select('emails.id as email_id', 'email_domain_id', 'domain_group_id')
+                    ->first();
+    }
+
 
     public function insertDelayedBatch($row) {
         if ($this->batchEmailCount >= self::INSERT_THRESHOLD) {
