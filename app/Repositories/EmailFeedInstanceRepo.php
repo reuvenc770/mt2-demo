@@ -193,7 +193,7 @@ class EmailFeedInstanceRepo implements ICanonicalDataSource {
                SELECT
                    e.email_address
                FROM
-                   $mt2Db.email_feed_instances efi FORCE INDEX(email_client_instances_capture_date_index)
+                   $mt2Db.email_feed_instances efi FORCE INDEX(registration_date)
                    INNER JOIN $attrDb.email_feed_assignments efa ON efi.email_id = efa.email_id
                    LEFT JOIN $reportDb.email_campaign_statistics ecs ON efi.email_id = ecs.email_id
                    INNER JOIN $mt2Db.emails e ON efa.email_id = e.id
