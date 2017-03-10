@@ -110,7 +110,7 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
         return [
             'email_id' => $record->emailId,
             'feed_id' => $record->feedId,
-            'datetime' => $record->captureDate,
+            'datetime' => $record->processDate,
             'capture_date' => $record->captureDate
         ];
     }
