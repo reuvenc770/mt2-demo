@@ -4,6 +4,7 @@ namespace App\Services;
 use App\Repositories\EmailActionsRepo;
 use App\Repositories\EspWorkflowStepRepo;
 use App\Services\MT1SuppressionService;
+use App\Services\Interfaces\ISuppressionProcessingStrategy;
 use App\Repositories\OfferRepo;
 
 class WorkflowProcessingService {

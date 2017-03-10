@@ -182,6 +182,7 @@ class AttributionModelRepo {
 
             unset( $newLevel );
         }
+        return true;
     }
 
     public function setProcessingFlag ( $modelId , $running ) {

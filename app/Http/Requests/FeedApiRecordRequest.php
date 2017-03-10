@@ -13,6 +13,7 @@ class FeedApiRecordRequest extends Request
     protected $repo;
 
     public function __construct ( RawFeedEmailRepo $repo ) {
+        parent::__construct();
         $this->repo = $repo;
     }
     

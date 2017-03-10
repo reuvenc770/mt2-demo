@@ -18,24 +18,6 @@ class FeedGroupController extends Controller
         $this->feedGroupService = $feedGroupService;
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        return response()->json( $this->service->getAll() );
-    }
-
-    public function paginateSearch ( Request $request ) {
-        $groupCollection = collect( $this->service->search( $request->input( 'query' ) ) );
-
-        $queryChunk = $groupCollection->forPage( $request->input( 'page' ) , 20 );
-
-        return response()->json( $queryChunk );
-    }
-
     public function listAll () {
         return response()->view( 'pages.feedgroup.feedgroup-index' );
     }
@@ -60,7 +42,7 @@ class FeedGroupController extends Controller
     {
         Flash::success( 'Feed Group was successfully created.' );
 
-        return response()->json( [ "id" => $this->saveFeedGroup( $request ) ] );;
+        return response()->json( [ "id" => $this->saveFeedGroup( $request ) ] );
     }
 
     protected function saveFeedGroup ( $request ) {

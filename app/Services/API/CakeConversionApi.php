@@ -17,7 +17,7 @@ class CakeConversionApi extends CakeApi {
     const FIELDNAME_RECORD_TYPE = 'rt';
     const FIELDNAME_START_DATE = 's';
     const FIELDNAME_END_DATE = 'e';
-
+    //TODO PARENT HAS 2 PARAMS
     public function __construct () {}
 
     protected function constructApiUrl( $data = null ) {

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 use App\DataModels\ProcessingRecord;
+use App\Models\ThirdPartyEmailStatus;
 use App\Repositories\EmailRepo;
 use App\Repositories\AttributionLevelRepo;
 use App\Repositories\FeedDateEmailBreakdownRepo;

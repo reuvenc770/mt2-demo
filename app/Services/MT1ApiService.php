@@ -83,7 +83,6 @@ class MT1ApiService
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             return $e->getMessage();
-            return false;
         }
         return $this->processGuzzle($page, $data);
 
