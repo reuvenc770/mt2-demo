@@ -1,21 +1,9 @@
 <?php
 
 namespace App\Console\Commands;
-
-
-use App\Jobs\ProcessThirdPartyMaroRecords;
-use App\Models\AWeberReport;
-use App\Repositories\ReportRepo;
-use App\Services\API\AWeberApi;
-use App\Services\EmailRecordService;
-use App\Repositories\EmailRecordRepo;
-use App\Models\Email;
-use App\Models\RecordData;
-use App\Services\AWeberReportService;use DaveJamesMiller\Breadcrumbs\Exception;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use App\Models\ActionType;
-use Cache;
+
 class Inspire extends Command
 {
     use DispatchesJobs;

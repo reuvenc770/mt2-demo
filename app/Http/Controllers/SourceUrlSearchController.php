@@ -11,7 +11,7 @@ use App\Services\FeedService;
 class SourceUrlSearchController extends Controller
 {
     protected $feedService;
-    protected $ClientService;
+    protected $clientService;
 
     public function __construct ( FeedService $feedService , ClientService $clientService) {
         $this->feedService = $feedService;
