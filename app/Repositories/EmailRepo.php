@@ -29,7 +29,7 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
         return $this->emailModel->select( 'id' )->where( 'email_address' , $emailAddress )->get();
     }
 
-    public function getEmaiAddress($eid) {
+    public function getEmailAddress($eid) {
         return $this->emailModel->select( 'email_address' )->find($eid);
     }
 
@@ -40,6 +40,13 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
                     ->join('email_domains as ed', 'emails.email_domain_id', '=', 'ed.id')
                     ->select('emails.id as email_id', 'email_domain_id', 'domain_group_id')
                     ->first();
+    }
+
+    public function getEmailBatch($startPoint, $limit) {
+        return $this->emailModel
+                    ->whereRaw("id > $startPoint")
+                    ->orderBy('id', 'asc')
+                    ->take($limit);
     }
 
 
@@ -463,7 +470,7 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
     }
 
     public function maxId() {
-        return $this->emailModel->orderBy('id', 'desc')->first()['id'];
+        return $this->emailModel->max('id');
     }
 
     public function nextNRows($startPoint, $offset) {

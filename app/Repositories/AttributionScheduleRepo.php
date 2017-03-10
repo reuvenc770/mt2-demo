@@ -7,20 +7,24 @@ namespace App\Repositories;
 
 use App\Models\Interfaces\IScheduledFilter;
 use DB;
-class AttributionScheduleRepo {
-    protected $schedule;
+use App\Repositories\RepoTraits\Batchable;
 
-    public function __construct ( IScheduledFilter $schedule ) {
-        $this->schedule = $schedule;
+class AttributionScheduleRepo {
+    use Batchable;
+
+    protected $model;
+
+    public function __construct ( IScheduledFilter $model ) {
+        $this->model = $model;
     }
 
     public function getRecordsByDate($date){
-        return $this->schedule->where("trigger_date", $date);
+        return $this->model->where("trigger_date", $date);
     }
 
     public function insertSchedule($emailId, $date){
         return DB::connection("attribution")->statement(
-            "INSERT INTO {$this->schedule->getTable()} (email_id, trigger_date)
+            "INSERT INTO {$this->model->getTable()} (email_id, trigger_date)
             VALUES(:id, :trigger_date)
             ON DUPLICATE KEY UPDATE
             email_id = email_id, trigger_date = VALUES(trigger_date)",
@@ -33,12 +37,12 @@ class AttributionScheduleRepo {
     }
 
     public function bulkDelete($emails){
-        return $this->schedule->whereIn("email_id", $emails)->delete();
+        return $this->model->whereIn("email_id", $emails)->delete();
     }
 
     public function insertScheduleBulk($emails){
         DB::connection("attribution")->statement(
-            "INSERT INTO {$this->schedule->getTable()} (email_id, trigger_date, created_at, updated_at)
+            "INSERT INTO {$this->model->getTable()} (email_id, trigger_date, created_at, updated_at)
         VALUES
                     " . join(' , ', $emails) . "
         ON DUPLICATE KEY UPDATE
@@ -56,6 +60,29 @@ class AttributionScheduleRepo {
     }
 
     public function getTableName() {
-        return config('database.connections.attribution.database') . '.' . $this->schedule->getTable();
+        return config('database.connections.attribution.database') . '.' . $this->model->getTable();
+    }
+
+    private function transformRowToString($row) {
+        $pdo = DB::connection()->getPdo();
+
+        return '('
+            . $pdo->quote($row['email_id']) . ','
+            . $pdo->quote($row['trigger_date']) . ', NOW(), NOW()'
+            . ')';
+    }
+
+    private function buildBatchedQuery(&$batchedData) {
+        return "INSERT INTO {$this->model->getTable()} (email_id, trigger_date, created_at, updated_at)
+
+        VALUES
+
+        $batchedData
+
+        ON DUPLICATE KEY UPDATE
+        email_id = email_id,
+        trigger_date = VALUES(trigger_date),
+        created_at = created_at,
+        updated_at = NOW()";
     }
 }
