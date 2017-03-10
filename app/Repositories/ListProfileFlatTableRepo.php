@@ -152,6 +152,7 @@ class ListProfileFlatTableRepo implements IAwsRepo {
         return $this->flatTable->whereRaw("date > CURDATE() - INTERVAL 10 DAY");
     }
 
+    public function specialExtract($data) {}
 
     public function mapForS3Upload($row) {
         $pdo = DB::connection('redshift')->getPdo();
@@ -187,6 +188,22 @@ class ListProfileFlatTableRepo implements IAwsRepo {
         return $this->flatTable->getConnectionName();
     }
 
+    public function getDeploysOnDate($date) {
+        $output = [];
+
+        $deploys = $this->flatTable
+                    ->where('date', $date)
+                    ->selectRaw("DISTINCT(deploy_id) as deploy_id")
+                    ->get()->toArray();
+
+        foreach($deploys as $deployArr) {
+            $output[] = (int)$deployArr['deploy_id'];
+        }
+
+        return $output;
+    }
+
+    
     public function getThirdPartyEmailStatusExtractQuery () {
         return "SELECT
             lpft.email_id ,

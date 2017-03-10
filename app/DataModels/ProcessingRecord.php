@@ -58,7 +58,7 @@ class ProcessingRecord {
             $this->newEmail = true;
             $this->emailId = null;
             $this->domainId = null;
-            $this->domainGroupid = null;
+            $this->domainGroupId = null;
         }
 
         $this->feedId = $record->feed_id;
