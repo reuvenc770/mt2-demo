@@ -23,6 +23,7 @@ class CreateThirdPartyEmailStatusesTable extends Migration
 
             $table->primary('email_id', 'email_id');
             $table->index('last_action_type', 'last_action_type');
+            $table->index('updated_at', 'updated_at');
         });
     }
 

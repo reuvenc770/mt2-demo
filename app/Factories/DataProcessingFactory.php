@@ -63,6 +63,9 @@ class DataProcessingFactory {
                 $service->setJobName('ProcessContentServerRawStats');
                 return $service;
 
+            case ('AttributionValidation'):
+                return self::createAttributionValidationService();
+
             # Export from MT2 to MT1
 
             case('Mt1Export-email_list'):
@@ -275,6 +278,25 @@ class DataProcessingFactory {
         $processName = $mt2Name . $mt1Name;
 
         return new \App\Services\Mt2ToMt1ExportService($mt2Repo, $mt1Repo, $pickupRepo, $processName);
+    }
+
+    private static function createAttributionValidationService() {
+        $emailRepo = \App::make(\App\Repositories\EmailRepo::class);
+        $emailFeedAssignmentRepo = \App::make(\App\Repositories\EmailFeedAssignmentRepo::class);
+        $emailListRepo = \App::make(\App\Repositories\MT1Repositories\EmailListRepo::class);
+        $recordDataRepo = \App::make(\App\Repositories\EmailAttributableFeedLatestDataRepo::class);
+        $truthRepo = \App::make(\App\Repositories\AttributionRecordTruthRepo::class);
+        $actionStatusRepo = \App::make(\App\Repositories\ThirdPartyEmailStatusRepo::class);
+        $scheduleRepo = new \App\Repositories\AttributionScheduleRepo(new \App\Models\AttributionExpirationSchedule());
+        return new \App\Services\AttributionValidationService(
+            $emailRepo, 
+            $emailFeedAssignmentRepo,
+            $emailListRepo,
+            $recordDataRepo,
+            $truthRepo,
+            $actionStatusRepo,
+            $scheduleRepo
+        );
     }
 
 }
