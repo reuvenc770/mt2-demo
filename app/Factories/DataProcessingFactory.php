@@ -45,12 +45,9 @@ class DataProcessingFactory {
 
             case('CheckDeployStats'):
                 return self::createCheckDeployStatsService();
-
-            case('PublicatorsActions'):
-                return self::createPublicatorsActionService();
-
+            
             case('ProcessCfsStats'):
-                return self::createProcessCfsStatsService();
+                return \App::make(\App\Services\PopulateCfsStatsService::class);
 
             case('ListProfileAggregation'):
                 return \App::make(\App\Services\ListProfileActionAggregationService::class);
@@ -256,31 +253,7 @@ class DataProcessingFactory {
         $rerunRepo = new \App\Repositories\DeployRecordRerunRepo($rerun);
         return new CheckDeployService($actionsRepo, $rerunRepo);
     }
-
-    private static function createPublicatorsActionService() {
-        $actions = new EmailAction();
-        $actionsRepo = new EmailActionsRepo($actions);
-        return new \App\Services\PublicatorsActionService($actionsRepo, $actionsRepo);
-    }
-
-    private static function createProcessCfsStatsService() {
-        $deploy = new Deploy();
-        $deployRepo = new DeployRepo($deploy);
-        $stdModel = new \App\Models\StandardReport();
-        $stdRepo = new \App\Repositories\StandardApiReportRepo($stdModel);
-
-        $crModel = new \App\Models\CreativeClickthroughRate();
-        $crRepo = new \App\Repositories\CreativeClickthroughRateRepo($crModel);
-
-        $subjModel = new \App\Models\SubjectOpenRate();
-        $subjRepo = new \App\Repositories\SubjectOpenRateRepo($subjModel);
-
-        $fromModel = new \App\Models\FromOpenRate();
-        $fromRepo = new \App\Repositories\FromOpenRateRepo($fromModel);
-
-        return new \App\Services\PopulateCfsStatsService($deployRepo, $stdRepo, $crRepo, $fromRepo, $subjRepo);
-    }
-
+    
     private static function createMt1ImportService($mt1Name, $mt2Name) {
         $mt1RepoName = "App\\Repositories\\MT1Repositories\\{$mt1Name}Repo";
         $mt1Repo = \App::make($mt1RepoName);

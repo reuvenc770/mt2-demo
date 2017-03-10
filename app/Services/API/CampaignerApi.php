@@ -20,7 +20,7 @@ use App\Library\Campaigner\ImmediateUpload;
 use App\Library\Campaigner\ContactManagement;
 
 use Log;
-
+use App\Library\Campaigner\ArrayOfContactData;
 class CampaignerApi extends EspBaseAPI
 {
     CONST NO_CAMPAIGNS = 'M_4.1.1.1_NO-CAMPAIGNRUNS-FOUND';
@@ -179,6 +179,7 @@ class CampaignerApi extends EspBaseAPI
     }
 
     public function addContactToLists($emailAddress, $suppressionLists) {
+        $contactManager = new ContactManagement();
         $key = new ContactKey(0, $emailAddress);
         $emailId = 0;
         $attribute = new CustomAttribute($emailId, 3932683, false); // Not sure what these are

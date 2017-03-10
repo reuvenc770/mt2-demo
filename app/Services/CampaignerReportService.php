@@ -20,9 +20,8 @@ use App\Library\Campaigner\CampaignType;
 use App\Library\Campaigner\CampaignFilter;
 
 use App\Repositories\ReportRepo;
-use App\Services\API\Campaigner;
+
 use App\Services\API\CampaignerApi;
-use App\Services\AbstractReportService;
 use App\Library\Campaigner\DateTimeFilter;
 use App\Library\Campaigner\GetCampaignRunsSummaryReport;
 use Carbon\Carbon;
@@ -31,7 +30,6 @@ use App\Facades\DeployActionEntry;
 use App\Events\RawReportDataWasInserted;
 use Illuminate\Support\Facades\Event;
 use App\Services\Interfaces\IDataService;
-use App\Services\EmailRecordService;
 use App\Exceptions\JobException;
 
 /**

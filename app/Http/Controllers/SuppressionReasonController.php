@@ -1,6 +1,5 @@
 <?php
 namespace App\Http\Controllers;
-use App\Services\MT1Services\SuppressionReasonService;
 use App\Http\Controllers\Controller;
 use App\Services\SuppressionService;
 

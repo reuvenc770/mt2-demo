@@ -14,7 +14,7 @@ class EmailCampaignAggregationService extends AbstractEtlService {
     private $etlPickupRepo;
     private $actionMap;
     const JOB_NAME = "PopulateEmailCampaignStats";
-
+    
     public function __construct(EmailCampaignStatisticRepo $statsRepo, EmailActionsRepo $actionsRepo, EtlPickupRepo $etlPickupRepo, $actionMap) {
         $this->statsRepo = $statsRepo;
         $this->etlPickupRepo = $etlPickupRepo;
