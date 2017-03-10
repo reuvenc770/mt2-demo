@@ -11,7 +11,8 @@ use App\Jobs\Traits\PreventJobOverlapping;
 use App\Repositories\EtlPickupRepo;
 use App\Repositories\EmailFeedInstanceRepo;
 use App\Factories\APIFactory;
-use App\Repositories\EspApiAccount;
+use App\Repositories\EspDataExportRepo;
+use App\Repositories\EspApiAccountRepo;
 
 
 class ExportRecordsJob extends Job implements ShouldQueue {
@@ -19,6 +20,7 @@ class ExportRecordsJob extends Job implements ShouldQueue {
 
     private $tracking;
     private $feedId;
+    private $jobName;
     const BASE_NAME = 'FeedExport';
 
     public function __construct($feedId, $tracking) {

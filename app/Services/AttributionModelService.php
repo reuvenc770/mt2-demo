@@ -21,8 +21,8 @@ class AttributionModelService {
         return $this->repo->getModel();
     }
 
-    public function create ( $name , $levels = null , $templateModelId = null ) {
-        return $this->repo->create( $name , $levels , $templateModelId );
+    public function create ( $name , $levels = null ) {
+        return $this->repo->create( $name , $levels );
     }
 
     public function getLevel ( $clientId , $modelId = null ) {

@@ -8,18 +8,15 @@
 
 namespace App\Services;
 
-#use App\Services\API\BlueHornet;
-use App\Facades\CampaignActionsEntry;
+
 use App\Facades\DeployActionEntry;
 use App\Facades\Suppression;
 use App\Repositories\ReportRepo;
 use App\Services\API\BlueHornetApi;
-use App\Services\AbstractReportService;
 use League\Flysystem\Exception;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use App\Services\Interfaces\IDataService;
-use App\Services\EmailRecordService;
 use Carbon\Carbon;
 use Storage;
 use App\Exceptions\JobException;

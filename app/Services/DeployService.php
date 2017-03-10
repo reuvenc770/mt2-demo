@@ -8,8 +8,6 @@
 
 namespace App\Services;
 
-
-use App\Events\NewDeployWasCreated;
 use App\Facades\EspApiAccount;
 use App\Repositories\CakeAffiliateRepo;
 use App\Repositories\DeployRepo;

@@ -206,6 +206,8 @@ class FeedRepo implements Mt2Export, IAwsRepo {
         return $this->feed;
     }
 
+    public function specialExtract($data) {}
+
 
     public function mapForS3Upload($row) {
         $pdo = DB::connection('redshift')->getPdo();
@@ -238,5 +240,9 @@ class FeedRepo implements Mt2Export, IAwsRepo {
         $currentFeed = $this->feed->where( 'short_name' , $shortName )->first();
         $currentFeed->password = $password;
         $currentFeed->save();
+    }
+
+    public function getCount() {
+        return $this->feed->count();
     }
 }

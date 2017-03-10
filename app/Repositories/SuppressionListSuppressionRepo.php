@@ -49,6 +49,8 @@ class SuppressionListSuppressionRepo implements IAwsRepo{
         return $this->model->whereRaw("id > $stopPoint");
     }
 
+    public function specialExtract($data) {}
+
     public function mapForS3Upload($row)
     {
         $pdo = DB::connection('redshift')->getPdo();
@@ -69,6 +71,10 @@ class SuppressionListSuppressionRepo implements IAwsRepo{
     public function getConnection()
     {
         return $this->model->getConnection();
+    }
+
+    public function getAllQuery($lookback) {
+        return $this->model->whereRaw("created_at <= CURDATE() - INTERVAL $lookback DAY")->toSql();
     }
 
 }

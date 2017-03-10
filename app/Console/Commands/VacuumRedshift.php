@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Repositories\RedshiftRepositories\ListProfileFlatTableRepo;
-
+use App\Jobs\VacuumRedshiftJob;
 class VacuumRedshift extends Command
 {
     use DispatchesJobs;

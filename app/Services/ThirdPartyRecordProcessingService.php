@@ -2,6 +2,7 @@
 
 namespace App\Services;
 use App\DataModels\ProcessingRecord;
+use App\Models\ThirdPartyEmailStatus;
 use App\Repositories\EmailRepo;
 use App\Repositories\AttributionLevelRepo;
 use App\Repositories\FeedDateEmailBreakdownRepo;
@@ -103,7 +104,6 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
         $jobIdentifier = '3Party-' . substr($lastEmail, 0, 1); // starting letter - so we can identify the batch
         \Event::fire(new NewRecords($recordsToFlag, $jobIdentifier));
     }
-
 
     private function setRecordStatus(ProcessingRecord &$record) {
         if ($record->isSuppressed) {

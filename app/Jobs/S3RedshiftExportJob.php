@@ -16,13 +16,28 @@ class S3RedshiftExportJob extends Job implements ShouldQueue {
     private $tracking;
     private $entity;
     private $jobName;
-    private $getAll;
+    private $version;
+    private $extraData;
 
-    public function __construct($entity, $getAll, $tracking) {
+    public function __construct($entity, $version, $tracking, $extraData = null) {
+        if ($version < 0 || $version > 2) {
+            throw new \Exception("Job run type must be 0, 1, or 2. Currently is $version.");
+        }
+
+        if (2 === $version && null === $extraData) {
+            throw new \Exception("Special run for $entity must have specific run data. Have null.");
+        }
+
+        if (null !== $extraData && $version !== 2) {
+            throw new \Exception("Extra specifying data passed in for standard job.");
+        }
+
         $this->entity = $entity;
         $this->jobName = $entity . '-s3';
         $this->tracking = $tracking;
-        $this->getAll = $getAll;
+        $this->version = $version;
+        $this->extraData = $extraData;
+
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
@@ -36,8 +51,13 @@ class S3RedshiftExportJob extends Job implements ShouldQueue {
                 $service = ServiceFactory::createAwsExportService($this->entity);
                 $rows = 0;
 
-                if ($this->getAll) {
+                if (1 === $this->version) {
                     $rows = $service->extractAll();
+                    $service->loadAll();
+                }
+                elseif (2 === $this->version) {
+                    // Not available from command line.
+                    $rows = $service->specialExtract($this->extraData);
                     $service->loadAll();
                 }
                 else {

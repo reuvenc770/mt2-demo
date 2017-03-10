@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 
 use App\Http\Requests;
-use App\Http\Requests\SaveAmpReportRequest;
 use Laracasts\Flash\Flash;
 use Carbon\Carbon;
 
