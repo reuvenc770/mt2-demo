@@ -2,6 +2,7 @@
 
 namespace App\Factories;
 use App\Models\Deploy;
+use App\Models\Offer;
 use App\Repositories\DeployRepo;
 use App\Repositories\EmailCampaignStatisticRepo;
 use App\Repositories\EmailActionsRepo;
@@ -47,7 +48,7 @@ class DataProcessingFactory {
                 return self::createCheckDeployStatsService();
             
             case('ProcessCfsStats'):
-                return \App::make(\App\Services\PopulateCfsStatsService::class);
+                return self::createProcessCfsStatsService();
 
             case('ListProfileAggregation'):
                 return \App::make(\App\Services\ListProfileActionAggregationService::class);
@@ -297,6 +298,25 @@ class DataProcessingFactory {
             $actionStatusRepo,
             $scheduleRepo
         );
+    }
+
+    private static function createProcessCfsStatsService() {
+        $deploy = new Deploy();
+        $offer = new Offer();
+        $deployRepo = new DeployRepo($deploy, $offer);
+        $stdModel = new \App\Models\StandardReport();
+        $stdRepo = new \App\Repositories\StandardApiReportRepo($stdModel);
+
+        $crModel = new \App\Models\CreativeClickthroughRate();
+        $crRepo = new \App\Repositories\CreativeClickthroughRateRepo($crModel);
+
+        $subjModel = new \App\Models\SubjectOpenRate();
+        $subjRepo = new \App\Repositories\SubjectOpenRateRepo($subjModel);
+
+        $fromModel = new \App\Models\FromOpenRate();
+        $fromRepo = new \App\Repositories\FromOpenRateRepo($fromModel);
+
+        return new \App\Services\PopulateCfsStatsService($deployRepo, $stdRepo, $crRepo, $fromRepo, $subjRepo);
     }
 
 }
