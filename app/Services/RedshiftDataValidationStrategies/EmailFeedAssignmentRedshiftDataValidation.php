@@ -10,14 +10,10 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class EmailFeedAssignmentRedshiftDataValidation extends AbstractLargeRedshiftDataValidation {
     use DispatchesJobs;
-
-    private $cmpRepo;
-    private $redshiftRepo;
     private $badFeeds = [];
 
     public function __construct(CmpRepo $cmpRepo, RedshiftRepo $redshiftRepo) {
-        $this->cmpRepo = $cmpRepo;
-        $this->redshiftRepo = $redshiftRepo;
+        parent::__construct($cmpRepo, $redshiftRepo);
     }
 
     public function test($lookback) {

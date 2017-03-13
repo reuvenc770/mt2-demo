@@ -48,7 +48,7 @@ SQL;
         $result = $this->model->find($obj->email_id);
 
         if ($result) {
-            return $result->feed_id === $obj->feed_id;
+            return $result->is_deliverable === $obj->is_deliverable;
         }
         else {
             return false;

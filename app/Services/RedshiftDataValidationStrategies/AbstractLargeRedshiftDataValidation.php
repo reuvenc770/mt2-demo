@@ -4,10 +4,10 @@ namespace App\Services\RedshiftDataValidationStrategies;
 
 use Log;
 
-class AbstractLargeRedshiftDataValidation {
+abstract class AbstractLargeRedshiftDataValidation {
 
-    private $cmpRepo;
-    private $redshiftRepo;
+    protected $cmpRepo;
+    protected $redshiftRepo;
     const ACCEPTABLE_DIFF_RATE = 0.0001;
     const TEST_COUNT = 10000;
     const PASSING_T_SCORE = 31.82; // derived from table
@@ -17,9 +17,9 @@ class AbstractLargeRedshiftDataValidation {
         $this->redshiftRepo = $redshiftRepo;
     }
 
-    public abstract function test($lookback) {}
+    public abstract function test($lookback);
 
-    public abstract function fix() {}
+    public abstract function fix();
 
     protected function statisticalTest() {
         /*
@@ -45,7 +45,7 @@ class AbstractLargeRedshiftDataValidation {
             $cmpObj = $this->cmpRepo->get($testEmailId);
 
             if ($cmpObj !== null) {
-                if ($this->redshiftRepo->matches($testEmailId);) {
+                if ($this->redshiftRepo->matches($cmpObj)) {
                     $matches++;
                 }
 

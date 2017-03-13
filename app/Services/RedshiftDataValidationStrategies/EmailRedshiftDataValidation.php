@@ -11,10 +11,8 @@ use App\Jobs\S3RedshiftExportJob;
 class EmailRedshiftDataValidation extends AbstractLargeRedshiftDataValidation {
     use DispatchesJobs;
     
-    private $cmpRepo;
-    private $redshiftRepo;
     private $badEmailSegments = [];
-    const EMAIL_ACCEPTABLE_DIFF_RATE = 0.00001
+    const EMAIL_ACCEPTABLE_DIFF_RATE = 0.00001;
 
     public function __construct(CmpRepo $cmpRepo, RedshiftRepo $redshiftRepo) {
         parent::__construct($cmpRepo, $redshiftRepo);

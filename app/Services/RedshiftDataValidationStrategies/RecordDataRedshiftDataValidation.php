@@ -9,16 +9,12 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Jobs\S3RedshiftExportJob;
 
 class RecordDataRedshiftDataValidation extends AbstractLargeRedshiftDataValidation {
-    
     use DispatchesJobs;
 
-    private $cmpRepo;
-    private $redshiftRepo;
     private $badDays = [];
 
     public function __construct(CmpRepo $cmpRepo, RedshiftRepo $redshiftRepo) {
-        $this->cmpRepo = $cmpRepo;
-        $this->redshiftRepo = $redshiftRepo;
+        parent::__construct($cmpRepo, $redshiftRepo);
     }
 
 

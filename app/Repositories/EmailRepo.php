@@ -477,19 +477,19 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
     }
 
     public function getMinAndMaxIds() {
-        $min = $this->model->min('id');
-        $max = $this->model->max('id');
+        $min = $this->emailModel->min('id');
+        $max = $this->emailModel->max('id');
         return [$min, $max];
     }
 
     public function get($id) {
-        return $this->model->find($id);
+        return $this->emailModel->find($id);
     }
 
     public function getDistribution() {
         $output = [];
 
-        $result = $this->model
+        $result = $this->emailModel
                     ->selectRaw("round(id / 1000000) as million, COUNT(*) as total")
                     ->groupBy('million')
                     ->get();
