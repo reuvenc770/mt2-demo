@@ -77,6 +77,7 @@ class ProcessAweberUniques extends Job implements ShouldQueue
 
             JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
         } catch (\Exception $e) {
+            Cache::forget(self::KEY_NAME.$this->espAccountId);
             throw new JobException("{$this->jobName} failed with {$e->getMessage()}  {$e->getLine()}" . PHP_EOL);
         }
     }
