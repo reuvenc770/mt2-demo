@@ -3,7 +3,7 @@
 namespace App\Services\API;
 
 use App\Services\API\CakeApi;
-//TODO DEAD CLASS
+
 class CakeDeviceApi extends CakeApi {
     const ENDPOINT = "http://caridan.ampxl.net/app/websvc/cake/mt2/device.php?";
 

@@ -12,11 +12,9 @@ use DB;
 
 class CakeConversionRepo {
     protected $model;
-    protected $api;
 
-    public function __construct ( CakeConversion $model , CakeConversionApi $api ) {
+    public function __construct ( CakeConversion $model ) {
         $this->model = $model; 
-        $this->api = $api;
     }
 
     public function getByDate ( $dateRange = null ) {
