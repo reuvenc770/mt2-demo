@@ -28,7 +28,6 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
     self.editView = false;
     self.uploadedDeploys = [];
     self.offerData = [];
-    self.creatives = [{"id":112814,"name":"SuperLenny-Q8-C3-M5_D_A_LTXT_030617","days_ago":10,"click_rate":null},{"id":112813,"name":"NewWorld-Q8-C3-M5_S_A_LTXT_030617","days_ago":0,"click_rate":"0.673"}];
     self.allOffersData = [];
     self.allOffers = false;
     self.selectedDay = "0";
