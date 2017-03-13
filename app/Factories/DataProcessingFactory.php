@@ -317,6 +317,6 @@ class DataProcessingFactory {
         $fromRepo = new \App\Repositories\FromOpenRateRepo($fromModel);
 
         return new \App\Services\PopulateCfsStatsService($deployRepo, $stdRepo, $crRepo, $fromRepo, $subjRepo);
--    }
+    }
 
 }

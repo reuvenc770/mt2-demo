@@ -34,7 +34,7 @@ class CreativeRepo {
                 creatives.file_name as name, 
                 IFNULL(DATEDIFF(curdate(), d.send_date), 10) as days_ago,
                 ROUND(SUM(IFNULL(clicks, 0)) / SUM(IFNULL(delivers, 0)) * 100, 3) AS click_rate"))
-            ->toSql();
+            ->get();
 
             # Default send date of 10 days ago just to avoid PHP casting issues
     }
