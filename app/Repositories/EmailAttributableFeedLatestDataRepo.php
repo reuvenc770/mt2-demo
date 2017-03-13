@@ -71,8 +71,8 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                 ON DUPLICATE KEY UPDATE
                 email_id = email_id,
                 feed_id = feed_id,
-                subscribe_date = subscribe_date,
-                capture_date = capture_date,
+                subscribe_date = VALUES(subscribe_date),
+                capture_date = VALUES(capture_date),
                 attribution_status = VALUES(attribution_status),
                 first_name = VALUES(first_name),
                 last_name = VALUES(last_name),
