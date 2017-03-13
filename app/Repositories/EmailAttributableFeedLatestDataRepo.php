@@ -136,7 +136,8 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                 . $pdo->quote($row['email_id']) . ','
                 . $pdo->quote($row['feed_id']) . ','
                 . $pdo->quote($row['device_type']) . ','
-                . $pdo->quote($row['device_name']) . ')';
+                . $pdo->quote($row['device_name']) . ','
+                . $pdo->quote($row['carrier']) . ')';
 
             $this->batchDeviceUpdateCount++;
         }
@@ -146,7 +147,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
         if ($this->batchDeviceUpdateCount > 0) {
             $data = implode(',', $this->batchDeviceUpdateData);
         
-            DB::statement("INSERT INTO email_attributable_feed_latest_data (email_id, feed_id, device_type, device_name)
+            DB::statement("INSERT INTO email_attributable_feed_latest_data (email_id, feed_id, device_type, device_name, carrier)
                 VALUES
             
                 $data
@@ -168,7 +169,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                 dob = dob,
                 device_type = values(device_type),
                 device_name = values(device_name),
-                carrier = carrier,
+                carrier = values(carrier),
                 capture_date = capture_date,
                 subscribe_date = subscribe_date,
                 other_fields = other_fields");
