@@ -199,7 +199,7 @@ class ListProfileQueryBuilder {
 
         $query = DB::connection('redshift')->table("{$this->dataTable} as rd")
                     ->whereRaw('is_deliverable = 1')
-                    ->whereRaw("subscribe_date BETWEEN current_date - INTERVAL '$end DAY' AND current_date - INTERVAL '$start DAY'");
+                    ->whereRaw("rd.subscribe_date BETWEEN current_date - INTERVAL '$end DAY' AND current_date - INTERVAL '$start DAY'");
 
         return $query;
     }
