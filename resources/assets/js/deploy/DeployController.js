@@ -265,6 +265,10 @@ mt2App.controller('DeployController', ['$log', '$window', '$location', '$timeout
         ]).then(callBack);
     };
 
+    self.parseFloat = function (number){
+        return parseFloat(number).toFixed(2);
+    };
+
     self.editDeploy = function (deployId) {
         self.currentDeploy = self.resetAccount();
         DeployApiService.getDeploy(deployId, self.loadDeploySuccess, self.loadDeployFail);

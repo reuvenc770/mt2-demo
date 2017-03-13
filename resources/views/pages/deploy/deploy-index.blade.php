@@ -450,10 +450,10 @@
                                 <div class="col-sm-10 col-md-9">
                                     <select name="creative_id" id="creative_id" class="form-control" ng-required="true"
                                             ng-model="deploy.currentDeploy.creative_id"
-                                            ng-disabled="deploy.offerLoading">
+                                            >
                                         <option value="">Creative</option>
                                         <option ng-repeat="option in deploy.creatives" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'mt2-bg-super-danger' : ''}}">
-                                            @{{ option.name }} - @{{ option.id }} - @{{ option.click_rate ? parseFloat(option.click_rate).toFixed(2) + '%' : '' }}
+                                            @{{ option.name }} - @{{ option.id }} - @{{ option.click_rate ? deploy.parseFloat(option.click_rate) + '%' : '' }}
                                         </option>
                                     </select>
 
@@ -477,7 +477,7 @@
                                             ng-disabled="deploy.offerLoading">
                                         <option value="">From</option>
                                         <option ng-repeat="option in deploy.froms" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'mt2-bg-super-danger' : ''}}">
-                                            @{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate ? parseFloat(option.open_rate).toFixed(2) + '%' : '' }}
+                                            @{{ option.name }} - @{{ option.id }}  @{{ option.open_rate ? '-' +  deploy.parseFloat(option.open_rate) + '%' : '' }}
                                         </option>
                                     </select>
 
@@ -499,7 +499,7 @@
                                             ng-disabled="deploy.offerLoading">
                                         <option value="">Subject</option>
                                         <option ng-repeat="option in deploy.subjects" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'mt2-bg-super-danger' : ''}}">
-                                            @{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate ? parseFloat(option.open_rate).toFixed(2) + '%' : '' }}
+                                            @{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate ? deploy.parseFloat(option.open_rate) + '%' : '' }}
                                         </option>
                                     </select>
 
