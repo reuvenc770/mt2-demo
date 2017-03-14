@@ -55,6 +55,8 @@ class FeedApiService {
                 $this->feedId
             );
 
+            \Log::error( $e );
+
             return [ 'status' => false , 'messages' => [ 'Server Error' ] ];
         }
 
@@ -68,13 +70,13 @@ class FeedApiService {
         $record[ 'email_address' ] = $record[ 'email' ];
         unset( $record[ 'email' ] );
 
-        $record[ 'first_name' ] = $record[ 'firstname' ];
-        unset( $record[ 'firstname' ] );
+        $record[ 'first_name' ] = ( isset( $record[ 'firstname' ] ) ? $record[ 'firstname' ] : '' );
+        unset( $record[ 'firstname' ] ); 
 
-        $record[ 'last_name' ] = $record[ 'lastname' ];
+        $record[ 'last_name' ] =  ( isset( $record[ 'lastname' ] ) ? $record[ 'lastname' ] : '' );
         unset( $record[ 'lastname' ] );
 
-        $record[ 'dob' ] = $record[ 'birth_date' ];
+        $record[ 'dob' ] = ( isset( $record[ 'birth_date' ] ) ? $record[ 'birth_date' ] : '' );
         unset( $record[ 'birth_date' ] );
 
         return $record;
