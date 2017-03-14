@@ -15,7 +15,7 @@ class AddCreatedAtIndexToGlobalSupp extends Migration
             $table->index('created_at', 'created_at');
         });
 
-        Schema::connection('suppression')->table('suppression_list_suppression', function ($table) {
+        Schema::connection('suppression')->table('suppression_list_suppressions', function ($table) {
             $table->index('created_at', 'created_at');
         });
     }
@@ -30,7 +30,7 @@ class AddCreatedAtIndexToGlobalSupp extends Migration
             $table->dropIndex('created_at');
         });
 
-        Schema::connection('suppression')->table('suppression_list_suppression', function ($table) {
+        Schema::connection('suppression')->table('suppression_list_suppressions', function ($table) {
             $table->dropIndex('created_at');
         });
     }
