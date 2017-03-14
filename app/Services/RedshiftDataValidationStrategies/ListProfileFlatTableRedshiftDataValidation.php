@@ -42,19 +42,24 @@ class ListProfileFlatTableRedshiftDataValidation extends AbstractLargeRedshiftDa
 
     protected function statisticalTest($lookback) {
         // This statistical test will be slightly different
-
+        $testStart = microtime(true);
         $i = 0;
         $matches = 0;
         $dates = $this->createDateRange($lookback);
 
         // Due to current setup, checking all days is unfortunately out of the question.
 
+        $cmpTime = 0;
+        $redshiftTime = 0;
+
         while ($i < self::TEST_COUNT) {
             // pick a random date
             $date = array_rand($dates);
 
             // pick a deploy that has actions on that date
-            $deploys = Cache::tags('list_profile_flat_check')->get($date)
+            $cmpStart = microtime(true);
+            $deploys = Cache::tags('list_profile_flat_check')->get($date);
+
             if (null === $deploys) {
                 $deploys = $this->cmpRepo->getDeploysOnDate($date);
                 Cache::tags('list_profile_flat_check')->put($date, $deploys, $this->cacheStorageTime);
@@ -63,10 +68,15 @@ class ListProfileFlatTableRedshiftDataValidation extends AbstractLargeRedshiftDa
             $deployId = array_rand($deploys);
 
             $cmpObj = $this->cmpRepo->deployDateSyncCheck($deployId, $date);
+            $cmpEnd = microtime(true);
+            $cmpTime = $cmpTime + ($cmpEnd - $cmpStart);
 
             if (null !== $cmpObj) {
+                $redshiftStart = microtime(true);
                 $rsObj = $this->redshiftRepo->findAggregation($deployId, $date);
-                
+                $redshiftEnd = microtime(true);
+                $redshiftTime = $redshiftTime + ($redshiftEnd - $redshiftStart);
+
                 // equality found here
                 if (null === $rsObject) {
                     continue;
@@ -87,6 +97,11 @@ class ListProfileFlatTableRedshiftDataValidation extends AbstractLargeRedshiftDa
         $sampleStdDev = sqrt((self::TEST_COUNT * ($matches / self::TEST_COUNT) * ((self::TEST_COUNT - $matches) / self::TEST_COUNT)) / (self::TEST_COUNT - 1));
         $tScore = abs(($matches / self::TEST_COUNT) - self::ACCEPTABLE_DIFF_RATE) / ($sampleStdDev / sqrt(self::TEST_COUNT));
         
+        $testEnd = microtime(true);
+        $testTime = $testEnd - $testStart;
+        Log::info("ListProfileFlatTable has $matches matches out of " . self::TEST_COUNT . " with t-score $tScore.");
+        Log::info("ListProfileFlatTable took $testTime seconds. $redshiftTime for redshift and $cmpTime for CMP db.");
+
         return $tScore > self::PASSING_T_SCORE;
     }  
 

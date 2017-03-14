@@ -36,31 +36,44 @@ abstract class AbstractLargeRedshiftDataValidation {
 
         $i = 0;
         $matches = 0;
+        $testStart = microtime(true);
 
         list($minEmailId, $maxEmailId) = $this->cmpRepo->getMinAndMaxIds();
+
+        $cmpTime = 0;
+        $redshiftTime = 0;
 
         while ($i < self::TEST_COUNT) {
             // 1. Get a random email id from the source
             $testEmailId = mt_rand($minEmailId, $maxEmailId);
+            $cmpStart = microtime(true);
             $cmpObj = $this->cmpRepo->get($testEmailId);
+            $cmpEnd = microtime(true);
+            $cmpTime = $cmpTime + ($cmpEnd - $cmpStart);
 
             if ($cmpObj !== null) {
+                $redshiftStart = microtime(true);
                 if ($this->redshiftRepo->matches($cmpObj)) {
                     $matches++;
                 }
-
+                $redshiftEnd = microtime(true);
+                $redshiftTime = $redshiftTime + ($redshiftEnd - $redshiftStart);
                 $i++;
             }
         }
 
+        $testEnd = microtime(true);
+        $testTime = $testEnd - $testStart;
         $cmpClass = explode('\\', get_class($this->cmpRepo))[2];
         $entity = str_replace('Repo', '', $cmpClass);
-        Log::info("$entity has $matches matches out of " . self::TEST_COUNT);
-
+        
         // sn = sqrt((np(1-p)) / (n - 1)) - it's a proportion, not a number
         $sampleStdDev = sqrt((self::TEST_COUNT * ($matches / self::TEST_COUNT) * ((self::TEST_COUNT - $matches) / self::TEST_COUNT)) / (self::TEST_COUNT - 1));
         $tScore = abs(($matches / self::TEST_COUNT) - self::ACCEPTABLE_DIFF_RATE) / ($sampleStdDev / sqrt(self::TEST_COUNT));
         
+        Log::info("$entity has $matches matches out of " . self::TEST_COUNT . " for a t-score of $tScore against " . self::PASSING_T_SCORE . '.');
+        Log::info("$entity took $testTime seconds. $redshiftTime for redshift and $cmpTime for CMP db.");
+
         return $tScore > self::PASSING_T_SCORE;
     }  
 
