@@ -48,7 +48,8 @@ SQL;
         $result = $this->model->find($obj->email_id);
 
         if ($result) {
-            return $result->is_deliverable === $obj->is_deliverable;
+            return ($result->is_deliverable === $obj->is_deliverable)
+                && ($result->subscribe_date === $obj->subscribe_date);
         }
         else {
             return false;
