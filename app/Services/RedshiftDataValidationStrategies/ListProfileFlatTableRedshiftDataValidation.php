@@ -95,7 +95,7 @@ class ListProfileFlatTableRedshiftDataValidation extends AbstractLargeRedshiftDa
 
         // sn = sqrt((np(1-p)) / (n - 1)) - it's a proportion, not a number
         $sampleStdDev = sqrt((self::TEST_COUNT * ($matches / self::TEST_COUNT) * ((self::TEST_COUNT - $matches) / self::TEST_COUNT)) / (self::TEST_COUNT - 1));
-        $tScore = abs(($matches / self::TEST_COUNT) - self::ACCEPTABLE_DIFF_RATE) / ($sampleStdDev / sqrt(self::TEST_COUNT));
+        $tScore = abs((1 - ($matches / self::TEST_COUNT)) - self::ACCEPTABLE_DIFF_RATE) / ($sampleStdDev / sqrt(self::TEST_COUNT));
         
         $testEnd = microtime(true);
         $testTime = $testEnd - $testStart;
