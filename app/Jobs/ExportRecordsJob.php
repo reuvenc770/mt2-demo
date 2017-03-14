@@ -30,7 +30,7 @@ class ExportRecordsJob extends Job implements ShouldQueue {
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
-    public function handle(EmailFeedInstanceRepo $instancesRepo,
+    public function handle(EmailFeedInstanceRepo $instancesRepo, 
         EtlPickupRepo $pickupRepo,
         EspDataExportRepo $dataExportRepo,
         EspApiAccountRepo $espAccountRepo) {

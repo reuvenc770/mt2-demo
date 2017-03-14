@@ -18,7 +18,7 @@ use App\Services\Validators\SourceUrlValidator;
 
 // Suppression
 use App\Services\SuppressionService;
-use App\Services\SuppressionListSuppressionService;
+use App\Services\MT1SuppressionService;
 use App\Services\SuppressionProcessingStrategies\FirstPartySuppressionProcessingStrategy;
 
 
@@ -68,7 +68,7 @@ class FeedProcessingFactory
     }
 
     private static function setUpFirstPartyService(&$service, $feedId) {
-        $suppression = App::make(SuppressionListSuppressionService::class);
+        $suppression = App::make(MT1SuppressionService::class);
         $suppression->setFeedId($feedId);
         $service->registerSuppression($suppression);
 

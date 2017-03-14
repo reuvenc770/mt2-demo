@@ -20,4 +20,21 @@ class MD5AdvertiserSuppressListRepo {
             [ 'md5sum' , $record->lower_case_md5 ]
         ] )->count() > 0;
     }
+
+    public function getSuppressed($emailAddress, $offerId) {
+
+        $result = $this->model
+                        ->whereRaw("advertiser_id = $offerId 
+                            AND 
+                             md5sum = md5($emailAddress)")
+                        ->first();
+
+        if ($result) {
+            return (object)['email_address' => $emailAddress];
+        }
+        else {
+            return null;
+        }
+        
+    }
 }

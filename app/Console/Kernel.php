@@ -298,7 +298,7 @@ class Kernel extends ConsoleKernel
         #$schedule->command('feedRecords:exportThirdParty 2957')->cron('*/2 * * * * *');
         
         // Re-run first party actives against suppression
-        #$schedule->command('feedRecords:feedRecords:reprocessFirstParty 1')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME);
+        #$schedule->command('feedRecords:reprocessFirstParty 1')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME);
 
         
         /**

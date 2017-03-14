@@ -33,6 +33,7 @@ class ProcessingRecord {
     private $otherFields = [];
     private $otherFieldsJson = '';
     private $attrStatus = null;
+    private $processDateTime;
 
     // Metadata
     private $uniqueStatus = 'unique'; // unique, duplicate, non-unique
@@ -44,23 +45,18 @@ class ProcessingRecord {
     private $invalidReason;
 
     public function __construct(RawFeedEmail $record) {
-        $this->processDate = Carbon::today()->format('Y-m-d');
+        $this->processDate = Carbon::today()->toDateString();
+        $this->processDateTime = Carbon::today()->toDateTimeString();
 
         $this->emailAddress = $record->email_address;
 
-        if ($record->email_id) {
-            $this->emailId = $record->email_id;
-            $this->newEmail = false;
-            $this->domainId = $record->email_domain_id;
-            $this->domainGroupId = $record->domain_group_id;
-        }
-        else {
-            $this->newEmail = true;
-            $this->emailId = null;
-            $this->domainId = null;
-            $this->domainGroupId = null;
-        }
+        // email id, new email status, domain id, and domain group id to be set later
+        $this->newEmail = null;
+        $this->emailId = null;
+        $this->domainId = null;
+        $this->domainGroupid = null;
 
+        // The rest we already know
         $this->feedId = $record->feed_id;
         $this->firstName = $record->first_name;
         $this->lastName = $record->last_name;
@@ -73,7 +69,7 @@ class ProcessingRecord {
         $this->dob = $record->dob;
         $this->gender = $record->gender;
         $this->phone = $record->phone;
-        $this->captureDate = $record->capture_date;
+        $this->captureDate = $record->capture_date; // Validation / correction of this value is performed in the CaptureDateValidator
         $this->ip = $record->ip;
         $this->sourceUrl = $record->source_url;
         $this->otherFieldsJson = $record->other_fields ?: '{}';
@@ -106,8 +102,8 @@ class ProcessingRecord {
         return [
             'email_id' => $this->emailId,
             'feed_id' => $this->feedId,
-            'subscribe_datetime' => $this->processDate,
-            'status' => $this->isSuppressed ? 'U' : 'A',
+            'subscribe_date' => $this->processDate,
+            'subscribe_datetime' => $this->processDateTime,
             'first_name' => $this->firstName,
             'last_name' => $this->lastName,
             'address' => $this->address,
@@ -123,7 +119,8 @@ class ProcessingRecord {
             'work_phone' => '',
             'capture_date' => $this->captureDate,
             'source_url' => $this->sourceUrl,
-            'ip' => $this->ip
+            'ip' => $this->ip,
+            'other_fields' => $this->otherFieldsJson
         ];
     }
 
@@ -156,6 +153,14 @@ class ProcessingRecord {
             'email_id' => $this->emailId,
             'feed_id' => $this->feedId,
             'last_action_type' => $status
+        ];
+    }
+
+    public function mapToNewRecords() {
+        return [
+            'email_id' => $this->emailId,
+            'feed_id' => $this->feedId,
+            'subscribe_date' => $this->processDate
         ];
     }
 

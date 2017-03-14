@@ -84,7 +84,7 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
 
             if ('unique' === $record->uniqueStatus) {
                 $this->emailStatusRepo->batchInsert($record->mapToEmailFeedAction(ThirdPartyEmailStatus::DELIVERABLE));
-                $recordsToFlag[] = $this->mapToNewRecords($record);
+                $recordsToFlag[] = $record->mapToNewRecords();
 
                 // Update the attribution status of the per-feed user info store 
                 if ($currentAttributedFeedId) {
@@ -104,17 +104,6 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
         $jobIdentifier = '3Party-' . substr($lastEmail, 0, 1); // starting letter - so we can identify the batch
         \Event::fire(new NewRecords($recordsToFlag, $jobIdentifier));
     }
-
-
-    private function mapToNewRecords(ProcessingRecord $record) {
-        return [
-            'email_id' => $record->emailId,
-            'feed_id' => $record->feedId,
-            'datetime' => $record->processDate,
-            'capture_date' => $record->captureDate
-        ];
-    }
-
 
     private function setRecordStatus(ProcessingRecord &$record) {
         if ($record->isSuppressed) {
