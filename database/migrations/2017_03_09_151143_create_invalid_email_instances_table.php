@@ -30,7 +30,7 @@ class CreateInvalidEmailInstancesTable extends Migration
             $table->string('country')->default('');
             $table->string('gender')->default('');
             $table->string('phone')->default('');
-            $table->date('dob')->default('');
+            $table->date('dob');
             $table->json('other_fields');
             $table->string('posting_string', 500)->default('');
             $table->tinyInteger('invalid_reason_id')->unsigned()->default(0);
