@@ -8,9 +8,9 @@ abstract class AbstractLargeRedshiftDataValidation {
 
     protected $cmpRepo;
     protected $redshiftRepo;
-    const ACCEPTABLE_ERROR_RATE = 0.0001;
+    const IDEAL_CORRECT_RATE = 0.999;
     const TEST_COUNT = 10000;
-    const PASSING_T_SCORE = 31.82; // derived from table
+    
 
     public function __construct($cmpRepo, $redshiftRepo) {
         $this->cmpRepo = $cmpRepo;
@@ -67,14 +67,13 @@ abstract class AbstractLargeRedshiftDataValidation {
         $cmpClass = explode('\\', get_class($this->cmpRepo))[2];
         $entity = str_replace('Repo', '', $cmpClass);
         
-        // sn = sqrt((np(1-p)) / (n - 1)) - it's a proportion, not a number
-        $sampleStdDev = sqrt((self::TEST_COUNT * ($matches / self::TEST_COUNT) * ((self::TEST_COUNT - $matches) / self::TEST_COUNT)) / (self::TEST_COUNT - 1));
-        $tScore = abs((1 - ($matches / self::TEST_COUNT)) - self::ACCEPTABLE_ERROR_RATE) / ($sampleStdDev / sqrt(self::TEST_COUNT));
+        // sn = sqrt(np(1-p)). se is sn / sqrt(sample_size).
+        $sampleStdDev = sqrt(self::TEST_COUNT * ($matches / self::TEST_COUNT) * ((self::TEST_COUNT - $matches) / self::TEST_COUNT) );
         
-        Log::info("$entity has $matches matches out of " . self::TEST_COUNT . " for a t-score of $tScore against " . self::PASSING_T_SCORE . '.');
+        Log::info("$entity has $matches matches out of " . self::TEST_COUNT . " with a standard deviation of $sampleStdDev.");
         Log::info("$entity took $testTime seconds. $redshiftTime for redshift and $cmpTime for CMP db.");
 
-        return $tScore > self::PASSING_T_SCORE;
+        return ($matches / self::TEST_COUNT) > (self::IDEAL_CORRECT_RATE - (1.65 * ($sampleStdDev / sqrt(self::TEST_COUNT))));
     }  
 
     protected function isEqual($cmpCount, $redshiftCount) {
