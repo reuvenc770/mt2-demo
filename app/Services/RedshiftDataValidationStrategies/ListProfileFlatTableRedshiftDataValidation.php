@@ -93,16 +93,15 @@ class ListProfileFlatTableRedshiftDataValidation extends AbstractLargeRedshiftDa
 
         Cache::tags('list_profile_flat_check')->flush();
 
-        // sn = sqrt((np(1-p)) / (n - 1)) - it's a proportion, not a number
-        $sampleStdDev = sqrt((self::TEST_COUNT * ($matches / self::TEST_COUNT) * ((self::TEST_COUNT - $matches) / self::TEST_COUNT)) / (self::TEST_COUNT - 1));
-        $tScore = abs((1 - ($matches / self::TEST_COUNT)) - self::ACCEPTABLE_DIFF_RATE) / ($sampleStdDev / sqrt(self::TEST_COUNT));
+        // sn = sqrt(np(1-p)). se is sn / sqrt(sample_size).
+        $sampleStdDev = sqrt((self::TEST_COUNT * ($matches / self::TEST_COUNT) * ((self::TEST_COUNT - $matches) / self::TEST_COUNT)) );
         
         $testEnd = microtime(true);
         $testTime = $testEnd - $testStart;
-        Log::info("ListProfileFlatTable has $matches matches out of " . self::TEST_COUNT . " with t-score $tScore.");
+        Log::info("ListProfileFlatTable has $matches matches out of " . self::TEST_COUNT . " with sample std dev $sampleStdDev.");
         Log::info("ListProfileFlatTable took $testTime seconds. $redshiftTime for redshift and $cmpTime for CMP db.");
 
-        return $tScore > self::PASSING_T_SCORE;
+        return ($matches / self::TEST_COUNT) > (self::IDEAL_CORRECT_RATE - (1.65 * ($sampleStdDev / sqrt(self::TEST_COUNT))));
     }  
 
 
