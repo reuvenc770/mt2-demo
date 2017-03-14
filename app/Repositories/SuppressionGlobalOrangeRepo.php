@@ -36,7 +36,7 @@ class SuppressionGlobalOrangeRepo implements IAwsRepo {
     }
 
     public function extractAllForS3() {
-        return $this->model;
+        return $this->model->whereRaw("created_at >= CURDATE() - INTERVAL 10 DAY");
     }
 
     public function specialExtract($data) {}

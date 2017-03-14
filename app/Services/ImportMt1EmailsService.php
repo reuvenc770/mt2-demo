@@ -256,7 +256,7 @@ class ImportMt1EmailsService
         // Delete records
         if (sizeof($records) > 0) {
             $deletions = $this->api->cleanTable($modulus);
-            echo "Read in " . sizeof($records) . " records, deleted " . $deletions . ', processing ' . count($recordsToFlag) . PHP_EOL; 
+            echo "Job $modulus. Read in " . sizeof($records) . " records, deleted " . $deletions . ', processing ' . count($recordsToFlag) . PHP_EOL; 
         }
         
         if (sizeof($recordsToFlag > 0)) {

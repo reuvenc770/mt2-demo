@@ -235,6 +235,10 @@ class FirstPartyRecordDataRepo implements IAwsRepo {
         return $this->model;
     }
 
+    public function specialExtract($data) {
+        return $this->model;
+    }
+
     public function mapForS3Upload($row) {
         $pdo = DB::connection('redshift')->getPdo();
         

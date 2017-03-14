@@ -22,7 +22,6 @@ class ExactRedshiftDataValidation {
     public function test($lookback) {
         $cmpCount = $this->cmpRepo->getCount();
         $rsCount = $this->redshiftRepo->getCount();
-
         return $cmpCount === $rsCount;
     }
 

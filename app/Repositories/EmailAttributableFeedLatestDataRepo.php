@@ -71,8 +71,8 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                 ON DUPLICATE KEY UPDATE
                 email_id = email_id,
                 feed_id = feed_id,
-                subscribe_date = subscribe_date,
-                capture_date = capture_date,
+                subscribe_date = VALUES(subscribe_date),
+                capture_date = VALUES(capture_date),
                 attribution_status = VALUES(attribution_status),
                 first_name = VALUES(first_name),
                 last_name = VALUES(last_name),
@@ -424,7 +424,8 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                     })
                     ->join('third_party_email_statuses as tpe', 'email_attributable_feed_latest_data.email_id', '=', 'tpe.email_id')
                     ->whereRaw("efa.email_id = $emailId")
-                    ->selectRaw("efa.email_id, IF(tpes.last_action_type = 'None', 1, 0) as is_deliverable")
+                    ->selectRaw("efa.email_id, IF(tpes.last_action_type = 'None', 1, 0) as is_deliverable, 
+                        email_attributable_feed_latest_data.subscribe_date")
                     ->first();
     }
 

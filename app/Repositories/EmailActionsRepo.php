@@ -237,7 +237,7 @@ class EmailActionsRepo {
 
         return $this->actions
                     ->join("$dataSchema.deploys as d", 'email_actions.deploy_id', '=', 'd.id')
-                    ->whereRaw("created_at >= CURDATE() - INTERVAL $lookback DAY")
+                    ->whereRaw("email_actions.created_at >= CURDATE() - INTERVAL $lookback DAY")
                     ->whereIn('action_id', [1,2])
                     ->select('email_actions.email_id', 
                         'party', 

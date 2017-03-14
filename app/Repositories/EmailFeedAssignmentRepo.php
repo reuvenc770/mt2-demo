@@ -149,9 +149,9 @@ class EmailFeedAssignmentRepo implements IAwsRepo, ICanonicalDataSource {
         $pdo = DB::connection('redshift')->getPdo();
         return $pdo->quote($row->email_id) . ','
              . $pdo->quote($row->feed_id) . ','
-             . $pdo->quote($row->subscribe_date) . ','
              . $pdo->quote($row->created_at) . ','
-             . $pdo->quote($row->updated_at);
+             . $pdo->quote($row->updated_at) . ','
+             . $pdo->quote($row->subscribe_date);
     }
 
     public function getConnection() {

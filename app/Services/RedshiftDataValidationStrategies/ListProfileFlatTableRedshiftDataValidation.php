@@ -13,8 +13,6 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class ListProfileFlatTableRedshiftDataValidation extends AbstractLargeRedshiftDataValidation {
     
-    private $cmpRepo;
-    private $redshiftRepo;
     private $badEmailSegments = [];
     const TEST_COUNT = 5000;
 
