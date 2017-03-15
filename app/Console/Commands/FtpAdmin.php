@@ -23,7 +23,7 @@ class FtpAdmin extends Command
      *
      * @var string
      */
-    protected $signature = 'ftp:admin {--H|host= : The host to create users on. } {--P|port=22 : The port for ssh connections. } {--U|sshUser= : User to login as.} {--k|sshPublicKey= : Path to public ssh keyfile.} {--K|sshPrivateKey= : Path to private ssh keyfile} {--u|user= : Username to use. } {--p|password= : Password to set.} {--s|service= : The service to use when saving the username and password. The service must implement IFtpAdmin.} {--r|reset= : If True Reset Given Users Password} {--D|updateFeedDirectories : Update directory structure for feeds. }';
+    protected $signature = 'ftp:admin {--H|host= : The host to create users on. } {--P|port=22 : The port for ssh connections. } {--U|sshUser= : User to login as.} {--k|sshPublicKey= : Path to public ssh keyfile.} {--K|sshPrivateKey= : Path to private ssh keyfile} {--u|user= : Username to use. } {--p|password= : Password to set.} {--s|service= : The service to use when saving the username and password. The service must implement IFtpAdmin.} {--r|reset : If True Reset Given Users Password} {--D|updateFeedDirectories : Update directory structure for feeds. }';
 
     /**
      * The console command description.
@@ -187,8 +187,15 @@ class FtpAdmin extends Command
 
         $this->systemService->createUser( $this->username , $this->directory );
         $this->systemService->setPassword( $this->username , $this->password );
+
         $this->systemService->setDirectoryPermissions( $this->directory );
         $this->systemService->setDirectoryOwner( 'root' , $this->directory );
+
+        $uploadDir = $this->directory . '/upload';
+        $this->systemService->createDirectory( $uploadDir );
+
+        $this->systemService->setDirectoryPermissions( $uploadDir );
+        $this->systemService->setDirectoryOwner( $this->username , $uploadDir );
     }
 
     protected function generatePassword () {
