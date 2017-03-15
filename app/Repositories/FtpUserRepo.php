@@ -14,16 +14,14 @@ class FtpUserRepo {
     }
 
     public function save ( $credentials , $directory , $host = null , $serviceName = null ) {
-        $user = new FtpUser(); 
+        $status = FtpUser::create( [
+            'username' => $credentials[ 'username' ] ,
+            'password' => $credentials[ 'password' ] ,
+            'directory' => $directory ,
+            'host' => $host ?: '' ,
+            'service' => $serviceName ?: ''
+        ] );
 
-        $user->username = $credentials[ 'username' ];
-        $user->password = $credentials[ 'password' ];
-        $user->directory = $directory;
-        $user->host = "ftp://52.205.67.250";
-
-        if ( !is_null( $host ) ) { $user->host = $host; }
-        if ( !is_null( $serviceName ) ) { $user->service = $serviceName; }
-
-        return $user->save();
+        return $status;
     }
 }

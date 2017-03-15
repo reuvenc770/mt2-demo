@@ -30,5 +30,5 @@ use Illuminate\Database\Eloquent\Model;
  */
 class FtpUser extends Model
 {
-    //
+    protected $guarded = ['id'];
 }
