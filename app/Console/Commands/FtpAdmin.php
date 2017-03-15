@@ -187,8 +187,15 @@ class FtpAdmin extends Command
 
         $this->systemService->createUser( $this->username , $this->directory );
         $this->systemService->setPassword( $this->username , $this->password );
+
         $this->systemService->setDirectoryPermissions( $this->directory );
         $this->systemService->setDirectoryOwner( 'root' , $this->directory );
+
+        $uploadDir = $this->directory . '/upload';
+        $this->systemService->createDirectory( $uploadDir );
+
+        $this->systemService->setDirectoryPermissions( $uploadDir );
+        $this->systemService->setDirectoryOwner( $this->username , $uploadDir );
     }
 
     protected function generatePassword () {
