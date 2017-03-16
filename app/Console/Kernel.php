@@ -263,6 +263,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('listprofile:getRecordAgentData 5')->hourly();
         $schedule->command('listprofile:baseTables')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('updateUserActions 1')->dailyAt(self::REPORT_TIME_2);
+        $schedule->command('listprofile:validateRedshift 1')->cron('0 4 * * * *');
 
         /**
          * Feed File Processing
