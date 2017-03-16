@@ -24,7 +24,7 @@ use Event;
 class BrontoReportService extends AbstractReportService implements IDataService
 {
     public $pageNumber = 1;
-    CONST DUMB_ID = "0bce03ee";
+
     public $pageType;
     public $currentPageData = array();
 
@@ -300,29 +300,10 @@ class BrontoReportService extends AbstractReportService implements IDataService
             $this->pageType = $pageType;
         }
     }
-
-
+    
     public function getUniqueJobId(&$processState)
     {
-        $jobId = (isset($processState['jobId']) ? $processState['jobId'] : '');
-
-        if (
-            !isset($processState['jobIdIndex'])
-            || (isset($processState['jobIdIndex']) && $processState['jobIdIndex'] != $processState['currentFilterIndex'])
-        ) {
-            $filterIndex = $processState['currentFilterIndex'];
-            $pipe = $processState['pipe'];
-
-            if ($pipe == 'default' && $filterIndex == 1) {
-                $jobId .= '::Pipe-' . $pipe . '::' . $processState['recordType'] . '::Page-' . (isset($processState['pageNumber']) ? $processState['pageNumber'] : 1);
-            } elseif ($pipe == 'delivered' && $filterIndex == 1) {
-                $jobId .= (isset($processState['campaign']) ? '::Pipe-' . $pipe . '::Campaign-' . $processState['campaign']->esp_internal_id : '');
-            }
-
-            $processState['jobIdIndex'] = $processState['currentFilterIndex'];
-            $processState['jobId'] = $jobId;
-        }
-
+        $jobId = isset($processState['campaign'])? ":!:{$processState['campaign']['external_deploy_id']} - {$processState['campaign']['esp_internal_id']}" : '';
         return $jobId;
     }
 
@@ -374,17 +355,6 @@ class BrontoReportService extends AbstractReportService implements IDataService
             return $id;
         }
 
-    }
-
-    public function makeDumbInternalId($id){
-        $realId = BrontoMapping::returnOriginalId($id,$this->api->getEspAccountId());
-        if(isset($realId)){
-            return $realId;
-        } else {
-            $converted = base_convert($id, 10, 16);
-            $padded = str_pad($converted, 28, '0', STR_PAD_LEFT);
-            return self::DUMB_ID . $padded;
-        }
     }
 
     public function pageHasCampaignData($processState){

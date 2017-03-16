@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Facades\BrontoMapping;
 use App\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -235,18 +236,19 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
     }
 
     protected function getBrontoRerunCampaigns() {
-        // Bronto campaigns require a different internal id in a different table
+
         $deploys = DB::table('deploy_record_reruns AS drr')
-            ->select('external_deploy_id', 'br.internal_id AS esp_internal_id', 'drr.esp_account_id', 'datetime', 
+            ->select('external_deploy_id', 'drr.esp_internal_id', 'drr.esp_account_id', 'datetime',
                 'delivers', 'opens', 'clicks', 'unsubs', 'complaints', 'bounces')
             ->join('mt2_reports.standard_reports AS sr', 'drr.deploy_id', '=', 'sr.external_deploy_id')
-            ->join('mt2_reports.bronto_reports AS br', 'sr.campaign_name', '=', 'br.message_name')
             ->where('drr.esp_account_id', $this->espAccountId)
             ->orderBy('drr.esp_account_id');
 
         $this->processState[ 'currentFilterIndex' ]++;
 
         $deploys->each( function( $deploy , $key ) {
+            $generatedId = $deploy['esp_internal_id'];
+            $deploy['esp_internal_id'] = BrontoMapping::makeDumbInternalId($generatedId,$this->espAccountId);
             $this->processState[ 'campaign' ] = $deploy;
             $this->processState[ 'espId' ] = $this->espAccountId;
 
