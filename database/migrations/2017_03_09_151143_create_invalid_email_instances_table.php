@@ -44,7 +44,7 @@ class CreateInvalidEmailInstancesTable extends Migration
 
         Schema::create('invalid_reasons', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name', 15);
+            $table->string('name', 25);
         });
     }
 

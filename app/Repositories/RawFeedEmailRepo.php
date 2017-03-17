@@ -117,11 +117,13 @@ class RawFeedEmailRepo {
 
     public function getThirdPartyRecordsWithChars($startPoint, $startChars) {
         $charsRegex = '^[' . $startChars . ']';
+        $suppDb = config('database.connections.suppression.database');
 
         return $this->rawEmail
-                    ->selectRaw("raw_feed_emails.*, email_domain_id, domain_group_id, e.id as email_id")
+                    ->selectRaw("raw_feed_emails.*, email_domain_id, domain_group_id, e.id as email_id, IF(sgo.id IS NULL, 0, 1) as suppressed")
                     ->leftJoin('emails as e', 'raw_feed_emails.email_address', '=', 'e.email_address')
                     ->leftJoin('email_domains as ed', 'e.email_domain_id', '=', 'ed.id')
+                    ->leftJoin("$suppDb.suppression_global_orange as sgo", 'raw_feed_emails.email_address', '=', 'sgo.email_address')
                     ->whereRaw("raw_feed_emails.email_address RLIKE '$charsRegex'")
                     ->where('raw_feed_emails.id', '>', $startPoint)
                     ->orderBy('raw_feed_emails.id')

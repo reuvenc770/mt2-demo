@@ -126,7 +126,12 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
      */
 
     public function getCurrentAttributionLevel($emailId) {
-        $attributionSearchBase = $this->emailModel->find($emailId)->feedAssignment;
+        $attributionSearchBase = $this->emailModel->find($emailId);
+        if (!$attributionSearchBase) {
+            return null;
+        }
+
+        $attributionSearchBase = $attributionSearchBase->feedAssignment;
 
         if ($attributionSearchBase) {
             $feedSearch = $attributionSearchBase->feed;
@@ -208,14 +213,8 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
     public function insertNew(array $row) {
         // Due to the possibility of incomplete parallelization, 
         // we cannot be sure that this email is not already in the db.
-        $email = $this->emailModel->where('email_address', $row['email_address'])->first();
-
-        if (!$email) {
-            // One final precaution
-            $email = $this->emailModel->updateOrCreate(['email_address' => $row['email_address']], $row);
-        }
-
-        return $email;
+        
+        return $this->emailModel->updateOrCreate(['email_address' => $row['email_address']], $row);
     }
 
     public function getRecordInfoAddress($address) {

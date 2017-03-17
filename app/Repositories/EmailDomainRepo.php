@@ -27,6 +27,15 @@ class EmailDomainRepo implements IAwsRepo {
             if (sizeof($result) > 0 && isset($result[0]['id'])) {
                 return $result[0]['id'];
             }
+            else {
+                $id = $this->emailDomainModel->insertGetId([
+                    'domain_group_id' => 0,
+                    'domain_name' => $lowerName,
+                    'is_suppressed' => 0
+                ]);
+
+                return $id;
+            }
         }
 
         return 0;
@@ -63,12 +72,16 @@ class EmailDomainRepo implements IAwsRepo {
     public function getDomainAndClassInfo($email) {
         $emailParts = explode('@', $email);
         if (isset($emailParts[1])) {
+            $lowerDomain = strtolower($emailParts[1]); // not explicitly necessary - mysql string comparisons are case insensitive
             return $this->emailDomainModel
-                        ->selectRaw('email_domains.id as domain_id, domain_group_id, lower(dg.name) as domain_group_name')
-                        ->join('domain_groups as dg', 'email_domains.domain_group_id', '=', 'dg.id')
-                        ->where('domain_name', $emailParts[1])
+                        ->selectRaw('email_domains.id as domain_id, IFNULL(domain_group_id, 0) as domain_group_id, lower(dg.name) as domain_group_name')
+                        ->leftJoin('domain_groups as dg', 'email_domains.domain_group_id', '=', 'dg.id')
+                        ->where('domain_name', $lowerDomain)
                         ->first();
 
+        }
+        else {
+            return null; // this should throw an exception
         }
     }
 

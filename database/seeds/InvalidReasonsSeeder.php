@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Database\Seeder;
-use DB;
 
 class InvalidReasonsSeeder extends Seeder
 {
@@ -22,6 +21,8 @@ class InvalidReasonsSeeder extends Seeder
             (5, 'Bad source url'), 
             (6, 'Bad IP address'), 
             (7, 'Bad email domain'), 
-            (8, 'Other')");
+            (8, 'Canada'),
+            (9, 'Invalid Email'),
+            (10, 'Other')");
     }
 }

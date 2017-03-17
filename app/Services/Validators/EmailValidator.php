@@ -41,6 +41,8 @@ class EmailValidator implements IValidate {
     public function setData(array $data) {
         $this->emailAddress = $data['emailAddress'];
         $this->newEmail = $data['newEmail'];
+        $this->domainId = $data['domainId'];
+        $this->domainGroupId = $data['domainGroupId'];
 
         $domain = $this->domainRepo->getDomainAndClassInfo($this->emailAddress);
 
@@ -55,9 +57,12 @@ class EmailValidator implements IValidate {
         }
         else {
             $domain = $this->domainRepo->createNewDomain($this->emailAddress);
+            if ($domain) {
+                $this->domainId = $domain->id;
+                $this->domainGroupId = 0; // Default to 0
+            }
 
-            $this->domainId = $domain->id;
-            $this->domainGroupId = 0; // Default to 0
+            // Any failures will be caught in validate().
         }
         
     }

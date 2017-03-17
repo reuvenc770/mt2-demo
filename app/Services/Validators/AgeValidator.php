@@ -5,6 +5,7 @@ namespace App\Services\Validators;
 use App\Services\Interfaces\IValidate;
 use App\Exceptions\ValidationException;
 use Carbon\Carbon;
+use Exception;
 
 class AgeValidator implements IValidate {
 
@@ -25,8 +26,15 @@ class AgeValidator implements IValidate {
         if ($this->dob) {
             $eighteenYearsAgo = Carbon::today()->subYears(18);
 
-            if (Carbon::parse($this->dob)->gt($eighteenYearsAgo)) {
-                throw new ValidationException("User must be at least 18 years old - {$this->dob}");
+            try {
+                $underEighteen = Carbon::parse($this->dob)->gte($eighteenYearsAgo);
+            }
+            catch (Exception $e) {
+                throw new ValidationException("Could not determine user's age: {$this->dob}.");
+            }
+
+            if ($underEighteen) {
+                throw new ValidationException("User must be at least 18 years old - {$this->dob}.");
             }
         }
     }

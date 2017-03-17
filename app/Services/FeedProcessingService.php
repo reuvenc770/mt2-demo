@@ -12,6 +12,7 @@ use App\Repositories\EmailDomainRepo;
 use App\Repositories\FeedDateEmailBreakdownRepo;
 use App\Services\Interfaces\ISuppressionProcessingStrategy;
 use App\Models\InvalidReason;
+use App\Repositories\InvalidEmailInstanceRepo;
 
 class FeedProcessingService {
     
@@ -52,28 +53,16 @@ class FeedProcessingService {
             // Setting email info for the record
             $emailInfo = $this->emailRepo->getAllInfoForAddress($record->emailAddress);
 
-            if ($emailInfo) {
+            if (!$record->newEmail) {
                 // Email already exists
-                $record->newEmail = false;
-                $record->emailId = $emailInfo->email_id;
-                $record->domainGroupId = $emailInfo->domain_group_id;
-                $record->emailDomainId = $emailInfo->email_domain_id;
                 $domainGroupId = $record->domainGroupId;
             }
-            elseif (!$record->isSuppressed) {
-                // Doesn't exist and not suppressed
-                $record->newEmail = true;
-                $record->domainGroupId = $this->emailDomainRepo->getIdForName($record->emailAddress);
-                $email = $this->emailRepo->insertNew($record->mapToEmails()); 
-
-                $record->emailId = $email->id;
-                $record->domainGroupId = $email->email_domain_id;
-                $domainGroupId = $record->domainGroupId;
-            }
-            else {
-                // Record is suppressed. We can't rely on it appearing in emails and don't want to store it,
-                // but we need the domain group id regardless
-                $domainGroupId = $this->emailDomainRepo->getIdForName($record->emailAddress);
+            elseif (preg_match('/@/', $record->emailAddress)) {
+                // Need to set these values for validation
+                $record->domainId = $this->emailDomainRepo->getIdForName($record->emailAddress);
+                $result = $this->emailDomainRepo->getDomainAndClassInfo($record->emailAddress);
+                $domainGroupId = $result->domain_group_id;
+                $record->domainGroupId = $domainGroupId;
             }
             
             // Setting up array for the record processing report
@@ -112,6 +101,16 @@ class FeedProcessingService {
                 $record = $this->validate($record);
 
                 if ($record->valid) {
+
+                    if ($record->newEmail) {
+                        // Didn't exist at record list generation time and not suppressed (yet)
+                        // We might run into issues due to the separate processing of data from feeds of different parties
+                        $record->newEmail = true;
+                        $email = $this->emailRepo->insertNew($record->mapToEmails());
+
+                        $record->emailId = $email->id;
+                    }
+
                     $validatedRecords[] = $record;
                     $updateArray[$record->feedId][$domainGroupId]['validRecords']++;
 
@@ -119,7 +118,7 @@ class FeedProcessingService {
                         $updateArray[$record->feedId][$domainGroupId]['phoneCount']++;
                     }
 
-                    if ($record->address) {
+                    if ('' !== $record->address && '' !== $record->zip && '' !== $record->city && '' !== $record->state) {
                         $updateArray[$record->feedId][$domainGroupId]['fullPostalCount']++;
                     }
 
@@ -127,8 +126,15 @@ class FeedProcessingService {
                 }
                 else {
                     $invalidReasonId = null;
-
-                    if(preg_match('/source\surl/', $record->invalidReason)) {
+                    if (preg_match('/Canad/', $record->invalidReason)) {
+                        $updateArray[$record->feedId][$domainGroupId]['otherInvalid']++;
+                        $invalidReasonId = InvalidReason::CANADA;
+                    }
+                    elseif (preg_match('/Email/', $record->invalidReason)) {
+                        $updateArray[$record->feedId][$domainGroupId]['otherInvalid']++;
+                        $invalidReasonId = InvalidReason::EMAIL;
+                    }
+                    elseif(preg_match('/Source\surl/', $record->invalidReason)) {
                         $updateArray[$record->feedId][$domainGroupId]['badSourceUrls']++;
                         $invalidReasonId = InvalidReason::BAD_SOURCE_URL;
                     }
@@ -146,6 +152,7 @@ class FeedProcessingService {
                     }
 
                     $invalidData = $record->mapToInstances();
+                    $invalidData['email_address'] = $record->emailAddress;
                     $invalidData['invalid_reason_id'] = $invalidReasonId;
                     $invalidData['pw'] = '';
                     $invalidData['posting_string'] = '';

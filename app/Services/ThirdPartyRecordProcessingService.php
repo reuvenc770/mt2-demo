@@ -35,6 +35,7 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
         $this->statsRepo = $statsRepo;
         $this->processingDate = Carbon::today()->format('Y-m-d');
         $this->latestDataRepo = $latestDataRepo;
+        $this->emailStatusRepo = $emailStatusRepo;
     }
 
     /**
@@ -49,6 +50,7 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
      *          Mark as "duplicate" if coming from the currently-attributed feed, "non-unique" otherwise
      *      (4). If the email was imported > 15 days ago and no action exists, switch if the importing feed
      *          has better attribution.
+     *      (5). If the email was imported > 90 days ago and no action exists, treat as a brand new record.
      */
 
     public function processPartyData(array $records) {
@@ -61,7 +63,7 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
 
             $domainGroupId = $record->domainGroupId;
             $lastEmail = $record->emailAddress;
-            $currentAttributedFeedId = null;
+            $currentAttributedFeedId = $this->emailRepo->getCurrentAttributedFeedId($record->emailId);
 
             // Note structure
             if (!isset($statuses[$record->feedId])) {
@@ -87,13 +89,18 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
                 $recordsToFlag[] = $record->mapToNewRecords();
 
                 // Update the attribution status of the per-feed user info store 
-                if ($currentAttributedFeedId) {
+                if ($currentAttributedFeedId !== $record->feedId) {
                     $this->latestDataRepo->updateAttributionStatus($record->emailId, $currentAttributedFeedId, EmailAttributableFeedLatestData::LOST_ATTRIBUTION);
                 }
             }
 
             $statuses[$record->feedId][$domainGroupId][$record->uniqueStatus]++;
-            $this->latestDataRepo->batchInsert($record->mapToRecordData());
+
+            // Update record per-feed data for all records that are not currently attributed to the same feed
+            if ('duplicate' !== $record->uniqueStatus) {
+                $this->latestDataRepo->batchInsert($record->mapToRecordData());
+            }
+            
         }
 
         $this->latestDataRepo->insertStored();
@@ -110,18 +117,35 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
             $record->status = 'suppressed';
         }
         elseif (isset($this->emailCache[$record->emailAddress])) {
-            return $record;
+            $currentAttributedFeedId = $this->emailRepo->getCurrentAttributedFeedId($record->emailId);
+
+            if ($record->feedId === $currentAttributedFeedId) {
+                $record->uniqueStatus = 'duplicate';
+                $record->attrStatus = ''; // We won't be inserting this
+            }
+            elseif (0 === $currentAttributedFeedId 
+                && ($record->feedId === $this->emailCache[$record->emailAddress])) {
+                // probably was first attributed in this very batch
+                $record->uniqueStatus = 'duplicate';
+                $record->attrStatus = ''; // We won't be inserting this
+            }
+            else {
+                $record->uniqueStatus = 'non-unique';
+                $record->attrStatus = EmailAttributableFeedLatestData::PASSED_DUE_TO_ATTRIBUTION;
+            }
         }
         elseif ($record->newEmail && !isset($this->emailCache[$record->emailAddress])) {
             // Brand new email. Assigning attribution and inserting record data.
-            $this->emailCache[$record->emailAddress] = 1;
+            $this->emailCache[$record->emailAddress] = $record->feedId;
             $record->uniqueStatus = 'unique';
+            $record->attrStatus = EmailAttributableFeedLatestData::ATTRIBUTED;
         }
         else { 
             // This is not a new email
             $record->actionStatus = $this->emailStatusRepo->getActionStatus($record->emailId);
             $attributionTruths = $this->emailRepo->getAttributionTruths($record->emailId);
             $currentAttributedFeedId = $this->emailRepo->getCurrentAttributedFeedId($record->emailId);
+            $this->emailCache[$record->emailAddress] = 1;
 
             if (0 === $attributionTruths) {
                 // Guard checking whether we have attribution info or not.
