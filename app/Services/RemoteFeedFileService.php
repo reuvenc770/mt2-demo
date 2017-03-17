@@ -94,7 +94,7 @@ class RemoteFeedFileService {
         return count( $this->newFileList ) > 0;
     }
 
-    public function getNewRecords ( $chunkSize = 10000 ) {
+    public function getNewRecords ( $chunkSize = 50000 ) {
         $this->clearRecordBuffer();
 
         while ( $this->getBufferSize () < $chunkSize ) {
