@@ -23,7 +23,7 @@ class RedshiftDataValidationJob extends SafeJob {
         $result = $strategy->test($this->lookback);
 
         if (!$result) {
-            Log::error($this->entity . ' failed test.')
+            Log::error($this->entity . ' failed test.');
             $strategy->fix();
         }
     }
