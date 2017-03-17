@@ -150,7 +150,7 @@ class AttributionRecordTruthRepo {
             VALUES
                         " . join(' , ', $emails) . "
             ON DUPLICATE KEY UPDATE
-            email_id = email_id, recent_import = recent_import, created_at = created_at, updated_at = updated_at ");
+            email_id = email_id, recent_import = VALUES(recent_import), created_at = created_at, updated_at = VALUES(updated_at) ");
     }
 
     private function buildBatchedQuery($data) {
@@ -162,7 +162,9 @@ class AttributionRecordTruthRepo {
 
         ON DUPLICATE KEY UPDATE
             email_id = email_id ,
+            recent_import = VALUES(recent_import),
             has_action = VALUES( has_action ) ,
+            created_at = created_at,
             updated_at = VALUES( updated_at )";
     }
 

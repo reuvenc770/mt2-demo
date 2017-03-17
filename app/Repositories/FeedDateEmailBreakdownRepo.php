@@ -80,7 +80,7 @@ class FeedDateEmailBreakdownRepo {
 
                 VALUES 
                 
-                $insertString
+                $inserts
 
                 ON DUPLICATE KEY UPDATE
                     feed_id = feed_id,

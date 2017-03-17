@@ -48,7 +48,7 @@ class InvalidEmailInstanceRepo {
         return "INSERT INTO invalid_email_instances
             (feed_id, pw, email_address, source_url, capture_date, ip, first_name, 
             last_name, address, address2, city, state, zip, country,
-            gender, phone, dob, posting_string, invalid_reason_id, created_at, updated_at)
+            gender, phone, dob, other_fields, posting_string, invalid_reason_id, created_at, updated_at)
 
             VALUES
 

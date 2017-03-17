@@ -9,8 +9,8 @@ class ProcessingRecord {
 
     const FIELDS = ['emailId', 'feedId', 'emailAddress', 'isSuppressed', 'firstName', 'lastName', 
     'address', 'address2', 'city', 'state', 'zip', 'country', 'dob', 'gender', 'phone', 'captureDate',
-    'ip', 'sourceUrl', 'otherFields', 'isDeliverable', 'uniqueStatus', 'newEmail', 'domainId', 'valid',
-    'invalidReason', 'domainGroupId'];
+    'ip', 'sourceUrl', 'otherFields', 'uniqueStatus', 'newEmail', 'domainId', 'valid',
+    'invalidReason', 'domainGroupId', 'attrStatus', 'processDateTime', 'processDate', 'otherFieldsJson', 'otherFields'];
 
     private $emailId;
     private $feedId;
@@ -32,11 +32,11 @@ class ProcessingRecord {
     private $sourceUrl;    
     private $otherFields = [];
     private $otherFieldsJson = '';
-    private $attrStatus = null;
+    private $attrStatus;
     private $processDateTime;
 
     // Metadata
-    private $uniqueStatus = 'unique'; // unique, duplicate, non-unique
+    private $uniqueStatus = null; // unique, duplicate, non-unique
     private $newEmail;
     private $domainId;
     private $domainGroupId;
@@ -46,16 +46,28 @@ class ProcessingRecord {
 
     public function __construct(RawFeedEmail $record) {
         $this->processDate = Carbon::today()->toDateString();
-        $this->processDateTime = Carbon::today()->toDateTimeString();
+        $this->processDateTime = $record->created_at;
 
         $this->emailAddress = $record->email_address;
 
         // email id, new email status, domain id, and domain group id to be set later
-        $this->newEmail = null;
-        $this->emailId = null;
-        $this->domainId = null;
-        $this->domainGroupid = null;
+        if (null !== $record->email_id) {
+            $this->newEmail = false;
+            $this->emailId = $record->email_id;
+            $this->domainId = $record->email_domain_id;
+            $this->domainGroupId = $record->domain_group_id;
+            
+        }
+        else {
+            $this->newEmail = true;
+            $this->emailId = null;
+            $this->domainId = null;
+            $this->domainGroupId = null;
+        }
 
+        $this->attrStatus = null;
+        $this->isSuppressed = ((int)$record->suppressed === 1);
+        
         // The rest we already know
         $this->feedId = $record->feed_id;
         $this->firstName = $record->first_name;
@@ -152,7 +164,10 @@ class ProcessingRecord {
         return [
             'email_id' => $this->emailId,
             'feed_id' => $this->feedId,
-            'last_action_type' => $status
+            'action_type' => $status,
+            'offer_id' => null,
+            'esp_account_id' => null,
+            'datetime' => null
         ];
     }
 
