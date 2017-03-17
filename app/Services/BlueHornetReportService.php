@@ -366,7 +366,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             if ($reason == "5-Timeout" || $reason == "5-Spam Block" || "5-Mail Block" === $reason){
                 continue;
             }
-            Log::info("BH REASON IS {$reason}");
             Suppression::recordRawHardBounce(
                 $processState[ 'ticket' ][ 'espId' ] ,
                 $email , 
