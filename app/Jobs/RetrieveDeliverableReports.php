@@ -247,8 +247,8 @@ class RetrieveDeliverableReports extends Job implements ShouldQueue
         $this->processState[ 'currentFilterIndex' ]++;
 
         $deploys->each( function( $deploy , $key ) {
-            $generatedId = $deploy['esp_internal_id'];
-            $deploy['esp_internal_id'] = BrontoMapping::makeDumbInternalId($generatedId,$this->espAccountId);
+            $generatedId = $deploy->esp_internal_id;
+            $deploy->esp_internal_id = BrontoMapping::makeDumbInternalId($generatedId,$this->espAccountId);
             $this->processState[ 'campaign' ] = $deploy;
             $this->processState[ 'espId' ] = $this->espAccountId;
 
