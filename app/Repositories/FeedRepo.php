@@ -104,8 +104,16 @@ class FeedRepo implements Mt2Export, IAwsRepo {
         return $this->feed->where( 'status' , 'Active'  )->pluck( 'name' )->toArray();
     }
 
+    public function getActiveFeedShortNames () {
+        return $this->feed->where( 'status' , 'Active'  )->pluck( 'short_name' )->toArray();
+    }
+
     public function getFeedIdByName ( $name ) {
         return ( $record = $this->feed->where( 'name' , $name )->pluck( 'id' ) ) ? $record->pop() : null;
+    }
+
+    public function getFeedIdByShortName ( $name ) {
+        return ( $record = $this->feed->where( 'short_name' , $name )->pluck( 'id' ) ) ? $record->pop() : null;
     }
 
     public function passwordExists ( $password ) {
