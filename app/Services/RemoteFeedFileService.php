@@ -94,7 +94,7 @@ class RemoteFeedFileService {
         return count( $this->newFileList ) > 0;
     }
 
-    public function getNewRecords ( $chunkSize = 50000 ) {
+    public function getNewRecords ( $chunkSize = 10000 ) {
         $this->clearRecordBuffer();
 
         while ( $this->getBufferSize () < $chunkSize ) {
@@ -199,20 +199,22 @@ class RemoteFeedFileService {
         array_pop( $rawDirectoryList );
         array_shift( $rawDirectoryList );
 
-        $validFeedList = $this->feedService->getActiveFeedNames();
+        $validFeedList = $this->feedService->getActiveFeedShortNames();
 
         $directoryList = [];
         
         foreach( $rawDirectoryList as $dir ) { 
             $matches = []; 
-            preg_match( '/^(?:.+\/)(?:\.{0,})([\w\s]+)$/' , $dir , $matches );
+            preg_match( '/^\/(?:\w+)\/([a-zA-Z0-9_-]+)/' , $dir , $matches );
 
             $notSystemUser = ( strpos( $dir , 'centos' ) === false );
             $notCustomUser = ( strpos( $dir , 'mt2PullUser' ) === false );
-            $isValidFeed = in_array( $matches[ 1 ] , $validFeedList );
-            if ( $notSystemUser && $notCustomUser && $isValidFeed ) { 
+            $notAdminUser = ( strpos( $dir , 'sftp-admin' ) === false );
+            $isValidFeed = ( strpos( $dir , 'upload' ) !== false ) && in_array( $matches[ 1 ] , $validFeedList );
+
+            if ( $notAdminUser && $notSystemUser && $notCustomUser && $isValidFeed ) { 
                 // Need to switch 2430 and 2618 to 2979
-                $feedIdResult = $this->feedService->getFeedIdByName( $matches[ 1 ] );
+                $feedIdResult = $this->feedService->getFeedIdByShortName( $matches[ 1 ] );
                 $feedId = in_array($feedIdResult, [2430, 2618]) ? 2979 : (int)$feedIdResult;
                 $directoryList[] = [ 'directory' => $dir , 'feedId' =>  $feedId];
             }   

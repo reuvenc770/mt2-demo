@@ -100,6 +100,7 @@ class Kernel extends ConsoleKernel
         Commands\RedshiftDataConsistencyValidation::class,
         Commands\AttributionFeasibilityValidation::class,
         Commands\RegenerateAttributionModelReportTables::class,
+        Commands\TestFeedFileGenerator::class,
     ];
 
     /**
