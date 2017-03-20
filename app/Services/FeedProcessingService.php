@@ -65,7 +65,10 @@ class FeedProcessingService {
                 $domainGroupId = $result->domain_group_id;
                 $record->domainGroupId = $domainGroupId;
             }
-            
+            else {
+                $domainGroupId = 0; // These are totally invalid records.
+            }
+
             // Setting up array for the record processing report
             if (!isset($updateArray[$record->feedId])) {
                 $updateArray[$record->feedId] = [];

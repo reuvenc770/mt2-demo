@@ -7,12 +7,14 @@ namespace App\Repositories;
 
 use App\Models\RawFeedEmail;
 use App\Models\RawFeedEmailFailed;
+use App\Models\Email;
 
 use Carbon\Carbon;
 
 class RawFeedEmailRepo {
     protected $rawEmail;
     protected $failed;
+    private $email;
 
     protected $standardFields = [
         'feed_id' => 0 ,
@@ -33,9 +35,10 @@ class RawFeedEmailRepo {
         'dob' => 0
     ];
 
-    public function __construct ( RawFeedEmail $rawEmail , RawFeedEmailFailed $failed ) {
+    public function __construct ( RawFeedEmail $rawEmail , RawFeedEmailFailed $failed, Email $email ) {
         $this->rawEmail = $rawEmail;
         $this->failed = $failed;
+        $this->email = $email;
     }
 
     public function create ( $data ) {
@@ -106,31 +109,85 @@ class RawFeedEmailRepo {
     }
 
     public function getFirstPartyRecordsFromFeed($startPoint, $feedId) {
-        return $this->rawEmail
-                    ->selectRaw("raw_feed_emails.*, email_domain_id, domain_group_id, e.id as email_id")
-                    ->leftJoin('emails as e', 'raw_feed_emails.email_address', '=', 'e.email_address')
-                    ->leftJoin('email_domains as ed', 'e.email_domain_id', '=', 'ed.id')
+        $output = [];
+
+        $records = $this->rawEmail
                     ->where('feed_id', $feedId)
-                    ->where('raw_feed_emails.id', '>', $startPoint)
-                    ->orderBy('raw_feed_emails.id')
+                    ->where('id', '>', $startPoint)
+                    ->orderBy('id')
                     ->limit(1000)
                     ->get();
+
+        foreach ($records as $email) {
+            $search = $this->email
+                ->selectRaw("email_domain_id, domain_group_id, emails.id as email_id")
+                ->where('email_address', $record->email_address)
+                ->join('email_domains as ed', 'emails.email_domain_id', '=', 'ed.id')
+                ->first();
+
+            if ($search) {
+                $record->email_domain_id = $search->email_domain_id;
+                $record->domain_group_id = $search->domain_group_id;
+                $record->email_id = $search->email_id;
+            }
+            else {
+                $record->email_domain_id = null;
+                $record->domain_group_id = null;
+                $record->email_id = null;
+            }
+
+            $output[] = $record;
+        }
+
+        return $output;
     }
 
     public function getThirdPartyRecordsWithChars($startPoint, $startChars) {
         $charsRegex = '^[' . $startChars . ']';
-        $suppDb = config('database.connections.suppression.database');
 
-        return $this->rawEmail
-                    ->selectRaw("raw_feed_emails.*, email_domain_id, domain_group_id, e.id as email_id, IF(sgo.id IS NULL, 0, 1) as suppressed")
-                    ->leftJoin('emails as e', 'raw_feed_emails.email_address', '=', 'e.email_address')
-                    ->leftJoin('email_domains as ed', 'e.email_domain_id', '=', 'ed.id')
-                    ->leftJoin("$suppDb.suppression_global_orange as sgo", 'raw_feed_emails.email_address', '=', 'sgo.email_address')
+        $output = [];
+
+        $emails = $this->rawEmail
                     ->whereRaw("raw_feed_emails.email_address RLIKE '$charsRegex'")
                     ->where('raw_feed_emails.id', '>', $startPoint)
                     ->orderBy('raw_feed_emails.id')
                     ->limit(1000)
                     ->get();
+
+        foreach ($emails as $record) {
+            $search = $this->email
+                        ->selectRaw("email_domain_id, domain_group_id, emails.id as email_id")
+                        ->where('email_address', $record->email_address)
+                        ->join('email_domains as ed', 'emails.email_domain_id', '=', 'ed.id')
+                        ->first();
+
+            if ($search) {
+                $record->email_domain_id = $search->email_domain_id;
+                $record->domain_group_id = $search->domain_group_id;
+                $record->email_id = $search->email_id;
+            }
+            else {
+                $record->email_domain_id = null;
+                $record->domain_group_id = null;
+                $record->email_id = null;
+            }
+
+            $suppressed = \DB::connection('suppression')
+                            ->table('suppression_global_orange')
+                            ->where('email_address', $record->email_address)
+                            ->first();
+
+            if ($suppressed) {
+                $record->suppressed = 1;
+            }
+            else {
+                $record->suppressed = 0;
+            }
+
+            $output[] = $record;
+        }
+
+        return $output;
     }
 
     protected function formatRecord ( $record ) {

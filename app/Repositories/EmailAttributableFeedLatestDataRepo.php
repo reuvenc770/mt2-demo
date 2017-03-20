@@ -361,7 +361,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
         $this->model
              ->where('email_id', $emailId)
              ->where('feed_id', $feedId)
-             ->update(['attribution_status', $status]);
+             ->update(['attribution_status' => $status]);
     }
 
     public function getCurrentAttributedStatus($emailId) {
