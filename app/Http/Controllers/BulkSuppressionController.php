@@ -64,18 +64,9 @@ class BulkSuppressionController extends Controller
         $dateFolder = date('Ymd');
         $path = storage_path() . "/app/files/uploads/bulksuppression/$dateFolder/";
         $files = scandir($path);
-        $legacyReason = $this->suppServ->getLegacyReasonFormValueFromReasonId( $request->input( 'reason' ) );
 
         foreach ($files as $fileName) {
             if (!preg_match('/^\./', $fileName)) {
-                $file = $path . $fileName;
-
-                $this->api->postFormWithFile( self::BULK_SUPPRESSION_API_ENDPOINT , [
-                    "name" => "suppfile" , 
-                    "filename" => $fileName , 
-                    "suppressionReasonCode" => $legacyReason ,
-                ] , $file );
-
                 Event::fire(new BulkSuppressionFileWasUploaded(
                     $request->input( 'reason' ) ,
                     $fileName ,
@@ -141,14 +132,6 @@ class BulkSuppressionController extends Controller
                 }
             }
         }
-
-        $legacyReason = $this->suppServ->getLegacyReasonFormValueFromReasonId( $reason );
-
-        $response = $this->api->postFormWithFile( self::BULK_SUPPRESSION_API_ENDPOINT , [
-            "name" => "suppfile" , 
-            "filename" => "mt1_manual_textarea.txt" , 
-            "suppressionReasonCode" => $legacyReason ,
-        ] , implode( '|' , $emails ) );
 
         return response()->json( [ 'status' => true ] , 200 );
     }

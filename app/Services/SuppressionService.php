@@ -124,10 +124,6 @@ class SuppressionService implements IFeedSuppression
         return $reason->id;
     }
 
-    public function getLegacyReasonFormValueFromReasonId ( $reasonId ) {
-        return $this->repo->getLegacyReasonFormValueFromReasonId( $reasonId );
-    }
-
     public function listAllReasons(){
         return $this->repo->getReasonList();
     }
