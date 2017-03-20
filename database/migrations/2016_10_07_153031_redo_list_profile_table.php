@@ -28,8 +28,13 @@ class RedoListProfileTable extends Migration
             $table->integer('converters_start')->unsigned()->nullable()->default(null);
             $table->integer('converters_end')->unsigned()->nullable()->default(null);
             $table->integer('conversion_count')->unsigned()->nullable()->default(null);
-            $table->json('attributes');
-            $table->json('columns');
+            if (App::environment('testing')) {
+                $table->text('attributes');
+                $table->text('columns');
+            } else {
+                $table->json('attributes');
+                $table->json('columns');
+            }
             $table->enum('run_frequency', ['Daily', 'Weekly', 'Monthly', 'Never'])->default('Daily');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));

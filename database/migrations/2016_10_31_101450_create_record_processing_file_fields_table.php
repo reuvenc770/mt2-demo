@@ -29,7 +29,11 @@ class CreateRecordProcessingFileFieldsTable extends Migration
             $table->tinyInteger( 'gender_index' )->unsigned()->nullable();
             $table->tinyInteger( 'phone_index' )->unsigned()->nullable();
             $table->tinyInteger( 'dob_index' )->unsigned()->nullable();
-            $table->json( 'other_field_index' )->nullable();
+            if (App::environment('testing')) {
+                $table->text('other_field_index')->nullable();
+            } else {
+                $table->json('other_field_index')->nullable();
+            }
             $table->timestamps();
 
             $table->primary( 'feed_id' );

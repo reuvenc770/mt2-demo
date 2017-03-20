@@ -31,10 +31,12 @@ class CreateInvalidEmailInstancesTable extends Migration
             $table->string('gender')->default('');
             $table->string('phone')->default('');
             $table->date('dob');
-            $table->json('other_fields');
+
             if (App::environment('testing')) {
+                $table->text('other_fields');
                 $table->string('posting_string', 200)->default('');
             } else {
+                $table->json('other_fields');
                 $table->string('posting_string', 500)->default('');
 
             }

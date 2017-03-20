@@ -35,7 +35,11 @@ class CreateEmailFeedAttributableDatasTable extends Migration
             $table->string('device_type')->default('');
             $table->string('device_name')->default('');
             $table->string('carrier')->default('');
-            $table->json('other_fields')->nullable();
+            if (App::environment('testing')) {
+                $table->text('other_fields')->nullable();
+            } else {
+                $table->json('other_fields')->nullable();
+            }
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
 

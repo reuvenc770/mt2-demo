@@ -34,7 +34,11 @@ class CreateFirstPartyRecordDatasTable extends Migration
             $table->date('capture_date');
             $table->date('subscribe_date');
             $table->date('last_action_date')->nullable();
-            $table->json('other_fields')->nullable();
+            if (App::environment('testing')) {
+                $table->text('other_fields')->nullable();
+            } else {
+                $table->json('other_fields')->nullable();
+            }
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
 

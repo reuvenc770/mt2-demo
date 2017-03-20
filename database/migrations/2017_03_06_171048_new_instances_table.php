@@ -35,7 +35,11 @@ class NewInstancesTable extends Migration
             $table->string('work_phone', 15)->default('');
             $table->string('source_url', 50)->default('');
             $table->string('ip', 15)->default('10.1.2.3');
-            $table->json('other_fields');
+            if (App::environment('testing')) {
+                $table->text('other_fields');
+            } else {
+                $table->json('other_fields');
+            }
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
             $table->unique(['email_id', 'feed_id', 'subscribe_date'], 'email_feed_date');
