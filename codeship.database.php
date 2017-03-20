@@ -52,7 +52,7 @@ return [
             'database'  => env('TEST_ENV_NUMBER'),
             'username'  => env('MYSQL_USER'),
             'password'  => env('MYSQL_PASSWORD'),
-            'charset'   => 'utf8mb4',
+            'charset'   => 'utf8',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix'    => '',
             'strict'    => false,
