@@ -239,6 +239,10 @@ class RawFeedEmailRepo {
 
         $rawEmailRecord[ 'other_fields' ] = json_encode( $customFields );
 
+        if( $rawEmailRecord[ 'dob' ] == '' ) {
+            unset( $rawEmailRecord[ 'dob' ] );
+        }
+
         return $rawEmailRecord;
     }
 }
