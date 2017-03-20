@@ -13,6 +13,7 @@ use App\Repositories\FeedDateEmailBreakdownRepo;
 use App\Services\Interfaces\ISuppressionProcessingStrategy;
 use App\Models\InvalidReason;
 use App\Repositories\InvalidEmailInstanceRepo;
+use Log;
 
 class FeedProcessingService {
     
@@ -125,6 +126,7 @@ class FeedProcessingService {
                     $this->instanceRepo->batchInsert($record->mapToInstances());
                 }
                 else {
+                    Log::info($record->emailAddress ' failed validation due to ' . $record->invalidReason);
                     $invalidReasonId = null;
                     if (preg_match('/Canad/', $record->invalidReason)) {
                         $updateArray[$record->feedId][$domainGroupId]['otherInvalid']++;
