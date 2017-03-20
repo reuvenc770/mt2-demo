@@ -8,6 +8,8 @@ namespace App\Repositories;
 use App\Models\RawFeedEmail;
 use App\Models\RawFeedEmailFailed;
 
+use Carbon\Carbon;
+
 class RawFeedEmailRepo {
     protected $rawEmail;
     protected $failed;
@@ -134,11 +136,27 @@ class RawFeedEmailRepo {
     protected function formatRecord ( $record ) {
         $pdo = \DB::connection()->getPdo();
 
+        try {
+            $captureDate = Carbon::parse( $record[ 'capture_date' ] )->toDateTimeString();
+        } catch ( \Exception $e ) {
+            \Log::error( $e );
+
+            $captureDate = $record[ 'capture_date' ];
+        }
+
+        try {
+            $dob = Carbon::parse( $record[ 'dob' ] )->toDateString();
+        } catch ( \Exception $e ) {
+            \Log::error( $e );
+
+            $dob = $record[ 'dob' ];
+        }
+
         return "("
             . $pdo->quote( $record[ 'feed_id' ] ) . ","
             . $pdo->quote( $record[ 'email_address' ] ) . ","
             . $pdo->quote( $record[ 'source_url' ] ) . ","
-            . $pdo->quote( $record[ 'capture_date' ] ) . ","
+            . $pdo->quote( $captureDate ) . ","
             . $pdo->quote( $record[ 'ip' ] ) . ","
             . ( isset( $record[ 'first_name' ] ) ? $pdo->quote( $record[ 'first_name' ] ) : 'NULL' ) . ","
             . ( isset( $record[ 'last_name' ] ) ? $pdo->quote( $record[ 'last_name' ] ) : 'NULL' ) . ","
@@ -150,7 +168,7 @@ class RawFeedEmailRepo {
             . ( isset( $record[ 'country' ] ) ? $pdo->quote( $record[ 'country' ] ) : 'NULL' ) . ","
             . ( isset( $record[ 'gender' ] ) ? $pdo->quote( $record[ 'gender' ] ) : 'NULL' ) . ","
             . ( isset( $record[ 'phone' ] ) ? $pdo->quote( $record[ 'phone' ] ) : 'NULL' ) . ","
-            . ( isset( $record[ 'dob' ] ) ? $pdo->quote( $record[ 'dob' ] ) : 'NULL' ) . ","
+            . ( isset( $dob ) ? $pdo->quote( $dob ) : 'NULL' ) . ","
             . ( isset( $record[ 'other_fields' ] ) ? $pdo->quote( $record[ 'other_fields' ] ) : '{}' ) . ","
             . "NOW() ,"
             . "NOW()"
