@@ -141,7 +141,7 @@ class RawFeedEmailRepo {
         } catch ( \Exception $e ) {
             \Log::error( $e );
 
-            $captureDate = $record[ 'capture_date' ];
+            $captureDate = 'NULL';
         }
 
         try {
@@ -149,7 +149,7 @@ class RawFeedEmailRepo {
         } catch ( \Exception $e ) {
             \Log::error( $e );
 
-            $dob = $record[ 'dob' ];
+            $dob = 'NULL';
         }
 
         return "("
@@ -168,7 +168,7 @@ class RawFeedEmailRepo {
             . ( isset( $record[ 'country' ] ) ? $pdo->quote( $record[ 'country' ] ) : 'NULL' ) . ","
             . ( isset( $record[ 'gender' ] ) ? $pdo->quote( $record[ 'gender' ] ) : 'NULL' ) . ","
             . ( isset( $record[ 'phone' ] ) ? $pdo->quote( $record[ 'phone' ] ) : 'NULL' ) . ","
-            . ( isset( $dob ) ? $pdo->quote( $dob ) : 'NULL' ) . ","
+            . $pdo->quote( $dob ) . ","
             . ( isset( $record[ 'other_fields' ] ) ? $pdo->quote( $record[ 'other_fields' ] ) : '{}' ) . ","
             . "NOW() ,"
             . "NOW()"
