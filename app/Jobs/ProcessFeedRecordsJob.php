@@ -45,7 +45,7 @@ class ProcessFeedRecordsJob extends Job implements ShouldQueue {
                 $service->process($this->records);
 
                 $pickupRepo->updateOrCreate($this->jobName, $this->maxId);
-                JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
+                JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking, count($this->records));
             }
             catch (\Exception $e) {
                 echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;
