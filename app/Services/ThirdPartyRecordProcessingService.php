@@ -90,7 +90,7 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
 
                 // Update the attribution status of the per-feed user info store 
                 if ($currentAttributedFeedId !== $record->feedId) {
-                    $this->latestDataRepo->updateAttributionStatus($record->emailId, $currentAttributedFeedId, EmailAttributableFeedLatestData::LOST_ATTRIBUTION);
+                    $this->latestDataRepo->setAttributionStatus($record->emailId, $currentAttributedFeedId, EmailAttributableFeedLatestData::LOST_ATTRIBUTION);
                 }
             }
 
