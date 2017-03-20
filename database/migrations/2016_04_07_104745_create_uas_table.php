@@ -13,7 +13,11 @@ class CreateUasTable extends Migration
     public function up() {
         Schema::create('user_agent_strings', function(Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('user_agent_string', 500)->default('');
+            if (App::environment('testing')) {
+                $table->string('user_agent_string', 200)->default('');
+            } else {
+                $table->string('user_agent_string', 500)->default('');
+            }
             $table->string('browser', 50)->default('');
             // not strictly device: we have all android devices together
             // ipads and iphones distinct, blackberry, and windows phone
