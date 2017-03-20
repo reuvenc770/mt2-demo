@@ -32,7 +32,12 @@ class CreateInvalidEmailInstancesTable extends Migration
             $table->string('phone')->default('');
             $table->date('dob');
             $table->json('other_fields');
-            $table->string('posting_string', 500)->default('');
+            if (App::environment('testing')) {
+                $table->string('posting_string', 200)->default('');
+            } else {
+                $table->string('posting_string', 500)->default('');
+
+            }
             $table->tinyInteger('invalid_reason_id')->unsigned()->default(0);
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));

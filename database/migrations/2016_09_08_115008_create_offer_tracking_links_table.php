@@ -17,7 +17,11 @@ class CreateOfferTrackingLinksTable extends Migration
             $table->integer('offer_id')->default(0);
             $table->integer('link_num')->default(1);
             $table->integer('link_id')->default(0);
-            $table->string('url', 500)->default('');
+            if (App::environment('testing')) {
+                $table->string('url', 200)->default('');
+            } else {
+                $table->string('url', 500)->default('');
+            }
             $table->string('approved_by', 30)->nullable();
             $table->date('date_approved')->nullable();
             $table->timestamps();
