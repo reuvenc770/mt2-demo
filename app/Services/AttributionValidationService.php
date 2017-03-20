@@ -132,7 +132,7 @@ class AttributionValidationService {
     }
 
     private function mapEmailListToTruthTable(EmailList $obj) {
-        $isRecentImport = Carbon::parse($obj->subscribe_date)->lte(Carbon::today()->subDays(15)) ? 0 : 1;
+        $isRecentImport = Carbon::parse($obj->subscribe_date)->lte(Carbon::today()->subDays(3)) ? 0 : 1;
         $hasAction = 'None' === $obj->last_action_type ? 1 : 0;
 
         return [
