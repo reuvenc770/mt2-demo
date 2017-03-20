@@ -268,7 +268,7 @@ class EmailValidator implements IValidate {
         }
 
         // maximum of one period allowed
-        if (!preg_match('/^[a-z0-9]+[.]{1}[a-z0-9\_]+$/', $address)) {
+        if (!preg_match('/^[a-z0-9]+[.]{0,1}[a-z0-9\_]+$/', $address)) {
             return false;
         }
 
