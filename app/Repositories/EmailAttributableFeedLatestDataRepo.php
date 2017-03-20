@@ -50,8 +50,8 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                         device_type,
                         device_name,
                         carrier,
-                        email_attributable_feed_latest_data.capture_date,
-                        subscribe_date,
+                        capture_date,
+                        email_attributable_feed_latest_data.subscribe_date,
                         last_action_offer_id,
                         last_action_datetime,
                         other_fields")
@@ -71,8 +71,8 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                 ON DUPLICATE KEY UPDATE
                 email_id = email_id,
                 feed_id = feed_id,
-                subscribe_date = subscribe_date,
-                capture_date = capture_date,
+                subscribe_date = VALUES(subscribe_date),
+                capture_date = VALUES(capture_date),
                 attribution_status = VALUES(attribution_status),
                 first_name = VALUES(first_name),
                 last_name = VALUES(last_name),
@@ -136,7 +136,8 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                 . $pdo->quote($row['email_id']) . ','
                 . $pdo->quote($row['feed_id']) . ','
                 . $pdo->quote($row['device_type']) . ','
-                . $pdo->quote($row['device_name']) . ')';
+                . $pdo->quote($row['device_name']) . ','
+                . $pdo->quote($row['carrier']) . ')';
 
             $this->batchDeviceUpdateCount++;
         }
@@ -146,7 +147,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
         if ($this->batchDeviceUpdateCount > 0) {
             $data = implode(',', $this->batchDeviceUpdateData);
         
-            DB::statement("INSERT INTO email_attributable_feed_latest_data (email_id, feed_id, device_type, device_name)
+            DB::statement("INSERT INTO email_attributable_feed_latest_data (email_id, feed_id, device_type, device_name, carrier)
                 VALUES
             
                 $data
@@ -168,7 +169,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                 dob = dob,
                 device_type = values(device_type),
                 device_name = values(device_name),
-                carrier = carrier,
+                carrier = values(carrier),
                 capture_date = capture_date,
                 subscribe_date = subscribe_date,
                 other_fields = other_fields");
@@ -181,7 +182,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
     public function extractForS3Upload($startPoint) {
         // this start point is a date
         $attrDb = config('database.connections.attribution.database');
-        return $this->model
+        $union1 = $this->model
                     ->join("$attrDb.email_feed_assignments as efa", function($join) { 
                         $join->on('email_attributable_feed_latest_data.email_id', '=', 'efa.email_id');
                         $join->on('email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id');
@@ -191,13 +192,41 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                     ->select('efa.email_id', DB::raw("IF(st.last_action_type = 'None', 1, 0) as is_deliverable"),
                         'first_name', 'last_name', 'address', 'address2', 'city', 'state', 'zip', 'country',
                         'gender', 'ip', 'phone', 'source_url', 'dob', 'device_type', 'device_name', 'carrier',
-                        'email_attributable_feed_latest_data.capture_date', 'subscribe_date', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
+                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
+                        "other_fields", 'email_attributable_feed_latest_data.created_at', 'efa.updated_at');
+
+        $union2 = $this->model
+                    ->join("$attrDb.email_feed_assignments as efa", function($join) { 
+                        $join->on('email_attributable_feed_latest_data.email_id', '=', 'efa.email_id');
+                        $join->on('email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id');
+                    })
+                    ->leftJoin('third_party_email_statuses as st', 'email_attributable_feed_latest_data.email_id', '=', 'st.email_id')
+                    ->whereRaw("email_attributable_feed_latest_data.updated_at > $startPoint")
+                    ->select('efa.email_id', DB::raw("IF(st.last_action_type = 'None', 1, 0) as is_deliverable"),
+                        'first_name', 'last_name', 'address', 'address2', 'city', 'state', 'zip', 'country',
+                        'gender', 'ip', 'phone', 'source_url', 'dob', 'device_type', 'device_name', 'carrier',
+                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
+                        "other_fields", 'email_attributable_feed_latest_data.created_at', 'efa.updated_at');
+
+        return $this->model
+                    ->join("$attrDb.email_feed_assignments as efa", function($join) { 
+                        $join->on('email_attributable_feed_latest_data.email_id', '=', 'efa.email_id');
+                        $join->on('email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id');
+                    })
+                    ->leftJoin('third_party_email_statuses as st', 'email_attributable_feed_latest_data.email_id', '=', 'st.email_id')
+                    ->whereRaw("st.updated_at > $startPoint")
+                    ->union($union1)
+                    ->union($union2)
+                    ->select('efa.email_id', DB::raw("IF(st.last_action_type = 'None', 1, 0) as is_deliverable"),
+                        'first_name', 'last_name', 'address', 'address2', 'city', 'state', 'zip', 'country',
+                        'gender', 'ip', 'phone', 'source_url', 'dob', 'device_type', 'device_name', 'carrier',
+                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
                         "other_fields", 'email_attributable_feed_latest_data.created_at', 'efa.updated_at');
     }
 
     public function extractAllForS3() {
         $attrDb = config('database.connections.attribution.database');
-        return $this->model
+        $union1 = $this->model
                     ->join("$attrDb.email_feed_assignments as efa", function($join) { 
                         $join->on('email_attributable_feed_latest_data.email_id', '=', 'efa.email_id');
                         $join->on('email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id');
@@ -207,7 +236,81 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                     ->select('efa.email_id', DB::raw("IF(st.last_action_type = 'None', 1, 0) as is_deliverable"),
                         'first_name', 'last_name', 'address', 'address2', 'city', 'state', 'zip', 'country',
                         'gender', 'ip', 'phone', 'source_url', 'dob', 'device_type', 'device_name', 'carrier',
-                        'email_attributable_feed_latest_data.capture_date', 'subscribe_date', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
+                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
+                        "other_fields", 'email_attributable_feed_latest_data.created_at', 'efa.updated_at');
+
+        $union2 = $this->model
+                    ->join("$attrDb.email_feed_assignments as efa", function($join) { 
+                        $join->on('email_attributable_feed_latest_data.email_id', '=', 'efa.email_id');
+                        $join->on('email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id');
+                    })
+                    ->leftJoin('third_party_email_statuses as st', 'email_attributable_feed_latest_data.email_id', '=', 'st.email_id')
+                    ->whereRaw("email_attributable_feed_latest_data.updated_at > CURDATE() - INTERVAL 7 DAY")
+                    ->select('efa.email_id', DB::raw("IF(st.last_action_type = 'None', 1, 0) as is_deliverable"),
+                        'first_name', 'last_name', 'address', 'address2', 'city', 'state', 'zip', 'country',
+                        'gender', 'ip', 'phone', 'source_url', 'dob', 'device_type', 'device_name', 'carrier',
+                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
+                        "other_fields", 'email_attributable_feed_latest_data.created_at', 'efa.updated_at');
+
+        return $this->model
+                    ->join("$attrDb.email_feed_assignments as efa", function($join) { 
+                        $join->on('email_attributable_feed_latest_data.email_id', '=', 'efa.email_id');
+                        $join->on('email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id');
+                    })
+                    ->leftJoin('third_party_email_statuses as st', 'email_attributable_feed_latest_data.email_id', '=', 'st.email_id')
+                    ->whereRaw("st.updated_at > CURDATE() - INTERVAL 7 DAY")
+                    ->union($union1)
+                    ->union($union2)
+                    ->select('efa.email_id', DB::raw("IF(st.last_action_type = 'None', 1, 0) as is_deliverable"),
+                        'first_name', 'last_name', 'address', 'address2', 'city', 'state', 'zip', 'country',
+                        'gender', 'ip', 'phone', 'source_url', 'dob', 'device_type', 'device_name', 'carrier',
+                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
+                        "other_fields", 'email_attributable_feed_latest_data.created_at', 'efa.updated_at');
+    }
+
+    public function specialExtract($data) {
+        // $data is a date
+        $data = Carbon::parse($data);
+        $attrDb = config('database.connections.attribution.database');
+        $union1 = $this->model
+                    ->join("$attrDb.email_feed_assignments as efa", function($join) { 
+                        $join->on('email_attributable_feed_latest_data.email_id', '=', 'efa.email_id');
+                        $join->on('email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id');
+                    })
+                    ->leftJoin('third_party_email_statuses as st', 'email_attributable_feed_latest_data.email_id', '=', 'st.email_id')
+                    ->whereRaw("efa.updated_at > '$data'")
+                    ->select('efa.email_id', DB::raw("IF(st.last_action_type = 'None', 1, 0) as is_deliverable"),
+                        'first_name', 'last_name', 'address', 'address2', 'city', 'state', 'zip', 'country',
+                        'gender', 'ip', 'phone', 'source_url', 'dob', 'device_type', 'device_name', 'carrier',
+                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
+                        "other_fields", 'email_attributable_feed_latest_data.created_at', 'efa.updated_at');
+
+        $union2 = $this->model
+                    ->join("$attrDb.email_feed_assignments as efa", function($join) { 
+                        $join->on('email_attributable_feed_latest_data.email_id', '=', 'efa.email_id');
+                        $join->on('email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id');
+                    })
+                    ->leftJoin('third_party_email_statuses as st', 'email_attributable_feed_latest_data.email_id', '=', 'st.email_id')
+                    ->whereRaw("email_attributable_feed_latest_data.updated_at > '$data'")
+                    ->select('efa.email_id', DB::raw("IF(st.last_action_type = 'None', 1, 0) as is_deliverable"),
+                        'first_name', 'last_name', 'address', 'address2', 'city', 'state', 'zip', 'country',
+                        'gender', 'ip', 'phone', 'source_url', 'dob', 'device_type', 'device_name', 'carrier',
+                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
+                        "other_fields", 'email_attributable_feed_latest_data.created_at', 'efa.updated_at');
+
+        return $this->model
+                    ->join("$attrDb.email_feed_assignments as efa", function($join) { 
+                        $join->on('email_attributable_feed_latest_data.email_id', '=', 'efa.email_id');
+                        $join->on('email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id');
+                    })
+                    ->leftJoin('third_party_email_statuses as st', 'email_attributable_feed_latest_data.email_id', '=', 'st.email_id')
+                    ->whereRaw("st.updated_at > '$data'")
+                    ->union($union1)
+                    ->union($union2)
+                    ->select('efa.email_id', DB::raw("IF(st.last_action_type = 'None', 1, 0) as is_deliverable"),
+                        'first_name', 'last_name', 'address', 'address2', 'city', 'state', 'zip', 'country',
+                        'gender', 'ip', 'phone', 'source_url', 'dob', 'device_type', 'device_name', 'carrier',
+                        'capture_date', 'email_attributable_feed_latest_data.subscribe_date', 'st.last_action_offer_id', DB::raw("DATE(last_action_datetime) as last_action_date"),
                         "other_fields", 'email_attributable_feed_latest_data.created_at', 'efa.updated_at');
     }
 
@@ -265,7 +368,10 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
         $attrDb = config('database.connections.attribution.database');
 
         return $this->model
-                    ->join("$attrDb.email_feed_assignments as efa", "email_attributable_feed_latest_data.email_id", '=', 'efa.email_id')
+                    ->join("$attrDb.email_feed_assignments as efa", function($join) { 
+                        $join->on('email_attributable_feed_latest_data.email_id', '=', 'efa.email_id');
+                        $join->on('email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id');
+                    })
                     ->where('efa.email_id', $emailId)
                     ->select('efa.feed_id', 'email_attributable_feed_latest_data.attribution_status')
                     ->first();
@@ -292,14 +398,75 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
     }
 
     public function updateRowValues(array $data) {
-        // capture_date (soon subscribe_date) doesn't exist
+        // subscribe_date doesn't exist
         foreach ($data as $row) {
             $this->model->update([
                 'email_id' => $row['email_id'],
                 'feed_id' => $row['feed_id']
             ], [
-                'capture_date' => $row['capture_date']
+                'subscribe_date' => $row['subscribe_date']
             ]);
+        }
+    }
+
+    public function getMinAndMaxIds() {
+        $min = $this->model->min('email_id');
+        $max = $this->model->max('email_id');
+        return [$min, $max];
+    }
+
+    public function get($emailId) {
+        $attrSchema = config('database.connections.attribution.database');
+        return $this->model
+                    ->join("$attrSchema.email_feed_assignments as efa", function($join) {
+                        $join->on('email_attributable_feed_latest_data.email_id', '=', 'efa.email_id');
+                        $join->on('email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id');
+                    })
+                    ->join('third_party_email_statuses as tpe', 'email_attributable_feed_latest_data.email_id', '=', 'tpe.email_id')
+                    ->whereRaw("efa.email_id = $emailId")
+                    ->selectRaw("efa.email_id, IF(tpes.last_action_type = 'None', 1, 0) as is_deliverable, 
+                        email_attributable_feed_latest_data.subscribe_date")
+                    ->first();
+    }
+
+    public function getActionDateDistribution() {
+        $attrSchema = config('database.connections.attribution.database');
+        $output = [];
+
+        $data = $this->model
+            ->join("$attrSchema.email_feed_assignments as efa", function($join) {
+                $join->on('email_attributable_feed_latest_data.email_id', '=', 'efa.email_id');
+                $join->on('email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id');
+            })
+            ->join('third_party_email_statuses as tpe', 'email_attributable_feed_latest_data.email_id', '=', 'tpe.email_id')
+            ->selectRaw("date(efa.updated_at) as day, sum(IF(tpes.last_action_type = 'None', 1, 0)) as deliverable_count")
+            ->whereRaw("efa.updated_at >= CURDATE() - INTERVAL 3 DAY")
+            ->groupBy(DB::raw('date(updated_at)'))
+            ->get();
+
+        foreach($data as $row) {
+            $output[$row->day] = $row->deliverable_count;
+        }
+
+        return $output;
+    }
+
+    public function getSubscribeDate($emailId) {
+        $attrSchema = config('database.connections.attribution.database');
+        $result = $this->model
+                    ->join("$attrSchema.email_feed_assignments as efa", function($join) { 
+                        $join->on('email_attributable_feed_latest_data.email_id', '=', 'efa.email_id');
+                        $join->on('email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id');
+                    })
+                    ->where('email_attributable_feed_latest_data.email_id', $emailId)
+                    ->select('email_attributable_feed_latest_data.subscribe_date')
+                    ->first();
+
+        if ($result) {
+            return $result->subscribe_date;
+        }
+        else {
+            return null;
         }
     }
 

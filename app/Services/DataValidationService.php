@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Repositories\RepoInterfaces\ICanonicalDataSource;
 use App\Repositories\EtlPickupRepo;
-
+use Log;
 class DataValidationService {
 
     private $trustedSourceRepo;

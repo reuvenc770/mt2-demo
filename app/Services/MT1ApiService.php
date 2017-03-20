@@ -85,7 +85,6 @@ class MT1ApiService
             Log::error($e->getFile());
             Log::error($e->getLine());
             return $e->getMessage();
-            return false;
         }
         return $this->processGuzzle($page, $data);
 

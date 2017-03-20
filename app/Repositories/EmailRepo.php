@@ -29,8 +29,24 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
         return $this->emailModel->select( 'id' )->where( 'email_address' , $emailAddress )->get();
     }
 
-    public function getEmaiAddress($eid) {
+    public function getEmailAddress($eid) {
         return $this->emailModel->select( 'email_address' )->find($eid);
+    }
+
+    public function getAllInfoForAddress($emailAddress) {
+        // Returns Email or null
+        return $this->emailModel
+                    ->where('email_address', $emailAddress)
+                    ->join('email_domains as ed', 'emails.email_domain_id', '=', 'ed.id')
+                    ->select('emails.id as email_id', 'email_domain_id', 'domain_group_id')
+                    ->first();
+    }
+
+    public function getEmailBatch($startPoint, $limit) {
+        return $this->emailModel
+                    ->whereRaw("id > $startPoint")
+                    ->orderBy('id', 'asc')
+                    ->take($limit);
     }
 
 
@@ -110,7 +126,12 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
      */
 
     public function getCurrentAttributionLevel($emailId) {
-        $attributionSearchBase = $this->emailModel->find($emailId)->feedAssignment;
+        $attributionSearchBase = $this->emailModel->find($emailId);
+        if (!$attributionSearchBase) {
+            return null;
+        }
+
+        $attributionSearchBase = $attributionSearchBase->feedAssignment;
 
         if ($attributionSearchBase) {
             $feedSearch = $attributionSearchBase->feed;
@@ -192,14 +213,8 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
     public function insertNew(array $row) {
         // Due to the possibility of incomplete parallelization, 
         // we cannot be sure that this email is not already in the db.
-        $email = $this->emailModel->where('email_address', $row['email_address'])->first();
-
-        if (!$email) {
-            // One final precaution
-            $email = $this->emailModel->updateOrCreate(['email_address' => $row['email_address']], $row);
-        }
-
-        return $email;
+        
+        return $this->emailModel->updateOrCreate(['email_address' => $row['email_address']], $row);
     }
 
     public function getRecordInfoAddress($address) {
@@ -420,6 +435,11 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
         return $this->emailModel->whereRaw("id >= (SELECT MAX(id) - 1000000 from emails)");
     }
 
+    public function specialExtract($data) {
+        $data = (int)$data;
+        return $this->emailModel->whereRaw("id >= $data");
+    }
+
 
     public function mapForS3Upload($row) {
         $pdo = DB::connection('redshift')->getPdo();
@@ -449,7 +469,7 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
     }
 
     public function maxId() {
-        return $this->emailModel->orderBy('id', 'desc')->first()['id'];
+        return $this->emailModel->max('id');
     }
 
     public function nextNRows($startPoint, $offset) {
@@ -462,5 +482,30 @@ class EmailRepo implements Mt2Export, IAwsRepo, ICanonicalDataSource {
 
     public function lessThan($startPoint, $endPoint) {
         return (int)$startPoint < (int)$endPoint;
+    }
+
+    public function getMinAndMaxIds() {
+        $min = $this->emailModel->min('id');
+        $max = $this->emailModel->max('id');
+        return [$min, $max];
+    }
+
+    public function get($id) {
+        return $this->emailModel->find($id);
+    }
+
+    public function getDistribution() {
+        $output = [];
+
+        $result = $this->emailModel
+                    ->selectRaw("round(id / 1000000) as million, COUNT(*) as total")
+                    ->groupBy('million')
+                    ->get();
+
+        foreach($result as $row) {
+            $output[$row->million] = $row->total;
+        }
+
+        return $output;
     }
 }

@@ -32,15 +32,27 @@ class SuppressionGlobalOrangeRepo implements IAwsRepo {
             . $pdo->quote($row->reason_id) . ','
             . $pdo->quote($row->type_id) . ','
             . $pdo->quote($row->created_at) . ','
-            . $pdo->quote($row->updated_at) ;
+            . $pdo->quote($row->updated_at);
     }
 
     public function extractAllForS3() {
-        return $this->model;
+        return $this->model->whereRaw("created_at >= CURDATE() - INTERVAL 10 DAY");
     }
+
+    public function specialExtract($data) {}
 
     public function getConnection() {
         return $this->model->getConnectionName();
+    }
+
+    public function getCount($maxLookback) {
+        return $this->model
+                    ->whereRaw("created_at <= CURDATE() - INTERVAL $maxLookback DAY")
+                    ->count();
+    }
+
+    public function getAllQuery($lookback) {
+        return $this->model->whereRaw("created_at <= CURDATE() - INTERVAL $lookback DAY")->toSql();
     }
 
 }

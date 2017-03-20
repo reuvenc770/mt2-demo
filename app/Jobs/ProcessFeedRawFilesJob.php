@@ -57,6 +57,8 @@ class ProcessFeedRawFilesJob extends Job implements ShouldQueue
             } catch ( \Exception $e ) {
                 echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;
 
+                \Log::error( $e );
+
                 $this->failed();
             } finally {
                 $this->unlock($this->jobName);

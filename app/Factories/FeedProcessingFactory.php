@@ -18,7 +18,9 @@ use App\Services\Validators\SourceUrlValidator;
 
 // Suppression
 use App\Services\SuppressionService;
-use App\Services\SuppressionListSuppressionService;
+use App\Services\MT1SuppressionService;
+use App\Services\SuppressionProcessingStrategies\FirstPartySuppressionProcessingStrategy;
+
 
 // Processors
 use App\Services\FirstPartyRecordProcessingService;
@@ -66,7 +68,7 @@ class FeedProcessingFactory
     }
 
     private static function setUpFirstPartyService(&$service, $feedId) {
-        $suppression = App::make(SuppressionListSuppressionService::class);
+        $suppression = App::make(MT1SuppressionService::class);
         $suppression->setFeedId($feedId);
         $service->registerSuppression($suppression);
 
@@ -120,6 +122,7 @@ class FeedProcessingFactory
     public static function createWorkflowProcessingService($workflow) {
 
         $actionsRepo = App::make(\App\Repositories\EmailActionsRepo::class);
+        $offerRepo = App::make(\App\Repositories\OfferRepo::class);
         $stepsRepo = App::make(\App\Repositories\EspWorkflowStepRepo::class);
         $suppService = App::make(\App\Services\MT1SuppressionService::class);
 
@@ -130,10 +133,10 @@ class FeedProcessingFactory
 
         $espAccount = EspApiAccount::getAccount($workflow->esp_account_id);
         $apiService = APIFactory::createApiReportService($espAccount->esp->name, $espAccount->id);
-        $suppStrategy = new $suppStrategyName(App::make(\App\Repositories\FirstPartyOnlineSuppressionListRepo::class), $apiService);
+        $suppStrategy = new FirstPartySuppressionProcessingStrategy(App::make(\App\Repositories\FirstPartyOnlineSuppressionListRepo::class), $apiService);
         $suppStrategy->setFeedId($feedId);
 
-        return new \App\Services\WorkflowProcessingService($actionsRepo, $stepsRepo, $suppService, $suppStrategy);
+        return new \App\Services\WorkflowProcessingService($actionsRepo, $stepsRepo, $offerRepo, $suppService, $suppStrategy);
     }
 
 }

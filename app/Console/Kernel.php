@@ -68,7 +68,7 @@ class Kernel extends ConsoleKernel
         Commands\AttributionBatchProcess::class,
         Commands\SendDeploysToOps::class,
         Commands\SyncMT1FeedLevels::class,
-        Commands\AttributionConversionCommand::class,
+        Commands\AttributionReportCommand::class,
         Commands\PopulateListProfileAggregationTable::class,
         Commands\NotifySomeoneAboutSomething::class,
         Commands\PullContentServerRecordData::class,
@@ -97,6 +97,10 @@ class Kernel extends ConsoleKernel
         Commands\DomainExpirationNotification::class,
         Commands\ProcessNewActionsCommand::class,
         Commands\DataConsistencyValidation::class,
+        Commands\RedshiftDataConsistencyValidation::class,
+        Commands\AttributionFeasibilityValidation::class,
+        Commands\RegenerateAttributionModelReportTables::class,
+        Commands\TestFeedFileGenerator::class,
     ];
 
     /**
@@ -195,14 +199,14 @@ class Kernel extends ConsoleKernel
         /**
          *  Deactivation jobs
          */
-        $schedule->command('deactivate:espAccounts')->daily(self::REPORT_TIME);
+        $schedule->command('deactivate:espAccounts')->dailyAt(self::REPORT_TIME);
 
 
         /**
          * Constantly firing.
          *
          */
-        $schedule->command('ftp:admin -H 52.205.67.250 -U root -k ~/.ssh/mt2ftp.pub -K ~/.ssh/mt2ftp -u -s Feed')->everyFiveMinutes();
+        $schedule->command('ftp:admin -H ' . config('ssh.servers.mt1_feed_file_server.host') . ' -U ' . config('ssh.servers.mt1_feed_file_server.username') . ' -k ' . config('ssh.servers.mt1_feed_file_server.public_key') . ' -K ' . config('ssh.servers.mt1_feed_file_server.private_key') . ' -u -s Feed')->everyFiveMinutes();
 
         /**
          *  MT1 data sync jobs
@@ -247,7 +251,7 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'attribution:conversion -P rerun -D month -m current' )->monthlyOn( 20 , self::ATTRIBUTION_REPORT_UPDATE_TIME ); #early monthly rerun
         $schedule->command( 'attribution:conversion -P rerun -D month -m current' )->monthlyOn( 28 , self::ATTRIBUTION_REPORT_UPDATE_TIME ); #monthly rerun
         $schedule->command( 'attribution:conversion -P rerun -D month -m last' )->monthlyOn( 1 , self::ATTRIBUTION_REPORT_UPDATE_TIME ); #final monthly rerun
-
+        $schedule->command('attribution:validate')->dailyAt(self::FEED_FILE_PROCESS_TIME);
         /**
          *  List profile jobs
          */
@@ -260,6 +264,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('listprofile:getRecordAgentData 5')->hourly();
         $schedule->command('listprofile:baseTables')->dailyAt(self::EXPIRATION_RUNS);
         $schedule->command('updateUserActions 1')->dailyAt(self::REPORT_TIME_2);
+        $schedule->command('listprofile:validateRedshift 1')->cron('0 4 * * * *');
 
         /**
          * Feed File Processing
@@ -279,15 +284,15 @@ class Kernel extends ConsoleKernel
         #$schedule->command('feedRecords:process 1 --feed=2979')->cron('*/2 * * * * *');
         
         // Process third party feeds, broken down by starting letter of email address
-        #$schedule->command('feedRecords:process 3 --startChars=0123456789')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 3 --startChars=ab')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 3 --startChars=cd')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 3 --startChars=efgh')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 3 --startChars=ij')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 3 --startChars=lk')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 3 --startChars=mno')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 3 --startChars=pqrs')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 3 --startChars=tuvwxyz')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=0123456789')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=ab')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=cd')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=efgh')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=ij')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=lk')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=mno')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=pqrs')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=tuvwxyz')->cron('*/2 * * * * *');
         
         // Export some third party feeds to external sources
         #$schedule->command('feedRecords:exportThirdParty 2430')->cron('*/2 * * * * *');
@@ -295,7 +300,7 @@ class Kernel extends ConsoleKernel
         #$schedule->command('feedRecords:exportThirdParty 2957')->cron('*/2 * * * * *');
         
         // Re-run first party actives against suppression
-        #$schedule->command('feedRecords:feedRecords:reprocessFirstParty 1')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME);
+        #$schedule->command('feedRecords:reprocessFirstParty 1')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME);
 
         
         /**
@@ -318,6 +323,6 @@ class Kernel extends ConsoleKernel
         $schedule->command("dataValidation emails exists")->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command("dataValidation emailFeedInstances exists")->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command("dataValidation emailFeedAssignments value")->dailyAt(self::MT1_SYNC_TIME);
-
+        $schedule->command("newActions:process -d 1")->dailyAt(self::MT1_SYNC_TIME);
     }
 }

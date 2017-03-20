@@ -378,8 +378,8 @@
                                     <select name="cake_affiliate_id" id="cake_affiliate_id" class="form-control" ng-required="true"
                                             ng-model="deploy.currentDeploy.cake_affiliate_id">
                                         <option value="">Cake ID</option>
-                                        <option ng-repeat="option in deploy.cakeAffiliates" value="@{{ option.affiliateID }}">
-                                            @{{ option.affiliateID }}
+                                        <option ng-repeat="option in deploy.cakeAffiliates" value="@{{ option.id }}">
+                                            @{{ option.id }} - @{{ option.name }}
                                         </option>
                                     </select>
 
@@ -394,7 +394,7 @@
 
                         <div class="col-md-6">
                             <div class="form-group" ng-class="{ 'has-error' : deploy.formErrors.offer_id }">
-                                <label class="col-sm-2 col-md-3 control-label">Offer</label>
+                                <label class="col-sm-2 col-md-3 control-label">Offer <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="bottom" data-content="A send date must be selected before picking an offer. To search for offers type, start by typing the first 3 letters of offer name.">help</md-icon></label>
                                 <div class="col-sm-10 col-md-9">
                                     <div ng-hide="deploy.allOffers">
                                     <div angucomplete-alt ng-required="true"
@@ -413,7 +413,7 @@
                                         </div>
                                         </div>
                                     <div ng-show="deploy.allOffers">
-                                        <select name="offer_id"  id="offer_id" ng-disable="deploy.dateNotPicked" class="form-control" ng-required="true"
+                                        <select name="offer_id"  id="offer_id" ng-disabled="deploy.dateNotPicked" class="form-control" ng-required="true"
                                                 ng-model="deploy.currentDeploy.offer_id" ng-change="deploy.offerWasSelected()">
                                             <option ng-repeat="option in deploy.allOffersData" value="@{{ option.id }}">
                                                 @{{ option.name }}
@@ -422,7 +422,7 @@
                                     </div>
                                     <div class="row">
                                         <div class="col-xs-6">
-                                            <div ng-click="deploy.hideAllOffers()" ng-class="{ 'text-muted' : deploy.allOffers }" style="font-size:11px; text-align: center; cursor: pointer; padding-top: 5px">Search Offers <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="bottom" data-content="To search for offers first select a send date, then type in the first 3 letters of offer name.">help</md-icon></div>
+                                            <div ng-click="deploy.hideAllOffers()" ng-class="{ 'text-muted' : deploy.allOffers }" style="font-size:11px; text-align: center; cursor: pointer; padding-top: 5px">Search Offers</div>
                                         </div>
                                         <div class="col-xs-6">
                                             <div ng-click="deploy.showAllOffers()" ng-class="{ 'text-muted' : !deploy.allOffers }" style="font-size:11px; text-align: center; cursor: pointer; padding-top: 5px">View All Offers</div>
@@ -450,10 +450,10 @@
                                 <div class="col-sm-10 col-md-9">
                                     <select name="creative_id" id="creative_id" class="form-control" ng-required="true"
                                             ng-model="deploy.currentDeploy.creative_id"
-                                            ng-disabled="deploy.offerLoading">
+                                            >
                                         <option value="">Creative</option>
                                         <option ng-repeat="option in deploy.creatives" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'mt2-bg-super-danger' : ''}}">
-                                            @{{ option.name }} - @{{ option.id }} - @{{ option.click_rate ? parseFloat(option.click_rate).toFixed(2) + '%' : '' }}
+                                            @{{ option.name }} - @{{ option.id }} - @{{ option.click_rate ? deploy.parseFloat(option.click_rate) + '%' : '' }}
                                         </option>
                                     </select>
 
@@ -477,7 +477,7 @@
                                             ng-disabled="deploy.offerLoading">
                                         <option value="">From</option>
                                         <option ng-repeat="option in deploy.froms" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'mt2-bg-super-danger' : ''}}">
-                                            @{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate ? parseFloat(option.open_rate).toFixed(2) + '%' : '' }}
+                                            @{{ option.name }} - @{{ option.id }}  @{{ option.open_rate ? '-' +  deploy.parseFloat(option.open_rate) + '%' : '' }}
                                         </option>
                                     </select>
 
@@ -499,7 +499,7 @@
                                             ng-disabled="deploy.offerLoading">
                                         <option value="">Subject</option>
                                         <option ng-repeat="option in deploy.subjects" value="@{{ option.id }}" class="@{{option.days_ago <= 1 ? 'mt2-bg-super-danger' : ''}}">
-                                            @{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate ? parseFloat(option.open_rate).toFixed(2) + '%' : '' }}
+                                            @{{ option.name }} - @{{ option.id }}  - @{{ option.open_rate ? deploy.parseFloat(option.open_rate) + '%' : '' }}
                                         </option>
                                     </select>
 

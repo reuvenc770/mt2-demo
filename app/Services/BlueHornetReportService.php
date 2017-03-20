@@ -8,18 +8,15 @@
 
 namespace App\Services;
 
-#use App\Services\API\BlueHornet;
-use App\Facades\CampaignActionsEntry;
+
 use App\Facades\DeployActionEntry;
 use App\Facades\Suppression;
 use App\Repositories\ReportRepo;
 use App\Services\API\BlueHornetApi;
-use App\Services\AbstractReportService;
 use League\Flysystem\Exception;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use App\Services\Interfaces\IDataService;
-use App\Services\EmailRecordService;
 use Carbon\Carbon;
 use Storage;
 use App\Exceptions\JobException;
@@ -369,7 +366,6 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
             if ($reason == "5-Timeout" || $reason == "5-Spam Block" || "5-Mail Block" === $reason){
                 continue;
             }
-            Log::info("BH REASON IS {$reason}");
             Suppression::recordRawHardBounce(
                 $processState[ 'ticket' ][ 'espId' ] ,
                 $email , 

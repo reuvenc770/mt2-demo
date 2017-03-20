@@ -10,7 +10,7 @@ class CountryAndStateValidator implements IValidate {
     private $state;
     private $country;
 
-    const US_ALIASES = ['UNITED STATES', 'US', 'USA'];
+    const US_ALIASES = ['UNITED STATES', 'US', 'USA', 'UNITEDSTATES', 'unitedstates'];
     const CA_ALIASES = ['CANADA', 'CA'];
 
     const US_STATES = ['AE', 'AK', 'AL', 'AP', 'AR', 'AS', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 
@@ -46,6 +46,10 @@ class CountryAndStateValidator implements IValidate {
 
         elseif (in_array($this->country, self::CA_ALIASES)) {
             throw new ValidationException("Canada detected for country: {$this->country}");
+        }
+
+        elseif (in_array($this->state, self::CA_PROVINCES)) {
+            throw new ValidationException("Canadian province detected: {$this->state}");
         }
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Factories;
 use App\Models\Deploy;
+use App\Models\Offer;
 use App\Repositories\DeployRepo;
 use App\Repositories\EmailCampaignStatisticRepo;
 use App\Repositories\EmailActionsRepo;
@@ -45,10 +46,7 @@ class DataProcessingFactory {
 
             case('CheckDeployStats'):
                 return self::createCheckDeployStatsService();
-
-            case('PublicatorsActions'):
-                return self::createPublicatorsActionService();
-
+            
             case('ProcessCfsStats'):
                 return self::createProcessCfsStatsService();
 
@@ -65,6 +63,9 @@ class DataProcessingFactory {
                 $service = \App::make(\App\Services\ProcessRawContentServerStats::class);
                 $service->setJobName('ProcessContentServerRawStats');
                 return $service;
+
+            case ('AttributionValidation'):
+                return self::createAttributionValidationService();
 
             # Export from MT2 to MT1
 
@@ -253,31 +254,7 @@ class DataProcessingFactory {
         $rerunRepo = new \App\Repositories\DeployRecordRerunRepo($rerun);
         return new CheckDeployService($actionsRepo, $rerunRepo);
     }
-
-    private static function createPublicatorsActionService() {
-        $actions = new EmailAction();
-        $actionsRepo = new EmailActionsRepo($actions);
-        return new \App\Services\PublicatorsActionService($actionsRepo, $actionsRepo);
-    }
-
-    private static function createProcessCfsStatsService() {
-        $deploy = new Deploy();
-        $deployRepo = new DeployRepo($deploy);
-        $stdModel = new \App\Models\StandardReport();
-        $stdRepo = new \App\Repositories\StandardApiReportRepo($stdModel);
-
-        $crModel = new \App\Models\CreativeClickthroughRate();
-        $crRepo = new \App\Repositories\CreativeClickthroughRateRepo($crModel);
-
-        $subjModel = new \App\Models\SubjectOpenRate();
-        $subjRepo = new \App\Repositories\SubjectOpenRateRepo($subjModel);
-
-        $fromModel = new \App\Models\FromOpenRate();
-        $fromRepo = new \App\Repositories\FromOpenRateRepo($fromModel);
-
-        return new \App\Services\PopulateCfsStatsService($deployRepo, $stdRepo, $crRepo, $fromRepo, $subjRepo);
-    }
-
+    
     private static function createMt1ImportService($mt1Name, $mt2Name) {
         $mt1RepoName = "App\\Repositories\\MT1Repositories\\{$mt1Name}Repo";
         $mt1Repo = \App::make($mt1RepoName);
@@ -302,6 +279,44 @@ class DataProcessingFactory {
         $processName = $mt2Name . $mt1Name;
 
         return new \App\Services\Mt2ToMt1ExportService($mt2Repo, $mt1Repo, $pickupRepo, $processName);
+    }
+
+    private static function createAttributionValidationService() {
+        $emailRepo = \App::make(\App\Repositories\EmailRepo::class);
+        $emailFeedAssignmentRepo = \App::make(\App\Repositories\EmailFeedAssignmentRepo::class);
+        $emailListRepo = \App::make(\App\Repositories\MT1Repositories\EmailListRepo::class);
+        $recordDataRepo = \App::make(\App\Repositories\EmailAttributableFeedLatestDataRepo::class);
+        $truthRepo = \App::make(\App\Repositories\AttributionRecordTruthRepo::class);
+        $actionStatusRepo = \App::make(\App\Repositories\ThirdPartyEmailStatusRepo::class);
+        $scheduleRepo = new \App\Repositories\AttributionScheduleRepo(new \App\Models\AttributionExpirationSchedule());
+        return new \App\Services\AttributionValidationService(
+            $emailRepo, 
+            $emailFeedAssignmentRepo,
+            $emailListRepo,
+            $recordDataRepo,
+            $truthRepo,
+            $actionStatusRepo,
+            $scheduleRepo
+        );
+    }
+
+    private static function createProcessCfsStatsService() {
+        $deploy = new Deploy();
+        $offer = new Offer();
+        $deployRepo = new DeployRepo($deploy, $offer);
+        $stdModel = new \App\Models\StandardReport();
+        $stdRepo = new \App\Repositories\StandardApiReportRepo($stdModel);
+
+        $crModel = new \App\Models\CreativeClickthroughRate();
+        $crRepo = new \App\Repositories\CreativeClickthroughRateRepo($crModel);
+
+        $subjModel = new \App\Models\SubjectOpenRate();
+        $subjRepo = new \App\Repositories\SubjectOpenRateRepo($subjModel);
+
+        $fromModel = new \App\Models\FromOpenRate();
+        $fromRepo = new \App\Repositories\FromOpenRateRepo($fromModel);
+
+        return new \App\Services\PopulateCfsStatsService($deployRepo, $stdRepo, $crRepo, $fromRepo, $subjRepo);
     }
 
 }

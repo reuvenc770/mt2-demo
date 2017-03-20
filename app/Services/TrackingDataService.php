@@ -5,10 +5,7 @@
 
 namespace App\Services;
 use App\Repositories\TrackingRepo;
-use App\Repositories\EmailCampaignStatisticRepo;
 use App\Services\Interfaces\IDataService;
-use App\Repositories\Interfaces\CakeTargetRepo;
-use League\Flysystem\Exception;
 use Illuminate\Support\Facades\Event;
 use App\Events\RawReportDataWasInserted;
 use Carbon\Carbon;

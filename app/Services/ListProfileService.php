@@ -57,7 +57,7 @@ class ListProfileService
         'feed_name'  =>  "Feed Name",
         'short_name' => "Feed Short Name",
         'client_name'  =>  "Client",
-        'subscribe_date'  =>  'Subscribe Date',
+        'subscribe_date'  =>  'Registration Date',
         'tower_date'  =>  'Tower Date'
     ];
 
@@ -143,7 +143,6 @@ class ListProfileService
                 'mobileCarriers' => json_decode( $listProfile->mobile_carrier ) ,
                 'os' => json_decode( $listProfile->device_os )
             ] ,
-            'includeCsvHeader' => $listProfile->insert_header ,
             'selectedColumns' => [],//$this->buildDisplayColumns(json_decode( $listProfile->columns )) ,
             'exportOptions' => [
                 'interval' =>  [ $listProfile->run_frequency ] ,

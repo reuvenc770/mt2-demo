@@ -43,4 +43,8 @@ class OfferPayoutRepo {
                     ->select('id', 'name')
                     ->get();
     }
+
+    public function getCpmOffers () {
+        return $this->payout->where( 'offer_payout_type_id' , 1 )->pluck( 'offer_id' )->toArray();
+    }
 }

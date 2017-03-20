@@ -75,17 +75,6 @@ class ServiceFactory
         return new App\Services\StandardReportService( App::make( App\Repositories\StandardReportRepo::class ) );
     }
 
-    public static function createAggregatorService ( $aggregatorName ) {
-        $className = "\App\Services\Attribution\\" . $aggregatorName . "AggregatorService";
-
-        if ( !class_exists( $className ) ) {
-            throw new \Exception( "Aggregator Service {$aggregatorName} does not exist. Either enter an existing service or make a new one." );
-        }
-
-        return App::make( $className ); 
-    }
-
-
     public static function createAwsExportService($entity) {
         if ('RecordData' === $entity) {
             // Keeping the redshift schema the same
@@ -161,5 +150,37 @@ class ServiceFactory
         }
 
         return new \App\Services\DataValidationService($canonicalDataRepo, App::make(\App\Repositories\EtlPickupRepo::class), $checkRepos);
+    }
+
+
+    public static function createRedshiftValidator($entity) {
+        if ('RecordData' === $entity) {
+            // Keeping the redshift schema the same
+            // but there's been a big schema change on our side
+            $cmpRepo =  App::make("App\\Repositories\\EmailAttributableFeedLatestDataRepo");
+        }
+        else {
+            $cmpRepo =  App::make("App\\Repositories\\{$entity}Repo");
+        }
+
+        $redshiftRepo = App::make("App\\Repositories\\RedshiftRepositories\\{$entity}Repo");
+
+        $testingStrategy = '';
+
+        if ('SuppressionGlobalOrange' === $entity || 'SuppressionListSuppression' === $entity) {
+            $testingStrategy = 'Suppression';
+        }
+        elseif (in_array($entity, ['Client', 'DomainGroup', 'EmailDomain', 'Feed'])) {
+            // Small enough that we can be exact and check row-by-row
+            $testingStrategy = 'Exact';
+        }
+        else {
+            // More sophisticated and per-entity testing
+            $testingStrategy = $entity;
+        }
+
+        $testingStrategy = "App\\Services\\RedshiftDataValidationStrategies\\{$testingStrategy}RedshiftDataValidation";
+
+        return new $testingStrategy($cmpRepo, $redshiftRepo);
     }
 }

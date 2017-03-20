@@ -24,4 +24,8 @@ class OfferPayoutService {
     public function getPayout($offerId) {
         return $this->payoutRepo->getPayout($offerId);
     }
+
+    public function getCpmOffers () {
+        return $this->payoutRepo->getCpmOffers();
+    }
 }

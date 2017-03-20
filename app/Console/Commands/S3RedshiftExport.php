@@ -43,9 +43,9 @@ class S3RedshiftExport extends Command
      * @return mixed
      */
     public function handle() {
-        $all = $this->option('all');
+        $version = $this->option('all') ? 1 : 0;
         foreach ($this->entities as $entity) {
-            $job = new S3RedshiftExportJob($entity, $all, str_random(16));
+            $job = new S3RedshiftExportJob($entity, $version, str_random(16));
             $this->dispatch($job);
         }
     }

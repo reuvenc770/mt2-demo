@@ -8,6 +8,8 @@ namespace App\Repositories;
 use App\Models\RawFeedEmail;
 use App\Models\RawFeedEmailFailed;
 
+use Carbon\Carbon;
+
 class RawFeedEmailRepo {
     protected $rawEmail;
     protected $failed;
@@ -117,11 +119,13 @@ class RawFeedEmailRepo {
 
     public function getThirdPartyRecordsWithChars($startPoint, $startChars) {
         $charsRegex = '^[' . $startChars . ']';
+        $suppDb = config('database.connections.suppression.database');
 
         return $this->rawEmail
-                    ->selectRaw("raw_feed_emails.*, email_domain_id, domain_group_id, e.id as email_id")
+                    ->selectRaw("raw_feed_emails.*, email_domain_id, domain_group_id, e.id as email_id, IF(sgo.id IS NULL, 0, 1) as suppressed")
                     ->leftJoin('emails as e', 'raw_feed_emails.email_address', '=', 'e.email_address')
                     ->leftJoin('email_domains as ed', 'e.email_domain_id', '=', 'ed.id')
+                    ->leftJoin("$suppDb.suppression_global_orange as sgo", 'raw_feed_emails.email_address', '=', 'sgo.email_address')
                     ->whereRaw("raw_feed_emails.email_address RLIKE '$charsRegex'")
                     ->where('raw_feed_emails.id', '>', $startPoint)
                     ->orderBy('raw_feed_emails.id')
@@ -132,11 +136,27 @@ class RawFeedEmailRepo {
     protected function formatRecord ( $record ) {
         $pdo = \DB::connection()->getPdo();
 
+        try {
+            $captureDate = Carbon::parse( $record[ 'capture_date' ] )->toDateTimeString();
+        } catch ( \Exception $e ) {
+            \Log::error( $e );
+
+            $captureDate = 'NULL';
+        }
+
+        try {
+            $dob = Carbon::parse( $record[ 'dob' ] )->toDateString();
+        } catch ( \Exception $e ) {
+            \Log::error( $e );
+
+            $dob = 'NULL';
+        }
+
         return "("
             . $pdo->quote( $record[ 'feed_id' ] ) . ","
             . $pdo->quote( $record[ 'email_address' ] ) . ","
             . $pdo->quote( $record[ 'source_url' ] ) . ","
-            . $pdo->quote( $record[ 'capture_date' ] ) . ","
+            . $pdo->quote( $captureDate ) . ","
             . $pdo->quote( $record[ 'ip' ] ) . ","
             . ( isset( $record[ 'first_name' ] ) ? $pdo->quote( $record[ 'first_name' ] ) : 'NULL' ) . ","
             . ( isset( $record[ 'last_name' ] ) ? $pdo->quote( $record[ 'last_name' ] ) : 'NULL' ) . ","
@@ -148,7 +168,7 @@ class RawFeedEmailRepo {
             . ( isset( $record[ 'country' ] ) ? $pdo->quote( $record[ 'country' ] ) : 'NULL' ) . ","
             . ( isset( $record[ 'gender' ] ) ? $pdo->quote( $record[ 'gender' ] ) : 'NULL' ) . ","
             . ( isset( $record[ 'phone' ] ) ? $pdo->quote( $record[ 'phone' ] ) : 'NULL' ) . ","
-            . ( isset( $record[ 'dob' ] ) ? $pdo->quote( $record[ 'dob' ] ) : 'NULL' ) . ","
+            . $pdo->quote( $dob ) . ","
             . ( isset( $record[ 'other_fields' ] ) ? $pdo->quote( $record[ 'other_fields' ] ) : '{}' ) . ","
             . "NOW() ,"
             . "NOW()"

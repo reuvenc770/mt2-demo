@@ -3,6 +3,7 @@
 namespace App\Repositories\RedshiftRepositories;
 
 use App\Models\RedshiftModels\ListProfileFlatTable;
+use App\Models\ListProfileFlatTable as CmpListProfileFlatTable;
 use App\Repositories\RepoInterfaces\IRedshiftRepo;
 use DB;
 
@@ -50,5 +51,13 @@ SQL;
     public function optimizeDb() {
         // Re-sort and partition the tables based off of their keys
         DB::connection('redshift')->statement('VACUUM SORT ONLY');
+    }
+
+    public function findAggregation($deployId, $date) {
+        return $this->model
+                    ->where('deploy_id', $deployId)
+                    ->where('date', $date)
+                    ->selectRaw("SUM(has_click) as clicks, SUM(has_open) as opens, SUM(has_conversions) as conversions")
+                    ->first();
     }
 }

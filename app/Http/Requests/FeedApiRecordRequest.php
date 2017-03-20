@@ -13,6 +13,7 @@ class FeedApiRecordRequest extends Request
     protected $repo;
 
     public function __construct ( RawFeedEmailRepo $repo ) {
+        parent::__construct();
         $this->repo = $repo;
     }
     
@@ -53,10 +54,10 @@ class FeedApiRecordRequest extends Request
             $errors ,
             $this->fullUrl() ,
             json_encode( $this->ips() ) ,
-            $this->input( 'email' ) ,
+            ( $this->input( 'email' ) != '' ? $this->input( 'email' ) : '' ) ,
             FeedRepo::getFeedIdFromPassword( $this->input( 'pw' ) )
         );
 
-        return new JsonResponse( $errors , 422 );
+        return new JsonResponse( [ "status" => false , "messages" => $errors ] , 422 );
     }
 }

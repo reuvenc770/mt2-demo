@@ -28,7 +28,7 @@ class EspWorkflowStepRepo {
         // Need to group by b/c offers can be duplicated
         $result = $this->model
             ->select('offer_id')
-            ->where('esp_workflow_id', $workflowId)
+            ->where('esp_workflow_id', $workFlowId)
             ->groupBy('offer_id')
             ->get()
             ->toArray();

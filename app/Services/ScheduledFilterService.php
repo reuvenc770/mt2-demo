@@ -47,10 +47,10 @@ class ScheduledFilterService
     public function insertScheduleFilterBulk($emails,$days){
         $preppedData = array();
         foreach($emails as $email){
-            $date = isset($email['datetime']) ?
-                Carbon::parse($email['datetime'])->addDays($days)->toDateString() : Carbon::today()->addDays($days)->toDateString();
+            $date = isset($email['subscribe_date']) ?
+                Carbon::parse($email['subscribe_date'])->addDays($days)->toDateString() : Carbon::today()->addDays($days)->toDateString();
 
-            if(Carbon::parse($email['datetime'])->toDateString() > Carbon::today()->toDateString() ){
+            if(Carbon::parse($email['subscribe_date'])->toDateString() > Carbon::today()->toDateString() ){
                 $date = Carbon::today()->addDays($days)->toDateString();
             }
             

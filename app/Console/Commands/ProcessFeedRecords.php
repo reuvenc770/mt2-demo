@@ -85,8 +85,10 @@ class ProcessFeedRecords extends Command
             $users[] = new ProcessingRecord($record);
             $maxId = $record->id;
         }
-
-        $job = new ProcessFeedRecordsJob($party, $feedId, $users, $name, $maxId, str_random(16));
-        $this->dispatch($job);
+        
+        if ($maxId > 0) {
+            $job = new ProcessFeedRecordsJob($party, $feedId, $users, $name, $maxId, str_random(16));
+            $this->dispatch($job);
+        }
     }
 }

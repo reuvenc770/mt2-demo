@@ -89,6 +89,10 @@ class FeedService implements IFtpAdmin
         return $this->feedRepo->getFeedIdByName( $name );
     }
 
+    public function getFeedIdByShortName ( $name ) {
+        return $this->feedRepo->getFeedIdByShortName( $name );
+    }
+
     public function getVerticals() {
         return $this->verticals->orderBy('name')->get();
     }
@@ -245,6 +249,10 @@ class FeedService implements IFtpAdmin
 
     public function getActiveFeedNames () {
         return $this->feedRepo->getActiveFeedNames();
+    }
+
+    public function getActiveFeedShortNames () {
+        return $this->feedRepo->getActiveFeedShortNames();
     }
 
     public function getFileColumnMap ( $feedId ) {

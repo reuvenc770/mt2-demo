@@ -73,7 +73,6 @@ class JobEntryService
 
         if($state == JobEntry::FAILED){
             $job->save();
-            Log::alert("** I Failed But I did not hit slack");
             Slack::to(self::ROOM)->send("{$job->job_name} for {$job->account_name} - {$job->account_number} has failed after running {$job->attempts} attempts");
         }
     }

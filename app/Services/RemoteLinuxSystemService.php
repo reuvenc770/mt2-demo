@@ -6,11 +6,11 @@
 namespace App\Services;
 
 class RemoteLinuxSystemService {
-    const CREATE_USER_COMMAND = "useradd -g sftp -d %s %s";
-    const SET_PASSWORD_COMMAND = "echo %s:%s | chpasswd";
-    const CREATE_DIR_COMMAND = "mkdir %s";
-    const CHANGE_DIR_OWNER_COMMAND = "chown -R %s:sftp %s";
-    const CHANGE_DIR_PERMS_COMMAND = "chmod 755 %s";
+    const CREATE_USER_COMMAND = "sudo useradd -g sftponly -d %s %s";
+    const SET_PASSWORD_COMMAND = "echo %s:%s | sudo chpasswd";
+    const CREATE_DIR_COMMAND = "sudo mkdir %s";
+    const CHANGE_DIR_OWNER_COMMAND = "sudo chown -R %s:sftponly %s";
+    const CHANGE_DIR_PERMS_COMMAND = "sudo chmod 755 %s";
     const FIND_RECENT_FILES_COMMAND = "find %s -type f -mtime -1 -print";
     const LIST_DIRECTORIES_COMMAND = "find %s -type d -print ";
     const DIRECTORY_EXISTS_COMMAND = "[ -d %s ] && echo 1";
