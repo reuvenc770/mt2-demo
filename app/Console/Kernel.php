@@ -284,15 +284,15 @@ class Kernel extends ConsoleKernel
         #$schedule->command('feedRecords:process 1 --feed=2979')->cron('*/2 * * * * *');
         
         // Process third party feeds, broken down by starting letter of email address
-        #$schedule->command('feedRecords:process 3 --startChars=0123456789')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 3 --startChars=ab')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 3 --startChars=cd')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 3 --startChars=efgh')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 3 --startChars=ij')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 3 --startChars=lk')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 3 --startChars=mno')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 3 --startChars=pqrs')->cron('*/2 * * * * *');
-        #$schedule->command('feedRecords:process 3 --startChars=tuvwxyz')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=0123456789')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=ab')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=cd')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=efgh')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=ij')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=lk')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=mno')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=pqrs')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=tuvwxyz')->cron('*/2 * * * * *');
         
         // Export some third party feeds to external sources
         #$schedule->command('feedRecords:exportThirdParty 2430')->cron('*/2 * * * * *');

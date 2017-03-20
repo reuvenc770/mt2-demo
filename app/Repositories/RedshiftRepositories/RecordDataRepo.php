@@ -58,10 +58,10 @@ SQL;
 
     public function getActionDateDistribution() {
         $output = [];
-
+        // 15 days is the attribution import shield
         $data = $this->model
                     ->selectRaw("date(updated_at) as day, sum(is_deliverable) as deliverable_count")
-                    ->whereRaw("updated_at >= current_date - interval '15 DAY'")
+                    ->whereRaw("updated_at >= current_date - interval '3 DAY'")
                     ->groupBy(DB::raw('date(updated_at)'))
                     ->get();
 

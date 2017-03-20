@@ -21,7 +21,7 @@ class AttributionBatchService {
     private $feedInstanceRepo;
     private $latestDataRepo;
     private $keyName = 'AttributionJob';
-    const EXPIRATION_DAY_RANGE = 15;
+    const EXPIRATION_DAY_RANGE = 3;
 
     public function __construct(AttributionRecordTruthRepo $truthRepo, 
                                 AttributionExpirationScheduleRepo $scheduleRepo, 
