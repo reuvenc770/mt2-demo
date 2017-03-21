@@ -17,7 +17,7 @@ use App\Services\Validators\PhoneValidator;
 use App\Services\Validators\SourceUrlValidator;
 
 // Suppression
-use App\Services\SuppressionService;
+use App\Services\GlobalSuppressionService;
 use App\Services\MT1SuppressionService;
 use App\Services\SuppressionProcessingStrategies\FirstPartySuppressionProcessingStrategy;
 
@@ -109,7 +109,7 @@ class FeedProcessingFactory
 
     private static function setUpThirdPartyService(&$service) {
         // Add suppression
-        $service->registerSuppression(App::make(SuppressionService::class));
+        $service->registerSuppression(App::make(GlobalSuppressionService::class));
         $suppStrategy = App::make(\App\Services\SuppressionProcessingStrategies\ThirdPartySuppressionProcessingStrategy::class);
         $service->setSuppressionProcessingStrategy($suppStrategy);
 
