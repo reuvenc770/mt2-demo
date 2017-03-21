@@ -12,6 +12,8 @@ use App\Models\ProcessedFeedFile;
 use App\Repositories\RawFeedEmailRepo;
 use App\Facades\SlackLevel;
 
+use Carbon\Carbon;
+
 class RemoteFeedFileService {
     const SLACK_CHANNEL = "#mt2team";
 
@@ -161,7 +163,41 @@ class RemoteFeedFileService {
             $record = array_combine( $this->currentColumnMap , $lineColumns );
             $record[ 'feed_id' ] = $this->currentFile[ 'feedId' ];
 
-            $this->addToBuffer( $this->rawRepo->toSqlFormat( $record ) );
+            $errors = [];
+
+            if ( $record[ 'email_address' ] == '' ) {
+                $errors []= 'Email is missing';
+            }
+            
+            if ( $record[ 'source_url' ] == '' ) {
+                $errors []= 'Source URL is missing.';
+            }
+
+            if ( $record[ 'ip' ] == ''  ) {
+                $errors []= 'IP is missing';
+            }
+
+            if ( $record[ 'capture_date' ] == '' ) {
+                $errors []= 'Capture Date missing.';
+            }
+
+            try {
+                Carbon::parse( $record[ 'capture_date' ] );
+            } catch ( \Exception $e ) {
+                $errors []= 'Capture Date is invalid';
+            }
+
+            if ( count( $errors ) > 0 ) {
+                $this->rawRepo->logFailure(
+                    $errors ,
+                    $this->currentFile[ 'path' ] ,
+                    '' ,
+                    ( $record[ 'email_address' ] ? : '' ) ,
+                    $record[ 'feed_id' ]
+                );
+            } else {
+                $this->addToBuffer( $this->rawRepo->toSqlFormat( $record ) );
+            }
         }
     }
 
