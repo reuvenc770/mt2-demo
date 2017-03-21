@@ -16,6 +16,7 @@ use Carbon\Carbon;
 
 class RemoteFeedFileService {
     const SLACK_CHANNEL = "#mt2team";
+    const US_COUNTRY_ID = 1;
 
     protected $feedService;
     protected $systemService;
@@ -182,7 +183,13 @@ class RemoteFeedFileService {
             }
 
             try {
-                Carbon::parse( $record[ 'capture_date' ] );
+                $isEuroDateFormat = ( $this->feedService->getFeedCountry( $record[ 'feed_id' ] ) !== self::US_COUNTRY_ID );
+
+                if ( $isEuroDateFormat ) {
+                    Carbon::createFromFormat( 'd/m/Y' , $record[ 'capture_date' ] , 'Europe/London' );
+                } else {
+                    Carbon::parse( $record[ 'capture_date' ] );
+                }
             } catch ( \Exception $e ) {
                 $errors []= 'Capture Date is invalid';
             }
