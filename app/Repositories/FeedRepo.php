@@ -253,4 +253,8 @@ class FeedRepo implements Mt2Export, IAwsRepo {
     public function getCount() {
         return $this->feed->count();
     }
+
+    public function getFeedCountry ( $feedId ) {
+        return $this->feed->where( 'id' , $feedId )->pluck( 'country_id'  )->first();
+    }
 }

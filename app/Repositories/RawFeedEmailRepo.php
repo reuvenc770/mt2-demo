@@ -8,13 +8,18 @@ namespace App\Repositories;
 use App\Models\RawFeedEmail;
 use App\Models\RawFeedEmailFailed;
 use App\Models\Email;
+use App\Repositories\FeedRepo;
 
 use Carbon\Carbon;
 
 class RawFeedEmailRepo {
+    const US_COUNTRY_ID = 1;
+
     protected $rawEmail;
     protected $failed;
     private $email;
+
+    protected $feed;
 
     protected $standardFields = [
         'feed_id' => 0 ,
@@ -35,10 +40,11 @@ class RawFeedEmailRepo {
         'dob' => 0
     ];
 
-    public function __construct ( RawFeedEmail $rawEmail , RawFeedEmailFailed $failed, Email $email ) {
+    public function __construct ( RawFeedEmail $rawEmail , RawFeedEmailFailed $failed , Email $email , FeedRepo $feed ) {
         $this->rawEmail = $rawEmail;
         $this->failed = $failed;
         $this->email = $email;
+        $this->feed = $feed;
     }
 
     public function create ( $data ) {
@@ -193,27 +199,11 @@ class RawFeedEmailRepo {
     protected function formatRecord ( $record ) {
         $pdo = \DB::connection()->getPdo();
 
-        try {
-            $captureDate = Carbon::parse( $record[ 'capture_date' ] )->toDateTimeString();
-        } catch ( \Exception $e ) {
-            \Log::error( $e );
-
-            $captureDate = 'NULL';
-        }
-
-        try {
-            $dob = Carbon::parse( $record[ 'dob' ] )->toDateString();
-        } catch ( \Exception $e ) {
-            \Log::error( $e );
-
-            $dob = 'NULL';
-        }
-
         return "("
             . $pdo->quote( $record[ 'feed_id' ] ) . ","
             . $pdo->quote( $record[ 'email_address' ] ) . ","
             . $pdo->quote( $record[ 'source_url' ] ) . ","
-            . $pdo->quote( $captureDate ) . ","
+            . ( isset( $record[ 'capture_date' ] ) ? $pdo->quote( $record[ 'capture_date' ] ) : 'NULL' ) . ","
             . $pdo->quote( $record[ 'ip' ] ) . ","
             . ( isset( $record[ 'first_name' ] ) ? $pdo->quote( $record[ 'first_name' ] ) : 'NULL' ) . ","
             . ( isset( $record[ 'last_name' ] ) ? $pdo->quote( $record[ 'last_name' ] ) : 'NULL' ) . ","
@@ -225,7 +215,7 @@ class RawFeedEmailRepo {
             . ( isset( $record[ 'country' ] ) ? $pdo->quote( $record[ 'country' ] ) : 'NULL' ) . ","
             . ( isset( $record[ 'gender' ] ) ? $pdo->quote( $record[ 'gender' ] ) : 'NULL' ) . ","
             . ( isset( $record[ 'phone' ] ) ? $pdo->quote( $record[ 'phone' ] ) : 'NULL' ) . ","
-            . $pdo->quote( $dob ) . ","
+            . ( isset( $record[ 'dob' ] ) ? $pdo->quote( $record[ 'dob' ] ) : 'NULL' ) . ","
             . ( isset( $record[ 'other_fields' ] ) ? $pdo->quote( $record[ 'other_fields' ] ) : '{}' ) . ","
             . "NOW() ,"
             . "NOW()"
@@ -239,7 +229,36 @@ class RawFeedEmailRepo {
 
         $rawEmailRecord[ 'other_fields' ] = json_encode( $customFields );
 
-        if( $rawEmailRecord[ 'dob' ] == '' ) {
+        $isEuroDateFormat = ( $this->feed->getFeedCountry( $rawEmailRecord[ 'feed_id' ] ) !== self::US_COUNTRY_ID );
+
+        try {
+            if ( $isEuroDateFormat ) {
+                $rawEmailRecord[ 'capture_date' ] = Carbon::createFromFormat( 'd/m/Y' , $rawEmailRecord[ 'capture_date' ] , 'Europe/London' )->toDateTimeString();
+            } else {
+                $rawEmailRecord[ 'capture_date' ] = Carbon::parse( $rawEmailRecord[ 'capture_date' ] )->toDateTimeString();
+            }
+        } catch ( \Exception $e ) {
+            \Log::error( $e );
+
+            unset( $rawEmailRecord[ 'capture_date' ] );
+        }
+
+        try {
+            if( isset( $rawEmailRecord[ 'dob' ] ) && $rawEmailRecord[ 'dob' ] == '' ) {
+                unset( $rawEmailRecord[ 'dob' ] );
+            }
+
+            if ( isset( $rawEmailRecord[ 'dob' ] ) ) {
+
+                if ( $isEuroDateFormat ) {
+                    $rawEmailRecord[ 'dob' ] = Carbon::createFromFormat( 'd/m/Y' , $rawEmailRecord[ 'dob' ] )->toDateString();
+                } else {
+                    $rawEmailRecord[ 'dob' ] = Carbon::parse( $rawEmailRecord[ 'dob' ] )->toDateString();
+                }
+            }
+        } catch ( \Exception $e ) {
+            \Log::error( $e );
+
             unset( $rawEmailRecord[ 'dob' ] );
         }
 

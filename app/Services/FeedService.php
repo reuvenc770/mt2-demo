@@ -105,6 +105,10 @@ class FeedService implements IFtpAdmin
         return $this->countryRepo->get();
     }
 
+    public function getFeedCountry ( $feedId ) {
+        return $this->feedRepo->getFeedCountry( $feedId );
+    }
+
     public function getModel( $searchData = null ) {
         return $this->feedRepo->getModel( $searchData );
     }

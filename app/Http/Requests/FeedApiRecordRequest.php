@@ -10,11 +10,15 @@ use App\Repositories\FeedRepo;
 
 class FeedApiRecordRequest extends Request
 {
-    protected $repo;
+    const US_COUNTRY_ID = 1;
 
-    public function __construct ( RawFeedEmailRepo $repo ) {
+    protected $repo;
+    protected $feedRepo;
+
+    public function __construct ( RawFeedEmailRepo $repo , FeedRepo $feedRepo ) {
         parent::__construct();
         $this->repo = $repo;
+        $this->feedRepo = $feedRepo;
     }
     
     /**
@@ -34,13 +38,22 @@ class FeedApiRecordRequest extends Request
      */
     public function rules()
     {
-        return [
+        $rules = [
             'email' => 'required|email' ,
             'ip' => 'required|ip' ,
             'capture_date' => 'required|date' ,
             'source_url' => 'required' ,
             'pw' => 'required|exists:feeds,password'
         ];
+
+        $feedId = FeedRepo::getFeedIdFromPassword( $this->input( 'pw' ) );
+        $isEuroDateFormat = ( $this->feedRepo->getFeedCountry( $feedId ) !== self::US_COUNTRY_ID );
+
+        if ( $isEuroDateFormat ) {
+            $rules[ 'capture_date' ] = 'required|date_format:d/m/Y';
+        }
+
+        return $rules;
     }
 
     public function messages () {
