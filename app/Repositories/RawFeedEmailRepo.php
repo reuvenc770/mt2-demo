@@ -8,7 +8,7 @@ namespace App\Repositories;
 use App\Models\RawFeedEmail;
 use App\Models\RawFeedEmailFailed;
 use App\Models\Email;
-use App\Services\FeedService;
+use App\Repositories\FeedRepo;
 
 use Carbon\Carbon;
 
@@ -19,7 +19,7 @@ class RawFeedEmailRepo {
     protected $failed;
     private $email;
 
-    protected $feedService;
+    protected $feed;
 
     protected $standardFields = [
         'feed_id' => 0 ,
@@ -40,11 +40,11 @@ class RawFeedEmailRepo {
         'dob' => 0
     ];
 
-    public function __construct ( RawFeedEmail $rawEmail , RawFeedEmailFailed $failed , Email $email , FeedService $feedService ) {
+    public function __construct ( RawFeedEmail $rawEmail , RawFeedEmailFailed $failed , Email $email , FeedRepo $feed ) {
         $this->rawEmail = $rawEmail;
         $this->failed = $failed;
         $this->email = $email;
-        $this->feedService = $feedService;
+        $this->feed = $feed;
     }
 
     public function create ( $data ) {
@@ -243,7 +243,7 @@ class RawFeedEmailRepo {
             }
 
             if ( isset( $rawEmailRecord[ 'dob' ] ) ) {
-                $isEuroDateFormat = ( $this->feedService->getFeedCountry( $rawEmailRecord[ 'feed_id' ] ) !== self::US_COUNTRY_ID );
+                $isEuroDateFormat = ( $this->feed->getFeedCountry( $rawEmailRecord[ 'feed_id' ] ) !== self::US_COUNTRY_ID );
 
                 if ( $isEuroDateFormat ) {
                     $rawEmailRecord[ 'dob' ] = Carbon::createFromFormat('d/m/Y', $rawEmailRecord[ 'dob' ] )->toDateString();
