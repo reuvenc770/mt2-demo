@@ -143,7 +143,7 @@ class ListProfileService
                 'mobileCarriers' => json_decode( $listProfile->mobile_carrier ) ,
                 'os' => json_decode( $listProfile->device_os )
             ] ,
-            'selectedColumns' => [],//$this->buildDisplayColumns(json_decode( $listProfile->columns )) ,
+            'selectedColumns' => $this->buildDisplayColumns(json_decode( $listProfile->columns )) ,
             'exportOptions' => [
                 'interval' =>  [ $listProfile->run_frequency ] ,
                 'dayOfWeek' => isset($schedule) && $schedule->day_of_week ? $schedule->day_of_week : null ,
@@ -405,6 +405,9 @@ class ListProfileService
         if ($verticals->count() > 0) {
             $this->profileRepo->assignVerticals($copyProfile->id, $verticals->toArray());
         }
+
+        $copyProfile->columns = $currentProfile->columns;
+        $copyProfile->save();
 
         return $copyProfile->id;
     }

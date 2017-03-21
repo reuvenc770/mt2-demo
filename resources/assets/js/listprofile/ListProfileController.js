@@ -163,6 +163,8 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
     self.stateSuppNameMap = {};
 
     self.columnList = [
+        { 'header' : 'email_id' , 'label' : 'Email ID' },
+        { 'header' : 'email_address' , 'label' : 'Email Address' },
         { 'header' : 'first_name' , 'label' : 'First Name' },
         { 'header' : 'last_name' , 'label' : 'Last Name' },
         { 'header' : 'address' , 'label' : 'Address' },
@@ -261,6 +263,8 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
 
     self.prepop = function ( listProfile ) {
         self.current = listProfile;
+        self.current.country_id = self.current.country_id.toString();
+
         self.fixEmptyFields();
 
         $(function () { $('[data-toggle="tooltip"]').tooltip() });
@@ -314,6 +318,11 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
                 self.current.attributeFilters[ value ] = {};
             }
         } );
+    };
+
+    self.fixInitialExportFields = function () {
+        self.columnList.shift();
+        self.columnList.shift();
     };
 
     self.generateTowerDateOptions = function () {
