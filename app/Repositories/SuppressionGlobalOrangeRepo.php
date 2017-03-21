@@ -55,4 +55,12 @@ class SuppressionGlobalOrangeRepo implements IAwsRepo {
         return $this->model->whereRaw("created_at <= CURDATE() - INTERVAL $lookback DAY")->toSql();
     }
 
+    public function returnSuppressedEmails(array $emails) {
+        return $this->model->whereIn('email_address', $emails)->select('email_address')->get();
+    }
+
+    public function isSuppressed($emailAddress) {
+        return $this->model->where('email_address', $emailAddress)->count() > 0;
+    }
+
 }
