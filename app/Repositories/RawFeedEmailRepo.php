@@ -229,8 +229,14 @@ class RawFeedEmailRepo {
 
         $rawEmailRecord[ 'other_fields' ] = json_encode( $customFields );
 
+        $isEuroDateFormat = ( $this->feed->getFeedCountry( $rawEmailRecord[ 'feed_id' ] ) !== self::US_COUNTRY_ID );
+
         try {
-            $rawEmailRecord[ 'capture_date' ] = Carbon::parse( $rawEmailRecord[ 'capture_date' ] )->toDateTimeString();
+            if ( $isEuroDateFormat ) {
+                $rawEmailRecord[ 'capture_date' ] = Carbon::createFromFormat( 'd/m/Y' , $rawEmailRecord[ 'capture_date' ] , 'Europe/London' )->toDateTimeString();
+            } else {
+                $rawEmailRecord[ 'capture_date' ] = Carbon::parse( $rawEmailRecord[ 'capture_date' ] )->toDateTimeString();
+            }
         } catch ( \Exception $e ) {
             \Log::error( $e );
 
@@ -243,10 +249,9 @@ class RawFeedEmailRepo {
             }
 
             if ( isset( $rawEmailRecord[ 'dob' ] ) ) {
-                $isEuroDateFormat = ( $this->feed->getFeedCountry( $rawEmailRecord[ 'feed_id' ] ) !== self::US_COUNTRY_ID );
 
                 if ( $isEuroDateFormat ) {
-                    $rawEmailRecord[ 'dob' ] = Carbon::createFromFormat('d/m/Y', $rawEmailRecord[ 'dob' ] )->toDateString();
+                    $rawEmailRecord[ 'dob' ] = Carbon::createFromFormat( 'd/m/Y' , $rawEmailRecord[ 'dob' ] )->toDateString();
                 } else {
                     $rawEmailRecord[ 'dob' ] = Carbon::parse( $rawEmailRecord[ 'dob' ] )->toDateString();
                 }
