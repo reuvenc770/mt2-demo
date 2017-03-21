@@ -2,10 +2,6 @@
 
 namespace App\Services;
 
-
-use App\Models\Suppression;
-use App\Repositories\SuppressionRepo;
-use Log;
 use App\Repositories\SuppressionGlobalOrangeRepo;
 use App\Services\Interfaces\IFeedSuppression;
 
