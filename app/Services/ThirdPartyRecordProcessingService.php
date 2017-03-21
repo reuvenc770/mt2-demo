@@ -159,12 +159,12 @@ class ThirdPartyRecordProcessingService implements IFeedPartyProcessing {
                 $record->attrStatus = EmailAttributableFeedLatestData::ATTRIBUTED;
             }
             // For the rest, the feeds differ, by definition
-            elseif (1 === $attributionTruths->is_recent_import) {
+            elseif (1 === $attributionTruths->recent_import) {
                 // Stays with importer
                 $record->uniqueStatus = 'non-unique';
                 $record->attrStatus = EmailAttributableFeedLatestData::PASSED_DUE_TO_ATTRIBUTION;
             }
-            elseif (0 === $attributionTruths->is_recent_import && 1 === $attributionTruths->has_action) {
+            elseif (0 === $attributionTruths->recent_import && 1 === $attributionTruths->has_action) {
                 // Not a recent import but there is an action
                 $record->uniqueStatus = 'non-unique';
                 $record->attrStatus = EmailAttributableFeedLatestData::PASSED_DUE_TO_RESPONDER;                
