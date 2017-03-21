@@ -19,10 +19,11 @@ mt2App.service('BulkSuppressionApiService', function ($http) {
         } ).then( successCallback , failureCallback );
     };
 
-    self.transferFiles = function(successCallback, failureCallback) {
+    self.transferFiles = function( reason , successCallback, failureCallback) {
         $http({
             "method": "POST",
-            "url": self.baseApiUrl + '/transfer'
+            "url": self.baseApiUrl + '/transfer' ,
+            "data" : { 'reason' : reason }
         }).then(function (result) {
             if (result['data'].length > 0) {
                 failureCallback(result['data']);
