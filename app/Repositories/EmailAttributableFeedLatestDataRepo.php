@@ -96,6 +96,8 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                             ? $pdo->quote(Carbon::parse($row['subscribe_datetime'])->format('Y-m-d'))
                             : 'NOW()';
 
+        $dob = $row['dob'] ? $pdo->quote($row['dob']) : 'NULL'; 
+
         return '('
             . $pdo->quote($row['email_id']) . ','
             . $pdo->quote($row['feed_id']) . ','
@@ -114,7 +116,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
             . $pdo->quote($row['ip']) . ','
             . $pdo->quote($row['phone']) . ','
             . $pdo->quote($row['source_url']) . ','
-            . $pdo->quote($row['dob']) . ','
+            . $dob . ','
             . $pdo->quote($row['other_fields']) . ')';
     }
 

@@ -48,12 +48,16 @@ class ThirdPartyEmailStatusRepo {
     private function transformRowToString($row) {
         $pdo = DB::connection()->getPdo();
 
+        $offerId = $row['offer_id'] ? $pdo->quote($row['offer_id']) : 'null';
+        $datetime = $row['datetime'] ? $pdo->quote($row['datetime']) : 'null';
+        $espAccountId = $row['esp_account_id'] ? $pdo->quote($row['esp_account_id']) : 'null';
+
         return '('
             . $pdo->quote($row['email_id']) . ','
             . $pdo->quote($row['action_type']) . ','
-            . $pdo->quote($row['offer_id']) . ','
-            . $pdo->quote($row['datetime']) . ','
-            . $pdo->quote($row['esp_account_id']) . ', NOW() , NOW())';
+            . $offerId . ','
+            . $datetime . ','
+            . $espAccountId . ', NOW() , NOW())';
     }
 
     public function addNewRows(array $rows) {

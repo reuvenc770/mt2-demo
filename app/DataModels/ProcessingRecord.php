@@ -24,10 +24,10 @@ class ProcessingRecord {
     private $state;
     private $zip;
     private $country;
-    private $dob;
+    private $dob = null;
     private $gender;
     private $phone;
-    private $captureDate;
+    private $captureDate = null;
     private $ip;
     private $sourceUrl;    
     private $otherFields = [];
