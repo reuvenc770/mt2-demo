@@ -259,7 +259,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('listprofile:dataEtl')->cron('0 1 * * 1-6 *');
         $schedule->command('listprofile:dataEtl --all')->cron('0 1 * * 7 *');
         $schedule->command('listprofile:optimize')->weekly();
-        $schedule->command('listprofile:aggregateActions')->dailyAt(self::EXPIRATION_RUNS);
+        $schedule->command('listprofile:aggregateActions')->dailyAt(self::REPORT_TIME);
         $schedule->command('listprofile:contentServerRawStats')->hourly();
         $schedule->command('listprofile:getRecordAgentData 5')->hourly();
         $schedule->command('listprofile:baseTables')->dailyAt(self::EXPIRATION_RUNS);
@@ -322,6 +322,6 @@ class Kernel extends ConsoleKernel
         $schedule->command("dataValidation emails exists")->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command("dataValidation emailFeedInstances exists")->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command("dataValidation emailFeedAssignments value")->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command("newActions:process -d 1")->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command("newActions:process -d 1")->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
     }
 }
