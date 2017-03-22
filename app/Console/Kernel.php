@@ -192,7 +192,6 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'reports:populateStats')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
         //$schedule->command( 'reports:populateAttrBaseRecords')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
         $schedule->command('process:useragents')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME);
-        #$schedule->command('process:contentServerRawStats')->hourly();
         $schedule->command('reports:findIncompleteDeploys')->dailyAt(self::DEPLOY_CHECK_TIME);
 
 
@@ -252,6 +251,7 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'attribution:conversion -P rerun -D month -m current' )->monthlyOn( 28 , self::ATTRIBUTION_REPORT_UPDATE_TIME ); #monthly rerun
         $schedule->command( 'attribution:conversion -P rerun -D month -m last' )->monthlyOn( 1 , self::ATTRIBUTION_REPORT_UPDATE_TIME ); #final monthly rerun
         $schedule->command('attribution:validate')->dailyAt(self::FEED_FILE_PROCESS_TIME);
+        
         /**
          *  List profile jobs
          */
@@ -302,7 +302,6 @@ class Kernel extends ConsoleKernel
         // Re-run first party actives against suppression
         #$schedule->command('feedRecords:reprocessFirstParty 1')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME);
 
-        
         /**
          * AWeber Jobs
          */
