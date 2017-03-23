@@ -15,6 +15,7 @@ class ListProfileFlatTableRedshiftDataValidation extends AbstractLargeRedshiftDa
     
     private $badEmailSegments = [];
     const TEST_COUNT = 5000;
+    private $lookback;
 
     private $cacheStorageTime = 120; // Redis key storage in minutes
 
@@ -23,7 +24,9 @@ class ListProfileFlatTableRedshiftDataValidation extends AbstractLargeRedshiftDa
     }
 
     public function test($lookback) {
-        if (!$this->statisticalTest($lookback)) {
+        $this->lookback = $lookback;
+
+        if (!$this->statisticalTest()) {
             // Nothing else is remotely quick
             return false;
         }
@@ -40,12 +43,12 @@ class ListProfileFlatTableRedshiftDataValidation extends AbstractLargeRedshiftDa
         $this->dispatch($job);
     }
 
-    protected function statisticalTest($lookback) {
+    protected function statisticalTest() {
         // This statistical test will be slightly different
         $testStart = microtime(true);
         $i = 0;
         $matches = 0;
-        $dates = $this->createDateRange($lookback);
+        $dates = $this->createDateRange($this->lookback);
 
         // Due to current setup, checking all days is unfortunately out of the question.
 

@@ -33,7 +33,10 @@ class LinkRepo implements Mt1Import {
     }
 
     public function getLinkId($url) {
-        return $this->liveModel->firstOrCreate(['refurl' => $url], ['refurl' => $url])->link_id;
+        return $this->liveModel->firstOrCreate(['refurl' => $url], [
+            'refurl' => $url, 
+            'date_added' => Carbon::now()->toDateTimeString()
+        ])->link_id;
     }
 
     public function insertToMt1($data) {

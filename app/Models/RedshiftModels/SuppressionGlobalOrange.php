@@ -9,4 +9,5 @@ class SuppressionGlobalOrange extends Model
     protected $connection = 'redshift';
     public $timestamps = false;
     protected $guarded = [];
+    protected $table = 'suppression_global_orange';
 }

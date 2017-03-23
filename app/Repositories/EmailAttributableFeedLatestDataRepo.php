@@ -424,7 +424,7 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                         $join->on('email_attributable_feed_latest_data.email_id', '=', 'efa.email_id');
                         $join->on('email_attributable_feed_latest_data.feed_id', '=', 'efa.feed_id');
                     })
-                    ->join('third_party_email_statuses as tpe', 'email_attributable_feed_latest_data.email_id', '=', 'tpe.email_id')
+                    ->join('third_party_email_statuses as tpes', 'email_attributable_feed_latest_data.email_id', '=', 'tpe.email_id')
                     ->whereRaw("efa.email_id = $emailId")
                     ->selectRaw("efa.email_id, IF(tpes.last_action_type = 'None', 1, 0) as is_deliverable, 
                         email_attributable_feed_latest_data.subscribe_date")
