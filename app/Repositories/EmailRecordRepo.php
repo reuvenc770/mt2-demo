@@ -189,7 +189,7 @@ class EmailRecordRepo {
     }
 
     public function isValidActionType ( $actionName ) {
-        return ActionType::where( 'name' , $actionName )->count() == 1;
+        return in_array($actionName, ['opener', 'clicker']);
     }
 
     public function emailExists () {
@@ -201,8 +201,16 @@ class EmailRecordRepo {
     }
 
     public function getEmailId ( $emailAddress = null ) {
-        return $this->email->select( 'id' )->where( 'email_address' , ( is_null( $emailAddress ) ? $this->emailAddress : $emailAddress ) )->first()->id;
+        $obj =  $this->email->select( 'id' )->where('email_address', ($emailAddress ?: $this->emailAddress))->first();
+
+        if ($obj) {
+            return $obj->id;
+        }
+        else {
+            return null;
+        }
     }
+
     public function getEmailAddress($eid){
         try {
             return $this->email->find($eid)->email_address;
@@ -251,6 +259,8 @@ class EmailRecordRepo {
 
 
     protected function getActionId ( $actionName ) {
+        echo "action name - $actionName" . PHP_EOL;
+
         return ActionType::where( 'name' , $actionName )->first()->id;
     }
 
