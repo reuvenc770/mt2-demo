@@ -3,7 +3,7 @@
 return [
     "BlueHornet" => [
         "pipes" => [
-            "default" => [
+            "actions" => [
                 'jobSetup' ,
                 'getCampaigns' ,
                 'startTicket' ,
@@ -13,6 +13,16 @@ return [
                 'synchronousSaveTypeRecords' ,
                 'cleanUp'
             ] ,
+            "delivered" => [
+                'jobSetup' ,
+                'getDeliverableCampaigns' ,
+                'startTicket' ,
+                'checkTicketStatus' ,
+                'downloadTicketFile' ,
+                'getTypeList' ,
+                'synchronousSaveTypeRecords' ,
+                'cleanUp'
+            ],
             "rerun" => [
                 'jobSetup' ,
                 'getRerunCampaigns' ,
@@ -120,7 +130,7 @@ return [
     ],
     "Bronto" => [
         "pipes" => [
-            "default" => [
+            "action" => [
                 'splitTypes' ,
                 'savePaginatedRecords'
             ] ,
