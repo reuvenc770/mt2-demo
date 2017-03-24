@@ -30,14 +30,20 @@ class CampaignerSubscriberService
 
     public function pullUnsubsEmailsByLookback($lookback){
         try {
-            $reportData = $this->createUnsubReport($lookback);
+            $unsubReportData = $this->createUnsubReport($lookback);
+            $bounceReportData = $this->createUnsubReport( $lookback , true );
         } catch ( \Exception $e ) {
             throw new JobException( 'Failed to start report ticket. ' . $e->getMessage() , JobException::NOTICE , $e );
         }
 
-        if($reportData){
-            $this->dispatch(new DownloadUnsubTicket($this->api->getApiName(), $this->api->getEspAccountId(), $reportData, str_random(16)));
+        if($unsubReportData){
+            $this->dispatch(new DownloadUnsubTicket($this->api->getApiName(), $this->api->getEspAccountId(), $unsubReportData, str_random(16)));
         }
+
+        if($bounceReportData){
+            $this->dispatch(new DownloadUnsubTicket($this->api->getApiName(), $this->api->getEspAccountId(), $bounceReportData, str_random(16) , true ));
+        }
+
         return null;
 
     }
@@ -49,10 +55,27 @@ class CampaignerSubscriberService
 
     }
 
-    private function createUnsubReport($lookback)
+    public function insertHardbounce ( $data ) {
+        foreach ($data as $entry){
+            Suppression::recordRawHardBounce(
+                $this->api->getEspAccountId() ,
+                $entry['email'] ,
+                0 ,
+                Carbon::today()->toDateString()
+            );
+        }
+    }
+
+    private function createUnsubReport( $lookback , $getHardbounces = null )
     {
         $manager = new ContactManagement();
-        $searchQuery = $this->api->buildUnsubSearchQuery($lookback);
+
+        if ( $getHardbounces === true ) {
+            $searchQuery = $this->api->buildHardbounceSearchQuery();
+        } else {
+            $searchQuery = $this->api->buildUnsubSearchQuery($lookback);
+        }
+
         $report = new RunReport($this->api->getAuth(), $searchQuery);
 
         $reportHandle = $manager->RunReport($report);
