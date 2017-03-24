@@ -123,7 +123,7 @@ return [
     ],
     "Bronto" => [
         "pipes" => [
-            "default" => [
+            "action" => [
                 'splitTypes' ,
                 'savePaginatedRecords'
             ] ,
