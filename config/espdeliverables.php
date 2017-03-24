@@ -93,9 +93,16 @@ return [
     ] ,
     "Publicators" => [
         "pipes" => [
-            "default" => [
+            "actions" => [
                 'jobSetup' ,
                 'getCampaigns' ,
+                'getTypeList' ,
+                'splitTypes' ,
+                'saveRecords'
+            ] ,
+            "delivers" => [
+                'jobSetup' ,
+                'getDeliverableCampaigns' ,
                 'getTypeList' ,
                 'splitTypes' ,
                 'saveRecords'
