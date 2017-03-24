@@ -113,11 +113,13 @@ return [
     ],
     "Bronto" => [
         "pipes" => [
-            "default" => [
+            "actions" => [
+                'jobSetup' ,
                 'splitTypes' ,
                 'savePaginatedRecords'
             ] ,
             "delivered" => [
+                'jobSetup' ,
                 'getSplitDeliverableCampaigns',
                 'savePaginatedCampaignRecords'
             ],

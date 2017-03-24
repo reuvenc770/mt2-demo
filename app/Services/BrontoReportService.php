@@ -91,7 +91,12 @@ class BrontoReportService extends AbstractReportService implements IDataService
             return $typeList;
         }
         else {
-            return ['open','click','bounce','unsubscribe'];
+            if (isset($processState['recordType']) && 'delivered' === $processState['recordType']) {
+                return ['delivered', 'bounce', 'unsubscribe'];
+            }
+            else {
+                return ['open', 'click'];
+            }
         }
         
     }
