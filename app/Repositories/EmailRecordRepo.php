@@ -259,8 +259,6 @@ class EmailRecordRepo {
 
 
     protected function getActionId ( $actionName ) {
-        echo "action name - $actionName" . PHP_EOL;
-
         return ActionType::where( 'name' , $actionName )->first()->id;
     }
 
