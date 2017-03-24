@@ -264,7 +264,7 @@ class BlueHornetReportService extends AbstractReportService implements IDataServ
 
     public function saveRecords ( &$processState ) {
         $count = 0;
-        #try {
+        try {
             $fileContents = Storage::get( $processState[ 'filePath' ] );
 
             $recordXML = new \DOMDocument();
