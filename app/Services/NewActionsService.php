@@ -44,8 +44,7 @@ class NewActionsService {
         $statement->execute([':start' => $dateRange['start'], ':end' => $dateRange['end']]);
 
         while($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
-            $mappedRow = $this->mapBetweenActionAndFirstParty($row);
-            $this->firstPartyRepo->updateActionData($mappedRow);
+            $this->firstPartyRepo->updateActionData($row);
         }
 
         $this->firstPartyRepo->cleanUpActions();
@@ -69,14 +68,4 @@ class NewActionsService {
         $this->$repoName->insertStored();
     }
 
-    private function mapBetweenActionAndFirstParty($row) {
-        return [
-            'email_id' => $row[''],
-            'feed_id' => $row[''],
-            'last_action_date' => $row[''],
-            'last_action_offer_id' => $row[''],
-            'last_action_esp_account_id' => $row[''],
-            'last_action_type_id' => $row[''],
-        ];
-    }
 }
