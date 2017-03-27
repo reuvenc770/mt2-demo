@@ -38,8 +38,15 @@ return [
     ] ,
     "Campaigner" => [
         "pipes" => [
-            "default" => [
+            "delivered" => [
                 'getCampaigns' ,
+                'splitTypes' ,
+                'startTicket' ,
+                'saveRecords'
+            ] ,
+            "actions" => [
+                'getCampaigns' ,
+                'splitTypes' ,
                 'startTicket' ,
                 'saveRecords'
             ] ,

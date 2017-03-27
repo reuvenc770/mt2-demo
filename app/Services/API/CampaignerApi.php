@@ -91,8 +91,14 @@ class CampaignerApi extends EspBaseAPI
         return false;
     }
 
-    public function buildCampaignSearchQuery($campaign)
-    {
+    public function buildCampaignSearchQuery ( $campaign , $recordType = null )
+    { 
+        $operator = 'Sent';
+
+        if ( !is_null( $recordType ) ) {
+            $operator = $recordType;
+        }
+
         return "<contactssearchcriteria>
   <version major=\"2\" minor=\"0\" build=\"0\" revision=\"0\"/>
   <set>Partial</set>
@@ -105,7 +111,28 @@ class CampaignerApi extends EspBaseAPI
       </campaign>
       <action>
         <status>Do</status>
-        <operator>Sent</operator>
+        <operator>{$operator}</operator>
+      </action>
+    </filter>
+  </group>
+</contactssearchcriteria>";
+    }
+
+    public function buildHardbounceSearchQuery ()
+    { 
+        return "<contactssearchcriteria>
+  <version major=\"2\" minor=\"0\" build=\"0\" revision=\"0\"/>
+  <set>Partial</set>
+  <evaluatedefault>True</evaluatedefault>
+  <group>
+    <filter>
+      <filtertype>EmailAction</filtertype>
+      <campaign>
+        <anycampaign></anycampaign>
+      </campaign>
+      <action>
+        <status>Do</status>
+        <operator>HardBounce</operator>
       </action>
     </filter>
   </group>
