@@ -19,6 +19,8 @@ class FeedService implements IFtpAdmin
 {
     use PaginateList;
 
+    const US_COUNTRY_ID = 1;
+
     private $feedRepo;
     private $verticals;
     private $feedTypes;
@@ -91,6 +93,10 @@ class FeedService implements IFtpAdmin
 
     public function getFeedIdByShortName ( $name ) {
         return $this->feedRepo->getFeedIdByShortName( $name );
+    }
+
+    public function getFeedIdFromPassword ( $password ) {
+        return $this->feedRepo->getFeedIdFromPassword( $password );
     }
 
     public function getVerticals() {
@@ -332,4 +338,57 @@ class FeedService implements IFtpAdmin
     }
 
     public function saveFtpUser ( $credentials ) {}
+
+    public function generateValidationRules ( $data ) {
+        $isRealtime = false;
+
+        $rules = [
+            'ip' => 'required|ip' ,
+            'source_url' => 'required'
+        ];
+
+        $emailRule = 'required|email';
+        $feedPasswordRule = 'required|exists:feeds,password';
+        $euroDateRule = 'required|euroDate';
+        $usDateRule = 'required|date';
+
+        if ( isset( $data[ 'pw' ] ) && $data[ 'pw' ] != '' ) {
+            $isRealtime = true;
+            $rules[ 'email' ] = $emailRule;
+            $rules[ 'pw' ] = $feedPasswordRule;
+        } else {
+            $rules[ 'email_address' ] = $emailRule; 
+        }
+
+        if ( $isRealtime ) {
+            $feedId = $this->feedRepo->getFeedIdFromPassword( $data[ 'pw' ] );
+        } else {
+            $feedId = $data[ 'feed_id' ];
+        }
+
+        #We only have US and UK feeds right now
+        $isBritishRecord = ( $this->feedRepo->getFeedCountry( $feedId ) !== self::US_COUNTRY_ID );
+        $realtimeDobExists = ( isset( $data[ 'birth_date' ] ) && $data[ 'birth_date' ] != '' ); 
+        $batchDobExists = ( isset( $data[ 'dob' ] ) && $data[ 'dob' ] != '' );
+
+        if ( $isBritishRecord ) {
+            $rules[ 'capture_date' ] = $euroDateRule;
+        } else {
+            $rules[ 'capture_date' ] = $usDateRule;
+        }
+
+        if ( $isBritishRecord && $realtimeDobExists ) {
+            $rules[ 'birth_date' ] = $euroDateRule;
+        } elseif ( !$isBritishRecord && $realtimeDobExists ) {
+            $rules[ 'birth_date' ] = $usDateRule;
+        }
+
+        if ( $isBritishRecord && $batchDobExists ) {
+            $rules[ 'dob' ] = $euroDateRule;
+        } elseif ( !$isBritishRecord && $batchDobExists ) {
+            $rules[ 'dob' ] = $usDateRule;
+        }
+
+        return $rules;
+    }
 }

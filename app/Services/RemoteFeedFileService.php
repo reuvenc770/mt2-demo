@@ -12,6 +12,8 @@ use App\Models\ProcessedFeedFile;
 use App\Repositories\RawFeedEmailRepo;
 use App\Facades\SlackLevel;
 
+use Carbon\Carbon;
+
 class RemoteFeedFileService {
     const SLACK_CHANNEL = "#mt2team";
 
@@ -149,6 +151,8 @@ class RemoteFeedFileService {
     }
 
     protected function processLines () {
+        $lineNumber = $this->lastLineNumber + 1;
+
         foreach( $this->currentLines as $currentLine ) {
             $lineColumns = explode( ',' , $currentLine );
 
@@ -161,8 +165,46 @@ class RemoteFeedFileService {
             $record = array_combine( $this->currentColumnMap , $lineColumns );
             $record[ 'feed_id' ] = $this->currentFile[ 'feedId' ];
 
-            $this->addToBuffer( $this->rawRepo->toSqlFormat( $record ) );
+            if ( $this->isValidRecord( $record , $currentLine , $lineNumber ) ) {
+                $this->addToBuffer( $this->rawRepo->toSqlFormat( $record ) );
+            }
+
+            $lineNumber++;
         }
+    }
+
+    protected function isValidRecord ( $record , $rawRecord , $lineNumber ) {
+        $validator = \Validator::make( $record , $this->feedService->generateValidationRules( $record ) );
+
+        if ( $validator->fails() ) {
+            $log = $this->rawRepo->logBatchFailure(
+                $validator->errors()->toJson() ,
+                $rawRecord ,
+                $this->currentFile[ 'path' ] ,
+                $lineNumber ,
+                ( $record[ 'email_address' ] ? : '' ) ,
+                $record[ 'feed_id' ]
+            );
+
+            foreach ( $validator->errors()->messages() as $field => $errorList ) {
+                foreach ( $errorList as $currentError ) {
+                    if ( preg_match( "/required/" , $currentError ) === 0 ) {
+                        $this->rawRepo->logFieldFailure(
+                            $field ,
+                            $record[ $field ] ,
+                            $errorList ,
+                            $log->id
+                        );
+
+                        break;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        return true;
     }
 
     protected function markFileAsProcessed () {
