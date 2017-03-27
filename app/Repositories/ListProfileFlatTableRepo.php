@@ -213,32 +213,35 @@ class ListProfileFlatTableRepo implements IAwsRepo {
             CONCAT( lpft.date , ' 00:00:00' ) as `datetime`
         FROM
             list_profile.list_profile_flat_table lpft
+            INNER JOIN mt2_data.deploys d ON lpft.deploy_id = d.id
         WHERE
             (
                 lpft.has_open = 1
                 OR lpft.has_click = 1
                 OR lpft.has_conversion = 1
             )
-            AND lpft.updated_at between :startDate AND :endDate
-        ORDER BY
-            lpft.updated_at;";
+            AND lpft.updated_at between :start AND :end
+            AND d.party = 3";
     }
 
     public function getRecordTruthsExtractQuery () {
         return "SELECT
             lpft.email_id ,
-            1 AS `recent_import` ,
+            art.recent_import,
             1 AS `has_action`
         FROM
             list_profile.list_profile_flat_table lpft
+            INNER JOIN mt2_data.deploys d ON lpft.deploy_id = d.id
+            INNER JOIN attribution.attribution_record_truths art ON lpft.email_id = art.email_id
         WHERE
             (
                 lpft.has_open = 1
                 OR lpft.has_click = 1
                 OR lpft.has_conversion = 1
             )
-            AND lpft.updated_at between :startDate AND :endDate
+            AND lpft.updated_at between :start AND :end
+            AND d.party = 3
         GROUP BY
-            lpft.email_id;";
+            lpft.email_id";
     }
 }
