@@ -101,6 +101,7 @@ class Kernel extends ConsoleKernel
         Commands\AttributionFeasibilityValidation::class,
         Commands\RegenerateAttributionModelReportTables::class,
         Commands\TestFeedFileGenerator::class,
+        Commands\BulkInsertDelivers::class,
     ];
 
     /**

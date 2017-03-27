@@ -256,4 +256,5 @@ class EmailActionsRepo {
                     ->whereIn('action_id', [1,2])
                     ->groupBy('email_id');
     }
+    
 }
