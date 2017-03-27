@@ -16,7 +16,6 @@ use Carbon\Carbon;
 
 class RemoteFeedFileService {
     const SLACK_CHANNEL = "#mt2team";
-    const US_COUNTRY_ID = 1;
 
     protected $feedService;
     protected $systemService;
@@ -152,6 +151,8 @@ class RemoteFeedFileService {
     }
 
     protected function processLines () {
+        $lineNumber = $this->lastLineNumber + 1;
+
         foreach( $this->currentLines as $currentLine ) {
             $lineColumns = explode( ',' , $currentLine );
 
@@ -164,48 +165,46 @@ class RemoteFeedFileService {
             $record = array_combine( $this->currentColumnMap , $lineColumns );
             $record[ 'feed_id' ] = $this->currentFile[ 'feedId' ];
 
-            $errors = [];
-
-            if ( $record[ 'email_address' ] == '' ) {
-                $errors []= 'Email is missing';
-            }
-            
-            if ( $record[ 'source_url' ] == '' ) {
-                $errors []= 'Source URL is missing.';
-            }
-
-            if ( $record[ 'ip' ] == ''  ) {
-                $errors []= 'IP is missing';
-            }
-
-            if ( $record[ 'capture_date' ] == '' ) {
-                $errors []= 'Capture Date missing.';
-            }
-
-            try {
-                $isEuroDateFormat = ( $this->feedService->getFeedCountry( $record[ 'feed_id' ] ) !== self::US_COUNTRY_ID );
-
-                if ( $isEuroDateFormat ) {
-                    Carbon::createFromFormat( 'd/m/Y' , $record[ 'capture_date' ] , 'Europe/London' );
-                } else {
-                    Carbon::parse( $record[ 'capture_date' ] );
-                }
-            } catch ( \Exception $e ) {
-                $errors []= 'Capture Date is invalid';
-            }
-
-            if ( count( $errors ) > 0 ) {
-                $this->rawRepo->logFailure(
-                    $errors ,
-                    $this->currentFile[ 'path' ] ,
-                    '' ,
-                    ( $record[ 'email_address' ] ? : '' ) ,
-                    $record[ 'feed_id' ]
-                );
-            } else {
+            if ( $this->isValidRecord( $record , $currentLine , $lineNumber ) ) {
                 $this->addToBuffer( $this->rawRepo->toSqlFormat( $record ) );
             }
+
+            $lineNumber++;
         }
+    }
+
+    protected function isValidRecord ( $record , $rawRecord , $lineNumber ) {
+        $validator = \Validator::make( $record , $this->feedService->generateValidationRules( $record ) );
+
+        if ( $validator->fails() ) {
+            $log = $this->rawRepo->logBatchFailure(
+                $validator->errors()->toJson() ,
+                $rawRecord ,
+                $this->currentFile[ 'path' ] ,
+                $lineNumber ,
+                ( $record[ 'email_address' ] ? : '' ) ,
+                $record[ 'feed_id' ]
+            );
+
+            foreach ( $validator->errors()->messages() as $field => $errorList ) {
+                foreach ( $errorList as $currentError ) {
+                    if ( preg_match( "/required/" , $currentError ) === 0 ) {
+                        $this->rawRepo->logFieldFailure(
+                            $field ,
+                            $record[ $field ] ,
+                            $errorList ,
+                            $log->id
+                        );
+
+                        break;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        return true;
     }
 
     protected function markFileAsProcessed () {

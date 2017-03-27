@@ -6,19 +6,19 @@ use App\Http\Requests\Request;
 use Illuminate\Http\JsonResponse;
 
 use App\Repositories\RawFeedEmailRepo;
-use App\Repositories\FeedRepo;
+use App\Services\FeedService;
 
 class FeedApiRecordRequest extends Request
 {
     const US_COUNTRY_ID = 1;
 
     protected $repo;
-    protected $feedRepo;
+    protected $feedService;
 
-    public function __construct ( RawFeedEmailRepo $repo , FeedRepo $feedRepo ) {
+    public function __construct ( RawFeedEmailRepo $repo , FeedService $feedService ) {
         parent::__construct();
         $this->repo = $repo;
-        $this->feedRepo = $feedRepo;
+        $this->feedService = $feedService;
     }
     
     /**
@@ -38,22 +38,7 @@ class FeedApiRecordRequest extends Request
      */
     public function rules()
     {
-        $rules = [
-            'email' => 'required|email' ,
-            'ip' => 'required|ip' ,
-            'capture_date' => 'required|date' ,
-            'source_url' => 'required' ,
-            'pw' => 'required|exists:feeds,password'
-        ];
-
-        $feedId = FeedRepo::getFeedIdFromPassword( $this->input( 'pw' ) );
-        $isEuroDateFormat = ( $this->feedRepo->getFeedCountry( $feedId ) !== self::US_COUNTRY_ID );
-
-        if ( $isEuroDateFormat ) {
-            $rules[ 'capture_date' ] = 'required|date_format:d/m/Y';
-        }
-
-        return $rules;
+        return $this->feedService->generateValidationRules( $this->all() );
     }
 
     public function messages () {
@@ -63,13 +48,28 @@ class FeedApiRecordRequest extends Request
     }
 
     public function response ( array $errors ) {
-        $this->repo->logFailure(
+        $log = $this->repo->logRealtimeFailure(
             $errors ,
             $this->fullUrl() ,
             json_encode( $this->ips() ) ,
             ( $this->input( 'email' ) != '' ? $this->input( 'email' ) : '' ) ,
-            FeedRepo::getFeedIdFromPassword( $this->input( 'pw' ) )
+            $this->feedService->getFeedIdFromPassword( $this->input( 'pw' ) )
         );
+
+        foreach ( $errors as $field => $errorList ) {
+            foreach ( $errorList as $currentError ) {
+                if ( preg_match( "/required/" , $currentError ) === 0 ) {
+                    $this->repo->logFieldFailure(
+                        $field ,
+                        $this->input( $field ) ,
+                        $errorList ,
+                        $log->id
+                    );
+
+                    break;
+                }
+            }
+        }
 
         return new JsonResponse( [ "status" => false , "messages" => $errors ] , 422 );
     }

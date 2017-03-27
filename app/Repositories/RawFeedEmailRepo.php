@@ -7,6 +7,7 @@ namespace App\Repositories;
 
 use App\Models\RawFeedEmail;
 use App\Models\RawFeedEmailFailed;
+use App\Models\RawFeedFieldErrors;
 use App\Models\Email;
 use App\Repositories\FeedRepo;
 
@@ -17,6 +18,7 @@ class RawFeedEmailRepo {
 
     protected $rawEmail;
     protected $failed;
+    protected $failedFields;
     private $email;
 
     protected $feed;
@@ -40,11 +42,12 @@ class RawFeedEmailRepo {
         'dob' => 0
     ];
 
-    public function __construct ( RawFeedEmail $rawEmail , RawFeedEmailFailed $failed , Email $email , FeedRepo $feed ) {
+    public function __construct ( RawFeedEmail $rawEmail , RawFeedEmailFailed $failed , Email $email , FeedRepo $feed , RawFeedFieldErrors $failedFields ) {
         $this->rawEmail = $rawEmail;
         $this->failed = $failed;
         $this->email = $email;
         $this->feed = $feed;
+        $this->failedFields = $failedFields;
     }
 
     public function create ( $data ) {
@@ -104,13 +107,37 @@ class RawFeedEmailRepo {
         return $cleanRecord;
     }
 
-    public function logFailure ( $errors , $fullUrl , $referrerIp , $email = '' , $feedId = 0 ) {
-        $this->failed->create( [
+    public function logRealtimeFailure ( $errors , $fullUrl , $referrerIp , $email = '' , $feedId = 0 ) {
+        return $this->failed->create( [
+            'realtime' => 1 ,
             'errors' => json_encode( $errors ) ,
             'url' => $fullUrl ,
             'ip' => $referrerIp ,
             'email' => $email ,
             'feed_id' => $feedId
+        ] );
+    }
+
+    public function logBatchFailure ( $errors , $csv , $file , $lineNumber , $email = '' , $feedId = 0 ) {
+        return $this->failed->create( [
+            'realtime' => 0 ,
+            'errors' => json_encode( $errors ) ,
+            'csv' => $csv ,
+            'file' => $file ,
+            'line_number' => $lineNumber ,
+            'url' => '' ,
+            'ip' => 'sftp-01.mtroute.com' ,
+            'email' => $email ,
+            'feed_id' => $feedId
+        ] );
+    }
+
+    public function logFieldFailure ( $field , $value , $errors , $rawFeedEmailFailedId = 0 ) {
+        $this->failedFields->create( [
+            'field' => $field ,
+            'value' => $value ,
+            'errors' => json_encode( $errors ) ,
+            'raw_feed_email_failed_id' => $rawFeedEmailFailedId
         ] );
     }
 
@@ -229,11 +256,17 @@ class RawFeedEmailRepo {
 
         $rawEmailRecord[ 'other_fields' ] = json_encode( $customFields );
 
+        $this->formatDates( $rawEmailRecord );
+
+        return $rawEmailRecord;
+    }
+
+    protected function formatDates ( &$rawEmailRecord ) {
         $isEuroDateFormat = ( $this->feed->getFeedCountry( $rawEmailRecord[ 'feed_id' ] ) !== self::US_COUNTRY_ID );
 
         try {
             if ( $isEuroDateFormat ) {
-                $rawEmailRecord[ 'capture_date' ] = Carbon::createFromFormat( 'd/m/Y' , $rawEmailRecord[ 'capture_date' ] , 'Europe/London' )->toDateTimeString();
+                $rawEmailRecord[ 'capture_date' ] = $this->convertEuropeanDate( $rawEmailRecord[ 'capture_date' ] );
             } else {
                 $rawEmailRecord[ 'capture_date' ] = Carbon::parse( $rawEmailRecord[ 'capture_date' ] )->toDateTimeString();
             }
@@ -251,7 +284,7 @@ class RawFeedEmailRepo {
             if ( isset( $rawEmailRecord[ 'dob' ] ) ) {
 
                 if ( $isEuroDateFormat ) {
-                    $rawEmailRecord[ 'dob' ] = Carbon::createFromFormat( 'd/m/Y' , $rawEmailRecord[ 'dob' ] )->toDateString();
+                    $rawEmailRecord[ 'dob' ] = $this->convertEuropeanDate( $rawEmailRecord[ 'dob' ] );
                 } else {
                     $rawEmailRecord[ 'dob' ] = Carbon::parse( $rawEmailRecord[ 'dob' ] )->toDateString();
                 }
@@ -262,6 +295,30 @@ class RawFeedEmailRepo {
             unset( $rawEmailRecord[ 'dob' ] );
         }
 
-        return $rawEmailRecord;
+    }
+
+    public function convertEuropeanDate ( $dateString ) {
+        $date = null;
+
+        try { #trying international standard format
+            if ( preg_match( "/\-/" , $dateString ) === 0 ) {
+                #not hyphen date format, skip down to forward slash format
+                throw new \Exception();
+            }
+
+            $date = Carbon::parse( $dateString )->toDateString();
+        } catch ( \Exception $e ) {   
+            try { #trying forward slash format with year first
+                $date = Carbon::createFromFormat( 'Y/d/m' , $dateString )->toDateString();
+            } catch ( \Exception $e ) {   
+                try { #trying forward slash format with day first
+                    $date = Carbon::createFromFormat( 'd/m/Y' , $dateString )->toDateString();
+                } catch ( \Exception $e ) {
+                    #all format parsing failed, leave null
+                }
+            }
+        }
+
+        return $date;
     }
 }

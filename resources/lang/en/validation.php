@@ -92,6 +92,15 @@ return [
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
+        'capture_date' => [
+            'euro_date' => 'The :attribute is an invalid European Date Format.',
+        ],
+        'birth_date' => [
+            'euro_date' => 'The :attribute is an invalid European Date Format.',
+        ],
+        'dob' => [
+            'euro_date' => 'The :attribute is an invalid European Date Format.',
+        ],
     ],
 
     /*

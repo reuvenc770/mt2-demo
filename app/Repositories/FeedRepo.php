@@ -120,8 +120,8 @@ class FeedRepo implements Mt2Export, IAwsRepo {
         return $this->feed->where( 'password' , $password )->count() > 0;
     }
 
-    static public function getFeedIdFromPassword ( $password ) {
-        $feed = Feed::where( 'password' , $password )->first();
+    public function getFeedIdFromPassword ( $password ) {
+        $feed = $this->feed->where( 'password' , $password )->first();
 
         if ( is_null( $feed ) ) {
             return 0;

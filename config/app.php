@@ -174,6 +174,7 @@ return [
         App\Providers\AWeberEmailActionProvider::class,
         App\Providers\BrontoMappingProvider::class,
         App\Providers\AWeberReportServiceProvider::class,
+        App\Providers\CustomRuleValidatorProvider::class,
     ],
 
     /*
