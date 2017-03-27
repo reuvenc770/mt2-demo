@@ -37,7 +37,7 @@ class NewActionsService {
 
         $statement = $pdo->prepare( $query );
 
-        $statement->execute( [ ':startDate' => $dateRange[ 'start' ] , ':endDate' => $dateRange[ 'end' ] ] );
+        $statement->execute( [ ':start' => $dateRange[ 'start' ] , ':end' => $dateRange[ 'end' ] ] );
 
         while( $row = $statement->fetch( \PDO::FETCH_ASSOC ) ) {
             $mappedRow = $this->$repoName->batchInsert( $row );
