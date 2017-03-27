@@ -177,8 +177,8 @@ class Kernel extends ConsoleKernel
          * Record-level Data
          */
         $deliverableFilePath = storage_path( 'logs' ) . "/downloadDeliverables.log";
-        $schedule->command( 'reports:downloadDeliverables Campaigner:delivered 2 Campaigner' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables Campaigner:actions 5 Campaigner' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command( 'reports:downloadDeliverables Campaigner:delivered 2 Campaigner' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command( 'reports:downloadDeliverables Campaigner:actions 5 Campaigner' )->cron('0 */6 * * * *');
         $schedule->command( 'reports:downloadDeliverables BlueHornet:delivered 3 BlueHornet' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command('reports:downloadDeliverables BlueHornet:actions 5 BlueHornet')->cron('0 */6 * * * *');
         #$schedule->command( 'reports:downloadDeliverables EmailDirect 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
