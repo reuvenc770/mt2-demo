@@ -195,21 +195,21 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
 
             switch ( $processState[ "recordType" ] ) {
                 case "sent" :
+                    $type = "deliverable";
                     $records = $this->api->getRecordStats( PublicatorsApi::TYPE_SENT_STATS , $processState[ "campaign" ]->esp_internal_id );
                     $recordType = self::RECORD_TYPE_DELIVERABLE;
-                    $type = "deliverable";
                 break;
 
                 case "open" :
+                    $type = "open";
                     $records = $this->api->getRecordStats( PublicatorsApi::TYPE_OPENS_STATS , $processState[ "campaign" ]->esp_internal_id );
                     $recordType = self::RECORD_TYPE_OPENER;
-                    $type = "open";
                 break;
 
                 case "click" :
+                    $type = "click";
                     $records = $this->api->getRecordStats( PublicatorsApi::TYPE_CLICKS_STATS , $processState[ "campaign" ]->esp_internal_id );
                     $recordType = self::RECORD_TYPE_CLICKER;
-                    $type = "click";
                 break;
 
                 default:
