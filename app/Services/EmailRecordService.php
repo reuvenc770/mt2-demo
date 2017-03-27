@@ -17,6 +17,7 @@ class EmailRecordService {
     protected $records = [];
     private $deliveredRecords = [];
     const MAX_RECORD_COUNT = 50000;
+    const MAX_DELIVERED_COUNT = 10000;
 
     public function __construct ( EmailRecordRepo $repo, RawDeliveredEmailRepo $deliveredRepo ) {
         $this->repo = $repo;
@@ -71,7 +72,7 @@ class EmailRecordService {
                     'datetime' => $date
                 ];
 
-            if (self::MAX_RECORD_COUNT <= sizeof($this->deliveredRecords)) {
+            if (self::MAX_DELIVERED_COUNT <= sizeof($this->deliveredRecords)) {
                 $this->massRecordDelivered();
             }
         }
