@@ -219,8 +219,8 @@ class ListProfileFlatTableRepo implements IAwsRepo {
             lpft.esp_account_id ,
             CONCAT( lpft.date , ' 00:00:00' ) as `datetime`
         FROM
-            list_profile.list_profile_flat_table lpft
-            INNER JOIN mt2_data.deploys d ON lpft.deploy_id = d.id
+            {$listProfileDb}.list_profile_flat_table lpft
+            INNER JOIN {$mt2DataDb}.deploys d ON lpft.deploy_id = d.id
         WHERE
             (
                 lpft.has_open = 1
@@ -232,14 +232,18 @@ class ListProfileFlatTableRepo implements IAwsRepo {
     }
 
     public function getRecordTruthsExtractQuery () {
+        $mt2DataDb = config('database.connections.mysql.database');
+        $listProfileDb = config('database.connections.list_profile.database');
+        $attrDb = config('database.connections.attribution.database');
+
         return "SELECT
             lpft.email_id ,
             art.recent_import,
             1 AS `has_action`
         FROM
-            list_profile.list_profile_flat_table lpft
-            INNER JOIN mt2_data.deploys d ON lpft.deploy_id = d.id
-            INNER JOIN attribution.attribution_record_truths art ON lpft.email_id = art.email_id
+            {$listProfileDb}.list_profile_flat_table lpft
+            INNER JOIN {$mt2DataDb}.deploys d ON lpft.deploy_id = d.id
+            INNER JOIN {$attrDb}.attribution_record_truths art ON lpft.email_id = art.email_id
         WHERE
             (
                 lpft.has_open = 1
@@ -267,10 +271,10 @@ class ListProfileFlatTableRepo implements IAwsRepo {
             lpft.esp_account_id,
             lpft.date as `date`
         FROM
-            $lpDB.list_profile_flat_table lpft
-            INNER JOIN $mt2DataDb.deploys d ON lpft.deploy_id = d.id
-            INNER JOIN $lpDB.list_profile_combines lpc ON d.list_profile_combine_id = lpc.id
-            INNER JOIN $lpDB.list_profile_feeds lpf ON lpc.list_profile_id = lpf.list_profile_id
+            {$lpDB}.list_profile_flat_table lpft
+            INNER JOIN {$mt2DataDb}.deploys d ON lpft.deploy_id = d.id
+            INNER JOIN {$lpDB}.list_profile_combines lpc ON d.list_profile_combine_id = lpc.id
+            INNER JOIN {$lpDB}.list_profile_feeds lpf ON lpc.list_profile_id = lpf.list_profile_id
         WHERE
             (lpft.has_open = 1
             OR 
