@@ -177,22 +177,23 @@ class Kernel extends ConsoleKernel
          * Record-level Data
          */
         $deliverableFilePath = storage_path( 'logs' ) . "/downloadDeliverables.log";
-        $schedule->command( 'reports:downloadDeliverables BlueHornet 5 BlueHornet' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables Campaigner 5 Campaigner' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command( 'reports:downloadDeliverables Campaigner:delivered 2 Campaigner' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command( 'reports:downloadDeliverables Campaigner:actions 5 Campaigner' )->cron('0 */6 * * * *');
+        $schedule->command( 'reports:downloadDeliverables BlueHornet:delivered 3 BlueHornet' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command('reports:downloadDeliverables BlueHornet:actions 5 BlueHornet')->cron('0 */6 * * * *');
         #$schedule->command( 'reports:downloadDeliverables EmailDirect 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Maro 2 Maro' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables Maro:delivered 2 Maro' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         //$schedule->command( 'reports:downloadDeliverables Ymlp 5' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables Publicators 5 Publicators' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-        $schedule->command( 'reports:downloadDeliverables Bronto 2 Bronto' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
-
+        $schedule->command( 'reports:downloadDeliverables Bronto:actions 5 Bronto' )->cron('0 */6 * * * *');
+        $schedule->command( 'reports:downloadDeliverables Bronto:delivered 2 Bronto' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
+        $schedule->command( 'reports:downloadDeliverables Publicators:actions 5 Publicators' )->cron('0 */6 * * * *');
+        $schedule->command( 'reports:downloadDeliverables Publicators:delivers 2 Publicators' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables AWeber 5 AWeber' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
 
-        $schedule->command( 'reports:downloadDeliverables Bronto:delivered 2' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:populateStats')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
         //$schedule->command( 'reports:populateAttrBaseRecords')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
         $schedule->command('process:useragents')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME);
-        #$schedule->command('process:contentServerRawStats')->hourly();
         $schedule->command('reports:findIncompleteDeploys')->dailyAt(self::DEPLOY_CHECK_TIME);
 
 
@@ -252,6 +253,7 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'attribution:conversion -P rerun -D month -m current' )->monthlyOn( 28 , self::ATTRIBUTION_REPORT_UPDATE_TIME ); #monthly rerun
         $schedule->command( 'attribution:conversion -P rerun -D month -m last' )->monthlyOn( 1 , self::ATTRIBUTION_REPORT_UPDATE_TIME ); #final monthly rerun
         $schedule->command('attribution:validate')->dailyAt(self::FEED_FILE_PROCESS_TIME);
+        
         /**
          *  List profile jobs
          */
@@ -259,7 +261,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('listprofile:dataEtl')->cron('0 1 * * 1-6 *');
         $schedule->command('listprofile:dataEtl --all')->cron('0 1 * * 7 *');
         $schedule->command('listprofile:optimize')->weekly();
-        $schedule->command('listprofile:aggregateActions')->dailyAt(self::EXPIRATION_RUNS);
+        $schedule->command('listprofile:aggregateActions')->dailyAt(self::REPORT_TIME);
         $schedule->command('listprofile:contentServerRawStats')->hourly();
         $schedule->command('listprofile:getRecordAgentData 5')->hourly();
         $schedule->command('listprofile:baseTables')->dailyAt(self::EXPIRATION_RUNS);
@@ -302,7 +304,6 @@ class Kernel extends ConsoleKernel
         // Re-run first party actives against suppression
         #$schedule->command('feedRecords:reprocessFirstParty 1')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME);
 
-        
         /**
          * AWeber Jobs
          */
@@ -323,6 +324,6 @@ class Kernel extends ConsoleKernel
         $schedule->command("dataValidation emails exists")->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command("dataValidation emailFeedInstances exists")->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command("dataValidation emailFeedAssignments value")->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command("newActions:process -d 1")->dailyAt(self::MT1_SYNC_TIME);
+        $schedule->command("newActions:process -d 1")->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
     }
 }

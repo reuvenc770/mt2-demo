@@ -38,6 +38,17 @@ use App\Exceptions\JobException;
  */
 class CampaignerReportService extends AbstractReportService implements IDataService
 {
+    const RUN_DELIVERED = 'delivered';
+    const RUN_ACTIONS = 'actions';
+
+    const OPERATOR_TYPE_DELIVERED = 'Sent';
+    const OPERATOR_TYPE_OPEN = 'Open';
+    const OPERATOR_TYPE_CLICK = 'ClickAnyLink';
+
+    const RESULT_TYPE_DELIEVERED = 'Delivered';
+    const RESULT_TYPE_OPEN = 'Open';
+    const RESULT_TYPE_CLICK = 'Click';
+
     /**
      * @var string
      */
@@ -216,9 +227,10 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
     }
 
 
-    public function createCampaignReport($reportNumber){
+    public function createCampaignReport( $reportNumber , $recordType = null ){
         $manager = new ContactManagement();
-        $searchQuery = $this->api->buildCampaignSearchQuery($reportNumber);
+        $searchQuery = $this->api->buildCampaignSearchQuery($reportNumber,$recordType);
+
         $report = new RunReport($this->api->getAuth(), $searchQuery);
 
         $reportHandle = $manager->RunReport($report);
@@ -241,6 +253,16 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         );
     }
 
+    public function splitTypes ( $processState ) {
+        if ( $processState['pipe'] == self::RUN_DELIVERED ) {
+            return [ self::OPERATOR_TYPE_DELIVERED ];
+        } elseif ( $processState['pipe'] == self::RUN_ACTIONS) {
+            return [ self::OPERATOR_TYPE_OPEN , self::OPERATOR_TYPE_CLICK ];
+        }
+
+        return [];
+    }
+
     public function getUniqueJobId ( &$processState ) {
         $jobId = ( isset( $processState[ 'jobId' ] ) ? $processState[ 'jobId' ] : '' );
 
@@ -250,7 +272,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         ) {
             if ( $processState[ 'currentFilterIndex' ] == 1 && isset( $processState[ 'campaign' ] ) ) {
                 $jobId .= '::Campaign-' . $this->getRunId($processState['campaign']->esp_internal_id);
-            } elseif ( $processState[ 'currentFilterIndex' ] == 2 ) {
+            } elseif ( $processState[ 'currentFilterIndex' ] == 3 ) {
                 $jobId .= '::Ticket-' . $processState[ 'ticket' ][ 'ticketName' ];
             }
             
@@ -264,7 +286,8 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
     public function startTicket ( $espAccountId , $campaign , $recordType = null, $isRerun = false) {
         try {
             $runId = $this->getRunId($campaign->esp_internal_id);
-            $reportData = $this->createCampaignReport( $runId );
+
+            $reportData = $this->createCampaignReport( $runId , $recordType );
         } catch ( \Exception $e ) {
             throw new JobException( 'Failed to start report ticket. ' . $e->getMessage() , JobException::NOTICE , $e );
         }
@@ -278,89 +301,108 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         ];
     }
 
-    public function saveRecords ( &$processState, $map ) {
-        // $map unneeded
+    protected function isActionRun ( $recordType ) {
+        return in_array( $recordType , [ self::OPERATOR_TYPE_OPEN , self::OPERATOR_TYPE_CLICK ] );
+    }
+
+    public function saveRecords ( &$processState, $map /*unneeded*/ ) {
         $count = 0;
+
         try {
-            $skipDelivered = true;
-
-            if( $this->emailRecord->withinTwoDays($processState[ 'ticket' ][ 'espId' ], $processState[ 'ticket' ][ 'espInternalId' ]) 
-                || ('rerun' === $processState['pipe'] && 1 == $processState['campaign']->delivers) ){
-                $skipDelivered = false;
-            }
-
-            try {
-                $recordData = $this->getCampaignReport(
-                    $processState[ 'ticket' ][ 'ticketName' ] ,
-                    $processState[ 'ticket' ][ 'rowCount' ]
-                );
-            } catch ( \Exception $e ) {
-                DeployActionEntry::recordAllFail($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id);
-                $jobException = new JobException( 'Campaigner API crapping out. ' . $e->getMessage() , JobException::NOTICE );
-                $jobException->setDelay( 180 );
-                throw $jobException;
-            }
-
-            if ( is_null( $recordData ) ) {
-                $jobException = new JobException( 'Report Not Ready' , JobException::NOTICE );
-                $jobException->setDelay( 180 );
-                throw $jobException;
-            }
+            $recordData = $this->getReportData( $processState );
 
             foreach ( $recordData as $key => $record ) {
-
-                if ( $record[ 'action' ] === 'Open' ) {
-                    $actionType = self::RECORD_TYPE_OPENER;
-                } elseif ( $record[ 'action' ] === 'Click' ) {
-                    $actionType = self::RECORD_TYPE_CLICKER;
-                } elseif ( $record[ 'action' ] === 'Unsubscribe' ) {
-                    Suppression::recordRawUnsub(
-                        $processState[ 'ticket' ][ 'espId' ],
-                        $record[ 'email' ],
-                        $processState[ 'ticket' ][ 'espInternalId' ],
-                        Carbon::parse($record[ 'actionDate' ])->format('Y-m-d H:i:s')
-                    );
-
-                } elseif ( $record[ 'action' ] === 'Hardbounce' ) {
-                    Suppression::recordRawHardBounce(
-                        $processState[ 'ticket' ][ 'espId' ],
-                        $record[ 'email' ],
-                        $processState[ 'ticket' ][ 'espInternalId' ],
-                        Carbon::parse($record[ 'actionDate' ])->format('Y-m-d H:i:s')
-                    );
-                }elseif ( $record[ 'action' ] === 'SpamComplaint' ) {
-                    Suppression::recordRawComplaint($processState[ 'ticket' ][ 'espId' ],$record[ 'email' ],$processState[ 'ticket' ][ 'espInternalId' ], $record[ 'actionDate' ]);
-                } elseif ( $record[ 'action' ] === 'Delivered' ) {
-                    $actionType = self::RECORD_TYPE_DELIVERABLE;
-                    if ($skipDelivered){
-                        $actionType = null;
-                    }
-                }
-
-                if (isset($actionType)) {
-                    $this->emailRecord->queueDeliverable(
-                        $actionType ,
-                        $record[ 'email' ] ,
+                if ( $record[ 'action' ] === 'SpamComplaint' ) {
+                    Suppression::recordRawComplaint(
                         $processState[ 'ticket' ][ 'espId' ] ,
-                        $processState['ticket']['deployId'],
+                        $record[ 'email' ] ,
                         $processState[ 'ticket' ][ 'espInternalId' ] ,
-                        Carbon::parse($record[ 'actionDate' ])->format('Y-m-d H:i:s')
+                        $record[ 'actionDate' ] 
                     );
-                    $count++;
+
+                    continue;
                 }
+
+                $actionType = $this->getActionTypeFromRecord( $record , $processState );
+
+                if ( is_null( $actionType ) ) {
+                    continue;
+                }
+
+                $this->emailRecord->queueDeliverable(
+                    $actionType ,
+                    $record[ 'email' ] ,
+                    $processState[ 'ticket' ][ 'espId' ] ,
+                    $processState['ticket']['deployId'],
+                    $processState[ 'ticket' ][ 'espInternalId' ] ,
+                    Carbon::parse($record[ 'actionDate' ])->format('Y-m-d H:i:s')
+                );
+
+                $count++;
             }
 
             $this->emailRecord->massRecordDeliverables();
+
             DeployActionEntry::recordAllSuccess($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id);
+
             return $count;
-            
         }
         catch (\Exception $e) {
             DeployActionEntry::recordAllFail($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id);
+
             $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() , JobException::WARNING , $e );
+
             throw $jobException;
         }
+    }
 
+    protected function getActionTypeFromRecord ( $record , $processState ) {
+        $actionType = null;
+        $recordStatus = $record[ 'action' ]; 
+        $processType = $processState[ 'recordType' ];
+
+        $statusMap = [
+            self::OPERATOR_TYPE_DELIVERED => self::RESULT_TYPE_DELIEVERED ,
+            self::OPERATOR_TYPE_OPEN => self::RESULT_TYPE_OPEN ,
+            self::OPERATOR_TYPE_CLICK => self::RESULT_TYPE_CLICK
+        ];
+
+        $typeMap = [
+            self::OPERATOR_TYPE_DELIVERED => self::RECORD_TYPE_DELIVERABLE ,
+            self::OPERATOR_TYPE_OPEN => self::RECORD_TYPE_OPENER ,
+            self::OPERATOR_TYPE_CLICK => self::RECORD_TYPE_CLICKER
+        ];
+
+        if ( $recordStatus === $statusMap[ $processType ] ) {
+            $actionType = $typeMap[ $processType ];
+        }
+
+        return $actionType;
+    }
+
+    protected function getReportData ( $processState ) {
+        try {
+            $recordData = $this->getCampaignReport(
+                $processState[ 'ticket' ][ 'ticketName' ] ,
+                $processState[ 'ticket' ][ 'rowCount' ]
+            );
+        } catch ( \Exception $e ) {
+            DeployActionEntry::recordAllFail($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id);
+
+            $this->retryJob( 'Campaigner API crapping out. ' . $e->getMessage() );
+        }
+
+        if ( is_null( $recordData ) ) {
+            $this->retryJob( 'Report Not Ready' );
+        }
+
+        return $recordData;
+    }
+
+    protected function retryJob ( $message ) {
+        $jobException = new JobException( $message , JobException::NOTICE );
+        $jobException->setDelay( 180 );
+        throw $jobException;
     }
 
     public function getCampaignReport($ticketId, $count){

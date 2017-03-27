@@ -29,6 +29,7 @@ use App\Repositories\EmailRecordRepo;
 use App\Services\EmailRecordService;
 
 use GuzzleHttp\Client;
+use App;
 
 /**
  * Create different Services for APIS
@@ -51,7 +52,7 @@ class APIFactory
         $reportModel = new $reportModelName();
         $api = "App\\Services\\API\\{$apiName}Api";
 
-        $emailRecord = new EmailRecordService(new EmailRecordRepo(new Email()));
+        $emailRecord = App::make(EmailRecordService::class);
 
         $reportServiceName = "App\\Services\\{$reportName}Service";
         if (class_exists($reportServiceName)) {

@@ -175,7 +175,7 @@ class ListProfileExportService
                 }
 
              foreach ($resource as $row) {
-                if($row->global_suppression_status){
+                if($row->globally_suppressed){
                      $this->batchSuppression($fileName, $row);
                     $recordEntry->increaseGlobalSuppressionCount();
                  }

@@ -63,12 +63,13 @@ class BrontoReportService extends AbstractReportService implements IDataService
         foreach ($data->toArray() as $key => $field) {
             $return[snake_case($key)] = $field;
         }
-        
+
         $return['message_name'] = $data->messageName;
         return $return;
     }
 
-    public function splitTypes($processState) {
+    public function splitTypes($processState)
+    {
         if ('rerun' === $processState['pipe']) {
             $typeList = [];
             // data in $processState['campaign']
@@ -90,13 +91,15 @@ class BrontoReportService extends AbstractReportService implements IDataService
             }
             return $typeList;
         }
-        else {
-            return ['open','click','bounce','unsubscribe'];
+        if (isset($processState['recordType']) && 'delivered' === $processState['recordType']) {
+            return ['delivered', 'bounce', 'unsubscribe'];
+        } else {
+            return ['open', 'click'];
         }
-        
     }
 
-    public function saveActionPage($processState, $map) {
+    public function saveActionPage($processState, $map)
+    {
         $type = "";
         $internalIds = array();
 
@@ -117,24 +120,57 @@ class BrontoReportService extends AbstractReportService implements IDataService
                 $deployActionType = 'click';
                 break;
 
-	    //TODO - bounces, unsubs
+            case 'bounce' :
+                $type = false;
+                $deployActionType = "bounce";
+                break;
+
+            case 'unsubscribe' :
+                $type = false;
+                $deployActionType = "unsubscribe";
+                break;
+
             default:
                 throw new \Exception("Inappropriate type record type {$processState['recordType']} in saveActionPage"); // THIS SHOULD BE SOMETHING ELSE
         }
 
         try {
-            foreach ($processState['currentPageData'] as $key => $record) {
-                $deployId = $this->getDeployIdFromCampaignName($record->getMessageName());
-                $this->emailRecord->queueDeliverable(
-                    $type,
-                    $record->getEmailAddress(),
-                    $this->api->getId(),
-                    $deployId,
-                    $this->parseInternalId($record->getDeliveryId()), // esp_internal_id
-                    $record->getCreatedDate()->format('Y-m-d H:i:s')
-                );
-                $internalIds[] = $this->parseInternalId($record->getDeliveryId());
+            if ($type) {
+                foreach ($processState['currentPageData'] as $key => $record) {
+                    $deployId = $this->getDeployIdFromCampaignName($record->getMessageName());
+                    $this->emailRecord->queueDeliverable(
+                        $type,
+                        $record->getEmailAddress(),
+                        $this->api->getId(),
+                        $deployId,
+                        $this->parseInternalId($record->getDeliveryId()), // esp_internal_id
+                        $record->getCreatedDate()->format('Y-m-d H:i:s')
+                    );
+                    $internalIds[] = $this->parseInternalId($record->getDeliveryId());
+                }
+            } else {
+                foreach ($processState['currentPageData'] as $bounce) {
+                    $espInternalId = $this->parseInternalId($bounce->getDeliveryId());
+                    if ("bounce" == $deployActionType) {
+                        Suppression::recordRawHardBounce(
+                            $this->api->getId(),
+                            $bounce->getEmailAddress(),
+                            $espInternalId,
+                            $bounce->getCreatedDate()->format('Y-m-d H:i:s')
+                        );
+                    } else {
+                        Suppression::recordRawUnsub(
+                            $this->api->getId(),
+                            $bounce->getEmailAddress(),
+                            $espInternalId,
+                            $bounce->getCreatedDate()->format('Y-m-d H:i:s')
+                        );
+                    }
+                    $internalIds[] = $espInternalId;
+                }
+
             }
+
         } catch (\Exception $e) {
             DeployActionEntry::recordFailedRunArray($this->api->getEspAccountId(), array_unique($internalIds), $deployActionType);
             $jobException = new JobException('Failed to retrieve records. ' . $e->getMessage(), JobException::NOTICE);
@@ -151,32 +187,11 @@ class BrontoReportService extends AbstractReportService implements IDataService
         $internalIds = array();
         try {
             switch ($processState['recordType']) {
-
-                case 'delivered' :
-                    foreach ($processState['currentPageData'] as $opener) {
-                        $espInternalId = $this->parseInternalId($opener->getDeliveryId());
-                        $deployId = $this->getDeployIdFromCampaignName($opener->getMessageName());
-
-                        if ($opener->getDeliveryType() != 'bulk') {
-                            continue;
-                        }
-                        $this->emailRecord->queueDeliverable(
-                            self::RECORD_TYPE_DELIVERABLE,
-                            $opener->getEmailAddress(),
-                            $this->api->getId(),
-                            $deployId,
-                            $espInternalId,
-                            $opener->getCreatedDate()->format('Y-m-d H:i:s')
-                        );
-                        $internalIds[] = $espInternalId;
-                    }
-                    $type = "deliverable";
-                    break;
                 case 'open' :
                     foreach ($processState['currentPageData'] as $opener) {
                         $espInternalId = $this->parseInternalId($opener->getDeliveryId());
                         $deployId = $this->getDeployIdFromCampaignName($opener->getMessageName());
-                        
+
                         if ($opener->getDeliveryType() != 'bulk') {
                             continue;
                         }
@@ -210,33 +225,6 @@ class BrontoReportService extends AbstractReportService implements IDataService
                         $internalIds[] = $espInternalId;
                     }
                     $type = "click";
-                    break;
-                case 'bounce' :
-                    foreach ($processState['currentPageData'] as $bounce) {
-                        $espInternalId = $this->parseInternalId($bounce->getDeliveryId());
-                        Suppression::recordRawHardBounce(
-                            $this->api->getId(),
-                            $bounce->getEmailAddress(),
-                            $espInternalId,
-                            $bounce->getCreatedDate()->format('Y-m-d H:i:s')
-                        );
-                        $internalIds[] = $espInternalId;
-                    }
-                    $type = "optout";
-                    break;
-
-                case 'unsubscribe' :
-                    foreach ($processState['currentPageData'] as $bounce) {
-                        $espInternalId = $this->parseInternalId($bounce->getDeliveryId());
-                        Suppression::recordRawUnsub(
-                            $this->api->getId(),
-                            $bounce->getEmailAddress(),
-                            $espInternalId,
-                            $bounce->getCreatedDate()->format('Y-m-d H:i:s')
-                        );
-                        $internalIds[] = $espInternalId;
-                    }
-                    $type = "bounce";
                     break;
             }
         } catch (\Exception $e) {
@@ -300,10 +288,10 @@ class BrontoReportService extends AbstractReportService implements IDataService
             $this->pageType = $pageType;
         }
     }
-    
+
     public function getUniqueJobId(&$processState)
     {
-        $jobId = isset($processState['campaign'])? ":!:{$processState['campaign']['external_deploy_id']} - {$processState['campaign']['esp_internal_id']}" : '';
+        $jobId = isset($processState['campaign']) ? ":!:{$processState['campaign']['external_deploy_id']} - {$processState['campaign']['esp_internal_id']}" : '';
         return $jobId;
     }
 
@@ -357,7 +345,8 @@ class BrontoReportService extends AbstractReportService implements IDataService
 
     }
 
-    public function pageHasCampaignData($processState){
+    public function pageHasCampaignData($processState)
+    {
 
         $formattedInternalId = $processState['campaign']->esp_internal_id;
         $type = $processState['recordType'];
@@ -380,7 +369,7 @@ class BrontoReportService extends AbstractReportService implements IDataService
             $filter['start'] = Carbon::parse($datetime)->subDay(1)->toAtomString(); // 
         }
 
-        if($type == "delivered"){
+        if ($type == "delivered") {
             $filter['types'] = "send";
             $data = $this->api->getOutgoingSends($filter);
         } else {
@@ -390,14 +379,15 @@ class BrontoReportService extends AbstractReportService implements IDataService
         return true;
     }
 
-    public function pullUnsubsEmailsByLookback($date){
+    public function pullUnsubsEmailsByLookback($date)
+    {
         $filter = array(
             "start" => Carbon::now()->subDay($date)->toAtomString(),
             "size" => "5000",
             "types" => "unsubscribe",
             "readDirection" => "FIRST",
         );
-       return $this->api->getDeliverablesByType($filter);
+        return $this->api->getDeliverablesByType($filter);
     }
 
     public function insertUnsubs($data, $espAccountId)
@@ -408,26 +398,30 @@ class BrontoReportService extends AbstractReportService implements IDataService
         }
     }
 
-    protected function getDeployIdFromCampaignName($campaignName) {
+    protected function getDeployIdFromCampaignName($campaignName)
+    {
         return strstr($campaignName, '_', true);
     }
 
-    public function pushRecords(array $records, $targetId) {
+    public function pushRecords(array $records, $targetId)
+    {
         foreach ($records as $record) {
             $result = $this->api->addContact($record);
         }
     }
 
-    public function addContactToLists($emailAddress, $lists) {
+    public function addContactToLists($emailAddress, $lists)
+    {
         $contactInfo = [
             'email' => $emailAddress,
             'listIds' => $lists
         ];
         $this->api->addContact($contactInfo);
     }
-    
-    
-    public function getRawReportsForSplit($campaignName, $epsAccountId){
+
+
+    public function getRawReportsForSplit($campaignName, $epsAccountId)
+    {
         return $this->reportRepo->getRawCampaignsFromName($campaignName, $epsAccountId);
     }
 }
