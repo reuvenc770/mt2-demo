@@ -16,7 +16,7 @@ class CreateRawFeedFieldErrorsTable extends Migration
             $table->increments('id');
             $table->string( 'field' );
             $table->text( 'value' );
-            $table->json( 'errors' );
+            $table->text( 'errors' );
             $table->bigInteger( 'raw_feed_email_failed_id' );
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
