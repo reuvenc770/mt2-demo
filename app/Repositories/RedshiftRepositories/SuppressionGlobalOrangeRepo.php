@@ -41,9 +41,7 @@ SQL;
             USING
                 suppression_global_orange_staging
             WHERE
-                suppression_global_orange.email_id = suppression_global_orange_staging.email_id 
-                AND suppression_global_orange.deploy_id = suppression_global_orange_staging.deploy_id 
-                AND suppression_global_orange.date = suppression_global_orange_staging.date");
+                suppression_global_orange.email_address = suppression_global_orange_staging.email_address");
 
             DB::connection('redshift')->statement("INSERT INTO suppression_global_orange 
                 SELECT * FROM suppression_global_orange_staging");
