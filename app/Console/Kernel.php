@@ -265,7 +265,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('listprofile:contentServerRawStats')->hourly();
         $schedule->command('listprofile:getRecordAgentData 5')->hourly();
         $schedule->command('listprofile:baseTables')->dailyAt(self::EXPIRATION_RUNS);
-        $schedule->command('updateUserActions 1')->dailyAt(self::REPORT_TIME_2);
         $schedule->command('listprofile:validateRedshift 1')->cron('0 4 * * * *');
 
         /**
@@ -324,6 +323,6 @@ class Kernel extends ConsoleKernel
         $schedule->command("dataValidation emails exists")->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command("dataValidation emailFeedInstances exists")->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command("dataValidation emailFeedAssignments value")->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command("newActions:process -d 1")->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
+        $schedule->command("newActions:process -h 1")->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
     }
 }

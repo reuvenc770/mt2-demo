@@ -6,6 +6,7 @@ use App\Models\ListProfileFlatTable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use App\Repositories\RepoInterfaces\IAwsRepo;
+use App\Models\ThirdPartyEmailStatus;
 
 /**
  *
@@ -205,40 +206,85 @@ class ListProfileFlatTableRepo implements IAwsRepo {
 
     
     public function getThirdPartyEmailStatusExtractQuery () {
+        $mt2DataDb = config('database.connections.mysql.database');
+        $listProfileDb = config('database.connections.list_profile.database');
+
         return "SELECT
             lpft.email_id ,
-            IF( lpft.has_conversion = 1 , 'Conversion' , IF( lpft.has_click = 1 , 'Click' , IF( lpft.has_open = 1 , 'Open' , 'None' ) ) ) AS `action_type` ,
+            IF( lpft.has_conversion = 1 , '" . ThirdPartyEmailStatus::CONVERTER 
+                . "' , IF( lpft.has_click = 1 , '" 
+                . ThirdPartyEmailStatus::CLICKER . "' , IF( lpft.has_open = 1 , '" 
+                . ThirdPartyEmailStatus::OPENER . "' , 'None' ) ) ) AS `action_type` ,
             lpft.offer_id ,
             lpft.esp_account_id ,
             CONCAT( lpft.date , ' 00:00:00' ) as `datetime`
         FROM
-            list_profile.list_profile_flat_table lpft
+            {$listProfileDb}.list_profile_flat_table lpft
+            INNER JOIN {$mt2DataDb}.deploys d ON lpft.deploy_id = d.id
         WHERE
             (
                 lpft.has_open = 1
                 OR lpft.has_click = 1
                 OR lpft.has_conversion = 1
             )
-            AND lpft.updated_at between :startDate AND :endDate
-        ORDER BY
-            lpft.updated_at;";
+            AND lpft.updated_at between :start AND :end
+            AND d.party = 3";
     }
 
     public function getRecordTruthsExtractQuery () {
+        $mt2DataDb = config('database.connections.mysql.database');
+        $listProfileDb = config('database.connections.list_profile.database');
+        $attrDb = config('database.connections.attribution.database');
+
         return "SELECT
             lpft.email_id ,
-            1 AS `recent_import` ,
+            art.recent_import,
             1 AS `has_action`
         FROM
-            list_profile.list_profile_flat_table lpft
+            {$listProfileDb}.list_profile_flat_table lpft
+            INNER JOIN {$mt2DataDb}.deploys d ON lpft.deploy_id = d.id
+            INNER JOIN {$attrDb}.attribution_record_truths art ON lpft.email_id = art.email_id
         WHERE
             (
                 lpft.has_open = 1
                 OR lpft.has_click = 1
                 OR lpft.has_conversion = 1
             )
-            AND lpft.updated_at between :startDate AND :endDate
+            AND lpft.updated_at between :start AND :end
+            AND d.party = 3
         GROUP BY
-            lpft.email_id;";
+            lpft.email_id";
+    }
+
+    public function getFirstPartyActionStatusQuery() {
+        $mt2DataDb = config('database.connections.mysql.database');
+        $lpDB = config('database.connections.list_profile.database');
+
+        return "SELECT
+            lpft.email_id ,
+            IF( lpft.has_conversion = 1 , '" . ThirdPartyEmailStatus::CONVERTER 
+                . "' , IF( lpft.has_click = 1 , '" 
+                . ThirdPartyEmailStatus::CLICKER . "' , IF( lpft.has_open = 1 , '" 
+                . ThirdPartyEmailStatus::OPENER . "', 'None'))) AS `action_type`,
+            lpf.feed_id,
+            lpft.offer_id,
+            lpft.esp_account_id,
+            lpft.date as `date`
+        FROM
+            {$lpDB}.list_profile_flat_table lpft
+            INNER JOIN {$mt2DataDb}.deploys d ON lpft.deploy_id = d.id
+            INNER JOIN {$lpDB}.list_profile_combines lpc ON d.list_profile_combine_id = lpc.id
+            INNER JOIN {$lpDB}.list_profile_feeds lpf ON lpc.list_profile_id = lpf.list_profile_id
+        WHERE
+            (lpft.has_open = 1
+            OR 
+            lpft.has_click = 1
+            OR 
+            lpft.has_conversion = 1)
+            
+            AND 
+            lpft.updated_at between :start AND :end
+            AND 
+            d.party = 1";
     }
 }

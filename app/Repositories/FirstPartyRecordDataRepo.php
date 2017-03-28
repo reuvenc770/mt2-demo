@@ -40,9 +40,11 @@ class FirstPartyRecordDataRepo implements IAwsRepo {
         if ($this->batchDataCount > 0) {
             $this->batchData = implode(', ', $this->batchData);
 
-            DB::statement("INSERT INTO first_party_record_data (email_id, feed_id, is_deliverable, 
+            DB::statement("INSERT INTO first_party_record_data (email_id, feed_id, 
                     first_name, last_name, address, address2, city, state, zip, country, 
-                    gender, ip, phone, source_url, dob, capture_date, subscribe_date, other_fields)
+                    gender, ip, phone, source_url, dob, capture_date, subscribe_date,
+                    last_action_type, last_action_offer_id, last_action_esp_account_id,
+                    last_action_date, other_fields)
 
                 VALUES 
 
@@ -51,7 +53,6 @@ class FirstPartyRecordDataRepo implements IAwsRepo {
                 ON DUPLICATE KEY UPDATE
                 email_id = email_id,
                 feed_id = feed_id,
-                is_deliverable = VALUES(is_deliverable),
                 first_name = VALUES(first_name),
                 last_name = VALUES(last_name),
                 address = VALUES(address),
@@ -67,8 +68,11 @@ class FirstPartyRecordDataRepo implements IAwsRepo {
                 dob = VALUES(dob),
                 capture_date = VALUES(capture_date),
                 subscribe_date = VALUES(subscribe_date),
-                other_fields = VALUES(other_fields)
-            ");
+                last_action_type = VALUES(last_action_type),
+                last_action_offer_id = VALUES(last_action_offer_id),
+                last_action_esp_account_id = VALUES(last_action_esp_account_id),
+                last_action_date = VALUES(last_action_date),
+                other_fields = VALUES(other_fields)");
 
             $this->batchData = [];
             $this->batchDataCount = 0;
@@ -81,7 +85,6 @@ class FirstPartyRecordDataRepo implements IAwsRepo {
         return '('
             . $pdo->quote($row['email_id']) . ','
             . $pdo->quote($row['feed_id']) . ','
-            . $pdo->quote($row['is_deliverable']) . ','
             . $pdo->quote($row['first_name']) . ','
             . $pdo->quote($row['last_name']) . ','
             . $pdo->quote($row['address']) . ','
@@ -96,7 +99,7 @@ class FirstPartyRecordDataRepo implements IAwsRepo {
             . $pdo->quote($row['source_url']) . ','
             . $pdo->quote($row['dob']) . ','
             . $pdo->quote( Carbon::parse($row['capture_date'])->format('Y-m-d') ) . ','
-            . 'NOW(),'
+            . 'NOW(), NULL, NULL, NULL, NULL'
             . $pdo->quote($row['other_fields']) // other fields empty for now
             . ')';
     }
@@ -113,7 +116,6 @@ class FirstPartyRecordDataRepo implements IAwsRepo {
             
                 ON DUPLICATE KEY UPDATE
                 email_id = email_id,
-                is_deliverable = is_deliverable,
                 first_name = first_name,
                 last_name = last_name,
                 address = address,
@@ -142,7 +144,7 @@ class FirstPartyRecordDataRepo implements IAwsRepo {
         $data = $this->model->where('email_id', $emailId)->where('feed_id', $feedId)->get();
 
         if ($data) {
-            return $data->is_deliverable;
+            return $data->last_action_type === 'None' ? 1 : 0;
         }
         else {
             return 1; // default set to deliverable ... 
@@ -154,24 +156,30 @@ class FirstPartyRecordDataRepo implements IAwsRepo {
     }
 
 
-    public function updateActionData($emailId, $feedId, $actionDate) {
+    public function updateActionData($row) {
         $pdo = DB::connection()->getPdo();
 
         if ($this->batchActionUpdateCount >= self::INSERT_THRESHOLD) {
-
             $this->cleanUpActions();
 
             $this->batchActionUpdateData = ['(' 
-                . $pdo->quote($emailId) . ','
-                . $pdo->quote($feedId) . ', 1, '
-                . $pdo->quote($actionDate) . ')'];
+                . $pdo->quote($row['email_id']) . ','
+                . $pdo->quote($row['feed_id']) . ','
+                . $pdo->quote($row['action_type']) . ','
+                . $pdo->quote($row['offer_id']) . ','
+                . $pdo->quote($row['esp_account_id']) . ','
+                . $pdo->quote($row['date']) . ')'];
+
             $this->batchActionUpdateCount = 1;
         }
         else {
-            $this->batchActionUpdateData[] = '(' 
-                . $pdo->quote($emailId) . ','
-                . $pdo->quote($feedId) . ', 1, '
-                . $pdo->quote($actionDate) . ')';
+            $this->batchActionUpdateData = ['(' 
+                . $pdo->quote($row['email_id']) . ','
+                . $pdo->quote($row['feed_id']) . ','
+                . $pdo->quote($row['action_type']) . ','
+                . $pdo->quote($row['offer_id']) . ','
+                . $pdo->quote($row['esp_account_id']) . ','
+                . $pdo->quote($row['date']) . ')'];
 
             $this->batchActionUpdateCount++;
         }
@@ -183,7 +191,7 @@ class FirstPartyRecordDataRepo implements IAwsRepo {
             $inserts = implode(',', $this->batchActionUpdateData);
 
             DB::statement("INSERT INTO first_party_record_data 
-                (email_id, feed_id, is_deliverable, last_action_date)
+                (email_id, feed_id, last_action_type, last_action_offer_id, last_action_esp_account_id, last_action_date)
                 VALUES
 
                 $inserts
@@ -191,7 +199,6 @@ class FirstPartyRecordDataRepo implements IAwsRepo {
                 ON DUPLICATE KEY UPDATE
                 email_id = email_id,
                 feed_id = feed_id,
-                is_deliverable = VALUES(is_deliverable),
                 first_name = first_name,
                 last_name = last_name,
                 address = address,
@@ -211,6 +218,9 @@ class FirstPartyRecordDataRepo implements IAwsRepo {
                 capture_date = capture_date,
                 subscribe_date = subscribe_date,
                 last_action_date = VALUES(last_action_date),
+                last_action_offer_id = VALUES(last_action_offer_id),
+                last_action_esp_account_id = VALUES(last_action_esp_account_id),
+                last_action_type_id = VALUES(last_action_type_id),
                 other_fields = other_fields");
 
             $this->batchActionUpdateData = [];
@@ -219,24 +229,19 @@ class FirstPartyRecordDataRepo implements IAwsRepo {
         }
     }
 
-    public function setDeliverableStatus($emailId, $feedId, $status) {
-        $emailId = (int)$emailId;
-        $feedId = (int)$feedId;
-        $isDeliverable = ($status === true) ? 1 : 0;
-        $this->model->whereRaw("email_id = $emailId AND feed_id = $feedId")->update(['is_deliverable' => $isDeliverable]);
-    }
-
     public function extractForS3Upload($startPoint) {
         // this start point is a date
-        return $this->model->whereRaw("updated_at > $startPoint");
+        return $this->select('*', DB::raw('IF(last_action_type IS NULL, 1, 0) as is_deliverable'))
+                    ->model
+                    ->whereRaw("updated_at > $startPoint");
     }
 
     public function extractAllForS3() {
-        return $this->model;
+        return $this->select('*', DB::raw('IF(last_action_type IS NULL, 1, 0) as is_deliverable'))->model;
     }
 
     public function specialExtract($data) {
-        return $this->model;
+        return $this->select('*', DB::raw('IF(last_action_type IS NULL, 1, 0) as is_deliverable'))->model;
     }
 
     public function mapForS3Upload($row) {
@@ -284,11 +289,12 @@ class FirstPartyRecordDataRepo implements IAwsRepo {
         foreach ($data as $row) {
             // we are sending in plenty of 3rd party as well so we need a check
             if (1 === (int)$row['party']) {
-                $row['other_fields'] = '{}';
-
-                // a sensible default
-                $row['is_deliverable'] = 1;
-                $this->batchInsert($row);
+                // sensible defaults
+                if (!isset($row['other_fields']) || '' === $row['other_fields']) {
+                    $row['other_fields'] = '{}';
+                }
+                
+                $this->insert($row);
             }
         }
 
