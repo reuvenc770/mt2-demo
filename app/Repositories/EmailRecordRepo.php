@@ -28,7 +28,7 @@ class EmailRecordRepo {
         $this->email = $email;
     }
 
-    public function massRecordDeliverables ( $records = [] ) {
+    public function massRecordDeliverables ( $records = [], $boolRecordsHaveEID = false ) {
         $validRecords = [];
         $invalidRecords = [];
         $preppedData = array();
@@ -47,7 +47,7 @@ class EmailRecordRepo {
             $this->errorReason = '';
 
             if ( $this->isValidRecord( false ) ) {
-                $currentId = $this->getEmailId();
+                $currentId = $boolRecordsHaveEID ? $currentRecord['emailId'] : $this->getEmailId();
 
                 $validRecord = "( "
                     . join( " , " , [
@@ -275,4 +275,5 @@ class EmailRecordRepo {
         }
         return $delivered;
     }
+    
 }
