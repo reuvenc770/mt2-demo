@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\RawDeliveredEmail;
+use Carbon\Carbon;
 
 class RawDeliveredEmailRepo {
 
@@ -18,5 +19,14 @@ class RawDeliveredEmailRepo {
 
     public function isValidActionType($recordType) {
         return $recordType === 'deliverable';
+    }
+
+    public function pullModelSince($lookBack){
+        return $this->model->where("created_at", ">=", $lookBack);
+    }
+
+    public function clearOutPast($lookback){
+        $date = Carbon::today()->subDay($lookback)->startOfDay();
+        return $this->model->where("created_at", '<=', $date)->delete();
     }
 }
