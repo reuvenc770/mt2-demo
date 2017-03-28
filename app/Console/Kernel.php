@@ -196,7 +196,7 @@ class Kernel extends ConsoleKernel
         //$schedule->command( 'reports:populateAttrBaseRecords')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
         $schedule->command('process:useragents')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME);
         $schedule->command('reports:findIncompleteDeploys')->dailyAt(self::DEPLOY_CHECK_TIME);
-        $schedule->command('insert:delivers 2'}->cron('0 6 * * * *');
+        $schedule->command('insert:delivers 2')->cron('0 6 * * * *');
 
 
         /**
