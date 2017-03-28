@@ -323,6 +323,6 @@ class Kernel extends ConsoleKernel
         $schedule->command("dataValidation emails exists")->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command("dataValidation emailFeedInstances exists")->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command("dataValidation emailFeedAssignments value")->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command("newActions:process -h 1")->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
+        $schedule->command("newActions:process --hoursBack=1")->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
     }
 }

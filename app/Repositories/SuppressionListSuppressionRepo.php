@@ -6,7 +6,7 @@ use App\Models\SuppressionListSuppression;
 use App\Repositories\RepoInterfaces\IAwsRepo;
 use DB;
 
-class SuppressionListSuppressionRepo implements IAwsRepo{
+class SuppressionListSuppressionRepo implements IAwsRepo {
 
     private $model;
 
@@ -75,6 +75,12 @@ class SuppressionListSuppressionRepo implements IAwsRepo{
 
     public function getAllQuery($lookback) {
         return $this->model->whereRaw("created_at <= CURDATE() - INTERVAL $lookback DAY")->toSql();
+    }
+
+    public function getCount($lookback) {
+        return $this->model
+                    ->whereRaw("created_at <= CURDATE() - INTERVAL $lookback DAY")
+                    ->count();
     }
 
 }

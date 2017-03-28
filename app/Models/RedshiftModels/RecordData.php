@@ -10,4 +10,5 @@ class RecordData extends Model
     protected $primaryKey = 'email_id';
     public $timestamps = false;
     protected $guarded = [];
+    protected $table = 'record_data';
 }
