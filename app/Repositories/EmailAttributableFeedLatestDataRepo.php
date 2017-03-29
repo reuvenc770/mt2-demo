@@ -130,7 +130,9 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
                 . $pdo->quote($row['email_id']) . ','
                 . $pdo->quote($row['feed_id']) . ','
                 . $pdo->quote($row['device_type']) . ','
-                . $pdo->quote($row['device_name']) . ')'];
+                . $pdo->quote($row['device_name']) . ','
+                . $pdo->quote($row['carrier']) . ')'];
+                
             $this->batchDeviceUpdateCount = 1;
         }
         else {
