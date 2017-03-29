@@ -35,7 +35,7 @@ class SuppressionRedshiftDataValidation {
         $stmt->execute();
 
         while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $this->redshiftRepo->insertIfNot($row);
+            $this->redshiftRepo->insertIfNotNew($row);
         }
     }
 }

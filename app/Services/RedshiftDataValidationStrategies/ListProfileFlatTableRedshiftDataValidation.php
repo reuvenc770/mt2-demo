@@ -74,7 +74,7 @@ class ListProfileFlatTableRedshiftDataValidation extends AbstractLargeRedshiftDa
             $cmpEnd = microtime(true);
             $cmpTime = $cmpTime + ($cmpEnd - $cmpStart);
 
-            if (null !== $cmpObj) {
+            if (null !== $cmpObj->clicks) {
                 $redshiftStart = microtime(true);
                 $rsObj = $this->redshiftRepo->findAggregation($deployId, $date);
                 $redshiftEnd = microtime(true);

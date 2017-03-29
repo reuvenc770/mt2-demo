@@ -99,7 +99,7 @@ class FirstPartyRecordDataRepo implements IAwsRepo {
             . $pdo->quote($row['source_url']) . ','
             . $pdo->quote($row['dob']) . ','
             . $pdo->quote( Carbon::parse($row['capture_date'])->format('Y-m-d') ) . ','
-            . 'NOW(), NULL, NULL, NULL, NULL'
+            . 'NOW(), NULL, NULL, NULL, NULL,'
             . $pdo->quote($row['other_fields']) // other fields empty for now
             . ')';
     }
@@ -231,8 +231,8 @@ class FirstPartyRecordDataRepo implements IAwsRepo {
 
     public function extractForS3Upload($startPoint) {
         // this start point is a date
-        return $this->select('*', DB::raw('IF(last_action_type IS NULL, 1, 0) as is_deliverable'))
-                    ->model
+        return $this->model
+                    ->select('*', DB::raw('IF(last_action_type IS NULL, 1, 0) as is_deliverable'))
                     ->whereRaw("updated_at > $startPoint");
     }
 
