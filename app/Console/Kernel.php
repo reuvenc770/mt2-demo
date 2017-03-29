@@ -266,7 +266,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('listprofile:aggregateActions')->cron('0 4,14 * * * *');
         $schedule->command('listprofile:contentServerRawStats')->hourly();
         $schedule->command('listprofile:getRecordAgentData 5')->hourly();
-        $schedule->command('listprofile:baseTables')->cron('30 7,14,17 * * 1-6 *');
+        $schedule->command('listprofile:baseTables')->cron('30 7,12,16 * * 1-6 *');
         $schedule->command('listprofile:validateRedshift 1')->cron('0 4 * * * *');
 
         /**
