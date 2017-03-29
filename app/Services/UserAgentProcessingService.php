@@ -30,5 +30,4 @@ class UserAgentProcessingService extends AbstractEtlService {
         ];
     }
 
-
 }
