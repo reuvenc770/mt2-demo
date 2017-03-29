@@ -257,7 +257,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
         if ( $processState['pipe'] == self::RUN_DELIVERED ) {
             return [ self::OPERATOR_TYPE_DELIVERED ];
         } elseif ( $processState['pipe'] == self::RUN_ACTIONS) {
-            return [ self::OPERATOR_TYPE_OPEN , self::OPERATOR_TYPE_CLICK ];
+            return [ self::OPERATOR_TYPE_DELIVERED /*Need larger amount of records*/ ]; #[ self::OPERATOR_TYPE_OPEN , self::OPERATOR_TYPE_CLICK ]; #PERFORMANCE TEST, OPENS ONLY
         }
 
         return [];
@@ -265,6 +265,7 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
 
     public function getUniqueJobId ( &$processState ) {
         $jobId = ( isset( $processState[ 'jobId' ] ) ? $processState[ 'jobId' ] : '' );
+
 
         if ( 
             !isset( $processState[ 'jobIdIndex' ] )
@@ -274,6 +275,12 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                 $jobId .= '::Campaign-' . $this->getRunId($processState['campaign']->esp_internal_id);
             } elseif ( $processState[ 'currentFilterIndex' ] == 3 ) {
                 $jobId .= '::Ticket-' . $processState[ 'ticket' ][ 'ticketName' ];
+
+                /**
+                 * CHANGE HERE TO SWITCH NAMES FOR TESTS
+                 */
+                $names = [ 'Original' , 'XpathNormal' , 'XpathGen' ];
+                $jobId .= '::Test-' . $names[ 0 ];
             }
             
             $processState[ 'jobIdIndex' ] = $processState[ 'currentFilterIndex' ];
@@ -306,6 +313,137 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
     }
 
     public function saveRecords ( &$processState, $map /*unneeded*/ ) {
+        /**
+         * CHANGE HERE TO SWITCH BETWEEN ORIGINAL AND XPATH 
+         */
+        $runOriginal = true;
+
+        if ( $runOriginal ) {
+            return $this->originalSaveRecords( $processState , $map );
+        } else {
+            return $this->xPathSaveRecords( $processState , $map );
+        }
+    }
+
+    protected function xPathSaveRecords ( &$processState , $map ) {
+        try {
+            $count = 0;
+
+            $typeMap = [
+                self::OPERATOR_TYPE_DELIVERED => self::RECORD_TYPE_DELIVERABLE ,
+                self::OPERATOR_TYPE_OPEN => self::RECORD_TYPE_OPENER ,
+                self::OPERATOR_TYPE_CLICK => self::RECORD_TYPE_CLICKER
+            ];
+
+            foreach ( $this->yieldReportData( $processState ) as $record ) {
+                $this->emailRecord->queueDeliverable(
+                    $typeMap[ $processState[ 'recordType' ] ] ,
+                    $record[ 'email' ] ,
+                    $processState[ 'ticket' ][ 'espId' ] ,
+                    $processState[ 'ticket' ][ 'deployId' ],
+                    $processState[ 'ticket' ][ 'espInternalId' ] ,
+                    $record[ 'actionDate' ]
+                );
+
+                $count++;
+            }
+
+            $this->emailRecord->massRecordDeliverables();
+
+            DeployActionEntry::recordAllSuccess($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id);
+
+            return $count;
+        }
+        catch (\Exception $e) {
+            DeployActionEntry::recordAllFail($this->api->getEspAccountId(), $processState[ 'campaign' ]->esp_internal_id);
+
+            $jobException = new JobException( 'Failed to process report file.  ' . $e->getMessage() , JobException::WARNING , $e );
+
+            throw $jobException;
+        }
+    }
+
+    protected function yieldReportData ( $processState ) {
+        $manager = new ContactManagement();
+        $offset = 0;
+        $limit = 20000;
+        $totalCount = $processState[ 'ticket' ][ 'rowCount' ];
+        $data = array();
+
+        $statusMap = [
+            self::OPERATOR_TYPE_DELIVERED => self::RESULT_TYPE_DELIEVERED ,
+            self::OPERATOR_TYPE_OPEN => self::RESULT_TYPE_OPEN ,
+            self::OPERATOR_TYPE_CLICK => self::RESULT_TYPE_CLICK
+        ];
+
+        $actionTypeAttr = $statusMap[ $processState[ 'recordType' ] ]; 
+                                            
+        /**
+         * CHANGE HERE TO SWITCH BETWEEN NORMAL AND GENERATOR
+         */
+        $useGenerator = true;
+
+        $records = [];
+        while ($totalCount > 0) {
+
+            if ($limit > $totalCount) {
+                $limit = $totalCount;
+            }
+
+            $upToCount = $offset > 0 ? $offset + $limit -1 : $offset + $limit;
+
+            $report = new DownloadReport(
+                $this->api->getAuth() ,
+                $processState[ 'ticket' ][ 'ticketName' ] ,
+                $offset ,
+                $upToCount ,
+                "rpt_Detailed_Contact_Results_by_Campaign"
+            );
+
+            $manager->DownloadReport($report);
+
+            if($this->api->checkforHeaderFail($manager,"getCampaignReport"))
+            {
+                throw new \Exception( 'failed to download report.' );
+            }
+
+            $document = new \DOMDocument();
+            $document->loadxml( $manager->__getLastResponse() );
+            $xpath = new \DOMXPath( $document );
+
+            $xpath->registerNamespace( 'soap' , 'http://schemas.xmlsoap.org/soap/envelope/' );
+            $xpath->registerNamespace( 'xsi' , 'http://www.w3.org/2001/XMLSchema-instance' );
+            $xpath->registerNamespace( 'xsd' , 'http://www.w3.org/2001/XMLSchema' );
+            $xpath->registerNamespace( 'wsa' , 'http://schemas.xmlsoap.org/ws/2004/08/addressing' );
+            $xpath->registerNamespace( 'wsse' , 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd' );
+            $xpath->registerNamespace( 'camp' , 'https://ws.campaigner.com/2013/01' );
+
+
+            foreach( $xpath->evaluate( "//camp:ReportResult/camp:Action[@Type='{$actionTypeAttr}']" ) as $node ) {
+                if ( $useGenerator ) {
+                    yield   [
+                                'actionDate' => Carbon::parse( $node->nodeValue )->format('Y-m-d H:i:s') ,
+                                'email' => $node->parentNode->getAttribute( 'ContactUniqueIdentifier' )
+                            ];
+                } else {
+                    $records []= [
+                        'actionDate' => Carbon::parse( $node->nodeValue )->format('Y-m-d H:i:s') ,
+                        'email' => $node->parentNode->getAttribute( 'ContactUniqueIdentifier' )
+                    ];
+                }
+            }
+
+            $offset = $upToCount;
+            $totalCount = $totalCount - $limit;
+        }
+
+        if ( !$useGenerator ) {
+            return $records;
+        }
+
+    }
+
+    protected function originalSaveRecords ( &$processState , $map ) {
         $count = 0;
 
         try {
