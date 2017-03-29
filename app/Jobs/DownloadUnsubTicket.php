@@ -19,30 +19,24 @@ class DownloadUnsubTicket extends Job implements ShouldQueue
     protected $espAccountId;
     protected $data;
     protected $maxAttempts;
-    protected $isHardBounces;
 
-    public function __construct($apiName, $espAccountId, $data, $tracking, $isHardBounces = null ){
+    public function __construct($apiName, $espAccountId, $data, $tracking){
         $this->apiName = $apiName;
         $this->espAccountId = $espAccountId;
         $this->data = $data;
         $this->maxAttempts = config('jobs.maxAttempts');
         $this->tracking = $tracking;
-        $this->isHardBounces = $isHardBounces;
+        JobTracking::startEspJob(self::JOB_NAME ,$this->apiName, $this->espAccountId, $this->tracking);
     }
 
     public function handle()
     {
-        JobTracking::startEspJob(self::JOB_NAME . ( $this->isHardBounces ? '::hardbounce' : '::unsub' ) ,$this->apiName, $this->espAccountId, $this->tracking);
         JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
         $subscriptionService = APIFactory::createApiSubscriptionService($this->apiName,$this->espAccountId);
         $data = $subscriptionService->getUnsubReport($this->data['ticketId'], $this->data['count']);
 
         if($data){
-            if ( $this->isHardBounces ) {
-                $subscriptionService->insertHardbounce( $data );
-            } else {
                 $subscriptionService->insertUnsubs($data);
-            }
         } else {
             $this->release(60);
         }

@@ -46,7 +46,7 @@ class EmailRecordRepo {
 
             $this->errorReason = '';
 
-            if ( $this->isValidRecord( false ) ) {
+            if ( $this->isValidRecord(false, $boolRecordsHaveEID ) ) {
                 $currentId = $boolRecordsHaveEID ? $currentRecord['emailId'] : $this->getEmailId();
 
                 $validRecord = "( "
@@ -228,11 +228,11 @@ class EmailRecordRepo {
         $this->date = $recordData[ 'date' ];
     }
 
-    protected function isValidRecord ( $saveOrphan = true ) {
+    protected function isValidRecord ( $saveOrphan = true, $recordsHaveEids = false) {
         $orphan = new OrphanEmail();
         $errorFound = false;
 
-        if ( !$this->emailExists() ) {
+        if ( !$this->emailExists() && !$recordsHaveEids) {
             $orphan->missing_email_record = 1;
             $this->errorReason = 'missing_email_record';
 
