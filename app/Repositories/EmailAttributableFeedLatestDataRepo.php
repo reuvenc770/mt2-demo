@@ -126,11 +126,11 @@ class EmailAttributableFeedLatestDataRepo implements IAwsRepo {
         if ($this->batchDeviceUpdateCount >= self::INSERT_THRESHOLD) {
             $this->cleanupDeviceData();
 
-            $this->batchDeviceUpdateData = '('
+            $this->batchDeviceUpdateData = ['('
                 . $pdo->quote($row['email_id']) . ','
                 . $pdo->quote($row['feed_id']) . ','
                 . $pdo->quote($row['device_type']) . ','
-                . $pdo->quote($row['device_name']) . ')';
+                . $pdo->quote($row['device_name']) . ')'];
             $this->batchDeviceUpdateCount = 1;
         }
         else {
