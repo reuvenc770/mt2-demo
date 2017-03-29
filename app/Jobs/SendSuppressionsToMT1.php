@@ -8,9 +8,9 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Facades\JobTracking;
+use League\Csv\Writer;
 use App\Models\JobEntry;
 use File;
-use PDO;
 use DB;
 
 class SendSuppressionsToMT1 extends Job implements ShouldQueue
@@ -39,19 +39,16 @@ class SendSuppressionsToMT1 extends Job implements ShouldQueue
     public function handle(SuppressionService $service) {
         JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
         $filePath = "/MT2/{$this->date}-{$this->tracking}.csv";
-
-        $pdo = DB::connection()->getPdo();
-        $pdo->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
-
+        File::put($filePath,null); //create the file
         $query = $service->getAllSuppressionsSinceDate($this->date);
 
-        $statement = $pdo->prepare($query->toSql());
-        $statement->execute();
-
-        while($row = $statement->fetch(PDO::FETCH_OBJ)) {
-            File::disk('MT1SuppressionDropOff')->append($filePath, $row->email_address . PHP_EOL);
-        }
-
+        $query->chunk(10000, function($records) use ($filePath) {
+            $writer = Writer::createFromFileObject(new \SplTempFileObject());
+            $arrayRecords = $records->toArray();
+            $writer->insertAll($arrayRecords);
+            File::append($filePath, $writer->__toString());
+        });
+        
         JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
     }
 

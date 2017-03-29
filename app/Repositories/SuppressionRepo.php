@@ -83,7 +83,7 @@ class SuppressionRepo
     }
 
     public function getAllSinceDate($date){
-        return $this->suppressionModel->selectRaw('distinct(email_address)')->where('date','>=',$date);
+        return $this->suppressionModel->selectRaw('distinct(email_address)')->where('created_at','>=',$date);
     }
 
     public function espSuppressionsForDateRange($espId, $lookback) {
