@@ -47,7 +47,7 @@ class EmailRecordRepo {
             $this->errorReason = '';
 
             if ( $this->isValidRecord(false, $boolRecordsHaveEID ) ) {
-                $currentId = $boolRecordsHaveEID ? $currentRecord['emailId'] : $this->getEmailId();
+                $currentId = $boolRecordsHaveEID ? $currentRecord['email'] : $this->getEmailId();
 
                 $validRecord = "( "
                     . join( " , " , [
