@@ -38,15 +38,14 @@ class SendSuppressionsToMT1 extends Job implements ShouldQueue
      */
     public function handle(SuppressionService $service) {
         JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
-        $filePath = "/MT2/{$this->date}-{$this->tracking}.csv";
-        File::put($filePath,null); //create the file
         $query = $service->getAllSuppressionsSinceDate($this->date);
-
-        $query->chunk(10000, function($records) use ($filePath) {
+        $query->chunk(10000, function($records)  {
+            $ran = random_int(0,100);
+            $filePath = "/MT2/{$this->date}-{$this->tracking}{$ran}.csv";
             $writer = Writer::createFromFileObject(new \SplTempFileObject());
             $arrayRecords = $records->toArray();
             $writer->insertAll($arrayRecords);
-            File::append($filePath, $writer->__toString());
+            File::put($filePath, $writer->__toString());
         });
         
         JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
