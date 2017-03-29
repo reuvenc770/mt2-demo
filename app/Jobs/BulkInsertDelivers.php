@@ -53,7 +53,7 @@ class BulkInsertDelivers extends Job implements ShouldQueue
             }
             $emailRecordRepo->massRecordDeliverables($recordsToInsert, $boolRecordsHaveIds);
         });
-        $rawRepo->clearOutPast($this->lookBack);
+        $rawRepo->clearOutPast($this->lookBack + 5);
         JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
     }
 
