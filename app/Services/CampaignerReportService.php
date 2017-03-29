@@ -321,8 +321,15 @@ class CampaignerReportService extends AbstractReportService implements IDataServ
                     );
 
                     continue;
+                } elseif ( $record[ 'action' ] === 'Hardbounce' ) {
+                    Suppression::recordRawHardBounce(
+                        $processState['ticket']['espId'],
+                        $record['email'],
+                        $processState['ticket']['espInternalId'],
+                        Carbon::parse($record['actionDate'])->format('Y-m-d H:i:s')
+                    );
+                    continue;
                 }
-
                 $actionType = $this->getActionTypeFromRecord( $record , $processState );
 
                 if ( is_null( $actionType ) ) {
