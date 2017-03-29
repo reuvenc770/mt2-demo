@@ -13,6 +13,7 @@ class AddDateToSuppressions extends Migration
     public function up() {
         Schema::table('suppressions', function($table) {
             $table->index('date', 'date');
+            $table->index('created_at', 'created_at');
         });
     }
 
@@ -24,6 +25,7 @@ class AddDateToSuppressions extends Migration
     public function down() {
         Schema::table('suppressions', function($table) {
             $table->dropIndex('date');
+            $table->dropIndex('created_at');
         });
     }
 }
