@@ -5,7 +5,7 @@ return [
         'lookback' => 5
     ],
     'uas' => [
-        'lookback' => 2
+        'lookback' => 90 // minutes
     ],
     'defaultLookback' => 5,
     'maxAttempts' => 10,
