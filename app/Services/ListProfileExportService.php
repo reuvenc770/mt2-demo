@@ -79,8 +79,10 @@ class ListProfileExportService
 
 
         foreach ($resource as $row) {
-            $row = $this->mapRow($columns, $row);
-            $this->batch($fileName, $row);
+            if ( !$row->globally_suppressed ) {
+                $row = $this->mapRow($columns, $row);
+                $this->batch($fileName, $row);
+            }
         }
 
         $this->writeBatch($fileName);
