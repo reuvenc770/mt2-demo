@@ -5,8 +5,6 @@ use App\Jobs\S3RedshiftExportJob;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Repositories\RepoInterfaces\IAwsRepo;
 use App\Repositories\RepoInterfaces\IRedshiftRepo;
-use App\Jobs\S3RedshiftExportJob;
-
 
 class ExactRedshiftDataValidation {
     use DispatchesJobs;
