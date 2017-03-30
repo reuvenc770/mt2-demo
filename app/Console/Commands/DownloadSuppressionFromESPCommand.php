@@ -51,8 +51,10 @@ class DownloadSuppressionFromESPCommand extends Command
         foreach ($espAccounts as $account){
             $espLogLine = "{$account->name}::{$account->account_name}";
             $this->info($espLogLine);
-            $job = (new DownloadSuppressionFromESP($account->name, $account->id, $this->lookBack, str_random(16)))->onQueue($queue);
-            $this->dispatch($job);
+            if($account->enable_suppression) {
+                $job = (new DownloadSuppressionFromESP($account->name, $account->id, $this->lookBack, str_random(16)))->onQueue($queue);
+                $this->dispatch($job);
+            }
         }
     }
 }
