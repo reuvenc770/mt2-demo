@@ -39,7 +39,7 @@ class ListProfileFlatTableRedshiftDataValidation extends AbstractLargeRedshiftDa
         $entity = 'ListProfileFlatTable';
         $largeRun = true;
 
-        $job =  new S3RedshiftExport($entity, $largeRun, str_random(16));
+        $job =  new S3RedshiftExportJob($entity, $largeRun, str_random(16));
         $this->dispatch($job);
     }
 
