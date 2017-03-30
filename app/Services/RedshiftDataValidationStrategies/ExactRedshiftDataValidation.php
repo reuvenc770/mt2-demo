@@ -5,7 +5,7 @@ use App\Jobs\S3RedshiftExportJob;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Repositories\RepoInterfaces\IAwsRepo;
 use App\Repositories\RepoInterfaces\IRedshiftRepo;
-use App\Console\Commands\S3RedshiftExport;
+use App\Jobs\S3RedshiftExportJob;
 
 
 class ExactRedshiftDataValidation {
@@ -28,7 +28,7 @@ class ExactRedshiftDataValidation {
     public function fix() {
         $cmpClass = explode('\\', get_class($this->cmpRepo))[2];
         $entity = str_replace('Repo', '', $cmpClass);
-        $job = new S3RedshiftExport($entity, true, str_random(16));
+        $job = new S3RedshiftExportJob($entity, 1, str_random(16));
 
         $this->dispatch($job);
     }
