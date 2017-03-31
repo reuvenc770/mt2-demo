@@ -99,7 +99,7 @@ class FirstPartyRecordDataRepo implements IAwsRepo {
             . $pdo->quote($row['source_url']) . ','
             . $pdo->quote($row['dob']) . ','
             . $pdo->quote( Carbon::parse($row['capture_date'])->format('Y-m-d') ) . ','
-            . 'NOW(), NULL, NULL, NULL, NULL,'
+            . 'NOW(), "None", NULL, NULL, NULL,'
             . $pdo->quote($row['other_fields']) // other fields empty for now
             . ')';
     }
