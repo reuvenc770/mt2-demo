@@ -272,7 +272,7 @@ class Kernel extends ConsoleKernel
         /**
          * Feed File Processing
          */
-        $schedule->command( 'feedRecords:processRawFiles' )->dailyAt( self::FEED_FILE_PROCESS_TIME );
+        $schedule->command( 'feedRecords:processRawFiles' )->everyFiveMinutes();
         $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME );
         $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::UPDATE_SOURCE_COUNTS );
 
