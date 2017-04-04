@@ -95,7 +95,7 @@ class CampaignerApi extends EspBaseAPI
     { 
         $operator = 'Sent';
 
-        if ( !is_null( $recordType ) ) {
+        if ( !is_null( $recordType ) && $recordType != '' ) {
             $operator = $recordType;
         }
 
