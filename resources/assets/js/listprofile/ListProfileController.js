@@ -77,6 +77,8 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
     self.paginationCount = paginationService.getDefaultPaginationCount();
     self.paginationOptions = paginationService.getDefaultPaginationOptions();
     self.currentPage = 1;
+    self.thirdPartyCurrentPage = 1;
+    self.firstPartyCurrentPage = 1;
     self.profileTotal = 0;
     self.firstPartyProfileTotal = 0;
     self.secondPartyProfileTotal = 0;
@@ -221,40 +223,43 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
     modalService.setPopover();
 
     self.loadListProfiles = function () {
-        self.queryPromise = ListProfileApiService.getListProfiles(
-            self.currentPage ,
+        ListProfileApiService.getListProfiles(
+            self.thirdPartyCurrentPage ,
             self.paginationCount ,
-            self.loadListProfilesSuccessCallback ,
+            3,
+            self.loadThirdPartyListProfilesSuccess,
+            self.loadListProfilesFailureCallback
+        );
+        ListProfileApiService.getListProfiles(
+            self.firstPartyCurrentPage ,
+            self.paginationCount ,
+            1,
+            self.loadFirstPartyListProfilesSuccess ,
             self.loadListProfilesFailureCallback
         );
         self.loadListCombines();
-    };
-
-    self.loadListProfilesSuccessCallback = function ( response ) {
-        self.firstPartyListProfiles = [];
-        self.secondPartyListProfiles = [];
-        self.thirdPartyListProfiles = [];
-
-        angular.forEach(response.data.data, function (value, index){
-            switch (value.party){
-                case 1:
-                    self.firstPartyListProfiles.push(value);
-                    break;
-                case 2:
-                    self.secondPartyListProfiles.push(value);
-                    break;
-                case 3:
-                    self.thirdPartyListProfiles.push(value);
-                    break;
-            }
-        });
-        self.pageCount = response.data.last_page;
-        self.profileTotal = response.data.total;
-        self.firstPartyProfileTotal = self.firstPartyListProfiles.length || 0;
-        self.secondPartyProfileTotal = self.secondPartyListProfiles.length || 0;
-        self.thirdPartyProfileTotal = self.thirdPartyListProfiles.length || 0;
 
         $timeout( function () { $(function () { $('[data-toggle="tooltip"]').tooltip() } ); } , 1500 );
+    };
+
+    self.loadThirdPartyListProfilesSuccess = function (response ){
+        self.thirdPartyListProfiles = [];
+        angular.forEach(response.data.data, function (value, index) {
+            self.thirdPartyListProfiles.push(value);
+        });
+
+        self.pageCount = response.data.last_page;
+        self.thirdPartyProfileTotal = response.data.total;
+    };
+
+    self.loadFirstPartyListProfilesSuccess = function (response ){
+        self.firstPartyListProfiles = [];
+        angular.forEach(response.data.data, function (value, index) {
+            self.firstPartyListProfiles.push(value);
+        });
+
+        self.pageCount = response.data.last_page;
+        self.firstPartyProfileTotal = response.data.total;
     };
 
     self.loadListProfilesFailureCallback = function ( response ) {
@@ -539,7 +544,7 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
             );
         }
     };
-    
+
     self.closeFeedGroupModal = function () {
         $mdDialog.cancel();
     };

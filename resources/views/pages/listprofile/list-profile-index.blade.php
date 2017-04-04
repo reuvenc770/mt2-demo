@@ -14,8 +14,8 @@
 
                 <!-- Nav tabs -->
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active"><a href="#list_profile" aria-controls="list_profile" ng-click="listProfile.clearSelection();listProfile.loadListProfiles( 3 )" role="tab" data-toggle="tab">3rd Party List Profiles</a></li>
-            <li role="presentation" ><a href="#list_profile_first" aria-controls="list_profile" ng-click="listProfile.clearSelection();listProfile.loadListProfiles( 1 )" role="tab" data-toggle="tab">1st Party List Profiles</a></li>
+            <li role="presentation" class="active"><a href="#list_profile" aria-controls="list_profile" ng-click="listProfile.clearSelection();listProfile.loadListProfiles()" role="tab" data-toggle="tab">3rd Party List Profiles</a></li>
+            <li role="presentation" ><a href="#list_profile_first" aria-controls="list_profile" ng-click="listProfile.clearSelection();listProfile.loadListProfiles()" role="tab" data-toggle="tab">1st Party List Profiles</a></li>
             <li role="presentation"><a href="#list_combines" aria-controls="list_combines" ng-click="listProfile.clearSelection();listProfile.loadListCombines()" role="tab" data-toggle="tab">List Combines
                 <md-icon md-font-set="material-icons" class="mt2-icon-black material-icons icon-xs cmp-tooltip-marker" data-toggle="popover" data-placement="right" data-content="Select 2 or more list profiles to create a list profile combine.">help</md-icon></a>
             </li>
@@ -25,7 +25,7 @@
         <!-- Tab panes -->
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane active" id="list_profile">
-                <md-table-container ng-init="listProfile.loadListProfiles(3)">
+                <md-table-container ng-init="listProfile.loadListProfiles()">
                     <table md-table md-progress="listProfile.queryPromise">
                         <thead md-head class="mt2-theme-thead">
                         <tr md-row>
@@ -72,7 +72,7 @@
                         <tr>
                             <td colspan="9">
                                 <md-content class="md-mt2-zeta-theme">
-                                    <md-table-pagination md-limit="listProfile.paginationCount" md-limit-options="listProfile.paginationOptions" md-page="listProfile.currentPage" md-total="@{{listProfile.thirdPartyProfileTotal}}" md-on-paginate="listProfile.loadListProfiles" md-page-select></md-table-pagination>
+                                    <md-table-pagination md-limit="listProfile.paginationCount" md-limit-options="listProfile.paginationOptions" md-page="listProfile.thirdPartyCurrentPage" md-total="@{{listProfile.thirdPartyProfileTotal}}" md-on-paginate="listProfile.loadListProfiles" md-page-select></md-table-pagination>
                                 </md-content>
                             </td>
                         </tr>
@@ -121,7 +121,7 @@
                         <tr>
                             <td colspan="9">
                                 <md-content class="md-mt2-zeta-theme">
-                                    <md-table-pagination md-limit="listProfile.paginationCount" md-limit-options="listProfile.paginationOptions" md-page="listProfile.currentPage" md-total="@{{listProfile.firstPartyProfileTotal}}" md-on-paginate="listProfile.loadListProfiles" md-page-select></md-table-pagination>
+                                    <md-table-pagination md-limit="listProfile.paginationCount" md-limit-options="listProfile.paginationOptions" md-page="listProfile.firstPartyCurrentPage" md-total="@{{listProfile.firstPartyProfileTotal}}" md-on-paginate="listProfile.loadListProfiles" md-page-select></md-table-pagination>
                                 </md-content>
                             </td>
                         </tr>

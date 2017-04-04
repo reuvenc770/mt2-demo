@@ -70,8 +70,8 @@ class ListProfileService
         $this->baseTableService = $baseTableService;
     }
 
-    public function getModel () {
-        return $this->profileRepo->getModel();
+    public function getModel ( $options = [] ) {
+        return $this->profileRepo->getModel( $options );
     }
 
     public function getType(){

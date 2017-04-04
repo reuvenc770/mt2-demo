@@ -22,11 +22,11 @@ mt2App.service( 'ListProfileApiService' , function ( $http ) {
         } ).then( successCallback , failureCallback );
     };
 
-    self.getListProfiles = function ( page , count , successCallback , failureCallback ) {
+    self.getListProfiles = function ( page , count , partyType , successCallback , failureCallback ) {
         return $http({
             "method" : "GET" ,
             "url" : self.pagerApiUrl ,
-            "params" : { "page" : page , "count" : count }
+            "params" : { "page" : page , "count" : count , "partyType" : partyType }
         }).then( successCallback , failureCallback );
     };
 
