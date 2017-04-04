@@ -47,9 +47,9 @@ class TrackingRepo
             ip_address = ip_address,
             request_session_id = request_session_id,
             user_agent = user_agent,
-            revenue = revenue,
-            updated_at = updated_at,
-            created_at = created_at", 
+            revenue = VALUES(revenue),
+            created_at = created_at,
+            updated_at = NOW()", 
             [
               $data['email_id'],
               $data['deploy_id'],

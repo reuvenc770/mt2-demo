@@ -27,7 +27,7 @@ class CreateCakeActionsTable extends Migration
             $table->string('subid_4', 100)->default('');
             $table->string('subid_5', 100)->default('');
             $table->bigInteger('click_id')->unsigned()->default(0);
-            $table->bigInteger('conversion_id')->unsigned()->nullable();
+            $table->string('conversion_id', 100)->nullable();
             $table->integer('cake_affiliate_id')->unsigned()->default(0);
             $table->integer('cake_advertiser_id')->unsigned()->default(0);
             $table->integer('cake_offer_id')->unsigned()->default(0);
