@@ -189,7 +189,7 @@ class AttributionModelRepo {
     public function syncModelsWithNewFeeds () {
         $feedIds = Feed::pluck( 'id' )->all();
 
-        foreach ( AttributionModel::pluck( 'id' )->all() as $modelId ) {
+        foreach ( $this->models->pluck( 'id' )->all() as $modelId ) {
             $modelLevels = new AttributionLevel( AttributionLevel::BASE_TABLE_NAME . $modelId );
             $modelFeedIds = $modelLevels->pluck( 'feed_id' )->all();
 
