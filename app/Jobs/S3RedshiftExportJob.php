@@ -9,9 +9,13 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Facades\JobTracking;
 use App\Jobs\Traits\PreventJobOverlapping;
 use App\Factories\ServiceFactory;
+use Cache;
+use Mail;
 
 class S3RedshiftExportJob extends Job implements ShouldQueue {
     use InteractsWithQueue, SerializesModels, PreventJobOverlapping;
+
+    const TALLY_KEY = 'ListProfileReadiness';
 
     private $tracking;
     private $entity;
@@ -66,6 +70,8 @@ class S3RedshiftExportJob extends Job implements ShouldQueue {
                 }
 
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking, $rows);
+
+                self::updateNotificationTally( $this->entity , false );
             }
             catch (\Exception $e) {
                 echo "{$this->jobName} failed with {$e->getMessage()}" . PHP_EOL;
@@ -85,4 +91,39 @@ class S3RedshiftExportJob extends Job implements ShouldQueue {
         JobTracking::changeJobState(JobEntry::FAILED,$this->tracking);
     }
 
+    static public function clearNotificationTally () {
+        Cache::forget( self::TALLY_KEY );
+    }
+
+    static public function updateNotificationTally ( $entity , $increment = true ) {
+        $notificationEntities = [ 'EmailFeedAssignment' , 'ListProfileFlatTable' , 'RecordData' ];
+
+        if ( !in_array( $entity , $notificationEntities ) ) {
+            return false;
+        }
+
+        if ( $increment ) {
+            Cache::increment( self::TALLY_KEY );
+
+            return true;
+        }
+
+        Cache::decrement( self::TALLY_KEY );
+
+        $allJobsCompleted = ( 0 === (int)Cache::get( self::TALLY_KEY ) );
+        if ( $allJobsCompleted ) {
+            Mail::raw( 'List Profile Preprocessing Finished.' , function ($message) {
+                $message->to( 'leveloneconsultinggroup@gmail.com' );
+                $message->to( 'jherlihy@zetaglobal.com' );
+                $message->to( 'aperumal@levelocity.net' );
+                $message->to( 'rbertorelli@zetaglobal.com' );
+                $message->to( 'achin@zetaglobal.com' );
+
+                $message->subject('"List Profile Readiness"');
+                $message->priority(1);
+            });
+        }
+
+        return true;
+    }
 }

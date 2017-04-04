@@ -6,7 +6,6 @@ use Illuminate\Console\Command;
 use App\Jobs\S3RedshiftExportJob;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
-
 class S3RedshiftExport extends Command
 {
     use DispatchesJobs;
@@ -27,6 +26,7 @@ class S3RedshiftExport extends Command
 
     private $entities = ['EmailDomain', 'EmailFeedAssignment', 'Email', 'Feed', 'ListProfileFlatTable', 
     'RecordData', 'SuppressionGlobalOrange', 'SuppressionListSuppression', 'DomainGroup', 'Client', 'FirstPartyRecordData'];
+
     /**
      * Create a new command instance.
      *
@@ -43,10 +43,14 @@ class S3RedshiftExport extends Command
      * @return mixed
      */
     public function handle() {
+        S3RedshiftExportJob::clearNotificationTally();
+
         $version = $this->option('all') ? 1 : 0;
         foreach ($this->entities as $entity) {
             $job = new S3RedshiftExportJob($entity, $version, str_random(16));
             $this->dispatch($job);
+
+            S3RedshiftExportJob::updateNotificationTally( $entity );
         }
     }
 }
