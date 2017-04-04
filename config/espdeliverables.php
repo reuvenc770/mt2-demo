@@ -53,6 +53,7 @@ return [
             "rerun" => [
                 'getRerunCampaigns' ,
                 'startTicket' ,
+                'splitTypes' ,
                 'saveRecords',
                 'removeDeploys'
             ]
