@@ -82,14 +82,16 @@ class APIFactory
 
     public static function createTrackingApiService($source, $startDate, $endDate) 
     {
-        $dataName = "{$source}Data";
+        $dataName = "{$source}Action";
         $dataModelName = "App\\Models\\{$dataName}";
         $dataModel = new $dataModelName();
         $dataServiceName = "App\\Services\\TrackingDataService";
         $apiName = "App\\Services\\API\\{$source}Api";
 
         if (class_exists($dataServiceName)) {
-            return new $dataServiceName($source, new TrackingRepo($dataModel), new $apiName($startDate, $endDate));
+            return new $dataServiceName(new TrackingRepo($dataModel), 
+                new $apiName($startDate, $endDate), 
+                App::make(App\Repositories\EspApiAccountRepo::class));
         } else {
             throw new \Exception("That Tracking Service does not exist");
         }

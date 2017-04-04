@@ -18,10 +18,6 @@ class GrabTrackingApiData extends Command
      * @var string
      */
     protected $signature = 'reports:downloadTrackingData {trackingSource} {lookBack?} {processType?} {--s|startDate=none} {--e|endDate=none}';
-    protected $trackingRepo;
-    protected $lookBack;
-    protected $trackingSource;
-    protected $processType = RetrieveTrackingDataJob::PROCESS_TYPE_AGGREGATE;
 
     /**
      * The console command description.
@@ -42,31 +38,35 @@ class GrabTrackingApiData extends Command
      */
     public function handle()
     {
-        $this->trackingSource = $this->argument('trackingSource');
-        $lookbackValue = $this->argument('lookBack');
-        $this->lookBack = (null !== $lookbackValue) ? $this->argument('lookBack') : config('jobs.defaultLookback');
-
-        $startDate = Carbon::now()->subDay($this->lookBack)->toDateString();
-        $endDate = Carbon::now()->toDateString();
-
-        if ( $this->option( 'startDate' ) != 'none' && $this->option( 'endDate' ) != 'none' ) {
-            $startDate = $this->option( 'startDate' );
-            $endDate = $this->option( 'endDate' );
-        }
+        $trackingSource = $this->argument('trackingSource');
+        $lookBack = $this->argument('lookBack') ?: config('jobs.defaultLookback');
 
         if ( $this->argument( 'processType' ) == 'record' ) {
-            $this->processType = RetrieveTrackingDataJob::PROCESS_TYPE_RECORD;
+            $processType = RetrieveTrackingDataJob::PROCESS_TYPE_RECORD;
+
+            $start = Carbon::today()->subDays($lookBack)->toDateString();
+            $end = Carbon::today()->toDateString();
+
+            if ( $this->option( 'startDate' ) != 'none' && $this->option( 'endDate' ) != 'none' ) {
+                $start = $this->option( 'startDate' );
+                $end = $this->option( 'endDate' );
+            }
+        }
+        else {
+            $processType = RetrieveTrackingDataJob::PROCESS_TYPE_ACTION;
+            $start = Carbon::now()->subHours($lookBack)->toDateTimeString();
+            $end = Carbon::now()->toDateTimeString();
         }
 
-        $cakeLog = "Running Cake from {$startDate} to {$endDate}";
+        $cakeLog = "Running {$trackingSource} from {$start} to {$end}";
         $this->info($cakeLog);
         $this->dispatch(
             new RetrieveTrackingDataJob(
-                $this->trackingSource,
-                $startDate ,
-                $endDate,
+                $trackingSource,
+                $start,
+                $end,
                 str_random( 16 ) ,
-                $this->processType
+                $processType
             )
         );
 
