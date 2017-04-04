@@ -308,6 +308,12 @@ mt2App.controller( 'ListProfileController' , [ 'ListProfileApiService'  , 'FeedG
 
             self.columnList = columnsTemp;
 
+            var currentExportInterval = self.current.exportOptions.interval[0];
+
+            if ( currentExportInterval === 'Never' ) {
+                self.current.exportOptions.interval[0] = 'Immediately';
+            }
+
         } , 1500 );
     };
 

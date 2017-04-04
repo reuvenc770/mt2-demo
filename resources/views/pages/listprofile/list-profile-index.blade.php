@@ -63,7 +63,9 @@
                             <td md-cell nowrap>@{{ ( profile.openers_start + ' to ' + profile.openers_end ) }} (@{{ ::( profile.open_count + 'x' ) }})</td>
                             <td md-cell nowrap>@{{ ( profile.clickers_start + ' to ' + profile.clickers_end ) }} (@{{ ::( profile.click_count + 'x' ) }})</td>
                             <td md-cell nowrap>@{{ ( profile.converters_start + ' to ' + profile.converters_end ) }} (@{{ ::( profile.conversion_count + 'x' ) }})</td>
-                            <td md-cell ng-bind="profile.run_frequency" nowrap></td>
+                            <td md-cell nowrap>
+                                @{{ profile.run_frequency === 'Never' ? 'Immediately' : profile.run_frequency }}
+                            </td>
                             <td md-cell ng-bind="profile.total_count" nowrap></td>
                             <td md-cell ng-bind="profile.schedule.last_run" nowrap></td>
                         </tr>
@@ -112,7 +114,9 @@
                             <td md-cell nowrap>@{{ ( profile.openers_start + ' to ' + profile.openers_end ) }} (@{{ ::( profile.open_count + 'x' ) }})</td>
                             <td md-cell nowrap>@{{ ( profile.clickers_start + ' to ' + profile.clickers_end ) }} (@{{ ::( profile.click_count + 'x' ) }})</td>
                             <td md-cell nowrap>@{{ ( profile.converters_start + ' to ' + profile.converters_end ) }} (@{{ ::( profile.conversion_count + 'x' ) }})</td>
-                            <td md-cell ng-bind="profile.run_frequency" nowrap></td>
+                            <td md-cell nowrap>
+                                @{{ profile.run_frequency === 'Never' ? 'Immediately' : profile.run_frequency }}
+                            </td>
                             <td md-cell ng-bind="profile.total_count" nowrap></td>
                             <td md-cell ng-bind="profile.schedule.last_run" nowrap></td>
                         </tr>
