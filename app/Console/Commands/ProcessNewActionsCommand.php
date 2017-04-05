@@ -22,7 +22,7 @@ class ProcessNewActionsCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'newActions:process {--h|hoursBack= : How far back to look for actions} {--s|startDateTime= : Beginning of datetime range to look for actions.} {--e|endDateTime= : End of datetime range to look for actions.}';
+    protected $signature = 'newActions:process {--hoursBack= : How far back to look for actions} {--s|startDateTime= : Beginning of datetime range to look for actions.} {--e|endDateTime= : End of datetime range to look for actions.}';
 
     /**
      * The console command description.
