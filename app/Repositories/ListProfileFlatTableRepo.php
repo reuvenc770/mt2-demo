@@ -80,7 +80,8 @@ class ListProfileFlatTableRepo implements IAwsRepo {
 
     private function prepareConversionData($row) {
         $conversionFlag = ((int)$row->conversions) > 0 ? 1 : 0;
-        return "('{$row->email_id}', '{$row->deploy_id}', '{$row->date}', '$conversionFlag', '$conversionFlag', '{$row->conversions}', NOW(), NOW())";
+        $clickFlag = ((int)$row->clicks) > 0 ? 1 : 0;
+        return "('{$row->email_id}', '{$row->deploy_id}', '{$row->date}', '$clickFlag', '$clickFlag', '$conversionFlag', '$conversionFlag', '{$row->clicks}', '{$row->conversions}', NOW(), NOW())";
     }
 
 
@@ -91,7 +92,7 @@ class ListProfileFlatTableRepo implements IAwsRepo {
             $inserts = implode(',', $this->batchData);
 
             DB::statement("INSERT INTO $schema.list_profile_flat_table 
-                (email_id, deploy_id, date, has_tracking_conversion, has_conversion, conversions, created_at, updated_at)
+                (email_id, deploy_id, date, has_tracking_click, has_click, has_tracking_conversion, has_conversion, clicks, conversions, created_at, updated_at)
 
                 VALUES $inserts
 
@@ -104,11 +105,13 @@ class ListProfileFlatTableRepo implements IAwsRepo {
                 email_domain_group_id = email_domain_group_id,
                 offer_id = offer_id,
                 cake_vertical_id = cake_vertical_id,
+                has_tracking_click = IF(VALUES(has_tracking_click) > 0, VALUES(has_tracking_click), has_tracking_click),
+                has_click = IF(VALUES(has_click) > 0, VALUES(has_click), has_click),
                 has_tracking_conversion = IF(VALUES(has_tracking_conversion) > 0, VALUES(has_tracking_conversion), has_tracking_conversion),
                 has_conversion = IF(VALUES(has_conversion) > 0, VALUES(has_conversion), has_conversion),
                 deliveries = deliveries,
                 opens = opens,
-                clicks = clicks, # Clicks we should have as well ... 
+                clicks = VALUES(clicks),
                 conversions = VALUES(conversions),
                 created_at = created_at,
                 updated_at = NOW()");

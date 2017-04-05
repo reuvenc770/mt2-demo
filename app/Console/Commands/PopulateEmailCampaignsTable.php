@@ -15,10 +15,7 @@ class PopulateEmailCampaignsTable extends Command {
     protected $description = 'Populate the email_campaign_statistics aggregate table';
     protected $lookBack = 5;
     protected $trackingSource = 'Cake';
-    private $jobs = [
-        'PopulateEmailCampaignStats',
-        'PullCakeDeliverableStats',
-        'UpdateContentServerStats'];
+    private $jobs = ['PopulateEmailCampaignStats', 'PullCakeDeliverableStats'];
 
     public function __construct() {
         parent::__construct();

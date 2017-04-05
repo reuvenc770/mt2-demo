@@ -171,7 +171,7 @@ class Kernel extends ConsoleKernel
         //$schedule->command('reports:downloadApi Ymlp --daysBack=31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Publicators --daysBack=31')->monthly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Bronto --daysBack=31')->monthly()->sendOutputTo($filePath);
-        $schedule->command('reports:downloadTrackingData Cake 31')->monthly()->sendOutputTo($filePath);
+        #$schedule->command('reports:downloadTrackingData Cake 31')->monthly()->sendOutputTo($filePath);
         $schedule->command('aweber:processUniques 31')->monthly()->sendOutputTo($filePath);
 
         /**

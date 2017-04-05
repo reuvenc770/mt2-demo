@@ -10,6 +10,7 @@ abstract class AbstractLargeRedshiftDataValidation {
     protected $redshiftRepo;
     const IDEAL_CORRECT_RATE = 0.999;
     const TEST_COUNT = 10000;
+    const ACCEPTABLE_DIFF_RATE = 0.00001;
     
 
     public function __construct($cmpRepo, $redshiftRepo) {

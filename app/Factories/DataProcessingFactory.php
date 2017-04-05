@@ -13,7 +13,7 @@ use App\Repositories\ContentServerActionRepo;
 use App\Models\EmailCampaignStatistic;
 use App\Models\EmailAction;
 use App\Models\ActionType;
-use App\Models\CakeData;
+use App\Models\CakeAction;
 use App\Models\ContentServerAction;
 
 use App\Services\EmailCampaignAggregationService;
@@ -51,7 +51,7 @@ class DataProcessingFactory {
                 return self::createProcessCfsStatsService();
 
             case('ListProfileAggregation'):
-                return \App::make(\App\Services\ListProfileActionAggregationService::class);
+                return self::createListProfileAggregator();
 
             case('ContentServerDeviceData'):
                 return \App::make(\App\Services\SetDeviceService::class);
@@ -230,10 +230,10 @@ class DataProcessingFactory {
         $statsModel = new EmailCampaignStatistic();
         $statsRepo = new EmailCampaignStatisticRepo($statsModel);
 
-        $trackingModel = new CakeData();
+        $trackingModel = new CakeAction();
         $trackingRepo = new TrackingRepo($trackingModel);
 
-        return new \App\Services\TrackingDeliverableService($trackingRepo, $statsRepo);        
+        return new \App\Services\TrackingDeliverableService($trackingRepo, $statsRepo);
     }
 
     private static function createUpdateContentServerStatsService() {
@@ -317,6 +317,14 @@ class DataProcessingFactory {
         $fromRepo = new \App\Repositories\FromOpenRateRepo($fromModel);
 
         return new \App\Services\PopulateCfsStatsService($deployRepo, $stdRepo, $crRepo, $fromRepo, $subjRepo);
+    }
+
+    private static function createListProfileAggregator() {
+        $eaRepo = App::make(\App\Repositories\EmailActionsRepo::class);
+        $trackingRepo = new \App\Repositories\TrackingRepo(new \App\Models\CakeAction());
+        $lpRepo = App::make(\App\Repositories\ListProfileFlatTableRepo::class)
+        $pickupRepo = App::make(\App\Repositories\EtlPickupRepo::class);
+        return new \App\Services\ListProfileActionAggregationService($eaRepo, $trackingRepo, $lpRepo, $pickupRepo);
     }
 
 }
