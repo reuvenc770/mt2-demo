@@ -18,7 +18,7 @@ trait PaginateList {
 
         } else {
             try {
-                $eloquentObj = $this->getModel();
+                $eloquentObj = $this->getModel( $options );
 
                 if ( isset( $options['sort'] ) ){
                     $sort = json_decode( $options['sort'] , true );
@@ -64,5 +64,5 @@ trait PaginateList {
     public function getType(){
         return class_basename($this->getModel());
     }
-    abstract public function getModel();
+    abstract public function getModel( $options = [] );
 }

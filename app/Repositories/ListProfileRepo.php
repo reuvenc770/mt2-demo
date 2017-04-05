@@ -49,8 +49,12 @@ class ListProfileRepo
         $this->client = $client;
     }
 
-    public function getModel () {
-        return $this->listProfile->with( 'schedule' );
+    public function getModel ( $options = [] ) {
+        $model = $this->listProfile->with( 'schedule' );
+        if ( isset( $options['partyType'] ) && in_array( $options['partyType'], [1,2,3] ) ){
+            $model->where('party' , $options['partyType'] );
+        }
+        return $model;
     }
 
     public function create ( $data ) {
