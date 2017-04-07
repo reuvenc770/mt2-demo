@@ -97,7 +97,7 @@ class S3RedshiftExportJob extends Job implements ShouldQueue {
         Cache::forget( self::TALLY_KEY );
     }
 
-    public function updateNotificationTally ( $entity , $increment = true ) {
+    protected function updateNotificationTally ( $entity , $increment = true ) {
         $notificationEntities = [ 'EmailFeedAssignment' , 'ListProfileFlatTable' , 'RecordData' ];
 
         if ( !in_array( $entity , $notificationEntities ) ) {
