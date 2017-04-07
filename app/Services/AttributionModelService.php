@@ -68,4 +68,8 @@ class AttributionModelService {
     public function getNonliveModels () {
         return $this->repo->getNonliveModels();
     }
+
+    public function syncModelsWithNewFeeds () {
+        $this->repo->syncModelsWithNewFeeds();
+    }
 }
