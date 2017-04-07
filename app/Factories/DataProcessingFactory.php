@@ -322,7 +322,7 @@ class DataProcessingFactory {
     private static function createListProfileAggregator() {
         $eaRepo = App::make(\App\Repositories\EmailActionsRepo::class);
         $trackingRepo = new \App\Repositories\TrackingRepo(new \App\Models\CakeAction());
-        $lpRepo = App::make(\App\Repositories\ListProfileFlatTableRepo::class)
+        $lpRepo = App::make(\App\Repositories\ListProfileFlatTableRepo::class);
         $pickupRepo = App::make(\App\Repositories\EtlPickupRepo::class);
         return new \App\Services\ListProfileActionAggregationService($eaRepo, $trackingRepo, $lpRepo, $pickupRepo);
     }
