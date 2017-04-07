@@ -113,11 +113,8 @@ class S3RedshiftExportJob extends Job implements ShouldQueue {
         $allJobsCompleted = ( 0 === (int)Cache::get( self::TALLY_KEY ) );
         if ( $allJobsCompleted ) {
             Mail::raw( 'List Profile Preprocessing Finished.' , function ($message) {
-                $message->to( 'leveloneconsultinggroup@gmail.com' );
-                $message->to( 'jherlihy@zetaglobal.com' );
-                $message->to( 'aperumal@levelocity.net' );
-                $message->to( 'rbertorelli@zetaglobal.com' );
-                $message->to( 'achin@zetaglobal.com' );
+                $message->to( 'GTDDev@zetaglobal.com' );
+                $message->to( 'orangeac@zetaglobal.com' );
 
                 $message->subject('"List Profile Readiness"');
                 $message->priority(1);
