@@ -49,8 +49,6 @@ class S3RedshiftExport extends Command
         foreach ($this->entities as $entity) {
             $job = new S3RedshiftExportJob($entity, $version, str_random(16));
             $this->dispatch($job);
-
-            S3RedshiftExportJob::updateNotificationTally( $entity );
         }
     }
 }

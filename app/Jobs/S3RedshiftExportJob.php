@@ -42,6 +42,8 @@ class S3RedshiftExportJob extends Job implements ShouldQueue {
         $this->version = $version;
         $this->extraData = $extraData;
 
+        $this->updateNotificationTally( $entity );
+
         JobTracking::startAggregationJob($this->jobName, $this->tracking);
     }
 
@@ -95,7 +97,7 @@ class S3RedshiftExportJob extends Job implements ShouldQueue {
         Cache::forget( self::TALLY_KEY );
     }
 
-    static public function updateNotificationTally ( $entity , $increment = true ) {
+    public function updateNotificationTally ( $entity , $increment = true ) {
         $notificationEntities = [ 'EmailFeedAssignment' , 'ListProfileFlatTable' , 'RecordData' ];
 
         if ( !in_array( $entity , $notificationEntities ) ) {
