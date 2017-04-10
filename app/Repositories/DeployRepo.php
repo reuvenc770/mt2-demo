@@ -73,17 +73,7 @@ class DeployRepo implements Mt2Export
 
     public function insert($data)
     {
-        # Small change for testing
-        $pickupRepo = App::make(EtlPickupRepo::class);
-        $testingId = $pickupRepo->getLastInsertedForName('TestDeploys');
-
-        $data['id'] = (int)$testingId + 1;
-
-        $insert = $this->deploy->create($data);
-
-        $pickupRepo->updatePosition('TestDeploys', (int)$testingId + 1);
-
-        return $insert;
+        return $this->deploy->create($data);
     }
 
     public function getDeploy($id)

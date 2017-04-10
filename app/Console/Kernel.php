@@ -102,6 +102,7 @@ class Kernel extends ConsoleKernel
         Commands\RegenerateAttributionModelReportTables::class,
         Commands\TestFeedFileGenerator::class,
         Commands\BulkInsertDelivers::class,
+        Commands\SyncModelsWithNewFeedsCommand::class,
     ];
 
     /**
@@ -211,6 +212,7 @@ class Kernel extends ConsoleKernel
          *
          */
         $schedule->command('ftp:admin -H ' . config('ssh.servers.mt1_feed_file_server.host') . ' -U ' . config('ssh.servers.mt1_feed_file_server.username') . ' -k ' . config('ssh.servers.mt1_feed_file_server.public_key') . ' -K ' . config('ssh.servers.mt1_feed_file_server.private_key') . ' -u -s Feed')->everyFiveMinutes();
+        $schedule->command( 'attribution:syncModelsWithNewFeeds' )->everyThirtyMinutes();
 
         /**
          *  MT1 data sync jobs

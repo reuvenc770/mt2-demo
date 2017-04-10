@@ -11,6 +11,7 @@ use App\Repositories\AttributionFeedReportRepo;
 use App\Repositories\EmailFeedAssignmentRepo;
 use App\Models\AttributionLevel;
 use App\Models\AttributionModel;
+use App\Models\Feed;
 use Maknz\Slack\Facades\Slack;
 
 use Log;
@@ -19,9 +20,11 @@ class AttributionModelRepo {
     CONST SLACK_TARGET_SUBJECT = '#mt2-dev-failed-jobs';
 
     protected $models;
+    protected $feeds;
 
-    public function __construct ( AttributionModel $models ) {
+    public function __construct ( AttributionModel $models , Feed $feeds ) {
         $this->models = $models;
+        $this->feeds = $feeds;
     }
 
     public function getModel () {
@@ -183,6 +186,38 @@ class AttributionModelRepo {
             unset( $newLevel );
         }
         return true;
+    }
+
+    public function syncModelsWithNewFeeds () {
+        $feedIds = $this->feeds->pluck( 'id' )->all();
+
+        foreach ( $this->models->pluck( 'id' )->all() as $modelId ) {
+            $modelLevels = new AttributionLevel( AttributionLevel::BASE_TABLE_NAME . $modelId );
+            $modelFeedIds = $modelLevels->pluck( 'feed_id' )->all();
+
+            $missingFeeds = array_diff( $feedIds , $modelFeedIds );
+
+            sort( $missingFeeds );
+
+            $maxLevel = $modelLevels->orderBy( 'level' , 'desc' )->take( 1 )->pluck( 'level' )->all();
+
+            $currentLevel = 1;
+            if ( count( $maxLevel ) > 0 ) {
+                $currentLevel += array_pop( $maxLevel );
+            }
+
+            foreach ( $missingFeeds as $feedId ) {
+                $newLevel = new AttributionLevel( AttributionLevel::BASE_TABLE_NAME . $modelId );
+                $newLevel->feed_id = $feedId;
+                $newLevel->level = $currentLevel;
+                $newLevel->active = 1;
+                $newLevel->save();
+
+                $currentLevel++;
+            }
+        }
+
+        $this->setLive( self::getLiveModelId() );
     }
 
     public function setProcessingFlag ( $modelId , $running ) {
