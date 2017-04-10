@@ -53,11 +53,13 @@ SQL;
         DB::connection('redshift')->statement('VACUUM SORT ONLY');
     }
 
-    public function findAggregation($deployId, $date) {
+    public function getRandomSample($lookback, $size) {
+        // So this is actually quite efficient and fast in redshift
         return $this->model
-                    ->where('deploy_id', $deployId)
-                    ->where('date', $date)
-                    ->selectRaw("SUM(has_click) as clicks, SUM(has_open) as opens, SUM(has_conversion) as conversions")
-                    ->first();
+                    ->selectRaw("deploy_id, sum(has_click) as clicks, sum(has_open) as opens, sum(has_conversion) as conversions")
+                    ->whereRaw("date >= current_date - interval '$lookback day'")
+                    ->inRandomOrder()
+                    ->take($size)
+                    ->get();
     }
 }

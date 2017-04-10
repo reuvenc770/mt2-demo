@@ -5,7 +5,6 @@ namespace App\Jobs;
 use App\Jobs\Job;
 use App\Models\ActionType;
 use App\Repositories\EmailActionsRepo;
-use App\Repositories\EmailRecordRepo;
 use App\Repositories\RawDeliveredEmailRepo;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -38,32 +37,27 @@ class BulkInsertDelivers extends Job implements ShouldQueue
      *
      * @return void
      */
-    public function handle(RawDeliveredEmailRepo $rawRepo, EmailRecordRepo $emailRecordRepo)
+    public function handle(RawDeliveredEmailRepo $rawRepo, EmailActionsRepo $actionsRepo)
     {
         if ($this->jobCanRun($this->name)) {
             try {
                 $this->createLock($this->name);
                 JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
                 echo "{$this->name} running" . PHP_EOL;
-                
-                $recordsToInsert = [];
+     
                 $grabbedRecords = $rawRepo->pullModelSince($this->lookBack);
-                $grabbedRecords->chunk(10000, function($records) use ($emailRecordRepo) {
-                    $boolRecordsHaveIds = true;
-                    foreach($records as $record){
-                        $recordsToInsert[] = [
-                            'email' => $record->email_id,
-                            'recordType' => "deliverable" ,
-                            'espId' => $record->esp_account_id,
-                            'deployId' => $record->deploy_id,
-                            'espInternalId' => $record->esp_internal_id,
-                            'date' => $record->datetime,
-                        ];
+
+                $grabbedRecords->chunk(10000, function($records) use ($actionsRepo) {
+                    $recordsToInsert = [];
+                    foreach($records as $row) {
+                        $recordsToInsert[] = '(' . $row->email_id .','. $row->deploy_id .','. $row->esp_account_id .','. $row->esp_internal_id .',4,'. $row->datetime .', now())';
                     }
-                    $emailRecordRepo->massRecordDeliverables($recordsToInsert, $boolRecordsHaveIds);
+
+                    $actionsRepo->upsertDelivered($recordsToInsert);
                 });
-                
+
                 $rawRepo->clearOutPast($this->lookBack + 5);
+
                 JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
             }
             catch (\Exception $e) {

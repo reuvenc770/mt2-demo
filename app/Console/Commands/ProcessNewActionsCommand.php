@@ -72,8 +72,8 @@ class ProcessNewActionsCommand extends Command
             }
 
             $this->dateTimeRange = [
-                'start' => Carbon::parse( $this->option( 'startDateTime' ) )->toDateString() ,
-                'end' => Carbon::parse( $this->option( 'endDateTime' ) )->toDateString()
+                'start' => Carbon::parse( $this->option( 'startDateTime' ) )->toDateTimeString() ,
+                'end' => Carbon::parse( $this->option( 'endDateTime' ) )->toDateTimeString()
             ];
         }
     }

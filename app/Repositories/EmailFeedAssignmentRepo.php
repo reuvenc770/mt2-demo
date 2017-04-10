@@ -13,6 +13,7 @@ use App\Repositories\RepoInterfaces\ICanonicalDataSource;
 
 use App\Models\EmailFeedAssignment;
 use App\Models\EmailFeedAssignmentHistory;
+use App\Models\RedshiftModels\EmailFeedAssignment as RedshiftModel;
 
 use DB;
 
@@ -221,6 +222,17 @@ class EmailFeedAssignmentRepo implements IAwsRepo, ICanonicalDataSource {
         }
 
         return $output;
+    }
+
+    public function matches(RedshiftModel $obj) {
+        $result = $this->model->find($obj->email_id);
+
+        if ($result) {
+            return $result->feed_id === $obj->feed_id;
+        }
+        else {
+            return false;
+        }
     }
 
 }

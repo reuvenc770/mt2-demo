@@ -44,18 +44,6 @@ SQL;
         $this->loadEntity($entity);
     }
 
-    public function matches($obj) {
-        $result = $this->model->find($obj->email_id);
-
-        if ($result) {
-            return ($result->is_deliverable === $obj->is_deliverable)
-                && ($result->subscribe_date === $obj->subscribe_date);
-        }
-        else {
-            return false;
-        }
-    }
-
     public function getActionDateDistribution() {
         $output = [];
         // 15 days is the attribution import shield
@@ -70,5 +58,10 @@ SQL;
         }
 
         return $output;
+    }
+
+    public function getRandomSample($number) {
+        // So this is actually quite efficient and fast in redshift
+        return $this->model->inRandomOrder()->take($number)->get();
     }
 }
