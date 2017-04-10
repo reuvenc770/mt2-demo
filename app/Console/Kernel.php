@@ -156,7 +156,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:downloadApi Publicators --daysBack=5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadApi Bronto --daysBack=5')->hourly()->sendOutputTo($filePath);
         $schedule->command('reports:downloadTrackingData Cake 5')->hourly()->sendOutputTo($filePath);
-        $schedule->command('process:cfsStats')->cron('0 */4 * * *');
+        $schedule->command('process:cfsStats')->cron('0 */4 * * *'); // Job name like: ProcessCfsStats
         
         
 
@@ -176,6 +176,7 @@ class Kernel extends ConsoleKernel
 
         /**
          * Record-level Data
+         * Job name like: RetrieveDeliverableReports%
          */
         $deliverableFilePath = storage_path( 'logs' ) . "/downloadDeliverables.log";
         $schedule->command( 'reports:downloadDeliverables Campaigner:delivered 2 Campaigner' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
@@ -192,11 +193,11 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'reports:downloadDeliverables Publicators:delivers 2 Publicators' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
         $schedule->command( 'reports:downloadDeliverables AWeber 5 AWeber' )->dailyAt( self::DELIVERABLE_SCHEDULE_TIME )->sendOutputTo( $deliverableFilePath );
 
-        $schedule->command( 'reports:populateStats')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
+        $schedule->command( 'reports:populateStats')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath); // Job name like: PopulateEmailCampaignStats, PullCakeDeliverableStats
         //$schedule->command( 'reports:populateAttrBaseRecords')->dailyAt(self::DELIVERABLE_AGGREGATION_TIME)->sendOutputTo($deliverableFilePath);
-        $schedule->command('process:useragents')->hourly();
+        $schedule->command('process:useragents')->hourly(); // Job name like: ProcessUserAgents
         $schedule->command('reports:findIncompleteDeploys')->dailyAt(self::DEPLOY_CHECK_TIME);
-        $schedule->command('insert:delivers 2')->cron('0 6 * * * *');
+        $schedule->command('insert:delivers 2')->cron('0 6 * * * *'); // Job name like: BulkInsertDelivers
 
 
         /**
@@ -213,6 +214,7 @@ class Kernel extends ConsoleKernel
 
         /**
          *  MT1 data sync jobs
+         *  Job names like: ImportMt1
          */
         $schedule->command('mt1Import offer')->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command('mt1Import advertiser')->dailyAt(self::MT1_SYNC_TIME);
@@ -246,7 +248,7 @@ class Kernel extends ConsoleKernel
          */
          
         // Attribution jobs disabled temporarily until launch
-        $schedule->command('runFilter expiration')->dailyAt(self::EXPIRATION_RUNS);
+        $schedule->command('runFilter expiration')->dailyAt(self::EXPIRATION_RUNS); // Job name: Scheduled Filter Expiration
         #$schedule->command('attribution:commit daily')->dailyAt(self::ATTRIBUTION_UPDATE_TIME);
         $schedule->command( 'attribution:conversion -P realtime' )->dailyAt( self::ATTRIBUTION_REPORT_EARLY_UPDATE_TIME ); #early conversion grab & report updating
         $schedule->command( 'attribution:conversion -P rerun' )->dailyAt( self::ATTRIBUTION_REPORT_UPDATE_TIME ); #daily rerun
@@ -254,26 +256,26 @@ class Kernel extends ConsoleKernel
         $schedule->command( 'attribution:conversion -P rerun -D month -m current' )->monthlyOn( 20 , self::ATTRIBUTION_REPORT_UPDATE_TIME ); #early monthly rerun
         $schedule->command( 'attribution:conversion -P rerun -D month -m current' )->monthlyOn( 28 , self::ATTRIBUTION_REPORT_UPDATE_TIME ); #monthly rerun
         $schedule->command( 'attribution:conversion -P rerun -D month -m last' )->monthlyOn( 1 , self::ATTRIBUTION_REPORT_UPDATE_TIME ); #final monthly rerun
-        $schedule->command('attribution:validate')->dailyAt(self::FEED_FILE_PROCESS_TIME);
+        $schedule->command('attribution:validate')->dailyAt(self::FEED_FILE_PROCESS_TIME); // Job name: AttributionValidation
         
         /**
          *  List profile jobs
          */
 
-        $schedule->command('listprofile:dataEtl')->cron('30 6,13,16 * * 1-6 *');
+        $schedule->command('listprofile:dataEtl')->cron('30 6,13,16 * * 1-6 *'); // Job names like: %-s3
         $schedule->command('listprofile:dataEtl --all')->cron('0 1 * * 7 *');
         $schedule->command('listprofile:optimize')->weekly();
-        $schedule->command('listprofile:aggregateActions')->cron('0 4,14 * * * *');
-        $schedule->command('listprofile:contentServerRawStats')->hourly();
-        $schedule->command('listprofile:getRecordAgentData 5')->hourly();
-        $schedule->command('listprofile:baseTables')->cron('30 7,12,16 * * 1-6 *');
-        $schedule->command('listprofile:validateRedshift 1')->cron('0 4 * * * *');
+        $schedule->command('listprofile:aggregateActions')->cron('0 4,14 * * * *'); // Job name: ListProfileAggregation
+        $schedule->command('listprofile:contentServerRawStats')->hourly(); // Job name: ProcessContentServerRawStats
+        $schedule->command('listprofile:getRecordAgentData 2')->hourly(); // Job name: ContentServerDeviceData
+        $schedule->command('listprofile:baseTables')->cron('30 7,12,16 * * 1-6 *'); // Job name like: ListProfileExport%
+        $schedule->command('listprofile:validateRedshift 1')->cron('0 4 * * * *'); // Job names like: DataValidation & upper-case entity
 
         /**
          * Feed File Processing
          */
-        $schedule->command( 'feedRecords:processRawFiles' )->everyFiveMinutes();
-        $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME );
+        $schedule->command( 'feedRecords:processRawFiles' )->everyFiveMinutes(); // Job name like: ProcessFeedRawFilesJob%
+        $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::EARLY_DELIVERABLE_SCHEDULE_TIME ); // Job name: UpdateFeedCountJob
         $schedule->command( 'feedRecords:updateCounts' )->dailyAt( self::UPDATE_SOURCE_COUNTS );
 
         // Currently commented-out. Waiting for everything going live
@@ -287,7 +289,7 @@ class Kernel extends ConsoleKernel
         #$schedule->command('feedRecords:process 1 --feed=2979')->cron('*/2 * * * * *');
         
         // Process third party feeds, broken down by starting letter of email address
-        $schedule->command('feedRecords:process 3 --startChars=0123456789')->cron('*/2 * * * * *');
+        $schedule->command('feedRecords:process 3 --startChars=0123456789')->cron('*/2 * * * * *'); // Job names like: FeedProcessing%
         $schedule->command('feedRecords:process 3 --startChars=ab')->cron('*/2 * * * * *');
         $schedule->command('feedRecords:process 3 --startChars=cd')->cron('*/2 * * * * *');
         $schedule->command('feedRecords:process 3 --startChars=efgh')->cron('*/2 * * * * *');
@@ -308,9 +310,9 @@ class Kernel extends ConsoleKernel
         /**
          * AWeber Jobs
          */
-        $schedule->command('aweber:processUniques 15')->cron("10 0,6,12,18 * * *")->sendOutputTo($filePath);
-        $schedule->command('aweber:updateAWeberLists' )->dailyAt( self::AWEBER_TIME);
-        $schedule->command('aweber:processAWeberActions')->cron("30 0,6,12,18 * * *")->sendOutputTo($filePath);
+        $schedule->command('aweber:processUniques 15')->cron("10 0,6,12,18 * * *")->sendOutputTo($filePath); // Job name like: ProcessAweberUniques
+        $schedule->command('aweber:updateAWeberLists' )->dailyAt( self::AWEBER_TIME); // Job name: AWeberUpdateLists
+        $schedule->command('aweber:processAWeberActions')->cron("30 0,6,12,18 * * *")->sendOutputTo($filePath); // Job name: AWeberActionImmigration
 
 
         /**
@@ -321,10 +323,11 @@ class Kernel extends ConsoleKernel
 
         /**
          *  Data consistency jobs
+         *  Job names like DataValidation followed by lower case entity (middle item)
          */
         $schedule->command("dataValidation emails exists")->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command("dataValidation emailFeedInstances exists")->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command("dataValidation emailFeedAssignments value")->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command("newActions:process --hoursBack=1")->cron("30 * * * * *");
+        $schedule->command("newActions:process --hoursBack=1")->cron("30 * * * * *"); // Job name like: ProcessNewActions%
     }
 }
