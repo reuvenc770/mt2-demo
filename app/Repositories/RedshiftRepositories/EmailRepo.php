@@ -5,7 +5,6 @@ namespace App\Repositories\RedshiftRepositories;
 use App\Models\RedshiftModels\Email;
 use App\Repositories\RepoInterfaces\IRedshiftRepo;
 use DB;
-use App\Models\Email as CmpEmail;
 
 class EmailRepo implements IRedshiftRepo {
     
@@ -52,11 +51,6 @@ SQL;
 
     }
 
-    public function matches(CmpEmail $obj) {
-        $result = $this->model->find($obj->id);
-        return $result !== null;
-    }
-
     public function getDistribution() {
         $output = [];
 
@@ -70,5 +64,10 @@ SQL;
         }
 
         return $output;
+    }
+
+    public function getRandomSample($number) {
+        // So this is actually quite efficient and fast in redshift
+        return $this->model->inRandomOrder()->take($number)->get();
     }
 }

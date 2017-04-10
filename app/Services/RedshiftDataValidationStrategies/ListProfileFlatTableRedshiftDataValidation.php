@@ -14,7 +14,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 class ListProfileFlatTableRedshiftDataValidation extends AbstractLargeRedshiftDataValidation {
     
     private $badEmailSegments = [];
-    const TEST_COUNT = 5000;
+    const SAMPLE_SIZE = 5000;
     private $lookback;
 
     private $cacheStorageTime = 120; // Redis key storage in minutes
@@ -53,9 +53,11 @@ class ListProfileFlatTableRedshiftDataValidation extends AbstractLargeRedshiftDa
         // Due to current setup, checking all days is unfortunately out of the question.
 
         $cmpTime = 0;
-        $redshiftTime = 0;
+        $redshiftTime = 0; 
 
-        while ($i < self::TEST_COUNT) {
+        $data = $this->redshiftRepo->getRandomSample($this->lookback, self::SAMPLE_SIZE);
+
+        while ($i < self::SAMPLE_SIZE) {
             // pick a random date
             $date = array_rand($dates);
 
@@ -97,14 +99,14 @@ class ListProfileFlatTableRedshiftDataValidation extends AbstractLargeRedshiftDa
         Cache::tags('list_profile_flat_check')->flush();
 
         // sn = sqrt(np(1-p)). se is sn / sqrt(sample_size).
-        $sampleStdDev = sqrt((self::TEST_COUNT * ($matches / self::TEST_COUNT) * ((self::TEST_COUNT - $matches) / self::TEST_COUNT)) );
+        $sampleStdDev = sqrt((self::SAMPLE_SIZE * ($matches / self::SAMPLE_SIZE) * ((self::SAMPLE_SIZE - $matches) / self::SAMPLE_SIZE)) );
         
         $testEnd = microtime(true);
         $testTime = $testEnd - $testStart;
-        Log::info("ListProfileFlatTable has $matches matches out of " . self::TEST_COUNT . " with sample std dev $sampleStdDev.");
+        Log::info("ListProfileFlatTable has $matches matches out of " . self::SAMPLE_SIZE . " with sample std dev $sampleStdDev.");
         Log::info("ListProfileFlatTable took $testTime seconds. $redshiftTime for redshift and $cmpTime for CMP db.");
 
-        return ($matches / self::TEST_COUNT) > (self::IDEAL_CORRECT_RATE - (1.65 * ($sampleStdDev / sqrt(self::TEST_COUNT))));
+        return ($matches / self::SAMPLE_SIZE) > (self::IDEAL_CORRECT_RATE - (1.65 * ($sampleStdDev / sqrt(self::SAMPLE_SIZE))));
     }  
 
 

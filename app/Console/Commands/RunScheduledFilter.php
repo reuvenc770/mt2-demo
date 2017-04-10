@@ -22,7 +22,7 @@ class RunScheduledFilter extends Command
      *
      * @var string
      */
-    protected $description = 'Run Scheduled Filters {filter} {days lookback} ';
+    protected $description = 'Run Scheduled Filters {filter} {daysback} ';
 
     /**
      * Create a new command instance.
