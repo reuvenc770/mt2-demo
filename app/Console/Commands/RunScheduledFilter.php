@@ -46,7 +46,7 @@ class RunScheduledFilter extends Command
         if ( $this->argument( 'runDate' ) ) {
             try {
                 $date = Carbon::parse( $this->argument( 'runDate' ) )->toDateString();
-            } catch  ( \Excpetion $e ) {
+            } catch  ( \Exception $e ) {
                 \Log::error( $e );
 
                 throw $e;
