@@ -10,7 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Facades\JobTracking;
 use League\Csv\Writer;
 use App\Models\JobEntry;
-use File;
+use Storage;
 use DB;
 
 class SendSuppressionsToMT1 extends Job implements ShouldQueue
