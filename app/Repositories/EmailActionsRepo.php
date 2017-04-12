@@ -268,6 +268,8 @@ class EmailActionsRepo {
 
                 $inserts
 
+                ON DUPLICATE KEY UPDATE
+
                 email_id = email_id,
                 deploy_id = deploy_id,
                 esp_account_id = esp_account_id,

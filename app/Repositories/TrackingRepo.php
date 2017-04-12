@@ -178,7 +178,7 @@ class TrackingRepo
     public function getCakeDataForListProfiles() {
         $daysBack = 5;
 
-        return $this->model
+        return $this->report
             ->select( "email_id" , "deploy_id", 
                 DB::raw('DATE(datetime) as date'), 
                 DB::raw('COUNT(IF(action_id = 2, 1, 0)) as clicks'), 

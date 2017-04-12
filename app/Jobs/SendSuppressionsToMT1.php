@@ -10,7 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Facades\JobTracking;
 use League\Csv\Writer;
 use App\Models\JobEntry;
-use File;
+use Storage;
 use DB;
 
 class SendSuppressionsToMT1 extends Job implements ShouldQueue
@@ -46,7 +46,7 @@ class SendSuppressionsToMT1 extends Job implements ShouldQueue
             $writer = Writer::createFromFileObject(new \SplTempFileObject());
             $arrayRecords = $records->toArray();
             $writer->insertAll($arrayRecords);
-            File::put($filePath, $writer->__toString());
+            Storage::disk('MT1SuppressionDropOff')->put($filePath, $writer->__toString());
             $this->count++;
         });
         
