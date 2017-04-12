@@ -13,6 +13,7 @@ use App\Models\JobEntry;
 use Storage;
 use DB;
 use Mail;
+use Carbon\Carbon;
 
 class SendSuppressionsToMT1 extends Job implements ShouldQueue
 {
@@ -44,7 +45,8 @@ class SendSuppressionsToMT1 extends Job implements ShouldQueue
     public function handle(SuppressionService $service) {
         JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
 
-        $mailAssoc = $service->createDailyMailAssoc($this->date);
+        $yesterday = Carbon::yesterday()->toDateString();
+        $mailAssoc = $service->createDailyMailAssoc($yesterday);
 
         $query = $service->getAllSuppressionsSinceDate($this->date);
         $query->chunk(10000, function($records)  {
@@ -58,7 +60,7 @@ class SendSuppressionsToMT1 extends Job implements ShouldQueue
 
         Mail::send('emails.SuppressionReport', $mailAssoc, function ($message) use ($mailAssoc) {
             $message->to('gtddev@zetaglobal.com');
-            $message->subject('ESP Suppressions uploaded to MT1 for ' . $this->date);
+            $message->subject('ESP Suppressions uploaded to MT1 for ' . $yesterday);
         });
         
         JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
