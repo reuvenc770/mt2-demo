@@ -46,7 +46,7 @@ class SendSuppressionsToMT1 extends Job implements ShouldQueue
             $writer = Writer::createFromFileObject(new \SplTempFileObject());
             $arrayRecords = $records->toArray();
             $writer->insertAll($arrayRecords);
-            File::put($filePath, $writer->__toString());
+            Storage::disk('MT1SuppressionDropOff')->put($filePath, $writer->__toString());
             $this->count++;
         });
         
