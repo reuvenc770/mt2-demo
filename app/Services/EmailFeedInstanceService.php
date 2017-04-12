@@ -17,16 +17,8 @@ class EmailFeedInstanceService {
         $this->countRepo = $countRepo;
     }
 
-    public function getMt1UniqueCountForFeedAndDate ( $feedId , $date ) {
-        return $this->repo->getMt1UniqueCountForFeedAndDate( $feedId , $date );
-    }
-
-    public function getMt2UniqueCountForFeedAndDate ( $feedId , $date ) {
-        return $this->repo->getMt2UniqueCountForFeedAndDate( $feedId , $date );
-    }
-
     public function getRecordCountForSource ( $search ) {
-        return $this->repo->getRecordCountForSource( $search );
+        return $this->countRepo->getRecordCountForSource( $search );
     } 
 
     public function updateSourceUrlCounts ( $startDate , $endDate ) {
