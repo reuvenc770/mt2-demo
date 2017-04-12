@@ -148,4 +148,35 @@ class SuppressionService implements IFeedSuppression
     public function returnSuppressedEmails(array $emails) {
         return $this->repo->returnSuppressedEmails($emails);
     }
+
+    public function createDailyMailAssoc($date) {
+        /*
+            array looks like:
+            $arr[$esps][$espAccountName]['hardbounces' => #, 'unsubs' => #]
+                $espAccountName can also be ['totalHardBounces'] => #, ['totalUnsubs'] => #, 
+            where totalHardBounces and totalUnsubs are for the esp
+        */
+
+        $output = ['esps' => []];
+        $perEspAccountData = $this->repo->getSuppressionTotalsByEspAccount($date);
+
+        foreach($perEspAccountData as $row) {
+            $espName = $row->esp_name;
+            $espAccountName = $row->account_name;
+
+            if (!isset($output['esps'][$espName])) {
+                $espTotals = $this->repo->getSuppressionTotalsByEsp($espName, $date);
+
+                $output['esps'][$espName] = [
+                    $espAccountName => ['hardbounces' => $row->hardbounces, 'unsubs' => $row->unsubs], 
+                    'totalHardbounces' => $espTotals->hardbounces,
+                    'totalUnsubs' => $espTotals->unsubs];
+            }
+            else {
+                $output[$espName][$espAccountName] = ['hardbounces' => $row->hardbounces, 'unsubs' => $row->unsubs];
+            }
+        }
+
+        return $output;
+    }
 }

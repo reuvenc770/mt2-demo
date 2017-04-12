@@ -145,4 +145,24 @@ class SuppressionRepo
     public function returnSuppressedEmails(array $emails) {
         return $this->suppressionModel->whereIn('email_address', $emails)->select('email_address')->get();
     }
+
+    public function getSuppressionTotalsByEspAccount($date) {
+        return $this->suppressionModel
+                    ->join('esp_accounts as eac', 'suppressions.esp_account_id', '=', 'eac.id')
+                    ->join('esps as e', 'eac.esp_id', '=', 'e.id')
+                    ->where('suppressions.created_at', '>=', $date)
+                    ->selectRaw('e.name as esp_name, eac.account_name, SUM(IF(type_id = 1, 1, 0)) as unsubs, SUM(IF(type_id = 2, 1, 0)) as hardbounces')
+                    ->groupBy('e.name', 'eac.account_name')
+                    ->get();
+    }
+
+    public function getSuppressionTotalsByEsp($espName, $date) {
+        return $this->suppressionModel
+            ->join('esp_accounts as eac', 'suppressions.esp_account_id', '=', 'eac.id')
+            ->join('esps as e', 'eac.esp_id', '=', 'e.id')
+            ->where('suppressions.date', '>=', $date)
+            ->where('e.name', '=', $espName)
+            ->selectRaw('SUM(IF(type_id = 1, 1, 0)) as unsubs, SUM(IF(type_id = 2, 1, 0)) as hardbounces')
+            ->first();
+    }
 }
