@@ -330,6 +330,6 @@ class Kernel extends ConsoleKernel
         $schedule->command("dataValidation emails exists")->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command("dataValidation emailFeedInstances exists")->dailyAt(self::MT1_SYNC_TIME);
         $schedule->command("dataValidation emailFeedAssignments value")->dailyAt(self::MT1_SYNC_TIME);
-        $schedule->command("newActions:process --hoursBack=1")->cron("30 * * * * *"); // Job name like: ProcessNewActions%
+        $schedule->command("newActions:process --hoursBack=2")->cron("30 * * * * *"); // Job name like: ProcessNewActions%
     }
 }
