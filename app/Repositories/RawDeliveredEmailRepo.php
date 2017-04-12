@@ -22,7 +22,7 @@ class RawDeliveredEmailRepo {
     }
 
     public function pullModelSince($lookBack){
-        $date = Carbon::today()->subDay($lookback)->startOfDay();
+        $date = Carbon::today()->subDay($lookBack)->startOfDay();
         return $this->model->where("created_at", ">=", $date);
     }
 

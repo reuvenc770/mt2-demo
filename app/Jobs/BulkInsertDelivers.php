@@ -50,7 +50,7 @@ class BulkInsertDelivers extends Job implements ShouldQueue
                 $grabbedRecords->chunk(10000, function($records) use ($actionsRepo) {
                     $recordsToInsert = [];
                     foreach($records as $row) {
-                        $recordsToInsert[] = '(' . $row->email_id .','. $row->deploy_id .','. $row->esp_account_id .','. $row->esp_internal_id .',4,'. $row->datetime .', now())';
+                        $recordsToInsert[] = '(' . $row->email_id .','. $row->deploy_id .','. $row->esp_account_id .','. $row->esp_internal_id .',4,"'. $row->datetime .'", now())';
                     }
 
                     $actionsRepo->upsertDelivered($recordsToInsert);
