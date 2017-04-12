@@ -27,6 +27,9 @@ use Cache;
 class ListProfileController extends Controller
 {
     use DispatchesJobs;
+
+    const CACHE_FORM_TAG = 'listprofile-form-prepop';
+
     protected $listProfile;
     protected $states;
     protected $ispService;
@@ -130,7 +133,7 @@ class ListProfileController extends Controller
     {
         return response()->view(
             'pages.listprofile.list-profile-edit' ,
-            $this->getFormFieldOptions( [ 'id' => $id , 'prepop' => $this->listProfile->getFullProfileJson( $id ) ] )
+            $this->getFormFieldOptions( $id )
         );
     }
 
@@ -158,6 +161,8 @@ class ListProfileController extends Controller
             $this->dispatch(new ListProfileBaseExportJob($id, str_random(16)));
         }
 
+        Cache::tags( self::CACHE_FORM_TAG )->forget( self::CACHE_FORM_TAG . '-' . $id );
+
         Flash::success("List Profile was Successfully Updated");
 
         return response()->json( [ 'status' => true ] );
@@ -184,9 +189,17 @@ class ListProfileController extends Controller
         );
     }
 
-    protected function getFormFieldOptions ( $addOptions = [] ) {
+    protected function getFormFieldOptions ( $id = 0 , $addOptions = [] ) {
+        if ( $id > 0 && Cache::tags( self::CACHE_FORM_TAG )->has( self::CACHE_FORM_TAG . '-' . $id ) ) {
+            return Cache::tags( self::CACHE_FORM_TAG )->get( self::CACHE_FORM_TAG . '-' . $id );
+        }
 
-        return array_merge( [
+        if ( $id > 0 ) {
+            $addOptions[ 'id' ] = $id;
+            $addOptions[ 'prepop' ] = $this->listProfile->getFullProfileJson( $id );
+        }
+
+        $formFields = array_merge( [
             'feeds' => $this->feedService->getAllFeedsArray() ,
             'feedGroups' => $this->feedGroupService->getAllFeedGroupsArray(),
             'clients' => $this->clientService->getAllClientsArray() ,
@@ -198,6 +211,12 @@ class ListProfileController extends Controller
             'isps' => $this->ispService->getAllActive() ,
             'categories' => CakeVertical::orderBy('name')->get() ,
         ] , $addOptions );
+
+        if ( $id > 0 ) {
+            Cache::tags( self::CACHE_FORM_TAG )->forever( self::CACHE_FORM_TAG . '-' . $id , $formFields );
+        }
+
+        return $formFields;
     }
 
 
