@@ -58,7 +58,7 @@ class SendSuppressionsToMT1 extends Job implements ShouldQueue
             $this->count++;
         });
 
-        Mail::send('emails.SuppressionReport', $mailAssoc, function ($message) use ($mailAssoc) {
+        Mail::send('emails.SuppressionReport', $mailAssoc, function ($message) use ($mailAssoc, $yesterday) {
             $message->to('gtddev@zetaglobal.com');
             $message->subject('ESP Suppressions uploaded to MT1 for ' . $yesterday);
         });
