@@ -6,12 +6,15 @@
 namespace App\Services;
 
 use App\Repositories\EmailFeedInstanceRepo;
+use App\Repositories\SourceUrlCountRepo;
 
 class EmailFeedInstanceService {
     protected $repo;
+    private $countRepo;
 
-    public function __construct ( EmailFeedInstanceRepo $repo ) {
+    public function __construct ( EmailFeedInstanceRepo $repo, SourceUrlCountRepo $countRepo ) {
         $this->repo = $repo;
+        $this->countRepo = $countRepo;
     }
 
     public function getMt1UniqueCountForFeedAndDate ( $feedId , $date ) {
@@ -28,7 +31,7 @@ class EmailFeedInstanceService {
 
     public function updateSourceUrlCounts ( $startDate , $endDate ) {
         try {
-            $this->repo->clearCountForDateRange( $startDate , $endDate );
+            $this->countRepo->clearCountForDateRange( $startDate , $endDate );
 
             $records = $this->repo->getInstancesForDateRange( $startDate , $endDate );
 
@@ -50,7 +53,7 @@ class EmailFeedInstanceService {
                 $countList[$index]['count']++;
             }
 
-            $this->repo->saveSourceCounts($countList);
+            $this->countRepo->saveSourceCounts($countList);
         } catch (\Exception $e){
             throw $e;//lets get it up to the job so it can be properly tracked
         }
