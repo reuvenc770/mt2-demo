@@ -31,12 +31,12 @@ class EmailFeedInstanceService {
 
             $countList = [];
             foreach ($records->cursor() as $currentRecord) {
-                $index = "{$currentRecord[ 'feed_id' ]}_{$currentRecord[ 'source_url' ]}_{$currentRecord[ 'capture_date' ]}";
+                $index = "{$currentRecord[ 'feed_id' ]}_{$currentRecord[ 'source_url' ]}_{$currentRecord[ 'subscribe_date' ]}";
                 if (!array_key_exists($index, $countList)) {
                     $countList[$index] = [
                         'feed_id' => $currentRecord['feed_id'],
                         'source_url' => $currentRecord['source_url'],
-                        'capture_date' => $currentRecord['capture_date'],
+                        'subscribe_date' => $currentRecord['subscribe_date'],
                         'count' => 0
                     ];
                 }
