@@ -241,7 +241,7 @@ class PublicatorsReportService extends AbstractReportService implements IDataSer
                 */
 
                 $trimmedTimestamp = date('Y-m-d H:i', strtotime($record->TimeStamp));
-                $key = md5($record->Email . $recordType . $trimmedTimestamp);
+                $key = 'Pub' . md5($record->Email . $recordType . $trimmedTimestamp);
 
                 // If the tag already exists, get the (already-incremented) second, and increment again
                 if (Cache::tags([$recordType, $deployId])->has($key)) {
