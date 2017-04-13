@@ -12,6 +12,8 @@ use League\Csv\Writer;
 use App\Models\JobEntry;
 use Storage;
 use DB;
+use Mail;
+use Carbon\Carbon;
 
 class SendSuppressionsToMT1 extends Job implements ShouldQueue
 {
@@ -20,6 +22,8 @@ class SendSuppressionsToMT1 extends Job implements ShouldQueue
     protected $date;
     protected $count;
     CONST JOB_NAME = "FTPSuppressionsToMT1";
+    private $target = 'gtddev@zetaglobal.com';
+
     /**
      * Create a new job instance.
      *
@@ -39,7 +43,11 @@ class SendSuppressionsToMT1 extends Job implements ShouldQueue
      * @return void
      */
     public function handle(SuppressionService $service) {
-        JobTracking::changeJobState(JobEntry::RUNNING,$this->tracking);
+        JobTracking::changeJobState(JobEntry::RUNNING, $this->tracking);
+
+        $yesterday = Carbon::yesterday()->toDateString();
+        $mailAssoc = $service->createDailyMailAssoc($yesterday);
+
         $query = $service->getAllSuppressionsSinceDate($this->date);
         $query->chunk(10000, function($records)  {
             $filePath = "/MT2/{$this->date}-{$this->tracking}{$this->count}.csv";
@@ -49,12 +57,17 @@ class SendSuppressionsToMT1 extends Job implements ShouldQueue
             Storage::disk('MT1SuppressionDropOff')->put($filePath, $writer->__toString());
             $this->count++;
         });
+
+        Mail::send('emails.SuppressionReport', $mailAssoc, function ($message) use ($mailAssoc, $yesterday) {
+            $message->to('gtddev@zetaglobal.com');
+            $message->subject('ESP Suppressions uploaded to MT1 for ' . $yesterday);
+        });
         
-        JobTracking::changeJobState(JobEntry::SUCCESS,$this->tracking);
+        JobTracking::changeJobState(JobEntry::SUCCESS, $this->tracking);
     }
 
     public function failed()
     {
-        JobTracking::changeJobState(JobEntry::FAILED,$this->tracking);
+        JobTracking::changeJobState(JobEntry::FAILED, $this->tracking);
     }
 }
