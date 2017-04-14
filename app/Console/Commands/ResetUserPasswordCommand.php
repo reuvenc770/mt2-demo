@@ -12,8 +12,6 @@ class ResetUserPasswordCommand extends Command
     private $service;
     private $user;
     private $newPassword;
-    private $reminderCode;
-    private $activationCode;
     private $hasErrors = false;
 
     /**
