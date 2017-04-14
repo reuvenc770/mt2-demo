@@ -103,6 +103,7 @@ class Kernel extends ConsoleKernel
         Commands\TestFeedFileGenerator::class,
         Commands\BulkInsertDelivers::class,
         Commands\SyncModelsWithNewFeedsCommand::class,
+        Commands\ResetUserPasswordCommand::class,
     ];
 
     /**
