@@ -22,32 +22,14 @@ class EmailFeedInstanceService {
     } 
 
     public function updateSourceUrlCounts ( $startDate , $endDate ) {
+        $totalCount = 0;
+
         try {
-            $this->countRepo->clearCountForDateRange( $startDate , $endDate );
-
-            $records = $this->repo->getInstancesForDateRange( $startDate , $endDate );
-
-            $totalCount = 0;
-
-            $countList = [];
-            foreach ($records->cursor() as $currentRecord) {
-                $index = "{$currentRecord[ 'feed_id' ]}_{$currentRecord[ 'source_url' ]}_{$currentRecord[ 'subscribe_date' ]}";
-                if (!array_key_exists($index, $countList)) {
-                    $countList[$index] = [
-                        'feed_id' => $currentRecord['feed_id'],
-                        'source_url' => $currentRecord['source_url'],
-                        'subscribe_date' => $currentRecord['subscribe_date'],
-                        'count' => 0
-                    ];
-                }
-
-                $totalCount++;
-                $countList[$index]['count']++;
-            }
-
-            $this->countRepo->saveSourceCounts($countList);
+            $records = $this->repo->getSourceUrlCountsForDates($startDate, $endDate);
+            $totalCount = count($records);
+            $this->countRepo->saveSourceCounts($records);
         } catch (\Exception $e){
-            throw $e;//lets get it up to the job so it can be properly tracked
+            throw $e; //let's get it up to the job so it can be properly tracked
         }
 
         return $totalCount;
