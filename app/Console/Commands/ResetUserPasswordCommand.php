@@ -7,7 +7,8 @@ use App\Services\UserService;
 
 class ResetUserPasswordCommand extends Command
 {
-    const ERROR_MESSAGE = 'Missing Password';
+    const PASSWORD_ERROR_MESSAGE = 'Missing Password';
+    const USER_ERROR_MESSAGE = 'User does not exist.';
 
     private $service;
     private $user;
@@ -62,7 +63,7 @@ class ResetUserPasswordCommand extends Command
 
     private function processOptions () {
         if ( is_null( $this->option( 'password' ) ) ) {
-            $this->error( self::ERROR_MESSAGE );
+            $this->error( self::PASSWORD_ERROR_MESSAGE );
 
             $this->hasErrors = true;
 
@@ -80,7 +81,7 @@ class ResetUserPasswordCommand extends Command
         }
 
         if ( is_null( $this->user ) ) {
-            $this->error( 'User does not exist.' );
+            $this->error( self::USER_ERROR_MESSAGE );
 
             $this->hasErrors = true;
         }
