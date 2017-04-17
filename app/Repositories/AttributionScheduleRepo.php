@@ -85,4 +85,36 @@ class AttributionScheduleRepo {
         created_at = created_at,
         updated_at = NOW()";
     }
+
+    public function getExpiringRecordsBetweenIds($date, $startEmailId, $endEmailId) {
+        $startEmailId = (int)$startEmailId;
+        $endEmailId = (int)$endEmailId;
+
+        if ($startEmailId > 0 && $endEmailId > 0 && $startEmailId <= $endEmailId) {
+            return $this->model
+                        ->select('email_id')
+                        ->where('trigger_date', $date)
+                        ->whereRaw("email_id BETWEEN $startEmailId AND $endEmailId")
+                        ->pluck("email_id")->all();
+        }
+        else {
+            return null;
+        }
+    }
+
+    public function nextNRows($startEmailId, $offset) {
+        return $this->model
+            ->where('email_id', '>=', $start)
+            ->orderBy('email_id')
+            ->skip($offset)
+            ->first()['id'];
+    }
+
+    public function getMinEmailIdForDate($date) {
+        return $this->model->where('trigger_date', $date)->min('email_id');
+    }
+
+    public function getMaxEmailIdForDate($date) {
+        return $this->model->where('trigger_date', $date)->max('email_id');
+    }
 }

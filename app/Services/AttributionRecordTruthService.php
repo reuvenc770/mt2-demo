@@ -49,6 +49,7 @@ class AttributionRecordTruthService
             Log::error("Could not set record $column to value '$value' because {$e->getMessage()} {$e->getLine()}");
         }
     }
+    
     public function bulkToggleFieldRecord($emails, $column, $value)
     {
         try {

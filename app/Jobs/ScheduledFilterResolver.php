@@ -41,18 +41,30 @@ class ScheduledFilterResolver extends Job implements ShouldQueue
     {
         JobTracking::changeJobState( JobEntry::RUNNING , $this->tracking);
         $scheduledFilterService = ServiceFactory::createFilterService($this->filterName);
-        $records = $scheduledFilterService->getRecordsByDate($this->date);
-        $total = 0;
+        
         $columns = $scheduledFilterService->returnFieldsForExpiration();
 
-        $records->chunk(10000, function($results) use (&$total, $columns, $truthService) {
-            $total += count($results);
-            $emailIds = $results->pluck("email_id")->all();
+        $key = array_keys($scheduledFilterService->getSetFields())[0];
+        $value = $columns[$key];
 
-            foreach($columns as $key => $value){
-                $truthService->bulkToggleFieldRecord($emailIds,$key,$value);
+        $startPoint = $scheduledFilterService->getMinEmailIdForDate($this->date);
+        $endPoint = $scheduledFilterService->getMaxEmailIdForDate($this->date);
+        $total = 0;
+
+        while ($startPoint < $endPoint) {
+            $limit = 10000;
+            $segmentEnd = $scheduledFilterService->nextNRows($startPoint, $limit);
+            $segmentEnd = $segmentEnd ? $segmentEnd : $endPoint;
+
+            $emails = $scheduledFilterService->getExpiringRecordsBetweenIds($this->date, $startPoint, $segmentEnd);
+
+            if ($emails) {
+                $total = $total + count($emails);
+                $truthService->bulkToggleFieldRecord($emails, $key, $value);
             }
-        });
+            
+            $startPoint = $segmentEnd;
+        }
 
         JobTracking::changeJobState( JobEntry::SUCCESS , $this->tracking, $total);
     }
