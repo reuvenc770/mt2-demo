@@ -15,7 +15,6 @@ use App\Services\MT1ApiService;
 
 class ShowInfoController extends Controller
 {
-    const SHOW_INFO_ENDPOINT = 'show_info_2';
     const BULK_SUPPRESSION_API_ENDPOINT = 'bulk_suppressions';
     protected $emailService;
     protected $api;

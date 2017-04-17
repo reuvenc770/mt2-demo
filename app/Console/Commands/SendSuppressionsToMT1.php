@@ -45,6 +45,4 @@ class SendSuppressionsToMT1 extends Command
         $job = (new SendSuppressionJob($date, str_random(16)));
         $this->dispatch($job);
     }
-
-
 }
