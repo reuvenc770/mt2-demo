@@ -104,10 +104,10 @@ class AttributionScheduleRepo {
 
     public function nextNRows($startEmailId, $offset) {
         return $this->model
-            ->where('email_id', '>=', $start)
+            ->where('email_id', '>=', $startEmailId)
             ->orderBy('email_id')
             ->skip($offset)
-            ->first()['id'];
+            ->first()['email_id'];
     }
 
     public function getMinEmailIdForDate($date) {
