@@ -43,8 +43,7 @@ class ScheduledFilterResolver extends Job implements ShouldQueue
         $scheduledFilterService = ServiceFactory::createFilterService($this->filterName);
         
         $columns = $scheduledFilterService->returnFieldsForExpiration();
-
-        $key = array_keys($scheduledFilterService->getSetFields())[0];
+        $key = $scheduledFilterService->getSetFields()[0];
         $value = $columns[$key];
 
         $startPoint = $scheduledFilterService->getMinEmailIdForDate($this->date);
