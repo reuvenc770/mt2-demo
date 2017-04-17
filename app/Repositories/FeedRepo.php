@@ -7,11 +7,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\Builder;
 use App\Repositories\RepoInterfaces\Mt2Export;
 use App\Repositories\RepoInterfaces\IAwsRepo;
+
 /**
  *
  */
 class FeedRepo implements Mt2Export, IAwsRepo {
-
     private $feed;
 
     public function __construct(Feed $feed) {
@@ -256,5 +256,29 @@ class FeedRepo implements Mt2Export, IAwsRepo {
 
     public function getFeedCountry ( $feedId ) {
         return $this->feed->where( 'id' , $feedId )->pluck( 'country_id'  )->first();
+    }
+
+    public function getCountryFeedMap () {
+        $map = [];
+        $feeds = $this->getFeeds();
+
+        foreach ($feeds as $feed) {
+
+            $map[$feed->country_id][] = $feed->id;
+        }
+
+        return $map;
+    }
+
+    public function getPartyFeedMap () {
+        $map = [];
+        $feeds = $this->getFeeds();
+
+        foreach ($feeds as $feed) {
+
+            $map[$feed->party][] = $feed->id;
+        }
+
+        return $map;
     }
 }

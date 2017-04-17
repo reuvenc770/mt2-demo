@@ -270,28 +270,11 @@ class FeedService implements IFtpAdmin
     }
 
     public function getCountryFeedMap(){
-        $map = [];
-        $feeds = $this->feedRepo->getFeeds();
-
-        foreach ($feeds as $feed) {
-
-            $map[$feed->country_id][] = $feed->id;
-        }
-
-        return $map;
+        return $this->feedRepo->getCountryFeedMap();
     }
 
     public function getPartyFeedMap(){
-
-        $map = [];
-        $feeds = $this->feedRepo->getFeeds();
-
-        foreach ($feeds as $feed) {
-
-            $map[$feed->party][] = $feed->id;
-        }
-
-        return $map;
+        return $this->feedRepo->getPartyFeedMap();
     }
 
     public function getPaginatedJson($page, $count, $params = null)
